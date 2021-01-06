@@ -1,5 +1,11 @@
 function wout = cut_sqw(source, varargin)
-%%CUT_SQW
+%%CUT_SQW Take a cut from an SQW object or file.
+%
+% Input:
+% ------
+% source     An `sqw` object or .sqw file to take a cut from.
+%
+% For more info on arguments see help for sqw/cut.
 %
 
 % In cut_sqw we enforce that input must be SQW file or sqw object
