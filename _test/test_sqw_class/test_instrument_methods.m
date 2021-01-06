@@ -35,69 +35,68 @@ classdef test_instrument_methods < TestCaseWithSave
         end
 
         %--------------------------------------------------------------------------
-        function test_1 (self)
+        function test_set_instrument_updates_all_headers_to_single_value(self)
             % Set all spe file to the same instrument
-            wnew_fe = set_instrument(self.w_fe,self.inst_1);
+            wnew_fe = set_instrument(self.w_fe, self.inst_1);
             assertEqual(wnew_fe.header{3}.instrument, self.inst_1);
         end
 
         %--------------------------------------------------------------------------
-        function test_2 (self)
+        function test_set_instrument_updates_headers_with_array_values(self)
             % Set instruments individually
-            inst_arr = repmat(self.inst_1,186,1);
+            inst_arr = repmat(self.inst_1, 186, 1);
             inst_arr(100) = self.inst_2;
 
-            wnew_fe = set_instrument(self.w_fe,inst_arr);
+            wnew_fe = set_instrument(self.w_fe, inst_arr);
             assertEqual(wnew_fe.header{99}.instrument, self.inst_1);
             assertEqual(wnew_fe.header{100}.instrument, self.inst_2);
             assertEqual(wnew_fe.header{101}.instrument, self.inst_1);
         end
 
         %--------------------------------------------------------------------------
-        function test_3 (self)
+        function test_set_efix_updates_data_to_single_value(self)
             % Set efix
             efix_new = 777;
-            wnew_fe = set_efix(self.w_fe,efix_new);
+            wnew_fe = set_efix(self.w_fe, efix_new);
 
             efix = wnew_fe.header{45}.efix;
-            assertEqual(efix,efix_new)
+            assertEqual(efix, efix_new)
         end
 
         %--------------------------------------------------------------------------
-        function test_4 (self)
+        function test_set_efix_updates_all_data_with_array_values(self)
             % Set efix individually, and test enquiry routine
-            efix_new = 777*ones(1,186);
+            efix_new = 777 * ones(1, 186);
             efix_new(100) = 777 + 186;  % so the average is 778
 
-            wnew_fe = set_efix(self.w_fe,efix_new);
+            wnew_fe = set_efix(self.w_fe, efix_new);
 
             efix = get_efix(wnew_fe);
-            assertEqual(efix,778)
-
+            assertEqual(efix, 778)
         end
 
         %--------------------------------------------------------------------------
-        function test_5 (self)
+        function test_set_mod_pulse_udates_data_to_single_value(self)
             % Set all mod pars to the same
-            wnew_fe = set_instrument(self.w_fe,self.inst_1);
+            wnew_fe = set_instrument(self.w_fe, self.inst_1);
 
-            pp = [100,200,0.7];
+            pp = [100, 200, 0.7];
             wnew_fe = set_mod_pulse(wnew_fe, 'ikcarp', pp);
 
-            [~,pp] = get_mod_pulse(wnew_fe);
+            [~, pp] = get_mod_pulse(wnew_fe);
 
             mod3 = wnew_fe.header{3}.instrument.moderator;
             assertEqualToTol(mod3.pp, pp, 'reltol', 1e-13);
         end
 
         %--------------------------------------------------------------------------
-        function test_6 (self)
+        function test_set_mod_pulse_udates_all_data_array_values (self)
             % Set mod pars individually and test enquiry
             wnew_fe = set_instrument(self.w_fe,self.inst_1);
 
-            pp = [100,200,0.7];
-            pp = repmat(pp,186,1);
-            pp(100,:) = [100,386,0.7];  % so pp(2) average is 201
+            pp = [100, 200, 0.7];
+            pp = repmat(pp, 186, 1);
+            pp(100, :) = [100, 386, 0.7];  % so pp(2) average is 201
             wnew_fe = set_mod_pulse(wnew_fe, 'ikcarp', pp);
 
             mod3 = wnew_fe.header{3}.instrument.moderator;
