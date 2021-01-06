@@ -2,16 +2,16 @@ function wout = cut(obj, varargin)
 %%CUT Take a cut from an sqw object by integrating over one or more axes.
 %
 % Cut using existing projection axes:
-%   >> w = cut (data_source, p1_bin, p2_bin...)  %(as many binning arguments
-%                                                % as there are plot axes)
+%   >> wout = cut (data_source, p1_bin, p2_bin...)  % (as many binning arguments
+%                                                   %  as there are plot axes)
 %
 % Cut with new projection axes:
-%   >> w = cut (data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin)
+%   >> wout = cut (data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin)
 %
-%   >> w = cut (..., '-nopix')      % output cut is dnd structure (i.e. no
-%                                   % pixel information is retained)
+%   >> wout = cut (..., '-nopix')      % output cut is dnd structure (i.e. no
+%                                      % pixel information is retained)
 %
-%   >> w = cut (...,  filename)     % save cut to named file
+%   >> wout = cut (...,  filename)     % save cut to named file
 %
 % Write directly to file without creating an output object (useful if the
 % output is a large dataset in order to avoid out-of-memory errors)
@@ -105,7 +105,7 @@ function wout = cut(obj, varargin)
 %
 % Output:
 % -------
-%   w               Output data object:
+%   wout            Output data object:
 %                     - sqw-type object with full pixel information
 %                     - dnd-type object if option '-nopix' given
 %
