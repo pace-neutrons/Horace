@@ -131,9 +131,7 @@ return_cut = nargout > 0;
 [proj, pbin, opt] = validate_args(obj, return_cut, ndims_source, varargin{:});
 
 % Process projection
-[proj, pbin, ~, ~, en] = update_projection_bins( ...
-    proj, obj.header, obj.data, pbin ...
-);
+[proj, pbin, pin, en] = update_projection_bins(obj, proj, pbin);
 
 sz = cellfun(@(x) max(size(x, 1), 1), pbin);
 if return_cut
@@ -143,7 +141,7 @@ end
 % This loop enables multicuts
 for cut_num = 1:prod(sz)
     pbin_tmp = get_pbin_for_cut(sz, cut_num, pbin);
-    args = {obj, proj, pbin_tmp, en, opt.keep_pix, opt.outfile};
+    args = {obj, proj, pbin_tmp, pin, en, opt.keep_pix, opt.outfile};
     if return_cut
         wout(cut_num) = cut_single(args{:});
     else
@@ -171,11 +169,10 @@ function [proj, pbin, opt] = validate_args(obj, return_cut, ndims_source, vararg
 end
 
 
-function [proj, pbin, num_dims, pin, en] = update_projection_bins( ...
-        proj, sqw_header, data, pbin)
+function [proj, pbin, pin, en] = update_projection_bins(w, proj, pbin)
     % Update projection bins using the sqw header
-    header_av = header_average(sqw_header);
-    [proj, pbin, num_dims, pin, en] = proj.update_pbins(header_av, data, pbin);
+    header_av = header_average(w.header);
+    [proj, pbin, ~, pin, en] = proj.update_pbins(header_av, w.data, pbin);
 end
 
 
