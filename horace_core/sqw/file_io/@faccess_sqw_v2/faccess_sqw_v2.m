@@ -57,7 +57,10 @@ classdef faccess_sqw_v2 < sqw_binfile_common
     %
     properties(Access = protected)
     end
-    methods(Access=protected)
+    methods(Access=protected,Hidden=true)
+        function obj = put_sqw_footer(obj)
+            % does nothing as v3 does not have sqw footer
+        end
     end
     
     methods

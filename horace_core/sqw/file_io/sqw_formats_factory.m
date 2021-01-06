@@ -39,11 +39,11 @@ classdef sqw_formats_factory < handle
             faccess_sqw_v3_2(),...
             faccess_sqw_v2(),faccess_dnd_v2(),faccess_sqw_prototype()};
         %
-        % Old class interface:
-        % classes to load/save
+        % Rules to load/save different classes:
         % sqw2 corresponds to sqw file in indirect mode with varying efixed
         written_types_ = {'sqw','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};
-        % number of loader in the list of loaders to use with correspondent class
+        % number of loader in the list of loaders above to use for saving
+        % correspondent class
         access_to_type_ind_ = {1,3,5,5,5,5,5,5};
         types_map_ ;
     end
@@ -188,6 +188,23 @@ classdef sqw_formats_factory < handle
                 the_type = varargin{1};
             else
                 the_type = class(varargin{1});
+                if isa(varargin{1},'sqw')
+                    sobj = varargin{1};
+                    header =sobj.header;
+                    if iscell(header)
+                        header = header{1};
+                    elseif isempty(header)
+                        loader = obj.supported_accessors_{1};
+                        return;
+                    end
+                    emode = header.emode;
+                    if emode == 2
+                        nefix = numel(header.efix);
+                        if nefix>1
+                            the_type = 'sqw2';
+                        end
+                    end
+                end
             end
             if obj.types_map_.isKey(the_type)
                 ld_num = obj.types_map_(the_type);
@@ -216,13 +233,15 @@ classdef sqw_formats_factory < handle
             % class(obj1) == 'faccess_sqw_v2' and class(obj2) == 'faccess_sqw_v3'.
             %
             %NOTE:
-            % faccess_sqw_v3 is not compatible with faccess_sqw_v3_2 and faccess_sqw_v3_3 as
-            % contains different information about detectors.
+            % faccess_sqw_v3 is not compatible with faccess_sqw_v3_2 as
+            % contains different information about detectors incident energies.
             if isa(obj2,class(obj1))
                 is_compartible = true;
                 return
             end
-            if isa(obj1,'faccess_sqw_v2') && isa(obj2,'faccess_sqw_v3')
+            if isa(obj1,'faccess_sqw_v2') && isa(obj2,'faccess_sqw_v3_3') || ...
+                    isa(obj1,'faccess_sqw_v2') && isa(obj2,'faccess_sqw_v3') || ...
+                    isa(obj1,'faccess_sqw_v3') && isa(obj2,'faccess_sqw_v3_3')
                 is_compartible = true;
             else
                 is_compartible = false;

@@ -101,21 +101,16 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             flds = [head_flds(:);obj.data_fields_to_save_(:)];
         end
         %
-        function obj = put_footer(obj)
-            % store file footer i.e. the information, describing the
-            % positions of all main data blocks within the binary file
-            obj = put_sqw_footer_(obj);
-        end
         %
         function obj = init_v3_specific(obj)
             % Initialize position information specific for sqw v3.1 object.
             %
             % Used by this class init and faccess_sqw_v2&similar for
             % upgrading to v3.1
-            obj = init_sample_instr_records_(obj);
+            obj = init_sample_instr_records(obj);
             %
             obj.position_info_pos_= obj.instr_sample_end_pos_;
-            obj = init_sqw_footer_(obj);
+            obj = init_sqw_footer(obj);
         end
         %
         function [obj,missinig_fields] = copy_contents(obj,other_obj,keep_internals)
@@ -147,12 +142,11 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             end
         end
         
-        function obj = put_sqw_footer(obj)
-            % write service information, describing the positions of the 
-            % different data fields within the binary file
-            % 
-            % The file accessor has to be placed in the correct position
-            obj = put_sqw_footer_(obj);
+        function obj = init_sample_instr_records(obj)
+            obj = init_sample_instr_records_(obj);
+        end
+        function obj = init_sqw_footer(obj)
+            obj = init_sqw_footer_(obj);
         end
     end
     %
@@ -303,6 +297,13 @@ classdef faccess_sqw_v3 < sqw_binfile_common
                 struc.(flds{i}) = obj.(flds{i});
             end
         end
+        %
+        function obj = put_sqw_footer(obj)
+            % store file footer i.e. the information, describing the
+            % positions of all main data blocks within the binary file
+            obj = put_sqw_footer_(obj);
+        end
+        
         
     end
     %
