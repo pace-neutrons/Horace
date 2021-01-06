@@ -135,11 +135,7 @@ end
 urange_offset = repmat(proj.urange_offset, [2, 1]);
 urange_pix = urange_step_pix.*repmat(proj.usteps, [2, 1]) + urange_offset;
 
-s = s./npix;
-e = e./(npix.^2);
-no_pix = (npix == 0);  % true where no pixels contribute to given bin
-s(no_pix) = 0;
-e(no_pix) = 0;
+[s, e] = average_signal(s, e, npix);
 
 end  % function
 
@@ -159,4 +155,16 @@ function nbin_as_size = get_nbin_as_size(nbin)
     else
         nbin_as_size = nbin;
     end
+end
+
+
+function [s, e] = average_signal(s, e, npix)
+    % Convert summed signal & error into averages
+    s = s./npix;
+    e = e./(npix.^2);
+    no_pix = (npix == 0);  % true where no pixels contribute to given bin
+
+    % By convention, signal and error are zero if no pixels contribute to bin
+    s(no_pix) = 0;
+    e(no_pix) = 0;
 end
