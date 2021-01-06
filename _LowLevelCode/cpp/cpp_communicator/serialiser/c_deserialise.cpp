@@ -15,12 +15,12 @@
 #include "cpp_serialise.hpp"
 
 template<typename T, typename A>
-inline void deser(const uint8_t* data, size_t& memPtr, std::vector<T,A>& output, const double amount) {
+inline void deser(const uint8_t* data, size_t& memPtr, std::vector<T,A>& output, const size_t amount) {
   memcpy(output.data(), &data[memPtr], amount);
   memPtr += amount;
 }
 
-inline void deser(const uint8_t* data, size_t& memPtr, void* output, const double amount) {
+inline void deser(const uint8_t* data, size_t& memPtr, void* output, const size_t amount) {
   memcpy(output, &data[memPtr], amount);
   memPtr += amount;
 }

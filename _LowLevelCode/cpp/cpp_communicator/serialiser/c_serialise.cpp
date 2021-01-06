@@ -16,12 +16,12 @@
 #include "cpp_serialise.hpp"
 
 template<typename T>
-inline void ser(uint8_t* data, size_t& memPtr, const std::vector<T> data_in, const double amount) {
+inline void ser(uint8_t* data, size_t& memPtr, const std::vector<T> data_in, const size_t amount) {
   memcpy(&data[memPtr], data_in.data(), amount);
   memPtr += amount;
 }
 
-inline void ser(uint8_t* data, size_t& memPtr, const void* const data_in, const double amount) {
+inline void ser(uint8_t* data, size_t& memPtr, const void* const data_in, const size_t amount) {
   // Write bytes and move memory index
   memcpy(&data[memPtr], data_in, amount);
   memPtr += amount;
