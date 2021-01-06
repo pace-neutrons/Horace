@@ -175,17 +175,11 @@ methods
             obj.sqw_file, proj, u_axis_lims, v_axis_lims, w_axis_lims, ...
             en_axis_lims, outfile ...
         );
-        % Write a cleanup_tmp_file function in _test/common that checks the file exists first
-        % also check that the file is not open elsewhere and close it.
-        % Pretty sure I wrote this function somewhere already
-        cleanup = onCleanup(@() delete(outfile));
+        cleanup = onCleanup(@() cleanup_file(outfile));
 
         loaded_cut = sqw(outfile);
 
         assertEqualToTol(ret_sqw, loaded_cut, 1e-5, 'ignore_str', true);
-
-        % clear to ensure PixelData objects are not holding on to the temp file
-        clear loaded_cut ret_sqw
     end
 
     function test_you_can_take_a_cut_from_an_sqw_object_to_an_sqw_file(obj)
@@ -202,7 +196,7 @@ methods
 
         cut(sqw_obj, proj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims, ...
             outfile);
-        cleanup = onCleanup(@() delete(outfile));
+        cleanup = onCleanup(@() cleanup_file(outfile));
 
         loaded_sqw = sqw(outfile);
         ref_sqw = sqw('test_cut_ref_sqw.sqw');
