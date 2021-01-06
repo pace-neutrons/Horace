@@ -114,7 +114,11 @@ for iter = 1:max_num_iters
     end
 
     if keep_pix
-        % Retain only the pixels that did contribute to the cut
+        % TODO: If cutting from file to file with no return value, use
+        % PixelData.append to deal with temporary files, so we don't need to
+        % hold all pixels in memory.
+
+        % Retain only the pixels that contributed to the cut
         pix_retained{iter} = candidate_pix.get_pixels(ok);
         pix_ix_retained{iter} = ix;
     end
