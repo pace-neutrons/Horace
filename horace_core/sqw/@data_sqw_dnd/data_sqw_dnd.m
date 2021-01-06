@@ -240,7 +240,7 @@ classdef data_sqw_dnd
         end
     end
     methods(Static)
-        function img_range = calc_img_range(ds,varargin)
+        function img_range = calc_img_range(ds)
             % function used to retrieve 4D range of a horace image, used
             % for display purposes and as keys to pixels database
             %
@@ -268,36 +268,7 @@ classdef data_sqw_dnd
             %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
             %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
             %
-            
-            %             function minmax = check_minmax(min, max)
-            %                 if min>max
-            %                     tmp = max;
-            %                     max = min;
-            %                     min = tmp;
-            %                 end
-            %                 minmax = [min;max];
-            %             end
-            %             if nargin>1
-            %                 u_to_rlu0 = varargin{1};
-            %             else
-            %                 u_to_rlu0 = eye(4);
-            %             end
-            %             img_range = [];
-            %             if ds.pix.num_pixels >0 || all(all(ds.pix.pix_range ~= PixelData.EMPTY_RANGE_))
-            %                 pix_range = ds.pix.pix_range;
-            %                 img_range = bsxfun(@minus,pix_range,(u_to_rlu0\ds.uoffset)')*u_to_rlu0*(ds.u_to_rlu.*repmat(ds.ulen,[4,1]));
-            %             end
-            %             if ~isempty(img_range)
-            %                 mm = arrayfun(@check_minmax,img_range(1,:),img_range(2,:),...
-            %                     'UniformOutput',false);
-            %                 img_range = [mm{:}];
-            %                 return;
-            %             end
-            % all below is probably incorrect or correct for dnd objects
-            % only.
-            % but it reached only when empty constructor is called or dnd
-            % constructor where img_range is not used (old sqw objects)
-            % TODO: check and refactor for new SQW objects.
+             
             img_range = zeros(2,4);
             img_range(:,ds.iax) = ds.iint;
             
@@ -308,21 +279,49 @@ classdef data_sqw_dnd
                     ds.p{i}(end)];
             end
             img_range(:,ds.pax) = pax_range;
-            %             if isfield(ds,'pix_range') &&  all(all(ds.pix_range ~= PixelData.EMPTY_RANGE_))
-            %                 if nargin>1
-            %                     u_to_rlu0 = varargin{1};
-            %                 else
-            %                     u_to_rlu0 = eye(4);
-            %                 end
-            %
-            %                 img_range1 = bsxfun(@minus,ds.pix_range,(u_to_rlu0\ds.uoffset)')*u_to_rlu0*(ds.u_to_rlu);
-            %                 mm = arrayfun(@check_minmax,img_range1(1,:),img_range1(2,:),...
-            %                     'UniformOutput',false);
-            %                 img_range1 = [mm{:}];
-            %                 img_range = [min(img_range(1,:),img_range1(1,:));...
-            %                     max(img_range(2,:),img_range1(2,:))];
-            %             end
         end
+        function pix_range = eval_pix_range(ds,varargin)
+            % function used to retrieve 4D range of a horace image, used
+            % for display purposes and as keys to pixels database
+            %
+            % TODO: replace this function
+            % Transistonal function until img_range field is implemented
+            % and supported properly
+            %
+            % Inputs: either data_sqw_dnd instance or a structure
+            % containing:
+            % The relevant data structure used as source of image range is as follows:
+            %
+            %   ds.iax        Index of integration axes into the projection axes  [row vector]
+            %                  Always in increasing numerical order
+            %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
+            %   ds.iint       Integration range along each of the integration axes. [iint(2,length(iax))]
+            %                       e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
+            %   ds.pax        Index of plot axes into the projection axes  [row vector]
+            %                  Always in increasing numerical order
+            %                       e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
+            %                                       2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
+            %   ds.p          Cell array containing bin boundaries along the plot axes [column vectors]
+            %                       i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
+            %   ds.dax        Index into data.pax of the axes for display purposes. For example we may have
+            %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
+            %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
+            %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
+            %
+             
+            img_range = zeros(2,4);
+            img_range(:,ds.iax) = ds.iint;
+            
+            npax = numel(ds.p);
+            pax_range = zeros(2,npax);
+            for i=1:npax
+                pax_range(:,i) = [ds.p{i}(1);...
+                    ds.p{i}(end)];
+            end
+            img_range(:,ds.pax) = pax_range;
+        end
+        
+        
         %
         function obj = loadobj(input)
             if isa(input,'data_sqw_dnd')

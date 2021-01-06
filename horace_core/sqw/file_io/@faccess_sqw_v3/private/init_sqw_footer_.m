@@ -6,8 +6,6 @@ function obj=init_sqw_footer_(obj)
 %
 %
 %
-
-
 data_block = obj.get_pos_info();
 
 pos = obj.position_info_pos_;

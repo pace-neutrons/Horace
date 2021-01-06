@@ -112,16 +112,10 @@ end
 
 [data_str,obj] = obj.get_data@dnd_binfile_common(obj,argi{:});
 
-fseek(obj.file_id_,obj.pix_range_pos_,'bof');
-[mess,res] = ferror(obj.file_id_);
-if res ~= 0
-    error('SQW_BINILE_COMMON:io_error',...
-        'Can not move to the urange start position, Reason: %s',mess);
-end
-% old format. Pix range is stored in urange field
-data_str.pix_range = fread(obj.file_id_,[2,4],'float32');
-data_str.img_range = obj.get_img_range(data_str);
-
+%
+data_str.img_range = obj.get_img_range();
+%
+%
 % parse all arguments, including those that weren't passed to the parent method
 opts = parse_args(varargin{:});
 

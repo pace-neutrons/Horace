@@ -79,4 +79,3 @@ classdef const_blocks_map
     end
     
 end
-

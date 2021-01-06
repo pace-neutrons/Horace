@@ -102,8 +102,8 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         end
         %
         function obj = put_footer(obj)
-            % store file footer i.e. the information, describing the file
-            % format
+            % store file footer i.e. the information, describing the
+            % positions of all main data blocks within the binary file
             obj = put_sqw_footer_(obj);
         end
         %
@@ -145,6 +145,14 @@ classdef faccess_sqw_v3 < sqw_binfile_common
                     obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
                 end
             end
+        end
+        
+        function obj = put_sqw_footer(obj)
+            % write service information, describing the positions of the 
+            % different data fields within the binary file
+            % 
+            % The file accessor has to be placed in the correct position
+            obj = put_sqw_footer_(obj);
         end
     end
     %
@@ -307,7 +315,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             form = struct('obj_name',obj_name,...
                 'version',int32(1),'nfiles',int32(1),'all_same',uint8(1));
         end
-        function form = get_si_form(obj_name)
+        function form = get_si_form(~)
             % returns the format used to save/restore instrument or sample
             % information
             form = faccess_sqw_v3.v3_data_form_;

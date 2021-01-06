@@ -23,16 +23,10 @@ function  img_range = get_img_range_(obj,varargin)
 %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
 %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
 %                  be reordered [row vector]
-if ~obj.keeps_img_range
-    if nargin==1
-        ds = obj.get_data('-head');
-    else
-        ds = varargin{1};
-    end
-    img_range = data_sqw_dnd.calc_img_range(ds);
-else
-    % read image range (not implemented)
-    error('DND_BINFILE_COMMON:not_implemeted',...
-        'storing image range is not implemented on dnd_binfile_common')
-end
 
+if nargin==1
+    ds = obj.get_data('-head');
+else
+    ds = varargin{1};
+end
+img_range = data_sqw_dnd.calc_img_range(ds);
