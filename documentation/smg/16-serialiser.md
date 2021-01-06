@@ -13,7 +13,7 @@ It also greatly simplifies the tag structure and allows it to align with the C++
 Data in these cases is serialised in the linearised order as defined by `data(:)` and the array reshaped by the deserialiser.
 
 This standard format for the header is as follows:
-RANK | dims/tag   | dim1 | dim2 | ... | Data
+RANK |     tag    | dim1 | dim2 | ... | Data
 -----|------------|------|------|-----|------
 NULL | 32 + tag   | 0    |      |     |
 0    |    tag     |      |      |     | Data
@@ -28,7 +28,7 @@ Where `<<5` means bitshift left 5. (see [Tag Format][tag])
 
 The single exception to this header is that of `function_handles` which are purely scalar and the rank component of the tag is used to specify the type of function handle:
 
-Handle type         | dims/tag| value
+Handle type         |   tag   | value
 --------------------|---------|-------
 Simple/Class simple | 32 + 25 | 57
 Anonymous           | 64 + 25 | 89
@@ -50,7 +50,7 @@ The tag in the new format is an 1-byte tag where the top 3 bits give the rank of
 #### Simple data
 Simple data (tags 0-12) are serialised as:
 
-RANK | dims/tag   | dim1 | dim2 | ... | Data
+RANK |     tag    | dim1 | dim2 | ... | Data
 -----|------------|------|------|:---:|------
 NULL | 32 + tag   | 0 
 0    |    tag     |      |      |     | Data
@@ -61,7 +61,7 @@ N    | N<<5 + tag | dim1 | dim2 | ... | Data
 #### Complex Data
 Complex numerical data (tags 13-22) are serialised as:
 
-RANK |  dims/tag  | dim1 | dim2 | ... |    Data   |   ...
+RANK |     tag    | dim1 | dim2 | ... |    Data   |   ...
 -----|------------|------|------|:---:|-----------|----------
 NULL | 32 + tag   | 0    |      |     |           |
 0    |    tag     |      |      |     | Real Data | Imag Data
@@ -72,7 +72,7 @@ N    | N<<5 + tag | dim1 | dim2 | ... | Real Data | Imag Data
 #### Sparse data
 Sparse numeric data (tags 29-31) are serialised as:
 
-RANK |   TYPE  | dims/tag | dim1 | dim2 | Data | ... |    ...    | ...
+RANK |   TYPE  |     tag  | dim1 | dim2 | Data | ... |    ...    | ...
 -----|---------|----------|------|------|:----:|:---:|-----------|------
 2    | Real    | 93       | dim1 | dim2 |   i  |  j  | Data      |
 2    | Bool    | 94       | dim1 | dim2 |   i  |  j  | Data      |
@@ -87,7 +87,7 @@ __NB.__ Due to storing dimensions as `uint32` data, rather than `double`, sizes 
 #### Struct data
 Structured tree data (tag 24) uses the standard header format:
 
-RANK | dims/tag   | dim1 | dim2 | ... | Data
+RANK |     tag    | dim1 | dim2 | ... | Data
 -----|------------|------|------|:---:|------
 NULL | 32 + tag   | 0 
 0    |    tag     |      |      |     | Data
@@ -108,7 +108,7 @@ __NB.__ For struct arrays `struct2cell` produces a Rank-(N+1) cell array, this m
 #### Cell array
 Cell array data (tag 23) are serialised as:
 
-RANK | dims/tag   | dim1 | dim2 | ... | Data
+RANK |     tag    | dim1 | dim2 | ... | Data
 -----|------------|------|------|:---:|------
 NULL | 32 + tag   | 0 
 0    |    tag     |      |      |     | Data
@@ -121,7 +121,7 @@ Where `data` is the concatenation of the serialisation of each element.
 #### Object Array
 Object array data (tag 23) are serialised as:
 
-RANK | dims/tag   | dim1 | dim2 | ... |Data|     ...            |    ...     |   ...   |  ...
+RANK |     tag    | dim1 | dim2 | ... |Data|     ...            |    ...     |   ...   |  ...
 -----|------------|------|------|:---:|----|--------------------|------------|---------|------
 NULL | 32 + tag   | 0    |      |     | 33 | length(class_name) | class_name |         |
 0    |    tag     |      |      |     | 33 | length(class_name) | class_name | ser_tag | Data |
@@ -148,14 +148,14 @@ It can have one of three values:
 Function handles are serialised differently depending on their type. 
 As function handles in MATLAB are purely scalar objects, the rank-component of the tag is utilised for tagging the type of function handle (thus the method to [de]serialise), these types are:
 
-Handle type         | dims/tag| value
+Handle type         |   tag   | value
 --------------------|---------|-------
 Simple/Class simple | 32 + 25 | 57
 Anonymous           | 64 + 25 | 89
 Scoped              | 96 + 25 | 121
 
 Function handles are serialised as:
-Handle type         | dims/tag| data                                       | ... 
+Handle type         |   tag   | data                                       | ... 
 --------------------|---------|--------------------------------------------|-----------------------------------------
 Simple/Class simple |  57     | function name as serialised string         |
 Anonymous           |  89     | anonymous function as serialised string    | relevant workspace as serialised struct
