@@ -1,4 +1,4 @@
-function [w,grid_size,urange,detdcn] = calc_sqw(obj,grid_size_in,urange_in,varargin)
+function [w,grid_size,urange,detdcn] = calc_sqw(obj,grid_size_in,pix_range_in,varargin)
 % Generate single sqw file from given rundata class.
 %
 % Usage:
@@ -11,7 +11,7 @@ function [w,grid_size,urange,detdcn] = calc_sqw(obj,grid_size_in,urange_in,varar
 %
 % grid_size_in   Scalar or [1x4] vector of grid dimensions in each direction
 %                for sqw object to build from given rundata object.
-%   urange_in    Range of data grid for output given as a [2x4] matrix:
+%   pix_range_in Range of data grid for output given as a [2x4] matrix:
 %                [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
 %                If [] then uses the smallest hypercuboid that encloses the
 %                whole data range.
@@ -107,8 +107,8 @@ else
         end
     end
 end
-if ~exist('urange_in','var')
-    urange_in = [];
+if ~exist('pix_range_in','var')
+    pix_range_in = [];
 end
 
 if hor_log_level>-1
@@ -132,11 +132,11 @@ end
 % into something different from non-transformed object urange, so here we
 % use native sqw object urange and account for input urange later.
 if ~isempty(obj.transform_sqw)
-    urange_sqw = [];
+    pix_range_sqw = [];
 else
-    urange_sqw = urange_in;
+    pix_range_sqw = pix_range_in;
 end
-[w, grid_size, urange]=obj.calc_sqw_(detdcn, det0, grid_size_in, urange_sqw);
+[w, grid_size, urange]=obj.calc_sqw_(detdcn, det0, grid_size_in, pix_range_sqw);
 
 
 if hor_log_level>-1
@@ -151,8 +151,8 @@ if ~isempty(obj.transform_sqw_f_)
     w = obj.transform_sqw_f_(w);
     urange = w.data.urange;
     grid_size = size(w.data.s);
-    if ~isempty(urange_in) % expand ranges to include urange_in
-        urange = [min([urange_in(1,:);urange(1,:)]);max([urange_in(2,:);urange(2,:)])];
+    if ~isempty(pix_range_in) % expand ranges to include urange_in
+        urange = [min([pix_range_in(1,:);urange(1,:)]);max([pix_range_in(2,:);urange(2,:)])];
     end
 end
 
