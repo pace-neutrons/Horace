@@ -1082,20 +1082,6 @@ methods
         assertFalse(pix.has_more());
     end
 
-    function test_max_page_size_set_by_pixel_page_size_config_option(obj)
-        hc = hor_config();
-        old_config = hc.get_data_to_store();
-        clean_up = onCleanup(@() set(hor_config, old_config));
-
-        new_pix_page_size = 1000;  % bytes
-        hc.pixel_page_size = new_pix_page_size;
-
-        bytes_in_pixel = obj.NUM_COLS_IN_PIX_BLOCK*obj.NUM_BYTES_IN_VALUE;
-        expected_page_size = floor(new_pix_page_size/bytes_in_pixel);
-        pix = PixelData(obj.test_sqw_file_path);
-        assertEqual(pix.page_size, expected_page_size);
-    end
-
     function test_error_when_setting_mem_alloc_lt_one_pixel(~)
         pix_size = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
 
