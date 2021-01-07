@@ -120,7 +120,7 @@ repeat steps 2-3 with the updated release branch.
 Again, ensure the release is a draft.
 You can have more than one equivalent GitHub draft release at once.
 So, once the new release candidates have been created,
-a new draft release can be pushed to GitHub and the hold draft deleted.
+a new draft release can be pushed to GitHub and the old draft deleted.
 You can delete the draft from the "Releases" page on GitHub.
 
 7. Smoke test the new release candidates in the draft release.
