@@ -18,15 +18,9 @@ function [inst, all_inst] = get_inst_class (varargin)
 
 
 % Check data
-sqw_objects = cellfun(@(x)isa(x,'sqw_old'), varargin);
+sqw_objects = cellfun(@(x)isa(x,'sqw'), varargin);
 if ~all(sqw_objects(:))
     error('All inputs must be sqw objects or sqw object arrays')
-end
-for i=1:numel(varargin)
-    sqw_type = arrayfun(@(x)is_sqw_type(x), varargin{i});
-    if ~all(sqw_type(:))
-        error('The instrument class can only be retrieved from sqw-type data')
-    end
 end
 
 % Get instrument information
