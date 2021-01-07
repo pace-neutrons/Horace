@@ -1,25 +1,26 @@
-# Serialisation details
+# The serialiser
 
-As of the integration of the C++ serialiser, the serialised format has been updated to be more consistent and to have greater capabilities.
+The serialised format has been updated to be more consistent and to have greater capabilities.
 
 For reference, the old format is also detailed below
 
-## New format
+# New format
 
-### Standard format
+## Standard header format
+
 The new style has a standardised header format depending on the shape of the data (with the exception of function handles).
 This format allows extension to support arrays of objects and structs in a way which the old serialiser couldn't.
 It also greatly simplifies the tag structure and allows it to align with the C++ MEX API data types.
 Data in these cases is serialised in the linearised order as defined by `data(:)` and the array reshaped by the deserialiser.
 
 This standard format for the header is as follows:
-RANK |     tag    | dim1 | dim2 | ... | Data
+Rank |     tag    | dim1 | dim2 | ... | Data
 -----|------------|------|------|-----|------
-NULL | 32 + tag   | 0    |      |     |
-0    |    tag     |      |      |     | Data
-1    | 32 + tag   | nElem|      |     | Data
-2    | 64 + tag   | dim1 | dim2 |     | Data
-N    | N<<5 + tag | dim1 | dim2 | ... | Data
+NULL | 32 + type  | 0    |      |     |
+0    |    type    |      |      |     | Data
+1    | 32 + type  | nElem|      |     | Data
+2    | 64 + type  | dim1 | dim2 |     | Data
+N    | N<<5 + type| dim1 | dim2 | ... | Data
 
 Where `<<5` means bitshift left 5. (see [Tag Format][tag])
 
@@ -34,9 +35,11 @@ Simple/Class simple | 32 + 25 | 57
 Anonymous           | 64 + 25 | 89
 Scoped              | 96 + 25 | 121
 
-### Tag format
+## Tag format
 
-The tag in the new format is an 1-byte tag where the top 3 bits give the rank of the data, the bottom 5 give the type-tag of the data
+### Tag Structure
+
+The tag in the new format is a 1-byte (`uint8`) tag where the top 3 bits give the rank of the data, the bottom 5 give the type-tag of the data
 
 | 128 | 64 | 32 | 16 | 8 | 4 | 2 | 1 |
 |:---:|:--:|:--:|:--:|:-:|:-:|:-:|:-:|
@@ -45,123 +48,7 @@ The tag in the new format is an 1-byte tag where the top 3 bits give the rank of
 - R - Rank
 - T - Type
 
-### Serialisation formats in detail
-
-#### Simple data
-Simple data (tags 0-12) are serialised as:
-
-RANK |     tag    | dim1 | dim2 | ... | Data
------|------------|------|------|:---:|------
-NULL | 32 + tag   | 0 
-0    |    tag     |      |      |     | Data
-1    | 32 + tag   | nElem|      |     | Data
-2    | 64 + tag   | dim1 | dim2 |     | Data
-N    | N<<5 + tag | dim1 | dim2 | ... | Data
-
-#### Complex Data
-Complex numerical data (tags 13-22) are serialised as:
-
-RANK |     tag    | dim1 | dim2 | ... |    Data   |   ...
------|------------|------|------|:---:|-----------|----------
-NULL | 32 + tag   | 0    |      |     |           |
-0    |    tag     |      |      |     | Real Data | Imag Data
-1    | 32 + tag   | nElem|      |     | Real Data | Imag Data
-2    | 64 + tag   | dim1 | dim2 |     | Real Data | Imag Data
-N    | N<<5 + tag | dim1 | dim2 | ... | Real Data | Imag Data
-
-#### Sparse data
-Sparse numeric data (tags 29-31) are serialised as:
-
-RANK |   TYPE  |     tag  | dim1 | dim2 | Data | ... |    ...    | ...
------|---------|----------|------|------|:----:|:---:|-----------|------
-2    | Real    | 93       | dim1 | dim2 |   i  |  j  | Data      |
-2    | Bool    | 94       | dim1 | dim2 |   i  |  j  | Data      |
-2    | Complex | 95       | dim1 | dim2 |   i  |  j  | Real Data | Imag Data
-
-Based on `sparse(i,j,data)` [MATLAB documentation][sparse]
-
-__NB.__ only rank-2 sparse arrays are permitted in MATLAB
-
-__NB.__ Due to storing dimensions as `uint32` data, rather than `double`, sizes of sparse arrays are limited to (2^32)-1
-
-#### Struct data
-Structured tree data (tag 24) uses the standard header format:
-
-RANK |     tag    | dim1 | dim2 | ... | Data
------|------------|------|------|:---:|------
-NULL | 32 + tag   | 0 
-0    |    tag     |      |      |     | Data
-1    | 32 + tag   | nElem|      |     | Data
-2    | 64 + tag   | dim1 | dim2 |     | Data
-N    | N<<5 + tag | dim1 | dim2 | ... | Data
-
-
-Where data is formatted as follows:
-
-nFields | length(fieldName1) | length(fieldName2) | ... | fieldName1 | fieldName2 | ... | struct2cell(data)
---------|--------------------|--------------------|:---:|------------|------------|:---:|------------------
-
-nFields and fieldName lengths are serialised as `uint32`
-
-__NB.__ For struct arrays `struct2cell` produces a Rank-(N+1) cell array, this means that for struct arrays, the limit on rank is 6.
-
-#### Cell array
-Cell array data (tag 23) are serialised as:
-
-RANK |     tag    | dim1 | dim2 | ... | Data
------|------------|------|------|:---:|------
-NULL | 32 + tag   | 0 
-0    |    tag     |      |      |     | Data
-1    | 32 + tag   | nElem|      |     | Data
-2    | 64 + tag   | dim1 | dim2 |     | Data
-N    | N<<5 + tag | dim1 | dim2 | ... | Data
-
-Where `data` is the concatenation of the serialisation of each element.
-
-#### Object Array
-Object array data (tag 23) are serialised as:
-
-RANK |     tag    | dim1 | dim2 | ... |Data|     ...            |    ...     |   ...   |  ...
------|------------|------|------|:---:|----|--------------------|------------|---------|------
-NULL | 32 + tag   | 0    |      |     | 33 | length(class_name) | class_name |         |
-0    |    tag     |      |      |     | 33 | length(class_name) | class_name | ser_tag | Data |
-1    | 32 + tag   | nElem|      |     | 33 | length(class_name) | class_name | ser_tag | Data |
-2    | 64 + tag   | dim1 | dim2 |     | 33 | length(class_name) | class_name | ser_tag | Data |
-N    | N<<5 + tag | dim1 | dim2 | ... | 33 | length(class_name) | class_name | ser_tag | Data |
-
-Where
-`33` is a 1-D char tag, 
-`length(class_name)` is stored as a `uint32`, 
-`class_name` is a char string, 
-`ser_tag` is a `uint8` tag (described below) and
-`data` is the serialisation of the object by means described by `ser_tag`
-
-##### ser_tag
-The object array's `ser_tag` contains information about the means by which the object has been serialised.
-It can have one of three values:
-
-0) The object has been serialised by its own `serialize` method
-1) The object has been serialised by the `saveobj` method or function
-2) The object has been serialised by calling `struct` on the object
-
-#### Function handles
-Function handles are serialised differently depending on their type. 
-As function handles in MATLAB are purely scalar objects, the rank-component of the tag is utilised for tagging the type of function handle (thus the method to [de]serialise), these types are:
-
-Handle type         |   tag   | value
---------------------|---------|-------
-Simple/Class simple | 32 + 25 | 57
-Anonymous           | 64 + 25 | 89
-Scoped              | 96 + 25 | 121
-
-Function handles are serialised as:
-Handle type         |   tag   | data                                       | ... 
---------------------|---------|--------------------------------------------|-----------------------------------------
-Simple/Class simple |  57     | function name as serialised string         |
-Anonymous           |  89     | anonymous function as serialised string    | relevant workspace as serialised struct
-Scoped              |  121    | function parentage as serialised cell array| 
-
-### Tags
+### Type Tags
 Tag| Meaning
 ---|----------------------
   0| LOGICAL
@@ -196,6 +83,122 @@ Tag| Meaning
  29| SPARSE_LOGICAL
  30| SPARSE_DOUBLE
  31| SPARSE_COMPLEX_DOUBLE
+
+### Serialisation formats in detail
+
+#### Simple data
+Simple data (tags 0-12) are serialised as:
+
+Rank |     tag    | dim1 | dim2 | ... | Data
+-----|------------|------|------|:---:|------
+NULL | 32 + type  | 0 
+0    |    type    |      |      |     | Data
+1    | 32 + type  | nElem|      |     | Data
+2    | 64 + type  | dim1 | dim2 |     | Data
+N    | N<<5 + type| dim1 | dim2 | ... | Data
+
+#### Complex Data
+Complex numerical data (tags 13-22) are serialised as:
+
+Rank |     tag    | dim1 | dim2 | ... |    Data   |   ...
+-----|------------|------|------|:---:|-----------|----------
+NULL | 32 + type  | 0    |      |     |           |
+0    |    type    |      |      |     | Real Data | Imag Data
+1    | 32 + type  | nElem|      |     | Real Data | Imag Data
+2    | 64 + type  | dim1 | dim2 |     | Real Data | Imag Data
+N    | N<<5 + type| dim1 | dim2 | ... | Real Data | Imag Data
+
+#### Sparse data
+Sparse numeric data (tags 29-31) are serialised as:
+
+Rank |   Type  |     tag  | dim1 | dim2 | Data | ... |    ...    | ...
+-----|---------|----------|------|------|:----:|:---:|-----------|------
+2    | Real    | 64 + type| dim1 | dim2 |   i  |  j  | Data      |
+2    | Bool    | 64 + type| dim1 | dim2 |   i  |  j  | Data      |
+2    | Complex | 64 + type| dim1 | dim2 |   i  |  j  | Real Data | Imag Data
+
+Based on `sparse(i,j,data)` [MATLAB documentation][sparse]
+
+__NB.__ only rank-2 sparse arrays are permitted in MATLAB
+
+__NB.__ Due to storing dimensions as `uint32` data, rather than `double`, sizes of sparse arrays are limited to (2^32)-1
+
+#### Struct data
+Structured tree data (tag 24) uses the standard header format:
+
+Rank |     tag    | dim1 | dim2 | ... | Data
+-----|------------|------|------|:---:|------
+NULL | 32 + type  | 0 
+0    |    type    |      |      |     | Data
+1    | 32 + type  | nElem|      |     | Data
+2    | 64 + type  | dim1 | dim2 |     | Data
+N    | N<<5 + type| dim1 | dim2 | ... | Data
+
+
+Where data is formatted as follows:
+
+nFields | length(fieldName1) | length(fieldName2) | ... | fieldName1 | fieldName2 | ... | struct2cell(data)
+--------|--------------------|--------------------|:---:|------------|------------|:---:|------------------
+
+nFields and fieldName lengths are serialised as `uint32`
+
+__NB.__ For struct arrays `struct2cell` produces a Rank-(N+1) cell array, this means that for struct arrays, the limit on rank is 6.
+
+#### Cell array
+Cell array data (tag 23) are serialised as:
+
+Rank |     tag    | dim1 | dim2 | ... | Data
+-----|------------|------|------|:---:|------
+NULL | 32 + type  | 0 
+0    |   type     |      |      |     | Data
+1    | 32 + type  | nElem|      |     | Data
+2    | 64 + type  | dim1 | dim2 |     | Data
+N    | N<<5 + type| dim1 | dim2 | ... | Data
+
+Where `data` is the concatenation of the serialisation of each element.
+
+#### Object Array
+Object array data (tag 23) are serialised as:
+
+Rank |     tag    | dim1 | dim2 | ... |Data|     ...            |    ...     |   ...   |  ...
+-----|------------|------|------|:---:|----|--------------------|------------|---------|------
+NULL | 32 + type  | 0    |      |     | 33 | length(class_name) | class_name |         |
+0    |    type    |      |      |     | 33 | length(class_name) | class_name | ser_tag | Data |
+1    | 32 + type  | nElem|      |     | 33 | length(class_name) | class_name | ser_tag | Data |
+2    | 64 + type  | dim1 | dim2 |     | 33 | length(class_name) | class_name | ser_tag | Data |
+N    | N<<5 + type| dim1 | dim2 | ... | 33 | length(class_name) | class_name | ser_tag | Data |
+
+Where
+`33` is a 1-D char tag, 
+`length(class_name)` is stored as a `uint32`, 
+`class_name` is a char string, 
+`ser_tag` is a `uint8` tag (described below) and
+`data` is the serialisation of the object by means described by `ser_tag`
+
+###### ser_tag
+The object array's `ser_tag` contains information about the means by which the object has been serialised.
+It can have one of three values:
+
+0) The object has been serialised by its own `serialize` method
+1) The object has been serialised by the `saveobj` method or function
+2) The object has been serialised by calling `struct` on the object
+
+#### Function handles
+Function handles are serialised differently depending on their type. 
+As function handles in MATLAB are purely scalar objects, the rank-component of the tag is utilised for tagging the type of function handle (thus the method to [de]serialise), these types are:
+
+Handle type         |   tag   | value
+--------------------|---------|-------
+Simple/Class simple | 32 + 25 | 57
+Anonymous           | 64 + 25 | 89
+Scoped              | 96 + 25 | 121
+
+Function handles are serialised as:
+Handle type         |   tag   | data                                       | ... 
+--------------------|---------|--------------------------------------------|-----------------------------------------
+Simple/Class simple |  57     | function name as serialised string         |
+Anonymous           |  89     | anonymous function as serialised string    | relevant workspace as serialised struct
+Scoped              |  121    | function parentage as serialised cell array| 
 
 ### Limitations
 - Java objects cannot be serialized.
