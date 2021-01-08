@@ -1,6 +1,14 @@
 # The serialiser
 
-The serialised format has been updated to be more consistent and to have greater capabilities.
+In order to efficiently transfer MATLAB information between storage, be it via networked interaction (such as MPI) or to disc efficiently, the information is first "serialised" into a representation. This document details the operation of the serialisers defined in:
+```
+<HERBERT_ROOT>/herbert_core/utilities/misc/hlp_serialise
+<HERBERT_ROOT>/herbert_core/utilities/misc/hlp_deserialise
+<HERBERT_ROOT>/_LowLevelCode/cpp/cpp_communicator/serialiser/c_serialise
+<HERBERT_ROOT>/_LowLevelCode/cpp/cpp_communicator/serialiser/c_deserialise
+```
+
+The serialised format has recently been updated to be more consistent and to have greater capabilities such as serialising arrays of structs/objects.
 
 For reference, the old format is also detailed below
 
@@ -14,16 +22,18 @@ It also greatly simplifies the tag structure and allows it to align with the C++
 Data in these cases is serialised in the linearised order as defined by `data(:)` and the array reshaped by the deserialiser.
 
 This standard format for the header is as follows:
-Rank |     tag    | dim1 | dim2 | ... | Data
------|------------|------|------|-----|------
-NULL | 32 + type  | 0    |      |     |
-0    |    type    |      |      |     | Data
-1    | 32 + type  | nElem|      |     | Data
-2    | 64 + type  | dim1 | dim2 |     | Data
-N    | N<<5 + type| dim1 | dim2 | ... | Data
+Rank |     tag    | dim1 | dim2 | ... 
+-----|------------|------|------|-----
+NULL | 32 + type  | 0    |      |     
+0    |    type    |      |      |     
+1    | 32 + type  | nElem|      |     
+2    | 64 + type  | dim1 | dim2 |     
+N    | N<<5 + type| dim1 | dim2 | ... 
+
 
 Where `<<5` means bitshift left 5. (see [Tag Format][tag])
-
+- This will be followed by the data serialised in a relevant form.
+- There is no footer required as the header contains all relevant information as to the size of the serialised object. 
 - Tags are `uint8` data and the "magic" numbers are described in detail in the section [Tag Format][tag] below.
 - Dimensions are serialised as `uint32` 
 
@@ -211,8 +221,16 @@ Scoped              |  121    | function parentage as serialised cell array|
   construction from a struct, or they support saveobj/loadobj(struct), or all their important
   properties can be set via set(obj,'name',value).
 
+## Old vs New
+- Standardisation of tags means fewer magic numbers
+- Alignment of tag information with those of C++ MEX API
+- Support for struct-arrays and object-arrays rather than scalars
+- Standardisation allows unification of several functions (serialising chars and logicals, and in the case of C++ complexes) improving maintainability
 
-## Old
+## Old Format
+
+
+
 ### Tags
 
 Tag | Meaning
