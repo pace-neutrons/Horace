@@ -675,23 +675,6 @@ methods (Access=private)
         obj.num_pixels_ = double(obj.f_accessor_.npixels);
     end
 
-    % function pix = load_pixels_(obj, abs_pix_indices)
-    %     pix = PixelData(numel(abs_pix_indices));
-
-    %     % if ~obj.cache_is_empty_()
-    %     %     % retrieve any values already in cache
-    %     % end
-
-    %     if obj.page_is_dirty_(obj.page_number_)
-    %         % [pg_idxs, global_idxs] = obj.get_idxs_in_current_page_(abs_pix_indices);
-    %         error('PIXELDATA:not_implemented', ...
-    %               'Loading pixel range from temp files not yet implemented.')
-    %     else
-    %         obj.f_accessor.get_pix()
-    %     end
-
-    % end
-
     function obj = load_current_page_if_data_empty_(obj)
         % Check if there's any data in the current page and load a page if not
         %   This function does nothing if pixels are not file-backed.
