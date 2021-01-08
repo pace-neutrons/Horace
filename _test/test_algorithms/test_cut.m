@@ -166,7 +166,15 @@ methods
 
         res = cut(dnd_obj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims);
         assertTrue(isa(res, 'd3d'));
-        assertEqual(size(res.s), [9, 9, 10]);
+
+        % We expect 3 dimensions since we are integrating over w (u3), as
+        % numel(w_axis_lims) = 2.
+        % We expect 9 in the u dimension because the range defined in
+        % u_axis_lims has 9 steps - you can justify this to yourself by
+        % evaluating `numel(u_axis_lims(1):u_axis_lims(2):u_axis_lims(3))`.
+        % For similar reasons, v and en have 9 and 10 dims respectively.
+        expected_img_size = [9, 9, 10];
+        assertEqual(size(res.s), expected_img_size);
     end
 
     function test_you_can_take_multiple_cuts_on_proj_axes(obj)
