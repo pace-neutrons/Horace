@@ -1,5 +1,17 @@
 function pix_out = get_pix_in_ranges(obj, abs_indices_starts, abs_indices_ends)
-%%GET_PIX_IN_RANGES
+%%GET_PIX_IN_RANGES read pixels in the specified ranges
+% Ranges are inclusive.
+%
+%   >> pix = get_pix_in_ranges([1, 12, 25], [6, 12, 27])
+%
+% Input:
+% ------
+% pix_starts  Absolute indices of the starts of pixel ranges [Nx1 or 1xN array].
+% pix_ends    Absolute indices of the ends of pixel ranges [Nx1 or 1xN array].
+%
+% Output:
+% -------
+% pix_out     A PixelData object containing the pixels in the given ranges.
 %
 if size(abs_indices_starts) ~= size(abs_indices_ends)
     error('PIXELDATA:get_pix_in_ranges', ...
