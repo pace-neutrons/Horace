@@ -13,16 +13,9 @@ function pix_out = get_pix_in_ranges(obj, abs_indices_starts, abs_indices_ends)
 % -------
 % pix_out     A PixelData object containing the pixels in the given ranges.
 %
-if size(abs_indices_starts) ~= size(abs_indices_ends)
-    error('PIXELDATA:get_pix_in_ranges', ...
-          ['Indices start and end arrays must have equal size.\n' ...
-           'Found [%s] and [%s].'], ...
-          num2str(size(abs_indices_starts)), num2str(size(abs_indices_ends)));
-end
-if ~isvector(abs_indices_starts)
-    error('PIXELDATA:get_pix_in_ranges', ...
-          'Input arrays must be vectors, found size [%s].', ...
-          num2str(size(abs_indices_starts)));
+[ok, mess] = validate_ranges(abs_indices_starts, abs_indices_ends);
+if ~ok
+    error([upper(class(obj)), ':get_pix_in_ranges'], mess);
 end
 
 if obj.is_file_backed_()
@@ -31,9 +24,10 @@ if obj.is_file_backed_()
         abs_indices = get_values_in_ranges(abs_indices_starts, abs_indices_ends);
         pix_out = obj.get_pixels(abs_indices);
     else
+        skip_arg_validation = true;  % no point validating inputs again in faccess
         pix_out = PixelData( ...
             obj.f_accessor_.get_pix_in_ranges( ...
-                abs_indices_starts, abs_indices_ends ...
+                abs_indices_starts, abs_indices_ends, skip_arg_validation ...
             ) ...
         );
     end
@@ -52,9 +46,10 @@ function out = get_values_in_ranges(range_starts, range_ends)
     % e.g.
     %   >> range_starts = [1, 15, 12]
     %   >> range_ends = [4, 17, 14]
-    %   >> get_values_in_range(range_starts, range_ends)
+    %   >> get_values_in_ranges(range_starts, range_ends)
     %       ans = [1, 2, 3, 4, 15, 16, 17, 12, 13, 14]
 
+    % Ensure the vectors are 1xN so concatenation below works
     if length(range_starts) > 1 && size(range_starts, 1) ~= 1
         range_starts = range_starts(:).';
         range_ends = range_ends(:).';
@@ -63,11 +58,11 @@ function out = get_values_in_ranges(range_starts, range_ends)
     % Find the indexes of the boundaries of each range
     range_boundary_idxs = cumsum([1; range_ends(:) - range_starts(:) + 1]);
     % Generate vector of ones with length equal to output vector length
-    z = ones(range_boundary_idxs(end) - 1, 1);
+    value_diffs = ones(range_boundary_idxs(end) - 1, 1);
     % Insert size of the difference between boundaries in each boundary index
-    z(range_boundary_idxs(1:end - 1)) = [ ...
+    value_diffs(range_boundary_idxs(1:end - 1)) = [ ...
         range_starts(1), range_starts(2:end) - range_ends(1:end - 1) ...
     ];
     % Take the cumulative sum
-    out = cumsum(z);
+    out = cumsum(value_diffs);
 end

@@ -1693,6 +1693,16 @@ methods
         assertExceptionThrown(f, 'PIXELDATA:get_pix_in_ranges');
     end
 
+    function test_get_pix_in_ranges_throws_if_any_starts_gt_ends(~)
+        num_pix = 30;
+        p = PixelData(num_pix);
+        pix_starts = [4, 9, 20];
+        pix_ends = [6, 8, 25];  % note 9 > 8
+
+        f = @() p.get_pix_in_ranges(pix_starts, pix_ends);
+        assertExceptionThrown(f, 'PIXELDATA:get_pix_in_ranges');
+    end
+
     %% -- Helpers --
     function pix = get_pix_with_fake_faccess(obj, data, npix_in_page)
         faccess = FakeFAccess(data);
