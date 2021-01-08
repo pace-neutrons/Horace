@@ -26,6 +26,10 @@ function pix_out = mask(obj, mask_array, varargin)
 %              the same dimensions as 'mask_array' i.e.
 %              all(size(mask_array) == size(npix)).
 %
+% Output:
+% -------
+% pix_out      A PixelData object containing only non-masked pixels.
+%
 if nargout ~= 1
     error('PIXELDATA:mask', ['Bad number of output arguments.\n''mask'' must be ' ...
                              'called with exactly one output argument.']);
