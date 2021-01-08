@@ -1,5 +1,10 @@
-function pix = get_pix_in_ranges(obj, pix_starts, pix_ends)
+function pix = get_pix_in_ranges(obj, pix_starts, pix_ends, skip_validation)
 %%GET_PIX_IN_RANGES read pixels in the specified ranges
+% For performance reasons, there is no validation performed on input arguments,
+% but the input arrays should have equal length and for all i we should have:
+%   pix_starts(i) <= pix_ends(i)
+%   pix_starts(i + 1) > pix_starts(i)
+%   pix_starts(i + 1) >= pix_ends(i)
 %
 %   >> pix = get_pix_in_ranges([1, 12, 25], [6, 12, 27])
 %      pix =
@@ -7,13 +12,22 @@ function pix = get_pix_in_ranges(obj, pix_starts, pix_ends)
 %
 % Input:
 % ------
-% pix_starts  Indices of the starts of pixel ranges [Nx1 or 1xN array].
-% pix_ends    Indices of the ends of pixel ranges [Nx1 or 1xN array].
+% pix_starts       Indices of the starts of pixel ranges [Nx1 or 1xN array].
+% pix_ends         Indices of the ends of pixel ranges [Nx1 or 1xN array].
+% skip_validation  Do not validate input array (optional, default = false) [bool]
 %
 % Output:
 % -------
-% pix         Raw pixel array [9xN double].
+% pix              Raw pixel array [9xN double].
 %
+skip_validation = exist('skip_validation', 'var') && skip_validation;
+if ~skip_validation
+    [ok, mess] = validate_ranges(pix_starts, pix_ends);
+    if ~ok
+        error([upper(class(obj)), ':get_pix_in_ranges'], mess);
+    end
+end
+
 NUM_BYTES_IN_FLOAT = 4;
 PIXEL_SIZE = NUM_BYTES_IN_FLOAT*PixelData.DEFAULT_NUM_PIX_FIELDS;  % bytes
 

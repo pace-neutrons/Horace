@@ -176,7 +176,7 @@ classdef sqw_binfile_common < sqw_file_interface
         % read pixels information
         pix    = get_pix(obj,varargin);
         pix = get_pix_at_indices(obj, pix_starts, pix_ends);
-        pix = get_pix_in_ranges(obj, pix_starts, pix_ends);
+        pix = get_pix_in_ranges(obj, pix_starts, pix_ends, skip_validation);
         % retrieve the whole sqw object from properly initialized sqw file
         [sqw_obj,varargout] = get_sqw(obj,varargin);
         % retrieve dnd part of the sqw object
