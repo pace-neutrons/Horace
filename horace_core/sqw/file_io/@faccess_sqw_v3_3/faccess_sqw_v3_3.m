@@ -132,7 +132,7 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
                     ' Pixels range has to be array of size [2,4]');
             end
             obj.pix_range_ = new_range;
-            obj = obj.put_footer();
+            obj = obj.put_sqw_footer();
         end
         
         %
@@ -145,6 +145,17 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
                 struc.(flds{i}) = obj.(flds{i});
             end
         end
+        function obj = upgrade_file_format(obj)
+            % upgrade the file to recent write format and open this file
+            % for writing/updating
+            %
+            % v3.3 is currently (10/01/2021) recent file format, so
+            % the method just reopens file for update.
+            if ~isempty(obj.filename)
+                obj = obj.set_file_to_update();
+            end
+        end
+        
         %-------------------------------------------------------------------
     end
     methods(Access=protected,Hidden=true)
@@ -153,18 +164,7 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
             head_flds = fields_to_save@faccess_sqw_v3(obj);
             flds = [head_flds(:);obj.fields_to_save_3_3(:)];
         end
-        function obj=init_from_sqw_obj(obj,varargin)
-            % initialize the structure of faccess class using opened
-            % sqw file as input
-            obj = init_from_sqw_obj@faccess_sqw_v3(obj,varargin{:});
-            %
-            data = obj.extract_correct_subobj('data');
-            obj.pix_range_ =data.pix.pix_range;
-            if any(any(obj.pix_range_ == PixelData.EMPTY_RANGE_)) && data.pix.num_pixels>0
-                data.pix.recalc_pix_range();
-                obj.pix_range_ =data.pix.pix_range;
-            end
-        end
+        %
         function obj = init_v3_specific(obj)
             % Initialize position information specific for sqw v3.3 object.
             %
@@ -181,7 +181,6 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
                 obj.pix_range_ =data.pix.pix_range;
             end
             obj = init_sqw_footer(obj);
-            
         end
         
         function obj=init_from_structure(obj,obj_structure_from_saveobj)

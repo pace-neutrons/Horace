@@ -13,7 +13,7 @@ if obj.has_more
     while obj.has_more
         [current_page_num,total_num_pages]=obj.advance();
         if ll>0
-            fprint('*** Processing page %d/%d\n',...
+            fprintf('*** Processing page %d/%d\n',...
                 current_page_num,total_num_pages);
         end
         obj.reset_changed_coord_range('coordinates');

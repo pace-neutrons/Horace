@@ -153,7 +153,7 @@ classdef dnd_binfile_common < dnd_file_interface
             % Where:
             % filename - the file to load data from.
             %
-            obj= init_dnd_structure_field_by_field_(obj);
+            obj= init_dnd_structure_field_by_field_(obj,varargin{:});
         end
         %
         function check_obj_initated_properly(obj)

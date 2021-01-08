@@ -81,10 +81,10 @@ classdef faccess_sqw_v3 < sqw_binfile_common
     
     %
     methods(Access=protected,Hidden=true)
-        function obj=init_from_sqw_file(obj)
+        function obj=init_from_sqw_file(obj,varargin)
             % initialize the structure of faccess class using opened
             % sqw file as input
-            obj= get_sqw_footer_(obj);
+            obj= get_sqw_footer_(obj,varargin{:});
         end
         %
         function obj=init_from_sqw_obj(obj,varargin)
@@ -277,15 +277,18 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             obj = put_instr_sampl_info_(obj,'sample',varargin{:});
         end
         %
-        function obj = upgrade_file_format(obj)
+        function obj = put_sample_and_instrument(obj)
+            obj = put_sample_instr_records_(obj);
+            obj.position_info_pos_= obj.instr_sample_end_pos_;
+        end
+        %
+        function new_obj = upgrade_file_format(obj)
             % upgrade the file to recent write format and open this file
             % for writing/updating
             %
-            % v3.1 is currently (01/01/2017) recent file format, so
-            % the method just reopens file for update.
-            if ~isempty(obj.filename)
-                obj = obj.set_file_to_update();
-            end
+            % v3.1 was from (01/01/2017) to 10/01/2021 recent file format
+            % it superseeded by v3.3
+            new_obj = upgrade_file_format_(obj);
         end
         %
         function struc = saveobj(obj)

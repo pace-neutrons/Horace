@@ -1,15 +1,22 @@
-function  obj= get_sqw_footer_(obj)
+function  obj= get_sqw_footer_(obj,varargin)
 % Read sqw object v3 structure to initialize sqw-v3 file reader
 %
 %
 %
 %
 %
+[ok,mess,init_for_upgrade] = parse_char_options(varargin,{'-upgrade'});
+if ~ok
+    error('INIT_SQW_STRUCTURE:invalid_argument',mess);
+end
+
 obj = get_sqw_file_footer(obj);
 %
-[fp,fn,ext]=fileparts(fopen(obj.file_id_));
-obj.filename_ =[fn,ext];
-obj.filepath_ =[fp,filesep];
+if ~init_for_upgrade
+    [fp,fn,ext]=fileparts(fopen(obj.file_id_));
+    obj.filename_ =[fn,ext];
+    obj.filepath_ =[fp,filesep];
+end
 
 % read the number of files contributing into this sqw file
 %obj.num_contrib_files_ = get_num_contrib_files(obj);
