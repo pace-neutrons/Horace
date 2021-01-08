@@ -52,13 +52,16 @@ classdef test_faccess_sqw_v3_3< TestCase
             
         end
         %
-        function obj = test_init_and_get(obj)
+        function obj = test_init_wrong(obj)
             to = faccess_sqw_v3_3();
             
             % access to incorrect object
             f = @()(to.init());
             assertExceptionThrown(f,'SQW_FILE_IO:invalid_argument');
-            
+        end
+        
+        function obj = test_init_and_get(obj)
+            to = faccess_sqw_v3_3();
             
             [ok,initobj] = to.should_load(obj.sample_file);
             assertTrue(ok);
@@ -182,8 +185,8 @@ classdef test_faccess_sqw_v3_3< TestCase
             assertEqual(tob.file_version,'-v3.3');
             img_range = tob.get_img_range();
             assertElementsAlmostEqual(ref_range,img_range)
-            pix_range = tob.get_pix_range();            
-            assertElementsAlmostEqual(pix_range,img_range)            
+            pix_range = tob.get_pix_range();
+            assertElementsAlmostEqual(pix_range,img_range)
         end
         %
         function obj = test_save_load_sqwV3_3(obj)

@@ -1,10 +1,15 @@
-function obj = init_sqw_structure_field_by_field_(obj)
+function obj = init_sqw_structure_field_by_field_(obj,varargin)
 % function to read sqw version-2 file structure to initialize binary input
 % and identify the positions of various pieces of data within the binary
 % file
 %
 %
 %
+[ok,mess,init_for_upgrade] = parse_char_options(varargin,{'-upgrade'});
+if ~ok
+    error('INIT_SQW_STRUCTURE:invalid_argument',mess);
+end
+
 fseek(obj.file_id_,obj.main_header_pos_,'bof');
 check_and_throw_error(obj,'Error moving to main data header position');
 
@@ -117,8 +122,8 @@ obj.dnd_eof_pos_ = data_pos.img_range_pos_;
 
 obj.data_fields_locations_ = data_pos;
 %
-
 obj=set_filepath(obj);
+
 
 
 function obj=set_filepath(obj)

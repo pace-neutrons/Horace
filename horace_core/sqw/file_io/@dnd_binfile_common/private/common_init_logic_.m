@@ -56,6 +56,7 @@ if isempty(argi)
     return;
 end
 input = argi{1};
+argi = argi(2:end);
 %
 if isa(input,'obj_init')
     if input.file_id<0
@@ -101,5 +102,5 @@ else
             'dnd_binfile_common::init method: input can be only sqw/dnd object or sqw file name')
     end
 end
-obj = obj.init_from_sqw_file();
+obj = obj.init_from_sqw_file(argi{:});
 

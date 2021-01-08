@@ -97,7 +97,7 @@ classdef sqw_binfile_common < sqw_file_interface
             %
             % method should be overloaded or expanded by children if more
             % complex then common logic is used
-            obj= init_sqw_structure_field_by_field_(obj);
+            obj= init_sqw_structure_field_by_field_(obj,varargin{:});
         end
         %
         function [sub_obj,external] = extract_correct_subobj(obj,obj_name,varargin)

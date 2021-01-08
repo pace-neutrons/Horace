@@ -7,7 +7,6 @@ function  new_obj = upgrade_file_format_(obj)
 %
 %
 %
-
 new_obj = sqw_formats_factory.instance().get_pref_access();
 if ischar(obj.num_dim) % source object is not initiated. Just return
     return
@@ -24,25 +23,31 @@ if ~ismember(acc,{'wb+','rb+'})
     new_obj = new_obj.set_file_to_update();
 end
 %
-% file format 3 specific part---------------------------------------------
-clear_sqw_holder=false;
+% file format 3.3 specific part---------------------------------------------
+clear_sqw_holder = false;
 if isempty(new_obj.sqw_holder_) % all file positions except instrument and sample
     % are already defined so we need just nominal object with instrument and sample
     nf = new_obj.num_contrib_files();
     % make pseudo-sqw  with instrument and sample
     new_obj.sqw_holder_ = make_pseudo_sqw(nf);
-    clear_sqw_holder = true; %
+    clear_sqw_holder = true;
 end
-new_obj = new_obj.init_v3_specific();
+
 %
+data = obj.get_data();
+pix = data.pix;
+if any(any(pix.pix_range == PixelData.EMPTY_RANGE_))
+    pix.recalc_pix_range();
+    new_obj.pix_range_ = pix.pix_range;
+end
+
 new_obj = new_obj.put_app_header();
-new_obj = new_obj.put_instruments(); % this also upgrades (saves) sqw footer
+new_obj = new_obj.put_sqw_footer();
 
 
 if clear_sqw_holder
     new_obj.sqw_holder_ = [];
 end
-
 
 function sq = make_pseudo_sqw(nfiles)
 % if header is a class, the issue would be much better
@@ -66,4 +71,7 @@ sq.header = heads;
 
 function hd= gen_head(head,x)
 hd = head;
+
+
+
 

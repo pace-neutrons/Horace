@@ -88,7 +88,7 @@ classdef sqw_formats_factory < handle
     end
     
     methods % Public Access
-        function loader = get_loader(obj,sqw_file_name)
+        function loader = get_loader(obj,sqw_file_name,varargin)
             % Returns initiated loader which can load the data from the specified data file.
             %
             %Usage:
@@ -129,7 +129,7 @@ classdef sqw_formats_factory < handle
                     % if loader can load, initialize loader to be able
                     % to read the file.
                     try
-                        loader=loader.init(objinit);
+                        loader=loader.init(objinit,varargin{:});
                         return
                     catch ME
                         err = MException('SQW_FILE_IO:runtime_error',...
