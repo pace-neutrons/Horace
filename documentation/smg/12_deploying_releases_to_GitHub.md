@@ -132,4 +132,4 @@ This creates the tag in Git and makes the release artifacts public.
 
 ### Release process flowchart
 
-![image](images/release_cycle.svg)
+![image](images/12_release_process.drawio.svg)
