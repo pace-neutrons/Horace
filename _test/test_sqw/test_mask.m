@@ -242,6 +242,43 @@ methods
         assertElementsAlmostEqual(mem_urange, paged_urange, 'absolute', 0.001);
     end
 
+    function test_mask_pixels_removes_pixels_given_in_mask_array(obj)
+        sqw_obj = sqw(obj.sqw_2d_file_path);
+        mask_array = ones(1, sqw_obj.data.pix.num_pixels, 'logical');
+
+        % Remove all pix where u1 greater than median u1
+        % This ensures urange will be sufficiently different
+        median_u1_range = median(sqw_obj.data.pix.u1);
+        pix_to_remove = sqw_obj.data.pix.u1 > median_u1_range;
+
+        mask_array(pix_to_remove) = false;
+        new_sqw = mask_pixels(sqw_obj, mask_array);
+
+        assertEqual(new_sqw.data.pix.num_pixels, sum(mask_array));
+        assertFalse(equal_to_tol(new_sqw.data.s, sqw_obj.data.s, -1e-4));
+        assertFalse(equal_to_tol(new_sqw.data.urange, sqw_obj.data.urange, -1e-4));
+    end
+
+    function test_mask_random_fraction_pixels_removes_percentage_of_pixels(obj)
+        sqw_obj = sqw(obj.sqw_2d_file_path);
+
+        frac_to_keep = 0.8;
+        new_sqw = mask_random_fraction_pixels(sqw_obj, frac_to_keep);
+
+        expected_num_pix = round(frac_to_keep*sqw_obj.data.pix.num_pixels);
+        assertEqual(new_sqw.data.pix.num_pixels, expected_num_pix);
+    end
+
+    function test_mask_random_pixels_retains_correct_number_of_pixels(obj)
+        sqw_obj = sqw(obj.sqw_2d_file_path);
+
+        num_pix_to_keep = 5000;
+        new_sqw = mask_random_pixels(sqw_obj, num_pix_to_keep);
+
+        assertEqual(new_sqw.data.pix.num_pixels, num_pix_to_keep);
+    end
+
+
 end
 
 methods (Static)
