@@ -10,6 +10,7 @@ classdef test_mask < TestCase
         mask_array_2d;
         masked_2d_pix_range
         masked_2d_img_range
+        masked_2d_paged_cache;
         
         sqw_3d_file_path = '../test_rebin/w3d_sqw.sqw';
         sqw_3d;
@@ -32,7 +33,9 @@ classdef test_mask < TestCase
             
             % 2D case setup
             obj.sqw_2d = sqw(obj.sqw_2d_file_path);
-            obj.sqw_2d.data.pix.recalculate_pix_range();
+            pix = obj.sqw_2d.data.pix;
+            pix.recalc_pix_range();
+            
             
             obj.idxs_to_mask = [2, 46, 91, 93, 94, 107, 123, 166];
             obj.mask_array_2d = ones(size(obj.sqw_2d.data.npix), 'logical');
@@ -41,6 +44,7 @@ classdef test_mask < TestCase
             
             % 3D case setup
             obj.sqw_3d = sqw(obj.sqw_3d_file_path);
+            
             
             num_bins = numel(obj.sqw_3d.data.npix);
             obj.idxs_to_mask_3d = linspace(1, num_bins/2, num_bins/2);
@@ -64,7 +68,16 @@ classdef test_mask < TestCase
                 obj.masked_2d_pix_range = masked_2d.data.pix.pix_range;
                 obj.masked_2d_img_range = masked_2d.data.img_range;
             end
-            paged_pix_range = obj.masked_2d_paged.data.pix.pix_range;
+            if isempty(obj.masked_2d_paged_cache)
+                [~, masked_2d_paged] = ...
+                    obj.get_paged_sqw(obj.sqw_2d_file_path, obj.mask_array_2d);
+                obj.masked_2d_paged_cache = masked_2d_paged;
+            else
+                masked_2d_paged = obj.masked_2d_paged_cache;
+            end
+            
+            
+            paged_pix_range = masked_2d_paged.data.pix.pix_range;
             mem_pix_range = obj.masked_2d_pix_range;
             assertElementsAlmostEqual(mem_pix_range, paged_pix_range, 'absolute', 0.001);
         end
@@ -109,15 +122,28 @@ classdef test_mask < TestCase
                 'absolute', 0.001);
             assertElementsAlmostEqual(original_pix_range(1,3:end), new_pix_range(1,3:end), ...
                 'absolute', 0.001);
+            if isempty(obj.masked_2d_paged_cache)
+                [~, masked_2d_paged] = ...
+                    obj.get_paged_sqw(obj.sqw_2d_file_path, obj.mask_array_2d);
+                obj.masked_2d_paged_cache = masked_2d_paged;
+            else
+                masked_2d_paged = obj.masked_2d_paged_cache;
+            end
+            
             
             % test_paged_and_non_paged_sqw_have_equivalent_pixels_after_mask
-            raw_paged_pix = concatenate_pixel_pages(obj.masked_2d_paged.data.pix);
+            raw_paged_pix = concatenate_pixel_pages(masked_2d_paged.data.pix);
             assertEqual(raw_paged_pix, masked_2d.data.pix.data);
         end
         
         function test_mask_works_with_paged(obj)
-            [~, masked_2d_paged] = ...
-                obj.get_paged_sqw(obj.sqw_2d_file_path, obj.mask_array_2d);
+            if isempty(obj.masked_2d_paged_cache)
+                [~, masked_2d_paged] = ...
+                    obj.get_paged_sqw(obj.sqw_2d_file_path, obj.mask_array_2d);
+                obj.masked_2d_paged_cache = masked_2d_paged;
+            else
+                masked_2d_paged = obj.masked_2d_paged_cache;
+            end
             
             %function test_mask_sets_npix_in_masked_bins_to_zero_with_paged_pix(obj)
             assertEqual(sum(masked_2d_paged.data.npix(~obj.mask_array_2d)), 0);
@@ -128,18 +154,18 @@ classdef test_mask < TestCase
             %end
             
             %function test_mask_does_not_change_unmasked_bins_signal_with_paged_pix(obj)
-            assertEqual(obj.masked_2d_paged.data.s(obj.mask_array_2d), ...
+            assertEqual(masked_2d_paged.data.s(obj.mask_array_2d), ...
                 obj.sqw_2d.data.s(obj.mask_array_2d));
             %function test_mask_does_not_change_unmasked_bins_error_with_paged_pix(obj)
             assertEqual(masked_2d_paged.data.e(obj.mask_array_2d), ...
                 obj.sqw_2d.data.e(obj.mask_array_2d));
             %function test_mask_does_not_change_unmasked_bins_npix_with_paged_pix(obj)
-            assertEqual(obj.masked_2d_paged.data.npix(obj.mask_array_2d), ...
+            assertEqual(masked_2d_paged.data.npix(obj.mask_array_2d), ...
                 obj.sqw_2d.data.npix(obj.mask_array_2d));
             
             % function test_num_pix_has_been_reduced_by_correct_amount_with_paged_pix(obj)
             expected_num_pix = sum(obj.sqw_2d.data.npix(obj.mask_array_2d));
-            assertEqual(obj.masked_2d_paged.data.pix.num_pixels, expected_num_pix);
+            assertEqual(masked_2d_paged.data.pix.num_pixels, expected_num_pix);
             
             %function test_img_range_recalculated_after_mask_with_paged_pix(obj)
             original_pix_range = obj.sqw_2d.data.pix.pix_range;
