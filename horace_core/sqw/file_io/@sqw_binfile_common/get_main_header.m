@@ -12,6 +12,7 @@ function   main_header = get_main_header(obj,varargin)
 % Input:
 % ------
 %   opt             [Optional] read flag:
+%                   '-verbatim' - report the progress of the operations
 %                   '-keep_original'  Do not override file name, stored in
 %                   sqw file with current filenaeme (necessary for file
 %                   format upgrade)
@@ -32,7 +33,8 @@ function   main_header = get_main_header(obj,varargin)
 
 % Original author: T.G.Perring
 %
-[ok,mess,keep_original] = parse_char_options(varargin,{'-keep_original'});
+[ok,mess,keep_original,verbatim] = parse_char_options(varargin,...
+    {'-keep_original','-verbatim'});
 if ~ok
     error('INIT_SQW_STRUCTURE:invalid_argument',mess);
 end
