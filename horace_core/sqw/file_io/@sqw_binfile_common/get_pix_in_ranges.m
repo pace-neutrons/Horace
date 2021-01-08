@@ -1,7 +1,19 @@
 function pix = get_pix_in_ranges(obj, pix_starts, pix_ends)
 %%GET_PIX_IN_RANGES read pixels in the specified ranges
 %
-
+%   >> pix = get_pix_in_ranges([1, 12, 25], [6, 12, 27])
+%      pix =
+%        [9x10] double array  % pixels 1-6,12,25-27
+%
+% Input:
+% ------
+% pix_starts  Indices of the starts of pixel ranges [Nx1 or 1xN array].
+% pix_ends    Indices of the ends of pixel ranges [Nx1 or 1xN array].
+%
+% Output:
+% -------
+% pix         Raw pixel array [9xN double].
+%
 NUM_BYTES_IN_FLOAT = 4;
 PIXEL_SIZE = NUM_BYTES_IN_FLOAT*PixelData.DEFAULT_NUM_PIX_FIELDS;  % bytes
 
