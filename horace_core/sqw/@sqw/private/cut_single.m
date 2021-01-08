@@ -25,8 +25,16 @@ log_level = get(hor_config, 'log_level');
 
 wout = copy(w, 'exclude_pix', true);
 
-% Get bin boundaries and projection
-ubins = get_ubins(proj, w.data.urange, pbin, pin, en);
+% Get bin boundaries
+[ ...
+    ubins.integration_axis_idx, ...
+    ubins.integration_range, ...
+    ubins.plot_ax_idx, ...
+    ubins.plot_ax_bounds, ...
+    ubins.urange ...
+] = proj.calc_ubins(w.data.urange, pbin, pin, en);
+
+% Update projection with binning
 proj = proj.set_proj_binning( ...
     ubins.urange, ...
     ubins.plot_ax_idx, ...
@@ -68,16 +76,6 @@ end  % function
 
 
 % -----------------------------------------------------------------------------
-function ubins = get_ubins(proj, urange, pbin, pin, en)
-    [iax, iint, pax, p, urange] = proj.calc_ubins(urange, pbin, pin, en);
-    ubins.integration_axis_idx = iax;
-    ubins.integration_range = iint;
-    ubins.plot_ax_bounds = p;
-    ubins.plot_ax_idx = pax;
-    ubins.urange = urange;
-end
-
-
 function save_sqw(sqw_obj, file_path)
     loader = sqw_formats_factory.instance().get_pref_access();
     loader = loader.init(sqw_obj, file_path);
