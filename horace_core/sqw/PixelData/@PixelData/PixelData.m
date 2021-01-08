@@ -249,13 +249,6 @@ methods
     pix_out = noisify(obj, varargin);
     obj = move_to_page(obj, page_number);
 
-    function pix = get_pixels_in_range(obj, abs_start_idx, abs_end_idx)
-
-
-
-         pix = PixelData(obj.f_accessor_.get_pix(abs_start_idx, abs_end_idx));
-    end
-
     function obj = PixelData(arg, mem_alloc)
         % Construct a PixelData object from the given data. Default
         % construction initialises the underlying data as an empty (9 x 0)
