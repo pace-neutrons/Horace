@@ -164,6 +164,28 @@ methods
         assertEqual(e, obj.ref_e_data, '', obj.FLOAT_TOLERANCE);
     end
 
+    function test_compute_bin_data_mex_rets_empty_arrays_if_num_pix_is_zero(obj)
+        cleanup_handle = ...
+            set_temporary_config_options(hor_config(), 'use_mex', true);
+
+        p = PixelData();
+        [s, e] = p.compute_bin_data([]);
+
+        assertTrue(isempty(s));
+        assertTrue(isempty(e));
+    end
+
+    function test_compute_bin_data_nomex_empty_arrays_if_npix_is_zero(obj)
+        cleanup_handle = ...
+            set_temporary_config_options(hor_config(), 'use_mex', false);
+
+        p = PixelData();
+        [s, e] = p.compute_bin_data([]);
+
+        assertTrue(isempty(s));
+        assertTrue(isempty(e));
+    end
+
     function test_do_unary_op_returns_correct_output_with_cosine_gt_1_page(obj)
         data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 50);
         npix_in_page = 11;
