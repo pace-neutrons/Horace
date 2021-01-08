@@ -229,14 +229,6 @@ methods
         assertExceptionThrown(f, 'MATLAB:subsassigndimmismatch')
     end
 
-    function test_size_of_PixelData_object_returns_underlying_data_size(obj)
-        % This may no longer be true if we start adding additional columns that
-        % are not part of the underlying pixel block
-        assertEqual(size(obj.pixel_data_obj), [9, 10]);
-        assertEqual(size(obj.pixel_data_obj, 1), 9);
-        assertEqual(size(obj.pixel_data_obj, 2), 10);
-    end
-
     function test_PixelData_object_with_underlying_data_is_not_empty(obj)
         assertFalse(isempty(obj.pixel_data_obj));
     end
@@ -377,17 +369,6 @@ methods
     function test_construction_with_file_path_sets_num_pixels_in_file(obj)
         f_accessor = sqw_formats_factory.instance().get_loader(...
                 obj.test_sqw_file_path);
-        assertEqual(obj.pix_data_from_file.num_pixels, f_accessor.npixels);
-    end
-
-    function test_construction_with_file_path_sets_size(obj)
-        f_accessor = sqw_formats_factory.instance().get_loader(...
-                obj.test_sqw_file_path);
-        size_ax_1 = size(obj.pix_data_from_file, 1);
-        assertEqual(size_ax_1, 9);
-
-        size_ax_2 = size(obj.pix_data_from_file, 2);
-        assertEqual(size_ax_2, f_accessor.npixels);
         assertEqual(obj.pix_data_from_file.num_pixels, f_accessor.npixels);
     end
 
