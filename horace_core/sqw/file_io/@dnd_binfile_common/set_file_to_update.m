@@ -72,9 +72,10 @@ else
 end
 %
 upgrading_this = false;
+
 if file_exist
     if ischar(obj.num_dim) % existing reader is not defined. Lets return loader,
-        obj = obj.reopen_to_write(); %already selected as best for this file by loaders factory
+        obj = old_ldr.reopen_to_write(); %already selected as best for this file by loaders factory
         return
     else
         upgrading_this = true;
@@ -93,6 +94,10 @@ fn = [fn,fext];
 fp = [fp,filesep];
 obj.filename_ = fn;
 obj.filepath_ = fp;
+
+if isempty(old_ldr)
+    old_ldr = obj;
+end
 %
 obj.file_id_ = fopen([fp,fn],perm);
 %

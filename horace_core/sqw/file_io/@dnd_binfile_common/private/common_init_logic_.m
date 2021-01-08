@@ -88,9 +88,9 @@ else
             error('SQW_FILE_IO:runtime_error',...
                 'Upgrade of existing object with new sqw/dnd object is not yet implemented')
         end
-        obj = obj.init_from_sqw_obj(argi{:});
+        obj = obj.init_from_sqw_obj(input);
         if nargin == 3
-            obj = obj.set_file_to_update(argi{2:end});
+            obj = obj.set_file_to_update(argi{:});
         else
             if ~isempty(obj.filename)
                 obj = obj.set_file_to_update();
