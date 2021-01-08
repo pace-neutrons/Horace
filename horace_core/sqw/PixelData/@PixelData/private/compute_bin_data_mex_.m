@@ -5,6 +5,8 @@ function [mean_signal, mean_variance] = compute_bin_data_mex_(obj, npix, n_threa
 %
 
 if isempty(obj)
+    mean_signal = [];
+    mean_variance = [];
     return;
 end
 

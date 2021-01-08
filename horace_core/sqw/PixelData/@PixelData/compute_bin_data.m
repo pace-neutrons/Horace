@@ -1,6 +1,7 @@
 function [mean_signal, mean_variance] = compute_bin_data(obj, npix)
 % Compute the mean signal and variance given the number of contributing
 % pixels for each bin
+% Returns empty arrays if obj contains no pixels.
 %
 %   >> [mean_signal, mean_variance] = compute_bin_data(obj, npix)
 %
