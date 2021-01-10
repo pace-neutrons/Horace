@@ -1,4 +1,4 @@
-function obj = init_dnd_structure_field_by_field_(obj)
+function obj = init_dnd_structure_field_by_field_(obj,varargin)
 % function to read dnd version-2 file structure to initialize binary input
 % and identify the positions of various pieces of data within the binary
 % file
@@ -6,7 +6,6 @@ function obj = init_dnd_structure_field_by_field_(obj)
 % To overload, host should correctly set the obj.data_pos_ field.
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 %
 
