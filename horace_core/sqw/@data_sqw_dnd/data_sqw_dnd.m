@@ -9,17 +9,17 @@ classdef data_sqw_dnd
         filename=''   % Name of sqw file that is being read, excluding path
         filepath=''   % Path to sqw file that is being read, including terminating file separator
         title   =''   % Title of sqw data structure
-        alatt   =[1,1,1] % Lattice parameters for data field (Ang^-1)
+        alatt   =[2*pi,2*pi,2*pi] % Lattice parameters for data field (Ang^-1)
         angdeg  =[90,90,90]% Lattice angles for data field (degrees)
         uoffset=[0;0;0;0]  %   Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
         u_to_rlu=eye(4)    %   Matrix (4x4) of projection axes in hkle representation
         %                   u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-        ulen=[1,1,1]            %Length of projection axes vectors in Ang^-1 or meV [row vector]
-        ulabel={'','','','En'}  %Labels of the projection axes [1x4 cell array of character strings]
-        iax=zeros(1,0);    %Index of integration axes into the projection axes  [row vector]
+        ulen=[1,1,1,1]      %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        ulabel={'Q_h','Q_k','Q_l','En'}  %Labels of the projection axes [1x4 cell array of character strings]
+        iax=1:4;          %Index of integration axes into the projection axes  [row vector]
         %                  Always in increasing numerical order
         %                  e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
-        iint=zeros(2,0);   %Integration range along each of the integration axes. [iint(2,length(iax))]
+        iint=zeros(2,4);   %Integration range along each of the integration axes. [iint(2,length(iax))]
         %                   e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
         pax=zeros(1,0);   %Index of plot axes into the projection axes  [row vector]
         %                Always in increasing numerical order
@@ -268,7 +268,7 @@ classdef data_sqw_dnd
             %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
             %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
             %
-             
+            
             img_range = zeros(2,4);
             img_range(:,ds.iax) = ds.iint;
             
@@ -308,7 +308,7 @@ classdef data_sqw_dnd
             %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
             %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
             %
-             
+            
             img_range = zeros(2,4);
             img_range(:,ds.iax) = ds.iint;
             
