@@ -318,7 +318,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             obj.assertEqualToTolWithSave(w1a,'ignore_str',true,'tol',1.e-7);
         end
         %
-        function test_gen_sqw_sym(obj,varargin)
+        function DISABLED_test_gen_sqw_sym(obj,varargin)
             %-------------------------------------------------------------
             if obj.skip_test
                 return
@@ -373,11 +373,14 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 'transform_sqw',@(x)symmetrise_sqw(x,v1,v2,v3));
             
             loc_proj=struct('u',u,'v',v);
-            %           % Manual testing. Uncomment to see the cut shapes
-            %             w1_f_sym=cut_sqw(sqw_file_sym,loc_proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
-            %             w1_m_sym=cut_sqw(w_mem_sym,loc_proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
-            %             plot(w1_f_sym)
-            %             pd(w1_m_sym)
+
+            w1_f_sym=cut_sqw(sqw_file_sym,loc_proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            w1_m_sym=cut_sqw(w_mem_sym,loc_proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            % Uncomment to see the cut shapes            
+            plot(w1_f_sym)
+            pd(w1_m_sym)
+            %
+            assertEqualToTol(w1_f_sym,w1_m_sym,'ignore_str',true,'tol',1.e-7)
             
             [ok,mess]=is_cut_equal(sqw_file_sym,w_mem_sym,loc_proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,[' Cuts are not equal Error: ',mess]);

@@ -579,7 +579,7 @@ for i=1:numel(files_to_check)
         numel(data.p{3})-1,numel(data.p{4})-1];
     
     if isempty(img_range_sqw)
-        img_range_sqw = ing_range_l;
+        img_range_sqw = img_range_l;
         grid_size_sqw = grid_size_l;
         data_ref = data;
     else
