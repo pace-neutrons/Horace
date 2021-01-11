@@ -4,7 +4,7 @@ function [s, e, npix, pix_out, urange_pix] = ...
 %
 % Input:
 % ------
-% proj       A 'projection' object, defining the project of the cut.
+% proj       A 'projection' object, defining the projection of the cut.
 % keep_pix   A boolean defining whether pixel data should be retained. If this
 %            is false return variable 'pix_out' will be empty.
 % log_level  The verbosity of the log messages. The values correspond to those
