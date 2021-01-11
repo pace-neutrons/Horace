@@ -5,7 +5,7 @@ function data = concatenate_pixel_pages(pix)
 %
 pix = pix.move_to_first_page();
 base_pg_size = pix.page_size;
-num_cols_in_pix_block = size(pix, 1);
+num_cols_in_pix_block = size(pix.data, 1);
 
 data = zeros(num_cols_in_pix_block, pix.num_pixels);
 iter = 0;

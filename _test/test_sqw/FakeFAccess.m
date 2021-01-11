@@ -7,12 +7,11 @@ classdef FakeFAccess < sqw_binfile_common
     end
     
     methods
-        
         function obj = FakeFAccess(data)
             obj.fake_data = data;
             obj.npixels_ = size(data, 2);
         end
-        
+        %
         function data = get_pix(obj, varargin)
             if nargin > 2
                 [pix_lo, pix_hi] = varargin{:};
@@ -31,30 +30,44 @@ classdef FakeFAccess < sqw_binfile_common
                 end
             end
         end
+        %
+        function data = get_pix_at_indices(obj, indices)
+            try
+                data = obj.fake_data(:, indices);
+            catch ME
+                switch ME.identifier
+                    case 'MATLAB:badsubscript'
+                        error('FAKEFACCESS:get_pix', 'Pixel indices out of bounds');
+                    otherwise
+                        rethrow(ME);
+                end
+            end
+        end
+        %
         function pix_range = get_pix_range(obj)
             pix_range = [min(obj.fake_data(1:4,:),[],2),max(obj.fake_data(1:4,:),[],2)]';
         end
-        
+        %
         function new_obj = upgrade_file_format(~)
             new_obj = [];
         end
-        
+        %
         function obj = fclose(obj)
             obj.closed = true;
         end
-        
+        %
         function obj = activate(obj)
             obj.closed = false;
         end
-        
+        %
         function is = is_activated(obj)
             is = ~obj.closed;
         end
-        
+        %
         function obj = set_npixels(obj, npix)
             obj.npixels_ = npix;
         end
-        
+        %
         function obj = set_filepath(obj, file_path)
             [obj.filepath_, file_name, ext] = fileparts(file_path);
             obj.filename_ = [file_name, ext];

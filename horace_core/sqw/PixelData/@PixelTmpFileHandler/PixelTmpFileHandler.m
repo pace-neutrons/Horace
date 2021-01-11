@@ -47,8 +47,51 @@ methods
         end
         clean_up = onCleanup(@() fclose(file_id));
 
-        page_shape = [ncols, inf];
-        raw_pix = fread(file_id, page_shape, obj.FILE_DATA_FORMAT_);
+        page_shape = [ncols, Inf];
+        raw_pix = do_fread(file_id, page_shape, obj.FILE_DATA_FORMAT_);
+    end
+
+    function raw_pix = load_pixels_at_indices(obj, page_number, indices, ncols)
+        if nargin == 2
+            ncols = 1;
+        end
+
+        NUM_BYTES_IN_FLOAT = 4;
+        PIXEL_SIZE = NUM_BYTES_IN_FLOAT*ncols;  % bytes
+
+        tmp_file_path = obj.generate_tmp_pix_file_path_(page_number);
+        [file_id, err_msg] = fopen(tmp_file_path, 'rb');
+        if file_id < 0
+            error('PIXELTMPFILEHANDLER:load_page', ...
+                  'Could not open ''%s'' for reading:\n%s', tmp_file_path, ...
+                  err_msg);
+        end
+        clean_up = onCleanup(@() fclose(file_id));
+
+        indices_monotonic = issorted(indices, 'strictascend');
+        if ~indices_monotonic
+            [indices, ~, idx_map] = unique(indices);
+        end
+
+        [read_sizes, seek_sizes] = get_read_and_seek_sizes(indices);
+
+        raw_pix = zeros(ncols, numel(indices));
+
+        num_pix_read = 0;
+        for block_num = 1:numel(read_sizes)
+            do_fseek(file_id, seek_sizes(block_num)*PIXEL_SIZE, 'cof');
+
+            out_pix_start = num_pix_read + 1;
+            out_pix_end = out_pix_start + read_sizes(block_num) - 1;
+            read_size = [ncols, read_sizes(block_num)];
+            read_pix = do_fread(file_id, read_size, obj.FILE_DATA_FORMAT_);
+            raw_pix(:, out_pix_start:out_pix_end) = read_pix;
+
+            num_pix_read = num_pix_read + read_sizes(block_num);
+        end
+        if ~indices_monotonic
+            raw_pix = raw_pix(:, idx_map);
+        end
     end
 
     function obj = write_page(obj, page_number, raw_pix)
