@@ -20,6 +20,8 @@ function wout = cut_single(w, proj, pbin, pin, en, keep_pix, outfile)
 %            This output argument can be omitted if `outfile` is specified.
 %
 
+% Rework of legacy function cut_sqw_main_single
+
 DND_CONSTRUCTORS = {@d0d, @d1d, @d2d, @d3d, @d4d};
 log_level = get(hor_config, 'log_level');
 
