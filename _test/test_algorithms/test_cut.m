@@ -177,28 +177,40 @@ methods
         assertEqual(size(res.s), expected_img_size);
     end
 
-    function test_you_can_take_multiple_cuts_on_proj_axes(obj)
+    function test_you_can_take_multiple_cuts_over_integration_axis(obj)
         proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
 
         u_axis_lims = [-0.1, 0.025, 0.1];
         v_axis_lims = [-0.1, 0.025, 0.1];
         w_axis_lims = [-0.1, 0.1];
+
+        % Short-hand for defining multiple integration ranges (as opposed to a loop).
         en_axis_lims = [106, 4, 114, 4];
+        % The indices are as follows:
+        %   1 - first range center
+        %   2 - distance between range centers
+        %   3 - final range center
+        %   4 - range width
+        % Hence the above limits define three cuts, each cut integrating over a
+        % different energy range. The first range being 104-108, the second
+        % 108-112 and the third 112-116.
 
         sqw_obj = sqw(obj.sqw_file);
         res = cut(...
-            sqw_obj, proj, u_axis_lims, v_axis_lims, w_axis_lims, ...
-            en_axis_lims ...
+            sqw_obj, proj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims ...
         );
+
+        expected_en_int_lims = {[104, 108], [108, 112], [112, 116]};
 
         assertTrue(isa(res, 'sqw'));
         assertEqual(size(res), [3, 1]);
         for i = 1:numel(res)
             assertEqual(size(res(i).data.s), [9, 9]);
+            assertEqual(res(i).data.iint(3:4), expected_en_int_lims{i});
         end
     end
 
-    function test_you_can_take_multiple_cuts_on_proj_axes_with_nopix(obj)
+    function test_you_can_take_multiple_cuts_over_int_axis_with_nopix(obj)
         proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
 
         u_axis_lims = [-0.1, 0.025, 0.1];
@@ -212,10 +224,13 @@ methods
             en_axis_lims, '-nopix' ...
         );
 
+        expected_en_int_lims = {[104, 108], [108, 112], [112, 116]};
+
         assertTrue(isa(res, 'd2d'));
         assertEqual(size(res), [3, 1]);
         for i = 1:numel(res)
             assertEqual(size(res(i).s), [9, 9]);
+            assertEqual(res(i).iint(3:4), expected_en_int_lims{i});
         end
         % First two cuts are in range of data, final cut is out of range so
         % should have no pixel contributions
