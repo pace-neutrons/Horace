@@ -27,7 +27,7 @@ function v = hlp_deserialise(m)
 %                                (C) 2010 Tim Hutt
 
 
-    v = deserialise_value(m,uint32(1));
+    v = deserialise_value(uint8(m),1);
 
 end
 
@@ -205,6 +205,7 @@ function [v, pos] = deserialise_struct(m, pos)
     if nFields == 0
         return;
     end
+
     % Field name lengths
     [fnLengths, pos] = read_bytes(m, pos, 'uint32', nFields);
     fnLengths = double(fnLengths);
@@ -319,7 +320,7 @@ end
 function [type, nDims, pos] = get_tag_data(m, pos)
     [type, pos] = read_bytes(m, pos, 'uint8', 1);
     % Take top 3 bits
-    nDims = uint32(bitshift(bitand(32+64+128, type), -5));
+    nDims = bitshift(bitand(32+64+128, type), -5);
     % Take bottom 5 bits
     type = hlp_serial_types.type_details(bitand(31, type) + 1);
 
