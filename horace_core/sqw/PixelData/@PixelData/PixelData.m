@@ -108,7 +108,7 @@ classdef PixelData < handle
     end
     
     properties (Constant)
-        DATA_POINT_SIZE = 8;  % num bytes in a float
+        DATA_POINT_SIZE = 8;  % num bytes in a double
         DEFAULT_NUM_PIX_FIELDS = 9;
         DEFAULT_PAGE_SIZE = realmax;  % this gives no paging by default
         % the range, an empty pixel class has
@@ -382,27 +382,6 @@ classdef PixelData < handle
         function is_empty = isempty(obj)
             % Return true if the PixelData object holds no pixel data
             is_empty = obj.num_pixels == 0;
-        end
-        
-        function s = size(obj, varargin)
-            % Return the size of the PixelData
-            %   Axis 1 gives the number of columns, axis 2 gives the number of
-            %   pixels. Along with Matlab convention, any other axis returns 1.
-            if nargin == 1
-                s = [obj.PIXEL_BLOCK_COLS_, obj.num_pixels];
-            else
-                s = ones(1, numel(varargin));
-                for i = 1:numel(varargin)
-                    dim = varargin{i};
-                    if dim == 1
-                        s(i) = obj.PIXEL_BLOCK_COLS_;
-                    elseif dim == 2
-                        s(i) = obj.num_pixels;
-                    else
-                        s(i) = size(obj.data, dim);
-                    end
-                end
-            end
         end
         
         function nel = numel(obj)
