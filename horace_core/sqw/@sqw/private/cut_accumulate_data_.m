@@ -19,7 +19,7 @@ function [s, e, npix, pix_out, urange_pix] = ...
 % pix_out          A PixelData object containing pixels that contribute to the
 %                  cut.
 % urange_pix       The range of u1, u2, u3, and dE in the contributing pixels.
-%                  size(urange_step_pix) == [2, 4].
+%                  size(urange_pix) == [2, 4].
 %
 % CALLED BY cut_single
 %
