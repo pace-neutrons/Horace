@@ -81,6 +81,21 @@ function wout = cut(obj, varargin)
 %           - [plo, phi]        Integration axis: range of integration
 %           - [plo, pstep, phi] Plot axis: minimum and maximum bin centers
 %                              and step size
+%                              For example, [106, 4, 116] will define a plot
+%                              axis with bin edges 104-108, 108-112, 112-116.
+%           - [plo, rdiff, phi, rwidth]
+%                                Integration axis: minimum range center,
+%                                distance between range centers, maximum range
+%                                center, range size for each cut.
+%                                When using this syntax, an array of cuts is
+%                                outputted. The number of cuts produced will
+%                                be the number of rdiff sized steps between plo
+%                                and phi; phi will be automatically increased
+%                                such that rdiff divides phi - plo.
+%                                For example, [106, 4, 113, 2] defines the
+%                                integration range for three cuts, the first
+%                                cut integrates the axis over 105-107, the
+%                                second over 109-111 and the third 113-115.
 %
 %   p4_bin          Binning along the energy axis:
 %           - [] or ''          Plot axis: use bin boundaries of input data
@@ -101,6 +116,15 @@ function wout = cut(obj, varargin)
 %                              The overall range is chosen to ensure that
 %                              the energy range plo to phi is contained
 %                              within the bin boundaries.
+%           - [plo, rdiff, phi, rwidth]
+%                                Integration axis: minimum range center,
+%                                distance between range centers, maximum range
+%                                center, range size for each cut.
+%                                When using this syntax, an array of cuts is
+%                                outputted. The number of cuts produced will
+%                                be the number of rdiff sized steps between plo
+%                                and phi; phi will be automatically increased
+%                                such that rdiff divides phi - plo.
 %
 %
 % Output:
