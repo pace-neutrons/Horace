@@ -732,7 +732,6 @@ classdef PixelData < handle
             obj.page_number_ = 1;
             obj.num_pixels_ = double(obj.f_accessor_.npixels);
             obj.pix_range_ = f_accessor.get_pix_range();
-            obj = obj.load_current_page_if_data_empty_();
         end
         
         function obj = load_current_page_if_data_empty_(obj)

@@ -4,7 +4,7 @@ function recalc_pix_range(obj)
 % old style files) or changed through private interface (for efficiency)
 % and the internal integrity of the object has been violated.
 %
-
+obj.load_current_page_if_data_empty_();
 obj.set_range(obj.EMPTY_RANGE_);
 obj.reset_changed_coord_range('coordinates');
 if obj.has_more
