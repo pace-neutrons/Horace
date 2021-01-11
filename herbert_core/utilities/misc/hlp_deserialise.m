@@ -63,7 +63,7 @@ function [v,pos] = read_bytes(m, pos, type, n)
 
     type = hlp_serial_types.get_details(type);
 
-    nBytes = type.size*n*compFac;
+    nBytes = double(type.size*n*compFac);
     v = typecast(m(pos:pos+nBytes-1), type.name).';
     pos = pos + nBytes;
 end
