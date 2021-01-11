@@ -3,12 +3,16 @@ function [spec_to_cc, u_to_rlu, spec_to_rlu] = calc_proj_matrix (var1, var2, u, 
 % projection axes defined by u1 || a*, u2 in plane of a* and b* i.e. crystal Cartesian axes
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %
+% Mode1:
 %   >> [spec_to_u, u_to_rlu, spec_to_rlu] = ...
 %    calc_proj_matrix (alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+
 % or:
+% Mode2:
 %  >>[spec_to_u, u_to_rlu, spec_to_rlu] = ...
-%    calc_proj_matrix (b_matix,u_matrix); - used as part of oriented
-%    lattice function
+%    calc_proj_matrix (b_matix,u_matrix,'','',psi, omega, dpsi, gl, gs);
+%     - used as part of oriented lattice function, deploying parameters,
+%     specified in oriented lattice
 %
 % Input:
 % ------
@@ -27,7 +31,15 @@ function [spec_to_cc, u_to_rlu, spec_to_rlu] = calc_proj_matrix (var1, var2, u, 
 %             into Crystal Catresian coordinate system
 % u_matrix -- transforms vector in crystal Cartesian coords to orthonormal
 %             frame defined by vectors u, v.
-%
+% ''       -- empty u-variable, used to distinguish between mode1 and
+%             mode2
+% v        -- not used in mode 2
+% psi         Angle of u w.r.t. ki (rad)
+% omega       Angle of axis of small goniometer arc w.r.t. notional u
+% dpsi        Correction to psi (rad)
+% gl          Large goniometer arc angle (rad)
+% gs          Small goniometer arc angle (rad)
+
 % Output:
 % -------
 %   spec_to_cc   Matrix (3x3)to convert momentum from coordinates in spectrometer
