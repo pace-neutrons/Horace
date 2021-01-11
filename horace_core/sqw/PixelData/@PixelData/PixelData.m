@@ -108,7 +108,7 @@ classdef PixelData < handle
     end
     
     properties (Constant)
-        DATA_POINT_SIZE = 8;  % num bytes in a float
+        DATA_POINT_SIZE = 8;  % num bytes in a double
         DEFAULT_NUM_PIX_FIELDS = 9;
         DEFAULT_PAGE_SIZE = realmax;  % this gives no paging by default
         % the range, an empty pixel class has
@@ -385,27 +385,6 @@ classdef PixelData < handle
             is_empty = obj.num_pixels == 0;
         end
         
-        function s = size(obj, varargin)
-            % Return the size of the PixelData
-            %   Axis 1 gives the number of columns, axis 2 gives the number of
-            %   pixels. Along with Matlab convention, any other axis returns 1.
-            if nargin == 1
-                s = [obj.PIXEL_BLOCK_COLS_, obj.num_pixels];
-            else
-                s = ones(1, numel(varargin));
-                for i = 1:numel(varargin)
-                    dim = varargin{i};
-                    if dim == 1
-                        s(i) = obj.PIXEL_BLOCK_COLS_;
-                    elseif dim == 2
-                        s(i) = obj.num_pixels;
-                    else
-                        s(i) = size(obj.data, dim);
-                    end
-                end
-            end
-        end
-        
         function nel = numel(obj)
             % Return the number of data points in the pixel data block
             %   If the data is file backed, this returns the number of values in
@@ -587,7 +566,6 @@ classdef PixelData < handle
         end
         
         function set.coordinates(obj, coordinates)
-            % ret
             obj = obj.load_current_page_if_data_empty_();
             obj.data(obj.FIELD_INDEX_MAP_('coordinates'), :) = coordinates;
             obj.reset_changed_coord_range('coordinates');

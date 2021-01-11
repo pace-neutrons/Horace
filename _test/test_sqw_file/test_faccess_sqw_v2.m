@@ -96,7 +96,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(numel(det.group),58880)
 
             data = to.get_data();
-            assertEqual(size(data.pix),[9,1164180])
+            assertEqual(data.pix.num_pixels,1164180)
             assertEqual(size(data.s,1),numel(data.p{1})-1)
             assertEqual(size(data.e,2),numel(data.p{2})-1)
             assertEqual(size(data.npix,3),numel(data.p{3})-1)
@@ -125,7 +125,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(numel(det.group),36864)
 
             data = to.get_data();
-            assertEqual(size(data.pix),[9,179024])
+            assertEqual(data.pix.num_pixels,179024)
             assertEqual(size(data.s,1),numel(data.p{1})-1)
             assertEqual(size(data.e,2),numel(data.p{2})-1)
             assertEqual(size(data.npix),size(data.e))

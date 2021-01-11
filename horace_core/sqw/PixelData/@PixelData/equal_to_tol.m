@@ -105,11 +105,11 @@ function [ok, mess] = validate_other_pix(obj, other_pix)
         return
     end
 
-    if ~all(size(obj) == size(other_pix))
+    if obj.num_pixels ~= other_pix.num_pixels
         ok = false;
         mess = sprintf(['PixelData objects are not equal. ' ...
-                        'Argument 1 has size [%s] , argument 2 has size [%s]'], ...
-                       num2str(size(obj)), num2str(size(other_pix)));
+                        'Argument 1 has %i pixels, argument 2 has %s.'], ...
+                       obj.num_pixels, other_pix.num_pixels);
         return
     end
 end

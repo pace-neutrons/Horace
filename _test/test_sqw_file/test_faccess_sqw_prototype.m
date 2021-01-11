@@ -93,7 +93,7 @@ classdef test_faccess_sqw_prototype< TestCase
             assertEqual(numel(det.group),28160)
 
             data = to.get_data();
-            assertEqual(size(data.pix),[9,16])
+            assertEqual(data.pix.num_pixels,16)
             assertEqual(size(data.s,1),numel(data.p{1})-1)
             assertEqual(size(data.e,2),numel(data.p{2})-1)
             assertEqual(size(data.npix,3),numel(data.p{3})-1)

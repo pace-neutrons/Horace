@@ -8,8 +8,8 @@ classdef test_PixelData < TestCase
         
         raw_pix_data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
         raw_pix_range;
-        test_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
-        test_sqw_file_full_path = '';
+        tst_source_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
+        tst_sqw_file_full_path = '';
         this_dir = fileparts(mfilename('fullpath'));
         
         pixel_data_obj;
@@ -56,15 +56,20 @@ classdef test_PixelData < TestCase
             obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
             obj.raw_pix_range = obj.get_ref_range(obj.raw_pix_data);
             
-            test_sqw_file = java.io.File(pwd(), obj.test_sqw_file_path);
-            obj.test_sqw_file_full_path = char(test_sqw_file.getCanonicalPath());
+            source_sqw_file = java.io.File(pwd(), obj.tst_source_sqw_file_path);
+            source_sqw_file  = char(source_sqw_file .getCanonicalPath());
+            [~,fn] = fileparts(source_sqw_file);
+            test_sqw_file_full_path = fullfile(tmp_dir,[fn,'.sqw']);
+            copyfile(source_sqw_file,test_sqw_file_full_path);
+            modify_pix_ranges(test_sqw_file_full_path);
+            obj.tst_sqw_file_full_path = test_sqw_file_full_path;
             
             % Construct an object from raw data
             obj.pixel_data_obj = PixelData(obj.raw_pix_data);
             % Construct an object from a file
-            obj.pix_data_from_file = PixelData(obj.test_sqw_file_path);
+            obj.pix_data_from_file = PixelData(obj.tst_sqw_file_full_path);
             % Construct an object from a file accessor
-            f_accessor = sqw_formats_factory.instance().get_loader(obj.test_sqw_file_path);
+            f_accessor = sqw_formats_factory.instance().get_loader(obj.tst_sqw_file_full_path);
             obj.pix_data_from_faccess = PixelData(f_accessor);
             % Construct an object from file accessor with small page size
             obj.pix_data_small_page = PixelData(f_accessor, obj.SMALL_PG_SIZE);
@@ -262,14 +267,6 @@ classdef test_PixelData < TestCase
             assertExceptionThrown(f, 'MATLAB:subsassigndimmismatch')
         end
         
-        function test_size_of_PixelData_object_returns_underlying_data_size(obj)
-            % This may no longer be true if we start adding additional columns that
-            % are not part of the underlying pixel block
-            assertEqual(size(obj.pixel_data_obj), [9, 10]);
-            assertEqual(size(obj.pixel_data_obj, 1), 9);
-            assertEqual(size(obj.pixel_data_obj, 2), 10);
-        end
-        
         function test_PixelData_object_with_underlying_data_is_not_empty(obj)
             assertFalse(isempty(obj.pixel_data_obj));
         end
@@ -397,7 +394,7 @@ classdef test_PixelData < TestCase
         end
         
         function test_construction_with_file_path_sets_file_path_on_object(obj)
-            assertEqual(obj.pix_data_from_file.file_path, obj.test_sqw_file_full_path);
+            assertEqual(obj.pix_data_from_file.file_path, obj.tst_sqw_file_full_path);
         end
         
         function test_construction_with_file_path_populates_data_from_file(obj)
@@ -409,18 +406,7 @@ classdef test_PixelData < TestCase
         
         function test_construction_with_file_path_sets_num_pixels_in_file(obj)
             f_accessor = sqw_formats_factory.instance().get_loader(...
-                obj.test_sqw_file_path);
-            assertEqual(obj.pix_data_from_file.num_pixels, f_accessor.npixels);
-        end
-        
-        function test_construction_with_file_path_sets_size(obj)
-            f_accessor = sqw_formats_factory.instance().get_loader(...
-                obj.test_sqw_file_path);
-            size_ax_1 = size(obj.pix_data_from_file, 1);
-            assertEqual(size_ax_1, 9);
-            
-            size_ax_2 = size(obj.pix_data_from_file, 2);
-            assertEqual(size_ax_2, f_accessor.npixels);
+                obj.tst_sqw_file_full_path);
             assertEqual(obj.pix_data_from_file.num_pixels, f_accessor.npixels);
         end
         
@@ -438,7 +424,7 @@ classdef test_PixelData < TestCase
         end
         
         function test_construction_with_faccess_sets_file_path(obj)
-            assertEqual(obj.pix_data_from_faccess.file_path, obj.test_sqw_file_full_path);
+            assertEqual(obj.pix_data_from_faccess.file_path, obj.tst_sqw_file_full_path);
         end
         
         function test_page_size_is_set_after_getter_call_when_given_as_argument(obj)
@@ -555,7 +541,7 @@ classdef test_PixelData < TestCase
         
         function test_constructing_from_PixelData_with_valid_file_inits_faccess(obj)
             new_pix = PixelData(obj.pix_data_small_page);
-            assertEqual(new_pix.file_path, obj.test_sqw_file_full_path);
+            assertEqual(new_pix.file_path, obj.tst_sqw_file_full_path);
             assertEqual(new_pix.num_pixels, obj.pix_data_small_page.num_pixels);
             assertEqual(new_pix.signal, obj.pix_data_small_page.signal);
             assertTrue(new_pix.has_more());
@@ -716,7 +702,7 @@ classdef test_PixelData < TestCase
         end
         
         function test_copy_on_same_page_as_original_when_more_than_1_page(obj)
-            pix_original = PixelData(obj.test_sqw_file_path, 1e6);
+            pix_original = PixelData(obj.tst_sqw_file_full_path, 1e6);
             pix_original.signal = 1;
             pix_original.advance();
             
@@ -735,7 +721,7 @@ classdef test_PixelData < TestCase
         end
         
         function test_copy_on_same_pg_as_original_when_more_than_1_pg_no_advance(obj)
-            pix_original = PixelData(obj.test_sqw_file_path, 1e6);
+            pix_original = PixelData(obj.tst_sqw_file_full_path, 1e6);
             pix_original.signal = 1;
             
             pix_copy = copy(pix_original);
@@ -749,7 +735,7 @@ classdef test_PixelData < TestCase
         end
         
         function test_changes_to_original_persistent_in_copy_if_1_page_in_file(obj)
-            pix_original = PixelData(obj.test_sqw_file_path, 1e9);
+            pix_original = PixelData(obj.tst_sqw_file_full_path, 1e9);
             pix_original.signal = 1;
             pix_original.advance();
             
@@ -770,7 +756,7 @@ classdef test_PixelData < TestCase
         end
         
         function test_changes_to_orig_persistent_in_copy_if_1_pg_in_file_no_adv(obj)
-            pix_original = PixelData(obj.test_sqw_file_path, 1e9);
+            pix_original = PixelData(obj.tst_sqw_file_full_path, 1e9);
             pix_original.signal = 1;
             
             pix_copy = copy(pix_original);
@@ -832,7 +818,7 @@ classdef test_PixelData < TestCase
         end
         
         function test_changes_to_original_kept_in_copy_after_advance(obj)
-            pix_original = PixelData(obj.test_sqw_file_path, 1e2);
+            pix_original = PixelData(obj.tst_sqw_file_full_path, 1e2);
             pix_original.signal = 1;
             
             pix_copy = copy(pix_original);
@@ -913,7 +899,7 @@ classdef test_PixelData < TestCase
             pix.signal = 1;
             [n_page,num_pages]=pix.advance();
             assertEqual(n_page,1)
-            assertEqual(num_pages,1)            
+            assertEqual(num_pages,1)
             tmp_file_path = fullfile(expected_tmp_dir, '000000001.tmp');
             assertTrue(logical(exist(tmp_file_path, 'file')));
             
@@ -1095,31 +1081,18 @@ classdef test_PixelData < TestCase
             assertEqual(pix_data, data);
         end
         
-        function test_append_returns_editied_pix_if_nargout_eq_1(obj)
-            pix = PixelData(obj.test_sqw_file_path);
-            npix_to_append = 5;
-            pix_to_append = PixelData(rand(9, npix_to_append));
-            
-            out_pix = pix.append(pix_to_append);
-            
-            assertEqual(out_pix.num_pixels, pix.num_pixels + pix_to_append.num_pixels);
-            original_pix_data = concatenate_pixel_pages(pix);
-            out_pix_data = concatenate_pixel_pages(out_pix);
-            assertEqual(out_pix_data, horzcat(original_pix_data, pix_to_append.data));
-        end
         %
-        function DISABLED_test_append_returns_editied_pix_if_nargout_eq_1(obj)
+        function test_append_returns_editied_pix_if_nargout_eq_1(obj)
             % test for filebased pix_range. Has a problem
-            pix = PixelData(obj.test_sqw_file_path);
+            pix = PixelData(obj.tst_sqw_file_full_path);
             range1 = pix.pix_range;
             npix_to_append = 5;
             pix_to_append = PixelData(rand(9, npix_to_append));
             range2 =  pix_to_append.pix_range;
             ref_range = [min(range1(1,:),range2(1,:));...
                 max(range1(2,:),range2(2,:))];
-            
             out_pix = pix.append(pix_to_append);
-            % TODO: urange, stored in the file is different from
+            % img_range, stored in the file is different from
             % pix(min/max)
             assertEqual(ref_range,out_pix.pix_range);
             
@@ -1433,6 +1406,19 @@ classdef test_PixelData < TestCase
             assertEqual(ref_range,pix_chunk.pix_range);
         end
         
+        function test_get_pixels_on_file_backed_can_handle_repeated_indices(obj)
+            pix = PixelData(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
+            num_pix = pix.num_pixels;
+            data = concatenate_pixel_pages(pix);
+            
+            % Concatenate random permutation of linspaces up to num_pix, this means
+            % each index is repeated twice
+            idx_array = cat(2, randperm(num_pix), randperm(num_pix));
+            
+            pix_chunk = pix.get_pixels(idx_array);
+            assertEqual(pix_chunk.data, data(:, idx_array));
+        end
+        
         function test_pg_size_reports_size_of_partially_filled_pg_after_advance(obj)
             num_pix = 30;
             data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
@@ -1615,12 +1601,122 @@ classdef test_PixelData < TestCase
             assertEqual(pix.base_page_size, expected_num_pix);
         end
         
+        function test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages(obj)
+            pix = PixelData(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
+            pix.advance();  % pg 1 is clean
+            % Set all signals in page 2 to 11
+            pix.signal = 11;
+            pix.advance();  % pg 2 is dirty
+            pix.advance();  % pg 3 is clean
+            % Set all signals in page 4 to 12
+            pix.signal = 12;
+            pix.advance();  % advance to save pixels to tmp file (pg 4 is dirty)
+            
+            pg_size = pix.base_page_size;
+            % Set a range spanning into the first and second page and half of the
+            % 4th page
+            pix_range = [5:(pg_size + 100), ...
+                (3*pg_size + 4):(3*pg_size + floor(pg_size/2))];
+            new_pix = pix.get_pixels(pix_range);
+            
+            % Load the whole file into a PixelData object, set the corresponding
+            % pixels to 11 and 12 as above
+            in_mem_pix = PixelData(obj.tst_sqw_file_full_path);
+            in_mem_pix.signal((pg_size + 1):(2*pg_size)) = 11;
+            in_mem_pix.signal((3*pg_size + 1):(4*pg_size)) = 12;
+            expected_pix = PixelData(in_mem_pix.data(:, pix_range));
+            
+            assertEqualToTol(new_pix, expected_pix);
+        end
+        
+        function test_get_pixels_can_load_clean_and_dirty_pix_out_of_order(obj)
+            % See test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages for
+            % relevant test explanation
+            pix = PixelData(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
+            pix.advance();
+            pix.signal = 11;
+            pix.advance();
+            pix.signal = 12;
+            pix.advance();
+            
+            pg_size = pix.base_page_size;
+            pix_range = pix.num_pixels:-1:1;  % pix range in reverse order
+            new_pix = pix.get_pixels(pix_range);
+            
+            in_mem_pix = PixelData(obj.tst_sqw_file_full_path);
+            in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
+            in_mem_pix.signal(2*pg_size + 1:3*pg_size) = 12;
+            expected_pix = PixelData(in_mem_pix.data(:, pix_range));
+            
+            assertEqualToTol(new_pix, expected_pix);
+        end
+        
+        function test_get_pixels_can_load_clean_and_dirty_pix_with_duplicates(obj)
+            % See test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages for
+            % relevant test explanation
+            pix = PixelData(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
+            assertTrue(pix.page_size < pix.num_pixels);  % make sure we're paging
+            pix.advance();
+            pix.signal = 11;
+            pix.advance();
+            
+            pg_size = pix.base_page_size;
+            % Repeat each index from 1 to the page size 3 times
+            pix_range = repelem(1:3*pg_size, 3);
+            new_pix = pix.get_pixels(pix_range);
+            
+            in_mem_pix = PixelData(obj.tst_sqw_file_full_path);
+            in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
+            expected_pix = PixelData(in_mem_pix.data(:, pix_range));
+            
+            assertEqualToTol(new_pix, expected_pix);
+        end
+        
+        function test_get_pixels_can_load_clean_and_dirty_pix_cached_page_dirty(obj)
+            % See test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages for
+            % relevant test explanation
+            pix = PixelData(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
+            assertTrue(pix.page_size < pix.num_pixels);  % make sure we're paging
+            pix.advance();
+            pix.signal = 11;
+            % Do not advance past edited page, changes only exist in cache and not
+            % in temporary files
+            
+            pg_size = pix.base_page_size;
+            % Repeat each index from 1 to the page size 3 times
+            pix_range = repelem(1:3*pg_size, 3);
+            new_pix = pix.get_pixels(pix_range);
+            
+            in_mem_pix = PixelData(obj.tst_sqw_file_full_path);
+            in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
+            expected_pix = PixelData(in_mem_pix.data(:, pix_range));
+            
+            assertEqualToTol(new_pix, expected_pix);
+        end
+        
+        function test_get_pixels_correct_if_all_pages_dirty(~)
+            data = rand(9, 45);
+            mem_alloc = 8*9*15;
+            pix = PixelData(zeros(9, 0), mem_alloc);
+            for i = 1:3
+                a = (i - 1)*15 + 1;
+                b = i*15;
+                pix.append(PixelData(data(:, a:b)));
+            end
+            
+            pix_idx = [12:17, 28:33, 44];
+            new_pix = pix.get_pixels(pix_idx);
+            
+            expected_pix = PixelData(data(:, pix_idx));
+            assertEqualToTol(new_pix, expected_pix, 'reltol', 1e-5);
+        end
+        
         % -- Helpers --
         function [pix,pix_range] = get_pix_with_fake_faccess(obj, data, npix_in_page)
             pix_range = [min(data(1:4,:),[],2),max(data(1:4,:),[],2)]';
             faccess = FakeFAccess(data);
             % give it a real file path to trick code into thinking it exists
-            faccess = faccess.set_filepath(obj.test_sqw_file_full_path);
+            faccess = faccess.set_filepath(obj.tst_sqw_file_full_path);
             mem_alloc = npix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
             pix = PixelData(faccess, mem_alloc);
         end

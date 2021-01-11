@@ -151,13 +151,13 @@ classdef test_main_mex < TestCase
             hcf.use_mex = 0;
             [u_to_rlu_matl,urange_matl,pix_m]=rd.calc_projections();
             
-            assertEqual(size(pix_m,1),9)
+            assertEqual(size(pix_m.data, 1), 9);
             hcf.use_mex = 1;
             [u_to_rlu_c,urange_c,pix_c]=rd.calc_projections();
             
             assertElementsAlmostEqual(u_to_rlu_matl,u_to_rlu_c,'absolute',1.e-8);
             assertElementsAlmostEqual(urange_matl,urange_c,'absolute',1.e-8);
-            assertEqual(size(pix_c,1),9)
+            assertEqual(size(pix_c.data, 1), 9);
             assertElementsAlmostEqual(pix_m.data,pix_c.data,'absolute',1.e-8);
         end
         function test_recompute_bin_data(this)
