@@ -70,7 +70,8 @@ function data_out = assign_page_values(...
     if abs_pix_indices == NO_INPUT_INDICES
         data_out(:, start_idx:end_idx) = obj.data(field_indices, 1:end);
     else
-        [pg_idxs, global_idxs] = get_idxs_in_current_page_(obj, abs_pix_indices);
+        [pg_idxs, global_idxs] = ...
+            get_pg_idx_from_absolute_(obj, abs_pix_indices, obj.page_number_);
         data_out(:, global_idxs) = obj.data(field_indices, pg_idxs);
     end
 end
