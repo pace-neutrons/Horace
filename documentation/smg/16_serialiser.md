@@ -17,7 +17,9 @@ The serialised format has recently been updated to be more consistent and to hav
 The new style has a standardised header format depending on the shape of the data (with the exception of function handles).
 This format allows extension to support arrays of objects and structs in a way which the old serialiser couldn't.
 It also greatly simplifies the tag structure and allows it to align with the C++ MEX API data types.
-Data in these cases is serialised in the linearised order as defined by `data(:)` and the array reshaped by the deserialiser.
+Data is serialised in the linearised order as defined by `array(:)` and the array is subsequently reshaped by the deserialiser to the shape as defined by the header.
+
+#### Header format
 
 This standard format for the header is as follows:
 _Rank_ |     tag    | dim1 | dim2 | ...
