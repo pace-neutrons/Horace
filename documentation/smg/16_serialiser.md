@@ -95,9 +95,9 @@ Tag| Meaning
  30| SPARSE_DOUBLE
  31| SPARSE_COMPLEX_DOUBLE
 
-### Serialisation formats in detail
+## Serialisation formats in detail
 
-#### Simple data
+### Simple data
 Simple data (type tags 0-12) are serialised as:
 
 _Rank_ |     tag    | dim1 | dim2 | ... | Data
@@ -110,7 +110,7 @@ _N_    | N<<5 + type| dim1 | dim2 | ... | Data
 
 Where `data` is the held data cast to a `uint8` representation without altering the underlying memory.  
 
-#### Complex data
+### Complex data
 Complex numerical data (type tags 13-22) are serialised as:
 
 _Rank_ |     tag    | dim1 | dim2 | ... |    Data   |   ...
@@ -125,7 +125,7 @@ Where `real data` is the real component data cast to a `uint8` representation wi
 
 __NB.__ the serialised data are not interleaved, but sequential.
 
-#### Sparse data
+### Sparse data
 Sparse numeric data (type tags 29-31) are serialised as:
 
 _Rank_ |   _Type_  |     tag  | dim1 | dim2 | Data | ... |    ...    | ...
@@ -142,7 +142,7 @@ __NB.__ only rank-2 sparse arrays are permitted in MATLAB
 
 __NB.__ Due to storing dimensions as `uint32` data, rather than `double`, sizes of sparse arrays are limited to (2^32)-1
 
-#### Cell array
+### Cell array
 Cell array data (type tag 23) are serialised as:
 
 _Rank_ |     tag    | dim1 | dim2 | ... | Data
@@ -155,7 +155,7 @@ _N_    | N<<5 + type| dim1 | dim2 | ... | Data
 
 Where `data` is the concatenation of the serialisation of each element (see Relevant section for your data).
 
-#### Struct data
+### Struct data
 Structured tree data (type tag 24) uses the standard header format:
 
 _Rank_ |     tag    | dim1 | dim2 | ... | Data
@@ -175,7 +175,7 @@ nFields | length(fieldName1) | length(fieldName2) | ... | fieldName1 | fieldName
 
 __NB.__ For struct arrays `struct2cell` produces a Rank-(N+1) cell array, this means that for struct arrays, the limit on rank is 6.
 
-#### Object array
+### Object array
 Object array data (type tag 26) are serialised as:
 
 _Rank_ |     tag    | dim1 | dim2 | ... |Data|     ...            |    ...     |   ...   |  ...
@@ -191,7 +191,7 @@ Where the first 3 elements of data
 `ser_tag` is a `uint8` tag (described below) and
 `data` is the serialisation of the object by means described by `ser_tag`
 
-###### ser_tag
+##### ser_tag
 The object array's `ser_tag` contains information about the means by which the object has been serialised.
 It can have one of three values:
 
@@ -199,7 +199,7 @@ It can have one of three values:
 1) The object has been serialised by the `saveobj` method or function
 2) The object has been serialised by calling `struct` on the object
 
-#### Function handles
+### Function handles
 Function handles are serialised differently depending on their type.
 As function handles in MATLAB are purely scalar objects, the rank-component of the tag is utilised for tagging the type of function handle (thus the method to [de]serialise), these types are:
 
