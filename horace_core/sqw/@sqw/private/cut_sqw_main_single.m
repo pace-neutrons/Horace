@@ -162,8 +162,6 @@ data_out.e(no_pix)=0;
 
 if opt.keep_pix
     data_out.pix = PixelData(pix);    
-else
-    %data_out.pix.set_range(img_range_step);
 end
 
 
