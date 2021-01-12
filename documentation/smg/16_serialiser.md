@@ -106,7 +106,9 @@ _1_    | 32 + type  | nElem|      |     | Data
 _2_    | 64 + type  | dim1 | dim2 |     | Data
 _N_    | N<<5 + type| dim1 | dim2 | ... | Data
 
-#### Complex Data
+Where `data` is the held data cast to a `uint8` representation without altering the underlying memory.  
+
+#### Complex data
 Complex numerical data (type tags 13-22) are serialised as:
 
 _Rank_ |     tag    | dim1 | dim2 | ... |    Data   |   ...
@@ -117,41 +119,26 @@ _1_    | 32 + type  | nElem|      |     | Real Data | Imag Data
 _2_    | 64 + type  | dim1 | dim2 |     | Real Data | Imag Data
 _N_    | N<<5 + type| dim1 | dim2 | ... | Real Data | Imag Data
 
+Where `real data` is the real component data cast to a `uint8` representation without altering the underlying memory, and likewise for `imag data`.  
+
+__NB.__ the serialised data are not interleaved, but sequential.
+
 #### Sparse data
 Sparse numeric data (type tags 29-31) are serialised as:
 
-_Rank_ |   Type  |     tag  | dim1 | dim2 | Data | ... |    ...    | ...
--------|---------|----------|------|------|:----:|:---:|-----------|------
-_2_    | Real    | 64 + type| dim1 | dim2 |   i  |  j  | Data      |
-_2_    | Bool    | 64 + type| dim1 | dim2 |   i  |  j  | Data      |
-_2_    | Complex | 64 + type| dim1 | dim2 |   i  |  j  | Real Data | Imag Data
+_Rank_ |   _Type_  |     tag  | dim1 | dim2 | Data | ... |    ...    | ...
+-------|-----------|----------|------|------|:----:|:---:|-----------|------
+_2_    | _Real_    | 64 + type| dim1 | dim2 |   i  |  j  | Data      |
+_2_    | _Bool_    | 64 + type| dim1 | dim2 |   i  |  j  | Data      |
+_2_    | _Complex_ | 64 + type| dim1 | dim2 |   i  |  j  | Real Data | Imag Data
+
+Where `i` and `j` are serialised `uint32` representations of the row and column locations of the data. `Data`, `real data` and `imag data` are as described above.
 
 Based on `sparse(i,j,data)` [MATLAB documentation][sparse]
 
 __NB.__ only rank-2 sparse arrays are permitted in MATLAB
 
 __NB.__ Due to storing dimensions as `uint32` data, rather than `double`, sizes of sparse arrays are limited to (2^32)-1
-
-#### Struct data
-Structured tree data (type tag 24) uses the standard header format:
-
-_Rank_ |     tag    | dim1 | dim2 | ... | Data
--------|------------|------|------|:---:|------
-_NULL_ | 32 + type  | 0
-_0_    |    type    |      |      |     | Data
-_1_    | 32 + type  | nElem|      |     | Data
-_2_    | 64 + type  | dim1 | dim2 |     | Data
-_N_    | N<<5 + type| dim1 | dim2 | ... | Data
-
-
-Where data is formatted as follows:
-
-nFields | length(fieldName1) | length(fieldName2) | ... | fieldName1 | fieldName2 | ... | struct2cell(data)
---------|--------------------|--------------------|:---:|------------|------------|:---:|------------------
-
-nFields and fieldName lengths are serialised as `uint32`
-
-__NB.__ For struct arrays `struct2cell` produces a Rank-(N+1) cell array, this means that for struct arrays, the limit on rank is 6.
 
 #### Cell array
 Cell array data (type tag 23) are serialised as:
@@ -164,9 +151,29 @@ _1_    | 32 + type  | nElem|      |     | Data
 _2_    | 64 + type  | dim1 | dim2 |     | Data
 _N_    | N<<5 + type| dim1 | dim2 | ... | Data
 
-Where `data` is the concatenation of the serialisation of each element.
+Where `data` is the concatenation of the serialisation of each element (see Relevant section for your data).
 
-#### Object Array
+#### Struct data
+Structured tree data (type tag 24) uses the standard header format:
+
+_Rank_ |     tag    | dim1 | dim2 | ... | Data
+-------|------------|------|------|:---:|------
+_NULL_ | 32 + type  | 0
+_0_    |    type    |      |      |     | Data
+_1_    | 32 + type  | nElem|      |     | Data
+_2_    | 64 + type  | dim1 | dim2 |     | Data
+_N_    | N<<5 + type| dim1 | dim2 | ... | Data
+
+Where `data` is formatted as follows:
+
+nFields | length(fieldName1) | length(fieldName2) | ... | fieldName1 | fieldName2 | ... | struct2cell(contents)
+--------|--------------------|--------------------|:---:|------------|------------|:---:|------------------
+
+`nFields` and `fieldName` lengths are serialised `uint32` data, `fieldName`s are serialised 1-D char arrays (see [Simple data][simpledata]) and the contents of the structure are serialised as a cell (see [Cell array][cellarray]) as constructed by MATLAB's [struct2cell][struct2cell] function. 
+
+__NB.__ For struct arrays `struct2cell` produces a Rank-(N+1) cell array, this means that for struct arrays, the limit on rank is 6.
+
+#### Object array
 Object array data (type tag 26) are serialised as:
 
 _Rank_ |     tag    | dim1 | dim2 | ... |Data|     ...            |    ...     |   ...   |  ...
@@ -207,6 +214,8 @@ Simple/Class simple |  57     | function name as serialised string         |
 Anonymous           |  89     | anonymous function as serialised string    | relevant workspace as serialised struct
 Scoped              |  121    | function parentage as serialised cell array|
 
+Where the `data` are relevant values given by MATLAB's [functions][functions] function. 
+
 ### Limitations
 - Java objects cannot be serialized.
 - Cannot handle arrays of more than rank-7.
@@ -226,5 +235,8 @@ Scoped              |  121    | function parentage as serialised cell array|
 
 [tag]: #tag-format
 [simpledata]: #simple-data
+[cellarray]: #cell-array
 [sparse]: https://uk.mathworks.com/help/matlab/ref/sparse.html
+[struct2cell]: https://uk.mathworks.com/help/matlab/ref/struct2cell.html
+[functions]: https://uk.mathworks.com/help/matlab/ref/functions.html
 [bciref]: https://sccn.ucsd.edu/wiki/Arg_define
