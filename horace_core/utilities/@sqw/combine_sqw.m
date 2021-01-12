@@ -110,6 +110,9 @@ wout=get(w1);
 for i=1:ndims1
     step=wout.data.p{i}(2)-wout.data.p{i}(1);
     wout.data.p{i}=make_const_bin_boundaries([min_full{i},step,max_full{i}]);
+    % TODO: the previous value used here is different from the value,
+    % defined by make_const_bin_boundaries. All seems work. 
+    % Was those a bug or a feature?
     %[[min_full{i}-step+eps:step:max_full{i}+step-eps]';
 end
 
