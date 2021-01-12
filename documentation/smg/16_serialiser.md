@@ -213,7 +213,7 @@ Scoped              |  121    | function parentage as serialised cell array|
 - Cannot handle arrays where the size of any dimension > (2^32)-1 due to serialising dimensions as `uint32`.
   __NB.__ This includes sparse matrices.
 - Handles to nested/scoped functions can only be deserialized when their parent functions
-  support the BCILAB argument reporting protocol (e.g., by using arg_define).
+  support the [BCILAB][bciref] argument reporting protocol (e.g., by using arg_define).
 - New MATLAB objects need to be reasonably friendly to serialization; either they support
   construction from a struct, or they support saveobj/loadobj(struct), or all their important
   properties can be set via set(obj,'name',value).
@@ -227,3 +227,4 @@ Scoped              |  121    | function parentage as serialised cell array|
 [tag]: #tag-format
 [simpledata]: #simple-data
 [sparse]: https://uk.mathworks.com/help/matlab/ref/sparse.html
+[bciref]: https://sccn.ucsd.edu/wiki/Arg_define
