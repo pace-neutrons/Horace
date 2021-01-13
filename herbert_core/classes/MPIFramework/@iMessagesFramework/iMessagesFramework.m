@@ -445,8 +445,7 @@ classdef iMessagesFramework < handle
 
             base64 = org.apache.commons.codec.binary.Base64;
             y = base64.decode(y);
-            % iarr = mod(int16(y),256); % convert from int8 to uint8
-            iarr = typecast(y, 'uint8');
+            iarr = uint8(mod(int16(y),256)); % convert from int8 to uint8
             params  =  hlp_deserialise(iarr);
         end
         %
