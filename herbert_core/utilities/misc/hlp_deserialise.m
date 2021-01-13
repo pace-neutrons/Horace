@@ -26,7 +26,7 @@ function v = hlp_deserialise(m)
 %                                adapted from deserialize.m
 %                                (C) 2010 Tim Hutt
 
-
+    m = m(:); % Force column vector in-place
     v = deserialise_value(m,1);
 
 end
