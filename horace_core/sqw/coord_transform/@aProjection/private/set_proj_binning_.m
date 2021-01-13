@@ -1,8 +1,8 @@
-function this = set_proj_binning_(this,new_bin_range,pax,iax,p)
-
-% Check input arguments
+function this = set_proj_binning_(this,new_img_range,pax,iax,p)
 %
-this.urange_ = new_bin_range;
+%
+%
+this.new_img_range_ = new_img_range;
 %---------------------------------------------------
 % Get matrix, and offset in pixel proj. axes, that convert from coords in pixel proj. axes to multiples of step from lower point of range
 % ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ this.urange_ = new_bin_range;
 %  In the cutting algorithm, plot axes with one bin only will be treated exactly as integration axes; we can always reshape the output
 % to insert singleton dimensions as required.
 %  (*** Implicitly assumes that there is no energy offset in uoffset, either in the input data or the requested output proj axes
-%   *** Will need to modify get_nrange_rot_section, calc_ubins and routines they call to handle this.)
+%   *** Will need to modify get_nrange_rot_section, calc_transf_img_bins and routines they call to handle this.)
 
 % Get plot axes with two or more bins, and the number of bins along those axes
 j=1;
@@ -28,12 +28,12 @@ for i=1:length(pax)
 end
 % Set range and step size for plot axes with two or more bins to be the permitted range in multiples of the bin width
 % Treat other axes as unit step length, range in units of output proj. axes
-urange_step=new_bin_range;      % range expressed as steps/length of output ui
+urange_step=new_img_range;      % range expressed as steps/length of output ui
 urange_offset = zeros(1,4);     % offset for start of measurement as lower left corner/origin as defined by uoffset
 ustep = ones(1,4);              % step as multiple of unit ui/unity
 if ~isempty(pax_gt1)
     urange_step(:,pax_gt1)=[zeros(1,length(pax_gt1));nbin_gt1];
-    urange_offset(pax_gt1)=new_bin_range(1,pax_gt1);
+    urange_offset(pax_gt1)=new_img_range(1,pax_gt1);
     ustep(pax_gt1)=ustep_gt1;
 end
 % % set unit ranges for integration axis
@@ -52,7 +52,4 @@ this.nbin_gt1_   = nbin_gt1;
 this.usteps_ = ustep;
 this.urange_step_ = urange_step;
 this.urange_offset_ = urange_offset;
-
-
-
 

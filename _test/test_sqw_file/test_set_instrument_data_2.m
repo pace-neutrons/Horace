@@ -51,8 +51,8 @@ h_file_s=head_horace(data_inst_ref);
 h_file_s = rmfield(h_file_s,{'npixels','nfiles'});
 
 h_file=head_horace(data_inst_ref,'-full');
-data = h_file.data.to_struct();
-data = rmfield(data,{'pix','axis_caption','num_pixels'});
+data = h_file.data.struct();
+data = rmfield(data,{'pix','axis_caption','num_pixels','version'});
 assertEqual(data,h_file_s)
 
 

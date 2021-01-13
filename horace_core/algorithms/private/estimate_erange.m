@@ -1,5 +1,5 @@
 function [elo_out,ehi_out]=estimate_erange(efix,emode,elo,ehi)
-% Make an estimate of the energy transfer range for construction of urange
+% Make an estimate of the energy transfer range for construction of pix_range
 %
 %   >> [elo,ehi]=estimate_erange(efix,emode,elo,ehi)
 %
@@ -27,7 +27,6 @@ function [elo_out,ehi_out]=estimate_erange(efix,emode,elo,ehi)
 %              fraction for those runs where ehi was actually given, or if
 %              none given default fraction 0.99 (emode=1 and emode=2).
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 
 

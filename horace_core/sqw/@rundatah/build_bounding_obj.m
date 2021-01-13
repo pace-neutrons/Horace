@@ -3,8 +3,6 @@ function rdl = build_bounding_obj(obj,varargin)
 % min and max transmitted energy range
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
 if nargin == 3
     en_min  = varargin{1};
     en_max  = varargin{2};
@@ -19,7 +17,7 @@ end
 if isempty(obj.loader)
     if ~range_given
         error('RUNDATAH:invalid_argument',...
-            'calc_bounding_obj: trying to calculate rundata urange but the object is not fully defined and energy range is not specified')
+            'calc_bounding_obj: trying to calculate rundata pix_range but the object is not fully defined and energy range is not specified')
     end
     obj_defined = false;
 else
