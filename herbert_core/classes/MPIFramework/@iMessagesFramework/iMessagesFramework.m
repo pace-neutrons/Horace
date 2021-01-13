@@ -14,7 +14,7 @@ classdef iMessagesFramework < handle
         % name is created in shared location to keep initial job settings
         % and transfer progress messages from cluster to the user's node.
         job_id;
-        
+
         % returns the index of the worker currently executing the function.
         % labIndex is assigned to each worker when a job begins execution,
         % and applies only for the duration of that job.
@@ -22,13 +22,13 @@ classdef iMessagesFramework < handle
         % workers running the current job, defined by numlabs. Index 0
         % reserved for interactive user's node.
         labIndex;
-        
+
         % Number of independent workers used by the framework
         numLabs;
-        
+
         % return true if the framework is tested
         is_tested
-        
+
         % Time in seconds a system waits for blocking message until
         % returning "not-received" (and normally throwing error)
         time_to_fail;
@@ -43,12 +43,12 @@ classdef iMessagesFramework < handle
         % return the diagnostics to users.
         % The property in this case is set to false.
         throw_on_interrupts
-        
+
     end
     properties(Access=protected,Hidden=true)
         % The string, uniquely identifying the running job.
         job_id_;
-        
+
         % time in seconds to waiting in blocking message until
         % unblocking or failing. Does not work for some operations in some frameworks
         % (e.g. receive_message in mpi)
@@ -56,7 +56,7 @@ classdef iMessagesFramework < handle
         % time to wait between subsequent attempts to repeat command, related to a
         % a message exchange
         time_to_react_ = 0.1
-        
+
         % The holder for persistent messages, used to mark special job states
         % (e.g. completion or failure) for a particular worker (lab)
         % if the variable is not empty, a special event happened, so the
@@ -68,7 +68,7 @@ classdef iMessagesFramework < handle
         % interrupt message is received and delivered as output of
         % receive_message function.
         throw_on_interrupts_ =  true;
-        
+
         % interrupt channel name:
         interrupt_chan_name_;
         % the tag of the interrupt channel
@@ -80,7 +80,7 @@ classdef iMessagesFramework < handle
         % open file handle to do logging.
         ext_log_fh=[];
     end
-    
+
     methods
         function obj = iMessagesFramework(varargin)
             % default prefix is srting build from the number consisting of
@@ -181,7 +181,7 @@ classdef iMessagesFramework < handle
                     end
                     cs = obj.build_worker_init(...
                         datapath,obj.job_id,intercom_name,labID,numLabs,test_with_serialation);
-                    
+
                 else
                     cs = obj.build_worker_init(...
                         datapath,obj.job_id,intercom_name,labID,numLabs);
@@ -201,7 +201,7 @@ classdef iMessagesFramework < handle
             % Interrupt message is the message describing a state
             % of the source which persists until the current job
             % is completed or aborted.
-            
+
             set_interrupt_(obj,mess,source_address);
         end
         %
@@ -257,7 +257,7 @@ classdef iMessagesFramework < handle
             if isKey(obj.persistent_fail_message_,int32(task_id))
                 remove(obj.persistent_fail_message_,int32(task_id));
             end
-            
+
         end
         %
         function [all_messages,task_ids] = receive_all(obj,task_ids,varargin)
@@ -360,14 +360,14 @@ classdef iMessagesFramework < handle
             % >> on success, message contains an object of class aMessage,
             %        with the received message contents.
             %
-            
+
             % call common function to check and validate inputs
             [from_task_id,mess_name,is_blocking]=obj.check_receive_inputs(from_task_id,varargin{:});
             %
             [ok,err_mess,message] = obj.receive_message_internal(from_task_id,mess_name,is_blocking);
         end
     end
-    
+
     methods(Static)
         function cs = build_worker_init(path_to_data_exchange_folder,jobID,...
                 intercom_name,labID,numLabs,test_mode)
@@ -442,11 +442,12 @@ classdef iMessagesFramework < handle
             %c = java.io.ByteArrayOutputStream;
             %isc.copyStream(b,c);
             %y=typecast(c.toByteArray,'uint8');
-            
+
             base64 = org.apache.commons.codec.binary.Base64;
             y = base64.decode(y);
-            iarr = mod(int16(y),256); % convert from int8 to uint8
-            params  =  hlp_deserialize(iarr);
+            % iarr = mod(int16(y),256); % convert from int8 to uint8
+            iarr = typecast(y, 'uint8');
+            params  =  hlp_deserialise(iarr);
         end
         %
         function [par,mess] = serialize_par(param)
@@ -459,7 +460,7 @@ classdef iMessagesFramework < handle
             mess = '';
             par = '';
             try
-                v = hlp_serialize(param)';
+                v = hlp_serialise(param)';
             catch ME
                 mess = ME.message;
                 return
@@ -478,7 +479,7 @@ classdef iMessagesFramework < handle
         end
         %
     end
-    
+
     methods(Static,Access=protected)
         function id = get_framework_id()
             % get random ID for messaging framework
@@ -494,7 +495,7 @@ classdef iMessagesFramework < handle
             mod = round(log10(pid))+1;
             delta =10-mod;
             pid  = round(pid*10^delta);
-            
+
             id = sprintf('%i',pid+round(datetime('now').Second*10));
         end
         %
@@ -560,7 +561,7 @@ classdef iMessagesFramework < handle
         % framework_info -- data, necessary for framework to operate and
         % do message exchange.
         init_framework(obj,framework_info)
-        
+
         %------------------------------------------------------------------
         % MPI interface
         %
@@ -574,8 +575,8 @@ classdef iMessagesFramework < handle
         % >>    if other value, error_code and error_mess provide additional
         %       information for the failure
         [ok,err_mess] = send_message(obj,task_id,message)
-        
-        
+
+
         % list all messages existing in the system from the tasks
         % with id-s specified as input
         %Input:
@@ -588,7 +589,7 @@ classdef iMessagesFramework < handle
         % if task_id list is empty or missing, returns all existing
         % messages
         [all_messages_names,task_ids] = probe_all(obj,task_ids,mess_names)
-        
+
         % receive messages from a task with id-s specified as array or
         % all messages from all labs available.
         %
@@ -637,7 +638,7 @@ classdef iMessagesFramework < handle
         %                in asynchronous mode, size(task_ids) at output
         %                may be smaller then the size(task_ids) at input.
         %[all_messages,task_ids] = receive_all(obj,task_ids,mess_name_or_tag,varargin)
-        
+
         % wait until all workers arrive to the part of the code marked
         % by this barrier.
         [ok,err]=labBarrier(obj,nothrow);
@@ -645,16 +646,16 @@ classdef iMessagesFramework < handle
         % delete all messages belonging to this instance of messages
         % framework and shut the framework down.
         finalize_all(obj)
-        
+
         %
         % remove all messages directed to the given lab from MPI message
         % cache
         % Do not shut the cluster down
         clear_messages(obj);
-        
+
         % method verifies if job has been canceled
         is = is_job_canceled(obj)
-        
+
         % the method, used by filebased framework to set up number of
         % parallel workers and the worker-id or by other frameworks to set
         % up these numbers in test mode.
@@ -684,7 +685,7 @@ classdef iMessagesFramework < handle
         %       failure.
         % >> on success, message contains an object of class aMessage,
         %        with the received message contents.
-        
+
         [is_ok,err_mess,message] = receive_message_internal(obj,task_id,mess_name,is_blocking)
     end
     %
@@ -745,7 +746,7 @@ classdef iMessagesFramework < handle
                 error('MESSAGES_FRAMEWORK:invalid_argument',...
                     'mess_name in recive_message command should be a message name (e.g. "starting")');
             end
-            
+
             % check if the message should be received synchronously or asynchronously
             is_blocking = obj.check_is_blocking(mess_name,varargin);
         end
@@ -778,5 +779,5 @@ classdef iMessagesFramework < handle
         end
         %
     end
-    
+
 end

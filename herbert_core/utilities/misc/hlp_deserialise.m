@@ -27,7 +27,7 @@ function v = hlp_deserialise(m)
 %                                (C) 2010 Tim Hutt
 
 
-    v = deserialise_value(uint8(m),1);
+    v = deserialise_value(m,1);
 
 end
 
