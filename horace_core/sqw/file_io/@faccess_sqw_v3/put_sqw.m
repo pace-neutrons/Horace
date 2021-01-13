@@ -55,7 +55,7 @@ obj = put_sample_instr_records_(obj);
 % should not be necessary, as init calculated it correctly, but to be on a
 % safe side...
 obj.position_info_pos_= obj.instr_sample_end_pos_;
-obj = put_sqw_footer_(obj);
+obj = obj.put_sqw_footer();
 
 function obj=write_v2_obj_header(obj)
 % write v3 file as v2 file

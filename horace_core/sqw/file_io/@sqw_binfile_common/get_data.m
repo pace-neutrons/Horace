@@ -84,7 +84,7 @@ function [data,obj] = get_data(obj,varargin)
 %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-%   data.urange     True range of the data along each axis [urange(2,4)]
+%   data.pix_range     True range of the data along each axis [pix_range(2,4)]
 %   data.pix        A PixelData objects
 %
 %
@@ -112,15 +112,10 @@ end
 
 [data_str,obj] = obj.get_data@dnd_binfile_common(obj,argi{:});
 
-fseek(obj.file_id_,obj.urange_pos_,'bof');
-[mess,res] = ferror(obj.file_id_);
-if res ~= 0
-    error('SQW_BINILE_COMMON:io_error',...
-          'Can not move to the urange start position, Reason: %s',mess);
-end
-
-data_str.urange = fread(obj.file_id_,[2,4],'float32');
-
+%
+data_str.img_range = obj.get_img_range();
+%
+%
 % parse all arguments, including those that weren't passed to the parent method
 opts = parse_args(varargin{:});
 
@@ -132,6 +127,7 @@ data = data_sqw_dnd(data_str);
 
 if ~opts.nopix
     data.pix = PixelData(obj, opts.pixel_page_size);
+    %
 end
 
 end  % function
@@ -139,15 +135,15 @@ end  % function
 
 % -----------------------------------------------------------------------------
 function opts = parse_args(varargin)
-    flags = {'header','verbatim','hverbatim','nopix', 'noclass'};
-    kwargs = struct('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE);
-    for flag_idx = 1:numel(flags)
-        kwargs.(flags{flag_idx}) = false;
-    end
-    parser_opts = struct('prefix', '-', 'prefix_req', false);
-    [~, opts, ~, ~, ok, mess] = parse_arguments(varargin, kwargs, flags, ...
-                                                parser_opts);
-    if ~ok
-        error('SQW_FILE_INTERFACE:invalid_argument', ['get_data: ', mess]);
-    end
+flags = {'header','verbatim','hverbatim','nopix', 'noclass'};
+kwargs = struct('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE);
+for flag_idx = 1:numel(flags)
+    kwargs.(flags{flag_idx}) = false;
+end
+parser_opts = struct('prefix', '-', 'prefix_req', false);
+[~, opts, ~, ~, ok, mess] = parse_arguments(varargin, kwargs, flags, ...
+    parser_opts);
+if ~ok
+    error('SQW_FILE_INTERFACE:invalid_argument', ['get_data: ', mess]);
+end
 end

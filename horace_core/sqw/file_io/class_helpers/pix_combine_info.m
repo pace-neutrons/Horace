@@ -38,6 +38,8 @@ classdef pix_combine_info
         
         % auxiliary propery used by cut_sqw
         npix_cumsum;
+        % Global range of all pixels, intended for combining
+        pix_range
     end
     
     properties(Dependent)
