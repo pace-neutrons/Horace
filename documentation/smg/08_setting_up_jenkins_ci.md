@@ -332,42 +332,42 @@ withCredentials([string(credentialsId: 'TOKEN_ID', variable: 'secret')]) {
 
 #### Herbert
 
-<img src="./images/HerbertPR.svg">
+<img src="./images/08_HerbertPR.svg">
 
 #### Horace
 
-<img src="./images/HoracePR.svg">
+<img src="./images/08_HoracePR.svg">
 
 ### Nightly
 
 #### Herbert
 
-<img src="./images/HerbertNightly.svg">
+<img src="./images/08_HerbertNightly.svg">
 
 #### Horace
 
-<img src="./images/HoraceNightly.svg">
+<img src="./images/08_HoraceNightly.svg">
 
 ### Release
 
 #### Herbert
 
-<img src="./images/HerbertRelease.svg">
+<img src="./images/08_HerbertRelease.svg">
 
 #### Horace
 
-<img src="./images/HoraceRelease.svg">
+<img src="./images/08_HoraceRelease.svg">
 
 ### Deploy
 
 #### Herbert
 
-<img src="./images/HerbertDeploy.svg">
+<img src="./images/08_HerbertDeploy.svg">
 
 #### Horace
 
-<img src="./images/HoraceDeploy.svg">
+<img src="./images/08_HoraceDeploy.svg">
 
 ### Documentation
 
-<img src="./images/DocumentationPipeline.svg">
+<img src="./images/08_DocumentationPipeline.svg">
