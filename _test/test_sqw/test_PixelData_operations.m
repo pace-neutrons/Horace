@@ -139,13 +139,22 @@ classdef test_PixelData_operations < TestCase
                 set_temporary_config_options(hor_config(), 'use_mex', true, 'threads', 4);
             
             [s, e] = obj.pix_with_pages_2d.compute_bin_data(obj.ref_npix_data_2d);
+            persistent all_max;
+            if isempty(all_max)
+                try
+                    all_max = @(x)max(x,[],'all');
+                    mm = all_max(1:10);
+                catch
+                    all_max = @(x)max(reshape(x,[1,numel(x)]));
+                end
+            end
             
             % Scale the signal and error to account for rounding errors
-            max_s = max(s, [], 'all');
+            max_s = all_max(s);
             scaled_s = s/max_s;
             scaled_ref_s = obj.ref_s_data_2d/max_s;
             
-            max_e = max(e, [], 'all');
+            max_e = all_max(e);
             scaled_e = e/max_e;
             scaled_ref_e = obj.ref_e_data_2d/max_e;
             
@@ -164,28 +173,28 @@ classdef test_PixelData_operations < TestCase
             assertEqual(e, obj.ref_e_data, '', obj.FLOAT_TOLERANCE);
         end
         
-    function test_compute_bin_data_mex_rets_empty_arrays_if_num_pix_is_zero(obj)
-        cleanup_handle = ...
-            set_temporary_config_options(hor_config(), 'use_mex', true);
-
-        p = PixelData();
-        [s, e] = p.compute_bin_data([]);
-
-        assertTrue(isempty(s));
-        assertTrue(isempty(e));
-    end
-
-    function test_compute_bin_data_nomex_empty_arrays_if_npix_is_zero(obj)
-        cleanup_handle = ...
-            set_temporary_config_options(hor_config(), 'use_mex', false);
-
-        p = PixelData();
-        [s, e] = p.compute_bin_data([]);
-
-        assertTrue(isempty(s));
-        assertTrue(isempty(e));
-    end
-
+        function test_compute_bin_data_mex_rets_empty_arrays_if_num_pix_is_zero(obj)
+            cleanup_handle = ...
+                set_temporary_config_options(hor_config(), 'use_mex', true);
+            
+            p = PixelData();
+            [s, e] = p.compute_bin_data([]);
+            
+            assertTrue(isempty(s));
+            assertTrue(isempty(e));
+        end
+        
+        function test_compute_bin_data_nomex_empty_arrays_if_npix_is_zero(obj)
+            cleanup_handle = ...
+                set_temporary_config_options(hor_config(), 'use_mex', false);
+            
+            p = PixelData();
+            [s, e] = p.compute_bin_data([]);
+            
+            assertTrue(isempty(s));
+            assertTrue(isempty(e));
+        end
+        
         function test_do_unary_op_returns_correct_output_with_cosine_gt_1_page(obj)
             data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 50);
             npix_in_page = 11;
@@ -307,7 +316,7 @@ classdef test_PixelData_operations < TestCase
             pix_out = pix.mask(mask_array);
             assertTrue(isa(pix_out, 'PixelData'));
             assertTrue(isempty(pix_out));
-            assertEqual(pix_out.pix_range,PixelData.EMPTY_RANGE_);            
+            assertEqual(pix_out.pix_range,PixelData.EMPTY_RANGE_);
         end
         
         function test_mask_raises_if_mask_array_len_neq_to_pg_size_or_num_pixels(obj)
@@ -379,7 +388,7 @@ classdef test_PixelData_operations < TestCase
             
             actual_data = concatenate_pixel_pages(pix);
             assertEqual(actual_data, expected_data);
-            assertEqual(pix.pix_range, ref_range);            
+            assertEqual(pix.pix_range, ref_range);
         end
         
         function test_mask_deletes_pixels_when_given_npix_argument_pix_in_mem(obj)
