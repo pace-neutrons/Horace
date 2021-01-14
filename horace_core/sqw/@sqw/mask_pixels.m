@@ -82,7 +82,6 @@ end
 ibin = replicate_array(1:prod(sz),win.data.npix);   % (linear) bin number for each pixel
 npix=accumarray(ibin(mask_array),ones(1,sum(mask_array)),[prod(sz),1]);
 wout.data.npix=reshape(npix,sz);
-wout.data.pix.data=win.data.pix.get_pixels(mask_array).data;
+wout.data.pix=win.data.pix.mask(mask_array);
 wout.data.img_range=recompute_img_range(wout);
 wout=recompute_bin_data(wout);
-
