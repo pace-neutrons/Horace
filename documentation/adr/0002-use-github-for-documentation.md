@@ -21,13 +21,15 @@ The GitHub Wiki repository does not support pull requests, or the display of any
 
 ## Decision
 
-We will store documentation in the `Horace/documentation` folder and link to this from the the [GitHub Wiki](https://github.com/pace-neutrons/pace-developers/wiki) which is attached to the PACE project on GitHub. 
+~We will store documentation in the `Horace/documentation` folder and link to this from the [GitHub Wiki](https://github.com/pace-neutrons/pace-developers/wiki) which is attached to the PACE project on GitHub.~ 
+
+We will store documentation in the `Horace/documentation` folder which will be built regularly and deployed to the GitHub pages under the following scheme: 
 
 The documentation will be supported and built by the Jenkins pipeline and automatically deployed on:
 - nightly builds (unstable)
 - release pipeline (stable & horace-version)
 
-The Jenkins pipeline will also build the documentation as a zipped artifact for examination on other builds.
+The Jenkins will also build the documentation as a zipped artefact on other pipelines.
 
 ## Consequences
 
