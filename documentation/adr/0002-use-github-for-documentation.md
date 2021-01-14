@@ -27,9 +27,9 @@ We will store documentation in the `Horace/documentation` folder which will be b
 
 The documentation will be supported and built by the Jenkins pipeline and automatically deployed on:
 - nightly builds (unstable)
-- release pipeline (stable & horace-version)
+- deploy pipeline (stable & horace-version)
 
-The Jenkins will also build the documentation as a zipped artefact on other pipelines.
+The Jenkins will also build the documentation as a zipped artefact on other pipelines (PR, Branch, etc.) to ensure that any modifications do not affect the documentation. Following the implementation of documentation tests, will also ensure that scripts contained in the documentation remain valid and functional. 
 
 ## Consequences
 
