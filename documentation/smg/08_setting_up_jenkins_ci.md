@@ -327,25 +327,47 @@ withCredentials([string(credentialsId: 'TOKEN_ID', variable: 'secret')]) {
 ```
 
 ## Established Jenkins pipelines
+
 ### PR
+
 #### Herbert
-  <img src="./images/HerbertPR.svg">
+
+<img src="./images/HerbertPR.svg">
+
 #### Horace
-  <img src="./images/HoracePR.svg">
+
+<img src="./images/HoracePR.svg">
+
 ### Nightly
+
 #### Herbert
-  <img src="./images/HerbertNightly.svg">
+
+<img src="./images/HerbertNightly.svg">
+
 #### Horace
-  <img src="./images/HoraceNightly.svg">
+
+<img src="./images/HoraceNightly.svg">
+
 ### Release
+
 #### Herbert
-  <img src="./images/HerbertRelease.svg">
+
+<img src="./images/HerbertRelease.svg">
+
 #### Horace
-  <img src="./images/HoraceRelease.svg">
+
+<img src="./images/HoraceRelease.svg">
+
 ### Deploy
+
 #### Herbert
-  <img src="./images/HerbertDeploy.svg">
+
+<img src="./images/HerbertDeploy.svg">
+
 #### Horace
-  <img src="./images/HoraceDeploy.svg">
+
+<img src="./images/HoraceDeploy.svg">
+
 ### Documentation
-  <img src="./images/DocumentationPipeline.svg">
+
+<img src="./images/DocumentationPipeline.svg">
