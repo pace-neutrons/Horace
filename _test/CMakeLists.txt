@@ -1,5 +1,6 @@
 set(TEST_DIRECTORIES
     "test_admin"
+    "test_algorithms"
     "test_ascii_column_data"
     "test_change_crystal"
     "test_combine"
