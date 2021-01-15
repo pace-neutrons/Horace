@@ -273,7 +273,9 @@ classdef test_faccess_sqw_v2< TestCase
 
             to = sqw_formats_factory.instance().get_loader(tf);
             assertTrue(isa(to,'faccess_sqw_v3'));
+            assertTrue(isa(to,'faccess_sqw_v3_3'));
 
+            
             sqw2 = to.get_sqw();
 
             assertEqual(sqw1,sqw2);
@@ -304,7 +306,7 @@ classdef test_faccess_sqw_v2< TestCase
             tobV3.delete();
 
             to = sqw_formats_factory.instance().get_loader(tf);
-            assertTrue(isa(to,'faccess_sqw_v3'));
+            assertTrue(isa(to,'faccess_sqw_v3_3'));
 
             sqw2 = to.get_sqw();
             to.delete();

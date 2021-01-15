@@ -1,4 +1,4 @@
-function [tmp_file,grid_size,urange] = accumulate_sqw (varargin)
+function [tmp_file,grid_size,pix_range] = accumulate_sqw (varargin)
 % Read one or more spe files and a detector parameter file, and accumulate to an existing sqw file.
 %
 % Normal use:
@@ -41,13 +41,13 @@ function [tmp_file,grid_size,urange] = accumulate_sqw (varargin)
 %
 % If the sqw file does not yet exist, or you  specify 'clean', you can give fix
 % the grid and data range:
-%   >> accumulate_sqw (..., grid_size_in, urange_in)
-%   >> accumulate_sqw (..., grid_size_in, urange_in, instrument, sample)
+%   >> accumulate_sqw (..., grid_size_in, pix_range_in)
+%   >> accumulate_sqw (..., grid_size_in, pix_range_in, instrument, sample)
 %
 %
 % If want output diagnostics:
 % ---------------------------
-%   >> [tmp_file,grid_size,urange] = accumulate_sqw (...)
+%   >> [tmp_file,grid_size,pix_range] = accumulate_sqw (...)
 %
 % 
 % Notes
@@ -88,7 +88,7 @@ function [tmp_file,grid_size,urange] = accumulate_sqw (varargin)
 % Optional arguments:
 %   grid_size_in    [Optional] Scalar or row vector of grid dimensions
 %                   Default if not given or [] is is [50,50,50,50]
-%   urange_in       [Optional] Range of data grid for output as a 2x4 matrix:
+%   pix_range_in       [Optional] Range of data grid for output as a 2x4 matrix:
 %                              [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
 %                   Default if not given or [] is the smallest hypercuboid that encloses the whole data range.
 %   instrument      Structure or object containing instrument information [scalar or array length nfile]
@@ -122,7 +122,7 @@ function [tmp_file,grid_size,urange] = accumulate_sqw (varargin)
 %                  e.g. if a single spe file, when no temporary file is created)
 %   grid_size       Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
-%   urange          Actual range of grid
+%   pix_range      Actual range of grid
 
 
 % Original author: T.G.Perring
@@ -130,14 +130,13 @@ function [tmp_file,grid_size,urange] = accumulate_sqw (varargin)
 % Generalised by T.G.Perring and now calls gen_sqw
 % New time feature added by R.A. Ewings (30/11/2015)
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Gateway routine that calls sqw method
-[tmp_file,grid_size,urange] = gen_sqw (varargin{:}, 'accumulate');
+[tmp_file,grid_size,pix_range] = gen_sqw (varargin{:}, 'accumulate');
 
 % Clear output arguments if nargout==0 to have a silent return
 if nargout==0
-    clear tmp_file grid_size urange
+    clear tmp_file grid_size pix_range
 end
 

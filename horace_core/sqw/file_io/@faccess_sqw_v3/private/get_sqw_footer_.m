@@ -1,15 +1,22 @@
-function  obj= get_sqw_footer_(obj)
+function  obj= get_sqw_footer_(obj,varargin)
 % Read sqw object v3 structure to initialize sqw-v3 file reader
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 %
+%
+[ok,mess,init_for_upgrade] = parse_char_options(varargin,{'-upgrade'});
+if ~ok
+    error('INIT_SQW_STRUCTURE:invalid_argument',mess);
+end
+
 obj = get_sqw_file_footer(obj);
 %
-[fp,fn,ext]=fileparts(fopen(obj.file_id_));
-obj.filename_ =[fn,ext];
-obj.filepath_ =[fp,filesep];
+if ~init_for_upgrade
+    [fp,fn,ext]=fileparts(fopen(obj.file_id_));
+    obj.filename_ =[fn,ext];
+    obj.filepath_ =[fp,filesep];
+end
 
 % read the number of files contributing into this sqw file
 %obj.num_contrib_files_ = get_num_contrib_files(obj);
@@ -40,8 +47,8 @@ function obj = get_sqw_file_footer(obj)
 %   data_type               Type of sqw data contained in the file: will be one of
 %                               type 'b'    fields: filename,...,uoffset,...,dax,s,e
 %                               type 'b+'   fields: filename,...,uoffset,...,dax,s,e,npix
-%                               type 'a'    fields: filename,...,uoffset,...,dax,s,e,npix,urange,pix
-%                               type 'a-'   fields: filename,...,uoffset,...,dax,s,e,npix,urange
+%                               type 'a'    fields: filename,...,uoffset,...,dax,s,e,npix,pix_range,pix
+%                               type 'a-'   fields: filename,...,uoffset,...,dax,s,e,npix,pix_range
 %   position                Position of the file footer in the file
 
 
@@ -70,6 +77,11 @@ test_error(obj.file_id_,'Unable to read sqw_v3 file descriptor');
 %
 descr_format = obj.get_si_form();
 fd_struct = obj.sqw_serializer_.deserialize_bytes(bytes,descr_format,1);
+% old style urange corresponds now to img_range
+if isfield(fd_struct,'urange_pos_')
+    fd_struct.img_range_pos_ = fd_struct.urange_pos_;
+    fd_struct = rmfield(fd_struct,'urange_pos_');
+end
 
 % special and calculated fields
 obj.position_info_pos_ = pos_info_location;
