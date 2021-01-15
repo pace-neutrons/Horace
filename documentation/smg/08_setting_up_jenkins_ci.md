@@ -371,3 +371,7 @@ withCredentials([string(credentialsId: 'TOKEN_ID', variable: 'secret')]) {
 ### Documentation
 
 <img src="./images/08_DocumentationPipeline.svg">
+
+## Legend for flow diagrams
+
+<img src="./images/08_Legend.svg">
