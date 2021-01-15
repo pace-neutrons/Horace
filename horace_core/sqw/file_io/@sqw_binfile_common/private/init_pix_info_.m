@@ -3,10 +3,6 @@ function  obj = init_pix_info_(obj)
 % using sqw object, stored in memory.
 %
 %
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
-
 
 data  = obj.sqw_holder_.data;
 %
@@ -29,8 +25,8 @@ end
 
 
 
-obj.urange_pos_  = pix_info_pos.urange_pos_;
-obj.pix_pos_     = pix_info_pos.pix_pos_+8; % serializer calculates pix position
+obj.img_range_pos_  = pix_info_pos.img_range_pos_;
+obj.pix_pos_        = pix_info_pos.pix_pos_+8; % serializer calculates pix position
 % at the position of the npix as it is part of the pix field.
 % As we access pixels directly via its position, here we adjust this value
 % to the beginning of the real pix array.

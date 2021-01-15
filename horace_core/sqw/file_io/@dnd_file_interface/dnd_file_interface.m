@@ -105,8 +105,8 @@ classdef dnd_file_interface
         % Possible types are:
         %   type 'b'    fields: filename,...,dax,s,e
         %   type 'b+'   fields: filename,...,dax,s,e,npix
-        %   type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
-        %   type 'a-'   fields: filename,...,dax,s,e,npix,urange.
+        %   type 'a'    fields: filename,...,dax,s,e,npix,img_range,pix
+        %   type 'a-'   fields: filename,...,dax,s,e,npix,img_range.
         %
         % all modern data files are either b+ (dnd) or a+ (sqw data) type
         % files.
@@ -196,6 +196,15 @@ classdef dnd_file_interface
             % recover such object
             struc = saveobj(obj);
         end
+        %
+        function has = has_pix_range(~)
+            % Returns true when the pix_range is stored within a file.
+            % 
+            % old sqw file formatters were not storing this variable. 
+            % If it is not stored, it needs to be recalculated.
+            % 
+            has = false;
+        end
     end
     methods(Access = protected,Hidden=true)
         %
@@ -281,7 +290,8 @@ classdef dnd_file_interface
         % an object
         pix_range = get_pix_range(obj);
         % get [2x4] array of min/max ranges of the image contributing into
-        % an object
+        % an object, which is the basis for the grid, the pixels are sorted
+        % on
         img_range = get_img_range(obj);
         %
         % ----------------------------------------------------------------
