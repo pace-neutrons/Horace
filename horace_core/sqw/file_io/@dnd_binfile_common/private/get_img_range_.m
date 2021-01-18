@@ -1,4 +1,4 @@
-function  img_range = get_img_range_(obj)
+function  img_range = get_img_range_(obj,varargin)
 % get [2x4] array of min/max ranges of the image contributing
 % into an object
 %
@@ -24,16 +24,9 @@ function  img_range = get_img_range_(obj)
 %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
 %                  be reordered [row vector]
 
-ds = obj.get_data('-head');
-
-img_range = zeros(2,4);
-img_range(:,ds.iax) = ds.iint;
-
-npax = numel(ds.p);
-pax_range = zeros(2,npax);
-for i=1:npax
-    pax_range(:,i) = [0.5*(ds.p{i}(1)+ds.p{i}(2));...
-        0.5*(ds.p{i}(end-1)+ds.p{i}(end))];
+if nargin==1
+    ds = obj.get_data('-head');
+else
+    ds = varargin{1};
 end
-img_range(:,ds.dax) = pax_range;
-img_range(:,ds.iax) = ds.iint;
+img_range = data_sqw_dnd.calc_img_range(ds);

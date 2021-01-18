@@ -1,12 +1,15 @@
 classdef field_not_in_structure < iVirt_field
     %  The class describes conversion applied to save/restore
-    %  field, which defines some array length and is not stored together
-    %  with the array
     %
-    % Up to now only uint32 length fields are used by Horace
+    %  field, which defines some data length, written in file but 
+    %  not stored/recovered in memory
     %
+    %  Up to now only uint32 length fields are gaps, stored in sqw file and 
+    %  present in Horace
+    %  
+    %  writer skips the specified space in file and reader skips
+    %  appropriate fields on data recovery
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     
     properties(Access=protected)

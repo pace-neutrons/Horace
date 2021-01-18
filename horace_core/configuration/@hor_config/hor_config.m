@@ -153,7 +153,7 @@ classdef hor_config < config_base
         function use = get.ignore_inf(this)
             use = get_or_restore_field(this,'ignore_inf');
         end
-        function level = get.log_level(this)
+        function level = get.log_level(~)
             level = config_store.instance().get_value('herbert_config','log_level');
         end
         function level = get.horace_info_level(this)
@@ -163,20 +163,20 @@ classdef hor_config < config_base
         function use = get.use_mex(this)
             use = get_or_restore_field(this,'use_mex');
         end
-        function force = get.force_mex_if_use_mex(this)
+        function force = get.force_mex_if_use_mex(~)
             force = config_store.instance().get_value('herbert_config','force_mex_if_use_mex');
         end
         function delete = get.delete_tmp(this)
             delete = get_or_restore_field(this,'delete_tmp');
         end
-        function work_dir = get.working_directory(this)
+        function work_dir = get.working_directory(~)
             work_dir  = config_store.instance().get_config_field('parallel_config','working_directory');
             if isempty(work_dir)
                 work_dir = tmp_dir;
             end
 
         end
-        function is = wkdir_is_default(this)
+        function is = wkdir_is_default(~)
             % return true if working directory has not been set and refers
             % to default (system tmp) directory
             % Usage
@@ -189,7 +189,7 @@ classdef hor_config < config_base
                 is = false;
             end
         end
-        function hpcc = get.high_perf_config_info(obj)
+        function hpcc = get.high_perf_config_info(~)
             hpcc = hpc_config;
         end
         %-----------------------------------------------------------------

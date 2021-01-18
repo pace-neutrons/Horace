@@ -1,4 +1,6 @@
 function [u_to_rlu, pix_range, pix] = calc_projections_(obj, detdcn,qspec,proj_mode)
+% project detector positions into Crystal Cartesian coordinate system
+% 
 % Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer.
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %
@@ -29,7 +31,7 @@ function [u_to_rlu, pix_range, pix] = calc_projections_(obj, detdcn,qspec,proj_m
 %   pix_range  [2 x 4] array containing the full extent of the data in crystal Cartesian
 %              coordinates and energy transfer; first row the minima, second row the
 %              maxima.
-%   pix         PixelData object
+%   pix        PixelData object
 %              The order of the pixels is increasing energy dfor first detector, then
 %              increasing energy for the second detector, ....
 
@@ -62,8 +64,8 @@ if proj_mode<0 || proj_mode >2
 end
 
 
-% Create matrix to convert from spectrometer axes to coordinates along projection axes
-[spec_to_u, u_to_rlu] = obj.lattice.calc_proj_matrix();
+% Create matrix to convert from spectrometer axes to coordinates along crystal cartesizn projection axes
+[spec_to_cc, u_to_rlu] = obj.lattice.calc_proj_matrix();
 
 % Calculate Q in spectrometer coordinates for each pixel
 [use_mex,nThreads]=config_store.instance().get_value('hor_config','use_mex','threads');
@@ -75,13 +77,13 @@ if use_mex
             c=neutron_constants;
             k_to_e = c.c_k_to_emev;  % used by calc_projections_c;
 
-            data = struct('S',obj.S,'ERR',obj.ERR,'en',obj.en);
+            data = struct('S',obj.S,'ERR',obj.ERR,'en',obj.en,'run_id',obj.run_id);
             det  = obj.det_par;
             efix  = obj.efix;
             emode = obj.emode;
             %proj_mode = 2;
             %nThreads = 1;
-            [pix_range,pix] =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads,proj_mode);
+            [pix_range,pix] =calc_projections_c(spec_to_cc, data, det, efix,k_to_e, emode, nThreads,proj_mode);
             pix = PixelData(pix);
         catch  ERR % use Matlab routine
             warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',ERR.message);
@@ -96,15 +98,15 @@ if ~use_mex
             detdcn = calc_detdcn(obj.det_par);
         end
         [qspec,en]=obj.calc_qspec(detdcn);
-        ucoords = [spec_to_u*qspec;en];
+        ucoords = [spec_to_cc*qspec;en];
     else
-        ucoords = [spec_to_u*qspec(1:3,:);qspec(4,:)];
+        ucoords = [spec_to_cc*qspec(1:3,:);qspec(4,:)];
         qspec_provided = true;
     end
 
     pix_range=[min(ucoords,[],2)';max(ucoords,[],2)'];
 
-    % Return without filling the pixel array if urange only is requested
+    % Return without filling the pixel array if pix_range only is requested
     if nargout==2
         return;
     end
@@ -117,25 +119,23 @@ if ~use_mex
         return;
     end
 
-    % Fill pixel array
-    pix=PixelData(ones(9,ne*ndet));
-    pix.coordinates=ucoords;
-    clear ucoords;  % delete big array before creating another big array
+    % Fill in pixel array
     if ~qspec_provided
         det = obj.det_par;
         if isfield(det,'group')
-            pix.detector_idx=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
+            detector_idx=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
         else
             group = 1:ndet;
-            pix.detector_idx=reshape(repmat(group,[ne,1]),[1,ne*ndet]); % detector index
+            detector_idx=reshape(repmat(group,[ne,1]),[1,ne*ndet]); % detector index
         end
-        pix.energy_idx=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
+        energy_idx=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
     else
-        pix.detector_idx = 1;
-        pix.energy_idx = 1;
+        detector_idx = ones(1,ne*ndet);
+        energy_idx = ones(1,ne*ndet);
     end
-    pix.signal=obj.S(:)';
-    pix.variance=((obj.ERR(:)).^2)';
+    sig_var =[obj.S(:)';((obj.ERR(:)).^2)'];
+    run_id = ones(1,numel(detector_idx))*obj.run_id();
+    pix = PixelData([ucoords;run_id;detector_idx;energy_idx;sig_var]);
 
 end
 

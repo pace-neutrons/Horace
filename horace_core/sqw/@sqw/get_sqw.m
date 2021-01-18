@@ -16,9 +16,9 @@ function [mess,main_header,header,detpar,data,position,npixtot,data_type,file_fo
 %   opt         [optional] Determines which fields to read:
 %                   '-h'            - header block without instrument and sample information, and
 %                                   - data block fields: filename, filepath, title, alatt, angdeg,...
-%                                                          uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,urange]
+%                                                          uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,pix_range]
 %                                    (If the file was written from a structure of type 'b' or 'b+', then
-%                                    urange does not exist, and the output field will not be created)
+%                                    pix_range does not exist, and the output field will not be created)
 %                   '-his'          - header block in full i.e. with without instrument and sample information, and
 %                                   - data block fields as for '-h'
 %                   '-hverbatim'    Same as '-h' except that the file name as stored in the main_header and
@@ -43,12 +43,12 @@ function [mess,main_header,header,detpar,data,position,npixtot,data_type,file_fo
 %   detpar      Detector parameters (for details of data structure, type >> help get_sqw_detpar)
 %
 %   data        Output data structure actually read from the file. Will be one of:
-%                   type 'h'    fields: filename,...,uoffset,...,dax[,urange]
+%                   type 'h'    fields: filename,...,uoffset,...,dax[,pix_range]
 %                   type 'b'    fields: filename,...,uoffset,...,dax,s,e
 %                   type 'b+'   fields: filename,...,uoffset,...,dax,s,e,npix
-%                   type 'a-'   fields: filename,...,uoffset,...,dax,s,e,npix,urange
-%                   type 'a'    fields: filename,...,uoffset,...,dax,s,e,npix,urange,pix
-%               The final field urange is present for type 'h' if the header information was read from an sqw-type file.
+%                   type 'a-'   fields: filename,...,uoffset,...,dax,s,e,npix,pix_range
+%                   type 'a'    fields: filename,...,uoffset,...,dax,s,e,npix,pix_range,pix
+%               The final field pix_range is present for type 'h' if the header information was read from an sqw-type file.
 %
 %   position    Position (in bytes from start of file) of blocks of fields and large fields:
 %              These field are correctly filled even if the header only has been requested, that is,
@@ -61,7 +61,7 @@ function [mess,main_header,header,detpar,data,position,npixtot,data_type,file_fo
 %                   position.s              position of array s
 %                   position.e              position of array e
 %                   position.npix           position of array npix (=[] if npix not written in the file)
-%                   position.urange         position of array urange (=[] if urange not written in the file)
+%                   position.pix_range         position of array pix_range (=[] if pix_range not written in the file)
 %                   position.pix            position of array pix  (=[] if pix not written in the file)
 %                   position.instrument     start of header instrument blocks (=[] if not written in the file)
 %                   position.sample         start of header sample blocks (=[] if not written in the file)
@@ -72,8 +72,8 @@ function [mess,main_header,header,detpar,data,position,npixtot,data_type,file_fo
 %   data_type   Type of sqw data written in the file
 %                   type 'b'    fields: filename,...,dax,s,e
 %                   type 'b+'   fields: filename,...,dax,s,e,npix
-%                   type 'a'    fields: filename,...,dax,s,e,npix,urange,pix
-%                   type 'a-'   fields: filename,...,dax,s,e,npix,urange
+%                   type 'a'    fields: filename,...,dax,s,e,npix,pix_range,pix
+%                   type 'a-'   fields: filename,...,dax,s,e,npix,pix_range
 %
 %   current_format  =true if the file format has one of the current formats, =false if not
 %
@@ -116,7 +116,6 @@ function [mess,main_header,header,detpar,data,position,npixtot,data_type,file_fo
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 [mess,main_header,header,detpar,data,position,npixtot,data_type,file_format,current_format] = get_sqw (infile,varargin{:});

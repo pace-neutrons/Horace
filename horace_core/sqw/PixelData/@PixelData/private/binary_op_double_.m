@@ -34,7 +34,7 @@ function obj = do_op_with_no_npix(obj, double_array, binary_op, flip)
                 sigvar_binary_op_(pix_sigvar, double_sigvar, binary_op, flip);
 
         if obj.has_more()
-            obj = obj.advance();
+            obj.advance();
         else
             break;
         end
@@ -89,7 +89,7 @@ function obj = do_op_with_npix(obj, double_array, binary_op, flip, npix, npix_cu
             sigvar_binary_op_(this_sigvar, double_sigvar, binary_op, flip);
 
         if obj.has_more()
-            obj = obj.advance();
+            obj.advance();
         else
             break;
         end

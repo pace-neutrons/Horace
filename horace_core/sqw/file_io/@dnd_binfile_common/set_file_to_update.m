@@ -10,7 +10,6 @@ function  [obj,file_exist] = set_file_to_update(obj,filename)
 %
 % Open new or existing sqw file to perform write/append operations
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 if ~exist('filename','var')
     filename = '';
@@ -35,7 +34,7 @@ if nargin>1
     if exist(new_filename,'file')
         file_exist = true;
         try
-            old_ldr = sqw_formats_factory.instance().get_loader(new_filename);
+            old_ldr = sqw_formats_factory.instance().get_loader(new_filename,'-upgrade');
         catch
             file_exist = false;
             if log_level > 1
@@ -73,6 +72,7 @@ else
 end
 %
 upgrading_this = false;
+
 if file_exist
     if ischar(obj.num_dim) % existing reader is not defined. Lets return loader,
         obj = old_ldr.reopen_to_write(); %already selected as best for this file by loaders factory
@@ -94,6 +94,10 @@ fn = [fn,fext];
 fp = [fp,filesep];
 obj.filename_ = fn;
 obj.filepath_ = fp;
+
+if isempty(old_ldr)
+    old_ldr = obj;
+end
 %
 obj.file_id_ = fopen([fp,fn],perm);
 %
@@ -106,12 +110,13 @@ obj.file_closer_ = onCleanup(@()obj.fclose());
 
 if file_exist
     if upgrading_this
-        this_pos = obj.get_pos_info();
+        this_pos = old_ldr.get_pos_info();
         upgrade_map = const_blocks_map(this_pos);
         obj.upgrade_map_ = upgrade_map;
         if log_level>1;   fprintf('*** Existing file:  %s can be upgraded with new object data.\n',new_filename);  end
         return;
     end
+    
     
     if isempty(old_ldr) && log_level > 1
         fprintf('*** Existing file:  %s will be overwritten.\n',new_filename);
@@ -136,6 +141,7 @@ if file_exist
 else
     obj.upgrade_map_ = [];
 end
+
 
 function [ok,upgrade_map_obj] = check_upgrade(obj,old_ldr,log_level)
 %
