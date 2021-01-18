@@ -457,15 +457,15 @@ pipeline {
             sh '''
               git config --local user.name "PACE CI Build Agent" &&
               git config --local user.email "pace.builder.stfc@gmail.com" &&
-#               git remote set-url --push origin "https://pace-builder:"\${api_token## }"@github.com/pace-neutrons/Horace" &&
+              git remote set-url --push origin "https://pace-builder:"\${api_token## }"@github.com/pace-neutrons/horace-docs" &&
               git checkout gh-pages &&
               echo "Bypassing Jekyll on GitHub Pages" > .nojekyll &&
-              git add .nojekyll
+              git add .nojekyll &&
               git rm -rf ./unstable &&
               cp -r ./documentation/user_docs/build/html ./unstable &&
               git add unstable &&
-#               git commit -m "Document build from CI" &&
-#               git push origin gh-pages
+              git commit -m "Document build from CI" &&
+              git push origin gh-pages
         '''
           }
           else {
