@@ -43,9 +43,6 @@ def get_release_type(String job_name) {
     case 'Nightly':
       return 'nightly'
 
-    case 'Docs':
-      return 'docs'
-
     default:
       return ''
   }
@@ -375,10 +372,10 @@ pipeline {
                 make -C ./documentation/user_docs/ html &&
                 # Remove dead links
                 sed -i -r "/\\[NULL\\]/d" ./documentation/user_docs/build/html/*html &&
-                cd ./documentation/user_docs/build/ &&
-                tar -czf docs.tar.gz ./html/ &&
+                cd ./documentation/user_docs/build/html &&
+                tar -czf docs.tar.gz ./* &&
                 cd - &&
-                mv ./documentation/user_docs/build/docs.tar.gz .
+                mv ./documentation/user_docs/build/html/docs.tar.gz .
             '''
             archiveArtifacts(
               artifacts: 'docs.tar.gz',
@@ -389,7 +386,7 @@ pipeline {
             powershell '''
               ./documentation/user_docs/make.bat
               foreach ($f in Get-ChildItem -Path './documentation/user_docs/build/html' -Filter *.html) {
-                Get-Content $f | Where-Object {$_ -notmatch '[NULL]'} | Set-Content $f
+                Get-Contentzz $f | Where-Object {$_ -notmatch '[NULL]'} | Set-Content $f
               }
               Get-ChildItem -Path './documentation/user_docs/' | Compress-Archive -DestinationPath "./docs.zip"
             '''
@@ -404,23 +401,23 @@ pipeline {
       }
     }
 
-    // stage('Test') {
-    //   steps {
-    //     script {
-          // if (isUnix()) {
-          //   sh '''
-          //     module load cmake/\$CMAKE_VERSION &&
-          //     module load matlab/\$MATLAB_VERSION &&
-          //     module load gcc/\$GCC_VERSION &&
-          //     ./tools/build_config/build.sh --test
-          //   '''
-          // }
-          // else {
-          //   powershell './tools/build_config/build.ps1 -test'
-          // }
-    //     }
-    //   }
-    // }
+    stage('Test') {
+      steps {
+        script {
+          if (isUnix()) {
+            sh '''
+              module load cmake/\$CMAKE_VERSION &&
+              module load matlab/\$MATLAB_VERSION &&
+              module load gcc/\$GCC_VERSION &&
+              ./tools/build_config/build.sh --test
+            '''
+          }
+          else {
+            powershell './tools/build_config/build.ps1 -test'
+          }
+        }
+      }
+    }
 
     stage('Package') {
       steps {
@@ -446,6 +443,35 @@ pipeline {
           artifacts: 'build/Horace-*',
           fingerprint: true
         )
+      }
+    }
+
+
+    stage('Update docs') {
+      when {
+        expression {env.RELEASE_TYPE == "nightly"}
+      }
+      steps {
+        script {
+          if (isUnix()) {
+            sh '''
+              git config --local user.name "PACE CI Build Agent" &&
+              git config --local user.email "pace.builder.stfc@gmail.com" &&
+#               git remote set-url --push origin "https://pace-builder:"\${api_token## }"@github.com/pace-neutrons/Horace" &&
+              git checkout gh-pages &&
+              echo "Bypassing Jekyll on GitHub Pages" > .nojekyll &&
+              git add .nojekyll
+              git rm -rf ./unstable &&
+              cp -r ./documentation/user_docs/build/html ./unstable &&
+              git add unstable &&
+#               git commit -m "Document build from CI" &&
+#               git push origin gh-pages
+        '''
+          }
+          else {
+
+          }
+        }
       }
     }
   }
