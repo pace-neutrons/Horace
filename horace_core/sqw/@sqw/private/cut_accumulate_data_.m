@@ -52,19 +52,21 @@ cum_bin_sizes = cumsum(bin_ends - bin_starts);
 block_size = obj.data.pix.base_page_size;
 max_num_iters = ceil(cum_bin_sizes(end)/block_size);
 
-% If we only have one iteration to cut then we must be able to fit it in memory,
-% hence no need to use temporary files.
+% If we only have one iteration of pixels to cut then we must be able to fit
+% all pixels in memory, hence no need to use temporary files.
 use_tmp_files = ~return_cut && max_num_iters > 1;
 
 if keep_pix
+    % Pre-allocate cell arrays to hold PixelData chunks
+    pix_retained = cell(1, max_num_iters);
+    pix_ix_retained = cell(1, max_num_iters);
+
     if use_tmp_files
         % Create a pix_comb_info object to handle tmp files of pixels
         num_bins = numel(s);
         pix_comb_info = init_pix_combine_info(max_num_iters, num_bins);
     else
-        % Pre-allocate cell arrays to hold PixelData chunks
-        pix_retained = cell(1, max_num_iters);
-        pix_ix_retained = cell(1, max_num_iters);
+        pix_comb_info = [];
     end
 end
 
@@ -152,23 +154,10 @@ for iter = 1:max_num_iters
 end  % loop over pixel blocks
 
 if keep_pix
-    if use_tmp_files
-        % Pixels are stored in tmp files managed by pix_combine_info object
-        pix_out = PixelData();
-        buf_size = obj.data.pix.page_size;
-        candidate_pix = [];
-        ok = [];
-        ix = [];
-        pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file( ...
-            pix_comb_info, true, candidate_pix, ok, ix, npix, buf_size, 0 ...
-        );
-    else
-        % Pixels stored in-memory in PixelData object
-        pix_comb_info = [];
-        pix_out = sort_pix(pix_retained, pix_ix_retained, npix);
-    end
+    [pix_out, pix_comb_info] = combine_pixels( ...
+        pix_retained, pix_ix_retained, pix_comb_info, npix, obj.data.pix.page_size ...
+    );
 else
-    % We're going to be returning a dnd, so no pixels
     pix_out = PixelData();
     pix_comb_info = [];
 end
@@ -213,7 +202,7 @@ end
 
 
 function pci = init_pix_combine_info(nfiles, nbins)
-    % Define temp files to store in working directory
+    % Create a pix_combine_info object to manage temporary files of pixels
     wk_dir = get(parallel_config, 'working_directory');
     gen_fpath = @(x) fullfile( ...
         wk_dir, ['horace_subcut_', rand_digit_string(16), '.tmp'] ...
@@ -229,5 +218,24 @@ function str = rand_digit_string(n)
     str = blanks(n);
     for i=1:n
         str(i) = int2str(rand_ints(i));
+    end
+end
+
+
+function [pix, pix_comb_info] = combine_pixels( ...
+        pix_retained, pix_ix_retained, pix_comb_info, npix, buf_size ...
+)
+    % Combine and sort in-memory pixels or finalize accumulation of pixels in
+    % temporary files managed by a pix_combine_info object.
+    if ~isempty(pix_comb_info)
+        % Pixels are stored in tmp files managed by pix_combine_info object
+        pix = PixelData();
+        finish_accumulation = true;
+        pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file( ...
+            pix_comb_info, finish_accumulation, pix, [], [], npix, buf_size, 0 ...
+        );
+    else
+        % Pixels stored in-memory in PixelData object
+        pix = sort_pix(pix_retained, pix_ix_retained, npix);
     end
 end
