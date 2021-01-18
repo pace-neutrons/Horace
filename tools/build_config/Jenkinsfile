@@ -43,6 +43,9 @@ def get_release_type(String job_name) {
     case 'Nightly':
       return 'nightly'
 
+    case 'Docs':
+      return 'docs'
+
     default:
       return ''
   }
@@ -371,7 +374,12 @@ pipeline {
                 make -C ./documentation/user_docs/ html &&
                 make -C ./documentation/user_docs/ html &&
                 sed -i -r "/\\[NULL\\]/d" ./documentation/user_docs/build/html/*html # Remove dead links
+                tar -czf docs.tar.gz ./documentation/user_docs/build/html/*html
             '''
+            archiveArtifacts(
+              artifacts: 'docs.tar.gz',
+              fingerprint: true
+            )
           }
           else {
             powershell '''
@@ -379,14 +387,20 @@ pipeline {
               Foreach ($f in Get-ChildItem -Path './documentation/user_docs/' -Filter *.html) {
                 Get-Content $f | Where-Object {$_ -notmatch '[NULL]'} | Set-Content $f}
               }
+              $compress = @{
+                Path = "./documentation/user_docs/*.html"
+                CompressionLevel = "Fastest"
+                DestinationPath = "./docs.zip"
+              }
+              Compress-Archive @compress
             '''
+            archiveArtifacts(
+              artifacts: 'docs.zip',
+              fingerprint: true
+            )
           }
         }
 
-        archiveArtifacts(
-          artifacts: 'documentation/user_docs/build/html/*html',
-          fingerprint: true
-        )
 
       }
     }
