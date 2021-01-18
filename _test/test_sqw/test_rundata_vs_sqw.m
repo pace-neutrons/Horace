@@ -119,7 +119,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
             pix_range =[min(bos.data.pix.coordinates,[],2)'; max(bos.data.pix.coordinates,[],2)'];
             assertElementsAlmostEqual(bos.data.img_range,pix_range);
         end
-        
+        %
         function  this=test_serialize_deserialize_rundatah(this)
             rd = rundatah(this.sqw_obj);
             
@@ -136,6 +136,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
             fa = fa.unload();
             assertEqual(rd,fa);
         end
+        %
         function sqw_build = rd_convert_checker(~,rundata_to_test,grid_size,img_range)
             % function used in test_serialize_deserialize_rundatah_with_op
             % test to ensure that imput parameters of the serialized function
@@ -162,8 +163,9 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
             assertEqual(sqw_o,sqw_r);
             
         end
+        %
         function test_rundata_sqw(obj)
-            test_file = fullfile(herbert_root(),...
+            test_file = fullfile(horace_root(),...
                 '_test','common_data','MAP11014.nxspe');
             ds = struct('alatt',[2.63,2.63,2.63],'angdeg',[90,90,90],...
                 'u',[1,0,0],'v',[0,1,0]);
@@ -189,7 +191,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
         end
         %
         function test_rundata_mex_nomex(~)
-            test_file = fullfile(herbert_root(),...
+            test_file = fullfile(horace_root(),...
                 '_test','common_data','MAP11014.nxspe');
             ds = struct('alatt',[2.63,2.63,2.63],'angdeg',[97,60,80],...
                 'u',[1,0,0],'v',[0,1,0]);
