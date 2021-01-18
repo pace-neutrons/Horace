@@ -24,6 +24,7 @@ function wout = cut_single(w, proj, pbin, pin, en, keep_pix, outfile)
 
 DND_CONSTRUCTORS = {@d0d, @d1d, @d2d, @d3d, @d4d};
 log_level = get(hor_config, 'log_level');
+return_cut = nargout > 0;
 
 wout = copy(w, 'exclude_pix', true);
 
@@ -45,11 +46,14 @@ proj = proj.set_proj_binning( ...
 );
 
 % Accumulate image and pixel data for cut
-[s, e, npix, pix_out, urange_pix] = cut_accumulate_data_(w, proj, keep_pix, log_level);
+[s, e, npix, pix_out, urange_pix, pix_comb_info] = cut_accumulate_data_( ...
+    w, proj, keep_pix, log_level, return_cut ...
+);
 
 % Compile the accumulated cut and projection data into a data_sqw_dnd object
-data_out = compile_sqw_data(w.data, proj, s, e, npix, pix_out, urange_pix, ...
-                            ubins, keep_pix);
+data_out = compile_sqw_data( ...
+    w.data, proj, s, e, npix, pix_out, pix_comb_info, urange_pix, ubins, keep_pix ...
+);
 
 % Assign the new data_sqw_dnd object to the output SQW object, or create a new
 % dnd.
@@ -87,7 +91,7 @@ end
 
 
 function data_out = compile_sqw_data(data, proj, s, e, npix, pix_out, ...
-                                     urange_pix, ubins, keep_pix)
+                                     pix_comb_info, urange_pix, ubins, keep_pix)
     ppax = ubins.plot_ax_bounds(1:length(ubins.plot_ax_idx));
     if isempty(ppax)
         nbin_as_size = [1, 1];
@@ -118,6 +122,10 @@ function data_out = compile_sqw_data(data, proj, s, e, npix, pix_out, ...
 
     if keep_pix
         data_out.urange = urange_pix;
-        data_out.pix = pix_out;
+        if isa(pix_comb_info, 'pix_combine_info')
+            data_out.pix = pix_comb_info;
+        else
+            data_out.pix = pix_out;
+        end
     end
 end

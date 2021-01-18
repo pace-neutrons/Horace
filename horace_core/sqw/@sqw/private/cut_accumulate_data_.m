@@ -1,5 +1,5 @@
-function [s, e, npix, pix_out, urange_pix] = ...
-    cut_accumulate_data_(obj, proj, keep_pix, log_level)
+function [s, e, npix, pix_out, urange_pix, pix_comb_info] = ...
+    cut_accumulate_data_(obj, proj, keep_pix, log_level, return_cut)
 %%CUT_ACCUMULATE_DATA Accumulate image and pixel data for a cut
 %
 % Input:
@@ -35,6 +35,7 @@ urange_step_pix = [Inf(1, 4); -Inf(1, 4)];
 if isempty(bin_starts)
     % No pixels in range, we can return early
     pix_out = PixelData();
+    pix_comb_info = [];
     urange_pix = urange_step_pix;
     return
 end
@@ -45,9 +46,21 @@ cum_bin_sizes = cumsum(bin_ends - bin_starts);
 block_size = obj.data.pix.base_page_size;
 max_num_iters = ceil(cum_bin_sizes(end)/block_size);
 
-% Pre-allocate cell arrays to hold PixelData chunks
-pix_retained = cell(1, max_num_iters);
-pix_ix_retained = cell(1, max_num_iters);
+% If we only have one iteration to cut then we must be able to fit it in memory.
+% Set this to stop us using tmp files
+% TODO: replace "return_cut" with something more descriptive e.g. use_tmp_files
+return_cut = return_cut || max_num_iters == 1;
+
+if keep_pix
+    if return_cut
+        % Pre-allocate cell arrays to hold PixelData chunks
+        pix_retained = cell(1, max_num_iters);
+        pix_ix_retained = cell(1, max_num_iters);
+    else
+        num_bins = numel(s);
+        pix_comb_info = init_pix_combine_info(max_num_iters, num_bins);
+    end
+end
 
 block_end_idx = 0;
 for iter = 1:max_num_iters
@@ -114,21 +127,44 @@ for iter = 1:max_num_iters
     end
 
     if keep_pix
-        % TODO: If cutting from file to file with no return value, use
-        % PixelData.append to deal with temporary files, so we don't need to
-        % hold all pixels in memory.
-
-        % Retain only the pixels that contributed to the cut
-        pix_retained{iter} = candidate_pix.get_pixels(ok);
-        pix_ix_retained{iter} = ix;
+        if return_cut
+            % Retain only the pixels that contributed to the cut
+            pix_retained{iter} = candidate_pix.get_pixels(ok);
+            pix_ix_retained{iter} = ix;
+        else
+            % Generate tmp files and get a pix_combine_info object to manage
+            % the files - this object then recombines the files once it is
+            % passed to 'put_sqw'.
+            buf_size = obj.data.pix.page_size;
+            pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file( ...
+                pix_comb_info, false, candidate_pix, ok, ix, npix, buf_size, ...
+                del_npix_retain ...
+            );
+        end
     end
 
 end  % loop over pixel blocks
 
 if keep_pix
-    pix_out = sort_pix(pix_retained, pix_ix_retained, npix);
+    if return_cut
+        % Pixels stored in-memory in PixelData object
+        pix_comb_info = [];
+        pix_out = sort_pix(pix_retained, pix_ix_retained, npix);
+    else
+        % Pixels are stored in tmp files managed by pix_combine_info object
+        pix_out = PixelData();
+
+        buf_size = obj.data.pix.page_size;
+        ok = [];
+        ix = [];
+        candidate_pix = [];
+        pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file( ...
+            pix_comb_info, true, candidate_pix, ok, ix, npix, buf_size, 0 ...
+        );
+    end
 else
     pix_out = PixelData();
+    pix_comb_info = [];
 end
 
 % Convert range from steps to actual range with respect to output uoffset
@@ -167,4 +203,26 @@ function [s, e] = average_signal(s, e, npix)
     % By convention, signal and error are zero if no pixels contribute to bin
     s(no_pix) = 0;
     e(no_pix) = 0;
+end
+
+
+function pci = init_pix_combine_info(nfiles, nbins)
+    % Define temp files to store in working directory
+    wk_dir = get(parallel_config, 'working_directory');
+    tmp_file_names = cell(1, nfiles);
+    gen_dir_name = @(x) fullfile( ...
+        wk_dir, ['horace_subcut_', rand_digit_string(16), '.tmp'] ...
+    );
+    tmp_file_names = cellfun(gen_dir_name, tmp_file_names, 'UniformOutput', false);
+    pci = pix_combine_info(tmp_file_names, nbins);
+end
+
+
+function str = rand_digit_string(n)
+    % Create string of n random digits
+    digits = max(0, min(9, floor(10*rand(1, n))));
+    str = blanks(n);
+    for i=1:n
+        str(i) = int2str(digits(i));
+    end
 end
