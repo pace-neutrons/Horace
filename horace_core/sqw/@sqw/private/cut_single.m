@@ -78,6 +78,15 @@ if exist('outfile', 'var') && ~isempty(outfile)
     end
 end
 
+% Manually clean-up temporary files created by a pix_combine_info object
+if isa(wout.data.pix, 'pix_combine_info')
+    pix_comb_info = wout.data.pix;
+    for i = 1:numel(wout.data.pix)
+        tmp_fpath = pix_comb_info.infiles{i};
+        delete(tmp_fpath);
+    end
+end
+
 end  % function
 
 
@@ -122,7 +131,12 @@ function data_out = compile_sqw_data(data, proj, s, e, npix, pix_out, ...
 
     if keep_pix
         data_out.urange = urange_pix;
-        if isa(pix_comb_info, 'pix_combine_info')
+        % If pix_comb_info is not empty then we've been working with temp files
+        % for pixels. We can replace the PixelData object that's normally in
+        % sqw.data with this pix_combine_info object.
+        % When the object is passed to 'put_sqw' (it's saved), 'put_sqw' will
+        % combine the linked tmp files into the new sqw file.
+        if ~isempty(pix_comb_info) && isa(pix_comb_info, 'pix_combine_info')
             data_out.pix = pix_comb_info;
         else
             data_out.pix = pix_out;
