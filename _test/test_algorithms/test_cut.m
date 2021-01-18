@@ -1,6 +1,8 @@
 classdef test_cut < TestCase
 
 properties
+    FLOAT_TOL = 1e-5;
+
     old_warn_state;
 
     sqw_file = '../test_sym_op/test_cut_sqw_sym.sqw';
@@ -53,7 +55,7 @@ methods
         sqw_cut = cut(sqw_obj, proj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims);
 
         ref_sqw = sqw('test_cut_ref_sqw.sqw');
-        assertEqualToTol(sqw_cut, ref_sqw, 1e-4, 'ignore_str', true);
+        assertEqualToTol(sqw_cut, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
     end
 
     function test_you_can_take_a_cut_with_nopix_argument(obj)
@@ -132,7 +134,7 @@ methods
 
         loaded_cut = sqw(outfile);
 
-        assertEqualToTol(ret_sqw, loaded_cut, 1e-5, 'ignore_str', true);
+        assertEqualToTol(ret_sqw, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
     end
 
     function test_you_can_take_a_cut_from_an_sqw_object_to_an_sqw_file(obj)
@@ -153,7 +155,7 @@ methods
 
         loaded_sqw = sqw(outfile);
         ref_sqw = sqw('test_cut_ref_sqw.sqw');
-        assertEqualToTol(loaded_sqw, ref_sqw, 1e-4, 'ignore_str', true);
+        assertEqualToTol(loaded_sqw, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
     end
 
     function test_you_can_take_a_cut_from_a_dnd_object(obj)
@@ -296,7 +298,7 @@ methods
         ref_sqw = sqw('test_cut_ref_sqw.sqw');
         output_sqw = sqw(outfile);
 
-        assertEqualToTol(output_sqw, ref_sqw, 1e-5, 'ignore_str', true);
+        assertEqualToTol(output_sqw, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
     end
 
 end
