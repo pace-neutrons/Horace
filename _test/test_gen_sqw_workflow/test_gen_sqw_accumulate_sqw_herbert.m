@@ -144,7 +144,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             res = mes.payload;
             res = res{1};
             assertEqual(res.grid_size,[50 50 50 50]);
-            assertElementsAlmostEqual(res.urange,...
+            assertElementsAlmostEqual(res.pix_range,...
                 [-1.5000 -2.1000 -0.5000 0;0 0 0.5000 35.0000]);
             % clear results of gen_tmp job
             serverfbMPI.clear_messages();
@@ -291,9 +291,9 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             grid_size = [50,50,50,50];
             % prepare task outputs as in do_job method
             je1.task_outputs = struct('grid_size',grid_size,...
-                'urange',[-1,-2,-3,-20;1,2,3,10]);
+                'img_range',[-1,-2,-3,-20;1,2,3,10]);
             je2.task_outputs = struct('grid_size',grid_size,...
-                'urange',[-2,-3,-2,-10;2,3,2,15]);
+                'img_range',[-2,-3,-2,-10;2,3,2,15]);
             je2.finish_task();
             je1.finish_task();
             
@@ -303,7 +303,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             res = mes.payload;
             res = res{1};
             assertEqual(res.grid_size,[50 50 50 50]);
-            assertElementsAlmostEqual(res.urange,...
+            assertElementsAlmostEqual(res.img_range,...
                 [-1,-2,-3,-20;1,2,3,10]);
             
         end

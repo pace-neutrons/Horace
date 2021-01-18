@@ -6,7 +6,6 @@ classdef aProjection
     % Also defines generic operations on sqw object, which may be useful
     % and can be used by any projection class.
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Dependent)
         % is special mex routines, written for performance reason and as such
@@ -55,7 +54,8 @@ classdef aProjection
         data_urange_;
         %------------------------------------
         % Transformed coordinates
-        urange_;
+        new_img_range_;
+        %
         usteps_ = [1,1,1,1];
         % data ranges in new coordinate system in units of steps in each
         % direction
@@ -82,13 +82,24 @@ classdef aProjection
         %------------------------------------------------------------------
         % Common interface to projection data
         %------------------------------------------------------------------
+        % build the binning and axis for the coordinate system related to cut 
+        [iax, iint, pax, p, img_range_out] = calc_transf_img_bins (proj,img_range_in,pbin, pin, en)        
+        % Check that the binning arguments are valid, and update the projection
+        % with the current bin values
+        [proj_update,pbin_update,ndims,pin,en] = update_pbins (proj, header_ave, data, pbin)
+        
+        % Check binning descriptors are valid, and resolve multiple integration axes
+        % using limits and bin widths from the input data.        
+        [ pbin_out, ndims] = calc_pbins(proj, img_range_in, pbin, pin, en)
+        
+        %
         function this=retrieve_existing_tranf(this,data,upix_to_rlu,upix_offset)
             % Retrieve all parameters for transformation already
             % defined over sqw data and store them in projection to
             % use later to calculate new transformation.
             this = set_data_transf_(this,data,upix_to_rlu,upix_offset);
         end
-        function this = set_proj_binning(this,new_range,prj_ax_ind,int_ax_ind,prj_ax_bins)
+        function this = set_proj_binning(this,new_img_range,prj_ax_ind,int_ax_ind,prj_ax_bins)
             %   new_range   Array of limits of data that can possibly contribute to the output data structure in the
             %               coordinate frame of the output structure [2x4].
             %   prj_ax_ind  Index of plot axes into the projection axes  [row vector]
@@ -99,21 +110,9 @@ classdef aProjection
             %               i.e. data.p{1}, data.p{2} ... (for as many plot axes as given by length of prj_ax_ind)
             %
             %
-            this = this.set_proj_binning_(new_range,prj_ax_ind,int_ax_ind,prj_ax_bins);
+            this = this.set_proj_binning_(new_img_range,prj_ax_ind,int_ax_ind,prj_ax_bins);
         end
         
-        % Create bin boundaries for integration and plot axes from requested limits and step sizes
-        % Uses knowledge of the range of the data and energy bins of the data to set values for those
-        % not provided.
-        [iax, iint, pax, p, urange, pbin_out] = calc_ubins(proj,urange_in,pbin, pin, en)
-        
-        % Check that the binning arguments are valid, and update the projection
-        % with the current bin values
-        [proj_update,pbin_update,ndims,pin,en] = update_pbins (proj, header_ave, data, pbin)
-        % Check binning descriptors are valid, and resolve multiple integration axes
-        % using limits and bin widths from the input data.
-        
-        [ pbin_out, ndims] = calc_pbins(proj, urange_in, pbin, pin, en)
         %------------------------------------------------------------------
         % accessors
         %------------------------------------------------------------------
@@ -157,7 +156,7 @@ classdef aProjection
             % auxiliary variable derived from input data projection axis
             pin=cell(1,4);
             pin(this.data_pax_)=this.data_p_;
-            pin(this.data_iax_)=mat2cell(this.urange_(:,this.data_iax_),2,ones(1,length(this.data_iax_)));
+            pin(this.data_iax_)=mat2cell(this.new_img_range_(:,this.data_iax_),2,ones(1,length(this.data_iax_)));
             nbin_in=zeros(1,4);
             for i=1:4
                 nbin_in(i)=length(pin{i})-1;
@@ -283,19 +282,21 @@ classdef aProjection
     %  ABSTRACT INTERFACE -- use
     %----------------------------------------------------------------------
     methods(Abstract)
-        urange_out = find_max_data_range(this,urange_in);
         % find the whole range of input data which may contribute
-        % into the result.
-        
-        [istart,iend,irange,inside,outside] = get_irange_proj(this,urange,varargin);
+        % into the result.        
+        urange_out = find_old_img_range(this,urange_in);
+
+
         % Get ranges of bins that partially or wholly lie inside an n-dimensional shape,
-        % defined by projection limits.
+        % defined by projection limits.        
+        [istart,iend,irange,inside,outside] = get_irange_proj(this,urange,varargin);
+        
+        % get list of pixels indexes contributing into the cut        
         [indx,ok] = get_contributing_pix_ind(this,v);
-        % get list of pixels indexes contributing into the cut
-        %
-        [uoffset,ulabel,dax,u_to_rlu,ulen,title_function] = get_proj_param(this,data_in,pax);
+        
         % get projection parameters, necessary for properly definind a sqw
-        % or dnd object from the projection
+        % or dnd object from the projection        %
+        [uoffset,ulabel,dax,u_to_rlu,ulen,title_function] = get_proj_param(this,data_in,pax);
     end
 end
 

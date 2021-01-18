@@ -8,7 +8,6 @@ function wout = recompute_bin_data(w)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 wout = w;
 [wout.data.s, wout.data.e] = wout.data.pix.compute_bin_data(w.data.npix);

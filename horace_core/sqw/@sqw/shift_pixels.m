@@ -103,7 +103,8 @@ for i=1:numel(win)
         data.npix = data.pix.num_pixels;
         eps_lo = min(data.pix.dE);
         eps_hi = max(data.pix.dE);
-        data.urange(:,4) = [eps_lo;eps_hi];
+        % TODO: meaning?
+        data.img_range(:,4) = [eps_lo;eps_hi];
         wout(i).data = data;
         wout(i) = recompute_bin_data(wout(i));
 

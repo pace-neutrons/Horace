@@ -29,12 +29,12 @@ function [data_str,obj] = get_data (obj,varargin)
 % -------
 
 %   data        Output data structure actually read from the file. Will be one of:
-%                   type 'h'    fields: fields: uoffset,...,dax[,urange]
+%                   type 'h'    fields: fields: uoffset,...,dax[,img_range]
 %                   type 'b'    fields: filename,...,dax,s,e
 %                   type 'b+'   fields: filename,...,dax,s,e,npix
-%                   type 'a'    fields:  filename,...,dax,s,e,npix,urange,pix  (never produced by this reader)
-%                   type 'a-'   fields: filename,...,dax,s,e,npix,urange
-%               The final field urange is present for type 'h' if the header information was read from an sqw-type file.
+%                   type 'a'    fields:  filename,...,dax,s,e,npix,img_range,pix  (never produced by this reader)
+%                   type 'a-'   fields: filename,...,dax,s,e,npix,img_range
+%               The final field img_range is present for type 'h' if the header information was read from an sqw-type file.
 %
 %
 %
@@ -74,8 +74,7 @@ function [data_str,obj] = get_data (obj,varargin)
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %
-%  for sqw files only:
-%   data.urange     True range of the data along each axis [urange(2,4)]
+%   data.img_range  The range of the image along each axis [img_range(2,4)]
 %
 % NOTES:
 % ======
@@ -126,6 +125,17 @@ check_error_report_fail_(obj,...
 data_form = obj.get_dnd_form('-header');
 data_str = obj.sqw_serializer_.deserialize_bytes(bytes,data_form,1);
 clear bytes;
+% Compartibility with new(01/12/2020) data_sqw_dnd constructor
+if isempty(data_str.iax)
+    data_str.iax = zeros(1,0);
+end
+if isempty(data_str.iint)
+    data_str.iint = zeros(2,0);
+end
+if isempty(data_str.p)
+    data_str.p = cell(1,0);
+end
+% End compartibility block
 
 if ~verbatim
     data_str.filepath = obj.filepath;

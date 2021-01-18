@@ -1,16 +1,20 @@
-function [iax, iint, pax, p, urange_out] = calc_ubins (proj,urange_in,pbin, pin, en)
+function [iax, iint, pax, p, img_range_out] = calc_transf_img_bins(proj,img_range_in,pbin, pin, en)
+% Build the binning and axis for the coordinate system related to cut 
+%
 % Create bin boundaries for integration and plot axes from requested limits and step sizes
-% Uses knowledge of the range of the data and energy bins of the data to set values for those
+% for the cut, defined by the new projection.
+%
+% Uses knowledge of the range of the initial image and energy bins of the image to set values for those
 % not provided.
 %
-%   >> [iax, iint, pax, p, urange, pbin_out] =  proj.calc_ubins(urange_in, pbin, pin, en)
+%   >> [iax, iint, pax, p, img_range, pbin_out] =  proj.calc_transformed_img_bins(img_range_in, pbin, pin, en)
 %
 %      Throws aPROJECTION:invalid_arguments if input parameters are
 %      inconsistent or incorrect
 %
 % Input:
 % ------
-%   urange_in   [2x4] array of range of data along the input projection axes (elements must all be finite)
+%   pix_range_in   [2x4] array of range of pixels along the initial projection axes (elements must all be finite)
 %
 %   proj        The class which defines the projection
 %
@@ -29,7 +33,7 @@ function [iax, iint, pax, p, urange_out] = calc_ubins (proj,urange_in,pbin, pin,
 %               - [pstep]           Plot axis: sets step size; plot limits taken from extent of the data
 %                                  If pstep=0 then use bin size of energy bins in array en (below) and synchronise
 %                                  the output bin boundaries with the reference boundaries. The overall range is
-%                                  chosen to ensure that the energy range in urange_in is contained within
+%                                  chosen to ensure that the energy range in img_range_in is contained within
 %                                  the bin boundaries.
 %               - [plo, phi]        Integration axis: range of integration
 %           	- [plo, pstep, phi]	Plot axis: minimum and maximum bin centres and step size;
@@ -55,7 +59,7 @@ function [iax, iint, pax, p, urange_out] = calc_ubins (proj,urange_in,pbin, pin,
 %                   e.g. if data is 3D, data.pax=[1,3,4] means u1, u3, u4 axes are x,y,z in any plotting
 %   p           Call array containing bin boundaries along the plot axes [column vectors]
 %                   i.e. data.p{1}, data.p{2} ... (for as many plot axes as given by length of data.pax)
-%   urange_out  Array of limits of data that can possibly contribute to the output data structure in the
+%   img_range_out  Array of limits of data that can possibly contribute to the output data structure in the
 %               coordinate frame of the output structure [2x4].
 
 
@@ -99,7 +103,7 @@ pax = zeros(1,4);
 iax = zeros(1,4);
 pbin_from_pin = false(1,4); % will contain true if bin boundaries / integration ranges are to be taken from defaults
 vstep = NaN(4,1); % will contain requested step sizes if plot axis (NaN otherwise)
-vlims = zeros(4,2); % will contain requested limits of bin centres / integration range
+cut_lmts_req = zeros(4,2); % will contain requested limits of bin centres / integration range
 for idim=1:4
     if n==3     % case when energy axis not given
         pbin{4}=[-inf,0,inf];
@@ -110,28 +114,28 @@ for idim=1:4
         if length(pin{idim})==2
             niax = niax + 1;
             iax(niax) = idim;
-            vlims(idim,:) = pin{idim};
+            cut_lmts_req(idim,:) = pin{idim};
         elseif length(pin{idim})>2
             npax = npax + 1;
             pax(npax) = idim;
             vstep(idim) = pin{idim}(2)-pin{idim}(1);    % not used as of 13/5/09, but put here for completeness
-            vlims(idim,:) = [pin{idim}(1),pin{idim}(end)];
+            cut_lmts_req(idim,:) = [pin{idim}(1),pin{idim}(end)];
         end
     elseif length(pbin{idim})==2
         % the case of an integration axis
         niax = niax + 1;
         iax(niax) = idim;
-        vlims(idim,:) = pbin{idim};
+        cut_lmts_req(idim,:) = pbin{idim};
     else
         % must be a plot axis
         npax = npax + 1;
         pax(npax) = idim;
         if length(pbin{idim})==1
             vstep(idim) = pbin{idim}(1);
-            vlims(idim,:) = [-inf,inf];
+            cut_lmts_req(idim,:) = [-inf,inf];
         elseif length(pbin{idim})==3
             vstep(idim) = pbin{idim}(2);
-            vlims(idim,:) = [pbin{idim}(1),pbin{idim}(3)];
+            cut_lmts_req(idim,:) = [pbin{idim}(1),pbin{idim}(3)];
         end
         % Check validity of step sizes
         if idim==4 && vstep(idim)<0 % recall that step of zero is valid for energy axis
@@ -144,7 +148,7 @@ for idim=1:4
         end
     end
     % check validity of data ranges
-    if vlims(idim,2)<vlims(idim,1)
+    if cut_lmts_req(idim,2)<cut_lmts_req(idim,1)
         error('aPROJECTION:invalid_arguments',...
             'Check upper limit greater or equal to the lower limit - check axis N: %d',idim);
     end
@@ -156,15 +160,16 @@ iax = iax(1:niax);
 
 % Compute plot bin boundaries and integration ranges
 % ------------------------------------------------------------------------
-% Get range in output projection axes from the 8 points defined in momentum space by urange_in:
-% This gives the maximum extent of the data pixels that can possibly contribute to the output data.
+% Get range of initial data, expressed in the coordinate frame of requested
+% projection from the 8 points defined in momentum space by img_range_in:
+% This gives the maximum extent of the image pixels that can possibly contribute to the output data.
 % third coordinate is not used.
-urange_real = proj.find_max_data_range(urange_in);
+old_img_range = proj.find_old_img_range(img_range_in);
 
 % Compute plot bin boundaries and range that fully encloses the requested output plot axes
 iint=zeros(2,niax);
 p   =cell(1,npax);
-urange_out=zeros(2,4);
+img_range_out=zeros(2,4);
 %pbin_out = cell(1,4);
 
 for i=1:npax
@@ -174,14 +179,14 @@ for i=1:npax
         p{i}=pin{ipax};
         %pbin_out{ipax} = make_const_bin_boundaries_descr(p{i});
     else
-        pbin_tmp=[vlims(ipax,1),vstep(ipax),vlims(ipax,2)];
+        pbin_tmp=[cut_lmts_req(ipax,1),vstep(ipax),cut_lmts_req(ipax,2)];
         if ipax<4 || (ipax==4 && vstep(ipax)>0)
             % Q axes, and also treat energy axis like other axes if provided with energy bin greater than zero
-            p{i}=make_const_bin_boundaries(pbin_tmp,urange_real(:,ipax));
+            p{i}=make_const_bin_boundaries(pbin_tmp,old_img_range(:,ipax));
         else
             % Only reaches here if energy axis and requested energy bin width is explicity or implicitly zero
             % Handle this case differently to above, because we ensure bin boundaries synchronised to boundaries in array en
-            p{i}=make_const_bin_boundaries(pbin_tmp,urange_real(:,ipax),en,true);
+            p{i}=make_const_bin_boundaries(pbin_tmp,old_img_range(:,ipax),en,true);
         end
         % No bins
         if isempty(p{i})
@@ -196,31 +201,31 @@ for i=1:npax
         end
         %pbin_out{ipax} = pbin_tmp;
     end
-    urange_out(:,ipax)=[p{i}(1);p{i}(end)];
+    img_range_out(:,ipax)=[p{i}(1);p{i}(end)];
 end
 
 % Compute integration ranges.
 for i=1:niax
     iiax = iax(i);
-    iint(1,i)=vlims(iiax,1);
-    iint(2,i)=vlims(iiax,2);
+    iint(1,i)=cut_lmts_req(iiax,1);
+    iint(2,i)=cut_lmts_req(iiax,2);
     % force new binning ranges for integration axis regardless to actual
     % data range
-    %urange_out(1,iiax) =vlims(iiax,1);
-    %urange_out(2,iiax) =vlims(iiax,2);
+    %img_range_out(1,iiax) =vlims(iiax,1);
+    %img_range_out(2,iiax) =vlims(iiax,2);
     % Select the range - union between image range and the requested cut range
-    [urange_out(1,iiax),urange_out(2,iiax),inf_removed] =...
-        min_max_range(vlims(iiax,1),urange_real(1,iiax),...
-        vlims(iiax,2),urange_real(2,iiax));
+    [img_range_out(1,iiax),img_range_out(2,iiax),inf_removed] =...
+        min_max_range(cut_lmts_req(iiax,1),old_img_range(1,iiax),...
+        cut_lmts_req(iiax,2),old_img_range(2,iiax));
     if inf_removed
-        iint(1,i)=urange_out(1,iiax);
-        iint(2,i)=urange_out(2,iiax);
+        iint(1,i)=img_range_out(1,iiax);
+        iint(2,i)=img_range_out(2,iiax);
     end
     
-    if urange_out(1,iiax)>urange_out(2,iiax)
+    if img_range_out(1,iiax)>img_range_out(2,iiax)
         % *** T.G.Perring 28 Sep 2018:********************
-        urange_out(2,iiax) = urange_out(1,iiax);    % do not want to stop the cutting - just want to ensure no unnecessary read from input object or cut
-        %         iax=[]; iint=[]; pax=[]; p=[]; urange=[];
+        img_range_out(2,iiax) = img_range_out(1,iiax);    % do not want to stop the cutting - just want to ensure no unnecessary read from input object or cut
+        %         iax=[]; iint=[]; pax=[]; p=[]; img_range=[];
         %         ok = false;
         %         mess = sprintf('Integration range outside extent of data for projection axis %d (integration axis %d)',iiax,i);
         %         return
@@ -244,4 +249,3 @@ center = 0.5*(min(min_range1,min_range2)+max(max_range1,max_range2));
 
 a_min = max(min_range1-center,min_range2-center)+center;
 a_max = min(max_range1-center,max_range2-center)+center;
-

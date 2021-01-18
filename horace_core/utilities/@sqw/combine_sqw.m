@@ -85,6 +85,10 @@ end
 %should also look at the stated limits that we had for each cut. The limits
 %we should use will then be the smaller/bigger of the above and these stated
 %limits. Must also do something similar for integration axes
+min_orig1 = cell(1,ndims1);
+max_orig1 = cell(1,ndims1);
+min_orig2 = cell(1,ndims1);
+max_orig2 = cell(1,ndims1);
 for i=1:ndims1
     min_orig1{i}=min(w1.data.p{i});
     max_orig1{i}=max(w1.data.p{i});
@@ -105,7 +109,11 @@ wout=get(w1);
 
 for i=1:ndims1
     step=wout.data.p{i}(2)-wout.data.p{i}(1);
-    wout.data.p{i}=[min_full{i}-step+eps:step:max_full{i}+step-eps]';
+    wout.data.p{i}=make_const_bin_boundaries([min_full{i},step,max_full{i}]);
+    % TODO: the previous value used here is different from the value,
+    % defined by make_const_bin_boundaries. All seems work. 
+    % Was those a bug or a feature?
+    %[[min_full{i}-step+eps:step:max_full{i}+step-eps]';
 end
 
 %Question - how do we deal with the fact that the integration range along
@@ -149,7 +157,7 @@ if nints>=1
 
 
     for i=1:nints
-        wout.data.urange(:,wout.data.iax(i))=intlimits(:,i);
+        wout.data.img_range(:,wout.data.iax(i))=intlimits(:,i);
     end
 else
     wout.data.iint = zeros(2,0);

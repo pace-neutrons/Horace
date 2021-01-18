@@ -14,7 +14,6 @@ function wout=split(w)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 nfiles=w.main_header.nfiles;
 
@@ -62,7 +61,7 @@ if sum(run_contributes)~=nfiles     % there is at least one run that does not co
     datanull.s=zeros(sz);
     datanull.e=zeros(sz);
     datanull.npix=zeros(sz);
-    datanull.urange=[Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
+    datanull.img_range=PixelData.EMPTY_RANGE_;
     datanull.pix=PixelData();
 end
 for i=1:nfiles

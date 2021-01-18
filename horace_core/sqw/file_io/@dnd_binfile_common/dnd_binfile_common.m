@@ -153,7 +153,7 @@ classdef dnd_binfile_common < dnd_file_interface
             % Where:
             % filename - the file to load data from.
             %
-            obj= init_dnd_structure_field_by_field_(obj);
+            obj= init_dnd_structure_field_by_field_(obj,varargin{:});
         end
         %
         function check_obj_initated_properly(obj)
@@ -234,6 +234,9 @@ classdef dnd_binfile_common < dnd_file_interface
             for i=1:numel(flds)
                 if isfield(obj_structure_from_saveobj,flds{i})
                     obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
+                else
+                    warning('dnd_binfile_common field %s is not in the structure, restored from the file',...
+                        flds{i});
                 end
             end
             if ~isempty(obj.file_closer_) && obj.file_id_ > 0
@@ -247,6 +250,13 @@ classdef dnd_binfile_common < dnd_file_interface
             end
         end
         %
+        function check_error_report_fail_(obj,pos_mess)
+            % check if error occured during io operation and throw if it does happened
+            [mess,res] = ferror(obj.file_id_);
+            if res ~= 0; error('SQW_FILE_IO:io_error',...
+                    '%s -- Reason: %s',pos_mess,mess);
+            end
+        end
     end
     %----------------------------------------------------------------------
     methods % defined by this class
@@ -305,10 +315,10 @@ classdef dnd_binfile_common < dnd_file_interface
             
             pix_range = double.empty(0,4);
         end
-        function img_range = get_img_range(obj)
+        function img_range = get_img_range(obj,varargin)
             % get [2x4] array of min/max ranges of the image contributing
             % into an object
-            img_range = get_img_range_(obj);
+            img_range = get_img_range_(obj,varargin{:});
         end
         
         %------   Mutators:
@@ -322,7 +332,7 @@ classdef dnd_binfile_common < dnd_file_interface
         obj = put_dnd_metadata(obj,varargin);
         % write dnd image data, namely s, err and npix ('-update' option updates this
         % information within existing file)
-        obj = put_dnd_data(obj,varargin);
+        [obj,varargout] = put_dnd_data(obj,varargin);
         %
         obj = put_dnd(obj,varargin)
         
@@ -560,5 +570,3 @@ classdef dnd_binfile_common < dnd_file_interface
     end
     
 end
-
-

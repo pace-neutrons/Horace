@@ -3,7 +3,7 @@ function obj = binary_op_scalar_(obj, scalar, binary_op, flip)
 % PixelData object and scalar.
 %
 
-obj = obj.move_to_first_page();
+obj.move_to_first_page();
 
 while true
     pix_sigvar = sigvar(obj.signal, obj.variance);
@@ -13,7 +13,7 @@ while true
             sigvar_binary_op_(pix_sigvar, scalar_sigvar, binary_op, flip);
 
     if obj.has_more()
-        obj = obj.advance();
+        obj.advance();
     else
         break;
     end

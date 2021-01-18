@@ -1,14 +1,14 @@
-function [ix,npix,p,grid_size,ibin]=sort_pixels(u,urange,grid_size_in)
+function [ix,npix,p,grid_size,ibin]=sort_pixels(u,pix_range,grid_size_in)
 % Reorder the pixels according to increasing bin index in a Cartesian grid.
 %
-%   >> [ix,npix,p,grid_size]=sort_pixels(u,urange,grid_size_in)
+%   >> [ix,npix,p,grid_size]=sort_pixels(u,pix_range,grid_size_in)
 %
-% (In the following, nd=no. dimensions, npix_in=no. pixels on input, npix=no. pixels in urange)
+% (In the following, nd=no. dimensions, npix_in=no. pixels on input, npix=no. pixels in pix_range)
 %
 % Input:
 % ------
 %   u               [nd x npix_in] array of the coordinates in Cartesian grid
-%   urange          Range for the grid (2 x nd)
+%   pix_range       Range for the grid (2 x nd)
 %   grid_size_in    Scalar or row vector (1 x nd) of number of bins along each axis
 %
 % Output:
@@ -33,22 +33,21 @@ function [ix,npix,p,grid_size,ibin]=sort_pixels(u,urange,grid_size_in)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 [nd,npixels] = size(u);    % no. dimensions and no. pixels
-[grid_size,p]=construct_grid_size(grid_size_in,urange);
+[grid_size,p]=construct_grid_size(grid_size_in,pix_range);
 
 % Get bin index numbers for each array in turn (to minimise memory use)
 % Account explicitly for case of only one bin along any dimension
 ok=true(1,npixels);
 for id=1:nd
-    ok=ok & u(id,:)>=urange(1,id) & u(id,:)<=urange(2,id);
+    ok=ok & u(id,:)>=pix_range(1,id) & u(id,:)<=pix_range(2,id);
 end
 ibin=double(ok);            % fill with unity where the bins are OK
 nel=[1,cumprod(grid_size)]; % Number of elements per unit step along each dimension
 for id=find(grid_size>1)    % Only for those dimensions with more than one bin *** does the rest of the code work if ~any(ok)==1?
-    ibin(ok) = ibin(ok) + nel(id)*max(0,min((grid_size(id)-1),floor(grid_size(id)*((u(id,ok)-urange(1,id))/(urange(2,id)-urange(1,id))))));
+    ibin(ok) = ibin(ok) + nel(id)*max(0,min((grid_size(id)-1),floor(grid_size(id)*((u(id,ok)-pix_range(1,id))/(pix_range(2,id)-pix_range(1,id))))));
 end
 
 % Sort into increasing bin number and return indexing array

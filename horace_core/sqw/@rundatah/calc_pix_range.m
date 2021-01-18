@@ -1,28 +1,28 @@
-function [pix_range,u_to_rlu]=calc_urange(obj,varargin)
+function [pix_range,u_to_rlu]=calc_pix_range(obj,varargin)
 % Method calculates q-dE range, this rundata object has
 %
 %Usage:
-%>>[pix_range,u_to_rlu]=obj.calc_urange()  Calculate crystal cartesian range 
+%>>[pix_range,u_to_rlu]=obj.calc_pix_range()  Calculate crystal cartesian range 
 %                                      for fully defined rundatah object
-%>>[pix_range,u_to_rlu]=obj.calc_urange('-cache_detectors')
-%                           Calculate urange for fully defined
+%>>[pix_range,u_to_rlu]=obj.calc_pix_range('-cache_detectors')
+%                           Calculate pix_range for fully defined
 %                           rundatah object, using precacluated
 %                           vectors, pointing detectors positons
 %
-%>>[pix_range,u_to_rlu]=obj.calc_urange(emin,emax) Calculate range of the
+%>>[pix_range,u_to_rlu]=obj.calc_pix_range(emin,emax) Calculate range of the
 %                  rundata object within the energy range provided.
 %                  the object may be not fully defined (only detectors and
 %                  (currently -- not mandatory) lattice should exist.
 %                  if object is defined, energy range is calculated from
 %                  min(emin,obj.en) to max(emax,obj.en)
 %
-%>>[pix_range,u_to_rlu,detdcn]=obj.calc_urange(emin,emax,'-cache_detectors')
+%>>[pix_range,u_to_rlu,detdcn]=obj.calc_pix_range(emin,emax,'-cache_detectors')
 %                   the combination of the previous two options
 %
 keys_recognized = {'-cache_detectors'};
 [ok,mess,cache_detectors,params] = parse_char_options(varargin,keys_recognized);
 if ~ok
-    error('RUNDATAH:invalid_arguments','calc_urange: %s',mess)
+    error('RUNDATAH:invalid_arguments','calc_pix_range: %s',mess)
 end
 
 b_obj = obj.build_bounding_obj(params{:});

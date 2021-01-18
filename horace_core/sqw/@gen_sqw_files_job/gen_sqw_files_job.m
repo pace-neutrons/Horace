@@ -28,7 +28,7 @@ classdef gen_sqw_files_job < JobExecutor
             
             try
                 grid_size_in = common_par.grid_size_in;
-                urange_in = common_par.urange_in;
+                pix_range_in = common_par.pix_range_in;
             catch ME
                 mess =  matlab.unittest.diagnostics.ConstraintDiagnostic.getDisplayableString(common_par);
                 mex1 = MException('GEN_SQW_FILES_JOB:invalid_common_par',mess);
@@ -63,11 +63,11 @@ classdef gen_sqw_files_job < JobExecutor
                 end
             end
             % Do conversion
-            [grid_size,urange] = obj.runfiles_to_sqw(run_files,tmp_fnames,...
-                grid_size_in,urange_in,false);
+            [grid_size,pix_range] = obj.runfiles_to_sqw(run_files,tmp_fnames,...
+                grid_size_in,pix_range_in,false);
             % return results
             obj.task_outputs  = struct('grid_size',grid_size,...
-                'urange',urange);
+                'pix_range',pix_range);
             
         end
         %
@@ -79,14 +79,14 @@ classdef gen_sqw_files_job < JobExecutor
             end
             if mf.labIndex == 1
                 [all_messages,tid_from] = mf.receive_all('all','data');
-                urange = obj.task_outputs.urange;
+                pix_range = obj.task_outputs.pix_range;
                 grid_size = obj.task_outputs.grid_size;
                 
                 for i=1:numel(all_messages)
-                    urange_tmp = all_messages{i}.payload.urange;
+                    pix_range_tmp = all_messages{i}.payload.pix_range;
                     grid_size_tmp = all_messages{i}.payload.grid_size;
-                    urange = [min(urange(1,:),urange_tmp(1,:));...
-                        max(urange(2,:),urange_tmp(2,:))];
+                    pix_range = [min(pix_range(1,:),pix_range_tmp(1,:));...
+                        max(pix_range(2,:),pix_range_tmp(2,:))];
                     if any(grid_size ~=grid_size_tmp )
                         error('GEN_SQW_FILES_JOB:runtime_error',...
                             'a worker N%d calculates files with grid different from worker N1',...
@@ -95,7 +95,7 @@ classdef gen_sqw_files_job < JobExecutor
                 end
                 % return results
                 obj.task_outputs = struct('grid_size',grid_size,...
-                    'urange',urange);
+                    'pix_range',pix_range);
             else
                 %
                 the_mess = DataMessage(obj.task_outputs);
@@ -116,7 +116,7 @@ classdef gen_sqw_files_job < JobExecutor
     end
     methods(Static)
         function [common_par,loop_par] = pack_job_pars(runfiles,tmp_files,...
-                instr,sample, grid_size_in,urange_in)
+                instr,sample, grid_size_in,pix_range_in)
             % helper function packs gen_sqw  input data into the form, suitable
             % for jobDispatcher to split between workers and to prepare
             % to transmit to this class instance on a separated Matlab
@@ -133,7 +133,7 @@ classdef gen_sqw_files_job < JobExecutor
             %                   Single instrument at the moment
             %   sample          objects containing sample geometry information
             %   grid_size_in    Scalar or row vector of grid dimensions.
-            %   urange_in       Range of data grid for output.
+            %   pix_range_in       Range of data grid for output.
             %
             % Outputs:
             % -------
@@ -146,7 +146,7 @@ classdef gen_sqw_files_job < JobExecutor
             %                   (tmp)
             
             common_par = struct(...
-                'grid_size_in',grid_size_in,'urange_in',urange_in);
+                'grid_size_in',grid_size_in,'pix_range_in',pix_range_in);
             % simplify -- no instrument, no sample
             if ~isempty(instr) && (isstruct(instr(1)) && ~isempty(fieldnames(instr(1))))
                 if numel(instr) == numel(sample) && (numel(sample) ==numel(runfiles ))
@@ -172,8 +172,8 @@ classdef gen_sqw_files_job < JobExecutor
                 {'runfile','sqw_file_name'});
         end
         %
-        function [grid_size,urange]=runfiles_to_sqw(run_files,tmp_fnames,...
-                grid_size_in,urange_in,varargin)
+        function [grid_size,pix_range]=runfiles_to_sqw(run_files,tmp_fnames,...
+                grid_size_in,pix_range_in,varargin)
             % Public interface to private rundata_write_to_sqw_ function
             % which do actually converts all input runfiles into list of
             % sqw (tmp) files.
@@ -187,7 +187,7 @@ classdef gen_sqw_files_job < JobExecutor
             %                   initiated instrument and sample
             %   sqw_file        full file name of output sqw file
             %   grid_size_in    Scalar or row vector of grid dimensions.
-            %   urange_in       Range of data grid for output. If not given, then uses smallest hypercuboid
+            %   pix_range_in       Range of data grid for output. If not given, then uses smallest hypercuboid
             %                   that encloses the whole data range
             % optional:
             %   write_banner    =true then write banner; =false then done (no banner will be
@@ -197,10 +197,10 @@ classdef gen_sqw_files_job < JobExecutor
             % -------
             %   grid_size       Actual grid size used (size is unity along dimensions
             %                   where there is zero range of the data points)
-            %   urange          Actual range of grid
+            %   pix_range       Actual range of grid
             %
-            [grid_size,urange] = rundata_write_to_sqw_(run_files,tmp_fnames,...
-                grid_size_in,urange_in,varargin{:});
+            [grid_size,pix_range] = rundata_write_to_sqw_(run_files,tmp_fnames,...
+                grid_size_in,pix_range_in,varargin{:});
         end
         
     end
