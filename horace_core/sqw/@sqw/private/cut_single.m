@@ -49,6 +49,10 @@ proj = proj.set_proj_binning( ...
 [s, e, npix, pix_out, urange_pix, pix_comb_info] = cut_accumulate_data_( ...
     w, proj, keep_pix, log_level, return_cut ...
 );
+if ~isempty(pix_comb_info) && isa(pix_comb_info, 'pix_combine_info')
+    % Make sure we clean up temp files
+    cleanup = onCleanup(@() clean_up_tmp_files(pix_comb_info));
+end
 
 % Compile the accumulated cut and projection data into a data_sqw_dnd object
 data_out = compile_sqw_data( ...
@@ -75,15 +79,6 @@ if exist('outfile', 'var') && ~isempty(outfile)
         warning('CUT_SQW:io_error', ...
                 'Error writing to file ''%s''.\n%s: %s', ...
                 outfile, ME.identifier, ME.message);
-    end
-end
-
-% Manually clean-up temporary files created by a pix_combine_info object
-if isa(wout, 'sqw') && isa(wout.data.pix, 'pix_combine_info')
-    pix_comb_info = wout.data.pix;
-    for i = 1:numel(wout.data.pix)
-        tmp_fpath = pix_comb_info.infiles{i};
-        delete(tmp_fpath);
     end
 end
 
@@ -133,5 +128,14 @@ function data_out = compile_sqw_data(data, proj, s, e, npix, pix_out, ...
         else
             data_out.pix = pix_out;
         end
+    end
+end
+
+
+function clean_up_tmp_files(pix_comb_info)
+    % Manually clean-up temporary files created by a pix_combine_info object
+    for i = 1:numel(pix_comb_info.infiles)
+        tmp_fpath = pix_comb_info.infiles{i};
+        delete(tmp_fpath);
     end
 end
