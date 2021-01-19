@@ -55,15 +55,18 @@ classdef VerboseTestRunDisplay < TestRunDisplay
 
             component_run_time = toc(self.popTic());
 
-            if did_pass == 1
-                fprintf(self.FileHandle, 'passed in %12.6f seconds\n', component_run_time);
-            elseif did_pass == 2
-                fprintf(self.FileHandle, 'test skipped\n');
-            else
-                fprintf(self.FileHandle, 'FAILED in %12.6f seconds\n', component_run_time);
+            switch did_pass
+              case component.passed
+                fprintf(self.FileHandle, 'passed in %12.6f seconds', component_run_time);
+              case component.skipped
+                fprintf(self.FileHandle, 'test skipped');
+              case component.failed
+                fprintf(self.FileHandle, 'FAILED in %12.6f seconds', component_run_time);
             end
 
             if ~isa(component, 'TestCase')
+                fprintf(self.FileHandle, ', %d tests skipped.\n\n', self.NumSkips);
+            else
                 fprintf(self.FileHandle, '\n');
             end
 

@@ -34,12 +34,6 @@ classdef TestCase < TestComponent
         MethodName
     end
 
-    properties(Constant)
-        passed = 1
-        skipped = 2
-        failed = 0
-    end
-
     methods
         function self = TestCase(testMethod)
             %TestCase Constructor

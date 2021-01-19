@@ -1,6 +1,4 @@
 classdef test_skip < TestCase
-    properties
-    end
     methods
         function this=test_skip(varargin)
             if nargin>0

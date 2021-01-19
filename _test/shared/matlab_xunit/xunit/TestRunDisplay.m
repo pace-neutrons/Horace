@@ -33,6 +33,7 @@ classdef TestRunDisplay < TestRunMonitor
         %       Exception - the MException thrown when the fault occurred
         Faults = struct('Type', {}, 'TestCase', {}, 'Exception', {});
 
+        NumSkips = 0;
     end
 
     properties (SetAccess = private, GetAccess = private)
@@ -44,7 +45,6 @@ classdef TestRunDisplay < TestRunMonitor
         %   test run.  This component is saved so that the end of the test run
         %   can be identified.
         InitialComponent = []
-
     end
 
     properties (Access = protected)
@@ -93,11 +93,12 @@ classdef TestRunDisplay < TestRunMonitor
 
             if isa(component, 'TestCase')
                 self.TestCaseCount = self.TestCaseCount + 1;
-                if did_pass == 1
+                switch did_pass
+                  case component.passed
                     fprintf(self.FileHandle, '.');
-                elseif did_pass == 2
+                  case component.skipped
                     fprintf(self.FileHandle, 'S');
-                else
+                  case component.failed
                     fprintf(self.FileHandle, 'F');
                 end
                 line_length = 20;
@@ -135,7 +136,8 @@ classdef TestRunDisplay < TestRunMonitor
             %    case skip information.
 
             self.logFault('skip', test_case, ...
-                skip_exception);
+                          skip_exception);
+            self.NumSkips = self.NumSkips + 1;
         end
     end
 
@@ -168,7 +170,7 @@ classdef TestRunDisplay < TestRunMonitor
                 result = 'FAILED';
             end
 
-            fprintf(self.FileHandle, '\n%s in %.3f seconds.\n', result, toc(self.InitialTic));
+            fprintf(self.FileHandle, '\n%s in %.3f seconds, %d tests skipped.\n', result, toc(self.InitialTic), self.NumSkips);
 
             self.displayFaults();
         end
