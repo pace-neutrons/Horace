@@ -460,7 +460,7 @@ pipeline {
               git checkout gh-pages &&
               echo "Bypassing Jekyll on GitHub Pages" > .nojekyll &&
               git add .nojekyll &&
-              git rm -rf ./unstable &&
+              git rm -rf --ignore-unmatch ./unstable &&
               cp -r ./documentation/user_docs/build/html ./unstable &&
               git add unstable &&
               git commit -m "Document build from CI" &&
@@ -474,7 +474,7 @@ pipeline {
               git checkout gh-pages
               Set-Content -Value "Bypassing Jekyll on GitHub Pages" -Path .nojekyll
               git add .nojekyll
-              git rm -rf ./unstable
+              git rm -rf --ignore-unmatch ./unstable
               Copy-Item -Path "./documentation/user_docs/build/html" -Destination "./unstable" -Recurse
               git add unstable
               git commit -m "Document build from CI"
