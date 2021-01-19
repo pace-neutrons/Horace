@@ -457,7 +457,6 @@ pipeline {
             sh '''
               git config --local user.name "PACE CI Build Agent" &&
               git config --local user.email "pace.builder.stfc@gmail.com" &&
-              git remote set-url --push origin "https://pace-builder:"\${api_token## }"@github.com/pace-neutrons/horace-docs" &&
               git checkout gh-pages &&
               echo "Bypassing Jekyll on GitHub Pages" > .nojekyll &&
               git add .nojekyll &&
@@ -466,9 +465,21 @@ pipeline {
               git add unstable &&
               git commit -m "Document build from CI" &&
               git push origin gh-pages
-        '''
+            '''
           }
           else {
+            powershell '''
+              git config --local user.name "PACE CI Build Agent"
+              git config --local user.email "pace.builder.stfc@gmail.com"
+              git checkout gh-pages
+              Set-Content -Value "Bypassing Jekyll on GitHub Pages" -Path .nojekyll
+              git add .nojekyll
+              git rm -rf ./unstable
+              Copy-Item -Path "./documentation/user_docs/build/html" -Destination "./unstable" -Recurse
+              git add unstable
+              git commit -m "Document build from CI"
+              git push origin gh-pages
+            '''
 
           }
         }
