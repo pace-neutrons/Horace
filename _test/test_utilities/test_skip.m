@@ -12,7 +12,7 @@ classdef test_skip < TestCase
 
         %------------------------------------------------------------------
         function test_skip_with_message(this)
-            skipTest('This test is skipped because of custom reasons.');
+            skipTest('This is a custom message to test reason reporting.');
         end
 
         function test_skip_without_message(this)

@@ -91,8 +91,7 @@ classdef TestSuite < TestComponent
 
             for k = 1:numel(self.TestComponents)
                 [this_component_passed,num_tests_run] = self.TestComponents{k}.run(monitor,num_tests_run);
-                % Logical cast not "necessary" as auto-cast, but for clarity
-                did_pass = logical(did_pass) && this_component_passed;
+                did_pass = did_pass && (this_component_passed ~= self.failed);
             end
 
             self.tearDown();
