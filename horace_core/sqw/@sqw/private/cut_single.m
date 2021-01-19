@@ -79,7 +79,7 @@ if exist('outfile', 'var') && ~isempty(outfile)
 end
 
 % Manually clean-up temporary files created by a pix_combine_info object
-if isa(wout.data.pix, 'pix_combine_info')
+if isa(wout, 'sqw') && isa(wout.data.pix, 'pix_combine_info')
     pix_comb_info = wout.data.pix;
     for i = 1:numel(wout.data.pix)
         tmp_fpath = pix_comb_info.infiles{i};
