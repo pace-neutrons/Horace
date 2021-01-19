@@ -39,7 +39,7 @@ methods
         sqw_cut = cut(...
             obj.sqw_file, proj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims);
 
-        ref_sqw = sqw('test_cut_ref_sqw.sqw');
+        ref_sqw = sqw(obj.ref_file);
         assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
     end
 
@@ -55,7 +55,7 @@ methods
 
         sqw_cut = cut(sqw_obj, proj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims);
 
-        ref_sqw = sqw('test_cut_ref_sqw.sqw');
+        ref_sqw = sqw(obj.ref_file);
         assertEqualToTol(sqw_cut, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
     end
 
@@ -77,7 +77,7 @@ methods
             '-nopix' ...
         );
 
-        ref_sqw = d3d('test_cut_ref_sqw.sqw');
+        ref_sqw = d3d(obj.ref_file);
         assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
     end
 
@@ -155,7 +155,7 @@ methods
         cleanup = onCleanup(@() cleanup_file(outfile));
 
         loaded_sqw = sqw(outfile);
-        ref_sqw = sqw('test_cut_ref_sqw.sqw');
+        ref_sqw = sqw(obj.ref_file);
         assertEqualToTol(loaded_sqw, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
     end
 
@@ -283,7 +283,7 @@ methods
         outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
         cleanup = obj.do_out_of_mem_cut(obj.sqw_file, outfile, pix_pg_size, use_mex);
 
-        ref_sqw = sqw('test_cut_ref_sqw.sqw');
+        ref_sqw = sqw(obj.ref_file);
         output_sqw = sqw(outfile);
 
         assertEqualToTol(output_sqw, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
@@ -295,7 +295,7 @@ methods
         outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
         cleanup = obj.do_out_of_mem_cut(obj.sqw_file, outfile, pix_pg_size, use_mex);
 
-        ref_sqw = sqw('test_cut_ref_sqw.sqw');
+        ref_sqw = sqw(obj.ref_file);
         output_sqw = sqw(outfile);
 
         assertEqualToTol(output_sqw, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
