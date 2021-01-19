@@ -6,6 +6,7 @@ properties
     old_warn_state;
 
     sqw_file = '../test_sym_op/test_cut_sqw_sym.sqw';
+    ref_file = 'test_cut_ref_sqw.sqw'
     sqw_4d;
 end
 
@@ -311,6 +312,26 @@ methods
         f = @() cut(obj.sqw_file, proj, u_axis_lims, v_axis_lims, ...
                     w_axis_lims, en_axis_lims);
         assertExceptionThrown(f, 'CUT_SQW:invalid_arguments');
+    end
+
+    function test_you_can_take_a_cut_with_nopix_arg_and_output_to_file(obj)
+        proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+
+        u_axis_lims = [-0.1, 0.025, 0.1];
+        v_axis_lims = [-0.1, 0.025, 0.1];
+        w_axis_lims = [-0.1, 0.1];
+        en_axis_lims = [105, 1, 114];
+
+        outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
+        cut(obj.sqw_file, proj, u_axis_lims, v_axis_lims, w_axis_lims, ...
+            en_axis_lims, outfile, '-nopix')
+
+        assertTrue(logical(exist(outfile, 'file')));
+        ldr = sqw_formats_factory.instance().get_loader(outfile);
+        output_obj = ldr.get_dnd();
+        ref_object = d3d(obj.ref_file);
+
+        assertEqualToTol(output_obj, ref_object, 'ignore_str', true);
     end
 
 end

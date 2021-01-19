@@ -70,7 +70,7 @@ if exist('outfile', 'var') && ~isempty(outfile)
         disp(['Writing cut to output file ', outfile, '...']);
     end
     try
-        save_sqw(wout, outfile);
+        save(wout, outfile);
     catch ME
         warning('CUT_SQW:io_error', ...
                 'Error writing to file ''%s''.\n%s: %s', ...
@@ -91,14 +91,6 @@ end  % function
 
 
 % -----------------------------------------------------------------------------
-function save_sqw(sqw_obj, file_path)
-    loader = sqw_formats_factory.instance().get_pref_access();
-    loader = loader.init(sqw_obj, file_path);
-    loader.put_sqw();
-    loader.delete();
-end
-
-
 function data_out = compile_sqw_data(data, proj, s, e, npix, pix_out, ...
                                      pix_comb_info, urange_pix, ubins, keep_pix)
     ppax = ubins.plot_ax_bounds(1:length(ubins.plot_ax_idx));
