@@ -368,6 +368,8 @@ pipeline {
                 pip install --user sphinx &&
                 pip install --user sphinx_rtd_theme &&
                 export PATH=${PATH}:~/.local/bin &&
+                # Update release numbers
+                sed -i -r "s/release = .*/release = ${currentBuild.description}/" ./documentation/user_docs/docs/conf.py &&
                 make -C ./documentation/user_docs/ html &&
                 make -C ./documentation/user_docs/ html &&
                 # Remove dead links
@@ -465,6 +467,7 @@ pipeline {
               git add .nojekyll &&
               git rm -rf --ignore-unmatch ./unstable &&
               cp -r ./documentation/user_docs/build/html ./unstable &&
+
               git add unstable &&
               git commit -m "Document build from CI" &&
               git push origin gh-pages
