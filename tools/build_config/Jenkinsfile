@@ -452,9 +452,11 @@ pipeline {
         expression {env.RELEASE_TYPE == "nightly"}
       }
       steps {
-        script {
-          if (isUnix()) {
-            sh '''
+        withCredentials([string(credentialsId: 'GitHub_API_Token',
+                                variable: 'api_token')]) {
+          script {
+            if (isUnix()) {
+              sh '''
               git config --local user.name "PACE CI Build Agent" &&
               git config --local user.email "pace.builder.stfc@gmail.com" &&
               git remote set-url --push origin "https://pace-builder:"\${api_token## }"@github.com/pace-neutrons/Horace"
@@ -467,9 +469,9 @@ pipeline {
               git commit -m "Document build from CI" &&
               git push origin gh-pages
             '''
-          }
-          else {
-            powershell '''
+            }
+            else {
+              powershell '''
               git config --local user.name "PACE CI Build Agent"
               git config --local user.email "pace.builder.stfc@gmail.com"
               git remote set-url --push origin "https://pace-builder:"\${api_token## }"@github.com/pace-neutrons/Horace"
@@ -483,6 +485,7 @@ pipeline {
               git push origin gh-pages
             '''
 
+            }
           }
         }
       }
