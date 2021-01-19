@@ -457,6 +457,7 @@ pipeline {
             sh '''
               git config --local user.name "PACE CI Build Agent" &&
               git config --local user.email "pace.builder.stfc@gmail.com" &&
+              git remote set-url --push origin "https://pace-builder:"\${api_token## }"@github.com/pace-neutrons/Horace"
               git checkout gh-pages &&
               echo "Bypassing Jekyll on GitHub Pages" > .nojekyll &&
               git add .nojekyll &&
@@ -471,6 +472,7 @@ pipeline {
             powershell '''
               git config --local user.name "PACE CI Build Agent"
               git config --local user.email "pace.builder.stfc@gmail.com"
+              git remote set-url --push origin "https://pace-builder:"\${api_token## }"@github.com/pace-neutrons/Horace"
               git checkout gh-pages
               Set-Content -Value "Bypassing Jekyll on GitHub Pages" -Path .nojekyll
               git add .nojekyll
