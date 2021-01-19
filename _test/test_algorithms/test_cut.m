@@ -325,6 +325,7 @@ methods
         outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
         cut(obj.sqw_file, proj, u_axis_lims, v_axis_lims, w_axis_lims, ...
             en_axis_lims, outfile, '-nopix')
+        cleanup = onCleanup(@() cleanup_file(outfile));
 
         assertTrue(logical(exist(outfile, 'file')));
         ldr = sqw_formats_factory.instance().get_loader(outfile);
