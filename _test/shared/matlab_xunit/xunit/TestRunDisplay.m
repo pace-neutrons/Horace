@@ -194,6 +194,12 @@ classdef TestRunDisplay < TestRunMonitor
                 faultData = self.Faults(k);
                 if strcmp(faultData.Type, 'failure')
                     str = 'Failure';
+                elseif strcmp(faultData.Type, 'skip')
+                    % Only print if verbose
+                    if ~isa(self, 'VerboseTestRunDisplay')
+                        continue
+                    end
+                    str = 'Skipped';
                 else
                     str = 'Error';
                 end

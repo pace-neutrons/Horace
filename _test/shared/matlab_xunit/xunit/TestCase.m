@@ -98,8 +98,8 @@ classdef TestCase < TestComponent
                     % Call the test method.
                     f(self);
                 catch failureException
-                    if (strcmp(failureException.identifier,'testSkipped'))
-                        monitor.testCaseSkip(self, skipException)
+                    if (strcmp(failureException.identifier,'testSkipped:testSkipped'))
+                        monitor.testCaseSkip(self, failureException);
                         did_pass = self.skipped;
                     else
                         monitor.testCaseFailure(self, failureException);
