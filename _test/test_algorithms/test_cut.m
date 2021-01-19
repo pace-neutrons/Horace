@@ -300,6 +300,19 @@ methods
         assertEqualToTol(output_sqw, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
     end
 
+    function test_calling_cut_with_no_outfile_and_no_nargout_throws_error(obj)
+        proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+
+        u_axis_lims = [-0.1, 0.025, 0.1];
+        v_axis_lims = [-0.1, 0.025, 0.1];
+        w_axis_lims = [-0.1, 0.1];
+        en_axis_lims = [105, 1, 114];
+
+        f = @() cut(obj.sqw_file, proj, u_axis_lims, v_axis_lims, ...
+                    w_axis_lims, en_axis_lims);
+        assertExceptionThrown(f, 'CUT_SQW:invalid_arguments');
+    end
+
 end
 
 methods (Static)
