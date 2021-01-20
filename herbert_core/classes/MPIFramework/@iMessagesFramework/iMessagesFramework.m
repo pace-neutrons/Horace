@@ -446,7 +446,7 @@ classdef iMessagesFramework < handle
             base64 = org.apache.commons.codec.binary.Base64;
             y = base64.decode(y);
             iarr = uint8(mod(int16(y),256)); % convert from int8 to uint8, wrapping negatives back into 255 range
-            params  =  hlp_deserialise(iarr);
+            params  =  deserialise(iarr);
         end
         %
         function [par,mess] = serialize_par(param)
@@ -459,7 +459,7 @@ classdef iMessagesFramework < handle
             mess = '';
             par = '';
             try
-                v = hlp_serialise(param)';
+                v = serialise(param)';
             catch ME
                 mess = ME.message;
                 return
