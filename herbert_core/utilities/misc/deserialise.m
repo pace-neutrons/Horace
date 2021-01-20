@@ -2,8 +2,8 @@
 
 function ser = deserialise(a)
     if get(herbert_config,'use_mex')
-        ser = c_deserialise(a)
+        ser = c_deserialise(a);
     else
-        ser = hlp_deserialise(a)
+        ser = hlp_deserialise(a);
     end
 end
