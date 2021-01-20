@@ -110,7 +110,8 @@ classdef test_rebin < TestCase
             w2d_qq_sqw_reb_check.data.e=w2d_qq_sqw_reb.data.e;
             w2d_qq_sqw_reb_check.data.pix.variance=w2d_qq_sqw_reb.data.pix.variance;
             
-            [ok,mess]=equal_to_tol(w2d_qq_sqw_reb_check,w2d_qq_sqw_reb,-1e-6,'ignore_str', 1);
+            rel_tol = 9e-5;
+            [ok,mess]=equal_to_tol(w2d_qq_sqw_reb_check,w2d_qq_sqw_reb,-rel_tol,'ignore_str', 1);
             assertTrue(ok,['rebin sqw using template object fails: ',mess])
         end
         
