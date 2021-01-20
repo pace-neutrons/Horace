@@ -2,7 +2,7 @@
 
 #include <mex.h>
 
-#define DIM_MAX 4294967295
+constexpr unsigned long DIM_MAX{4294967295};
 
 enum ser_types{
   SELF_SER,
