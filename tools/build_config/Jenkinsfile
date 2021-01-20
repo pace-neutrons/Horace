@@ -363,13 +363,14 @@ pipeline {
       steps {
         script {
           if (isUnix()) {
+            sh 'echo '+currentBuild.description
             sh '''
                 module load python/3.6 &&
                 pip install --user sphinx &&
                 pip install --user sphinx_rtd_theme &&
                 export PATH=${PATH}:~/.local/bin &&
                 # Update release numbers
-                sed -i -r "s/release = .*/release = \${currentBuild.description}/" ./documentation/user_docs/docs/conf.py &&
+                sed -i -r "s/release = .*/release = '''+currentBuild.description+'''/" ./documentation/user_docs/docs/conf.py &&
                 make -C ./documentation/user_docs/ html &&
                 make -C ./documentation/user_docs/ html &&
                 # Remove dead links
