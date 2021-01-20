@@ -1,27 +1,24 @@
-function [wout,wsym] = cut_sqw_sym_main (data_source, ndims_source, varargin)
+function wout = cut_sqw_main (data_source, ndims_source, varargin)
 % Take a cut from an sqw object by integrating over one or more axes.
 %
 % Cut using existing projection axes:
-%   >> w = cut_sqw_sym_main (data_source, ndims_source, p1_bin, p2_bin...,sym)
+%   >> w = cut_sqw_main (data_source, ndims_source, p1_bin, p2_bin...)
 %                                           %(as many binning arguments
 %                                           % as there are plot axes)
 %
 % Cut with new projection axes:
-%   >> w = cut_sqw_sym_main (data_source, ndims_source, proj, p1_bin, p2_bin, p3_bin, p4_bin, sym)
+%   >> w = cut_sqw_main (data_source, ndims_source, proj, p1_bin, p2_bin, p3_bin, p4_bin)
 %
-%   >> w = cut_sqw_sym_main (..., '-nopix')     % output cut is dnd structure (i.e. no
-%                                               % pixel information is retained)
+%   >> w = cut_sqw_main (..., '-nopix')     % output cut is dnd structure (i.e. no
+%                                           % pixel information is retained)
 %
-%   >> w = cut_sqw_sym_main (..., '-save')      % save cut to file (prompts for file)
-%   >> w = cut_sqw_sym_main (...,  filename)    % save cut to named file
-%
-% For both the above: return the cuts for each symmetry related cut as well
-%   >> [w, wsym] = cut_sym (...)
+%   >> w = cut_sqw_main (..., '-save')      % save cut to file (prompts for file)
+%   >> w = cut_sqw_main (...,  filename)    % save cut to named file
 %
 % Write directly to file without creating an output object (useful if the
 % output is a large dataset in order to avoid out-of-memory errors)
 %
-%   >> cut_sqw_sym_main (...)
+%   >> cut_sqw_main (...)
 %
 %
 % Input:
@@ -109,37 +106,27 @@ function [wout,wsym] = cut_sqw_sym_main (data_source, ndims_source, varargin)
 %                              the energy range plo to phi is contained
 %                              within the bin boundaries.
 %
-%   sym             Symmetry operator (or an array of symmetry operators
-%                  to be applied in the order sym(1), sym(2),...)
-%                  by which a symmetry related cut is to be accumulated.
-%                   Must have class symop.
-%
-%                   For several symmetry related cuts, provide a cell array
-%                  of symmetry operators and/or arrays of symmetry operators
-%           EXAMPLES
-%                   s1 = symop ([1,0,0],[0,1,0],[1,1,1]);
-%                   s2 = symop ([1,0,0],[0,0,1],[1,1,1]);
-%                   % For all four symmetry related cuts:
-%                   sym = {s1,s2,[s1,s2]};
-%
 %
 % Output:
 % -------
 %   w               Output data object:
 %                     - sqw-type object with full pixel information
 %                     - dnd-type object if option '-nopix' given
-%
-%   wsym            Array of data objects, one for each symmetry related cut
 
+
+% Original author: T.G.Perring
+%
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
+
+
+% *** Currently only works if uoffset(4)=0 for input, output datasets
 
 hor_log_level = config_store.instance().get_value('herbert_config','log_level');
-
 
 
 % Parse input arguments
 % ---------------------
 return_cut = (nargout>0);
-return_comp = (nargout>1);
 
 [ok, mess, data_source, proj, pbin, args, opt] = ...
     cut_sqw_check_input_args (data_source, ndims_source, return_cut, varargin{:});
@@ -147,11 +134,8 @@ if ~ok
     error ('CUT_SQW:invalid_arguments', mess)
 end
 
-% Checks on symmetry description - check valid, and remove empty descriptions
-if numel(args)==1
-    [ok, mess, sym] = cut_sqw_check_sym_arg (args{1});
-    if ~ok, error(mess), end
-else
+% Ensure there are no excess input arguments
+if numel(args)~=0
     error ('CUT_SQW:invalid_arguments', 'Check the number and type of input arguments')
 end
 
@@ -178,48 +162,36 @@ header_ave=header_average(header);
 % determined and the corresponding elements of pbin are turned into two
 % dimensional arrays.
 [proj, pbin, ndims, pin, en] = proj.update_pbins(header_ave, data,pbin);
-%[ok, mess, proj, pbin, ndims, pin, en] = cut_sqw_check_pbins (header_ave, data, proj, pbin);
-
 
 % Perform cuts
 % ------------
-sz = cellfun(@(x)max(size(x,1),1),pbin);    % size of array of cuts (note: numel(wsize)==4)
-sz_squeeze = [sz(sz>1),ones(1,max(2-sum(sz>1),0))];
+sz = cellfun(@(x)max(size(x,1),1),pbin);     % size of array of cuts (note: numel(wsize)==4)
 if return_cut
+    sz_squeeze = [sz(sz>1),ones(1,max(2-sum(sz>1),0))];
     if opt.keep_pix
-        wout = sqw;
+        wout = repmat(sqw,sz_squeeze);
     else
-        wout = eval(sprintf('d%dd_old',ndims)); % construct a d0d, d1d, d2d, d3d, d4d, ...
-    end
-    if prod(sz_squeeze)>1
-        wout = repmat(wout, sz_squeeze); % an array
-    end
-end
-if return_comp
-    wsym = {wout};
-    if prod(sz_squeeze)>1
-        wsym = repmat(wsym, sz_squeeze); % a cell array
+        wout = eval(['repmat(d',num2str(ndims),'d,sz_squeeze)']);
     end
 end
 for i=1:prod(sz)
+    % Get pbin for each cut (allow for a bin descriptor being empty)
     [i1,i2,i3,i4] = ind2sub(sz,i);
-    pbin_tmp = {pbin{1}(i1,:),pbin{2}(i2,:),pbin{3}(i3,:),pbin{4}(i4,:)};
+    pbin_tmp = cell(1,4);
+    if ~isempty(pbin{1}), pbin_tmp{1}=pbin{1}(i1,:); else, pbin_tmp{1}=pbin{1}; end
+    if ~isempty(pbin{2}), pbin_tmp{2}=pbin{2}(i2,:); else, pbin_tmp{2}=pbin{2}; end
+    if ~isempty(pbin{3}), pbin_tmp{3}=pbin{3}(i3,:); else, pbin_tmp{3}=pbin{3}; end
+    if ~isempty(pbin{4}), pbin_tmp{4}=pbin{4}(i4,:); else, pbin_tmp{4}=pbin{4}; end
+
+    % Make cut
     if return_cut
-        if return_comp
-            [wout(i),wsym{i}] = cut_sqw_sym_main_single (data_source,...
-                main_header, header, detpar, data, npixtot, pix_position,...
-                proj, pbin_tmp, pin, en, sym, opt, hor_log_level);
-        else
-            wout(i) = cut_sqw_sym_main_single (data_source,...
-                main_header, header, detpar, data, npixtot, pix_position,...
-                proj, pbin_tmp, pin, en, sym, opt, hor_log_level);
-        end
-    else
-        cut_sqw_sym_main_single (data_source,...
+        wout(i) = cut_sqw_main_single (data_source,...
             main_header, header, detpar, data, npixtot, pix_position,...
-            proj, pbin_tmp, pin, en, sym, opt, hor_log_level);
+            proj, pbin_tmp, pin, en, opt, hor_log_level);
+    else
+        cut_sqw_main_single (data_source,...
+            main_header, header, detpar, data, npixtot, pix_position,...
+            proj, pbin_tmp, pin, en, opt, hor_log_level);
     end
 end
-if prod(sz)==1 && return_comp
-    wsym = wsym{1}; % convert back from a 1x1 cell array
-end
+

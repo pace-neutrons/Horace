@@ -15,6 +15,31 @@ classdef test_eval < TestCase
             obj.sqw_obj = sqw(test_sqw_file);
         end
 
+        function test_disp2sqw_eval(obj)
+            %
+            err_message = '';
+            try
+                ds = func_eval(obj.sqw_obj, ...
+                    @test_eval.disp2sqweval_tester2D, [], 'all');
+                failed = false;
+            catch ME
+                failed = true;
+                err_message = ME.message;
+            end
+            assertFalse(failed, err_message);
+
+            sig = ds.data.s;
+            assertEqual(sig(1), numel(sig));
+            assertEqual(sig(2), 1);
+
+            pix = ds.data.pix;
+            assertEqual(pix.signal(1), numel(sig));
+            assertEqual(pix.signal(2), numel(sig));
+
+
+
+        end
+
         function test_func_eval_sqw(obj)
             %
             err_message = '';
@@ -75,6 +100,24 @@ classdef test_eval < TestCase
             pix = ds.data.pix;
             assertEqual(pix.signal(2), 1);
             assertEqual(size(pix,2), pix.signal(1));
+        end
+
+        function test_sqw_eval_no_pix(obj)
+            %
+            err_message = '';
+            sqw_nopix = copy(obj.sqw_obj);
+            sqw_nopix.data.pix = PixelData();
+            try
+                ds = sqw_eval(obj.sqw_obj, ...
+                    @test_eval.sqw_eval_tester, []);
+                failed = false;
+            catch ME
+                failed = true;
+                err_message = ME.message;
+            end
+            assertFalse(failed,err_message);
+
+            assertEqual(ds.data.s(2:end), 1);
         end
     end
     methods(Static)
