@@ -87,7 +87,10 @@ classdef test_serialize< TestCase
             assertEqual(numel(bytes),sz);
         end
 
-        function DISABLED_test_ser_datamessage_array(this)
+        function test_ser_datamessage_array(this)
+
+            skipTest('Old serialiser does not support serialising object arrays')
+
             my_struc = struct('clc',true(1,3),'a',1,'ba',single(2),'ce',[1,2,3],...
                               'dee',struct('a',10),'ei',int32([9;8;7]));
             test_obj = [DataMessage(my_struc), DataMessage(10), DataMessage('Hello')];
@@ -227,11 +230,11 @@ classdef test_serialize< TestCase
         end
 
         %% Test Function handle
-        function DISABLED_test_ser_function_handle(this)
+        function test_ser_function_handle(this)
             test_func = @(x, y) (x^2 + y^2);
             ser = hlp_serialize(test_func);
             test_func_rec = hlp_deserialize(ser);
-            assertEqual(test_func, test_func_rec)
+            assertEqual(func2str(test_func), func2str(test_func_rec))
         end
 
         %% Test Cell Array
@@ -260,7 +263,8 @@ classdef test_serialize< TestCase
         end
 
         %------------------------------------------------------------------
-        function DISABLED_test_ser_cell_mixed_complex(this)
+        function test_ser_cell_mixed_complex(this)
+             skipTest('Old serialiser has bug with mixed complex types')
             test_cell = {1+2i 2 3+1i 4};
             ser =  hlp_serialize(test_cell);
             test_cell_rec = hlp_deserialize(ser);
@@ -292,18 +296,22 @@ classdef test_serialize< TestCase
         end
 
         %------------------------------------------------------------------
-        function DISABLED_test_ser_cell_homo_function_handles(this)
+        function test_ser_cell_homo_function_handles(this)
             test_cell = {@(x,y) (x+y^2), @(a,b) (b-a)};
             ser =  hlp_serialize(test_cell);
             test_cell_rec = hlp_deserialize(ser);
-            assertEqual(test_cell, test_cell_rec)
+            a = cellfun(@func2str, test_cell, 'UniformOutput', false);
+            b = cellfun(@func2str, test_cell_rec, 'UniformOutput', false);
+            assertEqual(a, b)
         end
 
         %------------------------------------------------------------------
         function test_ser_cell_hetero(this)
-            test_cell = {1, 'a', 1+2i, true, struct('boop', 1), {'Hello'}}; % DISABLED , @(x,y) (x+y^2)
+            test_cell = {1, 'a', 1+2i, true, struct('boop', 1), {'Hello'}, @(x,y) (x+y^2)};
             ser =  hlp_serialize(test_cell);
             test_cell_rec = hlp_deserialize(ser);
+            test_cell{7} = func2str(test_cell{7});
+            test_cell_rec{7} = func2str(test_cell_rec{7});
             assertEqual(test_cell, test_cell_rec)
         end
 
