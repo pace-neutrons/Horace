@@ -10,7 +10,7 @@ From the point of view of the computational resources necessary for an excitatio
   1c) Primary analysis of these images (symmetrization, background subtraction, arithmetic operations)
  2. Modelling and comparison between a model and the experimental results, namely:
   2a) Fitting to simple models (Multifit)
-  2b) Fitting to simple models accounting to resolution effects (Tobyfit)
+  2b) Fitting to simple models accounting for resolution effects (Tobyfit)
   2c) Simulation of complex models (e.g. SpinW or Castep )
   2d) Comparison and fitting between experiment and complex models accounting for resolution effects.
 
@@ -22,7 +22,7 @@ It is mainly satisfied by iDaaaS service, thought has some minor shortcomings:
    * 1c. is performed in Horace. Horace parallel extensions are available for symmetrisation, but are currently under development for other operations. The task is more demanding to memory and CPU resources then 1b, so ISISCOMPUTE had insufficient power to run this task efficiently. To make the symmetrization an IO bound task, a user would need to run 32 or more independent parallel Horace instances, and running 32 instances on ISISCOMPUE made multi-user machine unresponsive to other users. iDaaaS is even less adequate for this task as has to decrease the number of independent processes used for  symmetrisation due to memory constrains. Users performed this task on ISISCOMPUTE and now moved to iDaaaS are unhappy. Luckily there are very few such users.
 
 ### Task 2 Advanced analysis. Simulation and fitting:
-We do not currently able to run the software, necessary to perform Task 2 in parallel on the Horace level, i.e. not doing MPI parallelization. Users, may write their own Matlab or C++(mex) functions, providing Matlab parallel toolbox or C++ OMP parallelisation capabilities. iDaaaS provides adequate resources to run single instance analysis with user parallelisation on all processors, available on a machine. One of the ongoing PACE project objectives is to provide enhanced capabilities for performing Task 2 (simulation and modelling). Other objective is to write parallel extensions to run this task, so iDaaaS resources will become insufficient for performing tasks 2b-2d, even less sufficient then currently for doing task 1c.
+We do not currently able to run the software, necessary to perform Task 2 in parallel on the Horace level, i.e. not doing MPI parallelization. Users may write their own Matlab or C\++(mex) functions, providing Matlab parallel toolbox or C++ OMP parallelisation capabilities. iDaaaS provides adequate resources to run single instance analysis with user parallelisation on all processors, available on a machine. One of the ongoing PACE project objectives is to provide enhanced capabilities for performing Task 2 (simulation and modelling). Other objective is to write parallel extensions to run this task, so iDaaaS resources will become insufficient for performing tasks 2b-2d, even less sufficient then currently for doing task 1c.
 
 ## Ways to address the lack of computational resources.
 
