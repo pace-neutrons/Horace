@@ -1,9 +1,12 @@
 classdef test_cut < TestCase
 
 properties
+    FLOAT_TOL = 1e-5;
+
     old_warn_state;
 
     sqw_file = '../test_sym_op/test_cut_sqw_sym.sqw';
+    ref_file = 'test_cut_ref_sqw.sqw'
     sqw_4d;
 end
 
@@ -36,7 +39,7 @@ methods
         sqw_cut = cut(...
             obj.sqw_file, proj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims);
 
-        ref_sqw = sqw('test_cut_ref_sqw.sqw');
+        ref_sqw = sqw(obj.ref_file);
         assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
     end
 
@@ -52,8 +55,8 @@ methods
 
         sqw_cut = cut(sqw_obj, proj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims);
 
-        ref_sqw = sqw('test_cut_ref_sqw.sqw');
-        assertEqualToTol(sqw_cut, ref_sqw, 1e-4, 'ignore_str', true);
+        ref_sqw = sqw(obj.ref_file);
+        assertEqualToTol(sqw_cut, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
     end
 
     function test_you_can_take_a_cut_with_nopix_argument(obj)
@@ -74,7 +77,7 @@ methods
             '-nopix' ...
         );
 
-        ref_sqw = d3d('test_cut_ref_sqw.sqw');
+        ref_sqw = d3d(obj.ref_file);
         assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
     end
 
@@ -132,7 +135,7 @@ methods
 
         loaded_cut = sqw(outfile);
 
-        assertEqualToTol(ret_sqw, loaded_cut, 1e-5, 'ignore_str', true);
+        assertEqualToTol(ret_sqw, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
     end
 
     function test_you_can_take_a_cut_from_an_sqw_object_to_an_sqw_file(obj)
@@ -152,8 +155,8 @@ methods
         cleanup = onCleanup(@() cleanup_file(outfile));
 
         loaded_sqw = sqw(outfile);
-        ref_sqw = sqw('test_cut_ref_sqw.sqw');
-        assertEqualToTol(loaded_sqw, ref_sqw, 1e-4, 'ignore_str', true);
+        ref_sqw = sqw(obj.ref_file);
+        assertEqualToTol(loaded_sqw, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
     end
 
     function test_you_can_take_a_cut_from_a_dnd_object(obj)
@@ -272,6 +275,88 @@ methods
         f = @() cut({obj.sqw_file, obj.sqw_file}, proj, u_axis_lims, v_axis_lims, ...
                     w_axis_lims, en_axis_lims);
         assertExceptionThrown(f, 'HORACE:cut');
+    end
+
+    function test_you_can_take_an_out_of_memory_cut_with_tmp_files_with_mex(obj)
+        pix_pg_size = 5e5;  % this gives two pages of pixels over obj.sqw_file
+        use_mex = true;
+        outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
+        cleanup = obj.do_out_of_mem_cut(obj.sqw_file, outfile, pix_pg_size, use_mex);
+
+        ref_sqw = sqw(obj.ref_file);
+        output_sqw = sqw(outfile);
+
+        assertEqualToTol(output_sqw, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
+    end
+
+    function test_you_can_take_an_out_of_memory_cut_with_tmp_files_no_mex(obj)
+        pix_pg_size = 5e5;  % this gives two pages of pixels over obj.sqw_file
+        use_mex = false;
+        outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
+        cleanup = obj.do_out_of_mem_cut(obj.sqw_file, outfile, pix_pg_size, use_mex);
+
+        ref_sqw = sqw(obj.ref_file);
+        output_sqw = sqw(outfile);
+
+        assertEqualToTol(output_sqw, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
+    end
+
+    function test_calling_cut_with_no_outfile_and_no_nargout_throws_error(obj)
+        proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+
+        u_axis_lims = [-0.1, 0.025, 0.1];
+        v_axis_lims = [-0.1, 0.025, 0.1];
+        w_axis_lims = [-0.1, 0.1];
+        en_axis_lims = [105, 1, 114];
+
+        f = @() cut(obj.sqw_file, proj, u_axis_lims, v_axis_lims, ...
+                    w_axis_lims, en_axis_lims);
+        assertExceptionThrown(f, 'CUT_SQW:invalid_arguments');
+    end
+
+    function test_you_can_take_a_cut_with_nopix_arg_and_output_to_file(obj)
+        proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+
+        u_axis_lims = [-0.1, 0.025, 0.1];
+        v_axis_lims = [-0.1, 0.025, 0.1];
+        w_axis_lims = [-0.1, 0.1];
+        en_axis_lims = [105, 1, 114];
+
+        outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
+        cut(obj.sqw_file, proj, u_axis_lims, v_axis_lims, w_axis_lims, ...
+            en_axis_lims, outfile, '-nopix')
+        cleanup = onCleanup(@() cleanup_file(outfile));
+
+        assertTrue(logical(exist(outfile, 'file')));
+        ldr = sqw_formats_factory.instance().get_loader(outfile);
+        output_obj = ldr.get_dnd();
+        ref_object = d3d(obj.ref_file);
+
+        assertEqualToTol(output_obj, ref_object, 'ignore_str', true);
+    end
+
+end
+
+methods (Static)
+
+    function out_cleanup = do_out_of_mem_cut(infile, outfile, pg_size, use_mex)
+        cleanup = set_temporary_config_options( ...
+            hor_config, ...
+            'pixel_page_size', pg_size, ...
+            'use_mex', use_mex ...
+        );
+
+        proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+        u_axis_lims = [-0.1, 0.025, 0.1];
+        v_axis_lims = [-0.1, 0.025, 0.1];
+        w_axis_lims = [-0.1, 0.1];
+        en_axis_lims = [105, 1, 114];
+
+        cut( ...
+            infile, proj, u_axis_lims, v_axis_lims, w_axis_lims, en_axis_lims, ...
+            outfile ...
+        );
+        out_cleanup = onCleanup(@() cleanup_file(outfile));
     end
 
 end

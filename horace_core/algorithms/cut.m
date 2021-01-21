@@ -32,5 +32,8 @@ else
            'Argument ''source'' must be sqw, dnd or a valid file path.'], ...
           class(source));
 end
-
-wout = cut(sqw_dnd_obj, varargin{:});
+if nargout > 0
+    wout = cut(sqw_dnd_obj, varargin{:});
+else
+    cut(sqw_dnd_obj, varargin{:});
+end
