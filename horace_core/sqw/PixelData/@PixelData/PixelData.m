@@ -263,7 +263,7 @@ classdef PixelData < handle
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);
         [page_num,total_number_of_pages] = move_to_page(obj, page_number);
-        recalc_pix_range(obj);
+        obj=recalc_pix_range(obj);
         
         function obj = PixelData(arg, mem_alloc)
             % Construct a PixelData object from the given data. Default
