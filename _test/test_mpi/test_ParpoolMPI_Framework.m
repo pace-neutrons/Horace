@@ -20,7 +20,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 obj.ignore_test = true;
                 return;
             end
-            
+
         end
         function pl = start_pool(obj)
             cl = parcluster();
@@ -38,7 +38,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             if num_labs > obj.n_max_workers
                 num_labs = obj.n_max_workers;
             end
-            
+
             pl = gcp('nocreate'); % Get the current parallel pool
             %if ~isempty(pl)
             %    delete(pl);
@@ -53,7 +53,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             else
                 obj.pool = pl;
             end
-            
+
         end
         function delete(obj)
             obj.pool_deleter = [];
@@ -61,7 +61,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
         %
         function test_finish_tasks_reduce_messages(obj,varargin)
             if obj.ignore_test
-                return;
+                skipTest();
             end
             if nargin>1
                 obj.setUp();
@@ -69,25 +69,20 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             end
             pl = obj.start_pool();
             assertFalse(isempty(pl),'problem getting access to parallel pool')
-            %             if isempty(pl)
-            %                 warning('Problem of getting parallel pool')
-            %                 return
-            %             end
-            
-            
+
             serverfbMPI  = MessagesFilebased('test_finish_tasks_reduce_mess');
             serverfbMPI.mess_exchange_folder = obj.working_dir;
-            
+
             clob = onCleanup(@()finalize_all(serverfbMPI));
             % generate 3 controls to have 3 filebased MPI pseudo-workers
             css1= serverfbMPI.get_worker_init('MessagesParpool');
-            
+
             num_labs = pl.NumWorkers;
             spmd
                 ok = finish_task_tester(css1);
             end
-            
-            
+
+
             assertEqual(numel(ok),num_labs);
             all_ok = arrayfun(@(x)(x{1}),ok,'UniformOutput',true);
             assertTrue(all(all_ok));
@@ -97,13 +92,13 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
             assertEqual(ok,MESS_CODES.ok,err);
             assertEqual(mess.mess_name,'completed');
-            
+
         end
         %
         function test_probe_all_receive_all(obj,varargin)
             % common code -------------------------------------------------
             if obj.ignore_test
-                return;
+                skipTest();
             end
             if nargin>1
                 obj.setUp();
@@ -111,20 +106,16 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             end
             pl = obj.start_pool();
             assertFalse(isempty(pl),'problem getting access to parallel pool')
-            %             if isempty(pl)
-            %                 warning('Problem of getting parallel pool')
-            %                 return
-            %             end
-            
+
             num_labs = pl.NumWorkers;
-            
-            
+
+
             job_param = struct('filepath',obj.working_dir,...
                 'filename_template','test_ProbeAllMPI%d_nf%d.txt');
             ind = 1:num_labs;
             job_exchange_folder = job_param.filepath;
             fmt = job_param.filename_template;
-            
+
             fnames = arrayfun(@(ii)(fullfile(job_exchange_folder,sprintf(fmt,ii,num_labs))),...
                 ind,'UniformOutput',false);
             clob = onCleanup(@()delete(fnames{:}));
@@ -135,13 +126,13 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             %res = results(:,1);
             %err = results(:,2);
             assertTrue(isempty([err{:}]));
-            
+
             lab_ids = 1:num_labs;
             receivers = rem(lab_ids,3)==0;
             received = res(receivers);
             n_sent = cellfun(@numel,received);
             assertTrue(all(n_sent==2));
-            
+
             for i=1:num_labs
                 assertTrue(exist(fnames{i},'file')==2);
                 if (receivers(i))
@@ -152,13 +143,13 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                     assertTrue(res{i});
                 end
             end
-            
+
         end
         %
         function test_send_receive_message(obj,varargin)
             % common code -------------------------------------------------
             if obj.ignore_test
-                return;
+                skipTest();
             end
             if nargin>1
                 obj.setUp();
@@ -166,24 +157,21 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             end
             pl = obj.start_pool();
             assertFalse(isempty(pl),'problem getting access to parallel pool')
-            %             if isempty(pl)
-            %                 warning('Problem of getting parallel pool')
-            %                 return
-            %             end
+
             num_labs = pl.NumWorkers;
             % end of    common code ---------------------------------------
-            
+
             job_param = struct('filepath',obj.working_dir,...
                 'filename_template','test_ParpoolMPI%d_nf%d.txt');
-            
+
             ind = 1:num_labs;
             %cjob = createCommunicatingJob(cl,'Type','SPMD');
             %cjob.AttachedFiles = {'parpool_mpi_send_receive_tester.m'};
             %cjob.NumWorkersRange  = num_labs;
-            
+
             job_exchange_folder = job_param.filepath;
             fmt = job_param.filename_template;
-            
+
             fnames = arrayfun(@(ii)(fullfile(job_exchange_folder,sprintf(fmt,ii,num_labs))),...
                 ind,'UniformOutput',false);
             clob = onCleanup(@()delete(fnames{:}));
@@ -193,15 +181,15 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             %submit(cjob);
             %wait(cjob);
             %clob1 = onCleanup(@()delete(cjob));
-            
+
             spmd
                 [res,err] = parpool_mpi_send_receive_tester(job_param);
             end
-            
+
             %results = fetchOutputs(cjob);
             %res = results(:,1);
             %err = results(:,2);
-            
+
             for i=1:num_labs
                 assertTrue(exist(fnames{i},'file')==2);
                 assertTrue(isempty(err{i}));
@@ -212,12 +200,12 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
                 assertEqual(mess.mess_name,'started');
                 assertEqual(mess.payload,cii*10);
             end
-            
+
         end
         %
         function test_probe_receive_all_tester(obj)
-            
-            
+
+
             job_param = struct('filepath',obj.working_dir,...
                 'filename_template','test_ParpoolMPI%d_nf%d.txt');
             filepath = job_param.filepath;
@@ -225,15 +213,15 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             fname = sprintf(fnt,1,1);
             file = fullfile(filepath,fname);
             clob = onCleanup(@()delete(file));
-            
+
             mok = parpool_mpi_probe_all_tester(job_param);
             assertTrue(isempty(mok));
-            
+
             assertTrue(exist(file,'file')==2);
         end
         %
         function test_probe_receive_all_tester_test_mode(obj)
-            
+
             job_param = struct('filepath',obj.working_dir,...
                 'filename_template','test_ParpoolMPI%d_nf%d.txt');
             filepath = job_param.filepath;
@@ -241,23 +229,23 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             fname = sprintf(fnt,1,6);
             file = fullfile(filepath,fname);
             clob = onCleanup(@()delete(file));
-            
+
             [mok,~,pm] = parpool_mpi_probe_all_tester(job_param,...
                 struct('job_id','test_probe_all','labID',1,'numLabs',6));
             assertTrue(mok);
             assertTrue(exist(file,'file')==2);
-            
+
             %             wrapper = pm.get_mpi_wrapper();
             %             wrapper.set_labIndex(6);
             %             pm = pm.set_mpi_wrapper(wrapper);
             %             mok = parpool_mpi_probe_all_tester(job_param,...
             %                 pm);
             %             assertTrue(mok);
-            
+
         end
         %
         function test_send_receive_tester(obj)
-            
+
             job_param = struct('filepath',obj.working_dir,...
                 'filename_template','test_ParpoolMPI%d_nf%d.txt');
             filepath = job_param.filepath;
@@ -270,12 +258,10 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             mok = parpool_mpi_send_receive_tester(job_param,pool_control );
             assertTrue(isa(mok,'aMessage'));
             assertEqual(mok.mess_name,'started');
-            
+
             assertTrue(exist(file,'file')==2);
-            
+
         end
     end
-    
+
 end
-
-
