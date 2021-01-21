@@ -1094,7 +1094,6 @@ classdef test_PixelData < TestCase
             % img_range, stored in the file is different from
             % pix(min/max)
             assertEqual(ref_range,out_pix.pix_range);
-
             assertEqual(out_pix.num_pixels, pix.num_pixels + pix_to_append.num_pixels);
             original_pix_data = concatenate_pixel_pages(pix);
             out_pix_data = concatenate_pixel_pages(out_pix);
@@ -1118,7 +1117,7 @@ classdef test_PixelData < TestCase
             pix_to_append = PixelData(rand(9, num_appended_pix));
             range2 = pix_to_append.pix_range;
             ref_range = [min(range1(1,:),range2(1,:));...
-                max(range1(2,:),range2(2,:))];
+                         max(range1(2,:),range2(2,:))];
 
             pix.append(pix_to_append);
             assertEqual(ref_range,pix.pix_range);
@@ -1600,7 +1599,7 @@ classdef test_PixelData < TestCase
         end
 
         function test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages(obj)
-            pix = PixelData(obj.test_sqw_file_path, obj.SMALL_PG_SIZE);
+            pix = PixelData(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
             pix.advance();  % pg 1 is clean
             % Set all signals in page 2 to 11
             pix.signal = 11;
@@ -1609,17 +1608,16 @@ classdef test_PixelData < TestCase
             % Set all signals in page 4 to 12
             pix.signal = 12;
             pix.advance();  % advance to save pixels to tmp file (pg 4 is dirty)
-
             pg_size = pix.base_page_size;
             % Set a range spanning into the first and second page and half of the
             % 4th page
             pix_range = [5:(pg_size + 100), ...
-                        (3*pg_size + 4):(3*pg_size + floor(pg_size/2))];
+                         (3*pg_size + 4):(3*pg_size + floor(pg_size/2))];
             new_pix = pix.get_pixels(pix_range);
 
             % Load the whole file into a PixelData object, set the corresponding
             % pixels to 11 and 12 as above
-            in_mem_pix = PixelData(obj.test_sqw_file_path);
+            in_mem_pix = PixelData(obj.tst_sqw_file_full_path);
             in_mem_pix.signal((pg_size + 1):(2*pg_size)) = 11;
             in_mem_pix.signal((3*pg_size + 1):(4*pg_size)) = 12;
             expected_pix = PixelData(in_mem_pix.data(:, pix_range));
@@ -1630,7 +1628,7 @@ classdef test_PixelData < TestCase
         function test_get_pixels_can_load_clean_and_dirty_pix_out_of_order(obj)
             % See test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages for
             % relevant test explanation
-            pix = PixelData(obj.test_sqw_file_path, obj.SMALL_PG_SIZE);
+            pix = PixelData(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
             pix.advance();
             pix.signal = 11;
             pix.advance();
@@ -1641,7 +1639,7 @@ classdef test_PixelData < TestCase
             pix_range = pix.num_pixels:-1:1;  % pix range in reverse order
             new_pix = pix.get_pixels(pix_range);
 
-            in_mem_pix = PixelData(obj.test_sqw_file_path);
+            in_mem_pix = PixelData(obj.tst_sqw_file_full_path);
             in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
             in_mem_pix.signal(2*pg_size + 1:3*pg_size) = 12;
             expected_pix = PixelData(in_mem_pix.data(:, pix_range));
@@ -1652,18 +1650,17 @@ classdef test_PixelData < TestCase
         function test_get_pixels_can_load_clean_and_dirty_pix_with_duplicates(obj)
             % See test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages for
             % relevant test explanation
-            pix = PixelData(obj.test_sqw_file_path, obj.SMALL_PG_SIZE);
+            pix = PixelData(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
             assertTrue(pix.page_size < pix.num_pixels);  % make sure we're paging
             pix.advance();
             pix.signal = 11;
             pix.advance();
-
             pg_size = pix.base_page_size;
             % Repeat each index from 1 to the page size 3 times
             pix_range = repelem(1:3*pg_size, 3);
             new_pix = pix.get_pixels(pix_range);
 
-            in_mem_pix = PixelData(obj.test_sqw_file_path);
+            in_mem_pix = PixelData(obj.tst_sqw_file_full_path);
             in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
             expected_pix = PixelData(in_mem_pix.data(:, pix_range));
 
@@ -1673,19 +1670,19 @@ classdef test_PixelData < TestCase
         function test_get_pixels_can_load_clean_and_dirty_pix_cached_page_dirty(obj)
             % See test_get_pixels_can_load_from_mix_of_dirty_and_clean_pages for
             % relevant test explanation
-            pix = PixelData(obj.test_sqw_file_path, obj.SMALL_PG_SIZE);
+            pix = PixelData(obj.tst_sqw_file_full_path, obj.SMALL_PG_SIZE);
             assertTrue(pix.page_size < pix.num_pixels);  % make sure we're paging
             pix.advance();
             pix.signal = 11;
             % Do not advance past edited page, changes only exist in cache and not
             % in temporary files
-
             pg_size = pix.base_page_size;
+
             % Repeat each index from 1 to the page size 3 times
             pix_range = repelem(1:3*pg_size, 3);
             new_pix = pix.get_pixels(pix_range);
 
-            in_mem_pix = PixelData(obj.test_sqw_file_path);
+            in_mem_pix = PixelData(obj.tst_sqw_file_full_path);
             in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
             expected_pix = PixelData(in_mem_pix.data(:, pix_range));
 
@@ -1706,98 +1703,15 @@ classdef test_PixelData < TestCase
             new_pix = pix.get_pixels(pix_idx);
 
             expected_pix = PixelData(data(:, pix_idx));
-            assertEqualToTol(new_pix, expected_pix, 'reltol', 1e-7);
+            assertEqualToTol(new_pix, expected_pix, 'reltol', 1e-5);
         end
 
-        function test_get_pix_in_ranges_returns_pixels_in_given_ranges(~)
-            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 25);
-            pix = PixelData(data);
-
-            range_starts = [4, 14, 20];
-            range_ends = [7, 14, 24];
-            indices = [4, 5, 6, 7, 14, 20, 21, 22, 23, 24];
-
-            pix_ranges = pix.get_pix_in_ranges(range_starts, range_ends);
-
-            expected_pix = PixelData(data(:, indices));
-            assertEqualToTol(pix_ranges, expected_pix);
-        end
-
-        function test_get_pix_in_ranges_returns_pix_in_given_ranges_file_backed(obj)
-            pix = PixelData(obj.test_sqw_file_path, obj.SMALL_PG_SIZE);
-            in_mem_pix = PixelData(obj.test_sqw_file_path);
-
-            range_starts = [4, 14, 20];
-            range_ends = [7, 14, 24];
-            indices = [4, 5, 6, 7, 14, 20, 21, 22, 23, 24];
-
-            pix_ranges = pix.get_pix_in_ranges(range_starts, range_ends);
-            expected_pix = PixelData(in_mem_pix.data(:, indices));
-            assertEqualToTol(pix_ranges, expected_pix);
-        end
-
-        function test_get_pix_in_ranges_returns_pix_in_given_ranges_dirty_pix(obj)
-            pix = PixelData(obj.test_sqw_file_path, obj.SMALL_PG_SIZE);
-            assertTrue(pix.page_size < pix.num_pixels);  % make sure we're paging
-            pix.advance();
-            pix.signal = 11;
-            % Do not advance past edited page, changes only exist in cache and not
-            % in temporary files
-
-            pg_size = pix.base_page_size;
-
-            range_starts = [4, 14, 20];
-            range_ends = [7, 14, 24];
-            indices = [4, 5, 6, 7, 14, 20, 21, 22, 23, 24];
-
-            new_pix = pix.get_pix_in_ranges(range_starts, range_ends);
-
-            in_mem_pix = PixelData(obj.test_sqw_file_path);
-            in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
-            expected_pix = PixelData(in_mem_pix.data(:, indices));
-
-            assertEqualToTol(new_pix, expected_pix);
-        end
-
-        function test_get_pix_in_ranges_throws_if_index_arrays_not_same_size(~)
-            num_pix = 10;
-            p = PixelData(num_pix);
-            starts = randi(num_pix, [1, 4]);
-            ends = randi(num_pix, [4, 1]);
-            f = @() p.get_pix_in_ranges(starts, ends);
-
-            assertExceptionThrown(f, 'PIXELDATA:get_pix_in_ranges');
-        end
-
-        function test_get_pix_in_ranges_throws_if_index_arrays_not_vectors(~)
-            num_pix = 10;
-            p = PixelData(num_pix);
-            sizes = {[2, 4], [3, 3]};
-            for i = 1:numel(sizes)
-                starts = randi(num_pix, sizes{i});
-                ends = randi(num_pix, sizes{i});
-                f = @() p.get_pix_in_ranges(starts, ends);
-            end
-
-            assertExceptionThrown(f, 'PIXELDATA:get_pix_in_ranges');
-        end
-
-        function test_get_pix_in_ranges_throws_if_any_starts_gt_ends(~)
-            num_pix = 30;
-            p = PixelData(num_pix);
-            pix_starts = [4, 9, 20];
-            pix_ends = [6, 8, 25];  % note 9 > 8
-
-            f = @() p.get_pix_in_ranges(pix_starts, pix_ends);
-            assertExceptionThrown(f, 'PIXELDATA:get_pix_in_ranges');
-        end
-
-        %% -- Helpers --
+        % -- Helpers --
         function [pix,pix_range] = get_pix_with_fake_faccess(obj, data, npix_in_page)
             pix_range = [min(data(1:4,:),[],2),max(data(1:4,:),[],2)]';
             faccess = FakeFAccess(data);
             % give it a real file path to trick code into thinking it exists
-            faccess = faccess.set_filepath(obj.test_sqw_file_full_path);
+            faccess = faccess.set_filepath(obj.tst_sqw_file_full_path);
             mem_alloc = npix_in_page*obj.NUM_BYTES_IN_VALUE*obj.NUM_COLS_IN_PIX_BLOCK;
             pix = PixelData(faccess, mem_alloc);
         end

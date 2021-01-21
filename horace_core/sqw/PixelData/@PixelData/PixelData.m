@@ -178,12 +178,12 @@ classdef PixelData < handle
         % The number of pixels that can fit in one page of data
         base_page_size;
     end
-
-    properties(Access=public, Hidden)
-        % Contains the range of a block of pixels, changed by set.pixels methods.
-        % Exposed to be used in algorithms, looping over the paged pixels and
-        % changing object using coordinate setters to calculate and set-up
-        % correct pixels range in conjunction with set_range method at the end of the loop.
+    properties(Access=public,Hidden)
+        % Contains the range(min/max value) of a block of pixels,
+        % changed by set.pixels methods. Exposed to be used in algorithms,
+        % looping over the paged pixels and changing object using
+        % coordinate setters to calculate and set-up correct global pixels
+        % range in conjunction with set_range method at the end of the loop.
         page_range;
     end
 
