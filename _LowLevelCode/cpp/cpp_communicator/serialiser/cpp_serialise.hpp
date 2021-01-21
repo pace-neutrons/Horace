@@ -8,6 +8,8 @@ enum ser_types{
   STRUCTED
 };
 
+const uint32_t DIM_MAX = std::numeric_limits<uint32_t>::max();
+
 const double types_size[] = {
   1,  //   LOGICAL
   1,  //   CHAR
