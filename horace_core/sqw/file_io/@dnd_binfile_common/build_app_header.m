@@ -5,8 +5,6 @@ function   app_header = build_app_header(obj,obj_to_save)
 % files and various Horace subformats from each other
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
 
 if ~exist('obj_to_save','var')
     obj_to_save = obj.sqw_holder_;

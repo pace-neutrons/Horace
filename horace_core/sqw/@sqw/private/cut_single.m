@@ -35,7 +35,7 @@ wout = copy(w, 'exclude_pix', true);
     ubins.plot_ax_idx, ...
     ubins.plot_ax_bounds, ...
     ubins.urange ...
-] = proj.calc_ubins(w.data.urange, pbin, pin, en);
+] = proj.calc_transf_img_bins(w.data.img_range, pbin, pin, en);  % is this image or pix range?
 
 % Update projection with binning
 proj = proj.set_proj_binning( ...
@@ -46,7 +46,7 @@ proj = proj.set_proj_binning( ...
 );
 
 % Accumulate image and pixel data for cut
-[s, e, npix, pix_out, urange_pix, pix_comb_info] = cut_accumulate_data_( ...
+[s, e, npix, pix_out, img_range, pix_comb_info] = cut_accumulate_data_( ...
     w, proj, keep_pix, log_level, return_cut ...
 );
 if ~isempty(pix_comb_info) && isa(pix_comb_info, 'pix_combine_info')
@@ -56,7 +56,7 @@ end
 
 % Compile the accumulated cut and projection data into a data_sqw_dnd object
 data_out = compile_sqw_data( ...
-    w.data, proj, s, e, npix, pix_out, pix_comb_info, urange_pix, ubins, keep_pix ...
+    w.data, proj, s, e, npix, pix_out, pix_comb_info, img_range, ubins, keep_pix ...
 );
 
 % Assign the new data_sqw_dnd object to the output SQW object, or create a new
@@ -87,7 +87,7 @@ end  % function
 
 % -----------------------------------------------------------------------------
 function data_out = compile_sqw_data(data, proj, s, e, npix, pix_out, ...
-                                     pix_comb_info, urange_pix, ubins, keep_pix)
+                                     pix_comb_info, img_range, ubins, keep_pix)
     ppax = ubins.plot_ax_bounds(1:length(ubins.plot_ax_idx));
     if isempty(ppax)
         nbin_as_size = [1, 1];
@@ -115,9 +115,9 @@ function data_out = compile_sqw_data(data, proj, s, e, npix, pix_out, ...
     data_out.iint = ubins.integration_range;
     data_out.pax = ubins.plot_ax_idx;
     data_out.p = ubins.plot_ax_bounds;
+    data_out.img_range = img_range;
 
     if keep_pix
-        data_out.urange = urange_pix;
         % If pix_comb_info is not empty then we've been working with temp files
         % for pixels. We can replace the PixelData object that's normally in
         % sqw.data with this pix_combine_info object.

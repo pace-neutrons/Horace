@@ -22,7 +22,7 @@ while true
                 sigvar_binary_op_(this_sigvar, other_sigvar, binary_op, flip);
 
         if pixel_data.has_more()
-            pixel_data = pixel_data.advance();
+            pixel_data.advance();
         end
 
     else
@@ -39,7 +39,7 @@ while true
     end
 
     if obj.has_more()
-        obj = obj.advance();
+        obj.advance();
     else
         break;
     end

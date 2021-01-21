@@ -83,32 +83,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         
         %------------------------------------------------------------------------
         % Tests
-        %------------------------------------------------------------------------
-        function test_cut_with_pix (this)
-            % Test a simple cut keeping pixels
-            
-            % Turn off output, but return to input value when exit or cntl-c
-            finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
-            set(hor_config,'log_level',-1);  % turn off output
-            
-            w2 = cut_sqw (this.data_source, this.proj, this.bin,...
-                this.width, this.width, this.ebins, '-pix');
-            this.assertEqualToTolWithSave (w2, this.tol_sp,'ignore_str',1);
-        end
-        
-        %------------------------------------------------------------------------
-        function test_cut_with_nopix (this)
-            % Test a simple cut without keeping pixels
-            
-            % Turn off output, but return to input value when exit or cntl-c
-            finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
-            set(hor_config,'log_level',-1);  % turn off output
-            
-            d2 = cut_sqw (this.data_source, this.proj, this.bin,...
-                this.width, this.width, this.ebins, '-nopix');
-            this.assertEqualToTolWithSave (d2, this.tol_sp,'ignore_str',1);
-        end
-        
+        %------------------------------------------------------------------------        
         %------------------------------------------------------------------------
         function test_cut_sym_with_pix (this)
             % Test symmetrisation, keeping pixels
@@ -227,6 +202,32 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             this.assertEqualToTolWithSave(c, this.tol_sp,'ignore_str',1);
             this.assertEqualToTolWithSave(s, this.tol_sp,'ignore_str',1);
         end
+        %
+        function test_cut_with_pix (this)
+            % Test a simple cut keeping pixels
+            
+            % Turn off output, but return to input value when exit or cntl-c
+            finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
+            set(hor_config,'log_level',-1);  % turn off output
+            
+            w2 = cut_sqw (this.data_source, this.proj, this.bin,...
+                this.width, this.width, this.ebins, '-pix');
+            this.assertEqualToTolWithSave (w2, this.tol_sp,'ignore_str',1);
+        end
+        
+        %------------------------------------------------------------------------
+        function test_cut_with_nopix (this)
+            % Test a simple cut without keeping pixels
+            
+            % Turn off output, but return to input value when exit or cntl-c
+            finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
+            set(hor_config,'log_level',-1);  % turn off output
+            
+            d2 = cut_sqw (this.data_source, this.proj, this.bin,...
+                this.width, this.width, this.ebins, '-nopix');
+            this.assertEqualToTolWithSave (d2, this.tol_sp,'ignore_str',1);
+        end
+        
         %------------------------------------------------------------------------
         % Tests to add:
         % - cut from a file with no pixels, overlapping limits, outside limits

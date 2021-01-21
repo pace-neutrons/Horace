@@ -1,4 +1,4 @@
-classdef test_rundata_vs_sqw < TestCase
+classdef test_rundata_vs_sqw < TestCaseWithSave
     % Series of tests to check work of mex files against Matlab files
     
     properties
@@ -39,7 +39,7 @@ classdef test_rundata_vs_sqw < TestCase
             else
                 name = varargin{1};
             end
-            this = this@TestCase(name);
+            this = this@TestCaseWithSave(name,'rundata_vs_sqw_refdata');
             root_dir = horace_root();
             data_dir = fullfile(root_dir,'_test','common_data');
             this.sqw_file_single = fullfile(this.out_dir,this.sqw_file_single);
@@ -99,27 +99,27 @@ classdef test_rundata_vs_sqw < TestCase
             %assertEqual(det_par.filepath,det.filepath)
             %assertEqual(det_par,det);
             grid_size = size(this.sqw_obj.data.s);
-            urange    = this.sqw_obj.data.urange;
+            img_range    = this.sqw_obj.data.img_range;
             % somewhere on the way, pixels become single precision, so...
-            urange(1,:) = urange(1,:)*(1+2.e-7);
-            urange(2,:) = urange(2,:)*(1+2.e-7);
+            img_range(1,:) = img_range(1,:)*(1+2.e-7);
+            img_range(2,:) = img_range(2,:)*(1+2.e-7);
             
-            sqw_rev = rd.calc_sqw(grid_size,urange);
+            sqw_rev = rd.calc_sqw(grid_size,img_range);
             
             proj = struct('u',lattice.u,'v',lattice.v);
-            [ok,mess]=is_cut_equal(this.sqw_obj,sqw_rev,proj,0.04*(urange(2,1)-urange(1,1)),0.1*(urange(2,2)-urange(1,2)),[-Inf,Inf],[-Inf,Inf]);
+            [ok,mess]=is_cut_equal(this.sqw_obj,sqw_rev,proj,0.04*(img_range(2,1)-img_range(1,1)),0.1*(img_range(2,2)-img_range(1,2)),[-Inf,Inf],[-Inf,Inf]);
             assertTrue(ok,['Combining cuts from each individual sqw file and the cut from the combined sqw file not the same ',mess]);
             %assertEqual(this.sqw_obj,sqw_rev);
             
             % calculate bounding object surrounding existing data object
             bob = rd.build_bounding_obj();
-            bos = bob.calc_sqw(grid_size,urange);
-            assertElementsAlmostEqual(bos.data.urange,urange,'relative',1.e-6);
+            bos = bob.calc_sqw(grid_size,img_range);
+            assertElementsAlmostEqual(bos.data.img_range,img_range,'relative',1.e-6);
             
             pix_range =[min(bos.data.pix.coordinates,[],2)'; max(bos.data.pix.coordinates,[],2)'];
-            assertElementsAlmostEqual(bos.data.urange,pix_range);
+            assertElementsAlmostEqual(bos.data.img_range,pix_range);
         end
-        
+        %
         function  this=test_serialize_deserialize_rundatah(this)
             rd = rundatah(this.sqw_obj);
             
@@ -136,11 +136,12 @@ classdef test_rundata_vs_sqw < TestCase
             fa = fa.unload();
             assertEqual(rd,fa);
         end
-        function sqw_build = rd_convert_checker(~,rundata_to_test,grid_size,urange)
+        %
+        function sqw_build = rd_convert_checker(~,rundata_to_test,grid_size,img_range)
             % function used in test_serialize_deserialize_rundatah_with_op
             % test to ensure that imput parameters of the serialized function
             % are not picked up from the same variables subspace;
-            sqw_build  = rundata_to_test.calc_sqw(grid_size,urange);
+            sqw_build  = rundata_to_test.calc_sqw(grid_size,img_range);
         end
         %
         function  test_serialize_deserialize_rundatah_with_op(obj)
@@ -154,18 +155,66 @@ classdef test_rundata_vs_sqw < TestCase
             fa = rundatah.deserialize(by);
             
             grid_size = size(obj.sqw_obj.data.s);
-            urange = obj.sqw_obj.data.urange;
+            img_range = obj.sqw_obj.data.img_range;
             
-            sqw_o = rd.calc_sqw(grid_size,urange);
-            sqw_r = obj.rd_convert_checker(fa,grid_size,urange);
+            sqw_o = rd.calc_sqw(grid_size,img_range);
+            sqw_r = obj.rd_convert_checker(fa,grid_size,img_range);
             
             assertEqual(sqw_o,sqw_r);
             
         end
-        
         %
-        function obj = test_send_receive_rundata(obj)
+        function test_rundata_sqw(obj)
+            test_file = fullfile(horace_root(),...
+                '_test','common_data','MAP11014.nxspe');
+            ds = struct('alatt',[2.63,2.63,2.63],'angdeg',[90,90,90],...
+                'u',[1,0,0],'v',[0,1,0]);
             
+            rd = rundatah(test_file,ds);
+            rd = rd.load();
+            
+            hc = hor_config;
+            dts = hc.get_data_to_store();
+            clob = onCleanup(@()set(hc,dts));
+            hc.use_mex = false;            
+              
+            [sq4,grid,pix_range] = rd.calc_sqw();
+            assertEqual(grid,[50,50,50,50]);
+            ref_range = [0.0576   -6.6475   -6.6475    2.5000;...
+                3.8615    6.6475    6.6475  147.5000];
+            assertElementsAlmostEqual(pix_range,ref_range,'relative',3.e-4);
+            assertEqualToTolWithSave(obj,sq4,'ignore_str',true,'tol',1.e-7);
+            
+            rdr = rundatah(sq4);
+            assertEqualToTol(rdr.saveobj(),rd.saveobj(),'ignore_str',true,'tol',1.e-7);
+            
+        end
+        %
+        function test_rundata_mex_nomex(~)
+            test_file = fullfile(horace_root(),...
+                '_test','common_data','MAP11014.nxspe');
+            ds = struct('alatt',[2.63,2.63,2.63],'angdeg',[97,60,80],...
+                'u',[1,0,0],'v',[0,1,0]);
+            
+            rd = rundatah(test_file,ds);
+            rd = rd.load();
+            hc = hor_config;
+            dts = hc.get_data_to_store();
+            clob = onCleanup(@()set(hc,dts));
+            
+            hc.use_mex = true;
+            [sq4_mex,grid_mex,pix_range_mex] = rd.calc_sqw();
+            hc.use_mex = false;
+            [sq4_nom,grid_nom,pix_range_nom] = rd.calc_sqw();
+            
+            assertEqual(grid_mex,grid_nom);
+            assertEqual(pix_range_mex,pix_range_nom);
+            
+            assertElementsAlmostEqual(sort(sq4_mex.data.pix.data'),...
+                sort(sq4_nom.data.pix.data'));
+            % Binning here is substantially different. TODO: decrease the
+            % differebce
+            assertEqual(sq4_nom.data.pix.pix_range,sq4_mex.data.pix.pix_range);
         end
     end
 end

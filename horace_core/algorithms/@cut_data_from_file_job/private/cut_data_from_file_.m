@@ -1,10 +1,10 @@
-function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file_(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
+function [s, e, npix, img_range_step, pix, npix_retain, npix_read] = cut_data_from_file_(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
     proj,pax, nbin)
-%function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
-%    urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin)
+%function [s, e, npix, img_range_step, pix, npix_retain, npix_read] = cut_data_from_file (fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
+%    img_range_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin)
 % Accumulates pixels into bins defined by cut parameters
 %
-%   >> [s, e, npix, npix_retain] = cut_data (fid, nstart, nend, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin, keep_pix)
+%   >> [s, e, npix, npix_retain] = cut_data (fid, nstart, nend, img_range_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, nbin, keep_pix)
 %
 % Input:
 % ------
@@ -17,7 +17,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 %                       pix_tmpfile_ok = false: Require pix is a PixelData object
 %                       pix_tmpfile_ok = true:  Buffering of pixel info to temporary files if pixels exceed a threshold
 %                                              In this case, output argument pix contains details of temporary files (see below)
-%   urange_step     [2x4] array of the ranges of the data as defined by (i) output proj. axes ranges for
+%   img_range_step     [2x4] array of the ranges of the data as defined by (i) output proj. axes ranges for
 %                  integration axes (or plot axes with one bin), and (ii) step range (0 to no. bins)
 %                  for plotaxes (with more than one bin)
 %   rot_ustep       Matrix [3x3]     --|  that relate a vector expressed in the
@@ -33,7 +33,7 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 %   s               Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
 %   e               Array of accumulated variance
 %   npix            Array of number of contributing pixels (if keep_pix==true, otherwise pix=[])
-%   urange_step_pix Actual range of contributing pixels
+%   img_range_step Actual range of contributing pixels
 %   pix             if keep_pix=false, pix=[];
 %                   if keep_pix==true, then contents depend on value of pix_tmpfile_ok:
 %                       pix_tmpfile_ok = false: contains a PixelData object
@@ -46,12 +46,11 @@ function [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_f
 %
 %
 % Note:
-% - Redundant input variables in that urange_step(2,pax)=nbin in implementation of 19 July 2007
+% - Redundant input variables in that img_range_step(2,pax)=nbin in implementation of 19 July 2007
 % - Aim to take advantage of in-place working within accumulate_cut
 
 % T.G.Perring   19 July 2007 (based on earlier prototype TGP code)
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
+%
 
 % Buffer sizes
 ndatpix = 9;        % number of pieces of information the pixel info array (see put_sqw_data for more details)
@@ -68,7 +67,7 @@ if isempty(nbin); nbin_as_size=[1,1]; elseif length(nbin)==1; nbin_as_size=[nbin
 s = zeros(nbin_as_size);
 e = zeros(nbin_as_size);
 npix = zeros(nbin_as_size);
-urange_step_pix = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
+img_range_step = PixelData.EMPTY_RANGE_;
 
 % *** T.G.Perring 26 Sep 2018:*********************
 % Catch case of nstart and nend being empty - this corresponds to no data in the boxes that
@@ -151,8 +150,8 @@ try
         end
         %
         % -- cut
-        [s, e, npix, urange_step_pix, del_npix_retain, ok, ix_add] = ...
-            cut_data_from_file_job.accumulate_cut (s, e, npix, urange_step_pix, keep_pix, ...
+        [s, e, npix, img_range_step, del_npix_retain, ok, ix_add] = ...
+            cut_data_from_file_job.accumulate_cut (s, e, npix, img_range_step, keep_pix, ...
             pix_data, proj, pax);
         if hor_log_level>=0; fprintf(' ----->  retained  %d pixels\n',del_npix_retain); end
         if hor_log_level>=1; t_accum = t_accum + bigtoc(2); end
@@ -213,11 +212,6 @@ if ~isempty(pix_retained) || pix_tmpfile_ok  % prepare the output pix array
 
 end
 
-% Bad hack to prevent returning [] for pix, which breaks other routines,
-% notably, parts of cut_sqw_sym_main_single
-if max(size(pix))==0
-    pix = zeros(9,0);
-end
 
 if hor_log_level>=1
     disp('-----------------------------')
@@ -248,19 +242,19 @@ end
 
 
 
-function [noffset,pix_range,block_ind_from,block_ind_to] = find_blocks(noffset,pix_range,buf_size)
+function [noffset,img_range_step,block_ind_from,block_ind_to] = find_blocks(noffset,img_range_step,buf_size)
 % find buffers blocks and data ranges to read input pixels in blocks,
 % approximately equal to the buffer sizes
 %
 %
-if any(pix_range>2*buf_size) % split big ranges into parts to fit buffer.
-    [cell_range,cell_offcet] = arrayfun(@(rg,offs)split_ranges(rg,offs,buf_size),pix_range,noffset,'UniformOutput',false);
-    pix_range = [cell_range{:}];
-    pix_range = cell2mat(pix_range);
+if any(img_range_step>2*buf_size) % split big ranges into parts to fit buffer.
+    [cell_range,cell_offcet] = arrayfun(@(rg,offs)split_ranges(rg,offs,buf_size),img_range_step,noffset,'UniformOutput',false);
+    img_range_step = [cell_range{:}];
+    img_range_step = cell2mat(img_range_step);
     noffset   = [cell_offcet{:}];
     noffset   = cell2mat(noffset);
 end
-tot_pix = cumsum(pix_range);
+tot_pix = cumsum(img_range_step);
 nblocks = floor(tot_pix(end)/buf_size)+1;
 block_ind_from = ones(1,nblocks);
 block_ind_to   = zeros(1,nblocks);

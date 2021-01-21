@@ -52,6 +52,7 @@ function varargout = change_crystal (varargin)
 
 % Parse input
 % -----------
+
 [w, args, mess] = horace_function_parse_input (nargout,varargin{:});
 if ~isempty(mess), error(mess); end
 

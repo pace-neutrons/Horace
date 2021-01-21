@@ -1,11 +1,15 @@
-function obj = init_sqw_structure_field_by_field_(obj)
+function obj = init_sqw_structure_field_by_field_(obj,varargin)
 % function to read sqw version-2 file structure to initialize binary input
 % and identify the positions of various pieces of data within the binary
 % file
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
+[ok,mess,init_for_upgrade] = parse_char_options(varargin,{'-upgrade'});
+if ~ok
+    error('INIT_SQW_STRUCTURE:invalid_argument',mess);
+end
+
 fseek(obj.file_id_,obj.main_header_pos_,'bof');
 check_and_throw_error(obj,'Error moving to main data header position');
 
@@ -82,7 +86,7 @@ obj.e_pos_=data_pos.e_pos_;
 obj.eof_pix_pos_ = pos;
 if ~io_error
     obj.npix_pos_=data_pos.npix_pos_;
-    obj.urange_pos_=data_pos.urange_pos_;
+    obj.img_range_pos_=data_pos.img_range_pos_;
     obj.pix_pos_=data_pos.pix_pos_+8;  % pixels are written with their size in front of the array.
     
     % calculate number of pixels from pixels block position and its size
@@ -103,7 +107,7 @@ else
         obj=set_filepath(obj);
         return;
     else
-        obj.urange_pos_=data_pos.urange_pos_;
+        obj.img_range_pos_=data_pos.img_range_pos_;
         obj.pix_pos_=data_pos.pix_pos_+8;
         fseek(obj.file_id_,data_pos.pix_pos_,'bof');
         check_and_throw_error(obj,'unable to move to npix position in file');
@@ -114,12 +118,12 @@ end
 % subsequent methods read pixels directly, so here we shift pixel
 % position by the array length
 obj.data_type_ = 'a';
-obj.dnd_eof_pos_ = data_pos.urange_pos_;
+obj.dnd_eof_pos_ = data_pos.img_range_pos_;
 
 obj.data_fields_locations_ = data_pos;
 %
-
 obj=set_filepath(obj);
+
 
 
 function obj=set_filepath(obj)

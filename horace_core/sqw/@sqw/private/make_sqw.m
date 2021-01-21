@@ -60,7 +60,7 @@ if nargin==2 && (isstruct(varargin{2}))
                 d.data = data_sqw_dnd(d.data);
             end
         else
-            d=struct([]);   % there was a problem
+            d=struct([]);   % there was a problem-
             mess='Fields of structure not compatible with sqw type structure';
         end
     elseif dnd_type  % try to interpret as dnd type
@@ -76,8 +76,8 @@ if nargin==2 && (isstruct(varargin{2}))
                 d.data=clear_sqw_data(data_sqw_dnd(varargin{2}));
             end
         end
-        % In case structure is not actually a true sqw-type structure, don't fail if fields urange and pix do not exist
-        %if isfield(d.data,'urange'), d.data=rmfield(d.data,'urange'); end
+        % In case structure is not actually a true sqw-type structure, don't fail if fields img_range and pix do not exist
+        %if isfield(d.data,'img_range'), d.data=rmfield(d.data,'img_range'); end
         %if isfield(d.data,'pix'), d.data=rmfield(d.data,'pix'); end
     end
 else

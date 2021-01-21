@@ -51,7 +51,7 @@ if ~(uses_poisson_distribution)
         max_sig = max(max_sig, max_sig_page);
 
         if pix_out.has_more()
-            pix_out = pix_out.advance();
+            pix_out.advance();
         else
             break;
         end
@@ -75,7 +75,7 @@ while true
     pix_out.variance = pg_result_e;
 
     if pix_out.has_more()
-        pix_out = pix_out.advance();
+        pix_out.advance();
     else
         break;
     end
