@@ -369,7 +369,7 @@ pipeline {
                 pip install --user sphinx_rtd_theme &&
                 export PATH=${PATH}:~/.local/bin &&
                 # Update release numbers
-                build_id=sed -nr '/CPACK_PACKAGE_FILE_NAME/{s/.*"Horace-([^"]+)".*/\1/p};' ./build/CPackConfig.cmake &&
+                build_id=$(sed -nr '/CPACK_PACKAGE_FILE_NAME/{s/.*"Horace-([^"]+)".*/\1/p};' ./build/CPackConfig.cmake) &&
                 sed -i -r 's/release = .*/release = "'${build_id}'"/' ./documentation/user_docs/docs/conf.py &&
                 make -C ./documentation/user_docs/ html &&
                 make -C ./documentation/user_docs/ html &&
