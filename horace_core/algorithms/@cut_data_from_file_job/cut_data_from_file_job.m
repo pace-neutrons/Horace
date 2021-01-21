@@ -166,6 +166,9 @@ classdef cut_data_from_file_job < JobExecutor
                 v, proj, pax);
         end
 
+        function pix_comb_info = accumulate_pix_to_file(varargin)
+            pix_comb_info = accumulate_pix_to_file_(varargin{:});
+        end
 
         function [common_par,loop_par] = pack_job_pars(sqw_loaders)
             % Pack the the job parameters into the form, suitable
