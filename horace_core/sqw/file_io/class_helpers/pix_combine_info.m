@@ -6,7 +6,7 @@ classdef pix_combine_info
         n_pixels_ = 'undefined';
         filenum_ = [];
     end
-    
+
     properties(Access=public)
         % cellarray of filenames to combine
         infiles;
@@ -35,13 +35,13 @@ classdef pix_combine_info
         %      (3) The files correspond to several runs in general, which need to
         %          be offset to give the run indices into the collective list of run parameters
         run_label;
-        
+
         % auxiliary propery used by cut_sqw
         npix_cumsum;
         % Global range of all pixels, intended for combining
-        pix_range
+        pix_range = PixelData.EMPTY_RANGE_;
     end
-    
+
     properties(Dependent)
         % total number of pixels to combine
         npixels;
@@ -55,8 +55,7 @@ classdef pix_combine_info
         % and change_fileno are set to true
         filenum
     end
-    
-    
+
     methods
         %
         function obj = pix_combine_info(infiles,nbins,pos_npixstart,pos_pixstart,npixtot,run_label,filenums)
@@ -83,7 +82,7 @@ classdef pix_combine_info
             obj.nbins        = nbins;
             obj.npix_file_tot    = npixtot;
             obj.n_pixels_ = uint64(sum(npixtot));
-            
+
             if exist('filenums','var')
                 obj.filenum_ = filenums;
             end
@@ -135,7 +134,7 @@ classdef pix_combine_info
             else
                 error('SQW_FILE_IO:invalid_argument','Invalid value for run_label')
             end
-            
+
         end
         function fn = get.filenum(obj)
             if isempty(obj.filenum_)
@@ -162,7 +161,7 @@ classdef pix_combine_info
                     fclose(obj.infiles(i));
                 end
             end
-            
+
             parts_carr = cell(1,n_workers);
             pnbins = obj.nbins;
             filenums = 1:n_tasks;
@@ -180,7 +179,7 @@ classdef pix_combine_info
                 %
                 parts_carr{i} = pix_combine_info(part_files,pnbins,ppos_npixstart,ppos_pixstart,pnpixtot,prun_label,pfilenums);
             end
-            
+
         end
         %
         function obj=trim_nfiles(obj,nfiles_to_leave)
@@ -205,7 +204,7 @@ classdef pix_combine_info
             % contributing file
             obj.pos_pixstart = obj.pos_pixstart(1:nfiles_to_leave);
             obj.npix_file_tot= obj.npix_file_tot(1:nfiles_to_leave);
-            
+
             obj.n_pixels_ = uint64(sum(obj.npix_file_tot));
             if ~isempty(obj.filenum_)
                 obj.filenum_ = obj.filenum_(1:nfiles_to_leave);
@@ -224,7 +223,7 @@ classdef pix_combine_info
             end
         end
     end
-    
+
 end
 
 
