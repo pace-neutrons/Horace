@@ -268,7 +268,8 @@ classdef PixelData < handle
         pix_out = get_pixels(obj, abs_pix_indices);
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);
-        obj = move_to_page(obj, page_number);
+        [page_num,total_number_of_pages] = move_to_page(obj, page_number);
+        recalc_pix_range(obj);
 
         function obj = PixelData(arg, mem_alloc)
             % Construct a PixelData object from the given data. Default
@@ -427,7 +428,7 @@ classdef PixelData < handle
             end
         end
 
-        function obj = advance(obj)
+        function [current_page_num,total_num_pages] = advance(obj)
             % Load the next page of pixel data from the file backing the object
             %
             % This function will throw a PIXELDATA:advance error if attempting to
@@ -435,12 +436,18 @@ classdef PixelData < handle
             %
             % This function does nothing if the pixel data is not file-backed.
             %
+            % Returns:
+            % current page number and total number of pages advance will
+            % walk through to complete the algorithm
+            %
+            current_page_num = 1;
+            total_num_pages  = 1;
             if obj.is_file_backed_()
                 if obj.page_is_dirty_(obj.page_number_) && obj.dirty_page_edited_
                     obj.write_dirty_page_();
                 end
                 try
-                    obj = obj.move_to_page(obj.page_number_ + 1);
+                    obj.move_to_page(obj.page_number_ + 1);
                 catch ME
                     switch ME.identifier
                         case 'PIXELDATA:load_page_'
@@ -675,13 +682,16 @@ classdef PixelData < handle
         function range = get.pix_range(obj)
             range  = obj.pix_range_;
         end
+        %
         function set_range(obj,pix_range)
-            % Function allows to set the pixels range.
+            % Function allows to set the pixels range (min/max values of
+            % pixels coordinates)
             %
-            % Use with caution!!! No checks that the set range is correct
-            % range for pixels, holded by the class are
-            % performed, and the subsequent algorithms rely on pix range
-            % to be correct.
+            % Use with caution!!! No checks that the set range is the
+            % correct range for pixels, holded by the class are
+            % performed, while subsequent algorithms may rely on pix range
+            % to be correct. A out-of memory write can occur during rebinning
+            % if the range is smaller, then the actual range.
             %
             % Necessary to set up the pixel range when filebased
             % pixels are modified by algorithm and correct range
@@ -811,8 +821,8 @@ classdef PixelData < handle
             % set appropriate range of pixel coordinates.
             % The coordinates are defined by the selected field
             %
-            % Returns the range of the block of pixels, beeing set up
-            % at current iteration
+            % Sets up the property page_range defining the range of block
+            % of pixels chaned at current iteration.
             %
             if isempty(obj.raw_data_)
                 obj.pix_range_   = PixelData.EMPTY_RANGE_;

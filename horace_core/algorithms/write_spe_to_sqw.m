@@ -1,9 +1,9 @@
-function [grid_size, urange] = write_spe_to_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+function [grid_size, pix_range] = write_spe_to_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
                                                  u, v, psi, omega, dpsi, gl, gs, varargin)
 % Read a single spe file and a detector parameter file, and create a single sqw file.
 %
 %   >> write_spe_to_sqw (dummy, spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
-%                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
+%                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, pix_range_in)
 %
 % *** DEPRECATED FUNCTION **********************************************************
 % 
@@ -36,19 +36,17 @@ function [grid_size, urange] = write_spe_to_sqw (spe_file, par_file, sqw_file, e
 %   gl              Large goniometer arc angle (rad)
 %   gs              Small goniometer arc angle (rad)
 %   grid_size_in    Scalar or row vector of grid dimensions. Default is [1x1x1x1]
-%   urange_in       Range of data grid for output. If not given, then uses smallest hypercuboid
+%   pix_range_in       Range of data grid for output. If not given, then uses smallest hypercuboid
 %                  that encloses the whole data range
 %
 % Output:
 % -------
 %   grid_size       Actual grid size used (size is unity along dimensions
 %                  where there is zero range of the data points)
-%   urange          Actual range of grid
+%   pix_range          Actual range of grid
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
 
 disp('*** DEPRECATED FUNCTION:  Please replace this call to  write_spe_to_sqw  with one to  gen_sqw ***')
 
@@ -80,11 +78,11 @@ if ~ok, error(mess), end
 % Perform spe to sqw calculation
 % ------------------------------
 r2d=180/pi;
-[tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file,...
+[tmp_file,grid_size,pix_range] = gen_sqw (spe_file, par_file, sqw_file,...
     efix, emode, alatt, angdeg, u, v, psi*r2d, omega*r2d, dpsi*r2d, gl*r2d, gs*r2d, varargin{:});
 
 % Clear output arguments if nargout==0 to have a silent return
 if nargout==0
-    clear grid_size urange
+    clear grid_size pix_range
 end
 

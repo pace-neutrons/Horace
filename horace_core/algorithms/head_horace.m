@@ -28,7 +28,6 @@ function varargout=head_horace(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 % Check number of arguments
 
 if isempty(varargin)
@@ -111,7 +110,7 @@ else
             else
                 data         = loaders{i}.get_data('-verbatim','-nopix');
                 if isa(data,'data_sqw_dnd')
-                    data         = data.get_dnd_data('+'); % + get urange if available
+                    data         = data.get_dnd_data('+'); % + get pix_range if available
                 end
                 data.npixels = loaders{i}.npixels;
                 data.nfiles  = loaders{i}.num_contrib_files;

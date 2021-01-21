@@ -18,7 +18,6 @@ function wout=join(w,wi)
 % 2015-01-20
 
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 
 nfiles=length(w);
@@ -74,7 +73,7 @@ if initflag; detpar0=wi.detpar; else detpar0=detpar{1}; end
 detpar0_fields=fields(detpar0);
 for i=1:length(detpar)
     detpari_fields=fields(detpar{i});
-    for j=1:length(detpari_fields);
+    for j=1:length(detpari_fields)
         hFNM=hFNM & any(strcmp(detpar0_fields,detpari_fields{j}));
         hFVM=hFVM & all(detpar0.(detpari_fields{j})==detpar{i}.(detpari_fields{j}));
     end
@@ -88,7 +87,7 @@ end
 run_contributes=true(nfiles,1);
 for i=1:nfiles
     if ~sum(abs(data{i}.s(:))) && ~sum(data{i}.e(:)) && ~sum(data{i}.npix(:)) ...
-       &&  all(isnan(data{i}.urange(:)/Inf)) && ~sum(abs(data{i}.pix.data(:)))
+       &&  all(isnan(data{i}.pix_range(:)/Inf)) && ~sum(abs(data{i}.pix.data(:)))
         % Then this data structure is a copy of 'datanull' from split.m
         run_contributes(i)=false;
     end

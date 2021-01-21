@@ -1,12 +1,12 @@
-function [grid_size,p]=construct_grid_size(grid_size_in,urange)
-% Return grid_size and boin boundaries from initial grid size specification and data ranges
+function [grid_size,p]=construct_grid_size(grid_size_in,pix_range)
+% Return grid_size and bin boundaries from initial grid size specification and data ranges
 %
-%   >> [grid_size,p]=construct_grid_size(grid_size_in,urange)
+%   >> [grid_size,p]=construct_grid_size(grid_size_in,pix_range)
 %
 % Input:
 % ------
 %   grid_size_in    Initial grids size definition (scalar, or [1 x nd] array)
-%   urange        	Range of the input data ([2 x nd] array)
+%   pix_range       Range of the input data ([2 x nd] array)
 %                       [x1_lo,x2_lo,...; x1_hi,x2_hi,...]
 %
 % Output:
@@ -17,11 +17,10 @@ function [grid_size,p]=construct_grid_size(grid_size_in,urange)
 % 	p               Cell array (size=[1,nd]) of column vectors of bin
 %                   boundaries for each dimension.
 
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Number of dimensions
-nd=size(urange,2);
+nd=size(pix_range,2);
 
 % Create grid size array
 if isscalar(grid_size_in)
@@ -29,28 +28,29 @@ if isscalar(grid_size_in)
 elseif size(grid_size_in,2)==nd
     grid_size=grid_size_in;
 else
-    error('Inconsistent dimensions for grid_size and urange')
+    error('Inconsistent dimensions for grid_size and pix_range')
 end
 
 % Get ranges along each axis and construct bin boundaries
-% (Do not use linspoace, as this does not alway guarantee the correct number of bin boundaries &/or terminal values)
+% (Do not use linspace, as this does not always guarantee 
+% the correct number of bin boundaries &/or terminal values)
 p=cell(1,nd);
 for i=1:nd
-    if urange(2,i)>urange(1,i)
+    if pix_range(2,i)>pix_range(1,i)
         if grid_size(i)>1
             nb=grid_size(i);
             ind=2:nb;
-            p_inner=(urange(1,i)*(nb+1-ind)+urange(2,i)*(ind-1))'/nb;
-            p{i}=[urange(1,i);p_inner;urange(2,i)];
+            p_inner=(pix_range(1,i)*(nb+1-ind)+pix_range(2,i)*(ind-1))'/nb;
+            p{i}=[pix_range(1,i);p_inner;pix_range(2,i)];
         else
-            p{i}=[urange(1,i);urange(2,i)];
+            p{i}=[pix_range(1,i);pix_range(2,i)];
         end
-        p{i}=linspace(urange(1,i),urange(2,i),grid_size(i)+1)';
-    elseif urange(2,i)==urange(1,i)
+        p{i}=linspace(pix_range(1,i),pix_range(2,i),grid_size(i)+1)';
+    elseif pix_range(2,i)==pix_range(1,i)
         grid_size(i)=1; % set grid size to unity wherever the range is zero
-        p{i}=[urange(1,i);urange(2,i)];
+        p{i}=[pix_range(1,i);pix_range(2,i)];
     else
-        error('Must have urange(2,:)>urange(1,:)')
+        error('Must have pix_range(2,:)>pix_range(1,:)')
     end
 end
 

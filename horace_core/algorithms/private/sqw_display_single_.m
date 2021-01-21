@@ -14,8 +14,8 @@ function sqw_display_single_(data,npixtot,nfiles,type)
 %                  
 %   If the optional parameters are given, then only the header information
 %   part of data needs to be passed, namely the fields:
-%      uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,urange]
-%  (urange is only present if sqw type object)
+%      uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,pix_range]
+%  (pix_range is only present if sqw type object)
 %
 %   If the optional parameters are not given, then the whole data structure
 %   needs to be given, and npixtot and type are computed from the structure.
@@ -26,7 +26,6 @@ function sqw_display_single_(data,npixtot,nfiles,type)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 % NOTE: use sprintf to get fixed formatting of numbers (num2str strips trailing blanks)
