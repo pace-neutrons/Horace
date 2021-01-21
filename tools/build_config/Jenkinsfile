@@ -368,13 +368,11 @@ pipeline {
                 pip install --user sphinx &&
                 pip install --user sphinx_rtd_theme &&
                 export PATH=${PATH}:~/.local/bin &&
-                # Update release numbers
-                build_id=$(sed -nr '/CPACK_PACKAGE_FILE_NAME/{s/.*"Horace-([^"]+)".*/\1/p};' ./build/CPackConfig.cmake) &&
+                build_id=$(sed -nr '/CPACK_PACKAGE_FILE_NAME/{s/.*"Horace-([^"]+)".*/\1/p};' ./build/CPackConfig.cmake) &&  # Update release numbers
                 sed -i -r 's/release = .*/release = "'${build_id}'"/' ./documentation/user_docs/docs/conf.py &&
                 make -C ./documentation/user_docs/ html &&
                 make -C ./documentation/user_docs/ html &&
-                # Remove dead links
-                sed -i -r "/\\[NULL\\]/d" ./documentation/user_docs/build/html/*html &&
+                sed -i -r "/\\[NULL\\]/d" ./documentation/user_docs/build/html/*html && # Remove dead links
                 cd ./documentation/user_docs/build/html &&
                 tar -czf docs.tar.gz ./* &&
                 cd - &&
@@ -463,6 +461,8 @@ pipeline {
               git config --local user.name "PACE CI Build Agent" &&
               git config --local user.email "pace.builder.stfc@gmail.com" &&
               git remote set-url --push origin "https://pace-builder:"\${api_token## }"@github.com/pace-neutrons/Horace"
+              git stash && # Reset release for the pull
+              git stash drop &&
               git checkout gh-pages &&
               echo "Bypassing Jekyll on GitHub Pages" > .nojekyll &&
               git add .nojekyll &&
