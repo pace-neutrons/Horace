@@ -44,7 +44,7 @@ function m = hlp_serialise(v)
 %                                adapted from serialize.m
 %                                (C) 2010 Tim Hutt
 
-    if any(size(v) > 2^32-1)
+    if any(size(v) > intmax('uint32'))
         error("MATLAB:serialise:bad_size", "Dimensions of array exceed limit of uint32, cannot serialise.")
     end
 
