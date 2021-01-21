@@ -44,7 +44,7 @@ classdef pix_combine_info
     
     properties(Dependent)
         % total number of pixels to combine
-        npixels;
+        num_pixels;
         % number of files, contributing into final result
         nfiles;
         % true if pixel id from each contributing file should be replaced by contributing file number
@@ -89,7 +89,7 @@ classdef pix_combine_info
             end
         end
         %
-        function npix = get.npixels(obj)
+        function npix = get.num_pixels(obj)
             % total number of pixels in all contributing files
             npix = obj.n_pixels_;
         end
@@ -181,6 +181,11 @@ classdef pix_combine_info
                 parts_carr{i} = pix_combine_info(part_files,pnbins,ppos_npixstart,ppos_pixstart,pnpixtot,prun_label,pfilenums);
             end
             
+        end
+        function obj = recalc_pix_range(obj)
+            % recalculate common range of all pixels 
+            % 
+            obj = recalc_pix_range_(obj);
         end
         %
         function obj=trim_nfiles(obj,nfiles_to_leave)

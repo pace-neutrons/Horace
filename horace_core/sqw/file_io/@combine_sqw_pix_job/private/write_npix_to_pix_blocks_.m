@@ -74,7 +74,7 @@ nbin = pix_comb_info.nbins;     % total number of bins
 n_pix_written = 0;
 ibin_end = 0;
 
-mess_completion(pix_comb_info.npixels,5,1);   % initialise completion message reporting - only if exceeds time threshold
+mess_completion(pix_comb_info.num_pixels,5,1);   % initialise completion message reporting - only if exceeds time threshold
 
 pix_buf_size=pmax;
 pos_pixstart = pix_comb_info.pos_pixstart;

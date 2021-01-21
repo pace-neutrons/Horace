@@ -278,7 +278,7 @@ end
 % instead of the real pixels to place in target sqw file, place in pix field the
 % information about the way to get the contributing pixels
 sqw_data.pix = pix_combine_info(infiles,numel(sqw_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
-sqw_data.pix.pix_range = img_range;
+sqw_data.pix.pix_range = PixelData.EMPTY_RANGE_;
 
 [fp,fn,fe] = fileparts(outfile);
 main_header_combined.filename = [fn,fe];
