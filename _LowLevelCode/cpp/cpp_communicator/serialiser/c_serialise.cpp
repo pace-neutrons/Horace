@@ -96,8 +96,8 @@ void serialise(uint8_t* data, size_t& memPtr, const mxArray* input){
   const size_t nDims = mxGetNumberOfDimensions(input);
 
   for (int i=0; i < nDims; i++) {
-    if (dims[i] > DIM_MAX) {
-      mexErrMsgIdAndTxt("MATLAB:serialise_sparse_data:bad_size", "Dimensions of sparse array exceed limit of uint32, cannot serialise.");
+    if (dims[i] > std::numeric_limits<uint32>::max()) {
+      mexErrMsgIdAndTxt("MATLAB:serialise:bad_size", "Dimensions of array exceed limit of uint32, cannot serialise.");
     }
   }
 

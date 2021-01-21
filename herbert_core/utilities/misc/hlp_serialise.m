@@ -45,7 +45,7 @@ function m = hlp_serialise(v)
 %                                (C) 2010 Tim Hutt
 
     if any(size(v) > 2^32-1)
-        error("MATLAB:serialise_sparse_data:bad_size", "Dimensions of sparse array exceed limit of uint32, cannot serialise.")
+        error("MATLAB:serialise:bad_size", "Dimensions of array exceed limit of uint32, cannot serialise.")
     end
 
     type = hlp_serial_types.type_mapping(v);

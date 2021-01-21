@@ -2,9 +2,6 @@
 
 #include <mex.h>
 
-// Max UINT32 storage (2^32-1)
-constexpr unsigned long DIM_MAX{4294967295};
-
 enum ser_types{
   SELF_SER,
   SAVEOBJ,
