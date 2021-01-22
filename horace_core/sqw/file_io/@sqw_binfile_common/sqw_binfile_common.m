@@ -167,7 +167,7 @@ classdef sqw_binfile_common < sqw_file_interface
         % get main sqw header
         main_header = get_main_header(obj,varargin);
         % get header of one of contributed files
-        [header,pos]   = get_header(obj,varargin);
+        [header,pos] = get_header(obj,varargin);
         % Read the detector parameters from properly initialized binary file.
         det = get_detpar(obj);
         % read main sqw data  from properly initialized binary file.
@@ -195,7 +195,11 @@ classdef sqw_binfile_common < sqw_file_interface
         
         
         % read pixels information
-        pix    = get_pix(obj,varargin);
+        pix = get_pix(obj,varargin);
+        % read pixels at the given indices
+        pix = get_pix_at_indices(obj,indices);
+        % read pixels in the given index ranges
+        pix = get_pix_in_ranges(obj,pix_starts,pix_ends,skip_validation);
         % retrieve the whole sqw object from properly initialized sqw file
         [sqw_obj,varargout] = get_sqw(obj,varargin);
         % retrieve dnd part of the sqw object
