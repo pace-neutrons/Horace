@@ -16,7 +16,7 @@
 #include "cpp_serialise.hpp"
 
 template<typename T>
-inline void ser(uint8_t* data, size_t& memPtr, const std::vector<T> data_in, const size_t amount) {
+inline void ser(uint8_t* data, size_t& memPtr, const std::vector<T>& data_in, const size_t amount) {
   memcpy(&data[memPtr], data_in.data(), amount);
   memPtr += amount;
 }
