@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mex.h>
+#include <limits>
 
 enum ser_types{
   SELF_SER,
