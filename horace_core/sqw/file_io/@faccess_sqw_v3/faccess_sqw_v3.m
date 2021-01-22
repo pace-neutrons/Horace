@@ -55,7 +55,6 @@ classdef faccess_sqw_v3 < sqw_binfile_common
     % already exists in the file.
     %
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     %
     properties(Access=protected,Hidden=true)
@@ -82,10 +81,10 @@ classdef faccess_sqw_v3 < sqw_binfile_common
     
     %
     methods(Access=protected,Hidden=true)
-        function obj=init_from_sqw_file(obj)
+        function obj=init_from_sqw_file(obj,varargin)
             % initialize the structure of faccess class using opened
             % sqw file as input
-            obj= get_sqw_footer_(obj);
+            obj= get_sqw_footer_(obj,varargin{:});
         end
         %
         function obj=init_from_sqw_obj(obj,varargin)
@@ -102,21 +101,16 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             flds = [head_flds(:);obj.data_fields_to_save_(:)];
         end
         %
-        function obj = put_footer(obj)
-            % store file footer i.e. the information, describing the file
-            % format
-            obj = put_sqw_footer_(obj);
-        end
         %
         function obj = init_v3_specific(obj)
             % Initialize position information specific for sqw v3.1 object.
             %
             % Used by this class init and faccess_sqw_v2&similar for
             % upgrading to v3.1
-            obj = init_sample_instr_records_(obj);
+            obj = init_sample_instr_records(obj);
             %
             obj.position_info_pos_= obj.instr_sample_end_pos_;
-            obj = init_sqw_footer_(obj);
+            obj = init_sqw_footer(obj);
         end
         %
         function [obj,missinig_fields] = copy_contents(obj,other_obj,keep_internals)
@@ -146,6 +140,13 @@ classdef faccess_sqw_v3 < sqw_binfile_common
                     obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
                 end
             end
+        end
+        
+        function obj = init_sample_instr_records(obj)
+            obj = init_sample_instr_records_(obj);
+        end
+        function obj = init_sqw_footer(obj)
+            obj = init_sqw_footer_(obj);
         end
     end
     %
@@ -276,15 +277,18 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             obj = put_instr_sampl_info_(obj,'sample',varargin{:});
         end
         %
-        function obj = upgrade_file_format(obj)
+        function obj = put_sample_and_instrument(obj)
+            obj = put_sample_instr_records_(obj);
+            obj.position_info_pos_= obj.instr_sample_end_pos_;
+        end
+        %
+        function new_obj = upgrade_file_format(obj)
             % upgrade the file to recent write format and open this file
             % for writing/updating
             %
-            % v3.1 is currently (01/01/2017) recent file format, so
-            % the method just reopens file for update.
-            if ~isempty(obj.filename)
-                obj = obj.set_file_to_update();
-            end
+            % v3.1 was from (01/01/2017) to 10/01/2021 recent file format
+            % it superseeded by v3.3
+            new_obj = upgrade_file_format_(obj);
         end
         %
         function struc = saveobj(obj)
@@ -296,6 +300,13 @@ classdef faccess_sqw_v3 < sqw_binfile_common
                 struc.(flds{i}) = obj.(flds{i});
             end
         end
+        %
+        function obj = put_sqw_footer(obj)
+            % store file footer i.e. the information, describing the
+            % positions of all main data blocks within the binary file
+            obj = put_sqw_footer_(obj);
+        end
+        
         
     end
     %
@@ -308,7 +319,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             form = struct('obj_name',obj_name,...
                 'version',int32(1),'nfiles',int32(1),'all_same',uint8(1));
         end
-        function form = get_si_form(obj_name)
+        function form = get_si_form(~)
             % returns the format used to save/restore instrument or sample
             % information
             form = faccess_sqw_v3.v3_data_form_;

@@ -21,7 +21,8 @@ function data_type = data_structure_type(data)
 % T.G.Perring   02/08/2007
 
 if ~isfield(data,'s');      data_type = 'h';  return; end
-if ~isfield(data,'npix');   data_type = 'b';  return; end
-if ~isfield(data,'urange'); data_type = 'b+'; return; end
+if ~isfield(data,'npix');   data_type = 'b+';  return; end
+% should not exist such type in new classes
+%if ~isfield(data,'u range'); data_type = 'b+'; return; end
 if ~isfield(data,'pix');    data_type = 'a-'; return; end
 data_type = 'a';

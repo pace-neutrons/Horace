@@ -1,11 +1,10 @@
 function  new_obj = upgrade_file_format_(obj)
-% Upgrade file from format 2 to the preferred file format
+% Upgrade file from format 3 to the preferred file format
 %
-% currently preferred is format v 3
+% currently preferred is format v 3.3
 %
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 %
 
@@ -26,22 +25,24 @@ if ~ismember(acc,{'wb+','rb+'})
 end
 %
 % file format 3 specific part---------------------------------------------
-clear_sample_holder=false;
+clear_sqw_holder=false;
 if isempty(new_obj.sqw_holder_) % all file positions except instrument and sample
     % are already defined so we need just nominal object with instrument and sample
     nf = new_obj.num_contrib_files();
     % make pseudo-sqw  with instrument and sample
     new_obj.sqw_holder_ = make_pseudo_sqw(nf);
-    clear_sample_holder = true; %
+    clear_sqw_holder = true; %
 end
 new_obj = new_obj.init_v3_specific();
 %
 new_obj = new_obj.put_app_header();
-new_obj = new_obj.put_instruments();
+new_obj = new_obj.put_instruments(); % this also upgrades (saves) sqw footer
 
-if clear_sample_holder
+
+if clear_sqw_holder
     new_obj.sqw_holder_ = [];
 end
+
 
 function sq = make_pseudo_sqw(nfiles)
 % if header is a class, the issue would be much better

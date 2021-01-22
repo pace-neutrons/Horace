@@ -37,7 +37,6 @@ classdef sqw_file_interface < dnd_binfile_common
     %                       write or upgrade mode.
     
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Access=protected,Hidden=true)
         %

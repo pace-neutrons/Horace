@@ -11,25 +11,16 @@ iint = obj.iint;
 inf_min = find(iint(1,:)==-Inf);
 if ~isempty(inf_min)
     iax = obj.iax(inf_min);
-    iint(1,inf_min) = obj.urange(1,iax);
+    iint(1,inf_min) = obj.img_range(1,iax);
 end
 inf_max = find(iint(2,:)==Inf);
 if ~isempty(inf_max)
     iax = obj.iax(inf_max);
-    iint(2,inf_max) = obj.urange(2,iax);
+    iint(2,inf_max) = obj.img_range(2,iax);
 end
 
 pin(obj.iax)=mat2cell(iint,2,ones(1,numel(obj.iax)));
 
-% % Integration limit spefified as inf to use real data limit instead
-% inf_min = cellfun(@(x)(x(1) == -Inf),pin);
-% if sum(inf_min)>0
-%     pin{inf_min}(1) = obj.urange(1,inf_min);
-% end
-% inf_max = cellfun(@(x)(x(end) == Inf),pin);
-% if sum(inf_max)>0
-%     pin{inf_max}(end) = obj.urange(2,inf_max);    
-% end
 q1 = pin{1};
 q2 = pin{2};
 q3 = pin{3};

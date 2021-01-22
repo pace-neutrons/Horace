@@ -64,9 +64,9 @@ classdef test_nsqw2sqw_combine_job < TestCase
             [header_combined,nspe] = sqw_header.header_combine(header,true,false);
             nfiles = numel(nspe);
             
-            urange=datahdr{1}.urange;
+            img_range=datahdr{1}.img_range;
             for i=2:nfiles
-                urange=[min(urange(1,:),datahdr{i}.urange(1,:));max(urange(2,:),datahdr{i}.urange(2,:))];
+                img_range=[min(img_range(1,:),datahdr{i}.img_range(1,:));max(img_range(2,:),datahdr{i}.img_range(2,:))];
             end
             [s_accum,e_accum,npix_accum] = accumulate_headers_job.accumulate_headers(ldrs);
             s_accum = s_accum ./ npix_accum;
@@ -99,8 +99,9 @@ classdef test_nsqw2sqw_combine_job < TestCase
             sqw_data.pax=datahdr{1}.pax;
             sqw_data.p=datahdr{1}.p;
             sqw_data.dax=datahdr{1}.dax;    % take the display axes from first file, for sake of choosing something
-            % store urange
-            sqw_data.urange=urange;
+            %TODO: check it -- gen_sqw may use pix_range here
+            % store img_range
+            sqw_data.img_range=img_range;
             
             sqw_data.s=s_accum;
             sqw_data.e=e_accum;
@@ -109,6 +110,7 @@ classdef test_nsqw2sqw_combine_job < TestCase
             
             run_label = 0:nfiles-1;
             pix_comb = pix_combine_info(infiles,numel(sqw_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
+            pix_comb.pix_range = img_range;
             sqw_data.pix = pix_comb;
             [fp,fn,fe] = fileparts(obj.test_targ_file);
             main_header_combined.filename = [fn,fe];
@@ -116,11 +118,10 @@ classdef test_nsqw2sqw_combine_job < TestCase
             
             
             data_sum= struct('main_header',main_header_combined,...
-                'header',[],'detpar',det,'data',sqw_data);
-            
-            
-            
+                'header',[],'detpar',det);
+            data_sum.data = sqw_data;                                    
             data_sum.header = header_combined;
+            
             
             ds = sqw(data_sum);
             wrtr = sqw_formats_factory.instance().get_pref_access('sqw');
