@@ -31,8 +31,8 @@ Herbert/Horace will continue to use the C API for new Mex functions.
 
 ## Consequences
 
-- The C++ code we write will be compatible with all Matlab releases,
-  including those older than R2018a.
+- The C++ code we write will be compatible with all[<sup>[1]</sup>](#ref_1)
+  Matlab releases, including those older than R2018a.
 - The C++ code we have written will be consistent with new code we write.
 - We will not get the benefits of the newer C++ Mex API
   (e.g. smart pointers, [C++ class wrappers](https://www.mathworks.com/help/matlab/matlab-data-array.html?s_tid=CRUX_lftnav)).
@@ -41,3 +41,19 @@ _Note: this decision need not be binding,
 but provides a guideline for us to be consistent.
 If a use-case arises where using the C++ API is advantageous,
 then there should be nothing stopping us from using it._
+
+---
+
+<a name="ref_1">
+</a><sup>[1]</sup> This comes with a caveat when using complex numbers.
+In R2018a Matlab introduced the
+["interleaved" complex API](https://www.mathworks.com/help/matlab/matlab_external/matlab-support-for-interleaved-complex.html),
+which stores complex numbers as
+[real_1, imag_1, real_2, imag_2, ..., real_n, imag_n].
+This differs in releases R2017b and earlier, where complex numbers were stored
+in two separate arrays, once for the real parts one for the imaginary.
+You switch between which API to use in Mex files by defining the macro
+`MATLAB_DEFAULT_RELEASE` to be `R2017b` or `R2018b`.
+Or by passing the `-R2017b` or `-R2018b` flag to Matlab's `mex` command.
+To remain compatible with older Matlab versions we must compile with the
+`-R2017b` flag.
