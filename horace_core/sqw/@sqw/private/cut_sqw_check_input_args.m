@@ -27,7 +27,7 @@ function [ok, mess, data_source, proj, pbin, args, opt] = ...
 %   mess            Error message if not OK, empty string '' otherwise
 %   data_source     Name of file containing sqw data, or sqw object
 %   proj            Projection object, or [] if no projection information given
-%   pbin            Cell array of numeric row vectors containing binning 
+%   pbin            Cell array of numeric row vectors containing binning
 %                  information. The length of the vectors is not checked
 %   args            Cell array of any other arguments
 %   opt             Options structure. Currently has fields
@@ -178,17 +178,18 @@ if save_to_file
             return
         end
     end
-    
+
     % Test output file can be opened - don't want to discover there are problems after lots of calculation
     % [Not yet fully supported with sqw_formats_factory but can be. Now just test creation of new file
     % is possible  and delete it]
     fout = fopen (outfile, 'wb');   % this command also clears contents of existing file
     if (fout < 0)
-        error ('CUT_SQW:runtime_error','Cannot open output file %s',outfile)
+        error('SQW:cut_sqw_check_input_args:outfile_creation_error', ...
+              'Cannot open output file %s',outfile)
     end
     fclose(fout);
     delete(outfile);
-    
+
 elseif ~return_cut
     % Check work needs to be done (*** might want to make this case prompt to save to file)
     ok = false;
