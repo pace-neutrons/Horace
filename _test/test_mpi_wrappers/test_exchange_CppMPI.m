@@ -19,7 +19,7 @@ classdef test_exchange_CppMPI < exchange_common_tests
         function test_OutOfRange(obj)
             % Test communications in test mode
             if obj.ignore_test
-                skipTest();
+                skipTest(obj.ignore_cause);
             end
             % only 10 pseudo-workers are defined here.
             mf = MessagesCppMPI_tester();
@@ -48,7 +48,7 @@ classdef test_exchange_CppMPI < exchange_common_tests
         %
         function test_MessagesCppMPI_constructor(obj)
             if obj.ignore_test
-                skipTest();
+                skipTest(obj.ignore_cause);
             end
             mf = MessagesCppMPI_tester();
             clob = onCleanup(@()(finalize_all(mf)));

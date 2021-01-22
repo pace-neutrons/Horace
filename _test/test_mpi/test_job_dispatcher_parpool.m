@@ -23,7 +23,7 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
             % as all logic is tested elsewhere but kept to help identifying
             % the issues with job submission on a cluster.
             if obj.ignore_test
-                skipTest();
+                skipTest(obj.ignore_cause);
             end
             % delete interactive parallel cluster if any exist
             cl = gcp('nocreate');

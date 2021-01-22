@@ -799,7 +799,7 @@ classdef test_job_executor< MPI_Test_Common
         %
         function test_invalid_input(obj)
             if obj.ignore_test
-                skipTest();
+                skipTest(obj.ignore_cause);
             end
 
             worker_name = obj.worker;
@@ -816,7 +816,7 @@ classdef test_job_executor< MPI_Test_Common
         %
         function test_unhandled_error_in_init(obj)
             if obj.ignore_test
-                skipTest();
+                skipTest(obj.ignore_cause);
             end
             % build jobs data
 

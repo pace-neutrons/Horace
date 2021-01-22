@@ -61,7 +61,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
         %
         function test_finish_tasks_reduce_messages(obj,varargin)
             if obj.ignore_test
-                skipTest();
+                skipTest(obj.ignore_cause);
             end
             if nargin>1
                 obj.setUp();
@@ -98,7 +98,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
         function test_probe_all_receive_all(obj,varargin)
             % common code -------------------------------------------------
             if obj.ignore_test
-                skipTest();
+                skipTest(obj.ignore_cause);
             end
             if nargin>1
                 obj.setUp();
@@ -149,7 +149,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
         function test_send_receive_message(obj,varargin)
             % common code -------------------------------------------------
             if obj.ignore_test
-                skipTest();
+                skipTest(obj.ignore_cause);
             end
             if nargin>1
                 obj.setUp();
