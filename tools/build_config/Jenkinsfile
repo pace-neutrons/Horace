@@ -388,7 +388,7 @@ pipeline {
               ./documentation/user_docs/make.bat html
               ./documentation/user_docs/make.bat html
               foreach ($f in Get-ChildItem -Path './documentation/user_docs/build/html' -Filter *.html) {
-                Get-Contentzz $f | Where-Object {$_ -notmatch '[NULL]'} | Set-Content $f
+                (Get-Content "./documentation/user_docs/build/html/$f") | Where-Object {$_ -notmatch '[NULL]'} | Set-Content "./documentation/user_docs/build/html/$f"
               }
               Get-ChildItem -Path './documentation/user_docs/' | Compress-Archive -DestinationPath "./docs.zip"
             '''
