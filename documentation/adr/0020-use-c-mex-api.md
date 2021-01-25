@@ -57,9 +57,12 @@ In R2018a Matlab introduced the
 which stores complex numbers as
 [real_1, imag_1, real_2, imag_2, ..., real_n, imag_n].
 This differs in releases R2017b and earlier, where complex numbers were stored
-in two separate arrays, once for the real parts one for the imaginary.
+in two separate arrays, one for the real parts one for the imaginary.
 You switch between which API to use in Mex files by defining the macro
 `MATLAB_DEFAULT_RELEASE` to be `R2017b` or `R2018b`.
 Or by passing the `-R2017b` or `-R2018b` flag to Matlab's `mex` command.
 To remain compatible with older Matlab versions we must compile with the
 `-R2017b` flag.
+For full compatibility, you can write implementations for both APIs and
+use the `MX_HAS_INTERLEAVED_COMPLEX` macro and preprocessor directives
+(`#if`, `#else` etc) to switch between them.
