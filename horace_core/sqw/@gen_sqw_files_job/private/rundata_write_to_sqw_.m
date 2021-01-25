@@ -20,12 +20,18 @@ function [grid_size, pix_range] = rundata_write_to_sqw_(run_files, sqw_file, ...
 % -------
 %   grid_size       Actual grid size used (size is unity along dimensions
 %                   where there is zero range of the data points)
-%   pix_range          Actual range of grid
+%   pix_range       Actual range of grid, should be different from
+%                   pix_range_in only if pix_range_in is not provided
 
 
 % Original author: T.G.Perring
 
 nfiles = numel(run_files);
+if nfiles == 0
+    grid_size = grid_size_in;
+    pix_range = pix_range_in;
+    return
+end
 
 [hor_log_level,use_mex]=get(hor_config,'log_level','use_mex');
 %

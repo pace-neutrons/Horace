@@ -84,7 +84,9 @@ if use_mex
             %proj_mode = 2;
             %nThreads = 1;
             [pix_range,pix] =calc_projections_c(spec_to_cc, data, det, efix,k_to_e, emode, nThreads,proj_mode);
-            pix = PixelData(pix);
+            if nargout>2
+                pix = PixelData(pix);
+            end
         catch  ERR % use Matlab routine
             warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',ERR.message);
             use_mex=false;
@@ -104,10 +106,11 @@ if ~use_mex
         qspec_provided = true;
     end
 
-    pix_range=[min(ucoords,[],2)';max(ucoords,[],2)'];
+
 
     % Return without filling the pixel array if pix_range only is requested
     if nargout==2
+        pix_range=[min(ucoords,[],2)';max(ucoords,[],2)'];        
         return;
     end
     if proj_mode == 0
@@ -136,6 +139,6 @@ if ~use_mex
     sig_var =[obj.S(:)';((obj.ERR(:)).^2)'];
     run_id = ones(1,numel(detector_idx))*obj.run_id();
     pix = PixelData([ucoords;run_id;detector_idx;energy_idx;sig_var]);
-
+    pix_range=pix.pix_range;            
 end
 
