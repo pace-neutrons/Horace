@@ -296,7 +296,7 @@ pix_range = PixelData.EMPTY_RANGE_;
 job_disp = [];
 jd_initialized = false;
 %
-if isempy(argi)
+if isempty(argi)
     return;
 end
 
@@ -319,7 +319,7 @@ if any(is_jd)
     argi = argi(~is_jd);
 end
 %
-if isempy(argi)
+if isempty(argi)
     return;
 end
 %

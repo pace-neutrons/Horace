@@ -256,7 +256,6 @@ classdef pix_combine_info
                 loc_range = ldr.get_pix_range();
                 pix_range = [min([loc_range(1,:);pix_range(1,:)],[],1);
                     max([loc_range(2,:);pix_range(2,:)],[],1)];
-                ldr.delete();
             end
             
         end
