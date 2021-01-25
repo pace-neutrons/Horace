@@ -152,7 +152,7 @@ classdef pix_combine_info
         end
         function parts_carr= split_into_parts(obj,n_workers)
             % function divided pix_combine_info into the specified number
-            % of (almost) equal parts to send it for processing 
+            % of (almost) equal parts to send it for processing
             % on parallel system
             n_tasks = obj.nfiles;
             if n_workers> n_tasks
@@ -249,7 +249,7 @@ classdef pix_combine_info
         function pix_range = recalc_pix_range_from_loaders(ldrs)
             % Recalculate pixels range using list of defined loaders
             n_files = numel(ldrs);
-            ldr = ldrs{1};            
+            ldr = ldrs{1};
             pix_range= ldr.get_pix_range();
             for i=2:n_files
                 ldr = ldrs{i};

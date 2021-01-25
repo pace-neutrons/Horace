@@ -1,4 +1,4 @@
-function [w, grid_size, pix_db_range] = calc_sqw_(obj,detdcn, det0, grid_size_in, pix_db_range_in)
+function [w, grid_size, pix_range] = calc_sqw_(obj,detdcn, det0, grid_size_in, pix_db_range_in)
 % Create an sqw object, optionally keeping only those data points within a defined data range.
 %
 %   >> [w, grid_size, pix_range] = obj.calc_sqw(detdch, det0,grid_size_in,
@@ -45,6 +45,7 @@ if hor_log_level>-1
     disp('Calculating projections...');
 end
 [header,sqw_datstr]=calc_sqw_data_and_header(obj,detdcn);
+pix_range = sqw_datstr.pix.pix_range;
 
 % Flag if grid is in fact just a box i.e. 1x1x1x1
 grid_is_unity = (isscalar(grid_size_in)&&grid_size_in==1)||(isvector(grid_size_in)&&all(grid_size_in==[1,1,1,1]));
@@ -61,7 +62,7 @@ else
         data_in_range = true;
     end
 end
-% set up img range to the range, used for binning
+% set up img range to the global range, used for binning
 sqw_datstr.img_range = pix_db_range;
 
 % If grid that is other than 1x1x1x1, or range was given, then sort pixels
@@ -97,14 +98,13 @@ else
             sqw_datstr.e   = out_fields{2};
             sqw_datstr.npix= out_fields{3};
             sqw_datstr.pix = PixelData(out_fields{4});
-            
         catch
             warning('HORACE:using_mex','calc_sqw->Error: ''%s'' received from C-routine to rebin data, using matlab functions',lasterr());
             use_mex=false;
         end
     end
     if ~use_mex
-        [ix,npix,p,grid_size,ibin]=sort_pixels(sqw_datstr.pix.coordinates,pix_db_range,grid_size_in);
+        [ix,npix,p,grid_size,ibin]=sort_pixels_by_bins(sqw_datstr.pix.coordinates,pix_db_range,grid_size_in);
         
         sqw_datstr.p=p;   % added by RAE 10/6/11 to avoid crash when doing non-mex generation of sqw files
         sqw_datstr.pix=sqw_datstr.pix.get_pixels(ix);

@@ -173,7 +173,7 @@ classdef gen_sqw_files_job < JobExecutor
         end
         %
         function [grid_size,pix_range]=runfiles_to_sqw(run_files,tmp_fnames,...
-                grid_size_in,pix_range_in,varargin)
+                grid_size_in,pix_db_range,varargin)
             % Public interface to private rundata_write_to_sqw_ function
             % which do actually converts all input runfiles into list of
             % sqw (tmp) files.
@@ -187,8 +187,9 @@ classdef gen_sqw_files_job < JobExecutor
             %                   initiated instrument and sample
             %   sqw_file        full file name of output sqw file
             %   grid_size_in    Scalar or row vector of grid dimensions.
-            %   pix_range_in       Range of data grid for output. If not given, then uses smallest hypercuboid
-            %                   that encloses the whole data range
+            %   pix_db_range    Range of pixels grid to rebin pixels on.
+            %                   If not given, then uses smallest hypercuboid
+            %                   that encloses the whole actual data range.
             % optional:
             %   write_banner    =true then write banner; =false then done (no banner will be
             %                   written anyway if the output logging level is not high enough)
@@ -197,10 +198,11 @@ classdef gen_sqw_files_job < JobExecutor
             % -------
             %   grid_size       Actual grid size used (size is unity along dimensions
             %                   where there is zero range of the data points)
-            %   pix_range       Actual range of grid
+            %   pix_range       Actual range of the pixels, contriburing
+            %                   into the image
             %
             [grid_size,pix_range] = rundata_write_to_sqw_(run_files,tmp_fnames,...
-                grid_size_in,pix_range_in,varargin{:});
+                grid_size_in,pix_db_range,varargin{:});
         end
         
     end
