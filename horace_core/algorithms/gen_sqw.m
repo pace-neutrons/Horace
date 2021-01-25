@@ -684,7 +684,7 @@ if ~all(ief)
     pix_range_in=[min(pix_range_in(1,:),pix_range_est(1,:)); max(pix_range_in(2,:),pix_range_est(2,:))];
 end
 % Add a border
-pix_range_in=range_add_border(pix_range_in,-1e-6);
+pix_range_in=range_add_border(pix_range_in,1e-6);
 
 if log_level>-1
     bigtoc('Time to compute limits:',log_level);
