@@ -12,8 +12,10 @@ function   main_header = get_main_header(obj,varargin)
 % Input:
 % ------
 %   opt             [Optional] read flag:
-%                   '-verbatim'   The file name as stored in the main_header is returned as stored,
-%                                and not constructed from the value of fopen(fid).
+%                   '-verbatim' - report the progress of the operations
+%                   '-keep_original'  Do not override file name, stored in
+%                   sqw file with current filenaeme (necessary for file
+%                   format upgrade)
 % Output:
 % -------
 %   mess            Error message; blank if no errors, non-blank otherwise
@@ -31,7 +33,12 @@ function   main_header = get_main_header(obj,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
+[ok,mess,keep_original,verbatim] = parse_char_options(varargin,...
+    {'-keep_original','-verbatim'});
+if ~ok
+    error('INIT_SQW_STRUCTURE:invalid_argument',mess);
+end
+
 
 if ischar(obj.num_contrib_files)
     error('SQW_FILE_INTERFACE:runtime_error',...
@@ -70,9 +77,11 @@ if nargin>1
         return;
     end
 end
-[path, name, ext] = fileparts(fopen(obj.file_id_));
-main_header.filepath =  [path,filesep];
-main_header.filename = [name, ext];
+if ~keep_original
+    [path, name, ext] = fileparts(fopen(obj.file_id_));
+    main_header.filepath =  [path,filesep];
+    main_header.filename = [name, ext];
+end
 
 
 

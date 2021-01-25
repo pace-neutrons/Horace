@@ -1,12 +1,12 @@
-function [ pbin_out, ndims] = calc_pbins(proj, urange_in, pbin, pin, en)
+function [ pbin_out, ndims] = calc_pbins(proj, img_range_in, pbin, pin, en)
 % Check binning descriptors are valid, and resolve multiple integration axes
 % using limits and bin widths from the input data.
 %
-%   >> [ok, mess, pbin_out, ndims] = cut_sqw_calc_pbins (urange, proj, pbin, pin, en)
+%   >> [ok, mess, pbin_out, ndims] = cut_sqw_calc_pbins (img_range, proj, pbin, pin, en)
 %
 % Input:
 % ------
-%   urange_in   [2x4] array of range of data along the input projection axes (elements must all be finite)
+%   img_range_in   [2x4] array of range of data along the input projection axes (elements must all be finite)
 %
 %   proj        The class which defines the projection
 %
@@ -29,7 +29,7 @@ function [ pbin_out, ndims] = calc_pbins(proj, urange_in, pbin, pin, en)
 %               - [pstep]           Plot axis: sets step size; plot limits taken from extent of the data
 %                                  If pstep=0 then use bin size of energy bins in array en (below) and synchronise
 %                                  the output bin boundaries with the reference boundaries. The overall range is
-%                                  chosen to ensure that the energy range in urange_in is contained within
+%                                  chosen to ensure that the energy range in pix_range_in is contained within
 %                                  the bin boundaries.
 %               - [plo, phi]        Integration axis: range of integration
 %           	- [plo, pstep, phi]	Plot axis: minimum and maximum bin centres and step size;
@@ -111,7 +111,7 @@ for i=1:n
 end
 
 % Get integration and plot axes
-[~, ~, pax, p] = proj.calc_ubins (urange_in,pbin_tmp, pin, en);
+[~, ~, pax, p] = proj.calc_transf_img_bins(img_range_in,pbin_tmp, pin, en);
 ndims = numel(p);
 multi = (n_pbin==4);
 if any(multi)
