@@ -1,8 +1,8 @@
-function [w,grid_size,pix_range,detdcn] = calc_sqw(obj,grid_size_in,pix_range_in,varargin)
+function [w,grid_size,pix_range,detdcn] = calc_sqw(obj,grid_size_in,pix_db_range,varargin)
 % Generate single sqw file from given rundata class.
 %
 % Usage:
-%>>[w,grid_size,pix_range,detdcn] = rundata_obj.calc_sqw(grid_size_in,pix_range_in,varargin);
+%>>[w,grid_size,pix_range,detdcn] = rundata_obj.calc_sqw(grid_size_in,pix_db_range,varargin);
 % or
 %>>[w,grid_size,pix_range,detdcn] = rundata_obj.calc_sqw(varargin);
 %
@@ -11,7 +11,7 @@ function [w,grid_size,pix_range,detdcn] = calc_sqw(obj,grid_size_in,pix_range_in
 %
 % grid_size_in   Scalar or [1x4] vector of grid dimensions in each direction
 %                for sqw object to build from given rundata object.
-% pix_range_in   Range of data grid for output given as a [2x4] matrix:
+% pix_db_range   Range of data grid for output given as a [2x4] matrix:
 %                [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
 %                If [] then uses the smallest hypercuboid that encloses the
 %                whole data range.
@@ -42,8 +42,9 @@ function [w,grid_size,pix_range,detdcn] = calc_sqw(obj,grid_size_in,pix_range_in
 % w               Output sqw object
 % grid_size       Actual size of grid used (size is unity along dimensions
 %                 where there is zero range of the data points)
-% pix_range       Actual range of image - the specified range if it was given,
-%                 or the range of the data if not.
+% pix_range      Actual range of pixels, contributed in the image.
+%                the specified range if it was given,
+%                or the range of the data if not.
 %  detdcn        [3 x ndet] array of unit vectors, poinitng to the detector's
 %                positions in the spectrometer coordinate system (X-axis
 %                along the beam direction). ndet -- number of detectors
@@ -107,8 +108,8 @@ else
         end
     end
 end
-if ~exist('pix_range_in','var')
-    pix_range_in = [];
+if ~exist('pix_db_range','var')
+    pix_db_range = [];
 end
 
 if hor_log_level>-1
@@ -134,7 +135,7 @@ end
 if ~isempty(obj.transform_sqw)
     pix_range_sqw = [];
 else
-    pix_range_sqw = pix_range_in;
+    pix_range_sqw = pix_db_range;
 end
 [w, grid_size, pix_range]=obj.calc_sqw_(detdcn, det0, grid_size_in, pix_range_sqw);
 
@@ -151,8 +152,8 @@ if ~isempty(obj.transform_sqw_f_)
     w = obj.transform_sqw_f_(w);
     pix_range = w.data.pix.pix_range;
     grid_size = size(w.data.s);
-    if ~isempty(pix_range_in) % expand ranges to include pix_range_in
-        pix_range = [min([pix_range_in(1,:);pix_range(1,:)]);...
-            max([pix_range_in(2,:);pix_range(2,:)])];
+    if ~isempty(pix_db_range) % expand ranges to include pix_range_in
+        pix_range = [min([pix_db_range(1,:);pix_range(1,:)]);...
+            max([pix_db_range(2,:);pix_range(2,:)])];
     end
 end
