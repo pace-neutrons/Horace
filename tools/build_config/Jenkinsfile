@@ -372,7 +372,8 @@ pipeline {
                 sed -i -r 's/release = .*/release = "'${build_id}'"/' ./documentation/user_docs/docs/conf.py &&
                 make -C ./documentation/user_docs/ html &&
                 make -C ./documentation/user_docs/ html &&
-                sed -i -r "/\\[NULL\\]/d" ./documentation/user_docs/build/html/*html && # Remove dead links
+                git checkout ./documentation/user_docs/docs/conf.py && # Undo change to allow checkout
+                sed -i -r '/\\[NULL\\]/d' ./documentation/user_docs/build/html/*html && # Remove dead links
                 cd ./documentation/user_docs/build/html &&
                 tar -czf docs.tar.gz ./* &&
                 cd - &&
@@ -385,12 +386,22 @@ pipeline {
           }
           else {
             powershell '''
+              pip install --user sphinx
+              pip install --user sphinx_rtd_theme
+
+              (Get-Content "./build/CPackConfig.cmake" | Where-Object {$_ -match 'CPACK_PACKAGE_FILE_NAME'}) -match '.*"Horace-([^"]+)".*'
+              $build_id = $Matches[1]
+              (Get-Content ./documentation/user_docs/docs/conf.py) | Foreach-Object {$_ -replace 'release = .*', "release = '${build_id}'"} | Set-Content  ./documentation/user_docs/docs/conf.py
+
               ./documentation/user_docs/make.bat html
               ./documentation/user_docs/make.bat html
-              foreach ($f in Get-ChildItem -Path './documentation/user_docs/build/html' -Filter *.html) {
+              # Undo change to allow checkout
+              git checkout ./documentation/user_docs/docs/conf.py
+
+              Foreach ($f in Get-ChildItem -Path './documentation/user_docs/build/html' -Filter *.html) {
                 (Get-Content "./documentation/user_docs/build/html/$f") | Where-Object {$_ -notmatch '[NULL]'} | Set-Content "./documentation/user_docs/build/html/$f"
               }
-              Get-ChildItem -Path './documentation/user_docs/' | Compress-Archive -DestinationPath "./docs.zip"
+              Compress-Archive -Path ./documentation/user_docs/build/html/* -DestinationPath "./docs.zip"
             '''
             archiveArtifacts(
               artifacts: 'docs.zip',
@@ -462,8 +473,6 @@ pipeline {
               git config --local user.name "PACE CI Build Agent" &&
               git config --local user.email "pace.builder.stfc@gmail.com" &&
               git remote set-url --push origin "https://pace-builder:"\${api_token## }"@github.com/pace-neutrons/Horace"
-              git stash && # Reset release for the pull
-              git stash drop &&
               git checkout gh-pages &&
               echo "Bypassing Jekyll on GitHub Pages" > .nojekyll &&
               git add .nojekyll &&
@@ -479,7 +488,7 @@ pipeline {
               powershell '''
               git config --local user.name "PACE CI Build Agent"
               git config --local user.email "pace.builder.stfc@gmail.com"
-              git remote set-url --push origin "https://pace-builder:"\${api_token## }"@github.com/pace-neutrons/Horace"
+              git remote set-url --push origin "https://pace-builder:$(${env:api_token}.trim())@github.com/pace-neutrons/Horace"
               git checkout gh-pages
               Set-Content -Value "Bypassing Jekyll on GitHub Pages" -Path .nojekyll
               git add .nojekyll
