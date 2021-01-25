@@ -20,10 +20,16 @@ The C++ API is relatively new and is therefore only compatible with Matlab relea
 
 Throughout the Herbert and Horace codebases only the C API has been used.
 This is primarily due to the fact that Herbert and Horace pre-date the C++ API.
-The C++ API contains restrictions on directly accessing Matlab memory,
-which provided challenges when writing the Matlab object serializer in C++.
 
-TODO: do we have examples of where the C++ API did not work for our use-case?
+The C++ API contains restrictions on directly accessing Matlab memory,
+this provided challenges when writing the Matlab object serializer in C++.
+The API does not allow access to the underlying memory of the Matlab objects,
+and the C++ objects had varying sized headers.
+This caused problems when attempting to perform copies and casts:
+the underlying data needed to first be copied via the C++ API,
+and only then could a `memcpy` be performed by the serializer.
+This meant there were three copies of the data present at one time,
+which is not desirable for large objects (e.g. pixel data).
 
 ## Decision
 
