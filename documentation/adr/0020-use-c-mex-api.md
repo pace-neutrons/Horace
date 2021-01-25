@@ -50,19 +50,21 @@ then there should be nothing stopping us from using it._
 
 ---
 
-<a name="ref_1">
-</a><sup>[1]</sup> This comes with a caveat when using complex numbers.
-In R2018a Matlab introduced the
-["interleaved" complex API](https://www.mathworks.com/help/matlab/matlab_external/matlab-support-for-interleaved-complex.html),
+_<a name="ref_1">
+</a><sup>[1]</sup> This comes with a caveat when using complex numbers._
+
+_In R2018a Matlab introduced the
+[interleaved complex API](https://www.mathworks.com/help/matlab/matlab_external/matlab-support-for-interleaved-complex.html),
 which stores complex numbers as
-[real_1, imag_1, real_2, imag_2, ..., real_n, imag_n].
+`[real_1, imag_1, real_2, imag_2, ..., real_n, imag_n]`.
 This differs in releases R2017b and earlier, where complex numbers were stored
 in two separate arrays, one for the real parts one for the imaginary.
 You switch between which API to use in Mex files by defining the macro
 `MATLAB_DEFAULT_RELEASE` to be `R2017b` or `R2018b`.
 Or by passing the `-R2017b` or `-R2018b` flag to Matlab's `mex` command.
 To remain compatible with older Matlab versions we must compile with the
-`-R2017b` flag.
-For full compatibility, you can write implementations for both APIs and
+`-R2017b` flag._
+
+_For full compatibility, you can write implementations for both APIs and
 use the `MX_HAS_INTERLEAVED_COMPLEX` macro and preprocessor directives
-(`#if`, `#else` etc) to switch between them.
+(`#if`, `#else` etc) to switch between them._
