@@ -169,6 +169,7 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
             if isa(data.pix, 'pix_combine_info')
                 num_pix = data.pix.npixels;
             else
+                % data.pix is a PixelData object
                 num_pix = data.pix.num_pixels;
             end
 
