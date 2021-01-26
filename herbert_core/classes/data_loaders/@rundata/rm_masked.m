@@ -1,4 +1,4 @@
-function [S_m,Err_m,det_m]=rm_masked(this)
+function [S_m,Err_m,det_m]=rm_masked(this,ignore_nan,ignore_inf)
 % method removes failed (NaN or Inf) data from the data array and deletes
 % detectors, which provided such signal
 %
@@ -8,8 +8,26 @@ end
 if any(size(this.S)~=size(this.ERR))||(size(this.S,2)~=numel(this.det_par.x2))
     error('RUNDATA:rm_masked',' signal error and detectors arrays are not consistent\n');
 end
+if ~exist('ignore_nan','var')
+    ignore_nan = true;
+end
+if ~exist('ignore_inf','var')
+    ignore_inf = true;
+end
 
-index_masked = (isnan(this.S)|(isinf(this.S))); % masked pixels
+
+if ignore_nan && ignore_inf
+    index_masked = (isnan(this.S)|(isinf(this.S))); % masked pixels
+elseif ignore_nan
+    index_masked = (isnan(this.S));
+elseif ignore_inf
+    index_masked = (isinf(this.S));
+else
+    S_m= this.S;
+    Err_m = this.ERR;
+    det_m = this.det_par;
+    return
+end
 line_notmasked= ~any(index_masked,1);           % masked detectors (for any energy)
 
 if get(herbert_config,'log_level')> 1
