@@ -21,6 +21,14 @@ classdef test_func_eval < TestCase
         end
 
         function test_you_can_apply_func_eval_to_array_of_sqw_objects(obj)
+
+        function test_SQW_error_if_sqws_in_array_have_different_dimensions(obj)
+            sqws_in = [sqw(obj.sqw_1d_file_path), sqw(obj.sqw_2d_file_path)];
+
+            func = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
+            pars = {2, 3, 6};
+            f = @() func_eval(sqws_in, func, pars);
+            assertExceptionThrown(f, 'SQW:func_eval');
         end
 
         function test_you_can_apply_func_eval_to_an_sqw_file(obj)

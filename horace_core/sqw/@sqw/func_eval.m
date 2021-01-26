@@ -78,6 +78,19 @@ if ~ok
     error('FUNC_EVAL:invalid_argument',mess);
 end
 
+% Input sqw objects must have equal no. of dimensions in image or the input
+% function cannot have the correct number of arguments for all sqws
+% This block stops a "Too many input arguments." error being thrown later on
+if numel(win) > 1
+    input_dims = arrayfun(@(x) dimensions(x), win);
+    if ~all(input_dims(1) == input_dims)
+        error('SQW:func_eval', ...
+              ['Input sqw objects must have equal image dimensions.\n' ...
+               'Found dimensions [%s].'], ...
+              num2str(input_dims));
+    end
+end
+
 wout = copy(win);
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
