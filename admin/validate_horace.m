@@ -118,11 +118,11 @@ if parallel && license('checkout',  'Distrib_Computing_Toolbox')
     cores = feature('numCores');
     if verLessThan('matlab',  '8.4')
         if matlabpool('SIZE') == 0
-            
+
             if cores > 12
                 cores = 12;
             end
-            
+
             matlabpool(cores);
         end
     else
@@ -133,21 +133,21 @@ if parallel && license('checkout',  'Distrib_Computing_Toolbox')
             parpool(cores);
         end
     end
-    
+
     test_ok = false(1, numel(test_folders_full));
     time = bigtic();
-    
+
     parfor i = 1:numel(test_folders_full)
-        test_ok(i) = runtests(test_folders_full{i})
+        test_ok(i) = runtests(test_folders_full{i}, '-verbose')
     end
-    
+
     bigtoc(time,  '===COMPLETED UNIT TESTS IN PARALLEL');
     tests_ok = all(test_ok);
 else
     time = bigtic();
-    tests_ok = runtests(test_folders_full{:});
+    tests_ok = runtests(test_folders_full{:}, '-verbose');
     bigtoc(time,  '===COMPLETED UNIT TESTS RUN ');
-    
+
 end
 
 close all
