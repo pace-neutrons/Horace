@@ -1,11 +1,11 @@
-function [S_m,Err_m,det_m]=rm_masked(this,ignore_nan,ignore_inf)
+function [S_m,Err_m,det_m]=rm_masked(obj,ignore_nan,ignore_inf)
 % method removes failed (NaN or Inf) data from the data array and deletes
 % detectors, which provided such signal
 %
-if isempty(this.S)||isempty(this.ERR)||isempty(this.det_par)
+if isempty(obj.S)||isempty(obj.ERR)||isempty(obj.det_par)
     error('RUNDATA:rm_masked',' signal, error and detectors arrays have to be defined\n');
 end
-if any(size(this.S)~=size(this.ERR))||(size(this.S,2)~=numel(this.det_par.x2))
+if any(size(obj.S)~=size(obj.ERR))||(size(obj.S,2)~=numel(obj.det_par.x2))
     error('RUNDATA:rm_masked',' signal error and detectors arrays are not consistent\n');
 end
 if ~exist('ignore_nan','var')
@@ -17,21 +17,21 @@ end
 
 
 if ignore_nan && ignore_inf
-    index_masked = (isnan(this.S)|(isinf(this.S))); % masked pixels
+    index_masked = (isnan(obj.S)|(isinf(obj.S))); % masked pixels
 elseif ignore_nan
-    index_masked = (isnan(this.S));
+    index_masked = (isnan(obj.S));
 elseif ignore_inf
-    index_masked = (isinf(this.S));
+    index_masked = (isinf(obj.S));
 else
-    S_m= this.S;
-    Err_m = this.ERR;
-    det_m = this.det_par;
+    S_m= obj.S;
+    Err_m = obj.ERR;
+    det_m = obj.det_par;
     return
 end
 line_notmasked= ~any(index_masked,1);           % masked detectors (for any energy)
 
 if get(herbert_config,'log_level')> 1
-    [ne,ndet]=size(this.S);
+    [ne,ndet]=size(obj.S);
     nnotmasked = sum(line_notmasked);
     if nnotmasked<ndet
         ndet_mask = ndet-nnotmasked;
@@ -40,9 +40,9 @@ if get(herbert_config,'log_level')> 1
     end
 end
 
-S_m  = this.S(:,line_notmasked);
-Err_m= this.ERR(:,line_notmasked);
-det = this.det_par;
+S_m  = obj.S(:,line_notmasked);
+Err_m= obj.ERR(:,line_notmasked);
+det = obj.det_par;
 det_fields = fields(det);
 det_m = struct();
 for i=1:numel(det_fields)
