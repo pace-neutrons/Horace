@@ -368,7 +368,7 @@ pipeline {
                 pip install --user sphinx &&
                 pip install --user sphinx_rtd_theme &&
                 export PATH=${PATH}:~/.local/bin &&
-                build_id=$(sed -nr '/CPACK_PACKAGE_FILE_NAME/{s/.*"Horace-([^"]+)".*/\1/p};' ./build/CPackConfig.cmake) &&  # Update release numbers
+                build_id=$(sed -nr '/CPACK_PACKAGE_FILE_NAME/{s/.*"Horace-([^"]+)".*/\\1/p};' ./build/CPackConfig.cmake) &&  # Update release numbers
                 sed -i -r 's/release = .*/release = "'${build_id}'"/' ./documentation/user_docs/docs/conf.py &&
                 make -C ./documentation/user_docs/ html &&
                 make -C ./documentation/user_docs/ html &&
@@ -389,18 +389,18 @@ pipeline {
               pip install --user sphinx
               pip install --user sphinx_rtd_theme
 
-              # (Get-Content "./build/CPackConfig.cmake" | Where-Object {$_ -match 'CPACK_PACKAGE_FILE_NAME'}) -match '.*"Horace-([^"]+)".*'
-              # $build_id = $Matches[1]
-              # (Get-Content ./documentation/user_docs/docs/conf.py) | Foreach-Object {$_ -replace 'release = .*', "release = '${build_id}'"} | Set-Content  ./documentation/user_docs/docs/conf.py
+              (Get-Content "./build/CPackConfig.cmake" | Where-Object {$_ -match 'CPACK_PACKAGE_FILE_NAME'}) -match '.*"Horace-([^"]+)".*'
+              $build_id = $Matches[1]
+              (Get-Content ./documentation/user_docs/docs/conf.py) | Foreach-Object {$_ -replace 'release = .*', "release = '${build_id}'"} | Set-Content  ./documentation/user_docs/docs/conf.py
 
               ./documentation/user_docs/make.bat html
               ./documentation/user_docs/make.bat html
               # Undo change to allow checkout
               git checkout ./documentation/user_docs/docs/conf.py
 
-              # Foreach ($f in Get-ChildItem -Path './documentation/user_docs/build/html' -Filter *.html) {
-              #   (Get-Content "./documentation/user_docs/build/html/$f") | Where-Object {$_ -notmatch '[NULL]'} | Set-Content "./documentation/user_docs/build/html/$f"
-              # }
+              Foreach ($f in Get-ChildItem -Path './documentation/user_docs/build/html' -Filter *.html) {
+                (Get-Content "./documentation/user_docs/build/html/$f") | Where-Object {$_ -notmatch '\\[NULL\\]'} | Set-Content "./documentation/user_docs/build/html/$f"
+              }
               Compress-Archive -Path ./documentation/user_docs/build/html/* -DestinationPath "./docs.zip"
             '''
             archiveArtifacts(
@@ -418,15 +418,15 @@ pipeline {
       steps {
         script {
           if (isUnix()) {
-            // sh '''
-            //   module load cmake/\$CMAKE_VERSION &&
-            //   module load matlab/\$MATLAB_VERSION &&
-            //   module load gcc/\$GCC_VERSION &&
-            //   ./tools/build_config/build.sh --test
-            // '''
+            sh '''
+              module load cmake/\$CMAKE_VERSION &&
+              module load matlab/\$MATLAB_VERSION &&
+              module load gcc/\$GCC_VERSION &&
+              ./tools/build_config/build.sh --test
+            '''
           }
           else {
-            // powershell './tools/build_config/build.ps1 -test'
+            powershell './tools/build_config/build.ps1 -test'
           }
         }
       }
