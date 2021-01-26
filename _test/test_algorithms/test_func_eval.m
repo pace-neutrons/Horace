@@ -3,11 +3,17 @@ classdef test_func_eval < TestCase
     properties
         sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw'
         sqw_1d_file_path = '../test_sqw_file/sqw_1d_1.sqw'
+        sqw_2d;
     end
 
     methods
+        function obj = test_func_eval(~)
+            obj = obj@TestCase('test_func_eval');
+            obj.sqw_2d = sqw(obj.sqw_2d_file_path);
+        end
+
         function test_you_apply_func_eval_to_an_sqw_object(obj)
-            sqw_in = sqw(obj.sqw_2d_file_path);
+            sqw_in = obj.sqw_2d;
 
             func = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
             pars = {2, 3, 6};
@@ -22,7 +28,7 @@ classdef test_func_eval < TestCase
         end
 
         function test_you_can_apply_func_eval_to_array_of_sqw_objects(obj)
-            sqw_in = sqw(obj.sqw_2d_file_path);
+            sqw_in = obj.sqw_2d;
             sqws_in = repmat(sqw_in, [2, 3]);
 
             func = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
@@ -41,7 +47,7 @@ classdef test_func_eval < TestCase
         end
 
         function test_SQW_error_if_sqws_in_array_have_different_dimensions(obj)
-            sqws_in = [sqw(obj.sqw_1d_file_path), sqw(obj.sqw_2d_file_path)];
+            sqws_in = [sqw(obj.sqw_1d_file_path), obj.sqw_2d];
 
             func = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
             pars = {2, 3, 6};
@@ -50,9 +56,26 @@ classdef test_func_eval < TestCase
         end
 
         function test_you_can_apply_func_eval_to_an_sqw_file(obj)
+            func = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
+            pars = {2, 3, 6};
+            sqw_out = func_eval(obj.sqw_2d_file_path, func, pars);
+
+            assertElementsAlmostEqual( ...
+                sqw_out.data.s(end, :), ...
+                [4.0150, 4.0238, 4.0342, 4.0462, 4.0598, 4.0750, 4.0918, ...
+                 4.1102, 4.1302, 4.1518, 4.1750] ...
+            );
+            sqw_in = obj.sqw_2d;
+            obj.validate_func_eval_output(sqw_in, sqw_out);
+        end
+
+        function test_you_can_apply_func_eval_to_sqw_obj_and_output_to_file(obj)
         end
 
         function test_you_can_apply_func_eval_to_cell_array_of_sqw_files(obj)
+        end
+
+        function test_you_can_apply_func_eval_to_mix_of_sqw_objects_and_files(obj)
         end
 
         function test_you_can_apply_func_eval_to_a_dnd_object(obj)
