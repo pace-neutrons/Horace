@@ -52,7 +52,7 @@ classdef test_func_eval < TestCase
             func = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
             pars = {2, 3, 6};
             f = @() func_eval(sqws_in, func, pars);
-            assertExceptionThrown(f, 'SQW:func_eval');
+            assertExceptionThrown(f, 'SQW:func_eval:unequal_dims');
         end
 
         function test_you_can_apply_func_eval_to_an_sqw_file(obj)
@@ -67,6 +67,14 @@ classdef test_func_eval < TestCase
             );
             sqw_in = obj.sqw_2d;
             obj.validate_func_eval_output(sqw_in, sqw_out);
+        end
+
+        function test_SQW_error_applying_func_eval_to_0D_sqw(~)
+            sqw_in = sqw();
+            func = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
+            pars = {2, 3, 6};
+            f = @() func_eval(sqw_in, func, pars);
+            assertExceptionThrown(f, 'SQW:func_eval:zero_dim_object');
         end
 
         function test_you_can_apply_func_eval_to_sqw_obj_and_output_to_file(obj)

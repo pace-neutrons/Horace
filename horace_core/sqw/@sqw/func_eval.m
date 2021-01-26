@@ -75,7 +75,7 @@ function wout = func_eval (win, func_handle, pars, varargin)
 options = {'all'};
 [ok,mess,all_bins]=parse_char_options(varargin,options);
 if ~ok
-    error('FUNC_EVAL:invalid_argument',mess);
+    error('SQW:func_eval:invalid_argument', mess);
 end
 
 % Input sqw objects must have equal no. of dimensions in image or the input
@@ -84,7 +84,7 @@ end
 if numel(win) > 1
     input_dims = arrayfun(@(x) dimensions(x), win);
     if ~all(input_dims(1) == input_dims)
-        error('SQW:func_eval', ...
+        error('SQW:func_eval:unequal_dims', ...
               ['Input sqw objects must have equal image dimensions.\n' ...
                'Found dimensions [%s].'], ...
               num2str(input_dims));
@@ -94,12 +94,10 @@ end
 wout = copy(win);
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
-% Check if any objects are zero dimensional before evaluating fuction, to save on possible expensive computations
-% before a 0D object is found in the array
-for i = 1:numel(win)
-    if isempty(win(i).data.pax)
-        error('func_eval not supported for zero dimensional objects');
-    end
+% Check if any objects are zero dimensional before evaluating function
+if any(arrayfun(@(x) isempty(x.data.pax), win))
+    error('SQW:func_eval:zero_dim_object', ...
+              'func_eval not supported for zero dimensional objects');
 end
 
 % Evaluate function for each element of the array of sqw objects
