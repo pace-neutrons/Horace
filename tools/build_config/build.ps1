@@ -36,6 +36,10 @@ param (
   [switch][Alias("p")]$package,
   # Print the versions of libraries being used e.g. Matlab.
   [switch][Alias("v")]$print_versions,
+  # Build docs
+  [switch][Alias("d")]$docs,
+  # Push docs to github
+  [switch]$push_docs,
   # Call Get-Help on this script and exit.
   [switch][Alias("h")]$help,
 
@@ -188,6 +192,43 @@ function Invoke-Package {
   }
 }
 
+function Invoke-Build-Docs {
+  (Get-Content "./build/CPackConfig.cmake" | Where-Object {$_ -match 'CPACK_PACKAGE_FILE_NAME'}) -match '.*"Horace-([^"]+)".*'
+  $build_id = $Matches[1]
+  (Get-Content ./documentation/user_docs/docs/conf.py) | Foreach-Object {$_ -replace 'release = .*', "release = '${build_id}'"} | Set-Content  ./documentation/user_docs/docs/conf.py
+
+  ./documentation/user_docs/make.bat html
+  ./documentation/user_docs/make.bat html
+  # Undo change to allow checkout
+  git checkout ./documentation/user_docs/docs/conf.py
+
+  Foreach ($f in Get-ChildItem -Path './documentation/user_docs/build/html' -Filter *.html) {
+      (Get-Content "./documentation/user_docs/build/html/$f") | Where-Object {$_ -notmatch '\\[NULL\\]'} | Set-Content "./documentation/user_docs/build/html/$f"
+  }
+  Compress-Archive -Path ./documentation/user_docs/build/html/* -DestinationPath "./docs.zip"
+  if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+  }
+}
+
+function Invoke-Push-Docs {
+  git config --local user.name "PACE CI Build Agent"
+  git config --local user.email "pace.builder.stfc@gmail.com"
+  git remote set-url --push origin "https://pace-builder:$(${env:api_token}.trim())@github.com/pace-neutrons/Horace"
+  git checkout gh-pages
+  git pull
+  Set-Content -Value "Bypassing Jekyll on GitHub Pages" -Path .nojekyll
+  git add .nojekyll
+  git rm -rf --ignore-unmatch ./unstable
+  Copy-Item -Path "./documentation/user_docs/build/html" -Destination "./unstable" -Recurse
+  git add unstable
+  git commit -m "Document build from CI"
+  git push origin gh-pages
+  if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+  }
+}
+
 # Resolve/set default parameters
 if ($build_dir -eq "") {
   $build_dir = Join-Path -Path "$HORACE_ROOT" -ChildPath "build"
@@ -215,4 +256,12 @@ if ($test -eq $true) {
 
 if ($package -eq $true) {
   Invoke-Package -build_dir "$build_dir"
+}
+
+if ($docs -eq $true) {
+  Invoke-Build-Docs
+}
+
+if ($push_docs -eq $true) {
+  Invoke-Push-Docs
 }

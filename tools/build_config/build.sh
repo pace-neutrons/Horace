@@ -85,6 +85,41 @@ function run_package() {
   echo_and_run "cpack -G TGZ"
 }
 
+function build_docs() {
+    # Update release numbers
+    build_id=$(sed -nr '/CPACK_PACKAGE_FILE_NAME/{s/.*"Horace-([^"]+)".*/\\1/p};' ./build/CPackConfig.cmake)
+    sed -i -r 's/release = .*/release = "'${build_id}'"/' ./documentation/user_docs/docs/conf.py
+    make -C ./documentation/user_docs/ html
+    make -C ./documentation/user_docs/ html
+
+    # Undo change to allow checkout
+    git checkout ./documentation/user_docs/docs/conf.py
+
+    # Remove dead links
+    sed -i -r '/\\[NULL\\]/d' ./documentation/user_docs/build/html/*html
+
+    # Compress for artifact
+    cd ./documentation/user_docs/build/html
+    tar -czf docs.tar.gz ./*
+    cd -
+    mv ./documentation/user_docs/build/html/docs.tar.gz .
+}
+
+function push_built_docs() {
+    git config --local user.name "PACE CI Build Agent"
+    git config --local user.email "pace.builder.stfc@gmail.com"
+    git remote set-url --push origin "https://pace-builder:"\${api_token## }"@github.com/pace-neutrons/Horace"
+    git checkout gh-pages
+    git pull
+    echo "Bypassing Jekyll on GitHub Pages" > .nojekyll
+    git add .nojekyll
+    git rm -rf --ignore-unmatch ./unstable
+    cp -r ./documentation/user_docs/build/html ./unstable
+    git add unstable
+    git commit -m "Document build from CI"
+    git push origin gh-pages
+}
+
 function print_help() {
   readonly local help_msg="Script to build, run static analysis, test and package Horace.
 
@@ -153,6 +188,8 @@ function main() {
         -t|--test) test=$TRUE; shift ;;
         -a|--analyze) analyze=$TRUE; shift ;;
         -p|--package) package=$TRUE; shift ;;
+        -d|--docs) docs=$TRUE; shift;;
+        --push-docs) push_docs=$TRUE; shift;;
         -v|--print_versions) print_versions=$TRUE; shift ;;
         -h|--help) print_help; exit 0 ;;
         # options
@@ -187,6 +224,14 @@ function main() {
 
   if ((package)); then
     run_package
+  fi
+
+  if ((docs)); then
+    build_docs
+  fi
+
+  if ((push_docs)); then
+    push_built_docs
   fi
 }
 

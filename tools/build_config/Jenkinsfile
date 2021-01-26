@@ -156,6 +156,16 @@ properties([
       description: 'The version of CppCheck tooling to load to provide the code-style checks.',
       name: 'CPPCHECK_VERSION',
       trim: true
+    ),
+    booleanParam(
+      defaultValue: false,
+      description: 'If this pipeline is to build docs.',
+      name: 'build_docs'
+    ),
+    booleanParam(
+      defaultValue: false,
+      description: 'If this pipeline is to push docs.',
+      name: 'push_docs'
     )
   ])
 ])
@@ -360,6 +370,9 @@ pipeline {
     }
 
     stage('Build-Docs') {
+      when {
+        expression {env.build_docs}
+      }
       steps {
         script {
           if (isUnix()) {
@@ -368,16 +381,7 @@ pipeline {
                 pip install --user sphinx &&
                 pip install --user sphinx_rtd_theme &&
                 export PATH=${PATH}:~/.local/bin &&
-                build_id=$(sed -nr '/CPACK_PACKAGE_FILE_NAME/{s/.*"Horace-([^"]+)".*/\\1/p};' ./build/CPackConfig.cmake) &&  # Update release numbers
-                sed -i -r 's/release = .*/release = "'${build_id}'"/' ./documentation/user_docs/docs/conf.py &&
-                make -C ./documentation/user_docs/ html &&
-                make -C ./documentation/user_docs/ html &&
-                git checkout ./documentation/user_docs/docs/conf.py && # Undo change to allow checkout
-                sed -i -r '/\\[NULL\\]/d' ./documentation/user_docs/build/html/*html && # Remove dead links
-                cd ./documentation/user_docs/build/html &&
-                tar -czf docs.tar.gz ./* &&
-                cd - &&
-                mv ./documentation/user_docs/build/html/docs.tar.gz .
+                ./tools/build_config/build.sh --docs
             '''
             archiveArtifacts(
               artifacts: 'docs.tar.gz',
@@ -388,20 +392,7 @@ pipeline {
             powershell '''
               pip install --user sphinx
               pip install --user sphinx_rtd_theme
-
-              (Get-Content "./build/CPackConfig.cmake" | Where-Object {$_ -match 'CPACK_PACKAGE_FILE_NAME'}) -match '.*"Horace-([^"]+)".*'
-              $build_id = $Matches[1]
-              (Get-Content ./documentation/user_docs/docs/conf.py) | Foreach-Object {$_ -replace 'release = .*', "release = '${build_id}'"} | Set-Content  ./documentation/user_docs/docs/conf.py
-
-              ./documentation/user_docs/make.bat html
-              ./documentation/user_docs/make.bat html
-              # Undo change to allow checkout
-              git checkout ./documentation/user_docs/docs/conf.py
-
-              Foreach ($f in Get-ChildItem -Path './documentation/user_docs/build/html' -Filter *.html) {
-                (Get-Content "./documentation/user_docs/build/html/$f") | Where-Object {$_ -notmatch '\\[NULL\\]'} | Set-Content "./documentation/user_docs/build/html/$f"
-              }
-              Compress-Archive -Path ./documentation/user_docs/build/html/* -DestinationPath "./docs.zip"
+              ./tools/build_config/build.ps1 -docs
             '''
             archiveArtifacts(
               artifacts: 'docs.zip',
@@ -462,43 +453,17 @@ pipeline {
 
     stage('Update docs') {
       when {
-        expression {env.RELEASE_TYPE == "nightly"}
+        expression {env.push_docs}
       }
       steps {
         withCredentials([string(credentialsId: 'GitHub_API_Token',
                                 variable: 'api_token')]) {
           script {
             if (isUnix()) {
-              sh '''
-              git config --local user.name "PACE CI Build Agent" &&
-              git config --local user.email "pace.builder.stfc@gmail.com" &&
-              git remote set-url --push origin "https://pace-builder:"\${api_token## }"@github.com/pace-neutrons/Horace" &&
-              git checkout gh-pages &&
-              git pull &&
-              echo "Bypassing Jekyll on GitHub Pages" > .nojekyll &&
-              git add .nojekyll &&
-              git rm -rf --ignore-unmatch ./unstable &&
-              cp -r ./documentation/user_docs/build/html ./unstable &&
-              git add unstable &&
-              git commit -m "Document build from CI" &&
-              git push origin gh-pages
-            '''
+              sh './tools/build_config/build.sh --push_docs'
             }
             else {
-              powershell '''
-              git config --local user.name "PACE CI Build Agent"
-              git config --local user.email "pace.builder.stfc@gmail.com"
-              git remote set-url --push origin "https://pace-builder:$(${env:api_token}.trim())@github.com/pace-neutrons/Horace"
-              git checkout gh-pages
-              git pull
-              Set-Content -Value "Bypassing Jekyll on GitHub Pages" -Path .nojekyll
-              git add .nojekyll
-              git rm -rf --ignore-unmatch ./unstable
-              Copy-Item -Path "./documentation/user_docs/build/html" -Destination "./unstable" -Recurse
-              git add unstable
-              git commit -m "Document build from CI"
-              git push origin gh-pages
-            '''
+              powershell './tools/build_config/build.ps1 -push_docs'
 
             }
           }
