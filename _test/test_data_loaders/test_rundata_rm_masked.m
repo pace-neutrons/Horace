@@ -34,7 +34,7 @@ classdef test_rundata_rm_masked< TestCase
             assertEqual(run.ERR,err);
             assertEqual(run.det_par,det);
         end
-        function test_works_removesNAN(~)
+        function test_works_removesNaNandInf(~)
             run=rundata();
             run.S=ones(3,5);
             run.ERR=ones(3,5);
@@ -67,7 +67,7 @@ classdef test_rundata_rm_masked< TestCase
             assertEqual(numel(det.width),5);
         end
         
-        function test_inf_masking_disabled(~)
+        function test_Inf_masking_disabled(~)
             run=rundata();
             run.S=ones(3,5);
             run.ERR=ones(3,5);
@@ -84,7 +84,7 @@ classdef test_rundata_rm_masked< TestCase
             assertEqual(numel(det.width),4);
         end
         
-        function test_nan_masking_disabled(~)
+        function test_NaN_masking_disabled(~)
             run=rundata();
             run.S=ones(3,5);
             run.ERR=ones(3,5);
