@@ -1,5 +1,5 @@
 function sz = hlp_serial_size(v)
-% Calculate the size (in bytes) of Matlab structure, woudl be produced by
+% Calculate the size (in bytes) of Matlab structure, which would be produced by
 % hpl_serialize routine. Deduced from hpl_serialize/
 %
 % See also:
@@ -14,6 +14,16 @@ function sz = hlp_serial_size(v)
 %
 %   dispatch according to type
 %
+
+% Always initialise first
+global types_size;
+if isempty(types_size)
+    classes = {'double','single','int8','uint8','int16','uint16','int32','uint32','int64','uint64'};
+    sizes = [8,4,1,1,2,2,4,4,8,8];
+    types_size = containers.Map(classes,sizes);
+end
+
+
 if isnumeric(v)
     sz = serial_size_numeric(v);
 elseif ischar(v)
@@ -45,12 +55,6 @@ end
 function sz = serial_size_scalar(v)
 
 global types_size;
-if isempty(types_size)
-    classes = {'double','single','int8','uint8','int16','uint16','int32','uint32','int64','uint64'};
-    sizes = [8,4,1,1,2,2,4,4,8,8];
-    types_size = containers.Map(classes,sizes);
-end
-
 
 sz = 1+types_size(class(v));
 end
@@ -66,8 +70,8 @@ elseif sum(size(v)) == 0
     sz = 1;
 else
     % general char array: Tag & Number of dimensions, Dimensions, Data
-    sz = 2+2*numel(size(v))+numel(v);
-    %m = [uint8(132); ndims(v); typecast(uint32(size(v)),'uint8').'; uint8(v(:))];
+    sz = 2+4*numel(size(v))+numel(v);
+    %m = [uint8(132); uint8(ndims(v)); typecast(uint32(size(v)),'uint8').'; uint8(v(:))];
 end
 end
 
@@ -100,7 +104,7 @@ if issparse(v)
         sz = sz+serial_size_numeric_simple(i)+serial_size_numeric_simple(j)+1+serial_size_numeric_simple(s);
         %m = [m; serialize_numeric_simple(i); serialize_numeric_simple(j); 1; serialize_numeric_simple(s)];
     else
-        sz = sz+serial_size_numeric_simple(i)+serial_size_numeric_simple(j)+1+serial_size_numeric_simple(real(s));
+        sz = sz+serial_size_numeric_simple(i)+serial_size_numeric_simple(j)+1+serial_size_numeric_simple(real(s))+serial_size_numeric_simple(imag(s));
         %m = [m; serialize_numeric_simple(i); serialize_numeric_simple(j); 0; serialize_numeric_simple(real(s)); serialize_numeric_simple(imag(s))];
     end
 elseif ~isreal(v)
@@ -202,7 +206,7 @@ if sizeprod == 1
 elseif isempty(v)
     % empty cell array
     %m = [uint8(33); ndims(v); typecast(uint32(size(v)),'uint8').'];
-    sz = 1+1+4*nunel(size(v));
+    sz = 1+1+4*numel(size(v));
 else
     % some non-scalar elements
     dims = cellfun('ndims',v);
