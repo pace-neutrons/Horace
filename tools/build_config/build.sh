@@ -87,9 +87,8 @@ function run_package() {
 
 function build_docs() {
     # Update release numbers
-    build_id=$(sed -nr '/CPACK_PACKAGE_FILE_NAME/{s/.*"Horace-([^"]+)".*/\\1/p};' ./build/CPackConfig.cmake)
+    build_id=$(sed -nr '/CPACK_PACKAGE_FILE_NAME/{s/.*"Horace-([^"]+)".*/\1/p};' ./build/CPackConfig.cmake)
     sed -i -r 's/release = .*/release = "'${build_id}'"/' ./documentation/user_docs/docs/conf.py
-    make -C ./documentation/user_docs/ html
     make -C ./documentation/user_docs/ html
 
     # Undo change to allow checkout
@@ -108,7 +107,7 @@ function build_docs() {
 function push_built_docs() {
     git config --local user.name "PACE CI Build Agent"
     git config --local user.email "pace.builder.stfc@gmail.com"
-    git remote set-url --push origin "https://pace-builder:"\${api_token## }"@github.com/pace-neutrons/Horace"
+    git remote set-url --push origin "https://pace-builder:"${api_token## }"@github.com/pace-neutrons/Horace"
     git checkout gh-pages
     git pull
     echo "Bypassing Jekyll on GitHub Pages" > .nojekyll
@@ -144,6 +143,10 @@ flags:
       Pacakge Horace into a .tar.gz file.
   -v, --print_versions
       Print the versions of libraries being used e.g. Matlab.
+  -d, --docs
+      Build user docs
+  --push_docs
+      Push docs up to Horace GitHub repo
   -h, --help
       Print help message and exit.
 options:
@@ -172,6 +175,8 @@ function main() {
   local test=$FALSE
   local analyze=$FALSE
   local package=$FALSE
+  local docs=$FALSE
+  local push_docs=$FALSE
   local print_versions=$FALSE
   local build_tests="ON"
   local build_config='Release'

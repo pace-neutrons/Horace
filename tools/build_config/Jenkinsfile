@@ -371,7 +371,7 @@ pipeline {
 
     stage('Build-Docs') {
       when {
-        expression {env.build_docs}
+        expression {env.build_docs.toBoolean()}
       }
       steps {
         script {
@@ -453,14 +453,14 @@ pipeline {
 
     stage('Update docs') {
       when {
-        expression {env.push_docs}
+        expression {env.build_docs.toBoolean() && env.push_docs.toBoolean()}
       }
       steps {
         withCredentials([string(credentialsId: 'GitHub_API_Token',
                                 variable: 'api_token')]) {
           script {
             if (isUnix()) {
-              sh './tools/build_config/build.sh --push_docs'
+              sh './tools/build_config/build.sh --push-docs'
             }
             else {
               powershell './tools/build_config/build.ps1 -push_docs'

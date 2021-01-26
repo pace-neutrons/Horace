@@ -192,18 +192,23 @@ function Invoke-Package {
   }
 }
 
-function Invoke-Build-Docs {
-  (Get-Content "./build/CPackConfig.cmake" | Where-Object {$_ -match 'CPACK_PACKAGE_FILE_NAME'}) -match '.*"Horace-([^"]+)".*'
+function Invoke-Docs {
+    (Get-Content "./build/CPackConfig.cmake" |
+      Where-Object {$_ -match 'CPACK_PACKAGE_FILE_NAME'}) -match '.*"Horace-([^"]+)".*'
   $build_id = $Matches[1]
-  (Get-Content ./documentation/user_docs/docs/conf.py) | Foreach-Object {$_ -replace 'release = .*', "release = '${build_id}'"} | Set-Content  ./documentation/user_docs/docs/conf.py
 
-  ./documentation/user_docs/make.bat html
+  (Get-Content ./documentation/user_docs/docs/conf.py) |
+      Foreach-Object {$_ -replace 'release = .*', "release = '${build_id}'"} |
+      Set-Content  ./documentation/user_docs/docs/conf.py
+
   ./documentation/user_docs/make.bat html
   # Undo change to allow checkout
   git checkout ./documentation/user_docs/docs/conf.py
 
   Foreach ($f in Get-ChildItem -Path './documentation/user_docs/build/html' -Filter *.html) {
-      (Get-Content "./documentation/user_docs/build/html/$f") | Where-Object {$_ -notmatch '\\[NULL\\]'} | Set-Content "./documentation/user_docs/build/html/$f"
+      (Get-Content "./documentation/user_docs/build/html/$f") |
+        Where-Object {$_ -notmatch '\\[NULL\\]'} |
+        Set-Content "./documentation/user_docs/build/html/$f"
   }
   Compress-Archive -Path ./documentation/user_docs/build/html/* -DestinationPath "./docs.zip"
   if ($LASTEXITCODE -ne 0) {
@@ -211,12 +216,14 @@ function Invoke-Build-Docs {
   }
 }
 
-function Invoke-Push-Docs {
+function Invoke-Push {
   git config --local user.name "PACE CI Build Agent"
   git config --local user.email "pace.builder.stfc@gmail.com"
   git remote set-url --push origin "https://pace-builder:$(${env:api_token}.trim())@github.com/pace-neutrons/Horace"
   git checkout gh-pages
+  # Keep up to date
   git pull
+
   Set-Content -Value "Bypassing Jekyll on GitHub Pages" -Path .nojekyll
   git add .nojekyll
   git rm -rf --ignore-unmatch ./unstable
@@ -259,9 +266,9 @@ if ($package -eq $true) {
 }
 
 if ($docs -eq $true) {
-  Invoke-Build-Docs
+  Invoke-Docs
 }
 
 if ($push_docs -eq $true) {
-  Invoke-Push-Docs
+  Invoke-Push
 }
