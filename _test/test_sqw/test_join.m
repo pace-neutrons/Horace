@@ -20,7 +20,9 @@ classdef test_join < TestCase
         end
 
         % Test disabled as there is a know bug with the returned pixeldata (#531)
-        function DISABLED_test_split_and_join_returns_same_object_including_pixels(obj)
+        function test_split_and_join_returns_same_object_including_pixels(obj)
+            skipTest('There is a known bug with the returned pixeldata (#531)');
+
             fpath = fullfile(obj.test_dir, 'test_sqw_file', 'sqw_2d_1.sqw');
             sqw_obj = read_sqw(fpath);
             split_obj = split(sqw_obj);
