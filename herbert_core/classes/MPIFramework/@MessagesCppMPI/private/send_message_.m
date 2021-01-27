@@ -25,7 +25,7 @@ task_id = uint32(task_id);
 tag =int32(mess.tag);
 %
 try
-    contents = hlp_serialize(mess);
+    contents = serialise(mess);
     if mess.is_persistent % use interrupt channel to transfer message
         tag = int32(obj.interrupt_chan_tag_);
     end
