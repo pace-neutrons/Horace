@@ -20,6 +20,8 @@ target_include_directories("${MEX_NAME}"
     PRIVATE "${MPI_CXX_INCLUDE_PATH}")
 target_link_libraries("${MEX_NAME}" "${MPI_CXX_LIBRARIES}")
 
+add_subdirectory(serialiser)
+
 if(UNIX)
     # For MPICH on Linux it's necessary to set relative RPATH values so dynamic
     # libraries can be located by the mex library.

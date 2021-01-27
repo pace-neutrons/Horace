@@ -1,11 +1,11 @@
 classdef test_rundata< TestCase
-    %    
+    %
     properties
         log_level;
         test_data_path;
         
         test_par_file = 'demo_par.par';
-        EXPECTED_DET_NUM = 28160        
+        EXPECTED_DET_NUM = 28160
     end
     methods
         function fn=f_name(obj,short_filename)
@@ -92,7 +92,7 @@ classdef test_rundata< TestCase
         function test_defaultsOK_andFixed(obj)
             nn=numel(fields(rundata));
             % number of public fields by default;
-            assertEqual(14,nn);
+            assertEqual(15,nn);
         end
         function test_build_from_wrong_struct(obj)
             a.x=10;
@@ -100,7 +100,7 @@ classdef test_rundata< TestCase
             f = @()rundata(a);
             assertExceptionThrown(f,'RUNDATA:set_fields');
         end
-        function test_build_from_good_struct(obj)
+        function test_build_from_good_struct(~)
             a.efix=10;
             a.psi=2;
             dat=rundata(a);
@@ -108,7 +108,7 @@ classdef test_rundata< TestCase
             assertEqual(dat.lattice.psi,2);
         end
         %
-        function test_build_from_Other_rundata(obj)
+        function test_build_from_Other_rundata(~)
             ro = rundata();
             rn = rundata(ro);
             assertEqual(ro,rn);
@@ -480,8 +480,71 @@ classdef test_rundata< TestCase
             assertTrue(isempty(mess));
             assertTrue(isempty(undef_list));
         end
+        function test_run_id_set_overrides(obj)
+            source = f_name(obj,'MAP11014.nxspe');
+            rd = rundata(source );
+            assertEqual(rd.run_id,11014);
+            
+            rd.run_id = 1204;
+            assertEqual(rd.run_id,1204);
+        end
+        
+        function test_run_id_set(~)
+            rd = rundata();
+            rd.run_id = 1204;
+            assertEqual(rd.run_id,1204);
+        end
+        
+        function test_run_id_present(obj)
+            source = f_name(obj,'MAP11014.nxspe');
+            rd = rundata(source );
+            id =  rd.run_id;
+            assertEqual(id,11014);
+        end
+        
         %
-        function test_saveNXSPE_unbound(obj)
+        function test_run_id_missing(obj)
+            test_file = fullfile(tmp_dir,'test_run_idNXSPE_fake.nxspe');
+            clob = onCleanup(@()delete(test_file));
+            source = f_name(obj,'MAP11014.nxspe');
+            copyfile(source,test_file);
+            
+            rd = rundata(test_file);
+            id =  rd.run_id;
+            assertEqual(id,1);
+        end
+        %
+        function test_run_id_empty(~)
+            rd = rundata();
+            id =  rd.run_id;
+            assertTrue(isempty(id));
+        end
+        %
+        function test_extract_runid_long_complex(~)
+            fname =fullfile('cycle20201','MAR1044one2oneEi4.5.nxs');
+            id = rundata.extract_id_from_filename(fname);
+            assertEqual(1044,id);
+        end
+        %
+        function test_extract_runid_complex(~)
+            fname = 'MAR1044one2oneEi4.5.nxs';
+            id = rundata.extract_id_from_filename(fname);
+            assertEqual(1044,id);
+        end
+        %
+        function test_extract_runid_simple(~)
+            fname = 'MAR1044.nxs';
+            id = rundata.extract_id_from_filename(fname);
+            assertEqual(1044,id);
+        end
+        %
+        function test_extract_runid_empty(~)
+            fname = 'nlalflalel';
+            id = rundata.extract_id_from_filename(fname);
+            assertEqual(1,id);
+        end
+        %
+        function test_saveNXSPE_unbound(~)
             test_file = fullfile(tmp_dir,'test_saveNXSPE_unbound.nxspe');
             clob = onCleanup(@()delete(test_file));
             if exist(test_file,'file')==2

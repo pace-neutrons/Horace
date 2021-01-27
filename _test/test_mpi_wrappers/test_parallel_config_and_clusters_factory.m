@@ -3,7 +3,7 @@ classdef test_parallel_config_and_clusters_factory < TestCase
     % not available.
     properties
     end
-    
+
     methods
         function obj = test_parallel_config_and_clusters_factory(varargin)
             if ~exist('name','var')
@@ -19,14 +19,14 @@ classdef test_parallel_config_and_clusters_factory < TestCase
             clob1 = onCleanup(@()set(pc,cur_config));
             pc.saveable = false;
             clob2 = onCleanup(@()set(pc,'saveable',true));
-            
+
             if strcmpi(pc.parallel_cluster,'none')
                 should_throw = true;
             else
                 should_throw = false;
             end
-            
-            
+
+
             all_clusters_names = MPI_clusters_factory.instance().known_cluster_names;
             assertEqual(numel(all_clusters_names),3);
             assertEqual(all_clusters_names{1},'herbert');
@@ -46,20 +46,20 @@ classdef test_parallel_config_and_clusters_factory < TestCase
                 all_cfg = MPI_clusters_factory.instance().get_all_configs('herbe');
                 assertEqual(numel(all_cfg),1);
                 assertEqual(all_cfg{1},'local');
-                
+
             end
-            
-            
+
+
             all_cfg = MPI_clusters_factory.instance().get_all_configs('parp');
             assertEqual(numel(all_cfg),1);
             assertEqual(all_cfg{1},'default');
-            
+
             all_cfg = MPI_clusters_factory.instance().get_all_configs('m');
-            
+
             assertTrue(numel(all_cfg)>1);
             % first cluster after changing from paropool to mpiexec_mpi would be 'local'
             assertEqual(all_cfg{1},'local');
-            
+
             try
                 mf = MPI_clusters_factory.instance();
                 mf.parallel_cluster ='parp';
@@ -82,7 +82,7 @@ classdef test_parallel_config_and_clusters_factory < TestCase
             try
                 mf = MPI_clusters_factory.instance();
                 mf.parallel_cluster ='non_existent';
-                
+
             catch Err
                 assertTrue(strcmpi(Err.identifier,'PARALLEL_CONFIG:invalid_argument'))
             end
@@ -94,23 +94,21 @@ classdef test_parallel_config_and_clusters_factory < TestCase
                 if ~(should_throw && strcmpi(ME.identifier,'PARALLEL_CONFIG:not_available'))
                     rethrow(ME);
                 end
-                
+
             end
         end
         %
         function test_parallel_config(obj)
             pc = parallel_config;
             if strcmpi(pc.parallel_cluster,'none')
-                warning('PARALLEL_CONFIG:not_available',...
-                    'Parallel framework is not installed properly. Not tested');
-                return
+                skipTest('Parallel framework is not installed properly. Not tested');
             end
             % define current config data to return it after testing
             cur_config = pc.get_data_to_store();
             clob1 = onCleanup(@()set(pc,cur_config));
             pc.saveable = false;
             clob2 = onCleanup(@()set(pc,'saveable',true));
-            
+
             pc.parallel_cluster='her';
             assertEqual(pc.parallel_cluster,'herbert');
             all_clcfg = pc.known_clust_configs;
@@ -140,7 +138,7 @@ classdef test_parallel_config_and_clusters_factory < TestCase
             else
                 assertFalse(true,'Invalid Framework initialized');
             end
-            
+
             old_pfm = pc.parallel_cluster;
             pc.parallel_cluster='m';
             if strcmpi(old_pfm,pc.parallel_cluster)
@@ -149,7 +147,7 @@ classdef test_parallel_config_and_clusters_factory < TestCase
             elseif strcmpi(pc.parallel_cluster,'mpiexec_mpi')
                 all_clcfg = pc.known_clust_configs;
                 assertTrue(numel(all_clcfg)>1);
-                
+
                 clust = pc.cluster_config;
                 % first cluster after changing from paropool to mpiexec_mpi would be 'local'
                 assertEqual(clust,'local');
@@ -164,39 +162,38 @@ classdef test_parallel_config_and_clusters_factory < TestCase
                     clust = pc.cluster_config;
                     assertEqual(clust,'test_lnx_cluster.lnx');
                 end
-                
+
             else
                 assertFalse(true,'Invalid Framework initialized');
             end
             pc.parallel_cluster=0;
             assertEqual(pc.parallel_cluster,'herbert');
-            
+
             old_pfm = pc.parallel_cluster;
             pc.parallel_cluster=3;
-            
+
             if strcmpi(old_pfm,pc.parallel_cluster)
                 [mess,wid] = lastwarn();
                 assertEqual(wid,'PARALLEL_CONFIG:not_available',mess)
             elseif ~strcmpi(pc.parallel_cluster,'mpiexec_mpi')
                 assertFalse(true,'Invalid Framework initialized');
             end
-            
+
             old_pfm = pc.parallel_cluster;
             pc.parallel_cluster=2;
-            
+
             if strcmpi(old_pfm,pc.parallel_cluster)
                 [mess,wid] = lastwarn();
                 assertEqual(wid,'PARALLEL_CONFIG:not_available',mess)
             elseif ~strcmpi(pc.parallel_cluster,'parpool')
                 assertFalse(true,'Invalid Framework initialized');
             end
-            
+
             pc.parallel_cluster=1;
             assertEqual(pc.parallel_cluster,'herbert');
             clust = pc.cluster_config;
             assertEqual(clust,'local');
         end
-        
+
     end
 end
-
