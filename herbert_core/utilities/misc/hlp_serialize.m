@@ -315,29 +315,29 @@ end
 
 % *container* class to byte
 function b = class2tag(cls)
-        switch cls
-                case 'string'
-                  b = uint8(0);
-                case 'double'
-                        b = uint8(1);
-                case 'single'
-                        b = uint8(2);
-                case 'int8'
-                        b = uint8(3);
-                case 'uint8'
-                        b = uint8(4);
-                case 'int16'
-                        b = uint8(5);
-                case 'uint16'
-                        b = uint8(6);
-                case 'int32'
-                        b = uint8(7);
-                case 'uint32'
-                        b = uint8(8);
-                case 'int64'
-                        b = uint8(9);
-                case 'uint64'
-                        b = uint8(10);
+    switch cls
+      case 'string'
+        b = uint8(0);
+      case 'double'
+        b = uint8(1);
+      case 'single'
+        b = uint8(2);
+      case 'int8'
+        b = uint8(3);
+      case 'uint8'
+        b = uint8(4);
+      case 'int16'
+        b = uint8(5);
+      case 'uint16'
+        b = uint8(6);
+      case 'int32'
+        b = uint8(7);
+      case 'uint32'
+        b = uint8(8);
+      case 'int64'
+        b = uint8(9);
+      case 'uint64'
+        b = uint8(10);
 
         % other tags are as follows:
         % % offset by +16: scalar variants of these...
@@ -378,8 +378,8 @@ function b = class2tag(cls)
         % case 'emptystring'
         %   b = uint8(200);
 
-                otherwise
-                        error('Unknown class');
+      otherwise
+        error('MATLAB:class2tag:unrecognised_class', 'Unknown class %s', cls);
     end
 end
 
