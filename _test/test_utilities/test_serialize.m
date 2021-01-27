@@ -77,7 +77,7 @@ classdef test_serialize < TestCase
         end
 
         function test_ser_datamessage_array(this)
-            skipTest('Old serialiser cannot handle object arrays')
+            skipTest('Old serialiser does not support serialising object arrays')
             my_struc = struct('clc',true(1,3),'a',1,'ba',single(2),'ce',[1,2,3],...
                               'dee',struct('a',10),'ei',int32([9;8;7]));
             test_obj = [DataMessage(my_struc), DataMessage(10), DataMessage('Hello')];
@@ -265,8 +265,8 @@ classdef test_serialize < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_cell_homo_mixed_complex(this)
-            skipTest('Bug in old serialiser with mixed complex');
+        function test_ser_cell_mixed_complex(this)
+            skipTest('Old serialiser has bug with mixed complex types')
             test_cell = {1+2i 2 3+1i 4};
             ser =  hlp_serialize(test_cell);
             test_cell_rec = hlp_deserialize(ser);

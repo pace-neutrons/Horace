@@ -208,8 +208,8 @@ classdef test_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_struct_list(this)
-            skipTest('Old serialiser cannot handle struct arrays')
+        function test_ser_size_struct_array(this)
+            skipTest('Old serialiser does not support serialising struct arrays')
             test_struct = struct('HonkyTonk', {1, 2, 3});
             ser =  hlp_serialize(test_struct);
             ser_siz = hlp_serial_size(test_struct);
