@@ -23,6 +23,12 @@ if ~exist('ignore_inf','var')
     ignore_inf = true;
 end
 
+if ~(ignore_nan || ignore_inf)
+    S_m= obj.S;
+    Err_m = obj.ERR;
+    det_m = obj.det_par;
+    return    
+end
 
 if ignore_nan && ignore_inf
     index_masked = isnan(obj.S)| isinf(obj.S); % masked pixels
@@ -30,11 +36,6 @@ elseif ignore_nan
     index_masked = isnan(obj.S);
 elseif ignore_inf
     index_masked = isinf(obj.S);
-else
-    S_m= obj.S;
-    Err_m = obj.ERR;
-    det_m = obj.det_par;
-    return
 end
 line_notmasked= ~any(index_masked,1);   % masked detectors (for any energy)
 
