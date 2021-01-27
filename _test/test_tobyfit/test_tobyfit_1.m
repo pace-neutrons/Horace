@@ -115,10 +115,16 @@ if save_data
     
 else
     % Read in data
-    load(datafile, 'w110a', 'w110b', 'w110arr');
+    load(datafile); % load 'w110a', 'w110b'; ignore 'w110arr'
     w110a = manage_legacy_sqw_class_rename(w110a);
     w110b = manage_legacy_sqw_class_rename(w110b);
-    w110arr = manage_legacy_sqw_class_rename(w110arr);
+    load('w110arr_as_separate_objects.mat');
+    w110arr(1) = w110c1;
+    w110arr(2) = w110c2;
+    w110arr(3) = w110c3;
+    w110arr(1) = manage_legacy_sqw_class_rename(w110arr(1));
+    w110arr(2) = manage_legacy_sqw_class_rename(w110arr(2));
+    w110arr(3) = manage_legacy_sqw_class_rename(w110arr(3));
 end
 
 % Add instrumnet and sample information to cuts

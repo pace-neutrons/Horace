@@ -22,6 +22,7 @@ classdef (Abstract) SQWDnDBase
         %     %   Detailed explanation goes here
         %     outputArg = obj.Property1 + inputArg;
         % end
+        [ok,mess,nd_ref]=dimensions_match(w,nd_ref);
     end
 
     methods (Access = protected)

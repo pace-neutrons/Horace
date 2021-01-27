@@ -102,9 +102,25 @@ else
     load(datafile, 'fe_1','fe_2','fe_arr','rb_1','rb_arr');
     fe_1 = manage_legacy_sqw_class_rename(fe_1);
     fe_2 = manage_legacy_sqw_class_rename(fe_2);
-    fe_arr = manage_legacy_sqw_class_rename(fe_arr);
+    % New SQW object not able to load old SQW object array
+    % so fe_arr has been pre-converted into 3 separate objects
+    % from the old test prior to being loaded here.
+    %fe_arr = manage_legacy_sqw_class_rename(fe_arr);
     rb_1 = manage_legacy_sqw_class_rename(rb_1);
-    rb_arr = manage_legacy_sqw_class_rename(rb_arr);
+    % New SQW object not able to load old SQW object array
+    % so rb_arr has been pre-converted into 3 separate objects
+    % from the old test prior to being loaded here.
+    %rb_arr = manage_legacy_sqw_class_rename(rb_arr);
+    load('ferbarr_as_separate_objects.mat');
+	% The objects are now inserted into the array after being
+	% loaded independently
+    fe_arr = [fea1, fea2, fea3];
+    rb_arr = [rba1;rba2];
+    fe_arr(1) = manage_legacy_sqw_class_rename(fe_arr(1));
+    fe_arr(2) = manage_legacy_sqw_class_rename(fe_arr(2));
+    fe_arr(3) = manage_legacy_sqw_class_rename(fe_arr(3));
+    rb_arr(1) = manage_legacy_sqw_class_rename(rb_arr(1));
+    rb_arr(2) = manage_legacy_sqw_class_rename(rb_arr(2));
 end
 
 % Add instrument and sample information to cuts
