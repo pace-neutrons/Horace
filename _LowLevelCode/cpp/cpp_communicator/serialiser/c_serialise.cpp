@@ -37,7 +37,7 @@ inline void write_data(uint8_t* data, size_t& memPtr, const mxArray* const input
     // Offset imaginary to end
     size_t imPtr = memPtr + (1+nElem)*compSize;
 
-    for (int i = 0; i < nElem; i+=elemSize, memPtr += compSize, imPtr += compSize) {
+    for (size_t i = 0; i < nElem; i+=elemSize, memPtr += compSize, imPtr += compSize) {
       memcpy(&data[memPtr], &toWrite[i], compSize);
       memcpy(&data[imPtr], &toWrite[i+compSize], compSize);
     }
@@ -78,7 +78,7 @@ inline void write_header(uint8_t* data, size_t& memPtr, tag_type& tag,
     tag.dim = nDims;
 
     std::vector<uint32_t> cast_dims(nDims);
-    for (int i = 0; i < nDims; i++) cast_dims[i] = (uint32_t) dims[i];
+    for (size_t i = 0; i < nDims; i++) cast_dims[i] = (uint32_t) dims[i];
 
     ser(data, memPtr, &tag, 1);
     ser(data, memPtr, cast_dims, nDims*types_size[UINT32]);
@@ -95,7 +95,7 @@ void serialise(uint8_t* data, size_t& memPtr, const mxArray* input){
   const mwSize* dims = mxGetDimensions(input);
   const size_t nDims = mxGetNumberOfDimensions(input);
 
-  for (int i=0; i < nDims; i++) {
+  for (size_t i=0; i < nDims; i++) {
     if (dims[i] > DIM_MAX) {
       mexErrMsgIdAndTxt("MATLAB:serialise:bad_size", "Dimensions of array exceed limit of uint32, cannot serialise.");
     }
@@ -114,12 +114,12 @@ void serialise(uint8_t* data, size_t& memPtr, const mxArray* input){
 
       mwIndex* ir = mxGetIr(input);
       mwIndex* jc = mxGetJc(input);
-      uint32_t nnz = jc[dims[1]];
+      size_t nnz = jc[dims[1]];
       std::vector<uint64_t> map_jc(nnz);
 
       // map Jc (see MATLAB docs on sparse arrays in MEX API)
-      for (int c = 0, n = 0; n < nnz; c++) {
-        for (int i = jc[c]; i < jc[c+1]; i++, n++) {
+      for (mwIndex c = 0, n = 0; n < nnz; c++) {
+        for (mwIndex i = jc[c]; i < jc[c+1]; i++, n++) {
           map_jc[n] = c;
         }
       }
@@ -217,13 +217,12 @@ void serialise(uint8_t* data, size_t& memPtr, const mxArray* input){
 
       ser(data, memPtr, &nFields, types_size[UINT32]);
 
-      int namePtr = memPtr + nFields*types_size[UINT32];
-      int namePtr_i = namePtr;
+      size_t namePtr = memPtr + nFields*types_size[UINT32];
 
-      int parsed = 0;
-      for (int field=0; field < nFields; field++) {
+      size_t parsed = 0;
+      for (uint32_t field=0; field < nFields; field++) {
         const char* name = mxGetFieldNameByNumber(input, field);
-        uint32_t size = strlen(name);
+        size_t size = strlen(name);
         ser(data, memPtr, &size, types_size[UINT32]);
         memcpy(&data[namePtr], name, size);
         namePtr += size;
@@ -282,7 +281,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
   mxArray* size_arr;
   mxArray* arr = const_cast<mxArray *>(prhs[0]);
   mexCallMATLAB(1, &size_arr, 1, &arr, "c_serial_size");
-  double size = mxGetScalar(size_arr);
+  size_t size = (size_t) mxGetScalar(size_arr);
   mxArray* ser_arr = mxCreateUninitNumericMatrix(size, 1, mxUINT8_CLASS, (mxComplexity) 0);
   uint8_t* serialised = (uint8_t *) mxGetData(ser_arr);
   size_t memPtr = 0;

@@ -16,8 +16,8 @@
 #include <vector>
 #include "cpp_serialise.hpp"
 
-double get_size(const mxArray *input) {
-  double size = 0.0;
+size_t get_size(const mxArray *input) {
+  size_t size = 0;
 
   tag_type tag = tag_data(input);
 
@@ -29,9 +29,9 @@ double get_size(const mxArray *input) {
       mxArray* nnz;
       mxArray* arr = const_cast<mxArray *>(input);
       mexCallMATLAB(1, &nnz, 1, &arr, "nnz");
-      double nElem = mxGetPr(nnz)[0];
+      size_t nElem = (size_t) mxGetPr(nnz)[0];
 
-      double elemSize = types_size[tag.type];
+      size_t elemSize = types_size[tag.type];
 
       size += TAG_SIZE + 2*DIMS_SIZE + NELEMS_SIZE + 2*nElem*types_size[DOUBLE] + nElem*elemSize; // Tag & Dims
 
@@ -64,7 +64,7 @@ double get_size(const mxArray *input) {
       const mwSize* dims = mxGetDimensions(input);
       size_t nDims = mxGetNumberOfDimensions(input);
 
-      double elemSize = types_size[tag.type];
+      size_t elemSize = types_size[tag.type];
 
       if (nElem == 0) { // Null
         size += TAG_SIZE + NELEMS_SIZE;
@@ -73,7 +73,7 @@ double get_size(const mxArray *input) {
         size += TAG_SIZE + elemSize;
       }
       else if (nDims == 2 && dims[0] == 1) { // List
-        size = 1 + NELEMS_SIZE + elemSize*nElem;
+        size += 1 + NELEMS_SIZE + elemSize*nElem;
       }
       else { // General array
         size += TAG_SIZE + NELEMS_SIZE*nDims + elemSize * nElem;
@@ -86,7 +86,7 @@ double get_size(const mxArray *input) {
       mxArray* conts;
       mxArray* arr = const_cast<mxArray *>(input);
       mexCallMATLAB(1, &conts, 1, &arr, "hlp_serial_sise");
-      size += mxGetPr(conts)[0];
+      size += (size_t) mxGetPr(conts)[0];
     }
     break;
 
@@ -101,9 +101,9 @@ double get_size(const mxArray *input) {
       mxArray* conts;
       // Get conts without copy
       mxArray* arr = const_cast<mxArray *>(input);
-      double class_name_size = TAG_SIZE + NELEMS_SIZE + name.size() * types_size[CHAR];
+      size_t class_name_size = TAG_SIZE + NELEMS_SIZE + name.size() * types_size[CHAR];
       mexCallMATLAB(1, &conts, 1, &arr, "get_object_conts");
-      double data_size = get_size(conts);
+      size_t data_size = get_size(conts);
 
       if (nElem == 0) {
         size += TAG_SIZE + NELEMS_SIZE;
@@ -128,14 +128,14 @@ double get_size(const mxArray *input) {
       const mwSize* dims = mxGetDimensions(input);
       size_t nDims = mxGetNumberOfDimensions(input);
 
-      size_t nFields = mxGetNumberOfFields(input);
-      double fn_size = NELEMS_SIZE*(nFields+1); // Nfields + name lens
+      int nFields = mxGetNumberOfFields(input);
+      size_t fn_size = NELEMS_SIZE*(nFields+1); // Nfields + name lens
 
       for (int field=0; field < nFields; field++) {
         fn_size += strlen(mxGetFieldNameByNumber(input, field)) * types_size[CHAR];
       }
 
-      double data_size = 0.0;
+      size_t data_size = 0;
       if (nFields > 0) {
         mxArray* arr = const_cast<mxArray *>(input);
         mxArray* conts;
@@ -165,7 +165,7 @@ double get_size(const mxArray *input) {
       const mwSize* dims = mxGetDimensions(input);
       size_t nDims = mxGetNumberOfDimensions(input);
 
-      double data_size = 0.0;
+      size_t data_size = 0;
       for (mwIndex i = 0; i < nElem; i++){
         mxArray* cellElem = mxGetCell(input, i);
         data_size += get_size(cellElem);
@@ -192,9 +192,9 @@ double get_size(const mxArray *input) {
 }
 
 /* The gateway routine. */
-void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
+void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
 
-  double size = 0.0;
+  size_t size = 0;
 
 #if defined(_LP64) || defined (_WIN64)
 #ifdef MX_COMPAT_32
@@ -213,5 +213,5 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
   for (int i=0; i<nrhs; i++)  {
     size += get_size(prhs[i]);
   }
-  plhs[0] = mxCreateDoubleScalar(size);
+  plhs[0] = mxCreateDoubleScalar((double) size);
 }
