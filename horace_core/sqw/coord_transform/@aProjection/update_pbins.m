@@ -35,7 +35,8 @@ proj_update = proj;
 
 % define existing projection from data field as data field does not
 % currently contains projection. TODO: modify data_field to contain
-% projection
+% projection.
+% This should be [axis_block0,proj0]=retrieve
 proj_update = proj_update.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
 
 % Resolve multiple integration axes
@@ -52,4 +53,4 @@ else
     
 end
 
-[pbin_update, ndims] = proj_update.calc_pbins (data.urange, pbin_update, pin, en);
+[pbin_update, ndims] = proj_update.calc_pbins (data.img_range, pbin_update, pin, en);

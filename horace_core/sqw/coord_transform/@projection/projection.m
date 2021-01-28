@@ -8,7 +8,6 @@ classdef projection<aProjection
     %  Defines coordinate transformations, used by cut_sqw when making
     %  Horace cuts
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     properties 
         %
@@ -31,7 +30,7 @@ classdef projection<aProjection
     methods(Access = protected)
         % overloads for staitc methods which define if the projection can
         % keep pixels and have mex functions defined
-        function isit= can_mex_cut_(self)
+        function isit= can_mex_cut_(~)
             % ortho projection have mex procedures defined
             isit = true;
         end
@@ -105,19 +104,23 @@ classdef projection<aProjection
         %------------------------------------------------------------------
         % Particular implementation of aProjection abstract interface
         %------------------------------------------------------------------
-        function urange_out = find_max_data_range(this,urange_in)
-            % find the whole range of input data which may contribute
-            % into the result.
-            % urange_in -- the range of the data in the initial coordinate
+        function img_range_out = find_old_img_range(this,img_range_in)
+            % find the range of initial data in the coordinate frame
+            % of the new projection.
+            % Input:
+            % img_range_in -- the range of the data in the initial coordinate
             % system.
-            urange_out  = find_ranges_(this,urange_in);
+            % Output:
+            % img_range_out -- the range the initial image data in the new
+            % (transformed) coordinate system of the cut.
+            img_range_out  = find_ranges_(this,img_range_in);
         end
         
-        function [istart,iend,irange,inside,outside] =get_irange_proj(this,urange,varargin)
+        function [istart,iend,irange,inside,outside] =get_irange_proj(this,img_range,varargin)
             % Get ranges of bins that partially or wholly lie inside an n-dimensional rectangle,
             % where the first three dimensions can be rotated and translated w.r.t. the
             % cuboid that is split into bins.
-            [istart,iend,irange,inside,outside] = get_irange_rot(this,urange,varargin{:});
+            [istart,iend,irange,inside,outside] = get_irange_rot(this,img_range,varargin{:});
         end
         %
         function [indx,ok] = get_contributing_pix_ind(this,v)

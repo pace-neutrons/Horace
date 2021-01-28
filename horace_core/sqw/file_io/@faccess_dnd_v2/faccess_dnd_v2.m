@@ -45,7 +45,6 @@ classdef faccess_dnd_v2 < dnd_binfile_common
     % and all read methods if the proper information already exists in the file.
     %
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     %
     methods
@@ -111,4 +110,3 @@ classdef faccess_dnd_v2 < dnd_binfile_common
     end
     
 end
-

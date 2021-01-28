@@ -53,14 +53,14 @@ if ~ok
     return
 end
 
-obj = obj.move_to_first_page();
-other_pix = other_pix.move_to_first_page();
+obj.move_to_first_page();
+other_pix.move_to_first_page();
 
 if obj.page_size == other_pix.page_size
     [ok, mess] = equal_to_tol(obj.data, other_pix.data, varargin{:});
     while ok && obj.has_more()
-        obj = obj.advance();
-        other_pix = other_pix.advance();
+        obj.advance();
+        other_pix.advance();
         [ok, mess] = equal_to_tol(obj.data, other_pix.data, varargin{:});
     end
 elseif ~obj.is_file_backed_()
@@ -105,11 +105,11 @@ function [ok, mess] = validate_other_pix(obj, other_pix)
         return
     end
 
-    if ~all(size(obj) == size(other_pix))
+    if obj.num_pixels ~= other_pix.num_pixels
         ok = false;
         mess = sprintf(['PixelData objects are not equal. ' ...
-                        'Argument 1 has size [%s] , argument 2 has size [%s]'], ...
-                       num2str(size(obj)), num2str(size(other_pix)));
+                        'Argument 1 has %i pixels, argument 2 has %s.'], ...
+                       obj.num_pixels, other_pix.num_pixels);
         return
     end
 end
