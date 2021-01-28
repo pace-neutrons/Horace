@@ -144,8 +144,6 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             res = mes.payload;
             res = res{1};
             assertEqual(res.grid_size,[50 50 50 50]);
-            assertElementsAlmostEqual(res.pix_range,...
-                [-1.5000 -2.1000 -0.5000 0;0 0 0.5000 35.0000]);
             % clear results of gen_tmp job
             serverfbMPI.clear_messages();
             %
@@ -154,7 +152,17 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             %write_nsqw_to_sqw(infiles,'test_sqw_file.sqw');
             %[main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
             [~,~,~,~,~,~,det,ldrs] = accumulate_headers_job.read_input_headers(tmp_files);
+            %
+            pix_range = PixelData.EMPTY_RANGE_;
+            for i=1:numel(tmp_files)
+                loc_range = ldrs{i}.get_pix_range();
+                pix_range = [min(loc_range(1,:),pix_range(1,:));...
+                    max(loc_range(2,:),pix_range(2,:))];
+            end            
+            assertElementsAlmostEqual(res.pix_range,pix_range);
+            
             assertEqual(numel(det.group),96);
+            
             
             [common_par,loop_par] = accumulate_headers_job.pack_job_pars(ldrs);
             assertTrue(isempty(common_par));
