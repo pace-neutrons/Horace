@@ -597,7 +597,9 @@ classdef test_PixelData < TestCase
             old_rng_state = rng();
             fixed_seed = 774015;
             rng(fixed_seed, 'twister');  % this seed gives an expected object_id_ = 54452
-            expected_tmp_dir = fullfile(tempdir(), 'sqw_pix54452');
+            expected_tmp_dir = fullfile( ...
+                get(parallel_config, 'working_directory'), ...
+                'sqw_pix54452');
             clean_up = onCleanup(@() rng(old_rng_state));
 
             function do_pix_creation_and_delete()
@@ -608,7 +610,8 @@ classdef test_PixelData < TestCase
                 pix.u1 = 1;
                 pix.advance();  % creates tmp file for first page
                 assertTrue(logical(exist(expected_tmp_dir, 'dir')), ...
-                    'Temp directory not created');
+                    sprintf('Temp directory ''%s'' not created', ...
+                        expected_tmp_dir));
             end
 
             do_pix_creation_and_delete();
@@ -888,7 +891,9 @@ classdef test_PixelData < TestCase
             old_rng_state = rng();
             fixed_seed = 774015;  % this seed gives an expected object_id_ = 06706
             rng(fixed_seed, 'twister');
-            expected_tmp_dir = fullfile(tempdir(), 'sqw_pix06706');
+            expected_tmp_dir = fullfile( ...
+                get(parallel_config, 'working_directory'), ...
+                'sqw_pix06706');
             clean_up = onCleanup(@() rng(old_rng_state));
 
             data = rand(9, 10);
@@ -1116,8 +1121,10 @@ classdef test_PixelData < TestCase
             num_appended_pix = 5;
             pix_to_append = PixelData(rand(9, num_appended_pix));
             range2 = pix_to_append.pix_range;
-            ref_range = [min(range1(1,:),range2(1,:));...
-                         max(range1(2,:),range2(2,:))];
+            ref_range = [ ...
+                min(range1(1,:),range2(1,:));...
+                max(range1(2,:),range2(2,:)) ...
+            ];
 
             pix.append(pix_to_append);
             assertEqual(ref_range,pix.pix_range);
@@ -1734,7 +1741,7 @@ classdef test_PixelData < TestCase
             end
         end
 
-end
+    end
 
     methods (Static)
 
