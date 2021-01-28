@@ -8,7 +8,7 @@ classdef test_PixelData < TestCase
         
         raw_pix_data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
         raw_pix_range;
-        tst_source_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
+        tst_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
         tst_sqw_file_full_path = '';
         this_dir = fileparts(mfilename('fullpath'));
         
@@ -56,7 +56,7 @@ classdef test_PixelData < TestCase
             obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
             obj.raw_pix_range = obj.get_ref_range(obj.raw_pix_data);
             
-            source_sqw_file = java.io.File(pwd(), obj.tst_source_sqw_file_path);
+            source_sqw_file = java.io.File(pwd(), obj.tst_sqw_file_path);
             source_sqw_file  = char(source_sqw_file .getCanonicalPath());
             [~,fn] = fileparts(source_sqw_file);
             test_sqw_file_full_path = fullfile(tmp_dir,[fn,'.sqw']);
@@ -1734,8 +1734,8 @@ classdef test_PixelData < TestCase
         end
         
         function test_get_pix_in_ranges_returns_pix_in_given_ranges_file_backed(obj)
-            pix = PixelData(obj.test_sqw_file_path, obj.SMALL_PG_SIZE);
-            in_mem_pix = PixelData(obj.test_sqw_file_path);
+            pix = PixelData(obj.tst_sqw_file_path, obj.SMALL_PG_SIZE);
+            in_mem_pix = PixelData(obj.tst_sqw_file_path);
             
             range_starts = [4, 14, 20];
             range_ends = [7, 14, 24];
@@ -1747,7 +1747,7 @@ classdef test_PixelData < TestCase
         end
         
         function test_get_pix_in_ranges_returns_pix_in_given_ranges_dirty_pix(obj)
-            pix = PixelData(obj.test_sqw_file_path, obj.SMALL_PG_SIZE);
+            pix = PixelData(obj.tst_sqw_file_path, obj.SMALL_PG_SIZE);
             assertTrue(pix.page_size < pix.num_pixels);  % make sure we're paging
             pix.advance();
             pix.signal = 11;
@@ -1762,7 +1762,7 @@ classdef test_PixelData < TestCase
             
             new_pix = pix.get_pix_in_ranges(range_starts, range_ends);
             
-            in_mem_pix = PixelData(obj.test_sqw_file_path);
+            in_mem_pix = PixelData(obj.tst_sqw_file_path);
             in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
             expected_pix = PixelData(in_mem_pix.data(:, indices));
             
