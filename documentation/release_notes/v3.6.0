@@ -1,0 +1,11 @@
+# Release Notes v3.6.0
+
+
+
+### Critical changes
+ - `hlp_(de)serialize` and `hlp_serial_size` rewritten and now called via `(de)serialise` and `serial_size` wrappers which call relevant MEX/non-MEX functions based on config.
+ 
+### Minor changes
+ - Added `skipTest` functionality to test suite for better reporting of test features
+
+### Bugfixes
