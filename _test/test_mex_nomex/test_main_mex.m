@@ -69,9 +69,7 @@ classdef test_main_mex < TestCase
         function this=test_accum_cut(this)
             mex_present=fileparts(which('accumulate_cut_c'));
             if isempty(mex_present)
-                warning('TEST_MAIN_MEX:test_disabled',...
-                    'Mex file accumulate_cut_c is not availible on this computer')
-                return;
+                skipTest('Mex file accumulate_cut_c is not availible on this computer');
             end
             
             
@@ -111,9 +109,7 @@ classdef test_main_mex < TestCase
         function this=test_calc_proj(this)
             mex_present=fileparts(which('calc_projections_c'));
             if isempty(mex_present)
-                warning('TEST_MAIN_MEX:test_disabled',...
-                    'Mex file calc_projections_c is not availible on this computer')
-                return;
+                skipTest('Mex file calc_projections_c is not availible on this computer');
             end                        %
             rd =calc_fake_data(this);
             %
@@ -133,7 +129,7 @@ classdef test_main_mex < TestCase
         function test_calc_proj_options(this)
             hcf=hor_config;
             if ~hcf.use_mex
-                return;
+                skipTest('MEX is disabled');
             end
             cleanup_obj=onCleanup(@()set(hcf,'use_mex',1));
             
@@ -183,7 +179,7 @@ classdef test_main_mex < TestCase
             
             
             if ~cur_mex
-                return
+                skipTest('MEX is disabled')
             end
             set(hor_config,'use_mex',true,'threads',1);
             new_sqw1 = recompute_bin_data_tester(test_sqw);
@@ -227,7 +223,7 @@ classdef test_main_mex < TestCase
             assertElementsAlmostEqual(pix1.data,pix2.data);
             
             if ~get(hor_config,'use_mex')
-                return
+                skiptest('MEX is disabled')
             end
             % test mex
             pix1 = sort_pix(pix,ix,npix,'-force_mex');
