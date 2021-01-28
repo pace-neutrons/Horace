@@ -122,11 +122,13 @@ else
         clear nopix     % biggish array no longer needed
     end
     
-    % If changed pix_range to something less than the range of the data, then must update true range
-    if ~data_in_range
-        sqw_datstr.img_range(1,:)=min(sqw_datstr.pix.coordinates,[],2)';
-        sqw_datstr.img_range(2,:)=max(sqw_datstr.pix.coordinates,[],2)';
-    end
+    % If pixels were truncated, true range have to change to the truncated range
+    pix_range = sqw_datstr.pix.pix_range;
+    out_of_range = [pix_range(1,:)<pix_db_range(1,:);pix_range(2,:)>pix_db_range(2,:)];
+    halo = [1-sign(pix_range(1,:))*4*eps;1+sign(pix_range(1,:))*4*eps];
+    real_pix_range = pix_range.*halo;
+    sqw_datstr.img_range(out_of_range) = real_pix_range(out_of_range);
+
 end
 
 % Create sqw object (just a packaging of pointers, so no memory penalty)

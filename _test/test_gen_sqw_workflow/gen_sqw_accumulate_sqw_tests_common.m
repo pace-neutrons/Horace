@@ -319,7 +319,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             obj.assertEqualToTolWithSave(w1a,'ignore_str',true,'tol',1.e-7);
         end
         %
-        function test_gen_sqw_sym(obj,varargin)
+        function DISABLED_test_gen_sqw_sym(obj,varargin)
             %-------------------------------------------------------------
             if obj.skip_test
                 return
@@ -541,13 +541,13 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             clear ldr;
             img_range3 = dat.img_range;
             assertEqual(img_range1,img_range3);
-
-            % img_range wider then pix_range because of energies estimate 
+            
+            % img_range wider then pix_range because of energies estimate
             % for initially missed runfiles from existing runfiles is wider
             % then actual energy range for the existing runfiles.
             assertTrue(all(pix_range_f1456(1,:)>=img_range3(1,:)));
             assertTrue(all(pix_range_f1456(2,:)<=img_range3(2,:)));
-                        
+            
             %----------------------------
             c_proj = struct('u',u,'v',v);
             w2_1456=cut_sqw(sqw_file_accum,c_proj ,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
@@ -588,21 +588,41 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             hc = hpc_config;
             disp(hc);
             
-            [~,~,pix_range1456]=gen_sqw (obj.spe_file([1,4,5,6]), '',sqw_file_1456, efix([1,4,5,6]), emode, alatt, angdeg, u, v,...
+            [~,~,pix_range1456]=...
+                gen_sqw (obj.spe_file([1,4,5,6]), '',sqw_file_1456, efix([1,4,5,6]),...
+                emode, alatt, angdeg, u, v,...
                 psi([1,4,5,6]), omega([1,4,5,6]), dpsi([1,4,5,6]), gl([1,4,5,6]), gs([1,4,5,6]));
+            ldr = sqw_formats_factory.instance().get_loader(sqw_file_1456);
+            dat = ldr.get_data('-nopix');
+            pix_range = ldr.get_pix_range();
+            clear ldr;
+            img_range1 = dat.img_range;
+            assertEqual(pix_range1456,pix_range);
+            assertElementsAlmostEqual(pix_range,img_range1,'relative',1.e-4);
             
             
             % Now use accumulate sqw ----------------------
-            obj.proj.u=u;
-            obj.proj.v=v;
             
             spe_accum={obj.spe_file{1},'','',obj.spe_file{4},obj.spe_file{5},obj.spe_file{6}};
-            [~,~,acc_pix_range1456]=accumulate_sqw (spe_accum, '', sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
-            
-            if ~obj.save_output
-                assertElementsAlmostEqual(pix_range1456,acc_pix_range1456,'relative',1.e-6);
-            end
-            [ok,mess,w2_1456]=is_cut_equal(sqw_file_1456,sqw_file_accum,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            [~,~,acc_pix_range1456]=...
+                accumulate_sqw (spe_accum, '', sqw_file_accum,efix,...
+                emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+            ldr = sqw_formats_factory.instance().get_loader(sqw_file_accum);
+            dat = ldr.get_data('-nopix');
+            pix_range = ldr.get_pix_range();
+            assertEqual(acc_pix_range1456,pix_range);
+            clear ldr;
+            img_range2 = dat.img_range;
+            % img_range in second case is wider then in the first, as
+            % additional ranges were added from missing files
+            assertTrue(all(img_range1(1,:)>=img_range2(1,:)));
+            assertTrue(all(img_range1(2,:)<=img_range2(2,:)));
+            % but pixel ranges are actual pixel ranges which are the same
+            assertEqual(pix_range1456,acc_pix_range1456);
+
+            proj_o = struct('u',u,'v',v);
+            [ok,mess,w2_1456]=is_cut_equal(sqw_file_1456,sqw_file_accum,...
+                proj_o,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess])
             
             % Test against saved or store to save later
@@ -653,16 +673,20 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             obj.proj.v=v;
             
             % Repeat a file with 'replicate'
-            spe_accum={obj.spe_file{1},'',obj.spe_file{1},obj.spe_file{4},obj.spe_file{5},obj.spe_file{6}};
+            spe_accum={obj.spe_file{1},'',obj.spe_file{1},obj.spe_file{4},...
+                obj.spe_file{5},obj.spe_file{6}};
             clear clobT;
             [tmp_fls,~,pix_range2]=accumulate_sqw (spe_accum, '',...
-                sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs,...
+                sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi,...
+                omega, dpsi, gl, gs,...
                 'replicate'); %grid_size1,pix_range1,
             clobT = onCleanup(@()obj.delete_files(tmp_fls));
-            % ranges are equal only if pix_range1 is provided
-            %assertElementsAlmostEqual(pix_range1,pix_range2);
+
+            assertEqual(pix_range1,pix_range2);
             
-            [ok,mess,w2_11456,w2_11456acc]=is_cut_equal(sqw_file_11456,sqw_file_accum,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            [ok,mess,w2_11456,w2_11456acc]=...
+                is_cut_equal(sqw_file_11456,sqw_file_accum,obj.proj,...
+                [-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             if ~ok
                 acolor('b');
                 plot(w2_11456);
@@ -673,16 +697,19 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             % Test against saved or store to save later
             obj.assertEqualToTolWithSave(w2_11456,'ignore_str',true,'tol',1.e-7);
-            %obj.save_or_test_variables(w2_11456);
             
             
             if obj.save_output
                 return;
             end
             
-            % Accumulate nothing:
+            % Accumulate nothing, all files already accumulated.
             spe_accum={obj.spe_file{1},'',obj.spe_file{1},obj.spe_file{4},obj.spe_file{5},obj.spe_file{6}};
-            accumulate_sqw (spe_accum, '', sqw_file_accum, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
+            [~,grid_size,pix_range]=accumulate_sqw (spe_accum, '', sqw_file_accum,...
+                efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, 'replicate');
+            assertEqual(pix_range,pix_range2);
+            assertEqual(grid_size,grid_size1);            
+            
             [ok,mess]=is_cut_equal(sqw_file_11456,sqw_file_accum,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess]);
         end

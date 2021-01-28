@@ -285,9 +285,10 @@ if accumulate_old_sqw    % combine with existing sqw file
                 report_nothing_to_do(spe_only,spe_exist);
             end
             tmp_file={};
+            pix_range=pix_range_present;            
         end
         grid_size=grid_size_sqw;
-        pix_range=pix_range_present;
+
         return
     end
     ix=(spe_exist & spe_only);    % the spe data that needs to be processed
@@ -697,11 +698,11 @@ if ~all(ief)
     pix_range_est = rundata_find_pix_range(missing_rf,cache_det{:});
     
     % Expand range to include pix_range_est, if necessary
-    pix_db_range=[min(pix_range(1,:),pix_range_est(1,:));...
+    pix_range=[min(pix_range(1,:),pix_range_est(1,:));...
         max(pix_range(2,:),pix_range_est(2,:))];
 end
 % Add a border
-pix_db_range=range_add_border(pix_db_range,1e-6);
+pix_db_range=range_add_border(pix_range,1e-6);
 
 if log_level>-1
     bigtoc('Time to compute limits:',log_level);
