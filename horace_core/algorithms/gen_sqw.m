@@ -173,8 +173,8 @@ end
 
 
 % Check file names are valid, and their existence or otherwise
-if opt.replicate,  require_spe_unique=false; else require_spe_unique=true; end
-if opt.accumulate, require_spe_exist=false;  else require_spe_exist=true;  end
+if opt.replicate,  require_spe_unique=false; else; require_spe_unique=true; end
+if opt.accumulate, require_spe_exist=false;  else; require_spe_exist=true;  end
 require_sqw_exist=false;
 
 [ok, mess, spe_file, par_file, sqw_file, spe_exist, spe_unique, sqw_exist] = gen_sqw_check_files...
@@ -236,7 +236,8 @@ if accumulate_old_sqw    % combine with existing sqw file
         if log_level>0
             disp(' Analysing headers of existing tmp files:')
         end
-        [header_sqw,grid_size_sqw,img_range_sqw,ind_tmp_files_present] = get_tmp_file_headers(all_tmp_files);
+        [header_sqw,grid_size_sqw,pix_db_range_sqw,pix_range_present,...
+            ind_tmp_files_present] = get_tmp_file_headers(all_tmp_files);
         if sum(ind_tmp_files_present) == 0
             accumulate_old_sqw = false;
             if log_level>0
@@ -250,7 +251,8 @@ if accumulate_old_sqw    % combine with existing sqw file
         
     else
         % Check that the sqw file has the correct type to which to accumulate
-        [ok,mess,header_sqw,grid_size_sqw,img_range_sqw]=gen_sqw_check_sqwfile_valid(sqw_file);
+        [ok,mess,header_sqw,grid_size_sqw,pix_db_range_sqw,pix_range_present]=...
+            gen_sqw_check_sqwfile_valid(sqw_file);
         % Check that the input spe data are distinct
         if ~ok, error(mess), end
     end
@@ -271,8 +273,8 @@ if accumulate_old_sqw    % combine with existing sqw file
             if log_level>-1
                 disp('Creating output sqw file:')
             end
-            
-            write_nsqw_to_sqw (tmp_file, sqw_file);
+            % will recaluclate pixel_range
+            [~,pix_range]=write_nsqw_to_sqw (tmp_file, sqw_file,pix_range_present);
             
             if numel(tmp_file) == numel(all_tmp_files)
                 tmpf_clob = onCleanup(@()delete_tmp_files(tmp_file,log_level));
@@ -285,7 +287,7 @@ if accumulate_old_sqw    % combine with existing sqw file
             tmp_file={};
         end
         grid_size=grid_size_sqw;
-        pix_range=img_range_sqw;
+        pix_range=pix_range_present;
         return
     end
     ix=(spe_exist & spe_only);    % the spe data that needs to be processed
@@ -369,14 +371,17 @@ if ~accumulate_old_sqw
     if isempty(pix_db_range) && numel(run_files)>1
         if numel(run_files)==1
             pix_db_range =[];
+            pix_range_est = [];
         else
             [pix_db_range,pix_range_est] = find_pix_range(run_files,efix,emode,ix,indx,log_level); %calculate pix_range from all runfiles
         end
-        
+    else
+        pix_range_est = [];
     end
     run_files = run_files(ix); % select only existing runfiles for further processing
 elseif accumulate_old_sqw
-    pix_db_range=img_range_sqw;
+    pix_db_range=pix_db_range_sqw;
+    pix_range_est = [];
 end
 
 
@@ -392,16 +397,8 @@ if ~accumulate_old_sqw && nindx==1
     if ~isempty(opt.transform_sqw)
         run_files{1}.transform_sqw = opt.transform_sqw;
     end
-    [w,grid_size,pix_range] = run_files{1}.calc_sqw(grid_size_in,pix_db_range); %.rundata_write_to_sqw (run_files,{sqw_file},...
-    if any(any(abs(pix_range-pix_range_est)>1.e-4)) && log_level>0
-        args = arrayfun(@(x)x,[pix_range_est(1,:),pix_range_est(2,:),...
-            pix_range(1,:),pix_range(2,:)],'UniformOutput',false);
-        warning('gen_sqw:runtime_logic',...
-            ['\nEstimated range of contributed pixels differs from the actual calculated range,\n',...
-            'Est  min: %+6.4g %+6.4g %+6.4g %+6.4g  | Max:   %+6.4g %+6.4g %+6.4g %+6.4g\n',...
-            'Calc min: %+6.4g %+6.4g %+6.4g %+6.4g  | Max:   %+6.4g %+6.4g %+6.4g %+6.4g\n'],...
-            args{:});
-    end
+    [w,grid_size,pix_range] = run_files{1}.calc_sqw(grid_size_in,pix_db_range);
+    verify_pix_range_est(pix_range,pix_range_est,log_level);
     save(w,sqw_file);
     
     %grid_size_in,pix_range_in,write_banner,opt);
@@ -436,27 +433,23 @@ else
     % Generate unique temporary sqw files, one for each of the spe files
     [grid_size,pix_range,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
         instrument,sample,pix_db_range,grid_size_in,opt.tmp_only);
-    if any(any(abs(pix_range-pix_range_est)>1.e-4)) && log_level>0
-        args = arrayfun(@(x)x,[pix_range_est(1,:),pix_range_est(2,:),...
-            pix_range(1,:),pix_range(2,:)],'UniformOutput',false);
-        warning('gen_sqw:runtime_logic',...
-            ['\nEstimated range of contributed pixels differs from the actual calculated range,\n',...
-            'Est  min: %+6.4g %+6.4g %+6.4g %+6.4g  | Max:   %+6.4g %+6.4g %+6.4g %+6.4g\n',...
-            'Calc min: %+6.4g %+6.4g %+6.4g %+6.4g  | Max:   %+6.4g %+6.4g %+6.4g %+6.4g\n'],...
-            args{:});
-    end
+    verify_pix_range_est(pix_range,pix_range_est,log_level);
     
     if use_partial_tmp
         delete_tmp = false;
     end
-    
-    if use_partial_tmp && accumulate_old_sqw  % if necessary, add already generated and present tmp files
-        tmp_file = {all_tmp_files{ind_tmp_files_present},tmp_file{:}}';
-        if numel(tmp_file) == n_all_spe_files % final step in combining tmp files, all tmp files will be generated
-            delete_tmp = true;
-        else
-            delete_tmp = false;
+    if accumulate_old_sqw
+        %
+        if use_partial_tmp  % if necessary, add already generated and present tmp files
+            tmp_file = {all_tmp_files{ind_tmp_files_present},tmp_file{:}}';
+            if numel(tmp_file) == n_all_spe_files % final step in combining tmp files, all tmp files will be generated
+                delete_tmp = true;
+            else
+                delete_tmp = false;
+            end
         end
+        pix_range = [min(pix_range(1,:),pix_range_present(1,:));...
+            max(pix_range(2,:),pix_range_present(2,:))];
     end
     
     % Accumulate sqw files; if creating only tmp files only, then exit (ignoring the delete_tmp option)
@@ -470,7 +463,7 @@ else
             if log_level>-1
                 disp('Creating output sqw file:')
             end
-            write_nsqw_to_sqw (tmp_file, sqw_file,wsqw_arg{:});
+            write_nsqw_to_sqw (tmp_file, sqw_file,pix_range,wsqw_arg{:});
         else
             if log_level>-1
                 disp('Accumulating in temporary output sqw file:')
@@ -547,7 +540,7 @@ else
 end
 
 %------------------------------------------------------------------------------------------------
-function [header_sqw,grid_size_sqw,img_range_sqw,tmp_present] = get_tmp_file_headers(tmp_file_names)
+function [header_sqw,grid_size_sqw,img_range_sqw,pix_range,tmp_present] = get_tmp_file_headers(tmp_file_names)
 % get sqw header for prospective sqw file from range of tmp files
 %
 % Input:
@@ -569,6 +562,7 @@ multiheaders = false;
 ic = 1;
 img_range_sqw = [];
 grid_size_sqw = [];
+pix_range = PixelData.EMPTY_RANGE_;
 for i=1:numel(files_to_check)
     try
         ldr = sqw_formats_factory.instance().get_loader(files_to_check{i});
@@ -591,10 +585,11 @@ for i=1:numel(files_to_check)
     % --------------------------------------------
     header = ldr.get_header('-all');
     data   = ldr.get_data('-head');
+    pix_range_l = ldr.get_pix_range();
+    pix_range = [min(pix_range(1,:),pix_range_l(1,:));...
+        max(pix_range(2,:),pix_range_l(2,:))];
     
-    %TODO: this will be the field of the data
-    img_range_l=[data.p{1}(1) data.p{2}(1) data.p{3}(1) data.p{4}(1); ...
-        data.p{1}(end) data.p{2}(end) data.p{3}(end) data.p{4}(end)];
+    img_range_l = data.img_range;
     grid_size_l = [numel(data.p{1})-1,numel(data.p{2})-1,...
         numel(data.p{3})-1,numel(data.p{4})-1];
     
@@ -702,10 +697,11 @@ if ~all(ief)
     pix_range_est = rundata_find_pix_range(missing_rf,cache_det{:});
     
     % Expand range to include pix_range_est, if necessary
-    pix_range=[min(pix_range(1,:),pix_range_est(1,:)); max(pix_range(2,:),pix_range_est(2,:))];
+    pix_db_range=[min(pix_range(1,:),pix_range_est(1,:));...
+        max(pix_range(2,:),pix_range_est(2,:))];
 end
 % Add a border
-pix_db_range=range_add_border(pix_range,1e-6);
+pix_db_range=range_add_border(pix_db_range,1e-6);
 
 if log_level>-1
     bigtoc('Time to compute limits:',log_level);
@@ -813,3 +809,16 @@ if log_level>-1
     disp('--------------------------------------------------------------------------------')
 end
 
+function  verify_pix_range_est(pix_range,pix_range_est,log_level)
+if isempty(pix_range_est)
+    pix_range_est = pix_range;
+end
+if any(any(abs(pix_range-pix_range_est)>1.e-4)) && log_level>0
+    args = arrayfun(@(x)x,[pix_range_est(1,:),pix_range_est(2,:),...
+        pix_range(1,:),pix_range(2,:)],'UniformOutput',false);
+    warning('gen_sqw:runtime_logic',...
+        ['\nEstimated range of contributed pixels differs from the actual calculated range,\n',...
+        'Est  min: %+6.4g %+6.4g %+6.4g %+6.4g  | Max:   %+6.4g %+6.4g %+6.4g %+6.4g\n',...
+        'Calc min: %+6.4g %+6.4g %+6.4g %+6.4g  | Max:   %+6.4g %+6.4g %+6.4g %+6.4g\n'],...
+        args{:});
+end

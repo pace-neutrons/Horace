@@ -1,4 +1,4 @@
-function img_range=write_nsqw_to_sqw (infiles, outfile,varargin)
+function [img_range,pix_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 % Read a collection of sqw files with a common grid and write to a single sqw file.
 %
 %   >> write_nsqw_to_sqw (infiles, outfiles,varargin)
@@ -36,8 +36,10 @@ function img_range=write_nsqw_to_sqw (infiles, outfile,varargin)
 %
 % Output:
 % -------
-%  img_range         -- the limits of the internal coordinates contained in
-%                      the combined fil
+%  img_range       -- the limits of the internal coordinates contained in
+%                     the combined fil
+%  pix_range       -- the actual range of the pixels, contributing into the
+%                     sqw file (useful if input pix_range is not provided)
 
 
 % T.G.Perring   27 June 2007
