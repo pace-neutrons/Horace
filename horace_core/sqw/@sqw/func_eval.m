@@ -71,12 +71,7 @@ function wout = func_eval (win, func_handle, pars, varargin)
 %    (note, if revert to latter, if array input then all objects must have same dimensionality)
 %
 
-% Check optional argument
-options = {'all'};
-[ok,mess,all_bins]=parse_char_options(varargin,options);
-if ~ok
-    error('SQW:func_eval:invalid_argument', mess);
-end
+[pars, opts] = parse_args(func_handle, pars, varargin{:});
 
 % Input sqw objects must have equal no. of dimensions in image or the input
 % function cannot have the correct number of arguments for all sqws
@@ -92,7 +87,6 @@ if numel(win) > 1
 end
 
 wout = copy(win);
-if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
 % Check if any objects are zero dimensional before evaluating function
 if any(arrayfun(@(x) isempty(x.data.pax), win))
@@ -104,7 +98,7 @@ end
 for i = 1:numel(win)    % use numel so no assumptions made about shape of input array
     sqw_type=is_sqw_type(win(i));   % determine if sqw or dnd type
     ndim=length(win(i).data.pax);
-    if sqw_type || ~all_bins        % only evaluate at the bins actually containing data
+    if sqw_type || ~opts.all_bins        % only evaluate at the bins actually containing data
         ok=(win(i).data.npix~=0);   % should be faster than isfinite(1./win.data.npix), as we know that npix is zero or finite
     else
         ok=true(size(win(i).data.npix));
@@ -130,7 +124,34 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
         s = replicate_array(wout(i).data.s, win(i).data.npix)';
         wout(i).data.pix.signal = s;
         wout(i).data.pix.variance = zeros(size(s));
-    elseif all_bins
+    elseif opts.all_bins
         wout(i).data.npix=ones(size(wout(i).data.npix));    % in this case, must set npix>0 to be plotted.
     end
+end
+
+end  % function
+
+
+% -----------------------------------------------------------------------------
+function [pars, opts] = parse_args(func_handle, pars, varargin)
+    if ~isa(func_handle, 'function_handle')
+        error( ...
+            'SQW:func_eval:invalid_argument', ...
+            'Argument ''func_handle'' must be a function handle.\nFound %s.', ...
+            class(func_handle) ...
+        );
+    end
+
+    keyval_def = struct('all', false);
+    flag_names = {'all'};
+    parse_opts.flags_noneg = true;
+    parse_opts.flags_noval = true;
+    [~, keyval, ~] = parse_arguments( ...
+        varargin, keyval_def, flag_names, parse_opts ...
+    );
+
+    if ~iscell(pars)
+        pars = {pars};
+    end
+    opts.all_bins = keyval.all;
 end

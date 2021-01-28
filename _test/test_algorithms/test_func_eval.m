@@ -12,6 +12,32 @@ classdef test_func_eval < TestCase
             obj.sqw_2d = sqw(obj.sqw_2d_file_path);
         end
 
+        %% Input validation
+        function test_error_if_func_handle_arg_is_not_a_function_handle(obj)
+            sqw_in = sqw();
+            pars = {2, 3, 6};
+            f = @() func_eval(sqw_in, 'not_a_handle', pars);
+            assertExceptionThrown(f, 'SQW:func_eval:invalid_argument');
+        end
+
+        function test_SQW_error_applying_func_eval_to_0D_sqw(~)
+            sqw_in = sqw();
+            func = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
+            pars = {2, 3, 6};
+            f = @() func_eval(sqw_in, func, pars);
+            assertExceptionThrown(f, 'SQW:func_eval:zero_dim_object');
+        end
+
+        function test_SQW_error_if_sqws_in_array_have_different_dimensions(obj)
+            sqws_in = [sqw(obj.sqw_1d_file_path), obj.sqw_2d];
+
+            func = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
+            pars = {2, 3, 6};
+            f = @() func_eval(sqws_in, func, pars);
+            assertExceptionThrown(f, 'SQW:func_eval:unequal_dims');
+        end
+
+        %% In memory execution
         function test_you_apply_func_eval_to_an_sqw_object(obj)
             sqw_in = obj.sqw_2d;
 
@@ -46,15 +72,7 @@ classdef test_func_eval < TestCase
             end
         end
 
-        function test_SQW_error_if_sqws_in_array_have_different_dimensions(obj)
-            sqws_in = [sqw(obj.sqw_1d_file_path), obj.sqw_2d];
-
-            func = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
-            pars = {2, 3, 6};
-            f = @() func_eval(sqws_in, func, pars);
-            assertExceptionThrown(f, 'SQW:func_eval:unequal_dims');
-        end
-
+        %% File-backed operation
         function test_you_can_apply_func_eval_to_an_sqw_file(obj)
             func = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
             pars = {2, 3, 6};
@@ -67,14 +85,6 @@ classdef test_func_eval < TestCase
             );
             sqw_in = obj.sqw_2d;
             obj.validate_func_eval_output(sqw_in, sqw_out);
-        end
-
-        function test_SQW_error_applying_func_eval_to_0D_sqw(~)
-            sqw_in = sqw();
-            func = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
-            pars = {2, 3, 6};
-            f = @() func_eval(sqw_in, func, pars);
-            assertExceptionThrown(f, 'SQW:func_eval:zero_dim_object');
         end
 
         function test_you_can_apply_func_eval_to_sqw_obj_and_output_to_file(obj)
