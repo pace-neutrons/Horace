@@ -51,7 +51,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             end
             combine_algorithm = 'mpi_code'; % this is what should be tested
             if is_jenkins && ispc
-                combine_algorithm = 'mex_code'; % disable mpi combine on Jenkins. It is extreamly slow.
+                combine_algorithm = 'mex_code'; % disable mpi combine on Jenkins. It is extremely slow.
             end
             %
             obj = obj@gen_sqw_common_config(-1,1,combine_algorithm,'herbert');
@@ -158,7 +158,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
                 loc_range = ldrs{i}.get_pix_range();
                 pix_range = [min(loc_range(1,:),pix_range(1,:));...
                     max(loc_range(2,:),pix_range(2,:))];
-            end            
+            end
             assertElementsAlmostEqual(res.pix_range,pix_range);
             
             assertEqual(numel(det.group),96);

@@ -595,10 +595,13 @@ classdef test_PixelData < TestCase
         
         function test_dirty_pix_tmp_files_are_deleted_when_pix_out_of_scope(obj)
             old_rng_state = rng();
+            clean_up = onCleanup(@() rng(old_rng_state));
             fixed_seed = 774015;
             rng(fixed_seed, 'twister');  % this seed gives an expected object_id_ = 54452
-            expected_tmp_dir = fullfile(tempdir(), 'sqw_pix54452');
-            clean_up = onCleanup(@() rng(old_rng_state));
+            expected_tmp_dir = fullfile( ...
+                get(parallel_config, 'working_directory'), ...
+                'sqw_pix54452' ...
+                );
             
             function do_pix_creation_and_delete()
                 data = rand(9, 30);
@@ -607,8 +610,10 @@ classdef test_PixelData < TestCase
                 
                 pix.u1 = 1;
                 pix.advance();  % creates tmp file for first page
-                assertTrue(logical(exist(expected_tmp_dir, 'dir')), ...
-                    'Temp directory not created');
+                assertTrue( ...
+                    logical(exist(expected_tmp_dir, 'dir')), ...
+                    sprintf('Temp directory ''%s'' not created', expected_tmp_dir) ...
+                    );
             end
             
             do_pix_creation_and_delete();
@@ -886,10 +891,13 @@ classdef test_PixelData < TestCase
         
         function test_unedited_dirty_pages_are_not_rewritten(obj)
             old_rng_state = rng();
+            clean_up = onCleanup(@() rng(old_rng_state));
             fixed_seed = 774015;  % this seed gives an expected object_id_ = 06706
             rng(fixed_seed, 'twister');
-            expected_tmp_dir = fullfile(tempdir(), 'sqw_pix06706');
-            clean_up = onCleanup(@() rng(old_rng_state));
+            expected_tmp_dir = fullfile( ...
+                get(parallel_config, 'working_directory'), ...
+                'sqw_pix06706' ...
+                );
             
             data = rand(9, 10);
             npix_in_page = 3;
@@ -1708,93 +1716,93 @@ classdef test_PixelData < TestCase
             new_pix = pix.get_pixels(pix_idx);
             
             expected_pix = PixelData(data(:, pix_idx));
-        assertEqualToTol(new_pix, expected_pix, 'reltol', 1e-5);
+            assertEqualToTol(new_pix, expected_pix, 'reltol', 1e-5);
         end
         
-    function test_get_pix_in_ranges_returns_pixels_in_given_ranges(~)
-        data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 25);
-        pix = PixelData(data);
-
-        range_starts = [4, 14, 20];
-        range_ends = [7, 14, 24];
-        indices = [4, 5, 6, 7, 14, 20, 21, 22, 23, 24];
-
-        pix_ranges = pix.get_pix_in_ranges(range_starts, range_ends);
-
-        expected_pix = PixelData(data(:, indices));
-        assertEqualToTol(pix_ranges, expected_pix);
-    end
-
-    function test_get_pix_in_ranges_returns_pix_in_given_ranges_file_backed(obj)
-        pix = PixelData(obj.test_sqw_file_path, obj.SMALL_PG_SIZE);
-        in_mem_pix = PixelData(obj.test_sqw_file_path);
-
-        range_starts = [4, 14, 20];
-        range_ends = [7, 14, 24];
-        indices = [4, 5, 6, 7, 14, 20, 21, 22, 23, 24];
-
-        pix_ranges = pix.get_pix_in_ranges(range_starts, range_ends);
-        expected_pix = PixelData(in_mem_pix.data(:, indices));
-        assertEqualToTol(pix_ranges, expected_pix);
-    end
-
-    function test_get_pix_in_ranges_returns_pix_in_given_ranges_dirty_pix(obj)
-        pix = PixelData(obj.test_sqw_file_path, obj.SMALL_PG_SIZE);
-        assertTrue(pix.page_size < pix.num_pixels);  % make sure we're paging
-        pix.advance();
-        pix.signal = 11;
-        % Do not advance past edited page, changes only exist in cache and not
-        % in temporary files
-
-        pg_size = pix.base_page_size;
-
-        range_starts = [4, 14, 20];
-        range_ends = [7, 14, 24];
-        indices = [4, 5, 6, 7, 14, 20, 21, 22, 23, 24];
-
-        new_pix = pix.get_pix_in_ranges(range_starts, range_ends);
-
-        in_mem_pix = PixelData(obj.test_sqw_file_path);
-        in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
-        expected_pix = PixelData(in_mem_pix.data(:, indices));
-
-        assertEqualToTol(new_pix, expected_pix);
-    end
-
-    function test_get_pix_in_ranges_throws_if_index_arrays_not_same_size(~)
-        num_pix = 10;
-        p = PixelData(num_pix);
-        starts = randi(num_pix, [1, 4]);
-        ends = randi(num_pix, [4, 1]);
-        f = @() p.get_pix_in_ranges(starts, ends);
-
-        assertExceptionThrown(f, 'PIXELDATA:get_pix_in_ranges');
-    end
-
-    function test_get_pix_in_ranges_throws_if_index_arrays_not_vectors(~)
-        num_pix = 10;
-        p = PixelData(num_pix);
-        sizes = {[2, 4], [3, 3]};
-        for i = 1:numel(sizes)
-            starts = randi(num_pix, sizes{i});
-            ends = randi(num_pix, sizes{i});
-            f = @() p.get_pix_in_ranges(starts, ends);
+        function test_get_pix_in_ranges_returns_pixels_in_given_ranges(~)
+            data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 25);
+            pix = PixelData(data);
+            
+            range_starts = [4, 14, 20];
+            range_ends = [7, 14, 24];
+            indices = [4, 5, 6, 7, 14, 20, 21, 22, 23, 24];
+            
+            pix_ranges = pix.get_pix_in_ranges(range_starts, range_ends);
+            
+            expected_pix = PixelData(data(:, indices));
+            assertEqualToTol(pix_ranges, expected_pix);
         end
-
-        assertExceptionThrown(f, 'PIXELDATA:get_pix_in_ranges');
-    end
-
-    function test_get_pix_in_ranges_throws_if_any_starts_gt_ends(~)
-        num_pix = 30;
-        p = PixelData(num_pix);
-        pix_starts = [4, 9, 20];
-        pix_ends = [6, 8, 25];  % note 9 > 8
-
-        f = @() p.get_pix_in_ranges(pix_starts, pix_ends);
-        assertExceptionThrown(f, 'PIXELDATA:get_pix_in_ranges');
-    end
-
-    %% -- Helpers --
+        
+        function test_get_pix_in_ranges_returns_pix_in_given_ranges_file_backed(obj)
+            pix = PixelData(obj.test_sqw_file_path, obj.SMALL_PG_SIZE);
+            in_mem_pix = PixelData(obj.test_sqw_file_path);
+            
+            range_starts = [4, 14, 20];
+            range_ends = [7, 14, 24];
+            indices = [4, 5, 6, 7, 14, 20, 21, 22, 23, 24];
+            
+            pix_ranges = pix.get_pix_in_ranges(range_starts, range_ends);
+            expected_pix = PixelData(in_mem_pix.data(:, indices));
+            assertEqualToTol(pix_ranges, expected_pix);
+        end
+        
+        function test_get_pix_in_ranges_returns_pix_in_given_ranges_dirty_pix(obj)
+            pix = PixelData(obj.test_sqw_file_path, obj.SMALL_PG_SIZE);
+            assertTrue(pix.page_size < pix.num_pixels);  % make sure we're paging
+            pix.advance();
+            pix.signal = 11;
+            % Do not advance past edited page, changes only exist in cache and not
+            % in temporary files
+            
+            pg_size = pix.base_page_size;
+            
+            range_starts = [4, 14, 20];
+            range_ends = [7, 14, 24];
+            indices = [4, 5, 6, 7, 14, 20, 21, 22, 23, 24];
+            
+            new_pix = pix.get_pix_in_ranges(range_starts, range_ends);
+            
+            in_mem_pix = PixelData(obj.test_sqw_file_path);
+            in_mem_pix.signal(pg_size + 1:2*pg_size) = 11;
+            expected_pix = PixelData(in_mem_pix.data(:, indices));
+            
+            assertEqualToTol(new_pix, expected_pix);
+        end
+        
+        function test_get_pix_in_ranges_throws_if_index_arrays_not_same_size(~)
+            num_pix = 10;
+            p = PixelData(num_pix);
+            starts = randi(num_pix, [1, 4]);
+            ends = randi(num_pix, [4, 1]);
+            f = @() p.get_pix_in_ranges(starts, ends);
+            
+            assertExceptionThrown(f, 'PIXELDATA:get_pix_in_ranges');
+        end
+        
+        function test_get_pix_in_ranges_throws_if_index_arrays_not_vectors(~)
+            num_pix = 10;
+            p = PixelData(num_pix);
+            sizes = {[2, 4], [3, 3]};
+            for i = 1:numel(sizes)
+                starts = randi(num_pix, sizes{i});
+                ends = randi(num_pix, sizes{i});
+                f = @() p.get_pix_in_ranges(starts, ends);
+            end
+            
+            assertExceptionThrown(f, 'PIXELDATA:get_pix_in_ranges');
+        end
+        
+        function test_get_pix_in_ranges_throws_if_any_starts_gt_ends(~)
+            num_pix = 30;
+            p = PixelData(num_pix);
+            pix_starts = [4, 9, 20];
+            pix_ends = [6, 8, 25];  % note 9 > 8
+            
+            f = @() p.get_pix_in_ranges(pix_starts, pix_ends);
+            assertExceptionThrown(f, 'PIXELDATA:get_pix_in_ranges');
+        end
+        
+        %% -- Helpers --
         function [pix,pix_range] = get_pix_with_fake_faccess(obj, data, npix_in_page)
             pix_range = [min(data(1:4,:),[],2),max(data(1:4,:),[],2)]';
             faccess = FakeFAccess(data);

@@ -87,7 +87,7 @@ end
 run_contributes=true(nfiles,1);
 for i=1:nfiles
     if ~sum(abs(data{i}.s(:))) && ~sum(data{i}.e(:)) && ~sum(data{i}.npix(:)) ...
-       &&  all(isnan(data{i}.pix_range(:)/Inf)) && ~sum(abs(data{i}.pix.data(:)))
+       &&  all(isnan(data{i}.pix.pix_range(:)/Inf)) && ~sum(abs(data{i}.pix.data(:)))
         % Then this data structure is a copy of 'datanull' from split.m
         run_contributes(i)=false;
     end
@@ -108,19 +108,21 @@ wout.main_header=main_header;
 wout.header=header; % This should be a cell array of the individual headers
 wout.detpar=detpar0;
 
-wout.data=data{run_contributes(1)};
+first_included_index = find(run_contributes,1,'first'); % find first included file to ensure non-empty data below
+wout.data=data{run_contributes(first_included_index)};
 sz=size(wout.data.npix); % size of contributing signal, variance, and npix arrays
 wout.data.s   =zeros(sz);
 wout.data.e   =zeros(sz);
 wout.data.npix=zeros(sz);
-wout.data.pix =PixelData(); % The pix field *must* be re-intialized to empty
+
+% build a new PixelData object from the contributing files data
+wout.data.pix = PixelData.cat(cellfun(@(x) x.pix, data(run_contributes)));
 
 for i=1:nfiles
     if run_contributes(i)
         wout.data.s   = wout.data.s   + (data{i}.s).*(data{i}.npix);
         wout.data.e   = wout.data.e   + (data{i}.e).*(data{i}.npix).^2;
         wout.data.npix= wout.data.npix+ data{i}.npix;
-        wout.data.pix.data = [wout.data.pix.data,data{i}.pix.data];
     end
 end
 wout.data.s = wout.data.s ./ wout.data.npix;
