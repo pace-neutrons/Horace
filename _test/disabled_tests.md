@@ -1,14 +1,14 @@
 # Disabled tests
 
 - test_change_crystal_1a.m
-	- test_u_alighnment_tf_way (no ticket)
+        - test_u_alighnment_tf_way (no ticket) -- Why disasbled?
 	- test_u_alighnment (no ticket)
 
-- test_gen_sqw_powders.m
-	- test_combine_cyl_tot (no ticket)
+- test_gen_sqw_powders.m - Not called that? test_gen_sqw_powders/test_combine_cyl.m
+        - test_combine_cyl_tot (no ticket) -- Not disabled?
 
 - test_combine_pow.m
-	- test_combine_pow_tot (no ticket)
+        - test_combine_pow_tot (no ticket) -- Not disabled?
 
 - test_multifit_horace_1.m
 	- test_fit_single_or_array2 https://github.com/pace-neutrons/Horace/issues/111
@@ -23,7 +23,7 @@
 	- test_spher_caption (no ticket)
 	- test_spher_caption2D (no ticket)
 
-- test_gen_sqw_accumulate_sqw_herbert
+- test_gen_sqw_accumulate_sqw_herbert -- Not disabled?
     - write_nxsqw_to_sqw -- tmp files combine procedure using parpool framework is replaced by mex_code
                             it passes but slow and nobody will use it in real life anyway
 
@@ -31,8 +31,12 @@
     - test_rebin_d1d (no ticket)
 
 test_gen_sqw_accumulate_sqw_parpool.m (https://github.com/pace-neutrons/Horace/issues/380)
+
 	- test_accumulate_sqw1456
     
 - test_combine_sqw.m  (https://github.com/pace-neutrons/Horace/issues/464)
     - _test_combine1D
+
+-  test_gen_sqw_workflow:gen_sqw_accumulate_sqw_tests_common
+     - test_gen_sqw_sym  -- disabled for symetrization ticket: (https://github.com/pace-neutrons/Horace/issues/464)
 
