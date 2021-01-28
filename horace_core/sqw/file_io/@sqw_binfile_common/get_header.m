@@ -15,7 +15,6 @@ function  [header,pos]   = get_header(obj,varargin)
 % correct || non-existing header number
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 % always verbatim
 [ok,mess,get_all,~,argi]= parse_char_options(varargin,{'-all','-verbatim'});

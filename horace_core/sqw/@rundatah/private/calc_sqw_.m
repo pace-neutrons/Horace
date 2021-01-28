@@ -1,8 +1,8 @@
-function [w, grid_size, pix_range] = calc_sqw_(obj,detdcn, det0, grid_size_in, urange_in)
+function [w, grid_size, pix_range] = calc_sqw_(obj,detdcn, det0, grid_size_in, pix_range_in)
 % Create an sqw object, optionally keeping only those data points within a defined data range.
 %
-%   >> [w, grid_size, urange] = obj.calc_sqw(detdch, det0,grid_size_in,
-%   urange_in)
+%   >> [w, grid_size, pix_range] = obj.calc_sqw(detdch, det0,grid_size_in,
+%   pix_range_in)
 %
 % Input:
 % ------
@@ -12,10 +12,10 @@ function [w, grid_size, pix_range] = calc_sqw_(obj,detdcn, det0, grid_size_in, u
 %                  is what is used int the creation of the sqw object. It must
 %                  be consistent with det.
 %                  [If data has field qspec, then det is ignored]
-%   grid_size_in    Scalar or [1x4] vector of grid dimensions
-%   urange_in       Range of data grid for output as a [2x4] matrix:
-%                     [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
-%                   If [] then uses the smallest hyper-cuboid that encloses the whole data range.
+%   grid_size_in   Scalar or [1x4] vector of grid dimensions
+%   pix_range_in   Range of data grid for output as a [2x4] matrix:
+%                  [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
+%                  If [] then uses the smallest hyper-cuboid that encloses the whole data range.
 %
 %
 % Output:
@@ -24,7 +24,8 @@ function [w, grid_size, pix_range] = calc_sqw_(obj,detdcn, det0, grid_size_in, u
 %   grid_size      Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   pix_range      Actual range of grid - the specified range if it was given,
-%                  or the range of the data if not.
+%                  or the range of the data if not. In this case, pix range
+%                  is equivalent to image range
 
 
 hor_log_level=config_store.instance().get_value('herbert_config','log_level');
@@ -42,18 +43,18 @@ main_header.nfiles=1;
 if hor_log_level>-1
     disp('Calculating projections...');
 end
-[header,sqw_data]=calc_sqw_data_and_header(obj,detdcn);
+[header,sqw_datstr]=calc_sqw_data_and_header(obj,detdcn);
 
 % Flag if grid is in fact just a box i.e. 1x1x1x1
 grid_is_unity = (isscalar(grid_size_in)&&grid_size_in==1)||(isvector(grid_size_in)&&all(grid_size_in==[1,1,1,1]));
 
-% Set urange, and determine if all the data is on the surface or within the box defined by the ranges
-if isempty(urange_in)
-    pix_range = sqw_data.urange;   % range of the data
+% Set pix_range, and determine if all the data is on the surface or within the box defined by the ranges
+if isempty(pix_range_in)
+    pix_range = sqw_datstr.img_range;   % range of the data
     data_in_range = true;
 else
-    pix_range = urange_in;         % use input urange
-    if any(pix_range(1,:)>sqw_data.urange(1,:)) || any(pix_range(2,:)<sqw_data.urange(2,:))
+    pix_range = pix_range_in;         % use input pix_range
+    if any(pix_range(1,:)>sqw_datstr.img_range(1,:)) || any(pix_range(2,:)<sqw_datstr.img_range(2,:))
         data_in_range = false;
     else
         data_in_range = true;
@@ -62,7 +63,7 @@ end
 % If grid that is other than 1x1x1x1, or range was given, then sort pixels
 if grid_is_unity && data_in_range   % the most work we have to do is just change the bin boundary fields
     for id=1:4
-        sqw_data.p{id}=[pix_range(1,id);pix_range(2,id)];
+        sqw_datstr.p{id}=[pix_range(1,id);pix_range(2,id)];
     end
     grid_size = grid_size_in;
 
@@ -76,22 +77,22 @@ else
         try
             % Verify the grid consistency and build axes along the grid dimensions,
             % c-program does not check the grid consistency;
-            [grid_size,sqw_data.p]=construct_grid_size(grid_size_in,pix_range);
+            [grid_size,sqw_datstr.p]=construct_grid_size(grid_size_in,pix_range);
 
             sqw_fields   =cell(1,4);
             sqw_fields{1}=nThreads;
             %sqw_fields{1}=8;
             sqw_fields{2}=pix_range;
             sqw_fields{3}=grid_size;
-            sqw_fields{4}=sqw_data.pix.data;
-            clear sqw_data.s sqw_data.e sqw_data.npix;
+            sqw_fields{4}=sqw_datstr.pix.data;
+            clear sqw_datstr.s sqw_datstr.e sqw_datstr.npix;
 
             out_fields=bin_pixels_c(sqw_fields);
 
-            sqw_data.s   = out_fields{1};
-            sqw_data.e   = out_fields{2};
-            sqw_data.npix= out_fields{3};
-            sqw_data.pix = PixelData(out_fields{4});
+            sqw_datstr.s   = out_fields{1};
+            sqw_datstr.e   = out_fields{2};
+            sqw_datstr.npix= out_fields{3};
+            sqw_datstr.pix = PixelData(out_fields{4});
 
         catch
             warning('HORACE:using_mex','calc_sqw->Error: ''%s'' received from C-routine to rebin data, using matlab functions',lasterr());
@@ -99,28 +100,28 @@ else
         end
     end
     if ~use_mex
-        [ix,npix,p,grid_size,ibin]=sort_pixels(sqw_data.pix.coordinates,pix_range,grid_size_in);
+        [ix,npix,p,grid_size,ibin]=sort_pixels(sqw_datstr.pix.coordinates,pix_range,grid_size_in);
 
-        sqw_data.p=p;   % added by RAE 10/6/11 to avoid crash when doing non-mex generation of sqw files
-        sqw_data.pix=sqw_data.pix.get_pixels(ix);
+        sqw_datstr.p=p;   % added by RAE 10/6/11 to avoid crash when doing non-mex generation of sqw files
+        sqw_datstr.pix=sqw_datstr.pix.get_pixels(ix);
 
-        sqw_data.s=reshape(accumarray(ibin,sqw_data.pix.signal,[prod(grid_size),1]),grid_size);
-        sqw_data.e=reshape(accumarray(ibin,sqw_data.pix.variance,[prod(grid_size),1]),grid_size);
-        sqw_data.npix=reshape(npix,grid_size);      % All we do is write to file, but reshape for consistency with definition of sqw data structure
-        sqw_data.s=sqw_data.s./sqw_data.npix;       % normalise data
-        sqw_data.e=sqw_data.e./(sqw_data.npix).^2;  % normalise variance
+        sqw_datstr.s=reshape(accumarray(ibin,sqw_datstr.pix.signal,[prod(grid_size),1]),grid_size);
+        sqw_datstr.e=reshape(accumarray(ibin,sqw_datstr.pix.variance,[prod(grid_size),1]),grid_size);
+        sqw_datstr.npix=reshape(npix,grid_size);      % All we do is write to file, but reshape for consistency with definition of sqw data structure
+        sqw_datstr.s=sqw_datstr.s./sqw_datstr.npix;       % normalise data
+        sqw_datstr.e=sqw_datstr.e./(sqw_datstr.npix).^2;  % normalise variance
         clear ix ibin   % biggish arrays no longer needed
-        nopix=(sqw_data.npix==0);
-        sqw_data.s(nopix)=0;
-        sqw_data.e(nopix)=0;
+        nopix=(sqw_datstr.npix==0);
+        sqw_datstr.s(nopix)=0;
+        sqw_datstr.e(nopix)=0;
 
         clear nopix     % biggish array no longer needed
     end
 
-    % If changed urange to something less than the range of the data, then must update true range
+    % If changed pix_range to something less than the range of the data, then must update true range
     if ~data_in_range
-        sqw_data.urange(1,:)=min(sqw_data.pix.coordinates,[],2)';
-        sqw_data.urange(2,:)=max(sqw_data.pix.coordinates,[],2)';
+        sqw_datstr.img_range(1,:)=min(sqw_datstr.pix.coordinates,[],2)';
+        sqw_datstr.img_range(2,:)=max(sqw_datstr.pix.coordinates,[],2)';
     end
 end
 
@@ -129,15 +130,15 @@ end
 d.main_header=main_header;
 d.header=header;
 d.detpar=det0;
-d.data=data_sqw_dnd(sqw_data);
+d.data=data_sqw_dnd(sqw_datstr);
 w=sqw_old(d);
 
 
 %------------------------------------------------------------------------------------------------------------------
-function [header,sqw_data] = calc_sqw_data_and_header (obj,detdcn)
+function [header,sqw_datstr] = calc_sqw_data_and_header (obj,detdcn)
 % Calculate sqw file header and data for a single spe file
 %
-%   >> [header,sqw_data] = calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det)
+%   >> [header,sqw_datstr] = calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det)
 %
 % Input:
 % ------
@@ -148,7 +149,7 @@ function [header,sqw_data] = calc_sqw_data_and_header (obj,detdcn)
 % Ouput:
 % ------
 %   header      Header information in data structure suitable for put_sqw_header
-%   sqw_data    Data structure suitable for put_sqw_data
+%   sqw_datstr    Data structure suitable for put_sqw_data
 
 % Original author: T.G.Perring
 
@@ -163,7 +164,7 @@ function [header,sqw_data] = calc_sqw_data_and_header (obj,detdcn)
 
 p=cell(1,4);
 for id=1:4
- 	p{id}=[pix_range(1,id);pix_range(2,id)];
+    p{id}=[pix_range(1,id);pix_range(2,id)];
     %p{id}=[hkl_range(1,id);hkl_range(2,id)];
 end
 
@@ -202,24 +203,25 @@ header.sample=obj.sample;
 
 % Now package the data
 % --------------------
-sqw_data.filename = '';
-sqw_data.filepath = '';
-sqw_data.title = '';
-sqw_data.alatt = obj.lattice.alatt;
-sqw_data.angdeg = obj.lattice.angdeg;
-sqw_data.uoffset=[0;0;0;0];
-sqw_data.u_to_rlu = [[u_to_rlu;[0,0,0]],[0;0;0;1]];
-sqw_data.ulen = [1,1,1,1];
-sqw_data.ulabel = {'Q_\zeta','Q_\xi','Q_\eta','E'};
-sqw_data.iax=[];
-sqw_data.iint=[];
-sqw_data.pax=[1,2,3,4];
-sqw_data.p=p;
-sqw_data.dax=[1,2,3,4];
-sqw_data.s=sum(obj.S(:));
-sqw_data.e=sum(pix.variance);   % take advantage of the squaring that has already been done for pix array
-sqw_data.npix=ne*ndet;
-% pix range expressed in Crystal Cartesian coordinate system
-sqw_data.urange=pix_range;
+sqw_datstr.filename = '';
+sqw_datstr.filepath = '';
+sqw_datstr.title = '';
+sqw_datstr.alatt = obj.lattice.alatt;
+sqw_datstr.angdeg = obj.lattice.angdeg;
+sqw_datstr.uoffset=[0;0;0;0];
+sqw_datstr.u_to_rlu = [[u_to_rlu;[0,0,0]],[0;0;0;1]];
+sqw_datstr.ulen = [1,1,1,1];
+sqw_datstr.ulabel = {'Q_\zeta','Q_\xi','Q_\eta','E'};
+sqw_datstr.iax=zeros(1,0);
+sqw_datstr.iint=zeros(2,0);
+sqw_datstr.pax=[1,2,3,4];
+sqw_datstr.p=p;
+sqw_datstr.dax=[1,2,3,4];
+sqw_datstr.s=sum(obj.S(:));
+sqw_datstr.e=sum(pix.variance);   % take advantage of the squaring that has already been done for pix array
+sqw_datstr.npix=ne*ndet;
+% img range expressed in Crystal Cartesian coordinate system
+sqw_datstr.img_range=pix_range;
 %
-sqw_data.pix=PixelData(pix);
+% this will set up pix_range in Crystal Cartesian.
+sqw_datstr.pix=PixelData(pix);

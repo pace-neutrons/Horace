@@ -12,7 +12,6 @@ function data_str = get_se_npix_data_(obj,varargin)
 % structure provided as input.
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 if isempty(varargin)
     data_str = struct();

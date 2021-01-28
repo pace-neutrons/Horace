@@ -30,21 +30,25 @@ classdef sqw_formats_factory < handle
     %                       used to initialize another accessor.
     %
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Access=private) %
         % List of registered file accessors:
         % Add all new file readers which inherit from sqw_file_interface and dnd_file_interface
         % to this list in the order of expected frequency of their appearance.
-        supported_accessors_ = {faccess_sqw_v3(),faccess_sqw_v3_2(),...
-            faccess_sqw_v2(),faccess_dnd_v2(),faccess_sqw_prototype()};
+        supported_accessors_ = { ...
+            faccess_sqw_v3_3(), ...
+            faccess_sqw_v3(), ...
+            faccess_sqw_v3_2(), ...
+            faccess_sqw_v2(), ...
+            faccess_dnd_v2(), ...
+            faccess_sqw_prototype()};
         %
-        % Old class interface:
-        % classes to load/save
+        % Rules to load/save different classes:
         % sqw2 corresponds to sqw file in indirect mode with varying efixed
         written_types_ = {'sqw_old','sqw2','dnd','d0d_old','d1d_old','d2d_old','d3d_old','d4d_old'};
-        % number of loader in the list of loaders to use with correspondent class
-        access_to_type_ind_ = {1,2,4,4,4,4,4,4};
+        % number of loader in the list of loaders above to use for saving
+        % correspondent class
+        access_to_type_ind_ = {1,3,5,5,5,5,5,5};
         types_map_ ;
     end
     properties(Dependent)
@@ -88,7 +92,7 @@ classdef sqw_formats_factory < handle
     end
 
     methods % Public Access
-        function loader = get_loader(obj,sqw_file_name)
+        function loader = get_loader(obj,sqw_file_name,varargin)
             % Returns initiated loader which can load the data from the specified data file.
             %
             %Usage:
@@ -129,13 +133,15 @@ classdef sqw_formats_factory < handle
                     % if loader can load, initialize loader to be able
                     % to read the file.
                     try
-                        loader=loader.init(objinit);
+                        loader=loader.init(objinit,varargin{:});
                         return
                     catch ME
-                        error('SQW_FILE_IO:runtime_error',...
+                        err = MException('SQW_FILE_IO:runtime_error',...
                             ['get_loader: Error initializing selected loader: %s : %s\n',...
                             'invalid file format or damaged file?'],...
-                            class(loader),ME.message)
+                            class(loader),ME.message);
+                        err = addCause(ME,err);
+                        rethrow(err);
                     end
                     return
                 end
@@ -167,7 +173,7 @@ classdef sqw_formats_factory < handle
             %           -- returns default accessor suitable for most files.
             %>>loader = sqw_formats_factory.instance().get_pref_access('dnd')
             % or
-            %>>loader = sqw_formats_factory.instance().get_pref_access('sqw_old')
+            %>>loader = sqw_formats_factory.instance().get_pref_access('sqw')
             %         -- returns preferred accessor for dnd or sqw object
             %            correspondingly
             %
@@ -232,12 +238,14 @@ classdef sqw_formats_factory < handle
             %
             %NOTE:
             % faccess_sqw_v3 is not compatible with faccess_sqw_v3_2 as
-            % contains different information about detectors.
+            % contains different information about detectors incident energies.
             if isa(obj2,class(obj1))
                 is_compartible = true;
                 return
             end
-            if isa(obj1,'faccess_sqw_v2') && isa(obj2,'faccess_sqw_v3')
+            if isa(obj1,'faccess_sqw_v2') && isa(obj2,'faccess_sqw_v3_3') || ...
+                    isa(obj1,'faccess_sqw_v2') && isa(obj2,'faccess_sqw_v3') || ...
+                    isa(obj1,'faccess_sqw_v3') && isa(obj2,'faccess_sqw_v3_3')
                 is_compartible = true;
             else
                 is_compartible = false;

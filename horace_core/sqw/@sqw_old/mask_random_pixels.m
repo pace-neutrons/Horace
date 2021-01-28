@@ -24,7 +24,7 @@ function wout = mask_random_pixels(win,npix)
 % Original author: S. Toth
 % Modifications: R. A. Ewings
 
-if ~is_sqw_type(win);
+if ~is_sqw_type(win)
     error('Can mask pixels only in an sqw-type object')
 end
 

@@ -96,7 +96,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(numel(det.group),58880)
 
             data = to.get_data();
-            assertEqual(size(data.pix),[9,1164180])
+            assertEqual(data.pix.num_pixels,1164180)
             assertEqual(size(data.s,1),numel(data.p{1})-1)
             assertEqual(size(data.e,2),numel(data.p{2})-1)
             assertEqual(size(data.npix,3),numel(data.p{3})-1)
@@ -125,7 +125,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(numel(det.group),36864)
 
             data = to.get_data();
-            assertEqual(size(data.pix),[9,179024])
+            assertEqual(data.pix.num_pixels,179024)
             assertEqual(size(data.s,1),numel(data.p{1})-1)
             assertEqual(size(data.e,2),numel(data.p{2})-1)
             assertEqual(size(data.npix),size(data.e))
@@ -273,7 +273,9 @@ classdef test_faccess_sqw_v2< TestCase
 
             to = sqw_formats_factory.instance().get_loader(tf);
             assertTrue(isa(to,'faccess_sqw_v3'));
+            assertTrue(isa(to,'faccess_sqw_v3_3'));
 
+            
             sqw2 = to.get_sqw();
 
             assertEqual(sqw1,sqw2);
@@ -304,7 +306,7 @@ classdef test_faccess_sqw_v2< TestCase
             tobV3.delete();
 
             to = sqw_formats_factory.instance().get_loader(tf);
-            assertTrue(isa(to,'faccess_sqw_v3'));
+            assertTrue(isa(to,'faccess_sqw_v3_3'));
 
             sqw2 = to.get_sqw();
             to.delete();
