@@ -37,6 +37,17 @@ classdef test_func_eval < TestCase
             assertExceptionThrown(f, 'SQW:func_eval:unequal_dims');
         end
 
+        function test_SQW_error_if_num_input_objects_ne_to_num_outfiles(obj)
+            sqws_in = [obj.sqw_2d, obj.sqw_2d];
+            outfile = 'some_path';
+
+            func = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
+            pars = {2, 3, 6};
+
+            f = @() func_eval(sqws_in, func, pars, 'outfile', outfile);
+            assertExceptionThrown(f, 'SQW:func_eval:invalid_arguments');
+        end
+
         %% In memory execution
         function test_you_apply_func_eval_to_an_sqw_object(obj)
             sqw_in = obj.sqw_2d;
