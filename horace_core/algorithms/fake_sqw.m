@@ -190,7 +190,7 @@ if isempty(img_range)
         pix_range_l = run_files{i}.calc_pix_range(en_lo(i),en_hi(i),cache_opt{:});
         img_range = [min(pix_range_l(1,:),img_range(1,:));max(pix_range_l(2,:),img_range(2,:))];
     end
-    img_range=range_add_border(img_range,-1e-6);     % add a border to account for Matlab matrix multiplication bug
+    img_range=range_add_border(img_range,1e-6);     % add a border to account for Matlab matrix multiplication bug
 end
 
 % Construct data structure with spe file information
