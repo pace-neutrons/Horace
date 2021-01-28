@@ -3,6 +3,7 @@ function wout = func_eval (win, func_handle, pars, varargin)
 % Syntax:
 %   >> wout = func_eval (win, func_handle, pars)
 %   >> wout = func_eval (win, func_handle, pars, ['all'])
+%   >> wout = func_eval (win, func_handle, pars, 'outfile', 'output.sqw')
 %
 % If function is called on sqw-type object, the pixels signal is also
 % modified and evaluated
@@ -32,6 +33,13 @@ function wout = func_eval (win, func_handle, pars, varargin)
 %                - Most commonly just a numeric array of parameters
 %                - If a more general set of parameters is needed by the function, then
 %                  wrap as a cell array {pars, c1, c2, ...}
+%
+% Keyword Arguments:
+%   outfile     If present, the output of func_eval will be written to the file
+%               of the given name/path.
+%               If numel(win) > 1, outfile must be omitted or a cell array of
+%               file paths with equal number of elements as win.
+%
 % Additional allowed options:
 %   'all'      Requests that the calculated function be returned over
 %              the whole of the domain of the input dataset. If not given, then
@@ -71,7 +79,7 @@ function wout = func_eval (win, func_handle, pars, varargin)
 %    (note, if revert to latter, if array input then all objects must have same dimensionality)
 %
 
-[pars, opts] = parse_args(func_handle, pars, varargin{:});
+[pars, opts] = parse_args(win, func_handle, pars, varargin{:});
 
 % Input sqw objects must have equal no. of dimensions in image or the input
 % function cannot have the correct number of arguments for all sqws
@@ -133,16 +141,16 @@ end  % function
 
 
 % -----------------------------------------------------------------------------
-function [pars, opts] = parse_args(func_handle, pars, varargin)
+function [pars, opts] = parse_args(win, func_handle, pars, varargin)
     if ~isa(func_handle, 'function_handle')
         error( ...
             'SQW:func_eval:invalid_argument', ...
-            'Argument ''func_handle'' must be a function handle.\nFound %s.', ...
+            'Argument ''func_handle'' must be a function handle.\nFound ''%s''.', ...
             class(func_handle) ...
         );
     end
 
-    keyval_def = struct('all', false);
+    keyval_def = struct('all', false, 'outfile', '');
     flag_names = {'all'};
     parse_opts.flags_noneg = true;
     parse_opts.flags_noval = true;
@@ -154,4 +162,20 @@ function [pars, opts] = parse_args(func_handle, pars, varargin)
         pars = {pars};
     end
     opts.all_bins = keyval.all;
+    if ~iscell(keyval.outfile)
+        opts.outfile = {keyval.outfile};
+    else
+        opts.outfile = keyval.outfile;
+    end
+
+    outfiles_empty = all(cellfun(@(x) isempty(x), opts.outfile));
+    if ~outfiles_empty && (numel(win) ~= numel(opts.outfile))
+        error( ...
+            'SQW:func_eval:invalid_arguments', ...
+            ['Number of outfiles specified must match number of input objects.\n' ...
+             'Found %i outfile(s), but %i sqw object(s).'], ...
+            numel(opts.outfile), numel(win) ...
+        );
+    end
+
 end
