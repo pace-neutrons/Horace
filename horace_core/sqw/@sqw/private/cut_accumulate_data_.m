@@ -18,7 +18,7 @@ function [s, e, npix, pix_out, img_range] = ...
 %                  bin. size(npix) == size(s)
 % pix_out          A PixelData object containing pixels that contribute to the
 %                  cut.
-% urange_pix       The range of u1, u2, u3, and dE in the contributing pixels.
+% img_range        The range of u1, u2, u3, and dE in the contributing pixels.
 %                  size(urange_pix) == [2, 4].
 %
 % CALLED BY cut_single
@@ -85,8 +85,8 @@ for iter = 1:max_num_iters
     );
 
     if log_level >= 0
-        fprintf(['Step %3d of maximum %3d; Have read data for %d pixels -- ' ...
-                    'now processing data...'], iter, max_num_iters, ...
+        fprintf(['Step %3d of max %3d; Read data for %d pixels -- ' ...
+                    'processing data...'], iter, max_num_iters, ...
                 candidate_pix.num_pixels);
     end
 

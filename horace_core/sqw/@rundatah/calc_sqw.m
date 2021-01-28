@@ -87,7 +87,8 @@ end
 det0 = obj.det_par;
 if ~(detdcn_provided || qspec_provided)
     % Masked detectors (i.e. containing NaN signal) are removed from data and detectors
-    [obj.S,obj.ERR,obj.det_par]  = obj.rm_masked();
+    [ignore_nan,ignore_inf] = config_store.instance().get_value('hor_config','ignore_nan','ignore_inf');    
+    [obj.S,obj.ERR,obj.det_par]  = obj.rm_masked(ignore_nan,ignore_inf);
     if isempty(obj.S) || isempty(obj.ERR)
         error('File %s contains only masked detectors', obj.data_file_name);
     end
