@@ -9,6 +9,9 @@ classdef test_rebin < TestCase
         amp=10;
         testdir;
         this_folder;
+
+        % Tolerance to use when comparing single floats
+        FLOAT_TOL = 9e-5;
     end
     
     methods
@@ -110,8 +113,7 @@ classdef test_rebin < TestCase
             w2d_qq_sqw_reb_check.data.e=w2d_qq_sqw_reb.data.e;
             w2d_qq_sqw_reb_check.data.pix.variance=w2d_qq_sqw_reb.data.pix.variance;
             
-            rel_tol = 9e-5;
-            [ok,mess]=equal_to_tol(w2d_qq_sqw_reb_check,w2d_qq_sqw_reb,-rel_tol,'ignore_str', 1);
+            [ok,mess]=equal_to_tol(w2d_qq_sqw_reb_check,w2d_qq_sqw_reb,-this.FLOAT_TOL,'ignore_str', 1);
             assertTrue(ok,['rebin sqw using template object fails: ',mess])
         end
         
