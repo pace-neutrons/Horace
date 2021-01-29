@@ -1,7 +1,7 @@
-function urange = recompute_urange(w)
-% Recalculate urange for an sqw type object
+function img_range = recompute_img_range(w)
+% Recalculate img_range for an sqw type object
 %
-%   >> urange = recompute_urange(w)
+%   >> img_range = recompute_img_range(w)
 %
 % Input:
 % ------
@@ -9,16 +9,16 @@ function urange = recompute_urange(w)
 %
 % Output:
 % -------
-%   urange  urange as recomputed from the pix array
+%   img_range  img_range as recomputed from the pix array
 %
-% Recomputing urange requires the whole of the pixel array to be processed,
+% Recomputing img_range requires the whole of the pixel array to be processed,
 % as the pix coordinates are not the same as the projection axes coordinates.
 %
 npixtot = w.data.pix.num_pixels;
 
-% Catch trivial case of no pixels; convention for size of urange in this case
+% Catch trivial case of no pixels; convention for size of img_range in this case
 if npixtot == 0
-    urange = [Inf, Inf, Inf, Inf; -Inf, -Inf, -Inf, -Inf];
+    img_range = [Inf, Inf, Inf, Inf; -Inf, -Inf, -Inf, -Inf];
     return
 end
 
@@ -56,8 +56,8 @@ end
 proj_offset = u_to_rlu\(pix0(1:3) - u0(1:3));
 dE_offset = pix0(4) - u0(4);
 
-urange = zeros(2, 4);
-urange(1, 1:3) = (min_uq + proj_offset)';
-urange(2, 1:3) = (max_uq + proj_offset)';
-urange(1, 4) = min_dE + dE_offset;
-urange(2, 4) = max_dE + dE_offset;
+img_range = zeros(2, 4);
+img_range(1, 1:3) = (min_uq + proj_offset)';
+img_range(2, 1:3) = (max_uq + proj_offset)';
+img_range(1, 4) = min_dE + dE_offset;
+img_range(2, 4) = max_dE + dE_offset;

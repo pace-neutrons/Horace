@@ -111,7 +111,6 @@ classdef test_mask < TestCase
                 obj.sqw_2d.data.s(obj.mask_array_2d));
             % test_mask_does_not_change_unmasked_bins_npix
             assertEqual(masked_2d.data.npix(obj.mask_array_2d), ...
-                    obj.sqw_2d.data.npix(obj.mask_array_2d));
                 obj.sqw_2d.data.npix(obj.mask_array_2d));
 
             % test_num_pixels_has_been_reduced_by_correct_amount
