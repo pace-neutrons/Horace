@@ -35,7 +35,7 @@ inline void read_data(uint8_t* data, size_t& memPtr, mxArray* output, const size
     // Offset imaginary to end
     size_t imPtr = memPtr + (1+nElem)*compSize;
 
-    for (int i = 0; i < nElem; i+=elemSize, memPtr += compSize, imPtr += compSize) {
+    for (size_t i = 0; i < nElem; i+=elemSize, memPtr += compSize, imPtr += compSize) {
       memcpy(&toWrite[i]         , &data[memPtr],  compSize);
       memcpy(&toWrite[i+compSize], &data[imPtr] ,  compSize);
     }
@@ -143,7 +143,7 @@ mxArray* deserialise(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
         jc[row+1]++;
       }
 
-      for (int i = 1; i < dims[1]+1; i++) {
+      for (mwSize i = 1; i < dims[1]+1; i++) {
         jc[i] += jc[i-1];
       }
 
@@ -157,7 +157,7 @@ mxArray* deserialise(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
       deser(data, memPtr, arr, nElem*types_size[CHAR]);
       output = mxCreateCharArray(nDims, dims);
       char* out = (char*) mxGetPr(output);
-      for (int i =0; i < nElem; i++) {
+      for (size_t i = 0; i < nElem; i++) {
         out[2*i] = arr[i];
       }
     }
@@ -217,7 +217,7 @@ mxArray* deserialise(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
       case 3:
         {
           mxArray* parentage = deserialise(data, memPtr, size, 1);
-          const int len = mxGetNumberOfElements(parentage);
+          const int len = (int) mxGetNumberOfElements(parentage);
 
           // Initial output
           output = mxDuplicateArray(mxGetCell(parentage, len-1));
@@ -262,7 +262,7 @@ mxArray* deserialise(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
           std::vector<mxArray*> input {mxName, mxData};
           mexCallMATLAB(2, results.data(), 2, input.data(), "c_hlp_deserialise_object_self");
           output = results[0];
-          memPtr += mxGetScalar(results[1]);
+          memPtr += (size_t) mxGetScalar(results[1]);
           mxDestroyArray(mxName);
           mxDestroyArray(mxData);
         }
@@ -298,7 +298,7 @@ mxArray* deserialise(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
 
       std::vector<std::vector<char>> fNames(nFields);
       std::vector<char*> mxData(nFields);
-      for (int field=0; field < nFields; field++) {
+      for (uint32_t field=0; field < nFields; field++) {
         fNames[field] = std::vector<char>(fNameLens[field]+1);
         mxData[field] = fNames[field].data();
         fNames[field][fNameLens[field]] = 0;
@@ -310,8 +310,8 @@ mxArray* deserialise(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
 
       mxArray* cellData = deserialise(data, memPtr, size, 1);
 
-      for (int obj=0, elem=0; obj < nElem; obj++) {
-        for (int field=0; field < nFields; field++, elem++) {
+      for (size_t obj=0, elem=0; obj < nElem; obj++) {
+        for (uint32_t field=0; field < nFields; field++, elem++) {
           mxArray* cellElem = mxGetCell(cellData, elem);
           mxSetFieldByNumber(output, obj, field, cellElem);
         }
