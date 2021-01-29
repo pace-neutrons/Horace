@@ -24,6 +24,7 @@ function wout = cut_single(w, proj, pbin, pin, en, keep_pix, outfile)
 
 DND_CONSTRUCTORS = {@d0d, @d1d, @d2d, @d3d, @d4d};
 log_level = get(hor_config, 'log_level');
+return_cut = nargout > 0;
 
 wout = copy(w, 'exclude_pix', true);
 
@@ -45,7 +46,13 @@ proj = proj.set_proj_binning( ...
     );
 
 % Accumulate image and pixel data for cut
-[s, e, npix, pix_out, img_range] = cut_accumulate_data_(w, proj, keep_pix, log_level);
+[s, e, npix, pix_out, img_range, pix_comb_info] = cut_accumulate_data_( ...
+    w, proj, keep_pix, log_level, return_cut ...
+    );
+if ~isempty(pix_comb_info) && isa(pix_comb_info, 'pix_combine_info')
+    % Make sure we clean up temp files
+    cleanup = onCleanup(@() clean_up_tmp_files(pix_comb_info));
+end
 
 % Compile the accumulated cut and projection data into a data_sqw_dnd object
 data_out = compile_sqw_data(w.data, proj, s, e, npix, pix_out, img_range, ...
@@ -66,7 +73,7 @@ if exist('outfile', 'var') && ~isempty(outfile)
         disp(['Writing cut to output file ', outfile, '...']);
     end
     try
-        save_sqw(wout, outfile);
+        save(wout, outfile);
     catch ME
         warning('CUT_SQW:io_error', ...
             'Error writing to file ''%s''.\n%s: %s', ...
@@ -78,16 +85,8 @@ end  % function
 
 
 % -----------------------------------------------------------------------------
-function save_sqw(sqw_obj, file_path)
-loader = sqw_formats_factory.instance().get_pref_access();
-loader = loader.init(sqw_obj, file_path);
-loader.put_sqw();
-loader.delete();
-end
-
-
 function data_out = compile_sqw_data(data, proj, s, e, npix, pix_out, ...
-    img_range, ubins, keep_pix)
+    pix_comb_info, img_range, ubins, keep_pix)
 ppax = ubins.plot_ax_bounds(1:length(ubins.plot_ax_idx));
 if isempty(ppax)
     nbin_as_size = [1, 1];
@@ -117,8 +116,27 @@ data_out.iax = ubins.integration_axis_idx;
 data_out.iint = ubins.integration_range;
 data_out.pax = ubins.plot_ax_idx;
 data_out.p = ubins.plot_ax_bounds;
+data_out.img_range = img_range;
 
 if keep_pix
-    data_out.pix = pix_out;
+    % If pix_comb_info is not empty then we've been working with temp files
+    % for pixels. We can replace the PixelData object that's normally in
+    % sqw.data with this pix_combine_info object.
+    % When the object is passed to 'put_sqw' (it's saved), 'put_sqw' will
+    % combine the linked tmp files into the new sqw file.
+    if ~isempty(pix_comb_info) && isa(pix_comb_info, 'pix_combine_info')
+        data_out.pix = pix_comb_info;
+    else
+        data_out.pix = pix_out;
+    end
+end
+end
+
+
+function clean_up_tmp_files(pix_comb_info)
+% Manually clean-up temporary files created by a pix_combine_info object
+for i = 1:numel(pix_comb_info.infiles)
+    tmp_fpath = pix_comb_info.infiles{i};
+    delete(tmp_fpath);
 end
 end
