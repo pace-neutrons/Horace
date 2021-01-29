@@ -595,12 +595,13 @@ classdef test_PixelData < TestCase
 
         function test_dirty_pix_tmp_files_are_deleted_when_pix_out_of_scope(obj)
             old_rng_state = rng();
+            clean_up = onCleanup(@() rng(old_rng_state));
             fixed_seed = 774015;
             rng(fixed_seed, 'twister');  % this seed gives an expected object_id_ = 54452
             expected_tmp_dir = fullfile( ...
                 get(parallel_config, 'working_directory'), ...
-                'sqw_pix54452');
-            clean_up = onCleanup(@() rng(old_rng_state));
+                'sqw_pix54452' ...
+            );
 
             function do_pix_creation_and_delete()
                 data = rand(9, 30);
@@ -609,9 +610,10 @@ classdef test_PixelData < TestCase
 
                 pix.u1 = 1;
                 pix.advance();  % creates tmp file for first page
-                assertTrue(logical(exist(expected_tmp_dir, 'dir')), ...
-                    sprintf('Temp directory ''%s'' not created', ...
-                        expected_tmp_dir));
+                assertTrue( ...
+                    logical(exist(expected_tmp_dir, 'dir')), ...
+                    sprintf('Temp directory ''%s'' not created', expected_tmp_dir) ...
+                );
             end
 
             do_pix_creation_and_delete();
@@ -889,12 +891,13 @@ classdef test_PixelData < TestCase
 
         function test_unedited_dirty_pages_are_not_rewritten(obj)
             old_rng_state = rng();
+            clean_up = onCleanup(@() rng(old_rng_state));
             fixed_seed = 774015;  % this seed gives an expected object_id_ = 06706
             rng(fixed_seed, 'twister');
             expected_tmp_dir = fullfile( ...
                 get(parallel_config, 'working_directory'), ...
-                'sqw_pix06706');
-            clean_up = onCleanup(@() rng(old_rng_state));
+                'sqw_pix06706' ...
+            );
 
             data = rand(9, 10);
             npix_in_page = 3;
