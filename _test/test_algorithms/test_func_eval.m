@@ -100,7 +100,7 @@ classdef test_func_eval < TestCase
                 pars, ...
                 'outfile', outfile ...
             );
-            tmp_file_cleanup = @() cleanup_file(outfile);
+            tmp_file_cleanup = @() clean_up_file(outfile);
 
             assertTrue(logical(exist(outfile, 'file')));
 
