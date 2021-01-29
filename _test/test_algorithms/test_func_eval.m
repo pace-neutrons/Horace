@@ -4,6 +4,9 @@ classdef test_func_eval < TestCase
         sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw'
         sqw_1d_file_path = '../test_sqw_file/sqw_1d_1.sqw'
         sqw_2d;
+
+        quadratic = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
+        quadratic_params = {2, 3, 6};
     end
 
     methods
@@ -13,27 +16,21 @@ classdef test_func_eval < TestCase
         end
 
         %% Input validation
-        function test_error_if_func_handle_arg_is_not_a_function_handle(obj)
+        function test_SQW_error_if_func_handle_arg_is_not_a_function_handle(obj)
             sqw_in = sqw();
-            pars = {2, 3, 6};
-            f = @() func_eval(sqw_in, 'not_a_handle', pars);
+            f = @() func_eval(sqw_in, 'not_a_handle', obj.quadratic_params);
             assertExceptionThrown(f, 'SQW:func_eval:invalid_argument');
         end
 
-        function test_SQW_error_applying_func_eval_to_0D_sqw(~)
+        function test_SQW_error_applying_func_eval_to_0D_sqw(obj)
             sqw_in = sqw();
-            func = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
-            pars = {2, 3, 6};
-            f = @() func_eval(sqw_in, func, pars);
+            f = @() func_eval(sqw_in, obj.quadratic, obj.quadratic_params);
             assertExceptionThrown(f, 'SQW:func_eval:zero_dim_object');
         end
 
         function test_SQW_error_if_sqws_in_array_have_different_dimensions(obj)
             sqws_in = [sqw(obj.sqw_1d_file_path), obj.sqw_2d];
-
-            func = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
-            pars = {2, 3, 6};
-            f = @() func_eval(sqws_in, func, pars);
+            f = @() func_eval(sqws_in, obj.quadratic, obj.quadratic_params);
             assertExceptionThrown(f, 'SQW:func_eval:unequal_dims');
         end
 
@@ -41,36 +38,28 @@ classdef test_func_eval < TestCase
             sqws_in = [obj.sqw_2d, obj.sqw_2d];
             outfile = 'some_path';
 
-            func = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
-            pars = {2, 3, 6};
-
-            f = @() func_eval(sqws_in, func, pars, 'outfile', outfile);
+            f = @() func_eval( ...
+                sqws_in, obj.quadratic, obj.quadratic_params, 'outfile', outfile ...
+            );
             assertExceptionThrown(f, 'SQW:func_eval:invalid_arguments');
         end
 
         %% In memory execution
-        function test_you_apply_func_eval_to_an_sqw_object(obj)
-            sqw_in = obj.sqw_2d;
-
-            func = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
-            pars = {2, 3, 6};
-            sqw_out = func_eval(sqw_in, func, pars);
+        function test_applying_func_eval_to_sqw_object_returns_correct_sqw_data(obj)
+            sqw_out = func_eval(obj.sqw_2d, obj.quadratic, obj.quadratic_params);
 
             assertElementsAlmostEqual( ...
                 sqw_out.data.s(end, :), ...
                 [4.0150, 4.0238, 4.0342, 4.0462, 4.0598, 4.0750, 4.0918, ...
                  4.1102, 4.1302, 4.1518, 4.1750] ...
             );
-            obj.validate_func_eval_output(sqw_in, sqw_out);
+            obj.validate_func_eval_output(obj.sqw_2d, sqw_out);
         end
 
-        function test_you_can_apply_func_eval_to_array_of_sqw_objects(obj)
-            sqw_in = obj.sqw_2d;
-            sqws_in = repmat(sqw_in, [2, 3]);
+        function test_func_eval_on_array_of_sqw_objects_returns_correct_sqw_data(obj)
+            sqws_in = repmat(obj.sqw_2d, [2, 3]);
 
-            func = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
-            pars = {2, 3, 6};
-            sqws_out = func_eval(sqws_in, func, pars);
+            sqws_out = func_eval(sqws_in, obj.quadratic, obj.quadratic_params);
 
             assertEqual(size(sqws_out), size(sqws_in));
             for i = 1:numel(sqws_in)
@@ -79,23 +68,21 @@ classdef test_func_eval < TestCase
                     [4.0150, 4.0238, 4.0342, 4.0462, 4.0598, 4.0750, 4.0918, ...
                      4.1102, 4.1302, 4.1518, 4.1750] ...
                 );
-                obj.validate_func_eval_output(sqw_in, sqws_out(i));
+                obj.validate_func_eval_output(obj.sqw_2d, sqws_out(i));
             end
         end
 
         %% File-backed operation
-        function test_you_can_apply_func_eval_to_an_sqw_file(obj)
-            func = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
-            pars = {2, 3, 6};
-            sqw_out = func_eval(obj.sqw_2d_file_path, func, pars);
+        function test_applying_func_eval_to_an_sqw_file_returns_correct_sqw_data(obj)
+            sqw_out = func_eval(obj.sqw_2d, obj.quadratic, obj.quadratic_params);
 
             assertElementsAlmostEqual( ...
                 sqw_out.data.s(end, :), ...
                 [4.0150, 4.0238, 4.0342, 4.0462, 4.0598, 4.0750, 4.0918, ...
                  4.1102, 4.1302, 4.1518, 4.1750] ...
             );
-            sqw_in = obj.sqw_2d;
-            obj.validate_func_eval_output(sqw_in, sqw_out);
+
+            obj.validate_func_eval_output(obj.sqw_2d, sqw_out);
         end
 
         function test_you_can_apply_func_eval_to_sqw_obj_and_output_to_file(obj)
