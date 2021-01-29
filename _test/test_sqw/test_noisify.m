@@ -7,6 +7,7 @@ classdef test_noisify < TestCase
         test_sqw_file_full_path = '';
         search_path_herbert_shared = fullfile(herbert_root, '_test/shared');
     end
+
     
     methods
         
