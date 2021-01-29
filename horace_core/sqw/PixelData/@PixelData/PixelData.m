@@ -127,10 +127,10 @@ classdef PixelData < handle
         
         % The 2nd dimension of the crystal cartesian orientation (1 x n array) [A^-1]
         u2;
-
+        
         % The 3rd dimension of the crystal cartesian orientation (1 x n array) [A^-1]
         u3;
-
+        
         % The spatial dimensions of the crystal cartesian orientation (3 x n array)
         q_coordinates;
         
@@ -178,12 +178,11 @@ classdef PixelData < handle
         % The number of pixels that can fit in one page of data
         base_page_size;
     end
-
     properties(Access=public,Hidden)
         % Contains the range(min/max value) of a block of pixels,
-        % changed by set.pixels methods. Exposed to be used in algorithms, 
-        % looping over the paged pixels and changing object using 
-        % coordinate setters to calculate and set-up correct global pixels 
+        % changed by set.pixels methods. Exposed to be used in algorithms,
+        % looping over the paged pixels and changing object using
+        % coordinate setters to calculate and set-up correct global pixels
         % range in conjunction with set_range method at the end of the loop.
         page_range;
     end
@@ -436,7 +435,7 @@ classdef PixelData < handle
             % advance past the final page of data in the file.
             %
             % This function does nothing if the pixel data is not file-backed.
-            % 
+            %
             % Returns:
             % current page number and total number of pages advance will
             % walk through to complete the algorithm
@@ -688,7 +687,7 @@ classdef PixelData < handle
             % Function allows to set the pixels range (min/max values of
             % pixels coordinates)
             %
-            % Use with caution!!! No checks that the set range is the 
+            % Use with caution!!! No checks that the set range is the
             % correct range for pixels, holded by the class are
             % performed, while subsequent algorithms may rely on pix range
             % to be correct. A out-of memory write can occur during rebinning
@@ -822,7 +821,7 @@ classdef PixelData < handle
             % set appropriate range of pixel coordinates.
             % The coordinates are defined by the selected field
             %
-            % Sets up the property page_range defining the range of block 
+            % Sets up the property page_range defining the range of block
             % of pixels chaned at current iteration.
             %
             if isempty(obj.raw_data_)

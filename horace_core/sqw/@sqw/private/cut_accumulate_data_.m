@@ -1,5 +1,5 @@
-function [s, e, npix, pix_out, img_range] = ...
-    cut_accumulate_data_(obj, proj, keep_pix, log_level)
+function [s, e, npix, pix_out, img_range, pix_comb_info] = ...
+    cut_accumulate_data_(obj, proj, keep_pix, log_level, return_cut)
 %%CUT_ACCUMULATE_DATA Accumulate image and pixel data for a cut
 %
 % Input:
@@ -9,6 +9,9 @@ function [s, e, npix, pix_out, img_range] = ...
 %            is false return variable 'pix_out' will be empty.
 % log_level  The verbosity of the log messages. The values correspond to those
 %            used in 'hor_config', see `help hor_config/log_level`.
+% return_cut If true, the cut is intended to be returned as an object and
+%            pixels must be returned in memory. If false, we allow pixels to be
+%            held in temporary files managed by a pix_combine_info object.
 %
 % Output:
 % -------
@@ -20,6 +23,9 @@ function [s, e, npix, pix_out, img_range] = ...
 %                  cut.
 % img_range        The range of u1, u2, u3, and dE in the contributing pixels.
 %                  size(urange_pix) == [2, 4].
+% pix_combine_info A temp file manager/combiner for performing out-of-memory
+%                  cuts. If keep_pix is false, or return_cut is true, this
+%                  will be empty.
 %
 % CALLED BY cut_single
 %
@@ -35,6 +41,7 @@ img_range_step = [Inf(1, 4); -Inf(1, 4)];
 if isempty(bin_starts)
     % No pixels in range, we can return early
     pix_out = PixelData();
+    pix_comb_info = [];
     img_range = img_range_step;
     return
 end
@@ -45,9 +52,23 @@ cum_bin_sizes = cumsum(bin_ends - bin_starts);
 block_size = obj.data.pix.base_page_size;
 max_num_iters = ceil(cum_bin_sizes(end)/block_size);
 
+% If we only have one iteration of pixels to cut then we must be able to fit
+% all pixels in memory, hence no need to use temporary files.
+use_tmp_files = ~return_cut && max_num_iters > 1;
+
+if keep_pix
 % Pre-allocate cell arrays to hold PixelData chunks
 pix_retained = cell(1, max_num_iters);
 pix_ix_retained = cell(1, max_num_iters);
+
+    if use_tmp_files
+        % Create a pix_comb_info object to handle tmp files of pixels
+        num_bins = numel(s);
+        pix_comb_info = init_pix_combine_info(max_num_iters, num_bins);
+    else
+        pix_comb_info = [];
+    end
+end
 
 block_end_idx = 0;
 for iter = 1:max_num_iters
@@ -114,21 +135,31 @@ for iter = 1:max_num_iters
     end
 
     if keep_pix
-        % TODO: If cutting from file to file with no return value, use
-        % PixelData.append to deal with temporary files, so we don't need to
-        % hold all pixels in memory.
-
+        if use_tmp_files
+            % Generate tmp files and get a pix_combine_info object to manage
+            % the files - this object then recombines the files once it is
+            % passed to 'put_sqw'.
+            buf_size = obj.data.pix.page_size;
+            pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file( ...
+                pix_comb_info, false, candidate_pix, ok, ix, npix, buf_size, ...
+                del_npix_retain ...
+            );
+        else
         % Retain only the pixels that contributed to the cut
         pix_retained{iter} = candidate_pix.get_pixels(ok);
         pix_ix_retained{iter} = ix;
+    end
     end
 
 end  % loop over pixel blocks
 
 if keep_pix
-    pix_out = sort_pix(pix_retained, pix_ix_retained, npix);
+    [pix_out, pix_comb_info] = combine_pixels( ...
+        pix_retained, pix_ix_retained, pix_comb_info, npix, obj.data.pix.page_size ...
+    );
 else
     pix_out = PixelData();
+    pix_comb_info = [];
 end
 
 % Convert range from steps to actual range with respect to output uoffset
@@ -167,4 +198,51 @@ function [s, e] = average_signal(s, e, npix)
     % By convention, signal and error are zero if no pixels contribute to bin
     s(no_pix) = 0;
     e(no_pix) = 0;
+end
+
+
+function pci = init_pix_combine_info(nfiles, nbins)
+    % Create a pix_combine_info object to manage temporary files of pixels
+    wk_dir = get(parallel_config, 'working_directory');
+    tmp_file_names = gen_array_of_tmp_file_paths(nfiles, wk_dir);
+    pci = pix_combine_info(tmp_file_names, nbins);
+end
+
+
+function paths = gen_array_of_tmp_file_paths(nfiles, base_dir)
+    % Generate a cell array of paths for temporary files to be written to
+    % Format of the file names follows:
+    %   horace_cut_<UUID>_<counter_with_padded_zeros>.tmp
+    if nfiles < 1
+        error('CUT:cut_accumulate_data_', ...
+              ['Cannot create temporary file paths for less than 1 file.' ...
+               '\nFound %i.'], nfiles);
+    end
+    prefix = 'horace_cut';
+    uuid = char(java.util.UUID.randomUUID());
+    counter_padding = floor(log10(nfiles)) + 1;
+    format_str = sprintf('%s_%s_%%0%ii.tmp', prefix, uuid, counter_padding);
+    paths = cell(1, nfiles);
+    for i = 1:nfiles
+        paths{i} = fullfile(base_dir, sprintf(format_str, i));
+    end
+end
+
+
+function [pix, pix_comb_info] = combine_pixels( ...
+        pix_retained, pix_ix_retained, pix_comb_info, npix, buf_size ...
+)
+    % Combine and sort in-memory pixels or finalize accumulation of pixels in
+    % temporary files managed by a pix_combine_info object.
+    if ~isempty(pix_comb_info)
+        % Pixels are stored in tmp files managed by pix_combine_info object
+        pix = PixelData();
+        finish_accumulation = true;
+        pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file( ...
+            pix_comb_info, finish_accumulation, pix, [], [], npix, buf_size, 0 ...
+        );
+    else
+        % Pixels stored in-memory in PixelData object
+        pix = sort_pix(pix_retained, pix_ix_retained, npix);
+    end
 end
