@@ -1,5 +1,9 @@
 classdef test_func_eval < TestCase
 
+    properties (Constant)
+        FLOAT_TOL = 1e-5;
+    end
+
     properties
         sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw'
         sqw_1d_file_path = '../test_sqw_file/sqw_1d_1.sqw'
@@ -7,6 +11,11 @@ classdef test_func_eval < TestCase
 
         quadratic = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
         quadratic_params = {2, 3, 6};
+        % Reference data for the final row of the expected output image signal
+        final_img_signal_row = [...
+            4.0150, 4.0238, 4.0342, 4.0462, 4.0598, 4.0750, 4.0918, ...
+            4.1102, 4.1302, 4.1518, 4.1750 ...
+        ];
     end
 
     methods
@@ -50,8 +59,7 @@ classdef test_func_eval < TestCase
 
             assertElementsAlmostEqual( ...
                 sqw_out.data.s(end, :), ...
-                [4.0150, 4.0238, 4.0342, 4.0462, 4.0598, 4.0750, 4.0918, ...
-                 4.1102, 4.1302, 4.1518, 4.1750] ...
+                obj.final_img_signal_row ...
             );
             obj.validate_func_eval_output(obj.sqw_2d, sqw_out);
         end
@@ -64,9 +72,8 @@ classdef test_func_eval < TestCase
             assertEqual(size(sqws_out), size(sqws_in));
             for i = 1:numel(sqws_in)
                 assertElementsAlmostEqual( ...
-                sqws_out(i).data.s(end, :), ...
-                    [4.0150, 4.0238, 4.0342, 4.0462, 4.0598, 4.0750, 4.0918, ...
-                     4.1102, 4.1302, 4.1518, 4.1750] ...
+                    sqws_out(i).data.s(end, :), ...
+                    obj.final_img_signal_row ...
                 );
                 obj.validate_func_eval_output(obj.sqw_2d, sqws_out(i));
             end
@@ -78,14 +85,32 @@ classdef test_func_eval < TestCase
 
             assertElementsAlmostEqual( ...
                 sqw_out.data.s(end, :), ...
-                [4.0150, 4.0238, 4.0342, 4.0462, 4.0598, 4.0750, 4.0918, ...
-                 4.1102, 4.1302, 4.1518, 4.1750] ...
+                obj.final_img_signal_row ...
             );
 
             obj.validate_func_eval_output(obj.sqw_2d, sqw_out);
         end
 
-        function test_you_can_apply_func_eval_to_sqw_obj_and_output_to_file(obj)
+        function test_applying_func_eval_to_sqw_obj_with_outfile_outputs_to_file(obj)
+            pars = obj.quadratic_params;
+            outfile = obj.get_tmp_file_path();
+            func_eval( ...
+                obj.sqw_2d_file_path, ...
+                obj.quadratic, ...
+                pars, ...
+                'outfile', outfile ...
+            );
+            tmp_file_cleanup = @() cleanup_file(outfile);
+
+            assertTrue(logical(exist(outfile, 'file')));
+
+            sqw_out = sqw(outfile);
+            assertEqualToTol( ...
+                sqw_out.data.s(end, :), ...
+                obj.final_img_signal_row, ...
+                'reltol', obj.FLOAT_TOL ...
+            );
+            obj.validate_func_eval_output(obj.sqw_2d, sqw_out);
         end
 
         function test_you_can_apply_func_eval_to_cell_array_of_sqw_files(obj)
@@ -132,6 +157,16 @@ classdef test_func_eval < TestCase
             % Check that all pixel variances are set to zero
             variance = sig_var(2, :);
             assertEqual(variance, zeros(1, sum(sqw_out.data.npix(:))));
+        end
+
+        function tmp_file_path = get_tmp_file_path()
+            % Get a temporary file path, with file name the name of the caller
+            % function.
+            % This indicates where the tmp file originated from and makes sure
+            % tmp files have unique if tests are run in parallel.
+            call_stack = dbstack();
+            caller_name = call_stack(2).name;
+            tmp_file_path = fullfile(tmp_dir(), [caller_name, '.tmp']);
         end
     end
 
