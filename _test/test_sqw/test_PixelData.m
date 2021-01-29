@@ -57,10 +57,10 @@ classdef test_PixelData < TestCase
             obj.raw_pix_range = obj.get_ref_range(obj.raw_pix_data);
 
             source_sqw_file = java.io.File(pwd(), obj.tst_source_sqw_file_path);
-            source_sqw_file  = char(source_sqw_file .getCanonicalPath());
-            [~,fn] = fileparts(source_sqw_file);
-            test_sqw_file_full_path = fullfile(tmp_dir,[fn,'.sqw']);
-            copyfile(source_sqw_file,test_sqw_file_full_path);
+            source_sqw_file  = char(source_sqw_file.getCanonicalPath());
+            [~, fn] = fileparts(source_sqw_file);
+            test_sqw_file_full_path = fullfile(tmp_dir, [fn, '.sqw']);
+            copyfile(source_sqw_file, test_sqw_file_full_path);
             modify_pix_ranges(test_sqw_file_full_path);
             obj.tst_sqw_file_full_path = test_sqw_file_full_path;
 
@@ -1089,7 +1089,6 @@ classdef test_PixelData < TestCase
             assertEqual(pix_data, data);
         end
 
-        %
         function test_append_returns_editied_pix_if_nargout_eq_1(obj)
             % test for filebased pix_range. Has a problem
             pix = PixelData(obj.tst_sqw_file_full_path);
@@ -1103,13 +1102,11 @@ classdef test_PixelData < TestCase
             % img_range, stored in the file is different from
             % pix(min/max)
             assertEqual(ref_range,out_pix.pix_range);
-
             assertEqual(out_pix.num_pixels, pix.num_pixels + pix_to_append.num_pixels);
             original_pix_data = concatenate_pixel_pages(pix);
             out_pix_data = concatenate_pixel_pages(out_pix);
             assertEqual(out_pix_data, horzcat(original_pix_data, pix_to_append.data));
         end
-
 
         function test_calling_append_with_empty_pixel_data_does_nothing(~)
             pix = PixelData(rand(9, 5));
@@ -1127,8 +1124,10 @@ classdef test_PixelData < TestCase
             num_appended_pix = 5;
             pix_to_append = PixelData(rand(9, num_appended_pix));
             range2 = pix_to_append.pix_range;
-            ref_range = [min(range1(1,:),range2(1,:));...
-                max(range1(2,:),range2(2,:))];
+            ref_range = [ ...
+                min(range1(1,:),range2(1,:));...
+                max(range1(2,:),range2(2,:)) ...
+            ];
 
             pix.append(pix_to_append);
             assertEqual(ref_range,pix.pix_range);
@@ -1619,12 +1618,11 @@ classdef test_PixelData < TestCase
             % Set all signals in page 4 to 12
             pix.signal = 12;
             pix.advance();  % advance to save pixels to tmp file (pg 4 is dirty)
-
             pg_size = pix.base_page_size;
             % Set a range spanning into the first and second page and half of the
             % 4th page
             pix_range = [5:(pg_size + 100), ...
-                (3*pg_size + 4):(3*pg_size + floor(pg_size/2))];
+                         (3*pg_size + 4):(3*pg_size + floor(pg_size/2))];
             new_pix = pix.get_pixels(pix_range);
 
             % Load the whole file into a PixelData object, set the corresponding
@@ -1667,7 +1665,6 @@ classdef test_PixelData < TestCase
             pix.advance();
             pix.signal = 11;
             pix.advance();
-
             pg_size = pix.base_page_size;
             % Repeat each index from 1 to the page size 3 times
             pix_range = repelem(1:3*pg_size, 3);
@@ -1689,8 +1686,8 @@ classdef test_PixelData < TestCase
             pix.signal = 11;
             % Do not advance past edited page, changes only exist in cache and not
             % in temporary files
-
             pg_size = pix.base_page_size;
+
             % Repeat each index from 1 to the page size 3 times
             pix_range = repelem(1:3*pg_size, 3);
             new_pix = pix.get_pixels(pix_range);
