@@ -135,6 +135,11 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
     elseif opts.all_bins
         wout(i).data.npix=ones(size(wout(i).data.npix));    % in this case, must set npix>0 to be plotted.
     end
+
+    % Save to file if outfile argument is given
+    if ~isempty(opts.outfile) && ~isempty(opts.outfile{i})
+        save(wout(i), opts.outfile{i});
+    end
 end
 
 end  % function
@@ -162,7 +167,9 @@ function [pars, opts] = parse_args(win, func_handle, pars, varargin)
         pars = {pars};
     end
     opts.all_bins = keyval.all;
-    if ~iscell(keyval.outfile)
+    if isempty(keyval.outfile)
+        opts.outfile = {};
+    elseif ~iscell(keyval.outfile)
         opts.outfile = {keyval.outfile};
     else
         opts.outfile = keyval.outfile;
