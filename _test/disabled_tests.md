@@ -1,7 +1,7 @@
 # Disabled tests
 
 - test_change_crystal_1a.m
-        - test_u_alighnment_tf_way (no ticket) -- Why disasbled?
+        - test_u_alighnment_tf_way (no ticket) -- Why disabled?
 	- test_u_alighnment (no ticket)
 
 - test_gen_sqw_powders.m - Not called that? test_gen_sqw_powders/test_combine_cyl.m
@@ -30,6 +30,8 @@
 - test_rebin.m
     - test_rebin_d1d (no ticket)
 
+test_gen_sqw_accumulate_sqw_parpool.m (https://github.com/pace-neutrons/Horace/issues/380)
+ - test_accumulate_sqw1456
     
 - test_combine_sqw.m  (https://github.com/pace-neutrons/Horace/issues/464)
     - _test_combine1D
