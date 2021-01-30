@@ -70,8 +70,8 @@ classdef test_gen_sqw_accumulate_sqw_parpool <  ...
             test_accumulate_and_combine1to4@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
         end
         function test_accumulate_sqw1456(obj,varargin) 
-            skipTest('Test test_accumulate_sqw1456 is disabled');
-            % test_accumulate_sqw1456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
+            %skipTest('Test test_accumulate_sqw1456 is disabled');
+            test_accumulate_sqw1456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
         end
         function test_accumulate_sqw11456(obj,varargin)
             test_accumulate_sqw11456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
