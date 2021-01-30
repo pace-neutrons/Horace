@@ -55,7 +55,8 @@ if ~isempty(pix_comb_info) && isa(pix_comb_info, 'pix_combine_info')
 end
 
 % Compile the accumulated cut and projection data into a data_sqw_dnd object
-data_out = compile_sqw_data(w.data, proj, s, e, npix, pix_out, img_range, ...
+data_out = compile_sqw_data(...
+    w.data, proj, s, e, npix, pix_out,pix_comb_info, img_range, ...
     ubins, keep_pix);
 
 % Assign the new data_sqw_dnd object to the output SQW object, or create a new
