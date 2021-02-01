@@ -67,6 +67,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         %TODO: disabled until full functionality is implemeneted in new class;
         % The addition of this method causes sqw_old tests to incorrectly load data from .mat files
         % as new-SQW class objects
+        
         function obj = loadobj(S)
             % Load a sqw object from a .mat file
             %
@@ -79,8 +80,21 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             % -------
             % Output:
             %   obj     An instance of this object
+            if isa(S,'sqw')
+               obj = S;
+               return
+            end
+            if numel(S)>1
+               tmp = sqw();
+               obj = repmat(tmp, size(S));
+               for i = 1:numel(S)
+                   obj(i) = sqw(S(i));
+               end
+               return;
+            end
             obj = sqw(S);
         end
+        
     end
 
     methods(Access = protected)
