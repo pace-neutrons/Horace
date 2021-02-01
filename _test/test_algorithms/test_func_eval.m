@@ -92,12 +92,11 @@ classdef test_func_eval < TestCase
         end
 
         function test_applying_func_eval_to_sqw_obj_with_outfile_outputs_to_file(obj)
-            pars = obj.quadratic_params;
             outfile = obj.get_tmp_file_path();
             func_eval( ...
                 obj.sqw_2d_file_path, ...
                 obj.quadratic, ...
-                pars, ...
+                obj.quadratic_params, ...
                 'outfile', outfile ...
             );
             tmp_file_cleanup = @() clean_up_file(outfile);
@@ -114,9 +113,31 @@ classdef test_func_eval < TestCase
         end
 
         function test_you_can_apply_func_eval_to_cell_array_of_sqw_files(obj)
+            sqw_files_in = {obj.sqw_2d_file_path, obj.sqw_2d_file_path};
+
+            sqws_out = func_eval(sqw_files_in, obj.quadratic, obj.quadratic_params);
+
+            assertEqual(size(sqws_out), [1, 2]);
+            for i = 1:numel(sqw_files_in)
+                obj.validate_func_eval_output(obj.sqw_2d, sqws_out(i));
+            end
         end
 
-        function test_you_can_apply_func_eval_to_mix_of_sqw_objects_and_files(obj)
+        function test_error_raised_if_func_eval_called_with_mix_of_sqw_and_dnd(obj)
+            inputs = {obj.sqw_2d, d2d(obj.sqw_2d)};
+            f = @() func_eval(inputs, obj.quadratic, obj.quadratic_params);
+            assertExceptionThrown(f, 'HORACE:func_eval:input_type_error');
+        end
+
+        function test_you_can_apply_func_eval_to_cell_arr_with_files_and_objects(obj)
+            inputs = {obj.sqw_2d, obj.sqw_2d_file_path};
+
+            sqws_out = func_eval(inputs, obj.quadratic, obj.quadratic_params);
+
+            assertEqual(size(sqws_out), [1, 2]);
+            for i = 1:numel(inputs)
+                obj.validate_func_eval_output(obj.sqw_2d, sqws_out(i));
+            end
         end
 
         function test_you_can_apply_func_eval_to_a_dnd_object(obj)
