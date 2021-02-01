@@ -13,7 +13,7 @@ function [res,varargout] = get_sqw (obj,varargin)
 %
 %   opt         [optional] Determines which fields to read:
 %                                    (If the file was written from a structure of type 'b' or 'b+', then
-%                                    urange does not exist, and the output field will not be created)
+%                                    img_range does not exist, and the output field will not be created)
 %                   '-verbatim'    Same as '-h' except that the file name as stored in the main_header and
 %                                  data sections are returned as stored, not constructed from the
 %                                  value of fopen(fid). This is needed in some applications where
@@ -26,21 +26,19 @@ function [res,varargout] = get_sqw (obj,varargin)
 %  fully formed sqw object
 %
 %   data        Output data structure actually read from the file. Will be one of:
-%                   type 'h'    fields: filename,...,uoffset,...,dax[,urange]
+%                   type 'h'    fields: filename,...,uoffset,...,dax[,img_range]
 %                   type 'b'    fields: filename,...,uoffset,...,dax,s,e
 %                   type 'b+'   fields: filename,...,uoffset,...,dax,s,e,npix
-%                   type 'a-'   fields: filename,...,uoffset,...,dax,s,e,npix,urange
-%                   type 'a'    fields: filename,...,uoffset,...,dax,s,e,npix,urange,pix
-%               The final field urange is present for type 'h' if the header information was read from an sqw-type file.
+%                   type 'a-'   fields: filename,...,uoffset,...,dax,s,e,npix,img_range
+%                   type 'a'    fields: filename,...,uoffset,...,dax,s,e,npix,img_range,pix
+%               The final field img_range is present for type 'h' if the header information was read from an sqw-type file.
 %
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 if nargout > 1
     [res,varargout] = obj.get_dnd(varargin{:});
 else
     res = obj.get_dnd(varargin{:});
 end
-
 

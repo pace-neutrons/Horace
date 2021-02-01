@@ -1,9 +1,9 @@
-function [grid_size, urange] = write_qspec_to_sqw (qspec_file, sqw_file, efix, emode, alatt, angdeg,...
-    u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
+function [grid_size, pix_range] = write_qspec_to_sqw (qspec_file, sqw_file, efix, emode, alatt, angdeg,...
+    u, v, psi, omega, dpsi, gl, gs, grid_size_in, pix_range_in)
 % Read ascii column data and create a single sqw file.
 %
 %   >> write_qspec_to_sqw (qspec_file, sqw_file, efix, emode, alatt, angdeg,...
-%                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, urange_in)
+%                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, pix_range_in)
 %
 % Input:
 % ------
@@ -28,18 +28,17 @@ function [grid_size, urange] = write_qspec_to_sqw (qspec_file, sqw_file, efix, e
 %   gl              Large goniometer arc angle (rad)
 %   gs              Small goniometer arc angle (rad)
 %   grid_size_in    Scalar or row vector of grid dimensions. Default is [1x1x1x1]
-%   urange_in       Range of data grid for output. If not given, then uses smallest hypercuboid
+%   pix_range_in       Range of data grid for output. If not given, then uses smallest hypercuboid
 %                  that encloses the whole data range
 %
 % Output:
 % -------
 %   grid_size       Actual grid size used (size is unity along dimensions
 %                  where there is zero range of the data points)
-%   urange          Actual range of grid
+%   pix_range          Actual range of grid
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 
@@ -56,13 +55,13 @@ if exist('grid_size_in','var') && ~(isnumeric(grid_size_in)&&(isscalar(grid_size
     error ('Grid size must be scalar or row vector length 4')
 end
 
-% Check urange_in is valid, if provided
-if exist('urange_in','var')
-    if ~(isnumeric(urange_in) && length(size(urange_in))==2 && all(size(urange_in)==[2,4]) && all(urange_in(2,:)-urange_in(1,:)>=0))
-        error('urange must be 2x4 array, first row lower limits, second row upper limits, with lower<=upper')
+% Check pix_range_in is valid, if provided
+if exist('pix_range_in','var')
+    if ~(isnumeric(pix_range_in) && length(size(pix_range_in))==2 && all(size(pix_range_in)==[2,4]) && all(pix_range_in(2,:)-pix_range_in(1,:)>=0))
+        error('pix_range must be 2x4 array, first row lower limits, second row upper limits, with lower<=upper')
     end
 else
-    urange_in =[];
+    pix_range_in =[];
 end
 
 % Read qx-qy-qz-signal-error file
@@ -101,7 +100,7 @@ rd.ERR = data.ERR;
 rd.en  = data.en;
 %instrument_default=struct;  % default 1x1 struct *** Should generalise
 %sample_default=struct;      % default 1x1 struct *** Should generalise
-[w,grid_size,urange] = rd.calc_sqw(grid_size_in,urange_in,args{:});
+[w,grid_size,pix_range] = rd.calc_sqw(grid_size_in,pix_range_in,args{:});
 
 save(w,sqw_file);
 

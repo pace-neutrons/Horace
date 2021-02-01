@@ -30,9 +30,6 @@
 - test_rebin.m
     - test_rebin_d1d (no ticket)
 
-- test_gen_sqw_accumulate_sqw_parpool.m (https://github.com/pace-neutrons/Horace/issues/380)
-    - test_accumulate_sqw1456
-
 - test_sqw_class/test_binary_ops.m -- DnD tests disabled pending code implementation
     - test_adding_sqw_and_dnd_objects_1st_operand_is_sqw_returns_sqw
     - test_adding_sqw_and_dnd_objects_2nd_operand_is_sqw_returns_sqw
@@ -45,3 +42,6 @@
     
 - test_combine_sqw.m  (https://github.com/pace-neutrons/Horace/issues/464)
     - _test_combine1D
+
+-  test_gen_sqw_workflow:gen_sqw_accumulate_sqw_tests_common
+     - test_gen_sqw_sym  -- disabled for symetrization ticket: (https://github.com/pace-neutrons/Horace/issues/464)

@@ -20,7 +20,7 @@ w = win;
 w.data.s = sigvar_obj.s;
 w.data.e = sigvar_obj.e;
 
-if ~isempty(w.data.pix)
+if has_pixels(w)
     % RAE spotted error 8/12/2010: should only create pix field if sqw object
     stmp = replicate_array(w.data.s, w.data.npix)';
     etmp = replicate_array(w.data.e, w.data.npix)';

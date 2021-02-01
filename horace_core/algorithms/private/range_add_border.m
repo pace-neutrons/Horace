@@ -1,11 +1,11 @@
-function urange=range_add_border(urange_in, tol)
+function range=range_add_border(range_in, tol)
 % Add a small border to a range.
 %
-%   >> urange=range_add_border(urange_in)
+%   >> range=range_add_border(range_in)
 %
 % Input:
 % ------
-%   urange_in   Range of data (2xn array)
+%   range_in   Range of data (2xn array)
 %               [u1_min,u2_min,...;u1_max,u2_max,...]
 %
 %   tol         Control size of border:
@@ -17,20 +17,20 @@ function urange=range_add_border(urange_in, tol)
 %
 % Output:
 % -------
-%   urange      Expanded range
+%   range      Expanded range
 
-ndim=size(urange_in,2);
+ndim=size(range_in,2);
 if tol==0
-    urange=urange_in;
+    range=range_in;
     return
 elseif tol>0
-    urange=urange_in+tol*([-ones(1,ndim);ones(1,ndim)]);
+    range=range_in+tol*([-ones(1,ndim);ones(1,ndim)]);
 elseif tol<0
-    no_range=(urange_in(1,:)==urange_in(2,:));
-    border=abs(tol*(urange_in(2,:)-urange_in(1,:)));
+    no_range=(range_in(1,:)==range_in(2,:));
+    border=abs(tol*(range_in(2,:)-range_in(1,:)));
     border=[-border;border];
-    urange=urange_in;
-    urange(:,~no_range)=urange(:,~no_range)+border(:,~no_range);
+    range=range_in;
+    range(:,~no_range)=range(:,~no_range)+border(:,~no_range);
     abs_tol = abs(tol)*([-ones(1,ndim);ones(1,ndim)]);
-    urange(:,no_range)  = urange(:,no_range)+abs_tol(:,no_range);   
+    range(:,no_range)  = range(:,no_range)+abs_tol(:,no_range);   
 end

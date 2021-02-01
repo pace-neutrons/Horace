@@ -1,8 +1,8 @@
-function urange = calc_urange_(efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+function pix_range = calc_pix_range_(efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 % Compute range of data for a data files given the projection axes and crystal orientation
 %
 % Normal use:
-%   >> urange = calc_urange (efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+%   >> pix_range = calc_pix_range (efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 %
 % Input: (in the following, nfile = no. spe files)
 % ------
@@ -11,7 +11,7 @@ function urange = calc_urange_(efix, emode, eps_lo, eps_hi, det, alatt, angdeg, 
 %   eps_lo          Lower energy transfer (meV)        [vector length nfile]
 %   eps_hi          Upper energy transfer (meV)        [vector length nfile]
 %                  If empty (i.e. ehi=[]) then this argument is ignored. Use this
-%                  if just want to calculate urange for a single energy transfer.
+%                  if just want to calculate pix_range for a single energy transfer.
 %   det             Name of detector .par file, or detector structure as read by get_par
 %                                                      [single file name or scalar structure]
 %   alatt           Lattice parameters (Ang^-1)        [vector length 3 or array size [nfile,3]]
@@ -29,12 +29,11 @@ function urange = calc_urange_(efix, emode, eps_lo, eps_hi, det, alatt, angdeg, 
 %
 % Output:
 % --------
-%   urange          Actual range of data in crystal Cartesian coordinates and
-%                   energy transfer (2x4 array)
+%   pix_range      Actual range of data in crystal Cartesian coordinates and
+%                  energy transfer (2x4 array)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 nfile=numel(efix);
@@ -65,15 +64,15 @@ else
 end
 
 detdcn=calc_detdcn(det);
-urange=[Inf, Inf, Inf, Inf;-Inf,-Inf,-Inf,-Inf];
+pix_range=[Inf, Inf, Inf, Inf;-Inf,-Inf,-Inf,-Inf];
 for i=1:nfile
     if ~eps_hi_empty
         data.en=[eps_lo(i);eps_hi(i)];
     else
         data.en=eps_lo(i);
     end
-    [~, urange1] = calc_projections (efix(i), emode(i), alatt(i,:), angdeg(i,:), u(i,:), v(i,:), psi(i), ...
+    [~, pix_range1] = calc_projections (efix(i), emode(i), alatt(i,:), angdeg(i,:), u(i,:), v(i,:), psi(i), ...
         omega(i), dpsi(i), gl(i), gs(i), data, det, detdcn);
-    urange = [min(urange(1,:),urange1(1,:)); max(urange(2,:),urange1(2,:))];
+    pix_range = [min(pix_range(1,:),pix_range1(1,:)); max(pix_range(2,:),pix_range1(2,:))];
 end
 

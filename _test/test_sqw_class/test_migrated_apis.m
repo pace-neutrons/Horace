@@ -286,10 +286,12 @@ classdef test_migrated_apis < TestCase
 
         %% shifts
         function test_shift_energy_bins(obj)
+            skipTest('Incorrect test data for cut');
             sqw_4d_obj = sqw(obj.test_sqw_1d_fullpath);
-            wout  = sqw_4d_obj.shift_energy_bins(@test_migrated_apis.desp_rln, {'scale', 14});
+            wout = sqw_4d_obj.shift_energy_bins(@test_migrated_apis.desp_rln, {'scale', 14});
         end
         function test_shift_pixels(obj)
+            skipTest('No test of return value');
             sqw_4d_obj = sqw(obj.test_sqw_4d_fullpath);
             wout  = sqw_4d_obj.shift_pixels(@test_migrated_apis.shift_rln, {});
         end

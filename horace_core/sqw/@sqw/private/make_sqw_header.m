@@ -35,5 +35,8 @@ function data = make_sqw_header
 %   data.instrument Instrument information - free format
 %   data.sample     Sample information - free format
 
+% Original author: T.G.Perring
+%
+
 data = struct([]);  % empty structure
 

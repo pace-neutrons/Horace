@@ -3,7 +3,6 @@ classdef test_faccess_dnd_v2< TestCase
     % Validate fast sqw reader used in combining sqw
     %
     %
-    % $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
     %
     
     
@@ -108,7 +107,7 @@ classdef test_faccess_dnd_v2< TestCase
             data = to.get_data();
             assertEqual(size(data.s,1),numel(data.p{1})-1)
             assertEqual(size(data.e,2),numel(data.p{2})-1)
-            assertFalse(isfield(data,'urange'));
+            assertFalse(isfield(data,'img_range'));
             assertEqual(size(data.s),to.dnd_dimensions);
             
         end
