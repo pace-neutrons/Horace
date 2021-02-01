@@ -67,7 +67,13 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             end
         end
         %
-        function test_worker(obj)
+        function test_worker_operations_and_communications(obj)
+            % The test verifies the communication protocol between host and 
+            % remote system running two "remote" sessions with remote workers
+            % running the remote job "accumulate_headers" job. 
+            % The communicatins occur between host and workers and between
+            % workers themselves.
+            %
             worker_local = 'parallel_worker';
             
             mis = MPI_State.instance('clear');

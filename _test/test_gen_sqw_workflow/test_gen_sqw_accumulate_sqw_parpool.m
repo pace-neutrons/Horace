@@ -71,7 +71,7 @@ classdef test_gen_sqw_accumulate_sqw_parpool <  ...
         end
         function test_accumulate_sqw1456(obj,varargin) 
             if ispc
-                skipTest('Test test_accumulate_sqw1456 is disabled, issue #380');
+                skipTest('Test test_accumulate_sqw1456 is disabled on PC, issue #380');
             else
                 test_accumulate_sqw1456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
             end

@@ -69,7 +69,7 @@ classdef test_main_mex < TestCase
         function this=test_accum_cut(this)
             [~,n_errors] = check_horace_mex();
             if n_errors>0
-                skipTest('Can not accumulate_cut using mex files');
+                skipTest('Can not use and test mex code to accumulate_cut');
             end
             
             
@@ -115,7 +115,7 @@ classdef test_main_mex < TestCase
         function this=test_calc_proj(this)
             [~,n_errors] = check_horace_mex();            
             if n_errors>0
-                skipTest('Can not use mex code to calc_projections');
+                skipTest('Can not use and test mex code to calc_projections');
             end                        %
             hc = hor_config;
             current_state = hc.use_mex;
@@ -140,7 +140,7 @@ classdef test_main_mex < TestCase
         function test_calc_proj_options(this)
             [~,n_errors] = check_horace_mex();            
             if n_errors>0
-                skipTest('MEX code is broken and can not be used');
+                skipTest('Can not use and test mex code for calc_projections with parameters');
             end                      
 
             
@@ -195,7 +195,7 @@ classdef test_main_mex < TestCase
 
             [~,n_errors] = check_horace_mex();            
             if n_errors>0
-                skipTest('MEX code is broken and can not be used');
+                skipTest('MEX code is broken and can not be used to check against Matlab for recompute_bin_data');
             end                      
             
             set(hor_config,'use_mex',true,'threads',1);
@@ -244,7 +244,7 @@ classdef test_main_mex < TestCase
             
             [~,n_errors] = check_horace_mex();            
             if n_errors>0
-                skipTest('MEX code is broken and can not be used');
+                skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
             end                                  
             % test mex
             pix1 = sort_pix(pix,ix,npix,'-force_mex');
