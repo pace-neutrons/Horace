@@ -1,4 +1,4 @@
-function urange=write_nsqw_to_sqw (infiles, outfile,varargin)
+function img_range=write_nsqw_to_sqw (infiles, outfile,varargin)
 % Read a collection of sqw files with a common grid and write to a single sqw file.
 %
 %   >> write_nsqw_to_sqw (infiles, outfiles,varargin)
@@ -30,7 +30,7 @@ function urange=write_nsqw_to_sqw (infiles, outfile,varargin)
 %
 % Output:
 % -------
-%  urange           -- the limits of the internal coordinates contained in
+%  img_range         -- the limits of the internal coordinates contained in
 %                      the combined fil
 
 
@@ -152,9 +152,9 @@ end
 [header_combined,nspe] = sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers);
 
 
-urange=datahdr{1}.urange;
+img_range=datahdr{1}.img_range;
 for i=2:nfiles
-    urange=[min(urange(1,:),datahdr{i}.urange(1,:));max(urange(2,:),datahdr{i}.urange(2,:))];
+    img_range=[min(img_range(1,:),datahdr{i}.img_range(1,:));max(img_range(2,:),datahdr{i}.img_range(2,:))];
 end
 
 
@@ -187,8 +187,9 @@ sqw_data.iint=datahdr{1}.iint;
 sqw_data.pax=datahdr{1}.pax;
 sqw_data.p=datahdr{1}.p;
 sqw_data.dax=datahdr{1}.dax;    % take the display axes from first file, for sake of choosing something
-% store urange
-sqw_data.urange=urange;
+% TODO: disentangle!!!
+% img_range at this stage is equal to pix_range
+sqw_data.img_range=img_range;
 
 % Now read in binning information
 % ---------------------------------
@@ -277,13 +278,14 @@ end
 % instead of the real pixels to place in target sqw file, place in pix field the
 % information about the way to get the contributing pixels
 sqw_data.pix = pix_combine_info(infiles,numel(sqw_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
+sqw_data.pix.pix_range = img_range;
 
 [fp,fn,fe] = fileparts(outfile);
 main_header_combined.filename = [fn,fe];
 main_header_combined.filepath = [fp,filesep];
 %
-data_sum= struct('main_header',main_header_combined,...
-    'header',[],'detpar',det,'data',sqw_data);
+data_sum= struct('main_header',main_header_combined,'header',[],'detpar',det);
+data_sum.data = sqw_data;
 data_sum.header = header_combined;
 
 ds = sqw_old(data_sum);

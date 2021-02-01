@@ -14,6 +14,8 @@ try
     bin_indices = bin_indices(allocatable);
 
     if isempty(bin_indices)
+        mean_signal = [];
+        mean_variance = [];
         return;
     end
 

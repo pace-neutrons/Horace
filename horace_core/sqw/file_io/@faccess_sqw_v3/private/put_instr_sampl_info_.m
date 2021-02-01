@@ -8,7 +8,6 @@ function obj = put_instr_sampl_info_(obj,instrument_or_sample,varargin)
 % setting only sample stores the instrument information too.
 % file footer is always overwritten.
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 
 %
@@ -28,7 +27,7 @@ end
 obj= put_sample_instr_records_(obj,argi{:});
 
 obj.position_info_pos_= obj.instr_sample_end_pos_;
-obj = obj.put_footer();
+obj = obj.put_sqw_footer();
 
 
 function [the_obj,argi]=extract_is_from_input(obj,has_object,obj_name,default_name,all_arg,argi)

@@ -1,4 +1,4 @@
-function obj=put_dnd_data(obj,varargin)
+function [obj,subobj_to_save]=put_dnd_data(obj,varargin)
 % Write dnd image data, namely signal, error and npixs or upgrade existing 
 % data with new records, which occupy the same space on hdd
 %
@@ -23,7 +23,7 @@ check_obj_initiated_properly_(obj);
 %
 %
 %
-[input_obj,new_obj] = obj.extract_correct_subobj('data',argi{:});
+[subobj_to_save,new_obj] = obj.extract_correct_subobj('data',argi{:});
 if new_obj
     update = true;
 end
@@ -40,7 +40,7 @@ if update % are we going to write new or update existing data
     cur_size = val(2);
     % evaluate size of the object, provided for upgrade.
     data_form = obj.get_dnd_form('-data');
-    size_str = obj.sqw_serializer_.calculate_positions(data_form,input_obj,obj.s_pos_);
+    size_str = obj.sqw_serializer_.calculate_positions(data_form,subobj_to_save,obj.s_pos_);
     sz = obj.dnd_eof_pos_ -size_str.s_pos_;
     if cur_size  ~= sz
         error('SQW_FILE_IO:runtime_error',...
@@ -54,17 +54,17 @@ end
 fseek(obj.file_id_,pos,'bof');
 check_error_report_fail_(obj,'Error moving to the beginning of the signal record');
 
-fwrite(obj.file_id_,input_obj.s,'float32');
+fwrite(obj.file_id_,subobj_to_save.s,'float32');
 check_error_report_fail_(obj,'Error writing signal record');
 fseek(obj.file_id_,obj.e_pos_,'bof');
 
 check_error_report_fail_(obj,'Error moving to the beginning of the error record');
-fwrite(obj.file_id_,input_obj.e,'float32');
+fwrite(obj.file_id_,subobj_to_save.e,'float32');
 check_error_report_fail_(obj,'Error writing error record');
 
 fseek(obj.file_id_,obj.npix_pos_,'bof');
 check_error_report_fail_(obj,'Error moving to the beginning of the npix record');
-fwrite(obj.file_id_,input_obj.npix,'uint64');
+fwrite(obj.file_id_,subobj_to_save.npix,'uint64');
 check_error_report_fail_(obj,'Error writing npix record');
 
 

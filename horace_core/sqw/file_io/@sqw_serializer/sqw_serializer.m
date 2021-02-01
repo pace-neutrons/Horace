@@ -3,8 +3,6 @@ classdef sqw_serializer
     % using predefined format structures, provided by loader
     %
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-    %
     %
     properties(Access=private,Hidden=true)
         sqw_holder_ = []; % reference to sqw object to serialize (if any)

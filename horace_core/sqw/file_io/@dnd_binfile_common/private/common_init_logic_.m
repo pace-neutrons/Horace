@@ -34,7 +34,7 @@ function obj = common_init_logic_(obj,varargin)
 %                 additional arguments from above.
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
+
 %
 if nargin<1
     error('SQW_FILE_IO:invalid_argument',...
@@ -56,6 +56,7 @@ if isempty(argi)
     return;
 end
 input = argi{1};
+argi = argi(2:end);
 %
 if isa(input,'obj_init')
     if input.file_id<0
@@ -87,9 +88,9 @@ else
             error('SQW_FILE_IO:runtime_error',...
                 'Upgrade of existing object with new sqw/dnd object is not yet implemented')
         end
-        obj = obj.init_from_sqw_obj(argi{:});
+        obj = obj.init_from_sqw_obj(input);
         if nargin == 3
-            obj = obj.set_file_to_update(argi{2:end});
+            obj = obj.set_file_to_update(argi{:});
         else
             if ~isempty(obj.filename)
                 obj = obj.set_file_to_update();
@@ -101,5 +102,5 @@ else
             'dnd_binfile_common::init method: input can be only sqw/dnd object or sqw file name')
     end
 end
-obj = obj.init_from_sqw_file();
+obj = obj.init_from_sqw_file(argi{:});
 

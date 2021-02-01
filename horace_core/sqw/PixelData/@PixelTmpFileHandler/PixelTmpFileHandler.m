@@ -184,7 +184,8 @@ methods (Access=private)
     function tmp_dir_path = generate_tmp_dir_path_(obj, pix_id)
         % Generate the file path to the tmp directory for this object instance
         tmp_dir_name = sprintf(obj.TMP_DIR_BASE_NAME_, pix_id);
-        tmp_dir_path = fullfile(tempdir(), tmp_dir_name);
+        pc = parallel_config;
+        tmp_dir_path = fullfile(pc.working_directory, tmp_dir_name);
     end
 
 end

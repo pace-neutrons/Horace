@@ -1,6 +1,6 @@
 function bsm = init_map_(obj,pos_info)
 % Calculate map containing the positions 
-%   Detailed explanation goes here
+%
 bsm  = containers.Map();
 
 keys2check = obj.block_names_;

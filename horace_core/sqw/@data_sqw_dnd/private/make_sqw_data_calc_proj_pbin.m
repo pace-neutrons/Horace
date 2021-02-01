@@ -8,38 +8,37 @@ function [proj,pbin,mess]=make_sqw_data_calc_proj_pbin(obj,varargin)
 %
 % Input:
 % ------
-%   u0              [Optional] Vector of form [h0,k0,l0] or [h0,k0,l0,en0]
-%                  that defines an origin point on the manifold of the dataset.
-%                   If en0 omitted, then assumed to be zero.
+%   u0          [Optional] Vector of form [h0,k0,l0] or [h0,k0,l0,en0]
+%               that defines an origin point on the manifold of the dataset.
+%               If en0 omitted, then assumed to be zero.
 %
-%   u1              Vector [h1,k1,l1] or [h1,k1,l1,en1] defining a plot axis. Must
-%                  not mix momentum and energy components e.g. [1,1,2], [0,2,0,0] and
-%                  [0,0,0,1] are valid; [1,0,0,1] is not.
+%   u1          Vector [h1,k1,l1] or [h1,k1,l1,en1] defining a plot axis. Must
+%               not mix momentum and energy components e.g. [1,1,2], [0,2,0,0] and
+%               [0,0,0,1] are valid; [1,0,0,1] is not.
 %
-%   p1              Vector of form [plo,delta_p,phi] that defines bin centres
-%                  and step size in multiples of u1.
+%   p1          Vector of form [plo,delta_p,phi] that defines bin centres
+%               and step size in multiples of u1.
 %
-%   u2,p2           For next plot axis
+%   u2,p2       For next plot axis
 %    :                  :
 %
 %   'nonorthogonal' Keyword that permits the projection axes to be non-orthogonal
 %
 % Output:
 % -------
-%   proj            Projection structure or object.
+%   proj        Projection structure or object.
 %
-%   pbin            Cell array of the four binning descriptors for each of the
-%                  four axes of momentum and energy. They
-%                  each have one fo the forms:
-%                   - [pcent_lo,pstep,pcent_hi] (pcent_lo<=pcent_hi; pstep>0)
-%                   - [] or empty               (interpreted as [0,0])
+%   pbin        Cell array of the four binning descriptors for each of the
+%               four axes of momentum and energy. They
+%               each have one fo the forms:
+%               - [pcent_lo,pstep,pcent_hi] (pcent_lo<=pcent_hi; pstep>0)
+%               - [] or empty               (interpreted as [0,0])
 %
-%   mess            If no problems, mess=''; otherwise contains error message
+%   mess        If no problems, mess=''; otherwise contains error message
 
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Default return values
