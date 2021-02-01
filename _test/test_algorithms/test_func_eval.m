@@ -140,6 +140,12 @@ classdef test_func_eval < TestCase
             end
         end
 
+        function test_you_cannot_input_arrays_within_a_cell_array(obj)
+            inputs = {[obj.sqw_2d, obj.sqw_2d], obj.sqw_2d_file_path};
+            f = @() func_eval(inputs, obj.quadratic, obj.quadratic_params);
+            assertExceptionThrown(f, 'HORACE:func_eval:too_many_elements');
+        end
+
         function test_you_can_apply_func_eval_to_a_dnd_object(obj)
         end
 

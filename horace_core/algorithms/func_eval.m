@@ -34,6 +34,10 @@ function sources = get_data_sources(source)
         sources = [];
         for i = 1:numel(source)
             source_i = get_data_source(source{i});
+            if numel(source_i) > 1
+                error('HORACE:func_eval:too_many_elements', ...
+                      'Inputs within cell array must not have more than 1 element.');
+            end
             if isempty(sources)
                 sources = repmat(eval(class(source_i)), [1, numel(source)]);
             end
