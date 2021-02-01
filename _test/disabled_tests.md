@@ -29,9 +29,6 @@
 
 - test_rebin.m
     - test_rebin_d1d (no ticket)
-
-test_gen_sqw_accumulate_sqw_parpool.m (https://github.com/pace-neutrons/Horace/issues/380)
- - test_accumulate_sqw1456
     
 - test_combine_sqw.m  (https://github.com/pace-neutrons/Horace/issues/464)
     - _test_combine1D

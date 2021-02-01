@@ -261,7 +261,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
         function test_gen_sqw(obj,varargin)
             %-------------------------------------------------------------
             if obj.skip_test
-                return
+                skipTest(fprintf('test_gen_sqw_%s is disabled',obj.test_pref));                
             end
             if nargin> 1
                 % running in single test method mode.
@@ -319,10 +319,11 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             obj.assertEqualToTolWithSave(w1a,'ignore_str',true,'tol',1.e-7);
         end
         %
-        function DISABLED_test_gen_sqw_sym(obj,varargin)
+        function test_gen_sqw_sym(obj,varargin)
             %-------------------------------------------------------------
+            skipTest(fprintf('ttest_gen_sqw_sym_%s is disabled',obj.test_pref));                            
             if obj.skip_test
-                return
+                skipTest(fprintf('ttest_gen_sqw_sym_%s is disabled',obj.test_pref));                
             end
             if nargin> 1
                 % running in single test method mode.
@@ -392,7 +393,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
         function test_accumulate_sqw14(obj,varargin)
             %-------------------------------------------------------------
             if obj.skip_test
-                return
+                skipTest(fprintf('test_accumulate_sqw14_%s is disabled',obj.test_pref));                
             end
             if nargin> 1
                 % running in single test method mode.
@@ -451,7 +452,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
         %
         function test_accumulate_and_combine1to4(obj,varargin)
             if obj.skip_test
-                return
+                skipTest(fprintf('test_accumulate_and_combine1to4_%s is disabled',obj.test_pref));                
             end
             if nargin> 1
                 % running in single test method mode.
@@ -559,7 +560,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
         function test_accumulate_sqw1456(obj,varargin)
             %-------------------------------------------------------------
             if obj.skip_test
-                return
+                skipTest(fprintf('test_accumulate_sqw1456_%s is disabled',obj.test_pref));                
             end
             if nargin> 1
                 % running in single test method mode.
@@ -567,7 +568,11 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 co1 = onCleanup(@()obj.tearDown());
             end
             %-------------------------------------------------------------
-            
+            hc = hor_config;
+            recovery = hc.get_data_to_store();
+            hc.saveable = false;
+            hc.delete_tmp = false;
+            co2 = onCleanup(@()set(hc,recovery));
             
             % build test files if they have not been build
             obj=build_test_files(obj);
@@ -624,15 +629,17 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             [ok,mess,w2_1456]=is_cut_equal(sqw_file_1456,sqw_file_accum,...
                 proj_o,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess])
-            
+            %
+            clear co2;
             % Test against saved or store to save later
             obj.assertEqualToTolWithSave(w2_1456,'ignore_str',true,'tol',1.e-7);
+            
         end
         %
         function test_accumulate_sqw11456(obj,varargin)
             %-------------------------------------------------------------
             if obj.skip_test
-                return
+                skipTest(fprintf('test_accumulate_sqw11456_%s is disabled',obj.test_pref));                
             end
             if nargin> 1
                 % running in single test method mode.
