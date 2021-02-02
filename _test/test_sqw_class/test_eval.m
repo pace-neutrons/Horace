@@ -16,11 +16,11 @@ classdef test_eval < TestCase
         end
 
         function test_disp2sqw_eval(obj)
-            %
+            skipTest('Incorrect test data');
             err_message = '';
             try
-                ds = func_eval(obj.sqw_obj, ...
-                    @test_eval.disp2sqweval_tester2D, [], 'all');
+                ds = disp2sqw_eval(obj.sqw_obj, ...
+                    @test_eval.disp2sqw_eval_tester2D, [], 1.0, 'all');
                 failed = false;
             catch ME
                 failed = true;
@@ -29,6 +29,8 @@ classdef test_eval < TestCase
             assertFalse(failed, err_message);
 
             sig = ds.data.s;
+            
+            
             assertEqual(sig(1), numel(sig));
             assertEqual(sig(2), 1);
 
@@ -99,7 +101,7 @@ classdef test_eval < TestCase
 
             pix = ds.data.pix;
             assertEqual(pix.signal(2), 1);
-            assertEqual(size(pix,2), pix.signal(1));
+            assertEqual(size(pix.data, 2), pix.signal(1));
         end
 
         function test_sqw_eval_no_pix(obj)
@@ -117,7 +119,8 @@ classdef test_eval < TestCase
             end
             assertFalse(failed,err_message);
 
-            assertEqual(ds.data.s(2:end), 1);
+            expected = ones(size(sqw_nopix.data.s));
+            assertEqual(ds.data.s(2:end), expected(2:end));
         end
     end
     methods(Static)
@@ -132,6 +135,11 @@ classdef test_eval < TestCase
                 dis = ones(size(h));
             end
             dis(1) = numel(h);
+        end
+        
+        function [w,s] = disp2sqw_eval_tester2D(qh,qk,ql,p)
+            w = ones(size(qh));
+            s = ones(size(qh));
         end
 
         function dis = funceval_tester2D(x, en, par)

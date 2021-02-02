@@ -84,7 +84,8 @@ classdef test_migrated_apis < TestCase
         end
 
         %% Cut
-        function DISABLED_test_cut(obj)
+        function test_cut(obj)
+            skipTest('Incorrect test data for cut');
             sqw_obj = sqw(obj.test_sqw_2d_fullpath);
             proj = projaxes([1,-1,0], [1,1,0], 'uoffset', [1,1,0], 'type', 'paa');
             range = [0,0.2];    % range of cut
@@ -96,7 +97,8 @@ classdef test_migrated_apis < TestCase
             w2 = sqw_obj.cut(proj, bin, width, width, ebins, '-pix');
 %            this.assertEqualToTolWithSave (w2, this.tol_sp,'ignore_str',1);
         end
-        function DISABLED_test_cut_sym(obj)
+        function test_cut_sym(obj)
+            skipTest('Incorrect test data for cut_sym');
             sqw_obj = sqw(obj.test_sqw_2d_fullpath);
             proj = projaxes([1,-1,0], [1,1,0], 'uoffset', [1,1,0], 'type', 'paa');
             range = [0,0.2];    % range of cut
@@ -160,7 +162,8 @@ classdef test_migrated_apis < TestCase
 %        end
 
         %% Dispersion
-        function DISABLED_test_dispersion(obj)
+        function test_dispersion(obj)
+            skipTest('Incorrect test data for dispersion');
             sqw_4d_obj = sqw(obj.test_sqw_4d_fullpath);
             [retval_one, retval_two]  = dispersion(sqw_4d_obj, @test_migrated_apis.desp_rln, {'scale', 14});
         end
@@ -186,21 +189,22 @@ classdef test_migrated_apis < TestCase
             assertTrue(ok)
             assertEqual(mess, '');
         end
-        function DISABLED_test_get_inst_class_with_same_instrument(obj)
+        function test_get_inst_class_with_same_instrument(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
 
             mod_1 = IX_moderator(10,11,'ikcarp',[11,111,0.1]);
             ap_1 = IX_aperture(-10,0.1,0.11);
             chopper_1 = IX_fermi_chopper(1,100,0.1,1,0.01);
             expected_inst =  IX_inst_DGfermi (mod_1, ap_1, chopper_1, 100);
-
-            [inst, all_inst] = s.get_inst_class();
+            
+            updated = s.set_instrument(expected_inst);
+            [inst, all_inst] = updated.get_inst_class();
 
             assertTrue(all_inst);
             assertTrue(equal_to_tol(inst, expected_inst));
 
         end
-        function DISABLED_test_get_inst_class_with_missing_instrument(obj)
+        function test_get_inst_class_with_missing_instrument(obj)
            s = sqw(obj.test_sqw_2d_fullpath);
 
            mod_1 = IX_moderator(10,11,'ikcarp',[11,111,0.1]);
@@ -208,11 +212,13 @@ classdef test_migrated_apis < TestCase
            chopper_1 = IX_fermi_chopper(1,100,0.1,1,0.01);
            expected_inst =  IX_inst_DGfermi (mod_1, ap_1, chopper_1, 100);
 
-           s.header{1:20}.intrument = expected_inst;
-
-           [inst, all_inst] = updated.get_inst_class();
+           for idx=1:20
+               s.header{idx}.intrument = expected_inst;
+           end
+           
+           [inst, all_inst] = s.get_inst_class();
            assertFalse(all_inst);
-           assertTrue(equal_to_tol(inst, expected_inst));
+           assertEqual(inst, '');
         end
 %        function test_get_mod_pulse(obj)
 %            % tested as part of test_instrument_methods
@@ -227,28 +233,20 @@ classdef test_migrated_apis < TestCase
         end
 
         %% split/join
-        function test_split(obj)
-        end
-        function test_join(obj)
-        end
-        function DISABLED_test_split_and_join(obj)
-            sqw_obj = sqw(obj.test_sqw_2d_fullpath);
-            split_obj = split(sqw_obj);
-            %% FAILS Unable to perform assignment with 0 elements on the right-hand side.
-            reformed_obj = join(split_obj);
-
-            assertEqualToTol(sqw_obj, reformed_obj);
-        end
+        %function test_split(obj)
+        %    % tested in test_join
+        %end
+        %function test_join(obj)
+        %    % tested in test_join
+        %end
+        %function test_split_and_join(obj)
+        %    % tested in test_join
+        %end
 
         %% mask
-        function DISABLED_test_mask(obj)
-            sqw_obj = sqw(obj.test_sqw_2d_fullpath);
-            mask_array = triu(ones(size(sqw_obj.data.s)));
-
-            masked = mask(sqw_obj, mask_array);
-            %% Fails: incorrect understanding of mask operation.
-            %%assertEqual(masked.data.s, upper(sqw_obj.data.s));
-        end
+        %function test_mask(obj)
+        %    % tested in test_mask
+        %end
 
         %% sets
         function test_set_efix(obj)
