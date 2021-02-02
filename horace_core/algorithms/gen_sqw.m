@@ -255,8 +255,15 @@ if accumulate_old_sqw    % combine with existing sqw file
             gen_sqw_check_sqwfile_valid(sqw_file);
         % Check that the input spe data are distinct
         if ~ok, error(mess), end
+        % It is expected that one would not run replicate and accumulate
+        % together and add replicated files without run_id changes after
+        % first accumulation because the files with identical run-ids will 
+        % contribute into pixels but headers (experiment info) 
+        % will be added for each file
+        % 
+        % Assume:
         % the file has been calculated and run_id-s are stored in the file
-        % We assume that all its run-id-s are unique, as doing opposite,
+        % All its run-id-s are unique, as doing opposite,
         % will be too expensive. Ideally run_id should be stored with
         % headers (experiment_info). The possible issue may occur, if
         % filenames are non-standard, run_id can not extracted from file
@@ -442,7 +449,10 @@ else
             instrument = instrument(ix);
             sample     = sample(ix);
         end
-        
+    end
+    if opt.replicate && ~spe_unique 
+        % expand run_ids for replicated files to make run_id-s unique
+        run_files = update_duplicated_rf_id(run_files);        
     end
     
     % Generate unique temporary sqw files, one for each of the spe files
