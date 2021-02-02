@@ -5,6 +5,8 @@ classdef test_func_eval < TestCase
     end
 
     properties
+        d2d_file_path = '../test_symmetrisation/w2d_qq_small_d2d.sqw'
+        d2d_obj;
         sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw'
         sqw_1d_file_path = '../test_sqw_file/sqw_1d_1.sqw'
         sqw_2d;
@@ -12,15 +14,21 @@ classdef test_func_eval < TestCase
         quadratic = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
         quadratic_params = {2, 3, 6};
         % Reference data for the final row of the expected output image signal
-        final_img_signal_row = [...
+        final_img_signal_row_sqw_2d = [...
             4.0150, 4.0238, 4.0342, 4.0462, 4.0598, 4.0750, 4.0918, ...
             4.1102, 4.1302, 4.1518, 4.1750 ...
+        ];
+        final_img_signal_row_dnd = [ ...
+            7.5200, 7.5962, 7.6750, 7.7562, 7.8400, 7.9262, 8.0150, 8.1062, ...
+            8.2000, 8.2962, 8.3950, 8.4962, 8.6000, 8.7062, 8.8150, 8.9262, ...
+            9.0400
         ];
     end
 
     methods
         function obj = test_func_eval(~)
             obj = obj@TestCase('test_func_eval');
+            obj.d2d_obj = d2d(obj.d2d_file_path);
             obj.sqw_2d = sqw(obj.sqw_2d_file_path);
         end
 
@@ -53,15 +61,27 @@ classdef test_func_eval < TestCase
             assertExceptionThrown(f, 'SQW:func_eval:invalid_arguments');
         end
 
-        %% In memory execution
+        function test_error_raised_if_func_eval_called_with_mix_of_sqw_and_dnd(obj)
+            inputs = {obj.sqw_2d, d2d(obj.sqw_2d)};
+            f = @() func_eval(inputs, obj.quadratic, obj.quadratic_params);
+            assertExceptionThrown(f, 'HORACE:func_eval:input_type_error');
+        end
+
+        function test_you_cannot_input_arrays_within_a_cell_array(obj)
+            inputs = {[obj.sqw_2d, obj.sqw_2d], obj.sqw_2d_file_path};
+            f = @() func_eval(inputs, obj.quadratic, obj.quadratic_params);
+            assertExceptionThrown(f, 'HORACE:func_eval:too_many_elements');
+        end
+
+        %% SQW tests
         function test_applying_func_eval_to_sqw_object_returns_correct_sqw_data(obj)
             sqw_out = func_eval(obj.sqw_2d, obj.quadratic, obj.quadratic_params);
 
             assertElementsAlmostEqual( ...
                 sqw_out.data.s(end, :), ...
-                obj.final_img_signal_row ...
+                obj.final_img_signal_row_sqw_2d ...
             );
-            obj.validate_func_eval_output(obj.sqw_2d, sqw_out);
+            obj.validate_func_eval_sqw_output(obj.sqw_2d, sqw_out);
         end
 
         function test_func_eval_on_array_of_sqw_objects_returns_correct_sqw_data(obj)
@@ -73,22 +93,21 @@ classdef test_func_eval < TestCase
             for i = 1:numel(sqws_in)
                 assertElementsAlmostEqual( ...
                     sqws_out(i).data.s(end, :), ...
-                    obj.final_img_signal_row ...
+                    obj.final_img_signal_row_sqw_2d ...
                 );
-                obj.validate_func_eval_output(obj.sqw_2d, sqws_out(i));
+                obj.validate_func_eval_sqw_output(obj.sqw_2d, sqws_out(i));
             end
         end
 
-        %% File-backed operation
         function test_applying_func_eval_to_an_sqw_file_returns_correct_sqw_data(obj)
             sqw_out = func_eval(obj.sqw_2d, obj.quadratic, obj.quadratic_params);
 
             assertElementsAlmostEqual( ...
                 sqw_out.data.s(end, :), ...
-                obj.final_img_signal_row ...
+                obj.final_img_signal_row_sqw_2d ...
             );
 
-            obj.validate_func_eval_output(obj.sqw_2d, sqw_out);
+            obj.validate_func_eval_sqw_output(obj.sqw_2d, sqw_out);
         end
 
         function test_applying_func_eval_to_sqw_obj_with_outfile_outputs_to_file(obj)
@@ -106,10 +125,10 @@ classdef test_func_eval < TestCase
             sqw_out = sqw(outfile);
             assertEqualToTol( ...
                 sqw_out.data.s(end, :), ...
-                obj.final_img_signal_row, ...
+                obj.final_img_signal_row_sqw_2d, ...
                 'reltol', obj.FLOAT_TOL ...
             );
-            obj.validate_func_eval_output(obj.sqw_2d, sqw_out);
+            obj.validate_func_eval_sqw_output(obj.sqw_2d, sqw_out);
         end
 
         function test_you_can_apply_func_eval_to_cell_array_of_sqw_files(obj)
@@ -119,14 +138,8 @@ classdef test_func_eval < TestCase
 
             assertEqual(size(sqws_out), [1, 2]);
             for i = 1:numel(sqw_files_in)
-                obj.validate_func_eval_output(obj.sqw_2d, sqws_out(i));
+                obj.validate_func_eval_sqw_output(obj.sqw_2d, sqws_out(i));
             end
-        end
-
-        function test_error_raised_if_func_eval_called_with_mix_of_sqw_and_dnd(obj)
-            inputs = {obj.sqw_2d, d2d(obj.sqw_2d)};
-            f = @() func_eval(inputs, obj.quadratic, obj.quadratic_params);
-            assertExceptionThrown(f, 'HORACE:func_eval:input_type_error');
         end
 
         function test_you_can_apply_func_eval_to_cell_arr_with_files_and_objects(obj)
@@ -136,29 +149,62 @@ classdef test_func_eval < TestCase
 
             assertEqual(size(sqws_out), [1, 2]);
             for i = 1:numel(inputs)
-                obj.validate_func_eval_output(obj.sqw_2d, sqws_out(i));
+                obj.validate_func_eval_sqw_output(obj.sqw_2d, sqws_out(i));
             end
         end
 
-        function test_you_cannot_input_arrays_within_a_cell_array(obj)
-            inputs = {[obj.sqw_2d, obj.sqw_2d], obj.sqw_2d_file_path};
-            f = @() func_eval(inputs, obj.quadratic, obj.quadratic_params);
-            assertExceptionThrown(f, 'HORACE:func_eval:too_many_elements');
+        %% DnD tests
+        function test_applying_func_eval_to_dnd_object_returns_correct_dnd_data(obj)
+            dnd_out = func_eval(obj.d2d_obj, obj.quadratic, obj.quadratic_params);
+
+            assertElementsAlmostEqual( ...
+                dnd_out.s(end, :), ...
+                obj.final_img_signal_row_dnd, ...
+                'relative', obj.FLOAT_TOL ...
+            );
+            obj.validate_func_eval_dnd_output(obj.d2d_obj, dnd_out);
         end
 
-        function test_you_can_apply_func_eval_to_a_dnd_object(obj)
+        function test_func_eval_on_array_of_dnd_objects_returns_correct_dnd_data(obj)
+            d2ds_in = repmat(obj.d2d_obj, [1, 2]);
+            d2ds_out = func_eval(d2ds_in, obj.quadratic, obj.quadratic_params);
+
+            assertEqual(size(d2ds_out), size(d2ds_in));
+            for i = 1:numel(d2ds_out)
+                assertElementsAlmostEqual( ...
+                    d2ds_out(i).s(end, :), ...
+                    obj.final_img_signal_row_dnd, ...
+                    'relative', obj.FLOAT_TOL ...
+                );
+                obj.validate_func_eval_dnd_output(obj.d2d_obj, d2ds_out(i));
+            end
         end
 
-        function test_you_can_apply_func_eval_to_array_of_dnd_objects(obj)
+        function test_applying_func_eval_to_a_dnd_file_returns_correct_dnd_data(obj)
+            dnd_out = func_eval(obj.d2d_file_path, obj.quadratic, obj.quadratic_params);
+
+            assertElementsAlmostEqual( ...
+                dnd_out.s(end, :), ...
+                obj.final_img_signal_row_dnd, ...
+                'relative', obj.FLOAT_TOL ...
+            );
+            obj.validate_func_eval_dnd_output(obj.d2d_obj, dnd_out);
         end
 
-        function test_you_can_apply_func_eval_to_a_dnd_file(obj)
-        end
+        function test_func_eval_on_cell_array_of_dnd_files_rets_dnd_array(obj)
+            dnds_in = {obj.d2d_file_path, obj.d2d_file_path};
+            dnds_out = func_eval(dnds_in, obj.quadratic, obj.quadratic_params);
 
-        function test_you_can_apply_func_eval_to_a_cell_array_of_dnd_file(obj)
-        end
-
-        function test_you_can_apply_func_eval_to_sqw_with_file_backed_pix(obj)
+            assertEqual(size(dnds_out), size(dnds_in));
+            for i = 1:numel(dnds_out)
+                dnd_out = dnds_out(i);
+                assertElementsAlmostEqual( ...
+                    dnd_out.s(end, :), ...
+                    obj.final_img_signal_row_dnd, ...
+                    'relative', obj.FLOAT_TOL ...
+                );
+                obj.validate_func_eval_dnd_output(obj.d2d_obj, dnd_out);
+            end
         end
 
         function test_you_can_apply_func_eval_on_out_of_memory_data(obj)
@@ -166,7 +212,7 @@ classdef test_func_eval < TestCase
     end
 
     methods (Static)
-        function validate_func_eval_output(sqw_in, sqw_out)
+        function validate_func_eval_sqw_output(sqw_in, sqw_out)
             % Check output image size is equal to input image size
             assertEqual(size(sqw_out.data.s), size(sqw_in.data.s));
             % Check all output errors are zero with equal size to image
@@ -184,6 +230,15 @@ classdef test_func_eval < TestCase
             % Check that all pixel variances are set to zero
             variance = sig_var(2, :);
             assertEqual(variance, zeros(1, sum(sqw_out.data.npix(:))));
+        end
+
+        function validate_func_eval_dnd_output(dnd_in, dnd_out)
+            % Check output image size is equal to input image size
+            assertEqual(size(dnd_in.s), size(dnd_in.s));
+            % Check all output errors are zero with equal size to image
+            assertEqual(dnd_out.e, zeros(size(dnd_in.e)));
+            % Check that data.npix is unchanged
+            assertEqual(dnd_out.npix, dnd_in.npix);
         end
 
         function tmp_file_path = get_tmp_file_path()
