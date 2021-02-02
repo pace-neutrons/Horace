@@ -18,8 +18,10 @@ classdef test_instrument_methods < TestCaseWithSave
             % This is a temporary step to manage reengineering of the `sqw` object
             % during which the old class is renamed as `sqw_old`, and will load as
             % a struct rather than class instance.
-            self.w_fe = sqw_old(w_fe);     % iron dataset
-            self.w_rb = sqw_old(w_rb);     % RbMnF3 dataset
+            % CHANGED sqw_old to sqw in next 2 lines to make 
+            %         new sqw object work with this test.
+            self.w_fe = sqw(w_fe);     % iron dataset
+            self.w_rb = sqw(w_rb);     % RbMnF3 dataset
 
             % Make an instrument(distance,frequency,radius,curvature,slit_width
             mod_1 = IX_moderator(10,11,'ikcarp',[11,111,0.1]);

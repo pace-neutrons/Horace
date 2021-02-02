@@ -42,6 +42,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         wout = IX_dataset_3d (w);
         status = adjust_aspect(w);
         varargout = resolution_plot (w, varargin);
+        wout = noisify(w,varargin);
         
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
