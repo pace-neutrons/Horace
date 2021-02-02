@@ -67,9 +67,9 @@ classdef test_main_mex < TestCase
         
         
         function this=test_accum_cut(this)
-            mex_present=fileparts(which('accumulate_cut_c'));
-            if isempty(mex_present)
-                skipTest('Mex file accumulate_cut_c is not availible on this computer');
+            [~,n_errors] = check_horace_mex();
+            if n_errors>0
+                skipTest('Can not use and test mex code to accumulate_cut');
             end
             
             
@@ -80,8 +80,13 @@ classdef test_main_mex < TestCase
             urange_step_pix(1,:) =  Inf;
             urange_step_pix(2,:) = -Inf;
             
+            hc = hor_config;
+            current_state = hc.use_mex;
+            clob = onCleanup(@()set(hc,'use_mex',current_state));            
+            hc.saveable = false;
+            
             %check matlab-part
-            set(hor_config,'use_mex',0,'-buffer');
+            hc.use_mex = false;
             
             [s_m, e_m, npix_m, urange_step_pix_m, npix_retain_m,ok_m, ix_m] =...
                 cut_data_from_file_job.accumulate_cut(data.s, data.e, data.npix,...
@@ -90,7 +95,8 @@ classdef test_main_mex < TestCase
             
             
             %check C-part
-            set(hor_config,'use_mex',1,'-buffer');
+            hc.use_mex = true;
+            
             [s_c, e_c, npix_c, urange_step_pix_c, npix_retain_c,ok_c, ix_c] = ...
                 cut_data_from_file_job.accumulate_cut(data.s, data.e, data.npix,...
                 urange_step_pix, true,...
@@ -107,17 +113,22 @@ classdef test_main_mex < TestCase
         end
         
         function this=test_calc_proj(this)
-            mex_present=fileparts(which('calc_projections_c'));
-            if isempty(mex_present)
-                skipTest('Mex file calc_projections_c is not availible on this computer');
+            [~,n_errors] = check_horace_mex();            
+            if n_errors>0
+                skipTest('Can not use and test mex code to calc_projections');
             end                        %
+            hc = hor_config;
+            current_state = hc.use_mex;
+            clob = onCleanup(@()set(hc,'use_mex',current_state));            
+            hc.saveable = false;
+            
             rd =calc_fake_data(this);
             %
-            set(hor_config,'use_mex',0,'-buffer');
+            hc.use_mex = false;
             
             [pix_range_matl,u_to_rlu_matl,pix_matl]=rd.calc_projections();
             
-            set(hor_config,'use_mex',1,'-buffer');
+            hc.use_mex = true;
             [pix_range_c,u_to_rlu_c,pix_c]=rd.calc_projections();
             
             assertElementsAlmostEqual(u_to_rlu_matl,u_to_rlu_c,'absolute',1.e-8);
@@ -127,14 +138,19 @@ classdef test_main_mex < TestCase
         end
         
         function test_calc_proj_options(this)
-            hcf=hor_config;
-            if ~hcf.use_mex
-                skipTest('MEX is disabled');
-            end
-            cleanup_obj=onCleanup(@()set(hcf,'use_mex',1));
+            [~,n_errors] = check_horace_mex();            
+            if n_errors>0
+                skipTest('Can not use and test mex code for calc_projections with parameters');
+            end                      
+
             
             rd = calc_fake_data(this);
-            hcf.saveable=false;
+            hcf = hor_config;
+            current_state = hcf.use_mex;
+            clob = onCleanup(@()set(hcf,'use_mex',current_state));            
+            hcf.saveable = false;
+
+            
             hcf.use_mex = 0;
             [pix_range_matl,u_to_rlu_matl]=rd.calc_projections();
             hcf.use_mex = 1;
@@ -157,7 +173,6 @@ classdef test_main_mex < TestCase
             assertElementsAlmostEqual(pix_m.data,pix_c.data,'absolute',1.e-8);
         end
         function test_recompute_bin_data(~)
-            
             [cur_mex,log_level,n_threads] = get(hor_config,'use_mex','log_level','threads');
             cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex,'log_level',log_level,'threads',n_threads));
             
@@ -177,10 +192,12 @@ classdef test_main_mex < TestCase
             assertElementsAlmostEqual(4*s,npix);
             assertElementsAlmostEqual((4*4)*e,npix);
             
+
+            [~,n_errors] = check_horace_mex();            
+            if n_errors>0
+                skipTest('MEX code is broken and can not be used to check against Matlab for recompute_bin_data');
+            end                      
             
-            if ~cur_mex
-                skipTest('MEX is disabled')
-            end
             set(hor_config,'use_mex',true,'threads',1);
             new_sqw1 = recompute_bin_data_tester(test_sqw);
             assertElementsAlmostEqual(new_sqw1.data.s,s)
@@ -194,8 +211,11 @@ classdef test_main_mex < TestCase
         end
         
         
-        function test_sort_pix(this)
+        function test_sort_pix(~)
             % prepare pixels to sort
+            [cur_mex,log_level,n_threads] = get(hor_config,'use_mex','log_level','threads');
+            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex,'log_level',log_level,'threads',n_threads));
+            
             pix=ones(9,40000);
             xs = 9.6:-1:0.6;
             xp = 0.1:0.5:10;
@@ -222,9 +242,10 @@ classdef test_main_mex < TestCase
             pix2 = sort_pix(pix,ix,npix,'-nomex');
             assertElementsAlmostEqual(pix1.data,pix2.data);
             
-            if ~get(hor_config,'use_mex')
-                skiptest('MEX is disabled')
-            end
+            [~,n_errors] = check_horace_mex();            
+            if n_errors>0
+                skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
+            end                                  
             % test mex
             pix1 = sort_pix(pix,ix,npix,'-force_mex');
             assertElementsAlmostEqual(pix1.energy_idx(1:4),[1810,1820,3810,3820]);
@@ -237,7 +258,7 @@ classdef test_main_mex < TestCase
             
             
         end
-        function profile_sort_pix(this)
+        function profile_sort_pix(~)
             xs = 9.99:-0.1:0.01;
             xp = 0.01:0.1:9.99;
             [ux,uy,uz,et]=ndgrid(xs,xp,xs,xp);

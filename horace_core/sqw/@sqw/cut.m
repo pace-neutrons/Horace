@@ -3,13 +3,13 @@ function wout = cut(obj, varargin)
 %
 % Cut using existing projection axes:
 %   >> wout = cut (data_source, p1_bin, p2_bin...)  % (as many binning arguments
-%                                                   %  as there are plot axes)
+%                                                % as there are plot axes)
 %
 % Cut with new projection axes:
 %   >> wout = cut (data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin)
 %
 %   >> wout = cut (..., '-nopix')      % output cut is dnd structure (i.e. no
-%                                      % pixel information is retained)
+%                                   % pixel information is retained)
 %
 %   >> wout = cut (...,  filename)     % save cut to named file
 %
@@ -137,8 +137,8 @@ DND_CONSTRUCTORS = {@d0d, @d1d, @d2d, @d3d, @d4d};
 
 if numel(obj) > 1
     error('SQW:cut', ...
-          ['You cannot take a cut from an array, or cell array, of sqw or ' ...
-           'dnd objects.\nConsider cutting the objects in a loop.']);
+        ['You cannot take a cut from an array, or cell array, of sqw or ' ...
+        'dnd objects.\nConsider cutting the objects in a loop.']);
 end
 
 dnd_type = obj.data.pix.num_pixels == 0;
@@ -178,65 +178,65 @@ end  % function
 
 % -----------------------------------------------------------------------------
 function [proj, pbin, opt] = validate_args(obj, return_cut, ndims_source, varargin)
-    [ok, mess, ~, proj, pbin, args, opt] = cut_sqw_check_input_args( ...
-        obj, ndims_source, return_cut, varargin{:} ...
+[ok, mess, ~, proj, pbin, args, opt] = cut_sqw_check_input_args( ...
+    obj, ndims_source, return_cut, varargin{:} ...
     );
-    if ~ok
-        error('CUT_SQW:invalid_arguments', mess)
-    end
+if ~ok
+    error('CUT_SQW:invalid_arguments', mess)
+end
 
-    % Ensure there are no excess input arguments
-    if numel(args) ~= 0
-        error ('CUT_SQW:invalid_arguments', ...
-               'Check the number and type of input arguments.')
-    end
+% Ensure there are no excess input arguments
+if numel(args) ~= 0
+    error ('CUT_SQW:invalid_arguments', ...
+        'Check the number and type of input arguments.')
+end
 end
 
 
 function [proj, pbin, pin, en] = update_projection_bins(w, proj, pbin)
-    % Update projection bins using the sqw header
-    header_av = header_average(w.header);
-    [proj, pbin, ~, pin, en] = proj.update_pbins(header_av, w.data, pbin);
+% Update projection bins using the sqw header
+header_av = header_average(w.header);
+[proj, pbin, ~, pin, en] = proj.update_pbins(header_av, w.data, pbin);
 end
 
 
 function num_dims = get_num_output_dims(pbin)
-    % Get the number of dimensions in the output cut from the projection axis
-    % binning.
+% Get the number of dimensions in the output cut from the projection axis
+% binning.
 
-    % pbin axes being integrated over will be an array with two elements - the
-    % integration range - else the pbin element will have 1 or 3 elements
-    % if pbin{x} has more than 3 elements then we are doing a multicut and that
-    % axis is being integrated over.
-    % The ~isempty catches any dummy axes that are 0x0 doubles.
-    is_non_int_axis = @(x) numel(x) ~= 2 && numel(x) < 4 && ~isempty(x);
-    non_integrated_axis = cellfun(is_non_int_axis, pbin);
-    num_dims = sum(non_integrated_axis);
+% pbin axes being integrated over will be an array with two elements - the
+% integration range - else the pbin element will have 1 or 3 elements
+% if pbin{x} has more than 3 elements then we are doing a multicut and that
+% axis is being integrated over.
+% The ~isempty catches any dummy axes that are 0x0 doubles.
+is_non_int_axis = @(x) numel(x) ~= 2 && numel(x) < 4 && ~isempty(x);
+non_integrated_axis = cellfun(is_non_int_axis, pbin);
+num_dims = sum(non_integrated_axis);
 end
 
 
 function out = allocate_output(sz, pbin, keep_pix, dnd_constructors)
-    % Allocate an array of cut outputs using the projection binning
-    sz_squeeze = [sz(sz > 1), ones(1, max(2 - sum(sz > 1), 0))];
-    if keep_pix
-        out = repmat(sqw, sz_squeeze);
-    else
-        out_dims = get_num_output_dims(pbin);
-        out = repmat(dnd_constructors{out_dims + 1}(), sz_squeeze);
-    end
+% Allocate an array of cut outputs using the projection binning
+sz_squeeze = [sz(sz > 1), ones(1, max(2 - sum(sz > 1), 0))];
+if keep_pix
+    out = repmat(sqw, sz_squeeze);
+else
+    out_dims = get_num_output_dims(pbin);
+    out = repmat(dnd_constructors{out_dims + 1}(), sz_squeeze);
+end
 end
 
 
 function pbin_out = get_pbin_for_cut(sz, cut_num, pbin_in)
-    % Get pbin for each cut (allow for a bin descriptor being empty)
-    ind_subs = cell(1, 4);
-    [ind_subs{:}] = ind2sub(sz, cut_num);
-    pbin_out = cell(1,4);
-    for i = 1:numel(pbin_out)
-        if ~isempty(pbin_in{i})
-            pbin_out{i} = pbin_in{i}(ind_subs{i}, :);
-        else
-            pbin_out{i} = pbin_in{i};
-        end
+% Get pbin for each cut (allow for a bin descriptor being empty)
+ind_subs = cell(1, 4);
+[ind_subs{:}] = ind2sub(sz, cut_num);
+pbin_out = cell(1,4);
+for i = 1:numel(pbin_out)
+    if ~isempty(pbin_in{i})
+        pbin_out{i} = pbin_in{i}(ind_subs{i}, :);
+    else
+        pbin_out{i} = pbin_in{i};
     end
+end
 end

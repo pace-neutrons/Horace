@@ -107,11 +107,14 @@ classdef gen_sqw_common_config < TestCase
         
         function setUp(obj)
             hc = hor_config;
+            hc.saveable = false;
             hc.use_mex = obj.new_mex_;
             hpc = hpc_config;
+            hpc.saveable = false;
             hpc.build_sqw_in_parallel = obj.new_mpi_;
             hpc.combine_sqw_using = obj.new_combine_;
             parc = parallel_config;
+            parc.saveable = false;
             parc.parallel_cluster = obj.new_cluster_;
             if ~isempty(obj.new_working_folder)
                 parc.working_directory = obj.new_working_folder;

@@ -13,7 +13,7 @@ if isa(data.pix,'pix_combine_info') % data contains not pixels themselves but in
     pix_form = rmfield(pix_form,'pix');
     [pix_info_pos,pos]=obj.sqw_serializer_.calculate_positions(pix_form,data,pos);
     pix_info_pos.pix_pos_ = pos;
-    npix = data.pix.npixels;
+    npix = data.pix.num_pixels;
     % start of npix pos + npix+ pix info size (single precision array of
     % 8 x npix)
     pos = pos + 8 + npix*9*4;

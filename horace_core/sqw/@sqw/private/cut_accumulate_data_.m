@@ -20,7 +20,7 @@ function [s, e, npix, pix_out, img_range, pix_comb_info] = ...
 % npix             Array defining how many pixels are contained in each image
 %                  bin. size(npix) == size(s)
 % pix_out          A PixelData object containing pixels that contribute to the
-%                  cut. If keep_pix is false, the PixelData object will be empty.
+%                  cut.
 % img_range        The range of u1, u2, u3, and dE in the contributing pixels.
 %                  size(urange_pix) == [2, 4].
 % pix_combine_info A temp file manager/combiner for performing out-of-memory
@@ -57,9 +57,9 @@ max_num_iters = ceil(cum_bin_sizes(end)/block_size);
 use_tmp_files = ~return_cut && max_num_iters > 1;
 
 if keep_pix
-    % Pre-allocate cell arrays to hold PixelData chunks
-    pix_retained = cell(1, max_num_iters);
-    pix_ix_retained = cell(1, max_num_iters);
+% Pre-allocate cell arrays to hold PixelData chunks
+pix_retained = cell(1, max_num_iters);
+pix_ix_retained = cell(1, max_num_iters);
 
     if use_tmp_files
         % Create a pix_comb_info object to handle tmp files of pixels
@@ -106,8 +106,8 @@ for iter = 1:max_num_iters
     );
 
     if log_level >= 0
-        fprintf(['Step %3d of maximum %3d; Have read data for %d pixels -- ' ...
-                 'now processing data...'], iter, max_num_iters, ...
+        fprintf(['Step %3d of max %3d; Read data for %d pixels -- ' ...
+                    'processing data...'], iter, max_num_iters, ...
                 candidate_pix.num_pixels);
     end
 
@@ -145,10 +145,10 @@ for iter = 1:max_num_iters
                 del_npix_retain ...
             );
         else
-            % Retain only the pixels that contributed to the cut
-            pix_retained{iter} = candidate_pix.get_pixels(ok);
-            pix_ix_retained{iter} = ix;
-        end
+        % Retain only the pixels that contributed to the cut
+        pix_retained{iter} = candidate_pix.get_pixels(ok);
+        pix_ix_retained{iter} = ix;
+    end
     end
 
 end  % loop over pixel blocks

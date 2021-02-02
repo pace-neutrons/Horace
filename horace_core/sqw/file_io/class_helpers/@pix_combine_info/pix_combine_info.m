@@ -2,11 +2,23 @@ classdef pix_combine_info
     % Helper class used to carry out and provide information
     % necessary for pixel combining using write_nsqw_to_sqw algorithm.
     %
-    properties(Access = protected)
-        n_pixels_ = 'undefined';
-        filenum_ = [];
+    properties(Dependent)
+        % total number of pixels to combine
+        num_pixels;
+        % number of files, contributing into final result
+        nfiles;
+        % Global range of all pixels, intended for combining
+        pix_range
+        
+        % true if pixel id from each contributing file should be replaced by contributing file number
+        relabel_with_fnum;
+        % true if pixel id for each pixel from contributing files should be changed.
+        change_fileno
+        % numbers of files used as runlabel for pixels if relabel_with_fnum
+        % and change_fileno are set to true
+        filenum
     end
-
+    %
     properties(Access=public)
         % cellarray of filenames to combine
         infiles;
@@ -35,27 +47,18 @@ classdef pix_combine_info
         %      (3) The files correspond to several runs in general, which need to
         %          be offset to give the run indices into the collective list of run parameters
         run_label;
-
         % auxiliary propery used by cut_sqw
         npix_cumsum;
+    end
+    %
+    properties(Access = protected)
+        n_pixels_ = 'undefined';
+        filenum_ = [];
         % Global range of all pixels, intended for combining
-        pix_range = PixelData.EMPTY_RANGE_;
+        pix_range_ = PixelData.EMPTY_RANGE_;
+        
     end
-
-    properties(Dependent)
-        % total number of pixels to combine
-        npixels;
-        % number of files, contributing into final result
-        nfiles;
-        % true if pixel id from each contributing file should be replaced by contributing file number
-        relabel_with_fnum;
-        % true if pixel id for each pixel from contributing files should be changed.
-        change_fileno
-        % numbers of files used as runlabel for pixels if relabel_with_fnum
-        % and change_fileno are set to true
-        filenum
-    end
-
+    
     methods
         %
         function obj = pix_combine_info(infiles,nbins,pos_npixstart,pos_pixstart,npixtot,run_label,filenums)
@@ -82,15 +85,18 @@ classdef pix_combine_info
             obj.nbins        = nbins;
             obj.npix_file_tot    = npixtot;
             obj.n_pixels_ = uint64(sum(npixtot));
-
+            
             if exist('filenums','var')
                 obj.filenum_ = filenums;
             end
         end
         %
-        function npix = get.npixels(obj)
+        function npix = get.num_pixels(obj)
             % total number of pixels in all contributing files
             npix = obj.n_pixels_;
+        end
+        function range = get.pix_range(obj)
+            range = obj.pix_range_;
         end
         %
         function nf   = get.nfiles(obj)
@@ -134,8 +140,9 @@ classdef pix_combine_info
             else
                 error('SQW_FILE_IO:invalid_argument','Invalid value for run_label')
             end
-
+            
         end
+        %
         function fn = get.filenum(obj)
             if isempty(obj.filenum_)
                 fn = 1:obj.nfiles;
@@ -145,7 +152,8 @@ classdef pix_combine_info
         end
         function parts_carr= split_into_parts(obj,n_workers)
             % function divided pix_combine_info into the specified number
-            % of parts to send it for processing on parallel system
+            % of (almost) equal parts to send it for processing
+            % on parallel system
             n_tasks = obj.nfiles;
             if n_workers> n_tasks
                 n_workers = n_tasks;
@@ -161,7 +169,7 @@ classdef pix_combine_info
                     fclose(obj.infiles(i));
                 end
             end
-
+            
             parts_carr = cell(1,n_workers);
             pnbins = obj.nbins;
             filenums = 1:n_tasks;
@@ -179,7 +187,22 @@ classdef pix_combine_info
                 %
                 parts_carr{i} = pix_combine_info(part_files,pnbins,ppos_npixstart,ppos_pixstart,pnpixtot,prun_label,pfilenums);
             end
-
+            
+        end
+        %
+        function obj = set.pix_range(obj,val)
+            if ~all(size(val) == [2,4])
+                error('PIX_COMBINE_INFO:invalid_argument',...
+                    'pix_range size has to be array of 2x4');
+            end
+            obj.pix_range_ = val;
+        end
+        %
+        function obj = recalc_pix_range(obj)
+            % recalculate common range for all pixels analysing pix ranges
+            % from all contributing files
+            %
+            obj = recalc_pix_range_(obj);
         end
         %
         function obj=trim_nfiles(obj,nfiles_to_leave)
@@ -204,12 +227,13 @@ classdef pix_combine_info
             % contributing file
             obj.pos_pixstart = obj.pos_pixstart(1:nfiles_to_leave);
             obj.npix_file_tot= obj.npix_file_tot(1:nfiles_to_leave);
-
+            
             obj.n_pixels_ = uint64(sum(obj.npix_file_tot));
             if ~isempty(obj.filenum_)
                 obj.filenum_ = obj.filenum_(1:nfiles_to_leave);
             end
         end
+        %
         function struc = saveobj(obj)
             struc = structIndep(obj);
         end
@@ -222,8 +246,21 @@ classdef pix_combine_info
                 obj.(flds{i}) = struc.(flds{i});
             end
         end
+        function pix_range = recalc_pix_range_from_loaders(ldrs)
+            % Recalculate pixels range using list of defined loaders
+            n_files = numel(ldrs);
+            ldr = ldrs{1};
+            pix_range= ldr.get_pix_range();
+            for i=2:n_files
+                ldr = ldrs{i};
+                loc_range = ldr.get_pix_range();
+                pix_range = [min([loc_range(1,:);pix_range(1,:)],[],1);
+                    max([loc_range(2,:);pix_range(2,:)],[],1)];
+            end
+            
+        end
     end
-
+    
 end
 
 
