@@ -13,7 +13,6 @@ function [rez, n_errors, can_use_mex_4_combine] = check_horace_mex()
 % rez is cellarray, which contains the reply from mex files queried about their
 % version
 %
-% $Revision: 1738 $    $Date: 2019-03-12 14:31:09 +0000 (Tue, 12 Mar 2019) $
 %
 
 % list of the function names used in nice formatted messages formed by the

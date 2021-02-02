@@ -72,9 +72,9 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
         % all substantial parts of appropriate sqw file
         fields_to_save_3_3 = {'pix_range_'};
     end
-
+    
     methods
-
+        
         function obj=faccess_sqw_v3_3(varargin)
             % constructor, to build sqw reader/writer version 3
             %
@@ -98,7 +98,7 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
             %                       to save sqw object provided. The name
             %                       of the file to save the object should
             %                       be provided separately.
-
+            
             % set up fields, which define appropriate file version
             obj = obj@faccess_sqw_v3();
             obj.file_ver_ = 3.3;
@@ -165,21 +165,16 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
             obj.position_info_pos_= obj.instr_sample_end_pos_;
             %
             data = obj.extract_correct_subobj('data');
-            obj.pix_range_ = data.pix.pix_range;
-            if isa(data.pix, 'pix_combine_info')
-                num_pix = data.pix.npixels;
-            else
-                % data.pix is a PixelData object
-                num_pix = data.pix.num_pixels;
-            end
-
+            obj.pix_range_ = data.pix.pix_range;            
+            num_pix = data.pix.num_pixels;            
+            
             if any(any(obj.pix_range_ == PixelData.EMPTY_RANGE_)) && num_pix > 0
                 data.pix.recalc_pix_range();
                 obj.pix_range_ = data.pix.pix_range;
             end
             obj = init_sqw_footer(obj);
         end
-
+        
         function obj=init_from_structure(obj,obj_structure_from_saveobj)
             % init file accessors using structure, obtained for object
             % serialization (saveobj method);
