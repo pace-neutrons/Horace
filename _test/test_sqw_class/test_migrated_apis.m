@@ -198,10 +198,10 @@ classdef test_migrated_apis < TestCase
             expected_inst =  IX_inst_DGfermi (mod_1, ap_1, chopper_1, 100);
             
             updated = s.set_instrument(expected_inst);
-            [inst, all_inst] = updated.get_inst_class();
+            [instrument_class, all_inst] = updated.get_inst_class();
 
             assertTrue(all_inst);
-            assertTrue(equal_to_tol(inst, expected_inst));
+            assertTrue(equal_to_tol(instrument_class, class(expected_inst)));
 
         end
         function test_get_inst_class_with_missing_instrument(obj)
@@ -216,9 +216,9 @@ classdef test_migrated_apis < TestCase
                s.header{idx}.intrument = expected_inst;
            end
            
-           [inst, all_inst] = s.get_inst_class();
+           [instrument_class, all_inst] = s.get_inst_class();
            assertFalse(all_inst);
-           assertEqual(inst, '');
+           assertEqual(instrument_class, '');
         end
 %        function test_get_mod_pulse(obj)
 %            % tested as part of test_instrument_methods
