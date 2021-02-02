@@ -90,7 +90,7 @@ if ~mfclass.legacy(varargin{:})
             true, false, @tobyfit_DGfermi_resconv_init, []);
     elseif strcmp(inst,'IX_inst_DGdisk')
         mf_init = mfclass_wrapfun (@tobyfit_DGdisk_resconv, [], @func_eval, [],...
-            true, false, @tobyfit_DGdisk_resconv_mc_contrib, []);
+            true, false, @tobyfit_DGdisk_resconv_init, []);
     else
         error('No resolution fuinction model implemented for this instrument')
     end
