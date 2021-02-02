@@ -25,6 +25,7 @@ author = ', '.join(sorted(authors,key=lambda x: x.split()[-1])) # Authors by sur
 
 
 # The full version, including alpha/beta/rc tags
+version = '3.5.0'
 release = '3.5.0'
 
 

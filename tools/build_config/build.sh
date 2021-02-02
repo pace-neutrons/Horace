@@ -88,7 +88,7 @@ function run_package() {
 function build_docs() {
     # Update release numbers
     build_id=$(sed -nr '/CPACK_PACKAGE_FILE_NAME/{s/.*"Horace-([^"]+)".*/\1/p};' ./build/CPackConfig.cmake)
-    sed -i -r 's/release = .*/release = "'${build_id}'"/' ./documentation/user_docs/docs/conf.py
+    sed -i -r 's/(release|version) = .*/\1 = "'${build_id}'"/' ./documentation/user_docs/docs/conf.py
     make -C ./documentation/user_docs/ html
 
     # Undo change to allow checkout
@@ -105,6 +105,7 @@ function build_docs() {
 }
 
 function push_built_docs() {
+    build_id=$(sed -nr '/CPACK_PACKAGE_FILE_NAME/{s/.*"Horace-([^"]+)".*/\1/p};' ./build/CPackConfig.cmake)
     git config --local user.name "PACE CI Build Agent"
     git config --local user.email "pace.builder.stfc@gmail.com"
     git remote set-url --push origin "https://pace-builder:"${api_token## }"@github.com/pace-neutrons/Horace"
@@ -115,7 +116,7 @@ function push_built_docs() {
     git rm -rf --ignore-unmatch ./unstable
     cp -r ./documentation/user_docs/build/html ./unstable
     git add unstable
-    git commit -m "Document build from CI"
+    git commit -m "Document build from CI ("$build_id")"
     git push origin gh-pages
 }
 

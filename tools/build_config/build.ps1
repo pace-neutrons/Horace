@@ -198,7 +198,9 @@ function Invoke-Docs {
   $build_id = $Matches[1]
 
   (Get-Content ./documentation/user_docs/docs/conf.py) |
-      Foreach-Object {$_ -replace 'release = .*', "release = '${build_id}'"} |
+    Foreach-Object {
+        $_ -replace '(version|release) = .*', "`$1 = '${build_id}'"
+    } |
       Set-Content  ./documentation/user_docs/docs/conf.py
 
   ./documentation/user_docs/make.bat html
@@ -229,7 +231,12 @@ function Invoke-Push {
   git rm -rf --ignore-unmatch ./unstable
   Copy-Item -Path "./documentation/user_docs/build/html" -Destination "./unstable" -Recurse
   git add unstable
-  git commit -m "Document build from CI"
+
+  (Get-Content "./build/CPackConfig.cmake" |
+    Where-Object {$_ -match 'CPACK_PACKAGE_FILE_NAME'}) -match '.*"Horace-([^"]+)".*'
+  $build_id = $Matches[1]
+
+  git commit -m "Document build from CI (${build_id})"
   git push origin gh-pages
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
