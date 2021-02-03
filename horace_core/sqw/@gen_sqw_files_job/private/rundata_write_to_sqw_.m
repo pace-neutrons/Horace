@@ -1,4 +1,4 @@
-function [grid_size, pix_range] = rundata_write_to_sqw_(run_files, sqw_file, ...
+function [grid_size, pix_range,update_runlabels] = rundata_write_to_sqw_(run_files, sqw_file, ...
     grid_size_in, pix_db_range, write_banner)
 % Read a single rundata object, and create a single sqw file.
 %
@@ -18,10 +18,13 @@ function [grid_size, pix_range] = rundata_write_to_sqw_(run_files, sqw_file, ...
 %
 % Output:
 % -------
-%   grid_size       Actual grid size used (size is unity along dimensions
-%                   where there is zero range of the data points)
-%   pix_range       Actual range of grid, should be different from
-%                   pix_range_in only if pix_range_in is not provided
+% grid_size       -  Actual grid size used (size is unity along dimensions
+%                    where there is zero range of the data points)
+% pix_range       -  Actual range of grid, should be different from
+%                    pix_range_in only if pix_range_in is not provided
+% update_runlabels-  if true, each run-id for every runfile has to be
+%                    modified as some runfiles have the same run-id(s). 
+%                    This possible e.g. in "replicate" mode. 
 
 
 % Original author: T.G.Perring
@@ -48,6 +51,7 @@ running_mpi = mpi_obj.is_deployed;
 %
 cut_range = arrayfun(@(x,y,z)get_cut_range(x,y,z),...
     pix_db_range(1,:),pix_db_range(2,:),grid_size_in,'UniformOutput',false);
+run_id = zeros(1,nfiles);
 for i=1:nfiles
     if hor_log_level>-1 && write_banner
         disp('--------------------------------------------------------------------------------')
@@ -55,6 +59,7 @@ for i=1:nfiles
         disp(' ')
     end
     %
+    run_id(i) = run_files{i}.run_id;
     [w,grid_size_tmp,pix_range_tmp] = run_files{i}.calc_sqw(grid_size_in, pix_db_range,cache_det{:});
     if ~isempty(run_files{i}.transform_sqw) && ~isempty(pix_db_range)
         w = cut(w,cut_range{:});
@@ -87,6 +92,14 @@ for i=1:nfiles
     end
     
 end
+uniq_runid = unique(run_id);
+if numel(uniq_runid) == nfiles
+    update_runlabels = false;    
+else
+    update_runlabels = true;
+end
+
+
 function range = get_cut_range(r_min,r_max,n_bins)
 % calculate input range
 n_bins = n_bins-1;

@@ -237,7 +237,7 @@ if accumulate_old_sqw    % combine with existing sqw file
             disp(' Analysing headers of existing tmp files:')
         end
         [header_sqw,grid_size_sqw,pix_db_range_sqw,pix_range_present,...
-            ind_tmp_files_present] = get_tmp_file_headers(all_tmp_files);
+            ind_tmp_files_present,update_runid] = get_tmp_file_headers(all_tmp_files);
         if sum(ind_tmp_files_present) == 0
             accumulate_old_sqw = false;
             if log_level>0
@@ -255,6 +255,22 @@ if accumulate_old_sqw    % combine with existing sqw file
             gen_sqw_check_sqwfile_valid(sqw_file);
         % Check that the input spe data are distinct
         if ~ok, error(mess), end
+        % It is expected that one would not run replicate and accumulate
+        % together and add replicated files without run_id changes after
+        % first accumulation because the files with identical run-ids will 
+        % contribute into pixels but headers (experiment info) 
+        % will be added for each file
+        % 
+        % Assume:
+        % the file has been calculated and run_id-s are stored in the file
+        % All its run-id-s are unique, as doing opposite,
+        % will be too expensive. Ideally run_id should be stored with
+        % headers (experiment_info). The possible issue may occur, if
+        % filenames are non-standard, run_id can not extracted from file
+        % name and has not been recalculated but additional files will for
+        % some reason obtain a run_id, equal to the one, already stored in
+        % the file.
+        update_runid = false;
     end
     %
     [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
@@ -273,8 +289,13 @@ if accumulate_old_sqw    % combine with existing sqw file
             if log_level>-1
                 disp('Creating output sqw file:')
             end
+            if update_runid
+                wnsq_argi = {};
+            else
+                wnsq_argi = {'keep_runid'};
+            end
             % will recaluclate pixel_range
-            [~,pix_range]=write_nsqw_to_sqw (tmp_file, sqw_file,pix_range_present);
+            [~,pix_range]=write_nsqw_to_sqw (tmp_file, sqw_file,pix_range_present,wnsq_argi{:});
             
             if numel(tmp_file) == numel(all_tmp_files)
                 tmpf_clob = onCleanup(@()delete_tmp_files(tmp_file,log_level));
@@ -285,10 +306,10 @@ if accumulate_old_sqw    % combine with existing sqw file
                 report_nothing_to_do(spe_only,spe_exist);
             end
             tmp_file={};
-            pix_range=pix_range_present;            
+            pix_range=pix_range_present;
         end
         grid_size=grid_size_sqw;
-
+        
         return
     end
     ix=(spe_exist & spe_only);    % the spe data that needs to be processed
@@ -428,11 +449,14 @@ else
             instrument = instrument(ix);
             sample     = sample(ix);
         end
-        
+    end
+    if opt.replicate && ~spe_unique 
+        % expand run_ids for replicated files to make run_id-s unique
+        run_files = update_duplicated_rf_id(run_files);        
     end
     
     % Generate unique temporary sqw files, one for each of the spe files
-    [grid_size,pix_range,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
+    [grid_size,pix_range,update_runid,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
         instrument,sample,pix_db_range,grid_size_in,opt.tmp_only);
     verify_pix_range_est(pix_range,pix_range_est,log_level);
     
@@ -459,6 +483,9 @@ else
             wsqw_arg = {parallel_job_dispatcher};
         else
             wsqw_arg = {'allow_equal_headers',parallel_job_dispatcher};
+        end
+        if ~update_runid
+            wsqw_arg = {wsqw_arg{:},'keep_runid'};
         end
         if ~accumulate_old_sqw || use_partial_tmp
             if log_level>-1
@@ -541,7 +568,7 @@ else
 end
 
 %------------------------------------------------------------------------------------------------
-function [header_sqw,grid_size_sqw,img_range_sqw,pix_range,tmp_present] = get_tmp_file_headers(tmp_file_names)
+function [header_sqw,grid_size_sqw,img_range_sqw,pix_range,tmp_present,update_runid] = get_tmp_file_headers(tmp_file_names)
 % get sqw header for prospective sqw file from range of tmp files
 %
 % Input:
@@ -564,6 +591,8 @@ ic = 1;
 img_range_sqw = [];
 grid_size_sqw = [];
 pix_range = PixelData.EMPTY_RANGE_;
+
+run_ids = zeros(1,numel(files_to_check));
 for i=1:numel(files_to_check)
     try
         ldr = sqw_formats_factory.instance().get_loader(files_to_check{i});
@@ -586,6 +615,9 @@ for i=1:numel(files_to_check)
     % --------------------------------------------
     header = ldr.get_header('-all');
     data   = ldr.get_data('-head');
+    pix1  = ldr.get_pix(1,1);
+    run_ids(i) = pix1(5);
+    
     pix_range_l = ldr.get_pix_range();
     pix_range = [min(pix_range(1,:),pix_range_l(1,:));...
         max(pix_range(2,:),pix_range_l(2,:))];
@@ -642,6 +674,12 @@ for i=1:numel(files_to_check)
         end
     end
     
+end
+unique_id = unique(run_ids);
+if numel(unique_id)== numel(run_ids)
+    update_runid = false;
+else
+    update_runid = true;
 end
 %-------------------------------------------------------------------------
 function  [pix_db_range,pix_range] = find_pix_range(run_files,efix,emode,ief,indx,log_level)
@@ -720,7 +758,7 @@ else
 end
 disp('--------------------------------------------------------------------------------')
 %---------------------------------------------------------------------------------------
-function  [grid_size,pix_range,tmp_file,jd]=convert_to_tmp_files(run_files,sqw_file,...
+function  [grid_size,pix_range,update_runids,tmp_file,jd]=convert_to_tmp_files(run_files,sqw_file,...
     instrument,sample,pix_db_range,grid_size_in,gen_tmp_files_only)
 %
 log_level = ...
@@ -781,6 +819,7 @@ if use_separate_matlab
         outputs   = outputs{1};
         grid_size = outputs.grid_size;
         pix_range = outputs.pix_range;
+        update_runids =outputs.update_runid;
     else
         jd.display_fail_job_results(outputs,n_failed,num_matlab_sessions,'GEN_SQW:runtime_error');
     end
@@ -799,7 +838,7 @@ else
     % effective but much easier to identify problem with
     % failing parallel job
     
-    [grid_size,pix_range]=gen_sqw_files_job.runfiles_to_sqw(run_files,tmp_file,...
+    [grid_size,pix_range,update_runids]=gen_sqw_files_job.runfiles_to_sqw(run_files,tmp_file,...
         grid_size_in,pix_db_range,true);
     %---------------------------------------------------------------------
 end

@@ -60,6 +60,10 @@ classdef rundatah < rundata
             [args,opt,present] = parse_arguments(varargin,arglist,flags);
             
             [runfiles_list,defined]= rundata.gen_runfiles_of_type('rundatah',spe_files,args{:});
+            % add check to verify if run_ids for all generated files are
+            % unique. non-unique run_ids will be renumbered. This should
+            % not normally happen, but additional check will do no harm
+            runfiles_list = update_duplicated_rf_id(runfiles_list);
             
             if present.transform_sqw
                 transf = opt.transform_sqw;
