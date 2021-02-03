@@ -261,7 +261,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
         function test_gen_sqw(obj,varargin)
             %-------------------------------------------------------------
             if obj.skip_test
-                return
+                skipTest(fprintf('test_gen_sqw_%s is disabled',obj.test_pref));
             end
             if nargin> 1
                 % running in single test method mode.
@@ -319,10 +319,14 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             obj.assertEqualToTolWithSave(w1a,'ignore_str',true,'tol',1.e-7);
         end
         %
-        function DISABLED_test_gen_sqw_sym(obj,varargin)
+        function test_gen_sqw_sym(obj,varargin)
             %-------------------------------------------------------------
+            if obj.save_output
+                return;
+            end
+            skipTest(fprintf('test_gen_sqw_sym_%s is disabled, Ticket #464',obj.test_pref));
             if obj.skip_test
-                return
+                skipTest(fprintf('test_gen_sqw_sym_%s is disabled',obj.test_pref));
             end
             if nargin> 1
                 % running in single test method mode.
@@ -392,7 +396,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
         function test_accumulate_sqw14(obj,varargin)
             %-------------------------------------------------------------
             if obj.skip_test
-                return
+                skipTest(fprintf('test_accumulate_sqw14_%s is disabled',obj.test_pref));
             end
             if nargin> 1
                 % running in single test method mode.
@@ -451,7 +455,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
         %
         function test_accumulate_and_combine1to4(obj,varargin)
             if obj.skip_test
-                return
+                skipTest(fprintf('test_accumulate_and_combine1to4_%s is disabled',obj.test_pref));
             end
             if nargin> 1
                 % running in single test method mode.
@@ -559,7 +563,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
         function test_accumulate_sqw1456(obj,varargin)
             %-------------------------------------------------------------
             if obj.skip_test
-                return
+                skipTest(fprintf('test_accumulate_sqw1456_%s is disabled',obj.test_pref));
             end
             if nargin> 1
                 % running in single test method mode.
@@ -567,7 +571,13 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 co1 = onCleanup(@()obj.tearDown());
             end
             %-------------------------------------------------------------
-            
+            % Do not delete tmp file for future accumulation
+            hc = hor_config;
+            recovery = hc.get_data_to_store();
+            hc.saveable = false;
+            hc.delete_tmp = false;
+            co2 = onCleanup(@()set(hc,recovery));
+            %-------------------------------------------------------------
             
             % build test files if they have not been build
             obj=build_test_files(obj);
@@ -624,22 +634,33 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             [ok,mess,w2_1456]=is_cut_equal(sqw_file_1456,sqw_file_accum,...
                 proj_o,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess])
-            
+            %
+            clear co2;
             % Test against saved or store to save later
             obj.assertEqualToTolWithSave(w2_1456,'ignore_str',true,'tol',1.e-7);
+            
         end
         %
         function test_accumulate_sqw11456(obj,varargin)
             %-------------------------------------------------------------
             if obj.skip_test
-                return
+                skipTest(fprintf('test_accumulate_sqw11456_%s is disabled',obj.test_pref));
             end
             if nargin> 1
                 % running in single test method mode.
                 obj.setUp();
                 co1 = onCleanup(@()obj.tearDown());
             end
+            
             %-------------------------------------------------------------
+            % Do not delete tmp file for future accumulation
+            hc = hor_config;
+            recovery = hc.get_data_to_store();
+            hc.saveable = false;
+            hc.delete_tmp = false;
+            co2 = onCleanup(@()set(hc,recovery));
+            %-------------------------------------------------------------
+            
             
             
             % build test files if they have not been build
@@ -660,6 +681,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             
             
             
+            
             [tmp_files,grid_size1,pix_range1]=gen_sqw (spe_selected,...
                 '', sqw_file_11456, efix([1,3,4,5,6]), ...
                 emode, alatt, angdeg, u, v, psi([1,3,4,5,6]),...
@@ -675,12 +697,11 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % Repeat a file with 'replicate'
             spe_accum={obj.spe_file{1},'',obj.spe_file{1},obj.spe_file{4},...
                 obj.spe_file{5},obj.spe_file{6}};
-            clear clobT;
+            
             [tmp_fls,~,pix_range2]=accumulate_sqw (spe_accum, '',...
                 sqw_file_accum,efix, emode, alatt, angdeg, u, v, psi,...
                 omega, dpsi, gl, gs,...
                 'replicate'); %grid_size1,pix_range1,
-            clobT = onCleanup(@()obj.delete_files(tmp_fls));
             
             assertEqual(pix_range1,pix_range2);
             
@@ -713,8 +734,6 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             [ok,mess]=is_cut_equal(sqw_file_11456,sqw_file_accum,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess]);
         end
-        %
-        
         %
     end
 end

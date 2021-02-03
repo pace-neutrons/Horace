@@ -25,6 +25,11 @@ function [img_range,pix_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 %                       missing) so either this keyword or hpc_config
 %                       option or the instance of the JobDispatcher has to
 %                       be present to combine sqw files in  parallel.
+% keep_runid         -- if present, forces routine to keep run-id specific
+%                       defined in the contributing run-files instead of 
+%                       generating run-id on the basis of the data, stored
+%                       in the runfiles
+%
 % JobDispatcherInstance-- the initialized instance of JobDispatcher,
 %                       to use in combining sqw files in parallel
 % pix_range          -- [2x4] array of ranges (min/max q-dE coordinates values)
@@ -46,13 +51,14 @@ function [img_range,pix_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 % T.G.Perring   22 March 2013  Modified to enable sqw files with more than one spe file to be combined.
 %
 
-accepted_options = {'allow_equal_headers','drop_subzones_headers','parallel'};
+accepted_options = {'allow_equal_headers','keep_runid',...
+    'drop_subzones_headers','parallel'};
 
 if nargin<2
     error('WRITE_NSQW_TO_SQW:invalid_argument',...
         'function should have at least 2 input arguments')
 end
-[ok,mess,allow_equal_headers,drop_subzone_headers,combine_in_parallel,argi]...
+[ok,mess,allow_equal_headers,keep_runid,drop_subzone_headers,combine_in_parallel,argi]...
     = parse_char_options(varargin,accepted_options);
 if ~ok
     error('WRITE_NSQW_TO_SQW:invalid_argument',mess);
@@ -122,8 +128,8 @@ if hor_log_level>-1
     disp('Reading header(s) of input file(s) and checking consistency...')
 end
 
-
-[main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
+%[main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs]
+[~,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
     accumulate_headers_job.read_input_headers(infiles);
 if all(all(pix_range == PixelData.EMPTY_RANGE_))
     pix_range = pix_combine_info.recalc_pix_range_from_loaders(ldrs);
@@ -174,8 +180,8 @@ sqw_data.iint=datahdr{1}.iint;
 sqw_data.pax=datahdr{1}.pax;
 sqw_data.p=datahdr{1}.p;
 sqw_data.dax=datahdr{1}.dax;    % take the display axes from first file, for sake of choosing something
-% TODO: disentangle!!!
-% img_range at this stage is equal to pix_range
+% img_range at this stage is equal to pix_range + halo ~ eps, if pix_range was
+% estimated or input_pix_range if it has been provided
 sqw_data.img_range=img_range;
 
 % Now read in binning information
@@ -251,7 +257,7 @@ if hor_log_level>-1
     disp(' ')
     disp(['Writing to output file ',outfile,' ...'])
 end
-if drop_subzone_headers
+if drop_subzone_headers || keep_runid
     run_label = 'nochange';
 else
     run_label=cumsum([0;nspe(1:end-1)]);
