@@ -57,7 +57,7 @@ classdef test_duplicated_id < TestCase
             assertEqual(ids,[1,0,2,6,0,3,7,8]);
         end
         
-        function test_do_nothing_inverted(~)
+        function test_do_nothing_if_data_unique_and_inverse_order(~)
             % routine should not modify the unique run_ids;
             runfiles = {rundatah(),[],[],rundatah(),[]};
             nf = numel(runfiles);
@@ -72,7 +72,7 @@ classdef test_duplicated_id < TestCase
         end
         
         
-        function test_do_nothing(~)
+        function test_do_nothing_if_all_data_unique(~)
             % routine should not modify the unique run_ids;
             runfiles = {rundatah(),[],rundatah()};
             for i=1:numel(runfiles)
