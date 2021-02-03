@@ -14,13 +14,18 @@ end
 fields = fieldnames(sqw_data_structure);
 for i=1:numel(fields)
     fld = fields{i};
-    if isempty(data.(fld)) && isempty(sqw_data_structure.(fld))  
+    targ_fld = fld; %Tempoprary
+    if strcmp(fld,'pix_range') % TODO: fix it
+        targ_fld  = 'urange';
+    end
+    
+    if isempty(data.(targ_fld)) && isempty(sqw_data_structure.(fld))  
         continue; %keep the shape of the empty source structure, ignore shape of the input
     end
     if isa(sqw_data_structure.(fld),'single') && conv2double
-        data.(fld) = double(sqw_data_structure.(fld));
+        data.(targ_fld) = double(sqw_data_structure.(fld));
     else
-        data.(fld) = sqw_data_structure.(fld);
+        data.(targ_fld) = sqw_data_structure.(fld);
     end
 end
 

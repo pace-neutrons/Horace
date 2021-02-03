@@ -1,21 +1,21 @@
-function [ok,mess,header,grid_size,urange]=gen_sqw_check_sqwfile_valid(sqw_file)
+function [ok,mess,header,grid_size,img_range]=gen_sqw_check_sqwfile_valid(sqw_file)
 % Check that the sqw file has the correct attributes to which to accumulate, and return useful information
 %
-%   >> [ok,mess,grid_size,urange]=gen_sqw_check_sqwfile_valid(sqw_file)
+%   >> [ok,mess,grid_size,img_range]=gen_sqw_check_sqwfile_valid(sqw_file)
 %
 % Input:
 % ------
 %   sqw_file    Filename containing sqw data.
-% 
+%
 % Output:
 % -------
 %   ok          True of all OK, false otherwise
 %   mess        Error message if not OK; ='' if OK
 %   header      Header from the sqw data
 %   grid_size   Grid size [1,4] vector of number of bins along each axis
-%   urange      Actual limits of the grid (NOT the data)
+%   img_range   Actual limits of the grid (NOT the data)
 %
-% 
+%
 % For the file to be valid for accumulation, we require:
 %   - the data is sqw-type
 %   - the sqw file is 4D
@@ -40,15 +40,15 @@ catch ME
 end
 if ~isempty(mess)
     ok=false;
-    header={}; grid_size=[]; urange=[];
+    header={}; grid_size=[]; img_range=[];
     return
 end
 if ~sqw_type || ndims~=4
     ok=false;
     mess='The file to which to accumulate does not hold sqw data, or does not have 4 dimensions';
-    header={};  grid_size=[]; urange=[];
+    header={};  grid_size=[]; img_range=[];
     return
-end    
+end
 
 % Get header information to check other fields
 % --------------------------------------------
@@ -59,7 +59,7 @@ header_ave=header_average(header);
 
 tol=2e-7;    % test number to define equality allowing for rounding errors (recall fields were saved only as float32)
 % TGP (15/5/2015) I am not sure if this is necessary: both the header and data sections are saved as float32, so
-% should be rounded identically. 
+% should be rounded identically.
 ok =equal_to_relerr(header_ave.alatt, data.alatt, tol, 1) &...
     equal_to_relerr(header_ave.angdeg, data.angdeg, tol, 1) &...
     equal_to_relerr(header_ave.uoffset, data.uoffset, tol, 1) &...
@@ -68,7 +68,7 @@ ok =equal_to_relerr(header_ave.alatt, data.alatt, tol, 1) &...
 if ~ok
     ok=false;
     mess='The sqw to which to accumulate does not have the correct projection axes for this operation.';
-    header={}; grid_size=[]; urange=[];
+    header={}; grid_size=[]; img_range=[];
     return
 end
 
@@ -76,6 +76,6 @@ grid_size=zeros(1,4);
 for i=1:4
     grid_size(i)=numel(data.p{i})-1;
 end
-urange=[data.p{1}(1) data.p{2}(1) data.p{3}(1) data.p{4}(1); ...
-        data.p{1}(end) data.p{2}(end) data.p{3}(end) data.p{4}(end)];
-    
+img_range=[data.p{1}(1) data.p{2}(1) data.p{3}(1) data.p{4}(1); ...
+    data.p{1}(end) data.p{2}(end) data.p{3}(end) data.p{4}(end)];
+

@@ -18,5 +18,8 @@ function data = make_sqw_main_header
 %   data.title      Title of sqw data structure
 %   data.nfiles     Number of spe files that contribute
 
+% Original author: T.G.Perring
+%
+
 data = struct([]);  % empty structure
 

@@ -21,7 +21,7 @@ while true
     pix_out.variance = pg_result.e;
 
     if pix_out.has_more()
-        pix_out = pix_out.advance();
+        pix_out.advance();
     else
         break;
     end

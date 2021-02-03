@@ -15,6 +15,33 @@ classdef test_eval < TestCase
             obj.sqw_obj = sqw(test_sqw_file);
         end
 
+        function test_disp2sqw_eval(obj)
+            skipTest('Incorrect test data');
+            err_message = '';
+            try
+                ds = disp2sqw_eval(obj.sqw_obj, ...
+                    @test_eval.disp2sqw_eval_tester2D, [], 1.0, 'all');
+                failed = false;
+            catch ME
+                failed = true;
+                err_message = ME.message;
+            end
+            assertFalse(failed, err_message);
+
+            sig = ds.data.s;
+            
+            
+            assertEqual(sig(1), numel(sig));
+            assertEqual(sig(2), 1);
+
+            pix = ds.data.pix;
+            assertEqual(pix.signal(1), numel(sig));
+            assertEqual(pix.signal(2), numel(sig));
+
+
+
+        end
+
         function test_func_eval_sqw(obj)
             %
             err_message = '';
@@ -74,7 +101,26 @@ classdef test_eval < TestCase
 
             pix = ds.data.pix;
             assertEqual(pix.signal(2), 1);
-            assertEqual(size(pix,2), pix.signal(1));
+            assertEqual(size(pix.data, 2), pix.signal(1));
+        end
+
+        function test_sqw_eval_no_pix(obj)
+            %
+            err_message = '';
+            sqw_nopix = copy(obj.sqw_obj);
+            sqw_nopix.data.pix = PixelData();
+            try
+                ds = sqw_eval(obj.sqw_obj, ...
+                    @test_eval.sqw_eval_tester, []);
+                failed = false;
+            catch ME
+                failed = true;
+                err_message = ME.message;
+            end
+            assertFalse(failed,err_message);
+
+            expected = ones(size(sqw_nopix.data.s));
+            assertEqual(ds.data.s(2:end), expected(2:end));
         end
     end
     methods(Static)
@@ -89,6 +135,11 @@ classdef test_eval < TestCase
                 dis = ones(size(h));
             end
             dis(1) = numel(h);
+        end
+        
+        function [w,s] = disp2sqw_eval_tester2D(qh,qk,ql,p)
+            w = ones(size(qh));
+            s = ones(size(qh));
         end
 
         function dis = funceval_tester2D(x, en, par)

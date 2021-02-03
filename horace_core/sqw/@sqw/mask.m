@@ -42,8 +42,9 @@ wout.data.s(~mask_array) = 0;
 wout.data.e(~mask_array) = 0;
 wout.data.npix(~mask_array) = 0;
 
-% Section the pix array, if non empty and update urange
+% Section the pix array, if non empty, and update pix_range
 if has_pixels(win)
     wout.data.pix = win.data.pix.mask(mask_array, win.data.npix);
-    wout.data.urange = recompute_urange(wout);
+    %TODO: is this a suitable algorithm?
+    wout.data.img_range = recompute_img_range(wout);
 end

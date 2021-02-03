@@ -179,7 +179,7 @@ ndims=dimensions(win);
 %Old code before bug spotted by Matt Mena:
 
 %Extent of data before symmetrisation:
-%note we use the axes of the cut, not the urange, since user may have
+%note we use the axes of the cut, not the pix_range, since user may have
 %chosen to have white space around their slice / cut for a reason
 % for i=1:ndims
 %     min_unref{i}=min(win.data.p{win.data.pax(i)});
@@ -217,13 +217,13 @@ for i=1:ndims
     max_full(i)=max(existing_range{i}(3), max_ref(i));
 end
 
-%We have to ensure that we also adjust the urange field appropriately:
+%We have to ensure that we also adjust the pix_range field appropriately:
 new_range = cell(ndims,1);
 for i=1:ndims
     %step=wout.data.p{i}(2)-wout.data.p{i}(1);
     %add a little bit either side, to be sure of getting everything
-    wout.data.urange(1,wout.data.pax(i))=min_full(i)-existing_range{i}(2);
-    wout.data.urange(2,wout.data.pax(i))=max_full(i)+existing_range{i}(2);
+    wout.data.img_range(1,wout.data.pax(i))=min_full(i)-existing_range{i}(2);
+    wout.data.img_range(2,wout.data.pax(i))=max_full(i)+existing_range{i}(2);
     new_range{i} = [min_full(i),existing_range{i}(2),max_full(i)];
 end
 

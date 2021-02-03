@@ -6,7 +6,6 @@ function proj = set_data_transf_(proj,data,upix_to_rlu,upix_offset)
 % It is transient funciton, necessary unitl data does not contains an 
 % implicit projection class.
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 
 if any(size(upix_to_rlu) ~= [3 3])
