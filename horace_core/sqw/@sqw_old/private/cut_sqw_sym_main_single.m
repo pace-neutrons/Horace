@@ -69,7 +69,6 @@ else
     upix_to_rlu = header_ave.u_to_rlu(1:3,1:3);
     upix_offset = header_ave.uoffset;
 
-
     for i=2:numel(sym)+1
         % Transform primary cut binning and projection
         [ok, mess, proj_trans, pbin_trans] = transform_proj (sym{i-1},...

@@ -69,7 +69,6 @@ else
     upix_to_rlu = header_ave.u_to_rlu(1:3,1:3);
     upix_offset = header_ave.uoffset;
 
-
     for i=2:numel(sym)+1
         % Transform primary cut binning and projection
         [ok, mess, proj_trans, pbin_trans] = transform_proj (sym{i-1},...
@@ -99,7 +98,7 @@ else
             main_header, header, detpar, data, npixtot, pix_position,...
             proj_trans, pbin_trans, pin, en, opt_tmp, hor_log_level);
         % Transform pixels
-        if isa(wtmp{i},'sqw_old') && numel(wtmp{i}.data.pix.data)>0
+        if isa(wtmp{i},'sqw') && numel(wtmp{i}.data.pix.data)>0
             wtmp{i}.data.pix.q_coordinates = transform_pix (sym{i-1},...
                 upix_to_rlu, upix_offset, wtmp{i}.data.pix.q_coordinates);
         end
@@ -114,7 +113,7 @@ else
         disp('Combining symmetry related cuts...')
     end
 
-    if isa(wtmp{1},'sqw_old')
+    if isa(wtmp{1},'sqw')
         wout = combine_sqw_same_bins (wtmp{:});
     else
         wout = combine_dnd_same_bins (wtmp{:});
@@ -145,7 +144,7 @@ end
 % % Reverse engineer the projection and binning of a cut. Works for dnd and sqw
 % % objects
 %
-% if isa(w,'sqw_old')
+% if isa(w,'sqw')
 %     data = w.data;
 % else
 %     data = w;
@@ -188,4 +187,3 @@ end
 % function pbin = pbin_from_p (p)
 % % Get 1x3 binning description from equally spaced bin boundaries
 % pbin = [(p(1)+p(2))/2, (p(end)-p(1))/(numel(p)-1), (p(end-1)+p(end))/2];
-

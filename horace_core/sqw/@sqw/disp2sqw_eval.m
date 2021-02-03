@@ -88,10 +88,12 @@ if exist('opt','var')  % no option given
 end
 
 wout = copy(win);
-if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
+if ~iscell(pars)
+    pars={pars}; % package parameters as a cell for convenience
+end
 
 for i=1:numel(win)
-    if is_sqw_type(win(i));   % determine if sqw or dnd type
+    if has_pixels(win(i));   % determine if sqw or dnd type
         % If sqw type, then must evaluate at every pixel, as qh,qk,ql in general will be different for every pixel
         if ~ave_pix
             wout(i)=sqw_eval(win(i),@disp2sqw,{dispreln,pars,fwhh});

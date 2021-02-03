@@ -74,8 +74,6 @@ classdef test_main_mex < TestCase
                 return;
             end
 
-
-
             [data,proj]=gen_fake_accum_cut_data(this,[1,0,0],[0,1,0]);
             %[v,sizes,rot_ustep,trans_bott_left,ebin,trans_elo,urange_step_pix,urange_step]=gen_fake_accum_cut_data(this,0,0);
             urange_step_pix=zeros(2,4);
@@ -84,16 +82,19 @@ classdef test_main_mex < TestCase
 
             %check matlab-part
             set(hor_config,'use_mex',0,'-buffer');
-            dummy  = sqw_old();
-            dummy.data = data;
-            [s_m, e_m, npix_m, urange_step_pix_m, npix_retain_m,ok_m, ix_m] = accumulate_cut_tester(dummy,urange_step_pix, true,...
-                proj, [1,2,3,4]);
+
+            [s_m, e_m, npix_m, urange_step_pix_m, npix_retain_m,ok_m, ix_m] =...
+                cut_data_from_file_job.accumulate_cut(data.s, data.e, data.npix,...
+                urange_step_pix, true,...
+                data.pix,proj, [1,2,3,4]);
 
 
             %check C-part
             set(hor_config,'use_mex',1,'-buffer');
-            [s_c, e_c, npix_c, urange_step_pix_c, npix_retain_c,ok_c, ix_c] = accumulate_cut_tester(dummy,urange_step_pix, true,...
-                proj, [1,2,3,4]);
+            [s_c, e_c, npix_c, urange_step_pix_c, npix_retain_c,ok_c, ix_c] = ...
+                cut_data_from_file_job.accumulate_cut(data.s, data.e, data.npix,...
+                urange_step_pix, true,...
+                data.pix,proj, [1,2,3,4]);
 
             % verify results against each other.
             assertElementsAlmostEqual(urange_step_pix_m,urange_step_pix_c,'relative',1.e-7);
@@ -116,13 +117,13 @@ classdef test_main_mex < TestCase
             %
             set(hor_config,'use_mex',0,'-buffer');
 
-            [urange_matl,u_to_rlu_matl,pix_matl]=rd.calc_projections();
+            [pix_range_matl,u_to_rlu_matl,pix_matl]=rd.calc_projections();
 
             set(hor_config,'use_mex',1,'-buffer');
-            [urange_c,u_to_rlu_c,pix_c]=rd.calc_projections();
+            [pix_range_c,u_to_rlu_c,pix_c]=rd.calc_projections();
 
             assertElementsAlmostEqual(u_to_rlu_matl,u_to_rlu_c,'absolute',1.e-8);
-            assertElementsAlmostEqual(urange_matl,urange_c,'absolute',1.e-8);
+            assertElementsAlmostEqual(pix_range_matl,pix_range_c,'absolute',1.e-8);
             assertElementsAlmostEqual(pix_matl.data,pix_c.data,'absolute',1.e-8);
 
         end
@@ -137,27 +138,27 @@ classdef test_main_mex < TestCase
             rd = calc_fake_data(this);
             hcf.saveable=false;
             hcf.use_mex = 0;
-            [u_to_rlu_matl,urange_matl]=rd.calc_projections();
+            [pix_range_matl,u_to_rlu_matl]=rd.calc_projections();
             hcf.use_mex = 1;
-            [u_to_rlu_c,urange_c]=rd.calc_projections();
+            [pix_range_c,u_to_rlu_c]=rd.calc_projections();
 
             assertElementsAlmostEqual(u_to_rlu_matl,u_to_rlu_c,'absolute',1.e-8);
-            assertElementsAlmostEqual(urange_matl,urange_c,'absolute',1.e-8);
+            assertElementsAlmostEqual(pix_range_matl,pix_range_c,'absolute',1.e-8);
 
 
             hcf.use_mex = 0;
-            [u_to_rlu_matl,urange_matl,pix_m]=rd.calc_projections();
+            [pix_range_matl,u_to_rlu_matl,pix_m]=rd.calc_projections();
 
-            assertEqual(size(pix_m,1),9)
+            assertEqual(size(pix_m.data, 1), 9);
             hcf.use_mex = 1;
-            [u_to_rlu_c,urange_c,pix_c]=rd.calc_projections();
+            [pix_range_c,u_to_rlu_c,pix_c]=rd.calc_projections();
 
             assertElementsAlmostEqual(u_to_rlu_matl,u_to_rlu_c,'absolute',1.e-8);
-            assertElementsAlmostEqual(urange_matl,urange_c,'absolute',1.e-8);
-            assertEqual(size(pix_c,1),9)
+            assertElementsAlmostEqual(pix_range_matl,pix_range_c,'absolute',1.e-8);
+            assertEqual(size(pix_c.data, 1), 9);
             assertElementsAlmostEqual(pix_m.data,pix_c.data,'absolute',1.e-8);
         end
-        function test_recompute_bin_data(this)
+        function test_recompute_bin_data(~)
 
             [cur_mex,log_level,n_threads] = get(hor_config,'use_mex','log_level','threads');
             cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex,'log_level',log_level,'threads',n_threads));
@@ -235,9 +236,8 @@ classdef test_main_mex < TestCase
             ix0  = int64(ix);
             pix0a = sort_pix(pix0,ix0,npix,'-force_mex');
             assertElementsAlmostEqual(pix0a.data, pix2.data,'absolute',1.e-6);
-
-
         end
+
         function profile_sort_pix(this)
             xs = 9.99:-0.1:0.01;
             xp = 0.01:0.1:9.99;
@@ -347,13 +347,13 @@ classdef test_main_mex < TestCase
 
             % set to cut half of the dataset in all 4 dimensions (1/16 of
             % total dataset)
-            urange(1,:) =  0.5*(minv+maxv);
+            pix_range(1,:) =  0.5*(minv+maxv);
             % move range in e-direction a bit to avoid accum_cut binning
             % coinside with initial binning and result depending on
             % round-off errors -- then it give different results in case of
             % used on different machines and c vs matlab
-            urange(1,4) =  1.01*urange(1,4);
-            urange(2,:) =  (maxv-minv);
+            pix_range(1,4) =  1.01*pix_range(1,4);
+            pix_range(2,:) =  (maxv-minv);
 
             % Prepare cut projection to cut half of the data
             proj = projection(prj);
@@ -364,10 +364,8 @@ classdef test_main_mex < TestCase
             % Important!!!!! to have the same number of bins as target data.s.
             % The question is how to assure that.
             step = (maxv-minv)./size(data.s)';
-            proj=proj.set_proj_binning(urange,[1,2,3,4],[],...
+            proj=proj.set_proj_binning(pix_range,[1,2,3,4],[],...
                 {minv(1):step(1):maxv(1),minv(2):step(2):maxv(2),minv(3):step(3):maxv(3),minv(4):step(4):maxv(4)});
-
-
         end
     end
 end

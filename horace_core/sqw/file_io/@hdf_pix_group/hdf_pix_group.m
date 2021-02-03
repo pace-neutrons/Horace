@@ -43,7 +43,6 @@ classdef hdf_pix_group < handle
     %
     
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     
     properties(Dependent)
@@ -143,32 +142,32 @@ classdef hdf_pix_group < handle
             %              convention first pixel number is 1)
             % pixels    -- 9xNpix array of pixels to write
             %Optinal:
-            % urange_in -- if present, array of size 9x2 or 4x2. If it
-            %              present,
-            %              do not calculate pixels range but use the one,
-            %              provided as input
+            % pix_range_in -- if present, array of size 9x2 or 4x2. If it
+            %                 present,
+            %                 do not calculate pixels range but use the one,
+            %                 provided as input
             %
             if nargin>3
-                urange = varargin{1};
-                if size(urange,1) ~=9
-                    if size(urange,1)==4
-                        umin = [urange(:,1);inf(5,1)];
-                        umax = [urange(:,2);-inf(5,1)];                        
-                        [umin,umax] = calc_urange_(obj,pixels,[umin,umax]);
+                pix_range_in = varargin{1};
+                if size(pix_range_in,1) ~=9
+                    if size(pix_range_in,1)==4
+                        pix_min = [pix_range_in(:,1);inf(5,1)];
+                        pix_max = [pix_range_in(:,2);-inf(5,1)];                        
+                        [pix_min,pix_max] = calc_pix_range_(obj,pixels,[pix_min,pix_max]);
                     else
                         error('HDF_PIX_GROUP:invalid_argument',...
                             'pixels range, if present, should be array of size [9x2], but is [%dx%d]',...
-                            size(urange));
+                            size(pix_range_in));
                     end
                 end
                 
             else
-                [umin,umax] = calc_urange_(obj,pixels);
+                [pix_min,pix_max] = calc_pix_range_(obj,pixels);
             end
             write_pixels_matlab_(obj,start_pos,pixels);
-            if any(umin < obj.pix_min_ | umax>obj.pix_max_)
-                obj.pix_min_ = umin;                
-                obj.pix_max_ = umax;                                
+            if any(pix_min < obj.pix_min_ | pix_max>obj.pix_max_)
+                obj.pix_min_ = pix_min;                
+                obj.pix_max_ = pix_max;                                
                 write_pix_range_(obj);
             end
         end

@@ -1,5 +1,5 @@
 function [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin)
-% Make cut from an array of files or sqw objects, 
+% Make cut from an array of files or sqw objects,
 % add together, and compare with same for another array of files
 %
 %   >> [ok,mess]=is_cut_equal(f1,f2,proj,p1,p2,p3,p4)
@@ -32,9 +32,27 @@ w2tot=combine_cuts(w2);
 % To check equality, see if npix, s, e arrays are the same
 if equal_to_tol(w1tot.data.npix,w2tot.data.npix) &&...
         equal_to_tol(w1tot.data.s,w2tot.data.s) &&...
-        equal_to_tol(w1tot.data.e,w2tot.data.e)
-    ok=true;
-    mess='';
+        equal_to_tol(w1tot.data.e,w2tot.data.e) &&...
+        equal_to_tol(w1tot.data.img_range,w2tot.data.img_range)
+    if isempty(w1tot.data.pix)
+        ok=true;
+        mess='';
+    else
+        if equal_to_tol(w1tot.data.pix.pix_range,w2tot.data.pix.pix_range) && ...
+                equal_to_tol(w1tot.data.pix.num_pixels,w2tot.data.pix.num_pixels)
+            ok=true;
+            mess='';
+        else
+            ok = false;
+            mess=sprintf(['Pixels parameters of two cuts are different:\n',...
+                '   npix1=%d and npix2 = %d\n',...
+                'pix_range1 = [%f  %f %f %f; pix_range2=[%f  %f %f  %f;\n',...
+                '              %f  %f %f %f]             %f  %f %f  %f]'],...
+                w1tot.data.pix.num_pixels,w2tot.data.pix.pix_range,...
+                w1tot.data.pix.pix_range(1,:),w2tot.data.pix.pix_range(1,:),...
+                w1tot.data.pix.pix_range(2,:),w2tot.data.pix.pix_range(2,:));
+        end
+    end
 else
     ok=false;
     mess='One or more of npix, s, e are not the same';

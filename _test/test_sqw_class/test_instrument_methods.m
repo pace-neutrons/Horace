@@ -15,8 +15,8 @@ classdef test_instrument_methods < TestCaseWithSave
             % load data
             load('data/test_instrument_methods_data.mat','w_fe','w_rb')
 
-            self.w_fe = w_fe;     % iron dataset
-            self.w_rb = w_rb;     % RbMnF3 dataset
+            self.w_fe = sqw(w_fe);     % iron dataset
+            self.w_rb = sqw(w_rb);     % RbMnF3 dataset
 
             % Make an instrument(distance,frequency,radius,curvature,slit_width
             mod_1 = IX_moderator(10,11,'ikcarp',[11,111,0.1]);

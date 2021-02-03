@@ -1,21 +1,21 @@
-function [s, e, npix, urange_step_pix, npix_retain,ok, ix] = accumulate_cut_(s, e, npix, urange_step_pix, keep_pix,...
-    v, proj,pax)
-%function [s, e, npix, urange_step_pix, npix_retain,ok, ix] = accumulate_cut (s, e, npix, urange_step_pix, keep_pix,...
-%    v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax)
+function [s, e, npix, img_range_step, npix_retain,ok, ix] = accumulate_cut_(s, e, npix,img_range_step, keep_pix,...
+    v,proj,pax)
+%function [s, e, npix, img_range_step, npix_retain,ok, ix] = accumulate_cut (s, e, npix, img_range_step, keep_pix,...
+%    v, img_range_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax)
 % Accumulate signal into output arrays
 %
-%   >> [s,e,npix,npix_retain] = accumulate_cut (s, e, npix, v, urange_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, keep_pix)
+%   >> [s,e,npix,npix_retain] = accumulate_cut (s, e, npix, v, img_range_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, keep_pix)
 %
 % Input: (* denotes output argument with same name exists - exploits in-place working of Matlab R2007a)
 % ------
 % * s               Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
 % * e               Array of accumulated variance
 % * npix            Array of number of contributing pixels
-% * urange_step_pix Actual range of contributing pixels
+% * img_range_step Actual range of contributing pixels
 %   keep_pix        Set to true if wish to retain the information about individual pixels; set to false if not
 %   v               PixelData object
 %
-%   urange_step     [2x4] array of the ranges of the data as defined by (i) output proj. axes ranges for
+%   img_range_step     [2x4] array of the ranges of the data as defined by (i) output proj. axes ranges for
 %                  integration axes (or plot axes with one bin), and (ii) step range (0 to no. bins)
 %                  for plotaxes (with more than one bin)
 %   rot_ustep       Matrix [3x3]     --|  that relate a vector expressed in the
@@ -30,7 +30,7 @@ function [s, e, npix, urange_step_pix, npix_retain,ok, ix] = accumulate_cut_(s, 
 %   s               Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
 %   e               Array of accumulated variance
 %   npix            Array of number of contributing pixels
-%   urange_step_pix Actual range of contributing pixels
+%   img_range_step Actual range of contributing pixels
 %   npix_retain     Number of pixels that contribute to the cut
 %   ok              If keep_pix==true: v(:,ok) are the pixels that are retained; otherwise =[]
 %   ix              If keep_pix==true: column vector of single bin index of each retained pixel; otherwise =[]
@@ -41,7 +41,6 @@ function [s, e, npix, urange_step_pix, npix_retain,ok, ix] = accumulate_cut_(s, 
 
 % T.G.Perring   19 July 2007
 
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 [ignore_nan,ignore_inf,use_mex,n_threads] =...
     config_store.instance().get_value('hor_config','ignore_nan','ignore_inf','use_mex','threads');
@@ -51,10 +50,10 @@ ignore_inf=logical(ignore_inf);
 
 
 if proj.can_mex_cut && use_mex
-    [urange_step_pix_recent, ok, ix, s, e, npix, npix_retain,mex_success]=...
+    [img_range_step_recent, ok, ix, s, e, npix, npix_retain,mex_success]=...
         proj.accumulate_cut(v,s,e,npix,pax,ignore_nan,ignore_inf,keep_pix,n_threads);
     if npix_retain>0
-        urange_step_pix =[min(urange_step_pix(1,:),urange_step_pix_recent(1,:));max(urange_step_pix(2,:),urange_step_pix_recent(2,:))];  % true range of data
+        img_range_step =[min(img_range_step(1,:),img_range_step_recent(1,:));max(img_range_step(2,:),img_range_step_recent(2,:))];  % true range of data
     else
         ix=ones(0,1); % to be consistent with matlab
     end
@@ -68,7 +67,7 @@ else
 end
 
 if ~use_mex
-    [s, e, npix, urange_step_pix, npix_retain, ok, ix] = accumulate_cut_matlab_(s, e, npix, urange_step_pix, keep_pix,...
+    [s, e, npix, img_range_step, npix_retain, ok, ix] = accumulate_cut_matlab_(s, e, npix, img_range_step, keep_pix,...
         v, proj, pax);
 end
 

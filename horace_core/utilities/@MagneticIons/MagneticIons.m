@@ -35,7 +35,6 @@ classdef MagneticIons
     %                   can calculate magnetic form factors for.
     %
     %----------------------------------------------------------------------    
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Dependent)
         % the ion to fix or calculate magnetic form factor for.
