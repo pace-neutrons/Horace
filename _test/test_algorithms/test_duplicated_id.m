@@ -14,7 +14,8 @@ classdef test_duplicated_id < TestCase
             obj = obj@TestCase(name);
         end
         function test_update_duplicates_no_empty(~)
-            %
+            % duplicated ID-s have been updated
+            
             runfiles = {rundatah(),rundatah(),...
                 rundatah(),rundatah(),rundatah(),...
                 rundatah(),rundatah(),rundatah(),rundatah()};
@@ -32,22 +33,16 @@ classdef test_duplicated_id < TestCase
         
         
         function test_update_duplicates(~)
-            %
+            % duplicated ID-s have been updated
             runfiles = {rundatah(),[],rundatah(),rundatah(),[],...
                 rundatah(),rundatah(),rundatah()};
-            ic = 1;
-            count = 1;
             % create 1,'',2,2,'',3,3,3 runid sequence
+            runids = [1,NaN,2,2,NaN,3,3,3];
             for i=1:numel(runfiles)
                 if isempty(runfiles{i})
                     continue;
                 end
-                if ic>count
-                    count = count + 1;
-                    ic = 1;
-                end
-                runfiles{i}.run_id = count;
-                ic = ic+1;
+                runfiles{i}.run_id = runids(i);
             end
             rf_proc = update_duplicated_rf_id(runfiles);
             % Got 1,0,2,6,0,3,7,8 sequence
@@ -63,7 +58,7 @@ classdef test_duplicated_id < TestCase
         end
         
         function test_do_nothing_inverted(~)
-            %
+            % routine should not modify the unique run_ids;
             runfiles = {rundatah(),[],[],rundatah(),[]};
             nf = numel(runfiles);
             for i=1:nf
@@ -78,7 +73,7 @@ classdef test_duplicated_id < TestCase
         
         
         function test_do_nothing(~)
-            %
+            % routine should not modify the unique run_ids;
             runfiles = {rundatah(),[],rundatah()};
             for i=1:numel(runfiles)
                 if ~isempty(runfiles{i})
@@ -90,6 +85,7 @@ classdef test_duplicated_id < TestCase
             assertEqual(runfiles,rf_proc);
         end
         function test_do_nothing_at_all(~)
+            % ignore empty celarray
             runfiles = cell(1,4);
             rf_proc = update_duplicated_rf_id(runfiles);
             assertEqual(runfiles,rf_proc);
