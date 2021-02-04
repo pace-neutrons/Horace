@@ -61,7 +61,7 @@ foreach(_test_dir ${TEST_DIRECTORIES})
         NAME "${TEST_NAME}"
         CUSTOM_TEST_COMMAND
             "validate_horace ${_test_dir} -talkative -forcemex -exit_on_completion"
-        ADDITIONAL_PATH "${CMAKE_SOURCE_DIR}/admin"
+        ADDITIONAL_PATH "${Horace_ROOT}/admin"
         TIMEOUT ${TEST_TIMEOUT_LENGTH}
     )
     set_tests_properties("${TEST_NAME}"
