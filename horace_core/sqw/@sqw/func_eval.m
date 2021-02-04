@@ -129,16 +129,33 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
 
     % If sqw object, fill every pixel with the value of its corresponding bin
     if sqw_type
-        s = replicate_array(wout(i).data.s, win(i).data.npix)';
-        wout(i).data.pix.signal = s;
-        wout(i).data.pix.variance = zeros(size(s));
+        if ~opts.filebacked
+            s = repelem(wout(i).data.s(:), win(i).data.npix(:));
+            wout(i).data.pix.signal = s;
+            wout(i).data.pix.variance = zeros(size(s));
+        else
+            pix = wout(i).data.pix;
+            npix = wout(i).data.npix;
+            img_signal = wout(i).data.s;
+            wout(i).data.pix = update_pixels_filebacked(pix, npix, img_signal);
+        end
     elseif opts.all_bins
-        wout(i).data.npix=ones(size(wout(i).data.npix));    % in this case, must set npix>0 to be plotted.
+        % in this case, must set npix>0 to be plotted
+        wout(i).data.npix=ones(size(wout(i).data.npix));
     end
 
     % Save to file if outfile argument is given
     if ~isempty(opts.outfile) && ~isempty(opts.outfile{i})
         save(wout(i), opts.outfile{i});
+    end
+end  % end loop over input objects
+
+if opts.filebacked
+    % Return file names so we're not leaking file-backed objects
+    if numel(opts.outfile) > 1
+        wout = opts.outfile;
+    else
+        wout = opts.outfile{1};
     end
 end
 
@@ -155,7 +172,7 @@ function [pars, opts] = parse_args(win, func_handle, pars, varargin)
         );
     end
 
-    keyval_def = struct('all', false, 'outfile', '');
+    keyval_def = struct('all', false, 'outfile', '', 'filebacked', false);
     flag_names = {'all'};
     parse_opts.flags_noneg = true;
     parse_opts.flags_noval = true;
@@ -167,6 +184,7 @@ function [pars, opts] = parse_args(win, func_handle, pars, varargin)
         pars = {pars};
     end
     opts.all_bins = keyval.all;
+    opts.filebacked = keyval.filebacked;
     if isempty(keyval.outfile)
         opts.outfile = {};
     elseif ~iscell(keyval.outfile)
@@ -184,5 +202,71 @@ function [pars, opts] = parse_args(win, func_handle, pars, varargin)
             numel(opts.outfile), numel(win) ...
         );
     end
+    if outfiles_empty && opts.filebacked
+        opts.outfile = gen_array_of_tmp_file_paths( ...
+            numel(win), 'horace_func_eval', tmp_dir() ...
+        );
+    end
+end
 
+
+function paths = gen_array_of_tmp_file_paths(nfiles, prefix, base_dir)
+    % Generate a cell array of paths for temporary files to be written to
+    % Format of the file names follows:
+    %   <prefix>_<UUID>_<counter_with_padded_zeros>.tmp
+    if nfiles < 1
+        error('CUT:cut_accumulate_data_', ...
+              ['Cannot create temporary file paths for less than 1 file.' ...
+               '\nFound %i.'], nfiles);
+    end
+    uuid = char(java.util.UUID.randomUUID());
+    counter_padding = floor(log10(nfiles)) + 1;
+    format_str = sprintf('%s_%s_%%0%ii.tmp', prefix, uuid, counter_padding);
+    paths = cell(1, nfiles);
+    for i = 1:nfiles
+        paths{i} = fullfile(base_dir, sprintf(format_str, i));
+    end
+end
+
+
+function pix = update_pixels_filebacked(pix, npix, img_signal)
+    % Smear the given image signal values over a file-backed PixelData object
+    % Set each pixel's signal to the value of the average signal of the bin
+    % that pixel belongs to. Set all variances to zero.
+    %
+    npix_cum_sum = cumsum(npix(:));
+    end_idx = 1;
+    while true
+        start_idx = (end_idx - 1) + find(npix_cum_sum(end_idx:end) > 0, 1);
+        leftover_begin = npix_cum_sum(start_idx);
+        npix_cum_sum = npix_cum_sum - pix.page_size;
+        end_idx = (start_idx - 1) + find(npix_cum_sum(start_idx:end) > 0, 1);
+        if isempty(end_idx)
+            end_idx = numel(npix);
+        end
+
+        if start_idx == end_idx
+            % All pixels in page
+            if ~exist('leftover_end', 'var')
+                leftover_end = 0;
+            end
+            npix_chunk = min(pix.page_size, npix(start_idx) - leftover_end);
+        else
+            % Leftover_end = number of pixels to allocate to final bin n,
+            % there will be more pixels to allocate to bin n in the next iteration
+            leftover_end = ...
+                pix.page_size - (leftover_begin + sum(npix(start_idx + 1:end_idx - 1)));
+            npix_chunk = npix(start_idx + 1:end_idx - 1);
+            npix_chunk = [leftover_begin, npix_chunk(:).', leftover_end];
+        end
+
+        pix.signal = repelem(img_signal(start_idx:end_idx), npix_chunk);
+        pix.variance = 0;
+
+        if pix.has_more()
+            pix.advance();
+        else
+            break;
+        end
+    end
 end
