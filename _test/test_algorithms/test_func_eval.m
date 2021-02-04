@@ -5,6 +5,8 @@ classdef test_func_eval < TestCase
     end
 
     properties
+        old_warn_state;
+
         d2d_file_path = '../test_symmetrisation/w2d_qq_small_d2d.sqw'
         d2d_obj;
         sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw'
@@ -30,6 +32,12 @@ classdef test_func_eval < TestCase
             obj = obj@TestCase('test_func_eval');
             obj.d2d_obj = d2d(obj.d2d_file_path);
             obj.sqw_2d = sqw(obj.sqw_2d_file_path);
+
+            obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
+        end
+
+        function delete(obj)
+            warning(obj.old_warn_state);
         end
 
         %% Input validation
@@ -153,6 +161,64 @@ classdef test_func_eval < TestCase
             end
         end
 
+        function test_you_can_apply_func_eval_on_out_of_memory_data(obj)
+            config_cleanup = set_temporary_config_options( ...
+                hor_config, 'pixel_page_size', 3e5 ...
+            );
+            sqw_out_file = func_eval( ...
+                obj.sqw_2d_file_path, obj.quadratic, obj.quadratic_params, ...
+                'filebacked', true ...
+            );
+            tmp_file_cleanup = onCleanup(@() clean_up_file(sqw_out_file));
+
+            assertTrue(isa(sqw_out_file, 'char'));
+            sqw_out = sqw(sqw_out_file);
+            assertElementsAlmostEqual( ...
+                sqw_out.data.s(end, :), ...
+                obj.final_img_signal_row_sqw_2d, ...
+                'relative', obj.FLOAT_TOL ...
+            );
+            obj.validate_func_eval_sqw_output(obj.sqw_2d, sqw_out);
+        end
+
+        function test_applying_to_cell_array_of_files_on_out_of_memory_data(obj)
+            sqw_files_in = {obj.sqw_2d_file_path, obj.sqw_2d_file_path};
+            sqw_out_files = func_eval( ...
+                sqw_files_in, obj.quadratic, obj.quadratic_params, ...
+                'filebacked', true ...
+            );
+            tmp_file_cleanup = onCleanup( ...
+                @() cellfun(@(x) clean_up_file(x), sqw_out_files) ...
+            );
+
+            assertTrue(isa(sqw_out_files, 'cell'));
+            for i = 1:numel(sqw_out_files)
+                sqw_out = sqw(sqw_out_files{i});
+                assertElementsAlmostEqual( ...
+                    sqw_out.data.s(end, :), ...
+                    obj.final_img_signal_row_sqw_2d, ...
+                    'relative', obj.FLOAT_TOL ...
+                );
+                obj.validate_func_eval_sqw_output(obj.sqw_2d, sqw_out);
+            end
+        end
+
+        function test_applying_to_cell_array_of_mix_of_files_and_objects(obj)
+            sqws_in = {obj.sqw_2d_file_path, obj.sqw_2d};
+            sqws_out = func_eval(sqws_in, obj.quadratic, obj.quadratic_params);
+
+            assertTrue(isa(sqws_out, 'sqw'));
+            assertEqual(numel(sqws_out), numel(sqws_in));
+            for i = 1:numel(sqws_out)
+                assertElementsAlmostEqual( ...
+                    sqws_out(i).data.s(end, :), ...
+                    obj.final_img_signal_row_sqw_2d, ...
+                    'relative', obj.FLOAT_TOL ...
+                );
+                obj.validate_func_eval_sqw_output(obj.sqw_2d, sqws_out(i));
+            end
+        end
+
         %% DnD tests
         function test_applying_func_eval_to_dnd_object_returns_correct_dnd_data(obj)
             dnd_out = func_eval(obj.d2d_obj, obj.quadratic, obj.quadratic_params);
@@ -205,9 +271,6 @@ classdef test_func_eval < TestCase
                 );
                 obj.validate_func_eval_dnd_output(obj.d2d_obj, dnd_out);
             end
-        end
-
-        function test_you_can_apply_func_eval_on_out_of_memory_data(obj)
         end
     end
 
