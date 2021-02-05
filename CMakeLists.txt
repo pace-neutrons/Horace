@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.7)
 
-file(READ "${CMAKE_CURRENT_LIST_DIR}/VERSION" _version)
+set(Herbert_ROOT ${CMAKE_CURRENT_LIST_DIR})
+file(READ "${Herbert_ROOT}/VERSION" _version)
 string(STRIP "${_version}" _version)
 project("Herbert" VERSION "${_version}")
 
 set(CMAKE_CXX_STANDARD 11)
-set(Herbert_ROOT ${CMAKE_CURRENT_LIST_DIR})
 
 # Sort our targets into folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
