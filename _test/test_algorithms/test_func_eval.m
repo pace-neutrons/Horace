@@ -219,6 +219,30 @@ classdef test_func_eval < TestCase
             end
         end
 
+        function test_outfile_path_equal_to_input_outfile_if_filebacked(obj)
+            outfile = obj.get_tmp_file_path();
+            sqw_out_file = func_eval( ...
+                obj.sqw_2d_file_path, obj.quadratic, obj.quadratic_params, ...
+                'filebacked', true, ...
+                'outfile', outfile ...
+            );
+            tmp_file_cleanup = onCleanup(@() clean_up_file(outfile));
+
+            assertEqual(sqw_out_file, outfile)
+            assertEqual(exist(sqw_out_file, 'file'), 2);
+        end
+
+        function test_error_raised_if_filebacked_arg_not_scalar_logical(obj)
+            invalid_vals = {'not-a-logical', [true, false, true], 2};
+            for i = 1:numel(invalid_vals)
+                f = @() func_eval( ...
+                    obj.sqw_2d_file_path, obj.quadratic, obj.quadratic_params, ...
+                    'filebacked', invalid_vals{i} ...
+                );
+                assertExceptionThrown(f, 'SQW:func_eval:invalid_argument');
+            end
+        end
+
         %% DnD tests
         function test_applying_func_eval_to_dnd_object_returns_correct_dnd_data(obj)
             dnd_out = func_eval(obj.d2d_obj, obj.quadratic, obj.quadratic_params);

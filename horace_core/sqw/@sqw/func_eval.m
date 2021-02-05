@@ -184,7 +184,17 @@ function [pars, opts] = parse_args(win, func_handle, pars, varargin)
         pars = {pars};
     end
     opts.all_bins = keyval.all;
+
+    if ~islognumscalar(keyval.filebacked)
+        error( ...
+            'SQW:func_eval:invalid_argument', ...
+            ['Parameter ''filebacked'' must be a scalar logical value.\n', ...
+             'Found ''%s'' with size [%s].'], ...
+            class(keyval.filebacked), num2str(size(keyval.filebacked)) ...
+        );
+    end
     opts.filebacked = keyval.filebacked;
+
     if isempty(keyval.outfile)
         opts.outfile = {};
     elseif ~iscell(keyval.outfile)
