@@ -98,14 +98,18 @@ classdef test_mushroom_sqw < TestCaseWithSave
             proj = struct('u',u,'v',v);
             
             w2e = cut_sqw(sqo,proj,[0,0.01,3],[0,1.5],[0,1.1],[0,0.06,6]);
+            w2e = sqw(struct(w2e));
             obj.assertEqualToTolWithSave (w2e, [1.e-6,1.e-6],'ignore_str',1);
             w2xy = cut_sqw(sqo,proj,[0,3],[0,0.02,1.5],[0,0.01,1.1],[0,6]);
+            w2xy = sqw(struct(w2xy));
             obj.assertEqualToTolWithSave (w2xy, [1.e-6,1.e-6],'ignore_str',1);
             
             w2xz = cut_sqw(sqo,proj,[0,0.01,3],[0,1.5],[0,0.01,1.1],[0,6]);
+            w2xz = sqw(struct(w2xz));
             obj.assertEqualToTolWithSave (w2xz, [1.e-6,1.e-6],'ignore_str',1);
             
             w2yz = cut_sqw(sqo,proj,[0,0.01,3],[0,0.01,1.5],[0,1.1],[0,6]);
+            w2yz = sqw(struct(w2yz));
             obj.assertEqualToTolWithSave (w2yz, [1.e-6,1.e-6],'ignore_str',1);
             
             
