@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.7)
 
-file(READ "${CMAKE_CURRENT_LIST_DIR}/VERSION" _version)
+set(Horace_ROOT ${CMAKE_CURRENT_LIST_DIR})
+file(READ "${Horace_ROOT}/VERSION" _version)
 string(STRIP "${_version}" _version)
 project("Horace" VERSION "${_version}")
 
 # C++11 is required for GTest
 set(CMAKE_CXX_STANDARD 11)
-set(Horace_ROOT ${CMAKE_CURRENT_LIST_DIR})
 
 # Sort our targets into folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
