@@ -409,14 +409,13 @@ pipeline {
     always {
       // archive CTest results file and static analysis report
       archiveArtifacts(
-        artifacts: 'build/Testing/**/*.xml,**/cppcheck.xml',
+        artifacts: 'build/Testing/**/*.xml,**/cppcheck.xml,**/mlint.json',
         fingerprint: true
       )
 
-      publishCppcheck (
-        displayAllErrors: true,
-        allowNoReport: true,
-        pattern: '**/cppcheck.xml'
+      recordIssues(tools:
+                   [cppCheck(pattern: '**/cppcheck.xml', reportEncoding: 'UTF-8'),
+                    pep8(id: 'mlint', name: 'MLint', pattern: '**/mlint.out')]
       )
 
       xunit (
