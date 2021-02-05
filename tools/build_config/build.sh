@@ -65,7 +65,7 @@ function run_tests() {
 }
 
 function run_analysis() {
-  local output_dir=$1
+  local build_dir=$1
 
   echo_and_run "cd ${build_dir}"
   echo_and_run "make analyse"
@@ -95,8 +95,10 @@ flags:
       Run the Horace build commands.
   -t, --test
       Run all Horace tests.
+  -c, --configure
+      Run cmake configuration stage
   -a, --analyze
-      Run static analysis on Horace C++ code.
+      Run static analysis on Horace code.
   -p, --package
       Pacakge Horace into a .tar.gz file.
   -v, --print_versions
@@ -127,6 +129,7 @@ function main() {
   # set default parameter values
   local build=$FALSE
   local test=$FALSE
+  local configure=$FALSE
   local analyze=$FALSE
   local package=$FALSE
   local print_versions=$FALSE
@@ -143,6 +146,7 @@ function main() {
         # flags
         -b|--build) build=$TRUE; shift ;;
         -t|--test) test=$TRUE; shift ;;
+        -c|--configure) configure=$TRUE; shift;;
         -a|--analyze) analyze=$TRUE; shift ;;
         -p|--package) package=$TRUE; shift ;;
         -v|--print_versions) print_versions=$TRUE; shift ;;
@@ -161,15 +165,18 @@ function main() {
     print_package_versions
   fi
 
-  if ((analyze)); then
-    run_analysis "${HORACE_ROOT}"
-  fi
-
-  if ((build)); then
+  if ((configure)); then
     warning_msg="Warning: Build directory ${build_dir} already exists.\n\
         This may not be a clean build."
     echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
     run_configure "${build_dir}" "${build_config}" "${build_tests}" "${matlab_release}" "${cmake_flags}"
+  fi
+
+  if ((analyze)); then
+    run_analysis "${build_dir}"
+  fi
+
+  if ((build)); then
     run_build "${build_dir}"
   fi
 

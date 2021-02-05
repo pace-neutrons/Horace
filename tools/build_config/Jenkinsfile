@@ -248,7 +248,7 @@ pipeline {
               module load matlab/\$MATLAB_VERSION &&
               module load gcc/\$GCC_VERSION &&
               module load cppcheck/\$CPPCHECK_VERSION &&
-              ./tools/build_config/build.sh --print_versions --analyze
+              ./tools/build_config/build.sh --print_versions --configure --analyze
             '''
           }
           else {
