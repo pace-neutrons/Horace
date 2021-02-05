@@ -53,7 +53,7 @@ classdef test_multifit_functions < TestCase
             sig = ds.data.s;
             pix = ds.data.pix;
             assertEqual(pix.signal(2),numel(sig)+1);
-            assertEqual(size(pix,2)+numel(sig),pix.signal(1));
+            assertEqual(pix.num_pixels + numel(sig),pix.signal(1));
             
             assertEqual(sig(2),2);
             assertElementsAlmostEqual(sig(1),403.0462,'absolute',0.0001);
@@ -83,7 +83,7 @@ classdef test_multifit_functions < TestCase
             sig = ds.data.s;
             pix = ds.data.pix;
             assertEqual(pix.signal(2),2);
-            assertEqual(2*size(pix,2),pix.signal(1));
+            assertEqual(2*pix.num_pixels,pix.signal(1));
             
             assertEqual(sig(2),2);
             assertElementsAlmostEqual(sig(1),386.0924,'absolute',0.0001);
@@ -114,7 +114,7 @@ classdef test_multifit_functions < TestCase
             sig = ds.data.s;
             pix = ds.data.pix;
             assertEqual(pix.signal(2),numel(sig)+1);
-            assertEqual(size(pix,2)+numel(sig),pix.signal(1));
+            assertEqual(pix.num_pixels+numel(sig),pix.signal(1));
             
             assertEqual(sig(2),2);
             assertElementsAlmostEqual(sig(1),403.0462,'absolute',0.0001);

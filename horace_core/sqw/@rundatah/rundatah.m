@@ -92,7 +92,7 @@ classdef rundatah < rundata
             % from sqw
             %
             obj = obj@rundata();
-            if nargin == 1 && isa(varargin{1},'sqw_old')
+            if nargin == 1 && isa(varargin{1},'sqw')
                 obj = rundata_from_sqw_(varargin{1});
             else
                 obj = obj.initialize(varargin{:});
