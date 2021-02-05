@@ -91,9 +91,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
                for i = 1:numel(S)
                    obj(i) = sqw(S(i));
                end
-               return;
+            else
+               obj = sqw(S);
             end
-            obj = sqw(S);
         end
         
     end

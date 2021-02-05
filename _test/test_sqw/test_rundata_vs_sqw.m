@@ -146,7 +146,8 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
         %
         function  test_serialize_deserialize_rundatah_with_op(obj)
             % test checks if transofrmation is serialized/recovered correctly.
-            rd = rundatah(obj.sqw_obj);
+            sqw_obj = sqw(struct(obj.sqw_obj));
+            rd = rundatah(sqw_obj);
             v1=[0,1,0]; v2=[0,0,1]; v3=[0,0,0];
             rd.transform_sqw = @(x)symmetrise_sqw(x,v1,v2,v3);
             
