@@ -415,7 +415,7 @@ pipeline {
 
       recordIssues(tools:
                    [cppCheck(pattern: '**/cppcheck.xml', reportEncoding: 'UTF-8'),
-                    pep8(id: 'mlint', name: 'MLint', pattern: '**/mlint.out')]
+                    issues(id: 'mlint', name: 'MLint', pattern: '**/mlint.json')]
       )
 
       xunit (
