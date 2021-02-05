@@ -55,7 +55,8 @@ classdef test_dnd_constructors< TestCase
             assertEqual(sqw_obj.data.s,dnd_obj.s);
             assertEqual(sqw_obj.data.e,dnd_obj.e);
         end
-        function this = DISABLE_test_old_sqw(this)
+        function this = test_old_sqw(this)
+            testSkip("At 'old_sqw=', constructor now sqw not sqw_old, which then fails.");
             this_path = fileparts(which(mfilename));
             test_file = fullfile(this_path,'old_sqw_test.mat');
             ld = load(test_file);
