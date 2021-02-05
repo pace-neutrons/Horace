@@ -74,7 +74,7 @@ nbin = pix_comb_info.nbins;     % total number of bins
 n_pix_written = 0;
 ibin_end = 0;
 
-mess_completion(pix_comb_info.npixels,5,1);   % initialise completion message reporting - only if exceeds time threshold
+mess_completion(pix_comb_info.num_pixels,5,1);   % initialise completion message reporting - only if exceeds time threshold
 
 pix_buf_size=pmax;
 pos_pixstart = pix_comb_info.pos_pixstart;
@@ -82,7 +82,7 @@ while ibin_end<nbin
     
     % Refill buffer with next section of npix arrays from the input files
     ibin_start = ibin_end+1;
-    [npix_per_bins,npix_in_bins,ibin_end]=obj.get_npix_section(ibin_start,nbin);    
+    [npix_per_bins,npix_in_bins,ibin_end]=obj.get_npix_section(ibin_start,nbin);
     npix_per_bins = npix_per_bins';
     
     % Get the largest bin index such that the pixel information can be put in buffer

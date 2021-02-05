@@ -1,4 +1,4 @@
-classdef test_equal_to_tol < TestCase
+classdef test_pixels_equal < TestCase
 
 properties
     old_config;
@@ -13,7 +13,7 @@ end
 
 methods
 
-    function obj = test_equal_to_tol(~)
+    function obj = test_pixels_equal(~)
         obj = obj@TestCase('test_equal_to_tol');
 
         % Swallow any warnings for when pixel page size set too small

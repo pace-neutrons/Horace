@@ -108,8 +108,8 @@ function [pix_fields, abs_pix_indices] = parse_args(obj, varargin)
         max_idx = max(abs_pix_indices);
         if max_idx > obj.num_pixels
             error('PIXELDATA:get_data', ...
-                  'Pixel index out of range. Index must not exceed %i.', ...
-                  obj.num_pixels);
+                  ['Pixel index out of range. Index must not exceed %i, ' ...
+                   'found %i'], obj.num_pixels, max_idx);
         end
     end
 end

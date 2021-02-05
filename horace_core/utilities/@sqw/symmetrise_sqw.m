@@ -96,8 +96,10 @@ uconv=header.u_to_rlu(1:3,1:3);
 
 %convert the vectors specifying the reflection plane from rlu to the
 %orthonormal frame of the pix array:
-vec1=uconv\(v1'-header.uoffset(1:3));
-vec2=uconv\(v2'-header.uoffset(1:3));
+%vec1=uconv\(v1'-header.uoffset(1:3));
+%vec2=uconv\(v2'-header.uoffset(1:3));
+vec1=uconv\(v1');
+vec2=uconv\(v2');
 
 %Normal to the plane, in the frame of pix array:
 normvec=cross(vec1,vec2);
@@ -122,7 +124,8 @@ num_pixels=win.data.pix.num_pixels;  % MP, num_pixels=numel(coords)/3
 
 %Note that we allow the inclusion of an offset from the origin of the
 %reflection plane. This is specified in rlu.
-vec3=uconv\(v3'-header.uoffset(1:3));
+%vec3=uconv\(v3'-header.uoffset(1:3));
+vec3=uconv\(v3');
 %Ensure v3 is a column vector:
 if all(size(vec3)==[1,3])
     vec3=vec3';
@@ -146,6 +149,10 @@ side_dot=coords_new'*normvec; % MP: vector of scalar products, w/o repmat/bsxfun
 idx = find(side_dot > 0);
 coords_new([1:3], idx) = Reflec*coords_new([1:3], idx); % MP: (TODO) could potentially be optimized further
 clear 'side_dot'; % MP: not needed anymore
+% Testing the ranges transformation
+%orig_range = win.data.pix.pix_range;
+%cross_points = box_cross(orig_range,vec1,vec2,vec3);
+
 coords_new=bsxfun(@plus, coords_new, vec3); % MP
 
 wout.data.pix.q_coordinates=coords_new;

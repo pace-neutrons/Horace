@@ -86,9 +86,11 @@ function [tmp_file,grid_size,pix_range] = gen_sqw (spe_file, par_file, sqw_file,
 %   tmp_file        Cell array with list of temporary files created by this call to gen_sqw.
 %                  If only one input spe file, then no temporary file created, and tmp_file
 %                  is an empty cell array.
-%   grid_size       Actual size of grid used (size is unity along dimensions
+%   grid_size      Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
-%   pix_range      Actual range of grid
+%   pix_range      Actual range of pixels (in crystal cartesian),
+%                  contributing into sqw file. Add border to rebin pixels within
+%                  this range.
 
 
 % T.G.Perring  14 August 2007
@@ -171,8 +173,8 @@ end
 
 
 % Check file names are valid, and their existence or otherwise
-if opt.replicate,  require_spe_unique=false; else require_spe_unique=true; end
-if opt.accumulate, require_spe_exist=false;  else require_spe_exist=true;  end
+if opt.replicate,  require_spe_unique=false; else; require_spe_unique=true; end
+if opt.accumulate, require_spe_exist=false;  else; require_spe_exist=true;  end
 require_sqw_exist=false;
 
 [ok, mess, spe_file, par_file, sqw_file, spe_exist, spe_unique, sqw_exist] = gen_sqw_check_files...
@@ -217,7 +219,7 @@ if ~ok, error('GEN_SQW:invalid_argument',mess), end
 grid_default=[];
 instrument_default=struct;  % default 1x1 struct
 sample_default=struct;      % default 1x1 struct
-[ok,mess,present,grid_size_in,pix_range_in,instrument,sample]=gen_sqw_check_optional_args(...
+[ok,mess,present,grid_size_in,pix_db_range,instrument,sample]=gen_sqw_check_optional_args(...
     n_all_spe_files,grid_default,instrument_default,sample_default,args{:});
 if ~ok, error('GEN_SQW:invalid_argument',mess), end
 if accumulate_old_sqw && (present.grid||present.pix_range)
@@ -234,7 +236,8 @@ if accumulate_old_sqw    % combine with existing sqw file
         if log_level>0
             disp(' Analysing headers of existing tmp files:')
         end
-        [header_sqw,grid_size_sqw,img_range_sqw,ind_tmp_files_present] = get_tmp_file_headers(all_tmp_files);
+        [header_sqw,grid_size_sqw,pix_db_range_sqw,pix_range_present,...
+            ind_tmp_files_present,update_runid] = get_tmp_file_headers(all_tmp_files);
         if sum(ind_tmp_files_present) == 0
             accumulate_old_sqw = false;
             if log_level>0
@@ -248,9 +251,26 @@ if accumulate_old_sqw    % combine with existing sqw file
         
     else
         % Check that the sqw file has the correct type to which to accumulate
-        [ok,mess,header_sqw,grid_size_sqw,img_range_sqw]=gen_sqw_check_sqwfile_valid(sqw_file);
+        [ok,mess,header_sqw,grid_size_sqw,pix_db_range_sqw,pix_range_present]=...
+            gen_sqw_check_sqwfile_valid(sqw_file);
         % Check that the input spe data are distinct
         if ~ok, error(mess), end
+        % It is expected that one would not run replicate and accumulate
+        % together and add replicated files without run_id changes after
+        % first accumulation because the files with identical run-ids will 
+        % contribute into pixels but headers (experiment info) 
+        % will be added for each file
+        % 
+        % Assume:
+        % the file has been calculated and run_id-s are stored in the file
+        % All its run-id-s are unique, as doing opposite,
+        % will be too expensive. Ideally run_id should be stored with
+        % headers (experiment_info). The possible issue may occur, if
+        % filenames are non-standard, run_id can not extracted from file
+        % name and has not been recalculated but additional files will for
+        % some reason obtain a run_id, equal to the one, already stored in
+        % the file.
+        update_runid = false;
     end
     %
     [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
@@ -269,8 +289,13 @@ if accumulate_old_sqw    % combine with existing sqw file
             if log_level>-1
                 disp('Creating output sqw file:')
             end
-            
-            write_nsqw_to_sqw (tmp_file, sqw_file);
+            if update_runid
+                wnsq_argi = {};
+            else
+                wnsq_argi = {'keep_runid'};
+            end
+            % will recaluclate pixel_range
+            [~,pix_range]=write_nsqw_to_sqw (tmp_file, sqw_file,pix_range_present,wnsq_argi{:});
             
             if numel(tmp_file) == numel(all_tmp_files)
                 tmpf_clob = onCleanup(@()delete_tmp_files(tmp_file,log_level));
@@ -281,9 +306,10 @@ if accumulate_old_sqw    % combine with existing sqw file
                 report_nothing_to_do(spe_only,spe_exist);
             end
             tmp_file={};
+            pix_range=pix_range_present;
         end
-        grid_size=grid_size_sqw; 
-        pix_range=img_range_sqw;
+        grid_size=grid_size_sqw;
+        
         return
     end
     ix=(spe_exist & spe_only);    % the spe data that needs to be processed
@@ -364,17 +390,20 @@ end
 if ~accumulate_old_sqw
     %NOTE: because of && numel(run_files)>1, Masked detectors would be removed
     % from the range of a single converted run file.
-    if isempty(pix_range_in) && numel(run_files)>1
+    if isempty(pix_db_range) && numel(run_files)>1
         if numel(run_files)==1
-            pix_range_in =[];
+            pix_db_range =[];
+            pix_range_est = [];
         else
-            pix_range_in = find_pix_range(run_files,efix,emode,ix,indx,log_level); %calculate pix_range from all runfiles
+            [pix_db_range,pix_range_est] = find_pix_range(run_files,efix,emode,ix,indx,log_level); %calculate pix_range from all runfiles
         end
-        
+    else
+        pix_range_est = [];
     end
     run_files = run_files(ix); % select only existing runfiles for further processing
 elseif accumulate_old_sqw
-    pix_range_in=img_range_sqw;
+    pix_db_range=pix_db_range_sqw;
+    pix_range_est = [];
 end
 
 
@@ -390,7 +419,8 @@ if ~accumulate_old_sqw && nindx==1
     if ~isempty(opt.transform_sqw)
         run_files{1}.transform_sqw = opt.transform_sqw;
     end
-    [w,grid_size,pix_range] = run_files{1}.calc_sqw(grid_size_in,pix_range_in); %.rundata_write_to_sqw (run_files,{sqw_file},...
+    [w,grid_size,pix_range] = run_files{1}.calc_sqw(grid_size_in,pix_db_range);
+    verify_pix_range_est(pix_range,pix_range_est,log_level);
     save(w,sqw_file);
     
     %grid_size_in,pix_range_in,write_banner,opt);
@@ -419,24 +449,32 @@ else
             instrument = instrument(ix);
             sample     = sample(ix);
         end
-        
+    end
+    if opt.replicate && ~spe_unique 
+        % expand run_ids for replicated files to make run_id-s unique
+        run_files = update_duplicated_rf_id(run_files);        
     end
     
     % Generate unique temporary sqw files, one for each of the spe files
-    [grid_size,pix_range,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
-        instrument,sample,pix_range_in,grid_size_in,opt.tmp_only);
+    [grid_size,pix_range,update_runid,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
+        instrument,sample,pix_db_range,grid_size_in,opt.tmp_only);
+    verify_pix_range_est(pix_range,pix_range_est,log_level);
     
     if use_partial_tmp
         delete_tmp = false;
     end
-    
-    if use_partial_tmp && accumulate_old_sqw  % if necessary, add already generated and present tmp files
-        tmp_file = {all_tmp_files{ind_tmp_files_present},tmp_file{:}}';
-        if numel(tmp_file) == n_all_spe_files % final step in combining tmp files, all tmp files will be generated
-            delete_tmp = true;
-        else
-            delete_tmp = false;
+    if accumulate_old_sqw
+        %
+        if use_partial_tmp  % if necessary, add already generated and present tmp files
+            tmp_file = {all_tmp_files{ind_tmp_files_present},tmp_file{:}}';
+            if numel(tmp_file) == n_all_spe_files % final step in combining tmp files, all tmp files will be generated
+                delete_tmp = true;
+            else
+                delete_tmp = false;
+            end
         end
+        pix_range = [min(pix_range(1,:),pix_range_present(1,:));...
+            max(pix_range(2,:),pix_range_present(2,:))];
     end
     
     % Accumulate sqw files; if creating only tmp files only, then exit (ignoring the delete_tmp option)
@@ -446,17 +484,20 @@ else
         else
             wsqw_arg = {'allow_equal_headers',parallel_job_dispatcher};
         end
+        if ~update_runid
+            wsqw_arg = {wsqw_arg{:},'keep_runid'};
+        end
         if ~accumulate_old_sqw || use_partial_tmp
             if log_level>-1
                 disp('Creating output sqw file:')
             end
-            write_nsqw_to_sqw (tmp_file, sqw_file,wsqw_arg{:});
+            write_nsqw_to_sqw (tmp_file, sqw_file,pix_range,wsqw_arg{:});
         else
             if log_level>-1
                 disp('Accumulating in temporary output sqw file:')
             end
             sqw_file_tmp = [sqw_file,'.tmp'];
-            write_nsqw_to_sqw ([sqw_file;tmp_file], sqw_file_tmp,wsqw_arg{:});
+            write_nsqw_to_sqw ([sqw_file;tmp_file], sqw_file_tmp,pix_range,wsqw_arg{:});
             if log_level>-1
                 disp(' ')
                 disp(['Renaming sqw file to ',sqw_file])
@@ -527,7 +568,7 @@ else
 end
 
 %------------------------------------------------------------------------------------------------
-function [header_sqw,grid_size_sqw,img_range_sqw,tmp_present] = get_tmp_file_headers(tmp_file_names)
+function [header_sqw,grid_size_sqw,img_range_sqw,pix_range,tmp_present,update_runid] = get_tmp_file_headers(tmp_file_names)
 % get sqw header for prospective sqw file from range of tmp files
 %
 % Input:
@@ -549,6 +590,9 @@ multiheaders = false;
 ic = 1;
 img_range_sqw = [];
 grid_size_sqw = [];
+pix_range = PixelData.EMPTY_RANGE_;
+
+run_ids = zeros(1,numel(files_to_check));
 for i=1:numel(files_to_check)
     try
         ldr = sqw_formats_factory.instance().get_loader(files_to_check{i});
@@ -571,10 +615,14 @@ for i=1:numel(files_to_check)
     % --------------------------------------------
     header = ldr.get_header('-all');
     data   = ldr.get_data('-head');
-
-    %TODO: this will be the field of the data
-    img_range_l=[data.p{1}(1) data.p{2}(1) data.p{3}(1) data.p{4}(1); ...
-            data.p{1}(end) data.p{2}(end) data.p{3}(end) data.p{4}(end)];        
+    pix1  = ldr.get_pix(1,1);
+    run_ids(i) = pix1(5);
+    
+    pix_range_l = ldr.get_pix_range();
+    pix_range = [min(pix_range(1,:),pix_range_l(1,:));...
+        max(pix_range(2,:),pix_range_l(2,:))];
+    
+    img_range_l = data.img_range;
     grid_size_l = [numel(data.p{1})-1,numel(data.p{2})-1,...
         numel(data.p{3})-1,numel(data.p{4})-1];
     
@@ -627,8 +675,14 @@ for i=1:numel(files_to_check)
     end
     
 end
+unique_id = unique(run_ids);
+if numel(unique_id)== numel(run_ids)
+    update_runid = false;
+else
+    update_runid = true;
+end
 %-------------------------------------------------------------------------
-function  pix_range_in = find_pix_range(run_files,efix,emode,ief,indx,log_level)
+function  [pix_db_range,pix_range] = find_pix_range(run_files,efix,emode,ief,indx,log_level)
 % Calculate ranges of all runfiles provided including missing files
 % where only parameters are provided
 % inputs:
@@ -639,7 +693,8 @@ function  pix_range_in = find_pix_range(run_files,efix,emode,ief,indx,log_level)
 %             exist and false -- not
 % indx     -- indexes of existing runfiles in array of all runfiles
 %Output:
-% pix_range_in -- q-dE range of all input data
+% pix_db_range -- q-dE range of all input data, to rebin pixels on
+% pix_range    -- actual q-dE range of the pixel coordinates
 %
 use_mex = ...
     config_store.instance().get_value('hor_config','use_mex');
@@ -658,7 +713,7 @@ else
 end
 
 bigtic
-pix_range_in = rundata_find_pix_range(run_files(ief),cache_det{:});
+pix_range = rundata_find_pix_range(run_files(ief),cache_det{:});
 
 % process missing files
 if ~all(ief)
@@ -681,10 +736,11 @@ if ~all(ief)
     pix_range_est = rundata_find_pix_range(missing_rf,cache_det{:});
     
     % Expand range to include pix_range_est, if necessary
-    pix_range_in=[min(pix_range_in(1,:),pix_range_est(1,:)); max(pix_range_in(2,:),pix_range_est(2,:))];
+    pix_range=[min(pix_range(1,:),pix_range_est(1,:));...
+        max(pix_range(2,:),pix_range_est(2,:))];
 end
 % Add a border
-pix_range_in=range_add_border(pix_range_in,-1e-6);
+pix_db_range=range_add_border(pix_range,1e-6);
 
 if log_level>-1
     bigtoc('Time to compute limits:',log_level);
@@ -702,8 +758,8 @@ else
 end
 disp('--------------------------------------------------------------------------------')
 %---------------------------------------------------------------------------------------
-function  [grid_size,pix_range,tmp_file,jd]=convert_to_tmp_files(run_files,sqw_file,...
-    instrument,sample,pix_range_in,grid_size_in,gen_tmp_files_only)
+function  [grid_size,pix_range,update_runids,tmp_file,jd]=convert_to_tmp_files(run_files,sqw_file,...
+    instrument,sample,pix_db_range,grid_size_in,gen_tmp_files_only)
 %
 log_level = ...
     config_store.instance().get_value('herbert_config','log_level');
@@ -754,7 +810,7 @@ if use_separate_matlab
     % aggregate the conversion parameters into array of structures,
     % suitable for splitting jobs between workers
     [common_par,loop_par]=gen_sqw_files_job.pack_job_pars(run_files',tmp_file,...
-        instrument,sample,grid_size_in,pix_range_in);
+        instrument,sample,grid_size_in,pix_db_range);
     %
     [outputs,n_failed,~,jd] = jd.start_job('gen_sqw_files_job',...
         common_par,loop_par,true,num_matlab_sessions,keep_parallel_pool_running);
@@ -763,6 +819,7 @@ if use_separate_matlab
         outputs   = outputs{1};
         grid_size = outputs.grid_size;
         pix_range = outputs.pix_range;
+        update_runids =outputs.update_runid;
     else
         jd.display_fail_job_results(outputs,n_failed,num_matlab_sessions,'GEN_SQW:runtime_error');
     end
@@ -781,8 +838,8 @@ else
     % effective but much easier to identify problem with
     % failing parallel job
     
-    [grid_size,pix_range]=gen_sqw_files_job.runfiles_to_sqw(run_files,tmp_file,...
-        grid_size_in,pix_range_in,true);
+    [grid_size,pix_range,update_runids]=gen_sqw_files_job.runfiles_to_sqw(run_files,tmp_file,...
+        grid_size_in,pix_db_range,true);
     %---------------------------------------------------------------------
 end
 if log_level>-1
@@ -792,3 +849,16 @@ if log_level>-1
     disp('--------------------------------------------------------------------------------')
 end
 
+function  verify_pix_range_est(pix_range,pix_range_est,log_level)
+if isempty(pix_range_est)
+    pix_range_est = pix_range;
+end
+if any(any(abs(pix_range-pix_range_est)>1.e-4)) && log_level>0
+    args = arrayfun(@(x)x,[pix_range_est(1,:),pix_range_est(2,:),...
+        pix_range(1,:),pix_range(2,:)],'UniformOutput',false);
+    warning('gen_sqw:runtime_logic',...
+        ['\nEstimated range of contributed pixels differs from the actual calculated range,\n',...
+        'Est  min: %+6.4g %+6.4g %+6.4g %+6.4g  | Max:   %+6.4g %+6.4g %+6.4g %+6.4g\n',...
+        'Calc min: %+6.4g %+6.4g %+6.4g %+6.4g  | Max:   %+6.4g %+6.4g %+6.4g %+6.4g\n'],...
+        args{:});
+end
