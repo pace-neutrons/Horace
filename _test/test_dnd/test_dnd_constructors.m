@@ -56,7 +56,7 @@ classdef test_dnd_constructors< TestCase
             assertEqual(sqw_obj.data.e,dnd_obj.e);
         end
         function this = test_old_sqw(this)
-            testSkip("At 'old_sqw=', constructor now sqw not sqw_old, which then fails.");
+            skipTest("At 'old_sqw=', constructor now sqw not sqw_old, which then fails.");
             this_path = fileparts(which(mfilename));
             test_file = fullfile(this_path,'old_sqw_test.mat');
             ld = load(test_file);
@@ -66,7 +66,7 @@ classdef test_dnd_constructors< TestCase
             % a struct rather than class instance.
             %INCOMPLETE CHANGE 
             % changed from sqw_old to sqw but the test now fails, 
-            % hence DISABLEd
+            % hence SKIPped
             old_sqw = sqw(ld.QE_35_10);
 
             old_dnd = dnd(old_sqw);
