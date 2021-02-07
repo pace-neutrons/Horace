@@ -15,8 +15,9 @@ classdef test_box_intersect < TestCase
          end
         
         %--------------------------------------------------------------------------
-        function test_expand_box(~)
+        function test_intersect_box2D(~)
             % 
+            cp = 
         end
 
         %--------------------------------------------------------------------------

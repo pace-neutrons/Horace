@@ -6,22 +6,6 @@ function nodes = expand_box(min_value,max_value)
 % Output:
 % nodes     -- 2x4, 3x8 or 4x16 nodes of the box, defined by min/max values
 %
-persistent perm2D;
-persistent perm3D;
-persistent perm4D;
-if isempty(perm2D)
-    perm2D= {[1,1];[1,2];[2,1];[2,2]};
-    
-    perm3D= {[1,1,1]; [1,1,2]; [1,2,1]; [1,2,2];...
-        [2,1,1]; [2,1,2]; [2,2,1]; [2,2,2]};
-    
-    perm4D= {...
-        [1,1,1,1]; [1,1,1,2]; [1,1,2,1]; [1,1,2,2];...
-        [2,1,1,1]; [2,1,1,2]; [2,1,2,1]; [2,1,2,2];...
-        [1,2,1,1]; [1,2,1,2]; [1,2,2,1]; [1,2,2,2];...
-        [2,2,1,1]; [2,2,1,2]; [2,2,2,1]; [2,2,2,2]};
-end
-
 if size(min_value,2)>1
     min_value = min_value';
     max_value = max_value';
@@ -42,21 +26,23 @@ if ~any(min_value<max_value)
         evalc('disp(min_value)'),evalc('disp(max_value)'));
 end
 
-source = [min_value,max_value];
 ndims = size(min_value,1);
+perm = get_geometry(ndims);
+
+source = [min_value,max_value];
 switch ndims
     case(2)
-        sp = cellfun(@(sel)[source(1,sel(1));source(2,sel(2))],perm2D,...
+        sp = cellfun(@(sel)[source(1,sel(1));source(2,sel(2))],perm,...
             'UniformOutput',false);
     case(3)
         sp = cellfun(@(sel)[source(1,sel(1));source(2,sel(2));...
-            source(3,sel(3))],perm3D,'UniformOutput',false);
+            source(3,sel(3))],perm,'UniformOutput',false);
     case(4)
         sp = cellfun(@(sel)[source(1,sel(1));source(2,sel(2));...
-            source(3,sel(3));source(4,sel(4))],perm4D,'UniformOutput',false);
+            source(3,sel(3));source(4,sel(4))],perm,'UniformOutput',false);
     otherwise
         error('EXPAND_BOX:invalid_argument',...
             'The routine accepts from 2 to 4 dimensions only, Got: %d',...
             numel(min_value))
 end
-nodes = [sp{:}]';
+nodes = [sp{:}];
