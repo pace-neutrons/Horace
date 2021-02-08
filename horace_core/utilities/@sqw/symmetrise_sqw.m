@@ -96,12 +96,15 @@ uconv=header.u_to_rlu(1:3,1:3);
 
 %convert the vectors specifying the reflection plane from rlu to the
 %orthonormal frame of the pix array:
+% do not rely on the shift of the image to define symetry plain. 
 %vec1=uconv\(v1'-header.uoffset(1:3));
 %vec2=uconv\(v2'-header.uoffset(1:3));
+% the symetry plain should be defined in real hkl, not shifted hkl the
+% image may be expressed in.
 vec1=uconv\(v1');
 vec2=uconv\(v2');
 
-%Normal to the plane, in the frame of pix array:
+%Normal to the plane, in the frame of pix array (crystal Cartesian):
 normvec=cross(vec1,vec2);
 
 %Construct the reflection matrix in frame of pix array:
@@ -147,7 +150,7 @@ side_dot=coords_new'*normvec; % MP: vector of scalar products, w/o repmat/bsxfun
 % MP: (TODO) mem usage of the following could be reduced further by making it work
 % in-place (the Reflec*... part created a temporary)
 idx = find(side_dot > 0);
-coords_new([1:3], idx) = Reflec*coords_new([1:3], idx); % MP: (TODO) could potentially be optimized further
+coords_new(:, idx) = Reflec*coords_new(:, idx); % MP: (TODO) could potentially be optimized further
 clear 'side_dot'; % MP: not needed anymore
 % Testing the ranges transformation
 %orig_range = win.data.pix.pix_range;
@@ -157,7 +160,32 @@ coords_new=bsxfun(@plus, coords_new, vec3); % MP
 
 wout.data.pix.q_coordinates=coords_new;
 clear 'coords_new';
-coords_new = @() wout.data.pix.q_coordinates; % MP: 'pointer'
+%
+% find new image range:
+% hkl range
+existing_range = wout.data.img_range+header.uoffset';
+% Crystal Cartesian range:
+cc_exist_range = uconv\existing_range(:,1:3)';
+% build full box based on min-max positions of the box
+cc_exist_range = build_box(cc_exist_range);
+% transform existing range
+side_dot=cc_exist_range'*normvec;
+idx = find(side_dot > 0);
+tranf_range(:,idx) = Reflec*cc_exist_range(:,idx);
+intercect_pints = box_intercect(cc_exist_range,[vec1,vec2]);
+transf_range = [tranf_range;intercect_pints];
+new_range = [min(transf_range);max(transf_range)];
+
+
+% Turn off horace_info output, but save for automatic clean-up on exit or cntl-C (TGP 30/11/13)
+info_level = get(hor_config,'log_level');
+cleanup_obj=onCleanup(@()set(hor_config,'log_level',info_level));
+set(hor_config,'log_level',-1);
+
+wout=cut(wout,new_range{:});
+
+
+%coords_new = @() wout.data.pix.q_coordinates; % MP: 'pointer'
 
 
 %=========================================================================
@@ -169,81 +197,75 @@ coords_new = @() wout.data.pix.q_coordinates; % MP: 'pointer'
 
 %Convert co-ords of pixel array to those of the slice/cut frame (remember
 %to include uoffset!!!)
-tmp=(header.u_to_rlu(1:3,1:3)) * coords_new();
-tmp=bsxfun(@plus, tmp, header.uoffset(1:3)); % MP: replaced repmat
-tmp=win.data.u_to_rlu(1:3,1:3) \ tmp;
-
-coords_cut=bsxfun(@plus, tmp, win.data.uoffset(1:3)); % MP: replaced repmat
-clear 'tmp';
-
-%Extra line required here to include energy in coords_cut (needed below):
-epix=@() win.data.pix.dE; %energy is never reflected, of course % MP: only accessed once
-coords_cut=[coords_cut;epix()]; % MP: (TODO) horzcat needs quite some memory, could reduced by resizing coords_cut first and then assigning last row
-
-ndims=dimensions(win);
-
-%==============
-%Old code before bug spotted by Matt Mena:
-
-%Extent of data before symmetrisation:
-%note we use the axes of the cut, not the pix_range, since user may have
-%chosen to have white space around their slice / cut for a reason
-% for i=1:ndims
-%     min_unref{i}=min(win.data.p{win.data.pax(i)});
-%     max_unref{i}=max(win.data.p{win.data.pax(i)});
-% end
-%
+% tmp=(header.u_to_rlu(1:3,1:3)) * coords_new();
+% tmp=bsxfun(@plus, tmp, header.uoffset(1:3)); % MP: replaced repmat
+% tmp=win.data.u_to_rlu(1:3,1:3) \ tmp;
+% 
+% coords_cut=bsxfun(@plus, tmp, win.data.uoffset(1:3)); % MP: replaced repmat
+% clear 'tmp';
+% 
+% %Extra line required here to include energy in coords_cut (needed below):
+% epix=@() win.data.pix.dE; %energy is never reflected, of course % MP: only accessed once
+% coords_cut=[coords_cut;epix()]; % MP: (TODO) horzcat needs quite some memory, could reduced by resizing coords_cut first and then assigning last row
+% 
+% ndims=dimensions(win);
+% 
+% %==============
+% %Old code before bug spotted by Matt Mena:
+% 
+% %Extent of data before symmetrisation:
+% %note we use the axes of the cut, not the pix_range, since user may have
+% %chosen to have white space around their slice / cut for a reason
+% % for i=1:ndims
+% %     min_unref{i}=min(win.data.p{win.data.pax(i)});
+% %     max_unref{i}=max(win.data.p{win.data.pax(i)});
+% % end
+% %
+% % %Extent of data after symmetrisation:
+% % for i=1:ndims
+% %     min_ref{i}=min(coords_cut(win.data.pax(i),:));
+% %     max_ref{i}=max(coords_cut(win.data.pax(i),:));
+% % end
+% %===============
+% 
+% %New code, after bug fix (RAE 14/3/13):
+% existing_range = win.data.calc_img_range();
+% 
 % %Extent of data after symmetrisation:
+% min_ref = zeros(ndims,1);
+% max_ref = zeros(ndims,1);
 % for i=1:ndims
-%     min_ref{i}=min(coords_cut(win.data.pax(i),:));
-%     max_ref{i}=max(coords_cut(win.data.pax(i),:));
+%     %binwid=win.data.p{i}(2)-win.data.p{i}(1);
+%     min_ref(i)=min(coords_cut(win.data.pax(i),:))+existing_range{i}(2)/2;
+%     max_ref(i)=max(coords_cut(win.data.pax(i),:))-existing_range{i}(2)/2;
 % end
-%===============
-
-%New code, after bug fix (RAE 14/3/13):
-existing_range = win.data.get_bin_range();
-
-%Extent of data after symmetrisation:
-min_ref = zeros(ndims,1);
-max_ref = zeros(ndims,1);
-for i=1:ndims
-    %binwid=win.data.p{i}(2)-win.data.p{i}(1);
-    min_ref(i)=min(coords_cut(win.data.pax(i),:))+existing_range{i}(2)/2;
-    max_ref(i)=max(coords_cut(win.data.pax(i),:))-existing_range{i}(2)/2;
-end
-
-clear 'coords_cut'; % MP: not needed anymore
+% 
+% clear 'coords_cut'; % MP: not needed anymore
 
 %==============
 
-%Now work out the full extent of the symmetrised data:
-min_full = zeros(ndims,1);
-max_full = zeros(ndims,1);
-for i=1:ndims
-    min_full(i)=min(existing_range{i}(1), min_ref(i));
-    max_full(i)=max(existing_range{i}(3), max_ref(i));
-end
-
-%We have to ensure that we also adjust the pix_range field appropriately:
-new_range = cell(ndims,1);
-for i=1:ndims
-    %step=wout.data.p{i}(2)-wout.data.p{i}(1);
-    %add a little bit either side, to be sure of getting everything
-    wout.data.img_range(1,wout.data.pax(i))=min_full(i)-existing_range{i}(2);
-    wout.data.img_range(2,wout.data.pax(i))=max_full(i)+existing_range{i}(2);
-    new_range{i} = [min_full(i),existing_range{i}(2),max_full(i)];
-end
+% %Now work out the full extent of the symmetrised data:
+% min_full = zeros(ndims,1);
+% max_full = zeros(ndims,1);
+% for i=1:ndims
+%     min_full(i)=min(existing_range{i}(1), min_ref(i));
+%     max_full(i)=max(existing_range{i}(3), max_ref(i));
+% end
+% 
+% %We have to ensure that we also adjust the pix_range field appropriately:
+% new_range = cell(ndims,1);
+% for i=1:ndims
+%     %step=wout.data.p{i}(2)-wout.data.p{i}(1);
+%     %add a little bit either side, to be sure of getting everything
+%     wout.data.img_range(1,wout.data.pax(i))=min_full(i)-existing_range{i}(2);
+%     wout.data.img_range(2,wout.data.pax(i))=max_full(i)+existing_range{i}(2);
+%     new_range{i} = [min_full(i),existing_range{i}(2),max_full(i)];
+% end
 
 %cannot use recompute_bin_data to get the new object...
 %Notice that Horace can deal with working out the data range itself if we
 %set the plot limits to be +/-Inf
 
-% Turn off horace_info output, but save for automatic clean-up on exit or cntl-C (TGP 30/11/13)
-info_level = get(hor_config,'log_level');
-cleanup_obj=onCleanup(@()set(hor_config,'log_level',info_level));
-set(hor_config,'log_level',-1);
-
-wout=cut(wout,new_range{:});
 
 % if ndims==1
 %     xstep=win.data.p{1}(2)-win.data.p{1}(1);

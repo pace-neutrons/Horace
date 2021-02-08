@@ -324,7 +324,6 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             if obj.save_output
                 return;
             end
-            skipTest(fprintf('test_gen_sqw_sym_%s is disabled, Ticket #464',obj.test_pref));
             if obj.skip_test
                 skipTest(fprintf('test_gen_sqw_sym_%s is disabled',obj.test_pref));
             end
@@ -369,9 +368,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             v1=[0,1,0]; v2=[0,0,1]; v3=[0,0,0];
             w_mem_sym=symmetrise_sqw(w_inm,v1,v2,v3);
             % return the configuration to the state,
-            % spefied by tests
-            
-            clear config_cleanup;
+            % specified by tests
             
             gen_sqw (obj.spe_file, '', sqw_file_sym,...
                 efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs,...
@@ -390,6 +387,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             w_inf = read_sqw(sqw_file_sym);
             assertEqualToTol(w_inm,w_inf,'ignore_str',true,'tol',1.e-6)
             
+            clear config_cleanup;
             
         end
         %
@@ -559,7 +557,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % Test against saved or store to save later
             obj.assertEqualToTolWithSave(w2_1456,'ignore_str',true,'tol',1.e-7);
         end
-        
+        %
         function test_accumulate_sqw1456(obj,varargin)
             %-------------------------------------------------------------
             if obj.skip_test
