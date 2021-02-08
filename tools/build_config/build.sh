@@ -66,9 +66,7 @@ function run_tests() {
 
 function run_analysis() {
   local build_dir=$1
-
-  echo_and_run "cd ${build_dir}"
-  echo_and_run "make analyse"
+  echo_and_run "cmake --build ${build_dir} -- analyse"
 }
 
 function run_package() {
