@@ -32,6 +32,10 @@ function run_configure() {
   local matlab_release=$4
   local cmake_flags="${5-}"  # Default value is empty string
 
+  warning_msg="Warning: Build directory ${build_dir} already exists.\n\
+                              This may not be a clean build."
+  echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
+
   cmake_cmd="cmake ${HORACE_ROOT}"
   cmake_cmd+=" -G \"${CMAKE_GENERATOR}\""
   cmake_cmd+=" -DMatlab_ROOT_DIR=${MATLAB_ROOT}"
@@ -162,9 +166,6 @@ function main() {
   fi
 
   if ((configure)); then
-    warning_msg="Warning: Build directory ${build_dir} already exists.\n\
-        This may not be a clean build."
-    echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
     run_configure "${build_dir}" "${build_config}" "${build_tests}" "${matlab_release}" "${cmake_flags}"
   fi
 
@@ -173,7 +174,10 @@ function main() {
   fi
 
   if ((build)); then
-    run_build "${build_dir}"
+      if [ ! -e ${build_dir}/CMakeCache.txt ]; then
+          run_configure  "${build_dir}" "${build_config}" "${build_tests}" "${matlab_release}" "${cmake_flags}"
+      fi
+      run_build "${build_dir}"
   fi
 
   if ((test)); then
