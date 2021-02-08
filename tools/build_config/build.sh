@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -x
+#!/usr/bin/env bash
 
 set -o errexit  # exit early on any error
 set -o nounset  # raise error using unset variables
@@ -45,7 +45,8 @@ function run_configure() {
   cmake_cmd+=" ${cmake_flags}"
 
   echo -e "\nRunning CMake configure step..."
-  run_in_dir "${cmake_cmd}" "${build_dir}"
+  cd "${build_dir}"
+  echo_and_run "${cmake_cmd}"
 }
 
 function run_build() {
