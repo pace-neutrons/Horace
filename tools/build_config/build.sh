@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -x
 
 set -o errexit  # exit early on any error
 set -o nounset  # raise error using unset variables
