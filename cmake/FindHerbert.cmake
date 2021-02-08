@@ -24,8 +24,8 @@ endif()
 
 set(DIRS_TO_SEARCH
     ENV{HERBERT_ROOT}
-    ${CMAKE_SOURCE_DIR}/Herbert
-    ${CMAKE_SOURCE_DIR}/../Herbert/
+    ${Horace_ROOT}/Herbert
+    ${Horace_ROOT}/../Herbert/
     /usr/local/mprogs/Herbert
     /usr/local/Herbert
     ENV{ProgramFiles}/Herbert
