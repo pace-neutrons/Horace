@@ -44,7 +44,7 @@ The test projects will include the associated function project as an explicit re
 
 ```cmake
 add_executable("functionOne.test" ${TEST_SRC_FILES} ${TEST_HDR_FILES} ${SRC_FILES} ${HDR_FILES})
-target_include_directories("functionOne.test" PRIVATE "${CMAKE_SOURCE_DIR}/_LowLevelCode/cpp")
+target_include_directories("functionOne.test" PRIVATE "${Horace_ROOT}/_LowLevelCode/cpp")
 target_link_libraries("functionOne.test" gtest_main)
 ```
 
@@ -61,6 +61,6 @@ This enables the test artifacts and dependencies to be simply excluded from syst
 * For C++ projects including a mex wrapper, the MATLAB mex libraries must be added explicitly, i.e.
 
   ```cmake
-   target_include_directories("functionOne.test" PRIVATE "${CMAKE_SOURCE_DIR}/_LowLevelCode/cpp" "${Matlab_INCLUDE_DIRS}")
+   target_include_directories("functionOne.test" PRIVATE "${Horace_ROOT}/_LowLevelCode/cpp" "${Matlab_INCLUDE_DIRS}")
    target_link_libraries("functionOne.test" gtest_main "${Matlab_MEX_LIBRARY}" "${Matlab_MX_LIBRARY}" "${Matlab_UT_LIBRARY}")
   ```
