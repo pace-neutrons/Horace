@@ -56,11 +56,10 @@ function run_tests() {
   local build_dir=$1
 
   echo -e "\nRunning test step..."
-  echo_and_run "cd ${build_dir}"
   test_cmd="ctest -T Test --no-compress-output"
   test_cmd+=" --output-on-failure"
   test_cmd+=" --test-output-size-passed ${MAX_CTEST_SUCCESS_OUTPUT_LENGTH}"
-  echo_and_run "${test_cmd}"
+  run_in_dir "${test_cmd}" "${build_dir}"
 }
 
 function run_analysis() {
