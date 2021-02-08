@@ -1,4 +1,4 @@
-set(EXTERNAL_ROOT "${CMAKE_SOURCE_DIR}/_LowLevelCode/external")
+set(EXTERNAL_ROOT "${Herbert_ROOT}/_LowLevelCode/external")
 if(UNIX)
     set(MPICH_VERSION "3.3a2")
     set(MPICH_ROOT "${EXTERNAL_ROOT}/glnxa64/mpich-${MPICH_VERSION}")
