@@ -19,7 +19,7 @@ classdef test_box_edges < TestCase
             %box = [zeros(1,4);ones(1,4)]';
             [~,edge_pts] = get_geometry(4);
             assertEqual(size(edge_pts,2),4*16/2)
-            % test imcomplete
+            % test imcomplete. TODO: finish it
             %
             %             ref_edges = {...
             %                 [0,0,0;1,0,0]',[0,0,0;0,1,0]',[1,0,0;1,1,0]',...
