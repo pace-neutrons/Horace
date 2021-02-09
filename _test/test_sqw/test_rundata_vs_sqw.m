@@ -69,8 +69,14 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
         end
         
         function this=test_build_rundata(this)
-            
-            rd = rundatah(this.sqw_obj);
+            %CHANGED ensure that sqw_old objects passed into this test
+            %        are converted to new sqw objects
+            if isa(this.sqw_obj,'sqw_old')
+                sqw_obj = sqw(struct(this.sqw_obj));
+            else
+                sqw_obj = this.sqw_obj;
+            end
+            rd = rundatah(sqw_obj);
             
             assertEqual(rd.emode, this.emode);
             assertEqual(rd.efix, this.efix);
@@ -121,7 +127,14 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
         end
         %
         function  this=test_serialize_deserialize_rundatah(this)
-            rd = rundatah(this.sqw_obj);
+            %CHANGED ensure that sqw_old objects passed into this test
+            %        are converted to new sqw objects
+            if isa(this.sqw_obj,'sqw_old')
+                sqw_obj = sqw(struct(this.sqw_obj));
+            else
+                sqw_obj = this.sqw_old;
+            end
+            rd = rundatah(sqw_obj);
             
             by = rd.serialize();
             
@@ -146,7 +159,13 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
         %
         function  test_serialize_deserialize_rundatah_with_op(obj)
             % test checks if transofrmation is serialized/recovered correctly.
-            sqw_obj = sqw(struct(obj.sqw_obj));
+            %CHANGED ensure that sqw_old objects passed into this test
+            %        are converted to new sqw objects
+            if isa(obj.sqw_obj,'sqw_old')
+                sqw_obj = sqw(struct(obj.sqw_obj));
+            else
+                sqw_obj = obj.sqw_obj;
+            end
             rd = rundatah(sqw_obj);
             v1=[0,1,0]; v2=[0,0,1]; v3=[0,0,0];
             rd.transform_sqw = @(x)symmetrise_sqw(x,v1,v2,v3);
