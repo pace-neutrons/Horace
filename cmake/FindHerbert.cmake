@@ -59,7 +59,7 @@ if (NOT Herbert_ROOT)
   set(Herbert_ROOT "${Herbert_CORE}/.." CACHE PATH "Directory containing Herbert")
 else()
   # If given through CLI
-  set(Herbert_ROOT "${Herbert_ROOT}/.." CACHE PATH "Directory containing Herbert")
+  set(Herbert_ROOT "${Herbert_ROOT}" CACHE PATH "Directory containing Herbert")
 endif()
 mark_as_advanced(Herbert_ROOT)
 
