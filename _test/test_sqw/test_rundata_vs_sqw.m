@@ -54,7 +54,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
                         this.u, this.v, this.psi, this.omega, this.dpsi, this.gl, this.gs,...
                         [10,5,5,5]);
                 end
-                this.sqw_obj = sqw(this.sqw_file_single); % was read_sqw
+                this.sqw_obj = read_sqw(this.sqw_file_single);
                 
             else
                 this.sqw_obj = fake_sqw(this.en, this.par_file, '', this.efix,...
@@ -69,13 +69,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
         end
         
         function this=test_build_rundata(this)
-            %CHANGED while the input sqw_obj of this is sqw_old
-            %        convert to sqw (depends if sqw or read_sqw is
-            %        used in test constructor
-            if isa(this.sqw_obj,'sqw_old')
-                this.sqw_obj = sqw(struct(this.sqw_obj));
-            end
-
+            
             rd = rundatah(this.sqw_obj);
             
             assertEqual(rd.emode, this.emode);
@@ -111,11 +105,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
             img_range(2,:) = img_range(2,:)*(1+2.e-7);
             
             sqw_rev = rd.calc_sqw(grid_size,img_range);
-            %CHANGED while calc_sqw returns sqw_old
-            %        convert sqw_rev to sqw
-            if isa(sqw_rev,'sqw_old')
-                sqw_rev = sqw(struct(sqw_rev));
-            end
+            
             proj = struct('u',lattice.u,'v',lattice.v);
             [ok,mess]=is_cut_equal(this.sqw_obj,sqw_rev,proj,0.04*(img_range(2,1)-img_range(1,1)),0.1*(img_range(2,2)-img_range(1,2)),[-Inf,Inf],[-Inf,Inf]);
             assertTrue(ok,['Combining cuts from each individual sqw file and the cut from the combined sqw file not the same ',mess]);
@@ -131,11 +121,6 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
         end
         %
         function  this=test_serialize_deserialize_rundatah(this)
-            %CHANGED if this.sqw_obj still created with read_sqw
-            %        convert resulting sqw_old to sqw
-            if isa(this.sqw_obj,'sqw_old')
-                this.sqw_obj = sqw(struct(this.sqw_obj));
-            end
             rd = rundatah(this.sqw_obj);
             
             by = rd.serialize();
