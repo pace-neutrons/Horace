@@ -17,7 +17,7 @@ string(REGEX REPLACE
 )
 string(REGEX REPLACE
     "default_herbert_path ?= ?'${_path_regex}';"
-    "default_herbert_path = '${Herbert_ROOT}';"
+    "default_herbert_path = '${Herbert_CORE}';"
     _horace_on_script
     "${_horace_on_script}"
 )
@@ -27,7 +27,7 @@ file(WRITE "${LOCAL_INIT_DIR}/horace_on.m" "${_horace_on_script}")
 file(READ "${Herbert_ON_TEMPLATE}" _herbert_on_template)
 string(REGEX REPLACE
     "default_herbert_path ?= ?'${_path_regex}';"
-    "default_herbert_path = '${Herbert_ROOT}';"
+    "default_herbert_path = '${Herbert_CORE}';"
     _herbert_on_script
     "${_herbert_on_template}"
 )
