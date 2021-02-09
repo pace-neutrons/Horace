@@ -11,7 +11,9 @@ Variables defined by the module
 The directory within Herbert that contains ``herbert_init.m``
 
 ``Herbert_ROOT``
-The root directory of Herbert
+The root directory of Herbert allows the user to overload the search paths 
+   for admin files if they are not in the ``Herbert_CORE`` variable. 
+   Does not usually need to be manually set. 
 
 ``Herbert_ON_TEMPLATE``
 The path to the template file for herbert_on - usually in Herbert/admin
@@ -56,10 +58,10 @@ endif()
 
 if (NOT Herbert_ROOT)
   # Root is one dir above core
-  set(Herbert_ROOT "${Herbert_CORE}/.." CACHE PATH "Directory containing Herbert")
+  set(Herbert_ROOT "${Herbert_CORE}/.." CACHE PATH "Directory containing Herbert. Sets default search paths for admin, etc. Be careful when overriding.")
 else()
   # If given through CLI
-  set(Herbert_ROOT "${Herbert_ROOT}" CACHE PATH "Directory containing Herbert")
+  set(Herbert_ROOT "${Herbert_ROOT}" CACHE PATH "Directory containing Herbert. Sets default search paths for admin, etc. Be careful when overriding.")
 endif()
 mark_as_advanced(Herbert_ROOT)
 
