@@ -70,7 +70,7 @@ install(
     DESTINATION "."
 )
 install(
-    DIRECTORY "${Herbert_ROOT}/"
+    DIRECTORY "${Herbert_CORE}/"
     DESTINATION "Herbert"
     USE_SOURCE_PERMISSIONS
     PATTERN "*.m~" EXCLUDE
