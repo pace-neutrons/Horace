@@ -166,7 +166,7 @@ function main() {
     print_package_versions
   fi
 
-  if ((configure)); then
+  if (($configure)) || [ ! -e ${build_dir}/CMakeCache.txt ]; then
     run_configure "${build_dir}" "${build_config}" "${build_tests}" "${matlab_release}" "${cmake_flags}"
   fi
 
@@ -175,10 +175,7 @@ function main() {
   fi
 
   if ((build)); then
-      if [ ! -e ${build_dir}/CMakeCache.txt ]; then
-          run_configure  "${build_dir}" "${build_config}" "${build_tests}" "${matlab_release}" "${cmake_flags}"
-      fi
-      run_build "${build_dir}"
+    run_build "${build_dir}"
   fi
 
   if ((test)); then
