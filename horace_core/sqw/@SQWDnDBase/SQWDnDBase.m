@@ -9,6 +9,7 @@ classdef (Abstract) SQWDnDBase
 
     properties (Access = protected)
         % base_property
+        data_;
     end
 
     methods (Abstract, Access = protected)
@@ -22,6 +23,9 @@ classdef (Abstract) SQWDnDBase
         %     %   Detailed explanation goes here
         %     outputArg = obj.Property1 + inputArg;
         % end
+        wout = IX_dataset_1d (w);
+        wout = IX_dataset_2d (w);
+        wout = IX_dataset_3d (w);
     end
 
     methods (Access = protected)

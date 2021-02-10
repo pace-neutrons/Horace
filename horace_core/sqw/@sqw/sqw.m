@@ -11,7 +11,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         main_header
         header
         detpar
-        data
+        % data now a dependent property, below
+    end
+    
+    properties(Dependent)
+        data;
     end
 
     methods
@@ -19,6 +23,19 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         wout = sigvar(w);
         w = sigvar_set(win, sigvar_obj);
         sz = sigvar_size(w);
+        %{
+        These methods will be needed for Tobyfit
+        when the *fit feature branch is merged -
+        leaving them in for simplicity, they were
+        needed for testing using Tobyfit:
+        [s,var,mask_null] = sigvar_get (win);
+        [sel,ok,mess] = mask_points (win, varargin);
+        varargout = tobyfit (varargin);
+        [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,store_in,...
+                                                           sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
+        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
+        [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw);
+		%}
 
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
@@ -38,13 +55,26 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
                 obj = obj.init_from_loader_struct(args.data_struct);
             end
         end
+        
+        %% Public getters/setters expose all wrapped data attributes
+        function val = get.data(obj)
+            val = '';
+            if ~isempty(obj.data_)
+                val = obj.data_;
+            end
+        end
+        function obj = set.data(obj, d)
+            obj.data_ = d;
+        end
+
+
     end
 
     methods(Static)
 %        %TODO: disabled until full functionality is implemeneted in new class;
 %        % The addition of this method causes sqw_old tests to incorrectly load data from .mat files
 %        % as new-SQW class objects
-%        function obj = loadobj(S)
+        function obj = loadobj(S)
 %            % Load a sqw object from a .mat file
 %            %
 %            %   >> obj = loadobj(S)
@@ -57,7 +87,20 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
 %            % Output:
 %            %   obj     An instance of this object
 %            obj = sqw(S);
-%        end
+            if isa(S,'sqw')
+               obj = S;
+               return
+            end
+            if numel(S)>1
+               tmp = sqw();
+               obj = repmat(tmp, size(S));
+               for i = 1:numel(S)
+                   obj(i) = sqw(S(i));
+               end
+            else
+               obj = sqw(S);
+            end
+        end
     end
 
     methods(Access = protected)
