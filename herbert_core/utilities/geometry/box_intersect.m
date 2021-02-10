@@ -53,7 +53,7 @@ nint = 0;
 for i=1:size(edges_ind,2)
     edge_ind = edges_ind(:,i);
     edge =edge3D(box_minmax,edge_ind);
-    int_point = inters3D(edge,plain_norm,cross_plain(:,3));
+    int_point = intersection(edge,plain_norm,cross_plain(:,3));
     if ~isempty(int_point)
         nint = nint+1;
         buf{nint} = int_point;
@@ -69,7 +69,39 @@ if nint>0
 else
     inter_points = [];
 end
-function int_point = inters3D(edg,normal,p0)
+
+function inter_points = intersect2D(box_minmax,cross_plain)
+npoints = size(cross_plain,2);
+if npoints == 1 %
+    cross_plain = [cross_plain,[0;0]];
+end
+[~,edges_ind] = get_geometry(2);
+buf = cell(4,1);
+nint = 0;
+p0 = cross_plain(:,2);
+dr = cross_plain(:,1)-p0;
+normal = [dr(2);-dr(1)];
+for i=1:size(edges_ind,2)
+    edge_ind = edges_ind(:,i);
+    edge =edge2D(box_minmax,edge_ind);
+    int_point = intersection(edge,normal,p0);
+    if ~isempty(int_point)
+        nint = nint+1;
+        buf{nint} = int_point;
+    end
+end
+if nint>0
+    inter_points = [buf{:}];
+    max1= max(inter_points(1,:))+1;
+    p_id = inter_points(1,:)+max1*inter_points(2,:);
+    [~,uid] = unique(p_id);
+    inter_points = inter_points(:,uid);
+else
+    inter_points = [];
+end
+
+
+function int_point = intersection(edg,normal,p0)
 r0 = edg(:,1);
 dr = edg(:,2) - r0;
 slope = normal'*dr;
@@ -92,58 +124,3 @@ if proj_edge<0 || proj_edge>1 %on plain but outside of the edge
     return
 end
 int_point = r0+rr;
-
-
-function inter_points = intersect2D(box_minmax,cross_plain)
-npoints = size(cross_plain,2);
-if npoints == 1 %
-    cross_plain = [cross_plain,[0;0]];
-end
-[~,edges_ind] = get_geometry(2);
-buf = cell(4,1);
-nint = 0;
-for i=1:size(edges_ind,2)
-    edge_ind = edges_ind(:,i);
-    edge =edge2D(box_minmax,edge_ind);
-    int_point = inters2D(edge,cross_plain);
-    if ~isempty(int_point)
-        nint = nint+1;
-        buf{nint} = int_point;
-    end
-end
-if nint>0
-    inter_points = [buf{:}];
-    max1= max(inter_points(1,:))+1;
-    p_id = inter_points(1,:)+max1*inter_points(2,:);
-    [~,uid] = unique(p_id);
-    inter_points = inter_points(:,uid);
-else
-    inter_points = [];
-end
-
-
-function int_point = inters2D(edg,pl)
-r1 = pl(:,2)-pl(:,1);
-r2 = edg(:,2) - edg(:,1);
-det = [r1(2),-r1(1);r2(2),-r2(1)];
-cn = cond(det);
-if cn >1.e+8  % parallel
-    % even if the edge lies on plain,
-    % we can reject this intersection, as other edges will provide
-    % appropriate intersections
-    int_point = [];
-    return;
-end
-rhs = [...
-    det(1,1)*pl(1,1)+det(1,2)*pl(2,1);...
-    det(2,1)*edg(1,1)+det(2,2)*edg(2,1)];
-int_point = det\rhs;
-% project interpolation point on edge and check if intersection between
-% edges.
-rr = int_point-edg(:,1);
-e_edge = r2/sqrt(r2'*r2);
-proj_edge = rr'*e_edge;
-
-if proj_edge<0 || proj_edge>1 %on plain but outside of the edge
-    int_point  = [];
-end
