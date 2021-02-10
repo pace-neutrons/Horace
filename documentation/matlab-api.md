@@ -147,7 +147,7 @@ function_name(a, 'flag', 0)
 - Not Pythonic way of doing things
 - Requires special parsing of `-`'d args using own parser
 - MATLAB seems to be moving towards keyword-value scheme
-- Potentially inconsistent, ambiguous or multiplicitou arguments (in terms of `-disable-x` vs `-nodisable-x` vs `-enable-x` vs `-noenable-x` vs `-x`)
+- Potentially inconsistent, ambiguous or multiplicitous arguments (in terms of `-disable-x` vs `-nodisable-x` vs `-enable-x` vs `-noenable-x` vs `-x`)
 - Requires mixed syntax for passing keyword values anyway
 
 #### Transition implications
