@@ -13,37 +13,44 @@ classdef TestComponent < handle
     %       Location - Directory where test component is defined
     %
     %   See TestCase, TestSuite
-    
+
     %   Steven L. Eddins
+    %   Modified J. Wilkins 19-01-2021
     %   Copyright 2008-2009 The MathWorks, Inc.
-    
+
     properties
         Name = '';
         Location = '';
         % If true, prings the names of rest cases beeing run in addition to
-        % normal test output. Usftul for debugging test folders, failing on
+        % normal test output. Useful for debugging test folders, failing on
         % time-out. Default  - false;
         print_running_tests = false;
     end
-    
+
+    properties(Constant)
+        passed = 1
+        skipped = 2
+        failed = 0
+    end
+
     properties (Access = 'protected')
         PrintIndentationSize = 4
     end
-    
+
     methods (Abstract)
         print()
         %print Display summary of test component to Command Window
         %   obj.print() displays information about the test component to the
         %   Command Window.
-        
+
         run()
         %run Execute test cases
         %   obj.run() executes all the test cases in the test component
-        
+
         numTestCases()
         %numTestCases Number of test cases in test component
     end
-    
+
     methods
         function setUp(self)
             %setUp Set up test fixture
@@ -51,7 +58,7 @@ classdef TestComponent < handle
             %   method.  Test writers can override setUp if necessary to
             %   initialize a test fixture.
         end
-        
+
         function tearDown(self)
             %tearDown Tear down test fixture
             %   test_component.tearDown() is at the end of the method.  Test
@@ -70,7 +77,7 @@ classdef TestComponent < handle
                 name = cont{end};
             end
         end
-        
-        
+
+
     end
 end

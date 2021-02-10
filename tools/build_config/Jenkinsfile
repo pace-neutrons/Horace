@@ -123,7 +123,7 @@ def post_github_status(String state, String message) {
           variable: 'api_token')]) {
         if (isUnix()) {
           sh """
-            curl -H "Authorization: token ${api_token}" \
+            curl -H "Authorization: token \${api_token}" \
               --request POST \
               --data '{"state": "${state}", \
                   "description": "${message}", \
@@ -142,7 +142,7 @@ def post_github_status(String state, String message) {
               "context" = "$JOB_BASE_NAME"}
 
             Invoke-RestMethod -URI "$PR_STATUSES_URL" \
-              -Headers @{Authorization = "token ${api_token}"} \
+              -Headers @{Authorization = "token \$env:api_token"} \
               -Method 'POST' \
               -Body (\$payload|ConvertTo-JSON) \
               -ContentType "application/json"
@@ -176,7 +176,6 @@ if (env.BRANCH_NAME) {
   currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA.take(7)}"
 }
 
-
 pipeline {
   agent {
     label env.AGENT
@@ -199,7 +198,7 @@ pipeline {
               module load matlab/\$MATLAB_VERSION &&
               module load gcc/\$GCC_VERSION &&
               module load cppcheck/\$CPPCHECK_VERSION &&
-              ./tools/build_config/build.sh --print_versions --analyze
+              ./tools/build_config/build.sh --print_versions --configure --analyze
             '''
           }
           else {
@@ -294,14 +293,15 @@ pipeline {
     always {
       // archive CTest results file and static analysis report
       archiveArtifacts(
-        artifacts: 'build/Testing/**/*.xml,**/cppcheck.xml',
+        artifacts: 'build/Testing/**/*.xml,**/cppcheck.xml,**/mlint.json',
         fingerprint: true
       )
 
-      publishCppcheck (
-        displayAllErrors: true,
-        allowNoReport: true,
-        pattern: '**/cppcheck.xml'
+      recordIssues(
+        tools: [
+          cppCheck(pattern: '**/cppcheck.xml', reportEncoding: 'UTF-8'),
+          issues(id: 'mlint', name: 'MLint', pattern: '**/mlint.json')
+        ]
       )
 
       xunit (

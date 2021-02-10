@@ -11,17 +11,17 @@ function m = hlp_serialize(v)
 %   Bytes : a representation of the original data as a byte stream
 %
 % Notes:
-%   The code is a rewrite of Tim Hutt's serialization code. Support has been added for correct 
-%   recovery of sparse, complex, single, (u)intX, function handles, anonymous functions, objects, 
+%   The code is a rewrite of Tim Hutt's serialization code. Support has been added for correct
+%   recovery of sparse, complex, single, (u)intX, function handles, anonymous functions, objects,
 %   and structures with unlimited field count. Serialize/deserialize performance is ~10x higher.
 %
 % Limitations:
 %   * Java objects cannot be serialized
 %   * Arrays with more than 255 dimensions have their last dimensions clamped
-%   * Handles to nested/scoped functions can only be deserialized when their parent functions 
+%   * Handles to nested/scoped functions can only be deserialized when their parent functions
 %     support the BCILAB argument reporting protocol (e.g., by using arg_define).
 %   * New MATLAB objects need to be reasonably friendly to serialization; either they support
-%     construction from a struct, or they support saveobj/loadobj(struct), or all their important 
+%     construction from a struct, or they support saveobj/loadobj(struct), or all their important
 %     properties can be set via set(obj,'name',value)
 %   * In anonymous functions, accessing unreferenced variables in the workspace of the original
 %     declaration via eval(in) works only if manually enabled via the global variable
@@ -31,7 +31,7 @@ function m = hlp_serialize(v)
 %
 % See also:
 %   hlp_deserialize
-% 
+%
 % Examples:
 %   bytes = hlp_serialize(mydata);
 %   ... e.g. transfer the 'bytes' array over the network ...
@@ -44,7 +44,7 @@ function m = hlp_serialize(v)
 %                                (C) 2010 Tim Hutt
 
     % dispatch according to type
-    if isnumeric(v) 
+    if isnumeric(v)
         m = serialize_numeric(v);
     elseif ischar(v)
         m = serialize_string(v);
@@ -87,20 +87,20 @@ function m = serialize_string(v)
         m = uint8(200);
     else
         % general char array: Tag & Number of dimensions, Dimensions, Data
-        m = [uint8(132); ndims(v); typecast(uint32(size(v)),'uint8').'; uint8(v(:))];
+        m = [uint8(132); uint8(ndims(v)); typecast(uint32(size(v)),'uint8').'; uint8(v(:))];
     end
 end
 
 % logical arrays
 function m = serialize_logical(v)
     % Tag & Number of dimensions, Dimensions, Data
-    m = [uint8(133); ndims(v); typecast(uint32(size(v)),'uint8').'; uint8(v(:))];
+    m = [uint8(133); uint8(ndims(v)); typecast(uint32(size(v)),'uint8').'; uint8(v(:))];
 end
 
 % non-complex and non-sparse numerical matrix
 function m = serialize_numeric_simple(v)
     % Tag & Number of dimensions, Dimensions, Data
-    m = [16+class2tag(class(v)); ndims(v); typecast(uint32(size(v)),'uint8').'; typecast(v(:).','uint8').'];
+    m = [16+class2tag(class(v)); uint8(ndims(v)); typecast(uint32(size(v)),'uint8').'; typecast(v(:).','uint8').'];
 end
 
 % Numeric Matrix: can be real/complex, sparse/full, scalar
@@ -109,7 +109,7 @@ function m = serialize_numeric(v)
         % Data Type & Dimensions
         m = [uint8(130); typecast(uint64(size(v,1)), 'uint8').'; typecast(uint64(size(v,2)), 'uint8').']; % vectorize
         % Index vectors
-        [i,j,s] = find(v);        
+        [i,j,s] = find(v);
         % Real/Complex
         if isreal(v)
             m = [m; serialize_numeric_simple(i); serialize_numeric_simple(j); 1; serialize_numeric_simple(s)];
@@ -150,18 +150,18 @@ end
 % Cell array of heterogenous contents
 function m = serialize_cell_heterogenous(v)
     contents = cellfun(@hlp_serialize,v,'UniformOutput',false);
-    m = [uint8(33); ndims(v); typecast(uint32(size(v)),'uint8').'; vertcat(contents{:})];
+    m = [uint8(33); uint8(ndims(v)); typecast(uint32(size(v)),'uint8').'; vertcat(contents{:})];
 end
 
 % Cell array of homogenously-typed contents
 function m = serialize_cell_typed(v,serializer)
     contents = cellfun(serializer,v,'UniformOutput',false);
-    m = [uint8(33); ndims(v); typecast(uint32(size(v)),'uint8').'; vertcat(contents{:})];
+    m = [uint8(33); uint8(ndims(v)); typecast(uint32(size(v)),'uint8').'; vertcat(contents{:})];
 end
 
 % Cell array
 function m = serialize_cell(v)
-	sizeprod = cellfun('prodofsize',v);
+    sizeprod = cellfun('prodofsize',v);
     if sizeprod == 1
         % all scalar elements
         if (all(cellfun('isclass',v(:),'double')) || all(cellfun('isclass',v(:),'single'))) && all(~cellfun(@issparse,v(:)))
@@ -181,16 +181,16 @@ function m = serialize_cell(v)
             % non-float types
             if cellfun('isclass',v,'struct')
                 % structs
-                m = serialize_cell_typed(v,@serialize_struct); 
+                m = serialize_cell_typed(v,@serialize_struct);
             elseif cellfun('isclass',v,'cell')
                 % cells
-                m = serialize_cell_typed(v,@serialize_cell); 
+                m = serialize_cell_typed(v,@serialize_cell);
             elseif cellfun('isclass',v,'logical')
                 % bool flags
                 m = [uint8(39); serialize_logical(reshape([v{:}],size(v)))];
             elseif cellfun('isclass',v,'function_handle')
                 % function handles
-                m = serialize_cell_typed(v,@serialize_handle); 
+                m = serialize_cell_typed(v,@serialize_handle);
             else
                 % arbitrary / mixed types
                 m = serialize_cell_heterogenous(v);
@@ -198,23 +198,23 @@ function m = serialize_cell(v)
         end
     elseif isempty(v)
         % empty cell array
-        m = [uint8(33); ndims(v); typecast(uint32(size(v)),'uint8').'];
-    else        
+        m = [uint8(33); uint8(ndims(v)); typecast(uint32(size(v)),'uint8').'];
+    else
         % some non-scalar elements
         dims = cellfun('ndims',v);
         size1 = cellfun('size',v,1);
         size2 = cellfun('size',v,2);
         if cellfun('isclass',v,'char') & size1 <= 1 %#ok<AND2>
-            % all horizontal strings or proper empty strings            
+            % all horizontal strings or proper empty strings
             m = [uint8(36); serialize_string([v{:}]); serialize_numeric_simple(uint32(size2)); serialize_logical(size1(:)==0)];
         elseif (size1+size2 == 0) & (dims == 2) %#ok<AND2>
             % all empty and non-degenerate elements
             if all(cellfun('isclass',v(:),'double')) || all(cellfun('isclass',v(:),'cell')) || all(cellfun('isclass',v(:),'struct'))
                 % of standard data types: Tag, Type Tag, #Dims, Dims
-                m = [uint8(37); class2tag(class(v{1})); ndims(v); typecast(uint32(size(v)),'uint8').'];
+                m = [uint8(37); class2tag(class(v{1})); uint8(ndims(v)); typecast(uint32(size(v)),'uint8').'];
             elseif length(unique(cellfun(@class,v(:),'UniformOutput',false))) == 1
                 % of uniform class with prototype
-                m = [uint8(38); hlp_serialize(class(v{1})); ndims(v); typecast(uint32(size(v)),'uint8').'];
+                m = [uint8(38); hlp_serialize(class(v{1})); uint8(ndims(v)); typecast(uint32(size(v)),'uint8').'];
             else
                 % of arbitrary classes
                 m = serialize_cell_heterogenous(v);
@@ -229,8 +229,8 @@ end
 % Object / class
 function m = serialize_object(v)
     % can object serialize/deserizlize itself?
-    if any(strcmp(methods(v), 'serialize'))       
-        m = [uint8(135); serialize_string(class(v)); v.serialize()];        
+    if any(strcmp(methods(v), 'serialize'))
+        m = [uint8(135); serialize_string(class(v)); v.serialize()];
     else
         try
         % try to use the saveobj method first to get the contents
@@ -242,7 +242,7 @@ function m = serialize_object(v)
                 % contents is still an object: turn into a struct now
                 conts = serialize_struct(struct(conts));
             end
-        catch ME % left exception variable for debugging purposes 
+        catch ME % left exception variable for debugging purposes
             % saveobj failed for this object: turn into a struct
             conts = serialize_struct(struct(v));
         end
@@ -252,7 +252,7 @@ function m = serialize_object(v)
 end
 
 % Function handle
-function m = serialize_handle(v)    
+function m = serialize_handle(v)
     % get the representation
     rep = functions(v);
     switch rep.type
@@ -263,7 +263,7 @@ function m = serialize_handle(v)
             global tracking; %#ok<TLEV>
             if isfield(tracking,'serialize_anonymous_fully') && tracking.serialize_anonymous_fully
                 % serialize anonymous function with their entire variable environment (for complete
-                % eval and evalin support). Requires a stack of function id's, as function handles 
+                % eval and evalin support). Requires a stack of function id's, as function handles
                 % can reference themselves in their full workspace.
                 persistent handle_stack; %#ok<TLEV>
                 % Tag and Code
@@ -292,9 +292,9 @@ function m = serialize_handle(v)
                     % If you are getting this warning, it is likely that one of your anonymous functions
                     % was created in a scope that contained large variables; MATLAB will implicitly keep
                     % these variables around (referenced by the function) just in case you refer to them.
-                    % To avoid this, you can create the anonymous function instead in a sub-function 
+                    % To avoid this, you can create the anonymous function instead in a sub-function
                     % to which you only pass the variables that you actually need.
-                    warn_once('hlp_serialize:large_handle','The function handle with code %s references variables of more than 256k bytes; this is likely very slow.',rep.function); 
+                    warn_once('hlp_serialize:large_handle','The function handle with code %s references variables of more than 256k bytes; this is likely very slow.',rep.function);
                 end
             else
                 % anonymous function: Tag, Code, and reduced workspace
@@ -308,37 +308,37 @@ function m = serialize_handle(v)
             % scoped function: Tag and Parentage
             m = [uint8(153); serialize_cell(rep.parentage)];
         otherwise
-            warn_once('hlp_serialize:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type); 
+            warn_once('hlp_serialize:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type);
             m = serialize_string(['<<hlp_serialize: function handle of type ' rep.type ' unsupported>>']);
     end
 end
 
 % *container* class to byte
 function b = class2tag(cls)
-	switch cls
-		case 'string'
-            b = uint8(0);
-		case 'double'
-			b = uint8(1);
-		case 'single'
-			b = uint8(2);
-		case 'int8'
-			b = uint8(3);
-		case 'uint8'
-			b = uint8(4);
-		case 'int16'
-			b = uint8(5);
-		case 'uint16'
-			b = uint8(6);
-		case 'int32'
-			b = uint8(7);
-		case 'uint32'
-			b = uint8(8);
-		case 'int64'
-			b = uint8(9);
-		case 'uint64'
-			b = uint8(10);
-              
+    switch cls
+      case 'string'
+        b = uint8(0);
+      case 'double'
+        b = uint8(1);
+      case 'single'
+        b = uint8(2);
+      case 'int8'
+        b = uint8(3);
+      case 'uint8'
+        b = uint8(4);
+      case 'int16'
+        b = uint8(5);
+      case 'uint16'
+        b = uint8(6);
+      case 'int32'
+        b = uint8(7);
+      case 'uint32'
+        b = uint8(8);
+      case 'int64'
+        b = uint8(9);
+      case 'uint64'
+        b = uint8(10);
+
         % other tags are as follows:
         % % offset by +16: scalar variants of these...
         % case 'cell'
@@ -368,18 +368,18 @@ function b = class2tag(cls)
         % case 'object'
         %   b = uint8(134);
         % case 'function_handle'
-        % 	b = uint8(150);
+        %       b = uint8(150);
         % case 'function_simple'
-        % 	b = uint8(151);
+        %       b = uint8(151);
         % case 'function_anon'
-        % 	b = uint8(152);
+        %       b = uint8(152);
         % case 'function_scoped'
-        % 	b = uint8(153);
+        %       b = uint8(153);
         % case 'emptystring'
         %   b = uint8(200);
 
-		otherwise
-			error('Unknown class');
+      otherwise
+        error('MATLAB:class2tag:unrecognised_class', 'Unknown class %s', cls);
     end
 end
 

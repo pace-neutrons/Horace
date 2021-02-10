@@ -16,9 +16,8 @@ function this=select_loader_(this,varargin)
 %          value -- its desired value, which may redefine the value, specified in the
 %                   correspondent spe or par file.
 %
-% $Author: Alex Buts 20/10/2011
+% $Author: AB 20/10/2011
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 %
 
 if nargin==1; return; end
@@ -37,11 +36,11 @@ elseif ~ischar(first_file)    % build from a file;
 end
 % check if second parameter is a file
 second_file ='';
-vararg_start_from=2;
+addarg_start_from=2;
 if nargin>2
-    if ischar(varargin{2})
+    if ischar(varargin{2}) || isempty(varargin{2})
         second_file=varargin{2};
-        vararg_start_from=3;
+        addarg_start_from=3;
     end
 end
 
@@ -73,12 +72,12 @@ if any(in_lat)
 end
 
 
-if nargin>vararg_start_from
+if nargin>addarg_start_from
     % set up values which are defined by other arguments
-    if isa(varargin{vararg_start_from},'rundata')
-        varargin{vararg_start_from}.loader_ = this.loader_;
+    if isa(varargin{addarg_start_from},'rundata')
+        varargin{addarg_start_from}.loader_ = this.loader_;
     end
-    this=set_param_recursively(this,varargin{vararg_start_from:end});
+    this=set_param_recursively(this,varargin{addarg_start_from:end});
 end
 
 

@@ -302,10 +302,8 @@ classdef test_asciipar_loader< TestCase
             assertElementsAlmostEqual(det(2,:),detp(2,:),'relative',1.e-4);
             assertElementsAlmostEqual(det(3,:),detp(3,:),'relative',1.e-4);
             assertElementsAlmostEqual(det(4,:),detp(4,:),'relative',1.e-2);
-            assertElementsAlmostEqual(det(5,:),detp(5,:),'relative',1.e-2);
-            
-        end
-        
+            assertElementsAlmostEqual(det(5,:),detp(5,:),'relative',1.e-2);            
+        end 
     end
 end
 

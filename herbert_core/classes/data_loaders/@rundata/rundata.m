@@ -18,8 +18,6 @@ classdef rundata
     % do not have default, the method get_rundata will fail
     %
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
     properties(Dependent)
         n_detectors ;   % Number of detectors, used when dealing with masked detectors  -- will be derived
         %
@@ -50,6 +48,9 @@ classdef rundata
         instrument;
         % sample model
         sample;
+        % the number (id) uniquely identyfying the particular experiment
+        % which is the source of this object data.
+        run_id;
     end
     
     properties(Constant,Access=private)
@@ -75,6 +76,8 @@ classdef rundata
         instrument_ = struct();
         % sample model holder
         sample_ = struct();
+        %
+        run_id_ = [];
     end
     methods(Static)
         function fields = main_data_fields()
@@ -149,12 +152,26 @@ classdef rundata
             %       is used instead;
             [runfiles_list,defined]= rundata.gen_runfiles_of_type('rundata',spe_files,varargin{:});
         end
-        
+        %
         function obj = loadobj(struc)
             % build rundata from the structure, obtained from saveobj
             % method.
             obj = set_up_from_struct_(struc);
             
+        end
+        %
+        function id = extract_id_from_filename(file_name)
+            % method used to extract run id from a filename, if runnumber is
+            % present in the filename, and is first number among all other
+            % numbers
+            %
+            [~,filename] = fileparts(file_name);
+            [l_range,r_range] = regexp(filename,'\d+');
+            if isempty(l_range)
+                id = 1;
+                return;
+            end
+            id = str2double(filename(l_range(1):r_range(1)));
         end
     end
     methods(Static,Access=protected)
@@ -201,7 +218,7 @@ classdef rundata
         [ok, mess,this] = isvalid (this);
         % method removes failed (NaN or Inf) data from the data array and deletes
         % detectors, which provided such signal
-        [S_m,Err_m,det_m]=rm_masked(this);
+        [S_m,Err_m,det_m]=rm_masked(this,varargin);
         
         % method sets a field of  lattice if the lattice
         % present and initates the lattice first if it is not present
@@ -211,6 +228,7 @@ classdef rundata
         % of crystal or powder experiments
         [data_fields,lattice_fields] = what_fields_are_needed(this,varargin);
         %------------------------------------------------------------------
+        
         function this=rundata(varargin)
             % rundata class constructor
             %
@@ -321,6 +339,24 @@ classdef rundata
             end
         end
         %
+        function id = get.run_id(obj)
+            % return the index (numerical id which uniquely identifies
+            % the experiment)
+            % of the data used as the source of the rundata
+            if ~isempty(obj.run_id_)
+                id = obj.run_id_;
+                return
+            end
+            id = find_run_id_(obj);
+        end
+        function obj = set.run_id(obj,val)
+            if ~isnumeric(val)
+                error('RUNDATA:invalid_argument',...
+                    ' run_id can be only numeric')
+            end
+            obj.run_id_ = val;
+        end
+        
         %
         function loader=get.loader(this)
             loader=this.loader_;
@@ -387,12 +423,12 @@ classdef rundata
         %---
         function obj = set.par_file_name(obj,val)
             % method to change par file on a defined loader
-            if isempty(obj.loader_) % assuming both data and parameters are taken from 
-                                    % the same nxspe file (or will be stored in
-                                    % it)
-                obj.loader_ = loader_nxspe('',val);            
+            if isempty(obj.loader_) % assuming both data and parameters are taken from
+                % the same nxspe file (or will be stored in
+                % it)
+                obj.loader_ = loader_nxspe('',val);
             else
-                obj.loader_.par_file_name = val;  
+                obj.loader_.par_file_name = val;
             end
         end
         %

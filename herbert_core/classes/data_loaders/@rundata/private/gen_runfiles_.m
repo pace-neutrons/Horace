@@ -6,13 +6,13 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,varargin)
 % Input:
 % ------
 %   name_of_class   string with the name of the classes to generate.
-%                    Classes should suppord rundata interface
+%                   Classes should suppord rundata interface
 %
-%   spe_file        Full file name of any kind of supported "spe" file
+%   spe_file       Full file name of any kind of supported "spe" file
 %                  e.g. original ASCII spe file, nxspe file etc.
-%                   Character string or cell array of character strings for
+%                  Character string or cell array of character strings for
 %                  more than one file
-%^1 par_file        [Optional] full file name of detector parameter file
+%^1 par_file       [Optional] full file name of detector parameter file
 %                  i.e. Tobyfit format detector parameter file. Will override
 %                  any detector inofmration in the "spe" files
 %
@@ -51,11 +51,9 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,varargin)
 % Notes:
 % ^1    This parameter is optional for some formats of spe files. If
 %       provided, overides the information contained in the the "spe" file.
-% ^2    Optional parameter. If absent, the default value defined by
+% ^2    Optional parameter. If absent, the default value defined by the class
 %       is used instead;
 
-%
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 %
 %
 %

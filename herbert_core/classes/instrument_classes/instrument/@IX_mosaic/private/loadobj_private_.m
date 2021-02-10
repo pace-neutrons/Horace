@@ -50,8 +50,8 @@ if isfield(S,'class_version_')
                 end
                 % The mosaic function handle must be a private function of IX_mosaic
                 % This is because of a stitch-up that enables a socoped function handle
-                % to be returned by hlp_serialize as a character string and then
-                % read back by hlp_deserialize as a character string. We then have a
+                % to be returned by serialise as a character string and then
+                % read back by deserialise as a character string. We then have a
                 % custom catch in IX_mosaic/loadobj_private_ that catches mosaic_pdf_
                 % if it is a character string and uses str2func to convert to the
                 % scoped handle again.

@@ -19,8 +19,6 @@ classdef a_loader < a_detpar_loader_interface
     % loading from file)
     %
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
     % the properties common for all data loaders.
     properties(Dependent)
         % number of detectors in par file or in data file (should be
