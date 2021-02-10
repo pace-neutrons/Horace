@@ -45,7 +45,7 @@ function run_configure() {
   cmake_cmd+=" ${cmake_flags}"
 
   echo -e "\nRunning CMake configure step..."
-  cd "${build_dir}"
+  echo_and_run "cd ${build_dir}"
   echo_and_run "${cmake_cmd}"
 }
 
