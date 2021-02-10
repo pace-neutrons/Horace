@@ -26,15 +26,45 @@ switch(ndim)
         inter_points = intersect3D(box_minmax,cross_plain);
     case(4)
         inter_points = intersect4D(box_minmax,cross_plain);
-        
     otherwise
         error('BOX_INTERSECT:invalid_argument',...
             'Routine accepts the data from 2 to 4 dimensions. Got %d',...
             ndim);
 end
 function inter_points = intersect4D(box_minmax,cross_plain)
-error('BOX_INTERSECT:not_implemented',...s
-    '4D interestions are not yet implemented');
+npoints = size(cross_plain,2);
+if npoints == 3 %
+    cross_plain = [cross_plain,[0;0;0;0]];
+end
+plain_norm = normal4D(cross_plain);
+if plain_norm'*plain_norm < 1.e-12
+    error('BOX_INTERSECT:invalid_argument',...
+        'vectors, defining the intersection plain are parallel')
+end
+[~,edges_ind] = get_geometry(3);
+buf = cell(32,1);
+nint = 0;
+for i=1:size(edges_ind,2)
+    edge_ind = edges_ind(:,i);
+    edge =edge4D(box_minmax,edge_ind);
+    int_point = intersection(edge,plain_norm,cross_plain(:,4));
+    if ~isempty(int_point)
+        nint = nint+1;
+        buf{nint} = int_point;
+    end
+end
+if nint>0
+    inter_points = [buf{:}];
+    max1 = max(inter_points(1,:))+1;
+    max2 = max(inter_points(2,:))+1;
+    max3 = max(inter_points(3,:))+1;    
+    p_id = inter_points(1,:)+max1*(inter_points(2,:)+...
+        max2*(inter_points(3,:)+max3*inter_points(4,:)));
+    [~,uid] = unique(p_id);
+    inter_points = inter_points(:,uid);
+else
+    inter_points = [];
+end
 
 function inter_points = intersect3D(box_minmax,cross_plain)
 npoints = size(cross_plain,2);
