@@ -6,10 +6,11 @@ This is discussed in conjunction with an observation that a migration towards a 
 
 ## Current Use in Language
 ### MATLAB
-MATLAB uses a mixture of flag and keyword value args. Examples from the standard language include:
+MATLAB uses a mixture of flag and keyword value args. Examples from the standard language include, which mostly seem to revolve around interactions with the underlying system:
 ```
-checkcode('lengthofline', '-id')
-checkcode('lengthofline','-config=mysettings.txt')
+load(filename,'-ascii')
+whos('-file','durer.mat')
+checkcode('-id', filename)
 ```
 
 Although Herbert's variant of `matlab_xunit` based `runtests` uses flags:
@@ -61,6 +62,22 @@ function_name()   # 17
 
 Any or all of these can be used in combination with each other.
 
+### Parsers
+
+### `inputParser`
+Built-in `inputParser` supports positional, optional and required or optional key-value arguments
+
+### `parse_arguments`
+PACE's `parse_arguments` supports positional, required and optional key-value pairs (`'name', value`) and flags ( `-flagname`, `-noflagname`, unique substring)
+
+| Type of Arg | `inputParser` | `parse_arguments` |
+|:-----------:|:-------------:|:-----------------:|
+| Positional  |      Y        |        Y          |
+| Required    |      Y        |        Y          |
+| Optional    |      Y        |        Y          |
+| Key-value   |      Y        |        Y          |
+| Flag        |      X        |        Y          |
+
 ## Options
 
 ### Dash flags `-(no)flagname`
@@ -68,8 +85,6 @@ Any or all of these can be used in combination with each other.
 Allow flags with dashes in MATLAB
 
 #### MATLAB
-
-PACE's `parse_arguments` supports positional, required and optional key-value pairs (`'name', value`) and flags ( `-flagname`, `-noflagname`, unique substring)
 
 ```
 function_name(a, b, c, '-flagname')
@@ -143,8 +158,7 @@ function_name(a, 'flag', 0)
 ### Keyword args
 #### MATLAB
 
-Built-in `inputParser` supports positional, optional and required or optional key-value arguments
-PACE's `parse_arguments` would also work here in principle.
+`inputParser` or PACE's `parse_arguments` would also work here in principle.
 
 MATLAB keyword arguments are commonly passed through as:
 
@@ -184,7 +198,7 @@ It is trivial to map Python kwargs to MATLAB keyword-values
 
 ##### Cons
 
-- If uses built-in MATLAB parser (may not be kept stable)
+- If we use built-in MATLAB parser, out of our control if further functionality needed or may not be kept stable by matlab
 
 #### Transition implications
 
