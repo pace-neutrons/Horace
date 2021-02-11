@@ -2,7 +2,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
     % DnDBase Abstract base class for n-dimensional DnD object
 
     properties(Access = protected)
-        % removed, replaced with data_ on the superclass data % dnd_sqw_data instance
+        % CMDEV: removed, replaced with data_ on the superclass data % dnd_sqw_data instance
     end
 
     properties(Constant, Abstract, Access = protected)
