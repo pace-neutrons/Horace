@@ -3,7 +3,6 @@
 This document is intended to describe the means by which argument flags should be passed into PACE MATLAB programs.
 This is discussed in conjunction with an observation that a migration towards a Python interface is intended in the near future.
 
-
 ## Current Use in Language
 ### MATLAB
 MATLAB uses a mixture of flag and keyword value args. Examples from the standard language include, which mostly seem to revolve around interactions with the underlying system:
@@ -62,21 +61,105 @@ function_name()   # 17
 
 Any or all of these can be used in combination with each other.
 
-### Parsers
+### MATLAB Argument Parsers
 
 ### `inputParser`
 Built-in `inputParser` supports positional, optional and required or optional key-value arguments
 
-### `parse_arguments`
-PACE's `parse_arguments` supports positional, required and optional key-value pairs (`'name', value`) and flags ( `-flagname`, `-noflagname`, unique substring)
+```
+   defaultHeight = 1;
+   defaultUnits = 'inches';
+   defaultShape = 'rectangle';
+   expectedShapes = {'square','rectangle','parallelogram'};
 
-| Type of Arg | `inputParser` | `parse_arguments` |
-|:-----------:|:-------------:|:-----------------:|
-| Positional  |      Y        |        Y          |
-| Required    |      Y        |        Y          |
-| Optional    |      Y        |        Y          |
-| Key-value   |      Y        |        Y          |
-| Flag        |      X        |        Y          |
+   p = inputParser;
+   validScalarPosNum = @(x) isnumeric(x) && isscalar(x) && (x > 0);
+   addRequired(p,'width',validScalarPosNum);
+   addOptional(p,'height',defaultHeight,validScalarPosNum);
+   addParameter(p,'units',defaultUnits,@isstring);
+   addParameter(p,'shape',defaultShape,...
+                 @(x) any(validatestring(x,expectedShapes)));
+   parse(p,width,varargin{:});
+```
+
+
+#### Pros
+- Very flexible
+- Well documented with potential online help
+- Standard MATLAB method
+- Explicit argument status
+- Keyword validation
+
+#### Cons
+- May change in future
+- Not extensible if doesn't meet requirements
+
+### `parse_arguments`
+PACE's `parse_arguments` supports positional, required and optional key-value pairs (`'name', value`) and flags (`-flagname`, `-noflagname`, unique substring)
+
+```
+arglist=struct('fix_lattice',0,'fix_alatt',0,'fix_alatt_ratio',0,'fix_angdeg',0,...
+               'fix_orientation',0,'free_alatt',[1,1,1],'free_angdeg',[1,1,1],...
+               'bind_alatt',0);
+flags={'fix_lattice','fix_alatt','fix_alatt_ratio','fix_angdeg','fix_orientation'};
+[args,opt,present] = parse_arguments(varargin,arglist,flags);
+
+(from refine_crystal)
+```
+
+#### Pros
+- Very flexible
+- Well documented
+- Under PACE control
+
+#### Cons
+- Bespoke, requires maintenance
+- Implicit state of arguments
+
+### Raw `varargin` handler
+```
+% Parse input arguments
+if nargin==7
+    expand_qe=false;    % set of distinct q points
+    ...
+    fwhh=varargin{7};
+elseif nargin==5
+    expand_qe=true;     % same q array for each energy in the energy array
+    ...
+    fwhh=varargin{5};
+elseif nargin==4
+    expand_qe=false;
+    ...
+    fwhh=varargin{4};
+else
+    error('Check number of input arguments')
+end
+
+(from disp2sqw)
+```
+
+#### Pros
+- Completely flexible handling of arguments specific to function
+
+#### Cons
+- Unreadable
+- Unmaintainable
+- Unintuitive
+- Breaks easily
+
+### Comparison
+
+| Type of Arg | `inputParser` | `parse_arguments` | Raw |
+|:-----------:|:-------------:|:-----------------:|:---:|
+| Positional  |      Y        |        Y          |  Y  |
+| Required    |      Y        |        Y          |  Y  |
+| Optional    |      Y        |        Y          |  Y  |
+| Key-value   |      Y        |        Y          |  Y  |
+| Flag        |      N        |        Y          |  Y  |
+| Default val |      Y        |        Y          |  Y  |
+| Validate value  |  Y        |        N          |  Y  |
+| Validate type |    Y        |        N          |  Y  |
+| Abbreviation |     N        |        Y          |  Y  |
 
 ## Options
 
@@ -86,17 +169,25 @@ Allow flags with dashes in MATLAB
 
 #### MATLAB
 
+Currently, using argument parser is flexible in the way it handles flags and allows the same flag (or its negation) to be specified in multiple ways.
 ```
+function_name(a, b, c, 'flagname')
 function_name(a, b, c, '-flagname')
 function_name(a, b, c, '-noflagname')
+function_name(a, b, c, '-f')
+function_name(a, b, c, '-nof')
 ```
+This flexibility allows less typing, but at the same time may obscure the intended operation or even lead to the wrong flag being used.
+
 
 #### Python
 
 ```
 def function_name(a, b, c, flagname = true) #default
-def function_name(a, b, *args, **kwargs)
-    if any(arg.startswith('-') for arg in args): # Handle
+
+def function_name(a, b, *args, **kwargs):
+    if any(arg.startswith('-') for arg in args): # Handle flags
+        pass
     # args = [value-of-c, ...]
     # kwargs = {filename: true, ...}
 ```
@@ -108,7 +199,8 @@ def function_name(a, -flag) # ERROR
 This can either be by passing flags through as a string pre-parsing the input before the call to MATLAB to be handled by `*args`
 ```
 def function_name(a, b, *args, **kwargs)
-    if any(arg.startswith('-') for arg in args if isinstance(arg, string)): # Handle
+    if any(arg.startswith('-') for arg in args if isinstance(arg, string)): # Handle flags
+       pass
 ```
 Or passed directly through as one of args.
 ```
@@ -158,7 +250,7 @@ function_name(a, 'flag', 0)
 ### Keyword args
 #### MATLAB
 
-`inputParser` or PACE's `parse_arguments` would also work here in principle.
+`inputParser` or PACE's `parse_arguments` would work here.
 
 MATLAB keyword arguments are commonly passed through as:
 
@@ -198,20 +290,23 @@ It is trivial to map Python kwargs to MATLAB keyword-values
 
 ##### Cons
 
-- If we use built-in MATLAB parser, out of our control if further functionality needed or may not be kept stable by matlab
+- More typing required by user
 
 #### Transition implications
 
-- Requires implementation similar to that as noted above
+- Requires Python implementation similar to that as noted above
 - Replace `parse_arguments` flag parser temporarily with variant printing deprecation warning and allow both syntaxes to coexist for a period
+- Need to check for flags in public APIs, can't check user-scripts
 
-## Proposal
+
+# Proposal
 
 - Use positional parameters for core data
 - Use optional parameters where appropriate
 - Use key-value arguments for remaining arguments, including  rather than flag/no-flag arguments
 
-The use of `[-][no]flagname` is not supported in Python, other than as one or more "string value optional arg" and is not Pythonic. The conversion for MATLAB flag-type args could be handled in the Python <-> MATLAB wrapper as there's a well defined mapping between key/value and flag syntax.
+The use of `[-][no]flagname` is not supported in Python, other than as one or more "string value optional arg" and is not Pythonic. 
+The conversion for MATLAB flag-type args could be handled in the Python <-> MATLAB wrapper as there's a well defined mapping between key/value and flag syntax, but could also be avoided.
 
 # Appendix
 
@@ -235,17 +330,19 @@ e.g
 Signature:
 ```
 MATLAB: function function_name(arg1, arg2, varargin)
-PYTHON: def function_name(arg1, arg2, *varargin)
+PYTHON: def function_name(arg1, arg2, *args)
 ```
 Both would be called as
 ```
 function_name(a, b, c, d, ...)
 ```
-Where `a` maps to `arg1`, `b` to `arg2`, `c` and `d` to a list (cell array in MATLAB, tuple in Python) `varargin`.
+Where `a` maps to `arg1`, `b` to `arg2`, `c` and `d` to a cell array (`varargin`) in MATLAB and a tuple (`args`) in Python.
 
 ### Keyword-Value Pairs
 Keyword value pairs are a common means of allowing a variable number of arguments without requiring that they be in any particular order. Typically they follow positional arguments.
+
 e.g.
+
 Signature:
 ```
 PYTHON: def function_name(**kwargs)
@@ -282,10 +379,3 @@ function_name(*myList) # 1 2 3
 myDict = {'a':3, 'b':4, 'c':5}
 function_name(**myDict) # 4 5 6
 ```
-### Title
-#### MATLAB
-#### Python
-#### Pros and Cons
-##### Pros
-##### Cons
-#### Transition implications
