@@ -371,7 +371,7 @@ pipeline {
 
     stage('Build-Docs') {
       when {
-        expression {env.build_docs.toBoolean()}
+        expression {env.build_docs?.toBoolean()}
       }
       steps {
         script {
@@ -453,7 +453,7 @@ pipeline {
 
     stage('Update docs') {
       when {
-        expression {env.build_docs.toBoolean() && env.push_docs.toBoolean()}
+        expression {env.build_docs?.toBoolean() && env.push_docs?.toBoolean()}
       }
       steps {
         withCredentials([string(credentialsId: 'GitHub_API_Token',
