@@ -123,7 +123,7 @@ end
 %Coordinates of detector pixels, in the frame discussed above
 coords=@() win.data.pix.q_coordinates; % MP: emulate a pointer / lazy data copy
 
-num_pixels=win.data.pix.num_pixels;  % MP, num_pixels=numel(coords)/3
+%num_pixels=win.data.pix.num_pixels;  % MP, num_pixels=numel(coords)/3
 
 %Note that we allow the inclusion of an offset from the origin of the
 %reflection plane. This is specified in rlu.
@@ -160,28 +160,61 @@ coords_new=bsxfun(@plus, coords_new, vec3); % MP
 
 wout.data.pix.q_coordinates=coords_new;
 clear 'coords_new';
+%=========================================================================
+% Transform Ranges:
 %
-% find new image range:
+% Get image range:
 % hkl range
 existing_range = wout.data.img_range+header.uoffset';
+
+hkl_range_minmax = existing_range(:,1:3);
+%
+% Convert range expressed as min-max points into the whole range of points
+hkl_exp_range = expand_box(hkl_range_minmax(1,:),hkl_range_minmax(2,:));
 % Crystal Cartesian range:
-cc_exist_range = uconv\existing_range(:,1:3)';
-% build full box based on min-max positions of the box
-cc_exist_range = build_box(cc_exist_range);
+cc_exist_range = uconv\hkl_exp_range;
+cc_minmax = [min(cc_exist_range,[],2),max(cc_exist_range,[],2)];
+% add intersection points
+cross_points = box_intersect(cc_minmax ,[vec1,vec2,vec3]);
+cc_exist_range = [cc_exist_range,cross_points];
+
 % transform existing range
 side_dot=cc_exist_range'*normvec;
 idx = find(side_dot > 0);
-tranf_range(:,idx) = Reflec*cc_exist_range(:,idx);
-intercect_pints = box_intercect(cc_exist_range,[vec1,vec2]);
-transf_range = [tranf_range;intercect_pints];
-new_range = [min(transf_range);max(transf_range)];
-
+cc_exist_range(:,idx) = Reflec*cc_exist_range(:,idx);
+cc_exist_range = [cc_exist_range,cross_points];
+hkl_box_points  = uconv*cc_exist_range ;
+%
+hkl_range_minmax = [min(hkl_box_points,[],2),max(hkl_box_points,[],2)]';
+all_range = [hkl_range_minmax,wout.data.img_range(:,4)];
+%
+% Extract existing binning:
+new_range = cell(1,4);
+paxis  = false(4,1);
+paxis(wout.data.pax) = true; 
+npax = 0;
+for i=1:4
+    new_range{i} = all_range(:,i)';
+    if paxis(i)
+        npax = npax+1;
+        scale = wout.data.p{npax};
+        step = scale(2)-scale(1);
+        range = new_range{i};
+        dist = range(2)-range(1);
+        np = floor((dist)/step)+1;
+        step = dist/np;
+        new_range{i} = [range(1),step,range(2)];
+    end
+end
 
 % Turn off horace_info output, but save for automatic clean-up on exit or cntl-C (TGP 30/11/13)
 info_level = get(hor_config,'log_level');
 cleanup_obj=onCleanup(@()set(hor_config,'log_level',info_level));
 set(hor_config,'log_level',-1);
 
+wout.data.img_range = all_range;
+wout.data.pax = [];
+wout.data.iax = 1:4;
 wout=cut(wout,new_range{:});
 
 
