@@ -87,6 +87,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
 %            % Output:
 %            %   obj     An instance of this object
 %            obj = sqw(S);
+%{
             if isa(S,'sqw')
                obj = S;
                return
@@ -101,6 +102,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
                obj = sqw(S);
             end
         end
+
+%}
     end
 
     methods(Access = protected)
