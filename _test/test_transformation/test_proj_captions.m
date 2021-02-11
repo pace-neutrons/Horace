@@ -5,7 +5,7 @@ classdef test_proj_captions<TestCase
         data
         wk_data
     end
-    
+
     methods
         function this=test_proj_captions(name)
             this=this@TestCase(name);
@@ -18,12 +18,12 @@ classdef test_proj_captions<TestCase
         function this=tearDown(this)
             this.wk_data = [];
         end
-        
+
         function test_cube_caption(this)
-            
+
             capt = an_axis_caption();
             assertTrue(capt.changes_aspect_ratio);
-            
+
             [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
                 capt.data_plot_titles(this.wk_data);
             assertTrue(iscell(title_main));
@@ -43,16 +43,17 @@ classdef test_proj_captions<TestCase
             %
             assertEqual(energy_axis,4);
         end
-        
-        
-        function xest_spher_caption(this)
+
+
+        function test_spher_caption(this)
+            skipTest('Requires generic projection refactoring');
             capt = spher_proj_caption();
             assertFalse(capt.changes_aspect_ratio);
             this.wk_data.ulabel={'\rho'  '\theta'  '\phi'  'E'};
-            
+
             [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
                 capt.data_plot_titles(this.wk_data);
-            
+
             assertTrue(iscell(title_main));
             assertEqual(size(title_main),[1,3]);
             %
@@ -69,9 +70,10 @@ classdef test_proj_captions<TestCase
             assertEqual(size(display_iax),[4,1]);
             %
             assertEqual(energy_axis,4);
-            
+
         end
-        function xest_spher_caption2D(this)
+        function test_spher_caption2D(this)
+            skipTest('Requires generic projection refactoring');
             capt = spher_proj_caption();
             assertFalse(capt.changes_aspect_ratio);
             this.wk_data.ulabel={ '\rho','\theta','\phi','E'};
@@ -89,15 +91,15 @@ classdef test_proj_captions<TestCase
             this.wk_data.s=ones(2);
             this.wk_data.e=ones(2);
             this.wk_data.npix=ones(2);
-            
+
             [ok,type,mess]=this.wk_data.check_sqw_data('b+');
             assertTrue(ok);
             assertEqual(type,'a-');
             assertTrue(isempty(mess));
-            
+
             [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis]=...
                 capt.data_plot_titles(this.wk_data);
-            
+
             assertTrue(iscell(title_main));
             assertEqual(size(title_main),[1,4]);
             %
@@ -114,8 +116,8 @@ classdef test_proj_captions<TestCase
             assertEqual(size(display_iax),[2,1]);
             %
             assertEqual(energy_axis,4);
-            
+
         end
-        
+
     end
 end

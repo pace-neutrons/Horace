@@ -8,7 +8,7 @@ classdef test_PixelData < TestCase
         
         raw_pix_data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
         raw_pix_range;
-        tst_source_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
+        tst_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
         tst_sqw_file_full_path = '';
         this_dir = fileparts(mfilename('fullpath'));
         
@@ -56,7 +56,7 @@ classdef test_PixelData < TestCase
             obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
             obj.raw_pix_range = obj.get_ref_range(obj.raw_pix_data);
             
-            source_sqw_file = java.io.File(pwd(), obj.tst_source_sqw_file_path);
+            source_sqw_file = java.io.File(pwd(), obj.tst_sqw_file_path);
             source_sqw_file  = char(source_sqw_file .getCanonicalPath());
             [~,fn] = fileparts(source_sqw_file);
             test_sqw_file_full_path = fullfile(tmp_dir,[fn,'.sqw']);
@@ -595,10 +595,13 @@ classdef test_PixelData < TestCase
         
         function test_dirty_pix_tmp_files_are_deleted_when_pix_out_of_scope(obj)
             old_rng_state = rng();
+            clean_up = onCleanup(@() rng(old_rng_state));
             fixed_seed = 774015;
             rng(fixed_seed, 'twister');  % this seed gives an expected object_id_ = 54452
-            expected_tmp_dir = fullfile(tempdir(), 'sqw_pix54452');
-            clean_up = onCleanup(@() rng(old_rng_state));
+            expected_tmp_dir = fullfile( ...
+                get(parallel_config, 'working_directory'), ...
+                'sqw_pix54452' ...
+                );
             
             function do_pix_creation_and_delete()
                 data = rand(9, 30);
@@ -607,8 +610,10 @@ classdef test_PixelData < TestCase
                 
                 pix.u1 = 1;
                 pix.advance();  % creates tmp file for first page
-                assertTrue(logical(exist(expected_tmp_dir, 'dir')), ...
-                    'Temp directory not created');
+                assertTrue( ...
+                    logical(exist(expected_tmp_dir, 'dir')), ...
+                    sprintf('Temp directory ''%s'' not created', expected_tmp_dir) ...
+                    );
             end
             
             do_pix_creation_and_delete();
@@ -886,10 +891,13 @@ classdef test_PixelData < TestCase
         
         function test_unedited_dirty_pages_are_not_rewritten(obj)
             old_rng_state = rng();
+            clean_up = onCleanup(@() rng(old_rng_state));
             fixed_seed = 774015;  % this seed gives an expected object_id_ = 06706
             rng(fixed_seed, 'twister');
-            expected_tmp_dir = fullfile(tempdir(), 'sqw_pix06706');
-            clean_up = onCleanup(@() rng(old_rng_state));
+            expected_tmp_dir = fullfile( ...
+                get(parallel_config, 'working_directory'), ...
+                'sqw_pix06706' ...
+                );
             
             data = rand(9, 10);
             npix_in_page = 3;
@@ -1119,8 +1127,10 @@ classdef test_PixelData < TestCase
             num_appended_pix = 5;
             pix_to_append = PixelData(rand(9, num_appended_pix));
             range2 = pix_to_append.pix_range;
-            ref_range = [min(range1(1,:),range2(1,:));...
-                max(range1(2,:),range2(2,:))];
+            ref_range = [ ...
+                min(range1(1,:),range2(1,:));...
+                max(range1(2,:),range2(2,:)) ...
+                ];
             
             pix.append(pix_to_append);
             assertEqual(ref_range,pix.pix_range);
@@ -1638,7 +1648,6 @@ classdef test_PixelData < TestCase
             pix.advance();
             pix.signal = 12;
             pix.advance();
-            
             pg_size = pix.base_page_size;
             pix_range = pix.num_pixels:-1:1;  % pix range in reverse order
             new_pix = pix.get_pixels(pix_range);
@@ -1659,7 +1668,6 @@ classdef test_PixelData < TestCase
             pix.advance();
             pix.signal = 11;
             pix.advance();
-            
             pg_size = pix.base_page_size;
             % Repeat each index from 1 to the page size 3 times
             pix_range = repelem(1:3*pg_size, 3);
@@ -1670,6 +1678,7 @@ classdef test_PixelData < TestCase
             expected_pix = PixelData(in_mem_pix.data(:, pix_range));
             
             assertEqualToTol(new_pix, expected_pix);
+            
         end
         
         function test_get_pixels_can_load_clean_and_dirty_pix_cached_page_dirty(obj)
@@ -1681,8 +1690,8 @@ classdef test_PixelData < TestCase
             pix.signal = 11;
             % Do not advance past edited page, changes only exist in cache and not
             % in temporary files
-            
             pg_size = pix.base_page_size;
+            
             % Repeat each index from 1 to the page size 3 times
             pix_range = repelem(1:3*pg_size, 3);
             new_pix = pix.get_pixels(pix_range);
@@ -1692,7 +1701,9 @@ classdef test_PixelData < TestCase
             expected_pix = PixelData(in_mem_pix.data(:, pix_range));
             
             assertEqualToTol(new_pix, expected_pix);
+            
         end
+        
         
         function test_get_pixels_correct_if_all_pages_dirty(~)
             data = rand(9, 45);
@@ -1737,8 +1748,7 @@ classdef test_PixelData < TestCase
                 func(pix, iter)
                 iter = iter + 1;
             end
-        end
-        
+        end        
     end
     
     methods (Static)

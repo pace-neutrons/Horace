@@ -11,13 +11,13 @@ set(_path_regex "[a-zA-Z0-9/\\\\_\\-\\.: ]+")
 file(READ "horace_on.m.template" _horace_on_template)
 string(REGEX REPLACE
     "default_horace_path ?= ?'${_path_regex}';"
-    "default_horace_path = '${CMAKE_SOURCE_DIR}/horace_core';"
+    "default_horace_path = '${Horace_ROOT}/horace_core';"
     _horace_on_script
     "${_horace_on_template}"
 )
 string(REGEX REPLACE
     "default_herbert_path ?= ?'${_path_regex}';"
-    "default_herbert_path = '${Herbert_ROOT}';"
+    "default_herbert_path = '${Herbert_CORE}';"
     _horace_on_script
     "${_horace_on_script}"
 )
@@ -27,7 +27,7 @@ file(WRITE "${LOCAL_INIT_DIR}/horace_on.m" "${_horace_on_script}")
 file(READ "${Herbert_ON_TEMPLATE}" _herbert_on_template)
 string(REGEX REPLACE
     "default_herbert_path ?= ?'${_path_regex}';"
-    "default_herbert_path = '${Herbert_ROOT}';"
+    "default_herbert_path = '${Herbert_CORE}';"
     _herbert_on_script
     "${_herbert_on_template}"
 )
@@ -46,11 +46,11 @@ set(Horace_AUTO_GENERATED_FILE_WARNING
 
 # Copy horace_get_build_version template formatting it with the project version numbers
 configure_file("horace_get_build_version.m.template"
-    "${CMAKE_SOURCE_DIR}/horace_core/admin/horace_get_build_version.m")
+    "${Horace_ROOT}/horace_core/admin/horace_get_build_version.m")
 
 # Copy version.h template formatting it with the project version numbers
 configure_file("version.h.template"
-    "${CMAKE_SOURCE_DIR}/_LowLevelCode/cpp/utility/version.h")
+    "${Horace_ROOT}/_LowLevelCode/cpp/utility/version.h")
 
 # =============================================================================
 # Install commands
@@ -74,7 +74,7 @@ set(TEMPLATE_FILES
     "worker_v2.m.template"
     "worker_4tests.m.template"
     "${Herbert_ON_TEMPLATE}"
- 
+
 )
 foreach(_template_file ${TEMPLATE_FILES})
     install_template_file("${_template_file}")

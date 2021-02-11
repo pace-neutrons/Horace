@@ -36,6 +36,16 @@ pix_tb=cell(nfiles,n_bin2_process);  % buffer for pixel information
 
 %
 bin_filled = false(n_bin2_process,1);
+if ischar(run_label)
+    if strcmpi(run_label,'nochange')
+        run_label = filenum; % will not be used, just to keep common 
+        % interface to split_pix_per_bin_
+    else
+        error('READ_PIXELS:invalid_argument',...
+        'If runlabel is a character string, it can be only "nochange". Got: %s',...
+        run_label);        
+    end
+end
 
 
 % Read pixels from input files

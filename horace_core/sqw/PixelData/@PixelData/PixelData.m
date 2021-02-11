@@ -62,8 +62,8 @@ classdef PixelData < handle
     %   >>     pix.advance();
     %   >> end
     %
-    %PixelData Properties:
-    %   u1, u2, u3     - The 1st, 2nd and 3rd dimension of the Crystal
+    % Properties:
+    %   u1, u2, u3     - The 1st, 2nd and 3rd dimensions of the Crystal
     %                    Cartezian coordinates in projection axes, units are per Angstrom (1 x n arrays)
     %   dE             - The energy transfer value for each pixel in meV (1 x n array)
     %   coordinates    - The coords in projection axes of the pixel data [u1, u2, u3, dE] (4 x n array)
@@ -122,16 +122,22 @@ classdef PixelData < handle
     end
     
     properties (Dependent)
-        % Return the 1st, 2nd and 3rd dimension of the crystal cartesian orientation (1 x n arrays) [A^-1]
-        u1; u2; u3;
+        % The 1st dimension of the crystal cartesian orientation (1 x n array) [A^-1]
+        u1;
         
-        % Return the spatial dimensions of the crystal cartesian orientation (3 x n array)
+        % The 2nd dimension of the crystal cartesian orientation (1 x n array) [A^-1]
+        u2;
+        
+        % The 3rd dimension of the crystal cartesian orientation (1 x n array) [A^-1]
+        u3;
+        
+        % The spatial dimensions of the crystal cartesian orientation (3 x n array)
         q_coordinates;
         
-        % Returns the array of energy deltas of the pixels (1 x n array) [meV]
+        % The array of energy deltas of the pixels (1 x n array) [meV]
         dE;
         
-        % Returns the coordinates of the pixels in the projection axes, i.e.: u1,
+        % The coordinates of the pixels in the projection axes, i.e.: u1,
         % u2, u3 and dE (4 x n array)
         coordinates;
         
@@ -153,13 +159,13 @@ classdef PixelData < handle
         % The number of pixels in the data block
         num_pixels;
         
-        % Returns range of pixels coordinates in Crystal Cartesian coordinate
+        % The range of pixels coordinates in Crystal Cartesian coordinate
         % system. [2x4] array of [min;max] values of pixels coordinates
         % field. If data are file-based and you are setting pixels coordinates,
         % this value may get invalid, as the range never shrinks.
         pix_range;
         
-        % Returns the full raw pixel data block. Usage of this attribute is
+        % The full raw pixel data block. Usage of this attribute is
         % discouraged, the structure of the return value is not guaranteed
         data;
         
@@ -173,10 +179,10 @@ classdef PixelData < handle
         base_page_size;
     end
     properties(Access=public,Hidden)
-        % the property contains the range(min/max value) of a block of pixels,
-        % changed by set.pixels methods. Exposed to be used in algorithms, 
-        % looping over the paged pixels and changing object using 
-        % coordinate setters to calculate and set-up correct global pixels 
+        % Contains the range(min/max value) of a block of pixels,
+        % changed by set.pixels methods. Exposed to be used in algorithms,
+        % looping over the paged pixels and changing object using
+        % coordinate setters to calculate and set-up correct global pixels
         % range in conjunction with set_range method at the end of the loop.
         page_range;
     end
@@ -251,7 +257,6 @@ classdef PixelData < handle
     end
     
     methods
-        
         % --- Pixel operations ---
         pix_out = append(obj, pix);
         [mean_signal, mean_variance] = compute_bin_data(obj, npix)
@@ -259,11 +264,12 @@ classdef PixelData < handle
         pix_out = do_unary_op(obj, unary_op);
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
         pix_out = get_data(obj, fields, abs_pix_indices);
+        pix_out = get_pix_in_ranges(obj, abs_indices_starts, abs_indices_ends);
         pix_out = get_pixels(obj, abs_pix_indices);
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);
         [page_num,total_number_of_pages] = move_to_page(obj, page_number);
-        recalc_pix_range(obj);
+        obj=recalc_pix_range(obj);
         
         function obj = PixelData(arg, mem_alloc)
             % Construct a PixelData object from the given data. Default
@@ -429,7 +435,7 @@ classdef PixelData < handle
             % advance past the final page of data in the file.
             %
             % This function does nothing if the pixel data is not file-backed.
-            % 
+            %
             % Returns:
             % current page number and total number of pages advance will
             % walk through to complete the algorithm
@@ -681,7 +687,7 @@ classdef PixelData < handle
             % Function allows to set the pixels range (min/max values of
             % pixels coordinates)
             %
-            % Use with caution!!! No checks that the set range is the 
+            % Use with caution!!! No checks that the set range is the
             % correct range for pixels, holded by the class are
             % performed, while subsequent algorithms may rely on pix range
             % to be correct. A out-of memory write can occur during rebinning
@@ -815,7 +821,7 @@ classdef PixelData < handle
             % set appropriate range of pixel coordinates.
             % The coordinates are defined by the selected field
             %
-            % Sets up the property page_range defining the range of block 
+            % Sets up the property page_range defining the range of block
             % of pixels chaned at current iteration.
             %
             if isempty(obj.raw_data_)

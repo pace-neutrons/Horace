@@ -1,11 +1,11 @@
-function varargout = cut_horace(varargin)
+function wout = cut_horace(varargin)
 % Take a cut from a file or files containing sqw, or d0d,d1d...or d4d data
 %
-%   >> w=cut_horace (file, arg1, arg2, ...)
+%   >> wout=cut_horace (file, arg1, arg2, ...)
 %
 % If the data in the file(s) is sqw-type i.e. has pixel information, the
 % data will be passed to the corresponding sqw cut method. If the data is
-% dnd type i.e. there is no pixel information, then the method for the 
+% dnd type i.e. there is no pixel information, then the method for the
 % appropriate d0d, d1d,...d4d object is called
 %
 % For full details of arguments for the cut method, see the help for the
@@ -24,7 +24,4 @@ function varargout = cut_horace(varargin)
 %
 % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
-
-[varargout,mess] = horace_function_call_method (nargout, @cut, '$hor', varargin{:});
-if ~isempty(mess), error(mess), end
-
+wout = cut(varargin{:});
