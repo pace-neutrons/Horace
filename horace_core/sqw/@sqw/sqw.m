@@ -11,7 +11,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         main_header
         header
         detpar
-        % data now a dependent property, below
+        % CMDEV: data now a dependent property, below
     end
     
     properties(Dependent)
