@@ -193,25 +193,9 @@ function Invoke-Package {
 }
 
 function Invoke-Docs {
-    (Get-Content "./build/CPackConfig.cmake" |
-      Where-Object {$_ -match 'CPACK_PACKAGE_FILE_NAME'}) -match '.*"Horace-([^"]+)".*'
-  $build_id = $Matches[1]
+  param([string]$build_dir)
+  Write-And-Invoke "cmake --build ""$build_dir"" -- docs"
 
-  (Get-Content ./documentation/user_docs/docs/conf.py) |
-    Foreach-Object {
-        $_ -replace '(version|release) = .*', "`$1 = '${build_id}'"
-    } |
-      Set-Content  ./documentation/user_docs/docs/conf.py
-
-  ./documentation/user_docs/make.bat html
-  # Undo change to allow checkout
-  git checkout ./documentation/user_docs/docs/conf.py
-
-  Foreach ($f in Get-ChildItem -Path './documentation/user_docs/build/html' -Filter *.html) {
-      (Get-Content "./documentation/user_docs/build/html/$f") |
-        Where-Object {$_ -notmatch '\\[NULL\\]'} |
-        Set-Content "./documentation/user_docs/build/html/$f"
-  }
   Compress-Archive -Path ./documentation/user_docs/build/html/* -DestinationPath "./docs.zip"
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
@@ -248,11 +232,11 @@ if ($build_dir -eq "") {
   $build_dir = Join-Path -Path "$HORACE_ROOT" -ChildPath "build"
 }
 
-if ($print_versions -eq $true) {
+if ($print_versions) {
   Write-Versions
 }
 
-if ($build -eq $true) {
+if ($build) {
   New-Build-Directory -build_dir "$build_dir"
   Invoke-Configure `
     -vs_version $vs_version `
@@ -264,18 +248,18 @@ if ($build -eq $true) {
   Invoke-Build -build_dir "$build_dir" -build_config "$build_config"
 }
 
-if ($test -eq $true) {
+if ($test) {
   Invoke-Test -build_dir "$build_dir" -build_config "$build_config"
 }
 
-if ($package -eq $true) {
+if ($package) {
   Invoke-Package -build_dir "$build_dir"
 }
 
-if ($docs -eq $true) {
-  Invoke-Docs
+if ($docs) {
+  Invoke-Docs -build_dir "$build_dir"
 }
 
-if ($push_docs -eq $true) {
+if ($push_docs) {
   Invoke-Push
 }

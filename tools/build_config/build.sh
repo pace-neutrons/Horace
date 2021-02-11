@@ -87,15 +87,7 @@ function run_package() {
 
 function build_docs() {
     # Update release numbers
-    build_id=$(sed -nr '/CPACK_PACKAGE_FILE_NAME/{s/.*"Horace-([^"]+)".*/\1/p};' ./build/CPackConfig.cmake)
-    sed -i -r 's/(release|version) = .*/\1 = "'${build_id}'"/' ./documentation/user_docs/docs/conf.py
-    make -C ./documentation/user_docs/ html
-
-    # Undo change to allow checkout
-    git checkout ./documentation/user_docs/docs/conf.py
-
-    # Remove dead links
-    sed -i -r '/\\[NULL\\]/d' ./documentation/user_docs/build/html/*html
+    echo_and_run "cmake --build ${build_dir} -- docs"
 
     # Compress for artifact
     cd ./documentation/user_docs/build/html

@@ -41,6 +41,7 @@ if(${BUILD_TESTS})
     include(PACE_FindGTest)
     enable_testing()
 endif()
+include(PACE_Docs)
 
 add_subdirectory("_LowLevelCode")
 if(${BUILD_TESTS})
@@ -52,7 +53,6 @@ add_subdirectory("admin")
 # Install commands
 # =============================================================================
 include(PACE_CPackConfig)
-
 if(WIN32)
     # Don't package external Linux libraries on Windows
     set(EXTERNAL_IGNORE_PATTERN "*/external/glnxa64")

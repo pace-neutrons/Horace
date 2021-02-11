@@ -160,12 +160,12 @@ properties([
     booleanParam(
       defaultValue: false,
       description: 'If this pipeline is to build docs.',
-      name: 'build_docs'
+      name: 'BUILD_DOCS'
     ),
     booleanParam(
       defaultValue: false,
       description: 'If this pipeline is to push docs.',
-      name: 'push_docs'
+      name: 'PUSH_DOCS'
     )
   ])
 ])
@@ -371,7 +371,7 @@ pipeline {
 
     stage('Build-Docs') {
       when {
-        expression {env.build_docs?.toBoolean()}
+        expression {env.BUILD_DOCS?.toBoolean()}
       }
       steps {
         script {
@@ -451,9 +451,9 @@ pipeline {
     }
 
 
-    stage('Update docs') {
+    stage('Push-Docs') {
       when {
-        expression {env.build_docs?.toBoolean() && env.push_docs?.toBoolean()}
+        expression {env.BUILD_DOCS?.toBoolean() && env.PUSH_DOCS?.toBoolean()}
       }
       steps {
         withCredentials([string(credentialsId: 'GitHub_API_Token',
