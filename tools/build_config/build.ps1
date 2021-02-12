@@ -194,7 +194,7 @@ function Invoke-Package {
 
 function Invoke-Docs {
   param([string]$build_dir)
-  Write-And-Invoke "cmake --build ""$build_dir"" -- docs"
+  Write-And-Invoke "cmake --build ""$build_dir"" --target docs"
 
   Compress-Archive -Path ./documentation/user_docs/build/html/* -DestinationPath "./docs.zip"
   if ($LASTEXITCODE -ne 0) {

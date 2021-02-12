@@ -87,7 +87,7 @@ function run_package() {
 
 function build_docs() {
     # Update release numbers
-    echo_and_run "cmake --build ${build_dir} -- docs"
+    echo_and_run "cmake --build ${build_dir} --target docs"
 
     # Compress for artifact
     cd ./documentation/user_docs/build/html
