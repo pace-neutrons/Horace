@@ -239,28 +239,6 @@ pipeline {
       }
     }
 
-    stage('Analyze') {
-      steps {
-        script {
-          if (isUnix()) {
-            sh '''
-              module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
-              module load gcc/\$GCC_VERSION &&
-              module load cppcheck/\$CPPCHECK_VERSION &&
-              ./tools/build_config/build.sh --print_versions --analyze
-            '''
-          }
-          else {
-            powershell '''
-              ./tools/build_config/build.ps1 -print_versions
-              Write-Output \"Static Analysis in not performed on Windows\"
-            '''
-          }
-        }
-      }
-    }
-
     stage('Get-Herbert') {
       /* For nightly builds, we use the last successful archived Herbert
        * master build.
@@ -330,6 +308,28 @@ pipeline {
                     -matlab_release \$env:MATLAB_VERSION\"
               """
             }
+          }
+        }
+      }
+    }
+
+    stage('Analyze') {
+      steps {
+        script {
+          if (isUnix()) {
+            sh '''
+              module load cmake/\$CMAKE_VERSION &&
+              module load matlab/\$MATLAB_VERSION &&
+              module load gcc/\$GCC_VERSION &&
+              module load cppcheck/\$CPPCHECK_VERSION &&
+              ./tools/build_config/build.sh --print_versions --configure --analyze
+            '''
+          }
+          else {
+            powershell '''
+              ./tools/build_config/build.ps1 -print_versions
+              Write-Output \"Static Analysis in not performed on Windows\"
+            '''
           }
         }
       }
@@ -409,14 +409,15 @@ pipeline {
     always {
       // archive CTest results file and static analysis report
       archiveArtifacts(
-        artifacts: 'build/Testing/**/*.xml,**/cppcheck.xml',
+        artifacts: 'build/Testing/**/*.xml,**/cppcheck.xml,**/mlint.json',
         fingerprint: true
       )
 
-      publishCppcheck (
-        displayAllErrors: true,
-        allowNoReport: true,
-        pattern: '**/cppcheck.xml'
+      recordIssues(
+        tools: [
+          cppCheck(pattern: '**/cppcheck.xml', reportEncoding: 'UTF-8'),
+          issues(id: 'mlint', name: 'MLint', pattern: '**/mlint.json')
+        ]
       )
 
       xunit (
