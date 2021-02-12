@@ -9,7 +9,7 @@ if use_mex
         return
     catch ME
         if fm
-            rethrow(fm);
+            rethrow(ME);
         else
             warning(ME.identifier,'%s',ME.message);
             use_mex = false;
