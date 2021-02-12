@@ -896,7 +896,7 @@ if strcmp(runMode, 'genRun')
                               % "For ... discrete variates with an infinite number of probabilities, we select only
                               % those for which, for a sample of size 2^31(10^9.33), the expected number of occurences exceeds
                               % 0.5. The other probabilities are assumed zero. For those unusual situations where occurrences
-                              % with probability less than 5 × 10^?10 must be accounted for, special tail-handling procedures
+                              % with probability less than 5 Ã— 10^?10 must be accounted for, special tail-handling procedures
                               % should be used."
                               out = mode*ones( sampleSize );
                               

@@ -33,7 +33,7 @@ inline void write_data(uint8_t* data, size_t& memPtr, const mxArray* const input
     size_t compSize = elemSize/2;
 
 #if MX_HAS_INTERLEAVED_COMPLEX
-    void* toWrite = mxGetComplexDouble(input);
+    void* toWrite = mxGetComplexDoubles(input);
     // Offset imaginary to end
     size_t imPtr = memPtr + (1+nElem)*compSize;
 
