@@ -13,7 +13,7 @@ if (sphinx-build)
       )
   else()
     add_custom_target(denullify-docs
-      COMMAND powershell -ExecutionPolicy Bypass -command "Foreach($f in Get-ChildItem -Path '${DOCS_DIR}/build/html' -Filter *.html) {(Get-Content $f.FullName) | Where-Object {$_ -notmatch '\[NULL\]'} | Set-Content $F.FullName}"
+      COMMAND powershell -ExecutionPolicy Bypass -command "Foreach($f in Get-ChildItem -Path '${DOCS_DIR}/build/html' -Filter *.html) {(Get-Content $f.FullName) | Where-Object {$_ -notmatch '\\[NULL\\]'} | Set-Content $F.FullName}"
       DEPENDS build-docs
       VERBATIM
       )
