@@ -6,18 +6,18 @@ This is discussed in conjunction with an observation that a migration towards a 
 ## Current Use in Language
 ### MATLAB
 MATLAB uses a mixture of flag and keyword value args. Examples from the standard language include, which mostly seem to revolve around interactions with the underlying system:
-```
+```matlab
 load(filename,'-ascii')
 whos('-file','durer.mat')
 checkcode('-id', filename)
 ```
 
 Although Herbert's variant of `matlab_xunit` based `runtests` uses flags:
-```
+```matlab
 runtests(tests, '-verbose')
 ```
 Core MATLAB seems to have made a move more towards keyword-value
-```
+```matlab
 arrayfun(@()(), list, 'UniformOutput', true)
 runtests(pwd,'IncludeSubfolders',true)
 runtests(tests, 'LoggingLevel', matlab.unittest.Verbosity.VERBOSE)
@@ -26,7 +26,7 @@ runtests(tests, 'LoggingLevel', matlab.unittest.Verbosity.VERBOSE)
 ### Python
 Python's main method of handling variable arguments is to use the standard `*args` and `**kwargs` arguments.
 
-```
+```python
 def function_name(*args):
     for arg in args:
         print(arg)
@@ -35,15 +35,14 @@ function_name(1,2,3,4)
 
 def function_name(**kwargs):
     if kwargs.get('header', False):
-        print(header)
-        del kwargs['header']
+        print(kwargs.pop('header'))
     for arg in kwargs.items():
         print(arg)
 
 function_name(a=1, header='Hello World', b=4)
 ```
 Any Python argument can be treated like a keyword argument.
-```
+```python
 def function_name(a,b,c):
     print(a, b, c)
 
@@ -51,7 +50,7 @@ function_name(1,c=2,b=1) # A is positional
 ```
 
 Python also allows default (optional) arguments
-```
+```python
 def function_name(a=17):
     print(a)
 
@@ -66,7 +65,7 @@ Any or all of these can be used in combination with each other.
 ### `inputParser`
 Built-in `inputParser` supports positional, optional and required or optional key-value arguments
 
-```
+```matlab
    defaultHeight = 1;
    defaultUnits = 'inches';
    defaultShape = 'rectangle';
@@ -80,6 +79,8 @@ Built-in `inputParser` supports positional, optional and required or optional ke
    addParameter(p,'shape',defaultShape,...
                  @(x) any(validatestring(x,expectedShapes)));
    parse(p,width,varargin{:});
+   
+% (from MATLAB docs)
 ```
 
 
@@ -91,20 +92,21 @@ Built-in `inputParser` supports positional, optional and required or optional ke
 - Keyword validation
 
 #### Cons
+- Known issue that an optional character input followed by a keyword-value pair will not give what you think
 - May change in future
 - Not extensible if doesn't meet requirements
 
 ### `parse_arguments`
 PACE's `parse_arguments` supports positional, required and optional key-value pairs (`'name', value`) and flags (`-flagname`, `-noflagname`, unique substring)
 
-```
+```matlab
 arglist=struct('fix_lattice',0,'fix_alatt',0,'fix_alatt_ratio',0,'fix_angdeg',0,...
                'fix_orientation',0,'free_alatt',[1,1,1],'free_angdeg',[1,1,1],...
                'bind_alatt',0);
 flags={'fix_lattice','fix_alatt','fix_alatt_ratio','fix_angdeg','fix_orientation'};
 [args,opt,present] = parse_arguments(varargin,arglist,flags);
 
-(from refine_crystal)
+% (from refine_crystal)
 ```
 
 #### Pros
@@ -115,9 +117,10 @@ flags={'fix_lattice','fix_alatt','fix_alatt_ratio','fix_angdeg','fix_orientation
 #### Cons
 - Bespoke, requires maintenance
 - Implicit state of arguments
+- Currently not explicitly tested
 
 ### Raw `varargin` handler
-```
+```matlab
 % Parse input arguments
 if nargin==7
     expand_qe=false;    % set of distinct q points
@@ -140,6 +143,7 @@ end
 
 #### Pros
 - Completely flexible handling of arguments specific to function
+- 
 
 #### Cons
 - Unreadable
@@ -159,7 +163,7 @@ end
 | Default val |      Y        |        Y          |  Y  |
 | Validate value  |  Y        |        N          |  Y  |
 | Validate type |    Y        |        N          |  Y  |
-| Abbreviation |     N        |        Y          |  Y  |
+| Partial Matching |     Y        |        Y          |  Y  |
 
 ## Options
 
@@ -170,7 +174,7 @@ Allow flags with dashes in MATLAB
 #### MATLAB
 
 Currently, using argument parser is flexible in the way it handles flags and allows the same flag (or its negation) to be specified in multiple ways.
-```
+```matlab
 function_name(a, b, c, 'flagname')
 function_name(a, b, c, '-flagname')
 function_name(a, b, c, '-noflagname')
@@ -182,7 +186,7 @@ This flexibility allows less typing, but at the same time may obscure the intend
 
 #### Python
 
-```
+```python
 def function_name(a, b, c, flagname = true) #default
 
 def function_name(a, b, *args, **kwargs):
@@ -192,29 +196,29 @@ def function_name(a, b, *args, **kwargs):
     # kwargs = {filename: true, ...}
 ```
 As Python does not allow args starting with `-`, this will require some way of handling the flag.
-```
+```python
 def function_name(a, -flag) # ERROR
 ```
 
 This can either be by passing flags through as a string pre-parsing the input before the call to MATLAB to be handled by `*args`
-```
+```python
 def function_name(a, b, *args, **kwargs)
     if any(arg.startswith('-') for arg in args if isinstance(arg, string)): # Handle flags
        pass
 ```
 Or passed directly through as one of args.
-```
+```python
 def function_name(a, b, *args, **kwargs):
     call_MATLAB(a, b, *args, **kwargs)
 ```
 
 Which would be called as:
-```
+```python
 function_name(a, b, '-flag')
 ```
 
 Or by passing in through dict form to be handled by `**kwargs` (nobody would do this).
-```
+```python
 function_name(a, b, **{'-flag':True})
 ```
 
@@ -225,7 +229,7 @@ This will depend on the ultimate interface `call_MATLAB` has.
 ##### Pros
 
 - Less typing for the average user?
-```
+```matlab
 function_name(a, '-flag')
 function_name(a, 'flag', 1)
 function_name(a, '-noflag')
@@ -245,6 +249,7 @@ function_name(a, 'flag', 0)
 #### Transition implications
 
 - Requires potential workaround in Python
+- Requires developing tests for `parse_arguments`
 - Requires keeping `parse_arguments` up to date and functional
 
 ### Keyword args
@@ -254,7 +259,7 @@ function_name(a, 'flag', 0)
 
 MATLAB keyword arguments are commonly passed through as:
 
-```
+```matlab
 function_name(a, b, c, 'flagname', true)
 function_name(a, b, c, 'flagname', false)
 ```
@@ -263,13 +268,13 @@ function_name(a, b, c, 'flagname', false)
 
 Python keyword arguments are commonly passed through as:
 
-```
+```python
 function_name(a, b, c, flagname = true)
 function_name(a, b, c, flagname = false)
 ```
 
 If `call_MATLAB` is implemented along the lines of:
-```
+```python
 def call_MATLAB(func, *args, **kwargs):
     call_matlab_function = print # For purposes of running this
     args = list(args)
@@ -303,7 +308,7 @@ It is trivial to map Python kwargs to MATLAB keyword-values
 
 - Use positional parameters for core data
 - Use optional parameters where appropriate
-- Use key-value arguments for remaining arguments, including  rather than flag/no-flag arguments
+- Use key-value arguments for remaining arguments, rather than flag/no-flag arguments
 
 The use of `[-][no]flagname` is not supported in Python, other than as one or more "string value optional arg" and is not Pythonic. 
 The conversion for MATLAB flag-type args could be handled in the Python <-> MATLAB wrapper as there's a well defined mapping between key/value and flag syntax, but could also be avoided.
