@@ -3,6 +3,11 @@
 This document is intended to describe the means by which argument flags should be passed into PACE MATLAB programs.
 This is discussed in conjunction with an observation that a migration towards a Python interface is intended in the near future.
 
+- [Link to use](#current-use-in-language)
+- [Link to options](#options)
+- [Link to proposal](#proposal)
+- [Link to appendix](#appendix)
+
 ## Current Use in Language
 ### MATLAB
 MATLAB uses a mixture of flag and keyword value args. Examples from the standard language include, which mostly seem to revolve around interactions with the underlying system:
@@ -62,7 +67,16 @@ Any or all of these can be used in combination with each other.
 
 ### MATLAB Argument Parsers
 
-### `inputParser`
+Horace/Herbert code uses four distinct parsers for function arguments:
+
+- [MATLAB `inputParser`](#MATLAB-inputParser) - Native MATLAB parser
+- [Herbert `parse_arguments`](#Herbert-parse_arguments) - Full argument parser, part of Herbert source
+- [Herbert `parse_char_options`](#Herbert-parse_char_options) - Limited argument parser, part of Herbert source
+- [Raw `varargin` handler](#raw-varargin-handler) - Direct processing of function arguments
+
+
+
+### MATLAB `inputParser`
 Built-in `inputParser` supports positional, optional and required or optional key-value arguments
 
 ```matlab
@@ -96,7 +110,7 @@ Built-in `inputParser` supports positional, optional and required or optional ke
 - May change in future
 - Not extensible if doesn't meet requirements
 
-### `parse_arguments`
+### Herbert `parse_arguments`
 PACE's `parse_arguments` supports positional, required and optional key-value pairs (`'name', value`) and flags (`-flagname`, `-noflagname`, unique substring)
 
 ```matlab
@@ -118,6 +132,30 @@ flags={'fix_lattice','fix_alatt','fix_alatt_ratio','fix_angdeg','fix_orientation
 - Bespoke, requires maintenance
 - Implicit state of arguments
 - Currently not explicitly tested
+
+
+### Herbert `parse_char_options`
+PACE's `parse_char_options` provides support for flag arguments (`-flagname`, unique substring), returning any unmatched arguments
+
+```matlab
+options={'-forcesave'};
+[ok, mess, force_save, other_options]=parse_char_options(varargin, options);
+
+% (from config_store)
+```
+
+#### Pros
+
+- Add support for flag arguments to MATLAB
+- Well documented
+- Under PACE control
+
+#### Cons
+- Bespoke, requires maintenance
+- Implicit state of arguments
+
+
+
 
 ### Raw `varargin` handler
 ```matlab
@@ -152,27 +190,67 @@ end
 
 ### Comparison
 
-| Type of Arg | `inputParser` | `parse_arguments` | Raw |
-|:-----------:|:-------------:|:-----------------:|:---:|
-| Positional  |      Y        |        Y          |  Y  |
-| Required    |      Y        |        Y          |  Y  |
-| Optional    |      Y        |        Y          |  Y  |
-| Key-value   |      Y        |        Y          |  Y  |
-| Flag        |      N        |        Y          |  Y  |
-| Default val |      Y        |        Y          |  Y  |
-| Validate value  |  Y        |        N          |  Y  |
-| Validate type |    Y        |        N          |  Y  |
-| Partial Matching |     Y        |        Y          |  Y  |
+| Type of Arg | `inputParser` | `parse_arguments` | `parse_char_options` | Raw |
+|:-----------:|:-------------:|:-----------------:|:-----------------:|:---:|
+| Positional  |      Y        |        Y          |  N  |  Y  |
+| Required    |      Y        |        Y          |  N  |  Y  |
+| Optional    |      Y        |        Y          |  N  |  Y  |
+| Key-value   |      Y        |        Y          |  N  |  Y  |
+| Flag        |      N        |        Y          |  Y  |  Y  |
+| Default value |      Y        |        Y          |  N  |  Y  |
+| Validate value  |  Y        |        N          |  N  |  Y  |
+| Validate type |    Y        |        N          |  N  |  Y  |
+| Partial Matching |     Y        |        Y          |  Y  |  Y  |
+
+The combination of `parse_char_options` and the `inputParser` provides the same functionality as `parse_arguments`, i.e the above example could be reproduced as.
+
+``` matlab
+flags={'fix_lattice','fix_alatt','fix_alatt_ratio','fix_angdeg','fix_orientation'};
+
+# handle flags
+[ok, mess, fix_lattice, ... fix_orientation, other_options] = parse_char_options(varargin, options);
+[args,opt,present] = parse_arguments(varargin,arglist,flags);
+
+# handle keyword args
+p = inputParser;
+addParameter(p,'fix_lattice', 0);
+addParameter(p,'fix_alatt', 0);
+[...]
+addParameter(p,'bind_alatt', 0);
+parse(p,width, other_options{:});
+```
+
+
 
 ## Options
 
-### Dash flags `-(no)flagname`
+### Flag arguments
+
+Flag arguments allow multiple behaviour switches to be passed to a called function in a compact syntax. This is convenient for command-line analysis as it supports shorter commands, e.g.
+
+``` matlab
+rlp=[0,0,0;  0.125,0.125,0;  0,0.25,0;  0,0,0;  -0.125,0.125,0;  0,0.25,0;  0,0.25,0.25;  0,0,0;  0,0,0.25];
+rlp_lab={'G','X','M','G','Y','M','L','G','Z'};
+
+[wtest, iref] = dispersion_plot(lattice, rlp, @co_2_ds_dispersion, pinit, 'noplot', 'labels', rlp_lab);
+```
+
+Replacing a flag with `flagname, true` gives a slightly longer command
+``` matlab
+[wtest,iref] = dispersion_plot(lattice, rlp, @co_2_ds_dispersion, pinit, 'noplot', true, 'labels', rlp_lab);
+```
+
+Python does not natively support flag arguments, and they are not used in the core language.
+They are supported in a small number of Python libraries, notably `matplotlib`, which was modelled on the MATLAB API, and may be implemented on any function as optional string arguments with custom handling. 
+
+
+### Dash flags `-[no]flagname`
 
 Allow flags with dashes in MATLAB
 
 #### MATLAB
 
-Currently, using argument parser is flexible in the way it handles flags and allows the same flag (or its negation) to be specified in multiple ways.
+Currently, the `parse_arguments` parser is flexible in the way it handles flags and allows the same flag (or its negation) to be specified in multiple ways.
 ```matlab
 function_name(a, b, c, 'flagname')
 function_name(a, b, c, '-flagname')
@@ -180,7 +258,7 @@ function_name(a, b, c, '-noflagname')
 function_name(a, b, c, '-f')
 function_name(a, b, c, '-nof')
 ```
-This flexibility allows less typing, but at the same time may obscure the intended operation or even lead to the wrong flag being used.
+This flexibility allows less typing, but at the same time may obscure the intended operation or even lead to the wrong flag being used. The second parser, `parse_char_options`, supports the same syntax, but without support for the `no` modifier. 
 
 
 #### Python
@@ -309,7 +387,8 @@ It is trivial to map Python kwargs to MATLAB keyword-values
 - Use optional parameters where appropriate
 - Use key-value arguments for remaining arguments, rather than flag/no-flag arguments
 
-The use of `[-][no]flagname` is not supported in Python, other than as one or more "string value optional arg" and is not Pythonic. 
+The use of `[-][no]flagname` is not supported in Python, other than as one or more "string value optional arg" and is not Pythonic. 
+
 The conversion for MATLAB flag-type args could be handled in the Python <-> MATLAB wrapper as there's a well defined mapping between key/value and flag syntax, but could also be avoided.
 
 # Appendix
