@@ -90,10 +90,7 @@ function build_docs() {
     echo_and_run "cmake --build ${build_dir} --target docs"
 
     # Compress for artifact
-    cd ./documentation/user_docs/build/html
-    tar -czf docs.tar.gz ./*
-    cd -
-    mv ./documentation/user_docs/build/html/docs.tar.gz .
+    tar -czf docs.tar.gz ./documentation/user_docs/build/html/*
 }
 
 function push_built_docs() {
