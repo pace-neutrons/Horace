@@ -143,7 +143,6 @@ end
 
 #### Pros
 - Completely flexible handling of arguments specific to function
-- 
 
 #### Cons
 - Unreadable
@@ -348,22 +347,22 @@ Keyword value pairs are a common means of allowing a variable number of argument
 
 e.g.
 
-Signature:
-```
-PYTHON: def function_name(**kwargs)
+Example signature in Python:
+```python
+def function_name(**kwargs)
 ```
 Called as
-```
+```python
 function_name(a=1,b=2)
 ```
 `a` and `b` are stored (unordered) in a Python `dict` (similar to `containers.Map` in MATLAB) called `kwargs`.
 
 In MATLAB, these are more commonly implemented through a variable count argument:
-```
-MATLAB: function function_name(varargin)
+```matlab
+function function_name(varargin)
 ```
 Called as
-```
+```matlab
 function_name('a', 1, 'b', 2)
 ```
 Which may subsequently be parsed by the matlab `inputParser` (or PACE's local `parse_arguments`)
@@ -373,7 +372,7 @@ As described previously, Python's `*args` and `**kwargs` are standard ways of ha
 Python's `*` and `**`, however, are general statements of packing and unpacking `list`s and `dict`s respectively.
 
 Relevant here only as:
-```
+```python
 def function_name(a, b, c):
     print(a, b, c)
 
