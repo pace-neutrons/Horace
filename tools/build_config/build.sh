@@ -32,6 +32,10 @@ function run_configure() {
   local matlab_release=$4
   local cmake_flags="${5-}"  # Default value is empty string
 
+  warning_msg="Warning: Build directory ${build_dir} already exists.\n\
+                              This may not be a clean build."
+  echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
+
   cmake_cmd="cmake ${HORACE_ROOT}"
   cmake_cmd+=" -G \"${CMAKE_GENERATOR}\""
   cmake_cmd+=" -DMatlab_ROOT_DIR=${MATLAB_ROOT}"
@@ -41,8 +45,7 @@ function run_configure() {
   cmake_cmd+=" ${cmake_flags}"
 
   echo -e "\nRunning CMake configure step..."
-  echo_and_run "cd ${build_dir}"
-  echo_and_run "${cmake_cmd}"
+  run_in_dir "${cmake_cmd}" "${build_dir}"
 }
 
 function run_build() {
@@ -57,26 +60,15 @@ function run_tests() {
   local build_dir=$1
 
   echo -e "\nRunning test step..."
-  echo_and_run "cd ${build_dir}"
   test_cmd="ctest -T Test --no-compress-output"
   test_cmd+=" --output-on-failure"
   test_cmd+=" --test-output-size-passed ${MAX_CTEST_SUCCESS_OUTPUT_LENGTH}"
-  echo_and_run "${test_cmd}"
+  run_in_dir "${test_cmd}" "${build_dir}"
 }
 
 function run_analysis() {
-  local output_dir=$1
-
-  if [ -f "$(which cppcheck)" ]; then
-    echo -e "\nRunning analysis step..."
-
-    analysis_cmd="cppcheck --enable=all --inconclusive"
-    analysis_cmd+=" --xml --xml-version=2"
-    analysis_cmd+=" -I ${HORACE_ROOT}/_LowLevelCode/cpp"
-    analysis_cmd+=" ${HORACE_ROOT}/_LowLevelCode/"
-    analysis_cmd+=" 2> ${output_dir}/cppcheck.xml"
-    echo_and_run "${analysis_cmd}"
-  fi
+  local build_dir=$1
+  echo_and_run "cmake --build ${build_dir} -- analyse"
 }
 
 function run_package() {
@@ -103,8 +95,10 @@ flags:
       Run the Horace build commands.
   -t, --test
       Run all Horace tests.
+  -c, --configure
+      Run cmake configuration stage
   -a, --analyze
-      Run static analysis on Horace C++ code.
+      Run static analysis on Horace code.
   -p, --package
       Pacakge Horace into a .tar.gz file.
   -v, --print_versions
@@ -135,6 +129,7 @@ function main() {
   # set default parameter values
   local build=$FALSE
   local test=$FALSE
+  local configure=$FALSE
   local analyze=$FALSE
   local package=$FALSE
   local print_versions=$FALSE
@@ -151,6 +146,7 @@ function main() {
         # flags
         -b|--build) build=$TRUE; shift ;;
         -t|--test) test=$TRUE; shift ;;
+        -c|--configure) configure=$TRUE; shift;;
         -a|--analyze) analyze=$TRUE; shift ;;
         -p|--package) package=$TRUE; shift ;;
         -v|--print_versions) print_versions=$TRUE; shift ;;
@@ -169,15 +165,15 @@ function main() {
     print_package_versions
   fi
 
+  if ((configure)) || [ ! -e ${build_dir}/CMakeCache.txt ]; then
+    run_configure "${build_dir}" "${build_config}" "${build_tests}" "${matlab_release}" "${cmake_flags}"
+  fi
+
   if ((analyze)); then
-    run_analysis "${HORACE_ROOT}"
+    run_analysis "${build_dir}"
   fi
 
   if ((build)); then
-    warning_msg="Warning: Build directory ${build_dir} already exists.\n\
-        This may not be a clean build."
-    echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
-    run_configure "${build_dir}" "${build_config}" "${build_tests}" "${matlab_release}" "${cmake_flags}"
     run_build "${build_dir}"
   fi
 
