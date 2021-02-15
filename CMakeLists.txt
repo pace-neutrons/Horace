@@ -36,6 +36,10 @@ include(PACE_AddMex)
 include(PACE_FindMatlab)
 include(horace_FindHDF5)
 include(PACE_Version)
+
+# Make analysis ignore Herbert in case of nesting
+set(PACE_MLINT_IGNORE ${PACE_MLINT_IGNORE} "${Herbert_ROOT}/**/*.m")
+
 include(PACE_CodeAnalysis)
 if(${BUILD_TESTS})
     include(CTest)
