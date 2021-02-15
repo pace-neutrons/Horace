@@ -134,10 +134,7 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
             wout(i).data.pix.signal = s;
             wout(i).data.pix.variance = zeros(size(s));
         else
-            pix = wout(i).data.pix;
-            npix = wout(i).data.npix;
-            img_signal = wout(i).data.s;
-            wout(i).data.pix = update_pixels_filebacked(pix, npix, img_signal);
+            write_sqw_with_out_of_mem_pix(wout(i), opts.outfile{i});
         end
     elseif opts.all_bins
         % in this case, must set npix>0 to be plotted
@@ -145,7 +142,7 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
     end
 
     % Save to file if outfile argument is given
-    if ~isempty(opts.outfile) && ~isempty(opts.outfile{i})
+    if ~isempty(opts.outfile) && ~isempty(opts.outfile{i}) && ~opts.filebacked
         save(wout(i), opts.outfile{i});
     end
 end  % end loop over input objects
@@ -239,11 +236,31 @@ function paths = gen_array_of_tmp_file_paths(nfiles, prefix, base_dir)
 end
 
 
-function pix = update_pixels_filebacked(pix, npix, img_signal)
+function write_sqw_with_out_of_mem_pix(sqw_obj, outfile)
+    % Write the given SQW object to the given file.
+    % The pixels of the SQW object will be derived from the image signal array
+    % and npix array, saving in chunks so they do not need to be held in memory.
+    %
+    pix = sqw_obj.data.pix;
+    npix = sqw_obj.data.npix;
+    img_signal = sqw_obj.data.s;
+
+    ldr = sqw_formats_factory.instance().get_pref_access(sqw_obj);
+    ldr = ldr.init(sqw_obj, outfile);
+    ldr.put_sqw('-nopix');
+    ldr = write_out_of_mem_pix(pix, npix, img_signal, ldr);
+    ldr = ldr.validate_pixel_positions();
+    ldr = ldr.put_footers();
+    ldr.delete();
+end
+
+
+function loader = write_out_of_mem_pix(pix, npix, img_signal, loader)
     % Smear the given image signal values over a file-backed PixelData object
     % Set each pixel's signal to the value of the average signal of the bin
     % that pixel belongs to. Set all variances to zero.
     %
+    pix.move_to_first_page();
     npix_cum_sum = cumsum(npix(:));
     end_idx = 1;
     while true
@@ -273,9 +290,13 @@ function pix = update_pixels_filebacked(pix, npix, img_signal)
         pix.signal = repelem(img_signal(start_idx:end_idx), npix_chunk);
         pix.variance = 0;
 
+        loader = loader.put_bytes(pix.data);
         if pix.has_more()
-            pix.advance();
+            % Do not save cached changes to pixels.
+            pix.advance('nosave', true);
         else
+            % make sure we discard the final changes to cache
+            pix.move_to_page(1, 'nosave', true);
             break;
         end
     end
