@@ -1,4 +1,9 @@
 function obj = validate_pixel_positions(obj)
+    %VALIDATE_PIXEL_POSITIONS validate pixel file positions against number of pixels
+    % If inconsistencies found between the number of pixels in the file and
+    % the number of pixels expected to be written, write SQW object headers as
+    % v2 file and throw an FACCESS error.
+    %
     pix_end = obj.eof_pix_pos_;  % position in file we should be in
     fseek(obj.file_id_,0,'eof');
     file_end = ftell(obj.file_id_);  % actual position of end of file
