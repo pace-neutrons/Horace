@@ -2,7 +2,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
     % DnDBase Abstract base class for n-dimensional DnD object
 
     properties(Access = protected)
-        data % dnd_sqw_data instance
+        % CMDEV: removed, replaced with data_ on the superclass data % dnd_sqw_data instance
     end
 
     properties(Constant, Abstract, Access = protected)
@@ -75,172 +75,172 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         %% Public getters/setters expose all wrapped data attributes
         function val = get.filename(obj)
             val = '';
-            if ~isempty(obj.data)
-                val = obj.data.filename;
+            if ~isempty(obj.data_)
+                val = obj.data_.filename;
             end
         end
         function obj = set.filename(obj, filename)
-            obj.data.filename = filename;
+            obj.data_.filename = filename;
         end
 
         function val = get.filepath(obj)
             val = '';
-            if ~isempty(obj.data)
-                val = obj.data.filepath;
+            if ~isempty(obj.data_)
+                val = obj.data_.filepath;
             end
         end
         function obj = set.filepath(obj, filepath)
-            obj.data.filepath = filepath;
+            obj.data_.filepath = filepath;
         end
 
         function val = get.title(obj)
             val = '';
-            if ~isempty(obj.data)
-                val = obj.data.title;
+            if ~isempty(obj.data_)
+                val = obj.data_.title;
             end
         end
         function obj = set.title(obj, title)
-            obj.data.title = title;
+            obj.data_.title = title;
         end
 
         function val = get.alatt(obj)
             val = [];
-            if ~isempty(obj.data)
-                val = obj.data.alatt;
+            if ~isempty(obj.data_)
+                val = obj.data_.alatt;
             end
         end
         function obj = set.alatt(obj, alatt)
-            obj.data.alatt = alatt;
+            obj.data_.alatt = alatt;
         end
 
         function val = get.angdeg(obj)
             val = [];
-            if ~isempty(obj.data)
-                val = obj.data.angdeg;
+            if ~isempty(obj.data_)
+                val = obj.data_.angdeg;
             end
         end
         function obj = set.angdeg(obj, angdeg)
-            obj.data.angdeg = angdeg;
+            obj.data_.angdeg = angdeg;
         end
 
         function val = get.uoffset(obj)
             val = [];
-            if ~isempty(obj.data)
-                val = obj.data.uoffset;
+            if ~isempty(obj.data_)
+                val = obj.data_.uoffset;
             end
         end
         function obj = set.uoffset(obj, uoffset)
-            obj.data.uoffset = uoffset;
+            obj.data_.uoffset = uoffset;
         end
 
         function val = get.u_to_rlu(obj)
             val = [];
-            if ~isempty(obj.data)
-                val = obj.data.u_to_rlu;
+            if ~isempty(obj.data_)
+                val = obj.data_.u_to_rlu;
             end
         end
         function obj = set.u_to_rlu(obj, u_to_rlu)
-            obj.data.u_to_rlu = u_to_rlu;
+            obj.data_.u_to_rlu = u_to_rlu;
         end
 
         function val = get.ulen(obj)
             val = [];
-            if ~isempty(obj.data)
-                val = obj.data.ulen;
+            if ~isempty(obj.data_)
+                val = obj.data_.ulen;
             end
         end
         function obj = set.ulen(obj, ulen)
-            obj.data.ulen = ulen;
+            obj.data_.ulen = ulen;
         end
 
         function val = get.ulabel(obj)
             val = [];
-            if ~isempty(obj.data)
-                val = obj.data.ulabel;
+            if ~isempty(obj.data_)
+                val = obj.data_.ulabel;
             end
         end
         function obj = set.ulabel(obj, ulabel)
-            obj.data.ulabel = ulabel;
+            obj.data_.ulabel = ulabel;
         end
 
         function val = get.iax(obj)
             val = [];
-            if ~isempty(obj.data)
-                val = obj.data.iax;
+            if ~isempty(obj.data_)
+                val = obj.data_.iax;
             end
         end
         function obj = set.iax(obj, iax)
-            obj.data.iax = iax;
+            obj.data_.iax = iax;
         end
 
         function val = get.iint(obj)
             val = [];
-            if ~isempty(obj.data)
-                val = obj.data.iint;
+            if ~isempty(obj.data_)
+                val = obj.data_.iint;
             end
         end
         function obj = set.iint(obj, iint)
-            obj.data.iint = iint;
+            obj.data_.iint = iint;
         end
 
         function val = get.pax(obj)
             val = [];
-            if ~isempty(obj.data)
-                val = obj.data.pax;
+            if ~isempty(obj.data_)
+                val = obj.data_.pax;
             end
         end
         function obj = set.pax(obj, pax)
-            obj.data.pax = pax;
+            obj.data_.pax = pax;
         end
 
         function val = get.p(obj)
             val = [];
-            if ~isempty(obj.data)
-                val = obj.data.p;
+            if ~isempty(obj.data_)
+                val = obj.data_.p;
             end
         end
         function obj = set.p(obj, p)
-            obj.data.p = p;
+            obj.data_.p = p;
         end
 
         function val = get.dax(obj)
             val = [];
-            if ~isempty(obj.data)
-                val = obj.data.dax;
+            if ~isempty(obj.data_)
+                val = obj.data_.dax;
             end
         end
         function obj = set.dax(obj, dax)
-            obj.data.dax = dax;
+            obj.data_.dax = dax;
         end
 
         function val = get.s(obj)
             val = [];
-            if ~isempty(obj.data)
-                val = obj.data.s;
+            if ~isempty(obj.data_)
+                val = obj.data_.s;
             end
         end
         function obj = set.s(obj, s)
-            obj.data.s = s;
+            obj.data_.s = s;
         end
 
         function val = get.e(obj)
             val = [];
-            if ~isempty(obj.data)
-                val = obj.data.e;
+            if ~isempty(obj.data_)
+                val = obj.data_.e;
             end
         end
         function obj = set.e(obj, e)
-            obj.data.e = e;
+            obj.data_.e = e;
         end
 
         function val = get.npix(obj)
             val = [];
-            if ~isempty(obj.data)
-                val = obj.data.npix;
+            if ~isempty(obj.data_)
+                val = obj.data_.npix;
             end
         end
         function obj = set.npix(obj, npix)
-            obj.data.npix = npix;
+            obj.data_.npix = npix;
         end
     end
 end
