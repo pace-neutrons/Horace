@@ -8,5 +8,5 @@ if sqw_dim ~= obj.NUM_DIMS
     error([upper(class(obj)), ':' class(obj)], ...
         ['SQW object cannot be converted to a ' num2str(obj.NUM_DIMS) 'd dnd-type object']);
 end
-obj.data = sqw_obj.data;
+obj.data_ = sqw_obj.data;
 end
