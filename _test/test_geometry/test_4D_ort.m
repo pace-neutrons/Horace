@@ -83,14 +83,14 @@ classdef test_4D_ort < TestCase
             e2=[0;0;1;0];
             e3=[0;0;1;0];
             assertExceptionThrown(@()normal4D([e1,e2,e3]),...
-                'ORHTO_4D:invalid_argument');
+                'ORTHO_4D:invalid_argument');
         end
         function test_invalid_argument_throws(~)
             e1=[0;1;0];
             e2=[0;0;1];
             e3=[0;0;1];
             assertExceptionThrown(@()normal4D([e1,e2,e3]),...
-                'ORHTO_4D:invalid_argument');
+                'ORTHO_4D:invalid_argument');
         end
         
         %--------------------------------------------------------------------------
