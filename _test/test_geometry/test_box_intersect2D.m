@@ -14,7 +14,7 @@ classdef test_box_intersect2D < TestCase
             self = self@TestCase(name);            
         end
         %--------------------------------------------------------------------------
-        function test_intersect_box2D_edge_parallel(~)
+        function test_intersect_box2D_edge_parallel_coincide(~)
             % 
             cp = box_intersect([0,0;1,1]',[0,0;0,1]');
             assertEqual(cp,[0,0;0,1]');
@@ -26,7 +26,7 @@ classdef test_box_intersect2D < TestCase
             assertEqual(cp,[0.5,0;0.5,1]');
         end
         
-        function test_intersect_box2D_parallel(~)
+        function test_intersect_box2D_parallel_outside(~)
             % 
             cp = box_intersect([0,0;1,1]',[2,0;2,1]');
             assertTrue(isempty(cp));

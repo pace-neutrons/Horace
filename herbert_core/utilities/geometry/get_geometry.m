@@ -1,24 +1,45 @@
 function [nodes_ind,edges_ind] = get_geometry(n_dims)
-
+% Returns a box structure in 2,3 or 4 dimensions
+% Inputs:
+% n_dims  -- number of dimensions (ND)
+% Outputs:
+% nodes_ind  -- the NDx2^ND cellarray of indexes, used to expand 
+%               a box defined by its min/max points in appropriate 
+%               dimensions space into the whole ND representation
+%               e.g. in 2D its array of {[1,1],[1,2],[2,1],[2,2]}
+%               defining the rectangle
+% edges_ind  -- NDxN_edges array of indexes, defining the indexes of the 
+%               edges of the appropriate shape in ND, used to expand min/max
+%               shape representation into set of edges. N_edges here is 
+%               the number of shape edges eaual to ND^2*ND/2.
+%               e.g, in 2D is will be the array [1,2;2,3;3,4;4,1]' where
+%               the numbers are the numbers of the nodes, defined ind2sub
+%               (or sub2ind) procedure. 
 persistent nodes_ind2D;
 persistent nodes_ind3D;
 persistent nodes_ind4D;
 persistent edges_ind2D;
 persistent edges_ind3D;
 persistent edges_ind4D;
-if isempty(nodes_ind2D)
-    [nodes_ind2D,edges_ind2D] = build2D();
-    [nodes_ind3D,edges_ind3D] = build3D();
-    [nodes_ind4D,edges_ind4D] = build4D();
-end
 switch(n_dims)
     case(2)
+        if isempty(nodes_ind2D)
+            [nodes_ind2D,edges_ind2D] = build2D();
+        end        
         nodes_ind = nodes_ind2D;
         edges_ind = edges_ind2D;
     case(3)
+        if isempty(nodes_ind3D)
+            [nodes_ind3D,edges_ind3D] = build3D();
+        end
+        
         nodes_ind = nodes_ind3D;
         edges_ind = edges_ind3D;
     case(4)
+        if isempty(nodes_ind4D)
+            [nodes_ind4D,edges_ind4D] = build4D();
+        end
+        
         nodes_ind = nodes_ind4D;
         edges_ind = edges_ind4D;
     otherwise
@@ -69,7 +90,7 @@ nb_pairs = [1,0,0; 0, 1,0; 0,0, 1;
 %12=n_nodes*n_edges_from_node/2
 eges_ind = zeros(2,12*2);
 ic = 1;
-for ii=1:ND    
+for ii=1:ND
     [i0,j0,k0] = ind2sub(size(ind),ii);
     for jj=1:size(nb_pairs,1)
         i1 = i0+nb_pairs(jj,1);

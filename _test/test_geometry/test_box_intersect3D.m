@@ -20,7 +20,7 @@ classdef test_box_intersect3D < TestCase
             assertEqual(cp,[0.5,0,0;0.5,1,0;0.5,0,1;0.5,1,1]');
         end
         
-        function test_intersect_box3D_parallel(~)
+        function test_intersect_box3D_parallel_outside(~)
             % 
             cp = box_intersect([0,0,0;1,1,1]',[2,0,0;2,2,0;2,0,2]');
             assertTrue(isempty(cp));

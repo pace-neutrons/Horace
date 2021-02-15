@@ -1,6 +1,8 @@
 function nodes = expand_box(min_value,max_value)
-% Build 3D or 4D box based on its minimal and maximal points
-% inputs:
+% Build array of nodes of 2D, 3D or 4D box based on its minimal and maximal 
+% points. The node is the column vector with n-rows (N-dimensions)
+%
+% Inputs:
 % min_point -- the vector of minimal coordinates values
 % max_point -- the vector of maximal coordinates values
 % Output:
@@ -32,17 +34,18 @@ perm = get_geometry(ndims);
 source = [min_value,max_value];
 switch ndims
     case(2)
-        sp = cellfun(@(sel)[source(1,sel(1));source(2,sel(2))],perm,...
-            'UniformOutput',false);
+        shape_fun = @(sel)[source(1,sel(1));source(2,sel(2))];
     case(3)
-        sp = cellfun(@(sel)[source(1,sel(1));source(2,sel(2));...
-            source(3,sel(3))],perm,'UniformOutput',false);
+        shape_fun = @(sel)[source(1,sel(1));source(2,sel(2));...
+            source(3,sel(3))];
     case(4)
-        sp = cellfun(@(sel)[source(1,sel(1));source(2,sel(2));...
-            source(3,sel(3));source(4,sel(4))],perm,'UniformOutput',false);
+        shape_fun = @(sel)[source(1,sel(1));source(2,sel(2));...
+            source(3,sel(3));source(4,sel(4))];
     otherwise
         error('EXPAND_BOX:invalid_argument',...
-            'The routine accepts from 2 to 4 dimensions only, Got: %d',...
+            'The routine accepts data in 2,3 or 4 dimensions only, Got: %d',...
             numel(min_value))
 end
+sp = cellfun(shape_fun,perm, 'UniformOutput',false);
+
 nodes = [sp{:}];

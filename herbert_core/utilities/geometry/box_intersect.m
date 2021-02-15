@@ -1,6 +1,6 @@
 function inter_points = box_intersect(box_minmax,cross_plain)
-% Calculate intersection points between the box in ND (2,3,4)
-% and line/plain/hyperplane of dimension (N-1)D
+% Calculate intersection points between the box in ND (N=2,3,4)
+% and line/plain/hyperplane of dimensions (N-1)D
 %
 % Inputs:
 % box_minmax -- NDx2 array of min and max points of the box, to intersect with.
@@ -12,11 +12,32 @@ function inter_points = box_intersect(box_minmax,cross_plain)
 %                there are ND-1 points, the missing point assumed to be
 %                equal to 0.
 % Outputs:
-% inter_points - NDxNp where NP -- the number of intesection points
-%                array of points, defining intersection between the
+% inter_points - NDxNp array of points, defining intersection between the
 %                edges of the box and the line/plain/hyperplain defined as
-%                the second argument
-%                If no intersection points are present, the array is empty
+%                the second argument. NP is the number of intesection
+%                points.
+%                If no intersections between box and plain occur, 
+%                the inter_points array is empty.
+% Examples:
+% 
+% Calculate intersection points between line passing trhough points 0.5,0.5
+% and 0.5,1 and the box [0,0;1,1]':
+%>>cp = box_intersect([0,0;1,1]',[0.5,0.5;0.5,1]');
+%>>disp(cp)
+%>>cp = 
+%>>   0.5000    0.5000
+%>>        0    1.0000
+%
+% Calculate intersection points between plain passing through the points 
+% (1/2,0,0), (1/2,0,1) and (1,1/2,0) and unit 3D box in the centre of
+% coordinages:
+%
+%>>cp = box_intersect([0,0,0;1,1,1]',[1/2,0,0;1/2,0,1;1,1/2,0]');
+%>>disp(cp)
+%    0.5000    1.0000    0.5000    1.0000
+%         0    0.5000         0    0.5000
+%         0         0    1.0000    1.0000
+
 
 ndim = size(cross_plain,1);
 switch(ndim)
@@ -31,6 +52,7 @@ switch(ndim)
             'Routine accepts the data from 2 to 4 dimensions. Got %d',...
             ndim);
 end
+%
 function inter_points = intersect4D(box_minmax,cross_plain)
 npoints = size(cross_plain,2);
 if npoints == 3 %

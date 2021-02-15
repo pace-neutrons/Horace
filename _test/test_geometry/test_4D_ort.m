@@ -1,5 +1,7 @@
 classdef test_4D_ort < TestCase
-    %
+    % Test verifies, that the vector, produced
+    % by the normal4D routine is indeed orthogonal to the
+    % 3D hyper-plain, defined by the input parameters of the routine.
     properties
     end
     

@@ -15,7 +15,7 @@ classdef test_box_edges < TestCase
         end
         
         %--------------------------------------------------------------------------
-        function test_edges4D_generated_properly(~)
+        function test_edges4D_generated_in_selected_order(~)
             %box = [zeros(1,4);ones(1,4)]';
             [~,edge_pts] = get_geometry(4);
             assertEqual(size(edge_pts,2),4*16/2)
@@ -32,7 +32,7 @@ classdef test_box_edges < TestCase
             %             end
         end
         %
-        function test_edges3D_generated_properly(~)
+        function test_edges3D_generated_in_selected_order(~)
             box = [zeros(1,3);ones(1,3)]';
             [~,edge_pts] = get_geometry(3);
             assertEqual(size(edge_pts,2),3*8/2)
@@ -47,7 +47,7 @@ classdef test_box_edges < TestCase
             end
         end
         %
-        function test_edges2D_generated_properly(~)
+        function test_edges2D_generated_in_selected_order(~)
             box = [zeros(1,2);ones(1,2)]';
             [~,edge_pts] = get_geometry(2);
             assertEqual(size(edge_pts,2),2*4/2)
