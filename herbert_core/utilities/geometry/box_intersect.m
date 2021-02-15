@@ -37,7 +37,11 @@ function inter_points = box_intersect(box_minmax,cross_plain)
 %    0.5000    1.0000    0.5000    1.0000
 %         0    0.5000         0    0.5000
 %         0         0    1.0000    1.0000
-
+%
+% NOTE:
+% Can be generalized to N-Dimensions and simplified, if the generic 
+% normal in N-D isvdefined and expressed through N-dimensional Levi-Civita 
+% symbol.
 
 ndim = size(cross_plain,1);
 switch(ndim)
