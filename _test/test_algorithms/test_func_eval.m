@@ -81,6 +81,17 @@ classdef test_func_eval < TestCase
             assertExceptionThrown(f, 'HORACE:func_eval:too_many_elements');
         end
 
+        function test_error_raised_if_filebacked_arg_not_scalar_logical(obj)
+            invalid_vals = {'not-a-logical', [true, false, true], 2};
+            for i = 1:numel(invalid_vals)
+                f = @() func_eval( ...
+                    obj.sqw_2d_file_path, obj.quadratic, obj.quadratic_params, ...
+                    'filebacked', invalid_vals{i} ...
+                );
+                assertExceptionThrown(f, 'SQW:func_eval:invalid_argument');
+            end
+        end
+
         %% SQW tests
         function test_applying_func_eval_to_sqw_object_returns_correct_sqw_data(obj)
             sqw_out = func_eval(obj.sqw_2d, obj.quadratic, obj.quadratic_params);
@@ -230,17 +241,6 @@ classdef test_func_eval < TestCase
 
             assertEqual(sqw_out_file, outfile)
             assertEqual(exist(sqw_out_file, 'file'), 2);
-        end
-
-        function test_error_raised_if_filebacked_arg_not_scalar_logical(obj)
-            invalid_vals = {'not-a-logical', [true, false, true], 2};
-            for i = 1:numel(invalid_vals)
-                f = @() func_eval( ...
-                    obj.sqw_2d_file_path, obj.quadratic, obj.quadratic_params, ...
-                    'filebacked', invalid_vals{i} ...
-                );
-                assertExceptionThrown(f, 'SQW:func_eval:invalid_argument');
-            end
         end
 
         %% DnD tests
