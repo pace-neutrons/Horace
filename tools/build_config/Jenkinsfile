@@ -64,24 +64,24 @@ def get_default_herbert_branch(String job_name) {
   String build_type = get_build_type(job_name)
 
   switch(build_type) {
-      case 'Release':
-          return ''
+    case 'Release':
+      return ''
 
-      case 'Nightly':
-        return 'None'
+    case 'Nightly':
+      return 'None'
 
-      default:
-          return 'master'
+    default:
+      return 'master'
   }
 }
 
- /* Parse the string of Git issue labels for a label that matches Herbert_*.
-  * If a match is found, build using the Herbert branch of that name.
-  *
-  * This function will return a message beginning 'Error: ' if more than one
-  * matching Herbert branch label is found. Throwing an error directly inside
-  * this function will not fail the pipeline build.
-  */
+/* Parse the string of Git issue labels for a label that matches Herbert_*.
+ * If a match is found, build using the Herbert branch of that name.
+ *
+ * This function will return a message beginning 'Error: ' if more than one
+ * matching Herbert branch label is found. Throwing an error directly inside
+ * this function will not fail the pipeline build.
+ */
 def get_herbert_ref_from_labels(String labels, String herbert_branch) {
   def match = (labels =~ "Herbert_([a-zA-Z0-9_-]+)")
   try {
@@ -134,7 +134,7 @@ properties([
       trim: true
     ),
     string(
-      defaultValue: '3.7.2',
+      defaultValue: '3.19',
       description: 'The version of CMake to run the build with.',
       name: 'CMAKE_VERSION',
       trim: true
@@ -156,6 +156,16 @@ properties([
       description: 'The version of CppCheck tooling to load to provide the code-style checks.',
       name: 'CPPCHECK_VERSION',
       trim: true
+    ),
+    booleanParam(
+      defaultValue: false,
+      description: 'If this pipeline is to build docs.',
+      name: 'BUILD_DOCS'
+    ),
+    booleanParam(
+      defaultValue: false,
+      description: 'If this pipeline is to push docs.',
+      name: 'PUSH_DOCS'
     )
   ])
 ])
@@ -166,7 +176,7 @@ def post_github_status(String state, String message) {
   if (env.PR_STATUSES_URL) {
     script {
       withCredentials([string(credentialsId: 'GitHub_API_Token',
-          variable: 'api_token')]) {
+                              variable: 'api_token')]) {
         if (isUnix()) {
           sh """
             curl -H "Authorization: token \${api_token}" \
@@ -236,28 +246,6 @@ pipeline {
     stage('Notify') {
       steps {
         post_github_status("pending", "The build is running")
-      }
-    }
-
-    stage('Analyze') {
-      steps {
-        script {
-          if (isUnix()) {
-            sh '''
-              module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
-              module load gcc/\$GCC_VERSION &&
-              module load cppcheck/\$CPPCHECK_VERSION &&
-              ./tools/build_config/build.sh --print_versions --analyze
-            '''
-          }
-          else {
-            powershell '''
-              ./tools/build_config/build.ps1 -print_versions
-              Write-Output \"Static Analysis in not performed on Windows\"
-            '''
-          }
-        }
       }
     }
 
@@ -335,6 +323,28 @@ pipeline {
       }
     }
 
+    stage('Analyze') {
+      steps {
+        script {
+          if (isUnix()) {
+            sh '''
+              module load cmake/\$CMAKE_VERSION &&
+              module load matlab/\$MATLAB_VERSION &&
+              module load gcc/\$GCC_VERSION &&
+              module load cppcheck/\$CPPCHECK_VERSION &&
+              ./tools/build_config/build.sh --print_versions --configure --analyze
+            '''
+          }
+          else {
+            powershell '''
+              ./tools/build_config/build.ps1 -print_versions
+              Write-Output \"Static Analysis in not performed on Windows\"
+            '''
+          }
+        }
+      }
+    }
+
     stage('Build') {
       steps {
         script {
@@ -356,6 +366,42 @@ pipeline {
             '''
           }
         }
+      }
+    }
+
+    stage('Build-Docs') {
+      when {
+        expression {env.BUILD_DOCS?.toBoolean()}
+      }
+      steps {
+        script {
+          if (isUnix()) {
+            sh '''
+                module load python/3.6 &&
+                pip install --user sphinx &&
+                pip install --user sphinx_rtd_theme &&
+                export PATH=${PATH}:~/.local/bin &&
+                ./tools/build_config/build.sh --docs
+            '''
+            archiveArtifacts(
+              artifacts: 'docs.tar.gz',
+              fingerprint: true
+            )
+          }
+          else {
+            powershell '''
+              pip install --user sphinx
+              pip install --user sphinx_rtd_theme
+              ./tools/build_config/build.ps1 -docs
+            '''
+            archiveArtifacts(
+              artifacts: 'docs.zip',
+              fingerprint: true
+            )
+          }
+        }
+
+
       }
     }
 
@@ -403,20 +449,42 @@ pipeline {
         )
       }
     }
+
+
+    stage('Push-Docs') {
+      when {
+        expression {env.BUILD_DOCS?.toBoolean() && env.PUSH_DOCS?.toBoolean()}
+      }
+      steps {
+        withCredentials([string(credentialsId: 'GitHub_API_Token',
+                                variable: 'api_token')]) {
+          script {
+            if (isUnix()) {
+              sh './tools/build_config/build.sh --push-docs'
+            }
+            else {
+              powershell './tools/build_config/build.ps1 -push_docs'
+
+            }
+          }
+        }
+      }
+    }
   }
 
   post {
     always {
       // archive CTest results file and static analysis report
       archiveArtifacts(
-        artifacts: 'build/Testing/**/*.xml,**/cppcheck.xml',
+        artifacts: 'build/Testing/**/*.xml,**/cppcheck.xml,**/mlint.json',
         fingerprint: true
       )
 
-      publishCppcheck (
-        displayAllErrors: true,
-        allowNoReport: true,
-        pattern: '**/cppcheck.xml'
+      recordIssues(
+        tools: [
+          cppCheck(pattern: '**/cppcheck.xml', reportEncoding: 'UTF-8'),
+          issues(id: 'mlint', name: 'MLint', pattern: '**/mlint.json')
+        ]
       )
 
       xunit (
