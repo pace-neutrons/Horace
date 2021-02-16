@@ -5,7 +5,7 @@ function  obj = put_sqw(obj,varargin)
 % (for testing purposes)
 %
 %
-[ok,mess,force_v2,nopix,argi]=parse_char_options(varargin,{'-v2','-nopix'});
+[ok,mess,force_v2,nopix,reserve,argi]=parse_char_options(varargin,{'-v2','-nopix','-reserve'});
 if ~ok
     error('SQW_FILE_IO:invalid_artgument',...
         ['DND_BINFILE_COMMON::put_sqw Error: ',mess]);
@@ -14,9 +14,14 @@ end
 if nopix
     argi{end + 1} = '-nopix';
 end
+if reserve
+    argi{end + 1} = '-reserve';
+end
 obj = put_sqw@sqw_binfile_common(obj,argi{:});
 
-if nopix
+if nopix && ~reserve
+    % Come this point, it is up to the user of the class to write pixels and
+    % call the code that follows to write the footers of the file.
     return;
 end
 
