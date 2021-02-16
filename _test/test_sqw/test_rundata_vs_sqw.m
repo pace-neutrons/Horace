@@ -207,7 +207,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
             %        pending conversion of calc_sqw to return sqw
             sq4 = sqw(struct(sq4));
             assertEqualToTolWithSave(obj,sq4,'ignore_str',true,'tol',1.e-7);
-            
+
             rdr = rundatah(sq4);
             assertEqualToTol(rdr.saveobj(),rd.saveobj(),'ignore_str',true,'tol',1.e-7);
             

@@ -11,7 +11,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         main_header
         header
         detpar
-        data
+        % CMDEV: data now a dependent property, below
+    end
+    
+    properties(Dependent)
+        data;
     end
 
     methods (Access = private)
@@ -35,11 +39,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
                                                            sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
         [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
         [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw);
+
+		%{
         %[deps,eps_lo,eps_hi,ne]=energy_transfer_info(header);
         [figureHandle, axesHandle, plotHandle] = plot(w,varargin);
         wout = IX_dataset_1d (w);
         wout = IX_dataset_2d (w);
         wout = IX_dataset_3d (w);
+		%}
         status = adjust_aspect(w);
         varargout = resolution_plot (w, varargin);
         wout = noisify(w,varargin);
@@ -62,6 +69,19 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
                 obj = obj.init_from_loader_struct(args.data_struct);
             end
         end
+        
+        %% Public getters/setters expose all wrapped data attributes
+        function val = get.data(obj)
+            val = '';
+            if ~isempty(obj.data_)
+                val = obj.data_;
+            end
+        end
+        function obj = set.data(obj, d)
+            obj.data_ = d;
+        end
+
+
     end
 
     methods(Static)
@@ -81,6 +101,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             % -------
             % Output:
             %   obj     An instance of this object
+            obj = sqw(S);
             if isa(S,'sqw')
                obj = S;
                return
@@ -95,7 +116,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
                obj = sqw(S);
             end
         end
-        
     end
 
     methods(Access = protected)
