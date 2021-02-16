@@ -151,7 +151,7 @@ pause(pause_time)
 % Pixels corresponding to the two points at which the resolution function woill be plotted
 % [0.3,6]:    1596531
 % [0.7,6]:    1602248
-iplot(w2a)
+plot(w2a)
 lx -0.5 1.5
 lz 0 1000
 cov1 = resolution_plot (w2a, [0.3,6; 0.7,6], 'curr');
@@ -171,7 +171,7 @@ pause(pause_time)
 % [0.7,6]:    1602248
 % [0.64,0.5]      363269
 % [0.36,0.5]      361210
-iplot(wce)
+plot(wce)
 lz 0 1000
 cov2 = resolution_plot (wce, [0.5,0.3; 0.5,0.7], 'curr');
 cov3 = resolution_plot (wce, [0.64,0.5; 0.36,0.5], 'curr');
@@ -193,7 +193,7 @@ pause(pause_time)
 % Pixels corresponding to the two points at which the resolution function woill be plotted
 % [0.64,0.5]      363269
 % [0.36,0.5]      361210
-iplot(w2b)
+plot(w2b)
 lz 0 1000
 cov4 = resolution_plot (w2b, [0.36,6; 0.64,6], 'curr');
 if test_output

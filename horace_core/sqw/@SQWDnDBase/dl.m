@@ -1,17 +1,17 @@
-function [figureHandle, axesHandle, plotHandle] = dd(w,varargin)
-% Draws a plot of markers, error bars and lines of a 1D sqw object or array of objects
+function [figureHandle, axesHandle, plotHandle] = dl(w,varargin)
+% Draws a line plot of a 1D sqw object or array of objects
 %
-%   >> dd(w)
-%   >> dd(w,xlo,xhi)
-%   >> dd(w,xlo,xhi,ylo,yhi)
+%   >> dl(w)
+%   >> dl(w,xlo,xhi)
+%   >> dl(w,xlo,xhi,ylo,yhi)
 %
 % Advanced use:
-%   >> dd(w,...,'name',fig_name)        % draw with name = fig_name
+%   >> dl(w,...,'name',fig_name)        % draw with name = fig_name
 %
 % Return figure, axes and plot handles:
-%   >> [fig_handle, axes_handle, plot_handle] = dd(w,...) 
+%   >> [fig_handle, axes_handle, plot_handle] = dl(w,...) 
 
-rv = dimensions_match(w);
+
 [ok,mess]=dimensions_match(w,1);
 if ~ok, error(mess), end
 
@@ -22,7 +22,7 @@ opt=struct('newplot',true,'default_name',nam,'lims_type','xy');
 if ~ok, error(mess), end
 
 % Perform plot
-[figureHandle_, axesHandle_, plotHandle_] = dd(IX_dataset_1d(w), args{:});
+[figureHandle_, axesHandle_, plotHandle_] = dl(IX_dataset_1d(w), args{:});
 
 % Output only if requested
 if nargout>=1, figureHandle=figureHandle_; end
