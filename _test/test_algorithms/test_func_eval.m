@@ -147,7 +147,7 @@ classdef test_func_eval < TestCase
                 obj.quadratic_params, ...
                 'outfile', outfile ...
             );
-            tmp_file_cleanup = @() clean_up_file(outfile);
+            tmp_file_cleanup = onCleanup(@() clean_up_file(outfile));
 
             assertTrue(logical(exist(outfile, 'file')));
 
