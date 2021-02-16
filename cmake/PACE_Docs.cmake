@@ -1,7 +1,7 @@
 # Build documentation
 
-set(DOCS_ROOT_DIR "${Horace_ROOT}/documentation/user_docs" CACHE FILEPATH "Directory containing user documentation")
-set(DOCS_SOURCE_DIR "${DOCS_ROOT_DIR}/docs" CACHE FILEPATH "Directory containing docs sources")
+set(DOCS_ROOT_DIR "${Horace_ROOT}/documentation/user_docs")
+set(DOCS_SOURCE_DIR "${DOCS_ROOT_DIR}/docs")
 set(DOCS_WORK_DIR "${DOCS_ROOT_DIR}/build" CACHE FILEPATH "Directory to put in-progress docs")
 set(DOCS_OUTPUT_DIR "${DOCS_WORK_DIR}/html" CACHE FILEPATH "Directory containing built HTML documentation")
 set(MANUAL_WORK_DIR "${DOCS_WORK_DIR}/latex" CACHE FILEPATH "Directory to build LaTeX sources")
@@ -11,33 +11,35 @@ find_program(sphinx-build NAMES sphinx-build)
 find_program(pdflatex NAMES pdflatex)
 find_program(latexmk NAMES latexmk)
 if (sphinx-build)
-  if (UNIX) # Potential danger on mac trying to use PWSH
-    add_custom_target(denullify-docs
-      COMMAND sed -i -r "/\[NULL\]/d" "${DOCS_OUTPUT_DIR}/*html"
-      DEPENDS build-docs
-      )
-  else()
-    add_custom_target(denullify-docs
-      COMMAND powershell -ExecutionPolicy Bypass -command "Foreach($f in Get-ChildItem -Path '${DOCS_OUTPUT_DIR}' -Filter *.html) {(Get-Content $f.FullName) | Where-Object {$_ -notmatch '\\[NULL\\]'} | Set-Content $f.FullName}"
+  add_custom_target(docs
+    COMMENT "Building user documentation"
+    BYPRODUCTS "${DOCS_OUTPUT_DIR}/*"
+    COMMAND ${sphinx-build} -b html "${DOCS_SOURCE_DIR}" "${DOCS_OUTPUT_DIR}" ${SPHINX_OPTS}
+                            -D "release=${${PROJECT_NAME}_SHORT_VERSION}"
+                            -D "version=${${PROJECT_NAME}_SHORT_VERSION}"
+    )
+
+  if (WIN32)
+    add_custom_command(TARGET docs POST_BUILD
+      COMMAND powershell -ExecutionPolicy Bypass -command
+                 "Foreach($f in Get-ChildItem -Path '${DOCS_OUTPUT_DIR}' -Filter *.html) {
+                      (Get-Content $f.FullName) | Where-Object {$_ -notmatch '\\[NULL\\]'} | Set-Content $f.FullName
+                  }"
       DEPENDS build-docs
       VERBATIM
       )
+  else()
+    add_custom_command(TARGET docs POST_BUILD
+      COMMAND sed -i -r "/\[NULL\]/d" "${DOCS_OUTPUT_DIR}/*html"
+      DEPENDS build-docs
+      )
   endif()
-
-  add_custom_target(build-docs
-    COMMENT "Building user documentation"
-    BYPRODUCTS "${DOCS_OUTPUT_DIR}/*"
-    COMMAND ${sphinx-build} -b html "${DOCS_SOURCE_DIR}" "${DOCS_OUTPUT_DIR}" ${SPHINX_OPTS} -D "release=${${PROJECT_NAME}_SHORT_VERSION}" -D "version=${${PROJECT_NAME}_SHORT_VERSION}"
-    )
-
-  add_custom_target(docs
-    DEPENDS build-docs
-    DEPENDS denullify-docs
-    )
 
   if (pdflatex AND latexmk)
     add_custom_command(OUTPUT horace.tex
-      COMMAND ${sphinx-build} -b latex "${DOCS_SOURCE_DIR}" "${DOCS_WORK_DIR}" ${SPHINX_OPTS} -D "release=${${PROJECT_NAME}_SHORT_VERSION}" -D "version=${${PROJECT_NAME}_SHORT_VERSION}"
+      COMMAND ${sphinx-build} -b latex "${DOCS_SOURCE_DIR}" "${DOCS_WORK_DIR}" ${SPHINX_OPTS}
+                              -D "release=${${PROJECT_NAME}_SHORT_VERSION}"
+                              -D "version=${${PROJECT_NAME}_SHORT_VERSION}"
       WORKING_DIRECTORY "${DOCS_ROOT_DIR}"
       )
 
