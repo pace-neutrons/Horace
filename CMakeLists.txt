@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.15)
 
 set(Herbert_ROOT ${CMAKE_CURRENT_LIST_DIR})
 file(READ "${Herbert_ROOT}/VERSION" _version)

@@ -87,7 +87,7 @@ properties([
       name: 'MATLAB_VERSION', trim: true
     ),
     string(
-      defaultValue: '3.7.2',
+      defaultValue: '3.19',
       description: 'The version of CMake to run the build with.',
       name: 'CMAKE_VERSION',
       trim: true
