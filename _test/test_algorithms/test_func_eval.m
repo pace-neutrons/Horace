@@ -59,12 +59,22 @@ classdef test_func_eval < TestCase
             assertExceptionThrown(f, 'SQW:func_eval:unequal_dims');
         end
 
-        function test_SQW_error_if_num_input_objects_ne_to_num_outfiles(obj)
+        function test_SQW_error_if_num_input_objects_gt_num_outfiles(obj)
             sqws_in = [obj.sqw_2d_obj, obj.sqw_2d_obj];
             outfile = 'some_path';
 
             f = @() func_eval( ...
                 sqws_in, obj.quadratic, obj.quadratic_params, 'outfile', outfile ...
+            );
+            assertExceptionThrown(f, 'SQW:func_eval:invalid_arguments');
+        end
+
+        function test_SQW_error_if_num_input_objects_lt_num_outfiles(obj)
+            sqws_in = obj.sqw_2d_obj;
+            outfiles = {'some_path', 'some_other_path'};
+
+            f = @() func_eval( ...
+                sqws_in, obj.quadratic, obj.quadratic_params, 'outfile', outfiles ...
             );
             assertExceptionThrown(f, 'SQW:func_eval:invalid_arguments');
         end
