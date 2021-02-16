@@ -11,9 +11,10 @@ function [nodes_ind,edges_ind] = get_geometry(n_dims)
 %               a box defined by its min/max points in appropriate
 %               dimensions space into the whole ND representation
 %               e.g. in 2D its array of {[1,1],[1,2],[2,1],[2,2]}
-%               defining the rectangle
+%               used to produce a rectangle, and in 3D is the array like
+%              {[1,1,1],[1,2,1],....[2,2,2]}, used in constructing a cuboid.
 % edges_ind  -- NDxN_edges array of indexes, defining the indexes of the
-%               edges of the appropriate shape in ND, used to expand min/max
+%               edges of the appropriate shapes in ND, used to expand min/max
 %               shape representation into set of edges. N_edges here is
 %               the number of shape edges eaual to ND^2*ND/2.
 %               e.g, in 2D is will be the array [1,2;2,3;3,4;1,4]' where
@@ -53,7 +54,8 @@ switch(n_dims)
 end
 function [nodes,edges_ind]=build2D()
 % build generic 2D geometry representation (nodes indexes and edges
-% indexes)
+% indexes). The detailed description of the results is given in
+% get_geometry
 ind = zeros(2,2);
 %
 % number nodes linearly according to their positions
@@ -89,7 +91,8 @@ edges_ind = edges_ind(:,unii);
 
 function [nodes,edges_ind]=build3D()
 % build generic 3D geometry representation (nodes indexes and edges
-% indexes)
+% indexes) The detailed description of the results is given in
+% get_geometry
 %
 ind = zeros(2,2,2);
 ND = numel(ind);
@@ -131,7 +134,8 @@ edges_ind = edges_ind(:,unii);
 
 function [nodes,edges_ind]=build4D()
 % build generic 4D geometry representation (nodes indexes and edges
-% indexes)
+% indexes) The detailed description of the results is given in
+% get_geometry.
 %
 ind = zeros(2,2,2,2);
 ND = numel(ind); % 2^4
