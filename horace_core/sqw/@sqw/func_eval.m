@@ -245,14 +245,10 @@ function write_sqw_with_out_of_mem_pix(sqw_obj, outfile)
     % The pixels of the SQW object will be derived from the image signal array
     % and npix array, saving in chunks so they do not need to be held in memory.
     %
-    pix = sqw_obj.data.pix;
-    npix = sqw_obj.data.npix;
-    img_signal = sqw_obj.data.s;
-
     ldr = sqw_formats_factory.instance().get_pref_access(sqw_obj);
     ldr = ldr.init(sqw_obj, outfile);
     ldr.put_sqw('-nopix');
-    ldr = write_out_of_mem_pix(pix, npix, img_signal, ldr);
+    ldr = write_out_of_mem_pix(sqw_obj.data.pix, sqw_obj.data.npix, sqw_obj.data.s, ldr);
     ldr = ldr.validate_pixel_positions();
     ldr = ldr.put_footers();
     ldr.delete();
