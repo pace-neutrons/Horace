@@ -128,6 +128,25 @@ classdef test_func_eval < TestCase
             end
         end
 
+        function test_func_eval_on_array_of_sqw_objs_with_cell_arr_of_outfiles(obj)
+            sqws_in = [obj.sqw_2d_obj, obj.sqw_2d_obj];
+            outfiles = {obj.get_tmp_file_path('1'), obj.get_tmp_file_path('2')};
+            tmp_file_cleanup = onCleanup(@() cellfun(@(x) clean_up_file(x), outfiles));
+
+            func_eval(sqws_in, obj.quadratic, obj.quadratic_params, 'outfile', outfiles);
+
+            sqws_out = cellfun(@(x) sqw(x), outfiles, 'UniformOutput', false);
+            assertEqual(size(sqws_out), size(sqws_in));
+            for i = 1:numel(sqws_in)
+                assertElementsAlmostEqual( ...
+                    sqws_out{i}.data.s(end, :), ...
+                    obj.final_img_signal_row_sqw_2d, ...
+                    'relative', obj.FLOAT_TOL ...
+                );
+                obj.validate_func_eval_sqw_output(obj.sqw_2d_obj, sqws_out{i});
+            end
+        end
+
         function test_applying_func_eval_to_an_sqw_file_returns_correct_sqw_data(obj)
             sqw_out = func_eval(obj.sqw_2d_obj, obj.quadratic, obj.quadratic_params);
 
@@ -338,14 +357,17 @@ classdef test_func_eval < TestCase
             assertEqual(dnd_out.npix, dnd_in.npix);
         end
 
-        function tmp_file_path = get_tmp_file_path()
+        function tmp_file_path = get_tmp_file_path(suffix)
             % Get a temporary file path, with file name the name of the caller
             % function.
             % This indicates where the tmp file originated from and makes sure
             % tmp files have unique if tests are run in parallel.
+            if nargin == 0
+                suffix = '';
+            end
             call_stack = dbstack();
             caller_name = call_stack(2).name;
-            tmp_file_path = fullfile(tmp_dir(), [caller_name, '.tmp']);
+            tmp_file_path = fullfile(tmp_dir(), [caller_name, suffix, '.tmp']);
         end
     end
 
