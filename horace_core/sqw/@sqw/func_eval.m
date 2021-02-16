@@ -5,8 +5,8 @@ function wout = func_eval (win, func_handle, pars, varargin)
 %   >> wout = func_eval (win, func_handle, pars, ['all'])
 %   >> wout = func_eval (win, func_handle, pars, 'outfile', 'output.sqw')
 %
-% If function is called on sqw-type object, the pixels signal is also
-% modified and evaluated
+% If function is called on sqw-type object (i.e. has pixels), the pixels'
+% signal is also modified and evaluated
 %
 % Input:
 % ======

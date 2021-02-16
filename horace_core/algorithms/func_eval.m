@@ -7,8 +7,8 @@ function wout = func_eval(source, varargin)
 %   >> wout = func_eval(file_path, func_handle, pars)
 %   >> wout = func_eval({file_path, win}, func_handle, pars)
 %
-% If function is called on sqw-type object, the pixels signal is also
-% modified and evaluated
+% If function is called on sqw-type object (i.e. has pixels), the pixels'
+% signal is also modified and evaluated
 %
 % For more info see help sqw/func_eval
 %
