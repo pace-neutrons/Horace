@@ -9,7 +9,7 @@ function orth = normal4D(three_vector)
 %                 if there are 4 input vectors, they define the hyper-plain,
 %                 passing through these points
 % Output:
-% orth    --   [4x1] array describing the vector, which is orthogonal to
+% orth    --   [4x1] array describing the vector which is orthogonal to
 %              three input vectors and the hyper-plain they define.
 %
 %
@@ -38,10 +38,14 @@ if norm<1.e-12
 end
 orth = orth/norm;
 
+% calculate the norms for all 3 input vectors.
 i=1:3;
 n3 = arrayfun(@(nv)(sqrt(three_vector(:,nv)'*three_vector(:,nv))),i,...
     'UniformOutput',true);
+% normalise input wectors to get unit size vectors
 e33 = three_vector./repmat(n3,4,1);
+% extract the projections of the input vectors from the resulting vector
 orth = orth -sum(e33.*(orth'*three_vector),2);
 
+% renormalize result to unity
 orth = orth/sqrt(orth'*orth);
