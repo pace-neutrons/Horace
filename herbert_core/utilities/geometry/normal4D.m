@@ -6,8 +6,8 @@ function orth = normal4D(three_vector)
 % three_vector -- 4x3 or 4x4 array defining three non-parallel vectors lying in
 %                 hyper-plain in 4D. The x,y,z,t coordinates of each vector
 %                 are propagating along first dimension (column).
-%                 if there are 4 input vectors, they define the hyper-plain,
-%                 passing through these points
+%                 if input is a 4x4 array, the data define the hyper-plain,
+%                 passing through four 4D points.
 % Output:
 % orth    --   [4x1] array describing the vector which is orthogonal to
 %              three input vectors and the hyper-plain they define.
@@ -21,7 +21,8 @@ if ~(all(size(three_vector)==[4,3]) || all(size(three_vector)==[4,4]))
 end
 
 if size(three_vector,2)==4
-    % reduce case of 4points to 3 vectors by moving 0 into the forth point
+    % reduce case of 4 points to 3 vectors by moving the centre of coordinates
+    % into the forth point.
     three_vector = three_vector(:,1:3)-three_vector(:,4);
 end
 
