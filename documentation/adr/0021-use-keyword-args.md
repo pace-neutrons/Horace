@@ -42,7 +42,7 @@ The mix of `-flagname` and `flagname` introduces complexity into argument parsin
 
 ## Decision
 
-The MATLAB APIs will support positional, optional flag and keyword arguments:
+The MATLAB APIs will support positional, optional, flag and keyword arguments:
 
 - flag arguments will be prefixed with `-`
 - if the same parameter is passed as both a flag and keyword argument an error will be raised if their values are inconsistent
