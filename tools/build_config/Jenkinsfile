@@ -235,6 +235,8 @@ if (env.BRANCH_NAME) {
   currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA.take(7)}"
 }
 
+Boolean run_build_stage = (! env?.PR_LABELS =~ "do-not-build")
+Boolean run_test_stage = (! env?.PR_LABELS =~ "(do-not-build|do-not-test)")
 
 pipeline {
   agent {
@@ -348,7 +350,7 @@ pipeline {
     stage('Build') {
       when {
         expression {
-          ! env?.PR_LABELS =~ "do-not-build"
+          run_build_stage == true
         }
       }
       steps {
@@ -413,7 +415,7 @@ pipeline {
     stage('Test') {
       when {
         expression {
-          ! env?.PR_LABELS =~ "(do-not-build|do-not-test)"
+          run_test_stage == true
         }
       }
       steps {
@@ -436,13 +438,16 @@ pipeline {
     stage('Package') {
       when {
         expression {
-          ! env?.PR_LABELS =~ "do-not-build"
+          run_build_stage == true
         }
       }
       steps {
         script {
           if (isUnix()) {
-            sh './tools/build_config/build.sh --package'
+            sh '''
+              module load cmake/\$CMAKE_VERSION &&
+              ./tools/build_config/build.sh --package
+            '''
           }
           else {
             powershell './tools/build_config/build.ps1 -package'
@@ -491,7 +496,7 @@ pipeline {
     always {
       // archive CTest results file and static analysis report
       archiveArtifacts(
-        artifacts: 'build/Testing/**/*.xml,**/cppcheck.xml,**/mlint.json',
+        artifacts: '**/cppcheck.xml,**/mlint.json',
         fingerprint: true
       )
 
@@ -502,23 +507,29 @@ pipeline {
         ]
       )
 
-      xunit (
-        testTimeMargin: '3000',
-        thresholdMode: 1,
-        thresholds: [
-          skipped(failureThreshold: '0'),
-          failed(failureThreshold: '0')
-        ],
-        tools: [
-          CTest(
-            pattern: 'build/Testing/**/*.xml',
-            deleteOutputFiles: true,
-            failIfNotNew: false,
-            skipNoTestFiles: true,
-            stopProcessingIfError: true
-          )
-        ]
-      )
+      if (run_test_stage) {
+        archiveArtifacts(
+          artifacts: 'build/Testing/**/*.xml',
+          fingerprint: true
+        )
+        xunit (
+          testTimeMargin: '3000',
+          thresholdMode: 1,
+          thresholds: [
+            skipped(failureThreshold: '0'),
+            failed(failureThreshold: '0')
+          ],
+          tools: [
+            CTest(
+              pattern: 'build/Testing/**/*.xml',
+              deleteOutputFiles: true,
+              failIfNotNew: false,
+              skipNoTestFiles: true,
+              stopProcessingIfError: true
+            )
+          ]
+        )
+      }
     }
 
     success {
