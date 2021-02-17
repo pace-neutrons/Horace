@@ -388,6 +388,11 @@ pipeline {
     }
 
     stage('Package') {
+      when {
+        expression {
+          ! env?.PR_LABELS =~ "do-not-build"
+        }
+      }
       steps {
         script {
           if (isUnix()) {
