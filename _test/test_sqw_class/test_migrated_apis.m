@@ -305,9 +305,8 @@ classdef test_migrated_apis < TestCase
         end
 
         %% xye
-        %DISABLED to pass the tests in the absence of the .mat
-        %         file - to be restored when they are reunited
-        function DISABLED_test_xye_returns_bin_centres_and_errors(obj)
+
+        function test_xye_returns_bin_centres_and_errors(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
             result = s.xye();
 
