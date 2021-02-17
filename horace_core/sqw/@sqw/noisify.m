@@ -25,7 +25,7 @@ function wout = noisify(w,varargin)
 
 wout=w;
 for i=1:numel(w)
-    if isa(w(i),'sqw')   % determine if sqw or dnd type
+    if has_pixels(w(i),'sqw')   % determine if sqw or dnd type
         
         % Delegate to PixelData to noisify that object on a page-by-page
         % basis using the Herbert noisify.
