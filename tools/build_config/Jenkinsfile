@@ -336,6 +336,11 @@ pipeline {
     }
 
     stage('Build') {
+      when {
+        expression {
+          ! env.PR_LABELS? =~ "do-not-build"
+        }
+      }
       steps {
         script {
           if (isUnix()) {
@@ -360,6 +365,11 @@ pipeline {
     }
 
     stage('Test') {
+      when {
+        expression {
+          ! env.PR_LABELS? =~ "(do-not-build|do-not-test)"
+        }
+      }
       steps {
         script {
           if (isUnix()) {
