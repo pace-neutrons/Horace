@@ -494,9 +494,10 @@ pipeline {
 
   post {
     always {
-      // archive CTest results file and static analysis report
+      // archive static analysis report
       archiveArtifacts(
         artifacts: '**/cppcheck.xml,**/mlint.json',
+        allowEmptyArchive: true,
         fingerprint: true
       )
 
@@ -507,29 +508,29 @@ pipeline {
         ]
       )
 
-      if (run_test_stage) {
-        archiveArtifacts(
-          artifacts: 'build/Testing/**/*.xml',
-          fingerprint: true
-        )
-        xunit (
-          testTimeMargin: '3000',
-          thresholdMode: 1,
-          thresholds: [
-            skipped(failureThreshold: '0'),
-            failed(failureThreshold: '0')
-          ],
-          tools: [
-            CTest(
-              pattern: 'build/Testing/**/*.xml',
-              deleteOutputFiles: true,
-              failIfNotNew: false,
-              skipNoTestFiles: true,
-              stopProcessingIfError: true
-            )
-          ]
-        )
-      }
+      archiveArtifacts(
+        artifacts: 'build/Testing/**/*.xml',
+        allowEmptyArchive: true,
+        fingerprint: true
+      )
+      xunit (
+        testTimeMargin: '3000',
+        thresholdMode: 1,
+        thresholds: [
+          skipped(failureThreshold: '0'),
+          failed(failureThreshold: '0')
+        ],
+        tools: [
+          CTest(
+            pattern: 'build/Testing/**/*.xml',
+            deleteOutputFiles: true,
+            failIfNotNew: false,
+            skipNoTestFiles: true,
+            stopProcessingIfError: true
+          )
+        ]
+      )
+
     }
 
     success {
