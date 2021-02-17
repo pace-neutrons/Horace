@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.15)
 
 set(Horace_ROOT ${CMAKE_CURRENT_LIST_DIR})
 file(READ "${Horace_ROOT}/VERSION" _version)
@@ -36,11 +36,13 @@ include(PACE_AddMex)
 include(PACE_FindMatlab)
 include(horace_FindHDF5)
 include(PACE_Version)
+include(PACE_CodeAnalysis)
 if(${BUILD_TESTS})
     include(CTest)
     include(PACE_FindGTest)
     enable_testing()
 endif()
+include(PACE_Docs)
 
 add_subdirectory("_LowLevelCode")
 if(${BUILD_TESTS})
@@ -52,7 +54,6 @@ add_subdirectory("admin")
 # Install commands
 # =============================================================================
 include(PACE_CPackConfig)
-
 if(WIN32)
     # Don't package external Linux libraries on Windows
     set(EXTERNAL_IGNORE_PATTERN "*/external/glnxa64")
