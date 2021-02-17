@@ -338,7 +338,7 @@ pipeline {
     stage('Build') {
       when {
         expression {
-          ! env.PR_LABELS? =~ "do-not-build"
+          ! env?.PR_LABELS =~ "do-not-build"
         }
       }
       steps {
@@ -367,7 +367,7 @@ pipeline {
     stage('Test') {
       when {
         expression {
-          ! env.PR_LABELS? =~ "(do-not-build|do-not-test)"
+          ! env?.PR_LABELS =~ "(do-not-build|do-not-test)"
         }
       }
       steps {
