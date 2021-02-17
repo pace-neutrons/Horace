@@ -1,3 +1,6 @@
+[<-previous](./0020-use-c-mex-api.md) |
+next->
+
 # Handling Errors and Warnings
 
 This document seeks to address the inconsistent error handling scheme in pace and lay down rules for how
