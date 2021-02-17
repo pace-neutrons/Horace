@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-
+Zip
 set(Horace_ROOT ${CMAKE_CURRENT_LIST_DIR})
 file(READ "${Horace_ROOT}/VERSION" _version)
 string(STRIP "${_version}" _version)
