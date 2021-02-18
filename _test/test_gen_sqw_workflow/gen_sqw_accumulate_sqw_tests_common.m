@@ -310,10 +310,16 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             [ok,mess,dummy_w1,w1b]=is_cut_equal(sqw_file_123456,sqw_file_145623,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,['Cuts from gen_sqw output with spe files in a different order are not the same: ',mess]);
             % Test against saved or store to save later
+            %CHANGED convert sqw_old obj to sqw (new)
+            %        pending update of is_cut_equal to new class
+            w1b = sqw(struct(w1b));
             obj.assertEqualToTolWithSave(w1b,'ignore_str',true,'tol',1.e-7);
             
             
             w1a=cut_sqw(sqw_file_123456,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            %CHANGED convert sqw_old obj to sqw (new)
+            %        pending update of is_cut_equal to new class
+            w1a = sqw(struct(w1a));
             % Test against saved or store to save later
             obj.assertEqualToTolWithSave(w1a,'ignore_str',true,'tol',1.e-7);
         end
@@ -439,6 +445,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             end
             
             [ok,mess,w2_14]=is_cut_equal(sqw_file_14,sqw_file_accum,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            w2_14 = sqw(struct(w2_14));
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             
             % Test against saved or store to save later
@@ -512,7 +519,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             obj.proj.u=u;
             obj.proj.v=v;
             w2_1456=cut_sqw(sqw_file_accum,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
-            
+            w2_1456 = sqw(struct(w2_1456));
             % Test against saved or store to save later
             obj.assertEqualToTolWithSave(w2_1456,'ignore_str',true,'tol',1.e-7);
         end
@@ -565,6 +572,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 assertElementsAlmostEqual(pix_range1456,acc_pix_range1456,'relative',4.e-2);
             end
             [ok,mess,w2_1456]=is_cut_equal(sqw_file_1456,sqw_file_accum,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            w2_1456 = sqw(struct(w2_1456));
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess])
             
             % Test against saved or store to save later
@@ -634,6 +642,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             end
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             % Test against saved or store to save later
+            w2_11456 = sqw(struct(w2_11456));
             obj.assertEqualToTolWithSave(w2_11456,'ignore_str',true,'tol',1.e-7);
             %obj.save_or_test_variables(w2_11456);
             
