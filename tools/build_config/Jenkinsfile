@@ -28,7 +28,6 @@ def get_agent(String job_name) {
   } else {
     return ''
   }
-
 }
 
 def get_release_type(String job_name) {
@@ -113,24 +112,23 @@ properties([
   ])
 ])
 
-
 def post_github_status(String state, String message) {
   // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
   // want to post any statuses to Git
   if (env.PR_STATUSES_URL) {
     script {
       withCredentials([string(credentialsId: 'GitHub_API_Token',
-          variable: 'api_token')]) {
+                              variable: 'api_token')]) {
         if (isUnix()) {
           sh """
             curl -H "Authorization: token \${api_token}" \
               --request POST \
               --data '{"state": "${state}", \
-                  "description": "${message}", \
-                  "target_url": "$BUILD_URL", \
-                  "context": "$JOB_BASE_NAME"}' \
+                "description": "${message}", \
+                "target_url": "$BUILD_URL", \
+                "context": "$JOB_BASE_NAME"}' \
               $PR_STATUSES_URL > /dev/null
-          """
+            """
         }
         else {
           powershell """
@@ -176,6 +174,9 @@ if (env.BRANCH_NAME) {
   currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA.take(7)}"
 }
 
+Boolean run_build_stage = (! env?.PR_LABELS =~ "do-not-build")
+Boolean run_test_stage = (! env?.PR_LABELS =~ "(do-not-build|do-not-test)")
+
 pipeline {
   agent {
     label env.AGENT
@@ -204,7 +205,6 @@ pipeline {
           else {
             powershell '''
               ./tools/build_config/build.ps1 -print_versions
-
               Write-Output \"Static Analysis in not performed on Windows\"
             '''
           }
@@ -213,6 +213,11 @@ pipeline {
     }
 
     stage('Build') {
+      when {
+        expression {
+          run_build_stage == true
+        }
+      }
       steps {
         script {
           if (isUnix()) {
@@ -237,6 +242,11 @@ pipeline {
     }
 
     stage('Test') {
+      when {
+        expression {
+          run_test_stage == true
+        }
+      }
       steps {
         script {
           if (isUnix()) {
@@ -248,15 +258,18 @@ pipeline {
             '''
           }
           else {
-            powershell '''
-              ./tools/build_config/build.ps1 -test
-            '''
+            powershell './tools/build_config/build.ps1 -test'
           }
         }
       }
     }
 
     stage('Package') {
+      when {
+        expression {
+          run_build_stage == true
+        }
+      }
       steps {
         script {
           if (isUnix()) {
@@ -266,9 +279,7 @@ pipeline {
             '''
           }
           else {
-            powershell '''
-              ./tools/build_config/build.ps1 -package
-            '''
+            powershell './tools/build_config/build.ps1 -package'
           }
           // Archive a file containing the git revision being built. This
           // enables the Deploy pipelines to validate against this SHA, and
@@ -291,9 +302,10 @@ pipeline {
 
   post {
     always {
-      // archive CTest results file and static analysis report
+      // archive static analysis report
       archiveArtifacts(
-        artifacts: 'build/Testing/**/*.xml,**/cppcheck.xml,**/mlint.json',
+        artifacts: '**/cppcheck.xml,**/mlint.json',
+        allowEmptyArchive: true,
         fingerprint: true
       )
 
@@ -304,6 +316,11 @@ pipeline {
         ]
       )
 
+      archiveArtifacts(
+        artifacts: 'build/Testing/**/*.xml',
+        allowEmptyArchive: true,
+        fingerprint: true
+      )
       xunit (
         testTimeMargin: '3000',
         thresholdMode: 1,
@@ -321,6 +338,7 @@ pipeline {
           )
         ]
       )
+
     }
 
     success {
