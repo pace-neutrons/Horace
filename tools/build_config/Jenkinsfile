@@ -252,8 +252,8 @@ pipeline {
     GCC_VERSION = get_param('GCC_VERSION', '6.3.0')
     VS_VERSION = get_param('VS_VERSION', '2017')
     CPPCHECK_VERSION = get_param('CPPCHECK_VERSION', '1.77')
-    BUILD_DOCS = get_param('BUILD_DOCS', false)
-    PUSH_DOCS = get_param('PUSH_DOCS', false)
+    BUILD_DOCS = get_param('BUILD_DOCS', 'false')
+    PUSH_DOCS = get_param('PUSH_DOCS', 'false')
   }
 
   stages {
