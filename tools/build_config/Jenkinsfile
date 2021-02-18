@@ -386,6 +386,8 @@ pipeline {
         script {
           if (isUnix()) {
             sh '''
+                module load cmake/\$CMAKE_VERSION &&
+                module load matlab/\$MATLAB_VERSION &&
                 module load python/3.6 &&
                 pip install --user sphinx &&
                 pip install --user sphinx_rtd_theme &&
