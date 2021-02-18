@@ -18,11 +18,7 @@ classdef (Abstract) SQWDnDBase
     end
 
     methods  % Public
-        % function outputArg = method1(obj,inputArg)
-        %     %METHOD1 Summary of this method goes here
-        %     %   Detailed explanation goes here
-        %     outputArg = obj.Property1 + inputArg;
-        % end
+        [ok,mess,nd_ref]=dimensions_match(w,nd_ref);
         wout = IX_dataset_1d (w);
         wout = IX_dataset_2d (w);
         wout = IX_dataset_3d (w);
@@ -31,11 +27,6 @@ classdef (Abstract) SQWDnDBase
     methods (Access = protected)
         wout = binary_op_manager(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
-        % function obj = untitled(inputArg1,inputArg2)
-        % % UNTITLED Construct an instance of this class
-        % %   Detailed explanation goes here
-        %   obj.Property1 = inputArg1 + inputArg2;
-        % end
     end
 end
 

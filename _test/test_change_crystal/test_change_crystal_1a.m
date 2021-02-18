@@ -251,6 +251,11 @@ classdef test_change_crystal_1a < TestCase
                     npix = sqw_obj.data.pix.num_pixels;
                     sqw_obj.data.pix.variance = ones(1,npix);
                     sqw_obj=recompute_bin_data_tester(sqw_obj);
+                    %CHANGED while above code returns a sqw_old
+                    %        convert it to new sqw before proceeding
+                    if isa(sqw_obj,'sqw_old')
+                        sqw_obj = sqw(struct(sqw_obj));
+                    end
                     % convert to nxspe (instrument view)
                     rdo = rundatah(sqw_obj);
                     rdo.saveNXSPE(obj.nxs_file{i});

@@ -94,6 +94,9 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             
             w2sym = cut_sqw_sym (this.data_source, this.proj, this.bin,...
                 this.width, this.width, this.ebins, this.sym, '-pix');
+            %CHANGED while cut_sqw_sym returns sqw_old
+            %        convert w2sym to sqw
+            w2sym = sqw(struct(w2sym));
             this.assertEqualToTolWithSave (w2sym, this.tol_sp,'ignore_str',1);
         end
         %------------------------------------------------------------------------
@@ -199,6 +202,25 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             [c, s] = cut_sqw_sym(this.data2, this.proj2, ...
                 this.ubin2, this.vbin2, this.wbin2, this.ebin2, ...
                 this.sym2(2:end)); % skip the superfluous first (identity) operation
+            %CHANGED while cut_sqw_sym returns sqw_old
+            %        convert c to sqw
+            c = sqw(struct(c));
+            %CHANGED while cut_sqw_sym returns sqw_old
+            %      (1) convert s (a 12x1 array) to ss - cannot directly
+            %      convert s as it is an *array* of sqw_old
+            %      (2) need to rename it as s to match the stored data
+            %      so clear s and reconstruct s from ss
+            ss = sqw();
+            ss = repmat(ss,numel(s),1);
+            for i=1:numel(ss)
+                ss(i) = sqw(struct(s(i)));
+            end
+            clear s;
+            s = sqw();
+            s = repmat(s,numel(ss),1);
+            for i=1:numel(s)
+                s(i) = ss(i);
+            end
             this.assertEqualToTolWithSave(c, this.tol_sp,'ignore_str',1);
             this.assertEqualToTolWithSave(s, this.tol_sp,'ignore_str',1);
         end
@@ -212,6 +234,9 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             
             w2 = cut_sqw (this.data_source, this.proj, this.bin,...
                 this.width, this.width, this.ebins, '-pix');
+           %CHANGED while cut_sqw_sym returns sqw_old
+            %        convert w2 to sqw
+            w2 = sqw(struct(w2));
             this.assertEqualToTolWithSave (w2, this.tol_sp,'ignore_str',1);
         end
         

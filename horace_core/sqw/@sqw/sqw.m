@@ -18,25 +18,39 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         data;
     end
 
+    methods (Access = private)
+    end
+    
     methods
         [nd, sz] = dimensions(w);
         wout = sigvar(w);
         w = sigvar_set(win, sigvar_obj);
-        sz = sigvar_size(w);
-        %{
-        These methods will be needed for Tobyfit
-        when the *fit feature branch is merged -
-        leaving them in for simplicity, they were
-        needed for testing using Tobyfit:
         [s,var,mask_null] = sigvar_get (win);
+        sz = sigvar_size(w);
         [sel,ok,mess] = mask_points (win, varargin);
+        varargout = multifit (varargin);
+        varargout = multifit_sqw (varargin);
+        varargout = multifit_sqw_sqw (varargin);
         varargout = tobyfit (varargin);
+        [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,store_in,...
+                                                          sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
+        [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, indx);
         [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,store_in,...
                                                            sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
         [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
         [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw);
-		%}
 
+		%{
+        %[deps,eps_lo,eps_hi,ne]=energy_transfer_info(header);
+        [figureHandle, axesHandle, plotHandle] = plot(w,varargin);
+        wout = IX_dataset_1d (w);
+        wout = IX_dataset_2d (w);
+        wout = IX_dataset_3d (w);
+		%}
+        status = adjust_aspect(w);
+        varargout = resolution_plot (w, varargin);
+        wout = noisify(w,varargin);
+        
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
 
@@ -71,23 +85,23 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
     end
 
     methods(Static)
-%        %TODO: disabled until full functionality is implemeneted in new class;
-%        % The addition of this method causes sqw_old tests to incorrectly load data from .mat files
-%        % as new-SQW class objects
-%        function obj = loadobj(S)
-%            % Load a sqw object from a .mat file
-%            %
-%            %   >> obj = loadobj(S)
-%            %
-%            % Input:
-%            % ------
-%            %   S       An instance of this object or struct
-%            %
-%            % -------
-%            % Output:
-%            %   obj     An instance of this object
-%            obj = sqw(S);
-%{
+        %TODO: disabled until full functionality is implemeneted in new class;
+        % The addition of this method causes sqw_old tests to incorrectly load data from .mat files
+        % as new-SQW class objects
+        
+        function obj = loadobj(S)
+            % Load a sqw object from a .mat file
+            %
+            %   >> obj = loadobj(S)
+            %
+            % Input:
+            % ------
+            %   S       An instance of this object or struct
+            %
+            % -------
+            % Output:
+            %   obj     An instance of this object
+            obj = sqw(S);
             if isa(S,'sqw')
                obj = S;
                return
@@ -102,7 +116,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
                obj = sqw(S);
             end
         end
-%}
     end
 
     methods(Access = protected)
