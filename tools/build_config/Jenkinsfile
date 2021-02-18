@@ -235,6 +235,8 @@ if (env.BRANCH_NAME) {
   currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA.take(7)}"
 }
 
+Boolean run_build_stage = (! env?.PR_LABELS =~ "do-not-build")
+Boolean run_test_stage = (! env?.PR_LABELS =~ "(do-not-build|do-not-test)")
 
 pipeline {
   agent {
@@ -346,6 +348,11 @@ pipeline {
     }
 
     stage('Build') {
+      when {
+        expression {
+          run_build_stage == true
+        }
+      }
       steps {
         script {
           if (isUnix()) {
@@ -406,6 +413,11 @@ pipeline {
     }
 
     stage('Test') {
+      when {
+        expression {
+          run_test_stage == true
+        }
+      }
       steps {
         script {
           if (isUnix()) {
@@ -424,10 +436,18 @@ pipeline {
     }
 
     stage('Package') {
+      when {
+        expression {
+          run_build_stage == true
+        }
+      }
       steps {
         script {
           if (isUnix()) {
-            sh './tools/build_config/build.sh --package'
+            sh '''
+              module load cmake/\$CMAKE_VERSION &&
+              ./tools/build_config/build.sh --package
+            '''
           }
           else {
             powershell './tools/build_config/build.ps1 -package'
@@ -474,9 +494,10 @@ pipeline {
 
   post {
     always {
-      // archive CTest results file and static analysis report
+      // archive static analysis report
       archiveArtifacts(
-        artifacts: 'build/Testing/**/*.xml,**/cppcheck.xml,**/mlint.json',
+        artifacts: '**/cppcheck.xml,**/mlint.json',
+        allowEmptyArchive: true,
         fingerprint: true
       )
 
@@ -487,6 +508,11 @@ pipeline {
         ]
       )
 
+      archiveArtifacts(
+        artifacts: 'build/Testing/**/*.xml',
+        allowEmptyArchive: true,
+        fingerprint: true
+      )
       xunit (
         testTimeMargin: '3000',
         thresholdMode: 1,
@@ -504,6 +530,7 @@ pipeline {
           )
         ]
       )
+
     }
 
     success {
