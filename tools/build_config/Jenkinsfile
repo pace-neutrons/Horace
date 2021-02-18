@@ -135,25 +135,25 @@ properties([
     ),
     string(
       defaultValue: '3.19',
-      description: 'The version of CMake to run the build with.',
+      description: 'The version of CMake to run the build with. Not relevant on current Windows pipelines.',
       name: 'CMAKE_VERSION',
       trim: true
     ),
     string(
       defaultValue: '6.3.0',
-      description: 'The version of GCC to build with.',
+      description: 'The version of GCC to build with. Not relevant on current Windows pipelines.',
       name: 'GCC_VERSION',
       trim: true
     ),
     string(
       defaultValue: '2017',
-      description: 'The year of the version of Visual Studio to build with.',
+      description: 'The year of the version of Visual Studio to build with.  Not relevant on current pipelines.',
       name: 'VS_VERSION',
       trim: true
     ),
     string(
       defaultValue: '1.77',
-      description: 'The version of CppCheck tooling to load to provide the code-style checks.',
+      description: 'The version of CppCheck tooling to load to provide the code-style checks. Not relevant on current Windows pipelines.',
       name: 'CPPCHECK_VERSION',
       trim: true
     ),
