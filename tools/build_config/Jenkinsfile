@@ -226,17 +226,7 @@ properties([
 ])
 
 
-if (BRANCH_NAME) {
-  currentBuild.description = "Branch: ${BRANCH_NAME}"
-} else if (env.PR_NUMBER) {
-  currentBuild.displayName = "#${env.BUILD_NUMBER} PR-${env.PR_NUMBER}"
-  currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA.take(7)}"
-}
-
 pipeline {
-  agent {
-    label AGENT
-  }
 
   environment {
     BRANCH_NAME = get_param('BRANCH_NAME', get_branch_name(env.JOB_BASE_NAME))
@@ -252,11 +242,22 @@ pipeline {
     PUSH_DOCS = get_param('PUSH_DOCS', false)
   }
 
+  agent {
+    label env.AGENT
+  }
+
   stages {
 
     stage('Notify') {
       steps {
         script {
+          if (env.BRANCH_NAME) {
+            currentBuild.description = "Branch: ${env.BRANCH_NAME}"
+          } else if (env.PR_NUMBER) {
+            currentBuild.displayName = "#${env.BUILD_NUMBER} PR-${env.PR_NUMBER}"
+            currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA.take(7)}"
+          }
+
           if (env.PR_LABELS) {
             echo "Found PR labels: ${env.PR_LABELS}"
           }
