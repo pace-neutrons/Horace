@@ -10,8 +10,8 @@ set(MANUAL_OUTPUT_DIR "${DOCS_WORK_DIR}/latex" CACHE FILEPATH "Directory to put 
 find_program(sphinx-build NAMES sphinx-build)
 find_program(pdflatex NAMES pdflatex)
 find_program(latexmk NAMES latexmk)
-if (sphinx-build)
 
+if (sphinx-build)
   add_custom_target(docs
     COMMENT "Building HTML user documentation"
     BYPRODUCTS "${DOCS_OUTPUT_DIR}/*"
@@ -24,8 +24,8 @@ if (sphinx-build)
 
     add_custom_command(TARGET docs POST_BUILD
       COMMAND powershell -ExecutionPolicy Bypass -command
-                 "Foreach($f in Get-ChildItem -Path '${DOCS_OUTPUT_DIR}' -Filter *.html) {
-                      (Get-Content $f.FullName) | Where-Object {$_ -notmatch '\\[NULL\\]'} | Set-Content $f.FullName
+                 "Foreach($f in Get-ChildItem -Path '${DOCS_OUTPUT_DIR}' -Filter *.html) { \
+                      (Get-Content $f.FullName) | Where-Object {$_ -notmatch '\\[NULL\\]'} | Set-Content $f.FullName \
                   }"
       DEPENDS build-docs
       VERBATIM
@@ -34,9 +34,9 @@ if (sphinx-build)
     set(DOCS_PACK_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/docs.zip" CACHE FILEPATH "Directory containing built HTML documentation")
 
     add_custom_target(docs-pack
-      COMMENT "Zipping HTML documentation"
+      COMMENT "Zipping HTML documentation to ${DOCS_PACK_OUTPUT}"
       COMMAND powershell -ExecutionPolicy Bypass -command
-                 "Compress-Archive -Path \"${DOCS_OUTPUT_DIR}/*\" -DestinationPath \"${DOCS_PACK_DIR}\""
+                "Compress-Archive -Path \"${DOCS_OUTPUT_DIR}/*\" -DestinationPath \"${DOCS_PACK_DIR}\""
       DEPENDS docs
       )
 
@@ -49,7 +49,7 @@ if (sphinx-build)
     set(DOCS_PACK_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/docs.tar.gz" CACHE FILEPATH "Directory containing built HTML documentation")
 
     add_custom_target(docs-pack
-      COMMENT "Tarring HTML documentation"
+      COMMENT "Tarring HTML documentation to ${DOCS_PACK_OUTPUT}"
       COMMAND tar -czf "${DOCS_PACK_OUTPUT}" "*"
       WORKING_DIRECTORY "${DOCS_OUTPUT_DIR}"
       DEPENDS docs
@@ -87,6 +87,10 @@ if (sphinx-build)
 
 else()
   add_custom_target(docs
+    COMMENT "Docs require sphinx and sphinx-rtd-theme to build"
+    )
+
+  add_custom_target(docs-pack
     COMMENT "Docs require sphinx and sphinx-rtd-theme to build"
     )
 
