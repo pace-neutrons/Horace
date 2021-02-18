@@ -39,10 +39,10 @@ end
 
 S = repmat(struct('x', [], 'y', [], 'e', []), size(w));
 for i = 1:numel(w)
-    x = w(i).data.p;
-    y = w(i).data.s;
-    e = sqrt(w(i).data.e);
-    empty = ~logical(w(i).data.npix);
+    x = w(i).data_.p;
+    y = w(i).data_.s;
+    e = sqrt(w(i).data_.e);
+    empty = ~logical(w(i).data_.npix);
 
     if numel(x) == 1
         x=0.5*(x{1}(2:end) + x{1}(1:end-1));
