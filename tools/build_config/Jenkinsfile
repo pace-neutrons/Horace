@@ -109,6 +109,7 @@ String get_param(String param_name, String default_val) {
   if (!value) {
     value = default_val;
   }
+  println "${param_name} = ${value}"
   return value
 }
 
