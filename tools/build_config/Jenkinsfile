@@ -241,19 +241,20 @@ pipeline {
   stages {
 
     stage('Notify') {
-      def BRANCH_NAME = get_param('BRANCH_NAME', get_branch_name(env.JOB_BASE_NAME))
-      def HERBERT_BRANCH_NAME = get_param('HERBERT_BRANCH_NAME', get_default_herbert_branch(env.JOB_BASE_NAME))
-      def MATLAB_VERSION = get_param('MATLAB_VERSION', get_matlab_release(env.JOB_BASE_NAME))
-      def RELEASE_TYPE = get_param('RELEASE_TYPE', get_release_type(env.JOB_BASE_NAME))
-      def AGENT = get_param('AGENT', get_agent(env.JOB_BASE_NAME))
-      def CMAKE_VERSION = get_param('CMAKE_VERSION', '3.19')
-      def GCC_VERSION = get_param('GCC_VERSION', '6.3.0')
-      def VS_VERSION = get_param('VS_VERSION', '2017')
-      def CPPCHECK_VERSION = get_param('CPPCHECK_VERSION', '1.77')
-      def BUILD_DOCS = get_param('BUILD_DOCS', false)
-      def PUSH_DOCS = get_param('PUSH_DOCS', false)
-
       steps {
+        /* Init vars */
+        def BRANCH_NAME = get_param('BRANCH_NAME', get_branch_name(env.JOB_BASE_NAME))
+        def HERBERT_BRANCH_NAME = get_param('HERBERT_BRANCH_NAME', get_default_herbert_branch(env.JOB_BASE_NAME))
+        def MATLAB_VERSION = get_param('MATLAB_VERSION', get_matlab_release(env.JOB_BASE_NAME))
+        def RELEASE_TYPE = get_param('RELEASE_TYPE', get_release_type(env.JOB_BASE_NAME))
+        def AGENT = get_param('AGENT', get_agent(env.JOB_BASE_NAME))
+        def CMAKE_VERSION = get_param('CMAKE_VERSION', '3.19')
+        def GCC_VERSION = get_param('GCC_VERSION', '6.3.0')
+        def VS_VERSION = get_param('VS_VERSION', '2017')
+        def CPPCHECK_VERSION = get_param('CPPCHECK_VERSION', '1.77')
+        def BUILD_DOCS = get_param('BUILD_DOCS', false)
+        def PUSH_DOCS = get_param('PUSH_DOCS', false)
+
         post_github_status("pending", "The build is running")
       }
     }
