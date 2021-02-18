@@ -223,37 +223,38 @@ properties([
   ])
 ])
 
-def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-", "")
-
-if (BRANCH_NAME) {
-  currentBuild.description = "Branch: ${BRANCH_NAME}"
-} else if (env.PR_NUMBER) {
-  currentBuild.displayName = "#${env.BUILD_NUMBER} PR-${env.PR_NUMBER}"
-  currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA.take(7)}"
-}
-
 
 pipeline {
   agent {
     label AGENT
   }
 
+  environment {
+    BRANCH_NAME = get_param('BRANCH_NAME', get_branch_name(env.JOB_BASE_NAME))
+    HERBERT_BRANCH_NAME = get_param('HERBERT_BRANCH_NAME', get_default_herbert_branch(env.JOB_BASE_NAME))
+    MATLAB_VERSION = get_param('MATLAB_VERSION', get_matlab_release(env.JOB_BASE_NAME))
+    RELEASE_TYPE = get_param('RELEASE_TYPE', get_release_type(env.JOB_BASE_NAME))
+    AGENT = get_param('AGENT', get_agent(env.JOB_BASE_NAME))
+    CMAKE_VERSION = get_param('CMAKE_VERSION', '3.19')
+    GCC_VERSION = get_param('GCC_VERSION', '6.3.0')
+    VS_VERSION = get_param('VS_VERSION', '2017')
+    CPPCHECK_VERSION = get_param('CPPCHECK_VERSION', '1.77')
+    BUILD_DOCS = get_param('BUILD_DOCS', false)
+    PUSH_DOCS = get_param('PUSH_DOCS', false)
+  }
+
   stages {
 
     stage('Notify') {
       steps {
-        /* Init vars */
-        def BRANCH_NAME = get_param('BRANCH_NAME', get_branch_name(env.JOB_BASE_NAME))
-        def HERBERT_BRANCH_NAME = get_param('HERBERT_BRANCH_NAME', get_default_herbert_branch(env.JOB_BASE_NAME))
-        def MATLAB_VERSION = get_param('MATLAB_VERSION', get_matlab_release(env.JOB_BASE_NAME))
-        def RELEASE_TYPE = get_param('RELEASE_TYPE', get_release_type(env.JOB_BASE_NAME))
-        def AGENT = get_param('AGENT', get_agent(env.JOB_BASE_NAME))
-        def CMAKE_VERSION = get_param('CMAKE_VERSION', '3.19')
-        def GCC_VERSION = get_param('GCC_VERSION', '6.3.0')
-        def VS_VERSION = get_param('VS_VERSION', '2017')
-        def CPPCHECK_VERSION = get_param('CPPCHECK_VERSION', '1.77')
-        def BUILD_DOCS = get_param('BUILD_DOCS', false)
-        def PUSH_DOCS = get_param('PUSH_DOCS', false)
+        def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-", "")
+
+        if (env.BRANCH_NAME) {
+          currentBuild.description = "Branch: ${env.BRANCH_NAME}"
+        } else if (env.PR_NUMBER) {
+          currentBuild.displayName = "#${env.BUILD_NUMBER} PR-${env.PR_NUMBER}"
+          currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA.take(7)}"
+        }
 
         post_github_status("pending", "The build is running")
       }
@@ -275,7 +276,7 @@ pipeline {
        */
       steps {
         script {
-          if (RELEASE_TYPE == "nightly") {
+          if (env.RELEASE_TYPE == "nightly") {
             // Get the last successful Herbert master build
             copyArtifacts(
               filter: 'build/Herbert-*',
@@ -301,7 +302,7 @@ pipeline {
 
             def herbert_ref = get_herbert_ref_from_labels(
               env.PR_LABELS,
-              HERBERT_BRANCH_NAME
+              env.HERBERT_BRANCH_NAME
             )
             if (herbert_ref.startsWith('Error: ')) {
               error(herbert_ref)
@@ -381,7 +382,7 @@ pipeline {
 
     stage('Build-Docs') {
       when {
-        expression {BUILD_DOCS.toBoolean()}
+        expression {env.BUILD_DOCS?.toBoolean()}
       }
       steps {
         script {
@@ -463,7 +464,7 @@ pipeline {
 
     stage('Push-Docs') {
       when {
-        expression {BUILD_DOCS.toBoolean() && PUSH_DOCS.toBoolean()}
+        expression {env.BUILD_DOCS?.toBoolean() && env.PUSH_DOCS?.toBoolean()}
       }
       steps {
         withCredentials([string(credentialsId: 'GitHub_API_Token',
