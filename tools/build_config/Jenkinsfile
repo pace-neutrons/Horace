@@ -101,13 +101,15 @@ def get_herbert_ref_from_labels(String labels, String herbert_branch) {
   }
 }
 
-def get_param(String param_name, String default_val) {
+String get_param(String param_name, String default_val) {
   String value = "";
   try {
     value = env."${param_name}";
-  } catch (groovy.lang.MissingPropertyException _) {
+  } catch (groovy.lang.MissingPropertyException _) { }
+  if (!value) {
     value = default_val;
   }
+  return value
 }
 
 def post_github_status(String state, String message) {
@@ -193,22 +195,22 @@ properties([
       trim: true
     ),
     string(
-      description: 'The version of CMake to run the build with. Not relevant on current Windows pipelines.',
+      description: 'The version of CMake to run the build with.',
       name: 'CMAKE_VERSION',
       trim: true
     ),
     string(
-      description: 'The version of GCC to build with. Not relevant on current Windows pipelines.',
+      description: 'The version of GCC to build with.',
       name: 'GCC_VERSION',
       trim: true
     ),
     string(
-      description: 'The year of the version of Visual Studio to build with.  Not relevant on current pipelines.',
+      description: 'The year of the version of Visual Studio to build with.',
       name: 'VS_VERSION',
       trim: true
     ),
     string(
-      description: 'The version of CppCheck tooling to load to provide the code-style checks. Not relevant on current Windows pipelines.',
+      description: 'The version of CppCheck tooling to load to provide the code-style checks.',
       name: 'CPPCHECK_VERSION',
       trim: true
     ),
@@ -223,6 +225,13 @@ properties([
   ])
 ])
 
+
+if (BRANCH_NAME) {
+  currentBuild.description = "Branch: ${BRANCH_NAME}"
+} else if (env.PR_NUMBER) {
+  currentBuild.displayName = "#${env.BUILD_NUMBER} PR-${env.PR_NUMBER}"
+  currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA.take(7)}"
+}
 
 pipeline {
   agent {
@@ -248,16 +257,10 @@ pipeline {
     stage('Notify') {
       steps {
         script {
-          def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-", "")
-
-          if (env.BRANCH_NAME) {
-            currentBuild.description = "Branch: ${env.BRANCH_NAME}"
-          } else if (env.PR_NUMBER) {
-            currentBuild.displayName = "#${env.BUILD_NUMBER} PR-${env.PR_NUMBER}"
-            currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA.take(7)}"
+          if (env.PR_LABELS) {
+            echo "Found PR labels: ${env.PR_LABELS}"
           }
         }
-
         post_github_status("pending", "The build is running")
       }
     }
@@ -298,9 +301,6 @@ pipeline {
             }
 
           } else {
-            if (env.PR_LABELS) {
-              echo "Found PR labels: ${env.PR_LABELS}"
-            }
 
             def herbert_ref = get_herbert_ref_from_labels(
               env.PR_LABELS,
