@@ -102,6 +102,8 @@ def get_herbert_ref_from_labels(String labels, String herbert_branch) {
 }
 
 String get_param(String param_name, String default_val) {
+  // Return environment variable if present and non-empty
+  // Else return default
   String value = "";
   try {
     value = env."${param_name}";
