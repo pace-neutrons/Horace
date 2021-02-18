@@ -308,7 +308,8 @@ pipeline {
                 ./tools/bash/clone_herbert_branch.sh\
                   --branch ${herbert_ref}\
                   --build_args \
-                    \"--cmake_flags \\\"-DHerbert_RELEASE_TYPE=\$RELEASE_TYPE\\\" \
+                    \"--cmake_flags \\\"-DHerbert_RELEASE_TYPE=\$RELEASE_TYPE\
+                                        -DDOCS_PACK_OUTPUT=./docs.tar.gz\\\" \
                     --matlab_release \$MATLAB_VERSION\"
               """
             } else {
@@ -316,7 +317,8 @@ pipeline {
                 ./tools/pwsh/clone_herbert_branch.ps1\
                   -branch ${herbert_ref}\
                   -build_args\
-                    \"-cmake_flags \"\"-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE\"\" \
+                    \"-cmake_flags \"\"-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE\" \
+                                     \"-DDOCS_PACK_OUTPUT=./docs.zip\"\" \
                     -matlab_release \$env:MATLAB_VERSION\"
               """
             }

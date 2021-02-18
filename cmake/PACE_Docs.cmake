@@ -11,8 +11,9 @@ find_program(sphinx-build NAMES sphinx-build)
 find_program(pdflatex NAMES pdflatex)
 find_program(latexmk NAMES latexmk)
 if (sphinx-build)
+
   add_custom_target(docs
-    COMMENT "Building user documentation"
+    COMMENT "Building HTML user documentation"
     BYPRODUCTS "${DOCS_OUTPUT_DIR}/*"
     COMMAND ${sphinx-build} -b html "${DOCS_SOURCE_DIR}" "${DOCS_OUTPUT_DIR}" ${SPHINX_OPTS}
                             -D "release=${${PROJECT_NAME}_SHORT_VERSION}"
@@ -20,6 +21,7 @@ if (sphinx-build)
     )
 
   if (WIN32)
+
     add_custom_command(TARGET docs POST_BUILD
       COMMAND powershell -ExecutionPolicy Bypass -command
                  "Foreach($f in Get-ChildItem -Path '${DOCS_OUTPUT_DIR}' -Filter *.html) {
@@ -28,16 +30,36 @@ if (sphinx-build)
       DEPENDS build-docs
       VERBATIM
       )
+
+    set(DOCS_PACK_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/docs.zip" CACHE FILEPATH "Directory containing built HTML documentation")
+
+    add_custom_target(docs-pack
+      COMMENT "Zipping HTML documentation"
+      COMMAND powershell -ExecutionPolicy Bypass -command
+                 "Compress-Archive -Path \"${DOCS_OUTPUT_DIR}/*\" -DestinationPath \"${DOCS_PACK_DIR}\""
+      DEPENDS docs
+      )
+
   else()
     add_custom_command(TARGET docs POST_BUILD
       COMMAND sed -i -r "/\[NULL\]/d" "${DOCS_OUTPUT_DIR}/*html"
       DEPENDS build-docs
       )
+
+    set(DOCS_PACK_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/docs.tar.gz" CACHE FILEPATH "Directory containing built HTML documentation")
+
+    add_custom_target(docs-pack
+      COMMENT "Tarring HTML documentation"
+      COMMAND tar -czf "${DOCS_PACK_OUTPUT}" "*"
+      WORKING_DIRECTORY "${DOCS_OUTPUT_DIR}"
+      DEPENDS docs
+      )
+
   endif()
 
   if (pdflatex AND latexmk)
     add_custom_command(OUTPUT horace.tex
-      COMMAND ${sphinx-build} -b latex "${DOCS_SOURCE_DIR}" "${DOCS_WORK_DIR}" ${SPHINX_OPTS}
+      COMMAND ${sphinx-build} -b latex "${DOCS_SOURCE_DIR}" "${MANUAL_WORK_DIR}" ${SPHINX_OPTS}
                               -D "release=${${PROJECT_NAME}_SHORT_VERSION}"
                               -D "version=${${PROJECT_NAME}_SHORT_VERSION}"
       WORKING_DIRECTORY "${DOCS_ROOT_DIR}"
