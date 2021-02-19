@@ -27,6 +27,7 @@ For pull requests:
   occurs.
 - When Jenkins receives a notification from GitHub it will checkout out the
   relevant pull request branch and merge it with master.
+- PR labels are checked to determine CI process
 
 For nightly builds:
 
@@ -149,6 +150,14 @@ if the Jenkins servers were down and the payload was not received.
 Using webhooks is a more efficient method to automatically trigger builds than
 polling, as it does not require Jenkins to query GitHub on regular intervals.
 
+### GitHub PR Labels
+
+GitHub PRs are also pass labels through to the Jenkins build system. These labels can be accessed via the `PR_LABELS` environment variable from within scripts. Currently, there are 3 labels of importance to the Jenkins system.
+
+- `DO_NOT_CI` - Label which skips the Jenkins system entirely (primarily for use with documentation changes).
+- `do-not-build` - Label which skips the build and test phases of the pipeline (primarily for use with Jenkins Pipeline changes).
+- `do-not-test` - Label which skips the test phase of the pipeline (primarily for use with changing CMake build processes)
+
 ## Jenkins GUI
 
 ### Required Plugins
@@ -243,13 +252,16 @@ so any Jenkins specific tasks should *not* be in the build scripts.
 
 ### Actions
 
-| Argument (`.ps1`) | Argument (`.sh`)       |      |
-| --------------- | ------- | ---- |
-| `-build`        | `--build`, `-b`   |   Perform build   |
-| `-test`         | `--test`, `-t`    | Run MATLAB and C++ tests |
-|      | `--analyze`, `-a` | Run static code analysis (Linux only) |
-| `-package`          | `--package`, `-p`  | Create archive of build artifacts |
-| `-print_versions`          | `--print_versions`, `-v`  | Display versions of compilers, MATLAB and libraries used |
+| Argument (`.ps1`) | Argument (`.sh`)          |      |
+| ----------------- | ------------------------- | ---- |
+| `-configure`      | `--configure`, `-c`       | Create build folder and setup CMake |
+| `-build`          | `--build`, `-b`           | Perform build   |
+| `-test`           | `--test`, `-t`            | Run MATLAB and C++ tests |
+|                   | `--analyze`, `-a`         | Run static code analysis (Linux only) |
+| `-docs`           | `--docs`, `-d`            | Build HTML documentation |
+| `-push_docs`      | `--push_docs`             | Push built documentation to GitHub pages |
+| `-package`        | `--package`, `-p`         | Create archive of build artifacts |
+| `-print_versions` | `--print_versions`, `-v`  | Display versions of compilers, MATLAB and libraries used |
 
 ### Options
 
