@@ -165,6 +165,7 @@ GitHub PRs are also pass labels through to the Jenkins build system. These label
 - [Jenkins Git](https://plugins.jenkins.io/git) - Clone Git repo
 - [Generic Webhook Trigger](https://plugins.jenkins.io/generic-webhook-trigger) -
 Allows GitHub to trigger builds
+- [xUnit](https://plugins.jenkins.io/xunit) - Parse and display test results
 - [Warnings Next Generation](https://plugins.jenkins.io/warnings-ng/) - Parse and display code analysis
 
 ### Setting Up the Pipeline
