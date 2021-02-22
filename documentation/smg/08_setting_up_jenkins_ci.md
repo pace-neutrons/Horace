@@ -155,8 +155,8 @@ polling, as it does not require Jenkins to query GitHub on regular intervals.
 GitHub PRs also pass labels through to the Jenkins build system. These labels can be accessed via the `PR_LABELS` environment variable from within scripts. Currently, there are 3 labels of importance to the Jenkins system.
 
 - `DO_NOT_CI` - Label which skips the Jenkins system entirely (primarily for use with documentation changes).
-- `do-not-build` - Label which skips the build and test phases of the pipeline (primarily for use with Jenkins Pipeline changes).
-- `do-not-test` - Label which skips the test phase of the pipeline (primarily for use with changing CMake build processes)
+- `do-not-build` - Label which skips the build (of C++ components) and test stages of the pipeline (primarily for use with Jenkins Pipeline changes).
+- `do-not-test` - Label which skips the test stage of the pipeline (primarily for use with changing CMake build processes)
 
 ## Jenkins GUI
 
