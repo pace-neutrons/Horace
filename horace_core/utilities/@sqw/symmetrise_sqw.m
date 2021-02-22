@@ -96,7 +96,7 @@ uconv=header.u_to_rlu(1:3,1:3);
 
 %convert the vectors specifying the reflection plane from rlu to the
 %orthonormal frame of the pix array:
-% do not rely on the shift of the image to define symetry plain. 
+% do not rely on the shift of the image to define symetry plain.
 %vec1=uconv\(v1'-header.uoffset(1:3));
 %vec2=uconv\(v2'-header.uoffset(1:3));
 % the symetry plain should be defined in real hkl, not shifted hkl the
@@ -152,9 +152,6 @@ side_dot=coords_new'*normvec; % MP: vector of scalar products, w/o repmat/bsxfun
 idx = find(side_dot > 0);
 coords_new(:, idx) = Reflec*coords_new(:, idx); % MP: (TODO) could potentially be optimized further
 clear 'side_dot'; % MP: not needed anymore
-% Testing the ranges transformation
-%orig_range = win.data.pix.pix_range;
-%cross_points = box_cross(orig_range,vec1,vec2,vec3);
 
 coords_new=bsxfun(@plus, coords_new, vec3); % MP
 
@@ -169,11 +166,21 @@ existing_range = wout.data.img_range+header.uoffset';
 
 hkl_range_minmax = existing_range(:,1:3);
 %
-% Convert range expressed as min-max points into the whole range of points
-hkl_exp_range = expand_box(hkl_range_minmax(1,:),hkl_range_minmax(2,:));
-% Crystal Cartesian range:
-cc_exist_range = uconv\hkl_exp_range;
-cc_minmax = [min(cc_exist_range,[],2),max(cc_exist_range,[],2)];
+%TODO: Fudge to be resolved with generic projection refactoring
+if all(wout.data.ulen == [1,1,1,1])
+    % axis are in pix_ranges
+    cc_minmax = hkl_range_minmax';
+    cc_exist_range= expand_box(cc_minmax(:,1),cc_minmax(:,2));    
+    img_range_is_hkl = false;
+else
+    % axis are in hkl or whatever
+    % Convert range expressed as min-max points into the whole range of points
+    hkl_exp_range = expand_box(hkl_range_minmax(1,:),hkl_range_minmax(2,:));
+    % Crystal Cartesian range:
+    cc_exist_range = uconv\hkl_exp_range;
+    cc_minmax = [min(cc_exist_range,[],2),max(cc_exist_range,[],2)];
+    img_range_is_hkl = true;    
+end
 % add intersection points
 cross_points = box_intersect(cc_minmax ,[vec1,vec2,vec3]);
 cc_exist_range = [cc_exist_range,cross_points];
@@ -183,27 +190,43 @@ side_dot=cc_exist_range'*normvec;
 idx = find(side_dot > 0);
 cc_exist_range(:,idx) = Reflec*cc_exist_range(:,idx);
 cc_exist_range = [cc_exist_range,cross_points];
-hkl_box_points  = uconv*cc_exist_range ;
+if img_range_is_hkl
+    hkl_box_points  = uconv*cc_exist_range ;
 %
-hkl_range_minmax = [min(hkl_box_points,[],2),max(hkl_box_points,[],2)]';
-all_range = [hkl_range_minmax,wout.data.img_range(:,4)];
+    hkl_range_minmax = [min(hkl_box_points,[],2),max(hkl_box_points,[],2)]';
+    all_sym_range = [hkl_range_minmax,wout.data.img_range(:,4)];
+    
+else
+    cc_range_minmax = [min(cc_exist_range,[],2),max(cc_exist_range,[],2)]';
+    all_sym_range = [cc_range_minmax,wout.data.img_range(:,4)];    
+    
+    %TODO: it looks like cut(without arguments)
+    %is broken as assumes img_range always to be in hkl.    
+    cc_exp_range = expand_box(all_sym_range(1,1:3),all_sym_range(2,1:3));
+    hkl_box_points  = uconv*cc_exp_range ;
+%
+    hkl_range_minmax = [min(hkl_box_points,[],2),max(hkl_box_points,[],2)]';
+    all_sym_range = [hkl_range_minmax,wout.data.img_range(:,4)];            
+end
 %
 % Extract existing binning:
-new_range = cell(1,4);
+new_range_arg = cell(1,4);
 paxis  = false(4,1);
-paxis(wout.data.pax) = true; 
+paxis(wout.data.pax) = true;
 npax = 0;
 for i=1:4
-    new_range{i} = all_range(:,i)';
+    new_range_arg{i} = all_sym_range(:,i)';
     if paxis(i)
         npax = npax+1;
-        scale = wout.data.p{npax};
-        step = scale(2)-scale(1);
-        range = new_range{i};
+        np = numel(wout.data.p{npax});
+        range = new_range_arg{i};
         dist = range(2)-range(1);
-        np = floor((dist)/step)+1;
-        step = dist/np;
-        new_range{i} = [range(1),step,range(2)];
+        if np>1
+            step = dist/(np-1);
+        else
+            step = dist;            
+        end
+        new_range_arg{i} = [range(1),step,range(2)];
     end
 end
 
@@ -212,118 +235,15 @@ info_level = get(hor_config,'log_level');
 cleanup_obj=onCleanup(@()set(hor_config,'log_level',info_level));
 set(hor_config,'log_level',-1);
 
-wout.data.img_range = all_range;
-wout.data.pax = [];
-wout.data.iax = 1:4;
-wout=cut(wout,new_range{:});
+% completely break relationship between bins and pixels in memory and make
+% all pixels contribute into single large bin
+wout.data.img_range = all_sym_range ;   
+
+wout.data.pax = 1:4;
+wout.data.dax = 1:4;
+wout.data.p  = arrayfun(@(i)(all_sym_range(:,i)),1:4,'UniformOutput',false);
+wout.data.npix = sum(reshape(wout.data.npix,1,numel(wout.data.npix)));
+%
+wout=cut(wout,new_range_arg{:});
 
 
-%coords_new = @() wout.data.pix.q_coordinates; % MP: 'pointer'
-
-
-%=========================================================================
-
-%Now we need to calculate the new data range in terms of the coordinate
-%frame of the cut/slice/volume. To do this we must convert the coordinates
-%of the pixels to be in the coordinate frame of the slice, and then compare
-%the minima and maxima to the previous ranges.
-
-%Convert co-ords of pixel array to those of the slice/cut frame (remember
-%to include uoffset!!!)
-% tmp=(header.u_to_rlu(1:3,1:3)) * coords_new();
-% tmp=bsxfun(@plus, tmp, header.uoffset(1:3)); % MP: replaced repmat
-% tmp=win.data.u_to_rlu(1:3,1:3) \ tmp;
-% 
-% coords_cut=bsxfun(@plus, tmp, win.data.uoffset(1:3)); % MP: replaced repmat
-% clear 'tmp';
-% 
-% %Extra line required here to include energy in coords_cut (needed below):
-% epix=@() win.data.pix.dE; %energy is never reflected, of course % MP: only accessed once
-% coords_cut=[coords_cut;epix()]; % MP: (TODO) horzcat needs quite some memory, could reduced by resizing coords_cut first and then assigning last row
-% 
-% ndims=dimensions(win);
-% 
-% %==============
-% %Old code before bug spotted by Matt Mena:
-% 
-% %Extent of data before symmetrisation:
-% %note we use the axes of the cut, not the pix_range, since user may have
-% %chosen to have white space around their slice / cut for a reason
-% % for i=1:ndims
-% %     min_unref{i}=min(win.data.p{win.data.pax(i)});
-% %     max_unref{i}=max(win.data.p{win.data.pax(i)});
-% % end
-% %
-% % %Extent of data after symmetrisation:
-% % for i=1:ndims
-% %     min_ref{i}=min(coords_cut(win.data.pax(i),:));
-% %     max_ref{i}=max(coords_cut(win.data.pax(i),:));
-% % end
-% %===============
-% 
-% %New code, after bug fix (RAE 14/3/13):
-% existing_range = win.data.calc_img_range();
-% 
-% %Extent of data after symmetrisation:
-% min_ref = zeros(ndims,1);
-% max_ref = zeros(ndims,1);
-% for i=1:ndims
-%     %binwid=win.data.p{i}(2)-win.data.p{i}(1);
-%     min_ref(i)=min(coords_cut(win.data.pax(i),:))+existing_range{i}(2)/2;
-%     max_ref(i)=max(coords_cut(win.data.pax(i),:))-existing_range{i}(2)/2;
-% end
-% 
-% clear 'coords_cut'; % MP: not needed anymore
-
-%==============
-
-% %Now work out the full extent of the symmetrised data:
-% min_full = zeros(ndims,1);
-% max_full = zeros(ndims,1);
-% for i=1:ndims
-%     min_full(i)=min(existing_range{i}(1), min_ref(i));
-%     max_full(i)=max(existing_range{i}(3), max_ref(i));
-% end
-% 
-% %We have to ensure that we also adjust the pix_range field appropriately:
-% new_range = cell(ndims,1);
-% for i=1:ndims
-%     %step=wout.data.p{i}(2)-wout.data.p{i}(1);
-%     %add a little bit either side, to be sure of getting everything
-%     wout.data.img_range(1,wout.data.pax(i))=min_full(i)-existing_range{i}(2);
-%     wout.data.img_range(2,wout.data.pax(i))=max_full(i)+existing_range{i}(2);
-%     new_range{i} = [min_full(i),existing_range{i}(2),max_full(i)];
-% end
-
-%cannot use recompute_bin_data to get the new object...
-%Notice that Horace can deal with working out the data range itself if we
-%set the plot limits to be +/-Inf
-
-
-% if ndims==1
-%     xstep=win.data.p{1}(2)-win.data.p{1}(1);
-%     wout=cut(wout,[min_full(1),xstep,max_full(1)]);
-% %     wout=cut(wout,[-Inf,xstep,Inf]);
-% elseif ndims==2
-%     xstep=win.data.p{1}(2)-win.data.p{1}(1);
-%     ystep=win.data.p{2}(2)-win.data.p{2}(1);
-%     wout=cut(wout,[min_full(1),xstep,max_full(1)],[min_full(2),ystep,max_full(2)]);
-% %     wout=cut(wout,[-Inf,xstep,Inf],[-Inf,ystep,Inf]);
-% elseif ndims==3
-%     xstep=win.data.p{1}(2)-win.data.p{1}(1);
-%     ystep=win.data.p{2}(2)-win.data.p{2}(1);
-%     zstep=win.data.p{3}(2)-win.data.p{3}(1);
-%     wout=cut(wout,[min_full(1),xstep,max_full(1)],[min_full(2),ystep,max_full(2)],...
-%         [min_full(3),zstep,max_full(3)]);
-% %     wout=cut(wout,[-Inf,xstep,Inf],[-Inf,ystep,Inf],[-Inf,zstep,Inf]);
-% elseif ndims==4
-%     xstep=win.data.p{1}(2)-win.data.p{1}(1);
-%     ystep=win.data.p{2}(2)-win.data.p{2}(1);
-%     zstep=win.data.p{3}(2)-win.data.p{3}(1);
-%     estep=win.data.p{4}(2)-win.data.p{4}(1);
-%     wout=cut(wout,[min_full(1),xstep,max_full(1)],[min_full(2),ystep,max_full(2)],...
-%         [min_full(3),zstep,max_full(3)],[min_full(4),estep,max_full(4)]);
-% %     wout=cut(wout,[-Inf,xstep,Inf],[-Inf,ystep,Inf],[-Inf,zstep,Inf],[-Inf,estep,Inf]);
-% else
-%     error('ERROR: Dimensions of dataset is not integer in the range 1 to 4');
-% end
