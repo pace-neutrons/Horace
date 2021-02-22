@@ -190,18 +190,7 @@ classdef test_func_eval < TestCase
             end
         end
 
-        function test_you_can_apply_func_eval_to_cell_arr_with_files_and_objects(obj)
-            inputs = {obj.sqw_2d_obj, obj.sqw_2d_file_path};
-
-            sqws_out = func_eval(inputs, obj.quadratic, obj.quadratic_params);
-
-            assertEqual(size(sqws_out), [1, 2]);
-            for i = 1:numel(inputs)
-                obj.validate_func_eval_sqw_output(obj.sqw_2d_obj, sqws_out(i));
-            end
-        end
-
-        function test_you_can_apply_func_eval_on_out_of_memory_data(obj)
+        function test_output_file_of_out_of_memory_op_matches_reference_data(obj)
             config_cleanup = set_temporary_config_options( ...
                 hor_config, 'pixel_page_size', 3e5 ...
             );
@@ -243,7 +232,7 @@ classdef test_func_eval < TestCase
             end
         end
 
-        function test_applying_to_cell_array_of_mix_of_files_and_objects(obj)
+        function test_output_on_cell_arr_with_files_and_objects_matches_ref(obj)
             sqws_in = {obj.sqw_2d_file_path, obj.sqw_2d_obj};
             sqws_out = func_eval(sqws_in, obj.quadratic, obj.quadratic_params);
 
