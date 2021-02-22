@@ -7,7 +7,7 @@ This document seeks to address the inconsistent error handling scheme in pace an
 error handling should be addressed in future development and retroactively in older code.
 
 ## Current state
-Presently in PACE, there are different mechanisms being used which obscure traceback on errors and warnings these are:
+Presently in PACE, there are several different mechanisms being used which obscure traceback on errors and warnings. The key ones are:
 
 - Passing error states and messages back through arguments and optionally throwing
   ```matlab
