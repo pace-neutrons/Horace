@@ -27,7 +27,7 @@ function obj = validate_pixel_positions(obj)
 
         if uint64(pix_end) ~= uint64(file_end)
             % make object an sqw_v2 object and exit
-            write_v2_obj_header_(obj);
+            put_v2_obj_header_(obj);
             error('FACCESS_SQW_V3:runtime_error',...
                 ['can not move to pixel end to write auxiliary V3 information\n',...
                 ' File written as v2 file, which may have corrupted pixels.']);

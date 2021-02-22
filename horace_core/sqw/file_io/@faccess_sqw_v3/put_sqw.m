@@ -30,7 +30,7 @@ end
 obj = obj.validate_pixel_positions();
 
 if force_v2
-    obj.write_v2_obj_header_();
+    obj.put_v2_obj_header_();
     error('FACCESS_SQW_V3:runtime_error',...
         'forced saving sqw v2 object. v3 writer destroyed')
 end
