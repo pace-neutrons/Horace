@@ -44,7 +44,7 @@ classdef test_func_eval < TestCase
         function test_SQW_error_if_func_handle_arg_is_not_a_function_handle(obj)
             sqw_in = sqw();
             f = @() func_eval(sqw_in, 'not_a_handle', obj.quadratic_params);
-            assertExceptionThrown(f, 'SQW:func_eval:invalid_argument');
+            assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
         end
 
         function test_SQW_error_applying_func_eval_to_0D_sqw(obj)
@@ -98,7 +98,7 @@ classdef test_func_eval < TestCase
                     obj.sqw_2d_file_path, obj.quadratic, obj.quadratic_params, ...
                     'filebacked', invalid_vals{i} ...
                 );
-                assertExceptionThrown(f, 'SQW:func_eval:invalid_argument');
+                assertExceptionThrown(f, 'MATLAB:InputParser:ArgumentFailedValidation');
             end
         end
 
@@ -261,6 +261,20 @@ classdef test_func_eval < TestCase
             assertEqual(exist(sqw_out_file, 'file'), 2);
         end
 
+        function test_npix_all_ones_if_all_flag_given_and_no_pixels(obj)
+            sqw_in = obj.sqw_2d_obj;
+            sqw_in.data.pix = PixelData();
+            sqw_out = func_eval( ...
+                sqw_in, obj.quadratic, obj.quadratic_params, '-all' ...
+            );
+
+            assertElementsAlmostEqual( ...
+                sqw_out.data.s(end, :), ...
+                obj.final_img_signal_row_sqw_2d ...
+            );
+            assertEqual(sqw_out.data.npix, ones(size(obj.sqw_2d_obj.data.npix)));
+        end
+
         %% DnD tests
         function test_applying_func_eval_to_dnd_object_returns_correct_dnd_data(obj)
             dnd_out = func_eval(obj.d2d_obj, obj.quadratic, obj.quadratic_params);
@@ -313,6 +327,32 @@ classdef test_func_eval < TestCase
                 );
                 obj.validate_func_eval_dnd_output(obj.d2d_obj, dnd_out);
             end
+        end
+
+        function test_for_dnd_input_npix_are_all_ones_if_all_flag_given(obj)
+            dnd_out = func_eval( ...
+                obj.d2d_obj, obj.quadratic, obj.quadratic_params, '-all' ...
+            );
+
+            assertElementsAlmostEqual( ...
+                dnd_out.s(end, :), ...
+                obj.final_img_signal_row_dnd, ...
+                'relative', obj.FLOAT_TOL ...
+            );
+            assertEqual(dnd_out.npix, ones(size(obj.d2d_obj.npix)));
+        end
+
+        function test_for_dnd_input_npix_are_all_ones_if_kwarg_all_is_true(obj)
+            dnd_out = func_eval( ...
+                obj.d2d_obj, obj.quadratic, obj.quadratic_params, 'all', true ...
+            );
+
+            assertElementsAlmostEqual( ...
+                dnd_out.s(end, :), ...
+                obj.final_img_signal_row_dnd, ...
+                'relative', obj.FLOAT_TOL ...
+            );
+            assertEqual(dnd_out.npix, ones(size(obj.d2d_obj.npix)));
         end
     end
 
