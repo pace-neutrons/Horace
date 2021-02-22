@@ -46,6 +46,9 @@ classdef data_sqw_dnd
     end
     properties(Constant)
         version = 1.0;
+        % the size of the border, used in gen_sqw. The img_range in gen_sqw
+        % exceeds real pix_range (or input pix_range) by this value
+        border_size = 1.e-6
     end
     
     methods
@@ -59,7 +62,9 @@ classdef data_sqw_dnd
         range = get_bin_range(obj);
         % convert sqw_dnd object into structure
         struc = struct(obj,varargin);
-        %
+        % Extract projection, used to build sqw file from full data_sqw_dnd
+        % object (full-- containing pixels)
+        proj = get_projection(obj)
         %------------------------------------------------------------------
         function obj = data_sqw_dnd(varargin)
             % constructor || copy-constructor:
