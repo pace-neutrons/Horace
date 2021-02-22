@@ -83,5 +83,77 @@ classdef test_projection_class<TestCase
             %wc = cut_dnd(w,0.01,0.01,[-0.1,0.1],2);
         end
         
+        function test_alatt_column_gives_row(~)
+            proj = projection();
+            proj.alatt = [3;4;5];
+            assertEqual(proj.alatt,[3,4,5]);
+        end
+        
+        function test_alatt_row_gives_row(~)
+            proj = projection();
+            proj.alatt = [3,4,5];
+            assertEqual(proj.alatt,[3,4,5]);
+        end
+        
+        function test_alatt_single_gives3(~)
+            proj = projection();
+            proj.alatt = 3;
+            assertEqual(proj.alatt,[3,3,3]);
+        end
+        
+        function test_alatt_invalid_throw(~)
+            proj = projection();
+            pass = false;
+            try
+                proj.alatt = [1,1,1,1];
+                pass = true;
+            catch ERR
+                assertEqual(ERR.identifier,'aPROJECTION:invalid_argument');
+            end
+            assertFalse(pass,'invalid alatt value should throw an error')
+        end
+        function test_angdeg_column_gives_row(~)
+            proj = projection();
+            proj.angdeg = [90;95;80];
+            assertEqual(proj.angdeg,[90,95,80]);
+        end
+        
+        function test_angdeg_row_gives_row(~)
+            proj = projection();
+            proj.angdeg = [90,95,80];
+            assertEqual(proj.angdeg,[90,95,80]);
+        end
+        
+        function test_angdeg_single_gives3(~)
+            proj = projection();
+            proj.angdeg = 30;
+            assertEqual(proj.angdeg,[30,30,30]);
+        end
+        
+        function test_angdeg_invalid_length_throw(~)
+            proj = projection();
+            pass = false;
+            try
+                proj.angdeg = [1,1,1,1];
+                pass = true;
+            catch ERR
+                assertEqual(ERR.identifier,'aPROJECTION:invalid_argument');
+            end
+            assertFalse(pass,'invalid angdeg vector length should throw an error')
+        end
+        function test_angdeg_invalid_angle_throw(~)
+            proj = projection();
+            pass = false;
+            try
+                proj.angdeg = [200,10,30];
+                pass = true;
+            catch ERR
+                assertEqual(ERR.identifier,'aPROJECTION:invalid_argument');
+            end
+            assertFalse(pass,'invalid angdeg value should throw an error')
+        end
+        
+        
+        
     end
 end

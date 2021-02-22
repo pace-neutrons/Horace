@@ -19,10 +19,11 @@ classdef test_data_sqw_dnd < TestCaseWithSave
           root_dir = horace_root();
           data_dir = fullfile(root_dir,'_test','common_data');
           obj.par_file =  fullfile(data_dir,obj.par_file);
-          obj.ref_sqw = fake_sqw(-80:8:760, obj.par_file, '', 800,...
+          ref_sqw = fake_sqw(-80:8:760, obj.par_file, '', 800,...
                     1, [2,2.5,2], [95,110,90],...
                     [1,0,0], [0,1,0], 5,...
                     0, 0, 0, 0);
+           obj.ref_sqw = ref_sqw{1};
 
         end
         
@@ -111,6 +112,9 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             d_sqw_dnd = obj.ref_sqw.data;
             proj =  d_sqw_dnd.get_projection();
             assertTrue(isa(proj,'aProjection'));
+            
+            same_sqw = cut_sqw(obj.ref_sqw,proj,[],[],[],[]);
+            assertEqual(obj.ref_sqw,same_sqw);
         end
     end
 end
