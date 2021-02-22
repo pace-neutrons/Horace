@@ -85,7 +85,7 @@ classdef test_func_eval < TestCase
             assertExceptionThrown(f, 'HORACE:func_eval:input_type_error');
         end
 
-        function test_you_cannot_input_arrays_within_a_cell_array(obj)
+        function test_error_if_func_eval_input_arrays_within_a_cell_array(obj)
             inputs = {[obj.sqw_2d_obj, obj.sqw_2d_obj], obj.sqw_2d_file_path};
             f = @() func_eval(inputs, obj.quadratic, obj.quadratic_params);
             assertExceptionThrown(f, 'HORACE:func_eval:too_many_elements');
@@ -179,7 +179,7 @@ classdef test_func_eval < TestCase
             obj.validate_func_eval_sqw_output(obj.sqw_2d_obj, sqw_out);
         end
 
-        function test_you_can_apply_func_eval_to_cell_array_of_sqw_files(obj)
+        function test_input_cell_array_of_sqw_files_rets_array_of_sqw(obj)
             sqw_files_in = {obj.sqw_2d_file_path, obj.sqw_2d_file_path};
 
             sqws_out = func_eval(sqw_files_in, obj.quadratic, obj.quadratic_params);
@@ -210,7 +210,7 @@ classdef test_func_eval < TestCase
             obj.validate_func_eval_sqw_output(obj.sqw_2d_obj, sqw_out);
         end
 
-        function test_applying_to_cell_array_of_files_on_out_of_memory_data(obj)
+        function test_output_files_of_cell_array_of_files_on_out_of_memory_data(obj)
             sqw_files_in = {obj.sqw_2d_file_path, obj.sqw_2d_file_path};
             sqw_out_files = func_eval( ...
                 sqw_files_in, obj.quadratic, obj.quadratic_params, ...
