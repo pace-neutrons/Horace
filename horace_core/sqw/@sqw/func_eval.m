@@ -110,7 +110,7 @@ end
 for i = 1:numel(win)    % use numel so no assumptions made about shape of input array
     sqw_type=is_sqw_type(win(i));   % determine if sqw or dnd type
     ndim=length(win(i).data.pax);
-    if sqw_type || ~opts.all_bins        % only evaluate at the bins actually containing data
+    if sqw_type || ~opts.all        % only evaluate at the bins actually containing data
         ok=(win(i).data.npix~=0);   % should be faster than isfinite(1./win.data.npix), as we know that npix is zero or finite
     else
         ok=true(size(win(i).data.npix));
@@ -127,6 +127,7 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
         pcent{n}=pcent{n}(:);   % convert into column vectors
         pcent{n}=pcent{n}(ok);  % pick out only those bins at which to evaluate function
     end
+
     % Evaluate function
     wout(i).data.s(ok) = func_handle(pcent{:},pars{:});
     wout(i).data.e = zeros(size(win(i).data.e));
@@ -140,7 +141,7 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
         else
             write_sqw_with_out_of_mem_pix(wout(i), opts.outfile{i});
         end
-    elseif opts.all_bins
+    elseif opts.all
         % in this case, must set npix>0 to be plotted
         wout(i).data.npix=ones(size(wout(i).data.npix));
     end
@@ -165,43 +166,22 @@ end  % function
 
 % -----------------------------------------------------------------------------
 function [pars, opts] = parse_args(win, func_handle, pars, varargin)
-    if ~isa(func_handle, 'function_handle')
-        error( ...
-            'SQW:func_eval:invalid_argument', ...
-            'Argument ''func_handle'' must be a function handle.\nFound ''%s''.', ...
-            class(func_handle) ...
-        );
+    [~, ~, all_flag, args] = parse_char_options(varargin, {'-all'});
+
+    parser = inputParser();
+    parser.addRequired('func_handle', @(x) isa(x, 'function_handle'));
+    parser.addRequired('pars');
+    parser.addParameter('outfile', {}, @(x) iscellstr(x) || ischar(x) || isstring(x));
+    parser.addParameter('all', all_flag, @islognumscalar);
+    parser.addParameter('filebacked', false, @islognumscalar);
+    parser.parse(func_handle, pars, args{:});
+    opts = parser.Results;
+
+    if ~iscell(opts.pars)
+        opts.pars = {opts.pars};
     end
-
-    keyval_def = struct('all', false, 'outfile', '', 'filebacked', false);
-    flag_names = {'all'};
-    parse_opts.flags_noneg = true;
-    parse_opts.flags_noval = true;
-    [~, keyval, ~] = parse_arguments( ...
-        varargin, keyval_def, flag_names, parse_opts ...
-    );
-
-    if ~iscell(pars)
-        pars = {pars};
-    end
-    opts.all_bins = keyval.all;
-
-    if ~islognumscalar(keyval.filebacked)
-        error( ...
-            'SQW:func_eval:invalid_argument', ...
-            ['Parameter ''filebacked'' must be a scalar logical value.\n', ...
-             'Found ''%s'' with size [%s].'], ...
-            class(keyval.filebacked), num2str(size(keyval.filebacked)) ...
-        );
-    end
-    opts.filebacked = keyval.filebacked;
-
-    if isempty(keyval.outfile)
-        opts.outfile = {};
-    elseif ~iscell(keyval.outfile)
-        opts.outfile = {keyval.outfile};
-    else
-        opts.outfile = keyval.outfile;
+    if ~iscell(opts.outfile)
+        opts.outfile = {opts.outfile};
     end
 
     outfiles_empty = all(cellfun(@(x) isempty(x), opts.outfile));
