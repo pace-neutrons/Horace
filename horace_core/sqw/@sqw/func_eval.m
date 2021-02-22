@@ -71,9 +71,9 @@ function wout = func_eval (win, func_handle, pars, varargin)
 %  - Use nggridcell to make generic for dimensions greater than one
 %  - Reinstate 'all' option
 %  - Make output an sqw object with all pixels set equal to gid value. This is one
-%    choice; another equally valid one is to say that the outut should be dnd object,
+%    choice; another equally valid one is to say that the output should be dnd object,
 %    i.e. lose pixel information. The latter is a little counter to the spirit that if that is
-%    what was intended, then shoucl have made a d1d,d2d,.. or whatever object before calling
+%    what was intended, then should have made a d1d,d2d,.. or whatever object before calling
 %    func_eval
 %       >>  wout = func_eval(dnd(win), func_handle, pars)
 %    (note, if revert to latter, if array input then all objects must have same dimensionality)
