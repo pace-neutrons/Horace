@@ -81,20 +81,20 @@ if (sphinx-build)
 
   else()
     add_custom_target(manual
-      COMMENT "Manual requires latexmk and pdflatex to build"
+      COMMENT "LaTeX manual requires latexmk and pdflatex to build"
       )
   endif()
 
 else()
   add_custom_target(docs
-    COMMENT "Docs require sphinx and sphinx-rtd-theme to build"
+    COMMENT "HTML Docs require sphinx and sphinx-rtd-theme to build"
     )
 
   add_custom_target(docs-pack
-    COMMENT "Docs require sphinx and sphinx-rtd-theme to build"
+    COMMENT "HTML Docs require sphinx and sphinx-rtd-theme to build"
     )
 
   add_custom_target(manual
-    COMMENT "Docs require sphinx and sphinx-rtd-theme to build"
+    COMMENT "LaTeX manual require sphinx and sphinx-rtd-theme to build"
     )
 endif()
