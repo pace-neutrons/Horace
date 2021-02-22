@@ -1,4 +1,4 @@
-function obj = write_v2_obj_header_(obj)
+function obj = put_v2_obj_header_(obj)
 % write v3 file as v2 file
 %
 head = obj.build_app_header();
