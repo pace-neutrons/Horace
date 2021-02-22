@@ -156,7 +156,7 @@ nb_pairs = ...
 % Allocate memory for all nodes candidates The number of nodes is 
 % 32 = n_nodes*n_edges_from_node/2  but the memory is twice of that to
 % accound for duplicates
-edges_ind = zeros(2,32*2);
+edges_ind = zeros(2,64);
 ic = 1;
 for ii=1:ND
     [i0,j0,k0,l0] = ind2sub(size(ind),ii);
