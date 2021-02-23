@@ -52,6 +52,7 @@ The key-value pair syntax is equivalent to the Pythonic syntax, e.g. `function_n
 
 The mix of `-flagname` and `flagname` introduces complexity into argument parsing - specifically identifying if a string argument `flagname` a flag or a keyword argument?
 
+Inclusion of negated flags allows inconsistent, ambiguous or multiplicitous arguments to be defined, complicating the user experience, e.g. `-disable-x` vs `-nodisable-x` vs `-enable-x` vs `-noenable-x` vs `-x`
 
 ## Decision
 
@@ -60,8 +61,8 @@ The MATLAB APIs must support positional, optional flag and keyword arguments:
 - flag arguments will be prefixed with `-`
 - flag arguments will default to `false` if not passed
 - if the same parameter is passed as both a flag and keyword argument with inconsistent values an error will be raised, otherwise the parameter is set to the passed value
-- flag arguments may be negated, specified as `-noflagname` (`false`) or `-flagname` (`true`). An error will be raised if this prefix would lead to an ambiguity with another flag argument e.g. defining`-nodes` (use nodes) and `-des`
-- flag arguments may be truncated to the minimum unambiguous string for all flags defined on that function e.g. `-flagname`, `-flag`, `-f` are all valid. No other abbreviations will be supported. 
+- support for negated flags prefixing with `no` will be removed. All flags will map to `true` when specified. Flag names may include the `no` prefix to make their meaning clear, e.g. `-nopix` will suppress pixel handling in that function
+- flag arguments may be truncated to the minimum unambiguous string for all flags defined on that function e.g. `-flagname`, `-flag`, `-f` are all valid. No other abbreviations will be supported
 - keyword arguments may not be abbreviated.
 
 The Python API will use ordered (mandatory) positional, optional positional and keyword arguments in the function defition.
