@@ -1,8 +1,10 @@
 function obj = validate_pixel_positions(obj)
 %VALIDATE_PIXEL_POSITIONS validate pixel file positions against number of pixels
 % If inconsistencies found between the number of pixels in the file and
-% the number of pixels expected to be written, write SQW object headers as
-% v2 file and throw an FACCESS error.
+% the number of pixels expected to be written, print a warning and wait 10
+% seconds for the missing pixels to be written. If missing pixels are not
+% written, then serialize and write the SQW object headers as a v2 object and
+% throw an FACCESS error.
 %
 BYTES_IN_FLOAT = 4;
 PIX_COLS = PixelData.DEFAULT_NUM_PIX_FIELDS;
