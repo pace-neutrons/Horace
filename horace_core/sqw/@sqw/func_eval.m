@@ -79,7 +79,7 @@ function wout = func_eval (win, func_handle, pars, varargin)
 %    (note, if revert to latter, if array input then all objects must have same dimensionality)
 %
 
-[pars, opts] = parse_args(win, func_handle, pars, varargin{:});
+[func_handle, pars, opts] = parse_args(win, func_handle, pars, varargin{:});
 
 % Input sqw objects must have equal no. of dimensions in image or the input
 % function cannot have the correct number of arguments for all sqws
@@ -165,7 +165,7 @@ end  % function
 
 
 % -----------------------------------------------------------------------------
-function [pars, opts] = parse_args(win, func_handle, pars, varargin)
+function [func_handle, pars, opts] = parse_args(win, func_handle, pars, varargin)
     [~, ~, all_flag, args] = parse_char_options(varargin, {'-all'});
 
     parser = inputParser();
@@ -198,6 +198,9 @@ function [pars, opts] = parse_args(win, func_handle, pars, varargin)
             numel(win), 'horace_func_eval', tmp_dir() ...
         );
     end
+
+    func_handle = opts.func_handle;
+    pars = opts.pars;
 end
 
 
