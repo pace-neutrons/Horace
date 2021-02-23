@@ -1,5 +1,5 @@
-function cleanup_file(file_path)
-%%CLEANUP_FILE Delete the given file
+function clean_up_file(file_path)
+%%CLEAN_UP_FILE Delete the given file
 % This function will check if the file is currently open in Matlab and close it
 % if so.
 %
