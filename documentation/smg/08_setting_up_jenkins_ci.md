@@ -27,7 +27,8 @@ For pull requests:
   occurs.
 - When Jenkins receives a notification from GitHub it will checkout out the
   relevant pull request branch and merge it with master.
-- PR labels are checked to determine CI process
+- PR labels are checked to determine CI process including which stages to run, 
+  and the Herbert version to pull 
 
 For nightly builds:
 
@@ -152,11 +153,14 @@ polling, as it does not require Jenkins to query GitHub on regular intervals.
 
 ### GitHub PR Labels
 
-GitHub PRs also pass labels through to the Jenkins build system. These labels can be accessed via the `PR_LABELS` environment variable from within scripts. Currently, there are 3 labels of importance to the Jenkins system.
+GitHub PRs pass labels through to the Jenkins build system. These labels can be accessed via the `PR_LABELS` environment variable from within scripts. Currently, there are 3 labels of importance to the Jenkins system.
 
 - `DO_NOT_CI` - Label which skips the Jenkins system entirely (primarily for use with documentation changes).
-- `do-not-build` - Label which skips the build (of C++ components) and test stages of the pipeline (primarily for use with Jenkins Pipeline changes).
-- `do-not-test` - Label which skips the test stage of the pipeline (primarily for use with changing CMake build processes)
+- `do-not-build` - Label which skips the build (of C++ components) and test (C++ & MATLAB) stages of the pipeline 
+                   (primarily for use with Jenkins Pipeline changes).
+- `do-not-test` - Label which skips the test (C++ & MATLAB) stage of the pipeline
+                  (primarily for use with changing CMake build processes)
+- `Herbert_<branch>` - Build Herbert branch designated by `branch` as part of Horace 
 
 ## Jenkins GUI
 
