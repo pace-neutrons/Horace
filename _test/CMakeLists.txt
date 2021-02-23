@@ -8,6 +8,7 @@ set(TEST_DIRECTORIES
     "test_utilities"
     "test_instrument_classes"
     "test_docify"
+    "test_geometry"
     "test_admin"
     "test_mpi_wrappers"
     "test_mpi/test_job_dispatcher_herbert"
