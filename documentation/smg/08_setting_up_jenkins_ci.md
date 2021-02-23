@@ -153,7 +153,8 @@ polling, as it does not require Jenkins to query GitHub on regular intervals.
 
 ### GitHub PR Labels
 
-GitHub PRs pass labels through to the Jenkins build system. These labels can be accessed via the `PR_LABELS` environment variable from within scripts. Currently, there are 3 labels of importance to the Jenkins system.
+GitHub PRs pass labels through to the Jenkins build system. These labels can be accessed via the `PR_LABELS` environment variable from within scripts. 
+Currently, there are 3 labels which control the CI process and one which controls the build process.
 
 - `DO_NOT_CI` - Label which skips the Jenkins system entirely (primarily for use with documentation changes).
 - `do-not-build` - Label which skips the build (of C++ components) and test (C++ & MATLAB) stages of the pipeline 
