@@ -272,13 +272,18 @@ function loader = write_out_of_mem_pix(pix, npix, img_signal, loader)
 
         pix.signal = repelem(img_signal(start_idx:end_idx), npix_chunk);
         pix.variance = 0;
-
         loader = loader.put_bytes(pix.data);
+
         if pix.has_more()
             % Do not save cached changes to pixels.
+            % We avoid copying pixels by just editing the signal/variance of
+            % the current page of the input pixels, then saving that page to
+            % the output file. We don't want to retain changes made to the
+            % input PixelData object, so we discard edits to the cache when we
+            % load the next page of pixels.
             pix.advance('nosave', true);
         else
-            % make sure we discard the final changes to cache
+            % Make sure we discard the changes made to the final page's cache
             pix.move_to_page(1, 'nosave', true);
             break;
         end
