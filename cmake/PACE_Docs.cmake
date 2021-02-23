@@ -1,11 +1,11 @@
 # Build documentation
 
-set(DOCS_ROOT_DIR "${Horace_ROOT}/documentation/user_docs")
-set(DOCS_SOURCE_DIR "${DOCS_ROOT_DIR}/docs")
-set(DOCS_WORK_DIR "${DOCS_ROOT_DIR}/build" CACHE FILEPATH "Directory to put in-progress docs")
-set(DOCS_OUTPUT_DIR "${DOCS_WORK_DIR}/html" CACHE FILEPATH "Directory containing built HTML documentation")
-set(MANUAL_WORK_DIR "${DOCS_WORK_DIR}/latex" CACHE FILEPATH "Directory to build LaTeX sources")
-set(MANUAL_OUTPUT_DIR "${DOCS_WORK_DIR}/latex" CACHE FILEPATH "Directory to put compiled LaTeX manual")
+set(Horace_DOCS_ROOT_DIR "${Horace_ROOT}/documentation/user_docs")
+set(Horace_DOCS_SOURCE_DIR "${Horace_DOCS_ROOT_DIR}/docs")
+set(Horace_DOCS_WORK_DIR "${Horace_DOCS_ROOT_DIR}/build" CACHE FILEPATH "Directory to put in-progress docs")
+set(Horace_DOCS_OUTPUT_DIR "${Horace_DOCS_WORK_DIR}/html" CACHE FILEPATH "Directory containing built HTML documentation")
+set(MANUAL_WORK_DIR "${Horace_DOCS_WORK_DIR}/latex" CACHE FILEPATH "Directory to build LaTeX sources")
+set(MANUAL_OUTPUT_DIR "${Horace_DOCS_WORK_DIR}/latex" CACHE FILEPATH "Directory to put compiled LaTeX manual")
 
 find_program(sphinx-build NAMES sphinx-build)
 find_program(pdflatex NAMES pdflatex)
@@ -14,8 +14,8 @@ find_program(latexmk NAMES latexmk)
 if (sphinx-build)
   add_custom_target(docs
     COMMENT "Building HTML user documentation"
-    BYPRODUCTS "${DOCS_OUTPUT_DIR}/*"
-    COMMAND ${sphinx-build} -b html "${DOCS_SOURCE_DIR}" "${DOCS_OUTPUT_DIR}" ${SPHINX_OPTS}
+    BYPRODUCTS "${Horace_DOCS_OUTPUT_DIR}/*"
+    COMMAND ${sphinx-build} -b html "${Horace_DOCS_SOURCE_DIR}" "${Horace_DOCS_OUTPUT_DIR}" ${SPHINX_OPTS}
                             -D "release=${${PROJECT_NAME}_SHORT_VERSION}"
                             -D "version=${${PROJECT_NAME}_SHORT_VERSION}"
     )
@@ -24,34 +24,34 @@ if (sphinx-build)
 
     add_custom_command(TARGET docs POST_BUILD
       COMMAND powershell -ExecutionPolicy Bypass -command
-                 "Foreach($f in Get-ChildItem -Path '${DOCS_OUTPUT_DIR}' -Filter *.html) { \
+                 "Foreach($f in Get-ChildItem -Path '${Horace_DOCS_OUTPUT_DIR}' -Filter *.html) { \
                       (Get-Content $f.FullName) | Where-Object {$_ -notmatch '\\[NULL\\]'} | Set-Content $f.FullName \
                   }"
       DEPENDS build-docs
       VERBATIM
       )
 
-    set(DOCS_PACK_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/docs.zip" CACHE FILEPATH "Directory containing built HTML documentation")
+    set(Horace_DOCS_PACK_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/docs.zip" CACHE FILEPATH "Directory containing built HTML documentation")
 
     add_custom_target(docs-pack
-      COMMENT "Zipping HTML documentation to ${DOCS_PACK_OUTPUT}"
+      COMMENT "Zipping HTML documentation to ${Horace_DOCS_PACK_OUTPUT}"
       COMMAND powershell -ExecutionPolicy Bypass -command
-                "Compress-Archive -Path \"${DOCS_OUTPUT_DIR}/*\" -DestinationPath \"${DOCS_PACK_DIR}\""
+                "Compress-Archive -Path \"${Horace_DOCS_OUTPUT_DIR}/*\" -DestinationPath \"${Horace_DOCS_PACK_DIR}\""
       DEPENDS docs
       )
 
   else()
     add_custom_command(TARGET docs POST_BUILD
-      COMMAND sed -i -r "/\[NULL\]/d" "${DOCS_OUTPUT_DIR}/*html"
+      COMMAND sed -i -r "/\[NULL\]/d" "${Horace_DOCS_OUTPUT_DIR}/*html"
       DEPENDS build-docs
       )
 
-    set(DOCS_PACK_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/docs.tar.gz" CACHE FILEPATH "Directory containing built HTML documentation")
+    set(Horace_DOCS_PACK_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/docs.tar.gz" CACHE FILEPATH "Directory containing built HTML documentation")
 
     add_custom_target(docs-pack
-      COMMENT "Tarring HTML documentation to ${DOCS_PACK_OUTPUT}"
-      COMMAND tar -czf "${DOCS_PACK_OUTPUT}" "*"
-      WORKING_DIRECTORY "${DOCS_OUTPUT_DIR}"
+      COMMENT "Tarring HTML documentation to ${Horace_DOCS_PACK_OUTPUT}"
+      COMMAND tar -czf "${Horace_DOCS_PACK_OUTPUT}" "*"
+      WORKING_DIRECTORY "${Horace_DOCS_OUTPUT_DIR}"
       DEPENDS docs
       )
 
@@ -59,10 +59,10 @@ if (sphinx-build)
 
   if (pdflatex AND latexmk)
     add_custom_command(OUTPUT horace.tex
-      COMMAND ${sphinx-build} -b latex "${DOCS_SOURCE_DIR}" "${MANUAL_WORK_DIR}" ${SPHINX_OPTS}
+      COMMAND ${sphinx-build} -b latex "${Horace_DOCS_SOURCE_DIR}" "${MANUAL_WORK_DIR}" ${SPHINX_OPTS}
                               -D "release=${${PROJECT_NAME}_SHORT_VERSION}"
                               -D "version=${${PROJECT_NAME}_SHORT_VERSION}"
-      WORKING_DIRECTORY "${DOCS_ROOT_DIR}"
+      WORKING_DIRECTORY "${Horace_DOCS_ROOT_DIR}"
       )
 
     add_custom_command(OUTPUT horace.pdf
