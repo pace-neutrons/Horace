@@ -38,6 +38,14 @@ Presently in PACE, there are several different mechanisms being used which obscu
 
   (@mfclass_tobyfit/set_bfun)
   ```
+- Use of an extra function to handle errors
+  ```matlab
+  if ~exist(file1,'file')
+     [err,message]=report_err(['first file to merge: ',file1,' do not exist'],throw);
+     return
+  end
+  (admin/merge_files.m)
+  ```
 
 ### Issue
 
