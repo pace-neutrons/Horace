@@ -110,6 +110,6 @@ end
 - Never perform a global catch. Specific catches should be used where relevant, preferably using `switch` for clarity.
 - Use a standard form for PACE thrown errors for easy identification, perhaps:
   ```matlab
-  error('PACE:error', errorMessage)
+  error('PACE:CLASS:error', errorMessage)
   ```
 - On warning messages, not only should the problem be reported, but where possible, the solution.
