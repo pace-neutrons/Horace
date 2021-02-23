@@ -24,6 +24,7 @@ obj = put_sqw@sqw_binfile_common(obj,argi{:});
 if nopix && ~reserve
     % Come this point, it is up to the user of the class to write pixels and
     % call the code that follows to write the footers of the file.
+    % Pixels can be written using the put_bytes or put_pixels methods.
     return;
 end
 
