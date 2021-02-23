@@ -60,57 +60,20 @@ def get_branch_name(String job_name) {
   }
 }
 
-properties([
-  parameters([
-    string(
-      defaultValue: get_branch_name(env.JOB_BASE_NAME),
-      description: 'The name of the branch to build.',
-      name: 'BRANCH_NAME',
-      trim: true
-    ),
-    string(
-      defaultValue: get_release_type(env.JOB_BASE_NAME),
-      description: 'The type of the build e.g. "nightly", "release", "pull_request".',
-      name: 'RELEASE_TYPE',
-      trim: true
-    ),
-    string(
-      defaultValue: get_agent(env.JOB_BASE_NAME),
-      description: 'The agent to execute the pipeline on.',
-      name: 'AGENT',
-      trim: true
-    ),
-    string(
-      defaultValue: get_matlab_release(env.JOB_BASE_NAME),
-      description: 'The release number of the Matlab to load e.g. R2019b.',
-      name: 'MATLAB_VERSION', trim: true
-    ),
-    string(
-      defaultValue: '3.19',
-      description: 'The version of CMake to run the build with.',
-      name: 'CMAKE_VERSION',
-      trim: true
-    ),
-    string(
-      defaultValue: '6.3.0',
-      description: 'The version of GCC to build with.',
-      name: 'GCC_VERSION',
-      trim: true
-    ),
-    string(
-      defaultValue: '2017',
-      description: 'The year of the version of Visual Studio to build with.',
-      name: 'VS_VERSION',
-      trim: true
-    ),
-    string(
-      defaultValue: '1.77',
-      description: 'The version of CppCheck tooling to load to provide the code-style checks.',
-      name: 'CPPCHECK_VERSION',
-      trim: true
-    )
-  ])
-])
+String get_param(String param_name, String default_val) {
+  // Return environment variable if present and non-empty
+  // Else return default
+  String value = "";
+  try {
+    value = env."${param_name}";
+  } catch (groovy.lang.MissingPropertyException _) { }
+  if (!value) {
+    value = default_val;
+  }
+  println "${param_name} = ${value}"
+  return value
+}
+
 
 def post_github_status(String state, String message) {
   // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
@@ -167,6 +130,53 @@ def write_git_revision_to_file(String file_name) {
   }
 }
 
+properties([
+  parameters([
+    string(
+      defaultValue: get_branch_name(env.JOB_BASE_NAME),
+      description: 'The name of the branch to build.',
+      name: 'BRANCH_NAME',
+      trim: true
+    ),
+    string(
+      defaultValue: get_release_type(env.JOB_BASE_NAME),
+      description: 'The type of the build e.g. "nightly", "release", "pull_request".',
+      name: 'RELEASE_TYPE',
+      trim: true
+    ),
+    string(
+      defaultValue: get_agent(env.JOB_BASE_NAME),
+      description: 'The agent to execute the pipeline on.',
+      name: 'AGENT',
+      trim: true
+    ),
+    string(
+      description: 'The release number of the Matlab to load e.g. R2019b.',
+      name: 'MATLAB_VERSION', trim: true
+    ),
+    string(
+      description: 'The version of CMake to run the build with.',
+      name: 'CMAKE_VERSION',
+      trim: true
+    ),
+    string(
+      description: 'The version of GCC to build with.',
+      name: 'GCC_VERSION',
+      trim: true
+    ),
+    string(
+      description: 'The year of the version of Visual Studio to build with.',
+      name: 'VS_VERSION',
+      trim: true
+    ),
+    string(
+      description: 'The version of CppCheck tooling to load to provide the code-style checks.',
+      name: 'CPPCHECK_VERSION',
+      trim: true
+    )
+  ])
+])
+
 if (env.BRANCH_NAME) {
   currentBuild.description = "Branch: ${env.BRANCH_NAME}"
 } else if (env.PR_NUMBER) {
@@ -182,10 +192,24 @@ pipeline {
     label env.AGENT
   }
 
+  environment {
+    MATLAB_VERSION = get_param('MATLAB_VERSION', get_matlab_release(env.JOB_BASE_NAME))
+    CMAKE_VERSION = get_param('CMAKE_VERSION', '3.19')
+    GCC_VERSION = get_param('GCC_VERSION', '6.3.0')
+    VS_VERSION = get_param('VS_VERSION', '2017')
+    CPPCHECK_VERSION = get_param('CPPCHECK_VERSION', '1.77')
+  }
+
+
   stages {
 
     stage('Notify') {
       steps {
+        script {
+          if (env.PR_LABELS) {
+            echo "Found PR labels: ${env.PR_LABELS}"
+          }
+        }
         post_github_status("pending", "The build is running")
       }
     }
