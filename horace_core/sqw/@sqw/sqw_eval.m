@@ -1,7 +1,11 @@
-function wout=sqw_eval(win,sqwfunc,pars,varargin)
+function wout = sqw_eval(win, sqwfunc, pars, varargin)
 % Calculate sqw for a model scattering function
 %
-%   >> wout=sqw_eval(win,sqwfunc,p)
+%   >> wout=sqw_eval(win, sqwfunc, p)
+%   >> wout=sqw_eval(___, '-all')
+%   >> wout=sqw_eval(___, 'all', true)
+%   >> wout=sqw_eval(___, '-average')
+%   >> wout=sqw_eval(___, 'average', true)
 %
 % Input:
 % ------
@@ -42,10 +46,10 @@ function wout=sqw_eval(win,sqwfunc,pars,varargin)
 %   'average' Requests that the calculated sqw be computed for the
 %              average values of h,k,l of the pixels in a bin, not for each
 %              pixel individually. Reduces cost of expensive calculations.
-%              Applies only to the case of sqw object with pixel information 
+%              Applies only to the case of sqw object with pixel information
 %             - it is ignored if dnd type object.
 %
-% Note: all optional string input parameters can be truncated up to minal 
+% Note: all optional string input parameters can be truncated up to minal
 %       difference between them e.g. routine would accept 'al' and
 %       'av', 'ave', 'aver' etc....
 %
@@ -59,7 +63,7 @@ function wout=sqw_eval(win,sqwfunc,pars,varargin)
 options = {'all','average'};
 [ok,mess,all_bins,ave_pix]=parse_char_options(varargin,options);
 if ~ok
-    error('SQW_EVAL:invalid_argument',mess);
+    error('HORACE:SQW_EVAL:invalid_argument', mess);
 end
 
 wout = copy(win);
@@ -75,8 +79,9 @@ for i=1:numel(win)
             wout(i).data.pix.variance=zeros(1,numel(stmp));
             wout(i)=recompute_bin_data(wout(i));
         else
-            % Get average h,k,l,e for the bin, compute sqw for that average, and fill pixels with the average signal for the bin that contains them
-            %qw = calculate_qw_pixels2(win(i));
+            % Get average h,k,l,e for the bin, compute sqw for that average,
+            % and fill pixels with the average signal for the bin that contains
+            % them
             qw = calculate_qw_pixels(win(i));
             qw_ave=average_bin_data(win(i),qw);
             qw_ave = cellfun(@(x)(x(:)),qw_ave,'UniformOutput',false);
