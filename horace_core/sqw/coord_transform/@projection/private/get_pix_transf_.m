@@ -24,20 +24,4 @@ ebin=this.usteps(4);                 % plays role of rot_ustep for energy
 trans_elo = this.urange_offset(1,4); % plays role of trans_bott_left for energy
 urange_step = this.urange_step;
 
-% Add border to cut limits to avoud round-off errors
-sig_step = sign(urange_step);
-min_border = 1-4*eps*sig_step(1,:);
-max_border = 1+4*eps*sig_step(2,:);
-border = [min_border;max_border];
-urange_step = urange_step.*border;
-
-zero_width = abs(urange_step(1,:) -urange_step(2,:))<eps;
-if any(zero_width) % also appropriate urange is close to zero, as 
-    % large urange values are dealt with above
-    center = 0.5*(urange_step(1,:) -urange_step(2,:));    
-    min_border = center - 4*eps; 
-    max_border = center + 4*eps;
-    urange_step(1,zero_width) =min_border(zero_width);
-    urange_step(2,zero_width) =max_border(zero_width);
-end
 
