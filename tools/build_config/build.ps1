@@ -28,6 +28,8 @@
   https://github.com/pace-neutrons/Horace
 #>
 param (
+  # Run the Horace configure commands.
+  [switch][Alias("b")]$configure,
   # Run the Horace build commands.
   [switch][Alias("b")]$build,
   # Run all Horace tests.
@@ -235,7 +237,7 @@ if ($print_versions) {
   Write-Versions
 }
 
-if ($build) {
+if ($configure) {
   New-Build-Directory -build_dir "$build_dir"
   Invoke-Configure `
     -vs_version $vs_version `
@@ -244,6 +246,9 @@ if ($build) {
     -build_tests "$build_tests" `
     -matlab_release "$matlab_release" `
     -cmake_flags "$cmake_flags"
+}
+
+if ($build) {
   Invoke-Build -build_dir "$build_dir" -build_config "$build_config"
 }
 
