@@ -50,7 +50,7 @@ The Horace/Herbert source uses a wide range of API syntax:
 
 The key-value pair syntax is equivalent to the Pythonic syntax, e.g. `function_name(a, b, c, d, ‘keywordA’, valA, ‘keywordB’, true, …)`.
 
-The mix of `-flagname` and `flagname` introduces complexity into argument parsing - specifically identifying if a string argument `flagname` a flag or a keyword argument?
+The mix of `-flagname` and `flagname` introduces complexity into argument parsing - specifically identifying if a string argument `flagname` is a flag or a keyword argument.
 
 Inclusion of negated flags allows inconsistent, ambiguous or multiplicitous arguments to be defined, complicating the user experience, e.g. `-disable-x` vs `-nodisable-x` vs `-enable-x` vs `-noenable-x` vs `-x`
 
