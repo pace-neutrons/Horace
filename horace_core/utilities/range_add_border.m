@@ -19,6 +19,11 @@ function range=range_add_border(range_in, tol)
 % -------
 %   range      Expanded range
 
+if nargin == 1 % add epsilon-sized border
+    range = add_eps_border(range_in);
+    return;
+end
+
 ndim=size(range_in,2);
 if tol==0
     range=range_in;
@@ -33,4 +38,22 @@ elseif tol<0
     range(:,~no_range)=range(:,~no_range)+border(:,~no_range);
     abs_tol = abs(tol)*([-ones(1,ndim);ones(1,ndim)]);
     range(:,no_range)  = range(:,no_range)+abs_tol(:,no_range);   
+end
+
+function range = add_eps_border(range_in)
+% Add epsilon-sized border to cut limits to avoud round-off errors
+sig_range = sign(range_in);
+min_border = 1-4*eps*sig_range(1,:);
+max_border = 1+4*eps*sig_range(2,:);
+border = [min_border;max_border];
+range = range_in.*border;
+
+zero_width = abs(range_in(1,:) -range_in(2,:))<eps;
+if any(zero_width) % also appropriate urange is close to zero, as 
+    % large urange values are dealt with above
+    center = 0.5*(range_in(1,:) -range_in(2,:));    
+    min_border = center - 4*eps; 
+    max_border = center + 4*eps;
+    range(1,zero_width) =min_border(zero_width);
+    range(2,zero_width) =max_border(zero_width);
 end
