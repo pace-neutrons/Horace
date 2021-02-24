@@ -29,7 +29,7 @@
 #>
 param (
   # Run the Horace configure commands.
-  [switch][Alias("b")]$configure,
+  [switch][Alias("c")]$configure,
   # Run the Horace build commands.
   [switch][Alias("b")]$build,
   # Run all Horace tests.
