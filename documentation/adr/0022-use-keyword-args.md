@@ -90,3 +90,32 @@ function_name(a, b, 'flagname', 'true');
 - MATLAB argument parsing will need to manage flags passed in both 'flag' and 'keyword' form
 
 - All MATLAB functions which currently support optional arguments out of order must be updated, either creating a new function name with the alternate signature (e.g. `cut` with no projection) or additional keyword arguments (e.g. `lattice` in `dispersion_plot`)
+- The inclusion of optional arguments alongside flags/keyword arguments allows the possibility of ambiguity in argument parsing e.g. 
+
+```matlab
+function_name(req, opt1, opt2, varargin)
+% req required argument
+% opt1 optional argument
+% opt2 optional argument
+% -flagname flag argument (may be passed as 'flagname' keyword)
+```
+
+A call from MATLAB to
+
+```matlab
+function_name(1, "flagname", true)
+```
+or from Python
+
+```python
+wrapped_function_name(1, "flagname", True)
+```
+could reasonably be interpreted as
+
+```matlab
+req = 1; opt1 = "flagname"; opt2 = True; flagname = false (default)
+```
+rather than the intended
+```matlab
+req = 1; opt1 = undefined; opt2 = undefined; flagname = true
+```
