@@ -60,6 +60,7 @@ The MATLAB APIs must support positional, optional flag and keyword arguments:
 
 - flag arguments will be prefixed with `-`
 - flag arguments will default to `false` if not passed
+- flag arguments passed as keywords will have Boolean values (`True` / `true`) rather than a string value (`'true'`)
 - if the same parameter is passed as both a flag and keyword argument with inconsistent values an error will be raised, otherwise the parameter is set to the passed value
 - support for negated flags, prefixed with `no`, will be removed. All flags will map to `true` when specified. Flag names may include the `no` prefix to make their meaning clear, e.g. `-nopix` will suppress pixel handling in that function
 - flag arguments may be truncated to the minimum unambiguous string for all flags defined on that function e.g. `-flagname`, `-flag`, `-f` are all valid. No other abbreviations will be supported
@@ -76,13 +77,13 @@ All optional arguments must appear between the positional and keyword arguments.
 - The simple wrapper allows flags to be passed from Python, although this is not a Pythonic syntax. This ability will not be "officially" supported
 - The following calls are all equivalent:
 ```python
-wrapped_function_name(a, b, flagname=true)
-wrapped_function_name(a, b, 'flagname', 'true')
+wrapped_function_name(a, b, flagname=True)
+wrapped_function_name(a, b, 'flagname', True)
 wrapped_function_name(a, b, '-flagname')
 ```
 ```matlab
 function_name(a, b, '-flagname');
-function_name(a, b, 'flagname', 'true');
+function_name(a, b, 'flagname', true);
 ```
 
 - MATLAB argument parsing will be solely responsible for the processing of arguments
