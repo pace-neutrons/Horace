@@ -74,7 +74,6 @@ String get_param(String param_name, String default_val) {
   return value
 }
 
-
 def post_github_status(String state, String message) {
   // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
   // want to post any statuses to Git
