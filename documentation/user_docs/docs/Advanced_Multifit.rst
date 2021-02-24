@@ -10,6 +10,7 @@ Multifit methods requirements
 In many cases, the most convenient thing to do is extract the x,y,e arrays from an object and pass those to multifit. This can be done by using a method defined on the object to extract an x,y,e triple:
 
 ::
+
         >> [wout, fitdata] = multifit (xye(w), func, pin,...)
 
 where the method xye must return a structure of the form required by multifit, namely a structure with fields ‘x’,’y’ and ‘e’ ,where ‘x’ is a cell array {x1,x2,…} containing the coordinates of the points along the first, second… axes, and ‘e’ contains the standard deviations. A convenient way to do this is to use the methods sigvar_get and sigvar_getx if they have been written to allow the object itself to be passed to multifit (see below).
@@ -24,6 +25,7 @@ Fit functions
 The global function, and background function(s) if given, can be methods of the class or simply functions, with input argument form as described in detail in multifit help. The general format is:
 
 ::
+
         >> wcalc = my_function (w,p,c1,c2,...)
 
 If multifit is defined as a method of the class, then one can use the capability of nesting functions within the method to accept different fit function syntax. This is done, for example, for sqw objects when the fit functions to multifit, and equivalently multifit_func, are just a 1D/2D...4D Gaussian (according to the dimensionality of the sqw object).
