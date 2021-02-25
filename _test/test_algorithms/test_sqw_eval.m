@@ -2,14 +2,14 @@ classdef test_sqw_eval < TestCase
 
     properties (Constant)
         FLOAT_TOL = 1e-5;
+        DOUBLE_TOL = 1e-8;
     end
 
     properties
-        sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw';
-        sqw_2d_sqw_eval_ref_file = 'test_sqw_eval_gauss_ref.sqw';
-
         sqw_2d_obj;
+        sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw';
         sqw_2d_sqw_eval_ref_obj;
+        sqw_2d_sqw_eval_ref_file = 'test_sqw_eval_gauss_ref.sqw';
 
         gauss_sqw;
         gauss_params;
@@ -118,7 +118,7 @@ classdef test_sqw_eval < TestCase
                 4.6, 3.0, 7.0 ...
             ];
 
-            assertEqualToTol(dnd_out.s, expected_signal, 1e-8);
+            assertEqualToTol(dnd_out.s, expected_signal, obj.DOUBLE_TOL);
             assertEqual(dnd_out.e, zeros(size(fake_dnd.npix)));
         end
 
@@ -131,7 +131,7 @@ classdef test_sqw_eval < TestCase
                 2.6, 6.6, 5.0;
                 4.6, 3.0, 7.0 ...
             ];
-            assertEqualToTol(dnd_out.s, expected_signal, 1e-8);
+            assertEqualToTol(dnd_out.s, expected_signal, obj.DOUBLE_TOL);
             assertEqual(dnd_out.e, zeros(size(fake_dnd.npix)));
         end
     end
