@@ -171,7 +171,7 @@ classdef test_sqw_dnd_eval < TestCase
             %
             err_message = '';
             try
-                ds = func_eval(obj.sqw_4_test, @obj.funceval_tester2D, [], 'all');
+                ds = func_eval(obj.sqw_4_test, @obj.funceval_tester2D, [], '-all');
                 failed = false;
             catch ME
                 failed = true;
