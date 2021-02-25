@@ -326,22 +326,24 @@ pipeline {
     }
 
     stage('Configure') {
-      if (env.BUILD_DOCS?.toBoolean()) {
-        if (isUnix()) {
-          sh '''
+      steps {
+        script {
+          if (env.BUILD_DOCS?.toBoolean()) {
+            if (isUnix()) {
+              sh '''
             module load python/3.6 &&
             pip install --user sphinx &&
             pip install --user sphinx_rtd_theme
             '''
-        } else {
-          powershell '''
+            } else {
+              powershell '''
              pip install --user sphinx
              pip install --user sphinx_rtd_theme
             '''
-        }
-      }
-      if (isUnix()) {
-        sh '''
+            }
+          }
+          if (isUnix()) {
+            sh '''
           export PATH=${PATH}:~/.local/bin &&
           module load cmake/\$CMAKE_VERSION &&
           module load matlab/\$MATLAB_VERSION &&
@@ -352,13 +354,15 @@ pipeline {
             --matlab_release \$MATLAB_VERSION \
             --print_versions --configure
           '''
-      } else {
-        powershell '''
+          } else {
+            powershell '''
            ./tools/build_config/build.ps1 -print_versions -configure
                 -cmake_flags \"-DHorace_RELEASE_TYPE=\$env:RELEASE_TYPE\" \
                 -matlab_release \$env:MATLAB_VERSION \
                 -vs_version \$env:VS_VERSION
           '''
+          }
+        }
       }
     }
 
