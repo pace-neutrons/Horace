@@ -1,11 +1,54 @@
-# Build documentation
+#[=======================================================================[.rst:
+PACE_Docs
+-----------------
+
+Build Horace user documentation as either HTML pages or a LaTeX manual
+
+Variables required by the module
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``${Horace_ROOT}``
+This is provided by the main CMakeLists.txt
+
+Variables defined by the module
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``Horace_DOCS_WORK_DIR``
+Working directory where HTML docs are to be built
+
+``Horace_DOCS_OUTPUT_DIR``
+Output directory where HTML docs are placed
+
+``Horace_DOCS_PACK_OUTPUT``
+Output filename (including extension) for compressed docs file
+e.g. ``${CMAKE_CURRENT_BINARY_DIR}/docs.zip``
+
+``Horace_MANUAL_WORK_DIR``
+Working directory where LaTeX docs are to be built
+
+``Horace_MANUAL_OUTPUT_DIR``
+Output directory where LaTeX docs are placed
+
+Targets defined by the module
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``docs``
+Build a HTML webpage variant of the user documentation in ``Horace_DOCS_OUTPUT_DIR``
+
+``docs-pack``
+Build HTML docs and compress
+
+``manual``
+Build a LaTeX manual variant of the user documentation
+
+#]=======================================================================]
 
 set(Horace_DOCS_ROOT_DIR "${Horace_ROOT}/documentation/user_docs")
 set(Horace_DOCS_SOURCE_DIR "${Horace_DOCS_ROOT_DIR}/docs")
 set(Horace_DOCS_WORK_DIR "${Horace_DOCS_ROOT_DIR}/build" CACHE FILEPATH "Directory to put in-progress docs")
 set(Horace_DOCS_OUTPUT_DIR "${Horace_DOCS_WORK_DIR}/html" CACHE FILEPATH "Directory containing built HTML documentation")
-set(MANUAL_WORK_DIR "${Horace_DOCS_WORK_DIR}/latex" CACHE FILEPATH "Directory to build LaTeX sources")
-set(MANUAL_OUTPUT_DIR "${Horace_DOCS_WORK_DIR}/latex" CACHE FILEPATH "Directory to put compiled LaTeX manual")
+set(Horace_MANUAL_WORK_DIR "${Horace_DOCS_WORK_DIR}/latex" CACHE FILEPATH "Directory to build LaTeX sources")
+set(Horace_MANUAL_OUTPUT_DIR "${Horace_DOCS_WORK_DIR}/latex" CACHE FILEPATH "Directory to put compiled LaTeX manual")
 
 find_program(sphinx-build NAMES sphinx-build)
 find_program(pdflatex NAMES pdflatex)
@@ -59,19 +102,19 @@ if (sphinx-build)
 
   if (pdflatex AND latexmk)
     add_custom_command(OUTPUT horace.tex
-      COMMAND ${sphinx-build} -b latex "${Horace_DOCS_SOURCE_DIR}" "${MANUAL_WORK_DIR}" ${SPHINX_OPTS}
+      COMMAND ${sphinx-build} -b latex "${Horace_DOCS_SOURCE_DIR}" "${Horace_MANUAL_WORK_DIR}" ${SPHINX_OPTS}
                               -D "release=${${PROJECT_NAME}_SHORT_VERSION}"
                               -D "version=${${PROJECT_NAME}_SHORT_VERSION}"
       WORKING_DIRECTORY "${Horace_DOCS_ROOT_DIR}"
       )
 
     add_custom_command(OUTPUT horace.pdf
-      COMMAND latexmk -pdf -ps- -dvi- -silent -f -r "${MANUAL_WORK_DIR}/latexmkrc" "${MANUAL_WORK_DIR}/horace.tex"
+      COMMAND latexmk -pdf -ps- -dvi- -silent -f -r "${Horace_MANUAL_WORK_DIR}/latexmkrc" "${Horace_MANUAL_WORK_DIR}/horace.tex"
       # Copy finished manual to output dir
-      COMMAND cmake -E rename "${MANUAL_WORK_DIR}/horace.pdf" "${MANUAL_OUTPUT_DIR}/horace.pdf"
+      COMMAND cmake -E rename "${Horace_MANUAL_WORK_DIR}/horace.pdf" "${Horace_MANUAL_OUTPUT_DIR}/horace.pdf"
       DEPENDS horace.tex
-      BYPRODUCTS "${MANUAL_OUTPUT_DIR}/horace.pdf"
-      WORKING_DIRECTORY "${MANUAL_WORK_DIR}"
+      BYPRODUCTS "${Horace_MANUAL_OUTPUT_DIR}/horace.pdf"
+      WORKING_DIRECTORY "${Horace_MANUAL_WORK_DIR}"
       )
 
     add_custom_target(manual
