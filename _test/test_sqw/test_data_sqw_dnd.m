@@ -116,26 +116,8 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             assertTrue(isa(proj,'aProjection'));
             
             same_cut = cut_sqw(obj.ref_sqw,proj1,[],[],[],[-8,8]);
-            % As the range of the cut is epsiln bigger then the initial range, 
-            % the comparison below does not work. TODO: fix this after proj
-            % refactoring
-            assertEqual(ref_cut,same_cut);
-%             
-%             % the comparison below is incomplete, but allows the reasonable
-%             % estimation of the correctness
-%             assertElementsAlmostEqual(obj.ref_sqw.data.img_range,...
-%                 same_sqw.data.img_range,'relative',1.e-5);
-%             assertEqual(obj.ref_sqw.data.pix.num_pixels,...
-%                 same_sqw.data.pix.num_pixels);
-%             cut_size  = numel(same_sqw.data.npix);
-%             assertEqual(sum(reshape(obj.ref_sqw.data.npix,1,cut_size)),...
-%                 sum(reshape(same_sqw.data.npix,1,cut_size)));
-%             assertEqual(sum(reshape(obj.ref_sqw.data.s,1,cut_size)),...
-%                 sum(reshape(same_sqw.data.s,1,cut_size)));
-%             
-%             
-%             same_proj = same_sqw.data.get_projection();
-%             assertEqual(proj,same_proj);
+
+            assertEqualToTol(ref_cut,same_cut,'tol',1.e-9);
         end
         
         
