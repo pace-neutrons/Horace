@@ -359,6 +359,7 @@ pipeline {
                 -matlab_release \$env:MATLAB_VERSION \
                 -vs_version \$env:VS_VERSION
           '''
+      }
     }
 
     stage('Analyze') {
