@@ -5,10 +5,6 @@ classdef test_sqw_eval < TestCase
     end
 
     properties
-        d2d_file_path = '../test_rebin/w2d_qe_d2d.sqw'
-
-        d2d_obj;
-
         sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw';
         sqw_2d_sqw_eval_ref_file = 'test_sqw_eval_gauss_ref.sqw';
 
@@ -17,19 +13,26 @@ classdef test_sqw_eval < TestCase
 
         gauss_sqw;
         gauss_params;
+        linear_func;
+        linear_params;
     end
 
     methods
 
         function obj = test_sqw_eval(~)
             obj = obj@TestCase('test_sqw_eval');
+
             % Sum of the gaussian of each coordinate
             obj.gauss_sqw = ...
                 @(u1, u2, u3, dE, pars) ...
                     sum(arrayfun(@(x) gauss(x, pars), [u1, u2, u3, dE]), 2);
             obj.gauss_params = [10, 0.1, 0.05];
 
-            obj.d2d_obj = d2d(obj.d2d_file_path);
+            % Sum of multiple of each coordinate
+            obj.linear_func = ...
+                @(u1, u2, u3, dE, pars) sum([u1, u2, u3, dE].*pars, 2);
+            obj.linear_params = [2, 1, 1, 4];
+
             obj.sqw_2d_obj = sqw(obj.sqw_2d_file_path);
             obj.sqw_2d_sqw_eval_ref_obj = sqw(obj.sqw_2d_sqw_eval_ref_file);
         end
@@ -88,6 +91,59 @@ classdef test_sqw_eval < TestCase
                     'ignore_str', true ...
                 );
             end
+        end
+
+        %% DND tests
+        function test_func_on_dnd_file_acts_on_signal_and_sets_e_to_zeros(obj)
+            fake_dnd = obj.build_fake_dnd();
+
+            dnd_out = sqw_eval(fake_dnd, obj.linear_func, obj.linear_params);
+
+            % Expected signal is bin_centers.*pars
+            % bin center coords in each dim are {[1, 2, 3], [], [0.6, 1], []}
+            % These are defined by dnd.p (the bin edges), which was set when
+            % creating the dnd.
+            % => bin centers are:
+            %     [1, 0.6], [3, 0.6], [2, 1],
+            %     [2, 0.6], [1,   1], [3, 1]
+            % pars = [2, 1, 1, 4]
+            % => since dnd.pax = [1, 3], only relevant pars are at idx 1 and 3
+            % => pars = [2, 1]
+            % => signal =
+            %     sum([1, 0.6]*[2, 1]), sum([3, 0.6]*[2, 1]), sum([2, 1]*[2, 1]),
+            %     sum([2, 0.6]*[2, 1]), sum([1,   1]*[2, 1]), sum([3, 1]*[2, 1])
+            % but empty bins are ignored, so set [1, 2] to 0
+            expected_signal = [ ...
+                2.6, 0.0, 5.0;
+                4.6, 3.0, 7.0 ...
+            ];
+
+            assertEqualToTol(dnd_out.s, expected_signal, 1e-8);
+            assertEqual(dnd_out.e, zeros(size(fake_dnd.npix)));
+        end
+
+        function test_func_on_dnd_file_acts_on_non_empty_bins_if_all_flag_true(obj)
+            fake_dnd = obj.build_fake_dnd();
+
+            dnd_out = sqw_eval(fake_dnd, obj.linear_func, obj.linear_params, 'all');
+
+            expected_signal = [ ...
+                2.6, 6.6, 5.0;
+                4.6, 3.0, 7.0 ...
+            ];
+            assertEqualToTol(dnd_out.s, expected_signal, 1e-8);
+            assertEqual(dnd_out.e, zeros(size(fake_dnd.npix)));
+        end
+    end
+
+    methods (Static)
+        function fake_dnd = build_fake_dnd()
+            fake_dnd = d2d();
+            fake_dnd.s = [1, 0, 2;  7, 1, 2];
+            fake_dnd.npix = [2, 0, 6;  8, 3, 4];
+            fake_dnd.e = sqrt(fake_dnd.s)./fake_dnd.npix;
+            fake_dnd.p = {linspace(0.5, 3.5, 4), linspace(0.4, 1.2, 3)};
+            fake_dnd.pax = [1, 3];
         end
     end
 end
