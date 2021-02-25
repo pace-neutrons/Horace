@@ -30,5 +30,32 @@ classdef d2d < DnDBase
         %            %
         %               obj = sqw(S);
         %        end
+        function obj = loadobj(S)
+            % Load a sqw object from a .mat file
+            %
+            %   >> obj = loadobj(S)
+            %
+            % Input:
+            % ------
+            %   S       An instance of this object or struct
+            %
+            % -------
+            % Output:
+            %   obj     An instance of this object
+            obj = d2d(S);
+            if isa(S,'d2d')
+               obj = S;
+               return
+            end
+            if numel(S)>1
+               tmp = d2d();
+               obj = repmat(tmp, size(S));
+               for i = 1:numel(S)
+                   obj(i) = d2d(S(i));
+               end
+            else
+               obj = d2d(S);
+            end
+        end
     end
 end

@@ -9,4 +9,5 @@ if sqw_dim ~= obj.NUM_DIMS
         ['SQW object cannot be converted to a ' num2str(obj.NUM_DIMS) 'd dnd-type object']);
 end
 obj.data_ = sqw_obj.data;
+obj.data_.pix = PixelData();
 end

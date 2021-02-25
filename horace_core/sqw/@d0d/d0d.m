@@ -29,5 +29,32 @@ classdef d0d < DnDBase
         %            %
         %               obj = sqw(S);
         %        end
+        function obj = loadobj(S)
+            % Load a sqw object from a .mat file
+            %
+            %   >> obj = loadobj(S)
+            %
+            % Input:
+            % ------
+            %   S       An instance of this object or struct
+            %
+            % -------
+            % Output:
+            %   obj     An instance of this object
+            obj = d0d(S);
+            if isa(S,'d0d')
+               obj = S;
+               return
+            end
+            if numel(S)>1
+               tmp = d0d();
+               obj = repmat(tmp, size(S));
+               for i = 1:numel(S)
+                   obj(i) = d0d(S(i));
+               end
+            else
+               obj = d0d(S);
+            end
+        end
     end
 end

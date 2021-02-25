@@ -22,6 +22,18 @@ classdef (Abstract) SQWDnDBase
         wout = IX_dataset_1d (w);
         wout = IX_dataset_2d (w);
         wout = IX_dataset_3d (w);
+        varargout = multifit (varargin);
+        varargout = multifit_sqw (varargin);
+        varargout = multifit_sqw_sqw (varargin);
+        [s,var,mask_null] = sigvar_get (w);
+        [sel,ok,mess] = mask_points (win, varargin);
+        wout=sqw_eval(win,sqwfunc,pars,varargin);
+        qw=calculate_qw_pixels(win);
+        qw=calculate_qw_bins(win,optstr);
+    end
+    
+    methods (Abstract)
+        pixels = has_pixels(w);
     end
 
     methods (Access = protected)

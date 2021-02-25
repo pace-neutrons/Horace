@@ -25,13 +25,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         [nd, sz] = dimensions(w);
         wout = sigvar(w);
         w = sigvar_set(win, sigvar_obj);
-        [s,var,mask_null] = sigvar_get (win);
         sz = sigvar_size(w);
-        [sel,ok,mess] = mask_points (win, varargin);
-        varargout = multifit (varargin);
-        varargout = multifit_sqw (varargin);
-        varargout = multifit_sqw_sqw (varargin);
-        varargout = tobyfit (varargin);
+                varargout = tobyfit (varargin);
         [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,store_in,...
                                                           sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
         [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, indx);
@@ -50,6 +45,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         status = adjust_aspect(w);
         varargout = resolution_plot (w, varargin);
         wout = noisify(w,varargin);
+        pixels = has_pixels(w);
         
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();

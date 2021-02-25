@@ -71,7 +71,11 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                 obj = obj.init_from_sqw_(args.sqw_obj);
             end
         end
-
+        
+        function pixels = has_pixels(~)
+            pixels = false;
+        end
+            
         %% Public getters/setters expose all wrapped data attributes
         function val = get.filename(obj)
             val = '';

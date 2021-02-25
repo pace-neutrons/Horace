@@ -71,8 +71,8 @@ for i=1:numel(win)
             %qw = calculate_qw_pixels2(win(i));
             qw = calculate_qw_pixels(win(i));
             stmp = sqwfunc(qw{:}, pars{:});
-            wout(i).data.pix.signal = stmp(:)';
-            wout(i).data.pix.variance = zeros(1,numel(stmp));
+            wout(i).data_.pix.signal = stmp(:)';
+            wout(i).data_.pix.variance = zeros(1,numel(stmp));
             wout(i) = recompute_bin_data(wout(i));
         else
             % Get average h,k,l,e for the bin, compute sqw for that average, and fill pixels with the average signal for the bin that contains them
@@ -81,22 +81,22 @@ for i=1:numel(win)
             qw_ave = average_bin_data(win(i),qw);
             qw_ave = cellfun(@(x)(x(:)), qw_ave, 'UniformOutput', false);
             stmp = sqwfunc(qw_ave{:}, pars{:});
-            stmp = replicate_array(stmp, win(i).data.npix);
-            wout(i).data.pix.signal = stmp(:)';
-            wout(i).data.pix.variance = zeros(1,numel(stmp));
+            stmp = replicate_array(stmp, win(i).data_.npix);
+            wout(i).data_.pix.signal = stmp(:)';
+            wout(i).data_.pix.variance = zeros(1,numel(stmp));
             wout(i) = recompute_bin_data(wout(i));
         end
     else
         qw = calculate_qw_bins(win(i));
         if ~all_bins                    % only evaluate at the bins actually containing data
-            ok = (win(i).data.npix ~= 0);   % should be faster than isfinite(1./win.data.npix), as we know that npix is zero or finite
+            ok = (win(i).data_.npix ~= 0);   % should be faster than isfinite(1./win.data_.npix), as we know that npix is zero or finite
             for idim = 1:4
                 qw{idim} = qw{idim}(ok);  % pick out only the points where there is data
             end
-            wout(i).data.s(ok) = sqwfunc(qw{:}, pars{:});
+            wout(i).data_.s(ok) = sqwfunc(qw{:}, pars{:});
         else
-            wout(i).data.s = reshape(sqwfunc(qw{:}, pars{:}), size(win(i).data.s));
+            wout(i).data_.s = reshape(sqwfunc(qw{:}, pars{:}), size(win(i).data.s));
         end
-        wout(i).data.e = zeros(size(win(i).data.e));
+        wout(i).data_.e = zeros(size(win(i).data_.e));
     end
 end

@@ -19,7 +19,7 @@ if ldr.num_dim ~= obj.NUM_DIMS
 end
 
 if isa_sqw_file
-    [~, ~, ~, dnd_data] = ldr.get_sqw('-legacy');
+    [~, ~, ~, dnd_data] = ldr.get_sqw('-legacy', '-nopix');
 else % dnd file
     [~, ~, ~, dnd_data] = ldr.get_dnd('-legacy');
 end

@@ -38,6 +38,6 @@ if ~islogical(mask_array)
 end
 
 % Mask signal, variance and npix arrays
-wout.data.s(~mask_array) = 0;
-wout.data.e(~mask_array) = 0;
-wout.data.npix(~mask_array) = 0;
+wout.data_.s(~mask_array) = 0;
+wout.data_.e(~mask_array) = 0;
+wout.data_.npix(~mask_array) = 0;
