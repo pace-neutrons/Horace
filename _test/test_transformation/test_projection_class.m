@@ -91,10 +91,10 @@ classdef test_projection_class<TestCase
             %pra.nonorthogonal = true;
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu(...
                 alatt,angdeg);
-            
+            %
+            % but recovered the values, correspontent to ppr?
             [u_par,v_par] = projection.uv_from_rlu_mat(alatt,angdeg,u_to_rlu,ulen);
-            eu =  u/norm(u);
-            assertElementsAlmostEqual(eu,u_par);
+            assertElementsAlmostEqual(u,u_par);
             % find part of the v vector, orthogonal to u
             b_mat = bmatrix(alatt,angdeg);
             eu_cc = b_mat*u';
@@ -103,10 +103,9 @@ classdef test_projection_class<TestCase
             v_cc = b_mat*v';
             
             v_along =eu*(eu'*v_cc);
-            v_tr = b_mat\(v_cc-v_along);
+            v_tr = (b_mat\(v_cc-v_along))';
             % this part should be recovered from the u_to_rlu matrix
-            v_tr = v_tr'/norm(v_tr);
-            assertElementsAlmostEqual(v_tr,sign(v_tr).*abs(v_par));
+            assertElementsAlmostEqual(v_tr,v_par);
         end
         
         %
@@ -120,8 +119,7 @@ classdef test_projection_class<TestCase
                 alatt,angdeg);
             
             [u_par,v_par] = projection.uv_from_rlu_mat(alatt,angdeg,u_to_rlu,ulen);
-            eu =  u/norm(u);
-            assertElementsAlmostEqual(eu,u_par);
+            assertElementsAlmostEqual(u,u_par);
             % find part of the v vector, orthogonal to u
             b_mat = bmatrix(alatt,angdeg);
             eu_cc = b_mat*u';
@@ -130,11 +128,11 @@ classdef test_projection_class<TestCase
             v_cc = b_mat*v';
             
             v_along =eu*(eu'*v_cc);
-            v_tr = b_mat\(v_cc-v_along);
+            v_tr = (b_mat\(v_cc-v_along))';
             % this part should be recovered from the u_to_rlu matrix
-            v_tr = v_tr'/norm(v_tr);
-            assertElementsAlmostEqual(v_tr,sign(v_tr).*abs(v_par));
+            assertElementsAlmostEqual(v_tr,v_par);
         end
+        %
         function test_uv_to_rlu_and_vv_simple_nonorthogonal(~)
             u = [1,0,0];
             v = [0,0,1];
@@ -155,14 +153,13 @@ classdef test_projection_class<TestCase
             v_cc = b_mat*v';
             
             v_along =eu*(eu'*v_cc);
-            v_tr = b_mat\(v_cc-v_along);
+            v_tr = (b_mat\(v_cc-v_along))';
             
             % this part should be recovered from the u_to_rlu matrix
-            v_tr = v_tr'/norm(v_tr);
-            assertElementsAlmostEqual(v_tr,sign(v_tr).*abs(v_par));
+            assertElementsAlmostEqual(v_tr,v_par);
             
         end
-        
+        %
         function test_uv_to_rlu_and_vv_complex(~)
             u = [1,1,0];
             v = [0,-0.5,1];
@@ -173,16 +170,24 @@ classdef test_projection_class<TestCase
                 alatt,angdeg);
             
             [u_par,v_par] = projection.uv_from_rlu_mat(alatt,angdeg,u_to_rlu,ulen);
-            eu =  u/norm(u);
-            assertElementsAlmostEqual(eu,u_par);
+
+            assertElementsAlmostEqual(u,u_par);
             % find part of the v vector, orthogonal to u
+            eu =  u/norm(u);            
             v_along =eu*(eu*v');
             v_tr = v-v_along;
-            v_tr = v_tr/norm(v_tr);
+
             % this part should be recovered from the u_to_rlu matrix
             assertElementsAlmostEqual(v_tr,sign(v_tr).*abs(v_par));
+            
+            pra = projaxes(u_par,v_par);
+            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu(alatt,angdeg);
+            
+            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
+            assertElementsAlmostEqual(ulen,ulen_rec);
+            
         end
-        
+        %
         function test_uv_to_rlu_and_vv_simple(~)
             u = [1,0,0];
             v = [0,0,1];
@@ -194,10 +199,15 @@ classdef test_projection_class<TestCase
             
             [u_par,v_par] = projection.uv_from_rlu_mat(alatt,angdeg,u_to_rlu,ulen);
             assertElementsAlmostEqual(u,u_par);
-            assertElementsAlmostEqual(v,sign(v).*abs(v_par));
+            assertElementsAlmostEqual(v,v_par);
+            
+            pra = projaxes(u_par,v_par);
+            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu(alatt,angdeg);
+            
+            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
+            assertElementsAlmostEqual(ulen,ulen_rec);
         end
-        
-        
+        %
         function test_alatt_column_gives_row(~)
             proj = projection();
             proj.alatt = [3;4;5];

@@ -174,6 +174,15 @@ classdef projection<aProjection
             % recover only the orthogonal part
             v_tr =  (b_mat\umat(2,:)')';
             v = v_tr/norm(v_tr);
+            %
+            w=ubinv(:,3)';  % perpendicular to u and v, length 1 Ang^-1, forms rh set with u and v
+
+            uvw=[u(:),v(:),w(:)];
+            uvw_orthonorm=ubmat*uvw;    % u,v,w in the orthonormal frame defined by u and v
+            ulen_new = diag(uvw_orthonorm);
+            scale = ulen./ulen_new';
+            u = u*scale(1);
+            v = v*scale(2);
         end
     end
 end
