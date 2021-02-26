@@ -101,74 +101,19 @@ def get_herbert_ref_from_labels(String labels, String herbert_branch) {
   }
 }
 
-properties([
-  parameters([
-    string(
-      defaultValue: get_branch_name(env.JOB_BASE_NAME),
-      description: 'The name of the branch to build.',
-      name: 'BRANCH_NAME',
-      trim: true
-    ),
-    string(
-      defaultValue: get_default_herbert_branch(env.JOB_BASE_NAME),
-      description: 'The name of the branch or tag of Herbert to use.',
-      name: 'HERBERT_BRANCH_NAME',
-      trim: true
-    ),
-    string(
-      defaultValue: get_matlab_release(env.JOB_BASE_NAME),
-      description: 'The release number of the Matlab to load e.g. R2019b.',
-      name: 'MATLAB_VERSION',
-      trim: true
-    ),
-    string(
-      defaultValue: get_release_type(env.JOB_BASE_NAME),
-      description: 'The type of the build e.g. "nightly", "release", "pull_request".',
-      name: 'RELEASE_TYPE',
-      trim: true
-    ),
-    string(
-      defaultValue: get_agent(env.JOB_BASE_NAME),
-      description: 'The agent to execute the pipeline on.',
-      name: 'AGENT',
-      trim: true
-    ),
-    string(
-      defaultValue: '3.19',
-      description: 'The version of CMake to run the build with. Affects Linux builds only.',
-      name: 'CMAKE_VERSION',
-      trim: true
-    ),
-    string(
-      defaultValue: '6.3.0',
-      description: 'The version of GCC to build with. Affects Linux builds only.',
-      name: 'GCC_VERSION',
-      trim: true
-    ),
-    string(
-      defaultValue: '2017',
-      description: 'The year of the version of Visual Studio to build with.  Affects Windows builds only.',
-      name: 'VS_VERSION',
-      trim: true
-    ),
-    string(
-      defaultValue: '1.77',
-      description: 'The version of CppCheck tooling to load to provide the code-style checks. Affects Linux builds only.',
-      name: 'CPPCHECK_VERSION',
-      trim: true
-    ),
-    booleanParam(
-      defaultValue: false,
-      description: 'If this pipeline is to build docs.',
-      name: 'BUILD_DOCS'
-    ),
-    booleanParam(
-      defaultValue: false,
-      description: 'If this pipeline is to push docs.',
-      name: 'PUSH_DOCS'
-    )
-  ])
-])
+String get_param(String param_name, String default_val) {
+  // Return environment variable if present and non-empty
+  // Else return default
+  String value = "";
+  try {
+    value = env."${param_name}";
+  } catch (groovy.lang.MissingPropertyException _) { }
+  if (!value) {
+    value = default_val;
+  }
+  println "${param_name} = ${value}"
+  return value
+}
 
 def post_github_status(String state, String message) {
   // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
@@ -225,8 +170,67 @@ def write_git_revision_to_file(String file_name) {
   }
 }
 
-
-def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-", "")
+properties([
+  parameters([
+    string(
+      defaultValue: get_branch_name(env.JOB_BASE_NAME),
+      description: 'The name of the branch to build. *',
+      name: 'BRANCH_NAME',
+      trim: true
+    ),
+    string(
+      defaultValue: get_default_herbert_branch(env.JOB_BASE_NAME),
+      description: 'The name of the branch or tag of Herbert to use. *',
+      name: 'HERBERT_BRANCH_NAME',
+      trim: true
+    ),
+    string(
+      description: 'The release number of the Matlab to load e.g. R2019b.',
+      name: 'MATLAB_VERSION',
+      trim: true
+    ),
+    string(
+      defaultValue: get_release_type(env.JOB_BASE_NAME),
+      description: 'The type of the build e.g. "nightly", "release", "pull_request". *',
+      name: 'RELEASE_TYPE',
+      trim: true
+    ),
+    string(
+      defaultValue: get_agent(env.JOB_BASE_NAME),
+      description: 'The agent to execute the pipeline on. *',
+      name: 'AGENT',
+      trim: true
+    ),
+    string(
+      description: 'The version of CMake to run the build with. Affects Linux builds only.',
+      name: 'CMAKE_VERSION',
+      trim: true
+    ),
+    string(
+      description: 'The version of GCC to build with. Affects Linux builds only.',
+      name: 'GCC_VERSION',
+      trim: true
+    ),
+    string(
+      description: 'The year of the version of Visual Studio to build with.  Affects Windows builds only.',
+      name: 'VS_VERSION',
+      trim: true
+    ),
+    string(
+      description: 'The version of CppCheck tooling to load to provide the code-style checks. Affects Linux builds only.',
+      name: 'CPPCHECK_VERSION',
+      trim: true
+    ),
+    booleanParam(
+      description: 'If this pipeline is to build docs.',
+      name: 'BUILD_DOCS'
+    ),
+    booleanParam(
+      description: 'If this pipeline is to push docs.',
+      name: 'PUSH_DOCS'
+    )
+  ])
+])
 
 if (env.BRANCH_NAME) {
   currentBuild.description = "Branch: ${env.BRANCH_NAME}"
@@ -235,16 +239,35 @@ if (env.BRANCH_NAME) {
   currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA.take(7)}"
 }
 
+def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-", "")
+Boolean run_build_stage = !(env?.PR_LABELS =~ "do-not-build")
+Boolean run_test_stage = !(env?.PR_LABELS =~ "(do-not-build|do-not-test)")
 
 pipeline {
+
   agent {
     label env.AGENT
+  }
+
+  environment {
+    MATLAB_VERSION = get_param('MATLAB_VERSION', get_matlab_release(env.JOB_BASE_NAME))
+    CMAKE_VERSION = get_param('CMAKE_VERSION', '3.19')
+    GCC_VERSION = get_param('GCC_VERSION', '6.3.0')
+    VS_VERSION = get_param('VS_VERSION', '2017')
+    CPPCHECK_VERSION = get_param('CPPCHECK_VERSION', '1.77')
+    BUILD_DOCS = get_param('BUILD_DOCS', 'false')
+    PUSH_DOCS = get_param('PUSH_DOCS', 'false')
   }
 
   stages {
 
     stage('Notify') {
       steps {
+        script {
+          if (env.PR_LABELS) {
+            echo "Found PR labels: ${env.PR_LABELS}"
+          }
+        }
         post_github_status("pending", "The build is running")
       }
     }
@@ -285,9 +308,6 @@ pipeline {
             }
 
           } else {
-            if (env.PR_LABELS) {
-              echo "Found PR labels: ${env.PR_LABELS}"
-            }
 
             def herbert_ref = get_herbert_ref_from_labels(
               env.PR_LABELS,
@@ -346,6 +366,11 @@ pipeline {
     }
 
     stage('Build') {
+      when {
+        expression {
+          run_build_stage == true
+        }
+      }
       steps {
         script {
           if (isUnix()) {
@@ -406,6 +431,11 @@ pipeline {
     }
 
     stage('Test') {
+      when {
+        expression {
+          run_test_stage == true
+        }
+      }
       steps {
         script {
           if (isUnix()) {
@@ -424,10 +454,18 @@ pipeline {
     }
 
     stage('Package') {
+      when {
+        expression {
+          run_build_stage == true
+        }
+      }
       steps {
         script {
           if (isUnix()) {
-            sh './tools/build_config/build.sh --package'
+            sh '''
+              module load cmake/\$CMAKE_VERSION &&
+              ./tools/build_config/build.sh --package
+            '''
           }
           else {
             powershell './tools/build_config/build.ps1 -package'
@@ -474,9 +512,10 @@ pipeline {
 
   post {
     always {
-      // archive CTest results file and static analysis report
+      // archive static analysis report
       archiveArtifacts(
-        artifacts: 'build/Testing/**/*.xml,**/cppcheck.xml,**/mlint.json',
+        artifacts: '**/cppcheck.xml,**/mlint.json',
+        allowEmptyArchive: true,
         fingerprint: true
       )
 
@@ -487,6 +526,11 @@ pipeline {
         ]
       )
 
+      archiveArtifacts(
+        artifacts: 'build/Testing/**/*.xml',
+        allowEmptyArchive: true,
+        fingerprint: true
+      )
       xunit (
         testTimeMargin: '3000',
         thresholdMode: 1,
@@ -504,6 +548,7 @@ pipeline {
           )
         ]
       )
+
     }
 
     success {

@@ -25,6 +25,7 @@
    Plotting
    Simulation
    Multifit
+   Advanced_Multifit
    Tobyfit
    List_of_functions
    Input_file_formats
