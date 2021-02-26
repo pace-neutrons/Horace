@@ -69,6 +69,28 @@ classdef test_sqw_eval < TestCase
             end
         end
 
+        function test_calling_with_average_flag_sets_each_pix_signal_to_average(obj)
+            out_sqw = sqw_eval(obj.sqw_2d_obj, obj.gauss_sqw, obj.gauss_params, 'average');
+
+            non_empty_s = out_sqw.data.s(out_sqw.data.npix ~= 0);
+            non_empty_npix = out_sqw.data.npix(out_sqw.data.npix ~= 0);
+            pix_bin_bounds = cumsum(non_empty_npix);
+            pix = out_sqw.data.pix;
+            for i = 1:numel(non_empty_s)
+                ave_sig = non_empty_s(i);
+                num_pix_in_bin = non_empty_npix(i);
+                pix_bin_start = pix_bin_bounds(i) - num_pix_in_bin + 1;
+
+                assertEqualToTol( ...
+                    pix.signal(pix_bin_start:pix_bin_bounds(i)), ...
+                    ave_sig*ones(1, num_pix_in_bin), ...
+                    obj.DOUBLE_TOL ...
+                );
+            end
+            assertEqual(pix.variance, zeros(1, obj.sqw_2d_obj.data.pix.num_pixels));
+            assertEqual(out_sqw.data.e, zeros(size(obj.sqw_2d_obj.data.npix)))
+        end
+
         %% SQW file tests
         function test_gauss_on_sqw_file_matches_reference_file(obj)
             out_sqw = sqw_eval(obj.sqw_2d_file_path, obj.gauss_sqw, obj.gauss_params);
