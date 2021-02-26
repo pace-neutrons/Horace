@@ -88,7 +88,12 @@ classdef test_projection_class<TestCase
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
             pra = projaxes(u,v,'type','rrr');
+            %
             %pra.nonorthogonal = true;
+            %TODO: This option does not currently work.
+            % if this is possible to make it to work is the question worth
+            % an independent investigation.
+            %
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu(...
                 alatt,angdeg);
             %
@@ -126,7 +131,6 @@ classdef test_projection_class<TestCase
             eu = eu_cc/norm(eu_cc);
             % convert to crystal Cartesian
             v_cc = b_mat*v';
-            
             v_along =eu*(eu'*v_cc);
             v_tr = (b_mat\(v_cc-v_along))';
             % this part should be recovered from the u_to_rlu matrix
@@ -170,13 +174,13 @@ classdef test_projection_class<TestCase
                 alatt,angdeg);
             
             [u_par,v_par] = projection.uv_from_rlu_mat(alatt,angdeg,u_to_rlu,ulen);
-
+            
             assertElementsAlmostEqual(u,u_par);
             % find part of the v vector, orthogonal to u
-            eu =  u/norm(u);            
+            eu =  u/norm(u);
             v_along =eu*(eu*v');
             v_tr = v-v_along;
-
+            
             % this part should be recovered from the u_to_rlu matrix
             assertElementsAlmostEqual(v_tr,sign(v_tr).*abs(v_par));
             
