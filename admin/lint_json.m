@@ -35,7 +35,7 @@ function lint_json(varargin)
     % Expand globbing to file objects
     flist = cellfun(@(x)(dir(x)), filesin, 'UniformOutput', false);
     % Flatten array
-    flist = [flist{:}]
+    flist = [flist{:}];
     % Filter doc files
     flist = filter_list(flist, @(x)(startsWith(x.name,'doc_')));
     % Convert to filepaths
