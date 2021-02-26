@@ -1,10 +1,9 @@
 classdef an_axis_caption
     %Lightweight class -- parent for different various axis caption classes
     %
-    % By default implements sqw recangular cut captions
+    % By default implements sqw rectangular cut captions
     %
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Dependent)
         % property specifies if 2D or 3D picture, this class captions

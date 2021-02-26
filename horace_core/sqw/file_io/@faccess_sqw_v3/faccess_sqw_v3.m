@@ -78,7 +78,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             'position_info_pos_';'eof_pos_'};
         v3_data_form_ = field_generic_class_hv3();
     end
-    
+
     %
     methods(Access=protected,Hidden=true)
         function obj=init_from_sqw_file(obj,varargin)
@@ -141,7 +141,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
                 end
             end
         end
-        
+
         function obj = init_sample_instr_records(obj)
             obj = init_sample_instr_records_(obj);
         end
@@ -161,6 +161,10 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         % inheritance chain
         pos_info = get_pos_info(obj)
         %
+        obj = put_footers(obj);
+        obj = put_bytes(obj, to_write);
+        obj = validate_pixel_positions(obj);
+
         function obj=faccess_sqw_v3(varargin)
             % constructor, to build sqw reader/writer version 3
             %
@@ -184,7 +188,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             %                       to save sqw object provided. The name
             %                       of the file to save the object should
             %                       be provided separately.
-            
+
             %
             % set up fields, which define appropriate file version
             obj.file_ver_ = 3.1;
@@ -192,7 +196,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             if nargin>0
                 obj = obj.init(varargin{:});
             end
-            
+
         end
         %
         function [inst,obj] = get_instrument(obj,varargin)
@@ -306,8 +310,8 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             % positions of all main data blocks within the binary file
             obj = put_sqw_footer_(obj);
         end
-        
-        
+
+
     end
     %
     methods(Static,Hidden=true)
@@ -324,8 +328,8 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             % information
             form = faccess_sqw_v3.v3_data_form_;
         end
-        
+
     end
-    
+
 end
 

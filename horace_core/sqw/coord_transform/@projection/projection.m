@@ -9,7 +9,7 @@ classdef projection<aProjection
     %  Horace cuts
     %
     %
-    properties 
+    properties
         %
     end
     properties(Dependent)
@@ -41,7 +41,7 @@ classdef projection<aProjection
             proj = proj@aProjection();
             if nargin==0 % return defaults
                 proj.projaxes_ = [];
-                proj.data_lab_ = ['qx','qy','qz','en'];
+                proj.data_lab_ = {'qx','qy','qz','en'};
             else
                 if isa(varargin{1},'projaxes')
                     proj.projaxes_ = varargin{1};
@@ -100,7 +100,7 @@ classdef projection<aProjection
             else
                 lab = this.projaxes_.lab;
             end
-        end       
+        end
         %------------------------------------------------------------------
         % Particular implementation of aProjection abstract interface
         %------------------------------------------------------------------
@@ -145,6 +145,45 @@ classdef projection<aProjection
         end
         
         %
+    end
+    
+    methods(Static)
+        function [u,v]=uv_from_rlu_mat(alatt,angdeg,u_to_rlu,ulen)
+            % extract initial u/v vectors, defining the plain in hkl from
+            % lattice parameters and the matrix converting vectors in
+            % crystal Cartesian coordinate system into rlu.
+            %
+            % partially inverting projaxes_to_rlu function as only
+            % orthogonal to u part of the v-vector can be recovered
+            
+            %
+            %u_to_rlu(:,i) = ubinv(:,i)*ulen(i);
+            ulen_inv = 1./ulen;
+            ubinv = u_to_rlu.*repmat(ulen_inv,3,1);
+            ubmat = inv(ubinv);
+            b_mat = bmatrix(alatt, angdeg);
+            %ub = umat*b;
+            umat = ubmat/b_mat;
+            %
+            u_dir = (b_mat\umat(1,:)')';
+            % vector, parallel to u:
+            u = u_dir/norm(u_dir);
+            
+            % the length of the V-vector, orthogonal to u (unit vector)
+            % in fact real v-vector is not fully recoverable. We can
+            % recover only the orthogonal part
+            v_tr =  (b_mat\umat(2,:)')';
+            v = v_tr/norm(v_tr);
+            %
+            w=ubinv(:,3)';  % perpendicular to u and v, length 1 Ang^-1, forms rh set with u and v
+
+            uvw=[u(:),v(:),w(:)];
+            uvw_orthonorm=ubmat*uvw;    % u,v,w in the orthonormal frame defined by u and v
+            ulen_new = diag(uvw_orthonorm);
+            scale = ulen./ulen_new';
+            u = u*scale(1);
+            v = v*scale(2);
+        end
     end
 end
 

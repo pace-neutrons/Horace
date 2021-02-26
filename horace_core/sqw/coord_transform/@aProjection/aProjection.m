@@ -44,7 +44,7 @@ classdef aProjection
         data_ulen_     = [1,1,1,1]; %Length of projection axes vectors in Ang^-1 or meV [row vector]
         data_upix_to_rlu_ = eye(3);
         data_upix_offset_ = [0;0;0;0] %upix_offset;
-        data_lab_ = ['qx','qy','qz','en'];
+        data_lab_ = {'qx','qy','qz','en'};
         % input data projection axis
         data_iax_=zeros(1,0);
         data_pax_=zeros(1,0);
@@ -119,10 +119,17 @@ classdef aProjection
         function alat = get.alatt(this)
             alat = this.alatt_;
         end
+        function obj = set.alatt(obj,val)
+            obj.alatt_ = check_alatt_(val);
+        end
         %
         function angl = get.angdeg(this)
             angl = this.angdeg_;
         end
+        function obj = set.angdeg(obj,val)
+            obj.angdeg_ = check_angdeg_(val);
+        end
+        
         %
         function usteps = get.usteps(this)
             usteps = this.usteps_;

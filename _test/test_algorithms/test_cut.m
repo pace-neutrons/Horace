@@ -94,7 +94,7 @@ methods
     function test_you_can_take_a_cut_from_an_sqw_file_to_another_sqw_file(obj)
         outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
         ret_sqw = cut(obj.sqw_file, obj.ref_params{:}, outfile);
-        cleanup = onCleanup(@() cleanup_file(outfile));
+        cleanup = onCleanup(@() clean_up_file(outfile));
 
         loaded_cut = sqw(outfile);
 
@@ -107,7 +107,7 @@ methods
         outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
 
         cut(sqw_obj, obj.ref_params{:}, outfile);
-        cleanup = onCleanup(@() cleanup_file(outfile));
+        cleanup = onCleanup(@() clean_up_file(outfile));
 
         loaded_sqw = sqw(outfile);
         ref_sqw = sqw(obj.ref_file);
@@ -224,7 +224,7 @@ methods
         );
 
         cut(obj.sqw_file, obj.ref_params{:}, outfile);
-        cleanup_tmp_file = onCleanup(@() cleanup_file(outfile));
+        cleanup_tmp_file = onCleanup(@() clean_up_file(outfile));
 
         ref_sqw = sqw(obj.ref_file);
         output_sqw = sqw(outfile);
@@ -242,7 +242,7 @@ methods
         );
 
         cut(obj.sqw_file, obj.ref_params{:}, outfile);
-        cleanup_tmp_file = onCleanup(@() cleanup_file(outfile));
+        cleanup_tmp_file = onCleanup(@() clean_up_file(outfile));
 
         ref_sqw = sqw(obj.ref_file);
         output_sqw = sqw(outfile);
@@ -258,7 +258,7 @@ methods
     function test_you_can_take_a_cut_with_nopix_arg_and_output_to_file(obj)
         outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
         cut(obj.sqw_file, obj.ref_params{:}, outfile, '-nopix')
-        cleanup = onCleanup(@() cleanup_file(outfile));
+        cleanup = onCleanup(@() clean_up_file(outfile));
 
         assertTrue(logical(exist(outfile, 'file')));
         ldr = sqw_formats_factory.instance().get_loader(outfile);

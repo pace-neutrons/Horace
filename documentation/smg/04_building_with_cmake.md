@@ -11,7 +11,7 @@ To build Herbert/Horace the following will need to be installed:
   - STFC staff should see the
     [development environment guide](./02_development_environment.md#getting-matlab)
     for how to obtain Matlab.
-- [CMake](https://cmake.org/download/) >= 3.7
+- [CMake](https://cmake.org/download/) >= 3.15
   - must be on the path for both Windows and Linux
 - System compiler:
   - Linux: [GCC](https://gcc.gnu.org/) >= 6.3.0
