@@ -14,17 +14,11 @@ Variables defined by the module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``Horace_DOCS_WORK_DIR``
-Working directory where HTML docs are to be built
-
-``Horace_DOCS_OUTPUT_DIR``
-Output directory where HTML docs are placed
+Root work directory, docs will be built in ``${Horace_DOCS_WORK_DIR}/(html|latex)``
 
 ``Horace_DOCS_PACK_OUTPUT``
 Output filename (including extension) for compressed docs file
 e.g. ``${CMAKE_CURRENT_BINARY_DIR}/docs.zip``
-
-``Horace_MANUAL_WORK_DIR``
-Working directory where LaTeX docs are to be built
 
 ``Horace_MANUAL_OUTPUT_DIR``
 Output directory where LaTeX docs are placed
@@ -39,16 +33,21 @@ Build a HTML webpage variant of the user documentation in ``Horace_DOCS_OUTPUT_D
 Build HTML docs and compress
 
 ``manual``
-Build a LaTeX manual variant of the user documentation
+Build a LaTeX PDF manual of the user documentation
 
 #]=======================================================================]
 
 set(Horace_DOCS_ROOT_DIR "${Horace_ROOT}/documentation/user_docs")
 set(Horace_DOCS_SOURCE_DIR "${Horace_DOCS_ROOT_DIR}/docs")
-set(Horace_DOCS_WORK_DIR "${Horace_DOCS_ROOT_DIR}/build" CACHE FILEPATH "Directory to put in-progress docs")
-set(Horace_DOCS_OUTPUT_DIR "${Horace_DOCS_WORK_DIR}/html" CACHE FILEPATH "Directory containing built HTML documentation")
-set(Horace_MANUAL_WORK_DIR "${Horace_DOCS_WORK_DIR}/latex" CACHE FILEPATH "Directory to build LaTeX sources")
+set(Horace_DOCS_WORK_DIR "${Horace_DOCS_ROOT_DIR}/build" CACHE FILEPATH "Directory to build docs")
+set(Horace_DOCS_OUTPUT_DIR "${Horace_DOCS_WORK_DIR}/html")
+set(Horace_MANUAL_WORK_DIR "${Horace_DOCS_WORK_DIR}/latex")
 set(Horace_MANUAL_OUTPUT_DIR "${Horace_DOCS_WORK_DIR}/latex" CACHE FILEPATH "Directory to put compiled LaTeX manual")
+if (WIN32)
+    set(Horace_DOCS_PACK_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/docs.zip" CACHE FILEPATH "Directory containing built HTML documentation")
+else()
+    set(Horace_DOCS_PACK_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/docs.tar.gz" CACHE FILEPATH "Directory containing built HTML documentation")
+endif()
 
 find_program(sphinx-build NAMES sphinx-build)
 find_program(pdflatex NAMES pdflatex)
@@ -74,7 +73,6 @@ if (sphinx-build)
       VERBATIM
       )
 
-    set(Horace_DOCS_PACK_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/docs.zip" CACHE FILEPATH "Directory containing built HTML documentation")
 
     add_custom_target(docs-pack
       COMMENT "Zipping HTML documentation to ${Horace_DOCS_PACK_OUTPUT}"
@@ -88,8 +86,6 @@ if (sphinx-build)
       COMMAND sed -i -r "/\[NULL\]/d" "${Horace_DOCS_OUTPUT_DIR}/*html"
       DEPENDS build-docs
       )
-
-    set(Horace_DOCS_PACK_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/docs.tar.gz" CACHE FILEPATH "Directory containing built HTML documentation")
 
     add_custom_target(docs-pack
       COMMENT "Tarring HTML documentation to ${Horace_DOCS_PACK_OUTPUT}"
