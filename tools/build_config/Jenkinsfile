@@ -239,6 +239,7 @@ if (env.BRANCH_NAME) {
   currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA.take(7)}"
 }
 
+def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-", "")
 Boolean run_build_stage = !(env?.PR_LABELS =~ "do-not-build")
 Boolean run_test_stage = !(env?.PR_LABELS =~ "(do-not-build|do-not-test)")
 
