@@ -57,14 +57,8 @@ function wout = sqw_eval(win, sqwfunc, pars, varargin)
 % Output:
 % -------
 %   wout        Output dataset or array of datasets
-
-
-% Check optional argument
-options = {'all', 'average'};
-[ok, mess, all_bins, ave_pix] = parse_char_options(varargin, options);
-if ~ok
-    error('HORACE:SQW_EVAL:invalid_argument', mess);
-end
+%
+[sqwfunc, pars, opts] = parse_arguments(sqwfunc, pars, varargin{:});
 
 wout = copy(win);
 if ~iscell(pars)
@@ -73,8 +67,7 @@ end
 
 for i = 1:numel(win)
     if is_sqw_type(win(i))   % determine if sqw or dnd type
-        if ~ave_pix
-            %qw = calculate_qw_pixels2(win(i));
+        if ~opts.average
             qw = calculate_qw_pixels(win(i));
             stmp = sqwfunc(qw{:}, pars{:});
             wout(i).data.pix.signal = stmp(:)';
@@ -95,7 +88,7 @@ for i = 1:numel(win)
         end
     else
         qw = calculate_qw_bins(win(i));
-        if ~all_bins                    % only evaluate at the bins actually containing data
+        if ~opts.all                    % only evaluate at the bins actually containing data
             ok = (win(i).data.npix ~= 0);   % should be faster than isfinite(1./win.data.npix), as we know that npix is zero or finite
             for idim = 1:4
                 qw{idim} = qw{idim}(ok);  % pick out only the points where there is data
@@ -106,4 +99,23 @@ for i = 1:numel(win)
         end
         wout(i).data.e = zeros(size(win(i).data.e));
     end
+end
+
+end
+
+
+% -----------------------------------------------------------------------------
+function [sqwfunc, pars, opts] = parse_arguments(sqwfunc, pars, varargin)
+% Parse argument for sqw_eval
+flags = {'-all', '-average'};
+[~, ~, all_flag, ave_flag, args] = parse_char_options(varargin, flags);
+
+parser = inputParser();
+parser.addRequired('sqwfunc', @(x) isa(x, 'function_handle'));
+parser.addRequired('pars');
+parser.addParameter('average', ave_flag, @islognumscalar);
+parser.addParameter('all', all_flag, @islognumscalar);
+parser.parse(sqwfunc, pars, args{:});
+opts = parser.Results;
+
 end

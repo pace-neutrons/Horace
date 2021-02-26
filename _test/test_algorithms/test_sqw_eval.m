@@ -42,7 +42,7 @@ classdef test_sqw_eval < TestCase
             f = @() sqw_eval( ...
                 obj.sqw_2d_obj, obj.gauss_sqw, obj.gauss_params, '-notaflag' ...
             );
-            assertExceptionThrown(f, 'HORACE:SQW_EVAL:invalid_argument');
+            assertExceptionThrown(f, 'MATLAB:InputParser:ParamMissingValue');
         end
 
         %% SQW object tests
@@ -70,7 +70,9 @@ classdef test_sqw_eval < TestCase
         end
 
         function test_calling_with_average_flag_sets_each_pix_signal_to_average(obj)
-            out_sqw = sqw_eval(obj.sqw_2d_obj, obj.gauss_sqw, obj.gauss_params, 'average');
+            out_sqw = sqw_eval( ...
+                obj.sqw_2d_obj, obj.gauss_sqw, obj.gauss_params, 'average', true ...
+            );
 
             non_empty_s = out_sqw.data.s(out_sqw.data.npix ~= 0);
             non_empty_npix = out_sqw.data.npix(out_sqw.data.npix ~= 0);
@@ -147,7 +149,7 @@ classdef test_sqw_eval < TestCase
         function test_func_on_dnd_file_acts_on_non_empty_bins_if_all_flag_true(obj)
             fake_dnd = obj.build_fake_dnd();
 
-            dnd_out = sqw_eval(fake_dnd, obj.linear_func, obj.linear_params, 'all');
+            dnd_out = sqw_eval(fake_dnd, obj.linear_func, obj.linear_params, 'all', true);
 
             expected_signal = [ ...
                 2.6, 6.6, 5.0;
@@ -155,6 +157,14 @@ classdef test_sqw_eval < TestCase
             ];
             assertEqualToTol(dnd_out.s, expected_signal, obj.DOUBLE_TOL);
             assertEqual(dnd_out.e, zeros(size(fake_dnd.npix)));
+        end
+
+        function test_all_option_can_be_name_val_pair_of_flag(obj)
+            fake_dnd = obj.build_fake_dnd();
+
+            dnd_nvp = sqw_eval(fake_dnd, obj.linear_func, obj.linear_params, 'all', true);
+            dnd_flag = sqw_eval(fake_dnd, obj.linear_func, obj.linear_params, '-all');
+            assertEqualToTol(dnd_nvp, dnd_flag);
         end
     end
 
