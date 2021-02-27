@@ -325,3 +325,61 @@ withCredentials([string(credentialsId: 'TOKEN_ID', variable: 'secret')]) {
   """
 }
 ```
+
+## Established Jenkins pipelines
+
+### PR
+
+These diagrams show the process of triggering and running builds based on the creation of a pull-request in GitHub.
+
+#### Herbert
+
+<img src="./images/08_HerbertPR.svg">
+
+#### Horace
+
+<img src="./images/08_HoracePR.svg">
+
+### Nightly
+
+These diagrams show the process of triggering and running builds of `master` based on a regular timer on a daily schedule. It should be noted that the builds only trigger if pushes have happened in the last 24 hours and also that the Horace pipeline will be triggered if changes have taken place in the Herbert source.
+
+#### Herbert
+
+<img src="./images/08_HerbertNightly.svg">
+
+#### Horace
+
+<img src="./images/08_HoraceNightly.svg">
+
+### Release
+
+These diagrams show the process of triggering and running builds for the purpose of review and testing before release. 
+
+#### Herbert
+
+<img src="./images/08_HerbertRelease.svg">
+
+#### Horace
+
+<img src="./images/08_HoraceRelease.svg">
+
+### Deploy
+
+These diagrams show the process of triggering the automatic deployment of the release build to GitHub as a release. 
+
+#### Herbert
+
+<img src="./images/08_HerbertDeploy.svg">
+
+#### Horace
+
+<img src="./images/08_HoraceDeploy.svg">
+
+### Documentation
+
+<img src="./images/08_DocumentationPipeline.svg">
+
+## Legend for flow diagrams
+
+<img src="./images/08_Legend.svg">

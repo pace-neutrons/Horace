@@ -1,4 +1,4 @@
-function [ok,mess,header,grid_size,img_range]=gen_sqw_check_sqwfile_valid(sqw_file)
+function [ok,mess,header,grid_size,img_range,pix_range]=gen_sqw_check_sqwfile_valid(sqw_file)
 % Check that the sqw file has the correct attributes to which to accumulate, and return useful information
 %
 %   >> [ok,mess,grid_size,img_range]=gen_sqw_check_sqwfile_valid(sqw_file)
@@ -76,6 +76,6 @@ grid_size=zeros(1,4);
 for i=1:4
     grid_size(i)=numel(data.p{i})-1;
 end
-img_range=[data.p{1}(1) data.p{2}(1) data.p{3}(1) data.p{4}(1); ...
-    data.p{1}(end) data.p{2}(end) data.p{3}(end) data.p{4}(end)];
+img_range=data.img_range;
+pix_range = ldr.get_pix_range();
 

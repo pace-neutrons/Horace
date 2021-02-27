@@ -51,7 +51,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             end
             combine_algorithm = 'mpi_code'; % this is what should be tested
             if is_jenkins && ispc
-                combine_algorithm = 'mex_code'; % disable mpi combine on Jenkins. It is extreamly slow.
+                combine_algorithm = 'mex_code'; % disable mpi combine on Jenkins. It is extremely slow.
             end
             %
             obj = obj@gen_sqw_common_config(-1,1,combine_algorithm,'herbert');
@@ -67,7 +67,13 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             end
         end
         %
-        function test_worker(obj)
+        function test_worker_operations_and_communications(obj)
+            % The test verifies the communication protocol between host and 
+            % remote system running two "remote" sessions with remote workers
+            % running the remote job "accumulate_headers" job. 
+            % The communicatins occur between host and workers and between
+            % workers themselves.
+            %
             worker_local = 'parallel_worker';
             
             mis = MPI_State.instance('clear');
@@ -144,8 +150,6 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             res = mes.payload;
             res = res{1};
             assertEqual(res.grid_size,[50 50 50 50]);
-            assertElementsAlmostEqual(res.pix_range,...
-                [-1.5000 -2.1000 -0.5000 0;0 0 0.5000 35.0000]);
             % clear results of gen_tmp job
             serverfbMPI.clear_messages();
             %
@@ -154,7 +158,17 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             %write_nsqw_to_sqw(infiles,'test_sqw_file.sqw');
             %[main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
             [~,~,~,~,~,~,det,ldrs] = accumulate_headers_job.read_input_headers(tmp_files);
+            %
+            pix_range = PixelData.EMPTY_RANGE_;
+            for i=1:numel(tmp_files)
+                loc_range = ldrs{i}.get_pix_range();
+                pix_range = [min(loc_range(1,:),pix_range(1,:));...
+                    max(loc_range(2,:),pix_range(2,:))];
+            end
+            assertElementsAlmostEqual(res.pix_range,pix_range);
+            
             assertEqual(numel(det.group),96);
+            
             
             [common_par,loop_par] = accumulate_headers_job.pack_job_pars(ldrs);
             assertTrue(isempty(common_par));

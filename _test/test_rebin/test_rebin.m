@@ -9,6 +9,9 @@ classdef test_rebin < TestCase
         amp=10;
         testdir;
         this_folder;
+        
+        % Tolerance to use when comparing single floats
+        FLOAT_TOL = 4e-6;
     end
     
     methods
@@ -110,7 +113,7 @@ classdef test_rebin < TestCase
             w2d_qq_sqw_reb_check.data.e=w2d_qq_sqw_reb.data.e;
             w2d_qq_sqw_reb_check.data.pix.variance=w2d_qq_sqw_reb.data.pix.variance;
             
-            [ok,mess]=equal_to_tol(w2d_qq_sqw_reb_check,w2d_qq_sqw_reb,-1e-6,'ignore_str', 1);
+            [ok,mess]=equal_to_tol(w2d_qq_sqw_reb_check,w2d_qq_sqw_reb,-this.FLOAT_TOL,'ignore_str', 1);
             assertTrue(ok,['rebin sqw using template object fails: ',mess])
         end
         
@@ -142,8 +145,8 @@ classdef test_rebin < TestCase
         end
         
         % ------------------------------------------------------------------------------------------------
-        function this = DISABLED_test_rebin_d1d(this)
-            % *** Requires refactored fit_sqw
+        function this = test_rebin_d1d(this)
+            skipTest('Needs fit_sqw to be implemented.')
             
             % Special case of d1d rebin
             w1d_sqw=read_sqw(fullfile(this.testdir,'w1d_sqw.sqw'));

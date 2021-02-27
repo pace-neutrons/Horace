@@ -27,13 +27,13 @@ classdef test_faccess_sqw_v3_3< TestCase
         
         % tests
         function obj = test_should_load_stream(obj)
-            to = faccess_sqw_v3_3();
-            assertEqual(to.file_version,'-v3.3');
-            co = onCleanup(@()to.delete());
+            file_accessor = faccess_sqw_v3_3();
+            assertEqual(file_accessor.file_version,'-v3.3');
+            co = onCleanup(@()file_accessor.delete());
             
             
-            [stream,fid] = to.get_file_header(obj.sample_file);
-            [ok,initobj] = to.should_load_stream(stream,fid);
+            [stream,fid] = file_accessor.get_file_header(obj.sample_file);
+            [ok,initobj] = file_accessor.should_load_stream(stream,fid);
             co1 = onCleanup(@()fclose(initobj.file_id));
             assertTrue(ok);
             assertTrue(initobj.file_id>0);
@@ -41,10 +41,10 @@ classdef test_faccess_sqw_v3_3< TestCase
         end
         %
         function obj = test_should_load_file(obj)
-            to = faccess_sqw_v3_3();
-            co = onCleanup(@()to.delete());
+            file_accessor = faccess_sqw_v3_3();
+            co = onCleanup(@()file_accessor.delete());
             
-            [ok,initobj] = to.should_load(obj.sample_file);
+            [ok,initobj] = file_accessor.should_load(obj.sample_file);
             co1 = onCleanup(@()fclose(initobj.file_id));
             
             assertTrue(ok);
@@ -53,44 +53,44 @@ classdef test_faccess_sqw_v3_3< TestCase
         end
         %
         function obj = test_init_wrong(obj)
-            to = faccess_sqw_v3_3();
+            file_accessor = faccess_sqw_v3_3();
             
             % access to incorrect object
-            f = @()(to.init());
+            f = @()(file_accessor.init());
             assertExceptionThrown(f,'SQW_FILE_IO:invalid_argument');
         end
         
         function obj = test_init_and_get(obj)
-            to = faccess_sqw_v3_3();
+            file_accessor = faccess_sqw_v3_3();
             
-            [ok,initobj] = to.should_load(obj.sample_file);
+            [ok,initobj] = file_accessor.should_load(obj.sample_file);
             assertTrue(ok);
             assertTrue(initobj.file_id>0);
             
             
-            to = to.init(initobj);
-            assertEqual(to.npixels,7680);
-            assertEqual(to.num_contrib_files,1);
+            file_accessor = file_accessor.init(initobj);
+            assertEqual(file_accessor.npixels,7680);
+            assertEqual(file_accessor.num_contrib_files,1);
             
             
-            mheader = to.get_main_header('-verbatim');
+            mheader = file_accessor.get_main_header('-verbatim');
             assertEqual(numel(mheader.title),0);
             assertEqual(mheader.filename,'test_sqw_file_read_write_v3.sqw');
             assertEqual(mheader.filepath,...
                 'C:\Users\abuts\Documents\developing_soft\Horace\_test\test_sqw_file\');
             
-            header = to.get_header();
+            header = file_accessor.get_header();
             assertEqual(header.filename,'')
             assertElementsAlmostEqual(header.psi,0.2967,'absolute',1.e-4);
             assertEqual(header.ulabel{4},'E')
             assertEqual(header.ulabel{3},'Q_\eta')
             
-            det = to.get_detpar();
+            det = file_accessor.get_detpar();
             assertEqual(det.filename,'')
             assertEqual(det.filepath,'.\')
             assertEqual(numel(det.group),96)
             
-            data = to.get_data();
+            data = file_accessor.get_data();
             assertEqual(data.pix.num_pixels,7680)
             assertEqual(size(data.s,1),numel(data.p{1})-1)
             assertEqual(size(data.e,2),numel(data.p{2})-1)
@@ -99,37 +99,37 @@ classdef test_faccess_sqw_v3_3< TestCase
         end
         %
         function obj = test_get_data(obj)
-            to = faccess_sqw_v3_3(obj.sample_file);
+            file_accessor = faccess_sqw_v3_3(obj.sample_file);
             
-            data_h = to.get_data('-he');
+            data_h = file_accessor.get_data('-he');
             assertTrue(isstruct(data_h))
-            assertEqual(data_h.filename,to.filename)
-            assertEqual(data_h.filepath,to.filepath)
+            assertEqual(data_h.filename,file_accessor.filename)
+            assertEqual(data_h.filepath,file_accessor.filepath)
             
-            data_dnd = to.get_data('-verb','-nopix');
+            data_dnd = file_accessor.get_data('-verb','-nopix');
             assertTrue(isa(data_dnd,'data_sqw_dnd'));
             assertEqual(data_dnd.filename,'test_sqw_file_read_write_v3.sqw');
             
-            data = to.get_data('-ver');
+            data = file_accessor.get_data('-ver');
             assertEqual(data.filename,data_dnd.filename)
             assertEqual(data.filepath,data_dnd.filepath)
             assertTrue(isa(data.pix, 'PixelData'));
             assertEqual(data.pix.file_path, obj.sample_file);
             assertEqual(data.pix.num_pixels, 7680);
             
-            raw_pix = to.get_pix(1,20);
+            raw_pix = file_accessor.get_pix(1,20);
             assertEqual(data.pix.get_pixels(1:20).data, raw_pix);
         end
         %
         function obj = test_get_inst_or_sample(obj)
-            to = faccess_sqw_v3_3();
-            to = to.init(obj.sample_file);
+            file_accessor = faccess_sqw_v3_3();
+            file_accessor = file_accessor.init(obj.sample_file);
             
-            inst = to.get_instrument('-all');
-            samp = to.get_sample();
+            inst = file_accessor.get_instrument('-all');
+            samp = file_accessor.get_sample();
             assertTrue(isa(samp,'IX_sample'));
             
-            inst1 = to.get_instrument(1);
+            inst1 = file_accessor.get_instrument(1);
             assertEqual(inst,inst1);
         end
         %

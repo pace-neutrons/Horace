@@ -1,5 +1,5 @@
 function varargout = cut_dnd(varargin)
-% Take a cut from a file or files containing d0d,d1d...or d4d data
+% Take a cut from a dnd object or file containing d0d,d1d...or d4d data
 %
 %   >> w=cut_dnd (file, arg1, arg2, ...)
 %
