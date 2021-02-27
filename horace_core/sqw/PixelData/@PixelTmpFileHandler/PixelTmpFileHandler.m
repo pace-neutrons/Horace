@@ -9,20 +9,24 @@ end
 properties (Access=private)
     tmp_dir_path_ = '';  % The path to the directory in which to write the tmp files
     pix_id_ = -1;        % The ID of the PixelData instance linked to this object
+    has_tmp_file_ = false;  % Logical array mapping page to whether that page has a tmp file
 end
 
 methods
 
-    function obj = PixelTmpFileHandler(pix_id)
+    function obj = PixelTmpFileHandler(pix_id, has_tmp_files)
         % Construct a PixelTmpFileHandler object
         %
         % Input
         % -----
         % pix_id   The ID of the PixelData instance this object is linked to.
         %          This sets the tmp directory name
-        %
+        % has_tmp_files  Logical array saying if tmp exist for the given page
         obj.pix_id_ = pix_id;
         obj.tmp_dir_path_ = obj.generate_tmp_dir_path_(obj.pix_id_);
+        if exist('has_tmp_files', 'var')
+            obj.has_tmp_file_ = has_tmp_files;
+        end
     end
 
     function raw_pix = load_page(obj, page_number, ncols)
@@ -115,9 +119,10 @@ methods
         clean_up = onCleanup(@() fclose(file_id));
 
         obj.write_float_data_(file_id, raw_pix);
+        obj.has_tmp_file_(page_number) = true;
     end
 
-    function copy_folder(obj, target_pix_id)
+    function has_tmp_file = copy_folder(obj, target_pix_id)
         % Copy the temporary files managed by this class instance to a new folder
         %
         % Input
@@ -125,6 +130,11 @@ methods
         % target_pix_id   The ID of the PixelData instance the new tmp folder
         %                 will be linked to
         %
+        % Output
+        % ------
+        % has_tmp_file    Logical array of which pages have tmp files
+        %
+        has_tmp_file = false;
         if ~exist(obj.tmp_dir_path_, 'dir')
             return;
         end
@@ -136,12 +146,23 @@ methods
                   'Could not copy PixelData tmp files from ''%s'' to ''%s'':\n%s', ...
                   obj.tmp_dir_path_, new_dir_path, err_msg);
         end
+        has_tmp_file = obj.has_tmp_file_;
     end
 
-    function delete_files(obj)
+    function obj = delete_files(obj)
         % Delete the directory containing the tmp files
         if exist(obj.tmp_dir_path_, 'dir')
             rmdir(obj.tmp_dir_path_, 's');
+        end
+        obj.has_tmp_file_ = false;
+    end
+
+    function has = page_has_tmp_file(obj, page_number)
+        % Return true if the given page was written to a tmp file
+        if page_number > numel(obj.has_tmp_file_)
+            has = false;
+        else
+            has = obj.has_tmp_file_(page_number);
         end
     end
 

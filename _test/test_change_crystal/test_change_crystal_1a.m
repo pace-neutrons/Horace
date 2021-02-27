@@ -45,7 +45,7 @@ classdef test_change_crystal_1a < TestCase
             hpc_restore = onCleanup(@()set(hpc,dat2recover));
             hpc.build_sqw_in_parallel=0;
             hpc.combine_sqw_using = 'mex_code';
-            
+
             % -----------------------------------------------------------------------------
             % Add common functions folder to path, and get location of common data
             hor_root = horace_root();
@@ -73,7 +73,8 @@ classdef test_change_crystal_1a < TestCase
             obj.clob = {onCleanup(@()clearner(nxs_file_s,sim_sqw_file,cof_path)),hpc_restore};
 
         end
-        function DISABLED_test_u_alighnment_tf_way(obj)
+        function test_u_alighnment_tf_way(obj)
+            skipTest('Test is disabled');
             % Fit Bragg peak positions
             % ------------------------
             proj.u=obj.u;
@@ -137,9 +138,9 @@ classdef test_change_crystal_1a < TestCase
 
         end
         %
-        function xest_u_alighnment(obj)
-            % have not been finished, does not work
-            % Test is disabled
+        function test_u_alighnment(obj)
+            skipTest('Has not been finished, does not work. Test is disabled');
+
             %
             % Fit Bragg peak positions
             % ------------------------
@@ -300,4 +301,3 @@ classdef test_change_crystal_1a < TestCase
 
     end
 end
-

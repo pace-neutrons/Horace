@@ -1,4 +1,4 @@
-function [ix,npix,p,grid_size,ibin]=sort_pixels(u,pix_range,grid_size_in)
+function [ix,npix,p,grid_size,ibin]=sort_pixels_by_bins(u,pix_range,grid_size_in)
 % Reorder the pixels according to increasing bin index in a Cartesian grid.
 %
 %   >> [ix,npix,p,grid_size]=sort_pixels(u,pix_range,grid_size_in)

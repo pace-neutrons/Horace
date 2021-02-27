@@ -29,6 +29,11 @@ if del_npix_retain>0
     n_mem_blocks = n_mem_blocks + 1;
     pix_mem_retained{n_mem_blocks} = v.get_pixels(ok);    % accumulate pixels into buffer array
     pix_mem_ix_retained{n_mem_blocks} = ix_add;
+
+    new_range_min = min(pix_comb_info.pix_range(1, :), v.pix_range(1, :));
+    new_range_max = max(pix_comb_info.pix_range(2, :), v.pix_range(2, :));
+    pix_comb_info.pix_range(1, :) = new_range_min;
+    pix_comb_info.pix_range(2, :) = new_range_max;
 end
 
 if n_pix_in_memory> max_buf_size % flush pixels in file
