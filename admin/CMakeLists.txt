@@ -11,7 +11,7 @@ set(_path_regex "[a-zA-Z0-9/\\\\_\\-\\.: ]+")
 file(READ "herbert_on.m.template" _herbert_on_template)
 string(REGEX REPLACE
     "default_herbert_path ?= ?'${_path_regex}'"
-    "default_herbert_path = '${CMAKE_SOURCE_DIR}/herbert_core'"
+    "default_herbert_path = '${Herbert_ROOT}/herbert_core'"
     _herbert_on_script
     "${_herbert_on_template}"
 )
@@ -23,12 +23,12 @@ set(Herbert_AUTO_GENERATED_FILE_WARNING
 # herbert_core/admin and CMake's project version formatted into it. This
 # provides the function with an up-to-date version number for every build.
 configure_file("herbert_get_build_version.m.template"
-               "${CMAKE_SOURCE_DIR}/herbert_core/admin/herbert_get_build_version.m")
+               "${Herbert_ROOT}/herbert_core/admin/herbert_get_build_version.m")
 
 # Configure the version.h header. The template is copied into _LowLevelCode/cpp
 # and defines macro VERSION with CMake's project version.
 configure_file("version.h.template"
-               "${CMAKE_SOURCE_DIR}/_LowLevelCode/cpp/utility/version.h")
+               "${Herbert_ROOT}/_LowLevelCode/cpp/utility/version.h")
 
 # =============================================================================
 # Install commands
@@ -39,5 +39,6 @@ install(
         "validate_herbert.m"
         "worker_4tests.m.template"
         "worker_v2.m.template"
+        "lint_json.m"
     DESTINATION "Herbert/admin/"
 )

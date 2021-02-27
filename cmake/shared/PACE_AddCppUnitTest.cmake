@@ -4,8 +4,8 @@ pace_add_cpp_unit_test
 
 Add a C++ unit test that links to GoogleTest.
 
-Before this function is defined, the variables `CXX_SOURCE_DIR`,
-`TEST_ENV_PATH` and `TESTS_BIN_DIR` should be defined.
+Before this function is defined, the variables `CXX_SOURCE_DIR` and
+`TESTS_BIN_DIR` should be defined.
 
 Arguments
 ^^^^^^^^^
@@ -81,12 +81,21 @@ function(pace_add_cpp_unit_test)
     add_test(
         NAME "${_full_test_name}"
         COMMAND "${TESTS_BIN_DIR}/${TEST_NAME}"
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        WORKING_DIRECTORY "${${PROJECT_NAME}_ROOT}"
     )
     # Add Matlab dll directory to the CTest path
     if(WIN32 AND "${TEST_MEX_TEST}")
         set_tests_properties("${_full_test_name}" PROPERTIES
-            ENVIRONMENT "PATH=${TEST_ENV_PATH}"
+            ENVIRONMENT "PATH=${Matlab_DLL_DIR}"
+        )
+        # Set Visual Studio debugger environment variables
+        # Adding the Matlab DLL directory stops errors because of missing DLLs
+        # and adding ${PROJECT_NAME}_ROOT variable helps tests find data files.
+        string(TOUPPER "${PROJECT_NAME}_ROOT" _proj_root_upper)
+        set_target_properties("${TEST_NAME}"
+            PROPERTIES
+                VS_DEBUGGER_ENVIRONMENT
+                    "PATH=${Matlab_DLL_DIR};%PATH%\n${_proj_root_upper}=${${PROJECT_NAME}_ROOT}"
         )
     endif()
 

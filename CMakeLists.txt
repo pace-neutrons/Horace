@@ -1,6 +1,7 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.15)
 
-file(READ "${CMAKE_SOURCE_DIR}/VERSION" _version)
+set(Herbert_ROOT ${CMAKE_CURRENT_LIST_DIR})
+file(READ "${Herbert_ROOT}/VERSION" _version)
 string(STRIP "${_version}" _version)
 project("Herbert" VERSION "${_version}")
 
@@ -13,17 +14,18 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 option(BUILD_TESTS "Build the C++ tests" ON)
 
 # Add cmake directory to CMake's path
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake"
-     "${CMAKE_SOURCE_DIR}/cmake/external" "${CMAKE_SOURCE_DIR}/cmake/shared")
+list(APPEND CMAKE_MODULE_PATH "${Herbert_ROOT}/cmake"
+     "${Herbert_ROOT}/cmake/external" "${Herbert_ROOT}/cmake/shared")
 
 # This sets the destination for mex build artifacts (used in PACE_AddMex)
-set(Herbert_DLL_DIRECTORY "${CMAKE_SOURCE_DIR}/herbert_core/DLL")
+set(Herbert_DLL_DIRECTORY "${Herbert_ROOT}/herbert_core/DLL")
 
 # Look for packages early so we can exit if they're not found
 include(herbert_FindMPI)
 include(PACE_FindMatlab)
 include(PACE_Version)
 include(PACE_AddMex)
+include(PACE_CodeAnalysis)
 if(${BUILD_TESTS})
     include(CTest)
     include(PACE_FindGTest)

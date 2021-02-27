@@ -110,6 +110,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             
             
             cl  = parcluster();
+            cl.JobStorageLocation = pc.working_directory;
             
             % By default Matlab only utilises physical cores; enable use of
             % logical cores if required

@@ -9,7 +9,7 @@ function sync_folders (p1, p2, syncdirect)
 %   sync_direction  Controls the behaviour of the synchronisation
 %
 %       =0  Synchronisation takes place both ways, with the more recent
-%           version of a common file being retained, and files in just one 
+%           version of a common file being retained, and files in just one
 %           of the folders are copied to the other.
 %
 %       =1  The newer contents of p1 are copied to p2, that is, older versions
@@ -20,7 +20,7 @@ function sync_folders (p1, p2, syncdirect)
 %           in p2 that are not in p1 are deleted.
 %
 %       =-1 Same as 1 with the roles of p1 and p2 reversed
-%           
+%
 %       =-2 Same as 2 with the roles of p1 and p2 reversed
 
 % From Matlab file exchange:
@@ -42,10 +42,10 @@ recycle on;
 p1=fullfile(p1);
 p2=fullfile(p2);
 try
-    if ~isdir(p1), mkdir(p1); end
-    if ~isdir(p2), mkdir(p2); end
+    if ~exist(p1, 'dir'), mkdir(p1); end
+    if ~exist(p2, 'dir'), mkdir(p2); end
 catch ME
-    error([p1 ' or ' p2 ' is not a directory']);    
+    error([p1 ' or ' p2 ' is not a directory']);
 end
 
 % get the files and subdirectories, and sort them by alphabetically
@@ -67,7 +67,7 @@ while nf1 <= numel(files1) || nf2 <= numel(files2)
         nf2 = nf2 + 1;
         continue;
     end
-    
+
     % the same files or directories in p1 and p2
     if nf1 <= numel(files1) && nf2 <= numel(files2) && ...
             strcmpi(files1(nf1).name, files2(nf2).name)
@@ -80,14 +80,14 @@ while nf1 <= numel(files1) || nf2 <= numel(files2)
             if files1(nf1).datenum > files2(nf2).datenum + 1.0/24/60
                 if syncdirect >= 0
                     display(['''' fullfile(p1, files1(nf1).name) ''' --> ''' ...
-                        fullfile(p2, files2(nf2).name) '''']);                    
+                        fullfile(p2, files2(nf2).name) '''']);
                     copyfile(fullfile(p1, files1(nf1).name), fullfile(p2, files2(nf2).name), 'f');
                 end
             elseif files1(nf1).datenum < files2(nf2).datenum - 1.0/24/60
                 if syncdirect <= 0
                     display(['''' fullfile(p1, files1(nf1).name) ''' <-- ''' ...
-                        fullfile(p2, files2(nf2).name) '''']);                            
-                    copyfile(fullfile(p2, files2(nf2).name), fullfile(p1, files1(nf1).name), 'f');            
+                        fullfile(p2, files2(nf2).name) '''']);
+                    copyfile(fullfile(p2, files2(nf2).name), fullfile(p1, files1(nf1).name), 'f');
                 end
             end
         end
@@ -111,19 +111,19 @@ while nf1 <= numel(files1) || nf2 <= numel(files2)
         else % is a file
             if syncdirect >= 0
                 display(['''' fullfile(p1, files1(nf1).name) ''' --> ''' ...
-                        p2,  '''']);                                
-                copyfile(fullfile(p1, files1(nf1).name), p2, 'f');                
+                        p2,  '''']);
+                copyfile(fullfile(p1, files1(nf1).name), p2, 'f');
             elseif syncdirect <= -2 % this file will be deleted
                 display(['''' fullfile(p1, files1(nf1).name) ''' is deleted']);
                 delete(fullfile(p1, files1(nf1).name));
             end
         end
         nf1 = nf1 + 1;
-        
+
     % a file or diretory in p2 not in p1
     elseif nf2 <= numel(files2) && ...
             (nf1 > numel(files1) || strcmpc(files2(nf2).name, files1(nf1).name) < 0)
-        
+
         if files2(nf2).isdir % is a dir
             if ~strcmpi(files2(nf2).name, svn)
                 if syncdirect <= 0
@@ -139,10 +139,10 @@ while nf1 <= numel(files1) || nf2 <= numel(files2)
         else % is a file
             if syncdirect <= 0
                 display(['''' p1 ''' <-- ''' ...
-                        fullfile(p2, files2(nf2).name) '''']);   
-                copyfile(fullfile(p2, files2(nf2).name), p1, 'f');                 
+                        fullfile(p2, files2(nf2).name) '''']);
+                copyfile(fullfile(p2, files2(nf2).name), p1, 'f');
             elseif syncdirect >= 2 % this file will be deleted
-                display(['''' fullfile(p2, files2(nf2).name) ''' is deleted']);                                
+                display(['''' fullfile(p2, files2(nf2).name) ''' is deleted']);
                 delete(fullfile(p2, files2(nf2).name));
             end
         end
@@ -216,28 +216,27 @@ function c = strcmpc(s1,s2)
 
 l=min(length(s1), length(s2));
 if l==0
-	if length(s1)
-		c=1;
-	else
-		c=-1;
-	end
-	return
+        if length(s1)
+                c=1;
+        else
+                c=-1;
+        end
+        return
 end
 i=find(s1(1:l)~=s2(1:l));
 if isempty(i)
-	if length(s1)<length(s2)
-		c=-1;
-	elseif length(s1)==length(s2)
-		c=0;
-	else
-		c=1;
-	end
-	return
+        if length(s1)<length(s2)
+                c=-1;
+        elseif length(s1)==length(s2)
+                c=0;
+        else
+                c=1;
+        end
+        return
 end
 i=i(1);
 if s1(i)<s2(i)
-	c=-1;
+        c=-1;
 else
-	c=1;
+        c=1;
 end
-
