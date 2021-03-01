@@ -6,6 +6,8 @@ classdef test_sqw_eval < TestCase
     end
 
     properties
+        old_warn_state;
+
         sqw_2d_obj;
         sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw';
         sqw_2d_sqw_eval_ref_obj;
@@ -22,6 +24,9 @@ classdef test_sqw_eval < TestCase
         function obj = test_sqw_eval(~)
             obj = obj@TestCase('test_sqw_eval');
 
+            % Swallow any warnings for when pixel page size set too small
+            obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
+
             % Sum of the gaussian of each coordinate
             obj.gauss_sqw = ...
                 @(u1, u2, u3, dE, pars) ...
@@ -35,6 +40,10 @@ classdef test_sqw_eval < TestCase
 
             obj.sqw_2d_obj = sqw(obj.sqw_2d_file_path);
             obj.sqw_2d_sqw_eval_ref_obj = sqw(obj.sqw_2d_sqw_eval_ref_file);
+        end
+
+        function delete(obj)
+            warning(obj.old_warn_state);
         end
 
         %% Argument validation tests
