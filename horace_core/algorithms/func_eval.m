@@ -1,4 +1,4 @@
-function wout = func_eval(source, varargin)
+function wout = func_eval(source, func_handle, pars, varargin)
 % Evaluate a function at the plotting bin centres of sqw/dnd objects or files
 % Syntax:
 %   >> wout = func_eval(win, func_handle, pars)
@@ -12,12 +12,12 @@ function wout = func_eval(source, varargin)
 %
 % For more info see help sqw/func_eval
 %
-sqw_dnd_obj = load_sqw_dnd(source);
+sqw_dnd_obj = load_sqw_dnd(source, varargin{:});
 
 if nargout > 0
-    wout = func_eval(sqw_dnd_obj, varargin{:});
+    wout = func_eval(sqw_dnd_obj, func_handle, pars, varargin{:});
 else
-    func_eval(sqw_dnd_obj, varargin{:});
+    func_eval(sqw_dnd_obj, func_handle, pars, varargin{:});
 end
 
 end  % function
