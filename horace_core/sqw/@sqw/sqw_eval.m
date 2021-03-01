@@ -69,11 +69,19 @@ end
 for i = 1:numel(win)
     if is_sqw_type(win(i))   % determine if sqw or dnd type
         if ~opts.average
-            qw = calculate_qw_pixels(win(i));
-            stmp = sqwfunc(qw{:}, pars{:});
-            wout(i).data.pix.signal = stmp(:)';
-            wout(i).data.pix.variance = zeros(1, numel(stmp));
-            wout(i) = recompute_bin_data(wout(i));
+            while true
+                qw = calculate_qw_pixels(wout(i));
+                stmp = sqwfunc(qw{:}, pars{:});
+                pix = wout(i).data.pix;
+                pix.signal = stmp(:)';
+                pix.variance = zeros(1, numel(stmp));
+
+                if pix.has_more()
+                    pix.advance();
+                else
+                    break;
+                end
+            end
         else
             % Get average h, k, l, e for the bin, compute sqw for that average,
             % and fill pixels with the average signal for the bin that contains
@@ -85,8 +93,8 @@ for i = 1:numel(win)
             stmp = replicate_array(stmp, win(i).data.npix);
             wout(i).data.pix.signal = stmp(:)';
             wout(i).data.pix.variance = zeros(1, numel(stmp));
-            wout(i) = recompute_bin_data(wout(i));
         end
+        wout(i) = recompute_bin_data(wout(i));
     else
         qw = calculate_qw_bins(win(i));
         if ~opts.all                    % only evaluate at the bins actually containing data
