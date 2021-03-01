@@ -1,4 +1,4 @@
-function data = load_sqw_dnd(sources, varargin)
+function [data, unmatched_args] = load_sqw_dnd(sources, varargin)
 %LOAD_SQW_DND attempt to load the given sources into sqw/dnd objects
 %
 % Input:
@@ -20,7 +20,8 @@ function data = load_sqw_dnd(sources, varargin)
 %
 % Output:
 % -------
-% data          Array of sqw or dnd objects.
+% data            Array of sqw or dnd objects.
+% unmatched_args  Cell array of items in varargin that were not parsed.
 %
 DND_CLASSES = {'d0d', 'd1d', 'd2d', 'd3d', 'd4d'};
 
@@ -29,10 +30,15 @@ sources_validator = @(x) validateattributes( ...
 );
 
 parser = inputParser();
+parser.KeepUnmatched = true;
 parser.addRequired('sources', sources_validator);
-parser.addOptional('filebacked_pix', false, @islognumscalar);
+parser.addParameter('filebacked_pix', false, @islognumscalar);
 parser.parse(sources, varargin{:});
 opts = parser.Results;
+
+% Return any unmatched name-value pairs
+% TODO: namedargs2cell is new in R2019b - write an alternative
+unmatched_args = namedargs2cell(parser.Unmatched);
 
 if iscell(sources)
     % We're not sure whether the inputs are sqw/dnd yet. Set the output array
@@ -81,10 +87,8 @@ function sqw_dnd_obj = get_data_source(source, filebacked_pix)
         try
             if ldr.sqw_type
                 if filebacked_pix
-                    % Load the .sqw file using the sqw constructor so that we can pass the
-                    % pixel_page_size argument to get an sqw with file-backed pixels.
                     pixel_page_size = get(hor_config, 'pixel_page_size');
-                    sqw_dnd_obj = sqw(source, 'pixel_page_size', pixel_page_size);
+                    sqw_dnd_obj = ldr.get_sqw('pixel_page_size', pixel_page_size);
                 else
                     sqw_dnd_obj = ldr.get_sqw();
                 end

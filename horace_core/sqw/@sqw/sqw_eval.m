@@ -35,7 +35,8 @@ function wout = sqw_eval(win, sqwfunc, pars, varargin)
 %              package these into a cell array and pass that as pars. In the example
 %              above then pars = {p, c1, c2, ...}
 %
-% Optional string parameters:
+% Optional flags:
+% ---------------
 %   'all'      Requests that the calculated sqw be returned over
 %              the whole of the domain of the input dataset. If not given, then
 %              the function will be returned only at those points of the dataset
@@ -106,7 +107,7 @@ end
 
 % -----------------------------------------------------------------------------
 function [sqwfunc, pars, opts] = parse_arguments(sqwfunc, pars, varargin)
-% Parse argument for sqw_eval
+% Parse arguments for sqw_eval
 flags = {'-all', '-average'};
 [~, ~, all_flag, ave_flag, args] = parse_char_options(varargin, flags);
 
