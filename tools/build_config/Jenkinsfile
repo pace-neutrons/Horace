@@ -202,21 +202,25 @@ properties([
       trim: true
     ),
     string(
+      defaultValue: ''
       description: 'The version of CMake to run the build with.',
       name: 'CMAKE_VERSION',
       trim: true
     ),
     string(
+      defaultValue: ''
       description: 'The version of GCC to build with.',
       name: 'GCC_VERSION',
       trim: true
     ),
     string(
+      defaultValue: ''
       description: 'The year of the version of Visual Studio to build with.',
       name: 'VS_VERSION',
       trim: true
     ),
     string(
+      defaultValue: ''
       description: 'The version of CppCheck tooling to load to provide the code-style checks.',
       name: 'CPPCHECK_VERSION',
       trim: true
