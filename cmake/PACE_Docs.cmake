@@ -21,7 +21,7 @@ Output filename (including extension) for compressed docs file
 e.g. ``${CMAKE_CURRENT_BINARY_DIR}/docs.zip``
 
 ``Horace_MANUAL_OUTPUT_DIR``
-Output directory where LaTeX docs are placed
+Output directory where compiled LaTeX PDF is placed
 
 Targets defined by the module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
