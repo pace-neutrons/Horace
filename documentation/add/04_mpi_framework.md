@@ -24,9 +24,9 @@ This controller wraps around and interfaces the cluster job submission mechanism
 
 Option 1) suits the users who do not want to compile C\++ code and do not have Matlab parallel computing toolbox installed.
 
-Option 2) is best for the people, who has Matlab parallel computing toolbox.
+Option 2) is best for people who have the Matlab parallel computing toolbox.
 
-Option 3) is best for for experienced users who can compile C++ code and set up MPI framework.
+Option 3) is best for users who have acess to Herbert's compiled C++ binaries, and do not have access to Matlab's Parallel Computing Toolbox.
 
 To provide simple switching between different frameworks, common wrappers are written around the libraries and programs controlling parallel processes and transferring the messages.
 The wrappers provide common interface to user jobs. 
@@ -51,7 +51,7 @@ The last row of the table indicates that each parallel job is initialized and co
 i.e. the initialization information for a parallel task. Logging of the progress and the information about the task results are distributed using file-based messages. 
 
 The File-based framework has been written with the assumption that *job chunks may be processed independently*, 
-but limited number of interprocess communications is occurring. 
+and there are limited numbers of interprocess communications. 
 This restricts the use of file-based framework to the correspondent part of Horace algorithms and for initial job submission. 
 Matlab MPI and standard MPI frameworks do not have such restrictions but can not be used for job submission to the cluster.
 
@@ -65,7 +65,7 @@ The diagram shows the interaction between the main hardware and software compone
 Black boxes in **Fig 1** indicate the hardware components, namely parallel processes or parallel programs running Horace software. 
 Green boxes refer to the software components, running on the appropriate hardware. 
 The red arrows on the picture refer to the message transfer medium, used for communication between the processes/nodes. 
-Currently implemented Horace jobs mainly communicate with the *head node*, though this is not a constraint, but the an implementation detail. 
+Currently implemented Horace jobs mainly communicate with the *head node*, though this is an implementation detail rather than a constraint.
 The frameworks allow efficient communication between nodes without any constraints. 
 The Blue lines on the diagram refer to file-based message transfer, used to submit initial job and return job progress and information about the job results.
 Black arrows, refer to the process of the software submission to the cluster, described in more details in the chapter on **Common initialization**.
@@ -91,7 +91,7 @@ and the chunking of jobs into parallel "chunks" using a description of the physi
 **ClusterWrapper** starts the parallel cluster and takes the chunks of the job from the **JobDispatcher**, 
 formatted as job initialization messages. 
 **ClusterWrapper** sends these chunks to the parallel *workers*, which run independent Matlab instances, 
-executing the particular **JobExecutor** job chunks and communicating between each others using the appropriate **MessagesFramework**
+executing the particular **JobExecutor** job chunks and communicating between each other using the appropriate **MessagesFramework**
 
 The components of a Horace parallel job, presented in **Fig 1** and **Fig 2** and mentioned here are described below. 
 
@@ -101,8 +101,8 @@ The components of a Horace parallel job, presented in **Fig 1** and **Fig 2** an
 ## Interfaces
 
 A common interface has been implemented to ensure the operation is independent of the underlying service and messaging framework. 
-As we use only a limited subset of MPI operations, necessary to our purposes, the interface is simpler then the standard MPI 
-or even Matlab distributed computing toolbox interface. 
+As we use only a limited subset of MPI operations - those necessary to our purpose - 
+the interface is simpler than that of standard MPI or Matlab's Parallel Computing Toolbox.
 
 
 ## Job Management
@@ -520,4 +520,3 @@ Maybe it's just random passing or may be interrupt cache is unnecessary complica
 To understand framework operation it is convenient to assume that the framework implicitly organizes message propagation using three channels, namely synchronous, asynchronous and interrupt. 
 Any receive operation scans an appropriate (synchronous or asynchronous depending on message type) channel along with the interrupt channel and returns information. 
 Synchronous receive waits for a message to appear, where asynchronous returns empty if nothing is available at the moment when the request has been issued.
-
