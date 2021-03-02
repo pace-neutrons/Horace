@@ -129,7 +129,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
             if isa(this.sqw_obj,'sqw_old')
                 sqw_obj = sqw(struct(this.sqw_obj));
             else
-                sqw_obj = this.sqw_old;
+                sqw_obj = this.sqw_obj; % CMDEV was sqw_old - typo from previous commit
             end
             rd = rundatah(sqw_obj);
             

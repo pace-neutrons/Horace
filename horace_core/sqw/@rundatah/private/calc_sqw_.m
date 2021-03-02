@@ -137,7 +137,7 @@ d.main_header=main_header;
 d.header=header;
 d.detpar=det0;
 d.data=data_sqw_dnd(sqw_datstr);
-w=sqw_old(d);
+w=sqw(d);
 
 
 %------------------------------------------------------------------------------------------------------------------
