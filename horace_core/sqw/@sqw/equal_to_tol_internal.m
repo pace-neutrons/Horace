@@ -25,6 +25,7 @@ end
 class_fields = properties(w1);
 for idx = 1:numel(class_fields)
     field_name = class_fields{idx};
+    disp(['field_name:', field_name]);
     tmp1 = w1.(field_name);
     tmp2 = w2.(field_name);
     if strcmp(field_name, 'data') && isa(tmp1.pix, 'PixelData')
@@ -32,7 +33,12 @@ for idx = 1:numel(class_fields)
         tmp1.pix = PixelData();
         tmp2.pix = PixelData();
     end
-    [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a', name_a, 'name_b', name_b);
+    try
+        [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a', name_a, 'name_b', name_b);
+    catch ME
+        disp('swrong');
+    end
+    disp(['finished field_name:', field_name]);
 
     if ~ok
         return; % break on first failure

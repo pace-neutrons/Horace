@@ -34,7 +34,7 @@ if ndims~=2
     error('Horace error: symmetrise_horace_2d only works for 2-dimensional data');
 end
 
-if isa(win,'sqw_old') && is_sqw_type(win)
+if isa(win,'sqw') && is_sqw_type(win)
     error('Horace error: symmetrise_horace_2d method is for d2d-type data only');
 end
 
