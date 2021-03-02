@@ -1,12 +1,11 @@
-function wout=symmetrise_sqw(win,v1,v2,v3)
-
+function [wout,pix_range]=symmetrise_sqw(win,v1,v2,v3)
+% Symmetriese sqw dataset in the plane specified by the vectors v1, v2, and
+% v3.
 % wout=symmetrise_sqw(win,v1,v2,v3)
 %
 % WORKS ONLY FOR DATA OBJECTS OF SQW-TYPE (I.E. WITH PIXEL INFO RETAINED).
 %
 %
-% Symmetriese sqw dataset in the plane specified by the vectors v1, v2, and
-% v3.
 % v1 and v2 are two vectors which lie in the plane of the reflection plane.
 % v3 is a vector connecting the plane to the origin (i.e. specifies an
 % offset).
@@ -156,58 +155,35 @@ clear 'side_dot'; % MP: not needed anymore
 coords_new=bsxfun(@plus, coords_new, vec3); % MP
 
 wout.data.pix.q_coordinates=coords_new;
+% real pix range, calculated at the assignment of new coordinates to the 
+% pixels coordinates
 clear 'coords_new';
+pix_range = wout.data.pix.page_range;
 %=========================================================================
 % Transform Ranges:
 %
 % Get image range:
 % hkl range
-existing_range = wout.data.img_range+header.uoffset';
+existing_range = wout.data.img_range;
+proj = win.data.get_projection();
 
-hkl_range_minmax = existing_range(:,1:3);
+cc_range_minmax = proj.transform_img_to_pix(existing_range');
+cc_ranges= expand_box(cc_range_minmax(:,1),cc_range_minmax(:,2));    
+cc_minmax = [min(cc_ranges,[],2),max(cc_ranges,[],2)];
 %
-%TODO: Fudge to be resolved with generic projection refactoring
-if all(wout.data.ulen == [1,1,1,1])
-    % axis are in pix_ranges
-    cc_minmax = hkl_range_minmax';
-    cc_exist_range= expand_box(cc_minmax(:,1),cc_minmax(:,2));    
-    img_range_is_hkl = false;
-else
-    % axis are in hkl or whatever
-    % Convert range expressed as min-max points into the whole range of points
-    hkl_exp_range = expand_box(hkl_range_minmax(1,:),hkl_range_minmax(2,:));
-    % Crystal Cartesian range:
-    cc_exist_range = uconv\hkl_exp_range;
-    cc_minmax = [min(cc_exist_range,[],2),max(cc_exist_range,[],2)];
-    img_range_is_hkl = true;    
-end
-% add intersection points
+% add intersection points between the image range and the symmetry plain
 cross_points = box_intersect(cc_minmax ,[vec1,vec2,vec3]);
-cc_exist_range = [cc_exist_range,cross_points];
+% remove energy ranges to combine interseciton points with cross-points
+cc_ranges = cc_ranges(1:3,:);
+cc_exist_range = [cc_ranges,cross_points];
 
-% transform existing range
+% transform existing range into transformed range
 side_dot=cc_exist_range'*normvec;
 idx = find(side_dot > 0);
 cc_exist_range(:,idx) = Reflec*cc_exist_range(:,idx);
-cc_exist_range = [cc_exist_range,cross_points];
-if img_range_is_hkl
-    hkl_box_points  = uconv*cc_exist_range ;
-%
-    hkl_range_minmax = [min(hkl_box_points,[],2),max(hkl_box_points,[],2)]';
-    all_sym_range = [hkl_range_minmax,wout.data.img_range(:,4)];
-    
-else
-    cc_range_minmax = [min(cc_exist_range,[],2),max(cc_exist_range,[],2)]';
-    all_sym_range = [cc_range_minmax,wout.data.img_range(:,4)];    
-    
-    %TODO: it looks like cut(without arguments)
-    %is broken as assumes img_range always to be in hkl.    
-    cc_exp_range = expand_box(all_sym_range(1,1:3),all_sym_range(2,1:3));
-    hkl_box_points  = uconv*cc_exp_range ;
-%
-    hkl_range_minmax = [min(hkl_box_points,[],2),max(hkl_box_points,[],2)]';
-    all_sym_range = [hkl_range_minmax,wout.data.img_range(:,4)];            
-end
+img_box_points = proj.transform_pix_to_img(cc_exist_range);
+img_range_minmax = [min(img_box_points,[],2),max(img_box_points,[],2)]';
+all_sym_range = [img_range_minmax,wout.data.img_range(:,4)];
 %
 % Extract existing binning:
 new_range_arg = cell(1,4);
@@ -244,6 +220,6 @@ wout.data.dax = 1:4;
 wout.data.p  = arrayfun(@(i)(all_sym_range(:,i)),1:4,'UniformOutput',false);
 wout.data.npix = sum(reshape(wout.data.npix,1,numel(wout.data.npix)));
 %
-wout=cut(wout,new_range_arg{:});
+wout=cut(wout,proj,new_range_arg{:});
 
 

@@ -370,6 +370,10 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % return the configuration to the state,
             % specified by tests
             
+            % check all pixels are there nothing have been lost at
+            % symetrisation
+            assertEqual(w_inm.data.pix.num_pixels,w_mem_sym.data.pix.num_pixels)
+            
             gen_sqw (obj.spe_file, '', sqw_file_sym,...
                 efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs,...
                 'transform_sqw',@(x)symmetrise_sqw(x,v1,v2,v3));
@@ -380,7 +384,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             w1_f_sym=cut_sqw(sqw_file_sym,loc_proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             w1_m_sym=cut_sqw(w_mem_sym,loc_proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             % Uncomment to see the cut shapes
+            acolor('r')
             plot(w1_f_sym)
+            acolor('k')            
             pd(w1_m_sym)
             assertEqualToTol(w1_f_sym,w1_m_sym,'ignore_str',true,'tol',1.e-6)
             %
