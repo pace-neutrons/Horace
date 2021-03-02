@@ -18,6 +18,10 @@ function range=range_add_border(range_in, tol)
 % Output:
 % -------
 %   range      Expanded range
+%
+% TODO: this function should be simlified, duplicated code, making the same 
+%       things diffrently removed, unit tested and
+%       moved to Herbert as it is a generic utility function
 
 if nargin == 1 % add epsilon-sized border
     range = add_eps_border(range_in);
