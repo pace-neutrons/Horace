@@ -56,32 +56,13 @@ function obj = do_op_with_npix(obj, double_array, binary_op, flip, npix, npix_cu
     % The operation is performed whilst looping over the pages in the PixelData
     % object.
     %
-    end_idx = 1;
-    leftover_end = 0;
-    pg_size = obj.page_size;
+    [npix_chunks, idxs] = obj.split_npix(npix);
+    page_number = 1;
     while true
+        npix_for_page = npix_chunks{page_number};
+        idx = idxs{page_number};
 
-        start_idx = find(npix_cum_sum > 0, 1);
-        leftover_begin = npix_cum_sum(start_idx);
-        npix_cum_sum = npix_cum_sum - pg_size;
-
-        end_idx = end_idx + find(npix_cum_sum(end_idx:end) > 0, 1) - 1;
-        if isempty(end_idx)
-            end_idx = numel(npix);
-        end
-
-        if start_idx == end_idx
-            npix_chunk = min(obj.page_size, npix(start_idx) - leftover_end);
-        else
-            npix_chunk = [leftover_begin, ...
-                          reshape(npix(start_idx + 1:end_idx - 1), 1, []), ...
-                          0];
-            pix_in_chunk = sum(npix_chunk);
-            leftover_end = obj.page_size - pix_in_chunk;
-            npix_chunk(end) = leftover_end;
-        end
-
-        sig_chunk = repelem(double_array(start_idx:end_idx), npix_chunk)';
+        sig_chunk = repelem(double_array(idx(1):idx(2)), npix_for_page)';
 
         this_sigvar = sigvar(obj.signal, obj.variance);
         double_sigvar = sigvar(sig_chunk', []);
