@@ -1841,6 +1841,23 @@ classdef test_PixelData < TestCase
             assertEqual(pix.get_data(fields), new_data);
         end
 
+        function test_split_npix_divides_npix_array_into_correct_chunks(obj)
+            num_pix = 30;
+            npix_in_page = 11;
+            data = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+            npix = [3, 2, 0, 6, 0, 5, 3, 1, 1, 4, 2, 3, 0];
+            npix_chunks = pix.split_npix(npix);
+
+            expected_npix_chunks = { ...
+                [3, 2, 0, 6, 0, 0], ...
+                [5, 3, 1, 1, 1], ...
+                [3, 2, 3, 0] ...
+            };
+            assertEqual(npix_chunks, expected_npix_chunks);
+        end
+
         % -- Helpers --
         function [pix,pix_range] = get_pix_with_fake_faccess(obj, data, npix_in_page)
             pix_range = [min(data(1:4,:),[],2),max(data(1:4,:),[],2)]';
