@@ -149,14 +149,30 @@ classdef projection<aProjection
     
     methods(Static)
         function [u,v]=uv_from_rlu_mat(alatt,angdeg,u_to_rlu,ulen)
-            % extract initial u/v vectors, defining the plain in hkl from
+            % Extract initial u/v vectors, defining the plane in hkl from
             % lattice parameters and the matrix converting vectors in
             % crystal Cartesian coordinate system into rlu.
             %
-            % partially inverting projaxes_to_rlu function as only
-            % orthogonal to u part of the v-vector can be recovered
-            
+            % partially inverting projaxes_to_rlu function of projaxes class
+            % as only orthogonal to u part of the v-vector can be recovered
             %
+            % Inputs:
+            % alatt -- lattice parameters. [1x3]-vector of positive numbers
+            %          describing lattice cell size. (In A-units)
+            % angdeg-- vector 3 angles describing the lattice cell.
+            %          Expressed in degree
+            % u_to_rlu -- matrix used for conversion from pixel coordinate
+            %          system to the image coordinate system (normally
+            %          expressed in rlu)
+            % ulen  -- length of the unit vectors of the reciprocal lattice
+            %          the Horace image is expressed in
+            % Outputs:
+            % u     -- [1x3] vector expressed in rlu and defining the cut
+            %          direction
+            % v     -- [1x3] vecotor expressed in rlu, and together with u
+            %          defining the cut plain
+
+
             %u_to_rlu(:,i) = ubinv(:,i)*ulen(i);
             ulen_inv = 1./ulen;
             ubinv = u_to_rlu.*repmat(ulen_inv,3,1);
