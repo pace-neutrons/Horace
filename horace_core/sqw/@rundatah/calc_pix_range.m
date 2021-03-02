@@ -1,4 +1,4 @@
-function [pix_range,u_to_rlu]=calc_pix_range(obj,varargin)
+function [pix_range,u_to_rlu,pix_range_nontransf]=calc_pix_range(obj,varargin)
 % Method calculates q-dE range, this rundata object has
 %
 %Usage:
@@ -7,7 +7,7 @@ function [pix_range,u_to_rlu]=calc_pix_range(obj,varargin)
 %>>[pix_range,u_to_rlu]=obj.calc_pix_range('-cache_detectors')
 %                           Calculate pix_range for fully defined
 %                           rundatah object, using precacluated
-%                           vectors, pointing detectors positons
+%                           vectors, pointing to the detectors positons
 %
 %>>[pix_range,u_to_rlu]=obj.calc_pix_range(emin,emax) Calculate range of the
 %                  rundata object within the energy range provided.
@@ -39,6 +39,8 @@ else
 end
 if isempty(obj.transform_sqw) % minor optimization not worth deploying ?
     [u_to_rlu, pix_range] = b_obj.calc_projections_(detdcn,[],0);
+    pix_range_nontransf=pix_range; 
 else
-    [~,~,pix_range] = b_obj.calc_sqw(3,[],varargin{:});
+    [b_obj,~,pix_range,~,pix_range_nontransf] = b_obj.calc_sqw(3,[],varargin{:});
+    u_to_rlu = b_obj.data.u_to_rlu;
 end

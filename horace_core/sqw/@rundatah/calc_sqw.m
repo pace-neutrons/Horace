@@ -1,10 +1,11 @@
-function [w,grid_size,pix_range,detdcn] = calc_sqw(obj,grid_size_in,pix_db_range,varargin)
+function [w,grid_size,pix_range,detdcn,pix_range_nontransf] ...
+    = calc_sqw(obj,grid_size_in,pix_db_range,varargin)
 % Generate single sqw file from given rundata class.
 %
 % Usage:
-%>>[w,grid_size,pix_range,detdcn] = rundata_obj.calc_sqw(grid_size_in,pix_db_range,varargin);
+%>>[w,grid_size,pix_range,detdcn,pix_range_nontransf] = rundata_obj.calc_sqw(grid_size_in,pix_db_range,varargin);
 % or
-%>>[w,grid_size,pix_range,detdcn] = rundata_obj.calc_sqw(varargin);
+%>>[w,grid_size,pix_range,detdcn,pix_range_nontransf] = rundata_obj.calc_sqw(varargin);
 %
 % Where:
 % rundata_obj -- fully defined rundata object
@@ -52,6 +53,9 @@ function [w,grid_size,pix_range,detdcn] = calc_sqw(obj,grid_size_in,pix_db_range
 %                property "detdcn_cache" to accelerate calculations. (not
 %                fully implemented and currently workis with Matlab code
 %                only)
+% pix_range_nontransf -- if no transformation is provided, the value is
+%                equal to pix_range. If there is a transformation, the
+%                value describes the pixel range before the transformation
 %
 keys_recognized = {'-cache_detectors','-qspec'};
 [ok,mess,cache_detectors,cache_q_vectors] = parse_char_options(varargin,keys_recognized);
@@ -130,15 +134,7 @@ if ~(detdcn_provided || cache_q_vectors)
     end
 end
 %
-% if transformation is provided, it will recalculate pix_range, and probably
-% into something different from non-transformed object pix_range, so here we
-% use native sqw object pix_range and account for input pix_range later.
-if ~isempty(obj.transform_sqw)
-    pix_range_sqw = [];
-else
-    pix_range_sqw = pix_db_range;
-end
-[w, grid_size, pix_range]=obj.calc_sqw_(detdcn, det0, grid_size_in, pix_range_sqw);
+[w, grid_size, pix_range]=obj.calc_sqw_(detdcn, det0, grid_size_in, pix_db_range);
 
 
 if hor_log_level>-1
@@ -146,15 +142,12 @@ if hor_log_level>-1
     disp(' ')
 end
 
+pix_range_nontransf = pix_range;
 if ~isempty(obj.transform_sqw_f_)
     % we should assume that transformation maintains correct data pix_range
     % and correct sqw structure, though this pix_range and grid_size-s do not
     % always coincide with initial range and sizes
-    w = obj.transform_sqw_f_(w);
-    pix_range = w.data.pix.pix_range;
+    [w,pix_range] = obj.transform_sqw_f_(w);
+
     grid_size = size(w.data.s);
-    if ~isempty(pix_db_range) % expand ranges to include pix_range_in
-        pix_range = [min([pix_db_range(1,:);pix_range(1,:)]);...
-            max([pix_db_range(2,:);pix_range(2,:)])];
-    end
 end

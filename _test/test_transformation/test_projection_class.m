@@ -270,6 +270,7 @@ classdef test_projection_class<TestCase
             end
             assertFalse(pass,'invalid angdeg vector length should throw an error')
         end
+        %
         function test_angdeg_invalid_angle_throw(~)
             proj = projection();
             pass = false;
@@ -281,8 +282,53 @@ classdef test_projection_class<TestCase
             end
             assertFalse(pass,'invalid angdeg value should throw an error')
         end
-        
-        
-        
+        %
+        function test_transform_to_from_img_noproj(~)
+            pix = ones(4,5);
+            proj = projection();
+            pix_transf = proj.transform_pix_to_img(pix);
+            assertEqual(size(pix_transf),[4,5]);
+            pix_rec = proj.transform_img_to_pix(pix_transf);
+            assertEqual(pix_rec,pix);
+        end
+        %
+        function test_transform_to_from_img_proj_ortho_3D(~)
+            pix = ones(3,5);
+            pra = projaxes([1,0,0],[0,1,1]);
+            proj = projection(pra);
+            proj.alatt = 3;
+            proj.angdeg = 90;
+            
+            pix_transf = proj.transform_pix_to_img(pix);
+            assertEqual(size(pix_transf),[3,5]);
+            pix_rec = proj.transform_img_to_pix(pix_transf);
+            assertElementsAlmostEqual(pix_rec,pix);
+        end
+        %
+        function test_transform_to_from_img_proj_ortho(~)
+            pix = ones(4,5);
+            pra = projaxes([1,0,0],[0,1,1]);
+            proj = projection(pra);
+            proj.alatt = 3;
+            proj.angdeg = 90;
+            
+            pix_transf = proj.transform_pix_to_img(pix);
+            assertEqual(size(pix_transf),[4,5]);
+            pix_rec = proj.transform_img_to_pix(pix_transf);
+            assertElementsAlmostEqual(pix_rec,pix);
+        end
+        %
+        function test_transform_to_from_img_proj_nonorth(~)
+            pix = ones(4,5);
+            pra = projaxes([1,0,0],[0,1,1]);
+            proj = projection(pra);
+            proj.alatt = [3,4,7];
+            proj.angdeg = [95,70,85];
+            
+            pix_transf = proj.transform_pix_to_img(pix);
+            assertEqual(size(pix_transf),[4,5]);
+            pix_rec = proj.transform_img_to_pix(pix_transf);
+            assertElementsAlmostEqual(pix_rec,pix);
+        end        
     end
 end

@@ -314,6 +314,15 @@ classdef aProjection
         % get projection parameters, necessary for properly definind a sqw
         % or dnd object from the projection        %
         [uoffset,ulabel,dax,u_to_rlu,ulen,title_function] = get_proj_param(obj,data_in,pax);
+        
+        % Transform pixels expressed in crystal cartezian coordinate systems
+        % into image coordinate system
+        pix_transformed = transform_pix_to_img(obj,pix_cc,varargin);
+        % Transform pixels expressed in image coordinate coordinate systems
+        % into crystal cartezian system
+        pix_cc = transform_img_to_pix(obj,pix_transformed,varargin);
+        
     end
+    
 end
 

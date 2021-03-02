@@ -143,13 +143,39 @@ classdef projection<aProjection
             [urange_step_pix_recent, ok, ix, s, e, npix, npix_retain,success]=...
                 accumulate_cut_(this,v,s,e,npix,pax,ignore_nan,ignore_inf,keep_pix,n_threads);
         end
-        
+        function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)
+            % Transform pixels expressed in crystal cartezian coordinate systems
+            % into image coordinate system
+            %
+            % Input:
+            % pix_data -- [3xNpix] or [4xNpix] array of pix coordinates
+            %             expressed in crystal Cartesian coordinate system
+            % Returns:
+            % pix_transformed -- the pixels transformed into coordinate
+            %             system, related to image (often hkl system)
+            %
+            pix_transformed = transform_pix_to_img_(obj,pix_data);
+        end
         %
+        function pix_cc = transform_img_to_pix(obj,pix_hkl,varargin)
+            % Transform pixels expressed in image coordinate coordinate systems
+            % into crystal cartezian coordinate system
+            %
+            % Input:
+            % pix_data -- [3xNpix] or [4xNpix] array of pix coordinates
+            %             expressed in crystal Cartesian coordinate system
+            % Returns
+            % pix_cc -- pixels expressed in Crystal Cartesian coordinate
+            %            system
+            %
+            pix_cc = transform_img_to_pix_(obj,pix_hkl);
+        end
+        
     end
     
     methods(Static)
         function [u,v]=uv_from_rlu_mat(alatt,angdeg,u_to_rlu,ulen)
-            % extract initial u/v vectors, defining the plain in hkl from
+            % Extract initial u/v vectors, defining the plain in hkl from
             % lattice parameters and the matrix converting vectors in
             % crystal Cartesian coordinate system into rlu.
             %
@@ -176,7 +202,7 @@ classdef projection<aProjection
             v = v_tr/norm(v_tr);
             %
             w=ubinv(:,3)';  % perpendicular to u and v, length 1 Ang^-1, forms rh set with u and v
-
+            
             uvw=[u(:),v(:),w(:)];
             uvw_orthonorm=ubmat*uvw;    % u,v,w in the orthonormal frame defined by u and v
             ulen_new = diag(uvw_orthonorm);
