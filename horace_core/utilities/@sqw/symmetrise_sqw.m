@@ -1,4 +1,4 @@
-function [wout,pix_range]=symmetrise_sqw(win,v1,v2,v3)
+function wout=symmetrise_sqw(win,v1,v2,v3)
 % Symmetriese sqw dataset in the plane specified by the vectors v1, v2, and
 % v3.
 % wout=symmetrise_sqw(win,v1,v2,v3)
@@ -153,12 +153,16 @@ coords_new(:, idx) = Reflec*coords_new(:, idx); % MP: (TODO) could potentially b
 clear 'side_dot'; % MP: not needed anymore
 
 coords_new=bsxfun(@plus, coords_new, vec3); % MP
-
+%
+% Clear existing pages range not to extend new range with exisiting. 
+% Take care if this method is extended to file-based data -- needs careful
+% thinking
+wout.data.pix.set_range(PixelData.EMPTY_RANGE_);
 wout.data.pix.q_coordinates=coords_new;
 % real pix range, calculated at the assignment of new coordinates to the 
 % pixels coordinates
 clear 'coords_new';
-pix_range = wout.data.pix.page_range;
+
 %=========================================================================
 % Transform Ranges:
 %
@@ -183,7 +187,8 @@ idx = find(side_dot > 0);
 cc_exist_range(:,idx) = Reflec*cc_exist_range(:,idx);
 img_box_points = proj.transform_pix_to_img(cc_exist_range);
 img_range_minmax = [min(img_box_points,[],2),max(img_box_points,[],2)]';
-all_sym_range = [img_range_minmax,wout.data.img_range(:,4)];
+% add forth dimension to the range
+all_sym_range = [img_range_minmax,existing_range(:,4)];
 %
 % Extract existing binning:
 new_range_arg = cell(1,4);
@@ -221,5 +226,6 @@ wout.data.p  = arrayfun(@(i)(all_sym_range(:,i)),1:4,'UniformOutput',false);
 wout.data.npix = sum(reshape(wout.data.npix,1,numel(wout.data.npix)));
 %
 wout=cut(wout,proj,new_range_arg{:});
+
 
 

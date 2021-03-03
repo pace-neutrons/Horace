@@ -124,9 +124,8 @@ else
     
     % If pixels were truncated, true range have to change to the truncated range
     pix_range = sqw_datstr.pix.pix_range;
-    out_of_range = [pix_range(1,:)<pix_db_range(1,:);pix_range(2,:)>pix_db_range(2,:)];
-    halo = [1-sign(pix_range(1,:))*4*eps;1+sign(pix_range(1,:))*4*eps];
-    real_pix_range = pix_range.*halo;
+    out_of_range = [pix_range(1,:)<pix_db_range(1,:);pix_range(2,:)>pix_db_range(2,:)];    
+    real_pix_range  = range_add_border(pix_range);
     sqw_datstr.img_range(out_of_range) = real_pix_range(out_of_range);
 
 end
