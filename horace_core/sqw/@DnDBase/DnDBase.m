@@ -45,6 +45,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         obj = init_from_file_(obj, in_filename);
         obj = init_from_loader_struct_(obj, data_struct);
 
+        wout = sqw_eval_(wout, sqwfunc, ave_pix, all_bins, pars);
     end
 
     methods
