@@ -49,25 +49,19 @@ if ~isempty(mess), error(mess); end
 
 % Perform operations
 % ------------------
+if iscell(w.data)&& ischar(w.data{1})
+    % Slightly hacky - load dnd object before passing it to sqw.cut so we don't
+    % attempt to load the file in as an SQW file. We reach this point if cut_dnd
+    % is called.
+    % After DnDBase class is implemented, cutting a DnD object need no longer
+    % go through sqw.cut and this file will be largely re-written
+    w.data = d2d_old(w.data{1});
+end
 % Now call sqw cut routine. Output (if any), is a cell array, as method is passed a data source structure
 
-%CMDEV_MERGED Preferring d2d_old as this is d2d_old  
-%             but updated d2d in master
-%             may be looking at.
-%	NB only d2d has this if block, d1/3/4d just have the argout lines
+
 argout=cut(sqw_old,w,args{:});
-%=======
-%CMDEV_MERGED master d2d is:
-%if iscell(w.data)&& ischar(w.data{1})
-%    % Slightly hacky - load dnd object before passing it to sqw.cut so we don't
-%    % attempt to load the file in as an SQW file. We reach this point if cut_dnd
-%    % is called.
-%    % After DnDBase class is implemented, cutting a DnD object need no longer
-%    % go through sqw.cut and this file will be largely re-written
-%    w.data = d2d(w.data{1});
-%end
-%argout=cut(sqw(w.data), args{:});
-%>>>>>>> master:horace_core/@d2d/cut.m
+
 if ~isempty(argout)
     argout = {dnd(argout)};   % as return argument is sqw object of dnd-type
 end

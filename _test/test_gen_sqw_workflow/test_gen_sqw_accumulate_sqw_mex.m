@@ -57,6 +57,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
         %------------------------------------------------------------------
         % the test specific to mex mode
         function obj=test_gen_sqw_threading_mex(obj,varargin)
+            skipTest("New sqw loader not available");
             % check 1 vs 8 threads mex and compare to one cut
             % shortest code to debug in case of errors
             %-------------------------------------------------------------

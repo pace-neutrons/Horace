@@ -3,7 +3,7 @@ function test_sqw_NaN
 % in the sqw file. Test that this is correctly handled by gen_sqw.
 %
 % Author: T.G.Perring
-
+skipTest("New sqw loader not implemented");
 banner_to_screen(mfilename)
 
 % Data

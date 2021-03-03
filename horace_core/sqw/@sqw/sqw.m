@@ -46,6 +46,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin);
         wtot=combine_cuts(w);
         wout=recompute_bin_data_tester(sqw_obj);
+        wout = func_eval (win, func_handle, pars, varargin);
+        wout = dnd (win);
+        [header_ave, ebins_all_same]=header_average(header);
 
 		%{
         %[deps,eps_lo,eps_hi,ne]=energy_transfer_info(header);

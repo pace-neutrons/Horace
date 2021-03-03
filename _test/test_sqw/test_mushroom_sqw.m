@@ -82,7 +82,7 @@ classdef test_mushroom_sqw < TestCaseWithSave
         end
         %
         function test_gen_sqw(obj)
-            
+            skipTest("New sqw loader not implemented");
             wkdir = obj.working_dir;
             sqw_file= fullfile(wkdir,'test_gen_sqw_indirect.sqw');
             cleanup_obj1=onCleanup(@()obj.delete_files(sqw_file));

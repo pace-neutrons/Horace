@@ -259,6 +259,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
         end
         %
         function test_gen_sqw(obj,varargin)
+            skipTest("New sqw loader not available");
             %-------------------------------------------------------------
             if obj.skip_test
                 skipTest(fprintf('test_gen_sqw_%s is disabled',obj.test_pref));
@@ -400,6 +401,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
         end
         %
         function test_accumulate_sqw14(obj,varargin)
+            skipTest("New sqw loader not available");
             %-------------------------------------------------------------
             if obj.skip_test
                 skipTest(fprintf('test_accumulate_sqw14_%s is disabled',obj.test_pref));
@@ -461,6 +463,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
         end
         %
         function test_accumulate_and_combine1to4(obj,varargin)
+            skipTest("New sqw loader not available");
             if obj.skip_test
                 skipTest(fprintf('test_accumulate_and_combine1to4_%s is disabled',obj.test_pref));
             end
@@ -568,6 +571,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
         end
         
         function test_accumulate_sqw1456(obj,varargin)
+            skipTest("New sqw loader not available");
             %-------------------------------------------------------------
             if obj.skip_test
                 skipTest(fprintf('test_accumulate_sqw1456_%s is disabled',obj.test_pref));
@@ -649,6 +653,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
         end
         %
         function test_accumulate_sqw11456(obj,varargin)
+            skipTest("New sqw loader not available");
             %-------------------------------------------------------------
             if obj.skip_test
                 skipTest(fprintf('test_accumulate_sqw11456_%s is disabled',obj.test_pref));

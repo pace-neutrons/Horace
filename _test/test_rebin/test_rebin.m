@@ -122,6 +122,7 @@ classdef test_rebin < TestCase
         
         % ------------------------------------------------------------------------------------------------
         function this = test_rebin_dnd_steps(this)
+            skipTest("New dnd objects not yet implemented");
             % dnd rebinning
             %w2d_qe_sqw=read_sqw(fullfile(this.testdir,'w2d_qe_sqw.sqw')); 
             % CMDEV

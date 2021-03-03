@@ -45,8 +45,10 @@ else
     sqw1d_arr(1)=sqw(fullfile(root,'sqw_1d_1.sqw'));
     sqw1d_arr(2)=sqw(fullfile(root,'sqw_1d_2.sqw'));
     
-    sqw2d_arr(1)=read(sqw_old,fullfile(root,'sqw_2d_1.sqw'));
-    sqw2d_arr(2)=read(sqw_old,fullfile(root,'sqw_2d_2.sqw'));
+    %sqw2d_arr(1)=read(sqw_old,fullfile(root,'sqw_2d_1.sqw'));
+    %sqw2d_arr(2)=read(sqw_old,fullfile(root,'sqw_2d_2.sqw'));
+    sqw2d_arr(1)=sqw(fullfile(root,'sqw_2d_1.sqw'));
+    sqw2d_arr(2)=sqw(fullfile(root,'sqw_2d_2.sqw'));
     
     d1d_arr=dnd(sqw1d_arr);
     d2d_arr=dnd(sqw2d_arr);

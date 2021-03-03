@@ -134,7 +134,10 @@ switch route
                 xbin=[thexmin,thexstep,thexmax];
                 ybin=[theymin,theystep,theymax];
                 %
-                wout=get(win);%needs to be structure array because in some of the intermediate
+                % get for one arg is a wrapper to struct so 
+                % this is equivalent and saves porting get to new sqw
+                %wout=get(win);%needs to be structure array because in some of the intermediate
+                wout=struct(win);%needs to be structure array because in some of the intermediate
                 %steps we need to make an object that would be inconsistent
                 %with the sqw construct (e.g. number of bins inconsistent
                 %with size of signal array).
