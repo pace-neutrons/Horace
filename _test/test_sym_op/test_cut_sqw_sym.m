@@ -253,6 +253,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         
         %------------------------------------------------------------------------
         function test_cut_with_nopix (this)
+            skipTest("New d2d object not implemented for comparison with sqw");
             % Test a simple cut without keeping pixels
             
             % Turn off output, but return to input value when exit or cntl-c

@@ -59,6 +59,7 @@ classdef test_sqw_dnd_eval < TestCase
         
         
         function test_dispersion_sqw(obj)
+            skipTest("New dnd objects not implemented");
             %
             err_message = '';
             try
