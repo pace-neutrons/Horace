@@ -1,4 +1,4 @@
-function [w,grid_size,pix_range,detdcn,pix_range_nontransf] ...
+function [w,grid_size,pix_range,detdcn] ...
     = calc_sqw(obj,grid_size_in,pix_db_range,varargin)
 % Generate single sqw file from given rundata class.
 %
@@ -142,7 +142,6 @@ if hor_log_level>-1
     disp(' ')
 end
 
-pix_range_nontransf = pix_range;
 if ~isempty(obj.transform_sqw_f_)
     % we should assume that transformation maintains correct data pix_range
     % and correct sqw structure, though this pix_range and grid_size-s do not
