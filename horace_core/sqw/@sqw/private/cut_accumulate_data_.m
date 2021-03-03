@@ -37,7 +37,7 @@ e = zeros(nbin_as_size);
 npix = zeros(nbin_as_size);
 img_range_step = [Inf(1, 4); -Inf(1, 4)];
 
-% Get bins that contain pixels that may contribute to the cut.
+% Get bins that may contain pixels that contribute to the cut.
 % The bins selected are those that sit within (or intersect) the bounds of the
 % cut. See the relevant projection function for more details.
 [bin_starts, bin_ends] = proj.get_nbin_range(obj.data.npix);
