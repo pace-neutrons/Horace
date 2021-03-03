@@ -14,6 +14,8 @@ function range=range_add_border(range_in, tol)
 %               tol<0   Relative size as a proportion of the range along
 %                       each axis. If the range is zero, absolute tol value
 %                       is used.
+% if tol is omitted the routine adds 4*epsilon sized border
+% epsilon is the minimal number such as 1+epsilon ~=1
 %
 % Output:
 % -------
