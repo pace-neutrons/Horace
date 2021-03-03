@@ -4,7 +4,6 @@ classdef (Abstract) SQWDnDBase
     %   DnD objects
 
     properties (Abstract) % Public
-      %  abstract_prop
     end
 
     properties (Access = protected)
@@ -18,24 +17,24 @@ classdef (Abstract) SQWDnDBase
     end
 
     methods  % Public
-        % function outputArg = method1(obj,inputArg)
-        %     %METHOD1 Summary of this method goes here
-        %     %   Detailed explanation goes here
-        %     outputArg = obj.Property1 + inputArg;
-        % end
         wout = IX_dataset_1d (w);
         wout = IX_dataset_2d (w);
         wout = IX_dataset_3d (w);
+        [nd, sz] = dimensions(w);
+        wout = disp2sqw_eval(win, dispreln, pars, fwhh, opt);
+        wout = func_eval(win, func_handle, pars, varargin);
+        wout = sqw_eval(win, sqwfunc, pars, varargin);
     end
 
     methods (Access = protected)
         wout = binary_op_manager(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
-        % function obj = untitled(inputArg1,inputArg2)
-        % % UNTITLED Construct an instance of this class
-        % %   Detailed explanation goes here
-        %   obj.Property1 = inputArg1 + inputArg2;
-        % end
+
     end
+
+    methods (Abstract)
+        pixels = has_pixels(win);
+    end
+
 end
 

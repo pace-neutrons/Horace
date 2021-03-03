@@ -44,12 +44,13 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         obj = init_from_sqw_(obj, sqw_obj);
         obj = init_from_file_(obj, in_filename);
         obj = init_from_loader_struct_(obj, data_struct);
+
     end
 
     methods
         % function signatures
         w = sigvar_set(win, sigvar_obj);
-        [nd, sz] = dimensions(w);
+        pixels = has_pixels(w);
         wout = copy(w);
 
         function obj = DnDBase(varargin)

@@ -13,13 +13,12 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         detpar
         % CMDEV: data now a dependent property, below
     end
-    
+
     properties(Dependent)
         data;
     end
 
     methods
-        [nd, sz] = dimensions(w);
         wout = sigvar(w);
         w = sigvar_set(win, sigvar_obj);
         sz = sigvar_size(w);
@@ -53,9 +52,15 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             % iii) struct
             elseif ~isempty(args.data_struct)
                 obj = obj.init_from_loader_struct(args.data_struct);
+
+            % iv) dnd
+            elseif ~isempty(arg.dnd_object)
+                obj = obj.init_from_dnd_object(args.dnd_object);
             end
+
+
         end
-        
+
         %% Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)
             val = '';
@@ -109,6 +114,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
+
+        wout = sqw_eval_(wout, sqwfunc, ave_pix, all_bins, pars);
     end
 
     methods(Static, Access = private)
@@ -176,5 +183,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             obj.detpar = data_struct.detpar;
             obj.data = data_struct.data;
         end
+
+%        function obj = init_from_dnd_object(obj, dnd_obj)
+%            obj.data = dnd_obj.
+%        end
     end
 end

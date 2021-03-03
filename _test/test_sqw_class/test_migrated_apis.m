@@ -14,7 +14,6 @@ classdef test_migrated_apis < TestCase
     end
 
 
-
     methods
         function obj = test_migrated_apis(~)
             obj = obj@TestCase('test_migrated_apis');
@@ -30,9 +29,16 @@ classdef test_migrated_apis < TestCase
         end
 
         %% Calculate
-%        function test_calculate_q_bins(obj)
-%            % tested as part of calc_qsqr_bin call
-%        end
+        function test_calculate_q_bins(obj)
+            % tested as part of calc_qsqr_bin call
+            sqw_obj = sqw(obj.test_sqw_2d_fullpath);
+            [q, en] = calculate_q_bins(sqw_obj);
+            assertEqual(size(q), [1,3]);
+            assertEqual(size(q{1}), [176, 1]);
+            assertEqual(size(q{2}), [176, 1]);
+            assertEqual(size(q{3}), [176, 1]);
+            assertEqual(en, 0);
+        end
         function test_calculate_qsqr_bins(obj)
             sqw_obj = sqw(obj.test_sqw_2d_fullpath);
 

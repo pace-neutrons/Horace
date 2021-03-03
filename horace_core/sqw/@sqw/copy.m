@@ -22,7 +22,6 @@ for i = 1:numel(obj)
         new_sqw(i).data.pix = PixelData();
     end
 end
-
 end
 
 

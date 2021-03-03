@@ -84,7 +84,7 @@ if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenien
 % Check if any objects are zero dimensional before evaluating fuction, to save on possible expensive computations
 % before a 0D object is found in the array
 for i = 1:numel(win)
-    if isempty(win(i).data.pax)
+    if isempty(win(i).data_.pax)
         error('func_eval not supported for zero dimensional objects');
     end
 end
@@ -92,16 +92,16 @@ end
 % Evaluate function for each element of the array of sqw objects
 for i = 1:numel(win)    % use numel so no assumptions made about shape of input array
     sqw_type=has_pixels(win(i));   % determine if sqw or dnd type
-    ndim=length(win(i).data.pax);
+    ndim=length(win(i).data_.pax);
     if sqw_type || ~all_bins        % only evaluate at the bins actually containing data
-        ok=(win(i).data.npix~=0);   % should be faster than isfinite(1./win.data.npix), as we know that npix is zero or finite
+        ok=(win(i).data_.npix~=0);   % should be faster than isfinite(1./win.data.npix), as we know that npix is zero or finite
     else
-        ok=true(size(win(i).data.npix));
+        ok=true(size(win(i).data_.npix));
     end
     % Get bin centres
     pcent=cell(1,ndim);
     for n=1:ndim
-        pcent{n}=0.5*(win(i).data.p{n}(1:end-1)+win(i).data.p{n}(2:end));
+        pcent{n} = 0.5 * (win(i).data_.p{n}(1:end-1) + win(i).data_.p{n}(2:end));
     end
     if ndim>1
         pcent=ndgridcell(pcent);%  make a mesh; cell array input and output
@@ -111,15 +111,15 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
         pcent{n}=pcent{n}(ok);  % pick out only those bins at which to evaluate function
     end
     % Evaluate function
-    wout(i).data.s(ok) = func_handle(pcent{:},pars{:});
-    wout(i).data.e = zeros(size(win(i).data.e));
+    wout(i).data_.s(ok) = func_handle(pcent{:},pars{:});
+    wout(i).data_.e = zeros(size(win(i).data_.e));
 
     % If sqw object, fill every pixel with the value of its corresponding bin
     if sqw_type
-        s = replicate_array(wout(i).data.s, win(i).data.npix)';
-        wout(i).data.pix.signal = s;
-        wout(i).data.pix.variance = zeros(size(s));
+        s = replicate_array(wout(i).data_.s, win(i).data_.npix)';
+        wout(i).data_.pix.signal = s;
+        wout(i).data_.pix.variance = zeros(size(s));
     elseif all_bins
-        wout(i).data.npix=ones(size(wout(i).data.npix));    % in this case, must set npix>0 to be plotted.
+        wout(i).data_.npix=ones(size(wout(i).data_.npix));    % in this case, must set npix>0 to be plotted.
     end
 end
