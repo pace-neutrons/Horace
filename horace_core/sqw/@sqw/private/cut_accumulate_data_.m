@@ -119,9 +119,9 @@ for iter = 1:num_chunks
                 del_npix_retain ...
                 );
         else
-            % Retain only the pixels that contributed to the cut
-            pix_retained{iter} = candidate_pix.get_pixels(ok);
-            pix_ix_retained{iter} = ix;
+        % Retain only the pixels that contributed to the cut
+        pix_retained{iter} = candidate_pix.get_pixels(ok);
+        pix_ix_retained{iter} = ix;
         end
     end
 end  % loop over pixel blocks
