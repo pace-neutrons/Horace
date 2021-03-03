@@ -47,7 +47,7 @@ elseif tol<0
 end
 
 function range = add_eps_border(range_in)
-% Add epsilon-sized border to cut limits to avoud round-off errors
+% Add epsilon-sized border to cut limits to avoid round-off errors
 sig_range = sign(range_in);
 min_border = 1-4*eps*sig_range(1,:);
 max_border = 1+4*eps*sig_range(2,:);
