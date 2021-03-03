@@ -1,6 +1,6 @@
-function [nd,sz] = dimensions(w)
+function [nd, sz] = dimensions(w)
 % Find number of dimensions and extent along each dimension of
-% the signal arrays. 
+% the signal arrays.
 % - If 0D sqw object, nd=0,  sz=zeros(1,0) (nb: []==zeros(0,0))
 % - if 1D sqw object, nd=1,  sz=n1
 % - If 2D sqw object, nd=2,  sz=[n1,n2]
@@ -11,13 +11,8 @@ function [nd,sz] = dimensions(w)
 %
 %   >> [nd,sz]=dimensions(w)
 
-% Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
-nd=numel(w.pax);
-sz=zeros(1,nd);
-for i=1:nd
-    sz(i)=length(w.p{i})-1;
+nd = numel(w.data_.pax);
+sz = zeros(1, nd);
+for i = 1:nd
+    sz(i) = length(w.data_.p{i}) - 1;
 end
-
