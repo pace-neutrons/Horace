@@ -147,7 +147,7 @@ if ~isempty(obj.transform_sqw_f_)
     % we should assume that transformation maintains correct data pix_range
     % and correct sqw structure, though this pix_range and grid_size-s do not
     % always coincide with initial range and sizes
-    [w,pix_range] = obj.transform_sqw_f_(w);
-
+    w = obj.transform_sqw_f_(w);
+    pix_range = w.data.pix.pix_range;
     grid_size = size(w.data.s);
 end

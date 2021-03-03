@@ -34,7 +34,8 @@ pix_range_nontransf=PixelData.EMPTY_RANGE_;
 pixels_transformed = ~isempty(run_files{1}.transform_sqw);
 
 for i=1:nfiles
-    [pix_range1,~,pix_range_ntr]=run_files{i}.calc_pix_range(varargin{:});
+    [pix_range1,~,pix_range_ntr]=...
+        run_files{i}.calc_pix_range(varargin{:},'-ignore_transf');
     pix_range = [min(pix_range(1,:),pix_range1(1,:));...
         max(pix_range(2,:),pix_range1(2,:))];
     if pixels_transformed
