@@ -14,6 +14,7 @@ classdef (Abstract) SQWDnDBase
     methods (Abstract, Access = protected)
         wout = unary_op_manager(w, operation_handle);
         wout = binary_op_manager_single(w1,w2,binary_op);
+        wout = sqw_eval_(wout, sqwfunc, ave_pix, all_bins, pars);
     end
 
     methods  % Public
@@ -30,6 +31,7 @@ classdef (Abstract) SQWDnDBase
         wout = binary_op_manager(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
+        wout = sqw_eval_nopix_(win, sqwfunc, all_bins, pars);
     end
 
     methods (Abstract)
