@@ -1,4 +1,4 @@
-function [pix_range,u_to_rlu,pix_range_nontransf]=calc_pix_range(obj,varargin)
+function [pix_range,u_to_rlu]=calc_pix_range(obj,varargin)
 % Method calculates q-dE range, this rundata object has
 %
 %Usage:
@@ -41,8 +41,7 @@ else
 end
 if isempty(obj.transform_sqw) || ignore_transf %
     [u_to_rlu, pix_range] = b_obj.calc_projections_(detdcn,[],0);
-    pix_range_nontransf=pix_range;
 else
-    [b_obj,~,pix_range,~,pix_range_nontransf] = b_obj.calc_sqw(3,[],varargin{:});
+    [b_obj,~,pix_range] = b_obj.calc_sqw(3,[],varargin{:});
     u_to_rlu = b_obj.data.u_to_rlu;
 end
