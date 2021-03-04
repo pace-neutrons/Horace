@@ -37,7 +37,7 @@ elseif ~ischar(spedir)||~length(size(spedir))==2||~size(spedir,1)==1
     mess='Default directory must be a character string';
     return
 else
-    if ~exist(spedir,'dir')
+    if ~is_folder(spedir)
         mess=['Default directory for .spe files does not exist (',spedir,')'];
         return
     end
@@ -57,7 +57,7 @@ else
             if isempty(filepath)
                 spefiles{i}=fullfile(spedir,spefiles{i});
             end
-            if ~exist(spefiles{i},'file')
+            if ~is_file(spefiles{i})
                 mess=['Cannot find input .spe file ',spefiles{i}];
                 return
             end
@@ -80,7 +80,7 @@ else
     if isempty(filepath)
         spefileout=fullfile(spedir,spefileout);
     else
-        if ~exist(filepath,'dir')
+        if ~is_folder(filepath)
             mess=['Output directory for .spe file does not exist (',filepath,')'];
             return
         end

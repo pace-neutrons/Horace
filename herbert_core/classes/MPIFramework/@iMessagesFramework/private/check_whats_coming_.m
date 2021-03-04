@@ -15,7 +15,7 @@ function    [receive_now,message_names_array,n_steps] = check_whats_coming_(obj,
 % message_names - cellarray of messages present in the system and available
 %                 to receive
 %
-if ~exist('task_ids','var') || isempty(task_ids) ||...
+if ~exist('task_ids', 'var') || isempty(task_ids) ||...
         (ischar(task_ids) && strcmpi(task_ids,'all'))
     task_ids = 1:obj.numLabs;
     if numel(mess_array) ~= numel(task_ids) %

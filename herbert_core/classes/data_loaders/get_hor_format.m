@@ -48,7 +48,7 @@ function det = get_hor_format(par_data,file_name)
 hor_fields={'group','x2','phi','azim','width','height'};
 array_colN=[6,1,2,3,4,5];
 
-if ~exist('file_name','var')
+if ~exist('file_name', 'var')
     file_name = '';
 end
 if isstruct(par_data)

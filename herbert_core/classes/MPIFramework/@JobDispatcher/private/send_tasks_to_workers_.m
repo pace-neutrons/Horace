@@ -36,11 +36,11 @@ function [outputs,n_failed,task_ids,obj]=...
 %              number) and task parameters from
 %              task_param_list, assigned to this job
 %
-if ~exist('keep_workers_running','var')
+if ~exist('keep_workers_running', 'var')
     keep_workers_running = false;
 end
 
-if exist('task_query_time','var') && ~isempty(task_query_time)
+if exist('task_query_time', 'var') && ~isempty(task_query_time)
     obj.task_check_time  = task_query_time;
 end
 
@@ -99,7 +99,7 @@ end
 [outputs,n_failed,task_ids,obj] = submit_and_run_job_(obj,task_class_name,...
     common_params,loop_params,return_results,...
     cluster_wrp,keep_workers_running);
-if exist('clob_mf','var')
+if exist('clob_mf', 'var')
     clear clob_mf;
 end
 

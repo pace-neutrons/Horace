@@ -22,7 +22,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             function my_delete(varargin)
                 for ii = 1:numel(varargin)
                     filename = varargin{ii};
-                    if exist(filename, 'file') == 2
+                    if is_file(filename)
                         delete(filename);
                     end
                 end
@@ -141,7 +141,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
 
             for i = 1:33
                 fileN = fullfile(obj.working_dir, sprintf('test_JD_%s%sL3_nf%d.txt', obj.cluster_name,FE, i));
-                if exist(fileN, 'file') == 2
+                if is_file(fileN)
                     delete(fileN);
                 else
                     break;
@@ -171,14 +171,14 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
 
             for i = 1:33
                 fileN1 = fullfile(obj.working_dir, sprintf('test_JD_%s%sL1_nf%d.txt', obj.cluster_name,FE, i));
-                if exist(fileN1, 'file') == 2
+                if is_file(fileN1)
                     no_file1 = false;
                     delete(fileN1);
                 else
                     no_file1 = true;
                 end
                 fileN2 = fullfile(obj.working_dir, sprintf('test_JD_%s%sL2_nf%d.txt', obj.cluster_name,FE,i));
-                if exist(fileN2, 'file') == 2
+                if is_file(fileN2)
                     delete(fileN2);
                 else
                     if no_file1
@@ -218,10 +218,10 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertEqual(outputs{2}, 'Job 2 generated 1 files');
             assertEqual(outputs{3}, 'Job 3 generated 2 files');
 
-            assertTrue(exist(file1, 'file') == 2);
-            assertTrue(exist(file2, 'file') == 2);
-            assertTrue(exist(file3, 'file') == 2);
-            assertTrue(exist(file3a, 'file') == 2);
+            assertTrue(is_file(file1));
+            assertTrue(is_file(file2));
+            assertTrue(is_file(file3));
+            assertTrue(is_file(file3a));
         end
         %
         function test_job_with_logs_3workers(obj, varargin)
@@ -266,9 +266,9 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertEqual(outputs{1}, 'Job 1 generated 1 files');
             assertEqual(outputs{2}, 'Job 2 generated 1 files');
             assertEqual(outputs{3}, 'Job 3 generated 1 files');
-            assertTrue(exist(file1, 'file') == 2);
-            assertTrue(exist(file2, 'file') == 2);
-            assertTrue(exist(file3, 'file') == 2);
+            assertTrue(is_file(file1));
+            assertTrue(is_file(file2));
+            assertTrue(is_file(file3));
 
             common_param = struct('data_buffer_size',10000000);
             n_steps = 30;
@@ -369,9 +369,9 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertEqual(numel(outputs), 2);
             assertEqual(outputs{1}, 'Job 1 generated 1 files');
             assertEqual(outputs{2}, 'Job 2 generated 2 files');
-            assertTrue(exist(file1, 'file') == 2);
-            assertTrue(exist(file2, 'file') == 2);
-            assertTrue(exist(file3, 'file') == 2);
+            assertTrue(is_file(file1));
+            assertTrue(is_file(file2));
+            assertTrue(is_file(file3));
             %-------------------------------------------------------------
             %
             n_steps = 30;
@@ -430,9 +430,9 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             assertEqual(n_failed, 0);
             assertEqual(numel(outputs), 1);
             assertEqual(outputs{1}, 'Job 1 generated 3 files');
-            assertTrue(exist(file1, 'file') == 2);
-            assertTrue(exist(file2, 'file') == 2);
-            assertTrue(exist(file3, 'file') == 2);
+            assertTrue(is_file(file1));
+            assertTrue(is_file(file2));
+            assertTrue(is_file(file3));
         end
         %
     end

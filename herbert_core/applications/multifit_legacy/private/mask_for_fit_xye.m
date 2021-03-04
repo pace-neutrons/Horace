@@ -53,7 +53,7 @@ else
 end
 
 % Check mask array
-if exist('mask','var') && ~isempty(mask)
+if exist('mask', 'var') && ~isempty(mask)
     if ~(isnumeric(mask)||islogical(mask)) || numel(mask)~=numel(y)
         mess='Mask array must be numeric or logical array with same number of elements as data array';
         if return_with_errors, return, else error(mess), end

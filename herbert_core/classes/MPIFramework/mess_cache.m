@@ -20,7 +20,7 @@ classdef mess_cache < handle
     
     methods
         function obj = mess_cache(num_labs)
-            if ~exist('num_labs','var')
+            if ~exist('num_labs', 'var')
                 num_labs = 1;
             end
             obj.init(num_labs);
@@ -56,11 +56,11 @@ classdef mess_cache < handle
             % return list of the requested messages and delete returned
             % messages from the cache.
             
-            if ~exist('tid_requested','var') || isempty(tid_requested)...
+            if ~exist('tid_requested', 'var') || isempty(tid_requested)...
                     || strcmp(tid_requested,'all')
                 tid_requested = 1:obj.cache_.Count;
             end
-            if ~exist('mess_name','var')
+            if ~exist('mess_name', 'var')
                 mess_name = 'any';
             end
             if strcmp(mess_name,'any')
@@ -97,11 +97,11 @@ classdef mess_cache < handle
             % if message name is provided, and is not 'any', only messages
             % names,
             % with the name equal to the name specified are returned.
-            if ~exist('tid_requested','var') || isempty(tid_requested)...
+            if ~exist('tid_requested', 'var') || isempty(tid_requested)...
                     || strcmp(tid_requested,'all')
                 tid_requested = 1:obj.cache_.Count;
             end
-            if ~exist('mess_name','var')
+            if ~exist('mess_name', 'var')
                 mess_name = 'any';
             end
             if strcmp(mess_name,'any')

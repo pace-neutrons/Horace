@@ -8,7 +8,7 @@ classdef test_job_executor< MPI_Test_Common
     methods
         %
         function this=test_job_executor(name)
-            if ~exist('name','var')
+            if ~exist('name', 'var')
                 name = 'test_job_executor';
             end
             % testing this on file-based framework only
@@ -128,7 +128,7 @@ classdef test_job_executor< MPI_Test_Common
             [~,fn,fe] = fileparts(interrupt_generated);
             interrupt_generated = fullfile(mess_folder,[fn,fe]); % folder have been migrated
             % so need to refer to the previous folder
-            assertTrue(exist(interrupt_generated,'file')==2)
+            assertTrue(is_file(interrupt_generated))
 
             tmp_dest = fullfile(mess_folder,'test_worker_fails_tmp_interrupt.mat');
             movefile(interrupt_generated ,tmp_dest);
@@ -145,8 +145,8 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(message.mess_name,'failed')
             assertEqual(numel(message.payload),2);
 
-            assertTrue(exist(file3,'file')==2);
-            assertTrue(exist(file3a,'file')==2);
+            assertTrue(is_file(file3));
+            assertTrue(is_file(file3a));
 
             assertTrue(isa(message.payload{1}.error,'MException'))
             %assertTrue(isa(message.payload{2}.error,'MException'))
@@ -182,7 +182,7 @@ classdef test_job_executor< MPI_Test_Common
             started_mess_file = je2.mess_framework.mess_file_name(1,'started');
             [~,fn,fe] = fileparts(started_mess_file); % folder migrated;
             started_mess_file = fullfile(mess_folder,[fn,fe]);
-            assertTrue(exist(started_mess_file,'file')==2);
+            assertTrue(is_file(started_mess_file));
             delete(started_mess_file); % this should be done by synchronous je1
 
             %
@@ -199,7 +199,7 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(numel(message.payload),1);
 
             next_exch = serverfbMPI.next_message_folder_name;
-            assertTrue(exist(next_exch,'dir')==7)
+            assertTrue(is_folder(next_exch))
             rmdir(next_exch,'s');
         end
         %
@@ -277,9 +277,9 @@ classdef test_job_executor< MPI_Test_Common
             assertEqual(message.mess_name,'started')
 
 
-            assertTrue(exist(file1,'file')==2);
-            assertTrue(exist(file1a,'file')==2);
-            assertTrue(exist(file2,'file')==2);
+            assertTrue(is_file(file1));
+            assertTrue(is_file(file1a));
+            assertTrue(is_file(file2));
 
             [ok,err_mess,message] = serverfbMPI.receive_message(1,'completed');
             assertEqual(ok,MESS_CODES.ok,['Error: ',err_mess]);
@@ -307,17 +307,17 @@ classdef test_job_executor< MPI_Test_Common
             je = JETester();
             je3 = je.init(fbMPIs{3},fbMPIs{3},initMess);
             mess_name3 = fbMPIs{3}.mess_file_name(1,'started');
-            assertEqual(exist(mess_name3,'file'),2)
+            assertTrue(is_file(mess_name3))
 
             je2 = je.init(fbMPIs{2},fbMPIs{2},initMess);
             mess_name2 = fbMPIs{2}.mess_file_name(1,'started');
-            assertEqual(exist(mess_name2,'file'),2)
+            assertTrue(is_file(mess_name2))
 
             je1 = je.init(fbMPIs{1},fbMPIs{1},initMess);
-            assertEqual(exist(mess_name3 ,'file'),0)
-            assertEqual(exist(mess_name2 ,'file'),0)
+            assertFalse(is_file(mess_name3))
+            assertFalse(is_file(mess_name2))
             mess_name0 = fbMPIs{1}.mess_file_name(0,'started');
-            assertEqual(exist(mess_name0,'file'),2)
+            assertTrue(is_file(mess_name0))
 
             [ok,err,mess] = serverfbMPI.receive_message(1,'started');
             assertEqual(ok,MESS_CODES.ok,err);
@@ -326,11 +326,11 @@ classdef test_job_executor< MPI_Test_Common
             % test log progress
             je3.log_progress(1,10,1,[]);
             mess_name3 = fbMPIs{3}.mess_file_name(1,'log');
-            assertEqual(exist(mess_name3,'file'),2)
+            assertTrue(is_file(mess_name3))
 
             je2.log_progress(2,10,2,[]);
             mess_name2 = fbMPIs{2}.mess_file_name(1,'log');
-            assertEqual(exist(mess_name2,'file'),2)
+            assertTrue(is_file(mess_name2))
 
             je1.log_progress(1,9,1.3,[]);
 
@@ -349,7 +349,7 @@ classdef test_job_executor< MPI_Test_Common
             % test log progress
             je3.log_progress(2,10,2,[]);
             mess_name3 = fbMPIs{3}.mess_file_name(1,'log');
-            assertEqual(exist(mess_name3,'file'),2)
+            assertTrue(is_file(mess_name3))
 
 
             je1.log_progress(2,9,3,[]);
@@ -541,14 +541,14 @@ classdef test_job_executor< MPI_Test_Common
 
 
             je3=je3.reduce_send_message(LogMessage(),'log',[],false);
-            assertTrue(exist(fbMPIs{3}.mess_file_name(1,'log'),'file')==2);
+            assertTrue(is_file(fbMPIs{3}.mess_file_name(1,'log')));
             je2=je2.reduce_send_message(LogMessage(),'log',[],false);
-            assertTrue(exist(fbMPIs{2}.mess_file_name(1,'log'),'file')==2);
+            assertTrue(is_file(fbMPIs{2}.mess_file_name(1,'log')));
 
             je1=je1.reduce_send_message(LogMessage(),'log',[],false);
-            assertFalse(exist(fbMPIs{3}.mess_file_name(1,'log'),'file')==2);
-            assertFalse(exist(fbMPIs{2}.mess_file_name(1,'log'),'file')==2);
-            assertTrue(exist(fbMPIs{1}.mess_file_name(0,'log'),'file')==2);
+            assertFalse(is_file(fbMPIs{3}.mess_file_name(1,'log')));
+            assertFalse(is_file(fbMPIs{2}.mess_file_name(1,'log')));
+            assertTrue(is_file(fbMPIs{1}.mess_file_name(0,'log')));
 
 
             [ok,err,mess] = serverfbMPI.receive_message(1,'log');
@@ -592,7 +592,7 @@ classdef test_job_executor< MPI_Test_Common
             %
             je=je.do_job();
             %
-            assertTrue(exist(job_result_file,'file')==2);
+            assertTrue(is_file(job_result_file));
 
 
             assertFalse(isempty(je.task_outputs));
@@ -732,7 +732,7 @@ classdef test_job_executor< MPI_Test_Common
             assertTrue(ok)
             assertTrue(isempty(err_mess))
 
-            assertTrue(exist(fbMPIs{2}.mess_file_name(1,'interrupt'),'file')==2);
+            assertTrue(is_file(fbMPIs{2}.mess_file_name(1,'interrupt')));
             try
                 je1.log_progress(2,10,3,[]);
             catch ERRm
@@ -810,7 +810,7 @@ classdef test_job_executor< MPI_Test_Common
             pid = int64(feature('getpid'));
             log_file = fullfile(getuserdir,...
                 sprintf('WORKER_V2_Process_%d_failure.log',pid));
-            assertTrue(exist(log_file,'file')==2);
+            assertTrue(is_file(log_file));
             delete(log_file);
         end
         %
@@ -874,7 +874,7 @@ classdef test_job_executor< MPI_Test_Common
             log_file = fullfile(getuserdir,...
                 sprintf('WORKER_V2_Process_%d_failure.log',pid));
 
-            assertTrue(exist(log_file,'file')==2)
+            assertTrue(is_file(log_file))
             delete(log_file)
             % all worker_v1s reply 'started' to node1 and node 1 reduces this
             % message to message from node 1 to node 0

@@ -23,7 +23,7 @@ function wout=set_simple_xsigerr(win,iax,x,signal,err,xdistr)
 wout=win;
 wout.signal_=signal;
 wout.error_=err;
-if exist('xdistr','var') && ~isempty(xdistr)
+if exist('xdistr', 'var') && ~isempty(xdistr)
     if isscalar(xdistr)
         xdistr=repmat(logical(xdistr),size(iax));
     else

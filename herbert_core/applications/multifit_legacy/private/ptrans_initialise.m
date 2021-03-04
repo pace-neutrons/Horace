@@ -175,7 +175,7 @@ ok=true;
 mess='';
 if any(free)
     % Fix floating parameters that cannot affect chi-squared because there are no data points that depend on those parameters
-    if exist('nodata','var') && any(empty_data)
+    if exist('nodata', 'var') && any(empty_data)
         if all(empty_data)
             free=false(size(free));     % no data, so all parameters are fixed
             mess='No data to be fitted; all parameters have been fixed';

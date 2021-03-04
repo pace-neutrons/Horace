@@ -10,7 +10,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
     methods
         %
         function obj=test_ParpoolMPI_Framework(name)
-            if ~exist('name','var')
+            if ~exist('name', 'var')
                 name = 'test_ParpoolMPI_Framework';
             end
             obj = obj@MPI_Test_Common(name);
@@ -134,7 +134,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             assertTrue(all(n_sent==2));
 
             for i=1:num_labs
-                assertTrue(exist(fnames{i},'file')==2);
+                assertTrue(is_file(fnames{i}));
                 if (receivers(i))
                     res_rez=res{i};
                     mis_mes = arrayfun(@(x)isempty(x.mess),res_rez);
@@ -191,7 +191,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             %err = results(:,2);
 
             for i=1:num_labs
-                assertTrue(exist(fnames{i},'file')==2);
+                assertTrue(is_file(fnames{i}));
                 assertTrue(isempty(err{i}));
                 assertTrue(isa(res{i},'aMessage'));
                 cii = i-1; % cyclic backward index used by worker to send messages and define their payload.
@@ -217,7 +217,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             mok = parpool_mpi_probe_all_tester(job_param);
             assertTrue(isempty(mok));
 
-            assertTrue(exist(file,'file')==2);
+            assertTrue(is_file(file));
         end
         %
         function test_probe_receive_all_tester_test_mode(obj)
@@ -233,7 +233,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             [mok,~,pm] = parpool_mpi_probe_all_tester(job_param,...
                 struct('job_id','test_probe_all','labID',1,'numLabs',6));
             assertTrue(mok);
-            assertTrue(exist(file,'file')==2);
+            assertTrue(is_file(file));
 
             %             wrapper = pm.get_mpi_wrapper();
             %             wrapper.set_labIndex(6);
@@ -259,7 +259,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             assertTrue(isa(mok,'aMessage'));
             assertEqual(mok.mess_name,'started');
 
-            assertTrue(exist(file,'file')==2);
+            assertTrue(is_file(file));
 
         end
     end

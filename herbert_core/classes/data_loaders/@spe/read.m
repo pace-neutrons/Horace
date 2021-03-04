@@ -12,7 +12,7 @@ function wout = read (wdummy, file)
 
 % Get file name - prompt if file does not exist (using file to set default seach location and extension
 % -----------------------------------------------------------------------------------------------------
-if ~exist('file','var'), file='*.spe'; end
+if ~exist('file', 'var'), file='*.spe'; end
 [file_full,ok,mess]=getfilecheck(file);
 if ~ok, error(mess), end
 

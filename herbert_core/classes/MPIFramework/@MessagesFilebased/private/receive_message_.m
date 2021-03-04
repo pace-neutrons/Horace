@@ -68,7 +68,7 @@ try_limit = 100;
 received = false;
 [rlock_file,wlock_file] = build_lock_fname_(mess_fname);
 %
-while exist(wlock_file,'file')==2 % wait until message is writing.
+while is_file(wlock_file) % wait until message is writing.
     % CAN IT LOCK the wlock_file deletion by the sender? There were
     % suspicions.
     %

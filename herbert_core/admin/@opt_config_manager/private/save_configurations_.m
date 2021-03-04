@@ -6,7 +6,7 @@ full_config_file = fullfile(obj.config_info_folder,obj.config_filename);
 
 % read existing configuration file, to keep the configurations for all
 % other known types of pc intact.
-if exist(full_config_file,'file')
+if is_file(full_config_file)
     data_struct = xml_read(full_config_file);
 else
     data_struct = struct();
@@ -15,7 +15,7 @@ end
 this_pc_type = obj.this_pc_type;
 % create structure describing this pc configuration and set-up info field
 % as the first field in the structure.
-if exist('info','var')
+if exist('info', 'var')
     this_pc_config = struct('info',info);
 else
     this_pc_config = struct('info','');

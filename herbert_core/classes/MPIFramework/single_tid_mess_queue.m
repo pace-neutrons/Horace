@@ -84,8 +84,8 @@ classdef single_tid_mess_queue < matlab.mixin.Copyable
                 mess = [];
                 return
             end
-            if exist('mess_name','var') % pop only next message requested
-                if ~exist('queue_ind','var')
+            if exist('mess_name', 'var') % pop only next message requested
+                if ~exist('queue_ind', 'var')
                     [present,queue_ind] = obj.check(mess_name);
                 else
                     present = true;

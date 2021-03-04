@@ -13,7 +13,7 @@ else
     log = '';
 end
 
-if exist('log_message','var')
+if exist('log_message', 'var')
     obj.display_results_count_ = 0;
     n_symbols = numel(log_message);
     if n_symbols <=obj.LOG_MESSAGE_LENGHT

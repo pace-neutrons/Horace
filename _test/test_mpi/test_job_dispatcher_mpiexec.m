@@ -5,7 +5,7 @@ classdef test_job_dispatcher_mpiexec < job_dispatcher_common_tests
     methods
         %
         function this=test_job_dispatcher_mpiexec(name)
-            if ~exist('name','var')
+            if ~exist('name', 'var')
                 name = 'test_job_dispatcher_mpiexec';
             end
             this = this@job_dispatcher_common_tests(name,'mpiexec_mpi');

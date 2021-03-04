@@ -89,7 +89,7 @@ if isempty(xPath)
     end
 else
     out = xString;
-    if (nargin<2 || isFullSearch) && ~exist(xString,'file')
+    if (nargin<2 || isFullSearch) && ~is_file(xString)
         %search to see if xString exists when isFullSearch
         error('xml:FileNotFound','File %s not found',xString);
     end

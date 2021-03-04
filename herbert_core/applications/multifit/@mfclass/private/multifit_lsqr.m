@@ -269,7 +269,7 @@ if nval<npfree
 end
 
 % Set the extent of listing to screen
-if ~exist('listing','var') || isempty(listing)
+if ~exist('listing', 'var') || isempty(listing)
     listing=0;
 end
 
@@ -277,7 +277,7 @@ end
 % -----------------------------------------------------------------------------------
 % Perform fit (or evaulation of chisqr 
 % -----------------------------------------------------------------------------------
-if exist('perform_fit','var') && ~perform_fit
+if exist('perform_fit', 'var') && ~perform_fit
     % -----------------------------------------------------------------------------------
     % Case of solely evaluation of chi-squared at input set of parameters
     % -----------------------------------------------------------------------------------
@@ -299,7 +299,7 @@ else
     % -----------------------------------------------------------------------------------
     
     % Set fit control parameters
-    if ~exist('fcp','var')
+    if ~exist('fcp', 'var')
         fcp=[0.0001 20 0.001];
     end
     dp=fcp(1);      % derivative step length

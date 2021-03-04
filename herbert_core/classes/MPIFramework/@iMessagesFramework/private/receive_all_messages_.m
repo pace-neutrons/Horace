@@ -3,7 +3,7 @@ function [all_messages,tid_received_from] = receive_all_messages_(obj,task_ids,m
 % grab all messages, intended for this job.
 %
 %
-if ~exist('task_ids','var') || isempty(task_ids) || (ischar(task_ids) && strcmpi(task_ids,'all'))
+if ~exist('task_ids', 'var') || isempty(task_ids) || (ischar(task_ids) && strcmpi(task_ids,'all'))
     task_ids = 1:obj.numLabs;
 end
 if ischar(task_ids)
@@ -16,7 +16,7 @@ not_this = task_ids ~= obj.labIndex;
 if ~all(not_this)
     task_ids = task_ids(not_this);
 end
-if ~exist('mess_name','var') || isempty(mess_name)
+if ~exist('mess_name', 'var') || isempty(mess_name)
     mess_name = 'any';
 end
 % if it is blocking channel we are using or not.

@@ -32,15 +32,15 @@ classdef FailedMessage < aMessage
             %
             obj = obj@aMessage('failed');
             
-            if ~exist('error_exception','var')
+            if ~exist('error_exception', 'var')
                 ex_text = 'automatic exception, generated at FailedMessage without arguments: ';
-                if exist('fail_text','var')
+                if exist('fail_text', 'var')
                     ex_text  = [ex_text,fail_text];
                 end
                 error_exception = MException_her('FAILED_MESSAGE:no_aruments',...
                     ex_text);
             end
-            if ~exist('fail_text','var')
+            if ~exist('fail_text', 'var')
                 fail_text = ' Failed message without parameters';
             end
             

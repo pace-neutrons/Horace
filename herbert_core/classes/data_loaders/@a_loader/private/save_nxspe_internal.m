@@ -41,7 +41,7 @@ if write_access
 end
 
 % check inputs and set defaults.
-if exist(filename,'file')
+if is_file(filename)
     if readwrite_access
         error('A_LOADER:invalid_argument','File %s already exist',filename);
     else
@@ -49,7 +49,7 @@ if exist(filename,'file')
     end
 end
 
-if ~exist('emode','var')
+if ~exist('emode', 'var')
     if isfield(this,'emode')
         emode = this.emode;
     else
@@ -60,7 +60,7 @@ if emode<0 || emode>2
     error('A_LOADER:invalid_argument',...
         'attempt to save with unsupported emode %d; emode has to be from 0 to 2',emode);
 end
-if ~exist('efix','var')
+if ~exist('efix', 'var')
     try
         efix = this.efix;
     catch
@@ -76,7 +76,7 @@ if ~isnumeric(efix)
     error('A_LOADER:invalid_argument',...
         ' expecting efix to have digita value but it has %s: ',efix);
 end
-if ~exist('psi','var')
+if ~exist('psi', 'var')
     try
         psi = this.psi;
     catch
@@ -159,7 +159,7 @@ H5G.close(group_id);
 H5P.close(fcpl);
 H5P.close(fapl);
 
-if exist('file','var')
+if exist('file', 'var')
     H5G.close(fid);
     H5F.close(file);
 else

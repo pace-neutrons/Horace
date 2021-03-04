@@ -27,9 +27,9 @@ function modStruct = ISIS_Baseline2016_moderator_load (file, nsmooth)
 
 if isempty(fileparts(file))
     p = fileparts(mfilename('fullpath'));
-    if exist(fullfile(p,'ISIS_TS1',file),'file')==2
+    if is_file(fullfile(p,'ISIS_TS1',file))
         modStruct = load(fullfile(p,'ISIS_TS1',file));
-    elseif exist(fullfile(p,'ISIS_TS2',file),'file')==2
+    elseif is_file(fullfile(p,'ISIS_TS2',file))
         modStruct = load(fullfile(p,'ISIS_TS2',file));
     else
         error('Moderator not found. Check file name, and ensure there is no path.');

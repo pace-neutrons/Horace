@@ -8,7 +8,7 @@ function build_version_h(pack_folder)
 %
 version_file = 'version.h';
 ver_file_fp = fullfile(pack_folder,'_LowLevelCode','cpp','utility',version_file);
-if exist(ver_file_fp,'file') == 2
+if is_file(ver_file_fp)
     return;
 end
 [~,pack_name] = fileparts(pack_folder);

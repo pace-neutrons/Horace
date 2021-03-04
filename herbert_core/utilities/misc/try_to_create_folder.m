@@ -21,9 +21,9 @@ if nargin<3
 end
 
 ic = 0;
-if ~exist(folder_path,'dir')
+if ~is_folder(folder_path)
     [success, mess] = mkdir(folder_path);
-    while ~(exist(folder_path,'dir') || ic<3)
+    while ~(is_folder(folder_path) || ic<3)
         [success, mess] = mkdir(folder_path);
         ic = ic + 1;
         pause(0.1);
@@ -34,7 +34,7 @@ else
     test_path = fullfile(folder_path,['folder_twa_',ext,char(randi(25,1,10) + 64)]);
     [success, mess] = mkdir(test_path);
     if success
-        if exist(test_path,'dir') == 7
+        if is_folder(test_path)
             [statrm,msg] = rmdir(test_path);
             if ~statrm
                 warning('MAKE_CONFIG_FOLDER:runtime_error',...

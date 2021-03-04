@@ -17,7 +17,7 @@ function [ok,mess] = save_config (file_name, config_data)
 
 
 % Delete existing configuration file, if there is one
-if exist(file_name,'file')
+if is_file(file_name)
     try
         delete(file_name)
     catch
@@ -27,7 +27,7 @@ if exist(file_name,'file')
     end
 end
 config_folder = fileparts(file_name);
-if ~(exist(config_folder,'dir')==7)
+if ~(is_folder(config_folder))
     mkdir(config_folder,'s');
 end
 

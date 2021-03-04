@@ -25,7 +25,7 @@ if ~isscalar(self), error('Method only takes a scalar double disk chopper object
 
 [T1,T2] = hat_times(self);
 
-if ~exist('t','var')
+if ~exist('t', 'var')
     if T1==T2
         t = 0.5*[-(T1+T2), 0,(T1+T2)];
     else

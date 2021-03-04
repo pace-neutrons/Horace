@@ -27,11 +27,11 @@ end
 err=false;
 message='';
 
-if ~exist(file1,'file')
+if ~is_file(file1)
     [err,message]=report_err(['first file to merge: ',file1,' do not exist'],throw);
     return
 end
-if ~exist(file2,'file')
+if ~is_file(file2)
     [err,message]=report_err(['second file to merge: ',file2,' do not exist'],throw);
     return
 end

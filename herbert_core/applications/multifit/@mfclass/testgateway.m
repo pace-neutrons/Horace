@@ -23,7 +23,7 @@ end
 if is_string(func_name) && ~isempty(func_name)
     rootpath=fileparts(mfilename('fullpath'));
     full_func_name=fullfile(rootpath,'private',func_name);
-    if ~exist(full_func_name,'file')
+    if ~is_file(full_func_name)
         error(['File does not exist: ',full_func_name])
     end
 else

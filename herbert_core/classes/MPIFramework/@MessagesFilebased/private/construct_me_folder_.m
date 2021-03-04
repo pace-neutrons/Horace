@@ -2,7 +2,7 @@ function obj=construct_me_folder_(obj,new_folder_name)
 
 [remote_config_folder,config_ext] = obj.build_exchange_folder_name(new_folder_name);
 obj.mess_exchange_folder_ = fullfile(remote_config_folder,config_ext);
-if ~(exist(obj.mess_exchange_folder,'dir') ==7)
+if ~(is_folder(obj.mess_exchange_folder))
     mkdir(obj.mess_exchange_folder);
 end
 

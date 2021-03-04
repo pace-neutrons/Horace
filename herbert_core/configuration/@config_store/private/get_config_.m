@@ -43,7 +43,7 @@ else
                    ' The configuration has been set to defaults. Type:\n',...
                    '>>%s\n   to check if defaults are correct'],class_name,class_name);            
         end
-        if exist(filename,'file')
+        if is_file(filename)
             delete(filename);
         end
     end
@@ -56,7 +56,7 @@ else
     catch ME
         if (strcmp(ME.identifier,'MATLAB:noSuchMethodOrField'))
             warning('CONFIG_STORE:restore_config','Stored configuration for class: %s is outdated\n The configuration has been reset to defaults ',class_name);
-            if exist(filename,'file')
+            if is_file(filename)
                 delete(filename);
             end
         else

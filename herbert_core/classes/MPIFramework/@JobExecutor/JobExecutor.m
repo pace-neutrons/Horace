@@ -185,7 +185,7 @@ classdef JobExecutor
             % clear all possible messages stored in message cache. Should
             % be irrelevant but may be useful for re-initializing a job
             % executor to run different task on the same parallel worker.
-            if ~exist('is_tested','var')
+            if ~exist('is_tested', 'var')
                 synchronize = true;
             else
                 synchronize = ~is_tested;
@@ -336,7 +336,7 @@ classdef JobExecutor
             % check all available framework for the job cancellation state.
             %
             % Returns true if job folder has been deleted
-            is =~exist(obj.control_node_exch_.mess_exchange_folder,'dir');
+            is =~is_folder(obj.control_node_exch_.mess_exchange_folder);
             if ~is
                 [mess,tids] = obj.mess_framework_.probe_all('all','canceled');
                 if ~isempty(mess)
@@ -377,10 +377,10 @@ classdef JobExecutor
             % by a worker and used to initialize the job execution on the
             % second step of the worker initialization.
             %
-            if ~exist('exit_on_completion','var')
+            if ~exist('exit_on_completion', 'var')
                 exit_on_completion = true;
             end
-            if ~exist('keep_worker_running','var')
+            if ~exist('keep_worker_running', 'var')
                 keep_worker_running = false;
             end
             JE_className = class(obj);
@@ -441,10 +441,10 @@ classdef JobExecutor
             %                if present and true, sets-up test framework
             %                mode
             %
-            if ~exist('exit_on_completion','var')
+            if ~exist('exit_on_completion', 'var')
                 exit_on_completion = true;
             end
-            if ~exist('keep_worker_running','var')
+            if ~exist('keep_worker_running', 'var')
                 keep_worker_running = false;
             end
             

@@ -7,7 +7,7 @@ function [messages,task_ids_from] = labProbe_messages_(obj,task_ids,varargin)
 % Will check if interrupt is available and if it is, return interrupt name 
 % instead of any other message.
 %
-if ~exist('task_ids','var')
+if ~exist('task_ids', 'var')
     task_ids = [];
 end
 if isnumeric(task_ids) && ~isempty(task_ids)

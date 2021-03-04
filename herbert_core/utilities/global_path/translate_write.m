@@ -29,7 +29,7 @@ if ~isempty(file) && ischar(file) && size(file,1)==1 && numel(size(file))==2
     if isempty(file_out)
         file_out=file;  % assume file
         [pathname,filename,ext]=fileparts(file_out);
-        if ~(isempty(pathname) || exist(pathname,'dir')==7)
+        if ~(isempty(pathname) || is_folder(pathname))
             file_out='';
             ok=false;
             mess=['Cannot find folder to write file: ',file];
@@ -96,7 +96,7 @@ while true
 end
 
 for i=1:numel(dir)
-    if exist(dir{i},'dir')
+    if is_folder(dir{i})
         file_out=fullfile(dir{i},filename);
         return
     end

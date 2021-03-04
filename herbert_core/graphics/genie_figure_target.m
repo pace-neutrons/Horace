@@ -46,7 +46,7 @@ end
 
 % Now determine action to be performed and return fig_out
 if newplot
-    if exist('fig_name','var')  % function was passed something we think is a name
+    if exist('fig_name', 'var')  % function was passed something we think is a name
         fig_out=fig_name;
         ok=true;
         mess='';
@@ -57,7 +57,7 @@ if newplot
     end
     
 else
-    if exist('fig_name','var')  % function was passed something we think is a name
+    if exist('fig_name', 'var')  % function was passed something we think is a name
         [fig_handle,ok,mess]=get_figure_handle (fig_name);
         if ok
             if isempty(fig_handle) || any(is_genie_figure(fig_handle))

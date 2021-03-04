@@ -62,7 +62,7 @@ classdef test_pc_spec_config< TestCase
             conf_file = fullfile(cm.config_info_folder,cm.config_filename);
             clob = onCleanup(@()delete(conf_file));
             cm.save_configurations();
-            assertTrue(exist(conf_file,'file')==2);
+            assertTrue(is_file(conf_file));
             
             hc = herbert_config;
             ll  = hc.log_level;
@@ -79,7 +79,7 @@ classdef test_pc_spec_config< TestCase
             cm.this_pc_type = 1;
             hc.log_level = ll+10;
             cm.save_configurations();
-            assertTrue(exist(conf_file,'file')==2);
+            assertTrue(is_file(conf_file));
             hc.log_level=ll;
             cm.this_pc_type = 'a_mac';
             cm.load_configuration('-set_config');

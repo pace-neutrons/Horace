@@ -129,7 +129,7 @@ classdef ClusterWrapper
             if nargin < 2
                 return;
             end
-            if ~exist('log_level','var')
+            if ~exist('log_level', 'var')
                 log_level = -1;
             end
             
@@ -157,7 +157,7 @@ classdef ClusterWrapper
             %              which started and controls the job.
             %log_level     if present, the number, which describe the
             %              verbosity of the cluster operations output;
-            if ~exist('log_level','var')
+            if ~exist('log_level', 'var')
                 log_level = -1;
             end
             if log_level > -1
@@ -222,7 +222,7 @@ classdef ClusterWrapper
             %                     running this job e.g. 'starting' or
             %                     'continuing'
             %
-            if ~exist('log_message_prefix','var')
+            if ~exist('log_message_prefix', 'var')
                 log_message_prefix = 'starting';
             end
             
@@ -240,7 +240,7 @@ classdef ClusterWrapper
             % ok -- true if cluster started successfully and false if it
             % does not
             %
-            if ~exist('check_time','var')
+            if ~exist('check_time', 'var')
                 check_time = 4;
             end
             [obj,ok] = wait_started_and_report_(obj,check_time,varargin{:});
@@ -295,7 +295,7 @@ classdef ClusterWrapper
             if ~isempty(obj.mess_exchange_)
                 obj.mess_exchange_.finalize_all();
                 new_mess_exchange_folder = obj.mess_exchange_.next_message_folder_name;
-                if exist(new_mess_exchange_folder,'dir')==7
+                if is_folder(new_mess_exchange_folder)
                     [ok,mess]=rmdir(new_mess_exchange_folder,'s');
                     if ~ok
                         warning(' can not clean-up prospective message exchange folder %s Reason %s',...
