@@ -8,7 +8,7 @@ function range=range_add_border(range_in, tol)
 % ------
 %   range_in   Range of data (2xn array)
 %               [u1_min,u2_min,...;u1_max,u2_max,...]
-%   if tol is omitted, the tol assumed to be equal -4*eps where eps
+%   if tol is omitted, the tol assumed to be equal -eps where eps
 %   is minimal value such as 1+eps~=1;
 %
 %   tol         Control size of border:
@@ -17,9 +17,7 @@ function range=range_add_border(range_in, tol)
 %               tol<0   Relative size as a proportion of the range along
 %                       each axis. If the range is zero, absolute tol value
 %                       is used.
-% if tol is omitted the routine adds 4*epsilon sized border
-% epsilon is the minimal number such as 1+epsilon ~=1
-%
+
 % Output:
 % -------
 %   range      Expanded range
@@ -36,7 +34,7 @@ if tol==0
 elseif tol>0
     range=range_in+tol*([-ones(1,ndim);ones(1,ndim)]);
     zero_width = abs(range_in(2,:)-range_in(1,:))<tol;
-    if any(zero_width)
+    if any(zero_width) % abserr for zero-width border is defined as relerr
         sig_range = sign(range_in);
         min_border = 1-tol*sig_range(1,:);
         max_border = 1+tol*sig_range(2,:);
@@ -52,7 +50,7 @@ elseif tol<0
     range = range_in.*border;
     
     close_to_zero = abs(range_in)<tol;
-    if any(close_to_zero(:)) % relerr for
+    if any(close_to_zero(:)) % relerr for zero values is abserr
         % large urange values are dealt with above
         range(1,close_to_zero(1,:)) = -tol;
         range(2,close_to_zero(2,:)) = tol;
