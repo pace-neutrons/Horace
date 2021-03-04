@@ -168,10 +168,24 @@ classdef test_migrated_apis < TestCase
 %        end
 
         %% Dispersion
-        function test_dispersion(obj)
-            skipTest('Incorrect test data for dispersion');
-            sqw_4d_obj = sqw(obj.test_sqw_4d_fullpath);
-            [retval_one, retval_two]  = dispersion(sqw_4d_obj, @test_migrated_apis.desp_rln, {'scale', 14});
+        function test_dispersion_with_disp_return_value(obj)
+            %skipTest('Incorrect test data for dispersion');
+            sqw_2d_obj = sqw(obj.test_sqw_2d_fullpath);
+            [wout_disp]  = dispersion(sqw_2d_obj, @test_migrated_apis.disp_rln, {'scale', 10});
+
+            expected = load('test_migrated_apis_data.mat', 'wout_disp', 'wout_weight');
+
+            assertEqualToTol(expected.wout_disp.data, wout_disp.data, 'ignore_str', true);
+        end
+        function test_dispersion_with_disp_and_weight_retval(obj)
+            %skipTest('Incorrect test data for dispersion');
+            sqw_2d_obj = sqw(obj.test_sqw_2d_fullpath);
+            [wout_disp, wout_weight]  = dispersion(sqw_2d_obj, @test_migrated_apis.disp_rln, {'scale', 10});
+
+            expected = load('test_migrated_apis_data.mat', 'wout_disp', 'wout_weight');
+
+            assertEqualToTol(expected.wout_disp.data, wout_disp.data, 'ignore_str', true);
+            assertEqualToTol(expected.wout_weight.data, wout_weight.data, 'ignore_str', true);
         end
 
         %% gets
@@ -202,7 +216,7 @@ classdef test_migrated_apis < TestCase
             ap_1 = IX_aperture(-10,0.1,0.11);
             chopper_1 = IX_fermi_chopper(1,100,0.1,1,0.01);
             expected_inst =  IX_inst_DGfermi (mod_1, ap_1, chopper_1, 100);
-            
+
             updated = s.set_instrument(expected_inst);
             [instrument_class, all_inst] = updated.get_inst_class();
 
@@ -221,7 +235,7 @@ classdef test_migrated_apis < TestCase
            for idx=1:20
                s.header{idx}.intrument = expected_inst;
            end
-           
+
            [instrument_class, all_inst] = s.get_inst_class();
            assertFalse(all_inst);
            assertEqual(instrument_class, '');
@@ -341,12 +355,12 @@ classdef test_migrated_apis < TestCase
     end
 
     methods(Static)
-       function val = desp_rln(qw, params)
-            scale = params{2};
-            val = qw .* scale;
+       function val = disp_rln(qh, qk, ql, varargin)
+            scale = varargin{2};
+            val = qh .* qk .* ql .* scale;
        end
-       function val = shift_rln(qh, qk, qw, params)
-            val = qw .* qk .* qh;
+       function val = shift_rln(qh, qk, ql, params)
+            val = qh .* qk .* ql;
        end
     end
 end
