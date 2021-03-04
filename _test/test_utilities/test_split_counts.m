@@ -6,7 +6,7 @@ methods
     end
 
     function test_outputs_are_empty_if_inputs_are_empty(obj)
-        [chunks, idxs] = split_counts([], [], 0, 0);
+        [chunks, idxs] = split_counts([], []);
         assertTrue(isa(chunks, 'cell'))
         assertTrue(isempty(chunks));
         assertTrue(isa(idxs, 'double'))
@@ -16,7 +16,7 @@ methods
     function test_outputs_have_length_1_if_max_counts_gt_total_counts(~)
         counts = ones(1, 10);
         max_counts = 11;
-        [chunks, idxs] = split_counts(counts, max_counts, sum(counts), cumsum(counts));
+        [chunks, idxs] = split_counts(counts, max_counts);
         assertEqual(numel(chunks), 1);
         assertEqual(chunks{1}, counts);
         assertEqual(size(idxs), [2, 1]);
@@ -26,7 +26,7 @@ methods
     function test_outputs_have_length_1_if_max_counts_eq_total_counts(~)
         counts = ones(1, 10);
         max_counts = 11;
-        [chunks, idxs] = split_counts(counts, max_counts, sum(counts), cumsum(counts));
+        [chunks, idxs] = split_counts(counts, max_counts);
         assertEqual(numel(chunks), 1);
         assertEqual(chunks{1}, counts);
         assertEqual(size(idxs), [2, 1]);
@@ -35,32 +35,26 @@ methods
 
     function test_error_if_counts_is_not_a_vector(~)
         counts = ones(2, 10);
-        f = @() split_counts(counts, 100, sum(counts(:)), cumsum(counts(:)));
+        f = @() split_counts(counts, 100);
         assertExceptionThrown(f, 'MATLAB:expectedVector');
     end
 
     function test_error_if_max_counts_is_not_a_scalar(~)
         counts = ones(1, 10);
-        f = @() split_counts(counts, [1, 1], sum(counts), cumsum(counts));
+        f = @() split_counts(counts, [1, 1]);
         assertExceptionThrown(f, 'MATLAB:expectedScalar');
     end
 
-    function test_error_if_total_counts_is_not_a_scalar(~)
+    function test_error_if_max_counts_is_zero(~)
         counts = ones(1, 10);
-        f = @() split_counts(counts, 100, [1, 10], cumsum(counts));
-        assertExceptionThrown(f, 'MATLAB:expectedScalar');
-    end
-
-    function test_error_if_cumulative_counts_is_not_a_vector(~)
-        counts = ones(1, 10);
-        f = @() split_counts(counts, 100, sum(counts), ones(2, 10));
-        assertExceptionThrown(f, 'MATLAB:expectedVector');
+        f = @() split_counts(counts, 0);
+        assertExceptionThrown(f, 'MATLAB:expectedPositive');
     end
 
     function test_chunking_correct_if_a_count_gt_max_counts(~)
         counts = [3, 2, 0, 6, 0, 5, 3, 1, 1, 24, 4, 2, 3, 0];
         max_counts = 11;
-        [chunks, idxs] = split_counts(counts, max_counts, sum(counts), cumsum(counts));
+        [chunks, idxs] = split_counts(counts, max_counts);
         expected_chunks = { ...
             [3, 2, 0, 6, 0], ...
             [5, 3, 1, 1], ...
@@ -74,21 +68,6 @@ methods
     end
 
     function test_chunking_correct_for_a_sample_counts_array(~)
-        counts = [3, 2, 0, 6, 0, 5, 3, 1, 1, 4, 2, 3, 0];
-        max_counts = 11;
-        [chunks, idxs] = split_counts(counts, max_counts, sum(counts), cumsum(counts));
-        expected_chunks = { ...
-            [3, 2, 0, 6, 0], ...
-            [5, 3, 1, 1], ...
-            [4, 2, 3, 0] ...
-        };
-        expected_idxs = [1, 6, 10;
-                         5, 9, 13];
-        assertEqual(chunks, expected_chunks);
-        assertEqual(idxs, expected_idxs);
-    end
-
-    function test_chunking_correct_for_sample_counts_with_no_optional_args(~)
         counts = [3, 2, 0, 6, 0, 5, 3, 1, 1, 4, 2, 3, 0];
         max_counts = 11;
         [chunks, idxs] = split_counts(counts, max_counts);

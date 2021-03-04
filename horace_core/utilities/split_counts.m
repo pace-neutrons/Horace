@@ -1,5 +1,5 @@
-function [chunks, idxs] = split_counts(counts, max_counts, varargin)
-%SPLIT_COUNTS_VECTOR Split the given array of counts such that the sum of each
+function [chunks, idxs] = split_counts(counts, max_counts)
+%SPLIT_COUNTS Split the given array of counts such that the sum of each
 %  sub-array has a maximum of max_counts or has length 1.
 %
 % The counts counts are not split across bin boundaries - i.e. each sub-array
@@ -8,12 +8,8 @@ function [chunks, idxs] = split_counts(counts, max_counts, varargin)
 %
 % Input:
 % ------
-% counts             A vector of positive integers.
+% counts             A vector of positive values.
 % max_counts         An integer specifying the maximum sum for each sub-array.
-% total_counts       The sum of all counts values, equal to sum(counts).
-%                    [optional]
-% cumulative_counts  The cumulative sum of the given counts array.
-%                    Should be equal to cumsum(counts). [optional]
 %
 % Output:
 % -------
@@ -28,7 +24,7 @@ function [chunks, idxs] = split_counts(counts, max_counts, varargin)
 % --------
 % >> counts = [3, 2, 0, 6, 0, 5, 3, 1, 1, 24, 4, 2, 3, 0];
 % >> max_counts = 11;
-% >> [chunks, idxs] = split_counts(counts, max_counts, sum(counts), cumsum(counts))
+% >> [chunks, idxs] = split_counts(counts, max_counts)
 %   chunks =
 %       { [3, 2, 0, 6, 0], [5, 3, 1, 1], [24], [4, 2, 3, 0] }
 %   idxs =
@@ -37,21 +33,23 @@ function [chunks, idxs] = split_counts(counts, max_counts, varargin)
 %
 if isempty(counts)
     chunks = {};
-    idxs = [];
+    idxs = zeros(2, 0);
     return;
 end
 
-[counts, max_counts, total_counts, cumulative_counts] = ...
-    parse_args(counts, max_counts, varargin{:});
+validateattributes(counts, {'numeric'}, {'vector', 'nonnegative'});
+validateattributes(max_counts, {'numeric'}, {'scalar', 'positive'});
 
-if total_counts <= max_counts
+cumulative_counts = cumsum(counts);
+total_counts = cumulative_counts(end);
+max_chunks = ceil(total_counts/max_counts);
+
+if max_chunks == 1
     % Only one chunk of data, return it
     chunks = {counts};
     idxs = [1; numel(counts)];
     return
 end
-
-max_chunks = ceil(total_counts/max_counts);
 
 chunks = cell(1, max_chunks);
 idxs = zeros(2, max_chunks);
@@ -82,30 +80,3 @@ end
 
 chunks = chunks(1:iter - 1);
 idxs = idxs(:, 1:iter - 1);
-
-end
-
-
-% -----------------------------------------------------------------------------
-function [counts, max_counts, total_counts, cumulative_counts] = parse_args(varargin)
-    numeric_vector = @(x) validateattributes(x, {'numeric'}, {'vector'});
-    numeric_scalar = @(x) validateattributes(x, {'numeric'}, {'scalar'});
-
-    parser = inputParser();
-    parser.addRequired('counts', numeric_vector);
-    parser.addRequired('max_counts', numeric_scalar);
-    parser.addOptional('total_counts', [], numeric_scalar);
-    parser.addOptional('cumulative_counts', [], numeric_vector);
-    parser.parse(varargin{:});
-
-    counts = parser.Results.counts;
-    max_counts = parser.Results.max_counts;
-    cumulative_counts = parser.Results.cumulative_counts;
-    if isempty(cumulative_counts)
-        cumulative_counts = cumsum(counts);
-    end
-    total_counts = parser.Results.total_counts;
-    if isempty(total_counts)
-        total_counts = cumulative_counts(end);
-    end
-end

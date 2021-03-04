@@ -37,7 +37,7 @@ e = zeros(nbin_as_size);
 npix = zeros(nbin_as_size);
 img_range_step = [Inf(1, 4); -Inf(1, 4)];
 
-% Get bins that may contain pixels that contribute to the cut.
+% Get bins that contain pixels that may contribute to the cut.
 % The bins selected are those that sit within (or intersect) the bounds of the
 % cut. See the relevant projection function for more details.
 [bin_starts, bin_ends] = proj.get_nbin_range(obj.data.npix);
@@ -49,16 +49,10 @@ if isempty(bin_starts)
     return
 end
 
-% Get npix for the bins that contain pixels that may contribute to the cut
-candidate_npix = bin_ends - bin_starts;
-% Get the cumulative sum of pixel bin sizes
-cum_bin_sizes = cumsum(candidate_npix);
 block_size = obj.data.pix.base_page_size;
 % Get indices in order to split the candidate bin ranges into pixel page sized
 % chunks
-[~, sub_bin_idxs] = split_counts( ...
-    candidate_npix, block_size, cum_bin_sizes(end), cum_bin_sizes ...
-);
+[~, sub_bin_idxs] = split_counts(bin_ends - bin_starts, block_size);
 num_iters = size(sub_bin_idxs, 2);
 
 % If we only have one iteration of pixels to cut then we must be able to fit
