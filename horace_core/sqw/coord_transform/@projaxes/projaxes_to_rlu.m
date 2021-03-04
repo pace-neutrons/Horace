@@ -46,7 +46,7 @@ if ~exist('ustep','var')
     ustep=[1,1,1];
 end
 
-[b, arlu, angrlu, mess] = bmatrix(alatt, angdeg);
+[b, ~, ~, mess] = bmatrix(alatt, angdeg);
 if ~isempty(mess); rlu_to_ustep=[]; u_to_rlu=[]; ulen=[]; return; end
 
 u=proj.u;
