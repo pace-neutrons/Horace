@@ -25,6 +25,7 @@ classdef (Abstract) SQWDnDBase
         wout = disp2sqw_eval(win, dispreln, pars, fwhh, opt);
         wout = func_eval(win, func_handle, pars, varargin);
         wout = sqw_eval(win, sqwfunc, pars, varargin);
+        [wout_disp, wout_weight] = dispersion(win, dispreln, pars);
     end
 
     methods (Access = protected)

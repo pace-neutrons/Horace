@@ -96,7 +96,7 @@ classdef test_migrated_apis < TestCase
             assertEqual(sz, size(sqw_obj.s));
         end
 
-       
+
         %% sqw_eval/func_eval/Disp2sqw_eval
 %        function test_func_eval(obj)
 %            % tested in test_eval
@@ -109,11 +109,26 @@ classdef test_migrated_apis < TestCase
 %        end
 
         %% Dispersion
-        function test_dispersion(obj)
-            skipTest('Incorrect test data for dispersion');
-            sqw_4d_obj = d2d(obj.test_sqw_4d_fullpath);
-            [retval_one, retval_two]  = dispersion(sqw_4d_obj, @test_migrated_apis.desp_rln, {'scale', 14});
+        function test_dispersion_with_disp_return_value(obj)
+            %skipTest('Incorrect test data for dispersion');
+            dnd_2d_obj = d2d(obj.test_sqw_2d_fullpath);
+            [wout_disp]  = dispersion(dnd_2d_obj, @test_migrated_apis.disp_rln, {'scale', 10});
+
+            expected = load('test_migrated_apis_data.mat', 'wout_disp', 'wout_weight');
+
+            assertEqualToTol(expected.wout_disp, wout_disp, 'ignore_str', true);
         end
+        function test_dispersion_with_disp_and_weight_retval(obj)
+            %skipTest('Incorrect test data for dispersion');
+            dnd_2d_obj = d2d(obj.test_sqw_2d_fullpath);
+            [wout_disp, wout_weight]  = dispersion(dnd_2d_obj, @test_migrated_apis.disp_rln, {'scale', 10});
+
+            expected = load('test_migrated_apis_data.mat', 'wout_disp', 'wout_weight');
+
+            assertEqualToTol(expected.wout_disp, wout_disp, 'ignore_str', true);
+            assertEqualToTol(expected.wout_weight, wout_weight, 'ignore_str', true);
+        end
+
 
         %% split/join
         %function test_split(obj)
@@ -134,12 +149,12 @@ classdef test_migrated_apis < TestCase
         %% shifts
         function test_shift_energy_bins(obj)
             skipTest('Incorrect test data for cut');
-            sqw_4d_obj = d2d(obj.test_sqw_1d_fullpath);
-            wout = sqw_4d_obj.shift_energy_bins(@test_migrated_apis.desp_rln, {'scale', 14});
+            sqw_1d_obj = d1d(obj.test_sqw_1d_fullpath);
+            wout = sqw_1d_obj.shift_energy_bins(@test_migrated_apis.desp_rln, {'scale', 14});
         end
         function test_shift_pixels(obj)
             skipTest('No test of return value');
-            sqw_4d_obj = d2d(obj.test_sqw_4d_fullpath);
+            sqw_4d_obj = d4d(obj.test_sqw_4d_fullpath);
             wout  = sqw_4d_obj.shift_pixels(@test_migrated_apis.shift_rln, {});
         end
 
@@ -174,9 +189,9 @@ classdef test_migrated_apis < TestCase
     end
 
     methods(Static)
-       function val = desp_rln(qw, params)
-            scale = params{2};
-            val = qw .* scale;
+       function val = disp_rln(qh, qk, ql, varargin)
+            scale = varargin{2};
+            val = qh .* qk .* ql .* scale;
        end
        function val = shift_rln(qh, qk, qw, params)
             val = qw .* qk .* qh;
