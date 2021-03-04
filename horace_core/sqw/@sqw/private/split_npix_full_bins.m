@@ -20,7 +20,7 @@ function [npix_chunks, idxs] = split_npix_full_bins(npix, page_size, num_pix, np
 %              equal to a flattened version the inputted npix array, i.e.
 %              npix(:).
 % idxs         The indices at which the input npix array was "split". Has size
-%              [2, n], where n is numel(npix_chunks). Each idxs(i, :) are the
+%              [2, n], where n is numel(npix_chunks). Each idxs(:, i) are the
 %              upper and lower indices into npix of npix_chunks{i}.
 %
 % Example:
