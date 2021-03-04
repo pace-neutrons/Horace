@@ -2,8 +2,9 @@ function [npix_chunks, idxs] = split_npix_full_bins(npix, page_size, num_pix, np
 %SPLIT_NPIX_FULL_BINS Split the given array of counts such that the sum of each
 %  sub-array has a maximum of page_size.
 %
-% If a value in npix is greater than page_size, then that value will comprise
-% its own sub-array.
+% The npix counts are not split across bin boundaries - i.e. each sub-array
+% contains only full bins. If a value in npix is greater than page_size, then
+% that value will comprise its own sub-array.
 %
 % Input:
 % ------
@@ -17,11 +18,13 @@ function [npix_chunks, idxs] = split_npix_full_bins(npix, page_size, num_pix, np
 %               If not specified it will be calculated on-the-fly.
 %               Given as an optional argument as it's common to have already
 %               calculated this quantity (defines upper bounds of bin edges).
+%               This should be a vector.
 %
 % Output:
 % -------
-% npix_chunks  Cell array of arrays. Concatenation of these arrays will be
-%              equal to the inputted npix array.
+% npix_chunks  Cell array of vectors. Concatenation of these arrays will be
+%              equal to a flattened version the inputted npix array, i.e.
+%              npix(:).
 % idxs         The indices at which the input npix array was "split". Has size
 %              [2, n], where n is numel(npix_chunks). Each idxs(i, :) are the
 %              upper and lower indices into npix of npix_chunks{i}.
