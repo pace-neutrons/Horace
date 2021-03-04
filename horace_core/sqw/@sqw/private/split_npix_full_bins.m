@@ -10,15 +10,9 @@ function [npix_chunks, idxs] = split_npix_full_bins(npix, page_size, num_pix, np
 % ------
 % npix          An array of integers (usually sqw.data.npix)
 % page_size     An integer specifying the maximum sum for each sub-array
-% num_pix       The sum of npix [optional].
-%               If this argument is not given it is calculated on-the-fly.
-%               In most cases, this value is cached for sqw objects in
-%               sqw.data.pix.num_pixels.
-% npix_cum_sum  The cumulative sum of the given npix array [optional].
-%               If not specified it will be calculated on-the-fly.
-%               Given as an optional argument as it's common to have already
-%               calculated this quantity (defines upper bounds of bin edges).
-%               This should be a vector.
+% num_pix       The sum of all npix values, equal to sum(npix(:)).
+% npix_cum_sum  The cumulative sum of the given npix array. Should be equal to
+%               cumsum(npix(:)).
 %
 % Output:
 % -------
@@ -40,11 +34,6 @@ function [npix_chunks, idxs] = split_npix_full_bins(npix, page_size, num_pix, np
 %       1     6    10
 %       5     9    13
 %
-if ~exist('num_pix', 'var')
-    npix_cum_sum = cumsum(npix(:));
-    num_pix = npix_cum_sum(end);
-end
-
 if num_pix < page_size
     % Only one page of data, return only chunk
     npix_chunks = {npix};
@@ -52,9 +41,6 @@ if num_pix < page_size
     return
 end
 
-if ~exist('npix_cum_sum', 'var')
-    npix_cum_sum = cumsum(npix(:));
-end
 num_pages = ceil(num_pix/page_size);
 
 npix_chunks = cell(1, num_pages);
