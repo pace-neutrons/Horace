@@ -133,19 +133,19 @@ properties([
   parameters([
     string(
       defaultValue: get_branch_name(env.JOB_BASE_NAME),
-      description: 'The name of the branch to build.',
+      description: 'The name of the branch to build. Affects non-PR builds only. *',
       name: 'BRANCH_NAME',
       trim: true
     ),
     string(
       defaultValue: get_release_type(env.JOB_BASE_NAME),
-      description: 'The type of the build e.g. "nightly", "release", "pull_request".',
+      description: 'The type of the build e.g. "nightly", "release", "pull_request". *',
       name: 'RELEASE_TYPE',
       trim: true
     ),
     string(
       defaultValue: get_agent(env.JOB_BASE_NAME),
-      description: 'The agent to execute the pipeline on.',
+      description: 'The agent to execute the pipeline on. *',
       name: 'AGENT',
       trim: true
     ),
@@ -154,17 +154,17 @@ properties([
       name: 'MATLAB_VERSION', trim: true
     ),
     string(
-      description: 'The version of CMake to run the build with.',
+      description: 'The version of CMake to run the build with. Affects Linux builds only.',
       name: 'CMAKE_VERSION',
       trim: true
     ),
     string(
-      description: 'The version of GCC to build with.',
+      description: 'The version of GCC to build with. Affects Linux builds only.',
       name: 'GCC_VERSION',
       trim: true
     ),
     string(
-      description: 'The year of the version of Visual Studio to build with.',
+      description: 'The year of the version of Visual Studio to build with. Affects Windows builds only.',
       name: 'VS_VERSION',
       trim: true
     ),
