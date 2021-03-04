@@ -49,7 +49,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         wout = func_eval (win, func_handle, pars, varargin);
         wout = dnd (win);
         [header_ave, ebins_all_same]=header_average(header);
-
+        [alatt,angdeg,ok,mess] = lattice_parameters(win);
+        [wout, pars_out] = refine_crystal_strip_pars (win, xtal, pars_in);
+        
 		%{
         %[deps,eps_lo,eps_hi,ne]=energy_transfer_info(header);
         [figureHandle, axesHandle, plotHandle] = plot(w,varargin);
