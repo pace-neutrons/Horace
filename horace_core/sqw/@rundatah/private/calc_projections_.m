@@ -1,6 +1,6 @@
 function [u_to_rlu, pix_range, pix] = calc_projections_(obj, detdcn,qspec,proj_mode)
 % project detector positions into Crystal Cartesian coordinate system
-% 
+%
 % Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer.
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %
@@ -76,7 +76,7 @@ if use_mex
         try
             c=neutron_constants;
             k_to_e = c.c_k_to_emev;  % used by calc_projections_c;
-
+            
             data = struct('S',obj.S,'ERR',obj.ERR,'en',obj.en,'run_id',obj.run_id);
             det  = obj.det_par;
             efix  = obj.efix;
@@ -84,7 +84,9 @@ if use_mex
             %proj_mode = 2;
             %nThreads = 1;
             [pix_range,pix] =calc_projections_c(spec_to_cc, data, det, efix,k_to_e, emode, nThreads,proj_mode);
-            pix = PixelData(pix);
+            if proj_mode==2
+                pix = PixelData(pix);
+            end
         catch  ERR % use Matlab routine
             warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',ERR.message);
             use_mex=false;
@@ -103,23 +105,24 @@ if ~use_mex
         ucoords = [spec_to_cc*qspec(1:3,:);qspec(4,:)];
         qspec_provided = true;
     end
-
-    pix_range=[min(ucoords,[],2)';max(ucoords,[],2)'];
-
+    
+    
+    
     % Return without filling the pixel array if pix_range only is requested
-    if nargout==2
-        return;
-    end
+    
     if proj_mode == 0
-        pix =[];
+        pix_range=[min(ucoords,[],2)';max(ucoords,[],2)'];
+        pix= [];
         return;
     end
     if proj_mode == 1
-        pix =ucoords;
-        return;
+        pix_range=[min(ucoords,[],2)';max(ucoords,[],2)'];
+        pix = ucoords;
+        return
     end
-
-    % Fill in pixel array
+    %Else: proj_mode==2
+    
+    % Fill in pixel data object
     if ~qspec_provided
         det = obj.det_par;
         if isfield(det,'group')
@@ -136,6 +139,6 @@ if ~use_mex
     sig_var =[obj.S(:)';((obj.ERR(:)).^2)'];
     run_id = ones(1,numel(detector_idx))*obj.run_id();
     pix = PixelData([ucoords;run_id;detector_idx;energy_idx;sig_var]);
-
+    pix_range=pix.pix_range;
 end
 

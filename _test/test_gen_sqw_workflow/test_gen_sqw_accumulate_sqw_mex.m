@@ -28,10 +28,10 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
     %
     %>>tc=test_gen_sqw_accumulate_sqw_nomex ('save');
     %>>tc.save():
-    
+
     properties
     end
-    
+
     methods
         function obj=test_gen_sqw_accumulate_sqw_mex(varargin)
             % Series of tests of gen_sqw and associated functions
@@ -43,40 +43,41 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
             %  >>tc.save()                              % Save to test_multifit_horace_1_output.mat
             %
             % Reads previously created test data sets.
-            
+
             % constructor
             if nargin > 0
                 name = varargin{1};
             else
                 name= mfilename('class');
             end
-           
+
             obj = obj@gen_sqw_common_config(1,0,'mex_code',-1);
             obj = obj@gen_sqw_accumulate_sqw_tests_common(name,'mex');
         end
         %------------------------------------------------------------------
         % the test specific to mex mode
         function obj=test_gen_sqw_threading_mex(obj,varargin)
+            skipTest("New sqw loader not available");
             % check 1 vs 8 threads mex and compare to one cut
             % shortest code to debug in case of errors
             %-------------------------------------------------------------
             if obj.skip_test
-                return
+                skipTest('MEX is disabled');
             end
             if nargin> 1
                 % running in single test method mode.
                 obj.setUp();
                 clob1 = onCleanup(@()obj.tearDown());
             end
-            
-            
+
+
             hc = hor_config;
             hc2save = hc.get_data_to_store();
             clob2 = onCleanup(@()set(hc,hc2save));
             hc.use_mex=true;
             hc.threads = 8;
-            
-            
+
+
             %-------------------------------------------------------------
             spe_file_names = cell(1,1);
             for i=1:1
@@ -84,8 +85,8 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
             end
             % build special test files if they have not been build
             obj=build_test_files(obj,spe_file_names);
-            
-            
+
+
             sqw_file_123_t8=fullfile(tmp_dir,'sqw_123_mex8_threading.sqw');             % output sqw file
             sqw_file_123_t1=fullfile(tmp_dir,'sqw_123_mex1_threading.sqw');        % output sqw file
             clob3=onCleanup(@()obj.delete_files(sqw_file_123_t8,sqw_file_123_t1,spe_file_names{:}));
@@ -98,9 +99,9 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
             obj.proj.u=[1,0,0.1]; obj.proj.v=[0,0,1];
             hc.threads = 8;
             gen_sqw (spe_file_names, '', sqw_file_123_t8, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
-            
-            
-            
+
+
+
             hc.threads = 1;
             gen_sqw (spe_file_names, '', sqw_file_123_t1, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             %
@@ -114,17 +115,17 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
             assertEqual(obj_m8.data.s,obj_m1.data.s);
             assertEqual(obj_m8.data.e,obj_m1.data.e);
             assertEqual(obj_m8.data.npix,obj_m1.data.npix);
-            
+
             [ok,mess]=is_cut_equal(sqw_file_123_t8,sqw_file_123_t1,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,[' MEX threaded and non-threaded versions of gen_sqw are different: ',mess]);
-            
+            %CMDEV_MERGE Prefer d4d_old?
             w_8 = d4d_old(sqw_file_123_t8);
             w_1 = d4d_old(sqw_file_123_t1);
             [ok,mess]=equal_to_tol(w_8,w_1,-1.e-8,'ignore_str',true);
             assertTrue(ok,[' MEX threaded and non-threaded versions of gen_sqw are different: ',mess]);
-            
+
         end
-        
-        
+
+
     end
 end

@@ -109,9 +109,11 @@ end
 % Check which sqw objects in the input structure contributed to the
 % pre-split sqw object.
 run_contributes=true(nfiles,1);
+% CMDEV pix.pix_range was originally urange. This change gives a correct
+%       member for data, but gives a comparison discrepancy, so more to do
 for i=1:nfiles
     if ~sum(abs(data{i}.s(:))) && ~sum(data{i}.e(:)) && ~sum(data{i}.npix(:)) ...
-       &&  all(isnan(data{i}.urange(:)/Inf)) && ~sum(abs(data{i}.pix.data(:)))
+       &&  all(isnan(data{i}.pix.pix_range(:)/Inf)) && ~sum(abs(data{i}.pix.data(:))) % CMDEV change in master
         % Then this data structure is a copy of 'datanull' from split.m
         run_contributes(i)=false;
     end

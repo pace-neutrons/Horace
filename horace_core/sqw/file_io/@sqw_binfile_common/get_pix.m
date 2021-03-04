@@ -3,7 +3,6 @@ function pix  = get_pix(obj,varargin)
 % sqw file information
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 if ischar(obj.num_contrib_files)
     error('SQW_FILE_INTERFACE:runtime_error',...

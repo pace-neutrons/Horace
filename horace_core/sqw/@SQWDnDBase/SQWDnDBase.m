@@ -22,6 +22,7 @@ classdef (Abstract) SQWDnDBase
         wout = IX_dataset_1d (w);
         wout = IX_dataset_2d (w);
         wout = IX_dataset_3d (w);
+        [xout,yout,sout,eout,nout]=convert_bins_for_shoelace(win,wref);
     end
 
     methods (Access = protected)

@@ -39,7 +39,19 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
                                                            sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
         [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
         [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw);
-
+        wout=combine_sqw(w1,w2);
+        save (w, varargin);
+        wout=rebin_sqw(win,varargin);
+        wout=symmetrise_sqw(win,v1,v2,v3);
+        [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin);
+        wtot=combine_cuts(w);
+        wout=recompute_bin_data_tester(sqw_obj);
+        wout = func_eval (win, func_handle, pars, varargin);
+        wout = dnd (win);
+        [header_ave, ebins_all_same]=header_average(header);
+        [alatt,angdeg,ok,mess] = lattice_parameters(win);
+        [wout, pars_out] = refine_crystal_strip_pars (win, xtal, pars_in);
+        
 		%{
         %[deps,eps_lo,eps_hi,ne]=energy_transfer_info(header);
         [figureHandle, axesHandle, plotHandle] = plot(w,varargin);

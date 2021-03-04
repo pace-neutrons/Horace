@@ -36,6 +36,10 @@ param (
   [switch][Alias("p")]$package,
   # Print the versions of libraries being used e.g. Matlab.
   [switch][Alias("v")]$print_versions,
+  # Build docs
+  [switch][Alias("d")]$docs,
+  # Push docs to github
+  [switch]$push_docs,
   # Call Get-Help on this script and exit.
   [switch][Alias("h")]$help,
 
@@ -188,16 +192,51 @@ function Invoke-Package {
   }
 }
 
+function Invoke-Docs {
+  param([string]$build_dir)
+  Write-And-Invoke "cmake --build ""$build_dir"" --target docs"
+
+  Compress-Archive -Path ./documentation/user_docs/build/html/* -DestinationPath "./docs.zip"
+  if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+  }
+}
+
+function Invoke-Push {
+  git config --local user.name "PACE CI Build Agent"
+  git config --local user.email "pace.builder.stfc@gmail.com"
+  git remote set-url --push origin "https://pace-builder:$(${env:api_token}.trim())@github.com/pace-neutrons/Horace"
+  git checkout gh-pages
+  # Keep up to date
+  git pull
+
+  Set-Content -Value "Bypassing Jekyll on GitHub Pages" -Path .nojekyll
+  git add .nojekyll
+  git rm -rf --ignore-unmatch ./unstable
+  Copy-Item -Path "./documentation/user_docs/build/html" -Destination "./unstable" -Recurse
+  git add unstable
+
+  (Get-Content "./build/CPackConfig.cmake" |
+    Where-Object {$_ -match 'CPACK_PACKAGE_FILE_NAME'}) -match '.*"Horace-([^"]+)".*'
+  $build_id = $Matches[1]
+
+  git commit -m "Document build from CI (${build_id})"
+  git push origin gh-pages
+  if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+  }
+}
+
 # Resolve/set default parameters
 if ($build_dir -eq "") {
   $build_dir = Join-Path -Path "$HORACE_ROOT" -ChildPath "build"
 }
 
-if ($print_versions -eq $true) {
+if ($print_versions) {
   Write-Versions
 }
 
-if ($build -eq $true) {
+if ($build) {
   New-Build-Directory -build_dir "$build_dir"
   Invoke-Configure `
     -vs_version $vs_version `
@@ -209,10 +248,18 @@ if ($build -eq $true) {
   Invoke-Build -build_dir "$build_dir" -build_config "$build_config"
 }
 
-if ($test -eq $true) {
+if ($test) {
   Invoke-Test -build_dir "$build_dir" -build_config "$build_config"
 }
 
-if ($package -eq $true) {
+if ($package) {
   Invoke-Package -build_dir "$build_dir"
+}
+
+if ($docs) {
+  Invoke-Docs -build_dir "$build_dir"
+}
+
+if ($push_docs) {
+  Invoke-Push
 }

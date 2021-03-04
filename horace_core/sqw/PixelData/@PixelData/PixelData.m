@@ -62,8 +62,8 @@ classdef PixelData < handle
     %   >>     pix.advance();
     %   >> end
     %
-    %PixelData Properties:
-    %   u1, u2, u3     - The 1st, 2nd and 3rd dimension of the Crystal
+    % Properties:
+    %   u1, u2, u3     - The 1st, 2nd and 3rd dimensions of the Crystal
     %                    Cartezian coordinates in projection axes, units are per Angstrom (1 x n arrays)
     %   dE             - The energy transfer value for each pixel in meV (1 x n array)
     %   coordinates    - The coords in projection axes of the pixel data [u1, u2, u3, dE] (4 x n array)
@@ -93,7 +93,7 @@ classdef PixelData < handle
             'variance'}, ...
             {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9});
         PIXEL_BLOCK_COLS_ = PixelData.DEFAULT_NUM_PIX_FIELDS;
-        
+
         dirty_page_edited_ = false;  % true if a dirty page has been edited since it was loaded
         f_accessor_;  % instance of faccess object to access pixel data from file
         file_path_ = '';  % the path to the file backing this object - empty string if all data in memory
@@ -106,7 +106,7 @@ classdef PixelData < handle
         tmp_io_handler_;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
         pix_range_=PixelData.EMPTY_RANGE_; % range of pixels in Crystal cartesian coordinate system
     end
-    
+
     properties (Constant)
         DATA_POINT_SIZE = 8;  % num bytes in a double
         DEFAULT_NUM_PIX_FIELDS = 9;
@@ -114,75 +114,81 @@ classdef PixelData < handle
         % the range, an empty pixel class has
         EMPTY_RANGE_ = [inf,inf,inf,inf;-inf,-inf,-inf,-inf];
     end
-    
+
     properties (Dependent, Access=private)
         data_;  % points to raw_data_ but with a layer of validation for setting correct array sizes
-        
+
         pix_position_;  % the pixel index in the file of the first pixel in the cache
     end
-    
+
     properties (Dependent)
-        % Return the 1st, 2nd and 3rd dimension of the crystal cartesian orientation (1 x n arrays) [A^-1]
-        u1; u2; u3;
-        
-        % Return the spatial dimensions of the crystal cartesian orientation (3 x n array)
+        % The 1st dimension of the crystal cartesian orientation (1 x n array) [A^-1]
+        u1;
+
+        % The 2nd dimension of the crystal cartesian orientation (1 x n array) [A^-1]
+        u2;
+
+        % The 3rd dimension of the crystal cartesian orientation (1 x n array) [A^-1]
+        u3;
+
+        % The spatial dimensions of the crystal cartesian orientation (3 x n array)
         q_coordinates;
-        
-        % Returns the array of energy deltas of the pixels (1 x n array) [meV]
+
+        % The array of energy deltas of the pixels (1 x n array) [meV]
         dE;
-        
-        % Returns the coordinates of the pixels in the projection axes, i.e.: u1,
+
+        % The coordinates of the pixels in the projection axes, i.e.: u1,
         % u2, u3 and dE (4 x n array)
         coordinates;
-        
+
         % The run index the pixel originated from (1 x n array)
         run_idx;
-        
+
         % The detector group number in the detector listing for the pixels (1 x n array)
         detector_idx;
-        
+
         % The energy bin numbers (1 x n array)
         energy_idx;
-        
+
         % The signal array (1 x n array)
         signal;
-        
+
         % The variance on the signal array (variance i.e. error bar squared) (1 x n array)
         variance;
-        
+
         % The number of pixels in the data block
         num_pixels;
-        
-        % Returns range of pixels coordinates in Crystal Cartesian coordinate
+
+        % The range of pixels coordinates in Crystal Cartesian coordinate
         % system. [2x4] array of [min;max] values of pixels coordinates
         % field. If data are file-based and you are setting pixels coordinates,
         % this value may get invalid, as the range never shrinks.
         pix_range;
-        
-        % Returns the full raw pixel data block. Usage of this attribute is
+
+        % The full raw pixel data block. Usage of this attribute is
         % discouraged, the structure of the return value is not guaranteed
         data;
-        
+
         % The file that the pixel data has been read from, empty if no file
         file_path;
-        
+
         % The number of pixels in the current page
         page_size;
-        
+
         % The number of pixels that can fit in one page of data
         base_page_size;
     end
     properties(Access=public,Hidden)
-        % the property contains the range(min/max value) of a block of pixels,
-        % changed by set.pixels methods. Exposed to be used in algorithms, 
-        % looping over the paged pixels and changing object using 
-        % coordinate setters to calculate and set-up correct global pixels 
+        % Contains the range(min/max value) of a block of pixels,
+        % changed by set.pixels methods. Exposed to be used in algorithms,
+        % looping over the paged pixels and changing object using
+        % coordinate setters to calculate and set-up correct global pixels
         % range in conjunction with set_range method at the end of the loop.
         page_range;
     end
-    
+
     methods (Static)
-        
+
         function obj = cat(varargin)
             % Concatenate the given PixelData objects' pixels. This function performs
             % a straight-forward data concatenation.
@@ -201,7 +207,7 @@ classdef PixelData < handle
             data = cat(2, data_cell_array{:});
             obj = PixelData(data);
         end
-        
+
         function obj = loadobj(S)
             % Load a PixelData object from a .mat file
             %
@@ -223,7 +229,7 @@ classdef PixelData < handle
             end
             obj = PixelData(S);
         end
-        
+
         function validate_mem_alloc(mem_alloc)
             if ~isnumeric(mem_alloc)
                 error('PIXELDATA:validate_mem_alloc', ...
@@ -247,11 +253,10 @@ classdef PixelData < handle
                     'recommended. This may degrade performance.']);
             end
         end
-        
+
     end
-    
+
     methods
-        
         % --- Pixel operations ---
         pix_out = append(obj, pix);
         [mean_signal, mean_variance] = compute_bin_data(obj, npix)
@@ -259,12 +264,13 @@ classdef PixelData < handle
         pix_out = do_unary_op(obj, unary_op);
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
         pix_out = get_data(obj, fields, abs_pix_indices);
+        pix_out = get_pix_in_ranges(obj, abs_indices_starts, abs_indices_ends);
         pix_out = get_pixels(obj, abs_pix_indices);
         pix_out = mask(obj, mask_array, npix);
         pix_out = noisify(obj, varargin);
-        [page_num,total_number_of_pages] = move_to_page(obj, page_number);
-        recalc_pix_range(obj);
-        
+        [page_num,total_number_of_pages] = move_to_page(obj, page_number, varargin);
+        obj = recalc_pix_range(obj);
+
         function obj = PixelData(arg, mem_alloc)
             % Construct a PixelData object from the given data. Default
             % construction initialises the underlying data as an empty (9 x 0)
@@ -315,7 +321,7 @@ classdef PixelData < handle
             else
                 obj.page_memory_size_ = PixelData.DEFAULT_PAGE_SIZE;
             end
-            
+
             if nargin == 0
                 return
             end
@@ -327,7 +333,10 @@ classdef PixelData < handle
                     obj.page_number_ = arg.page_number_;
                     obj.page_dirty_ = arg.page_dirty_;
                     obj.dirty_page_edited_ = arg.dirty_page_edited_;
-                    arg.tmp_io_handler_.copy_folder(obj.object_id_);
+                    has_tmp_files = arg.tmp_io_handler_.copy_folder(obj.object_id_);
+                    if any(has_tmp_files)
+                        obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_, has_tmp_files);
+                    end
                 else
                     obj.num_pixels_ = size(arg.data, 2);
                 end
@@ -336,7 +345,7 @@ classdef PixelData < handle
                 obj.reset_changed_coord_range('coordinates')
                 return;
             end
-            
+
             if numel(arg) == 1 && isnumeric(arg) && floor(arg) == arg
                 % input is an integer
                 obj.data_ = zeros(obj.PIXEL_BLOCK_COLS_, arg);
@@ -345,7 +354,7 @@ classdef PixelData < handle
                 obj.page_range = zeros(2,4);
                 return;
             end
-            
+
             % File-backed construction
             if ischar(arg)
                 % input is a file path
@@ -358,7 +367,7 @@ classdef PixelData < handle
                 obj = obj.init_from_file_accessor_(arg);
                 return;
             end
-            
+
             % Input sets underlying data
             if exist('mem_alloc', 'var') && ...
                     (obj.calculate_page_size_(mem_alloc) < size(arg, 2))
@@ -371,7 +380,7 @@ classdef PixelData < handle
             obj.num_pixels_ = size(arg, 2);
             obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
         end
-        
+
         % --- Operator overrides ---
         function delete(obj)
             % Class destructor to delete any temporary files
@@ -379,19 +388,19 @@ classdef PixelData < handle
                 obj.tmp_io_handler_.delete_files();
             end
         end
-        
+
         function is_empty = isempty(obj)
             % Return true if the PixelData object holds no pixel data
             is_empty = obj.num_pixels == 0;
         end
-        
+
         function nel = numel(obj)
             % Return the number of data points in the pixel data block
             %   If the data is file backed, this returns the number of values in
             %   the file.
             nel = obj.PIXEL_BLOCK_COLS_*obj.num_pixels;
         end
-        
+
         function pix_copy = copy(obj)
             % Make an independent copy of this object
             %  This method simply constructs a new PixelData instance by calling
@@ -400,7 +409,7 @@ classdef PixelData < handle
             %  copied within this classes "copy-constructor".
             pix_copy = PixelData(obj);
         end
-        
+
         % --- Data management ---
         function has_more = has_more(obj)
             % Returns true if there are subsequent pixels stored in the file that
@@ -421,27 +430,33 @@ classdef PixelData < handle
                 has_more = obj.pix_position_ + obj.base_page_size  <= obj.num_pixels;
             end
         end
-        
-        function [current_page_num,total_num_pages] = advance(obj)
+
+        function [current_page_num, total_num_pages] = advance(obj, varargin)
             % Load the next page of pixel data from the file backing the object
             %
             % This function will throw a PIXELDATA:advance error if attempting to
             % advance past the final page of data in the file.
             %
             % This function does nothing if the pixel data is not file-backed.
-            % 
-            % Returns:
-            % current page number and total number of pages advance will
+            %
+            %  >> obj.advance()
+            %  >> obj.advance('nosave', true)
+            %
+            % Inputs:
+            % -------
+            % nosave  Keyword argument. Set to true to discard changes to cache.
+            %         (default: false)
+            %
+            % Outputs:
+            % --------
+            % current_page_number  The new page and total number of pages advance will
             % walk through to complete the algorithm
             %
             current_page_num = 1;
-            total_num_pages  = 1;
+            total_num_pages = 1;
             if obj.is_file_backed_()
-                if obj.page_is_dirty_(obj.page_number_) && obj.dirty_page_edited_
-                    obj.write_dirty_page_();
-                end
                 try
-                    obj.move_to_page(obj.page_number_ + 1);
+                    obj.move_to_page(obj.page_number_ + 1, varargin{:});
                 catch ME
                     switch ME.identifier
                         case 'PIXELDATA:load_page_'
@@ -454,7 +469,7 @@ classdef PixelData < handle
                 end
             end
         end
-        
+
         function obj = move_to_first_page(obj)
             % Reset the object to point to the first page of pixel data in the file
             % and clear the current cache
@@ -462,13 +477,13 @@ classdef PixelData < handle
             %
             obj.move_to_page(1);
         end
-        
+
         % --- Getters / Setters ---
         function pixel_data = get.data(obj)
             obj = obj.load_current_page_if_data_empty_();
             pixel_data = obj.data_;
         end
-        
+
         function set.data(obj, pixel_data)
             % This setter provides rules for public facing edits to the cached data
             if obj.page_size == 0
@@ -477,7 +492,7 @@ classdef PixelData < handle
             else
                 required_page_size = obj.page_size;
             end
-            
+
             if size(pixel_data, 2) ~= required_page_size
                 msg = ['Cannot set pixel data, invalid dimensions. Axis 2 ' ...
                     'must have num elements matching current page size (%i), ' ...
@@ -488,15 +503,15 @@ classdef PixelData < handle
             obj.reset_changed_coord_range('coordinates');
             obj.set_page_dirty_(true);
         end
-        
+
         function data = get.data_(obj)
             data = obj.raw_data_;
         end
-        
+
         function set.data_(obj, pixel_data)
             % This setter provides rules for internally setting cached data
             %  This is the only method that should ever touch obj.raw_data_
-            
+
             % The need for multiple layers of getters/setters for the raw data
             % should be removed when the public facing getters/setters are removed.
             if size(pixel_data, 1) ~= obj.PIXEL_BLOCK_COLS_
@@ -511,142 +526,142 @@ classdef PixelData < handle
             end
             obj.raw_data_ = pixel_data;
         end
-        
+
         function u1 = get.u1(obj)
             obj = obj.load_current_page_if_data_empty_();
             u1 = obj.data(obj.FIELD_INDEX_MAP_('u1'), :);
         end
-        
+
         function set.u1(obj, u1)
             obj = obj.load_current_page_if_data_empty_();
             obj.data(obj.FIELD_INDEX_MAP_('u1'), :) = u1;
             obj.reset_changed_coord_range('u1');
             obj.set_page_dirty_(true);
         end
-        
+
         function u2 = get.u2(obj)
             obj = obj.load_current_page_if_data_empty_();
             u2 = obj.data(obj.FIELD_INDEX_MAP_('u2'), :);
         end
-        
+
         function set.u2(obj, u2)
             obj = obj.load_current_page_if_data_empty_();
             obj.data(obj.FIELD_INDEX_MAP_('u2'), :) = u2;
             obj.reset_changed_coord_range('u2');
             obj.set_page_dirty_(true);
         end
-        
+
         function u3 = get.u3(obj)
             obj = obj.load_current_page_if_data_empty_();
             u3 = obj.data(obj.FIELD_INDEX_MAP_('u3'), :);
         end
-        
+
         function set.u3(obj, u3)
             obj = obj.load_current_page_if_data_empty_();
             obj.data(obj.FIELD_INDEX_MAP_('u3'), :) = u3;
             obj.reset_changed_coord_range('u3');
             obj.set_page_dirty_(true);
         end
-        
+
         function dE = get.dE(obj)
             obj = obj.load_current_page_if_data_empty_();
             dE = obj.data(obj.FIELD_INDEX_MAP_('dE'), :);
         end
-        
+
         function set.dE(obj, dE)
             obj = obj.load_current_page_if_data_empty_();
             obj.data(obj.FIELD_INDEX_MAP_('dE'), :) = dE;
             obj.reset_changed_coord_range('dE');
             obj.set_page_dirty_(true);
         end
-        
+
         function coord_data = get.coordinates(obj)
             obj = obj.load_current_page_if_data_empty_();
             coord_data = obj.data(obj.FIELD_INDEX_MAP_('coordinates'), :);
         end
-        
+
         function set.coordinates(obj, coordinates)
             obj = obj.load_current_page_if_data_empty_();
             obj.data(obj.FIELD_INDEX_MAP_('coordinates'), :) = coordinates;
             obj.reset_changed_coord_range('coordinates');
             obj.set_page_dirty_(true);
         end
-        
+
         function coord_data = get.q_coordinates(obj)
             obj = obj.load_current_page_if_data_empty_();
             coord_data = obj.data(obj.FIELD_INDEX_MAP_('q_coordinates'), :);
         end
-        
+
         function set.q_coordinates(obj, q_coordinates)
             obj = obj.load_current_page_if_data_empty_();
             obj.data(obj.FIELD_INDEX_MAP_('q_coordinates'), :) = q_coordinates;
             obj.reset_changed_coord_range('q_coordinates');
             obj.set_page_dirty_(true);
         end
-        
+
         function run_index = get.run_idx(obj)
             obj = obj.load_current_page_if_data_empty_();
             run_index = obj.data(obj.FIELD_INDEX_MAP_('run_idx'), :);
         end
-        
+
         function set.run_idx(obj, iruns)
             obj = obj.load_current_page_if_data_empty_();
             obj.data(obj.FIELD_INDEX_MAP_('run_idx'), :) = iruns;
             obj.set_page_dirty_(true);
         end
-        
+
         function detector_index = get.detector_idx(obj)
             obj = obj.load_current_page_if_data_empty_();
             detector_index = obj.data(obj.FIELD_INDEX_MAP_('detector_idx'), :);
         end
-        
+
         function set.detector_idx(obj, detector_indices)
             obj = obj.load_current_page_if_data_empty_();
             obj.data(obj.FIELD_INDEX_MAP_('detector_idx'), :) = detector_indices;
             obj.set_page_dirty_(true);
         end
-        
+
         function detector_index = get.energy_idx(obj)
             obj = obj.load_current_page_if_data_empty_();
             detector_index = obj.data(obj.FIELD_INDEX_MAP_('energy_idx'), :);
         end
-        
+
         function set.energy_idx(obj, energies)
             obj = obj.load_current_page_if_data_empty_();
             obj.data(obj.FIELD_INDEX_MAP_('energy_idx'), :) = energies;
             obj.set_page_dirty_(true);
         end
-        
+
         function signal = get.signal(obj)
             obj = obj.load_current_page_if_data_empty_();
             signal = obj.data(obj.FIELD_INDEX_MAP_('signal'), :);
         end
-        
+
         function set.signal(obj, signal)
             obj = obj.load_current_page_if_data_empty_();
             obj.data(obj.FIELD_INDEX_MAP_('signal'), :) = signal;
             obj.set_page_dirty_(true);
         end
-        
+
         function variance = get.variance(obj)
             obj = obj.load_current_page_if_data_empty_();
             variance = obj.data(obj.FIELD_INDEX_MAP_('variance'), :);
         end
-        
+
         function set.variance(obj, variance)
             obj = obj.load_current_page_if_data_empty_();
             obj.data(obj.FIELD_INDEX_MAP_('variance'), :) = variance;
             obj.set_page_dirty_(true);
         end
-        
+
         function num_pix = get.num_pixels(obj)
             num_pix = obj.num_pixels_;
         end
-        
+
         function file_path = get.file_path(obj)
             file_path = obj.file_path_;
         end
-        
+
         function page_size = get.page_size(obj)
             % The number of pixels that are held in the current page.
             if obj.num_pixels > 0 && obj.cache_is_empty_()
@@ -664,15 +679,15 @@ classdef PixelData < handle
                 page_size = size(obj.data_, 2);
             end
         end
-        
+
         function pix_position = get.pix_position_(obj)
             pix_position = (obj.page_number_ - 1)*obj.base_page_size + 1;
         end
-        
+
         function page_size = get.base_page_size(obj)
             page_size = obj.calculate_page_size_(obj.page_memory_size_);
         end
-        
+
         function range = get.pix_range(obj)
             range  = obj.pix_range_;
         end
@@ -681,7 +696,7 @@ classdef PixelData < handle
             % Function allows to set the pixels range (min/max values of
             % pixels coordinates)
             %
-            % Use with caution!!! No checks that the set range is the 
+            % Use with caution!!! No checks that the set range is the
             % correct range for pixels, holded by the class are
             % performed, while subsequent algorithms may rely on pix range
             % to be correct. A out-of memory write can occur during rebinning
@@ -698,9 +713,9 @@ classdef PixelData < handle
             obj.pix_range_ = pix_range;
         end
     end
-    
+
     methods (Access=private)
-        
+
         function obj = init_from_file_accessor_(obj, f_accessor)
             % Initialise a PixelData object from a file accessor
             obj.f_accessor_ = f_accessor;
@@ -711,7 +726,7 @@ classdef PixelData < handle
             obj.num_pixels_ = double(obj.f_accessor_.npixels);
             obj.pix_range_ = f_accessor.get_pix_range();
         end
-        
+
         function obj = load_current_page_if_data_empty_(obj)
             % Check if there's any data in the current page and load a page if not
             %   This function does nothing if pixels are not file-backed.
@@ -719,10 +734,10 @@ classdef PixelData < handle
                 obj = obj.load_page_(obj.page_number_);
             end
         end
-        
+
         function obj = load_page_(obj, page_number)
             % Load the data for the given page index
-            if obj.page_is_dirty_(page_number)
+            if obj.page_is_dirty_(page_number) && obj.tmp_io_handler_.page_has_tmp_file(page_number)
                 % load page from tmp file
                 obj.load_dirty_page_(page_number);
             else
@@ -733,7 +748,7 @@ classdef PixelData < handle
             obj.page_number_ = page_number;
             obj.dirty_page_edited_ = false;
         end
-        
+
         function obj = load_clean_page_(obj, page_number)
             % Load the given page of data from the sqw file backing this object
             pix_idx_start = (page_number - 1)*obj.base_page_size + 1;
@@ -744,34 +759,34 @@ classdef PixelData < handle
             end
             % Get the index of the final pixel to read given the maximum page size
             pix_idx_end = min(pix_idx_start + obj.base_page_size - 1, obj.num_pixels);
-            
+
             obj.data_ = obj.f_accessor_.get_pix(pix_idx_start, pix_idx_end);
             if obj.page_size == obj.num_pixels
                 % Delete accessor and close the file if all pixels have been read
                 obj.f_accessor_ = [];
             end
         end
-        
+
         function obj = load_dirty_page_(obj, page_number)
             % Load a page of data from a tmp file
             obj.data_ = obj.tmp_io_handler_.load_page(page_number, ...
                 obj.PIXEL_BLOCK_COLS_);
         end
-        
+
         function obj = write_dirty_page_(obj)
             % Write the current page's pixels to a tmp file
             if isempty(obj.tmp_io_handler_)
                 obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
             end
-            obj.tmp_io_handler_.write_page(obj.page_number_, obj.data);
+            obj.tmp_io_handler_ = obj.tmp_io_handler_.write_page(obj.page_number_, obj.data);
         end
-        
+
         function is = page_is_dirty_(obj, page_number)
             % Return true if the given page is dirty
             is = ~(page_number > numel(obj.page_dirty_));
             is = is && obj.page_dirty_(page_number);
         end
-        
+
         function obj = set_page_dirty_(obj, is_dirty, page_number)
             % Mark the given page as "dirty" i.e. the data in the cache does not
             % match the data in the original SQW file
@@ -787,35 +802,35 @@ classdef PixelData < handle
             obj.page_dirty_(page_number) = is_dirty;
             obj.dirty_page_edited_ = is_dirty;
         end
-        
+
         function page_size = calculate_page_size_(obj, mem_alloc)
             % Calculate number of pixels that fit in the given memory allocation
             num_bytes_in_pixel = obj.DATA_POINT_SIZE*obj.PIXEL_BLOCK_COLS_;
             page_size = floor(mem_alloc/num_bytes_in_pixel);
             page_size = max(page_size, size(obj.raw_data_, 2));
         end
-        
+
         function is = is_file_backed_(obj)
             % Return true if the pixel data is backed by a file or files. Returns
             % false if all pixel data is held in memory
             %
             is = ~isempty(obj.f_accessor_) || obj.get_num_pages_() > 1;
         end
-        
+
         function is = cache_is_empty_(obj)
             % Return true if no pixels are currently held in memory
             is = isempty(obj.data_);
         end
-        
+
         function num_pages = get_num_pages_(obj)
             num_pages = max(ceil(obj.num_pixels/obj.base_page_size), 1);
         end
-        
+
         function reset_changed_coord_range(obj,field_name)
             % set appropriate range of pixel coordinates.
             % The coordinates are defined by the selected field
             %
-            % Sets up the property page_range defining the range of block 
+            % Sets up the property page_range defining the range of block
             % of pixels chaned at current iteration.
             %
             if isempty(obj.raw_data_)
@@ -824,7 +839,7 @@ classdef PixelData < handle
                 return
             end
             ind = obj.FIELD_INDEX_MAP_(field_name);
-            
+
             loc_range = [min(obj.raw_data_(ind,:),[],2),max(obj.raw_data_(ind,:),[],2)]';
             if obj.is_file_backed_()
                 % this may break things down, as the range only expands
@@ -837,5 +852,5 @@ classdef PixelData < handle
             obj.page_range(:,ind) = loc_range;
         end
     end
-    
+
 end

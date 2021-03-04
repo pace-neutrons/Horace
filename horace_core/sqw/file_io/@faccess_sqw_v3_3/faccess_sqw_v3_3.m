@@ -62,9 +62,6 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
     % and all read methods of these interfaces if the proper information
     % already exists in the file.
     %
-    %
-    
-    %
     properties(Access=public,Hidden=true)
         % the transient class stores pix range together with the data
         % footer.
@@ -76,11 +73,8 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
         fields_to_save_3_3 = {'pix_range_'};
     end
     
-    %
-    %
     methods
-        %
-        %
+        
         function obj=faccess_sqw_v3_3(varargin)
             % constructor, to build sqw reader/writer version 3
             %
@@ -105,9 +99,7 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
             %                       of the file to save the object should
             %                       be provided separately.
             
-            %
             % set up fields, which define appropriate file version
-            
             obj = obj@faccess_sqw_v3();
             obj.file_ver_ = 3.3;
             if nargin>0
@@ -134,7 +126,6 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
             obj.pix_range_ = new_range;
             obj = obj.put_sqw_footer();
         end
-        
         %
         function struc = saveobj(obj)
             % method used to convert object into structure
@@ -155,7 +146,6 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
                 obj = obj.set_file_to_update();
             end
         end
-        
         %-------------------------------------------------------------------
     end
     methods(Access=protected,Hidden=true)
@@ -175,10 +165,12 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
             obj.position_info_pos_= obj.instr_sample_end_pos_;
             %
             data = obj.extract_correct_subobj('data');
-            obj.pix_range_ =data.pix.pix_range;
-            if any(any(obj.pix_range_ == PixelData.EMPTY_RANGE_)) && data.pix.num_pixels>0
+            obj.pix_range_ = data.pix.pix_range;            
+            num_pix = data.pix.num_pixels;            
+            
+            if any(any(obj.pix_range_ == PixelData.EMPTY_RANGE_)) && num_pix > 0
                 data.pix.recalc_pix_range();
-                obj.pix_range_ =data.pix.pix_range;
+                obj.pix_range_ = data.pix.pix_range;
             end
             obj = init_sqw_footer(obj);
         end
@@ -198,4 +190,3 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
     end
     %
 end
-

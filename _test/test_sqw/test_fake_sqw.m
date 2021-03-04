@@ -72,7 +72,7 @@ classdef test_fake_sqw < TestCase
                 obj.gen_sqw_par{3:end});
             tsqw = tsqw{1};
 
-            assertTrue(isa(tsqw,'sqw_old'));
+            assertTrue(isa(tsqw,'sqw'));
 
             pix = tsqw.data.pix.coordinates;
             de0 = pix(4,:)==0;

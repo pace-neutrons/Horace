@@ -1,23 +1,22 @@
-function varargout = cut (varargin)
-% Take a cut from an sqw object by integrating over one or more axes.
+function wout = cut(obj, varargin)
+%%CUT Take a cut from an sqw object by integrating over one or more axes.
 %
 % Cut using existing projection axes:
-%   >> w = cut (data_source, p1_bin, p2_bin...)  %(as many binning arguments
+%   >> wout = cut (data_source, p1_bin, p2_bin...)  % (as many binning arguments
 %                                                % as there are plot axes)
 %
 % Cut with new projection axes:
-%   >> w = cut (data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin)
+%   >> wout = cut (data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin)
 %
-%   >> w = cut (..., '-nopix')      % output cut is dnd structure (i.e. no
+%   >> wout = cut (..., '-nopix')      % output cut is dnd structure (i.e. no
 %                                   % pixel information is retained)
 %
-%   >> w = cut (..., '-save')       % save cut to file (prompts for file)
-%   >> w = cut (...,  filename)     % save cut to named file
+%   >> wout = cut (...,  filename)     % save cut to named file
 %
 % Write directly to file without creating an output object (useful if the
 % output is a large dataset in order to avoid out-of-memory errors)
 %
-%   >> cut (...)
+%   >> cut (..., filename)  % note no return argument
 %
 % Input:
 % ------
@@ -82,6 +81,21 @@ function varargout = cut (varargin)
 %           - [plo, phi]        Integration axis: range of integration
 %           - [plo, pstep, phi] Plot axis: minimum and maximum bin centers
 %                              and step size
+%                              For example, [106, 4, 116] will define a plot
+%                              axis with bin edges 104-108, 108-112, 112-116.
+%           - [plo, rdiff, phi, rwidth]
+%                                Integration axis: minimum range center,
+%                                distance between range centers, maximum range
+%                                center, range size for each cut.
+%                                When using this syntax, an array of cuts is
+%                                outputted. The number of cuts produced will
+%                                be the number of rdiff sized steps between plo
+%                                and phi; phi will be automatically increased
+%                                such that rdiff divides phi - plo.
+%                                For example, [106, 4, 113, 2] defines the
+%                                integration range for three cuts, the first
+%                                cut integrates the axis over 105-107, the
+%                                second over 109-111 and the third 113-115.
 %
 %   p4_bin          Binning along the energy axis:
 %           - [] or ''          Plot axis: use bin boundaries of input data
@@ -102,97 +116,127 @@ function varargout = cut (varargin)
 %                              The overall range is chosen to ensure that
 %                              the energy range plo to phi is contained
 %                              within the bin boundaries.
+%           - [plo, rdiff, phi, rwidth]
+%                                Integration axis: minimum range center,
+%                                distance between range centers, maximum range
+%                                center, range size for each cut.
+%                                When using this syntax, an array of cuts is
+%                                outputted. The number of cuts produced will
+%                                be the number of rdiff sized steps between plo
+%                                and phi; phi will be automatically increased
+%                                such that rdiff divides phi - plo.
 %
 %
 % Output:
 % -------
-%   w               Output data object:
+%   wout            Output data object:
 %                     - sqw-type object with full pixel information
 %                     - dnd-type object if option '-nopix' given
-%                   If an array of input data sources was given, then w
-%                  is an array
+%
+DND_CONSTRUCTORS = {@d0d, @d1d, @d2d, @d3d, @d4d};
 
-% Parse input
-% -----------
-[w, args, mess] = horace_function_parse_input(nargout, varargin{:});
-if ~isempty(mess)
-    error(mess);
+if numel(obj) > 1
+    error('SQW:cut', ...
+        ['You cannot take a cut from an array, or cell array, of sqw or ' ...
+        'dnd objects.\nConsider cutting the objects in a loop.']);
 end
 
-% Perform operations
-% ------------------
-nout = w.nargout_req;
-nw = numel(w.data);
+dnd_type = obj.data.pix.num_pixels == 0;
+ndims_source = numel(obj.data.pax);
 
-if all(w.sqw_type(:))
-    % sqw type data
-    if numel(args) >= 1 && ~isstruct(args{1}) % proj structure not given, so all sqw objects must have same dimensionality
-        if ~all(w.ndims == w.ndims(1))
-            error('All sqw objects must have same dimensionality if not using new projection axes')
-        end
+if dnd_type
+    % Input has no pixels, delegate to cut_dnd
+    % TODO: refactor so cut_dnd_main sits on DnDBase class
+    wout = cut_dnd_main(obj, ndims_source, varargin{:});
+    return
+end
+
+return_cut = nargout > 0;
+[proj, pbin, opt] = validate_args(obj, return_cut, ndims_source, varargin{:});
+
+% Process projection
+[proj, pbin, pin, en] = update_projection_bins(obj, proj, pbin);
+
+sz = cellfun(@(x) max(size(x, 1), 1), pbin);
+if return_cut
+    wout = allocate_output(sz, pbin, opt.keep_pix, DND_CONSTRUCTORS);
+end
+
+% This loop enables multicuts
+for cut_num = 1:prod(sz)
+    pbin_tmp = get_pbin_for_cut(sz, cut_num, pbin);
+    args = {obj, proj, pbin_tmp, pin, en, opt.keep_pix, opt.outfile};
+    if return_cut
+        wout(cut_num) = cut_single(args{:});
+    else
+        cut_single(args{:});
     end
-    for i = 1:nw
-        if nout > 0
-            if i == 1
-                wout = cut_sqw_main(w.data(i), w.ndims(i), args{:});
-                if nw > 1
-                    cut_array = (numel(wout)>1);
-                    if ~cut_array
-                        wout = repmat(wout, size(w.data));     % make array
-                    else
-                        wout = repmat({wout}, size(w.data));   % make cell array
-                    end
-                end
-            else
-                if ~cut_array
-                    wout(i) = cut_sqw_main(w.data(i), w.ndims(i), args{:});
-                else
-                    wout{i} = cut_sqw_main(w.data(i), w.ndims(i), args{:});
-                end
-            end
-        else
-            cut_sqw_main(w.data(i), w.ndims(i), args{:});
-        end
-    end
-elseif ~any(w.sqw_type(:)) && all(w.ndims == w.ndims(1))
-    % dnd type data
-    for i = 1:nw
-        if nout > 0
-            if i == 1
-                wout = cut_dnd_main(w.data(i), w.ndims(i), args{:});
-                if nw > 1
-                    cut_array = (numel(wout) > 1);
-                    if ~cut_array
-                        wout=repmat(wout, size(w.data));     % make array
-                    else
-                        wout=repmat({wout}, size(w.data));   % make cell array
-                    end
-                end
-            else
-                if ~cut_array
-                    wout(i) = cut_dnd_main(w.data(i), w.ndims(i), args{:});
-                else
-                    wout{i} = cut_dnd_main(w.data(i), w.ndims(i), args{:});
-                end
-            end
-        else
-            cut_dnd_main(w.data(i), w.ndims(i), args{:});
-        end
-    end
+end
+
+end  % function
+
+
+% -----------------------------------------------------------------------------
+function [proj, pbin, opt] = validate_args(obj, return_cut, ndims_source, varargin)
+[ok, mess, ~, proj, pbin, args, opt] = cut_sqw_check_input_args( ...
+    obj, ndims_source, return_cut, varargin{:} ...
+    );
+if ~ok
+    error('CUT_SQW:invalid_arguments', mess)
+end
+
+% Ensure there are no excess input arguments
+if numel(args) ~= 0
+    error ('CUT_SQW:invalid_arguments', ...
+        'Check the number and type of input arguments.')
+end
+end
+
+
+function [proj, pbin, pin, en] = update_projection_bins(w, proj, pbin)
+% Update projection bins using the sqw header
+header_av = header_average(w.header);
+[proj, pbin, ~, pin, en] = proj.update_pbins(header_av, w.data, pbin);
+end
+
+
+function num_dims = get_num_output_dims(pbin)
+% Get the number of dimensions in the output cut from the projection axis
+% binning.
+
+% pbin axes being integrated over will be an array with two elements - the
+% integration range - else the pbin element will have 1 or 3 elements
+% if pbin{x} has more than 3 elements then we are doing a multicut and that
+% axis is being integrated over.
+% The ~isempty catches any dummy axes that are 0x0 doubles.
+is_non_int_axis = @(x) numel(x) ~= 2 && numel(x) < 4 && ~isempty(x);
+non_integrated_axis = cellfun(is_non_int_axis, pbin);
+num_dims = sum(non_integrated_axis);
+end
+
+
+function out = allocate_output(sz, pbin, keep_pix, dnd_constructors)
+% Allocate an array of cut outputs using the projection binning
+sz_squeeze = [sz(sz > 1), ones(1, max(2 - sum(sz > 1), 0))];
+if keep_pix
+    out = repmat(sqw, sz_squeeze);
 else
-    error('Data files must all be sqw type, or all dnd type with same dimensionality')
+    out_dims = get_num_output_dims(pbin);
+    out = repmat(dnd_constructors{out_dims + 1}(), sz_squeeze);
+end
 end
 
-if nout > 0
-    argout{1} = wout;
-else
-    argout = {};
-end
 
-% Package output arguments
-% ------------------------
-[varargout, mess] = horace_function_pack_output(w, argout{:});
-if ~isempty(mess)
-    error(mess)
+function pbin_out = get_pbin_for_cut(sz, cut_num, pbin_in)
+% Get pbin for each cut (allow for a bin descriptor being empty)
+ind_subs = cell(1, 4);
+[ind_subs{:}] = ind2sub(sz, cut_num);
+pbin_out = cell(1,4);
+for i = 1:numel(pbin_out)
+    if ~isempty(pbin_in{i})
+        pbin_out{i} = pbin_in{i}(ind_subs{i}, :);
+    else
+        pbin_out{i} = pbin_in{i};
+    end
 end
-
+end

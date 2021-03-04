@@ -33,6 +33,7 @@ classdef test_fake_sqw_bin_pix < TestCase
             this.sample_dir = fullfile(root_dir,'_test','common_data');
         end
         function test_bin_c(this)
+            skipTest("New sqw loader not yet implemented");
             if this.skip_this_test
                 warning('TEST_FAKE_SQW_BIN_PIX:test_bin_c','skipping this test as mex files are not enabled');
             end
@@ -87,6 +88,7 @@ classdef test_fake_sqw_bin_pix < TestCase
             assertTrue(ok,[' MEX and non-mex versions of gen_sqw are different: ',mess]);
         end
         function test_bin_c_multithread(this)
+            skipTest("New sqw loader not yet implemented");
             if this.skip_this_test
                 warning('TEST_FAKE_SQW_BIN_PIX:test_bin_c','skipping this test as mex files are not enabled');
             end
