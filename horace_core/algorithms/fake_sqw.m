@@ -48,8 +48,13 @@ function [tmp_sqw, grid_size, img_range] = fake_sqw (en, par_file, sqw_file, efi
 %
 % Output:
 % --------
-%   tmp_sqw        List of temporary file names or cellarray of sqw objects if
-%                  sqw_file is empty string.
+%   tmp_sqw        if return_sqw_obj is false (sqw_file is set up)
+%                  the list of temporary file names used as parts of final 
+%                  sqw file. 
+%                  if return_sqw_obj == true -- 
+%                  cellarray of sqw objects, each corresponging to
+%                  generated tmp sqw file
+%
 %   grid_size      Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   img_range      Actual range of image in 
@@ -190,7 +195,8 @@ if isempty(img_range)
         pix_range_l = run_files{i}.calc_pix_range(en_lo(i),en_hi(i),cache_opt{:});
         img_range = [min(pix_range_l(1,:),img_range(1,:));max(pix_range_l(2,:),img_range(2,:))];
     end
-    img_range=range_add_border(img_range,1e-6);     % add a border to account for Matlab matrix multiplication bug
+    img_range=range_add_border(img_range,...
+        data_sqw_dnd.border_size);     % add a border to account for Matlab matrix multiplication bug
 end
 
 % Construct data structure with spe file information
