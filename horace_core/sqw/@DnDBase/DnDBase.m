@@ -55,6 +55,12 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = DnDBase(varargin)
             obj = obj@SQWDnDBase();
 
+			% conversion to struct done here rather than 
+			% in parse_args_ as the need for this conversion
+			% may be temporary
+            if nargin>0 && isa(varargin{1},'data_sqw_dnd')
+                varargin{1} = struct(varargin{1});
+            end
             [args] = obj.parse_args_(varargin{:});
 
             % i) copy

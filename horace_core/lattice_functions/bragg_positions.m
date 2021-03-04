@@ -102,7 +102,7 @@ if ischar(w)    % assume a file name
         error('File must be sqw type')
     end
     hdr=head_sqw(w);    % get header information as extracted from the 'data' field
-elseif isa(w,'sqw_old') && is_sqw_type(w(1))
+elseif isa(w,'sqw') && has_pixels(w(1))
     if numel(w)~=1
         error('Data must be a single sqw object, not an array (or empty)')
     end

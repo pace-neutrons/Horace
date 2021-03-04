@@ -38,7 +38,7 @@ if isa(win,'sqw_old') && is_sqw_type(win)
     error('Horace error: symmetrise_horace_2d method is for d2d-type data only');
 end
 
-win=sqw_old(win);
+win=sqw(win);
 
 %First determine what kind of symmetrisation we are doing:
 if nargin==2

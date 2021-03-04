@@ -120,7 +120,9 @@ for i=1:numel(win)
     if nd_out==0
         wout_disp(i)=sqw(d0d(data));
     elseif nd_out==1
-        wout_disp(i)=sqw(d1d(data));
+        % added to d1d only as that was tested
+        % but this should be made systematic for all dnd
+        wout_disp(i)=sqw(struct(data));
     elseif nd_out==2
         wout_disp(i)=sqw(d2d(data));
     elseif nd_out==3

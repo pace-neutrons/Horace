@@ -141,14 +141,14 @@ if parallel && license('checkout',  'Distrib_Computing_Toolbox')
     time = bigtic();
 
     parfor i = 1:numel(test_folders_full)
-        test_ok(i) = runtests(test_folders_full{i})
+        test_ok(i) = runtests(test_folders_full{i}, '-verbose')
     end
 
     bigtoc(time,  '===COMPLETED UNIT TESTS IN PARALLEL');
     tests_ok = all(test_ok);
 else
     time = bigtic();
-    tests_ok = runtests(test_folders_full{:});
+    tests_ok = runtests(test_folders_full{:}, '-verbose');
     bigtoc(time,  '===COMPLETED UNIT TESTS RUN ');
 
 end

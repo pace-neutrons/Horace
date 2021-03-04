@@ -106,9 +106,6 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
             %assertEqual(det_par,det);
             grid_size = size(this.sqw_obj.data.s);
             img_range    = this.sqw_obj.data.img_range;
-            % somewhere on the way, pixels become single precision, so...
-            img_range(1,:) = img_range(1,:)*(1+2.e-7);
-            img_range(2,:) = img_range(2,:)*(1+2.e-7);
             
             sqw_rev = rd.calc_sqw(grid_size,img_range);
             
@@ -123,7 +120,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
             assertElementsAlmostEqual(bos.data.img_range,img_range,'relative',1.e-6);
             
             pix_range =[min(bos.data.pix.coordinates,[],2)'; max(bos.data.pix.coordinates,[],2)'];
-            assertElementsAlmostEqual(bos.data.img_range,pix_range);
+            assertElementsAlmostEqual(bos.data.img_range,pix_range,'relative',1.e-6);
         end
         %
         function  this=test_serialize_deserialize_rundatah(this)
@@ -132,7 +129,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
             if isa(this.sqw_obj,'sqw_old')
                 sqw_obj = sqw(struct(this.sqw_obj));
             else
-                sqw_obj = this.sqw_old;
+                sqw_obj = this.sqw_obj; % CMDEV was sqw_old - typo from previous commit
             end
             rd = rundatah(sqw_obj);
             

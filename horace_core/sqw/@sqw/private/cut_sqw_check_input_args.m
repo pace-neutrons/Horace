@@ -181,7 +181,8 @@ if save_to_file
     % is possible  and delete it]
     fout = fopen (outfile, 'wb');   % this command also clears contents of existing file
     if (fout < 0)
-        error ('CUT_SQW:runtime_error','Cannot open output file %s',outfile)
+        error('SQW:cut_sqw_check_input_args:outfile_creation_error', ...
+              'Cannot open output file %s',outfile)
     end
     fclose(fout);
     delete(outfile);

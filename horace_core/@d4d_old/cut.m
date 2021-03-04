@@ -6,8 +6,8 @@ function varargout = cut (varargin)
 %   >> w = cut (..., '-save')       % Save cut to file (prompts for file)
 %   >> w = cut (...,  filename)     % save cut to named file
 %
-%   >> cut(...)                     % save cut to file; no output workspace 
-% 
+%   >> cut(...)                     % save cut to file; no output workspace
+%
 % Input:
 % ------
 %   data_source     Data source: file name or d4d object
@@ -18,14 +18,14 @@ function varargout = cut (varargin)
 %   p2_bin          Binning along second plot axis
 %   p3_bin          Binning along third plot axis
 %   p4_bin          Binning along fourth plot axis
-%                           
+%
 %                   For each binning entry:
 %           - [] or ''          Plot axis: use bin boundaries of input data
 %           - [pstep]           Plot axis: Step size pstep must be 0 or
 %                              the current bin size (no other rebinning
 %                              is permitted)
 %           - [plo, phi]        Integration axis: range of integration.
-%                              Those bin centres that lie inside this range 
+%                              Those bin centres that lie inside this range
 %                              are included.
 %           - [plo, pstep, phi] Plot axis: minimum and maximum bin centres.
 %                              The step size pstep must be 0 or the current
@@ -53,10 +53,18 @@ if ~isempty(mess), error(mess); end
 
 % Perform operations
 % ------------------
+if iscell(w.data)&& ischar(w.data{1})
+    % Slightly hacky - load dnd object before passing it to sqw.cut so we don't
+    % attempt to load the file in as an SQW file. We reach this point if cut_dnd
+    % is called.
+    % After DnDBase class is implemented, cutting a DnD object need no longer
+    % go through sqw.cut and this file will be largely re-written
+    w.data = d4d_old(w.data{1});
+end
 % Now call sqw cut routine. Output (if any), is a cell array, as method is passed a data source structure
 argout=cut(sqw_old,w,args{:});
 if ~isempty(argout)
-    argout{1}=dnd(argout{1});   % as return argument is sqw object of dnd-type
+    argout = {dnd(argout)};   % as return argument is sqw object of dnd-type
 end
 
 % Package output arguments

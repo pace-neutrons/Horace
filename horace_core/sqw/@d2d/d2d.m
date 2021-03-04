@@ -31,4 +31,8 @@ classdef d2d < DnDBase
         %               obj = sqw(S);
         %        end
     end
+    
+    methods
+        wout=symmetrise_horace_2d(win,varargin);
+    end
 end
