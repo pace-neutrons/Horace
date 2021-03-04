@@ -48,7 +48,7 @@ classdef data_sqw_dnd
         version = 1.0;
         % the size of the border, used in gen_sqw. The img_range in gen_sqw
         % exceeds real pix_range (or input pix_range) by this value.
-        border_size = 1.e-6
+        border_size = -4*eps
     end
     
     methods
