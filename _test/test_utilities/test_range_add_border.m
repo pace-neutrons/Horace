@@ -63,14 +63,23 @@ classdef test_range_add_border < TestCase
         function test_eps_border_is_valid(~)
             range = [-1,1;-1,1];
             range_calc  = range_add_border(range);
+            % -1 ranges ratio is expected to be 1+2eps and 
+            % +1 ranges ration is expected to be 1-2*eps
             range_rat = range_calc(1,:)./range_calc(2,:);
             range_ref = range(1,:)./range(2,:);
-            difr = abs(range_rat-range_ref)-2*eps;
+            % is this estimate indeed correct?
+            difr = range_rat-range_ref + [-2*eps,2*eps];
+            % we have to compare against extracting large numbers as
+            % comparison against smaller numbers will be done with higher
+            % accuracy
             zer = zeros(1,2);
             assertEqual(difr ,zer);
         end
         
         function test_eps_abserr_on_large_border_is_relerr(~)
+            % eps-sized absolute border on large values is ignored but if
+            % distance between two large values is zero, we need to make it
+            % 2*eps-sized. Check it
             range = [-100,100,-1,-10;-100,100,1,10];
             range_calc  = range_add_border(range,eps);
             
@@ -78,6 +87,8 @@ classdef test_range_add_border < TestCase
             assertEqual(range_calc(2,1),-100+100*eps);
             assertEqual(range_calc(1,2),100-100*eps);
             assertEqual(range_calc(2,2),100+100*eps);
+            
+            % also check that normal borders behaive as expected
             assertEqual(range_calc(1,3),-1-eps);
             assertEqual(range_calc(2,3),1+eps);
             assertEqual(range_calc(1,4),-10);
