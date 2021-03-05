@@ -39,6 +39,13 @@ methods
         assertExceptionThrown(f, 'MATLAB:expectedVector');
     end
 
+    function test_error_if_any_value_of_counts_is_negative(~)
+        vector = ones(1, 10);
+        vector(5) = -1;
+        f = @() split_vector(vector, 100);
+        assertExceptionThrown(f, 'MATLAB:expectedNonnegative');
+    end
+
     function test_error_if_max_counts_is_not_a_scalar(~)
         vector = ones(1, 10);
         f = @() split_vector(vector, [1, 1]);
@@ -48,6 +55,12 @@ methods
     function test_error_if_max_counts_is_zero(~)
         vector = ones(1, 10);
         f = @() split_vector(vector, 0);
+        assertExceptionThrown(f, 'MATLAB:expectedPositive');
+    end
+
+    function test_error_if_max_counts_is_negative(~)
+        vector = ones(1, 10);
+        f = @() split_vector(vector, -1);
         assertExceptionThrown(f, 'MATLAB:expectedPositive');
     end
 
