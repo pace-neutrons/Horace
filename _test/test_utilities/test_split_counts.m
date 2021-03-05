@@ -81,6 +81,22 @@ methods
         assertEqual(chunks, expected_chunks);
         assertEqual(idxs, expected_idxs);
     end
+
+    function test_chunking_correct_for_counts_array_with_doubles(~)
+        counts = [3.5, 2.1, 0, 5.5, 0, 5.1, 3.4, 1, 1, 4.1, 2, 3, 0.2];
+        max_counts = 11;
+        [chunks, idxs] = split_counts(counts, max_counts);
+        expected_chunks = { ...
+            [3.5, 2.1, 0], ...
+            [5.5, 0, 5.1], ...
+            [3.4, 1, 1, 4.1], ...
+            [2, 3, 0.2] ...
+        };
+        expected_idxs = [1, 4, 7, 11;
+                         3, 6, 10, 13];
+        assertEqual(chunks, expected_chunks);
+        assertEqual(idxs, expected_idxs);
+    end
 end
 
 end
