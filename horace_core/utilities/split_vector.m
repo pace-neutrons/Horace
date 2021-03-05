@@ -63,7 +63,7 @@ while end_idx < numel(vector)
     end
 
     if start_idx > end_idx
-        % Happens where count > max_count
+        % Happens where vector value > sum_max
         end_idx = start_idx;
     end
 
