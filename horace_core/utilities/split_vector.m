@@ -1,22 +1,23 @@
 function [chunks, idxs] = split_vector(vector, sum_max)
-%SPLIT_VECTOR Split the given array such that the sum of each sub-array has
-% a maximum of sum_max or has length 1.
+%SPLIT_VECTOR Split the given vector into a set of sub-vectors such that the
+% sum of each sub-vector has a maximum of sum_max, or the sub-vector has length
+% 1.
 %
-% If a value in vector is greater than sum_max, then that value will comprise
-% its own sub-array.
+% If a value in `vector` is greater than sum_max, then that value will comprise
+% its own sub-vector.
 %
 % Input:
 % ------
 % vector       A vector of non-negative values.
-% sum_max      A positive value specifying the maximum sum for each sub-array.
+% sum_max      A positive value specifying the maximum sum for each sub-vector.
 %
 % Output:
 % -------
-% chunks       Cell array of vectors. Concatenation of these arrays will be
+% chunks       Cell array of vectors. Concatenation of these vectors will be
 %              equal to the input vector.
 % idxs         The indices at which the input vector was "split". Has size
 %              [2, n], where n is numel(chunks). Each idxs(:, i) is the
-%              upper and lower index into vector of chunks{i}.
+%              lower and upper index into 'vector' of chunks{i}.
 %
 % Example:
 % --------
