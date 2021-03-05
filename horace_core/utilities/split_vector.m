@@ -1,9 +1,9 @@
 function [chunks, idxs] = split_vector(vector, sum_max)
-%SPLIT_VECTOR Split the given array of such that the sum of each sub-array has
+%SPLIT_VECTOR Split the given array such that the sum of each sub-array has
 % a maximum of sum_max or has length 1.
 %
-% If a value in vector is greater than sum_max, then that value will
-% comprise its own sub-array.
+% If a value in vector is greater than sum_max, then that value will comprise
+% its own sub-array.
 %
 % Input:
 % ------
