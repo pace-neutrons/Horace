@@ -51,9 +51,11 @@ end
 
 chunks = cell(1, max_chunks);
 idxs = zeros(2, max_chunks);
-iter = 1;
+iter = 0;
 end_idx = 0;
 while end_idx < numel(vector)
+    iter = iter + 1;
+
     start_idx = end_idx + 1;
     % Find first index where cumulative sum is greater than sum_max
     end_idx = end_idx + find(cumulative_sum(start_idx:end) > sum_max, 1) - 1;
@@ -70,10 +72,16 @@ while end_idx < numel(vector)
     chunks{iter} = vector(start_idx:end_idx);
     idxs(:, iter) = [start_idx, end_idx];
 
-    % Decrement the cumulative sum with the number of values we've allocated
-    cumulative_sum = cumulative_sum - cumulative_sum(end_idx);
-    iter = iter + 1;
+    % Increment sum_max by the sum of the values we allocated this iteration.
+    % This is so, on the next iteration, the find call gets the next set of
+    % indices such that sum(chunk) <= sum_max.
+    if start_idx > 1
+        last_cumsum_end = cumulative_sum(start_idx - 1);
+    else
+        last_cumsum_end = 0;
+    end
+    sum_max = sum_max + cumulative_sum(end_idx) - last_cumsum_end;
 end
 
-chunks = chunks(1:iter - 1);
-idxs = idxs(:, 1:iter - 1);
+chunks = chunks(1:iter);
+idxs = idxs(:, 1:iter);
