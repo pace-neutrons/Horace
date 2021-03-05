@@ -40,17 +40,15 @@ validateattributes(vector, {'numeric'}, {'vector', 'nonnegative'});
 validateattributes(sum_max, {'numeric'}, {'scalar', 'positive'});
 
 cumulative_sum = cumsum(vector);
-max_chunks = ceil(cumulative_sum(end)/sum_max);
-
-if max_chunks == 1
+if (numel(vector) == 1) || (ceil(cumulative_sum(end)/sum_max) == 1)
     % Only one chunk of data, return it
     chunks = {vector};
     idxs = [1; numel(vector)];
     return
 end
 
-chunks = cell(1, max_chunks);
-idxs = zeros(2, max_chunks);
+chunks = cell(1, max_num_chunks);
+idxs = zeros(2, max_num_chunks);
 iter = 0;
 end_idx = 0;
 while end_idx < numel(vector)
@@ -67,7 +65,7 @@ while end_idx < numel(vector)
     if start_idx > end_idx
         % If a vector value is greater than max_sum, then end_idx will not have
         % been increased on this iteration, whereas start_idx is always
-        % incremented by 1. Setting end_idx to match start_idx in this case
+        % end_idx + 1. Setting end_idx to match start_idx in this case
         % means the chunk assigned on this iteration only contains the next
         % vector value.
         end_idx = start_idx;
