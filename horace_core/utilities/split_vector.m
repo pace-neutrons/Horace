@@ -55,8 +55,7 @@ end_idx = 0;
 while end_idx < numel(vector)
     start_idx = end_idx + 1;
     % Find first index where cumulative sum is greater than sum_max
-    end_idx = ...
-        (start_idx - 1) + find(cumulative_sum(start_idx:end) > sum_max, 1) - 1;
+    end_idx = end_idx + find(cumulative_sum(start_idx:end) > sum_max, 1) - 1;
     if isempty(end_idx)
         % If no elements of cumulative sum > sum_max, this is the final chunk
         end_idx = numel(cumulative_sum);
