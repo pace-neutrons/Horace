@@ -65,7 +65,11 @@ while end_idx < numel(vector)
     end
 
     if start_idx > end_idx
-        % Happens where vector value > sum_max
+        % If a vector value is greater than max_sum, then end_idx will not have
+        % been increased on this iteration, whereas start_idx is always
+        % incremented by 1. Setting end_idx to match start_idx in this case
+        % means the chunk assigned on this iteration only contains the next
+        % vector value.
         end_idx = start_idx;
     end
 
