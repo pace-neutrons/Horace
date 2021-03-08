@@ -2,7 +2,7 @@ function [ok,mess,w1tot,w2tot]=is_cut_equal(varargin)
 % Make cut from an array of files or sqw objects,
 % add together, and compare with same for another array of files
 %
-%   >> [ok,mess]=is_cut_equal(f1,f2,proj,p1,p2[,p3,p4,'cutArgs',{'arg','val'})
+%   >> [ok,mess]=is_cut_equal(f1,f2,proj,p1,p2,p3,p4,'cutArgs',{'arg','val'}, 'tol', tol)
 %
 % cutArgs are pased directly through to cut and can be used to modify the cut process
 %
