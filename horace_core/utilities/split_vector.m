@@ -39,17 +39,17 @@ end
 validateattributes(vector, {'numeric'}, {'vector', 'nonnegative'});
 validateattributes(sum_max, {'numeric'}, {'scalar', 'positive'});
 
+% Maximum number of chunks is the length of the input vector - where every
+% value of 'vector' >= 'sum_max'
+max_num_chunks = numel(vector);
+
 cumulative_sum = cumsum(vector);
-if (numel(vector) == 1) || (ceil(cumulative_sum(end)/sum_max) == 1)
+if (max_num_chunks == 1) || (ceil(cumulative_sum(end)/sum_max) == 1)
     % Only one chunk of data, return it
     chunks = {vector};
     idxs = [1; numel(vector)];
     return
 end
-
-% Maximum number of chunks is the length of the input vector - where every
-% value of 'vector' >= 'sum_max'
-max_num_chunks = numel(vector);
 
 chunks = cell(1, max_num_chunks);
 idxs = zeros(2, max_num_chunks);
@@ -89,5 +89,6 @@ while end_idx < max_num_chunks
     sum_max = sum_max + cumulative_sum(end_idx) - last_cumsum_end;
 end
 
+% Crop unassigned parts of output arrays
 chunks = chunks(1:iter);
 idxs = idxs(:, 1:iter);
