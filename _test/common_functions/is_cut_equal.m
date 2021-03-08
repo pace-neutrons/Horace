@@ -68,7 +68,7 @@ function [f1, f2, proj, pN, cutArgs, tol] = parse_args(varargin)
     addRequired(p, 'p2',     @(x)(validateattributes(x,{'numeric'},{'nonempty','vector'})));
     addOptional(p, 'p3', [], @(x)(validateattributes(x,{'numeric'},{'nonempty','vector'})));
     addOptional(p, 'p4', [], @(x)(validateattributes(x,{'numeric'},{'nonempty','vector'})));
-    addParameter(p, 'cutArgs', {}, @iscellstr)
+    addParameter(p, 'cutArgs', {}, @iscell)
     addParameter(p, 'tol', [0,0], @(x)(validateattributes(x,{'numeric'},{'nonnegative','vector'})))
     parse(p, varargin{:});
 
