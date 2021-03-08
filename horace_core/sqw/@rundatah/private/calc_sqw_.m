@@ -133,6 +133,7 @@ end
 
 % Create sqw object (just a packaging of pointers, so no memory penalty)
 % ----------------------------------------------------------------------
+d = struct();
 d.main_header=main_header;
 d.header=header;
 d.detpar=det0;

@@ -1,5 +1,4 @@
 function test_change_crystal_1
-skipTest("New sqw loader not supported yet");
 % Test crystal refinement functions change_crytstal and refine_crystal
 %
 %   >> test_refinement           % Use previously saved sqw input data file
