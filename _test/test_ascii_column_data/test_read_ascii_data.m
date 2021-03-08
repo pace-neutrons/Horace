@@ -1,5 +1,4 @@
 function test_read_ascii_data
-skipTest("New sqw loader not supported yet");
 % Test ascii column data reader
 %
 % This functionality of Horace was added to look at WISH data in about Nov 2011 by T.G.Perring. It is something of a fixup,

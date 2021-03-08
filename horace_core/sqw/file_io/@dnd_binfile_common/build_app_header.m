@@ -19,7 +19,7 @@ format = obj.app_header_form_;
 app_header = format;
 app_header.version  = obj.file_ver_;
 %
-if isa(obj_to_save,'sqw_old')
+if isa(obj_to_save,'sqw')
     app_header.sqw_type = true;
     [~,ndim] = calc_proper_ndim_(obj_to_save.data);
 elseif  is_sqw_struct(obj_to_save)
