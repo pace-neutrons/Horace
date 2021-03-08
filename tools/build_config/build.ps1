@@ -195,7 +195,7 @@ if ($print_versions) {
   Write-Versions
 }
 
-if ($configure) {
+if ($configure -or -not (Test-Path -Path "${build_dir}/CMakeCache.txt" -PathType Leaf)) {
   New-Build-Directory -build_dir "$build_dir"
   Invoke-Configure `
     -vs_version $vs_version `
