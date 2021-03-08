@@ -2,7 +2,9 @@ function [ok,mess,w1tot,w2tot]=is_cut_equal(varargin)
 % Make cut from an array of files or sqw objects,
 % add together, and compare with same for another array of files
 %
-%   >> [ok,mess]=is_cut_equal(f1,f2,proj,p1,p2,p3,p4)
+%   >> [ok,mess]=is_cut_equal(f1,f2,proj,p1,p2[,p3,p4,'cutArgs',{'arg','val'})
+%
+% cutArgs are pased directly through to cut and can be used to modify the cut process
 %
 % Only checks the number of pixels per point, and the overall signal and error on the points
 %
@@ -13,31 +15,31 @@ function [ok,mess,w1tot,w2tot]=is_cut_equal(varargin)
 %   >> w1_2=cut_sqw(f1,f2,proj,[-1.5,0.05,-0.5],[-0.6,-0.44],[-0.5,0.5],[5,10]);
 
 
-    [f1, f2, proj, pN, extraArgs] = parse_args(varargin)
+    [f1, f2, proj, pN, cutArgs, tol] = parse_args(varargin{:});
 
     w1=repmat(sqw,1,numel(f1));
     w2=repmat(sqw,1,numel(f2));
     for i=1:numel(f1)
-        w1(i)=cut_sqw(f1{i},pN{:},extraArgs{:});
+        w1(i)=cut_sqw(f1{i},proj,pN{:},cutArgs{:});
     end
     for i=1:numel(f2)
-        w2(i)=cut_sqw(f2{i},pN{:},extraArgs{:});
+        w2(i)=cut_sqw(f2{i},proj,pN{:},cutArgs{:});
     end
 
     w1tot=combine_cuts(w1);
     w2tot=combine_cuts(w2);
 
-% To check equality, see if npix, s, e arrays are the same
-    if equal_to_tol(w1tot.data.npix,w2tot.data.npix) &&...
-            equal_to_tol(w1tot.data.s,w2tot.data.s) &&...
-            equal_to_tol(w1tot.data.e,w2tot.data.e) &&...
-            equal_to_tol(w1tot.data.img_range,w2tot.data.img_range)
+    % To check equality, see if npix, s, e arrays are the same
+    if equal_to_tol(w1tot.data.npix,w2tot.data.npix,tol) &&...
+            equal_to_tol(w1tot.data.s,w2tot.data.s,tol) &&...
+            equal_to_tol(w1tot.data.e,w2tot.data.e,tol) &&...
+            equal_to_tol(w1tot.data.img_range,w2tot.data.img_range,tol)
         if isempty(w1tot.data.pix)
             ok=true;
             mess='';
         else
-            if equal_to_tol(w1tot.data.pix.pix_range,w2tot.data.pix.pix_range) && ...
-                    equal_to_tol(w1tot.data.pix.num_pixels,w2tot.data.pix.num_pixels)
+            if equal_to_tol(w1tot.data.pix.pix_range,w2tot.data.pix.pix_range,tol) && ...
+                    equal_to_tol(w1tot.data.pix.num_pixels,w2tot.data.pix.num_pixels,tol)
                 ok=true;
                 mess='';
             else
@@ -57,7 +59,7 @@ function [ok,mess,w1tot,w2tot]=is_cut_equal(varargin)
     end
 end
 
-function [f1, f2, proj, pN, extraArgs] = parse_args(varargin)
+function [f1, f2, proj, pN, cutArgs, tol] = parse_args(varargin)
     p = inputParser();
     addRequired(p, 'f1', @validate_sqw);
     addRequired(p, 'f2', @validate_sqw);
@@ -67,7 +69,8 @@ function [f1, f2, proj, pN, extraArgs] = parse_args(varargin)
     addOptional(p, 'p3', [], @(x)(validateattributes(x,{'numeric'},{'nonempty','vector'})));
     addOptional(p, 'p4', [], @(x)(validateattributes(x,{'numeric'},{'nonempty','vector'})));
     addParameter(p, 'cutArgs', {}, @iscellstr)
-    p = parse(p, varargin{:});
+    addParameter(p, 'tol', [0,0], @(x)(validateattributes(x,{'numeric'},{'nonnegative','vector'})))
+    parse(p, varargin{:});
 
     f1 = p.Results.f1;
     f2 = p.Results.f2;
@@ -76,17 +79,20 @@ function [f1, f2, proj, pN, extraArgs] = parse_args(varargin)
 
     proj = p.Results.proj;
     pN = {p.Results.p1, p.Results.p2, p.Results.p3, p.Results.p4};
-    pN = pN(~empty(pN));
-    extraArgs = p.Results.cutArgs;
+    pN = pN(~cellfun(@isempty, pN));
+    tol = p.Results.tol;
+    cutArgs = p.Results.cutArgs;
 end
 
 function ok = validate_sqw(inp)
     check = @(x)(isa(inp, 'sqw') || ischar(inp));
-    ok = check(inp) || iscell(inp) && all(cellfun(check, inp));
+    ok = check(inp) || (iscell(inp) && all(cellfun(check, inp)));
 end
 
 function ok = validate_proj(inp)
-    ok = hasfield(inp, 'u') && hasfield(inp, 'v');
-    ok = ok && validateattributes(inp.u, {'numeric'}, {'nonempty','vector','numel',3});
-    ok = ok && validateattributes(inp.v, {'numeric'}, {'nonempty','vector','numel',3});
+    ok = isfield(inp, 'u') && isfield(inp, 'v');
+    if ok
+        validateattributes(inp.u, {'numeric'}, {'nonempty','vector','numel',3});
+        validateattributes(inp.v, {'numeric'}, {'nonempty','vector','numel',3});
+    end
 end
