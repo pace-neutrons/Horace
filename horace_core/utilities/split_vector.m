@@ -47,11 +47,15 @@ if (numel(vector) == 1) || (ceil(cumulative_sum(end)/sum_max) == 1)
     return
 end
 
+% Maximum number of chunks is the length of the input vector - where every
+% value of 'vector' >= 'sum_max'
+max_num_chunks = numel(vector);
+
 chunks = cell(1, max_num_chunks);
 idxs = zeros(2, max_num_chunks);
 iter = 0;
 end_idx = 0;
-while end_idx < numel(vector)
+while end_idx < max_num_chunks
     iter = iter + 1;
 
     start_idx = end_idx + 1;
