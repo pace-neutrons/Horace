@@ -18,7 +18,6 @@ readonly MAX_CTEST_SUCCESS_OUTPUT_LENGTH="10000" # 10kB
 
 function print_package_versions() {
   cmake --version | head -n 1
-  echo "Matlab: ${MATLAB_ROOT}"
   g++ --version | head -n 1
   cppcheck --version | head -n 1
   echo

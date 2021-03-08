@@ -25,6 +25,8 @@
   https://github.com/pace-neutrons/Herbert
 #>
 param (
+  # Run the Herbert configuration commands.
+  [switch]$configure,
   # Run the Herbert build commands.
   [switch][Alias("b")]$build,
   # Run all Herbert tests.
@@ -85,6 +87,11 @@ if ($help -or $PSBoundParameters.Values.Count -eq 0) {
   exit 0
 }
 
+<# Import:
+    Write-And-Invoke
+    Invoke-In-Dir #>
+. $PSScriptRoot/../pwsh/powershell_helpers.ps1
+
 # Mapping from year to Visual Studio version
 $VS_VERSION_MAP = @{
   2015 = 'Visual Studio 14 2015';
@@ -94,22 +101,6 @@ $VS_VERSION_MAP = @{
 # Herbert's root directory is two levels above this script
 $HERBERT_ROOT = Resolve-Path (Join-Path -Path "$PSScriptRoot" -ChildPath "/../..")
 $MAX_CTEST_SUCCESS_OUTPUT_LENGTH = 10000 # 10kB
-
-function Write-And-Invoke([string]$command) {
-  Write-Output "+ $command"
-  Invoke-Expression "$command"
-}
-
-function Invoke-In-Dir {
-  param([string]$directory, [string]$command)
-  Push-Location -Path "$directory"
-  try {
-    Write-And-Invoke "$command"
-  }
-  finally {
-    Pop-Location
-  }
-}
 
 function New-Build-Directory {
   param([string]$build_dir)
@@ -153,7 +144,7 @@ function Invoke-Configure {
   )
   Write-Output "`nRunning CMake configure step..."
   $cmake_cmd = "cmake ""$HERBERT_ROOT"""
-  $cmake_cmd += " $(New-CMake-Generator-Command -vs_version "$vs_version")"
+  $cmake_cmd += " $(New-CMake-Generator-Command -vs_version $vs_version)"
   $cmake_cmd += " -DBUILD_TESTS=$build_tests"
   $cmake_cmd += " -DMatlab_RELEASE=$matlab_release"
   $cmake_cmd += " $cmake_flags"
@@ -200,26 +191,29 @@ if ($build_dir -eq "") {
   $build_dir = Join-Path -Path "$HERBERT_ROOT" -ChildPath "build"
 }
 
-if ($print_versions -eq $true) {
+if ($print_versions) {
   Write-Versions
 }
 
-if ($build -eq $true) {
+if ($configure) {
   New-Build-Directory -build_dir "$build_dir"
   Invoke-Configure `
-    -vs_version "$vs_version" `
+    -vs_version $vs_version `
     -build_dir "$build_dir" `
     -build_config "$build_config" `
     -build_tests "$build_tests" `
-    -cmake_flags "$cmake_flags" `
-    -matlab_release "$matlab_release"
+    -matlab_release "$matlab_release" `
+    -cmake_flags "$cmake_flags"
+}
+
+if ($build) {
   Invoke-Build -build_dir "$build_dir" -build_config "$build_config"
 }
 
-if ($test -eq $true) {
+if ($test) {
   Invoke-Test -build_dir "$build_dir" -build_config "$build_config"
 }
 
-if ($package -eq $true) {
+if ($package) {
   Invoke-Package -build_dir "$build_dir"
 }
