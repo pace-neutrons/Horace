@@ -53,10 +53,10 @@ end
 
 chunks = cell(1, max_num_chunks);
 idxs = zeros(2, max_num_chunks);
-iter = 0;
+chunk_num = 0;
 end_idx = 0;
 while end_idx < max_num_chunks
-    iter = iter + 1;
+    chunk_num = chunk_num + 1;
 
     start_idx = end_idx + 1;
     % Find first index where cumulative sum is greater than sum_max
@@ -75,8 +75,8 @@ while end_idx < max_num_chunks
         end_idx = start_idx;
     end
 
-    chunks{iter} = vector(start_idx:end_idx);
-    idxs(:, iter) = [start_idx, end_idx];
+    chunks{chunk_num} = vector(start_idx:end_idx);
+    idxs(:, chunk_num) = [start_idx, end_idx];
 
     % Increment sum_max by the sum of the values we allocated this iteration.
     % This is so, on the next iteration, the find call gets the next set of
@@ -90,5 +90,5 @@ while end_idx < max_num_chunks
 end
 
 % Crop unassigned parts of output arrays
-chunks = chunks(1:iter);
-idxs = idxs(:, 1:iter);
+chunks = chunks(1:chunk_num);
+idxs = idxs(:, 1:chunk_num);
