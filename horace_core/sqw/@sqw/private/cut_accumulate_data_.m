@@ -53,26 +53,26 @@ block_size = obj.data.pix.base_page_size;
 % Get indices in order to split the candidate bin ranges into pixel page sized
 % chunks
 [~, sub_bin_idxs] = split_vector(bin_ends - bin_starts, block_size);
-num_iters = size(sub_bin_idxs, 2);
+num_chunks = size(sub_bin_idxs, 2);
 
 % If we only have one iteration of pixels to cut then we must be able to fit
 % all pixels in memory, hence no need to use temporary files.
-use_tmp_files = ~return_cut && num_iters > 1;
+use_tmp_files = ~return_cut && num_chunks > 1;
 if keep_pix
     % Pre-allocate cell arrays to hold PixelData chunks
-    pix_retained = cell(1, num_iters);
-    pix_ix_retained = cell(1, num_iters);
+    pix_retained = cell(1, num_chunks);
+    pix_ix_retained = cell(1, num_chunks);
 
     if use_tmp_files
         % Create a pix_comb_info object to handle tmp files of pixels
         num_bins = numel(s);
-        pix_comb_info = init_pix_combine_info(num_iters, num_bins);
+        pix_comb_info = init_pix_combine_info(num_chunks, num_bins);
     else
         pix_comb_info = [];
     end
 end
 
-for iter = 1:num_iters
+for iter = 1:num_chunks
     % Get pixels that will likely contribute to the cut
     candidate_pix = obj.data.pix.get_pix_in_ranges( ...
         bin_starts(sub_bin_idxs(1, iter):sub_bin_idxs(2, iter)), ...
@@ -81,7 +81,7 @@ for iter = 1:num_iters
 
     if log_level >= 0
         fprintf(['Step %3d of %3d; Read data for %d pixels -- ' ...
-                 'processing data...'], iter, num_iters, ...
+                 'processing data...'], iter, num_chunks, ...
                 candidate_pix.num_pixels);
     end
 
