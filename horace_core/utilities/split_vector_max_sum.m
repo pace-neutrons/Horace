@@ -10,6 +10,7 @@ function [chunks, idxs] = split_vector_max_sum(numeric_vector, max_chunk_sum)
 % ------
 % numeric_vector     A vector of numeric, non-negative, values.
 % max_chunk_sum      A positive value specifying the maximum sum for each sub-vector.
+% cumulative_sum     The cumulative sum of 'numeric_vector'.
 %
 % Output:
 % -------
