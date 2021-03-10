@@ -47,6 +47,7 @@ validateattributes(max_chunk_sum, {'numeric'}, {'scalar', 'positive'});
 % output arrays as they grow, so we'll need two instances of each array. Hence
 % it's more memory efficient to over-allocate to the maximum number of chunks
 % and then crop.
+% The maximum possible number of chunks is the number of elements in 'vector'.
 max_num_chunks = numel(vector);
 
 cumulative_sum = cumsum(vector);
