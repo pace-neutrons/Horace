@@ -1,6 +1,7 @@
-classdef exampleJobExecutor < JobExecutor
+% Example object which just demonstrates the methods and variables available while parallel
+classdef ExampleJobExecutor < JobExecutor
     methods
-        function obj = exampleJobExecutor()
+        function obj = ExampleJobExecutor()
         % Constructor cannot take args as constructed by JobDispatcher
         end
 

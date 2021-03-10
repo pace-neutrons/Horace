@@ -1,11 +1,14 @@
-classdef exampleRealJobExecutor < JobExecutor
+% Test object which returns some common data, a sum (1..N) where N is the number of steps
+% and its (left) neighbour's ID
+classdef ExampleRealJobExecutor < JobExecutor
+
     properties(Access = private)
         finished = false;
         my_int = 0;
     end
 
     methods
-        function obj = exampleRealJobExecutor()
+        function obj = ExampleRealJobExecutor()
         % Constructor cannot take args as constructed by JobDispatcher
         end
 
