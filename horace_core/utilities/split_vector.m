@@ -1,15 +1,15 @@
-function [chunks, idxs] = split_vector(vector, sum_max)
+function [chunks, idxs] = split_vector(vector, max_chunk_sum)
 %SPLIT_VECTOR Split the given vector into a set of sub-vectors such that the
-% sum of each sub-vector has a maximum of sum_max, or the sub-vector has length
+% sum of each sub-vector has a maximum of max_chunk_sum, or the sub-vector has length
 % 1.
 %
-% If a value in `vector` is greater than sum_max, then that value will comprise
+% If a value in `vector` is greater than max_chunk_sum, then that value will comprise
 % its own sub-vector.
 %
 % Input:
 % ------
 % vector       A vector of non-negative values.
-% sum_max      A positive value specifying the maximum sum for each sub-vector.
+% max_chunk_sum      A positive value specifying the maximum sum for each sub-vector.
 %
 % Output:
 % -------
@@ -22,8 +22,8 @@ function [chunks, idxs] = split_vector(vector, sum_max)
 % Example:
 % --------
 % >> vector = [3, 2, 0, 6, 0, 5, 3, 1, 1, 24, 4, 2, 3, 0];
-% >> sum_max = 11;
-% >> [chunks, idxs] = split_vector(vector, sum_max)
+% >> max_chunk_sum = 11;
+% >> [chunks, idxs] = split_vector(vector, max_chunk_sum)
 %   chunks =
 %       { [3, 2, 0, 6, 0], [5, 3, 1, 1], [24], [4, 2, 3, 0] }
 %   idxs =
@@ -37,14 +37,14 @@ if isempty(vector)
 end
 
 validateattributes(vector, {'numeric'}, {'vector', 'nonnegative'});
-validateattributes(sum_max, {'numeric'}, {'scalar', 'positive'});
+validateattributes(max_chunk_sum, {'numeric'}, {'scalar', 'positive'});
 
 % Maximum number of chunks is the length of the input vector - where every
-% value of 'vector' >= 'sum_max'
+% value of 'vector' >= 'max_chunk_sum'
 max_num_chunks = numel(vector);
 
 cumulative_sum = cumsum(vector);
-if (max_num_chunks == 1) || (ceil(cumulative_sum(end)/sum_max) == 1)
+if (max_num_chunks == 1) || (ceil(cumulative_sum(end)/max_chunk_sum) == 1)
     % Only one chunk of data, return it
     chunks = {vector};
     idxs = [1; numel(vector)];
@@ -59,10 +59,10 @@ while end_idx < max_num_chunks
     chunk_num = chunk_num + 1;
 
     start_idx = end_idx + 1;
-    % Find first index where cumulative sum is greater than sum_max
-    end_idx = end_idx + find(cumulative_sum(start_idx:end) > sum_max, 1) - 1;
+    % Find first index where cumulative sum is greater than max_chunk_sum
+    end_idx = end_idx + find(cumulative_sum(start_idx:end) > max_chunk_sum, 1) - 1;
     if isempty(end_idx)
-        % If no elements of cumulative sum > sum_max, this is the final chunk
+        % If no elements of cumulative sum > max_chunk_sum, this is the final chunk
         end_idx = numel(cumulative_sum);
     end
 
@@ -78,15 +78,15 @@ while end_idx < max_num_chunks
     chunks{chunk_num} = vector(start_idx:end_idx);
     idxs(:, chunk_num) = [start_idx, end_idx];
 
-    % Increment sum_max by the sum of the values we allocated this iteration.
+    % Increment max_chunk_sum by the sum of the values we allocated this iteration.
     % This is so, on the next iteration, the find call gets the next set of
-    % indices such that sum(chunk) <= sum_max.
+    % indices such that sum(chunk) <= max_chunk_sum.
     if start_idx > 1
         last_cumsum_end = cumulative_sum(start_idx - 1);
     else
         last_cumsum_end = 0;
     end
-    sum_max = sum_max + cumulative_sum(end_idx) - last_cumsum_end;
+    max_chunk_sum = max_chunk_sum + cumulative_sum(end_idx) - last_cumsum_end;
 end
 
 % Crop unassigned parts of output arrays
