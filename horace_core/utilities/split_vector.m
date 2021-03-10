@@ -1,14 +1,14 @@
-function [chunks, idxs] = split_vector(vector, max_chunk_sum)
+function [chunks, idxs] = split_vector(numeric_vector, max_chunk_sum)
 %SPLIT_VECTOR Split the given vector into a set of sub-vectors such that the
-% sum of each sub-vector has a maximum of max_chunk_sum, or the sub-vector has length
-% 1.
+% sum of each sub-vector has a maximum of max_chunk_sum, or the sub-vector has
+% length 1.
 %
-% If a value in `vector` is greater than max_chunk_sum, then that value will comprise
-% its own sub-vector.
+% If a value in `numeric_vector` is greater than max_chunk_sum, then that value
+% will comprise its own sub-vector.
 %
 % Input:
 % ------
-% vector       A vector of non-negative values.
+% numeric_vector     A vector of numeric, non-negative, values.
 % max_chunk_sum      A positive value specifying the maximum sum for each sub-vector.
 %
 % Output:
@@ -17,44 +17,45 @@ function [chunks, idxs] = split_vector(vector, max_chunk_sum)
 %              equal to the input vector.
 % idxs         The indices at which the input vector was "split". Has size
 %              [2, n], where n is numel(chunks). Each idxs(:, i) is the
-%              lower and upper index into 'vector' of chunks{i}.
+%              lower and upper index into 'numeric_vector' of chunks{i}.
 %
 % Example:
 % --------
-% >> vector = [3, 2, 0, 6, 0, 5, 3, 1, 1, 24, 4, 2, 3, 0];
+% >> numeric_vector = [3, 2, 0, 6, 0, 5, 3, 1, 1, 24, 4, 2, 3, 0];
 % >> max_chunk_sum = 11;
-% >> [chunks, idxs] = split_vector(vector, max_chunk_sum)
+% >> [chunks, idxs] = split_vector(numeric_vector, max_chunk_sum)
 %   chunks =
 %       { [3, 2, 0, 6, 0], [5, 3, 1, 1], [24], [4, 2, 3, 0] }
 %   idxs =
 %       1     6    10    11
 %       5     9    10    14
 %
-if isempty(vector)
+if isempty(numeric_vector)
     chunks = {};
     idxs = zeros(2, 0);
     return;
 end
 
-validateattributes(vector, {'numeric'}, {'vector', 'nonnegative'});
+validateattributes(numeric_vector, {'numeric'}, {'vector', 'nonnegative'});
 validateattributes(max_chunk_sum, {'numeric'}, {'scalar', 'positive'});
 
 % We need the number of chunks we're to return so we can allocate output arrays.
 % Calculating the real number of chunks required is non-trivial. We can get the
-% minimum number using `sum(vector)/max_chunk_sum`, but this will result in us
+% minimum number using `sum(numeric_vector)/max_chunk_sum`, but this will result in us
 % under-allocating the output arrays.
 % If we under-estimate the number of chunks, we will end up re-allocating the
 % output arrays as they grow, so we'll need two instances of each array. Hence
 % it's more memory efficient to over-allocate to the maximum number of chunks
 % and then crop.
-% The maximum possible number of chunks is the number of elements in 'vector'.
-max_num_chunks = numel(vector);
+% The maximum possible number of chunks is the number of elements in
+% 'numeric_vector'.
+max_num_chunks = numel(numeric_vector);
 
-cumulative_sum = cumsum(vector);
+cumulative_sum = cumsum(numeric_vector);
 if (max_num_chunks == 1) || (ceil(cumulative_sum(end)/max_chunk_sum) == 1)
     % Only one chunk of data, return it
-    chunks = {vector};
-    idxs = [1; numel(vector)];
+    chunks = {numeric_vector};
+    idxs = [1; numel(numeric_vector)];
     return
 end
 
@@ -74,15 +75,15 @@ while end_idx < max_num_chunks
     end
 
     if start_idx > end_idx
-        % If a vector value is greater than max_sum, then end_idx will not have
-        % been increased on this iteration, whereas start_idx is always
-        % end_idx + 1. Setting end_idx to match start_idx in this case
-        % means the chunk assigned on this iteration only contains the next
-        % vector value.
+        % If a numeric_vector value is greater than max_sum, then end_idx will
+        % not have been increased on this iteration, whereas start_idx is always
+        % end_idx + 1. Setting end_idx to match start_idx in this case means
+        % the chunk assigned on this iteration only contains the next
+        % 'numeric_vector' value.
         end_idx = start_idx;
     end
 
-    chunks{chunk_num} = vector(start_idx:end_idx);
+    chunks{chunk_num} = numeric_vector(start_idx:end_idx);
     idxs(:, chunk_num) = [start_idx, end_idx];
 
     % Increment max_chunk_sum by the sum of the values we allocated this iteration.
