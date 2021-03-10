@@ -87,35 +87,48 @@ for i = 1:numel(win)
             % Get average h, k, l, e for the bin, compute sqw for that average,
             % and fill pixels with the average signal for the bin that contains
             % them
+
             pix_file_backed = ...
                 wout(i).data.pix.base_page_size < wout(i).data.pix.num_pixels;
-
             if pix_file_backed
                 pix = wout(i).data.pix;
                 npix = wout(i).data.npix;
-                [npix_chunks, idxs] = split_vector(npix(:), pix.base_page_size);
-                pix_bin_ends = cumsum(npix(:));
+
+                % Split npix array into chunks such that each chunk's sum is
+                % <= to pixel page size.
+                % This allows us to pass the npix chunks into 'average_bin_data'.
+                [npix_chunks, idxs, pix_bin_ends] = split_vector(npix(:), pix.base_page_size);
                 pix_bin_starts = pix_bin_ends - npix(:) + 1;
                 for j = 1:numel(npix_chunks)
-                    pix_starts = max(1, pix_bin_starts(idxs(1, j)));
-                    pix_ends = pix_bin_ends(idxs(2, j));
+                    npix_chunk = npix_chunks{j};
+                    bin_idxs = idxs(:, j);
 
+                    % Get pixels that belong to the bins in the current npix
+                    % chunk
+                    pix_starts = pix_bin_starts(bin_idxs(1));
+                    pix_ends = pix_bin_ends(bin_idxs(2));
                     pix_chunk = pix.get_pix_in_ranges(pix_starts, pix_ends);
+
+                    % Create a temporary sqw object to calculate qw_pixels on
                     w_tmp = wout(i);
                     w_tmp.data.pix = pix_chunk;
                     qw = calculate_qw_pixels(w_tmp);
 
-                    w_tmp.data.npix = npix_chunks{j};
+                    % Average the qw pixel data over each bin defined by the
+                    % npix chunk
+                    w_tmp.data.npix = npix_chunk;
                     qw_ave = average_bin_data(w_tmp, qw);
                     qw_ave = cellfun(@(x) x(:), qw_ave, 'UniformOutput', false);
 
+                    % Perform input function over the averaged pixel data
                     s_tmp = sqwfunc(qw_ave{:}, pars{:});
-                    sig_tmp = repelem(s_tmp, npix_chunks{j});
 
-                    wout(i).data.pix.set_data( ...
-                        {'signal', 'variance'}, ...
-                        vertcat(sig_tmp', zeros(1, numel(sig_tmp))), ...
-                        pix_starts:pix_ends ...
+                    % Assign each pixel's signal to bin average, variance set
+                    % to zero
+                    pix_signal = repelem(s_tmp, npix_chunk);
+                    sig_var = vertcat(pix_signal', zeros(1, numel(pix_signal)));
+                    pix.set_data( ...
+                        {'signal', 'variance'}, sig_var, pix_starts:pix_ends ...
                     );
                 end
                 wout(i) = recompute_bin_data(wout(i));
