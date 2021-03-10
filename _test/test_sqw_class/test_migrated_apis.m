@@ -249,7 +249,22 @@ classdef test_migrated_apis < TestCase
             assertEqual(size(xp), [1,2]);
             assertEqual(size(ip), [1,1]);
         end
+
         function test_get_proj_and_pbin(obj)
+            sqw_obj = sqw(obj.test_sqw_2d_fullpath);
+            [proj, pbin] = sqw_obj.get_proj_and_pbin();
+
+            % Reference data calculated from call on old class
+            expected_pbin = {[-0.7, 0.02, -0.4],  [-0.65, 0.02, -0.45], [-0.05, 0.05], [-0.25, 0.25]};
+            expected_proj = projaxes( ...
+                [1,1,0], [1.1102e-16 1.1102e-16 1], [1 -1 9.9580e-17], ...
+                'type', 'ppp', ...
+                'nonorthogonal', 0, ...
+                'lab', {'\zeta'  '\xi'  '\eta'  'E'});
+
+            % low tolerance as ref data to 5sf only
+            assertEqualToTol(proj, expected_proj, 1e-6);
+            assertEqualToTol(pbin, expected_pbin, 1e-6);
         end
 
         %% split/join
