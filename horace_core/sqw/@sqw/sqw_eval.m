@@ -82,19 +82,55 @@ for i = 1:numel(win)
                     break;
                 end
             end
+            wout(i) = recompute_bin_data(wout(i));
         else
             % Get average h, k, l, e for the bin, compute sqw for that average,
             % and fill pixels with the average signal for the bin that contains
             % them
-            qw = calculate_qw_pixels(win(i));
-            qw_ave = average_bin_data(win(i), qw);
-            qw_ave = cellfun(@(x)(x(:)), qw_ave, 'UniformOutput', false);
-            stmp = sqwfunc(qw_ave{:}, pars{:});
-            stmp = replicate_array(stmp, win(i).data.npix);
-            wout(i).data.pix.signal = stmp(:)';
-            wout(i).data.pix.variance = zeros(1, numel(stmp));
+            pix_file_backed = ...
+                wout(i).data.pix.base_page_size < wout(i).data.pix.num_pixels;
+
+            if pix_file_backed
+                pix = wout(i).data.pix;
+                npix = wout(i).data.npix;
+                [npix_chunks, idxs] = split_vector(npix(:), pix.base_page_size);
+                pix_bin_ends = cumsum(npix(:));
+                pix_bin_starts = pix_bin_ends - npix(:) + 1;
+                for j = 1:numel(npix_chunks)
+                    pix_starts = max(1, pix_bin_starts(idxs(1, j)));
+                    pix_ends = pix_bin_ends(idxs(2, j));
+
+                    pix_chunk = pix.get_pix_in_ranges(pix_starts, pix_ends);
+                    w_tmp = wout(i);
+                    w_tmp.data.pix = pix_chunk;
+                    qw = calculate_qw_pixels(w_tmp);
+
+                    w_tmp.data.npix = npix_chunks{j};
+                    qw_ave = average_bin_data(w_tmp, qw);
+                    qw_ave = cellfun(@(x) x(:), qw_ave, 'UniformOutput', false);
+
+                    s_tmp = sqwfunc(qw_ave{:}, pars{:});
+                    sig_tmp = repelem(s_tmp, npix_chunks{j});
+
+                    wout(i).data.pix.set_data( ...
+                        {'signal', 'variance'}, ...
+                        vertcat(sig_tmp', zeros(1, numel(sig_tmp))), ...
+                        pix_starts:pix_ends ...
+                    );
+                end
+                wout(i) = recompute_bin_data(wout(i));
+            else
+                qw = calculate_qw_pixels(win(i));
+                qw_ave = average_bin_data(win(i), qw);
+                qw_ave = cellfun(@(x)(x(:)), qw_ave, 'UniformOutput', false);
+                stmp = sqwfunc(qw_ave{:}, pars{:});
+                stmp = replicate_array(stmp, win(i).data.npix);
+                wout(i).data.pix.signal = stmp(:)';
+                wout(i).data.pix.variance = zeros(1, numel(stmp));
+                wout(i) = recompute_bin_data(wout(i));
+            end
         end
-        wout(i) = recompute_bin_data(wout(i));
+
     else
         qw = calculate_qw_bins(win(i));
         if ~opts.all                    % only evaluate at the bins actually containing data

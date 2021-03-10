@@ -149,6 +149,23 @@ classdef test_sqw_eval < TestCase
             );
         end
 
+        function test_gauss_on_sqw_w_filebacked_and_ave_equal_to_in_memory(obj)
+            % In this function we just test equivalence between in-memory and
+            % file-backed.
+            % We test that the in-memory is correct in:
+            % test_calling_with_average_flag_sets_each_pix_signal_to_average
+            out_sqw = sqw_eval( ...
+                obj.sqw_2d_file_path, obj.gauss_sqw, obj.gauss_params, ...
+                'average', true, 'filebacked', true ...
+            );
+
+            ref_out_sqw = sqw_eval( ...
+                obj.sqw_2d_obj, obj.gauss_sqw, obj.gauss_params, ...
+                'average', true ...
+            );
+            assertEqualToTol(out_sqw, ref_out_sqw, 'tol', obj.FLOAT_TOL);
+        end
+
         %% DND tests
         function test_func_on_dnd_file_acts_on_signal_and_sets_e_to_zeros(obj)
             fake_dnd = obj.build_fake_dnd();
