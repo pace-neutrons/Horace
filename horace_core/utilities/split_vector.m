@@ -39,8 +39,14 @@ end
 validateattributes(vector, {'numeric'}, {'vector', 'nonnegative'});
 validateattributes(max_chunk_sum, {'numeric'}, {'scalar', 'positive'});
 
-% Maximum number of chunks is the length of the input vector - where every
-% value of 'vector' >= 'max_chunk_sum'
+% We need the number of chunks we're to return so we can allocate output arrays.
+% Calculating the real number of chunks required is non-trivial. We can get the
+% minimum number using `sum(vector)/max_chunk_sum`, but this will result in us
+% under-allocating the output arrays.
+% If we under-estimate the number of chunks, we will end up re-allocating the
+% output arrays as they grow, so we'll need two instances of each array. Hence
+% it's more memory efficient to over-allocate to the maximum number of chunks
+% and then crop.
 max_num_chunks = numel(vector);
 
 cumulative_sum = cumsum(vector);
