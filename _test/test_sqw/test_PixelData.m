@@ -338,7 +338,7 @@ classdef test_PixelData < TestCase
 
         function test_get_data_throws_PIXELDATA_on_non_valid_field_name(obj)
             f = @() obj.pixel_data_obj.get_data('not_a_field');
-            assertExceptionThrown(f, 'PIXELDATA:get_data');
+            assertExceptionThrown(f, 'HORACE:PIXELDATA:invalid_field');
         end
 
         function test_get_data_orders_columns_corresponding_to_input_cell_array(obj)
@@ -1507,7 +1507,7 @@ classdef test_PixelData < TestCase
             logical_array = cat(2, logical(randi([0, 1], [1, num_pix])), true);
             f = @() pix.get_data('signal', logical_array);
 
-            assertExceptionThrown(f, 'PIXELDATA:get_data');
+            assertExceptionThrown(f, 'HORACE:PIXELDATA:badsubscript');
         end
 
         function test_get_data_ignores_out_of_range_logical_0_indices(obj)
@@ -1731,6 +1731,114 @@ classdef test_PixelData < TestCase
             pix.move_to_first_page();
 
             assertEqual(pix.u1, zeros(1, npix_in_page));
+        end
+
+        function test_set_data_sets_fields_with_given_values(~)
+            pix = PixelData(30);
+            new_data = ones(3, 7);
+            fields = {'run_idx', 'signal', 'variance'};
+            idxs = [4, 3, 9, 24, 29, 10, 11];
+            pix.set_data(fields, new_data, idxs);
+
+            assertEqual(pix.get_data(fields, idxs), new_data);
+
+            % Check other fields/indices unchanged
+            non_edited_idxs = 1:pix.num_pixels;
+            non_edited_idxs(idxs) = [];
+            assertEqual(pix.data(:, non_edited_idxs), zeros(9, 23));
+        end
+
+        function test_set_data_sets_single_fields_with_given_values(~)
+            pix = PixelData(30);
+            new_data = ones(1, 7);
+            field = 'run_idx';
+            idxs = [4, 3, 9, 24, 29, 10, 11];
+            pix.set_data(field, new_data, idxs);
+
+            assertEqual(pix.get_data(field, idxs), new_data);
+
+            % Check other fields/indices unchanged
+            non_edited_idxs = 1:pix.num_pixels;
+            non_edited_idxs(idxs) = [];
+            assertEqual(pix.data(:, non_edited_idxs), zeros(9, 23));
+        end
+
+        function test_set_data_sets_fields_with_given_values_pix_filebacked(obj)
+            num_pix = 30;
+            data = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            npix_per_page = 11;
+            pix = obj.get_pix_with_fake_faccess(data, npix_per_page);
+
+            new_data = ones(3, 7);
+            fields = {'run_idx', 'signal', 'variance'};
+            idxs = [4, 3, 9, 24, 29, 10, 11];
+            pix.set_data(fields, new_data, idxs);
+
+            assertEqual(pix.get_data(fields, idxs), new_data);
+
+            % Check other fields/indices unchanged
+            non_edited_idxs = 1:pix.num_pixels;
+            non_edited_idxs(idxs) = [];
+            unedited_pix = pix.get_pixels(non_edited_idxs);
+            assertEqual(unedited_pix.data, zeros(9, 23));
+        end
+
+        function test_set_data_errors_if_data_nrows_ne_to_num_fields(~)
+            pix = PixelData(30);
+            fields = {'run_idx', 'signal', 'variance'};
+            new_data = ones(numel(fields) + 1, 7);
+            idxs = [4, 3, 9, 24, 29, 10, 11];
+            f = @() pix.set_data(fields, new_data, idxs);
+            assertExceptionThrown(f, 'HORACE:PIXELDATA:incorrect_num_rows')
+        end
+
+        function test_set_data_errors_if_data_ncols_ne_to_num_indices(~)
+            pix = PixelData(30);
+            fields = {'run_idx', 'signal', 'variance'};
+            idxs = [4, 3, 9, 24, 29, 10, 11];
+            new_data = ones(numel(fields), numel(idxs) - 1);
+            f = @() pix.set_data(fields, new_data, idxs);
+            assertExceptionThrown(f, 'HORACE:PIXELDATA:incorrect_num_cols')
+        end
+
+        function test_set_data_sets_fields_with_given_values_with_logical_idxs(~)
+            pix = PixelData(30);
+            new_data = ones(3, 7);
+            fields = {'run_idx', 'signal', 'variance'};
+            idxs = [4, 3, 9, 24, 29, 10, 11];
+            logical_idxs = zeros(1, 30, 'logical');
+            logical_idxs(idxs) = true;
+            pix.set_data(fields, new_data, logical_idxs);
+
+            assertEqual(pix.get_data(fields, idxs), new_data);
+
+            % Check other fields/indices unchanged
+            non_edited_idxs = 1:pix.num_pixels;
+            non_edited_idxs(idxs) = [];
+            assertEqual(pix.data(:, non_edited_idxs), zeros(9, 23));
+        end
+
+        function test_set_data_sets_all_if_abs_pix_indices_not_given_filebacked(obj)
+            num_pix = 30;
+            data = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            npix_per_page = 11;
+            pix = obj.get_pix_with_fake_faccess(data, npix_per_page);
+
+            new_data = ones(3, num_pix);
+            fields = {'run_idx', 'signal', 'variance'};
+            pix.set_data(fields, new_data);
+
+            assertEqual(pix.get_data(fields), new_data);
+        end
+
+        function test_set_data_sets_all_if_abs_pix_indices_not_given(~)
+            num_pix = 30;
+            pix = PixelData(num_pix);
+            new_data = ones(3, num_pix);
+            fields = {'run_idx', 'signal', 'variance'};
+            pix.set_data(fields, new_data);
+
+            assertEqual(pix.get_data(fields), new_data);
         end
 
         % -- Helpers --
