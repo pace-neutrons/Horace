@@ -87,51 +87,10 @@ for i = 1:numel(win)
             % Get average h, k, l, e for the bin, compute sqw for that average,
             % and fill pixels with the average signal for the bin that contains
             % them
-
             pix_file_backed = ...
                 wout(i).data.pix.base_page_size < wout(i).data.pix.num_pixels;
             if pix_file_backed
-                pix = wout(i).data.pix;
-                npix = wout(i).data.npix;
-
-                % Split npix array into chunks such that each chunk's sum is
-                % <= to pixel page size.
-                % This allows us to pass the npix chunks into 'average_bin_data'.
-                [npix_chunks, idxs, pix_bin_ends] = split_vector(npix(:), pix.base_page_size);
-                pix_bin_starts = pix_bin_ends - npix(:) + 1;
-                for j = 1:numel(npix_chunks)
-                    npix_chunk = npix_chunks{j};
-                    bin_idxs = idxs(:, j);
-
-                    % Get pixels that belong to the bins in the current npix
-                    % chunk
-                    pix_starts = pix_bin_starts(bin_idxs(1));
-                    pix_ends = pix_bin_ends(bin_idxs(2));
-                    pix_chunk = pix.get_pix_in_ranges(pix_starts, pix_ends);
-
-                    % Create a temporary sqw object to calculate qw_pixels on
-                    w_tmp = wout(i);
-                    w_tmp.data.pix = pix_chunk;
-                    qw = calculate_qw_pixels(w_tmp);
-
-                    % Average the qw pixel data over each bin defined by the
-                    % npix chunk
-                    w_tmp.data.npix = npix_chunk;
-                    qw_ave = average_bin_data(w_tmp, qw);
-                    qw_ave = cellfun(@(x) x(:), qw_ave, 'UniformOutput', false);
-
-                    % Perform input function over the averaged pixel data
-                    s_tmp = sqwfunc(qw_ave{:}, pars{:});
-
-                    % Assign each pixel's signal to bin average, variance set
-                    % to zero
-                    pix_signal = repelem(s_tmp, npix_chunk);
-                    sig_var = vertcat(pix_signal', zeros(1, numel(pix_signal)));
-                    pix.set_data( ...
-                        {'signal', 'variance'}, sig_var, pix_starts:pix_ends ...
-                    );
-                end
-                wout(i) = recompute_bin_data(wout(i));
+                wout(i) = do_sqw_eval_average_filebacked(wout(i), sqwfunc, pars);
             else
                 qw = calculate_qw_pixels(win(i));
                 qw_ave = average_bin_data(win(i), qw);
@@ -144,7 +103,7 @@ for i = 1:numel(win)
             end
         end
 
-    else
+    else  % dnd-type object
         qw = calculate_qw_bins(win(i));
         if ~opts.all                    % only evaluate at the bins actually containing data
             ok = (win(i).data.npix ~= 0);   % should be faster than isfinite(1./win.data.npix), as we know that npix is zero or finite
@@ -164,16 +123,58 @@ end
 
 % -----------------------------------------------------------------------------
 function [sqwfunc, pars, opts] = parse_arguments(sqwfunc, pars, varargin)
-% Parse arguments for sqw_eval
-flags = {'-all', '-average'};
-[~, ~, all_flag, ave_flag, args] = parse_char_options(varargin, flags);
+    % Parse arguments for sqw_eval
+    flags = {'-all', '-average'};
+    [~, ~, all_flag, ave_flag, args] = parse_char_options(varargin, flags);
 
-parser = inputParser();
-parser.addRequired('sqwfunc', @(x) isa(x, 'function_handle'));
-parser.addRequired('pars');
-parser.addParameter('average', ave_flag, @islognumscalar);
-parser.addParameter('all', all_flag, @islognumscalar);
-parser.parse(sqwfunc, pars, args{:});
-opts = parser.Results;
+    parser = inputParser();
+    parser.addRequired('sqwfunc', @(x) isa(x, 'function_handle'));
+    parser.addRequired('pars');
+    parser.addParameter('average', ave_flag, @islognumscalar);
+    parser.addParameter('all', all_flag, @islognumscalar);
+    parser.parse(sqwfunc, pars, args{:});
+    opts = parser.Results;
+end
 
+
+function sqw_obj = do_sqw_eval_average_filebacked(sqw_obj, sqwfunc, pars)
+    % Execute the given function 'sqwfunc' on the average h, k, l values in
+    % each image bin
+    %
+    pix = sqw_obj.data.pix;
+    npix = sqw_obj.data.npix;
+
+    % Split npix array into chunks such that each chunk's sum is <= to pixel
+    % page size.
+    % This allows us to pass the npix chunks into 'average_bin_data'.
+    [npix_chunks, idxs, pix_bin_ends] = split_vector(npix(:), pix.base_page_size);
+    pix_bin_starts = pix_bin_ends - npix(:) + 1;
+    for j = 1:numel(npix_chunks)
+        npix_chunk = npix_chunks{j};
+        bin_idxs = idxs(:, j);
+
+        % Get pixels that belong to the bins in the current npix chunk
+        pix_starts = pix_bin_starts(bin_idxs(1));
+        pix_ends = pix_bin_ends(bin_idxs(2));
+        pix_chunk = pix.get_pix_in_ranges(pix_starts, pix_ends);
+
+        % Create a temporary sqw object to calculate qw_pixels on
+        w_tmp = sqw_obj;
+        w_tmp.data.pix = pix_chunk;
+        qw = calculate_qw_pixels(w_tmp);
+
+        % Average the qw pixel data over each bin defined by the npix chunk
+        w_tmp.data.npix = npix_chunk;
+        qw_ave = average_bin_data(w_tmp, qw);
+        qw_ave = cellfun(@(x) x(:), qw_ave, 'UniformOutput', false);
+
+        % Perform input function over the averaged image data
+        s_tmp = sqwfunc(qw_ave{:}, pars{:});
+
+        % Assign each pixel's signal to bin average, variance set to zero
+        pix_signal = repelem(s_tmp, npix_chunk);
+        sig_var = vertcat(pix_signal', zeros(1, numel(pix_signal)));
+        pix.set_data({'signal', 'variance'}, sig_var, pix_starts:pix_ends);
+    end
+    sqw_obj = recompute_bin_data(sqw_obj);
 end
