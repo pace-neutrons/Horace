@@ -44,7 +44,7 @@ classdef ExampleRealJobExecutor < JobExecutor
             end
 
 
-            % Receive the data
+            % Recieve the data
             try
                 [ok, err_mess, data] = obj.mess_framework.recieve_message(mod(obj.labIndex + 3,4)+1, 'any');
                 if ~ok

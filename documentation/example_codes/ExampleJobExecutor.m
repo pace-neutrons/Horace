@@ -1,4 +1,5 @@
-% Example object which just demonstrates the methods and variables available while parallel
+% Example object which just demonstrates the methods and variables available in JobExecutor
+% and where they come from
 classdef ExampleJobExecutor < JobExecutor
     methods
         function obj = ExampleJobExecutor()
@@ -16,11 +17,15 @@ classdef ExampleJobExecutor < JobExecutor
         function obj = do_job(obj)
         % Run once per iteration if "is_completed" does not return true
 
+       %% Data
+        % Each job executor will have access to the following data
+        % Each datum is local, and if changed, copy will update on local process only
+
         % Either an empty array if given int loop count or
         % data passed through start_job's loop_params
             obj.loop_data_
-        % Same copy of data initially sent to each process, however,
-        % if changed copy will update on local process
+        % Same copy of data initially sent to each process
+        % passed through start_job's common_params.
             obj.common_data_
         % Number of iterations given if job given number of loops
             obj.n_steps
