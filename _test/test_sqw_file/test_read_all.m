@@ -87,7 +87,7 @@ classdef test_read_all< TestCase
             
             assertEqual(numel(out),2);
             assertFalse(iscell(out));
-            assertTrue(isa(out,'sqw_old'));
+            assertTrue(isa(out,'sqw'));
             
             
             files = {fullfile(obj.sample_dir,'test_sqw_file','test_sqw_file_read_write_v3_1.sqw'),...
@@ -97,7 +97,7 @@ classdef test_read_all< TestCase
             
             assertEqual(numel(out),3);
             assertTrue(iscell(out));
-            assertTrue(isa(out{1},'sqw_old'));
+            assertTrue(isa(out{1},'sqw'));
             assertTrue(isa(out{3},'d2d_old'));
         end
         function obj = test_head(obj)
@@ -134,7 +134,7 @@ classdef test_read_all< TestCase
             assertEqual(numel(fields(out4)),14)
             assertEqual(out,out4);
             
-            tsw = sqw_old();
+            tsw = sqw();
             files = {fullfile(obj.sample_dir,'test_sqw_file','test_sqw_file_read_write_v3_1.sqw'),...
                 fullfile(obj.sample_dir,'test_sqw_file','test_sqw_file_read_write_v3.sqw')};
             

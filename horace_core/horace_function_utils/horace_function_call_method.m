@@ -93,19 +93,19 @@ else
 end
 
 if all(w.sqw_type)
-    dummy_obj=sqw_old;
+    dummy_obj=sqw;
 else
     ndims=w.ndims(1);
     if ndims==0
-        dummy_obj=d0d_old;
+        dummy_obj=d0d;
     elseif ndims==1
-        dummy_obj=d1d_old;
+        dummy_obj=d1d;
     elseif ndims==2
-        dummy_obj=d2d_old;
+        dummy_obj=d2d;
     elseif ndims==3
-        dummy_obj=d3d_old;
+        dummy_obj=d3d;
     elseif ndims==4
-        dummy_obj=d4d_old;
+        dummy_obj=d4d;
     end
 end
 

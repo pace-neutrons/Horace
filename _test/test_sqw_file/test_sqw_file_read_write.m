@@ -9,8 +9,7 @@ function test_sqw_file_read_write
 % These objects were read from an sqw file during the creation process, so we should not
 % have any subsequent problems with writing to and reading from disk.
 
-ds_struct=load('testdata_base_objects.mat');
-ds = manage_legacy_sqw_class_rename(ds_struct);
+ds=load('testdata_base_objects.mat');
 
 existing_objects=fieldnames(ds);
 for i=1:numel(existing_objects)
@@ -18,7 +17,7 @@ for i=1:numel(existing_objects)
     % @axis_name
     tmp=struct(ds.(existing_objects{i}));
     tmp = rmfield(tmp,'data_');
-    cur_sqw=sqw_old(tmp);
+    cur_sqw=sqw(tmp);
     var_name = existing_objects{i};
 
     eval(sprintf('%s = cur_sqw;', var_name));
