@@ -18,12 +18,15 @@ classdef test_gen_runfiles < TestCase
         end
 
         function test_gen_sqw_serial(obj)
-
+            skipTest("New sqw loader not implemented");
             % This test should always run serially
             % test_gen_sqw_accumulate_sqw_<framework> tests in parallel
-            original_hpc_conf = hpc_config().get_data_to_store();
-            set(hpc_config, 'build_sqw_in_parallel', false)
-            cleanup = onCleanup(@() set(hpc_config, original_hpc_conf));
+            hpc = hpc_config;
+            original_hpc_conf = hpc.get_data_to_store();
+            hpc.saveable = false;
+            hpc.build_sqw_in_parallel = false;
+            hpc.combine_sqw_using = 'matlab';
+            config_cleanup = onCleanup(@() set(hpc, original_hpc_conf));
 
             outdir = tmp_dir; % directory of spe and tmp files
 

@@ -332,7 +332,7 @@ void calc_projections_emode(double * const pMinMax,
     double const * const pEfix, size_t nEfixed, double k_to_e, int nThreads)
 {
     /********************************************************************************************************************
-    * Calculate projections in direct indirect or elasic mode;
+    * Calculate projections in direct indirect or elastic mode;
     * Output:
     * pTransfDetectors[4*nDetectors*nEnergies] the matrix of 4D coordinates detectors. The coordinates are transformed  into the projections axis
     * Inputs:

@@ -64,7 +64,7 @@ function [fig_handle, axes_handle, scroll_bar_handles, scroll_func] = ...
 %         hold off
 %     end
 %
-%   Jo„o Filipe Henriques, 2010
+%   Jo√£o Filipe Henriques, 2010
 
 % Modified by RAE 29.1.15 to allow input args to the redraw func, and other
 % bits and bobs to make everything work seamlessly for Horace

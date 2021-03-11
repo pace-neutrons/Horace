@@ -24,10 +24,6 @@ authors = ['A. Buts','T.G. Perring','N. Battam','H. Saunders','M.D. Le','C. Maro
 author = ', '.join(sorted(authors,key=lambda x: x.split()[-1])) # Authors by surname
 
 
-# The full version, including alpha/beta/rc tags
-release = '3.5.0'
-
-
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
