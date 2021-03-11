@@ -97,7 +97,7 @@ fwrite(obj.file_id_,bytes,'uint8');
 check_error_report_fail_(obj,'Error writing the pixels information');
 %
 if isa(input_obj.pix,'pix_combine_info')
-    npix = input_obj.pix.npixels;
+    npix = input_obj.pix.num_pixels;
 else
     npix = input_obj.pix.num_pixels;
 end

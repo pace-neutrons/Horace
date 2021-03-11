@@ -412,7 +412,7 @@ classdef combine_sqw_pix_job < JobExecutor
             
             common_par = struct();
             common_par.nbin     = pix_comb_info.nbins;
-            common_par.npixels  = pix_comb_info.npixels;
+            common_par.npixels  = pix_comb_info.num_pixels;
             if n_workers<3 && combine_mode>1
                 warning('COMBINE_SQW_PIX_JOB:invalid_argument',...
                     ' combine mode 2 can be enabled for more then 3 workers only. Switching to combine mode 1')

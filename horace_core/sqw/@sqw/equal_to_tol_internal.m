@@ -32,6 +32,7 @@ for idx = 1:numel(class_fields)
         tmp1.pix = PixelData();
         tmp2.pix = PixelData();
     end
+    
     [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a', name_a, 'name_b', name_b);
 
     if ~ok

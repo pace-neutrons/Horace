@@ -161,6 +161,11 @@ else
     % Read in data
     data = load(datafile, 'wsim');         % load from .mat file
     data.wsim = manage_legacy_sqw_class_rename(data.wsim);
+    %CHANGED revert data.wsim to sqw_old type to enable the old
+    %        save to file to work
+    tmp = struct(data.wsim);
+    tmp = rmfield(tmp,'data_');
+    data.wsim = sqw_old(tmp);
     save(data.wsim,sqw_file_res);   % save as an sqw file (se want to perform tests on sqw files, no objects
 end
 
@@ -211,7 +216,7 @@ end
 % Reorient the lattice in a copy of the file, and test that the new sqw file is correct
 copyfile(sqw_file_res,sqw_file_res_corr)
 change_crystal_sqw(sqw_file_res_corr,rlu_corr)
-[rlu0,width,wcut,wpeak]=bragg_positions(read_sqw(sqw_file_res_corr), rlu,...
+[rlu0,width,wcut,wpeak]=bragg_positions(sqw(sqw_file_res_corr), rlu,...
     radial_cut_length, radial_bin_width, radial_thickness,...
     trans_cut_length, trans_bin_width, trans_thickness, opt, 'bin_relative');
 % bragg_positions_view(wcut,wpeak)  % for manual checking

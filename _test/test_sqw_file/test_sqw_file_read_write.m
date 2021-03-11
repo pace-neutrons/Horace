@@ -16,7 +16,9 @@ existing_objects=fieldnames(ds);
 for i=1:numel(existing_objects)
     % HACK ! deal with old style sqw objects, which have not stored
     % @axis_name
-    cur_sqw=sqw_old(struct(ds.(existing_objects{i})));
+    tmp=struct(ds.(existing_objects{i}));
+    tmp = rmfield(tmp,'data_');
+    cur_sqw=sqw_old(tmp);
     var_name = existing_objects{i};
 
     eval(sprintf('%s = cur_sqw;', var_name));

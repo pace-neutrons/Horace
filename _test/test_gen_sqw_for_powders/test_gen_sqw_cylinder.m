@@ -65,7 +65,7 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
         end
 
         function this=test_gen_sqw_cyl(this)
-
+            skipTest("New sqw loader not supported yet");
             sqw_cyl_file=fullfile(tmp_dir,'test_cyl_4to1.sqw');
             % clean up
             cleanup_obj=onCleanup(@()this.delete_files(sqw_cyl_file));

@@ -1,4 +1,4 @@
-function img_range=write_nsqw_to_sqw (infiles, outfile,varargin)
+function [img_range,pix_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 % Read a collection of sqw files with a common grid and write to a single sqw file.
 %
 %   >> write_nsqw_to_sqw (infiles, outfiles,varargin)
@@ -25,61 +25,51 @@ function img_range=write_nsqw_to_sqw (infiles, outfile,varargin)
 %                       missing) so either this keyword or hpc_config
 %                       option or the instance of the JobDispatcher has to
 %                       be present to combine sqw files in  parallel.
+% keep_runid         -- if present, forces routine to keep run-id specific
+%                       defined in the contributing run-files instead of 
+%                       generating run-id on the basis of the data, stored
+%                       in the runfiles
+%
 % JobDispatcherInstance-- the initialized instance of JobDispatcher,
 %                       to use in combining sqw files in parallel
+% pix_range          -- [2x4] array of ranges (min/max q-dE coordinates values)
+%                       of all pixels, from all contributing files. If provided,
+%                       will be set as the range of the pixels, combined
+%                       together. If not, the range will be recalculated 
+%                       No checks are performed, so this range has to be
+%                       correct.
 %
 % Output:
 % -------
-%  img_range         -- the limits of the internal coordinates contained in
-%                      the combined fil
+%  img_range       -- the limits of the internal coordinates contained in
+%                     the combined fil
+%  pix_range       -- the actual range of the pixels, contributing into the
+%                     sqw file (useful if input pix_range is not provided)
 
 
 % T.G.Perring   27 June 2007
 % T.G.Perring   22 March 2013  Modified to enable sqw files with more than one spe file to be combined.
 %
 
-accepted_options = {'allow_equal_headers','drop_subzones_headers','parallel'};
+accepted_options = {'allow_equal_headers','keep_runid',...
+    'drop_subzones_headers','parallel'};
 
 if nargin<2
     error('WRITE_NSQW_TO_SQW:invalid_argument',...
         'function should have at least 2 input arguments')
 end
-[ok,mess,allow_equal_headers,drop_subzone_headers,combine_in_parallel,argi]...
+[ok,mess,allow_equal_headers,keep_runid,drop_subzone_headers,combine_in_parallel,argi]...
     = parse_char_options(varargin,accepted_options);
 if ~ok
     error('WRITE_NSQW_TO_SQW:invalid_argument',mess);
 end
+[pix_range,job_disp,jd_initialized]= parse_additional_input(argi);
 
 persistent old_matlab;
 if isempty(old_matlab)
     old_matlab = verLessThan('matlab', '8.1');
 end
 
-
-if ~isempty(argi)
-    is_jd = cellfun(@(x)(isa(x,'JobDispatcher')),argi,'UniformOutput',true);
-    if any(is_jd)
-        job_disp = argi(is_jd);
-        if numel(job_disp) >1
-            error('WRITE_NSQW_TO_SQW:invalid_argument',...
-                'only one instance of JobDispatcher can be provided as input');
-        else
-            job_disp  = job_disp{1};
-        end
-        %argi = argi(~is_jd);
-        if ~job_disp.is_initialized
-            error('WRITE_NSQW_TO_SQW:invalid_argument',...
-                'Only initialized JobDispatcher is currently supported as input for write_nsqw_to_sqw. Use "parallel" option to combine files in parallel');
-        end
-        jd_initialized = true;
-    else
-        job_disp = [];
-        jd_initialized = false;
-    end
-else
-    job_disp = [];
-    jd_initialized = false;
-end
 combine_mode = config_store.instance().get_value('hpc_config','combine_sqw_using');
 if isempty(job_disp)
     if strcmp(combine_mode,'mpi_code') || combine_in_parallel
@@ -138,9 +128,12 @@ if hor_log_level>-1
     disp('Reading header(s) of input file(s) and checking consistency...')
 end
 
-
-[main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
+%[main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs]
+[~,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
     accumulate_headers_job.read_input_headers(infiles);
+if all(all(pix_range == PixelData.EMPTY_RANGE_))
+    pix_range = pix_combine_info.recalc_pix_range_from_loaders(ldrs);
+end
 
 % Check consistency:
 % At present, we insist that the contributing spe data are distinct in that:
@@ -187,8 +180,8 @@ sqw_data.iint=datahdr{1}.iint;
 sqw_data.pax=datahdr{1}.pax;
 sqw_data.p=datahdr{1}.p;
 sqw_data.dax=datahdr{1}.dax;    % take the display axes from first file, for sake of choosing something
-% TODO: disentangle!!!
-% img_range at this stage is equal to pix_range
+% img_range at this stage is equal to pix_range + halo ~ eps, if pix_range was
+% estimated or input_pix_range if it has been provided
 sqw_data.img_range=img_range;
 
 % Now read in binning information
@@ -230,8 +223,8 @@ if combine_in_parallel
     else
         job_disp.display_fail_job_results(outputs,n_failed,n_workers,'WRITE_NSQW_TO_SQW:runtime_error');
     end
-
-
+    
+    
 else
     % read arrays and accumulate headers directly
     [s_accum,e_accum,npix_accum] = accumulate_headers_job.accumulate_headers(ldrs);
@@ -250,8 +243,8 @@ sqw_data.npix=uint64(npix_accum);
 clear nopix
 [ok,sqw_exist,outfile,err_mess] = check_file_writable(outfile);
 if ~ok
-   error('WRITE_NSQW_TO_SQW:invalid_argument',....
-            err_mess);
+    error('WRITE_NSQW_TO_SQW:invalid_argument',....
+        err_mess);
 end
 if sqw_exist          % init may want to upgrade the file and this
     delete(outfile);  %  is not the option we want to do here
@@ -264,7 +257,7 @@ if hor_log_level>-1
     disp(' ')
     disp(['Writing to output file ',outfile,' ...'])
 end
-if drop_subzone_headers
+if drop_subzone_headers || keep_runid
     run_label = 'nochange';
 else
     run_label=cumsum([0;nspe(1:end-1)]);
@@ -278,7 +271,7 @@ end
 % instead of the real pixels to place in target sqw file, place in pix field the
 % information about the way to get the contributing pixels
 sqw_data.pix = pix_combine_info(infiles,numel(sqw_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
-sqw_data.pix.pix_range = img_range;
+sqw_data.pix.pix_range = pix_range;
 
 [fp,fn,fe] = fileparts(outfile);
 main_header_combined.filename = [fn,fe];
@@ -301,7 +294,50 @@ else
     wrtr = wrtr.put_sqw();
 end
 wrtr.delete();
-
 %
 %
+function [pix_range,job_disp,jd_initialized]= parse_additional_input(argi)
+% parse input to extract pixel range and initialized job dispatcher if any
+% of them provided as input arguments
+%
+pix_range = PixelData.EMPTY_RANGE_;
+job_disp = [];
+jd_initialized = false;
+%
+if isempty(argi)
+    return;
+end
 
+is_jd = cellfun(@(x)(isa(x,'JobDispatcher')),argi,'UniformOutput',true);
+if any(is_jd)
+    job_disp = argi(is_jd);
+    if numel(job_disp) >1
+        error('WRITE_NSQW_TO_SQW:invalid_argument',...
+            'only one instance of JobDispatcher can be provided as input');
+    else
+        job_disp  = job_disp{1};
+    end
+    if ~job_disp.is_initialized
+        error('WRITE_NSQW_TO_SQW:invalid_argument',...
+            ['Only initialized JobDispatcher is currently supported',...
+            ' as input for write_nsqw_to_sqw.',...
+            ' Use "parallel" option to combine files in parallel']);
+    end
+    jd_initialized = true;
+    argi = argi(~is_jd);
+end
+%
+if isempty(argi)
+    return;
+end
+%
+is_range = cellfun(@(x)(all(size(x) == [2,4])),argi,'UniformOutput',true);
+if ~any(is_range)
+    return;
+end
+if sum(is_range) > 1
+    error('WRITE_NSQW_TO_SQW:invalid_argument',...
+        ['More then one variable in input arguments is interpreted as range.',...
+        ' This is not currently supported'])
+end
+pix_range  = argi{is_range};

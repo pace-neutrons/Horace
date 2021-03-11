@@ -33,7 +33,7 @@ classdef test_eval < TestCase
             err_message = '';
             try
                 ds = func_eval(obj.sqw_obj, ...
-                    @test_eval.funceval_tester2D, [], 'all');
+                    @test_eval.funceval_tester2D, [], '-all');
                 failed = false;
             catch ME
                 failed = true;
