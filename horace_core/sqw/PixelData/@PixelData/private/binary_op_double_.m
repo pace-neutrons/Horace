@@ -56,11 +56,11 @@ function obj = do_op_with_npix(obj, double_array, binary_op, flip, npix, npix_cu
     % The operation is performed whilst looping over the pages in the PixelData
     % object.
     %
-    [npix_chunks, idxs] = obj.split_npix(npix);
+    [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size, npix_cum_sum);
     page_number = 1;
     while true
         npix_for_page = npix_chunks{page_number};
-        idx = idxs{page_number};
+        idx = idxs(:, page_number);
 
         sig_chunk = repelem(double_array(idx(1):idx(2)), npix_for_page)';
 

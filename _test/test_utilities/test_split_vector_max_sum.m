@@ -5,7 +5,7 @@ methods
         obj@TestCase('test_split_vector_max_sum');
     end
 
-    function test_outputs_are_empty_if_inputs_are_empty(obj)
+    function test_outputs_are_empty_if_inputs_are_empty(~)
         [chunks, idxs] = split_vector_max_sum([], []);
         assertTrue(isa(chunks, 'cell'))
         assertTrue(isempty(chunks));

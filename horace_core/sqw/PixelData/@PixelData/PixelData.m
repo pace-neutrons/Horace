@@ -271,7 +271,6 @@ classdef PixelData < handle
         pix_out = noisify(obj, varargin);
         obj = recalc_pix_range(obj);
         set_data(obj, fields, data, abs_pix_indices);
-        [npix_chunks, idxs] = split_npix(obj, npix);
 
         function obj = PixelData(arg, mem_alloc)
             % Construct a PixelData object from the given data. Default

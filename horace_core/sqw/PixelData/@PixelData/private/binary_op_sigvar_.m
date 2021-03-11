@@ -5,11 +5,11 @@ function obj = binary_op_sigvar_(obj, operand, binary_op, flip, npix)
 npix_cum_sum = validate_inputs(obj, operand, npix);
 
 obj.move_to_first_page();
-[npix_chunks, idxs] = obj.split_npix(npix);
+[npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size, npix_cum_sum);
 page_number = 1;
 while true
     npix_for_page = npix_chunks{page_number};
-    idx = idxs{page_number};
+    idx = idxs(:, page_number);
 
     sigvar_pix = sigvar(obj.signal, obj.variance);
     if ~isequal(size(npix), [1, 1])

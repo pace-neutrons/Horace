@@ -15,7 +15,7 @@ if nargin < 3
 end
 
 obj.move_to_first_page();
-[npix_chunks, idxs] = obj.split_npix(npix);
+[npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
 
 signal_sum = zeros(1, numel(npix));
 variance_sum = zeros(1, numel(npix));
@@ -23,7 +23,7 @@ page_number = 1;
 % Loop over pages of data
 while true
     npix_for_page = npix_chunks{page_number};
-    idx = idxs{page_number};
+    idx = idxs(:, page_number);
 
     % Calculate and accumulate signal/variance sums
     [sig, variance] = compute_pix_sums_c(npix_for_page, obj.data, n_threads);
