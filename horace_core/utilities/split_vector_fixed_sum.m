@@ -1,4 +1,4 @@
-function [chunks, idxs] = split_vector_fixed_sum(numeric_vector, chunk_sum)
+function [chunks, idxs] = split_vector_fixed_sum(numeric_vector, chunk_sum, cumulative_sum)
 %SPLIT_VECTOR_FIXED_SUM Split the given vector into sub-vectors such that each
 % sub-vector has sum 'chunk_sum'. If chunk sum does not divide the sum of the
 % input vector, the final chunk's sum will be the remainder.
@@ -45,7 +45,9 @@ end
 validateattributes(numeric_vector, {'numeric'}, {'vector', 'nonnegative'});
 validateattributes(chunk_sum, {'numeric'}, {'scalar', 'positive'});
 
-cumulative_sum = cumsum(numeric_vector);
+if ~exist('cumulative_sum', 'var')
+    cumulative_sum = cumsum(numeric_vector);
+end
 vector_sum = cumulative_sum(end);
 num_chunks = ceil(vector_sum/chunk_sum);
 

@@ -1,4 +1,4 @@
-function [npix_chunks, idxs] = split_npix(obj, npix)
+function [npix_chunks, idxs] = split_npix(obj, npix, npix_cum_sum)
 %SPLIT_NPIX Split npix array into chunks such that each chunk contains a page
 % worth of pixels.
 %

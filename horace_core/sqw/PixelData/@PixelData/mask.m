@@ -108,11 +108,11 @@ function pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix)
 obj.move_to_first_page();
 pix_out = PixelData();
 
-[npix_chunks, idxs] = obj.split_npix(npix);
+[npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
 page_number = 1;
 while true
     npix_for_page = npix_chunks{page_number};
-    idx = idxs{page_number};
+    idx = idxs(:, page_number);
 
     mask_array_chunk = repelem(mask_array(idx(1):idx(2)), npix_for_page);
     pix_out.append(PixelData(obj.data(:, mask_array_chunk)));

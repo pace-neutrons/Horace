@@ -244,11 +244,11 @@ function loader = write_out_of_mem_pix(pix, npix, img_signal, loader)
     % that pixel belongs to. Set all variances to zero.
     %
     pix.move_to_first_page();
-    [npix_chunks, idxs] = pix.split_npix(npix);
+    [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), pix.base_page_size);
     page_number = 1;
     while true
         npix_chunk = npix_chunks{page_number};
-        idx = idxs{page_number};
+        idx = idxs(:, page_number);
 
         pix.signal = repelem(img_signal(idx(1):idx(2)), npix_chunk);
         pix.variance = 0;
