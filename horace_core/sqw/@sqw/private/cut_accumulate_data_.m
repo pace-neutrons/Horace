@@ -52,7 +52,7 @@ end
 block_size = obj.data.pix.base_page_size;
 % Get indices in order to split the candidate bin ranges into pixel page sized
 % chunks
-[~, sub_bin_idxs] = split_vector(bin_ends - bin_starts, block_size);
+[~, sub_bin_idxs] = split_vector_max_sum(bin_ends - bin_starts, block_size);
 num_chunks = size(sub_bin_idxs, 2);
 
 % If we only have one iteration of pixels to cut then we must be able to fit
