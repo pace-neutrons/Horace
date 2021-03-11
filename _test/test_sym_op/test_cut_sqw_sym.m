@@ -86,6 +86,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         %------------------------------------------------------------------------        
         %------------------------------------------------------------------------
         function test_cut_sym_with_pix (this)
+            skipTest("New dnd (d2d) not supported yet");
             % Test symmetrisation, keeping pixels
             
             % Turn off output, but return to input value when exit or cntl-c
@@ -102,7 +103,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         %------------------------------------------------------------------------
         function test_cut_sym_with_nopix (this)
             % Test symmetrisation, without keeping pixels
-            
+            skipTest("New dnd (d2d) not supported yet");
             % Turn off output, but return to input value when exit or cntl-c
             finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
             set(hor_config,'log_level',-1);  % turn off output

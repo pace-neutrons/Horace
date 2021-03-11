@@ -136,14 +136,16 @@ change_crystal_test(rlu_corr, w2_1_file, 'sqw', true, w2c_1_file)
 change_crystal_test(rlu_corr, w2_2_file, 'sqw', true, w2c_2_file)
 change_crystal_test(rlu_corr, w1_1_file, 'sqw', true, w1c_1_file)
 change_crystal_test(rlu_corr, w1_2_file, 'sqw', true, w1c_2_file)
+%{
+skipTest("New dnd: d2d not yet implemented");
 if(log_level>-1); disp('Testing...'); end
 change_crystal_test(rlu_corr, w2_1_file, 'dnd', true, w2c_1_file)
 change_crystal_test(rlu_corr, w2_2_file, 'dnd', true, w2c_2_file)
 change_crystal_test(rlu_corr, w1_1_file, 'dnd', true, w1c_1_file)
 change_crystal_test(rlu_corr, w1_2_file, 'dnd', true, w1c_2_file)
-
+%}
 %{
-skipTest("New dnd: d2d not yet implemented
+skipTest("New dnd: d2d not yet implemented");
 if(log_level>-1); disp('Testing...'); end
 change_crystal_test(rlu_corr, d2_1_file, 'hor', true, d2c_1_file)
 change_crystal_test(rlu_corr, d2_2_file, 'hor', true, d2c_2_file)
