@@ -64,8 +64,11 @@ for chunk_num = 1:num_chunks
     % contribute to the current chunk.
     % This index may contribute its full value, or only part of its value
     if chunk_num == 1
+        % For the first iteration, we need >= to catch leading zeros
         start_idx = (end_idx - 1) + find(cumulative_sum(end_idx:end) >= 0, 1);
     else
+        % We ignore leading zeros on subsequent iterations as they will have
+        % been assigned to the previous chunk
         start_idx = (end_idx - 1) + find(cumulative_sum(end_idx:end) > 0, 1);
     end
 
@@ -117,3 +120,98 @@ for chunk_num = 1:num_chunks
     idxs(:, chunk_num) = [start_idx; end_idx];
     allocated = allocated + sum(chunks{chunk_num});
 end
+
+
+% Algorithm run through:
+
+% numeric_vector = [3, 2, 3, 6]
+% chunk_sum = 6
+
+% cumulative_sum = [3, 5, 8, 14]
+% end_idx = 1
+
+% chunk_num == 1:
+
+% 	start_idx = (end_idx - 1) + find(cumulative_sum(end_idx:end) > 0, 1)
+% 		= 1
+
+% 	leftover_begin = cumulative_sum(start_idx)
+% 		= 3
+
+% 	cumulative_sum = cumulative_sum - chunk_sum
+% 		= [-3, -1, 2, 8]
+
+% 	end_idx = (start_idx - 1) + find(cumulative_sum(start_idx:end) > 0, 1)
+% 		= 3
+
+% 	chunk = [ ...
+%             leftover_begin, ...
+%             reshape(numeric_vector(start_idx + 1:end_idx - 1), 1, []), ...
+%             0 ...
+%         ];
+% 		= [3, 0]
+
+% 	leftover_end = chunk_sum - sum(chunk)
+% 		= 3
+
+% 	chunk(end) = 3
+% 	chunk
+% 		= [3, 3]
+
+
+% chunk_num == 2:
+
+% 	start_idx = (end_idx - 1) + find(cumulative_sum(end_idx:end) > 0, 1)
+% 		= 3
+
+% 	leftover_begin = cumulative_sum(start_idx)
+% 		= 2
+
+% 	cumulative_sum = cumulative_sum - chunk_sum
+% 		= [-9, -7, -4, 2]
+
+% 	end_idx = (start_idx - 1) + find(cumulative_sum(start_idx:end) > 0, 1)
+% 		= 4
+
+% 	chunk = [ ...
+% 		leftover_begin, ...
+% 		reshape(numeric_vector(start_idx + 1:end_idx - 1), 1, []), ...
+% 		0 ...
+%     ];
+% 		= [2, 0]
+
+% 	leftover_end = chunk_sum - sum(chunk)
+% 		= 4
+
+% 	chunk(end) = 4
+% 	chunk
+% 		= [2, 4]
+
+
+% chunk_num == 3:  (final chunk)
+
+% 	start_idx = (end_idx - 1) + find(cumulative_sum(end_idx:end) > 0, 1)
+% 		= 4
+
+% 	leftover_begin = cumulative_sum(start_idx)
+% 		= 2
+
+% 	cumulative_sum = cumulative_sum - chunk_sum
+% 		= [-15, -13, -10, -4]
+
+% 	end_idx = (start_idx - 1) + find(cumulative_sum(start_idx:end) > 0, 1)
+% 		= []
+
+% 	if isempty(end_idx)
+%         end_idx = numel(numeric_vector);
+% 			= 4
+%     end
+
+% 	if start_idx == end_idx
+% 		chunk = min(chunk_sum, numeric_vector(start_idx) - leftover_end);
+% 			= 2
+% 	end
+
+
+
+
