@@ -12,6 +12,7 @@ classdef test_sqw_eval < TestCase
         sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw';
         sqw_2d_sqw_eval_ref_obj;
         sqw_2d_sqw_eval_ref_file = 'test_sqw_eval_gauss_ref.sqw';
+        sqw_2d_pix_pg_size = 3e5; % Gives us 6 pages
 
         gauss_sqw;
         gauss_params;
@@ -138,6 +139,10 @@ classdef test_sqw_eval < TestCase
         end
 
         function test_gauss_on_sqw_with_filebacked_pix_matches_reference_file(obj)
+            conf_cleanup = set_temporary_config_options( ...
+                hor_config, 'pixel_page_size', obj.sqw_2d_pix_pg_size ...
+            );
+
             out_sqw = sqw_eval( ...
                 obj.sqw_2d_file_path, obj.gauss_sqw, obj.gauss_params, ...
                 'filebacked', true ...
@@ -150,6 +155,10 @@ classdef test_sqw_eval < TestCase
         end
 
         function test_gauss_on_sqw_w_filebacked_and_ave_equal_to_in_memory(obj)
+            conf_cleanup = set_temporary_config_options( ...
+                hor_config, 'pixel_page_size', obj.sqw_2d_pix_pg_size ...
+            );
+
             % In this function we just test equivalence between in-memory and
             % file-backed.
             % We test that the in-memory is correct in:
