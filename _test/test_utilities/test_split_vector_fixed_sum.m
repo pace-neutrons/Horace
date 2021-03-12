@@ -13,7 +13,7 @@ methods
         assertTrue(isempty(idxs));
     end
 
-    function test_error_if_input_is_not_a_vector(~)
+    function test_error_if_first_arg_is_not_a_vector(~)
         vector = ones(2, 10);
         f = @() split_vector_fixed_sum(vector, 100);
         assertExceptionThrown(f, 'MATLAB:expectedVector');
@@ -118,7 +118,7 @@ methods
         assertEqual(idxs, expected_idxs);
     end
 
-    function test_scalar_input_split_if_value_gt_chunk_sum(~)
+    function test_scalar_input_vector_split_if_value_gt_chunk_sum(~)
         chunk_sum = 10;
         [chunks, idxs] = split_vector_fixed_sum(31, chunk_sum);
         expected_chunks = {10, 10, 10, 1};
