@@ -7,15 +7,16 @@ function [chunks, idxs] = split_vector_fixed_sum(numeric_vector, chunk_sum, cumu
 %
 % Input:
 % ------
-% numeric_vector A vector of numeric, non-negative, values.
-% chunk_sum      A positive value specifying the sum for each sub-vector.
+% numeric_vector   A vector of numeric, non-negative, values.
+% chunk_sum        A positive value specifying the sum for each sub-vector.
+% cumulative_sum   The cumulative sum of 'numeric_vector'. (optional)
 %
 % Output:
 % -------
 % chunks   Cell array of vectors.
 % idxs     The indices at which the input vector was "split". Has size
-%          [2, n], where n is numel(chunks). Each idxs(:, i) is the
-%          lower and upper index into 'numeric_vector' of chunks{i}.
+%          [2, n], where n is numel(chunks). Each idxs(:, chunk_num) is the
+%          lower and upper index into 'numeric_vector' of chunks{chunk_num}.
 %
 % Example:
 % --------
@@ -55,7 +56,7 @@ chunks = cell(1, num_chunks);
 idxs = zeros(2, num_chunks);
 end_idx = 1;
 allocated = 0;
-for i = 1:num_chunks
+for chunk_num = 1:num_chunks
     chunk_sum = min(chunk_sum, vector_sum - allocated);
 
     start_idx = (end_idx - 1) + find(cumulative_sum(end_idx:end) > 0, 1);
@@ -74,7 +75,7 @@ for i = 1:num_chunks
         if ~exist('leftover_end', 'var')
             leftover_end = 0;
         end
-        chunks{i} = min(chunk_sum, numeric_vector(start_idx) - leftover_end);
+        chunks{chunk_num} = min(chunk_sum, numeric_vector(start_idx) - leftover_end);
     else
         chunk = [ ...
             leftover_begin, ...
@@ -83,14 +84,14 @@ for i = 1:num_chunks
         ];
 
         leftover_end = chunk_sum - sum(chunk);
-        if leftover_end == 0 && i ~= num_chunks
+        if leftover_end == 0 && chunk_num ~= num_chunks
             chunk = chunk(1:end - 1);
             end_idx = end_idx - 1;
         else
             chunk(end) = leftover_end;
         end
-        chunks{i} = chunk;
+        chunks{chunk_num} = chunk;
     end
-    idxs(:, i) = [start_idx; end_idx];
-    allocated = allocated + sum(chunks{i});
+    idxs(:, chunk_num) = [start_idx; end_idx];
+    allocated = allocated + sum(chunks{chunk_num});
 end
