@@ -81,6 +81,23 @@ methods
         assertEqual(idxs, expected_idxs);
     end
 
+    function test_input_vector_is_split_into_expected_chunks_zeros_at_start(~)
+        numeric_vector = [0, 0, 3, 2, 0, 5, 0, 0, 6, 0, 5, 0, 0];
+        chunk_sum = 10;
+        [chunks, idxs] = split_vector_fixed_sum(numeric_vector, chunk_sum);
+
+        expected_chunks = {
+            [0, 0, 3, 2, 0, 5, 0, 0], ...
+            [6, 0, 4], ...
+            [1, 0, 0] ...
+        };
+        assertEqual(chunks, expected_chunks);
+
+        expected_idxs = [1, 9,  11;
+                         8, 11, 13];
+        assertEqual(idxs, expected_idxs);
+    end
+
     function test_scalar_input_split_if_value_gt_chunk_sum(~)
         chunk_sum = 10;
         [chunks, idxs] = split_vector_fixed_sum(31, chunk_sum);
