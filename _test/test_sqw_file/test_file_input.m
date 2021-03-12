@@ -21,7 +21,6 @@ classdef  test_file_input < TestCase
 
     methods
         function obj = test_file_input(varargin)
-            %skipTest("New sqw loader not implemented");
             if nargin > 0
                 name = varargin{1};
             else
@@ -128,12 +127,10 @@ classdef  test_file_input < TestCase
         end
         %
         function obj = test_normal_file_cut(obj)
-            %skipTest("Infinite Loop");
             obj=obj.input_operations();
         end
         %
         function obj = test_crossbuf_file_cut(obj)
-            %skipTest("Infinite Loop");
             hc = hor_config;
             mem_chunk_size = hc.mem_chunk_size;
             clob = onCleanup(@()set(hor_config,'mem_chunk_size',mem_chunk_size));
