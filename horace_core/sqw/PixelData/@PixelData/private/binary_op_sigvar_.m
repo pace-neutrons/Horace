@@ -6,8 +6,7 @@ npix_cum_sum = validate_inputs(obj, operand, npix);
 
 obj.move_to_first_page();
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size, npix_cum_sum);
-page_number = 1;
-while true
+for page_number = 1:numel(npix_chunks)
     npix_for_page = npix_chunks{page_number};
     idx = idxs(:, page_number);
 
