@@ -57,26 +57,48 @@ idxs = zeros(2, num_chunks);
 end_idx = 1;
 allocated = 0;
 for chunk_num = 1:num_chunks
-    chunk_sum = min(chunk_sum, vector_sum - allocated);
+    remaining_sum = vector_sum - allocated;
+    chunk_sum = min(chunk_sum, remaining_sum);
 
-    start_idx = (end_idx - 1) + find(cumulative_sum(end_idx:end) > 0, 1);
+    % Find the index of the first value in the input vector that will
+    % contribute to the current chunk.
+    % This index may contribute its full value, or only part of its value
+    if chunk_num == 1
+        start_idx = (end_idx - 1) + find(cumulative_sum(end_idx:end) >= 0, 1);
+    else
+        start_idx = (end_idx - 1) + find(cumulative_sum(end_idx:end) > 0, 1);
+    end
 
+    % The start value of the current chunk. This will be non-zero if we didn't
+    % assign the end index's full value on the last iteration
     leftover_begin = cumulative_sum(start_idx);
 
+    % Subtract the sum of the values we've allocated this iteration from the
+    % cumulative sum. This means the next 'find' call will retrieve the index
+    % such that the chunk
     cumulative_sum = cumulative_sum - chunk_sum;
 
+    % Now the cumulative_sum has been decremented, a similar 'find' call to
+    % above finds the final index for the this iteration's chunk
     end_idx = (start_idx - 1) + find(cumulative_sum(start_idx:end) > 0, 1);
 
     if isempty(end_idx)
+        % No end index found, so we must be at the end of the vector
         end_idx = numel(numeric_vector);
     end
 
     if start_idx == end_idx
+        % All vector values in single value for this chunk
         if ~exist('leftover_end', 'var')
             leftover_end = 0;
         end
         chunks{chunk_num} = min(chunk_sum, numeric_vector(start_idx) - leftover_end);
     else
+        % Build the chunk, leftover begin is the remainder of the end index
+        % value, that wasn't assigned in the previous iteration.
+        % Add an empty element to the end, which will either be used to hold a
+        % part of the end index's value. If there's no remainder on the end
+        % index's value, the empty element will be removed
         chunk = [ ...
             leftover_begin, ...
             reshape(numeric_vector(start_idx + 1:end_idx - 1), 1, []), ...
