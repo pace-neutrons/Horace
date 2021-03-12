@@ -3,7 +3,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
     properties
     end
     methods
-        %
+
         function obj = test_exchange_FileBasedMPI(name)
             if ~exist('name', 'var')
                 name = 'test_exchange_FileBasedMPI';
@@ -15,18 +15,18 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
                 'MessagesFileBasedMPI_mirror_tester','herbert',cs);
             obj.mess_name_fix = '';
         end
-        %
+
         function test_finalize_all(~)
             mf = MFTester('test_finalize_all');
             clon = onCleanup(@()finalize_all(mf));
-            %
+
             [ok, err] = mf.send_message(0, 'queued');
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
             [ok, err] = mf.send_message(0, LogMessage());
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
-            %
+
             ok = mf.receive_message(0, 'queued');
             assertEqual(ok, MESS_CODES.ok)
             ok = mf.receive_message(0, 'log');
@@ -36,14 +36,14 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             [all_messages_names, task_ids] = mf.probe_all(0, 'log');
             assertTrue(isempty(all_messages_names));
             assertTrue(isempty(task_ids));
-            %
+
             ok = mf.is_job_canceled();
             assertFalse(ok);
             mf.finalize_all();
             ok = mf.is_job_canceled();
             assertTrue(ok);
         end
-        %
+
         function test_receive_all_mess_client_server(this)
             fii = iMessagesFramework.build_worker_init(this.working_dir, ...
                 'FB_MPI_Test_recevie_all', 'MessagesFilebased', 0, 3,'test_mode');
@@ -71,13 +71,13 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
 
             ok = mf0.send_message(3, mess);
             assertEqual(ok, MESS_CODES.ok)
-            %
+
             [mess, task_id] = mf3.receive_all(0, 'starting');
             assertEqual(numel(mess), 1);
             assertEqual(numel(task_id), 1);
             assertEqual(task_id(1), 0);
             assertEqual(mess{1}.mess_name, 'starting')
-            %
+
             % Send 3 messages from "3 labs" and receive all of them
             % on the control lab
             ok = mf1.send_message(0, 'started');
@@ -97,7 +97,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertEqual(task_id(2), 2);
             assertEqual(task_id(3), 3);
         end
-        %
+
         function test_probe_all(this)
             fs = iMessagesFramework.build_worker_init(this.working_dir, ...
                 'MFT_probe_all_messages', 'MessagesFilebased', 0, 5,'test_mode');
@@ -133,7 +133,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             [ok, err] = m3.send_message(0, mess);
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
-            %
+
             % HACK: This is the test, confirming that files written one
             % after another can have random write date, despite often they
             % have dates following the write order.
@@ -142,7 +142,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             % for testing various filesystems though and common
             % understanding of the situation
             %[all_mess, mid_from] = m_host.probe_all(3);
-            %
+
             [all_mess, mid_from] = m_host.probe_all(3,'log'); % this always wors but not what we vanted to test.
             assertEqual(numel(all_mess), 1);
             assertEqual(all_mess{1}, 'log');
@@ -159,7 +159,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertEqual(ok, MESS_CODES.ok)
             assertTrue(isempty(err));
 
-            %
+
             [all_mess, id_from] = m_host.probe_all();
 
             % failed overwrites log despite log send later
@@ -168,7 +168,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertEqual(id_from(1), 3);
 
         end
-        %
+
         function lock_file = build_fake_inverse_lock(~, mf, mess_name)
             % file write lock build when message is send , but for
             % mirrored target i.e. when send message is actually reflacted
@@ -181,7 +181,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             fh = fopen(lock_file, 'w');
             fclose(fh);
         end
-        %
+
         function lock_file = build_fake_lock(~, mf, mess_name)
             % file write lock normally build when message is written.
             mess_file = mf.mess_file_name(5,mess_name,mf.labIndex);
@@ -191,7 +191,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             fh = fopen(lock_file, 'w');
             fclose(fh);
         end
-        %
+
         function test_ignore_locked(obj)
             % test verifies that filebased messages which have lock are not
             % observed by the system until unlocked.
@@ -287,7 +287,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             all_mess = mf.probe_all();
             assertTrue(isempty(all_mess));
         end
-        %
+
         function test_folder_migration(this)
             mf = MessagesFileBasedMPI_mirror_tester();
             mf.mess_exchange_folder = this.working_dir;
@@ -295,7 +295,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             clob = onCleanup(@()mf.finalize_all());
 
             cfn = config_store.instance().config_folder_name;
-            jfn = fullfile(this.working_dir, cfn, mf.exchange_folder_name, mf.job_id);
+            jfn = fullfile(this.working_dir, cfn, mf.exchange_folder_name, mf.job_id)
             assertTrue(is_folder(jfn));
 
             [ok, err] = mf.send_message(7, 'queued');
@@ -337,7 +337,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertFalse(is_folder(jnf));
         end
 
-        %
+
         function test_shared_folder(this)
             mf = MessagesFileBasedMPI_mirror_tester();
             mf.mess_exchange_folder = this.working_dir;
@@ -362,7 +362,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertFalse(is_folder(jfn));
         end
 
-        %
+
         function test_barrier(this)
             mf = MessagesFilebased('test_barrier');
             mf.mess_exchange_folder = this.working_dir;
@@ -427,10 +427,10 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertEqual(mess.mess_name, 'barrier');
 
         end
-        %
+
         function test_barrier_ignores_failed(this)
             % To deploy barrier, init should be not in test mode!
-            %
+
             mf = MessagesFilebased('test_barrier_fail');
             mf.mess_exchange_folder = this.working_dir;
             clob = onCleanup(@()mf.finalize_all());
@@ -572,7 +572,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertEqual(ok, MESS_CODES.ok, err)
             assertEqual(mess.mess_name, 'canceled');
         end
-        %
+
         function test_data_queue(obj)
             css1 = iMessagesFramework.build_worker_init(obj.working_dir, ...
                 'test_data_queue', 'MessagesFilebased', 1, 3);
@@ -631,13 +631,13 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertTrue(isempty(all_mess))
             assertTrue(isempty(mid_from))
         end
-        %
+
         function test_message(this)
             fiis = iMessagesFramework.build_worker_init(this.working_dir, ...
                 'test_message', 'MessagesFilebased', 0, 3);
             fii = iMessagesFramework.deserialize_par(fiis);
 
-            %
+
             job_param = struct('filepath', this.working_dir, ...
                 'filename_template', 'test_jobDispatcher%d_nf%d.txt');
 
@@ -652,7 +652,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
 
             mess_fname = mf0.mess_file_name(1, 'started');
             assertTrue(is_file(mess_fname));
-            %
+
             fii.labID = 1;
             mf1 = MFTester(fii);
             [ok, err, the_mess] = mf1.receive_message(0, 'started');
@@ -669,7 +669,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             [ok,err] = mf0.send_message(1,init_mess);
             assertEqual(ok,MESS_CODES.ok)
             assertTrue(isempty(err));
-            %
+
             assertTrue(is_file(mess_fname));
 
             [ok,err,the_mess]=mf1.receive_message(0,'init');
@@ -715,7 +715,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             nm = nums+1;
             assertEqual(name,['test_next_job1_id_num_',num2str(nm)]);
         end
-        %
+
         function test_next_job_id_no_num(~)
             mf = MessagesFilebased();
             mf.job_id = 'test_next_job_nonum';
@@ -733,6 +733,6 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
 
             assertEqual(1:numel(digit_pos),digit_pos)
         end
-        %
+
     end
 end
