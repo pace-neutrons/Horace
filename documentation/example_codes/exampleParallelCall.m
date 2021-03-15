@@ -44,7 +44,7 @@ disp(jd);
 
 % Run with struct whose first field denotes job count(?)
 jd = JobDispatcher('RunWithStruct');
-data = struct('nJobs',10);
+data = struct('a',{{1,2,3,4}},'b',{{2,2,3,4}}); % Cell arrs must be same size
 [outputs, n_failed, task_ids, jd] = jd.start_job('ExampleRealJobExecutor', [1,2], data, true, 4);
 
 disp(outputs);
