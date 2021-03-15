@@ -62,12 +62,8 @@ for chunk_num = 1:num_chunks
     chunk_sum = min(chunk_sum, remaining_sum);
 
     if chunk_num == 1
-        % For the first iteration, we need >= to catch leading zeros
-        % This index may contribute its full value, or only part of its value
-        start_idx = (end_idx - 1) + find(cumulative_sum(end_idx:end) >= 0, 1);
+        start_idx = 1;
     else
-        % We ignore leading zeros on subsequent iterations as they will have
-        % been assigned to the previous chunk
         start_idx = (end_idx - 1) + find(cumulative_sum(end_idx:end) > 0, 1);
     end
 
