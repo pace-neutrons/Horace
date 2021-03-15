@@ -46,6 +46,9 @@ end
 
 validateattributes(numeric_vector, {'numeric'}, {'vector', 'nonnegative'});
 validateattributes(chunk_sum, {'numeric'}, {'scalar', 'positive'});
+if iscolumn(numeric_vector)
+    numeric_vector = reshape(numeric_vector, 1, []);
+end
 
 if ~exist('cumulative_sum', 'var')
     cumulative_sum = cumsum(numeric_vector);
@@ -88,11 +91,7 @@ for chunk_num = 1:num_chunks
         % Add an empty element to the end, which will be used to hold a part of
         % the end index's value. If there's no remainder on the end index's
         % value, the empty element will be removed
-        chunk = [ ...
-            leftover_begin, ...
-            reshape(numeric_vector(start_idx + 1:end_idx - 1), 1, []), ...
-            0 ...
-        ];
+        chunk = [leftover_begin, numeric_vector(start_idx + 1:end_idx - 1), 0];
 
         leftover_end = chunk_sum - sum(chunk);
         if leftover_end == 0 && chunk_num ~= num_chunks
