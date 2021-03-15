@@ -31,11 +31,12 @@ function [chunks, idxs] = split_vector_fixed_sum(numeric_vector, chunk_sum, cumu
 %
 % >> numeric_vector = [24];
 % >> chunk_sum = 10;
+% >> [chunks, idxs] = split_vector_max_sum(numeric_vector, chunk_sum)
 %   chunks =
 %       { [10], [10], [4] }
 %   idxs =
-%       1
-%       1
+%       1    1    1
+%       1    1    1
 %
 if isempty(numeric_vector)
     chunks = {};
