@@ -81,10 +81,8 @@ for chunk_num = 1:num_chunks
     end
 
     if start_idx == end_idx
-        % All vector values in single value for this chunk
-        if ~exist('leftover_end', 'var')
-            leftover_end = 0;
-        end
+        % This chunk contains a single value (the chunk sum)
+        leftover_end = 0;
         chunks{chunk_num} = min(chunk_sum, numeric_vector(start_idx) - leftover_end);
     else
         % Add an empty element to the end, which will be used to hold a part of
