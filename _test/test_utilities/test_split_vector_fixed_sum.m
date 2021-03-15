@@ -127,8 +127,32 @@ methods
         assertEqual(idxs, [1, 1, 1; 1, 1, 1]);
     end
 
+    function test_correct_splitting_if_first_element_gt_chunk_sum(~)
+        numeric_vector = [23, 2, 0, 6, 0, 5, 3, 1, 1, 24, 4, 2, 3, 0];
+        chunk_sum = 10;
+        [chunks, idxs] = split_vector_fixed_sum(numeric_vector, chunk_sum);
+
+        expected_chunks = {
+            10, ...
+            10, ...
+            [3, 2, 0, 5], ...
+            [1, 0, 5, 3, 1], ...
+            [1, 9], ...
+            10, ...
+            [5, 4, 1], ...
+            [1, 3, 0] ...
+        };
         assertEqual(chunks, expected_chunks);
-        assertEqual(idxs, [1, 1, 1, 1;  1, 1, 1, 1]);
+
+        expected_idxs = [1, 1, 1, 4, 9, 10, 10, 12;
+                         1, 1, 4, 8, 10, 10, 12, 14];
+        assertEqual(idxs, expected_idxs);
+    end
+
+    function test_scalar_lt_chunk_sum_returns_single_chunk_containing_scalar(~)
+        [chunks, idxs] = split_vector_fixed_sum(10, 20);
+        assertEqual(chunks, {10});
+        assertEqual(idxs, [1; 1]);
     end
 end
 
