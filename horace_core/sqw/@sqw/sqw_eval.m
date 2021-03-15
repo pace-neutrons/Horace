@@ -155,10 +155,10 @@ function sqw_obj = do_sqw_eval_average_filebacked(sqw_obj, sqwfunc, pars)
         % Get pixels that belong to the bins in the current npix chunk
         pix_chunk = pix.get_pix_in_ranges(pix_start_idx, pix_end_idx);
 
-        % Calculate qh, qk, ql, and en for the pixels  (qw_pix is cell array)
+        % Calculate qh, qk, ql, and en for the pixels (qw_pix is cell array)
         qw_pix = get_qw_pixels_(sqw_obj, pix_chunk);
 
-        % % Average the qw pixel data over each bin defined by the npix chunk
+        % Average the qw pixel data over each bin defined by the npix chunk
         qw_ave = average_qw_pix_(sqw_obj, qw_pix, npix_chunk);
 
         % Perform input function over the averaged image data
