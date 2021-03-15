@@ -56,14 +56,14 @@ function wout=disp2sqw_eval(win,dispreln,pars,fwhh,opt)
 %                           The output I has the same dimensions as the
 %                           input Emat.
 %
-%   'all'       [option] Requests that the calculated sqw be returned over
+%   '-all'       [option] Requests that the calculated sqw be returned over
 %              the whole of the domain of the input dataset. If not given, then
 %              the function will be returned only at those points of the dataset
 %              that contain data.
 %               Applies only to input with no pixel information - it is ignored if
 %              full sqw object.
 %
-%   'ave'       [option] Requests that the calculated sqw be computed for the
+%   '-ave'       [option] Requests that the calculated sqw be computed for the
 %              average values of h,k,l of the pixels in a bin, not for each
 %              pixel individually. Reduces cost of expensive calculations.
 %               Applies only to the case of sqw object with pixel information - it is
@@ -78,12 +78,17 @@ function wout=disp2sqw_eval(win,dispreln,pars,fwhh,opt)
 all_bins=false;
 ave_pix=false;
 if exist('opt','var')  % no option given
-    if ischar(opt) && ~isempty(strmatch(lower(opt),'all'))    % option 'all' given
+    if ischar(opt) && startsWith(opt,'-all', 'IgnoreCase', true)
         all_bins=true;
-    elseif ischar(opt) && ~isempty(strmatch(lower(opt),'ave'))    % option 'ave' given
+    elseif ischar(opt) && startsWith(opt,'-ave', 'IgnoreCase', true)
         ave_pix=true;
     else
-        error('Unrecognised option')
+        error( ...
+            'HORACE:SQW:unrecognized_option', ...
+            ['Unrecognised option ''%s''. ' ...
+             'Valid options are ''-all'' or ''-ave''.'], ...
+            opt ...
+        );
     end
 end
 
@@ -91,12 +96,12 @@ wout = copy(win);
 if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
 
 for i=1:numel(win)
-    if is_sqw_type(win(i));   % determine if sqw or dnd type
+    if is_sqw_type(win(i))   % determine if sqw or dnd type
         % If sqw type, then must evaluate at every pixel, as qh,qk,ql in general will be different for every pixel
         if ~ave_pix
             wout(i)=sqw_eval(win(i),@disp2sqw,{dispreln,pars,fwhh});
         else
-            wout(i)=sqw_eval(win(i),@disp2sqw,{dispreln,pars,fwhh},'ave');
+            wout(i)=sqw_eval(win(i),@disp2sqw,{dispreln,pars,fwhh},'-ave');
         end
     else
         % If dnd type, then can take advantage of Cartesian grid to calculate dispersion for the Q grid only

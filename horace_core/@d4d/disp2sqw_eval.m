@@ -38,14 +38,14 @@ function wout=disp2sqw_eval(win,varargin)
 %
 %   fwhh        Full-width half-height of Gaussian broadening to dispersion relation(s)
 %
-%   'all'       [option] Requests that the calculated sqw be returned over
+%   '-all'       [option] Requests that the calculated sqw be returned over
 %              the whole of the domain of the input dataset. If not given, then
 %              the function will be returned only at those points of the dataset
 %              that contain data.
 %               Applies only to input with no pixel information - it is ignored if
 %              full sqw object.
 %
-%   'ave'       [option] Requests that the calculated sqw be computed for the
+%   '-ave'       [option] Requests that the calculated sqw be computed for the
 %              average values of h,k,l of the pixels in a bin, not for each
 %              pixel individually. Reduces cost of expensive calculations.
 %               Applies only to the case of sqw object with pixel information - it is
