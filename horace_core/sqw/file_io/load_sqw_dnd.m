@@ -37,8 +37,7 @@ parser.parse(sources, varargin{:});
 opts = parser.Results;
 
 % Return any unmatched name-value pairs
-% TODO: namedargs2cell is new in R2019b - write an alternative
-unmatched_args = namedargs2cell(parser.Unmatched);
+unmatched_args = struct_to_named_args_cell(parser.Unmatched);
 
 if iscell(sources)
     % We're not sure whether the inputs are sqw/dnd yet. Set the output array
