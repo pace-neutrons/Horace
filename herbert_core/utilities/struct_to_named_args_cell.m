@@ -7,12 +7,25 @@ function C = struct_to_named_args_cell(S)
 % This function converts a 1-by-1 structure with n number of fields to a
 % 1-by-2n cell array with interleaved names and values.
 %
-% namedargs2cell is a Matlab built-in introduced in R2019b. This function
-% provides a wrapper for compatibility with older Matlab releases.
+% This function aims to be equivalent to namedargs2cell, which is a Matlab
+% built-in introduced in R2019b. namedargs2cell is called if it's available,
+% otherwise code that aims to replicate namedargs2cell's behaviour is executed.
+%
+% Input:
+% ------
+% S    A scalar struct.
+%
+% Output:
+% -------
+% C    A cell array containing names and values of S.
 %
 % Example:
-%   clear s, s.category = 'tree'; s.height = 37.4; s.name = 'birch';
-%   c = struct2cell(s); f = fieldnames(s);
+% --------
+%   >> clear s, s.category = 'tree'; s.height = 37.4; s.name = 'birch';
+%   >> c = struct_to_named_args_cell(s)
+%   c =
+%     1x6 cell array
+%       {'category', 'tree', 'height', 37.4000, 'name', 'birch'}
 %
 try
     % namedargs2cell introduced in R2019b
