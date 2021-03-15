@@ -104,5 +104,5 @@ for chunk_num = 1:num_chunks
         chunks{chunk_num} = chunk;
     end
     idxs(:, chunk_num) = [start_idx; end_idx];
-    allocated = allocated + sum(chunks{chunk_num});
+    allocated = allocated + chunk_sum;
 end
