@@ -119,9 +119,14 @@ methods
     end
 
     function test_scalar_input_vector_split_if_value_gt_chunk_sum(~)
+        numeric_vector = 24;
         chunk_sum = 10;
-        [chunks, idxs] = split_vector_fixed_sum(31, chunk_sum);
-        expected_chunks = {10, 10, 10, 1};
+        [chunks, idxs] = split_vector_fixed_sum(numeric_vector, chunk_sum);
+        expected_chunks = {10, 10, 4};
+        assertEqual(chunks, expected_chunks);
+        assertEqual(idxs, [1, 1, 1; 1, 1, 1]);
+    end
+
         assertEqual(chunks, expected_chunks);
         assertEqual(idxs, [1, 1, 1, 1;  1, 1, 1, 1]);
     end
