@@ -114,7 +114,7 @@ methods
     function test_3rd_return_value_is_cumulative_sum_of_input_vector(~)
         vector = [3.5, 2.1, 0, 5.5, 0, 5.1, 3.4, 1, 1, 4.1, 2, 3, 0.2];
         max_sum = 11;
-        [~, ~, cumulative_sum] = split_vector(vector, max_sum);
+        [~, ~, cumulative_sum] = split_vector_max_sum(vector, max_sum);
         assertEqual(cumulative_sum, cumsum(vector));
     end
 end
