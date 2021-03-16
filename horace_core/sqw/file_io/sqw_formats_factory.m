@@ -45,10 +45,10 @@ classdef sqw_formats_factory < handle
         %
         % Rules to load/save different classes:
         % sqw2 corresponds to sqw file in indirect mode with varying efixed
-        written_types_ = {'sqw_old','sqw2','dnd','d0d_old','d1d_old','d2d_old','d3d_old','d4d_old'};
+        written_types_ = {'sqw', 'sqw_old','sqw2','dnd','d0d_old','d1d_old','d2d_old','d3d_old','d4d_old'};%,'sqw'};
         % number of loader in the list of loaders above to use for saving
         % correspondent class
-        access_to_type_ind_ = {1,3,5,5,5,5,5,5};
+        access_to_type_ind_ = {1,1,3,5,5,5,5,5,5};
         types_map_ ;
     end
     properties(Dependent)
@@ -192,7 +192,7 @@ classdef sqw_formats_factory < handle
                 the_type = varargin{1};
             else
                 the_type = class(varargin{1});
-                if isa(varargin{1},'sqw_old')
+                if isa(varargin{1},'sqw')
                     sobj = varargin{1};
                     header =sobj.header;
                     if iscell(header)

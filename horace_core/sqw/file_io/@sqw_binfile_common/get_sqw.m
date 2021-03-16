@@ -106,7 +106,7 @@ if opts.legacy
 elseif opts.head || opts.his
     sqw_object  = sqw_struc;
 else
-    sqw_object = sqw_old(sqw_struc);
+    sqw_object = sqw(sqw_struc);
 end
 
 end  % function

@@ -71,7 +71,8 @@ classdef test_combine_pow < TestCaseWithSave
         end
         
         function this=test_combine_pow1(this)
-            skipTest("New sqw loader not supported yet");
+            skipTest("New dnd object not comparing with d2d_old saved version");
+
             % Create sqw files, combine and check results
             % -------------------------------------------
             sqw_file_1=fullfile(tmp_dir,'test_pow_1.sqw');
@@ -100,7 +101,8 @@ classdef test_combine_pow < TestCaseWithSave
             
         end
         function this=test_combine_pow2(this)
-            skipTest("New sqw loader not supported yet");
+            skipTest("New dnd object not comparing with d2d_old saved version");
+
             % Create sqw files, combine and check results
             % -------------------------------------------
             sqw_file_2=fullfile(tmp_dir,'test_pow_2.sqw');
@@ -128,7 +130,9 @@ classdef test_combine_pow < TestCaseWithSave
             %--------------------------------------------------------------------------------------------------
         end
         function this = test_combine_pow_tot(this)
-            skipTest("New sqw loader not supported yet");
+            skipTest("Not tested - parallel issues");
+            skipTest("New dnd object not comparing with d2d_old saved version - probably");
+
             % Create sqw files, combine and check results
             % -------------------------------------------
             sqw_file_tot=fullfile(tmp_dir,'test_pow_tot.sqw');
