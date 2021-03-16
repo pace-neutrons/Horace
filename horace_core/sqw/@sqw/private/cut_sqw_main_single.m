@@ -184,7 +184,7 @@ if opt.keep_pix
     w.detpar=detpar;
     w.data=data_out; % will be missing the field 'pix' if pix_tmpfile_ok=true
 else
-    [w,mess]=make_sqw(true,data_out);   % make dnd-type sqw structure
+    [w,mess]=make_sqw_from_data(true,data_out);   % make dnd-type sqw structure
     if ~isempty(mess), error(mess), end
 end
 

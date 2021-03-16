@@ -22,15 +22,17 @@ classdef test_sqw_main < TestCase
             out_dnd_file = fullfile(obj.out_dir, 'test_sqw_main_test_read_sqw_dnd.sqw');
             cleanup_obj = onCleanup(@()delete(out_dnd_file));
 
-            sqw_data = read_sqw(test_data);
-            assertTrue(isa(sqw_data,'sqw_old'))
+            sqw_data = sqw(test_data);
+            assertTrue(isa(sqw_data,'sqw'))
             
             assertElementsAlmostEqual(sqw_data.data.alatt,[2.8700 2.8700 2.8700],'absolute',1.e-4);
             assertElementsAlmostEqual(size(sqw_data.data.npix),[21,20]);
             assertElementsAlmostEqual(sqw_data.data.pax,[2,4]);
             assertElementsAlmostEqual(sqw_data.data.iax,[1,3]);
             
-            
+            %{
+            skipTest("New dnd: d2d not yet implemented");
+
             test_dnd = d2d_old(sqw_data);
             [targ_path,targ_file,fext] = fileparts(out_dnd_file);
             save(test_dnd,out_dnd_file)
@@ -42,6 +44,7 @@ classdef test_sqw_main < TestCase
 
             [ok, mess] = equal_to_tol(loaded_dnd, test_dnd, 'ignore_str', true);
             assertTrue(ok, mess)
+            %}
         end
 
         function test_setting_pix_page_size_in_constructor_pages_pixels(obj)

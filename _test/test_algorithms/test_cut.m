@@ -92,7 +92,6 @@ methods
     end
 
     function test_you_can_take_a_cut_from_an_sqw_file_to_another_sqw_file(obj)
-        skipTest("New sqw loader not available");
         outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
         ret_sqw = cut(obj.sqw_file, obj.ref_params{:}, outfile);
         cleanup = onCleanup(@() clean_up_file(outfile));
@@ -103,7 +102,6 @@ methods
     end
 
     function test_you_can_take_a_cut_from_an_sqw_object_to_an_sqw_file(obj)
-        skipTest("New sqw loader not available");
         sqw_obj = sqw(obj.sqw_file);
 
         outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');

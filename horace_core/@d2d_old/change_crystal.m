@@ -56,7 +56,7 @@ if ~isempty(mess), error(mess); end
 % ------------------
 % Now call sqw cut routine. Output (if any), is a cell array, as method is passed a data source structure
 if numel(args)>3, error('Check number of input arguments'), end     % catch case of u,v passed from *_horace 
-argout=change_crystal(sqw_old,w,args{:});
+argout=change_crystal(sqw,w,args{:});
 if ~isempty(argout)
     argout{1}=dnd(argout{1});   % as return argument is sqw object of dnd-type
 end

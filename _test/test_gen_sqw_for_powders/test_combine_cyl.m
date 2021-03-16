@@ -73,7 +73,7 @@ classdef test_combine_cyl < TestCaseWithSave
         end
         
         function this=test_combine_cyl1(this)
-            skipTest("New sqw class loader not supported yet");
+            skipTest("New dnd object not comparing with d2d_old saved version");
             % Create sqw files, combine and check results
             % -------------------------------------------
             sqw_file_1=fullfile(tmp_dir,'test_cyl_1.sqw');
@@ -87,7 +87,7 @@ classdef test_combine_cyl < TestCaseWithSave
             w2_1 = cut_sqw(sqw_file_1,0.1,0.1,[40,50],'-nopix');
             w1_1 = cut_sqw(sqw_file_1,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
             
-            
+            w2_1 = manage_legacy_sqw_class_rename(w2_1);
             this.assertEqualToTolWithSave(w2_1,'ignore_str',true,'tol',1.e-7)
             this.assertEqualToTolWithSave(w1_1,'ignore_str',true,'tol',1.e-7)
             
@@ -103,7 +103,8 @@ classdef test_combine_cyl < TestCaseWithSave
             
         end
         function this=test_combine_cyl2(this)
-            skipTest("New sqw class loader not supported yet");
+            skipTest("Not tested - parallel issues");
+            skipTest("New dnd object not comparing with d2d_old saved version");
             % Create sqw files, combine and check results
             % -------------------------------------------
             sqw_file_2=fullfile(tmp_dir,'test_cyl_2.sqw');
