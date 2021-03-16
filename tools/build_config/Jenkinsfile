@@ -224,20 +224,20 @@ pipeline {
         script {
           if (isUnix()) {
             sh '''
-          module load cmake/\$CMAKE_VERSION &&
-          module load matlab/\$MATLAB_VERSION &&
-          module load gcc/\$GCC_VERSION &&
-          module load cppcheck/\$CPPCHECK_VERSION &&
-          ./tools/build_config/build.sh \
-            --cmake_flags \"-DHorace_RELEASE_TYPE=\$RELEASE_TYPE\" \
-            --matlab_release \$MATLAB_VERSION \
-            --print_versions \
-            --configure
-          '''
+              module load cmake/\$CMAKE_VERSION &&
+              module load matlab/\$MATLAB_VERSION &&
+              module load gcc/\$GCC_VERSION &&
+              module load cppcheck/\$CPPCHECK_VERSION &&
+              ./tools/build_config/build.sh \
+                --cmake_flags \"-DHerbert_RELEASE_TYPE=\$RELEASE_TYPE\" \
+                --matlab_release \$MATLAB_VERSION \
+                --print_versions \
+                --configure
+              '''
           } else {
             powershell '''
            ./tools/build_config/build.ps1 \
-                -cmake_flags \"-DHorace_RELEASE_TYPE=\$env:RELEASE_TYPE\" \
+                -cmake_flags \"-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE\" \
                 -matlab_release \$env:MATLAB_VERSION \
                 -vs_version \$env:VS_VERSION \
                 -print_versions \
