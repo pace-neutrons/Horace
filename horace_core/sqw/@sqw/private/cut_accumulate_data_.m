@@ -177,28 +177,8 @@ end
 function pci = init_pix_combine_info(nfiles, nbins)
 % Create a pix_combine_info object to manage temporary files of pixels
 wk_dir = get(parallel_config, 'working_directory');
-tmp_file_names = gen_array_of_tmp_file_paths(nfiles, wk_dir);
+tmp_file_names = gen_array_of_tmp_file_paths(nfiles, 'horace_cut', wk_dir);
 pci = pix_combine_info(tmp_file_names, nbins);
-end
-
-
-function paths = gen_array_of_tmp_file_paths(nfiles, base_dir)
-% Generate a cell array of paths for temporary files to be written to
-% Format of the file names follows:
-%   horace_cut_<UUID>_<counter_with_padded_zeros>.tmp
-if nfiles < 1
-    error('CUT:cut_accumulate_data_', ...
-        ['Cannot create temporary file paths for less than 1 file.' ...
-        '\nFound %i.'], nfiles);
-end
-prefix = 'horace_cut';
-uuid = char(java.util.UUID.randomUUID());
-counter_padding = floor(log10(nfiles)) + 1;
-format_str = sprintf('%s_%s_%%0%ii.tmp', prefix, uuid, counter_padding);
-paths = cell(1, nfiles);
-for i = 1:nfiles
-    paths{i} = fullfile(base_dir, sprintf(format_str, i));
-end
 end
 
 

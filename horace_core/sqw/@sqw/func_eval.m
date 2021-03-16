@@ -195,31 +195,12 @@ function [func_handle, pars, opts] = parse_args(win, func_handle, pars, varargin
     end
     if outfiles_empty && opts.filebacked
         opts.outfile = gen_array_of_tmp_file_paths( ...
-            numel(win), 'horace_func_eval', tmp_dir() ...
+            numel(win), 'horace_func_eval', tmp_dir(), 'sqw' ...
         );
     end
 
     func_handle = opts.func_handle;
     pars = opts.pars;
-end
-
-
-function paths = gen_array_of_tmp_file_paths(nfiles, prefix, base_dir)
-    % Generate a cell array of paths for temporary files to be written to
-    % Format of the file names follows:
-    %   <prefix>_<UUID>_<counter_with_padded_zeros>.tmp
-    if nfiles < 1
-        error('CUT:cut_accumulate_data_', ...
-              ['Cannot create temporary file paths for less than 1 file.' ...
-               '\nFound %i.'], nfiles);
-    end
-    uuid = char(java.util.UUID.randomUUID());
-    counter_padding = floor(log10(nfiles)) + 1;
-    format_str = sprintf('%s_%s_%%0%ii.tmp', prefix, uuid, counter_padding);
-    paths = cell(1, nfiles);
-    for i = 1:nfiles
-        paths{i} = fullfile(base_dir, sprintf(format_str, i));
-    end
 end
 
 
