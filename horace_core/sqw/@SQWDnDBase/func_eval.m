@@ -111,7 +111,7 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
     sqw_type=has_pixels(win(i));   % determine if sqw or dnd type
     ndim=length(win(i).data_.pax);
     if sqw_type || ~opts.all        % only evaluate at the bins actually containing data
-        ok=(win(i).data_.npix~=0);   % should be faster than isfinite(1./win.data.npix), as we know that npix is zero or finite
+        ok=(win(i).data_.npix~=0);   % should be faster than isfinite(1./win.data_.npix), as we know that npix is zero or finite
     else
         ok=true(size(win(i).data_.npix));
     end
@@ -135,15 +135,15 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
     % If sqw object, fill every pixel with the value of its corresponding bin
     if sqw_type
         if ~opts.filebacked
-            s = repelem(wout(i).data.s(:), win(i).data.npix(:));
-            wout(i).data.pix.signal = s;
-            wout(i).data.pix.variance = zeros(size(s));
+            s = repelem(wout(i).data_.s(:), win(i).data_.npix(:));
+            wout(i).data_.pix.signal = s;
+            wout(i).data_.pix.variance = zeros(size(s));
         else
             write_sqw_with_out_of_mem_pix(wout(i), opts.outfile{i});
         end
     elseif opts.all
         % in this case, must set npix>0 to be plotted
-        wout(i).data.npix=ones(size(wout(i).data.npix));
+        wout(i).data_.npix=ones(size(wout(i).data_.npix));
     end
 
     % Save to file if outfile argument is given
@@ -231,7 +231,7 @@ function write_sqw_with_out_of_mem_pix(sqw_obj, outfile)
     ldr = sqw_formats_factory.instance().get_pref_access(sqw_obj);
     ldr = ldr.init(sqw_obj, outfile);
     ldr.put_sqw('-nopix');
-    ldr = write_out_of_mem_pix(sqw_obj.data.pix, sqw_obj.data.npix, sqw_obj.data.s, ldr);
+    ldr = write_out_of_mem_pix(sqw_obj.data_.pix, sqw_obj.data_.npix, sqw_obj.data_.s, ldr);
     ldr = ldr.validate_pixel_positions();
     ldr = ldr.put_footers();
     ldr.delete();
