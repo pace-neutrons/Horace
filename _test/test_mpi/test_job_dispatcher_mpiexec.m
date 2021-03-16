@@ -1,9 +1,7 @@
 classdef test_job_dispatcher_mpiexec < job_dispatcher_common_tests
 
-    properties
-    end
     methods
-        %
+
         function this=test_job_dispatcher_mpiexec(name)
             if ~exist('name', 'var')
                 name = 'test_job_dispatcher_mpiexec';
@@ -13,9 +11,41 @@ classdef test_job_dispatcher_mpiexec < job_dispatcher_common_tests
         end
 
         function test_ClusterMPI_get_mpiexec_executable_exists(~)
-            skipTest('Test disabled due to intermittent failure')
             mpiexec_path = ClusterMPI.get_mpiexec();
             assertTrue(isfile(mpiexec_path));
         end
+
+        function test_job_fail_restart(obj, varargin)
+            if ispc() && is_jenkins()
+                skipTest('Consistent failures on Windows');
+            else
+                test_job_fail_restart@job_dispatcher_common_tests(obj, varargin{:});
+            end
+        end
+
+        function test_job_with_logs_3workers(obj, varargin)
+            if ispc() && is_jenkins()
+                skipTest('Consistent failures on Windows');
+            else
+                test_job_with_logs_3workers@job_dispatcher_common_tests(obj, varargin{:});
+            end
+        end
+
+        function test_job_with_logs_2workers(obj, varargin)
+            if ispc() && is_jenkins()
+                skipTest('Consistent failures on Windows');
+            else
+                test_job_with_logs_2workers@job_dispatcher_common_tests(obj, varargin{:});
+            end
+        end
+
+        function test_job_with_logs_worker(obj, varargin)
+            if ispc() && is_jenkins()
+                skipTest('Consistent failures on Windows');
+            else
+                test_job_with_logs_worker@job_dispatcher_common_tests(obj, varargin{:});
+            end
+        end
    end
+
 end
