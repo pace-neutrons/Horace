@@ -45,9 +45,7 @@ end
 
 validateattributes(numeric_vector, {'numeric'}, {'vector', 'nonnegative'});
 validateattributes(chunk_sum, {'numeric'}, {'scalar', 'positive'});
-if iscolumn(numeric_vector)
-    numeric_vector = reshape(numeric_vector, 1, []);
-end
+numeric_vector = make_row(numeric_vector);
 
 if ~exist('cumulative_sum', 'var')
     cumulative_sum = cumsum(numeric_vector);
