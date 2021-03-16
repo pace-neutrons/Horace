@@ -177,7 +177,7 @@ end
 function pci = init_pix_combine_info(nfiles, nbins)
 % Create a pix_combine_info object to manage temporary files of pixels
 wk_dir = get(parallel_config, 'working_directory');
-tmp_file_names = gen_array_of_tmp_file_paths(nfiles, 'horace_cut', wk_dir);
+tmp_file_names = gen_unique_file_paths(nfiles, 'horace_cut', wk_dir);
 pci = pix_combine_info(tmp_file_names, nbins);
 end
 
