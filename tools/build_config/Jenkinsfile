@@ -236,7 +236,7 @@ pipeline {
               '''
           } else {
             powershell '''
-           ./tools/build_config/build.ps1 \
+              ./tools/build_config/build.ps1 \
                 -cmake_flags \"-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE\" \
                 -matlab_release \$env:MATLAB_VERSION \
                 -vs_version \$env:VS_VERSION \
