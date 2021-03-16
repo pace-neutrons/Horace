@@ -1,10 +1,10 @@
-function paths = gen_array_of_tmp_file_paths(nfiles, prefix, base_dir, ext)
+function paths = gen_unique_file_paths(nfiles, prefix, base_dir, ext)
 % Generate a cell array of unique file paths within the given base directory
 % The format of the file names follows:
 %   <prefix>_<36_char_UUID>_<counter_with_padded_zeros>.<ext>
 %
-%  >> gen_array_of_tmp_file_paths(nfiles, prefix, base_dir)
-%  >> gen_array_of_tmp_file_paths(nfiles, prefix, base_dir, ext)
+%  >> gen_unique_file_paths(nfiles, prefix, base_dir)
+%  >> gen_unique_file_paths(nfiles, prefix, base_dir, ext)
 %
 % Input:
 % ------
