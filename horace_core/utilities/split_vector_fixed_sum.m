@@ -1,4 +1,4 @@
-function [chunks, idxs] = split_vector_fixed_sum(numeric_vector, chunk_sum, cumulative_sum)
+function [chunks, idxs] = split_vector_fixed_sum(numeric_vector, chunk_sum)
 %SPLIT_VECTOR_FIXED_SUM Split the given vector into sub-vectors such that each
 % sub-vector's sum is exactly 'chunk_sum'. If chunk sum does not divide the sum
 % of the input vector, the final chunk's sum will be the remainder.
@@ -9,7 +9,6 @@ function [chunks, idxs] = split_vector_fixed_sum(numeric_vector, chunk_sum, cumu
 % ------
 % numeric_vector   A vector of numeric, non-negative, values.
 % chunk_sum        A positive value specifying the sum for each sub-vector.
-% cumulative_sum   The cumulative sum of 'numeric_vector'. (optional)
 %
 % Output:
 % -------

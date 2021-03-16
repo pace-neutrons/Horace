@@ -2,14 +2,14 @@ function obj = binary_op_double_(obj, double_array, binary_op, flip, npix)
 %% BINARY_OP_DOUBLE_ perform a binary operation between this PixelData object
 % and an array
 %
-npix_cum_sum = validate_input_array(obj, double_array, npix);
+validate_input_array(obj, double_array, npix);
 
 obj.move_to_first_page();
 
 if isempty(npix)
     obj = do_op_with_no_npix(obj, double_array, binary_op, flip);
 else
-    obj = do_op_with_npix(obj, double_array, binary_op, flip, npix, npix_cum_sum);
+    obj = do_op_with_npix(obj, double_array, binary_op, flip, npix);
 end
 
 end  % function
@@ -42,7 +42,7 @@ function obj = do_op_with_no_npix(obj, double_array, binary_op, flip)
 end
 
 
-function obj = do_op_with_npix(obj, double_array, binary_op, flip, npix, npix_cum_sum)
+function obj = do_op_with_npix(obj, double_array, binary_op, flip, npix)
     % Perform the given binary op between the given PixelData object and the
     % given double array replicated uses npix.
     % An example operation with the "plus" operator is given below:
@@ -56,7 +56,7 @@ function obj = do_op_with_npix(obj, double_array, binary_op, flip, npix, npix_cu
     % The operation is performed whilst looping over the pages in the PixelData
     % object.
     %
-    [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size, npix_cum_sum);
+    [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
     for page_number = 1:numel(npix_chunks)
         npix_for_page = npix_chunks{page_number};
         idx = idxs(:, page_number);
@@ -78,7 +78,7 @@ function obj = do_op_with_npix(obj, double_array, binary_op, flip, npix, npix_cu
 end
 
 
-function npix_cum_sum = validate_input_array(obj, double_array, npix)
+function validate_input_array(obj, double_array, npix)
     if ~isequal(size(double_array), [1, obj.num_pixels]) && isempty(npix)
         required_size = sprintf('[1 %i]', obj.num_pixels);
         actual_size = num2str(size(double_array));
@@ -89,15 +89,14 @@ function npix_cum_sum = validate_input_array(obj, double_array, npix)
     elseif ~isempty(npix)
         % Get the cumsum rather than just the sum here since it's required in
         % do_op_with_npix
-        npix_cum_sum = cumsum(npix(:));
-        if npix_cum_sum(end) ~= obj.num_pixels
-            error('PIXELDATA:binary_op_double_', ...
+        num_pix = sum(npix(:));
+        if num_pix ~= obj.num_pixels
+            error( ...
+                'PIXELDATA:binary_op_double_', ...
                 ['Cannot perform binary operation. Sum of ''npix'' must be ' ...
                 'equal to the number of pixels in the PixelData object.\n' ...
                 'Found ''%i'' pixels in npix but ''%i'' in PixelData.'], ...
-                npix_cum_sum(end), obj.num_pixels);
+                num_pix, obj.num_pixels);
         end
-    else
-        npix_cum_sum = [];
     end
 end

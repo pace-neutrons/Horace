@@ -2,10 +2,10 @@ function obj = binary_op_sigvar_(obj, operand, binary_op, flip, npix)
 %% BINARY_OP_SIGVAR_ perform a binary operation between this and a sigvar or
 % sigvar-like object (e.g. dnd)
 %
-npix_cum_sum = validate_inputs(obj, operand, npix);
+validate_inputs(obj, operand, npix);
 
 obj.move_to_first_page();
-[npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size, npix_cum_sum);
+[npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
 for page_number = 1:numel(npix_chunks)
     npix_for_page = npix_chunks{page_number};
     idx = idxs(:, page_number);
@@ -30,22 +30,25 @@ end
 
 end % function
 
+
 % -----------------------------------------------------------------------------
-function npix_cum_sum = validate_inputs(pix, operand, npix)
+function validate_inputs(pix, operand, npix)
     dnd_size = sigvar_size(operand);
     if ~isequal(dnd_size, [1, 1]) && ~isequal(dnd_size, size(npix))
-        error('PIXELDATA:do_binary_op', ...
-            ['dnd operand must have size [1,1] or size equal to the inputted ' ...
-            'npix array.\nFound dnd size %s, and npix size %s'], ...
-            iarray_to_matstr(dnd_size), iarray_to_matstr(size(npix)));
+        error( ...
+            'PIXELDATA:do_binary_op', ...
+            ['sigvar operand''s signal array must have size [1  1] or size ' ...
+             'equal to the inputted npix array.\n' ...
+             'Found operand signal array size [%s], and npix size [%s]'], ...
+            num2str(dnd_size), num2str(size(npix)));
     end
 
-    npix_cum_sum = cumsum(npix(:));
-    if npix_cum_sum(end) ~= pix.num_pixels
+    num_pix = sum(npix(:));
+    if num_pix ~= pix.num_pixels
         error('PIXELDATA:binary_op_sigvar_', ...
             ['Cannot perform binary operation. Sum of ''npix'' must be ' ...
             'equal to the number of pixels in the PixelData object.\n' ...
             'Found ''%i'' pixels in npix but ''%i'' in PixelData.'], ...
-            npix_cum_sum(end), pix.num_pixels);
+            num_pix, pix.num_pixels);
     end
 end
