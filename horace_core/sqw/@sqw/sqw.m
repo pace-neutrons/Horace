@@ -51,6 +51,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         [header_ave, ebins_all_same]=header_average(header);
         [alatt,angdeg,ok,mess] = lattice_parameters(win);
         [wout, pars_out] = refine_crystal_strip_pars (win, xtal, pars_in);
+        wout = section (win,varargin);
+        [sqw_type, ndims, nfiles, filename, mess,ld] = is_sqw_type_file(w,infile);
+        [d, mess] = make_sqw_from_data(varargin);        
+        varargout = head (varargin);
+        d=spe(w);
         
 		%{
         %[deps,eps_lo,eps_hi,ne]=energy_transfer_info(header);

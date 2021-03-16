@@ -180,12 +180,12 @@ classdef test_faccess_sqw_v2< TestCase
 
             sqw_obj = fo.get_sqw();
 
-            assertTrue(isa(sqw_obj,'sqw_old'));
+            assertTrue(isa(sqw_obj,'sqw'));
             assertEqual(sqw_obj.main_header.filename,fo.filename)
             assertEqual(sqw_obj.main_header.filepath,fo.filepath)
 
             sqw_obj1 = fo.get_sqw('-hverbatim');
-            assertTrue(isa(sqw_obj1,'sqw_old'));
+            assertTrue(isa(sqw_obj1,'sqw'));
             assertEqual(sqw_obj1.main_header.filename,'ei140.sqw')
             assertEqual(sqw_obj1.main_header.filepath,...
                 'C:\Russell\PCMO\ARCS_Oct10\Data\SQW\')
@@ -320,6 +320,7 @@ classdef test_faccess_sqw_v2< TestCase
         %
         function obj = test_put_dnd_from_sqw(obj)
             %
+            skipTest("New dnd object not yet implemented - d2d_old used");
             spath = fileparts(obj.sample_file);
             samplef  = fullfile(spath,'w2d_qq_small_sqw.sqw');
 
@@ -377,7 +378,7 @@ classdef test_faccess_sqw_v2< TestCase
             % important! -verbatim is critical here! without it we should
             % reinitialize object to write!
             sq_obj = ttob.get_sqw('-verbatim');
-            assertTrue(isa(sq_obj,'sqw_old'));
+            assertTrue(isa(sq_obj,'sqw'));
 
             test_f = fullfile(tmp_dir,'test_sqw_reopen_to_wrire.sqw');
             clob = onCleanup(@()delete(test_f));

@@ -140,13 +140,13 @@ classdef test_faccess_sqw_v3_3< TestCase
             
             sqw_obj = fo.get_sqw();
             
-            assertTrue(isa(sqw_obj,'sqw_old'));
+            assertTrue(isa(sqw_obj,'sqw'));
             assertEqual(sqw_obj.main_header.filename,fo.filename)
             assertEqual(sqw_obj.main_header.filepath,fo.filepath)
             
             sqw_obj1 = fo.get_sqw('-hverbatim');
             
-            assertTrue(isa(sqw_obj1,'sqw_old'));
+            assertTrue(isa(sqw_obj1,'sqw'));
             assertEqual(sqw_obj1.main_header.filename,'test_sqw_file_read_write_v3.sqw')
             assertEqual(sqw_obj1.main_header.filepath,...
                 'C:\Users\abuts\Documents\developing_soft\Horace\_test\test_sqw_file\')
@@ -163,7 +163,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             
             ref_range = sqw_ob.data.img_range;
             
-            assertTrue(isa(sqw_ob,'sqw_old'));
+            assertTrue(isa(sqw_ob,'sqw'));
             % Create sample
             sam1=IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
             %inst1=create_test_instrument(95,250,'s');
@@ -198,7 +198,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             sqw_ob = so.get_sqw();
             ref_range = sqw_ob.data.img_range;
             
-            assertTrue(isa(sqw_ob,'sqw_old'));
+            assertTrue(isa(sqw_ob,'sqw'));
             
             inst1=create_test_instrument(95,250,'s');
             sqw_ob.header(1).instrument = inst1;

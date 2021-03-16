@@ -19,7 +19,7 @@ else
 end
 %
 
-if isa(input_obj,'sqw_old') || is_sqw_struct(input_obj)
+if isa(input_obj,'sqw') || is_sqw_struct(input_obj)
     subobj = input_obj.(obj_name);
 elseif  isstruct(input_obj)|| isa(input_obj,'is_holder')  % the requested object provided directly
     subobj = input_obj;  % and is one of the supported types

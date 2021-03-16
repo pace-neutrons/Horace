@@ -161,11 +161,7 @@ else
     % Read in data
     data = load(datafile, 'wsim');         % load from .mat file
     data.wsim = manage_legacy_sqw_class_rename(data.wsim);
-    %CHANGED revert data.wsim to sqw_old type to enable the old
-    %        save to file to work
-    tmp = struct(data.wsim);
-    tmp = rmfield(tmp,'data_');
-    data.wsim = sqw_old(tmp);
+    
     save(data.wsim,sqw_file_res);   % save as an sqw file (se want to perform tests on sqw files, no objects
 end
 

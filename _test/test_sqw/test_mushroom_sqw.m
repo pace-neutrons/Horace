@@ -82,7 +82,6 @@ classdef test_mushroom_sqw < TestCaseWithSave
         end
         %
         function test_gen_sqw(obj)
-            skipTest("New sqw loader not implemented");
             wkdir = obj.working_dir;
             sqw_file= fullfile(wkdir,'test_gen_sqw_indirect.sqw');
             cleanup_obj1=onCleanup(@()obj.delete_files(sqw_file));
@@ -92,7 +91,7 @@ classdef test_mushroom_sqw < TestCaseWithSave
             gen_sqw (data_file, '', sqw_file, obj.det_energy,...
                 2, [2*pi,2*pi,2*pi], [90,90,90], [0,0,1], [0,-1,0],0,0,0,0,0);
             
-            sqo = read_sqw(sqw_file);
+            sqo = sqw(sqw_file);
             % Make some cuts: ---------------
             u=[0,0,1]; v=[0,1,0];
             proj = struct('u',u,'v',v);

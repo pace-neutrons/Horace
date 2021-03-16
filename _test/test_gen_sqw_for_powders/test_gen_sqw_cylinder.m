@@ -65,7 +65,8 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
         end
 
         function this=test_gen_sqw_cyl(this)
-            skipTest("New sqw loader not supported yet");
+            skipTest("New dnd object not comparing with d2d_old saved version");
+
             sqw_cyl_file=fullfile(tmp_dir,'test_cyl_4to1.sqw');
             % clean up
             cleanup_obj=onCleanup(@()this.delete_files(sqw_cyl_file));
@@ -78,7 +79,7 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
             %--------------------------------------------------------------------------------------------------
             % Visual inspection
             % Plot the cylinder averaged sqw data
-            wcyl=read_sqw(sqw_cyl_file);
+            wcyl = sqw(sqw_cyl_file);
 
             w2 = cut_sqw(wcyl,[4,0.03,6],[-0.15,0.35],0,'-nopix');
             w1 = cut_sqw(wcyl,[2,0.03,6.5],[-0.7,0.2],[53,57],'-nopix');

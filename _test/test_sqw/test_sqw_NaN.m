@@ -3,7 +3,6 @@ function test_sqw_NaN
 % in the sqw file. Test that this is correctly handled by gen_sqw.
 %
 % Author: T.G.Perring
-skipTest("New sqw loader not implemented");
 banner_to_screen(mfilename)
 
 % Data
@@ -33,7 +32,7 @@ grid=[3,3,3,3];     % to force non-monotonic arrays in the pix array
 gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, grid)
 
 % Check that the masked detectors are correctly eliminated when create sqw file
-w=read_sqw(sqw_file);
+w=sqw(sqw_file);
 idet=[unique(w.data.pix.detector_idx),msk];     % list of detectors including those masked
 if ~isequal(sort(idet),1:ndet)
     assertTrue(false,'Problem with handling masked detectors in creation of sqw file')
