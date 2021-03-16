@@ -60,7 +60,7 @@ function wout = func_eval (win, func_handle, pars, varargin)
 %           y = (pars(1)/(sig*sqrt(2*pi))) * ...
 
 % NOTE:
-%   If 'all' then npix=ones(size(win.data.s)) to ensure that the plotting is performed
+%   If 'all' then npix=ones(size of image) to ensure that the plotting is performed
 %   Thus lose the npix information.
 
 % Modified 15/10/2008 by R.A. Ewings:
