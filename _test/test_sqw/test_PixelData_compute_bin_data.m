@@ -163,6 +163,28 @@ methods
         assertEqual(scaled_e, scaled_ref_e, '', obj.FLOAT_TOLERANCE);
     end
 
+    function test_file_backed_2d_data_no_mex_matches_ref_file(obj)
+        cleanup_handle = set_temporary_config_options( ...
+            hor_config(), ...
+            'use_mex', false, ...
+            'threads', 4 ...
+        );  %#ok  unused variable ok as it's a cleanup object
+
+        [s, e] = obj.pix_with_pages_2d.compute_bin_data(obj.ref_npix_data_2d);
+
+        % Scale the signal and error to account for rounding errors
+        max_s = max(s(:));
+        scaled_s = s/max_s;
+        scaled_ref_s = obj.ref_s_data_2d/max_s;
+
+        max_e = max(e(:));
+        scaled_e = e/max_e;
+        scaled_ref_e = obj.ref_e_data_2d/max_e;
+
+        assertEqual(scaled_s, scaled_ref_s, '', obj.FLOAT_TOLERANCE);
+        assertEqual(scaled_e, scaled_ref_e, '', obj.FLOAT_TOLERANCE);
+    end
+
     function test_correct_output_file_backed_mex_off(obj)
         cleanup_handle = set_temporary_config_options( ...
             hor_config(), 'use_mex', false ...
