@@ -1,5 +1,5 @@
-function [chunks, idxs] = split_vector(numeric_vector, max_chunk_sum)
-%SPLIT_VECTOR Split the given vector into a set of sub-vectors such that the
+function [chunks, idxs] = split_vector_max_sum(numeric_vector, max_chunk_sum)
+%SPLIT_VECTOR_MAX_SUM Split the given vector into a set of sub-vectors such that the
 % sum of each sub-vector has a maximum of max_chunk_sum, or the sub-vector has
 % length 1.
 %
@@ -23,7 +23,7 @@ function [chunks, idxs] = split_vector(numeric_vector, max_chunk_sum)
 % --------
 % >> numeric_vector = [3, 2, 0, 6, 0, 5, 3, 1, 1, 24, 4, 2, 3, 0];
 % >> max_chunk_sum = 11;
-% >> [chunks, idxs] = split_vector(numeric_vector, max_chunk_sum)
+% >> [chunks, idxs] = split_vector_max_sum(numeric_vector, max_chunk_sum)
 %   chunks =
 %       { [3, 2, 0, 6, 0], [5, 3, 1, 1], [24], [4, 2, 3, 0] }
 %   idxs =
