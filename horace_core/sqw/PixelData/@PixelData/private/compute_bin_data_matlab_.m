@@ -1,8 +1,14 @@
-function [mean_signal, mean_variance] = compute_bin_data_matlab_(obj, npix, log_level)
+function [mean_signal, mean_variance] = compute_bin_data_matlab_(obj, npix)
 % Compute bin mean signal and variance using matlab routines
 %
 % See compute_bin_data for algorithm details
 %
+if isempty(obj)
+    mean_signal = [];
+    mean_variance = [];
+    return
+end
+
 obj.move_to_first_page();
 npix_shape = size(npix);
 
@@ -13,9 +19,8 @@ for i = 1:numel(npix_chunks)
     npix_chunk = npix_chunks{i};
     idx = idxs(:, i);
 
-    % First argument in accumarray must be a column vector, so make input
-    % to 'repelem' a column so we get a column out
-    accum_indices = repelem(make_column(1:numel(npix_chunk)), npix_chunk);
+    % First argument in accumarray must be a column vector
+    accum_indices = make_column(repelem(1:numel(npix_chunk), npix_chunk));
 
     % Pixel data is always a row vector, make sure the increment is also
     sig_increment = make_row(accumarray(accum_indices, obj.signal));
