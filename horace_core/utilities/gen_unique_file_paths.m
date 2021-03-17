@@ -10,6 +10,8 @@ function paths = gen_unique_file_paths(nfiles, prefix, base_dir, ext)
 % ------
 % nfiles    The number of file names to generate, must be a positive integer.
 % prefix    The prefix for the file names, must be a char or a string.
+%           Generally this should help identify where the file has come from,
+%           so it may contain the name of the calling function.
 % base_dir  The directory for the file paths.
 % ext       The file extension for the file paths. Optional, default is tmp.
 %           Note this should not include the `.` separating path and extension.
