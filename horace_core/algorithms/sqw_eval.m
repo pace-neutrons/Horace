@@ -8,10 +8,6 @@ function wout = sqw_eval(win, sqwfunc, pars, varargin)
 %   win        Dataset file (or cell array) that provides the axes
 %              and points for the calculation
 %
-% Keywords:
-% ---------
-% filebacked_pix   Set to true if pixels are to be file-backed.
-%
 %  See sqw/sqw_eval for more options.
 %
 
@@ -20,13 +16,8 @@ flags = {'-all', '-average'};
 [~, ~, ~, ~, args] = parse_char_options(varargin, flags);
 
 % Convert inputs into an sqw/dnd object/array of objects
-[win, args] = load_sqw_dnd(win, args{:});
+win = load_sqw_dnd(win, args{:});
 
-% TODO: do we need this if, we return file name or object
-if nargout > 0
-    wout = sqw_eval(win, sqwfunc, pars, args{:});
-else
-    sqw_eval(win, sqwfunc, pars, args{:});
-end
+wout = sqw_eval(win, sqwfunc, pars, varargin{:});
 
 end

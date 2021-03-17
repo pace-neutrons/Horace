@@ -35,22 +35,27 @@ function wout = sqw_eval(win, sqwfunc, pars, varargin)
 %              package these into a cell array and pass that as pars. In the example
 %              above then pars = {p, c1, c2, ...}
 %
-% Optional flags:
-% ---------------
-%   'all'      Requests that the calculated sqw be returned over
+% Keyword Arguments:
+% ------------------
+%   outfile    If present, the outputs will be written to the file of the given
+%              name/path.
+%              If numel(win) > 1, outfile must be omitted or a cell array of
+%              file paths with equal number of elements as win.
+%
+%   all        Requests that the calculated sqw be returned over
 %              the whole of the domain of the input dataset. If not given, then
 %              the function will be returned only at those points of the dataset
 %              that contain data.
-%               Applies only to input with no pixel information - it is ignored if
+%              Applies only to input with no pixel information - it is ignored if
 %              full sqw object.
 %
-%   'average' Requests that the calculated sqw be computed for the
+%   average    Requests that the calculated sqw be computed for the
 %              average values of h, k, l of the pixels in a bin, not for each
 %              pixel individually. Reduces cost of expensive calculations.
 %              Applies only to the case of sqw object with pixel information
 %             - it is ignored if dnd type object.
 %
-% Note: all optional string input parameters can be truncated up to minal
+% Note: all optional string input parameters can be truncated up to minimal
 %       difference between them e.g. routine would accept 'al' and
 %       'av', 'ave', 'aver' etc....
 %
@@ -59,7 +64,7 @@ function wout = sqw_eval(win, sqwfunc, pars, varargin)
 % -------
 %   wout        Output dataset or array of datasets
 %
-[sqwfunc, pars, opts] = parse_arguments(sqwfunc, pars, varargin{:});
+[sqwfunc, pars, opts] = parse_arguments(win, sqwfunc, pars, varargin{:});
 
 wout = copy(win);
 if ~iscell(pars)
@@ -83,6 +88,13 @@ for i = 1:numel(win)
                 end
             end
             wout(i) = recompute_bin_data(wout(i));
+            if opts.filebacked
+                % Clear optimization opportunity here:
+                % write placeholders for image signal/error then write pixel
+                % data directly to file, rather than writing pixels to temp
+                % files and re-combining on this save call.
+                save(wout(i), opts.outfile{i});
+            end
         else
             % Get average h, k, l, e for the bin, compute sqw for that average,
             % and fill pixels with the average signal for the bin that contains
@@ -91,6 +103,7 @@ for i = 1:numel(win)
                 wout(i).data.pix.base_page_size < wout(i).data.pix.num_pixels;
             if pix_file_backed
                 wout(i) = do_sqw_eval_average_filebacked(wout(i), sqwfunc, pars);
+                save(wout(i), opts.outfile{i});
             else
                 qw = calculate_qw_pixels(win(i));
                 qw_ave = average_bin_data(win(i), qw);
@@ -118,22 +131,52 @@ for i = 1:numel(win)
     end
 end
 
+if opts.filebacked
+    if numel(opts.outfile) > 1
+        wout = opts.outfile;
+    else
+        wout = opts.outfile{1};
+    end
+end
+
 end
 
 
 % -----------------------------------------------------------------------------
-function [sqwfunc, pars, opts] = parse_arguments(sqwfunc, pars, varargin)
+function [sqwfunc, pars, opts] = parse_arguments(win, sqwfunc, pars, varargin)
     % Parse arguments for sqw_eval
-    flags = {'-all', '-average'};
-    [~, ~, all_flag, ave_flag, args] = parse_char_options(varargin, flags);
+    flags = {'-all', '-average', '-filebacked'};
+    [~, ~, all_flag, ave_flag, filebacked_flag, args] = parse_char_options(varargin, flags);
 
     parser = inputParser();
     parser.addRequired('sqwfunc', @(x) isa(x, 'function_handle'));
     parser.addRequired('pars');
     parser.addParameter('average', ave_flag, @islognumscalar);
     parser.addParameter('all', all_flag, @islognumscalar);
+    parser.addParameter('filebacked', filebacked_flag, @islognumscalar);
+    parser.addParameter('outfile', {}, @(x) iscellstr(x) || ischar(x) || isstring(x));
     parser.parse(sqwfunc, pars, args{:});
     opts = parser.Results;
+
+    if ~iscell(opts.outfile)
+        opts.outfile = {opts.outfile};
+    end
+
+    outfiles_empty = all(cellfun(@(x) isempty(x), opts.outfile));
+    if ~outfiles_empty && (numel(win) ~= numel(opts.outfile))
+        error( ...
+        'HORACE:SQW:invalid_arguments', ...
+        ['Number of outfiles specified must match number of input objects.\n' ...
+         'Found ''%i'' outfile(s), but ''%i'' sqw object(s).'], ...
+        numel(opts.outfile), numel(win) ...
+    );
+    end
+
+    if outfiles_empty && opts.filebacked
+        opts.outfile = gen_unique_file_paths( ...
+            numel(win), 'horace_sqw_eval', tmp_dir(), 'sqw' ...
+        );
+    end
 end
 
 
