@@ -12,7 +12,7 @@ function [chunks, idxs] = split_vector_fixed_sum(numeric_vector, chunk_sum)
 %
 % Output:
 % -------
-% chunks   Cell array of vectors.
+% chunks   Cell array of row vectors.
 % idxs     The indices at which the input vector was "split". Has size
 %          [2, n], where n is numel(chunks). Each idxs(:, chunk_num) is the
 %          lower and upper index into 'numeric_vector' of chunks{chunk_num}.
