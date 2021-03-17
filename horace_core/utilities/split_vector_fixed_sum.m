@@ -47,9 +47,7 @@ validateattributes(numeric_vector, {'numeric'}, {'vector', 'nonnegative'});
 validateattributes(chunk_sum, {'numeric'}, {'scalar', 'positive'});
 numeric_vector = make_row(numeric_vector);
 
-if ~exist('cumulative_sum', 'var')
-    cumulative_sum = cumsum(numeric_vector);
-end
+cumulative_sum = cumsum(numeric_vector);
 vector_sum = cumulative_sum(end);
 num_chunks = ceil(vector_sum/chunk_sum);
 
