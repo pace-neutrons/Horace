@@ -291,11 +291,12 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
         function test_folder_migration(this)
             mf = MessagesFileBasedMPI_mirror_tester();
             mf.mess_exchange_folder = this.working_dir;
-            mf = mf.init_framework('test_shared_folder');
+            mf = mf.init_framework('test_folder_migration');
             clob = onCleanup(@()mf.finalize_all());
 
             cfn = config_store.instance().config_folder_name;
             jfn = fullfile(this.working_dir, cfn, mf.exchange_folder_name, mf.job_id)
+            pause(10);
             assertTrue(is_folder(jfn));
 
             [ok, err] = mf.send_message(7, 'queued');
@@ -346,6 +347,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
 
             cfn = config_store.instance().config_folder_name;
             jfn = fullfile(this.working_dir, cfn, mf.exchange_folder_name, mf.job_id);
+            pause(10);
             assertTrue(is_folder(jfn));
 
             [ok, err] = mf.send_message(7, 'queued');
