@@ -74,26 +74,60 @@ end
 for i = 1:numel(win)
     if is_sqw_type(win(i))   % determine if sqw or dnd type
         if ~opts.average
-            while true
+            if opts.filebacked
+                pg_size = wout(i).data.pix.base_page_size;
+                [npix_chunks, idxs] = split_vector_fixed_sum( ...
+                    wout(i).data.npix(:), pg_size ...
+                );
+                img_signal = zeros(1, numel(wout(i).data.npix));
+
+                ldr = write_sqw_no_pix_or_footers(wout(i), opts.outfile{i});
+                for chunk_num = 1:numel(npix_chunks)
+                    qw = calculate_qw_pixels(wout(i));
+                    stmp = sqwfunc(qw{:}, pars{:});
+
+                    pix = wout(i).data.pix;
+                    pix.signal = stmp(:)';
+                    pix.variance = zeros(1, numel(stmp));
+                    ldr.put_bytes(pix.data);
+
+                    npix_chunk = npix_chunks{chunk_num};
+                    idx = idxs(:, chunk_num);
+
+                    accum_indices =  make_column(repelem(1:numel(npix_chunk), npix_chunk));
+                    increment_size = [idx(2) - idx(1) + 1, 1];
+                    img_increment = accumarray(accum_indices, stmp(:)', increment_size);
+                    img_signal(idx(1):idx(2)) = img_signal(idx(1):idx(2)) + img_increment';
+
+                    if pix.has_more()
+                        % Do not save cached changes to pixels.
+                        % We avoid copying pixels by just editing the signal/variance of
+                        % the current page of the input pixels, then saving that page to
+                        % the output file. We don't want to retain changes made to the
+                        % input PixelData object, so we discard edits to the cache when we
+                        % load the next page of pixels.
+                        pix.advance('nosave', true);
+                    else
+                        % Make sure we discard the changes made to the final page's cache
+                        pix.move_to_page(1, 'nosave', true);
+                        break;
+                    end
+                end
+                img_signal = reshape( ...
+                    img_signal(:)./wout(i).data.npix(:), size(wout(i).data.npix) ...
+                );
+                img_signal(wout(i).data.npix == 0) = 0;
+
+                ldr.put_footers();
+                ldr.put_image(img_signal, zeros(size(wout(i).data.npix)));
+                ldr.delete();
+            else
                 qw = calculate_qw_pixels(wout(i));
                 stmp = sqwfunc(qw{:}, pars{:});
                 pix = wout(i).data.pix;
                 pix.signal = stmp(:)';
                 pix.variance = zeros(1, numel(stmp));
-
-                if pix.has_more()
-                    pix.advance();
-                else
-                    break;
-                end
-            end
-            wout(i) = recompute_bin_data(wout(i));
-            if opts.filebacked
-                % Clear optimization opportunity here:
-                % write placeholders for image signal/error then write pixel
-                % data directly to file, rather than writing pixels to temp
-                % files and re-combining on this save call.
-                save(wout(i), opts.outfile{i});
+                wout(i) = recompute_bin_data(wout(i));
             end
         else
             % Get average h, k, l, e for the bin, compute sqw for that average,
@@ -231,4 +265,15 @@ function pix = set_pixel_data_(pix, ave_signal, npix_chunk, start_idx, end_idx)
     sig_var = zeros(2, end_idx - start_idx + 1);
     sig_var(1, :) = repelem(ave_signal, npix_chunk);
     pix.set_data({'signal', 'variance'}, sig_var, start_idx:end_idx);
+end
+
+
+function ldr = write_sqw_no_pix_or_footers(sqw_obj, outfile)
+    % Write the given SQW object to the given file.
+    % The pixels of the SQW object will be derived from the image signal array
+    % and npix array, saving in chunks so they do not need to be held in memory.
+    %
+    ldr = sqw_formats_factory.instance().get_pref_access(sqw_obj);
+    ldr = ldr.init(sqw_obj, outfile);
+    ldr.put_sqw('-nopix');
 end
