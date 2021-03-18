@@ -219,6 +219,40 @@ methods
         assertTrue(isempty(s));
         assertTrue(isempty(e));
     end
+
+    function test_sig_and_var_set_to_zero_where_npix_is_zero_mex_off(~)
+        cleanup_handle = set_temporary_config_options( ...
+            hor_config(), 'use_mex', false ...
+        );  %#ok  unused variable ok as it's a cleanup object
+
+        npix = [1, 2, 3, 0, 5, 6, 0, 0, 9, 10, 0];
+        pix = PixelData(ones(PixelData.DEFAULT_NUM_PIX_FIELDS, sum(npix)));
+
+        [s, e] = pix.compute_bin_data(npix);
+
+        where_0 = npix == 0;
+        assertEqual(s(where_0), zeros(1, sum(where_0)));
+        assertEqual(e(where_0), zeros(1, sum(where_0)));
+        assertEqual(s(~where_0), ones(1, sum(~where_0)));
+        assertEqual(e(~where_0), ones(1, sum(~where_0))./npix(npix ~= 0));
+    end
+
+    function test_sig_and_var_set_to_zero_where_npix_is_zero_mex_on(~)
+        cleanup_handle = set_temporary_config_options( ...
+            hor_config(), 'use_mex', true ...
+        );  %#ok  unused variable ok as it's a cleanup object
+
+        npix = [1, 2, 3, 0, 5, 6, 0, 0, 9, 10, 0];
+        pix = PixelData(ones(PixelData.DEFAULT_NUM_PIX_FIELDS, sum(npix)));
+
+        [s, e] = pix.compute_bin_data(npix);
+
+        where_0 = npix == 0;
+        assertEqual(s(where_0), zeros(1, sum(where_0)));
+        assertEqual(e(where_0), zeros(1, sum(where_0)));
+        assertEqual(s(~where_0), ones(1, sum(~where_0)));
+        assertEqual(e(~where_0), ones(1, sum(~where_0))./npix(npix ~= 0));
+    end
 end
 
 end
