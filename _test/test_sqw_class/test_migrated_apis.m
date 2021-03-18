@@ -169,16 +169,14 @@ classdef test_migrated_apis < TestCase
 
         %% Dispersion
         function test_dispersion_with_disp_return_value(obj)
-            %skipTest('Incorrect test data for dispersion');
             sqw_2d_obj = sqw(obj.test_sqw_2d_fullpath);
             [wout_disp]  = dispersion(sqw_2d_obj, @test_migrated_apis.disp_rln, {'scale', 10});
 
-            expected = load('test_migrated_apis_data.mat', 'wout_disp', 'wout_weight');
+            expected = load('test_migrated_apis_data.mat', 'wout_disp');
 
             assertEqualToTol(expected.wout_disp.data, wout_disp.data, 'ignore_str', true);
         end
         function test_dispersion_with_disp_and_weight_retval(obj)
-            %skipTest('Incorrect test data for dispersion');
             sqw_2d_obj = sqw(obj.test_sqw_2d_fullpath);
             [wout_disp, wout_weight]  = dispersion(sqw_2d_obj, @test_migrated_apis.disp_rln, {'scale', 10});
 
