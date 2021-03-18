@@ -14,7 +14,7 @@ classdef (Abstract) SQWDnDBase
     methods (Abstract, Access = protected)
         wout = unary_op_manager(w, operation_handle);
         wout = binary_op_manager_single(w1,w2,binary_op);
-        wout = sqw_eval_(wout, sqwfunc, ave_pix, all_bins, pars);
+        wout = sqw_eval_pix_(wout, sqwfunc, ave_pix, pars);
     end
 
     methods  % Public
