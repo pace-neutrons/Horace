@@ -110,8 +110,9 @@ classdef test_migrated_apis < TestCase
 
         %% Dispersion
         function test_dispersion_with_disp_return_value(obj)
+            params = {'scale', 10};
             dnd_2d_obj = d2d(obj.test_sqw_2d_fullpath);
-            [wout_disp]  = dispersion(dnd_2d_obj, @test_migrated_apis.disp_rln, {'scale', 10});
+            [wout_disp]  = dispersion(dnd_2d_obj, @test_migrated_apis.disp_rln, params);
 
             expected = load('test_migrated_apis_data.mat', 'wout_disp');
 
@@ -160,18 +161,6 @@ classdef test_migrated_apis < TestCase
         %    % tested in test_mask
         %end
 
-        %% shifts
-        function test_shift_energy_bins(obj)
-            skipTest('Incorrect test data for cut');
-            sqw_1d_obj = d1d(obj.test_sqw_1d_fullpath);
-            wout = sqw_1d_obj.shift_energy_bins(@test_migrated_apis.desp_rln, {'scale', 14});
-        end
-        function test_shift_pixels(obj)
-            skipTest('No test of return value');
-            sqw_4d_obj = d4d(obj.test_sqw_4d_fullpath);
-            wout  = sqw_4d_obj.shift_pixels(@test_migrated_apis.shift_rln, {});
-        end
-
         %% xye
         function test_xye_returns_bin_centres_and_errors(obj)
             s = d2d(obj.test_sqw_2d_fullpath);
@@ -204,11 +193,13 @@ classdef test_migrated_apis < TestCase
 
     methods(Static)
        function val = disp_rln(qh, qk, ql, varargin)
-            scale = varargin{2};
-            val = qh .* qk .* ql .* scale;
+           % simple function to testing; uses the first keyword argument
+           scale = varargin{2};
+           val = qh .* qk .* ql .* scale;
        end
-       function val = shift_rln(qh, qk, qw, params)
-            val = qw .* qk .* qh;
+       function val = shift_rln(qh, qk, qw, ~)
+           % discard and function parameters that are passed
+           val = qw .* qk .* qh;
        end
     end
 end

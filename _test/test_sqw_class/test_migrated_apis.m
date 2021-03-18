@@ -169,16 +169,18 @@ classdef test_migrated_apis < TestCase
 
         %% Dispersion
         function test_dispersion_with_disp_return_value(obj)
+            params = {'scale', 10};
             sqw_2d_obj = sqw(obj.test_sqw_2d_fullpath);
-            [wout_disp]  = dispersion(sqw_2d_obj, @test_migrated_apis.disp_rln, {'scale', 10});
+            [wout_disp]  = dispersion(sqw_2d_obj, @test_migrated_apis.disp_rln, params);
 
             expected = load('test_migrated_apis_data.mat', 'wout_disp');
 
             assertEqualToTol(expected.wout_disp.data, wout_disp.data, 'ignore_str', true);
         end
         function test_dispersion_with_disp_and_weight_retval(obj)
+            params = {'scale', 10};
             sqw_2d_obj = sqw(obj.test_sqw_2d_fullpath);
-            [wout_disp, wout_weight]  = dispersion(sqw_2d_obj, @test_migrated_apis.disp_rln, {'scale', 10});
+            [wout_disp, wout_weight]  = dispersion(sqw_2d_obj, @test_migrated_apis.disp_rln, params);
 
             expected = load('test_migrated_apis_data.mat', 'wout_disp', 'wout_weight');
 
@@ -317,14 +319,16 @@ classdef test_migrated_apis < TestCase
 
         %% shifts
         function test_shift_energy_bins(obj)
-            skipTest('Incorrect test data for cut');
+            skipTest("Incorrect test data for shift");
+            params = {'scale', 14};
             sqw_4d_obj = sqw(obj.test_sqw_1d_fullpath);
-            wout = sqw_4d_obj.shift_energy_bins(@test_migrated_apis.desp_rln, {'scale', 14});
+            wout = sqw_4d_obj.shift_energy_bins(@test_migrated_apis.desp_rln, params);
         end
         function test_shift_pixels(obj)
-            skipTest('No test of return value');
+            %TODO: test return values
+            params = {}; % no paramters required by test shift_rln function
             sqw_4d_obj = sqw(obj.test_sqw_4d_fullpath);
-            wout  = sqw_4d_obj.shift_pixels(@test_migrated_apis.shift_rln, {});
+            wout  = sqw_4d_obj.shift_pixels(@test_migrated_apis.shift_rln, params);
         end
 
         %% values
@@ -370,11 +374,13 @@ classdef test_migrated_apis < TestCase
 
     methods(Static)
        function val = disp_rln(qh, qk, ql, varargin)
-            scale = varargin{2};
-            val = qh .* qk .* ql .* scale;
+           % simple function to testing; uses the first keyword argument
+           scale = varargin{2};
+           val = qh .* qk .* ql .* scale;
        end
-       function val = shift_rln(qh, qk, ql, params)
-            val = qh .* qk .* ql;
+       function val = shift_rln(qh, qk, qw, ~)
+           % discard and function parameters that are passed
+           val = qw .* qk .* qh;
        end
     end
 end
