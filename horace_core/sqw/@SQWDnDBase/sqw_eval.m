@@ -68,5 +68,9 @@ if ~iscell(pars)  % package parameters as a cell for convenience
 end
 
 for i=1:numel(wout)
-    wout(i) = wout(i).sqw_eval_(sqwfunc, ave_pix, all_bins, pars);
+   if has_pixels(wout(i))   % determine if object contains pixel data
+       wout(i) = wout(i).sqw_eval_pix_(sqwfunc, ave_pix, pars);
+   else
+       wout(i) = wout(i).sqw_eval_nopix_(sqwfunc, all_bins, pars);
+   end
 end

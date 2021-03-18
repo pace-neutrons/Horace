@@ -45,7 +45,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         obj = init_from_file_(obj, in_filename);
         obj = init_from_loader_struct_(obj, data_struct);
 
-        wout = sqw_eval_(wout, sqwfunc, ave_pix, all_bins, pars);
+        wout = sqw_eval_pix_(wout, sqwfunc, ave_pix, all_bins, pars);
     end
 
     methods
@@ -57,9 +57,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = DnDBase(varargin)
             obj = obj@SQWDnDBase();
 
-			% conversion to struct done here rather than 
-			% in parse_args_ as the need for this conversion
-			% may be temporary
+            % conversion to struct done here rather than
+            % in parse_args_ as the need for this conversion
+            % may be temporary
             if nargin>0 && isa(varargin{1},'data_sqw_dnd')
                 varargin{1} = struct(varargin{1});
             end

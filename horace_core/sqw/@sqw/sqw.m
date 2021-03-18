@@ -18,7 +18,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         data;
     end
 
-    methods (Access = private)
+    methods (Access = protected)
+        wout = sqw_eval_pix_(w, sqwfunc, ave_pix, pars);
     end
 
     methods
