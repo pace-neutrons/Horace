@@ -110,16 +110,14 @@ classdef test_migrated_apis < TestCase
 
         %% Dispersion
         function test_dispersion_with_disp_return_value(obj)
-            %skipTest('Incorrect test data for dispersion');
             dnd_2d_obj = d2d(obj.test_sqw_2d_fullpath);
             [wout_disp]  = dispersion(dnd_2d_obj, @test_migrated_apis.disp_rln, {'scale', 10});
 
-            expected = load('test_migrated_apis_data.mat', 'wout_disp', 'wout_weight');
+            expected = load('test_migrated_apis_data.mat', 'wout_disp');
 
             assertEqualToTol(expected.wout_disp, wout_disp, 'ignore_str', true);
         end
         function test_dispersion_with_disp_and_weight_retval(obj)
-            %skipTest('Incorrect test data for dispersion');
             dnd_2d_obj = d2d(obj.test_sqw_2d_fullpath);
             [wout_disp, wout_weight]  = dispersion(dnd_2d_obj, @test_migrated_apis.disp_rln, {'scale', 10});
 
@@ -145,7 +143,7 @@ classdef test_migrated_apis < TestCase
             assertEqualToTol(proj, expected_proj, 1e-6);
             assertEqualToTol(pbin, expected_pbin, 1e-6);
         end
-        
+
         %% split/join
         %function test_split(obj)
         %    % tested in test_join
