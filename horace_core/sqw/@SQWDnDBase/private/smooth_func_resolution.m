@@ -6,7 +6,7 @@ function c = smooth_func_resolution(width)
 %   >> c = smooth_func_resolution(width)
 %
 %   width   Vector containing:
-%           The convolution matrix extends to 2% of the peak intensity 
+%           The convolution matrix extends to 2% of the peak intensity
 %
 %   c       Convolution array
 
@@ -42,11 +42,11 @@ c = c/sum(c(:));  % normalise so sum of elements is unity
 %----------------------------------------------------------------------------------------------
 function m=get_gauss_form(q_fwhh, e_fwhh, dedq)
 % Get Gaussian form from FWHH excluding energy term, overall energy FWHH, and
-% slope of Q-E ellispoid.
-% This is used in an approximation tot he resolution function
+% slope of Q-E ellipsoid.
+% This is used in an approximation to the resolution function
 %
 %   f(Q,e)=A * exp(-(m(1,1)*Q^2 +2*m(1,2)*Q*E + m(2,2)*E^2)/2)
-% 
+%
 % m is returned as a 2x2 matrix
 %
 % T.G.Perring 19 August 2008
@@ -68,7 +68,7 @@ function f=gauss_form(x,y,m)
 % Calculate Gaussian form at values x,y
 %
 %   f(x,y) = A * exp(-(m(1,1)*x^2 +2*m(1,2)*x*y + m(2,2)*y^2)/2)
-% 
+%
 % A is chosen so that the function is normalised; m is a 2x2 matrix
 %
 % T.G.Perring 19 August 2008

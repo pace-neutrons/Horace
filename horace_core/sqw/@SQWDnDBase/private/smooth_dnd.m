@@ -25,7 +25,7 @@ function dout = smooth_dnd(din, xunit, varargin)
 %                                   - width gives FWHH along each dimension
 %                                   - width = 1,3,5,...;  n=0 or 1 => no smoothing
 %               'gaussian'      Gaussian; width gives FWHH along each dimension in pixels
-%                                   - elements where more than 2% of peak intensity
+%                                   - elements with more than 2% of peak intensity
 %                                     are retained
 %
 %               'resolution'    Correlated Gaussian - 2D only (suitable for e.g. powder data)
