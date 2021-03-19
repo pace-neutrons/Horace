@@ -49,8 +49,15 @@ numeric_vector = make_row(numeric_vector);
 
 cumulative_sum = cumsum(numeric_vector);
 vector_sum = cumulative_sum(end);
-num_chunks = ceil(vector_sum/chunk_sum);
+if vector_sum <= chunk_sum
+    % Return early if we've only got one chunk
+    chunks = {numeric_vector};
+    idxs = [1; numel(numeric_vector)];
+    return
+end
 
+
+num_chunks = ceil(vector_sum/chunk_sum);
 chunks = cell(1, num_chunks);
 idxs = zeros(2, num_chunks);
 end_idx = 1;
