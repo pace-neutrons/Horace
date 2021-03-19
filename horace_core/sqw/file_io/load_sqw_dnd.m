@@ -14,9 +14,9 @@ function [data, unmatched_args] = load_sqw_dnd(sources, varargin)
 %
 % Keywords:
 % ---------
-% filebacked_pix   Set to true to use file-backed pixels. This option only
-%                  applies when given in conjunction with an sqw file path(s).
-%                  (default = false).
+% filebacked    Set to true to use file-backed pixels. This option only
+%               applies when given in conjunction with an sqw file path(s).
+%               (default = false).
 %
 % Output:
 % -------
@@ -32,7 +32,7 @@ sources_validator = @(x) validateattributes( ...
 parser = inputParser();
 parser.KeepUnmatched = true;
 parser.addRequired('sources', sources_validator);
-parser.addParameter('filebacked_pix', false, @islognumscalar);
+parser.addParameter('filebacked', false, @islognumscalar);
 parser.parse(sources, varargin{:});
 opts = parser.Results;
 
@@ -44,7 +44,7 @@ if iscell(sources)
     % as empty for the moment and allocate it after we've loaded the 1st object
     data = [];
     for i = 1:numel(sources)
-        source_i = get_data_source(sources{i}, opts.filebacked_pix);
+        source_i = get_data_source(sources{i}, opts.filebacked);
         if numel(source_i) > 1
             error('HORACE:func_eval:too_many_elements', ...
                   'Inputs within cell array must not have more than 1 element.');
@@ -67,14 +67,14 @@ if iscell(sources)
         end
     end
 else
-    data = get_data_source(sources, opts.filebacked_pix);
+    data = get_data_source(sources, opts.filebacked);
 end
 
 end
 
 
 % -----------------------------------------------------------------------------
-function sqw_dnd_obj = get_data_source(source, filebacked_pix)
+function sqw_dnd_obj = get_data_source(source, filebacked)
     % Inspect the given func_eval data source object and load it if it is a
     % file path
     %
@@ -86,7 +86,7 @@ function sqw_dnd_obj = get_data_source(source, filebacked_pix)
         ldr_cleanup = onCleanup(@() ldr.delete());
 
         if ldr.sqw_type
-            if filebacked_pix
+            if filebacked
                 pixel_page_size = get(hor_config, 'pixel_page_size');
                 sqw_dnd_obj = ldr.get_sqw('pixel_page_size', pixel_page_size);
             else
