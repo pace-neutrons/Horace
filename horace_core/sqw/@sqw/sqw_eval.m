@@ -6,6 +6,10 @@ function wout = sqw_eval(win, sqwfunc, pars, varargin)
 %   >> wout = sqw_eval(___, 'all', true)
 %   >> wout = sqw_eval(___, '-average')
 %   >> wout = sqw_eval(___, 'average', true)
+%   >> sqw_eval(___, 'outfile', outfile)
+%   >> wout = sqw_eval(___, 'outfile', outfile)
+%   >> sqw_eval(__, 'outfile', outfile, 'filebacked', true)
+%   >> wout = sqw_eval(__, 'filebacked', true)
 %
 % Input:
 % ------
@@ -67,9 +71,14 @@ function wout = sqw_eval(win, sqwfunc, pars, varargin)
 %
 % Output:
 % -------
-%   wout        Output dataset or array of datasets
+%   wout        If `filebacked` is false, an sqw object or array of sqw objects.
+%               If `filebacked` is true, a file path or cell array of file paths.
+%               Output argument must be specified if `outfile` not given.
 %
 [sqwfunc, pars, opts] = parse_arguments(win, sqwfunc, pars, varargin{:});
+if isempty(opts.outfile) || opts.filebacked
+    nargoutchk(1, 1);
+end
 
 wout = copy(win);
 if ~iscell(pars)
@@ -91,7 +100,7 @@ for i = 1:numel(win)
                 pix.variance = zeros(1, numel(stmp));
                 wout(i) = recompute_bin_data(wout(i));
 
-                if opts.filebacked
+                if ~isempty(opts.outfile) && ~isempty(opts.outfile{i})
                     save(wout(i), opts.outfile{i});
                 end
             end
@@ -112,7 +121,7 @@ for i = 1:numel(win)
                 wout(i).data.pix.variance = zeros(1, numel(stmp));
                 wout(i) = recompute_bin_data(wout(i));
 
-                if opts.filebacked
+                if ~isempty(opts.outfile) && ~isempty(opts.outfile{i})
                     save(wout(i), opts.outfile{i});
                 end
             end
@@ -256,7 +265,7 @@ function wout = do_sqw_eval_file_backed_(wout, sqwfunc, pars, outfile)
     % image.
     %
     % Several actions are performed in the pixel loop:
-    %  1. Transform pixel chunk (via calculate_qw_pixels)
+    %  1. Calculate transform of pixel chunk coordinates (via calculate_qw_pixels)
     %  2. Perform given function on pixel chunk
     %  3. Write pixel chunk to output file
     %  4. Calculate pixel chunk's signal sums for each image bin
