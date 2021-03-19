@@ -83,10 +83,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             % iii) struct
             elseif ~isempty(args.data_struct)
                 obj = obj.init_from_loader_struct(args.data_struct);
-
-            % iv) dnd
-            elseif ~isempty(arg.dnd_object)
-                obj = obj.init_from_dnd_object(args.dnd_object);
             end
 
 
@@ -213,9 +209,5 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             obj.detpar = data_struct.detpar;
             obj.data = data_struct.data;
         end
-
-%        function obj = init_from_dnd_object(obj, dnd_obj)
-%            obj.data = dnd_obj.
-%        end
     end
 end
