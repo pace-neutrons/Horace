@@ -1,5 +1,11 @@
 function obj = put_image(obj, s, e)
-%PUT_IMAGE_SIGNAL Write the image signal to file
+%PUT_IMAGE_SIGNAL Write the image signal and error to file
+%
+% Input:
+% ------
+% s     The image signal. Must be a numeric array.
+% e     The image error. This must be numeric array and have the same number of
+%       elements as s.
 %
 BYTES_IN_SINGLE = 4;
 
@@ -11,7 +17,7 @@ validateattributes(e, {'numeric'}, {}, 2);
 if numel(s) ~= numel(e)
     error( ...
         'HORACE:DND_BINFILE_COMMON:length_mismatch', ...
-        'Input image signal and error have different numbers of elements' ...
+        'Input image signal and error have different numbers of elements.' ...
     );
 end
 
