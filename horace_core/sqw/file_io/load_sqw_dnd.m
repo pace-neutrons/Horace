@@ -83,23 +83,19 @@ function sqw_dnd_obj = get_data_source(source, filebacked_pix)
         % Get a loader instance that can tell us what kind of file this is
         % We expect either a .sqw or .dnd file, throw an error otherwise.
         ldr = sqw_formats_factory.instance().get_loader(source);
-        try
-            if ldr.sqw_type
-                if filebacked_pix
-                    pixel_page_size = get(hor_config, 'pixel_page_size');
-                    sqw_dnd_obj = ldr.get_sqw('pixel_page_size', pixel_page_size);
-                else
-                    sqw_dnd_obj = ldr.get_sqw();
-                end
+        ldr_cleanup = onCleanup(@() ldr.delete());
+
+        if ldr.sqw_type
+            if filebacked_pix
+                pixel_page_size = get(hor_config, 'pixel_page_size');
+                sqw_dnd_obj = ldr.get_sqw('pixel_page_size', pixel_page_size);
             else
-                % In contrast to the above case, we can use the loader to get the dnd
-                % as no extra constructor arguments are required.
-                sqw_dnd_obj = ldr.get_dnd(source);
+                sqw_dnd_obj = ldr.get_sqw();
             end
-        catch ME
-            ldr.delete();
-            rethrow(ME);
+        else
+            sqw_dnd_obj = ldr.get_dnd(source);
         end
+
     elseif isa(source, 'sqw') || ismember(class(source), DND_CLASSES)
         sqw_dnd_obj = source;
     else
