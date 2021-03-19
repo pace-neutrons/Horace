@@ -66,7 +66,7 @@ classdef test_func_eval < TestCase
             f = @() func_eval( ...
                 sqws_in, obj.quadratic, obj.quadratic_params, 'outfile', outfile ...
             );
-            assertExceptionThrown(f, 'SQW:func_eval:invalid_arguments');
+            assertExceptionThrown(f, 'HORACE:SQW:invalid_arguments');
         end
 
         function test_SQW_error_if_num_input_objects_lt_num_outfiles(obj)
@@ -76,7 +76,7 @@ classdef test_func_eval < TestCase
             f = @() func_eval( ...
                 sqws_in, obj.quadratic, obj.quadratic_params, 'outfile', outfiles ...
             );
-            assertExceptionThrown(f, 'SQW:func_eval:invalid_arguments');
+            assertExceptionThrown(f, 'HORACE:SQW:invalid_arguments');
         end
 
         function test_error_raised_if_func_eval_called_with_mix_of_sqw_and_dnd(obj)
