@@ -123,6 +123,8 @@ for i = 1:numel(win)
 end
 
 if opts.filebacked
+    % If filebacked, always return file paths not objects. This stops us from
+    % leaking file-backed objects
     if numel(opts.outfile) > 1
         wout = opts.outfile;
     else
@@ -200,7 +202,7 @@ function sqw_obj = do_sqw_eval_average_filebacked(sqw_obj, sqwfunc, pars, outfil
     npix = sqw_obj.data.npix;
 
     % Split npix array up, this allows us to pass the npix chunks into
-    % 'average_bin_data'.
+    % 'average_bin_data', for which we need whole bins.
     [npix_chunks, idxs, pix_bin_ends] = split_vector_max_sum(npix(:), pix.base_page_size);
     pix_bin_starts = pix_bin_ends - npix(:) + 1;
     for j = 1:numel(npix_chunks)
