@@ -55,6 +55,11 @@ function wout = sqw_eval(win, sqwfunc, pars, varargin)
 %              Applies only to the case of sqw object with pixel information
 %             - it is ignored if dnd type object.
 %
+%   filebacked  If true, the result of the function will be saved to file and
+%               the output will be a file path. If no `outfile` is specified,
+%               a unique path within `tempdir()` will be generated.
+%               Default is false.
+%
 % Note: all optional string input parameters can be truncated up to minimal
 %       difference between them e.g. routine would accept 'al' and
 %       'av', 'ave', 'aver' etc....
@@ -73,8 +78,10 @@ end
 
 for i = 1:numel(win)
     if is_sqw_type(win(i))   % determine if sqw or dnd type
+        pix_file_backed = ...
+            wout(i).data.pix.base_page_size < wout(i).data.pix.num_pixels;
         if ~opts.average
-            if opts.filebacked
+            if pix_file_backed
                 wout = do_sqw_eval_file_backed_(wout(i), sqwfunc, pars, opts.outfile{i});
             else
                 qw = calculate_qw_pixels(wout(i));
@@ -83,13 +90,15 @@ for i = 1:numel(win)
                 pix.signal = stmp(:)';
                 pix.variance = zeros(1, numel(stmp));
                 wout(i) = recompute_bin_data(wout(i));
+
+                if opts.filebacked
+                    save(wout(i), opts.outfile{i});
+                end
             end
         else
             % Get average h, k, l, e for the bin, compute sqw for that average,
             % and fill pixels with the average signal for the bin that contains
             % them
-            pix_file_backed = ...
-                wout(i).data.pix.base_page_size < wout(i).data.pix.num_pixels;
             if pix_file_backed
                 wout(i) = do_sqw_eval_average_filebacked(wout(i), sqwfunc, pars);
                 save(wout(i), opts.outfile{i});
@@ -102,6 +111,10 @@ for i = 1:numel(win)
                 wout(i).data.pix.signal = stmp(:)';
                 wout(i).data.pix.variance = zeros(1, numel(stmp));
                 wout(i) = recompute_bin_data(wout(i));
+
+                if opts.filebacked
+                    save(wout(i), opts.outfile{i});
+                end
             end
         end
 

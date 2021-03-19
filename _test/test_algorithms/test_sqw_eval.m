@@ -103,6 +103,21 @@ classdef test_sqw_eval < TestCase
             assertEqual(out_sqw.data.e, zeros(size(obj.sqw_2d_obj.data.npix)))
         end
 
+        function test_output_is_file_if_filebacked_true_and_pix_in_memory(obj)
+            out_sqw_file = sqw_eval( ...
+                obj.sqw_2d_obj, obj.gauss_sqw, obj.gauss_params, 'filebacked', true ...
+            );
+
+            assertTrue(ischar(out_sqw_file));
+            tmp_file_cleanup = onCleanup(@() clean_up_file(out_sqw_file));
+
+            out_sqw = sqw(out_sqw_file);
+            assertEqualToTol( ...
+                out_sqw, obj.sqw_2d_sqw_eval_ref_obj, obj.FLOAT_TOL, ...
+                'ignore_str', true ...
+            );
+        end
+
         %% SQW file tests
         function test_gauss_on_sqw_file_matches_reference_file(obj)
             out_sqw = sqw_eval(obj.sqw_2d_file_path, obj.gauss_sqw, obj.gauss_params);
