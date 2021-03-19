@@ -91,36 +91,21 @@ for i = 1:numel(win)
             wout(i).data.pix.base_page_size < wout(i).data.pix.num_pixels;
         if ~opts.average
             if pix_file_backed
-                wout = do_sqw_eval_file_backed_(wout(i), sqwfunc, pars, opts.outfile{i});
+                wout = do_sqw_eval_file_backed_( ...
+                    wout(i), sqwfunc, pars, opts.outfile{i} ...
+                );
             else
-                qw = calculate_qw_pixels(wout(i));
-                stmp = sqwfunc(qw{:}, pars{:});
-                pix = wout(i).data.pix;
-                pix.signal = stmp(:)';
-                pix.variance = zeros(1, numel(stmp));
-                wout(i) = recompute_bin_data(wout(i));
-
+                wout(i) = do_sqw_eval_in_memory_(wout(i), sqwfunc, pars, opts.average);
                 if ~isempty(opts.outfile) && ~isempty(opts.outfile{i})
                     save(wout(i), opts.outfile{i});
                 end
             end
         else
-            % Get average h, k, l, e for the bin, compute sqw for that average,
-            % and fill pixels with the average signal for the bin that contains
-            % them
             if pix_file_backed
                 wout(i) = do_sqw_eval_average_filebacked(wout(i), sqwfunc, pars);
                 save(wout(i), opts.outfile{i});
             else
-                qw = calculate_qw_pixels(win(i));
-                qw_ave = average_bin_data(win(i), qw);
-                qw_ave = cellfun(@(x)(x(:)), qw_ave, 'UniformOutput', false);
-                stmp = sqwfunc(qw_ave{:}, pars{:});
-                stmp = repelem(stmp, win(i).data.npix(:));
-                wout(i).data.pix.signal = stmp(:)';
-                wout(i).data.pix.variance = zeros(1, numel(stmp));
-                wout(i) = recompute_bin_data(wout(i));
-
+                wout(i) = do_sqw_eval_in_memory_(wout(i), sqwfunc, pars, opts.average);
                 if ~isempty(opts.outfile) && ~isempty(opts.outfile{i})
                     save(wout(i), opts.outfile{i});
                 end
@@ -188,6 +173,28 @@ function [sqwfunc, pars, opts] = parse_arguments(win, sqwfunc, pars, varargin)
             numel(win), 'horace_sqw_eval', tmp_dir(), 'sqw' ...
         );
     end
+end
+
+
+function wout = do_sqw_eval_in_memory_(wout, sqwfunc, pars, average)
+    % Perform sqw_eval on an sqw object with all its pixels in memory
+    %
+    qw_pix_coords = calculate_qw_pixels(wout);
+    if average
+        % Get average h, k, l, e for the bin, compute sqw for that average,
+        % and fill pixels with the average signal for the bin that contains
+        % them
+        qw_ave = average_bin_data(wout, qw_pix_coords);
+        qw_ave = cellfun(@(x)(x(:)), qw_ave, 'UniformOutput', false);
+        new_signal = sqwfunc(qw_ave{:}, pars{:});
+        new_signal = repelem(new_signal, wout.data.npix(:));
+    else
+        new_signal = sqwfunc(qw_pix_coords{:}, pars{:});
+    end
+
+    wout.data.pix.signal = new_signal(:)';
+    wout.data.pix.variance = zeros(1, numel(new_signal));
+    wout = recompute_bin_data(wout);
 end
 
 
