@@ -86,29 +86,24 @@ if ~iscell(pars)
 end
 
 for i = 1:numel(win)
+
     if is_sqw_type(win(i))   % determine if sqw or dnd type
         pix_file_backed = ...
             wout(i).data.pix.base_page_size < wout(i).data.pix.num_pixels;
-        if ~opts.average
-            if pix_file_backed
-                wout = do_sqw_eval_file_backed_( ...
+        if pix_file_backed
+            if opts.average
+                wout(i) = do_sqw_eval_average_filebacked( ...
                     wout(i), sqwfunc, pars, opts.outfile{i} ...
                 );
             else
-                wout(i) = do_sqw_eval_in_memory_(wout(i), sqwfunc, pars, opts.average);
-                if ~isempty(opts.outfile) && ~isempty(opts.outfile{i})
-                    save(wout(i), opts.outfile{i});
-                end
+                wout(i) = do_sqw_eval_file_backed_( ...
+                    wout(i), sqwfunc, pars, opts.outfile{i} ...
+                );
             end
         else
-            if pix_file_backed
-                wout(i) = do_sqw_eval_average_filebacked(wout(i), sqwfunc, pars);
+            wout(i) = do_sqw_eval_in_memory_(wout(i), sqwfunc, pars, opts.average);
+            if ~isempty(opts.outfile) && ~isempty(opts.outfile{i})
                 save(wout(i), opts.outfile{i});
-            else
-                wout(i) = do_sqw_eval_in_memory_(wout(i), sqwfunc, pars, opts.average);
-                if ~isempty(opts.outfile) && ~isempty(opts.outfile{i})
-                    save(wout(i), opts.outfile{i});
-                end
             end
         end
 
@@ -198,7 +193,7 @@ function wout = do_sqw_eval_in_memory_(wout, sqwfunc, pars, average)
 end
 
 
-function sqw_obj = do_sqw_eval_average_filebacked(sqw_obj, sqwfunc, pars)
+function sqw_obj = do_sqw_eval_average_filebacked(sqw_obj, sqwfunc, pars, outfile)
     % Execute the given function 'sqwfunc' on the average coordinates (in
     % r, l, u) for each image bin
     pix = sqw_obj.data.pix;
@@ -229,6 +224,7 @@ function sqw_obj = do_sqw_eval_average_filebacked(sqw_obj, sqwfunc, pars)
         pix = set_pixel_data_(pix, ave_signal, npix_chunk, pix_start_idx, pix_end_idx);
     end
     sqw_obj = recompute_bin_data(sqw_obj);
+    save(sqw_obj, outfile);
 end
 
 
