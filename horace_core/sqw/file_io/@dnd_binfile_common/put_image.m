@@ -11,8 +11,8 @@ BYTES_IN_SINGLE = 4;
 
 check_obj_initiated_properly_(obj);
 
-validateattributes(s, {'numeric'}, {}, 1);
-validateattributes(e, {'numeric'}, {}, 2);
+validateattributes(s, {'numeric'}, {}, 'put_image', 's');
+validateattributes(e, {'numeric'}, {}, 'put_image', 'e');
 
 if numel(s) ~= numel(e)
     error( ...
