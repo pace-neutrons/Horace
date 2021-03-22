@@ -63,13 +63,13 @@ classdef test_range_add_border < TestCase
         function test_eps_border_is_valid(~)
             range = [-1,1;-1,1];
             range_calc  = range_add_border(range);
-            % -1 ranges ratio is expected to be 1+2eps and 
-            % +1 ranges ration is expected to be 1-2*eps
+            % -1 ranges ratio is expected to be 1+2eps and
+            % +1 ranges ratio is expected to be 1-2*eps
             range_rat = range_calc(1,:)./range_calc(2,:);
             range_ref = range(1,:)./range(2,:);
             % is this estimate indeed correct?
             difr = range_rat-range_ref + [-2*eps,2*eps];
-            % we have to compare against extracting large numbers as
+            % we have to compare eps against large numbers as
             % comparison against smaller numbers will be done with higher
             % accuracy
             zer = zeros(1,2);
@@ -95,8 +95,6 @@ classdef test_range_add_border < TestCase
             assertEqual(range_calc(2,4),10);
             
         end
-        
-        
     end
 end
 
