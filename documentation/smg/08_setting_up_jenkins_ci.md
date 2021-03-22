@@ -27,6 +27,8 @@ For pull requests:
   occurs.
 - When Jenkins receives a notification from GitHub it will checkout out the
   relevant pull request branch and merge it with master.
+- PR labels are checked to determine CI process including which stages to run, 
+  and the Herbert version to pull 
 
 For nightly builds:
 
@@ -149,6 +151,18 @@ if the Jenkins servers were down and the payload was not received.
 Using webhooks is a more efficient method to automatically trigger builds than
 polling, as it does not require Jenkins to query GitHub on regular intervals.
 
+### GitHub PR Labels
+
+GitHub PRs pass labels through to the Jenkins build system. These labels can be accessed via the `PR_LABELS` environment variable from within scripts. 
+Currently, there are 3 labels which control the CI process and one which controls the build process.
+
+- `DO_NOT_CI` - Label which skips the Jenkins system entirely (primarily for use with documentation changes).
+- `do-not-build` - Label which skips the build (of C++ components) and test (C++ & MATLAB) stages of the pipeline 
+                   (primarily for use with Jenkins Pipeline changes).
+- `do-not-test` - Label which skips the test (C++ & MATLAB) stage of the pipeline
+                  (primarily for use with changing CMake build processes)
+- `Herbert_<branch>` - Build Herbert branch designated by `branch` as part of Horace 
+
 ## Jenkins GUI
 
 ### Required Plugins
@@ -157,6 +171,7 @@ polling, as it does not require Jenkins to query GitHub on regular intervals.
 - [Generic Webhook Trigger](https://plugins.jenkins.io/generic-webhook-trigger) -
 Allows GitHub to trigger builds
 - [xUnit](https://plugins.jenkins.io/xunit) - Parse and display test results
+- [Warnings Next Generation](https://plugins.jenkins.io/warnings-ng/) - Parse and display code analysis
 
 ### Setting Up the Pipeline
 
@@ -243,13 +258,16 @@ so any Jenkins specific tasks should *not* be in the build scripts.
 
 ### Actions
 
-| Argument (`.ps1`) | Argument (`.sh`)       |      |
-| --------------- | ------- | ---- |
-| `-build`        | `--build`, `-b`   |   Perform build   |
-| `-test`         | `--test`, `-t`    | Run MATLAB and C++ tests |
-|      | `--analyze`, `-a` | Run static code analysis (Linux only) |
-| `-package`          | `--package`, `-p`  | Create archive of build artifacts |
-| `-print_versions`          | `--print_versions`, `-v`  | Display versions of compilers, MATLAB and libraries used |
+| Argument (`.ps1`) | Argument (`.sh`)          |      |
+| ----------------- | ------------------------- | ---- |
+| `-configure`      | `--configure`, `-c`       | Create build folder and setup CMake |
+| `-build`          | `--build`, `-b`           | Perform build   |
+| `-test`           | `--test`, `-t`            | Run MATLAB and C++ tests |
+|                   | `--analyze`, `-a`         | Run static code analysis (Linux only) |
+| `-docs`           | `--docs`, `-d`            | Build HTML documentation |
+| `-push_docs`      | `--push_docs`             | Push built documentation to GitHub pages |
+| `-package`        | `--package`, `-p`         | Create archive of build artifacts |
+| `-print_versions` | `--print_versions`, `-v`  | Display versions of compilers, MATLAB and libraries used |
 
 ### Options
 
