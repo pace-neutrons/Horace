@@ -89,9 +89,25 @@ and operate on those pixels.
 
 ### Principles
 
+- It works on "pages" of cached data.
+  - The page size is specified on construction (in bytes).
+  - Only a page size worth of pixels is loaded at any one time.
+  - If all pixels fit in one page size, all pixels are loaded.
+
+- Temporary files hold changes to pixel data.
+  - When pixel data is changed, the changes are written to a temporary file
+    when the current page is cleared.
+    This most often occurs when the next page is loaded.
+  - Changes are _never_ written to the SQW file used in construction.
+  - A logical array is held on the object that tracks which pages are "dirty".
+  - If a page is "clean" the data is loaded from the SQW, if the page is "dirty"
+    it is loaded from a temporary file.
+  - Each page has its own temporary file.
+
 - It is a
   [`handle` class](https://www.mathworks.com/help/matlab/matlab_oop/handle-objects.html).
   - To copy a `PixelData` object, you must explicitly call the `copy` method.
+    This copy can be expensive, as all temporary files are also copied.
   - There is no "lazy-copy-on-assignment" as exists for Matlab value classes.
 
   The main reason for using a handle class was due to the file-backed nature of
@@ -113,21 +129,6 @@ and operate on those pixels.
   >> sqw_obj.data.pix = sqw_obj.data.pix.signal = zeros(1, pix.num_pixels);
   ```
 
-- It works on "pages" of cached data.
-  - The page size is specified on construction (in bytes).
-  - Only a page size of worth of pixels is loaded at any one time.
-  - If all pixels fit in one page size, all pixels are loaded.
-
-- Temporary files hold changes to pixel data.
-  - When pixel data is changed, the changes are written to a temporary file
-    when the current page is cleared.
-    This most often occurs when the next page is loaded.
-  - Changes are _never_ written to the SQW file used in construction.
-  - A logical array is held on the object that tracks which pages are "dirty".
-  - If a page is "clean" the data is loaded from the SQW, if the page is "dirty"
-    it is loaded from a temporary file.
-  - Each page has its own temporary file.
-
 - Data is loaded on access.
   - No data is loaded from file on construction.
   - All public data accessors _must_ check that data is loaded before returning data.
@@ -137,6 +138,13 @@ and operate on those pixels.
   For example, a user may wish to load an SQW object and plot the image data.
   This does not require pixels, so time and memory is wasted loading what could
   be gigabytes of data.
+  Note that this also means it is free to move to a given page of data after
+  constructing the object.
+
+- Pixel data are held in memory as `double`s.
+  This is in contrast to in file (including temporary page files),
+  where pixels are stored as `single`.
+  See [ADR 15](../adr/0015-store-pixel-data-in-single-precision.md).
 
 ### Getters/Setters
 
