@@ -79,6 +79,10 @@ function wout = sqw_eval(win, sqwfunc, pars, varargin)
 %
 [sqwfunc, pars, opts] = parse_arguments(win, sqwfunc, pars, varargin{:});
 if isempty(opts.outfile) || opts.filebacked
+    % Make sure we have exactly one output argument if no outfile is specified,
+    % otherwise this function would do nothing.
+    % Even in filebacked mode, if no outfile is given, a random one is
+    % generated. This is not much use to a user if it's not returned.
     nargoutchk(1, 1);
 end
 
