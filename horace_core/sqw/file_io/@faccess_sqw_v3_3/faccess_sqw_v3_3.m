@@ -1,10 +1,8 @@
 classdef faccess_sqw_v3_3 < faccess_sqw_v3
     % Class to access Horace binary files written in binary format v3.3
-    % The format differs from 3.1 format as efixed can contain range of
-    % energies (equal to number of detectors). This format may be necessary
-    % for writing results of indirect instruments
+    % The format differs from 3.1 format as it stores pix_range
     %
-    % In addition to that, it distinguish between img_range and pix_range
+    % In addition to that, it distinguish between img_db_range and pix_range
     % and stores/restores both fields
     %
     % The pix_range is stored in sqw_footer together with the positions of

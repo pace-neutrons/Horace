@@ -35,7 +35,7 @@ wout = copy(w, 'exclude_pix', true);
     ubins.plot_ax_idx, ...
     ubins.plot_ax_bounds, ...
     ubins.img_range ...
-    ] = proj.calc_transf_img_bins(w.data.img_range, pbin, pin, en);
+    ] = proj.calc_transf_img_bins(w.data.img_db_range, pbin, pin, en);
 
 % Update projection with binning
 proj = proj.set_proj_binning( ...
@@ -92,7 +92,7 @@ end  % function
 
 % -----------------------------------------------------------------------------
 function data_out = compile_sqw_data(data, proj, s, e, npix, pix_out, ...
-    pix_comb_info, img_range, ubins, keep_pix)
+    pix_comb_info, img_db_range, ubins, keep_pix)
 ppax = ubins.plot_ax_bounds(1:length(ubins.plot_ax_idx));
 if isempty(ppax)
     nbin_as_size = [1, 1];
@@ -121,7 +121,7 @@ data_out.iax = ubins.integration_axis_idx;
 data_out.iint = ubins.integration_range;
 data_out.pax = ubins.plot_ax_idx;
 data_out.p = ubins.plot_ax_bounds;
-data_out.img_range = img_range;
+data_out.img_db_range = img_db_range;
 
 if keep_pix
     % If pix_comb_info is not empty then we've been working with temp files

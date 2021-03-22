@@ -15,8 +15,8 @@ function [w, grid_size, pix_range] = calc_sqw_(obj,detdcn, det0, grid_size_in, p
 % grid_size_in    - Scalar or [1x4] vector of grid dimensions
 % pix_db_range_in - Range of data grid for bin pixels onto as a [2x4] matrix:
 %                  [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
-%                  If [] then uses  obj.img_range which should be equal to
-%                  the smallest hyper-cuboid that encloses the whole data range.
+%                  If [] then uses  obj.img_db_range which should be equal to
+%                  the smallest hyper-cuboid that encloses the whole pixel range.
 %
 %
 % Output:
@@ -52,18 +52,18 @@ grid_is_unity = (isscalar(grid_size_in)&&grid_size_in==1)||(isvector(grid_size_i
 
 % Set pix_range, and determine if all the data is on the surface or within the box defined by the ranges
 if isempty(pix_db_range_in)
-    pix_db_range = sqw_datstr.img_range;   % range of the data
+    pix_db_range = sqw_datstr.img_db_range;   % range of the data
     data_in_range = true;
 else
     pix_db_range = pix_db_range_in;         % use input pix_range
-    if any(pix_db_range(1,:)>sqw_datstr.img_range(1,:)) || any(pix_db_range(2,:)<sqw_datstr.img_range(2,:))
+    if any(pix_db_range(1,:)>sqw_datstr.img_db_range(1,:)) || any(pix_db_range(2,:)<sqw_datstr.img_db_range(2,:))
         data_in_range = false;
     else
         data_in_range = true;
     end
 end
 % set up img range to the global range, used for binning
-sqw_datstr.img_range = pix_db_range;
+sqw_datstr.img_db_range = pix_db_range;
 
 % If grid that is other than 1x1x1x1, or range was given, then sort pixels
 if grid_is_unity && data_in_range   % the most work we have to do is just change the bin boundary fields
@@ -126,7 +126,7 @@ else
     pix_range = sqw_datstr.pix.pix_range;
     out_of_range = [pix_range(1,:)<pix_db_range(1,:);pix_range(2,:)>pix_db_range(2,:)];    
     real_pix_range  = range_add_border(pix_range);
-    sqw_datstr.img_range(out_of_range) = real_pix_range(out_of_range);
+    sqw_datstr.img_db_range(out_of_range) = real_pix_range(out_of_range);
 
 end
 
@@ -221,7 +221,7 @@ sqw_datstr.e=sum(pix.variance);   % take advantage of the squaring that has alre
 sqw_datstr.npix=ne*ndet;
 % img range expressed in Crystal Cartesian coordinate system. Will be
 % overwritten later if external range is provided.
-sqw_datstr.img_range=pix_range;
+sqw_datstr.img_db_range=pix_range;
 %
 % this will set up pix_range in Crystal Cartesian.
 sqw_datstr.pix=PixelData(pix);

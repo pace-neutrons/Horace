@@ -1,12 +1,12 @@
-function [ pbin_out, ndims] = calc_pbins(proj, img_range_in, pbin, pin, en)
+function [ pbin_out, ndims] = calc_pbins(proj, img_db_range_in, pbin, pin, en)
 % Check binning descriptors are valid, and resolve multiple integration axes
 % using limits and bin widths from the input data.
 %
-%   >> [ok, mess, pbin_out, ndims] = cut_sqw_calc_pbins (img_range, proj, pbin, pin, en)
+%   >> [ok, mess, pbin_out, ndims] = cut_sqw_calc_pbins (img_db_range, proj, pbin, pin, en)
 %
 % Input:
 % ------
-%   img_range_in   [2x4] array of range of data along the input projection axes (elements must all be finite)
+%   img_db_range_in   [2x4] array of range of data along the input projection axes (elements must all be finite)
 %
 %   proj        The class which defines the projection
 %
@@ -111,7 +111,7 @@ for i=1:n
 end
 
 % Get integration and plot axes
-[~, ~, pax, p] = proj.calc_transf_img_bins(img_range_in,pbin_tmp, pin, en);
+[~, ~, pax, p] = proj.calc_transf_img_bins(img_db_range_in,pbin_tmp, pin, en);
 ndims = numel(p);
 multi = (n_pbin==4);
 if any(multi)

@@ -104,7 +104,7 @@ for i=1:numel(win)
         eps_lo = min(data.pix.dE);
         eps_hi = max(data.pix.dE);
         % TODO: meaning?
-        data.img_range(:,4) = [eps_lo;eps_hi];
+        data.img_db_range(:,4) = [eps_lo;eps_hi];
         wout(i).data = data;
         wout(i) = recompute_bin_data(wout(i));
 

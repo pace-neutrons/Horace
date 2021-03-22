@@ -29,12 +29,12 @@ function [data_str,obj] = get_data (obj,varargin)
 % -------
 
 %   data        Output data structure actually read from the file. Will be one of:
-%                   type 'h'    fields: fields: uoffset,...,dax[,img_range]
+%                   type 'h'    fields: fields: uoffset,...,dax[,img_db_range]
 %                   type 'b'    fields: filename,...,dax,s,e
 %                   type 'b+'   fields: filename,...,dax,s,e,npix
-%                   type 'a'    fields:  filename,...,dax,s,e,npix,img_range,pix  (never produced by this reader)
-%                   type 'a-'   fields: filename,...,dax,s,e,npix,img_range
-%               The final field img_range is present for type 'h' if the header information was read from an sqw-type file.
+%                   type 'a'    fields:  filename,...,dax,s,e,npix,img_db_range,pix  (never produced by this reader)
+%                   type 'a-'   fields: filename,...,dax,s,e,npix,img_db_range
+%               The final field img_db_range is present for type 'h' if the header information was read from an sqw-type file.
 %
 %
 %
@@ -74,7 +74,7 @@ function [data_str,obj] = get_data (obj,varargin)
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %
-%   data.img_range  The range of the image along each axis [img_range(2,4)]
+%   data.img_db_range  The range of the image along each axis [img_db_range(2,4)]
 %
 % NOTES:
 % ======

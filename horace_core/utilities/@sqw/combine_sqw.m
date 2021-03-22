@@ -157,7 +157,7 @@ if nints>=1
 
 
     for i=1:nints
-        wout.data.img_range(:,wout.data.iax(i))=intlimits(:,i);
+        wout.data.img_db_range(:,wout.data.iax(i))=intlimits(:,i);
     end
 else
     wout.data.iint = zeros(2,0);

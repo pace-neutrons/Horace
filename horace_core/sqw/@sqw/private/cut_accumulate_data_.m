@@ -1,4 +1,4 @@
-function [s, e, npix, pix_out, img_range, pix_comb_info] = ...
+function [s, e, npix, pix_out, img_db_range, pix_comb_info] = ...
     cut_accumulate_data_(obj, proj, keep_pix, log_level, return_cut)
 %%CUT_ACCUMULATE_DATA Accumulate image and pixel data for a cut
 %
@@ -21,7 +21,7 @@ function [s, e, npix, pix_out, img_range, pix_comb_info] = ...
 %                  bin. size(npix) == size(s)
 % pix_out          A PixelData object containing pixels that contribute to the
 %                  cut.
-% img_range        The range of u1, u2, u3, and dE in the contributing pixels.
+% img_db_range        The range of u1, u2, u3, and dE in the contributing pixels.
 %                  size(urange_pix) == [2, 4].
 % pix_combine_info A temp file manager/combiner for performing out-of-memory
 %                  cuts. If keep_pix is false, or return_cut is true, this
@@ -45,7 +45,7 @@ if isempty(bin_starts)
     % No pixels in range, we can return early
     pix_out = PixelData();
     pix_comb_info = [];
-    img_range = img_range_step;
+    img_db_range = img_range_step;
     return
 end
 
@@ -137,7 +137,7 @@ end
 
 % Convert range from steps to actual range with respect to output uoffset
 urange_offset = repmat(proj.urange_offset, [2, 1]);
-img_range = img_range_step.*repmat(proj.usteps, [2, 1]) + urange_offset;
+img_db_range = img_range_step.*repmat(proj.usteps, [2, 1]) + urange_offset;
 
 [s, e] = average_signal(s, e, npix);
 

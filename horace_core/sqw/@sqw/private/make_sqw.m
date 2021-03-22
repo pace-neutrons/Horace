@@ -76,8 +76,8 @@ if nargin==2 && (isstruct(varargin{2}))
                 d.data=clear_sqw_data(data_sqw_dnd(varargin{2}));
             end
         end
-        % In case structure is not actually a true sqw-type structure, don't fail if fields img_range and pix do not exist
-        %if isfield(d.data,'img_range'), d.data=rmfield(d.data,'img_range'); end
+        % In case structure is not actually a true sqw-type structure, don't fail if fields img_db_range and pix do not exist
+        %if isfield(d.data,'img_db_range'), d.data=rmfield(d.data,'img_db_range'); end
         %if isfield(d.data,'pix'), d.data=rmfield(d.data,'pix'); end
     end
 else

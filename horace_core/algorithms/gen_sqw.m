@@ -10,12 +10,12 @@ function [tmp_file,grid_size,pix_range] = gen_sqw (spe_file, par_file, sqw_file,
 %
 % Optionally (before any keywords):
 %   >> gen_sqw (..., instrument,   sample)    % instrument and sample information
-%   >> gen_sqw (..., grid_size_in, pix_range_in) % grid size and range of data to retain
-%   >> gen_sqw (..., grid_size_in, pix_range_in, instrument, sample)
+%   >> gen_sqw (..., grid_size_in, pix_db_range_in) % grid size and range of data to retain
+%   >> gen_sqw (..., grid_size_in, pix_db_range_in, instrument, sample)
 %
 %
 % If want output diagnostics:
-%   >> [tmp_file,grid_size,pix_range] = gen_sqw (...)
+%   >> [tmp_file,grid_size,pix_db_range] = gen_sqw (...)
 %
 %
 % Input: (in the following, nfile = number of spe files)
@@ -38,9 +38,9 @@ function [tmp_file,grid_size,pix_range] = gen_sqw (spe_file, par_file, sqw_file,
 %
 % Optional arguments:
 %
-%   grid_size_in    [Optional] Scalar or row vector of grid dimensions
+%   grid_size_in    Scalar or row vector of grid dimensions
 %                   Default if not given or [] is is [50,50,50,50]
-%   pix_range_in   [Optional] Range of data grid for output as a 2x4 matrix:
+%   pix_db_range_in Range of data grid for output as a 2x4 matrix:
 %                              [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
 %                   Default if not given or [] is the smallest hypercuboid that encloses the whole data range.
 %   instrument      Structure or object containing instrument information [scalar or array length nfile]
@@ -88,10 +88,9 @@ function [tmp_file,grid_size,pix_range] = gen_sqw (spe_file, par_file, sqw_file,
 %                  is an empty cell array.
 %   grid_size      Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
-%   pix_range      Actual range of pixels (in crystal cartesian),
-%                  contributing into sqw file. Add border to rebin pixels within
-%                  this range.
-
+%   pix_db_range   The range of pixels (in crystal cartesian),
+%                  contributing into sqw file. The pixels in sqw file are
+%                  rebinned on the grid, which has this range
 
 % T.G.Perring  14 August 2007
 % T.G.Perring  19 March 2013   Massively updated, also includes functionality of accumulate_sqw
@@ -215,16 +214,16 @@ end
 if ~ok, error('GEN_SQW:invalid_argument',mess), end
 
 
-% Check optional arguments (grid, pix_range, instrument, sample) for size, type and validity
+% Check optional arguments (grid, pix_db_range, instrument, sample) for size, type and validity
 grid_default=[];
 instrument_default=struct;  % default 1x1 struct
 sample_default=struct;      % default 1x1 struct
 [ok,mess,present,grid_size_in,pix_db_range,instrument,sample]=gen_sqw_check_optional_args(...
     n_all_spe_files,grid_default,instrument_default,sample_default,args{:});
 if ~ok, error('GEN_SQW:invalid_argument',mess), end
-if accumulate_old_sqw && (present.grid||present.pix_range)
+if accumulate_old_sqw && (present.grid||present.pix_db_range)
     error('GEN_SQW:invalid_argument',...
-        'If data is being accumulated to an existing sqw file, then you cannot specify the grid or pix_range.')
+        'If data is being accumulated to an existing sqw file, then you cannot specify the grid or pix_db_range.')
 end
 
 
@@ -236,7 +235,7 @@ if accumulate_old_sqw    % combine with existing sqw file
         if log_level>0
             disp(' Analysing headers of existing tmp files:')
         end
-        [header_sqw,grid_size_sqw,pix_db_range_sqw,pix_range_present,...
+        [header_sqw,grid_size_sqw,pix_db_range_sqw,pix_db_range_present,...
             ind_tmp_files_present,update_runid] = get_tmp_file_headers(all_tmp_files);
         if sum(ind_tmp_files_present) == 0
             accumulate_old_sqw = false;
@@ -251,7 +250,7 @@ if accumulate_old_sqw    % combine with existing sqw file
         
     else
         % Check that the sqw file has the correct type to which to accumulate
-        [ok,mess,header_sqw,grid_size_sqw,pix_db_range_sqw,pix_range_present]=...
+        [ok,mess,header_sqw,grid_size_sqw,pix_db_range_sqw,pix_db_range_present]=...
             gen_sqw_check_sqwfile_valid(sqw_file);
         % Check that the input spe data are distinct
         if ~ok, error(mess), end
@@ -295,7 +294,7 @@ if accumulate_old_sqw    % combine with existing sqw file
                 wnsq_argi = {'keep_runid'};
             end
             % will recaluclate pixel_range
-            [~,pix_range]=write_nsqw_to_sqw (tmp_file, sqw_file,pix_range_present,wnsq_argi{:});
+            [~,pix_range]=write_nsqw_to_sqw (tmp_file, sqw_file,pix_db_range_present,wnsq_argi{:});
             
             if numel(tmp_file) == numel(all_tmp_files)
                 tmpf_clob = onCleanup(@()delete_tmp_files(tmp_file,log_level));
@@ -306,7 +305,7 @@ if accumulate_old_sqw    % combine with existing sqw file
                 report_nothing_to_do(spe_only,spe_exist);
             end
             tmp_file={};
-            pix_range=pix_range_present;
+            pix_db_range=pix_db_range_present;
         end
         grid_size=grid_size_sqw;
         
@@ -393,17 +392,17 @@ if ~accumulate_old_sqw
     if isempty(pix_db_range) && numel(run_files)>1
         if numel(run_files)==1
             pix_db_range =[];
-            pix_range_est = [];
+            pix_db_range_est = [];
         else
-            [pix_db_range,pix_range_est] = find_pix_range(run_files,efix,emode,ix,indx,log_level); %calculate pix_range from all runfiles
+            [pix_db_range,pix_db_range_est] = find_pix_range(run_files,efix,emode,ix,indx,log_level); %calculate pix_range from all runfiles
         end
     else
-        pix_range_est = [];
+        pix_db_range_est = [];
     end
     run_files = run_files(ix); % select only existing runfiles for further processing
 elseif accumulate_old_sqw
     pix_db_range=pix_db_range_sqw;
-    pix_range_est = [];
+    pix_db_range_est = [];
 end
 
 
@@ -420,10 +419,10 @@ if ~accumulate_old_sqw && nindx==1
         run_files{1}.transform_sqw = opt.transform_sqw;
     end
     [w,grid_size,pix_range] = run_files{1}.calc_sqw(grid_size_in,pix_db_range);
-    verify_pix_range_est(pix_range,pix_range_est,log_level);
+    verify_pix_range_est(pix_range,pix_db_range_est,log_level);
     save(w,sqw_file);
     
-    %grid_size_in,pix_range_in,write_banner,opt);
+    %grid_size_in,pix_db_range_in,write_banner,opt);
     tmp_file={};    % empty cell array to indicate no tmp_files created
     
     if log_level>-1
@@ -458,7 +457,7 @@ else
     % Generate unique temporary sqw files, one for each of the spe files
     [grid_size,pix_range,update_runid,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
         instrument,sample,pix_db_range,grid_size_in,opt.tmp_only);
-    verify_pix_range_est(pix_range,pix_range_est,log_level);
+    verify_pix_range_est(pix_range,pix_db_range_est,log_level);
     
     if use_partial_tmp
         delete_tmp = false;
@@ -473,8 +472,8 @@ else
                 delete_tmp = false;
             end
         end
-        pix_range = [min(pix_range(1,:),pix_range_present(1,:));...
-            max(pix_range(2,:),pix_range_present(2,:))];
+        pix_range = [min(pix_range(1,:),pix_db_range_present(1,:));...
+            max(pix_range(2,:),pix_db_range_present(2,:))];
     end
     
     % Accumulate sqw files; if creating only tmp files only, then exit (ignoring the delete_tmp option)
@@ -568,7 +567,7 @@ else
 end
 
 %------------------------------------------------------------------------------------------------
-function [header_sqw,grid_size_sqw,img_range_sqw,pix_range,tmp_present,update_runid] = get_tmp_file_headers(tmp_file_names)
+function [header_sqw,grid_size_sqw,img_db_range_sqw,pix_range,tmp_present,update_runid] = get_tmp_file_headers(tmp_file_names)
 % get sqw header for prospective sqw file from range of tmp files
 %
 % Input:
@@ -578,7 +577,7 @@ function [header_sqw,grid_size_sqw,img_range_sqw,pix_range,tmp_present,update_ru
 % header_sqw -- list of partial tmp files headers combined in the form,
 %               used by sqw file
 % grid_size_sqw -- tmp files binning (has to be equal for all input files)
-% img_range_sqw -- range of input tmp files image (has to be equal for all existing files)
+% img_db_range_sqw -- range of input tmp files image (has to be equal for all existing files)
 % tmp_present  -- logical array containing true for all tmp_file_names
 %                 found on hdd and false otherwise
 %
@@ -588,7 +587,7 @@ files_to_check = tmp_file_names(tmp_present);
 header_sqw = cell(numel(files_to_check),1);
 multiheaders = false;
 ic = 1;
-img_range_sqw = [];
+img_db_range_sqw = [];
 grid_size_sqw = [];
 pix_range = PixelData.EMPTY_RANGE_;
 
@@ -622,12 +621,12 @@ for i=1:numel(files_to_check)
     pix_range = [min(pix_range(1,:),pix_range_l(1,:));...
         max(pix_range(2,:),pix_range_l(2,:))];
     
-    img_range_l = data.img_range;
+    img_db_range_l = data.img_db_range;
     grid_size_l = [numel(data.p{1})-1,numel(data.p{2})-1,...
         numel(data.p{3})-1,numel(data.p{4})-1];
     
-    if isempty(img_range_sqw)
-        img_range_sqw = img_range_l;
+    if isempty(img_db_range_sqw)
+        img_db_range_sqw = img_db_range_l;
         grid_size_sqw = grid_size_l;
         data_ref = data;
     else
@@ -635,7 +634,7 @@ for i=1:numel(files_to_check)
         tol=2e-7;    % test number to define equality allowing for rounding errors (recall fields were saved only as float32)
         % TGP (15/5/2015) I am not sure if this is necessary: both the header and data sections are saved as float32, so
         % should be rounded identically.
-        if ~equal_to_relerr(img_range_sqw, img_range_l, tol, 1)
+        if ~equal_to_relerr(img_db_range_sqw, img_db_range_l, tol, 1)
             error('GEN_SQW:invalid_argument',...
                 'the tmp file to combine: %s does not have the same range as first tmp file',...
                 ldr.filename)

@@ -14,7 +14,7 @@ if ~isfield(input,'version')
             input.pix_range = input.urange;
         end
         input = rmfield(input,'urange');
-        input.img_range = data_sqw_dnd.calc_img_range(input);
+        input.img_db_range = dnd_binfile_common.calc_img_db_range(input);
     end
 elseif input.version == 1
     input = rmfield(input,'version');
@@ -29,6 +29,3 @@ flds = fieldnames(input);
 for i=1:numel(flds )
     obj.(flds{i}) = input.(flds{i});
 end
-
-
-

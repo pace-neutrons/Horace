@@ -49,5 +49,5 @@ wout.data.npix(~mask_array) = 0;
 if is_sqw_type(win)
     wout.data.pix = win.data.pix.mask(mask_array, win.data.npix);
     %TODO: is this a suitable algorithm? 
-    wout.data.img_range = recompute_img_range(wout);
+    wout.data.img_db_range = recompute_img_range(wout);
 end
