@@ -43,8 +43,8 @@ function wout = sqw_eval(win, sqwfunc, pars, varargin)
 % ------------------
 %   outfile    If present, the outputs will be written to the file of the given
 %              name/path.
-%              If numel(win) > 1, outfile must be omitted or a cell array of
-%              file paths with equal number of elements as win.
+%              If numel(win) > 1, outfile must either be omitted or be a cell
+%              array of file paths with equal number of elements as win.
 %
 %   all        Requests that the calculated sqw be returned over
 %              the whole of the domain of the input dataset. If not given, then
