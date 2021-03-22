@@ -299,7 +299,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             [dummy,grid2,pix_range2]=gen_sqw (obj.spe_file([1,4,5,6,2,3]), '', sqw_file_145623, efix([1,4,5,6,2,3]), emode, alatt, angdeg, u, v, psi([1,4,5,6,2,3]), omega([1,4,5,6,2,3]), dpsi([1,4,5,6,2,3]), gl([1,4,5,6,2,3]), gs([1,4,5,6,2,3]));
             
             assertEqual(grid1,grid2);
-            assertElementsAlmostEqual(pix_range1,pix_range2,'relative',1.e-6);
+            assertElementsAlmostEqual(pix_range1,pix_range2);
             
             % Make some cuts: ---------------
             obj.proj.u=[1,0,0.1]; obj.proj.v=[0,0,1];
@@ -447,10 +447,13 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             assertEqual(grid1,grid2);
             
             if not(obj.save_output)
-                assertElementsAlmostEqual(pix_range14,acc_pix_range14,'relative',1.e-6)
+                assertElementsAlmostEqual(pix_range14,acc_pix_range14)
             end
-            
-            [ok,mess,w2_14]=is_cut_equal(sqw_file_14,sqw_file_accum,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            % the files are different and binned into different ranges, but
+            % actual cuts are the same as pixels included in cuts are the
+            % same
+            [ok,mess,w2_14]=is_cut_equal(sqw_file_14,sqw_file_accum,...
+                obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-inf,inf]);
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same',mess]);
             
             % Test against saved or store to save later
