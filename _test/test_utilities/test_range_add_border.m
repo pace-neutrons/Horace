@@ -20,7 +20,7 @@ classdef test_range_add_border < TestCase
             assertEqual(range,range_out);
         end
         %
-        function test_no_tol_eq_eps_tol(~)
+        function test_no_tol_eq_rel_eps_tol(~)
             range = [-1*ones(1,4);ones(1,4)];
             range_no  = range_add_border(range);
             range_eps = range_add_border(range,-eps);
@@ -93,7 +93,16 @@ classdef test_range_add_border < TestCase
             assertEqual(range_calc(2,3),1+eps);
             assertEqual(range_calc(1,4),-10);
             assertEqual(range_calc(2,4),10);
-            
+        end
+        function test_invalid_argumemt_nan(~)
+            range = [-100,100,-1,-10;-100,100,1,10];
+            assertExceptionThrown(@()range_add_border(range,nan),...
+                'RANGE_ADD_BORDER:invalid_argument');
+        end
+        function test_invalid_argumemt_symbol(~)
+            range = [-100,100,-1,-10;-100,100,1,10];
+            assertExceptionThrown(@()range_add_border(range,'s'),...
+                'RANGE_ADD_BORDER:invalid_argument');
         end
     end
 end

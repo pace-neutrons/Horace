@@ -33,7 +33,8 @@ ndim=size(range_in,2);
 if tol==0
     range=range_in;
     return
-elseif tol>0
+end
+if isnumeric(tol) && tol>0
     range=range_in+tol*([-ones(1,ndim);ones(1,ndim)]);
     % ensure smoothness -- range smaller then 2*tol remains 2*toll
     zero_width = abs(range_in(2,:)-range_in(1,:))<2*tol;
@@ -52,9 +53,13 @@ elseif tol<0
         range(1,close_to_zero(1,:)) = -tol;
         range(2,close_to_zero(2,:)) = tol;
     end
+else
+    error('RANGE_ADD_BORDER:invalid_argument',... 
+        'input tol must be a numeric value. Actually: %s',...
+        evalc('tol'));
 end
 function range = get_relative_range(range_in,tol)
-% Add relative-sized border to range.
+% Add relative-sized border to the range.
 %
 sig_range = sign(range_in);
 
