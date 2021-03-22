@@ -244,33 +244,13 @@ function loader = write_out_of_mem_pix(pix, npix, img_signal, loader)
     % that pixel belongs to. Set all variances to zero.
     %
     pix.move_to_first_page();
-    npix_cum_sum = cumsum(npix(:));
-    end_idx = 1;
+    [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), pix.base_page_size);
+    page_number = 1;
     while true
-        start_idx = (end_idx - 1) + find(npix_cum_sum(end_idx:end) > 0, 1);
-        leftover_begin = npix_cum_sum(start_idx);
-        npix_cum_sum = npix_cum_sum - pix.page_size;
-        end_idx = (start_idx - 1) + find(npix_cum_sum(start_idx:end) > 0, 1);
-        if isempty(end_idx)
-            end_idx = numel(npix);
-        end
+        npix_chunk = npix_chunks{page_number};
+        idx = idxs(:, page_number);
 
-        if start_idx == end_idx
-            % All pixels in page
-            if ~exist('leftover_end', 'var')
-                leftover_end = 0;
-            end
-            npix_chunk = min(pix.page_size, npix(start_idx) - leftover_end);
-        else
-            % Leftover_end = number of pixels to allocate to final bin n,
-            % there will be more pixels to allocate to bin n in the next iteration
-            leftover_end = ...
-                pix.page_size - (leftover_begin + sum(npix(start_idx + 1:end_idx - 1)));
-            npix_chunk = npix(start_idx + 1:end_idx - 1);
-            npix_chunk = [leftover_begin, npix_chunk(:).', leftover_end];
-        end
-
-        pix.signal = repelem(img_signal(start_idx:end_idx), npix_chunk);
+        pix.signal = repelem(img_signal(idx(1):idx(2)), npix_chunk);
         pix.variance = 0;
         loader = loader.put_bytes(pix.data);
 
@@ -282,6 +262,7 @@ function loader = write_out_of_mem_pix(pix, npix, img_signal, loader)
             % input PixelData object, so we discard edits to the cache when we
             % load the next page of pixels.
             pix.advance('nosave', true);
+            page_number = page_number + 1;
         else
             % Make sure we discard the changes made to the final page's cache
             pix.move_to_page(1, 'nosave', true);
