@@ -92,7 +92,7 @@ for i = 1:numel(win)
             wout(i).data.pix.base_page_size < wout(i).data.pix.num_pixels;
         if pix_file_backed
             if opts.average
-                wout(i) = do_sqw_eval_average_filebacked( ...
+                wout(i) = do_sqw_eval_average_filebacked_( ...
                     wout(i), sqwfunc, pars, opts.outfile{i} ...
                 );
             else
@@ -195,7 +195,7 @@ function wout = do_sqw_eval_in_memory_(wout, sqwfunc, pars, average)
 end
 
 
-function sqw_obj = do_sqw_eval_average_filebacked(sqw_obj, sqwfunc, pars, outfile)
+function sqw_obj = do_sqw_eval_average_filebacked_(sqw_obj, sqwfunc, pars, outfile)
     % Execute the given function 'sqwfunc' on the average coordinates (in
     % r, l, u) for each image bin
     pix = sqw_obj.data.pix;
