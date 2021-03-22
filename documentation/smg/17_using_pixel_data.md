@@ -253,3 +253,59 @@ these index types.
 See
 [ADR 17](../adr/0017-separate-absolute-and-relative-indexing-APIs-in-pixel-array.md)
 for the decision record on this.
+
+## Implementing File-Backed Algorithms
+
+### Simple Example
+
+Suppose we wish to subtract some constant background from an SQW object.
+This requires that we subtract some constant from the pixels' signal.
+For this we could implement a `minus` function,
+(in reality we have a general `do_binary_op` function).
+This can be performed in a `while` loop over pixels.
+
+```matlab
+classdef PixelData < handle
+
+    methods
+
+        ...
+
+        function minus(obj, scalar)
+            %MINUS Subtract a scalar from every pixel's signal
+            %
+            % Input:
+            % -----
+            % scalar  A scalar double.
+            %
+
+            % Never assume we're on the first page.
+            % If we are already on the first page, this call only costs one
+            % integer comparison
+            obj.move_to_first_page();
+
+            % Subtract scalar from every value in cache.
+            % If there is no data in the cache, this call will load that data
+            % from file and then perform the operation.
+            obj.signal = obj.signal - scalar;
+
+            % Check if there are any more pixels to load from file.
+            while obj.has_more()
+                % Move to the next page of data.
+                % This call dumps the previous page to a temporary file and
+                % marks the page as "dirty".
+                % It then clears the cache, and increments the internally held
+                % `page_number`.
+                obj.advance();
+
+                % This call will now load the data for `page_number` and
+                % perform the subtraction.
+                obj.signal = obj.signal - scalar;
+            end
+        end
+
+        ...
+
+    end
+end
+```
