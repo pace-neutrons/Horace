@@ -308,9 +308,9 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             grid_size = [50,50,50,50];
             % prepare task outputs as in do_job method
             je1.task_outputs = struct('grid_size',grid_size,...
-                'img_range',[-1,-2,-3,-20;1,2,3,10]);
+                'img_db_range',[-1,-2,-3,-20;1,2,3,10]);
             je2.task_outputs = struct('grid_size',grid_size,...
-                'img_range',[-2,-3,-2,-10;2,3,2,15]);
+                'img_db_range',[-2,-3,-2,-10;2,3,2,15]);
             je2.finish_task();
             je1.finish_task();
             
@@ -320,7 +320,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             res = mes.payload;
             res = res{1};
             assertEqual(res.grid_size,[50 50 50 50]);
-            assertElementsAlmostEqual(res.img_range,...
+            assertElementsAlmostEqual(res.img_db_range,...
                 [-1,-2,-3,-20;1,2,3,10]);
             
         end

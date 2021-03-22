@@ -30,7 +30,7 @@ fields = {'run_idx', 'detector_idx', 'energy_idx'};
 % pix_range = PixelData.EMPTY_RANGE_;
 for i=1:nw
     pixind(nbeg(i):nend(i),:) = varargin{i}.data.pix.get_data(fields)';
-    %     loc_range = varargin{1}.data.img_range;
+    %     loc_range = varargin{1}.data.img_db_range;
     %     pix_range  = [min(pix_range(1,:),loc_range(1,:));...
     %             max(pix_range(2,:),loc_range(2,:))];
 end

@@ -78,14 +78,14 @@ if update
     val   = obj.upgrade_map_.cblocks_map('pix');
     start_pos = val(1);
 else
-    start_pos = obj.img_range_pos_;
+    start_pos = obj.img_db_range_pos_;
 end
 % Here we handle the issue with the old data format
-% sqw_dnd_data contains img_range and pix contains pix_range. We save only
+% sqw_dnd_data contains img_db_range and pix contains pix_range. We save only
 % pix_range:
 %
 % % redefine formatter and remove pix_data fields not intended for serialization
- head_pix_format = struct('img_range',head_pix_format.img_range,...
+ head_pix_format = struct('img_db_range',head_pix_format.img_db_range,...
      'dummy',head_pix_format.dummy);
 %
 bytes = obj.sqw_serializer_.serialize(input_obj,head_pix_format);

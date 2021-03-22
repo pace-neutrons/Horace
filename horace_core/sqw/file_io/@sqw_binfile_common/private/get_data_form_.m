@@ -55,7 +55,7 @@ function data_form = get_data_form_(obj,varargin)
 %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-%   data.img_range  True range of the data along each axis [pix_range(2,4)]
+%   data.img_db_range  True range of the data along each axis [pix_range(2,4)]
 %   data.pix        A PixelData object
 %
 
@@ -65,8 +65,8 @@ if ~ok
 end
 
 if pix_only
-    data_form = struct('img_range',single([2,4]),...
-        'dummy',field_not_in_structure('img_range'),...
+    data_form = struct('img_db_range',single([2,4]),...
+        'dummy',field_not_in_structure('img_db_range'),...
         'pix',field_pix());
 else
     if head
@@ -76,7 +76,7 @@ else
     if nopix || head
         return
     end
-    data_form.img_range = single([2,4]);
+    data_form.img_db_range = single([2,4]);
     data_form.dummy = field_not_in_structure('pax');
     data_form.pix = field_pix();
 end

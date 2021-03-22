@@ -11,7 +11,8 @@ function [s, e, npix, img_range_step, npix_retain,ok, ix] = accumulate_cut_(s, e
 % * s               Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
 % * e               Array of accumulated variance
 % * npix            Array of number of contributing pixels
-% * img_range_step Actual range of contributing pixels
+% * img_range_step  Actual range of contributing pixels in the units of the
+%                   pixel binning
 %   keep_pix        Set to true if wish to retain the information about individual pixels; set to false if not
 %   v               PixelData object
 %

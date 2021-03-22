@@ -64,8 +64,8 @@ function [data,mess] = make_sqw_data_(data,varargin)
 %                       type 'b+'   fields: uoffset,...,s,e,npix
 %               [The following other valid structures are not created by this function
 %                       type 'b'    fields: uoffset,...,s,e
-%                       type 'a'    uoffset,...,s,e,npix,img_range,pix
-%                       type 'a-'   uoffset,...,s,e,npix,img_range   ]
+%                       type 'a'    uoffset,...,s,e,npix,img_db_range,pix
+%                       type 'a-'   uoffset,...,s,e,npix,img_db_range   ]
 %
 %   mess        Message; ='' if no problems, otherwise contains error message
 %
@@ -101,7 +101,7 @@ function [data,mess] = make_sqw_data_(data,varargin)
 %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-%   data.img_range True range of the data along each axis [img_range(2,4)]
+%   data.img_db_range True range of the data along each axis [img_db_range(2,4)]
 %   data.pix       A PixelData object
 
 

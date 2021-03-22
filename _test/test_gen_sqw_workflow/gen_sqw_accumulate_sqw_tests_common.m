@@ -519,7 +519,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % Now use accumulate sqw ----------------------
             % This is the case when the pixel_range is incorrect until the
             % whole run is completed and final pixel_range equal to the
-            % img_range
+            % img_db_range
             [~,~,pix_range_f14]=accumulate_sqw(spe_names, '', sqw_file_accum, ...
                 efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             % new file have been reduced. Add it to the file list
@@ -527,7 +527,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             ldr = sqw_formats_factory.instance().get_loader(sqw_file_accum);
             dat = ldr.get_data('-nopix');
             clear ldr;
-            img_range1 = dat.img_range;
+            img_db_range1 = dat.img_db_range;
             
             % add new file to the list of the files
             [~,~,pix_range_f145]=accumulate_sqw(spe_names, '', sqw_file_accum, ...
@@ -538,8 +538,8 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             ldr = sqw_formats_factory.instance().get_loader(sqw_file_accum);
             dat = ldr.get_data('-nopix');
             clear ldr;
-            img_range2 = dat.img_range;
-            assertEqual(img_range1,img_range2);
+            img_db_range2 = dat.img_db_range;
+            assertEqual(img_db_range1,img_db_range2);
             
             
             gen_sqw_accumulate_sqw_tests_common.rename_file_list(new_names{2},'.nxspe');
@@ -552,14 +552,14 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             ldr = sqw_formats_factory.instance().get_loader(sqw_file_accum);
             dat = ldr.get_data('-nopix');
             clear ldr;
-            img_range3 = dat.img_range;
-            assertEqual(img_range1,img_range3);
+            img_db_range3 = dat.img_db_range;
+            assertEqual(img_db_range1,img_db_range3);
             
-            % img_range wider then pix_range because of energies estimate
+            % img_db_range wider then pix_range because of energies estimate
             % for initially missed runfiles from existing runfiles is wider
             % then actual energy range for the existing runfiles.
-            assertTrue(all(pix_range_f1456(1,:)>=img_range3(1,:)));
-            assertTrue(all(pix_range_f1456(2,:)<=img_range3(2,:)));
+            assertTrue(all(pix_range_f1456(1,:)>=img_db_range3(1,:)));
+            assertTrue(all(pix_range_f1456(2,:)<=img_db_range3(2,:)));
             
             %----------------------------
             c_proj = struct('u',u,'v',v);
@@ -615,9 +615,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             dat = ldr.get_data('-nopix');
             pix_range = ldr.get_pix_range();
             clear ldr;
-            img_range1 = dat.img_range;
+            img_db_range1 = dat.img_db_range;
             assertEqual(pix_range1456,pix_range);
-            assertElementsAlmostEqual(pix_range,img_range1,'relative',1.e-4);
+            assertElementsAlmostEqual(pix_range,img_db_range1,'relative',1.e-4);
             
             
             % Now use accumulate sqw ----------------------
@@ -631,11 +631,11 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             pix_range = ldr.get_pix_range();
             assertEqual(acc_pix_range1456,pix_range);
             clear ldr;
-            img_range2 = dat.img_range;
-            % img_range in second case is wider then in the first, as
+            img_db_range2 = dat.img_db_range;
+            % img_db_range in second case is wider then in the first, as
             % additional ranges were added from missing files
-            assertTrue(all(img_range1(1,:)>=img_range2(1,:)));
-            assertTrue(all(img_range1(2,:)<=img_range2(2,:)));
+            assertTrue(all(img_db_range1(1,:)>=img_db_range2(1,:)));
+            assertTrue(all(img_db_range1(2,:)<=img_db_range2(2,:)));
             % but pixel ranges are actual pixel ranges which are the same
             assertEqual(pix_range1456,acc_pix_range1456);
             

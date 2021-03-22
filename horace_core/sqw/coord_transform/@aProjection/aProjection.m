@@ -54,7 +54,7 @@ classdef aProjection
         data_urange_;
         %------------------------------------
         % Transformed coordinates
-        new_img_range_;
+        new_img_db_range_;
         %
         usteps_ = [1,1,1,1];
         % data ranges in new coordinate system in units of steps in each
@@ -83,14 +83,14 @@ classdef aProjection
         % Common interface to projection data
         %------------------------------------------------------------------
         % build the binning and axis for the coordinate system related to cut 
-        [iax, iint, pax, p, img_range_out] = calc_transf_img_bins (proj,img_range_in,pbin, pin, en)        
+        [iax, iint, pax, p, img_db_range_out] = calc_transf_img_bins (proj,img_db_range_in,pbin, pin, en)        
         % Check that the binning arguments are valid, and update the projection
         % with the current bin values
         [proj_update,pbin_update,ndims,pin,en] = update_pbins (proj, header_ave, data, pbin)
         
         % Check binning descriptors are valid, and resolve multiple integration axes
         % using limits and bin widths from the input data.        
-        [ pbin_out, ndims] = calc_pbins(proj, img_range_in, pbin, pin, en)
+        [ pbin_out, ndims] = calc_pbins(proj, img_db_range_in, pbin, pin, en)
         
         %
         function obj=retrieve_existing_tranf(obj,data,upix_to_rlu,upix_offset)
@@ -99,7 +99,7 @@ classdef aProjection
             % use later to calculate new transformation.
             obj = set_data_transf_(obj,data,upix_to_rlu,upix_offset);
         end
-        function obj = set_proj_binning(obj,new_img_range,prj_ax_ind,int_ax_ind,prj_ax_bins)
+        function obj = set_proj_binning(obj,new_img_db_range,prj_ax_ind,int_ax_ind,prj_ax_bins)
             %   new_range   Array of limits of data that can possibly contribute to the output data structure in the
             %               coordinate frame of the output structure [2x4].
             %   prj_ax_ind  Index of plot axes into the projection axes  [row vector]
@@ -110,7 +110,7 @@ classdef aProjection
             %               i.e. data.p{1}, data.p{2} ... (for as many plot axes as given by length of prj_ax_ind)
             %
             %
-            obj = obj.set_proj_binning_(new_img_range,prj_ax_ind,int_ax_ind,prj_ax_bins);
+            obj = obj.set_proj_binning_(new_img_db_range,prj_ax_ind,int_ax_ind,prj_ax_bins);
         end
         
         %------------------------------------------------------------------
@@ -173,7 +173,7 @@ classdef aProjection
             % auxiliary variable derived from input data projection axis
             pin=cell(1,4);
             pin(obj.data_pax_)=obj.data_p_;
-            pin(obj.data_iax_)=mat2cell(obj.new_img_range_(:,obj.data_iax_),2,ones(1,length(obj.data_iax_)));
+            pin(obj.data_iax_)=mat2cell(obj.new_img_db_range_(:,obj.data_iax_),2,ones(1,length(obj.data_iax_)));
             nbin_in=zeros(1,4);
             for i=1:4
                 nbin_in(i)=length(pin{i})-1;

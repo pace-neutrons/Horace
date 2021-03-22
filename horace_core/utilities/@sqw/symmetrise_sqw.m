@@ -168,7 +168,7 @@ clear 'coords_new';
 %
 % Get image range:
 % hkl range
-existing_range = wout.data.img_range;
+existing_range = wout.data.img_db_range;
 proj = win.data.get_projection();
 
 cc_range_minmax = proj.transform_img_to_pix(existing_range');
@@ -186,9 +186,9 @@ side_dot=cc_exist_range'*normvec;
 idx = find(side_dot > 0);
 cc_exist_range(:,idx) = Reflec*cc_exist_range(:,idx);
 img_box_points = proj.transform_pix_to_img(cc_exist_range);
-img_range_minmax = [min(img_box_points,[],2),max(img_box_points,[],2)]';
+img_db_range_minmax = [min(img_box_points,[],2),max(img_box_points,[],2)]';
 % add forth dimension to the range
-all_sym_range = [img_range_minmax,existing_range(:,4)];
+all_sym_range = [img_db_range_minmax,existing_range(:,4)];
 %
 % Extract existing binning:
 new_range_arg = cell(1,4);
@@ -218,7 +218,7 @@ set(hor_config,'log_level',-1);
 
 % completely break relationship between bins and pixels in memory and make
 % all pixels contribute into single large bin
-wout.data.img_range = all_sym_range ;   
+wout.data.img_db_range = all_sym_range ;   
 
 wout.data.pax = 1:4;
 wout.data.dax = 1:4;
