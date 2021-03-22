@@ -26,15 +26,15 @@ if numel(s) ~= numel(e)
     );
 end
 
-bytes_to_write = numel(s)*BYTES_IN_SINGLE;
-bytes_in_file = obj.e_pos_ - obj.s_pos_;
+bytes_in_image_array = numel(s)*BYTES_IN_SINGLE;
+bytes_in_file_image_array = obj.e_pos_ - obj.s_pos_;
 
-if bytes_to_write ~= bytes_in_file
+if bytes_in_image_array ~= bytes_in_file_image_array
     error( ...
         'HORACE:DND_BINFILE_COMMON:invalid_length', ...
         ['Image signal size in file does not match the size of the input.\n' ...
          '''%i'' elements in file, ''%i'' elements in input array.'], ...
-        bytes_in_file/BYTES_IN_SINGLE, numel(bytes_to_write) ...
+        bytes_in_file_image_array/BYTES_IN_SINGLE, numel(bytes_in_image_array) ...
     );
 end
 
