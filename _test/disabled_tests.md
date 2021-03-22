@@ -37,7 +37,7 @@
     - test_gen_sqw_sym  -- disabled for symetrization ticket: (https://github.com/pace-neutrons/Horace/issues/464)
 
 - test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_herbert.m (https://github.com/pace-neutrons/Horace/issues/597)
-    - All tests
+    - All tests disabled on Jenkins windows
 
 - test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_parpool.m (https://github.com/pace-neutrons/Horace/issues/597)
-    - All tests
+    - All tests disabled on Jenkins windows
