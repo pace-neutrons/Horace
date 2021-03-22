@@ -1,81 +1,51 @@
-function [mean_signal, mean_variance] = compute_bin_data_matlab_(obj, npix, log_level)
+function [mean_signal, mean_variance] = compute_bin_data_matlab_(obj, npix)
 % Compute bin mean signal and variance using matlab routines
 %
 % See compute_bin_data for algorithm details
 %
-nbin = numel(npix);
-npix_shape = size(npix);
-
-try
-    bin_indices = int64(1:nbin);
-    npix = reshape(npix, numel(npix), 1);
-    allocatable = npix(bin_indices) ~= 0;
-    % List of indices of bins for which pixels can be allocated
-    bin_indices = bin_indices(allocatable);
-
-    if isempty(bin_indices)
-        mean_signal = [];
-        mean_variance = [];
-        return;
-    end
-
-    ti = arrayfun(@(ind) {int64(ones(npix(ind), 1)) * ind}, bin_indices);
-    ind = cat(1, ti{:});
-    clear bin_indices ti allocatable;
-
-catch ME
-    switch ME.identifier
-        case 'MATLAB:nomem'
-            clear bin_indices ti allocatable;
-
-            nend = cumsum(npix(:));
-            npixtot = nend(end);
-            nbeg = nend - npix(:) + 1;
-            ind = zeros(npixtot, 1, 'int32');
-
-            if log_level > 0
-                warning('SQW:recompute_bin_data', ...
-                    'Not enough memory to define bin indexes, running slow loop')
-            end
-
-            for i = 1:nbin
-                ind(nbeg(i):nend(i)) = i;
-            end
-
-            if log_level > 0
-                warning('SQW:recompute_bin_data', ' slow loop completed')
-            end
-
-        otherwise
-            rethrow(ME);
-    end
+if isempty(obj)
+    mean_signal = [];
+    mean_variance = [];
+    return
 end
 
-obj.move_to_first_page();  % make sure we're at the first page of data
+obj.move_to_first_page();
+npix_shape = size(npix);
 
-signal_sum = zeros(size(npix));
-variance_sum = zeros(size(npix));
-end_idx = 1;
-while true
-    start_idx = end_idx;
-    end_idx = start_idx + obj.page_size - 1;
-    signal_sum = signal_sum ...
-        + accumarray(ind(start_idx:end_idx), obj.signal, [nbin, 1]);
-    variance_sum = variance_sum ...
-        + accumarray(ind(start_idx:end_idx), obj.variance, [nbin, 1]);
+img_signal_sum = zeros(1, numel(npix));
+img_variance_sum = zeros(1, numel(npix));
+[npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
+for i = 1:numel(npix_chunks)
+    npix_chunk = npix_chunks{i};
+    idx = idxs(:, i);
+
+    % First argument in accumarray must be a column vector, because pixel signal
+    % (and variance) is always a row vector
+    accum_indices = make_column(repelem(1:numel(npix_chunk), npix_chunk));
+    increment_size = [idx(2) - idx(1) + 1, 1];
+
+    % We need to set the increment size in the accumarray call or it will
+    % ignore trailing zeros on the npix chunk. Meaning the increment will be a
+    % different length to the chunk of the image we're updating
+    sig_increment = accumarray(accum_indices, obj.signal, increment_size);
+    img_signal_sum(idx(1):idx(2)) = img_signal_sum(idx(1):idx(2)) + sig_increment';
+
+    var_increment = accumarray(accum_indices, obj.variance, increment_size);
+    img_variance_sum(idx(1):idx(2)) = img_variance_sum(idx(1):idx(2)) + var_increment';
 
     if obj.has_more()
         obj.advance();
     else
-        break;
+        break
     end
 end
-mean_signal = signal_sum ./ npix;
-mean_signal = reshape(mean_signal, npix_shape);
-mean_variance = variance_sum ./ (npix.^2);
-mean_variance = reshape(mean_variance, npix_shape);
+img_signal_sum = reshape(img_signal_sum, npix_shape);
+img_variance_sum = reshape(img_variance_sum, npix_shape);
+
+mean_signal = img_signal_sum./npix;
+mean_variance = img_variance_sum./(npix.^2);
 
 % Convert NaNs to zeros (bins where we divide by zero have no pixel contributions)
-nopix = (npix(:) == 0);
+nopix = (npix == 0);
 mean_signal(nopix) = 0;
 mean_variance(nopix) = 0;
