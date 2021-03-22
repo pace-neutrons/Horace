@@ -1,9 +1,14 @@
 function obj = put_image(obj, s, e)
 %PUT_IMAGE_SIGNAL Write the image signal and error to file
 %
+% The input array's sizes must match the sizes of the signal and error arrays
+% in the object or file this loader was initialized from.
+%
 % Input:
 % ------
-% s     The image signal. Must be a numeric array.
+% s     The image signal. Must be a numeric array. The number of elements in
+%       the array must match the number of elements in the image signal of the
+%       object or file used to initialize this loader.
 % e     The image error. This must be numeric array and have the same number of
 %       elements as s.
 %
