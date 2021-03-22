@@ -146,6 +146,9 @@ and operate on those pixels.
   where pixels are stored as `single`.
   See [ADR 15](../adr/0015-store-pixel-data-in-single-precision.md).
 
+- `PixelData` objects do not know about their binning.
+  - The binning is defined by the `sqw` object's image.
+
 ### Getters/Setters
 
 All getters return data in-memory.
@@ -307,5 +310,72 @@ classdef PixelData < handle
         ...
 
     end
+end
+```
+
+### Managing Binning
+
+Some algorithms require that pixels in different bins are operated on in
+different ways.
+In most cases, bins will cross pixel page boundaries,
+so it takes some work to find which bins require which action.
+
+As an example, consider performing addition between an `sqw` and `dnd` object.
+Each pixel in the `sqw` object, that belongs to bin `n`,
+should have its signal increased by the value of the `dnd` object's signal in
+bin `n`.
+
+To make these cases easier, the function `split_vector_fixed_sum` was written.
+This function will split the `npix` array
+(the array that defines the pixel binning)
+into chunks such that each chunk defines the binning for a page of pixel data.
+
+```matlab
+classdef PixelData < handle
+
+    methods
+
+        ...
+
+        function binary_op_sigvar(obj, sigvar_obj, npix)
+            %BINARY_OP_SIGVAR Add a sigvar-like object to this pixel data
+            %  This is a simplified version of `binary_op_sigvar_` that exists
+            %  in Horace (we don't worry about error in this version).
+            %
+            %  sigvar-like refers to an object that has a signal `.s` and
+            %  error `.e`.
+            %
+
+            % Always move to the first page of data
+            obj.move_to_first_page();
+
+            % The given npix array defines the number of pixels in each image
+            % bin.
+            % Split this array up on page size, such that we get the number of
+            % pixels in each bin for each page of pixel data.
+            % `img_idxs` is a [2xN] array where N is the number of npix chunks,
+            % and each column is the start and end index of the range of bins
+            % the npix chunk defines the binning of.
+            [npix_chunks, img_idxs] = split_vector_fixed_sum(npix, obj.base_page_size);
+
+            for page_number = 1:numel(npix_chunks)
+                % Get the signal at the bins for which the currently loaded
+                % page of pixels contribute
+                img_chunk = sigvar_obj.s(img_idxs(1, page_number):img_idxs(2, page_number);
+
+                % "Smear" the sigvar image's signal, such that it has the same
+                % number of elements as we have pixels in the current page.
+                signal_to_add = repelem(img_chunk(:), npix_chunks{page_number});
+
+                % Increment the pixel signal and move the next page
+                obj.signal = obj.signal + signal_to_add;
+                obj.advance()
+            end
+        end
+
+        ...
+
+    end
+
 end
 ```
