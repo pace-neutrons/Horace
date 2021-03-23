@@ -105,7 +105,8 @@ and operate on those pixels.
   - Each page has its own temporary file.
 
 - It is a
-  [`handle` class](https://www.mathworks.com/help/matlab/matlab_oop/handle-objects.html).
+  [`handle`](https://www.mathworks.com/help/matlab/matlab_oop/handle-objects.html)
+  class.
   - To copy a `PixelData` object, you must explicitly call the `copy` method.
     This copy can be expensive, as all temporary files are also copied.
   - There is no "lazy-copy-on-assignment" as exists for Matlab value classes.
