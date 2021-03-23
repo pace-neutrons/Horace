@@ -125,8 +125,8 @@ else
     % If pixels were truncated, true range have to change to the truncated range
     pix_range = sqw_datstr.pix.pix_range;
     out_of_range = [pix_range(1,:)<pix_db_range(1,:);pix_range(2,:)>pix_db_range(2,:)];    
-    real_pix_range  = range_add_border(pix_range);
-    sqw_datstr.img_db_range(out_of_range) = real_pix_range(out_of_range);
+    extra_pix_range  = range_add_border(pix_range);
+    sqw_datstr.img_db_range(out_of_range) = extra_pix_range(out_of_range);
 
 end
 
@@ -221,7 +221,7 @@ sqw_datstr.e=sum(pix.variance);   % take advantage of the squaring that has alre
 sqw_datstr.npix=ne*ndet;
 % img range expressed in Crystal Cartesian coordinate system. Will be
 % overwritten later if external range is provided.
-sqw_datstr.img_db_range=pix_range;
+sqw_datstr.img_db_range=range_add_border(pix_range,data_sqw_dnd.border_size);
 %
 % this will set up pix_range in Crystal Cartesian.
 sqw_datstr.pix=PixelData(pix);
