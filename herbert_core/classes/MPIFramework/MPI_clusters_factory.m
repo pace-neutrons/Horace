@@ -92,7 +92,7 @@ classdef MPI_clusters_factory<handle
             %             taken for the framework, selected current in
             %             parallel_config
             %
-            if exist('cluster_name','var')
+            if exist('cluster_name', 'var')
                 cluster_name = parallel_config.select_option(...
                     obj.known_cluster_names_,cluster_name);
             else

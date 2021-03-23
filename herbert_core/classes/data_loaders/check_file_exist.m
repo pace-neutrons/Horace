@@ -30,7 +30,7 @@ end
 
 
 [filepath,filename,ext]=fileparts(strtrim(file_name));
-if ~exist('supported_file_extensions','var')
+if ~exist('supported_file_extensions', 'var')
     supported_file_extensions = {lower(ext)};
 end
 
@@ -49,7 +49,7 @@ end
 % make the file independent on the extension case;
 file_l =fullfile(filepath,[filename,lext]);
 % deal with normal files.
-if ~exist(file_l,'file')
+if ~is_file(file_l)
     if ispc
         ok = false;
         file_l= regexprep(file_l,'\\','/');
@@ -57,7 +57,7 @@ if ~exist(file_l,'file')
         return;
     end
     file_u=fullfile(filepath,[filename,upper(ext)]);
-    if ~exist(file_u,'file')
+    if ~is_file(file_u)
         ok = false;
         fp = regexprep(fullfile(filepath,filename),'\\','/');
         mess = ['*** Can not find file: ',fp,' with extensions: ',lext,' or ',upper(ext)];

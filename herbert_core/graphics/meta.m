@@ -12,7 +12,7 @@ function meta(fig)
 % be pasted directly into Word, Powerpoint etc.
 
 
-if ~exist('fig','var'), fig=[]; end
+if ~exist('fig', 'var'), fig=[]; end
 [fig_handle,ok,mess]=get_figure_handle_single(fig);
 if ok
     fig_num = get_figure_number(fig_handle);

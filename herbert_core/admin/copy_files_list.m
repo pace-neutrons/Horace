@@ -43,7 +43,7 @@ end
 source_dir_root = source_dir;
 target_dir_root   = target_dir;
 
-if(~exist(source_dir,'dir'))
+if(~is_folder(source_dir))
     error(' Source director %s does not exist',source_dir);
 end
 files_list=copy_files_list_recursively(source_dir);
@@ -84,7 +84,7 @@ source_dir_root=regexprep(source_dir_root,rep_expr,'');
 target_dir_root  =regexprep(target_dir_root,rep_expr,'');
 target_dir= strrep(source_dir,source_dir_root,target_dir_root);
 
-if(~exist(target_dir,'dir'))
+if(~is_folder(target_dir))
     [status, message]=mkdir(target_dir);
     if(~status)
         error(' Can not create the target directory %s, Reason: %s',target_dir,message);
@@ -138,7 +138,7 @@ function [local_list,excludes_all]=copyFileList(sourcePath,destPath,filelist)
 global extention;
 
 excludes_all = false;
-if exist(fullfile(sourcePath,'_exclude_all.txt'),'file')
+if is_file(fullfile(sourcePath,'_exclude_all.txt'))
     % exclude all files and subfolders of current folder from copying into
     % distribution
     excludes_all = true;
@@ -146,7 +146,7 @@ if exist(fullfile(sourcePath,'_exclude_all.txt'),'file')
     
     return;
 end
-if exist(fullfile(sourcePath,'_exclude_files.txt'),'file')
+if is_file(fullfile(sourcePath,'_exclude_files.txt'))
     % exclude all files in current folder from copying into
     % distribution but keep everything in the subfolders
     local_list = {};

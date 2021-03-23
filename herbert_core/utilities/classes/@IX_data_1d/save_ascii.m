@@ -42,7 +42,7 @@ if nargin==2 && isnumeric(file)
     [file_full,ok,mess]=fidcheck(file,permission);
     fid_given=true;
 else
-    if ~exist('file','var'), file=''; end
+    if ~exist('file', 'var'), file=''; end
     [file_full,ok,mess]=putfilecheck(file);
     if ok
         fid=fopen(file_full,permission);

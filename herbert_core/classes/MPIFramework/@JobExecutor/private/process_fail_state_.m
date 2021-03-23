@@ -1,6 +1,6 @@
 function mess = process_fail_state_(obj,ME,log_file_h)
 
-if ~exist('log_file_h','var')
+if ~exist('log_file_h', 'var')
     log_file_h = [];
     DO_LOGGING = false;
 else

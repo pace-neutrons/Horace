@@ -93,12 +93,12 @@ if nval<npfree
 end
 
 % Set the extent of listing to screen
-if ~exist('listing','var') || isempty(listing)
+if ~exist('listing', 'var') || isempty(listing)
     listing=0;
 end
 
 % Set fit control parameters
-if ~exist('fcp','var')
+if ~exist('fcp', 'var')
     fcp=[0.0001 20 0.001];
 end
 dp=fcp(1);      % derivative step length

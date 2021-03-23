@@ -9,7 +9,7 @@ classdef test_rand_like< TestCase
             this = this@TestCase(name);
             this.this_folder = fileparts(which('test_rand_like.m'));
             ref_file = fullfile(this.this_folder,this.test_ref_f);
-            if exist(ref_file,'file')==2
+            if is_file(ref_file)
                 ref_seq= load(ref_file);
                 this.ref_seq = ref_seq.ref_seq;
             else
@@ -35,7 +35,7 @@ classdef test_rand_like< TestCase
             rand_like('start',seed2);
             seq2=rand_like([13921,1]);
             sample_file = fullfile(this.this_folder,'rand_like_ref_sequence2.mat');
-            if exist(sample_file,'file')==2
+            if is_file(sample_file)
                 ref = load(sample_file);
                 assertEqual(ref.seq1,seq1);
                 assertEqual(ref.seq2,seq2);

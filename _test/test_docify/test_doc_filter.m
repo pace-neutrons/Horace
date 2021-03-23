@@ -105,7 +105,7 @@ end
 %=============================================================================================
 function delete_file (filename)
 % Delete file, if can
-if exist(filename,'file')
+if is_file(filename)
     try
         delete(filename)
     catch

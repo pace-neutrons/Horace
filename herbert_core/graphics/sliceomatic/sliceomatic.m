@@ -108,7 +108,7 @@ if nargin==0
     return
 end
 
-if ~exist('isoflag','var')
+if ~exist('isoflag', 'var')
     isoflag = false;
 end
 

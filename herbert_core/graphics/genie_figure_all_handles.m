@@ -32,7 +32,7 @@ function [fig_handle, axes_h, plot_h, plot_type] = genie_figure_all_handles (fig
 
 
 % Determine figure handle
-if ~exist('fig','var'), fig=[]; end
+if ~exist('fig', 'var'), fig=[]; end
 [fig_handle,ok,mess]=get_figure_handle_single(fig);
 if ~ok
     error([mess,'; cannot return figure handles.'])

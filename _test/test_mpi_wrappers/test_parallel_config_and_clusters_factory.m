@@ -6,7 +6,7 @@ classdef test_parallel_config_and_clusters_factory < TestCase
 
     methods
         function obj = test_parallel_config_and_clusters_factory(varargin)
-            if ~exist('name','var')
+            if ~exist('name', 'var')
                 name = 'test_parallel_config_and_clusters_factory';
             end
             obj = obj@TestCase(name);

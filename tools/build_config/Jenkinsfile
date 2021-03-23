@@ -133,42 +133,48 @@ properties([
   parameters([
     string(
       defaultValue: get_branch_name(env.JOB_BASE_NAME),
-      description: 'The name of the branch to build.',
+      description: 'The name of the branch to build. Affects non-PR builds only. *',
       name: 'BRANCH_NAME',
       trim: true
     ),
     string(
       defaultValue: get_release_type(env.JOB_BASE_NAME),
-      description: 'The type of the build e.g. "nightly", "release", "pull_request".',
+      description: 'The type of the build e.g. "nightly", "release", "pull_request". *',
       name: 'RELEASE_TYPE',
       trim: true
     ),
     string(
       defaultValue: get_agent(env.JOB_BASE_NAME),
-      description: 'The agent to execute the pipeline on.',
+      description: 'The agent to execute the pipeline on. *',
       name: 'AGENT',
       trim: true
     ),
     string(
+      defaultValue: '',
       description: 'The release number of the Matlab to load e.g. R2019b.',
-      name: 'MATLAB_VERSION', trim: true
+      name: 'MATLAB_VERSION',
+      trim: true
     ),
     string(
-      description: 'The version of CMake to run the build with.',
+      defaultValue: '',
+      description: 'The version of CMake to run the build with. Affects Linux builds only.',
       name: 'CMAKE_VERSION',
       trim: true
     ),
     string(
-      description: 'The version of GCC to build with.',
+      defaultValue: '',
+      description: 'The version of GCC to build with. Affects Linux builds only.',
       name: 'GCC_VERSION',
       trim: true
     ),
     string(
-      description: 'The year of the version of Visual Studio to build with.',
+      defaultValue: '',
+      description: 'The year of the version of Visual Studio to build with. Affects Windows builds only.',
       name: 'VS_VERSION',
       trim: true
     ),
     string(
+      defaultValue: '',
       description: 'The version of CppCheck tooling to load to provide the code-style checks.',
       name: 'CPPCHECK_VERSION',
       trim: true
@@ -213,6 +219,35 @@ pipeline {
       }
     }
 
+    stage('Configure') {
+      steps {
+        script {
+          if (isUnix()) {
+            sh '''
+              module load cmake/\$CMAKE_VERSION &&
+              module load matlab/\$MATLAB_VERSION &&
+              module load gcc/\$GCC_VERSION &&
+              module load cppcheck/\$CPPCHECK_VERSION &&
+              ./tools/build_config/build.sh \
+                --cmake_flags \"-DHerbert_RELEASE_TYPE=\$RELEASE_TYPE\" \
+                --matlab_release \$MATLAB_VERSION \
+                --print_versions \
+                --configure
+              '''
+          } else {
+            powershell '''
+              ./tools/build_config/build.ps1 \
+                -cmake_flags \"-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE\" \
+                -matlab_release \$env:MATLAB_VERSION \
+                -vs_version \$env:VS_VERSION \
+                -print_versions \
+                -configure
+          '''
+          }
+        }
+      }
+    }
+
     stage('Analyze') {
       steps {
         script {
@@ -222,12 +257,11 @@ pipeline {
               module load matlab/\$MATLAB_VERSION &&
               module load gcc/\$GCC_VERSION &&
               module load cppcheck/\$CPPCHECK_VERSION &&
-              ./tools/build_config/build.sh --print_versions --configure --analyze
+              ./tools/build_config/build.sh --analyze
             '''
           }
           else {
             powershell '''
-              ./tools/build_config/build.ps1 -print_versions
               Write-Output \"Static Analysis in not performed on Windows\"
             '''
           }
@@ -248,16 +282,12 @@ pipeline {
               module load cmake/\$CMAKE_VERSION &&
               module load matlab/\$MATLAB_VERSION &&
               module load gcc/\$GCC_VERSION &&
-              ./tools/build_config/build.sh --build \
-                  --cmake_flags "-DHerbert_RELEASE_TYPE=$RELEASE_TYPE" \
-                  --matlab_release \$MATLAB_VERSION
+              ./tools/build_config/build.sh --build
             '''
           }
           else {
             powershell '''
-              ./tools/build_config/build.ps1 -build \
-                  -cmake_flags "-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE" \
-                  -matlab_release \$env:MATLAB_VERSION
+              ./tools/build_config/build.ps1 -build
             '''
           }
         }

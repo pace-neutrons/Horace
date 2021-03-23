@@ -14,7 +14,7 @@ function [varargout]=load_data(obj,new_file_name)
 % $Author: AB; 20/10/2011
 %
 
-if exist('new_file_name','var')
+if exist('new_file_name', 'var')
     if ~isa(new_file_name,'char')
         error('LOAD_ASCII:load_data','new file name has to be a string')
     end

@@ -32,11 +32,11 @@ function par=load_ASCII_phx_as_par(filename,accuracy)
 
 
 % If no input parameter given, return
-if ~exist('filename','var')
+if ~exist('filename', 'var')
     help get_par;
     return
 end
-if ~exist('accuracy','var')
+if ~exist('accuracy', 'var')
     accuracy = asciipar_loader.ASCII_PARAM_ACCURACY;
 end
 

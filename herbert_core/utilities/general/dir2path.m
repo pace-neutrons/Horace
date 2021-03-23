@@ -29,7 +29,7 @@ if nargin==0 || isempty(varargin{1})
     pathname=d;
 else
     d=varargin{1};
-    if exist(d,'dir')
+    if is_folder(d)
         pathname=d;
     else
         pathname=fileparts(d);

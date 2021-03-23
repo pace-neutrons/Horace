@@ -251,7 +251,7 @@ function [ok,mess,moderator_store,ei_store,table_store,t_av_store,fwhh_store,pro
 % Read stored moderator lookup table
 % ok=true if file does not exist
 
-if exist(filename,'file')
+if is_file(filename)
     disp('Reading stored moderator lookup table...')
     try
         load(filename,'-mat');
@@ -268,9 +268,9 @@ if exist(filename,'file')
         profile_store=[];
     end
     % Check fields
-    if ~exist('ei_store','var') || ~exist('table_store','var') ||...
-            ~exist('t_av_store','var') ||  ~exist('fwhh_store','var') ||...
-            ~exist('profile_store','var')
+    if ~exist('ei_store', 'var') || ~exist('table_store', 'var') ||...
+            ~exist('t_av_store', 'var') ||  ~exist('fwhh_store', 'var') ||...
+            ~exist('profile_store', 'var')
         mess='Moderator lookup table file has old format - being ignored';
         moderator_store=[];
         ei_store=[];
@@ -347,7 +347,7 @@ end
 function [ok,mess]=delete_store(filename)
 % Read stored moderator lookup table
 
-if exist(filename,'file')
+if is_file(filename)
     try
         disp('Deleting stored moderator lookup table...')
         delete(filename)

@@ -34,7 +34,7 @@ function status = fieldsNumLogChar (A, opt)
 
 
 public = true;
-if exist('opt','var')
+if exist('opt', 'var')
     if is_string(opt)
         if strncmpi(opt,'independent',numel(opt))
             public = false;

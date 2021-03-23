@@ -27,7 +27,7 @@ classdef test_resolve_path_userpath< TestCase
 
         end
 
-        function test_file_writtable(~)
+        function test_file_writable(~)
 
             new_file = tempname(getuserdir());
 
@@ -39,7 +39,7 @@ classdef test_resolve_path_userpath< TestCase
 
             assertEqual(file_name,new_file_canonical)
             assertTrue(isempty(err_mess));
-            assertFalse(exist(file_name,'file')==2);
+            assertFalse(is_file(file_name));
         end
 
 
@@ -69,7 +69,6 @@ classdef test_resolve_path_userpath< TestCase
             assertFalse(exist);
             file = java.io.File(mis_file);
             mis_file_canonical= char(file.getCanonicalPath());
-
             assertEqual(fullfile,mis_file_canonical)
             assertFalse(isempty(err_mess));
         end

@@ -10,7 +10,7 @@ function [is_daas,size_suffix] = is_idaaas(comp_name)
 %
 size_suffix = '';
 test_mode = false;
-if exist('comp_name','var')
+if exist('comp_name', 'var')
     test_mode = true;
 end
 

@@ -15,7 +15,7 @@ function genie_figure_keep(fig)
 
 
 % Determine which figure(s) to keep
-if ~exist('fig','var'), fig=[]; end
+if ~exist('fig', 'var'), fig=[]; end
 if ishandle(fig)
     fig_handle = fig;
 else

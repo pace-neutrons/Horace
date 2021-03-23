@@ -48,7 +48,7 @@ function args_out=multifit_gateway_wrap_functions (args,pos,func,plist,bpos,bfun
 
 
 % Create new foreground parameter list(s)
-if ~exist('fwrap_par','var')||isempty(fwrap_par)
+if ~exist('fwrap_par', 'var')||isempty(fwrap_par)
     fwrap_par={};
 end
 if numel(func)==1
@@ -62,7 +62,7 @@ end
 
 % Create new background parameter list(s)
 if ~isempty(bpos)
-    if ~exist('bfwrap_par','var')||isempty(bfwrap_par)
+    if ~exist('bfwrap_par', 'var')||isempty(bfwrap_par)
         bfwrap_par={};
     end
     if numel(bfunc)==1

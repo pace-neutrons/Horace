@@ -287,7 +287,7 @@ classdef config_store < handle
             % In other words, has a configuration been ever been changed from
             % defaults.
             conf_file = fullfile(this.config_folder,[class_name,'.mat']);
-            if exist(conf_file,'file')
+            if is_file(conf_file)
                 has = true;
             else
                 has = false;

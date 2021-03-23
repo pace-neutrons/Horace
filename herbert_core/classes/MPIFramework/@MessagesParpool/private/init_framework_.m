@@ -17,7 +17,7 @@ function obj = init_framework_(obj,framework_info)
 %  numLabs fields. In this case, the labID and numLabs are taken from
 %  parallel computing toolbox labnum and numlabs functions.
 %
-if exist('framework_info','var')
+if exist('framework_info', 'var')
     if isstruct(framework_info) && isfield(framework_info,'job_id')
         obj.job_id = framework_info.job_id;
         if isfield(framework_info,'labID') % init Parpool framework in test mode

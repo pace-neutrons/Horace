@@ -27,7 +27,7 @@ function [ind,indv]=array_filter(arr,vals,opt)
 
 
 % Check input option
-if ~exist('opt','var')||strcmpi(opt,'first')
+if ~exist('opt', 'var')||strcmpi(opt,'first')
     opt='first';
 elseif strcmpi(opt,'last')
     opt='last';

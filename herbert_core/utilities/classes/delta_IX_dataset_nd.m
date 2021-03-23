@@ -28,7 +28,7 @@ function [ok,mess,del_out]=delta_IX_dataset_nd(w1,w2,tol)
 % tolerance or an error) then the message is printed to the screen and
 % an error is thrown.
 
-if ~exist('tol','var')||isempty(tol), tol=0; end
+if ~exist('tol', 'var')||isempty(tol), tol=0; end
 
 % Check consistency of the two objects and get numerical differences
 if isa(w1,'IX_dataset') && isa(w2,'IX_dataset')

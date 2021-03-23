@@ -6,7 +6,7 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
     methods
         %
         function this=test_job_dispatcher_parpool(name)
-            if ~exist('name','var')
+            if ~exist('name', 'var')
                 name = 'test_job_dispatcher_parpool';
             end
             this = this@job_dispatcher_common_tests(name,'parpool');
@@ -52,9 +52,9 @@ classdef test_job_dispatcher_parpool< job_dispatcher_common_tests
 
 
             wait(cjob)
-            assertTrue(exist(file1,'file') == 2);
-            assertTrue(exist(file2,'file') == 2);
-            assertTrue(exist(file3,'file') == 2);
+            assertTrue(is_file(file1));
+            assertTrue(is_file(file2));
+            assertTrue(is_file(file3));
             delete(cjob)
         end
         %

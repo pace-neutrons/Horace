@@ -5,7 +5,7 @@ classdef test_MESS_NAMES_factory< TestCase
     methods
         %
         function obj=test_MESS_NAMES_factory(name)
-            if ~exist('name','var')
+            if ~exist('name', 'var')
                 name = 'test_MESS_NAMES_factory';
             end
             obj = obj@TestCase(name);

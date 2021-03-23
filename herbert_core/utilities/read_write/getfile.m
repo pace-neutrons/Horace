@@ -42,7 +42,7 @@ if (nargin==0)
                                                          % no default extension (cf Matlab files)
 elseif (nargin>0)
     if (isa(filterspec,'char') & size(filterspec,1)==1)  % filterspec is a one-dimensional string array
-        if (exist(filterspec,'file')==7)                 % is a directory, ensure no default extension
+        if (is_dir(filterspec))                 % is a directory, ensure no default extension
             filterspec_in = fullfile(filterspec,'*.*');
         elseif (length(findstr('*.',filterspec))>=1 & min(findstr('*.',filterspec))) % filterspec begins '*.', so assume extensions list
             filterspec_in = fullfile(path_save,filterspec);
