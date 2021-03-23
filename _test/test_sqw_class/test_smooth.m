@@ -70,7 +70,7 @@ classdef test_smooth < TestCase
         end
 
         function test_smooth_resolution_shape_arg(obj)
-            skipTest('No valid agruments possible for resolution call #628');
+            skipTest('No valid agruments allowed for ''resolution'' shape call bug #628');
             s = sqw(obj.test_sqw_2d_fullpath);
             s.data.pix = PixelData();
 
@@ -107,33 +107,44 @@ classdef test_smooth < TestCase
             s = sqw(obj.test_sqw_2d_fullpath);
             s.data.pix = PixelData();
 
-            assertExceptionThrown(@()s.smooth(100, 'not-shape'), 'HORACE:smooth:invalid_arguments');
+            actual = assertExceptionThrown( ...
+                @() s.smooth(100, 'invalid_shape'), ...
+                'HORACE:smooth:invalid_arguments');
+            assertTrue(contains(actual.message, '''invalid_shape'' is not recognised'));
         end
 
         function test_smooth_raises_error_with_incorrect_dimension_width_arg(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
             s.data.pix = PixelData();
 
-            assertExceptionThrown(@()s.smooth([10,10,10,10,10]), 'HORACE:smooth:invalid_arguments');
+            actual = assertExceptionThrown( ...
+                @() s.smooth([100,200,300,400,500], 'hat'), ...
+                'HORACE:smooth:invalid_arguments');
+            assertTrue(contains(actual.message, 'length equal to the dimensions of the dataset'));
         end
 
         function test_smooth_raises_error_with_sqw_containing_pixel_data(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
 
-            assertExceptionThrown(@()s.smooth(10), 'HORACE:smooth:invalid_arguments');
+            actual = assertExceptionThrown(@()s.smooth(10), ...
+                'HORACE:smooth:invalid_arguments');
+            assertTrue(contains(actual.message, 'No smoothing of sqw data'))
         end
 
         function test_smooth_raises_error_if_any_sqw_has_pixel_data_array_call(obj)
+            % array-case of previvious test
             s = sqw(obj.test_sqw_2d_fullpath);
             s_nopix = copy(s);
             s_nopix.data.pix = PixelData();
 
-            assertExceptionThrown(@() smooth([s_nopix, s, s_nopix], 10), 'HORACE:smooth:invalid_arguments');
+            actual = assertExceptionThrown(@() smooth([s_nopix, s, s_nopix], 10), ...
+                'HORACE:smooth:invalid_arguments');
+            assertTrue(contains(actual.message, 'No smoothing of sqw data'))
         end
 
 
         %% SMOOTH_UNITS
-        function test_smooth_units_returns_d2d_object(obj)
+        function test_smooth_units_returns_sqw_object(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
             s.data.pix = PixelData();
 
@@ -198,12 +209,15 @@ classdef test_smooth < TestCase
             %assertEqualToTol(d.data.e, expected.data.e, 1e-8);
         end
 
-        function test_smooth_units_raises_error_with_no_width_arg(obj)
+        function test_smooth_units_raises_error_with_no_arg(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
             s_nopix = copy(s);
             s_nopix.data.pix = PixelData();
 
-            assertExceptionThrown(@() s_nopix.smooth_units(), 'HORACE:smooth:invalid_arguments');
+            % omit the required 'width' argument
+            actual = assertExceptionThrown(@() s_nopix.smooth_units(), ...
+                'HORACE:smooth:invalid_arguments');
+            assertTrue(contains(actual.message, 'Must give smoothing parameter(s)'));
         end
 
         function test_smooth_units_raises_error_with_invalid_shape_arg(obj)
@@ -211,7 +225,11 @@ classdef test_smooth < TestCase
             s_nopix = copy(s);
             s_nopix.data.pix = PixelData();
 
-            assertExceptionThrown(@() s_nopix.smooth_units(100, 'invalid_shape'), 'HORACE:smooth:invalid_arguments');
+            actual = assertExceptionThrown( ...
+                @() s_nopix.smooth_units(100, 'invalid_shape'), ...
+                'HORACE:smooth:invalid_arguments');
+
+            assertTrue(contains(actual.message, '''invalid_shape'' is not recognised'));
         end
 
         function test_smooth_units_raises_error_with_wrong_dimension_width_arg(obj)
@@ -219,7 +237,10 @@ classdef test_smooth < TestCase
             s_nopix = copy(s);
             s_nopix.data.pix = PixelData();
 
-            assertExceptionThrown(@() s_nopix.smooth_units([100, 123], 'invalid_shape'), 'HORACE:smooth:invalid_arguments');
+            actual = assertExceptionThrown( ...
+                @() s_nopix.smooth_units([100, 123, 454], 'hat'), ...
+                'HORACE:smooth:invalid_arguments');
+            assertTrue(contains(actual.message, 'length equal to the dimensions of the dataset'));
         end
 
         function test_smooth_units_raises_error_if_any_sqw_has_pixel_data(obj)
@@ -227,7 +248,10 @@ classdef test_smooth < TestCase
             s_nopix = copy(s);
             s_nopix.data.pix = PixelData();
 
-            assertExceptionThrown(@() smooth_units([s_nopix, s, s_nopix], 10), 'HORACE:smooth:invalid_arguments');
+            actual = assertExceptionThrown( ...
+                @() smooth_units([s_nopix, s, s_nopix], 10), ...
+                'HORACE:smooth:invalid_arguments');
+            assertTrue(contains(actual.message, 'No smoothing of sqw data'));
         end
     end
 end

@@ -379,7 +379,7 @@ classdef test_migrated_apis < TestCase
            val = qh .* qk .* ql .* scale;
        end
        function val = shift_rln(qh, qk, qw, ~)
-           % discard and function parameters that are passed
+           % discard any function parameters that are passed by shift_pixels call
            val = qw .* qk .* qh;
        end
     end

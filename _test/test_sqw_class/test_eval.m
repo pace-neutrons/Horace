@@ -117,10 +117,10 @@ classdef test_eval < TestCase
         function dis = sqw_eval_tester(h, k, l, en, par)
             sz = size(h);
             if any(sz ~= size(k)) || any(sz ~=size(l)) || any(sz ~= size(en))
-                error('SQW_EVAL:runtime_error','incorrect shape of input arrays');
+                error('SQW_EVAL_TESTER:runtime_error', 'unequal size input arrays');
             end
-            if size(h,2) ~=1
-                error('SQW_EVAL:runtime_error','incorrect shape of input arrays');
+            if size(h,2) ~= 1
+                error('SQW_EVAL_TESTER:runtime_error','incorrect shape of input arrays');
             else
                 dis = ones(size(h));
             end
@@ -135,10 +135,10 @@ classdef test_eval < TestCase
         function dis = funceval_tester2D(x, en, par)
             sz = size(x);
             if any(sz ~= size(en))
-                error('FUNC_EVAL:runtime_error','incorrect shape of input arrays');
+                error('FUNC_EVAL_TESTER:runtime_error','unequal size input arrays');
             end
-            if size(x,2) ~=1
-                error('FUNC_EVAL:runtime_error','incorrect shape of input arrays');
+            if size(x,2) ~= 1
+                error('FUNC_EVAL_TESTER:runtime_error','incorrect shape of input arrays');
             else
                 dis = ones(size(x));
             end
