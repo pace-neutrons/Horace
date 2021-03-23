@@ -1,4 +1,4 @@
-# Using Pixel Data
+# Pixel Data
 
 ## The Problem to Address
 
