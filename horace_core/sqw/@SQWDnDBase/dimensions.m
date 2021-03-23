@@ -11,8 +11,8 @@ function [nd, sz] = dimensions(w)
 %
 %   >> [nd,sz]=dimensions(w)
 
-nd = numel(w.data.pax);
+nd = numel(w.data_.pax);
 sz = zeros(1, nd);
 for i = 1:nd
-    sz(i) = length(w.data.p{i}) - 1;
+    sz(i) = length(w.data_.p{i}) - 1;
 end
