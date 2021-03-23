@@ -120,9 +120,7 @@ classdef test_mushroom_sqw < TestCaseWithSave
             %             keep_figure
             
         end
-        
         %
-        
         %
     end
 end

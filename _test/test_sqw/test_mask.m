@@ -273,7 +273,7 @@ classdef test_mask < TestCase
             assertEqual(raw_paged_pix, obj.masked_3d.data.pix.data);
         end
         
-        function test_img_db_range_equal_for_paged_and_non_paged_sqw_after_mask_3d(obj)
+        function test_img_range_equal_for_paged_and_non_paged_sqw_after_mask_3d(obj)
             paged_img_db_range = obj.masked_3d_paged.data.img_db_range;
             mem_img_db_range = obj.masked_3d.data.img_db_range;
             assertElementsAlmostEqual(mem_img_db_range, paged_img_db_range, 'absolute', 0.001);
