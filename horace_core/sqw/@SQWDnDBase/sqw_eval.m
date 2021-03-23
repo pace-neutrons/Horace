@@ -1,4 +1,4 @@
-function wout=sqw_eval(win,sqwfunc,pars,varargin)
+function wout=sqw_eval(win, sqwfunc, pars, varargin)
 % Calculate sqw for a model scattering function
 %
 %   >> wout=sqw_eval(win,sqwfunc,p)
@@ -35,7 +35,7 @@ function wout=sqw_eval(win,sqwfunc,pars,varargin)
 %   'all'      Requests that the calculated sqw be returned over
 %              the whole of the domain of the input dataset. If not given, then
 %              the function will be returned only at those points of the dataset
-%              that contain data.
+%              that contain data_.
 %               Applies only to input with no pixel information - it is ignored if
 %              full sqw object.
 %
@@ -56,47 +56,21 @@ function wout=sqw_eval(win,sqwfunc,pars,varargin)
 
 
 % Check optional argument
-options = {'all','average'};
-[ok,mess,all_bins,ave_pix]=parse_char_options(varargin,options);
+options = {'all', 'average'};
+[ok, mess, all_bins, ave_pix] = parse_char_options(varargin, options);
 if ~ok
     error('SQW_EVAL:invalid_argument',mess);
 end
 
 wout = copy(win);
-if ~iscell(pars), pars={pars}; end  % package parameters as a cell for convenience
+if ~iscell(pars)  % package parameters as a cell for convenience
+    pars = {pars};
+end
 
-for i=1:numel(win)
-    if has_pixels(win(i))   % determine if sqw or dnd type
-        if ~ave_pix
-            %qw = calculate_qw_pixels2(win(i));
-            qw = calculate_qw_pixels(win(i));
-            stmp = sqwfunc(qw{:}, pars{:});
-            wout(i).data.pix.signal = stmp(:)';
-            wout(i).data.pix.variance = zeros(1,numel(stmp));
-            wout(i) = recompute_bin_data(wout(i));
-        else
-            % Get average h,k,l,e for the bin, compute sqw for that average, and fill pixels with the average signal for the bin that contains them
-            %qw = calculate_qw_pixels2(win(i));
-            qw = calculate_qw_pixels(win(i));
-            qw_ave = average_bin_data(win(i),qw);
-            qw_ave = cellfun(@(x)(x(:)), qw_ave, 'UniformOutput', false);
-            stmp = sqwfunc(qw_ave{:}, pars{:});
-            stmp = replicate_array(stmp, win(i).data.npix);
-            wout(i).data.pix.signal = stmp(:)';
-            wout(i).data.pix.variance = zeros(1,numel(stmp));
-            wout(i) = recompute_bin_data(wout(i));
-        end
-    else
-        qw = calculate_qw_bins(win(i));
-        if ~all_bins                    % only evaluate at the bins actually containing data
-            ok = (win(i).data.npix ~= 0);   % should be faster than isfinite(1./win.data.npix), as we know that npix is zero or finite
-            for idim = 1:4
-                qw{idim} = qw{idim}(ok);  % pick out only the points where there is data
-            end
-            wout(i).data.s(ok) = sqwfunc(qw{:}, pars{:});
-        else
-            wout(i).data.s = reshape(sqwfunc(qw{:}, pars{:}), size(win(i).data.s));
-        end
-        wout(i).data.e = zeros(size(win(i).data.e));
-    end
+for i=1:numel(wout)
+   if has_pixels(wout(i))   % determine if object contains pixel data
+       wout(i) = wout(i).sqw_eval_pix_(sqwfunc, ave_pix, pars);
+   else
+       wout(i) = wout(i).sqw_eval_nopix_(sqwfunc, all_bins, pars);
+   end
 end

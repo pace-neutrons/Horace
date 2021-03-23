@@ -14,7 +14,6 @@ classdef test_migrated_apis < TestCase
     end
 
 
-
     methods
         function obj = test_migrated_apis(~)
             obj = obj@TestCase('test_migrated_apis');
@@ -30,9 +29,16 @@ classdef test_migrated_apis < TestCase
         end
 
         %% Calculate
-%        function test_calculate_q_bins(obj)
-%            % tested as part of calc_qsqr_bin call
-%        end
+        function test_calculate_q_bins(obj)
+            % tested as part of calc_qsqr_bin call
+            sqw_obj = sqw(obj.test_sqw_2d_fullpath);
+            [q, en] = calculate_q_bins(sqw_obj);
+            assertEqual(size(q), [1,3]);
+            assertEqual(size(q{1}), [176, 1]);
+            assertEqual(size(q{2}), [176, 1]);
+            assertEqual(size(q{3}), [176, 1]);
+            assertEqual(en, 0);
+        end
         function test_calculate_qsqr_bins(obj)
             sqw_obj = sqw(obj.test_sqw_2d_fullpath);
 
@@ -162,10 +168,24 @@ classdef test_migrated_apis < TestCase
 %        end
 
         %% Dispersion
-        function test_dispersion(obj)
-            skipTest('Incorrect test data for dispersion');
-            sqw_4d_obj = sqw(obj.test_sqw_4d_fullpath);
-            [retval_one, retval_two]  = dispersion(sqw_4d_obj, @test_migrated_apis.desp_rln, {'scale', 14});
+        function test_dispersion_with_disp_return_value(obj)
+            params = {'scale', 10};
+            sqw_2d_obj = sqw(obj.test_sqw_2d_fullpath);
+            [wout_disp]  = dispersion(sqw_2d_obj, @test_migrated_apis.disp_rln, params);
+
+            expected = load('test_migrated_apis_data.mat', 'wout_disp');
+
+            assertEqualToTol(expected.wout_disp.data, wout_disp.data, 'ignore_str', true);
+        end
+        function test_dispersion_with_disp_and_weight_retval(obj)
+            params = {'scale', 10};
+            sqw_2d_obj = sqw(obj.test_sqw_2d_fullpath);
+            [wout_disp, wout_weight]  = dispersion(sqw_2d_obj, @test_migrated_apis.disp_rln, params);
+
+            expected = load('test_migrated_apis_data.mat', 'wout_disp', 'wout_weight');
+
+            assertEqualToTol(expected.wout_disp.data, wout_disp.data, 'ignore_str', true);
+            assertEqualToTol(expected.wout_weight.data, wout_weight.data, 'ignore_str', true);
         end
 
         %% gets
@@ -196,7 +216,7 @@ classdef test_migrated_apis < TestCase
             ap_1 = IX_aperture(-10,0.1,0.11);
             chopper_1 = IX_fermi_chopper(1,100,0.1,1,0.01);
             expected_inst =  IX_inst_DGfermi (mod_1, ap_1, chopper_1, 100);
-            
+
             updated = s.set_instrument(expected_inst);
             [instrument_class, all_inst] = updated.get_inst_class();
 
@@ -215,7 +235,7 @@ classdef test_migrated_apis < TestCase
            for idx=1:20
                s.header{idx}.intrument = expected_inst;
            end
-           
+
            [instrument_class, all_inst] = s.get_inst_class();
            assertFalse(all_inst);
            assertEqual(instrument_class, '');
@@ -229,7 +249,22 @@ classdef test_migrated_apis < TestCase
             assertEqual(size(xp), [1,2]);
             assertEqual(size(ip), [1,1]);
         end
+
         function test_get_proj_and_pbin(obj)
+            sqw_obj = sqw(obj.test_sqw_2d_fullpath);
+            [proj, pbin] = sqw_obj.get_proj_and_pbin();
+
+            % Reference data calculated from call on old class
+            expected_pbin = {[-0.7, 0.02, -0.4],  [-0.65, 0.02, -0.45], [-0.05, 0.05], [-0.25, 0.25]};
+            expected_proj = projaxes( ...
+                [1,1,0], [1.1102e-16 1.1102e-16 1], [1 -1 9.9580e-17], ...
+                'type', 'ppp', ...
+                'nonorthogonal', 0, ...
+                'lab', {'\zeta'  '\xi'  '\eta'  'E'});
+
+            % low tolerance as ref data to 5sf only
+            assertEqualToTol(proj, expected_proj, 1e-6);
+            assertEqualToTol(pbin, expected_pbin, 1e-6);
         end
 
         %% split/join
@@ -284,14 +319,16 @@ classdef test_migrated_apis < TestCase
 
         %% shifts
         function test_shift_energy_bins(obj)
-            skipTest('Incorrect test data for cut');
+            skipTest("Incorrect test data for shift");
+            params = {'scale', 14};
             sqw_4d_obj = sqw(obj.test_sqw_1d_fullpath);
-            wout = sqw_4d_obj.shift_energy_bins(@test_migrated_apis.desp_rln, {'scale', 14});
+            wout = sqw_4d_obj.shift_energy_bins(@test_migrated_apis.desp_rln, params);
         end
         function test_shift_pixels(obj)
-            skipTest('No test of return value');
+            %TODO: test return values
+            params = {}; % no paramters required by test shift_rln function
             sqw_4d_obj = sqw(obj.test_sqw_4d_fullpath);
-            wout  = sqw_4d_obj.shift_pixels(@test_migrated_apis.shift_rln, {});
+            wout  = sqw_4d_obj.shift_pixels(@test_migrated_apis.shift_rln, params);
         end
 
         %% values
@@ -336,12 +373,14 @@ classdef test_migrated_apis < TestCase
     end
 
     methods(Static)
-       function val = desp_rln(qw, params)
-            scale = params{2};
-            val = qw .* scale;
+       function val = disp_rln(qh, qk, ql, varargin)
+           % simple function to testing; uses the first keyword argument
+           scale = varargin{2};
+           val = qh .* qk .* ql .* scale;
        end
-       function val = shift_rln(qh, qk, qw, params)
-            val = qw .* qk .* qh;
+       function val = shift_rln(qh, qk, qw, ~)
+           % discard any function parameters that are passed by shift_pixels call
+           val = qw .* qk .* qh;
        end
     end
 end

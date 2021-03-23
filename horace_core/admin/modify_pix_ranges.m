@@ -64,11 +64,10 @@ for i=1:n_inputs
         pix_range = ld.get_img_range();
     else
         data = ld.get_data();
-        data.pix.recalc_pix_range()
+        data.pix.recalc_pix_range();
         pix_range = data.pix.pix_range;
     end
     ld = ld.store_pix_range(pix_range);
     %ld = ld.put_sqw_footer();
     ld.delete();
 end
-%
