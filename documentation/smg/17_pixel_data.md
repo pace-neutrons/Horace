@@ -188,7 +188,7 @@ column.
 
 All properties use [_relative indexing_](#Absolute-and-Relative-Indexing).
 
-### Getters/Methods
+### Methods
 
 Getter and setter methods are also provided.
 
