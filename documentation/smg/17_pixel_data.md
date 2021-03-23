@@ -157,6 +157,7 @@ and operate on those pixels.
 
 All getters return data in-memory.
 All setters must set data that is in memory.
+Attempting to get or set data outside the pixel array range will throw an error.
 
 ### Properties
 
@@ -185,6 +186,8 @@ These properties can be used to retrieve and set data _in the current page_.
 
 All these properties work by slicing into the cached data array at the correct
 column.
+Attempting to get/set pixels outside the range of the current page
+will throw an error.
 
 All properties use [_relative indexing_](#Absolute-and-Relative-Indexing).
 
@@ -214,13 +217,19 @@ Getter and setter methods are also provided.
 
 These methods provide ways to retrieve data from the full pixel data array,
 whether that data is in memory or is in a file.
-They also have the advantage of being able to get/set multiple columns at once.
+The indexing argument attempts to mimic that of a normal Matlab array,
+i.e. logical indices are allowed and indices can be given out of order.
+However, it does not support indexing using `end`,
+you can use the `num_pixels` property to achieve the same effect.
+
+The getter methods have the advantage of being able to get/set multiple columns
+at once.
 This can be more efficient, as you're performing a single slice, instead of
 multiple.
 
 ```matlab
-% Below examples are equivalent, but using the get_data method is more
-% efficient as it performs fewer slices
+% The below examples are equivalent for a pixel data object with one page.
+% Using the get_data method is more efficient as it performs fewer slices
 
 % Performs one slice over the pixel array
 >> run_sig_var = pix.get_data({'run_idx', 'signal', 'variance'});
