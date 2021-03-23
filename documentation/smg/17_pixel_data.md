@@ -293,13 +293,15 @@ classdef PixelData < handle
             % Subtract scalar from every value in cache.
             % If there is no data in the cache, this call will load that data
             % from file and then perform the operation.
+            % As we are editing the cached data, the current page is marked as
+            % dirty.
             obj.signal = obj.signal - scalar;
 
             % Check if there are any more pixels to load from file.
             while obj.has_more()
                 % Move to the next page of data.
-                % Since the current page has been edited, this 'advance' dumps
-                % the page to a temporary file and marks it as "dirty".
+                % Since the current page has been marked "dirty", this 'advance'
+                % dumps the page to a temporary file.
                 % It then clears the cache, and increments the internally held
                 % `page_number`.
                 obj.advance();
