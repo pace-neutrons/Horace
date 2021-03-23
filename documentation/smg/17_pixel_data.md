@@ -298,8 +298,8 @@ classdef PixelData < handle
             % Check if there are any more pixels to load from file.
             while obj.has_more()
                 % Move to the next page of data.
-                % This call dumps the previous page to a temporary file and
-                % marks the page as "dirty".
+                % Since the current page has been edited, this 'advance' dumps
+                % the page to a temporary file and marks it as "dirty".
                 % It then clears the cache, and increments the internally held
                 % `page_number`.
                 obj.advance();
