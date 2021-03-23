@@ -109,6 +109,9 @@ and operate on those pixels.
   class.
   - To copy a `PixelData` object, you must explicitly call the `copy` method.
     This copy can be expensive, as all temporary files are also copied.
+    The copies are new temporary files, managed by the new object.
+    Clean pages (those without temporary files)
+    are still backed by the original `sqw` file.
   - There is no "lazy-copy-on-assignment" as exists for Matlab value classes.
 
   The main reason for using a handle class was due to the file-backed nature of
