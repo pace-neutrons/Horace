@@ -1,6 +1,6 @@
 # Pixel Data
 
-## The Problem to Address
+## The Problems to Address
 
 To address the following problems, a `PixelData` class was proposed.
 
@@ -188,7 +188,6 @@ All properties use [_relative indexing_](#Absolute-and-Relative-Indexing).
 ### Getters/Methods
 
 Getter and setter methods are also provided.
-You cn
 
 ```matlab
 >> coordinates = pix.get_data('coordinates');
@@ -321,7 +320,7 @@ different ways.
 In most cases, bins will cross pixel page boundaries,
 so it takes some work to find which bins require which action.
 
-As an example, consider performing addition between an `sqw` and `dnd` object.
+As an example, consider performing addition between an `sqw` and a `dnd` object.
 Each pixel in the `sqw` object, that belongs to bin `n`,
 should have its signal increased by the value of the `dnd` object's signal in
 bin `n`.
