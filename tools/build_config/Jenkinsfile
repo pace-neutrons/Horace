@@ -348,6 +348,48 @@ pipeline {
       }
     }
 
+    stage('Configure') {
+      steps {
+        script {
+          if (env.BUILD_DOCS?.toBoolean()) {
+            if (isUnix()) {
+              sh '''
+            module load python/3.6 &&
+            pip install --user sphinx &&
+            pip install --user sphinx_rtd_theme
+            '''
+            } else {
+              powershell '''
+             pip install --user sphinx
+             pip install --user sphinx_rtd_theme
+            '''
+            }
+          }
+          if (isUnix()) {
+            sh '''
+              module load python/3.6 &&
+              export PATH=${PATH}:~/.local/bin &&
+              module load cmake/\$CMAKE_VERSION &&
+              module load matlab/\$MATLAB_VERSION &&
+              module load gcc/\$GCC_VERSION &&
+              module load cppcheck/\$CPPCHECK_VERSION &&
+              ./tools/build_config/build.sh \
+                --cmake_flags \"-DHorace_RELEASE_TYPE=\$RELEASE_TYPE\" \
+                --matlab_release \$MATLAB_VERSION \
+                --print_versions --configure
+          '''
+          } else {
+            powershell '''
+              ./tools/build_config/build.ps1 -print_versions -configure
+                   -cmake_flags \"-DHorace_RELEASE_TYPE=\$env:RELEASE_TYPE\" \
+                   -matlab_release \$env:MATLAB_VERSION \
+                   -vs_version \$env:VS_VERSION
+          '''
+          }
+        }
+      }
+    }
+
     stage('Analyze') {
       steps {
         script {
@@ -357,12 +399,11 @@ pipeline {
               module load matlab/\$MATLAB_VERSION &&
               module load gcc/\$GCC_VERSION &&
               module load cppcheck/\$CPPCHECK_VERSION &&
-              ./tools/build_config/build.sh --print_versions --configure --analyze
+              ./tools/build_config/build.sh --analyze
             '''
           }
           else {
             powershell '''
-              ./tools/build_config/build.ps1 -print_versions
               Write-Output \"Static Analysis in not performed on Windows\"
             '''
           }
@@ -383,16 +424,12 @@ pipeline {
               module load cmake/\$CMAKE_VERSION &&
               module load matlab/\$MATLAB_VERSION &&
               module load gcc/\$GCC_VERSION &&
-              ./tools/build_config/build.sh --build \
-                --cmake_flags \"-DHorace_RELEASE_TYPE=\$RELEASE_TYPE\" \
-                --matlab_release \$MATLAB_VERSION
-            '''
+              ./tools/build_config/build.sh --build
+             '''
           }
           else {
             powershell '''
-              ./tools/build_config/build.ps1 -build \
-                -cmake_flags \"-DHorace_RELEASE_TYPE=\$env:RELEASE_TYPE\" \
-                -matlab_release \$env:MATLAB_VERSION
+              ./tools/build_config/build.ps1 -build
             '''
           }
         }
@@ -407,31 +444,26 @@ pipeline {
         script {
           if (isUnix()) {
             sh '''
-                module load python/3.6 &&
-                pip install --user sphinx &&
-                pip install --user sphinx_rtd_theme &&
                 export PATH=${PATH}:~/.local/bin &&
+                module load python/3.6 &&
+                module load cmake/\$CMAKE_VERSION &&
                 ./tools/build_config/build.sh --docs
             '''
             archiveArtifacts(
-              artifacts: 'docs.tar.gz',
+              artifacts: 'build/docs.tar.gz',
               fingerprint: true
             )
           }
           else {
             powershell '''
-              pip install --user sphinx
-              pip install --user sphinx_rtd_theme
               ./tools/build_config/build.ps1 -docs
             '''
             archiveArtifacts(
-              artifacts: 'docs.zip',
+              artifacts: 'build/docs.zip',
               fingerprint: true
             )
           }
         }
-
-
       }
     }
 
