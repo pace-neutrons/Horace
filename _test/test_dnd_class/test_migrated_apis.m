@@ -55,7 +55,7 @@ classdef test_migrated_apis < TestCase
         %% Cut
         function test_cut(obj)
             skipTest('Incorrect test data for cut');
-            sqw_obj = d2d(obj.test_sqw_2d_fullpath);
+            dnd_2d_obj = d2d(obj.test_sqw_2d_fullpath);
             proj = projaxes([1,-1,0], [1,1,0], 'uoffset', [1,1,0], 'type', 'paa');
             range = [0,0.2];    % range of cut
             step = 0.01;        % Q step
@@ -63,12 +63,12 @@ classdef test_migrated_apis < TestCase
             width = [-0.15,0.15];  % Width in Ang^-1 of cuts
             ebins = [105,0,115];
 
-            w2 = sqw_obj.cut(proj, bin, width, width, ebins, '-pix');
+            w2 = dnd_2d_obj.cut(proj, bin, width, width, ebins, '-pix');
 %            this.assertEqualToTolWithSave (w2, this.tol_sp,'ignore_str',1);
         end
         function test_cut_sym(obj)
             skipTest('Incorrect test data for cut_sym');
-            sqw_obj = d2d(obj.test_sqw_2d_fullpath);
+            dnd_2d_obj = d2d(obj.test_sqw_2d_fullpath);
             proj = projaxes([1,-1,0], [1,1,0], 'uoffset', [1,1,0], 'type', 'paa');
             range = [0,0.2];    % range of cut
             step = 0.01;        % Q step
@@ -76,24 +76,24 @@ classdef test_migrated_apis < TestCase
             width = [-0.15,0.15];  % Width in Ang^-1 of cuts
             ebins = [105,0,115];
 
-            w2 = sqw_obj.cut_sym(proj, bin, width, width, ebins, '-pix');
+            w2 = dnd_2d_obj.cut_sym(proj, bin, width, width, ebins, '-pix');
 %            this.assertEqualToTolWithSave (w2, this.tol_sp,'ignore_str',1);
         end
 
         %% Dimensions
         function test_dimensions_dnd_2d(obj)
-            sqw_obj = d2d(obj.test_sqw_2d_fullpath);
-            [nd, sz] = sqw_obj.dimensions();
+            dnd_2d_obj = d2d(obj.test_sqw_2d_fullpath);
+            [nd, sz] = dnd_2d_obj.dimensions();
 
             assertEqual(nd, 2);
-            assertEqual(sz, size(sqw_obj.s));
+            assertEqual(sz, size(dnd_2d_obj.s));
         end
         function test_dimensions_dnd_4d(obj)
-            sqw_obj = d4d(obj.test_sqw_4d_fullpath);
-            [nd, sz] = sqw_obj.dimensions();
+            dnd_4d_obj = d4d(obj.test_sqw_4d_fullpath);
+            [nd, sz] = dnd_4d_obj.dimensions();
 
             assertEqual(nd, 4);
-            assertEqual(sz, size(sqw_obj.s));
+            assertEqual(sz, size(dnd_4d_obj.s));
         end
 
 
@@ -163,8 +163,8 @@ classdef test_migrated_apis < TestCase
 
         %% xye
         function test_xye_returns_bin_centres_and_errors(obj)
-            s = d2d(obj.test_sqw_2d_fullpath);
-            result = s.xye();
+            dnd_2d_obj = d2d(obj.test_sqw_2d_fullpath);
+            result = dnd_2d_obj.xye();
 
             expected = load('test_migrated_apis_data.mat', 'xye_test');
 
@@ -174,18 +174,18 @@ classdef test_migrated_apis < TestCase
         end
 
         function test_xye_sets_NaN_default_null_value(obj)
-            s = d2d(obj.test_sqw_2d_fullpath);
+            dnd_2d_obj = d2d(obj.test_sqw_2d_fullpath);
 
-            result = s.xye();
+            result = dnd_2d_obj.xye();
 
             assertEqual(result.y(1,1), NaN);
         end
 
         function test_xye_sets_user_specified_null_value(obj)
-            s = d2d(obj.test_sqw_2d_fullpath);
+            dnd_2d_obj = d2d(obj.test_sqw_2d_fullpath);
 
             null_value = -1;
-            result = s.xye(null_value);
+            result = dnd_2d_obj.xye(null_value);
 
             assertEqual(result.y(1,1), null_value);
         end
@@ -196,10 +196,6 @@ classdef test_migrated_apis < TestCase
            % simple function to testing; uses the first keyword argument
            scale = varargin{2};
            val = qh .* qk .* ql .* scale;
-       end
-       function val = shift_rln(qh, qk, qw, ~)
-           % discard and function parameters that are passed
-           val = qw .* qk .* qh;
        end
     end
 end

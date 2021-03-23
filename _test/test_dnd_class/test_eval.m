@@ -4,6 +4,7 @@ classdef test_eval < TestCase
 
     properties
         data_dir
+        d1d_obj
         d2d_obj
     end
 
@@ -11,8 +12,8 @@ classdef test_eval < TestCase
         function obj=test_eval(varargin)
             obj = obj@TestCase('test_eval');
             obj.data_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))),'test_sqw_file');
-            test_sqw_file = fullfile(obj.data_dir,'sqw_2d_2.sqw');
-            obj.d2d_obj = d2d(test_sqw_file);
+            obj.d1d_obj = d1d(fullfile(obj.data_dir,'sqw_1d_2.sqw'));
+            obj.d2d_obj = d2d(fullfile(obj.data_dir,'sqw_2d_2.sqw'));
         end
 
         function test_disp2sqw_eval(obj)
@@ -65,17 +66,16 @@ classdef test_eval < TestCase
             % the actual value is for the purpose of this test
             expected = ones(size(obj.d2d_obj.s));
             assertEqual(ds.s(2:end), expected(2:end));
-
         end
     end
     methods(Static)
         function dis = sqw_eval_tester(h, k, l, en, par)
             sz = size(h);
             if any(sz ~= size(k)) || any(sz ~=size(l)) || any(sz ~= size(en))
-                error('SQW_EVAL:runtime_error','incorrect shape of input arrays');
+                error('SQW_EVAL_TESTER:runtime_error', 'unequal size input arrays');
             end
             if size(h,2) ~=1
-                error('SQW_EVAL:runtime_error','incorrect shape of input arrays');
+                error('SQW_EVAL_TESTER:runtime_error', 'incorrect shape of input arrays');
             else
                 dis = ones(size(h));
             end
@@ -90,10 +90,10 @@ classdef test_eval < TestCase
         function dis = funceval_tester2D(x, en, par)
             sz = size(x);
             if any(sz ~= size(en))
-                error('FUNC_EVAL:runtime_error','incorrect shape of input arrays');
+                error('FUNC_EVAL_TESTER:runtime_error', 'unequal size input arrays');
             end
             if size(x,2) ~=1
-                error('FUNC_EVAL:runtime_error','incorrect shape of input arrays');
+                error('FUNC_EVAL_TESTER:runtime_error', 'incorrect shape of input arrays');
             else
                 dis = ones(size(x));
             end
