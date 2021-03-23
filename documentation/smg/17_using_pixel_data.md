@@ -89,10 +89,10 @@ and operate on those pixels.
 
 ### Principles
 
-- It works on "pages" of cached data.
+- It operates with "pages" of cached data.
   - The page size is specified on construction (in bytes).
   - Only a page size worth of pixels is loaded at any one time.
-  - If all pixels fit in one page size, all pixels are loaded.
+  - If all pixels fit in one page, all pixels are loaded.
 
 - Temporary files hold changes to pixel data.
   - When pixel data is changed, the changes are written to a temporary file
@@ -100,8 +100,8 @@ and operate on those pixels.
     This most often occurs when the next page is loaded.
   - Changes are _never_ written to the SQW file used in construction.
   - A logical array is held on the object that tracks which pages are "dirty".
-  - If a page is "clean" the data is loaded from the SQW, if the page is "dirty"
-    it is loaded from a temporary file.
+  - If a page is "clean" the data is loaded from the SQW file, if the page is
+    "dirty", it is loaded from a temporary file.
   - Each page has its own temporary file.
 
 - It is a
@@ -379,3 +379,16 @@ classdef PixelData < handle
 
 end
 ```
+
+## Things to Be Aware Of
+
+- The underlying pixel data is stored in a 9xN array
+  (where N is number of pixels).
+  This means **it is efficient to slice full pixels** from the data,
+  as data points for each pixel are contiguous in memory.
+  **It is less efficient to extract data for pixel fields**
+  (e.g. signal), as these data are not contiguous in memory (or on disk).
+
+- Algorithms that transform pixel coordinates should update the **pixel range**.
+  The pixel range is cached in file and on the object.
+  This specifies the minimum and maximum value for each coordinate.
