@@ -10,6 +10,7 @@ set(TEST_DIRECTORIES
     "test_docify"
     "test_geometry"
     "test_admin"
+    "test_xunit_framework"
     "test_mpi_wrappers"
     "test_mpi/test_job_dispatcher_herbert"
     "test_mpi/test_job_dispatcher_mpiexec"
