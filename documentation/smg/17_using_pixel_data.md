@@ -119,14 +119,14 @@ and operate on those pixels.
   Handle classes allow you to do the following:
 
   ```matlab
-  >> sqw_obj.data.pix.signal = zeros(1, pix.num_pixels);
+  >> sqw_obj.data.pix.set_data('signal', zeros(1, pix.num_pixels));
   ```
 
   Whereas, using a value class, one must return and assign the class instance
   for the setter to take effect:
 
   ```matlab
-  >> sqw_obj.data.pix = sqw_obj.data.pix.signal = zeros(1, pix.num_pixels);
+  >> sqw_obj.data.pix = sqw_obj.data.pix.set_data('signal', zeros(1, pix.num_pixels));
   ```
 
 - Data is loaded on access.
