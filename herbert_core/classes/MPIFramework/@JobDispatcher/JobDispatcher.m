@@ -149,17 +149,14 @@ classdef JobDispatcher
             %                   some results
             % number_of_workers -- number of Matlab sessions to
             %                    process the tasks
-            % return_results  --if true, job expected to return the results
-            %                   of calculations i.e. the contents assigned
-            %                   to
-            %                   JobExecutor.task_outputs
-            %                   field
             %
             %
             % Optional:
             % keep_workers_running -- true if workers should not finish
             %                    after the task is completed and wait for
-            %                    the task to be resubmitted.
+            %                    the task to be resubmitted. Necessary if
+            %                    one needs to run another job to the
+            %                    cluster.
             %
             % task_query_time -- if present -- time interval in seconds to
             %                    check if tasks are completed. By default,
