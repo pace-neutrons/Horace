@@ -13,7 +13,7 @@ angdeg=obj.angdeg;
 shift = (obj.u_to_rlu\obj.uoffset)';
 pix_range = obj.pix.pix_range-repmat(shift,2,1);
 img_range_guess = range_add_border(pix_range,obj.border_size);
-if  all(abs(img_range_guess(:)-obj.img_range(:))<=abs(obj.border_size)) || ... 
+if  all(abs(img_range_guess(:)-obj.img_db_range(:))<=abs(obj.border_size)) || ... 
     (all(obj.ulen == 1) && any(abs(diag(obj.u_to_rlu)-1)>eps)) % the input is the raw sqw object
     proj=projection();    
 else % the input is the cut 
