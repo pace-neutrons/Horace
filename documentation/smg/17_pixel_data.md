@@ -406,3 +406,7 @@ end
 - Algorithms that transform pixel coordinates should update the **pixel range**.
   The pixel range is cached in file and on the object.
   This specifies the minimum and maximum value for each coordinate.
+
+- Pixel data values are stored in single-precision in file.
+  They are store in double-precision in memory.
+  See [ADR 15](../adr/0015-store-pixel-data-in-single-precision.md)
