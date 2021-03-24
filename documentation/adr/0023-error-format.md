@@ -38,10 +38,13 @@ herbert_core/classes/MPIFramework/@iMessagesFramework/private/mix_messages_.m   
 ```
 From which it should be obvious is not a consistent scheme for error identification, even within the same set of routines.
 
-## Decision
-
-As MATLAB standards do not enforce a particular style of error statement,
+As MATLAB standards do not enforce a particular style of error statement 
+(though it does encourage certain forms [see here](https://uk.mathworks.com/help/matlab/ref/mexception.html#mw_e5712c7f-3862-42fa-9a8f-8de992cdc6d4)),
 this document seeks to outline the format an error identifier should take as well as establish a list of standard common error identifiers.
+
+Also due to the fact that MATLAB has changed its method of error identification between versions in the past, this document establishes its scheme based on the most recent currently used version (2020b).
+
+## Decision
 
 Following discussions it was decided that it would be useful to have a standard format with 3 components, in the following format
 expanding upon that intially outlined in [ADR 21](./0021-errors-and-warnings.md).
@@ -57,6 +60,8 @@ This scheme is based on the current (2020b) MATLAB error identifiers common to m
 - The `function_name` and `ClassName` should exactly match that of the parent function/class, including casing.
 - The `error_identifier` should be in `lower_snake` case and should succinctly identify the error message, using one of
      the following names if the error falls within their remit.
+     **NB.** This is in contrast to the usual MATLAB format which uses `lowerCamelCase`, but is in keeping with the majority
+     of identifiers currently used in PACE.
 
 | Identifier         | Issue                                                                                         |
 | :----------------- | :-------------------------------------------------------------------------------------------- |
@@ -72,3 +77,12 @@ This scheme is based on the current (2020b) MATLAB error identifiers common to m
 
 In future error identifiers should be written to follow these guidelines and in cases where surrounding code is being updated an effort should be made to
 correct error identifiers which do not fall under these rules.
+
+Having a defined set of guidelines will make:
+- Aid developers with quickly identifying error source
+- Make catching errors by identifier easier
+- Aid new developers in how to contribute to PACE
+- Make conversion to any new error format standard easier
+
+It will also:
+- Require updating of legacy code
