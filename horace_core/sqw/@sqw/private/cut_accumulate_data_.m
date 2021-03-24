@@ -37,6 +37,9 @@ e = zeros(nbin_as_size);
 npix = zeros(nbin_as_size);
 img_range_step = [Inf(1, 4); -Inf(1, 4)];
 
+% Get bins that contain pixels that may contribute to the cut.
+% The bins selected are those that sit within (or intersect) the bounds of the
+% cut. See the relevant projection function for more details.
 [bin_starts, bin_ends] = proj.get_nbin_range(obj.data.npix);
 if isempty(bin_starts)
     % No pixels in range, we can return early
@@ -46,68 +49,39 @@ if isempty(bin_starts)
     return
 end
 
-% Get the cumulative sum of pixel bin sizes and work out how many
-% iterations we're going to need
-cum_bin_sizes = cumsum(bin_ends - bin_starts);
 block_size = obj.data.pix.base_page_size;
-max_num_iters = ceil(cum_bin_sizes(end)/block_size);
+% Get indices in order to split the candidate bin ranges into pixel page sized
+% chunks
+[~, sub_bin_idxs] = split_vector_max_sum(bin_ends - bin_starts, block_size);
+num_chunks = size(sub_bin_idxs, 2);
 
 % If we only have one iteration of pixels to cut then we must be able to fit
 % all pixels in memory, hence no need to use temporary files.
-use_tmp_files = ~return_cut && max_num_iters > 1;
-
+use_tmp_files = ~return_cut && num_chunks > 1;
 if keep_pix
-% Pre-allocate cell arrays to hold PixelData chunks
-pix_retained = cell(1, max_num_iters);
-pix_ix_retained = cell(1, max_num_iters);
+    % Pre-allocate cell arrays to hold PixelData chunks
+    pix_retained = cell(1, num_chunks);
+    pix_ix_retained = cell(1, num_chunks);
 
     if use_tmp_files
         % Create a pix_comb_info object to handle tmp files of pixels
         num_bins = numel(s);
-        pix_comb_info = init_pix_combine_info(max_num_iters, num_bins);
+        pix_comb_info = init_pix_combine_info(num_chunks, num_bins);
     else
         pix_comb_info = [];
     end
 end
 
-block_end_idx = 0;
-for iter = 1:max_num_iters
-    block_start_idx = block_end_idx + 1;
-    if block_start_idx > numel(cum_bin_sizes)
-        % If start index has reached end of bin sizes, we've reached the end
-        break
-    end
-
-    % Work out how many full bins we can load given we only want to load
-    % block_size number of pixels
-    next_idx_end = find(cum_bin_sizes(block_start_idx:end) > block_size, 1);
-    block_end_idx = block_end_idx + next_idx_end - 1;
-    if isempty(block_end_idx)
-        % There are less than block_size no. of pixels in the remaining bins
-        block_end_idx = numel(cum_bin_sizes);
-    end
-
-    if block_start_idx > block_end_idx
-        % Occurs where bin size greater than block size, just read in the
-        % whole bin
-        block_end_idx = block_start_idx;
-        pix_assigned = bin_ends(block_end_idx) - bin_starts(block_start_idx);
-    else
-        pix_assigned = block_size;
-    end
-
-    % Subtract the number of pixels we've assigned from our cumulative sum
-    cum_bin_sizes = cum_bin_sizes - pix_assigned;
-
+for iter = 1:num_chunks
     % Get pixels that will likely contribute to the cut
     candidate_pix = obj.data.pix.get_pix_in_ranges( ...
-        bin_starts(block_start_idx:block_end_idx), ...
-        bin_ends(block_start_idx:block_end_idx) ...
+        bin_starts(sub_bin_idxs(1, iter):sub_bin_idxs(2, iter)), ...
+        bin_ends(sub_bin_idxs(1, iter):sub_bin_idxs(2, iter)) ...
     );
 
     if log_level >= 0
-        fprintf(['Step %3d of max %3d; Read data for %d pixels -- ' ...
-                    'processing data...'], iter, max_num_iters, ...
+        fprintf(['Step %3d of %3d; Read data for %d pixels -- ' ...
+                 'processing data...'], iter, num_chunks, ...
                 candidate_pix.num_pixels);
     end
 
@@ -119,16 +93,16 @@ for iter = 1:max_num_iters
         del_npix_retain, ...
         ok, ...
         ix ...
-    ] = cut_data_from_file_job.accumulate_cut( ...
-            s, ...
-            e, ...
-            npix, ...
-            img_range_step, ...
-            keep_pix, ...
-            candidate_pix, ...
-            proj, ...
-            proj.target_pax ...
-    );
+        ] = cut_data_from_file_job.accumulate_cut( ...
+        s, ...
+        e, ...
+        npix, ...
+        img_range_step, ...
+        keep_pix, ...
+        candidate_pix, ...
+        proj, ...
+        proj.target_pax ...
+        );
 
     if log_level >= 0
         fprintf(' ----->  retained  %d pixels\n', del_npix_retain);
@@ -143,20 +117,19 @@ for iter = 1:max_num_iters
             pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file( ...
                 pix_comb_info, false, candidate_pix, ok, ix, npix, buf_size, ...
                 del_npix_retain ...
-            );
+                );
         else
-        % Retain only the pixels that contributed to the cut
-        pix_retained{iter} = candidate_pix.get_pixels(ok);
-        pix_ix_retained{iter} = ix;
+            % Retain only the pixels that contributed to the cut
+            pix_retained{iter} = candidate_pix.get_pixels(ok);
+            pix_ix_retained{iter} = ix;
+        end
     end
-    end
-
 end  % loop over pixel blocks
 
 if keep_pix
     [pix_out, pix_comb_info] = combine_pixels( ...
         pix_retained, pix_ix_retained, pix_comb_info, npix, obj.data.pix.page_size ...
-    );
+        );
 else
     pix_out = PixelData();
     pix_comb_info = [];
@@ -173,76 +146,76 @@ end  % function
 
 % -----------------------------------------------------------------------------
 function nbin_as_size = get_nbin_as_size(nbin)
-    % Get the given nbin array as a size
+% Get the given nbin array as a size
 
-    % Note: Matlab silliness when one dimensional: MUST add an outer dimension
-    % of unity. For 2D and higher, outer dimensions can always be assumed.
-    % The problem with 1D is that e.g. zeros([5]) is not the same as
-    % zeros([5,1]) whereas zeros([5,3]) is the same as zeros([5,3,1]).
-    if isempty(nbin)
-        nbin_as_size = [1, 1];
-    elseif length(nbin) == 1
-        nbin_as_size = [nbin, 1];
-    else
-        nbin_as_size = nbin;
-    end
+% Note: Matlab silliness when one dimensional: MUST add an outer dimension
+% of unity. For 2D and higher, outer dimensions can always be assumed.
+% The problem with 1D is that e.g. zeros([5]) is not the same as
+% zeros([5,1]) whereas zeros([5,3]) is the same as zeros([5,3,1]).
+if isempty(nbin)
+    nbin_as_size = [1, 1];
+elseif length(nbin) == 1
+    nbin_as_size = [nbin, 1];
+else
+    nbin_as_size = nbin;
+end
 end
 
 
 function [s, e] = average_signal(s, e, npix)
-    % Convert summed signal & error into averages
-    s = s./npix;
-    e = e./(npix.^2);
-    no_pix = (npix == 0);  % true where no pixels contribute to given bin
+% Convert summed signal & error into averages
+s = s./npix;
+e = e./(npix.^2);
+no_pix = (npix == 0);  % true where no pixels contribute to given bin
 
-    % By convention, signal and error are zero if no pixels contribute to bin
-    s(no_pix) = 0;
-    e(no_pix) = 0;
+% By convention, signal and error are zero if no pixels contribute to bin
+s(no_pix) = 0;
+e(no_pix) = 0;
 end
 
 
 function pci = init_pix_combine_info(nfiles, nbins)
-    % Create a pix_combine_info object to manage temporary files of pixels
-    wk_dir = get(parallel_config, 'working_directory');
-    tmp_file_names = gen_array_of_tmp_file_paths(nfiles, wk_dir);
-    pci = pix_combine_info(tmp_file_names, nbins);
+% Create a pix_combine_info object to manage temporary files of pixels
+wk_dir = get(parallel_config, 'working_directory');
+tmp_file_names = gen_array_of_tmp_file_paths(nfiles, wk_dir);
+pci = pix_combine_info(tmp_file_names, nbins);
 end
 
 
 function paths = gen_array_of_tmp_file_paths(nfiles, base_dir)
-    % Generate a cell array of paths for temporary files to be written to
-    % Format of the file names follows:
-    %   horace_cut_<UUID>_<counter_with_padded_zeros>.tmp
-    if nfiles < 1
-        error('CUT:cut_accumulate_data_', ...
-              ['Cannot create temporary file paths for less than 1 file.' ...
-               '\nFound %i.'], nfiles);
-    end
-    prefix = 'horace_cut';
-    uuid = char(java.util.UUID.randomUUID());
-    counter_padding = floor(log10(nfiles)) + 1;
-    format_str = sprintf('%s_%s_%%0%ii.tmp', prefix, uuid, counter_padding);
-    paths = cell(1, nfiles);
-    for i = 1:nfiles
-        paths{i} = fullfile(base_dir, sprintf(format_str, i));
-    end
+% Generate a cell array of paths for temporary files to be written to
+% Format of the file names follows:
+%   horace_cut_<UUID>_<counter_with_padded_zeros>.tmp
+if nfiles < 1
+    error('CUT:cut_accumulate_data_', ...
+        ['Cannot create temporary file paths for less than 1 file.' ...
+        '\nFound %i.'], nfiles);
+end
+prefix = 'horace_cut';
+uuid = char(java.util.UUID.randomUUID());
+counter_padding = floor(log10(nfiles)) + 1;
+format_str = sprintf('%s_%s_%%0%ii.tmp', prefix, uuid, counter_padding);
+paths = cell(1, nfiles);
+for i = 1:nfiles
+    paths{i} = fullfile(base_dir, sprintf(format_str, i));
+end
 end
 
 
 function [pix, pix_comb_info] = combine_pixels( ...
-        pix_retained, pix_ix_retained, pix_comb_info, npix, buf_size ...
-)
-    % Combine and sort in-memory pixels or finalize accumulation of pixels in
-    % temporary files managed by a pix_combine_info object.
-    if ~isempty(pix_comb_info)
-        % Pixels are stored in tmp files managed by pix_combine_info object
-        pix = PixelData();
-        finish_accumulation = true;
-        pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file( ...
-            pix_comb_info, finish_accumulation, pix, [], [], npix, buf_size, 0 ...
+    pix_retained, pix_ix_retained, pix_comb_info, npix, buf_size ...
+    )
+% Combine and sort in-memory pixels or finalize accumulation of pixels in
+% temporary files managed by a pix_combine_info object.
+if ~isempty(pix_comb_info)
+    % Pixels are stored in tmp files managed by pix_combine_info object
+    pix = PixelData();
+    finish_accumulation = true;
+    pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file( ...
+        pix_comb_info, finish_accumulation, pix, [], [], npix, buf_size, 0 ...
         );
-    else
-        % Pixels stored in-memory in PixelData object
-        pix = sort_pix(pix_retained, pix_ix_retained, npix);
-    end
+else
+    % Pixels stored in-memory in PixelData object
+    pix = sort_pix(pix_retained, pix_ix_retained, npix);
+end
 end

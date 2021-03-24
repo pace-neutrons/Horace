@@ -36,5 +36,5 @@ if use_mex
 end
 
 if ~use_mex
-    [mean_signal, mean_variance] = compute_bin_data_matlab_(obj, npix, log_level);
+    [mean_signal, mean_variance] = compute_bin_data_matlab_(obj, npix);
 end
