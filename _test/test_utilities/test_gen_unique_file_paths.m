@@ -92,16 +92,11 @@ classdef test_gen_unique_file_paths < TestCase
             end
         end
 
-        function test_separate_calls_generate_different_UUIDs(~)
-            regex_pattern = '_(?<uuid>[\w-]{36})_.*';
-
+        function test_consecutive_calls_generate_different_paths(~)
             paths_1 = gen_unique_file_paths(1, '', '');
-            match_1 = regexp(paths_1{1}, regex_pattern, 'names');
-
             paths_2 = gen_unique_file_paths(1, '', '');
-            match_2 = regexp(paths_2{1}, regex_pattern, 'names');
 
-            assertFalse(strcmp(match_1.uuid, match_2.uuid));
+            assertFalse(strcmpi(paths_1{1}, paths_2{1}));
         end
     end
 
