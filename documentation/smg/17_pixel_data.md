@@ -381,7 +381,7 @@ classdef PixelData < handle
                 % number of elements as we have pixels in the current page.
                 signal_to_add = repelem(img_chunk(:), npix_chunks{page_number});
 
-                % Increment the pixel signal and move the next page
+                % Increment the current page's signal and move to the next page
                 obj.signal = obj.signal + signal_to_add;
                 obj.advance()
             end
