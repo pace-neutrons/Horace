@@ -61,7 +61,7 @@ param (
 
   # The configuration to build with. {Release, Debug} [default: Release]
   [string][ValidateSet("Release", "Debug")]
-  [Alias("C")]
+  [Alias("CFG")]
   $build_config = 'Release',
 
   # The directory to write build files into. If the directory does not exist it
