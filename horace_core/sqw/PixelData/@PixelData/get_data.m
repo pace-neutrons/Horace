@@ -89,20 +89,12 @@ function [pix_fields, abs_pix_indices] = parse_args(obj, varargin)
     pix_fields = parser.Results.pix_fields;
     abs_pix_indices = parser.Results.abs_pix_indices;
 
-    pix_fields = validate_pix_fields(obj, pix_fields);
+    pix_fields = cellstr(pix_fields);
+    check_pixel_fields_(obj, pix_fields);
 
     if abs_pix_indices ~= NO_INPUT_INDICES
         if islogical(abs_pix_indices)
-            if numel(abs_pix_indices) > obj.num_pixels
-                if any(abs_pix_indices(obj.num_pixels + 1:end))
-                    error('PIXELDATA:get_data', ...
-                          ['The logical indices contain a true value ' ...
-                           'outside of the array bounds.']);
-                else
-                    abs_pix_indices = abs_pix_indices(1:obj.num_pixels);
-                end
-            end
-            abs_pix_indices = find(abs_pix_indices);
+            abs_pix_indices = logical_to_normal_index_(obj, abs_pix_indices);
         end
 
         max_idx = max(abs_pix_indices);
@@ -117,22 +109,4 @@ end
 
 function is = is_positive_int_vector_or_logical_vector(vec)
     is = isvector(vec) && (islogical(vec) || (all(vec > 0 & all(floor(vec) == vec))));
-end
-
-
-function pix_fields = validate_pix_fields(obj, pix_fields)
-    if ~isa(pix_fields, 'cell')
-        pix_fields = {pix_fields};
-    end
-
-    for i = 1:numel(pix_fields)
-        field = pix_fields{i};
-        if ~obj.FIELD_INDEX_MAP_.isKey({field})
-            valid_fields = obj.FIELD_INDEX_MAP_.keys();
-            error('PIXELDATA:get_data', ...
-                  ['Given field ''%s'' is not a valid pixel field.\n' ...
-                   'Valid fields are: [''%s'']'], ...
-                  strip(evalc('disp(field)')), strjoin(valid_fields, ''', '''));
-        end
-    end
 end

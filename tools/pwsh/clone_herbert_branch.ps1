@@ -27,7 +27,7 @@ Invoke-In-Dir `
     -directory $HERBERT_DIR `
     -command "Write-Output ""``nBuilding Herbert revision `$(git rev-parse HEAD)...""" `
 
-$build_cmd = "$HERBERT_DIR/tools/build_config/build.ps1 -build"
+$build_cmd = "$HERBERT_DIR/tools/build_config/build.ps1 -configure -build"
 $build_cmd += " -build_tests OFF"
 $build_cmd += " $build_args"
 Write-And-Invoke "$build_cmd"
