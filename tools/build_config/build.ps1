@@ -29,7 +29,7 @@
 #>
 param (
   # Run the Horace configure commands.
-  [switch][Alias("c")]$configure,
+  [switch][Alias("g")]$configure,
   # Run the Horace build commands.
   [switch][Alias("b")]$build,
   # Run all Horace tests.
@@ -61,7 +61,7 @@ param (
 
   # The configuration to build with. {Release, Debug} [default: Release]
   [string][ValidateSet("Release", "Debug")]
-  [Alias("CFG")]
+  [Alias("C")]
   $build_config = 'Release',
 
   # The directory to write build files into. If the directory does not exist it
@@ -155,7 +155,7 @@ function Invoke-Configure {
   $cmake_cmd += " $(New-CMake-Generator-Command -vs_version $vs_version)"
   $cmake_cmd += " -DBUILD_TESTS=$build_tests"
   $cmake_cmd += " -DMatlab_RELEASE=$matlab_release"
-  $cmake_cmd += " $cmake_flags"
+  $cmake_cmd += " ${cmake_flags}"
 
   Invoke-In-Dir -directory "$build_dir" -command "$cmake_cmd"
   if ($LASTEXITCODE -ne 0) {
