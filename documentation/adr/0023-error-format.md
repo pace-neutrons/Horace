@@ -1,7 +1,7 @@
 [<-previous](./0022-use-keyword-args.md) |
 next->
 
-# 23 - Error Format
+# 23 - Error Identifier Format
 
 Date: 2021-Mar-24
 
@@ -59,7 +59,7 @@ This scheme is based on the current (2020b) MATLAB error identifiers common to m
      the following names if the error falls within their remit.
 
 | Identifier         | Issue                                                                                         |
-| :----------------: | :-------------------------------------------------------------------------------------------: |
+| :----------------- | :-------------------------------------------------------------------------------------------- |
 | `invalid_argument` | Argument fails validation, there are insufficient arguments or argument is an unexpected flag |
 | `invalid_output`   | Insufficient outputs                                                                          |
 | `not_implemented`  | Called function is virtual/abstract                                                           |
