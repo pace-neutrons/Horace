@@ -367,15 +367,15 @@ classdef PixelData < handle
             % bin.
             % Split this array up on page size, such that we get the number of
             % pixels in each bin for each page of pixel data.
-            % `img_idxs` is a [2xN] array where N is the number of npix chunks,
+            % `bin_idxs` is a [2xN] array where N is the number of npix chunks,
             % and each column is the start and end index of the range of bins
             % the npix chunk defines the binning of.
-            [npix_chunks, img_idxs] = split_vector_fixed_sum(npix, obj.base_page_size);
+            [npix_chunks, bin_idxs] = split_vector_fixed_sum(npix, obj.base_page_size);
 
             for page_number = 1:numel(npix_chunks)
                 % Get the signal at the bins for which the currently loaded
                 % page of pixels contribute
-                img_chunk = sigvar_obj.s(img_idxs(1, page_number):img_idxs(2, page_number);
+                img_chunk = sigvar_obj.s(bin_idxs(1, page_number):bin_idxs(2, page_number);
 
                 % "Smear" the sigvar image's signal, such that it has the same
                 % number of elements as we have pixels in the current page.
