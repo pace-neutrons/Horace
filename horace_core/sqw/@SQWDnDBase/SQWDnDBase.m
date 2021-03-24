@@ -23,6 +23,9 @@ classdef (Abstract) SQWDnDBase
         wout = IX_dataset_2d (w);
         wout = IX_dataset_3d (w);
         [xout,yout,sout,eout,nout]=convert_bins_for_shoelace(win,wref);
+        [s,var,mask_null] = sigvar_get (w);
+        wout = mask (win, mask_array);
+        [sel,ok,mess] = mask_points (win, varargin);
     end
 
     methods (Access = protected)

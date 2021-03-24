@@ -7,7 +7,7 @@ function [s,var,mask_null] = sigvar_get (w)
 %
 % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
-s = w.data.s;
-var = w.data.e;
-mask_null = logical(w.data.npix);
+s = w.data_.s;
+var = w.data_.e;
+mask_null = logical(w.data_.npix);
 

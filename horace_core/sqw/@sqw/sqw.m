@@ -25,7 +25,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         [nd, sz] = dimensions(w);
         wout = sigvar(w);
         w = sigvar_set(win, sigvar_obj);
-        [s,var,mask_null] = sigvar_get (win);
         sz = sigvar_size(w);
         [sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);

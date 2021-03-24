@@ -51,6 +51,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         w = sigvar_set(win, sigvar_obj);
         [nd, sz] = dimensions(w);
         wout = copy(w);
+        pixels = has_pixels(w);
 
         function obj = DnDBase(varargin)
             obj = obj@SQWDnDBase();
