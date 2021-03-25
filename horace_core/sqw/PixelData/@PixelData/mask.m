@@ -46,22 +46,22 @@ elseif numel(mask_array) == obj.num_pixels && ~any(mask_array)
 end
 
 if numel(mask_array) == obj.num_pixels
-    
+
     if obj.is_file_backed_()
         pix_out = do_mask_file_backed_with_full_mask_array(obj, mask_array);
     else
         pix_out = do_mask_in_memory_with_full_mask_array(obj, mask_array);
     end
-    
+
 elseif ~isempty(npix)
-    
+
     if obj.is_file_backed_()
         pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix);
     else
         full_mask_array = repelem(mask_array, npix);
         pix_out = do_mask_in_memory_with_full_mask_array(obj, full_mask_array);
     end
-    
+
 end
 
 end
@@ -87,9 +87,9 @@ while true
     start_idx = end_idx + 1;
     end_idx = start_idx + obj.page_size - 1;
     mask_array_chunk = mask_array(start_idx:end_idx);
-    
+
     pix_out.append(PixelData(obj.data(:, mask_array_chunk)));
-    
+
     if obj.has_more()
         obj = obj.advance();
     else
@@ -108,38 +108,18 @@ function pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix)
 obj.move_to_first_page();
 pix_out = PixelData();
 
-end_idx = 1;
-npix_cum_sum = cumsum(npix(:));
+[npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
+page_number = 1;
 while true
-    start_idx = (end_idx - 1) + find(npix_cum_sum(end_idx:end) > 0, 1);
-    leftover_begin = npix_cum_sum(start_idx);
-    npix_cum_sum = npix_cum_sum - obj.page_size;
-    end_idx = (start_idx - 1) + find(npix_cum_sum(start_idx:end) > 0, 1);
-    if isempty(end_idx)
-        end_idx = numel(npix);
-    end
-    
-    if start_idx == end_idx
-        % All pixels in page
-        if ~exist('leftover_end', 'var')
-            leftover_end = 0;
-        end
-        npix_chunk = min(obj.page_size, npix(start_idx) - leftover_end);
-    else
-        % Leftover_end = number of pixels to allocate to final bin n,
-        % there will be more pixels to allocate to bin n in the next iteration
-        leftover_end = ...
-            obj.page_size - (leftover_begin + sum(npix(start_idx + 1:end_idx - 1)));
-        npix_chunk = npix(start_idx + 1:end_idx - 1);
-        npix_chunk = [leftover_begin, npix_chunk(:).', leftover_end];
-    end
-    
-    mask_array_chunk = repelem(mask_array(start_idx:end_idx), npix_chunk);
-    
+    npix_for_page = npix_chunks{page_number};
+    idx = idxs(:, page_number);
+
+    mask_array_chunk = repelem(mask_array(idx(1):idx(2)), npix_for_page);
     pix_out.append(PixelData(obj.data(:, mask_array_chunk)));
-    
+
     if obj.has_more()
         obj.advance();
+        page_number = page_number + 1;
     else
         break;
     end

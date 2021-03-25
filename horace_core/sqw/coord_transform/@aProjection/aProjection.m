@@ -44,7 +44,7 @@ classdef aProjection
         data_ulen_     = [1,1,1,1]; %Length of projection axes vectors in Ang^-1 or meV [row vector]
         data_upix_to_rlu_ = eye(3);
         data_upix_offset_ = [0;0;0;0] %upix_offset;
-        data_lab_ = ['qx','qy','qz','en'];
+        data_lab_ = {'qx','qy','qz','en'};
         % input data projection axis
         data_iax_=zeros(1,0);
         data_pax_=zeros(1,0);
@@ -93,13 +93,13 @@ classdef aProjection
         [ pbin_out, ndims] = calc_pbins(proj, img_range_in, pbin, pin, en)
         
         %
-        function this=retrieve_existing_tranf(this,data,upix_to_rlu,upix_offset)
+        function obj=retrieve_existing_tranf(obj,data,upix_to_rlu,upix_offset)
             % Retrieve all parameters for transformation already
             % defined over sqw data and store them in projection to
             % use later to calculate new transformation.
-            this = set_data_transf_(this,data,upix_to_rlu,upix_offset);
+            obj = set_data_transf_(obj,data,upix_to_rlu,upix_offset);
         end
-        function this = set_proj_binning(this,new_img_range,prj_ax_ind,int_ax_ind,prj_ax_bins)
+        function obj = set_proj_binning(obj,new_img_range,prj_ax_ind,int_ax_ind,prj_ax_bins)
             %   new_range   Array of limits of data that can possibly contribute to the output data structure in the
             %               coordinate frame of the output structure [2x4].
             %   prj_ax_ind  Index of plot axes into the projection axes  [row vector]
@@ -110,37 +110,54 @@ classdef aProjection
             %               i.e. data.p{1}, data.p{2} ... (for as many plot axes as given by length of prj_ax_ind)
             %
             %
-            this = this.set_proj_binning_(new_img_range,prj_ax_ind,int_ax_ind,prj_ax_bins);
+            obj = obj.set_proj_binning_(new_img_range,prj_ax_ind,int_ax_ind,prj_ax_bins);
         end
         
         %------------------------------------------------------------------
         % accessors
         %------------------------------------------------------------------
-        function alat = get.alatt(this)
-            alat = this.alatt_;
+        function alat = get.alatt(obj)
+            alat = obj.alatt_;
+        end
+        function obj = set.alatt(obj,val)
+            % set lattice parameters as single value, defining 3 equal
+            % parameters or vector of 3 different lattice parameters
+            % 
+            % The parameters expected to be in A
+            %
+            obj.alatt_ = check_alatt_return_standard_val_(val);
         end
         %
-        function angl = get.angdeg(this)
-            angl = this.angdeg_;
+        function angl = get.angdeg(obj)
+            angl = obj.angdeg_;
+        end
+        function obj = set.angdeg(obj,val)
+            % set lattice parameters as single value, defining 3 equal
+            % lattice angles or vector of 3 different lattice angles
+            %
+            % All angles are in degrees. 
+            %
+            obj.angdeg_ = check_angdeg_return_standard_val_(val);
+        end
+        
+        %
+        function usteps = get.usteps(obj)
+            usteps = obj.usteps_;
         end
         %
-        function usteps = get.usteps(this)
-            usteps = this.usteps_;
-        end
-        %
-        function urange_step = get.urange_step(this)
+        function urange_step = get.urange_step(obj)
             % Get limits of cut expressed in the units of bin size in each
             % direction
-            urange_step = this.urange_step_;
+            urange_step = obj.urange_step_;
         end
-        function urange_offset= get.urange_offset(this)
-            urange_offset = this.urange_offset_;
+        function urange_offset= get.urange_offset(obj)
+            urange_offset = obj.urange_offset_;
         end
-        function pax = get.target_pax(this)
-            pax = this.pax_gt1_;
+        function pax = get.target_pax(obj)
+            pax = obj.pax_gt1_;
         end
-        function nbin = get.target_nbin(this)
-            nbin = this.nbin_gt1_;
+        function nbin = get.target_nbin(obj)
+            nbin = obj.nbin_gt1_;
         end
     end
     %
@@ -149,14 +166,14 @@ classdef aProjection
         function isit= can_mex_cut_(self)
             isit = false;
         end
-        function [nbin_in,pin]= get_input_data_binning_(this)
+        function [nbin_in,pin]= get_input_data_binning_(obj)
             % input data binning how data are initially binned, and full
             % data projection axis
             %
             % auxiliary variable derived from input data projection axis
             pin=cell(1,4);
-            pin(this.data_pax_)=this.data_p_;
-            pin(this.data_iax_)=mat2cell(this.new_img_range_(:,this.data_iax_),2,ones(1,length(this.data_iax_)));
+            pin(obj.data_pax_)=obj.data_p_;
+            pin(obj.data_iax_)=mat2cell(obj.new_img_range_(:,obj.data_iax_),2,ones(1,length(obj.data_iax_)));
             nbin_in=zeros(1,4);
             for i=1:4
                 nbin_in(i)=length(pin{i})-1;
@@ -284,19 +301,19 @@ classdef aProjection
     methods(Abstract)
         % find the whole range of input data which may contribute
         % into the result.        
-        urange_out = find_old_img_range(this,urange_in);
+        urange_out = find_old_img_range(obj,urange_in);
 
 
         % Get ranges of bins that partially or wholly lie inside an n-dimensional shape,
         % defined by projection limits.        
-        [istart,iend,irange,inside,outside] = get_irange_proj(this,urange,varargin);
+        [istart,iend,irange,inside,outside] = get_irange_proj(obj,urange,varargin);
         
         % get list of pixels indexes contributing into the cut        
-        [indx,ok] = get_contributing_pix_ind(this,v);
+        [indx,ok] = get_contributing_pix_ind(obj,v);
         
         % get projection parameters, necessary for properly definind a sqw
         % or dnd object from the projection        %
-        [uoffset,ulabel,dax,u_to_rlu,ulen,title_function] = get_proj_param(this,data_in,pax);
+        [uoffset,ulabel,dax,u_to_rlu,ulen,title_function] = get_proj_param(obj,data_in,pax);
     end
 end
 
