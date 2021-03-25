@@ -155,6 +155,22 @@ and operate on those pixels.
 - `PixelData` objects do not know about their binning.
   - The binning is defined by the `sqw` object's image.
 
+### Saving Pixel Data
+
+The `PixelData` class has no capacity of its own to save its data to an sqw file.
+This is the responsibility of the sqw file savers;
+in particular, `sqw_binfile_common.put_pix`.
+This method, called when saving an `sqw` object,
+loops over pixel pages and saves them to the `sqw` file.
+
+There also exists `sqw_binfile_common.put_bytes`
+which can be used to save arbitrary data to an `sqw` file.
+You can position the `sqw_binfile_common` instance's file handle at the start
+of the `sqw` file's pixel array,
+and save pixels directory to file this way.
+This is more efficient than saving out to temporary files and then
+reading them back in later when calling `put_pix`.
+
 ### Getters/Setters
 
 All getters return data in-memory.
