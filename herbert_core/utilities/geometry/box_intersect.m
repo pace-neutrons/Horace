@@ -67,6 +67,8 @@ if plain_norm'*plain_norm < 1.e-12
     error('BOX_INTERSECT:invalid_argument',...
         'vectors, defining the intersection plain are parallel')
 end
+plain_norm = plain_norm/norm(plain_norm);
+%
 [~,edges_ind] = get_geometry(4);
 buf = cell(32,1);
 nint = 0;
@@ -102,6 +104,7 @@ if plain_norm'*plain_norm < 1.e-12
     error('BOX_INTERSECT:invalid_argument',...
         'vectors, defining the intersection plain are parallel')
 end
+plain_norm = plain_norm/norm(plain_norm);
 %
 [~,edges_ind] = get_geometry(3);
 buf = cell(12,1);
@@ -161,6 +164,7 @@ end
 function int_point = intersection(edg,normal,p0)
 r0 = edg(:,1);
 dr = edg(:,2) - r0;
+edge_length = norm(dr);
 slope = normal'*dr;
 if abs(slope)  <1.e-12  % parallel or in plain
     % even if the edge lies in the plain,
@@ -176,7 +180,7 @@ rr = dr*t;
 e_edge = dr/sqrt(dr'*dr); % unit vector along edge
 proj_edge = rr'*e_edge;   % projection of interpolation point to edge
 
-if proj_edge<0 || proj_edge>1 %on plain but outside of the edge
+if proj_edge<0 || proj_edge>edge_length %on plain but outside of the edge
     int_point  = [];
     return
 end
