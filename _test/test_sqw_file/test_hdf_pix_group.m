@@ -100,7 +100,7 @@ classdef test_hdf_pix_group < TestCase
             f_missing = @()hdf_pix_group(f_name);
             % new file needs more than one argument for
             % creation
-            assertExceptionThrown(f_missing,'HDF_PIX_GROUP:invalid_argument')
+            assertExceptionThrown(f_missing,'HDF_PIX_GROUP:invalid_argument');
             
         end
         %
