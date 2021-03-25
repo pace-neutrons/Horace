@@ -34,7 +34,7 @@ noException = false;
 try
     f();
     noException = true;
-    
+
 catch exception
     if strcmp(exception.identifier,'MATLAB:subsasgnMustHaveOutput')
         try
