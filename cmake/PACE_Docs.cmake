@@ -77,7 +77,7 @@ if (sphinx-build)
     add_custom_target(docs-pack
       COMMENT "Zipping HTML documentation to ${Horace_DOCS_PACK_OUTPUT}"
       COMMAND powershell -ExecutionPolicy Bypass -command
-                "Compress-Archive -Path \"${Horace_DOCS_OUTPUT_DIR}/*\" -DestinationPath \"${Horace_DOCS_PACK_DIR}\""
+                "Compress-Archive -Path \"${Horace_DOCS_OUTPUT_DIR}/*\" -DestinationPath \"${Horace_DOCS_PACK_OUTPUT}\""
       DEPENDS docs
       )
 
