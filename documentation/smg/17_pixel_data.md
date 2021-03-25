@@ -419,8 +419,12 @@ end
   (e.g. signal), as these data are not contiguous in memory (or on disk).
 
 - Algorithms that transform pixel coordinates should update the **pixel range**.
+  This range is a property on the PixelData instances (`pix_range`),
+  it should be updated with the new coordinate limits.
+  Preferably, the update should take place within the algorithm.
+  This avoids the use of the `recalc_pix_range` method,
+  which performs a loop over pixels.
   The pixel range is cached in file and on the object.
-  This specifies the minimum and maximum value for each coordinate.
 
 - Pixel data values are stored in single-precision in file.
   They are store in double-precision in memory.
