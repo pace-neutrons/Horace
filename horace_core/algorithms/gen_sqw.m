@@ -740,7 +740,8 @@ if ~all(ief)
         max(pix_range(2,:),pix_range_est(2,:))];
 end
 % Add a border
-pix_db_range=range_add_border(pix_range,1e-6);
+pix_db_range=range_add_border(pix_range,...
+    data_sqw_dnd.border_size);
 
 if log_level>-1
     bigtoc('Time to compute limits:',log_level);
