@@ -92,12 +92,12 @@ classdef test_PixelData < TestCase
         
         function test_PIXELDATA_raised_on_construction_with_data_with_lt_9_cols(~)
             f = @() PixelData(ones(3, 3));
-            assertExceptionThrown(f, 'PIXELDATA:data')
+            assertExceptionThrown(f, 'PIXELDATA:data');
         end
         
         function test_PIXELDATA_raised_on_construction_with_data_with_gt_9_cols(~)
             f = @() PixelData(ones(10, 3));
-            assertExceptionThrown(f, 'PIXELDATA:data')
+            assertExceptionThrown(f, 'PIXELDATA:data');
         end
         
         function test_coordinates_returns_empty_array_if_pixel_data_empty(~)
@@ -251,7 +251,7 @@ classdef test_PixelData < TestCase
             end
             
             f = @() (set_coordinates(new_coord_data));
-            assertExceptionThrown(f, 'MATLAB:subsassigndimmismatch')
+            assertExceptionThrown(f, 'MATLAB:subsassigndimmismatch');
         end
         
         function test_error_raised_if_setting_coordinates_with_wrong_num_cols(obj)
@@ -264,7 +264,7 @@ classdef test_PixelData < TestCase
             
             new_coord_data = ones(3, num_rows);
             f = @() set_coordinates(new_coord_data);
-            assertExceptionThrown(f, 'MATLAB:subsassigndimmismatch')
+            assertExceptionThrown(f, 'MATLAB:subsassigndimmismatch');
         end
         
         function test_PixelData_object_with_underlying_data_is_not_empty(obj)
@@ -279,13 +279,13 @@ classdef test_PixelData < TestCase
         function test_PIXELDATA_error_if_constructed_with_struct(~)
             s = struct();
             f = @() PixelData(s);
-            assertExceptionThrown(f, 'PIXELDATA:data')
+            assertExceptionThrown(f, 'PIXELDATA:data');
         end
         
         function test_PIXELDATA_error_if_constructed_with_cell_array(~)
             s = {'a', 1};
             f = @() PixelData(s);
-            assertExceptionThrown(f, 'PIXELDATA:data')
+            assertExceptionThrown(f, 'PIXELDATA:data');
         end
         
         function test_PIXELDATA_error_if_data_set_with_non_numeric_type(~)
@@ -296,7 +296,7 @@ classdef test_PixelData < TestCase
             end
             
             f = @() set_data({1, 'abc'});
-            assertExceptionThrown(f, 'PIXELDATA:data')
+            assertExceptionThrown(f, 'PIXELDATA:data');
         end
         
         function test_numel_returns_the_number_of_elements_in_the_data(obj)
@@ -338,7 +338,7 @@ classdef test_PixelData < TestCase
         
         function test_get_data_throws_PIXELDATA_on_non_valid_field_name(obj)
             f = @() obj.pixel_data_obj.get_data('not_a_field');
-            assertExceptionThrown(f, 'PIXELDATA:get_data');
+            assertExceptionThrown(f, 'HORACE:PIXELDATA:invalid_field');
         end
         
         function test_get_data_orders_columns_corresponding_to_input_cell_array(obj)
@@ -505,7 +505,7 @@ classdef test_PixelData < TestCase
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
             f = @() obj.advance_pix(pix, floor(npix/npix_in_page + 1));
-            assertExceptionThrown(f, 'PIXELDATA:move_to_page')
+            assertExceptionThrown(f, 'PIXELDATA:move_to_page');
         end
         
         function test_advance_does_nothing_if_PixelData_not_file_backed(~)
@@ -595,13 +595,14 @@ classdef test_PixelData < TestCase
         
         function test_dirty_pix_tmp_files_are_deleted_when_pix_out_of_scope(obj)
             old_rng_state = rng();
+            clean_up = onCleanup(@() rng(old_rng_state));
             fixed_seed = 774015;
             rng(fixed_seed, 'twister');  % this seed gives an expected object_id_ = 54452
             expected_tmp_dir = fullfile( ...
                 get(parallel_config, 'working_directory'), ...
-                'sqw_pix54452');
-            clean_up = onCleanup(@() rng(old_rng_state));
-            
+                'sqw_pix54452' ...
+                );
+
             function do_pix_creation_and_delete()
                 data = rand(9, 30);
                 npix_in_page = 11;
@@ -889,13 +890,14 @@ classdef test_PixelData < TestCase
         
         function test_unedited_dirty_pages_are_not_rewritten(obj)
             old_rng_state = rng();
+            clean_up = onCleanup(@() rng(old_rng_state));
             fixed_seed = 774015;  % this seed gives an expected object_id_ = 06706
             rng(fixed_seed, 'twister');
             expected_tmp_dir = fullfile( ...
                 get(parallel_config, 'working_directory'), ...
-                'sqw_pix06706');
-            clean_up = onCleanup(@() rng(old_rng_state));
-            
+                'sqw_pix06706' ...
+                );
+
             data = rand(9, 10);
             npix_in_page = 3;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
@@ -1502,7 +1504,7 @@ classdef test_PixelData < TestCase
             logical_array = cat(2, logical(randi([0, 1], [1, num_pix])), true);
             f = @() pix.get_data('signal', logical_array);
             
-            assertExceptionThrown(f, 'PIXELDATA:get_data');
+            assertExceptionThrown(f, 'HORACE:PIXELDATA:badsubscript');
         end
         
         function test_get_data_ignores_out_of_range_logical_0_indices(obj)
@@ -1715,7 +1717,126 @@ classdef test_PixelData < TestCase
             expected_pix = PixelData(data(:, pix_idx));
             assertEqualToTol(new_pix, expected_pix, 'reltol', 1e-5);
         end
-        
+        function test_calling_advance_with_nosave_discards_cached_changes(obj)
+            data = zeros(9, 30);
+            npix_in_page = 11;
+            pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+
+            % set all u1 values in each page to 1
+            pix.u1 = 1;
+            pix.advance('nosave', true);  % move to second page
+            pix.move_to_first_page();
+
+            assertEqual(pix.u1, zeros(1, npix_in_page));
+        end
+
+        function test_set_data_sets_fields_with_given_values(~)
+            pix = PixelData(30);
+            new_data = ones(3, 7);
+            fields = {'run_idx', 'signal', 'variance'};
+            idxs = [4, 3, 9, 24, 29, 10, 11];
+            pix.set_data(fields, new_data, idxs);
+
+            assertEqual(pix.get_data(fields, idxs), new_data);
+
+            % Check other fields/indices unchanged
+            non_edited_idxs = 1:pix.num_pixels;
+            non_edited_idxs(idxs) = [];
+            assertEqual(pix.data(:, non_edited_idxs), zeros(9, 23));
+        end
+
+        function test_set_data_sets_single_fields_with_given_values(~)
+            pix = PixelData(30);
+            new_data = ones(1, 7);
+            field = 'run_idx';
+            idxs = [4, 3, 9, 24, 29, 10, 11];
+            pix.set_data(field, new_data, idxs);
+
+            assertEqual(pix.get_data(field, idxs), new_data);
+
+            % Check other fields/indices unchanged
+            non_edited_idxs = 1:pix.num_pixels;
+            non_edited_idxs(idxs) = [];
+            assertEqual(pix.data(:, non_edited_idxs), zeros(9, 23));
+        end
+
+        function test_set_data_sets_fields_with_given_values_pix_filebacked(obj)
+            num_pix = 30;
+            data = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            npix_per_page = 11;
+            pix = obj.get_pix_with_fake_faccess(data, npix_per_page);
+
+            new_data = ones(3, 7);
+            fields = {'run_idx', 'signal', 'variance'};
+            idxs = [4, 3, 9, 24, 29, 10, 11];
+            pix.set_data(fields, new_data, idxs);
+
+            assertEqual(pix.get_data(fields, idxs), new_data);
+
+            % Check other fields/indices unchanged
+            non_edited_idxs = 1:pix.num_pixels;
+            non_edited_idxs(idxs) = [];
+            unedited_pix = pix.get_pixels(non_edited_idxs);
+            assertEqual(unedited_pix.data, zeros(9, 23));
+        end
+
+        function test_set_data_errors_if_data_nrows_ne_to_num_fields(~)
+            pix = PixelData(30);
+            fields = {'run_idx', 'signal', 'variance'};
+            new_data = ones(numel(fields) + 1, 7);
+            idxs = [4, 3, 9, 24, 29, 10, 11];
+            f = @() pix.set_data(fields, new_data, idxs);
+            assertExceptionThrown(f, 'HORACE:PIXELDATA:incorrect_num_rows');
+        end
+
+        function test_set_data_errors_if_data_ncols_ne_to_num_indices(~)
+            pix = PixelData(30);
+            fields = {'run_idx', 'signal', 'variance'};
+            idxs = [4, 3, 9, 24, 29, 10, 11];
+            new_data = ones(numel(fields), numel(idxs) - 1);
+            f = @() pix.set_data(fields, new_data, idxs);
+            assertExceptionThrown(f, 'HORACE:PIXELDATA:incorrect_num_cols');
+        end
+
+        function test_set_data_sets_fields_with_given_values_with_logical_idxs(~)
+            pix = PixelData(30);
+            new_data = ones(3, 7);
+            fields = {'run_idx', 'signal', 'variance'};
+            idxs = [4, 3, 9, 24, 29, 10, 11];
+            logical_idxs = zeros(1, 30, 'logical');
+            logical_idxs(idxs) = true;
+            pix.set_data(fields, new_data, logical_idxs);
+
+            assertEqual(pix.get_data(fields, idxs), new_data);
+
+            % Check other fields/indices unchanged
+            non_edited_idxs = 1:pix.num_pixels;
+            non_edited_idxs(idxs) = [];
+            assertEqual(pix.data(:, non_edited_idxs), zeros(9, 23));
+        end
+
+        function test_set_data_sets_all_if_abs_pix_indices_not_given_filebacked(obj)
+            num_pix = 30;
+            data = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix);
+            npix_per_page = 11;
+            pix = obj.get_pix_with_fake_faccess(data, npix_per_page);
+
+            new_data = ones(3, num_pix);
+            fields = {'run_idx', 'signal', 'variance'};
+            pix.set_data(fields, new_data);
+
+            assertEqual(pix.get_data(fields), new_data);
+        end
+
+        function test_set_data_sets_all_if_abs_pix_indices_not_given(~)
+            num_pix = 30;
+            pix = PixelData(num_pix);
+            new_data = ones(3, num_pix);
+            fields = {'run_idx', 'signal', 'variance'};
+            pix.set_data(fields, new_data);
+
+            assertEqual(pix.get_data(fields), new_data);
+        end
         % -- Helpers --
         function [pix,pix_range] = get_pix_with_fake_faccess(obj, data, npix_in_page)
             pix_range = [min(data(1:4,:),[],2),max(data(1:4,:),[],2)]';
