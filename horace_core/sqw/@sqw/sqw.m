@@ -13,20 +13,20 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         detpar
         % CMDEV: data now a dependent property, below
     end
-    
+
     properties(Dependent)
         data;
     end
 
-    methods (Access = private)
+    methods (Access = protected)
+        wout = sqw_eval_pix_(w, sqwfunc, ave_pix, pars);
     end
-    
+
     methods
-        [nd, sz] = dimensions(w);
         wout = sigvar(w);
         w = sigvar_set(win, sigvar_obj);
         sz = sigvar_size(w);
-        [sel,ok,mess] = mask_points (win, varargin);
+        %[sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);
         varargout = multifit_sqw (varargin);
         varargout = multifit_sqw_sqw (varargin);
@@ -45,28 +45,28 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin);
         wtot=combine_cuts(w);
         wout=recompute_bin_data_tester(sqw_obj);
-        wout = func_eval (win, func_handle, pars, varargin);
         wout = dnd (win);
         [header_ave, ebins_all_same]=header_average(header);
         [alatt,angdeg,ok,mess] = lattice_parameters(win);
         [wout, pars_out] = refine_crystal_strip_pars (win, xtal, pars_in);
+        img_range = recompute_img_range(w);
+
         wout = section (win,varargin);
         [sqw_type, ndims, nfiles, filename, mess,ld] = is_sqw_type_file(w,infile);
-        [d, mess] = make_sqw_from_data(varargin);        
+        [d, mess] = make_sqw_from_data(varargin);
         varargout = head (varargin);
         d=spe(w);
-        
-		%{
+        %{
         %[deps,eps_lo,eps_hi,ne]=energy_transfer_info(header);
         [figureHandle, axesHandle, plotHandle] = plot(w,varargin);
         wout = IX_dataset_1d (w);
         wout = IX_dataset_2d (w);
         wout = IX_dataset_3d (w);
-		%}
+        %}
         status = adjust_aspect(w);
         varargout = resolution_plot (w, varargin);
         wout = noisify(w,varargin);
-        
+
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
 
@@ -84,8 +84,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             elseif ~isempty(args.data_struct)
                 obj = obj.init_from_loader_struct(args.data_struct);
             end
+
+
         end
-        
+
         %% Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)
             val = '';
@@ -104,7 +106,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         %TODO: disabled until full functionality is implemeneted in new class;
         % The addition of this method causes sqw_old tests to incorrectly load data from .mat files
         % as new-SQW class objects
-        
+
         function obj = loadobj(S)
             % Load a sqw object from a .mat file
             %
@@ -138,6 +140,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
+
+        wout = sqw_eval_(wout, sqwfunc, ave_pix, all_bins, pars);
     end
 
     methods(Static, Access = private)

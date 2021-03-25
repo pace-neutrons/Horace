@@ -60,7 +60,7 @@ function wout = func_eval (win, func_handle, pars, varargin)
 %           y = (pars(1)/(sig*sqrt(2*pi))) * ...
 
 % NOTE:
-%   If 'all' then npix=ones(size(win.data_.s)) to ensure that the plotting is performed
+%   If 'all' then npix=ones(size of image) to ensure that the plotting is performed
 %   Thus lose the npix information.
 
 % Modified 15/10/2008 by R.A. Ewings:
@@ -118,7 +118,7 @@ for i = 1:numel(win)    % use numel so no assumptions made about shape of input 
     % Get bin centres
     pcent=cell(1,ndim);
     for n=1:ndim
-        pcent{n}=0.5*(win(i).data_.p{n}(1:end-1)+win(i).data_.p{n}(2:end));
+        pcent{n} = 0.5 * (win(i).data_.p{n}(1:end-1) + win(i).data_.p{n}(2:end));
     end
     if ndim>1
         pcent=ndgridcell(pcent);%  make a mesh; cell array input and output

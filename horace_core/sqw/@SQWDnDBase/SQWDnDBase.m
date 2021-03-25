@@ -4,7 +4,6 @@ classdef (Abstract) SQWDnDBase
     %   DnD objects
 
     properties (Abstract) % Public
-      %  abstract_prop
     end
 
     properties (Access = protected)
@@ -15,22 +14,37 @@ classdef (Abstract) SQWDnDBase
     methods (Abstract, Access = protected)
         wout = unary_op_manager(w, operation_handle);
         wout = binary_op_manager_single(w1,w2,binary_op);
+        wout = sqw_eval_pix_(wout, sqwfunc, ave_pix, pars);
     end
 
     methods  % Public
-        [ok,mess,nd_ref]=dimensions_match(w,nd_ref);
-        wout = IX_dataset_1d (w);
-        wout = IX_dataset_2d (w);
-        wout = IX_dataset_3d (w);
-        [xout,yout,sout,eout,nout]=convert_bins_for_shoelace(win,wref);
         [s,var,mask_null] = sigvar_get (w);
         wout = mask (win, mask_array);
         [sel,ok,mess] = mask_points (win, varargin);
+        [xout,yout,sout,eout,nout] = convert_bins_for_shoelace(win, wref);
+        wout = IX_dataset_1d(w);
+        wout = IX_dataset_2d(w);
+        wout = IX_dataset_3d(w);
+        [nd, sz] = dimensions(w);
+        [ok,mess,nd_ref] = dimensions_match(w, nd_ref);
+        [wout_disp, wout_weight] = dispersion(win, dispreln, pars);
+        wout = disp2sqw_eval(win, dispreln, pars, fwhh, opt);
+        wout = func_eval(win, func_handle, pars, varargin);
+        wout = sqw_eval(win, sqwfunc, pars, varargin);
+
+        wout = smooth(win, varargin);
+        wout = smooth_units(win, varargin);
     end
 
     methods (Access = protected)
         wout = binary_op_manager(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
+        wout = sqw_eval_nopix_(win, sqwfunc, all_bins, pars);
     end
+
+    methods (Abstract)
+        pixels = has_pixels(win);
+    end
+
 end
 

@@ -14,6 +14,7 @@ methods
     end
 
     function delete(obj)
+
         rmpath(fullfile(obj.this_dir, 'utils'));
     end
 
