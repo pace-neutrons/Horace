@@ -351,13 +351,28 @@ classdef PixelData < handle
 
         ...
 
-        function binary_op_sigvar(obj, sigvar_obj, npix)
-            %BINARY_OP_SIGVAR Add a sigvar-like object to this pixel data
-            %  This is a simplified version of `binary_op_sigvar_` that exists
-            %  in Horace (we don't worry about error in this version).
+        function add_sigvar(obj, image_data, npix)
+            %ADD_SIGVAR Add a sigvar-like image data object to this pixel data
+            % This is a simplified version of `binary_op_sigvar_` that exists
+            % in Horace (we don't worry about error in this version).
             %
-            %  sigvar-like refers to an object that has a signal `.s` and
-            %  error `.e`.
+            % sigvar-like refers to an object that has a signal `.s` and error
+            % `.e`.
+            % Note that image_data's `.s` and `.e` fields are the same size as
+            % npix. The fields contain one value for each bin defined by npix.
+            % Also note that `sum(npix(:)) == obj.num_pixels`.
+            %
+            % This 'image_data' object could be a dnd. Hence each value in `.s`
+            % represents the average signal for the given bin.
+            % To add this to pixel data, you must generate "fake" pixel signal
+            % data from the image. This is done by creating npix(bin_num)
+            % signal values, each of which is equal to `.s(bin_num)` (so each
+            % "fake" pixel has the average signal). This can then be added to
+            % this object's signal.
+            %
+            % If this operation was performed all in memory, it would boil down
+            % to:
+            %   obj.signal = obj.signal + repelem(image_data.s(:), npix(:))
             %
 
             % Always move to the first page of data
