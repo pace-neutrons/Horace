@@ -41,6 +41,12 @@ classdef test_box_intersect2D < TestCase
             cp = box_intersect([0,0;1,1]',[1/2,0;0,1/2]');
             assertEqual(cp,[1/2,0;0,1/2]');
         end        
+        function test_intersect_box2D_non_zero_based_box(~)
+            % 
+            cp = box_intersect([-1,-1;1,1]',[-1,-1;1,1]');
+            assertEqual(cp,[-1,-1;1,1]');
+        end        
+        
         function test_intersect_box2D_in2points_degenerated(~)
             % 
             cp = box_intersect([0,0;1,1]',[1,1;2,2]');

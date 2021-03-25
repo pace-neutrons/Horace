@@ -137,6 +137,7 @@ nint = 0;
 p0 = cross_plain(:,2);
 dr = cross_plain(:,1)-p0;
 normal = [dr(2);-dr(1)];
+normal = normal/norm(normal);
 for i=1:size(edges_ind,2)
     edge_ind = edges_ind(:,i);
     edge =edge2D(box_minmax,edge_ind);
