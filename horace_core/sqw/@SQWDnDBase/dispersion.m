@@ -1,5 +1,5 @@
-function [wout_disp,wout_weight]=dispersion(win,dispreln,pars)
-% Calculate dispersion relation for dataset or array of datasets. 
+function [wout_disp, wout_weight] = dispersion(win, dispreln, pars)
+% Calculate dispersion relation for dataset or array of datasets.
 %
 %   >> wdisp = dispersion (win, dispreln, p)            % dispersion only
 %   >> [wdisp,weight] = dispersion (win, dispreln, p)   % dispersion and spectral weight
@@ -35,7 +35,7 @@ function [wout_disp,wout_weight]=dispersion(win,dispreln,pars)
 %               where
 %                   qh,qk,ql    Arrays containing the coordinates of a set of points
 %                              in reciprocal lattice units
-%                   p           Vector of parameters needed by dispersion function 
+%                   p           Vector of parameters needed by dispersion function
 %                              e.g. [A,js,gam] as intensity, exchange, lifetime
 %                   w           Array of corresponding energies, or, if more than
 %                              one dispersion relation, a cell array of arrays.
@@ -45,7 +45,7 @@ function [wout_disp,wout_weight]=dispersion(win,dispreln,pars)
 %              More general form is:
 %                   [w,s] = dispreln (qh,qk,ql,p,c1,c2,..)
 %                 where
-%                   p           Typically a vector of parameters that we might want 
+%                   p           Typically a vector of parameters that we might want
 %                              to fit in a least-squares algorithm
 %                   c1,c2,...   Other constant parameters e.g. file name for look-up
 %                              table.
@@ -59,7 +59,7 @@ function [wout_disp,wout_weight]=dispersion(win,dispreln,pars)
 %
 % Output:
 % =======
-%   wdisp       Output dataset or array of datasets. Output is always dnd-type.
+%   wdisp       Output dataset or array of datasets of the same type as the input argument.
 %               The output dataset (or array of data sets) will retain only the Q axes, the
 %              the signal array(s) will contain the values of energy along the Q axes, and
 %              the error array will contain the square of the spectral weight.
@@ -75,17 +75,21 @@ function [wout_disp,wout_weight]=dispersion(win,dispreln,pars)
 %   e.g.        If win is a 2D dataset with Q and E axes, then wdisp is a 1D dataset
 %              with just the Q axis
 
-
-% Original author: T.G.Perring
+%TODO: the pre-refactor implmentation returned an EMPTY sqw object (i.e. only the .data attribute populated)
+% This returns an object with header information -- which is correct?
 
 
 wout_disp = win;
-if ~iscell(pars), pars={pars}; end      % package parameters as a cell for convenience
+if ~iscell(pars)                        % package parameters as a cell for convenience
+    pars={pars};
+end
 
 for i=1:numel(win)
+    wout_disp(i).data_.pix = PixelData();       % remove pixels; all return objects are pixel-less
+
     nd=dimensions(win(i));
     % Extract structure; use class constructor only at the end to save making checks at intermediate points
-    data=win(i).data;   
+    data = wout_disp(i).data_;
     % Remove energy axis, if present
     npax=numel(data.pax);
     if npax>0 && data.pax(end)==4
@@ -95,7 +99,7 @@ for i=1:numel(win)
         data.pax=data.pax(1:end-1);     % this works even if npax=1; correctly [1x0] empty array
         data.p=data.p(1:end-1);
         dax=data.dax;
-        [dummy,ien]=max(dax);  % index of energy axis in dax (energy will always be the largest, as pax(end) is energy if present
+        [~, ien]=max(dax);  % index of energy axis in dax (energy will always be the largest, as pax(end) is energy if present
         data.dax=dax(dax~=dax(ien));
         if nd>=2
             sz=size(win(i).data.s);
@@ -109,64 +113,53 @@ for i=1:numel(win)
         end
         nd_out=nd-1;
     else
-        sz=size(win(i).data.s);
+        sz=size(win(i).data_.s);
         nd_out=nd;
     end
     data.s = zeros(sz);
     data.e = zeros(sz);
     data.npix = ones(sz);
+    data.img_range = PixelData.EMPTY_RANGE_;  % Clear img_range
 
-    % Package up as a dnd-type sqw object in the output array
-    if nd_out==0
-        wout_disp(i)=sqw(d0d(data));
-    elseif nd_out==1
-        % added to d1d only as that was tested
-        % but this should be made systematic for all dnd
-        wout_disp(i)=sqw(struct(data));
-    elseif nd_out==2
-        wout_disp(i)=sqw(d2d(data));
-    elseif nd_out==3
-        wout_disp(i)=sqw(d3d(data));
-    elseif nd_out==4
-        wout_disp(i)=sqw(d4d(data));
-    end
+    wout_disp(i).data_ = data;
+
     if nargout==2
         wout_weight=wout_disp;
     end
-    
+
     % Compute dispersion relation at bin centres
     qw = calculate_qw_bins(wout_disp(i));
     if nargout(dispreln)<2
-        wdisp = dispreln(qw{1:3},pars{:});  % only dispersion seems to be provided
+        wdisp = dispreln(qw{1:3}, pars{:});  % only dispersion seems to be provided
     else
-        [wdisp,sfact] = dispreln(qw{1:3},pars{:});
+        [wdisp,sfact] = dispreln(qw{1:3}, pars{:});
     end
     if iscell(wdisp)
         if numel(win)==1    % single input sqw object
             wout_disp=repmat(wout_disp,size(wdisp));  % make one output array per dispersion relation
             if nargout==2, wout_weight=repmat(wout_weight,size(wdisp)); end  % make one output array per dispersion relation
             for j=1:numel(wdisp)
-                wout_disp(j).data.s=reshape(wdisp{j},sz);
-                if exist('sfact','var'), wout_disp(j).data.e=reshape(sfact{j},sz).^2; end
+                wout_disp(j).data_.s=reshape(wdisp{j},sz);
+                if exist('sfact','var'), wout_disp(j).data_.e=reshape(sfact{j},sz).^2; end
                 if nargout==2
-                    if exist('sfact','var'), wout_weight(j).data.s=reshape(sfact{j},sz); end
-                    wout_weight(j).data.e=reshape(wdisp{j},sz).^2;
+                    if exist('sfact','var'), wout_weight(j).data_.s=reshape(sfact{j},sz); end
+                    wout_weight(j).data_.e=reshape(wdisp{j},sz).^2;
                 end
             end
         else
-            wout_disp(i).data.s=reshape(wdisp{1},sz);
-            if exist('sfact','var'), wout_disp(i).data.e=reshape(sfact{1},sz).^2; end
+            wout_disp(i).data_.s=reshape(wdisp{1},sz);
+            if exist('sfact','var'), wout_disp(i).data_.e=reshape(sfact{1},sz).^2; end
             if nargout==2
-                if exist('sfact','var'), wout_weight(i).data.s=reshape(sfact{1},sz); end
-                wout_weight(i).data.e=reshape(wdisp{1},sz).^2;
+                if exist('sfact','var'), wout_weight(i).data_.s=reshape(sfact{1},sz); end
+                wout_weight(i).data_.e=reshape(wdisp{1},sz).^2;
             end
         end
     else
-        wout_disp(i).data.s=reshape(wdisp,sz);
-        if exist('sfact','var'), wout_disp(i).data.e=reshape(sfact,sz).^2; end
+        wout_disp(i).data_.s=reshape(wdisp,sz);
+        if exist('sfact','var'), wout_disp(i).data_.e=reshape(sfact,sz).^2; end
         if nargout==2
-            if exist('sfact','var'), wout_weight(i).data.s=reshape(sfact,sz); end
-            wout_weight(i).data.e=reshape(wdisp,sz).^2;
+            if exist('sfact','var'), wout_weight(i).data_.s=reshape(sfact,sz); end
+            wout_weight(i).data_.e=reshape(wdisp,sz).^2;
         end
     end
 

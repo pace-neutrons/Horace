@@ -1,5 +1,5 @@
 function qw=calculate_qw_bins(win,optstr)
-% Calculate qh,qk,ql,en for the centres of the bins of an n-dimensional sqw dataset
+% Calculate qh,qk,ql,en for the centres of the bins of an n-dimensional sqw or dnd dataset
 %
 %   >> qw=calculate_qw_bins(win)
 %   >> qw=calculate_qw_bins(win,'boundaries')
@@ -7,7 +7,7 @@ function qw=calculate_qw_bins(win,optstr)
 %
 % Input:
 % ------
-%   win         Input sqw object
+%   win         Input sqw or dnd object
 %
 % Optional arguments:
 % 'boundaries'  Return qh,qk,ql,en at verticies of bins, not centres
@@ -27,7 +27,7 @@ function qw=calculate_qw_bins(win,optstr)
 %              the value of the corresponding coordinate is taken as zero.
 
 if numel(win)~=1
-    error('Only a single sqw object is valid - cannot take an array of sqw objects')
+    error(['Only a single object is valid - cannot take an array of ' class(win) ' objects'])
 end
 
 opt.boundaries=false;
@@ -40,11 +40,11 @@ if nargin==2
     end
 end
 
-u0=win.data.uoffset;
-u=win.data.u_to_rlu;
-iax=win.data.iax;
-iint=win.data.iint;
-pax=win.data.pax;
+u0 = win.data_.uoffset;
+u = win.data_.u_to_rlu;
+iax = win.data_.iax;
+iint = win.data_.iint;
+pax = win.data_.pax;
 
 ptot=u0;
 for i=1:length(iax)
@@ -62,11 +62,11 @@ if length(pax)>1
     ptemp=cell(1,length(pax));
     for i=1:length(pax)
         if opt.boundaries
-            ptemp{i}=win.data.p{i};
+            ptemp{i}=win.data_.p{i};
         elseif opt.edges
-            ptemp{i}=[win.data.p{i}(1);win.data.p{i}(end)];
+            ptemp{i}=[win.data_.p{i}(1); win.data_.p{i}(end)];
         else
-            ptemp{i}=0.5.*(win.data.p{i}(1:end-1) + win.data.p{i}(2:end));
+            ptemp{i}=0.5 .* (win.data_.p{i}(1:end-1) + win.data_.p{i}(2:end));
         end
     end
     pp=ndgridcell(ptemp);
@@ -82,11 +82,11 @@ if length(pax)>1
     end
 elseif length(pax)==1
     if opt.boundaries
-        pp=win.data.p{1};
+        pp=win.data_.p{1};
     elseif opt.edges
-        pp=[win.data.p{1}(1);win.data.p{1}(end)];
+        pp=[win.data_.p{1}(1); win.data_.p{1}(end)];
     else
-        pp=0.5.*(win.data.p{1}(2:end)+win.data.p{1}(1:end-1));
+        pp=0.5 .* (win.data_.p{1}(2:end) + win.data_.p{1}(1:end-1));
     end
     qh=ptot(1) + pp*u(1,pax(1));
     qk=ptot(2) + pp*u(2,pax(1));
@@ -101,4 +101,3 @@ end
 
 % package as cell array of column vectors for convenience with fitting routines etc.
 qw = {qh(:), qk(:), ql(:), en(:)};
-
