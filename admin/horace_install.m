@@ -22,8 +22,8 @@ new_hor_on_contents = replace(new_hor_on_contents, HERBERT_ON_SUB_PATTERN, her_i
 
 % Find and update herbert_on
 herbert_on_path = find_file('herbert_on.m.template', {install_root});
-herbert_contents = fileread(herbert_on_path);
-new_her_on_contents = replace(herbert_contents, HERBERT_ON_SUB_PATTERN, her_init_dir);
+herbert_on_contents = fileread(herbert_on_path);
+new_her_on_contents = replace(herbert_on_contents, HERBERT_ON_SUB_PATTERN, her_init_dir);
 
 % Find/create userpath - this is automatically added to Matlab path on launch
 user_path = find_userpath();
