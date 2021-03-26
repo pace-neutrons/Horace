@@ -36,6 +36,9 @@ write_file(fullfile(user_path, 'herbert_on.m'), new_her_on_contents);
 worker_path = find_file('worker_v2.m.template', {install_root});
 copy_file(worker_path, fullfile(user_path, 'worker_v2.m'));
 
+disp('Horace successfully installed.')
+disp('Call ''horace_on'' to start using Horace.')
+
 end
 
 
