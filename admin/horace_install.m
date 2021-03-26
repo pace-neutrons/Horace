@@ -72,7 +72,7 @@ function user_path = find_userpath()
     %
     user_path = userpath();
     if isempty(user_path)
-        user_path = create_userpath;
+        user_path = create_userpath();
     end
 end
 
@@ -96,6 +96,8 @@ function user_path = create_userpath()
             );
         end
     end
+    % Now add it to path so we don't need to restart Matlab
+    addpath(userpath);
 end
 
 
