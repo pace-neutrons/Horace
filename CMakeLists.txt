@@ -21,9 +21,10 @@ list(APPEND CMAKE_MODULE_PATH "${Herbert_ROOT}/cmake"
 set(Herbert_DLL_DIRECTORY "${Herbert_ROOT}/herbert_core/DLL")
 # This is the directory that contains herbert_init.m
 set(Herbert_CORE "${CMAKE_CURRENT_LIST_DIR}/herbert_core")
-# The MPI tests require that `herbert_on.m` be on the path for all workers when
-# Matlab starts up: add the local_init directory - which contains these files -
-# to the MATLABPATH environment variable when tests are run.
+# This will hold herbert_on.m and worker_v2.m. This directory will hold any
+# files needed for "local initialization", the files mentioned are required
+# for running tests. So we automatically add this path to the MATLABPATH when
+# we run CTest.
 set(LOCAL_INIT_DIR "${CMAKE_BINARY_DIR}/local_init")
 
 # Look for packages early so we can exit if they're not found
