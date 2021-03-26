@@ -36,7 +36,7 @@ erbert_core/classes/MPIFramework/@iMessagesFramework/iMessagesFramework.m       
 herbert_core/classes/MPIFramework/@iMessagesFramework/iMessagesFramework.m                    : MESSAGES_FRAMEWORK:invalid_argument
 herbert_core/classes/MPIFramework/@iMessagesFramework/private/mix_messages_.m                 : iMESSAGES_FRAMEWOR:invalid_argument
 ```
-From which it should be obvious is not a consistent scheme for error identification, even within the same set of routines.
+From which it should be obvious that this is not a consistent scheme for error identification, even within the same set of routines.
 
 As MATLAB standards do not enforce a particular style of error statement 
 (though it does encourage certain forms [see here](https://uk.mathworks.com/help/matlab/ref/mexception.html#mw_e5712c7f-3862-42fa-9a8f-8de992cdc6d4)),
@@ -47,7 +47,7 @@ Also due to the fact that MATLAB has changed its method of error identification 
 ## Decision
 
 Following discussions it was decided that it would be useful to have a standard format with 3 components, in the following format
-expanding upon that intially outlined in [ADR 21](./0021-errors-and-warnings.md).
+(expanding upon that intially outlined in [ADR 21](./0021-errors-and-warnings.md)).
 
 
 ```matlab
