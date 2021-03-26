@@ -41,7 +41,6 @@ classdef d2d < DnDBase
         [diag,type]=test_symmetrisation_plane_digaonal(win,v1,v2,v3);
         [R,trans] = calculate_transformation_matrix(win,v1,v2,v3);
         varargout = multifit_sqw (varargin);
-        wout=sqw_eval(win,varargin);
         
         function obj = d2d(varargin)
             obj = obj@DnDBase(varargin{:});
