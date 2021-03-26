@@ -1,40 +1,41 @@
 function horace_install()
 %HORACE_INSTALL install this instance of Horace
 %
-HORACE_ON_SUB_PATTERN = '${Horace_CORE}';
-HERBERT_ON_SUB_PATTERN = '${Herbert_CORE}';
+HORACE_ON_PLACEHOLDER = '${Horace_CORE}';
+HERBERT_ON_PLACEHOLDER = '${Herbert_CORE}';
 
 install_root = fileparts(mfilename('fullpath'));
 
 % Find directories containing herbert/horace_init.m
-hor_init_dir = fileparts( ...
-    find_file('horace_init.m', {fullfile(install_root, 'Horace')}) ...
-);
-her_init_dir = fileparts( ...
-    find_file('herbert_init.m', {fullfile(install_root, 'Herbert')}) ...
-);
-
-% Find and update horace_on
-horace_on_path = find_file('horace_on.m.template', {install_root});
-horace_on_contents = fileread(horace_on_path);
-new_hor_on_contents = replace(horace_on_contents, HORACE_ON_SUB_PATTERN, hor_init_dir);
-new_hor_on_contents = replace(new_hor_on_contents, HERBERT_ON_SUB_PATTERN, her_init_dir);
-
-% Find and update herbert_on
-herbert_on_path = find_file('herbert_on.m.template', {install_root});
-herbert_on_contents = fileread(herbert_on_path);
-new_her_on_contents = replace(herbert_on_contents, HERBERT_ON_SUB_PATTERN, her_init_dir);
+% Do this first before find_userpath, so we can error out before potentially
+% creating a directory
+hor_init_dir = find_directory('horace_init.m', {fullfile(install_root, 'Horace')});
+her_init_dir = find_directory('herbert_init.m', {fullfile(install_root, 'Herbert')});
 
 % Find/create userpath - this is automatically added to Matlab path on launch
 user_path = find_userpath();
 
-% Write the herbert/horace_on files (containing paths to package) into userpath
-write_file(fullfile(user_path, 'horace_on.m'), new_hor_on_contents);
-write_file(fullfile(user_path, 'herbert_on.m'), new_her_on_contents);
+% Find and install horace_on
+horace_on_path = find_file('horace_on.m.template', {install_root});
+install_file( ...
+    horace_on_path, ...
+    fullfile(user_path, 'horace_on.m'), ...
+    {HORACE_ON_PLACEHOLDER, HERBERT_ON_PLACEHOLDER}, ...
+    {hor_init_dir, her_init_dir} ...
+);
+
+% Find and install herbert_on
+herbert_on_path = find_file('herbert_on.m.template', {install_root});
+install_file( ...
+    herbert_on_path, ...
+    fullfile(user_path, 'herbert_on.m'), ...
+    {HERBERT_ON_PLACEHOLDER}, ...
+    {her_init_dir} ...
+);
 
 % Copy worker_v2 script (required by parallel routines) to userpath
 worker_path = find_file('worker_v2.m.template', {install_root});
-copy_file(worker_path, fullfile(user_path, 'worker_v2.m'));
+install_file(worker_path, fullfile(user_path, 'worker_v2.m'));
 
 disp('Horace successfully installed.')
 disp('Call ''horace_on'' to start using Horace.')
@@ -43,6 +44,24 @@ end
 
 
 % -----------------------------------------------------------------------------
+function install_file(source, dest, placeholders, replace_strs)
+    %INSTALL_FILE copy the given file to the given destination
+    % if placeholders and replace_strs are given, then replace the string values
+    % in placeholders with the string at the corresponding index in
+    % replace_strs.
+    %
+    if ~exist('placeholders', 'var')
+        copy_file(source, dest);
+    else
+        file_contents = fileread(source);
+        for i = 1:numel(placeholders)
+            file_contents = replace(file_contents, placeholders{i}, replace_strs{i});
+        end
+        write_file(dest);
+    end
+end
+
+
 function file_path = find_file(file_name, candidate_dirs)
     %FIND_FILE search for the given file name in the candidate directories
     % Throw 'HORACE:horace_install:file_not_found' if the file cannot be found.
@@ -64,6 +83,17 @@ function file_path = find_file(file_name, candidate_dirs)
             strjoin(candidate_dirs, '\n  ') ...
         );
     end
+end
+
+
+function directory = find_directory(file_name, candidate_dirs)
+    %FIND_DIRECTORY find the directory that contains the given file name
+    % in 'candidate_dirs'
+    %
+    % Throw 'HORACE:horace_install:file_not_found' if a directory cannot be
+    % found.
+    %
+    directory = fileparts(find_file(file_name, candidate_dirs));
 end
 
 
