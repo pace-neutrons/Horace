@@ -7,8 +7,12 @@ HERBERT_ON_SUB_PATTERN = '${Herbert_CORE}';
 install_root = fileparts(mfilename('fullpath'));
 
 % Find directories containing herbert/horace_init.m
-hor_init_dir = find_init_dir('Horace', install_root);
-her_init_dir = find_init_dir('Herbert', install_root);
+hor_init_dir = fileparts( ...
+    find_file('horace_init.m', {fullfile(install_root, 'Horace')}) ...
+);
+her_init_dir = fileparts( ...
+    find_file('herbert_init.m', {fullfile(install_root, 'Herbert')}) ...
+);
 
 % Find and update horace_on
 horace_on_path = find_file('horace_on.m.template', {install_root});
@@ -36,16 +40,6 @@ end
 
 
 % -----------------------------------------------------------------------------
-function init_dir = find_init_dir(package_name, install_root)
-    %FIND_INIT find the directory that contains <package_name>_init.m
-    %
-    candidate_dirs = {fullfile(install_root, package_name)};
-
-    init_name = sprintf('%s_init.m', lower(package_name));
-    init_dir = fileparts(find_file(init_name, candidate_dirs));
-end
-
-
 function file_path = find_file(file_name, candidate_dirs)
     %FIND_FILE search for the given file name in the candidate directories
     % Throw 'HORACE:INSTALL:file_not_found' if the file cannot be found.
