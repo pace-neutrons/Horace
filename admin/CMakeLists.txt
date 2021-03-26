@@ -1,5 +1,4 @@
 # Copy template files into <build_dir>/local_init
-set(LOCAL_INIT_DIR "${CMAKE_BINARY_DIR}/local_init")
 file(MAKE_DIRECTORY ${LOCAL_INIT_DIR})
 if(${BUILD_TESTS})
     configure_file("worker_4tests.m.template" "${LOCAL_INIT_DIR}/worker_4tests.m")
