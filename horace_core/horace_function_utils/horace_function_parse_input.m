@@ -146,7 +146,7 @@ end
 % Check for valid argument lists
 if narg>=2 && is_filename(varargin{2}) && ...
     ( is_horace_data_file_opt(varargin{1}) || ...
-      (obj_and_file_ok && is_horace_data_object(varargin{1})) ...
+      (obj_and_file_ok && isa(varargin{1},'SQWDnDBase')) ...
     )
     %                                                 <----- varargin ----------------------->
     % Input arguments must start: (nargout_in_caller, dummy_obj, filename,...,'$obj_and_file_ok')
@@ -199,7 +199,7 @@ if narg>=2 && is_filename(varargin{2}) && ...
         end
     end
 
-elseif narg>=2 && is_horace_data_object(varargin{1}) && (isstruct(varargin{2}) &&...
+elseif narg>=2 && isa(varargin{1},'SQWDnDBase') && (isstruct(varargin{2}) &&...
         numel(fields(data_source))==numel(fields(varargin{2})) &&...
         all(strcmp(fields(data_source),fields(varargin{2}))))
     % Input arguments must start: (nargout_caller, dummy_obj, data_source_structure,...)
@@ -235,7 +235,7 @@ elseif narg>=2 && is_horace_data_object(varargin{1}) && (isstruct(varargin{2}) &
         if narg>=3, args=varargin(3:narg); else args=cell(1,0); end    % to work in all cases
     end
 
-elseif narg>=1 && (isa(varargin{1}, 'SQWDnDBase') || is_horace_data_object(varargin{1}))
+elseif narg>=1 && isa(varargin{1}, 'SQWDnDBase')
     % Input arguments must start: (nargout_caller, data_object,...)
     % We restrict the call to make a hard check on input, that is, an sqw object must
     % contain pixel information (to be consistent with how file data is handled).
