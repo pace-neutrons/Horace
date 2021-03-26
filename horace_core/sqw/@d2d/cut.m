@@ -57,18 +57,6 @@ if iscell(w.data)&& ischar(w.data{1})
     % go through sqw.cut and this file will be largely re-written
     w.data = d2d(w.data{1});
 end
-% Now call sqw cut routine. Output (if any), is a cell array, as method is passed a data source structure
 
-
-%argout=cut(sqw(w.data),args{:});
-wout=cut_dnd_main(d2d(w.data),numel(w.data.pax),args{:});
-
-%if ~isempty(argout)
-%    argout = {dnd(argout)};   % as return argument is sqw object of dnd-type
-%end
-%{
-% Package output arguments
-% ------------------------
-[varargout,mess]=horace_function_pack_output(w,argout);
-if ~isempty(mess), error(mess), end
-%}
+% Now call dnd cut routine. Output (if any), is a cell array, as method is passed a data source structure
+wout=cut_dnd_main(w.data,numel(w.data.pax),args{:});

@@ -60,9 +60,9 @@ argout={};
 if numel(varargin)>=1
     % Check for Horace data object type or filename input
     [hor_obj,sqw_obj,dnd_obj]=is_horace_data_object(varargin{1});
-    if hor_obj
+    if isa(varargin{1},'SQWDnDBase')
         % Horace object passed as first argument: this is assumed to be the data source
-        if opt_hor || (opt_sqw&&sqw_obj) || (opt_dnd&&dnd_obj)
+        if opt_hor || (opt_sqw && isa(varargin{1},'sqw')) || (opt_dnd && isa(varargin{1},'DnDBase'))
             [w, args, mess] = horace_function_parse_input (nargout_caller,varargin{:});
         else
             if opt_sqw

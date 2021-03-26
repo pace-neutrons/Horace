@@ -75,7 +75,6 @@ ein(isnan(ein) | isinf(ein))=0;
 
 %Sort according to ascending xin:
 xinlo=xin([1:end-1],[1:end-1]); xinhi=xin([2:end],[1:end-1]);
-%nin=double(nin>0);%make this just have zeros or ones
 
 xtosort=xinlo(:,1);
 
@@ -129,10 +128,6 @@ for i=1:length(xlo)
        if ~isempty(cumulsum)
            sout=[sout; cumulsum];
            eout=[eout; esum];
-%            ntmp=ones(size(cumulsum));
-%            ntmp(cumulsum==0 & esum==0)=0;
-%            ntmp(esum>(1e2.*maxerr))=0;
-%            nout=[nout; ntmp];
            nout=[nout; nsum];
        else
            sout=[sout; filler];
@@ -167,10 +162,6 @@ for i=1:length(xlo)
            if ~isempty(cumulsum)
                sout=[sout; cumulsum];
                eout=[eout; esum];
-%            ntmp=ones(size(cumulsum));
-%            ntmp(cumulsum==0 & esum==0)=0;
-%            ntmp(esum>(1e2.*maxerr))=0;
-%            nout=[nout; ntmp];
                nout=[nout; nsum];
            else
                sout=[sout; filler];
@@ -188,10 +179,6 @@ for i=1:length(xlo)
        if ~isempty(cumulsum)
            sout=[sout; cumulsum];
            eout=[eout; esum];
-%            ntmp=ones(size(cumulsum));
-%            ntmp(cumulsum==0 & esum==0)=0;
-%            ntmp(esum>(1e2.*maxerr))=0;
-%            nout=[nout; ntmp];
            nout=[nout; nsum];
        else
            sout=[sout; filler];
