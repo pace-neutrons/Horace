@@ -33,11 +33,9 @@ configure_file("version.h.template"
 set(TEMPLATE_FILES
     "horace_on.m.template"
     "worker_v2.m.template"
-    "worker_4tests.m.template"
     "${Herbert_ON_TEMPLATE}"
 
 )
-
 install(
     FILES "horace_install.m" ${TEMPLATE_FILES}
     DESTINATION "."
