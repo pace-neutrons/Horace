@@ -6,313 +6,61 @@
  System Requirements
 *********************
 
--  Windows 32-bit, Windows 64-bit, or Linux 64-bit operating system
+-  Windows 64-bit, or Linux 64-bit operating system
 
 -  Plenty of free disk space in order to cope with the combined data files >30GB
 
 -  8GB RAM (at the very least)
 
--  Preferably a recent version of Matlab. Horace is guaranteed to be supported
-   for Matlab versions for five years earlier than the most recent version.
-   Horace may work with earlier versions, but this is dependent on whether or
-   not newer features of Matlab have been exploited or now-obsolete Matlab
-   functions has been removed.
-
-We have tested Horace on Windows 32-bit and 64-bit operating systems, and Linux
-64-bit operating systems. Horace itself is supplied with compiled dll (mex
-files) for 32 and 64 bit windows. Horace will work with other operating systems
-(e.g. Mac), albeit slower than if Horace C++ routines have not been compiled.
-See further down this page for details of how to compile your own mex files.
+-  Preferably a recent version of Matlab.
+   Horace is not tested on releases of Matlab earlier than R2018b.
+   If you are forced to use an earlier release and run into a problem,
+   please open a ticket on `GitHub <https://github.com/pace-neutrons/Horace/issues>`_
+   and we will look into it.
 
 **********
  Download
 **********
 
--  In order to download or update Horace you must register on the
-   `Horace-announce
-   <http://lists.isis.rl.ac.uk/mailman/listinfo/horace-announce/>`__ mailing
-   list, so that you can be updated with important bug fixes, etc. Your
-   information will not be passed to any third-parties, nor will it be used for
-   anything other than the aforementioned purpose.
-
--  You will then be able to access the `download page
-   <http://horace.isis.rl.ac.uk/kits/>`__
-
--  The download site contains zip files containing the Matlab code (operating
-   system-independent), and pre-compiled Windows 64-bit mex distributions.
-
--  Alternatively, you should be able to build the Horace mex files for your OS
-   (details below) if you have a C++ compiler installed and working with your
-   MATLAB, but feel free to contact `Horace Help
-   <mailto:HoraceHelp@stfc.ac.uk>`__, if you have problems doing that. It will
-   also work out of the box without building any mex files, though the speed of
-   some operations will be 2-5 times slower.
-
--  Recent Horace versions come as standalone distribution pack which includes
-   :ref:`Herbert <Herbert:Herbert>` (see below).
-
--  Full Horace distribution contains Horace Demo and unit tests with the test
-   data, which would allow you comprehensively verify your Horace installation
-   for development purposes. If you are well familiar with Horace and do not
-   need unit tests, you may use `Horace&Herbert_NoDemoNoTests.zip
-   <http://horace.isis.rl.ac.uk/kits/small_downloads/Horace&Herbert_NoDemoNoTests.zip>`__
-   distribution file from `small downloads
-   <http://horace.isis.rl.ac.uk/kits/small_downloads>`__, which is an order of
-   magnitude slmaller to download.
-
-New Smaller Download
-====================
-
-In the download area (see below) you can now get a zipped distribution of Horace
-**without demo and test files**. This is significantly smaller - about 3MB
-rather than 100MB for the full installation.
-
-Full Download
-=============
-
-Horace uses low level functions, which can be found in :ref:`Herbert
-<Herbert:Herbert>` package. (e.g. some of the fitting algorithms), so you need
-Herbert available before installing and using Horace.
-
--  `Horace-announce
-   <http://lists.isis.rl.ac.uk/mailman/listinfo/horace-announce/>`__
--  `Download page <http://horace.isis.rl.ac.uk/kits/>`__
--  :ref:`Herbert <Herbert:Herbert>`
-
-***********************
- Standard Installation
-***********************
-
-Installation is quite straightforward, since it requires only a small
-modification to your ``startup.m`` script and for all of the Horace folders to
-be placed somewhere sensible...
-
-Unzip the contents of the Horace archive into a single directory. You will see
-two folders **Horace** and **Herbert**, under the top directory of your
-downloaded archive. The first folder contains Horace itself, and the second one
-contains low level data access and data manipulation functions. On a Windows
-machines a good place to put these folders would be somewhere like
-
-.. code::
-
-   C:\\mprogs\\
-
-which is the directory often used for MSlice.
-
-Now you need to edit your ``startup.m`` file so that the Herbert and Horace are
-added to the Matlab path whenever you restart. Find your ``startup.m`` file,
-which is usually located somewhere like
-
-.. code::
-
-   C:\\Users\\tgp98\\Documents\\matlab\\startup.m
-
--  in this example the user's login ID is tgp98.
-
-This is the Matlab default location. As an alternative to locating ``startup.m``
-as above, you can start a new Matlab session and then type
-
-.. code::
-
-   edit startup
-
-and the correct startup file should be found.
-
-At the bottom of your existing ``startup.m`` file you must put the following:
-
-.. code::
-
-   %----------------------------------------------------------
-   % HERBERT:
-   try
-     herbert_off;
-   catch
-   end
-
-   addpath('C:\\mprogs\\Herbert\\herbert_core');
-   herbert_init;
-
-Next, below the Herbert initialisation, put the following:
-
-.. code::
-
-   %----------------------------------------------------------
-   % HORACE:
-   try
-     horace_off;
-   catch
-   end
-   addpath('C:\\mprogs\\Horace\\horace_core');
-   horace_init;
-
-where of course ``C:\\mprogs\\...`` is where we placed the Horace folders. If
-you put them somewhere else then obviously this bit will be different.
-
-A note of advice -- when you start writing your own Horace functions you may
-wish to organise them in your own folders. It is strongly recommended that you
-**do not** put them within the ``C:\\mprogs\\Horace`` directory. When you come
-to update your Horace installation at some point in the future there is a good
-chance you will delete your custom functions. Wherever you put your own
-functions, make sure you add the new directories to the path in your startup
-file!
-
-The herbert_off and horace_off operations are needed to keep Matlab search path
-tidy if in the past you had different versions of Herbert or Horace installed.
-
-**VERY IMPORTANT** It is imperative that you **do not** add directories in the
-Horace main directory to your Matlab path by hand. Such duplication results in
-very obscure problems, and could, in the worst case scenario, result in your
-work not having the meaning you thought it did! All of the necessary paths are
-added, in the correct order, by the ``horace_init`` function in your startup.m
-script.
-
-************************************************************************
- Installation with Horace not initialized by default on starting Matlab
-************************************************************************
-
-You should use the following approach if you do not use Horace each time you
-start Matlab and want to initiate it only when needed. The following set up is
-also mandatory if you are going to use Horace high-performance capabilities (see
-below)
-
-The installation slightly differs depending on the way you obtained Horace. If
-you downloaded the Horace distribution kit from the Download page (the standard
-way of obtaining Horace), a file *horace_on.m.template* exists in the root
-Horace installation directory and you need to modify this file. If you are one
-of the limited people who can check out Horace and Herbert from the repository,
-you need to find *horace_on.m.template* and *herbert_on.m.tempate* in the Horace
-and Herbert admin folders in the root folders and deal with each of these files
-separately. [For afficionados:*horace_on.m.template* file is actually the
-merging of *horace_on.m.template* and *herbert_on.m.tempate* from the
-appropriate admin folders.]
-
-To make an installation you have to rename the **\*.m.template** files to \*.m
-files, place these files on the `Matlab search path
-<http://www.mathworks.co.uk/help/techdoc/ref/path.html>`__ and edit the files to
-point to your Horace and Herbert package locations.
-
-The first row in the **horace_on.m** file should contain the path where you are
-placed Horace folder and **horace_init.m** file can be found, e.g.:
-
-   default_horace_path ='C:/mprogs/Horace/horace_core';
-
-The second row of the joint **horace_on.m** file or the firest row of the
-separate **herbert_on.m** file should contain the path, where you placed Herbert
-folder and **herbert_init.m** file resides, e.g.
-
-   default_herbert_path ='C:/mprogs/Herbert/herbert_core';
-
-To add the initialiation files to Matlab search path on a multi-users Unix
-server it makes sense to create a special folder in the system area (e.g.
-*/usr/local/mprogs/Users* -- like its done in ISIS) and add this folder to the
-global Matlab search path, defined in
-*/usr/local/MATLAB/R20XXb/local/toolbox/pathdef.m* file, adding the row
-**/usr/local/mprogs/Users:**,... to the end or the beginning of the Matlab
-search path defined there.
-
-If you placed **\*_on.m** files inside Matlab toolbox area (e.g.
-*$matlab_path$/toolbox/ISIS*), which is in Matlab default search path, you need
-to rehash toolbox path:
-
-   >> rehash toolbox
-
-If initialization files are placed into some folder and the global *pathdef.m*
-have not been modified, you need to add folder with initalization files to
-Matlab path and save the path (e.g. through GUI from main Matlab window *set
-path->Add Folder -> Save*)
-
-Horace will be available after typing
-
-   >>horace_on()
-
-You can copy contents of **horace_on.m** function into your **startup.m** file
-and add **horace_on()**; command to the end of the executive part of
-**startup.m** file instead of the code, described in the previous chapter.
-**startup.m** file is not executed by Matlab workers so to use high performance
-capabilities one still needs to modify Matlab search path.
-
-********************
- Building mex files
-********************
-
-If you have a C++ compiler configured properly with your Matlab, you can obtain
-the modest speed-ups available in the mex routines. The value of speed-up can be
-estimated from the table below. Windows distribution contains all necessary mex
-files compiled with Visual Studio. The Visual Studio projects are provided
-togehter with full Horace distribution. Use:
-
-.. code::
-
-   out = check_horace_mex()
-
-command to see if your Horace mex files for Windows work.
-
-This command should return list of versions for all mex files availible for
-Windows. In this case you can enable using mex files by typing:
-
-.. code::
-
-   hc = hor_config
-   hc.use_mex = true;
-
-It the function returns some error, you need to investigate what Windows
-depencensies are missing on your Windows machine (usually everyting is present).
-The missing depencencies are normally identified using the `Depencency Walker
-<https://en.wikipedia.org/wiki/Dependency_Walker>`__.
-
-To enable mex files on a Unix-like machine one should try to execute:
-
-.. code::
-
-   horace_mex()
-
-The command assumes or will request you to select and configure your compiler.
-See Matlab manuals for the list of supported compilers and how to use the
-command
-
-.. code::
-
-   mex -setup
-
-and its options.
-
-If you have a modern multicore / multiprocessor machine and have (on Windows),
-or have successfully compiled, the mex code (on Unix), you should enable OpenMP
-in the Mex code by enabling number of OpenMP threads in the Horace
-configuration, which is described in the following chapter.
-
-To compile your code with a modern compiler (gcc version > 4.1) you need to
-configure your compiler to use OpenMP. The ways of doing that depend on Matlab
-version you used. For versions before Matlab 2014a, the compiler is configured
-in the *mexoptions.sh* file. Matlab versions after 2014a use *mexoptions.xml*
-flavours. You need to add the **-fopenmp** option to the C++ and linker keys for
-your operating system. On Unix machines *mexoptions.sh* (or *mexoptions.xml*) is
-usually found in the ~/.matlab/R20XXx/ directory, where R20XXx is your version
-of Matlab e.g. R2012a or R2012b. This file is usually copied to these locations
-after you have issued the ``mex -setup`` command for your Matlab installation.
-In addition to enabling **openmp** processing, you need to add list of libraries
-used by Horace mex code in addition to 3 standard mex libraries, necessary for
-any mex files to work. To do that you need to modify list of standard mex
-libraries **-lmx -lmex -lmat** and add **-lut** libraries to it. **ut** is
-Matlab's utilities library, used by *combine_sqw* and always supplied with
-Matlab.
-
-The samples of the script files used in ISIS for various Matlab versions are
-stored in Horace repository under `admin folder
-<https://github.com/pace-neutrons/Horace/tree/master/admin/compiler_settings>`__.
-
-See `the details
-<http://shadow.nd.rl.ac.uk/wiki/idr/index.php/Using_Matlab_and_access_to_sample_Matlab_scripts#Configuring_Matlab_2015b_to_work_with_gcc8.4.5_for_combining_using_mex_code_on_RHEL7>`__
-of Horace installation on ISIScompute cluster for the ways to modify Matlab
-2015b to support C++11 threads. Matlab 2017 natively works with gcc8.4 compiler
-and does not need such modifications.
-
-Starting from Matlab 2018, Matlab mex script stops using configuration files (It
-uses it but fully overwrites existing version at compilation time). As the
-compensation, Matlab *mex* command properly accepts and parses input compiler
-options. The *horace_mex* compilation script contains all appropriate options
-for compiling under Unix, so a user does not need to configure a compiler
-manually.
+Horace releases are available to download on
+`GitHub <https://github.com/pace-neutrons/Horace/releases>`_.
+There are release packages for Windows and Linux,
+these contain pre-compiled x64 Mex libraries for each OS.
+
+Everything required to run Horace is within the package,
+including `Herbert <https://github.com/pace-neutrons/Herbert>`_.
+
+***************************
+ Installation Instructions
+***************************
+
+Extract the release archive to your preferred location.
+At the top-level of the package are three key Matlab scripts:
+
+- ``herbert_on.m``
+- ``horace_on.m``
+- ``worker_v2``
+
+These files should be moved to your Matlab "user path" directory.
+By default this path is ``C:\Users\<user>\Documents\MATLAB`` on Windows,
+and ``/home/<user>/Documents/MATLAB`` on Linux.
+Matlab's `userpath <https://www.mathworks.com/help/matlab/ref/userpath.html>`_
+function will return your user path if it is not the default.
+If the user path does not exist, please create it.
+
+Once these files have been moved,
+open ``herbert_on.m`` and update the ``default_herbert_path`` variable.
+The new value should be the absolute path to the ``Herbert`` folder
+within the extracted package.
+
+Now, open ``horace_on`` and update the ``default_herbert_path`` and
+``default_horace_path`` variables,
+setting them to the absolute path of the ``Herbert`` and ``Horace`` directories,
+respectively.
+
+No edits need to be made to ``worker_v2.m``,
+this file is required if you want to make use of Herbert and Horace's parallel
+processing.
 
 ******************************************
  Horace Configuration and using mex files
