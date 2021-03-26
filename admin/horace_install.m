@@ -7,8 +7,8 @@ HERBERT_ON_SUB_PATTERN = '${Herbert_CORE}';
 install_root = fileparts(mfilename('fullpath'));
 
 % Find directories containing herbert/horace_init.m
-hor_init_dir = find_init_dir('Horace');
-her_init_dir = find_init_dir('Herbert');
+hor_init_dir = find_init_dir('Horace', install_root);
+her_init_dir = find_init_dir('Herbert', install_root);
 
 % Find and update horace_on
 horace_on_path = find_file('horace_on.m.template', {install_root});
