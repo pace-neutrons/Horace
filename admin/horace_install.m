@@ -4,20 +4,20 @@ function horace_install()
 HORACE_ON_SUB_PATTERN = '${Horace_CORE}';
 HERBERT_ON_SUB_PATTERN = '${Herbert_CORE}';
 
-mfile_dir = fileparts(mfilename('fullpath'));
+install_root = fileparts(mfilename('fullpath'));
 
 % Find directories containing herbert/horace_init.m
 hor_init_dir = find_init_dir('Horace');
 her_init_dir = find_init_dir('Herbert');
 
 % Find and update horace_on
-horace_on_path = find_file('horace_on.m.template', {mfile_dir});
+horace_on_path = find_file('horace_on.m.template', {install_root});
 horace_on_contents = fileread(horace_on_path);
 new_hor_on_contents = replace(horace_on_contents, HORACE_ON_SUB_PATTERN, hor_init_dir);
 new_hor_on_contents = replace(new_hor_on_contents, HERBERT_ON_SUB_PATTERN, her_init_dir);
 
 % Find and update herbert_on
-herbert_on_path = find_file('herbert_on.m.template', {mfile_dir});
+herbert_on_path = find_file('herbert_on.m.template', {install_root});
 herbert_contents = fileread(herbert_on_path);
 new_her_on_contents = replace(herbert_contents, HERBERT_ON_SUB_PATTERN, her_init_dir);
 
@@ -29,20 +29,17 @@ write_file(fullfile(user_path, 'horace_on.m'), new_hor_on_contents);
 write_file(fullfile(user_path, 'herbert_on.m'), new_her_on_contents);
 
 % Copy worker_v2 script (required by parallel routines) to userpath
-worker_path = find_file('worker_v2.m.template', {mfile_dir});
+worker_path = find_file('worker_v2.m.template', {install_root});
 copy_file(worker_path, fullfile(user_path, 'worker_v2.m'));
 
 end
 
 
 % -----------------------------------------------------------------------------
-function init_dir = find_init_dir(package_name)
+function init_dir = find_init_dir(package_name, install_root)
     %FIND_INIT find the directory that contains <package_name>_init.m
     %
-    mfile_dir = fileparts(mfilename('fullpath'));
-
-    core_dir =  sprintf('%s_core', lower(package_name));
-    candidate_dirs = {fullfile(fileparts(mfile_dir), core_dir)};
+    candidate_dirs = {fullfile(install_root, package_name)};
 
     init_name = sprintf('%s_init.m', lower(package_name));
     init_dir = fileparts(find_file(init_name, candidate_dirs));
