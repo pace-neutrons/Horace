@@ -3,7 +3,10 @@ function inter_points = box_intersect(box_minmax,cross_plain)
 % and line/plain/hyperplane of dimensions (N-1)D
 %
 % Inputs:
-% box_minmax -- NDx2 array of min and max points of the box, to intersect with.
+% box_minmax
+%      either -- NDx2 array of min and max points of the box, to intersect with.
+%         or  -- NDx2^ND array of all nodes, defining the box, arranged in the order, 
+%                produced by expand_box routine
 %
 % cross_plain -- NDxND array of points defining plain in the appropriate
 %                dimensions. The coordinates defined along the first

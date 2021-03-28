@@ -1,6 +1,9 @@
 classdef test_box_intersect3D < TestCase
     %
     properties
+        rot3Dz = @(theta)([cosd(theta),-sind(theta),0;...
+            sind(theta),cosd(theta),0;...
+            0,0,1])
     end
     
     methods
@@ -35,6 +38,17 @@ classdef test_box_intersect3D < TestCase
             cp = box_intersect([0,0,0;1,1,1]',[1/2,0,0;1/2,0,1;1,1/2,0]');
             assertEqual(cp,[1/2,0,0;1,1/2,0;1/2,0,1;1,1/2,1]');
         end
+        %
+        function test_intersect_box3D_full_box_representation(obj)
+            box = expand_box(-ones(1,3)/sqrt(2),ones(1,3)/sqrt(2));
+            box = obj.rot3Dz(-45)*box;
+            sq2 = sqrt(2)/2;
+            %
+            cp = box_intersect(box,[0,0,0;1/2,1/2,0;0,0,1]');
+            assertElementsAlmostEqual(cp,[-1/2,-1/2,-sq2;1/2,1/2,-sq2;...
+                -1/2,-1/2,sq2;1/2,1/2,sq2]');
+        end
+        %
         function test_intersect_box3D_3points(~)
             %
             cp = box_intersect([0,0,0;1,1,1]',[1/2,0,0;1,0,1/2;1,1/2,0]');
