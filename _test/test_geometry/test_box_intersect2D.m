@@ -1,6 +1,7 @@
 classdef test_box_intersect2D < TestCase
     %
     properties
+        rot2D = @(theta)([cosd(theta),-sind(theta);sind(theta),cosd(theta)])        
     end
     
     methods
@@ -36,6 +37,15 @@ classdef test_box_intersect2D < TestCase
             cp = box_intersect([0,0;1,1]',[1/2,0;1,1/2]');
             assertEqual(cp,[1/2,0;1,1/2]');
         end        
+        function test_intersect_box2D_full_box_representation(obj)
+            box = expand_box(-ones(1,2)/sqrt(2),ones(1,2)/sqrt(2));
+            box = obj.rot2D(-45)*box;
+
+            % 
+            cp = box_intersect(box,[1/2,0;0,1/2]');
+            assertElementsAlmostEqual(cp,[3/4,-1/4;-1/4,3/4]');
+        end        
+        
         function test_intersect_box2D_2points(~)
             % 
             cp = box_intersect([0,0;1,1]',[1/2,0;0,1/2]');
