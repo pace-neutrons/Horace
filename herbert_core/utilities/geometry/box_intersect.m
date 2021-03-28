@@ -67,7 +67,6 @@ if plain_norm'*plain_norm < 1.e-12
     error('BOX_INTERSECT:invalid_argument',...
         'vectors, defining the intersection plain are parallel')
 end
-plain_norm = plain_norm/norm(plain_norm);
 %
 [~,edges_ind] = get_geometry(4);
 buf = cell(32,1);
