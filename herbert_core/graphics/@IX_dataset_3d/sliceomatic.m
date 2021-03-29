@@ -81,6 +81,9 @@ signal = permute(w.signal,[2,1,3]);
 
 [xlabel,ylabel,zlabel]=make_label(w);
 clim = [min(w.signal(:)) max(w.signal(:))];
+if clim(2) == clim(1)
+    clim(2) = clim(1)+1;
+end
 
 % ------ Fixes problem on dual monitor systems. Need checks about negative side
 % effects on other systems.
