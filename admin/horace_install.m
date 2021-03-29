@@ -62,10 +62,8 @@ install_file( ...
 install_file(worker_path, fullfile(user_path, 'worker_v2.m'));
 
 % Validate the installation
-files_to_validate = {herbert_on_path, horace_on_path, worker_path};
-for i = 1:numel(files_to_validate)
-    check_file_on_path(files_to_validate{i});
-end
+validate_function(@herbert_on, @herbert_off);
+validate_function(@horace_on, @horace_off);
 
 disp('Horace successfully installed.')
 disp('Call ''horace_on'' to start using Horace.')
@@ -228,24 +226,19 @@ function copy_file(source, dest)
 end
 
 
-function check_file_on_path(file_path)
-    %CHECK_FILE_ON_PATH check the given file path is on the Matlab path
+function validate_function(func, post_func)
+    %VALIDATE_FUNCTIONS validate the given function can ve called
+    % The second argument is called after the first, with the intended purpose
+    % being clean up.
     %
-    [~, func_name] = fileparts(file_path);
-    real_path = which(func_name);
-    if isempty(real_path)
+    try
+        func();
+    catch ME
         error( ...
             'HORACE:horace_install:failure', ...
-            'Function ''%s'' not on path. Something went wrong.', ...
-            func_name ...
+            'Installation failed, error calling function: %s', ...
+            ME.message ...
         );
     end
-    if ~strcmp(real_path, file_path)
-        warning( ...
-            'HORACE:horace_install:warning', ...
-            ['Function ''%s'' found on path, however it is not the ' ...
-            'one installed by this script.'], ...
-            func_name ...
-        );
-    end
+    post_func();
 end
