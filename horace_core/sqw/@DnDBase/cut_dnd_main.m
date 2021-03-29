@@ -49,7 +49,7 @@ if iscellstr(data_source)
     source_is_file=true;
 elseif ischar(data_source)
     source_is_file=true;
-elseif isa(data_source,'sqw_old')
+elseif isa(data_source,'d2d')
     source_is_file=false;
 else
     error('Logic problem in chain of cut methods. See T.G.Perring')
@@ -130,7 +130,7 @@ if source_is_file  % data_source is a file
     %[mess,main_header,header,detpar,data]=get_sqw (data_source,'-nopix');
 else
     if hor_log_level>=0, disp('Taking cut from dnd object...'), end
-    data = data_source.data;
+    data = data_source;
 end
 
 
@@ -147,7 +147,7 @@ end
 [val, nbin] = data_bin_limits (data);
 
 % Determine new plot and integration axes
-[sub_iax, sub_iint, sub_pax, sub_p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin(invdax), data.p, nbin);
+[sub_iax, sub_iint, sub_pax, sub_p, noffset, nkeep, mess] = data.cut_dnd_calc_ubins (pbin(invdax), data.p, nbin);
 if ~isempty(mess)
     error(mess)
 end
@@ -252,8 +252,9 @@ else
 end
 
 % Make valid dnd-type sqw fields
-[w,mess]=make_sqw(true,data_out);
-if ~isempty(mess), error(mess), end
+%[w,mess]=make_sqw(true,data_out);
+%if ~isempty(mess), error(mess), end
+%w = data_out;
 
 
 % Save to file if requested
@@ -277,6 +278,6 @@ end
 % Create output argument if requested
 % -----------------------------------
 if nargout~=0
-    wout=sqw_old(w);
+    wout= data_out;
 end
 

@@ -35,6 +35,10 @@ classdef (Abstract) SQWDnDBase
         wout = smooth(win, varargin);
         wout = smooth_units(win, varargin);
     end
+    
+    methods (Static)
+        [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
+    end
 
     methods (Access = protected)
         wout = binary_op_manager(w1, w2, binary_op);

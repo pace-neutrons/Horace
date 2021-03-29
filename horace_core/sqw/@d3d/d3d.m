@@ -31,4 +31,12 @@ classdef d3d < DnDBase
         %               obj = sqw(S);
         %        end
     end
+    
+    methods
+        wout = cut (varargin);
+        function obj = d3d(varargin)
+            obj = obj@DnDBase(varargin{:});
+        end
+
+    end
 end
