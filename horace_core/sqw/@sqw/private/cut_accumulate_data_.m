@@ -84,12 +84,13 @@ if any(bin_size_gt_block_size)
     );
 end
 
+bin_starts = bin_starts(sub_bin_idxs(1, :));
+bin_ends = bin_ends(sub_bin_idxs(2, :));
 for iter = 1:num_chunks
-    sub_bin_starts = bin_starts(sub_bin_idxs(1, iter):sub_bin_idxs(2, iter));
-    sub_bin_ends = bin_ends(sub_bin_idxs(1, iter):sub_bin_idxs(2, iter));
-
     % Get pixels that will likely contribute to the cut
-    candidate_pix = obj.data.pix.get_pix_in_ranges(sub_bin_starts, sub_bin_ends);
+    candidate_pix = obj.data.pix.get_pix_in_ranges( ...
+        bin_starts(iter), bin_ends(iter) ...
+    );
 
     if log_level >= 0
         fprintf(['Step %3d of %3d; Read data for %d pixels -- ' ...
