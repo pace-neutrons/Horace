@@ -13,54 +13,35 @@
 -  8GB RAM (at the very least)
 
 -  Preferably a recent version of Matlab.
-   Horace is not tested on releases of Matlab earlier than R2018b.
+   Horace is not tested on releases of Matlab older than R2018b,
+   although we make efforts for it to be compatible with the last 5 years of
+   releases.
    If you are forced to use an earlier release and run into a problem,
-   please open a ticket on `GitHub <https://github.com/pace-neutrons/Horace/issues>`_
+   please open a ticket on
+   `GitHub <https://github.com/pace-neutrons/Horace/issues>`__
    and we will look into it.
 
 **********
  Download
 **********
 
-Horace releases are available to download on
-`GitHub <https://github.com/pace-neutrons/Horace/releases>`_.
-There are release packages for Windows and Linux,
-these contain pre-compiled x64 Mex libraries for each OS.
+Horace releases for Windows and Linux are available to download on
+`GitHub <https://github.com/pace-neutrons/Horace/releases>`__.
+These packages contain pre-compiled x64 Mex libraries for each OS.
 
 Everything required to run Horace is within the package,
-including `Herbert <https://github.com/pace-neutrons/Herbert>`_.
+including `Herbert <https://github.com/pace-neutrons/Herbert>`__.
 
 ***************************
  Installation Instructions
 ***************************
 
-Extract the release archive to your preferred location.
-At the top-level of the package are three key Matlab scripts:
+To install Horace for the current user:
 
-- ``herbert_on.m``
-- ``horace_on.m``
-- ``worker_v2``
-
-These files should be moved to your Matlab "user path" directory.
-By default this path is ``C:\Users\<user>\Documents\MATLAB`` on Windows,
-and ``/home/<user>/Documents/MATLAB`` on Linux.
-Matlab's `userpath <https://www.mathworks.com/help/matlab/ref/userpath.html>`_
-function will return your user path if it is not the default.
-If the user path does not exist, please create it.
-
-Once these files have been moved,
-open ``herbert_on.m`` and update the ``default_herbert_path`` variable.
-The new value should be the absolute path to the ``Herbert`` folder
-within the extracted package.
-
-Now, open ``horace_on`` and update the ``default_herbert_path`` and
-``default_horace_path`` variables,
-setting them to the absolute path of the ``Herbert`` and ``Horace`` directories,
-respectively.
-
-No edits need to be made to ``worker_v2.m``,
-this file is required if you want to make use of Herbert and Horace's parallel
-processing.
+1. Extract the release archive to your preferred location.
+2. Open Matlab and set that location as your working directory.
+3. Run ``horace_install``.
+4. Now you can call ``horace_on`` from anywhere to start using Horace.
 
 ******************************************
  Horace Configuration and using mex files
