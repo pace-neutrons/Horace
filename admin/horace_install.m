@@ -57,7 +57,7 @@ function install_file(source, dest, placeholders, replace_strs)
         for i = 1:numel(placeholders)
             file_contents = replace(file_contents, placeholders{i}, replace_strs{i});
         end
-        write_file(dest);
+        write_file(dest, file_contents);
     end
 end
 
