@@ -50,9 +50,10 @@ if isempty(bin_starts)
 end
 
 block_size = obj.data.pix.base_page_size;
-% Get indices in order to split the candidate bin ranges into pixel page sized
-% chunks
-[~, sub_bin_idxs] = split_vector_max_sum(bin_ends - bin_starts, block_size);
+% Get indices in order to split the candidate bin ranges into chunks whose sums
+% are less than, or equal to, a pixel page size
+bin_sizes = bin_ends - bin_starts;
+[~, sub_bin_idxs] = split_vector_max_sum(bin_sizes, block_size);
 num_chunks = size(sub_bin_idxs, 2);
 
 % If we only have one iteration of pixels to cut then we must be able to fit
@@ -72,20 +73,20 @@ if keep_pix
     end
 end
 
+bin_size_gt_block_size = bin_sizes > block_size;
+if any(bin_size_gt_block_size)
+    warning( ...
+        'HORACE:SQW:memory', ...
+        ['cut_accumulate_data_: some bins being accumulated during cut have ' ...
+         'more pixels than fit in a PixelData page size.\n'...
+         'Offending bins at indices [%s].'], ...
+        num2str(find(bin_size_gt_block_size(:)')) ...
+    );
+end
+
 for iter = 1:num_chunks
     sub_bin_starts = bin_starts(sub_bin_idxs(1, iter):sub_bin_idxs(2, iter));
     sub_bin_ends = bin_ends(sub_bin_idxs(1, iter):sub_bin_idxs(2, iter));
-
-    num_pix_in_chunk = sum(sub_bin_ends - sub_bin_starts);
-    if num_pix_in_chunk > block_size
-        warning( ...
-            'HORACE:SQW:memory', ...
-            ['cut_accumulate_data_: bin being accumulated during cut has ' ...
-             'more pixels than fit in a PixelData page size.\n', ...
-             'Found ''%i'' pixels in bin, where page size is ''%i''.'], ...
-             num_pix_in_chunk, block_size ...
-        );
-    end
 
     % Get pixels that will likely contribute to the cut
     candidate_pix = obj.data.pix.get_pix_in_ranges(sub_bin_starts, sub_bin_ends);
@@ -140,7 +141,7 @@ end  % loop over pixel blocks
 if keep_pix
     [pix_out, pix_comb_info] = combine_pixels( ...
         pix_retained, pix_ix_retained, pix_comb_info, npix, obj.data.pix.page_size ...
-        );
+    );
 else
     pix_out = PixelData();
     pix_comb_info = [];
