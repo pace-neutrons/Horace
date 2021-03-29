@@ -34,7 +34,7 @@ classdef d4d < DnDBase
     
     methods
         wout = cut (varargin);
-        function obj = d3d(varargin)
+        function obj = d4d(varargin)
             obj = obj@DnDBase(varargin{:});
         end
     end
