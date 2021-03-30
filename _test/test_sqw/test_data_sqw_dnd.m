@@ -14,17 +14,17 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             else
                 name = varargin{1};
             end
-           obj = obj@TestCaseWithSave(name,'data_sqw_dnd_V1_ref_data');
-           
-          root_dir = horace_root();
-          data_dir = fullfile(root_dir,'_test','common_data');
-          obj.par_file =  fullfile(data_dir,obj.par_file);
-          ref_sqw = fake_sqw(-80:8:760, obj.par_file, '', 800,...
-                    1, [2,2.5,2], [95,110,90],...
-                    [1,0,0], [0,1,0], 5,...
-                    0, 0, 0, 0);
-           obj.ref_sqw = ref_sqw{1};
-
+            obj = obj@TestCaseWithSave(name,'data_sqw_dnd_V1_ref_data');
+            
+            root_dir = horace_root();
+            data_dir = fullfile(root_dir,'_test','common_data');
+            obj.par_file =  fullfile(data_dir,obj.par_file);
+            ref_sqw = fake_sqw(-80:8:760, obj.par_file, '', 800,...
+                1, [2,2.5,2], [95,110,90],...
+                [1,0,0], [0,1,0], 5,...
+                0, 0, 0, 0);
+            obj.ref_sqw = ref_sqw{1};
+            
         end
         
         function this=test_get_q_qaxes(this)
@@ -57,7 +57,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             assertEqual(qk(2),1.00);
             assertEqual(ql(1),-0.05);
             assertEqual(ql(12),1.05);
-
+            
             obj = data_sqw_dnd(proj,[1,2],[-1,1],[0,0.01,1],[0,1,10]);
             [qh,qk,ql] = obj.get_q_axes();
             assertEqual(numel(qh),2);
@@ -83,7 +83,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             assertEqual(qk(2),1.00);
             assertEqual(ql(1),0);
             assertEqual(ql(2),1);
-
+            
             obj = data_sqw_dnd(proj,[1,0.01,2],[-1,1],[0,1],[0,1,10]);
             [qh,qk,ql] = obj.get_q_axes();
             assertEqual(numel(qh),102);
@@ -98,9 +98,21 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             assertEqual(ql(2),1);
         end
         %
+        function test_ranges_consistent(obj)
+            %
+            proj0 =  obj.ref_sqw.data.get_projection();
+            pix_range = obj.ref_sqw.data.pix.pix_range;
+            img_range = obj.ref_sqw.data.img_db_range;
+            full_pix_range = expand_box(pix_range(1,:),pix_range(2,:));
+            calc_img_range = proj0.transform_pix_to_img(full_pix_range);
+            full_img_range = expand_box(img_range(1,:),img_range(2,:));
+            
+            assertElementsAlmostEqual(calc_img_range,full_img_range);
+        end
+        %
         function test_loadobj_v0(obj)
             proj.u = [1,0,0];
-            proj.v = [0,1,0];            
+            proj.v = [0,1,0];
             ref_obj = data_sqw_dnd(proj,[1,0.01,2],[-1,1],[0,1],[0,1,10]);
             ld = load('data_sqw_dnd_V0_ref_data.mat');
             assertEqual(ref_obj,ld.obj);
@@ -108,7 +120,47 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             % check modern loader (if saved)
             obj.assertEqualWithSave(ref_obj);
         end
-        function test_get_proj_hkl_3D(obj)            
+        
+        
+        function test_get_proj_hkl_from_cut(obj)
+            proj = projection([1,1,0],[1,-1,0]);
+            proj.type='rrr';
+            source_cut = cut_sqw(obj.ref_sqw,proj,[],[],[],[-8,8]);
+            
+            proj1 = projection([1,0,0],[0,0,1]);
+            proj.type='rrr';
+            ref_cut = cut_sqw(source_cut,proj1,[],[],[-1,1],[-8,8]);
+            
+            proj_r =  ref_cut.data.get_projection();
+            assertTrue(isa(proj,'aProjection'));
+            img_range = ref_cut.data.img_db_range;
+            full_img_range = expand_box(img_range(1,:),img_range(2,:));
+            
+            full_pix_img_range = proj_r.transform_img_to_pix(full_img_range);
+            eval_pix_range = [min(full_pix_img_range,[],2),max(full_pix_img_range,[],2)]';
+            
+            real_pix_range = ref_cut.data.pix.pix_range;
+            assertElementsAlmostEqual(real_pix_range,eval_pix_range);
+            
+            
+            same_cut = cut_sqw(source_cut ,proj_r,[],[],[-1,1],[-8,8]);
+            
+            assertEqualToTol(ref_cut,same_cut,'tol',1.e-9);
+        end
+        
+        function test_get_proj_hkl_3D_45deg(obj)
+            proj = projection([1,1,0],[1,-1,0]);
+            ref_cut = cut_sqw(obj.ref_sqw,proj,[],[],[],[-8,8]);
+            
+            proj1 =  ref_cut.data.get_projection();
+            assertTrue(isa(proj,'aProjection'));
+            
+            same_cut = cut_sqw(obj.ref_sqw,proj1,[],[],[],[-8,8]);
+            
+            assertEqualToTol(ref_cut,same_cut,'tol',1.e-9);
+        end
+        
+        function test_get_proj_hkl_3D(obj)
             proj = projection([1,0,0],[0,0,1]);
             ref_cut = cut_sqw(obj.ref_sqw,proj,[],[],[],[-8,8]);
             
@@ -116,7 +168,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             assertTrue(isa(proj,'aProjection'));
             
             same_cut = cut_sqw(obj.ref_sqw,proj1,[],[],[],[-8,8]);
-
+            
             assertEqualToTol(ref_cut,same_cut,'tol',1.e-9);
         end
         
@@ -127,7 +179,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             assertTrue(isa(proj,'aProjection'));
             
             same_sqw = cut_sqw(obj.ref_sqw,proj,[],[],[],[]);
-            % As the range of the cut is epsiln bigger then the initial range, 
+            % As the range of the cut is epsiln bigger then the initial range,
             % the comparison below does not work. TODO: fix this after proj
             % refactoring
             %assertEqual(obj.ref_sqw,same_sqw);

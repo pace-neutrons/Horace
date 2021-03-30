@@ -235,7 +235,7 @@ if accumulate_old_sqw    % combine with existing sqw file
         if log_level>0
             disp(' Analysing headers of existing tmp files:')
         end
-        [header_sqw,grid_size_sqw,pix_db_range_sqw,pix_db_range_present,...
+        [header_sqw,grid_size_sqw,pix_db_range_sqw,pix_range_present,...
             ind_tmp_files_present,update_runid] = get_tmp_file_headers(all_tmp_files);
         if sum(ind_tmp_files_present) == 0
             accumulate_old_sqw = false;
@@ -250,7 +250,7 @@ if accumulate_old_sqw    % combine with existing sqw file
         
     else
         % Check that the sqw file has the correct type to which to accumulate
-        [ok,mess,header_sqw,grid_size_sqw,pix_db_range_sqw,pix_db_range_present]=...
+        [ok,mess,header_sqw,grid_size_sqw,pix_db_range_sqw,pix_range_present]=...
             gen_sqw_check_sqwfile_valid(sqw_file);
         % Check that the input spe data are distinct
         if ~ok, error(mess), end
@@ -294,7 +294,7 @@ if accumulate_old_sqw    % combine with existing sqw file
                 wnsq_argi = {'keep_runid'};
             end
             % will recaluclate pixel_range
-            [~,pix_range]=write_nsqw_to_sqw (tmp_file, sqw_file,pix_db_range_present,wnsq_argi{:});
+            [~,pix_range]=write_nsqw_to_sqw (tmp_file, sqw_file,pix_range_present,wnsq_argi{:});
             
             if numel(tmp_file) == numel(all_tmp_files)
                 tmpf_clob = onCleanup(@()delete_tmp_files(tmp_file,log_level));
@@ -305,7 +305,7 @@ if accumulate_old_sqw    % combine with existing sqw file
                 report_nothing_to_do(spe_only,spe_exist);
             end
             tmp_file={};
-            pix_db_range=pix_db_range_present;
+            pix_range=pix_range_present;
         end
         grid_size=grid_size_sqw;
         
@@ -392,17 +392,17 @@ if ~accumulate_old_sqw
     if isempty(pix_db_range) && numel(run_files)>1
         if numel(run_files)==1
             pix_db_range =[];
-            pix_db_range_est = [];
+            pix_range_est = [];
         else
-            [pix_db_range,pix_db_range_est] = find_pix_range(run_files,efix,emode,ix,indx,log_level); %calculate pix_range from all runfiles
+            [pix_db_range,pix_range_est] = find_pix_range(run_files,efix,emode,ix,indx,log_level); %calculate pix_range from all runfiles
         end
     else
-        pix_db_range_est = [];
+        pix_range_est = [];
     end
     run_files = run_files(ix); % select only existing runfiles for further processing
 elseif accumulate_old_sqw
     pix_db_range=pix_db_range_sqw;
-    pix_db_range_est = [];
+    pix_range_est = [];
 end
 
 
@@ -419,7 +419,7 @@ if ~accumulate_old_sqw && nindx==1
         run_files{1}.transform_sqw = opt.transform_sqw;
     end
     [w,grid_size,pix_range] = run_files{1}.calc_sqw(grid_size_in,pix_db_range);
-    verify_pix_range_est(pix_range,pix_db_range_est,log_level);
+    verify_pix_range_est(pix_range,pix_range_est,log_level);
     save(w,sqw_file);
     
     %grid_size_in,pix_db_range_in,write_banner,opt);
@@ -457,7 +457,7 @@ else
     % Generate unique temporary sqw files, one for each of the spe files
     [grid_size,pix_range,update_runid,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
         instrument,sample,pix_db_range,grid_size_in,opt.tmp_only);
-    verify_pix_range_est(pix_range,pix_db_range_est,log_level);
+    verify_pix_range_est(pix_range,pix_range_est,log_level);
     
     if use_partial_tmp
         delete_tmp = false;
@@ -472,8 +472,8 @@ else
                 delete_tmp = false;
             end
         end
-        pix_range = [min(pix_range(1,:),pix_db_range_present(1,:));...
-            max(pix_range(2,:),pix_db_range_present(2,:))];
+        pix_range = [min(pix_range(1,:),pix_range_present(1,:));...
+            max(pix_range(2,:),pix_range_present(2,:))];
     end
     
     % Accumulate sqw files; if creating only tmp files only, then exit (ignoring the delete_tmp option)

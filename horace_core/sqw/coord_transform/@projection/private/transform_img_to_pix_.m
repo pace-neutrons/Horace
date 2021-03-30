@@ -22,7 +22,7 @@ else
     else
         error('PROJECTION:invalid_argument',...
             'The size of the pixels array should be [3xNpix] or [4xNpix], actually it is: %s',...
-            evalc('disp(size(pix_hkl))'));
+            evalc('disp(size(pix_data))'));
     end
     % convert shift, expressed in hkl into crystal Cartesian
     shift = u_to_rlu\shift';

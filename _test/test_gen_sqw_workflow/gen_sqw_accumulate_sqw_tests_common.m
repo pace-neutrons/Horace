@@ -386,7 +386,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % Uncomment to see the cut shapes
             acolor('r')
             plot(w1_f_sym)
-            acolor('k')            
+            acolor('k')
             pd(w1_m_sym)
             assertEqualToTol(w1_f_sym,w1_m_sym,'ignore_str',true,'tol',1.e-6)
             %
@@ -716,7 +716,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             
             [ok,mess,w2_11456,w2_11456acc]=...
                 is_cut_equal(sqw_file_11456,sqw_file_accum,obj.proj,...
-                [-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+                [-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[2,35]);
             if ~ok
                 acolor('b');
                 plot(w2_11456);
@@ -740,8 +740,10 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             assertEqual(pix_range,pix_range2);
             assertEqual(grid_size,grid_size1);
             
-            [ok,mess]=is_cut_equal(sqw_file_11456,sqw_file_accum,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
-            assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',mess]);
+            [ok,mess]=is_cut_equal(sqw_file_11456,sqw_file_accum,obj.proj,...
+                [-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[2,35]);
+            assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',...
+                mess]);
         end
         %
     end

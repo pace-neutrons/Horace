@@ -25,7 +25,7 @@ classdef test_symm < TestCase
 
             % To ensure some of the catches for dnd symmetrisation work properly, need
             % to add some errorbars to all of the data points as well. Take from the
-            % original data. Errorbars are rescaled to be appropriate size for new
+            original data. Errorbars are rescaled to be appropriate size for new
             % signal array
 
             % Three-dimensional data sets
