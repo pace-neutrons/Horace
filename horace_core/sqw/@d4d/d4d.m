@@ -31,4 +31,11 @@ classdef d4d < DnDBase
         %               obj = sqw(S);
         %        end
     end
+    
+    methods
+        wout = cut (varargin);
+        function obj = d4d(varargin)
+            obj = obj@DnDBase(varargin{:});
+        end
+    end
 end

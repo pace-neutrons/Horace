@@ -25,9 +25,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
     methods
         wout = sigvar(w);
         w = sigvar_set(win, sigvar_obj);
-        [s,var,mask_null] = sigvar_get (win);
         sz = sigvar_size(w);
-        [sel,ok,mess] = mask_points (win, varargin);
+        %[sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);
         varargout = multifit_sqw (varargin);
         varargout = multifit_sqw_sqw (varargin);
@@ -50,6 +49,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         [header_ave, ebins_all_same]=header_average(header);
         [alatt,angdeg,ok,mess] = lattice_parameters(win);
         [wout, pars_out] = refine_crystal_strip_pars (win, xtal, pars_in);
+        img_range = recompute_img_range(w);
 
         wout = section (win,varargin);
         [sqw_type, ndims, nfiles, filename, mess,ld] = is_sqw_type_file(w,infile);
