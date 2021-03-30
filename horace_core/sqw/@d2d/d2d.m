@@ -34,5 +34,17 @@ classdef d2d < DnDBase
     
     methods
         wout=symmetrise_horace_2d(win,varargin);
+        varargout = get(this, index);
+        [speedup,midpoint]=compare_sym_axes(win,v1,v2,v3);
+        varargout = cut (varargin);
+        [ok,mess]=test_symmetrisation_plane(win,v1,v2,v3); % only defined for d2d, not d[0-1,3-4]d
+        [diag,type]=test_symmetrisation_plane_digaonal(win,v1,v2,v3);
+        [R,trans] = calculate_transformation_matrix(win,v1,v2,v3);
+        varargout = multifit_sqw (varargin);
+        
+        function obj = d2d(varargin)
+            obj = obj@DnDBase(varargin{:});
+        end
+
     end
 end
