@@ -100,164 +100,27 @@ Use the usual Matlab syntax to set configuration values:
 
    hc.(property_name) = value;
 
-************************************************
- Enabling High performance computing extensions
-************************************************
+******************************************
+ High Performance Computing Configuration
+******************************************
 
-If you have a powerful computer with large number of processing cores and have
-access to a parallel file system or fast bandwidth server disk system attached
-to you computer, you will benefit from using high performance computing
-extensions, provided with Horace. To enable these extensions, you need to
-perform `"Installation with Horace not initialized by default as above"
-<http://horace.isis.rl.ac.uk/Download_and_setup#Installation_with_Horace_not_initialized_by_default_on_starting_Matlab>`__
-Auxiliary command
+If your machine has several cores, then you may benefit from using Horace's
+parallel computing options.
 
-   >>hpc
+The ``hpc`` command can be used to enable/disable parallel computing options,
+as well as provide suggested settings for the current system.
 
-shows recommendations on using various high-performance extensions derived from
-our limited experience with different computers (see below). Switches **on/off**
-provided with this command allow to set up all high performance computing
-options together according to the values from tables, provided below. Our
-experience with different computer systems is far from extensive, so you will
-probably need to fine-tune high performance computing extensions to get maximal
-performance on your system. The high performance extensions settings are
-interfaced by **hpc_config** class, accessible by
+.. code-block:: matlab
 
-   >>hpc_config
+   >> hpc;     % display the suggested configuration based on the current system
+   >> hpc on   % enable parallel computing
+   >> hpc off  % disable parallel computing
 
-command.
 
-Enabling multi-sessions processing
-==================================
+For finer grained control over things like: number of parallel workers,
+use of Mex routines and which functions are performed in parallel,
+use the ``hpc_config`` class.
 
-You can generate tmp files, used during sqw files creation using multiple Matlab
-workers.
+.. code-block:: matlab
 
-To do that, you need to place *worker_v2.m* script in the location, where Matlab
-can always find it. The recommended place would be place where **horace.on**
-command is located. The **worker_v2.m.template** file can be found in
-*Herbert/admin* folder. Rename it to **worker_v2.m** and move somewhere to
-existing data search path. Then you can type:
-
-   >>hc=hpc_config
-
-change:
-
-   >>hc.accum_in_separate_process=true
-
-and select number of separate workers to generate or accumulate sqw files. (See
-`sqw files generation <http://horace.isis.rl.ac.uk/Generating_SQW_files>`__ for
-the description of this operation)
-
-Horace contains primitive multi-session framework, which will divide the list of
-input spe or nxspe files between chosen number of workers and process each
-sub-list on a separate Matlab session. This operation is beneficial only if you
-have enough processors and memory to run chosen number of Matlab sessions as if
-multiple sessions start competing for resources, the processing would actually
-take longer. Due to experimental status of the framework user is advised to well
-familiarize himself with single-session way of producing sqw files before
-embarking on multi-session processing even if his computer benefits from the
-multi-sessions. As a guideline on setting number of workers, one can look at the
-table below, measured while processing 231 nxspe files occupying 142Gb in total.
-The processing involves loading a file (~311Mb) in memory, do some moderately
-intensive calculations necessary to produce sqw files, and saving approximately
-700Mb of results per file back to HDD.
-
-+--------------------------------------------------------+-----------------+----------------------+------------+------------------+----------+----------+----------+----------+
-| Computer & OS:                                         | Time (min, less |
-|                                                        | is better) to   |
-|                                                        | process data    |
-|                                                        | using Maltab    |
-|                                                        | workers:        |
-+--------------------------------------------------------+-----------------+----------------------+------------+------------------+----------+----------+----------+----------+
-| OS; Processor; RAM; CPU;                               | mex             | OMP threads          | main       | 1 external       | 2        | 3        | 4        | 8        |
-|                                                        | code&compiled   |                      | session    | session          | sessions | sessions | sessions | sessions |
-+--------------------------------------------------------+-----------------+----------------------+------------+------------------+----------+----------+----------+----------+
-| RHEL7; Xeon E5-4657L&2.5GHz;512Gb;                     | nomex           | Matlab2015b\ :sup:`2)` | 58         | 55               | 32       | 23       | 18       | 12       |
-| 96cpu(4n)\ :sup:`1)`                                   |                 |                      |            |                  |          |          |          |          |
-+--------------------------------------------------------+-----------------+----------------------+------------+------------------+----------+----------+----------+----------+
-| ------||------                                         | mex: GCC 4.8    | 1                    | 31         | 22               | 12       | 8        | 6        | 5        |
-+--------------------------------------------------------+-----------------+----------------------+------------+------------------+----------+----------+----------+----------+
-| ------||------                                         | mex: GCC 4.8    | 8                    | 21         | 24               | 11       | 8        | 6        | 4        |
-+--------------------------------------------------------+-----------------+----------------------+------------+------------------+----------+----------+----------+----------+
-| CentOS7; Xeon X5650&2.67GHz;48Gb;                      | nomex           | Matlab 2015b         | 41         | 43               | 26       | 20       | 18       | 18       |
-| 12(24)\ :sup:`3)`\ cpu                                 |                 |                      |            |                  |          |          |          |          |
-+--------------------------------------------------------+-----------------+----------------------+------------+------------------+----------+----------+----------+----------+
-| ------||------                                         | mex: GCC 4.8    | 1                    | 27         | 22               | 17       | 15       | 11       | 12       |
-+--------------------------------------------------------+-----------------+----------------------+------------+------------------+----------+----------+----------+----------+
-| ------||------                                         | mex: GCC 4.8    | 8                    | 16         | 18               | 14       | 13       | 13       | 11       |
-+--------------------------------------------------------+-----------------+----------------------+------------+------------------+----------+----------+----------+----------+
-| Windows7\ :sup:`4)`; Xeon X5650&2.67GHz;48Gb;          | nomex           | Matlab 2015b         | 63         | 65               | 62       | 55       | 60       | 63       |
-| 12(24)cpu;                                             |                 |                      |            |                  |          |          |          |          |
-+--------------------------------------------------------+-----------------+----------------------+------------+------------------+----------+----------+----------+----------+
-| ------||------                                         | mex: VS2015     | 1                    | 60         | 64               | 55       | 61       | 56       | 64       |
-+--------------------------------------------------------+-----------------+----------------------+------------+------------------+----------+----------+----------+----------+
-| ------||------                                         | mex: VS2015     | 8                    | 57         | 57               | 54       | 55       | 58       | 69       |
-+--------------------------------------------------------+-----------------+----------------------+------------+------------------+----------+----------+----------+----------+
-| OS X El Capitan; i7-2600&3.40GHz; 16Gb; 4(8)cpu;       | nomex           | Matlab2015b          | 71         | 74               | 54       | 45       | 64       | 185      |
-+--------------------------------------------------------+-----------------+----------------------+------------+------------------+----------+----------+----------+----------+
-
-Notes:
-   :sup:`1)`\ Combined into 4 PCNUMA nodes
-
-:sup:`2)`\ Matlab after 2014 deploys its own OMP framework, so operations on arrays are performed in parallel.
-   Number of threads deployed in this case is controlled by Matlab.
-   :sup:`3)`\ CPU number in brackets refers to virtual Intel cpu (threads)
-   :sup:`4)`\ Windows does not work well with large files. For this reason, the
-   task appears to be mainly file-IO speed constrained, so no much difference in
-   various processing modes can be observed.
-
-Using mex to combine sqw
-========================
-
-One of mex files build using horace_mex, namely *combine_sqw* useful mainly on
-large computers with enhanced IO capabilities. This is why its usage not
-controlled by **use_mex** key-word of *hor_config* class, but rather by separate
-**use_mex_for_combine** key-word of *hpc_combine* class (see below). It also
-uses threading rather then OMP, so its deployment with non-default Matlab
-compilers may require `special changes to the system
-<http://shadow.nd.rl.ac.uk/wiki/idr/index.php/Using_Matlab_and_access_to_sample_Matlab_scripts#Configuring_Matlab_2015b_to_work_with_gcc8.4.5_for_combining_using_mex_code_on_RHEL7>`__.
-
-Possible benefits or disadvantages of using mex files to combine sqw are
-illustrated by the following table:
-
-+----------------------------------------------------------------------------------+----------------------+---------------------------+--------------------+--------------------------+
-| Computer & OS and mex/nomex options:                                             | Performance and Time |
-|                                                                                  | (min)                |
-+----------------------------------------------------------------------------------+----------------------+---------------------------+--------------------+--------------------------+
-| Computer and IO system;                                                          | mex/nomex mode       | IO buffer (in uint64      | Combining speed    | Time to combine 142Gb    |
-|                                                                                  |                      | words)                    | Mb/s               | file                     |
-+----------------------------------------------------------------------------------+----------------------+---------------------------+--------------------+--------------------------+
-| RHEL7; 512Gb; 96cpu; `CEPHs                                                      | Matlab2015b IO       | Matlab's internal         | 67                 | 37                       |
-| <https://en.wikipedia.org/wiki/Ceph_%28software%29>`__                           |                      |                           |                    |                          |
-+----------------------------------------------------------------------------------+----------------------+---------------------------+--------------------+--------------------------+
-| ------||------                                                                   | mex, mode            | 1024                      | 577                | 4                        |
-|                                                                                  | 1\ :sup:`1)`         |                           |                    |                          |
-+----------------------------------------------------------------------------------+----------------------+---------------------------+--------------------+--------------------------+
-| ------||------                                                                   | mex, mode            | 1024                      | 517                | 5                        |
-|                                                                                  | 0\ :sup:`2)`         |                           |                    |                          |
-+----------------------------------------------------------------------------------+----------------------+---------------------------+--------------------+--------------------------+
-| ------||------                                                                   | mex, mode 0          | 1024*64                   | 230                | 11                       |
-+----------------------------------------------------------------------------------+----------------------+---------------------------+--------------------+--------------------------+
-| CentOS7; 48Gb; 12(24)cpu; `SCSI <https://en.wikipedia.org/wiki/SCSI>`__          | Matlab2015b IO       | Matlab's internal         | 55                 | 45                       |
-+----------------------------------------------------------------------------------+----------------------+---------------------------+--------------------+--------------------------+
-| ------||------                                                                   | mex, mode 0          | 1024                      | 35                 | 72                       |
-+----------------------------------------------------------------------------------+----------------------+---------------------------+--------------------+--------------------------+
-| ------||------                                                                   | mex, mode 0          | 1024*64                   | 69                 | 36                       |
-+----------------------------------------------------------------------------------+----------------------+---------------------------+--------------------+--------------------------+
-| ------||------                                                                   | mex, mode 1          | 1024*64                   | 28                 | 88                       |
-+----------------------------------------------------------------------------------+----------------------+---------------------------+--------------------+--------------------------+
-| Windows7; 48Gb; 12(24)cpu; `SCSI <https://en.wikipedia.org/wiki/SCSI>`__         | Matlab2015b IO       | Matlab's internal         | 29                 | 87                       |
-+----------------------------------------------------------------------------------+----------------------+---------------------------+--------------------+--------------------------+
-| ------||------                                                                   | mex, mode 1          | 1024                      | 12                 | 214                      |
-+----------------------------------------------------------------------------------+----------------------+---------------------------+--------------------+--------------------------+
-| ------||------                                                                   | mex, mode 0          | 1024*64                   | 21                 | 121                      |
-+----------------------------------------------------------------------------------+----------------------+---------------------------+--------------------+--------------------------+
-| ------||------                                                                   | mex, mode 1          | 1024*64                   | 6                  | 412                      |
-+----------------------------------------------------------------------------------+----------------------+---------------------------+--------------------+--------------------------+
-
-Notes:
-   :sup:`1)`\ mode 1 -- each input file (241 tested) has its own thread to read
-   data and separate thread to write combined results to target file.
-   :sup:`2)`\ mode 0 -- One thread reads data from input files (241 tested) and
-   another one writes results to the output.
+   >> help hpc_config
