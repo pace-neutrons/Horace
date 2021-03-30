@@ -167,9 +167,13 @@ There also exists `sqw_binfile_common.put_bytes`
 which can be used to save arbitrary numeric data to an `sqw` file.
 You can position the `sqw_binfile_common` instance's file handle at the start
 of the `sqw` file's pixel array,
-and save pixels directory to file this way.
-This is more efficient than saving out to temporary files and then
-reading them back in later when calling `put_pix`.
+and save pixels directly to file this way.
+
+This can be useful if you are performing an action on an sqw object's pixels,
+and want to output directly to an sqw file,
+rather than dealing with temporary files.
+See the example on [avoiding temporary files](#avoiding-temporary-files)
+for an example of how and where this is useful.
 
 ### Getters/Setters
 
@@ -345,6 +349,63 @@ classdef PixelData < handle
     end
 end
 ```
+
+### Avoiding Temporary Files
+
+It can sometimes be possible to avoid using temporary files when operating on pixels.
+
+Take, the above [`minus` example](#simple-example) for the case of an sqw object.
+If our desired output is not a file-backed `PixelData` object,
+but a new SQW file, we can write the updated pixels directly to the output file,
+instead of first storing them in temporary files and then re-combining on save.
+
+```matlab
+function minus(sqw_obj, scalar, outfile_path)
+    %MINUS Subtract a scalar from every pixel in the input sqw object,
+    % and save the output sqw object to `outfile_path`
+    %
+    % The input sqw object is not to be modified.
+    %
+
+    % Initialize an faccess object for our output file
+    faccess_out = sqw_formats_factory.instance().get_pref_access(sqw_obj);
+    faccess_out = faccess_out.init(sqw_obj, outfile_path);
+
+    % Write everything up to pixels
+    % This will also move the file handle to the position of the start of the
+    % pixel array
+    faccess_out.put_sqw('-nopix');
+
+    % Get reference to PixelData object, note no copying as PixelData is a handle
+    pix = sqw_obj.data.pix;
+
+    % Make sure we're on the first page before beginning the loop
+    pix.move_to_first_page();
+
+    % Make the subtraction from the pixel's signal
+    pix.signal = pix.signal - scalar;
+    % Write the edited pixel cache directly to the output file
+    faccess_out.put_bytes(pix.data);
+
+    % Start loop over subsequent pixels
+    while pix.has_more()
+        % The `nosave` flag means changes to the cache are discarded on advance,
+        % hence no temporary files are written.
+        pix.advance('nosave', true);
+
+        pix.signal = pix.signal - scalar;
+        faccess_out.put_bytes(pix.data);
+    end
+end
+% Now all pixels are saved, file footers must be written
+faccess_out.put_footers();
+```
+
+The alternative to the above is performing two loops over the pixel data.
+The first loop would be making the subtraction and writing the cached changes
+to temporary files (on `pix.advance()`).
+The second loop would be reading in those temporary files,
+and then writing them to the output file.
 
 ### Managing Binning
 
