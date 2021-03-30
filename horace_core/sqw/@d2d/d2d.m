@@ -12,6 +12,7 @@ classdef d2d < DnDBase
     end
 
     methods
+        wout=combine_horace_2d(w1,w2,varargin);
         wout=symmetrise_horace_2d(win,varargin);
     end
 

@@ -132,7 +132,7 @@ classdef test_combine < TestCase
 
             mf = multifit_sqw (w1d_d1d);
             mf = mf.set_fun (@fake_cross_sec, 0.9*[this.stiffness,this.gam,this.amp]);
-            [wfit,fitdata] = mf.fit();
+            [wfit, fitdata] = mf.fit();
 
             mf_combi = multifit_sqw (w1d_combined);
             mf_combi = mf_combi.set_fun (@fake_cross_sec, 0.9*[this.stiffness,this.gam,this.amp]);

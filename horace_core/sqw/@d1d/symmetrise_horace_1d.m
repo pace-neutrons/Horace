@@ -35,7 +35,7 @@ nin=win.data_.npix;
 
 [xout,sout,eout,nout]=symmetrise_1d(xin,sin,ein,nin,midpoint);
 
-wout=d1d(getout);
+wout=d1d(win);
 wout.data_.p{1}=xout(:,1);
 wout.data_.s=sout;
 wout.data_.e=eout;

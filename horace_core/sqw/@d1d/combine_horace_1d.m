@@ -63,7 +63,7 @@ if same_axes
         end
 
         % Now need to construct the output d1d
-        wout=d1d(win);
+        wout=d1d(w1);
         wout.data_.p{1}=xout(:,1);
         wout.data_.s=sout;
         wout.data_.e=eout;
