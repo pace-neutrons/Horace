@@ -275,7 +275,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertTrue(isa(to,'faccess_sqw_v3'));
             assertTrue(isa(to,'faccess_sqw_v3_3'));
 
-            
+
             sqw2 = to.get_sqw();
 
             assertEqual(sqw1,sqw2);
@@ -320,7 +320,7 @@ classdef test_faccess_sqw_v2< TestCase
         %
         function obj = test_put_dnd_from_sqw(obj)
             %
-            skipTest("New dnd object not yet implemented - d2d_old used");
+            skipTest("New dnd object not yet implemented - d2d used");
             spath = fileparts(obj.sample_file);
             samplef  = fullfile(spath,'w2d_qq_small_sqw.sqw');
 
@@ -337,9 +337,9 @@ classdef test_faccess_sqw_v2< TestCase
 
             sqw2 = to.get_sqw();
             to.delete();
-            assertTrue(isa(sqw2,'d2d_old'));
+            assertTrue(isa(sqw2,'d2d'));
 
-            [ok,mess]=equal_to_tol(d2d_old(sqwob),sqw2,'ignore_str',true);
+            [ok,mess]=equal_to_tol(d2d(sqwob),sqw2,'ignore_str',true);
             assertTrue(ok,mess)
             %
         end
@@ -363,7 +363,7 @@ classdef test_faccess_sqw_v2< TestCase
 
             dn2 = to.get_sqw();
             to.delete();
-            assertTrue(isa(dn2,'d2d_old'));
+            assertTrue(isa(dn2,'d2d'));
 
             [ok,mess]=equal_to_tol(dn2,dnob,'ignore_str',true);
             assertTrue(ok,mess)

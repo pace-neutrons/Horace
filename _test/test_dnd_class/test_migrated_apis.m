@@ -116,7 +116,7 @@ classdef test_migrated_apis < TestCase
 
             expected = load('test_migrated_apis_data.mat', 'wout_disp');
 
-            assertEqualToTol(expected.wout_disp, wout_disp, 'ignore_str', true);
+            assertEqualToTol(d2d(expected.wout_disp), wout_disp, 'ignore_str', true);
         end
         function test_dispersion_with_disp_and_weight_retval(obj)
             dnd_2d_obj = d2d(obj.test_sqw_2d_fullpath);
@@ -124,8 +124,8 @@ classdef test_migrated_apis < TestCase
 
             expected = load('test_migrated_apis_data.mat', 'wout_disp', 'wout_weight');
 
-            assertEqualToTol(expected.wout_disp, wout_disp, 'ignore_str', true);
-            assertEqualToTol(expected.wout_weight, wout_weight, 'ignore_str', true);
+            assertEqualToTol(d2d(expected.wout_disp), wout_disp, 'ignore_str', true);
+            assertEqualToTol(d2d(expected.wout_weight), wout_weight, 'ignore_str', true);
         end
 
         function test_get_proj_and_pbin(obj)

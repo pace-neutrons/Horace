@@ -56,8 +56,8 @@ if same_axes
         e1 = w1.data_.e; e2 = w2.data_.e;
         n1 = w1.data_.npix; n2 = w2.data_.npix;
 
-        if has_tolerace
-            [xout, sout,e out, nout]=combine_1d(x1,s1,e1,n1,x2,s2,e2,n2,tol);
+        if has_tolerance
+            [xout, sout, eout, nout]=combine_1d(x1,s1,e1,n1,x2,s2,e2,n2,tol);
         else
             [xout, sout, eout, nout]=combine_1d(x1,s1,e1,n1,x2,s2,e2,n2,[]);
         end
