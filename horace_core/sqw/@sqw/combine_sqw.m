@@ -26,16 +26,16 @@ if ~has_pixels(w1) || ~has_pixels(w2)
 end
 
 %Catch case of one or other dataset being empty
-if isempty(w1.data.pix) && ~isempty(w2.data.pix)
+if isempty(w1.data_.pix) && ~isempty(w2.data_.pix)
     wout=w2; return;
-elseif ~isempty(w1.data.pix) && isempty(w2.data.pix)
+elseif ~isempty(w1.data_.pix) && isempty(w2.data_.pix)
     wout=w1; return;
-elseif isempty(w1.data.pix) && isempty(w2.data.pix)
+elseif isempty(w1.data_.pix) && isempty(w2.data_.pix)
     wout=w1; return;  %case where both empty returns first dataset
 end
 
-[ndims1,sz1]=dimensions(w1);
-[ndims2,sz2]=dimensions(w2);
+[ndims1,~]=dimensions(w1);
+[ndims2,~]=dimensions(w2);
 if ndims1~=ndims2
     error('Horace error: the 2 input sqw objects must have the same dimensionality');
 end
@@ -54,25 +54,25 @@ end
 %
 %
 
-coords_rlu1=inv(w1.data.u_to_rlu) * w1.data.pix.coordinates;
-rlutrans=[(2*pi./w1.data.alatt)'; 1];
+coords_rlu1=inv(w1.data_.u_to_rlu) * w1.data_.pix.coordinates;
+rlutrans=[(2*pi./w1.data_.alatt)'; 1];
 coords_rlu1=coords_rlu1./repmat(rlutrans,1,numel(coords_rlu1) /4);
 %
 for i=1:ndims1
-    min_1{i}=min(coords_rlu1(w1.data.pax(i),:));
-    max_1{i}=max(coords_rlu1(w1.data.pax(i),:));
+    min_1{i}=min(coords_rlu1(w1.data_.pax(i),:));
+    max_1{i}=max(coords_rlu1(w1.data_.pax(i),:));
 end
 
 %Next do the same for the 2nd dataset:
-coords_rlu2=inv(w2.data.u_to_rlu) * w2.data.pix.coordinates;%notice we put this in the co-ord
+coords_rlu2=inv(w2.data_.u_to_rlu) * w2.data_.pix.coordinates;%notice we put this in the co-ord
 %frame of w1. We are not interested in the co-ord frame of w2, just its
 %pixel info, which is in inverse Angstroms and meV
-rlutrans=[(2*pi./w1.data.alatt)'; 1];
+rlutrans=[(2*pi./w1.data_.alatt)'; 1];
 coords_rlu2_new=coords_rlu2./repmat(rlutrans,1,numel(coords_rlu2) /4);
 %
 for i=1:ndims1
-    min_2{i}=min(coords_rlu2_new(w2.data.pax(i),:));
-    max_2{i}=max(coords_rlu2_new(w2.data.pax(i),:));
+    min_2{i}=min(coords_rlu2_new(w2.data_.pax(i),:));
+    max_2{i}=max(coords_rlu2_new(w2.data_.pax(i),:));
 end
 
 %Now work out the full extent of the symmetrised data:
@@ -90,10 +90,10 @@ max_orig1 = cell(1,ndims1);
 min_orig2 = cell(1,ndims1);
 max_orig2 = cell(1,ndims1);
 for i=1:ndims1
-    min_orig1{i}=min(w1.data.p{i});
-    max_orig1{i}=max(w1.data.p{i});
-    min_orig2{i}=min(w2.data.p{i});
-    max_orig2{i}=max(w2.data.p{i});
+    min_orig1{i}=min(w1.data_.p{i});
+    max_orig1{i}=max(w1.data_.p{i});
+    min_orig2{i}=min(w2.data_.p{i});
+    max_orig2{i}=max(w2.data_.p{i});
 end
 %NB changed index of cells in above for-loop from w1.data.pax(i) to i (15/12/15)
 
@@ -107,11 +107,11 @@ end
 %consistent with the sqw format.
 % CMDEV struct was previously get, but for this combination of input and
 % output it is the same thing. Get was in sqw_old
-wout=struct(w1);
+wout=sqw(w1);
 
 for i=1:ndims1
-    step=wout.data.p{i}(2)-wout.data.p{i}(1);
-    wout.data.p{i}=make_const_bin_boundaries([min_full{i},step,max_full{i}]);
+    step=wout.data_.p{i}(2) - wout.data_.p{i}(1);
+    wout.data_.p{i} = make_const_bin_boundaries([min_full{i}, step,max_full{i}]);
     % TODO: the previous value used here is different from the value,
     % defined by make_const_bin_boundaries. All seems work. 
     % Was those a bug or a feature?
@@ -127,11 +127,11 @@ end
 
 %We must ensure that no detector pixels are double counted when we
 %combine! Can use the function "unique" to do this:
-pixfull=[w1.data.pix.data w2.data.pix.data]';%(n1+n2)-by-9 array
+pixfull=[w1.data_.pix.data w2.data_.pix.data]';%(n1+n2)-by-9 array
 pixfull=unique(pixfull,'rows');%keeps only non-repeated rows
 
 %Now make this unique set of combined pixels the output pix array:
-wout.data.pix=PixelData(pixfull');
+wout.data_.pix=PixelData(pixfull');
 
 %We need to fiddle the integration ranges so that all of the data for the
 %combined dataset is included. Can do this by looking at the minima and
@@ -143,26 +143,24 @@ intmax   = cell(1,nints);
 intmin   = cell(1,nints);
 if nints>=1
     for i=1:nints
-        intmin_l{1,i}=min(coords_rlu1(w1.data.iax(i),:));
-        intmax_l{1,i}=max(coords_rlu1(w1.data.iax(i),:));
-        intmin_l{2,i}=min(coords_rlu2_new(w2.data.iax(i),:));
-        intmax_l{2,i}=max(coords_rlu2_new(w2.data.iax(i),:));
+        intmin_l{1,i}=min(coords_rlu1(w1.data_.iax(i),:));
+        intmax_l{1,i}=max(coords_rlu1(w1.data_.iax(i),:));
+        intmin_l{2,i}=min(coords_rlu2_new(w2.data_.iax(i),:));
+        intmax_l{2,i}=max(coords_rlu2_new(w2.data_.iax(i),:));
     end
     for i=1:nints
         intmin{i}=min([intmin_l{1,i} intmin_l{2,i}]);
         intmax{i}=max([intmax_l{1,i} intmax_l{2,i}]);
     end
 
-
     intlimits=[cell2mat(intmin); cell2mat(intmax)];
-    wout.data.iint=intlimits;
-
+    wout.data_.iint=intlimits;
 
     for i=1:nints
-        wout.data.img_range(:,wout.data.iax(i))=intlimits(:,i);
+        wout.data_.img_range(:,wout.data_.iax(i))=intlimits(:,i);
     end
 else
-    wout.data.iint = zeros(2,0);
+    wout.data_.iint = zeros(2,0);
 end
 
 
@@ -177,34 +175,30 @@ cleanup_obj=onCleanup(@()set(hor_config,'log_level',info_level));
 hc.log_level = -1;
 
 if ndims1==1
-    wout.data.s=zeros(length(wout.data.p{1})-1,1);
-    wout.data.e=wout.data.s;
-    wout.data.npix=wout.data.s;
-    wout.data.npix(1)=numel(wout.data.pix.u1);
-    wout=sqw(wout);
+    wout.data_.s=zeros(length(wout.data_.p{1})-1,1);
+    wout.data_.e=wout.data_.s;
+    wout.data_.npix=wout.data_.s;
+    wout.data_.npix(1)=numel(wout.data_.pix.u1);
     wout=cut(wout,[]);
 elseif ndims1==2
-    wout.data.s=zeros(length(wout.data.p{1})-1,length(wout.data.p{2})-1);
-    wout.data.e=wout.data.s;
-    wout.data.npix=wout.data.s;
-    wout.data.npix(1,1)=numel(wout.data.pix.u1);
-    wout=sqw(wout);
+    wout.data_.s=zeros(length(wout.data_.p{1})-1,length(wout.data_.p{2})-1);
+    wout.data_.e=wout.data_.s;
+    wout.data_.npix=wout.data_.s;
+    wout.data_.npix(1,1)=numel(wout.data_.pix.u1);
     wout=cut(wout,[],[]);
 elseif ndims1==3
-    wout.data.s=zeros(length(wout.data.p{1})-1,length(wout.data.p{2})-1,...
-        length(wout.data.p{3})-1);
-    wout.data.e=wout.data.s;
-    wout.data.npix=wout.data.s;
-    wout.data.npix(1,1,1)=numel(wout.data.pix.u1);
-    wout=sqw(wout);
+    wout.data_.s=zeros(length(wout.data_.p{1})-1,length(wout.data_.p{2})-1,...
+        length(wout.data_.p{3})-1);
+    wout.data_.e=wout.data_.s;
+    wout.data_.npix=wout.data_.s;
+    wout.data_.npix(1,1,1)=numel(wout.data_.pix.u1);
     wout=cut(wout,[],[],[]);
 elseif ndims1==4
-    wout.data.s=zeros(length(wout.data.p{1})-1,length(wout.data.p{2})-1,...
-        length(wout.data.p{3})-1,length(wout.data.p{4})-1);
-    wout.data.e=wout.data.s;
-    wout.data.npix=wout.data.s;
-    wout.data.npix(1,1,1,1)=numel(wout.data.pix.u1);
-    wout=sqw(wout);
+    wout.data_.s=zeros(length(wout.data_.p{1})-1,length(wout.data_.p{2})-1,...
+        length(wout.data_.p{3})-1,length(wout.data_.p{4})-1);
+    wout.data_.e=wout.data_.s;
+    wout.data_.npix=wout.data_.s;
+    wout.data_.npix(1,1,1,1)=numel(wout.data_.pix.u1);
     wout=cut(wout,[],[],[],[]);
 else
     error('ERROR: Dimensions of dataset is not integer in the range 1 to 4');
