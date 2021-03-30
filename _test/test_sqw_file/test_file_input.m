@@ -149,18 +149,18 @@ classdef  test_file_input < TestCase
 
 
             cut(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp0_file);
-			
+
 			% CMDEV_MERGE Preferred _old, may be wrong
-            tmp0=read(sqw_old,tmp0_file);
-            
+            tmp0=read(sqw,tmp0_file);
+
             cut_horace(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
-            tmp=read(sqw_old,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-            
+            tmp=read(sqw,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+
             cut_sqw(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
-            tmp=read(sqw_old,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-            
+            tmp=read(sqw,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+
             cut_horace(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
-            tmp=read(sqw_old,tmp_file);
+            tmp=read(sqw,tmp_file);
             [ok,mess]=equal_to_tol(tmp0,tmp,'ignore_str',1); assertTrue(ok,['test_file_input: Error in functionality',mess]);
 
             % looks like waste of time?
@@ -221,7 +221,7 @@ classdef  test_file_input < TestCase
                 % We want to call cut_sqw with an output arg, so no lambda
                 d1_d_s=cut_sqw(w,[0.5,0,1.2],[170,180]);
             end
-            
+
             %{
             skipTest("New dnd object not yet supported");
             assertExceptionThrown(@() call_cut_sqw(obj.d2d_arr(2)), 'HORACE:cut_sqw');
@@ -241,11 +241,11 @@ classdef  test_file_input < TestCase
 
             %{
             skipTest("New sqw object read not implemented");
-			% CMDEV_MERGED Preferred _old, may be wrong            
+			% CMDEV_MERGED Preferred _old, may be wrong
             tmp=read(sqw,obj.sqw2d_name{2});
             if ~equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
             %}
-            
+
             tmp=sqw(obj.sqw2d_name{2});
             if ~equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
 
@@ -254,7 +254,7 @@ classdef  test_file_input < TestCase
             tmp=read_horace(obj.sqw2d_name{2});
             if ~equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
             %}
-            
+
             %{
             skipTest("New dnd object not yet implemented");
             % CMDEV_MERGED Preferred _old, may be wrong
@@ -263,12 +263,12 @@ classdef  test_file_input < TestCase
 
             tmp=read_dnd(obj.sqw2d_name{2});
             if ~equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-            
+
             % CMDEV_MERGED Preferred _old, may be wrong
             tmp=read(d2d_old,obj.d2d_name{2});
             if ~equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
             %}
-            
+
             try
                 tmp=sqw(obj.d2d_name{2});
                 failed=false;
@@ -282,20 +282,20 @@ classdef  test_file_input < TestCase
             tmp=read_horace(obj.d2d_name{2});
             if ~equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
             %}
-            
+
             %{
             skipTest("New sqw object read_horace not working yet");
             % Read array of files
             tmp=read_horace(obj.sqw2d_name);
             if ~equal_to_tol(obj.sqw2d_arr,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
             %}
-            
+
             %{
             skipTest("New dnd object not yet implemented");
             tmp=read_dnd(obj.sqw2d_name);
             if ~equal_to_tol(obj.d2d_arr,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
             %}
-            
+
             tmp = repmat(sqw(),1,numel(obj.sqw2d_name));
             for i=1:numel(obj.sqw2d_name)
                 name = obj.sqw2d_name(i);

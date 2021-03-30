@@ -118,8 +118,8 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
             [ok,mess]=is_cut_equal(sqw_file_123_t8,sqw_file_123_t1,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             assertTrue(ok,[' MEX threaded and non-threaded versions of gen_sqw are different: ',mess]);
             %CMDEV_MERGE Prefer d4d_old?
-            w_8 = d4d_old(sqw_file_123_t8);
-            w_1 = d4d_old(sqw_file_123_t1);
+            w_8 = d4d(sqw_file_123_t8);
+            w_1 = d4d(sqw_file_123_t1);
             [ok,mess]=equal_to_tol(w_8,w_1,-1.e-8,'ignore_str',true);
             assertTrue(ok,[' MEX threaded and non-threaded versions of gen_sqw are different: ',mess]);
 

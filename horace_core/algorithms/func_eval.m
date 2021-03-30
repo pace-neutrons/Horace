@@ -44,7 +44,7 @@ function sources = get_data_sources(source)
             try
                 sources(i) = source_i;
             catch ME
-                if strcmp(ME.identifier, 'MATLAB:heterogeneousStrucAssignment')
+                if strcmp(ME.identifier, 'MATLAB:heterogeneousStrucAssignment') || strcmp(ME.identifier, 'MATLAB:UnableToConvert')
                     % We get here if a user inputs a cell array that contains a mix
                     % of sqw & dnd objects/files
                     error('HORACE:func_eval:input_type_error', ...

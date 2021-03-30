@@ -15,7 +15,7 @@ classdef test_symm < TestCase
             this=this@TestCase(name);
             this.testdir = fileparts(mfilename('fullpath'));
         end
-        
+
         function this=prepare_test_data(this)
             % Create the data (should not need to do this again)
             % Use sqw file on RAE's laptop to perform tests. Data saved to a .mat file on SVN server
@@ -34,7 +34,7 @@ classdef test_symm < TestCase
             errs=w3d_sqw.data.pix.signal;
             w3d_sqw.data.pix.variance=errs;
             w3d_sqw=cut(w3d_sqw,[-1,0.025,1],[-1,0.025,1],[0,1.4,100]);
-            w3d_d3d=d3d_old(w3d_sqw);
+            w3d_d3d=d3d(w3d_sqw);
 
             % Two-dimensional data sets
             w2d_qe_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-0.1,0.1],[-Inf,Inf],[0,1.4,100]);
@@ -42,17 +42,17 @@ classdef test_symm < TestCase
             errs=w2d_qe_sqw.data.pix.signal;
             w2d_qe_sqw.data.pix.variance=errs;
             w2d_qe_sqw=cut(w2d_qe_sqw,[-1,0.025,1],[0,1.4,100]);
-            w2d_qe_d2d=d2d_old(w2d_qe_sqw);
+            w2d_qe_d2d=d2d(w2d_qe_sqw);
 
             w2d_qq_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-1,0.025,1],[-Inf,Inf],[30,40]);
             w2d_qq_sqw=sqw_eval(w2d_qq_sqw,@fake_cross_sec,[this.stiffness,this.gam,this.amp]);
             errs=w2d_qq_sqw.data.pix.signal;
             w2d_qq_sqw.data.pix.variance=errs;
             w2d_qq_sqw=cut(w2d_qq_sqw,[-1,0.025,1],[-1,0.025,1]);
-            w2d_qq_d2d=d2d_old(w2d_qq_sqw);
+            w2d_qq_d2d=d2d(w2d_qq_sqw);
 
             w2d_qq_small_sqw=cut_sqw(data_source,proj,[0,0.025,0.4],[0,0.025,0.4],[-Inf,Inf],[30,40]);
-            w2d_qq_small_d2d=d2d_old(w2d_qq_small_sqw);
+            w2d_qq_small_d2d=d2d(w2d_qq_small_sqw);
 
             % One-dimensional data sets
             w1d_sqw=cut_sqw(data_source,proj,[-1,0.025,1],[-0.1,0.1],[-Inf,Inf],[30,40]);
@@ -60,20 +60,20 @@ classdef test_symm < TestCase
             errs=w1d_sqw.data.pix.signal;
             w1d_sqw.data.pix.variance=errs;
             w1d_sqw=cut(w1d_sqw,[-1,0.025,1]);
-            w1d_d1d=d1d_old(w1d_sqw);
+            w1d_d1d=d1d(w1d_sqw);
 
             % Save data
             save(w3d_sqw,[this.testdir,filesep,'w3d_sqw.sqw']);
             save(w3d_d3d,[this.testdir,filesep,'w3d_d3d.sqw']);
-            
+
             save(w2d_qe_sqw,[this.testdir,filesep,'w2d_qe_sqw.sqw']);
             save(w2d_qe_d2d,[this.testdir,filesep,'w2d_qe_d2d.sqw']);
-            save(w2d_qq_sqw,[this.testdir,filesep,'w2d_qq_sqw.sqw']);            
+            save(w2d_qq_sqw,[this.testdir,filesep,'w2d_qq_sqw.sqw']);
             save(w2d_qq_d2d,[this.testdir,filesep,'w2d_qq_d2d.sqw']);
-            
+
             save(w1d_sqw,[this.testdir,filesep,'w1d_sqw.sqw']);
             save(w1d_d1d,[this.testdir,filesep,'w1d_d1d.sqw']);
-            
+
             save(w2d_qq_small_sqw,[this.testdir,filesep,'w2d_qq_small_sqw.sqw']);
             save(w2d_qq_small_d2d,[this.testdir,filesep,'w2d_qq_small_d2d.sqw']);
         end
@@ -94,7 +94,7 @@ classdef test_symm < TestCase
 
             %{
             skipTest("New dnd object not implemented yet");
-            [ok,mess]=equal_to_tol(d2d_old(cc1),d2d_old(cc2),-1e-6,'ignore_str', 1);
+            [ok,mess]=equal_to_tol(d2d(cc1),d2d(cc2),-1e-6,'ignore_str', 1);
             assertTrue(ok,['sqw symmetrisation fails, most likely due to cut rounding problem: ',mess])
             %}
         end
@@ -122,7 +122,7 @@ classdef test_symm < TestCase
             % different...
             % Diagonal symm axis
             w2d_qq_sqw=sqw(fullfile(this.testdir,'w2d_qq_sqw.sqw')); % CMDEV was read_sqw
-            w2_2b_s=d2d(symmetrise_sqw(w2d_qq_sqw,[0,0,1],[0,1,0],[0,0,0]));% CMDEV was d2d_old
+            w2_2b_s=d2d(symmetrise_sqw(w2d_qq_sqw,[0,0,1],[0,1,0],[0,0,0]));% CMDEV was d2d
             w2_2b_s=cut(w2_2b_s,[-1.0125,0.025+3.5e-8,1],[-1.0167,0.025+3.5e-8,1.0333]);
 
             w2d_qq_d2d=read_dnd(fullfile(this.testdir,'w2d_qq_d2d.sqw'));
@@ -134,15 +134,15 @@ classdef test_symm < TestCase
             mf = multifit_sqw (w2_2b);
             mf = mf.set_fun (@fake_cross_sec, [0.9*this.stiffness,this.gam,this.amp],[1,0,0]);
             [wfit_2b,fitdata_2b] = mf.fit();
-            
+
             mf_s = multifit_sqw (w2_2b_s);
             mf_s = mf_s.set_fun (@fake_cross_sec, [0.9*this.stiffness,this.gam,this.amp],[1,0,0]);
             [wfit_2b_s,fitdata_2b_s] = mf_s.fit();
-            
+
             assertTrue(equal_to_tol(fitdata_2b.p(1),fitdata_2b_s.p(1),-2e-2),'d2d symmetrisation about diagonal (non shoelace algorithm) failed')
 
         end
-        
+
         % ------------------------------------------------------------------------------------------------
         function this=test_random_symax(this)
             skipTest('Insufficient dnd support for new sqw');
@@ -178,13 +178,13 @@ classdef test_symm < TestCase
             mf = mf.set_bfun (@quad_bg, [8.95,-5.3,0.1], [1,1,1]);
             mf = mf.set_mask ('keep',[0.5,1.5]);
             [wfit1_1,fitdata1_1] = mf.fit();
-            
+
             mfs = multifit_func (w1_1s);
             mfs = mfs.set_fun (@mgauss, [20,0.75,0.062,20,1.25,0.062], [1,1,0,1,1,0]);
             mfs = mfs.set_bfun (@quad_bg, [8.95,-5.3,0.1], [1,1,1]);
             mfs = mfs.set_mask ('keep',[0.5,1.5]);
             [wfit1_1s,fitdata1_1s] = mfs.fit();
-            
+
 
             toterr=sqrt(fitdata1_1.sig.^2 + fitdata1_1s.sig.^2);
             fitdiff=abs(fitdata1_1.p - fitdata1_1s.p);
