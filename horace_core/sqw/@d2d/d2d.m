@@ -11,9 +11,20 @@ classdef d2d < DnDBase
        NUM_DIMS = 2;
     end
 
-    methods
+    method
+        function obj = d2d(varargin)
+            obj = obj@DnDBase(varargin{:});
+        end
+
         wout=combine_horace_2d(w1,w2,varargin);
         wout=symmetrise_horace_2d(win,varargin);
+
+        [speedup,midpoint]=compare_sym_axes(win,v1,v2,v3);
+        varargout = cut(varargin);
+        [R,trans] = calculate_transformation_matrix(win,v1,v2,v3);
+
+        varargout = get(this, index);
+        varargout = multifit_sqw (varargin);
     end
 
     methods(Access = private)
@@ -42,5 +53,4 @@ classdef d2d < DnDBase
         %               obj = sqw(S);
         %        end
     end
-
 end

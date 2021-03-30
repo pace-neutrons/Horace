@@ -58,6 +58,7 @@ ulen=win.data_.ulen;
 u_to_rlu=win.data_.u_to_rlu;
 
 conversion=2*pi./win.data_.alatt;
+
 vec1=diag(conversion,0) * v1';
 vec2=diag(conversion,0) * v2';
 vec3=diag(conversion,0) * v3';

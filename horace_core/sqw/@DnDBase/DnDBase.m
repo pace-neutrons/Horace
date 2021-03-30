@@ -53,6 +53,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         w = sigvar_set(win, sigvar_obj);
         pixels = has_pixels(w);
         wout = copy(w);
+        wout = cut_dnd_main (data_source, ndims, varargin);
+        [val, n] = data_bin_limits (din);
 
         function obj = DnDBase(varargin)
             obj = obj@SQWDnDBase();

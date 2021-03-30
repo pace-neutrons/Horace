@@ -101,10 +101,10 @@ classdef test_symm < TestCase
 
         % ------------------------------------------------------------------------------------------------
         function this = test_sym_d2d(this)
-            skipTest('Insufficient dnd support for new sqw');
+            %skipTest('Insufficient dnd support for new sqw');
             % d2d symmetrisation:
-            w2d_qe_d2d = read_dnd(fullfile(this.testdir,'w2d_qe_d2d.sqw'));
-            w2d_qq_d2d = read_dnd(fullfile(this.testdir,'w2d_qq_d2d.sqw'));
+            w2d_qe_d2d = d2d(fullfile(this.testdir,'w2d_qe_d2d.sqw'));
+            w2d_qq_d2d = d2d(fullfile(this.testdir,'w2d_qq_d2d.sqw'));
 
             w2_1 = symmetrise_horace_2d(w2d_qe_d2d,[0,NaN]);
             w2_2 = symmetrise_horace_2d(w2d_qq_d2d,[-0.005,NaN]);
@@ -125,7 +125,7 @@ classdef test_symm < TestCase
             w2_2b_s=d2d(symmetrise_sqw(w2d_qq_sqw,[0,0,1],[0,1,0],[0,0,0]));% CMDEV was d2d
             w2_2b_s=cut(w2_2b_s,[-1.0125,0.025+3.5e-8,1],[-1.0167,0.025+3.5e-8,1.0333]);
 
-            w2d_qq_d2d=read_dnd(fullfile(this.testdir,'w2d_qq_d2d.sqw'));
+            w2d_qq_d2d=d2d(fullfile(this.testdir,'w2d_qq_d2d.sqw'));
             w2_2b=symmetrise_horace_2d(w2d_qq_d2d,[0,0,1],[0,1,0],[0,0,0]);
             w2_2b=cut(w2_2b,[-1,0.025,1],[-1.0167,0.025,1.0333]);
 

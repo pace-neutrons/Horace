@@ -95,7 +95,6 @@ switch route
             wout.data_.s = sout;
             wout.data_.e = eout;
             wout.data_.npix = nout;
-
         else
             %realise that we have to restrict ourselves to symmetrisation
             %planes that are pendicular to the data plane, so that the
@@ -118,6 +117,7 @@ switch route
                     %to combine them.
                     [xin,yin]=ndgrid(win.data_.p{1},win.data_.p{2});
                     v1=varargin{1}; v2=varargin{2}; v3=varargin{3};
+
                     [xout, yout, sout, eout, nout] = symmetrise_2d_diag(xin, yin, ...
                         win.data_.s, win.data_.e, win.data_.npix, v1, v2, v3, type, win);
                     wout=d2d(win);
@@ -151,6 +151,7 @@ switch route
                     yinhi=max(max(yinright)); yrhi=max(max(yrright));
                     xstep=win.data_.p{1}(2)- win.data_.p{1}(1);
                     ystep=win.data_.p{2}(2) - win.data_.p{2}(1);
+
                     xoutbin=[min([xinlo xrlo]):xstep:(max([xinhi xrhi])+xstep-eps)];%extra bit to avoid
                     %problems with rounding errors
                     youtbin=[min([yinlo yrlo]):ystep:(max([yinhi yrhi])+ystep-eps)];

@@ -18,6 +18,9 @@ classdef (Abstract) SQWDnDBase
     end
 
     methods  % Public
+        [s,var,mask_null] = sigvar_get (w);
+        wout = mask (win, mask_array);
+        [sel,ok,mess] = mask_points (win, varargin);
         [xout,yout,sout,eout,nout] = convert_bins_for_shoelace(win, wref);
         wout = IX_dataset_1d(w);
         wout = IX_dataset_2d(w);
@@ -31,6 +34,10 @@ classdef (Abstract) SQWDnDBase
 
         wout = smooth(win, varargin);
         wout = smooth_units(win, varargin);
+    end
+    
+    methods (Static)
+        [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
     end
 
     methods (Access = protected)
