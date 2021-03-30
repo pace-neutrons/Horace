@@ -57,7 +57,7 @@ classdef test_sqw_eval < TestCase
 
         function test_notEnoughOutputs_error_if_no_ret_value_and_no_outfile(obj)
             f = @() sqw_eval(obj.sqw_2d_obj, obj.gauss_sqw, obj.gauss_params);
-            assertExceptionThrown(f, 'MATLAB:nargoutchk:notEnoughOutputs')
+            assertExceptionThrown(f, 'MATLAB:nargoutchk:notEnoughOutputs');
         end
 
         function test_notEnoughOutputs_error_if_no_ret_value_and_filebacked(obj)
@@ -67,7 +67,7 @@ classdef test_sqw_eval < TestCase
                 obj.gauss_params, ...
                 'filebacked', true ...
             );
-            assertExceptionThrown(f, 'MATLAB:nargoutchk:notEnoughOutputs')
+            assertExceptionThrown(f, 'MATLAB:nargoutchk:notEnoughOutputs');
         end
 
         function test_error_if_num_outfiles_ne_to_num_input_objects(obj)
