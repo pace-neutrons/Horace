@@ -196,7 +196,7 @@ These properties can be used to retrieve and set data _in the current page_.
     ans =
       [1, 10]
 
->> tail_coordinates = pix.coordinates((end - 10):end);
+>> tail_coordinates = pix.coordinates((end - 9):end);
 >> size(tail_coordinates)
     ans =
       [4, 10]
