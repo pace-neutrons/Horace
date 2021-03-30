@@ -93,8 +93,8 @@ and operate on those pixels.
   - The page size is specified on construction (in bytes).
   - Only a page size worth of pixels is loaded at any one time.
   - If all pixels fit in one page, all pixels are loaded.
-  - The default page size is `realmax`,
-    this means that, by default, exactly one page is used.
+  - The default page size is `realmax`, this means that,
+    by default, exactly one page is used, as this value is very large.
 
 - Temporary files hold changes to pixel data.
   - When pixel data is changed, the changes are written to a temporary file
