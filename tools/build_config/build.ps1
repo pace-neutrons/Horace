@@ -28,6 +28,8 @@
   https://github.com/pace-neutrons/Horace
 #>
 param (
+  # Run the Horace configure commands.
+  [switch][Alias("g")]$configure,
   # Run the Horace build commands.
   [switch][Alias("b")]$build,
   # Run all Horace tests.
@@ -153,7 +155,7 @@ function Invoke-Configure {
   $cmake_cmd += " $(New-CMake-Generator-Command -vs_version $vs_version)"
   $cmake_cmd += " -DBUILD_TESTS=$build_tests"
   $cmake_cmd += " -DMatlab_RELEASE=$matlab_release"
-  $cmake_cmd += " $cmake_flags"
+  $cmake_cmd += " ${cmake_flags}"
 
   Invoke-In-Dir -directory "$build_dir" -command "$cmake_cmd"
   if ($LASTEXITCODE -ne 0) {
@@ -194,9 +196,8 @@ function Invoke-Package {
 
 function Invoke-Docs {
   param([string]$build_dir)
-  Write-And-Invoke "cmake --build ""$build_dir"" --target docs"
+  Write-And-Invoke "cmake --build ""$build_dir"" --target docs-pack"
 
-  Compress-Archive -Path ./documentation/user_docs/build/html/* -DestinationPath "./docs.zip"
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
   }
@@ -236,7 +237,7 @@ if ($print_versions) {
   Write-Versions
 }
 
-if ($build) {
+if ($configure -or -not (Test-Path -Path "${build_dir}/CMakeCache.txt" -PathType Leaf)) {
   New-Build-Directory -build_dir "$build_dir"
   Invoke-Configure `
     -vs_version $vs_version `
@@ -245,6 +246,9 @@ if ($build) {
     -build_tests "$build_tests" `
     -matlab_release "$matlab_release" `
     -cmake_flags "$cmake_flags"
+}
+
+if ($build) {
   Invoke-Build -build_dir "$build_dir" -build_config "$build_config"
 }
 

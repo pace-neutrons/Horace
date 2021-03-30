@@ -72,7 +72,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             file_nonHor = fullfile(fileparts(obj.test_folder),...
                 'test_sqw_file','testdata_base_objects.mat');
             fl = @()(sqw_formats_factory.instance().get_loader(file_nonHor));
-            assertExceptionThrown(fl,'SQW_FILE_IO:runtime_error')
+            assertExceptionThrown(fl,'SQW_FILE_IO:runtime_error');
         end
         function test_selection_v0(obj)
             file_v0 = fullfile(fileparts(obj.test_folder),...
@@ -102,7 +102,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             file_ficVer = fullfile(fileparts(obj.test_folder),...
                 'test_sqw_file','test_sqw_file_fictional_ver.sqw');
             fl = @()(sqw_formats_factory.instance().get_loader(file_ficVer));
-            assertExceptionThrown(fl,'SQW_FILE_IO:runtime_error')
+            assertExceptionThrown(fl,'SQW_FILE_IO:runtime_error');
         end
         %
         function test_selection_v1(obj)

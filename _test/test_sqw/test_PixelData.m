@@ -92,12 +92,12 @@ classdef test_PixelData < TestCase
 
         function test_PIXELDATA_raised_on_construction_with_data_with_lt_9_cols(~)
             f = @() PixelData(ones(3, 3));
-            assertExceptionThrown(f, 'PIXELDATA:data')
+            assertExceptionThrown(f, 'PIXELDATA:data');
         end
 
         function test_PIXELDATA_raised_on_construction_with_data_with_gt_9_cols(~)
             f = @() PixelData(ones(10, 3));
-            assertExceptionThrown(f, 'PIXELDATA:data')
+            assertExceptionThrown(f, 'PIXELDATA:data');
         end
 
         function test_coordinates_returns_empty_array_if_pixel_data_empty(~)
@@ -251,7 +251,7 @@ classdef test_PixelData < TestCase
             end
 
             f = @() (set_coordinates(new_coord_data));
-            assertExceptionThrown(f, 'MATLAB:subsassigndimmismatch')
+            assertExceptionThrown(f, 'MATLAB:subsassigndimmismatch');
         end
 
         function test_error_raised_if_setting_coordinates_with_wrong_num_cols(obj)
@@ -264,7 +264,7 @@ classdef test_PixelData < TestCase
 
             new_coord_data = ones(3, num_rows);
             f = @() set_coordinates(new_coord_data);
-            assertExceptionThrown(f, 'MATLAB:subsassigndimmismatch')
+            assertExceptionThrown(f, 'MATLAB:subsassigndimmismatch');
         end
 
         function test_PixelData_object_with_underlying_data_is_not_empty(obj)
@@ -279,13 +279,13 @@ classdef test_PixelData < TestCase
         function test_PIXELDATA_error_if_constructed_with_struct(~)
             s = struct();
             f = @() PixelData(s);
-            assertExceptionThrown(f, 'PIXELDATA:data')
+            assertExceptionThrown(f, 'PIXELDATA:data');
         end
 
         function test_PIXELDATA_error_if_constructed_with_cell_array(~)
             s = {'a', 1};
             f = @() PixelData(s);
-            assertExceptionThrown(f, 'PIXELDATA:data')
+            assertExceptionThrown(f, 'PIXELDATA:data');
         end
 
         function test_PIXELDATA_error_if_data_set_with_non_numeric_type(~)
@@ -296,7 +296,7 @@ classdef test_PixelData < TestCase
             end
 
             f = @() set_data({1, 'abc'});
-            assertExceptionThrown(f, 'PIXELDATA:data')
+            assertExceptionThrown(f, 'PIXELDATA:data');
         end
 
         function test_numel_returns_the_number_of_elements_in_the_data(obj)
@@ -505,7 +505,7 @@ classdef test_PixelData < TestCase
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
 
             f = @() obj.advance_pix(pix, floor(npix/npix_in_page + 1));
-            assertExceptionThrown(f, 'PIXELDATA:move_to_page')
+            assertExceptionThrown(f, 'PIXELDATA:move_to_page');
         end
 
         function test_advance_does_nothing_if_PixelData_not_file_backed(~)
@@ -1789,7 +1789,7 @@ classdef test_PixelData < TestCase
             new_data = ones(numel(fields) + 1, 7);
             idxs = [4, 3, 9, 24, 29, 10, 11];
             f = @() pix.set_data(fields, new_data, idxs);
-            assertExceptionThrown(f, 'HORACE:PIXELDATA:incorrect_num_rows')
+            assertExceptionThrown(f, 'HORACE:PIXELDATA:incorrect_num_rows');
         end
 
         function test_set_data_errors_if_data_ncols_ne_to_num_indices(~)
@@ -1798,7 +1798,7 @@ classdef test_PixelData < TestCase
             idxs = [4, 3, 9, 24, 29, 10, 11];
             new_data = ones(numel(fields), numel(idxs) - 1);
             f = @() pix.set_data(fields, new_data, idxs);
-            assertExceptionThrown(f, 'HORACE:PIXELDATA:incorrect_num_cols')
+            assertExceptionThrown(f, 'HORACE:PIXELDATA:incorrect_num_cols');
         end
 
         function test_set_data_sets_fields_with_given_values_with_logical_idxs(~)
