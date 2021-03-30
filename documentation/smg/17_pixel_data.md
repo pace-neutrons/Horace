@@ -164,7 +164,7 @@ This method, called when saving an `sqw` object,
 loops over pixel pages and saves them to the `sqw` file.
 
 There also exists `sqw_binfile_common.put_bytes`
-which can be used to save arbitrary data to an `sqw` file.
+which can be used to save arbitrary numeric data to an `sqw` file.
 You can position the `sqw_binfile_common` instance's file handle at the start
 of the `sqw` file's pixel array,
 and save pixels directory to file this way.
@@ -437,7 +437,8 @@ end
   (e.g. signal), as these data are not contiguous in memory (or on disk).
 
 - Algorithms that transform pixel coordinates should update the **pixel range**.
-  This range is a property on the PixelData instances (`pix_range`),
+  This specifies the minimum and maximum value for each coordinate.
+  The range is a property on a PixelData instance (`pix_range`),
   it should be updated with the new coordinate limits.
   Preferably, the update should take place within the algorithm.
   This avoids the use of the `recalc_pix_range` method,
