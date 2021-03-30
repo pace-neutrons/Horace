@@ -242,8 +242,9 @@ you can use the `num_pixels` property to achieve the same effect.
 
 The getter methods have the advantage of being able to get/set multiple columns
 at once.
-This can be more efficient, as you're performing a single slice, instead of
-multiple.
+This can be more efficient,
+as only a single slice into the pixel cache is performed,
+rather than a slice for each column (field).
 
 ```matlab
 % The below examples are equivalent for a pixel data object with one page.
