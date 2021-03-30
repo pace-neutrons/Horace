@@ -32,6 +32,7 @@ function [img_db_range,pix_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 %
 % JobDispatcherInstance-- the initialized instance of JobDispatcher,
 %                       to use in combining sqw files in parallel
+% WARNING:
 % pix_range          -- [2x4] array of ranges (min/max q-dE coordinates values)
 %                       of all pixels, from all contributing files. If provided,
 %                       will be set as the range of the pixels, combined

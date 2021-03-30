@@ -204,7 +204,7 @@ classdef projection<aProjection
             ubinv = u_to_rlu.*repmat(ulen_inv,3,1);
             ubmat = inv(ubinv);
             b_mat = bmatrix(alatt, angdeg);
-            %ub = umat*b;
+            %ub = umat*b_mat;
             umat = ubmat/b_mat;
             %
             u_dir = (b_mat\umat(1,:)')';

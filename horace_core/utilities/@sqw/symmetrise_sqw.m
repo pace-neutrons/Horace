@@ -171,14 +171,15 @@ clear 'coords_new';
 existing_range = wout.data.img_db_range;
 proj = win.data.get_projection();
 
-cc_range_minmax = proj.transform_img_to_pix(existing_range');
-cc_ranges= expand_box(cc_range_minmax(:,1),cc_range_minmax(:,2));    
-cc_minmax = [min(cc_ranges,[],2),max(cc_ranges,[],2)];
+exp_range= expand_box(existing_range(1,1:3),existing_range(2,1:3));    
+cc_ranges = proj.transform_img_to_pix(exp_range);
+%
 %
 % add intersection points between the image range and the symmetry plain
-cross_points = box_intersect(cc_minmax ,[vec1,vec2,vec3]);
+
+cross_points = box_intersect(cc_ranges ,[vec1+vec3,vec2+vec3,vec3]);
 % remove energy ranges to combine interseciton points with cross-points
-cc_ranges = cc_ranges(1:3,:);
+
 cc_exist_range = [cc_ranges,cross_points];
 
 % transform existing range into transformed range
