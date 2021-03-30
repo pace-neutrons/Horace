@@ -134,7 +134,7 @@ switch route
                 xbin=[thexmin,thexstep,thexmax];
                 ybin=[theymin,theystep,theymax];
                 %
-                % get for one arg is a wrapper to struct so 
+                % get for one arg is a wrapper to struct so
                 % this is equivalent and saves porting get to new sqw
                 %wout=get(win);%needs to be structure array because in some of the intermediate
                 wout=struct(win);%needs to be structure array because in some of the intermediate
@@ -224,7 +224,7 @@ switch route
                     %makes a 2d dataset with same x/y range as win
                     wtmp=cut(win,[],[],[-Inf,Inf]);
                     w2tmp=cut(w2,[],[],[-Inf,Inf]);
-                    [xtmp,ytmp,stmp,etmp,ntmp]=convert_bins_for_shoelace(d2d_old(wtmp),d2d_old(w2tmp));
+                    [xtmp,ytmp,stmp,etmp,ntmp]=convert_bins_for_shoelace(wtmp, w2tmp);
                     minx1=min(min(xtmp)); maxx1=max(max(xtmp));
                     miny1=min(min(ytmp)); maxy1=max(max(ytmp));
                     %

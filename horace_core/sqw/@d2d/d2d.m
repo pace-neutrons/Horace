@@ -11,6 +11,16 @@ classdef d2d < DnDBase
        NUM_DIMS = 2;
     end
 
+    methods
+        wout=symmetrise_horace_2d(win,varargin);
+    end
+
+    methods(Access = private)
+        [R, trans] = calculate_transformation_matrix(win,v1,v2,v3);
+        [ok, mess] = test_symmetrisation_plane(win,v1,v2,v3);
+        [diag, type] = test_symmetrisation_plane_digaonal(win,v1,v2,v3);
+    end
+
     methods(Static)
         %TODO: disabled until full functionality is implemeneted in new class;
         % The addition of this method causes sqw_old tests to incorrectly load data from .mat files
@@ -31,8 +41,5 @@ classdef d2d < DnDBase
         %               obj = sqw(S);
         %        end
     end
-    
-    methods
-        wout=symmetrise_horace_2d(win,varargin);
-    end
+
 end
