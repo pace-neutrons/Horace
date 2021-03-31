@@ -16,11 +16,12 @@ function pix_out = get_pixels(obj, abs_pix_indices)
 % Input:
 % ------
 %   abs_pix_indices  A vector of positive integers or a vector of logicals.
-%                    If a vector of integers, include the pixels with those
-%                    indices, in the given order, in the returned PixelData
-%                    object.
-%                    If a vector of logicals, keep pixels where the logical
-%                    array index is 1 and remove pixels where it's 0.
+%                    The syntax for these indices attempts to replicate indexing
+%                    into a regular Matlab array. You can use logical indices
+%                    as well as normal indices, and you can index into the array
+%                    "out-of-order". However, you cannot use `end`, but it is
+%                    possible to achieve the same effect using the `num_pixels`
+%                    property.
 %
 % Output:
 % -------

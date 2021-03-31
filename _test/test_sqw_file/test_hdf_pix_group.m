@@ -101,7 +101,6 @@ classdef test_hdf_pix_group < TestCase
             % new file needs more than one argument for
             % creation
             assertExceptionThrown(f_missing,'HDF_PIX_GROUP:invalid_argument');
-
         end
         %
         function test_multiblock_read(obj)
