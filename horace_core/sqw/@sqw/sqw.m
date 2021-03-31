@@ -28,8 +28,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         sz = sigvar_size(w);
         %[sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);
-        varargout = multifit_sqw (varargin);
-        varargout = multifit_sqw_sqw (varargin);
+
         varargout = tobyfit (varargin);
         [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,store_in,...
                                                           sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);

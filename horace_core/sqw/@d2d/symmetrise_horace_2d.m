@@ -139,10 +139,10 @@ switch route
                     %Now we collect the data and reflected data, and throw away
                     %info from both sets that is to the lhs of the reflection
                     %plane:
-                    [xinright,yinright,sinright,einright,ninright]=discard_lhs(xin,yin,sin,ein,nin,...
-                        win,v1,v2,v3);
-                    [xrright,yrright,srright,erright,nrright]=discard_lhs(xr,yr,sr,er,nr,...
-                        win,v1,v2,v3);
+                    [xinright,yinright,sinright,einright,ninright]=discard_lhs(win,xin,yin,sin,ein,nin,...
+                        v1,v2,v3);
+                    [xrright,yrright,srright,erright,nrright]=discard_lhs(win,xr,yr,sr,er,nr,...
+                        v1,v2,v3);
                     %We must do shoelace rebinning on what is left. But first
                     %we must make an output grid that covers all of the data_.
                     xinlo=min(min(xinright)); xrlo=min(min(xrright));
@@ -206,7 +206,7 @@ switch route
                     wout.data_.e=efinal;
                     wout.data_.npix=nfinal;
 
-                    wout.data_.title=[getout.title,' SYMMETRISED '];
+                    wout.data_.title=[wout.data_.title,' SYMMETRISED '];
                 end
             else
                 error(mess);
