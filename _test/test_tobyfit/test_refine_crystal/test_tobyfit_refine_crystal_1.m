@@ -160,8 +160,7 @@ if save_data
 else
     % Read in data
     data = load(datafile, 'wsim');         % load from .mat file
-    data.wsim = manage_legacy_sqw_class_rename(data.wsim);
-    
+
     save(data.wsim,sqw_file_res);   % save as an sqw file (se want to perform tests on sqw files, no objects
 end
 
