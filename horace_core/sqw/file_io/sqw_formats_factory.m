@@ -45,10 +45,10 @@ classdef sqw_formats_factory < handle
         %
         % Rules to load/save different classes:
         % sqw2 corresponds to sqw file in indirect mode with varying efixed
-        written_types_ = {'sqw', 'sqw_old','sqw2','dnd','d0d_old','d1d_old','d2d_old','d3d_old','d4d_old'};%,'sqw'};
+        written_types_ = {'sqw','sqw2','dnd','d0d','d1d','d2d','d3d','d4d'};
         % number of loader in the list of loaders above to use for saving
         % correspondent class
-        access_to_type_ind_ = {1,1,3,5,5,5,5,5,5};
+        access_to_type_ind_ = {1,3,5,5,5,5,5,5};
         types_map_ ;
     end
     properties(Dependent)

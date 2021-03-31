@@ -156,7 +156,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
                 'test_symmetrisation','w1d_d1d.sqw');
             ttob = dnd_binfile_common_tester(samp);
             sq_obj = ttob.get_sqw();
-            assertTrue(isa(sq_obj,'d1d_old'));
+            assertTrue(isa(sq_obj,'d1d'));
 
             test_f = fullfile(tmp_dir,'test_dnd_copy_constructor_write_perm.sqw');
             clob = onCleanup(@()delete(test_f));
@@ -188,7 +188,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             % important! -verbatim is critical here! without it we should
             % reinitialize object to write!
             sq_obj = ttob.get_sqw('-verbatim');
-            assertTrue(isa(sq_obj,'d1d_old'));
+            assertTrue(isa(sq_obj,'d1d'));
 
             test_f = fullfile(tmp_dir,'test_dnd_reopen_to_wrire.sqw');
             clob = onCleanup(@()delete(test_f));
