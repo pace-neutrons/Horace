@@ -103,7 +103,7 @@ assertTrue(ok,mess)
 
 % Write and read back in
 try
-    save(f1_1_s0,tmpsqwfile); tmp=read(sqw,tmpsqwfile);
+    save(f1_1_s0,tmpsqwfile); tmp=sqw(tmpsqwfile);
 catch err
     warning('test_sqw_file_read_write:io1','Error reading/writing sqw object')
     rethrow(err);
