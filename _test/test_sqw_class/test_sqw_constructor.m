@@ -94,10 +94,7 @@ methods
         assertFalse(equal_to_tol(sqw_copy, sqw_obj));
     end
 
-%TODO: disabled until full functionality is implemeneted in new class;
-% The addition of this method causes sqw_old tests to incorrectly load data from .mat files
-% as new-SQW class objects
-    function DISABLED_test_save_load_returns_identical_object(obj)
+    function test_save_load_returns_identical_object(obj)
         tmp_filename=fullfile(tmp_dir, 'sqw_loadobj_test.mat');
         cleanup_obj=onCleanup(@() delete(tmp_filename));
 
