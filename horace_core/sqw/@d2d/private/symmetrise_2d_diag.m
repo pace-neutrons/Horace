@@ -47,24 +47,21 @@ if type~=1
     end
 end
 
-if ~isa(win,'d2d')
-    error('Symmetrise error: input object must be of sqw type');
+if ~isa(win,'SQWDnDBase')
+    error('Symmetrise error: input object must be of sqw or DnD type');
 end
-  
+
 %==========================================================================
 %==========================================================================
 
-ulen=win.ulen;
-u_to_rlu=win.u_to_rlu;
+ulen=win.data_.ulen;
+u_to_rlu=win.data_.u_to_rlu;
 
-conversion=2*pi./win.alatt;
+conversion=2*pi./win.data_.alatt;
+
 vec1=diag(conversion,0) * v1';
 vec2=diag(conversion,0) * v2';
 vec3=diag(conversion,0) * v3';
-
-% vec1=diag(ulen(1:3),0) * v1';
-% vec2=diag(ulen(1:3),0) * v2';
-% vec3=diag(ulen(1:3),0) * v3';
 
 if size(vec1)==[3,1]
     vec1=vec1';
@@ -80,11 +77,6 @@ vec1p=inv(u_to_rlu([1:3],[1:3]))*vec1';
 vec2p=inv(u_to_rlu([1:3],[1:3]))*vec2';
 vec3p=inv(u_to_rlu([1:3],[1:3]))*vec3';
 
-%OLD CODE
-% vec1p=(u_to_rlu([1:3],[1:3]))'*vec1';
-% vec2p=(u_to_rlu([1:3],[1:3]))'*vec2';
-% vec3p=(u_to_rlu([1:3],[1:3]))'*vec3';
-
 trans=vec3p;
 normvec=cross(vec1p,vec2p);
 
@@ -94,8 +86,8 @@ normvec=cross(vec1p,vec2p);
 
 %============
 %No longer needed if we get trans in rlu
-% xnorm=xin.*ulen(win.pax(1));
-% ynorm=yin.*ulen(win.pax(2));%this is required in case the length of the axes are different
+% xnorm=xin.*ulen(win.data.pax(1));
+% ynorm=yin.*ulen(win.data.pax(2));%this is required in case the length of the axes are different
 % %e.g. for an orthorhombic system.
 
 % xintrans=xnorm-trans(1);
@@ -154,8 +146,8 @@ ytmp=ytmp+trans(2);
 [xout,yout,sout,eout,nout]=combine_2d(xin,yin,sin,ein,nin,xtmp,ytmp,stmp,etmp,ntmp,[]);
 %
 %Final step is to get the axes correctly normalised again.
-%xout=xout./ulen(win.pax(1));
-%yout=yout./ulen(win.pax(2));
+%xout=xout./ulen(win.data.pax(1));
+%yout=yout./ulen(win.data.pax(2));
 
 
 

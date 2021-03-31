@@ -66,61 +66,45 @@ if save_data
     % Cuts from iron
     % --------------
     proj_fe = projaxes([1,1,0],[-1,1,0]);
-    
+
     % Short cut along [1,1,0]
     fe_1=cut_sqw(data_source_fe,proj_fe,[0.95,1.05],[-0.6,0.05,0.6],[-0.05,0.05],[150,160]);
-    
+
     % Long cut along [1,1,0]
     fe_2=cut_sqw(data_source_fe,proj_fe,[0.95,1.05],[-2,0.05,3],[-0.05,0.05],[150,160]);
-    
+
     % Create cuts to simulate or fit simultaneously
     tmp_1=cut_sqw(data_source_fe,proj_fe,[0.95,1.05],[-0.6,0.05,0.6],[-0.05,0.05],[140,160]);
     tmp_2=cut_sqw(data_source_fe,proj_fe,[0.95,1.05],[-0.6,0.05,0.6],[-0.05,0.05],[160,180]);
     tmp_3=cut_sqw(data_source_fe,proj_fe,[0.95,1.05],[-0.6,0.05,0.6],[-0.05,0.05],[180,200]);
-    
+
     fe_arr=[tmp_1,tmp_2,tmp_3];
-    
+
     % Cuts from RbMnF3
     % ----------------
     proj_rb = projaxes([1,1,0],[0,0,1]);
     rb_1 = cut_sqw(data_source_rb,proj_rb,[0.45,0.55],[-0.05,0.05],[-0.05,0.05],[5,0,11]);
-    
+
     tmp_1 = cut_sqw(data_source_rb,proj_rb,[0.45,0.55],[0.25,0.35],[-0.05,0.05],[2,0,10]);
     tmp_2 = cut_sqw(data_source_rb,proj_rb,[0.45,0.55],[0.15,0.25],[-0.05,0.05],[2,0,10]);
-    
+
     rb_arr = [tmp_1;tmp_2];
-    
-    
+
+
     % Now save to file for future use
     datafile_full = fullfile(tmp_dir,datafile);
     save(datafile_full,'fe_1','fe_2','fe_arr','rb_1','rb_arr');
     disp(['Saved data for future use in',datafile_full])
     return
-    
+
 else
     % Read in data
     load(datafile, 'fe_1','fe_2','fe_arr','rb_1','rb_arr');
-    fe_1 = manage_legacy_sqw_class_rename(fe_1);
-    fe_2 = manage_legacy_sqw_class_rename(fe_2);
-    % New SQW object not able to load old SQW object array
-    % so fe_arr has been pre-converted into 3 separate objects
-    % from the old test prior to being loaded here.
-    %fe_arr = manage_legacy_sqw_class_rename(fe_arr);
-    rb_1 = manage_legacy_sqw_class_rename(rb_1);
-    % New SQW object not able to load old SQW object array
-    % so rb_arr has been pre-converted into 3 separate objects
-    % from the old test prior to being loaded here.
-    %rb_arr = manage_legacy_sqw_class_rename(rb_arr);
     load('ferbarr_as_separate_objects.mat');
 	% The objects are now inserted into the array after being
 	% loaded independently
     fe_arr = [fea1, fea2, fea3];
     rb_arr = [rba1;rba2];
-    fe_arr(1) = manage_legacy_sqw_class_rename(fe_arr(1));
-    fe_arr(2) = manage_legacy_sqw_class_rename(fe_arr(2));
-    fe_arr(3) = manage_legacy_sqw_class_rename(fe_arr(3));
-    rb_arr(1) = manage_legacy_sqw_class_rename(rb_arr(1));
-    rb_arr(2) = manage_legacy_sqw_class_rename(rb_arr(2));
 end
 
 % Add instrument and sample information to cuts
@@ -256,20 +240,20 @@ end
 % %% --------------------------------------------------------------------------------------
 % % Collect results together as a structure
 % % ---------------------------------------------------------------------------------------
-% 
+%
 % % Cuts
 % res.fe = fe;
 % res.rb = rb;
 % res.ferb = ferb;
-% 
+%
 % % Fe only fit
 % res.fe_tf_1 = fe_tf_1;
 % res.par_fe_tf_1 = par_fe_tf_1;
-% 
+%
 % % Rb only fit
 % res.rb_tf_1 = rb_tf_1;
 % res.par_rb_tf_1 = par_rb_tf_1;
-% 
+%
 % % Fe and Rb simultaneous fit
 % res.ferb_tf_1 = ferb_tf_1;
 % res.par_ferb_tf_1 = par_ferb_tf_1;

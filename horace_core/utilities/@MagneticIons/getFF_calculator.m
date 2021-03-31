@@ -44,7 +44,7 @@ function  fint = getFF_calculator(self,win)
 % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 
-if isa(win,'sqw_old')
+if isa(win,'sqw')
     header_ave=header_average(win);
     self.u_2_rlu_ = header_ave.u_to_rlu(1:3,1:3);
     %self.u_2_rlu_ = win.data.u_to_rlu(1:3,1:3);

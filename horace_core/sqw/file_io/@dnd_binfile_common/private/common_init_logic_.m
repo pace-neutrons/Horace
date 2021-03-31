@@ -80,8 +80,7 @@ elseif ischar(input) || isnumeric(input)
 elseif isstruct(input) && isfield(input,'class_name')
     obj = loadobj(input);
 else
-    type = class(input);
-    if ismember(type,{'d0d_old','d1d_old','d2d_old','d3d_old','d4d_old','sqw_old','sqw'}) || is_sqw_struct(input)
+    if isa(input, 'SQWDnDBase') || is_sqw_struct(input)
         % still needed check against an obj already defined and new object
         % used as upgrade
         if ~ischar(obj.num_dim) && obj.file_id_ > 0

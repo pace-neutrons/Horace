@@ -12,7 +12,7 @@ function [figureHandle, axesHandle, plotHandle] = ps2(w,varargin)
 %                   %     object.
 %
 % Differs from ds in that the signal sets the z axis, and the colouring is
-% set by the error bars, or by another object. This enables two related 
+% set by the error bars, or by another object. This enables two related
 % functions to be plotted (e.g. dispersion relation where the 'signal'
 % array holds the energy and the error array holds the spectral weight).
 %
@@ -21,11 +21,11 @@ function [figureHandle, axesHandle, plotHandle] = ps2(w,varargin)
 %                                   % or figure with given figure number or handle
 %
 % Return figure, axes and plot handles:
-%   >> [fig_handle, axes_handle, plot_handle] = ps2(w,...) 
+%   >> [fig_handle, axes_handle, plot_handle] = ps2(w,...)
 
 
 % Check input arguments (must allow for the two cases of one or two plotting input arguments)
-if ~isa(w,'sqw_old')
+if ~isa(w,'sqw')
     error('Object to plot must be an sqw object or array of objects')
 end
 

@@ -16,14 +16,14 @@ function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
 %                           h1, k1, l1
 %                           h2, k2, l2
 %                           :   :   :
-%                       These are the indicies of the Bragg peaks whose 
+%                       These are the indicies of the Bragg peaks whose
 %                       actual positions will be found by this function
 %                       e.g. [1,0,0; 0,1,0; 1,1,0]
 %
 %   radial_cut_length-| Length of cuts along Q of Bragg peak,, bin size along
 %   radial_bin_width  | the cut, and the thickness in the two perpendicular
 %   radial_thickness -| directions.
-%                       - If option 'bin_absolute' [Default] they are in 
+%                       - If option 'bin_absolute' [Default] they are in
 %                         inverse Angstroms. Start with, say: 1.5, 0.05, 0.5
 %                         respectively
 %                       - If option 'bin_relative' these are given as fractions
@@ -33,7 +33,7 @@ function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
 %   trans_cut_length-|  Length of cuts transverse to Q, bin size along
 %   trans_bin_width  |  the cut, and the thickness in the two perpendicular
 %   trans_thickness -|  directions.
-%                       - If option 'bin_absolute' [Default] they are in 
+%                       - If option 'bin_absolute' [Default] they are in
 %                         inverse Angstroms. Start with, say: 1.5, 0.05, 0.5
 %                         respectively
 %                       - If option 'bin_relative' these are given in degrees
@@ -57,7 +57,7 @@ function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
 % Fitting:
 %   'outer'         Determine peak position from centre of peak half-height; find
 %                  peak width moving inwards from limits of data - useful if
-%                  there is known to be a single peak in the data as it is 
+%                  there is known to be a single peak in the data as it is
 %                  more robust to too finely binned data.  [Default]
 %   'inner'         Determine peak position from centre of peak half height; find
 %                  peak width moving outwards from peak maximum
@@ -79,13 +79,13 @@ function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
 %   wpeak           Array of spectra, size (n x 3), that summarise the peak
 %                  analysis. Pass to bragg_positions_view together with wcut
 %                  (above) to view the output. [Note: for asfficionados: the
-%                  cuts are IX_dataset_1d objects and can also be plotted using 
+%                  cuts are IX_dataset_1d objects and can also be plotted using
 %                  the plot functions for these objects.]
 %
 %
 % See also: bragg_positions_view
 %
-% NOTE: The default cut parameters were changed to 'bin_absolute' from 
+% NOTE: The default cut parameters were changed to 'bin_absolute' from
 %       'bin_relative' in February 2015. If you have funny behaviour, please
 %       check that you are using the option you expect.
 
@@ -97,7 +97,7 @@ function [rlu0,width,wcut,wpeak]=bragg_positions(w, rlu,...
 
 % Check input arguments
 if ischar(w)    % assume a file name
-    file_type_ok=is_sqw_type_file(sqw_old,w);
+    file_type_ok=is_sqw_type_file(sqw,w);
     if ~isscalar(file_type_ok) || ~file_type_ok
         error('File must be sqw type')
     end
@@ -210,7 +210,7 @@ for i=1:size(rlu,1)
     % Extract Q point through which to get three orthogonal cuts
     Qrlu = rlu(i,:);
     modQ=norm(B*Qrlu(:));   % length of Q vector in Ang^-1
-    
+
     % Create proj for taking three orthogonal cuts
     %   - proj.u along Q, to get maximum resolution in d-spacing
     %   - proj.v defined by whichever of u1, u2 projection axes is closer
@@ -225,7 +225,7 @@ for i=1:size(rlu,1)
         proj.v=u2_rlu;
     end
     proj.type='aaa';        % force unit length of projection axes to be 1 Ang^-1
-    
+
     % radial_cut_length, radial_bin_width, radial_thickness,...
     % trans_cut_length, trans_bin_width, trans_thickness, energy_window)
     if absolute_binning
@@ -243,18 +243,18 @@ for i=1:size(rlu,1)
         bin_t=(pi/180)*trans_bin_width*modQ;
         thick_t=(pi/180)*trans_thickness*modQ;
     end
-    
+
     % Make three orthogonal cuts through nominal Bragg peak positions
     disp('--------------------------------------------------------------------------------')
     disp(['Peak ',num2str(i),':  [',num2str(Qrlu),']','    scan: 1 (radial scan)'])
     w1a_1=cut_sqw(w, proj, [-len_r/2,bin_r,+len_r/2] ,[-thick_t/2,+thick_t/2]   ,[-thick_t/2,+thick_t/2],   eint, '-nopix');
-    
+
     disp(['Peak ',num2str(i),':  [',num2str(Qrlu),']','    scan: 2 (transverse scan)'])
     w1a_2=cut_sqw(w, proj, [-thick_r/2,+thick_r/2]   ,[-len_t/2,bin_t,+len_t/2] ,[-thick_t/2,+thick_t/2],   eint, '-nopix');
-    
+
     disp(['Peak ',num2str(i),':  [',num2str(Qrlu),']','    scan: 3 (transverse scan)'])
     w1a_3=cut_sqw(w, proj, [-thick_r/2,+thick_r/2]   ,[-thick_t/2,+thick_t/2]   ,[-len_t/2,bin_t,+len_t/2], eint, '-nopix');
-    
+
     % Get peak positions
     upos0=zeros(3,1);
     if ~gau
@@ -266,7 +266,7 @@ for i=1:size(rlu,1)
         [upos0(2),width(i,2),w1a_2_pk]=peak_gaussian(IX_dataset_1d(w1a_2));
         [upos0(3),width(i,3),w1a_3_pk]=peak_gaussian(IX_dataset_1d(w1a_3));
     end
-    
+
     % Fill output spectra with cuts and peak analysis
     wcut(i,1)=IX_dataset_1d(w1a_1);
     wcut(i,2)=IX_dataset_1d(w1a_2);
@@ -274,10 +274,10 @@ for i=1:size(rlu,1)
     wpeak(i,1)=w1a_1_pk;
     wpeak(i,2)=w1a_2_pk;
     wpeak(i,3)=w1a_3_pk;
-    
+
     % Get matrix to convert upos0 to rlu
     upos2rlu=w1a_1.u_to_rlu(1:3,1:3);
-    
+
     % Convert peak position into r.l.u.
     if all(isfinite(upos0))
         rlu0(i,:)=(upos2rlu*upos0)' + Qrlu;

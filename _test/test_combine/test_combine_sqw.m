@@ -63,7 +63,8 @@ classdef test_combine_sqw < TestCase
             
         end
         %
-        function DISABLED_test_combine1D(obj)
+        function test_combine1D(obj)
+            skipTest('Problem with the orthogonal coordinate system');
             % this is to fix in a future. There is problem with orhtogonal
             % coordinate system
             

@@ -67,7 +67,7 @@ wtot.detpar=w(1).detpar;
 wtot.data=data;
 
 wtot=recompute_bin_data(wtot);
-wtot=sqw_old(wtot);
+wtot=sqw(wtot);
 
 
 %----------------------------------------------------------------------------------------

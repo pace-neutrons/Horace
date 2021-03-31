@@ -57,10 +57,10 @@ end
 sqw_file='test_tobyfit_let_2.sqw';
 
 % Output file with simulated data to be corrected
-datafile='test_tobyfit_let_2_data.mat';      
+datafile='test_tobyfit_let_2_data.mat';
 
 % Filename to which saved results are written
-savefile='test_tobyfit_let_2_out.mat';      
+savefile='test_tobyfit_let_2_out.mat';
 
 error_on_failure = true;
 
@@ -98,24 +98,23 @@ if save_data
     % ---------------------------------------
     % Full output file names
     sqw_file_full = fullfile(tmp_dir,sqw_file);
-    
+
     % Create sqw file for single spe file
     fake_sqw (en0, par_file, sqw_file_full, efix, emode, alatt, angdeg, u, v, psi0, omega, dpsi, gl, gs);
-    
+
     % Create cut
     proj = projaxes([1,1,0],[0,0,1]);
     w1 = cut_sqw (sqw_file_full, proj, [-0.5,0], [0.5,1], [-0.2,0.2], [-3.01,0.02,7.01]);
-    
+
     % Save cut for future use
     datafile_full = fullfile(tmp_dir,datafile);
     save(datafile_full,'w1');
     disp(['Saved data for future use in',datafile_full])
     return
-    
+
 else
     % Read in data
     load(datafile, 'w1');
-    w1 = manage_legacy_sqw_class_rename(w1);
 end
 
 
@@ -145,7 +144,7 @@ wref = noisify(wref,1);     % add error bars
 %% ====================================================================================================
 % Test the mod/shape chop pulse width
 % -----------------------------------
-% To access the distribution of sampling times from the joint moderator/chopper 1 
+% To access the distribution of sampling times from the joint moderator/chopper 1
 % deviate, need to use the debugger and inside the function tobyfit_DGdisk_resconv
 % pause and use the saver script to save y(1,1,:)
 
@@ -396,22 +395,22 @@ end
 % Suitable cut to simulate rods of intensity
 % wq2 = cut_sqw (sqw_file_full, proj, 0.025, 0.025, [-0.2,0.2], [-3,6]);
 % wq1 = cut_sqw (sqw_file_full, proj, [-0.2,0.2], [-0.3,0.02,0.3], [-0.2,0.2], [-3,6]);
-% 
+%
 % instru = let_instrument (efix, 280, 140, 20, 2, 2);
 % samp = IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
 % wq1 = set_instrument (wq1, instru);
 % wq1 = set_sample (wq1, samp);
-% 
+%
 % % Test the cross-section model
 % fwhh = 0.25;
 % wq2_nores=sqw_eval(wq2,@sheet_sqw,{[1,fwhh],[5,5,5,90,90,90],[0,0,1]});
 % wq1_nores=sqw_eval(wq1,@sheet_sqw,{[1,fwhh],[5,5,5,90,90,90],[0,0,1]});
-% 
-% 
+%
+%
 % % Now test resolution
 % fwhh = 0.02;
 % wnores = sqw_eval(wq1,@sheet_sqw,{[1,fwhh],[5,5,5,90,90,90],[0,0,1]});
-% 
+%
 % kk = tobyfit(wq1);
 % kk = kk.set_fun(@sheet_sqw,{[1,fwhh],[5,5,5,90,90,90],[0,0,1]});
 % kk = kk.set_mc_points(10);
@@ -422,14 +421,14 @@ end
 % % FWHH in Q
 % fwhh = 0.01;
 % wq1_nores=sqw_eval(wq1,@rod_sqw,{[1,fwhh],[5,5,5,90,90,90]});
-% 
+%
 % % Now with resolution
 % kk = tobyfit(wq1);
 % kk = kk.set_fun(@rod_sqw,{[1,fwhh],[5,5,5,90,90,90]});
 % kk = kk.set_mc_points(10);
 % kk = kk.set_mc_contributions('horiz');      % horizontal divergence only
 % wsim = kk.simulate;
-% 
+%
 % kkt = tobyfit (wq1,'disk_test');
 % kkt = kkt.set_fun(@rod_sqw,{[1,fwhh],[5,5,5,90,90,90]});
 % kkt = kkt.set_mc_points(10);
