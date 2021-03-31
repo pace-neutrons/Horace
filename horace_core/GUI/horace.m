@@ -1513,7 +1513,7 @@ end
 %Also need to deal with the case where we specify a scalar as one of the
 %binning arguments (i.e. just a step size) but the object is dnd, since
 %otherwise we get an error message from the cut routine.
-if ~is_sqw_type(sqw_old(win))
+if ~is_sqw_type(sqw(win))
     if (numel(a1new)==1 && a1new~=0) || (numel(a2new)==1 && a2new~=0) || ...
             (numel(a3new)==1 && a3new~=0) || (numel(a4new)==1 && a4new~=0)
         mess1='Object is dnd -- cannot use scalar input to rebin along an axis.';
@@ -1571,13 +1571,13 @@ end
 %We now have to deal explicitly with the cases for the 4 possible
 %dimensionalities of cut, plus whether keeping pixels is valid or not. The
 %latter is not so difficult to deal with.
-if keeppix && ~is_sqw_type(sqw_old(win))
+if keeppix && ~is_sqw_type(sqw(win))
     mess='Selected object has no pixel info -- proceeding with cut, but no pixel info retained';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     keeppix=true;%bizarrely, this is what we need to do (so there is no '-nopix' argument)
     extra_flag=true;
-elseif ~is_sqw_type(sqw_old(win))
+elseif ~is_sqw_type(sqw(win))
     keeppix=true;
 end
 
@@ -1587,7 +1587,7 @@ end
 %based on what is/isn't greyed out.
 a1old=a1; a2old=a2; a3old=a3; a4old=a4;
 getit=get(win);
-if is_sqw_type(sqw_old(win))
+if is_sqw_type(sqw(win))
     gg=getit.data;
 else
     gg=getit;
@@ -2058,7 +2058,7 @@ if ~ismanual && isfield(handles,'w_in2') && (ndims1 ~= ndims2)
 end
 
 %Work out which of the rebin functions is required:
-if is_sqw_type(sqw_old(win1))
+if is_sqw_type(sqw(win1))
     funcstr='rebin_sqw';
 elseif ndims1==1
     funcstr='rebin_horace_1d';
@@ -2485,7 +2485,7 @@ end
 %====
 
 %Work out which of the symmetrise functions is required:
-if is_sqw_type(sqw_old(win))
+if is_sqw_type(sqw(win))
     funcstr='symmetrise_sqw';
 elseif ndims==1
     funcstr='symmetrise_horace_1d';
@@ -2500,7 +2500,7 @@ end
 
 %====
 %Recall we cannot use the midpoint arg in for sqw-type data:
-if is_sqw_type(sqw_old(win)) && ismid
+if is_sqw_type(sqw(win)) && ismid
     mess='For sqw objects you can only use a specified plane to symmetrise, not a midpoint';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
@@ -2891,9 +2891,9 @@ if (ndims1 ~= ndims2)
 end
 
 %Work out which of the combine functions is required:
-if is_sqw_type(sqw_old(win1)) && is_sqw_type(sqw_old(win2))
+if is_sqw_type(sqw(win1)) && is_sqw_type(sqw(win2))
     funcstr='combine_sqw';
-elseif is_sqw_type(sqw_old(win1)) && ~is_sqw_type(sqw_old(win2))
+elseif is_sqw_type(sqw(win1)) && ~is_sqw_type(sqw(win2))
     mess='1st object is sqw type, but second is not -- cannot do combine operation';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
@@ -3197,16 +3197,16 @@ if saveafile && isempty(outfilename)
 end
 %===
 sqw_flag=false;
-if is_sqw_type(sqw_old(win1))
+if is_sqw_type(sqw(win1))
     sqw_flag=true;
     if ndims1==0
-        obj_to_cut_dnd=d0d_old(win1);
+        obj_to_cut_dnd=d0d(win1);
     elseif ndims1==1
-        obj_to_cut_dnd=d1d_old(win1);
+        obj_to_cut_dnd=d1d(win1);
     elseif ndims1==2
-        obj_to_cut_dnd=d2d_old(win1);
+        obj_to_cut_dnd=d2d(win1);
     elseif ndims1==3
-        obj_to_cut_dnd=d3d_old(win1);
+        obj_to_cut_dnd=d3d(win1);
     else
         mess='Object #1 is 4-dimensional -- cannot replicate';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
@@ -4770,7 +4770,7 @@ if isfield(handles,'w_in');
         return;
     end
     ndims=dimensions(win);
-    if is_sqw_type(sqw_old(win))
+    if is_sqw_type(sqw(win))
         mess='Object selected is sqw type -- converted to dnd to smooth';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         drawnow;
@@ -4789,7 +4789,7 @@ if isfield(handles,'w_in');
         else
             smoothing=1;%default choice
         end
-        [fig_handle,axis_handle,plot_handle]=dp(smooth(d1d_old(win),smoothing,'hat'));
+        [fig_handle,axis_handle,plot_handle]=dp(smooth(d1d(win),smoothing,'hat'));
         drawnow;
         handles.horacefig=fig_handle;
         set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
@@ -4813,7 +4813,7 @@ if isfield(handles,'w_in');
         else
             smoothing=[1 1 1];%default choice
         end
-        [fig_handle,axis_handle,plot_handle]=plot(smooth(d3d_old(win),smoothing,'hat'));
+        [fig_handle,axis_handle,plot_handle]=plot(smooth(d3d(win),smoothing,'hat'));
         drawnow;
         handles.horacefig=fig_handle;
         set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
