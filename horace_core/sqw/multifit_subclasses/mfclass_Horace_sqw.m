@@ -719,7 +719,7 @@ classdef mfclass_Horace_sqw < mfclass
 
             % Update parameter wrapping according to 'average' property
             obj_tmp = obj;
-            if obj.average && strcmp(obj.dataset_class,'sqw_old')
+            if obj.average && strcmp(obj.dataset_class,'sqw')
                 wrapfun = obj.wrapfun;
                 wrapfun.p_wrap = append_args (wrapfun.p_wrap, 'ave');
                 obj_tmp.wrapfun = wrapfun;
@@ -814,7 +814,7 @@ classdef mfclass_Horace_sqw < mfclass
 
             % Update parameter wrapping according to 'average' property
             obj_tmp = obj;
-            if obj.average && strcmp(obj.dataset_class,'sqw_old')
+            if obj.average && strcmp(obj.dataset_class,'sqw')
                 wrapfun = obj.wrapfun;
                 wrapfun.p_wrap = append_args (wrapfun.p_wrap, 'ave');
                 obj_tmp.wrapfun = wrapfun;

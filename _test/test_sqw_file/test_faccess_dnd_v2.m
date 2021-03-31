@@ -146,15 +146,13 @@ classdef test_faccess_dnd_v2< TestCase
             assertFalse(to.sqw_type)
             assertEqual(to.data_type,'b+')
             
-            
-            
             d3d_inst  = to.get_sqw();
-            assertTrue(isa(d3d_inst,'d3d_old'));
+            assertTrue(isa(d3d_inst,'d3d'));
             assertEqual(d3d_inst.filename,to.filename)
             assertEqual(d3d_inst.filepath,to.filepath)
             
             data_dnd = to.get_sqw('-ver');
-            assertTrue(isa(data_dnd,'d3d_old'));
+            assertTrue(isa(data_dnd,'d3d'));
             assertEqual(data_dnd.filename,'ei140.sqw');
         end
         

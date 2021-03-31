@@ -36,7 +36,6 @@ classdef d2d < DnDBase
     end
 
     methods(Static, Access = private)
-
         out=left_turn(a,b,c);
         out=right_turn(a,b,c);
 

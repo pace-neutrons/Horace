@@ -320,7 +320,6 @@ classdef test_faccess_sqw_v2< TestCase
         %
         function obj = test_put_dnd_from_sqw(obj)
             %
-            skipTest("New dnd object not yet implemented - d2d used");
             spath = fileparts(obj.sample_file);
             samplef  = fullfile(spath,'w2d_qq_small_sqw.sqw');
 

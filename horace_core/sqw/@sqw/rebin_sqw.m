@@ -32,8 +32,7 @@ if ~has_pixels(win)
 end
 
 if nargin==2
-    if isa(win,'sqw') && (isa(varargin{1},'sqw') || ...
-            isa(varargin{1},'d1d_old') || isa(varargin{1},'d2d_old') || isa(varargin{1},'d3d_old'))
+    if isa(win,'sqw') && (isa(varargin{1},'SQWDnDBase') && varargin{1}.dimensions() < 4)
             route=1;%rebinning using the boundaries of a template object (more tests required)
     elseif isvector(varargin{1})
         route=2;

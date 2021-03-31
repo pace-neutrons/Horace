@@ -15,12 +15,9 @@ function sqw_type = is_sqw_type(w)
 %
 % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
+
 sqw_type=false(size(w));
 for i=1:numel(w)
-    if w(i).data.pix.num_pixels > 0
-        sqw_type(i) = true;
-    else
-        sqw_type(i) = false;
-    end
+    sqw_type(i) = w(i).has_pixels()
 end
 
