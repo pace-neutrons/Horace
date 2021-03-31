@@ -150,7 +150,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         detpar_struct = make_sqw_detpar();
         header = make_sqw_header();
         main_header = make_sqw_main_header();
-        wout = recompute_bin_data(w);
 
         function args = parse_args(varargin)
             % Parse a single argument passed to the SQW constructor
