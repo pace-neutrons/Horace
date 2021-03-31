@@ -57,10 +57,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         d=spe(w);
         %{
         %[deps,eps_lo,eps_hi,ne]=energy_transfer_info(header);
-        [figureHandle, axesHandle, plotHandle] = plot(w,varargin);
-        wout = IX_dataset_1d (w);
-        wout = IX_dataset_2d (w);
-        wout = IX_dataset_3d (w);
         %}
         status = adjust_aspect(w);
         varargout = resolution_plot (w, varargin);
