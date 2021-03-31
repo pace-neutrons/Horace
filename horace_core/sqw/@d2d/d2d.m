@@ -11,7 +11,7 @@ classdef d2d < DnDBase
        NUM_DIMS = 2;
     end
 
-    method
+    methods
         function obj = d2d(varargin)
             obj = obj@DnDBase(varargin{:});
         end
