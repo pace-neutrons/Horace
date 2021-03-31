@@ -12,6 +12,11 @@ classdef d1d < DnDBase
     end
 
     methods
+        function obj = d1d(varargin)
+            obj = obj@DnDBase(varargin{:});
+        end
+
+        wout = cut (varargin);
         wout = combine_horace_1d(w1,w2,varargin);
         wout = rebin_horace_1d(win, varargin);
         wout = symmetrise_horace_1d(win, varargin);
@@ -48,13 +53,5 @@ classdef d1d < DnDBase
         %            %
         %               obj = sqw(S);
         %        end
-    end
-    
-    methods
-        wout = cut (varargin);
-        function obj = d1d(varargin)
-            obj = obj@DnDBase(varargin{:});
-        end
-
     end
 end

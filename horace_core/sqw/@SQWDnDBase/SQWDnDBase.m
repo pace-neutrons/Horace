@@ -37,6 +37,10 @@ classdef (Abstract) SQWDnDBase
         wout = func_eval(win, func_handle, pars, varargin);
         wout = sqw_eval(win, sqwfunc, pars, varargin);
 
+        varargout = multifit_func (varargin);
+        varargout = multifit_sqw (varargin);
+        varargout = multifit_sqw_sqw (varargin);
+
         wout = smooth(win, varargin);
         wout = smooth_units(win, varargin);
     end
