@@ -28,7 +28,6 @@ classdef d2d < DnDBase
     end
 
     methods(Access = private)
-        [R, trans] = calculate_transformation_matrix(win,v1,v2,v3);
         [ok, mess] = test_symmetrisation_plane(win,v1,v2,v3);
         [diag, type] = test_symmetrisation_plane_digaonal(win,v1,v2,v3);
     end
