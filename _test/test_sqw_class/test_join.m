@@ -26,7 +26,7 @@ classdef test_join < TestCase
             skipTest('There is a known bug with the returned pixeldata (#531)');
 
             fpath = fullfile(obj.test_dir, 'test_sqw_file', 'sqw_2d_1.sqw');
-            sqw_obj = read_sqw(fpath);
+            sqw_obj = sqw(fpath);
             split_obj = split(sqw_obj);
             reformed_obj = join(split_obj);
 

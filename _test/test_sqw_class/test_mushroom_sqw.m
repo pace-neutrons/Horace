@@ -32,9 +32,9 @@ classdef test_mushroom_sqw < TestCaseWithSave
         data_path;
         working_dir
         det_energy;
-        
+
     end
-    
+
     methods
         function obj=test_mushroom_sqw(test_class_name)
             %
@@ -52,15 +52,15 @@ classdef test_mushroom_sqw < TestCaseWithSave
             if ~exist('test_class_name','var')
                 test_class_name = 'test_mushroom_sqw';
             end
-            data_path= fullfile(fileparts(mfilename('fullpath')),'TestData');
-            
+            data_path= fullfile(fileparts(mfilename('fullpath')),'data');
+
             % Reads previously created test data sets.
             obj = obj@TestCaseWithSave(test_class_name,fullfile(data_path,'test_mushroom_sqw.mat'));
             obj.data_path = data_path;
-            
+
             hc = hor_config;
             obj.working_dir = hc.working_directory;
-            
+
             %------------------------------------------------------------
             ef_file = fullfile(data_path,'det_positions.dat');
             % e-fixed
@@ -78,40 +78,40 @@ classdef test_mushroom_sqw < TestCaseWithSave
                 Cont = textscan(tline ,'%9d %11.5f %11.5f %11.5f  %11.5f  %11.5f');
                 obj.det_energy(k) = Cont{6};
             end
-            
+
         end
         %
         function test_gen_sqw(obj)
             wkdir = obj.working_dir;
             sqw_file= fullfile(wkdir,'test_gen_sqw_indirect.sqw');
             cleanup_obj1=onCleanup(@()obj.delete_files(sqw_file));
-            
+
             data_file = fullfile(obj.data_path,'MushroomSingleDE.nxspe');
-            
+
             gen_sqw (data_file, '', sqw_file, obj.det_energy,...
                 2, [2*pi,2*pi,2*pi], [90,90,90], [0,0,1], [0,-1,0],0,0,0,0,0);
-            
+
             sqo = sqw(sqw_file);
             % Make some cuts: ---------------
             u=[0,0,1]; v=[0,1,0];
             proj = struct('u',u,'v',v);
-            
+
             w2e = cut_sqw(sqo,proj,[0,0.01,3],[0,1.5],[0,1.1],[0,0.06,6]);
             w2e = sqw(struct(w2e));
             obj.assertEqualToTolWithSave (w2e, [1.e-6,1.e-6],'ignore_str',1);
             w2xy = cut_sqw(sqo,proj,[0,3],[0,0.02,1.5],[0,0.01,1.1],[0,6]);
             w2xy = sqw(struct(w2xy));
             obj.assertEqualToTolWithSave (w2xy, [1.e-6,1.e-6],'ignore_str',1);
-            
+
             w2xz = cut_sqw(sqo,proj,[0,0.01,3],[0,1.5],[0,0.01,1.1],[0,6]);
             w2xz = sqw(struct(w2xz));
             obj.assertEqualToTolWithSave (w2xz, [1.e-6,1.e-6],'ignore_str',1);
-            
+
             w2yz = cut_sqw(sqo,proj,[0,0.01,3],[0,0.01,1.5],[0,1.1],[0,6]);
             w2yz = sqw(struct(w2yz));
             obj.assertEqualToTolWithSave (w2yz, [1.e-6,1.e-6],'ignore_str',1);
-            
-            
+
+
             %             plot(w2e)
             %             keep_figure
             %             plot(w2xy)
@@ -121,11 +121,11 @@ classdef test_mushroom_sqw < TestCaseWithSave
             %
             %             plot(w2yz)
             %             keep_figure
-            
+
         end
-        
+
         %
-        
+
         %
     end
 end

@@ -103,7 +103,7 @@ switch route
             %data plane is the same, but the axes are different. So need
             %shoelace rebin. Require an object that has the data plane of
             %w1, but the full range of both datasets.
-            w2tmp=rebin_horace_2d(w2),w1);
+            w2tmp=rebin_horace_2d(w2,w1);
             w1tmp=rebin_horace_2d(w1,w2tmp);
             %now have 2 objects that have the same data range
             %can add the signals and errors in the appropriate way.

@@ -246,7 +246,7 @@ data.pix = PixelData([zeros(4,1);1;1;1;0;0]);  % wrong (Q,w) - but will be fille
 wres.data = data;
 
 % Make the sqw object
-wres = sqw(data);
+wres = sqw(wres);
 
 
 % Now plot the resolution function

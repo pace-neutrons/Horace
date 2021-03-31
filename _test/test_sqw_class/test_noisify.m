@@ -43,7 +43,7 @@ classdef test_noisify < TestCase
             % We make an sqw object with the a pixel page size smaller than the
             % total pixel size
             pixel_page_size = 1e5;
-            sqw_obj1 = sqw_old(obj.test_sqw_file_full_path, 'pixel_page_size', ...
+            sqw_obj1 = sqw(obj.test_sqw_file_full_path, 'pixel_page_size', ...
                 pixel_page_size);
 
             % ensure we're actually paging pixel data
@@ -66,7 +66,7 @@ classdef test_noisify < TestCase
 
             % step 2 we increase the page size again to the notional max
             % We make another sqw objectfrom the same file
-            sqw_obj2 = sqw_old(obj.test_sqw_file_full_path);
+            sqw_obj2 = sqw(obj.test_sqw_file_full_path);
             % and we noisify it
             % - reset pseudorandom number distribution. If this reverted to
             %   standard MATLAB rng, with myrng=any rnd using rng e.g. randn,
@@ -95,7 +95,7 @@ classdef test_noisify < TestCase
             [~, old_rng_state] = seed_rng(0);
             cleanup = onCleanup(@() rng(old_rng_state));
 
-            sqw_obj = sqw_old(obj.test_sqw_file_full_path);
+            sqw_obj = sqw(obj.test_sqw_file_full_path);
             % ensure we're not paging pixel data
             pix = sqw_obj.data.pix;
             assertEqual(pix.page_size, pix.num_pixels);
