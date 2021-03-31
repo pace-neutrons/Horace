@@ -24,12 +24,15 @@ classdef d2d < DnDBase
         [R,trans] = calculate_transformation_matrix(win,v1,v2,v3);
 
         varargout = get(this, index);
-        varargout = multifit_sqw (varargin);
+        varargout = multifit_sqw(varargin);
     end
 
     methods(Access = private)
-        [ok, mess] = test_symmetrisation_plane(win,v1,v2,v3);
-        [diag, type] = test_symmetrisation_plane_digaonal(win,v1,v2,v3);
+        [irange, uoff]=calculate_integration_range(w1, w2);
+        [ok, same_axes, mess]=check_rebinning_axes(w1, w2);
+
+        [ok, mess] = test_symmetrisation_plane(win, v1, v2, v3);
+        [diag, type] = test_symmetrisation_plane_digaonal(win, v1, v2, v3);
     end
 
     methods(Static)

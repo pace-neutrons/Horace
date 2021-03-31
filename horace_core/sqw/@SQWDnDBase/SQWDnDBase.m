@@ -19,8 +19,13 @@ classdef (Abstract) SQWDnDBase
 
     methods  % Public
         [s,var,mask_null] = sigvar_get (w);
-        wout = mask (win, mask_array);
-        [sel,ok,mess] = mask_points (win, varargin);
+
+        wout = mask(win, mask_array);
+        wout = mask_pixels(win, mask_array);
+        [sel,ok,mess] = mask_points(win, varargin);
+        wout = mask_random_fraction_pixels(win,npix);
+        wout = mask_random_pixels(win,npix);
+
         [xout,yout,sout,eout,nout] = convert_bins_for_shoelace(win, wref);
         wout = IX_dataset_1d(w);
         wout = IX_dataset_2d(w);
@@ -35,7 +40,7 @@ classdef (Abstract) SQWDnDBase
         wout = smooth(win, varargin);
         wout = smooth_units(win, varargin);
     end
-    
+
     methods (Static)
         [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
     end
@@ -43,6 +48,7 @@ classdef (Abstract) SQWDnDBase
     methods (Access = protected)
         wout = binary_op_manager(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
+        wout = recompute_bin_data(w);
         wout = sqw_eval_nopix_(win, sqwfunc, all_bins, pars);
     end
 
