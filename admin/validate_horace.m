@@ -114,10 +114,6 @@ else
     hec.log_level = -1; % turn off informational output
 end
 
-hec
-hoc
-hpc
-
 if parallel && license('checkout',  'Distrib_Computing_Toolbox')
     cores = feature('numCores');
     if verLessThan('matlab',  '8.4')
