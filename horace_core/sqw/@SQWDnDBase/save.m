@@ -25,9 +25,12 @@ if ~ok
     error('SQW_FILE_IO:invalid_argument',mess);
 end
 
+% Use the concrete class name as file extension
+file_ext = lower(class(w));
+
 % Get file name - prompting if necessary
 if numel(argi)==0
-    file_internal = putfile('*.sqw');
+    file_internal = putfile(['*.' file_ext]);
     if (isempty(file_internal))
         error ('No file given')
     end
@@ -49,14 +52,14 @@ hor_log_level = ...
 
 
 for i=1:numel(w)
-    if isempty(w(i).main_header) %TODO:  OOP violation -- save dnd should be associated with dnd class
+    if isa(w(i), 'DnDBase') %TODO:  OOP violation -- save dnd should be associated with dnd class
         sqw_type = false;
         ldw = sqw_formats_factory.instance().get_pref_access('dnd');
     else
         sqw_type = true;
         ldw = sqw_formats_factory.instance().get_pref_access(w(i));
     end
-    
+
     % Write data to file   x
     if hor_log_level>0
         disp(['*** Writing to ',file_internal{i},'...'])
