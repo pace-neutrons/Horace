@@ -80,9 +80,9 @@ classdef test_combine < TestCase
         % ------------------------------------------------------------------------------------------------
         function this = test_combine_sqw(this)
             % sqw combination
-            w2d_qq_sqw=read_sqw(fullfile(this.testdir,'w2d_qq_sqw.sqw'));
-            w2d_qq_sqw_plus=read_sqw(fullfile(this.testdir,'w2d_qq_sqw_plus.sqw'));
-            w2d_qq_sqw_minus=read_sqw(fullfile(this.testdir,'w2d_qq_sqw_minus.sqw'));
+            w2d_qq_sqw=sqw(fullfile(this.testdir,'w2d_qq_sqw.sqw'));
+            w2d_qq_sqw_plus=sqw(fullfile(this.testdir,'w2d_qq_sqw_plus.sqw'));
+            w2d_qq_sqw_minus=sqw(fullfile(this.testdir,'w2d_qq_sqw_minus.sqw'));
 
             % NB - combining results in slightly different binning and pix
             w2d_qq_combined=combine_sqw(w2d_qq_sqw_minus,w2d_qq_sqw_plus);
@@ -102,9 +102,9 @@ classdef test_combine < TestCase
         % ------------------------------------------------------------------------------------------------
         function this = test_combine_dnd_notol(this)
             % dnd combination without specifying a tolerance
-            w2d_qq_d2d=read_dnd(fullfile(this.testdir,'w2d_qq_d2d.sqw'));
-            w2d_qq_d2d_plus=read_dnd(fullfile(this.testdir,'w2d_qq_d2d_plus.sqw'));
-            w2d_qq_d2d_minus=read_dnd(fullfile(this.testdir,'w2d_qq_d2d_minus.sqw'));
+            w2d_qq_d2d=d2d(fullfile(this.testdir,'w2d_qq_d2d.sqw'));
+            w2d_qq_d2d_plus=d2d(fullfile(this.testdir,'w2d_qq_d2d_plus.sqw'));
+            w2d_qq_d2d_minus=d2d(fullfile(this.testdir,'w2d_qq_d2d_minus.sqw'));
 
             w2d_qq_combined=combine_horace_2d(w2d_qq_d2d_minus,w2d_qq_d2d_plus);
 
@@ -124,9 +124,9 @@ classdef test_combine < TestCase
         % ------------------------------------------------------------------------------------------------
         function this = test_combine_dnd_tol(this)
             % dnd combination specifying a tolerance
-            w1d_d1d=read_dnd(fullfile(this.testdir,'w1d_d1d.sqw'));
-            w1d_d1d_plus=read_dnd(fullfile(this.testdir,'w1d_d1d_plus.sqw'));
-            w1d_d1d_minus=read_dnd(fullfile(this.testdir,'w1d_d1d_minus.sqw'));
+            w1d_d1d=d1d(fullfile(this.testdir,'w1d_d1d.sqw'));
+            w1d_d1d_plus=d1d(fullfile(this.testdir,'w1d_d1d_plus.sqw'));
+            w1d_d1d_minus=d1d(fullfile(this.testdir,'w1d_d1d_minus.sqw'));
 
             w1d_combined=combine_horace_1d(w1d_d1d_minus,w1d_d1d_plus,0.025);
 

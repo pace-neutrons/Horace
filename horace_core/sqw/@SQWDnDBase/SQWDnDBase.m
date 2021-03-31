@@ -2,13 +2,17 @@ classdef (Abstract) SQWDnDBase
     %SQWDnDBase Abstract SQW/DnD object base class
     %   Abstract class defining common API and atrributes of the SQW and
     %   DnD objects
-
-    properties (Abstract) % Public
-    end
-
     properties (Access = protected)
         % base_property
         data_;
+    end
+
+    methods (Abstract)
+        pixels = has_pixels(win);
+    end
+
+    methods (Static)
+        [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
     end
 
     methods (Abstract, Access = protected)
@@ -47,10 +51,6 @@ classdef (Abstract) SQWDnDBase
         wout = smooth_units(win, varargin);
     end
 
-    methods (Static)
-        [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
-    end
-
     methods (Access = protected)
         wout = binary_op_manager(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
@@ -58,8 +58,16 @@ classdef (Abstract) SQWDnDBase
         wout = sqw_eval_nopix_(win, sqwfunc, all_bins, pars);
     end
 
-    methods (Abstract)
-        pixels = has_pixels(win);
+    methods (Access = private)
+        status = adjust_aspect(w);
+        [ok,mess,adjust,present]=adjust_aspect_option(args_in);
+        dout = smooth_dnd(din, xunit, varargin);
+    end
+
+    methods (Static, Access = private)
+        c = smooth_func_gaussian(width);
+        c = smooth_func_hat(width);
+        c = smooth_func_resolution(width);
     end
 
 end
