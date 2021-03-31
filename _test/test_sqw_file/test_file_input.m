@@ -277,8 +277,6 @@ classdef  test_file_input < TestCase
             end
             if ~equal_to_tol(obj.sqw2d_arr,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
 
-
-
         end
     end
     %banner_to_screen([mfilename,': Test(s) passed'],'bot')
