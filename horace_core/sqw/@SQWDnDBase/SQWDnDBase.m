@@ -26,6 +26,8 @@ classdef (Abstract) SQWDnDBase
         wout = mask_random_fraction_pixels(win,npix);
         wout = mask_random_pixels(win,npix);
 
+        save(w, varargin);
+
         [xout,yout,sout,eout,nout] = convert_bins_for_shoelace(win, wref);
         wout = IX_dataset_1d(w);
         wout = IX_dataset_2d(w);
