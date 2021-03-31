@@ -29,7 +29,7 @@ elseif isa(w,'SQWDnDBase')
         error(mess)
     end
 elseif is_filename(w)
-    if ~iscellstr(w)    
+    if ~iscellstr(w)
         wout=cellstr(w);
     else
         wout=w;
@@ -41,7 +41,7 @@ end
 %------------------------------------------------------------------------------------------------------------
 function [wout,mess]=recover_object(w)
 % Squeeze the Horace object (assumes it is a Horace object)
-if isa(w,'sqw_old')
+if isa(w,'sqw')
     if all(is_sqw_type(w))
         wout=w;
     elseif ~any(is_sqw_type(w))

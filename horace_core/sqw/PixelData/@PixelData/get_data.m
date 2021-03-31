@@ -17,7 +17,13 @@ function data_out = get_data(obj, pix_fields, varargin)
 % Input:
 % ------
 %   pix_fields       The name of a field, or a cell array of field names
-%   abs_pix_indices  The pixel indices to retrieve, if not given, get full range
+%   abs_pix_indices  The pixel indices to retrieve, if not given, get full range.
+%                    The syntax for these indices attempts to replicate indexing
+%                    into a regular Matlab array. You can use logical indices
+%                    as well as normal indices, and you can index into the array
+%                    "out-of-order". However, you cannot use `end`, but it is
+%                    possible to achieve the same effect using the `num_pixels`
+%                    property.
 %
 NO_INPUT_INDICES = -1;
 

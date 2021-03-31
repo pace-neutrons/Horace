@@ -57,7 +57,7 @@ classdef test_mask < TestCase
             obj.masked_3d = mask(obj.sqw_3d, obj.mask_array_3d);
             [obj.sqw_3d_paged, obj.masked_3d_paged] = ...
                 obj.get_paged_sqw(obj.sqw_3d_file_path, obj.mask_array_3d);
-            
+
             try
                 obj.fh_range_check = @(data,limit)(all(data<limit,'all'));
                 is = obj.fh_range_check(zeros(2,10),0.1);
@@ -257,7 +257,7 @@ classdef test_mask < TestCase
         end
 
         function test_mask_pixels_removes_pixels_given_in_mask_array(obj)
-            sqw_obj = sqw_old(obj.sqw_2d_file_path);
+            sqw_obj = sqw(obj.sqw_2d_file_path);
             mask_array = ones(1, sqw_obj.data.pix.num_pixels, 'logical');
 
             % Remove all pix where u1 greater than median u1
@@ -274,7 +274,7 @@ classdef test_mask < TestCase
         end
 
         function test_mask_random_fraction_pixels_removes_percentage_of_pixels(obj)
-            sqw_obj = sqw_old(obj.sqw_2d_file_path);
+            sqw_obj = sqw(obj.sqw_2d_file_path);
 
             frac_to_keep = 0.8;
             new_sqw = mask_random_fraction_pixels(sqw_obj, frac_to_keep);
@@ -284,7 +284,7 @@ classdef test_mask < TestCase
         end
 
         function test_mask_random_pixels_retains_correct_number_of_pixels(obj)
-            sqw_obj = sqw_old(obj.sqw_2d_file_path);
+            sqw_obj = sqw(obj.sqw_2d_file_path);
 
             num_pix_to_keep = 5000;
             new_sqw = mask_random_pixels(sqw_obj, num_pix_to_keep);
@@ -301,7 +301,7 @@ classdef test_mask < TestCase
             file_info = dir(file_path);
             new_pg_size = file_info.bytes/6;
 
-            paged_sqw = sqw_old(file_path, 'pixel_page_size', new_pg_size);
+            paged_sqw = sqw(file_path, 'pixel_page_size', new_pg_size);
             masked_sqw = mask(paged_sqw, mask_array);
 
             % make sure we're actually paging the pixel data

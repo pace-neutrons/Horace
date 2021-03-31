@@ -28,8 +28,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         sz = sigvar_size(w);
         %[sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);
-        varargout = multifit_sqw (varargin);
-        varargout = multifit_sqw_sqw (varargin);
+
         varargout = tobyfit (varargin);
         [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,store_in,...
                                                           sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
@@ -39,7 +38,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
         [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw);
         wout=combine_sqw(w1,w2);
-        save (w, varargin);
+
         wout=rebin_sqw(win,varargin);
         wout=symmetrise_sqw(win,v1,v2,v3);
         [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin);
@@ -58,10 +57,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         d=spe(w);
         %{
         %[deps,eps_lo,eps_hi,ne]=energy_transfer_info(header);
-        [figureHandle, axesHandle, plotHandle] = plot(w,varargin);
-        wout = IX_dataset_1d (w);
-        wout = IX_dataset_2d (w);
-        wout = IX_dataset_3d (w);
         %}
         status = adjust_aspect(w);
         varargout = resolution_plot (w, varargin);
@@ -103,10 +98,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
     end
 
     methods(Static)
-        %TODO: disabled until full functionality is implemeneted in new class;
-        % The addition of this method causes sqw_old tests to incorrectly load data from .mat files
-        % as new-SQW class objects
-
         function obj = loadobj(S)
             % Load a sqw object from a .mat file
             %
@@ -150,7 +141,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         detpar_struct = make_sqw_detpar();
         header = make_sqw_header();
         main_header = make_sqw_main_header();
-        wout = recompute_bin_data(w);
 
         function args = parse_args(varargin)
             % Parse a single argument passed to the SQW constructor

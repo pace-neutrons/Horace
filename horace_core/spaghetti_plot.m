@@ -120,7 +120,7 @@ flags = {'noplot','logscale'};
 [args,opt,present] = parse_arguments(varargin,arglist,flags);
 
 if numel(args)~=2
-    if length(args{1})>1 && (isa((args{1}(1)),'d2d_old') || isa((args{1}(1)),'IX_dataset_2d'))
+    if length(args{1})>1 && (isa((args{1}(1)),'d2d') || isa((args{1}(1)),'IX_dataset_2d'))
         plot_dispersion(args{1},opt);
         return
     else
@@ -156,11 +156,11 @@ catch
     sqwfile = 0;
 end
 
-if isa(args{2},'sqw_old')
+if isa(args{2},'sqw')
     header = struct(args{2}).data;
 elseif sqwfile
     header = head_sqw(args{2});
-elseif length(args{2})>1 && isa(args{2}(1),'d2d_old')
+elseif length(args{2})>1 && isa(args{2}(1),'d2d')
     plot_dispersion(args{2},opt);
     return;
 else
@@ -172,7 +172,7 @@ qbin = opt.qbin;
 qwidth = opt.qwidth;
 ebin = opt.ebin;
 rlp = args{1};
-sqw_old = args{2};
+sqw = args{2};
 
 if numel(qwidth)==1
     qwidth = [1 1]*qwidth;
@@ -386,7 +386,7 @@ for i=1:length(wdisp_in)
         labels{i} = wdisp(i).title{1};
         continue;
     end
-    
+
     % Finds labels in segment title
     title = wdisp_in(i).title;
     brk = strfind(title,sprintf('\n'));
@@ -426,7 +426,7 @@ for i=1:length(wdisp_in)
         hkls = [wdisp_in(i).p{1}(1) * hkldir + hklcen; wdisp_in(i).p{1}(end) * hkldir + hklcen];
         labels{i} = ['[',str_compress(num2str(hkls(1:3)'),','),']'];
         labels{i+1} = ['[',str_compress(num2str(hkls(4:6)'),','),']'];
-        
+
     end
     hkl0 = hkls;
 end

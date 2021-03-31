@@ -7,8 +7,8 @@ function    obj = put_dnd(obj,varargin)
 %>>obj = obj.put_dnd(sqw_or_dnd_object)
 %
 % The object has to be initialized for writing sqw or dnd objects first
-% using init method, set_to_update/reopen_to_write or appropriate form 
-% of class constructor. 
+% using init method, set_to_update/reopen_to_write or appropriate form
+% of class constructor.
 %
 %
 % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
@@ -21,13 +21,12 @@ if ~ok
 end
 if ~isempty(argi)
     input = argi{1};
-    type = class(input);
-    if ~(ismember(type,{'d0d_old','d1d_old','d2d_old','d3d_old','d4d_old','sqw_old'}) || is_sqw_struct(input))
+    if ~(isa(input, 'SQWDnDBase') || is_sqw_struct(input))
         error('SQW_FILE_IO:invalid_artgument',...
-            'put_sqw: this function can accept only sqw or dnd-type object, and got %s',type)
+            'put_sqw: this function can accept only sqw or dnd-type object, and got %s', class(input))
     end
     storage = obj.sqw_holder_;
-    if isa(input,'sqw_old')
+    if isa(input,'sqw')
         obj.sqw_holder_ = input.data;
     else
         obj.sqw_holder_ = input;

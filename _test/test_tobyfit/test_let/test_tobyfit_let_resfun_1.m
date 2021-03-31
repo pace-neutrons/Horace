@@ -7,13 +7,13 @@ function test_tobyfit_let_resfun_1 (option)
 %               % parameters in test_tobyfit_let_resfun_1_out.mat in the same
 %               % folder as this file
 %
-%   >> test_test_tobyfit_let_resfun_1 ('-save')      
+%   >> test_test_tobyfit_let_resfun_1 ('-save')
 %               % Run the Tobyfit tests and save fit parameters
 %               % to file test_tobyfit_resfun_1_out.mat
 %               % in the temporary folder (given by tmp_dir)
 %               % Copy to the same folder as this file to use in tests
 %
-%   >> test_test_tobyfit_let_resfun_1 ('-notest')   
+%   >> test_test_tobyfit_let_resfun_1 ('-notest')
 %               % Run without testing against previously stored results.
 %               % For performing visual checks or debugging the tests!
 
@@ -49,7 +49,6 @@ cleanup = onCleanup(@() rmpath(test_tobyfit_dir));
 % Create cuts to save as input data
 % --------------------------------------------------------------------------------------
 S=load(datafile);
-S = manage_legacy_sqw_class_rename(S);
 
 % Add instrument and sample information to cuts
 efix = 8.04;
@@ -114,7 +113,7 @@ pause(pause_time)
 iplot(w_nb_qe)
 lx 0 0.2
 lz 0 10000
-% 
+%
 % *** MUST DEBUG: cov1 = resolution_plot (w_nb_qe, [0.3,1.20], 'curr');
 cov1 = resolution_plot (w_nb_qe, [0.05,1.20; 0.15,2.80], 'curr');
 if test_output
@@ -129,7 +128,7 @@ pause(pause_time)
 % %% --------------------------------------------------------------------------------------
 % % Collect results together as a structure
 % % ---------------------------------------------------------------------------------------
-% 
+%
 % % Cuts
 % res.w_nb_qe = w_nb_qe;
 % res.ww1 = ww1;

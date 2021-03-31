@@ -173,7 +173,7 @@ function main() {
         # flags
         -b|--build) build=$TRUE; shift ;;
         -t|--test) test=$TRUE; shift ;;
-        -c|--configure) configure=$TRUE; shift;;
+        -g|--configure) configure=$TRUE; shift;;
         -a|--analyze) analyze=$TRUE; shift ;;
         -p|--package) package=$TRUE; shift ;;
         -d|--docs) docs=$TRUE; shift;;

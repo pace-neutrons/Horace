@@ -2,7 +2,7 @@ function test_tobyfit_resfun_1 (option)
 % Test plotting of resolution function
 %
 % Perform tests:
-%   >> test_test_tobyfit_resfun_1    
+%   >> test_test_tobyfit_resfun_1
 %               % Run the Tobyfit tests and test against stored fit
 %               % parameters in test_tobyfit_resfun_1_out.mat in the same
 %               % folder as this file
@@ -68,19 +68,16 @@ if save_data
     wce = cut_sqw(data_source,proj_110,[0,0.01,1],[0,0.01,1],[-0.05,0.05],[5.8,6.2],'-pix');
     % q-e plot along [1,1,0]
     w2b = cut_sqw(data_source,proj_110,[0,0.01,1],[0.45,0.55],[-0.05,0.05],[-2,0,12],'-pix');
-    
+
     % Now save to file for future use
     datafile_full = fullfile(tmp_dir,datafile);
     save(datafile_full,'w2a','wce','w2b');
     disp(['Saved data for future use in',datafile_full])
     return
-    
+
 else
     % Read in data
     load(datafile,'w2a','wce','w2b');
-    w2a = manage_legacy_sqw_class_rename(w2a);
-    wce = manage_legacy_sqw_class_rename(wce);
-    w2b = manage_legacy_sqw_class_rename(w2b);
 end
 
 % Add instrument and sample information to cuts
@@ -163,7 +160,7 @@ if test_output
 end
 pause(pause_time)
 
-    
+
 % q-q plot
 % ----------------------
 % Pixels corresponding to the four points at which the resolution function woill be plotted
@@ -208,16 +205,16 @@ pause(pause_time)
 % %% --------------------------------------------------------------------------------------
 % % Collect results together as a structure
 % % ---------------------------------------------------------------------------------------
-% 
+%
 % % Cuts
 % res.w2a = w2a;
 % res.wce = wce;
 % res.w2b = w2b;
-% 
+%
 % res.ww1 = ww1;
 % res.ww2 = ww2;
 % res.ww3 = ww3;
-% 
+%
 % res.cov1 = cov1;
 % res.cov2 = cov2;
 % res.cov3 = cov3;

@@ -27,7 +27,7 @@ obj.check_obj_initated_properly();
 
 if ~isempty(argi) % parse inputs which may or may not contain any
     % combination of 3 following input parameters:
-    sqw_pos = cellfun(@(x)(isa(x,'sqw_old')||isstruct(x)),argi);
+    sqw_pos = cellfun(@(x)(isa(x,'sqw')||isstruct(x)),argi);
     numeric_pos = cellfun(@isnumeric,argi);
     parallel_Fw = cellfun(@(x)isa(x,'JobDispatcher'),argi);
     %
@@ -51,7 +51,7 @@ if ~isempty(argi) % parse inputs which may or may not contain any
     end
 
     if ~isempty(input_obj)
-        if isa(input_obj,'sqw_old')
+        if isa(input_obj,'sqw')
             input_obj = input_obj.data;
         end
         update = true;
