@@ -64,7 +64,7 @@ classdef PixelData < handle
     %
     % Properties:
     %   u1, u2, u3     - The 1st, 2nd and 3rd dimensions of the Crystal
-    %                    Cartezian coordinates in projection axes, units are per Angstrom (1 x n arrays)
+    %                    Cartesian coordinates in projection axes, units are per Angstrom (1 x n arrays)
     %   dE             - The energy transfer value for each pixel in meV (1 x n array)
     %   coordinates    - The coords in projection axes of the pixel data [u1, u2, u3, dE] (4 x n array)
     %   q_coordinates  - The spacial coords in projection axes of the pixel data [u1, u2, u3] (3 x n array)
