@@ -37,7 +37,7 @@ e = zeros(nbin_as_size);
 npix = zeros(nbin_as_size);
 img_range_step = [Inf(1, 4); -Inf(1, 4)];
 
-% Get bins that contain pixels that may contribute to the cut.
+% Get bins that may contain pixels that contribute to the cut.
 % The bins selected are those that sit within (or intersect) the bounds of the
 % cut. See the relevant projection function for more details.
 [bin_starts, bin_ends] = proj.get_nbin_range(obj.data.npix);
@@ -50,9 +50,10 @@ if isempty(bin_starts)
 end
 
 block_size = obj.data.pix.base_page_size;
-% Get indices in order to split the candidate bin ranges into pixel page sized
-% chunks
-[~, sub_bin_idxs] = split_vector_max_sum(bin_ends - bin_starts, block_size);
+% Get indices in order to split the candidate bin ranges into chunks whose sums
+% are less than, or equal to, a pixel page size
+bin_sizes = bin_ends - bin_starts;
+[~, sub_bin_idxs] = split_vector_max_sum(bin_sizes, block_size);
 num_chunks = size(sub_bin_idxs, 2);
 
 % If we only have one iteration of pixels to cut then we must be able to fit
@@ -72,11 +73,23 @@ if keep_pix
     end
 end
 
+bin_size_gt_block_size = bin_sizes > block_size;
+if any(bin_size_gt_block_size)
+    warning( ...
+        'HORACE:SQW:memory', ...
+        ['cut_accumulate_data_: some bins being accumulated during cut have ' ...
+         'more pixels than fit in a PixelData page size.\n'...
+         'Offending bins at indices [%s].'], ...
+        num2str(find(bin_size_gt_block_size(:)')) ...
+    );
+end
+
+bin_starts = bin_starts(sub_bin_idxs(1, :));
+bin_ends = bin_ends(sub_bin_idxs(2, :));
 for iter = 1:num_chunks
     % Get pixels that will likely contribute to the cut
     candidate_pix = obj.data.pix.get_pix_in_ranges( ...
-        bin_starts(sub_bin_idxs(1, iter):sub_bin_idxs(2, iter)), ...
-        bin_ends(sub_bin_idxs(1, iter):sub_bin_idxs(2, iter)) ...
+        bin_starts(iter), bin_ends(iter) ...
     );
 
     if log_level >= 0
@@ -93,7 +106,7 @@ for iter = 1:num_chunks
         del_npix_retain, ...
         ok, ...
         ix ...
-        ] = cut_data_from_file_job.accumulate_cut( ...
+    ] = cut_data_from_file_job.accumulate_cut( ...
         s, ...
         e, ...
         npix, ...
@@ -102,7 +115,7 @@ for iter = 1:num_chunks
         candidate_pix, ...
         proj, ...
         proj.target_pax ...
-        );
+    );
 
     if log_level >= 0
         fprintf(' ----->  retained  %d pixels\n', del_npix_retain);
@@ -119,9 +132,9 @@ for iter = 1:num_chunks
                 del_npix_retain ...
                 );
         else
-            % Retain only the pixels that contributed to the cut
-            pix_retained{iter} = candidate_pix.get_pixels(ok);
-            pix_ix_retained{iter} = ix;
+        % Retain only the pixels that contributed to the cut
+        pix_retained{iter} = candidate_pix.get_pixels(ok);
+        pix_ix_retained{iter} = ix;
         end
     end
 end  % loop over pixel blocks
@@ -129,7 +142,7 @@ end  % loop over pixel blocks
 if keep_pix
     [pix_out, pix_comb_info] = combine_pixels( ...
         pix_retained, pix_ix_retained, pix_comb_info, npix, obj.data.pix.page_size ...
-        );
+    );
 else
     pix_out = PixelData();
     pix_comb_info = [];
@@ -177,28 +190,8 @@ end
 function pci = init_pix_combine_info(nfiles, nbins)
 % Create a pix_combine_info object to manage temporary files of pixels
 wk_dir = get(parallel_config, 'working_directory');
-tmp_file_names = gen_array_of_tmp_file_paths(nfiles, wk_dir);
+tmp_file_names = gen_unique_file_paths(nfiles, 'horace_cut', wk_dir);
 pci = pix_combine_info(tmp_file_names, nbins);
-end
-
-
-function paths = gen_array_of_tmp_file_paths(nfiles, base_dir)
-% Generate a cell array of paths for temporary files to be written to
-% Format of the file names follows:
-%   horace_cut_<UUID>_<counter_with_padded_zeros>.tmp
-if nfiles < 1
-    error('CUT:cut_accumulate_data_', ...
-        ['Cannot create temporary file paths for less than 1 file.' ...
-        '\nFound %i.'], nfiles);
-end
-prefix = 'horace_cut';
-uuid = char(java.util.UUID.randomUUID());
-counter_padding = floor(log10(nfiles)) + 1;
-format_str = sprintf('%s_%s_%%0%ii.tmp', prefix, uuid, counter_padding);
-paths = cell(1, nfiles);
-for i = 1:nfiles
-    paths{i} = fullfile(base_dir, sprintf(format_str, i));
-end
 end
 
 
