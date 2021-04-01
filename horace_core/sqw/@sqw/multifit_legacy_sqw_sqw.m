@@ -660,7 +660,7 @@ pos=pos-ndata;
 bpos=bpos-ndata;
 
 % Wrap the foreground and background functions
-if ~opt.average, wrap_plist={}; else wrap_plist={'ave'}; end
+if ~opt.average, wrap_plist={}; else wrap_plist={'-ave'}; end
 args=multifit_gateway_wrap_functions (varargin,pos,func,plist,bpos,bfunc,bplist,...
                                                     @sqw_eval,wrap_plist,@sqw_eval,wrap_plist);
 
