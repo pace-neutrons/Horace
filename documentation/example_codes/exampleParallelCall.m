@@ -4,6 +4,7 @@ jd = JobDispatcher('JobName');              % Create job dispatcher
  n_failed,...                               % Count of failed workers
  task_ids,...                               % IDs of each worker (message folder?)
  jd       ...                               % Object returns itself when done
+ ...
  ] = jd.start_job('ExampleJobExecutor', ... % Name of class to run
                   [1,2], ...                % Data passed to all classes via common_data
                   10, ...                   % Number of "iterations" as int, or
@@ -30,7 +31,7 @@ disp(jd);
 
 %%------------------------------------------------------------------
 
-% Run with struct to split
+% Run with cell array of data
 jd = JobDispatcher('RunWithCellStruct');
 data = {struct('a',1), struct('a',2), struct('a',3), struct('a',4)};
 [outputs, n_failed, task_ids, jd] = jd.start_job('ExampleRealJobExecutor', [1,2], data, true, 4);

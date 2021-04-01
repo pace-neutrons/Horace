@@ -33,26 +33,16 @@ classdef ExampleRealJobExecutor < JobExecutor
 
             % Send my ID to my +1 neighbour (assuming 4 neighbours)
             my_message = DataMessage(obj.labIndex);
-            try
-                [ok, err_mess] = obj.mess_framework.send_message(mod(obj.labIndex + 1,4)+1, my_message);
-                if ~ok
-                    error('HORACE:exampleRealJobExecutor:send_error', err_mess)
-                end
-            catch ME
-                a = fopen(['/home/jacob/tmp',num2str(obj.labIndex),'.txt']);
-                fprintf(a, "%s", ME.message);
+            [ok, err_mess] = obj.mess_framework.send_message(mod(obj.labIndex + 1,4)+1, my_message);
+            if ~ok
+                error('HORACE:ExampleRealJobExecutor:send_error', err_mess)
             end
 
 
             % Recieve the data
-            try
-                [ok, err_mess, data] = obj.mess_framework.recieve_message(mod(obj.labIndex + 3,4)+1, 'any');
-                if ~ok
-                    error('HORACE:exampleRealJobExecutor:receive_error', err_mess)
-                end
-            catch ME
-                a = fopen(['/home/jacob/tmp',num2str(obj.labIndex),'.txt']);
-                fprintf(a, "%s", ME.message);
+            [ok, err_mess, data] = obj.mess_framework.recieve_message(mod(obj.labIndex + 3,4)+1, 'any');
+            if ~ok
+                error('HORACE:ExampleRealJobExecutor:receive_error', err_mess)
             end
 
             % Output some data
