@@ -17,11 +17,10 @@ set(TEST_DIRECTORIES
     "test_mpi/test_job_dispatcher_parpool"
     "test_mpi/test_ParpoolMPI_Framework")
 
-# The MPI tests require that `herbert_on.m` be on the path for all workers when
-# Matlab starts up: add the local_init directory - which contains these files -
+# Add the local_init directory - which contains worker_v2 and herbert_on -
 # to the MATLABPATH environment variable when tests are run.
-set(LOCAL_INIT_DIR "${CMAKE_BINARY_DIR}/local_init")
-
+# This adds the paths to every new Matlab session, so parallel workers can
+# access the scripts in tests.
 file(TO_CMAKE_PATH "$ENV{MATLABPATH}" MATLAB_PATH)
 if(WIN32)
     set(MATLAB_PATH "${MATLAB_PATH}\;${LOCAL_INIT_DIR}")
@@ -47,8 +46,8 @@ foreach(_test_dir ${TEST_DIRECTORIES})
         "${Herbert_ROOT}/admin"
         TIMEOUT
         ${TEST_TIMEOUT_LENGTH})
-    set_tests_properties("${TEST_NAME}" PROPERTIES ENVIRONMENT
-                                                   "${ENV_VARIABLES}")
+    set_tests_properties("${TEST_NAME}"
+        PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
 endforeach()
 
 # =============================================================================
