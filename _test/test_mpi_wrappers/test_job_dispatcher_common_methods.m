@@ -7,7 +7,7 @@ classdef test_job_dispatcher_common_methods < TestCase
     methods
         %
         function obj=test_job_dispatcher_common_methods(name)
-            if ~exist('name','var')
+            if ~exist('name', 'var')
                 name = 'test_job_dispatcher_common_methods';
             end
             obj = obj@TestCase(name);
@@ -215,7 +215,7 @@ classdef test_job_dispatcher_common_methods < TestCase
             % the operation above copies config files to the folder
             % calculated by assign operation
             config_exchange = fileparts(fileparts(mpi.mess_exchange_folder));
-            assertTrue(exist(fullfile(config_exchange, 'herbert_config.mat'), 'file') == 2);
+            assertTrue(is_file(fullfile(config_exchange, 'herbert_config.mat')));
             
             jt = JETester();
             initMess = jt.get_worker_init();

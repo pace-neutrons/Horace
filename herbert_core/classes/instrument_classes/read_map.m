@@ -8,7 +8,7 @@ function wout = read_map (file)
 
 % Get file name - prompt if file does not exist (using file to set default seach location and extension
 % -----------------------------------------------------------------------------------------------------
-if ~exist('file','var'), file='*.map'; end
+if ~exist('file', 'var'), file='*.map'; end
 [file_full,ok,mess]=getfilecheck(file);
 if ~ok, error(mess), end
 

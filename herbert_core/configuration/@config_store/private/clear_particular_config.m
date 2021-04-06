@@ -16,7 +16,7 @@ if isfield(this.config_storage_,class_name)
 end
 if clear_file
     filename = fullfile(this.config_folder,[class_name,'.mat']);
-    if exist(filename,'file')
+    if is_file(filename)
         delete(filename)
     end
 end

@@ -13,7 +13,7 @@ if isfield(this.config_storage_,class_name)
 end
 if ~check_mem_only
     config_file = fullfile(this.config_folder,[class_name,'.mat']);
-    if exist(config_file,'file')
+    if is_file(config_file)
         isit = true;
     else
         isit = false;

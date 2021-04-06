@@ -8,7 +8,7 @@ fields = fieldnames(this.config_storage_);
 for i=1:numel(fields)
     class_name = fields{i};
     filename = fullfile(this.config_folder,[class_name,'.mat']);
-    if exist(filename,'file')
+    if is_file(filename)
         delete(filename);
     end
 end

@@ -6,7 +6,7 @@ function [mess_names,tid_from] = labprobe_all_messages_(obj,mess_addr_requested,
 %
 this_id  = obj.labIndex;
 num_labs = obj.numLabs;
-if exist('mess_addr_requested','var')
+if exist('mess_addr_requested', 'var')
     if ischar(mess_addr_requested)
         if strcmpi(mess_addr_requested,'all') || isempty(mess_addr_requested)
             mess_addr_requested = 1:num_labs;
@@ -35,7 +35,7 @@ if isempty(mess_addr_requested ) %
 end
 
 
-if ~exist('mess_name_or_tag','var') || isempty(mess_name_or_tag)
+if ~exist('mess_name_or_tag', 'var') || isempty(mess_name_or_tag)
     mess_tag_requested = -1;
 elseif ischar(mess_name_or_tag)
     if strcmp(mess_name_or_tag,'any')

@@ -1,18 +1,28 @@
-function lint_json(filesin, outputfile)
+function lint_json(varargin)
 % Use mlint, and convert to a json for easy parsing by WNG
 %
 % Input:
 % ------
-% filesin              char array OR cell array of char arrays detailing files to parse
+% filesin              cell array of char arrays listing filepaths/globs to parse
 %                          if filesin is empty will recurse from current working directory
 % outputfile           char array of filename to write output to (will overwrite)
 %                          if outputfile is empty will write to stdout
+%
+% Keyword arguments:
+% exclude              cell array of char arrays listing filepaths/globs to exclude from parsing
+%
 
-    if ~exist('filesin', 'var') || (exist('filesin', 'var') && isempty(filesin))
-        % Default to glob all
-        filesin = {['**', filesep, '*.m']};
-    end
-    if ~exist('outputfile', 'var') || (exist('outputfile', 'var') && isempty(outputfile))
+    p = inputParser;
+    addOptional(p, 'filesin', {['**', filesep, '*.m']}, @iscellstr);
+    addOptional(p, 'outputfile', '_screen', @ischar);
+    addParameter(p, 'exclude', {}, @iscellstr);
+    parse(p, varargin{:});
+
+    filesin = p.Results.filesin;
+    outputfile = p.Results.outputfile;
+    exclude = p.Results.exclude;
+
+    if strcmp(outputfile, '_screen')
         fh = 1;
     else % Open file
         fh = fopen(outputfile,'w');
@@ -22,14 +32,21 @@ function lint_json(filesin, outputfile)
         cleanup = onCleanup(@()(fclose(fh)));
     end
 
-    files = [];
-    for i = 1:numel(filesin)
-        flist = dir(filesin{i});
-        % Filter doc files
-        flist = filter_list(flist, @(x)(startsWith(x.name,'doc_')));
-        flist = arrayfun(@(file)(fullfile(file.folder, file.name)), flist, 'UniformOutput', false);
-        files = [files; flist];
-    end
+    % Expand globbing to file objects
+    flist = cellfun(@(x)(dir(x)), filesin, 'UniformOutput', false);
+    % Flatten array
+    flist = [flist{:}];
+    % Filter doc files
+    flist = filter_list(flist, @(x)(startsWith(x.name,'doc_')));
+    % Convert to filepaths
+    flist = arrayfun(@(file)(fullfile(file.folder, file.name)), flist, 'UniformOutput', false);
+
+    % Same for exclusion (no filter step)
+    excl = cellfun(@(x)(dir(x)), exclude, 'UniformOutput', false);
+    excl = arrayfun(@(file)(fullfile(file.folder, file.name)), [excl{:}], 'UniformOutput', false);
+
+    % Exclude
+    files = setdiff(flist, excl);
 
     issuesList = struct('issues', {{}}, 'size', 0);
     raw = checkcode(files, '-id');
@@ -39,6 +56,7 @@ function lint_json(filesin, outputfile)
             issuesList.issues = {issuesList.issues{:}, curr};
         end
     end
+
     issuesList.size = numel(issuesList.issues);
     fprintf(fh, "%s", jsonencode(issuesList));
 end
@@ -65,7 +83,9 @@ end
 function to_filt = filter_list(to_filt, match)
 % Filter a list based on match function handle
     filter = arrayfun(match, to_filt);
-    filtered = to_filt(filter);
-    fprintf("Skipping: %s\n", filtered.name);
-    to_filt = to_filt(~filter);
+    if any(filter)
+        filtered = to_filt(filter);
+        fprintf("Skipping: %s\n", filtered.name);
+        to_filt = to_filt(~filter);
+    end
 end

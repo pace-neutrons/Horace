@@ -15,10 +15,10 @@ dir3=fullfile(root_dir,'herbert_tests','herb_dir3');
 file1='test_1.dat';
 file2='test_2.dat';
 file3='test_3.dat';
-if exist(dir0,'dir'), rmdir(dir0,'s'); end
-if exist(dir1,'dir'), rmdir(dir1,'s'); end
-if exist(dir2,'dir'), rmdir(dir2,'s'); end
-if exist(dir3,'dir'), rmdir(dir3,'s'); end
+if is_folder(dir0), rmdir(dir0,'s'); end
+if is_folder(dir1), rmdir(dir1,'s'); end
+if is_folder(dir2), rmdir(dir2,'s'); end
+if is_folder(dir3), rmdir(dir3,'s'); end
 mkdir(dir1);
 mkdir(dir2);
 mkdir(dir3);

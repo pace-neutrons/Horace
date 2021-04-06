@@ -16,7 +16,7 @@ if isunix
     if filename(1) == '~'  % homedir
         file = java.io.File(fullfile(getuserdir(), filename(2:end)));
     else
-        if exist(fullfile(pwd(),filename),'file') > 0
+        if exist(fullfile(pwd(),filename),'file')
             fullpath = fullfile(pwd(),filename);
             file = java.io.File(fullpath);
         else
@@ -24,7 +24,7 @@ if isunix
         end
     end
 else
-    if exist(fullfile(pwd(),filename),'file') > 0
+    if exist(fullfile(pwd(),filename),'file')
         fullpath = fullfile(pwd(),filename);
         file = java.io.File(fullpath);
     else
@@ -33,7 +33,7 @@ else
 end
 fullpath = char(file.getCanonicalPath());
 
-if exist(fullpath,'file') > 0
+if exist(fullpath, 'file') % Don't care if file or folder
     ok = true;
     return
 else

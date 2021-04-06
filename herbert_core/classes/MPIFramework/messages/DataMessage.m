@@ -12,7 +12,7 @@ classdef DataMessage < aMessage
             %             input to payload property.
             % 
             obj = obj@aMessage('data');
-            if exist('payload','var')
+            if exist('payload', 'var')
                 obj.payload = payload;
             end
         end

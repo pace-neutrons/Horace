@@ -14,7 +14,7 @@ function obj = init_framework_(obj,framework_info)
 %      main process flow (not parallel)
 
 test_mode = false;
-if exist('framework_info','var')
+if exist('framework_info', 'var')
     if isstruct(framework_info) && isfield(framework_info,'job_id')
         obj.job_id = framework_info.job_id;
         if isfield(framework_info,'test_mode')

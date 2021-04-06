@@ -41,7 +41,7 @@ function [c1joint,c1unique,c2unique]=array_common(c1,c2,opt)
 
 
 % Check input option
-if ~exist('opt','var')||strcmpi(opt,'first')
+if ~exist('opt', 'var')||strcmpi(opt,'first')
     opt='first';
 elseif strcmpi(opt,'last')
     opt='last';

@@ -14,7 +14,7 @@ init_file_name = [lower(pack_name),'_init'];
 pack_dir = fileparts(which(init_file_name));
 skip_files = {'update_svn_revision_info','parse_rev_file',init_file_name};
 
-if ~(exist(pack_dir,'dir')==7)
+if ~(is_folder(pack_dir))
     error('UPDATE_SVN_REVISION_INFO:invalid_argument',...
         'Can not locate package init name %s',init_file_name);
 end
@@ -27,7 +27,7 @@ if isempty(rev_str) || ~strcmpi(pack_name_stor,pack_name)
     pack_name_stor = pack_name;
     rev_file_name = [pack_name,'_version.m'];
     rev_file_name = fullfile(pack_dir,'admin',rev_file_name);
-    if ~(exist(rev_file_name,'file') == 2)
+    if ~(is_file(rev_file_name))
         error('UPDATE_SVN_REVISION_INFO:invalid_argument',...
             'Can not locate revision file name: %s',rev_file_name);
     end
@@ -68,7 +68,7 @@ for i=1:numel(files_list)
             continue;
         end
         file = fullfile(files_list(i).folder,files_list(i).name);
-        if exist(file,'file')==2
+        if is_file(file)
             update_svn_revision(file,rev_num,rev_date);
         end
     end

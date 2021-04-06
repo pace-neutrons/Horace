@@ -35,13 +35,13 @@ classdef test_IX_sample < TestCaseWithSave
         %--------------------------------------------------------------------------
         function test_IX_sample_constructor_error_if_required_args_missing(name)
             f = @()IX_sample([1,0,0],[0,1,0],'cuboid');
-            assertExceptionThrown(f, '')
+            assertExceptionThrown(f, '');
         end
 
         %--------------------------------------------------------------------------
         function test_IX_sample_constructor_error_if_invalid_shape(name)
             f = @()IX_sample([1,0,0],[0,1,0],'banana',[2,3,4]);
-            assertExceptionThrown(f, '')
+            assertExceptionThrown(f, '');
         end
 
         %--------------------------------------------------------------------------
@@ -57,7 +57,7 @@ classdef test_IX_sample < TestCaseWithSave
         end
         function test_IX_sample_constructor_errors_for_non_numeric_temperature(name)
             f = @()IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-temperature', 'string');
-            assertExceptionThrown(f, '')
+            assertExceptionThrown(f, '');
         end
 
         %--------------------------------------------------------------------------

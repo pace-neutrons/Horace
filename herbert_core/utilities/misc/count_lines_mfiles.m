@@ -21,7 +21,7 @@ else
 end
 if narg>=1
     directory=varargin{1};
-    if ~exist(directory,'dir')
+    if ~is_folder(directory)
         error(['Directory ',directory,' does not exist.'])
     end
 else

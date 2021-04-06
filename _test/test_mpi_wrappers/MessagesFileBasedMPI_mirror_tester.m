@@ -45,7 +45,7 @@ classdef MessagesFileBasedMPI_mirror_tester < MFTester
     methods (Access=protected)
         function mess_fname = job_stat_fname_(obj,lab_to,mess_name,lab_from,varargin)
             %build filename for a specific message
-            if ~exist('lab_from','var')
+            if ~exist('lab_from', 'var')
                 lab_from = obj.labIndex;
             end
             mess_fname= obj.mess_name_fun_(mess_name,lab_to,lab_from,varargin{:});

@@ -44,7 +44,7 @@ else
 end
 
 % Check input directory exists
-if ~exist(directory,'dir')
+if ~is_folder(directory)
     error(['Input root directory does not exist: ',directory])
 end
 

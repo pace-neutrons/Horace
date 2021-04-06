@@ -149,17 +149,14 @@ classdef JobDispatcher
             %                   some results
             % number_of_workers -- number of Matlab sessions to
             %                    process the tasks
-            % return_results  --if true, job expected to return the results
-            %                   of calculations i.e. the contents assigned
-            %                   to
-            %                   JobExecutor.task_outputs
-            %                   field
             %
             %
             % Optional:
             % keep_workers_running -- true if workers should not finish
             %                    after the task is completed and wait for
-            %                    the task to be resubmitted.
+            %                    the task to be resubmitted. Necessary if
+            %                    one needs to run another job to the
+            %                    cluster.
             %
             % task_query_time -- if present -- time interval in seconds to
             %                    check if tasks are completed. By default,
@@ -173,10 +170,10 @@ classdef JobDispatcher
             %              (task number) and task parameters from
             %               tasks_param_list, assigned to this task
             %
-            if ~exist('task_query_time','var')
+            if ~exist('task_query_time', 'var')
                 task_query_time = 4;
             end
-            if ~exist('keep_workers_running','var')
+            if ~exist('keep_workers_running', 'var')
                 keep_workers_running = false;
             end
             [outputs,n_failed,task_ids,this]=send_tasks_to_workers_(this,...
@@ -230,7 +227,7 @@ classdef JobDispatcher
             %              (task number) and task parameters from
             %               tasks_param_list, assigned to this task
             %
-            if ~exist('task_query_time','var')
+            if ~exist('task_query_time', 'var')
                 task_query_time = 4;
             end
             [outputs,n_failed,task_ids,this]=resend_tasks_to_workers_(this,...

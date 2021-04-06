@@ -82,7 +82,7 @@ function [ok,err]=file_delete_wrapper(filename,nothrow)
 ok=true;
 err = [];
 try
-    if exist(filename,'file') == 2
+    if is_file(filename)
         delete(filename);
     end
 catch ME

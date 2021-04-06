@@ -39,7 +39,7 @@ try
     fclose(fid);
     disp(['Saved information for ' num2str(ndet) ' detectors to .phx file : ' file_tmp]);
 catch
-    if exist('fid','var') && fid>0 && ~isempty(fopen(fid)) % close file, if open
+    if exist('fid', 'var') && fid>0 && ~isempty(fopen(fid)) % close file, if open
         fclose(fid);
     end
     ok=false;

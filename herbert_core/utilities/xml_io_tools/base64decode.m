@@ -45,7 +45,7 @@ if nargin<2, outfname=''; end
 
 %% if x happen to be a filename than read the file
 if (numel(x)<256)
-  if (exist(x, 'file')==2)
+  if (is_file(x))
     fid = fopen(x,'rb');
     x = fread(fid, 'uint8');   
     fclose(fid);

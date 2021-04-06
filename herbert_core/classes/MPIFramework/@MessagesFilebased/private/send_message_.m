@@ -5,7 +5,7 @@ ok = MESS_CODES.ok;
 err_mess=[];
 wlock_obj =[];
 
-if ~exist(obj.mess_exchange_folder,'dir')
+if ~is_folder(obj.mess_exchange_folder)
     ok = MESS_CODES.job_canceled;
     err_mess = sprintf('Job with id %s have been canceled. No message exchange folder exist',obj.job_id);
     return;
@@ -47,7 +47,7 @@ else
     [rlock_file,wlock_file]  = build_lock_fname_(mess_fname);
     n_attempts = 0;
     t_r = obj.time_to_react_;
-    while exist(rlock_file,'file') == 2 % previous message is reading, wait until read process completes
+    while is_file(rlock_file) % previous message is reading, wait until read process completes
         pause(t_r)
         n_attempts = n_attempts +1;
         t_r = t_r*1.05;
@@ -65,13 +65,13 @@ mess_fname = fullfile(fp,[fn,'.tmp_',fext(2:end)]);
 save(mess_fname,'message','-v7.3');
 % check the file has been idenfitied on the filesystem (may be considered
 % just as reasonable delay timer, fir file beeing actually written)
-written = exist(mess_fname,'file') == 2;
+written = is_file(mess_fname);
 t_r = obj.time_to_react_;
 n_attempts = 0;
 while ~written
     pause(t_r);
     n_attempts = n_attempts +1;
-    written = exist(mess_fname,'file') == 2;
+    written = is_file(mess_fname);
     if n_attempts > max_tries
         warning(' Can not wait unitl file appears on the drive. Incoherent filesystem view?')
         error('MESSAGES_FRAMEWORK:runtime_error','Can not save message file %s',mess_fname);

@@ -24,7 +24,7 @@ function [config_data,result,mess] = load_config_from_file(file_name,class_field
 % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 config_data=[];
-if exist(file_name,'file')
+if is_file(file_name)
     try
         S=load(file_name,'-mat');
     catch

@@ -17,7 +17,7 @@ function [varargout]=load_data(this,new_file_name)
 % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 %
 
-if exist('new_file_name','var')
+if exist('new_file_name', 'var')
     % check the new_file_name describes correct file, got internal file
     % info and obtain this info.
     this.file_name = new_file_name;

@@ -29,7 +29,7 @@ classdef MException_her < MException
                 anInput = struct();
             end
             obj = obj@MException(identifier,message);
-            if exist('stack','var') && ~isempty(stack)
+            if exist('stack', 'var') && ~isempty(stack)
                 obj.stack_r = stack;
             end
             if (isfield(anInput,'cause') || isprop(anInput,'cause'))...

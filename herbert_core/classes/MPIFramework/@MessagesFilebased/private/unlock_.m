@@ -32,7 +32,7 @@ tried = 0;
 ws=warning('error','MATLAB:DELETE:Permission');
 permission_denied = false;
 attempt_time = 0.1;
-while exist(filename,'file')==2 || permission_denied
+while is_file(filename) || permission_denied
     try
         delete(filename);
         permission_denied=false;
@@ -63,7 +63,7 @@ warning(ws);
 
 function lock_bg_deleter(filename,ws)
 
-while exist(filename,'file')==2
+while is_file(filename)
     pause(1);
     try
         delete(filename);

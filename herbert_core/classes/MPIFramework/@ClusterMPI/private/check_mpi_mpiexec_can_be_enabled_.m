@@ -21,7 +21,7 @@ end
 
 
 mpiexec = ClusterMPI.get_mpiexec();
-if ~exist(mpiexec,'file')==2
+if ~is_file(mpiexec)
     mess = 'Can not find mpiexec to run parallel programs';
     error('PARALLEL_CONFIG:not_available',mess);
 end

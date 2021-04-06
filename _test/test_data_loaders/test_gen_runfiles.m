@@ -69,7 +69,7 @@ classdef test_gen_runfiles< TestCase
         %
         function delete(obj)
             for i=1:numel(obj.test_files)
-                if exist(obj.test_files{i},'file')==2
+                if is_file(obj.test_files{i})
                     delete(obj.test_files{i});
                 end
             end
@@ -307,7 +307,7 @@ classdef test_gen_runfiles< TestCase
             ERR =sqrt(2)*ones(nen-1,ndet);
             gen_nxspe(S,ERR,this.en{1},this.det,rez_file{1},this.efix(1));
             %
-            assertTrue(exist(rez_file{1},'file')==2);
+            assertTrue(is_file(rez_file{1}));
             rd = rundata(rez_file{1});
             rd = rd.load();
             delete(rez_file{1});
@@ -316,7 +316,7 @@ classdef test_gen_runfiles< TestCase
             assertEqual(rd.ERR,ERR);
             assertEqual(rd.en,this.en{1}');
             assertTrue(isnan(rd.lattice.psi));
-            assertTrue(~exist(rez_file{1},'file'));
+            assertTrue(~is_file(rez_file{1}));
             
             % nen ~= size(S,1)-1 throws
             S1 = S;
@@ -332,8 +332,8 @@ classdef test_gen_runfiles< TestCase
             [rd1,rd2] = gen_nxspe({S,S1},{ERR,ERR1},{this.en{1},this.en{2}},...
                 this.par_file,rez_file,...
                 this.efix(1:2),this.psi(1:2));
-            assertTrue(exist(rez_file{1},'file')==2);
-            assertTrue(exist(rez_file{2},'file')==2);
+            assertTrue(is_file(rez_file{1}));
+            assertTrue(is_file(rez_file{2}));
             
             assertEqual(rd1.lattice.psi,this.psi(1));
             assertEqual(rd2.lattice.psi,this.psi(2));
@@ -366,7 +366,7 @@ classdef test_gen_runfiles< TestCase
                 this.u,this.v,...
                 this.omega(3),this.dpsi(3),this.gl(3),this.gs(3));
             
-            assertTrue(exist(rez_file{2},'file')==2);
+            assertTrue(is_file(rez_file{2}));
             assertEqual(rd3.S,S2);
             lat = rd3.lattice;
             assertEqual(lat.gl,this.gl(3));
@@ -389,8 +389,8 @@ classdef test_gen_runfiles< TestCase
             gen_nxspe(S,ERR,enn,this.det,rez_file,this.efix(1:2),...
                 this.psi(1:2));
             %
-            assertTrue(exist(rez_file{1},'file')==2);
-            assertTrue(exist(rez_file{2},'file')==2);
+            assertTrue(is_file(rez_file{1}));
+            assertTrue(is_file(rez_file{2}));
         end
         
         function test_gen_nosave_array(this)

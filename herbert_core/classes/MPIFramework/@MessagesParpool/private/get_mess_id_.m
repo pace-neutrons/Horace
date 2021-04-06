@@ -10,7 +10,7 @@ if nargin == 0
     return;
 end
 id = check_id(tid_requested);
-if exist('message_id','var')
+if exist('message_id', 'var')
     if isempty(message_id)
         return;
     end

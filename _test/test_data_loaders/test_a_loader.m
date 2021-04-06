@@ -245,7 +245,7 @@ classdef test_a_loader< TestCase
             test_file = fullfile(tmp_dir,'save_nxspe_testfile2.nxspe');
             %test_file = 'save_nxspe_testfile.nxspe';
             %            test_file = 'save_nxspe_testfile.nxspe';
-            if exist(test_file,'file')
+            if is_file(test_file)
                 delete(test_file);
             end
             f=@()lt.saveNXSPE(test_file,10,3);
@@ -284,7 +284,7 @@ classdef test_a_loader< TestCase
             real_file = [test_file,'.nxspe'];
             %test_file = 'save_nxspe_testfile.nxspe';
             %            test_file = 'save_nxspe_testfile.nxspe';
-            if exist(real_file,'file')
+            if is_file(real_file)
                 delete(real_file);
             end
             lt.saveNXSPE(test_file,10,3,'w');
