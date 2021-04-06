@@ -1,4 +1,4 @@
-classdef sigvar2
+classdef testsigvar2
     % Signal array and associated variances (standard errors squared)
     
     properties (Access=private)
@@ -31,13 +31,13 @@ classdef sigvar2
         %------------------------------------------------------------------
         % Constructor
         %------------------------------------------------------------------
-        function obj = sigvar2 (varargin)
-            % Create sigvar object
+        function obj = testsigvar2 (varargin)
+            % Create testsigvar object
             %
-            %   >> w = sigvar           % Empty object
-            %   >> w = sigvar(s)        % Signal but no variance
-            %   >> w = sigvar(s,e)      % Signal and variance
-            %   >> w = sigvar(s,e,msk)  % Signal and variance
+            %   >> w = testsigvar           % Empty object
+            %   >> w = testsigvar(s)        % Signal but no variance
+            %   >> w = testsigvar(s,e)      % Signal and variance
+            %   >> w = testsigvar(s,e,msk)  % Signal and variance
             %
             % Input:
             % ------
@@ -56,24 +56,15 @@ classdef sigvar2
             
             narg = numel(varargin);
             if narg>=1
-                if numel(varargin)==1 && isa(varargin{1},'sigvar2')
-                    % Need to catch the case of input being a sigvar object for
-                    % generic binary and unary operations to work (they require
-                    % that a sigvar object be returned from an instance of the
-                    % class; in this case that a sigvar object be returned from
-                    % a signvar object - a dummy operation)
-                    obj = varargin{1};
-                else
-                    s = varargin{1};
-                    if narg>=2, e = varargin{2}; else, e = []; end
-                    if narg>=3, msk = varargin{3}; else, msk = []; end
-                    if narg>3
-                        mess = 'Too many input arguments';
-                        ME = MException('sigvar:invalid_argument',mess);
-                        throw(ME)
-                    end
-                    [obj.signal_, obj.variance_, obj.mask_] = check_valid_input (s, e, msk);
+                s = varargin{1};
+                if narg>=2, e = varargin{2}; else, e = []; end
+                if narg>=3, msk = varargin{3}; else, msk = []; end
+                if narg>3
+                    mess = 'Too many input arguments';
+                    ME = MException('testsigvar:invalid_argument',mess);
+                    throw(ME)
                 end
+                [obj.signal_, obj.variance_, obj.mask_] = check_valid_input (s, e, msk);
             end
             
         end
@@ -127,7 +118,7 @@ classdef sigvar2
         %------------------------------------------------------------------
     end
     
-        
+    
     %======================================================================
     % Methods for fast construction of structure with independent properties
     methods (Static, Access = private)
