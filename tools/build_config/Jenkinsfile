@@ -247,6 +247,9 @@ if (env.BRANCH_NAME) {
 def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-", "")
 Boolean run_build_stage = !(env?.PR_LABELS =~ "do-not-build")
 Boolean run_test_stage = !(env?.PR_LABELS =~ "(do-not-build|do-not-test)")
+Boolean run_push_docs_stage = (get_matlab_release(env.JOB_BASE_NAME) == 'R2019b' &&
+                               get_build_type(env.JOB_BASE_NAME) == 'Nightly' &&
+                               get_agent(env.JOB_BASE_NAME) == 'sl7')
 
 pipeline {
 
@@ -260,7 +263,7 @@ pipeline {
     GCC_VERSION = get_param('GCC_VERSION', '6.3.0')
     VS_VERSION = get_param('VS_VERSION', '2017')
     CPPCHECK_VERSION = get_param('CPPCHECK_VERSION', '1.77')
-    BUILD_DOCS = get_param('BUILD_DOCS', 'false')
+    BUILD_DOCS = get_param('BUILD_DOCS', 'true')
     PUSH_DOCS = get_param('PUSH_DOCS', 'false')
   }
 
@@ -528,7 +531,7 @@ pipeline {
 
     stage('Push-Docs') {
       when {
-        expression {env.BUILD_DOCS?.toBoolean() && env.PUSH_DOCS?.toBoolean()}
+        expression {env.BUILD_DOCS?.toBoolean() && (env.PUSH_DOCS?.toBoolean() || run_push_docs_stage)}
       }
       steps {
         withCredentials([string(credentialsId: 'GitHub_API_Token',
