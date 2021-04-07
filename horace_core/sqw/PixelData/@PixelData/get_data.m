@@ -25,49 +25,48 @@ function data_out = get_data(obj, pix_fields, varargin)
 %                    possible to achieve the same effect using the `num_pixels`
 %                    property.
 %
-NO_INPUT_INDICES = -1;
+    NO_INPUT_INDICES = -1;
 
-[pix_fields, abs_pix_indices] = parse_args(obj, pix_fields, varargin{:});
-field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(pix_fields));
+    [pix_fields, abs_pix_indices] = parse_args(obj, pix_fields, varargin{:});
+    field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(pix_fields));
 
-if obj.is_file_backed_()
+    if obj.is_file_backed_()
 
-    base_pg_size = obj.base_page_size;
-    if abs_pix_indices == -1
-        first_required_page = 1;
-        data_out = zeros(numel(pix_fields), obj.num_pixels);
-    else
-        first_required_page = ceil(min(abs_pix_indices)/base_pg_size);
-        data_out = zeros(numel(pix_fields), numel(abs_pix_indices));
-    end
+        base_pg_size = obj.base_page_size;
+        if abs_pix_indices == -1
+            first_required_page = 1;
+            data_out = zeros(numel(pix_fields), obj.num_pixels);
+        else
+            first_required_page = ceil(min(abs_pix_indices)/base_pg_size);
+            data_out = zeros(numel(pix_fields), numel(abs_pix_indices));
+        end
 
-    obj.move_to_page(first_required_page);
+        obj.move_to_page(first_required_page);
 
-    data_out = assign_page_values(...
-            obj, data_out, abs_pix_indices, field_indices, base_pg_size);
-    while obj.has_more()
-        obj.advance();
         data_out = assign_page_values(...
+            obj, data_out, abs_pix_indices, field_indices, base_pg_size);
+        while obj.has_more()
+            obj.advance();
+            data_out = assign_page_values(...
                 obj, data_out, abs_pix_indices, field_indices, base_pg_size);
-    end
+        end
 
-else
-
-    if abs_pix_indices == NO_INPUT_INDICES
-        % No pixel indices given, return them all
-        data_out = obj.data(field_indices, :);
     else
-        data_out = obj.data(field_indices, abs_pix_indices);
-    end
 
-end
+        if abs_pix_indices == NO_INPUT_INDICES
+            % No pixel indices given, return them all
+            data_out = obj.data(field_indices, :);
+        else
+            data_out = obj.data(field_indices, abs_pix_indices);
+        end
+
+    end
 
 end  % function
 
-
 % -----------------------------------------------------------------------------
 function data_out = assign_page_values(...
-        obj, data_out, abs_pix_indices, field_indices, base_pg_size ...
+    obj, data_out, abs_pix_indices, field_indices, base_pg_size ...
     )
     NO_INPUT_INDICES = -1;
 
@@ -81,7 +80,6 @@ function data_out = assign_page_values(...
         data_out(:, global_idxs) = obj.data(field_indices, pg_idxs);
     end
 end
-
 
 function [pix_fields, abs_pix_indices] = parse_args(obj, varargin)
     NO_INPUT_INDICES = -1;

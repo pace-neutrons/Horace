@@ -69,7 +69,7 @@ else
     % All pixels in memory
     pix_out = PixelData(obj.data(:, abs_pix_indices));
 end
-
+end
 
 
 % -----------------------------------------------------------------------------
@@ -98,7 +98,7 @@ if max_idx > obj.num_pixels
         'Pixel index out of range. Index must not exceed %i.', ...
         obj.num_pixels);
 end
-
+end
 
 function [pix, pix_assigned] = read_and_assign_dirty_pixels( ...
     obj, pix, abs_pix_indices, pix_assigned)
@@ -141,30 +141,31 @@ for i = 1:numel(dirty_pages)
 
     pix.data(:, pix_pg_mask) = pixels;
 end
-
+end
 
 
 function pix_pg_mask = get_pix_pg_mask(obj, abs_pix_indices, page_number)
-% Get the min/max absolute index of the dirty page
-min_idx = (page_number - 1)*obj.base_page_size + 1;
-max_idx = min_idx + obj.base_page_size;
+    % Get the min/max absolute index of the dirty page
+    min_idx = (page_number - 1)*obj.base_page_size + 1;
+    max_idx = min_idx + obj.base_page_size;
 
-% Logical array tracking indices of abs_pix_indices that are in page_number
-pix_pg_mask = abs_pix_indices >= min_idx & abs_pix_indices < max_idx;
-
+    % Logical array tracking indices of abs_pix_indices that are in page_number
+    pix_pg_mask = abs_pix_indices >= min_idx & abs_pix_indices < max_idx;
+end
 
 
 function pix = read_clean_pix(obj, indices)
 % Read the pixels at the given indices from the .sqw file backing obj
-if issorted(indices, 'strictascend')
+    if issorted(indices, 'strictascend')
     % Check if indices is monotonically increasing (as assumed by
     % get_pix_at_indices), this is quicker than always sorting
-    pix = obj.f_accessor_.get_pix_at_indices(indices);
-else
+        pix = obj.f_accessor_.get_pix_at_indices(indices);
+    else
     % Sort the pixel indices and remove duplicates, the idx_map provides
     % a way to map the indices back to their original order and
     % re-introduce the duplicates after the reading is complete
-    [unique_sorted, ~, idx_map] = unique(indices);
-    pix = obj.f_accessor_.get_pix_at_indices(unique_sorted);
-    pix = pix(:, idx_map);
+        [unique_sorted, ~, idx_map] = unique(indices);
+        pix = obj.f_accessor_.get_pix_at_indices(unique_sorted);
+        pix = pix(:, idx_map);
+    end
 end
