@@ -4,4 +4,4 @@ function w = acos (w1)
 %   >> w = acos(w1)
 %
 
-w = unary_op_manager (w1, @acos_single);
+w = unary_op_manager (w1, @acos);

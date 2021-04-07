@@ -4,4 +4,4 @@ function w = acosh (w1)
 %   >> w = acosh(w1)
 %
 
-w = unary_op_manager (w1, @acosh_single);
+w = unary_op_manager (w1, @acosh);

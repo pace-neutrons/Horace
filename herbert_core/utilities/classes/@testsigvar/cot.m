@@ -4,4 +4,4 @@ function w = cot (w1)
 %   >> w = cot(w1)
 %
 
-w = unary_op_manager (w1, @cot_single);
+w = unary_op_manager (w1, @cot);

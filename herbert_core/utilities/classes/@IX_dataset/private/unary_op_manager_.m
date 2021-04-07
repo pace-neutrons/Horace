@@ -1,17 +1,33 @@
-function w = unary_op_manager_(w1, unary_op)
-% Implement unary arithmetic operations for objects containing a signal and variance arrays.
- 
-% Generic method for binary operations on classes that
-%   (1) have methods to set, get and find size of signal and variance arrays:
-%           >> sz = sigvar_size(obj)
-%           >> w = sigvar(obj)          % w is sigvar object (has fields w.s, w.e)
-%           >> obj = sigvar_set(obj,w)  % w is sigvar object
-%   (2) have dimensions method that gives the dimensionality of the double array
-%           >> nd = dimensions(obj)
-%   (3) have private function that returns class name
-%           >> name = classname     % no argument - gets called by its association with the class
+function w = unary_op_manager (w1, unary_op)
+% Apply a unary operation for objects containing signal and variance arrays.
+%
+%   >> w = unary_op_manager (w1, unary_op)
+%
+% Input:
+% ------
+%   w1          Input object or array of objects on which to apply the
+%               unary operator
+%
+% Output:
+% -------
+%   unary_op    Function handle to the unary operator
 
-% Original author: T.G.Perring
+
+% NOTES:
+% Gives the generic behaviour for unary operation for any class, but may
+% need modification of the actual unary operation calculation depending on
+% the details of the class internal complexity.
+%
+% Requires that objects have the following methods to find the size of the
+% public signal and variance arrays, create a sigvar object from those
+% arrays, and set them from another sigvar object.
+%
+%	>> sz = sigvar_size(obj)    % Returns size of public signal and variance
+%                               % arrays
+%	>> w = sigvar(obj)          % Create a sigvar object from the public
+%                               % signal and variance arrays
+%	>> obj = sigvar_set(obj,w)  % Set signal and variance in an object from
+%                               % those in a sigvar object
 
 
 w = w1;
