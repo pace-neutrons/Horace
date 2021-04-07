@@ -49,6 +49,8 @@ proj = proj.set_proj_binning( ...
 [s, e, npix, pix_out, acutal_img_range, pix_comb_info] = cut_accumulate_data_( ...
     w, proj, keep_pix, log_level, return_cut ...
     );
+% acutal_img_range left here for debugging purposes
+%
 if ~isempty(pix_comb_info) && isa(pix_comb_info, 'pix_combine_info')
     % Make sure we clean up temp files
     cleanup = onCleanup(@() clean_up_tmp_files(pix_comb_info));
@@ -56,12 +58,12 @@ end
 % the range the pixels are rebinned into:
 urange_offset = repmat(proj.urange_offset, [2, 1]);
 bin_range_step = proj.urange_step;
-bin_img_range  = bin_range_step.*repmat(proj.usteps, [2, 1]) + urange_offset;
+img_db_range  = bin_range_step.*repmat(proj.usteps, [2, 1]) + urange_offset;
 
 
 % Compile the accumulated cut and projection data into a data_sqw_dnd object
 data_out = compile_sqw_data(...
-    w.data, proj, s, e, npix, pix_out,pix_comb_info, bin_img_range, ...
+    w.data, proj, s, e, npix, pix_out,pix_comb_info, img_db_range, ...
     ubins, keep_pix);
 
 % Assign the new data_sqw_dnd object to the output SQW object, or create a new
