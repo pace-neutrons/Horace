@@ -45,7 +45,8 @@ uicontrol(fig,'style','edit','string',round_gen(d.clim(1,1),2),...
 
 lim=[min(min(min(d.data))) max(max(max(d.data)))];
 if lim(1)==lim(2)
-    lim(2) = lim(1)+1;
+    lim(1) = lim(1)-1;    
+    lim(2) = lim(2)+1;    
 end
 %  d.axmain = axes('units','normal','pos',[.2  .2 .6 .6],'box','on',...
 %                  'ylim',[1 size(d.data,1)],...
