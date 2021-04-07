@@ -12,7 +12,7 @@ function w = sigvar_set(w, sigvarobj)
 
 % Check input argument type and signal array sizes (generic checks fo any class)
 classname = mfilename('class');
-if ~isa(sigvarobj, 'sigvar2')
+if ~isa(sigvarobj, 'sigvar')
     mess = 'Source of new signal and variance data must be a sigvar object';
     error([upper(classname),':binary_op_manager'], mess);
     
@@ -23,4 +23,4 @@ elseif ~isequal(sigvar_size(w), sigvar_size(sigvarobj))
 end
 
 % Update signal (specific to particular class)
-w = sigvarobj;  % essentially a dummy function in this case
+w = testsigvar(sigvarobj.s, sigvarobj.e, sigvarobj.msk);

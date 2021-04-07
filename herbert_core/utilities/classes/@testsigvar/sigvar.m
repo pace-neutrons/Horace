@@ -1,7 +1,7 @@
-function wout = sigvar2(w)
+function wout = sigvar(w)
 % Create sigvar object from input testsigvar object
 %
 %   >> wout = sigvar(w)
 
 
-wout = sigvar2(w.s, w.e, w.msk);
+wout = sigvar(w.s, w.e, w.msk);

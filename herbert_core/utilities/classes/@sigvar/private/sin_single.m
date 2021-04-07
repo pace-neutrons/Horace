@@ -8,4 +8,4 @@ else
     e = [];
 end
 
-w = sigvar2(s,e);
+w = sigvar(s,e);

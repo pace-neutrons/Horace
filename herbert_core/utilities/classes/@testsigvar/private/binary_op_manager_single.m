@@ -63,7 +63,7 @@ if ~isfloat(w1) && ~isfloat(w2)
         else
             wout = w2;
         end
-        result = binary_op(sigvar2(w1), sigvar2(w2));
+        result = binary_op(sigvar(w1), sigvar(w2));
         wout = sigvar_set(wout, result);
     else
         error([upper(classname),':binary_op_manager_single'], ...
@@ -74,7 +74,7 @@ elseif isfloat(w2)
     % w1 is an instance of classname, w2 is a float
     if isscalar(w2) || isequal(sigvar_size(w1), size(w2))
         wout = w1;
-        result = binary_op(sigvar2(w1), sigvar2(w2));
+        result = binary_op(sigvar(w1), w2);
         wout = sigvar_set(wout, result);
     else
         error([upper(classname),':binary_op_manager_single'], ...
@@ -86,7 +86,7 @@ elseif isfloat(w1)
     % w2 is an instance of classname, w1 is a float
     if isscalar(w1) || isequal(sigvar_size(w2),size(w1))
         wout = w2;
-        result = binary_op(sigvar2(w1), sigvar2(w2));
+        result = binary_op(w1, sigvar(w2));
         wout = sigvar_set(wout, result);
     else
         error([upper(classname),':binary_op_manager_single'], ...

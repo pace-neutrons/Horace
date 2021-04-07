@@ -1,4 +1,4 @@
-classdef sigvar2
+classdef sigvar
     % Signal array and associated variances (standard errors squared)
     
     properties (Access=private)
@@ -31,7 +31,7 @@ classdef sigvar2
         %------------------------------------------------------------------
         % Constructor
         %------------------------------------------------------------------
-        function obj = sigvar2 (varargin)
+        function obj = sigvar (varargin)
             % Create sigvar object
             %
             %   >> w = sigvar           % Empty object
@@ -56,7 +56,7 @@ classdef sigvar2
             
             narg = numel(varargin);
             if narg>=1
-                if numel(varargin)==1 && isa(varargin{1},'sigvar2')
+                if numel(varargin)==1 && isa(varargin{1},'sigvar')
                     % Need to catch the case of input being a sigvar object for
                     % generic binary and unary operations to work (they require
                     % that a sigvar object be returned from an instance of the
