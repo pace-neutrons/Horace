@@ -1,5 +1,10 @@
 classdef testsigvar
     % Signal array and associated variances (standard errors squared)
+    %
+    % The purpose of this class is to provide a test class for binary and
+    % unary operations which also serves as a template for the methods and
+    % their required functionality for other classes on which algebra is
+    % defined.
     
     properties (Access=private)
         % Class version number
