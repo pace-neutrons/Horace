@@ -89,7 +89,7 @@ function [pix_fields, abs_pix_indices] = parse_args(obj, varargin)
     parser = inputParser();
     parser.addRequired('pix_fields', @(x) ischar(x) || iscell(x));
     parser.addOptional('abs_pix_indices', NO_INPUT_INDICES, ...
-                       @is_positive_int_vector_or_logical_vector);
+                       @isindex);
     parser.parse(varargin{:});
 
     pix_fields = parser.Results.pix_fields;
@@ -110,9 +110,4 @@ function [pix_fields, abs_pix_indices] = parse_args(obj, varargin)
                    'found %i'], obj.num_pixels, max_idx);
         end
     end
-end
-
-
-function is = is_positive_int_vector_or_logical_vector(vec)
-    is = isvector(vec) && (islogical(vec) || (all(vec > 0 & all(floor(vec) == vec))));
 end
