@@ -31,6 +31,7 @@ switch(n_dims)
         if isempty(nodes_ind2D)
             [nodes_ind2D,edges_ind2D] = build2D();
         end
+        
         nodes_ind = nodes_ind2D;
         edges_ind = edges_ind2D;
     case(3)
