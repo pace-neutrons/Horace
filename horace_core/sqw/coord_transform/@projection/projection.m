@@ -34,6 +34,37 @@ classdef projection<aProjection
             % ortho projection have mex procedures defined
             isit = true;
         end
+        %
+        function [rot_to_img,shift]=get_pix_img_transformation(obj,ndim)
+            % Return the transformation, necessary for convertion from pix
+            % to image coordinate system and vise-versa if the projaxes is
+            % defined
+            % Input:
+            % ndim -- number of dimensions in the pixels coordinate array
+            %         (3 or 4). Depending on this number the routine
+            %         returns 3D or 4D transformation matrix
+            %
+            [rlu_to_ustep, u_to_rlu] = projaxes_to_rlu(obj.projaxes_,obj.alatt, obj.angdeg, [1,1,1]);
+            b_mat  = bmatrix(obj.alatt, obj.angdeg);
+            rot_to_img = rlu_to_ustep/b_mat;
+            
+            %rot_ustep = rlu_to_ustep*this.data_upix_to_rlu_
+            %data_transf = obj.get_data_pix_to_rlu();
+            if ndim==4
+                shift  = obj.uoffset';
+                u_to_rlu  = [u_to_rlu,[0;0;0];[0,0,0,1]];
+                rot_to_img = [rot_to_img,[0;0;0];[0,0,0,1]];
+            elseif ndim == 3
+                shift  = obj.uoffset(1:3)';
+            else
+                error('PROJECTION:transformaton:invalid_argument',...
+                    'The size of the pixels array should be [3xNpix] or [4xNpix], actually it is: %s',...
+                    evalc('disp(size(pix_cc))'));
+            end
+            % convert shift, expressed in hkl into crystal Cartesian
+            shift = u_to_rlu\shift';
+            
+        end
     end
     
     methods
@@ -198,7 +229,7 @@ classdef projection<aProjection
             % v     -- [1x3] vecotor expressed in rlu, and together with u
             %          defining the cut plain
             
-
+            
             %u_to_rlu(:,i) = ubinv(:,i)*ulen(i);
             ulen_inv = 1./ulen;
             ubinv = u_to_rlu.*repmat(ulen_inv,3,1);
