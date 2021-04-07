@@ -25,6 +25,7 @@ else % the input is the cut
 end
 proj.alatt=alatt;
 proj.angdeg=angdeg;
+proj = proj.set_data_pix_to_rlu(obj.u_to_rlu);
 
 
 

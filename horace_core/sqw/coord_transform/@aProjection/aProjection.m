@@ -82,14 +82,14 @@ classdef aProjection
         %------------------------------------------------------------------
         % Common interface to projection data
         %------------------------------------------------------------------
-        % build the binning and axis for the coordinate system related to cut 
-        [iax, iint, pax, p, img_db_range_out] = calc_transf_img_bins (proj,img_db_range_in,pbin, pin, en)        
+        % build the binning and axis for the coordinate system related to cut
+        [iax, iint, pax, p, img_db_range_out] = calc_transf_img_bins (proj,img_db_range_in,pbin, pin, en)
         % Check that the binning arguments are valid, and update the projection
         % with the current bin values
         [proj_update,pbin_update,ndims,pin,en] = update_pbins (proj, header_ave, data, pbin)
         
         % Check binning descriptors are valid, and resolve multiple integration axes
-        % using limits and bin widths from the input data.        
+        % using limits and bin widths from the input data.
         [ pbin_out, ndims] = calc_pbins(proj, img_db_range_in, pbin, pin, en)
         
         %
@@ -122,7 +122,7 @@ classdef aProjection
         function obj = set.alatt(obj,val)
             % set lattice parameters as single value, defining 3 equal
             % parameters or vector of 3 different lattice parameters
-            % 
+            %
             % The parameters expected to be in A
             %
             obj.alatt_ = check_alatt_return_standard_val_(val);
@@ -135,7 +135,7 @@ classdef aProjection
             % set lattice parameters as single value, defining 3 equal
             % lattice angles or vector of 3 different lattice angles
             %
-            % All angles are in degrees. 
+            % All angles are in degrees.
             %
             obj.angdeg_ = check_angdeg_return_standard_val_(val);
         end
@@ -158,6 +158,17 @@ classdef aProjection
         end
         function nbin = get.target_nbin(obj)
             nbin = obj.nbin_gt1_;
+        end
+        %
+        % Temporary method, here unil projection is refactored
+        % will belong to another projection or become a property
+        function upix_to_rlu = get_data_pix_to_rlu(obj)
+            upix_to_rlu = obj.data_upix_to_rlu_;
+        end
+        % Temporary method, here unil projection is refactored
+        % will belong to another projection or become a property
+        function obj = set_data_pix_to_rlu(obj,data_upix_to_rlu)
+            obj.data_upix_to_rlu_ = data_upix_to_rlu;
         end
     end
     %
@@ -300,15 +311,15 @@ classdef aProjection
     %----------------------------------------------------------------------
     methods(Abstract)
         % find the whole range of input data which may contribute
-        % into the result.        
+        % into the result.
         urange_out = find_old_img_range(obj,urange_in);
-
-
+        
+        
         % Get ranges of bins that partially or wholly lie inside an n-dimensional shape,
-        % defined by projection limits.        
+        % defined by projection limits.
         [istart,iend,irange,inside,outside] = get_irange_proj(obj,urange,varargin);
         
-        % get list of pixels indexes contributing into the cut        
+        % get list of pixels indexes contributing into the cut
         [indx,ok] = get_contributing_pix_ind(obj,v);
         
         % get projection parameters, necessary for properly definind a sqw
