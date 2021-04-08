@@ -1,5 +1,5 @@
 function [obj,subobj_to_save]=put_dnd_data(obj,varargin)
-% Write dnd image data, namely signal, error and npixs or upgrade existing 
+% Write dnd image data, namely signal, error and npixs or upgrade existing
 % data with new records, which occupy the same space on hdd
 %
 % Usage:
@@ -49,23 +49,12 @@ if update % are we going to write new or update existing data
 else
     pos = obj.s_pos_;
 end
-%
-% write signal, error and npix
-fseek(obj.file_id_,pos,'bof');
-check_error_report_fail_(obj,'Error moving to the beginning of the signal record');
 
-fwrite(obj.file_id_,subobj_to_save.s,'float32');
-check_error_report_fail_(obj,'Error writing signal record');
-fseek(obj.file_id_,obj.e_pos_,'bof');
+% write signal and error
+obj.put_image_no_validate_(subobj_to_save.s, subobj_to_save.e, pos);
 
-check_error_report_fail_(obj,'Error moving to the beginning of the error record');
-fwrite(obj.file_id_,subobj_to_save.e,'float32');
-check_error_report_fail_(obj,'Error writing error record');
-
+% write npix
 fseek(obj.file_id_,obj.npix_pos_,'bof');
 check_error_report_fail_(obj,'Error moving to the beginning of the npix record');
 fwrite(obj.file_id_,subobj_to_save.npix,'uint64');
 check_error_report_fail_(obj,'Error writing npix record');
-
-
-

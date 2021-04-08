@@ -281,7 +281,9 @@ classdef dnd_binfile_common < dnd_file_interface
         
         % read main dnd data  from properly initialized binary file.
         [dnd_data,obj] = get_data(obj,varargin);
-        %
+        % write only image signal and error data
+        obj = put_image(obj, s, e);
+
         function [data_str,obj] = get_se_npix(obj,varargin)
             % Read signal, error and npix information and return them as
             % the fields of sqw data structure:
