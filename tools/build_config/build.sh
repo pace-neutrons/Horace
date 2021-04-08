@@ -79,10 +79,7 @@ function run_package() {
 
 function build_docs() {
     # Update release numbers
-    echo_and_run "cmake --build ${build_dir} --target docs"
-
-    # Compress for artifact
-    tar -czf docs.tar.gz ./documentation/user_docs/build/html/*
+    echo_and_run "cmake --build ${build_dir} --target docs-pack"
 }
 
 function push_built_docs() {
@@ -176,7 +173,7 @@ function main() {
         # flags
         -b|--build) build=$TRUE; shift ;;
         -t|--test) test=$TRUE; shift ;;
-        -c|--configure) configure=$TRUE; shift;;
+        -g|--configure) configure=$TRUE; shift;;
         -a|--analyze) analyze=$TRUE; shift ;;
         -p|--package) package=$TRUE; shift ;;
         -d|--docs) docs=$TRUE; shift;;
