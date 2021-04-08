@@ -104,7 +104,7 @@ classdef test_box_edges < TestCase
                 [1,1,0;1,1,1]',[1,0,1;1,1,1]',[0,1,1;1,1,1]'};
             for i=1:size(edge_pts,2)
                 edge = edge3D(box,edge_pts(:,i));
-                assertEqual(ref_edges{i},edge,sprintf(' Edge %d mismatch',i));
+                assertElementsAlmostEqual(ref_edges{i},edge,sprintf(' Edge %d mismatch',i));
             end
         end
         %--------------------------------------------------------------------------
@@ -119,7 +119,7 @@ classdef test_box_edges < TestCase
             ref_edges = {[-1,0;0,-1]',[-1,0;0,1]',[0,-1;1,0]',[0,1;1,0]'};
             for i=1:size(edge_pts,2)
                 edge = edge2D(box,edge_pts(:,i));
-                assertEqual(ref_edges{i},edge);
+                assertElementsAlmostEqual(ref_edges{i},edge);
             end
         end
         function test_edges2D_throw_invalid_arguments(~)
@@ -136,7 +136,7 @@ classdef test_box_edges < TestCase
             ref_edges = {[0,0;1,0]',[0,0;0,1]',[1,0;1,1]',[0,1;1,1]'};
             for i=1:size(edge_pts,2)
                 edge = edge2D(box,edge_pts(:,i));
-                assertEqual(ref_edges{i},edge);
+                assertElementsAlmostEqual(ref_edges{i},edge);
             end
         end
         %--------------------------------------------------------------------------
