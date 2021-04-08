@@ -1,7 +1,7 @@
-function w = acot (w1)
-% Implement acot(w1) for objects
+function w = cot (w1)
+% Implement cot(w1) for objects
 %
-%   >> w = acot(w1)
+%   >> w = cot(w1)
 %
 
-w = IX_dataset.unary_op_manager (w1, @acot_single);
+w = unary_op_manager (w1, @cot);

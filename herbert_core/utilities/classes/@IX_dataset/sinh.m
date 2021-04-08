@@ -4,4 +4,4 @@ function w = sinh (w1)
 %   >> w = sinh(w1)
 %
 
-w = IX_dataset.unary_op_manager (w1, @sinh_single);
+w = unary_op_manager (w1, @sinh);

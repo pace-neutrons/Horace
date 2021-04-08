@@ -4,4 +4,4 @@ function w = acot (w1)
 %   >> w = acot(w1)
 %
 
-w = IX_dataset.unary_op_manager (w1, @acot_single);
+w = unary_op_manager (w1, @acot);

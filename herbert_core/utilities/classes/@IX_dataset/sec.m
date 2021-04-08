@@ -4,4 +4,4 @@ function w = sec (w1)
 %   >> w = sec(w1)
 %
 
-w = IX_dataset.unary_op_manager (w1, @sec_single);
+w = unary_op_manager (w1, @sec);

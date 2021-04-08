@@ -1,7 +1,7 @@
-function w = acoth (w1)
-% Implement acoth(w1) for objects
+function w = coth (w1)
+% Implement coth(w1) for objects
 %
-%   >> w = acoth(w1)
+%   >> w = coth(w1)
 %
 
-w = IX_dataset.unary_op_manager (w1, @acoth_single);
+w = unary_op_manager (w1, @coth);

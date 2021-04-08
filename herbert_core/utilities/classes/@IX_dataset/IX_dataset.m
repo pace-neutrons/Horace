@@ -214,18 +214,6 @@ classdef IX_dataset
         val = check_xyz(val);
         % Internal function used to verify and set up an axis
         obj = check_and_build_axis(val);
-        %
-        %
-        %Implement binary arithmetic operations for objects containing a double array.
-        w = binary_op_manager (w1, w2, binary_op)
-        % Implement binary operator for objects with a signal and a variance array.
-        wout = binary_op_manager_single(w1,w2,binary_op)
-        %
-        function w = unary_op_manager (w1, unary_op)
-            % Implement unary arithmetic operations for objects containing a signal and variance arrays.
-            w = unary_op_manager_(w1, unary_op);
-        end
-        %
     end
     %======================================================================
     % Abstract interface:

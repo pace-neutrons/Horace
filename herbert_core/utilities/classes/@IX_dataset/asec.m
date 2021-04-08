@@ -4,4 +4,4 @@ function w = asec (w1)
 %   >> w = asec(w1)
 %
 
-w = IX_dataset.unary_op_manager (w1, @asec_single);
+w = unary_op_manager (w1, @asec);
