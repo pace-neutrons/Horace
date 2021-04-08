@@ -1,7 +1,10 @@
 classdef test_testsigvar < TestCaseWithSave
     % test_testsigvar  Tests testsigvar objects
     %
-    % Tests have a well-defined naming an operation
+    % These tests add testsigvar objects to themselves or floats, as a test
+    % of the operation of the underlying calls to sigvar methods.
+    %
+    % Tests have a well-defined naming convention:
     %   - Objects are abbreviated in the name as the size of the object
     %     followed by the size of the signal array (or the word 'mixed'
     %     if signal arrays are not all the same size

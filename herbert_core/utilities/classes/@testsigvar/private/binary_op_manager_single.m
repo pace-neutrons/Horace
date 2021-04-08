@@ -53,12 +53,12 @@ function wout = binary_op_manager_single(w1, w2, binary_op)
 % any of the additional properties are carried through unchanged. If both
 % are instances of class classname, then w1 is assumed dominant.
 
-classname = mfilename('class');
+thisClassname = mfilename('class');
 
 if ~isfloat(w1) && ~isfloat(w2)
     % Neither of w1, w2 is a float array
     if isequal(sigvar_size(w1), sigvar_size(w2))
-        if isa(w1,classname)
+        if isa(w1,thisClassname)
             wout = w1;  % if w1 and w2 are both of class classname, use w1
         else
             wout = w2;
@@ -66,7 +66,7 @@ if ~isfloat(w1) && ~isfloat(w2)
         result = binary_op(sigvar(w1), sigvar(w2));
         wout = sigvar_set(wout, result);
     else
-        error([upper(classname),':binary_op_manager_single'], ...
+        error([upper(thisClassname),':binary_op_manager_single'], ...
             'Sizes of signal arrays in the objects are different');
     end
     
@@ -77,7 +77,7 @@ elseif isfloat(w2)
         result = binary_op(sigvar(w1), w2);
         wout = sigvar_set(wout, result);
     else
-        error([upper(classname),':binary_op_manager_single'], ...
+        error([upper(thisClassname),':binary_op_manager_single'], ...
             ['Check that the numeric variable is scalar or array ' ...
             'with same size as object signal']);
     end
@@ -89,7 +89,7 @@ elseif isfloat(w1)
         result = binary_op(w1, sigvar(w2));
         wout = sigvar_set(wout, result);
     else
-        error([upper(classname),':binary_op_manager_single'], ...
+        error([upper(thisClassname),':binary_op_manager_single'], ...
             ['Check that the numeric variable is scalar or array ' ...
             'with same size as object signal']);
     end

@@ -1,5 +1,8 @@
-classdef test_sigvar < TestCaseWithSave
-    % test_sigvar  Tests sigvar objects
+classdef test_IX_dataset_1d_ops1_2_Part1 < TestCaseWithSave
+    % test_testsigvar  Tests testsigvar objects
+    %
+    % These tests add IX_dataset_1d objects to themselves or floats, as a test
+    % of the operation of the underlying calls to sigvar methods.
     %
     % Tests have a well-defined naming convention:
     %   - Objects are abbreviated in the name as the size of the object
@@ -12,10 +15,45 @@ classdef test_sigvar < TestCaseWithSave
     %
     % The tests check the symmetry of (w1 + w2) and (w2 + w1)
     
+    properties
+        % Three point data datasets, all same number of data points
+        p1
+        p2
+        p3
+        % Three histogram data datasets, all same number of data points
+        % as the point datasets above
+        h1
+        h2
+        h3
+        % Point and histogram datasets same number points but more than above
+        pbig
+        hbig
+    end
+    
     methods
         %--------------------------------------------------------------------------
-        function self = test_sigvar (name)
+        function self = test_IX_dataset_1d_ops1_2_Part1 (name)
             self@TestCaseWithSave(name);
+            
+            % Load some test data
+            S = load('testdata_IX_datasets_ref.mat');
+            
+            % Three point data datasets, all same number of data points
+            self.p1 = S.p1;
+            self.p2 = S.p2;
+            self.p3 = S.p3;
+                        
+            % Three histogram data datasets, all same number of data points
+            % as the point datasets above
+            self.h1 = S.h1;
+            self.h2 = S.h2;
+            self.h3 = S.h3;
+            
+            % Point and histogram datasets, same number of data points
+            % but many more than the the trio defined above
+            self.pbig = S.pp_1d_big(1);
+            self.hbig = S.hh_1d_big(1);
+
             self.save()
         end
         
@@ -23,53 +61,44 @@ classdef test_sigvar < TestCaseWithSave
         % Test adding scalar objects
         % - tests the workings of binary_op_manager_single
         %--------------------------------------------------------------------------
-        function test_wscal_scal__wscal_scal (self)
-            % Add scalar objects with scalar signal
-            w1 = sigvar(3,25);
-            w2= sigvar(4,144);
-            wsum = sigvar(7,169);
+        function test_wscal_20by1__wscal_20by1 (self)
+            % Add scalar objects
+            w1 = self.p1;
+            w2 = self.p2;
             
+            s = w1.signal + w2.signal;
+            e = sqrt((w1.error).^2 + (w2.error).^2);
+            
+            wsum = w1; wsum.signal=s; wsum.error=e;
             wsum_test = w1 + w2;
             assertEqual(wsum, wsum_test)
 
+            wsum = w2; wsum.signal=s; wsum.error=e;
             wsum_test = w2 + w1;
             assertEqual(wsum, wsum_test)
         end
         
         %--------------------------------------------------------------------------
-        function test_wscal_1by2__wscal_1by2 (self)
-            % Add scalar objects that have vector signal arrays
-            w1 = sigvar([31,5],[2,3]);
-            w2 = sigvar([14,16],4);
-            wsum = sigvar([45,21],[6,7]);
-            
-            wsum_test = w1 + w2;
-            assertEqual(wsum, wsum_test)
-            
-            wsum_test = w2 + w1;
-            assertEqual(wsum, wsum_test)
-        end
-        
-        %--------------------------------------------------------------------------
-        function test_wscal_1by2__wscal_2by1_FAIL (self)
+        function test_wscal_20by1__wscal_516by1_FAIL (self)
             % Add scalar objects that have different size signal arrays
             % *** Should throw an error
-            w_1by2 = sigvar([31,5],[2,3]);
-            w_2by1 = sigvar([14;16],4);
+            w1 = self.p1;
+            w2 = self.pbig;
             
-            testfun = @()plus(w_1by2,w_2by1);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            testfun = @()plus(w1,w2);
+            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager_single');
             
-            testfun = @()plus(w_2by1,w_1by2);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            testfun = @()plus(w2,w1);
+            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager_single');
         end
         
         %--------------------------------------------------------------------------
-        function test_wscal_scal__flt_scal (self)
-            % Add scalar object with scalar signal to scalar float
-            w = sigvar(3,25);
+        function test_wscal_20by1__flt_scal (self)
+            % Add scalar object to scalar float
+            w = self.p1;
             f= 4;
-            wsum = sigvar(7,25);
+            
+            wsum = w; wsum.signal=w.signal + 4;
             
             wsum_test = w + f;
             assertEqual(wsum, wsum_test)
@@ -79,25 +108,12 @@ classdef test_sigvar < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
-        function test_wscal_1by2__flt_scal (self)
-            % Add scalar object with vector signal to scalar float
-            w = sigvar([31,5],[2,3]);
-            f = 7;
-            wsum = sigvar([38,12],[2,3]);
-            
-            wsum_test = w + f;
-            assertEqual(wsum, wsum_test)
-            
-            wsum_test = f + w;
-            assertEqual(wsum, wsum_test)
-        end
-        
-        %--------------------------------------------------------------------------
-        function test_wscal_1by2__flt_1by2 (self)
+        function test_wscal_20by1__flt_20by1 (self)
             % Add scalar object to float array with same size as signal array
-            w = sigvar([31,5],[2,3]);
-            f = [14,16];
-            wsum = sigvar([45,21],[2,3]);
+            w = self.p1;
+            f = rand(size(w.signal));
+            
+            wsum = w; wsum.signal=w.signal + f;
             
             wsum_test = w + f;
             assertEqual(wsum, wsum_test)
@@ -107,52 +123,53 @@ classdef test_sigvar < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
-        function test_wscal_1by2__flt_2by1_FAIL (self)
+        function test_wscal_20by1__flt_1by20_FAIL (self)
             % Add scalar object to float array with different shape to signal array
             % *** Should throw an error
-            w = sigvar([31,5],[2,3]);
-            f = [14;16];
+            w = self.p1;
+            f = rand(size(w.signal))';
             
             testfun = @()plus(w,f);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager_single');
             
             testfun = @()plus(f,w);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager_single');
         end
         
         %--------------------------------------------------------------------------
-        function test_wscal_1by2__flt_2by2_FAIL (self)
+        function test_wscal_20by1__flt_20by20_FAIL (self)
             % Add scalar object to float array with different size to signal array
             % Want to test that the float is *not* resolved into stack of arrays
             % *** Should throw an error
-            w = sigvar([31,5],[2,3]);
-            f = [14,19; 16,2];
+            w = self.p1;
+            f = rand(numel(w.signal), numel(w.signal));
             
             testfun = @()plus(w, f);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager_single');
             
             testfun = @()plus(f, w);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager_single');
         end
         
         %--------------------------------------------------------------------------
         % Test adding arrays of objects - neither a float array
         %--------------------------------------------------------------------------
-        function test_w1by3_1by2__wscal_1by2 (self)
+        function test_w1by3_20by1__wscal_20by1 (self)
             % Add object array to scalar object; elements with consistent signal arrays
             % 2nd object is  a scalar object
-            k1 = sigvar([31,5],[2,3]);
-            k2 = sigvar([14,16],4);
-            k3 = sigvar([22,18],[11,12]);
-            k4 = sigvar([15,14],[2,3]);
+            k1 = self.p1;
+            k2 = self.p2;
+            k3 = self.p3;
+            k4 = self.h1;
             
             w1 = [k1,k2,k3];
             w2 = k4;
-            wsum = [k1+k4, k2+k4, k3+k4];
             
+            wsum = [k1+k4, k2+k4, k3+k4];
             wsum_test = w1 + w2;
             assertEqual(wsum, wsum_test)
             
+            wsum = [k4+k1, k4+k2, k4+k3];
             wsum_test = w2 + w1;
             assertEqual(wsum, wsum_test)
         end
@@ -161,21 +178,22 @@ classdef test_sigvar < TestCaseWithSave
         function test_w1by3_mixed__w1by3_mixed (self)
             % Add two objects that have elements with consistent signal arrays
             % Both are objects with the same size
-            k11 = sigvar([31,5],[2,3]);
-            k12 = sigvar([14;16],4);
-            k13 = sigvar([22,18,14; 9,11,-0.5],[11,12,6; 0.4,0.8,1.4]);
+            k11 = self.p1;
+            k12 = self.p2;
+            k13 = self.pbig;
             
-            k21 = sigvar([131,15],[2,3]);
-            k22 = sigvar([24;26],3);
-            k23 = sigvar([122,118,114; 29,211,-20.5],[311,312,36; 0.34,0.38,1.34]);
+            k21 = self.h1;
+            k22 = self.h2;
+            k23 = self.hbig;
             
             w1 = [k11, k12, k13];
             w2 = [k21, k22, k23];
-            wsum = [k11+k21, k12+k22, k13+k23];
             
+            wsum = [k11+k21, k12+k22, k13+k23];
             wsum_test = w1 + w2;
             assertEqual(wsum, wsum_test)
             
+            wsum = [k21+k11, k22+k12, k23+k13];
             wsum_test = w2 + w1;
             assertEqual(wsum, wsum_test)
         end
@@ -184,21 +202,21 @@ classdef test_sigvar < TestCaseWithSave
         function test_w1by3_mixed__w1by2_mixed_FAIL (self)
             % Add two objects with inconsistent sizes
             % *** Should fail
-            k11 = sigvar([31,5],[2,3]);
-            k12 = sigvar([14;16],4);
-            k13 = sigvar([22,18,14; 9,11,-0.5],[11,12,6; 0.4,0.8,1.4]);
+            k11 = self.p1;
+            k12 = self.p2;
+            k13 = self.pbig;
             
-            k21 = sigvar([131,15],[2,3]);
-            k22 = sigvar([24;26],3);
+            k21 = self.h1;
+            k22 = self.h2;
             
             w1 = [k11, k12, k13];
             w2 = [k21, k22];
             
             testfun = @()plus(w1, w2);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager');
+            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager');
             
             testfun = @()plus(w2, w1);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager');
+            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager');
         end
         
         %--------------------------------------------------------------------------
@@ -206,9 +224,9 @@ classdef test_sigvar < TestCaseWithSave
         %--------------------------------------------------------------------------
         function test_w1by3_mixed__flt_scal (self)
             % Vector object, scalar float
-            k11 = sigvar([31,5],[2,3]);
-            k12 = sigvar([14;16],4);
-            k13 = sigvar([22,18,14; 9,11,-0.5],[11,12,6; 0.4,0.8,1.4]);
+            k11 = self.p1;
+            k12 = self.p2;
+            k13 = self.pbig;
             
             w1 = [k11,k12,k13];
             flt = 4;
@@ -225,9 +243,9 @@ classdef test_sigvar < TestCaseWithSave
         %--------------------------------------------------------------------------
         function test_w1by3_mixed__flt_1by3 (self)
             % Vector object, vector float same size as object array
-            k11 = sigvar([31,5],[2,3]);
-            k12 = sigvar([14;16],4);
-            k13 = sigvar([22,18,14; 9,11,-0.5],[11,12,6; 0.4,0.8,1.4]);
+            k11 = self.p1;
+            k12 = self.p2;
+            k13 = self.pbig;
             
             w1 = [k11,k12,k13];
             flt = [4,5,6];
@@ -244,9 +262,9 @@ classdef test_sigvar < TestCaseWithSave
         %--------------------------------------------------------------------------
         function test_w3by1_mixed__flt_3by1 (self)
             % Vector object, vector float same size as object array
-            k11 = sigvar([31,5],[2,3]);
-            k12 = sigvar([14;16],4);
-            k13 = sigvar([22,18,14; 9,11,-0.5],[11,12,6; 0.4,0.8,1.4]);
+            k11 = self.p1;
+            k12 = self.p2;
+            k13 = self.pbig;
             
             w1 = [k11,k12,k13]';
             flt = [4,5,6]';
@@ -264,29 +282,29 @@ classdef test_sigvar < TestCaseWithSave
         function test_w1by3_mixed__flt_3by1_FAIL (self)
             % Vector object, vector float same number but different size as object array
             % *** Should fail as float vector has wrong shape
-            k11 = sigvar([31,5],[2,3]);
-            k12 = sigvar([14;16],4);
-            k13 = sigvar([22,18,14; 9,11,-0.5],[11,12,6; 0.4,0.8,1.4]);
+            k11 = self.p1;
+            k12 = self.p2;
+            k13 = self.pbig;
             
             w1 = [k11,k12,k13];
             flt = [4,5,6]';
             
             testfun = @()plus(w1, flt);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager');
+            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager');
             
             testfun = @()plus(flt, w1);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager');
+            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager');
         end
         
         %--------------------------------------------------------------------------
-        function test_w1by3_2by1__flt_2by3 (self)
+        function test_w1by3_20by1__flt_20by3 (self)
             % Vector object, array float that can be resolved into stack
-            k11 = sigvar([31,5]',[2,3]');
-            k12 = sigvar([14,16]',4);
-            k13 = sigvar([22,18]',[11,12]');
+            k11 = self.p1;
+            k12 = self.p2;
+            k13 = self.p3;
             
             w1 = [k11,k12,k13];
-            flt = [4,5,6; 11,13,15];
+            flt = rand(numel(k11.signal), 3);
             
             wsum = [k11+flt(:,1), k12+flt(:,2), k13+flt(:,3)];
             
@@ -298,40 +316,21 @@ classdef test_sigvar < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
-        function test_w1by3_1by2__flt_2by3_FAIL (self)
-            % Vector object, array float that can be resolved into stack
-            % *** Should fail, as the objects all have the same signal sizes, but
-            %     this does not match the root array size of the float
-            k11 = sigvar([31,5],[2,3]);
-            k12 = sigvar([14,16],4);
-            k13 = sigvar([22,18],[11,12]);
-            
-            w1 = [k11,k12,k13];
-            flt = [4,5,6; 11,13,15];
-            
-            testfun = @()plus(w1, flt);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
-            
-            testfun = @()plus(flt, w1);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
-        end
-        
-        %--------------------------------------------------------------------------
-        function test_w1by3_mixed__flt_2by3_FAIL (self)
+        function test_w20by3_mixed__flt_20by3_FAIL (self)
             % Vector object, array float that can be resolved into stack
             % *** Should fail, as the objects do not all have the same signal sizes
-            k11 = sigvar([31;5],[2;3]);
-            k12 = sigvar([14;16],4);
-            k13 = sigvar([22,18],[11,12]);
+            k11 = self.p1;
+            k12 = self.p2;
+            k13 = self.pbig;
             
             w1 = [k11,k12,k13];
-            flt = [4,5,6; 11,13,15];
+            flt = rand(numel(k11.signal), 3);
             
             testfun = @()plus(w1, flt);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager_single');
             
             testfun = @()plus(flt, w1);
-            assertExceptionThrown(testfun, 'SIGVAR:binary_op_manager_single');
+            assertExceptionThrown(testfun, 'IX_DATASET:binary_op_manager_single');
         end
         
         %--------------------------------------------------------------------------

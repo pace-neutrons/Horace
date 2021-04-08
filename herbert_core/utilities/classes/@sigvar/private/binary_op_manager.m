@@ -77,10 +77,11 @@ function w = binary_op_manager (w1, w2, binary_op)
 %
 % Think of a numeric array as a stack of objects, each one a smaller array
 
-classname = mfilename('class');
+thisClassname = mfilename('class');
 
 if isobject(w1)
     % w1 is not an intrinsic matlab class
+    outputClassname = class(w1);
     size_stack1 = size(w1);
     size_root1 = [1,1];
     
@@ -92,7 +93,7 @@ elseif isfloat(w1)
         if ~ok
             mess = ['Unable to resolve the numeric array into a stack of arrays, ',...
                 'with stack size matching the object array size '];
-            error([upper(classname),':binary_op_manager'], mess);
+            error([upper(thisClassname),':binary_op_manager'], mess);
         end
     else
         size_stack1 = [1,1];    % want the scalar to apply to each object in w2
@@ -101,7 +102,7 @@ elseif isfloat(w1)
 else
     % Error state: w1 is a matlab intrinsic class but not a float
     % (e.g.  logical, character, cell array)
-    error([upper(classname),':binary_op_manager'], ...
+    error([upper(thisClassname),':binary_op_manager'], ...
         ['Invalid first argument to binary operation - ' ...
         'it must be an object, or a float (i.e. double or single precision).'])
 end
@@ -109,6 +110,9 @@ end
 
 if isobject(w2)
     % w2 is not an intrinsic matlab class
+    if ~isobject(w1)
+        outputClassname = class(w2);
+    end
     size_stack2 = size(w2);
     size_root2 = [1,1];
     
@@ -120,7 +124,7 @@ elseif isfloat(w2)
         if ~ok
             mess = ['Unable to resolve the numeric array into a stack of arrays, ',...
                 'with stack size matching the object array size '];
-            error([upper(classname),':binary_op_manager'], mess);
+            error([upper(thisClassname),':binary_op_manager'], mess);
         end
     else
         size_stack2 = [1,1];    % want the scalar to apply to each object in w1
@@ -130,7 +134,7 @@ elseif isfloat(w2)
 else
     % Error state: w2 is a matlab intrinsic class but not a float
     % (e.g.  logical, character, cell array)
-    error([upper(classname),':binary_op_manager'], ...
+    error([upper(thisClassname),':binary_op_manager'], ...
         ['Invalid second argument to binary operation - ' ...
         'it must be an object, or a float (i.e. double or single precision).'])
 end
@@ -149,7 +153,7 @@ end
 % elements of the inner array, the second dimension gives the elements of
 % the stack.
 
-constructor_handle = str2func(classname);   % handle to output class constructor
+constructor_handle = str2func(outputClassname);   % handle to output class constructor
 
 nroot1 = prod(size_root1);
 nroot2 = prod(size_root2);
@@ -190,7 +194,7 @@ elseif (nobj1 > 1 && nobj2 == 1)
     end
     
 else
-    error([upper(classname),':binary_op_manager'], ...
+    error([upper(thisClassname),':binary_op_manager'], ...
         ['Array lengths are incompatible.\n'...
         'Both arrays must have an equal number of elements or the ' ...
         'number of elements in one of the arrays must be 1.\n' ...
