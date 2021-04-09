@@ -22,7 +22,8 @@ function obj = set_local_background(obj,set_local)
 % <#doc_beg:> multifit
 %   <#file:> <doc_set_scope_intro> <type> <scope>
 %
-% See also: set_global_background set_local_foreground 
+% See also: set_global_background set_local_foreground
+% <#doc_end:>
 % -----------------------------------------------------------------------------
 
 

@@ -1,4 +1,4 @@
-classdef test_sigvar < TestCaseWithSave
+classdef test_sigvar_ops1_2_Part1 < TestCaseWithSave
     % test_sigvar  Tests sigvar objects
     %
     % Tests have a well-defined naming convention:
@@ -14,7 +14,7 @@ classdef test_sigvar < TestCaseWithSave
     
     methods
         %--------------------------------------------------------------------------
-        function self = test_sigvar (name)
+        function self = test_sigvar_ops1_2_Part1 (name)
             self@TestCaseWithSave(name);
             self.save()
         end

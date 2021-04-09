@@ -1,4 +1,4 @@
-classdef test_testsigvar < TestCaseWithSave
+classdef test_testsigvar_ops1_2_Part1 < TestCaseWithSave
     % test_testsigvar  Tests testsigvar objects
     %
     % These tests add testsigvar objects to themselves or floats, as a test
@@ -17,7 +17,7 @@ classdef test_testsigvar < TestCaseWithSave
     
     methods
         %--------------------------------------------------------------------------
-        function self = test_testsigvar (name)
+        function self = test_testsigvar_ops1_2_Part1 (name)
             self@TestCaseWithSave(name);
             self.save()
         end

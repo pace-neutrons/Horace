@@ -1,7 +1,6 @@
-function w = mldivide (w1, w2)
-% Implement w1 \ w2 for objects
+% Implement w1 <func_name> w2 for objects
 %
-%   >> w = w1 \ w2
+%   >> w = w1 <func_name> w2
 %
 % Input:
 % ------
@@ -29,7 +28,7 @@ function w = mldivide (w1, w2)
 %               - If the real is a scalar, it is applied to every object in
 %                the array.
 %               - If the real is an array with the same size as the object
-%                array, then each element is applied as a scalar to the
+%                array, then each element is applied as a scalar to the 
 %                corresponding object in the object array.
 %               - If the real is an array with larger size than the object
 %                array, then the array is resolved into a stack of arrays,
@@ -46,17 +45,3 @@ function w = mldivide (w1, w2)
 % Output:
 % -------
 %   w           Output object or array of objects.
-
-% -----------------------------------------------------------------------------
-% <#doc_def:>
-%   doc_dir = fullfile(fileparts(which('sigvar')),'_docify')
-%   doc_file = fullfile(doc_dir,'doc_binary.m')
-%
-%   func_name = '\'
-% -----------------------------------------------------------------------------
-% <#doc_beg:> binary_and_unary_ops
-%   <#file:> <doc_file>
-% <#doc_end:>
-% -----------------------------------------------------------------------------
-
-w = binary_op_manager(w1,w2,@mldivide_single);

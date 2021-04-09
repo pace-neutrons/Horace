@@ -58,6 +58,8 @@ thisClassname = mfilename('class');
 if ~isfloat(w1) && ~isfloat(w2)
     % Neither of w1, w2 is a float array
     if isequal(sigvar_size(w1), sigvar_size(w2))
+        %----------------------------------------------------------------------
+        % The following block may be class specific
         if isa(w1,thisClassname)
             wout = w1;  % if w1 and w2 are both of class classname, use w1
         else
@@ -65,6 +67,7 @@ if ~isfloat(w1) && ~isfloat(w2)
         end
         result = binary_op(sigvar(w1), sigvar(w2));
         wout = sigvar_set(wout, result);
+        %----------------------------------------------------------------------
     else
         error([upper(thisClassname),':binary_op_manager_single'], ...
             'Sizes of signal arrays in the objects are different');
@@ -73,9 +76,12 @@ if ~isfloat(w1) && ~isfloat(w2)
 elseif isfloat(w2)
     % w1 is an instance of classname, w2 is a float
     if isscalar(w2) || isequal(sigvar_size(w1), size(w2))
+        %----------------------------------------------------------------------
+        % The following block may be class specific
         wout = w1;
         result = binary_op(sigvar(w1), sigvar(w2));
         wout = sigvar_set(wout, result);
+        %----------------------------------------------------------------------
     else
         error([upper(thisClassname),':binary_op_manager_single'], ...
             ['Check that the numeric variable is scalar or array ' ...
@@ -85,9 +91,12 @@ elseif isfloat(w2)
 elseif isfloat(w1)
     % w2 is an instance of classname, w1 is a float
     if isscalar(w1) || isequal(sigvar_size(w2),size(w1))
+        %----------------------------------------------------------------------
+        % The following block may be class specific
         wout = w2;
         result = binary_op(sigvar(w1), sigvar(w2));
         wout = sigvar_set(wout, result);
+        %----------------------------------------------------------------------
     else
         error([upper(thisClassname),':binary_op_manager_single'], ...
             ['Check that the numeric variable is scalar or array ' ...
