@@ -48,7 +48,7 @@ classdef test_projection_class<TestCase
             assertElementsAlmostEqual(proj.v,[0,1,1])
             assertElementsAlmostEqual(proj.w,[0,-1,1])
         end
-        function test_set_u_transf(this)
+        function test_set_u_transf(~)
             proj = projection();
             data = struct();
             data.alatt = [2,3,4];
@@ -97,7 +97,7 @@ classdef test_projection_class<TestCase
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu(...
                 alatt,angdeg);
             %
-            % but recovered the values, correspontent to ppr?
+            % but recovered the values, correspondent to ppr?
             [u_par,v_par] = projection.uv_from_rlu_mat(alatt,angdeg,u_to_rlu,ulen);
             assertElementsAlmostEqual(u,u_par);
             % find part of the v vector, orthogonal to u
@@ -283,7 +283,7 @@ classdef test_projection_class<TestCase
             assertFalse(pass,'invalid angdeg value should throw an error')
         end
         %
-        function test_transform_to_from_img_noproj(~)
+        function test_transform_to_img_and_back_reverts_noprojaxis(~)
             pix = ones(4,5);
             proj = projection();
             pix_transf = proj.transform_pix_to_img(pix);
@@ -292,7 +292,7 @@ classdef test_projection_class<TestCase
             assertEqual(pix_rec,pix);
         end
         %
-        function test_transform_to_from_img_proj_ortho_3D(~)
+        function test_transform_to_img_and_back_reverts_proj_ortho_3D(~)
             pix = ones(3,5);
             pra = projaxes([1,0,0],[0,1,1]);
             proj = projection(pra);
@@ -305,7 +305,7 @@ classdef test_projection_class<TestCase
             assertElementsAlmostEqual(pix_rec,pix);
         end
         %
-        function test_transform_to_from_img_proj_ortho(~)
+        function transform_to_img_and_back_reverts_proj_ortho(~)
             pix = ones(4,5);
             pra = projaxes([1,0,0],[0,1,1]);
             proj = projection(pra);
@@ -318,7 +318,7 @@ classdef test_projection_class<TestCase
             assertElementsAlmostEqual(pix_rec,pix);
         end
         %
-        function test_transform_to_from_img_proj_nonorth(~)
+        function transform_to_img_and_back_reverts_proj_nonorth(~)
             pix = ones(4,5);
             pra = projaxes([1,0,0],[0,1,1]);
             proj = projection(pra);

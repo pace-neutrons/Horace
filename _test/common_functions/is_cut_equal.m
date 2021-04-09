@@ -8,7 +8,7 @@ function [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin)
 % Only checks the number of pixels per point, and the overall signal and error on the points
 % Optional:
 % if tol is provided, the parameters are checked within the tol. If tol is
-% positive, it means absolute error and if negative -- relative errorl.
+% positive, it means absolute error and if negative -- relative error.
 %
 % Example:
 %   >> f1={'sqw_12.sqw',sqw_34.sqw'};

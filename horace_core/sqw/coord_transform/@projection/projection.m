@@ -28,7 +28,7 @@ classdef projection<aProjection
         %
     end
     methods(Access = protected)
-        % overloads for staitc methods which define if the projection can
+        % overloads for static methods which define if the projection can
         % keep pixels and have mex functions defined
         function isit= can_mex_cut_(~)
             % ortho projection have mex procedures defined
@@ -36,7 +36,7 @@ classdef projection<aProjection
         end
         %
         function [rot_to_img,shift]=get_pix_img_transformation(obj,ndim)
-            % Return the transformation, necessary for convertion from pix
+            % Return the transformation, necessary for conversion from pix
             % to image coordinate system and vise-versa if the projaxes is
             % defined
             % Input:
@@ -47,9 +47,7 @@ classdef projection<aProjection
             [rlu_to_ustep, u_to_rlu] = projaxes_to_rlu(obj.projaxes_,obj.alatt, obj.angdeg, [1,1,1]);
             b_mat  = bmatrix(obj.alatt, obj.angdeg);
             rot_to_img = rlu_to_ustep/b_mat;
-            
-            %rot_ustep = rlu_to_ustep*this.data_upix_to_rlu_
-            %data_transf = obj.get_data_pix_to_rlu();
+            %
             if ndim==4
                 shift  = obj.uoffset';
                 u_to_rlu  = [u_to_rlu,[0;0;0];[0,0,0,1]];
@@ -159,7 +157,7 @@ classdef projection<aProjection
             [indx,ok] = get_contributing_pix_ind_(this,v);
         end
         function [uoffset,ulabel,dax,u_to_rlu,ulen,title_build_class] = get_proj_param(this,data_in,pax)
-            % get projection parameters, necessary for properly definind a sqw or dnd object
+            % get projection parameters, necessary for properly defining a sqw or dnd object
             %
             [uoffset,ulabel,dax,u_to_rlu,ulen] = get_proj_param_(this,data_in,pax);
             title_build_class = an_axis_caption();
@@ -175,7 +173,7 @@ classdef projection<aProjection
                 accumulate_cut_(this,v,s,e,npix,pax,ignore_nan,ignore_inf,keep_pix,n_threads);
         end
         function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)
-            % Transform pixels expressed in crystal cartezian coordinate systems
+            % Transform pixels expressed in crystal Cartesian coordinate systems
             % into image coordinate system
             %
             % Input:
@@ -190,7 +188,7 @@ classdef projection<aProjection
         %
         function pix_cc = transform_img_to_pix(obj,pix_hkl,varargin)
             % Transform pixels expressed in image coordinate coordinate systems
-            % into crystal cartezian coordinate system
+            % into crystal Cartesian coordinate system
             %
             % Input:
             % pix_data -- [3xNpix] or [4xNpix] array of pix coordinates
@@ -226,7 +224,7 @@ classdef projection<aProjection
             % Outputs:
             % u     -- [1x3] vector expressed in rlu and defining the cut
             %          direction
-            % v     -- [1x3] vecotor expressed in rlu, and together with u
+            % v     -- [1x3] vector expressed in rlu, and together with u
             %          defining the cut plain
             
             
