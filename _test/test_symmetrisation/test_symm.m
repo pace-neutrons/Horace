@@ -86,7 +86,7 @@ classdef test_symm < TestCase
             w3d_sqw=read_sqw(fullfile(this.testdir,'w3d_sqw.sqw'));
             
             w3d_sqw_sym=symmetrise_sqw(w3d_sqw,[0,0,1],[-1,1,0],[0,0,0]);
-            % one pixel lost, pitty, but berable.
+            % one pixel lost, pity, but bearable.
             assertEqual(w3d_sqw.data.num_pixels-1,w3d_sqw_sym.data.num_pixels);
             w3d_sqw_sym2=symmetrise_sqw(w3d_sqw_sym,[1,1,0],[0,0,1],[0,0,0]);
             assertEqual(w3d_sqw_sym.data.num_pixels,w3d_sqw_sym2.data.num_pixels);

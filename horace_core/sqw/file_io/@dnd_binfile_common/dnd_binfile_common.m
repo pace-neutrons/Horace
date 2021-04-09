@@ -319,14 +319,14 @@ classdef dnd_binfile_common < dnd_file_interface
         end
         %
         function img_db_range = get_img_db_range(obj,varargin)
-            % get [2x4] array of min/max ranges of the image contributing
-            % into an object
+            % get [2x4] array of min/max ranges of the image where pixels
+            % are rebinned into
             if nargin==1
                 ds = obj.get_data('-head');
             else
                 ds = varargin{1};
             end
-            if isfiedl(ds,'img_db_range')
+            if isfield(ds,'img_db_range')
                 img_db_range  = ds.img_db_range;
             else
                 img_db_range = obj.calc_img_db_range(ds);
@@ -620,6 +620,5 @@ classdef dnd_binfile_common < dnd_file_interface
             end
             img_db_range(:,ds.pax) = pax_range;
         end
-        
     end
 end

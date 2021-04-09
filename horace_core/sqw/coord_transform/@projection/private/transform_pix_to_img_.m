@@ -1,5 +1,5 @@
 function pix_transf = transform_pix_to_img_(obj,pix_cc,varargin)
-% Transform pixels expressed in crystal cartezian coordinate systems
+% Transform pixels expressed in crystal Cartesian coordinate systems
 % into image coordinate system
 %
 % Input:

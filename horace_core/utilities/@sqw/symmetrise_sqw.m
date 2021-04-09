@@ -1,5 +1,5 @@
 function wout=symmetrise_sqw(win,v1,v2,v3)
-% Symmetriese sqw dataset in the plane specified by the vectors v1, v2, and
+% Symmetrise sqw dataset in the plane specified by the vectors v1, v2, and
 % v3.
 % wout=symmetrise_sqw(win,v1,v2,v3)
 %
@@ -93,12 +93,14 @@ end
 
 uconv=header.u_to_rlu(1:3,1:3);
 
+% TODO: Discuss with Russell the meaning of the commented code.
+% 
 %convert the vectors specifying the reflection plane from rlu to the
 %orthonormal frame of the pix array:
-% do not rely on the shift of the image to define symetry plain.
+% do not rely on the shift of the image to define symmetry plane.
 %vec1=uconv\(v1'-header.uoffset(1:3));
 %vec2=uconv\(v2'-header.uoffset(1:3));
-% the symetry plain should be defined in real hkl, not shifted hkl the
+% the symmetry plane should be defined in real hkl, not shifted hkl the
 % image may be expressed in.
 vec1=uconv\(v1');
 vec2=uconv\(v2');
@@ -122,7 +124,6 @@ end
 %Coordinates of detector pixels, in the frame discussed above
 coords=@() win.data.pix.q_coordinates; % MP: emulate a pointer / lazy data copy
 
-%num_pixels=win.data.pix.num_pixels;  % MP, num_pixels=numel(coords)/3
 
 %Note that we allow the inclusion of an offset from the origin of the
 %reflection plane. This is specified in rlu.
@@ -150,11 +151,11 @@ side_dot=coords_new'*normvec; % MP: vector of scalar products, w/o repmat/bsxfun
 % in-place (the Reflec*... part created a temporary)
 idx = find(side_dot > 0);
 coords_new(:, idx) = Reflec*coords_new(:, idx); % MP: (TODO) could potentially be optimized further
-clear 'side_dot'; % MP: not needed anymore
+clear 'side_dot'; % MP: not needed any more
 
 coords_new=bsxfun(@plus, coords_new, vec3); % MP
 %
-% Clear existing pages range not to extend new range with exisiting. 
+% Clear existing pages range not to extend new range with existing. 
 % Take care if this method is extended to file-based data -- needs careful
 % thinking
 wout.data.pix.set_range(PixelData.EMPTY_RANGE_);
@@ -178,7 +179,7 @@ cc_ranges = proj.transform_img_to_pix(exp_range);
 % add intersection points between the image range and the symmetry plain
 
 cross_points = box_intersect(cc_ranges ,[vec1+vec3,vec2+vec3,vec3]);
-% remove energy ranges to combine interseciton points with cross-points
+% remove energy ranges to combine intersection points with cross-points
 
 cc_exist_range = [cc_ranges,cross_points];
 
@@ -212,7 +213,7 @@ for i=1:4
     end
 end
 
-% Turn off horace_info output, but save for automatic clean-up on exit or cntl-C (TGP 30/11/13)
+% Turn off horace_info output, but save for automatic clean-up on exit or cntrl-C (TGP 30/11/13)
 info_level = get(hor_config,'log_level');
 cleanup_obj=onCleanup(@()set(hor_config,'log_level',info_level));
 set(hor_config,'log_level',-1);

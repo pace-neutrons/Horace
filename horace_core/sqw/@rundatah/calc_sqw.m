@@ -3,9 +3,9 @@ function [w,grid_size,pix_range,detdcn] ...
 % Generate single sqw file from given rundata class.
 %
 % Usage:
-%>>[w,grid_size,pix_range,detdcn,pix_range_nontransf] = rundata_obj.calc_sqw(grid_size_in,pix_db_range,varargin);
+%>>[w,grid_size,pix_range,detdcn] = rundata_obj.calc_sqw(grid_size_in,pix_db_range,varargin);
 % or
-%>>[w,grid_size,pix_range,detdcn,pix_range_nontransf] = rundata_obj.calc_sqw(varargin);
+%>>[w,grid_size,pix_range,detdcn] = rundata_obj.calc_sqw(varargin);
 %
 % Where:
 % rundata_obj -- fully defined rundata object

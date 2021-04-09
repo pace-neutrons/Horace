@@ -162,11 +162,13 @@ classdef aProjection
         %
         % Temporary method, here unil projection is refactored
         % will belong to another projection or become a property
+        % Ticket #34(https://github.com/pace-neutrons/Horace/issues/34)        
         function upix_to_rlu = get_data_pix_to_rlu(obj)
             upix_to_rlu = obj.data_upix_to_rlu_;
         end
         % Temporary method, here unil projection is refactored
         % will belong to another projection or become a property
+        % Ticket #34(https://github.com/pace-neutrons/Horace/issues/34)
         function obj = set_data_pix_to_rlu(obj,data_upix_to_rlu)
             obj.data_upix_to_rlu_ = data_upix_to_rlu;
         end
@@ -174,7 +176,7 @@ classdef aProjection
     %
     methods(Access = protected)
         %
-        function isit= can_mex_cut_(self)
+        function isit= can_mex_cut_(~)
             isit = false;
         end
         function [nbin_in,pin]= get_input_data_binning_(obj)
