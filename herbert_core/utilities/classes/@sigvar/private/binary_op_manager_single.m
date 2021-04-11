@@ -55,8 +55,8 @@ function wout = binary_op_manager_single(w1, w2, binary_op)
 
 thisClassname = mfilename('class');
 
-if ~isfloat(w1) && ~isfloat(w2)
-    % Neither of w1, w2 is a float array
+if ~isa(w1, 'double') && ~isa(w2, 'double')
+    % Neither of w1, w2 is a double array
     if isequal(sigvar_size(w1), sigvar_size(w2))
         %----------------------------------------------------------------------
         % The following block may be class specific
@@ -70,11 +70,11 @@ if ~isfloat(w1) && ~isfloat(w2)
         %----------------------------------------------------------------------
     else
         error([upper(thisClassname),':binary_op_manager_single'], ...
-            'Sizes of signal arrays in the objects are different');
+            'Sizes of signal arrays in the objects are different.');
     end
     
-elseif isfloat(w2)
-    % w1 is an instance of classname, w2 is a float
+elseif isa(w2, 'double')
+    % w1 is an instance of classname, w2 is a double
     if isscalar(w2) || isequal(sigvar_size(w1), size(w2))
         %----------------------------------------------------------------------
         % The following block may be class specific
@@ -85,11 +85,11 @@ elseif isfloat(w2)
     else
         error([upper(thisClassname),':binary_op_manager_single'], ...
             ['Check that the numeric variable is scalar or array ' ...
-            'with same size as object signal']);
+            'with same size as object signal.']);
     end
     
-elseif isfloat(w1)
-    % w2 is an instance of classname, w1 is a float
+elseif isa(w1, 'double')
+    % w2 is an instance of classname, w1 is a double
     if isscalar(w1) || isequal(sigvar_size(w2),size(w1))
         %----------------------------------------------------------------------
         % The following block may be class specific
@@ -100,7 +100,7 @@ elseif isfloat(w1)
     else
         error([upper(thisClassname),':binary_op_manager_single'], ...
             ['Check that the numeric variable is scalar or array ' ...
-            'with same size as object signal']);
+            'with same size as object signal.']);
     end
 
 end

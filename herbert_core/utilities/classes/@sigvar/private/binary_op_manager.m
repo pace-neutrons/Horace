@@ -85,14 +85,14 @@ if isobject(w1)
     size_stack1 = size(w1);
     size_root1 = [1,1];
     
-elseif isfloat(w1)
-    % w1 is a float array; w2 must have class 'classname'
+elseif isa(w1, 'double')
+    % w1 is a double array; w2 must have class 'classname'
     if ~isscalar(w1)
         size_stack1 = size(w2);
         [size_root1, ok] = size_array_split (size(w1), size(w2));
         if ~ok
             mess = ['Unable to resolve the numeric array into a stack of arrays, ',...
-                'with stack size matching the object array size '];
+                'with stack size matching the object array size.'];
             error([upper(thisClassname),':binary_op_manager'], mess);
         end
     else
@@ -100,11 +100,11 @@ elseif isfloat(w1)
         size_root1 = [1,1];
     end
 else
-    % Error state: w1 is a matlab intrinsic class but not a float
+    % Error state: w1 is a matlab intrinsic class but not a double
     % (e.g.  logical, character, cell array)
     error([upper(thisClassname),':binary_op_manager'], ...
         ['Invalid first argument to binary operation - ' ...
-        'it must be an object, or a float (i.e. double or single precision).'])
+        'it must be an object, or a Matlab double.'])
 end
 
 
@@ -116,14 +116,14 @@ if isobject(w2)
     size_stack2 = size(w2);
     size_root2 = [1,1];
     
-elseif isfloat(w2)
-    % w1 is a float array; w2 must have class 'classname'
+elseif isa(w2, 'double')
+    % w1 is a double array; w2 must have class 'classname'
     if ~isscalar(w2)
         size_stack2 = size(w1);
         [size_root2, ok] = size_array_split (size(w2), size(w1));
         if ~ok
             mess = ['Unable to resolve the numeric array into a stack of arrays, ',...
-                'with stack size matching the object array size '];
+                'with stack size matching the object array size.'];
             error([upper(thisClassname),':binary_op_manager'], mess);
         end
     else
@@ -132,11 +132,11 @@ elseif isfloat(w2)
     end
     
 else
-    % Error state: w2 is a matlab intrinsic class but not a float
+    % Error state: w2 is a matlab intrinsic class but not a double
     % (e.g.  logical, character, cell array)
     error([upper(thisClassname),':binary_op_manager'], ...
         ['Invalid second argument to binary operation - ' ...
-        'it must be an object, or a float (i.e. double or single precision).'])
+        'it must be an object, or a Matlab double.'])
 end
 
 
