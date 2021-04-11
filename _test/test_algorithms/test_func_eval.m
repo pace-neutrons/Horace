@@ -66,7 +66,7 @@ classdef test_func_eval < TestCase
             f = @() func_eval( ...
                 sqws_in, obj.quadratic, obj.quadratic_params, 'outfile', outfile ...
             );
-            assertExceptionThrown(f, 'SQW:func_eval:invalid_arguments');
+            assertExceptionThrown(f, 'HORACE:SQW:invalid_arguments');
         end
 
         function test_SQW_error_if_num_input_objects_lt_num_outfiles(obj)
@@ -76,7 +76,7 @@ classdef test_func_eval < TestCase
             f = @() func_eval( ...
                 sqws_in, obj.quadratic, obj.quadratic_params, 'outfile', outfiles ...
             );
-            assertExceptionThrown(f, 'SQW:func_eval:invalid_arguments');
+            assertExceptionThrown(f, 'HORACE:SQW:invalid_arguments');
         end
 
         function test_error_raised_if_func_eval_called_with_mix_of_sqw_and_dnd(obj)
@@ -130,7 +130,7 @@ classdef test_func_eval < TestCase
 
         function test_func_eval_on_array_of_sqw_objs_with_cell_arr_of_outfiles(obj)
             sqws_in = [obj.sqw_2d_obj, obj.sqw_2d_obj];
-            outfiles = {obj.get_tmp_file_path('1'), obj.get_tmp_file_path('2')};
+            outfiles = {gen_tmp_file_path('1'), gen_tmp_file_path('2')};
             tmp_file_cleanup = onCleanup(@() cellfun(@(x) clean_up_file(x), outfiles));
 
             func_eval(sqws_in, obj.quadratic, obj.quadratic_params, 'outfile', outfiles);
@@ -159,7 +159,7 @@ classdef test_func_eval < TestCase
         end
 
         function test_applying_func_eval_to_sqw_obj_with_outfile_outputs_to_file(obj)
-            outfile = obj.get_tmp_file_path();
+            outfile = gen_tmp_file_path();
             func_eval( ...
                 obj.sqw_2d_file_path, ...
                 obj.quadratic, ...
@@ -211,6 +211,9 @@ classdef test_func_eval < TestCase
         end
 
         function test_output_files_of_cell_array_of_files_on_out_of_memory_data(obj)
+            config_cleanup = set_temporary_config_options( ...
+                hor_config, 'pixel_page_size', 3e5 ...
+            );
             sqw_files_in = {obj.sqw_2d_file_path, obj.sqw_2d_file_path};
             sqw_out_files = func_eval( ...
                 sqw_files_in, obj.quadratic, obj.quadratic_params, ...
@@ -249,7 +252,7 @@ classdef test_func_eval < TestCase
         end
 
         function test_outfile_path_equal_to_input_outfile_if_filebacked(obj)
-            outfile = obj.get_tmp_file_path();
+            outfile = gen_tmp_file_path();
             sqw_out_file = func_eval( ...
                 obj.sqw_2d_file_path, obj.quadratic, obj.quadratic_params, ...
                 'filebacked', true, ...
@@ -273,6 +276,23 @@ classdef test_func_eval < TestCase
                 obj.final_img_signal_row_sqw_2d ...
             );
             assertEqual(sqw_out.data.npix, ones(size(obj.sqw_2d_obj.data.npix)));
+        end
+
+        function test_output_matches_ref_file_if_pixel_page_size_small(obj)
+            skipTest("Need to resolve use of page size with merge of new sqw object");
+            config_cleanup = set_temporary_config_options( ...
+                hor_config, 'pixel_page_size', 3e5 ...
+            );
+            sqw_out = func_eval( ...
+                obj.sqw_2d_file_path, obj.quadratic, obj.quadratic_params ...
+            );
+
+            assertElementsAlmostEqual( ...
+                sqw_out.data.s(end, :), ...
+                obj.final_img_signal_row_sqw_2d, ...
+                'relative', obj.FLOAT_TOL ...
+            );
+            obj.validate_func_eval_sqw_output(obj.sqw_2d_obj, sqw_out);
         end
 
         %% DnD tests
@@ -384,19 +404,6 @@ classdef test_func_eval < TestCase
             assertEqual(dnd_out.e, zeros(size(dnd_in.e)));
             % Check that data.npix is unchanged
             assertEqual(dnd_out.npix, dnd_in.npix);
-        end
-
-        function tmp_file_path = get_tmp_file_path(suffix)
-            % Get a temporary file path, with file name the name of the caller
-            % function.
-            % This indicates where the tmp file originated from and makes sure
-            % tmp files have unique if tests are run in parallel.
-            if nargin == 0
-                suffix = '';
-            end
-            call_stack = dbstack();
-            caller_name = call_stack(2).name;
-            tmp_file_path = fullfile(tmp_dir(), [caller_name, suffix, '.tmp']);
         end
     end
 
