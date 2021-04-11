@@ -1,7 +1,7 @@
 Use this class as the template for any other class that imlements unary and binary
 operations on data with associated variances.
 
-Not all the methods defined here are needed for binary operations.
+Not all the methods defined in this class are needed for binary operations.
 
 Some methods are fully generic, others need to be edited for class specific
 behaviour.
