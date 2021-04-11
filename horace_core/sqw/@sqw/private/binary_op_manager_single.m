@@ -46,7 +46,7 @@ elseif isa(w2, 'double')
         % w2 is an sqw object that contains no pixel data and w1 is a double
         if isscalar(w2) || isequal(size(w1.s), size(w2))
             wout = w1;
-            result = binary_op(sigvar(w1), sigvar(w2, []));
+            result = binary_op(sigvar(w1), w2);
             wout = sigvar_set(wout, result);
         else
             error('SQW:binary_op_manager_single', ...
@@ -65,7 +65,7 @@ elseif isa(w1, 'double')
         % w1 is a double and w2 is an sqw object that contains no pixel data
         if isscalar(w1) || isequal(size(w2.s), size(w1))
             wout = w2;
-            result = binary_op(sigvar(w1, []), sigvar(w2));
+            result = binary_op(w1, sigvar(w2));
             wout = sigvar_set(wout, result);
         else
             error('SQW:binary_op_manager_single', ...
