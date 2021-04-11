@@ -1,173 +1,202 @@
 function w = binary_op_manager (w1, w2, binary_op)
-% Implement binary arithmetic operations for objects containing a double array.
+% Implement a binary operation for objects with a signal and a variance array.
 %
-%   if w1, w2 are objects of the same size:
-%       - the operation is performed element-by-element
+%   >> wout = binary_op_manager(w1, w2, binary_op)
 %
-%   if one of w1 or w2 is double:
-%       - if a scalar, apply to each element of the object double array
-%       - if an array of the same size as the object double array, apply
-%        element by element
+% All binary operations on Matlab double or single arrays are permitted
+% (+, -, *, /, \) and are applied element by element to the signal and
+% variance arrays.
 %
-%   w1, w2 can be arrays:
-%       - if objects have same array sizes, then add element-by-element
-%       - if an (n+m)-dimensional array, the inner n dimensions will be
-%        combined element by element with the object double array (where
-%        n is the dimensionality of the object double array), and the
-%        outer m dimensions must match the array size of the array of objects
+% Input:
+% ------
+%   w1, w2      Objects on which the binary operation is to be performed.
+%               One of these can be a real (i.e. double or single precision)
+%               array, in which case the variance array is taken to be zero.
+%
+%               If w1, w2 are scalar objects with the same signal array sizes:
+%               - The operation is performed element-by-element.
+%
+%               If one of w1 or w2 is a real array (the other a scalar object):
+%               - If a scalar, apply to each element of the object signal.
+%               - If an array of the same size as the object signal array,
+%                 apply element by element.
+%
+%               If one or both of w1, w2 are arrays of objects:
+%               - If objects have same array sizes, the binary operation is
+%                applied object element-by-object element.
+%               - If one of the objects is scalar (i.e. only one object),
+%                then it is applied by the binary operation to each object
+%                in the other array.
+%
+%               If one of w1, w2 is an array of objects and the other is a
+%               real array:
+%               - If the real is a scalar, it is applied to every object in
+%                the array.
+%               - If the real is an array with the same size as the object
+%                array, then each element is applied as a scalar to the 
+%                corresponding object in the object array.
+%               - If the real is an array with larger size than the object
+%                array, then the array is resolved into a stack of arrays,
+%                where the stack has the same size as the object array, and
+%                the each array in the stack is applied to the corresponding
+%                object in the object array. [Note that for this operation
+%                to be valid, each object must have the same signal array
+%                size.]
+%
+%   binary_op   Function handle to binary operation. All binary operations
+%               on Matlab double or single arrays are permitted (+, -, *,
+%               /, \)
+%
+% Output:
+% -------
+%   wout        Output object. Assumed to have same class as the superior
+%               of the two input objects.
 
-% Generic method for binary operations on classes that
-%   (1) have methods to set, get and find size of signal and variance arrays:
-%           >> sz = sigvar_size(obj)
-%           >> w = sigvar(obj)          % w is sigvar object (has fields w.s, w.e)
-%           >> obj = sigvar_set(obj,w)  % w is sigvar object
-%   (2) have dimensions method that gives the dimensionality of the double array
-%           >> nd = dimensions(obj)
-%   (3) have private function that returns class name
-%           >> name = classname     % no argument - gets called by its association with the class
 
-% Original author: T.G.Perring
+% NOTES:
+% This is a generic method - works for any class (including sigvar)
+% so long as the methods below are defined on that class.
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
+% Requires that objects have the following methods to find the size of the
+% public signal and variance arrays, create a sigvar object from those
+% arrays, and set them from another sigvar object.
+%
+%	>> sz = sigvar_size(obj)    % Returns size of public signal and variance
+%                               % arrays
+%	>> w = sigvar(obj)          % Create a sigvar object from the public
+%                               % signal and variance arrays
+%	>> obj = sigvar_set(obj,w)  % Set signal and variance in an object from
+%                               % those in a sigvar object
 
-    
-% Get array sizes of the input arguments 
+
+% Get array sizes of the input arguments
 % ---------------------------------------
-% One of w1 or w2 must be of the class type, because otherwise the method would not have been called
-% Only if the other is a double array do we need to do some parsing on the array
+% One of w1 or w2 must be of the class type, because otherwise the method
+% would not have been called.
+% The dominant class is also this class type, for the same reason.
+%
+% Think of a numeric array as a stack of objects, each one a smaller array
 
-if ~isa(w1,'double')
-    inner_section1={};
-    size1=size(w1);
-elseif ~isempty(w1)
-    [inner_section1,size1,mess] = array_split (dimensions(w2(1)), size(w1));
-    if ~isempty(mess), error(mess), end
+thisClassname = mfilename('class');
+
+if isobject(w1)
+    % w1 is not an intrinsic matlab class
+    outputClassname = class(w1);
+    size_stack1 = size(w1);
+    size_root1 = [1,1];
+    
+elseif isfloat(w1)
+    % w1 is a float array; w2 must have class 'classname'
+    if ~isscalar(w1)
+        size_stack1 = size(w2);
+        [size_root1, ok] = size_array_split (size(w1), size(w2));
+        if ~ok
+            mess = ['Unable to resolve the numeric array into a stack of arrays, ',...
+                'with stack size matching the object array size '];
+            error([upper(thisClassname),':binary_op_manager'], mess);
+        end
+    else
+        size_stack1 = [1,1];    % want the scalar to apply to each object in w2
+        size_root1 = [1,1];
+    end
 else
-    error('Invalid argument to binary operation - a double array argument must be non-empty ')
+    % Error state: w1 is a matlab intrinsic class but not a float
+    % (e.g.  logical, character, cell array)
+    error([upper(thisClassname),':binary_op_manager'], ...
+        ['Invalid first argument to binary operation - ' ...
+        'it must be an object, or a float (i.e. double or single precision).'])
 end
 
-if ~isa(w2,'double')
-    inner_section2={};
-    size2=size(w2);
-elseif ~isempty(w2)
-    [inner_section2,size2,mess] = array_split (dimensions(w1(1)), size(w2));
-    if ~isempty(mess), error(mess), end
+
+if isobject(w2)
+    % w2 is not an intrinsic matlab class
+    if ~isobject(w1)
+        outputClassname = class(w2);
+    end
+    size_stack2 = size(w2);
+    size_root2 = [1,1];
+    
+elseif isfloat(w2)
+    % w1 is a float array; w2 must have class 'classname'
+    if ~isscalar(w2)
+        size_stack2 = size(w1);
+        [size_root2, ok] = size_array_split (size(w2), size(w1));
+        if ~ok
+            mess = ['Unable to resolve the numeric array into a stack of arrays, ',...
+                'with stack size matching the object array size '];
+            error([upper(thisClassname),':binary_op_manager'], mess);
+        end
+    else
+        size_stack2 = [1,1];    % want the scalar to apply to each object in w1
+        size_root2 = [1,1];
+    end
+    
 else
-    error('Invalid argument to binary operation - a double array argument must be non-empty ')
+    % Error state: w2 is a matlab intrinsic class but not a float
+    % (e.g.  logical, character, cell array)
+    error([upper(thisClassname),':binary_op_manager'], ...
+        ['Invalid second argument to binary operation - ' ...
+        'it must be an object, or a float (i.e. double or single precision).'])
 end
 
 
 % Perform binary operation
 % --------------------------
-len1=prod(size1);
-len2=prod(size2);
+% In the following, recall that if w1 or w2 is a numeric array, it can be
+% thought of as being resolved into an array of 'objects', each of those
+% 'objects' being an array with size size_root1 (in the case of w1) or
+% size_root2 (in the case of w2). The size of the array of 'objects' is
+% size_stack1 or size_stack2 (in the case of w2).
+%
+% The trick in the following is to reshape the real array where necessary
+% into a two dimensional array, where the first dimension gives the
+% elements of the inner array, the second dimension gives the elements of
+% the stack.
 
-if (len1==len2 && len1==1)
-    w = binary_op_manager_single (w1, w2, binary_op);
+constructor_handle = str2func(outputClassname);   % handle to output class constructor
+
+nroot1 = prod(size_root1);
+nroot2 = prod(size_root2);
+nobj1 = prod(size_stack1);
+nobj2 = prod(size_stack2);
+
+if (nobj1 == nobj2 && nobj1 == 1)
+    % w1 and w2 both scalar instances of objects
+    w = binary_op_manager_single(w1, w2, binary_op);
     
-elseif ((isequal(size1,size2) || equal_length_vectors(size1,size2)) && len1>1)   % same length>1 and same array size
-    if isa(w1,classname);
-        w=w1(1);
-        size_w=size1;   % need to ensure size matches the class - could have a column or row vector
-    else
-        w=w2(1);
-        size_w=size2;
-    end   % template for output
-    w = repmat(w,size_w);
-    for i=1:len1
-        w(i) = binary_op_manager_single (w1(inner_section1{:},i), w2(inner_section2{:},i), binary_op);
+elseif isequal(size_stack1, size_stack2)
+    % w1 and w2 are both non-scalar arrays of objects (scalar case caught above)
+    w = repmat(constructor_handle(), size_stack1);
+    w1_2D = reshape(w1, nroot1, nobj1);
+    w2_2D = reshape(w2, nroot2, nobj2);
+    for i = 1:nobj1
+        obj1 = reshape(w1_2D(:,i), size_root1);
+        obj2 = reshape(w2_2D(:,i), size_root2);
+        w(i) = binary_op_manager_single(obj1, obj2, binary_op);
     end
     
-elseif (len1==1 && len2>1)
-    if isa(w1,classname); w=w1(1); else w=w2(1); end   % template for output
-    w = repmat(w,size2);   % create empty output array
-    for i=1:len2
-        w(i) = binary_op_manager_single (w1, w2(inner_section2{:},i), binary_op);
+elseif (nobj1 == 1 && nobj2 > 1)
+    % w1 scalar, w2 an array of objects
+    w = repmat(constructor_handle(), size_stack2);
+    w2_2D = reshape(w2, nroot2, nobj2);
+    for i = 1:nobj2
+        obj2 = reshape(w2_2D(:,i), size_root2);
+        w(i) = binary_op_manager_single(w1, obj2, binary_op);
     end
     
-elseif (len1>1 && len2==1)
-    if isa(w1,classname); w=w1(1); else w=w2(1); end   % template for output
-    w = repmat(w,size1);   % create empty output array
-    for i=1:len1
-        w(i) = binary_op_manager_single (w1(inner_section1{:},i), w2, binary_op);
+elseif (nobj1 > 1 && nobj2 == 1)
+    % w1 an array of objects, w2 scalar
+    w = repmat(constructor_handle(), size_stack1);
+    w1_2D = reshape(w1, nroot1, nobj1);
+    for i = 1:nobj1
+        obj1 = reshape(w1_2D(:,i), size_root1);
+        w(i) = binary_op_manager_single(obj1, w2, binary_op);
     end
     
 else
-    error ('Check lengths of array(s) of input arguments')
+    error([upper(thisClassname),':binary_op_manager'], ...
+        ['Array lengths are incompatible.\n'...
+        'Both arrays must have an equal number of elements or the ' ...
+        'number of elements in one of the arrays must be 1.\n' ...
+        'Arrays have number of elements ''%i'' & ''%i''.'], nobj1, nobj2);
 end
-
-return
-
-%==================================================================================================
-function [inner_section,outer_dims,mess] = array_split (class_nd, sz)
-% Split double array into inner and outer sections for binary operations on an array of other objects.
-% Deals only with the number of dimensions, but does not check sizes along those dimensions
-%
-%   >> [inner_section,outer_dims] = array_split (class_ndim, class_sz, sz)
-%
-%   class_nd        Number of dimensions of the internal array(s) of object (assume class_nd >= 0)
-%   sz              Matlab intrinsic SIZE of the double array
-%
-%   inner_section   Cell array of calss_nd repeats of ':' for array sectioning
-%   outer_dims      Outer dimensions that are left over in the double array. If consider that the double
-%                  array is an array of arrays, each element being an array with the dimensions of class_dim,
-%                  then outer_dims would be the result of the intrinsic Matlab SIZE function on that array.
-    
-% The trick as always is to handle the case of Matlab vectors or scalar in a consistent fashion as the
-% definition of the class dimensionality, strip off the inner dimensions, and then leave the excess dimensions
-% (if any) with the correct value as 
-
-
-% Remove inner dimensions and construct size array of the outer dimensions
-% -------------------------------------------------------------------------
-if class_nd <= length(sz)    % excess dimensions
-    % cell array for array sectioning
-    inner_section=cell(1,class_nd);
-    for i=1:class_nd
-        inner_section{i}=':';
-    end
-    % Outer dimensions: inner dimensions become 1 and then compress away as many of the inner unity dimensions as can
-    % Only if length(sz)>2 can we compress; there we must always have at least a length of 2 after compression
-    sz(1:class_nd)=1;
-    if length(sz)>2
-        ind=min(find(sz~=1));
-        if ~isempty(ind)
-            ind=min(ind,length(sz)-1);
-        else
-            ind=length(sz)-1;
-        end
-        outer_dims=sz(ind:end);
-    else
-        outer_dims=sz;
-    end
-    mess='';
-elseif isequal(sz,[1,1])
-    %case where we wish to add a scalar
-    inner_section=cell(1,class_nd);
-    for i=1:class_nd
-        inner_section{i}=':';
-    end
-    outer_dims=[1,1];
-    mess='';
-else % not enough dimensions
-    inner_section={};
-    outer_dims=[];
-    mess='Invalid double input to first argument - too few dimensions';
-end
-
-%==================================================================================================
-function ok = equal_length_vectors (sz1, sz2)
-% Test if sizes of two array correspond to vectors of same length - either can be a row or a column vector
-%
-%   >> ok = equal_length_vectors (sz1, sz2)
-%
-%   sz1     Matlab intrinsic SIZE of the first array
-%   sz2     Matlab intrinsic SIZE of the second array
-
-ok=false;
-if (length(sz1)==2 && (sz1(1)==1 || sz1(2)==1)) && (length(sz2)==2 && (sz2(1)==1 || sz2(2)==1))
-    if prod(sz1)==prod(sz2)
-        ok=true;
-    end
-end
-
