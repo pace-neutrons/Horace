@@ -1,4 +1,4 @@
-function [chunks, idxs] = split_vector_max_sum(numeric_vector, max_chunk_sum)
+function [chunks, idxs, cumulative_sum] = split_vector_max_sum(numeric_vector, max_chunk_sum)
 %SPLIT_VECTOR_MAX_SUM Split the given vector into a set of sub-vectors such that the
 % sum of each sub-vector has a maximum of max_chunk_sum, or the sub-vector has
 % length 1.
@@ -13,11 +13,12 @@ function [chunks, idxs] = split_vector_max_sum(numeric_vector, max_chunk_sum)
 %
 % Output:
 % -------
-% chunks       Cell array of vectors. Concatenation of these vectors will be
-%              equal to the input vector.
-% idxs         The indices at which the input vector was "split". Has size
-%              [2, n], where n is numel(chunks). Each idxs(:, i) is the
-%              lower and upper index into 'numeric_vector' of chunks{i}.
+% chunks          Cell array of vectors. Concatenation of these vectors will be
+%                 equal to the input vector.
+% idxs            The indices at which the input vector was "split". Has size
+%                 [2, n], where n is numel(chunks). Each idxs(:, i) is the
+%                 lower and upper index into 'numeric_vector' of chunks{i}.
+% cumulative_sum  The cumulative sum of 'numeric_vector'.
 %
 % Example:
 % --------

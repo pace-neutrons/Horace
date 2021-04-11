@@ -208,7 +208,7 @@ classdef test_sqw_dnd_eval < TestCase
             %
             err_message = '';
             try
-                ds = sqw_eval(obj.sqw_4_test,@test_sqw_dnd_eval.sqw_eval_tester,[],'av');
+                ds = sqw_eval(obj.sqw_4_test,@test_sqw_dnd_eval.sqw_eval_tester,[],'-average');
                 failed = false;
             catch ME
                 failed = true;

@@ -1,5 +1,5 @@
 [<-previous](./0021-errors-and-warnings.md) |
-next->
+[next->](./0023-error-format.md)
 
 # 22 - Use keyword args in Python and MATLAB
 
@@ -12,11 +12,11 @@ Accepted
 ## Context
 
 As we will increasingly be calling Horace functions from both MATLAB and Python,
-introducing consistency in how arguments are passed will simplify user interaction with the toolkit in both environments. 
+introducing consistency in how arguments are passed will simplify user interaction with the toolkit in both environments.
 
 MATLAB and Python have different argument passing conventions,
 e.g. Python does not support flags such as `-flag`,
-and MATLAB and Python deal with keyword arguments in similar, but different ways. 
+and MATLAB and Python deal with keyword arguments in similar, but different ways.
 
 This document reviews this in detail, and recommends a convention for function arguments.
 
@@ -27,7 +27,7 @@ Currently, we don’t have an established syntax for Python. Because we have a c
 
 ```python
 def function_name(a, b, *args, **kwargs):
-	# body
+    # body
 
 function_name(a, b, c, d, keyword_1=val_1, keyword_2=val_2, …)
 ```
@@ -66,10 +66,10 @@ The MATLAB APIs must support positional, optional flag and keyword arguments:
 - if the same parameter is passed as both a flag and keyword argument with inconsistent values an error will be raised, otherwise the parameter is set to the passed value
 
 - support for negated flags, prefixed with `no`, will be removed.
-Flag names may include the `no` prefix to make their meaning clear, 
+Flag names may include the `no` prefix to make their meaning clear,
 e.g. passing `-nopix` will suppress pixel handling in that function
 
-- flag arguments may be truncated to the minimum unambiguous string for all flags defined on that function e.g. `-flagname`, `-flag`, `-f` are all valid. 
+- flag arguments may be truncated to the minimum unambiguous string for all flags defined on that function e.g. `-flagname`, `-flag`, `-f` are all valid.
 No other abbreviations will be supported
 - keyword arguments may not be abbreviated.
 
@@ -98,10 +98,10 @@ function_name(a, b, 'flagname', true);
 - MATLAB argument parsing will be solely responsible for the processing of arguments
 - MATLAB argument parsing will need to manage flags passed in both 'flag' and 'keyword' form
 
-- All MATLAB functions which currently support optional arguments out of order must be updated, 
-either creating a new function name with the alternate signature (e.g. `cut` with no projection) 
+- All MATLAB functions which currently support optional arguments out of order must be updated,
+either creating a new function name with the alternate signature (e.g. `cut` with no projection)
 or additional keyword arguments (e.g. `lattice` in `dispersion_plot`)
-- The inclusion of optional arguments alongside flags/keyword arguments allows the possibility of ambiguity in argument parsing e.g. 
+- The inclusion of optional arguments alongside flags/keyword arguments allows the possibility of ambiguity in argument parsing e.g.
 
 ```matlab
 function_name(req, opt1, opt2, varargin)

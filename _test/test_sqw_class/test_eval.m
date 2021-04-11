@@ -19,7 +19,7 @@ classdef test_eval < TestCase
             err_message = '';
             try
                 ds = disp2sqw_eval(obj.sqw_obj, ...
-                    @test_eval.disp2sqw_eval_tester2D, [], 1.0, 'all');
+                    @test_eval.disp2sqw_eval_tester2D, [], 1.0, '-all');
                 failed = false;
             catch ME
                 failed = true;
@@ -56,7 +56,7 @@ classdef test_eval < TestCase
             err_message = '';
             try
                 ds = sqw_eval(obj.sqw_obj, ...
-                    @test_eval.sqw_eval_tester, [], 'av');
+                    @test_eval.sqw_eval_tester, [], '-av');
                 failed = false;
             catch ME
                 failed = true;
