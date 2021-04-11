@@ -19,7 +19,7 @@ classdef test_PixelData_operations < TestCase
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
             
-            pix = pix.do_unary_op(@cos_single);
+            pix = pix.do_unary_op(@cos);
             
             % Loop back through and validate values
             pix.move_to_first_page();
