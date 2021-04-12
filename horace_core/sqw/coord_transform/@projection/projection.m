@@ -55,7 +55,7 @@ classdef projection<aProjection
             elseif ndim == 3
                 shift  = obj.uoffset(1:3)';
             else
-                error('PROJECTION:transformaton:invalid_argument',...
+                error('HORACE:rundatah:invalid_argument',...
                     'The size of the pixels array should be [3xNpix] or [4xNpix], actually it is: %s',...
                     evalc('disp(size(pix_cc))'));
             end
@@ -110,7 +110,8 @@ classdef projection<aProjection
         end
         function this =set.type(this,val)
             if isempty(this.projaxes_)
-                error('PROJECTION:invalid_argument','define projection plains first');
+                error('HORACE:rundatah:invalid_argument',...
+                    'define projection plains first');
             else
                 this.projaxes_.type = val;
             end

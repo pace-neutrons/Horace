@@ -10,6 +10,8 @@ classdef test_cut < TestCase
     % is generated afresh.
     % The tests are run and compared against reference cut regardless of
     % '-save' option provided as input to the constructor.
+    % Reference cut is generated in the constructor if '-save' option is
+    % provided
     properties
         FLOAT_TOL = 1e-5;
         
@@ -39,6 +41,9 @@ classdef test_cut < TestCase
                     name = 'test_cut';
                 else
                     name = varargin{1};
+                    if nargin>1 && strcmpi(varargin{2},'-save')
+                        save_reference = true;
+                    end
                 end
             end
             obj = obj@TestCase(name);

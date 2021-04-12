@@ -24,7 +24,7 @@ function [pix_range,u_to_rlu]=calc_pix_range(obj,varargin)
 keys_recognized = {'-cache_detectors','-ignore_transformation'};
 [ok,mess,cache_detectors,ignore_transf,params] = parse_char_options(varargin,keys_recognized);
 if ~ok
-    error('RUNDATAH:invalid_arguments','calc_pix_range: %s',mess)
+    error('HORACE:rundatah:invalid_arguments','calc_pix_range: %s',mess)
 end
 
 b_obj = obj.build_bounding_obj(params{:});
