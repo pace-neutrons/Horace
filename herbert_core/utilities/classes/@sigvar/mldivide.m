@@ -1,5 +1,5 @@
 function w = mldivide (w1, w2)
-% Implement w1 \ w2 for objects
+% Implements w1 \ w2 for objects
 %
 %   >> w = w1 \ w2
 %

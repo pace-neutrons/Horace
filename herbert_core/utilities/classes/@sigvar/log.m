@@ -1,5 +1,5 @@
 function w = log (w1)
-% Implement log(w1) for objects
+% Implements log(w1) for objects
 %
 %   >> w = log(w1)
 %

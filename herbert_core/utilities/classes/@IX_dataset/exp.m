@@ -1,5 +1,5 @@
 function w = exp (w1)
-% Implement exp(w1) for objects
+% Implements exp(w1) for objects
 %
 %   >> w = exp(w1)
 %

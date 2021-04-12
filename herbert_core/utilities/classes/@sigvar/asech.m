@@ -1,5 +1,5 @@
 function w = asech (w1)
-% Implement asech(w1) for objects
+% Implements asech(w1) for objects
 %
 %   >> w = asech(w1)
 %

@@ -1,5 +1,5 @@
 function w = atanh (w1)
-% Implement atanh(w1) for objects
+% Implements atanh(w1) for objects
 %
 %   >> w = atanh(w1)
 %

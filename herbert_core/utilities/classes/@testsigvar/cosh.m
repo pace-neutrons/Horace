@@ -1,5 +1,5 @@
 function w = cosh (w1)
-% Implement cosh(w1) for objects
+% Implements cosh(w1) for objects
 %
 %   >> w = cosh(w1)
 %

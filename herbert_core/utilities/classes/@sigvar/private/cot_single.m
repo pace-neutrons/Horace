@@ -1,5 +1,5 @@
 function w = cot_single (w1)
-% Implement cot(w1) for a sigvar object
+% Implements cot(w1) for a sigvar object
 %
 %   >> w = cot_single(w1)
 %

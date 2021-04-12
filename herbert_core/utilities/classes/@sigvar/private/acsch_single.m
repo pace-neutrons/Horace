@@ -1,5 +1,5 @@
 function w = acsch_single (w1)
-% Implement acsch(w1) for a sigvar object
+% Implements acsch(w1) for a sigvar object
 %
 %   >> w = acsch_single(w1)
 %

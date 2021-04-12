@@ -1,5 +1,5 @@
 function w = acosh_single (w1)
-% Implement acosh(w1) for a sigvar object
+% Implements acosh(w1) for a sigvar object
 %
 %   >> w = acosh_single(w1)
 %

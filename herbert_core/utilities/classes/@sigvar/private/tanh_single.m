@@ -1,5 +1,5 @@
 function w = tanh_single (w1)
-% Implement tanh(w1) for a sigvar object
+% Implements tanh(w1) for a sigvar object
 %
 %   >> w = tanh_single(w1)
 %

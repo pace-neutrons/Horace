@@ -1,5 +1,5 @@
 function w = asinh (w1)
-% Implement asinh(w1) for objects
+% Implements asinh(w1) for objects
 %
 %   >> w = asinh(w1)
 %

@@ -1,5 +1,5 @@
 function w = cos (w1)
-% Implement cos(w1) for objects
+% Implements cos(w1) for objects
 %
 %   >> w = cos(w1)
 %

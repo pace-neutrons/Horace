@@ -1,5 +1,5 @@
 function w = cosh_single (w1)
-% Implement cosh(w1) for a sigvar object
+% Implements cosh(w1) for a sigvar object
 %
 %   >> w = cosh_single(w1)
 %

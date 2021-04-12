@@ -1,5 +1,5 @@
 function w = acoth (w1)
-% Implement acoth(w1) for objects
+% Implements acoth(w1) for objects
 %
 %   >> w = acoth(w1)
 %

@@ -1,5 +1,5 @@
 function w = uminus (w1)
-% Implement uminus(w1) for objects
+% Implements uminus(w1) for objects
 %
 %   >> w = uminus(w1)
 %

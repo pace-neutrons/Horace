@@ -1,5 +1,5 @@
 function w = csc (w1)
-% Implement csc(w1) for objects
+% Implements csc(w1) for objects
 %
 %   >> w = csc(w1)
 %

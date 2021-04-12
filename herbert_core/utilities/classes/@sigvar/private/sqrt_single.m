@@ -1,5 +1,5 @@
 function w = sqrt_single (w1)
-% Implement sqrt(w1) for a sigvar object
+% Implements sqrt(w1) for a sigvar object
 %
 %   >> w = sqrt_single(w1)
 %

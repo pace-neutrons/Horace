@@ -1,5 +1,5 @@
 function w = atanh_single (w1)
-% Implement atanh(w1) for a sigvar object
+% Implements atanh(w1) for a sigvar object
 %
 %   >> w = atanh_single(w1)
 %

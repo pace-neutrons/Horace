@@ -1,5 +1,5 @@
 function w = asech_single (w1)
-% Implement asech(w1) for a sigvar object
+% Implements asech(w1) for a sigvar object
 %
 %   >> w = asech_single(w1)
 %

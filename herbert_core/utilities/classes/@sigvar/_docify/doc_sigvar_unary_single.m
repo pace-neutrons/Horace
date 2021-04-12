@@ -1,4 +1,4 @@
-% Implement <func_name>(w1) for a sigvar object
+% Implements <func_name>(w1) for a sigvar object
 %
 %   >> w = <func_name>_single(w1)
 %

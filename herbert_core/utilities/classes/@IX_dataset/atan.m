@@ -1,5 +1,5 @@
 function w = atan (w1)
-% Implement atan(w1) for objects
+% Implements atan(w1) for objects
 %
 %   >> w = atan(w1)
 %

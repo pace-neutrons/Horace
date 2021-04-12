@@ -1,5 +1,5 @@
 function w = sinh_single (w1)
-% Implement sinh(w1) for a sigvar object
+% Implements sinh(w1) for a sigvar object
 %
 %   >> w = sinh_single(w1)
 %

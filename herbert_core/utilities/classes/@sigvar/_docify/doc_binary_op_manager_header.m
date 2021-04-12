@@ -1,4 +1,4 @@
-% Implement a binary operation for objects with a signal and a variance array.
+% Implements a binary operation for objects with a signal and a variance array.
 %
 %   >> w = binary_op_manager(w1, w2, binary_op)
 %

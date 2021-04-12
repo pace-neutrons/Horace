@@ -1,5 +1,5 @@
 function w = acsc (w1)
-% Implement acsc(w1) for objects
+% Implements acsc(w1) for objects
 %
 %   >> w = acsc(w1)
 %

@@ -1,5 +1,5 @@
 function w = acos_single (w1)
-% Implement acos(w1) for a sigvar object
+% Implements acos(w1) for a sigvar object
 %
 %   >> w = acos_single(w1)
 %

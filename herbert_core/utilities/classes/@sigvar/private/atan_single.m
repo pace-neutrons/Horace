@@ -1,5 +1,5 @@
 function w = atan_single (w1)
-% Implement atan(w1) for a sigvar object
+% Implements atan(w1) for a sigvar object
 %
 %   >> w = atan_single(w1)
 %

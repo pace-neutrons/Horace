@@ -1,5 +1,5 @@
 function w = log_single (w1)
-% Implement log(w1) for a sigvar object
+% Implements log(w1) for a sigvar object
 %
 %   >> w = log_single(w1)
 %

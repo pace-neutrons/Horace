@@ -1,5 +1,5 @@
 function w = coth_single (w1)
-% Implement coth(w1) for a sigvar object
+% Implements coth(w1) for a sigvar object
 %
 %   >> w = coth_single(w1)
 %

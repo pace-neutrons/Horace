@@ -1,5 +1,5 @@
 function w = sin_single (w1)
-% Implement sin(w1) for a sigvar object
+% Implements sin(w1) for a sigvar object
 %
 %   >> w = sin_single(w1)
 %

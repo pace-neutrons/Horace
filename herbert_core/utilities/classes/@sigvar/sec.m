@@ -1,5 +1,5 @@
 function w = sec (w1)
-% Implement sec(w1) for objects
+% Implements sec(w1) for objects
 %
 %   >> w = sec(w1)
 %

@@ -1,5 +1,5 @@
 function w = sin (w1)
-% Implement sin(w1) for objects
+% Implements sin(w1) for objects
 %
 %   >> w = sin(w1)
 %

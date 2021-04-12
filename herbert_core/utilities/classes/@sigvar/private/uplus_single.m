@@ -1,5 +1,5 @@
 function w = uplus_single (w1)
-% Implement uplus(w1) for a sigvar object
+% Implements uplus(w1) for a sigvar object
 %
 %   >> w = uplus_single(w1)
 %

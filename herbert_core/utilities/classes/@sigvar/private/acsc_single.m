@@ -1,5 +1,5 @@
 function w = acsc_single (w1)
-% Implement acsc(w1) for a sigvar object
+% Implements acsc(w1) for a sigvar object
 %
 %   >> w = acsc_single(w1)
 %

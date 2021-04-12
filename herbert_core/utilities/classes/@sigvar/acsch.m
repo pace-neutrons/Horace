@@ -1,5 +1,5 @@
 function w = acsch (w1)
-% Implement acsch(w1) for objects
+% Implements acsch(w1) for objects
 %
 %   >> w = acsch(w1)
 %

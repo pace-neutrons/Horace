@@ -1,5 +1,5 @@
 function w = tan (w1)
-% Implement tan(w1) for objects
+% Implements tan(w1) for objects
 %
 %   >> w = tan(w1)
 %

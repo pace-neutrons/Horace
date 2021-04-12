@@ -1,5 +1,5 @@
 function w = coth (w1)
-% Implement coth(w1) for objects
+% Implements coth(w1) for objects
 %
 %   >> w = coth(w1)
 %

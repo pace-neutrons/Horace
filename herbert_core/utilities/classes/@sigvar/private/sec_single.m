@@ -1,5 +1,5 @@
 function w = sec_single (w1)
-% Implement sec(w1) for a sigvar object
+% Implements sec(w1) for a sigvar object
 %
 %   >> w = sec_single(w1)
 %

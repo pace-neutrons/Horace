@@ -1,5 +1,5 @@
 function w = asinh_single (w1)
-% Implement asinh(w1) for a sigvar object
+% Implements asinh(w1) for a sigvar object
 %
 %   >> w = asinh_single(w1)
 %

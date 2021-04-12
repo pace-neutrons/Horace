@@ -1,5 +1,5 @@
 function w = csc_single (w1)
-% Implement csc(w1) for a sigvar object
+% Implements csc(w1) for a sigvar object
 %
 %   >> w = csc_single(w1)
 %

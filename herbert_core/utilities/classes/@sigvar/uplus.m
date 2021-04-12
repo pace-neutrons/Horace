@@ -1,5 +1,5 @@
 function w = uplus (w1)
-% Implement uplus(w1) for objects
+% Implements uplus(w1) for objects
 %
 %   >> w = uplus(w1)
 %

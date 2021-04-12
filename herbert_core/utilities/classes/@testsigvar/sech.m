@@ -1,5 +1,5 @@
 function w = sech (w1)
-% Implement sech(w1) for objects
+% Implements sech(w1) for objects
 %
 %   >> w = sech(w1)
 %

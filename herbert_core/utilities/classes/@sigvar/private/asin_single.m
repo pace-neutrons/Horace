@@ -1,5 +1,5 @@
 function w = asin_single (w1)
-% Implement asin(w1) for a sigvar object
+% Implements asin(w1) for a sigvar object
 %
 %   >> w = asin_single(w1)
 %

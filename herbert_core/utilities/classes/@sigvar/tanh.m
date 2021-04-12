@@ -1,5 +1,5 @@
 function w = tanh (w1)
-% Implement tanh(w1) for objects
+% Implements tanh(w1) for objects
 %
 %   >> w = tanh(w1)
 %

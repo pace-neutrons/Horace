@@ -1,5 +1,5 @@
 function w = sech_single (w1)
-% Implement sech(w1) for a sigvar object
+% Implements sech(w1) for a sigvar object
 %
 %   >> w = sech_single(w1)
 %

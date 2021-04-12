@@ -1,5 +1,5 @@
 function w = uminus_single (w1)
-% Implement uminus(w1) for a sigvar object
+% Implements uminus(w1) for a sigvar object
 %
 %   >> w = uminus_single(w1)
 %

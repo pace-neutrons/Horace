@@ -1,5 +1,5 @@
 function w = sinh (w1)
-% Implement sinh(w1) for objects
+% Implements sinh(w1) for objects
 %
 %   >> w = sinh(w1)
 %

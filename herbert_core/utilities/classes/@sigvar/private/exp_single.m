@@ -1,5 +1,5 @@
 function w = exp_single (w1)
-% Implement exp(w1) for a sigvar object
+% Implements exp(w1) for a sigvar object
 %
 %   >> w = exp_single(w1)
 %

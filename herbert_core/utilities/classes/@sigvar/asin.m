@@ -1,5 +1,5 @@
 function w = asin (w1)
-% Implement asin(w1) for objects
+% Implements asin(w1) for objects
 %
 %   >> w = asin(w1)
 %

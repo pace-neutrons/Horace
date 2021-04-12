@@ -1,5 +1,5 @@
 function w = acot_single (w1)
-% Implement acot(w1) for a sigvar object
+% Implements acot(w1) for a sigvar object
 %
 %   >> w = acot_single(w1)
 %

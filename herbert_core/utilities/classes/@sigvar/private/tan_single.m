@@ -1,5 +1,5 @@
 function w = tan_single (w1)
-% Implement tan(w1) for a sigvar object
+% Implements tan(w1) for a sigvar object
 %
 %   >> w = tan_single(w1)
 %

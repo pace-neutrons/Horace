@@ -1,5 +1,5 @@
 function w = csch_single (w1)
-% Implement csch(w1) for a sigvar object
+% Implements csch(w1) for a sigvar object
 %
 %   >> w = csch_single(w1)
 %

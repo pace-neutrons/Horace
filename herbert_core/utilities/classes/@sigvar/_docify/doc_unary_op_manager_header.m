@@ -1,4 +1,4 @@
-% Implement a unary operation for objects with a signal and a variance array.
+% Implements a unary operation for objects with a signal and a variance array.
 %
 %   >> w = unary_op_manager(w1, unary_op)
 %

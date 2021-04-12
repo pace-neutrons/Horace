@@ -1,5 +1,5 @@
 function w = cot (w1)
-% Implement cot(w1) for objects
+% Implements cot(w1) for objects
 %
 %   >> w = cot(w1)
 %

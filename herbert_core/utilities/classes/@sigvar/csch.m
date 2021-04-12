@@ -1,5 +1,5 @@
 function w = csch (w1)
-% Implement csch(w1) for objects
+% Implements csch(w1) for objects
 %
 %   >> w = csch(w1)
 %

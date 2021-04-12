@@ -1,5 +1,5 @@
 function w = asec_single (w1)
-% Implement asec(w1) for a sigvar object
+% Implements asec(w1) for a sigvar object
 %
 %   >> w = asec_single(w1)
 %

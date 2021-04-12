@@ -1,5 +1,5 @@
 function w = sqrt (w1)
-% Implement sqrt(w1) for objects
+% Implements sqrt(w1) for objects
 %
 %   >> w = sqrt(w1)
 %

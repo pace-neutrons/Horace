@@ -1,5 +1,5 @@
 function w = cos_single (w1)
-% Implement cos(w1) for a sigvar object
+% Implements cos(w1) for a sigvar object
 %
 %   >> w = cos_single(w1)
 %
