@@ -6,10 +6,11 @@ function the_dir= tmp_dir()
 % tmp_dir     tempdir value on any machine  and (userpath()/tmp)
 %            (usually /home/user_name/Documents/MATLAB/tmp) folder if the machine is
 %            identified as iDaaaaS machine.
-[is_jen,build_name,workspace] = is_jenkins();
+[is_jen,build_name] = is_jenkins();
 if is_jen
     [~,build_name] = fileparts(build_name);
-    the_dir = fullfile(workspace,build_name);
+    location = fullfile(tempdir,build_name);
+    the_dir = build_tmp_dir(location);
     return
 end
 
@@ -21,16 +22,8 @@ if is_idaaas()
     if isempty(location)
         location = getenv('HOME');
     end
-    the_dir = fullfile(location,'tmp');
-    if ~(is_folder(the_dir))
-        [ok,the_dir,mess] = try_to_create_folder(location,'tmp');
-        if ~ok
-            warning('TMP_DIR:runtime_error',...
-                ' Can not create temporary folder in user directory: %s. Reason: %s Reverting to system tmp folder',...
-                location,mess);
-            the_dir = tempdir();
-        end
-    end
+    the_dir = build_tmp_dir(location);
+    
     % dereference simulinks and obtain real path
     [~,fatr] = fileattrib(the_dir);
     the_dir = [fatr.Name,filesep];
@@ -39,4 +32,15 @@ if is_idaaas()
     end
 else
     the_dir = tempdir();
+end
+function the_dir = build_tmp_dir(location)
+the_dir = fullfile(location,'tmp');
+if ~(is_folder(the_dir))
+    [ok,the_dir,mess] = try_to_create_folder(location,'tmp');
+    if ~ok
+        warning('HERBERT:tmp_dir:runtime_error',...
+            ' Can not create temporary folder in user directory: %s. Reason: %s Reverting to system tmp folder',...
+            location,mess);
+        the_dir = tempdir();
+    end
 end
