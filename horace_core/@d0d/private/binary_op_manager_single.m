@@ -1,36 +1,41 @@
 function wout = binary_op_manager_single(w1, w2, binary_op)
-% Implement a binary operation for objects with a signal and a variance array.
+% Implements a binary operation for objects with a signal and a variance array.
 %
-%   >> wout = binary_op_manager_single(w1, w2, binary_op)
+%   >> w = binary_op_manager(w1, w2, binary_op)
+%
+% All binary operations on Matlab double arrays are permitted
+% (+, -, *, /, \) and are applied element by element to the signal and
+% variance arrays.
 %
 % Input:
 % ------
 %   w1, w2      Objects on which the binary operation is to be performed.
-%               One of these can be a real (i.e. double or single precision)
+%               One of these can be a Matlab double (i.e. double precision)
 %               array, in which case the variance array is taken to be zero.
 %
-%               If w1, w2 are objects with the same signal array sizes:
+%               If w1, w2 are scalar objects with the same signal array sizes:
 %               - The operation is performed element-by-element.
 %
-%               If one of w1 or w2 is a real array (the other a scalar object):
+%               If one of w1 or w2 is a double array (and the other is a
+%               scalar object):
 %               - If a scalar, apply to each element of the object signal.
-%               - If an array of the same size as the object signal array,
-%                 apply element by element.
+%               - If it is an array of the same size as the object signal
+%                 array, apply the operation element by element.
 %
-%   binary_op   Function handle to binary operation. All binary operations
+%   binary_op   Function handle to a binary operation. All binary operations
 %               on Matlab double or single arrays are permitted (+, -, *,
-%               /, \).
+%               /, \)
 %
 % Output:
 % -------
-%   wout        Output object. Assumed to have same class as the superior
-%               of the two input objects.
-
-
+%   w           Output object or array of objects.
+%
+%
 % NOTES:
-% Gives the generic behaviour for handling objects and floats for any class,
-% but may need modification of the actual binary operation calculation
-% depending on the details of the class internal complexity.
+% This is a generic template method - works for any class (including sigvar)
+% but the indicated blocks may need to be edited for a particular class.
+% Note that the variant for the sigvar class does not apply the sigvar
+% constructor to an input double array.
 %
 % Requires that objects have the following methods to find the size of the
 % public signal and variance arrays, create a sigvar object from those
@@ -42,6 +47,30 @@ function wout = binary_op_manager_single(w1, w2, binary_op)
 %                               % signal and variance arrays
 %	>> obj = sigvar_set(obj,w)  % Set signal and variance in an object from
 %                               % those in a sigvar object
+
+% -----------------------------------------------------------------------------
+% <#doc_def:>
+%   doc_dir = fullfile(fileparts(which('sigvar')),'_docify')
+%
+%   doc_file_header = fullfile(doc_dir,'doc_binary_op_manager_header.m')
+%   doc_file_IO = fullfile(doc_dir,'doc_binary_scalar_args_IO_description.m')
+%   doc_file_notes = fullfile(doc_dir,'doc_binary_op_manager_single_notes.m')
+%   doc_file_sigvar_notes = fullfile(doc_dir,'doc_sigvar_notes.m')
+%
+%   list_operator_arg = 1
+% -----------------------------------------------------------------------------
+% <#doc_beg:> binary_and_unary_ops
+%   <#file:> <doc_file_header>
+%
+%   <#file:> <doc_file_IO> <list_operator_arg>
+%
+%
+% NOTES:
+%   <#file:> <doc_file_notes>
+%
+%   <#file:> <doc_file_sigvar_notes>
+% <#doc_end:>
+% -----------------------------------------------------------------------------
 
 
 % One or both of w1, w2 is an instance of the class for which this a method
@@ -55,8 +84,8 @@ function wout = binary_op_manager_single(w1, w2, binary_op)
 
 thisClassname = mfilename('class');
 
-if ~isfloat(w1) && ~isfloat(w2)
-    % Neither of w1, w2 is a float array
+if ~isa(w1, 'double') && ~isa(w2, 'double')
+    % Neither of w1, w2 is a double array
     if isequal(sigvar_size(w1), sigvar_size(w2))
         %----------------------------------------------------------------------
         % The following block may be class specific
@@ -70,11 +99,11 @@ if ~isfloat(w1) && ~isfloat(w2)
         %----------------------------------------------------------------------
     else
         error([upper(thisClassname),':binary_op_manager_single'], ...
-            'Sizes of signal arrays in the objects are different');
+            'Sizes of signal arrays in the objects are different.');
     end
-    
-elseif isfloat(w2)
-    % w1 is an instance of classname, w2 is a float
+
+elseif isa(w2, 'double')
+    % w1 is an instance of classname, w2 is a double
     if isscalar(w2) || isequal(sigvar_size(w1), size(w2))
         %----------------------------------------------------------------------
         % The following block may be class specific
@@ -85,11 +114,11 @@ elseif isfloat(w2)
     else
         error([upper(thisClassname),':binary_op_manager_single'], ...
             ['Check that the numeric variable is scalar or array ' ...
-            'with same size as object signal']);
+            'with same size as object signal.']);
     end
-    
-elseif isfloat(w1)
-    % w2 is an instance of classname, w1 is a float
+
+elseif isa(w1, 'double')
+    % w2 is an instance of classname, w1 is a double
     if isscalar(w1) || isequal(sigvar_size(w2),size(w1))
         %----------------------------------------------------------------------
         % The following block may be class specific
@@ -100,7 +129,7 @@ elseif isfloat(w1)
     else
         error([upper(thisClassname),':binary_op_manager_single'], ...
             ['Check that the numeric variable is scalar or array ' ...
-            'with same size as object signal']);
+            'with same size as object signal.']);
     end
 
 end
