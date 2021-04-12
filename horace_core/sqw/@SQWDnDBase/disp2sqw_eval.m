@@ -56,14 +56,14 @@ function wout=disp2sqw_eval(win,dispreln,pars,fwhh,opt)
 %                           The output I has the same dimensions as the
 %                           input Emat.
 %
-%   'all'       [option] Requests that the calculated sqw be returned over
+%   '-all'       [option] Requests that the calculated sqw be returned over
 %              the whole of the domain of the input dataset. If not given, then
 %              the function will be returned only at those points of the dataset
 %              that contain data.
 %               Applies only to input with no pixel information - it is ignored if
 %              full sqw object.
 %
-%   'ave'       [option] Requests that the calculated sqw be computed for the
+%   '-ave'       [option] Requests that the calculated sqw be computed for the
 %              average values of h,k,l of the pixels in a bin, not for each
 %              pixel individually. Reduces cost of expensive calculations.
 %               Applies only to the case of sqw object with pixel information - it is
@@ -75,16 +75,13 @@ function wout=disp2sqw_eval(win,dispreln,pars,fwhh,opt)
 
 
 % Check optional argument
-all_bins=false;
-ave_pix=false;
-if exist('opt', 'var')  % no option given
-    if ischar(opt) && ~isempty(strmatch(lower(opt),'all'))    % option 'all' given
-        all_bins=true;
-    elseif ischar(opt) && ~isempty(strmatch(lower(opt),'ave'))    % option 'ave' given
-        ave_pix=true;
-    else
-        error('Unrecognised option')
-    end
+[ok, mess, all_bins, ave_pix] = parse_char_options({opt}, {'-all', '-average'});
+if ~ok
+    error( ...
+        'HORACE:SQW:invalid_arguments', ...
+        '%s.\nValid values for ''opt'' are ''-all'' or ''-ave''.', ...
+        mess ...
+    );
 end
 
 wout = copy(win);
@@ -98,7 +95,7 @@ for i=1:numel(win)
         if ~ave_pix
             wout(i) = sqw_eval(win(i), @disp2sqw, {dispreln,pars,fwhh});
         else
-            wout(i) = sqw_eval(win(i), @disp2sqw, {dispreln,pars,fwhh}, 'ave');
+            wout(i) = sqw_eval(win(i), @disp2sqw, {dispreln,pars,fwhh}, '-ave');
         end
     else
         % If dnd type, then can take advantage of Cartesian grid to calculate dispersion for the Q grid only

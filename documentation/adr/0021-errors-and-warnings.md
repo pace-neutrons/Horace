@@ -1,12 +1,20 @@
 [<-previous](./0020-use-c-mex-api.md) |
-next->
+[next->](./0022-use-keyword-args.md)
 
-# Handling Errors and Warnings
+# 21 - Handling Errors and Warnings
+
+Date: 2021-Feb-24
+
+## Status
+
+Accepted
+
+## Overview
 
 This document seeks to address the inconsistent error handling scheme in pace and lay down rules for how
 error handling should be addressed in future development and retroactively in older code.
 
-## Current state
+## Context
 Presently in PACE, there are several different mechanisms being used which obscure traceback on errors and warnings. The key ones are:
 
 - Passing error states and messages back through arguments and optionally throwing

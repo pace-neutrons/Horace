@@ -2,36 +2,11 @@
 # LOCAL_INIT_DIR is defined in the top-level CMakeLists
 file(MAKE_DIRECTORY ${LOCAL_INIT_DIR})
 
-
-# Regex to match a standard Unix/Windows path - especially the default paths
-# in herbert_on.m.template and horace_on.m.template
-set(_path_regex "[a-zA-Z0-9/\\\\_\\-\\.: ]+")
-
-# Format and copy horace_on template
-file(READ "horace_on.m.template" _horace_on_template)
-string(REGEX REPLACE
-    "default_horace_path ?= ?'${_path_regex}';"
-    "default_horace_path = '${Horace_ROOT}/horace_core';"
-    _horace_on_script
-    "${_horace_on_template}"
-)
-string(REGEX REPLACE
-    "default_herbert_path ?= ?'${_path_regex}';"
-    "default_herbert_path = '${Herbert_CORE}';"
-    _horace_on_script
-    "${_horace_on_script}"
-)
-file(WRITE "${LOCAL_INIT_DIR}/horace_on.m" "${_horace_on_script}")
-
-# Format and copy herbert_on template
-file(READ "${Herbert_ON_TEMPLATE}" _herbert_on_template)
-string(REGEX REPLACE
-    "default_herbert_path ?= ?'${_path_regex}';"
-    "default_herbert_path = '${Herbert_CORE}';"
-    _herbert_on_script
-    "${_herbert_on_template}"
-)
-file(WRITE "${LOCAL_INIT_DIR}/herbert_on.m" "${_herbert_on_script}")
+# Configure herbert/horace_on templates into build/local_init
+# This directory is added to the Matlab path when CTest is run, which enables
+# parallel workers to run herbert/horace_on in tests.
+configure_file("${Herbert_ON_TEMPLATE}" "${LOCAL_INIT_DIR}/herbert_on.m")
+configure_file("horace_on.m.template" "${LOCAL_INIT_DIR}/horace_on.m")
 
 # Copy Horace worker templates
 if(${BUILD_TESTS})
@@ -55,27 +30,13 @@ configure_file("version.h.template"
 # =============================================================================
 # Install commands
 # =============================================================================
-# Function to install a file whose name ends in .template
-function(install_template_file)
-    set(_template_file "${ARGV0}")
-    # Deal with absolute paths - extract just the file name
-    get_filename_component(_template_base_name "${_template_file}" NAME)
-    # Remove the .template extension from the file name
-    string(REPLACE ".template" "" _new_file_name "${_template_base_name}")
-    install(
-        FILES "${_template_file}"
-        DESTINATION "."
-        RENAME "${_new_file_name}"
-    )
-endfunction()
-
 set(TEMPLATE_FILES
     "horace_on.m.template"
     "worker_v2.m.template"
-    "worker_4tests.m.template"
     "${Herbert_ON_TEMPLATE}"
 
 )
-foreach(_template_file ${TEMPLATE_FILES})
-    install_template_file("${_template_file}")
-endforeach()
+install(
+    FILES "horace_install.m" ${TEMPLATE_FILES}
+    DESTINATION "."
+)

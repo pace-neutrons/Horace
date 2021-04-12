@@ -19,7 +19,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
     end
 
     methods (Access = protected)
-        wout = sqw_eval_pix_(w, sqwfunc, ave_pix, pars);
+        wout = sqw_eval_pix_(w, sqwfunc, ave_pix, pars, outfilecell, i);
     end
 
     methods

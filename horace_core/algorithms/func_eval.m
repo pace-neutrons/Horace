@@ -22,7 +22,6 @@ end
 
 end  % function
 
-
 % -----------------------------------------------------------------------------
 function sources = get_data_sources(source)
     % Parse the data source inputs for func_eval and load any files into
