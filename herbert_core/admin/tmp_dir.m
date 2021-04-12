@@ -9,7 +9,7 @@ function the_dir= tmp_dir()
 [is_jen,build_name,workspace] = is_jenkins();
 if is_jen
     [~,build_name] = fileparts(build_name);
-    the_dir = fullfile(workspace,build_name,'tmp_dir');
+    the_dir = fullfile(workspace,build_name);
     return
 end
 
