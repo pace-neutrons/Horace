@@ -306,6 +306,12 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             clearJenkinsSignature = onCleanup(@()clear_jenkins_var(obj));
             %
             assertTrue(is_jenkins);
+            cs  = iMessagesFramework.build_worker_init(tmp_dir, ...
+                'test_FB_message', 'MessagesFilebased', 1, 3,'test_mode');
+            ocs = obj.tests_control_strcut;
+            clearTestFile = onCleanup(@()set(obj,'tests_control_strcut',ocs));
+            obj.tests_control_strcut = cs;
+            
             
             mf = MessagesFileBasedMPI_mirror_tester();
             % this overwrites default config folder location!

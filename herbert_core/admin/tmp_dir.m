@@ -33,6 +33,7 @@ if is_idaaas()
 else
     the_dir = tempdir();
 end
+%
 function the_dir = build_tmp_dir(location)
 the_dir = fullfile(location,'tmp');
 if ~(is_folder(the_dir))
