@@ -2,7 +2,7 @@
 
 @Library('PACE-shared-lib') import pace.common.PipeLineInfo
 
-pli = PipeLineInfo.new(env.BASE_JOB_NAME)
+pli = new PipeLineInfo(env.BASE_JOB_NAME)
 
 properties([
   parameters([
