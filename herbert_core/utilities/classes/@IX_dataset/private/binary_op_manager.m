@@ -1,27 +1,28 @@
 function w = binary_op_manager (w1, w2, binary_op)
 % Implement a binary operation for objects with a signal and a variance array.
 %
-%   >> wout = binary_op_manager(w1, w2, binary_op)
+%   >> w = binary_op_manager(w1, w2, binary_op)
 %
-% All binary operations on Matlab double or single arrays are permitted
+% All binary operations on Matlab double arrays are permitted
 % (+, -, *, /, \) and are applied element by element to the signal and
 % variance arrays.
 %
 % Input:
 % ------
 %   w1, w2      Objects on which the binary operation is to be performed.
-%               One of these can be a real (i.e. double or single precision)
+%               One of these can be a Matlab double (i.e. double precision)
 %               array, in which case the variance array is taken to be zero.
 %
 %               If w1, w2 are scalar objects with the same signal array sizes:
 %               - The operation is performed element-by-element.
 %
-%               If one of w1 or w2 is a real array (the other a scalar object):
+%               If one of w1 or w2 is a double array (and the other is a
+%               scalar object):
 %               - If a scalar, apply to each element of the object signal.
-%               - If an array of the same size as the object signal array,
-%                 apply element by element.
+%               - If it is an array of the same size as the object signal
+%                 array, apply the operation element by element.
 %
-%               If one or both of w1, w2 are arrays of objects:
+%               If one or both of w1 and w2 are arrays of objects:
 %               - If objects have same array sizes, the binary operation is
 %                applied object element-by-object element.
 %               - If one of the objects is scalar (i.e. only one object),
@@ -29,13 +30,13 @@ function w = binary_op_manager (w1, w2, binary_op)
 %                in the other array.
 %
 %               If one of w1, w2 is an array of objects and the other is a
-%               real array:
-%               - If the real is a scalar, it is applied to every object in
-%                the array.
-%               - If the real is an array with the same size as the object
-%                array, then each element is applied as a scalar to the 
+%               double array:
+%               - If the double is a scalar, it is applied to every object
+%                in the array.
+%               - If the double is an array with the same size as the object
+%                array, then each element is applied as a scalar to the
 %                corresponding object in the object array.
-%               - If the real is an array with larger size than the object
+%               - If the double is an array with larger size than the object
 %                array, then the array is resolved into a stack of arrays,
 %                where the stack has the same size as the object array, and
 %                the each array in the stack is applied to the corresponding
@@ -43,16 +44,15 @@ function w = binary_op_manager (w1, w2, binary_op)
 %                to be valid, each object must have the same signal array
 %                size.]
 %
-%   binary_op   Function handle to binary operation. All binary operations
+%   binary_op   Function handle to a binary operation. All binary operations
 %               on Matlab double or single arrays are permitted (+, -, *,
-%               /, \)
+%               /, \).
 %
 % Output:
 % -------
-%   wout        Output object. Assumed to have same class as the superior
-%               of the two input objects.
-
-
+%   w           Output object or array of objects.
+%
+%
 % NOTES:
 % This is a generic method - works for any class (including sigvar)
 % so long as the methods below are defined on that class.
@@ -67,6 +67,30 @@ function w = binary_op_manager (w1, w2, binary_op)
 %                               % signal and variance arrays
 %	>> obj = sigvar_set(obj,w)  % Set signal and variance in an object from
 %                               % those in a sigvar object
+
+% -----------------------------------------------------------------------------
+% <#doc_def:>
+%   doc_dir = fullfile(fileparts(which('sigvar')),'_docify')
+%
+%   doc_file_header = fullfile(doc_dir,'doc_binary_op_manager_header.m')
+%   doc_file_IO = fullfile(doc_dir,'doc_binary_general_args_IO_description.m')
+%   doc_file_notes = fullfile(doc_dir,'doc_binary_op_manager_notes.m')
+%   doc_file_sigvar_notes = fullfile(doc_dir,'doc_sigvar_notes.m')
+%
+%   list_operator_arg = 1
+% -----------------------------------------------------------------------------
+% <#doc_beg:> binary_and_unary_ops
+%   <#file:> <doc_file_header>
+%
+%   <#file:> <doc_file_IO> <list_operator_arg>
+%
+%
+% NOTES:
+%   <#file:> <doc_file_notes>
+%
+%   <#file:> <doc_file_sigvar_notes>
+% <#doc_end:>
+% -----------------------------------------------------------------------------
 
 
 % Get array sizes of the input arguments
@@ -84,15 +108,15 @@ if isobject(w1)
     outputClassname = class(w1);
     size_stack1 = size(w1);
     size_root1 = [1,1];
-    
-elseif isfloat(w1)
-    % w1 is a float array; w2 must have class 'classname'
+
+elseif isa(w1, 'double')
+    % w1 is a double array; w2 must have class 'classname'
     if ~isscalar(w1)
         size_stack1 = size(w2);
         [size_root1, ok] = size_array_split (size(w1), size(w2));
         if ~ok
             mess = ['Unable to resolve the numeric array into a stack of arrays, ',...
-                'with stack size matching the object array size '];
+                'with stack size matching the object array size.'];
             error([upper(thisClassname),':binary_op_manager'], mess);
         end
     else
@@ -100,11 +124,11 @@ elseif isfloat(w1)
         size_root1 = [1,1];
     end
 else
-    % Error state: w1 is a matlab intrinsic class but not a float
+    % Error state: w1 is a matlab intrinsic class but not a double
     % (e.g.  logical, character, cell array)
     error([upper(thisClassname),':binary_op_manager'], ...
         ['Invalid first argument to binary operation - ' ...
-        'it must be an object, or a float (i.e. double or single precision).'])
+        'it must be an object, or a Matlab double.'])
 end
 
 
@@ -115,28 +139,28 @@ if isobject(w2)
     end
     size_stack2 = size(w2);
     size_root2 = [1,1];
-    
-elseif isfloat(w2)
-    % w1 is a float array; w2 must have class 'classname'
+
+elseif isa(w2, 'double')
+    % w1 is a double array; w2 must have class 'classname'
     if ~isscalar(w2)
         size_stack2 = size(w1);
         [size_root2, ok] = size_array_split (size(w2), size(w1));
         if ~ok
             mess = ['Unable to resolve the numeric array into a stack of arrays, ',...
-                'with stack size matching the object array size '];
+                'with stack size matching the object array size.'];
             error([upper(thisClassname),':binary_op_manager'], mess);
         end
     else
         size_stack2 = [1,1];    % want the scalar to apply to each object in w1
         size_root2 = [1,1];
     end
-    
+
 else
-    % Error state: w2 is a matlab intrinsic class but not a float
+    % Error state: w2 is a matlab intrinsic class but not a double
     % (e.g.  logical, character, cell array)
     error([upper(thisClassname),':binary_op_manager'], ...
         ['Invalid second argument to binary operation - ' ...
-        'it must be an object, or a float (i.e. double or single precision).'])
+        'it must be an object, or a Matlab double.'])
 end
 
 
@@ -163,7 +187,7 @@ nobj2 = prod(size_stack2);
 if (nobj1 == nobj2 && nobj1 == 1)
     % w1 and w2 both scalar instances of objects
     w = binary_op_manager_single(w1, w2, binary_op);
-    
+
 elseif isequal(size_stack1, size_stack2)
     % w1 and w2 are both non-scalar arrays of objects (scalar case caught above)
     w = repmat(constructor_handle(), size_stack1);
@@ -174,7 +198,7 @@ elseif isequal(size_stack1, size_stack2)
         obj2 = reshape(w2_2D(:,i), size_root2);
         w(i) = binary_op_manager_single(obj1, obj2, binary_op);
     end
-    
+
 elseif (nobj1 == 1 && nobj2 > 1)
     % w1 scalar, w2 an array of objects
     w = repmat(constructor_handle(), size_stack2);
@@ -183,7 +207,7 @@ elseif (nobj1 == 1 && nobj2 > 1)
         obj2 = reshape(w2_2D(:,i), size_root2);
         w(i) = binary_op_manager_single(w1, obj2, binary_op);
     end
-    
+
 elseif (nobj1 > 1 && nobj2 == 1)
     % w1 an array of objects, w2 scalar
     w = repmat(constructor_handle(), size_stack1);
@@ -192,7 +216,7 @@ elseif (nobj1 > 1 && nobj2 == 1)
         obj1 = reshape(w1_2D(:,i), size_root1);
         w(i) = binary_op_manager_single(obj1, w2, binary_op);
     end
-    
+
 else
     error([upper(thisClassname),':binary_op_manager'], ...
         ['Array lengths are incompatible.\n'...

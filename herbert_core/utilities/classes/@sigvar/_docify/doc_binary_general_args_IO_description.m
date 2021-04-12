@@ -1,3 +1,8 @@
+% -----------------------------------------------------------------------------
+% <#doc_def:>
+%   list_operator_arg = '#1'
+% -----------------------------------------------------------------------------
+% <#doc_beg:> binary_and_unary_ops
 % Input:
 % ------
 %   w1, w2      Objects on which the binary operation is to be performed.
@@ -35,10 +40,14 @@
 %                to be valid, each object must have the same signal array
 %                size.]
 %
+% <list_operator_arg:>
 %   binary_op   Function handle to a binary operation. All binary operations
 %               on Matlab double or single arrays are permitted (+, -, *,
-%               /, \)
+%               /, \).
 %
+% <list_operator_arg/end:>
 % Output:
 % -------
 %   w           Output object or array of objects.
+% <#doc_end:>
+% -----------------------------------------------------------------------------
