@@ -6,6 +6,12 @@ function the_dir= tmp_dir()
 % tmp_dir     tempdir value on any machine  and (userpath()/tmp)
 %            (usually /home/user_name/Documents/MATLAB/tmp) folder if the machine is
 %            identified as iDaaaaS machine.
+[is_jen,build_name,workspace] = is_jenkins();
+if is_jen
+    [~,build_name] = fileparts(build_name);
+    the_dir = fullfile(workspace,build_name,'tmp_dir');
+    return
+end
 
 if is_idaaas()
     location = userpath();
