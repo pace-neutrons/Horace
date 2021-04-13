@@ -105,8 +105,8 @@ classdef dnd_file_interface
         % Possible types are:
         %   type 'b'    fields: filename,...,dax,s,e
         %   type 'b+'   fields: filename,...,dax,s,e,npix
-        %   type 'a'    fields: filename,...,dax,s,e,npix,img_range,pix
-        %   type 'a-'   fields: filename,...,dax,s,e,npix,img_range.
+        %   type 'a'    fields: filename,...,dax,s,e,npix,img_db_range,pix
+        %   type 'a-'   fields: filename,...,dax,s,e,npix,img_db_range.
         %
         % all modern data files are either b+ (dnd) or a+ (sqw data) type
         % files.
@@ -292,7 +292,7 @@ classdef dnd_file_interface
         % get [2x4] array of min/max ranges of the image contributing into
         % an object, which is the basis for the grid, the pixels are sorted
         % on
-        img_range = get_img_range(obj);
+        img_db_range = get_img_db_range(obj);
         %
         % ----------------------------------------------------------------
         % save sqw object stored in memory into binary sqw file. Depending

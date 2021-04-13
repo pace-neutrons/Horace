@@ -96,14 +96,14 @@ for n=1:numel(win)
     wout(n).data.e = win(n).data.e(array_section{:});
     wout(n).data.npix = win(n).data.npix(array_section{:});
 
-    % Section the pix array, if sqw type, and update img_range
+    % Section the pix array, if sqw type, and update img_db_range
     if is_sqw_type(win(n))
         % Section pix array
         [nstart,nend] = aProjection.get_nrange(win(n).data.npix,irange);   % get contiguous ranges of pixels to be retained
         ind=ind_from_nrange(nstart,nend);
         wout(n).data.pix = win(n).data.pix.get_pixels(ind);
         %TODO: Do we actually need this? is this a suitable algorithm?
-        wout(n).data.img_range=recompute_img_range(wout(n));
+        wout(n).data.img_db_range=recompute_img_range(wout(n));
     end
 
 end

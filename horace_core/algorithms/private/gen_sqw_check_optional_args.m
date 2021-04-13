@@ -1,15 +1,15 @@
-function [ok,mess,present,grid,pix_range,instrument,sample]=gen_sqw_check_optional_args...
+function [ok,mess,present,grid,pix_db_range,instrument,sample]=gen_sqw_check_optional_args...
     (nfile,grid_default,instrument_default,sample_default,varargin)
 % Check optional input arguments to gen_sqw, and set defaults to those that are missing
 %
-%   >> [ok,mess,grid,pix_range,inst,sample] = gen_sqw_check_optional_args...
+%   >> [ok,mess,grid,pix_db_range,inst,sample] = gen_sqw_check_optional_args...
 %          (nfile,grid_default,inst_default,sample_default,arg1,arg2,...)
 %
 % where arg1,arg2,.. can be:
 %   ..., grid_in)                   % grid size
-%   ..., grid_in, pix_range_in)        % grid size and range of data to retain
+%   ..., grid_in, pix_db_range_in)        % grid size and range of data to retain
 %   ..., instrument_in, sample_in)  % instrument and sample information
-%   ..., grid_in, pix_range_in, instrument_in, sample_in)      % all four
+%   ..., grid_in, pix_db_range_in, instrument_in, sample_in)      % all four
 %
 % Input:
 % ------
@@ -23,7 +23,7 @@ function [ok,mess,present,grid,pix_range,instrument,sample]=gen_sqw_check_option
 % and one or more of the following (see above for valid combinations):
 %   grid_in             Scalar or 1x4 vector of grid dimensions
 %                       If not given or [], the default is set from argument grid_default
-%   pix_range_in           Range of data grid for output as a 2x4 matrix:
+%   pix_db_range_in           Range of data grid for output as a 2x4 matrix:
 %                           [x1_lo,x2_lo,x3_lo,x4_lo;x1_hi,x2_hi,x3_hi,x4_hi]
 %                       If not given or [], returned as [] (to signifiy that
 %                      it needs to be autoscaled or set later)
@@ -37,20 +37,20 @@ function [ok,mess,present,grid,pix_range,instrument,sample]=gen_sqw_check_option
 %   present             Structure with following fields each set to true or false
 %                      according as whether or not the input arguments were present
 %                           present.grid
-%                           present.pix_range
+%                           present.pix_db_range
 %                           present.instrument
 %                           present.sample
 %   grid                Grid (scalar or 1x4 vector; [] to indicate autoscaling
 %                      required or to be set later)
-%   pix_range              Range of data grid (2x4 array; [] to indicate autoscaling
+%   pix_db_range        Range of data grid (2x4 array; [] to indicate autoscaling
 %                      required or to be set later)
 %   instrument          Column vector of instrument descriptors, one per spe file
 %   sample              Column vector of sample descriptors, one per spe file
 
 
 % Set default return arguments in case of error
-present=struct('grid',false,'pix_range',false,'instrument',false,'sample',false);
-grid=[]; pix_range=[]; instrument=[]; sample=[];
+present=struct('grid',false,'pix_db_range',false,'instrument',false,'sample',false);
+grid=[]; pix_db_range=[]; instrument=[]; sample=[];
 
 
 % Check defaults
@@ -75,7 +75,7 @@ end
 narg=numel(varargin);
 if narg==0
     grid=grid_default;
-    pix_range=[];
+    pix_db_range=[];
     
     instrument=repmat(instrument_default,[nfile,1]);
     sample=repmat(sample_default,[nfile,1]);
@@ -84,25 +84,25 @@ elseif narg==1  % grid
     [grid,mess]=check_grid_size(varargin{1},grid_default);  
     if ~isempty(mess), ok=false; return, end
     present.grid=true;
-    pix_range=[];
+    pix_db_range=[];
     
     instrument=repmat(instrument_default,[nfile,1]);
     sample=repmat(sample_default,[nfile,1]);
 
-elseif narg==2 && isnumeric(varargin{1})    % grid, pix_range
+elseif narg==2 && isnumeric(varargin{1})    % grid, pix_db_range
     [grid,mess]=check_grid_size(varargin{1},grid_default);  
     if ~isempty(mess), ok=false; return, end
     present.grid=true;
-    [pix_range,mess]=check_pix_range(varargin{2});                
+    [pix_db_range,mess]=check_pix_range(varargin{2});                
     if ~isempty(mess), ok=false; return, end
-    present.pix_range=true;
+    present.pix_db_range=true;
     
     instrument=repmat(instrument_default,[nfile,1]);
     sample=repmat(sample_default,[nfile,1]);
 
 elseif narg==2 && ~isnumeric(varargin{1})   % instrument, sample
     grid=grid_default;
-    pix_range=[];
+    pix_db_range=[];
     
     [instrument,mess]=check_inst_or_sample(varargin{1},nfile,'instrument',instrument_default);
     if ~isempty(mess), ok=false; return, end
@@ -111,13 +111,13 @@ elseif narg==2 && ~isnumeric(varargin{1})   % instrument, sample
     if ~isempty(mess), ok=false; return, end
     present.sample=true;
 
-elseif narg==4                              % grid, pix_range, instrument, sample
+elseif narg==4                              % grid, pix_db_range, instrument, sample
     [grid,mess]=check_grid_size(varargin{1},grid_default);  
     if ~isempty(mess), ok=false; return, end
     present.grid=true;
-    [pix_range,mess]=check_pix_range(varargin{2});                
+    [pix_db_range,mess]=check_pix_range(varargin{2});                
     if ~isempty(mess), ok=false; return, end
-    present.pix_range=true;
+    present.pix_db_range=true;
     
     [instrument,mess]=check_inst_or_sample(varargin{3},nfile,'instrument',instrument_default);
     if ~isempty(mess), ok=false; return, end
@@ -164,19 +164,19 @@ else
 end
 
 %--------------------------------------------------------------------------------------------------
-function [pix_range_out,mess]=check_pix_range(pix_range)
-% Check if pix_range is given
-if isempty(pix_range)
-    pix_range_out=[];
+function [pix_db_range_out,mess]=check_pix_range(pix_db_range)
+% Check if pix_db_range is given
+if isempty(pix_db_range)
+    pix_db_range_out=[];
     mess='';
 
-elseif isnumeric(pix_range) && numel(size(pix_range))==2 &&...
-        all(size(pix_range)==[2,4]) && all(pix_range(2,:)>=pix_range(1,:))
-    pix_range_out=pix_range;
+elseif isnumeric(pix_db_range) && numel(size(pix_db_range))==2 &&...
+        all(size(pix_db_range)==[2,4]) && all(pix_db_range(2,:)>=pix_db_range(1,:))
+    pix_db_range_out=pix_db_range;
     mess='';
     
 else
-    mess='pix_range must be 2x4 array, first row lower limits, second row upper limits, with lower<=upper';
+    mess='pix_db_range must be 2x4 array, first row lower limits, second row upper limits, with lower<=upper';
 end
 
 %--------------------------------------------------------------------------------------------------

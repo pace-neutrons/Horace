@@ -61,7 +61,7 @@ for i=1:n_inputs
         ld = ld.upgrade_file_format();
     end
     if use_urange
-        pix_range = ld.get_img_range();
+        pix_range = ld.get_img_db_range();
     else
         data = ld.get_data();
         data.pix.recalc_pix_range();

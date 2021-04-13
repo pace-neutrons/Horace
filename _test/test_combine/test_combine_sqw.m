@@ -67,13 +67,13 @@ classdef test_combine_sqw < TestCase
             % this is to fix in a future. There is problem with orhtogonal
             % coordinate system
             
-            img_range = obj.sqw_sample_gen.data.img_range;
+            img_db_range = obj.sqw_sample_gen.data.img_db_range;
             npix0 = obj.sqw_sample_gen.data.num_pixels;
-            range1 = img_range(:,1);
+            range1 = img_db_range(:,1);
             dR = range1(2)-range1(1);
             bin_range = [range1(1)*1.01,dR/100,range1(2)*1.01];
             cut1 = cut_sqw(obj.sqw_sample_gen,struct('u',[1,0,0],'v',[0,1,0]),...
-                bin_range,img_range(:,2)*1.01,[img_range(1,3)*1.01,img_range(2,3)*0.99],img_range(:,4)*1.01);
+                bin_range,img_db_range(:,2)*1.01,[img_db_range(1,3)*1.01,img_db_range(2,3)*0.99],img_db_range(:,4)*1.01);
             n_pix = cut1.data.num_pixels;
             
             assertEqual(npix0,n_pix)
@@ -87,9 +87,9 @@ classdef test_combine_sqw < TestCase
         %
         function test_combine1D_ortho(obj)
             
-            img_range = obj.sqw_sample_ortho.data.img_range;
+            img_db_range = obj.sqw_sample_ortho.data.img_db_range;
             npix0 = obj.sqw_sample_ortho.data.num_pixels;
-            range1 = img_range(:,1);
+            range1 = img_db_range(:,1);
             dR = range1(2)-range1(1);
             bin_range = [range1(1)*1.01,dR/100,range1(2)*1.01];
             cut1 = cut_sqw(obj.sqw_sample_ortho,struct('u',[1,0,0],'v',[0,1,0]),...
@@ -107,10 +107,10 @@ classdef test_combine_sqw < TestCase
         %
         function test_combine1D_ortho_2ranges(obj)
             
-            img_range = obj.sqw_sample_ortho.data.img_range;
+            img_db_range = obj.sqw_sample_ortho.data.img_db_range;
             
             
-            range3 = img_range(:,3);
+            range3 = img_db_range(:,3);
             dist3 = range3(2)-range3(1);
             
             cut1 = cut_sqw(obj.sqw_sample_ortho,struct('u',[1,0,0],'v',[0,1,0]),...

@@ -28,11 +28,40 @@ classdef projection<aProjection
         %
     end
     methods(Access = protected)
-        % overloads for staitc methods which define if the projection can
+        % overloads for static methods which define if the projection can
         % keep pixels and have mex functions defined
         function isit= can_mex_cut_(~)
             % ortho projection have mex procedures defined
             isit = true;
+        end
+        %
+        function [rot_to_img,shift]=get_pix_img_transformation(obj,ndim)
+            % Return the transformation, necessary for conversion from pix
+            % to image coordinate system and vise-versa if the projaxes is
+            % defined
+            % Input:
+            % ndim -- number of dimensions in the pixels coordinate array
+            %         (3 or 4). Depending on this number the routine
+            %         returns 3D or 4D transformation matrix
+            %
+            [rlu_to_ustep, u_to_rlu] = projaxes_to_rlu(obj.projaxes_,obj.alatt, obj.angdeg, [1,1,1]);
+            b_mat  = bmatrix(obj.alatt, obj.angdeg);
+            rot_to_img = rlu_to_ustep/b_mat;
+            %
+            if ndim==4
+                shift  = obj.uoffset';
+                u_to_rlu  = [u_to_rlu,[0;0;0];[0,0,0,1]];
+                rot_to_img = [rot_to_img,[0;0;0];[0,0,0,1]];
+            elseif ndim == 3
+                shift  = obj.uoffset(1:3)';
+            else
+                error('HORACE:rundatah:invalid_argument',...
+                    'The size of the pixels array should be [3xNpix] or [4xNpix], actually it is: %s',...
+                    evalc('disp(size(pix_cc))'));
+            end
+            % convert shift, expressed in hkl into crystal Cartesian
+            shift = u_to_rlu\shift';
+            
         end
     end
     
@@ -81,7 +110,8 @@ classdef projection<aProjection
         end
         function this =set.type(this,val)
             if isempty(this.projaxes_)
-                error('PROJECTION:invalid_argument','define projection plains first');
+                error('HORACE:rundatah:invalid_argument',...
+                    'define projection plains first');
             else
                 this.projaxes_.type = val;
             end
@@ -104,16 +134,16 @@ classdef projection<aProjection
         %------------------------------------------------------------------
         % Particular implementation of aProjection abstract interface
         %------------------------------------------------------------------
-        function img_range_out = find_old_img_range(this,img_range_in)
+        function range_out = find_old_img_range(this,range_in)
             % find the range of initial data in the coordinate frame
             % of the new projection.
             % Input:
-            % img_range_in -- the range of the data in the initial coordinate
+            % range_in -- the range of the data in the initial coordinate
             % system.
             % Output:
-            % img_range_out -- the range the initial image data in the new
+            % range_out -- the range the initial image data in the new
             % (transformed) coordinate system of the cut.
-            img_range_out  = find_ranges_(this,img_range_in);
+            range_out  = find_ranges_(this,range_in);
         end
         
         function [istart,iend,irange,inside,outside] =get_irange_proj(this,img_range,varargin)
@@ -128,7 +158,7 @@ classdef projection<aProjection
             [indx,ok] = get_contributing_pix_ind_(this,v);
         end
         function [uoffset,ulabel,dax,u_to_rlu,ulen,title_build_class] = get_proj_param(this,data_in,pax)
-            % get projection parameters, necessary for properly definind a sqw or dnd object
+            % get projection parameters, necessary for properly defining a sqw or dnd object
             %
             [uoffset,ulabel,dax,u_to_rlu,ulen] = get_proj_param_(this,data_in,pax);
             title_build_class = an_axis_caption();
@@ -143,8 +173,34 @@ classdef projection<aProjection
             [urange_step_pix_recent, ok, ix, s, e, npix, npix_retain,success]=...
                 accumulate_cut_(this,v,s,e,npix,pax,ignore_nan,ignore_inf,keep_pix,n_threads);
         end
-        
+        function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)
+            % Transform pixels expressed in crystal Cartesian coordinate systems
+            % into image coordinate system
+            %
+            % Input:
+            % pix_data -- [3xNpix] or [4xNpix] array of pix coordinates
+            %             expressed in crystal Cartesian coordinate system
+            % Returns:
+            % pix_transformed -- the pixels transformed into coordinate
+            %             system, related to image (often hkl system)
+            %
+            pix_transformed = transform_pix_to_img_(obj,pix_data);
+        end
         %
+        function pix_cc = transform_img_to_pix(obj,pix_hkl,varargin)
+            % Transform pixels expressed in image coordinate coordinate systems
+            % into crystal Cartesian coordinate system
+            %
+            % Input:
+            % pix_data -- [3xNpix] or [4xNpix] array of pix coordinates
+            %             expressed in crystal Cartesian coordinate system
+            % Returns
+            % pix_cc -- pixels expressed in Crystal Cartesian coordinate
+            %            system
+            %
+            pix_cc = transform_img_to_pix_(obj,pix_hkl);
+        end
+        
     end
     
     methods(Static)
@@ -169,16 +225,16 @@ classdef projection<aProjection
             % Outputs:
             % u     -- [1x3] vector expressed in rlu and defining the cut
             %          direction
-            % v     -- [1x3] vecotor expressed in rlu, and together with u
+            % v     -- [1x3] vector expressed in rlu, and together with u
             %          defining the cut plain
-
-
+            
+            
             %u_to_rlu(:,i) = ubinv(:,i)*ulen(i);
             ulen_inv = 1./ulen;
             ubinv = u_to_rlu.*repmat(ulen_inv,3,1);
             ubmat = inv(ubinv);
             b_mat = bmatrix(alatt, angdeg);
-            %ub = umat*b;
+            %ub = umat*b_mat;
             umat = ubmat/b_mat;
             %
             u_dir = (b_mat\umat(1,:)')';
@@ -192,7 +248,7 @@ classdef projection<aProjection
             v = v_tr/norm(v_tr);
             %
             w=ubinv(:,3)';  % perpendicular to u and v, length 1 Ang^-1, forms rh set with u and v
-
+            
             uvw=[u(:),v(:),w(:)];
             uvw_orthonorm=ubmat*uvw;    % u,v,w in the orthonormal frame defined by u and v
             ulen_new = diag(uvw_orthonorm);

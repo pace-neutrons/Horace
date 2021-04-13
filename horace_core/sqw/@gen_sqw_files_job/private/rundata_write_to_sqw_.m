@@ -61,11 +61,6 @@ for i=1:nfiles
     %
     run_id(i) = run_files{i}.run_id;
     [w,grid_size_tmp,pix_range_tmp] = run_files{i}.calc_sqw(grid_size_in, pix_db_range,cache_det{:});
-    if ~isempty(run_files{i}.transform_sqw) && ~isempty(pix_db_range)
-        w = cut(w,cut_range{:});
-        pix_range_tmp = pix_db_range;
-        grid_size_tmp = size(w.data.s);
-    end
     if i==1
         grid_size = grid_size_tmp;
         pix_range = pix_range_tmp;

@@ -100,7 +100,5 @@ classdef test_gen_sqw_accumulate_sqw_nomex < ...
             assertTrue(ok,'Should have failed because of repeated spe file name');
             
         end
-        
-        
     end
 end
