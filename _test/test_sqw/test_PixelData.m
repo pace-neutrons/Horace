@@ -1100,7 +1100,7 @@ classdef test_PixelData < TestCase
             ref_range = [min(range1(1,:),range2(1,:));...
                 max(range1(2,:),range2(2,:))];
             out_pix = pix.append(pix_to_append);
-            % img_range, stored in the file is different from
+            % img_db_range, stored in the file is different from
             % pix(min/max)
             assertEqual(ref_range,out_pix.pix_range);
 

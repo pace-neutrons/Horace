@@ -54,7 +54,7 @@ classdef aProjection
         data_urange_;
         %------------------------------------
         % Transformed coordinates
-        new_img_range_;
+        new_img_db_range_;
         %
         usteps_ = [1,1,1,1];
         % data ranges in new coordinate system in units of steps in each
@@ -82,15 +82,15 @@ classdef aProjection
         %------------------------------------------------------------------
         % Common interface to projection data
         %------------------------------------------------------------------
-        % build the binning and axis for the coordinate system related to cut 
-        [iax, iint, pax, p, img_range_out] = calc_transf_img_bins (proj,img_range_in,pbin, pin, en)        
+        % build the binning and axis for the coordinate system related to cut
+        [iax, iint, pax, p, img_db_range_out] = calc_transf_img_bins (proj,img_db_range_in,pbin, pin, en)
         % Check that the binning arguments are valid, and update the projection
         % with the current bin values
         [proj_update,pbin_update,ndims,pin,en] = update_pbins (proj, header_ave, data, pbin)
         
         % Check binning descriptors are valid, and resolve multiple integration axes
-        % using limits and bin widths from the input data.        
-        [ pbin_out, ndims] = calc_pbins(proj, img_range_in, pbin, pin, en)
+        % using limits and bin widths from the input data.
+        [ pbin_out, ndims] = calc_pbins(proj, img_db_range_in, pbin, pin, en)
         
         %
         function obj=retrieve_existing_tranf(obj,data,upix_to_rlu,upix_offset)
@@ -99,7 +99,7 @@ classdef aProjection
             % use later to calculate new transformation.
             obj = set_data_transf_(obj,data,upix_to_rlu,upix_offset);
         end
-        function obj = set_proj_binning(obj,new_img_range,prj_ax_ind,int_ax_ind,prj_ax_bins)
+        function obj = set_proj_binning(obj,new_img_db_range,prj_ax_ind,int_ax_ind,prj_ax_bins)
             %   new_range   Array of limits of data that can possibly contribute to the output data structure in the
             %               coordinate frame of the output structure [2x4].
             %   prj_ax_ind  Index of plot axes into the projection axes  [row vector]
@@ -110,7 +110,7 @@ classdef aProjection
             %               i.e. data.p{1}, data.p{2} ... (for as many plot axes as given by length of prj_ax_ind)
             %
             %
-            obj = obj.set_proj_binning_(new_img_range,prj_ax_ind,int_ax_ind,prj_ax_bins);
+            obj = obj.set_proj_binning_(new_img_db_range,prj_ax_ind,int_ax_ind,prj_ax_bins);
         end
         
         %------------------------------------------------------------------
@@ -122,7 +122,7 @@ classdef aProjection
         function obj = set.alatt(obj,val)
             % set lattice parameters as single value, defining 3 equal
             % parameters or vector of 3 different lattice parameters
-            % 
+            %
             % The parameters expected to be in A
             %
             obj.alatt_ = check_alatt_return_standard_val_(val);
@@ -135,7 +135,7 @@ classdef aProjection
             % set lattice parameters as single value, defining 3 equal
             % lattice angles or vector of 3 different lattice angles
             %
-            % All angles are in degrees. 
+            % All angles are in degrees.
             %
             obj.angdeg_ = check_angdeg_return_standard_val_(val);
         end
@@ -159,11 +159,24 @@ classdef aProjection
         function nbin = get.target_nbin(obj)
             nbin = obj.nbin_gt1_;
         end
+        %
+        % Temporary method, here unil projection is refactored
+        % will belong to another projection or become a property
+        % Ticket #34(https://github.com/pace-neutrons/Horace/issues/34)        
+        function upix_to_rlu = get_data_pix_to_rlu(obj)
+            upix_to_rlu = obj.data_upix_to_rlu_;
+        end
+        % Temporary method, here unil projection is refactored
+        % will belong to another projection or become a property
+        % Ticket #34(https://github.com/pace-neutrons/Horace/issues/34)
+        function obj = set_data_pix_to_rlu(obj,data_upix_to_rlu)
+            obj.data_upix_to_rlu_ = data_upix_to_rlu;
+        end
     end
     %
     methods(Access = protected)
         %
-        function isit= can_mex_cut_(self)
+        function isit= can_mex_cut_(~)
             isit = false;
         end
         function [nbin_in,pin]= get_input_data_binning_(obj)
@@ -173,7 +186,7 @@ classdef aProjection
             % auxiliary variable derived from input data projection axis
             pin=cell(1,4);
             pin(obj.data_pax_)=obj.data_p_;
-            pin(obj.data_iax_)=mat2cell(obj.new_img_range_(:,obj.data_iax_),2,ones(1,length(obj.data_iax_)));
+            pin(obj.data_iax_)=mat2cell(obj.new_img_db_range_(:,obj.data_iax_),2,ones(1,length(obj.data_iax_)));
             nbin_in=zeros(1,4);
             for i=1:4
                 nbin_in(i)=length(pin{i})-1;
@@ -300,20 +313,29 @@ classdef aProjection
     %----------------------------------------------------------------------
     methods(Abstract)
         % find the whole range of input data which may contribute
-        % into the result.        
+        % into the result.
         urange_out = find_old_img_range(obj,urange_in);
-
-
+        
+        
         % Get ranges of bins that partially or wholly lie inside an n-dimensional shape,
-        % defined by projection limits.        
+        % defined by projection limits.
         [istart,iend,irange,inside,outside] = get_irange_proj(obj,urange,varargin);
         
-        % get list of pixels indexes contributing into the cut        
+        % get list of pixels indexes contributing into the cut
         [indx,ok] = get_contributing_pix_ind(obj,v);
         
         % get projection parameters, necessary for properly definind a sqw
         % or dnd object from the projection        %
         [uoffset,ulabel,dax,u_to_rlu,ulen,title_function] = get_proj_param(obj,data_in,pax);
+        
+        % Transform pixels expressed in crystal cartezian coordinate systems
+        % into image coordinate system
+        pix_transformed = transform_pix_to_img(obj,pix_cc,varargin);
+        % Transform pixels expressed in image coordinate coordinate systems
+        % into crystal cartezian system
+        pix_cc = transform_img_to_pix(obj,pix_transformed,varargin);
+        
     end
+    
 end
 

@@ -84,7 +84,7 @@ classdef test_proj_captions<TestCase
             this.wk_data.p={[1;4;10],[2;10;20]};
             this.wk_data.dax=[1,2];
             this.wk_data.ulen=[1 0.5000 1 1];
-            this.wk_data.img_range=[0.1500  -89.3891 -179.9992   40.0000;
+            this.wk_data.img_db_range=[0.1500  -89.3891 -179.9992   40.0000;
                 0.2500   89.3295  179.9985   60.0000];
             this.wk_data.uoffset=[1;1;0;0];
             this.wk_data.iint=[0.1500   40.0000; 0.2500   60.0000];

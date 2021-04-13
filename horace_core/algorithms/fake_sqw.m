@@ -1,4 +1,4 @@
-function [tmp_sqw, grid_size, img_range] = fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
+function [tmp_sqw, grid_size, img_db_range] = fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
     u, v, psi, omega, dpsi, gl, gs, varargin)
 % Create an output sqw file with dummy data using array(s) of energy bins instead spe file(s).
 %
@@ -8,7 +8,7 @@ function [tmp_sqw, grid_size, img_range] = fake_sqw (en, par_file, sqw_file, efi
 %   >> fake_sqw (sqw, en, par_file, sqw_file, efix, emode, alatt, angdeg,...
 %                    u, v, psi, omega, dpsi, gl, gs, grid_size_in, pix_range_in)
 %
-%   >> [tmp_file, grid_size, img_range] = fake_sqw (...)
+%   >> [tmp_file, grid_size, img_db_range] = fake_sqw (...)
 %
 % Input:
 % ------
@@ -40,11 +40,12 @@ function [tmp_sqw, grid_size, img_range] = fake_sqw (en, par_file, sqw_file, efi
 %   dpsi            Correction to psi (deg)            [scalar or vector length nfile]
 %   gl              Large goniometer arc angle (deg)   [scalar or vector length nfile]
 %   gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
-%   grid_size_in    [Optional] Scalar or row vector of grid dimensions. The default
+% Optional:
+%   grid_size_in   Scalar or row vector of grid dimensions. The default
 %                  size will depend on the product of energy bins and detector elements
 %                  summed across all the spe files.
-%   pix_range_in       [Optional] Range of data grid for output. If not given, then uses smallest hypercuboid
-%                                       that encloses the whole data range.
+%   pix_db_range_in Range of grid used to rebin pixels. If not given, then uses smallest hypercuboid
+%                   that encloses the whole pixels range.
 %
 % Output:
 % --------
@@ -57,7 +58,8 @@ function [tmp_sqw, grid_size, img_range] = fake_sqw (en, par_file, sqw_file, efi
 %
 %   grid_size      Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
-%   img_range      Actual range of image in 
+%   img_db_range   The range of the grid (in Crystal Cartesian) on which 
+%                  the pixels are rebinned on.
 %
 %
 % Use to generate an sqw file that can be used for creating simulations. Syntax very similar to
@@ -150,7 +152,7 @@ end
 grid_default=[];
 instrument_default=struct;  % default 1x1 struct
 sample_default=struct;      % default 1x1 struct
-[ok,mess,present,grid_size,img_range,instrument,sample]=gen_sqw_check_optional_args(...
+[ok,mess,present,grid_size,img_db_range,instrument,sample]=gen_sqw_check_optional_args(...
     nfiles,grid_default,instrument_default,sample_default,varargin{:});
 
 if ~ok, error(mess), end
@@ -189,13 +191,13 @@ end
 
 
 % Determine pix_range
-if isempty(img_range)
-    img_range = [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf];
+if isempty(img_db_range)
+    img_db_range = PixelData.EMPTY_RANGE_;
     for i=1:numel(run_files)
         pix_range_l = run_files{i}.calc_pix_range(en_lo(i),en_hi(i),cache_opt{:});
-        img_range = [min(pix_range_l(1,:),img_range(1,:));max(pix_range_l(2,:),img_range(2,:))];
+        img_db_range = [min(pix_range_l(1,:),img_db_range(1,:));max(pix_range_l(2,:),img_db_range(2,:))];
     end
-    img_range=range_add_border(img_range,...
+    img_db_range=range_add_border(img_db_range,...
         data_sqw_dnd.border_size);     % add a border to account for Matlab matrix multiplication bug
 end
 
@@ -234,7 +236,7 @@ for i=1:nfiles
     run_files{i}.en = en{i};
     run_files{i}.run_id = i;
     %
-    w = run_files{i}.calc_sqw(grid_size, img_range,cache_opt{:});
+    w = run_files{i}.calc_sqw(grid_size, img_db_range,cache_opt{:});
     
     if return_sqw_obj
         tmp_sqw{i} = w;

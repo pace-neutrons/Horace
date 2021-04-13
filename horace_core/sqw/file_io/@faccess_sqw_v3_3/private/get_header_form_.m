@@ -28,7 +28,7 @@ function header = get_header_form_(varargin)
 %                        u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
 %   header.ulen         Length of projection axes vectors in Ang^-1 or meV [row vector]
 %   header.ulabel       Labels of the projection axes [1x4 cell array of character strings]
-%   header.img_range    the range of the image, stored with the data
+%   header.img_db_range    the range of the image, stored with the data
 %
 %
 %

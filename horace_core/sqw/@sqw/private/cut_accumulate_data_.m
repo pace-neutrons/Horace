@@ -15,17 +15,17 @@ function [s, e, npix, pix_out, img_range, pix_comb_info] = ...
 %
 % Output:
 % -------
-% s                The image signal data.
-% e                The variance in the image signal data.
-% npix             Array defining how many pixels are contained in each image
-%                  bin. size(npix) == size(s)
-% pix_out          A PixelData object containing pixels that contribute to the
-%                  cut.
-% img_range        The range of u1, u2, u3, and dE in the contributing pixels.
-%                  size(urange_pix) == [2, 4].
-% pix_combine_info A temp file manager/combiner for performing out-of-memory
-%                  cuts. If keep_pix is false, or return_cut is true, this
-%                  will be empty.
+% s              The image signal data.
+% e              The variance in the image signal data.
+% npix           Array defining how many pixels are contained in each image
+%                bin. size(npix) == size(s)
+% pix_out        A PixelData object containing pixels that contribute to the
+%                cut.
+% img_range      The real range of u1, u2, u3, and dE in the units of projection 
+%                axis coordinates. size(urange_pix) == [2, 4].
+% pix_combine_info Temp file manager/combiner class instance for performing
+%                  out-of-memory cuts. If keep_pix is false, or return_cut 
+%                  is true, this will be empty.
 %
 % CALLED BY cut_single
 %
@@ -92,7 +92,7 @@ for iter = 1:num_chunks
         bin_starts(iter), bin_ends(iter) ...
     );
 
-    if log_level >= 0
+    if log_level >= 1
         fprintf(['Step %3d of %3d; Read data for %d pixels -- ' ...
                  'processing data...'], iter, num_chunks, ...
                 candidate_pix.num_pixels);
@@ -117,7 +117,7 @@ for iter = 1:num_chunks
         proj.target_pax ...
     );
 
-    if log_level >= 0
+    if log_level >= 1
         fprintf(' ----->  retained  %d pixels\n', del_npix_retain);
     end
 
@@ -152,7 +152,7 @@ end
 urange_offset = repmat(proj.urange_offset, [2, 1]);
 img_range = img_range_step.*repmat(proj.usteps, [2, 1]) + urange_offset;
 
-[s, e] = average_signal(s, e, npix);
+[s, e] = normalize_signal(s, e, npix);
 
 end  % function
 
@@ -175,7 +175,7 @@ end
 end
 
 
-function [s, e] = average_signal(s, e, npix)
+function [s, e] = normalize_signal(s, e, npix)
 % Convert summed signal & error into averages
 s = s./npix;
 e = e./(npix.^2);

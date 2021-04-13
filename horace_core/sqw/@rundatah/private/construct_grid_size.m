@@ -28,11 +28,13 @@ if isscalar(grid_size_in)
 elseif size(grid_size_in,2)==nd
     grid_size=grid_size_in;
 else
-    error('Inconsistent dimensions for grid_size and pix_range')
+    error('HORACE:rundatah:invalid_argument',...
+        'Inconsistent sizes between grid_size (%s) and pix_range (%s)',...
+        evalc('disp(size(grid_size_in)))'),evalc('disp(size(pix_range)))'))
 end
 
 % Get ranges along each axis and construct bin boundaries
-% (Do not use linspace, as this does not always guarantee 
+% (Do not use linspace, as this does not always guarantee
 % the correct number of bin boundaries &/or terminal values)
 p=cell(1,nd);
 for i=1:nd
@@ -50,7 +52,9 @@ for i=1:nd
         grid_size(i)=1; % set grid size to unity wherever the range is zero
         p{i}=[pix_range(1,i);pix_range(2,i)];
     else
-        error('Must have pix_range(2,:)>pix_range(1,:)')
+        error('RUNDATAH:invalid_argument',...
+            'Must have pix_range(2,:)>pix_range(1,:), got %s',...
+            evalc('disp(pix_range))'));
     end
 end
 

@@ -24,8 +24,8 @@ obj.s_pos_=data_pos.s_pos_;
 obj.e_pos_=data_pos.e_pos_;
 obj.npix_pos_=data_pos.npix_pos_;
 %
-if isfield(data_pos,'img_range_pos_')
-    obj.dnd_eof_pos_ = data_pos.img_range_pos_;
+if isfield(data_pos,'img_db_range_pos_')
+    obj.dnd_eof_pos_ = data_pos.img_db_range_pos_;
     if  isfield(data_pos,'pix_pos_')
         data_pos.eof_pix_pos_ = pos;
     end

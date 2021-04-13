@@ -834,6 +834,7 @@ classdef PixelData < handle
             % Sets up the property page_range defining the range of block
             % of pixels chaned at current iteration.
             %
+            obj = obj.load_current_page_if_data_empty_();
             if isempty(obj.raw_data_)
                 obj.pix_range_   = PixelData.EMPTY_RANGE_;
                 obj.page_range = PixelData.EMPTY_RANGE_;
@@ -842,7 +843,8 @@ classdef PixelData < handle
             ind = obj.FIELD_INDEX_MAP_(field_name);
 
             loc_range = [min(obj.raw_data_(ind,:),[],2),max(obj.raw_data_(ind,:),[],2)]';
-            if obj.is_file_backed_()
+            % is filebacked and pages do not fit memory 
+            if  ~isempty(obj.f_accessor_) && obj.get_num_pages_() > 1
                 % this may break things down, as the range only expands
                 range = [min(obj.pix_range_(1,ind),loc_range(1,:));...
                     max(obj.pix_range_(2,ind),loc_range(2,:))];
