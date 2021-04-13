@@ -13,7 +13,7 @@ function the_dir= tmp_dir()
 [is_jen,build_name,workspace] = is_jenkins();
 if is_jen
     [~,build_name] = fileparts(build_name);
-    [~,the_dir]=try_to_create_folder(workspace,build_name);
+    [~,the_dir]=try_to_create_folder(workspace,['mprogs_config_',build_name]);
     return
 end
 

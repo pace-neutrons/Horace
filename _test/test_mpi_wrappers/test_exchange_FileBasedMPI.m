@@ -294,6 +294,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             setenv('JENKINS_HOME');
             setenv('JOB_NAME');
             setenv('WORKSPACE');
+            config_store.instance().clear_all();
         end
         function set_up_fake_jenkins(~)
             % set up fake Jenkins configuration, for is_jenkins routine
@@ -429,7 +430,6 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertFalse(is_folder(jnf));
             %
             clear clearJenkinsSignature;
-            config_store.instance().clear_all();
             assertFalse(is_jenkins);
         end
         %
