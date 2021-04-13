@@ -148,7 +148,7 @@ pipeline {
 
           } else {
 
-            def herbert_ref = get_herbert_ref_from_labels(
+            def herbert_ref = utilities.get_herbert_ref_from_labels(
               env.PR_LABELS,
               env.HERBERT_BRANCH_NAME
             )
