@@ -46,8 +46,7 @@ classdef config_store < handle
                 [~,build_name] = fileparts(build_name);
                 % remove all possible folder paths of the build name
                 % to be able to create valid file name.
-                newStore.config_folder_name_ = build_name;
-                newStore.config_folder_ = make_config_folder(build_name, fullfile(workspace,'config'));
+                newStore.config_folder_ = make_config_folder(build_name, workspace);
                 return
             end
 

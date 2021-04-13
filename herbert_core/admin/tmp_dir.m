@@ -3,14 +3,17 @@ function the_dir= tmp_dir()
 % for iDaaaS machines where standard tmp folder is randomly clearned up.
 %
 % Returns:
-% tmp_dir     tempdir value on any machine  and (userpath()/tmp)
-%            (usually /home/user_name/Documents/MATLAB/tmp) folder if the machine is
-%            identified as iDaaaaS machine.
-[is_jen,build_name] = is_jenkins();
+% tmp_dir   tempdir value on any machine
+%
+%            userpath()/tmp    (usually /home/user_name/Documents/MATLAB/tmp)
+%            folder if the machine is identified as iDaaaaS machine.
+%
+%            workspace_location//tmp if the machine is identified as Jenkins
+%
+[is_jen,build_name,workspace] = is_jenkins();
 if is_jen
     [~,build_name] = fileparts(build_name);
-    location = fullfile(tempdir,build_name);
-    the_dir = build_tmp_dir(location);
+    [~,the_dir]=try_to_create_folder(workspace,build_name);
     return
 end
 
