@@ -345,7 +345,7 @@ pipeline {
           // Archive a file containing the git revision being built. This
           // enables the Deploy pipelines to validate against this SHA, and
           // ensure the correct revision is tagged in Git.
-          if (get_build_type(env.JOB_BASE_NAME) == 'Release') {
+          if (pli.build_type == 'Release') {
             def git_rev_file_name = "${env.JOB_BASE_NAME}-git-revision.sha"
             utilities.write_git_revision_to_file(git_rev_file_name)
             archiveArtifacts(artifacts: git_rev_file_name, fingerprint: true)
