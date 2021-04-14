@@ -7,7 +7,8 @@ obj.move_to_first_page();
 
 while true
     pix_sigvar = sigvar(obj.signal, obj.variance);
-    scalar_sigvar = sigvar(scalar, []);
+    %scalar_sigvar = sigvar(scalar, []);
+    scalar_sigvar = scalar;     % TGP 2021-04-11: to work with new classdef sigvar
 
     [obj.signal, obj.variance] = ...
             sigvar_binary_op_(pix_sigvar, scalar_sigvar, binary_op, flip);

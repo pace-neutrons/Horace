@@ -29,7 +29,8 @@ function obj = do_op_with_no_npix(obj, double_array, binary_op, flip)
         start_idx = (obj.page_number_ - 1)*base_page_size + 1;
         end_idx = min(start_idx + base_page_size - 1, obj.num_pixels);
 
-        double_sigvar = sigvar(double_array(start_idx:end_idx), []);
+        %double_sigvar = sigvar(double_array(start_idx:end_idx), []);
+        double_sigvar = double_array(start_idx:end_idx);     % TGP 2021-04-11: to work with new classdef sigvar
         [obj.signal, obj.variance] = ...
                 sigvar_binary_op_(pix_sigvar, double_sigvar, binary_op, flip);
 
@@ -64,7 +65,8 @@ function obj = do_op_with_npix(obj, double_array, binary_op, flip, npix)
         sig_chunk = repelem(double_array(idx(1):idx(2)), npix_for_page)';
 
         this_sigvar = sigvar(obj.signal, obj.variance);
-        double_sigvar = sigvar(sig_chunk', []);
+        %double_sigvar = sigvar(sig_chunk', []);
+        double_sigvar = sig_chunk';     % TGP 2021-04-11: to work with new classdef sigvar
         [obj.signal, obj.variance] = ...
             sigvar_binary_op_(this_sigvar, double_sigvar, binary_op, flip);
 
