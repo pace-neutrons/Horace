@@ -42,14 +42,12 @@ classdef config_store < handle
                 newStore.config_folder_name_ = ['mprogs_config_',type];
             end
             
-            [is_virtual,build_name,workspace] = is_jenkins();
-            if is_virtual
-                [~,build_name] = fileparts(build_name);
-                newStore.config_folder_name_ = ['mprogs_config_',build_name];
+            [is_jenk,build_name,workspace] = is_jenkins();
+            if is_jenk
                 % remove all possible folder paths of the build name
                 % to be able to create valid file name.
-                newStore.config_folder_ = make_config_folder(newStore.config_folder_name_, workspace);
-                return
+                [~,build_name] = fileparts(build_name);
+                newStore.config_folder_name_ = ['mprogs_config_',build_name];
             end
             
             if ~isempty(newPath)
@@ -62,7 +60,12 @@ classdef config_store < handle
                 end
             else
                 % Initialise default config folder path according to
-                newStore.config_folder_ = make_config_folder(newStore.config_folder_name);
+                % configuration
+                if is_jenk
+                    newStore.config_folder_ = make_config_folder(newStore.config_folder_name, workspace);
+                else
+                    newStore.config_folder_ = make_config_folder(newStore.config_folder_name);
+                end
             end
         end
     end

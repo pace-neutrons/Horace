@@ -2,7 +2,7 @@ classdef test_cluster_wrapper < TestCase
     % Test running using the parpool job dispatcher.
     
     properties
-        stored_config
+        stored_config = 'defaults';
     end
     
     methods
@@ -74,6 +74,10 @@ classdef test_cluster_wrapper < TestCase
         end
         
         function test_cluster_init(~)
+            hrc = herbert_config;
+            hrc.saveable = false;
+            hrc.init_tests = true;
+            
             fii = iMessagesFramework.build_worker_init(tmp_dir, ...
                 'test_cluster_init', 'MessagesFilebased', 0, 3,'test_mode');
             
@@ -156,8 +160,9 @@ classdef test_cluster_wrapper < TestCase
             % clear configuration from memory to ensure the configuration
             % will be rebuild as Jenkins configuration
             config_store.instance().clear_all();
+            %
             obj.test_cluster_init();
-            
+            %
             clear clearJenkinsSignature;
             assertFalse(is_jenkins);
             
