@@ -10,10 +10,9 @@ function the_dir= tmp_dir()
 %
 %            workspace_location//tmp if the machine is identified as Jenkins
 %
-[is_jen,build_name,workspace] = is_jenkins();
+[is_jen,~,workspace] = is_jenkins();
 if is_jen
-    [~,build_name] = fileparts(build_name);
-    [~,the_dir]=try_to_create_folder(workspace,['mprogs_config_',build_name]);
+    the_dir = build_tmp_dir(workspace);
     return
 end
 

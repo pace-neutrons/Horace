@@ -1,6 +1,8 @@
 classdef test_exchange_FileBasedMPI < exchange_common_tests
     
     properties
+        stored_config ='defaults';
+        stored_control;
     end
     methods
         
@@ -286,7 +288,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             assertTrue(isempty(all_mess));
         end
         %------------------------------------------------------------------
-        function clear_jenkins_var(~)
+        function clear_jenkins_var(obj)
             % clear fake Jenkins configuration, for is_jenkins routine
             % returning false
             setenv('JENKINS_URL');
@@ -294,21 +296,29 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             setenv('JENKINS_HOME');
             setenv('JOB_NAME');
             setenv('WORKSPACE');
+            % working dir now is not a jenkins dir
+            obj.working_dir = tmp_dir();
+            % restore configuration
             config_store.instance().clear_all();
+            hc= herbert_config;
+            set(hc,obj.stored_config);
+            hc.init_tests = true;
+            obj.tests_control_strcut = obj.stored_control;
         end
-        function set_up_fake_jenkins(~)
+        function set_up_fake_jenkins(obj)
             % set up fake Jenkins configuration, for is_jenkins routine
             % returning true
             setenv('JENKINS_URL','http://some_url');
             setenv('JOB_URL','http://some_job_url');
             setenv('JENKINS_HOME',tmp_dir);
             setenv('JOB_NAME','JOB_NAME_test_jenkins_fm');
-            setenv('WORKSPACE',fullfile(tmp_dir,'test_jenkins_migration'));
-        end
-        function set_control_back(obj,control_struc)
-            % helper function to return main configuration after fake
-            % jenkins has been clearned up
-            obj.tests_control_strcut = control_struc;
+            setenv('WORKSPACE',fullfile(tmp_dir,'test_fake_jenkins'));
+            % working dir now should be jenkins dir
+            obj.working_dir = tmp_dir();
+            %
+            hrc = herbert_config;
+            obj.stored_config = hrc.get_data_to_store();
+            obj.stored_control = obj.tests_control_strcut;
         end
         %
         function test_folder_migration(this)
@@ -371,63 +381,13 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             clearJenkinsSignature = onCleanup(@()clear_jenkins_var(obj));
             %
             assertTrue(is_jenkins);
-            config_store.instance().clear_all();
+            
             cs  = iMessagesFramework.build_worker_init(tmp_dir, ...
                 'test_FB_message', 'MessagesFilebased', 1, 3,'test_mode');
-            ocs = obj.tests_control_strcut;
-            clearTestFile = onCleanup(@()set_control_back(obj,ocs));
             obj.tests_control_strcut = cs;
             
+            obj.test_folder_migration();
             
-            mf = MessagesFileBasedMPI_mirror_tester();
-            % this overwrites default config folder location!
-            mf.mess_exchange_folder = tmp_dir;
-            mf = mf.init_framework('test_jenkins_folder_migration');
-            clob = onCleanup(@()mf.finalize_all());
-            
-            cfn = config_store.instance().config_folder_name;
-            jfn = fullfile(tmp_dir, cfn,...
-                mf.exchange_folder_name, mf.job_id);
-            pause(1);
-            assertTrue(is_folder(jfn));
-            
-            [ok, err] = mf.send_message(7, 'queued');
-            assertEqual(ok, MESS_CODES.ok)
-            assertTrue(isempty(err));
-            
-            [ok, err, the_mess] = mf.receive_message(7, 'queued');
-            assertEqual(ok, MESS_CODES.ok)
-            assertTrue(isempty(err));
-            assertFalse(isempty(the_mess));
-            assertEqual(the_mess.mess_name, 'queued');
-            
-            [ok, err] = mf.send_message(7, 'queued');
-            assertEqual(ok, MESS_CODES.ok)
-            assertTrue(isempty(err));
-            
-            mf.migrate_message_folder();
-            assertFalse(is_folder(jfn));
-            jnf = fullfile(tmp_dir, cfn, mf.exchange_folder_name, mf.job_id);
-            assertTrue(is_folder(jnf));
-            
-            % message have gone
-            [ok, err, the_mess] = mf.receive_message(7, 'queued');
-            assertEqual(ok, MESS_CODES.ok)
-            assertTrue(isempty(err));
-            assertTrue(isempty(the_mess));
-            
-            [ok, err] = mf.send_message(7, 'queued');
-            assertEqual(ok, MESS_CODES.ok)
-            assertTrue(isempty(err));
-            
-            [ok, err, the_mess] = mf.receive_message(7, 'queued');
-            assertEqual(ok, MESS_CODES.ok)
-            assertTrue(isempty(err));
-            assertFalse(isempty(the_mess));
-            assertEqual(the_mess.mess_name, 'queued');
-            
-            clear clob;
-            assertFalse(is_folder(jnf));
             %
             clear clearJenkinsSignature;
             assertFalse(is_jenkins);
@@ -436,6 +396,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
         function test_shared_folder(this)
             mf = MessagesFileBasedMPI_mirror_tester();
             mf.mess_exchange_folder = this.working_dir;
+            % init changes the name of the test
             mf = mf.init_framework('test_shared_folder');
             clob = onCleanup(@()mf.finalize_all());
             
@@ -469,31 +430,9 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             %
             assertTrue(is_jenkins);
             
-            mf = MessagesFileBasedMPI_mirror_tester();
-            mf.mess_exchange_folder = tmp_dir;
-            mf = mf.init_framework('test_shared_folder');
-            clob = onCleanup(@()mf.finalize_all());
-            
-            cfn = config_store.instance().config_folder_name;
-            jfn = fullfile(tmp_dir, cfn, mf.exchange_folder_name, mf.job_id);
-            pause(1);
-            assertTrue(is_folder(jfn));
-            
-            [ok, err] = mf.send_message(7, 'queued');
-            assertEqual(ok, MESS_CODES.ok)
-            assertTrue(isempty(err));
-            
-            [ok, err, the_mess] = mf.receive_message(7, 'queued');
-            assertEqual(ok, MESS_CODES.ok)
-            assertTrue(isempty(err));
-            assertFalse(isempty(the_mess));
-            assertEqual(the_mess.mess_name, 'queued');
-            
-            clear clob;
-            assertFalse(is_folder(jfn));
+            obj.test_shared_folder();
             
             clear clearJenkinsSignature;
-            config_store.instance().clear_all();
             assertFalse(is_jenkins);
         end
         %------------------------------------------------------------------
