@@ -32,12 +32,6 @@
 - test_rebin.m
     - test_rebin_d1d (no ticket)
 
-- test_combine_sqw.m  (https://github.com/pace-neutrons/Horace/issues/464)
-    - _test_combine1D
-
--  test_gen_sqw_workflow:gen_sqw_accumulate_sqw_tests_common
-    - test_gen_sqw_sym  -- disabled for symetrization ticket: (https://github.com/pace-neutrons/Horace/issues/464)
-
 - test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_herbert.m (https://github.com/pace-neutrons/Horace/issues/597)
     - All tests disabled on Jenkins windows
 
