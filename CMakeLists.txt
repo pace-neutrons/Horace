@@ -28,9 +28,6 @@ set(Horace_DLL_DIRECTORY "${Horace_ROOT}/horace_core/DLL")
 # This is the directory that contains horace_init.m (used in admin/CMakeLists.txt)
 set(Horace_CORE "${CMAKE_CURRENT_LIST_DIR}/horace_core")
 
-# Set our options
-option(BUILD_TESTS "Build the C++ tests" ON)
-
 # Look for packages early so we can exit if they're not found
 find_package(Herbert REQUIRED)
 find_package(OpenMP)
@@ -44,15 +41,15 @@ include(PACE_Version)
 set(PACE_MLINT_IGNORE ${PACE_MLINT_IGNORE} "${Herbert_ROOT}/**/*.m")
 
 include(PACE_CodeAnalysis)
-if(${BUILD_TESTS})
-    include(CTest)
+include(CTest)
+if(BUILD_TESTING)
     include(PACE_FindGTest)
     enable_testing()
 endif()
 include(PACE_Docs)
 
 add_subdirectory("_LowLevelCode")
-if(${BUILD_TESTS})
+if(BUILD_TESTING)
     add_subdirectory("_test")
 endif()
 add_subdirectory("admin")
