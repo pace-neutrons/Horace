@@ -6,7 +6,7 @@ file(MAKE_DIRECTORY ${LOCAL_INIT_DIR})
 # parallel workers can access herbert_on/worker scripts.
 # Note that LOCAL_INIT_DIR is defined in the top-level CMakeLists
 configure_file("herbert_on.m.template" "${LOCAL_INIT_DIR}/herbert_on.m")
-if(${BUILD_TESTS})
+if(BUILD_TESTING)
     configure_file("worker_4tests.m.template" "${LOCAL_INIT_DIR}/worker_4tests.m")
 endif()
 configure_file("worker_v2.m.template" "${LOCAL_INIT_DIR}/worker_v2.m")
