@@ -155,7 +155,6 @@ pipeline {
             if (herbert_ref.startsWith('Error: ')) {
               error(herbert_ref)
             }
-            println "Before shell"
             // Get Herbert from GitHub and call the build script
             if (isUnix()) {
               sh """
@@ -177,7 +176,6 @@ pipeline {
                     -matlab_release \$env:MATLAB_VERSION\"
               """
             }
-            println "After shell"
           }
         }
       }
