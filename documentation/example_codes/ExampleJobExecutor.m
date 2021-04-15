@@ -2,8 +2,8 @@
 % and where they come from
 classdef ExampleJobExecutor < JobExecutor
     methods
-        function obj = ExampleJobExecutor()
         % Constructor cannot take args as constructed by JobDispatcher
+        function obj = ExampleJobExecutor()
         end
 
         function obj=reduce_data(obj)
@@ -15,23 +15,27 @@ classdef ExampleJobExecutor < JobExecutor
         end
 
         function obj = do_job(obj)
-        % Run once per iteration if "is_completed" does not return true
+            % Run once per iteration if "is_completed" does not return true
 
-       %% Data
-        % Each job executor will have access to the following data
-        % Each datum is local, and if changed, copy will update on local process only
+           %% Data
+            % Each job executor will have access to the following data
+            % Each datum is local, and if changed, copy will update on local process only
 
-        % Either an empty array if given int loop count or
-        % data passed through start_job's loop_params
+            % Either an empty array if given int loop count or
+            % data passed through start_job's loop_params
             obj.loop_data_
-        % Same copy of data initially sent to each process
-        % passed through start_job's common_params.
+
+            % Same copy of data initially sent to each process
+            % passed through start_job's common_params.
             obj.common_data_
-        % Number of iterations given if job given number of loops
+
+            % Number of iterations given if job given number of loops
             obj.n_steps
-        % Value returned to outputs
+
+            % Value returned to outputs
             obj.task_outputs
-        % Internal ID of this process
+
+            % Internal ID of this process
             obj.labIndex
         end
     end

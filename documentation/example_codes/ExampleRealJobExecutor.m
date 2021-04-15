@@ -9,7 +9,6 @@ classdef ExampleRealJobExecutor < JobExecutor
 
     methods
         function obj = ExampleRealJobExecutor()
-        % Constructor cannot take args as constructed by JobDispatcher
         end
 
         function obj=reduce_data(obj)
@@ -37,7 +36,6 @@ classdef ExampleRealJobExecutor < JobExecutor
             if ~ok
                 error('HORACE:ExampleRealJobExecutor:send_error', err_mess)
             end
-
 
             % Recieve the data
             [ok, err_mess, data] = obj.mess_framework.recieve_message(mod(obj.labIndex + 3,4)+1, 'any');
