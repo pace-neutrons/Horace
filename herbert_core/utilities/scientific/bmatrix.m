@@ -56,10 +56,8 @@ elseif min(alatt)<= 0
         b = [];
         arlu = [];
         angrlu = [];
-        
         return
     end
-    
     
 end
 

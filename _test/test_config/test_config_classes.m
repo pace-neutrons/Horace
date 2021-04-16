@@ -142,7 +142,7 @@ classdef test_config_classes< TestCase
             clob = onCleanup(@()set(pc,old_config));
             
             f = @()set(pc,'worker','non_existing_worker');
-            assertExceptionThrown(f,'PARALLEL_CONFIG:invalid_argument')
+            assertExceptionThrown(f,'PARALLEL_CONFIG:invalid_argument');
         end
         
     end

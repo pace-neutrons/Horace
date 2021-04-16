@@ -1,9 +1,7 @@
 classdef test_job_dispatcher_mpiexec < job_dispatcher_common_tests
 
-    properties
-    end
     methods
-        %
+
         function this=test_job_dispatcher_mpiexec(name)
             if ~exist('name', 'var')
                 name = 'test_job_dispatcher_mpiexec';
@@ -16,5 +14,7 @@ classdef test_job_dispatcher_mpiexec < job_dispatcher_common_tests
             mpiexec_path = ClusterMPI.get_mpiexec();
             assertTrue(isfile(mpiexec_path));
         end
+
    end
+
 end

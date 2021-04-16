@@ -1,4 +1,4 @@
-function assertExceptionThrown(f, expectedId, custom_message)
+function exception = assertExceptionThrown(f, expectedId, custom_message)
 %assertExceptionThrown Assert that specified exception is thrown
 %   assertExceptionThrown(F, expectedId) calls the function handle F with no
 %   input arguments.  If the result is a thrown exception whose identifier is
@@ -10,6 +10,10 @@ function assertExceptionThrown(f, expectedId, custom_message)
 %
 %   assertExceptionThrown(F, expectedId, msg) prepends the string msg to the
 %   assertion message.
+%
+%   Return
+%   ------
+%   exception  The MException that was thrown by f.
 %
 %   Example
 %   -------
@@ -30,7 +34,7 @@ noException = false;
 try
     f();
     noException = true;
-    
+
 catch exception
     if strcmp(exception.identifier,'MATLAB:subsasgnMustHaveOutput')
         try
