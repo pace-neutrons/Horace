@@ -5,8 +5,8 @@ function out = arrayfun(fun,array,varargin)
 % features as a new style classes should have Matlab native arrayfun
 % function availible.
 
-% It does not process multiple fun arguments and fails strangely on finding
-% one
+% It does not process multiple fun arguments and fails strangely on
+% encountering one
 
 if ~isa(fun,'function_handle')
     error('HORACE:sqw:invalid_argument',...

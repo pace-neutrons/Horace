@@ -1,18 +1,18 @@
 classdef test_combine_sqw < TestCase
-    % Test fake_sqw routine
+    % Test for combining sqw objects
     %
     %---------------------------------------------------------------------
     % Usage:
     %
-    %>>runtests test_fake_sqw
+    %>>runtests test_combine_sqw
     % run all unit tests class contains
     % or
-    %>>runtests test_fake_sqw:test_det_from_q
+    %>>runtests test_combine_sqw:test_combine1D
     %run the particular test
     % or
-    %>>tc = test_gen_sqw_accumulate_sqw_sep_session();
-    %>>tc.test_det_from_q()
-    %Run particular test saving construction time.
+    %>>tc = test_combine_sqw();
+    %>>tc.test_combine1D()
+    % -- Runs particular test saving construction time.
     properties
         working_dir
         % test parameters file, used in fake_sqw calculations
@@ -64,26 +64,30 @@ classdef test_combine_sqw < TestCase
         end
         %
         function test_combine1D(obj)
-            % this is to fix in a future. There is problem with orhtogonal
-            % coordinate system
+            % The test for combining in non-orthogonal coordinate system
+            %
+            % TODO:
+            % original sqw format has issues with nonorhtogonal system,
+            % so the format (and test) need to be modified to fix this issue
             
             img_db_range = obj.sqw_sample_gen.data.img_db_range;
-            %TODO: this is issue to resolve on refactoring. 
+            %TODO: this is issue to resolve on refactoring.
             %  img_db_range generated with non-orthogonal lattice is equal
-            %  to pix_range, when in fact it should be diffetent (see cut_source_range).
-            proj = projection(projaxes([1,0,0],[0,1,0]));            
+            %  to pix_range, when in fact it should be diffetent
+            % (see cut_source_range below).
+            proj = projection(projaxes([1,0,0],[0,1,0]));
             proj.alatt = obj.sqw_sample_gen.data.alatt;
-            proj.angdeg = obj.sqw_sample_gen.data.angdeg;            
+            proj.angdeg = obj.sqw_sample_gen.data.angdeg;
             pr = obj.sqw_sample_gen.data.pix.pix_range;
             full_pix_range = expand_box(pr(1,:), pr(2,:));
             img_range = proj.transform_pix_to_img(full_pix_range);
             cut_source_range = [min(img_range,[],2),max(img_range,[],2)]';
-            %            
-            cut_range = [min(img_db_range(1,:),cut_source_range(1,:));... 
+            %
+            cut_range = [min(img_db_range(1,:),cut_source_range(1,:));...
                 max(img_db_range(2,:),cut_source_range(2,:))];
             %
             npix0 = obj.sqw_sample_gen.data.num_pixels;
-
+            
             range1 = cut_range (:,1);
             dR = range1(2)-range1(1);
             bin_range = [range1(1),dR/100,range1(2)];
@@ -141,7 +145,6 @@ classdef test_combine_sqw < TestCase
             npix_tot = comb_res.data.num_pixels;
             assertEqual(npix_tot,n_pix1+n_pix2);
         end
-        
         %
         function test_combine4D_gen(obj)
             
