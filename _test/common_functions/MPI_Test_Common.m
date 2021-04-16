@@ -83,7 +83,7 @@ classdef MPI_Test_Common < TestCase
             %
             if ~set_framework
                 obj.ignore_test = true;
-                obj.ignore_cause = 'The framework: ', obj.cluster_name, ' can not be enabled so is not tested';
+                obj.ignore_cause = ['The framework: ', obj.cluster_name, ' can not be enabled so is not tested'];
 % $$$                 hc = herbert_config;
 % $$$                 if hc.log_level>0
 % $$$                     warning('MPI_TEST_COMMON:not_availible',...

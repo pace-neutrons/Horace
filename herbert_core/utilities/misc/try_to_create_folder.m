@@ -7,7 +7,7 @@ function [success,folder_path,mess]=try_to_create_folder(location,folder_name,ex
 % location       -- the topmost location, where the folder should be created
 % folder_name    -- the name of the folder to create
 % ext            -- if present, part of the name to add to test folder
-%                   created to verify wrtie access to the base folder.
+%                   created to verify write access to the base folder.
 %
 % Returns:
 % success     -- true if the folder is created and available for writing or
@@ -43,4 +43,3 @@ else
         end
     end
 end
-

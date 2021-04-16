@@ -27,32 +27,46 @@ classdef config_store < handle
         % Singleton superclass.
         function newStore = config_store(varargin)
             % create and initialize config_store;
+            p = inputParser;
+            addOptional(p, 'path', '', @(x)(validateattributes(x,...
+                {'char', 'string'}, {'scalartext', 'nonempty'})));
+            parse(p, varargin{:});
+            newPath = p.Results.path;
+            
+            % initialize configurations storage.
+            newStore.config_storage_ = struct();
+            newStore.saveable_ = containers.Map();
+            
             [is_virtual,type]=is_idaaas();
             if is_virtual
                 newStore.config_folder_name_ = ['mprogs_config_',type];
             end
-            [is_virtual,build_name] = is_jenkins();
-            if is_virtual
-                [~,build_name] = fileparts(build_name); % remove all possible folder path's of the build name 
+            
+            [is_jenk,build_name,workspace] = is_jenkins();
+            if is_jenk
+                % remove all possible folder paths of the build name
                 % to be able to create valid file name.
+                [~,build_name] = fileparts(build_name);
                 newStore.config_folder_name_ = ['mprogs_config_',build_name];
             end
             
-            if nargin>0
-                [fp,fn] = fileparts(varargin{1});
+            if ~isempty(newPath)
+                [fp,fn] = fileparts(newPath);
                 cfn = config_store.instance().config_folder_name;
                 if strcmpi(fn,cfn)
                     newStore.config_folder_ = make_config_folder(cfn,fp);
                 else
-                    newStore.config_folder_ = make_config_folder(cfn,varargin{1});
+                    newStore.config_folder_ = make_config_folder(cfn,newPath);
                 end
             else
                 % Initialise default config folder path according to
-                newStore.config_folder_ = make_config_folder(newStore.config_folder_name);
+                % configuration
+                if is_jenk
+                    newStore.config_folder_ = make_config_folder(newStore.config_folder_name, workspace);
+                else
+                    newStore.config_folder_ = make_config_folder(newStore.config_folder_name);
+                end
             end
-            % initialize configurations storage.
-            newStore.config_storage_ = struct();
-            newStore.saveable_ = containers.Map();
         end
     end
     
@@ -363,5 +377,3 @@ classdef config_store < handle
         
     end
 end
-
-
