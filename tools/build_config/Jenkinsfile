@@ -1,150 +1,25 @@
 #!groovy
 
-def get_matlab_release(String job_name) {
-  return 'R' + job_name[-5..-1]
-}
+@Library('PACE-shared-lib') import pace.common.PipeLineInfo
 
-def get_build_type(String job_name) {
-  if (job_name.startsWith('Release-')) {
-    return 'Release'
-  } else if (job_name.startsWith('Branch-')) {
-    return 'Branch'
-  } else if(job_name.startsWith('PR-')) {
-    return 'Pull-request'
-  } else {
-    return 'Nightly'
-  }
-}
-
-def get_agent(String job_name) {
-  if (job_name.contains('Scientific-Linux-7')) {
-    withCredentials([string(credentialsId: 'sl7_agent', variable: 'agent')]) {
-      return "${agent}"
-    }
-  } else if (job_name.contains('Windows-10')) {
-    withCredentials([string(credentialsId: 'win10_agent', variable: 'agent')]) {
-      return "${agent}"
-    }
-  } else {
-    return ''
-  }
-}
-
-def get_release_type(String job_name) {
-  String build_type = get_build_type(job_name);
-
-  switch(build_type) {
-    case 'Release':
-      return 'release'
-
-    case 'Pull-request':
-      return 'pull_request'
-
-    case 'Nightly':
-      return 'nightly'
-
-    default:
-      return ''
-  }
-}
-
-def get_branch_name(String job_name) {
-  String build_type = get_build_type(job_name);
-
-  switch(build_type) {
-    case 'Nightly':
-      return 'master'
-
-    default:
-      return ''
-  }
-}
-
-String get_param(String param_name, String default_val) {
-  // Return environment variable if present and non-empty
-  // Else return default
-  String value = "";
-  try {
-    value = env."${param_name}";
-  } catch (groovy.lang.MissingPropertyException _) { }
-  if (!value) {
-    value = default_val;
-  }
-  println "${param_name} = ${value}"
-  return value
-}
-
-def post_github_status(String state, String message) {
-  // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
-  // want to post any statuses to Git
-  if (env.PR_STATUSES_URL) {
-    script {
-      withCredentials([string(credentialsId: 'GitHub_API_Token',
-                              variable: 'api_token')]) {
-        if (isUnix()) {
-          sh """
-            curl -H "Authorization: token \${api_token}" \
-              --request POST \
-              --data '{"state": "${state}", \
-                "description": "${message}", \
-                "target_url": "$BUILD_URL", \
-                "context": "$JOB_BASE_NAME"}' \
-              $PR_STATUSES_URL > /dev/null
-            """
-        }
-        else {
-          powershell """
-            [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
-            \$payload = @{
-              "state" = "${state}";
-              "description" = "${message}";
-              "target_url" = "$BUILD_URL";
-              "context" = "$JOB_BASE_NAME"}
-
-            Invoke-RestMethod -URI "$PR_STATUSES_URL" \
-              -Headers @{Authorization = "token \$env:api_token"} \
-              -Method 'POST' \
-              -Body (\$payload|ConvertTo-JSON) \
-              -ContentType "application/json"
-          """
-        }
-      }
-    }
-  }
-}
-
-def write_git_revision_to_file(String file_name) {
-  script {
-    def git_rev_cmd = "git rev-parse HEAD"
-    echo "Writing Git revision to ${file_name}..."
-    if (isUnix()) {
-      sh """
-        echo "\$(${git_rev_cmd})" > ${file_name}
-      """
-    } else {
-      powershell """
-        Write-Output "\$(${git_rev_cmd})" > ${file_name}
-      """
-    }
-  }
-}
+pli = new PipeLineInfo(env.JOB_BASE_NAME)
 
 properties([
   parameters([
     string(
-      defaultValue: get_branch_name(env.JOB_BASE_NAME),
+      defaultValue: pli.branch_name,
       description: 'The name of the branch to build. Affects non-PR builds only. *',
       name: 'BRANCH_NAME',
       trim: true
     ),
     string(
-      defaultValue: get_release_type(env.JOB_BASE_NAME),
+      defaultValue: pli.release_type,
       description: 'The type of the build e.g. "nightly", "release", "pull_request". *',
       name: 'RELEASE_TYPE',
       trim: true
     ),
     string(
-      defaultValue: get_agent(env.JOB_BASE_NAME),
+      defaultValue: utilities.get_agent(pli.os),
       description: 'The agent to execute the pipeline on. *',
       name: 'AGENT',
       trim: true
@@ -198,11 +73,11 @@ pipeline {
   }
 
   environment {
-    MATLAB_VERSION = get_param('MATLAB_VERSION', get_matlab_release(env.JOB_BASE_NAME))
-    CMAKE_VERSION = get_param('CMAKE_VERSION', '3.19')
-    GCC_VERSION = get_param('GCC_VERSION', '6.3.0')
-    VS_VERSION = get_param('VS_VERSION', '2017')
-    CPPCHECK_VERSION = get_param('CPPCHECK_VERSION', '1.77')
+    MATLAB_VERSION = utilities.get_param('MATLAB_VERSION', pli.matlab_release)
+    CMAKE_VERSION = utilities.get_param('CMAKE_VERSION', '3.19')
+    GCC_VERSION = utilities.get_param('GCC_VERSION', '6.3.0')
+    VS_VERSION = utilities.get_param('VS_VERSION', '2017')
+    CPPCHECK_VERSION = utilities.get_param('CPPCHECK_VERSION', '1.77')
   }
 
 
@@ -337,9 +212,9 @@ pipeline {
           // Archive a file containing the git revision being built. This
           // enables the Deploy pipelines to validate against this SHA, and
           // ensure the correct revision is tagged in Git.
-          if (get_build_type(env.JOB_BASE_NAME) == 'Release') {
+          if (pli.build_type == 'Release') {
             def git_rev_file_name = "${env.JOB_BASE_NAME}-git-revision.sha"
-            write_git_revision_to_file(git_rev_file_name)
+            utilities.write_git_revision_to_file(git_rev_file_name)
             archiveArtifacts(artifacts: git_rev_file_name, fingerprint: true)
           }
         }
