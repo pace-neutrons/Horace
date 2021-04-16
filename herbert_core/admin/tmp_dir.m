@@ -5,10 +5,10 @@ function the_dir= tmp_dir()
 % Returns:
 % tmp_dir   tempdir value on any machine
 %
-%            userpath()/tmp    (usually /home/user_name/Documents/MATLAB/tmp)
+%            userpath()/tmp/   (usually /home/user_name/Documents/MATLAB/tmp/)
 %            folder if the machine is identified as iDaaaaS machine.
 %
-%            workspace_location//tmp if the machine is identified as Jenkins
+%            workspace_location//tmp/ if the machine is identified as Jenkins
 %
 [is_jen,~,workspace] = is_jenkins();
 if is_jen
@@ -26,12 +26,6 @@ if is_idaaas()
     end
     the_dir = build_tmp_dir(location);
     
-    % dereference simulinks and obtain real path
-    [~,fatr] = fileattrib(the_dir);
-    the_dir = [fatr.Name,filesep];
-    if ~(is_folder(the_dir))
-        mkdir(the_dir);
-    end
 else
     the_dir = tempdir();
 end
@@ -46,4 +40,11 @@ if ~(is_folder(the_dir))
             location,mess);
         the_dir = tempdir();
     end
+end
+%
+% dereference simulinks and obtain real path
+[~,fatr] = fileattrib(the_dir);
+the_dir = [fatr.Name,filesep];
+if ~is_folder(the_dir)
+    mkdir(the_dir);
 end
