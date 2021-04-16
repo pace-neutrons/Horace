@@ -10,18 +10,18 @@ function wout=combine_sqw(w1,varargin)
 %  Note that all objects must be
 % "true" sqw object, for which pixel information has been retained.
 %
-% The dimensionality of a cut will be defined by the dimencionality of the
+% The dimensionality of a cut will be defined by the dimensionality of the
 % first sqw object,i.e. if first sqw object is 1D cut in h-direction,
 % the result would be 1D cut in h direction.
 % The cut ranges and integration ranges will be expanded to cover
-% the range of all sqw objects but the step of the cut will be equal to the
-% step of the cut in the first direction.
+% the range of all sqw objects to combine but the binning steps of the result
+% are equal to the binning steps of the first combined sqw object.
 %
-% The most common case of combining is combining twh sqw objects with
+% The most common case of combining is combining two sqw objects with
 % similar geometry i.e. combination of two sqw objects which are the 1D
-% cuts along x-axis
+% cuts along x-axis made at different y-points
 %
-% Attempt to combine sqw objects with different lattices would work produsing
+% Attempt to combine sqw objects with different lattices would work producing
 % the object with the lattice of the first sqw object but the result would
 % not have the physical meaning.
 %
@@ -30,11 +30,11 @@ function wout=combine_sqw(w1,varargin)
 % output for which the stated value of L is L=1.5
 %
 % Sqw objects which use different projection axes can be combined. The
-% output object will have the projection axes of w1.
+% output object will have the projection axes of the first object.
 %
 % RAE 21/1/10
 %
-% AB: 16/04/21 fully refactored using generic projection interface
+% AB: 16/04/21 fully refactored using generic projection interface.
 %
 if nargin<2
     error('HORACE:combine_sqw:invalid_argumen',...
@@ -44,7 +44,7 @@ end
 if iscell(varargin{1})
     if nargin>2
         error('HORACE:combine_sqw:invalid_argumen',...
-            'if second argument is cellarray, combine_sqw can only accept 2 argunents');
+            'if second argument is a cellarray of sqw objects, combine_sqw can only accept 2 arguments');
     end
     inputs = [w1,varargin{1}{:}];
 else
@@ -81,8 +81,14 @@ all_proj_block = arrayfun(@(ws)(ws.data.get_projection()),inputs,...
 % transform the ranges into common coordinate system
 full_pix_rng = cellfun(@(proj,data)(proj.transform_img_to_pix(data)),...
     all_proj_block,full_img_rng,'UniformOutput',false);
+% remove offsets (offsets are in Crystal Cartesian (e.g. pix coordinates)
+offsets = arrayfun(@(x)(x.data.uoffset),inputs,...
+    'UniformOutput',false); % presumably in pix_ranges
+full_pix_rng  = cellfun(@(range,offset)(range + repmat(offset,1,16)),...
+    full_pix_rng,offsets,'UniformOutput',false);
 
-% do transformation into the first sqw obj coordinate frame
+
+% do transformation into the first sqw object image coordinate frame
 proj1 = all_proj_block{1};
 full_img_rng = cellfun(@(data)(proj1.transform_pix_to_img(data)),...
     full_pix_rng,'UniformOutput',false);
@@ -130,9 +136,9 @@ cleanup_obj=onCleanup(@()set(hor_config,'log_level',info_level));
 set(hor_config,'log_level',-1);
 
 % completely break relationship between bins and pixels in memory and make
-% all pixels contribute into single large bin. 
-% TODO: refactor and make applicable for file-based operations 
-% 
+% all pixels contribute into single large bin.
+% TODO: refactor and make applicable for file-based operations
+%
 wout.data.img_db_range = combine_range ;
 
 wout.data.pax = 1:4;
