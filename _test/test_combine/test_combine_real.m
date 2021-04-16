@@ -23,6 +23,8 @@ classdef test_combine_real < TestCase
             % Create the data (should not need to do this again)
             % Use sqw file on RAE's laptop to perform tests. Data saved to a .mat file on SVN server
             % for validation by others.
+            % Now these data are also stored on SAN area where PACE data
+            % for tests are stored. PCMO\ei140
             data_source='C:\Russell\PCMO\ARCS_Oct10\Data\SQW\ei140.sqw';
             proj.u=[1,1,0]; proj.v=[-1,1,0]; proj.type='rrr';
             

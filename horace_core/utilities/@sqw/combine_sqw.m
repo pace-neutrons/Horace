@@ -37,13 +37,13 @@ function wout=combine_sqw(w1,varargin)
 % AB: 16/04/21 fully refactored using generic projection interface.
 %
 if nargin<2
-    error('HORACE:combine_sqw:invalid_argumen',...
+    error('HORACE:combine_sqw:invalid_argument',...
         'routine needs at least two arguments');
 end
 %
 if iscell(varargin{1})
     if nargin>2
-        error('HORACE:combine_sqw:invalid_argumen',...
+        error('HORACE:combine_sqw:invalid_argument',...
             'if second argument is a cellarray of sqw objects, combine_sqw can only accept 2 arguments');
     end
     inputs = [w1,varargin{1}{:}];
@@ -52,8 +52,10 @@ else
 end
 right_type = arrayfun(@(x)is_sqw_type(x),inputs);
 if ~all(right_type)
-    error('HORACE:combine_sqw:invalid_argumen',...
-        'input objects must be sqw type with detector pixel information');
+    n_empty = numel(right_type)-sum(right_type);
+    error('HORACE:combine_sqw:invalid_argument',...
+        'Input objects must be sqw type with detector pixel information. Input contans %d objects without pixels',...
+        n_empty);
 end
 % Ignore empty datasets
 is_empty = arrayfun(@(x)(x.data.pix.num_pixels == 0),inputs);
@@ -61,12 +63,13 @@ if all(is_empty)
     wout= w1;
     return;
 end
-if any(is_empty)
-    inputs = inputs(~is_empty);
-    if numel(inputs) == 1
-        return;
-    end
+
+inputs = inputs(~is_empty);
+if numel(inputs) == 1
+    wout = copy(inputs(1));
+    return;
 end
+
 %
 % calculate real image ranges for all datasets. Transform the ranges into
 % the coordinate frame of the first dataset
