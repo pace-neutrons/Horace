@@ -1432,10 +1432,10 @@ else
         %must strip out square brackets, if user has inserted them:
         s1=strfind(a1,'['); s2=strfind(a1,']');
         if isempty(s1) && isempty(s2)
-            a1new=strread(a1,'%f','delimiter',',');
+            a1new=textscan(a1,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             a1=a1(s1+1:s2-1);
-            a1new=strread(a1,'%f','delimiter',',');
+            a1new=textscan(a1,'%f','delimiter',',');
         else
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
@@ -1445,10 +1445,10 @@ else
         end
         s1=strfind(a2,'['); s2=strfind(a2,']');
         if isempty(s1) && isempty(s2)
-            a2new=strread(a2,'%f','delimiter',',');
+            a2new=textscan(a2,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             a2=a2(s1+1:s2-1);
-            a2new=strread(a2,'%f','delimiter',',');
+            a2new=textscan(a2,'%f','delimiter',',');
         else
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
@@ -1458,10 +1458,10 @@ else
         end
         s1=strfind(a3,'['); s2=strfind(a3,']');
         if isempty(s1) && isempty(s2)
-            a3new=strread(a3,'%f','delimiter',',');
+            a3new=textscan(a3,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             a3=a3(s1+1:s2-1);
-            a3new=strread(a3,'%f','delimiter',',');
+            a3new=textscan(a3,'%f','delimiter',',');
         else
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
@@ -1471,10 +1471,10 @@ else
         end
         s1=strfind(a4,'['); s2=strfind(a4,']');
         if isempty(s1) && isempty(s2)
-            a4new=strread(a4,'%f','delimiter',',');
+            a4new=textscan(a4,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             a4=a4(s1+1:s2-1);
-            a4new=strread(a4,'%f','delimiter',',');
+            a4new=textscan(a4,'%f','delimiter',',');
         else
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
@@ -1969,7 +1969,7 @@ if manspec==nummax
         %must strip out square brackets, if user has inserted them:
         s1=strfind(lostephi,'['); s2=strfind(lostephi,']');
         if isempty(s1) && isempty(s2)
-            lostephinew{1}=strread(lostephi,'%f','delimiter',',');
+            lostephinew{1}=textscan(lostephi,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             if length(s1)~=length(s2)
                 mess1='Ensure manual rebinning is of form [lo1,step1,hi1], [step], or []';
@@ -1985,7 +1985,7 @@ if manspec==nummax
             end
             for i=1:numel(s1)
                 lostephi_tmp=lostephi(s1(i)+1:s2(i)-1);
-                lostephinew{i}=strread(lostephi_tmp,'%f','delimiter',',');
+                lostephinew{i}=textscan(lostephi_tmp,'%f','delimiter',',');
             end
         else
             mess1='Ensure manual rebinning is of form [lo1,step1,hi1], [step], or []';
@@ -2363,10 +2363,10 @@ if midspec==midmax
         %must strip out square brackets, if user has inserted them:
         s1=strfind(midpoint,'['); s2=strfind(midpoint,']');
         if isempty(s1) && isempty(s2)
-            midpointnew=strread(midpoint,'%f','delimiter',',');
+            midpointnew=textscan(midpoint,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             midpoint=midpoint(s1+1:s2-1);
-            midpointnew=strread(midpoint,'%f','delimiter',',');
+            midpointnew=textscan(midpoint,'%f','delimiter',',');
         else
             mess1='Ensure midpoint is of form [val] for 1d, or [val_x,val_y] for 2d';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -2399,10 +2399,10 @@ else
         %must strip out square brackets, if user has inserted them:
         s1=strfind(v1,'['); s2=strfind(v1,']');
         if isempty(s1) && isempty(s2)
-            v1new=strread(v1,'%f','delimiter',',');
+            v1new=textscan(v1,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             v1=v1(s1+1:s2-1);
-            v1new=strread(v1,'%f','delimiter',',');
+            v1new=textscan(v1,'%f','delimiter',',');
         else
             mess1='Ensure v1 is of form [a,b,c]';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -2421,10 +2421,10 @@ else
         %must strip out square brackets, if user has inserted them:
         s1=strfind(v2,'['); s2=strfind(v2,']');
         if isempty(s1) && isempty(s2)
-            v2new=strread(v2,'%f','delimiter',',');
+            v2new=textscan(v2,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             v2=v2(s1+1:s2-1);
-            v2new=strread(v2,'%f','delimiter',',');
+            v2new=textscan(v2,'%f','delimiter',',');
         else
             mess1='Ensure v2 is of form [a,b,c]';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -2445,10 +2445,10 @@ else
             %must strip out square brackets, if user has inserted them:
             s1=strfind(v3,'['); s2=strfind(v3,']');
             if isempty(s1) && isempty(s2)
-                v1new=strread(v3,'%f','delimiter',',');
+                v1new=textscan(v3,'%f','delimiter',',');
             elseif ~isempty(s1) && ~isempty(s2)
                 v3=v3(s1+1:s2-1);
-                v3new=strread(v3,'%f','delimiter',',');
+                v3new=textscan(v3,'%f','delimiter',',');
             else
                 mess1='Ensure v3 is of form [a,b,c]';
                 set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -2822,10 +2822,10 @@ if tolspec==nummax
         %must strip out square brackets, if user has inserted them:
         s1=strfind(tol,'['); s2=strfind(tol,']');
         if isempty(s1) && isempty(s2)
-            tolnew=strread(tol,'%f','delimiter',',');
+            tolnew=textscan(tol,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             tol=tol(s1+1:s2-1);
-            tolnew=strread(tol,'%f','delimiter',',');
+            tolnew=textscan(tol,'%f','delimiter',',');
         else
             mess1='Ensure tolerance is of form [tol1,tol2,...], depending on the dimensionality';
             set(handles.message_info_text,'String',mess1);
@@ -4485,8 +4485,8 @@ if isempty(u) || isempty(v)
     return;
 else
     try
-        u=strread(u,'%f','delimiter',',');
-        v=strread(v,'%f','delimiter',',');
+        u=textscan(u,'%f','delimiter',',');
+        v=textscan(v,'%f','delimiter',',');
         if numel(u)~=3 || numel(v)~=3
             mess='u and v must comprise 3 numbers specifying h, k, and l of projection axes';
             set(handles.message_info_text,'String',char({mess_initialise,mess}));
@@ -4494,7 +4494,7 @@ else
             return;
         end
         if ~isempty(w)
-            w=strread(w,'%f','delimiter',',');
+            w=textscan(w,'%f','delimiter',',');
         end
     catch
         mess='Check the format of the vectors u, v, and/or w. They must be numeric with 3 elements';
@@ -4545,10 +4545,10 @@ else
         %must strip out square brackets, if user has inserted them:
         s1=strfind(a1,'['); s2=strfind(a1,']');
         if isempty(s1) && isempty(s2)
-            a1new=strread(a1,'%f','delimiter',',');
+            a1new=textscan(a1,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             a1=a1(s1+1:s2-1);
-            a1new=strread(a1,'%f','delimiter',',');
+            a1new=textscan(a1,'%f','delimiter',',');
         else
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
@@ -4558,10 +4558,10 @@ else
         end
         s1=strfind(a2,'['); s2=strfind(a2,']');
         if isempty(s1) && isempty(s2)
-            a2new=strread(a2,'%f','delimiter',',');
+            a2new=textscan(a2,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             a2=a2(s1+1:s2-1);
-            a2new=strread(a2,'%f','delimiter',',');
+            a2new=textscan(a2,'%f','delimiter',',');
         else
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
@@ -4571,10 +4571,10 @@ else
         end
         s1=strfind(a3,'['); s2=strfind(a3,']');
         if isempty(s1) && isempty(s2)
-            a3new=strread(a3,'%f','delimiter',',');
+            a3new=textscan(a3,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             a3=a3(s1+1:s2-1);
-            a3new=strread(a3,'%f','delimiter',',');
+            a3new=textscan(a3,'%f','delimiter',',');
         else
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
@@ -4584,10 +4584,10 @@ else
         end
         s1=strfind(a4,'['); s2=strfind(a4,']');
         if isempty(s1) && isempty(s2)
-            a4new=strread(a4,'%f','delimiter',',');
+            a4new=textscan(a4,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             a4=a4(s1+1:s2-1);
-            a4new=strread(a4,'%f','delimiter',',');
+            a4new=textscan(a4,'%f','delimiter',',');
         else
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
@@ -5284,10 +5284,10 @@ else
         %must strip out square brackets, if user has inserted them:
         s1=strfind(u,'['); s2=strfind(u,']');
         if isempty(s1) && isempty(s2)
-            unew=strread(u,'%f','delimiter',',');
+            unew=textscan(u,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             u=u(s1+1:s2-1);
-            unew=strread(u,'%f','delimiter',',');
+            unew=textscan(u,'%f','delimiter',',');
         else
             mess1='Ensure u is a 3-element vector with comma-separated elements';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5296,10 +5296,10 @@ else
         end
         s1=strfind(v,'['); s2=strfind(v,']');
         if isempty(s1) && isempty(s2)
-            vnew=strread(v,'%f','delimiter',',');
+            vnew=textscan(v,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             v=v(s1+1:s2-1);
-            vnew=strread(v,'%f','delimiter',',');
+            vnew=textscan(v,'%f','delimiter',',');
         else
             mess1='Ensure v is a 3-element vector with comma-separated elements';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5308,10 +5308,10 @@ else
         end
         s1=strfind(efix,'['); s2=strfind(efix,']');
         if isempty(s1) && isempty(s2)
-            efixnew=strread(efix,'%f','delimiter',',');
+            efixnew=textscan(efix,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             efix=efix(s1+1:s2-1);
-            efixnew=strread(efix,'%f','delimiter',',');
+            efixnew=textscan(efix,'%f','delimiter',',');
         else
             mess1='Ensure incident energy is a single number';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5320,10 +5320,10 @@ else
         end
         s1=strfind(alatt,'['); s2=strfind(alatt,']');
         if isempty(s1) && isempty(s2)
-            alattnew=strread(alatt,'%f','delimiter',',');
+            alattnew=textscan(alatt,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             alatt=alatt(s1+1:s2-1);
-            alattnew=strread(alatt,'%f','delimiter',',');
+            alattnew=textscan(alatt,'%f','delimiter',',');
         else
             mess1='Ensure lattice parameters are a 3-element vector with comma-separated elements';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5332,10 +5332,10 @@ else
         end
         s1=strfind(angdeg,'['); s2=strfind(angdeg,']');
         if isempty(s1) && isempty(s2)
-            angdegnew=strread(angdeg,'%f','delimiter',',');
+            angdegnew=textscan(angdeg,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             angdeg=angdeg(s1+1:s2-1);
-            angdegnew=strread(angdeg,'%f','delimiter',',');
+            angdegnew=textscan(angdeg,'%f','delimiter',',');
         else
             mess1='Ensure lattice angles are a 3-element vector with comma-separated elements';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5344,10 +5344,10 @@ else
         end
         s1=strfind(offsets,'['); s2=strfind(offsets,']');
         if isempty(s1) && isempty(s2)
-            offsetsnew=strread(offsets,'%f','delimiter',',');
+            offsetsnew=textscan(offsets,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             offsets=offsets(s1+1:s2-1);
-            offsetsnew=strread(offsets,'%f','delimiter',',');
+            offsetsnew=textscan(offsets,'%f','delimiter',',');
         else
             mess1='Ensure offset angles are a 4-element vector with comma-separated elements';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5487,10 +5487,10 @@ else
         %must strip out square brackets, if user has inserted them:
         s1=strfind(psi_string,'['); s2=strfind(psi_string,']');
         if isempty(s1) && isempty(s2)
-            psinew=strread(psi_string,'%s');
+            psinew=textscan(psi_string,'%s');
         elseif ~isempty(s1) && ~isempty(s2)
             psi_string=psi_string(s1+1:s2-1);
-            psinew=strread(psi_string,'%s');
+            psinew=textscan(psi_string,'%s');
         else
             mess1='check formatting of psi input - must be in form of a Matlab vector';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
