@@ -10,12 +10,12 @@ function save_xye(w,varargin)
 %
 % Unless otherwise specified, bins where there is no data are written as
 % having NaN (i.e. not-a-number) for the signal and zero for the standard deviation.
-% You can always substitue a different value e.g. -10^30 or 0 by 
+% You can always substitue a different value e.g. -10^30 or 0 by
 % assigning a value to the optional parameter null_value.
 %
 % Note that if w is an array of objects, then "file" must be a cell array
 % of filenames.
-% 
+%
 %
 % The data is saved in the format:
 % 1D dataset:
@@ -111,7 +111,7 @@ for i=1:numel(w)
 
     fmt_token='%-20g';
     fmt=[fmt_token,' ',fmt_token,' \n'];
-    for i=1:size(x,2);
+    for j=1:size(x,2)
         fmt=[fmt_token,' ',fmt];     % make format string
     end
 
