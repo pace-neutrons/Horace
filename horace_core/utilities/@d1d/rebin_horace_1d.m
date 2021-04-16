@@ -9,22 +9,22 @@ function wout=rebin_horace_1d(win,varargin)
 %
 % wout=rebin_horace_1d(win,w2) - rebin data in win with the bin boundaries
 % of w2. The x-axis of w2 must be parallel to the x-axis of win.
-% 
+%
 % RAE 21/1/10
 %
 
 
-[ndims,sz]=dimensions(win);
+[ndims,~]=dimensions(win);
 
 if ndims~=1
-    error('Horace error: rebinning currently only implemented for d1d, d2d, and sqw objects');
+    error('HORACE:rebin_horace_1d:invalid_argument', 'Rebinning currently only implemented for d1d, d2d, and sqw objects');
 end
 
 if nargin==2
     if isa(win,'d1d') && (isa(varargin{1},'d1d') || isa(varargin{1},'sqw'))
-        [ndims2,sz]=dimensions(varargin{1});
+        [ndims2,~]=dimensions(varargin{1});
         if ndims2~=1
-            error('Horace error: can only rebin a d1d object with another d1d or a 1-dimensional sqw');
+            error('HORACE:rebin_horace_1d:invalid_argument', 'Can only rebin a d1d object with another d1d or a 1-dimensional sqw');
         end
         route=1;
     elseif isvector(varargin{1})
@@ -33,13 +33,13 @@ if nargin==2
         elseif numel(varargin{1})==3
             route=3;%rebin x with bin width and range specified.
         else
-            error('Horace error: check the format of input arguments');
+            error('HORACE:rebin_horace_1d:invalid_argument', 'Check the format of input arguments');
         end
     else
-        error('Horace error: check the format of input arguments');
+        error('HORACE:rebin_horace_1d:invalid_argument', 'Check the format of input arguments');
     end
 else
-    error('Horace error: check the format of input arguments');
+    error('HORACE:rebin_horace_1d:invalid_argument', 'Check the format of input arguments');
 end
 
 %Extract useful parameters from the input dataset:
@@ -78,12 +78,12 @@ switch route
                 getout.title=[wout.title,' REBINNED '];
                 wout=d1d(getout);
             else
-                error('Horace error: 1d objects must have the same x-axis');
+                error('HORACE:rebin_horace_1d:array_mismatch', '1d objects must have the same x-axis');
             end
         else
-            error('Horace error: 1d objects must have same x-axis projection');
-            
-            
+            error('HORACE:rebin_horace_1d:array_mismatch', '1d objects must have same x-axis projection');
+
+
         end
     case 2
         xout=[(inmin_x-varargin{1}+eps):varargin{1}:(inmax_x+varargin{1}-eps)]';
@@ -108,5 +108,5 @@ switch route
         getout.s=sout; getout.e=eout; getout.npix=nout;
         getout.title=[wout.title,' REBINNED '];
         wout=d1d(getout);
-    
+
 end
