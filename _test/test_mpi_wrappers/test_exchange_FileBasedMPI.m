@@ -1,4 +1,4 @@
-classdef test_exchange_FileBasedMPI < exchange_common_tests
+classdef test_exchange_FileBasedMPI < exchange_common_tests & FakeJenkins4Tests
     
     properties
         stored_config ='defaults';
@@ -291,11 +291,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
         function clear_jenkins_var(obj)
             % clear fake Jenkins configuration, for is_jenkins routine
             % returning false
-            setenv('JENKINS_URL');
-            setenv('JOB_URL');
-            setenv('JENKINS_HOME');
-            setenv('JOB_NAME');
-            setenv('WORKSPACE');
+            clear_jenkins_var@FakeJenkins4Tests(obj);
             % working dir now is not a jenkins dir
             obj.working_dir = tmp_dir();
             % restore configuration
@@ -308,11 +304,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
         function set_up_fake_jenkins(obj)
             % set up fake Jenkins configuration, for is_jenkins routine
             % returning true
-            setenv('JENKINS_URL','http://some_url');
-            setenv('JOB_URL','http://some_job_url');
-            setenv('JENKINS_HOME',tmp_dir);
-            setenv('JOB_NAME','JOB_NAME_test_jenkins_fm');
-            setenv('WORKSPACE',fullfile(tmp_dir,'test_fake_jenkins'));
+            set_up_fake_jenkins@FakeJenkins4Tests(obj,'test_exchange_filebased');
             % working dir now should be jenkins dir
             obj.working_dir = tmp_dir();
             %
@@ -329,7 +321,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             
             cfn = config_store.instance().config_folder_name;
             jfn = fullfile(this.working_dir, cfn,...
-                mf.exchange_folder_name, mf.job_id)
+                mf.exchange_folder_name, mf.job_id);
             pause(1);
             assertTrue(is_folder(jfn));
             
@@ -401,7 +393,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests
             clob = onCleanup(@()mf.finalize_all());
             
             cfn = config_store.instance().config_folder_name;
-            jfn = fullfile(this.working_dir, cfn, mf.exchange_folder_name, mf.job_id)
+            jfn = fullfile(this.working_dir, cfn, mf.exchange_folder_name, mf.job_id);
             pause(1);
             assertTrue(is_folder(jfn));
             

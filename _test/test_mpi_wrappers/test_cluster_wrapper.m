@@ -1,4 +1,4 @@
-classdef test_cluster_wrapper < TestCase
+classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
     % Test running using the parpool job dispatcher.
     
     properties
@@ -15,11 +15,7 @@ classdef test_cluster_wrapper < TestCase
         function clear_jenkins_var(obj)
             % clear fake Jenkins configuration, for is_jenkins routine
             % returning false
-            setenv('JENKINS_URL');
-            setenv('JOB_URL');
-            setenv('JENKINS_HOME');
-            setenv('JOB_NAME');
-            setenv('WORKSPACE');
+            clear_jenkins_var@FakeJenkins4Tests(obj);
             
             config_store.instance().clear_all();
             hc= herbert_config;
@@ -29,11 +25,7 @@ classdef test_cluster_wrapper < TestCase
         function set_up_fake_jenkins(obj)
             % set up fake Jenkins configuration, for is_jenkins routine
             % returning true
-            setenv('JENKINS_URL','http://some_url');
-            setenv('JOB_URL','http://some_job_url');
-            setenv('JENKINS_HOME',tmp_dir);
-            setenv('JOB_NAME','JOB_NAME_test_jenkins_fm');
-            setenv('WORKSPACE',fullfile(tmp_dir,'test_jenkins_migration'));
+            set_up_fake_jenkins@FakeJenkins4Tests(obj,'test_jenkins_migration');
             
             hrc = herbert_config;
             obj.stored_config = hrc.get_data_to_store();

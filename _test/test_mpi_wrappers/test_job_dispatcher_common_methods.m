@@ -1,5 +1,5 @@
-classdef test_job_dispatcher_common_methods < TestCase
-   
+classdef test_job_dispatcher_common_methods < TestCase & FakeJenkins4Tests
+    
     properties
         working_dir
         current_config
@@ -21,27 +21,19 @@ classdef test_job_dispatcher_common_methods < TestCase
         function clear_jenkins_var(obj)
             % clear fake Jenkins configuration, for is_jenkins routine
             % returning false
-            setenv('JENKINS_URL');
-            setenv('JOB_URL');
-            setenv('JENKINS_HOME');
-            setenv('JOB_NAME');
-            setenv('WORKSPACE');
+            clear_jenkins_var@FakeJenkins4Tests(obj);
             
             config_store.instance().clear_all();
             hc= herbert_config;
             set(hc,obj.fjenkins_herbert_cobnfig);
             hc.init_tests = true;
             
-            obj.working_dir = tmp_dir();            
+            obj.working_dir = tmp_dir();
         end
         function set_up_fake_jenkins(obj)
             % set up fake Jenkins configuration, for is_jenkins routine
             % returning true
-            setenv('JENKINS_URL','http://some_url');
-            setenv('JOB_URL','http://some_job_url');
-            setenv('JENKINS_HOME',tmp_dir);
-            setenv('JOB_NAME','JOB_NAME_test_jenkins_fm');
-            setenv('WORKSPACE',fullfile(tmp_dir,'test_jenkins_dispatcher_common'));
+            set_up_fake_jenkins@FakeJenkins4Tests(obj,'test_jenkins_dispatcher_common');
             
             hrc = herbert_config;
             obj.fjenkins_herbert_cobnfig = hrc.get_data_to_store();
@@ -55,7 +47,7 @@ classdef test_job_dispatcher_common_methods < TestCase
             set(pc,obj.current_config);
         end
         
-        function test_split_job_struct(~)        
+        function test_split_job_struct(~)
             common_par = [];
             l1= {'aaa','bbbb','s','aaanana'};
             l2 = {10,20,3,14};
@@ -64,30 +56,30 @@ classdef test_job_dispatcher_common_methods < TestCase
             
             jd = JDTester('test_split_job_struct');
             clo = onCleanup(@()(jd.mess_framework.finalize_all()));
-
+            
             [task_ids,init_mess]= jd.split_tasks(common_par,loop_par,true,1);
-
+            
             n_workers = numel(task_ids);
             
             assertEqual(n_workers,1);
             assertEqual(numel(init_mess{1}.loop_data),1)
             assertEqual(numel(init_mess{1}.loop_data.text_param),numel(l1));
             assertEqual(init_mess{1}.loop_data,loop_par);
-           
+            
             [task_ids,init_mess]= jd.split_tasks(common_par,loop_par,false,4);
             n_workers = numel(task_ids);
             
             assertEqual(n_workers,4);
             assertEqual(numel(init_mess),4);
             assertEqual(init_mess{1}.n_first_step,1);
-            assertEqual(init_mess{1}.n_steps,1);            
+            assertEqual(init_mess{1}.n_steps,1);
             assertEqual(init_mess{4}.n_first_step,1);
             assertEqual(init_mess{4}.n_steps,1);
             
             s2 = init_mess{2}.loop_data;
             assertEqual(s2.text_param,{'bbbb'});
-            assertEqual(s2.num_param,{20});            
-
+            assertEqual(s2.num_param,{20});
+            
             
             [task_ids,init_mess]= jd.split_tasks(common_par,loop_par,false,3);
             n_workers = numel(task_ids);
@@ -100,8 +92,8 @@ classdef test_job_dispatcher_common_methods < TestCase
             assertEqual(init_mess{3}.n_steps,2);
             s3 = init_mess{3}.loop_data;
             assertEqual(s3.text_param,{'s','aaanana'});
-            assertEqual(s3.num_param,{3,14});            
-
+            assertEqual(s3.num_param,{3,14});
+            
             
         end
         %
@@ -213,7 +205,7 @@ classdef test_job_dispatcher_common_methods < TestCase
             assertEqual(init_mess{4}.n_first_step,1)
             assertEqual(init_mess{4}.n_steps,1)
             %-------------------------------------------------------------
-        end        
+        end
         %
         function test_transfer_init_and_config_on_fake_jenkins(obj)
             if is_jenkins() % do not run it on real Jenkins, it may mess
@@ -228,12 +220,12 @@ classdef test_job_dispatcher_common_methods < TestCase
             % will be rebuild as Jenkins configuration
             config_store.instance().clear_all();
             %
-             %
+            %
             obj.test_transfer_init_and_config()
             %
             clear clearJenkinsSignature;
             assertFalse(is_jenkins);
-
+            
         end
         function test_transfer_init_and_config(obj, varargin)
             % testing the transfer of the initial information for a Herbert
@@ -243,9 +235,9 @@ classdef test_job_dispatcher_common_methods < TestCase
             % ensure tests are enabled
             hc = herbert_config;
             hc.init_tests= true;
-
+            
             % Prepare current configuration to be able to restore it after
-            % the test finishes                        
+            % the test finishes
             
             % set up basic default configuration
             pc = parallel_config;
