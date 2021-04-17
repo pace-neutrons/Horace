@@ -1,4 +1,4 @@
-classdef test_combine_real < TestCase
+classdef test_combine_exp < TestCase
     % Validate the dnd combination routines
 
     properties
@@ -11,9 +11,9 @@ classdef test_combine_real < TestCase
     end
     
     methods
-        function this=test_combine_real(name)
+        function this=test_combine_exp(name)
             if ~exist('name','var')
-                name = 'test_combine_real';
+                name = 'test_combine_exp';
             end
             this=this@TestCase(name);
             this.testdir = fileparts(mfilename('fullpath'));
@@ -24,7 +24,8 @@ classdef test_combine_real < TestCase
             % Use sqw file on RAE's laptop to perform tests. Data saved to a .mat file on SVN server
             % for validation by others.
             % Now these data are also stored on SAN area where PACE data
-            % for tests are stored. PCMO\ei140
+            % for tests are stored:
+            % //isis.clrc.ac.uk/Shares/PACE_Project_Tool_Source/sym_source/ei140.sqw
             data_source='C:\Russell\PCMO\ARCS_Oct10\Data\SQW\ei140.sqw';
             proj.u=[1,1,0]; proj.v=[-1,1,0]; proj.type='rrr';
             
