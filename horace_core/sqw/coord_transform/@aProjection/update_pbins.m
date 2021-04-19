@@ -11,6 +11,9 @@ function [proj_update,pbin_update,ndims,pin,en] = update_pbins (proj, header_ave
 en = header_ave.en;  % energy bins for synchronisation with when constructing defaults
 upix_to_rlu = header_ave.u_to_rlu(1:3,1:3);
 upix_offset = header_ave.uoffset;
+% new projection offset is expressed in old hkl coordinates and needs to be
+% transformed into Crystal Cartesian
+proj.uoffset = upix_to_rlu*proj.uoffset(1:3);
 
 % Get current plot and integration axis bin boundaries
 % ----------------------------------------------------

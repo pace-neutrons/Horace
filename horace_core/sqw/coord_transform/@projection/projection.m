@@ -124,6 +124,13 @@ classdef projection<aProjection
                 uoffset = this.projaxes_.uoffset;
             end
         end
+        function obj = set.uoffset(obj,val)
+            if isempty(obj.projaxes_)
+                error('HORACE:projection:invalid_argument',...
+                    'Can not set up uoffset when projaxes transformation is not defined');
+            end
+            obj.projaxes_.uoffset = val;
+        end
         function lab = get.lab(this)
             if isempty(this.projaxes_)
                 lab = this.data_lab_;
