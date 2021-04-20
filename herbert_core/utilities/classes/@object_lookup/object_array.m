@@ -1,7 +1,8 @@
-function A = object_array (obj, iarray)
+function A = object_array (obj, varargin)
 % Return a given object array from the original set of arrays
 %
-%   >> obj = object_array (iarray)
+%   >> obj = object_array (obj, iarray)
+%   >> obj = object_array (obj)             % OK if only one original array
 %
 % Input:
 % ------
@@ -25,5 +26,20 @@ if ~obj.filled
 end
 
 % Get return argument
+if numel(varargin)==1
+    iarray = varargin{1};
+    if ~isscalar(iarray)
+        error('Index to original object array, ''iarray'', must be a scalar')
+    end
+elseif numel(varargin)==0
+    if numel(obj.indx_)==1
+        iarray = 1;
+    else
+        error('Must give index to the object array that is to be retrieved')
+    end
+else
+    error('Invalid number of input arguments')
+end
+
 A = obj.object_store_(obj.indx_{iarray});
 A = reshape(A,obj.sz_{iarray});

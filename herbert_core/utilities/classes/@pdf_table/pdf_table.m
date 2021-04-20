@@ -1,11 +1,24 @@
 classdef pdf_table
-    % Probability distribution function table
-    % Given a set of x-values and associated function values, a normalised
-    % probability distribution lookup table is created. The method named rand
-    % will return random samples from the probability distribution function (pdf)
-    % if called on the resulting object. The random numbers are drawn from the
-    % function defined by linear interpolation between the supplied x-values
-    % and function values.
+    % Probability distribution function table in one independent variable
+    %
+    % The constructor creates a probability distribution lookup table from a set
+    % of x-axis values and associated function values. Methods that generate
+    % random samples from the distribution or compute properties such as the mean
+    % or variance use an underlying pdf that is obtained by linear interpolation
+    % between the supplied x-axis values and function values.
+    %
+    % pdf_table Methods:
+    %   pdf_table     - constructor
+    %
+    %   mean          - mean of probability distribution function (pdf)
+    %   var           - variance of pdf
+    %   width         - full width and peak of the distribution
+    %
+    %   rand          - generate random numbers from the pdf
+    %   retain        - retain x-values rom an array according to the pdf
+    %
+    %   IX_dataset_1d - return plottable objects with the pdf and the
+    %                   cumulative distribution function
     %
     % See also pdf_table_array pdf_table_lookup
     
@@ -28,7 +41,7 @@ classdef pdf_table
     
     properties (Dependent)
         x       % x values (column vector)
-        f       % Values of the probability distribution function (pdf) at the x values (column vector)
+        f       % Normalised values of the probability distribution function (pdf) at the x values (column vector)
         fmax    % Maximum value of the values of the probability distribution function (pdf) (column vector)
         A       % Cumulative distribution function at x values (A(1)=0, A(end)=1)) (column vector)
         m       % Gradient m(i) is gradient betwee x(i) and x(i+1) (column vector)
@@ -77,11 +90,15 @@ classdef pdf_table
             % In either case of the pdf being provided as a numerical array or computed
             % by a function, all values of the pdf must be greater or equal to zero.
             % The pdf need not be normalised to unit area, as normalisation will be
-            % performed internally by this constructor.
+            % performed internally.
             %
             % The suppied function values do not need to be continuous. For example,
             % to define the function x=[0,1,1,2]; pdf_values = [1,1,2,2] defines
-            % a step at x=0 that jumps at x=1 to twice the height.
+            % a step at x=0 that jumps at x=1 to twice the height:
+            %
+            %                _
+            %              _| |
+            %          ___|   |___
             
             
             if nargin==1 && isstruct(x)

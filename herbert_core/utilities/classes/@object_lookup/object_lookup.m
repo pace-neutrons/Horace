@@ -1,31 +1,48 @@
 classdef object_lookup
-    % Create an object lookup table for a set of arrays of objects.
+    % Optimised lookup table for a set of arrays of objects.
+    %
     % The purpose of this class is twofold:
     %
-    %   (1) to minimise memory requirements by retaining only unique instances
-    %       of the objects in the set of arrays, and
-    %   (2) to optimise the speed of selection of random points, or the speed
+    %   (1) To minimise memory requirements by retaining only unique instances
+    %       of the objects in the set of arrays;
+    %   (2) To optimise the speed of selection of random points, or the speed
     %       of function evaluations, for an array of indices into one of the
-    %       original object arrays. The optimisation arises when the array
-    %       contains large numbers of repeated indices.
+    %       original object arrays in the set of object arrays. The optimisation
+    %       arises when the array contains large numbers of repeated indices,
+    %       that is, when the number of indices is much larger than the number
+    %       of unique objects.
     %
-    % For the indexed random number generation capability of this class to be
-    % useable, there must be a method of the input object call rand that returns
-    % random points from the object.
+    % For the indexed random number generation capability there must be a method
+    % of the input object called rand that returns random points from the object.
     %
-    % This class has similarities to <a href="matlab:help('pdf_table_lookup');">pdf_table_lookup</a>
+    %
+    % Relationship to pdf_table_lookup:
+    % ---------------------------------
+    % This class has similarities to <a href="matlab:help('pdf_table_lookup');">pdf_table_lookup</a>, which is specifically
     % for random number generation. That class provides random sampling from a
-    % one-dimensional probability distribution function. This class in more
-    % general because random sampling that results in a vector or array is
-    % supported e.g. when the object method rand suplies a set of points in a 3D
-    % volume.
+    % set of arrays of one-dimensional probability distribution functions.
+    % This class is more general because random sampling that results in a vector
+    % or array is supported, for example when the object method rand suplies a set
+    % of points in a 3D volume.
     %
-    % The reason for using this class rather than pdf_lookup is when one or more
-    % of the following apply:
-    %   (1) the pdf is multi-dimensional
-    %   (2) the main purpose is to compress the memory to keep only unique
-    %       objects with lookup arrays
-    %   (3) indexed object evaluation of general functions is needed
+    % The reason for using this class rather than pdf_table_lookup is when one or
+    % more of the following apply:
+    %   (1) The main purpose is to compress the memory to keep only unique objects;
+    %   (2) The pdf is multi-dimensional, or there is no object method called pdf_table;
+    %   (3) Indexed evaluation of other methods or functions may be needed.
+    %
+    % object_lookup Methods:
+    %
+    % The primary public methods are:
+    %   object_lookup   - constructor
+    %
+    %   object_array    - retrieve a given object array from the set of object arrays
+    %   object_elements - retrieve one or more elements from a given object array in the set
+    %
+    %   func_eval       - evaluate a method or function for indexed occurences in the object_lookup
+    %   func_eval_ind   - evaluate a method or function for indexed occurences in the object_lookup
+    %                     with indexed function arguments too
+    %   rand_ind        - generate random points for indexed occurences in object_lookup
     %
     % See also pdf_table_lookup
     
@@ -137,7 +154,7 @@ classdef object_lookup
             % number in the current value of the property object_store.
             % - If scalar, then it is assumed that every object in the current
             %   array is to be replaced by a copy of the new object
-            % - If array of same size as current object rray, no check is
+            % - If array of same size as current object array, no check is
             %   made that the objects are unique. This will not cause an error,
             %   but calls to function evaluations or random point generation
             %   will not be as efficient as they could be.

@@ -45,10 +45,10 @@ elseif numel(varargin)==1
         iarray = 1;
         ind = varargin{1};
     else
-        error('Must give index to the object array from which samples are to be drawn')
+        error('Must give index to the object array from which elements are to be recovered')
     end
 else
-    error('Insufficient number of input arguments')
+    error('Invalid number of input arguments')
 end
 
 % Get return argument

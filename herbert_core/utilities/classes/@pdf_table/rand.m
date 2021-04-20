@@ -6,13 +6,14 @@ function X = rand (obj, varargin)
 %   >> X = rand (obj, sz)            % array of size sz
 %   >> X = rand (obj, sz1, sz2,...)  % array of size [sz1,sz2,...]
 %
-% The pdf from which teh random numbers are drawn is htat obtained
+% The pdf from which the random numbers are drawn is defined
 % by linear interpolation between the array of x coordinates and
 % corresponding function values.
 %
 % Input:
 % ------
 %   obj         pdf_table object
+%              (See <a href="matlab:help('pdf_table');">pdf_table</a> for details)
 %
 %   n           Return square array of random numbers with size n x n
 %      *OR*

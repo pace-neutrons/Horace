@@ -5,13 +5,15 @@ function [wpdf, wcdf] = IX_dataset_1d(obj)
 %
 % Input:
 % ------
-%   obj         pdf_table object
+%   obj         <a href="matlab:help('pdf_table');">pdf_table</a> object that contains the probability distribution
 %
 % Output:
 % -------
-%   wpdf        Probability dixtribution function (IX_dataset_1d)
+%   wpdf        Probability distribution function as an IX_dataset_1d object
+%              (See <a href="matlab:help('IX_dataset_1d');">IX_dataset_1d</a> for details)
 %
-%   wcdf        Cumulative probability distribution function (IX_dataset_1d)
+%   wcdf        Cumulative probability distribution as an IX_dataset_1d object
+%              (See <a href="matlab:help('IX_dataset_1d');">IX_dataset_1d</a> for details)
 
 
 if ~isscalar(obj), error('Method only takes a scalar object'), end
