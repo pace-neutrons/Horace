@@ -3,7 +3,7 @@ function ok = retain (obj, x)
 %
 %   >> ok = retain (obj, x)
 %
-% Each element of an array of independent variable values, x, is randomly 
+% Each element of an array of independent variable values, x, is randomly
 % retained according to the value of the provided probability distribution
 % at the value of x. More specifically, the algorithm uses a rejection ratio
 % method from the probability distribution with respect to a uniform
@@ -33,11 +33,16 @@ function ok = retain (obj, x)
 %           corresponding point is retained, false if rejected
 
 
-if ~isscalar(obj), error('Method only takes a scalar object'), end
+if ~isscalar(obj)
+    error('HERBERT:pdf_table:invalid_argument', 'Method only takes a scalar object')
+end
 if ~obj.filled
-    error('The probability distribution function is not initialised')
+    error('HERBERT:pdf_table:uninitialised', 'The probability distribution function is not initialised')
 end
 
 ok = (x>=obj.x_(1) & x<=obj.x_(end));       % remove points outside range
 f = interp1(obj.x_,obj.f_,x(ok),'linear');  % linear interpolate remaining
 ok(ok) = (f >= obj.fmax_*rand(size(f)));    % rejection ratio on those left
+
+end
+

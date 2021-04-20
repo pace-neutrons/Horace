@@ -21,8 +21,8 @@ classdef pdf_table
     %                   cumulative distribution function
     %
     % See also pdf_table_array pdf_table_lookup
-    
-    
+
+
     properties (Access=private)
         % Class version number
         class_version_ = 1;
@@ -38,7 +38,7 @@ classdef pdf_table
         % Gradient m(i) = (f(i+1)-f(i))/(x(i+1)-x(i))
         m_ = zeros(0,1)
     end
-    
+
     properties (Dependent)
         x       % x values (column vector)
         f       % Normalised values of the probability distribution function (pdf) at the x values (column vector)
@@ -47,7 +47,7 @@ classdef pdf_table
         m       % Gradient m(i) is gradient betwee x(i) and x(i+1) (column vector)
         filled  % True or false according as the object containing a pdf or not
     end
-    
+
     methods
         %------------------------------------------------------------------
         % Constructor
@@ -69,7 +69,7 @@ classdef pdf_table
             %     *OR*
             %   pdf_handle  Function handle that returns the probability distribution
             %              function at the values of x.
-            %           	The function must have the form:
+            %                   The function must have the form:
             %                   pdf = my_function (x)
             %               or:
             %                   pdf = my_function (x, p1, p2,...)
@@ -99,45 +99,45 @@ classdef pdf_table
             %                _
             %              _| |
             %          ___|   |___
-            
-            
+
+
             if nargin==1 && isstruct(x)
                 % Assume trying to initialise from a structure array of properties
                 obj = pdf_table.loadobj(x);
-                
+
             elseif nargin>0
                 % Check x values
                 if ~isnumeric(x) || ~isvector(x) || numel(x)<2 || any(diff(x)<0)
-                    error('x values must be a vector length at least two and monotonic increasing')
+                    error('HERBERT:pdf_table:non_monotonic', 'x values must be a vector length at least two and monotonic increasing')
                 else
                     x = x(:);   % ensure column array
                 end
-                
+
                 % Check pdf
                 if isnumeric(pdf)
                     if numel(varargin)==0
                         f = pdf;
                     else
-                        error('Check the number and type of input arguments')
+                        error('HERBERT:pdf_table:invalid_argument', 'Check the number and type of input arguments')
                     end
                 elseif isa(pdf,'function_handle')
                     f = pdf (x, varargin{:});
                 else
-                    error('The pdf must be a numeric vector or function handle and arguments')
+                    error('HERBERT:pdf_table:bad_pdf', 'The pdf must be a numeric vector or function handle and arguments')
                 end
-                
+
                 if numel(f)~=numel(x)
-                    error('The number of values of the pdf must equal the number of x values.')
+                    error('HERBERT:pdf_table:bad_pdf', 'The number of values of the pdf must equal the number of x values.')
                 elseif ~isvector(f) || ~all(isfinite(f)) || any(f<0)
-                    error('The pdf values must all be finite and greater or equal to zero')
+                    error('HERBERT:pdf_table:bad_pdf', 'The pdf values must all be finite and greater or equal to zero')
                 else
                     f = f(:);   % ensure column array
                 end
-                
+
                 % Derived quantities to speed up random sampling
                 dA = 0.5*diff(x).*(f(2:end)+f(1:end-1));
                 if all(dA==0)
-                    error('The pdf has zero integrated area. The area must be non zero.')
+                    error('HERBERT:pdf_table:bad_pdf', 'The pdf has zero integrated area. The area must be non zero.')
                 end
                 A = cumsum(dA);
                 Atot = A(end);
@@ -148,36 +148,36 @@ classdef pdf_table
                 obj.m_ = diff(obj.f_)./diff(obj.x_);
             end
         end
-        
+
         %------------------------------------------------------------------
         % Get methods for dependent properties
         function val=get.x(obj)
             val=obj.x_;
         end
-        
+
         function val=get.f(obj)
             val=obj.f_;
         end
-        
+
         function val=get.fmax(obj)
             val=obj.fmax_;
         end
-        
+
         function val=get.A(obj)
             val=obj.A_;
         end
-        
+
         function val=get.m(obj)
             val=obj.m_;
         end
-        
+
         function val=get.filled(obj)
             val=~isempty(obj.x_);
         end
-        
+
         %------------------------------------------------------------------
     end
-    
+
     %======================================================================
     % Methods for fast construction of structure with independent properties
     methods (Static, Access = private)
@@ -190,7 +190,7 @@ classdef pdf_table
             end
             names = names_store;
         end
-        
+
         function names = propNamesPublic_
             % Determine the visible public property names and cache the result.
             % Code is boilerplate
@@ -200,7 +200,7 @@ classdef pdf_table
             end
             names = names_store;
         end
-        
+
         function struc = scalarEmptyStructIndep_
             % Create a scalar structure with empty fields, and cache the result
             % Code is boilerplate
@@ -212,7 +212,7 @@ classdef pdf_table
             end
             struc = struc_store;
         end
-        
+
         function struc = scalarEmptyStructPublic_
             % Create a scalar structure with empty fields, and cache the result
             % Code is boilerplate
@@ -225,7 +225,7 @@ classdef pdf_table
             struc = struc_store;
         end
     end
-    
+
     methods
         function S = structIndep(obj)
             % Return the independent properties of an object as a structure
@@ -243,7 +243,7 @@ classdef pdf_table
             %
             %
             % See also structPublic, structArrIndep, structArrPublic
-            
+
             names = obj.propNamesIndep_';
             if ~isempty(obj)
                 tmp = obj(1);
@@ -256,7 +256,7 @@ classdef pdf_table
                 S = struct(args{:});
             end
         end
-        
+
         function S = structArrIndep(obj)
             % Return the independent properties of an object array as a structure array
             %
@@ -277,13 +277,13 @@ classdef pdf_table
             %
             %
             % See also structIndep, structPublic, structArrPublic
-            
+
             if numel(obj)>1
                 S = arrayfun(@fill_it, obj);
             else
                 S = structIndep(obj);
             end
-            
+
             function S = fill_it (obj)
                 names = obj.propNamesIndep_';
                 S = obj.scalarEmptyStructIndep_;
@@ -293,7 +293,7 @@ classdef pdf_table
             end
 
         end
-        
+
         function S = structPublic(obj)
             % Return the public properties of an object as a structure
             %
@@ -310,7 +310,7 @@ classdef pdf_table
             %
             %
             % See also structIndep, structArrPublic, structArrIndep
-            
+
             names = obj.propNamesPublic_';
             if ~isempty(obj)
                 tmp = obj(1);
@@ -323,7 +323,7 @@ classdef pdf_table
                 S = struct(args{:});
             end
         end
-        
+
         function S = structArrPublic(obj)
             % Return the public properties of an object array as a structure array
             %
@@ -344,13 +344,13 @@ classdef pdf_table
             %
             %
             % See also structPublic, structIndep, structArrIndep
-            
+
             if numel(obj)>1
                 S = arrayfun(@fill_it, obj);
             else
                 S = structPublic(obj);
             end
-            
+
             function S = fill_it (obj)
                 names = obj.propNamesPublic_';
                 S = obj.scalarEmptyStructPublic_;
@@ -361,7 +361,7 @@ classdef pdf_table
 
         end
     end
-    
+
     %======================================================================
     % Custom loadobj and saveobj
     % - to enable custom saving to .mat files and bytestreams
@@ -382,13 +382,13 @@ classdef pdf_table
             % Output:
             % -------
             %   S       Structure created from obj that is to be saved
-            
+
             % The following is boilerplate code
-            
+
             S = structIndep(obj);
         end
     end
-    
+
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
@@ -406,12 +406,12 @@ classdef pdf_table
             % -------
             %   obj     Either (1) the object passed without change, or (2) an
             %           object (or object array) created from the input structure
-            %       	or structure array)
-            
+            %           or structure array)
+
             % The following is boilerplate code; it calls a class-specific function
             % called loadobj_private_ that takes a scalar structure and returns
             % a scalar instance of the class
-            
+
             if isobject(S)
                 obj = S;
             else
@@ -419,8 +419,8 @@ classdef pdf_table
             end
         end
         %------------------------------------------------------------------
-        
+
     end
     %======================================================================
-    
+
 end

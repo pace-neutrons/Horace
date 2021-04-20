@@ -26,9 +26,11 @@ function X = rand (obj, varargin)
 %   X           Array of random numbers
 
 
-if ~isscalar(obj), error('Method only takes a scalar object'), end
+if ~isscalar(obj)
+    error('HERBERT:pdf_table:invalid_argument', 'Method only takes a scalar object')
+end
 if ~obj.filled
-    error('The probability distribution function is not initialised')
+    error('HERBERT:pdf_table:uninitialised', 'The probability distribution function is not initialised')
 end
 
 Asamp = rand(varargin{:});
@@ -38,3 +40,6 @@ ix = upper_index (AA, Asamp(:));
 X = xx(ix) + 2*(Asamp(:) - AA(ix))./...
     (ff(ix) + sqrt(ff(ix).^2 + 2*mm(ix).*(Asamp(:)-AA(ix))));
 X = reshape(X,size(Asamp));
+
+end
+
