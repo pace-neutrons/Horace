@@ -173,6 +173,7 @@ classdef projection<aProjection
             [urange_step_pix_recent, ok, ix, s, e, npix, npix_retain,success]=...
                 accumulate_cut_(this,v,s,e,npix,pax,ignore_nan,ignore_inf,keep_pix,n_threads);
         end
+        %
         function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)
             % Transform pixels expressed in crystal Cartesian coordinate systems
             % into image coordinate system
