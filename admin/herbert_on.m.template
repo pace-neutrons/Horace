@@ -19,7 +19,7 @@ function path = herbert_on(non_default_path)
 %>>path=herbert_on('a path');
 %       initiates Herbert on non-default search path
 
-default_herbert_path = '/usr/local/mprogs/Herbert';
+default_herbert_path = '${Herbert_CORE}';
 
 if exist('non_default_path','var') && (strcmpi(non_default_path,'where') || strcmpi(non_default_path,'which'))
     path = find_herbert_path(default_herbert_path);
