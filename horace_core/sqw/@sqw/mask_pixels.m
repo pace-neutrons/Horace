@@ -78,10 +78,10 @@ else
     error('Mask must provide a numeric or logical array with same number of elements as the data')
 end
 
-% Section the pix array, if sqw type, and update pix_range and img_range(s)
+% Section the pix array, if sqw type, and update pix_range and img_db_range(s)
 ibin = replicate_array(1:prod(sz),win.data.npix);   % (linear) bin number for each pixel
 npix=accumarray(ibin(mask_array),ones(1,sum(mask_array)),[prod(sz),1]);
 wout.data.npix=reshape(npix,sz);
 wout.data.pix=win.data.pix.mask(mask_array);
-wout.data.img_range=recompute_img_range(wout);
+wout.data.img_db_range=recompute_img_range(wout);
 wout=recompute_bin_data(wout);

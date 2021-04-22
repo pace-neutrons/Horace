@@ -36,8 +36,9 @@ classdef data_sqw_dnd
         e=[]          %Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
         npix=[]       %No. contributing pixels to each bin of the plot axes.
         %             [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-        img_range=[Inf,Inf,Inf,Inf;... %True range of the data along each axis [img_range(2,4)]
+        img_db_range=[Inf,Inf,Inf,Inf;... %True range of the data grid along each axis [img_db_range(2,4)].
             -Inf,-Inf,-Inf,-Inf] % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf] -- convention if no pixels
+        % The pixels are rebinned on this grid
         pix = PixelData()      % Object containing data for each pixel
         axis_caption=an_axis_caption(); %  Reference to class, which define axis captions
         %
@@ -46,9 +47,9 @@ classdef data_sqw_dnd
     end
     properties(Constant)
         version = 1.0;
-        % the size of the border, used in gen_sqw. The img_range in gen_sqw
+        % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
         % exceeds real pix_range (or input pix_range) by this value.
-        border_size = 1.e-6
+        border_size = -4*eps
     end
     
     methods
@@ -132,8 +133,8 @@ classdef data_sqw_dnd
             %                       type 'b+'   fields: uoffset,...,s,e,npix
             %               [The following other valid structures are not created by this function
             %                       type 'b'    fields: uoffset,...,s,e
-            %                       type 'a'    uoffset,...,s,e,npix,img_range,pix
-            %                       type 'a-'   uoffset,...,s,e,npix,img_range         ]
+            %                       type 'a'    uoffset,...,s,e,npix,img_db_range,pix
+            %                       type 'a-'   uoffset,...,s,e,npix,img_db_range         ]
             %
             %   mess        Message; ='' if no problems, otherwise contains error message
             %
@@ -169,7 +170,8 @@ classdef data_sqw_dnd
             %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %   data.npix       No. contributing pixels to each bin of the plot axes.
             %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-            %   data.img_range     True range of the data along each axis [img_range(2,4)]
+            %   data.img_db_range  The range of the data along each axis, defining the size of the
+            %                    grid, the pixels are rebinned into [img_db_range(2,4)]
             %   data.pix        A PixelData object
             
             if nargin>0
@@ -187,7 +189,7 @@ classdef data_sqw_dnd
         end
         %
         function isit=dnd_type(obj)
-            if isempty(obj.pix) || isempty(obj.img_range)
+            if isempty(obj.pix) || isempty(obj.img_db_range)
                 isit = true;
             else
                 isit = false;
@@ -200,13 +202,13 @@ classdef data_sqw_dnd
             %          type 'b+'   fields: uoffset,...,s,e,npix
             %          [The following other valid structures are not created by this function
             %          type 'b'    fields: uoffset,...,s,e
-            %          type 'a'    uoffset,...,s,e,npix,img_range,pix
-            %          type 'a-'   uoffset,...,s,e,npix,img_range
+            %          type 'a'    uoffset,...,s,e,npix,img_db_range,pix
+            %          type 'a-'   uoffset,...,s,e,npix,img_db_range
             if isempty(obj.npix)
                 type = 'b';
             else
                 type = 'b+';
-                if ~isempty(obj.img_range)
+                if ~isempty(obj.img_db_range)
                     type = 'a-';
                 end
                 if ~isempty(obj.pix)
@@ -218,7 +220,7 @@ classdef data_sqw_dnd
         function dnd_struct=get_dnd_data(obj,varargin)
             %function retrieves dnd structure from the sqw_dnd_data class
             % if additional argument provided (+), the resulting structure  also includes
-            % img_range.
+            % img_db_range.
             dnd_struct = obj.get_dnd_data_(varargin{:});
         end
         %
@@ -245,88 +247,6 @@ classdef data_sqw_dnd
         end
     end
     methods(Static)
-        function img_range = calc_img_range(ds)
-            % function used to retrieve 4D range of a horace image, used
-            % for display purposes and as keys to pixels database
-            %
-            % TODO: replace this function
-            % Transistonal function until img_range field is implemented
-            % and supported properly
-            %
-            % Inputs: either data_sqw_dnd instance or a structure
-            % containing:
-            % The relevant data structure used as source of image range is as follows:
-            %
-            %   ds.iax        Index of integration axes into the projection axes  [row vector]
-            %                  Always in increasing numerical order
-            %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
-            %   ds.iint       Integration range along each of the integration axes. [iint(2,length(iax))]
-            %                       e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
-            %   ds.pax        Index of plot axes into the projection axes  [row vector]
-            %                  Always in increasing numerical order
-            %                       e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
-            %                                       2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
-            %   ds.p          Cell array containing bin boundaries along the plot axes [column vectors]
-            %                       i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
-            %   ds.dax        Index into data.pax of the axes for display purposes. For example we may have
-            %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
-            %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
-            %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
-            %
-            
-            img_range = zeros(2,4);
-            img_range(:,ds.iax) = ds.iint;
-            
-            npax = numel(ds.p);
-            pax_range = zeros(2,npax);
-            for i=1:npax
-                pax_range(:,i) = [ds.p{i}(1);...
-                    ds.p{i}(end)];
-            end
-            img_range(:,ds.pax) = pax_range;
-        end
-        function pix_range = eval_pix_range(ds,varargin)
-            % function used to retrieve 4D range of a horace image, used
-            % for display purposes and as keys to pixels database
-            %
-            % TODO: replace this function
-            % Transistonal function until img_range field is implemented
-            % and supported properly
-            %
-            % Inputs: either data_sqw_dnd instance or a structure
-            % containing:
-            % The relevant data structure used as source of image range is as follows:
-            %
-            %   ds.iax        Index of integration axes into the projection axes  [row vector]
-            %                  Always in increasing numerical order
-            %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
-            %   ds.iint       Integration range along each of the integration axes. [iint(2,length(iax))]
-            %                       e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
-            %   ds.pax        Index of plot axes into the projection axes  [row vector]
-            %                  Always in increasing numerical order
-            %                       e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
-            %                                       2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
-            %   ds.p          Cell array containing bin boundaries along the plot axes [column vectors]
-            %                       i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
-            %   ds.dax        Index into data.pax of the axes for display purposes. For example we may have
-            %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
-            %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
-            %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
-            %
-            
-            img_range = zeros(2,4);
-            img_range(:,ds.iax) = ds.iint;
-            
-            npax = numel(ds.p);
-            pax_range = zeros(2,npax);
-            for i=1:npax
-                pax_range(:,i) = [ds.p{i}(1);...
-                    ds.p{i}(end)];
-            end
-            img_range(:,ds.pax) = pax_range;
-        end
-        
-        
         %
         function obj = loadobj(input)
             if isa(input,'data_sqw_dnd')

@@ -76,20 +76,20 @@ end
 % ----------------------------------------------------------------------
 % Get range of data (is an overestimate, but will certainly contain all the data)
 head=cell(1,nfiles);
-img_range=zeros(2,4,nfiles);
+img_db_range=zeros(2,4,nfiles);
 for i=1:nfiles
     head{i}=head_sqw(tmp_file{i});
-    img_range(:,:,i)=head{i}.img_range;
+    img_db_range(:,:,i)=head{i}.img_db_range;
 end
-sgn=sign(img_range(1,:,:).*img_range(2,:,:)); % +1 if range does not include zero
-abs_pix_range_min=min(abs(img_range),[],1);
+sgn=sign(img_db_range(1,:,:).*img_db_range(2,:,:)); % +1 if range does not include zero
+abs_pix_range_min=min(abs(img_db_range),[],1);
 abs_pix_range_min(sgn<1)=0;
-abs_pix_range=[abs_pix_range_min;max(abs(img_range),[],1)];
+abs_pix_range=[abs_pix_range_min;max(abs(img_db_range),[],1)];
 abs_pix_range(:,1,:)=sqrt(abs_pix_range(:,1,:).^2 + abs_pix_range(:,2,:).^2 + abs_pix_range(:,3,:).^2);
 Q_min=min(abs_pix_range(1,1,:));
 Q_max=max(abs_pix_range(2,1,:));
-eps_min=min(img_range(1,4,:));
-eps_max=max(img_range(2,4,:));
+eps_min=min(img_db_range(1,4,:));
+eps_max=max(img_db_range(2,4,:));
 
 % Choose suitable rebinning for the final sqw file
 nQbin_def=100;
@@ -121,11 +121,11 @@ for i=1:nfiles
     % Compute new coordinates
     data=w.data;
     data.pix.q_coordinates=[sqrt(sum(data.pix.q_coordinates.^2,1));zeros(2,data.pix.num_pixels)];
-    data.img_range(:,1:3)=data.pix.pix_range(:,1:3);
+    data.img_db_range(:,1:3)=data.pix.pix_range(:,1:3);
     data.iax=[2,3];   % second and third axes become integration axes
     data.iint=[-Inf,-Inf;Inf,Inf];
     data.pax=[1,4];
-    data.p=[{data.img_range(:,1)},data.p(4)];
+    data.p=[{data.img_db_range(:,1)},data.p(4)];
     data.dax=[1,2];
     data.ulabel={'|Q|','dummy','dummy','E'};
     w.data=data;
@@ -180,7 +180,7 @@ end
 % Clear output arguments if nargout==0 to have a silent return
 % ------------------------------------------------------------
 if nargout==0
-    clear tmp_file grid_size img_range
+    clear tmp_file grid_size img_db_range
 end
 
 %==================================================================================================

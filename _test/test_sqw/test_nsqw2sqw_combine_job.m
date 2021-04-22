@@ -64,9 +64,9 @@ classdef test_nsqw2sqw_combine_job < TestCase
             [header_combined,nspe] = sqw_header.header_combine(header,true,false);
             nfiles = numel(nspe);
             
-            img_range=datahdr{1}.img_range;
+            img_db_range=datahdr{1}.img_db_range;
             for i=2:nfiles
-                img_range=[min(img_range(1,:),datahdr{i}.img_range(1,:));max(img_range(2,:),datahdr{i}.img_range(2,:))];
+                img_db_range=[min(img_db_range(1,:),datahdr{i}.img_db_range(1,:));max(img_db_range(2,:),datahdr{i}.img_db_range(2,:))];
             end
             [s_accum,e_accum,npix_accum] = accumulate_headers_job.accumulate_headers(ldrs);
             s_accum = s_accum ./ npix_accum;
@@ -100,8 +100,8 @@ classdef test_nsqw2sqw_combine_job < TestCase
             sqw_data.p=datahdr{1}.p;
             sqw_data.dax=datahdr{1}.dax;    % take the display axes from first file, for sake of choosing something
             %TODO: check it -- gen_sqw may use pix_range here
-            % store img_range
-            sqw_data.img_range=img_range;
+            % store img_db_range
+            sqw_data.img_db_range=img_db_range;
             
             sqw_data.s=s_accum;
             sqw_data.e=e_accum;
@@ -110,7 +110,7 @@ classdef test_nsqw2sqw_combine_job < TestCase
             
             run_label = 0:nfiles-1;
             pix_comb = pix_combine_info(infiles,numel(sqw_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
-            pix_comb.pix_range = img_range;
+            pix_comb.pix_range = img_db_range;
             sqw_data.pix = pix_comb;
             [fp,fn,fe] = fileparts(obj.test_targ_file);
             main_header_combined.filename = [fn,fe];

@@ -157,7 +157,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %   data.npix       No. contributing pixels to each bin of the plot axes.
             %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-            %   data.img_range     True range of the data along each axis [img_range(2,4)]
+            %   data.img_db_range     True range of the data along each axis [img_db_range(2,4)]
             %   data.pix        A PixelData object
 
             %
@@ -178,9 +178,9 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             %   opt         [optional] Determines which fields to read
             %                   '-header'     header-type information only: fields read:
             %                               filename, filepath, title, alatt, angdeg,...
-            %                                   uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,img_range]
+            %                                   uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,img_db_range]
             %                              (If file was written from a structure of type 'b' or 'b+', then
-            %                               img_range does not exist, and the output field will not be created)
+            %                               img_db_range does not exist, and the output field will not be created)
             %                   '-hverbatim'    Same as '-h' except that the file name as stored in the main_header and
             %                                  data sections are returned as stored, not constructed from the
             %                                  value of fopen(fid). This is needed in some applications where
@@ -193,12 +193,12 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             % -------
             %
             %   data        Output data structure actually read from the file. Will be one of:
-            %                   type 'h'    fields: fields: uoffset,...,dax[,img_range]
+            %                   type 'h'    fields: fields: uoffset,...,dax[,img_db_range]
             %                   type 'b'    fields: filename,...,dax,s,e
             %                   type 'b+'   fields: filename,...,dax,s,e,npix
-            %                   type 'a'    fields: filename,...,dax,s,e,npix,img_range,pix
-            %                   type 'a-'   fields: filename,...,dax,s,e,npix,img_range
-            %               The final field img_range is present for type 'h' if the header information was read from an sqw-type file.
+            %                   type 'a'    fields: filename,...,dax,s,e,npix,img_db_range,pix
+            %                   type 'a-'   fields: filename,...,dax,s,e,npix,img_db_range
+            %               The final field img_db_range is present for type 'h' if the header information was read from an sqw-type file.
             %
             %
             %
@@ -237,7 +237,8 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %   data.npix       No. contributing pixels to each bin of the plot axes.
             %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-            %   data.img_range  True range of the data along each axis [img_range(2,4)]
+            %   data.img_db_range  The range of the data along each axis
+            %                 [img_db_range(2,4)], on which the pixels are sorted on
             %   data.pix        A PixelData object
             %
             %

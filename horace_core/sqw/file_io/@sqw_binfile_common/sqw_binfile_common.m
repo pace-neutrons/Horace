@@ -45,7 +45,7 @@ classdef sqw_binfile_common < sqw_file_interface
         header_pos_info_ =[];
         detpar_pos_=0;
         detpar_pos_info_ =[];
-        img_range_pos_ = 0;
+        img_db_range_pos_ = 0;
         %
         pix_pos_=  'undefined';
         %
@@ -62,7 +62,7 @@ classdef sqw_binfile_common < sqw_file_interface
         % all substantial parts of appropriate sqw file
         data_fields_to_save_ = {'main_header_pos_';'main_head_pos_info_';'header_pos_';...
             'header_pos_info_';'detpar_pos_';'detpar_pos_info_'};
-        pixel_fields_to_save_ = {'img_range_pos_';...
+        pixel_fields_to_save_ = {'img_db_range_pos_';...
             'pix_pos_';'eof_pix_pos_'};
     end
     %
@@ -173,17 +173,17 @@ classdef sqw_binfile_common < sqw_file_interface
         % read main sqw data  from properly initialized binary file.
         [sqw_data,obj] = get_data(obj,varargin);
         
-        function img_range = get_img_range(obj)
+        function img_db_range = get_img_db_range(obj)
             % get [2x4] array of min/max ranges of the image, representing
             % DND object. This range is the basis for calcu
             %
-            fseek(obj.file_id_,obj.img_range_pos_,'bof');
+            fseek(obj.file_id_,obj.img_db_range_pos_,'bof');
             [mess,res] = ferror(obj.file_id_);
             if res ~= 0
                 error('SQW_BINILE_COMMON:io_error',...
                     'Can not move to the pix_range start position, Reason: %s',mess);
             end
-            img_range = fread(obj.file_id_,[2,4],'float32');
+            img_db_range = fread(obj.file_id_,[2,4],'float32');
         end
         %
         function pix_range = get_pix_range(~,varargin)
@@ -310,16 +310,16 @@ classdef sqw_binfile_common < sqw_file_interface
             %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %   data.npix       No. contributing pixels to each bin of the plot axes.
             %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-            %   data.img_range  The range of the data along each axis [pix_range(2,4)]
+            %   data.img_db_range  The range of the data along each axis [pix_range(2,4)]
             %   data.pix        A PixelData object
             %
             data_form = get_data_form_(obj,varargin{:});
         end
         %
-        function img_range_pos = get_img_range_pos(obj)
+        function img_db_range_pos = get_img_db_range_pos(obj)
             % returns byte-position from the start of the file
             % where pix range is stored
-            img_range_pos  = obj.img_range_pos_;
+            img_db_range_pos  = obj.img_db_range_pos_;
         end
         %
         function struc = saveobj(obj)

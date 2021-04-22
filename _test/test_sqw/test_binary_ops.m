@@ -29,15 +29,15 @@ methods
     function test_SQW_error_if_operand_is_char(obj)
         f = @() 'some char' + obj.sqw_obj;
         ff = @()  obj.sqw_obj + 'some char';
-        assertExceptionThrown(f, 'SQW:binary_op_manager_single');
-        assertExceptionThrown(ff, 'SQW:binary_op_manager_single');
+        assertExceptionThrown(f, 'SQW:binary_op_manager');
+        assertExceptionThrown(ff, 'SQW:binary_op_manager');
     end
 
     function test_SQW_error_if_operand_is_cell_array(obj)
         f = @() {1, 2, 3} + obj.sqw_obj;
         ff = @() obj.sqw_obj + {0};
-        assertExceptionThrown(f, 'SQW:binary_op_manager_single');
-        assertExceptionThrown(ff, 'SQW:binary_op_manager_single');
+        assertExceptionThrown(f, 'SQW:binary_op_manager');
+        assertExceptionThrown(ff, 'SQW:binary_op_manager');
     end
 
     function test_SQW_error_if_operand_is_numeric_but_not_double(obj)
@@ -49,8 +49,8 @@ methods
             numeric_array = type_func(ones(size(obj.sqw_obj.data.npix)));
             f = @() obj.sqw_obj + numeric_array;
             ff = @() numeric_array + obj.sqw_obj;
-            assertExceptionThrown(f, 'SQW:binary_op_manager_single');
-            assertExceptionThrown(ff, 'SQW:binary_op_manager_single');
+            assertExceptionThrown(f, 'SQW:binary_op_manager');
+            assertExceptionThrown(ff, 'SQW:binary_op_manager');
         end
     end
 

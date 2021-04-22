@@ -28,7 +28,7 @@ function [ok, type, mess,data] = check_sqw_data_(data, type_in)
 %
 %
 %fields_a = {'filename';'filepath';'title';'alatt';'angdeg';'uoffset';'u_to_rlu';'ulen';'ulabel';'iax';'iint';...
-%    'pax';'p';'dax';'s';'e';'npix';'img_range';'pix';'axis_caption'}; % column
+%    'pax';'p';'dax';'s';'e';'npix';'img_db_range';'pix';'axis_caption'}; % column
 
 %fields_bplus = {'filename';'filepath';'title';'alatt';'angdeg';'uoffset';'u_to_rlu';'ulen';'ulabel';'iax';'iint';...
 %    'pax';'p';'dax';'s';'e';'npix';'axis_caption'}; % column
@@ -50,10 +50,10 @@ end
 if isempty(data.pix)
     tmp_type='a-';
 else
-    if isempty(data.img_range)
+    if isempty(data.img_db_range)
         tmp_type='b+';
     else
-        if all(isinf(data.img_range))
+        if all(isinf(data.img_db_range))
             tmp_type='a';
         else
             tmp_type='b+';
@@ -174,14 +174,14 @@ if any(data.npix<0)
 if tmp_type=='a'    % extra fields required for sqw object
     npixtot=sum(data.npix(:));
     if ~npixtot==0
-        if ~isa_size(data.img_range,[2,4],'double') || (any(diff(data.img_range,1)<0) && ~all(isinf(data.img_range(:))))
-            mess='ERROR: field ''img_range'' must be a 2x4 array of ranges'; return; end
-        if all(isinf(data.img_range(:)))
+        if ~isa_size(data.img_db_range,[2,4],'double') || (any(diff(data.img_db_range,1)<0) && ~all(isinf(data.img_db_range(:))))
+            mess='ERROR: field ''img_db_range'' must be a 2x4 array of ranges'; return; end
+        if all(isinf(data.img_db_range(:)))
             tmp_type='b+';
         end
     else
-        if ~isequal(data.img_range,[Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf])  % convention if no pixels
-            mess='ERROR: field ''img_range'' must be a [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf] if no pixels in range of sqw object'; return;
+        if ~isequal(data.img_db_range,[Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf])  % convention if no pixels
+            mess='ERROR: field ''img_db_range'' must be a [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf] if no pixels in range of sqw object'; return;
         else
             tmp_type='b+';
         end

@@ -35,7 +35,7 @@ wout = copy(w, 'exclude_pix', true);
     ubins.plot_ax_idx, ...
     ubins.plot_ax_bounds, ...
     ubins.img_range ...
-    ] = proj.calc_transf_img_bins(w.data.img_range, pbin, pin, en);
+    ] = proj.calc_transf_img_bins(w.data.img_db_range, pbin, pin, en);
 
 % Update projection with binning
 proj = proj.set_proj_binning( ...
@@ -46,17 +46,24 @@ proj = proj.set_proj_binning( ...
     );
 
 % Accumulate image and pixel data for cut
-[s, e, npix, pix_out, img_range, pix_comb_info] = cut_accumulate_data_( ...
+[s, e, npix, pix_out, acutal_img_range, pix_comb_info] = cut_accumulate_data_( ...
     w, proj, keep_pix, log_level, return_cut ...
     );
+% acutal_img_range left here for debugging purposes
+%
 if ~isempty(pix_comb_info) && isa(pix_comb_info, 'pix_combine_info')
     % Make sure we clean up temp files
     cleanup = onCleanup(@() clean_up_tmp_files(pix_comb_info));
 end
+% the range the pixels are rebinned into:
+urange_offset = repmat(proj.urange_offset, [2, 1]);
+bin_range_step = proj.urange_step;
+img_db_range  = bin_range_step.*repmat(proj.usteps, [2, 1]) + urange_offset;
+
 
 % Compile the accumulated cut and projection data into a data_sqw_dnd object
 data_out = compile_sqw_data(...
-    w.data, proj, s, e, npix, pix_out,pix_comb_info, img_range, ...
+    w.data, proj, s, e, npix, pix_out,pix_comb_info, img_db_range, ...
     ubins, keep_pix);
 
 % Assign the new data_sqw_dnd object to the output SQW object, or create a new
@@ -87,7 +94,7 @@ end  % function
 
 % -----------------------------------------------------------------------------
 function data_out = compile_sqw_data(data, proj, s, e, npix, pix_out, ...
-    pix_comb_info, img_range, ubins, keep_pix)
+    pix_comb_info, img_db_range, ubins, keep_pix)
 ppax = ubins.plot_ax_bounds(1:length(ubins.plot_ax_idx));
 if isempty(ppax)
     nbin_as_size = [1, 1];
@@ -116,7 +123,7 @@ data_out.iax = ubins.integration_axis_idx;
 data_out.iint = ubins.integration_range;
 data_out.pax = ubins.plot_ax_idx;
 data_out.p = ubins.plot_ax_bounds;
-data_out.img_range = img_range;
+data_out.img_db_range = img_db_range;
 
 if keep_pix
     % If pix_comb_info is not empty then we've been working with temp files

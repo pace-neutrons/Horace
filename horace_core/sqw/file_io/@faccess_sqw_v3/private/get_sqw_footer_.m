@@ -77,10 +77,13 @@ test_error(obj.file_id_,'Unable to read sqw_v3 file descriptor');
 %
 descr_format = obj.get_si_form();
 fd_struct = obj.sqw_serializer_.deserialize_bytes(bytes,descr_format,1);
-% old style urange corresponds now to img_range
+% old style urange corresponds now to img_db_range
 if isfield(fd_struct,'urange_pos_')
-    fd_struct.img_range_pos_ = fd_struct.urange_pos_;
+    fd_struct.img_db_range_pos_ = fd_struct.urange_pos_;
     fd_struct = rmfield(fd_struct,'urange_pos_');
+elseif isfield(fd_struct,'img_range_pos_') % intermediate format
+    fd_struct.img_db_range_pos_ = fd_struct.img_range_pos_;    
+    fd_struct = rmfield(fd_struct,'img_range_pos_');    
 end
 
 % special and calculated fields

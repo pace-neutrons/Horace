@@ -5,7 +5,7 @@ function [nstart,nend] = get_nbin_range(this,npix)
 % translated w.r.t. to the hypercuboid that is split into bins.
 %
 %   >> [nstart,nend] = this.get_nrange_proj_section(pix_range,nelmts,p1,p2,p3,...)
-% 
+%
 % Input:
 % ------
 %   pix_range  Range to cover: 2 x ndim (ndim>=3) array of upper and lower limits
@@ -30,18 +30,12 @@ function [nstart,nend] = get_nbin_range(this,npix)
 %
 %
 
-small = 1.0d-10;    % 'small' quantity for cautious dealing of borders, testing matrices are diagonal etc.
-%
-% Get the start and end index of contiguous blocks of pixel information in the data
-% *** should use optimised algorithm for cases when rot is diagonal ?
-% *** should the border be bigger, to account for single <-> double rounding errors? (see value of small)
-border = small*[-1,-1,-1,-1;1,1,1,1];   % put a small border around the range to ensure we don't miss any
 % pixels on the boundary because of rounding errors in get_nrange_rot_section
-
-img_range = this.new_img_range_+border;
 if isempty(npix)
     error('Number array ''npix'' cannot be empty')
 end
+
+img_db_range = range_add_border(this.new_img_db_range_,data_sqw_dnd.border_size);
 
 [nbin_in,pin]  = this.get_input_data_binning_();
 %
@@ -55,7 +49,7 @@ end
 nelmts = reshape(npix,nbin_in);
 
 % Get contiguous arrays
-[istart,iend,irange,inside,outside] = this.get_irange_proj(img_range,pin{:});
+[istart,iend,irange,inside,outside] = this.get_irange_proj(img_db_range,pin{:});
 if ~outside
     [nstart,nend] = aProjection.get_nrange_4D(nelmts,istart,iend,irange);
 else

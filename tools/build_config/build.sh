@@ -40,7 +40,7 @@ function run_configure() {
   cmake_cmd+=" -G \"${CMAKE_GENERATOR}\""
   cmake_cmd+=" -DMatlab_ROOT_DIR=${MATLAB_ROOT}"
   cmake_cmd+=" -DCMAKE_BUILD_TYPE=${build_config}"
-  cmake_cmd+=" -DBUILD_TESTS=${build_tests}"
+  cmake_cmd+=" -DBUILD_TESTING=${build_tests}"
   cmake_cmd+=" -DMatlab_RELEASE=${matlab_release}"
   cmake_cmd+=" ${cmake_flags}"
 
