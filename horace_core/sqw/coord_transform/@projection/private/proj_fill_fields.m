@@ -5,7 +5,7 @@ function [self, mess] = proj_fill_fields (self,proj_in)
 %   proj_in Data structure containing details of projection axes:
 %           Defines two vectors u and v that give the direction of u1
 %           (parallel to u) and u2 (in the plane of u1 and u2, with u2
-%           having positive component along v); also defines the 
+%           having positive component along v); also defines the
 %           normalisation of u1,u2,u3
 %             Required arguments:
 %               proj.u          [1x3] Vector of first axis (r.l.u.)
@@ -75,7 +75,7 @@ end
 if isfield(proj_in,'type')
     if isa_size(proj_in.type,[1,3],'char')
         self.type = lower(proj_in.type);
-        if isempty(strfind('arp',proj_in.type(1)))||isempty(strfind('arp',proj_in.type(2)))||isempty(strfind('arp',proj_in.type(3)))
+        if any(arrayfun(@(t)(~contains('arp', t)), proj_in.type))
             self = [];
             mess = 'In projection description, normalisation type for each axis must be ''a'', ''r'' or ''p''';
             return

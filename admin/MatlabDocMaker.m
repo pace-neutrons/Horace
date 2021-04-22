@@ -625,7 +625,7 @@ classdef MatlabDocMaker
             fprintf('[Recommended] Checking for latex... ');
             [st, vers] = system('latex --version');
             if st == 0
-                fprintf(' found %s\n',vers(1:strfind(vers,sprintf('\n'))-1));
+                fprintf(' found %s\n',vers(1:strfind(vers,newline)-1));
             else
                 fprintf(2,'latex not found!\nA LaTeX installation available on the system path is strongly recommended with mtoc++.\n');
             end
@@ -640,7 +640,7 @@ classdef MatlabDocMaker
                 [st, vers] = system('gs --version');
             end
             if st == 0
-                fprintf(' found %s\n',vers(1:strfind(vers,sprintf('\n'))-1));
+                fprintf(' found %s\n',vers(1:strfind(vers,newline)-1));
             else
                 fprintf(2,'ghostscript not found!\nCreating LaTeX formulas might not work properly.\n');
             end
