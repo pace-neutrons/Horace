@@ -60,7 +60,7 @@ classdef projection<aProjection
                     evalc('disp(size(pix_cc))'));
             end
             % convert shift, expressed in hkl into crystal Cartesian
-            shift = u_to_rlu\shift';
+            shift = b_mat\shift';
             
         end
     end

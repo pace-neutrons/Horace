@@ -25,9 +25,9 @@ end
 % Non-zero number of pixels
 h_ave = header_average(w.header);
 pix_to_rlu = h_ave.u_to_rlu(1:3, 1:3); % pix to rlu
-pix0 = h_ave.uoffset;                  % pix offset
+pix0 = h_ave.uoffset;                  % pix offset (in hkl)
 u_to_rlu = w.data.u_to_rlu(1:3, 1:3);  % proj to rlu
-u0 = w.data.uoffset;                   % proj offset
+u0 = w.data.uoffset;                   % proj offset (in hkl)
 
 % matrix to transform pixel coordinates to projection frame
 pix_to_proj = u_to_rlu \ pix_to_rlu;
