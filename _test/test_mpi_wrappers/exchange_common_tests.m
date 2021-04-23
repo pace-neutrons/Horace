@@ -482,7 +482,7 @@ classdef exchange_common_tests < MPI_Test_Common
             
             f = @()receive_all(intercomm,'all', 'data');
             assertExceptionThrown(f,'MESSAGES_FRAMEWORK:runtime_error',...
-                'Receiving missing Blocking message should throw in test mode')
+                'Receiving missing Blocking message should throw in test mode');
             
             [all_mess, task_ids] = intercomm.receive_all('all', 'log');
             assertEqual(numel(all_mess), 2);
@@ -621,7 +621,7 @@ classdef exchange_common_tests < MPI_Test_Common
             
             f = @()receive_all(intercomm,'all', 'data');
             assertExceptionThrown(f,'MESSAGES_FRAMEWORK:runtime_error',...
-                'Receiving missing Blocking message should throw in test mode')
+                'Receiving missing Blocking message should throw in test mode');
         end
         %
         function test_receive_data_receives_canceled(obj)
@@ -651,7 +651,7 @@ classdef exchange_common_tests < MPI_Test_Common
             % cancel stucks
             f = @()receive_message(intercomm,2, 'data');
             assertExceptionThrown(f,'MESSAGES_FRAMEWORK:runtime_error',...
-                'Receiving missing Blocking message should throw in test mode')
+                'Receiving missing Blocking message should throw in test mode');
             [ok,err_mess,message]= intercomm.receive_message(3,'data');
             assertEqual(ok, MESS_CODES.ok, ['Received Error = ', err_mess])
             assertEqual(message.mess_name,'canceled');
@@ -1162,7 +1162,7 @@ classdef exchange_common_tests < MPI_Test_Common
             
             % blocking receive in test mode is not alowed
             f = @()receive_message(m_comm,5, 'log','-synch');
-            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:runtime_error')
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:runtime_error');
             
             mess = LogMessage(1, 10, 1, []);
             [ok, err_mess] = m_comm.send_message(5, mess);
@@ -1423,7 +1423,7 @@ classdef exchange_common_tests < MPI_Test_Common
             %
             % blocking receive in test mode is not alowed
             f = @()receive_message(m_comm,5, 'init');
-            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:runtime_error')
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:runtime_error');
             
             
             [ok, err_mess] = m_comm.send_message(4, mess);
@@ -1444,7 +1444,7 @@ classdef exchange_common_tests < MPI_Test_Common
             % out-of range
             f = @()send_message(m_comm, 11, mess);
             assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument',...
-                'Should throw invalid argument on out-of range message but got something else')
+                'Should throw invalid argument on out-of range message but got something else');
             
             clear clob_r;
         end
@@ -1455,35 +1455,35 @@ classdef exchange_common_tests < MPI_Test_Common
             clob_r = onCleanup(@()(finalize_all(m_comm )));
             
             f = @()receive_message(m_comm,'any', 'any');
-            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument');
             
             f = @()receive_message(m_comm,-1, 'any');
-            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument');
             
             f = @()receive_message(m_comm,[], 'any');
-            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument');
             
             
             f = @()receive_message(m_comm,'any', 'data');
-            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument');
             
             
             f = @()receive_message(m_comm,-1, 'data');
-            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument');
             
             
             f = @()receive_message(m_comm,[], 'data');
-            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument');
             
             f = @()receive_message(m_comm,'any', 'log');
-            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument');
             
             
             f = @()receive_message(m_comm,-1, 'log');
-            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument');
             
             f = @()receive_message(m_comm,[], 'log');
-            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument');
             
             clear clob_r;
         end

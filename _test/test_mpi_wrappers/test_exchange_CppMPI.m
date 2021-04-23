@@ -31,17 +31,17 @@ classdef test_exchange_CppMPI < exchange_common_tests
 
             f = @()send_message(mf, 0, mess);
             assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument',...
-                'CPP Messages framework can not communicate with lab 0' )
+                'CPP Messages framework can not communicate with lab 0' );
 
             f = @()send_message(mf, 11, mess);
-            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument');
 
             f = @()receive_message(mf, 0, mess.mess_name);
             assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument',...
-                'CPP Messages framework can not communicate with lab 0' )
+                'CPP Messages framework can not communicate with lab 0' );
 
             f = @()receive_message(mf, 11, mess.mess_name);
-            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument')
+            assertExceptionThrown(f, 'MESSAGES_FRAMEWORK:invalid_argument');
 
         end
         %

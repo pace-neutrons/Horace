@@ -1,7 +1,10 @@
 classdef MessagesFileBasedMPI_mirror_tester < MFTester
-    % The class, which mimicks the file-based messages mirroring, i.e.
-    % when one sends message to a particular worker, the class reflects it and
-    % provides the same message as available from this worker.
+    % The class, which mimicks the file-based messages mirroring
+    %
+    % i.e.
+    % when one sends a message to a particular worker, the class reflects it
+    % and provides the sent message as available from the worker to which
+    % the initial message has been sent
     properties(Access=protected)
         mess_name_fun_
     end

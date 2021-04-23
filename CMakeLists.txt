@@ -19,6 +19,13 @@ list(APPEND CMAKE_MODULE_PATH "${Herbert_ROOT}/cmake"
 
 # This sets the destination for mex build artifacts (used in PACE_AddMex)
 set(Herbert_DLL_DIRECTORY "${Herbert_ROOT}/herbert_core/DLL")
+# This is the directory that contains herbert_init.m
+set(Herbert_CORE "${CMAKE_CURRENT_LIST_DIR}/herbert_core")
+# This will hold herbert_on.m and worker_v2.m. This directory will hold any
+# files needed for "local initialization", the files mentioned are required
+# for running tests. So we automatically add this path to the MATLABPATH when
+# we run CTest.
+set(LOCAL_INIT_DIR "${CMAKE_BINARY_DIR}/local_init")
 
 # Look for packages early so we can exit if they're not found
 include(herbert_FindMPI)
@@ -26,14 +33,14 @@ include(PACE_FindMatlab)
 include(PACE_Version)
 include(PACE_AddMex)
 include(PACE_CodeAnalysis)
-if(${BUILD_TESTS})
-    include(CTest)
+include(CTest)
+if(BUILD_TESTING)
     include(PACE_FindGTest)
     enable_testing()
 endif()
 
 add_subdirectory("_LowLevelCode")
-if(${BUILD_TESTS})
+if(BUILD_TESTING)
     add_subdirectory("_test")
 endif()
 add_subdirectory("admin")
