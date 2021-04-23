@@ -50,7 +50,7 @@ if iscell(varargin{1})
 else
     inputs = [w1,varargin{:}];
     end
-right_type = arrayfun(@(x)is_sqw_type(x),inputs);
+right_type = arrayfun(@(x)has_pixels(x),inputs);
 if ~all(right_type)
     n_empty = numel(right_type)-sum(right_type);
     error('HORACE:combine_sqw:invalid_argument',...
