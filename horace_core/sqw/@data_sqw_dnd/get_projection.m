@@ -11,7 +11,7 @@ alatt=obj.alatt;
 angdeg=obj.angdeg;
 bmat =  bmatrix (alatt, angdeg);
 %
-shift = (bmat\obj.uoffset)';
+shift = ([bmat,[0;0;0];[0,0,0,1]]\obj.uoffset)';
 pix_range = obj.pix.pix_range-repmat(shift,2,1);
 img_range_guess = range_add_border(pix_range,obj.border_size);
 if  all(abs(img_range_guess(:)-obj.img_db_range(:))<=abs(obj.border_size)) || ... 

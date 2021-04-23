@@ -259,13 +259,13 @@ classdef test_mask < TestCase
         function test_img_db_range_recalculated_after_mask_3d(obj)
             original_img_db_range = obj.sqw_3d.data.img_db_range;
             img_db_range_diff = abs(original_img_db_range - obj.masked_3d.data.img_db_range);
-            assertTrue(~obj.fh_range_check(img_db_range_diff,0.001));
+            assertTrue(obj.fh_range_check(img_db_range_diff,1.e-7));
         end
         
         function test_img_db_range_recalculated_after_mask_with_paged_pix_3d(obj)
             original_img_db_range = obj.sqw_3d.data.img_db_range;
             img_db_range_diff = abs(original_img_db_range - obj.masked_3d_paged.data.img_db_range);
-            assertTrue(~obj.fh_range_check(img_db_range_diff ,0.001));
+            assertTrue(obj.fh_range_check(img_db_range_diff ,1.e-7));
         end
         
         function test_paged_and_non_paged_sqw_have_same_pixels_after_mask_3d(obj)
@@ -293,7 +293,9 @@ classdef test_mask < TestCase
             
             assertEqual(new_sqw.data.pix.num_pixels, sum(mask_array));
             assertFalse(equal_to_tol(new_sqw.data.s, sqw_obj.data.s, -1e-4));
-            assertFalse(equal_to_tol(new_sqw.data.img_db_range, sqw_obj.data.img_db_range, -1e-4));
+            % masking have not changed binning, so img_db_range remains the
+            % same
+            assertTrue(equal_to_tol(new_sqw.data.img_db_range, sqw_obj.data.img_db_range, -1e-4));
         end
         
         function test_mask_random_fraction_pixels_removes_percentage_of_pixels(obj)
