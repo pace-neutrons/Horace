@@ -79,7 +79,7 @@ try % mex C++
 
     disp('**********> Successfully created required mex files from C++')
     C_compiled=true;
-    add_version_foloder(out_rel_dir);
+    add_version_folder(out_rel_dir);
 catch ME
     warning('HORACE:horace_mex:no_mex', 'Can not create C++ mex files, reason: %s. Please try to do it manually.',ME.message);
 
