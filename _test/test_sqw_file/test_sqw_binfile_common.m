@@ -80,7 +80,7 @@ classdef test_sqw_binfile_common <  TestCase %WithSave
             var_fields = {'filename','filepath','title'};
             const_fields={'alatt','angdeg','uoffset','u_to_rlu',...
                 'ulen','ulabel','npax','iax','iint','pax','p_size','p',...
-                'dax','s','e','npix','img_range','dummy','pix'};
+                'dax','s','e','npix','img_db_range','dummy','pix'};
             tot = [var_fields(:);const_fields(:)];
             
             fn = fieldnames(mh);

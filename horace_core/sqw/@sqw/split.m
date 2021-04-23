@@ -57,7 +57,7 @@ if sum(run_contributes)~=nfiles     % there is at least one run that does not co
     datanull.s=zeros(sz);
     datanull.e=zeros(sz);
     datanull.npix=zeros(sz);
-    datanull.img_range=PixelData.EMPTY_RANGE_;
+    datanull.img_db_range=PixelData.EMPTY_RANGE_;
     datanull.pix=PixelData();
 end
 for i=1:nfiles

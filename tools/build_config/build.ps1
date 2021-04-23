@@ -153,7 +153,7 @@ function Invoke-Configure {
   Write-Output "`nRunning CMake configure step..."
   $cmake_cmd = "cmake ""$HORACE_ROOT"""
   $cmake_cmd += " $(New-CMake-Generator-Command -vs_version $vs_version)"
-  $cmake_cmd += " -DBUILD_TESTS=$build_tests"
+  $cmake_cmd += " -DBUILD_TESTING=$build_tests"
   $cmake_cmd += " -DMatlab_RELEASE=$matlab_release"
   $cmake_cmd += " ${cmake_flags}"
 

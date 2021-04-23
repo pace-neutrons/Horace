@@ -1,4 +1,9 @@
 # Disabled tests
+- test_transformation:
+    - test_calc_projections.m % -- some unfinished work?
+    - test_proj_captions.m  : part of https://github.com/pace-neutrons/Horace/issues/49 --    generic projection refactoring
+    - test_spher_caption (no ticket)
+    - test_spher_caption2D (no ticket)
 
 - test_change_crystal_1a.m
         - test_u_alighnment_tf_way (no ticket) -- Why disabled?
@@ -47,7 +52,7 @@
     - test_gen_sqw_sym  -- disabled for symetrization ticket: (https://github.com/pace-neutrons/Horace/issues/464)
 
 - test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_herbert.m (https://github.com/pace-neutrons/Horace/issues/597)
-    - All tests
+    - All tests disabled on Jenkins windows
 
 - test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_parpool.m (https://github.com/pace-neutrons/Horace/issues/597)
-    - All tests
+    - All tests disabled on Jenkins windows

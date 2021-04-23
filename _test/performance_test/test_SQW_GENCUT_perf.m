@@ -324,7 +324,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             end
             % check nopix performance -- read and integrate the whole file from the HDD
             hs = head_sqw(obj.sqw_file);
-            urng = hs.img_range';
+            urng = hs.img_db_range';
             if tests_to_run(3)
                 ts = tic();
                 proj1 = struct('u',[1,0,0],'v',[0,1,1]);

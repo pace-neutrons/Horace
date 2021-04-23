@@ -44,8 +44,31 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         obj = init_from_sqw_(obj, sqw_obj);
         obj = init_from_file_(obj, in_filename);
         obj = init_from_loader_struct_(obj, data_struct);
-
+        obj = init_from_data_sqw_dnd_(obj, data_sqw_dnd_obj);
         wout = sqw_eval_pix_(wout, sqwfunc, ave_pix, pars);
+    end
+    
+    methods (Static)
+        function w = make_dnd(data_obj)
+            if (isa(data_obj,'data_sqw_dnd'))
+                ndims = size(data_obj.pax,2);
+                if ndims == 0
+                    w = d0d(data_obj);
+                elseif ndims == 1
+                    w = d1d(data_obj);
+                elseif ndims == 2
+                    w = d2d(data_obj);
+                elseif ndims == 3
+                    w = d3d(data_obj);
+                elseif ndims == 4
+                    w = d4d(data_obj);
+                else
+                    error('HORACE:DnDBase:make dnd on data_sqw_dnd with wrong dimensions');
+                end
+            else
+                error('HORACE:DnDBase:make dnd on not data_sqw_dnd');
+            end
+        end
     end
 
     methods
@@ -59,12 +82,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = DnDBase(varargin)
             obj = obj@SQWDnDBase();
 
-            % conversion to struct done here rather than
-            % in parse_args_ as the need for this conversion
-            % may be temporary
-            if nargin>0 && isa(varargin{1},'data_sqw_dnd')
-                varargin{1} = struct(varargin{1});
-            end
             [args] = obj.parse_args_(varargin{:});
 
             % i) copy
@@ -73,6 +90,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             % ii) struct
             elseif ~isempty(args.data_struct)
                 obj = obj.init_from_loader_struct_(args.data_struct);
+            % iia) data_sqw_dnd_obj
+            elseif ~isempty(args.data_sqw_dnd)
+                obj = obj.init_from_data_sqw_dnd_(args.data_sqw_dnd);
             % iii) filename
             elseif ~isempty(args.filename)
                 obj = obj.init_from_file_(args.filename);

@@ -49,7 +49,7 @@ if iscellstr(data_source)
     source_is_file=true;
 elseif ischar(data_source)
     source_is_file=true;
-elseif isa(data_source,'d2d')
+elseif isa(data_source,'DnDBase')
     source_is_file=false;
 else
     error('Logic problem in chain of cut methods. See T.G.Perring')
@@ -130,7 +130,7 @@ if source_is_file  % data_source is a file
     %[mess,main_header,header,detpar,data]=get_sqw (data_source,'-nopix');
 else
     if hor_log_level>=0, disp('Taking cut from dnd object...'), end
-    data = data_source;
+    data = data_source.data_;
 end
 
 
@@ -278,6 +278,6 @@ end
 % Create output argument if requested
 % -----------------------------------
 if nargout~=0
-    wout= data_out;
+    wout= DnDBase.make_dnd(data_out);
 end
 

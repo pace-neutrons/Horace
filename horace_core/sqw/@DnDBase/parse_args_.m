@@ -8,12 +8,19 @@ function args = parse_args_(obj, varargin)
 % - args.data_struct % generic struct, presumed to represent DnD
 
 parser = inputParser();
-parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase') || is_string(x) || isstruct(x)));
+parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase')   || ...
+                                      isa(x, 'data_sqw_dnd') || ...
+                                      is_string(x)           || ...
+                                      isstruct(x)));
 parser.KeepUnmatched = true;
 parser.parse(varargin{:});
 
 input_data = parser.Results.input;
-args = struct('dnd_obj', [], 'sqw_obj', [], 'filename', [], 'data_struct', []);
+args = struct('dnd_obj',      [], ...
+              'sqw_obj',      [], ...
+              'filename',     [], ...
+              'data_struct',  [], ...
+              'data_sqw_dnd', []);
 
 if isa(input_data, 'SQWDnDBase')
     if isa(input_data, class(obj))
@@ -24,6 +31,8 @@ if isa(input_data, 'SQWDnDBase')
         error([upper(class(obj)), ':' class(obj)], ...
             [upper(class(obj)) ' cannot be constructed from an instance of this object "' class(input_data) '"']);
     end
+elseif isa(input_data, 'data_sqw_dnd')
+    args.data_sqw_dnd = input_data;
 elseif is_string(input_data)
     args.filename = input_data;
 elseif isstruct(input_data) && ~isempty(input_data)

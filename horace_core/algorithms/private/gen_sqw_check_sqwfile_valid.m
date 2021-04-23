@@ -1,7 +1,7 @@
-function [ok,mess,header,grid_size,img_range,pix_range]=gen_sqw_check_sqwfile_valid(sqw_file)
+function [ok,mess,header,grid_size,img_db_range,pix_range]=gen_sqw_check_sqwfile_valid(sqw_file)
 % Check that the sqw file has the correct attributes to which to accumulate, and return useful information
 %
-%   >> [ok,mess,grid_size,img_range]=gen_sqw_check_sqwfile_valid(sqw_file)
+%   >> [ok,mess,grid_size,img_db_range]=gen_sqw_check_sqwfile_valid(sqw_file)
 %
 % Input:
 % ------
@@ -13,7 +13,8 @@ function [ok,mess,header,grid_size,img_range,pix_range]=gen_sqw_check_sqwfile_va
 %   mess        Error message if not OK; ='' if OK
 %   header      Header from the sqw data
 %   grid_size   Grid size [1,4] vector of number of bins along each axis
-%   img_range   Actual limits of the grid (NOT the data)
+%   img_db_range Actual limits of the pixels, where pixels are rebinned into
+%                (NOT the data)
 %
 %
 % For the file to be valid for accumulation, we require:
@@ -40,13 +41,13 @@ catch ME
 end
 if ~isempty(mess)
     ok=false;
-    header={}; grid_size=[]; img_range=[];
+    header={}; grid_size=[]; img_db_range=[];
     return
 end
 if ~sqw_type || ndims~=4
     ok=false;
     mess='The file to which to accumulate does not hold sqw data, or does not have 4 dimensions';
-    header={};  grid_size=[]; img_range=[];
+    header={};  grid_size=[]; img_db_range=[];
     return
 end
 
@@ -68,7 +69,7 @@ ok =equal_to_relerr(header_ave.alatt, data.alatt, tol, 1) &...
 if ~ok
     ok=false;
     mess='The sqw to which to accumulate does not have the correct projection axes for this operation.';
-    header={}; grid_size=[]; img_range=[];
+    header={}; grid_size=[]; img_db_range=[];
     return
 end
 
@@ -76,6 +77,6 @@ grid_size=zeros(1,4);
 for i=1:4
     grid_size(i)=numel(data.p{i})-1;
 end
-img_range=data.img_range;
+img_db_range=data.img_db_range;
 pix_range = ldr.get_pix_range();
 

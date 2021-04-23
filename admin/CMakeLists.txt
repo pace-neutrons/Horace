@@ -9,7 +9,7 @@ configure_file("${Herbert_ON_TEMPLATE}" "${LOCAL_INIT_DIR}/herbert_on.m")
 configure_file("horace_on.m.template" "${LOCAL_INIT_DIR}/horace_on.m")
 
 # Copy Horace worker templates
-if(${BUILD_TESTS})
+if(BUILD_TESTING)
     configure_file("worker_4tests.m.template" "${LOCAL_INIT_DIR}/worker_4tests.m")
 endif()
 configure_file("worker_v2.m.template" "${LOCAL_INIT_DIR}/worker_v2.m")

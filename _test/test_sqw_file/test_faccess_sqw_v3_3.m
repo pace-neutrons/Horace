@@ -161,7 +161,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             so = faccess_sqw_v2(samp_f);
             sqw_ob = so.get_sqw();
             
-            ref_range = sqw_ob.data.img_range;
+            ref_range = sqw_ob.data.img_db_range;
             
             assertTrue(isa(sqw_ob,'sqw'));
             % Create sample
@@ -184,10 +184,10 @@ classdef test_faccess_sqw_v3_3< TestCase
             
             tob=tob.init(tf);
             assertEqual(tob.file_version,'-v3.3');
-            img_range = tob.get_img_range();
-            assertElementsAlmostEqual(ref_range,img_range)
+            img_db_range = tob.get_img_db_range();
+            assertElementsAlmostEqual(ref_range,img_db_range)
             pix_range = tob.get_pix_range();
-            assertElementsAlmostEqual(pix_range,img_range)
+            assertElementsAlmostEqual(pix_range,img_db_range)
         end
         %
         function obj = test_save_load_sqwV3_3(obj)
@@ -196,7 +196,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             
             so = faccess_sqw_v3_3(samp_f);
             sqw_ob = so.get_sqw();
-            ref_range = sqw_ob.data.img_range;
+            ref_range = sqw_ob.data.img_db_range;
             
             assertTrue(isa(sqw_ob,'sqw'));
             
@@ -217,7 +217,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             ver_obj =tob.get_sqw('-verbatim');
             tob.delete();
             
-            assertEqual(ref_range,ver_obj.data.img_range);
+            assertEqual(ref_range,ver_obj.data.img_db_range);
             assertEqual(sqw_ob.main_header,ver_obj.main_header);
             assertEqual(sqw_ob,ver_obj);
         end
@@ -231,6 +231,10 @@ classdef test_faccess_sqw_v3_3< TestCase
             fr = hlp_deserialize(by);
             
             assertEqual(fo,fr);
+            
+            by = hlp_serialise(fo);
+            fr = hlp_deserialise(by);            
+            assertEqual(fo,fr);            
         end
         %
         

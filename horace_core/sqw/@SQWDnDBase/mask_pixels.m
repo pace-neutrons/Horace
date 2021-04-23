@@ -82,5 +82,5 @@ ibin = replicate_array(1:prod(sz),win.data_.npix);   % (linear) bin number for e
 npix=accumarray(ibin(mask_array),ones(1,sum(mask_array)),[prod(sz),1]);
 wout.data_.npix=reshape(npix,sz);
 wout.data_.pix=win.data_.pix.mask(mask_array);
-wout.data_.img_range=recompute_img_range(wout);
+wout.data_.img_db_range=recompute_img_range(wout);
 wout=recompute_bin_data(wout);

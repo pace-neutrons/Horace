@@ -15,7 +15,7 @@ function pix_out = do_binary_op(obj, operand, binary_op, varargin)
 %              - scalar double
 %              - double array, the size of the array must be equal to
 %                obj.num_pixels
-%              - object with fields 's' and 'e' (e.g. sigvar)
+%              - object with fields 's' and 'e' (e.g. dnd or sigvar)
 %              - another PixelData object with obj.num_pixels equal
 % binary_op  Function handle pointing to the desired binary operation. The
 %            function should take 2 objects with '.s' and '.e' attributes, e.g.
@@ -43,7 +43,7 @@ elseif isa(operand, 'double')
     pix_out = binary_op_double_(pix_out, operand, binary_op, flip, npix);
 elseif isa(operand, 'PixelData')
     pix_out = binary_op_pixels_(pix_out, operand, binary_op, flip);
-elseif isa(operand, 'sigvar')
+elseif ~isempty(regexp(class(operand), '^d[0-4]d$', 'ONCE')) || isa(operand, 'sigvar')
     pix_out = binary_op_sigvar_(pix_out, operand, binary_op, flip, npix);
 end
 
@@ -67,5 +67,6 @@ end
 function is = valid_operand(operand)
     is = isa(operand, 'PixelData') || ...
          isnumeric(operand) || ...
+         ~isempty(regexp(class(operand), '^d[0-4]d$', 'ONCE')) || ...
          isa(operand, 'sigvar');
 end

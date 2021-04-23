@@ -1,4 +1,4 @@
-function d = make_sqw(ndims)
+function d = make_sqw(ndims) 
 % Create a valid structure for an sqw object
 %
 % Input:
