@@ -28,40 +28,60 @@ if nfiles==1
     return
 end
 
-initflag=false;
+initflag = false;
 if nargin >1 && ~isempty(wi) && isa(wi,'sqw') ...
-   && wi.main_header.nfiles==nfiles
-	initflag=true;
+   && wi.main_header.nfiles == nfiles
+    initflag = true;
 end
 
 % Default output
-if initflag; wout=sqw(wi); else wout=sqw(); end
+if initflag
+    wout=sqw(wi);
+else
+    wout=sqw();
+end
 
 % Check for identical main_headers
-if initflag; main_header=wi.main_header; else main_header=w(1).main_header; end
-main_header_fields=fields(main_header);
-main_header_fields(strcmp(main_header_fields,'nfiles'))=[]; % No need to compare these, as we know they're different.
-hFNM=true; hFVM=true;
-for i=1:nfiles
-    wi_main_header_fields=fields(w(i).main_header);
-    wi_main_header_fields(strcmp(wi_main_header_fields,'nfiles'))=[];
-    for j=1:length(wi_main_header_fields)
-        hFNM=hFNM & any(strcmp(main_header_fields,wi_main_header_fields{j}));
-        hFVM=hFVM & all(main_header.(wi_main_header_fields{j})==w(i).main_header.(wi_main_header_fields{j}));
+if initflag
+    main_header=wi.main_header;
+else
+    main_header=w(1).main_header;
+end
+
+main_header_fields = fields(main_header);
+main_header_fields(strcmp(main_header_fields,'nfiles')) = []; % No need to compare these, as we know they're different.
+
+hFNM=true;
+hFVM=true;
+for i = 1:nfiles
+    wi_main_header_fields = fields(w(i).main_header);
+    wi_main_header_fields(strcmp(wi_main_header_fields, 'nfiles')) = [];
+    for j = 1:length(wi_main_header_fields)
+        hFNM = hFNM & any(strcmp(main_header_fields, wi_main_header_fields{j}));
+        hFVM = hFVM & all(main_header.(wi_main_header_fields{j}) == w(i).main_header.(wi_main_header_fields{j}));
     end
 end
-if ~hFNM; errstr='fields'; elseif ~hFVM; errstr='field values'; end
+
+
 if ~hFNM || ~hFVM
-    if initflag;
-        errstr=sprintf('have main_header %s that do not match those in wi',errstr);
-    else
-        errstr=sprintf('do not have matching main_header %s',errstr);
+    if ~hFNM
+        errstr = 'fields';
+    elseif ~hFVM
+        errstr = 'field values';
     end
-    error('sqw:join:input','sqw objects in input array %s',errstr)
+
+    if initflag
+        errstr = sprintf('have main_header %s that do not match those in wi', errstr);
+    else
+        errstr = sprintf('do not have matching main_header %s', errstr);
+    end
+    error('SQW:join:input','sqw objects in input array %s',errstr)
 end
 
 % Start pulling in data
-header=cell(size(w)); detpar=header; data=header;
+header=cell(size(w)); 
+detpar=header; 
+data=header;
 for i=1:nfiles
     header{i}=w(i).header; % Will be used as is
     detpar{i}=w(i).detpar; % Needs to be reduced to only a single struct
@@ -69,13 +89,17 @@ for i=1:nfiles
 end
 
 % Check that each detpar is identical
-if initflag; detpar0=wi.detpar; else detpar0=detpar{1}; end
+if initflag
+    detpar0=wi.detpar; 
+else
+    detpar0=detpar{1}; 
+end
 detpar0_fields=fields(detpar0);
 for i=1:length(detpar)
     detpari_fields=fields(detpar{i});
     for j=1:length(detpari_fields)
-        hFNM=hFNM & any(strcmp(detpar0_fields,detpari_fields{j}));
-        hFVM=hFVM & all(detpar0.(detpari_fields{j})==detpar{i}.(detpari_fields{j}));
+        hFNM = hFNM & any(strcmp(detpar0_fields,detpari_fields{j}));
+        hFVM = hFVM & all(detpar0.(detpari_fields{j})==detpar{i}.(detpari_fields{j}));
     end
 end
 if ~(hFNM && hFVM)
@@ -85,9 +109,11 @@ end
 % Check which sqw objects in the input structure contributed to the
 % pre-split sqw object.
 run_contributes=true(nfiles,1);
+% CMDEV pix.pix_range was originally urange. This change gives a correct
+%       member for data, but gives a comparison discrepancy, so more to do
 for i=1:nfiles
     if ~sum(abs(data{i}.s(:))) && ~sum(data{i}.e(:)) && ~sum(data{i}.npix(:)) ...
-       &&  all(isnan(data{i}.pix.pix_range(:)/Inf)) && ~sum(abs(data{i}.pix.data(:)))
+       &&  all(isnan(data{i}.pix.pix_range(:)/Inf)) && ~sum(abs(data{i}.pix.data(:))) % CMDEV change in master
         % Then this data structure is a copy of 'datanull' from split.m
         run_contributes(i)=false;
     end
@@ -114,15 +140,14 @@ sz=size(wout.data.npix); % size of contributing signal, variance, and npix array
 wout.data.s   =zeros(sz);
 wout.data.e   =zeros(sz);
 wout.data.npix=zeros(sz);
-
 % build a new PixelData object from the contributing files data
 wout.data.pix = PixelData.cat(cellfun(@(x) x.pix, data(run_contributes)));
-
 for i=1:nfiles
     if run_contributes(i)
         wout.data.s   = wout.data.s   + (data{i}.s).*(data{i}.npix);
         wout.data.e   = wout.data.e   + (data{i}.e).*(data{i}.npix).^2;
         wout.data.npix= wout.data.npix+ data{i}.npix;
+
     end
 end
 wout.data.s = wout.data.s ./ wout.data.npix;
@@ -142,7 +167,7 @@ wout.data.e(~wout.data.npix)=0;
 % wrapped with commands to temporarily silence Horace.
 hc_log_level=get(hor_config,'log_level');
 set(hor_config,'log_level',-1);
+
 cut_args = repmat({[]},size(wout.data.p));
 wout=cut_sqw(wout,cut_args{:});
 set(hor_config,'log_level',hc_log_level);
-

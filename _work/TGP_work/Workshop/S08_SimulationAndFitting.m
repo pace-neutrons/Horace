@@ -41,7 +41,7 @@ sim_slice = sqw_eval(my_slice, @sr122_xsec, parameter_vector);
 sim_cut = sqw_eval(my_cuts, @sr122_xsec, parameter_vector);
 
 % Repeat on dnd objects
-sim_slice_dnd = sqw_eval(d2d(my_slice), @sr122_xsec, parameter_vector);
+sim_slice_dnd = sqw_eval(d2d_old(my_slice), @sr122_xsec, parameter_vector);
 sim_cut_dnd = sqw_eval(d1d(my_cuts), @sr122_xsec, parameter_vector);
 
 plot(sim_slice); keep_figure;

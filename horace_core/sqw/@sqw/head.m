@@ -95,13 +95,13 @@ else
         end
     else
         for i=1:nw
-            if is_sqw_type(w.data(i)) && hfull
+            if has_pixels(w.data(i)) && hfull
                 h=w.data(i);
                 h.data=rmfield(h.data.struct(),{'s','e','npix','pix'});
             else
                 %w.data(i).
                 h=rmfield(w.data(i).data.struct(),{'s','e','npix'});
-                if is_sqw_type(w.data(i))
+                if has_pixels(w.data(i))
                     h=rmfield(h,'pix');
                 else
                     if isfield(h,'pix_range'), h=rmfield(h,'pix_range'); end  % if, for some reason, there is a pix_range field, remove it.

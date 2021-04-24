@@ -66,7 +66,9 @@ set(handles.message_info_text,'String','');
 guidata(hObject,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
@@ -110,7 +112,7 @@ guidata(hObject,handles);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = horace_fitting_OutputFcn(hObject, eventdata, handles) 
+function varargout = horace_fitting_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -135,7 +137,9 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
@@ -206,7 +210,10 @@ function refresh_list_pushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
@@ -343,7 +350,7 @@ elseif val==5
     set(handles.bgx2_edit,'Enable','on');
     set(handles.fixx2_radiobutton,'Enable','on');
 end
-    
+
 
 
 
@@ -457,14 +464,14 @@ if isfield(handles,'w_in');
             guidata(gcbo,handles);
             return;
         end
-        
-        
+
+
     else
         mess='Horace GUI logic flaw - contact horacehelp@stfc.ac.uk so that we can fix this';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end    
+    end
 end
 
 guidata(gcbo,handles);
@@ -608,7 +615,7 @@ elseif handles.bgfunc==3
 elseif handles.bgfunc==4
     bgfuncstr='quad_bg';
 else
-    
+
 end
 
 if handles.peakfunc==1
@@ -681,17 +688,17 @@ bgon=strcmp(get(handles.background_edit,'Enable'),'on');
 slopeon=strcmp(get(handles.bgslope_edit,'Enable'),'on');;
 x2on=strcmp(get(handles.bgx2_edit,'Enable'),'on');
 
-if (isempty(constarray) & bgon) || (any(isnan(constarray)) & bgon) 
+if (isempty(constarray) & bgon) || (any(isnan(constarray)) & bgon)
     mess='Background must be a single number -- no fitting performed';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
-elseif (isempty(slopearray) & slopeon) || (any(isnan(slopearray)) & slopeon) 
+elseif (isempty(slopearray) & slopeon) || (any(isnan(slopearray)) & slopeon)
     mess='Slope must be a single number -- no fitting performed';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
-elseif (isempty(x2array) & x2on) || (any(isnan(x2array)) & x2on) 
+elseif (isempty(x2array) & x2on) || (any(isnan(x2array)) & x2on)
     mess='x^2 coefficient must be a single number -- no fitting performed';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
@@ -756,7 +763,7 @@ catch
     guidata(gcbo,handles);
     return;
 end
-    
+
 assignin('base',outname,out);
 
 %We now wish to print the fitdata in the message window:
@@ -773,7 +780,7 @@ for i=1:npeaks
     mess_to_print{7+3*(i-1)}=['Centre ',num2str(i),' = ',num2str(fitdata.p(2+3*(i-1))),...
         ' +/- ',num2str(fitdata.sig(2+3*(i-1)))];
     mess_to_print{8+3*(i-1)}=['Width ',num2str(i),' = ',num2str(fitdata.p(3+3*(i-1))),...
-        ' +/- ',num2str(fitdata.sig(3+3*(i-1)))];    
+        ' +/- ',num2str(fitdata.sig(3+3*(i-1)))];
 end
 
 %also must include background info (a little trickier):
@@ -1060,7 +1067,7 @@ elseif handles.bgfunc==3
 elseif handles.bgfunc==4
     bgfuncstr='quad_bg';
 else
-    
+
 end
 
 if handles.peakfunc==1
@@ -1133,17 +1140,17 @@ bgon=strcmp(get(handles.background_edit,'Enable'),'on');
 slopeon=strcmp(get(handles.bgslope_edit,'Enable'),'on');;
 x2on=strcmp(get(handles.bgx2_edit,'Enable'),'on');
 
-if (isempty(constarray) & bgon) || (any(isnan(constarray)) & bgon) 
+if (isempty(constarray) & bgon) || (any(isnan(constarray)) & bgon)
     mess='Background must be a single number -- no simulation performed';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
-elseif (isempty(slopearray) & slopeon) || (any(isnan(slopearray)) & slopeon) 
+elseif (isempty(slopearray) & slopeon) || (any(isnan(slopearray)) & slopeon)
     mess='Slope must be a single number -- no simulation performed';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
-elseif (isempty(x2array) & x2on) || (any(isnan(x2array)) & x2on) 
+elseif (isempty(x2array) & x2on) || (any(isnan(x2array)) & x2on)
     mess='x^2 coefficient must be a single number -- no simulation performed';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
@@ -1177,7 +1184,7 @@ catch
     guidata(gcbo,handles);
     return;
 end
-    
+
 assignin('base',outname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);

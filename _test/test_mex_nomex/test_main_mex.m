@@ -1,11 +1,11 @@
 classdef test_main_mex < TestCase
     % Series of tests to check work of mex files against Matlab files
-    
+
     properties
         accum_cut_folder;
         this_folder;
         curr_folder;
-        
+
         nPolar=99;
         nAzim =101;
         nDet;
@@ -13,7 +13,7 @@ classdef test_main_mex < TestCase
         efix=100;
         use_mex;
     end
-    
+
     methods
         function this=test_main_mex (varargin)
             if nargin>0
@@ -22,7 +22,7 @@ classdef test_main_mex < TestCase
                 name = 'test_mex_nomex';
             end
             this = this@TestCase(name);
-            
+
             root_folder = horace_root();
             if ispc
                 this.accum_cut_folder=fullfile(root_folder,'horace_core','\@sqw');
@@ -32,7 +32,7 @@ classdef test_main_mex < TestCase
             this.this_folder = fileparts(which('test_main_mex.m'));
             this.curr_folder = pwd();
             this.nDet=this.nPolar*this.nAzim;
-            
+
             this.use_mex = get(hor_config,'use_mex');
             % addpath(this.this_folder);
         end
@@ -54,7 +54,7 @@ classdef test_main_mex < TestCase
             [urange_step_pix_recent2, ok2, ix2, s2, e2, npix2, npix_retain2,success]= ...
                 proj.accumulate_cut(data.pix,data.s,data.e,data.npix,pax,1,0,1,4);
             assertTrue(success)
-            
+
             assertEqual(npix_retain1,npix_retain2)
             assertElementsAlmostEqual(urange_step_pix_recent1,urange_step_pix_recent2);
             assertEqual(sum(ok1),sum(ok2));
@@ -62,46 +62,44 @@ classdef test_main_mex < TestCase
             assertElementsAlmostEqual(s1,s2);
             assertElementsAlmostEqual(e1,e2);
             assertElementsAlmostEqual(npix1,npix2);
-            
+
         end
-        
-        
+
+
         function this=test_accum_cut(this)
             [~,n_errors] = check_horace_mex();
             if n_errors>0
                 skipTest('Can not use and test mex code to accumulate_cut');
             end
-            
-            
-            
+
             [data,proj]=gen_fake_accum_cut_data(this,[1,0,0],[0,1,0]);
             %[v,sizes,rot_ustep,trans_bott_left,ebin,trans_elo,urange_step_pix,urange_step]=gen_fake_accum_cut_data(this,0,0);
             urange_step_pix=zeros(2,4);
             urange_step_pix(1,:) =  Inf;
             urange_step_pix(2,:) = -Inf;
-            
+
             hc = hor_config;
             current_state = hc.use_mex;
-            clob = onCleanup(@()set(hc,'use_mex',current_state));            
+            clob = onCleanup(@()set(hc,'use_mex',current_state));
             hc.saveable = false;
-            
+
             %check matlab-part
             hc.use_mex = false;
-            
+
             [s_m, e_m, npix_m, urange_step_pix_m, npix_retain_m,ok_m, ix_m] =...
                 cut_data_from_file_job.accumulate_cut(data.s, data.e, data.npix,...
                 urange_step_pix, true,...
                 data.pix,proj, [1,2,3,4]);
-            
-            
+
+
             %check C-part
             hc.use_mex = true;
-            
+
             [s_c, e_c, npix_c, urange_step_pix_c, npix_retain_c,ok_c, ix_c] = ...
                 cut_data_from_file_job.accumulate_cut(data.s, data.e, data.npix,...
                 urange_step_pix, true,...
                 data.pix,proj, [1,2,3,4]);
-            
+
             % verify results against each other.
             assertElementsAlmostEqual(urange_step_pix_m,urange_step_pix_c,'relative',1.e-7);
             assertElementsAlmostEqual(s_m,s_c);
@@ -111,62 +109,62 @@ classdef test_main_mex < TestCase
             assertEqual(ok_m,ok_c);
             assertElementsAlmostEqual(ix_m,double(ix_c),'absolute',1.e-12);
         end
-        
+
         function this=test_calc_proj(this)
-            [~,n_errors] = check_horace_mex();            
+            [~,n_errors] = check_horace_mex();
             if n_errors>0
                 skipTest('Can not use and test mex code to calc_projections');
             end                        %
             hc = hor_config;
             current_state = hc.use_mex;
-            clob = onCleanup(@()set(hc,'use_mex',current_state));            
+            clob = onCleanup(@()set(hc,'use_mex',current_state));
             hc.saveable = false;
-            
+
             rd =calc_fake_data(this);
             %
             hc.use_mex = false;
-            
+
             [pix_range_matl,u_to_rlu_matl,pix_matl]=rd.calc_projections();
-            
+
             hc.use_mex = true;
             [pix_range_c,u_to_rlu_c,pix_c]=rd.calc_projections();
-            
+
             assertElementsAlmostEqual(u_to_rlu_matl,u_to_rlu_c,'absolute',1.e-8);
             assertElementsAlmostEqual(pix_range_matl,pix_range_c,'absolute',1.e-8);
             assertElementsAlmostEqual(pix_matl.data,pix_c.data,'absolute',1.e-8);
-            
+
         end
-        
+
         function test_calc_proj_options(this)
-            [~,n_errors] = check_horace_mex();            
+            [~,n_errors] = check_horace_mex();
             if n_errors>0
                 skipTest('Can not use and test mex code for calc_projections with parameters');
-            end                      
+            end
 
-            
+
             rd = calc_fake_data(this);
             hcf = hor_config;
             current_state = hcf.use_mex;
-            clob = onCleanup(@()set(hcf,'use_mex',current_state));            
+            clob = onCleanup(@()set(hcf,'use_mex',current_state));
             hcf.saveable = false;
 
-            
+
             hcf.use_mex = 0;
             [pix_range_matl,u_to_rlu_matl]=rd.calc_projections();
             hcf.use_mex = 1;
             [pix_range_c,u_to_rlu_c]=rd.calc_projections();
-            
+
             assertElementsAlmostEqual(u_to_rlu_matl,u_to_rlu_c,'absolute',1.e-8);
             assertElementsAlmostEqual(pix_range_matl,pix_range_c,'absolute',1.e-8);
-            
-            
+
+
             hcf.use_mex = 0;
             [pix_range_matl,u_to_rlu_matl,pix_m]=rd.calc_projections();
-            
+
             assertEqual(size(pix_m.data, 1), 9);
             hcf.use_mex = 1;
             [pix_range_c,u_to_rlu_c,pix_c]=rd.calc_projections();
-            
+
             assertElementsAlmostEqual(u_to_rlu_matl,u_to_rlu_c,'absolute',1.e-8);
             assertElementsAlmostEqual(pix_range_matl,pix_range_c,'absolute',1.e-8);
             assertEqual(size(pix_c.data, 1), 9);
@@ -175,7 +173,7 @@ classdef test_main_mex < TestCase
         function test_recompute_bin_data(~)
             [cur_mex,log_level,n_threads] = get(hor_config,'use_mex','log_level','threads');
             cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex,'log_level',log_level,'threads',n_threads));
-            
+
             test_sqw = sqw();
             pix=PixelData(ones(9,40000));
             xs = 0.1:1:10;
@@ -191,31 +189,31 @@ classdef test_main_mex < TestCase
             e = new_sqw.data.e;
             assertElementsAlmostEqual(4*s,npix);
             assertElementsAlmostEqual((4*4)*e,npix);
-            
 
-            [~,n_errors] = check_horace_mex();            
+
+            [~,n_errors] = check_horace_mex();
             if n_errors>0
                 skipTest('MEX code is broken and can not be used to check against Matlab for recompute_bin_data');
-            end                      
-            
+            end
+
             set(hor_config,'use_mex',true,'threads',1);
             new_sqw1 = recompute_bin_data_tester(test_sqw);
             assertElementsAlmostEqual(new_sqw1.data.s,s)
             assertElementsAlmostEqual(new_sqw1.data.e,e)
-            
+
             set(hor_config,'use_mex',true,'threads',8);
             new_sqw2 = recompute_bin_data_tester(test_sqw);
             assertElementsAlmostEqual(new_sqw2.data.s,s)
             assertElementsAlmostEqual(new_sqw2.data.e,e)
-            
+
         end
-        
-        
+
+
         function test_sort_pix(~)
             % prepare pixels to sort
             [cur_mex,log_level,n_threads] = get(hor_config,'use_mex','log_level','threads');
             cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex,'log_level',log_level,'threads',n_threads));
-            
+
             pix=ones(9,40000);
             xs = 9.6:-1:0.6;
             xp = 0.1:0.5:10;
@@ -232,31 +230,29 @@ classdef test_main_mex < TestCase
             iz = ceil(pix.u3);
             ie = ceil(pix.dE);
             ix = sub2ind(size(npix), ix,iy,iz,ie);
-            
+
             % test sorting parameters and matlab sorting
             pix1 = sort_pix(pix,ix,[]);
             assertElementsAlmostEqual(pix1.energy_idx(1:4),[1810,1820,3810,3820]);
             assertElementsAlmostEqual(pix1.energy_idx(5:8),[1809,1819,3809,3819]);
             assertElementsAlmostEqual(pix1.energy_idx(end-3:end),[36181,36191,38181,38191]);
-            
+
             pix2 = sort_pix(pix,ix,npix,'-nomex');
             assertElementsAlmostEqual(pix1.data,pix2.data);
-            
-            [~,n_errors] = check_horace_mex();            
+
+            [~,n_errors] = check_horace_mex();
             if n_errors>0
                 skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
-            end                                  
+            end
             % test mex
             pix1 = sort_pix(pix,ix,npix,'-force_mex');
             assertElementsAlmostEqual(pix1.energy_idx(1:4),[1810,1820,3810,3820]);
             assertElementsAlmostEqual(pix1.data, pix2.data);
-            
+
             pix0 = PixelData(single(pix.data));
             ix0  = int64(ix);
             pix0a = sort_pix(pix0,ix0,npix,'-force_mex');
             assertElementsAlmostEqual(pix0a.data, pix2.data,'absolute',1.e-6);
-            
-            
         end
         function profile_sort_pix(~)
             xs = 9.99:-0.1:0.01;
@@ -278,7 +274,7 @@ classdef test_main_mex < TestCase
             pix0 = single(pix);
             ix0 = int64(ix);
             clear iy iz ie ux uy uz et
-            
+
             disp('Profile started')
             profile on
             % test sorting parameters and matlab sorting
@@ -289,12 +285,12 @@ classdef test_main_mex < TestCase
             t=toc(t1)
             pix1 = sort_pix(pix0,ix0,npix,'-nomex','-keep_type');
             t=toc(t1)
-            
+
             profile off
             profview;
-            
+
         end
-        
+
         function  rd = calc_fake_data(this)
             rd = rundatah();
             rd.efix = this.efix;
@@ -302,7 +298,7 @@ classdef test_main_mex < TestCase
             lat = oriented_lattice(struct('alatt',[1,1,1],'angdeg',[92,88,73],...
                 'u',[1,0,0],'v',[1,1,0],'psi',20));
             rd.lattice = lat;
-            
+
             det = struct('filename','','filepath','');
             det.x2  = ones(1,this.nDet);
             det.group = 1:this.nDet;
@@ -313,21 +309,21 @@ classdef test_main_mex < TestCase
             det.width= 0.1*ones(1,this.nAzim*this.nPolar);
             det.height= 0.1*ones(1,this.nAzim*this.nPolar);
             rd.det_par = det;
-            
+
             S   = rand(this.nEn,this.nDet);
             rd.S   = S;
             rd.ERR = sqrt(S);
             rd.en =(-this.efix+(0:(this.nEn))*(1.99999*this.efix/(this.nEn)))';
-            
-            
+
+
         end
         function [data,proj]=gen_fake_accum_cut_data(this,u,v)
             % build fake data to test accumulate cut
-            
+
             nPixels = this.nDet*this.nEn;
             ebin=1.99*this.efix/this.nEn;
             en = -this.efix+(0:(this.nEn-1))*ebin;
-            
+
             L1=20;
             L2=10;
             L3=2;
@@ -342,7 +338,7 @@ classdef test_main_mex < TestCase
                 data.e    = zeros(size(data.s));
                 data.npix = zeros(size(data.s));
             end
-            
+
             vv=ones(9,nPixels);
             for i=1:3
                 p=data.p{i};
@@ -353,8 +349,8 @@ classdef test_main_mex < TestCase
                 vv(i,:) =p_mi:step:p_ma;
             end
             vv(4,:)=repmat(en,1,this.nDet);
-            
-            
+
+
             minv  =min(vv,[],2);
             maxv  =max(vv,[],2);
             minv=minv(1:4);
@@ -364,7 +360,7 @@ classdef test_main_mex < TestCase
             [ok,type,mess] = data.check_sqw_data('a');
             assertTrue(ok,['Invalid test data generated: ',mess]);
             assertEqual(type,'b+','Invalid test data type generated, type ''b+'' expected')
-            
+
             % set to cut half of the dataset in all 4 dimensions (1/16 of
             % total dataset)
             pix_range(1,:) =  0.5*(minv+maxv);
@@ -374,20 +370,18 @@ classdef test_main_mex < TestCase
             % used on different machines and c vs matlab
             pix_range(1,4) =  1.01*pix_range(1,4);
             pix_range(2,:) =  (maxv-minv);
-            
+
             % Prepare cut projection to cut half of the data
             proj = projection(prj);
             upix_to_rlu=eye(3);
             upix_offset = zeros(4,1);
-            
+
             proj=proj.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
             % Important!!!!! to have the same number of bins as target data.s.
             % The question is how to assure that.
             step = (maxv-minv)./size(data.s)';
             proj=proj.set_proj_binning(pix_range,[1,2,3,4],[],...
                 {minv(1):step(1):maxv(1),minv(2):step(2):maxv(2),minv(3):step(3):maxv(3),minv(4):step(4):maxv(4)});
-            
-            
         end
     end
 end

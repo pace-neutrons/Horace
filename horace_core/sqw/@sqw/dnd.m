@@ -6,8 +6,9 @@ function wout = dnd (win)
 % Original author: T.G.Perring
 %
 % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
+%==========================================================================
 
-% Check that all elements in the array have same dimensionality
+% Check that all elements in the array have same and legal dimensionality
 for i=1:numel(win)
     if i==1
         nd=dimensions(win(1));
@@ -19,17 +20,10 @@ end
 if nd<0||nd>4
     error('Dimensionality of sqw object must be 0,1,2..4')
 end
-for i=1:numel(win)
-    if ~isempty(win(i).data)
-        if isa(win(i).data,'data_sqw_dnd')
-            din=win(i).data.get_dnd_data();    
-        elseif isstruct(win(i).data) % old sqw contains structure rather then class
-            din = win(i).data;
-        end
-    else
-        din = struct();
-    end
 
+% convert to DnD according to dimensionality
+for i=1:numel(win)
+    din = win(i);
     if i==1
         if nd==0
             wout=d0d(din);

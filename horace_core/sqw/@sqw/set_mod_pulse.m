@@ -79,10 +79,10 @@ for i=1:nobj
     if source_is_file
         ld = w.loaders_list{i};
         nfiles = ld.num_contrib_files;
-        tmp = ld.get_header('-all');        
+        tmp = ld.get_header('-all');
     else
         h=wout(i);  % pointer to object
-        nfiles=h.main_header.nfiles;        
+        nfiles=h.main_header.nfiles;
         tmp=h.header;   % to keep referencing to sub-fields to a minimum
     end
     % Change the header
@@ -99,7 +99,7 @@ for i=1:nobj
     end
     % Write back out
     if source_is_file
-        ld = ld.upgrade_file_format(); % if file was old version one, upgrade to new, 
+        ld = ld.upgrade_file_format(); % if file was old version one, upgrade to new,
         % if not, opens for writing
         tt = sqw();
         tt.header = tmp;
@@ -115,7 +115,7 @@ if source_is_file
 else
     argout{1}=wout;
 end
-    
+
 
 % Package output arguments
 % ------------------------

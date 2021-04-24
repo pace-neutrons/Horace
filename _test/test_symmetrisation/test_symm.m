@@ -25,7 +25,7 @@ classdef test_symm < TestCase
             
             % To ensure some of the catches for dnd symmetrisation work properly, need
             % to add some errorbars to all of the data points as well. Take from the
-            original data. Errorbars are rescaled to be appropriate size for new
+            % original data. Errorbars are rescaled to be appropriate size for new
             % signal array
             
             % Three-dimensional data sets
@@ -103,9 +103,9 @@ classdef test_symm < TestCase
         % ------------------------------------------------------------------------------------------------
         function this = test_sym_d2d(this)
             % d2d symmetrisation:
-            w2d_qe_d2d = read_dnd(fullfile(this.testdir,'w2d_qe_d2d.sqw'));
-            w2d_qq_d2d = read_dnd(fullfile(this.testdir,'w2d_qq_d2d.sqw'));
-            
+            w2d_qe_d2d = d2d(fullfile(this.testdir,'w2d_qe_d2d.sqw'));
+            w2d_qq_d2d = d2d(fullfile(this.testdir,'w2d_qq_d2d.sqw'));
+
             w2_1 = symmetrise_horace_2d(w2d_qe_d2d,[0,NaN]);
             w2_2 = symmetrise_horace_2d(w2d_qq_d2d,[-0.005,NaN]);
             
@@ -121,11 +121,11 @@ classdef test_symm < TestCase
             % actually unlikely to be the same, because the methodology is totally
             % different...
             % Diagonal symm axis
-            w2d_qq_sqw=read_sqw(fullfile(this.testdir,'w2d_qq_sqw.sqw'));
-            w2_2b_s=d2d(symmetrise_sqw(w2d_qq_sqw,[0,0,1],[0,1,0],[0,0,0]));
+            w2d_qq_sqw=sqw(fullfile(this.testdir,'w2d_qq_sqw.sqw')); % CMDEV was read_sqw
+            w2_2b_s=d2d(symmetrise_sqw(w2d_qq_sqw,[0,0,1],[0,1,0],[0,0,0]));% CMDEV was d2d
             w2_2b_s=cut(w2_2b_s,[-1,0,1],[-1,0,1]);
-            
-            w2d_qq_d2d=read_dnd(fullfile(this.testdir,'w2d_qq_d2d.sqw'));
+
+            w2d_qq_d2d=d2d(fullfile(this.testdir,'w2d_qq_d2d.sqw'));
             w2_2b=symmetrise_horace_2d(w2d_qq_d2d,[0,0,1],[0,1,0],[0,0,0]);
             w2_2b=cut(w2_2b,[-1,0,1],[-1,0,1]);
             
@@ -145,7 +145,8 @@ classdef test_symm < TestCase
         
         % ------------------------------------------------------------------------------------------------
         function this=test_random_symax(this)
-            w2d_qq_small_d2d=read_dnd(fullfile(this.testdir,'w2d_qq_small_d2d.sqw'));
+            %w2d_qq_small_d2d=read_dnd(fullfile(this.testdir,'w2d_qq_small_d2d.sqw')); % CMDEV
+            w2d_qq_small_d2d=d2d(fullfile(this.testdir,'w2d_qq_small_d2d.sqw'));
             % Random symm axis (ensure shoelace algorithm is actually tested)
             disp(' ')
             disp('symmetrise_horace_2d: long operation --- wait for <2 min');

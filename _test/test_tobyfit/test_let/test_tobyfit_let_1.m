@@ -55,7 +55,7 @@ fprintf('RNG seed: %i\n', rng_state.Seed);
 % --------------------------------------------------------------------------------------
 
 % Read in data
-load(datafile);
+load(datafile, 'w1a', 'w1b');
 
 efix = 8.04;
 instru = let_instrument_obj_for_tests (efix, 280, 140, 20, 2, 2);
@@ -96,7 +96,7 @@ kk = kk.set_options('listing',nlist);
 
 [wfit_1,fitpar_1]=kk.fit;
 
-acolor r b; plot(wdata_1); pl(wfit_1);
+acolor r b; iplot(wdata_1); pl(wfit_1);
 
 
 if test_output

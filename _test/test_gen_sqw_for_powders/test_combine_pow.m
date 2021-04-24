@@ -6,7 +6,7 @@ classdef test_combine_pow < TestCaseWithSave
     %                                  % for information about the system specific location returned by tmp_dir)
     %
     % Author: T.G.Perring
-    
+
     properties
         spe_file_1;
         spe_file_2;
@@ -17,7 +17,7 @@ classdef test_combine_pow < TestCaseWithSave
         psi_2;
     end
     methods
-        
+
         function this=test_combine_pow(varargin)
             % constructor
             if nargin > 0
@@ -30,9 +30,9 @@ classdef test_combine_pow < TestCaseWithSave
             common_data_dir=fullfile(hor_root,'_test','common_data');
             test_functions_path=fullfile(hor_root,'_test/common_functions');
             addpath(test_functions_path);
-            
-            
-            
+
+
+
             % =====================================================================================================================
             % Create spe files:
             this.par_file=fullfile(common_data_dir,'map_4to1_dec09.par');
@@ -40,7 +40,7 @@ classdef test_combine_pow < TestCaseWithSave
             % test files are present
             this.spe_file_1=fullfile(spe_dir,'test_combine_1.nxspe');
             this.spe_file_2=fullfile(spe_dir,'test_combine_2.nxspe');
-            
+
             this.efix=100;
             emode=1;
             alatt=2*pi*[1,1,1];
@@ -48,12 +48,12 @@ classdef test_combine_pow < TestCaseWithSave
             u=[1,0,0];
             v=[0,1,0];
             omega=0; dpsi=0; gl=0; gs=0;
-            
+
             % Simulate first file, with reproducible random looking noise
             % -----------------------------------------------------------
             en=-5:1:90;
             this.psi_1=0;
-            
+
             if ~exist(this.spe_file_1,'file')
                 simulate_spe_testfunc (en, this.par_file, this.spe_file_1, @sqw_cylinder, [10,1], 0.3,...
                     this.efix, emode, alatt, angdeg, u, v, this.psi_1, omega, dpsi, gl, gs)
@@ -69,25 +69,25 @@ classdef test_combine_pow < TestCaseWithSave
             % test files are in svn
             add_to_path_cleanList(this,test_functions_path);
         end
-        
+
         function this=test_combine_pow1(this)
             % Create sqw files, combine and check results
             % -------------------------------------------
             sqw_file_1=fullfile(tmp_dir,'test_pow_1.sqw');
             % clean up
             cleanup_obj=onCleanup(@()this.delete_files(sqw_file_1));
-            
+
             emode = 1;
-            
+
             gen_sqw_powder(this.spe_file_1, this.par_file, sqw_file_1, this.efix, emode);
-            
-            
+
+
             w2_1 = cut_sqw(sqw_file_1,[0,0.05,8],0,'-nopix');
             w1_1 = cut_sqw(sqw_file_1,[0,0.05,3],[40,50],'-nopix');
             tol  = 2.e-2;
             this.assertEqualToTolWithSave(w2_1,'ignore_str',true,'reltol',tol )
             this.assertEqualToTolWithSave(w1_1,'ignore_str',true,'reltol',tol )
-            
+
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
             acolor k
@@ -96,7 +96,7 @@ classdef test_combine_pow < TestCaseWithSave
             da(w2_1)
             close all
             %--------------------------------------------------------------------------------------------------
-            
+
         end
         function this=test_combine_pow2(this)
             % Create sqw files, combine and check results
@@ -104,19 +104,19 @@ classdef test_combine_pow < TestCaseWithSave
             sqw_file_2=fullfile(tmp_dir,'test_pow_2.sqw');
             % clean up
             cleanup_obj=onCleanup(@()this.delete_files(sqw_file_2));
-            
+
             emode = 1;
-            
+
             gen_sqw_powder(this.spe_file_2, this.par_file, sqw_file_2, this.efix, emode);
-            
+
             w2_2=cut_sqw(sqw_file_2,[0,0.05,8],0,'-nopix');
-            
+
             w1_2=cut_sqw(sqw_file_2,[0,0.05,3],[40,50],'-nopix');
-            
+
             tol = 9.e-2;
             this.assertEqualToTolWithSave(w2_2,'ignore_str',true,'reltol',tol )
             this.assertEqualToTolWithSave(w1_2,'ignore_str',true,'reltol',tol )
-            
+
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
             acolor k
@@ -126,23 +126,25 @@ classdef test_combine_pow < TestCaseWithSave
             %--------------------------------------------------------------------------------------------------
         end
         function this = test_combine_pow_tot(this)
+            skipTest("Not tested - parallel issues");
+
             % Create sqw files, combine and check results
             % -------------------------------------------
             sqw_file_tot=fullfile(tmp_dir,'test_pow_tot.sqw');
             % clean up
             cleanup_obj=onCleanup(@()this.delete_files(sqw_file_tot));
-            
+
             emode = 1;
             gen_sqw_powder({this.spe_file_1,this.spe_file_2}, this.par_file, sqw_file_tot, this.efix, emode);
-            
+
             w2_tot=cut_sqw(sqw_file_tot,[0,0.05,8],0,'-nopix');
-            
+
             w1_tot=cut_sqw(sqw_file_tot,[0,0.05,3],[40,50],'-nopix');
 
             tol = 2.e-2;
             this.assertEqualToTolWithSave(w2_tot,'ignore_str',true,'reltol',tol )
             this.assertEqualToTolWithSave(w1_tot,'ignore_str',true,'reltol',tol )
-                        
+
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
             acolor k
@@ -152,8 +154,8 @@ classdef test_combine_pow < TestCaseWithSave
             % acolor r
             % pd(w1_tot)  % does not overlay - but that is OK
             %--------------------------------------------------------------------------------------------------
-            
+
         end
-        
+
     end
 end

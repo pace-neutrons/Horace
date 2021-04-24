@@ -145,6 +145,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             assertEqual(sqw_obj.main_header.filepath,fo.filepath)
             
             sqw_obj1 = fo.get_sqw('-hverbatim');
+            
             assertTrue(isa(sqw_obj1,'sqw'));
             assertEqual(sqw_obj1.main_header.filename,'test_sqw_file_read_write_v3.sqw')
             assertEqual(sqw_obj1.main_header.filepath,...

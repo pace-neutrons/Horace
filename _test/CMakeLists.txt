@@ -6,7 +6,7 @@ set(TEST_DIRECTORIES
     "test_combine"
     "test_configuration"
     "test_converters"
-    "test_dnd"
+    "test_dnd_class"
     "test_gen_sqw_for_powders"
     "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_herbert"
     "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_mex"
@@ -18,6 +18,7 @@ set(TEST_DIRECTORIES
     "test_rebin"
     "test_sqw_file"
     "test_sqw"
+    "test_sqw_class"
     "test_sym_op"
     "test_symmetrisation"
     "test_tobyfit"
@@ -51,6 +52,8 @@ foreach(_test_dir ${TEST_DIRECTORIES})
     elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_parpool")
         set(TEST_TIMEOUT_LENGTH "2100")  # 35 minutes
     elseif("${_test_dir}" STREQUAL "test_tobyfit")
+        set(TEST_TIMEOUT_LENGTH "3000")  # 50 minutes
+    elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow")
         set(TEST_TIMEOUT_LENGTH "3000")  # 50 minutes
     elseif("${_test_dir}" STREQUAL "test_tobyfit/test_refine_crystal")
         set(TEST_TIMEOUT_LENGTH "1800")  # 30 minutes

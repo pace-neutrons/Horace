@@ -38,7 +38,7 @@ function [data_source, args, mess] = horace_function_parse_input (nargout_caller
 %                  as an alternative to >> w=read_sqw('myfile.sqw'). This option is best avoided
 %                  because it sits outside the standard convention for the writing of methods that
 %                  operate on both objects and files.
-%                   
+%
 %
 %   arg1, arg2,...  All other input arguments; these are passed through in output argument args (see below)
 %
@@ -74,7 +74,7 @@ function [data_source, args, mess] = horace_function_parse_input (nargout_caller
 %                                      function that originally contructed the data source structure.
 %
 %                   The data source structure contents are determined from the input data source (object,
-%                  file, or data source object). 
+%                  file, or data source object).
 %
 %                   If object data source:
 %                   ----------------------
@@ -117,14 +117,24 @@ function [data_source, args, mess] = horace_function_parse_input (nargout_caller
 % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
-% Default values if there is an error
-data_source=struct('source_is_file',{},'data',{},'sqw_type',{},'ndims',{},'nfiles',{},'source_arg_is_struct',{},...
-    'nargout_req',{},'loaders_list',{} );
+% Default values in case there is an error
+% ----------------------------------------
+data_source=struct(...
+    'source_is_file',      {}, ...
+    'data',                {}, ...
+    'sqw_type',            {}, ...
+    'ndims',               {}, ...
+    'nfiles',              {}, ...
+    'source_arg_is_struct',{}, ...
+    'nargout_req',         {}, ...
+    'loaders_list',        {}  ...
+);
 args=cell(1,0);
 
 % Parse input arguments
 % ---------------------
 narg=numel(varargin);
+
 % Check if the input format (nargout_caller, dummy_obj, filename,...,'$obj_and_file_ok') is permitted
 if narg>=1 && is_string(varargin{end}) && strcmpi(varargin{end},'$obj_and_file_ok')
     obj_and_file_ok=true;
@@ -134,9 +144,13 @@ else
 end
 
 % Check for valid argument lists
-if narg>=2 && is_filename(varargin{2}) && (is_horace_data_file_opt(varargin{1}) || (obj_and_file_ok && is_horace_data_object(varargin{1})))  
-    % Input arguments must start: (nargout_caller, dummy_obj, filename,...,'$obj_and_file_ok')
-    %                         or: (nargout_caller, file_opt, filename,...)
+if narg>=2 && is_filename(varargin{2}) && ...
+    ( is_horace_data_file_opt(varargin{1}) || ...
+      (obj_and_file_ok && isa(varargin{1},'SQWDnDBase')) ...
+    )
+    %                                                 <----- varargin ----------------------->
+    % Input arguments must start: (nargout_in_caller, dummy_obj, filename,...,'$obj_and_file_ok')
+    %                         or: (nargout_in_caller, file_opt,  filename,...)
     % The dummy object determines the data that must be contained in the files:
     %  - if sqw object: All files contain sqw data i.e. have pixel information.
     %  - if dnd object: All files must have the same dimensionality as the dummy object.
@@ -184,8 +198,8 @@ if narg>=2 && is_filename(varargin{2}) && (is_horace_data_file_opt(varargin{1}) 
             data_source(1).loaders_list = ld; % cellarray of loaders --- one per file
         end
     end
-    
-elseif narg>=2 && is_horace_data_object(varargin{1}) && (isstruct(varargin{2}) &&...
+
+elseif narg>=2 && isa(varargin{1},'SQWDnDBase') && (isstruct(varargin{2}) &&...
         numel(fields(data_source))==numel(fields(varargin{2})) &&...
         all(strcmp(fields(data_source),fields(varargin{2}))))
     % Input arguments must start: (nargout_caller, dummy_obj, data_source_structure,...)
@@ -220,8 +234,8 @@ elseif narg>=2 && is_horace_data_object(varargin{1}) && (isstruct(varargin{2}) &
         data_source.source_arg_is_struct=true;
         if narg>=3, args=varargin(3:narg); else args=cell(1,0); end    % to work in all cases
     end
-    
-elseif narg>=1 && is_horace_data_object(varargin{1})
+
+elseif narg>=1 && isa(varargin{1}, 'SQWDnDBase')
     % Input arguments must start: (nargout_caller, data_object,...)
     % We restrict the call to make a hard check on input, that is, an sqw object must
     % contain pixel information (to be consistent with how file data is handled).
@@ -232,8 +246,8 @@ elseif narg>=1 && is_horace_data_object(varargin{1})
         ndims=zeros(size(varargin{1}));
         nfiles=zeros(size(varargin{1}));
         for i=1:numel(varargin{1})
-            if ~is_sqw_type(varargin{1}(i))
-                mess='Data file(s) must all be sqw type i.e. must contain pixel information';
+            if ~has_pixels(varargin{1}(i))
+                mess='Data file(s) must all be sqw type *containing*  pixel information';
                 break
             end
             ndims(i)=dimensions(varargin{1}(i));
@@ -254,7 +268,7 @@ elseif narg>=1 && is_horace_data_object(varargin{1})
         data_source(1).nargout_req=nargout_caller;
         if narg>=2, args=varargin(2:narg); else args=cell(1,0); end    % to work in all cases
     end
-    
+
 else
     mess='Invalid data source';
 end
