@@ -50,17 +50,18 @@ classdef projection<aProjection
             %
             if ndim==4
                 shift  = obj.uoffset';
-                u_to_rlu  = [u_to_rlu,[0;0;0];[0,0,0,1]];
+                u_to_rlu  = [b_mat,[0;0;0];[0,0,0,1]];
                 rot_to_img = [rot_to_img,[0;0;0];[0,0,0,1]];
             elseif ndim == 3
                 shift  = obj.uoffset(1:3)';
+                u_to_rlu  = b_mat;
             else
                 error('HORACE:rundatah:invalid_argument',...
                     'The size of the pixels array should be [3xNpix] or [4xNpix], actually it is: %s',...
                     evalc('disp(size(pix_cc))'));
             end
             % convert shift, expressed in hkl into crystal Cartesian
-            shift = [b_mat,[0;0;0];[0,0,0,1]]\shift';
+            shift = u_to_rlu \shift';
             
         end
     end

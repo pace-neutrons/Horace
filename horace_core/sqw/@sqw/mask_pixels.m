@@ -33,7 +33,7 @@ function wout = mask_pixels (win, mask_array)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
+
 
 
 % Check object to be masked is an sqw-type object
