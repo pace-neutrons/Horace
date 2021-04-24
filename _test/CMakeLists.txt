@@ -48,15 +48,17 @@ set(ENV_VARIABLES
 
 foreach(_test_dir ${TEST_DIRECTORIES})
     if("${_test_dir}" STREQUAL "test_sqw")
-        set(TEST_TIMEOUT_LENGTH "1500")  # 25 minutes
+        set(TEST_TIMEOUT_LENGTH "2000")  # 33.3 minutes
     elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_parpool")
         set(TEST_TIMEOUT_LENGTH "2100")  # 35 minutes
     elseif("${_test_dir}" STREQUAL "test_tobyfit")
         set(TEST_TIMEOUT_LENGTH "3000")  # 50 minutes
     elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow")
         set(TEST_TIMEOUT_LENGTH "3000")  # 50 minutes
+    elseif("${_test_dir}" STREQUAL "test_tobyfit/test_refine_crystal")
+        set(TEST_TIMEOUT_LENGTH "1800")  # 30 minutes
     else()
-        set(TEST_TIMEOUT_LENGTH "960")  # 16 minutes
+        set(TEST_TIMEOUT_LENGTH "1200")  # 20 minutes
     endif()
 
     set(TEST_NAME "Matlab.${_test_dir}")

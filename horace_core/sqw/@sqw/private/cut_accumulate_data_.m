@@ -15,17 +15,17 @@ function [s, e, npix, pix_out, img_range, pix_comb_info] = ...
 %
 % Output:
 % -------
-% s                The image signal data.
-% e                The variance in the image signal data.
-% npix             Array defining how many pixels are contained in each image
-%                  bin. size(npix) == size(s)
-% pix_out          A PixelData object containing pixels that contribute to the
-%                  cut.
-% img_range        The range of u1, u2, u3, and dE in the contributing pixels.
-%                  size(urange_pix) == [2, 4].
-% pix_combine_info A temp file manager/combiner for performing out-of-memory
-%                  cuts. If keep_pix is false, or return_cut is true, this
-%                  will be empty.
+% s              The image signal data.
+% e              The variance in the image signal data.
+% npix           Array defining how many pixels are contained in each image
+%                bin. size(npix) == size(s)
+% pix_out        A PixelData object containing pixels that contribute to the
+%                cut.
+% img_range      The real range of u1, u2, u3, and dE in the units of projection
+%                axis coordinates. size(urange_pix) == [2, 4].
+% pix_combine_info Temp file manager/combiner class instance for performing
+%                  out-of-memory cuts. If keep_pix is false, or return_cut
+%                  is true, this will be empty.
 %
 % CALLED BY cut_single
 %
@@ -63,7 +63,7 @@ if keep_pix
     % Pre-allocate cell arrays to hold PixelData chunks
     pix_retained = cell(1, num_chunks);
     pix_ix_retained = cell(1, num_chunks);
-
+    
     if use_tmp_files
         % Create a pix_comb_info object to handle tmp files of pixels
         num_bins = numel(s);
@@ -78,10 +78,10 @@ if any(bin_size_gt_block_size)
     warning( ...
         'HORACE:SQW:memory', ...
         ['cut_accumulate_data_: some bins being accumulated during cut have ' ...
-         'more pixels than fit in a PixelData page size.\n'...
-         'Offending bins at indices [%s].'], ...
+        'more pixels than fit in a PixelData page size.\n'...
+        'Offending bins at indices [%s].'], ...
         num2str(find(bin_size_gt_block_size(:)')) ...
-    );
+        );
 end
 
 bin_starts = bin_starts(sub_bin_idxs(1, :));
@@ -90,14 +90,14 @@ for iter = 1:num_chunks
     % Get pixels that will likely contribute to the cut
     candidate_pix = obj.data.pix.get_pix_in_ranges( ...
         bin_starts(iter), bin_ends(iter) ...
-    );
-
-    if log_level >= 0
+        );
+    
+    if log_level >= 1
         fprintf(['Step %3d of %3d; Read data for %d pixels -- ' ...
-                 'processing data...'], iter, num_chunks, ...
-                candidate_pix.num_pixels);
+            'processing data...'], iter, num_chunks, ...
+            candidate_pix.num_pixels);
     end
-
+    
     [ ...
         s, ...
         e, ...
@@ -106,7 +106,7 @@ for iter = 1:num_chunks
         del_npix_retain, ...
         ok, ...
         ix ...
-    ] = cut_data_from_file_job.accumulate_cut( ...
+        ] = cut_data_from_file_job.accumulate_cut( ...
         s, ...
         e, ...
         npix, ...
@@ -115,12 +115,12 @@ for iter = 1:num_chunks
         candidate_pix, ...
         proj, ...
         proj.target_pax ...
-    );
-
-    if log_level >= 0
+        );
+    
+    if log_level >= 1
         fprintf(' ----->  retained  %d pixels\n', del_npix_retain);
     end
-
+    
     if keep_pix
         if use_tmp_files
             % Generate tmp files and get a pix_combine_info object to manage
@@ -132,9 +132,9 @@ for iter = 1:num_chunks
                 del_npix_retain ...
                 );
         else
-        % Retain only the pixels that contributed to the cut
-        pix_retained{iter} = candidate_pix.get_pixels(ok);
-        pix_ix_retained{iter} = ix;
+            % Retain only the pixels that contributed to the cut
+            pix_retained{iter} = candidate_pix.get_pixels(ok);
+            pix_ix_retained{iter} = ix;
         end
     end
 end  % loop over pixel blocks
@@ -142,7 +142,7 @@ end  % loop over pixel blocks
 if keep_pix
     [pix_out, pix_comb_info] = combine_pixels( ...
         pix_retained, pix_ix_retained, pix_comb_info, npix, obj.data.pix.page_size ...
-    );
+        );
 else
     pix_out = PixelData();
     pix_comb_info = [];
@@ -152,7 +152,7 @@ end
 urange_offset = repmat(proj.urange_offset, [2, 1]);
 img_range = img_range_step.*repmat(proj.usteps, [2, 1]) + urange_offset;
 
-[s, e] = average_signal(s, e, npix);
+[s, e] = normalize_signal(s, e, npix);
 
 end  % function
 
@@ -175,7 +175,7 @@ end
 end
 
 
-function [s, e] = average_signal(s, e, npix)
+function [s, e] = normalize_signal(s, e, npix)
 % Convert summed signal & error into averages
 s = s./npix;
 e = e./(npix.^2);

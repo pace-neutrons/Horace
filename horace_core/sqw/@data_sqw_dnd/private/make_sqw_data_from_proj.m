@@ -72,6 +72,6 @@ data.dax=1:ndim;
 data.s=zeros(sz);
 data.e=zeros(sz);
 data.npix=ones(sz);
-data.img_range = data_sqw_dnd.calc_img_range(data);
+data.img_db_range = dnd_binfile_common.calc_img_db_range(data);
 mess='';
 

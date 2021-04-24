@@ -1,0 +1,1 @@
+range_add_border -- move to public, add unit tests and reuse

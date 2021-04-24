@@ -19,6 +19,9 @@ function wout = mask (win, mask_array)
 % Output:
 % -------
 %   wout                Output dataset.
+%
+% Original author: T.G.Perring
+%
 
 % Initialise output argument
 if win.has_pixels()
@@ -50,5 +53,5 @@ wout.data_.npix(~mask_array) = 0;
 if has_pixels(win)
     wout.data_.pix = win.data_.pix.mask(mask_array, win.data_.npix);
     %TODO: is this a suitable algorithm?
-    wout.data_.img_range = recompute_img_range(wout);
+    wout.data.img_db_range = recompute_img_range(wout);
 end

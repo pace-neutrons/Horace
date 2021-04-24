@@ -1,17 +1,20 @@
-classdef test_calc_projections %<TestCase
+classdef test_calc_projections <TestCase
 % The test class which gets different transformation
 %
 % the purpose -- compare these transformations with Mantid transformations;
 %
-
     properties
     end
 
     methods
-    function this=test_calc_projections(name)
-            %this=this@TestCase(name);
-    end
-    function test_transf1(this)
+        function this=test_calc_projections(name)
+            if nargin<1
+                name = 'test_calc_projections';
+            end
+            this=this@TestCase(name);
+        end
+        function test_transf1(~)
+            skipTest('Requires generic projection refactoring');
       alatt = [1,2,3];
       angdeg= [90,90,90];
       u=[1,0,0];

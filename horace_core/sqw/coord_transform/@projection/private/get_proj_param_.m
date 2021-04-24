@@ -23,5 +23,8 @@ else
    
 end
 [~,~,~,~,~,u_to_rlu,ulen] = proj.get_pix_transf_();
-u_to_rlu = [[u_to_rlu,[0;0;0]];[0,0,0,1]];
 ulen = [ulen,1];
+if size(u_to_rlu,1) == 3
+    u_to_rlu = [u_to_rlu,[0;0;0];[0,0,0,1]];
+end
+

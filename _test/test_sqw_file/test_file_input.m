@@ -2,7 +2,7 @@ classdef  test_file_input < TestCase
     % Tests functionality of methods that can take object or file input
     %
     % Author: T.G.Perring
-
+    
     %banner_to_screen(mfilename)
     properties
         sqw1d_arr
@@ -13,12 +13,12 @@ classdef  test_file_input < TestCase
         sqw2d_name
         d1d_name
         d2d_name
-
+        
         refcount_;
         clob_obj_
     end
-
-
+    
+    
     methods
         function obj = test_file_input(varargin)
             if nargin > 0
@@ -36,7 +36,7 @@ classdef  test_file_input < TestCase
             % Read in test data sets
             % =================================================================================================
             % Note: this function assumes that read(sqw,sqwfilename) works correctly
-
+            
             [~,~,~,~,t_sqw1d_name,t_sqw2d_name,t_d1d_name,t_d2d_name]=create_testdata('get f-names');
             if isempty(t_sqw1d_arr) || ~(exist(t_sqw1d_name{1},'file')==2)
                 [t_sqw1d_arr,t_sqw2d_arr,t_d1d_arr,t_d2d_arr]=create_testdata();
@@ -52,7 +52,7 @@ classdef  test_file_input < TestCase
             obj.sqw2d_name= t_sqw2d_name;
             obj.d1d_name  = t_d1d_name;
             obj.d2d_name = t_d2d_name;
-
+            
             obj.clob_obj_ = onCleanup(@()clearer());
             %
             function clearer()
@@ -60,7 +60,7 @@ classdef  test_file_input < TestCase
                     tearDown(obj);
                 end
             end
-
+            
         end
         %
         function obj=setUp(obj)
@@ -69,8 +69,8 @@ classdef  test_file_input < TestCase
             % =================================================================================================
             % Note: this function assumes that read(sqw,sqwfilename) works correctly
             global test_file_input_refcount;
-
-
+            
+            
             [~,~,~,~,t_sqw1d_name,t_sqw2d_name,t_d1d_name,t_d2d_name]=create_testdata('get f-names');
             if isempty(obj.sqw1d_arr) || ~(exist(t_sqw1d_name{1},'file')==2)
                 [t_sqw1d_arr,t_sqw2d_arr,t_d1d_arr,t_d2d_arr]=create_testdata();
@@ -86,7 +86,7 @@ classdef  test_file_input < TestCase
             end
             %
             obj.refcount_ = test_file_input_refcount;
-
+            
         end
         %
         function obj=tearDown(obj)
@@ -108,21 +108,21 @@ classdef  test_file_input < TestCase
             end
             %delete@handle(obj);
         end
-
+        
         % =================================================================================================
         % Perform tests
         % =================================================================================================
         function obj = test_normal_buf(obj)
             obj=obj.input_operations();
         end
-
+        
         function obj = test_crossbuf_io(obj)
             hc = hor_config;
             mem_chunk_size = hc.mem_chunk_size;
             clob = onCleanup(@()set(hor_config,'mem_chunk_size',mem_chunk_size));
-
+            
             hc.mem_chunk_size = 2000;
-
+            
             obj=obj.input_operations();
         end
         %
@@ -134,20 +134,20 @@ classdef  test_file_input < TestCase
             hc = hor_config;
             mem_chunk_size = hc.mem_chunk_size;
             clob = onCleanup(@()set(hor_config,'mem_chunk_size',mem_chunk_size));
-
+            
             hc.mem_chunk_size = 2000;
-
+            
             obj=obj.input_operations();
         end
-
-
+        
+        
         function obj = file_cut_array_vs_file(obj)
             %
             tmp_file=fullfile(tmp_dir,'test_file_input_tmp.sqw');
             tmp0_file=fullfile(tmp_dir,'test_file_input_tmp0.sqw');
             clob1 = onCleanup(@()delete(tmp0_file,tmp_file));
-
-
+            
+            
             cut(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp0_file);
 
             tmp0=sqw(tmp0_file);
@@ -161,23 +161,23 @@ classdef  test_file_input < TestCase
             cut_horace(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
             tmp=sqw(tmp_file);
             [ok,mess]=equal_to_tol(tmp0,tmp,'ignore_str',1); assertTrue(ok,['test_file_input: Error in functionality',mess]);
-
+            
             % looks like waste of time?
             %cut_sqw(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
             %tmp=read(sqw,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-
+            
         end
-
+        
         function obj = input_operations(obj)
             % =================================================================================================
             % Cuts
             % =================================================================================================
-
+            
             % Cut of sqw objects or files
             % ---------------------------
             proj2.u=[-1,1,0];
             proj2.v=[1,1,0];
-
+            
             s1_s=cut(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
             s1_s_h=cut(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
             s1_s_s=cut_sqw(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
@@ -190,7 +190,7 @@ classdef  test_file_input < TestCase
                 failed=true;
             end
             if ~failed, assertTrue(false,'Should have failed!'), end
-
+            
             try
                 s1_f_d=cut_dnd(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
                 failed=false;
@@ -198,14 +198,14 @@ classdef  test_file_input < TestCase
                 failed=true;
             end
             if ~failed, assertTrue(false,'Should have failed!'), end
-
+            
             if ~equal_to_tol(s1_s,s1_s_h), assertTrue(false,'Error in functionality'), end
             if ~equal_to_tol(s1_s,s1_s_s), assertTrue(false,'Error in functionality'), end
             if ~equal_to_tol(s1_s,s1_f_h,'ignore_str',1), assertTrue(false,'Error in functionality'), end
             if ~equal_to_tol(s1_s,s1_f_s,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-
-
-
+            
+            
+            
             % Cut of dnd objects or files
             % ---------------------------
             d1_d=cut(obj.d2d_arr(2),[0.5,0,1.2],[170,180]);
@@ -221,10 +221,10 @@ classdef  test_file_input < TestCase
                 % We want to call cut_sqw with an output arg, so no lambda
                 d1_d_s=cut_sqw(w,[0.5,0,1.2],[170,180]);
             end
-
+            
             assertExceptionThrown(@() call_cut_sqw(obj.d2d_arr(2)), 'HORACE:cut_sqw');
             assertExceptionThrown(@() call_cut_sqw(obj.d2d_name{2}), 'HORACE:cut_sqw');
-
+            
             if ~equal_to_tol(d1_d,d1_d_h), assertTrue(false,'Error in functionality'), end
             if ~equal_to_tol(d1_d,d1_f_h,'ignore_str',1), assertTrue(false,'Error in functionality'), end
 
@@ -267,14 +267,14 @@ classdef  test_file_input < TestCase
                 failed=true;
             end
             if ~failed, assertTrue(false,'Should have failed!'), end
-
+            
             tmp=read_horace(obj.d2d_name{2});
             if ~equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-
+            
             % Read array of files
             tmp=read_horace(obj.sqw2d_name);
             if ~equal_to_tol(obj.sqw2d_arr,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-
+            
             tmp=read_dnd(obj.sqw2d_name);
             if ~equal_to_tol(obj.d2d_arr,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
 
@@ -284,7 +284,6 @@ classdef  test_file_input < TestCase
                 tmp(i)=sqw(name{1});
             end
             if ~equal_to_tol(obj.sqw2d_arr,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-
         end
     end
     %banner_to_screen([mfilename,': Test(s) passed'],'bot')

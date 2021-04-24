@@ -1,4 +1,4 @@
-function [irange,inside,outside] = get_irange_(img_range,varargin)
+function [irange,inside,outside] = get_irange_(img_db_range,varargin)
 % Get ranges of bins that partially or wholly lie inside an n-dimensional rectangle
 %
 %   >> irange = get_irange(pix_range,p1,p2,p3,...pndim)
@@ -41,9 +41,9 @@ function [irange,inside,outside] = get_irange_(img_range,varargin)
 ndim=numel(varargin);
 if ndim==0
     error('Must give bin boundary array(s)')
-elseif numel(size(img_range))~=2 || size(img_range,1)~=2 || size(img_range,2)~=ndim
+elseif numel(size(img_db_range))~=2 || size(img_db_range,1)~=2 || size(img_db_range,2)~=ndim
     error('Check pix_range is a 2 x ndim array where ndim is the number of bin boundary arrays')
-elseif any(img_range(1,:)>img_range(2,:))
+elseif any(img_db_range(1,:)>img_db_range(2,:))
     error('Must have pix_range_lo <= pix_range_hi for all dimensions')
 end
 
@@ -51,8 +51,8 @@ irange = zeros(2,ndim);
 inside=true;
 outside=false;
 for idim=1:ndim
-    blo = upper_index(varargin{idim},img_range(1,idim));
-    bhi = lower_index(varargin{idim},img_range(2,idim));
+    blo = upper_index(varargin{idim},img_db_range(1,idim));
+    bhi = lower_index(varargin{idim},img_db_range(2,idim));
     bmax=numel(varargin{idim});
     irange(1,idim) = max(1,blo);
     irange(2,idim) = min(bmax,bhi)-1;

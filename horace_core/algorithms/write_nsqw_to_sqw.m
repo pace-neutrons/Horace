@@ -1,4 +1,4 @@
-function [img_range,pix_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
+function [img_db_range,pix_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 % Read a collection of sqw files with a common grid and write to a single sqw file.
 %
 %   >> write_nsqw_to_sqw (infiles, outfiles,varargin)
@@ -32,6 +32,7 @@ function [img_range,pix_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 %
 % JobDispatcherInstance-- the initialized instance of JobDispatcher,
 %                       to use in combining sqw files in parallel
+% WARNING:
 % pix_range          -- [2x4] array of ranges (min/max q-dE coordinates values)
 %                       of all pixels, from all contributing files. If provided,
 %                       will be set as the range of the pixels, combined
@@ -41,7 +42,7 @@ function [img_range,pix_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 %
 % Output:
 % -------
-%  img_range       -- the limits of the internal coordinates contained in
+%  img_db_range       -- the limits of the internal coordinates contained in
 %                     the combined fil
 %  pix_range       -- the actual range of the pixels, contributing into the
 %                     sqw file (useful if input pix_range is not provided)
@@ -145,9 +146,9 @@ end
 [header_combined,nspe] = sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers);
 
 
-img_range=datahdr{1}.img_range;
+img_db_range=datahdr{1}.img_db_range;
 for i=2:nfiles
-    img_range=[min(img_range(1,:),datahdr{i}.img_range(1,:));max(img_range(2,:),datahdr{i}.img_range(2,:))];
+    img_db_range=[min(img_db_range(1,:),datahdr{i}.img_db_range(1,:));max(img_db_range(2,:),datahdr{i}.img_db_range(2,:))];
 end
 
 
@@ -180,9 +181,9 @@ sqw_data.iint=datahdr{1}.iint;
 sqw_data.pax=datahdr{1}.pax;
 sqw_data.p=datahdr{1}.p;
 sqw_data.dax=datahdr{1}.dax;    % take the display axes from first file, for sake of choosing something
-% img_range at this stage is equal to pix_range + halo ~ eps, if pix_range was
+% img_db_range at this stage is equal to pix_range + halo ~ eps, if pix_range was
 % estimated or input_pix_range if it has been provided
-sqw_data.img_range=img_range;
+sqw_data.img_db_range=img_db_range;
 
 % Now read in binning information
 % ---------------------------------

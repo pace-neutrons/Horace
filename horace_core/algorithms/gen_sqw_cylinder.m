@@ -124,7 +124,7 @@ head=cell(1,nfiles);
 pix_range=zeros(2,4,nfiles);
 for i=1:nfiles
     head{i}=head_sqw(tmp_file{i});
-    pix_range(:,:,i)=head{i}.img_range;
+    pix_range(:,:,i)=head{i}.img_db_range;
 end
 sgn=sign(pix_range(1,:,:).*pix_range(2,:,:)); % +1 if range does not include zero
 abs_pix_range_min=min(abs(pix_range),[],1);
@@ -170,11 +170,11 @@ for i=1:nfiles
     % Compute new coordinates
     data=w.data;
     data.pix.coordinates(1:2,:)=[sqrt(sum(data.pix.coordinates(1:2,:).^2,1));zeros(1,data.pix.num_pixels)];
-    data.img_range(:,1:2)=data.pix.pix_range(:,1:2);
+    data.img_db_range(:,1:2)=data.pix.pix_range(:,1:2);
     data.iax=2;   % second axis becomes integration axis
     data.iint=[-Inf;Inf];
     data.pax=[1,3,4];
-    data.p=[{data.img_range(:,1)},data.p([3,4])];
+    data.p=[{data.img_db_range(:,1)},data.p([3,4])];
     data.dax=[1,2,3];
     data.ulabel={'Q_{ip}','dummy','Q_z','E'};
     w.data=data;
@@ -226,7 +226,7 @@ end
 % Clear output arguments if nargout==0 to have a silent return
 % ------------------------------------------------------------
 if nargout==0
-    clear tmp_file grid_size img_range
+    clear tmp_file grid_size img_db_range
 end
 
 %==================================================================================================

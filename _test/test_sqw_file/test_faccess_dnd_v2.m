@@ -107,7 +107,7 @@ classdef test_faccess_dnd_v2< TestCase
             data = to.get_data();
             assertEqual(size(data.s,1),numel(data.p{1})-1)
             assertEqual(size(data.e,2),numel(data.p{2})-1)
-            assertFalse(isfield(data,'img_range'));
+            assertFalse(isfield(data,'img_db_range'));
             assertEqual(size(data.s),to.dnd_dimensions);
             
         end

@@ -18,7 +18,7 @@ if hor_log_level>=1
 end
 
 % Get bin boundaries for plot axes and integration ranges
-[iax, iint, pax, p, new_img_range] = proj.calc_transf_img_bins(data.img_range, pbin, pin, en);
+[iax, iint, pax, p, new_img_range] = proj.calc_transf_img_bins(data.img_db_range, pbin, pin, en);
 
 % Set matrix and translation vector to express plot axes with two or more bins
 % as multiples of step size from lower limits
@@ -172,10 +172,10 @@ end
 % Convert range from steps to actual range with respect to output uoffset:
 % rounds-off actual pix_range in no pix located at boundaries 
 % as ustep_i = pix_range_i/(Np-1);
-img_range = img_range_step.*repmat(proj.usteps,[2,1]) + repmat(proj.urange_offset,[2,1]);
+img_db_range = img_range_step.*repmat(proj.usteps,[2,1]) + repmat(proj.urange_offset,[2,1]);
 %hav = header_average(header);
-%img_range = data_sqw_dnd.calc_img_range(data_out,hav.u_to_rlu);
-data_out.img_range = img_range;
+%img_db_range = data_sqw_dnd.calc_img_range(data_out,hav.u_to_rlu);
+data_out.img_db_range = img_db_range;
 
 % Collect fields to make those for a valid sqw object
 if opt.keep_pix

@@ -240,7 +240,7 @@ data.dax = [1,2];
 data.s = zeros(3,3);
 data.e = zeros(3,3);
 data.npix = zeros(3,3);
-data.img_range = [data.uoffset;data.uoffset];
+data.img_db_range = [data.uoffset;data.uoffset];
 data.pix = PixelData([zeros(4,1);1;1;1;0;0]);  % wrong (Q,w) - but will be filled in a later function
 
 wres.data = data;

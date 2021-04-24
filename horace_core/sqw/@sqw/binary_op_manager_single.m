@@ -1,5 +1,5 @@
 function wout = binary_op_manager_single(w1, w2, binary_op)
-% Implement binary operator for objects with a signal and a variance array.
+% Implements a binary operation for objects with a signal and a variance array.
 %
 % Generic method, generalised for sqw objects, that requires:
 %   (1) have methods to set, get and find size of signal and variance arrays:
