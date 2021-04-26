@@ -288,6 +288,7 @@ pipeline {
             '''
             archiveArtifacts(
               artifacts: 'build/docs.tar.gz',
+              allowEmptyArchive: true,
               fingerprint: true
             )
           }
@@ -298,6 +299,7 @@ pipeline {
             '''
             archiveArtifacts(
               artifacts: 'build/docs.zip',
+              allowEmptyArchive: true,
               fingerprint: true
             )
           }
