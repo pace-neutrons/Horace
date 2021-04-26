@@ -294,7 +294,6 @@ pipeline {
           }
           else {
             powershell '''
-              pip show sphinx
               ./tools/build_config/build.ps1 -docs
             '''
             archiveArtifacts(
