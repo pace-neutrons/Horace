@@ -260,7 +260,6 @@ if ($package) {
   Invoke-Package -build_dir "$build_dir"
 }
 
-Write-Host $docs
 if ($docs) {
   Invoke-Docs -build_dir "$build_dir"
 }

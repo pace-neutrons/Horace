@@ -53,6 +53,11 @@ find_program(sphinx-build NAMES sphinx-build)
 find_program(pdflatex NAMES pdflatex)
 find_program(latexmk NAMES latexmk)
 
+message(STATUS ${sphinx-build})
+message(STATUS ${pdflatex})
+message(STATUS ${latexmk})
+
+
 if (sphinx-build)
   add_custom_target(docs
     COMMENT "Building HTML user documentation"
