@@ -49,14 +49,13 @@ else()
     set(Horace_DOCS_PACK_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/docs.tar.gz" CACHE FILEPATH "File to store packed HTML documentation")
 endif()
 
-find_program(sphinx-build NAMES sphinx-build)
+find_program(sphinx-build NAMES sphinx-build HINTS "$ENV{APPDATA}/python/python39/site-packages")
 find_program(pdflatex NAMES pdflatex)
 find_program(latexmk NAMES latexmk)
 
 message(STATUS ${sphinx-build})
 message(STATUS ${pdflatex})
 message(STATUS ${latexmk})
-
 
 if (sphinx-build)
   add_custom_target(docs
