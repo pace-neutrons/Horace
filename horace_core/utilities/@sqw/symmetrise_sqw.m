@@ -94,7 +94,7 @@ end
 uconv=header.u_to_rlu(1:3,1:3);
 
 % TODO: Discuss with Russell the meaning of the commented code.
-% 
+%
 %convert the vectors specifying the reflection plane from rlu to the
 %orthonormal frame of the pix array:
 % do not rely on the shift of the image to define symmetry plane.
@@ -155,12 +155,12 @@ clear 'side_dot'; % MP: not needed any more
 
 coords_new=bsxfun(@plus, coords_new, vec3); % MP
 %
-% Clear existing pages range not to extend new range with existing. 
+% Clear existing pages range not to extend new range with existing.
 % Take care if this method is extended to file-based data -- needs careful
 % thinking
 wout.data.pix.set_range(PixelData.EMPTY_RANGE_);
 wout.data.pix.q_coordinates=coords_new;
-% real pix range, calculated at the assignment of new coordinates to the 
+% real pix range, calculated at the assignment of new coordinates to the
 % pixels coordinates
 clear 'coords_new';
 
@@ -172,7 +172,7 @@ clear 'coords_new';
 existing_range = wout.data.img_db_range;
 proj = win.data.get_projection();
 
-exp_range= expand_box(existing_range(1,1:3),existing_range(2,1:3));    
+exp_range= expand_box(existing_range(1,1:3),existing_range(2,1:3));
 cc_ranges = proj.transform_img_to_pix(exp_range);
 %
 %
@@ -208,7 +208,7 @@ for i=1:4
         if np>1
             step = dist/(np-1);
         else
-            step = dist;            
+            step = dist;
         end
         new_range_arg{i} = [range(1),step,range(2)];
     end
@@ -221,7 +221,7 @@ set(hor_config,'log_level',-1);
 
 % completely break relationship between bins and pixels in memory and make
 % all pixels contribute into single large bin
-wout.data.img_db_range = all_sym_range ;   
+wout.data.img_db_range = all_sym_range ;
 
 wout.data.pax = 1:4;
 wout.data.dax = 1:4;
@@ -229,6 +229,4 @@ wout.data.p  = arrayfun(@(i)(all_sym_range(:,i)),1:4,'UniformOutput',false);
 wout.data.npix = sum(reshape(wout.data.npix,1,numel(wout.data.npix)));
 %
 wout=cut(wout,proj,new_range_arg{:});
-
-
 
