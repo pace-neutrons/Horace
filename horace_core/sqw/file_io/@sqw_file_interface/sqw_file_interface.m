@@ -51,6 +51,10 @@ classdef sqw_file_interface < dnd_binfile_common
         %
         % number of pixels, contributing into this file.
         npixels
+
+        % size of a pixel (in bytes) stored in binary file, 
+        % for the loader to read
+        pixel_size;        
     end
     properties(Constant,Access=private,Hidden=true)
         % list of field names to save on hdd to be able to recover
@@ -88,6 +92,14 @@ classdef sqw_file_interface < dnd_binfile_common
         %
         function npix = get.npixels(obj)
             npix = obj.npixels_;
+        end
+        function pix_size = get.pixel_size(~)
+            % 4 bytes x 9 columns -- default pixel size.
+            %
+            % TODO:
+            % No other size is currently supported by loaders. If this, one
+            % day, changes, the class hierarchy should be tinkered with.
+            pix_size = 4*9;
         end
         %-------------------------
         function obj = delete(obj)

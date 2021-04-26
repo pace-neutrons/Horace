@@ -14,9 +14,10 @@ if is_string(source)
     % We expect either a .sqw or .dnd file, throw an error otherwise.
     ldr = sqw_formats_factory.instance().get_loader(source);
     if ldr.sqw_type
+        % harmonize pixel_page_size and mem_chunk_size
+        pixel_page_size = get(hor_config, 'mem_chunk_size')*ldr.pixel_size;
         % Load the .sqw file using the sqw constructor so that we can pass the
-        % pixel_page_size argument to get an sqw with file-backed pixels.
-        pixel_page_size = get(hor_config, 'pixel_page_size');
+        % pixel_page_size argument to get an sqw with file-backed pixels.        
         sqw_dnd_obj = sqw(source, 'pixel_page_size', pixel_page_size);
     else
         % In contrast to the above case, we can use the loader to get the dnd
