@@ -292,10 +292,10 @@ classdef test_mask < TestCase
             new_sqw = mask_pixels(sqw_obj, mask_array);
             
             assertEqual(new_sqw.data.pix.num_pixels, sum(mask_array));
-            assertFalse(equal_to_tol(new_sqw.data.s, sqw_obj.data.s, -1e-4));
+            assertFalse(equal_to_tol(new_sqw.data.s, sqw_obj.data.s,[0, 1e-4]));
             % masking have not changed binning, so img_db_range remains the
             % same
-            assertTrue(equal_to_tol(new_sqw.data.img_db_range, sqw_obj.data.img_db_range, -1e-4));
+            assertTrue(equal_to_tol(new_sqw.data.img_db_range, sqw_obj.data.img_db_range,[0, 1e-7]));
         end
         
         function test_mask_random_fraction_pixels_removes_percentage_of_pixels(obj)
