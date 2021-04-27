@@ -1,6 +1,8 @@
 function w = sqw (varargin)
 % Create an sqw object
 %
+% TODO: this all should be refactored to new class
+%
 % Syntax:
 %   >> w = sqw (filename)       % Create an sqw object from a file
 %   >> w = sqw (din)            % Create from a structure with valid fields
@@ -129,6 +131,8 @@ elseif narg == 1 && is_string(args{1})
     w = from_file_name(args{1}, dnd_type, class_type);
 elseif narg > 1 && is_string(args{1})
     w = from_file_name(args{1}, dnd_type, class_type, varargin{2:end});
+elseif narg >= 1 && isa(args{1},'dnd_file_interface')
+    w = from_file_loader(args{1}, dnd_type, class_type, varargin{2:end});    
 else
     % All other cases - use as input to a bare constructor
     % ----------------------------------------------------
@@ -191,3 +195,45 @@ function w = from_file_name(file_name, dnd_type, class_type, varargin)
         error('SQW:sqw', mess);
     end
 end
+
+function w = from_file_loader(ldr, dnd_type, class_type, varargin)
+
+    if ~dnd_type
+        parser = inputParser();
+        parser.KeepUnmatched = true;  % ignore unmatched parameters
+        parser.addParameter('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE, ...
+                            @PixelData.validate_mem_alloc);
+        parser.parse(varargin{:});
+        pixel_page_size = parser.Results.pixel_page_size;
+    end
+
+    if ~dnd_type    % insist on sqw type
+        if ~strcmpi(ldr.data_type, 'a')   % not a valid sqw-type structure
+            error('SQW:sqw', 'Data file does not contain valid sqw-type object');
+        end
+
+        w=struct();
+        [w.main_header, w.header, w.detpar, w.data] = ...
+                 ldr.get_sqw('-legacy', 'pixel_page_size', pixel_page_size);
+    else  % insist on dnd type
+        if ~(strcmpi(ldr.data_type, 'a') || strcmpi(ldr.data_type, 'b+'))
+            % not a valid sqw or dnd structure
+            error('SQW:sqw', 'Data file does not contain valid dnd-type object');
+        end
+
+        w.main_header = make_sqw_main_header;
+        w.header = make_sqw_header;
+        w.detpar = make_sqw_detpar;
+        w.data = ldr.get_data('-nopix');
+        if isa(w.data, 'data_sqw_dnd')
+            w.data = clear_sqw_data(w.data);
+        end
+    end
+    [ok, mess, ~, w] = check_sqw(w);   % Make check_sqw the ultimate arbiter of the validity of a structure
+    if ok
+        w = class(w, class_type);
+    else
+        error('SQW:sqw', mess);
+    end
+end
+

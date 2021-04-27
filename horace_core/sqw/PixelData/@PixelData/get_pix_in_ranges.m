@@ -15,7 +15,7 @@ function pix_out = get_pix_in_ranges(obj, abs_indices_starts, abs_indices_ends)
 %
 [ok, mess] = validate_ranges(abs_indices_starts, abs_indices_ends);
 if ~ok
-    error([upper(class(obj)), ':get_pix_in_ranges'], mess);
+    error('HORACE:PixelData:invalid_argument', mess);
 end
 
 if obj.is_file_backed_()
