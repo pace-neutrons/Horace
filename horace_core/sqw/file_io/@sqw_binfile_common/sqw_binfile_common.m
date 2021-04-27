@@ -33,8 +33,8 @@ classdef sqw_binfile_common < sqw_file_interface
     %
     % upgrade_file_format - upgrade current sqw file to recent file format.
     %                       May change the sqw file and always opens it in
-    %                       write or upgrade mode.    
-    %    
+    %                       write or upgrade mode.
+    %
     properties(Access=protected,Hidden=true)
         % position (in bytes from start of the file of the appropriate part
         % of Horace data information and the size of this part.
