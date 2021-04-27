@@ -1,21 +1,28 @@
 function varargout = resolution_plot (en, instrument, sample, detpar, efix, emode,...
-    alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, varargin)
-% Plot the instrumental resolution function
+    alatt, angdeg, u, v, psi_deg, omega_deg, dpsi_deg, gl_deg, gs_deg, varargin)
+% Plot the instrumental resolution function at a single detector.
 %
 % New resolution plot:
 %   >> resolution_plot (en, instrument, sample, detpar, efix, emode,...
 %                           alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+%                                       % Plot in spectrometer frame (i.e. x || ki
+%                                       % z vertically upwards, y perp to z and x
+%                                       % Plots on x-y axes, with intersection on
+%                                       % energy axis
 %
-%   >> resolution_plot (..., proj)
-%   >> resolution_plot (..., iax)
-%   >> resolution_plot (..., proj, iax)
+%   >> resolution_plot (..., proj)      % Plot in specified projection axes
+%   >> resolution_plot (..., iax)       % Plot for a specified set of axes
+%   >> resolution_plot (..., proj, iax) % Both the above
 %
-% On current existing resolution plot:
-%   >> resolution_plot (..., 'over')
+% On current plot, or named or numbered existing plot:
+%   >> resolution_plot (..., 'curr')        % on currently active plot
+%   >> resolution_plot (..., 'name', name)  % on named plot
 %
-% On current plot, or named or numbered existing plot
-%   >> resolution_plot (..., 'curr')
-%   >> resolution_plot (..., 'name', name)
+% Return the covariance matrix in various coordinate frames:
+%   >> [cov_proj, cov_spec, cov_hkle] = resolution_plot (...)
+%
+% Without creating a plot (useful if just want the covariance matrix):
+%   >> [cov_proj, cov_spec, cov_hkle] = resolution_plot (..., 'noplot')
 %
 %
 % Input:
@@ -45,25 +52,38 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 %   gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
 %
 % {optional]
-%   proj            Projection structure or object. Type help projaxes for details.
+%   proj            Projection structure or object. Defines the coordinate frame in which
+%                  to plot the resolution ellipsoid. Type help projaxes for details or <a href="matlab:help('projaxes');">Click here</a>.
+%
 %                   Default: if not given or empty: assume to be spectrometer axes
 %                  i.e. x || ki, z vertical upwards, y perpendicular to z and y.
 %
-%   iax             Indicies of axes into the projection for purposes of plotting
+%   iax             Indicies of axes into the projection axes for purposes of plotting:
 %                       [iax1, iax2]        plotting axes
 %                       [iax1, iax2, iax3]  plotting axes and intersection axis
+%                  where iax1 etc. are distinct axes indicies in the range 1 to 4.
 %
 %                   Default: if not given or empty, assume first two projection axes
 %                  and draw intersection with non-zero positive energy transfer deviation
 %                  i.e. default is [1,2,4]
 %
 % Plot options:
-%   'over'          If present, then overplot on an existing resolution function plot
-%                   If one doesn't already exist, create a new resolution function plot
-%
 %   'curr'          Overplot on the currently active plot
 %
 %   'name', name    Overplot on the named figure or figure number of an existing plot
+%
+%
+% Output:
+% -------
+%   cov_proj    Covariance matrix for wavevector-energy in projection axes (4x4 array)
+%              [Note that if the default projection axes were used i.e.
+%               input argument 'proj' was not given, then cov_proj and
+%               cov_spec (below) are identical.]
+%
+%   cov_spec    Covariance matrix for wavevector-energy in spectrometer axes (4x4 array)
+%              i.e. x || ki, z vertically upwards, y perpendicular to z and x.
+%
+%   cov_hkle    Covariance matrix for wavevector-energy in h-k-l-energy (4x4 array)
 
 
 % *** Really should be using fake_sqw to create an sqw object, but as of 10 Nov 2018
@@ -76,8 +96,8 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 % ----------------
 % Energies and sample orientation
 nfiles_in = 1;
-[ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
-    (nfiles_in,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
+[ok,mess,efix,emode,alatt,angdeg,u,v,psi_deg,omega_deg,dpsi_deg,gl_deg,gs_deg]=gen_sqw_check_params...
+    (nfiles_in,efix,emode,alatt,angdeg,u,v,psi_deg,omega_deg,dpsi_deg,gl_deg,gs_deg);
 if ~ok, error(mess), end
 if ~(isnumeric(en) && numel(en)==2 && en(2)>=en(1))
     error('Energy bin argument must give lower and upper limits of a single energy bin')
@@ -94,13 +114,13 @@ else
 end
 
 % Optional arguments
-key = struct ('over',false,'current',false,'name',[]);
-flags = {'over','current'};
+key = struct ('noplot',false,'current',false,'name',[],'fig',[]);
+flags = {'noplot','current'};
 opts.flags_noneg = true;
 opts.flags_noval = true;
 [par,key,present] = parse_arguments (varargin, key, flags, opts);
-if sum(cell2mat(struct2cell(present(2:end))))>1
-    error('Only one of the plot options ''over'', ''current'' and ''name'' can be present')
+if sum(cell2mat(struct2cell(present)))>1
+    error('Only one of the plot options ''noplot'', ''current'' and ''name'' can be present')
 end
 
 % - Projection and/or iax:
@@ -124,7 +144,7 @@ if ~(isempty(proj) || isa(proj,'projaxes'))
 end
 
 if ~(isnumeric(iax) && (numel(iax)==2 || numel(iax)==3) &&...
-        numel(unique(iax))==numel(iax) && all(iax>=1) && all(iax)<=4)
+        numel(unique(iax))==numel(iax) && all(iax>=1) && all(iax<=4))
     error('Check axes indicies')
 end
 
@@ -133,12 +153,14 @@ if present.current && isempty(findobj(0,'Type','figure'))
     error('No current figure exists - cannot overplot')
 end
 
-if present.over
-    plot_args = {'over'};
+if present.noplot
+    plot_args = {'noplot'};
 elseif present.current
     plot_args = {'current'};
 elseif present.name
     plot_args = {'name',key.name};
+elseif present.fig
+    plot_args = {'fig',key.fig};
 else
     plot_args = {};
 end
@@ -148,6 +170,11 @@ end
 % Construct sqw object
 % --------------------
 % Create a two-dimensional sqw object with one pixel
+psi = psi_deg * (pi/180);
+omega = omega_deg * (pi/180);
+dpsi = dpsi_deg * (pi/180);
+gl = gl_deg * (pi/180);
+gs = gs_deg * (pi/180);
 
 % Make main_header
 main_header.filename = '';
@@ -216,6 +243,7 @@ data.title = '';
 data.alatt = alatt;
 data.angdeg = angdeg;
 if ~isempty(proj)
+    % Projection axes were specified
     data.uoffset = proj.uoffset;
     data.u_to_rlu = zeros(4,4);
     data.ulen = zeros(1,4);
@@ -224,6 +252,7 @@ if ~isempty(proj)
     data.u_to_rlu(4,4) = 1;
     data.ulen(4) = 1;
 else
+    % Make the projection axes correspond to the spectrometer axes
     data.uoffset = [0,0,0,0]';
     data.u_to_rlu = zeros(4,4);
     data.u_to_rlu(1:3,1:3) = spec_to_rlu;
@@ -252,14 +281,20 @@ wres = sqw(wres);
 % Now plot the resolution function
 % --------------------------------
 if numel(iax)==2
-    covariance_matrix = resolution_plot (wres, 'axis', 'none', plot_args{:});
+    [cov_proj, cov_spec, cov_hkle] = resolution_plot (wres, 'axis', 'none', plot_args{:});
 else
-    covariance_matrix = resolution_plot (wres, 'axis', iax(3), plot_args{:});
+    [cov_proj, cov_spec, cov_hkle] = resolution_plot (wres, 'axis', iax(3), plot_args{:});
 end
 
 
 % Return covariance matrix, if requested
 % --------------------------------------
-if nargout==1
-    varargout{1} = covariance_matrix;
+if nargout>=1
+    varargout{1} = cov_proj;
+end
+if nargout>=2
+    varargout{2} = cov_spec;
+end
+if nargout>=3
+    varargout{3} = cov_hkle;
 end

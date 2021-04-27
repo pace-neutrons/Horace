@@ -20,8 +20,6 @@ function uproj=calculate_uproj_pixels(win,opt)
 
 
 % Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 if numel(win)~=1
@@ -65,7 +63,10 @@ if step
 end
 u = (uproj_to_rlu\upix_to_rlu)*win.data.pix.q_coordinates -...
     uproj_to_rlu\(uproj_offset(1:3)-upix_offset(1:3));
-en = (win.data.pix.dE - (uproj_offset(4)-upix_offset(4)))/ustep(4);
+en = (win.data.pix.dE - (uproj_offset(4)-upix_offset(4)));
+if step
+    en = en/ustep(4);
+end
 
 % package as cell array of column vectors
 uproj = {u(1,:)', u(2,:)', u(3,:)', en'};

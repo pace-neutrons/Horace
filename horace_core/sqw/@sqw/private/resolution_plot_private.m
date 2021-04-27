@@ -1,7 +1,7 @@
 function resolution_plot_private (x0,C,iax,flip)
 % Plot resolution function on 2D axes
 %
-%   >> resolution_plot_private (x0,C,iax,flip,fig,newplot)
+%   >> resolution_plot_private (x0,C,iax,flip)
 %
 % Input:
 % ------
@@ -16,7 +16,7 @@ function resolution_plot_private (x0,C,iax,flip)
 %          ellipse section is drawn at a positive value along that axis
 %
 %   flip    If true, flip the plot axes; if false, not
-%           For plotting if display axes are reversed from plot axes.
+%           For plotting if the display axes are reversed from plot axes.
 
 
 % Original author: T.G.Perring
@@ -34,7 +34,7 @@ if ~(isnumeric(C) && isequal(size(C),[4,4]))
 end
 
 if ~(isnumeric(iax) && (numel(iax)==2 || numel(iax)==3) &&...
-        numel(unique(iax))==numel(iax) && all(iax>=1) && all(iax)<=4)
+        numel(unique(iax))==numel(iax) && all(iax>=1) && all(iax<=4))
     error('Check axes indicies')
 end
 
