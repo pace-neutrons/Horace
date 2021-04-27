@@ -23,7 +23,7 @@ list(APPEND CMAKE_MODULE_PATH "${Horace_ROOT}/cmake")
 # Set some useful global variables
 # This will hold herbert/horace_on.m and worker_v2.m
 set(LOCAL_INIT_DIR "${CMAKE_BINARY_DIR}/local_init")
-# This sets the destination for mex build artifacts (used in PACE_AddMex)
+# This sets the destination for mex build artefacts (used in PACE_AddMex)
 set(Horace_DLL_DIRECTORY "${Horace_ROOT}/horace_core/DLL")
 # This is the directory that contains horace_init.m (used in admin/CMakeLists.txt)
 set(Horace_CORE "${CMAKE_CURRENT_LIST_DIR}/horace_core")

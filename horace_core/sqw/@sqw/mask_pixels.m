@@ -33,7 +33,7 @@ function wout = mask_pixels (win, mask_array)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
+
 
 
 % Check object to be masked is an sqw-type object
@@ -83,5 +83,4 @@ ibin = replicate_array(1:prod(sz),win.data.npix);   % (linear) bin number for ea
 npix=accumarray(ibin(mask_array),ones(1,sum(mask_array)),[prod(sz),1]);
 wout.data.npix=reshape(npix,sz);
 wout.data.pix=win.data.pix.mask(mask_array);
-wout.data.img_db_range=recompute_img_range(wout);
 wout=recompute_bin_data(wout);
