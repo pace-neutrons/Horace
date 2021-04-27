@@ -66,14 +66,14 @@ classdef sigvar
                 elseif numel(varargin)==1 && isstruct(varargin{1})
                     structsize = length(fieldnames(varargin{1}));
                     if structsize>3
-                        error("HORACE:sigvar:structure too large");                        
+                        error("HORACE:sigvar:invalid argument", "Structure too large");                        
                     end
                     fnames = fieldnames(varargin{1});
                     if structsize>=1
                         if strcmp( fnames{1}, 's' )
                             obj.s = varargin{1}.s;
                         else
-                            error("HORACE:sigvar:structure s field not present");
+                            error("HORACE:sigvar:invalid argument", "Structure 's' field not present");
                         end
                     else
                         obj.s = [];

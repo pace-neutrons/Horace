@@ -41,7 +41,7 @@ if ~this.save_output
     
     % Read in stored data, if there is a pre-existing test results file
     if exist(filename,'file')
-        this.ref_data_ = load(filename); 
+        this.ref_data_ = load(filename);
     end
     
 else
