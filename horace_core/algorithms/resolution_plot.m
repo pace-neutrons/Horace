@@ -114,12 +114,13 @@ else
 end
 
 % Optional arguments
-key = struct ('noplot',false,'current',false,'name',[],'fig',[]);
+key = struct ('noplot',false,'current',false,'name',[]);
 flags = {'noplot','current'};
 opts.flags_noneg = true;
 opts.flags_noval = true;
 [par,key,present] = parse_arguments (varargin, key, flags, opts);
-if sum(cell2mat(struct2cell(present)))>1
+present_logical = cell2mat(struct2cell(present));
+if sum(present_logical)>1
     error('Only one of the plot options ''noplot'', ''current'' and ''name'' can be present')
 end
 
@@ -139,7 +140,7 @@ elseif numel(par)~=0
     error('Check the number and type of optional arguments')
 end
 
-if ~(isempty(proj) || isa(proj,'projaxes'))
+if ~isempty(proj) && ~isa(proj,'projaxes')
     proj = projaxes(proj);
 end
 
@@ -149,22 +150,21 @@ if ~(isnumeric(iax) && (numel(iax)==2 || numel(iax)==3) &&...
 end
 
 % - Plot target
-if present.current && isempty(findobj(0,'Type','figure'))
-    error('No current figure exists - cannot overplot')
-end
+% if present.current && isempty(findobj(0,'Type','figure'))
+%     error('No current figure exists - cannot overplot')
+% end
 
+newplot = false;
 if present.noplot
     plot_args = {'noplot'};
 elseif present.current
     plot_args = {'current'};
 elseif present.name
     plot_args = {'name',key.name};
-elseif present.fig
-    plot_args = {'fig',key.fig};
 else
     plot_args = {};
+    newplot = true;
 end
-
 
 
 % Construct sqw object
@@ -233,6 +233,7 @@ end
 if ~isfield(detpar,'filename'), detpar.filename = ''; end
 if ~isfield(detpar,'filepath'), detpar.filepath = ''; end
 if ~isfield(detpar,'group'), detpar.group = 1; end
+
 wres.detpar = detpar;
 
 
@@ -262,19 +263,29 @@ end
 data.ulabel = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
 ok=true(1,4); ok(iax(1:2))=false;
 data.iax = find(ok);
-data.iint = [-Inf,-Inf; Inf,Inf];
+%data.iint = [-Inf,-Inf; Inf,Inf];
+data.iint = 1e-10*[-1,-1; 1,1];
 data.pax = iax(1:2);
 data.p = {1e-10*(-3:2:3)'/3, 1e-10*(-3:2:3)'/3};    % something tiny
 data.dax = [1,2];
-data.s = zeros(3,3);
-data.e = zeros(3,3);
-data.npix = zeros(3,3);
+data.s = [0,0,0; 0,NaN,0; 0,0,0];
+data.e = [0,0,0; 0,NaN,0; 0,0,0];
+data.npix = [0,0,0; 0,1,0; 0,0,0];
 data.img_db_range = [data.uoffset;data.uoffset];
-data.pix = PixelData([zeros(4,1);1;1;1;0;0]);  % wrong (Q,w) - but will be filled in a later function
+data.pix = PixelData([zeros(4,1);1;1;1;0;0]);  % wrong (Q,w) - but this is OK
 
 wres.data = data;
 
-% Make the sqw object
+% Make the sqw object. The defining qualities of this sqw object that mean it can be
+% picked out as special are that it is:
+% - single contributing spe file
+% - single detector
+% - 2D
+% - signal array has size [3,3]
+% - one pixel only, signal == variance both naN
+% - (Q,w) is [0,0,0,0]
+% This is not going to happen any other way than being constructed as a special here.
+
 wres = sqw(wres);
 
 
@@ -284,6 +295,28 @@ if numel(iax)==2
     [cov_proj, cov_spec, cov_hkle] = resolution_plot (wres, 'axis', 'none', plot_args{:});
 else
     [cov_proj, cov_spec, cov_hkle] = resolution_plot (wres, 'axis', iax(3), plot_args{:});
+end
+
+% If newplot, then tidy up the plot
+if newplot
+    % Delete the meaningless colorslider and unwanted title
+    colorslider('delete')
+    delete(get(gca,'title'))
+    
+    % If spectrometer coordinates, then give meaningful axes titles
+    Angstrom=char(197);     % Angstrom symbol
+    title_ax = cell(4,1);
+    title_ax{1} = ['Q || k_i  (',Angstrom,'^{-1})'];
+    title_ax{2} = ['Q perp k_i (in-plane) (',Angstrom,'^{-1})'];
+    title_ax{3} = ['Q vertically up  (',Angstrom,'^{-1})'];
+    title_ax{4} = 'Energy transfer  (meV)';
+    
+    xlabel(title_ax(iax(1)))
+    ylabel(title_ax(iax(2)))
+    
+    % Round up limits
+    lx('round')
+    ly('round')
 end
 
 

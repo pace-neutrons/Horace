@@ -87,65 +87,53 @@ function varargout = resolution_plot (w, varargin)
 % dataset.
 
 
-% Check input arguments and get defaults where necessary
-% ------------------------------------------------------
+
 % Check sqw object
+% ----------------
 if ~isscalar(w) || dimensions(w)~=2
     error ('Can only plot resolution function for a single two dimensional sqw object')
-end
-
-npixtot = sum(w.data.npix(:));
-
-% Check if special case of single detector, no pixels; otherwise must have pixels
-if npixtot==0 && (iscell(w.header) || numel(w.detpar.x2)~=1)
-    error('No pixels in the sqw object - cannot compute a resolution function')
+elseif w.data.pix.num_pixels==0
+    error ('No pixels in the sqw object - cannot compute a resolution function')
 end
 
 % Determine if display axes are flipped
 if w.data.dax(2)==1
-    flip = true;
+    flipped_display_axes = true;
 else
-    flip = false;
+    flipped_display_axes = false;
 end
 
-% Centre of plot axes
-p = w.data.p;
-xp_cent = [0.5*(p{1}(1)+p{1}(end)), 0.5*(p{2}(1)+p{2}(end))];    % mid-points of plot axes
-if w.data.pax(end)==4
-    qe_plot = true;
-else
-    qe_plot = false;
-end
 
-% Check xres and axis option
+% Check other input arguments and get defaults where necessary
+% ------------------------------------------------------------
 key = struct ('axis','','noplot',false,'current',false,'name',[]);
 flags = {'noplot','current'};
 opts.flags_noneg = true;
 opts.flags_noval = true;
 [par,key,present] = parse_arguments (varargin, key, flags, opts);
-present_log = cell2mat(struct2cell(present));
-if sum(present_log(2:end))>1
+present_logical = cell2mat(struct2cell(present));
+if sum(present_logical(2:end))>1
     error('Only one of the plot options ''noplot'', ''current'', and ''name'' can be present')
 end
 
-% - Calculation point(s)
+% Get point(s) at which to calculate the resolution covariance matrix
+% Points are given in units of the projection axes
 if numel(par)==0
-    xp = xp_cent;
-elseif numel(par)==1 && npixtot>0
+    p = w.data.p;
+    xp = [0.5*(p{1}(1)+p{1}(end)), 0.5*(p{2}(1)+p{2}(end))];    % mid-points of plot axes
+elseif numel(par)==1
     xd = par{1};
     if ~(isnumeric(xd) && size(xd,2)==2 && size(xd,1)>0 && all(isfinite(xd(:))))
         error('Position must be an n x 2 array where n is the number of points at which to plot')
     end
-    if flip, xp = xd(:,[2,1]); else, xp = xd; end
-elseif numel(par)==1 && npixtot==0
-    error('Data contains no data pixels - cannot compute a resolution function')
+    if flipped_display_axes, xp = xd(:,[2,1]); else, xp = xd; end
 else
     error('Check the number of parameters and keyword options')
 end
 
-% - Additional intersection plotting
-if qe_plot
-    % Q-energy plot
+% Determine which intersection plotting to perform, if any
+if w.data.pax(end)==4
+    % Q-E plot
     if (ischar(key.axis) && strcmpi(key.axis,'+')) || isempty(key.axis)
         iax = mod(w.data.pax(1),3) + 1;
     elseif ischar(key.axis) && strcmpi(key.axis,'-')
@@ -174,55 +162,26 @@ else
     end
 end
 
-% - Plot target
-new_code = true;
-if new_code
-    newplot = false;
-    if present.current
-        if ~isempty(findobj(0,'Type','figure'))
-            fig = gcf;
-        else
-            error('No current figure exists - cannot overplot')
+% Determine plot window target
+
+if ~present.noplot  % plotting is required
+    if present.current || present.name
+        % Over-plotting (current plot, or named plot)
+        opt.newplot = false;
+        if present.current
+            opt.over_curr = true;
+            [~,ok,mess,~,fig] = genie_figure_parse_plot_args(opt);
+        elseif present.name
+            opt.over_curr = false;
+            [~,ok,mess,~,fig] = genie_figure_parse_plot_args(opt, 'name', key.name);
         end
-    elseif present.name
-        fig = key.name;
-    elseif ~present.noplot
-        % Plot the empty sqw object - sets the correct axes annotations and aspect ratios
+        if ~ok
+            error(mess);
+        end
+        figure(fig)
+    else
+        % New plot
         plot(w)
-        colorslider('delete')       % delete the meaningless colorslider
-        delete(get(gca,'title'))    % delete unwanted title
-        newplot = true;
-        fig = [];
-    end    
-    
-else
-    newplot = false;
-    if present.current
-        if ~isempty(findobj(0,'Type','figure'))
-            fig = gcf;
-        else
-            error('No current figure exists - cannot overplot')
-        end
-    elseif present.name
-        fig = key.name;
-    elseif present.fig
-        fig = key.fig;
-        if ~verLessThan('matlab','8.4') % check its a figure.
-            % Do not remeber how to do it in older versions. Should be done if
-            % important
-            if ~isa(fig,'matlab.ui.Figure')
-                error('RESOLUTION_PLOT:invalid_argument',...
-                    ' The input parameter for "fig" keyword should be a figure handle but it is %s',...
-                    class(fig));
-            end
-        end
-    elseif ~present.noplot
-        % Plot the empty sqw object - sets the correct axes annotations and aspect ratios
-        plot(w)
-        colorslider('delete')       % delete the meaningless colorslider
-        delete(get(gca,'title'))    % delete unwanted title
-        newplot = true;
-        fig = [];
     end
 end
 
@@ -247,29 +206,14 @@ else
 end
 
 % Compute resolution function, and plot unless 'noplot' requested
+[xp_ok, ipix] = get_nearest_pixels (w, xp);
+[cov_proj, cov_spec, cov_hkle] = resfun_model(w, ipix);
 iax_plot = [w.data.pax, iax];
-if npixtot==0
-    % Special case of no data, one header, one detector
-    [cov_proj, cov_spec, cov_hkle] = resfun_model(w);
-    if ~present.noplot
-        resolution_plot_private ([0,0], cov_proj, iax_plot, false)
+if ~present.noplot
+    for i=1:numel(ipix)
+        resolution_plot_private (xp_ok(i,:), cov_proj(:,:,i),...
+            iax_plot, flipped_display_axes)
     end
-else
-    % Case where there is data, and one or more resolution ellipsoids to be plotted
-    [xp_ok, ipix] = get_nearest_pixels (w, xp);
-    [cov_proj, cov_spec, cov_hkle] = resfun_model(w, ipix);
-    if ~present.noplot
-        for i=1:numel(ipix)
-            resolution_plot_private (xp_ok(i,:), cov_proj(:,:,i),...
-                iax_plot, flip)
-        end
-    end
-end
-
-% If newplot, then round up limits
-if newplot
-    lx('round')
-    ly('round')
 end
 
 
