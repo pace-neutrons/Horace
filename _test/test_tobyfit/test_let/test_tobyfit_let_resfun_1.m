@@ -113,8 +113,7 @@ pause(pause_time)
 plot(w_nb_qe)
 lx 0 0.2
 lz 0 10000
-% 
-% *** MUST DEBUG: cov1 = resolution_plot (w_nb_qe, [0.3,1.20], 'curr');
+
 cov1 = resolution_plot (w_nb_qe, [0.05,1.20; 0.15,2.80], 'curr');
 if test_output
     if ~equal_to_tol(cov1,tmp.cov1,[1e-8,1e-8])

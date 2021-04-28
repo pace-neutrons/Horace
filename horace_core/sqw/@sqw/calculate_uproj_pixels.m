@@ -70,4 +70,3 @@ end
 
 % package as cell array of column vectors
 uproj = {u(1,:)', u(2,:)', u(3,:)', en'};
-

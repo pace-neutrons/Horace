@@ -11,10 +11,10 @@ function varargout = resolution_plot (w, varargin)
 %   >> resolution_plot (..., 'name', name)  % on named plot
 %
 % Return the covariance matrix in various coordinate frames:
-%   >> [cov_proj, cov_spec, cov_hkle] = resolution_plot (...)
+%   >> [cov_proj, cov_spec, cov_hkle, kept] = resolution_plot (...)
 %
 % Without creating a plot (useful if just want the covariance matrix):
-%   >> [cov_proj, cov_spec, cov_hkle] = resolution_plot (..., 'noplot')
+%   >> [cov_proj, cov_spec, cov_hkle, kept] = resolution_plot (..., 'noplot')
 %
 %
 % Input:
@@ -32,7 +32,7 @@ function varargout = resolution_plot (w, varargin)
 %           Computed for the pixel closest to this point
 %
 %           Default if not given: Computed for the pixel closest to the centre
-%                                 of the plot
+%                                 of the plot in
 %
 % Intersection axis option:
 %   ax      Option to choose which of the two integration axes for which the
@@ -62,7 +62,8 @@ function varargout = resolution_plot (w, varargin)
 % Plot options:
 %   'curr'          Overplot on the currently active plot
 %
-%   'name', name    Overplot on the named figure or figure number of an existing plot
+%   'name', name    Overplot on the existing figure with the given name,
+%                   figure number or figure handle
 %
 %
 % Output:
@@ -79,6 +80,11 @@ function varargout = resolution_plot (w, varargin)
 %   cov_hkle    Covariance matrix for wavevector-energy in h-k-l-energy
 %               Array size [4,4,npnt] where npnt is the number of points at
 %              which the resolution function was requested.
+%
+%   kept        Logical column vector with length equal to the number of
+%              points given by input argument xres, where elements =1 for
+%              points in bins with contributiung pixels, and =0 for points
+%              in empty bins or outside the range of the data.
 
 
 % The special case of an sqw object with no pixels, a single header and a single
@@ -91,9 +97,11 @@ function varargout = resolution_plot (w, varargin)
 % Check sqw object
 % ----------------
 if ~isscalar(w) || dimensions(w)~=2
-    error ('Can only plot resolution function for a single two dimensional sqw object')
+    error('HORACE:resolution_plot:invalid_argument',...
+        'Can only plot resolution function for a single two dimensional sqw object')
 elseif w.data.pix.num_pixels==0
-    error ('No pixels in the sqw object - cannot compute a resolution function')
+    error('HORACE:resolution_plot:invalid_argument',...
+        'No pixels in the sqw object - cannot compute a resolution function')
 end
 
 % Determine if display axes are flipped
@@ -113,7 +121,8 @@ opts.flags_noval = true;
 [par,key,present] = parse_arguments (varargin, key, flags, opts);
 present_logical = cell2mat(struct2cell(present));
 if sum(present_logical(2:end))>1
-    error('Only one of the plot options ''noplot'', ''current'', and ''name'' can be present')
+    error('HORACE:resolution_plot:invalid_argument',...
+        'Only one of the plot options ''noplot'', ''current'', and ''name'' can be present')
 end
 
 % Get point(s) at which to calculate the resolution covariance matrix
@@ -124,11 +133,13 @@ if numel(par)==0
 elseif numel(par)==1
     xd = par{1};
     if ~(isnumeric(xd) && size(xd,2)==2 && size(xd,1)>0 && all(isfinite(xd(:))))
-        error('Position must be an n x 2 array where n is the number of points at which to plot')
+        error('HORACE:resolution_plot:invalid_argument',...
+            'Position must be an n x 2 array where n is the number of points at which to plot')
     end
     if flipped_display_axes, xp = xd(:,[2,1]); else, xp = xd; end
 else
-    error('Check the number of parameters and keyword options')
+    error('HORACE:resolution_plot:invalid_argument',...
+        'Check the number of parameters and keyword options')
 end
 
 % Determine which intersection plotting to perform, if any
@@ -143,7 +154,8 @@ if w.data.pax(end)==4
     elseif ischar(key.axis) && strncmpi(key.axis,'none',numel(key.axis))
         iax = [];
     else
-        error(['Intersection axis must be a permutation ''+'' or ''-'',',...
+        error('HORACE:resolution_plot:invalid_argument',...
+            ['Intersection axis must be a permutation ''+'' or ''-'',',...
             ' or one of the integration axes: ',num2str(w.data.iax)])
     end
 else
@@ -157,7 +169,8 @@ else
     elseif ischar(key.axis) && strncmpi(key.axis,'none',numel(key.axis))
         iax = [];
     else
-        error(['Intersection axis must be ''q'', ''e'',',...
+        error('HORACE:resolution_plot:invalid_argument',...
+            ['Intersection axis must be ''q'', ''e'',',...
             ' or one of the integration axes: ',num2str(w.data.iax)])
     end
 end
@@ -192,9 +205,11 @@ end
 [inst, all_inst] = get_inst_class(w);
 if isempty(inst)
     if all_inst
-        error('The instrument type is not the same for all contributing raw data files')
+        error('HORACE:resolution_plot:invalid_argument',...
+            'The instrument type is not the same for all contributing raw data files')
     else
-        error('The instrument has not been defined for all contributing raw data files')
+        error('HORACE:resolution_plot:invalid_argument',...
+            'The instrument has not been defined for all contributing raw data files')
     end
 end
 if strcmp(inst,'IX_inst_DGfermi')
@@ -202,17 +217,30 @@ if strcmp(inst,'IX_inst_DGfermi')
 elseif strcmp(inst,'IX_inst_DGdisk')
     resfun_model = @tobyfit_DGdisk_resfun_covariance;
 else
-    error('No resolution function model implemented for this instrument')
+    error('HORACE:resolution_plot:invalid_argument',...
+        'No resolution function model implemented for this instrument')
 end
 
 % Compute resolution function, and plot unless 'noplot' requested
-[xp_ok, ipix] = get_nearest_pixels (w, xp);
-[cov_proj, cov_spec, cov_hkle] = resfun_model(w, ipix);
-iax_plot = [w.data.pax, iax];
-if ~present.noplot
-    for i=1:numel(ipix)
-        resolution_plot_private (xp_ok(i,:), cov_proj(:,:,i),...
-            iax_plot, flipped_display_axes)
+[kept, ipix] = get_nearest_pixels (w, xp);
+if numel(ipix)>0
+    [cov_proj, cov_spec, cov_hkle] = resfun_model(w, ipix);
+    xp_kept = xp(kept,:);
+    iax_plot = [w.data.pax, iax];
+    if ~present.noplot
+        for i=1:numel(ipix)
+            resolution_plot_private (xp_kept(i,:), cov_proj(:,:,i),...
+                iax_plot, flipped_display_axes)
+        end
+    end
+else
+    if ~present.noplot
+        error('HORACE:resolution_plot:invalid_argument',...
+            'Resolution ellipsoid(s) all lie outside bins with data')
+    else
+        cov_proj = zeros(4,4,0);
+        cov_spec = zeros(4,4,0);
+        cov_hkle = zeros(4,4,0);
     end
 end
 
@@ -227,4 +255,7 @@ if nargout>=2
 end
 if nargout>=3
     varargout{3} = cov_hkle;
+end
+if nargout>=4
+    varargout{4} = kept;
 end

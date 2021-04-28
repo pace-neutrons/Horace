@@ -1,6 +1,5 @@
 classdef test_tobyfit_resfun_2 < TestCaseWithSave
     %TEST_TOBYFIT_RESFUN_2 Tests of resolution function plotting
-    %   Detailed explanation goes here
     
     properties
         inst
@@ -63,7 +62,7 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
             % ellipsoid when expressed in terms of the spectrometer axes
             %
             % The two plots should look identical
-
+            
             ww1 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
                 S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0);
             
@@ -77,11 +76,11 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
             assertEqualToTol (ww1, ww2, 'tol', [1e-12,1e-12])
             assertEqualToTol (ww1, ww3, 'tol', [1e-12,1e-12])
             
-            % Save 
+            % Save
             assertEqualToTolWithSave (S, ww1, 'tol', [1e-12,1e-12])
             assertEqualToTolWithSave (S, ww2, 'tol', [1e-12,1e-12])
             assertEqualToTolWithSave (S, ww3, 'tol', [1e-12,1e-12])
-
+            
         end
         
         
@@ -89,7 +88,7 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
         function test_differentDetectors(S)
             % Test that the ellipsoid has the correct kinematic behaviour in
             % N,S,E,W detectors (always tilted towards incident wavevector)
-
+            
             % All four plots should have the intersection  at +ve de on right of plot
             
             % Envelope pointing slightly in 1st quadrant
@@ -108,12 +107,12 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
             wwS = resolution_plot(S.ebin, S.inst, S.samp, S.det_S, S.ei, S.efix,...
                 S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0, [1,3,4]);
             
-            % Save 
+            % Save
             assertEqualToTolWithSave (S, wwW, 'tol', [1e-12,1e-12])
             assertEqualToTolWithSave (S, wwE, 'tol', [1e-12,1e-12])
             assertEqualToTolWithSave (S, wwN, 'tol', [1e-12,1e-12])
             assertEqualToTolWithSave (S, wwS, 'tol', [1e-12,1e-12])
-
+            
         end
         
         
@@ -122,7 +121,7 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
             % Test when projection axes are the same as the spectrometer axes
             %
             % The two plots should look identical
-
+            
             ww1 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
                 S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0);
             
@@ -133,10 +132,10 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
             % Should be the same, as does not depend on crystal orientation
             assertEqualToTol (ww1, ww2, 'tol', [1e-12,1e-12])
             
-            % Save 
+            % Save
             assertEqualToTolWithSave (S, ww1, 'tol', [1e-12,1e-12])
             assertEqualToTolWithSave (S, ww2, 'tol', [1e-12,1e-12])
-
+            
         end
         
         
@@ -146,7 +145,7 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
             % plot axes are scaled correctly
             %
             % The plots should look the same, but the axes changed
-
+            
             ww1 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
                 S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0);
             aspect1 = get(gca,'DataAspectRatio');
@@ -160,12 +159,12 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
             assertEqualToTol (aspect1(1:2), [1,1], 'tol', [1e-12,1e-12])
             assertEqualToTol (aspect2(1:2), [1/S.ulen,1/S.vlen], 'tol', [1e-12,1e-12])
             
-            % Save 
+            % Save
             assertEqualToTolWithSave (S, ww1, 'tol', [1e-12,1e-12])
             assertEqualToTolWithSave (S, ww2, 'tol', [1e-12,1e-12])
-        
-        end
             
+        end
+        
         
         %--------------------------------------------------------------------------
         function test_projaxes_3(S)
@@ -173,7 +172,7 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
             % covariance matrix is appropriately changed.
             %
             % The second plot should look like the first, but rotated clockwise by 90 deg
-
+            
             proj = projaxes (S.u, S.v, 'type', 'rrr');
             ww1 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
                 S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0, proj);
@@ -188,13 +187,12 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
             assertEqualToTol (aspect1(1:2), [1/S.ulen,1/S.vlen], 'tol', [1e-12,1e-12])
             assertEqualToTol (aspect2(1:2), [1/S.ulen,1/S.vlen], 'tol', [1e-12,1e-12])
             
-            % Save 
+            % Save
             assertEqualToTolWithSave (S, ww1, 'tol', [1e-12,1e-12])
             assertEqualToTolWithSave (S, ww2, 'tol', [1e-12,1e-12])
-
             
-        %--------------------------------------------------------------------------
+            
+            %--------------------------------------------------------------------------
         end
     end
 end
-

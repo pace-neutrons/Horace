@@ -70,7 +70,8 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 % Plot options:
 %   'curr'          Overplot on the currently active plot
 %
-%   'name', name    Overplot on the named figure or figure number of an existing plot
+%   'name', name    Overplot on the existing figure with the given name,
+%                   figure number or figure handle
 %
 %
 % Output:
@@ -100,17 +101,21 @@ nfiles_in = 1;
     (nfiles_in,efix,emode,alatt,angdeg,u,v,psi_deg,omega_deg,dpsi_deg,gl_deg,gs_deg);
 if ~ok, error(mess), end
 if ~(isnumeric(en) && numel(en)==2 && en(2)>=en(1))
-    error('Energy bin argument must give lower and upper limits of a single energy bin')
+    error('HORACE:resolution_plot:invalid_argument',...
+        'Energy bin argument must give lower and upper limits of a single energy bin')
 end
 hbarw = 0.5*(en(2)+en(1));
 if emode==1 || emode==2
     if emode==1 && hbarw>=efix
-        error('Energy loss cannot be larger than the incident energy')
+        error('HORACE:resolution_plot:invalid_argument',...
+            'Energy loss cannot be larger than the incident energy')
     elseif emode==2 && hbarw<=-efix
-        error('Energy gain cannot be larger than the final energy')
+        error('HORACE:resolution_plot:invalid_argument',...
+            'Energy gain cannot be larger than the final energy')
     end
 else
-    error('Must have emode=1 (direct geometry) or =2 (indirect geometry)')
+    error('HORACE:resolution_plot:invalid_argument',...
+        'Must have emode=1 (direct geometry) or =2 (indirect geometry)')
 end
 
 % Optional arguments
@@ -121,7 +126,8 @@ opts.flags_noval = true;
 [par,key,present] = parse_arguments (varargin, key, flags, opts);
 present_logical = cell2mat(struct2cell(present));
 if sum(present_logical)>1
-    error('Only one of the plot options ''noplot'', ''current'' and ''name'' can be present')
+    error('HORACE:resolution_plot:invalid_argument',...
+        'Only one of the plot options ''noplot'', ''current'' and ''name'' can be present')
 end
 
 % - Projection and/or iax:
@@ -137,7 +143,8 @@ elseif numel(par)==2
     if ~isempty(par{1}), proj = par{1}; end
     if ~isempty(par{2}), iax = par{2}; end
 elseif numel(par)~=0
-    error('Check the number and type of optional arguments')
+    error('HORACE:resolution_plot:invalid_argument',...
+        'Check the number and type of optional arguments')
 end
 
 if ~isempty(proj) && ~isa(proj,'projaxes')
@@ -146,7 +153,8 @@ end
 
 if ~(isnumeric(iax) && (numel(iax)==2 || numel(iax)==3) &&...
         numel(unique(iax))==numel(iax) && all(iax>=1) && all(iax<=4))
-    error('Check axes indicies')
+    error('HORACE:resolution_plot:invalid_argument',...
+        'Check axes indicies')
 end
 
 % - Plot target
@@ -211,13 +219,15 @@ header.ulabel = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
 if isa(instrument,'IX_inst') && isscalar(instrument)
     header.instrument = instrument;
 else
-    error('Instrument must be a scalar instrument object')
+    error('HORACE:resolution_plot:invalid_argument',...
+        'Instrument must be a scalar instrument object')
 end
 
 if isa(sample,'IX_sample')
     header.sample = sample;
 else
-    error('Sample must be a scalar IX_sample object')
+    error('HORACE:resolution_plot:invalid_argument',...
+        'Sample must be a scalar IX_sample object')
 end
 
 wres.header = header;
@@ -225,10 +235,12 @@ wres.header = header;
 
 % Check detector
 if ~isstruct(detpar)
-    error('Detector parameters must form a structure')
+    error('HORACE:resolution_plot:invalid_argument',...
+        'Detector parameters must form a structure')
 end
 if numel(detpar.x2)~=1
-    error('Detector parameters can be for a single detector only')
+    error('HORACE:resolution_plot:invalid_argument',...
+        'Detector parameters can be for a single detector only')
 end
 if ~isfield(detpar,'filename'), detpar.filename = ''; end
 if ~isfield(detpar,'filepath'), detpar.filepath = ''; end

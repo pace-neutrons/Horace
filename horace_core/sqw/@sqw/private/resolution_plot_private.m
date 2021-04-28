@@ -20,22 +20,23 @@ function resolution_plot_private (x0,C,iax,flip)
 
 
 % Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Check input arguments
 if ~(isnumeric(x0) && numel(x0)==2 && all(isfinite(x0)))
-    error('Centre must be a numeric vector length 2')
+    error('HORACE:resolution_plot_private:invalid_argument',...
+        'Centre must be a numeric vector length 2')
 end
 
 if ~(isnumeric(C) && isequal(size(C),[4,4]))
-    error('Covariance matrix has wrong size')
+    error('HORACE:resolution_plot_private:invalid_argument',...
+        'Covariance matrix has wrong size')
 end
 
 if ~(isnumeric(iax) && (numel(iax)==2 || numel(iax)==3) &&...
         numel(unique(iax))==numel(iax) && all(iax>=1) && all(iax<=4))
-    error('Check axes indicies')
+    error('HORACE:resolution_plot_private:invalid_argument',...
+        'Check axes indicies')
 end
 
 % Plot parameters
@@ -121,4 +122,3 @@ x2prime = c2*sin(ang);
 % Transform to input coordinate frame
 x1 = c*x1prime - s*x2prime;
 x2 = s*x1prime + c*x2prime;
-
