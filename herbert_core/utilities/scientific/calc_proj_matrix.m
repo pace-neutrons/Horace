@@ -65,7 +65,7 @@ function [spec_to_cc, u_to_rlu, spec_to_rlu] = calc_proj_matrix (var1, var2, u, 
 %              (This matrix is entirely equivalent to u_to_rlu*spec_to_u)
 
 % T.G.Perring 15/6/07
-%
+
 
 if isempty(u) % slave mode
     b_matrix = var1;
