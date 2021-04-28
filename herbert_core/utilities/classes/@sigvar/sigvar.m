@@ -64,38 +64,34 @@ classdef sigvar
                     % a signvar object - a dummy operation)
                     obj = varargin{1};
                 elseif numel(varargin)==1 && isstruct(varargin{1})
-                    structsize = length(fieldnames(varargin{1}));
-                    if structsize>3
-                        error("HORACE:sigvar:invalid argument", "Structure too large");                        
+                    % local copy of input struct to fill in with missing
+                    % items as needed
+                    w = varargin{1};
+                    
+                    % if w does not have the signal field 's', it is an
+                    % error:
+                    wfields = fieldnames(w);
+                    if ~any(strcmp(wfields,'s'))
+                        error("HORACE:sigvar:invalid argument", "input structure must contain 's'");
                     end
-                    fnames = fieldnames(varargin{1});
-                    if structsize>=1
-                        if strcmp( fnames{1}, 's' )
-                            obj.s = varargin{1}.s;
-                        else
-                            error("HORACE:sigvar:invalid argument", "Structure 's' field not present");
-                        end
-                    else
-                        obj.s = [];
+                    
+                    % if w does not have the variance field 'e', an empty
+                    % one is created for it:
+                    if ~any(strcmp(wfields,'e'))
+                        w.e = []
                     end
-                    if structsize>=2 
-                        if strcmp( fnames{2}, 'e' )
-                            obj.e = varargin{1}.e;
-                        else
-                            error("HORACE:sigvar:structure w field not present");
-                        end
-                    else
-                        obj.e = [];
+                    
+                    % if w does not have the mask field 'msk', an empty one
+                    % is created for it:
+                    if ~any(strcmp(wfields,'msk'))
+                        w.msk = []
                     end
-                    if structsize>=3 
-                        if strcmp( fnames{3}, 'msk' )
-                            obj.e = varargin{1}.msk;
-                        else
-                            error("HORACE:sigvar:structure msk field not present");
-                        end
-                    else
-                        obj.msk = [];
-                    end
+                    
+                    % converts empty fields to appropriately sized arrays
+                    % and checks that input non-empty fields have the same
+                    % size.
+                    [obj.signal_, obj.variance_, obj.mask_] = ...
+                        check_valid_input (w.s, w.e, w.msk);
                 else
                     s = varargin{1};
                     if narg>=2, e = varargin{2}; else, e = []; end
