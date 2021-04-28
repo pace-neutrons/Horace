@@ -49,15 +49,19 @@ else()
     set(Horace_DOCS_PACK_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/docs.tar.gz" CACHE FILEPATH "File to store packed HTML documentation")
 endif()
 
-find_program(sphinx-build NAMES sphinx-build)
+find_package(Python3)
+find_program(sphinx-build NAMES sphinx-build HINTS ${Horace_DOCS_ROOT_DIR})
 find_program(pdflatex NAMES pdflatex)
 find_program(latexmk NAMES latexmk)
 
-if (sphinx-build)
+execute_process(COMMAND ${Python3_EXECUTABLE} ${sphinx-build} ERROR_VARIABLE test)
+string(REGEX MATCH "ModuleNotFoundError" sphinx-build-failed ${test})
+
+if (NOT sphinx-build-failed)
   add_custom_target(docs
     COMMENT "Building HTML user documentation"
     BYPRODUCTS "${Horace_DOCS_OUTPUT_DIR}/*"
-    COMMAND ${sphinx-build} -b html "${Horace_DOCS_SOURCE_DIR}" "${Horace_DOCS_OUTPUT_DIR}" ${SPHINX_OPTS}
+    COMMAND ${Python3_EXECUTABLE} ${sphinx-build} -b html "${Horace_DOCS_SOURCE_DIR}" "${Horace_DOCS_OUTPUT_DIR}" ${SPHINX_OPTS}
                             -D "release=${${PROJECT_NAME}_SHORT_VERSION}"
                             -D "version=${${PROJECT_NAME}_SHORT_VERSION}"
     )
@@ -98,7 +102,7 @@ if (sphinx-build)
 
   if (pdflatex AND latexmk)
     add_custom_command(OUTPUT horace.tex
-      COMMAND ${sphinx-build} -b latex "${Horace_DOCS_SOURCE_DIR}" "${Horace_MANUAL_WORK_DIR}" ${SPHINX_OPTS}
+      COMMAND ${Python3_EXECUTABLE} ${sphinx-build} -b latex "${Horace_DOCS_SOURCE_DIR}" "${Horace_MANUAL_WORK_DIR}" ${SPHINX_OPTS}
                               -D "release=${${PROJECT_NAME}_SHORT_VERSION}"
                               -D "version=${${PROJECT_NAME}_SHORT_VERSION}"
       WORKING_DIRECTORY "${Horace_DOCS_ROOT_DIR}"

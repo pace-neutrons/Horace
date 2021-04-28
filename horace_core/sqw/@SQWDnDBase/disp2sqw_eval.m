@@ -1,7 +1,7 @@
-function wout=disp2sqw_eval(win,dispreln,pars,fwhh,opt)
+function wout=disp2sqw_eval(win,dispreln,pars,fwhh,varargin)
 % Calculate sqw for a model scattering function
 %
-%   >> wout = disp2sqw_eval(win,dispreln,pars,fwhh,opt)
+%   >> wout = disp2sqw_eval(win,dispreln,pars,fwhh,varargin)
 %
 % Input:
 % ------
@@ -56,14 +56,16 @@ function wout=disp2sqw_eval(win,dispreln,pars,fwhh,opt)
 %                           The output I has the same dimensions as the
 %                           input Emat.
 %
-%   '-all'       [option] Requests that the calculated sqw be returned over
-%              the whole of the domain of the input dataset. If not given, then
-%              the function will be returned only at those points of the dataset
-%              that contain data.
-%               Applies only to input with no pixel information - it is ignored if
-%              full sqw object.
+% Optional arguments: (varargin)
 %
-%   '-ave'       [option] Requests that the calculated sqw be computed for the
+%   '-al[l]'  Requests that the calculated sqw be returned over
+%             the whole of the domain of the input dataset. If not given, then
+%             the function will be returned only at those points of the dataset
+%             that contain data.
+%             Applies only to input with no pixel information - it is ignored if
+%             full sqw object.
+%
+%   '-av[erage]' Requests that the calculated sqw be computed for the
 %              average values of h,k,l of the pixels in a bin, not for each
 %              pixel individually. Reduces cost of expensive calculations.
 %               Applies only to the case of sqw object with pixel information - it is
@@ -75,11 +77,11 @@ function wout=disp2sqw_eval(win,dispreln,pars,fwhh,opt)
 
 
 % Check optional argument
-[ok, mess, all_bins, ave_pix] = parse_char_options({opt}, {'-all', '-average'});
+[ok, mess, all_bins, ave_pix] = parse_char_options(varargin, {'-all', '-average'});
 if ~ok
     error( ...
-        'HORACE:SQW:invalid_arguments', ...
-        '%s.\nValid values for ''opt'' are ''-all'' or ''-ave''.', ...
+        'HORACE:sqw:invalid_arguments', ...
+        '%s.\nValid values for optional arguments are ''-al[l]'' or ''-av[erage]''.', ...
         mess ...
     );
 end

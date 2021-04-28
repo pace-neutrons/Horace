@@ -52,6 +52,4 @@ wout.data_.npix(~mask_array) = 0;
 % Section the pix array, if non empty, and update pix_range
 if has_pixels(win)
     wout.data_.pix = win.data_.pix.mask(mask_array, win.data_.npix);
-    %TODO: is this a suitable algorithm?
-    wout.data.img_db_range = recompute_img_range(wout);
 end

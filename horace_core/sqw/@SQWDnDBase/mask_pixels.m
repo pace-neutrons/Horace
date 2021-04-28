@@ -33,7 +33,7 @@ function wout = mask_pixels (win, mask_array)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
+
 
 
 % Check object to be masked is an sqw-type object
@@ -77,10 +77,9 @@ else
     error('Mask must provide a numeric or logical array with same number of elements as the data')
 end
 
-% Section the pix array, if sqw type, and update pix_range and img_range(s)
+% Section the pix array, if sqw type, and update pix_range and img_db_range(s)
 ibin = replicate_array(1:prod(sz),win.data_.npix);   % (linear) bin number for each pixel
 npix=accumarray(ibin(mask_array),ones(1,sum(mask_array)),[prod(sz),1]);
 wout.data_.npix=reshape(npix,sz);
 wout.data_.pix=win.data_.pix.mask(mask_array);
-wout.data_.img_db_range=recompute_img_range(wout);
 wout=recompute_bin_data(wout);
