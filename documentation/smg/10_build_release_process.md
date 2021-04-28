@@ -222,3 +222,6 @@ Disadvantages:
 
 - not fully tested code released to part of the production system,
 alleviated by the fact that affected user experienced issue anyway.
+
+
+<img src="./images/10_developmentworkflow.png">
