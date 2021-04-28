@@ -71,19 +71,19 @@ classdef sigvar
                     % if w does not have the signal field 's', it is an
                     % error:
                     wfields = fieldnames(w);
-                    if ~any(strcmp(wfields,'s'))
+                    if ~any(ismember(wfields,'s'))
                         error("HORACE:sigvar:invalid argument", "input structure must contain 's'");
                     end
                     
                     % if w does not have the variance field 'e', an empty
                     % one is created for it:
-                    if ~any(strcmp(wfields,'e'))
+                    if ~any(ismember(wfields,'e'))
                         w.e = []
                     end
                     
                     % if w does not have the mask field 'msk', an empty one
                     % is created for it:
-                    if ~any(strcmp(wfields,'msk'))
+                    if ~any(ismember(wfields,'msk'))
                         w.msk = []
                     end
                     
