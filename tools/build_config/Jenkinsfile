@@ -61,6 +61,7 @@ properties([
       trim: true
     ),
     booleanParam(
+      defaultValue: true,
       description: 'If this pipeline is to build docs.',
       name: 'BUILD_DOCS'
     ),
@@ -81,6 +82,9 @@ if (env.BRANCH_NAME) {
 def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-", "")
 Boolean run_build_stage = !(env?.PR_LABELS =~ "do-not-build")
 Boolean run_test_stage = !(env?.PR_LABELS =~ "(do-not-build|do-not-test)")
+Boolean run_push_docs_stage = (pli.matlab_release == 'R2019b' &&
+                               pli.build_type == 'Nightly' &&
+                               utilities.get_agent(pli.os) == 'sl7')
 
 pipeline {
 
@@ -94,7 +98,7 @@ pipeline {
     GCC_VERSION = utilities.get_param('GCC_VERSION', '6.3.0')
     VS_VERSION = utilities.get_param('VS_VERSION', '2017')
     CPPCHECK_VERSION = utilities.get_param('CPPCHECK_VERSION', '1.77')
-    BUILD_DOCS = utilities.get_param('BUILD_DOCS', 'false')
+    BUILD_DOCS = utilities.get_param('BUILD_DOCS', 'true')
     PUSH_DOCS = utilities.get_param('PUSH_DOCS', 'false')
   }
 
@@ -284,6 +288,7 @@ pipeline {
             '''
             archiveArtifacts(
               artifacts: 'build/docs.tar.gz',
+              allowEmptyArchive: true,
               fingerprint: true
             )
           }
@@ -293,6 +298,7 @@ pipeline {
             '''
             archiveArtifacts(
               artifacts: 'build/docs.zip',
+              allowEmptyArchive: true,
               fingerprint: true
             )
           }
@@ -361,7 +367,7 @@ pipeline {
 
     stage('Push-Docs') {
       when {
-        expression {env.BUILD_DOCS?.toBoolean() && env.PUSH_DOCS?.toBoolean()}
+        expression {env.BUILD_DOCS?.toBoolean() && (env.PUSH_DOCS?.toBoolean() || run_push_docs_stage)}
       }
       steps {
         withCredentials([string(credentialsId: 'GitHub_API_Token',

@@ -74,7 +74,6 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             % The communicatins occur between host and workers and between
             % workers themselves.
             %
-            skipTest('Test disabled due to intermittent failure')
             worker_local = 'parallel_worker';
             
             mis = MPI_State.instance('clear');
@@ -211,8 +210,6 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
         end
         
         function test_do_job(obj)
-            
-            skipTest('Test disabled due to intermittent failure')
             mis = MPI_State.instance('clear');
             mis.is_tested = true;
             mis.is_deployed = true;
@@ -276,7 +273,6 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
         end
         
         function test_finish_task(obj)
-            skipTest('Test disabled due to intermittent failure')
             
             
             serverfbMPI  = MessagesFilebased('test_finish_task');

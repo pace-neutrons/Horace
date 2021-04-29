@@ -165,7 +165,7 @@ classdef faccess_sqw_prototype < sqw_binfile_common
             data_form = rmfield(data_form,{'filename','filepath','title','alatt','angdeg'});
         end
         %
-        function sqw_data = get_data(obj,varargin)
+        function [sqw_data,obj] = get_data(obj,varargin)
             % get prototype sqw data converting it in modern file format if
             % possible
 

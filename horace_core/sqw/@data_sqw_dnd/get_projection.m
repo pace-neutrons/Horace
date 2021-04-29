@@ -3,14 +3,15 @@ function proj = get_projection(obj)
 % itself.
 %
 % This function just returns the projection for new (year 2021) sqw objects
-% but used for compartibility with old sqw objects.
+% but used for compatibility with old sqw objects.
 %
 % TODO: needs refactoring with new projection. A bit dodgy in current state
 %
 alatt=obj.alatt;
 angdeg=obj.angdeg;
-
-shift = (obj.u_to_rlu\obj.uoffset)';
+bmat =  bmatrix (alatt, angdeg);
+%
+shift = ([bmat,[0;0;0];[0,0,0,1]]\obj.uoffset)';
 pix_range = obj.pix.pix_range-repmat(shift,2,1);
 img_range_guess = range_add_border(pix_range,obj.border_size);
 if  all(abs(img_range_guess(:)-obj.img_db_range(:))<=abs(obj.border_size)) || ... 
