@@ -1,4 +1,4 @@
-function [chunks, idxs, cumulative_sum] = split_vector_max_sum(numeric_vector, max_chunk_sum,varargin)
+function [chunks, idxs, cumulative_sum] = split_vector_max_sum(numeric_vector, max_chunk_sum)
 %SPLIT_VECTOR_MAX_SUM Split the given vector into a set of sub-vectors such that the
 % sum of each sub-vector has a maximum of max_chunk_sum, or the sub-vector has
 % length 1.
