@@ -77,8 +77,8 @@ for iter = 1:num_chunks
     % Get pixels that will likely contribute to the cut
     chunk = block_chunks{iter};
     pix_start = chunk{1};
-    block_size = chunk{2};    
-    pix_end = pix_start+block_size-1;
+    block_sizes = chunk{2};    
+    pix_end = pix_start+block_sizes-1;
     candidate_pix = obj.data.pix.get_pix_in_ranges( ...
         pix_start, pix_end  ...
         );

@@ -178,9 +178,12 @@ classdef  test_file_input < TestCase
             proj2.v=[1,1,0];
             
             s1_s=cut(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
+            s1_f_h=cut(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
+            [ok,mess] = equal_to_tol(s1_s,s1_f_h,'ignore_str',1);
+            assertTrue(ok,['Memopry based and file based cuts are different: ',mess])
+            
             s1_s_h=cut(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
             s1_s_s=cut_sqw(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
-            s1_f_h=cut(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
             s1_f_s=cut_sqw(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
             try
                 s1_s_d=cut_dnd(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
@@ -188,7 +191,7 @@ classdef  test_file_input < TestCase
             catch
                 failed=true;
             end
-            if ~failed, assertTrue(false,'Should have failed!'), end
+            assertTrue(failed,'Should have failed!');
             
             try
                 s1_f_d=cut_dnd(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
@@ -196,12 +199,16 @@ classdef  test_file_input < TestCase
             catch
                 failed=true;
             end
-            if ~failed, assertTrue(false,'Should have failed!'), end
+            assertTrue(failed,'Should have failed!');
             
-            if ~equal_to_tol(s1_s,s1_s_h), assertTrue(false,'Error in functionality'), end
-            if ~equal_to_tol(s1_s,s1_s_s), assertTrue(false,'Error in functionality'), end
-            if ~equal_to_tol(s1_s,s1_f_h,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-            if ~equal_to_tol(s1_s,s1_f_s,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            [ok,mess] = equal_to_tol(s1_s,s1_s_h);
+            assertTrue(ok,['Error in functionality: ',mess])
+            
+            [ok,mess] = equal_to_tol(s1_s,s1_s_s);
+            assertTrue(ok,['Error in functionality: ',mess])
+            
+            [ok,mess] = equal_to_tol(s1_s,s1_f_s,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
             
             
             
@@ -221,34 +228,46 @@ classdef  test_file_input < TestCase
             assertExceptionThrown(@() call_cut_sqw(obj.d2d_arr(2)), 'HORACE:cut_sqw');
             assertExceptionThrown(@() call_cut_sqw(obj.d2d_name{2}), 'HORACE:cut_sqw');
             
-            if ~equal_to_tol(d1_d,d1_d_h), assertTrue(false,'Error in functionality'), end
-            if ~equal_to_tol(d1_d,d1_d_d), assertTrue(false,'Error in functionality'), end
-            if ~equal_to_tol(d1_d,d1_f_h,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-            if ~equal_to_tol(d1_d,d1_f_d,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            [ok,mess] = equal_to_tol(d1_d,d1_d_h);
+            assertTrue(ok,['Error in functionality: ',mess])
             
+            [ok,mess] = equal_to_tol(d1_d,d1_d_d);
+            assertTrue(ok,['Error in functionality: ',mess])
             
+            [ok,mess] = equal_to_tol(d1_d,d1_f_h,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
+            
+            [ok,mess] = equal_to_tol(d1_d,d1_f_d,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
             
             % =================================================================================================
             % Reading data
             % =================================================================================================
             
             tmp=read(sqw,obj.sqw2d_name{2});
-            if ~equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            [ok,mess] = equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
             
             tmp=read_sqw(obj.sqw2d_name{2});
-            if ~equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            [ok,mess] = equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
+            
             
             tmp=read_horace(obj.sqw2d_name{2});
-            if ~equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            [ok,mess] = equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
             
             tmp=read(d2d,obj.sqw2d_name{2});
-            if ~equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            [ok,mess] = equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
             
             tmp=read_dnd(obj.sqw2d_name{2});
-            if ~equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            [ok,mess] = equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
             
             tmp=read(d2d,obj.d2d_name{2});
-            if ~equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            [ok,mess] = equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
             
             try
                 tmp=read_sqw(obj.d2d_name{2});
@@ -256,20 +275,24 @@ classdef  test_file_input < TestCase
             catch
                 failed=true;
             end
-            if ~failed, assertTrue(false,'Should have failed!'), end
+            assertTrue(failed,'Should have failed!');
             
             tmp=read_horace(obj.d2d_name{2});
-            if ~equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            [ok,mess] = equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
             
             % Read array of files
             tmp=read_horace(obj.sqw2d_name);
-            if ~equal_to_tol(obj.sqw2d_arr,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            [ok,mess] = equal_to_tol(obj.sqw2d_arr,tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
             
             tmp=read_dnd(obj.sqw2d_name);
-            if ~equal_to_tol(obj.d2d_arr,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            [ok,mess] = equal_to_tol(obj.d2d_arr,tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
             
             tmp=read_sqw(obj.sqw2d_name);
-            if ~equal_to_tol(obj.sqw2d_arr,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            [ok,mess] = equal_to_tol(obj.sqw2d_arr,tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
         end
     end
     %banner_to_screen([mfilename,': Test(s) passed'],'bot')

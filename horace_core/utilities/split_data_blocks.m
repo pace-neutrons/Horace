@@ -30,13 +30,20 @@ if isempty(block_sizes)
     cumulative_sum = [];
     return;
 end
-validateattributes(start_val, {'numeric'}, {'vector', 'nonnegative'});
-validateattributes(block_sizes, {'numeric'}, {'vector', 'nonnegative'});
+validateattributes(start_val, {'numeric'}, {'vector', 'positive'});
+validateattributes(block_sizes, {'numeric'}, {'vector', 'positive'});
 validateattributes(max_chunk_sum, {'numeric'}, {'scalar', 'positive'});
 if any(size(start_val)~=size(block_sizes))
     error('HORACE:utilities:invalid_argument',...
         'The size of start_val array and size of block_sizes array have to be the same');
 end
+if size(start_val,1)>size(start_val,2) % we want it to be rows
+    start_val = start_val';    
+end
+if size(block_sizes,1)>size(block_sizes,2) % we want it to be rows
+    block_sizes = block_sizes';    
+end
+
 
 
 cumulative_sum = cumsum(block_sizes);
