@@ -52,9 +52,9 @@ end
 block_size = obj.data.pix.base_page_size;
 % Get indices in order to split the candidate bin ranges into chunks whose sums
 % are less than, or equal to, a pixel page size
-bin_sizes = bin_ends - bin_starts;
-[~, sub_bin_idxs] = split_vector_max_sum(bin_sizes, block_size);
-num_chunks = size(sub_bin_idxs, 2);
+bin_sizes = bin_ends - bin_starts+1;
+block_chunks = split_data_blocks(bin_starts,bin_sizes, block_size);
+num_chunks = numel(block_chunks);
 
 % If we only have one iteration of pixels to cut then we must be able to fit
 % all pixels in memory, hence no need to use temporary files.
@@ -73,23 +73,14 @@ if keep_pix
     end
 end
 
-bin_size_gt_block_size = bin_sizes > block_size;
-if any(bin_size_gt_block_size)
-    warning( ...
-        'HORACE:SQW:memory', ...
-        ['cut_accumulate_data_: some bins being accumulated during cut have ' ...
-        'more pixels than fit in a PixelData page size.\n'...
-        'Offending bins at indices [%s].'], ...
-        num2str(find(bin_size_gt_block_size(:)')) ...
-        );
-end
-
-bin_starts = bin_starts(sub_bin_idxs(1, :));
-bin_ends = bin_ends(sub_bin_idxs(2, :));
 for iter = 1:num_chunks
     % Get pixels that will likely contribute to the cut
+    chunk = block_chunks{iter};
+    pix_start = chunk{1};
+    block_size = chunk{2};    
+    pix_end = pix_start+block_size-1;
     candidate_pix = obj.data.pix.get_pix_in_ranges( ...
-        bin_starts(iter), bin_ends(iter) ...
+        pix_start, pix_end  ...
         );
     
     if log_level >= 1

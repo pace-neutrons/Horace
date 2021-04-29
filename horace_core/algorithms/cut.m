@@ -35,7 +35,12 @@ function sqw_dnd_obj=obj_from_faccessor(ldr)
 %
 if ldr.sqw_type
     % harmonize pixel_page_size and mem_chunk_size
-    pixel_page_size = get(hor_config, 'mem_chunk_size')*ldr.pixel_size;
+    [mem_chunk,page_size] = config_store.instance().get_config_field('hor_config',...
+        'mem_chunk_size','pixel_page_size');
+    pixel_page_size = mem_chunk*ldr.pixel_size;
+    if page_size<pixel_page_size % this normally for testing
+        pixel_page_size = page_size;
+    end
     % Load the .sqw file using the sqw constructor so that we can pass the
     % pixel_page_size argument to get an sqw with file-backed pixels.
     sqw_dnd_obj = sqw(ldr, 'pixel_page_size', pixel_page_size);
@@ -43,5 +48,6 @@ else
     % In contrast to the above case, we can use the loader to get the dnd
     % as no extra constructor arguments are required.
     sqw_dnd_obj = ldr.get_dnd();
+    ldr.delete();
 end
-ldr.delete();
+
