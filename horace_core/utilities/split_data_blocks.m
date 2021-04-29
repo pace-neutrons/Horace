@@ -54,24 +54,31 @@ end
 chunks = cell(1, max_num_chunks);
 chunks_borders = max_chunk_sum:max_chunk_sum:max_num_chunks*max_chunk_sum;
 chunks_borders(end)=cumulative_sum(end);
-
+%[counts,~,indexes]= histcounts(chunks_borders,[0,cumulative_sum+0.1]);
 
 ind_end = 0;
 ind_prev = 0;
+border0 = 0;
 for i=1:max_num_chunks
+    
     ind_start = ind_end+1;
     ind_end = find(cumulative_sum<=chunks_borders(i),1,'last');
     if isempty(ind_end) || ind_end < ind_start
-        ind_end = ind_start;
+        ind_end  = ind_start;
     end
     if ind_start ~= ind_prev 
-       start_pos = start_val(ind_start);                    
+       start_pos   = start_val(ind_start); 
+        if i==1
+            border0 = 0;
+        else
+            border0  = chunks_borders(i-1);        
+        end       
     end
     
     overrun = chunks_borders(i)-cumulative_sum(ind_end);
     if overrun>0
-        chunks{i} = {start_val(ind_start:ind_end+1)',...
-            [block_sizes(ind_start:ind_end),overrun]'};
+        chunks{i} = {start_val(ind_start:ind_end+1),...
+            [block_sizes(ind_start:ind_end),overrun]};
         % cut the part of the taken block from the beginning of the next
         % block
         start_val(ind_end+1) = start_val(ind_end+1)+overrun+1;
@@ -79,11 +86,11 @@ for i=1:max_num_chunks
     elseif overrun<0 % splitting chunk in more then one block
         chunks{i} = {start_val(ind_end),max_chunk_sum};
         block_sizes(ind_end) = block_sizes(ind_end)-max_chunk_sum;
-        start_val(ind_end) =  start_pos+max_chunk_sum+1;        
+        start_val(ind_end) =   start_pos+chunks_borders(i)-border0+1;        
         ind_end = ind_start-1;
     else
-        chunks{i} = {start_val(ind_start:ind_end)',...
-            block_sizes(ind_start:ind_end)'};
+        chunks{i} = {start_val(ind_start:ind_end),...
+            block_sizes(ind_start:ind_end)};
     end
     ind_prev = ind_start;
 end

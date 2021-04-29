@@ -20,15 +20,34 @@ classdef test_split_vector_max_sum_p2 < TestCase
             f = @() split_data_blocks(pos,vector,100);
             assertExceptionThrown(f, 'HORACE:utilities:invalid_argument');
         end
+        function test_split_2big_blocks(~)
+            vector     = [5,34,6,10,30];
+            start_pos  = [100,200,300,400,500];
+            max_sum = 10;
+            chunks = split_data_blocks(start_pos,vector, max_sum);
+            assertEqual(numel(chunks),9);
+            ref_pos = {[100,200],206,217,[227,300],[302,400],[406,500],506,517,527};
+            ref_sizes = {[5,5],10,10,[9,1],[5,5],[5,5],10,10,5};
+            assertEqual(sum([ref_sizes{:}]),sum(vector));            
+            for i=1:9
+                ch = chunks{i};
+                pos = ch{1};
+                size = ch{2};
+                assertEqual(pos,ref_pos{i});
+                assertEqual(size,ref_sizes{i});
+            end
+        end
+        
         function test_split_big_block_in_the_middle(~)
-            vector     = [5,34,6];
+            vector     = [5,44,6];
             start_pos  = [100,200,300];
             max_sum = 10;
             chunks = split_data_blocks(start_pos,vector, max_sum);
-            assertEqual(numel(chunks),5);
-            ref_pos = {[100;200],206,216,[226;300],302};
-            ref_sizes = {[5;5];10;10;10;5};
-            for i=1:5
+            assertEqual(numel(chunks),6);
+            ref_pos = {[100,200],206,217,227,[237,300],302};
+            ref_sizes = {[5,5],10,10,10,[9,1],5};
+            assertEqual(sum([ref_sizes{:}]),sum(vector));
+            for i=1:6
                 ch = chunks{i};
                 pos = ch{1};
                 size = ch{2};
@@ -58,39 +77,21 @@ classdef test_split_vector_max_sum_p2 < TestCase
         function test_split_2p_block_pages_split(~)
             vector     = [3, 3, 4, 3, 3, 3, 5];
             %             !--------!--------!----;3 Pages
-            start_pos  = [10,20,30,40,50,60,70];
+            start_pos  = [100,200,300,400,500,600,700];
             max_sum = 10;
             chunks = split_data_blocks(start_pos,vector, max_sum);
             assertEqual(numel(chunks),3);
-            ch = chunks{1};
-            pos = ch{1};
-            size = ch{2};
-            assertEqual(sum(size),max_sum)
-            assertEqual(pos(1),start_pos(1));
-            assertEqual(pos(2),start_pos(2));
-            assertEqual(pos(3),start_pos(3));
-            assertEqual(size(1) ,vector(1));
-            assertEqual(size(2),vector(2));
-            assertEqual(size(3),vector(3));
+            ref_pos = {[100,200,300],[400,500,600,700],702};
+            ref_sizes = {[3,3,4],[3,3,3,1],4};
             
-            ch = chunks{2};
-            pos = ch{1};
-            size = ch{2};
-            assertEqual(sum(size),max_sum)
-            assertEqual(pos(1) ,start_pos(4));
-            assertEqual(pos(2) ,start_pos(5));
-            assertEqual(pos(3) ,start_pos(6));
-            assertEqual(pos(4) ,start_pos(7));
-            assertEqual(size(1),vector(4));
-            assertEqual(size(2),vector(5));
-            assertEqual(size(3),vector(6));
-            assertEqual(size(4),1);
-            
-            ch = chunks{3};
-            pos = ch{1};
-            size = ch{2};
-            assertEqual(pos(1),start_pos(7)+2);
-            assertEqual(size(1) ,vector(7)-1);
+            assertEqual(sum([ref_sizes{:}]),sum(vector));
+            for i=1:3
+                ch = chunks{i};
+                pos = ch{1};
+                size = ch{2};
+                assertEqual(pos,ref_pos{i});
+                assertEqual(size,ref_sizes{i});
+            end
             
         end
         
