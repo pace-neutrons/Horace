@@ -41,7 +41,7 @@ end
 nd = numel(win.data.pax);
 sz = size(win.data.npix);
 np = size(xp,1);
-if numel(size(xp)) ~= 2
+if ~ismatrix(xp)
     error('HORACE:get_nearest_pixels:invalid_argument',...
         'Coordinate array must be a row vector or two-dimensional array.')
 elseif size(xp, 2) ~= nd
@@ -51,7 +51,7 @@ end
 
 % Catch case of no query points on input
 % ----------------------------------------
-if size(xp, 1)==0
+if np == 0
     ok = false(0,1);
     ipix = zeros(0,1);
     return

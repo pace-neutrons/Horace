@@ -21,12 +21,12 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
     
     methods
         %--------------------------------------------------------------------------
-        function self = test_tobyfit_resfun_2 (name)
-            self@TestCaseWithSave(name);
+        function S = test_tobyfit_resfun_2 (name)
+            S@TestCaseWithSave(name);
             
             % Make an instrument and sample
-            self.inst = maps_instrument_obj_for_tests(90,250,'s');
-            self.samp = IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.02,0.02,0.02]);
+            S.inst = maps_instrument_obj_for_tests(90,250,'s');
+            S.samp = IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.02,0.02,0.02]);
             
             % Make some detectors
             det.x2=6;
@@ -35,24 +35,24 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
             det.width=0.0254;
             det.height=0.0367;
             
-            self.det_W = det;
-            self.det_E = det; self.det_E.azim = 180;
-            self.det_N = det; self.det_N.azim = 90;
-            self.det_S = det; self.det_S.azim = 270;
+            S.det_W = det;
+            S.det_E = det; S.det_E.azim = 180;
+            S.det_N = det; S.det_N.azim = 90;
+            S.det_S = det; S.det_S.azim = 270;
             
             % Some useful parameters
-            self.ebin = [12.5,13.5];
-            self.ei = 100;
-            self.efix = 1;
-            self.alatt = [3,4,5];
-            self.angdeg = [90,90,90];
-            self.u = [1,1,0];
-            self.v = [0,0,1];
+            S.ebin = [12.5,13.5];
+            S.ei = 100;
+            S.efix = 1;
+            S.alatt = [3,4,5];
+            S.angdeg = [90,90,90];
+            S.u = [1,1,0];
+            S.v = [0,0,1];
             
-            self.ulen = 2*pi*sqrt(1/self.alatt(1)^2 + 1/self.alatt(2)^2);
-            self.vlen = 2*pi/self.alatt(3);
+            S.ulen = 2*pi*sqrt(1/S.alatt(1)^2 + 1/S.alatt(2)^2);
+            S.vlen = 2*pi/S.alatt(3);
             
-            self.save()
+            S.save()
         end
         
         
