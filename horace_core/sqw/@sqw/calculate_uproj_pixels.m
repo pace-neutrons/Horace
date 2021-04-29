@@ -23,7 +23,8 @@ function uproj=calculate_uproj_pixels(win,opt)
 
 
 if numel(win)~=1
-    error('Only a single sqw object is valid - cannot take an array of sqw objects')
+    error('HORACE:calculate_uproj_pixels:invalid_argument',...
+        'Only a single sqw object is valid - cannot take an array of sqw objects')
 end
 
 step=false;
@@ -31,7 +32,8 @@ if exist('opt','var')
     if ischar(opt) && strncmpi(opt,'step',numel(opt))
         step = true;
     else
-        error('Invalid option')
+        error('HORACE:calculate_uproj_pixels:invalid_argument',...
+        'Invalid optional argument - the only permitted option is ''step''')
     end
 end
 
