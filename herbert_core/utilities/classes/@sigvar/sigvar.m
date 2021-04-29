@@ -63,6 +63,35 @@ classdef sigvar
                     % class; in this case that a sigvar object be returned from
                     % a signvar object - a dummy operation)
                     obj = varargin{1};
+                elseif numel(varargin)==1 && isstruct(varargin{1})
+                    % local copy of input struct to fill in with missing
+                    % items as needed
+                    w = varargin{1};
+                    
+                    % if w does not have the signal field 's', it is an
+                    % error:
+                    wfields = fieldnames(w);
+                    if ~any(ismember(wfields,'s'))
+                        error("HORACE:sigvar:invalid argument", "input structure must contain 's'");
+                    end
+                    
+                    % if w does not have the variance field 'e', an empty
+                    % one is created for it:
+                    if ~any(ismember(wfields,'e'))
+                        w.e = []
+                    end
+                    
+                    % if w does not have the mask field 'msk', an empty one
+                    % is created for it:
+                    if ~any(ismember(wfields,'msk'))
+                        w.msk = []
+                    end
+                    
+                    % converts empty fields to appropriately sized arrays
+                    % and checks that input non-empty fields have the same
+                    % size.
+                    [obj.signal_, obj.variance_, obj.mask_] = ...
+                        check_valid_input (w.s, w.e, w.msk);
                 else
                     s = varargin{1};
                     if narg>=2, e = varargin{2}; else, e = []; end
