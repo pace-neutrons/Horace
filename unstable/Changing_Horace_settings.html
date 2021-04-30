@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Changing Horace settings &mdash; Horace 3.5.0-20210127-linux-R2018b-ee29fc5 documentation</title>
+  <title>Changing Horace settings &mdash; Horace 3.5.1.4e06272 documentation</title>
   
 
   
@@ -32,7 +32,6 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -40,7 +39,6 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Planning a Horace scan" href="Planning_a_Horace_scan.html" />
-    <link rel="prev" title="Horace GUI" href="Horace_GUI.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -59,12 +57,15 @@
 
           
             
-            <img src="_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
           
           </a>
 
           
             
+            
+              <div class="version">
+                3.5.1.4e06272
+              </div>
             
           
 
@@ -94,7 +95,6 @@
 <li class="toctree-l1"><a class="reference internal" href="Support_and_updates.html">Support and updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Getting_started.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Advanced_use.html">Advanced use</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Horace_GUI.html">Horace GUI</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changing Horace settings</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#hor-config">hor_config</a></li>
 </ul>
@@ -105,13 +105,12 @@
 <li class="toctree-l1"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Symmetrising_etc.html">Symmetrising etc</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Unary_operations.html">Unary operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Plotting.html">Plotting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Simulation.html">Simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Multifit.html">Multifit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced_Multifit.html">Advanced Multifit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Example_scripts.html">Example scripts</a></li>
@@ -123,27 +122,6 @@
 <li class="toctree-l1"><a class="reference internal" href="Developer_info.html">Developer info</a></li>
 <li class="toctree-l1"><a class="reference internal" href="General_disclaimer.html">General disclaimer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Privacy_policy.html">Privacy Policy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Changing_object_type.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Developer_information.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Fitting.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Herbert.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Horace_and_Libisis_installation.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Horace_command_line.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="New.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Official_download_v1.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Read_or_write_to_disk.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Remote_data_analysis.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Reshaping_etc.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Run_inspector.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Script_for_correcting_sample_misalignment.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Script_for_data_treatment.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Script_for_fitting.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Script_for_generating_sqw_files.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Script_for_making_cuts_and_plotting.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Script_for_making_publication_quality_figures.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Script_for_making_simulations.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Script_for_planning_an_experiment.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="s_new.html">[NULL]</a></li>
 </ul>
 
             
@@ -217,23 +195,24 @@
 <div class="section" id="hor-config">
 <h2>hor_config<a class="headerlink" href="#hor-config" title="Permalink to this headline">¶</a></h2>
 <p>This is a set of basic configurations for Horace. In order to find out the current (default) settings, type</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">hor_config</span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">hor_config</span><span class="w"></span>
 
-<span class="n">This</span> <span class="s">will</span> <span class="s">return</span> <span class="s">the</span> <span class="s">following</span> <span class="s">information:</span>
+<span class="n">This</span><span class="w"> </span><span class="s">will</span><span class="w"> </span><span class="s">return</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">following</span><span class="w"> </span><span class="s">information:</span><span class="w"></span>
 
 
-    <span class="n">mem_chunk_size</span><span class="p">:</span> <span class="mi">10000000</span>
-                  <span class="n">threads</span><span class="p">:</span> <span class="mi">8</span>
-               <span class="n">ignore_nan</span><span class="p">:</span> <span class="mi">1</span>
-               <span class="n">ignore_inf</span><span class="p">:</span> <span class="mi">0</span>
-                <span class="n">log_level</span><span class="p">:</span> <span class="mi">1</span>
-                  <span class="n">use_mex</span><span class="p">:</span> <span class="mi">1</span>
-               <span class="n">delete_tmp</span><span class="p">:</span> <span class="mi">1</span>
-     <span class="n">force_mex_if_use_mex</span><span class="p">:</span> <span class="mi">0</span>
-    <span class="n">high_perf_config_info</span><span class="p">:</span> <span class="p">[</span><span class="mi">11</span> <span class="n">hpc_config</span><span class="p">]</span>
-               <span class="n">class_name</span><span class="p">:</span> <span class="s">&#39;hor_config&#39;</span>
-                 <span class="n">saveable</span><span class="p">:</span> <span class="mi">1</span>
-         <span class="n">returns_defaults</span><span class="p">:</span> <span class="mi">0</span>
+<span class="w">    </span><span class="n">mem_chunk_size</span><span class="p">:</span><span class="w"> </span><span class="mi">10000000</span><span class="w"></span>
+<span class="w">                  </span><span class="n">threads</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="w"></span>
+<span class="w">               </span><span class="n">ignore_nan</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">               </span><span class="n">ignore_inf</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">                </span><span class="n">log_level</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">                  </span><span class="n">use_mex</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">               </span><span class="n">delete_tmp</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">        </span><span class="n">working_directory</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;C:\\tmp&#39;</span><span class="w"></span>
+<span class="w">     </span><span class="n">force_mex_if_use_mex</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">    </span><span class="n">high_perf_config_info</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">11</span><span class="w"> </span><span class="n">hpc_config</span><span class="p">]</span><span class="w"></span>
+<span class="w">               </span><span class="n">class_name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;hor_config&#39;</span><span class="w"></span>
+<span class="w">                 </span><span class="n">saveable</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">         </span><span class="n">returns_defaults</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
 </pre></div>
 </div>
 <p>To change one of the settings, type, for example;</p>
@@ -251,20 +230,18 @@ hc.mem_chunk_size = 500000;</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">mem_chunk_size</span></code> refers to the number of pixels that are read into memory at a time when cutting data from a file. If your system is low on memory, it may be worth reducing this number. If you have a large amount of memory it is not, however, necessarily worth increasing this value much beyond the default setting of 10000000, as it does not result in much of a speed up when cutting.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">thread</span></code> is the number of OMP computational threads that can be used by mex code. If you have a multi-core machine you can increase this number to make better use of all / more of your cores, but setting it for more then number of the cores or higher than 8 does not usually improve the code productiovity and may even decrease it.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ignore_nan</span></code> means that any NaNs (not-a-numbers) are ignored (if 1) wherever they occur in Horace. You do not usually need to change this value.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ignore_inf</span></code> means that infinities are (or not) ignored depending on whether this value is set to 1 or 0. . You do not usually need to change this value.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">log_level</span></code> is a scalar. The larger it is, the more information Horace prints to the Matlab command window during operations. If it is set to -Inf then almost no information is printed to screen. The most useful are log levels 0, 1 and 2.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">use_mex</span></code> can be set to either 0 or 1. If 1, then the mex (i.e. C or FORTRAN) routines are preferentially used for e.g. cutting or sqw files generation. Generally these should be used, as they are faster than the Matlab alternatives. However you can, if you wish, choose not to use the mex files and use the Matlab equivalents instead.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">delete_tmp</span></code> is set to either 0 or 1, depending on whether you wish tmp files to be deleted after the creation of an sqw file. If set to 0, the tmp files are not deleted. Generally this should be set to 1, except if you want to use <code class="docutils literal notranslate"><span class="pre">write_nsqw_to_sqw</span></code> command.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">working_directory</span></code> field defines the location where the tmp files are stored during sqw files generation or advanced cutting procedure. The default of this fieldis equal to output of Matlab <em>tempdir</em> command. A first gen_sqw satement will set this value to the folder, where you <strong>spe</strong> or <strong>nxspe</strong> files are stored, but you can set up this value to point to the fast hard drive or parallel file system location.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">force_mex_if_use_mex</span></code> option is normally used during debugging. In normal operational mode Horace fail back to Matlab if mex code is failing. If this option set to true, the Horace will fail if mex code does not work propertly.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">high_perf_config_info</span></code> provides access to Horace high performance options, relevant for work on high performance servers. This options would be better changed by modifying the high perfomance configuration itself. This configuration is returned by <strong>hpc_config</strong> command.</p></li>
 </ul>
 <p>The options <code class="docutils literal notranslate"><span class="pre">class_name,</span> <span class="pre">saveable,</span> <span class="pre">returns_defaults</span> <span class="pre">and</span> <span class="pre">config_folder</span></code> are the options for experts.</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">class_name</span> <span class="o">--</span> <span class="n">just</span> <span class="n">returns</span> <span class="n">the</span> <span class="n">name</span> <span class="n">of</span> <span class="n">current</span> <span class="n">configuration</span> <span class="n">file</span>
-<span class="n">saveable</span>   <span class="o">--</span> <span class="k">if</span> <span class="nb">true</span><span class="p">,</span> <span class="n">means</span> <span class="n">that</span> <span class="n">the</span> <span class="n">changes</span> <span class="n">in</span> <span class="n">configuration</span> <span class="n">should</span> <span class="n">be</span> <span class="n">stored</span> <span class="n">in</span> <span class="n">file</span> <span class="n">to</span> <span class="n">be</span> <span class="n">restored</span> <span class="n">at</span> <span class="n">next</span> <span class="n">Horace</span> <span class="n">initialization</span>
-<span class="n">returns_defaults</span> <span class="o">--</span> <span class="k">if</span> <span class="nb">true</span><span class="p">,</span> <span class="n">allow</span> <span class="n">to</span> <span class="n">explore</span> <span class="n">default</span> <span class="n">configuration</span> <span class="n">options</span> <span class="n">ignoring</span> <span class="n">any</span> <span class="n">changes</span> <span class="n">done</span> <span class="n">to</span> <span class="n">configuration</span> <span class="n">by</span> <span class="n">a</span> <span class="n">user</span>
-<span class="n">config_folder</span> <span class="o">--</span> <span class="n">point</span> <span class="n">to</span> <span class="n">the</span> <span class="n">location</span> <span class="n">where</span> <span class="n">configuration</span> <span class="n">is</span> <span class="n">stored</span> <span class="n">to</span> <span class="n">restore</span> <span class="n">it</span> <span class="n">from</span> <span class="n">during</span> <span class="n">the</span> <span class="n">next</span> <span class="n">Horace</span> <span class="n">initialization</span><span class="p">.</span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">class_name</span><span class="w"> </span><span class="o">--</span><span class="w"> </span><span class="n">just</span><span class="w"> </span><span class="n">returns</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="n">configuration</span><span class="w"> </span><span class="n">file</span><span class="w"></span>
+<span class="n">saveable</span><span class="w">   </span><span class="o">--</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span><span class="w"> </span><span class="n">means</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">changes</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">configuration</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">stored</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">restored</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="n">next</span><span class="w"> </span><span class="n">Horace</span><span class="w"> </span><span class="n">initialization</span><span class="w"></span>
+<span class="n">returns_defaults</span><span class="w"> </span><span class="o">--</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span><span class="w"> </span><span class="n">allow</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">explore</span><span class="w"> </span><span class="n">default</span><span class="w"> </span><span class="n">configuration</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="n">ignoring</span><span class="w"> </span><span class="nb">any</span><span class="w"> </span><span class="n">changes</span><span class="w"> </span><span class="n">done</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">configuration</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">user</span><span class="w"></span>
+<span class="n">config_folder</span><span class="w"> </span><span class="o">--</span><span class="w"> </span><span class="n">point</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">location</span><span class="w"> </span><span class="n">where</span><span class="w"> </span><span class="n">configuration</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">stored</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">restore</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">during</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">next</span><span class="w"> </span><span class="n">Horace</span><span class="w"> </span><span class="n">initialization</span><span class="p">.</span><span class="w"></span>
 </pre></div>
 </div>
 </div>
@@ -276,17 +253,13 @@ hc.mem_chunk_size = 500000;</p>
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="Planning_a_Horace_scan.html" class="btn btn-neutral float-right" title="Planning a Horace scan" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="Horace_GUI.html" class="btn btn-neutral float-left" title="Horace GUI" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2020, STFC RAL.
       <span class="lastupdated">
-        Last updated on Jan 27, 2021, 4:38:19 PM.
       </span>
 
     </p>
@@ -311,7 +284,6 @@ hc.mem_chunk_size = 500000;</p>
 
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
 

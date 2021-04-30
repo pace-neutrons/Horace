@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Download and setup &mdash; Horace 3.5.0-20210127-linux-R2018b-ee29fc5 documentation</title>
+  <title>Download and setup &mdash; Horace 3.5.1.4e06272 documentation</title>
   
 
   
@@ -32,7 +32,6 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -59,12 +58,15 @@
 
           
             
-            <img src="_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
           
           </a>
 
           
             
+            
+              <div class="version">
+                3.5.1.4e06272
+              </div>
             
           
 
@@ -92,26 +94,15 @@
 <li class="toctree-l1"><a class="reference internal" href="The_Horace_Rationale.html">The Horace Rationale</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Download and setup</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#system-requirements">System Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#download">Download</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#new-smaller-download">New Smaller Download</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#full-download">Full Download</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#standard-installation">Standard Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#installation-with-horace-not-initialized-by-default-on-starting-matlab">Installation with Horace not initialized by default on starting Matlab</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#building-mex-files">Building mex files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#horace-configuration-and-using-mex-files">Horace Configuration and using mex files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#enabling-high-performance-computing-extensions">Enabling High performance computing extensions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#enabling-multi-sessions-processing">Enabling multi-sessions processing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#using-mex-to-combine-sqw">Using mex to combine sqw</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#download">Download</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation-instructions">Installation Instructions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#horace-configuration">Horace Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#high-performance-computing-configuration">High Performance Computing Configuration</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Support_and_updates.html">Support and updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Getting_started.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Advanced_use.html">Advanced use</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Horace_GUI.html">Horace GUI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
@@ -119,13 +110,12 @@
 <li class="toctree-l1"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Symmetrising_etc.html">Symmetrising etc</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Unary_operations.html">Unary operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Plotting.html">Plotting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Simulation.html">Simulation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Multifit.html">Multifit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced_Multifit.html">Advanced Multifit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FAQ.html">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Example_scripts.html">Example scripts</a></li>
@@ -137,27 +127,6 @@
 <li class="toctree-l1"><a class="reference internal" href="Developer_info.html">Developer info</a></li>
 <li class="toctree-l1"><a class="reference internal" href="General_disclaimer.html">General disclaimer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Privacy_policy.html">Privacy Policy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Changing_object_type.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Developer_information.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Fitting.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Herbert.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Horace_and_Libisis_installation.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Horace_command_line.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="New.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Official_download_v1.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Read_or_write_to_disk.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Remote_data_analysis.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Reshaping_etc.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Run_inspector.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Script_for_correcting_sample_misalignment.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Script_for_data_treatment.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Script_for_fitting.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Script_for_generating_sqw_files.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Script_for_making_cuts_and_plotting.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Script_for_making_publication_quality_figures.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Script_for_making_simulations.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Script_for_planning_an_experiment.html">[NULL]</a></li>
-<li class="toctree-l1"><a class="reference internal" href="s_new.html">[NULL]</a></li>
 </ul>
 
             
@@ -230,432 +199,98 @@
 <div class="section" id="system-requirements">
 <h2>System Requirements<a class="headerlink" href="#system-requirements" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Windows 32-bit, Windows 64-bit, or Linux 64-bit operating system</p></li>
-<li><p>Plenty of free disk space in order to cope with the combined data files &gt;30GB</p></li>
+<li><p>Plenty of free disk space in order to cope with the combined data files (&gt; 30GB)</p></li>
 <li><p>8GB RAM (at the very least)</p></li>
-<li><p>Preferably a recent version of Matlab. Horace is guaranteed to be supported for Matlab versions for five years earlier than the most recent version. Horace may work with earlier versions, but this is dependent on whether or not newer features of Matlab have been exploited or now-obsolete Matlab functions has been removed.</p></li>
+<li><p>Preferably a recent version of Matlab.
+Horace is not tested on releases of Matlab older than R2018b,
+although we make efforts for it to be compatible with the last 5 years of
+releases.
+If you are forced to use an earlier release and run into a problem,
+please open a ticket on
+<a class="reference external" href="https://github.com/pace-neutrons/Horace/issues">GitHub</a>
+and we will look into it.</p></li>
 </ul>
-<p>We have tested Horace on Windows 32-bit and 64-bit operating systems, and Linux 64-bit operating systems. Horace itself is supplied with compiled dll (mex files) for 32 and 64 bit windows. Horace will work with other operating systems (e.g. Mac), albeit slower than if Horace C++ routines have not been compiled. See further down this page for details of how to compile your own mex files.</p>
 </div>
 <div class="section" id="download">
 <h2>Download<a class="headerlink" href="#download" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>In order to download or update Horace you must register on the <a class="reference external" href="http://lists.isis.rl.ac.uk/mailman/listinfo/horace-announce/">Horace-announce</a> mailing list, so that you can be updated with important bug fixes, etc. Your information will not be passed to any third-parties, nor will it be used for anything other than the aforementioned purpose.</p></li>
-<li><p>You will then be able to access the <a class="reference external" href="http://horace.isis.rl.ac.uk/kits/">download page</a></p></li>
-<li><p>The download site contains zip files containing the Matlab code (operating system-independent), and pre-compiled Windows 64-bit mex distributions.</p></li>
-<li><p>Alternatively, you should be able to build the Horace mex files for your OS (details below) if you have a C++ compiler installed and working with your MATLAB, but feel free to contact <a class="reference external" href="mailto:HoraceHelp&#37;&#52;&#48;stfc&#46;ac&#46;uk">Horace Help</a>, if you have problems doing that. It will also work out of the box without building any mex files, though the speed of some operations will be 2-5 times slower.</p></li>
-<li><p>Recent Horace versions come as standalone distribution pack which includes <a class="reference internal" href="Herbert.html#herbert"><span class="std std-ref">Herbert</span></a> (see below).</p></li>
-<li><p>Full Horace distribution contains Horace Demo and unit tests with the test data, which would allow you comprehensively verify your Horace installation for development purposes. If you are well familiar with Horace and do not need unit tests, you may use <a class="reference external" href="http://horace.isis.rl.ac.uk/kits/small_downloads/Horace&amp;Herbert_NoDemoNoTests.zip">Horace&amp;Herbert_NoDemoNoTests.zip</a> distribution file from <a class="reference external" href="http://horace.isis.rl.ac.uk/kits/small_downloads">small downloads</a>, which is an order of magnitude slmaller to download.</p></li>
-</ul>
-<div class="section" id="new-smaller-download">
-<h3>New Smaller Download<a class="headerlink" href="#new-smaller-download" title="Permalink to this headline">¶</a></h3>
-<p>In the download area (see below) you can now get a zipped distribution of Horace <strong>without demo and test files</strong>. This is significantly smaller - about 3MB rather than 100MB for the full installation.</p>
+<a class="reference external" href="https://github.com/pace-neutrons/Horace/releases">GitHub</a>.
+These packages contain pre-compiled x64 Mex libraries for each OS.</p>
+<p>Everything required to run Horace is within the package,
+including <a class="reference external" href="https://github.com/pace-neutrons/Herbert">Herbert</a>.</p>
 </div>
-<div class="section" id="full-download">
-<h3>Full Download<a class="headerlink" href="#full-download" title="Permalink to this headline">¶</a></h3>
-<p>Horace uses low level functions, which can be found in <a class="reference internal" href="Herbert.html#herbert"><span class="std std-ref">Herbert</span></a> package. (e.g. some of the fitting algorithms), so you need Herbert available before installing and using Horace.</p>
-<ul class="simple">
-<li><p><a class="reference external" href="http://lists.isis.rl.ac.uk/mailman/listinfo/horace-announce/">Horace-announce</a></p></li>
-<li><p><a class="reference external" href="http://horace.isis.rl.ac.uk/kits/">Download page</a></p></li>
-<li><p><a class="reference internal" href="Herbert.html#herbert"><span class="std std-ref">Herbert</span></a></p></li>
-</ul>
+<div class="section" id="installation-instructions">
+<h2>Installation Instructions<a class="headerlink" href="#installation-instructions" title="Permalink to this headline">¶</a></h2>
+<p>To install Horace for the current user:</p>
+<ol class="arabic simple">
+<li><p>Extract the release archive to your preferred location.</p></li>
+<li><p>Open Matlab and set that location as your working directory.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">horace_install</span></code>.</p></li>
+</ol>
 </div>
-</div>
-<div class="section" id="standard-installation">
-<h2>Standard Installation<a class="headerlink" href="#standard-installation" title="Permalink to this headline">¶</a></h2>
-<p>Installation is quite straightforward, since it requires only a small modification to your <code class="docutils literal notranslate"><span class="pre">startup.m</span></code> script and for all of the Horace folders to be placed somewhere sensible…</p>
-<p>Unzip the contents of the Horace archive into a single directory. You will see two folders <strong>Horace</strong> and <strong>Herbert</strong>, under the top directory of your downloaded archive. The first folder contains Horace itself, and the second one contains low level data access and data manipulation functions. On a Windows machines a good place to put these folders would be somewhere like</p>
+<div class="section" id="horace-configuration">
+<h2>Horace Configuration<a class="headerlink" href="#horace-configuration" title="Permalink to this headline">¶</a></h2>
+<p>Horace uses configuration files to store its settings.
+You can access these settings using the <code class="docutils literal notranslate"><span class="pre">hor_config</span></code> class.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">hor_config</span><span class="w"></span>
 </pre></div>
 </div>
-<p>which is the directory often used for MSlice.</p>
-<p>Now you need to edit your <code class="docutils literal notranslate"><span class="pre">startup.m</span></code> file so that the Herbert and Horace are added to the Matlab path whenever you restart. Find your <code class="docutils literal notranslate"><span class="pre">startup.m</span></code> file, which is usually located somewhere like</p>
-</pre></div>
-</div>
-<ul class="simple">
-<li><p>in this example the user’s login ID is tgp98.</p></li>
-</ul>
-<p>This is the Matlab default location. As an alternative to locating <code class="docutils literal notranslate"><span class="pre">startup.m</span></code> as above, you can start a new Matlab session and then type</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">edit</span> <span class="s">startup</span>
-</pre></div>
-</div>
-<p>and the correct startup file should be found.</p>
-<p>At the bottom of your existing <code class="docutils literal notranslate"><span class="pre">startup.m</span></code> file you must put the following:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%----------------------------------------------------------</span>
-<span class="c">% HERBERT:</span>
-<span class="k">try</span>
-  <span class="n">herbert_off</span><span class="p">;</span>
-<span class="n">catch</span>
-<span class="s">end</span>
+<p>This will print the current Horace configuration.
+Descriptions for each option are given below:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">hc</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">hor_config</span><span class="p">()</span><span class="w"></span>
 
-<span class="n">herbert_init</span><span class="p">;</span>
+<span class="n">hc</span><span class="w"> </span><span class="p">=</span><span class="w"></span>
+
+<span class="n">hor_config</span><span class="w"> </span><span class="s">with</span><span class="w"> </span><span class="s">properties:</span><span class="w"></span>
+
+<span class="w">   </span><span class="c">% The buffer size for IO read/write processes (bytes)</span><span class="w"></span>
+<span class="w">   </span><span class="n">mem_chunk_size</span><span class="p">:</span><span class="w"> </span><span class="mi">1000000</span><span class="w"></span>
+<span class="w">   </span><span class="c">% The maximum amount of memory to be used by pixel data in file-backed</span><span class="w"></span>
+<span class="w">   </span><span class="c">% algorithms (bytes)</span><span class="w"></span>
+<span class="w">   </span><span class="n">pixel_page_size</span><span class="p">:</span><span class="w"> </span><span class="mf">1.7977e+308</span><span class="w"></span>
+<span class="w">   </span><span class="c">% The number of threads to use in Mex routines. This should not exceed</span><span class="w"></span>
+<span class="w">   </span><span class="c">% the number of physical cores on your machine.</span><span class="w"></span>
+<span class="w">   </span><span class="n">threads</span><span class="p">:</span><span class="w"> </span><span class="mi">16</span><span class="w"></span>
+<span class="w">   </span><span class="n">ignore_nan</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">   </span><span class="c">% Ignore Inf data when making cuts (true or false)</span><span class="w"></span>
+<span class="w">   </span><span class="n">ignore_inf</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">   </span><span class="c">% The verbosity of informational log messages:</span><span class="w"></span>
+<span class="w">   </span><span class="c">%  -1 - Display no logging</span><span class="w"></span>
+<span class="w">   </span><span class="c">%   0 - Display major logging information</span><span class="w"></span>
+<span class="w">   </span><span class="c">%   1 - Display minor and major logging information</span><span class="w"></span>
+<span class="w">   </span><span class="c">%   2 - Display all logging messages, including timing information</span><span class="w"></span>
+<span class="w">   </span><span class="n">log_level</span><span class="p">:</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">   </span><span class="c">% Make use of Mex libraries (true or false)</span><span class="w"></span>
+<span class="w">   </span><span class="n">use_mex</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">   </span><span class="c">% Automatically delete temporary files generated by sqw generation (true or false)</span><span class="w"></span>
+<span class="w">   </span><span class="n">delete_tmp</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">   </span><span class="c">% The directory to place temporary files during sqw generation</span><span class="w"></span>
+<span class="w">   </span><span class="n">working_directory</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;C:\temp&#39;</span><span class="w"></span>
+<span class="w">   </span><span class="c">% Throw an error if a Mex library cannot be used (true or false) [debugging option]</span><span class="w"></span>
+<span class="w">   </span><span class="n">force_mex_if_use_mex</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">   </span><span class="c">% Reference to Horace&#39;s high performance configuration</span><span class="w"></span>
+<span class="w">   </span><span class="n">high_perf_config_info</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span>×<span class="mi">1</span><span class="w"> </span><span class="n">hpc_config</span><span class="p">]</span><span class="w"></span>
 </pre></div>
 </div>
-<p>Next, below the Herbert initialisation, put the following:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%----------------------------------------------------------</span>
-<span class="c">% HORACE:</span>
-<span class="k">try</span>
-  <span class="n">horace_off</span><span class="p">;</span>
-<span class="n">catch</span>
-<span class="s">end</span>
-<span class="n">horace_init</span><span class="p">;</span>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">hc</span><span class="p">.(</span><span class="n">property_name</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">value</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
-<p>The herbert_off and horace_off operations are needed to keep Matlab search path tidy if in the past you had different versions of Herbert or Horace installed.</p>
-<p><strong>VERY IMPORTANT</strong> It is imperative that you <strong>do not</strong> add directories in the Horace main directory to your Matlab path by hand. Such duplication results in very obscure problems, and could, in the worst case scenario, result in your work not having the meaning you thought it did! All of the necessary paths are added, in the correct order, by the <code class="docutils literal notranslate"><span class="pre">horace_init</span></code> function in your startup.m script.</p>
 </div>
-<div class="section" id="installation-with-horace-not-initialized-by-default-on-starting-matlab">
-<h2>Installation with Horace not initialized by default on starting Matlab<a class="headerlink" href="#installation-with-horace-not-initialized-by-default-on-starting-matlab" title="Permalink to this headline">¶</a></h2>
-<p>You should use the following approach if you do not use Horace each time you start Matlab and want to initiate it only when needed. The following set up is also mandatory if you are going to use Horace high-performance capabilities (see below)</p>
-<p>The installation slightly differs depending on the way you obtained Horace. If you downloaded the Horace distribution kit from the Download page (the standard way of obtaining Horace), a file <em>horace_on.m.template</em> exists in the root Horace installation directory and you need to modify this file. If you are one of the limited people who can check out Horace and Herbert from the repository, you need to find <em>horace_on.m.template</em> and <em>herbert_on.m.tempate</em> in the Horace and Herbert admin folders in the root folders and deal with each of these files separately. [For afficionados:<em>horace_on.m.template</em> file is actually the merging of <em>horace_on.m.template</em> and <em>herbert_on.m.tempate</em> from the appropriate admin folders.]</p>
-<p>To make an installation you have to rename the <strong>*.m.template</strong> files to *.m files, place these files on the <a class="reference external" href="http://www.mathworks.co.uk/help/techdoc/ref/path.html">Matlab search path</a> and edit the files to point to your Horace and Herbert package locations.</p>
-<p>The first row in the <strong>horace_on.m</strong> file should contain the path where you are placed Horace folder and <strong>horace_init.m</strong> file can be found, e.g.:</p>
-<blockquote>
-<div><p>default_horace_path =’C:/mprogs/Horace/horace_core’;</p>
-</div></blockquote>
-<p>The second row of the joint <strong>horace_on.m</strong> file or the firest row of the separate <strong>herbert_on.m</strong> file should contain the path, where you placed Herbert folder and <strong>herbert_init.m</strong> file resides, e.g.</p>
-<blockquote>
-<div><p>default_herbert_path =’C:/mprogs/Herbert/herbert_core’;</p>
-</div></blockquote>
-<p>To add the initialiation files to Matlab search path on a multi-users Unix server it makes sense to create a special folder in the system area (e.g. <em>/usr/local/mprogs/Users</em> – like its done in ISIS) and add this folder to the global Matlab search path, defined in <em>/usr/local/MATLAB/R20XXb/local/toolbox/pathdef.m</em> file, adding the row <strong>/usr/local/mprogs/Users:</strong>,… to the end or the beginning of the Matlab search path defined there.</p>
-<p>If you placed <strong>*_on.m</strong> files inside Matlab toolbox area (e.g. <em>$matlab_path$/toolbox/ISIS</em>), which is in Matlab default search path, you need to rehash toolbox path:</p>
-<blockquote>
-<div><p>&gt;&gt; rehash toolbox</p>
-</div></blockquote>
-<p>If initialization files are placed into some folder and the global <em>pathdef.m</em> have not been modified, you need to add folder with initalization files to Matlab path and save the path (e.g. through GUI from main Matlab window <em>set path-&gt;Add Folder -&gt; Save</em>)</p>
-<p>Horace will be available after typing</p>
-<blockquote>
-<div><p>&gt;&gt;horace_on()</p>
-</div></blockquote>
-<p>You can copy contents of <strong>horace_on.m</strong> function into your <strong>startup.m</strong> file and add <strong>horace_on()</strong>; command to the end of the executive part of <strong>startup.m</strong> file instead of the code, described in the previous chapter. <strong>startup.m</strong> file is not executed by Matlab workers so to use high performance capabilities one still needs to modify Matlab search path.</p>
-</div>
-<div class="section" id="building-mex-files">
-<h2>Building mex files<a class="headerlink" href="#building-mex-files" title="Permalink to this headline">¶</a></h2>
-<p>If you have a C++ compiler configured properly with your Matlab, you can obtain the modest speed-ups available in the mex routines. The value of speed-up can be estimated from the table below.
-Windows distribution contains all necessary mex files compiled with Visual Studio. The Visual Studio projects are provided togehter with full Horace distribution. Use:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">out</span> <span class="p">=</span> <span class="n">check_horace_mex</span><span class="p">()</span>
+<div class="section" id="high-performance-computing-configuration">
+<h2>High Performance Computing Configuration<a class="headerlink" href="#high-performance-computing-configuration" title="Permalink to this headline">¶</a></h2>
+<p>If your machine has several cores, then you may benefit from using Horace’s
+parallel computing options.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">hpc</span></code> command can be used to enable/disable parallel computing options,
+as well as provide suggested settings for the current system.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">hpc</span><span class="p">;</span><span class="w">     </span><span class="c">% display the suggested configuration based on the current system</span><span class="w"></span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">hpc</span><span class="w"> </span><span class="n">on</span><span class="w">   </span><span class="c">% enable parallel computing</span><span class="w"></span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">hpc</span><span class="w"> </span><span class="n">off</span><span class="w">  </span><span class="c">% disable parallel computing</span><span class="w"></span>
 </pre></div>
 </div>
-<p>command to see if your Horace mex files for Windows work.</p>
-<p>This command should return list of versions for all mex files availible for Windows. In this case you can enable using mex files by typing:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">hc</span> <span class="p">=</span> <span class="n">hor_config</span>
-<span class="n">hc</span><span class="p">.</span><span class="n">use_mex</span> <span class="p">=</span> <span class="nb">true</span><span class="p">;</span>
+<p>For finer grained control over things like: number of parallel workers,
+use of Mex routines and which functions are performed in parallel,
+use the <code class="docutils literal notranslate"><span class="pre">hpc_config</span></code> class.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="nb">help</span><span class="w"> </span><span class="n">hpc_config</span><span class="w"></span>
 </pre></div>
-</div>
-<p>It the function returns some error, you need to investigate what Windows depencensies are missing on your Windows machine (usually everyting is present). The missing depencencies are normally identified using the <a class="reference external" href="https://en.wikipedia.org/wiki/Dependency_Walker">Depencency Walker</a>.</p>
-<p>To enable mex files on a Unix-like machine one should try to execute:</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">horace_mex</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>The command assumes or will request you to select and configure your compiler. See Matlab manuals for the list of supported compilers and how to use the command</p>
-<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">mex</span> <span class="o">-</span><span class="n">setup</span>
-</pre></div>
-</div>
-<p>and its options.</p>
-<p>If you have a modern multicore / multiprocessor machine and have (on Windows), or have successfully compiled, the mex code (on Unix), you should enable OpenMP in the Mex code by enabling number of OpenMP threads in the Horace configuration, which is described in the following chapter.</p>
-<p>To compile your code with a modern compiler (gcc version &gt; 4.1) you need to configure your compiler to use OpenMP. The ways of doing that depend on Matlab version you used.
-For versions before Matlab 2014a, the compiler is configured in the <em>mexoptions.sh</em> file. Matlab versions after 2014a use <em>mexoptions.xml</em> flavours.
-You need to add the <strong>-fopenmp</strong> option to the C++ and linker keys for your operating system. On Unix machines <em>mexoptions.sh</em> (or <em>mexoptions.xml</em>) is usually found in the ~/.matlab/R20XXx/ directory, where R20XXx is your version of Matlab e.g. R2012a or R2012b. This file is usually copied to these locations after you have issued the <code class="docutils literal notranslate"><span class="pre">mex</span> <span class="pre">-setup</span></code> command for your Matlab installation. In addition to enabling <strong>openmp</strong> processing, you need to add list of libraries used by Horace mex code in addition to 3 standard mex libraries, necessary for any mex files to work. To do that you need to modify list of standard mex libraries <strong>-lmx -lmex -lmat</strong> and add <strong>-lut</strong> libraries to it. <strong>ut</strong> is Matlab’s utilities library, used by <em>combine_sqw</em> and always supplied with Matlab.</p>
-<p>The samples of the script files used in ISIS for various Matlab versions are stored in Horace repository under <a class="reference external" href="https://github.com/pace-neutrons/Horace/tree/master/admin/compiler_settings">admin folder</a>.</p>
-<p>See <a class="reference external" href="http://shadow.nd.rl.ac.uk/wiki/idr/index.php/Using_Matlab_and_access_to_sample_Matlab_scripts#Configuring_Matlab_2015b_to_work_with_gcc8.4.5_for_combining_using_mex_code_on_RHEL7">the details</a> of Horace installation on ISIScompute cluster for the ways to modify Matlab 2015b to support C++11 threads. Matlab 2017 natively works with gcc8.4 compiler and does not need such modifications.</p>
-<p>Starting from Matlab 2018, Matlab mex script stops using configuration files (It uses it but fully overwrites existing version at compilation time). As the compensation, Matlab <em>mex</em> command properly accepts and parses input compiler options. The <em>horace_mex</em> compilation script contains all appropriate options for compiling under Unix, so a user does not need to configure a compiler manually.</p>
-</div>
-<div class="section" id="horace-configuration-and-using-mex-files">
-<h2>Horace Configuration and using mex files<a class="headerlink" href="#horace-configuration-and-using-mex-files" title="Permalink to this headline">¶</a></h2>
-<p>Horace uses configuration files to store its configuration settings, related to compiled mex files and some other computer-dependent options, which provide best Horace performance on various types of computers. Access to Horace configuration is provided through <strong>hor_config</strong> class.</p>
-<p>If you are on Windows, or have compiled your code with OpenMP as described above in System Requests you should enable multithreading in the mex code. From the Matlab prompt type:</p>
-<p>&gt;&gt;hor_config</p>
-<p>This will print the current Horace configuration, which looks like one provided below. Here we provide a general description for each configuration option.</p>
-<blockquote>
-<div><p>&gt;&gt;hc=hor_config
-hc =
-hor_config with properties:
-mem_chunk_size: 10000000 – Maximum number of pixels that are processed at one go during cuts
-threads: 4 – Number of threads to use in mex files. Should not exceed the number
-of your physical processor cores.
-ignore_nan: 1 – Ignore NaN data when making cuts
-ignore_inf: 0 – Ignore Inf data when making cuts
-log_level: 1 – Set verbosity of informational output:
--1 No information messages printed
-0 Major information messages printed
-1 Minor information messages printed in addition
-2 Time of the run measured and printed as well.
-use_mex: 1 – Use mex files for time-consuming operation, if available
-force_mex_if_use_mex: 0 – testing and debugging option – Horace will fail if mex can not be used
-delete_tmp: 1 – automatically delete tmp files after sqw file was generated.
-working_directory: ‘c:\Temp’ – the folder to place tmp files. Matlab tmpdir is default tmp files location directory,
-but if you have not set up this value, gen_sqw will set it up to the place where sqw file
-will be generated. Set it up to a folder on a largest and fastest drive in your system.
-In ISIS this is the folder where your RB folders are located.</p>
-</div></blockquote>
-<p>Usual Matlab syntax hc.(property_name) = value (e.g. hc.threads = 8) used to change the configuration. Set up this number to the number of physical cores on your machine, but not bigger than 8 as higher numbers provide only very modest improvements to the Horace performance.</p>
-</div>
-<div class="section" id="enabling-high-performance-computing-extensions">
-<h2>Enabling High performance computing extensions<a class="headerlink" href="#enabling-high-performance-computing-extensions" title="Permalink to this headline">¶</a></h2>
-<p>If you have a powerful computer with large number of processing cores and have access to a parallel file system or fast bandwidth server disk system attached to you computer, you will benefit from using high performance computing extensions, provided with Horace. To enable these extensions, you need to perform <a class="reference external" href="http://horace.isis.rl.ac.uk/Download_and_setup#Installation_with_Horace_not_initialized_by_default_on_starting_Matlab">“Installation with Horace not initialized by default as above”</a>
-Auxiliary command</p>
-<blockquote>
-<div><p>&gt;&gt;hpc</p>
-</div></blockquote>
-<p>shows recommendations on using various high-performance extensions derived from our limited experience with different computers (see below).
-Switches <strong>on/off</strong> provided with this command allow to set up all high performance computing options together according to the values from tables, provided below. Our experience with different computer systems is far from extensive, so you will probably need to fine-tune high performance computing extensions to get maximal performance on your system.
-The high performance extensions settings are interfaced by <strong>hpc_config</strong> class, accessible by</p>
-<blockquote>
-<div><p>&gt;&gt;hpc_config</p>
-</div></blockquote>
-<p>command.</p>
-<div class="section" id="enabling-multi-sessions-processing">
-<h3>Enabling multi-sessions processing<a class="headerlink" href="#enabling-multi-sessions-processing" title="Permalink to this headline">¶</a></h3>
-<p>You can generate tmp files, used during sqw files creation using multiple Matlab workers.</p>
-<p>To do that, you need to place <em>worker_v2.m</em> script in the location, where Matlab can always find it. The recommended place would be place where <strong>horace.on</strong> command is located.
-The <strong>worker_v2.m.template</strong> file can be found in <em>Herbert/admin</em> folder. Rename it to <strong>worker_v2.m</strong> and move somewhere to existing data search path. Then you can type:</p>
-<blockquote>
-<div><p>&gt;&gt;hc=hpc_config</p>
-</div></blockquote>
-<p>change:</p>
-<blockquote>
-<div><p>&gt;&gt;hc.accum_in_separate_process=true</p>
-</div></blockquote>
-<p>and select number of separate workers to generate or accumulate sqw files. (See <a class="reference external" href="http://horace.isis.rl.ac.uk/Generating_SQW_files">sqw files generation</a> for the description of this operation)</p>
-<p>Horace contains primitive multi-session framework, which will divide the list of input spe or nxspe files between chosen number of workers and process each sub-list on a separate Matlab session. This operation is beneficial only if you have enough processors and memory to run chosen number of Matlab sessions as if multiple sessions start competing for resources, the processing would actually take longer. Due to experimental status of the framework user is advised to well familiarize himself with single-session way of producing sqw files before embarking on multi-session processing even if his computer benefits from the multi-sessions. As a guideline on setting number of workers, one can look at the table below, measured while processing 231 nxspe files occupying 142Gb in total. The processing involves loading a file (~311Mb) in memory, do some moderately intensive calculations necessary to produce sqw files, and saving approximately 700Mb of results per file back to HDD.</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 34%" />
-<col style="width: 10%" />
-<col style="width: 13%" />
-<col style="width: 7%" />
-<col style="width: 11%" />
-<col style="width: 6%" />
-<col style="width: 6%" />
-<col style="width: 6%" />
-<col style="width: 6%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td colspan="3"><p>Computer &amp; OS:</p></td>
-<td colspan="6"><p>Time (min, less is better) to process data using Maltab workers:</p></td>
-</tr>
-<tr class="row-even"><td><p>OS; Processor; RAM; CPU;</p></td>
-<td><p>mex code&amp;compiled</p></td>
-<td><p>OMP threads</p></td>
-<td><p>main session</p></td>
-<td><p>1 external session</p></td>
-<td><p>2 sessions</p></td>
-<td><p>3 sessions</p></td>
-<td><p>4 sessions</p></td>
-<td><p>8 sessions</p></td>
-</tr>
-<tr class="row-odd"><td><p>RHEL7; Xeon E5-4657L&amp;2.5GHz;512Gb; 96cpu(4n)<sup>1)</sup></p></td>
-<td><p>nomex</p></td>
-<td><p>Matlab2015b<sup>2)</sup></p></td>
-<td><p>58</p></td>
-<td><p>55</p></td>
-<td><p>32</p></td>
-<td><p>23</p></td>
-<td><p>18</p></td>
-<td><p>12</p></td>
-</tr>
-<tr class="row-even"><td><p>——||——</p></td>
-<td><p>mex: GCC 4.8</p></td>
-<td><p>1</p></td>
-<td><p>31</p></td>
-<td><p>22</p></td>
-<td><p>12</p></td>
-<td><p>8</p></td>
-<td><p>6</p></td>
-<td><p>5</p></td>
-</tr>
-<tr class="row-odd"><td><p>——||——</p></td>
-<td><p>mex: GCC 4.8</p></td>
-<td><p>8</p></td>
-<td><p>21</p></td>
-<td><p>24</p></td>
-<td><p>11</p></td>
-<td><p>8</p></td>
-<td><p>6</p></td>
-<td><p>4</p></td>
-</tr>
-<tr class="row-even"><td><p>CentOS7; Xeon X5650&amp;2.67GHz;48Gb; 12(24)<sup>3)</sup>cpu</p></td>
-<td><p>nomex</p></td>
-<td><p>Matlab 2015b</p></td>
-<td><p>41</p></td>
-<td><p>43</p></td>
-<td><p>26</p></td>
-<td><p>20</p></td>
-<td><p>18</p></td>
-<td><p>18</p></td>
-</tr>
-<tr class="row-odd"><td><p>——||——</p></td>
-<td><p>mex: GCC 4.8</p></td>
-<td><p>1</p></td>
-<td><p>27</p></td>
-<td><p>22</p></td>
-<td><p>17</p></td>
-<td><p>15</p></td>
-<td><p>11</p></td>
-<td><p>12</p></td>
-</tr>
-<tr class="row-even"><td><p>——||——</p></td>
-<td><p>mex: GCC 4.8</p></td>
-<td><p>8</p></td>
-<td><p>16</p></td>
-<td><p>18</p></td>
-<td><p>14</p></td>
-<td><p>13</p></td>
-<td><p>13</p></td>
-<td><p>11</p></td>
-</tr>
-<tr class="row-odd"><td><p>Windows7<sup>4)</sup>; Xeon X5650&amp;2.67GHz;48Gb; 12(24)cpu;</p></td>
-<td><p>nomex</p></td>
-<td><p>Matlab 2015b</p></td>
-<td><p>63</p></td>
-<td><p>65</p></td>
-<td><p>62</p></td>
-<td><p>55</p></td>
-<td><p>60</p></td>
-<td><p>63</p></td>
-</tr>
-<tr class="row-even"><td><p>——||——</p></td>
-<td><p>mex: VS2015</p></td>
-<td><p>1</p></td>
-<td><p>60</p></td>
-<td><p>64</p></td>
-<td><p>55</p></td>
-<td><p>61</p></td>
-<td><p>56</p></td>
-<td><p>64</p></td>
-</tr>
-<tr class="row-odd"><td><p>——||——</p></td>
-<td><p>mex: VS2015</p></td>
-<td><p>8</p></td>
-<td><p>57</p></td>
-<td><p>57</p></td>
-<td><p>54</p></td>
-<td><p>55</p></td>
-<td><p>58</p></td>
-<td><p>69</p></td>
-</tr>
-<tr class="row-even"><td><p>OS X El Capitan; i7-2600&amp;3.40GHz; 16Gb; 4(8)cpu;</p></td>
-<td><p>nomex</p></td>
-<td><p>Matlab2015b</p></td>
-<td><p>71</p></td>
-<td><p>74</p></td>
-<td><p>54</p></td>
-<td><p>45</p></td>
-<td><p>64</p></td>
-<td><p>185</p></td>
-</tr>
-</tbody>
-</table>
-<dl class="simple">
-<dt>Notes:</dt><dd><p><sup>1)</sup>Combined into 4 PCNUMA nodes</p>
-</dd>
-<dt><sup>2)</sup>Matlab after 2014 deploys its own OMP framework, so operations on arrays are performed in parallel.</dt><dd><p>Number of threads deployed in this case is controlled by Matlab.
-<sup>3)</sup>CPU number in brackets refers to virtual Intel cpu (threads)
-<sup>4)</sup>Windows does not work well with large files. For this reason, the task appears to be mainly
-file-IO speed constrained, so no much difference in various processing modes can be observed.</p>
-</dd>
-</dl>
-</div>
-<div class="section" id="using-mex-to-combine-sqw">
-<h3>Using mex to combine sqw<a class="headerlink" href="#using-mex-to-combine-sqw" title="Permalink to this headline">¶</a></h3>
-<p>One of mex files build using horace_mex, namely <em>combine_sqw</em> useful mainly on large computers with enhanced IO capabilities. This is why its usage not controlled by <strong>use_mex</strong> key-word of <em>hor_config</em> class, but rather by separate <strong>use_mex_for_combine</strong> key-word of <em>hpc_combine</em> class (see below). It also uses threading rather then OMP, so its deployment with non-default Matlab compilers may require <a class="reference external" href="http://shadow.nd.rl.ac.uk/wiki/idr/index.php/Using_Matlab_and_access_to_sample_Matlab_scripts#Configuring_Matlab_2015b_to_work_with_gcc8.4.5_for_combining_using_mex_code_on_RHEL7">special changes to the system</a>.</p>
-<p>Possible benefits or disadvantages of using mex files to combine sqw are illustrated by the following table:</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 46%" />
-<col style="width: 12%" />
-<col style="width: 15%" />
-<col style="width: 11%" />
-<col style="width: 15%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td colspan="3"><p>Computer &amp; OS and mex/nomex options:</p></td>
-<td colspan="2"><p>Performance and Time (min)</p></td>
-</tr>
-<tr class="row-even"><td><p>Computer and IO system;</p></td>
-<td><p>mex/nomex mode</p></td>
-<td><p>IO buffer (in uint64 words)</p></td>
-<td><p>Combining speed Mb/s</p></td>
-<td><p>Time to combine 142Gb file</p></td>
-</tr>
-<tr class="row-odd"><td><p>RHEL7; 512Gb; 96cpu; <a class="reference external" href="https://en.wikipedia.org/wiki/Ceph_%28software%29">CEPHs</a></p></td>
-<td><p>Matlab2015b IO</p></td>
-<td><p>Matlab’s internal</p></td>
-<td><p>67</p></td>
-<td><p>37</p></td>
-</tr>
-<tr class="row-even"><td><p>——||——</p></td>
-<td><p>mex, mode 1<sup>1)</sup></p></td>
-<td><p>1024</p></td>
-<td><p>577</p></td>
-<td><p>4</p></td>
-</tr>
-<tr class="row-odd"><td><p>——||——</p></td>
-<td><p>mex, mode 0<sup>2)</sup></p></td>
-<td><p>1024</p></td>
-<td><p>517</p></td>
-<td><p>5</p></td>
-</tr>
-<tr class="row-even"><td><p>——||——</p></td>
-<td><p>mex, mode 0</p></td>
-<td><p>1024*64</p></td>
-<td><p>230</p></td>
-<td><p>11</p></td>
-</tr>
-<tr class="row-odd"><td><p>CentOS7; 48Gb; 12(24)cpu; <a class="reference external" href="https://en.wikipedia.org/wiki/SCSI">SCSI</a></p></td>
-<td><p>Matlab2015b IO</p></td>
-<td><p>Matlab’s internal</p></td>
-<td><p>55</p></td>
-<td><p>45</p></td>
-</tr>
-<tr class="row-even"><td><p>——||——</p></td>
-<td><p>mex, mode 0</p></td>
-<td><p>1024</p></td>
-<td><p>35</p></td>
-<td><p>72</p></td>
-</tr>
-<tr class="row-odd"><td><p>——||——</p></td>
-<td><p>mex, mode 0</p></td>
-<td><p>1024*64</p></td>
-<td><p>69</p></td>
-<td><p>36</p></td>
-</tr>
-<tr class="row-even"><td><p>——||——</p></td>
-<td><p>mex, mode 1</p></td>
-<td><p>1024*64</p></td>
-<td><p>28</p></td>
-<td><p>88</p></td>
-</tr>
-<tr class="row-odd"><td><p>Windows7; 48Gb; 12(24)cpu; <a class="reference external" href="https://en.wikipedia.org/wiki/SCSI">SCSI</a></p></td>
-<td><p>Matlab2015b IO</p></td>
-<td><p>Matlab’s internal</p></td>
-<td><p>29</p></td>
-<td><p>87</p></td>
-</tr>
-<tr class="row-even"><td><p>——||——</p></td>
-<td><p>mex, mode 1</p></td>
-<td><p>1024</p></td>
-<td><p>12</p></td>
-<td><p>214</p></td>
-</tr>
-<tr class="row-odd"><td><p>——||——</p></td>
-<td><p>mex, mode 0</p></td>
-<td><p>1024*64</p></td>
-<td><p>21</p></td>
-<td><p>121</p></td>
-</tr>
-<tr class="row-even"><td><p>——||——</p></td>
-<td><p>mex, mode 1</p></td>
-<td><p>1024*64</p></td>
-<td><p>6</p></td>
-<td><p>412</p></td>
-</tr>
-</tbody>
-</table>
-<dl class="simple">
-<dt>Notes:</dt><dd><p><sup>1)</sup>mode 1 – each input file (241 tested) has its own thread to read data and separate thread to write combined results to target file.
-<sup>2)</sup>mode 0 – One thread reads data from input files (241 tested) and another one writes results to the output.</p>
-</dd>
-</dl>
 </div>
 </div>
 </div>
@@ -666,7 +301,6 @@ file-IO speed constrained, so no much difference in various processing modes can
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="Support_and_updates.html" class="btn btn-neutral float-right" title="Support and updates" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
         <a href="The_Horace_Rationale.html" class="btn btn-neutral float-left" title="The Horace Rationale" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
@@ -674,9 +308,7 @@ file-IO speed constrained, so no much difference in various processing modes can
 
   <div role="contentinfo">
     <p>
-        &#169; Copyright 2020, STFC RAL.
       <span class="lastupdated">
-        Last updated on Jan 27, 2021, 4:38:19 PM.
       </span>
 
     </p>
@@ -701,7 +333,6 @@ file-IO speed constrained, so no much difference in various processing modes can
 
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
 
