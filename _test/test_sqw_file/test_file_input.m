@@ -180,7 +180,7 @@ classdef  test_file_input < TestCase
             s1_s=cut(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
             s1_f_h=cut(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
             [ok,mess] = equal_to_tol(s1_s,s1_f_h,'ignore_str',1);
-            assertTrue(ok,['Memopry based and file based cuts are different: ',mess])
+            assertTrue(ok,['Memory based and file based cuts are different: ',mess])
             
             s1_s_h=cut(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
             s1_s_s=cut_sqw(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);

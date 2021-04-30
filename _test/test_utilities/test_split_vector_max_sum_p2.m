@@ -26,7 +26,7 @@ classdef test_split_vector_max_sum_p2 < TestCase
             max_sum = 10;
             chunks = split_data_blocks(start_pos,vector, max_sum);
             assertEqual(numel(chunks),9);
-            ref_pos = {[100,200],206,217,[227,300],[302,400],[406,500],506,517,527};
+            ref_pos = {[100,200],205,215,[225,300],[301,400],[405,500],505,515,525};
             ref_sizes = {[5,5],10,10,[9,1],[5,5],[5,5],10,10,5};
             assertEqual(sum([ref_sizes{:}]),sum(vector));            
             for i=1:9
@@ -37,14 +37,14 @@ classdef test_split_vector_max_sum_p2 < TestCase
                 assertEqual(size,ref_sizes{i});
             end
         end
-        
+        %
         function test_split_big_block_in_the_middle(~)
             vector     = [5,44,6];
             start_pos  = [100,200,300];
             max_sum = 10;
             chunks = split_data_blocks(start_pos,vector, max_sum);
             assertEqual(numel(chunks),6);
-            ref_pos = {[100,200],206,217,227,[237,300],302};
+            ref_pos = {[100,200],205,215,225,[235,300],301};
             ref_sizes = {[5,5],10,10,10,[9,1],5};
             assertEqual(sum([ref_sizes{:}]),sum(vector));
             for i=1:6
@@ -55,15 +55,14 @@ classdef test_split_vector_max_sum_p2 < TestCase
                 assertEqual(size,ref_sizes{i});
             end
         end
-        
-        
+        %
         function test_split_big_block(~)
             vector     = 34;
             start_pos  = 100;
             max_sum = 10;
             chunks = split_data_blocks(start_pos,vector, max_sum);
             assertEqual(numel(chunks),4);
-            ref_pos = {100,111,121,131};
+            ref_pos = {100,110,120,130};
             ref_sizes = {10,10,10,4};
             for i=1:4
                 ch = chunks{i};
@@ -73,7 +72,7 @@ classdef test_split_vector_max_sum_p2 < TestCase
                 assertEqual(size,ref_sizes{i});
             end
         end
-        
+        %
         function test_split_2p_block_pages_split(~)
             vector     = [3, 3, 4, 3, 3, 3, 5];
             %             !--------!--------!----;3 Pages
@@ -81,7 +80,7 @@ classdef test_split_vector_max_sum_p2 < TestCase
             max_sum = 10;
             chunks = split_data_blocks(start_pos,vector, max_sum);
             assertEqual(numel(chunks),3);
-            ref_pos = {[100,200,300],[400,500,600,700],702};
+            ref_pos = {[100,200,300],[400,500,600,700],701};
             ref_sizes = {[3,3,4],[3,3,3,1],4};
             
             assertEqual(sum([ref_sizes{:}]),sum(vector));
@@ -94,7 +93,27 @@ classdef test_split_vector_max_sum_p2 < TestCase
             end
             
         end
-        
+        %
+        function test_split_pseudo_block(~)
+            vector     = [3, 3, 3, 5];
+            %             !--------!----;2 Pages
+            start_pos  = [1, 4, 7, 10];
+            max_sum = 10;
+            chunks = split_data_blocks(start_pos,vector, max_sum);
+            assertEqual(numel(chunks),2);
+            ref_pos = {[1,4,7,10],11};
+            ref_sizes = {[3,3,3,1],4};
+            
+            assertEqual(sum([ref_sizes{:}]),sum(vector));
+            for i=1:2
+                ch = chunks{i};
+                pos = ch{1};
+                size = ch{2};
+                assertEqual(pos,ref_pos{i});
+                assertEqual(size,ref_sizes{i});
+            end
+        end
+        %
         function test_split_2p_block_last_pages_hungs(~)
             vector     = [5,5,5,3];
             start_pos  = [10,25,400,700];
@@ -127,7 +146,6 @@ classdef test_split_vector_max_sum_p2 < TestCase
                 assertEqual(size,vector(i));
             end
         end
-        
         %
         function test_split_block_last_pages_hungs(~)
             vector     = [5,5,3];
@@ -160,6 +178,7 @@ classdef test_split_vector_max_sum_p2 < TestCase
                 assertEqual(size,vector(i));
             end
         end
+        %
         function test_split_block_large_page(~)
             vector     = [5,5,5];
             start_pos  = [10,25,400];

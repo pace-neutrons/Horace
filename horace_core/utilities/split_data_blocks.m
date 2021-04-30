@@ -88,12 +88,12 @@ for i=1:max_num_chunks
             [block_sizes(ind_start:ind_end),overrun]};
         % cut the part of the taken block from the beginning of the next
         % block
-        start_val(ind_end+1) = start_val(ind_end+1)+overrun+1;
+        start_val(ind_end+1) = start_val(ind_end+1)+overrun;
         block_sizes(ind_end+1) = block_sizes(ind_end+1)-overrun;
     elseif overrun<0 % splitting chunk in more then one block
         chunks{i} = {start_val(ind_end),max_chunk_sum};
         block_sizes(ind_end) = block_sizes(ind_end)-max_chunk_sum;
-        start_val(ind_end) =   start_pos+chunks_borders(i)-border0+1;        
+        start_val(ind_end) =   start_pos+chunks_borders(i)-border0;        
         ind_end = ind_start-1;
     else
         chunks{i} = {start_val(ind_start:ind_end),...
