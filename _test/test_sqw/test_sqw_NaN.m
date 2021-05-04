@@ -3,6 +3,7 @@ function test_sqw_NaN
 % in the sqw file. Test that this is correctly handled by gen_sqw.
 %
 % Author: T.G.Perring
+
 banner_to_screen(mfilename)
 
 % Data

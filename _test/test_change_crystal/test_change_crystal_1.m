@@ -75,7 +75,6 @@ proj.v=[0,1,0];
 rlu=[1,0,1; 0,1,1; 0,0,1; 1,0,0; 0,-1,0];
 half_len=0.5; half_thick=0.25; bin_width=0.025;
 
-%rlu0=get_bragg_positions(read_sqw(sim_sqw_file), proj, rlu, half_len, half_thick, bin_width);
 rlu0=get_bragg_positions(sqw(sim_sqw_file), proj, rlu, half_len, half_thick, bin_width);
 
 
@@ -88,7 +87,6 @@ rlu0=get_bragg_positions(sqw(sim_sqw_file), proj, rlu, half_len, half_thick, bin
 % ---------------------------------------------------------------------
 copyfile(sim_sqw_file,sim_sqw_file_corr)
 change_crystal_sqw(sim_sqw_file_corr,rlu_corr)
-%rlu0_corr=get_bragg_positions(read_sqw(sim_sqw_file_corr), proj, rlu, half_len, half_thick, bin_width);
 rlu0_corr=get_bragg_positions(sqw(sim_sqw_file_corr), proj, rlu, half_len, half_thick, bin_width);
 
 if max(abs(rlu0_corr(:)-rlu(:)))>qfwhh

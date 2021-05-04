@@ -121,8 +121,8 @@ classdef test_symm < TestCase
             % actually unlikely to be the same, because the methodology is totally
             % different...
             % Diagonal symm axis
-            w2d_qq_sqw=sqw(fullfile(this.testdir,'w2d_qq_sqw.sqw')); % CMDEV was read_sqw
-            w2_2b_s=d2d(symmetrise_sqw(w2d_qq_sqw,[0,0,1],[0,1,0],[0,0,0]));% CMDEV was d2d
+            w2d_qq_sqw=sqw(fullfile(this.testdir,'w2d_qq_sqw.sqw'));
+            w2_2b_s=d2d(symmetrise_sqw(w2d_qq_sqw,[0,0,1],[0,1,0],[0,0,0]));
             w2_2b_s=cut(w2_2b_s,[-1,0,1],[-1,0,1]);
 
             w2d_qq_d2d=d2d(fullfile(this.testdir,'w2d_qq_d2d.sqw'));
@@ -145,7 +145,6 @@ classdef test_symm < TestCase
         
         % ------------------------------------------------------------------------------------------------
         function this=test_random_symax(this)
-            %w2d_qq_small_d2d=read_dnd(fullfile(this.testdir,'w2d_qq_small_d2d.sqw')); % CMDEV
             w2d_qq_small_d2d=d2d(fullfile(this.testdir,'w2d_qq_small_d2d.sqw'));
             % Random symm axis (ensure shoelace algorithm is actually tested)
             disp(' ')

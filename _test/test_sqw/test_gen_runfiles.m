@@ -18,6 +18,7 @@ classdef test_gen_runfiles < TestCase
         end
 
         function test_gen_sqw_serial(obj)
+            
             % This test should always run serially
             % test_gen_sqw_accumulate_sqw_<framework> tests in parallel
             hpc = hpc_config;

@@ -1,4 +1,4 @@
-function wout = cut (varargin)
+function varargout = cut (varargin)
 % Take a cut from a d2d object by integrating over one or both of the plot axes.
 %
 %   >> w = cut (data_source, p1_bin, p2_bin)
@@ -59,4 +59,10 @@ if iscell(w.data)&& ischar(w.data{1})
 end
 
 % Now call dnd cut routine. Output (if any), is a cell array, as method is passed a data source structure
-wout=cut_dnd_main(w.data,numel(w.data.pax),args{:});
+argout=cut_dnd_main(w.data,numel(w.data.pax),args{:});
+if ~isempty(argout)
+    argout = {argout};
+end
+
+[varargout, mess] = horace_function_pack_output(w, argout{:});
+if ~isempty(mess), error(mess), end

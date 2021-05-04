@@ -1,5 +1,5 @@
-function wout = cut (varargin)
-% Take a cut from a d2d object by integrating over one or both of the plot axes.
+function varargout = cut (varargin)
+% Take a cut from a d4d object by integrating over one or both of the plot axes.
 %
 %   >> w = cut (data_source, p1_bin, p2_bin)
 %
@@ -10,9 +10,9 @@ function wout = cut (varargin)
 %
 % Input:
 % ------
-%   data_source     Data source: file name or d2d object
+%   data_source     Data source: file name or d4d object
 %                  Can also be a cell array of file names, or an array of
-%                  d2d objects.
+%                  d4d objects.
 %
 %   p1_bin          Binning along first plot axis
 %   p2_bin          Binning along second plot axis
@@ -55,8 +55,14 @@ if iscell(w.data)&& ischar(w.data{1})
     % is called.
     % After DnDBase class is implemented, cutting a DnD object need no longer
     % go through sqw.cut and this file will be largely re-written
-    w.data = d3d(w.data{1});
+    w.data = d4d(w.data{1});
 end
 
 % Now call dnd cut routine. Output (if any), is a cell array, as method is passed a data source structure
-wout=cut_dnd_main(w.data,numel(w.data.pax),args{:});
+argout=cut_dnd_main(w.data,numel(w.data.pax),args{:});
+if ~isempty(argout)
+    argout = {argout};
+end
+
+[varargout, mess] = horace_function_pack_output(w, argout{:});
+if ~isempty(mess), error(mess), end

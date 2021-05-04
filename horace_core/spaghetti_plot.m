@@ -234,7 +234,7 @@ end
 % Loop over rlp, determines the projections and make the cuts
 %------------------------------------------------------------
 xrlp = 0;
-wdisp = repmat(d2d_out,1,nseg);
+wdisp = repmat(d2d,1,nseg);
 for i=1:nseg
     % Choose u1 along the user desired q-direction
     u1rlp = rlp(i+1,:)-rlp(i,:);

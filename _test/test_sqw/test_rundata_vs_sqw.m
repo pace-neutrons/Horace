@@ -69,14 +69,8 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
         end
         
         function this=test_build_rundata(this)
-            %CHANGED ensure that sqw_old objects passed into this test
-            %        are converted to new sqw objects
-            if isa(this.sqw_obj,'sqw_old')
-                sqw_obj = sqw(struct(this.sqw_obj));
-            else
-                sqw_obj = this.sqw_obj;
-            end
-            rd = rundatah(sqw_obj);
+            
+            rd = rundatah(this.sqw_obj);
             
             assertEqual(rd.emode, this.emode);
             assertEqual(rd.efix, this.efix);
@@ -124,14 +118,8 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
         end
         %
         function  this=test_serialize_deserialize_rundatah(this)
-            %CHANGED ensure that sqw_old objects passed into this test
-            %        are converted to new sqw objects
-            if isa(this.sqw_obj,'sqw_old')
-                sqw_obj = sqw(struct(this.sqw_obj));
-            else
-                sqw_obj = this.sqw_obj; % CMDEV was sqw_old - typo from previous commit
-            end
-            rd = rundatah(sqw_obj);
+
+            rd = rundatah(this.sqw_obj);
             
             by = rd.serialize();
             
@@ -156,14 +144,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
         %
         function  test_serialize_deserialize_rundatah_with_op(obj)
             % test checks if transofrmation is serialized/recovered correctly.
-            %CHANGED ensure that sqw_old objects passed into this test
-            %        are converted to new sqw objects
-            if isa(obj.sqw_obj,'sqw_old')
-                sqw_obj = sqw(struct(obj.sqw_obj));
-            else
-                sqw_obj = obj.sqw_obj;
-            end
-            rd = rundatah(sqw_obj);
+            rd = rundatah(obj.sqw_obj);
             v1=[0,1,0]; v2=[0,0,1]; v3=[0,0,0];
             rd.transform_sqw = @(x)symmetrise_sqw(x,v1,v2,v3);
             
@@ -200,9 +181,6 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
             ref_range = [0.0576   -6.6475   -6.6475    2.5000;...
                 3.8615    6.6475    6.6475  147.5000];
             assertElementsAlmostEqual(pix_range,ref_range,'relative',3.e-4);
-            %CHANGED convert sq4 which is sqw_old object to sqw
-            %        pending conversion of calc_sqw to return sqw
-            sq4 = sqw(struct(sq4));
             assertEqualToTolWithSave(obj,sq4,'ignore_str',true,'tol',1.e-7);
 
             rdr = rundatah(sq4);

@@ -193,12 +193,12 @@ plot(compact(my_slice));
 plot(smooth(my_slice)); % this gives an error - think about why!
 
 %
-plot(smooth(d2d_old(my_slice)));
+plot(smooth(d2d(my_slice)));
 % d2d command (for 2d objects) converts from sqw type data, with detector pixel retained
 % to d2d / dnd object that is smaller in memory and without detector pixel info
 
 % Smoothing options:
-plot(smooth(d2d_old(my_slice),[2,2],'gaussian'));
+plot(smooth(d2d(my_slice),[2,2],'gaussian'));
 
 % Set colour scale and other axes scales in script:
 lz 0 0.5

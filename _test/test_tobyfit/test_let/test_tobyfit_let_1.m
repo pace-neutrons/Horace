@@ -96,7 +96,7 @@ kk = kk.set_options('listing',nlist);
 
 [wfit_1,fitpar_1]=kk.fit;
 
-acolor r b; iplot(wdata_1); pl(wfit_1);
+acolor r b; plot(wdata_1); pl(wfit_1);
 
 
 if test_output

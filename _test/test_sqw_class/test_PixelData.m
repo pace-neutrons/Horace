@@ -610,9 +610,10 @@ classdef test_PixelData < TestCase
                 
                 pix.u1 = 1;
                 pix.advance();  % creates tmp file for first page
-                assertTrue(logical(exist(expected_tmp_dir, 'dir')), ...
-                    sprintf('Temp directory ''%s'' not created', ...
-                    expected_tmp_dir));
+                assertTrue( ...
+                    logical(exist(expected_tmp_dir, 'dir')), ...
+                    sprintf('Temp directory ''%s'' not created', expected_tmp_dir) ...
+                    );
             end
             
             do_pix_creation_and_delete();
@@ -1126,8 +1127,10 @@ classdef test_PixelData < TestCase
             num_appended_pix = 5;
             pix_to_append = PixelData(rand(9, num_appended_pix));
             range2 = pix_to_append.pix_range;
-            ref_range = [min(range1(1,:),range2(1,:));...
-                max(range1(2,:),range2(2,:))];
+            ref_range = [ ...
+                min(range1(1,:),range2(1,:));...
+                max(range1(2,:),range2(2,:)) ...
+                ];
             
             pix.append(pix_to_append);
             assertEqual(ref_range,pix.pix_range);
@@ -1686,10 +1689,11 @@ classdef test_PixelData < TestCase
             assertTrue(pix.page_size < pix.num_pixels);  % make sure we're paging
             pix.advance();
             pix.signal = 11;
+            
             % Do not advance past edited page, changes only exist in cache and not
             % in temporary files
-            
             pg_size = pix.base_page_size;
+            
             % Repeat each index from 1 to the page size 3 times
             pix_range = repelem(1:3*pg_size, 3);
             new_pix = pix.get_pixels(pix_range);

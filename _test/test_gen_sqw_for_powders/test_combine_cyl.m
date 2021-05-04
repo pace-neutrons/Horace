@@ -86,6 +86,7 @@ classdef test_combine_cyl < TestCaseWithSave
             w2_1 = cut_sqw(sqw_file_1,0.1,0.1,[40,50],'-nopix');
             w1_1 = cut_sqw(sqw_file_1,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
 
+            
             this.assertEqualToTolWithSave(w2_1,'ignore_str',true,'tol',1.e-7)
             this.assertEqualToTolWithSave(w1_1,'ignore_str',true,'tol',1.e-7)
 
@@ -101,7 +102,6 @@ classdef test_combine_cyl < TestCaseWithSave
 
         end
         function this=test_combine_cyl2(this)
-            skipTest("Not tested - parallel issues");
             % Create sqw files, combine and check results
             % -------------------------------------------
             sqw_file_2=fullfile(tmp_dir,'test_cyl_2.sqw');

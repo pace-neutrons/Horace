@@ -59,7 +59,7 @@ function wout=symmetrise_sqw_pikulski_code(win,v1,v2,v3)
 
 %==============================
 %Some checks on the inputs:
-win=sqw_old(win);
+win=sqw(win);
 wout = copy(win);
 
 % MP: Old code would fail the checks done at check_sqw_header.m:56 if

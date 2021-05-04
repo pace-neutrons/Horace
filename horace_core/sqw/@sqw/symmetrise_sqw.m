@@ -40,7 +40,7 @@ if numel(win)~=1
     error('Horace error: symmetrisation only implemented for single sqw object, not arrays of objects. Use a for-loop to deal with arrays');
 end
 
-if ~has_pixels(win) % CMDEV was is_sqw_type
+if ~has_pixels(win)
     %what we should actually do here is go to the dnd-symmetrise function
     %of the correct dimensionality
     error('Horace error: input object must be sqw type with detector pixel information');

@@ -7,7 +7,7 @@ function wout=horace_convert_legacy_sqw(win)
 
 wout = copy(win);
 for i=1:numel(win)
-    if isa(win,'sqw_old') && is_sqw_type(win(i))
+    if isa(win,'sqw') && is_sqw_type(win(i))
         hnew=win(i).header;
         if ~iscell(hnew)
             hnew.instrument=struct;

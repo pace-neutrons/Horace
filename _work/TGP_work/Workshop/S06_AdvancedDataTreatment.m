@@ -32,11 +32,11 @@ lz 0 2
 my_bg = cut(my_slice, [1.9,2.1], []);
 plot(my_bg);
 
-my_bg_rep = replicate(d1d(my_bg), d2d_old(my_slice));
+my_bg_rep = replicate(d1d(my_bg), d2d(my_slice));
 plot(my_bg_rep)
 lz 0 2
 
-my_slice_subtracted = d2d_old(my_slice) - my_bg_rep;
+my_slice_subtracted = d2d(my_slice) - my_bg_rep;
 plot(my_slice_subtracted);
 lz 0 2
 

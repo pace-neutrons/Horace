@@ -30,7 +30,7 @@ function run_inspector(w,varargin)
 %RAE 30/1/15
 
 %Do some checks on the data:
-if ~isa(w,'sqw_old') || ~is_sqw_type(w)
+if ~isa(w,'sqw') || ~has_pixels(w)
     error('Input dataset has to be sqw object with full contributing run information present');
 end
 

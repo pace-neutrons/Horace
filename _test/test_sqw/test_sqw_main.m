@@ -11,6 +11,13 @@ classdef test_sqw_main < TestCase
             obj = obj@TestCase(name);
         end
         
+        function test_sqw_constructor(~)
+            skipTest("Construction of sqw from data_sqw_dnd not yet available");
+            data = data_sqw_dnd();
+            sqw_obj = sqw(data);
+            assertTrue(sqw_obj.data.dnd_type)
+        end
+        
         function test_read_sqw(obj)
             test_data = fullfile(obj.tests_dir, 'test_change_crystal', 'wref.sqw');
             out_dnd_file = fullfile(obj.out_dir, 'test_sqw_main_test_read_sqw_dnd.sqw');

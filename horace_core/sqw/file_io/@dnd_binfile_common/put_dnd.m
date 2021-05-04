@@ -22,7 +22,7 @@ end
 if ~isempty(argi)
     input = argi{1};
     if ~(isa(input, 'SQWDnDBase') || is_sqw_struct(input))
-        error('SQW_FILE_IO:invalid_artgument',...
+        error('SQW_FILE_IO:invalid_argument',...
             'put_sqw: this function can accept only sqw or dnd-type object, and got %s', class(input))
     end
     storage = obj.sqw_holder_;

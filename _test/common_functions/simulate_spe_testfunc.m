@@ -60,11 +60,6 @@ w= fake_sqw (en, par_file, '', efix, emode, alatt, angdeg, u, v, psi, omega, dps
 % Simulate on the sqw object
 %w=read_sqw(sqw_file);
 wcalc=sqw_eval(w{1},sqwfunc,pars);
-%CHANGED while sqw_eval returns a sqw_old
-%        convert it to a sqw
-if isa(wcalc, 'sqw_old')
-    wcalc = sqw(struct(wcalc));
-end
 clear w
 
 % Add random looking, but determinisitic, noise

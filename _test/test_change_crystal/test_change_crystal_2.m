@@ -60,13 +60,10 @@ save(w2_1,w2_1_file);
 save(w2_2,w2_2_file);
 save(w1_1,w1_1_file);
 save(w1_2,w1_2_file);
-%{ 
-skipTest("New dnd: Removing the d2d saves for the moment as save does not appear to be supported
 save(d2_1,d2_1_file);
 save(d2_2,d2_2_file);
 save(d1_1,d1_1_file);
 save(d1_2,d1_2_file);
-%}
 
 % Change crystal in the sqw object files
 % --------------------------------------
@@ -93,13 +90,10 @@ d2c_1=dnd(w2c_1);
 d2c_2=dnd(w2c_2);
 d1c_1=dnd(w1c_1);
 d1c_2=dnd(w1c_2);
-%{
-skipTest("New dnd: dnd save not implemented yet
 save(d2c_1,d2c_1_file);
 save(d2c_2,d2c_2_file);
 save(d1c_1,d1c_1_file);
 save(d1c_2,d1c_2_file);
-%}
 d2c_arr=[d2c_1,d2c_2];
 d1c_arr=[d1c_1,d1c_2];
 
@@ -116,7 +110,7 @@ change_crystal_test(rlu_corr, w1_arr, '', true, w1c_arr)
 change_crystal_test(rlu_corr, w12_arr, '', true, w12c_arr)
 
 %{
-skipTest("New dnd: d2d not yet implemented
+skipTest("New dnd: d2d still missing change_crystal()
 if(log_level>-1); disp('Testing...'); end
 change_crystal_test(rlu_corr, d2_1, '', true, d2c_1)
 change_crystal_test(rlu_corr, d2_2, '', true, d2c_2)

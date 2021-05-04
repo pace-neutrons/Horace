@@ -81,13 +81,10 @@ classdef test_fake_sqw_bin_pix < TestCase
 
             % can not compare pixel arrays as pixel sorting will be
             % different. Compare the whole image instead
-            %{
-            skipTest("New dnd: d2d not yet implemented");
-            w_mex = d4d_old(w_mex);
-            w_nomex = d4d_old(w_nomex);
+            w_mex = d4d(w_mex);
+            w_nomex = d4d(w_nomex);
             [ok,mess]=equal_to_tol(w_mex,w_nomex,-1.e-8);
             assertTrue(ok,[' MEX and non-mex versions of gen_sqw are different: ',mess]);
-            %}
         end
         function test_bin_c_multithread(this)
             if this.skip_this_test
@@ -147,13 +144,13 @@ classdef test_fake_sqw_bin_pix < TestCase
 
             % can not compare pixel arrays as pixel sorting will be
             % different. Compare the whole image instead
-            %{
-            skipTest("New dnd: d2d not yet implemented");
-            w_mex = d4d_old(w_mex);
-            w_mex_thr = d4d_old(w_mex_thr);
+            %%{
+            %skipTest("New dnd: d2d not yet implemented");
+            w_mex = d4d(w_mex);
+            w_mex_thr = d4d(w_mex_thr);
             [ok,mess]=equal_to_tol(w_mex,w_mex_thr,-1.e-8);
             assertTrue(ok,[' MEX threaded and non-threaded versions of gen_sqw are different: ',mess]);
-            %}
+            %%}
         end
 
 

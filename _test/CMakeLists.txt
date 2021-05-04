@@ -6,6 +6,7 @@ set(TEST_DIRECTORIES
     "test_combine"
     "test_configuration"
     "test_converters"
+    "test_dnd"
     "test_dnd_class"
     "test_gen_sqw_for_powders"
     "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_herbert"

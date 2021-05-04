@@ -6,7 +6,7 @@ function status = adjust_aspect(w)
 % Toby Perring 10 August 2015
 
 try
-    status = w.data.axis_caption.changes_aspect_ratio;
+    status = w.data_.axis_caption.changes_aspect_ratio;
 catch
     status = true;
 end

@@ -18,7 +18,6 @@ classdef test_gen_sqw_powder < TestCaseWithSave
     methods
         
         function obj = test_gen_sqw_powder(varargin)
-            skipTest("Skipping whole test class as loader for new sqw not supported yet");
             if nargin > 0
                 name = varargin{1};
             else

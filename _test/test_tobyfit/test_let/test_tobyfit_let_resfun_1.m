@@ -110,7 +110,7 @@ pause(pause_time)
 
 % q-e plot along [0,0,1]
 % ----------------------
-iplot(w_nb_qe)
+plot(w_nb_qe)
 lx 0 0.2
 lz 0 10000
 %

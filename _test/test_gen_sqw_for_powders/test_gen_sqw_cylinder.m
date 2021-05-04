@@ -65,7 +65,6 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
         end
 
         function this=test_gen_sqw_cyl(this)
-            skipTest("New dnd object not comparing with d2d_old saved version");
 
             sqw_cyl_file=fullfile(tmp_dir,'test_cyl_4to1.sqw');
             % clean up

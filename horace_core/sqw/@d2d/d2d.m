@@ -18,6 +18,7 @@ classdef d2d < DnDBase
 
         wout=combine_horace_2d(w1,w2,varargin);
         wout=symmetrise_horace_2d(win,varargin);
+        wout=rebin_horace_2d(win,varargin);
 
         [speedup,midpoint]=compare_sym_axes(win,v1,v2,v3);
         varargout = cut(varargin);
@@ -32,7 +33,7 @@ classdef d2d < DnDBase
         [xright,yright,sright,eright,nright]=discard_lhs(win,x,y,s,e,n,v1,v2,v3);
 
         [ok, mess] = test_symmetrisation_plane(win, v1, v2, v3);
-        [diag, type] = test_symmetrisation_plane_digaonal(win, v1, v2, v3);
+        [diag, type] = test_symmetrisation_plane_diagonal(win, v1, v2, v3);
     end
 
     methods(Static, Access = private)

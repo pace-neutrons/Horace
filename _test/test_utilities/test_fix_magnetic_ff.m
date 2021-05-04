@@ -62,7 +62,7 @@ classdef test_fix_magnetic_ff< TestCase
         end
         %
         function test_correct_magnetif_ff(this)
-            skipTest("Something is going on with the dirty page flag");
+            skipTest("Something was going on with the dirty page flag");
             fsqw = this.sample_sqw;
             %
             mff = MagneticIons('Fe1');
@@ -102,7 +102,7 @@ classdef test_fix_magnetic_ff< TestCase
 
         end
         function test_dnd_vs_sqw(this)
-            skipTest("New dnd object not implemented yet");
+            skipTest("New dnd object gives brace indexing problem");
             fsqw = this.sample_sqw;
             %
             mff = MagneticIons('Ni0');

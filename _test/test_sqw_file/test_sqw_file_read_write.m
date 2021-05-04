@@ -15,15 +15,7 @@ existing_objects=fieldnames(ds);
 for i=1:numel(existing_objects)
     % HACK ! deal with old style sqw objects, which have not stored
     % @axis_name
-    tmp=struct(ds.(existing_objects{i}));
-    try
-        tmp = rmfield(tmp,'data_');
-    catch ME
-        if ~strcmp(ME.identifier, 'MATLAB:rmfield:InvalidFieldname')
-            rethrow(ME)
-        end
-    end
-    cur_sqw=sqw(tmp);
+    cur_sqw=sqw(struct(ds.(existing_objects{i})));
     var_name = existing_objects{i};
 
     eval(sprintf('%s = cur_sqw;', var_name));

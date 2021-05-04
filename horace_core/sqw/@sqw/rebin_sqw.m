@@ -122,7 +122,7 @@ switch route
                 miny2=min(min(w2.data.p{2})); maxy2=max(max(w2.data.p{2}));
                 %
                 %Need to convert min/max of win into co-ordinate frame of w2.
-                [xtmp,ytmp,stmp,etmp,ntmp]=convert_bins_for_shoelace(d2d(win),d2d(w2)); %CMDEV were _old
+                [xtmp,ytmp,stmp,etmp,ntmp]=convert_bins_for_shoelace(d2d(win),d2d(w2));
                 minx1=min(min(xtmp)); maxx1=max(max(xtmp));
                 miny1=min(min(ytmp)); maxy1=max(max(ytmp));
                 %
@@ -223,7 +223,7 @@ switch route
                     %makes a 2d dataset with same x/y range as win
                     wtmp=cut(win,[],[],[-Inf,Inf]);
                     w2tmp=cut(w2,[],[],[-Inf,Inf]);
-                    [xtmp,ytmp,stmp,etmp,ntmp]=convert_bins_for_shoelace(wtmp, w2tmp);
+                    [xtmp,ytmp,stmp,etmp,ntmp]=convert_bins_for_shoelace(d2d(wtmp), d2d(w2tmp));
                     minx1=min(min(xtmp)); maxx1=max(max(xtmp));
                     miny1=min(min(ytmp)); maxy1=max(max(ytmp));
                     %

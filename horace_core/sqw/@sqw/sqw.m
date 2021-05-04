@@ -152,7 +152,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             % args.pixel_page_size % size of PixelData page in bytes
             parser = inputParser();
             parser.KeepUnmatched = true;  % ignore unmatched parameters
-            parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase') || is_string(x) || isstruct(x)));
+            parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase') || ...
+                                                          is_string(x) || ...
+                                                          isstruct(x)));
             parser.addParameter('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE, ...
                             @PixelData.validate_mem_alloc);
             parser.parse(varargin{:});

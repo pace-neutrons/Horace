@@ -72,6 +72,8 @@ classdef test_main_mex < TestCase
                 skipTest('Can not use and test mex code to accumulate_cut');
             end
 
+            
+            
             [data,proj]=gen_fake_accum_cut_data(this,[1,0,0],[0,1,0]);
             %[v,sizes,rot_ustep,trans_bott_left,ebin,trans_elo,urange_step_pix,urange_step]=gen_fake_accum_cut_data(this,0,0);
             urange_step_pix=zeros(2,4);
@@ -253,6 +255,8 @@ classdef test_main_mex < TestCase
             ix0  = int64(ix);
             pix0a = sort_pix(pix0,ix0,npix,'-force_mex');
             assertElementsAlmostEqual(pix0a.data, pix2.data,'absolute',1.e-6);
+
+        
         end
         function profile_sort_pix(~)
             xs = 9.99:-0.1:0.01;
@@ -382,6 +386,8 @@ classdef test_main_mex < TestCase
             step = (maxv-minv)./size(data.s)';
             proj=proj.set_proj_binning(pix_range,[1,2,3,4],[],...
                 {minv(1):step(1):maxv(1),minv(2):step(2):maxv(2),minv(3):step(3):maxv(3),minv(4):step(4):maxv(4)});
+
+        
         end
     end
 end

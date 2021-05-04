@@ -23,7 +23,6 @@ classdef test_dnd_constructors< TestCase
         
         % tests
         function this = test_constructor(this)
-            skipTest("New DND not currently supporting this functionality");
             %Create empty object suitable for simulations:
             %  >> w = d2d (proj, p1_bin, p2_bin, p3_bin, p4_bin)
             %  >> w = d2d (lattice, proj,...)
@@ -37,10 +36,13 @@ classdef test_dnd_constructors< TestCase
             
             
             
-            %t2 = d2d();
-            %assertTrue(isa(t2,'d2d'))
+            t2 = d2d();
+            assertTrue(isa(t2,'d2d'))
+            %{
+            skipTest("New d2d not currently supporting this input
             t2 = d2d([0,0,0,0],[1,0,0],[-2,0.05,2],[0,1,0],[-2,0.05,2]);
             assertTrue(isa(t2,'d2d'))
+            %}
             t2 = d2d(fullfile(this.test_data,'w2d_qq_d2d.sqw'));
             assertTrue(isa(t2,'d2d'))
         end

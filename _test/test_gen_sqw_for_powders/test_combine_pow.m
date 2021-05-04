@@ -126,8 +126,6 @@ classdef test_combine_pow < TestCaseWithSave
             %--------------------------------------------------------------------------------------------------
         end
         function this = test_combine_pow_tot(this)
-            skipTest("Not tested - parallel issues");
-
             % Create sqw files, combine and check results
             % -------------------------------------------
             sqw_file_tot=fullfile(tmp_dir,'test_pow_tot.sqw');
