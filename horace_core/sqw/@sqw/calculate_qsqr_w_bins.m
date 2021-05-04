@@ -8,7 +8,7 @@ function qsqr_w = calculate_qsqr_w_bins (win,optstr)
 % Input:
 % ------
 %   win         Input sqw object
-%   
+%
 % Optional arguments:
 % 'boundaries'  Return qh,qk,ql,en at verticies of bins, not centres
 % 'edges'       Return qh,qk,ql,en at verticies of the hyper cuboid that
@@ -25,19 +25,13 @@ function qsqr_w = calculate_qsqr_w_bins (win,optstr)
 %               If one or both of the integration ranges is infinite, then
 %              the value of the corresponding coordinate is taken as zero.
 
-
-% Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
-
 if numel(win)~=1
     error('Only a single sqw object is valid - cannot take an array of sqw objects')
 end
 
 % Get b-matrix, B, that gives crystal Cartesian coords Vcryst(i) = B(i,j) Vrlu(j)
 B = bmatrix(win.data.alatt, win.data.angdeg);
- 
+
 % Get the bin centres in hkl
 if ~exist('optstr','var')
     qhkl_w = calculate_qw_bins (win);

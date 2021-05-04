@@ -39,27 +39,27 @@ if get_names
     d2d_arr   = [];
     return
 else
-    
+
     root=fileparts(which(mfilename));
-    
-    sqw1d_arr(1)=read(sqw,fullfile(root,'sqw_1d_1.sqw'));
-    sqw1d_arr(2)=read(sqw,fullfile(root,'sqw_1d_2.sqw'));
-    
-    sqw2d_arr(1)=read(sqw,fullfile(root,'sqw_2d_1.sqw'));
-    sqw2d_arr(2)=read(sqw,fullfile(root,'sqw_2d_2.sqw'));
-    
+
+    sqw1d_arr(1)=sqw(fullfile(root,'sqw_1d_1.sqw'));
+    sqw1d_arr(2)=sqw(fullfile(root,'sqw_1d_2.sqw'));
+
+    sqw2d_arr(1)=sqw(fullfile(root,'sqw_2d_1.sqw'));
+    sqw2d_arr(2)=sqw(fullfile(root,'sqw_2d_2.sqw'));
+
     d1d_arr=dnd(sqw1d_arr);
     d2d_arr=dnd(sqw2d_arr);
-    
+
     save(sqw1d_arr(1),sqw1d_name{1})
     save(sqw1d_arr(2),sqw1d_name{2})
-    
+
     save(sqw2d_arr(1),sqw2d_name{1})
     save(sqw2d_arr(2),sqw2d_name{2})
-    
+
     save(d1d_arr(1),d1d_name{1})
     save(d1d_arr(2),d1d_name{2})
-    
+
     save(d2d_arr(1),d2d_name{1})
     save(d2d_arr(2),d2d_name{2})
 end

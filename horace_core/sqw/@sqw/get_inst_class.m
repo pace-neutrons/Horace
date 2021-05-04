@@ -23,7 +23,7 @@ if ~all(sqw_objects(:))
     error('All inputs must be sqw objects or sqw object arrays')
 end
 for i=1:numel(varargin)
-    sqw_type = arrayfun(@(x)is_sqw_type(x), varargin{i});
+    sqw_type = arrayfun(@(x)has_pixels(x), varargin{i});
     if ~all(sqw_type(:))
         error('The instrument class can only be retrieved from sqw-type data')
     end

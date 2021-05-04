@@ -71,12 +71,12 @@ if grid_is_unity && data_in_range   % the most work we have to do is just change
         sqw_datstr.p{id}=[pix_db_range(1,id);pix_db_range(2,id)];
     end
     grid_size = grid_size_in;
-    
-else    
+
+else
     if hor_log_level>-1
         disp('Sorting pixels ...')
     end
-    
+
     [use_mex,nThreads]=config_store.instance().get_value('hor_config','use_mex','threads');
     if use_mex
         try
@@ -91,9 +91,9 @@ else
             sqw_fields{3}=grid_size;
             sqw_fields{4}=sqw_datstr.pix.data;
             clear sqw_datstr.s sqw_datstr.e sqw_datstr.npix;
-            
+
             out_fields=bin_pixels_c(sqw_fields);
-            
+
             sqw_datstr.s   = out_fields{1};
             sqw_datstr.e   = out_fields{2};
             sqw_datstr.npix= out_fields{3};
@@ -108,7 +108,7 @@ else
         
         sqw_datstr.p=p;   % added by RAE 10/6/11 to avoid crash when doing non-mex generation of sqw files
         sqw_datstr.pix=sqw_datstr.pix.get_pixels(ix);
-        
+
         sqw_datstr.s=reshape(accumarray(ibin,sqw_datstr.pix.signal,[prod(grid_size),1]),grid_size);
         sqw_datstr.e=reshape(accumarray(ibin,sqw_datstr.pix.variance,[prod(grid_size),1]),grid_size);
         sqw_datstr.npix=reshape(npix,grid_size);      % All we do is write to file, but reshape for consistency with definition of sqw data structure
@@ -118,7 +118,7 @@ else
         nopix=(sqw_datstr.npix==0);
         sqw_datstr.s(nopix)=0;
         sqw_datstr.e(nopix)=0;
-        
+
         clear nopix     % biggish array no longer needed
     end
     

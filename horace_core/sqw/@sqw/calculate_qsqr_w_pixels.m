@@ -13,19 +13,13 @@ function qsqr_w = calculate_qsqr_w_pixels (win)
 %              as cell arrays of column vectors: qsqr_w{1} is |Q|^2 and qsqr_w{2}
 %              is energy
 
-
-% Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
-
 if numel(win)~=1
     error('Only a single sqw object is valid - cannot take an array of sqw objects')
 end
 
 % Get b-matrix, B, that gives crystal Cartesian coords Vcryst(i) = B(i,j) Vrlu(j)
 B = bmatrix(win.data.alatt, win.data.angdeg);
- 
+
 % Get the bin centres in hkl
 qhkl_w = calculate_qw_pixels2 (win);
 

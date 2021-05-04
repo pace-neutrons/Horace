@@ -386,7 +386,7 @@ for i=1:length(wdisp_in)
         labels{i} = wdisp(i).title{1};
         continue;
     end
-    
+
     % Finds labels in segment title
     title = wdisp_in(i).title;
     brk = strfind(title,sprintf('\n'));
@@ -426,7 +426,7 @@ for i=1:length(wdisp_in)
         hkls = [wdisp_in(i).p{1}(1) * hkldir + hklcen; wdisp_in(i).p{1}(end) * hkldir + hklcen];
         labels{i} = ['[',str_compress(num2str(hkls(1:3)'),','),']'];
         labels{i+1} = ['[',str_compress(num2str(hkls(4:6)'),','),']'];
-        
+
     end
     hkl0 = hkls;
 end

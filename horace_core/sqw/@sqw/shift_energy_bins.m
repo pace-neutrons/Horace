@@ -50,7 +50,7 @@ function wout = shift_energy_bins (win, dispreln, pars)
 
 % Check that all cuts are sqw-type constant-Q cuts
 for i=1:numel(win)
-    if is_sqw_type(win(i))   % determine if sqw or dnd type
+    if has_pixels(win(i))   % determine if sqw or dnd type
         if ~(dimensions(win(i))==1 && win(i).data.pax==4)
             error('All cuts must be one-dimensional energy cuts')
         end

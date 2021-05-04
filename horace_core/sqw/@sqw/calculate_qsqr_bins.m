@@ -14,18 +14,13 @@ function [qsqr,en] = calculate_qsqr_bins (win)
 %   en      Column vector of energy bin centres. If energy was an integration axis,
 %           then returns the centre of the energy integration range
 
-% Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
-
 if numel(win)~=1
     error('Only a single sqw object is valid - cannot take an array of sqw objects')
 end
 
 % Get b-matrix, B, that gives crystal Cartesian coords Vcryst(i) = B(i,j) Vrlu(j)
 B = bmatrix(win.data.alatt, win.data.angdeg);
- 
+
 % Get the bin centres in hkl
 [qhkl,en] = calculate_q_bins (win);
 

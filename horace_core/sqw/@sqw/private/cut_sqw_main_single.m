@@ -3,8 +3,12 @@ function wout = cut_sqw_main_single (data_source,...
     proj, pbin, pin, en, opt, hor_log_level)
 % Take a cut from an sqw object by integrating over one or more axes.
 
+
 % Original author: T.G.Perring
 %
+
+
+
 % Initialise output
 return_cut = (nargout==1);
 
@@ -118,6 +122,7 @@ else
 end
 
 
+
 % Get size of output signal, error and npix arrays
 % (Account for singleton dimensions i.e. plot axes with just one bin, and look after case
 % of zero or one dimension)
@@ -161,11 +166,9 @@ data_out.s(no_pix)=0;   % want signal to be zero where there are no contributing
 data_out.e(no_pix)=0;
 
 if opt.keep_pix
-    data_out.pix = PixelData(pix);    
+
+    data_out.pix = PixelData(pix);
 end
-
-
-
 % Convert range from steps to actual range with respect to output uoffset:
 % rounds-off actual pix_range in no pix located at boundaries 
 % as ustep_i = pix_range_i/(Np-1);
@@ -181,7 +184,7 @@ if opt.keep_pix
     w.detpar=detpar;
     w.data=data_out; % will be missing the field 'pix' if pix_tmpfile_ok=true
 else
-    [w,mess]=make_sqw(true,data_out);   % make dnd-type sqw structure
+    [w,mess]=make_sqw_from_data(true,data_out);   % make dnd-type sqw structure
     if ~isempty(mess), error(mess), end
 end
 

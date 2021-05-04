@@ -43,6 +43,12 @@ else
 end
 % End initialization code - DO NOT EDIT
 
+function is_sqw_obj = is_sqw_dnd(element_class)
+    % Returns true if the test element, from evalin, is the name of a concrete SQW class type
+    is_sqw_obj = strcmp(element_class,'d1d') || strcmp(element_class,'d2d') ||...
+            strcmp(element_class,'d3d') || strcmp(element_class,'d4d') ||...
+            strcmp(element_class,'sqw')
+end
 
 % --- Executes just before horace is made visible.
 function horace_OpeningFcn(hObject, eventdata, handles, varargin)
@@ -76,13 +82,13 @@ set(handles.message_info_text,'String','');
 guidata(hObject,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -131,7 +137,7 @@ guidata(hObject,handles);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = horace_OutputFcn(hObject, eventdata, handles) 
+function varargout = horace_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -195,13 +201,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -248,7 +254,7 @@ ndim=dimensions(w_in);
 [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = plot_titles (sqw(w_in));
 
 %Get the info about the object:
-if is_sqw_type(sqw(w_in))
+if has_pixels(w_in)
     getit=get(w_in);
     gg=getit.data;
 else
@@ -339,7 +345,7 @@ guidata(gcbo,handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 
@@ -401,7 +407,7 @@ if isfield(handles,'w_in');
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end        
+    end
 end
 
 guidata(gcbo,handles);
@@ -447,7 +453,7 @@ guidata(gcbo,handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 
@@ -485,7 +491,7 @@ guidata(gcbo,handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 guidata(gcbo,handles);
@@ -494,13 +500,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -517,12 +523,12 @@ guidata(gcbo, handles);
 % % hObject    handle to cut_from_file_pushbutton (see GCBO)
 % % eventdata  reserved - to be defined in a future version of MATLAB
 % % handles    structure with handles and user data (see GUIDATA)
-% 
+%
 % %Clear error message
 % set(handles.message_info_text,'String','');
 % guidata(gcbo,handles);
 % drawnow;
-% 
+%
 % sqw_flname=get(handles.sqw_filename_edit,'String');
 % if ~isempty(sqw_flname)
 %     assignin('base','sqw_filename_internal',sqw_flname);
@@ -533,7 +539,7 @@ guidata(gcbo, handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 % --- Executes on button press in overplot_pushbutton.
@@ -602,7 +608,7 @@ if isfield(handles,'w_in');
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         drawnow;
         guidata(gcbo,handles);
-    end        
+    end
 end
 
 
@@ -828,7 +834,7 @@ if isfield(handles,'w_in')
             mess='Saving of file failed -- check object and/or filename';
             set(handles.message_info_text,'String',char({mess_initialise,mess}));
             return;
-        end         
+        end
     else
         mess='No file written -- select a filename';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
@@ -842,7 +848,7 @@ else
     guidata(gcbo,handles);
 end
 
-    
+
 
 
 % --- Executes on button press in bose_pushbutton.
@@ -879,7 +885,7 @@ guidata(gcbo,handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 
@@ -931,13 +937,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class);
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -999,13 +1005,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -1057,7 +1063,7 @@ guidata(gcbo,handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 
@@ -1088,13 +1094,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -1119,7 +1125,7 @@ guidata(gcbo, handles);
 % %handles.object_name=object_name;
 % w_in2=evalin('base',template_name);%get the data from the base workspace.
 % handles.w_in2=w_in2;%store the object in the handles structure
-% 
+%
 % guidata(gcbo,handles);
 
 % if isfield(handles,'w_in');
@@ -1140,7 +1146,7 @@ guidata(gcbo, handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 
@@ -1420,13 +1426,13 @@ elseif isempty(a3) && ndims>=2.9
     mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
     set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
     guidata(gcbo,handles);
-    return;  
+    return;
 elseif isempty(a4) && ndims>=3.9
     mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
     mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
     set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
     guidata(gcbo,handles);
-    return;  
+    return;
 else
     try
         %must strip out square brackets, if user has inserted them:
@@ -1675,9 +1681,9 @@ catch
     guidata(gcbo,handles);
     return;
 end
-    
-    
-    
+
+
+
 assignin('base',outobjname,out);
 if extra_flag==false
     set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
@@ -1726,13 +1732,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -1926,7 +1932,7 @@ if isfield(handles,'w_in')
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end    
+    end
     ndims1=dimensions(win1);
 else
     mess='No valid data object selected -- operation not performed';
@@ -1945,7 +1951,7 @@ if isfield(handles,'w_in2_rebin') && ~(manspec==nummax)
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end    
+    end
     ndims2=dimensions(win2);
     obj_to_cut2='win2';
 elseif manspec==nummax
@@ -2012,9 +2018,9 @@ if manspec==nummax
         set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
         guidata(gcbo,handles);
         return;
-    end    
+    end
 end
- 
+
 %====
 if isempty(outobjname)
     mess='Provide a name for the output object that will be created by combine operation';
@@ -2102,7 +2108,7 @@ try
         end
         save(out,outfilename);
     end
-    
+
 catch
     the_err=lasterror;
     emess=the_err.message;
@@ -2113,8 +2119,8 @@ catch
     guidata(gcbo,handles);
     return;
 end
-    
-    
+
+
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
@@ -2389,7 +2395,7 @@ if midspec==midmax
         set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
         guidata(gcbo,handles);
         return;
-    end            
+    end
 else
     %we have a reflection plane specified.
     %==
@@ -2474,7 +2480,7 @@ else
         set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
         guidata(gcbo,handles);
         return;
-    end           
+    end
 end
 %====
 
@@ -2556,7 +2562,7 @@ try
         end
         save(out,outfilename);
     end
-    
+
 catch
     the_err=lasterror;
     emess=the_err.message;
@@ -2567,8 +2573,8 @@ catch
     guidata(gcbo,handles);
     return;
 end
-    
-    
+
+
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
@@ -2592,13 +2598,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -2785,7 +2791,7 @@ if isfield(handles,'w_in')
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end    
+    end
     ndims1=dimensions(win1);
 else
     mess='No valid object#1 selected -- operation not performed';
@@ -2801,7 +2807,7 @@ if isfield(handles,'w_in2_comb')
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end 
+    end
     ndims2=dimensions(win2);
     obj_to_cut2='win2';
 else
@@ -2848,7 +2854,7 @@ if tolspec==nummax
         return;
     end
 end
- 
+
 %====
 if isempty(outobjname)
     mess='Provide a name for the output object that will be created by combine operation';
@@ -2926,7 +2932,7 @@ try
         end
         save(out,outfilename);
     end
-    
+
 catch
     the_err=lasterror;
     emess=the_err.message;
@@ -2937,8 +2943,8 @@ catch
     guidata(gcbo,handles);
     return;
 end
-    
-    
+
+
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
@@ -2986,13 +2992,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -3232,7 +3238,7 @@ try
             out=eval(['replicate(',obj_to_cut_dnd,',',obj_to_cut2,');']);
             save(out,outfilename);
         end
-    end     
+    end
 catch
     the_err=lasterror;
     emess=the_err.message;
@@ -3243,8 +3249,8 @@ catch
     guidata(gcbo,handles);
     return;
 end
-    
-if ~sqw_flag    
+
+if ~sqw_flag
     assignin('base',outobjname,out);
     set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
     guidata(gcbo,handles);
@@ -3455,7 +3461,7 @@ catch
     guidata(gcbo,handles);
     return;
 end
-    
+
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
@@ -3581,13 +3587,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -3810,7 +3816,7 @@ elseif oponobj~=objmax && oponnum==nummax
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end    
+    end
 end
 
 %====
@@ -3881,8 +3887,8 @@ catch
     guidata(gcbo,handles);
     return;
 end
-    
-    
+
+
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
@@ -4091,7 +4097,7 @@ catch
     guidata(gcbo,handles);
     return;
 end
-    
+
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
@@ -4673,7 +4679,7 @@ catch
     guidata(gcbo,handles);
     return;
 end
-    
+
 assignin('base',outobjname,out);
 cc=char({mess_initialise,'Success!',['Click ''DATA IN MEMORY'' then ''Refresh List'' to make plots etc of ',outobjname]});
 set(handles.message_info_text,'String',cc);
@@ -4687,13 +4693,13 @@ function refresh_list_pushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -4818,7 +4824,7 @@ if isfield(handles,'w_in');
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end        
+    end
 end
 
 guidata(gcbo,handles);
@@ -5145,14 +5151,14 @@ elseif ischar(spe_pathname) && iscell(spe_filename)
     if ~isempty(original_string)
         the_string=original_string;
         for i=1:numel(spe_filename)
-            the_string=char({the_string;[spe_pathname,spe_filename{i}]});        
+            the_string=char({the_string;[spe_pathname,spe_filename{i}]});
         end
     else
         the_string=char({[spe_pathname,spe_filename{1}]});
         for i=2:numel(spe_filename)
-            the_string=char({the_string;[spe_pathname,spe_filename{i}]});        
+            the_string=char({the_string;[spe_pathname,spe_filename{i}]});
         end
-    end   
+    end
     set(handles.gen_sqw_listbox,'string',the_string);
     guidata(gcbo,handles);
 else
@@ -5258,7 +5264,7 @@ elseif isempty(efix)
     mess1='Ensure incident energy is specified';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
     guidata(gcbo,handles);
-    return;  
+    return;
 elseif isempty(alatt)
     mess1='Ensure lattice parameters are specified as a 3 element vector';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5268,7 +5274,7 @@ elseif isempty(angdeg)
     mess1='Ensure lattice angles are specified as a 3 element vector';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
     guidata(gcbo,handles);
-    return;      
+    return;
 elseif isempty(parfile)
     mess1='Ensure you have specified a par file name';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5278,7 +5284,7 @@ elseif isempty(sqwfile)
     mess1='Ensure you have specified a sqw file name';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
     guidata(gcbo,handles);
-    return;    
+    return;
 else
     try
         %must strip out square brackets, if user has inserted them:
@@ -5417,7 +5423,7 @@ for i=1:numel(spe_psi_cell)
         spe_cell{i}=strtrim(spe_psi_cell{i}(1:(ff-1)));
         ff2=strfind(spe_psi_cell{i},'psi=');
         ff3=strfind(spe_psi_cell{i},'...');
-        psi_vec(i)=str2double(spe_psi_cell{i}((ff2+4):(ff3(2)-1)));        
+        psi_vec(i)=str2double(spe_psi_cell{i}((ff2+4):(ff3(2)-1)));
     else
         mess1='Not every spe file has an associated value of psi - check list';
         set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5553,7 +5559,7 @@ set(handles.gen_sqw_listbox,'string',char(spelist));%enusre spelist is a charact
 mess1='File / psi list updated';
 set(handles.message_info_text,'String',char({mess_initialise,mess1}));
 guidata(gcbo,handles);
-    
+
 
 % --- Executes on button press in gen_sqw_removelist_pushbutton.
 function gen_sqw_removelist_pushbutton_Callback(hObject, eventdata, handles)
@@ -5601,8 +5607,8 @@ else
     guidata(gcbo,handles);
     return;
 end
-    
-    
+
+
 
 
 % --- Executes on button press in saveguiconfig_pushbutton.
@@ -5642,7 +5648,7 @@ else
     mess='No file selected for GUI configuration - not saved';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
-    return; 
+    return;
 end
 
 guidata(gcbo,handles);
@@ -5669,7 +5675,7 @@ mess_initialise=['Loading GUI configuration at ',timestring,'...'];
 
 if ischar(gui_pathname) && ischar(gui_filename)
     filetoload=[gui_pathname,gui_filename];
-    %Here we need to go through all of the various edit fields and 
+    %Here we need to go through all of the various edit fields and
     %radiobuttons, and fill them in.
     %separate subfunction to do this, as rather long-winded
     fid=fopen(filetoload,'r');
@@ -5683,12 +5689,12 @@ if ischar(gui_pathname) && ischar(gui_filename)
     handles=set_horace_fields(handles,data_loaded);
     mess='GUI configuration successfully loaded';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
-    guidata(gcbo,handles); 
+    guidata(gcbo,handles);
 else
     mess='No file selected for GUI configuration - not loaded';
     set(handles.message_info_text,'String',mess);
     guidata(gcbo,handles);
-    return; 
+    return;
 end
 
 
@@ -5729,7 +5735,7 @@ if isfield(handles,'w_in')
             mess='Saving of file failed -- check object and/or filename';
             set(handles.message_info_text,'String',char({mess_initialise,mess}));
             return;
-        end         
+        end
     else
         mess='No file written -- select a filename';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));

@@ -30,8 +30,8 @@ classdef test_multifit_horace_2 < TestCaseWithSave
             % Read in data
             data_dir = fileparts(mfilename('fullpath'));
             
-            this.w1data = read_sqw(fullfile(data_dir,'w1data.sqw'));
-            this.w2data = read_sqw(fullfile(data_dir,'w2data.sqw'));
+            this.w1data = sqw(fullfile(data_dir,'w1data.sqw'));
+            this.w2data = sqw(fullfile(data_dir,'w2data.sqw'));
             this.win=[this.w1data,this.w2data];     % combine the two cuts into an array of sqw objects and fit
             
             % Save output, if requrested

@@ -35,9 +35,13 @@ classdef sqw_formats_factory < handle
         % List of registered file accessors:
         % Add all new file readers which inherit from sqw_file_interface and dnd_file_interface
         % to this list in the order of expected frequency of their appearance.
-        supported_accessors_ = {faccess_sqw_v3_3(),faccess_sqw_v3(),...
-            faccess_sqw_v3_2(),...
-            faccess_sqw_v2(),faccess_dnd_v2(),faccess_sqw_prototype()};
+        supported_accessors_ = { ...
+            faccess_sqw_v3_3(), ...
+            faccess_sqw_v3(), ...
+            faccess_sqw_v3_2(), ...
+            faccess_sqw_v2(), ...
+            faccess_dnd_v2(), ...
+            faccess_sqw_prototype()};
         %
         % Rules to load/save different classes:
         % sqw2 corresponds to sqw file in indirect mode with varying efixed
@@ -52,7 +56,7 @@ classdef sqw_formats_factory < handle
         % the factory
         supported_accessors
     end
-    
+
     methods(Access=private)
         % Guard the constructor against external invocation.  We only want
         % to allow a single instance of this class.  See description in
@@ -63,7 +67,7 @@ classdef sqw_formats_factory < handle
                 obj.access_to_type_ind_);
         end
     end
-    
+
     methods(Static)
         % Concrete implementation.
         function obj = instance()
@@ -86,7 +90,7 @@ classdef sqw_formats_factory < handle
             end
         end
     end
-    
+
     methods % Public Access
         function loader = get_loader(obj,sqw_file_name,varargin)
             % Returns initiated loader which can load the data from the specified data file.
@@ -118,7 +122,7 @@ classdef sqw_formats_factory < handle
             % read initial bytes of binary file and interpret them as Horace headers to identify file format.
             % Returns header block and open file handle not to open file again
             [head_struc,fh] = dnd_file_interface.get_file_header(full_data_name);
-            
+
             for i=1:numel(obj.supported_accessors_)
                 loader = obj.supported_accessors_{i};
                 % check if loader should load the file. Initiate loaders
@@ -156,7 +160,7 @@ classdef sqw_formats_factory < handle
                     ' Is it not a sqw file?'],...
                     full_data_name);
             end
-            
+
         end
         %
         function loader = get_pref_access(obj,varargin)
@@ -247,7 +251,7 @@ classdef sqw_formats_factory < handle
                 is_compartible = false;
             end
         end
-        
+
         %
         function obj_list = get.supported_accessors(obj)
             obj_list = obj.supported_accessors_;
