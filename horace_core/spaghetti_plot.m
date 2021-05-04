@@ -273,12 +273,19 @@ for i=1:nseg
     u2 = [u20-u2bin,u20+u2bin];
     u3 = [u30-u3bin,u30+u3bin];
     % Make cut, and save to array of d2d
-    wdisp(i) = cut_sqw(sqw,proj,u1,u2,u3,ebin,'-nopix');
     if nargout>1
+        wdisp(i) = cut_sqw(sqw,proj,u1,u2,u3,ebin); % Keep pixels for 1D cuts
         u1v = u1(1):u1(2):u1(3);
         for j=1:numel(u1v)-1
-            varargout{2}{i}(j) = cut(wdisp(i),u1v(j:j+1),[]);
+            if wdisp(i).data.pix.num_pixels > 0
+                varargout{2}{i}(j) = d1d(cut(wdisp(i),u1v(j:j+1),[]));
+            else
+                varargout{2}{i}(j) = d1d();
+            end
         end
+        wdisp(i) = d2d(wdisp(i));
+    else
+        wdisp(i) = cut_sqw(sqw,proj,u1,u2,u3,ebin,'-nopix');
     end
     if present.labels
         titlestr = sprintf('Segment from "%s" (%f %f %f) to "%s" (%f %f %f)',...
