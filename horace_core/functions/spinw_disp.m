@@ -94,7 +94,7 @@ if nTwin==0
 end
 w = cell(1,2*nMagExt*nTwin);
 s = cell(1,2*nMagExt*nTwin);
-for jj = 1:2*nMagExt
+for jj = 1:2*nMagExt*nTwin
     w{jj} = zeros(nHkl,1);
     s{jj} = zeros(nHkl,1);
 end
@@ -196,7 +196,7 @@ for iSlice = 1:nSlice
         DSF = DSF*p2/param.dE;
     end
     
-    for jj = 1:2*nMagExt
+    for jj = 1:2*nMagExt*nTwin
         % dispersion in cell
         w{jj}(hklIdxMEM) = omega(jj,:);
         % intensity in cell
