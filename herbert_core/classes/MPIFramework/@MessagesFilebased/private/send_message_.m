@@ -6,8 +6,8 @@ err_mess=[];
 wlock_obj =[];
 
 if ~is_folder(obj.mess_exchange_folder)
-    ok = MESS_CODES.job_canceled;
-    err_mess = sprintf('Job with id %s have been canceled. No message exchange folder exist',obj.job_id);
+    ok = MESS_CODES.job_cancelled;
+    err_mess = sprintf('Job with id %s have been cancelled. No message exchange folder exist',obj.job_id);
     return;
 end
 if task_id<0 || task_id>obj.numLabs

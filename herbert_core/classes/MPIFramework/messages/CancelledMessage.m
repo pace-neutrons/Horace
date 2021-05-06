@@ -1,8 +1,8 @@
-classdef CanceledMessage < aMessage
+classdef CancelledMessage < aMessage
     % Helper class defines a Cancellation message, used to inform
     % head-node and possibly other nodes that the job have been cancelled.
     %
-    % Construct the "Canceled" message
+    % Construct the "Cancelled" message
     %
     % Inputs:
     % fail_text  -- the text which describes the error
@@ -21,8 +21,8 @@ classdef CanceledMessage < aMessage
     end
     
     methods
-        function obj = CanceledMessage(varargin)
-            % Construct the Canceled message
+        function obj = CancelledMessage(varargin)
+            % Construct the Cancelled message
             %
             % Inputs:
             % fail_text  -- the text which describes the error
@@ -33,7 +33,7 @@ classdef CanceledMessage < aMessage
             % used, though they do not contain any useful information about
             % the problem.
             %
-            obj = obj@aMessage('canceled');
+            obj = obj@aMessage('cancelled');
             if nargin>0
                 obj.payload     = varargin{1};
             end

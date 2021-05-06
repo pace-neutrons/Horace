@@ -17,8 +17,8 @@ classdef MPI_State<handle
         is_deployed
         % logger function to use to log activities of an mpi worker
         logger
-        % the function to run verifying if job has been canceled
-        check_canceled;
+        % the function to run verifying if job has been cancelled
+        check_cancelled;
         % method helps to identify that the framework is tested and to
         % disable some framework capabilities, which should be used in this
         % situation
@@ -34,7 +34,7 @@ classdef MPI_State<handle
     properties(Access=protected)
         is_deployed_=false;
         logger_ = [];
-        check_canceled_=[];
+        check_cancelled_=[];
         is_tested_ = false;
         % variables, used to identify time intervals between subsequent
         % calls to logging function
@@ -45,7 +45,7 @@ classdef MPI_State<handle
     properties(Constant, Access=protected)
         % methods to set using setattr method
         field_names_ = {'is_deployed','is_tested',...
-            'logger','check_canceled',...
+            'logger','check_cancelled',...
             'mpi_framework'}
     end
     %----------------------------------------------------------------------
@@ -110,18 +110,18 @@ classdef MPI_State<handle
             obj.start_time_ = [];
         end
         %-------------------------------------------------------
-        function set.check_canceled(obj,fun)
+        function set.check_cancelled(obj,fun)
             if ~isa(fun, 'function_handle')
                 error('MPI_STATE:invalid_argument',...
-                    ' value assigned to a check_canceled function has to be a function handle')
+                    ' value assigned to a check_cancelled function has to be a function handle')
             end
-            obj.check_canceled_=fun;
+            obj.check_cancelled_=fun;
         end
         function check_cancellation(obj)
-            % method runs check_canceled function to verify if MPI
-            % calculations were canceled.
-            if ~isempty(obj.check_canceled_)
-                obj.check_canceled_();
+            % method runs check_cancelled function to verify if MPI
+            % calculations were cancelled.
+            if ~isempty(obj.check_cancelled_)
+                obj.check_cancelled_();
             end
         end
         function fw = get.mpi_framework(obj)

@@ -39,9 +39,9 @@ if isnumeric(mess_name_or_tag)
 end
 
 mess_folder = obj.mess_exchange_folder;
-if ~(is_folder(mess_folder)) % job was canceled
-    error('MESSAGES_FRAMEWORK:canceled',...
-        'Job with id %s has been canceled. No messages folder exist',obj.job_id)
+if ~(is_folder(mess_folder)) % job was cancelled
+    error('MESSAGES_FRAMEWORK:cancelled',...
+        'Job with id %s has been cancelled. No messages folder exist',obj.job_id)
 end
 % find nolocked messages:
 [all_messages,mid_from] = find_messages_with_name_(obj,task_ids_requested,mess_name_or_tag,false);

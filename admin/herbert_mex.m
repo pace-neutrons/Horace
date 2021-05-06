@@ -66,14 +66,14 @@ try
         % build C++ files
         mex_single_c(fullfile(herbert_C_code_dir,'get_ascii_file'), herbert_mex_target_dir,...
             'get_ascii_file.cpp','IIget_ascii_file.cpp')
-        
+
         try % failure in using this routine does not affect use_mex option as the routine is not checking it and
             % created for compatibility with older versions of Matlab
             mex_single_c(fullfile(herbert_C_code_dir,'byte_stream'), herbert_mex_target_dir,...
                 'byte_stream.cpp')
         catch
         end
-        
+
         disp (' ')
         disp('!==================================================================!')
         disp('!  Successfully created required C mex files   =====================!')
@@ -83,10 +83,10 @@ try
         end
         disp('!==================================================================!')
         disp(' ')
-        
+
     end
-    
-    
+
+
 catch ex
     disp (' ')
     disp('!==================================================================!')
@@ -154,10 +154,10 @@ if ~(configure_cpp)
     if ~(user_choice=='y'||user_choice=='n')
         user_choice='e';
     end
-    
+
 end
 if user_choice=='e'
-    disp('!  canceled                                                        !')
+    disp('!  cancelled                                                       !')
     disp('!==================================================================!')
     build_c = false;
     return;

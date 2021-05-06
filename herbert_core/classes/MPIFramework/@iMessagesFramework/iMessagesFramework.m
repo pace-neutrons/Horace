@@ -34,7 +34,7 @@ classdef iMessagesFramework < handle
         time_to_fail;
         %
         % The property defines framework behavior in case when interrupt
-        % message (canceled or failed) received through the network.
+        % message (cancelled or failed) received through the network.
         % Normally this means that
         % all processing would be completed and worker shut-down so
         % exception would be thrown. When the framework is gathering
@@ -275,7 +275,7 @@ classdef iMessagesFramework < handle
             % Asking a server for a message synchronously, blocks the
             % client until this message is send by server.
             %
-            % FailureMessage and CanceledMessage (is_persistent=true)
+            % FailureMessage and CancelledMessage (is_persistent=true)
             % if send, are received and returned instead of the
             % requested message in any circumstances.
             %
@@ -603,7 +603,7 @@ classdef iMessagesFramework < handle
         % Asking a server for a message synchronously will block a
         % client if other type of message has been send by the server.
         %
-        % Exception is FailureMessage and CanceledMessage,
+        % Exception is FailureMessage and CancelledMessage,
         % which, if send, will be received and returned instead of the
         % requested message in any circumstances.
         %
@@ -652,8 +652,8 @@ classdef iMessagesFramework < handle
         % Do not shut the cluster down
         clear_messages(obj);
 
-        % method verifies if job has been canceled
-        is = is_job_canceled(obj)
+        % method verifies if job has been cancelled
+        is = is_job_cancelled(obj)
 
         % the method, used by filebased framework to set up number of
         % parallel workers and the worker-id or by other frameworks to set

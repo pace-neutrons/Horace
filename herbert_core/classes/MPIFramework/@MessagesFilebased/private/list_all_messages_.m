@@ -43,9 +43,9 @@ if ischar(mess_names_req)
 end
 
 mess_folder = obj.mess_exchange_folder;
-if ~(is_folder(mess_folder)) % job was canceled
-    error('MESSAGE_FRAMEWORK:canceled',...
-        'Job with id %s has been canceled. No messages folder exist',obj.job_id)
+if ~(is_folder(mess_folder)) % job was cancelled
+    error('MESSAGE_FRAMEWORK:cancelled',...
+        'Job with id %s has been cancelled. No messages folder exist',obj.job_id)
 end
 
 folder_contents = get_folder_contents_(obj,mess_folder);
