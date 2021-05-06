@@ -104,7 +104,7 @@ w1 = cut_sqw(sqw_file, proj, [-3,0.05,3], [-1.1,-0.9], [-0.1,0.1], [0,4,280]);
 % Unary operations:
 w1_exp = exp(w1); 
 
-w1_d2d = d2d(w1);
+w1_d2d = d2d_old(w1);
 w1_d2d_exp = exp(w1_d2d);
 
 plot(w1_d2d_exp)

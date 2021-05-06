@@ -43,6 +43,12 @@ else
 end
 % End initialization code - DO NOT EDIT
 
+function is_sqw_obj = is_sqw_dnd(element_class)
+    % Returns true if the test element, from evalin, is the name of a concrete SQW class type
+    is_sqw_obj = strcmp(element_class,'d1d') || strcmp(element_class,'d2d') ||...
+            strcmp(element_class,'d3d') || strcmp(element_class,'d4d') ||...
+            strcmp(element_class,'sqw')
+end
 
 % --- Executes just before horace is made visible.
 function horace_OpeningFcn(hObject, eventdata, handles, varargin)
@@ -76,13 +82,13 @@ set(handles.message_info_text,'String','');
 guidata(hObject,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw')
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -195,13 +201,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw')
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -248,7 +254,7 @@ ndim=dimensions(w_in);
 [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = plot_titles (sqw(w_in));
 
 %Get the info about the object:
-if is_sqw_type(sqw(w_in))
+if has_pixels(w_in)
     getit=get(w_in);
     gg=getit.data;
 else
@@ -494,13 +500,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw')
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -931,13 +937,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw')
+    if is_sqw_dnd(test_el.class);
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -999,13 +1005,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw')
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -1088,13 +1094,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw')
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -1726,13 +1732,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw')
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -2592,13 +2598,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw')
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -2986,13 +2992,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw')
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -3581,13 +3587,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw')
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -4687,13 +4693,13 @@ function refresh_list_pushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw')
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;

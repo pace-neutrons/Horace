@@ -71,4 +71,3 @@ for i=1:n_inputs
     %ld = ld.put_sqw_footer();
     ld.delete();
 end
-%

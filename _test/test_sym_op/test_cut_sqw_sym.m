@@ -99,7 +99,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         %------------------------------------------------------------------------
         function test_cut_sym_with_nopix (this)
             % Test symmetrisation, without keeping pixels
-            
+            skipTest("New dnd (d2d) not supported yet");
             % Turn off output, but return to input value when exit or cntl-c
             finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
             set(hor_config,'log_level',-1);  % turn off output
@@ -123,8 +123,9 @@ classdef test_cut_sqw_sym < TestCaseWithSave
                 this.width, this.width, [106,4,114,4], '-pix');
             w2 = repmat(sqw,[3,1]);
             for i=1:3
-                w2(i) = cut_sqw (this.data_source, this.proj, this.bin,...
+                tmp = cut_sqw (this.data_source, this.proj, this.bin,...
                     this.width, this.width, 102+4*i+[-2,2], '-pix');
+                w2(i) = tmp;
             end
             assertEqualToTol (w1, w2, this.tol_sp,'ignore_str',1)
             

@@ -66,7 +66,9 @@ set(handles.message_info_text,'String','');
 guidata(hObject,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
@@ -135,7 +137,9 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
@@ -206,7 +210,10 @@ function refresh_list_pushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);

@@ -10,6 +10,7 @@ function test_sqw_file_read_write
 % have any subsequent problems with writing to and reading from disk.
 
 ds=load('testdata_base_objects.mat');
+
 existing_objects=fieldnames(ds);
 for i=1:numel(existing_objects)
     % HACK ! deal with old style sqw objects, which have not stored
@@ -45,12 +46,12 @@ clob1 = onCleanup(@()delete(tmpsqwfile));
 % Write out to sqw files, read back in, and test they are the same
 % ----------------------------------------------------------------
 save(f1_1,tmpsqwfile);
-tmp=read(sqw,tmpsqwfile);
+tmp=sqw(tmpsqwfile);
 [ok,mess]=equal_to_tol(f1_1,tmp,'ignore_str',1);
 assertTrue(ok,mess);
 
 save(f1_3,tmpsqwfile);
-tmp=read(sqw,tmpsqwfile);
+tmp=sqw(tmpsqwfile);
 [ok,mess]=equal_to_tol(f1_3,tmp,'ignore_str',1);
 assertTrue(ok,mess)
 
@@ -77,7 +78,7 @@ assertTrue(ok,mess)
 delete(tmpsqwfile);
 try
     save(f1_1_s1,tmpsqwfile);
-    tmp=read(sqw,tmpsqwfile);
+    tmp=sqw(tmpsqwfile);
 catch err
     warning('test_sqw_file_read_write:io','Error reading/writing sqw object')
     rethrow(err);
@@ -94,7 +95,7 @@ assertTrue(ok,mess)
 
 % Write and read back in
 try
-    save(f1_1_s0,tmpsqwfile); tmp=read(sqw,tmpsqwfile);
+    save(f1_1_s0,tmpsqwfile); tmp=sqw(tmpsqwfile);
 catch err
     warning('test_sqw_file_read_write:io1','Error reading/writing sqw object')
     rethrow(err);
@@ -106,22 +107,22 @@ end
 % Add sam1 to file with f1_1
 save(f1_1,tmpsqwfile)
 set_sample_horace(tmpsqwfile,sam1);
-tmp=read_sqw(tmpsqwfile);
+tmp=sqw(tmpsqwfile);
 [ok,mess]=equal_to_tol(f1_1_s1_ref,tmp,'ignore_str',1); assertTrue(ok,mess)
 
 % Now add a longer sample - this should be appended to the end
 set_sample_horace(tmpsqwfile,sam2);
-tmp=read_sqw(tmpsqwfile);
+tmp=sqw(tmpsqwfile);
 [ok,mess]=equal_to_tol(f1_1_s2_ref,tmp,'ignore_str',1); assertTrue(ok,mess)
 
 % Now add a longer sample still - but shorter than the sum of sam1 and sam2: should overwrite
 set_sample_horace(tmpsqwfile,sam3);
-tmp=read_sqw(tmpsqwfile);
+tmp=sqw(tmpsqwfile);
 [ok,mess]=equal_to_tol(f1_1_s3_ref,tmp,'ignore_str',1); assertTrue(ok,mess)
 
 % Dummy sample
 set_sample_horace(tmpsqwfile,[]);
-tmp=read_sqw(tmpsqwfile);
+tmp=sqw(tmpsqwfile);
 [ok,mess]=equal_to_tol(f1_1,tmp,'ignore_str',1); assertTrue(ok,mess)
 
 
@@ -168,7 +169,7 @@ inst_arr(2)=create_test_instrument(105,300,'a');
 wref=change_header_test(wref,inst_arr,sam1);
 
 save(wref,tmpsqwfile);
-wref=read_sqw(tmpsqwfile);     % creates with same file name will be set with read_sqw
+wref=sqw(tmpsqwfile);     % creates with same file name will be set with read_sqw
 
 % Change the two instruments
 inst_arr=create_test_instrument(400,500,'s');

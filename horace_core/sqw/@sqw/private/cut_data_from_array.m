@@ -39,6 +39,7 @@ function [s, e, npix, img_range_step, pix, npix_retain, npix_read] = cut_data_fr
 
 % T.G.Perring   31 July 2007
 %
+% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 
 hor_log_level=config_store.instance().get_value('herbert_config','log_level');

@@ -85,7 +85,7 @@ classdef test_rebin < TestCase
         % ------------------------------------------------------------------------------------------------
         function this = test_rebin_sqw_steps(this)
             % sqw rebinning
-            w2d_qe_sqw=read_sqw(fullfile(this.testdir,'w2d_qe_sqw.sqw'));
+            w2d_qe_sqw=sqw(fullfile(this.testdir,'w2d_qe_sqw.sqw'));
 
             w2d_qe_sqw_reb=rebin_sqw(w2d_qe_sqw,[-0.5,0.05,1],[10,0.7,80]);
 
@@ -100,8 +100,8 @@ classdef test_rebin < TestCase
         % ------------------------------------------------------------------------------------------------
         function this = test_rebin_sqw_template(this)
             % sqw rebinning
-            w2d_qq_sqw=read_sqw(fullfile(this.testdir,'w2d_qq_sqw.sqw'));
-            w2d_qq_small_sqw=read_sqw(fullfile(this.testdir,'w2d_qq_small_sqw.sqw'));
+            w2d_qq_sqw=sqw(fullfile(this.testdir,'w2d_qq_sqw.sqw'));
+            w2d_qq_small_sqw=sqw(fullfile(this.testdir,'w2d_qq_small_sqw.sqw'));
 
             w2d_qq_small_sqw_1=rebin_sqw(w2d_qq_small_sqw,[0,0.04,0.4],[0,0.04,0.4]);
             w2d_qq_sqw_reb=rebin_sqw(w2d_qq_sqw,w2d_qq_small_sqw_1);
@@ -120,7 +120,7 @@ classdef test_rebin < TestCase
         % ------------------------------------------------------------------------------------------------
         function this = test_rebin_dnd_steps(this)
             % dnd rebinning
-            w2d_qe_sqw=read_sqw(fullfile(this.testdir,'w2d_qe_sqw.sqw'));
+            w2d_qe_sqw=sqw(fullfile(this.testdir,'w2d_qe_sqw.sqw'));
             w2d_qe_d2d=read_dnd(fullfile(this.testdir,'w2d_qe_d2d.sqw'));
 
             w2d_qe_d2d_reb=rebin_horace_2d(w2d_qe_d2d,[-1.025,0.05,1.025],[-2.8,2.8,100+3.6]);

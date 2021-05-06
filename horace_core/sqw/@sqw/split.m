@@ -11,10 +11,6 @@ function wout=split(w)
 % -------
 %   wout    Array of sqw objects, each one made from a single spe data file
 
-
-% Original author: T.G.Perring
-%
-
 nfiles=w.main_header.nfiles;
 
 % Catch case of single contributing spe dataset
@@ -24,7 +20,7 @@ if nfiles==1
 end
 
 % Default output
-wout=repmat(sqw,[nfiles,1]);
+wout=repmat(sqw, [nfiles, 1]);
 
 % Get pointers to components of w:
 main_header=w.main_header;

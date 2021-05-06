@@ -22,12 +22,14 @@ classdef test_pix_combine_info < TestCase
             obj.data_path = data_path;
             source_test_dir = fullfile(horace_root(),'_test','common_data');
             source_file = fullfile(source_test_dir,'MAP11014.nxspe');
+            target_file = fullfile(tmp_dir,'TPC11014.nxspe');
+            copyfile(source_file,target_file,'f');
             
             psi = [0,2,20]; %-- test settings;
             %psi = 0:1:200;  %-- evaluate_performance settings;
             source_test_file  = cell(1,numel(psi));
             for i=1:numel(psi)
-                source_test_file{i}  = source_file;
+                source_test_file{i}  = target_file;
             end
             
             wk_dir = tmp_dir;
@@ -56,6 +58,7 @@ classdef test_pix_combine_info < TestCase
                 [1,0,0],[0,1,0],psi,0,0,0,0,'replicate','tmp_only');
             obj.test_souce_files = temp_files;
             obj.cleanup_ob1 = onCleanup(@()delete(temp_files{:}));
+            delete(target_file);
         end
         %
         function test_pix_range(obj)

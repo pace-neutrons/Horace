@@ -166,7 +166,7 @@ proj.lab={'Q_{ip}','dummy','Q_z','E'};
 
 for i=1:nfiles
     % Read in
-    w=read_sqw(tmp_file{i});
+    w=sqw(tmp_file{i});
     % Compute new coordinates
     data=w.data;
     data.pix.coordinates(1:2,:)=[sqrt(sum(data.pix.coordinates(1:2,:).^2,1));zeros(1,data.pix.num_pixels)];

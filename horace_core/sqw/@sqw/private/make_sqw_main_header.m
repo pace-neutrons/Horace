@@ -21,5 +21,5 @@ function data = make_sqw_main_header
 % Original author: T.G.Perring
 %
 
-data = struct([]);  % empty structure    
+data = struct([]);  % empty structure
 

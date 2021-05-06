@@ -10,7 +10,7 @@ function [ok,mess,u,v,uoffset] = check_reflection_args (varargin)
 %   v_in        Three vector of [h,k,l] (row or column)
 %   uoffset_in  Three vector of [h,k,l] (row or column)
 %
-%   u_in, v_in are two non-colinear vectors in the mirrow plane
+%   u_in, v_in are two non-collinear vectors in the mirror plane
 %
 % Output:
 % -------

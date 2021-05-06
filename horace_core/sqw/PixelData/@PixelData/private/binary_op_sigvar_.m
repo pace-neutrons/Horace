@@ -1,6 +1,5 @@
 function obj = binary_op_sigvar_(obj, operand, binary_op, flip, npix)
-%% BINARY_OP_SIGVAR_ perform a binary operation between this and a sigvar or
-% sigvar-like object (e.g. dnd)
+%% BINARY_OP_SIGVAR_ perform a binary operation between this and a sigvar
 %
 validate_inputs(obj, operand, npix);
 
@@ -12,14 +11,14 @@ for page_number = 1:numel(npix_chunks)
 
     sigvar_pix = sigvar(obj.signal, obj.variance);
     if ~isequal(size(npix), [1, 1])
-        sigvar_dnd = sigvar(...
+        sigvar_obj = sigvar(...
             replicate_array(operand.s(idx(1):idx(2)), npix_for_page(:))', ...
             replicate_array(operand.e(idx(1):idx(2)), npix_for_page(:))' ...
         );
     end
 
     [obj.signal, obj.variance] = ...
-            sigvar_binary_op_(sigvar_pix, sigvar_dnd, binary_op, flip);
+            sigvar_binary_op_(sigvar_pix, sigvar_obj, binary_op, flip);
 
     if obj.has_more()
         obj.advance();
