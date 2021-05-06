@@ -79,10 +79,9 @@ try % mex C++
 
     disp('**********> Successfully created required mex files from C++')
     C_compiled=true;
-    add_version_foloder(out_rel_dir);
+    add_version_folder(out_rel_dir);
 catch ME
-    message=ME.message;
-    warning('**********> Can not create C++ mex files, reason: %s. Please try to do it manually.',message);
+    warning('HORACE:horace_mex:no_mex', 'Can not create C++ mex files, reason: %s. Please try to do it manually.',ME.message);
 
 end
 try
@@ -91,8 +90,7 @@ try
     mex_single([cpp_in_rel_dir 'combine_sqw'], out_rel_dir,cof{:} );
     disp('**********> Successfully created mex file for combining components from C++')
 catch ME
-    message=ME.message;
-    warning('**********> Can not create C++ combining procedure, reason: %s. combining using C++ is not availile',message);
+    warning('HORACE:horace_mex:no_mex', 'Can not create C++ combining procedure, reason: %s. Combining using C++ is not available',ME.message);
 end
 
 cd(start_dir);
@@ -127,7 +125,7 @@ if(nargin<1)
     error('MEX_SINGLE:invalid_arg',' request at leas one file name to process');
 end
 fnames = varargin(:);
-nFiles   = numel(fnames);% files go in varargin
+nFiles   = numel(fnames); % files go in varargin
 add_fNames = cellfun(@(x)[x,' '],fnames,'UniformOutput',false);
 add_files  = cellfun(@(x)(fullfile(curr_dir,in_rel_dir,x)),fnames,'UniformOutput',false);
 outdir = fullfile(curr_dir,out_rel_dir);
@@ -217,7 +215,6 @@ function str = cell2str(c)
 %
 %   See also MAT2STR
 
-
 if ~iscell(c)
 
     if ischar(c)
@@ -225,26 +222,18 @@ if ~iscell(c)
     elseif isnumeric(c)
         str = mat2str(c);
     else
-        error('Illegal array in input.')
+        error('HORACE:horace_mex:invalid_argument', 'Illegal array in input.')
     end
 
 else
 
-    N = length(c);
-    if N > 0
-        if ischar(c{1})
-            str = c{1};
-            for ii=2:N
-                if ~ischar(c{ii})
-                    error('Inconsistent cell array');
-                end
-                str = [str,c{ii}];
-            end
-        else
-            error(' char cells requested');
-        end
-    else
+    if isempty(c)
         str = '';
+    else
+        if ~all(ischar(c))
+            error('HORACE:horace_mex:invalid_argument', 'Char cell array required');
+        end
+        str = cell2mat(c);
     end
 
 end

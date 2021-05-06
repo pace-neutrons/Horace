@@ -399,7 +399,7 @@ else
     flag=0;
 end
 
-if isfield(handles,'w_in');
+if isfield(handles,'w_in')
     if flag==0
         win=handles.w_in;
         if numel(win)~=1
@@ -573,13 +573,14 @@ mess_initialise=['Fitting started at ',timestring,'...'];
 
 if isfield(handles,'w_in')
     win=handles.w_in;
-    if numel(win)~=1
-        for i=1:numel(win)
-            ndims(i)=dimensions(win(i));%we have this for debug purposes only
-        end
-    else
-        ndims=dimensions(win);
-    end
+%     if numel(win)~=1
+%         ndims = cell(numel(win), 1);
+%         for i=1:numel(win)
+%             ndims(i)=dimensions(win(i));%we have this for debug purposes only
+%         end
+%     else
+%         ndims=dimensions(win);
+%     end
 else
     mess='No valid object selected -- no fitting performed';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
@@ -685,20 +686,20 @@ slopearray=str2num(slopelist);
 x2array=str2num(x2list);
 
 bgon=strcmp(get(handles.background_edit,'Enable'),'on');
-slopeon=strcmp(get(handles.bgslope_edit,'Enable'),'on');;
+slopeon=strcmp(get(handles.bgslope_edit,'Enable'),'on');
 x2on=strcmp(get(handles.bgx2_edit,'Enable'),'on');
 
-if (isempty(constarray) & bgon) || (any(isnan(constarray)) & bgon)
+if (isempty(constarray) && bgon) || (any(isnan(constarray)) && bgon)
     mess='Background must be a single number -- no fitting performed';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
-elseif (isempty(slopearray) & slopeon) || (any(isnan(slopearray)) & slopeon)
+elseif (isempty(slopearray) && slopeon) || (any(isnan(slopearray)) && slopeon)
     mess='Slope must be a single number -- no fitting performed';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
-elseif (isempty(x2array) & x2on) || (any(isnan(x2array)) & x2on)
+elseif (isempty(x2array) && x2on) || (any(isnan(x2array)) && x2on)
     mess='x^2 coefficient must be a single number -- no fitting performed';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
@@ -753,8 +754,7 @@ end
 %Now do the operation:
 try
     [out,fitdata]=fit_func(win,str2func(funcstr),pin,pfree,str2func(bgfuncstr),bpin,bpfree,'list',2);
-catch
-    the_err=lasterror;
+catch the_err
     emess=the_err.message;
     nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
     mess1='No fit performed';
@@ -1025,13 +1025,14 @@ mess_initialise=['Simulation started at ',timestring,'...'];
 
 if isfield(handles,'w_in')
     win=handles.w_in;
-    if numel(win)~=1
-        for i=1:numel(win)
-            ndims(i)=dimensions(win(i));%we have this for debug purposes only
-        end
-    else
-        ndims=dimensions(win);
-    end
+%     if numel(win)~=1
+%         ndims = cell(numel(win), 1);
+%         for i=1:numel(win)
+%             ndims(i)=dimensions(win(i));%we have this for debug purposes only
+%         end
+%     else
+%         ndims=dimensions(win);
+%     end
 else
     mess='No valid object selected -- no simulation performed';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
@@ -1137,20 +1138,20 @@ slopearray=str2num(slopelist);
 x2array=str2num(x2list);
 
 bgon=strcmp(get(handles.background_edit,'Enable'),'on');
-slopeon=strcmp(get(handles.bgslope_edit,'Enable'),'on');;
+slopeon=strcmp(get(handles.bgslope_edit,'Enable'),'on');
 x2on=strcmp(get(handles.bgx2_edit,'Enable'),'on');
 
-if (isempty(constarray) & bgon) || (any(isnan(constarray)) & bgon)
+if (isempty(constarray) && bgon) || (any(isnan(constarray)) && bgon)
     mess='Background must be a single number -- no simulation performed';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
-elseif (isempty(slopearray) & slopeon) || (any(isnan(slopearray)) & slopeon)
+elseif (isempty(slopearray) && slopeon) || (any(isnan(slopearray)) && slopeon)
     mess='Slope must be a single number -- no simulation performed';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
-elseif (isempty(x2array) & x2on) || (any(isnan(x2array)) & x2on)
+elseif (isempty(x2array) && x2on) || (any(isnan(x2array)) && x2on)
     mess='x^2 coefficient must be a single number -- no simulation performed';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
@@ -1174,8 +1175,7 @@ try
     out=func_eval(win,str2func(funcstr),pin);
     bgout=func_eval(win,str2func(bgfuncstr),bpin);
     out=plus(out,bgout);
-catch
-    the_err=lasterror;
+catch the_err
     emess=the_err.message;
     nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
     mess1='No simulation performed';
@@ -1188,11 +1188,3 @@ end
 assignin('base',outname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
-
-
-
-
-
-
-
-

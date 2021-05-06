@@ -63,7 +63,13 @@ buf_size=config_store.instance().get_value('hor_config','mem_chunk_size');
 % Note: Matlab silliness when one dimensional: MUST add an outer dimension of unity. For 2D and higher,
 % outer dimensions can always be assumed. The problem with 1D is that e.g. zeros([5]) is not the same as zeros([5,1])
 % whereas zeros([5,3]) is the same as zeros([5,3,1]).
-if isempty(nbin); nbin_as_size=[1,1]; elseif length(nbin)==1; nbin_as_size=[nbin,1]; else nbin_as_size=nbin; end;  % usual Matlab sillyness
+if isempty(nbin) % usual Matlab sillyness
+    nbin_as_size=[1,1];
+elseif length(nbin)==1
+    nbin_as_size=[nbin,1];
+else
+    nbin_as_size=nbin;
+end
 s = zeros(nbin_as_size);
 e = zeros(nbin_as_size);
 npix = zeros(nbin_as_size);
@@ -326,6 +332,3 @@ tmpfiles = cell(1,nfiles);
 tmpfiles = cellfun(@(x)fullfile(wk_dir,['horace_subcut_',rand_digit_string(16),'.tmp']),tmpfiles,'UniformOutput',false);
 pci = pix_combine_info(tmpfiles,nbins);
 end
-
-
-

@@ -38,7 +38,7 @@ function [xtal_opts,ok,mess] = refine_crystal_parse (alatt_def, angdeg_def, vara
 %                  i.e. [a,b,c] (Angstroms)
 %                   If empty e.g. [] or '' or omitted then set to alatt_def
 %
-%   angdeg_init     Initial lattice angles for start of refinement 
+%   angdeg_init     Initial lattice angles for start of refinement
 %                  i.e. [alf,bet,gam] (deg)
 %                   If one or both of alatt_init and angdeg_init are not given,
 %                  then the corresponding reference lattice parmaeters are
@@ -48,8 +48,8 @@ function [xtal_opts,ok,mess] = refine_crystal_parse (alatt_def, angdeg_def, vara
 %   urot            Direction of x-axis for rotation matrix in r.l.u.
 %                   If empty or omitted , takes default as [1,0,0]
 %
-%   vrot            Direction of y-axis for rotation matrix in r.l.u. (if 
-%                  not perpendicular to urot, then the y-axis will be 
+%   vrot            Direction of y-axis for rotation matrix in r.l.u. (if
+%                  not perpendicular to urot, then the y-axis will be
 %                  constructed in the usual fashion as being in the plane of
 %                  urot and vrot with vrot habving a positive component along
 %                  the y axis)
@@ -59,27 +59,27 @@ function [xtal_opts,ok,mess] = refine_crystal_parse (alatt_def, angdeg_def, vara
 %   fix_lattice     Fix all lattice parameters [a,b,c,alf,bet,gam]
 %                  i.e. only allow crystal orientation to be refined
 %
-%   fix_alatt       Fix [a,b,c] but allow lattice angles alf, bet and gam 
+%   fix_alatt       Fix [a,b,c] but allow lattice angles alf, bet and gam
 %                  to be refined together with crystal orientation
 %
-%   fix_angdeg      Fix [alf,bet,gam] but allow pattice parameters [a,b,c] 
+%   fix_angdeg      Fix [alf,bet,gam] but allow pattice parameters [a,b,c]
 %                  to be refined together with crystal orientation
 %
 %   fix_alatt_ratio Fix the ratio of the lattice parameters as given by the
 %                  values in lattice_init, but allow the overall scale of the
 %                  lattice to be refined together with crystal orientation
 %
-%   fix_orient      Fix the crystal orientation i.e. only refine lattice 
+%   fix_orient      Fix the crystal orientation i.e. only refine lattice
 %                  parameters
 %
 % Finer control of refinement of lattice parameters: instead of fix_lattice,
 % fix_angdeg,... use
 %   free_alatt      Array length 3 of zeros or ones, 1=free, 0=fixed
-%                  e.g. ...,'free_alatt',[1,0,1],... 
+%                  e.g. ...,'free_alatt',[1,0,1],...
 %                   allows only lattice parameter b to vary
 %
 %   free_angdeg     Array length 3 of zeros or ones, 1=free, 0=fixed
-%                  e.g. ...,'free_lattice',[1,1,0],... 
+%                  e.g. ...,'free_lattice',[1,1,0],...
 %                   fixes lattice angle gam buts allows alf and bet to vary
 %
 %
@@ -105,68 +105,104 @@ function [xtal_opts,ok,mess] = refine_crystal_parse (alatt_def, angdeg_def, vara
 if numel(varargin)==3 && isstruct(varargin{1})   % input a single structure
     if isscalar(varargin{1})
         [xtal_opts,ok,mess]=check_ok(alatt_def,angdeg_def,varargin{1});
-        if nargout>1, return, else error(mess), end
+        if nargout>1
+            return
+        else
+            error(mess)
+        end
     else
         xtal_opts=check_ok; ok=false; mess='Structure with crystal refinement options must be a scalar structure';
-        if nargout>1, return, else error(mess), end
+        if nargout>1
+            return
+        else
+            error(mess)
+        end
     end
-    
+
 else
     xtal_opts=check_ok;     % structure with fields all set to []
-    
-    % Parse input
+
+% Parse input
     arglist=struct('fix_lattice',0,'fix_alatt',0,'fix_alatt_ratio',0,'fix_angdeg',0,'fix_orientation',0,'free_alatt',[1,1,1],'free_angdeg',[1,1,1]);
     flags={'fix_lattice','fix_alatt','fix_alatt_ratio','fix_angdeg','fix_orientation'};
     [args,opt,present] = parse_arguments(varargin,arglist,flags);
-    
-    % Check if initial lattice parameters for refinement, if given
+
+% Check if initial lattice parameters for refinement, if given
     if numel(args)>=1, xtal_opts.alatt=args{1};  end
     if numel(args)>=2, xtal_opts.angdeg=args{2}; end
     if numel(args)>=3, xtal_opts.urot=args{3};   end
     if numel(args)>=4, xtal_opts.vrot=args{4};   end
     if numel(args)>=5
         xtal_opts=check_ok; ok=false; mess='Check number of input arguments';
-        if nargout>1, return, else error(mess), end
+        if nargout>1
+            return
+        else
+            error(mess)
+        end
     end
-    
-    % Check options
+
+% Check options
     if present.free_alatt
         if islognum(opt.free_alatt) && numel(opt.free_alatt)==3
             if opt.fix_lattice || opt.fix_alatt || opt.fix_alatt_ratio
                 xtal_opts=check_ok; ok=false; mess='Cannot use the option ''free_alatt'' with other keywords fixing lattice parameters a,b,c';
-                if nargout>1, return, else error(mess), end
+                if nargout>1
+                    return
+                else
+                    error(mess)
+                end
             end
         else
             xtal_opts=check_ok; ok=false; mess='Check value of ''free_alatt'' option';
-            if nargout>1, return, else error(mess), end
+            if nargout>1
+                return
+            else
+                error(mess)
+            end
         end
     end
-    
+
     if present.free_angdeg
         if islognum(opt.free_angdeg) && numel(opt.free_angdeg)==3
             if opt.fix_lattice || opt.fix_angdeg
                 xtal_opts=check_ok; ok=false; mess='Cannot use the option ''free_angdeg'' with other keywords fixing lattice parameters alf,bet,gam';
-                if nargout>1, return, else error(mess), end
+                if nargout>1
+                    return
+                else
+                    error(mess)
+                end
             end
         else
             xtal_opts=check_ok; ok=false; mess='Check value of ''free_angdeg'' option';
-            if nargout>1, return, else error(mess), end
+            if nargout>1
+                return
+            else
+                error(mess)
+            end
         end
     end
-    
+
     if opt.fix_lattice && ...
             ((present.fix_alatt && ~opt.fix_alatt) || (present.fix_angdeg && ~opt.fix_angdeg) || (present.fix_alatt_ratio && ~opt.fix_alatt_ratio))
         xtal_opts=check_ok; ok=false; mess='Check consistency of options to fix lattice parameters';
-        if nargout>1, return, else error(mess), end
+        if nargout>1
+            return
+        else
+            error(mess)
+        end
     elseif opt.fix_alatt && (present.fix_alatt_ratio && ~opt.fix_alatt_ratio)
         xtal_opts=check_ok; ok=false; mess='Check consistency of options to fix lattice parameters';
-        if nargout>1, return, else error(mess), end
+        if nargout>1
+            return
+        else
+            error(mess)
+        end
     end
-    
-    % Create arrays of free parameters and bindings
+
+% Create arrays of free parameters and bindings
     free=[1,1,1,1,1,1,1,1,1];
     fix_alatt_ratio=false;
-    
+
     if opt.fix_alatt || opt.fix_lattice
         free(1:3)=[0,0,0];
     elseif opt.fix_alatt_ratio
@@ -174,24 +210,28 @@ else
     elseif present.free_alatt
         free(1:3)=opt.free_alatt;
     end
-    
+
     if opt.fix_angdeg || opt.fix_lattice
         free(4:6)=[0,0,0];
     elseif present.free_angdeg
         free(4:6)=opt.free_angdeg;
     end
-    
+
     if opt.fix_orientation
         free(7:9)=[0,0,0];
     end
-    
-    % Add to structure
+
+% Add to structure
     xtal_opts.free=logical(free);
     xtal_opts.fix_alatt_ratio=fix_alatt_ratio;
-    
-    % Check validity of structure
+
+% Check validity of structure
     [xtal_opts,ok,mess]=check_ok(alatt_def,angdeg_def,xtal_opts);
-    if nargout>1, return, else error(mess), end
+    if nargout>1
+        return
+    else
+        error(mess)
+    end
 
 end
 
@@ -221,8 +261,8 @@ if ~isequal(fieldnames(xtal_opts_in),names)
     xtal_opts=empty_struct(names);
     ok=false; mess='Crystal refinement options structure does not have the correct fields'; return
 end
-    
-    
+
+
 % Check input
 % -----------
 xtal_opts=xtal_opts_in;

@@ -42,8 +42,8 @@ if nargin<5
 end
 
 % Get parameters and st. dev for the two fit sets
-if isfield(fp1,'p'), p=fp1.p; sig=fp1.sig; else p=[]; sig=[]; end
-if isfield(fp1,'bp'), bp=fp1.bp; bsig=fp1.bsig; else bp=[]; bsig=[]; end
+if isfield(fp1,'p'), p=fp1.p; sig=fp1.sig; else, p=[]; sig=[]; end
+if isfield(fp1,'bp'), bp=fp1.bp; bsig=fp1.bsig; else, bp=[]; bsig=[]; end
 p = make_vec(p);
 bp = make_vec(bp);
 np1 = numel(p);
@@ -51,8 +51,8 @@ nbp1 = numel(bp);
 p1 = [p,bp];
 sig1=[make_vec(sig),make_vec(bsig)];
 
-if isfield(fp2,'p'), p=fp2.p; sig=fp2.sig; else p=[]; sig=[]; end
-if isfield(fp2,'bp'), bp=fp2.bp; bsig=fp2.bsig; else bp=[]; bsig=[]; end
+if isfield(fp2,'p'), p=fp2.p; sig=fp2.sig; else, p=[]; sig=[]; end
+if isfield(fp2,'bp'), bp=fp2.bp; bsig=fp2.bsig; else, bp=[]; bsig=[]; end
 p = make_vec(p);
 bp = make_vec(bp);
 np2 = numel(p);
@@ -90,6 +90,8 @@ keep(fixed) = false;
 %  [(p1(keep)'-p2(keep)')./tol_max(keep)']
 ok = all(abs(p1(keep)-p2(keep))<=tol_max(keep));
 
+end
+
 %---------------------------------------------------------------------------
 function p=make_vec(pin)
 if ~isempty(pin)
@@ -100,4 +102,6 @@ if ~isempty(pin)
     end
 else
     p=[];
+end
+
 end
