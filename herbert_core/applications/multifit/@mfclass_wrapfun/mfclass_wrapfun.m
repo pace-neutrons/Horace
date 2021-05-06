@@ -2,42 +2,42 @@ classdef mfclass_wrapfun
     % mfclass_wrapfun object
     %
     % Initialise customised function and parameter wrapping for mfclass
-    
+
     properties (Access=private)
         % Wrapper function for foreground functions: [] or function handle
         fun_wrap_ = [];
-        
+
         % Wrapper parameters for foreground wrap function: if fun_wrap_ is empty
         % will 0x0 array of mfclass_plist
         p_wrap_ = repmat(mfclass_plist(),0,0);
-        
+
         % Wrapper function for background functions [] or function handle
         bfun_wrap_ = [];
-        
+
         % Wrapper parameters for background wrap function: if bfun_wrap_ is empty
         % will 0x0 array of mfclass_plist
         bp_wrap_ = repmat(mfclass_plist(),0,0);
-        
+
         % Return type: false if no status to keep, true if status to keep
         % If fun_wrap_ is empty, then false
         f_pass_caller_ = false;
-        
+
         % Return type: false if no status to keep, true if status to keep
         % If bfun_wrap_ is empty, then false
         bf_pass_caller_ = false;
-        
+
         % Initialisation function for foreground, called before fitting or simulation
         func_init_ = [];
-        
+
         % Initialisation function for background, called before fitting or simulation
         bfunc_init_ = [];
-        
+
     end
-    
+
     properties (Dependent)
         % Wrapper function for foreground functions: [] or function handle
         fun_wrap
-        
+
         % Wrapper parameters for foreground wrap function: object of mfclass_plist
         %   - A recursive nesting of functions and parameter lists:
         %       p<n> = {@func<n-1>, plist<n-1>, c1<n>, c2<n>,...}
@@ -49,10 +49,10 @@ classdef mfclass_wrapfun
         %              {c1<0>, c2<0>,...}
         %              {}
         p_wrap
-        
+
         % Wrapper function for background functions: [] or function handle
         bfun_wrap
-        
+
         % Wrapper parameters for background wrap function: object of mfclass_plist
         %   - A recursive nesting of functions and parameter lists:
         %       p<n> = {@func<n-1>, plist<n-1>, c1<n>, c2<n>,...}
@@ -65,7 +65,7 @@ classdef mfclass_wrapfun
         %              {c1<0>, c2<0>,...}
         %              {}
         bp_wrap
-        
+
         % Determines the form of the foreground fit function argument lists:
         %       If false:
         %           wout = my_func (win, @fun, plist, c1, c2, ...)
@@ -73,7 +73,7 @@ classdef mfclass_wrapfun
         %           [wout, state_out, store_out] = my_func (win, caller,...
         %                   state_in, store_in, @fun, plist, c1, c2, ...)
         f_pass_caller
-        
+
         % Determines the form of the background fit function argument lists:
         %       If false:
         %           wout = my_func (win, @fun, plist, c1, c2, ...)
@@ -81,7 +81,7 @@ classdef mfclass_wrapfun
         %           [wout, state_out, store_out] = my_func (win, caller,...
         %                   state_in, store_in, @fun, plist, c1, c2, ...)
         bf_pass_caller
-        
+
         % Initialisation function for foreground, called before fitting or simulation
         % Function handle if it is given.
         %
@@ -115,7 +115,7 @@ classdef mfclass_wrapfun
         %           If there is just one argument, then this must still be
         %          placed in a cell array by the function
         func_init
-        
+
         % Initialisation function for background, called before fitting or simulation
         % Function handle if it is given.
         %
@@ -129,9 +129,9 @@ classdef mfclass_wrapfun
         % See the help for the property 'func_init' for description of the
         % intialisation function i/o, which is identical to this.
         bfunc_init
-        
+
     end
-    
+
     methods
         %------------------------------------------------------------------
         % Constructor
@@ -146,7 +146,7 @@ classdef mfclass_wrapfun
             %   >> obj = mfclass_wrapfun (fun_wrap, p_wrap, bfun_wrap, bp_wrap,...
             %                               f_pass_caller, bf_pass_caller,...
             %                               func_init, bfunc_init)
-            
+
             if numel(varargin)>0
                 if numel(varargin)==4 || numel(varargin)==6 || numel(varargin)==8
                     % Populate with public set routines to ensure checks are performed
@@ -167,7 +167,7 @@ classdef mfclass_wrapfun
                 end
             end
         end
-        
+
         %------------------------------------------------------------------
         % Set/get methods: dependent properties
         %------------------------------------------------------------------
@@ -189,7 +189,7 @@ classdef mfclass_wrapfun
                 error ('The foreground function wrapper must be a function handle')
             end
         end
-        
+
         function obj = set.p_wrap (obj, val)
             if ~isempty(obj.fun_wrap_)
                 % Scalar plist accepted as p_wrap
@@ -207,7 +207,7 @@ classdef mfclass_wrapfun
                 end
             end
         end
-        
+
         function obj = set.bfun_wrap (obj, val)
             % Set wrapper function. Must be function handle or []
             if isempty(val)
@@ -225,7 +225,7 @@ classdef mfclass_wrapfun
                 error ('The foreground function wrapper must be a function handle')
             end
         end
-        
+
         function obj = set.bp_wrap (obj, val)
             if ~isempty(obj.bfun_wrap_)
                 % Scalar plist accepted as bp_wrap
@@ -243,7 +243,7 @@ classdef mfclass_wrapfun
                 end
             end
         end
-        
+
         function obj = set.f_pass_caller (obj, val)
             if isempty(val)
                 obj.f_pass_caller_ = false;
@@ -259,7 +259,7 @@ classdef mfclass_wrapfun
                 end
             end
         end
-        
+
         function obj = set.bf_pass_caller (obj, val)
             if isempty(val)
                 obj.bf_pass_caller_ = false;
@@ -275,7 +275,7 @@ classdef mfclass_wrapfun
                 end
             end
         end
-        
+
         function obj = set.func_init (obj, val)
             if isempty(val)
                 obj.func_init_ = [];
@@ -287,7 +287,7 @@ classdef mfclass_wrapfun
                 end
             end
         end
-        
+
         function obj = set.bfunc_init (obj, val)
             if isempty(val)
                 obj.bfunc_init_ = [];
@@ -299,45 +299,45 @@ classdef mfclass_wrapfun
                 end
             end
         end
-        
+
         %------------------------------------------------------------------
         % Get methods
         function out = get.fun_wrap (obj)
             out = obj.fun_wrap_;
         end
-        
+
         function out = get.p_wrap (obj)
             out = obj.p_wrap_;
         end
-        
+
         function out = get.bfun_wrap (obj)
             out = obj.bfun_wrap_;
         end
-        
+
         function out = get.bp_wrap (obj)
             out = obj.bp_wrap_;
         end
-        
+
         function out = get.f_pass_caller (obj)
             out = obj.f_pass_caller_;
         end
-        
+
         function out = get.bf_pass_caller (obj)
             out = obj.bf_pass_caller_;
         end
-        
+
         function out = get.func_init (obj)
             out = obj.func_init_;
         end
-        
+
         function out = get.bfunc_init (obj)
             out = obj.bfunc_init_;
         end
-        
+
         %------------------------------------------------------------------
         % Other methods
         %------------------------------------------------------------------
-        function [ok, mess, fun_out, p_out, bfun_out, bp_out] = ...
+        function [fun_out, p_out, bfun_out, bp_out] = ...
                 wrap_functions_and_parameters (obj, w, fun, p, bfun, bp)
             % Get wrapped function and parameter lists
             %
@@ -376,48 +376,41 @@ classdef mfclass_wrapfun
             %               If an input function was missing, then the corresponding
             %              output function is also missing - wrapping is not performed on
             %              missing functions
-                        
+
             f_present = cellfun(@(x)~isempty(x),fun);
             bf_present = cellfun(@(x)~isempty(x),bfun);
-            
+
             % If initialisation function given, get arguments
-            [ok, mess, f_init_args] = init_args (w, f_present, obj.func_init_, 'Foreground');
-            if ~ok, fun_out = fun; p_out = p; bfun_out = bfun; bp_out = bp; return, end
-            
+            f_init_args = init_args (w, f_present, obj.func_init_, 'Foreground');
+
             if isequal(obj.func_init_, obj.bfunc_init_) && any(f_present(:))
                 bf_init_args = f_init_args; % save unnecessary repetition of calculation
             else
-                [ok, mess, bf_init_args] = init_args (w, bf_present, obj.bfunc_init_, 'Background');
-                if ~ok, fun_out = fun; p_out = p; bfun_out = bfun; bp_out = bp; return, end
+                bf_init_args = init_args (w, bf_present, obj.bfunc_init_, 'Background');
             end
-            
+
             % Wrap functions and parameters
             [fun_out, p_out] = wrap_f_and_p...
                 (fun, p, f_present, obj.fun_wrap_, obj.p_wrap_, f_init_args);
             [bfun_out, bp_out] = wrap_f_and_p...
                 (bfun, bp, bf_present, obj.bfun_wrap_, obj.bp_wrap_, bf_init_args);
-            
+
         end
-        
+
     end
 end
 
 %--------------------------------------------------------------------------------------------------
-function [ok, mess, f_init_args] = init_args (w, f_present, func_init, str)
+function [f_init_args] = init_args (w, f_present, func_init, str)
 % Get arguments from initialisation function
-ok = true;
-mess = '';
 f_init_args={};
 if ~isempty(func_init) && any(f_present(:))
     [ok,mess,f_init_args]=func_init(w);
     if ~ok
-        mess = [str,' preprocessor function: ',mess];
-        return
+        error("HERBERT:mfclass_wrapfun:invalid_argument", [str,' preprocessor function: ',mess]);
     elseif ~iscell(f_init_args) || isempty(f_init_args) || ~isrowvector(f_init_args)
-        ok=false;
-        mess = [str,' preprocessor function must return the '...
-            'initialiation arguments in a single, non-empty, row cell array'];
-        return
+        error("HERBERT:mfclass_wrapfun:invalid_argument", [str,' preprocessor function must return the '...
+            'initialiation arguments in a single, non-empty, row cell array']);
     end
 end
 

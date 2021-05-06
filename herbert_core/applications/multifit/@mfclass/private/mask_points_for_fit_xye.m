@@ -1,4 +1,4 @@
-function [msk,ok,mess] = mask_points_for_fit_xye (x, y, e, mask)
+function [msk, mess] = mask_points_for_fit_xye (x, y, e, mask)
 % Create mask array that removes points that would cause a least-squares fit to fail.
 %
 %    >> sel = mask_points_for_fit_xye (x, y, e)
@@ -33,8 +33,6 @@ function [msk,ok,mess] = mask_points_for_fit_xye (x, y, e, mask)
 % -------
 %   msk     Mask array of same shape as data. true for bins to keep, false to discard.
 %
-%   ok      =true if worked, =false if error
-%
 %   mess    messages: if ok=true then informational or warning, if ok=false then the error message
 
 
@@ -45,15 +43,13 @@ function [msk,ok,mess] = mask_points_for_fit_xye (x, y, e, mask)
 
 % Check mask array
 if ~any(mask(:))
-    mess='The input mask array masks all data points';
+    mess = 'The input mask array masks all data points';
     msk = false(size(y));
-    ok = true;
     return
 end
 
-ok=true;
-mess='';
-imess=0;
+mess = '';
+imess = 0;
 
 % Get points whose x values that are finite
 ok_xvals = true(size(y));
@@ -62,30 +58,30 @@ if ~isempty(x)
         ok_xvals = isfinite(x{i}) & ok_xvals;
     end
     if ~any(ok_xvals(mask))
-        mess='All points have at least one undefined (infinite or NaN) coordinate value';
+        mess = 'All points have at least one undefined (infinite or NaN) coordinate value';
         msk = false(size(y));
         return
     elseif ~all(ok_xvals(mask))
-        npts=numel(ok_xvals(mask)) - nnz(ok_xvals(mask));
-        fracpts=npts./numel(x{i});
-        imess=imess+1;
-        mess{imess}=[num2str(npts),' points with at least one undefined (infinite or NaN) coordinate ',...
+        npts = numel(ok_xvals(mask)) - nnz(ok_xvals(mask));
+        fracpts = npts./numel(x{i});
+        imess = imess+1;
+        mess{imess} = [num2str(npts),' points with at least one undefined (infinite or NaN) coordinate ',...
             'value have been removed from fit, which is ',num2str(100*fracpts),' % of the number of ',...
             'points in this dataset'];
     end
 end
-        
+
 % Remove data points with non-finite y values
 ok_yvals = isfinite(y);
 if ~any(ok_yvals(mask))
-    mess='All points have undefined (infinite or NaN) data values';
+    mess = 'All points have undefined (infinite or NaN) data values';
     msk = false(size(y));
     return
 elseif ~all(ok_yvals(mask))
     npts=numel(ok_yvals(mask)) - nnz(ok_yvals(mask));
     fracpts=npts./numel(y);
     imess=imess+1;
-    mess{imess}=[num2str(npts),' points with undefined (infinite or NaN) data values ',...
+    mess{imess} = [num2str(npts),' points with undefined (infinite or NaN) data values ',...
             'have been removed from fit, which is ',num2str(100*fracpts),' % of the number of ',...
             'points in this dataset'];
 end
@@ -93,14 +89,14 @@ end
 % Remove data points with zero or negative error bars
 ok_ebars = isfinite(e) & e>0;
 if ~any(ok_ebars(mask))
-    mess='All points have zero, negative or undefined (infinite or NaN) error bars';
+    mess = 'All points have zero, negative or undefined (infinite or NaN) error bars';
     msk = false(size(y));
     return
 elseif ~all(ok_ebars(mask))
     npts=numel(ok_ebars(mask)) - nnz(ok_ebars(mask));
     fracpts=npts./numel(y);
-    imess=imess+1;
-    mess{imess}=[num2str(npts),' points with zero, negative or undefined (infinite or NaN) error bars ',...
+    imess = imess+1;
+    mess{imess} = [num2str(npts),' points with zero, negative or undefined (infinite or NaN) error bars ',...
             'have been removed from fit, which is ',num2str(100*fracpts),' % of the number of points',...
             ' in this dataset'];
 end
@@ -108,7 +104,7 @@ end
 % Combine all the masking criteria
 ok_data = ok_xvals & ok_yvals & ok_ebars;
 if ~any(ok_data(mask))
-    mess='All points have either non-finite coordinate or data values, or non-finite, zero or negative error bars';
+    mess = 'All points have either non-finite coordinate or data values, or non-finite, zero or negative error bars';
     msk = false(size(y));
     return
 end
@@ -116,3 +112,4 @@ end
 % Get final list of points to fit
 msk = ok_data & mask;
 
+end

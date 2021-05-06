@@ -173,11 +173,8 @@ bf_pass_caller = obj.wrapfun_.bf_pass_caller;
 selected = obj.options_.selected;
 if selected
     % Get wrapped functions and parameters after performing initialisation if required
-    [ok, mess, fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = ...
+    [fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = ...
         wrap_functions_and_parameters (obj.wrapfun_, wmask, obj.fun_, obj.pin_, obj.bfun_, obj.bpin_);
-    if ~ok
-        if throw_error, error_message(mess), else, return, end
-    end
 
     % Now compute output
     wout = multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
@@ -193,11 +190,8 @@ if selected
 
 else
     % Get wrapped functions and parameters after performing initialisation if required
-    [ok, mess, fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = ...
+    [fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = ...
         wrap_functions_and_parameters (obj.wrapfun_, obj.w_, obj.fun_, obj.pin_, obj.bfun_, obj.bpin_);
-    if ~ok
-        if throw_error, error_message(mess), else, return, end
-    end
 
     % Now compute output
     wout = multifit_func_eval (obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
@@ -223,3 +217,4 @@ converged = false;
 calcdata = repackage_output_parameters (pfin, sig, cor, chisqr_red, converged, p_info,...
     foreground_present, background_present);
 
+end
