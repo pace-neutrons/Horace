@@ -727,7 +727,7 @@ classdef mfclass_Horace_sqw < mfclass
             [data_out, calcdata, ok, mess] = simulate@mfclass (obj_tmp, varargin{:});
         end
 
-        function [data_out, calcdata, ok, mess] = fit (obj, varargin)
+        function [data_out, calcdata] = fit (obj, varargin)
             % Perform a fit of the data using the current functions and parameter values
             %
             % Return calculated fitted datasets and parameters:
