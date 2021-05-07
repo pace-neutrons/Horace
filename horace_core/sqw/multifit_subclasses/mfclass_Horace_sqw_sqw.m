@@ -821,7 +821,7 @@ classdef mfclass_Horace_sqw_sqw < mfclass
                 wrapfun.bp_wrap = append_args (wrapfun.bp_wrap, '-ave');
                 obj_tmp.wrapfun = wrapfun;
             end
-            [data_out, calcdata, ok, mess] = fit@mfclass (obj_tmp, varargin{:});
+            [data_out, calcdata] = fit@mfclass (obj_tmp, varargin{:});
         end
     end
 end
