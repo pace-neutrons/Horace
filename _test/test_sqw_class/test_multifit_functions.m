@@ -24,7 +24,6 @@ classdef test_multifit_functions < TestCase
         end
 
         function test_tobyfit(obj)
-            %
             sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02]);
             obj.sqw_4_test = ...
                 set_instrument(obj.sqw_4_test, @maps_instrument,'-efix',800,'S');
