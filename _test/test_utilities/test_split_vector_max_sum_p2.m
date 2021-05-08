@@ -1,7 +1,7 @@
 classdef test_split_data_blocks < TestCase
     
     methods
-        function obj = test_split_vector_max_sum_p2(~)
+        function obj = test_split_data_blocks(~)
             obj@TestCase('test_split_vector_max_sum_p-1');
         end
         
