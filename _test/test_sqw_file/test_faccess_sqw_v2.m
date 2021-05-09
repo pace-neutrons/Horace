@@ -275,7 +275,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertTrue(isa(to,'faccess_sqw_v3'));
             assertTrue(isa(to,'faccess_sqw_v3_3'));
 
-            
+
             sqw2 = to.get_sqw();
 
             assertEqual(sqw1,sqw2);

@@ -133,16 +133,9 @@ function varargout = cut_sym (varargin)
 %                   If an array of input data sources was given, then w
 %                  is a cell array of arrays
 
-
-
-% Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
-
 % Parse input
 % -----------
-[w, args, mess] = horace_function_parse_input (nargout,varargin{:});
+[w, args, mess] = horace_function_parse_input(nargout, varargin{:});
 if ~isempty(mess), error(mess); end
 
 % Perform operations

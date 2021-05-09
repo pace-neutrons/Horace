@@ -43,49 +43,50 @@ function varargout = change_crystal (varargin)
 %    - call with inv(rlu_corr)
 %    - call with the original alatt, angdeg, u and v
 
-% Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
-
 % This routine is also used to change the crystal in sqw files, when it overwrites the input file.
 
 % Parse input
 % -----------
-
-[w, args, mess] = horace_function_parse_input (nargout,varargin{:});
-if ~isempty(mess), error(mess); end
+[w, args, mess] = horace_function_parse_input(nargout, varargin{:});
+if ~isempty(mess)
+    error(mess);
+end
 
 % Perform operations
 % ------------------
 if w.source_is_file
-    for i=1:numel(w.data)
+    for i = 1:numel(w.data)
         ld = w.loaders_list{i};
-        data    = ld.get_data('-verbatim','-head');
+        data = ld.get_data('-verbatim', '-head');
         target_file = fullfile(ld.filepath,ld.filename);
-        ld = ld.set_file_to_update(target_file);        
+        ld = ld.set_file_to_update(target_file);
         if ld.sqw_type
             headers = ld.get_header('-all');
-            [headers,data]=change_crystal_alter_fields(headers,data,args{:});
+            [headers, data]=change_crystal_alter_fields(headers,data,args{:});
             ld = ld.put_headers(headers);
         else
             headers = struct([]);
-            [~,data]=change_crystal_alter_fields(headers,data,args{:});
+            [~, data] = change_crystal_alter_fields(headers,data,args{:});
         end
         ld = ld.put_dnd_metadata(data);
         ld.delete();
     end
-    argout={};
+    argout = {};
 else
-    argout{1}=w.data;
-    for i=1:numel(w.data)
-        [argout{1}(i).header,argout{1}(i).data,ok,mess]=change_crystal_alter_fields(w.data(i).header,w.data(i).data,args{:});
-        if ~ok, error(mess), end
+    argout{1} = w.data;
+    for i = 1:numel(w.data)
+        [argout{1}(i).header, argout{1}(i).data, ok, mess] = change_crystal_alter_fields( ...
+            w.data(i).header, w.data(i).data,args{:});
+        if ~ok
+            error(mess);
+        end
     end
 end
 
 % Package output arguments
 % ------------------------
-[varargout,mess]=horace_function_pack_output(w,argout{:});
-if ~isempty(mess), error(mess), end
+[varargout, mess] = horace_function_pack_output(w, argout{:});
+if ~isempty(mess)
+    error(mess)
+end
 

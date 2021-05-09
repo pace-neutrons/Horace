@@ -31,5 +31,12 @@ end
 %
 flds = fieldnames(input);
 for i=1:numel(flds )
-    obj.(flds{i}) = input.(flds{i});
+    % if this struct has its origin in a dnd (particularly d2d)
+    % then it will have acquired additional fields NUM_DIMS and data_
+    % which do not translate into a data_sqw_dnd and are hence ignored
+    % here. There may be a better method but this gets test_rebin_dnd_steps
+    % working.
+    if ~strcmp(flds(i), 'NUM_DIMS') && ~strcmp(flds(i), 'data_')
+        obj.(flds{i}) = input.(flds{i});
+    end
 end

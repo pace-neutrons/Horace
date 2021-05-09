@@ -146,8 +146,6 @@ classdef test_faccess_dnd_v2< TestCase
             assertFalse(to.sqw_type)
             assertEqual(to.data_type,'b+')
             
-            
-            
             d3d_inst  = to.get_sqw();
             assertTrue(isa(d3d_inst,'d3d'));
             assertEqual(d3d_inst.filename,to.filename)

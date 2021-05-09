@@ -78,7 +78,7 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
             %--------------------------------------------------------------------------------------------------
             % Visual inspection
             % Plot the cylinder averaged sqw data
-            wcyl=read_sqw(sqw_cyl_file);
+            wcyl = sqw(sqw_cyl_file);
 
             w2 = cut_sqw(wcyl,[4,0.03,6],[-0.15,0.35],0,'-nopix');
             w1 = cut_sqw(wcyl,[2,0.03,6.5],[-0.7,0.2],[53,57],'-nopix');

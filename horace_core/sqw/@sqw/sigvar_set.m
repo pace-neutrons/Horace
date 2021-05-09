@@ -1,20 +1,26 @@
-function w = sigvar_set(w,sigvarobj)
+function w = sigvar_set(win, sigvar_obj)
 % Set output object signal and variance fields from input sigvar object
 %
-%   >> w = sigvar_set(w,sigvarobj)
+%   >> w = sigvar_set(win, sigvar_obj)
 
-% Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
-if ~isequal(size(w.data.s),size(sigvarobj.s))
-    error('sqw object and sigvar object have inconsistent sizes')
+if ~isequal(size(win.data.s), size(sigvar_obj.s))
+    error('SQW:sigvar_set', ...
+        'sqw object and sigvar object signal have inconsistent sizes: [%s] and [%s]', ...
+        num2str(size(win.data.s)), num2str(size(sigvar_obj.s)));
 end
 
-w.data.s=sigvarobj.s;
-w.data.e=sigvarobj.e;
+if ~isequal(size(win.data.e), size(sigvar_obj.e))
+    error('SQW:sigvar_set', ...
+        'sqw object and sigvar object variance have inconsistent sizes: [%s] and [%s]', ...
+        num2str(size(win.data.e)), num2str(size(sigvar_obj.e)));
+end
 
-if is_sqw_type(w)
+w = win;
+
+w.data.s = sigvar_obj.s;
+w.data.e = sigvar_obj.e;
+
+if has_pixels(w)
     % RAE spotted error 8/12/2010: should only create pix field if sqw object
     stmp = replicate_array(w.data.s, w.data.npix)';
     etmp = replicate_array(w.data.e, w.data.npix)';

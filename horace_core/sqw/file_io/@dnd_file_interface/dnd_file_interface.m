@@ -312,7 +312,7 @@ classdef dnd_file_interface
         % information within existing file)
         obj = put_dnd_data(obj,varargin);
         % Return true if the file accessor is connected to an open file
-        is = is_activated(obj);
+        is = is_activated(obj, read_or_write);
         % open file, connected to the sqw object, defined as input,
         % assuming that all information about this file is already loaded
         % in memory by init/deactivate or deserialize methods.

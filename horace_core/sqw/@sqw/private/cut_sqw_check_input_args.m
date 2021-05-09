@@ -37,9 +37,6 @@ function [ok, mess, data_source, proj, pbin, args, opt] = ...
 %                                   If no saving required, then is ''
 
 
-% T.G.Perring: 26 August 2018
-
-
 % Default output of correct classes
 proj = projection();
 pbin = cell(1,0);

@@ -18,12 +18,6 @@ function uproj=calculate_uproj_pixels(win,opt)
 %           with fitting routines etc.
 %               i.e. qw{1}=qh, qw{2}=qk, qw{3}=ql, qw{4}=en
 
-
-% Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
-
 if numel(win)~=1
     error('Only a single sqw object is valid - cannot take an array of sqw objects')
 end

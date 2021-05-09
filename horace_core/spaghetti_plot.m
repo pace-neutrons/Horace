@@ -332,7 +332,7 @@ title1 = wdisp_in(1).title;
 if iscell(title1)
     title1 = title1{1};
 end
-lnbrk = strfind(title1,sprintf('\n'));
+lnbrk = strfind(title1,newline);
 if ~isempty(lnbrk)
     lnbrk = lnbrk(end);
     wdisp_in(1).title = title1(lnbrk+1:end);
@@ -386,10 +386,10 @@ for i=1:length(wdisp_in)
         labels{i} = wdisp(i).title{1};
         continue;
     end
-    
+
     % Finds labels in segment title
     title = wdisp_in(i).title;
-    brk = strfind(title,sprintf('\n'));
+    brk = strfind(title,newline);
     if ~isempty(brk)
         brk = brk(end);
         wdisp_in(i).title = title(brk+1:end);
@@ -426,7 +426,7 @@ for i=1:length(wdisp_in)
         hkls = [wdisp_in(i).p{1}(1) * hkldir + hklcen; wdisp_in(i).p{1}(end) * hkldir + hklcen];
         labels{i} = ['[',str_compress(num2str(hkls(1:3)'),','),']'];
         labels{i+1} = ['[',str_compress(num2str(hkls(4:6)'),','),']'];
-        
+
     end
     hkl0 = hkls;
 end
@@ -526,5 +526,3 @@ function plot_labels(labels,xvals)
 
 set(gca,'XTick',xvals);
 set(gca,'XTickLabel',labels);
-
-

@@ -358,11 +358,11 @@ else
     %must strip out square brackets, if user has inserted them:
     s1=strfind(u,'['); s2=strfind(u,']');
     if isempty(s1) && isempty(s2)
-        unew=strread(u,'%f','delimiter',',');
+        unew=textscan(u,'%f','delimiter',',');
         unew=unew';
     elseif ~isempty(s1) && ~isempty(s2)
         u=u(s1+1:s2-1);
-        unew=strread(u,'%f','delimiter',',');
+        unew=textscan(u,'%f','delimiter',',');
     else
         set(handles.message_text,'String','Error - see Matlab command window for details');
         disp('ERROR - Ensure u is of form a,b,c or [a,b,c]');
@@ -373,11 +373,11 @@ else
     end
     s1=strfind(v,'['); s2=strfind(v,']');
     if isempty(s1) && isempty(s2)
-        vnew=strread(v,'%f','delimiter',',');
+        vnew=textscan(v,'%f','delimiter',',');
         vnew=vnew';
     elseif ~isempty(s1) && ~isempty(s2)
         v=v(s1+1:s2-1);
-        vnew=strread(v,'%f','delimiter',',');
+        vnew=textscan(v,'%f','delimiter',',');
     else
         set(handles.message_text,'String','Error - see Matlab command window for details');
         disp('ERROR - Ensure v is of form a,b,c or [a,b,c]');
@@ -388,11 +388,11 @@ else
     end
     s1=strfind(alatt,'['); s2=strfind(alatt,']');
     if isempty(s1) && isempty(s2)
-        alattnew=strread(alatt,'%f','delimiter',',');
+        alattnew=textscan(alatt,'%f','delimiter',',');
         alattnew=alattnew';
     elseif ~isempty(s1) && ~isempty(s2)
         alatt=alatt(s1+1:s2-1);
-        alattnew=strread(alatt,'%f','delimiter',',');
+        alattnew=textscan(alatt,'%f','delimiter',',');
     else
         set(handles.message_text,'String','Error - see Matlab command window for details');
         disp('ERROR - Ensure lattice angles are of form a,b,c or [a,b,c]');
@@ -403,11 +403,11 @@ else
     end
     s1=strfind(angdeg,'['); s2=strfind(angdeg,']');
     if isempty(s1) && isempty(s2)
-        angdegnew=strread(angdeg,'%f','delimiter',',');
+        angdegnew=textscan(angdeg,'%f','delimiter',',');
         angdegnew=angdegnew';
     elseif ~isempty(s1) && ~isempty(s2)
         angdeg=angdeg(s1+1:s2-1);
-        angdegnew=strread(angdeg,'%f','delimiter',',');
+        angdegnew=textscan(angdeg,'%f','delimiter',',');
     else
         set(handles.message_text,'String','Error - see Matlab command window for details');
         disp('ERROR - Ensure lattice angles are of form alpha,beta,gamma or [alpha,beta,gamma]');
@@ -425,11 +425,11 @@ else
     %must strip out square brackets, if user has inserted them:
     s1=strfind(density,'['); s2=strfind(density,']');
     if isempty(s1) && isempty(s2)
-        dennew=strread(density,'%f','delimiter',',');
+        dennew=textscan(density,'%f','delimiter',',');
         dennew=dennew';
     elseif ~isempty(s1) && ~isempty(s2)
         density=density(s1+1:s2-1);
-        dennew=strread(density,'%f','delimiter',',');
+        dennew=textscan(density,'%f','delimiter',',');
     else
         set(handles.message_text,'String','Error - see Matlab command window for details');
         disp('ERROR - Ensure lattice point density of form a,b,c; [a,b,c]; or empty');
