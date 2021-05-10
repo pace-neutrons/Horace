@@ -75,8 +75,13 @@ if w.source_is_file
 else
     argout{1} = w.data;
     for i = 1:numel(w.data)
-        [argout{1}(i).header, argout{1}(i).data, ok, mess] = change_crystal_alter_fields( ...
-            w.data(i).header, w.data(i).data,args{:});
+        if isprop(w.data(i),'header')
+            [argout{1}(i).header, argout{1}(i).data, ok, mess] = change_crystal_alter_fields( ...
+                w.data(i).header, w.data(i).data_,args{:});
+        else
+            [~, argout{1}(i).data_, ok, mess] = change_crystal_alter_fields( ...
+                struct([]), w.data(i).data_,args{:});
+        end
         if ~ok
             error(mess);
         end

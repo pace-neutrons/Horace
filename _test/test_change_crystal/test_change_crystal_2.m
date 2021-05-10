@@ -109,8 +109,6 @@ change_crystal_test(rlu_corr, w2_arr, '', true, w2c_arr)
 change_crystal_test(rlu_corr, w1_arr, '', true, w1c_arr)
 change_crystal_test(rlu_corr, w12_arr, '', true, w12c_arr)
 
-%{
-skipTest("New dnd: d2d still missing change_crystal()
 if(log_level>-1); disp('Testing...'); end
 change_crystal_test(rlu_corr, d2_1, '', true, d2c_1)
 change_crystal_test(rlu_corr, d2_2, '', true, d2c_2)
@@ -118,7 +116,6 @@ change_crystal_test(rlu_corr, d1_1, '', true, d1c_1)
 change_crystal_test(rlu_corr, d1_2, '', true, d1c_2)
 change_crystal_test(rlu_corr, d2_arr, '', true, d2c_arr)
 change_crystal_test(rlu_corr, d1_arr, '', true, d1c_arr)
-%}
 
 if(log_level>-1); disp('Testing...'); end
 change_crystal_test(rlu_corr, w2_1_file, 'hor', true, w2c_1_file)
