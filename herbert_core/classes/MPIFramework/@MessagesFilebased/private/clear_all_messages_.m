@@ -8,7 +8,7 @@ while ~finished
     try
         [all_messages,mid_from] = list_all_messages_(obj,'all');
     catch ME
-        if strcmp(ME.identifier,'MESSAGE_FRAMEWORK:canceled')
+        if strcmp(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')
             return;
         else
             rethrow(ME);

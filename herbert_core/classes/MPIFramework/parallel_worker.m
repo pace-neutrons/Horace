@@ -185,8 +185,8 @@ while keep_worker_running
         % properly, but filebased framework should still be
         % available.
 
-        if ~strcmp(ME.identifier,'MESSAGE_FRAMEWORK:canceled')  
-            % if job is canceled, we can recover further, as it will throw
+        if ~strcmp(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')  
+            % if job is cancelled, we can recover further, as it will throw
             % below at first call to log progress. Any other exception is unhandled one
             if DO_LOGGING; log_input_message_exception_caught();  end
             err_mess = sprintf('job "%s" failed. Error during job initialization: %s',...
@@ -213,7 +213,7 @@ while keep_worker_running
         mis.logger = @(step,n_steps,time,add_info)...
             (je.log_progress(step,n_steps,time,add_info));
         
-        mis.check_canceled = @()(f_canc(je));
+        mis.check_cancelled = @()(f_canc(je));
         
         
         % send first "running" log message and set-up starting time. Runs
@@ -231,9 +231,9 @@ while keep_worker_running
             je= je.do_job();
             % explicitly check for cancellation before data reduction
             if DO_LOGGING; log_disp_message('Check for cancellation after Je do_job loop'); end
-            is_canceled = je.is_job_canceled();
-            if is_canceled
-                error('JOB_EXECUTOR:canceled',...
+            is_cancelled = je.is_job_cancelled();
+            if is_cancelled
+                error('JOB_EXECUTOR:cancelled',...
                     'Job cancelled before synchronization after do_job')
             end
             
@@ -248,9 +248,9 @@ while keep_worker_running
             if DO_LOGGING; log_disp_message('Reduce data started');  end
             % explicitly check for cancellation before data reduction
             %  the case of cancellation below
-            is_canceled = je.is_job_canceled();
-            if is_canceled
-                error('JOB_EXECUTOR:canceled',...
+            is_cancelled = je.is_job_cancelled();
+            if is_cancelled
+                error('JOB_EXECUTOR:cancelled',...
                     'Job cancelled before reducing data')
             end
             je = je.reduce_data();
@@ -425,8 +425,8 @@ end
 end
 
 function f_canc(job_executor)
-if job_executor.is_job_canceled()
-    error('MESSAGE_FRAMEWORK:canceled',...
+if job_executor.is_job_cancelled()
+    error('MESSAGE_FRAMEWORK:cancelled',...
         'Messages framework has been cancelled or is not initialized any more')
 end
 end

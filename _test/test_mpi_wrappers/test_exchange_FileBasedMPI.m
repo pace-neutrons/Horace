@@ -38,11 +38,12 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests & FakeJenkins4Tests
             [all_messages_names, task_ids] = mf.probe_all(0, 'log');
             assertTrue(isempty(all_messages_names));
             assertTrue(isempty(task_ids));
-            
-            ok = mf.is_job_canceled();
+
+            ok = mf.is_job_cancelled();
+
             assertFalse(ok);
             mf.finalize_all();
-            ok = mf.is_job_canceled();
+            ok = mf.is_job_cancelled();
             assertTrue(ok);
         end
         
@@ -287,7 +288,9 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests & FakeJenkins4Tests
             all_mess = mf.probe_all();
             assertTrue(isempty(all_mess));
         end
+        
         %------------------------------------------------------------------
+       
         function clear_jenkins_var(obj)
             % clear fake Jenkins configuration, for is_jenkins routine
             % returning false
@@ -301,6 +304,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests & FakeJenkins4Tests
             hc.init_tests = true;
             obj.tests_control_strcut = obj.stored_control;
         end
+        
         function set_up_fake_jenkins(obj)
             % set up fake Jenkins configuration, for is_jenkins routine
             % returning true
@@ -312,7 +316,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests & FakeJenkins4Tests
             obj.stored_config = hrc.get_data_to_store();
             obj.stored_control = obj.tests_control_strcut;
         end
-        %
+        
         function test_folder_migration(this)
             mf = MessagesFileBasedMPI_mirror_tester();
             mf.mess_exchange_folder = this.working_dir;
@@ -363,7 +367,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests & FakeJenkins4Tests
             clear clob;
             assertFalse(is_folder(jnf));
         end
-        %
+        
         function test_folder_migration_on_fake_jenkins(obj)
             if is_jenkins() % do not run it on real Jenkins, it may mess
                 % the whole enviroment
@@ -384,7 +388,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests & FakeJenkins4Tests
             clear clearJenkinsSignature;
             assertFalse(is_jenkins);
         end
-        %
+        
         function test_shared_folder(this)
             mf = MessagesFileBasedMPI_mirror_tester();
             mf.mess_exchange_folder = this.working_dir;
@@ -410,7 +414,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests & FakeJenkins4Tests
             clear clob;
             assertFalse(is_folder(jfn));
         end
-        %
+        
         function test_shared_folder_on_fake_jenkins(obj)
             if is_jenkins() % do not run it on real Jenkins, it may mess
                 % the whole Jenkins enviroment
@@ -427,7 +431,9 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests & FakeJenkins4Tests
             clear clearJenkinsSignature;
             assertFalse(is_jenkins);
         end
+        
         %------------------------------------------------------------------
+        
         function test_barrier(this)
             mf = MessagesFilebased('test_barrier');
             mf.mess_exchange_folder = this.working_dir;
@@ -492,7 +498,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests & FakeJenkins4Tests
             assertEqual(mess.mess_name, 'barrier');
             
         end
-        %
+        
         function test_barrier_ignores_failed(this)
             % To deploy barrier, init should be not in test mode!
             
@@ -567,8 +573,8 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests & FakeJenkins4Tests
             assertEqual(ok, MESS_CODES.ok, err)
             assertEqual(mess.mess_name, 'barrier');
         end
-        %
-        function test_barrier_ignores_canceled(this)
+
+        function test_barrier_ignores_cancelled(this)
             mf = MessagesFilebased('test_barrier_fail');
             mf.mess_exchange_folder = this.working_dir;
             clob = onCleanup(@()mf.finalize_all());
@@ -590,8 +596,8 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests & FakeJenkins4Tests
             fbMPI2.set_is_tested(false); % ensure test mode is disabled
             fbMPI3 = MessagesFilebased(cs3);
             fbMPI3.set_is_tested(false); % ensure test mode is disabled
-            
-            [ok, err] = fbMPI2.send_message(1, 'canceled');
+
+            [ok, err] = fbMPI2.send_message(1, 'cancelled');
             assertEqual(ok, MESS_CODES.ok, err)
             
             t0 = fbMPI3.time_to_fail;
@@ -625,18 +631,18 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests & FakeJenkins4Tests
             % clear up the barrier messages
             [ok, err, mess] = fbMPI1.receive_message(2, 'barrier');
             assertEqual(ok, MESS_CODES.ok, err)
-            assertEqual(mess.mess_name, 'canceled');
-            
+            assertEqual(mess.mess_name, 'cancelled');
+
             [ok, err, mess] = fbMPI1.receive_message(3, 'barrier');
             assertEqual(ok, MESS_CODES.ok, err)
             assertEqual(mess.mess_name, 'barrier');
-            
-            % canceled is still there
+
+            % cancelled is still there
             [ok, err, mess] = fbMPI1.receive_message(2, 'barrier');
             assertEqual(ok, MESS_CODES.ok, err)
-            assertEqual(mess.mess_name, 'canceled');
+            assertEqual(mess.mess_name, 'cancelled');
         end
-        %
+        
         function test_data_queue(obj)
             css1 = iMessagesFramework.build_worker_init(obj.working_dir, ...
                 'test_data_queue', 'MessagesFilebased', 1, 3);
@@ -695,7 +701,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests & FakeJenkins4Tests
             assertTrue(isempty(all_mess))
             assertTrue(isempty(mid_from))
         end
-        %
+        
         function test_message(this)
             fiis = iMessagesFramework.build_worker_init(this.working_dir, ...
                 'test_message', 'MessagesFilebased', 0, 3);
@@ -752,7 +758,9 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests & FakeJenkins4Tests
             mf0.finalize_all();
             assertFalse(is_folder(job_exchange_folder))
         end
+        
         %------------------------------------------------------------------
+        
         function test_next_job_id_text(~)
             mf = MessagesFilebased('test_next_job_id');
             clObj = onCleanup(@()finalize_all(mf));
@@ -767,7 +775,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests & FakeJenkins4Tests
             
             assertEqual(name,['test_next_job_id_',num2str(nm)]);
         end
-        %
+        
         function test_next_job_id_num1(~)
             mf = MessagesFilebased();
             mf.job_id = 'test_next_job1_id_num_1';
@@ -780,7 +788,7 @@ classdef test_exchange_FileBasedMPI < exchange_common_tests & FakeJenkins4Tests
             nm = nums+1;
             assertEqual(name,['test_next_job1_id_num_',num2str(nm)]);
         end
-        %
+        
         function test_next_job_id_no_num(~)
             mf = MessagesFilebased();
             mf.job_id = 'test_next_job_nonum';

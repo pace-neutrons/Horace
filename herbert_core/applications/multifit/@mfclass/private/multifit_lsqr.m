@@ -1,14 +1,14 @@
-function [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(w,xye,func,bfunc,pin,bpin,...
+function [p_best,sig,cor,chisqr_red,converged]=multifit_lsqr(w,xye,func,bfunc,pin,bpin,...
     f_pass_caller_info,bf_pass_caller_info,pfin,p_info,listing,fcp,perform_fit)
 % Perform least-squares minimisation
 %
-%   >> [p_best,sig,cor,chisqr_red,converged,ok,mess]=...
+%   >> [p_best,sig,cor,chisqr_red,converged]=...
 %       multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,listing)
 %
-%   >> [p_best,sig,cor,chisqr_red,converged,ok,mess]=...
+%   >> [p_best,sig,cor,chisqr_red,converged]=...
 %       multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,listing,fcp)
 %
-%   >> [p_best,sig,cor,chisqr_red,converged,ok,mess]=...
+%   >> [p_best,sig,cor,chisqr_red,converged]=...
 %       multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,listing,fcp,perform_fit)
 %
 % Input:
@@ -41,7 +41,7 @@ function [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(w,xye,func,
 %              with the initial parameter values at the lowest level.
 %
 %   f_pass_caller_info  Determines the form of the foreground fit function argument lists:
-%               If false: 
+%               If false:
 %                   wout = my_func (win, @fun, plist, c1, c2, ...)
 %               If true:
 %                   [wout, state_out, store_out] = my_func (win, caller,...
@@ -53,25 +53,25 @@ function [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(w,xye,func,
 %   bf_pass_caller_info Determines the form of the background fit function argument lists:
 %               See f_pass_caller_info, and 'Notes on format of fit functions' below.
 %
-%   pf          Free parameter initial values (that is, the independently 
+%   pf          Free parameter initial values (that is, the independently
 %              varying parameters)
 %
 %   p_info      Structure with information needed to transform from pf to the
 %              parameter values needed for function evaluation
 %
 %   listing     Control diagnostic output to the screen:
-%               =0 for no printing to command window 
-%               =1 prints iteration summary to command window 
-%               =2 additionally prints parameter values at each iteration 
+%               =0 for no printing to command window
+%               =1 prints iteration summary to command window
+%               =2 additionally prints parameter values at each iteration
 %               =3 additionally lists which datasets were computed for the
 %                  foreground and background functions. Diagnostic tool.
 %
 %   fcp         Fit control parameters:
-%           fcp(1)  Relative step length for calculation of partial derivatives 
-%                   [Default: 1e-4] 
-%           fcp(2)  Maximum number of iterations [Default: 20] 
-%           fcp(3)  Stopping criterion: relative change in chi-squared 
-%                   i.e. stops if (chisqr_new-chisqr_old) < fcp(3)*chisqr_old 
+%           fcp(1)  Relative step length for calculation of partial derivatives
+%                   [Default: 1e-4]
+%           fcp(2)  Maximum number of iterations [Default: 20]
+%           fcp(3)  Stopping criterion: relative change in chi-squared
+%                   i.e. stops if (chisqr_new-chisqr_old) < fcp(3)*chisqr_old
 %                   [Default: 1e-3]
 %
 %   perform_fit Logical scalar = true if a fit is required, =false if
@@ -80,7 +80,7 @@ function [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(w,xye,func,
 %
 % Output:
 % -------
-%   p_best      Column vector of final fit parameters - only for the 
+%   p_best      Column vector of final fit parameters - only for the
 %              independently varying parameters.
 %
 %   sig         Column vector of estimated standard deviations
@@ -90,14 +90,6 @@ function [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(w,xye,func,
 %   chisqr_red  Reduced chi-squared at final fit parameters
 %
 %   converged   True if fit converged; false if not.
-%
-%   ok          True: A fit could be performed. This includes the cases of
-%                 both convergence and failure to converge
-%               False: Fundamental problem with the input arguments e.g.
-%                 the number of free parameters equals or exceeds the number
-%                 of data points
-%               
-%   mess        Error message if ok==false; Empty string if ok==true.
 %
 % Note that for the final fit parameters to be reliable, test that
 % (ok && converged) is true.
@@ -138,7 +130,7 @@ function [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(w,xye,func,
 %               reset_state should be used if the output of my_func depends on the
 %              internal state of my_func e.g. the value of seeds for random number
 %              generators.
-%              
+%
 %               The index array ind is useful if, for example, some lookup tables
 %              have been created for the full set of data sets, and for which
 %              the actual index or indicies are needed inside my_func to be
@@ -150,7 +142,7 @@ function [p_best,sig,cor,chisqr_red,converged,ok,mess]=multifit_lsqr(w,xye,func,
 %              can be reproduced exactly for the same input parameters in plist.
 %               The number of elements must match the number of elements in win.
 %               The case of an empty state i.e. isempty(state_in{i}) is the
-%              case of no stored state. Appropriate default behaviour must be 
+%              case of no stored state. Appropriate default behaviour must be
 %              implemented; this will be the case on the initial call from
 %              mutlifit_lsqr.
 %               If the internal state is not needed, then reset_state and state_in
@@ -239,8 +231,6 @@ sig=zeros(1,numel(pfin));
 cor=zeros(numel(pfin));
 chisqr_red=0;
 converged=false;
-ok=true;
-mess='';
 
 % Package data values and weights (i.e. 1/error_bar) each into a single column vector
 yval=cell(size(w));
@@ -254,7 +244,7 @@ for i=1:numel(w)
         yval{i}=yval{i}(msk);         % remove the points that we are told to ignore
         wt{i}=1./sqrt(wt{i}(msk));
     end
-    yval{i}=yval{i}(:);  	% make a column vector
+    yval{i}=yval{i}(:);         % make a column vector
     wt{i}=wt{i}(:);         % make a column vector
 end
 yval=cell2mat(yval(:));     % one long column vector
@@ -265,7 +255,7 @@ nval=numel(yval);
 npfree=numel(pfin);
 nnorm=max(nval-npfree,1);   % we allow for the case nval=npfree
 if nval<npfree
-    ok=false; mess='Number of data points must be greater than or equal to the number of free parameters'; return
+    error("HERBERT:mfclass:multifit_lsqr",'Number of data points must be greater than or equal to the number of free parameters')
 end
 
 % Set the extent of listing to screen
@@ -275,7 +265,7 @@ end
 
 
 % -----------------------------------------------------------------------------------
-% Perform fit (or evaulation of chisqr 
+% Perform fit (or evaulation of chisqr
 % -----------------------------------------------------------------------------------
 if exist('perform_fit', 'var') && ~perform_fit
     % -----------------------------------------------------------------------------------
@@ -284,20 +274,20 @@ if exist('perform_fit', 'var') && ~perform_fit
     % This should always give the same result as niter=0. The only difference is that
     % if fitting with niter=0 then a warning message will be returned saying the fit
     % didn't converge
-    
+
     if listing>2, disp(' Function evaluation:'), end
     f=multifit_lsqr_func_eval(w,xye,func,bfunc,pin,bpin,...
         f_pass_caller_info,bf_pass_caller_info,pfin,p_info,false,[],[],listing);
     resid=wt.*(yval-f);
-    
+
     c_best=resid'*resid; % Un-normalised chi-squared
     chisqr_red = c_best/nnorm;
-        
+
 else
     % -----------------------------------------------------------------------------------
     % Case of parameter optimisation
     % -----------------------------------------------------------------------------------
-    
+
     % Set fit control parameters
     if ~exist('fcp', 'var')
         fcp=[0.0001 20 0.001];
@@ -306,21 +296,21 @@ else
     niter=fcp(2);   % maximum number of iterations
     tol=fcp(3);     % convergence criterion
     if abs(dp)<1e-12
-        ok=false; mess='Derivative step length must be greater or equal to 10^-12'; return
+        error("HERBERT:mfclass:multifit_lsqr",'Derivative step length must be greater or equal to 10^-12')
     end
     if niter<0
-        ok=false; mess='Number of iterations must be >=0'; return
+        error("HERBERT:mfclass:multifit_lsqr",'Number of iterations must be >=0')
     end
 
     % Output to command window
     if listing~=0, fit_listing_header(listing,niter); end
-    
+
     % Starting values of parameters and function values
     if listing>2, disp(' '), disp(' Function evaluation at starting parameter values:'), end
     [f,~,S,Store]=multifit_lsqr_func_eval(w,xye,func,bfunc,pin,bpin,...
         f_pass_caller_info,bf_pass_caller_info,pfin,p_info,true,[],[],listing);
     resid=wt.*(yval-f);
-    
+
     p_best=pfin; % Best values for parameters at start
     f_best=f;    % Function values at start
     c_best=resid'*resid; % Un-normalised chi-squared
@@ -330,13 +320,13 @@ else
 
     lambda=1;
     lambda_table=[1e1 1e1 1e2 1e2 1e2 1e2];
-    
+
     % Iterate to find best solution
     converged=false;
     max_rescale_lambda=false;
     for iter=1:niter
         if listing~=0, fit_listing_iteration_header(listing,iter); end
-        
+
         % Compute Jacobian matrix
         resid=wt.*(yval-f_best);
         jac=multifit_dfdpf(w,xye,func,bfunc,pin,bpin,...
@@ -353,7 +343,7 @@ else
         [jac,s,v]=svd(jac,0);
         s=diag(s);
         g=jac'*resid;
-        
+
         % Compute change in parameter values.
         % If the change does not improve chisqr  then increase the
         % Levenberg-Marquardt parameter until it does (up to a maximum
@@ -390,7 +380,7 @@ else
             % Chisqr didn't improve - increase lambda and recompute step in parameters
             lambda = lambda*lambda_table(itable);
         end
-        
+
         % Output to command window
         if listing~=0
             if ~max_rescale_lambda
@@ -400,21 +390,21 @@ else
                 fit_listing_iteration(listing, iter-1, c_best/nnorm, [], p_best)
             end
         end
-        
+
         % If chisqr lowered, but not to goal, so converged; or chisqr==0 i.e. perfect fit; then exit loop
         if (c_best>c_goal) || (c_best==0)
             converged=true;
             break;
         end
-        
+
         % If multipled lambda to limit of the table, give up
         if max_rescale_lambda
             converged=false;
             break
         end
-        
+
     end
-    
+
     % Wrap up for exit from fitting routine
     if converged
         chisqr_red = c_best/nnorm;
@@ -443,11 +433,9 @@ else
         if listing~=0, fit_listing_final(listing, p_best, sig, cor, p_info); end
     else
         chisqr_red = c_best/nnorm;
-        ok=true;
-        mess='WARNING: Convergence not achieved';
-        disp (mess)
+        warning("HERBERT:mfclass:multifit_lsqr",'WARNING: Convergence not achieved')
     end
-    
+
 end
 
 
@@ -613,8 +601,8 @@ for i=1:numel(p)
         sigma=sig{i}(ip);
         if this.pfree{i}(ip)
             % Free parameter
-            disp(sprintf('%5d %14.4g %s %-14.4g', ip, value,'  +/-  ', sigma))
-            
+            fprintf('%5d %14.4g %s %-14.4g\n', ip, value,'  +/-  ', sigma)
+
         elseif this.pbound{i}(ip)
             % Bound parameter
             pboundto=this.ipboundto{i}(ip);             % index of parameter to which bound
@@ -629,13 +617,13 @@ for i=1:numel(p)
             if fboundto==i && sametypebound
                 % Bound to a parameter within the same function
                 if floating
-                    disp(sprintf('%5d %14.4g %s %-14.4g %s', ip, value,'  +/-  ', sigma,...
-                        ['    bound to parameter ',num2str(pboundto)]))
+                    fprintf('%5d %14.4g %s %-14.4g %s\n', ip, value,'  +/-  ', sigma,...
+                        ['    bound to parameter ',num2str(pboundto)])
                 else
-                    disp(sprintf('%5d %14.4g %s %s', ip, value, '                      ',...
-                        ['    bound to parameter ',num2str(pboundto)]))
+                    fprintf('%5d %14.4g %s %s\n', ip, value, '                      ',...
+                        ['    bound to parameter ',num2str(pboundto)])
                 end
-                
+
             elseif fboundto==1 && ((forebound && nptot==1) || (~forebound && nbptot==1))
                 % Bound to a parameter of a global function (but not itself)
                 if forebound
@@ -644,13 +632,13 @@ for i=1:numel(p)
                     functype_str='background';
                 end
                 if floating
-                    disp(sprintf('%5d %14.4g %s %-14.4g %s', ip, value,'  +/-  ',sigma,...
-                        ['    bound to parameter ',num2str(pboundto),' of ',functype_str,' function']))
+                    fprintf('%5d %14.4g %s %-14.4g %s\n', ip, value,'  +/-  ',sigma,...
+                        ['    bound to parameter ',num2str(pboundto),' of ',functype_str,' function'])
                 else
-                    disp(sprintf('%5d %14.4g %s %s', ip, value, '                      ',...
-                        ['    bound to parameter ',num2str(pboundto),' of ',functype_str,' function']))
+                    fprintf('%5d %14.4g %s %s\n', ip, value, '                      ',...
+                        ['    bound to parameter ',num2str(pboundto),' of ',functype_str,' function'])
                 end
-                
+
             else
                 % Bound to a parameter of a local function (but not itself)
                 if forebound
@@ -661,17 +649,17 @@ for i=1:numel(p)
                     funcind_str =arraystr(size(nbp),fboundto);
                 end
                 if floating
-                    disp(sprintf('%5d %14.4g %s %-14.4g %s',ip, value,'  +/-  ',sigma,...
-                        ['    bound to parameter ',num2str(pboundto),' of ',functype_str,' ',funcind_str]))
+                    fprintf('%5d %14.4g %s %-14.4g %s\n',ip, value,'  +/-  ',sigma,...
+                        ['    bound to parameter ',num2str(pboundto),' of ',functype_str,' ',funcind_str])
                 else
-                    disp(sprintf('%5d %14.4g %s %s',ip, value, '                      ',...
-                        ['    bound to parameter ',num2str(pboundto),' of ',functype_str,' ',funcind_str]))
+                    fprintf('%5d %14.4g %s %s\n',ip, value, '                      ',...
+                        ['    bound to parameter ',num2str(pboundto),' of ',functype_str,' ',funcind_str])
                 end
-                
+
             end
         else
             % Fixed parameter
-            disp(sprintf('%5d %14.4g',ip,value))
+            fprintf('%5d %14.4g\n',ip,value)
         end
     end
     disp(' ')

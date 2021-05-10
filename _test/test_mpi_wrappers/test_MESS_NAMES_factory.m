@@ -30,7 +30,7 @@ classdef test_MESS_NAMES_factory< TestCase
             is = MESS_NAMES.is_persistent(0);
             assertFalse(is);
             
-            mess = CanceledMessage();
+            mess = CancelledMessage();
             is = MESS_NAMES.is_persistent(mess);
             assertTrue(is);
             

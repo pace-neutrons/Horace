@@ -4,21 +4,21 @@ classdef InitMessage < aMessage
     %
     % is_blocking = true for this message
     properties(Dependent)
-        %        
+        %
         n_first_step
         n_steps
-        
+
         common_data
         loop_data
         % if the task needs to return results
         return_results
     end
+
     properties(Access = protected)
     end
-    
-    
+
     methods
-        function obj = InitMessage(common_data,loop_data,return_results,n_first_step)
+        function obj = InitMessage(varargin)
             % Construct the intialization message
             %
             % Inputs:
@@ -26,7 +26,7 @@ classdef InitMessage < aMessage
             %                loop iteration
             % loop_data   -- either cellarray of data, with each cell
             %                specific to a single loop iteration or
-            %                number of iteration (n_steps) to perform over
+            %                number of iterations (n_steps) to perform over
             %                common data
             % return_results --if task needs to return its results
             %              if true, task will return its results
@@ -36,62 +36,66 @@ classdef InitMessage < aMessage
             %                 do n_steps, if absent or loop data provided as
             %                 a cellarray it assumed to be 1
             %
+            % is_list      -- the object was originally from a list or array
             obj = obj@aMessage('init');
-            if ~exist('common_data', 'var')
-                common_data = [];
-                loop_data = 1;
-            end
-            if ~exist('loop_data', 'var')
-                loop_data = 1;
-            end
-            if ~exist('return_results', 'var')
-                return_results = false;
-            end
-            obj.payload = struct('common_data',common_data,...
-                'loopData',[],'n_first_step',1,'n_steps',0,...
-                'return_results',return_results );
-            if ~exist('n_first_step', 'var')
-                n_first_step = 1;
-            end
-            if iscell(loop_data)
-                obj.payload.loopData = loop_data;
-                obj.payload.n_steps   = numel(loop_data);
-                obj.payload.n_first_step  = 1;
-            elseif isstruct(loop_data)
+            p = inputParser();
+            p.StructExpand = false;
+            addOptional(p, 'common_data', [], @(x)(true)) % Accept any data (necessary because it might be a string)
+            addOptional(p, 'loop_data', 1, @(x)(true))
+            addOptional(p, 'return_results', false, @islognumscalar)
+            addOptional(p, 'n_first_step', 1, @(x)(validateattributes(x, {'numeric'}, {'scalar', 'nonempty'})))
+            addOptional(p, 'is_list', false, @islognumscalar)
+            parse(p, varargin{:});
+
+            loop_data = p.Results.loop_data;
+            obj.payload = struct('common_data', p.Results.common_data, ...
+                'n_first_step', p.Results.n_first_step, 'n_steps', 0, ...
+                'return_results', p.Results.return_results);
+
+            if isstruct(loop_data)
                 fn = fieldnames(loop_data);
                 obj.payload.loopData = loop_data;
                 % would not work correctly if the first field was string
                 obj.payload.n_steps   = numel(loop_data.(fn{1}));
                 obj.payload.n_first_step  = 1;
+            elseif p.Results.is_list
+                obj.payload.loopData = loop_data;
+                obj.payload.n_steps = numel(loop_data);
+                obj.payload.n_first_step  = 1;
             else
-                obj.payload.n_steps  = loop_data;
-                obj.payload.n_first_step  = n_first_step;
+                obj.payload.loopData = [];
+                obj.payload.n_steps = loop_data;
             end
+
         end
-        
+
         function n_steps = get.n_steps(obj)
             n_steps =obj.payload.n_steps;
         end
+
         function cd = get.common_data(obj)
             cd = obj.payload.common_data;
         end
+
         function cd = get.loop_data(obj)
             cd = obj.payload.loopData;
         end
+
         function yesno = get.return_results(obj)
             yesno  = obj.payload.return_results;
         end
+
         function nfs = get.n_first_step(obj)
             nfs = obj.payload.n_first_step;
         end
-        %
+
     end
-    methods(Static,Access=protected)
+
+    methods(Static, Access=protected)
         function isblocking = get_blocking_state()
             % return the blocking state of a message
             isblocking = true;
         end
     end
-    
-end
 
+end

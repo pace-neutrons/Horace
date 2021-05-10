@@ -29,7 +29,7 @@ else
                 fprintf('***** Task: %s initialization/completeon error.\n',me.job_id);
                 disp('*****************************************************************');
                 
-                if isa(mess,'FailedMessage') || isa(mess,'CanceledMessage')
+                if isa(mess,'FailedMessage') || isa(mess,'CancelledMessage')
                     disp(mess.fail_text);
                     if ~isempty(mess.exception)
                         mess.exception.getReport()
@@ -56,7 +56,7 @@ end
 function completed = check_completed(tag)
 persistent fin_id;
 if isempty(fin_id)
-    fin_id = MESS_NAMES.mess_id({'failed','canceled','completed'});
+    fin_id = MESS_NAMES.mess_id({'failed','cancelled','completed'});
 end
 if any(tag==fin_id)
     completed = true;

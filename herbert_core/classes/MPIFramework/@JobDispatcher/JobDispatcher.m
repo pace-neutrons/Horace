@@ -51,36 +51,36 @@ classdef JobDispatcher
         % shared file system and all file-based messages, related to
         % controlling this job a distributed through this folder.
         job_id
-        
+
         % the instance of the file-based messages framework used for
         % exchange between logon node and the cluster. Used for providing
         % initialization information for the job, receiving log messages
         % from node-1 and returning some calculations results
         mess_framework;
-        
+
         % Exposes read access to parallel cluster, instance of a
         % <a href="matlab:help('ClusterWrapper');">ClusterWrapper</a> class
         % to run a parallel job.
         cluster
-        
+
         % True if jobDispatcher already controls a cluster
         % so the next job can be executed on existing cluster
         % rather then after starting a new one. False if the cluster is not
         % running and needs to start-up.
         is_initialized
         % -----------------------------------------------------------------
-        
+
         % how often (in second) job dispatcher should query the task status
         task_check_time;
-        
+
         %number of times to try action until deciding the action have failed
         fail_limit
-        
+
         % time interval to wait until job which do not send any messages
         % from the cluster is considered failed (and should be terminated)
         time_to_fail
     end
-    %
+
     properties(Access=protected, Hidden = true)
         % how often (in second) job dispatcher should query the task status
         task_check_time_ = 4;
@@ -92,7 +92,7 @@ classdef JobDispatcher
         mess_framework_;
         %
         time_to_fail_  = 300; %300sec, 5 min
-        
+
         % holder for initiated cluster allowing to resubmit jobs
         cluster_ = [];
         % the holder for the object performing job clean-up operations
@@ -101,7 +101,7 @@ classdef JobDispatcher
         % the first time or is reused.
         job_is_starting_ = true;
     end
-    %
+
     methods
         function jd = JobDispatcher(varargin)
             % Initialize job dispatcher.
@@ -121,9 +121,9 @@ classdef JobDispatcher
             if ~isempty(pc.shared_folder_on_local)
                 mf.mess_exchange_folder = pc.shared_folder_on_local;
             end
-            jd.mess_framework_  = mf;
+            jd.mess_framework_ = mf;
         end
-        %
+
         function [outputs,n_failed,task_ids,this]=start_job(this,...
                 job_class_name,common_params,loop_params,return_results,...
                 number_of_workers,keep_workers_running,task_query_time)
@@ -180,7 +180,7 @@ classdef JobDispatcher
                 job_class_name,common_params,loop_params,return_results,...
                 number_of_workers,keep_workers_running,task_query_time);
         end
-        %
+
         function [outputs,n_failed,task_ids,this]=restart_job(this,...
                 job_class_name,common_params,loop_params,return_results,...
                 keep_workers_running,task_query_time)
@@ -234,16 +234,17 @@ classdef JobDispatcher
                 job_class_name,common_params,loop_params,return_results,...
                 keep_workers_running,task_query_time);
         end
-        %
+
         %------------------------------------------------------------------
+
         function limit = get.fail_limit(this)
             limit  = this.fail_limit_;
         end
-        %
+
         function time = get.task_check_time(this)
             time = this.task_check_time_;
         end
-        %
+
         function this = set.task_check_time(this,val)
             if val<=0
                 error('JOB_DISPATCHER:invalid_argument',...
@@ -252,11 +253,11 @@ classdef JobDispatcher
             this.task_check_time_ =val;
             this = reset_fail_limit_(this,this.time_to_fail/val);
         end
-        %
+
         function time = get.time_to_fail(this)
             time = this.time_to_fail_;
         end
-        %
+
         function this = set.time_to_fail(this,val)
             if val<0
                 error('JOB_DISPATCHER:set_time_to_fail','time to fail can not be negative');
@@ -264,27 +265,30 @@ classdef JobDispatcher
             this.time_to_fail_ =val;
             this = reset_fail_limit_(this,val/this.task_check_time);
         end
-        
+
         function mf = get.mess_framework(obj)
             % return class, used to communicate with the cluster
             mf = obj.mess_framework_;
         end
+
         function id = get.job_id(obj)
             % Return unique string, describing the job
             id = obj.mess_framework_.job_id;
         end
+
         function is = get.is_initialized(obj)
             % Return true if job dispatcher is initialized i.e. controls
             % a parallel cluster
-            
+
             is = ~isempty(obj.cluster_);
         end
+
         function cl = get.cluster(obj)
             % get access to the cluster, used to run parallel job by this
             % class
             cl = obj.cluster_;
         end
-        %
+
         function obj = finalize_all(obj)
             % Stop cluster and parallel processes and clear all messages.
             %
@@ -294,7 +298,7 @@ classdef JobDispatcher
             obj.cluster_ = [];
             obj.job_destroyer_ = [];
         end
-        %
+
         function display_fail_job_results(obj,outputs,n_failed,n_workers,varargin)
             % Display job results if the job have failed.
             % Auxiliary method.
@@ -323,7 +327,7 @@ classdef JobDispatcher
             end
             display_fail_jobs_(obj,outputs,n_failed,n_workers,Err_code);
         end
-        %
+
         function obj= migrate_exchange_folder(obj)
             % the function user to change location of message exchane
             % folder when task is completed and new task should start.
@@ -334,12 +338,12 @@ classdef JobDispatcher
                 return;
             end
             obj.mess_framework_.migrate_message_folder();
-            
+
             if ~isempty(obj.cluster_)
                 obj.cluster_ = obj.cluster_.set_mess_exchange(obj.mess_framework_);
             end
         end
-        
+
     end
     methods(Static)
         function [task_id_list,init_mess]=split_tasks(common_par,loop_par,return_outputs,n_workers)
@@ -368,8 +372,6 @@ classdef JobDispatcher
             %                  initialization information for workers
             [task_id_list,init_mess]=split_tasks_(common_par,loop_par,return_outputs,n_workers);
         end
-        
+
     end
 end
-
-

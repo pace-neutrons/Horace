@@ -133,7 +133,7 @@ if ok_fit   % no point in testing if already not possible to perform a fit
         else
             constrained(ifun==-1)=true;     % as there is some data, a parameter of global function is constrained
         end
-        
+
         bound_to_res = obj.bound_to_res_;
         bound_to_res(~bound) = find(~bound);% resolved binding, including the concept of bound-to-self
         constrained_res = accumarray (bound_to_res,constrained,[npptot,1]);
@@ -168,7 +168,7 @@ ifuncboundto = zeros(npptot,1);
 pf = pp0(free);
 p_info = struct('np',np,'nbp',nbp,'nptot',nptot,'nbptot',nbptot,'npptot',npptot,...
     'pp0',pp0,'free',free,'bound',bound,'ib',ib,'ratio',ratio,'fore',fore','bkgd',bkgd);
-
+end
 
 %--------------------------------------------------------------------------------------------------
 function [p,bp]=array_to_p_bp(pp,np,nbp)
@@ -176,7 +176,7 @@ function [p,bp]=array_to_p_bp(pp,np,nbp)
 nptot=sum(np(:));
 p=reshape(vec_to_cell(pp(1:nptot),np(:)),size(np));
 bp=reshape(vec_to_cell(pp(nptot+1:end),nbp(:)),size(nbp));
-
+end
 
 %--------------------------------------------------------------------------------------------------
 function [ok,mess]=get_bad_parameters_message(bad,np,nbp,mess_str)
@@ -207,3 +207,4 @@ else
     mess='';
 end
 
+end

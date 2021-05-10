@@ -228,10 +228,10 @@ classdef MessagesFilebased < iMessagesFramework
             [ok,err]=wait_at_barrier_(obj,nothrow);
         end
         %
-        function is = is_job_canceled(obj)
-            % method verifies if job has been canceled
+        function is = is_job_cancelled(obj)
+            % method verifies if job has been cancelled
             is = ~is_folder(obj.mess_exchange_folder_) || ...
-                ~isempty(obj.probe_all('all','canceled'));
+                ~isempty(obj.probe_all('all','cancelled'));
         end
         %------------------------------------------------------------------
         % Filebased framework specific properties:

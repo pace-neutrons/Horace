@@ -12,6 +12,7 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             end
             obj = obj@TestCase(name);
         end
+
         function clear_jenkins_var(obj)
             % clear fake Jenkins configuration, for is_jenkins routine
             % returning false
@@ -22,6 +23,7 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             set(hc,obj.stored_config);
             hc.init_tests = true;
         end
+        
         function set_up_fake_jenkins(obj)
             % set up fake Jenkins configuration, for is_jenkins routine
             % returning true
@@ -31,7 +33,7 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             obj.stored_config = hrc.get_data_to_store();
         end
         
-        function test_init_failed_canceled(~)
+        function test_init_failed_cancelled(~)
             fii = iMessagesFramework.build_worker_init(tmp_dir, ...
                 'test_init_failed_timeout', 'MessagesFilebased', 0, 3,'test_mode');
             
@@ -43,12 +45,12 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             cs = mf.get_worker_init('MessagesParpool',1,3);
             css = mf.deserialize_par(cs);
             meR1 = MessagesFilebased(css);
-            mc  = CanceledMessage('Test cancellation',...
-                MException('MESSAGES_FRAMEWORK:canceled','test cancellation'));
+            mc  = CancelledMessage('Test cancellation',...
+                MException('MESSAGES_FRAMEWORK:cancelled','test cancellation'));
             meR1.send_message(0,mc );
             
             cluster = cluster.wait_started_and_report(1);
-            assertEqual(cluster.status_name,'canceled');
+            assertEqual(cluster.status_name,'cancelled');
         end
         
         function test_init_failed_timeout(~)
