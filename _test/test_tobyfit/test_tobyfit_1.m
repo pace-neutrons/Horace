@@ -40,13 +40,13 @@ test_output = true;
 legacy = false;
 
 if exist('option','var')
-    if ischar(option) && isequal(lower(option),'-setup')
+    if ischar(option) && isequal(lower(option), '-setup')
         save_data = true;
         test_output = false;
-    elseif ischar(option) && isequal(lower(option),'-save')
+    elseif ischar(option) && isequal(lower(option), '-save')
         save_output = true;
         test_output = false;
-    elseif ischar(option) && isequal(lower(option),'-notest')
+    elseif ischar(option) && isequal(lower(option), '-notest')
         test_output = false;
     else
         if ~exist('version','var')
@@ -483,5 +483,3 @@ if save_output
     save(fullfile(tmp_dir,savefile),...
         'fp110a1','fp110a2','fp110a3','fp110a4','fp110arr1','fp110arr2');
 end
-
-
