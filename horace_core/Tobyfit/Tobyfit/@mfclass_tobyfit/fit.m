@@ -125,7 +125,7 @@ function [data_out, fitdata, ok, mess, varargout] = fit (obj, varargin)
 % Check there is data
 data = obj.data;
 if isempty(data)
-    error('No data sets have been set - nothing to fit')
+    error('HORACE:mfclass_tobyfit:invalid_argument', 'No data sets have been set - nothing to fit')
 end
 
 % Update parameter wrapping
@@ -150,7 +150,7 @@ end
 obj_tmp.wrapfun.p_wrap = append_args (obj_tmp.wrapfun.p_wrap, obj.mc_contributions, obj.mc_points, xtal, modshape);
 
 % Perform fit
-[data_out, fitdata, ok, mess] = fit@mfclass (obj_tmp, varargin{:});
+[data_out, fitdata] = fit@mfclass (obj_tmp, varargin{:});
 
 % Extract crystal or moderator refinement parameters (if any) in a useful form
 if is_refine_crystal
@@ -184,3 +184,6 @@ if is_refine_moderator
     % Pack output arguments
     varargout={fitmod.pulse_model,fitmod.p,fitmod.sig};
 end
+
+end
+
