@@ -54,7 +54,7 @@ classdef test_multifit_horace_2 < TestCaseWithSave
             % Fit using local foreground model
             mss = multifit_sqw_sqw(this.win);
             mss = mss.set_local_foreground;
-            mss = mss.set_fun(@sqw_bcc_hfm_no_bkgd, {[5,5,1.2,10],[5,5,1.4,15]});  % set foreground function(s)
+            mss = mss.set_fun(@sqw_bcc_hfm_no_bkgd, {[5, 5, 1.2, 10], [5, 5, 1.4, 15]});  % set foreground function(s)
             mss = mss.set_bind({1,[1,1],1},{2,[2,1],1});
             mss = mss.set_bfun(@sqw_constant, 0); % set background function(s)
             [wfit_1_locfore,fitpar_1_locfore] = mss.fit();
