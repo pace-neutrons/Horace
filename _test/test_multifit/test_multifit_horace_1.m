@@ -29,7 +29,7 @@ classdef test_multifit_horace_1 < TestCaseWithSave
 
             % Read in data
             data_dir = fileparts(mfilename('fullpath'));
-            
+
             this.w1data = sqw(fullfile(data_dir,'w1data.sqw'));
             this.w2data = sqw(fullfile(data_dir,'w2data.sqw'));
             this.win=[this.w1data,this.w2data];     % combine the two cuts into an array of sqw objects and fit
@@ -53,7 +53,7 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             wsim_1 = mss.simulate();
 
             % And now fit
-            [wfit_1,fitpar_1] = mss.fit();
+            [wfit_1, fitpar_1] = mss.fit();
 
             % Test against saved or store to save later; ingnore string
             % changes - these are filepaths
