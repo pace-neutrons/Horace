@@ -245,8 +245,8 @@ classdef test_migrated_apis < TestCase
 %        end
         function test_get_nearest_pixels(obj)
             sqw_obj = sqw(obj.test_sqw_2d_fullpath);
-            [xp, ip] = sqw_obj.get_nearest_pixels([-0.5, -0.5]);
-            assertEqual(size(xp), [1,2]);
+            [ok, ip] = sqw_obj.get_nearest_pixels([-0.5, -0.5]);
+            assertEqual(size(ok), [1,1]);
             assertEqual(size(ip), [1,1]);
         end
 
