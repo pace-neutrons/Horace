@@ -7,13 +7,13 @@ function test_tobyfit_let_resfun_1 (option)
 %               % parameters in test_tobyfit_let_resfun_1_out.mat in the same
 %               % folder as this file
 %
-%   >> test_test_tobyfit_let_resfun_1 ('-save')      
+%   >> test_test_tobyfit_let_resfun_1 ('-save')
 %               % Run the Tobyfit tests and save fit parameters
 %               % to file test_tobyfit_resfun_1_out.mat
 %               % in the temporary folder (given by tmp_dir)
 %               % Copy to the same folder as this file to use in tests
 %
-%   >> test_test_tobyfit_let_resfun_1 ('-notest')   
+%   >> test_test_tobyfit_let_resfun_1 ('-notest')
 %               % Run without testing against previously stored results.
 %               % For performing visual checks or debugging the tests!
 
@@ -127,7 +127,7 @@ pause(pause_time)
 % %% --------------------------------------------------------------------------------------
 % % Collect results together as a structure
 % % ---------------------------------------------------------------------------------------
-% 
+%
 % % Cuts
 % res.w_nb_qe = w_nb_qe;
 % res.ww1 = ww1;

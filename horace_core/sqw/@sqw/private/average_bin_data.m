@@ -1,4 +1,4 @@
-function [vals_av,vals_var,vals_devsqr]=average_bin_data(w,vals)
+function [vals_av, vals_var, vals_devsqr] = average_bin_data(w, vals)
 % Given sqw_type object, average one or more arrays of npixtot values to give one value per bin.
 % npixtot is the number of pixels in the sqw object.
 %
@@ -28,10 +28,6 @@ function [vals_av,vals_var,vals_devsqr]=average_bin_data(w,vals)
 
 % See also recompute_bin_data, which uses en essentially the same algorithm. Any changes
 % to the one routine must be propagated to the other.
-
-% Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 if nargout>=2
     var_request=true;
@@ -92,4 +88,3 @@ else
         vals_var(nopix)=0;
     end
 end
-

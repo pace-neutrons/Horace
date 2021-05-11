@@ -1,17 +1,17 @@
-function [grid_size, pix_range] = write_spe_to_sqw (varargin)
+function [grid_size, urange] = write_spe_to_sqw (varargin)
 % Read a single spe file and a detector parameter file, and create a single sqw file.
 %
 %   >> write_spe_to_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
 %                                                   u, v, psi, omega, dpsi, gl, gs, grid_size_in, pix_range_in)
 %
 % *** DEPRECATED FUNCTION **********************************************************
-% 
+%
 % Calls to this function should be replaced by a call to gen_sqw. The only
 % differences are:
 %   - The angles psi, omega, dpsi, gl, gs are entered in degrees
 %     in gen_sqw, but are radians in write-spe_to_sqw
-%   - [Rarely used] The output from gen_sqw will return an empty parameter as the 
-%     first argument. The second and third argument output arguments are the 
+%   - [Rarely used] The output from gen_sqw will return an empty parameter as the
+%     first argument. The second and third argument output arguments are the
 %     same as the first and second from write_spe_to_sqw
 %
 % **********************************************************************************
@@ -48,7 +48,7 @@ function [grid_size, pix_range] = write_spe_to_sqw (varargin)
 
 
 % Gateway routine that calls sqw method
-[grid_size,pix_range] = write_spe_to_sqw (sqw, varargin{:});
+[grid_size, pix_range] = write_spe_to_sqw(sqw, varargin{:});
 
 % Clear output arguments if nargout==0 to have a silent return
 if nargout==0

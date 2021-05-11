@@ -13,7 +13,7 @@ end
 jobDispatcher = [];
 %
 if ~isempty(argi)
-    is_sqw = cellfun(@(x)isa(x,'sqw'),argi,'UniformOutput',true); 
+    is_sqw = cellfun(@(x)isa(x,'sqw'),argi,'UniformOutput',true);
     if any(is_sqw)
         if sum(is_sqw) > 1
             error('SQW_FILE_IO:invalid_artgument','only one sqw object can be provided as input for put_sqw');

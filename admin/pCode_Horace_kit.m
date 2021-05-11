@@ -76,7 +76,7 @@ for i=1:numel(mfiles)
     if(~strcmpi(current_mfile,'contents.m'))
         fprintf('    %s\n',current_mfile);
         helptext = help(current_mfile);
-        new_line = find(helptext==char(10));    % position of new lines
+        new_line = find(helptext==newline);    % position of new lines
         helptext([1 new_line+1]) = '%';
         fid = fopen(current_mfile,'wt');
         fprintf(fid,'%s',helptext);
@@ -144,4 +144,3 @@ end
 % execute the callback with any supplied parameters.
 % Due to recursion will execute in a bottom up manner
 function_pointer(directory, varargin{:});
-

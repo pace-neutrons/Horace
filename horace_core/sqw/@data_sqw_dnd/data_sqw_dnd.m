@@ -52,6 +52,11 @@ classdef data_sqw_dnd
         border_size = -4*eps
     end
     
+    methods (Static)
+        % Create bin boundaries for integration and plot axes from requested limits and step sizes
+        [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
+    end
+    
     methods
         %------------------------------------------------------------------
         % Determine data type of the data field of an sqw data structure
@@ -66,6 +71,9 @@ classdef data_sqw_dnd
         % Extract projection, used to build sqw file from full data_sqw_dnd
         % object (full-- containing pixels)
         proj = get_projection(obj)
+        % find the coordinates along each of the axes of the smallest cuboid 
+        % that contains bins with non-zero values of contributing pixels.
+        [val, n] = data_bin_limits (din);
         %------------------------------------------------------------------
         function obj = data_sqw_dnd(varargin)
             % constructor || copy-constructor:

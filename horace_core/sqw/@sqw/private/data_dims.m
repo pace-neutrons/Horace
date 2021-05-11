@@ -12,10 +12,6 @@ function [nd,sz] = data_dims(data)
 
 % Only needs the header part of the data field
 
-% Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
 nd=numel(data.pax);
 sz=zeros(1,nd);
 for i=1:nd

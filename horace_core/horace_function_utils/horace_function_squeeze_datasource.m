@@ -15,7 +15,7 @@ function wout=horace_function_squeeze_datasource(w)
 if isstruct(w) && isfield(w,'data')
     if iscellstr(w.data)
         wout=w.data;
-    elseif is_horace_data_object(w.data)
+    elseif isa(w.data,'SQWDnDBase')
         [wout,mess]=recover_object(w.data);
         if ~isempty(mess)
             error(mess)
@@ -23,13 +23,13 @@ if isstruct(w) && isfield(w,'data')
     else
         error('Invalid data source')
     end
-elseif is_horace_data_object(w)
+elseif isa(w,'SQWDnDBase')
     [wout,mess]=recover_object(w);
     if ~isempty(mess)
         error(mess)
     end
 elseif is_filename(w)
-    if ~iscellstr(w)    
+    if ~iscellstr(w)
         wout=cellstr(w);
     else
         wout=w;

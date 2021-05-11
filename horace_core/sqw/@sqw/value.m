@@ -1,4 +1,4 @@
-function [value,sigma]=value(w,x)
+function [value, sigma] = value(w, x)
 % Get the signal and standard error for the bin containing a point x in the plot
 %
 %   >> [s,e]=value(w,x)
@@ -20,12 +20,6 @@ function [value,sigma]=value(w,x)
 %   value   Signal (column vector)
 %   sigma   Standard deviation (column vector)
 
-
-% Original author: T.G.Perring
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
-
 if numel(w)~=1
     error('Function only works on a single sqw object')
 end
@@ -35,8 +29,8 @@ nd = dimensions(w);
 
 % Catch case of zero dimensional object with no x argument
 if nd==0 && nargin==0
-    value=w.data.s;
-    sigma=sqrt(w.data.e);
+    value = w.data.s;
+    sigma = sqrt(w.data.e);
     return
 end
 
@@ -55,23 +49,22 @@ else
     end
 end
 
-p=w.data.p;
+p = w.data.p;
 dax = w.data.dax;   % display axes permutation
 
-value=NaN(np,1);
-sigma=NaN(np,1);
-ind=cell(1,nd);
-ok=true(np,1);
-for i=1:nd
-    idim=dax(i);
-    ind{idim}=upper_index(p{idim},x(:,i));
-    ok(ind{idim}==0 | p{idim}(end)<x(:,i))=false;
+value = NaN(np, 1);
+sigma = NaN(np, 1);
+ind = cell(1, nd);
+ok = true(np, 1);
+for i = 1:nd
+    idim = dax(i);
+    ind{idim} = upper_index(p{idim}, x(:, i));
+    ok(ind{idim} == 0 | p{idim}(end) < x(:, i)) = false;
 end
-for i=1:nd
-    ind{i}=ind{i}(ok);
+for i = 1:nd
+    ind{i} = ind{i}(ok);
 end
-ix=sub2ind(size(w.data.s),ind{:});
+ix = sub2ind(size(w.data.s), ind{:});
 
-value(ok)=w.data.s(ix);
-sigma(ok)=sqrt(w.data.e(ix));
-
+value(ok) = w.data.s(ix);
+sigma(ok) = sqrt(w.data.e(ix));

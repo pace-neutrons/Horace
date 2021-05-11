@@ -118,6 +118,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
         end
         %
         function  this=test_serialize_deserialize_rundatah(this)
+
             rd = rundatah(this.sqw_obj);
             
             by = rd.serialize();
@@ -181,7 +182,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave
                 3.8615    6.6475    6.6475  147.5000];
             assertElementsAlmostEqual(pix_range,ref_range,'relative',3.e-4);
             assertEqualToTolWithSave(obj,sq4,'ignore_str',true,'tol',1.e-7);
-            
+
             rdr = rundatah(sq4);
             assertEqualToTol(rdr.saveobj(),rd.saveobj(),'ignore_str',true,'tol',1.e-7);
             

@@ -26,7 +26,7 @@ function d=spe(w)
 %               ERR        [ne x ndet] array of error values (st. dev.)
 %               en         Column vector of energy bin boundaries
 
-if ~is_sqw_type(w)
+if ~has_pixels(w)
     error('Input sqw object does not have sqw type (i.e. does not contain pixel information')
 end
 

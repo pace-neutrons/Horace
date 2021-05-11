@@ -25,7 +25,7 @@ function wout = noisify(w,varargin)
 
 wout=w;
 for i=1:numel(w)
-    if is_sqw_type(w(i))   % determine if sqw or dnd type
+    if has_pixels(w(i))   % determine if sqw or dnd type
         
         % Delegate to PixelData to noisify that object on a page-by-page
         % basis using the Herbert noisify.
@@ -33,7 +33,9 @@ for i=1:numel(w)
         wout(i)=recompute_bin_data(wout(i));
     else
         % Noisify the dnd data directly with the Herbert noisify.
-        [wout(i).data.s,wout(i).data.e]=noisify(w(i).data.s,w(i).data.e,varargin{:});
+        % [wout(i).data.s,wout(i).data.e]=noisify(w(i).data.s,w(i).data.e,varargin{:});
+        % SHOULD NOT GET HERE
+        error("Attempt to run sqw-class noisify method on non-sqw-class object");
     end
 end
 

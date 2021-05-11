@@ -40,13 +40,13 @@ test_output = true;
 legacy = false;
 
 if exist('option','var')
-    if ischar(option) && isequal(lower(option),'-setup')
+    if ischar(option) && isequal(lower(option), '-setup')
         save_data = true;
         test_output = false;
-    elseif ischar(option) && isequal(lower(option),'-save')
+    elseif ischar(option) && isequal(lower(option), '-save')
         save_output = true;
         test_output = false;
-    elseif ischar(option) && isequal(lower(option),'-notest')
+    elseif ischar(option) && isequal(lower(option), '-notest')
         test_output = false;
     else
         if ~exist('version','var')
@@ -92,30 +92,34 @@ if save_data
     proj.u=[1,1,0];
     proj.v=[-1,1,0];
     w110a=cut_sqw(data_source,proj,[0.95,1.05],[-0.6,0.05,0.6],[-0.05,0.05],[150,160]);
-    
+
     % Long cut along [1,1,0]
     proj.u=[1,1,0];
     proj.v=[-1,1,0];
     w110b=cut_sqw(data_source,proj,[0.95,1.05],[-2,0.05,3],[-0.05,0.05],[150,160]);
-    
+
     % Create cuts to simulate or fit simultaneously
     proj.u=[1,1,0];
     proj.v=[-1,1,0];
     w110_1=cut_sqw(data_source,proj,[0.95,1.05],[-0.6,0.05,0.6],[-0.05,0.05],[140,160]);
     w110_2=cut_sqw(data_source,proj,[0.95,1.05],[-0.6,0.05,0.6],[-0.05,0.05],[160,180]);
     w110_3=cut_sqw(data_source,proj,[0.95,1.05],[-0.6,0.05,0.6],[-0.05,0.05],[180,200]);
-    
+
     w110arr=[w110_1,w110_2,w110_3];
-    
+
     % Now save to file for future use
     datafile_full = fullfile(tmp_dir,datafile);
     save(datafile_full,'w110a','w110b','w110arr');
     disp(['Saved data for future use in',datafile_full])
     return
-    
+
 else
     % Read in data
-    load(datafile);
+    load(datafile); % load 'w110a', 'w110b'; ignore 'w110arr'
+    load('w110arr_as_separate_objects.mat');
+    w110arr(1) = w110c1;
+    w110arr(2) = w110c2;
+    w110arr(3) = w110c3;
 end
 
 % Add instrumnet and sample information to cuts
@@ -368,7 +372,7 @@ else
     kk = kk.set_mc_points(10);
     kk = kk.set_options('listing',nlist);
     [w110arr1_tf,fp110arr1]=kk.fit;
-    
+
     fback = kk.simulate(fp110arr1,'back');
     pl(fback)
 end
@@ -413,7 +417,7 @@ else
     kk = kk.set_mc_points(10);
     kk = kk.set_options('listing',nlist);
     [w110arr2_tf,fp110arr2]=kk.fit;
-    
+
     acolor k b r; pl(w110arr2_tf); ly 0 0.4
     fback = kk.simulate(fp110arr2,'back');
     pl(fback)
@@ -431,41 +435,41 @@ end
 % %% --------------------------------------------------------------------------------------
 % % Collect results together as a structure
 % % ---------------------------------------------------------------------------------------
-% 
+%
 % % Cuts
 % res.w110a=w110a;
 % res.w110b=w110b;
 % res.w110arr=w110arr;
-% 
+%
 % % First simulations
 % res.w110a_eval=w110a_eval;
 % res.w110a_sim=w110a_sim;
-% 
+%
 % res.w110b_eval=w110b_eval;
 % res.w110b_sim=w110b_sim;
-% 
+%
 % % Fits to single cuts
 % res.w110a1_sim=w110a1_sim;
 % res.w110a1_tf=w110a1_tf;
 % res.fp110a1=fp110a1;
-% 
+%
 % res.w110a2_sim=w110a2_sim;
 % res.w110a2_tf=w110a2_tf;
 % res.fp110a2=fp110a2;
-% 
+%
 % res.w110a3_sim=w110a3_sim;
 % res.w110a3_tf=w110a3_tf;
 % res.fp110a3=fp110a3;
-% 
+%
 % res.w110a4_sim=w110a4_sim;
 % res.w110a4_tf=w110a4_tf;
 % res.fp110a4=fp110a4;
-% 
+%
 % % Fits to multiple cuts
 % res.w110arr1_sim=w110arr1_sim;
 % res.w110arr1_tf=w110arr1_tf;
 % res.fp110arr1=fp110arr1;
-% 
+%
 % res.w110arr2_sim=w110arr2_sim;
 % res.w110arr2_tf=w110arr2_tf;
 % res.fp110arr2=fp110arr2;
@@ -479,5 +483,3 @@ if save_output
     save(fullfile(tmp_dir,savefile),...
         'fp110a1','fp110a2','fp110a3','fp110a4','fp110arr1','fp110arr2');
 end
-
-
