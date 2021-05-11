@@ -134,11 +134,11 @@ classdef test_rebin < TestCase
 
             mf1 = multifit_sqw (c1);
             mf1 = mf1.set_fun (@fake_cross_sec, [80,0.1,10]);
-            [wfit1, fitdata1] = mf1.fit();
+            [~, fitdata1] = mf1.fit();
 
             mf2 = multifit_sqw (c2);
             mf2 = mf2.set_fun (@fake_cross_sec, [80,0.1,10]);
-            [wfit2, fitdata2] = mf2.fit();
+            [~, fitdata2] = mf2.fit();
 
             [ok,mess]=equal_to_tol(fitdata1.p,fitdata2.p,-5e-3,'ignore_str', 1);
             assertTrue(ok,['rebin dnd using lo,step,hi syntax fails: ',mess])
@@ -153,14 +153,26 @@ classdef test_rebin < TestCase
             w1d_d1d=read_dnd(fullfile(this.testdir,'w1d_d1d.sqw'));
 
             reb_ax=[0.05,0.0125,0.033];
+
+            w1d_d1d_reb = cell(3, 1);
+            w1d_sqw_reb = cell(3, 1);
+            wfit_d1d_old = cell(3, 1);
+            wfit_sqw_old = cell(3, 1);
+            wfit_d1d = cell(3, 1);
+            wfit_sqw = cell(3, 1);
+            fitdata_d1d_old = cell(3, 1);
+            fitdata_sqw_old = cell(3, 1);
+            fitdata_d1d = cell(3, 1);
+            fitdata_sqw = cell(3, 1);
+
             for i=1:3
                 w1d_d1d_reb(i)=rebin_horace_1d(w1d_d1d,reb_ax(i));
                 w1d_sqw_reb(i)=cut(w1d_sqw,reb_ax(i));
                 if i==2
                     w1d_d1d_reb(i)=rebin_horace_1d(w1d_d1d_reb(i),0.025);
                 end
-                [wfit_d1d(i),fitdata_d1d(i)]=fit_sqw(w1d_d1d_reb(i),@fake_cross_sec,[80,0.1,10]);
-                [wfit_sqw(i),fitdata_sqw(i)]=fit_sqw(w1d_sqw_reb(i),@fake_cross_sec,[80,0.1,10]);
+                [wfit_d1d_old(i),fitdata_d1d_old(i)]=fit_sqw(w1d_d1d_reb(i),@fake_cross_sec,[80,0.1,10]);
+                [wfit_sqw_old(i),fitdata_sqw_old(i)]=fit_sqw(w1d_sqw_reb(i),@fake_cross_sec,[80,0.1,10]);
 
                 mf_d1d = multifit_sqw (w1d_d1d_reb(i));
                 mf_d1d = mf_d1d.set_fun (@fake_cross_sec, 0.9*[80,0.1,10]);

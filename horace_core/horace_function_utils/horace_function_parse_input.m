@@ -5,10 +5,10 @@ function [data_source, args, mess] = horace_function_parse_input (nargout_caller
 %           horace_function_parse_input (nargout_caller, data_object, arg1, arg2,...)
 %
 %   >> [data_source_struct, args, source_arg_is_filename, mess] = ...
-%          	horace_function_parse_input (nargout_caller, dummy_data_object, filename, arg1, arg2,...)
+%               horace_function_parse_input (nargout_caller, dummy_data_object, filename, arg1, arg2,...)
 %
 %   >> [data_source_struct, args, source_arg_is_filename, mess] = ...
-%          	horace_function_parse_input (nargout_caller, dummy_data_object, data_source_struct, arg1, arg2,...)
+%               horace_function_parse_input (nargout_caller, dummy_data_object, data_source_struct, arg1, arg2,...)
 %
 % NOTE: File names must not begin with a dash, '-'. Strings beginning with a dash are
 %       reserved for character keyword options.
@@ -181,7 +181,11 @@ if narg>=2 && is_filename(varargin{2}) && ...
         else
             data_source(1).source_is_file=true;
             data_source(1).data=filename;
-            if narg>=3, args=varargin(3:narg); else args=cell(1,0); end     % to work in all cases
+            if narg>=3     % to work in all cases
+                args=varargin(3:narg);
+            else
+                args=cell(1,0);
+            end
             if sqw_obj||opt_sqw||(opt_hor&&all(sqw_type(:)))
                 data_source(1).sqw_type=sqw_type;
             else
@@ -230,9 +234,13 @@ elseif narg>=2 && isa(varargin{1},'SQWDnDBase') && (isstruct(varargin{2}) &&...
             data_source.data=sqw(data_source.data);     % turn dnd object into dnd-type sqw object
         end
     end
-    if isempty(mess)
+    if isempty(mess)    % to work in all cases
         data_source.source_arg_is_struct=true;
-        if narg>=3, args=varargin(3:narg); else args=cell(1,0); end    % to work in all cases
+        if narg>=3
+            args=varargin(3:narg);
+        else
+            args=cell(1,0);
+        end
     end
 
 elseif narg>=1 && isa(varargin{1}, 'SQWDnDBase')
@@ -266,10 +274,13 @@ elseif narg>=1 && isa(varargin{1}, 'SQWDnDBase')
         data_source(1).nfiles=nfiles;
         data_source(1).source_arg_is_struct=false;
         data_source(1).nargout_req=nargout_caller;
-        if narg>=2, args=varargin(2:narg); else args=cell(1,0); end    % to work in all cases
+        if narg>=2    % to work in all cases
+            args=varargin(2:narg);
+        else
+            args=cell(1,0);
+        end
     end
 
 else
     mess='Invalid data source';
 end
-
