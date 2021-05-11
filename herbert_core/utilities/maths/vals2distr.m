@@ -31,9 +31,6 @@ keyval_def = struct('norm',false,'poisson',false);
 flags = {'norm','poisson'};
 [par,keyval,~,~,ok,mess] = parse_arguments (varargin,keyval_def,flags);
 if ~ok, error(mess), end
-if numel(par)>1
-    error('Check number of input arguments')
-end
 
 [N,edges] = histcounts(vals(:),par{:});
 if keyval.poisson

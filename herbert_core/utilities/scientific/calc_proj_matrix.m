@@ -3,20 +3,22 @@ function [spec_to_cc, u_to_rlu, spec_to_rlu] = calc_proj_matrix (var1, var2, u, 
 % projection axes defined by u1 || a*, u2 in plane of a* and b* i.e. crystal Cartesian axes
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %
-% Mode1:
+% Mode 1:
 %   >> [spec_to_u, u_to_rlu, spec_to_rlu] = ...
 %    calc_proj_matrix (alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
-
-% or:
-% Mode2:
+%
+% *OR*
+%
+% Mode 2:
 %  >>[spec_to_u, u_to_rlu, spec_to_rlu] = ...
-%    calc_proj_matrix (b_matix,u_matrix,'','',psi, omega, dpsi, gl, gs);
+%    calc_proj_matrix (b_matix, u_matrix, '', '', psi, omega, dpsi, gl, gs)
+%
 %     - used as part of oriented lattice function, deploying parameters,
 %     specified in oriented lattice
 %
 % Input:
 % ------
-% Either:
+% Mode 1:
 %   alatt       Lattice parameters (Ang^-1)
 %   angdeg      Lattice angles (deg)
 %   u           First vector (1x3) defining scattering plane (r.l.u.)
@@ -26,25 +28,29 @@ function [spec_to_cc, u_to_rlu, spec_to_rlu] = calc_proj_matrix (var1, var2, u, 
 %   dpsi        Correction to psi (rad)
 %   gl          Large goniometer arc angle (rad)
 %   gs          Small goniometer arc angle (rad)
-% or:
-% b_matrix -- the matrix used to transform vector in hkl coordinate system
-%             into Crystal Catresian coordinate system
-% u_matrix -- transforms vector in crystal Cartesian coords to orthonormal
-%             frame defined by vectors u, v.
-% ''       -- empty u-variable, used to distinguish between mode1 and
-%             mode2
-% v        -- not used in mode 2
-% psi         Angle of u w.r.t. ki (rad)
-% omega       Angle of axis of small goniometer arc w.r.t. notional u
-% dpsi        Correction to psi (rad)
-% gl          Large goniometer arc angle (rad)
-% gs          Small goniometer arc angle (rad)
-
+%
+% *OR*
+%
+% Mode 2:
+%   b_matrix    The matrix used to transform vector in hkl coordinate system
+%              into Crystal Catresian coordinate system
+%   u_matrix    Transforms vector in crystal Cartesian coords to orthonormal
+%              frame defined by vectors u, v.
+%   ''          Empty u-variable, used to distinguish between mode1 and
+%              mode2
+%   v           Not used in Mode 2
+%   psi         Angle of u w.r.t. ki (rad)
+%   omega       Angle of axis of small goniometer arc w.r.t. notional u
+%   dpsi        Correction to psi (rad)
+%   gl          Large goniometer arc angle (rad)
+%   gs          Small goniometer arc angle (rad)
+%
+%
 % Output:
 % -------
-%   spec_to_cc   Matrix (3x3)to convert momentum from coordinates in spectrometer
-%                frame to crystal Cartesian axes:
-%                    v_crystal_Cart = spec_to_cc * v_spec
+%   spec_to_cc  Matrix (3x3)to convert momentum from coordinates in spectrometer
+%              frame to crystal Cartesian axes:
+%                   v_crystal_Cart = spec_to_cc * v_spec
 %
 %   u_to_rlu    Matrix (3x3) of crystal Cartesian axes in reciprocal lattice units
 %              i.e. u_to_rlu(:,1) first vector - u(1:3,1) r.l.u. etc.
@@ -59,7 +65,7 @@ function [spec_to_cc, u_to_rlu, spec_to_rlu] = calc_proj_matrix (var1, var2, u, 
 %              (This matrix is entirely equivalent to u_to_rlu*spec_to_u)
 
 % T.G.Perring 15/6/07
-%
+
 
 if isempty(u) % slave mode
     b_matrix = var1;
@@ -92,4 +98,3 @@ u_to_rlu = inv(b_matrix);
 
 % Matrix to convert from spectrometer coordinates to r.l.u.
 spec_to_rlu = b_matrix\spec_to_cc;
-
