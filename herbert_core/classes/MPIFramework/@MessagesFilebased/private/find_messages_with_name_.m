@@ -27,10 +27,12 @@ mid_from     =  mid_from(nolocked);
 mess_present = mess_present(nolocked);
 all_messages =  arrayfun(@(x)(mess_name),1:sum(mess_present),'UniformOutput',false);
 
-
+end
 
 function no = check_nolocked(filename)
 % check if given file is not locked
 [rlock,wlock] = build_lock_fname_(filename);
 
-no = ~(is_file(rlock) || exist(wlock));
+no = ~(is_file(rlock) || is_file(wlock));
+
+end

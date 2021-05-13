@@ -1,36 +1,36 @@
 function [pout, vout, viout, facevout, faceiout]  = select3d(obj)
 %SELECT3D(H) Determines the selected point in 3-D data space.
-%  P = SELECT3D determines the point, P, in data space corresponding 
-%  to the current selection position. P is a point on the first 
-%  patch or surface face intersected along the selection ray. If no 
+%  P = SELECT3D determines the point, P, in data space corresponding
+%  to the current selection position. P is a point on the first
+%  patch or surface face intersected along the selection ray. If no
 %  face is encountered along the selection ray, P returns empty.
 %
 %  P = SELECT3D(H) constrains selection to graphics handle H and,
-%  if applicable, any of its children. H can be a figure, axes, 
+%  if applicable, any of its children. H can be a figure, axes,
 %  patch, or surface object.
 %
-%  [P V] = SELECT3D(...), V is the closest face or line vertex 
-%  selected based on the figure's current object. 
+%  [P V] = SELECT3D(...), V is the closest face or line vertex
+%  selected based on the figure's current object.
 %
-%  [P V VI] = SELECT3D(...), VI is the index into the object's 
-%  x,y,zdata properties corresponding to V, the closest face vertex 
+%  [P V VI] = SELECT3D(...), VI is the index into the object's
+%  x,y,zdata properties corresponding to V, the closest face vertex
 %  selected.
 %
-%  [P V VI FACEV] = SELECT3D(...), FACE is an array of vertices 
-%  corresponding to the face polygon containing P and V. 
-%  
-%  [P V VI FACEV FACEI] = SELECT3D(...), FACEI is the row index into 
-%  the object's face array corresponding to FACE. For patch 
-%  objects, the face array can be obtained by doing 
-%  get(mypatch,'faces'). For surface objects, the face array 
-%  can be obtained from the output of SURF2PATCH (see 
+%  [P V VI FACEV] = SELECT3D(...), FACE is an array of vertices
+%  corresponding to the face polygon containing P and V.
+%
+%  [P V VI FACEV FACEI] = SELECT3D(...), FACEI is the row index into
+%  the object's face array corresponding to FACE. For patch
+%  objects, the face array can be obtained by doing
+%  get(mypatch,'faces'). For surface objects, the face array
+%  can be obtained from the output of SURF2PATCH (see
 %  SURF2PATCH for more information).
 %
 %  RESTRICTIONS:
-%  SELECT3D supports surface, patch, or line object primitives. For surface 
-%  and patches, the algorithm assumes non-self-intersecting planar faces. 
+%  SELECT3D supports surface, patch, or line object primitives. For surface
+%  and patches, the algorithm assumes non-self-intersecting planar faces.
 %  For line objects, the algorithm always returns P as empty, and V will
-%  be the closest vertex relative to the selection point. 
+%  be the closest vertex relative to the selection point.
 %
 %  Example:
 %
@@ -47,9 +47,9 @@ function [pout, vout, viout, facevout, faceiout]  = select3d(obj)
 %                 'zdata',face(3,:),'linewidth',10);
 %  disp(sprintf('\nYou clicked at\nX: %.2f\nY: %.2f\nZ: %.2f',p(1),p(2),p(3)'))
 %  disp(sprintf('\nThe nearest vertex is\nX: %.2f\nY: %.2f\nZ: %.2f',v(1),v(2),v(3)'))
-% 
+%
 %  Version 1.3 11-11-04
-%  Copyright Joe Conti 2004 
+%  Copyright Joe Conti 2004
 %  Send comments to jconti@mathworks.com
 %
 %  See also GINPUT, GCO.
@@ -62,17 +62,16 @@ facevout = [];
 faceiout = [];
 
 % other variables
-ERRMSG = 'Input argument must be a valid graphics handle';
-isline = logical(0);
-isperspective = logical(0);
+isline = false;
+isperspective = false;
 
 % Parse input arguments
 if nargin<1
    obj = gco;
 end
 
-if isempty(obj) | ~ishandle(obj) | length(obj)~=1
-    error(ERRMSG);
+if isempty(obj) || ~ishandle(obj) || length(obj)~=1
+    error('Input argument must be a valid graphics handle');
 end
 
 % if obj is a figure
@@ -80,32 +79,32 @@ if strcmp(get(obj,'type'),'figure')
     fig = obj;
     ax = get(fig,'currentobject');
     currobj = get(fig,'currentobject');
-    
+
     % bail out if not a child of the axes
     if ~strcmp(get(get(currobj,'parent'),'type'),'axes')
         return;
     end
-    
+
 % if obj is an axes
 elseif strcmp(get(obj,'type'),'axes')
     ax = obj;
     fig = get(ax,'parent');
     currobj = get(fig,'currentobject');
     currax = get(currobj,'parent');
-    
+
     % Bail out if current object is under an unspecified axes
     if ~isequal(ax,currax)
         return;
     end
 
-% if obj is child of axes    
+% if obj is child of axes
 elseif strcmp(get(get(obj,'parent'),'type'),'axes')
     currobj = obj;
     ax = get(obj,'parent');
     fig = get(ax,'parent');
-    
+
 % Bail out
-else 
+else
     return
 end
 
@@ -123,26 +122,26 @@ if strcmp(obj_type,'surface')
     fv = surf2patch(axchild);
     vert = fv.vertices;
     faces = fv.faces;
-    
+
 % If patch object
 elseif strcmp(obj_type,'patch')
     vert = get(axchild,'vertices');
     faces = get(axchild,'faces');
-    
-% If line object     
+
+% If line object
 elseif strcmp(obj_type,'line')
     xdata = get(axchild,'xdata');
     ydata = get(axchild,'ydata');
     zdata = get(axchild,'zdata');
     vert = [xdata', ydata',zdata'];
-    faces = []; 
-    isline = logical(1);
+    faces = [];
+    isline = true;
 
 % Ignore all other objects
-else     
+else
    return;
 end
-    
+
 % Add z if empty
 if size(vert,2)==2
    vert(:,3) = zeros(size(vert(:,2)));
@@ -151,24 +150,24 @@ if size(vert,2)==2
    end
 end
 
-% NaN and Inf check 
-nan_inf_test1 = isnan(faces) | isinf(faces);
-nan_inf_test2 = isnan(vert) | isinf(vert);
-if any(nan_inf_test1(:)) | any(nan_inf_test2(:))
-    warning(sprintf('%s does not support NaNs or Infs in face/vertex data.',mfilename));
+% NaN and Inf check
+nan_inf_test1 = isnan(faces) || isinf(faces);
+nan_inf_test2 = isnan(vert) || isinf(vert);
+if any(nan_inf_test1(:)) || any(nan_inf_test2(:))
+    warning('%s does not support NaNs or Infs in face/vertex data.',mfilename);
 end
 
 % For debugging
-% if 0    
+% if 0
 %     ax1 = getappdata(ax,'testselect3d');
 %     if isempty(ax1) | ~ishandle(ax1)
-%         fig = figure; 
+%         fig = figure;
 %         ax1 = axes;
 %         axis(ax1,'equal');
 %         setappdata(ax,'testselect3d',ax1);
 %     end
 %     cla(ax1);
-%     patch('parent',ax1,'faces',faces,'vertices',xvert','facecolor','none','edgecolor','k'); 
+%     patch('parent',ax1,'faces',faces,'vertices',xvert','facecolor','none','edgecolor','k');
 %     line('parent',ax1,'xdata',xcp(1,2),'ydata',xcp(2,2),'zdata',0,'marker','o','markerfacecolor','r','erasemode','xor');
 % end
 
@@ -185,19 +184,19 @@ xvert(2,:) = xvert(2,:) - xcp(2,2);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if isline
 
-    % Ignoring line width and marker attributes, find closest 
+    % Ignoring line width and marker attributes, find closest
     % vertex in 2-D view space.
     d = xvert(1,:).*xvert(1,:) + xvert(2,:).*xvert(2,:);
-    [val i] = min(d);
+    [~, i] = min(d);
     i = i(1); % enforce only one output
-    
+
     % Assign output
     vout = [ xdata(i) ydata(i) zdata(i)];
     viout = i;
-    
+
     return % Bail out early
 end
-   
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Perform 2-D crossing test (Jordan Curve Theorem) %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -205,8 +204,7 @@ end
 % Find all vertices that have y components less than zero
 vert_with_negative_y = zeros(size(faces));
 face_y_vert = xvert(2,faces);
-ind_vert_with_negative_y = find(face_y_vert<0); 
-vert_with_negative_y(ind_vert_with_negative_y) = logical(1);
+vert_with_negative_y(face_y_vert<0) = true;
 
 % Find all the line segments that span the x axis
 is_line_segment_spanning_x = abs(diff([vert_with_negative_y, vert_with_negative_y(:,1)],1,2));
@@ -244,30 +242,30 @@ ind_intersection_test = find(s~=0);
 
 % Bail out early if no faces were hit
 if isempty(ind_intersection_test)
-   return;    
+   return;
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Plane/ray intersection test %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Perform plane/ray intersection with the faces that passed 
-% the polygon intersection tests. Grab the only the first 
+% Perform plane/ray intersection with the faces that passed
+% the polygon intersection tests. Grab the only the first
 % three vertices since that is all we need to define a plane).
 % assuming planar polygons.
 candidate_faces = candidate_faces(ind_intersection_test,1:3);
-candidate_faces = reshape(candidate_faces',1,prod(size(candidate_faces)));
+candidate_faces = reshape(candidate_faces',1,numel(candidate_faces));
 vert = vert';
 candidate_facev = vert(:,candidate_faces);
 candidate_facev = reshape(candidate_facev,3,3,length(ind_intersection_test));
 
-% Get three contiguous vertices along polygon 
+% Get three contiguous vertices along polygon
 v1 = squeeze(candidate_facev(:,1,:));
 v2 = squeeze(candidate_facev(:,2,:));
 v3 = squeeze(candidate_facev(:,3,:));
 
 % Get normal to face plane
-vec1 = [v2-v1];
-vec2 = [v3-v2];
+vec1 = v2-v1;
+vec2 = v3-v2;
 crs = cross(vec1,vec2);
 mag = sqrt(sum(crs.*crs));
 nplane(1,:) = crs(1,:)./mag;
@@ -275,8 +273,8 @@ nplane(2,:) = crs(2,:)./mag;
 nplane(3,:) = crs(3,:)./mag;
 
 % Compute intersection between plane and ray
-cp1 = cp(:,1);  
-cp2 = cp(:,2);  
+cp1 = cp(:,1);
+cp2 = cp(:,2);
 d = cp2-cp1;
 dp = dot(-nplane,v1);
 
@@ -286,7 +284,7 @@ A(2,:) = nplane(2,:).*d(2);
 A(3,:) = nplane(3,:).*d(3);
 A = sum(A,1);
 
-%B = dot(nplane,pt1) 
+%B = dot(nplane,pt1)
 B(1,:) = nplane(1,:).*cp1(1);
 B(2,:) = nplane(2,:).*cp1(2);
 B(3,:) = nplane(3,:).*cp1(3);
@@ -296,7 +294,7 @@ B = sum(B,1);
 t = (-dp-B)./A;
 
 % Find "best" distance (smallest)
-[tbest ind_best] = min(t);
+[tbest, ind_best] = min(t);
 
 % Determine intersection point
 pout = cp1 + tbest .* d;
@@ -305,19 +303,18 @@ pout = cp1 + tbest .* d;
 %% Assign additional output variables %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if nargout>1
-    
+
     % Get face index and vertices
     faceiout = ind_is_face_spanning_x(ind_intersection_test(ind_best));
     facevout = vert(:,faces(faceiout,:));
-    
-    % Determine index of closest face vertex intersected 
+
+    % Determine index of closest face vertex intersected
     facexv = xvert(:,faces(faceiout,:));
     dist = sqrt(facexv(1,:).*facexv(1,:) +  facexv(2,:).*facexv(2,:));
     min_dist = min(dist);
-    min_index = find(dist==min_dist);
-    
+
     % Get closest vertex index and vertex
-    viout = faces(faceiout,min_index);
+    viout = faces(faceiout,dist==min_dist);
     vout = vert(:,viout);
 end
 
@@ -340,7 +337,7 @@ w = xform(4,1) * nvert(:,1) + xform(4,2) * nvert(:,2) + xform(4,3) * nvert(:,3) 
 xvert(:,1) = xform(1,1) * nvert(:,1) + xform(1,2) * nvert(:,2) + xform(1,3) * nvert(:,3) + xform(1,4);
 xvert(:,2) = xform(2,1) * nvert(:,1) + xform(2,2) * nvert(:,2) + xform(2,3) * nvert(:,3) + xform(2,4);
 
-% w may be 0 for perspective plots 
+% w may be 0 for perspective plots
 ind = find(w==0);
 w(ind) = 1; % avoid divide by zero warning
 xvert(ind,:) = 0; % set pixel to 0

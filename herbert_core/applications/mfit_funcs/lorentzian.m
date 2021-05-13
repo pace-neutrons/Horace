@@ -1,6 +1,6 @@
 function [y, name, pnames, pin] = lorentzian(x, p, flag)
 % Lorentzian function
-% 
+%
 %   >> y = lorentzian(x,p)
 %   >> [y, name, pnames, pin] = lorentzian(x,p,flag)
 %
@@ -33,17 +33,20 @@ if nargin==2
     y=(p(1)*p(3)^2)./((x-p(2)).^2 + p(3)^2);
 else
     % Return parameter names or interactively prompt for parameter values
-	y=[];
-	name='Lorentzian';
-	pnames=str2mat('Height','Centre','Gamma');
-	if flag==1
+    y=[];
+    name='Lorentzian';
+    pnames=char('Height','Centre','Gamma');
+    if flag==1
         pin=zeros(size(p));
     elseif flag==2
-		mf_msg('Click on peak maximum');
-		[centre,height]=ginput(1);
-		mf_msg('Click on half-height');
-		[width,dummy]=ginput(1);
-		gamma=abs(width-centre);
-		pin=[height,centre,gamma];
-	end
+        mf_msg('Click on peak maximum');
+        [centre,height]=ginput(1);
+        mf_msg('Click on half-height');
+        [width,~]=ginput(1);
+        gamma=abs(width-centre);
+        pin=[height,centre,gamma];
+    end
 end
+
+end
+

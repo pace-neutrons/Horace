@@ -1,6 +1,6 @@
 function [y, name, pnames, pin] = straight_line(x, p, flag)
 % Straight line
-% 
+%
 %   >> y = straight_line(x,p)
 %   >> [y, name, pnames, pin] = straight_line (x,p,flag)
 %
@@ -31,19 +31,25 @@ function [y, name, pnames, pin] = straight_line(x, p, flag)
 if nargin==2
     y=p(1)+p(2)*x;
 else
-	y=[];
-	name='Straight line';
-	pnames=str2mat('Intercept','slope');
-	if flag==1
+    y=[];
+    name='Straight line';
+    pnames=char('Intercept','slope');
+    if flag==1
         pin=zeros(size(p));
     elseif flag==2
-		mf_msg('Click on line');
-		[x1,y1]=ginput(1);
-		mf_msg('Click on another point');
-		[x2,y2]=ginput(1);
+        mf_msg('Click on line');
+        [x1,y1]=ginput(1);
+        mf_msg('Click on another point');
+        [x2,y2]=ginput(1);
         const=(x2*y1-x1*y2)/(x2-x1);
         slope=(y2-y1)/(x2-x1);
-        if isnan(const)||isnan(slope); const=0; slope=0; end;
-		pin=[const,slope];
-	end
+        if isnan(const)||isnan(slope)
+            const=0;
+            slope=0;
+        end
+        pin=[const,slope];
+    end
 end
+
+end
+

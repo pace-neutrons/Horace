@@ -26,9 +26,9 @@ if ~ok
     error(mess)
 end
 if use_missing
-    missing = '-missing';
-else
-    missing ={};
+%     missing = '-missing';
+% else
+%     missing ={};
 end
 if ~configure_cpp
     build_c = true;
@@ -116,14 +116,14 @@ for i=1:nargin-2
 end
 outdir = fullfile(out_dir,'');
 
-[f_path,f_name]=fileparts(files{1});
+[~,f_name]=fileparts(files{1});
 targ_file=fullfile(outdir,[f_name,'.',mexext]);
 if(is_file(targ_file))
     try
         delete(targ_file)
-    catch
+    catch ME
         cd(old_path);
-        error([' file: ',f_name,mexext,' locked. deletion error: ',lasterr()]);
+        error([' file: ',f_name,mexext,' locked. deletion error: ', ME]);
     end
 end
 
@@ -172,12 +172,12 @@ end
 
 function set_mex = ask2SetMex()
 disp('!==================================================================!')
-disp('! Would you like to use mex files immediately after successful    !')
+disp('! Would you like to use mex files immediately after successful     !')
 disp('! compilation?: y/n                                                !')
 disp('! if no, you will be able to use them  by setting herbert          !')
 disp('! configuration                                                    !')
-disp('!>>set(herbert_config,''use_mex'',1,')                        !')
-disp('! when compilation was successful,                                !')
+disp('! >>set(herbert_config,''use_mex'',1,')                            !')
+disp('! when compilation was successful,                                 !')
 disp('! if yes, this script will do it for you                           !')
 disp('!------------------------------------------------------------------!')
 disp('!------------------------------------------------------------------!')

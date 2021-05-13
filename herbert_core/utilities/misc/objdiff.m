@@ -24,19 +24,19 @@ function [objectC,IA,IB] = objdiff(objectA,objectB,varargin)
 %     >> objectA = struct('a',3, 'b',5, 'd',9);
 %     >> objectB = struct('a','ert', 'c',struct('t',pi), 'd',9);
 %     >> objectC = objdiff(objectA, objectB)  % a=different, b=new in objectA, c=new in objectB, d=same
-%     objectC = 
+%     objectC =
 %         a: {[3]  'ert'}
 %         b: {[5]  {}}
 %         c: {{}  [1x1 struct]}
 %
 %     >> objectC = objdiff(java.awt.Color.red, java.awt.Color.blue)
-%     objectC = 
+%     objectC =
 %         Blue: {[0]  [255]}
 %          RGB: {[-65536]  [-16776961]}
 %          Red: {[255]  [0]}
 %
 %     >> objectC = objdiff(0,gcf)  % 0 is the root handle
-%     objectC = 
+%     objectC =
 %           children: {[2x1 struct]  []}
 %             handle: {[0]  [1]}
 %         properties: {[1x1 struct]  [1x1 struct]}
@@ -75,7 +75,7 @@ function [objectC,IA,IB] = objdiff(objectA,objectB,varargin)
       end
       objectB = objectA(2);
       objectA = objectA(1);
-      varargin = {objectB, varargin{:}};
+      varargin = [objectB, varargin{:}];
   elseif ~strcmp(class(objectA),class(objectB))
       error('YMA:OBJDIFF:DissimilarObjects', 'Input objects must be of the same type');
   end
@@ -83,10 +83,10 @@ function [objectC,IA,IB] = objdiff(objectA,objectB,varargin)
   % Process optional options
   ignoreJavaObjectsFlag = true;
   if ~isempty(varargin)
-      ignoreJavaIdx = strmatch('dontignorejava',lower(varargin{:}));
-      if ~isempty(ignoreJavaIdx)
+      ignoreJavaIdx = strcmpi('dontignorejava',varargin{:});
+      if ~any(ignoreJavaIdx)
           ignoreJavaObjectsFlag = false;
-          varargin(ignoreJavaIdx) = [];
+          varargin = varargin(~ignoreJavaIdx);
       end
   end
 
@@ -139,9 +139,9 @@ function [objectC,IA,IB] = compareStructs(objectA,objectB,ignoreJavaObjectsFlag)
           objectC.(fieldName) = {{}, objectB.(fieldName)};
       elseif ~isfield(objectB,fieldName)
           objectC.(fieldName) = {objectA.(fieldName), {}};
-      elseif ~isequalwithequalnans(objectA.(fieldName), objectB.(fieldName))
+      elseif ~isequaln(objectA.(fieldName), objectB.(fieldName))
           if ignoreJavaObjectsFlag && isjava(objectA.(fieldName)) && isjava(objectB.(fieldName)) && ...
-                  isequalwithequalnans(objectA.(fieldName).getClass, objectB.(fieldName).getClass)
+                  isequaln(objectA.(fieldName).getClass, objectB.(fieldName).getClass)
               continue;
           end
           objectC.(fieldName) = {objectA.(fieldName), objectB.(fieldName)};
@@ -160,7 +160,7 @@ function [objectC,IA,IB] = compareStructs(objectA,objectB,ignoreJavaObjectsFlag)
 
 %% De-cell-ize a numeric cell-array
 function obj = decell(obj)
-  if iscell(obj) && ~iscellstr(obj)
+  if iscell(obj) && (~iscellstr(obj) && ~isstring(obj))
       obj = cell2mat(obj);
   end
 
@@ -171,4 +171,3 @@ function obj = getSingleton(obj)
       warning('YMA:OBJDIFF:TooManyElements', 'Too many elements in %s - only comparing the first', inputname(1));
       obj = obj(1);
   end
-

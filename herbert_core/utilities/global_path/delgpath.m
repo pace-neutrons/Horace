@@ -11,9 +11,12 @@ if ~isvarname(pathname)
 end
 
 if ~existgpath(pathname)
-    display(['Global path ''',pathname,''' does not exist. No delete performed'])
+    disp(['Global path ''',pathname,''' does not exist. No delete performed'])
     return  % doesn't exist anyway
 end
 
 % Delete the file
 ixf_global_path('del',pathname);
+
+end
+

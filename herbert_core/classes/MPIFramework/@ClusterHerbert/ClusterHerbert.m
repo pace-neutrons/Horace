@@ -3,14 +3,14 @@ classdef ClusterHerbert < ClusterWrapper
     %
     % of Matlab workers, controlled by Java
     % runtime, and exchanging filebased messages.
-    % 
+    %
     %----------------------------------------------------------------------
     properties(Access = protected)
-        
+
         cluster_prev_state_ =[];
         cluster_cur_state_ = [];
-        
-        
+
+
         matlab_starter_  = [];
         tasks_handles_ = {};
     end
@@ -19,7 +19,7 @@ classdef ClusterHerbert < ClusterWrapper
         %
         DEBUG_REMOTE = false;
     end
-    
+
     methods
         function obj = ClusterHerbert(n_workers,mess_exchange_framework,log_level)
             % Constructor, which initiates wrapper around Herbert Poor man
@@ -72,7 +72,7 @@ classdef ClusterHerbert < ClusterWrapper
             if ~exist('log_level', 'var')
                 log_level = -1;
             end
-            
+
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
             %
             pc = parallel_config();
@@ -85,14 +85,14 @@ classdef ClusterHerbert < ClusterWrapper
             if isempty(prog_path)
                 error('CLUSTER_HERBERT:runtime_error','Can not find Matlab');
             end
-            
+
             if ispc()
                 obj.matlab_starter_ = fullfile(prog_path,'matlab.exe');
             else
                 obj.matlab_starter_= fullfile(prog_path,'matlab');
-                obj.task_common_str_ = {'-softwareopengl',obj.task_common_str_{:}};
+                obj.task_common_str_ = [{'-softwareopengl'},obj.task_common_str_{:}];
             end
-            
+
             intecomm_name = obj.pool_exchange_frmwk_name_;
             for task_id=1:n_workers
                 cs = obj.mess_exchange_.get_worker_init(intecomm_name ,task_id,n_workers);
@@ -106,7 +106,7 @@ classdef ClusterHerbert < ClusterWrapper
                     task_info = [{obj.matlab_starter_},obj.task_common_str_(1:end),...
                         {worker_init}];
                 end
-                
+
                 runtime = java.lang.ProcessBuilder(task_info);
                 obj.tasks_handles_{task_id} = runtime.start();
                 [ok,failed,mess] = obj.is_java_process_running(obj.tasks_handles_{task_id});
@@ -119,7 +119,7 @@ classdef ClusterHerbert < ClusterWrapper
             if log_level > -1
                 fprintf(obj.started_info_message_);
             end
-            
+
         end
         %
         function obj=finalize_all(obj)
@@ -131,7 +131,7 @@ classdef ClusterHerbert < ClusterWrapper
                 end
                 obj.tasks_handles_ = {};
             end
-            
+
         end
         function [completed, obj] = check_progress(obj,varargin)
             % Check the job progress verifying and receiving all messages,
@@ -165,13 +165,12 @@ classdef ClusterHerbert < ClusterWrapper
                 end
             end
         end
-        
+
         %------------------------------------------------------------------
     end
     methods(Access = protected)
         function [ok,failed,mess] = is_running(obj)
             % Method checks if java framework is running
-            
             for i=1:numel(obj.tasks_handles_)
                 [ok,failed,mess] = is_java_process_running(obj,obj.tasks_handles_{i});
                 if ~ok
@@ -179,11 +178,9 @@ classdef ClusterHerbert < ClusterWrapper
                     return;
                 end
             end
-            
+
         end
         %
-        
+
     end
 end
-
-

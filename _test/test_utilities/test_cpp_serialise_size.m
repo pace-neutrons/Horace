@@ -208,7 +208,7 @@ classdef test_cpp_serialise_size < TestCase
             if ~this.use_mex
               skipTest('MEX not enabled');
             end
-            test_obj = [1:10];
+            test_obj = 1:10;
             cpp = c_serial_size(test_obj);
             ser_siz = hlp_serial_sise(test_obj);
             assertEqual(cpp, ser_siz)
@@ -242,7 +242,7 @@ classdef test_cpp_serialise_size < TestCase
             if ~this.use_mex
               skipTest('MEX not enabled');
             end
-            test_obj = [3+4i, 5+7i; 2+i, 1-i];
+            test_obj = [3+4i, 5+7i; 2+1i, 1-1i];
             cpp = c_serial_size(test_obj);
             ser_siz = hlp_serial_sise(test_obj);
             assertEqual(cpp, ser_siz)
@@ -387,7 +387,7 @@ classdef test_cpp_serialise_size < TestCase
             if ~this.use_mex
               skipTest('MEX not enabled');
             end
-            test_sparse = sparse([1],[1], [i]);
+            test_sparse = sparse(1, 1, 1i);
             cpp = c_serial_size(test_sparse);
             ser_siz = hlp_serial_sise(test_sparse);
             assertEqual(cpp, ser_siz)
@@ -398,7 +398,7 @@ classdef test_cpp_serialise_size < TestCase
             if ~this.use_mex
               skipTest('MEX not enabled');
             end
-            test_sparse = sparse([1:10],[1], i);
+            test_sparse = sparse(1:10, 1, 1i);
             cpp = c_serial_size(test_sparse);
             ser_siz = hlp_serial_sise(test_sparse);
             assertEqual(cpp, ser_siz)

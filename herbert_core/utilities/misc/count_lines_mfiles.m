@@ -12,7 +12,7 @@ function report=count_lines_mfiles(varargin)
 
 % Parse input
 % ------------
-if ~isempty(varargin) && ischar(varargin{end}) && ~isempty(varargin{end}) && strncmpi(lower(varargin{end}),'-all',min(numel(varargin{end}),4))
+if ~isempty(varargin) && ischar(varargin{end}) && ~isempty(varargin{end}) && strncmpi(varargin{end},'-all',min(numel(varargin{end}),4))
     recurse=true;
     narg=nargin-1;
 else

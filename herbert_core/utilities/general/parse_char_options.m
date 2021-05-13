@@ -60,7 +60,7 @@ if nargout == nopt+3
 end
 
 if return_remaining
-    remaining_args=logical(zeros(narg,1));
+    remaining_args=false(narg,1);
 end
 varargout = cell(nouts,1);
 varargout = cellfun(@(x){false},varargout);
@@ -99,5 +99,3 @@ mess='';
 if return_remaining
     varargout{nouts} = args(remaining_args);
 end
-
-

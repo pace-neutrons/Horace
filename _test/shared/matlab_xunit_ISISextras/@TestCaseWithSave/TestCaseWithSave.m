@@ -192,25 +192,25 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     % if new output is being generated that would otherwise cause tests to fail. A
     % common case is with the assertion-without-save functions e.g. assertEqualToTol or
     % assertEqual. In this case, an error will be thrown and execution will cease.
-    
-    
+
+
     % Original author A. Buts, rewritten T.G.Perring
     %
-    
-    
+
+
     properties(Dependent)
         % Filename from which to read previously stored test results
         test_results_file
-        
+
         % Structure containing the data to reference in tests or to store
         ref_data
     end
-    
+
     properties (SetAccess=protected)
         % True if calculated data is to be saved in a temporary file
         save_output = false;
     end
-    
+
     properties(Access=protected)
         % Structure containing test results
         % - If save_outptu is false (i.e. in test mode) the structure contains
@@ -218,23 +218,23 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
         % - If save_output is true, it contains tests results to save in
         %   a temporary file whose name is constructed from test_results_file_
         ref_data_=struct();
-        
+
         % Filename from which to read previously stored test results
         % This file name will also be used to construct the output file name
         % for saving results in save mode
         test_results_file_ = '';
-        
+
         % Name of test method to be saved if save_output==true ({} means all methods)
         % If save_output is false, then this property is ignored
         test_method_to_save_ = {};
-        
+
         % List of any files to delete after test suite is completed
         files_to_delete_= {};
-        
+
         % List of any paths to remove after test suite is completed
         paths_to_remove_= {};
     end
-    
+
     methods
         function this = TestCaseWithSave (opt, filename)
             % Construct your test class by inheriting this constructor:
@@ -294,15 +294,15 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %              <myTestSuite>_output.mat in the folder containing
             %              <myTestSuite>. In this example the default file is
             %              'TestSomeStuff_output.mat'
-            
+
             % This class constructor will be called by a sub-class constructor
             % - If that sub-class is used directly by the user, then the first argument
             %   can either be the name of the test suite, or a save option.
             % - The sub-class is also called from the xunit unit test suite. The way
             %   Alex Buts modified xunit and TestCase is such that the test suite name
             %   is what is passed.
-            
-            
+
+
             % Get the class name - we have no object yet, so must construct the name
             % (This will be the calling name of the test suite that has inherited
             % TestCaseWithSave, or will be TestCaseWithSave itself because it has been
@@ -317,24 +317,24 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
                     caller_is_test_suite = true;
                 end
             end
-            
+
             % Create class with defaults
             this = this@TestCase(class_name);
-            
+
             % Alter properties according to whether or not the class is a test suite
             if caller_is_test_suite
                 % Update save_output and test methods to save, if necessary
                 if nargin>=1    % option given
                     this = this.instantiate_methods_to_save_ (opt);
                 end
-                
+
                 % Update test results file name and data structure
                 if exist('filename','var')
                     this = this.instantiate_ref_data_ (filename);
                 else
                     this = this.instantiate_ref_data_ ();
                 end
-                
+
             else
                 % TestCaseWithSave called directly - no options allowed
                 if nargin~=0
@@ -343,14 +343,14 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
                 end
             end
         end
-        
+
         %------------------------------------------------------------------
         function val = get.test_results_file(this)
             % Retrieve the name of the file, where the test results will be
             % stored
             val = this.test_results_file_;
         end
-        
+
         function val = get.ref_data(this)
             % Retrieve the data to compare tests against
             val = this.ref_data_;
@@ -359,8 +359,8 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % Set up reference dataset from outside source.
             this.ref_data_ = val;
         end
-        
-        
+
+
         %------------------------------------------------------------------
         function this=add_to_files_cleanList (this, varargin)
             % Add names of files to be deleted once the test case is run
@@ -372,10 +372,10 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %
             % (Note that because the test class is a handle object, no
             % return argument is needed)
-            
+
             this.files_to_delete_ = add_to_list (this.files_to_delete_, varargin{:});
         end
-        
+
         %------------------------------------------------------------------
         function this=add_to_path_cleanList(this,varargin)
             % Add paths to be deleted once the test case is run
@@ -387,10 +387,10 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %
             % (Note that because the test class is a handle object, no
             % return argument is needed)
-            
+
             this.paths_to_remove_ = add_to_list (this.paths_to_remove_, varargin{:});
         end
-        
+
         %------------------------------------------------------------------
         function assertEqualWithSave (this, var, varargin)
             % Assert that input and saved value are equal
@@ -410,13 +410,13 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % This is the 'WithSave' extension of the xUnit unit test assertEqual
             %
             % See also assertEqual
-            
-            
+
+
             assertMethodWithSave (this, var, inputname(2),...
                 @assertEqual, varargin{:});
-            
+
         end
-        
+
         %------------------------------------------------------------------
         function assertElementsAlmostEqualWithSave (this, var, varargin)
             % Assert floating-point array elements almost equal to saved array elements.
@@ -446,13 +446,13 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % This is the 'WithSave' extension of the xUnit unit test assertElementsAlmostEqual
             %
             % See also assertElementsAlmostEqual
-            
-            
+
+
             assertMethodWithSave (this, var, inputname(2),...
                 @assertElementsAlmostEqual, varargin{:});
-            
+
         end
-        
+
         %------------------------------------------------------------------
         function assertVectorsAlmostEqualWithSave (this, var, varargin)
             % Assert floating-point vector is almost equal to saved vector in norm sense.
@@ -482,12 +482,12 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % This is the 'WithSave' extension of the xUnit unit test assertVectorsAlmostEqual
             %
             % See also assertVectorsAlmostEqual
-            
-            
+
+
             assertMethodWithSave (this, var, inputname(2),...
                 @assertVectorsAlmostEqual, varargin{:});
         end
-        
+
         %------------------------------------------------------------------
         function assertEqualToTolWithSave (this, var, varargin)
             % Test equality with stored value to within a tolerance, or save
@@ -515,23 +515,23 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %              see <a href="matlab:help('equal_to_tol');">equal_to_tol</a>
             %              or class specific implementations of equal_to_tol, for example
             %              see <a href="matlab:help('equal_to_tol');">equal_to_tol</a>
-            
+
             var_name = inputname(2);
             assertMethodWithSave (this, var, var_name, @assertEqualToTol, varargin{:},...
                 'name_a',var_name,'name_b',[var_name,'_stored']);
         end
-        
+
         function delete (this)
             % Function that will be called on destruction by virtue of the
             % class being a handle class
-            
+
             % Use static utility methods
             this.delete_files (this.files_to_delete_)
             this.remove_paths (this.paths_to_remove_)
         end
     end
-    
-    
+
+
     %----------------------------------------------------------------------
     % Static methods
     %----------------------------------------------------------------------
@@ -539,7 +539,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
     % the class.
     % However, they have been made static methods so that they are also
     % available for general use in test suites
-    
+
     methods(Static)
         %------------------------------------------------------------------
         function delete_files (varargin)
@@ -548,10 +548,10 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %   testCaseWithSave.delete_files (files)
             %
             % files is a file name or cell array of file names
-            
+
             if nargin== 1
                 if ischar(varargin{1})
-                    files={varargin{1}};
+                    files=varargin(1);
                 elseif iscell(varargin{1})
                     files = varargin{1};
                 end
@@ -572,7 +572,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % Turn warnings back on
             warning(warn);
         end
-        
+
         %------------------------------------------------------------------
         function remove_paths (varargin)
             % Remove path or paths
@@ -580,10 +580,10 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %   testCaseWithSave.remove_paths (paths)
             %
             % paths is a path name or cell array of path names
-            
+
             if nargin== 1
                 if ischar(varargin{1})
-                    paths={varargin{1}};
+                    paths=varargin(1);
                 elseif iscell(varargin{1})
                     paths = varargin{1};
                 end
@@ -599,10 +599,10 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % Turn warnings back on
             warning(warn);
         end
-        
+
     end
-    
-    
+
+
     %----------------------------------------------------------------------
     % Protected methods
     %----------------------------------------------------------------------
@@ -619,7 +619,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             %   funcHandle  Handle to assertion function
             %   varargin{:} Arguments to pass to assertion function, which must have
             %               the form e.g. assertVectorsAlmostEqual(A,B,varargin{:})
-            
+
             % Get the name of the test method. Determine this as the highest
             % method of the class in the call stack that begins with 'test'
             % ignoring character case
@@ -631,13 +631,13 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             for i=numel(call_struct):-1:2
                 cont=regexp(call_struct(i).name,'\.','split');
                 test_name = cont{end};
-                
+
                 if strcmp(cont{1},class_name) && ~strcmp(cont{end},class_name) &&...
                         strncmpi(cont{end},'test',4)
                     break
                 end
             end
-            
+
             % Give default name for the variable if var_name is empty
             % (*** TGP 09/12/2018: this always enforces the default same name
             %  no matter how many other variables might have been previously saved.
@@ -647,7 +647,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             if isempty(var_name)
                 var_name = [test_name,'_1'];
             end
-            
+
             % Perform the test, or save
             if ~this.save_output
                 stored_reference = this.get_ref_dataset_(var_name, test_name);
@@ -656,6 +656,6 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
                 this.set_ref_dataset_ (var, var_name, test_name);
             end
         end
-        
+
     end
 end

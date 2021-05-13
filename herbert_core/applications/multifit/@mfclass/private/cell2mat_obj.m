@@ -14,10 +14,8 @@ if ~isobject(c{1}); error('Input is not cell array of objects'), end
 
 % Check all cells are objects of the same class - this may be time consuming
 classtype=class(c{1});
-for i=1:numel(c)
-    if ~isa(c{i},classtype)
-        error('Not all elements of the cell array hace the same class')
-    end
+if ~all(cellfun(@(x)(isa(x,classtype)), c))
+    error('Not all elements of the cell array have the same class')
 end
 
 % Combine into an array of the class type
@@ -37,7 +35,7 @@ csize = size(c);
 %   sequential concatenations
 for cdim=(length(csize)-1):-1:1
     % Pre-calculated outside the next loop for efficiency
-    ct = cell([csize(1:cdim) 1]);
+    ct = cell([csize(1:cdim), 1]);
     cts = size(ct);
     ctsl = length(cts);
     mref = {};
@@ -49,7 +47,7 @@ for cdim=(length(csize)-1):-1:1
         % Treat a size [N 1] array as size [N], since this is how the indices
         %   are found to calculate CT
         if ctsl==2 && cts(2)==1
-            mref = {mref{1}};
+            mref = mref(1);
         end
         % Perform the concatenation along the (CDIM+1) dimension
         ct{mref{:}} = cat(cdim+1,c{mref{:},:});
@@ -60,3 +58,5 @@ end
 
 % Finally, concatenate the final rows of cells into a matrix
 m = cat(1,c{:});
+
+end

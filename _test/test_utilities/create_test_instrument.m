@@ -1,4 +1,4 @@
-function instrument = maps_instrument(ei,hz,chopper)
+function instrument = create_test_instrument(ei,hz,chopper)
 % Return instrument description for MAPS
 %
 %   >> instrument = maps_instrument(ei,hz,chopper)
@@ -87,3 +87,6 @@ instrument.aperture=aperture;
 fermi_chopper=chopper_array(ind);
 fermi_chopper.energy=ei;
 instrument.fermi_chopper=fermi_chopper;
+
+end
+

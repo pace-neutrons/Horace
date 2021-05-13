@@ -8,7 +8,7 @@ function files_list=copy_files_list(source_dir,target_dir,varargin)
 % Omit files in a folder containing _exclude_files.txt (but include
 % subfolders containing this file.
 %
-% if third parameter is present, copy only the files with extentions, which
+% if third parameter is present, copy only the files with extensions, which
 % are in the list of varargins; if one of the extenisons has sign "-"
 % before it -- do not copy files with this extension
 % otherwise, copy everything.
@@ -25,20 +25,20 @@ function files_list=copy_files_list(source_dir,target_dir,varargin)
 
 global source_dir_root;
 global target_dir_root;
-global extention;
+global extension;
 global include_service_directory;
 
 % if the list of extensions includes -, this means that everyting except
 % what is marked with - is copied, so, include_all_extensions has to be
-% true and the sign '*' (copy all extentions) has to be added to the list
+% true and the sign '*' (copy all extensions) has to be added to the list
 % of extensions;
 include_service_directory=false;
 if(nargin==2)
-    extention={'*'};
+    extension={'*'};
 else
     % modify the input list of extensions to be of the standard kind, like
     % returned by the "fileparts" function
-    [extention,include_service_directory]=process_extentions(varargin);
+    [extension,include_service_directory]=process_extensions(varargin);
 end
 source_dir_root = source_dir;
 target_dir_root   = target_dir;
@@ -116,26 +116,26 @@ for i=1:length(dirs)
         if isempty(ll)
             rmdir(target0_directory);
         end
-        
+
     else
-        if(strncmpi(['_',computer],dirname,6)||strncmpi('_R200',dirname,5))  % this is system OS directory which is needed and has to be copyed
+        if(strncmpi(['_',computer],dirname,6)||strncmpi('_R200',dirname,5))  % this is system OS directory which is needed and has to be copied
             [ll,target0_directory]=copy_files_list_recursively(fullfile(source_dir,dirname)); % recursive calling of this function.
             local_list=[local_list,ll];
-            % remove target directory if nothing was copyied into it
+            % remove target directory if nothing was copied into it
             if isempty(ll)
                 rmdir(target0_directory);
             end
-            
+
         end
     end
-    
+
 end
 
 
 %--------------------------------------------------------------------------------------------------
 function [local_list,excludes_all]=copyFileList(sourcePath,destPath,filelist)
 % set logical vector for files entries in
-global extention;
+global extension;
 
 excludes_all = false;
 if is_file(fullfile(sourcePath,'_exclude_all.txt'))
@@ -143,7 +143,7 @@ if is_file(fullfile(sourcePath,'_exclude_all.txt'))
     % distribution
     excludes_all = true;
     local_list = {};
-    
+
     return;
 end
 if is_file(fullfile(sourcePath,'_exclude_files.txt'))
@@ -160,12 +160,12 @@ local_list=cell(1,nFiles);
 
 non_empty_cells = false(1,nFiles);
 for i=1:nFiles
-    [path,name,ext]=fileparts(fileList(i).name);
-    if should_be_ignored(ext,extention)
+    [~,name,ext]=fileparts(fileList(i).name);
+    if should_be_ignored(ext,extension)
         non_empty_cells(i) = false;
         continue;
     end
-    
+
     destFile  = [destPath,filesep,name,ext];
     [success,message]=copyfile([sourcePath,filesep,fileList(i).name],destFile,'f');
     if(~success)
@@ -176,13 +176,13 @@ for i=1:nFiles
         local_list{i}=destFile;
         non_empty_cells(i) = true;
     end
-    
+
 end
 
 local_list = local_list(non_empty_cells);
 
 %--------------------------------------------------------------------------------------------------
-function [extention,include_service_directory]=process_extentions(extention)
+function [extension,include_service_directory]=process_extensions(extension)
 % modify the input list of extensions to be of the standard kind, like
 % returned by the "fileparts" function
 
@@ -190,33 +190,33 @@ include_all_extensions   =false;
 include_service_directory=false;
 %
 % analyse system if system folders ('started from '+_') included
-is_system_folder_present=cellfun(@is_system_folder,extention);
+is_system_folder_present=cellfun(@is_system_folder,extension);
 if any(is_system_folder_present)
     include_all_extensions   =true;
     include_service_directory=true;
     non_system_folder=~is_system_folder_present;
-    extention={extention{non_system_folder}};
+    extension=extension(non_system_folder);
 end
 %
 % analyse keys which begin with '-'
-is_minus=cellfun(@is_first_minus,extention); %
+is_minus=cellfun(@is_first_minus,extension); %
 any_minus=any(is_minus);
 if any_minus
     include_all_extensions=true;
-    ext_with_minus={extention{is_minus}};
-    no_dot_after_miuns = cellfun(@absent_dot_after_minus,ext_with_minus);
-    ext_mindot=cellfun(@insert_dot_before_minus,{ext_with_minus{no_dot_after_miuns}},'UniformOutput',false);
-    extention=[ext_mindot,extention{~is_minus}];
-    is_minus=cellfun(@is_first_minus,extention); %
+    ext_with_minus=extension(is_minus);
+    no_dot_after_minus = cellfun(@absent_dot_after_minus,ext_with_minus);
+    ext_mindot=cellfun(@insert_dot_before_minus,ext_with_minus(no_dot_after_minus),'UniformOutput',false);
+    extension=[ext_mindot,extension{~is_minus}];
+    is_minus=cellfun(@is_first_minus,extension); %
 end
 
 % analyse keys starting with '+'; remove plus sign
-is_plus=cellfun(@is_first_plus,extention);
+is_plus=cellfun(@is_first_plus,extension);
 any_plus=any(is_plus);
 if any_plus
     include_all_extensions=false;
-    ext_plus_removed=cellfun(@remove_first_symb,{extention{is_plus}},'UniformOutput',false);
-    extention=[ext_plus_removed,{extention{~is_plus}}];
+    ext_plus_removed=cellfun(@remove_first_symb,extension(is_plus),'UniformOutput',false);
+    extension=[ext_plus_removed,extension(~is_plus)];
 end
 
 if ~any_minus && (~any_plus) && nargin>1
@@ -224,25 +224,24 @@ if ~any_minus && (~any_plus) && nargin>1
 end
 
 % only minus and no special symbol extensions remain.
-% insert dots in no-dot extention
-no_first_dot=cellfun(@is_first_dot,{extention{~is_minus}});
+% insert dots in no-dot extension
+no_first_dot=cellfun(@is_first_dot,extension(~is_minus));
 if any(~no_first_dot)
-    half_no_min  ={extention{~is_minus}};
-    half_is_min  ={extention{is_minus}};
-    half_no_min  = cellfun(@add_dot,{half_no_min{~no_first_dot}},'UniformOutput',false);
-    extention    =[half_is_min,half_no_min];
+    half_no_min  =extension(~is_minus);
+    half_is_min  =extension(is_minus);
+    half_no_min  = cellfun(@add_dot,half_no_min(~no_first_dot),'UniformOutput',false);
+    extension    =[half_is_min,half_no_min];
 end
 % add * at the end of extensions if including them all
 if include_all_extensions
-    has_star_sighn=cellfun(@is_dotstar,extention);
-    if any(has_star_sighn)
-        ind = find(has_star_sighn);
-        extention{ind}=extention{end};
-        extention{end}='*';
+    has_star_sign=cellfun(@is_dotstar,extension);
+    if any(has_star_sign)
+        extension(has_star_sign)=extension{end};
+        extension{end}='*';
     else
-        extention{end+1}='*';
+        extension{end+1}='*';
     end
-    
+
 end
 
 %--------------------------------------------------------------------------------------------------
