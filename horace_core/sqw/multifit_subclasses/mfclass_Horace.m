@@ -356,11 +356,7 @@ classdef mfclass_Horace < mfclass
             % <#doc_end:>
             % -----------------------------------------------------------------------------
 
-            try
-                obj = set_fun@mfclass (obj, varargin{:});
-            catch ME
-                error(ME.message)
-            end
+            obj = set_fun@mfclass (obj, varargin{:});
         end
 
         function obj = set_bfun(obj,varargin)
@@ -591,11 +587,7 @@ classdef mfclass_Horace < mfclass
             % <#doc_end:>
             % -----------------------------------------------------------------------------
 
-            try
-                obj = set_bfun@mfclass (obj, varargin{:});
-            catch ME
-                error(ME.message)
-            end
+            obj = set_bfun@mfclass (obj, varargin{:});
         end
 
     end
