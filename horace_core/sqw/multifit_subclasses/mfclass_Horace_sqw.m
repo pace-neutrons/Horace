@@ -147,7 +147,7 @@ classdef mfclass_Horace_sqw < mfclass
             if islognumscalar(val)
                 obj.average = logical(val);
             else
-                error ('Propery named ''average'' must be a logical scalar (or numeric 0 or 1)')
+                error ('Property named ''average'' must be a logical scalar (or numeric 0 or 1)')
             end
         end
 
@@ -384,11 +384,7 @@ classdef mfclass_Horace_sqw < mfclass
             % <#doc_end:>
             % -----------------------------------------------------------------------------
 
-            try
-                obj = set_fun@mfclass (obj, varargin{:});
-            catch ME
-                error(ME.message)
-            end
+            obj = set_fun@mfclass (obj, varargin{:});
         end
 
         function obj = set_bfun(obj,varargin)
@@ -619,11 +615,7 @@ classdef mfclass_Horace_sqw < mfclass
             % <#doc_end:>
             % -----------------------------------------------------------------------------
 
-            try
-                obj = set_bfun@mfclass (obj, varargin{:});
-            catch ME
-                error(ME.message)
-            end
+            obj = set_bfun@mfclass (obj, varargin{:});
         end
 
         function [data_out, calcdata, ok, mess] = simulate (obj, varargin)

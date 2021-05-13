@@ -38,19 +38,17 @@ end
 
 % Dimension of input data structures
 ndim=dimensions(win(1));
-for i=2:numel(win)
-    if dimensions(win(i))~=ndim
-        error('All objects must have same dimensionality for sectioning to work')
-    end
-end
 if ndim==0  % no sectioning possible
-    error ('Cannot section a zero dimensional object')
+    error('HORACE:sqw:invalid_argument', 'Cannot section a zero dimensional object')
 end
 
+if any(cellfun(@(x)(dimensions(x)~=ndim), win(2:end)))
+    error('HORACE:sqw:invalid_argument', 'All objects must have same dimensionality for sectioning to work')
+end
 
-nargs= length(varargin);
+nargs = length(varargin);
 if nargs~=ndim
-    error ('Check number of arguments')
+    error('HORACE:sqw:invalid_argument', 'Check number of arguments')
 end
 
 % Initialise output argument
@@ -73,7 +71,7 @@ for n=1:numel(win)
             array_section{pax}=irange(1,pax):irange(2,pax);
         elseif isa_size(varargin{i},[1,2],'double')
             if varargin{i}(1)>varargin{i}(2)
-                error (['Lower limit larger than upper limit for axis ',num2str(i)])
+                error ('HORACE:sqw:bad_limit', ['Lower limit larger than upper limit for axis ',num2str(i)])
             end
             pax=win(n).data.dax(i);
             pcent = 0.5*(p{pax}(2:end)+p{pax}(1:end-1));          % values of bin centres
@@ -84,10 +82,10 @@ for n=1:numel(win)
                 wout(n).data.p{pax} = p{pax}(lis(1):lis(end)+1);
                 array_section{pax}=irange(1,pax):irange(2,pax);
             else
-                error (['No data along axis ',num2str(i),' in the range [',num2str(varargin{i}(1)),',',num2str(varargin{i}(2)),']'])
+                error ('HORACE:sqw:no_data', ['No data along axis ',num2str(i),' in the range [',num2str(varargin{i}(1)),',',num2str(varargin{i}(2)),']'])
             end
         else
-            error (['Limits parameter for axis ',num2str(i),' must be zero or a pair of numbers'])
+            error ('HORACE:sqw:bad_data', ['Limits parameter for axis ',num2str(i),' must be zero or a pair of numbers'])
         end
     end
 
@@ -158,4 +156,3 @@ if numel(nstart)==numel(nend)
 else
     error('Number of elements in input arrays incompatible')
 end
-
