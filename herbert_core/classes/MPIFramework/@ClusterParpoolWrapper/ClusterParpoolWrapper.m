@@ -124,7 +124,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             
             num_labs = cl.NumWorkers;
             if num_labs < obj.n_workers
-                error('PARPOOL_CLUSTER_WRAPPER:runtime_error',...
+                error('HERBERT:ClusterParpoolWrapper:invalid_argument',...
                     'job %s requested %d workers while the cluster allows only %d',...
                     obj.job_id,obj.n_workers,num_labs);
             end
@@ -144,7 +144,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             
             [completed,obj] = obj.check_progress();
             if completed
-                error('PARPOOL_CLUSTER_WRAPPER:runtime_error',...
+                error('HERBERT:ClusterParpoolWrapper:system_error',...
                     'parpool cluster for job %s finished before starting any job. State: %s',...
                     obj.job_id,obj.status_name);
             end
@@ -204,7 +204,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                                 completed = true;
                                 [ok,err,mess] = obj.mess_exchange_.receive_message(1,mess{1},'-synch');
                                 if ok ~= MESS_CODES.ok
-                                    error('CLUSTER_WRAPPER:runtime_error',...
+                                    error('HERBERT:ClusterParpoolWrapper:system_error',...
                                         'Error %s receiving existing message: %s from job %s',...
                                         err,mess{1},obj.job_id);
                                 end
@@ -239,7 +239,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             % toolbox and the possibility to use the paropool cluster to
             % run parallel jobs.
             %
-            % Should throw PARALLEL_CONFIG:not_avalable exception
+            % Should throw HERBERT:ClusterWrapper:not_available exception
             % if the particular framework is not avalable.
             %
             check_availability@ClusterWrapper(obj);
@@ -249,7 +249,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
         %------------------------------------------------------------------
     end
     methods(Access = protected)
-        function ex = exit_worker_when_job_ends_(obj)
+        function ex = exit_worker_when_job_ends_(~)
             ex  = false;
         end
         function obj = set_cluster_status(obj,mess)
@@ -274,7 +274,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                     stat_mess = MESS_NAMES.instance().get_mess_class(mess);
                 end
             else
-                error('CLUSTER_WRAPPER:invalid_argument',...
+                error('HERBERT:ClusterParpoolWrapper:invalid_argument',...
                     'status is defined by aMessage class only or a message name')
             end
             obj.prev_status_ = obj.current_status_;

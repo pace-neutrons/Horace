@@ -293,7 +293,7 @@ classdef config_store < handle
             % set up unit test directories. But this can not set up
             % internal private dependent fields so a configuration can not
             % have such fields! (the setting got lost)
-            class_to_restore.set_stored_data(config_data);
+            %class_to_restore.set_stored_data(config_data);
         end
         function has = has_config(this,class_name)
             % method checks if the class with given name has given

@@ -345,8 +345,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                     ['Test is unstable - see ' ...
                     'https://github.com/pace-neutrons/Herbert/issues/329 for ' ...
                     'updates.'] ...
-                    );
-                
+                    );                
             end
             if obj.ignore_test
                 return;

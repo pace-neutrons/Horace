@@ -5,8 +5,6 @@ classdef ClusterMPI < ClusterWrapper
     %----------------------------------------------------------------------
     properties(Access = protected)
         
-        % the string user to launch Matlab
-        matlab_starter_  = [];
         % the string containing Java handle to running mpiexec process
         mpiexec_handle_ = [];
         %
@@ -87,7 +85,7 @@ classdef ClusterMPI < ClusterWrapper
             %
             prog_path  = find_matlab_path();
             if isempty(prog_path)
-                error('CLUSTER_HERBERT:runtime_error','Can not find Matlab');
+                error('HERBERT:runtime_error','Can not find Matlab');
             end
             
             mpiexec = obj.get_mpiexec();
@@ -183,7 +181,7 @@ classdef ClusterMPI < ClusterWrapper
             % communicaton library and the possibility to use the MPI cluster
             % to run parallel jobs.
             %
-            % Should throw PARALLEL_CONFIG:not_avalable exception
+            % Should throw HERBERT:ClusterWrapper:not_available exception
             % if the particular framework is not avalable.
             %
             check_availability@ClusterWrapper(obj);

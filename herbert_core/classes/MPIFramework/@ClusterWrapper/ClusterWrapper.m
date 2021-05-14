@@ -93,6 +93,8 @@ classdef ClusterWrapper
         % running process Java exception message contents, used to identify
         % if java process report it has been completed
         running_mess_contents_= 'process has not exited';
+        % the string, describing the operations to launch Matlab
+        matlab_starter_  = [];        
     end
     properties(Hidden,Dependent)
         % helper property to print nicely aligned log messages
@@ -119,7 +121,7 @@ classdef ClusterWrapper
             %              which started and controls the job.
             % log_level    if present, defines the verbosity of the
             %              operations over the framework
-            obj.pool_exchange_frmwk_name_ = 'ClusterMPI';
+
             if ispc()
                 obj.running_mess_contents_= 'process has not exited';
             else
@@ -320,7 +322,7 @@ classdef ClusterWrapper
             worker = config_store.instance.get_value('parallel_config','worker');
             pkp = which(worker);
             if isempty(pkp)
-                error('PARALLEL_CONFIG:not_available',...
+                error('HERBERT:ClusterWrapper:not_available',...
                     'Parallel worker %s is not on Matlab path. Parallel extensions are not available',...
                     worker);
             end
@@ -408,7 +410,7 @@ classdef ClusterWrapper
         %
         function obj = set_cluster_config_(obj,val)
             if ~strcmpi(val,obj.cluster_config_)
-                warning('CLUSTER_WRAPPER:invalid_argument',...
+                warning('HERBERT:ClusterWrapper:invalid_argument',...
                     'This type of cluster wrapper accepts only %s configuration. Changed to %s',...
                     obj.cluster_config_,obj.cluster_config_)
             end
@@ -423,7 +425,7 @@ classdef ClusterWrapper
             elseif ischar(mess)
                 stat_mess = aMessage(mess);
             else
-                error('CLUSTER_WRAPPER:invalid_argument',...
+                error('HERBERT:ClusterWrapper:invalid_argument',...
                     'status is defined by aMessage class only or a message name')
             end
             obj.prev_status_ = obj.current_status_;
@@ -434,7 +436,7 @@ classdef ClusterWrapper
             
         end
         %
-        function ex = exit_worker_when_job_ends_(obj)
+        function ex = exit_worker_when_job_ends_(~)
             % function defines desired completion of the workers.
             % should be true for java-controlled worker and false for parallel
             % computing toolbox controlled one.
