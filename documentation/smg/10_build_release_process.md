@@ -41,6 +41,8 @@ Horace PR must not be merged until the Herbert PR has been merged
 5. If the build/test of the PR against the Release branch succeeds on all
 platforms, and the code has been reviewed, the PR can be merged.
 
+<img src="./images/10_developmentworkflow.png">
+
 ## Releases
 
 The Jenkins build artifacts are are not accessible outside of STFC.
@@ -222,3 +224,4 @@ Disadvantages:
 
 - not fully tested code released to part of the production system,
 alleviated by the fact that affected user experienced issue anyway.
+

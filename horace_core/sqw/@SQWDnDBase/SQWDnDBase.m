@@ -29,7 +29,8 @@ classdef (Abstract) SQWDnDBase
         [sel,ok,mess] = mask_points(win, varargin);
         wout = mask_random_fraction_pixels(win,npix);
         wout = mask_random_pixels(win,npix);
-
+        varargout = change_crystal (varargin);
+        
         save(w, varargin);
 
         [xout,yout,sout,eout,nout] = convert_bins_for_shoelace(win, wref);
