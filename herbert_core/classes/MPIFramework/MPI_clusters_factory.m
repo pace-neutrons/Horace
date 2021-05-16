@@ -10,17 +10,17 @@ classdef MPI_clusters_factory<handle
         % the name of current active cluster
         parallel_cluster_name;
         
-        % boolean property, replying true if the cluster with selected name 
+        % boolean property, replying true if the cluster with selected name
         % is available or false if not
         framework_available
         
         % access to current active cluster
         parallel_cluster;
-
-        % Information (read-only) method returning the list of names of 
-        % the parallel frameworks, known to Herbert. 
+        
+        % Information (read-only) method returning the list of names of
+        % the parallel frameworks, known to Herbert.
         % You can not add or change a framework using this method.
-        % The framework has to be defined and subscribed via the 
+        % The framework has to be defined and subscribed via the
         % algorithms factory.
         known_cluster_names
         %
@@ -75,13 +75,21 @@ classdef MPI_clusters_factory<handle
             else
                 cl = obj.known_clusters_(obj.parallel_cluster_name_);
             end
-        end       
+        end
         function is = get.framework_available(obj)
             is = ~obj.parallel_disabed_;
         end
         function cl = get_default_cluster(obj)
             % get current cluster regardless of it is available or not
             cl = obj.known_clusters_(obj.parallel_cluster_name_);
+        end
+        function cl = get_cluster(obj,varargin)
+            % legacy function allowing to obtain the current cluster, or
+            % the cluster requested as input
+            if nargin >1
+                obj.parallel_cluster = varargin{1};
+            end
+            cl = obj.parallel_cluster;
         end
         function cn = get.parallel_cluster_name(obj)
             cn = obj.parallel_cluster_name_;
@@ -129,6 +137,7 @@ classdef MPI_clusters_factory<handle
             obj.parallel_disabed_ = false;
             %
         end
+        %
         function cfg = get_all_configs(obj,varargin)
             % return all known configurations for the selected framework.
             % (cluster)
