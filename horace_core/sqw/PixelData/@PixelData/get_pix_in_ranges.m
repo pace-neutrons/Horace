@@ -18,7 +18,7 @@ if ~ok
     error('HORACE:PixelData:invalid_argument', mess);
 end
 
-if obj.is_file_backed_()
+if obj.is_filebacked()
     if any(obj.page_dirty_)
         % At least some pixels sit in temporary files
         abs_indices = get_values_in_ranges(abs_indices_starts, abs_indices_ends);

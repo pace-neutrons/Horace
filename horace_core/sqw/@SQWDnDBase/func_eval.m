@@ -97,6 +97,15 @@ if numel(win) > 1
 end
 
 wout = copy(win);
+% This has not been implemented but should
+% for i=1:numel(wout)
+%     if isa(wout(i),'sqw')
+%         if wout(i).data.pix.is_filebacked()
+%             opts.filebacked = true;
+%             break
+%         end
+%     end
+% end
 
 % Check if any objects are zero dimensional before evaluating function
 if any(arrayfun(@(x) isempty(x.data_.pax), win))

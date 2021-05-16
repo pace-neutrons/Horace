@@ -11,7 +11,7 @@ function [page_number,total_num_pages] = move_to_page(obj, page_number, varargin
 % total_num_pages -- total number of pages, present in the file
 %
 [page_number, total_num_pages, nosave] = parse_args(obj, page_number, varargin{:});
-if obj.is_file_backed_() && obj.page_number_ ~= page_number
+if obj.is_filebacked() && obj.page_number_ ~= page_number
     if ~nosave && obj.page_is_dirty_(obj.page_number_) && obj.dirty_page_edited_
         obj.write_dirty_page_();
     end

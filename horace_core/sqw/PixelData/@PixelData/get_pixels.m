@@ -30,7 +30,7 @@ function pix_out = get_pixels(obj, abs_pix_indices)
 %
 abs_pix_indices = parse_args(obj, abs_pix_indices);
 
-if obj.is_file_backed_()
+if obj.is_filebacked()
     if any(obj.page_dirty_)
         % At least some pixels sit in temporary files
         

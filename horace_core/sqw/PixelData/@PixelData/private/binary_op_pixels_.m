@@ -15,7 +15,7 @@ while true
     end
 
     this_sigvar = sigvar(obj.signal, obj.variance);
-    if pixel_data.is_file_backed_()
+    if pixel_data.is_filebacked()
 
         other_sigvar = sigvar(pixel_data.signal, pixel_data.variance);
         [obj.signal, obj.variance] = ...

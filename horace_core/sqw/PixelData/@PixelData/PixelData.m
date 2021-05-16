@@ -328,7 +328,7 @@ classdef PixelData < handle
             end
             % In memory construction
             if isa(arg, 'PixelData')  % TODO make sure this works with file-backed
-                if arg.is_file_backed_() && exist(arg.file_path, 'file')
+                if arg.is_filebacked() && exist(arg.file_path, 'file')
                     % if the file exists we can create a file-backed instance
                     obj = PixelData(arg.file_path, arg.page_memory_size_);
                     obj.page_number_ = arg.page_number_;
@@ -419,7 +419,7 @@ classdef PixelData < handle
             %    >> has_more = pix.has_more();
             %
             has_more = false;
-            if ~obj.is_file_backed_()
+            if ~obj.is_filebacked()
                 return;
             end
             if obj.page_size == 0 && obj.num_pixels > obj.base_page_size
@@ -455,7 +455,7 @@ classdef PixelData < handle
             %
             current_page_num = 1;
             total_num_pages = 1;
-            if obj.is_file_backed_()
+            if obj.is_filebacked()
                 try
                     obj.move_to_page(obj.page_number_ + 1, varargin{:});
                 catch ME
@@ -713,6 +713,14 @@ classdef PixelData < handle
             end
             obj.pix_range_ = pix_range;
         end
+        
+        function is = is_filebacked(obj)
+            % Return true if the pixel data is backed by a file or files. Returns
+            % false if all pixel data is held in memory
+            %
+            is = ~isempty(obj.f_accessor_) || obj.get_num_pages_() > 1;
+        end
+        
     end
     
     methods (Access=private)
@@ -722,16 +730,18 @@ classdef PixelData < handle
             obj.f_accessor_ = f_accessor;
             obj.file_path_ = fullfile(obj.f_accessor_.filepath, ...
                 obj.f_accessor_.filename);
-            obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
             obj.page_number_ = 1;
             obj.num_pixels_ = double(obj.f_accessor_.npixels);
+            %
             obj.pix_range_ = f_accessor.get_pix_range();
+            obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
+            
         end
         
         function obj = load_current_page_if_data_empty_(obj)
             % Check if there's any data in the current page and load a page if not
             %   This function does nothing if pixels are not file-backed.
-            if obj.cache_is_empty_() && obj.is_file_backed_()
+            if obj.cache_is_empty_() && obj.is_filebacked()
                 obj = obj.load_page_(obj.page_number_);
             end
         end
@@ -809,13 +819,6 @@ classdef PixelData < handle
             num_bytes_in_pixel = obj.DATA_POINT_SIZE*obj.PIXEL_BLOCK_COLS_;
             page_size = floor(mem_alloc/num_bytes_in_pixel);
             page_size = max(page_size, size(obj.raw_data_, 2));
-        end
-        
-        function is = is_file_backed_(obj)
-            % Return true if the pixel data is backed by a file or files. Returns
-            % false if all pixel data is held in memory
-            %
-            is = ~isempty(obj.f_accessor_) || obj.get_num_pages_() > 1;
         end
         
         function is = cache_is_empty_(obj)

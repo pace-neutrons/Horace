@@ -24,7 +24,7 @@ NO_INPUT_INDICES = -1;
 
 field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(pix_fields));
 
-if obj.is_file_backed_()
+if obj.is_filebacked()
     base_pg_size = obj.base_page_size;
 
     if abs_pix_indices == NO_INPUT_INDICES

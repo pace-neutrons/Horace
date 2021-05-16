@@ -70,7 +70,7 @@ elseif pix_out.page_size < pix_out.base_page_size
     
 elseif pix_out.page_size == pix_out.base_page_size
     glob_range = pix_out.pix_range;
-    if ~pix_out.is_file_backed_()
+    if ~pix_out.is_filebacked()
         % If data is not file-backed the exisiting data must be saved to a tmp
         % file after page is changed - so mark it dirty
         pix_out.set_page_dirty_(true);
