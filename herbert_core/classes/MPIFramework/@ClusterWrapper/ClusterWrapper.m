@@ -174,6 +174,11 @@ classdef ClusterWrapper
                 numel(mess_exchange_framework.job_id)+numel('***Job :   state: ');
             obj.LOG_MESSAGE_LENGHT = numel('***Job :  : state:  started |')+...
                 numel(mess_exchange_framework.job_id) -numel('****  ****');
+
+            % get worker defined in parallel config
+            pc = parallel_config();
+            obj.worker_name_ = pc.worker;
+            obj.is_compiled_script_ = pc.is_compiled;
         end
         %
         function obj = start_job(obj,je_init_message,task_init_mess,log_message_prefix)

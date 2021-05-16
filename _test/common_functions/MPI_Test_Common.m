@@ -2,7 +2,7 @@ classdef MPI_Test_Common < TestCase
     % The class used as the parent to test various mpi exchange classes.
     %
     % Contains all common settings, necessary to test parpool mpi
-    %   Detailed explanation goes here
+    % Detailed explanation goes here
 
     properties
         %

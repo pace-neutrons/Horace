@@ -73,9 +73,6 @@ classdef ClusterHerbert < ClusterWrapper
             
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
             %
-            pc = parallel_config();
-            obj.worker_name_ = pc.worker;
-            obj.is_compiled_script_ = pc.is_compiled;
             %
             obj.tasks_handles_  = cell(1,n_workers);
             %

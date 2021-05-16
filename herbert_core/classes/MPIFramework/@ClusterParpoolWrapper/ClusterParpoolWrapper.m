@@ -93,10 +93,6 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             end
             
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
-            % get worker defined in parallel config
-            pc = parallel_config();
-            obj.worker_name_ = pc.worker;
-            obj.is_compiled_script_ = pc.is_compiled;
             
             % delete interactive parallel cluster if any exist
             cl = gcp('nocreate');
