@@ -119,7 +119,7 @@ example:
 }
 
 function main() {
-  echo "in main test"
+  echo "in main"
   # set default parameter values
   local build=$FALSE
   local test=$FALSE
