@@ -114,7 +114,7 @@ classdef test_split_data_blocks < TestCase
             end
         end
         %
-        function test_split_2p_block_last_pages_hungs(~)
+        function test_split_2p_block_last_page_hungs(~)
             vector     = [5,5,5,3];
             start_pos  = [10,25,400,700];
             max_sum = 10;
@@ -147,7 +147,7 @@ classdef test_split_data_blocks < TestCase
             end
         end
         %
-        function test_split_block_last_pages_hungs(~)
+        function test_split_block_last_page_hangs(~)
             vector     = [5,5,3];
             start_pos  = [10,25,400];
             max_sum = 5;
