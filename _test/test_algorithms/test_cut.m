@@ -247,7 +247,7 @@ classdef test_cut < TestCase
         
         function test_error_raised_if_cut_called_with_multiple_files(obj)
             f = @() cut({obj.sqw_file, obj.sqw_file}, obj.ref_params{:});
-            assertExceptionThrown(f, 'HORACE:cut');
+            assertExceptionThrown(f, 'HORACE:cut:invalid_argument');
         end
         
         function test_you_can_take_an_out_of_memory_cut_with_tmp_files_with_mex(obj)
