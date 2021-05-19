@@ -28,53 +28,73 @@ if ~skip_validation
     end
 end
 
-NUM_BYTES_IN_FLOAT = 4;
-PIXEL_SIZE = NUM_BYTES_IN_FLOAT*PixelData.DEFAULT_NUM_PIX_FIELDS;  % bytes
+%NUM_BYTES_IN_FLOAT = 4;
+%PIXEL_SIZE = NUM_BYTES_IN_FLOAT*PixelData.DEFAULT_NUM_PIX_FIELDS;  % bytes
 
 % This decreases no. of calls needed to read data - big speed increase
 [pix_starts, pix_ends] = merge_adjacent_ranges(pix_starts, pix_ends);
 
+% TODO: verify if there are any performance benifits from commented 
+% code or the currently enabled code. (see
+% [#686](https://github.com/pace-neutrons/Horace/issues/686))
+
 % Position file reader at start of first block of pixels to read
-first_seek_pos = obj.pix_pos_ + (pix_starts(1) - 1)*PIXEL_SIZE;
-do_fseek(obj.file_id_, first_seek_pos, 'bof');
+%first_seek_pos = obj.pix_pos_ + (pix_starts(1) - 1)*PIXEL_SIZE;
+%do_fseek(obj.file_id_, first_seek_pos, 'bof');
 
-blocks = cell(1, numel(pix_starts));
-for i = 1:numel(pix_starts)
-    num_pix_to_read = pix_ends(i) - pix_starts(i) + 1;
-    read_size = [PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix_to_read];
-    blocks{i} = fread_catch(obj.file_id_, read_size, '*float32');
-
-    try
-        seek_size = (pix_starts(i + 1) - pix_ends(i) - 1)*PIXEL_SIZE;
-    catch ME
-        if strcmpi(ME.identifier, 'MATLAB:badsubscript')
-            % we've read in the final block, no more seeking to do
-            break
-        end
-    end
-    do_fseek(obj.file_id_, seek_size, 'cof');
-end
+% blocks = cell(1, numel(pix_starts));
+% for i = 1:numel(pix_starts)
+%     seek_pos = obj.pix_pos_ + (pix_starts(i) - 1)*PIXEL_SIZE;
+%     do_fseek(obj.file_id_, seek_pos, 'bof');
+%     num_pix_to_read = pix_ends(i) - pix_starts(i) + 1;
+%
+%     read_size = [PixelData.DEFAULT_NUM_PIX_FIELDS, num_pix_to_read];
+%     %blocks{i} = fread_catch(obj.file_id_, read_size, '*float32');
+%     blocks{i} = fread(obj.file_id_,read_size, '*float32');
+%
+%     try
+%         seek_size = (pix_starts(i + 1) - pix_ends(i) - 1)*PIXEL_SIZE;
+%     catch ME
+%         if strcmpi(ME.identifier, 'MATLAB:badsubscript')
+%             % we've read in the final block, no more seeking to do
+%             break
+%         end
+%     end
+%     do_fseek(obj.file_id_, seek_size, 'cof');
+%end
+blocks = arrayfun(@(pix_start,pix_end)(read_block(obj,PixelData.DEFAULT_NUM_PIX_FIELDS,pix_start,pix_end)),...
+    pix_starts,pix_ends,'UniformOutput',false);
 pix = [blocks{:}];
 
 end  % function
 
+function block = read_block(obj,NUM_FIELS,pix_start,pix_end)
+seek_pos = obj.pix_pos_ + (pix_start - 1)*obj.pixel_size;
+do_fseek(obj.file_id_, seek_pos, 'bof');
+read_size = [NUM_FIELS,pix_end-pix_start+1];
+block  = fread(obj.file_id_,read_size, '*float32');
+[f_message,n_err] = ferror(obj.file_id_);
+if n_err ~=0
+    error('HORACE:sqw_binfile_common:io_error',f_message)
+end
 
+end
 % -----------------------------------------------------------------------------
 function [starts, ends] = merge_adjacent_ranges(starts, ends)
-    %%MERGE_ADJACENT_RANGES merge ranges starting in 'starts' and ending in
-    % 'ends' that are adjacent
-    % e.g.
-    %    >> starts = [1, 10, 45, 79, 86]
-    %    >> ends   = [5, 44, 67, 85, 90]
-    %    >> merge_adjacent_ranges(starts, ends)
-    %       ans =
-    %         [1, 10, 79]
-    %         [5, 67, 90]
+%%MERGE_ADJACENT_RANGES merge ranges starting in 'starts' and ending in
+% 'ends' that are adjacent
+% e.g.
+%    >> starts = [1, 10, 45, 79, 86]
+%    >> ends   = [5, 44, 67, 85, 90]
+%    >> merge_adjacent_ranges(starts, ends)
+%       ans =
+%         [1, 10, 79]
+%         [5, 67, 90]
 
-    % Find indices where end of one range and start of next differ by one
-    offsets = starts(2:end) - ends(1:(end - 1));
-    idxs_to_del = find(offsets == 1);
-    % Delete the indices such that those ranges are merged
-    starts(idxs_to_del + 1) = [];
-    ends(idxs_to_del) = [];
+% Find indices where end of one range and start of next differ by one
+offsets = starts(2:end) - ends(1:(end - 1));
+idxs_to_del = find(offsets == 1);
+% Delete the indices such that those ranges are merged
+starts(idxs_to_del + 1) = [];
+ends(idxs_to_del) = [];
 end

@@ -149,15 +149,15 @@ classdef  test_file_input < TestCase
             
             
             cut(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp0_file);
-
+            
             tmp0=sqw(tmp0_file);
 
             cut_horace(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
             tmp=sqw(tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-
+            
             cut_sqw(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
             tmp=sqw(tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-
+            
             cut_horace(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180],tmp_file);
             tmp=sqw(tmp_file);
             [ok,mess]=equal_to_tol(tmp0,tmp,'ignore_str',1); assertTrue(ok,['test_file_input: Error in functionality',mess]);
@@ -179,9 +179,12 @@ classdef  test_file_input < TestCase
             proj2.v=[1,1,0];
             
             s1_s=cut(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
+            s1_f_h=cut(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
+            [ok,mess] = equal_to_tol(s1_s,s1_f_h,'ignore_str',1);
+            assertTrue(ok,['Memory based and file based cuts are different: ',mess])
+            
             s1_s_h=cut(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
             s1_s_s=cut_sqw(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
-            s1_f_h=cut(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
             s1_f_s=cut_sqw(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
             try
                 s1_s_d=cut_dnd(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
@@ -189,7 +192,7 @@ classdef  test_file_input < TestCase
             catch
                 failed=true;
             end
-            if ~failed, assertTrue(false,'Should have failed!'), end
+            assertTrue(failed,'Should have failed!');
             
             try
                 s1_f_d=cut_dnd(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
@@ -197,12 +200,16 @@ classdef  test_file_input < TestCase
             catch
                 failed=true;
             end
-            if ~failed, assertTrue(false,'Should have failed!'), end
+            assertTrue(failed,'Should have failed!');
             
-            if ~equal_to_tol(s1_s,s1_s_h), assertTrue(false,'Error in functionality'), end
-            if ~equal_to_tol(s1_s,s1_s_s), assertTrue(false,'Error in functionality'), end
-            if ~equal_to_tol(s1_s,s1_f_h,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-            if ~equal_to_tol(s1_s,s1_f_s,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            [ok,mess] = equal_to_tol(s1_s,s1_s_h);
+            assertTrue(ok,['Error in functionality: ',mess])
+            
+            [ok,mess] = equal_to_tol(s1_s,s1_s_s);
+            assertTrue(ok,['Error in functionality: ',mess])
+            
+            [ok,mess] = equal_to_tol(s1_s,s1_f_s,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
             
             
             
@@ -214,7 +221,7 @@ classdef  test_file_input < TestCase
 
             d1_d_d=cut_dnd(obj.d2d_arr(2),[0.5,0,1.2],[170,180]);
             d1_f_d=cut_dnd(obj.d2d_name{2},[0.5,0,1.2],[170,180]);
-
+            
             function call_cut_sqw(w)
                 % We want to call cut_sqw with an output arg, so no lambda
                 d1_d_s=cut_sqw(w,[0.5,0,1.2],[170,180]);
@@ -223,18 +230,22 @@ classdef  test_file_input < TestCase
             assertExceptionThrown(@() call_cut_sqw(obj.d2d_arr(2)), 'HORACE:cut_sqw');
             assertExceptionThrown(@() call_cut_sqw(obj.d2d_name{2}), 'HORACE:cut_sqw');
             
-            if ~equal_to_tol(d1_d,d1_d_h), assertTrue(false,'Error in functionality'), end
-            if ~equal_to_tol(d1_d,d1_f_h,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-
-            if ~equal_to_tol(d1_d,d1_d_d), assertTrue(false,'Error in functionality'), end
-            if ~equal_to_tol(d1_d,d1_f_d,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-
-
-
+            [ok,mess] = equal_to_tol(d1_d,d1_d_h);
+            assertTrue(ok,['Error in functionality: ',mess])
+            
+            [ok,mess] = equal_to_tol(d1_d,d1_d_d);
+            assertTrue(ok,['Error in functionality: ',mess])
+            
+            [ok,mess] = equal_to_tol(d1_d,d1_f_h,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
+            
+            [ok,mess] = equal_to_tol(d1_d,d1_f_d,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
+            
             % =================================================================================================
             % Reading data
             % =================================================================================================
-
+            
             % TODO: disabled - read does not work for dnd objects, an SQW is returned
             %tmp=read(sqw,obj.sqw2d_name{2});
             % COMMENT FOR REVIEWERS - I have replaced read with sqw. In the
@@ -244,14 +255,18 @@ classdef  test_file_input < TestCase
             % Checking there isn't something here I've missed which makes
             % read a necessity, or whether it can be removed.
             tmp=sqw(obj.sqw2d_name{2});
-            if ~equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-
+            [ok,mess] = equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
+            
             tmp=sqw(obj.sqw2d_name{2});
-            if ~equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-
+            [ok,mess] = equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
+            
+            
             tmp=read_horace(obj.sqw2d_name{2});
-            if ~equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-
+            [ok,mess] = equal_to_tol(obj.sqw2d_arr(2),tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
+            
             % TODO: disabled - read does not work for dnd objects, an SQW is returned
             %tmp=read(d2d, obj.sqw2d_name{2});
             % COMMENT FOR REVIEWERS - I have replaced read with d2d. Same
@@ -259,40 +274,47 @@ classdef  test_file_input < TestCase
             % for read that I have missed. The result is that this test is
             % now identical to the test two further on from this one.
             tmp=d2d(obj.sqw2d_name{2});
-            if ~equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-
+            [ok,mess] = equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
+            
             tmp=read_dnd(obj.sqw2d_name{2});
-            if ~equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-
+            [ok,mess] = equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
+            
             % TODO: disabled - read does not work for dnd objects, an SQW is returned
             %tmp=read(d2d, obj.d2d_name{2});
             tmp=d2d(obj.d2d_name{2});
-            if ~equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-
+            [ok,mess] = equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
+            
             try
                 tmp=sqw(obj.d2d_name{2});
                 failed=false;
             catch
                 failed=true;
             end
-            if ~failed, assertTrue(false,'Should have failed!'), end
+            assertTrue(failed,'Should have failed!');
             
             tmp=read_horace(obj.d2d_name{2});
-            if ~equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            [ok,mess] = equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
             
             % Read array of files
             tmp=read_horace(obj.sqw2d_name);
-            if ~equal_to_tol(obj.sqw2d_arr,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            [ok,mess] = equal_to_tol(obj.sqw2d_arr,tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
             
             tmp=read_dnd(obj.sqw2d_name);
-            if ~equal_to_tol(obj.d2d_arr,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
-
+            [ok,mess] = equal_to_tol(obj.d2d_arr,tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
+            
             tmp = repmat(sqw(),1,numel(obj.sqw2d_name));
             for i=1:numel(obj.sqw2d_name)
                 name = obj.sqw2d_name(i);
                 tmp(i)=sqw(name{1});
             end
-            if ~equal_to_tol(obj.sqw2d_arr,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
+            [ok,mess] = equal_to_tol(obj.sqw2d_arr,tmp,'ignore_str',1);
+            assertTrue(ok,['Error in functionality: ',mess])
         end
     end
     %banner_to_screen([mfilename,': Test(s) passed'],'bot')

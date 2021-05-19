@@ -19,7 +19,7 @@ if ~isa(source, 'sqw')
                       'Cannot perform cut_sqw, ''%s'' is not a valid SQW file.', ...
                       source);
             end
-            ldr.delete();
+            source = ldr;
         end
     else
         error('HORACE:cut_sqw', ...

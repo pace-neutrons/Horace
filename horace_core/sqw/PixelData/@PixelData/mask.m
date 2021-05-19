@@ -47,7 +47,7 @@ end
 
 if numel(mask_array) == obj.num_pixels
 
-    if obj.is_file_backed_()
+    if obj.is_filebacked()
         pix_out = do_mask_file_backed_with_full_mask_array(obj, mask_array);
     else
         pix_out = do_mask_in_memory_with_full_mask_array(obj, mask_array);
@@ -55,7 +55,7 @@ if numel(mask_array) == obj.num_pixels
 
 elseif ~isempty(npix)
 
-    if obj.is_file_backed_()
+    if obj.is_filebacked()
         pix_out = do_mask_file_backed_with_npix(obj, mask_array, npix);
     else
         full_mask_array = repelem(mask_array, npix);

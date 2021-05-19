@@ -6,39 +6,39 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
     %   >> w = sqw (struct)         % Create from a structure with valid fields (internal use)
     %   >> w = sqw (filename)       % Create an sqw object from a file
     %   >> w = sqw (sqw_object)     % Create a new SQW object from a existing one
-
+    
     properties
         main_header
         header
         detpar
         % CMDEV: data now a dependent property, below
     end
-
+    
     properties(Dependent)
         data;
     end
-
+    
     methods (Access = protected)
         wout = sqw_eval_pix_(w, sqwfunc, ave_pix, pars, outfilecell, i);
     end
-
+    
     methods
         wout = sigvar(w);
         w = sigvar_set(win, sigvar_obj);
         sz = sigvar_size(w);
         %[sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);
-
+        
         varargout = tobyfit (varargin);
         [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,store_in,...
-                                                          sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
+            sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
         [cov_proj, cov_spec, cov_hkle] = tobyfit_DGdisk_resfun_covariance(win, indx);
         [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,store_in,...
-                                                           sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
+            sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
         [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
         [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw);
         wout=combine_sqw(w1,w2);
-
+        
         wout=rebin_sqw(win,varargin);
         wout=symmetrise_sqw(win,v1,v2,v3);
         [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin);
@@ -49,7 +49,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         [alatt,angdeg,ok,mess] = lattice_parameters(win);
         [wout, pars_out] = refine_crystal_strip_pars (win, xtal, pars_in);
         img_range = recompute_img_range(w);
-
+        
         wout = section (win,varargin);
         [sqw_type, ndims, nfiles, filename, mess,ld] = is_sqw_type_file(w,infile);
         [d, mess] = make_sqw_from_data(varargin);
@@ -61,29 +61,33 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         status = adjust_aspect(w);
         varargout = resolution_plot (w, varargin);
         wout = noisify(w,varargin);
-
+        
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
-
+            
             [args] = obj.parse_args(varargin{:});
-
+            
             % i) copy
             if ~isempty(args.sqw_obj)
                 obj = copy(args.sqw_obj);
-
-            % ii) filename
+                
+                % ii) filename
             elseif ~isempty(args.filename)
-                obj = obj.init_from_file(args.filename, args.pixel_page_size);
-
-            % iii) struct
+                obj = obj.init_from_file_(args.filename, args.pixel_page_size);
+                
+                % iii) struct or data loader
             elseif ~isempty(args.data_struct)
-                obj = obj.init_from_loader_struct(args.data_struct);
+                if isa(args.data_struct,'dnd_file_interface')
+                    args.data_struct = obj.get_loader_struct_(...
+                        args.data_struct,args.pixel_page_size);
+                end
+                obj = obj.init_from_loader_struct_(args.data_struct);
             end
-
-
+            
+            
         end
-
-        %% Public getters/setters expose all wrapped data attributes
+        
+        % Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)
             val = '';
             if ~isempty(obj.data_)
@@ -93,10 +97,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         function obj = set.data(obj, d)
             obj.data_ = d;
         end
-
-
+        
+        
     end
-
+    
     methods(Static)
         function obj = loadobj(S)
             % Load a sqw object from a .mat file
@@ -110,38 +114,37 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             % -------
             % Output:
             %   obj     An instance of this object
-            obj = sqw(S);
             if isa(S,'sqw')
-               obj = S;
-               return
+                obj = S;
+                return
             end
             if numel(S)>1
-               tmp = sqw();
-               obj = repmat(tmp, size(S));
-               for i = 1:numel(S)
-                   obj(i) = sqw(S(i));
-               end
+                tmp = sqw();
+                obj = repmat(tmp, size(S));
+                for i = 1:numel(S)
+                    obj(i) = sqw(S(i));
+                end
             else
-               obj = sqw(S);
+                obj = sqw(S);
             end
         end
     end
-
+    
     methods(Access = protected)
         wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
-
+        
         wout = sqw_eval_(wout, sqwfunc, ave_pix, all_bins, pars);
     end
-
+    
     methods(Static, Access = private)
         % Signatures of private functions declared in files
         sqw_struct = make_sqw(ndims);
         detpar_struct = make_sqw_detpar();
         header = make_sqw_header();
         main_header = make_sqw_main_header();
-
+        
         function args = parse_args(varargin)
             % Parse a single argument passed to the SQW constructor
             %
@@ -153,17 +156,18 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             parser = inputParser();
             parser.KeepUnmatched = true;  % ignore unmatched parameters
             parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase') || ...
-                                                          is_string(x) || ...
-                                                          isstruct(x)));
+                is_string(x) || ...
+                isa(x,'dnd_file_interface') || ...
+                isstruct(x)));
             parser.addParameter('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE, ...
-                            @PixelData.validate_mem_alloc);
+                @PixelData.validate_mem_alloc);
             parser.parse(varargin{:});
-
+            
             input = parser.Results.input;
             args = struct('sqw_obj', [], 'filename', [], 'data_struct', [], 'pixel_page_size', []);
-
+            
             args.pixel_page_size = parser.Results.pixel_page_size;
-
+            
             if isa(input, 'SQWDnDBase')
                 if isa(input, 'DnDBase')
                     error('SQW:sqw', 'SQW cannot be constructed from a DnD object');
@@ -171,7 +175,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
                 args.sqw_obj = input;
             elseif is_string(parser.Results.input)
                 args.filename = input;
-            elseif isstruct(input) && ~isempty(input)
+            elseif (isstruct(input)||isa(input,'dnd_file_interface')) && ~isempty(input)
                 args.data_struct = input;
             else
                 % create struct holding default instance
@@ -179,9 +183,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             end
         end
     end
-
+    
     methods(Access = 'private')
-        function obj = init_from_file(obj, in_filename, pixel_page_size)
+        function obj = init_from_file_(obj, in_filename, pixel_page_size)
             % Parse SQW from file
             %
             % An error is raised if the data file is identified not a SQW object
@@ -189,13 +193,18 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             if ~strcmpi(ldr.data_type, 'a') % not a valid sqw-type structure
                 error('SQW:sqw', 'Data file does not contain valid sqw-type object');
             end
-
-            w = struct();
-            [w.main_header, w.header, w.detpar, w.data] = ldr.get_sqw('-legacy', 'pixel_page_size', pixel_page_size);
-            obj = obj.init_from_loader_struct(w);
+            lds = obj.get_loader_struct_(ldr,pixel_page_size);
+            obj = obj.init_from_loader_struct_(lds);
         end
-
-        function obj = init_from_loader_struct(obj, data_struct)
+        function ld_str = get_loader_struct_(~,ldr,pixel_page_size)
+            % load sqw structure, using file loader
+            ld_str = struct();
+            [ld_str.main_header, ld_str.header, ld_str.detpar, ld_str.data] = ...
+                ldr.get_sqw('-legacy', 'pixel_page_size', pixel_page_size);
+        end
+        function obj = init_from_loader_struct_(obj, data_struct)
+            % initialize object contents using structure, obtained from
+            % file loader
             obj.main_header = data_struct.main_header;
             obj.header = data_struct.header;
             obj.detpar = data_struct.detpar;

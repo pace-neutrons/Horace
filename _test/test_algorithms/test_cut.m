@@ -247,7 +247,7 @@ classdef test_cut < TestCase
         
         function test_error_raised_if_cut_called_with_multiple_files(obj)
             f = @() cut({obj.sqw_file, obj.sqw_file}, obj.ref_params{:});
-            assertExceptionThrown(f, 'HORACE:cut');
+            assertExceptionThrown(f, 'HORACE:cut:invalid_argument');
         end
         
         function test_you_can_take_an_out_of_memory_cut_with_tmp_files_with_mex(obj)
@@ -304,23 +304,6 @@ classdef test_cut < TestCase
             ref_object = d3d(obj.ref_file);
             
             assertEqualToTol(output_obj, ref_object, 'ignore_str', true);
-        end
-        function test_warning_issued_if_bin_size_exceeds_page_size(obj)
-            largest_bin_in_cut = 77;
-            bytes_in_pixel = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
-            pixel_page_size = (largest_bin_in_cut - 1)*bytes_in_pixel;
-            
-            config_cleanup = set_temporary_config_options(hor_config, ...
-                'pixel_page_size', pixel_page_size, ...
-                'log_level', -1 ...
-                );  %#ok  unused variable ok as it's a cleanup object
-            
-            lastwarn('', '');  % reset latest warning state
-            wout = cut(obj.sqw_file, obj.ref_params{:}, '-nopix');  %#ok
-            
-            [warning_msg, warning_id] = lastwarn();
-            assertEqual(warning_id, 'HORACE:SQW:memory');
-            assertTrue(contains(warning_msg, 'cut_accumulate_data_'));
         end
     end
     

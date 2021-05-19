@@ -63,9 +63,9 @@ if obj.page_size == other_pix.page_size
         other_pix.advance();
         [ok, mess] = equal_to_tol(obj.data, other_pix.data, varargin{:});
     end
-elseif ~obj.is_file_backed_()
+elseif ~obj.is_filebacked()
     [ok, mess] = pix_paged_and_in_mem_equal_to_tol(other_pix, obj, varargin{:});
-elseif ~other_pix.is_file_backed_()
+elseif ~other_pix.is_filebacked()
     [ok, mess] = pix_paged_and_in_mem_equal_to_tol(obj, other_pix, varargin{:});
 else
     error('PIXELDATA:equal_to_tol', ...
