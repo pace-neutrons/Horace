@@ -547,9 +547,9 @@ void MPI_wrapper::clearAll() {
 
     if (this->isTested) {
         for (size_t i = 0; i < this->SyncMessHolder.size(); i++) {
-            SyncMessHolder[i].theRequest = -1;
+            SyncMessHolder[i].theRequest = MPI_Request(-1);
             SyncMessHolder[i].destination = -1;
-            InterruptHolder[i].theRequest = -1;
+            InterruptHolder[i].theRequest = MPI_Request(-1);
             InterruptHolder[i].destination = -1;
         }
         this->asyncMessList.clear();
@@ -614,7 +614,7 @@ int SendMessHolder::is_delivered(bool is_tested) {
     MPI_Status status; // not clear what to do about this status.
 
     if (is_tested)
-        isDelivered = (this->theRequest == 1) && is_send();
+        isDelivered = (this->theRequest == MPI_Request(1)) && is_send();
     else {
         if (this->destination == -1) { // message was never sent so never delivered
             return 0;
