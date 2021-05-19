@@ -71,12 +71,16 @@ npix_read = sum(range(:));              % number of pixels that will be read fro
 
 % Copy data from ranges that may contribute to cut - we assume that if can hold the full data, we will have enough space to hold subset
 if hor_log_level>=1, bigtic(1), end
-cut_pix_data = PixelData(npix_read);
-ibeg = cumsum([1;range(1:end-1)]);
-iend = cumsum(range);
-for i=1:length(range)
-    cut_pix_data.data(:,ibeg(i):iend(i)) = pix_in.get_pixels(nstart(i):nend(i)).data;
-end
+%
+data= pix_in.data;
+%
+blocks = arrayfun(@(npstart,npend)(data(:,npstart:npend)),nstart,nend,'UniformOutput',false);
+out = [blocks{:}];
+cut_pix_data = PixelData(out);
+%for i=1:length(range)
+%    cut_pix_data.data(:,ibeg(i):iend(i)) = pix_in.get_pixels(nstart(i):nend(i)).data;
+%end
+
 if hor_log_level>=1, t_read = bigtoc(1); end
 if hor_log_level>=2
     disp('-----------------------------')
