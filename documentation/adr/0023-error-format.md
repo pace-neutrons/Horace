@@ -72,6 +72,10 @@ This scheme is based on the current (2020b) MATLAB error identifiers common to m
 | `array_mismatch`   | Array dimensions are incompatible (will usually be identified by MATLAB's error)              |
 | `file_not_found`   | File not found on system                                                                      |
 | `io_error`         | Issues with opening, reading or writing files                                                 |
+| `runtime_error`    | Unspecified issues, caused by running valid code under specific circumstances                 |
+|                    | (e.g. caught from mex code and propagated to MATLAB)                                          |
+| `parallel_error`   | Unspecified issues, caused by working with parallel cluster or MPI framework                  |
+|                    | (e.g. caught from mex code and propagated to MATLAB)                                          |
 | `system_error`     | Issues when calling system (shell) functions from MATLAB                                      |
 
 ## Consequences
