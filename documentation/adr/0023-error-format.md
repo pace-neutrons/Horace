@@ -47,7 +47,7 @@ Also due to the fact that MATLAB has changed its method of error identification 
 ## Decision
 
 Following discussions it was decided that it would be useful to have a standard format with 3 components, in the following format
-(expanding upon that intially outlined in [ADR 21](./0021-errors-and-warnings.md)).
+(expanding upon that initially outlined in [ADR 21](./0021-errors-and-warnings.md)).
 
 
 ```matlab
@@ -68,9 +68,14 @@ This scheme is based on the current (2020b) MATLAB error identifiers common to m
 | `invalid_argument` | Argument fails validation, there are insufficient arguments or argument is an unexpected flag |
 | `invalid_output`   | Insufficient outputs                                                                          |
 | `not_implemented`  | Called function is virtual/abstract                                                           |
+| `not_available`    | Method or function is not available on current system or current Horace/Herbert configuration |
 | `array_mismatch`   | Array dimensions are incompatible (will usually be identified by MATLAB's error)              |
 | `file_not_found`   | File not found on system                                                                      |
 | `io_error`         | Issues with opening, reading or writing files                                                 |
+| `runtime_error`    | Unspecified issues, caused by running valid code under specific circumstances                 |
+|                    | (e.g. caught from mex code and propagated to MATLAB)                                          |
+| `parallel_error`   | Unspecified issues, caused by working with parallel cluster or MPI framework                  |
+|                    | (e.g. caught from mex code and propagated to MATLAB)                                          |
 | `system_error`     | Issues when calling system (shell) functions from MATLAB                                      |
 
 ## Consequences
