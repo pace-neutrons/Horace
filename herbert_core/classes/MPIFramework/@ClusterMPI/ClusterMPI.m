@@ -186,6 +186,16 @@ classdef ClusterMPI < ClusterWrapper
     end
     methods(Static)
         function mpi_exec = get_mpiexec()
+            mpi_exec  = config_store.instance().get_value('parallel_config','external_mpiexec');
+            if ~isempty(mpi_exec)
+                if is_file(mpi_exec) % found external mpiexec
+                    return
+                else
+                    warning('HERBERT:ClusterMPI:invalid_argument',...
+                        'External mpiexec %s selected but is not available',mpi_exec);
+                end
+            end
+                
             rootpath = fileparts(which('herbert_init'));
             external_dll_dir = fullfile(rootpath, 'DLL','external');
             if ispc()
