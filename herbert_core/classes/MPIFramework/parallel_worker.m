@@ -25,14 +25,14 @@ function [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,D
 je = [];
 ok = false;
 err_mess = 'Failure in the initialization procedure';
+if ~exist('DO_LOGGING', 'var')
+    DO_LOGGING = false;
+end
+if nargin<3
+    DO_DEBUGGING = false;
+end
 
-try
-    if ~exist('DO_LOGGING', 'var')
-        DO_LOGGING = false;
-    end
-    if nargin<3
-        DO_DEBUGGING = false;
-    end
+try    
     %
     % Check current state of mpi framework and set up deployment status
     % within Matlab code to run
@@ -71,7 +71,7 @@ try
     % Initialize the frameworks, responsible for communications within the
     % cluster and between the cluster and the headnode.
     % initiate file-based framework to exchange messages between head node and
-    % the pool of workers    
+    % the pool of workers
     [fbMPI,intercomm] = JobExecutor.init_frameworks(control_struct);
     %--------------------------------------------------------------------------
     % step 1 the initialization has been completed providing the
@@ -91,7 +91,7 @@ try
     end
     % inform the control node that the cluster have been started and ready
     % to accept jobs
-
+    
     JobExecutor.report_cluster_ready(fbMPI,intercomm);
 catch ME0 %unhandled exception during init procedure
     ok = false;
@@ -184,8 +184,8 @@ while keep_worker_running
         % something wrong with the code. We can not process interrupt
         % properly, but filebased framework should still be
         % available.
-
-        if ~strcmp(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')  
+        
+        if ~strcmp(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')
             % if job is cancelled, we can recover further, as it will throw
             % below at first call to log progress. Any other exception is unhandled one
             if DO_LOGGING; log_input_message_exception_caught();  end
@@ -296,7 +296,7 @@ while keep_worker_running
                 continue;
             else
                 % useful for testing only
-                je=je.migrate_job_folder(false);                
+                je=je.migrate_job_folder(false);
                 break;
             end
         catch ME1 % the only exception happen is due to error in JE system
@@ -354,7 +354,7 @@ end
         fprintf(fh,'      LabNum         : %d:\n',fbMPI.labIndex);
         fprintf(fh,'      NumLabs        : %d:\n',fbMPI.numLabs);
         fprintf(fh,'Real MPI settings:\n');
-        fprintf(fh,'      Communicator:  : %s:\n',class(intercomm));        
+        fprintf(fh,'      Communicator:  : %s:\n',class(intercomm));
         fprintf(fh,'      Job ID         : %s:\n',intercomm.job_id);
         fprintf(fh,'      LabNum         : %d:\n',intercomm.labIndex);
         fprintf(fh,'      NumLabs        : %d:\n',intercomm.numLabs);
