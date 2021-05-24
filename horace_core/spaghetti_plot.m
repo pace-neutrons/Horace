@@ -248,14 +248,14 @@ for i=1:nseg
             u2crt = cross(u1crt,b*[1;0;0]./norm(b*[1;0;0]));
         end
     else
-        u2crt = u2crt0./norm(u2crt0);
+        u2crt = ortho_vec(u1crt);
     end
     u2crt = u2crt ./ norm(u2crt);
     % Sets the correct normalisation for u1,u2,u3 (u3 perp to u1 x u2)
-    u1rlp = (inv(b)*u1crt')';
-    u2rlp = (inv(b)*u2crt')';
+    u1rlp = (b\u1crt')';
+    u2rlp = (b\u2crt')';
     u3crt = cross(u1crt,u2crt);
-    u3rlp = (inv(b)*u3crt')';
+    u3rlp = (b\u3crt')';
     ulen = 1./max(abs(inv(ubmatrix(u1rlp,u2rlp,b))));
     u1rlp = u1rlp.*ulen(1);
     u2rlp = u2rlp.*ulen(2);
