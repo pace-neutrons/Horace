@@ -47,7 +47,7 @@ for cdim=(length(csize)-1):-1:1
         % Treat a size [N 1] array as size [N], since this is how the indices
         %   are found to calculate CT
         if ctsl==2 && cts(2)==1
-            mref = {mref{1}};
+            mref = mref(1);
         end
         % Perform the concatenation along the (CDIM+1) dimension
         ct{mref{:}} = cat(cdim+1,c{mref{:},:});
@@ -58,3 +58,6 @@ end
 
 % Finally, concatenate the final rows of cells into a matrix
 m = cat(1,c{:});
+
+end
+

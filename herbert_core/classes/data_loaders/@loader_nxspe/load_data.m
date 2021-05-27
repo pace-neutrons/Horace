@@ -34,10 +34,10 @@ root_folder= this.root_nexus_dir;
 data=cell(1,3);
 
 %
-data{1}  = hdf5read(file_name,[root_folder,'/data/data']);
-data{2}  = hdf5read(file_name,[root_folder,'/data/error']);
+data{1}  = h5read(file_name,[root_folder,'/data/data']);
+data{2}  = h5read(file_name,[root_folder,'/data/error']);
 if isempty(this.en)
-    this.en_ =hdf5read(file_name,[root_folder,'/data/energy']);
+    this.en_ =h5read(file_name,[root_folder,'/data/energy']);
 end
 data{3} = this.en;
 % convert symbolic NaN-s (build according to ASCII agreement) to ISO
@@ -59,7 +59,6 @@ else
         min_val=3;
         varargout{4}=this;
     end
-    varargout(1:min_val)={data{1:min_val}};
-    
-end
+    varargout(1:min_val)=data(1:min_val);
 
+end

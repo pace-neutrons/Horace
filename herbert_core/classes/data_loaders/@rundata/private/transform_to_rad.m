@@ -7,7 +7,7 @@ function varargout = transform_to_rad(varargin)
 % Only the know fields of the structure or values for the known keys are
 % modified
 % known names are:
-% 'psi','omega','dpsi','gl','gs' 
+% 'psi','omega','dpsi','gl','gs'
 %
 %
 
@@ -17,7 +17,7 @@ deg2rad=pi/180;
 if nargin==1 && isstruct(varargin{1}) % have input sructure;
     out=varargin{1};
     flname = fieldnames(out);
-    are_angles=ismember(flname,known_angles);    
+    are_angles=ismember(flname,known_angles);
     for i=1:numel(flname)
         if are_angles(i)
             out.(flname{i})=out.(flname{i})*deg2rad;
@@ -26,20 +26,22 @@ if nargin==1 && isstruct(varargin{1}) % have input sructure;
     varargout{1}=out;
 else
     arg = varargin{1};
-    the_fields={arg{2,:}};
+    the_fields=arg(2,:);
     are_angles=ismember(the_fields,known_angles);
-    varargout= {arg{1,:}};
+    varargout= arg(1,:);
     for i=1:numel(varargout)
         if are_angles(i)
             varargout{i}=varargout{i}*deg2rad;
         end
-    end    
+    end
     varargout={varargout};
 
 end
-% 
+%
 % function val=to_rad(num,is_angle)
 % val = num;
 % if is_angle
 %     val=val*pi/180;
 % end
+end
+

@@ -122,7 +122,6 @@ classdef test_cpp_deserialise < TestCase
             end
             test_obj = [];
             ser =  c_serialise(test_obj);
-            cpp_ser =  c_serialise(test_obj);
             test_obj_rec = c_deserialise(ser);
 
             assertEqual(test_obj, test_obj_rec)
@@ -202,7 +201,7 @@ classdef test_cpp_deserialise < TestCase
             if ~this.use_mex
               skipTest('MEX not enabled');
             end
-            test_obj = [1:10];
+            test_obj = 1:10;
             ser =  c_serialise(test_obj);
             test_obj_rec = c_deserialise(ser);
             assertEqual(test_obj, test_obj_rec)
@@ -236,7 +235,7 @@ classdef test_cpp_deserialise < TestCase
             if ~this.use_mex
               skipTest('MEX not enabled');
             end
-            test_obj = [3+4i, 5+7i; 2+i, 1-i];
+            test_obj = [3+4i, 5+7i; 2+1i, 1-1i];
             ser =  c_serialise(test_obj);
             test_obj_rec = c_deserialise(ser);
             assertEqual(test_obj, test_obj_rec)
@@ -381,7 +380,7 @@ classdef test_cpp_deserialise < TestCase
             if ~this.use_mex
               skipTest('MEX not enabled');
             end
-            test_sparse = sparse([1],[1], [i]);
+            test_sparse = sparse(1, 1, 1i);
             ser =  c_serialise(test_sparse);
             test_sparse_rec = c_deserialise(ser);
             assertEqual(test_sparse, test_sparse_rec)
@@ -392,7 +391,7 @@ classdef test_cpp_deserialise < TestCase
             if ~this.use_mex
               skipTest('MEX not enabled');
             end
-            test_sparse = sparse([1:10],[1], i);
+            test_sparse = sparse(1:10, 1, 1i);
             ser =  c_serialise(test_sparse);
             test_sparse_rec = c_deserialise(ser);
             assertEqual(test_sparse, test_sparse_rec)
@@ -403,7 +402,7 @@ classdef test_cpp_deserialise < TestCase
             if ~this.use_mex
               skipTest('MEX not enabled');
             end
-            test_sparse = sparse([1:10],[1:10], i);
+            test_sparse = sparse(1:10, 1:10, 1i);
             ser =  c_serialise(test_sparse);
             test_sparse_rec = c_deserialise(ser);
             assertEqual(test_sparse, test_sparse_rec)

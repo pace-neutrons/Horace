@@ -50,12 +50,12 @@ if receiver
     n_senders = numel(lab_senders);
     res  = cell2struct(cell(5,n_senders),...
         {'srcWkrInd','senders','mess_names','mess','rec_mess_id'});
-    
+
     pause(1);
     [mess_names,task_ids_from] = pm.probe_all(lab_senders);
     res = set_results(li,res,task_ids_from,mess_names);
-    
-    
+
+
     [all_messages,task_ids_from] = pm.receive_all(lab_senders,'started','-synch');
     for i=1:n_senders
         res(i).mess = all_messages{i};
@@ -63,12 +63,11 @@ if receiver
     end
     err = [];
 else %sender
-    
+
     lab_receiver = find_lab_receiver(li,nl,receiver_ind);
-    
+
     if lab_receiver == 0
         res = [];
-        err = 1;
         return;
     end
     if lab_receiver < li
@@ -77,12 +76,12 @@ else %sender
     else
         mess1 = LogMessage();
         mess2 = aMessage('started');
-        
+
     end
     [ok1,err1] = pm.send_message(lab_receiver,mess1);
     [ok2,err2] = pm.send_message(lab_receiver,mess2);
     %[ok2,err2] = pm.send_message(lab_receiver,mess2);
-    res = (ok1 == MESS_CODES.ok) &&(ok2 == MESS_CODES.ok);
+    res = (ok1 == MESS_CODES.ok) && (ok2 == MESS_CODES.ok);
     if res
         err = [];
     else
@@ -91,13 +90,17 @@ else %sender
     %res = ok1;
     %err = err1;
 end
+
 if nargout>1
-   varargout{1} = err;    
+   varargout{1} = err;
 end
+
 if nargout>2
     varargout{2} = pm;
 else
     pm.clear_messages();
+end
+
 end
 
 function ind = cycle_ind(ind0,period)
@@ -107,6 +110,8 @@ if ind  < 1
 end
 if ind > period
     ind  = ind - period;
+end
+
 end
 
 function res = set_results(li,res,task_ids,mess_names)
@@ -123,10 +128,11 @@ for i=1:n_senders
         res(i).mess_names = mess_names{i};
     else
         res(i).senders  = [{tid},res(i).senders ];
-        res(i).mess_names = [{mess_names{i}},res(i).mess_names];
+        res(i).mess_names = [mess_names(i),res(i).mess_names];
     end
 end
 
+end
 
 function lab_rec = find_lab_receiver(li,num_labs,receiver_ind)
 
@@ -142,6 +148,11 @@ if ismember(ind,receiver_ind)
 end
 lab_rec  = 0;
 
+end
+
+
 function lab_send = find_lab_senders(li,num_labs)
 
 lab_send  = [cycle_ind(li-1,num_labs),cycle_ind(li+1,num_labs)];
+
+end

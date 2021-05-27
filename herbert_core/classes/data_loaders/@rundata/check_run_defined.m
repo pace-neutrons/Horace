@@ -50,7 +50,7 @@ if ~isempty(lattice_fields)
     undef_lattice  = the_lattice.get_undef_fields();
     other_fields   = ~ismember(all_fields,lattice_fields);
     all_fields     = all_fields(other_fields);
-    
+
 else
     undef_lattice = {};
 end
@@ -58,7 +58,7 @@ end
 is_empty_f = @(field)is_empty_field(run,field);
 %
 is_undef      = cellfun(is_empty_f,all_fields);
-fields_undef  = {all_fields{is_undef},undef_lattice{:}};
+fields_undef  = [all_fields(is_undef),undef_lattice{:}];
 if isempty(fields_undef)
     return;
 end
@@ -94,7 +94,9 @@ if ~isempty(fields_undef)
         end
         disp(['The field(s) above are neither defined by the data reader ',class(run.loader),' nor by the command line arguments\n']);
     end
-    
+
+end
+
 end
 
 function isit=is_empty_field(data,field)
@@ -110,3 +112,4 @@ else
     end
 end
 
+end

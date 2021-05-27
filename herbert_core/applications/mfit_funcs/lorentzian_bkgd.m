@@ -1,6 +1,6 @@
-function [y, name, pnames, pin] = gauss_bkgd(x, p, flag)
+function [y, name, pnames, pin] = lorentzian_bkgd(x, p, flag)
 % Lorentzian on linear background
-% 
+%
 %   >> y = lorentzian_bkgd(x,p)
 %   >> [y, name, pnames, pin] = lorentzian_bkgd(x,p,flag)
 %
@@ -33,24 +33,30 @@ if nargin==2
     y=(p(1)*p(3)^2)./((x-p(2)).^2 + p(3)^2) + (p(4)+x*p(5));
 else
     % Return parameter names or interactively prompt for parameter values
-	y=[];
-	name='Lorentzian';
-	pnames=str2mat('Height','Centre','Sigma','Constant','Slope');
-	if flag==1
+    y=[];
+    name='Lorentzian';
+    pnames=char('Height','Centre','Sigma','Constant','Slope');
+    if flag==1
         pin=zeros(size(p));
     elseif flag==2
-		mf_msg('Click on peak maximum');
-		[centre,height]=ginput(1);
-		mf_msg('Click on half-height');
-		[width,dummy]=ginput(1);
-		gamma=abs(width-centre);
-		mf_msg('Click on left background');
-		[x1,y1]=ginput(1);
-		mf_msg('Click on right background');
-		[x2,y2]=ginput(1);
+        mf_msg('Click on peak maximum');
+        [centre,height]=ginput(1);
+        mf_msg('Click on half-height');
+        [width,~]=ginput(1);
+        gamma=abs(width-centre);
+        mf_msg('Click on left background');
+        [x1,y1]=ginput(1);
+        mf_msg('Click on right background');
+        [x2,y2]=ginput(1);
         const=(x2*y1-x1*y2)/(x2-x1);
         slope=(y2-y1)/(x2-x1);
-        if isnan(const)|isnan(slope); const=0; slope=0; end;
-		pin=[height-(const+slope*centre),centre,gamma,const,slope];
-	end
+        if isnan(const)||isnan(slope)
+            const=0;
+            slope=0;
+        end
+        pin=[height-(const+slope*centre),centre,gamma,const,slope];
+    end
 end
+
+end
+

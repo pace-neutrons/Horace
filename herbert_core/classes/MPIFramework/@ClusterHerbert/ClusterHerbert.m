@@ -9,7 +9,7 @@ classdef ClusterHerbert < ClusterWrapper
         
         cluster_prev_state_ =[];
         cluster_cur_state_ = [];
-                
+
         tasks_handles_ = {};
     end
     properties(Access = private)
@@ -86,7 +86,7 @@ classdef ClusterHerbert < ClusterWrapper
                 obj.matlab_starter_ = fullfile(prog_path,'matlab.exe');
             else
                 obj.matlab_starter_= fullfile(prog_path,'matlab');
-                obj.task_common_str_ = {'-softwareopengl',obj.task_common_str_{:}};
+                obj.task_common_str_ = [{'-softwareopengl'},obj.task_common_str_{:}];
             end
             
             intecomm_name = obj.pool_exchange_frmwk_name_;
@@ -167,7 +167,6 @@ classdef ClusterHerbert < ClusterWrapper
     methods(Access = protected)
         function [ok,failed,mess] = is_running(obj)
             % Method checks if java framework is running
-            
             for i=1:numel(obj.tasks_handles_)
                 [ok,failed,mess] = is_java_process_running(obj,obj.tasks_handles_{i});
                 if ~ok
@@ -181,5 +180,3 @@ classdef ClusterHerbert < ClusterWrapper
         
     end
 end
-
-

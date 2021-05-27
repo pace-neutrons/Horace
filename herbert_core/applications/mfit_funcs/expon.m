@@ -1,6 +1,6 @@
 function [y, name, pnames, pin] = expon(x, p, flag)
 % Exponential function
-% 
+%
 %   >> y = expon(x,p)
 %   >> [y, name, pnames, pin] = expon(x,p,flag)
 %
@@ -33,18 +33,20 @@ if nargin==2
     y=p(1)*exp(-x/p(2));
 else
     % Return parameter names or interactively prompt for parameter values
-	y=[];
-	name='Exponential';
-	pnames=str2mat('Height','Decay');
-	if flag==1
-        pin=[];
-    elseif flag==2
-		mf_msg('Click on one point');
-		[x1,h1]=ginput(1);
-		mf_msg('Click on 2nd point');
-		[x2,h2]=ginput(1);
-        tau = (x2-x1)/log(y1/y2);
-        ht  = y1*exp(x1/tau);
-		pin=[ht,tau];
-	end
+        y=[];
+        name='Exponential';
+        pnames=char('Height','Decay');
+        if flag==1
+            pin=[];
+        elseif flag==2
+            mf_msg('Click on one point');
+            [x1,~]=ginput(1);
+            mf_msg('Click on 2nd point');
+            [x2,~]=ginput(1);
+            tau = (x2-x1)/log(y1/y2);
+            ht  = y1*exp(x1/tau);
+            pin=[ht,tau];
+        end
+end
+
 end

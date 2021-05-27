@@ -46,11 +46,15 @@ string(JOIN "','" IGNORE_STRING ${PACE_MLINT_IGNORE})
 
 string(CONCAT RUN_MLINT "\""
                         "addpath('${Herbert_ROOT}/admin');"
-                        "lint_json({'${CMAKE_SOURCE_DIR}/**/*.m'},"
+                        "lint_json({'${${PROJECT_NAME}_CORE}/**/*.m',"
+                                   "'${${PROJECT_NAME}_ROOT}/admin/**/*.m',"
+                                   "'${${PROJECT_NAME}_ROOT}/_test/**/*.m'},"
                                    "'${CMAKE_CURRENT_BINARY_DIR}/mlint.json',"
                                    "'exclude',{'${IGNORE_STRING}'});"
                         "exit;"
                         "\"")
+
+message(${RUN_MLINT})
 
 add_custom_target(analyse-mlint
   COMMENT "- Performing MATLAB analysis (Mlint)..."

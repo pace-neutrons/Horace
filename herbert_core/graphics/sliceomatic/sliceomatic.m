@@ -125,7 +125,7 @@ end
 %-------------------------------------------------------------------------------------------------
 
 if isa(U1,'double')
-    
+
     d.data=S;
     d.Xv=U1;
     d.Yv=U2;
@@ -138,7 +138,7 @@ if isa(U1,'double')
     d.zaxis=zaxis;
     d.clim=clim;
     isoHandles=[];
-    
+
     %modified by srikanth on may 16th
     d.xlim=[min(min(min(U1)))  max(max(max(U1)))];
     d.ylim=[min(min(min(U2)))  max(max(max(U2)))];
@@ -153,15 +153,15 @@ if isa(U1,'double')
     d.zlim = d.zlim + [-deltaz/2,deltaz/2];
     d = sliceomaticfigure(d);
     d = sliceomaticsetdata(d,isoflag);
-    
-    
+
+
     setappdata(gcf,'sliceomatic',d);
 else
     % Interpret commands
     d=getappdata(gcf,'sliceomatic');
     try
         switch U1
-            
+
             %--------------------------Modification started on 16th may 2003-27th may by srikanth---------------
             case 'ISONew1'
                 %           I=U2;
@@ -176,7 +176,7 @@ else
                     'alphadata',1.0, ...
                     'hittest','off');
                 sliceomatic('isodeleteall')
-                
+
             case 'ISONew2'
                 %           I=U2;
                 %           d.clim(1,2)=I;
@@ -224,7 +224,7 @@ else
                 setpointer(gcf,'SOM leftright');
                 set(d.motionmetaslice,'visible','off');
                 dragfinis(d.draggedarrow);
-                
+
             case 'YnewText'
                 Y=U2;
                 ydivisions=(size(d.data,1)-1);
@@ -239,10 +239,10 @@ else
                 newYVal=d.ylim(1)+(newYVal-1)*ydivisions;
                 h=findobj(gcf,'Tag','slice_u2');
                 set(h,'string',num2str(newYVal));
-                
+
                 set(gcf,'currentaxes',d.axmain);
                 new=localslice(d.data, [], nYDIV, []);
-                
+
                 setappdata(new,'controlarrow',newa);
                 setappdata(newa(2),'arrowslice',new);
                 set(new,'alphadata',get(new,'cdata'),'alphadatamapping','scaled');
@@ -260,7 +260,7 @@ else
                 setpointer(gcf,'SOM topbottom');
                 set(d.motionmetaslice,'visible','off');
                 dragfinis(d.draggedarrow);
-                
+
             case 'ZnewText'
                 Y=U2;
                 if(Y==0)
@@ -273,11 +273,11 @@ else
                 ydivisions=(d.zlim(2)-d.zlim(1))/ydivisions;
                 nYDIV=((Y-d.zlim(1))/ydivisions)+1;
                 newYVal=round(nYDIV);
-                
+
                 newYVal=d.zlim(1)+(newYVal-1)*ydivisions;
                 h=findobj(gcf,'Tag','slice_u3');
                 set(h,'string',num2str(newYVal));
-                
+
                 new=localslice(d.data, [], [], nYDIV);
                 set(new,'alphadata',get(new,'cdata'),'alphadatamapping','scaled');
                 setappdata(new,'controlarrow',newa);
@@ -296,15 +296,15 @@ else
                 setpointer(gcf,'SOM topbottom');
                 set(d.motionmetaslice,'visible','off');
                 dragfinis(d.draggedarrow);
-                
+
                 %-----------------------Modification finished by 12th may 2003 srikanth---------------
-                
+
             case 'Xnew'
                 if strcmp(get(gcf,'selectiontype'),'normal')
                     pt=get(gcbo,'currentpoint');
                     axis(gcbo);
                     X=pt(1,1);
-                    
+
                     %Modified by srikanth
                     %to get the right slice; TGP July 2005 further modified
                     xdivisions=(size(d.data,2));
@@ -313,7 +313,7 @@ else
                     newa=arrow(gcbo,'down',[X 0]);
                     set(gcf,'currentaxes',d.axmain);
                     new=localslice(d.data, nXDIV, [], []);
-                    
+
                     setappdata(new,'controlarrow',newa);
                     setappdata(newa(2),'arrowslice',new);
                     set(new,'alphadata',get(new,'cdata'),'alphadatamapping','scaled');
@@ -343,7 +343,7 @@ else
                     newa=arrow(gcbo,'right',[0 Y]);
                     set(gcf,'currentaxes',d.axmain);
                     new=localslice(d.data, [], nYDIV, []);
-                    
+
                     setappdata(new,'controlarrow',newa);
                     setappdata(newa(2),'arrowslice',new);
                     set(new,'alphadata',get(new,'cdata'),'alphadatamapping','scaled');
@@ -395,7 +395,7 @@ else
             case 'ISO'
                 if strcmp(get(gcf,'selectiontype'),'normal')
                     if all(isfield(d,{'reducelims', 'reduce','reducesmooth'}))
-                        
+
                         pt=get(gcbo,'currentpoint');
                         V=pt(1,1);
                         newa=arrow(gcbo,'up',[V 0]);
@@ -422,25 +422,25 @@ else
                 end
             case 'Xmove'
                 if strcmp(get(gcf,'selectiontype'),'normal')
-                    [a s]=getarrowslice;
+                    [a, s]=getarrowslice;
                     d.draggedarrow=a;
                     dragprep(a);
                 end
             case 'Ymove'
                 if strcmp(get(gcf,'selectiontype'),'normal')
-                    [a s]=getarrowslice;
+                    [a, s]=getarrowslice;
                     d.draggedarrow=a;
                     dragprep(a);
                 end
             case 'Zmove'
                 if strcmp(get(gcf,'selectiontype'),'normal')
-                    [a s]=getarrowslice;
+                    [a, s]=getarrowslice;
                     d.draggedarrow=a;
                     dragprep(a);
                 end
             case 'ISOmove'
                 if strcmp(get(gcf,'selectiontype'),'normal')
-                    [a s]=getarrowslice;
+                    [a, s]=getarrowslice;
                     d.draggedarrow=a;
                     dragprep(a);
                 end
@@ -458,10 +458,10 @@ else
                 aa=get(a,'parent');		% arrow's parent axes
                 pos=getappdata(a,'arrowcenter');	% the line the arrow points at.
                 apos=get(aa,'currentpoint');
-                if aa==d.axx | aa==d.axiso
+                if aa==d.axx || aa==d.axiso
                     % This might be a slice, or an isosurface!
                     if aa==d.axiso
-                        if apos(1,1) >= d.clim(1,1) & apos(1,1)<= d.clim(1,2)
+                        if apos(1,1) >= d.clim(1,1) && apos(1,1)<= d.clim(1,2)
                             xdiff=apos(1,1)-pos(1,1);
                             v=get(a,'vertices');
                             v(:,1)=v(:,1)+xdiff;
@@ -476,7 +476,7 @@ else
                     else
                         xdivision=(d.xlim(2)-d.xlim(1))/(size(d.data,2));
                         apos(2,1)=((apos(2,1)-d.xlim(1))/xdivision);
-                        if apos(2,1) < size(d.data,2) & apos(2,1)>=0
+                        if apos(2,1) < size(d.data,2) && apos(2,1)>=0
                             xdiff=apos(1,1)-pos(1,1);
                             v=get(a,'vertices');
                             v(:,1)=v(:,1)+xdiff;
@@ -496,7 +496,7 @@ else
                     if aa==d.axy
                         ydivision=(d.ylim(2)-d.ylim(1))/(size(d.data,1));
                         apos(1,2)=((apos(1,2)-d.ylim(1))/ydivision);
-                        if apos(1,2) <= size(d.data,1) & apos(1,2) >=0
+                        if apos(1,2) <= size(d.data,1) && apos(1,2) >=0
                             localslice(d.data, [], apos(1,2), [], s);
                             movetipforarrow(d.tip, aa, apos(2,2), [ 5.5 apos(2,2) ], 'middle','left');
                             set([a getappdata(a,'arrowedge')],'vertices',v);
@@ -505,7 +505,7 @@ else
                     else
                         zdivision=(d.zlim(2)-d.zlim(1))/(size(d.data,3));
                         apos(1,2)=((apos(1,2)-d.zlim(1))/zdivision);
-                        if apos(1,2) <= size(d.data,3) & apos(1,2)>=0
+                        if apos(1,2) <= size(d.data,3) && apos(1,2)>=0
                             localslice(d.data, [], [], apos(1,2), s);
                             movetipforarrow(d.tip, aa, apos(2,2), [ .5 apos(2,2) ], 'middle','right');
                             set([a getappdata(a,'arrowedge')],'vertices',v);
@@ -518,7 +518,7 @@ else
                 % IsoSurface context menu items
                 %
             case 'isotogglevisible'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 if propcheck(s,'visible','on')
                     set(s,'visible','off');
                 else
@@ -539,10 +539,10 @@ else
                     delete(isosurfs(i));
                     delete(a);
                 end
-                
-                
+
+
             case 'isodelete'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 if numel(a)==1
                     delete(getappdata(a,'arrowedge'));
                 end
@@ -553,23 +553,23 @@ else
                 delete(s);
                 delete(a);
             case 'isoflatlight'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 set(s,'facelighting','flat');
             case 'isosmoothlight'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 set(s,'facelighting','phong');
             case 'isocolor'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 c=uisetcolor(get(s,'facecolor'));
                 set(s,'facecolor',c);
             case 'isoalpha'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 if nargin ~= 2
                     error('Not enough arguments to sliceomatic.');
                 end
                 set(s,'facealpha',eval(U2));
             case 'isocaps'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 cap=getappdata(s,'isosurfacecap');
                 if isempty(cap)
                     new=localisocaps(s);
@@ -582,7 +582,7 @@ else
                 % Now for slice context menu items
                 %
             case 'togglevisible'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 switch get(s,'visible')
                     case 'on'
                         set(s,'visible','off');
@@ -592,70 +592,70 @@ else
                         popset(a,'facealpha');
                 end
             case 'setfaceted'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 set(s,'edgec','k','facec','flat');
-                if ischar(get(s,'facea')) & strcmp(get(s,'facea'),'texturemap')
+                if ischar(get(s,'facea')) && strcmp(get(s,'facea'),'texturemap')
                     set(s,'facea','flat');
                 end
                 textureizeslice(s,'off');
             case 'setflat'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 set(s,'edgec','n','facec','flat');
-                if ischar(get(s,'facea')) & strcmp(get(s,'facea'),'texturemap')
+                if ischar(get(s,'facea')) && strcmp(get(s,'facea'),'texturemap')
                     set(s,'facea','flat');
                 end
                 textureizeslice(s,'off');
             case 'setinterp'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 set(s,'edgec','n','facec','interp');
-                if ischar(get(s,'facea')) & strcmp(get(s,'facea'),'texturemap')
+                if ischar(get(s,'facea')) && strcmp(get(s,'facea'),'texturemap')
                     set(s,'facea','interp');
                 end
                 textureizeslice(s,'off');
             case 'settexture'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 set(s,'facecolor','texture','edgec','none');
                 if ischar(get(s,'facea'))
                     set(s,'facealpha','texturemap');
                 end
                 textureizeslice(s,'on');
             case 'setnone'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 set(s,'facecolor','none','edgec','none');
                 textureizeslice(s,'off');
             case 'setalphanone'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 set(s,'facealpha',1);
             case 'setalphapoint5'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 set(s,'facealpha',.5);
             case 'setalphaflat'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 set(s,'facealpha','flat');
-                if ischar(get(s,'facec')) & strcmp(get(s,'facec'),'texturemap')
+                if ischar(get(s,'facec')) && strcmp(get(s,'facec'),'texturemap')
                     set(s,'facecolor','flat');
                     textureizeslice(s,'off');
                 end
             case 'setalphainterp'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 set(s,'facealpha','interp');
-                if ischar(get(s,'facec')) & strcmp(get(s,'facec'),'texturemap')
+                if ischar(get(s,'facec')) && strcmp(get(s,'facec'),'texturemap')
                     set(s,'facecolor','interp');
                     textureizeslice(s,'off');
                 end
             case 'setalphatexture'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 set(s,'facealpha','texturemap');
                 if ischar(get(s,'facec'))
                     set(s,'facecolor','texturemap');
                     textureizeslice(s,'on');
                 end
             case 'slicecontour'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 localcontour(s, getappdata(s,'contour'));
             case 'deleteslice'
-                [a s]=getarrowslice;
-                if prod(size(a))==1
+                [a, s]=getarrowslice;
+                if numel(a)==1
                     delete(getappdata(a,'arrowedge'));
                 end
                 if ~isempty(getappdata(s,'contour'))
@@ -664,37 +664,37 @@ else
                 delete(s);
                 delete(a);
             case 'deleteslicecontour'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 if ~isempty(getappdata(s,'contour'))
                     delete(getappdata(s,'contour'));
                 end
                 setappdata(s,'contour',[]);
             case 'slicecontourflat'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 c = getappdata(s,'contour');
                 if ~isempty(c)
                     set(c,'edgecolor','flat');
                 end
             case 'slicecontourinterp'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 c = getappdata(s,'contour');
                 if ~isempty(c)
                     set(c,'edgecolor','interp');
                 end
             case 'slicecontourblack'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 c = getappdata(s,'contour');
                 if ~isempty(c)
                     set(c,'edgecolor','black');
                 end
             case 'slicecontourwhite'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 c = getappdata(s,'contour');
                 if ~isempty(c)
                     set(c,'edgecolor','white');
                 end
             case 'slicecontourcolor'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 c = getappdata(s,'contour');
                 if ~isempty(c)
                     inputcolor = get(c,'edgecolor');
@@ -704,7 +704,7 @@ else
                     set(c,'edgecolor',uisetcolor(inputcolor));
                 end
             case 'slicecontourlinewidth'
-                [a s]=getarrowslice;
+                [a, s]=getarrowslice;
                 c = getappdata(s,'contour');
                 if ~isempty(c)
                     if isa(U2,'char')
@@ -767,11 +767,11 @@ else
                 d.defcolor='interp';
             case	'defaulttexture'
                 d.defcolor='texture';
-                if strcmp(d.defalpha,'flat') | strcmp(d.defalpha,'interp')
+                if strcmp(d.defalpha,'flat') || strcmp(d.defalpha,'interp')
                     d.defalpha='texture';
                 end
-            case	'defaultinterp'
-                d.defcolor='none';
+%             case	'defaultinterp'
+%                 d.defcolor='none';
             case	'defaulttransnone'
                 d.defalpha='none';
             case	'defaulttransflat'
@@ -864,8 +864,8 @@ else
             otherwise
                 error('Bad slice-o-matic command.');
         end
-    catch
-        disp(get(0,'errormessage'));
+    catch ME
+        disp(ME.message);
     end
     setappdata(gcf,'sliceomatic',d);
 end
@@ -892,7 +892,7 @@ slices=allSlices;
 
 for i=1:length(slices)
     fa=get(slices(i),'facea');
-    if isa(fa,'double') & fa>.3
+    if isa(fa,'double') && fa>.3
         pushset(slices(i),'facealpha',.3);
         pushset(slices(i),'edgecolor','n');
     else
@@ -905,7 +905,7 @@ isosurfs=allIsos;
 
 for i=1:length(isosurfs)
     fa=get(isosurfs(i),'facea');
-    if isa(fa,'double') & fa>.3
+    if isa(fa,'double') && fa>.3
         pushset(isosurfs(i),'facealpha',.3);
         pushset(isosurfs(i),'edgecolor','n');
     else
@@ -1062,7 +1062,7 @@ function p=localisocaps(isosurface,isocap)
 % Isocap management
 % Get relevant info from the isosurface.
 d=getappdata(gcf,'sliceomatic');
-if nargin<2 | ~strcmp(get(isocap,'visible'),'off')
+if nargin<2 || ~strcmp(get(isocap,'visible'),'off')
     data=getappdata(isosurface,'isosurfacedata');
     caps=isocaps(d.Xv,d.Yv,d.Zv,d.data,getappdata(isosurface,'isosurfacevalue'),'below');
 end
@@ -1076,12 +1076,12 @@ else
     p=patch(caps,'edgecolor','none','facecolor','interp',...
         'facelighting','none',...
         'tag','sliceomaticisocap');
-    
+
     setappdata(p,'isosurface',isosurface);
     setappdata(isosurface,'isosurfacecap',p);
-    
+
     d=getappdata(gcf,'sliceomatic');
-    
+
     %     switch d.defcolor
     %      case 'faceted'
     %       set(p,'facec','flat','edgec','black');
@@ -1094,7 +1094,7 @@ else
     %      case 'none'
     %       set(p,'facec','none','edgec','none');
     %     end
-    
+
     switch d.defalpha
         case 'none'
             set(p,'facea',1);
@@ -1171,9 +1171,9 @@ deltaz = (d.zlim(2)-d.zlim(1))/(size(d.data,3));
 if ~isempty(X)
     xi=max(1,min(ceil(X),size(d.data,2)));        % Before TGP: was xi = round(X); similiarly for y and z axes
     newX=d.xlim(1)+X*deltax;
-    if newX >= d.xlim(1) & newX <= d.xlim(2)
+    if newX >= d.xlim(1) && newX <= d.xlim(2)
         cdata=reshape(data(:,xi,:),ds(1),ds(3));
-        [xdata ydata zdata]=meshgrid(newX,d.ylim(1):ydivision:d.ylim(2),d.zlim(1):zdivision:d.zlim(2));
+        [xdata, ydata, zdata]=meshgrid(newX,d.ylim(1):ydivision:d.ylim(2),d.zlim(1):zdivision:d.zlim(2));
         st = 'X';
     else
         return
@@ -1181,9 +1181,9 @@ if ~isempty(X)
 elseif ~isempty(Y)
     yi=max(1,min(ceil(Y),size(d.data,1)));
     newY=d.ylim(1)+Y*deltay;
-    if  newY >= d.ylim(1) & newY <= d.ylim(2)
+    if  newY >= d.ylim(1) && newY <= d.ylim(2)
         cdata=reshape(data(yi,:,:),ds(2),ds(3));
-        [xdata ydata zdata]=meshgrid(d.xlim(1):xdivision:d.xlim(2),newY,d.zlim(1):zdivision:d.zlim(2));
+        [xdata, ydata, zdata]=meshgrid(d.xlim(1):xdivision:d.xlim(2),newY,d.zlim(1):zdivision:d.zlim(2));
         st = 'Y';
     else
         return
@@ -1191,15 +1191,15 @@ elseif ~isempty(Y)
 elseif ~isempty(Z)
     zi=max(1,min(ceil(Z),size(d.data,3)));
     newZ=d.zlim(1)+Z*deltaz;
-    if newZ >= d.zlim(1) & newZ <= d.zlim(2)
+    if newZ >= d.zlim(1) && newZ <= d.zlim(2)
         cdata=reshape(data(:,:,zi),ds(1),ds(2));
-        [xdata ydata zdata]=meshgrid(d.xlim(1):xdivision:d.xlim(2),d.ylim(1):ydivision:d.ylim(2),newZ);
+        [xdata, ydata, zdata]=meshgrid(d.xlim(1):xdivision:d.xlim(2),d.ylim(1):ydivision:d.ylim(2),newZ);
         st = 'Z';
     else
         return
     end
 else
-    error('Nothing was passed into LOCALSLICE.');
+    error('HERBERT:sliceomatic:invalid_argument', 'Nothing was passed into LOCALSLICE.');
 end
 
 cdata=squeeze(cdata);
@@ -1216,7 +1216,7 @@ if nargin == 5
     if propcheck(s,'facec','texturemap')
         textureizeslice(s,'on');
     end
-    
+
 else
     % setup the alphadata
     news=surface('cdata',cdata,'alphadata',cdata, 'xdata',xdata, ...
@@ -1245,9 +1245,9 @@ else
         case 'texture'
             set(s,'facea','texture');
     end
-    
+
     setappdata(s,'slicetype',st);
-    
+
     if strcmp(d.defcolor,'texture')
         textureizeslice(s,'on');
     end
@@ -1263,10 +1263,10 @@ function textureizeslice(slice,onoff)
 % Convert a regular slice into a texture map slice, or a texture
 % slice into a regular slice.
 
-for k=1:prod(size(slice))
-    
+for k=1:numel(slice)
+
     d=getappdata(slice(k),'textureoptimizeations');
-    
+
     switch onoff
         case 'on'
             d.xdata=get(slice(k),'xdata');
@@ -1304,10 +1304,10 @@ for k=1:prod(size(slice))
                 set(slice(k),'xdata',d.xdata,'ydata',d.ydata,'zdata',d.zdata);
                 setappdata(slice(k),'textureoptimizeations',[]);
             end
-            if ischar(get(slice(k),'facea')) & strcmp(get(slice(k),'facea'),'texturemap')
+            if ischar(get(slice(k),'facea')) && strcmp(get(slice(k),'facea'),'texturemap')
                 set(slice(k),'facea','flat');
             end
-            if ischar(get(slice(k),'facec')) & strcmp(get(slice(k),'facec'),'texturemap')
+            if ischar(get(slice(k),'facec')) && strcmp(get(slice(k),'facec'),'texturemap')
                 set(slice(k),'facec','flat');
             end
     end
@@ -1333,43 +1333,43 @@ cdata = [];
 
 limit = size(c,2);
 i = 1;
-h = [];
-color_h = [];
+% h = [];
+% color_h = [];
 while(i < limit)
     z_level = c(1,i);
     npoints = c(2,i);
     nexti = i+npoints+1;
-    
+
     xdata = c(1,i+1:i+npoints);
     ydata = c(2,i+1:i+npoints);
-    
+
     switch st
         case 'X'
             xv = get(slice,'xdata');
             lzdata = xv(1,1) + 0*xdata;
-            vertices = [[lzdata].', [ydata].', [xdata].'];
+            vertices = [lzdata.', ydata.', xdata.'];
         case 'Y'
             yv = get(slice,'ydata');
             lzdata = yv(1,1) + 0*xdata;
-            vertices = [[ydata].', [lzdata].', [xdata].'];
+            vertices = [ydata.', lzdata.', xdata.'];
         case 'Z'
             zv = get(slice,'zdata');
             lzdata = zv(1,1) + 0*xdata;
-            vertices = [[xdata].', [ydata].', [lzdata].'];
+            vertices = [xdata.', ydata.', lzdata.'];
     end
-    
+
     faces = 1:length(vertices);
     faces = faces + size(newvertices,1);
-    
+
     longest=max(longest,size(faces,2));
-    
+
     newvertices = [ newvertices ; vertices ];
     newfaces{end+1} = faces;
-    
+
     tcdata =  (z_level + 0*xdata).';
-    
+
     cdata = [ cdata; tcdata ]; % need to be same size as faces
-    
+
     i = nexti;
 end
 

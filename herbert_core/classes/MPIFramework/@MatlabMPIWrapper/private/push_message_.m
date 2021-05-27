@@ -14,8 +14,8 @@ if isKey(obj.messages_cache_,target_id)
         % the question is if only first send message tag is present when you
         % issued labProbe for the next tag. But to ensure equivalence with
         % filebased messages, where all send messages are available, let's
-        % do this 
-        cont = {struct('tag',mess_tag,'mess',message.saveobj()),cont{:}};
+        % do this
+        cont = [{struct('tag',mess_tag,'mess',message.saveobj())},cont{:}];
     else
         cont{end+1} = struct('tag',mess_tag,'mess',message.saveobj());
     end
@@ -24,3 +24,4 @@ else
     obj.messages_cache_(target_id) = {struct('tag',mess_tag,'mess',message.saveobj())};
 end
 
+end

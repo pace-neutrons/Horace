@@ -26,7 +26,7 @@ if nargin>0
     elseif nargin==2 && iscellstr(varargin{2})
         varargout{1} = ixf_global_var (varargin{1}, 'exist', varargin{2:end});
     else            % package arguments as cell; if valid names this will be a cellstr
-        status = ixf_global_var (varargin{1}, 'exist', {varargin{2:end}});
+        status = ixf_global_var (varargin{1}, 'exist', varargin(2:end));
         if nargin>2
             varargout=cell(size(status));
             for i=1:numel(status)
@@ -39,3 +39,6 @@ if nargin>0
 else
     error('Check input argument(s)')
 end
+
+end
+

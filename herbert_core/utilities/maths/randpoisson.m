@@ -97,7 +97,7 @@ if all(cellfun('isclass',varargin,'double'))    % every element is a real
         n=varargin{1};
         if length(n)==1
             size_arr=[n,n];
-        elseif isvector(n) && size(n,1)==1
+        elseif isvector(n) && isrow(n)
             size_arr=n;
         end
     elseif all(cellfun('prodofsize',varargin)==1)   % every element is a scalar

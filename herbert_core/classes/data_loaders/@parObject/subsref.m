@@ -15,8 +15,8 @@ switch index(1).type
         end
         try
             [varargout{:}] = get(this, index);
-        catch
-            rethrow(lasterror);
+        catch ME
+            rethrow(ME);
         end
 
         if length(index) > 1
@@ -45,8 +45,8 @@ switch index(1).type
         error(['??? Unexpected index.type of ' index(1).type]);
 end
 
-if length(varargout) > 1 & nargout <= 1
-    if iscellstr(varargout) || any([cellfun('isempty', varargout)])
+if length(varargout) > 1 && nargout <= 1
+    if iscellstr(varargout) || any(cellfun('isempty', varargout))
         varargout = {varargout};
     else
         try
@@ -55,4 +55,6 @@ if length(varargout) > 1 & nargout <= 1
             varargout = {varargout};
         end
     end
+end
+
 end

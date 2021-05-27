@@ -33,8 +33,11 @@ function sync_folders (p1, p2, syncdirect)
 svn='.svn';
 
 % the sync direct is two-way by default
-if ~exist('syncdirect', 'var'), syncdirect = 0; end;
-if ischar(syncdirect), syncdirect = str2double(syncdirect); end
+if ~exist('syncdirect', 'var')
+    syncdirect = 0;
+elseif ischar(syncdirect)
+    syncdirect = str2double(syncdirect);
+end
 tmpRecycle = recycle;
 recycle on;
 
@@ -79,13 +82,13 @@ while nf1 <= numel(files1) || nf2 <= numel(files2)
         else % the same files, copy the newer file to old file
             if files1(nf1).datenum > files2(nf2).datenum + 1.0/24/60
                 if syncdirect >= 0
-                    display(['''' fullfile(p1, files1(nf1).name) ''' --> ''' ...
+                    disp(['''' fullfile(p1, files1(nf1).name) ''' --> ''' ...
                         fullfile(p2, files2(nf2).name) '''']);
                     copyfile(fullfile(p1, files1(nf1).name), fullfile(p2, files2(nf2).name), 'f');
                 end
             elseif files1(nf1).datenum < files2(nf2).datenum - 1.0/24/60
                 if syncdirect <= 0
-                    display(['''' fullfile(p1, files1(nf1).name) ''' <-- ''' ...
+                    disp(['''' fullfile(p1, files1(nf1).name) ''' <-- ''' ...
                         fullfile(p2, files2(nf2).name) '''']);
                     copyfile(fullfile(p2, files2(nf2).name), fullfile(p1, files1(nf1).name), 'f');
                 end
@@ -99,22 +102,22 @@ while nf1 <= numel(files1) || nf2 <= numel(files2)
         if files1(nf1).isdir % is a dir
             if ~strcmpi(files1(nf1).name, svn)
                 if syncdirect >= 0
-                    display(['''' fullfile(p1, files1(nf1).name) ''' --> ''' ...
+                    disp(['''' fullfile(p1, files1(nf1).name) ''' --> ''' ...
                         p2, '''']);
                     mkdir( fullfile(p2, files1(nf1).name));
                     copyfile(fullfile(p1, files1(nf1).name), fullfile(p2, files1(nf1).name), 'f');
                 elseif syncdirect <= -2 % this subdirectory will be deleted
                     rmdir(fullfile(p1, files1(nf1).name), 's');
-                    display(['''' fullfile(p1, files1(nf1).name) '\'' is deleted']);
+                    disp(['''' fullfile(p1, files1(nf1).name) '\'' is deleted']);
                 end
             end
         else % is a file
             if syncdirect >= 0
-                display(['''' fullfile(p1, files1(nf1).name) ''' --> ''' ...
+                disp(['''' fullfile(p1, files1(nf1).name) ''' --> ''' ...
                         p2,  '''']);
                 copyfile(fullfile(p1, files1(nf1).name), p2, 'f');
             elseif syncdirect <= -2 % this file will be deleted
-                display(['''' fullfile(p1, files1(nf1).name) ''' is deleted']);
+                disp(['''' fullfile(p1, files1(nf1).name) ''' is deleted']);
                 delete(fullfile(p1, files1(nf1).name));
             end
         end
@@ -127,22 +130,22 @@ while nf1 <= numel(files1) || nf2 <= numel(files2)
         if files2(nf2).isdir % is a dir
             if ~strcmpi(files2(nf2).name, svn)
                 if syncdirect <= 0
-                    display(['''' p1, ''' <-- ''' ...
+                    disp(['''' p1, ''' <-- ''' ...
                         fullfile(p2, files2(nf2).name) '''']);
                     mkdir( fullfile(p1, files2(nf2).name));
                     copyfile(fullfile(p2, files2(nf2).name),  fullfile(p1, files2(nf2).name), 'f');
                 elseif syncdirect >= 2 % this subdirectory will be deleted
-                    display(['''' fullfile(p2, files2(nf2).name) '\'' is deleted']);
+                    disp(['''' fullfile(p2, files2(nf2).name) '\'' is deleted']);
                     rmdir(fullfile(p2, files2(nf2).name), 's');
                 end
             end
         else % is a file
             if syncdirect <= 0
-                display(['''' p1 ''' <-- ''' ...
+                disp(['''' p1 ''' <-- ''' ...
                         fullfile(p2, files2(nf2).name) '''']);
                 copyfile(fullfile(p2, files2(nf2).name), p1, 'f');
             elseif syncdirect >= 2 % this file will be deleted
-                display(['''' fullfile(p2, files2(nf2).name) ''' is deleted']);
+                disp(['''' fullfile(p2, files2(nf2).name) ''' is deleted']);
                 delete(fullfile(p2, files2(nf2).name));
             end
         end
@@ -154,7 +157,7 @@ end
 recycle(tmpRecycle);
 
 %% sort a struct
-function [sortedStruct index] = sortstruct(aStruct, fieldName, direction)
+function [sortedStruct, index] = sortstruct(aStruct, fieldName, direction)
 % [sortedStruct index] = sortStruct(aStruct, fieldName, direction)
 % sortStruct returns a sorted struct array, and can also return an index
 % vector. The (one-dimensional) struct array (aStruct) is sorted based on
@@ -189,9 +192,9 @@ end % if
 fieldEntry = aStruct(1).(fieldName);
 
 if (isnumeric(fieldEntry) || islogical(fieldEntry)) && numel(fieldEntry) == 1 % if the field is a single number
-    [dummy index] = sort([aStruct.(fieldName)]);
+    [~, index] = sort([aStruct.(fieldName)]);
 elseif ischar(fieldEntry) % if the field is char
-    [dummy index] = sort({aStruct.(fieldName)});
+    [~, index] = sort({aStruct.(fieldName)});
 else
     error('%s is not an appropriate field by which to sort.', fieldName)
 end % if ~isempty
@@ -216,7 +219,7 @@ function c = strcmpc(s1,s2)
 
 l=min(length(s1), length(s2));
 if l==0
-        if length(s1)
+        if ~isempty(s1)
                 c=1;
         else
                 c=-1;
