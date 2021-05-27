@@ -1,3 +1,4 @@
+#include <mex.h>
 #include "cpp_communicator.h"
 #include "../utility/version.h"
 /* The mex file provides media for MPI communications betwen various Horace workers.
@@ -107,7 +108,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         plhs[0] = mxCreateString(Herbert::VERSION);
         return;
     }
-  
+    //mexWarnMsgIdAndTxt("MEX:runtime_info","In mex file");
   
     //* Check and parse input  arguments. */
     uint8_t * data_buffer(nullptr);

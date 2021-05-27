@@ -36,6 +36,7 @@ function run_configure() {
   cmake_cmd+=" -DCMAKE_BUILD_TYPE=${build_config}"
   cmake_cmd+=" -DBUILD_TESTING=${build_tests}"
   cmake_cmd+=" -DMatlab_RELEASE=${matlab_release}"
+  cmake_cmd+=" -DUSE_HERBERT_MPI=OFF"
   cmake_cmd+=" ${cmake_flags}"
 
   echo -e "\nRunning CMake configure step..."

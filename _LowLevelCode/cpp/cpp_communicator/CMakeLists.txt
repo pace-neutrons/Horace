@@ -24,7 +24,14 @@ target_link_libraries("${MEX_NAME}" "${MPI_CXX_LIBRARIES}")
 if(UNIX)
     # For MPICH on Linux it's necessary to set relative RPATH values so dynamic
     # libraries can be located by the mex library.
-    set(Herbert_EXTERNAL_LIB_REL_PATH "\$ORIGIN/external")
+    message(STATUS "origin: ${ORIGIN}")
+    message(STATUS "MPI root: ${MPI_ROOT}")
+    if (USE_HERBERT_MPI)
+	set(Herbert_EXTERNAL_LIB_REL_PATH "\$ORIGIN/external")
+    else()
+	set(Herbert_EXTERNAL_LIB_REL_PATH "${MPI_ROOT}lib")        
+    endif()
+    message(STATUS "link for -rpath: ${Herbert_EXTERNAL_LIB_REL_PATH}")
     # Using the recommended BUILD_RPATH property did not work with CMake 3.7 so
     # the link flags are set explicitly.
     get_target_property(_link_flags "${MEX_NAME}" LINK_FLAGS)

@@ -19,10 +19,10 @@ if ispc()
     mpi_lib_folder = fullfile(mpi_folder,'lib','x64');
     mpi_hdrs_folder    = fullfile(mpi_folder,'include');
     mpi_lib_2use ={'msmpi.lib'};
-    
 elseif isunix()
     % let's use MPICH
-    mpi_folder = '/usr/local/mpich/';
+    %mpi_folder = '/usr/local/mpich/';
+    mpi_folder = fullfile(herbert_root(), '_LowLevelCode/external/glnxa64/mpich-3.3a2/');
     %mpi_folder = '/home/isis_direct_soft/mpich/';
     mpi_hdrs_folder    = fullfile(mpi_folder,'include');
     mpi_lib_folder = fullfile(mpi_folder,'lib');
@@ -56,6 +56,8 @@ outdir = fullfile(her_folder,'herbert_core','DLL',['_',computer],'_R2015a');
 
 build_version_h(her_folder)
 try
+    % -Wl,-rpath should be provided here for linux clusters but Matlab 2020a
+    % does not support this option.
     mex(add_include{:},input_files{:},...
         mpi_lib{:},'-outdir',outdir);
 catch Err

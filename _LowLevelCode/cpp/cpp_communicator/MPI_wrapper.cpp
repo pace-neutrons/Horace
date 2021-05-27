@@ -37,6 +37,12 @@ int MPI_wrapper::init(const InitParamHolder &init_param) {
         return 0;
     }
     try {
+        int is_initialized;
+        MPI_Initialized(&is_initialized);
+        if (is_initialized){
+            throw_error("MPI_MEX_COMMUNICATOR:runtime_error",
+                "MPI framework is initialized before MPI init was invoked");            
+        }
         err = MPI_Init(argc, argv);
     }
     catch (...) {}
