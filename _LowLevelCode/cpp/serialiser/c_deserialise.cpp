@@ -12,6 +12,7 @@
 #include <cstring>
 #include <cmath>
 #include <vector>
+#include "../utility/version.h"
 #include "cpp_serialise.hpp"
 
 template<typename T, typename A>
@@ -342,6 +343,13 @@ mxArray* deserialise(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
 
 /* MATLAB entry point c_deserialise */
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
+    
+  //--------->  RETURN MEX-file version if requested;
+  if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
+        plhs[0] = mxCreateString(Herbert::VERSION);
+        return;
+  }
+    
 
 #if defined(_LP64) || defined (_WIN64)
 #ifdef MX_COMPAT_32
