@@ -10,12 +10,12 @@ classdef test_ortho < TestCase
             end
             obj = obj@TestCase(name);
         end
-        function test_ortho_throws(~)        
+        function test_ortho_throws_on_zero(~)        
             u = [0,0,0];
             assertExceptionThrown(@()ortho_vec(u),'HERBERT:ortho_vec:invalid_argument')
         end
         
-        function test_ortho3(~)        
+        function test_ortho_1m22(~)        
             u = [1,-2,2];
             [v1,v2] = ortho_vec(u);
             
@@ -24,7 +24,7 @@ classdef test_ortho < TestCase
             assertEqual(v1*v2',0,'Vectors are not orthogonal',[1.e-9,0]);                        
         end
         
-        function test_ortho2(~)        
+        function test_ortho_0m20(~)        
             u = [0,-2,0];
             [v1,v2] = ortho_vec(u);
             
@@ -33,7 +33,7 @@ classdef test_ortho < TestCase
             assertEqual(v1*v2',0,'Vectors are not orthogonal',[1.e-9,0]);                        
         end
         
-        function test_ortho1(~)        
+        function test_ortho_110(~)        
             u = [1,0,0];
             [v1,v2] = ortho_vec(u);
             
