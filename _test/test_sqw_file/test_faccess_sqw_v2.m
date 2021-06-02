@@ -120,7 +120,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(header.ulabel{3},'Q_\eta')
 
             det = to.get_detpar();
-            assertEqual(det.filename,'9cards_4_4to1.par')
+            assertEqual(det.filename,'map_4to1_dec09.par')
             assertEqual(det.filepath,'c:\data\Fe\')
             assertEqual(numel(det.group),36864)
 

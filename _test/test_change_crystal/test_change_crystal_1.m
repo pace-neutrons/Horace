@@ -27,7 +27,7 @@ hp.combine_sqw_using = 'mex_code';
 efix=45;
 emode=1;
 en=-0.75:0.5:0.75;
-par_file=fullfile(common_data_dir,'9cards_4_4to1.par');
+par_file=fullfile(common_data_dir,'map_4to1_dec09.par');
 
 % Parameters for generation of reference sqw file
 alatt=[5,5,5];
