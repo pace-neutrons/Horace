@@ -2,9 +2,10 @@ function [ok,mess] = herbert_mex_mpi(varargin)
 % the script to build cpp communicator using Matlab compiler and not using
 % cmake.
 %
-% one needs to manually modify this script to specify the mpi libraries
-% location in the system.
+% Manually modify this script to specify the mpi libraries location in your
+% system.
 %
+use_her_mpich = false;
 if nargin > 0
     verbouse = true;
 else
@@ -20,15 +21,24 @@ if ispc()
     mpi_hdrs_folder    = fullfile(mpi_folder,'include');
     mpi_lib_2use ={'msmpi.lib'};
 elseif isunix()
-    % let's use MPICH
-    %mpi_folder = '/usr/local/mpich/';
-    mpi_folder = fullfile(herbert_root(), '_LowLevelCode/external/glnxa64/mpich-3.3a2/');
+    if use_her_mpich
+        opt_file = '';
+        % let's use MPICH
+        %mpi_folder = '/usr/local/mpich/';
+        mpi_folder = fullfile(herbert_root(), '_LowLevelCode/external/glnxa64/mpich-3.3a2/');
+        mpi_hdrs_folder    = fullfile(mpi_folder,'include');
+        % .a also possible
+        mpi_lib_2use ={'libmpi.so','libmpich.so','libmpicxx.so'};
+    else
+        opt_file = fullfile(herbert_root(),'admin/_compiler_settings/Matlab2020a/mex_C++openmpi_glnxa64.xml');
+        mpi_folder = '/usr/lib64/openmpi/';
+        mpi_hdrs_folder='/usr/include/openmpi-x86_64/';
+        mpi_lib_2use ={'libmpi_cxx.so','libmpi.so'};
+    end
     %mpi_folder = '/home/isis_direct_soft/mpich/';
-    mpi_hdrs_folder    = fullfile(mpi_folder,'include');
+    
     mpi_lib_folder = fullfile(mpi_folder,'lib');
     %
-    % .a also possible
-    mpi_lib_2use ={'libmpi.so','libmpich.so','libmpicxx.so'};
 else
     error('HERBERT_MEX_MPI:not_implemented',...
         'Mac build is not implemented. Use cmake');
@@ -56,10 +66,16 @@ outdir = fullfile(her_folder,'herbert_core','DLL',['_',computer],'_R2015a');
 
 build_version_h(her_folder)
 try
-    % -Wl,-rpath should be provided here for linux clusters but Matlab 2020a
+    % -Wl,-rpath,to_libmpi.so should be provided here for linux clusters but Matlab 2020a
     % does not support this option.
-    mex(add_include{:},input_files{:},...
-        mpi_lib{:},'-outdir',outdir);
+    if isempty(opt_file)
+        mex(add_include{:},input_files{:},...
+            mpi_lib{:},'-outdir',outdir);
+    else
+        mex(add_include{:},input_files{:},...
+            mpi_lib{:},'-f',opt_file,'-outdir',outdir);
+        
+    end
 catch Err
     ok = false;
     mess = Err.message;

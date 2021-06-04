@@ -3,8 +3,6 @@ if(UNIX)
     if (USE_HERBERT_MPI)
     	set(MPICH_VERSION "3.3a2")
 	set(MPI_ROOT "${EXTERNAL_ROOT}/glnxa64/mpich-${MPICH_VERSION}")
-    else()
-	set(MPI_ROOT "/usr/lib64/openmpi/")
     endif()
 
     # We point CMake to the mpicc and mpicxx compiler scripts, these are then
@@ -33,3 +31,14 @@ else()
 endif()
 
 find_package(MPI REQUIRED)
+
+if (MPI_FOUND)
+   list(GET MPI_CXX_LIBRARIES 0 libPATH)
+   get_filename_component(libPATH ${libPATH} DIRECTORY)
+   get_filename_component(MPI_TEST_ROOT ${libPATH} DIRECTORY)
+   file(TO_CMAKE_PATH "${MPI_TEST_ROOT}/" MPI_TEST_ROOT)
+   if (NOT ${MPI_TEST_ROOT} STREQUAL "")
+      set(MPI_ROOT ${MPI_TEST_ROOT})
+      message(STATUS "Found MPI_ROOT at: ${MPI_ROOT}")
+   endif()
+endif()
