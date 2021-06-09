@@ -168,7 +168,11 @@ data_out.e(no_pix)=0;
 
 if opt.keep_pix
     data_out.urange = urange_pix;
-    data_out.pix = PixelData(pix);
+    if isa(pix,'pix_combine_info')
+        data_out.pix = pix;
+    else
+        data_out.pix = PixelData(pix);
+    end
 end
 
 % Collect fields to make those for a valid sqw object
