@@ -27,8 +27,6 @@ classdef test_SQW_GENCUT_perf < TestPerformance
     % files available to user In a future, such file should be auto-generated.
     %
     %
-    % $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
-    %
     properties(Dependent)
         %  Number of input files to use. Depending on this number the test
         %  would verify small, large or huge datasets
@@ -289,6 +287,13 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             psi= 0.5*(1:nfiles);
             %psi=round(psi);
             comb_metnod = obj.combine_method();
+            % define location of the sqw file to be the same as working
+            % directory
+            fp = fileparts(obj.sqw_file);
+            if isempty(fp)
+                targ_file = fullfile(obj.working_dir,obj.sqw_file);
+                obj.sqw_file = targ_file;
+            end
             
             obj.add_to_files_cleanList(obj.sqw_file)
             if tests_to_run(1)
