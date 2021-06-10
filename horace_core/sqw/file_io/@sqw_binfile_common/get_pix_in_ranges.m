@@ -32,10 +32,7 @@ function pix = get_pix_in_ranges(obj, pix_starts, pix_bl_sizes, ...
 %
 skip_validation = exist('skip_validation', 'var') && skip_validation;
 if ~skip_validation
-    [ok, mess] = validate_ranges(pix_starts, pix_bl_sizes);
-    if ~ok
-        error('HORACE:sqw_binfile_common:invalid_argument', mess);
-    end
+    validate_ranges(pix_starts, pix_ends);
 end
 if ~exist('keep_precision','var')
     keep_precision = true;
