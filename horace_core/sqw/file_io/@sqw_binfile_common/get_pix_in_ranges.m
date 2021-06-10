@@ -22,10 +22,7 @@ function pix = get_pix_in_ranges(obj, pix_starts, pix_ends, skip_validation)
 %
 skip_validation = exist('skip_validation', 'var') && skip_validation;
 if ~skip_validation
-    [ok, mess] = validate_ranges(pix_starts, pix_ends);
-    if ~ok
-        error([upper(class(obj)), ':get_pix_in_ranges'], mess);
-    end
+    validate_ranges(pix_starts, pix_ends);
 end
 
 NUM_BYTES_IN_FLOAT = 4;

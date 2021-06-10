@@ -13,10 +13,7 @@ function pix_out = get_pix_in_ranges(obj, abs_indices_starts, abs_indices_ends)
 % -------
 % pix_out     A PixelData object containing the pixels in the given ranges.
 %
-[ok, mess] = validate_ranges(abs_indices_starts, abs_indices_ends);
-if ~ok
-    error([upper(class(obj)), ':get_pix_in_ranges'], mess);
-end
+validate_ranges(abs_indices_starts, abs_indices_ends);
 
 if obj.is_file_backed_()
     if any(obj.page_dirty_)
