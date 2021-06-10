@@ -33,8 +33,9 @@ if use_mex
                         '%s\n Trying to use Matlab'], ME.message);
         end
     end
-end
-
-if ~use_mex
+else
     [mean_signal, mean_variance] = compute_bin_data_matlab_(obj, npix);
 end
+
+end
+
