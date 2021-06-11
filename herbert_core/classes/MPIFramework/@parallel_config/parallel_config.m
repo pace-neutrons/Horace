@@ -20,21 +20,20 @@ classdef parallel_config<config_base
     %
     %parallel_config Methods:
     % ---------------------------------------------------------------------
-    % worker               - The name of the script or program to run
-    %                        on cluster in parallel using parallel
-    %                        workers.
-    %
-    % is_compiled          - false if the worker is a Matlab script and
-    %                        true if this script is compiled using Matlab
-    %                        applications compiler.
+    % worker           - The name of the script or program to run
+    %                    on cluster in parallel using parallel
+    %                    workers.
+    % is_compiled      - false if the worker is a Matlab script and
+    %                    true if this script is compiled using Matlab
+    %                    applications compiler.
     %
     % parallel_cluster   - The name of a cluster to use. Currently
-    %                        available are h[erbert], p[arpool] and
-    %                        [m]pi_cluster, clusters
-    %
-    % cluster_config       - The configuration class describing parallel
-    %                        cluster, running selected cluster.
-    %
+    %                      defined are h[erbert], p[arpool], 
+    %                      [m]pi_cluster and [s]lurm_mpi clusters but they
+    %                      may not be available on all systems.
+    % cluster_config     - The configuration class describing parallel
+    %                      cluster, running selected cluster.
+    % ---------------------------------------------------------------------
     % shared_folder_on_local - The folder on your working machine containing
     %                          the job input and output data.
     %
@@ -46,9 +45,16 @@ classdef parallel_config<config_base
     %                        and tmp and output results should be stored.
     %                        View from a remote worker.
     % ---------------------------------------------------------------------
-    % known_clusters     - Information method returning the list of
+    % external_mpiexec     - if cpp_communicator is compiled with MPI, 
+    %                        installed on system rather then the one, 
+    %                        provided with Herbert, and this MPI mpiexec is
+    %                        not on the path, the full name (with path)
+    %                        to mpiexec program used to run parallel job
+    %                      Used ony when  parallel_cluster=='mpi_cluster'
+    % =====================================================================
+    % known_clusters       - Information method returning the list of
     %                        the parallel clusters, known to Herbert.
-    % known_clust_configs  -  Information method returning the list of
+    % known_clust_configs  - Information method returning the list of
     %                        the configurations, available for the selected
     %                        cluster.
     % ---------------------------------------------------------------------

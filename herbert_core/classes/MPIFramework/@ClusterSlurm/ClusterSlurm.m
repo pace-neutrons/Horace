@@ -4,13 +4,15 @@ classdef ClusterSlurm < ClusterWrapper
     %
     %----------------------------------------------------------------------
     properties(Access = protected)
-        %
+        % The slurm Job identifier
+        slurm_job_id = [];
     end
     properties(Access = private)
         %
         DEBUG_REMOTE = false;
-        % the folder, containing mpiexec cluster configurations (host files)
-        config_folder_
+        srun_enviroment = containers.Map(...
+            {'MATLAB_PARALLEL_EXECUTOR','PARALLEL_WORKER','WORKER_CONTROL_STRING'},...
+            {'matlab','worker_v2',''});
     end
     
     methods
@@ -71,38 +73,37 @@ classdef ClusterSlurm < ClusterWrapper
             if ~exist('log_level', 'var')
                 log_level = -1;
             end
-            obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);           
+            obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
+            
+            
+            slurm_str = {'srun ',['-N',num2str(n_workers)],' --mpi=pmi2 '};
+            % temporary hack. Matlab on nodes differs from Matlab on the
+            % headnode. Should be contents of obj.matlab_starter_
+            obj.srun_enviroment('MATLAB_PARALLEL_EXECUTOR') = ...
+                '/opt/matlab2020b/bin/matlab';
+            % what should be executed by Matlab parallel worker (will be
+            % nothing if Matlab parallel worker is compiled)
+            obj.srun_enviroment('PARALLEL_WORKER') =...
+                sprintf('-batch %s',obj.worker_name_);
+            % build worker init string describing the data exchange
+            % location
+            obj.srun_enviroment('WORKER_CONTROL_STRING') =...
+                obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
             %
-            prog_path  = find_matlab_path();
-            if isempty(prog_path)
-                error('CLUSTER_HERBERT:runtime_error','Can not find Matlab');
-            end
+            keys = obj.srun_enviroment.keys;
+            vals = obj.stun_enviroment.values;
+            cellfun(@(name,val)setenv(name,val),keys,vals);
             
-            mpiexec = obj.get_mpiexec();
-            if ispc()
-                obj.running_mess_contents_= 'process has not exited';
-                obj.matlab_starter_ = fullfile(prog_path,'matlab.exe');
-            else
-                obj.running_mess_contents_= 'process hasn''t exited';
-                obj.matlab_starter_= fullfile(prog_path,'matlab');
-            end
-            mpiexec_str = {mpiexec,'-n',num2str(n_workers)};
             
-            % build generic worker init string without lab parameters
-            cs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
-            worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
-            task_info = [mpiexec_str(:)',{obj.matlab_starter_},...
-                {'-batch'},{worker_init}];
-            pause(0.1);
-            runtime = java.lang.ProcessBuilder(task_info);
-            pause(0.1);
-            obj.mpiexec_handle_ = runtime.start();
-            pause(1);
             
-            [ok,failed,mess] = obj.is_running();
-            if ~ok && failed
-                error('CLUSTER_MPI:runtime_error',...
-                    ' Can not start mpiexec with %d workers, Error: %s',...
+            runner = fullfile(herbert_root,'herbert_core','admin','srun_runner.sh');
+            
+            run_str = [slurm_str{:},runner];
+            [FAILED,mess]=system(run_str);
+            
+            if  FAILED
+                error('HERBERT:ClusterSlurm:runtime_error',...
+                    ' Can not execute srun command for %d workers, Error: %s',...
                     n_workers,mess);
             end
             
@@ -114,10 +115,6 @@ classdef ClusterSlurm < ClusterWrapper
         %
         function obj=finalize_all(obj)
             obj = finalize_all@ClusterWrapper(obj);
-            if ~isempty(obj.mpiexec_handle_)
-                obj.mpiexec_handle_.destroy();
-                obj.mpiexec_handle_ = [];
-            end
         end
         %
         function [completed, obj] = check_progress(obj,varargin)
@@ -200,5 +197,9 @@ classdef ClusterSlurm < ClusterWrapper
             mess = '';
         end
         
+        function set_bashprofile_values(obj,file_location)
+        end
+        
+
     end
 end

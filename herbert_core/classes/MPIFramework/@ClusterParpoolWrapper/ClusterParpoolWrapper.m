@@ -103,6 +103,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             end
             % build generic worker init string without lab parameters
             cs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
+            pc = parallel_config;
             
             
             cl  = parcluster();

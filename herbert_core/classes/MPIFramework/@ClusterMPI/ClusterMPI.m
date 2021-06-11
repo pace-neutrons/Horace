@@ -76,12 +76,7 @@ classdef ClusterMPI < ClusterWrapper
             end
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
             
-            %
-            prog_path  = find_matlab_path();
-            if isempty(prog_path)
-                error('HERBERT:runtime_error','Can not find Matlab');
-            end
-            
+            %           
             mpiexec = obj.get_mpiexec();
             if ispc()
                 obj.running_mess_contents_= 'process has not exited';
