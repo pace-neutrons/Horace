@@ -93,8 +93,9 @@ classdef ClusterWrapper
         % running process Java exception message contents, used to identify
         % if java process report it has been completed
         running_mess_contents_= 'process has not exited';
-        % the string, describing the operations to launch Matlab
-        matlab_starter_  = [];        
+        % the string, describing the operations to launch Matlab or
+        % compiled Matlab job
+        matlab_starter_  = [];
     end
     properties(Hidden,Dependent)
         % helper property to print nicely aligned log messages
@@ -121,7 +122,7 @@ classdef ClusterWrapper
             %              which started and controls the job.
             % log_level    if present, defines the verbosity of the
             %              operations over the framework
-
+            
             if ispc()
                 obj.running_mess_contents_= 'process has not exited';
             else
@@ -174,11 +175,22 @@ classdef ClusterWrapper
                 numel(mess_exchange_framework.job_id)+numel('***Job :   state: ');
             obj.LOG_MESSAGE_LENGHT = numel('***Job :  : state:  started |')+...
                 numel(mess_exchange_framework.job_id) -numel('****  ****');
-
+            
             % get worker defined in parallel config
             pc = parallel_config();
             obj.worker_name_ = pc.worker;
             obj.is_compiled_script_ = pc.is_compiled;
+            %
+            if obj.is_compiled_script_
+                % define Matlab:
+                prog_path  = find_matlab_path();
+                if isempty(prog_path)
+                    error('HERBERT:ClusterWrapper:runtime_error',...
+                        'Can not find Matlab');
+                end
+                obj.matlab_starter_ = prog_path;
+                
+            end
         end
         %
         function obj = start_job(obj,je_init_message,task_init_mess,log_message_prefix)

@@ -1,4 +1,4 @@
-classdef test_exchange_FileBasedMPI < exchange_common_tests & FakeJenkins4Tests
+classdef test_slurmMPI_methods < exchange_common_tests & FakeJenkins4Tests
     
     properties
         stored_config ='defaults';

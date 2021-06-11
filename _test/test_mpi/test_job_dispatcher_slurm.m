@@ -9,6 +9,7 @@ classdef test_job_dispatcher_slurm < job_dispatcher_common_tests
             this = this@job_dispatcher_common_tests(name,'slurm_mpi');
             this.print_running_tests = true;
         end
+
    end
 
 end
