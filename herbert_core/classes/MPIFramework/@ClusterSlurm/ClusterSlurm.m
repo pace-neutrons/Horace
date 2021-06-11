@@ -45,9 +45,7 @@ classdef ClusterSlurm < ClusterWrapper
                 '**** Slurm MPI job submitted                                     ****\n';
             %
             obj.pool_exchange_frmwk_name_ ='MessagesCppMPI';
-            % define config folder containing cluster configurations
-            root = fileparts(which('herbert_init'));
-            obj.config_folder_ = fullfile(root,'admin','mpi_cluster_configs');
+            obj.cluster_config_ = 'default';
             if nargin < 2
                 return;
             end
@@ -91,20 +89,26 @@ classdef ClusterSlurm < ClusterWrapper
                 obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
             %
             keys = obj.srun_enviroment.keys;
-            vals = obj.stun_enviroment.values;
+            vals = obj.srun_enviroment.values;
             cellfun(@(name,val)setenv(name,val),keys,vals);
             
-            % modify bash_profile values to export it to remote slurm
+            % modify executor script values to export it to remote slurm
             % session
-            bash_source = '~/.bash_profile';
-            obj.set_bashprofile_values(bash_source);
+            run_source = fullfile(herbert_root,'herbert_core','admin','srun_runner.sh');
+            [fp,fon] = fileparts(mess_exchange_framework.mess_exchange_folder);
+            runner= obj.set_run_params(run_source,...
+                fullfile(fp,[fon,'.sh']));
             
-            runner = fullfile(herbert_root,'herbert_core','admin','srun_runner.sh');
+            [fail,queue_state0] = system('squeue');
+            if  fail
+                error('HERBERT:ClusterSlurm:runtime_error',...
+                    ' Can not execute initial slurm queue query. Error: %s',...
+                    queue_state0);
+            end
             
-            run_str = [slurm_str{:},runner];
-            [FAILED,mess]=system(run_str);
-            
-            if  FAILED
+            run_str = [slurm_str{:},runner,' &'];
+            [fail,mess]=system(run_str);
+            if  fail
                 error('HERBERT:ClusterSlurm:runtime_error',...
                     ' Can not execute srun command for %d workers, Error: %s',...
                     n_workers,mess);
@@ -200,12 +204,12 @@ classdef ClusterSlurm < ClusterWrapper
             mess = '';
         end
         
-        function set_bashprofile_values(obj,bash_source)
-            % modify .bash_profile to allow automated transfer of the job
-            % data to the remote cluster
+        function bash_target = set_run_params(obj,bash_source,bash_target)
+            % modify executor script to set up enviromental variables necessary
+            % to provide remote parallel job startup information
             [~,cont,var_pos] = extract_bash_exports(bash_source);
             cont = modify_contents(cont,var_pos,obj.srun_enviroment);
-            fh = fopen(bash_source,'w');
+            fh = fopen(bash_target,'w');
             if fh<1
                 error('HERBERT:ClusterSlurm:io_error',...
                     'Can not open filr %s to modify for job submission',...
@@ -215,7 +219,13 @@ classdef ClusterSlurm < ClusterWrapper
             for i=1:numel(cont)
                 fprintf(fh,'%s\n',cont{i});
             end
-            
+            clear clOb;
+            [fail,mess] = system(['chmod a+x ',bash_target]);
+            if fail
+                error('HERBERT:ClusterSlurm:runtime_error',...
+                    'Can not set up executable mode for file %s. Readon: %s',...
+                    bash_target,mess);
+            end
         end
         
     end
