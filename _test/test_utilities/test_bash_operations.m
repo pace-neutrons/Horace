@@ -51,6 +51,7 @@ classdef test_bash_operations < TestCase
             assertEqual(new_map.keys,var_map.keys);
             assertEqual(new_cont,cont);            
         end
+        %
         function test_modify_contents(~)
             cont= {'a','b','c'};
             var_map = containers.Map();
@@ -64,8 +65,6 @@ classdef test_bash_operations < TestCase
             assertEqual(cont{6},'export WORKER_CONTROL_STRING=''my_control''')
             
             assertEqual(numel(cont),7)
-            
-        end
-        
+        end        
     end
 end

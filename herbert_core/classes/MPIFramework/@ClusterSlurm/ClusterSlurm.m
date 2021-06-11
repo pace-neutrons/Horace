@@ -94,7 +94,10 @@ classdef ClusterSlurm < ClusterWrapper
             vals = obj.stun_enviroment.values;
             cellfun(@(name,val)setenv(name,val),keys,vals);
             
-            
+            % modify bash_profile values to export it to remote slurm
+            % session
+            bash_source = '~/.bash_profile';
+            obj.set_bashprofile_values(bash_source);
             
             runner = fullfile(herbert_root,'herbert_core','admin','srun_runner.sh');
             
@@ -197,9 +200,25 @@ classdef ClusterSlurm < ClusterWrapper
             mess = '';
         end
         
-        function set_bashprofile_values(obj,file_location)
+        function set_bashprofile_values(obj,bash_source)
+            % modify .bash_profile to allow automated transfer of the job
+            % data to the remote cluster
+            [~,cont,var_pos] = extract_bash_exports(bash_source);
+            cont = modify_contents(cont,var_pos,obj.srun_enviroment);
+            fh = fopen(bash_source,'w');
+            if fh<1
+                error('HERBERT:ClusterSlurm:io_error',...
+                    'Can not open filr %s to modify for job submission',...
+                    bash_source);
+            end
+            clOb = onCleanup(@()fclose(fh));
+            for i=1:numel(cont)
+                fprintf(fh,'%s\n',cont{i});
+            end
+            
         end
         
-
     end
+    
 end
+
