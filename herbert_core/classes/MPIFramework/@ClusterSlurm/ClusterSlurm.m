@@ -3,14 +3,19 @@ classdef ClusterSlurm < ClusterWrapper
     % MPI interface controlled by Slurm job manager.
     %
     %----------------------------------------------------------------------
+    properties(Access = public)
+        slurm_job_id
+    end
     properties(Access = protected)
         % The slurm Job identifier
-        slurm_job_id = [];
+        slurm_job_id_ = [];
+        % name of the script, which launches the particular slurm job
+        runner_script_name_ = '';
     end
     properties(Access = private)
         %
         DEBUG_REMOTE = false;
-        srun_enviroment = containers.Map(...
+        slurm_enviroment = containers.Map(...
             {'MATLAB_PARALLEL_EXECUTOR','PARALLEL_WORKER','WORKER_CONTROL_STRING'},...
             {'matlab','worker_v2',''});
     end
@@ -77,34 +82,32 @@ classdef ClusterSlurm < ClusterWrapper
             slurm_str = {'srun ',['-N',num2str(n_workers)],' --mpi=pmi2 '};
             % temporary hack. Matlab on nodes differs from Matlab on the
             % headnode. Should be contents of obj.matlab_starter_
-            obj.srun_enviroment('MATLAB_PARALLEL_EXECUTOR') = ...
+            obj.slurm_enviroment('MATLAB_PARALLEL_EXECUTOR') = ...
                 '/opt/matlab2020b/bin/matlab';
             % what should be executed by Matlab parallel worker (will be
             % nothing if Matlab parallel worker is compiled)
-            obj.srun_enviroment('PARALLEL_WORKER') =...
+            obj.slurm_enviroment('PARALLEL_WORKER') =...
                 sprintf('-batch %s',obj.worker_name_);
             % build worker init string describing the data exchange
             % location
-            obj.srun_enviroment('WORKER_CONTROL_STRING') =...
+            obj.slurm_enviroment('WORKER_CONTROL_STRING') =...
                 obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
-            %
-            keys = obj.srun_enviroment.keys;
-            vals = obj.srun_enviroment.values;
+            % set up job variables on local enviroment (Does not
+            % currently used as ISIS implementation does not transfer
+            % enviromental variables to cluster)
+            keys = obj.slurm_enviroment.keys;
+            vals = obj.slurm_enviroment.values;
             cellfun(@(name,val)setenv(name,val),keys,vals);
             
             % modify executor script values to export it to remote slurm
             % session
             run_source = fullfile(herbert_root,'herbert_core','admin','srun_runner.sh');
             [fp,fon] = fileparts(mess_exchange_framework.mess_exchange_folder);
-            runner= obj.set_run_params(run_source,...
+            runner= obj.create_runparam_script(run_source,...
                 fullfile(fp,[fon,'.sh']));
+            obj.runner_script_name_  = runner;
             
-            [fail,queue_state0] = system('squeue');
-            if  fail
-                error('HERBERT:ClusterSlurm:runtime_error',...
-                    ' Can not execute initial slurm queue query. Error: %s',...
-                    queue_state0);
-            end
+            queue0_rows = obj.get_queue_info();
             
             run_str = [slurm_str{:},runner,' &'];
             [fail,mess]=system(run_str);
@@ -113,6 +116,8 @@ classdef ClusterSlurm < ClusterWrapper
                     ' Can not execute srun command for %d workers, Error: %s',...
                     n_workers,mess);
             end
+            % parse queue and extract new job ID
+            obj = extract_job_id(obj,queue0_rows,@()obj.get_queue_info());
             
             %
             if log_level > -1
@@ -121,7 +126,17 @@ classdef ClusterSlurm < ClusterWrapper
         end
         %
         function obj=finalize_all(obj)
+            % complete parallel job execution
+            
+            % close exchange framework and delete exchange folder
             obj = finalize_all@ClusterWrapper(obj);
+            if ~isempty(obj.runner_script_name_)
+                % delete script used to run the slurm job
+                delete(obj.runner_script_name_);
+                obj.runner_script_name_ = '';
+                % cancel parallel job
+                system(['scancel ',num2str(obj.slurm_job_id_)])
+            end
         end
         %
         function [completed, obj] = check_progress(obj,varargin)
@@ -194,21 +209,59 @@ classdef ClusterSlurm < ClusterWrapper
         %------------------------------------------------------------------
     end
     methods(Static)
+        function queue_rows = get_queue(varargin)
+            % Auxiliary funtion to return existing jobs queue list
+            [fail,queue_list] = system('squeue --noheader');
+            if  fail
+                error('HERBERT:ClusterSlurm:runtime_error',...
+                    ' Can not execute second slurm queue query. Error: %s',...
+                    new_queue);
+            end
+            queue_rows = strsplit(queue_list,{'\n','\r'},'CollapseDelimiters',true);
+        end
     end
     methods(Access = protected)
-        function [ok,failed,mess] = is_running(~)
-            % check if java process is still running or has been completed
+        function [ok,failed,mess] = is_running(obj)
+            % check if the job is still in cluster
             %
             ok = true;
             failed = false;
             mess = '';
         end
-        
-        function bash_target = set_run_params(obj,bash_source,bash_target)
+        function  obj = extract_job_id(obj,old_queue_rows,list_provider_fun)
+            % parse job queue logs and extract new job ID
+            % Inputs:
+            % old_queue_rows -- the cellarray of rows, which contains the
+            %                   job logs, obtained before new job was
+            %                   submitted
+            % list_provider_fun -- the function to return the job log,
+            %                   after the new job have been submitted
+            %
+            %
+            new_job_id_found = false;
+            while ~new_job_id_found
+                pause(1);
+                new_queue_rows = list_provider_fun();
+                old_rows = ismember(new_queue_rows,old_queue_rows);
+                if ~all(old_rows)
+                    new_job_id_found = true;
+                end
+            end
+            new_job_info = new_queue_rows(~old_rows);
+            if numel(new_job_info) > 1
+                % ask user to select a job interactively
+                new_job_info = select_job_interactively(new_job_info);
+            end
+            job_comp = strsplit(new_job_info{1},'CollapseDelimiters',true);
+            obj.slurm_job_id_ = job_comp{1};
+        end
+        %
+        function bash_target = create_runparam_script(obj,bash_source,bash_target)
             % modify executor script to set up enviromental variables necessary
             % to provide remote parallel job startup information
+            %
             [~,cont,var_pos] = extract_bash_exports(bash_source);
-            cont = modify_contents(cont,var_pos,obj.srun_enviroment);
+            cont = modify_contents(cont,var_pos,obj.slurm_enviroment);
             fh = fopen(bash_target,'w');
             if fh<1
                 error('HERBERT:ClusterSlurm:io_error',...
@@ -231,4 +284,3 @@ classdef ClusterSlurm < ClusterWrapper
     end
     
 end
-
