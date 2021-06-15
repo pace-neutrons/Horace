@@ -21,7 +21,8 @@ classdef ClusterSlurm < ClusterWrapper
     end
     
     methods
-        function obj = ClusterSlurm(n_workers,mess_exchange_framework)
+        function obj = ClusterSlurm(n_workers,mess_exchange_framework,...
+                log_level)
             % Constructor, which initiates MPI wrapper
             %
             % The wrapper provides common interface to run various kinds of
@@ -207,10 +208,13 @@ classdef ClusterSlurm < ClusterWrapper
         end
         
         %------------------------------------------------------------------
-    end
-    methods(Static)
-        function queue_rows = get_queue(varargin)
+        function id = get.slurm_job_id(obj)
+            id = obj.slurm_job_id_;
+        end
+        function queue_rows = get_queue(~)
             % Auxiliary funtion to return existing jobs queue list
+            %
+            % Made non-static class  method to be able to overload for testing
             [fail,queue_list] = system('squeue --noheader');
             if  fail
                 error('HERBERT:ClusterSlurm:runtime_error',...
@@ -220,6 +224,8 @@ classdef ClusterSlurm < ClusterWrapper
             queue_rows = strsplit(queue_list,{'\n','\r'},'CollapseDelimiters',true);
         end
     end
+    methods(Static)
+    end
     methods(Access = protected)
         function [ok,failed,mess] = is_running(obj)
             % check if the job is still in cluster
@@ -228,7 +234,7 @@ classdef ClusterSlurm < ClusterWrapper
             failed = false;
             mess = '';
         end
-        function  obj = extract_job_id(obj,old_queue_rows,list_provider_fun)
+        function  obj = extract_job_id(obj,old_queue_rows)
             % parse job queue logs and extract new job ID
             % Inputs:
             % old_queue_rows -- the cellarray of rows, which contains the
@@ -241,7 +247,7 @@ classdef ClusterSlurm < ClusterWrapper
             new_job_id_found = false;
             while ~new_job_id_found
                 pause(1);
-                new_queue_rows = list_provider_fun();
+                new_queue_rows = obj.get_queue();
                 old_rows = ismember(new_queue_rows,old_queue_rows);
                 if ~all(old_rows)
                     new_job_id_found = true;
@@ -250,10 +256,11 @@ classdef ClusterSlurm < ClusterWrapper
             new_job_info = new_queue_rows(~old_rows);
             if numel(new_job_info) > 1
                 % ask user to select a job interactively
-                new_job_info = select_job_interactively(new_job_info);
+                new_job_info = select_job_interactively_(new_job_info);
             end
-            job_comp = strsplit(new_job_info{1},'CollapseDelimiters',true);
-            obj.slurm_job_id_ = job_comp{1};
+            job_comp = strsplit(strtrim(new_job_info{1}),...
+                {' ','\f','\n','\r','\t','\v'},'CollapseDelimiters',true);
+            obj.slurm_job_id_ = str2double(job_comp{1});
         end
         %
         function bash_target = create_runparam_script(obj,bash_source,bash_target)
