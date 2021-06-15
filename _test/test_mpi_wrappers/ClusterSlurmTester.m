@@ -47,25 +47,18 @@ classdef ClusterSlurmTester < ClusterSlurm
             mess_exchange_framework = MessagesFileBasedMPI_mirror_tester(init_struct);
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
         end
-        function queue_rows = get_queue(obj)
-            % Auxiliary funtion to return existing jobs queue list
-            %             [fail,queue_list] = system('squeue --noheader');
-            %             if  fail
-            %                 error('HERBERT:ClusterSlurm:runtime_error',...
-            %                     ' Can not execute second slurm queue query. Error: %s',...
-            %                     new_queue);
-            %             end
-            queue_list = obj.squeue_command_output;
-            queue_rows = strsplit(queue_list,{'\n','\r'},'CollapseDelimiters',true);
-        end
         %
         function obj = extract_job_id_tester(obj,old_queue_rows)
             % exposes protected method for testing purposes
             obj = obj.extract_job_id(old_queue_rows);
         end
-        
     end
     methods(Static)
+    end
+    methods(Access=protected)
+        function queue_text = get_que_text_from_system(obj,full_header)
+            queue_text = obj.squeue_command_output;
+        end
     end
 end
 

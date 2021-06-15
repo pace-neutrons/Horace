@@ -78,13 +78,6 @@ classdef ClusterMPI < ClusterWrapper
             
             %           
             mpiexec = obj.get_mpiexec();
-            if ispc()
-                obj.running_mess_contents_= 'process has not exited';
-                obj.matlab_starter_ = fullfile(prog_path,'matlab.exe');
-            else
-                obj.running_mess_contents_= 'process hasn''t exited';
-                obj.matlab_starter_= fullfile(prog_path,'matlab');
-            end
             mpiexec_str = {mpiexec,'-n',num2str(n_workers)};
             
             % build generic worker init string without lab parameters

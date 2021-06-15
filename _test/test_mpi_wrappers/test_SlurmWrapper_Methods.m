@@ -10,6 +10,13 @@ classdef test_SlurmWrapper_Methods < TestCase
             end
             obj = obj@TestCase(name);
         end
+        function extract_job_id_with_trim(~)
+            clt = ClusterSlurmTester();
+            head = 'JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)';
+            info =' 300   debug         bla      abcd  R       10    aa.a..a...a..';
+            clt.squeue_command_output=sprintf('%s\n%s\n',head,info);
+            
+        end
         function extract_job_id_from_multistring_log_manually(~)
             % this test requests manual input from user so is not tested
             % automatically

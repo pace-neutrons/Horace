@@ -180,8 +180,9 @@ classdef ClusterWrapper
             pc = parallel_config();
             obj.worker_name_ = pc.worker;
             obj.is_compiled_script_ = pc.is_compiled;
+            
             %
-            if obj.is_compiled_script_
+            if ~obj.is_compiled_script_
                 % define Matlab:
                 prog_path  = find_matlab_path();
                 if isempty(prog_path)
@@ -191,6 +192,12 @@ classdef ClusterWrapper
                 obj.matlab_starter_ = prog_path;
                 
             end
+            if ispc()
+                obj.matlab_starter_ = fullfile(obj.matlab_starter_,'matlab.exe');
+            else
+                obj.matlab_starter_= fullfile(obj.matlab_starter_,'matlab');
+            end
+            
         end
         %
         function obj = start_job(obj,je_init_message,task_init_mess,log_message_prefix)

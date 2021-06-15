@@ -84,7 +84,8 @@ classdef ClusterSlurm < ClusterWrapper
             % temporary hack. Matlab on nodes differs from Matlab on the
             % headnode. Should be contents of obj.matlab_starter_
             obj.slurm_enviroment('MATLAB_PARALLEL_EXECUTOR') = ...
-                '/opt/matlab2020b/bin/matlab';
+                'matlab';
+            %obj.matlab_starter_;%'/opt/matlab2020b/bin/matlab';
             % what should be executed by Matlab parallel worker (will be
             % nothing if Matlab parallel worker is compiled)
             obj.slurm_enviroment('PARALLEL_WORKER') =...
@@ -110,7 +111,8 @@ classdef ClusterSlurm < ClusterWrapper
             
             queue0_rows = obj.get_queue_info();
             
-            run_str = [slurm_str{:},runner,' &'];
+            %run_str = [slurm_str{:},runner,' &'];
+            run_str = [slurm_str{:},runner];
             [fail,mess]=system(run_str);
             if  fail
                 error('HERBERT:ClusterSlurm:runtime_error',...
@@ -118,7 +120,7 @@ classdef ClusterSlurm < ClusterWrapper
                     n_workers,mess);
             end
             % parse queue and extract new job ID
-            obj = extract_job_id(obj,queue0_rows,@()obj.get_queue_info());
+            obj = extract_job_id(obj,queue0_rows);
             
             %
             if log_level > -1
@@ -136,7 +138,7 @@ classdef ClusterSlurm < ClusterWrapper
                 delete(obj.runner_script_name_);
                 obj.runner_script_name_ = '';
                 % cancel parallel job
-                system(['scancel ',num2str(obj.slurm_job_id_)])
+                [ok,mess]=system(['scancel ',num2str(obj.slurm_job_id_)]);
             end
         end
         %
@@ -211,22 +213,38 @@ classdef ClusterSlurm < ClusterWrapper
         function id = get.slurm_job_id(obj)
             id = obj.slurm_job_id_;
         end
-        function queue_rows = get_queue(~)
+        %
+        function queue_rows = get_queue_info(~,varargin)
             % Auxiliary funtion to return existing jobs queue list
             %
+            %
             % Made non-static class  method to be able to overload for testing
-            [fail,queue_list] = system('squeue --noheader');
-            if  fail
-                error('HERBERT:ClusterSlurm:runtime_error',...
-                    ' Can not execute second slurm queue query. Error: %s',...
-                    new_queue);
+            %
+            opt = {'-full_header','-trim_logs'};
+            [ok,mess,full_header,trim_logs] = parse_char_options(varargin,opt);
+            if ~ok
+                error('HERBERT:ClusterSlurm:invalid_argument',mess);
             end
+            queue_list = obj.get_que_text_from_system(full_header);
             queue_rows = strsplit(queue_list,{'\n','\r'},'CollapseDelimiters',true);
         end
     end
     methods(Static)
     end
     methods(Access = protected)
+        function queue_text = get_que_text_from_system(~,full_header)
+            if full_header
+                [fail,queue_text] = system('squeue');
+            else
+                [fail,queue_text] = system('squeue --noheader');
+            end
+            if  fail
+                error('HERBERT:ClusterSlurm:runtime_error',...
+                    ' Can not execute second slurm queue query. Error: %s',...
+                    new_queue);
+            end            
+        end
+        %
         function [ok,failed,mess] = is_running(obj)
             % check if the job is still in cluster
             %
@@ -247,7 +265,7 @@ classdef ClusterSlurm < ClusterWrapper
             new_job_id_found = false;
             while ~new_job_id_found
                 pause(1);
-                new_queue_rows = obj.get_queue();
+                new_queue_rows = obj.get_queue_info();
                 old_rows = ismember(new_queue_rows,old_queue_rows);
                 if ~all(old_rows)
                     new_job_id_found = true;
