@@ -60,18 +60,18 @@ int MPI_wrapper::init(const InitParamHolder& init_param) {
             "Can not initialize MPI framework");
     }
 
-    std::vector<char> proc_name(MPI_MAX_PROCESSOR_NAME);
+    char proc_name[MPI_MAX_PROCESSOR_NAME];
     MPI_Comm_size(MPI_COMM_WORLD, &this->numLabs);
     MPI_Comm_rank(MPI_COMM_WORLD, &this->labIndex);
     int name_length;
     std::vector<char> pool_names_buffer;
-    MPI_Get_processor_name(&proc_name[0], &name_length);
+    MPI_Get_processor_name(proc_name, &name_length);
 
     this->SyncMessHolder.resize(this->numLabs);
     this->InterruptHolder.resize(this->numLabs);
     this->node_names.resize(this->numLabs);
     // check communications established and send information about pull names to all nodes of the pool
-    this->node_names[this->labIndex].assign(&proc_name[0], name_length);
+    this->node_names[this->labIndex].assign(proc_name, name_length);
     MPI_Status stat;
     if (this->labIndex == 0) {
 
@@ -85,24 +85,28 @@ int MPI_wrapper::init(const InitParamHolder& init_param) {
                     << ok << std::endl;
                 throw_error("MPI_MEX_COMMUNICATOR:runtime_error", buf.str().c_str(), MPI_wrapper::MPI_wrapper_gtested);
             }
-            MPI_Get_count(&stat, MPI_CHAR, &name_length);
-            ok = MPI_Recv(&proc_name, name_length, MPI_BYTE, nneighbour, MPI_wrapper::data_mess_tag, MPI_COMM_WORLD, &stat);
-            this->node_names[nneighbour].assign(&proc_name[0], name_length);
+            MPI_Get_count(&stat, MPI_BYTE, &name_length);
+            ok = MPI_Recv(proc_name, name_length, MPI_BYTE, nneighbour, MPI_wrapper::data_mess_tag, MPI_COMM_WORLD, &stat);
+            this->node_names[nneighbour].assign(proc_name, name_length);
         }
+
         // send information about the pool to all neighbours
         this->pack_node_names_list(pool_names_buffer);
-        int buf_length = (int)pool_names_buffer.size();
-        for (int nneighbour = 1; nneighbour < this->numLabs; nneighbour++) {
-            MPI_Send(&pool_names_buffer[0], buf_length, MPI_BYTE, 0, MPI_wrapper::data_mess_tag, MPI_COMM_WORLD);
-        }
+        
+        MPI_INT buf_length = (MPI_INT)pool_names_buffer.size();
+        MPI_Bcast(&buf_length, MPI_INT,0,MPI_COMM_WORLD);        
+        MPI_Bcast(&pool_names_buffer[0], buf_length, MPI_BYTE,0,MPI_COMM_WORLD);
+
     }
     else {
-        MPI_Send(&proc_name, name_length, MPI_BYTE, 0, MPI_wrapper::data_mess_tag, MPI_COMM_WORLD);
-        auto ok = MPI_Probe(0, MPI_wrapper::data_mess_tag, MPI_COMM_WORLD, &stat);
-        int buf_length;
-        MPI_Get_count(&stat, MPI_CHAR, &buf_length);
-        pool_names_buffer.resize(buf_length);
-        ok = MPI_Recv(&proc_name, buf_length, MPI_BYTE, 0, MPI_wrapper::data_mess_tag,MPI_COMM_WORLD, &stat);
+        MPI_Ssend(proc_name, name_length, MPI_BYTE, 0, MPI_wrapper::data_mess_tag, MPI_COMM_WORLD);
+
+        // slave to receive the information about the pool names (including themselves)
+        MPI_INT buf_length;
+        MPI_Bcast(&buf_length, MPI_INT,0,MPI_COMM_WORLD);        
+        pool_names_buffer.resize(buf_length);        
+        MPI_Bcast(&pool_names_buffer[0], buf_length, MPI_BYTE,0,MPI_COMM_WORLD);
+        
         this->unpack_node_names_list(pool_names_buffer);
     }
 

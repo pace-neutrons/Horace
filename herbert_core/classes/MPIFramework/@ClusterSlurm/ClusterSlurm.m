@@ -111,8 +111,8 @@ classdef ClusterSlurm < ClusterWrapper
             
             queue0_rows = obj.get_queue_info();
             
-            %run_str = [slurm_str{:},runner,' &'];
-            run_str = [slurm_str{:},runner];
+            run_str = [slurm_str{:},runner,' &'];
+            %run_str = [slurm_str{:},runner];
             [fail,mess]=system(run_str);
             if  fail
                 error('HERBERT:ClusterSlurm:runtime_error',...
@@ -214,7 +214,7 @@ classdef ClusterSlurm < ClusterWrapper
             id = obj.slurm_job_id_;
         end
         %
-        function queue_rows = get_queue_info(~,varargin)
+        function queue_rows = get_queue_info(obj,varargin)
             % Auxiliary funtion to return existing jobs queue list
             %
             %
@@ -225,14 +225,14 @@ classdef ClusterSlurm < ClusterWrapper
             if ~ok
                 error('HERBERT:ClusterSlurm:invalid_argument',mess);
             end
-            queue_list = obj.get_que_text_from_system(full_header);
+            queue_list = obj.get_queue_text_from_system(full_header);
             queue_rows = strsplit(queue_list,{'\n','\r'},'CollapseDelimiters',true);
         end
     end
     methods(Static)
     end
     methods(Access = protected)
-        function queue_text = get_que_text_from_system(~,full_header)
+        function queue_text = get_queue_text_from_system(obj,full_header)
             if full_header
                 [fail,queue_text] = system('squeue');
             else
