@@ -35,12 +35,12 @@ int MPI_wrapper::init(const InitParamHolder& init_param) {
         this->SyncMessHolder.resize(this->numLabs);
         this->InterruptHolder.resize(this->numLabs);
         this->node_names.resize(this->numLabs);
-        if (this->labIndex == 0){
-        char node_name[100];
-        for (int i = 0; i < this->numLabs; i++) {
-            sprintf(node_name, "Node%d\n", i+1);
-            this->node_names[i].assign(node_name, strlen(node_name + 1));
-        }
+        if (this->labIndex == 0) {
+            char node_name[100];
+            for (int i = 0; i < this->numLabs; i++) {
+                sprintf(node_name, "Node%d\n", i + 1);
+                this->node_names[i].assign(node_name, strlen(node_name + 1));
+            }
         }
         return 0;
     }
@@ -60,18 +60,19 @@ int MPI_wrapper::init(const InitParamHolder& init_param) {
             "Can not initialize MPI framework");
     }
 
-    char proc_name[MPI_MAX_PROCESSOR_NAME];
+    char node_name[MPI_MAX_PROCESSOR_NAME];
     MPI_Comm_size(MPI_COMM_WORLD, &this->numLabs);
     MPI_Comm_rank(MPI_COMM_WORLD, &this->labIndex);
-    int name_length;
+    int node_name_length;
+    unsigned long int buf_length;
     std::vector<char> pool_names_buffer;
-    MPI_Get_processor_name(proc_name, &name_length);
+    MPI_Get_processor_name(node_name, &node_name_length);
 
     this->SyncMessHolder.resize(this->numLabs);
     this->InterruptHolder.resize(this->numLabs);
     this->node_names.resize(this->numLabs);
     // check communications established and send information about pull names to all nodes of the pool
-    this->node_names[this->labIndex].assign(proc_name, name_length);
+    this->node_names[this->labIndex].assign(node_name, node_name_length);
     MPI_Status stat;
     if (this->labIndex == 0) {
 
@@ -85,28 +86,27 @@ int MPI_wrapper::init(const InitParamHolder& init_param) {
                     << ok << std::endl;
                 throw_error("MPI_MEX_COMMUNICATOR:runtime_error", buf.str().c_str(), MPI_wrapper::MPI_wrapper_gtested);
             }
-            MPI_Get_count(&stat, MPI_BYTE, &name_length);
-            ok = MPI_Recv(proc_name, name_length, MPI_BYTE, nneighbour, MPI_wrapper::data_mess_tag, MPI_COMM_WORLD, &stat);
-            this->node_names[nneighbour].assign(proc_name, name_length);
+            MPI_Get_count(&stat, MPI_BYTE, &node_name_length);
+            MPI_Recv(node_name, node_name_length, MPI_BYTE, nneighbour, MPI_wrapper::data_mess_tag, MPI_COMM_WORLD, &stat);
+
+            this->node_names[nneighbour].assign(node_name, node_name_length);
         }
 
         // send information about the pool to all neighbours
         this->pack_node_names_list(pool_names_buffer);
-        
-        MPI_INT buf_length = (MPI_INT)pool_names_buffer.size();
-        MPI_Bcast(&buf_length, MPI_INT,0,MPI_COMM_WORLD);        
-        MPI_Bcast(&pool_names_buffer[0], buf_length, MPI_BYTE,0,MPI_COMM_WORLD);
 
+        buf_length = static_cast<unsigned long int>(pool_names_buffer.size());
+        MPI_Bcast(&buf_length, 1, MPI_UNSIGNED_LONG, 0, MPI_COMM_WORLD);
+        MPI_Bcast(&pool_names_buffer[0], buf_length, MPI_BYTE, 0, MPI_COMM_WORLD);
     }
     else {
-        MPI_Ssend(proc_name, name_length, MPI_BYTE, 0, MPI_wrapper::data_mess_tag, MPI_COMM_WORLD);
+        MPI_Ssend(node_name, node_name_length, MPI_BYTE, 0, MPI_wrapper::data_mess_tag, MPI_COMM_WORLD);
 
         // slave to receive the information about the pool names (including themselves)
-        MPI_INT buf_length;
-        MPI_Bcast(&buf_length, MPI_INT,0,MPI_COMM_WORLD);        
-        pool_names_buffer.resize(buf_length);        
-        MPI_Bcast(&pool_names_buffer[0], buf_length, MPI_BYTE,0,MPI_COMM_WORLD);
-        
+        MPI_Bcast(&buf_length, 1, MPI_UNSIGNED_LONG, 0, MPI_COMM_WORLD);
+        pool_names_buffer.resize(buf_length);
+        MPI_Bcast(&pool_names_buffer[0], buf_length, MPI_BYTE, 0, MPI_COMM_WORLD);
+
         this->unpack_node_names_list(pool_names_buffer);
     }
 
@@ -645,8 +645,8 @@ void MPI_wrapper::pack_node_names_list(std::vector<char>& buf)const {
     size_t BlockSize = sizeof(size_t);
     // estimate the size of the nodenames data
     size_t buf_size = BlockSize;
-    for (i = 0; i < this->node_names.size();i++) {
-        buf_size += (this->node_names[i].size()+1);
+    for (i = 0; i < this->node_names.size(); i++) {
+        buf_size += (this->node_names[i].size() + 1);
     }
     // fill-in the buffer
     buf.reserve(buf_size);
