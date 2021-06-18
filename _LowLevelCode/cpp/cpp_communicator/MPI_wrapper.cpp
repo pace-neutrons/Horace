@@ -13,7 +13,7 @@ bool MPI_wrapper::MPI_wrapper_gtested = false;
 * Inputs:
 * init_param - the structure, containing the parameters, necessary for initialization.
 */
-int MPI_wrapper::init(const InitParamHolder &init_param) {
+int MPI_wrapper::init(const InitParamHolder& init_param) {
     //%int const * const isTestedInfo, int async_messages_queue_len,
     //int data_mess_tag, int interrupt_mess_tag) {
 
@@ -23,25 +23,33 @@ int MPI_wrapper::init(const InitParamHolder &init_param) {
     int* argc(nullptr);
     char*** argv(nullptr);
     int err(-1);
-    // initiate the assynchroneous messages queue.
+    // initiate the asynchronous messages queue.
     this->async_queue_max_len_ = init_param.async_queue_length;
     this->asyncMessList.clear();
     //
     if (init_param.is_tested) {
-        // set up test values and return without initializeing the framework
+        // set up test values and return without initializing the framework
         this->isTested = true;
         this->labIndex = (int)init_param.debug_frmwk_param[0];
         this->numLabs = (int)init_param.debug_frmwk_param[1];
         this->SyncMessHolder.resize(this->numLabs);
         this->InterruptHolder.resize(this->numLabs);
+        this->node_names.resize(this->numLabs);
+        if (this->labIndex == 0){
+        char node_name[100];
+        for (int i = 0; i < this->numLabs; i++) {
+            sprintf(node_name, "Node%d\n", i+1);
+            this->node_names[i].assign(node_name, strlen(node_name + 1));
+        }
+        }
         return 0;
     }
     try {
         int is_initialized;
         MPI_Initialized(&is_initialized);
-        if (is_initialized){
+        if (is_initialized) {
             throw_error("MPI_MEX_COMMUNICATOR:runtime_error",
-                "MPI framework is initialized before MPI init was invoked");            
+                "MPI framework is initialized before MPI init was invoked");
         }
         err = MPI_Init(argc, argv);
     }
@@ -52,10 +60,51 @@ int MPI_wrapper::init(const InitParamHolder &init_param) {
             "Can not initialize MPI framework");
     }
 
+    std::vector<char> proc_name(MPI_MAX_PROCESSOR_NAME);
     MPI_Comm_size(MPI_COMM_WORLD, &this->numLabs);
     MPI_Comm_rank(MPI_COMM_WORLD, &this->labIndex);
+    int name_length;
+    std::vector<char> pool_names_buffer;
+    MPI_Get_processor_name(&proc_name[0], &name_length);
+
     this->SyncMessHolder.resize(this->numLabs);
     this->InterruptHolder.resize(this->numLabs);
+    this->node_names.resize(this->numLabs);
+    // check communications established and send information about pull names to all nodes of the pool
+    this->node_names[this->labIndex].assign(&proc_name[0], name_length);
+    MPI_Status stat;
+    if (this->labIndex == 0) {
+
+        for (int nneighbour = 1; nneighbour < this->numLabs; nneighbour++) {
+            auto ok = MPI_Probe(nneighbour, MPI_wrapper::data_mess_tag, MPI_COMM_WORLD, &stat);
+            if (ok != MPI_SUCCESS) {
+                std::stringstream buf;
+                buf << " The Node-1 MPI_probe failed asking for initialization exchange message from Worker N "
+                    << nneighbour + 1
+                    << " the error, code== "
+                    << ok << std::endl;
+                throw_error("MPI_MEX_COMMUNICATOR:runtime_error", buf.str().c_str(), MPI_wrapper::MPI_wrapper_gtested);
+            }
+            MPI_Get_count(&stat, MPI_CHAR, &name_length);
+            ok = MPI_Recv(&proc_name, name_length, MPI_BYTE, nneighbour, MPI_wrapper::data_mess_tag, MPI_COMM_WORLD, &stat);
+            this->node_names[nneighbour].assign(&proc_name[0], name_length);
+        }
+        // send information about the pool to all neighbours
+        this->pack_node_names_list(pool_names_buffer);
+        int buf_length = (int)pool_names_buffer.size();
+        for (int nneighbour = 1; nneighbour < this->numLabs; nneighbour++) {
+            MPI_Send(&pool_names_buffer[0], buf_length, MPI_BYTE, 0, MPI_wrapper::data_mess_tag, MPI_COMM_WORLD);
+        }
+    }
+    else {
+        MPI_Send(&proc_name, name_length, MPI_BYTE, 0, MPI_wrapper::data_mess_tag, MPI_COMM_WORLD);
+        auto ok = MPI_Probe(0, MPI_wrapper::data_mess_tag, MPI_COMM_WORLD, &stat);
+        int buf_length;
+        MPI_Get_count(&stat, MPI_CHAR, &buf_length);
+        pool_names_buffer.resize(buf_length);
+        ok = MPI_Recv(&proc_name, buf_length, MPI_BYTE, 0, MPI_wrapper::data_mess_tag,MPI_COMM_WORLD, &stat);
+        this->unpack_node_names_list(pool_names_buffer);
+    }
 
     return 0;
 }
@@ -79,12 +128,12 @@ void MPI_wrapper::barrier() {
     MPI_Barrier(MPI_COMM_WORLD);
 }
 
-/** Send message using initalized mpi framework
+/** Send message using initialized mpi framework
 * Inputs:
 * dest_address    -- the  address of the worker to send data to
 * data_tag        -- the MPI messages tag
 * is_synchronous -- should the message to be send synchronously or not.
-* data_buffer     -- pointer to the begining of the buffer containing the data
+* data_buffer     -- pointer to the beginning of the buffer containing the data
 * nbytes_to_transfer -- amount of bytes of data to transfer.
 */
 void MPI_wrapper::labSend(int dest_address, int data_tag, bool is_synchronous, uint8_t* data_buffer, size_t nbytes_to_transfer) {
@@ -108,13 +157,13 @@ void MPI_wrapper::labSend(int dest_address, int data_tag, bool is_synchronous, u
             else
             {
                 // wait until the previous interrupt message is delivered
-                auto err = MPI_Wait(&(this->InterruptHolder[dest_address].theRequest), &status);
-                if (err != MPI_SUCCESS) {
+                auto ok = MPI_Wait(&(this->InterruptHolder[dest_address].theRequest), &status);
+                if (ok != MPI_SUCCESS) {
                     std::stringstream buf;
                     buf << " The MPI_Wait until previous interrupt message in the queue for Worker N"
                         << dest_address + 1
                         << "is delivered have failed with Error, code= "
-                        << err << std::endl;
+                        << ok << std::endl;
                     throw_error("MPI_MEX_COMMUNICATOR:runtime_error", buf.str().c_str());
                 }
 
@@ -156,7 +205,7 @@ void MPI_wrapper::labSend(int dest_address, int data_tag, bool is_synchronous, u
 
 }
 
-/** Place message in assynchoneous messages queue preparing it for sending and verify if any previous messages were received
+/** Place message in asynchronous messages queue preparing it for sending and verify if any previous messages were received
     Throw if the allowed queue space is exceeded
 */
 SendMessHolder* MPI_wrapper::add_to_async_queue(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag) {
@@ -191,7 +240,7 @@ SendMessHolder* MPI_wrapper::add_to_async_queue(uint8_t* pBuffer, size_t n_bytes
     else { // no space in the cache to recycle.
         if (this->async_queue_len() + 1 > this->async_queue_max_len_) {
             throw_error("MPI_MEX_COMMUNICATOR:runtime_error",
-                "the number of assynchroneous messages exceed the maximal number",
+                "the number of asynchronous messages exceed the maximal number",
                 MPI_wrapper::MPI_wrapper_gtested);
         }
 
@@ -219,7 +268,7 @@ SendMessHolder* MPI_wrapper::set_sync_transfer(uint8_t* pBuffer, size_t n_bytes,
             auto err = MPI_Wait(&(this->SyncMessHolder[dest_address].theRequest), &status);
             if (err != MPI_SUCCESS) {
                 std::stringstream buf;
-                buf << " The MPI_Wait for deslivery of synchronous message from Worker N" << this->labIndex + 1 << "have failed with Error, code= "
+                buf << " The MPI_Wait for delivery of synchronous message from Worker N" << this->labIndex + 1 << "have failed with Error, code= "
                     << err << std::endl;
                 throw_error("MPI_MEX_COMMUNICATOR:runtime_error", buf.str().c_str());
             }
@@ -238,7 +287,7 @@ SendMessHolder* MPI_wrapper::set_sync_transfer(uint8_t* pBuffer, size_t n_bytes,
 
 /* in test mode, verify if data source and data tag for message correspond data source and data tag requested
 *
-* Non-send message has negative destination address and delvered message has theRequest tag == 0 so only
+* Non-send message has negative destination address and delivered message has theRequest tag == 0 so only
 * valid queue messages are verified and returned
 */
 bool check_address_tag_requsted(SendMessHolder const& Mess, int addr_requested, int tag_requested) {
@@ -430,7 +479,7 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
 
 
     if (this->isTested) {
-        SendMessHolder* pMess(nullptr), *pPrevMess(nullptr);
+        SendMessHolder* pMess(nullptr), * pPrevMess(nullptr);
 
         if (check_address_tag_requsted(InterruptHolder[source_address], source_address, source_data_tag)) {
             pMess = &this->InterruptHolder[source_address];
@@ -579,6 +628,53 @@ void MPI_wrapper::clearAll() {
     }
 }
 
+/** pack node_names variable into linear buffer to be able to send it over MPI with one message
+ and restore it later (kind of primitive serialization)
+ Input:
+     takes the structure of the class variable node_names
+ Output:
+    fills in the buffer vector with the restorable structure values
+*/
+void MPI_wrapper::pack_node_names_list(std::vector<char>& buf)const {
+
+    size_t i;
+    size_t BlockSize = sizeof(size_t);
+    // estimate the size of the nodenames data
+    size_t buf_size = BlockSize;
+    for (i = 0; i < this->node_names.size();i++) {
+        buf_size += (this->node_names[i].size()+1);
+    }
+    // fill-in the buffer
+    buf.reserve(buf_size);
+    size_t sizebuf = this->node_names.size();
+    auto pBuf = reinterpret_cast<char*>(&sizebuf);
+    for (i = 0; i < BlockSize; i++) buf.push_back(pBuf[i]);
+
+    // copy all node names
+    for (i = 0; i < this->node_names.size(); i++) {
+        for (size_t j = 0; j <= this->node_names[i].size(); j++) {
+            auto pString_start = this->node_names[i].c_str();
+            buf.push_back(pString_start[j]);
+        }
+    }
+
+}
+/** unpack node_names variable from linear buffer received over MPI and restore the structure
+* (reverse to pack_node_names_list)   kind of primitive de-serialization.
+*/
+void MPI_wrapper::unpack_node_names_list(const std::vector<char>& buf) {
+
+    size_t i;
+    auto buf_start = &buf[0];
+    size_t nNames = size_t(*reinterpret_cast<size_t const*>(buf_start));
+    buf_start += sizeof(size_t);
+    this->node_names.resize(nNames);
+    for (i = 0; i < nNames; i++) {
+        this->node_names[i].assign(buf_start);
+        buf_start += this->node_names[i].size() + 1;
+    }
+}
+
 //
 /** Construtor building message from message holder*/
 SendMessHolder::SendMessHolder(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag) :
@@ -652,7 +748,7 @@ bool SendMessHolder::is_send() {
         return false;
 }
 
-SendMessHolder  &SendMessHolder::operator=(SendMessHolder &&other) {
+SendMessHolder& SendMessHolder::operator=(SendMessHolder&& other) {
     if (this == &other)return *this;
 
     this->theRequest = other.theRequest;
@@ -682,7 +778,7 @@ SendMessHolder::SendMessHolder(SendMessHolder&& other) noexcept {
 
 }
 // copy assignment
-SendMessHolder & SendMessHolder::operator=(const SendMessHolder & other) {
+SendMessHolder& SendMessHolder::operator=(const SendMessHolder& other) {
     if (this == &other)return *this;
 
     this->theRequest = other.theRequest;

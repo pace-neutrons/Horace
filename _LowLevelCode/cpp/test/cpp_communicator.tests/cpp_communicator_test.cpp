@@ -1024,6 +1024,36 @@ TEST(TestCPPCommunicator, clear_all) {
     ASSERT_EQ(0, wrap.async_queue_len());
 
 }
+TEST(TestCPPCommunicator, MPI_wraper_ser_deser_info) {
+    MPI_wrapper::MPI_wrapper_gtested = true;
+
+    InitParamHolder init_par;
+    init_par.is_tested = true;
+    init_par.async_queue_length = 4;
+    init_par.data_message_tag = 10;
+
+    // labInd
+    init_par.debug_frmwk_param[0] = 0;
+    // numLabs
+    init_par.debug_frmwk_param[1] = 10;
+
+
+    auto wrap = MPI_wrapper();
+    wrap.init(init_par);
+    ASSERT_TRUE(wrap.isTested);
+
+    std::vector<char> data_buf;
+    wrap.pack_node_names_list(data_buf);
+
+    auto wrap1 = MPI_wrapper();
+    wrap1.isTested = true;
+    wrap1.unpack_node_names_list(data_buf);
+    for (int i = 0; i < 10; i++){
+        EXPECT_EQ(wrap1.node_names[i], wrap.node_names[i]);
+    }
+
+}
+
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);

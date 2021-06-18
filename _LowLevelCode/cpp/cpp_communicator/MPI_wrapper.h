@@ -66,6 +66,8 @@ public:
     int labIndex;
     // total  number of MPI labs (workers)
     int numLabs;
+    // vector containing the names of the all nodes of the pool
+    std::vector<std::string> node_names;
     // test mode used to run various test operations over MPI_wrapper in single process, 
     // when no real mpi exchange is initiated.
     bool isTested;
@@ -78,10 +80,14 @@ public:
     // the tag of message, containing interrupts. Organizes independent channel to check for interrupts
     static int interrupt_mess_tag;
 
-
+    // pack node_names variable into linear buffer to be able to send it over MPI with one message 
+    // and restore it later (kind of primitive serialization)
+    void pack_node_names_list(std::vector<char>& buf)const;
+    // unpack node_names variable from linear buffer received over MPI and restore the structure
+    // (kind of primitive de-serialization)
+    void unpack_node_names_list(const std::vector<char>& buf);
     //----------------------------------------------------------------------------------
     // The methods used in unit tests -- have no meaning in real communications
-
     static bool MPI_wrapper_gtested;
     // get access to the asynchroneous messages queue
     std::list<SendMessHolder>* get_async_queue() {

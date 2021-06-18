@@ -362,6 +362,10 @@ end
         % internal logging
         fbMPI.ext_log_fh = fh;
         intercomm.ext_log_fh = fh;
+        pool_nodes = intercomm.get_node_names();
+        for i=1:intercomm.numLabs
+            fprintf(fh,'  Node: %d  : Name : %s \n',i,pool_nodes{i});            
+        end
     end
 %
     function log_num_runs(num_of_runs)
