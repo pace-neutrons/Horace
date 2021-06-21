@@ -30,6 +30,8 @@ classdef ClusterSlurmTester < ClusterSlurm
             % log_level    if present, defines the verbosity of the
             %              operations over the framework
             obj = obj@ClusterSlurm();
+            obj.time_to_wait_for_job_id_ = 0;
+            
             if nargin < 2
                 return;
             end
@@ -52,12 +54,29 @@ classdef ClusterSlurmTester < ClusterSlurm
             % exposes protected method for testing purposes
             obj = obj.extract_job_id(old_queue_rows);
         end
+        function head = get_header(obj)
+            head = obj.header_;
+        end
+        function [user_name,pos]= init_parser_tester(obj)
+            % function to test init parser:
+            % Returns:
+            % user_name -- the name of the user running the session
+            % pos       -- the position of the begining of the running
+            %              time field.
+            obj = obj.init_parser();
+            user_name = obj.user_name_;
+            pos = obj.time_field_pos_;
+        end
     end
     methods(Static)
     end
     methods(Access=protected)
-        function queue_text = get_que_text_from_system(obj,full_header)
-            queue_text = obj.squeue_command_output;
+        function queue_text = get_queue_text_from_system(obj,full_header)
+            if full_header
+                queue_text =[sprintf('%s\n',obj.header_),obj.squeue_command_output];
+            else
+                queue_text = obj.squeue_command_output;
+            end
         end
     end
 end

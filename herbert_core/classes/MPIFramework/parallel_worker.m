@@ -32,7 +32,7 @@ if nargin<3
     DO_DEBUGGING = false;
 end
 
-try    
+try
     %
     % Check current state of mpi framework and set up deployment status
     % within Matlab code to run
@@ -358,13 +358,16 @@ end
         fprintf(fh,'      Job ID         : %s:\n',intercomm.job_id);
         fprintf(fh,'      LabNum         : %d:\n',intercomm.labIndex);
         fprintf(fh,'      NumLabs        : %d:\n',intercomm.numLabs);
+        
         % assing logging file-handle to the available frameworks to allow
         % internal logging
         fbMPI.ext_log_fh = fh;
         intercomm.ext_log_fh = fh;
         pool_nodes = intercomm.get_node_names();
+        fprintf(fh,'   ***************************************\n');
+        fprintf(fh,'Pool visible to node : %s:\n',pool_nodes{intercomm.labIndex});
         for i=1:intercomm.numLabs
-            fprintf(fh,'  Node: %d  : Name : %s \n',i,pool_nodes{i});            
+            fprintf(fh,'  Node: %d  : Name : %s \n',i,pool_nodes{i});
         end
     end
 %

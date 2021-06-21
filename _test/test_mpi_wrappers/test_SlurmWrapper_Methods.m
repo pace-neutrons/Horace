@@ -10,13 +10,37 @@ classdef test_SlurmWrapper_Methods < TestCase
             end
             obj = obj@TestCase(name);
         end
-        function extract_job_id_with_trim(~)
+        function test_extract_job_id_real_header_two_jobs(~)
             clt = ClusterSlurmTester();
-            head = 'JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)';
-            info =' 300   debug         bla      abcd  R       10    aa.a..a...a..';
-            clt.squeue_command_output=sprintf('%s\n%s\n',head,info);
+            info0 =' 300   debug         bla      abcd  R       10    aa.a..a...a..';            
+            info1 =' 300   debug         bla      abcd  R       11    aa.a..a...a..';
+            info2 =' 310   debug         bla      abcd  R       1    aa.a..a...a..';            
+            clt.squeue_command_output=sprintf('%s\n%s\n',info1,info2);
             
+            clt = clt.extract_job_id_tester({info0(1:37)});
+            
+            assertEqual(clt.slurm_job_id,310);
         end
+        
+        function test_extract_job_id_real_header(~)
+            clt = ClusterSlurmTester();
+            info =' 300   debug         bla      abcd  R       10    aa.a..a...a..';
+            clt.squeue_command_output=sprintf('%s\n',info);
+            
+            clt = clt.extract_job_id_tester('');
+            
+            assertEqual(clt.slurm_job_id,300);
+        end
+        %
+        function test_init_parser(~)
+            clt = ClusterSlurmTester();
+            [uname, pos] = clt.init_parser_tester();
+            assertEqual(pos,37);
+            [fail,uname_t] = system('whoami');
+            assertEqual(fail,0);
+            assertEqual(uname,strtrim(uname_t));
+        end
+        %
         function extract_job_id_from_multistring_log_manually(~)
             % this test requests manual input from user so is not tested
             % automatically

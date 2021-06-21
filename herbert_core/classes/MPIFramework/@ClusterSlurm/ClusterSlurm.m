@@ -11,13 +11,41 @@ classdef ClusterSlurm < ClusterWrapper
         slurm_job_id_ = [];
         % name of the script, which launches the particular slurm job
         runner_script_name_ = '';
+        % The time (in sec) to wait from job submission to asking for job
+        % to appear in the queue.
+        time_to_wait_for_job_id_=1;
+        
+        % the location of the end of the job status field, used for parsing
+        % the job logs
+        time_field_pos_
+        % the user name, used to distinguish this user jobs from others
+        user_name_
     end
     properties(Access = private)
         %
         DEBUG_REMOTE = false;
+        % enviromental variables and their default values,
+        % set by the class to propagate to a parallel job.
         slurm_enviroment = containers.Map(...
             {'MATLAB_PARALLEL_EXECUTOR','PARALLEL_WORKER','WORKER_CONTROL_STRING'},...
             {'matlab','worker_v2',''});
+        % The header, returned by squeue command. Defined in the class for
+        % purpose of parsing job logs in tests
+        header_ = 'JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)';
+        % Job State description
+        job_desctiption = containers.Map(...
+            {'PD','R','CG','CD','F','TO','S','ST'},...
+            {'Pending','Running','Completing','Completed','Failed',...
+            'Terminated','Suspended','Stopped'});
+        %PD   Pending     The job is waiting in a queue for allocation of resources
+        %R    Running     The job currently is allocated to a node and is running
+        %CG   Completing  The job is finishing but some processes are still active
+        %CD   Completed   The job has completed successfully
+        %F    Failed      Failed with non-zero exit value
+        %TO   Terminated  Job terminated by SLURM after reaching its runtime limit
+        %S    Suspended   A running job has been stopped with its resources released to other jobs
+        %ST   Stopped     A running job has been stopped with its resources retained
+        %
     end
     
     methods
@@ -52,12 +80,14 @@ classdef ClusterSlurm < ClusterWrapper
             %
             obj.pool_exchange_frmwk_name_ ='MessagesCppMPI';
             obj.cluster_config_ = 'default';
+            obj=obj.init_parser();
             if nargin < 2
                 return;
             end
             if ~exist('log_level', 'var')
                 log_level = -1;
             end
+            
             obj = obj.init(n_workers,mess_exchange_framework,log_level);
         end
         %
@@ -109,12 +139,12 @@ classdef ClusterSlurm < ClusterWrapper
                 fullfile(fp,[fon,'.sh']));
             obj.runner_script_name_  = runner;
             
-            queue0_rows = obj.get_queue_info();
+            queue0_rows = obj.get_queue_info('-trim');
             
             run_str = [slurm_str{:},runner,' &'];
             %run_str = [slurm_str{:},runner];
-            [fail,mess]=system(run_str);
-            if  fail
+            [failed,mess]=system(run_str);
+            if failed
                 error('HERBERT:ClusterSlurm:runtime_error',...
                     ' Can not execute srun command for %d workers, Error: %s',...
                     n_workers,mess);
@@ -138,7 +168,12 @@ classdef ClusterSlurm < ClusterWrapper
                 delete(obj.runner_script_name_);
                 obj.runner_script_name_ = '';
                 % cancel parallel job
-                [ok,mess]=system(['scancel ',num2str(obj.slurm_job_id_)]);
+                [failed,mess]=system(['scancel ',num2str(obj.slurm_job_id_)]);
+                if failed
+                    error('HERBERT:ClusterSlurm:runtime_error',...
+                        'Error canceling slurm job with ID %d, Reason %s',...
+                        obj.slurm_job_id_,mess);
+                end
             end
         end
         %
@@ -208,41 +243,56 @@ classdef ClusterSlurm < ClusterWrapper
                     'Slurm manager is not available or not on the search path of this machine');
             end
         end
-        
         %------------------------------------------------------------------
         function id = get.slurm_job_id(obj)
             id = obj.slurm_job_id_;
-        end
-        %
-        function queue_rows = get_queue_info(obj,varargin)
-            % Auxiliary funtion to return existing jobs queue list
-            %
-            %
-            % Made non-static class  method to be able to overload for testing
-            %
-            opt = {'-full_header','-trim_logs'};
-            [ok,mess,full_header,trim_logs] = parse_char_options(varargin,opt);
-            if ~ok
-                error('HERBERT:ClusterSlurm:invalid_argument',mess);
-            end
-            queue_list = obj.get_queue_text_from_system(full_header);
-            queue_rows = strsplit(queue_list,{'\n','\r'},'CollapseDelimiters',true);
         end
     end
     methods(Static)
     end
     methods(Access = protected)
+        function queue_rows = get_queue_info(obj,varargin)
+            % Auxiliary funtion to return existing jobs queue list
+            % Options:
+            % '-full_header' -- job list should return the header
+            % '-trim'        -- the job list should be trimmed up to job
+            %                   run time (for identifying existing jobs
+            %                   regardless of their run time)
+            opt = {'-full_header','-trim'};
+            [ok,mess,full_header,trim_strings] = parse_char_options(varargin,opt);
+            if ~ok
+                error('HERBERT:ClusterSlurm:invalid_argument',mess);
+            end
+            queue_rows = get_queue_info_(obj,full_header,trim_strings);
+            
+        end
+        %
         function queue_text = get_queue_text_from_system(obj,full_header)
             if full_header
-                [fail,queue_text] = system('squeue');
+                [fail,queue_text] = system(['squeue --user==',obj.user_name_]);
             else
-                [fail,queue_text] = system('squeue --noheader');
+                [fail,queue_text] = system(['squeue --noheader --user==',...
+                    obj.user_name_]);
             end
-            if  fail
+            if fail
                 error('HERBERT:ClusterSlurm:runtime_error',...
                     ' Can not execute second slurm queue query. Error: %s',...
-                    new_queue);
-            end            
+                    queue_text);
+            end
+        end
+        function obj=init_parser(obj)
+            % initialize parameters, needed for job queue management
+            
+            % retrieve user name
+            [fail,uname]=system('whoami');
+            if fail
+                error('HERBERT:ClusterSlurm:runtime_error',...
+                    ' Can not retrieve user name. Error: %s',...
+                    uname);
+            end
+            obj.user_name_ = strtrim(uname);
+            % find the location of end of the SATUS string
+            obj.time_field_pos_ = strfind(obj.header_,'ST ')+2;
         end
         %
         function [ok,failed,mess] = is_running(obj)
@@ -264,8 +314,8 @@ classdef ClusterSlurm < ClusterWrapper
             %
             new_job_id_found = false;
             while ~new_job_id_found
-                pause(1);
-                new_queue_rows = obj.get_queue_info();
+                pause(obj.time_to_wait_for_job_id_);
+                new_queue_rows = obj.get_queue_info('-trim');
                 old_rows = ismember(new_queue_rows,old_queue_rows);
                 if ~all(old_rows)
                     new_job_id_found = true;
