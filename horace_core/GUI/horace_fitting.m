@@ -779,8 +779,8 @@ end
 %also must include background info (a little trickier):
 counter=1;
 if bgon
-    myout=['Background  = ',num2str(fitdata.bp{1}(counter)),...
-        ' +/- ',num2str(fitdata.bsig{1}(counter))];
+    myout=['Background  = ',num2str(fitdata.bp(counter)),...
+        ' +/- ',num2str(fitdata.bsig(counter))];
     mess_to_print=[mess_to_print,myout];
     counter=counter+1;
 end
