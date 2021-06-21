@@ -76,7 +76,7 @@ classdef ClusterSlurm < ClusterWrapper
             obj.starting_info_message_ = ...
                 '**** Slurm MPI job configured,  Starting MPI job  with %d workers ****\n';
             obj.started_info_message_  = ...
-                '**** Slurm MPI job submitted                                     ****\n';
+                '**** Slurm MPI job with ID: %10d submitted                 ****\n';
             %
             obj.pool_exchange_frmwk_name_ ='MessagesCppMPI';
             obj.cluster_config_ = 'default';
@@ -154,7 +154,7 @@ classdef ClusterSlurm < ClusterWrapper
             
             %
             if log_level > -1
-                fprintf(obj.started_info_message_);
+                fprintf(2,obj.started_info_message_,obj.slurm_job_id);
             end
         end
         %
@@ -269,9 +269,9 @@ classdef ClusterSlurm < ClusterWrapper
         %
         function queue_text = get_queue_text_from_system(obj,full_header)
             if full_header
-                [fail,queue_text] = system(['squeue --user==',obj.user_name_]);
+                [fail,queue_text] = system(['squeue --user=',obj.user_name_]);
             else
-                [fail,queue_text] = system(['squeue --noheader --user==',...
+                [fail,queue_text] = system(['squeue --noheader --user=',...
                     obj.user_name_]);
             end
             if fail
