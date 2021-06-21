@@ -5132,7 +5132,7 @@ function gen_sqw_spefile_browse_pushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-[spe_filename,spe_pathname,FilterIndex] = uigetfile({'*.spe; *.SPE','spe files (*.spe, *.SPE)';'*.*','All files (*.*)' },...
+[spe_filename,spe_pathname,FilterIndex] = uigetfile({'*.spe; *.SPE; *.nxspe; *.NXSPE','spe files (*.spe, *.nxspe)';'*.*','All files (*.*)' },...
     'Select spe files','Multiselect','on');
 
 if ischar(spe_pathname) && ischar(spe_filename)
@@ -5275,7 +5275,7 @@ elseif isempty(angdeg)
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
     guidata(gcbo,handles);
     return;
-elseif isempty(parfile)
+elseif isempty(parfile) && sqw_list_not_nxspe(handles.gen_sqw_listbox)
     mess1='Ensure you have specified a par file name';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
     guidata(gcbo,handles);
@@ -5849,3 +5849,12 @@ if button_state==get(hObject,'Max') %button is pressed
     set(handles.Cutfile_orthaxes_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
+
+
+% --- Checks if inputfiles are all nxspe or not
+function out = sqw_list_not_nxspe(listbox_handle)
+spe_psi_list=get(listbox_handle,'String');
+for i=1:size(spe_psi_list,1)
+    spe_psi_cell{i}=strtrim(spe_psi_list(i,:));%get rid of leading and trailing white space
+end
+out = all(cellfun(@(x)isempty(strfind(x, 'nxspe')), spe_psi_cell));
