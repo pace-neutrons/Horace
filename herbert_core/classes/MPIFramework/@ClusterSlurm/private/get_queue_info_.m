@@ -1,4 +1,4 @@
-function queue_rows = get_queue_info_(obj,full_header,trim_strings)
+function queue_rows = get_queue_info_(obj,full_header,trim_strings,for_this_job)
 % returns existing jobs queue list by asking system for this list and
 % parsing the list apporopriately
 %
@@ -8,8 +8,10 @@ function queue_rows = get_queue_info_(obj,full_header,trim_strings)
 % trim_strings -- if true, the job list should be trimmed up to job
 %                 run time infromation (for identifying existing jobs
 %                 regardless of their run time)
+% for_this_job -- if true, return log for job with this job_id only. 
+%                 job_id has to be defined
 
-queue_list = obj.get_queue_text_from_system(full_header);
+queue_list = obj.get_queue_text_from_system(full_header,for_this_job);
 queue_rows = strsplit(queue_list,{'\n','\r'},'CollapseDelimiters',true);
 if trim_strings
     queue_rows = cellfun(@(rw)trim_fun_(obj.time_field_pos_,rw),...

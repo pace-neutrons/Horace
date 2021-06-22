@@ -164,6 +164,7 @@ classdef ClusterWrapper
                 log_level = -1;
             end
             if log_level > -1
+                fprintf(2,'************************************************');
                 fprintf(2,obj.starting_info_message_,n_workers);
             end
             obj = obj.set_mess_exchange(mess_exchange_framework);

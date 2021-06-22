@@ -71,7 +71,9 @@ classdef ClusterSlurmTester < ClusterSlurm
     methods(Static)
     end
     methods(Access=protected)
-        function queue_text = get_queue_text_from_system(obj,full_header)
+        function queue_text = get_queue_text_from_system(obj,full_header,for_this_job)
+            % last parameter is ignored as this test method returns
+            % whatever is set to squeue_command_output
             if full_header
                 queue_text =[sprintf('%s\n',obj.header_),obj.squeue_command_output];
             else
