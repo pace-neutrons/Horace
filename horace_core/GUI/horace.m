@@ -27,11 +27,11 @@ function varargout = horace(varargin)
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
-                   'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @horace_OpeningFcn, ...
-                   'gui_OutputFcn',  @horace_OutputFcn, ...
-                   'gui_LayoutFcn',  [] , ...
-                   'gui_Callback',   []);
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @horace_OpeningFcn, ...
+    'gui_OutputFcn',  @horace_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...
+    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
@@ -44,10 +44,10 @@ end
 % End initialization code - DO NOT EDIT
 
 function is_sqw_obj = is_sqw_dnd(element_class)
-    % Returns true if the test element, from evalin, is the name of a concrete SQW class type
-    is_sqw_obj = strcmp(element_class,'d1d') || strcmp(element_class,'d2d') ||...
-            strcmp(element_class,'d3d') || strcmp(element_class,'d4d') ||...
-            strcmp(element_class,'sqw');
+% Returns true if the test element, from evalin, is the name of a concrete SQW class type
+is_sqw_obj = strcmp(element_class,'d1d') || strcmp(element_class,'d2d') ||...
+    strcmp(element_class,'d3d') || strcmp(element_class,'d4d') ||...
+    strcmp(element_class,'sqw');
 
 
 % --- Executes just before horace is made visible.
@@ -99,7 +99,7 @@ if exist('cellofvars','var')
     drawnow;
     set(handles.obj_list_popupmenu,'String',cellofvars);
     guidata(hObject, handles);
-
+    
     str = get(handles.obj_list_popupmenu, 'String');
     val = get(handles.obj_list_popupmenu,'Value');
     %
@@ -1672,20 +1672,7 @@ try
             return;
     end
 catch the_err
-    err = {sprintf('**** %s',mess_initialise),...
-        sprintf('**** Error %s Message: %s',...
-        the_err.identifier,the_err.message),...
-        '**** cut failed at: '};
-    stack_depth = numel(the_err.stack);
-    for i=stack_depth-3:-1:1
-        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
-            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
-    end
-    
-    set(handles.message_text_field,'String',char(err));
-    guidata(gcbo,handles);
-    
-    rethrow(the_err);
+    report_error(the_err,'**** cut failed at: ')
 end
 
 
@@ -2006,7 +1993,7 @@ if manspec==nummax
             guidata(gcbo,handles);
             return;
         end
-
+        
         for i=1:numel(lostephinew)
             if ~all(isnan(lostephinew{i})) && ...
                     (numel(lostephinew{i})==3 || numel(lostephinew{i})==1 || numel(lostephinew{i})==0)
@@ -2120,22 +2107,9 @@ try
         end
         save(out,outfilename);
     end
-
+    
 catch the_err
-    err = {sprintf('**** %s',mess_initialise),...
-        sprintf('**** Error %s Message: %s',...
-        the_err.identifier,the_err.message),...
-        '**** rebin failed at: '};
-    stack_depth = numel(the_err.stack);
-    for i=stack_depth-3:-1:1
-        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
-            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
-    end
-    
-    set(handles.message_text_field,'String',char(err));
-    guidata(gcbo,handles);
-    
-    rethrow(the_err);
+    report_error(the_err,'**** rebin failed at: ')
 end
 
 
@@ -2464,7 +2438,7 @@ else
         %==
         %Case for v3 is slightly different
         v3=get(handles.Sym_v3_edit,'String');
-
+        
         if ~isempty(v3)
             %must strip out square brackets, if user has inserted them:
             s1=strfind(v3,'['); s2=strfind(v3,']');
@@ -2580,22 +2554,9 @@ try
         end
         save(out,outfilename);
     end
-
+    
 catch the_err
-    err = {sprintf('**** %s',mess_initialise),...
-        sprintf('**** Error %s Message: %s',...
-        the_err.identifier,the_err.message),...
-        '**** symmetrise  failed at: '};
-    stack_depth = numel(the_err.stack);
-    for i=stack_depth-3:-1:1
-        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
-            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
-    end
-    
-    set(handles.message_text_field,'String',char(err));
-    guidata(gcbo,handles);
-    
-    rethrow(the_err);
+    report_error(the_err,'**** symmetrise  failed at: ')
 end
 
 
@@ -2862,7 +2823,7 @@ if tolspec==nummax
             guidata(gcbo,handles);
             return;
         end
-
+        
         if ~all(isnan(tolnew)) && numel(tolnew)==ndims1
             istol=true;
         elseif numel(tolnew)~=ndims1
@@ -2956,22 +2917,9 @@ try
         end
         save(out,outfilename);
     end
-
+    
 catch the_err
-    err = {sprintf('**** %s',mess_initialise),...
-        sprintf('**** Error %s Message: %s',...
-        the_err.identifier,the_err.message),...
-        '**** combine failed at: '};
-    stack_depth = numel(the_err.stack);
-    for i=stack_depth-3:-1:1
-        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
-            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
-    end
-    
-    set(handles.message_text_field,'String',char(err));
-    guidata(gcbo,handles);
-    
-    rethrow(the_err);
+    report_error(the_err,'**** combine failed at: ')
 end
 
 
@@ -3270,20 +3218,7 @@ try
         end
     end
 catch the_err
-    err = {sprintf('**** %s',mess_initialise),...
-        sprintf('**** Error %s Message: %s',...
-        the_err.identifier,the_err.message),...
-        '**** replication failed at: '};
-    stack_depth = numel(the_err.stack);
-    for i=stack_depth-3:-1:1
-        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
-            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
-    end
-    
-    set(handles.message_text_field,'String',char(err));
-    guidata(gcbo,handles);
-    
-    rethrow(the_err);
+    report_error(the_err,'**** replication failed at: ')
 end
 
 if ~sqw_flag
@@ -3479,7 +3414,7 @@ end
 %Now we execute the bose factor correction:
 try
     if ~saveafile
-            out=eval(['bose(',obj_to_cut,',',temperature,');']);
+        out=eval(['bose(',obj_to_cut,',',temperature,');']);
     elseif saveafile && strcmp(outfilename,'-save')
         out=eval(['bose(',obj_to_cut,',',temperature,');']);
         save(out);
@@ -3488,20 +3423,7 @@ try
         save(out,outfilename);
     end
 catch the_err
-    err = {sprintf('**** %s',mess_initialise),...
-        sprintf('**** Error %s Message: %s',...
-        the_err.identifier,the_err.message),...
-        '**** bose_correction failed at: '};
-    stack_depth = numel(the_err.stack);
-    for i=stack_depth-3:-1:1
-        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
-            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
-    end
-    
-    set(handles.message_text_field,'String',char(err));
-    guidata(gcbo,handles);
-    
-    rethrow(the_err);
+    report_error(the_err,'**** bose_correction failed at: ')
 end
 
 assignin('base',outobjname,out);
@@ -3794,7 +3716,7 @@ if ~isfield(handles,'bin_funcstr')
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     pause(2);
-%     return;
+    %     return;
 else
     funcstr=handles.bin_funcstr;
 end
@@ -3920,21 +3842,7 @@ try
         save(out,outfilename);
     end
 catch the_err
-    err = {sprintf('**** %s',mess_initialise),...
-        sprintf('**** Error %s Message: %s',...
-        the_err.identifier,the_err.message),...
-        '**** Formatting error? Unit operation failed at: '};
-    stack_depth = numel(the_err.stack);
-    for i=stack_depth-3:-1:1
-        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
-            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
-    end
-    
-    set(handles.message_text_field,'String',char(err));
-    guidata(gcbo,handles);
-    
-    rethrow(the_err);
-    
+    report_error(the_err,'**** Formatting error? Unit operation failed at: ')
 end
 
 
@@ -4137,21 +4045,7 @@ try
         save(out,outfilename);
     end
 catch the_err
-    err = {sprintf('**** %s',mess_initialise),...
-        sprintf('**** Error %s Message: %s',...
-        the_err.identifier,the_err.message),...
-        '**** unit operation failed at: '};
-    stack_depth = numel(the_err.stack);
-    for i=stack_depth-3:-1:1
-        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
-            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
-    end
-    
-    set(handles.message_text_field,'String',char(err));
-    guidata(gcbo,handles);
-    
-    rethrow(the_err);
-    
+    report_error(the_err,'**** unit operation failed at: ')
 end
 
 assignin('base',outobjname,out);
@@ -4726,20 +4620,7 @@ try
             a2,'],[',a3,'],[',a4,'],''',outfilename,''');']);
     end
 catch the_err
-    err = {sprintf('**** %s',mess_initialise),...
-        sprintf('**** Error %s Message: %s',...
-        the_err.identifier,the_err.message),...
-        '**** Invalid inputs? Cut from file failed at: '};
-    stack_depth = numel(the_err.stack);
-    for i=stack_depth-3:-1:1
-        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
-            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
-    end
-    
-    set(handles.message_text_field,'String',char(err));
-    guidata(gcbo,handles);
-    
-    rethrow(the_err);
+    report_error(the_err,'**** Invalid inputs? Cut from file failed at: ')
 end
 
 assignin('base',outobjname,out);
@@ -5510,20 +5391,7 @@ try
     set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
     guidata(gcbo,handles);
 catch the_err
-    err = {sprintf('**** %s',mess_initialise),...
-        sprintf('**** Error %s Message: %s',...
-        the_err.identifier,the_err.message),...
-        '**** gen_sqw failed at: '};
-    stack_depth = numel(the_err.stack);
-    for i=stack_depth-3:-1:1
-        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
-            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
-    end
-    
-    set(handles.message_info_text,'String',char(err));
-    guidata(gcbo,handles);
-    
-    rethrow(the_err);
+    report_erro(the_err,'**** gen_sqw failed at: ')
 end
 
 
@@ -5928,3 +5796,19 @@ out = all(cellfun(@(x)isempty(strfind(x, 'nxspe')), spe_psi_cell));
 
 
 % --------------------------------------------------------------------
+function report_error(the_err,err_info)
+err = {sprintf('**** %s',mess_initialise),...
+    sprintf('**** Error %s Message: %s',...
+    the_err.identifier,the_err.message),...
+    err_info};
+stack_depth = numel(the_err.stack);
+for i=stack_depth-3:-1:1
+    err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+        the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+end
+
+set(handles.message_text_field,'String',char(err));
+guidata(gcbo,handles);
+
+rethrow(the_err);
+
