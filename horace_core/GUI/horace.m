@@ -47,8 +47,8 @@ function is_sqw_obj = is_sqw_dnd(element_class)
     % Returns true if the test element, from evalin, is the name of a concrete SQW class type
     is_sqw_obj = strcmp(element_class,'d1d') || strcmp(element_class,'d2d') ||...
             strcmp(element_class,'d3d') || strcmp(element_class,'d4d') ||...
-            strcmp(element_class,'sqw')
-end
+            strcmp(element_class,'sqw');
+
 
 % --- Executes just before horace is made visible.
 function horace_OpeningFcn(hObject, eventdata, handles, varargin)
