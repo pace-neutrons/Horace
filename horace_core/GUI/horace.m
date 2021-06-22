@@ -22,16 +22,16 @@ function varargout = horace(varargin)
 
 % Edit the above text to modify the response to help horace
 
-% Last Modified by GUIDE v2.5 19-Nov-2015 11:00:22
+% Last Modified by GUIDE v2.5 22-Jun-2021 11:54:33
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
-                   'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @horace_OpeningFcn, ...
-                   'gui_OutputFcn',  @horace_OutputFcn, ...
-                   'gui_LayoutFcn',  [] , ...
-                   'gui_Callback',   []);
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @horace_OpeningFcn, ...
+    'gui_OutputFcn',  @horace_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...
+    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
@@ -82,7 +82,7 @@ for i=1:numel(vars)
     test_el=vars(i);
     if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
             strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+            strcmp(test_el.class,'sqw')
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -93,7 +93,7 @@ if exist('cellofvars','var')
     drawnow;
     set(handles.obj_list_popupmenu,'String',cellofvars);
     guidata(hObject, handles);
-
+    
     str = get(handles.obj_list_popupmenu, 'String');
     val = get(handles.obj_list_popupmenu,'Value');
     %
@@ -131,7 +131,7 @@ guidata(hObject,handles);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = horace_OutputFcn(hObject, eventdata, handles) 
+function varargout = horace_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -339,7 +339,7 @@ guidata(gcbo,handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 
@@ -401,7 +401,7 @@ if isfield(handles,'w_in');
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end        
+    end
 end
 
 guidata(gcbo,handles);
@@ -447,7 +447,7 @@ guidata(gcbo,handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 
@@ -485,7 +485,7 @@ guidata(gcbo,handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 guidata(gcbo,handles);
@@ -517,12 +517,12 @@ guidata(gcbo, handles);
 % % hObject    handle to cut_from_file_pushbutton (see GCBO)
 % % eventdata  reserved - to be defined in a future version of MATLAB
 % % handles    structure with handles and user data (see GUIDATA)
-% 
+%
 % %Clear error message
 % set(handles.message_info_text,'String','');
 % guidata(gcbo,handles);
 % drawnow;
-% 
+%
 % sqw_flname=get(handles.sqw_filename_edit,'String');
 % if ~isempty(sqw_flname)
 %     assignin('base','sqw_filename_internal',sqw_flname);
@@ -533,7 +533,7 @@ guidata(gcbo, handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 % --- Executes on button press in overplot_pushbutton.
@@ -602,7 +602,7 @@ if isfield(handles,'w_in');
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         drawnow;
         guidata(gcbo,handles);
-    end        
+    end
 end
 
 
@@ -828,7 +828,7 @@ if isfield(handles,'w_in')
             mess='Saving of file failed -- check object and/or filename';
             set(handles.message_info_text,'String',char({mess_initialise,mess}));
             return;
-        end         
+        end
     else
         mess='No file written -- select a filename';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
@@ -842,7 +842,7 @@ else
     guidata(gcbo,handles);
 end
 
-    
+
 
 
 % --- Executes on button press in bose_pushbutton.
@@ -879,7 +879,7 @@ guidata(gcbo,handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 
@@ -1057,7 +1057,7 @@ guidata(gcbo,handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 
@@ -1119,7 +1119,7 @@ guidata(gcbo, handles);
 % %handles.object_name=object_name;
 % w_in2=evalin('base',template_name);%get the data from the base workspace.
 % handles.w_in2=w_in2;%store the object in the handles structure
-% 
+%
 % guidata(gcbo,handles);
 
 % if isfield(handles,'w_in');
@@ -1140,7 +1140,7 @@ guidata(gcbo, handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 
@@ -1420,13 +1420,13 @@ elseif isempty(a3) && ndims>=2.9
     mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
     set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
     guidata(gcbo,handles);
-    return;  
+    return;
 elseif isempty(a4) && ndims>=3.9
     mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
     mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
     set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
     guidata(gcbo,handles);
-    return;  
+    return;
 else
     try
         %must strip out square brackets, if user has inserted them:
@@ -1491,10 +1491,10 @@ else
     end
 end
 %
-if a1new==0; a1new=[]; a1=''; end; %intrinsic binning case
-if a2new==0; a2new=[]; a2=''; end;
-if a3new==0; a3new=[]; a3=''; end;
-if a4new==0; a4new=[]; a4=''; end;
+if a1new==0; a1new=[]; a1=''; end %intrinsic binning case
+if a2new==0; a2new=[]; a2=''; end
+if a3new==0; a3new=[]; a3=''; end
+if a4new==0; a4new=[]; a4=''; end
 a1new=a1new'; a2new=a2new'; a3new=a3new'; a4new=a4new';
 if numel(a1new)>3 || numel(a2new)>3 || numel(a3new)>3 || numel(a4new)>3
     mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
@@ -1665,19 +1665,25 @@ try
             guidata(gcbo,handles);
             return;
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No operation performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** cut failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
+    
+    set(handles.message_text_field,'String',char(err));
     guidata(gcbo,handles);
-    return;
+    
+    rethrow(the_err);
 end
-    
-    
-    
+
+
+
 assignin('base',outobjname,out);
 if extra_flag==false
     set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
@@ -1926,7 +1932,7 @@ if isfield(handles,'w_in')
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end    
+    end
     ndims1=dimensions(win1);
 else
     mess='No valid data object selected -- operation not performed';
@@ -1945,7 +1951,7 @@ if isfield(handles,'w_in2_rebin') && ~(manspec==nummax)
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end    
+    end
     ndims2=dimensions(win2);
     obj_to_cut2='win2';
 elseif manspec==nummax
@@ -1994,7 +2000,7 @@ if manspec==nummax
             guidata(gcbo,handles);
             return;
         end
-
+        
         for i=1:numel(lostephinew)
             if ~all(isnan(lostephinew{i})) && ...
                     (numel(lostephinew{i})==3 || numel(lostephinew{i})==1 || numel(lostephinew{i})==0)
@@ -2006,15 +2012,21 @@ if manspec==nummax
                 guidata(gcbo,handles);
             end
         end
-    catch
-        mess1='Formatting error of manual rebinning entries';
-        mess2='Ensure they are of the form [lo,step,hi], [step], or [], and are numeric';
-        set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+    catch the_err
+        err = {sprintf('**** %s',mess_initialise),...
+            sprintf('**** Error %s Message: %s',...
+            the_err.identifier,the_err.message),...
+            '**** Formatting error of manual rebinning entries: ',...
+            '**** Ensure they are of the form [lo,step,hi], [step], or [], and are numeric'};
+        
+        set(handles.message_text_field,'String',char(err));
         guidata(gcbo,handles);
+        
+        
         return;
-    end    
+    end
 end
- 
+
 %====
 if isempty(outobjname)
     mess='Provide a name for the output object that will be created by combine operation';
@@ -2103,18 +2115,24 @@ try
         save(out,outfilename);
     end
     
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No rebin performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** rebin failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
+    
+    set(handles.message_text_field,'String',char(err));
     guidata(gcbo,handles);
-    return;
+    
+    rethrow(the_err);
 end
-    
-    
+
+
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
@@ -2389,7 +2407,7 @@ if midspec==midmax
         set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
         guidata(gcbo,handles);
         return;
-    end            
+    end
 else
     %we have a reflection plane specified.
     %==
@@ -2440,7 +2458,7 @@ else
         %==
         %Case for v3 is slightly different
         v3=get(handles.Sym_v3_edit,'String');
-
+        
         if ~isempty(v3)
             %must strip out square brackets, if user has inserted them:
             s1=strfind(v3,'['); s2=strfind(v3,']');
@@ -2474,7 +2492,7 @@ else
         set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
         guidata(gcbo,handles);
         return;
-    end           
+    end
 end
 %====
 
@@ -2557,18 +2575,24 @@ try
         save(out,outfilename);
     end
     
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No symmetrise performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** symmetrise  failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
+    
+    set(handles.message_text_field,'String',char(err));
     guidata(gcbo,handles);
-    return;
+    
+    rethrow(the_err);
 end
-    
-    
+
+
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
@@ -2785,7 +2809,7 @@ if isfield(handles,'w_in')
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end    
+    end
     ndims1=dimensions(win1);
 else
     mess='No valid object#1 selected -- operation not performed';
@@ -2801,7 +2825,7 @@ if isfield(handles,'w_in2_comb')
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end 
+    end
     ndims2=dimensions(win2);
     obj_to_cut2='win2';
 else
@@ -2832,7 +2856,7 @@ if tolspec==nummax
             guidata(gcbo,handles);
             return;
         end
-
+        
         if ~all(isnan(tolnew)) && numel(tolnew)==ndims1
             istol=true;
         elseif numel(tolnew)~=ndims1
@@ -2848,7 +2872,7 @@ if tolspec==nummax
         return;
     end
 end
- 
+
 %====
 if isempty(outobjname)
     mess='Provide a name for the output object that will be created by combine operation';
@@ -2927,18 +2951,24 @@ try
         save(out,outfilename);
     end
     
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No combine performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** combine failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
+    
+    set(handles.message_text_field,'String',char(err));
     guidata(gcbo,handles);
-    return;
+    
+    rethrow(the_err);
 end
-    
-    
+
+
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
@@ -3232,19 +3262,25 @@ try
             out=eval(['replicate(',obj_to_cut_dnd,',',obj_to_cut2,');']);
             save(out,outfilename);
         end
-    end     
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No replication performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
-end
+    end
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** replication failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
     
-if ~sqw_flag    
+    set(handles.message_text_field,'String',char(err));
+    guidata(gcbo,handles);
+    
+    rethrow(the_err);
+end
+
+if ~sqw_flag
     assignin('base',outobjname,out);
     set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
     guidata(gcbo,handles);
@@ -3437,7 +3473,7 @@ end
 %Now we execute the bose factor correction:
 try
     if ~saveafile
-            out=eval(['bose(',obj_to_cut,',',temperature,');']);
+        out=eval(['bose(',obj_to_cut,',',temperature,');']);
     elseif saveafile && strcmp(outfilename,'-save')
         out=eval(['bose(',obj_to_cut,',',temperature,');']);
         save(out);
@@ -3445,17 +3481,23 @@ try
         out=eval(['bose(',obj_to_cut,',',temperature,');']);
         save(out,outfilename);
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No bose correction performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
-end
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** bose_correction failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
     
+    set(handles.message_text_field,'String',char(err));
+    guidata(gcbo,handles);
+    
+    rethrow(the_err);
+end
+
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
@@ -3746,7 +3788,7 @@ if ~isfield(handles,'bin_funcstr')
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     pause(2);
-%     return;
+    %     return;
 else
     funcstr=handles.bin_funcstr;
 end
@@ -3810,7 +3852,7 @@ elseif oponobj~=objmax && oponnum==nummax
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end    
+    end
 end
 
 %====
@@ -3871,18 +3913,25 @@ try
         end
         save(out,outfilename);
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No operation performed (formatting error?)';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** Formatting error? Unit operation failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
+    
+    set(handles.message_text_field,'String',char(err));
     guidata(gcbo,handles);
-    return;
+    
+    rethrow(the_err);
+    
 end
-    
-    
+
+
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
@@ -4081,17 +4130,24 @@ try
         out=eval([funcstr,'(',obj_to_cut,');']);
         save(out,outfilename);
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No operation performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
-end
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** unit operation failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
     
+    set(handles.message_text_field,'String',char(err));
+    guidata(gcbo,handles);
+    
+    rethrow(the_err);
+    
+end
+
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
@@ -4603,10 +4659,10 @@ else
     end
 end
 %
-if a1new==0; a1new=[]; a1=''; end; %intrinsic binning case
-if a2new==0; a2new=[]; a2=''; end;
-if a3new==0; a3new=[]; a3=''; end;
-if a4new==0; a4new=[]; a4=''; end;
+if a1new==0; a1new=[]; a1=''; end %intrinsic binning case
+if a2new==0; a2new=[]; a2=''; end
+if a3new==0; a3new=[]; a3=''; end
+if a4new==0; a4new=[]; a4=''; end
 a1new=a1new'; a2new=a2new'; a3new=a3new'; a4new=a4new';
 if numel(a1new)>3 || numel(a2new)>3 || numel(a3new)>3 || numel(a4new)>3
     mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
@@ -4663,17 +4719,23 @@ try
         out=eval(['cut_sqw(''',filestring,''',proj',',[',a1,'],[',...
             a2,'],[',a3,'],[',a4,'],''',outfilename,''');']);
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='Cut from file failed -- re-check all inputs';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
-end
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** Invalid inputs? Cut from file failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
     
+    set(handles.message_text_field,'String',char(err));
+    guidata(gcbo,handles);
+    
+    rethrow(the_err);
+end
+
 assignin('base',outobjname,out);
 cc=char({mess_initialise,'Success!',['Click ''DATA IN MEMORY'' then ''Refresh List'' to make plots etc of ',outobjname]});
 set(handles.message_info_text,'String',cc);
@@ -4818,7 +4880,7 @@ if isfield(handles,'w_in');
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end        
+    end
 end
 
 guidata(gcbo,handles);
@@ -5145,14 +5207,14 @@ elseif ischar(spe_pathname) && iscell(spe_filename)
     if ~isempty(original_string)
         the_string=original_string;
         for i=1:numel(spe_filename)
-            the_string=char({the_string;[spe_pathname,spe_filename{i}]});        
+            the_string=char({the_string;[spe_pathname,spe_filename{i}]});
         end
     else
         the_string=char({[spe_pathname,spe_filename{1}]});
         for i=2:numel(spe_filename)
-            the_string=char({the_string;[spe_pathname,spe_filename{i}]});        
+            the_string=char({the_string;[spe_pathname,spe_filename{i}]});
         end
-    end   
+    end
     set(handles.gen_sqw_listbox,'string',the_string);
     guidata(gcbo,handles);
 else
@@ -5258,7 +5320,7 @@ elseif isempty(efix)
     mess1='Ensure incident energy is specified';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
     guidata(gcbo,handles);
-    return;  
+    return;
 elseif isempty(alatt)
     mess1='Ensure lattice parameters are specified as a 3 element vector';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5268,7 +5330,7 @@ elseif isempty(angdeg)
     mess1='Ensure lattice angles are specified as a 3 element vector';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
     guidata(gcbo,handles);
-    return;      
+    return;
 elseif isempty(parfile) && sqw_list_not_nxspe(handles.gen_sqw_listbox)
     mess1='Ensure you have specified a par file name';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5278,7 +5340,7 @@ elseif isempty(sqwfile)
     mess1='Ensure you have specified a sqw file name';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
     guidata(gcbo,handles);
-    return;    
+    return;
 else
     try
         %must strip out square brackets, if user has inserted them:
@@ -5417,7 +5479,7 @@ for i=1:numel(spe_psi_cell)
         spe_cell{i}=strtrim(spe_psi_cell{i}(1:(ff-1)));
         ff2=strfind(spe_psi_cell{i},'psi=');
         ff3=strfind(spe_psi_cell{i},'...');
-        psi_vec(i)=str2double(spe_psi_cell{i}((ff2+4):(ff3(2)-1)));        
+        psi_vec(i)=str2double(spe_psi_cell{i}((ff2+4):(ff3(2)-1)));
     else
         mess1='Not every spe file has an associated value of psi - check list';
         set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5433,23 +5495,28 @@ try
     mess1='Combining SPE files into SQW file -- working';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
     guidata(gcbo,handles);
-    pause(2);
+    pause(1);
     gen_sqw(spe_cell,parfile,sqwfile,efixnew,emode,alattnew,angdegnew,unew,vnew,...
         psi_vec,offsetsnew(1),offsetsnew(2),offsetsnew(3),offsetsnew(4));
     mess1='Success!';
     mess2='SQW file generation complete';
     set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
     guidata(gcbo,handles);
-catch
-    mess1='Formatting error of inputs';
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess2='gen_sqw failed because:';
-    mess3=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2,mess3}));
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** gen_sqw failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
+    
+    set(handles.message_info_text,'String',char(err));
     guidata(gcbo,handles);
-    return;
+    
+    rethrow(the_err);
 end
 
 
@@ -5553,7 +5620,7 @@ set(handles.gen_sqw_listbox,'string',char(spelist));%enusre spelist is a charact
 mess1='File / psi list updated';
 set(handles.message_info_text,'String',char({mess_initialise,mess1}));
 guidata(gcbo,handles);
-    
+
 
 % --- Executes on button press in gen_sqw_removelist_pushbutton.
 function gen_sqw_removelist_pushbutton_Callback(hObject, eventdata, handles)
@@ -5601,8 +5668,8 @@ else
     guidata(gcbo,handles);
     return;
 end
-    
-    
+
+
 
 
 % --- Executes on button press in saveguiconfig_pushbutton.
@@ -5642,7 +5709,7 @@ else
     mess='No file selected for GUI configuration - not saved';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
-    return; 
+    return;
 end
 
 guidata(gcbo,handles);
@@ -5669,7 +5736,7 @@ mess_initialise=['Loading GUI configuration at ',timestring,'...'];
 
 if ischar(gui_pathname) && ischar(gui_filename)
     filetoload=[gui_pathname,gui_filename];
-    %Here we need to go through all of the various edit fields and 
+    %Here we need to go through all of the various edit fields and
     %radiobuttons, and fill them in.
     %separate subfunction to do this, as rather long-winded
     fid=fopen(filetoload,'r');
@@ -5683,12 +5750,12 @@ if ischar(gui_pathname) && ischar(gui_filename)
     handles=set_horace_fields(handles,data_loaded);
     mess='GUI configuration successfully loaded';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
-    guidata(gcbo,handles); 
+    guidata(gcbo,handles);
 else
     mess='No file selected for GUI configuration - not loaded';
     set(handles.message_info_text,'String',mess);
     guidata(gcbo,handles);
-    return; 
+    return;
 end
 
 
@@ -5729,7 +5796,7 @@ if isfield(handles,'w_in')
             mess='Saving of file failed -- check object and/or filename';
             set(handles.message_info_text,'String',char({mess_initialise,mess}));
             return;
-        end         
+        end
     else
         mess='No file written -- select a filename';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
@@ -5838,7 +5905,7 @@ function Cutfile_nonorth_axes_radiobutton_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of Cutfile_nonorth_axes_radiobutton
 
 button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max');%button is pressed
+if button_state==get(hObject,'Max') %button is pressed
     set(handles.Cutfile_orthaxes_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -5851,3 +5918,6 @@ for i=1:size(spe_psi_list,1)
     spe_psi_cell{i}=strtrim(spe_psi_list(i,:));%get rid of leading and trailing white space
 end
 out = all(cellfun(@(x)isempty(strfind(x, 'nxspe')), spe_psi_cell));
+
+
+% --------------------------------------------------------------------
