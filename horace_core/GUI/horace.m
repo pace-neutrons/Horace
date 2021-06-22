@@ -22,7 +22,7 @@ function varargout = horace(varargin)
 
 % Edit the above text to modify the response to help horace
 
-% Last Modified by GUIDE v2.5 19-Nov-2015 11:00:22
+% Last Modified by GUIDE v2.5 22-Jun-2021 11:54:33
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -1671,15 +1671,21 @@ try
             guidata(gcbo,handles);
             return;
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No operation performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** cut failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
+    
+    set(handles.message_text_field,'String',char(err));
     guidata(gcbo,handles);
-    return;
+    
+    rethrow(the_err);
 end
 
 
@@ -2012,11 +2018,17 @@ if manspec==nummax
                 guidata(gcbo,handles);
             end
         end
-    catch
-        mess1='Formatting error of manual rebinning entries';
-        mess2='Ensure they are of the form [lo,step,hi], [step], or [], and are numeric';
-        set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+    catch the_err
+        err = {sprintf('**** %s',mess_initialise),...
+            sprintf('**** Error %s Message: %s',...
+            the_err.identifier,the_err.message),...
+            '**** Formatting error of manual rebinning entries: ',...
+            '**** Ensure they are of the form [lo,step,hi], [step], or [], and are numeric'};
+        
+        set(handles.message_text_field,'String',char(err));
         guidata(gcbo,handles);
+        
+        
         return;
     end
 end
@@ -2109,15 +2121,21 @@ try
         save(out,outfilename);
     end
 
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No rebin performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** rebin failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
+    
+    set(handles.message_text_field,'String',char(err));
     guidata(gcbo,handles);
-    return;
+    
+    rethrow(the_err);
 end
 
 
@@ -2563,15 +2581,21 @@ try
         save(out,outfilename);
     end
 
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No symmetrise performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** symmetrise  failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
+    
+    set(handles.message_text_field,'String',char(err));
     guidata(gcbo,handles);
-    return;
+    
+    rethrow(the_err);
 end
 
 
@@ -2933,15 +2957,21 @@ try
         save(out,outfilename);
     end
 
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No combine performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** combine failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
+    
+    set(handles.message_text_field,'String',char(err));
     guidata(gcbo,handles);
-    return;
+    
+    rethrow(the_err);
 end
 
 
@@ -3239,15 +3269,21 @@ try
             save(out,outfilename);
         end
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No replication performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** replication failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
+    
+    set(handles.message_text_field,'String',char(err));
     guidata(gcbo,handles);
-    return;
+    
+    rethrow(the_err);
 end
 
 if ~sqw_flag
@@ -3451,15 +3487,21 @@ try
         out=eval(['bose(',obj_to_cut,',',temperature,');']);
         save(out,outfilename);
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No bose correction performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** bose_correction failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
+    
+    set(handles.message_text_field,'String',char(err));
     guidata(gcbo,handles);
-    return;
+    
+    rethrow(the_err);
 end
 
 assignin('base',outobjname,out);
@@ -3877,15 +3919,22 @@ try
         end
         save(out,outfilename);
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No operation performed (formatting error?)';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** Formatting error? Unit operation failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
+    
+    set(handles.message_text_field,'String',char(err));
     guidata(gcbo,handles);
-    return;
+    
+    rethrow(the_err);
+    
 end
 
 
@@ -4087,15 +4136,22 @@ try
         out=eval([funcstr,'(',obj_to_cut,');']);
         save(out,outfilename);
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No operation performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** unit operation failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
+    
+    set(handles.message_text_field,'String',char(err));
     guidata(gcbo,handles);
-    return;
+    
+    rethrow(the_err);
+    
 end
 
 assignin('base',outobjname,out);
@@ -4669,15 +4725,21 @@ try
         out=eval(['cut_sqw(''',filestring,''',proj',',[',a1,'],[',...
             a2,'],[',a3,'],[',a4,'],''',outfilename,''');']);
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='Cut from file failed -- re-check all inputs';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** Invalid inputs? Cut from file failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
+    
+    set(handles.message_text_field,'String',char(err));
     guidata(gcbo,handles);
-    return;
+    
+    rethrow(the_err);
 end
 
 assignin('base',outobjname,out);
@@ -5440,23 +5502,28 @@ try
     mess1='Combining SPE files into SQW file -- working';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
     guidata(gcbo,handles);
-    pause(2);
+    pause(1);
     gen_sqw(spe_cell,parfile,sqwfile,efixnew,emode,alattnew,angdegnew,unew,vnew,...
         psi_vec,offsetsnew(1),offsetsnew(2),offsetsnew(3),offsetsnew(4));
     mess1='Success!';
     mess2='SQW file generation complete';
     set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
     guidata(gcbo,handles);
-catch
-    mess1='Formatting error of inputs';
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess2='gen_sqw failed because:';
-    mess3=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2,mess3}));
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+        sprintf('**** Error %s Message: %s',...
+        the_err.identifier,the_err.message),...
+        '**** gen_sqw failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
+    
+    set(handles.message_info_text,'String',char(err));
     guidata(gcbo,handles);
-    return;
+    
+    rethrow(the_err);
 end
 
 
@@ -5858,3 +5925,6 @@ for i=1:size(spe_psi_list,1)
     spe_psi_cell{i}=strtrim(spe_psi_list(i,:));%get rid of leading and trailing white space
 end
 out = all(cellfun(@(x)isempty(strfind(x, 'nxspe')), spe_psi_cell));
+
+
+% --------------------------------------------------------------------
