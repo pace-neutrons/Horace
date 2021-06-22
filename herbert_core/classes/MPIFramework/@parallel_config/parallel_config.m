@@ -414,6 +414,9 @@ classdef parallel_config<config_base
         end
         %
         function obj=set.external_mpiexec(obj,val)
+            if isempty(val)
+                val = '';
+            end
             if ~is_string(val)
                 error('HERBERT:parallel_config:invalid_argument',...
                     'the value has to be a string specifying the program with full path to it to run mpi job')
