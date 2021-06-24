@@ -183,6 +183,15 @@ methods
         assertElementsAlmostEqual(out.e, expected_sigvar.e, 'relative', ...
                                   obj.DOUBLE_REL_TOLERANCE);
     end
+    function test_add_transformed_sqw(~)
+        ld = load('example_d1d.mat');
+        w1 = ld.w2;
+        dd_sum = w1+w1;
+        
+        ds_sum = sqw(w1) + sqw(w1);
+        
+        assertEqual(dd_sum,d1d(ds_sum));
+    end
 
 end
 

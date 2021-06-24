@@ -18,7 +18,7 @@ new_sqw = obj;
 for i = 1:numel(obj)
     if is_sqw_type(obj(i)) && ~exclude_pix
         new_sqw(i).data.pix = copy(obj(i).data.pix);
-    elseif exclude_pix
+    else
         new_sqw(i).data.pix = PixelData();
     end
 end
