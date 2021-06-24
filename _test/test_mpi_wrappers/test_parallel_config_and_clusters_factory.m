@@ -57,7 +57,8 @@ classdef test_parallel_config_and_clusters_factory < TestCase
             
             all_cfg = mf.get_all_configs();
             assertTrue(numel(all_cfg)==1);
-            % first cluster after changing from paropool to mpiexec_mpi would be 'local'
+            % first cluster after changing from parpool to mpiexec_mpi would be 'local'
+            % because the first configuration for mpiexec_mpi is 'local'
             assertEqual(all_cfg{1},'local');
             
             cl = mf.parallel_cluster;
