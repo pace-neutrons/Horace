@@ -4,7 +4,7 @@
 
 // static data message tag, used by MPI wrapper to distinguish data messages and process them differently.
 int MPI_wrapper::data_mess_tag = 5;
-// static interrupt message tag, used by MPI wrappert to distinguish interrupts and process them differently.
+// static interrupt message tag, used by MPI wrapper to distinguish interrupts and process them differently.
 int MPI_wrapper::interrupt_mess_tag = 100;
 // auxiliary property to help with running unit tests
 bool MPI_wrapper::MPI_wrapper_gtested = false;
@@ -116,7 +116,7 @@ int MPI_wrapper::init(const InitParamHolder& init_param) {
 /** Complete MPI operations and finalize MPI exchange framework*/
 void MPI_wrapper::close() {
     if (this->isTested) {
-        // nthing to close in test mode
+        // nothing to close in test mode
         return;
     }
     MPI_Finalize();
@@ -154,7 +154,7 @@ void MPI_wrapper::labSend(int dest_address, int data_tag, bool is_synchronous, u
                 std::stringstream buf;
                 buf << " Attempt to send next interrupt message to Worker N: "
                     << dest_address + 1
-                    << " unitl the previous one is delivered is not allowed\n";
+                    << " until the previous one is delivered is not allowed\n";
                 throw_error("MPI_MEX_COMMUNICATOR:runtime_error", buf.str().c_str(), MPI_wrapper::MPI_wrapper_gtested);
 
             }
@@ -509,10 +509,10 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
                     pMess = &(*it);
                     if (bool(pPrevMess) && (source_data_tag != MPI_ANY_TAG)) {
                         if (pPrevMess->mess_tag == pMess->mess_tag) {
-                            pPrevMess->theRequest = (MPI_Request)1; // Mark prevoius message delivered and ignore it.
+                            pPrevMess->theRequest = (MPI_Request)1; // Mark previous message delivered and ignore it.
                         }
                         else {
-                            pMess = pPrevMess; // other type of message is sitting in the queue. Recieve the previous message
+                            pMess = pPrevMess; // other type of message is sitting in the queue. Receive the previous message
                             break;
                         }
                     }

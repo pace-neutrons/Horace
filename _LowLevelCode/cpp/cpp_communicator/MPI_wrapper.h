@@ -33,7 +33,7 @@ public:
     // method checks if the message has been send.
     bool is_send();
 
-    // the container to keep subsequend synchronous messages in test mode. Not used in production
+    // the container to keep subsequent synchronous messages in test mode. Not used in production
     std::list<SendMessHolder> test_sync_mess_list;
 
     SendMessHolder(SendMessHolder&& other) noexcept;
@@ -69,9 +69,9 @@ public:
     // vector containing the names of the all nodes of the pool
     std::vector<std::string> node_names;
     // test mode used to run various test operations over MPI_wrapper in single process, 
-    // when no real mpi exchange is initiated.
+    // when no real MPI exchange is initiated.
     bool isTested;
-    // return the number of asynchroneous messages in the queue
+    // return the number of asynchronous messages in the queue
     size_t async_queue_len() {
         return this->asyncMessList.size();
     }
@@ -89,11 +89,11 @@ public:
     //----------------------------------------------------------------------------------
     // The methods used in unit tests -- have no meaning in real communications
     static bool MPI_wrapper_gtested;
-    // get access to the asynchroneous messages queue
+    // get access to the asynchronous messages queue
     std::list<SendMessHolder>* get_async_queue() {
         return &this->asyncMessList;
     }
-    // get access to the synchroneous messages holder.
+    // get access to the synchronous messages holder.
     SendMessHolder* get_sync_queue(int dest_address = 0) {
         return &this->SyncMessHolder[dest_address];
     }
@@ -115,19 +115,19 @@ public:
         return false;
     }
 private:
-    // the length of the queue to keep assynchroneous messages. If this length is exceeded,
+    // the length of the queue to keep asynchronous messages. If this length is exceeded,
     // something is wrong and the job should be interrupted
     int async_queue_max_len_;
 
-    // the list of assyncroneous messages, stored until delivered
+    // the list of asynchronous messages, stored until delivered
     std::list<SendMessHolder> asyncMessList;
 
     std::vector<SendMessHolder> SyncMessHolder;
     std::vector<SendMessHolder> InterruptHolder;
 
-    // add message to the asynchroneous messages queue and check if the queue is exceeded
+    // add message to the asynchronous messages queue and check if the queue is exceeded
     SendMessHolder* add_to_async_queue(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag);
-    // add wait for previous message to be receivedto and send message to synchroneous transfer 
+    // add wait for previous message to be received to and send message to synchronous transfer 
     SendMessHolder* set_sync_transfer(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag);
 
 };
