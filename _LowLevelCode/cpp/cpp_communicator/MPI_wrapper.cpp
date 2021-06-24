@@ -44,17 +44,17 @@ int MPI_wrapper::init(const InitParamHolder& init_param) {
         }
         return 0;
     }
+    int is_initialized;
+    MPI_Initialized(&is_initialized);
+    if (is_initialized) {
+        throw_error("MPI_MEX_COMMUNICATOR:runtime_error",
+            "MPI framework is initialized before MPI init was invoked");
+    }
+
     try {
-        int is_initialized;
-        MPI_Initialized(&is_initialized);
-        if (is_initialized) {
-            throw_error("MPI_MEX_COMMUNICATOR:runtime_error",
-                "MPI framework is initialized before MPI init was invoked");
-        }
         err = MPI_Init(argc, argv);
     }
     catch (...) {}
-
     if (err != MPI_SUCCESS) {
         throw_error("MPI_MEX_COMMUNICATOR:runtime_error",
             "Can not initialize MPI framework");
@@ -483,7 +483,8 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
 
 
     if (this->isTested) {
-        SendMessHolder* pMess(nullptr), * pPrevMess(nullptr);
+        SendMessHolder* pMess(nullptr);
+        SendMessHolder* pPrevMess(nullptr);
 
         if (check_address_tag_requsted(InterruptHolder[source_address], source_address, source_data_tag)) {
             pMess = &this->InterruptHolder[source_address];
@@ -656,8 +657,8 @@ void MPI_wrapper::pack_node_names_list(std::vector<char>& buf)const {
 
     // copy all node names
     for (i = 0; i < this->node_names.size(); i++) {
+        auto pString_start = this->node_names[i].c_str();
         for (size_t j = 0; j <= this->node_names[i].size(); j++) {
-            auto pString_start = this->node_names[i].c_str();
             buf.push_back(pString_start[j]);
         }
     }

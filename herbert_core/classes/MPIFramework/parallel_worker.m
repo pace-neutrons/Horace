@@ -5,8 +5,8 @@ function [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,D
 %Inputs:
 % worker_controls_string - the structure, containing information, necessary to
 %              initiate the job.
-%              Due to the fact this string is transferred
-%              through pipes its size is system dependent and limited, so
+%              Due to the fact this string may be transferred
+%              through pipes, its size is system dependent and limited, so
 %              contains only minimal initialization information, namely the
 %              folder name where the job initialization data are located on
 %              a remote system.

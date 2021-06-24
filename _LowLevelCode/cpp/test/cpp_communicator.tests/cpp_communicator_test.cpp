@@ -42,8 +42,8 @@ TEST(TestCPPCommunicator, send_sync_multi_receive_sync_multi) {
 
 
     // Receive first message and check it received correctly
-    mxArray *plhs[(int)labReceive_Out::N_OUTPUT_Arguments];
-    wrap.labReceive(9, 2, false, plhs, (int)labReceive_Out::N_OUTPUT_Arguments);
+    mxArray *plhs[(int)labReceive_Out::MAX_N_Outputs];
+    wrap.labReceive(9, 2, false, plhs, (int)labReceive_Out::MAX_N_Outputs);
 
     auto addrOut = plhs[(int)labReceive_Out::real_source_address];
     ASSERT_EQ(mxGetM(addrOut), 1);
@@ -60,7 +60,7 @@ TEST(TestCPPCommunicator, send_sync_multi_receive_sync_multi) {
         EXPECT_EQ(pData[i], 1);
     }
     // Receive second message and check it received correctly
-    wrap.labReceive(9, 2, false, plhs, (int)labReceive_Out::N_OUTPUT_Arguments);
+    wrap.labReceive(9, 2, false, plhs, (int)labReceive_Out::MAX_N_Outputs);
 
     addrOut = plhs[(int)labReceive_Out::real_source_address];
     ASSERT_EQ(mxGetM(addrOut), 1);
@@ -78,7 +78,7 @@ TEST(TestCPPCommunicator, send_sync_multi_receive_sync_multi) {
     }
 
     // Receive third message and check it received correctly
-    wrap.labReceive(9, 2, false, plhs, (int)labReceive_Out::N_OUTPUT_Arguments);
+    wrap.labReceive(9, 2, false, plhs, (int)labReceive_Out::MAX_N_Outputs);
 
     addrOut = plhs[(int)labReceive_Out::real_source_address];
     ASSERT_EQ(mxGetM(addrOut), 1);
@@ -127,8 +127,8 @@ TEST(TestCPPCommunicator, send_sync_receive_async) {
     wrap.labSend(9, 2, true, &test_mess[0], test_mess.size());
 
     // Receive this message and check it received correctly
-    mxArray *plhs[(int)labReceive_Out::N_OUTPUT_Arguments];
-    wrap.labReceive(9, 2, false, plhs, (int)labReceive_Out::N_OUTPUT_Arguments);
+    mxArray *plhs[(int)labReceive_Out::MAX_N_Outputs];
+    wrap.labReceive(9, 2, false, plhs, (int)labReceive_Out::MAX_N_Outputs);
 
     auto addrOut = plhs[(int)labReceive_Out::real_source_address];
     ASSERT_EQ(mxGetM(addrOut), 1);
@@ -174,8 +174,8 @@ TEST(TestCPPCommunicator, send_async_receive_sync) {
     wrap.labSend(9, 2, false, &test_mess[0], test_mess.size());
 
     // Receive this message and check it received correctly
-    mxArray *plhs[(int)labReceive_Out::N_OUTPUT_Arguments];
-    wrap.labReceive(9, 2, true, plhs, (int)labReceive_Out::N_OUTPUT_Arguments);
+    mxArray *plhs[(int)labReceive_Out::MAX_N_Outputs];
+    wrap.labReceive(9, 2, true, plhs, (int)labReceive_Out::MAX_N_Outputs);
 
     auto addrOut = plhs[(int)labReceive_Out::real_source_address];
     ASSERT_EQ(mxGetM(addrOut), 1);
@@ -238,8 +238,8 @@ TEST(TestCPPCommunicator, send_receive_synchronous) {
     ASSERT_EQ(pMess->mess_body[0], 2);
 
     // Receive this message and check it received correctly
-    mxArray *plhs[(int)labReceive_Out::N_OUTPUT_Arguments];
-    wrap.labReceive(9, 3, true, plhs, (int)labReceive_Out::N_OUTPUT_Arguments);
+    mxArray *plhs[(int)labReceive_Out::MAX_N_Outputs];
+    wrap.labReceive(9, 3, true, plhs, (int)labReceive_Out::MAX_N_Outputs);
 
     auto addrOut = plhs[(int)labReceive_Out::real_source_address];
     ASSERT_EQ(mxGetM(addrOut), 1);
@@ -321,7 +321,7 @@ TEST(TestCPPCommunicator, send_interrupt_overrides_message) {
 
     mxArray* plhs[5];
     // ask message
-    wrap.labReceive(5, 4, false, plhs, (int)labReceive_Out::N_OUTPUT_Arguments);
+    wrap.labReceive(5, 4, false, plhs, (int)labReceive_Out::MAX_N_Outputs);
     // got interrupt
     auto addrOut = plhs[(int)labReceive_Out::real_source_address];
     ASSERT_EQ(mxGetM(addrOut), 1);
@@ -341,7 +341,7 @@ TEST(TestCPPCommunicator, send_interrupt_overrides_message) {
 
 
     //  message still has to be received (and can be received)
-    wrap.labReceive(5, 4, false, plhs, (int)labReceive_Out::N_OUTPUT_Arguments);
+    wrap.labReceive(5, 4, false, plhs, (int)labReceive_Out::MAX_N_Outputs);
     // got interrupt
     out = plhs[(int)labReceive_Out::mess_contents];
     ASSERT_EQ(mxGetM(out), 1);

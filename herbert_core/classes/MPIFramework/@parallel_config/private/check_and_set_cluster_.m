@@ -18,15 +18,16 @@ else
     full_cl_name = obj.select_option(known_clusters,cluster_name);
     mff.parallel_cluster = full_cl_name;
     
-    if mff.framework_available % if cluster available, store it in the configuration
+    if mff.framework_available % if cluster available, store its name in 
+                               % the configuration
         config_store.instance().store_config(...
             obj,'parallel_cluster',full_cl_name);
-        cluser_changed = true;
+        cluster_changed = true;
     else
-        cluser_changed = false;
+        cluster_changed = false;
     end
     
-    if cluser_changed % default cluster configuration may also need to
+    if cluster_changed % default cluster configuration may also need to
         % be changed
         % retrieve possible configs for current cluster
         cluster_configs = mff.get_all_configs(full_cl_name);

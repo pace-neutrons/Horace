@@ -325,7 +325,7 @@ classdef parallel_config<config_base
             % The cluster name (can be defined by single symbol)
             % or by a cluster number in the list of clusters
             %
-            % Throws PARALLEL_CONFIG:not_available
+            % Throws HERBERT:parallel_config:not_available
             % available on the current system.
             obj = check_and_set_cluster_(obj,cluster_name);
         end

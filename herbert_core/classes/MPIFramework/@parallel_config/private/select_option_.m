@@ -33,20 +33,17 @@ if isempty(ind)
             'Only possible option currently is: %s'],...
             arg,opt{1});
     else
-        strarg = build_arg_string(opt);
+        strarg = strjoin(opt,'; ');
         error('HERBERT:parallel_config:invalid_argument',...
             ['Unknown option: %s. ',...
             'Only possible options currently are: %s and %s'],...
             arg,strarg,opt{end});
     end
 elseif numel(ind)>1
-    strarg = build_arg_string(opt);
+    strarg = strjoin(opt,'; ');
     error('HERBERT:parallel_config:invalid_argument',...
         'Input name: %s is an ambiguous abbreviation of at least two valid framework names: %s',...
         arg,strarg);
 else
     the_opt = opt{ind};
 end
-function os = build_arg_string(opt)
-strarg = cellfun(@(x)([x,'; ']),opt,'UniformOutput',false);
-os = [strarg{1:end-1}]; % combine all available options into

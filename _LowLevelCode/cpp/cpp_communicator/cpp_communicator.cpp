@@ -224,7 +224,7 @@ void set_numlab_and_nlabs(class_handle<MPI_wrapper>* const pCommunicatorHolder, 
             *pNworkers = 0;
         }
     }
-    if (nlhs == (int)labIndex_Out::pool_names + 1) { // also return the names of the pool nodes
+    if (nlhs == (int)labIndex_Out::MAX_N_Outputs) { // also return the names of the pool nodes
         if (!pCommunicatorHolder) {
             plhs[(int)labIndex_Out::pool_names] = mxCreateCellMatrix(0, 1);
             return;

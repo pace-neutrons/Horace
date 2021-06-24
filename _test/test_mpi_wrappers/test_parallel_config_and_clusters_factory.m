@@ -104,7 +104,8 @@ classdef test_parallel_config_and_clusters_factory < TestCase
             
             all_cfg = mf.get_all_configs();
             assertTrue(numel(all_cfg)>1);
-            % first cluster after changing from paropool to mpiexec_mpi would be 'local'
+            % first cluster config after changing from parpool to 
+            % mpiexec_mpi would be 'local'
             assertEqual(all_cfg{1},'local');
             
             cl = mf.parallel_cluster;
@@ -121,7 +122,8 @@ classdef test_parallel_config_and_clusters_factory < TestCase
                 mf = MPI_clusters_factory.instance();
                 mf.parallel_cluster ='non_existent';
             catch Err
-                assertTrue(strcmpi(Err.identifier,'HERBERT:MPI_clusters_factory:invalid_argument'))
+                assertTrue(strcmpi(Err.identifier,...
+                    'HERBERT:MPI_clusters_factory:invalid_argument'))
             end
         end
         %

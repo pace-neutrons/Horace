@@ -12,6 +12,9 @@ classdef test_SlurmWrapper_Methods < TestCase
         end
         function test_extract_job_id_real_header_two_jobs(~)
             clt = ClusterSlurmTester();
+            %                                           !<-trim here
+            %       0000000001111111111222222222233333333334
+            %       1234567890123456789012345678901234567890
             info0 =' 300   debug         bla      abcd  R       10    aa.a..a...a..';            
             info1 =' 300   debug         bla      abcd  R       11    aa.a..a...a..';
             info2 =' 310   debug         bla      abcd  R       1    aa.a..a...a..';            

@@ -260,7 +260,7 @@ classdef ClusterSlurm < ClusterWrapper
             failed = false;
             mess = '';
         end
-        
+        %
         function queue_rows = get_queue_info(obj,varargin)
             % Auxiliary function to return existing jobs queue list
             % Options:
@@ -296,6 +296,7 @@ classdef ClusterSlurm < ClusterWrapper
             end
             queue_text = get_queue_text_from_system_(obj,full_header,job_with_this_id);
         end
+        %
         function obj=init_parser(obj)
             % initialize parameters, needed for job queue management
             
@@ -333,7 +334,7 @@ classdef ClusterSlurm < ClusterWrapper
             fh = fopen(bash_target,'w');
             if fh<1
                 error('HERBERT:ClusterSlurm:io_error',...
-                    'Can not open filr %s to modify for job submission',...
+                    'Can not open file %s to modify for job submission',...
                     bash_source);
             end
             clOb = onCleanup(@()fclose(fh));

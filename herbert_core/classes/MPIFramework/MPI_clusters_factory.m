@@ -27,7 +27,7 @@ classdef MPI_clusters_factory<handle
     end
     properties(Access=protected)
         % the name of the cluster, used as default
-        parallel_disabed_ = false;
+        parallel_disabled_ = false;
         parallel_cluster_name_ = 'herbert';
     end
     properties(Constant, Access=protected)
@@ -49,9 +49,9 @@ classdef MPI_clusters_factory<handle
                 'parallel_config','parallel_cluster');
             if strcmp(cluster_name,'none')
                 cluster_name = 'herbert';
-                obj.parallel_disabed_ = true;
+                obj.parallel_disabled_ = true;
             else
-                obj.parallel_disabed_ = false;
+                obj.parallel_disabled_ = false;
             end
             obj.parallel_cluster_name_ = cluster_name;
         end
@@ -70,14 +70,14 @@ classdef MPI_clusters_factory<handle
     methods
         %------------------------------------------------------
         function cl = get.parallel_cluster(obj)
-            if obj.parallel_disabed_
+            if obj.parallel_disabled_
                 cl  = [];
             else
                 cl = obj.known_clusters_(obj.parallel_cluster_name_);
             end
         end
         function is = get.framework_available(obj)
-            is = ~obj.parallel_disabed_;
+            is = ~obj.parallel_disabled_;
         end
         function cl = get_default_cluster(obj)
             % get current cluster regardless of it is available or not
@@ -128,13 +128,13 @@ classdef MPI_clusters_factory<handle
                 cl.check_availability();
             catch ME
                 if strcmp(ME.identifier,'HERBERT:ClusterWrapper:not_available')
-                    obj.parallel_disabed_ = true;
+                    obj.parallel_disabled_ = true;
                     return
                 else
                     rethrow(ME);
                 end
             end
-            obj.parallel_disabed_ = false;
+            obj.parallel_disabled_ = false;
             %
         end
         %

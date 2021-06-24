@@ -1,11 +1,11 @@
 function cont = modify_contents(cont,var_pos,var_map)
-% function change cellarray of contenst using var_map, for further export
-% of the modified data in bash file
+% change cellarray of contents using var_map, for further export
+% of the modified data in bash file.
 %
 % Inputs:
 % cont    -- cellarray of strings
 % var_pos -- map, containing pairs of Key -> position,
-%            where keys are the names of the variables to replays and the
+%            where keys are the names of the variables to replace and the
 %            values define the rows numbers in cont cellarry where the
 %            definition for these variables should be placed
 % var_map -- the map containing key->values to define the contents of the

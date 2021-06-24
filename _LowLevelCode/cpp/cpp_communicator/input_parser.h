@@ -73,7 +73,7 @@ enum class labReceive_Out :int { // output arguments for labReceive procedure
     data_celarray, // the pointer to the cellarray with the large data.
     real_source_address, // optional pointer to the array with real source address and source tag received
 
-    N_OUTPUT_Arguments
+    MAX_N_Outputs
 };
 
 enum class labIndex_Out :int { // output arguments for labIndex or MPI_init procedures
@@ -82,14 +82,14 @@ enum class labIndex_Out :int { // output arguments for labIndex or MPI_init proc
     n_workers,  // number of workers in the pull/
     pool_names, // the names of the pool nodes
 
-    N_OUTPUT_Arguments
+    MAX_N_Outputs
 };
 
 enum class labProbe_Out :int { // output arguments of labProbe procedure
     comm_ptr,   // the pointer to class responsible for MPI communications
     addr_tag_array,     // 2-element array with the results of lab-probe operation
 
-    N_OUTPUT_Arguments
+    MAX_N_Outputs
 
 };
 /** The structure contains additional parameters, different init calls may need to transfer to MPI_Wrapper*/
