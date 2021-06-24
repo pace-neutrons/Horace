@@ -183,7 +183,7 @@ methods
         assertElementsAlmostEqual(out.e, expected_sigvar.e, 'relative', ...
                                   obj.DOUBLE_REL_TOLERANCE);
     end
-    function test_add_transformed_sqw(~)
+    function test_add_transformed_sqw_1D(~)
         ld = load('example_d1d.mat');
         w1 = ld.w2;
         dd_sum = w1+w1;
@@ -192,6 +192,17 @@ methods
         
         assertEqual(dd_sum,d1d(ds_sum));
     end
+    function test_add_transformed_sqw_2D(obj)
+        test_file = fullfile(fileparts(obj.test_sqw_file_path),'sqw_2d_2.sqw');
+        w2 = read_dnd(test_file);
+
+
+        dd_sum = w2+w2;        
+        ds_sum = sqw(w2) + sqw(w2);        
+        assertEqual(dd_sum,d2d(ds_sum));
+    end
+
+    
 
 end
 

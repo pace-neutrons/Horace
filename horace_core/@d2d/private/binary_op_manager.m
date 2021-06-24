@@ -66,7 +66,7 @@ if (len1==len2 && len1==1)
     w = binary_op_manager_single (w1, w2, binary_op);
     
 elseif ((isequal(size1,size2) || equal_length_vectors(size1,size2)) && len1>1)   % same length>1 and same array size
-    if isa(w1,classname);
+    if isa(w1,classname)
         w=w1(1);
         size_w=size1;   % need to ensure size matches the class - could have a column or row vector
     else
