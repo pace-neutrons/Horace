@@ -1,9 +1,10 @@
 classdef MPI_Test_Common < TestCase
     % The class used as the parent to test various mpi exchange classes.
     %
-    % Contains all common settings, necessary to test parpool mpi
-    %   Detailed explanation goes here
-
+    % Contains all common settings, necessary to test various MPI clusters
+    % and their common operations.
+    %
+    %
     properties
         %
         working_dir
@@ -56,8 +57,6 @@ classdef MPI_Test_Common < TestCase
             if strcmpi(pc.parallel_cluster,'none')
                 obj.ignore_test = true;
                 obj.ignore_cause = 'Unit test to check parallel framework is not available as framework is not installed properly';
-% $$$                 warning('MPI_Test_Common:not_available',...
-% $$$                     'unit test to check parallel framework is not available as framework is not installed properly')
                 return;
             end
             %pc.saveable = false;
@@ -70,10 +69,10 @@ classdef MPI_Test_Common < TestCase
                     set_framework = false;
                 end
             catch ME
-                if strcmp(ME.identifier,'PARALLEL_CONFIG:invalid_configuration')
+                if strcmp(ME.identifier,'HERBERT:parallel_config:invalid_argument')
                     set_framework = false;
                     warning(ME.identifier,'%s',ME.message);
-                elseif strcmp(ME.identifier,'PARALLEL_CONFIG:not_available')
+                elseif strcmp(ME.identifier,'HERBERT:parallel_config:not_available')
                     set_framework = false;
                     warning(ME.identifier,'%s',ME.message);
                 else
@@ -84,12 +83,6 @@ classdef MPI_Test_Common < TestCase
             if ~set_framework
                 obj.ignore_test = true;
                 obj.ignore_cause = ['The framework: ', obj.cluster_name, ' can not be enabled so is not tested'];
-% $$$                 hc = herbert_config;
-% $$$                 if hc.log_level>0
-% $$$                     warning('MPI_TEST_COMMON:not_availible',...
-% $$$                         ['The framework: ', obj.cluster_name, ...
-% $$$                         ' can not be enabled so is not tested'])
-% $$$                 end
             else
                 obj.ignore_test = false;
             end

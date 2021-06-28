@@ -297,7 +297,7 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             n_workers = logical_cores + 1;
             assertExceptionThrown(@() clust.init(n_workers, msg_framework, ...
                 herbert_config().log_level), ...
-                'PARPOOL_CLUSTER_WRAPPER:runtime_error');
+                'HERBERT:ClusterParpoolWrapper:invalid_argument');
             clob3 = onCleanup(@()finalize_all(clust));
         end
     end

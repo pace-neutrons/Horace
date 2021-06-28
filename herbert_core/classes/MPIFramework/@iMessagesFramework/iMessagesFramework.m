@@ -43,7 +43,6 @@ classdef iMessagesFramework < handle
         % return the diagnostics to users.
         % The property in this case is set to false.
         throw_on_interrupts
-
     end
     properties(Access=protected,Hidden=true)
         % The string, uniquely identifying the running job.
@@ -365,6 +364,13 @@ classdef iMessagesFramework < handle
             [from_task_id,mess_name,is_blocking]=obj.check_receive_inputs(from_task_id,varargin{:});
             %
             [ok,err_mess,message] = obj.receive_message_internal(from_task_id,mess_name,is_blocking);
+        end
+        function names= get_node_names(obj)
+            % Return list of node names, participating in the pool
+            names = cell(obj.numLabs,1);
+            for i=1:obj.numLabs
+                names{i} = ['Node',num2str(i)];
+            end
         end
     end
 

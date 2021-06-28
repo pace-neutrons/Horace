@@ -99,7 +99,7 @@ classdef config_base
         function name=get.class_name(this)
             name = this.class_name_;
         end
-        function folder = get.config_folder(this)
+        function folder = get.config_folder(~)
             folder = config_store.instance.config_folder;
         end
         %-----------------------------------------------------------------

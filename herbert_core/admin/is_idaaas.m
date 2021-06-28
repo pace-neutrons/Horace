@@ -21,8 +21,10 @@ if ~test_mode
     end
     comp_name = getComputerName();
 end
-name_template = 'host_192_168_243';
-if strncmpi(comp_name,name_template,numel(name_template))
+name_templates = {'host_192_168_243','host_172_16'};
+is_name = cellfun(@(nt)strncmpi(comp_name,nt,numel(nt)),...
+    name_templates,'UniformOutput',true);
+if any(is_name)
     is_daas = true;
 else
     is_daas = false;
@@ -39,7 +41,11 @@ if nargout>1 && is_daas
     mess = strsplit(mess(cpu_pos(1):end));
     n_cpu = str2double(mess{2});
     if n_cpu <10
-        size_suffix = 'idaas_small';
+        if is_name(2)
+            size_suffix = 'idaas_large';
+        else
+            size_suffix = 'idaas_small';
+        end
     else
         size_suffix = 'idaas_large';
     end

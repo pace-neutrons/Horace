@@ -93,6 +93,9 @@ classdef ClusterWrapper
         % running process Java exception message contents, used to identify
         % if java process report it has been completed
         running_mess_contents_= 'process has not exited';
+        % the string, describing the operations to launch Matlab or
+        % compiled Matlab job
+        matlab_starter_  = [];
     end
     properties(Hidden,Dependent)
         % helper property to print nicely aligned log messages
@@ -119,7 +122,7 @@ classdef ClusterWrapper
             %              which started and controls the job.
             % log_level    if present, defines the verbosity of the
             %              operations over the framework
-            obj.pool_exchange_frmwk_name_ = 'ClusterMPI';
+            
             if ispc()
                 obj.running_mess_contents_= 'process has not exited';
             else
@@ -161,7 +164,8 @@ classdef ClusterWrapper
                 log_level = -1;
             end
             if log_level > -1
-                fprintf(obj.starting_info_message_,n_workers);
+                fprintf(2,'************************************************');
+                fprintf(2,obj.starting_info_message_,n_workers);
             end
             obj = obj.set_mess_exchange(mess_exchange_framework);
             
@@ -172,6 +176,29 @@ classdef ClusterWrapper
                 numel(mess_exchange_framework.job_id)+numel('***Job :   state: ');
             obj.LOG_MESSAGE_LENGHT = numel('***Job :  : state:  started |')+...
                 numel(mess_exchange_framework.job_id) -numel('****  ****');
+            
+            % get worker defined in parallel config
+            pc = parallel_config();
+            obj.worker_name_ = pc.worker;
+            obj.is_compiled_script_ = pc.is_compiled;
+            
+            %
+            if ~obj.is_compiled_script_
+                % define Matlab:
+                prog_path  = find_matlab_path();
+                if isempty(prog_path)
+                    error('HERBERT:ClusterWrapper:runtime_error',...
+                        'Can not find Matlab');
+                end
+                obj.matlab_starter_ = prog_path;
+                
+            end
+            if ispc()
+                obj.matlab_starter_ = fullfile(obj.matlab_starter_,'matlab.exe');
+            else
+                obj.matlab_starter_= fullfile(obj.matlab_starter_,'matlab');
+            end
+            
         end
         %
         function obj = start_job(obj,je_init_message,task_init_mess,log_message_prefix)
@@ -320,7 +347,7 @@ classdef ClusterWrapper
             worker = config_store.instance.get_value('parallel_config','worker');
             pkp = which(worker);
             if isempty(pkp)
-                error('PARALLEL_CONFIG:not_available',...
+                error('HERBERT:ClusterWrapper:not_available',...
                     'Parallel worker %s is not on Matlab path. Parallel extensions are not available',...
                     worker);
             end
@@ -408,7 +435,7 @@ classdef ClusterWrapper
         %
         function obj = set_cluster_config_(obj,val)
             if ~strcmpi(val,obj.cluster_config_)
-                warning('CLUSTER_WRAPPER:invalid_argument',...
+                warning('HERBERT:ClusterWrapper:invalid_argument',...
                     'This type of cluster wrapper accepts only %s configuration. Changed to %s',...
                     obj.cluster_config_,obj.cluster_config_)
             end
@@ -423,7 +450,7 @@ classdef ClusterWrapper
             elseif ischar(mess)
                 stat_mess = aMessage(mess);
             else
-                error('CLUSTER_WRAPPER:invalid_argument',...
+                error('HERBERT:ClusterWrapper:invalid_argument',...
                     'status is defined by aMessage class only or a message name')
             end
             obj.prev_status_ = obj.current_status_;
@@ -434,7 +461,7 @@ classdef ClusterWrapper
             
         end
         %
-        function ex = exit_worker_when_job_ends_(obj)
+        function ex = exit_worker_when_job_ends_(~)
             % function defines desired completion of the workers.
             % should be true for java-controlled worker and false for parallel
             % computing toolbox controlled one.

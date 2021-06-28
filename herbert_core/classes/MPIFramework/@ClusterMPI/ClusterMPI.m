@@ -5,8 +5,6 @@ classdef ClusterMPI < ClusterWrapper
     %----------------------------------------------------------------------
     properties(Access = protected)
         
-        % the string user to launch Matlab
-        matlab_starter_  = [];
         % the string containing Java handle to running mpiexec process
         mpiexec_handle_ = [];
         %
@@ -78,26 +76,8 @@ classdef ClusterMPI < ClusterWrapper
             end
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
             
-            pc = parallel_config();
-            obj.worker_name_        = pc.worker;
-            obj.is_compiled_script_ = pc.is_compiled;
-            
-            %
-            
-            %
-            prog_path  = find_matlab_path();
-            if isempty(prog_path)
-                error('CLUSTER_HERBERT:runtime_error','Can not find Matlab');
-            end
-            
+            %           
             mpiexec = obj.get_mpiexec();
-            if ispc()
-                obj.running_mess_contents_= 'process has not exited';
-                obj.matlab_starter_ = fullfile(prog_path,'matlab.exe');
-            else
-                obj.running_mess_contents_= 'process hasn''t exited';
-                obj.matlab_starter_= fullfile(prog_path,'matlab');
-            end
             mpiexec_str = {mpiexec,'-n',num2str(n_workers)};
             
             % build generic worker init string without lab parameters
@@ -113,7 +93,7 @@ classdef ClusterMPI < ClusterWrapper
             
             [ok,failed,mess] = obj.is_running();
             if ~ok && failed
-                error('CLUSTER_MPI:runtime_error',...
+                error('HERBERT:ClusterMPI:runtime_error',...
                     ' Can not start mpiexec with %d workers, Error: %s',...
                     n_workers,mess);
             end
@@ -183,7 +163,7 @@ classdef ClusterMPI < ClusterWrapper
             % communicaton library and the possibility to use the MPI cluster
             % to run parallel jobs.
             %
-            % Should throw PARALLEL_CONFIG:not_avalable exception
+            % Should throw HERBERT:ClusterWrapper:not_available exception
             % if the particular framework is not avalable.
             %
             check_availability@ClusterWrapper(obj);
@@ -194,6 +174,16 @@ classdef ClusterMPI < ClusterWrapper
     end
     methods(Static)
         function mpi_exec = get_mpiexec()
+            mpi_exec  = config_store.instance().get_value('parallel_config','external_mpiexec');
+            if ~isempty(mpi_exec)
+                if is_file(mpi_exec) % found external mpiexec
+                    return
+                else
+                    warning('HERBERT:ClusterMPI:invalid_argument',...
+                        'External mpiexec %s selected but is not available',mpi_exec);
+                end
+            end
+                
             rootpath = fileparts(which('herbert_init'));
             external_dll_dir = fullfile(rootpath, 'DLL','external');
             if ispc()

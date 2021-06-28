@@ -73,22 +73,23 @@ enum class labReceive_Out :int { // output arguments for labReceive procedure
     data_celarray, // the pointer to the cellarray with the large data.
     real_source_address, // optional pointer to the array with real source address and source tag received
 
-    N_OUTPUT_Arguments
+    MAX_N_Outputs
 };
 
-enum class labIndex_Out :int { // output arguments for labIndex procedure
+enum class labIndex_Out :int { // output arguments for labIndex or MPI_init procedures
     comm_ptr,   // the pointer to class responsible for MPI communications
     numLab,     // number current worker
     n_workers,  // number of workers in the pull/
+    pool_names, // the names of the pool nodes
 
-    N_OUTPUT_Arguments
+    MAX_N_Outputs
 };
 
 enum class labProbe_Out :int { // output arguments of labProbe procedure
     comm_ptr,   // the pointer to class responsible for MPI communications
     addr_tag_array,     // 2-element array with the results of lab-probe operation
 
-    N_OUTPUT_Arguments
+    MAX_N_Outputs
 
 };
 /** The structure contains additional parameters, different init calls may need to transfer to MPI_Wrapper*/
@@ -99,7 +100,6 @@ struct InitParamHolder {
     int interrupt_tag;    // the tag of an interrupt message, to process intermittently with any other type of messages.
     int32_t debug_frmwk_param[2] = { 0,1 }; // in debug mode, this array contains fake labIndex and numLabs, 
                               // used for testing framework in serial mode.
-
     InitParamHolder() :
         is_tested(false), async_queue_length(10), data_message_tag(8), interrupt_tag(100)
     {}

@@ -1487,7 +1487,17 @@ classdef exchange_common_tests < MPI_Test_Common
             
             clear clob_r;
         end
-        
+        %
+        function test_pool_initalized(obj)
+            m_comm = feval(obj.comm_name);
+            clob_r = onCleanup(@()(finalize_all(m_comm )));
+            n_labs = m_comm.numLabs;
+            node_names = m_comm.get_node_names();
+            for i=1:n_labs
+                assertEqual(node_names{i},['Node',num2str(i)]);
+            end
+            
+        end
         
     end
 end

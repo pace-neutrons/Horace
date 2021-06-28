@@ -14,6 +14,7 @@
 #include <cstring>
 #include <cmath>
 #include <vector>
+#include "../utility/version.h"
 #include "cpp_serialise.hpp"
 
 size_t get_size(const mxArray *input) {
@@ -193,6 +194,13 @@ size_t get_size(const mxArray *input) {
 
 /* The gateway routine. */
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
+
+  //--------->  RETURN MEX-file version if requested;
+  if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
+        plhs[0] = mxCreateString(Herbert::VERSION);
+        return;
+  }
+    
 
   size_t size = 0;
 

@@ -217,6 +217,7 @@ classdef config_store < handle
                 this.saveable_(class_name)=is;
             end
         end
+        %
         function set_saveable(this,class_instance,is_it)
             % set or clear the property, which defines if the changes in
             % the class configuration are stored on hdd
@@ -249,10 +250,12 @@ classdef config_store < handle
             % from a config class, with specific class name
             %
             %Usage:
-            %>>val =
+            %>>val = ...
             %      config_store.instance().get_value(class_name,property_name)
             % or
-            %>>[val1,val2,val3] = config_store.instance().get_value(class_name,property_name1,property_name2,property_name3)
+            %>>[val1,val2,val3] = ...
+            %       config_store.instance().get_value(class_name,...
+            %                               property_name1,property_name2,property_name3);
             %
             [config_val,out] = this.get_config_val_internal(class_name,value_name,varargin);
             nout = max(nargout,1) - 1;
@@ -293,8 +296,12 @@ classdef config_store < handle
             % set up unit test directories. But this can not set up
             % internal private dependent fields so a configuration can not
             % have such fields! (the setting got lost)
+            
+            % Do we really need this? It seems works fine without it and
+            % this causes strange side effects
             class_to_restore.set_stored_data(config_data);
         end
+        %
         function has = has_config(this,class_name)
             % method checks if the class with given name has given
             % configuration stored in file.
