@@ -1,6 +1,10 @@
 function [completed,obj] = check_progress_(obj,varargin)
 % Check the task progress verifying and receiving all messages, sent from
-% worker N1
+% the cluster. 
+% 
+% Normally messages are received from Node 1 only, but if failure occurs,
+% additional information may be transmitted from other nodes of the
+% cluster.
 %
 completed = false;
 if nargin > 1
@@ -10,7 +14,7 @@ if nargin > 1
     completed = check_completed(tag);
 else
     me = obj.mess_exchange_;
-    % check all messages send from the head node.
+    % check all messages send from all nodes
     [mess_names,tid_from] =me.probe_all('all');
     if isempty(mess_names)
         obj.status_changed_ = false;

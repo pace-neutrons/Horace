@@ -275,7 +275,7 @@ classdef ClusterWrapper
         %
         function [completed, obj] = check_progress(obj,varargin)
             % Check the job progress verifying and receiving all messages,
-            % sent from worker N1
+            % sent from Worker 1 in normal circumstances and all other workers 
             %
             % usage:
             %>> [completed, obj] = check_progress(obj)
@@ -432,6 +432,11 @@ classdef ClusterWrapper
             % by check_progress method
             obj = generate_log_(obj,varargin{:});
         end
+        function [obj,completed]=get_state_from_job_control(obj)
+            % retrieve the job state by accessing job control framework
+            % and set current status accordingly
+            completed = false;
+        end
         %
         function obj = set_cluster_config_(obj,val)
             if ~strcmpi(val,obj.cluster_config_)
@@ -445,19 +450,36 @@ classdef ClusterWrapper
         function obj = set_cluster_status(obj,mess)
             % protected set status function, necessary to be able to
             % overload set.status method.
+            
             if isa(mess,'aMessage')
                 stat_mess = mess;
             elseif ischar(mess)
-                stat_mess = aMessage(mess);
+                if strcmp(mess,'log') || strcmpi(mess,'running')
+                    if strcmpi(mess,'running')
+                        mess = 'log';
+                    end
+                    if ~isempty(obj.current_status_) && ...
+                            strcmp(obj.current_status_.mess_name,'log')
+                        stat_mess = obj.current_status_;
+                    else
+                        stat_mess  = MESS_NAMES.instance().get_mess_class(mess);
+                    end
+                elseif strcmp(mess,'finished')
+                    stat_mess = CompletedMessage();
+                else
+                    stat_mess = MESS_NAMES.instance().get_mess_class(mess);
+                end
             else
-                error('HERBERT:ClusterWrapper:invalid_argument',...
+                error('HERBERT:ClusterParpoolWrapper:invalid_argument',...
                     'status is defined by aMessage class only or a message name')
             end
+            
             obj.prev_status_ = obj.current_status_;
             obj.current_status_ = stat_mess;
             if obj.prev_status_ ~= obj.current_status_
                 obj.status_changed_ = true;
             end
+            
             
         end
         %

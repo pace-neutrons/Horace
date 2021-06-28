@@ -159,62 +159,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             [completed, obj] = check_progress@ClusterWrapper(obj,varargin{:});
             %
             if nargin == 1 && ~isempty(obj.current_job_)
-                cljob = obj.current_job_;
-                obj.cluster_prev_state_ = obj.cluster_cur_state_;
-                obj.cluster_cur_state_ = cljob.State;
-                if ~strcmp(obj.cluster_prev_state_,obj.cluster_cur_state_)
-                    obj.status_changed_ = true;
-                end
-                code = obj.cluster_name2code(obj.cluster_cur_state_);
-                if code > 3 % job completed
-                    if code > 4 %failed
-                        mess_texst = obj.task_.ErrorMessage;
-                        err = obj.task_.Error;
-                        if ~isa(obj.current_status_,'FailedMessage')
-                            pause(1);
-                            [completed, obj] = check_progress@ClusterWrapper(obj,varargin{:});
-                            if ~completed
-                                obj.current_status_ = FailedMessage(...
-                                    sprintf('cluster job %s failed returning error:  %s, code: %s',...
-                                    obj.job_id,mess_texst,obj.cluster_cur_state_ ),...
-                                    err);
-                                completed = true;
-                            end
-                        end
-                    else % finished
-                        if ~completed
-                            [completed, obj] = check_progress@ClusterWrapper(obj);
-                        end
-                        if isempty(obj.current_status_) || ~strcmpi(obj.current_status_.mess_name,'completed')
-                            % has Matlab MPI job been completed before status message has
-                            % been delivered?
-                            mess = obj.mess_exchange_.probe_all(1,'completed');
-                            if isempty(mess)
-                                if ~completed
-                                    completed = true;
-                                    fm = FailedMessage('Cluster reports job completed but results have not been returned to host');
-                                else
-                                    fm = FailedMessage('Cluster reports job completed but the final completed message has not been received');
-                                end
-                                obj.current_status_  = fm;
-                            else
-                                completed = true;
-                                [ok,err,mess] = obj.mess_exchange_.receive_message(1,mess{1},'-synch');
-                                if ok ~= MESS_CODES.ok
-                                    error('HERBERT:ClusterParpoolWrapper:system_error',...
-                                        'Error %s receiving existing message: %s from job %s',...
-                                        err,mess{1},obj.job_id);
-                                end
-                                obj.status= mess;
-                            end
-                        end
-                    end
-                else
-                    if ~obj.status_changed
-                        obj.status = cljob.State;
-                    end
-                end
-                
+                [obj,completed]=get_state_from_job_control(obj);
             end
         end
         %
@@ -231,6 +176,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             end
             
         end
+        %
         function check_availability(obj)
             % verify the availability of the Matlab Parallel Computing
             % toolbox and the possibility to use the paropool cluster to
@@ -248,38 +194,97 @@ classdef ClusterParpoolWrapper < ClusterWrapper
     methods(Access = protected)
         function ex = exit_worker_when_job_ends_(~)
             ex  = false;
-        end
-        function obj = set_cluster_status(obj,mess)
-            % protected set status function, necessary to be able to
-            % overload set.status method.
-            if isa(mess,'aMessage')
-                stat_mess = mess;
-            elseif ischar(mess)
-                if strcmp(mess,'log') || strcmpi(mess,'running')
-                    if strcmpi(mess,'running')
-                        mess = 'log';
-                    end
-                    if ~isempty(obj.current_status_) && ...
-                            strcmp(obj.current_status_.mess_name,'log')
-                        stat_mess = obj.current_status_;
-                    else
-                        stat_mess  = MESS_NAMES.instance().get_mess_class(mess);
-                    end
-                elseif strcmp(mess,'finished')
-                    stat_mess = CompletedMessage();
-                else
-                    stat_mess = MESS_NAMES.instance().get_mess_class(mess);
-                end
-            else
-                error('HERBERT:ClusterParpoolWrapper:invalid_argument',...
-                    'status is defined by aMessage class only or a message name')
-            end
-            obj.prev_status_ = obj.current_status_;
-            obj.current_status_ = stat_mess;
-            if obj.prev_status_ ~= obj.current_status_
+        end        
+        %         %
+        %         function [obj,completed]=get_state_from_job_control(obj)
+        %             % retrieve the job state by accessing job control framework
+        %             % and set current status accordingly
+        %             cljob = obj.current_job_;
+        %             obj.cluster_prev_state_ = obj.cluster_cur_state_;
+        %             obj.cluster_cur_state_ = cljob.State;
+        %             if ~strcmp(obj.cluster_prev_state_,obj.cluster_cur_state_)
+        %                 obj.status_changed_ = true;
+        %             end
+        %             code = obj.cluster_name2code(obj.cluster_cur_state_);
+        %             if code > 3 % job completed
+        %                 if code > 4 %failed
+        %                     mess_texst = obj.task_.ErrorMessage;
+        %                     err = obj.task_.Error;
+        %                     if ~isa(obj.current_status_,'FailedMessage')
+        %                         pause(1);
+        %                         [completed, obj] = check_progress@ClusterWrapper(obj,varargin{:});
+        %                         if ~completed
+        %                             obj.current_status_ = FailedMessage(...
+        %                                 sprintf('cluster job %s failed returning error:  %s, code: %s',...
+        %                                 obj.job_id,mess_texst,obj.cluster_cur_state_ ),...
+        %                                 err);
+        %                             completed = true;
+        %                         end
+        %                     end
+        %                 else % finished
+        %                     if ~completed
+        %                         [completed, obj] = check_progress@ClusterWrapper(obj);
+        %                     end
+        %                     if isempty(obj.current_status_) || ~strcmpi(obj.current_status_.mess_name,'completed')
+        %                         % has Matlab MPI job been completed before status message has
+        %                         % been delivered?
+        %                         mess = obj.mess_exchange_.probe_all(1,'completed');
+        %                         if isempty(mess)
+        %                             if ~completed
+        %                                 completed = true;
+        %                                 fm = FailedMessage('Cluster reports job completed but results have not been returned to host');
+        %                             else
+        %                                 fm = FailedMessage('Cluster reports job completed but the final completed message has not been received');
+        %                             end
+        %                             obj.current_status_  = fm;
+        %                         else
+        %                             completed = true;
+        %                             [ok,err,mess] = obj.mess_exchange_.receive_message(1,mess{1},'-synch');
+        %                             if ok ~= MESS_CODES.ok
+        %                                 error('HERBERT:ClusterParpoolWrapper:system_error',...
+        %                                     'Error %s receiving existing message: %s from job %s',...
+        %                                     err,mess{1},obj.job_id);
+        %                             end
+        %                             obj.status= mess;
+        %                         end
+        %                     end
+        %                 end
+        %             else
+        %                 if ~obj.status_changed
+        %                     obj.status = cljob.State;
+        %                 end
+        %             end
+        %         end
+        %         %
+        function [obj,completed]=get_state_from_job_control(obj)
+            % retrieve the job state by accessing job control framework
+            % and set current status accordingly
+            cljob = obj.current_job_;
+            obj.cluster_prev_state_ = obj.cluster_cur_state_;
+            obj.cluster_cur_state_  = cljob.State;
+            if ~strcmp(obj.cluster_prev_state_,obj.cluster_cur_state_)
                 obj.status_changed_ = true;
             end
-            
+            code = obj.cluster_name2code(obj.cluster_cur_state_);
+            if code > 3 % job completed
+                if code > 4 %failed
+                    mess_texst = obj.task_.ErrorMessage;
+                    err = obj.task_.Error;
+                    obj.current_status_ = FailedMessage(...
+                        sprintf('Cluster job %s failed returning error:  %s, code: %s',...
+                        obj.job_id,mess_texst,obj.cluster_cur_state_ ),...
+                        err);
+                    completed = true;
+                else % code==4; finished
+                    completed = true;
+                    obj.current_status_  = CompletedMessage();
+                end
+            else
+                if ~obj.status_changed
+                    obj.status = cljob.State;
+                end
+            end
         end
     end
+    
 end
