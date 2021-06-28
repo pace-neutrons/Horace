@@ -115,9 +115,9 @@ classdef ClusterSlurm < ClusterWrapper
             slurm_str = {'srun ',['-N',num2str(n_workers)],' --mpi=pmi2 '};
             % temporary hack. Matlab on nodes differs from Matlab on the
             % headnode. Should be contents of obj.matlab_starter_
-            obj.slurm_enviroment('MATLAB_PARALLEL_EXECUTOR') = ...
-                'matlab';
-            %obj.matlab_starter_;%'/opt/matlab2020b/bin/matlab';
+            obj.slurm_enviroment('MATLAB_PARALLEL_EXECUTOR') = ...            
+            obj.matlab_starter_;
+            %'/opt/matlab2020b/bin/matlab';
             % what should be executed by Matlab parallel worker (will be
             % nothing if Matlab parallel worker is compiled)
             obj.slurm_enviroment('PARALLEL_WORKER') =...

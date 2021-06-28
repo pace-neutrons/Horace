@@ -1,4 +1,8 @@
 #!/bin/sh
+# iDAaaS specific butch script to run mpi job. 
+# modify it according to your system to be able to find matlab and mpi (mpich)
+# or compile cpp_communicator to use Herbert own mpich
+#
 # The enviroment variables set up by Matlab for this worker to run
 #
 
