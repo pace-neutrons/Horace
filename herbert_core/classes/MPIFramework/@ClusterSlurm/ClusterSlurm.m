@@ -81,7 +81,10 @@ classdef ClusterSlurm < ClusterWrapper
                 '**** Slurm MPI job with ID: %10d submitted                 ****\n';
             %
             obj.pool_exchange_frmwk_name_ ='MessagesCppMPI';
-            obj.cluster_config_ = 'default';
+            % two configurations are expected, namely 'direct', where the job
+            % is run and controlled by 'srun' command and 'batch' where the
+            % job is controlled by 'sbatch' command
+            obj.cluster_config_ = {'direct','batch'};
             obj=obj.init_parser();
             if nargin < 2
                 return;
@@ -115,8 +118,8 @@ classdef ClusterSlurm < ClusterWrapper
             slurm_str = {'srun ',['-N',num2str(n_workers)],' --mpi=pmi2 '};
             % temporary hack. Matlab on nodes differs from Matlab on the
             % headnode. Should be contents of obj.matlab_starter_
-            obj.slurm_enviroment('MATLAB_PARALLEL_EXECUTOR') = ...            
-            obj.matlab_starter_;
+            obj.slurm_enviroment('MATLAB_PARALLEL_EXECUTOR') = ...
+                obj.matlab_starter_;
             %'/opt/matlab2020b/bin/matlab';
             % what should be executed by Matlab parallel worker (will be
             % nothing if Matlab parallel worker is compiled)
@@ -190,7 +193,7 @@ classdef ClusterSlurm < ClusterWrapper
             % The first form checks and receives all messages addressed to
             % job dispatched node where the second form accepts and
             % verifies status message, received by other means
-            [ok,failed,mess] = obj.is_running();
+            [ok,failed,mess] = obj.get_state_from_job_control();
             [completed,obj] = check_progress@ClusterWrapper(obj,varargin{:});
             if ~ok
                 if ~completed % the Java framework reports job finished but
@@ -248,13 +251,18 @@ classdef ClusterSlurm < ClusterWrapper
         function id = get.slurm_job_id(obj)
             id = obj.slurm_job_id_;
         end
+        function is = is_job_initiated(obj)
+            % returns true, if the cluster wrapper is responsible for a job
+            is = ~isempty(obj.slurm_job_id_);
+        end
+        
     end
     methods(Static)
     end
     methods(Access = protected)
         %
-        function [ok,failed,mess] = is_running(obj)
-            % check if the job is still in cluster
+        function [ok,failed,mess] = get_state_from_job_control(obj)
+            % check if the job is still on the cluster and running
             %
             ok = true;
             failed = false;

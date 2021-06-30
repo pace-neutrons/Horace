@@ -37,7 +37,7 @@ classdef FailedMessage < aMessage
                 if exist('fail_text', 'var')
                     ex_text  = [ex_text,fail_text];
                 end
-                error_exception = MException_her('FAILED_MESSAGE:no_aruments',...
+                error_exception = MException_her('HERBERT:FailedMessage:no_aruments',...
                     ex_text);
             end
             if ~exist('fail_text', 'var')

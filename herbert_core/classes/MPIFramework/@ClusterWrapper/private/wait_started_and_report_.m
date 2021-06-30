@@ -3,29 +3,42 @@ function [obj,ok]=wait_started_and_report_(obj,check_time,varargin)
 % if not ready for some reason, report the failure and
 % diagnostics.
 %
+% Inputs:
+% check_time      --  the time interval to wait unit repetative asking
+%                     cluster for reply
+% Optioal:
+% '-force_display' -- if provided, force displaying text log regarless of
+%                     the log count
+% log_message      -- message, containing the job progress, and to be displayed
+%                     by display_progress method
 info = [ 'Waiting for parallel cluster: ',class(obj),' to start'];
 state = StartingMessage();
 state.payload = info;
-obj.status = state;
-obj = obj.display_progress(info ,varargin{:});
-[obj,mess]=check_receive(obj);
-started = ~isempty(mess);
-t0 = tic();
-while(~started)
+if isa(obj.status,'FailedMessage')
+    mess = obj.status;
     pause(check_time);
-    [obj,mess] =check_receive(obj);
-    obj = obj.display_progress();
+    obj.status = state;    
+else
+    obj.status = state;
+    obj = obj.display_progress(info ,varargin{:});
+    [obj,mess]=check_receive(obj);
     started = ~isempty(mess);
-    t_pass = toc(t0);
-    if t_pass> obj.cluster_startup_time        
-        mess= FailedMessage('Time-out waiting for cluster to reply "ready"');
-        break;
+    t0 = tic();
+    while(~started)
+        pause(check_time);
+        [obj,mess] =check_receive(obj);
+        obj = obj.display_progress();
+        started = ~isempty(mess);
+        t_pass = toc(t0);
+        if t_pass> obj.cluster_startup_time
+            mess= FailedMessage('Time-out waiting for cluster to reply "ready"');
+            break;
+        end
     end
 end
-
 [completed,obj] = obj.check_progress(mess);
 if completed
-    ok = false;    
+    ok = false;
     info = sprintf('Parallel cluster: "%s" initialization have failed',...
         class(obj));
     if isa(mess.payload,'MException')
@@ -61,6 +74,6 @@ end
 if ok ~= MESS_CODES.ok
     info = sprintf('Can not receive message "ready". Reason: %s',...
         err);
-    obj.display_progress(info);    
-    error('CLUSTER_WRAPPER:runtine_error',info);
+    obj.display_progress(info);
+    error('HERBERT:ClusterWrapper:runtine_error',info);
 end

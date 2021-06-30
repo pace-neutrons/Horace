@@ -3,13 +3,13 @@ classdef ClusterHerbert < ClusterWrapper
     %
     % of Matlab workers, controlled by Java
     % runtime, and exchanging filebased messages.
-    % 
+    %
     %----------------------------------------------------------------------
     properties(Access = protected)
         
         cluster_prev_state_ =[];
         cluster_cur_state_ = [];
-
+        
         tasks_handles_ = {};
     end
     properties(Access = private)
@@ -129,47 +129,54 @@ classdef ClusterHerbert < ClusterWrapper
             end
             
         end
-        function [completed, obj] = check_progress(obj,varargin)
-            % Check the job progress verifying and receiving all messages,
-            % sent from worker N1
-            %
-            % usage:
-            %>> [completed, obj] = check_progress(obj)
-            %>> [completed, obj] = check_progress(obj,status_message)
-            %
-            % The first form checks and receives all messages addressed to
-            % job dispatched node where the second form accepts and
-            % verifies status message, received by other means
-            [ok,failed,mess] = obj.is_running();
-            [completed,obj] = check_progress@ClusterWrapper(obj,varargin{:});
-            if ~ok
-                if ~completed % the java framework reports job finished but
-                    % the head node have not received the final messages.
-                    completed = true;
-                    mess_body = sprintf(...
-                        'Framework launcher reports job finished without returning final messages. Reason: %s',...
-                        mess);
-                    if failed
-                        obj.status = FailedMessage(mess_body);
-                    else
-                        c_mess = aMessage('completed');
-                        c_mess.payload = mess_body;
-                        obj.status = c_mess ;
-                    end
-                    me = obj.mess_exchange_;
-                    me.clear_messages()
-                end
-            end
+        function is = is_job_initiated(obj)
+            % returns true, if the cluster wrapper is running bunch of
+            % parallel java processes
+            is = ~isempty(obj.tasks_handles_);
         end
+        
+        %         function [completed, obj] = check_progress(obj,varargin)
+        %             % Check the job progress verifying and receiving all messages,
+        %             % sent from worker N1
+        %             %
+        %             % usage:
+        %             %>> [completed, obj] = check_progress(obj)
+        %             %>> [completed, obj] = check_progress(obj,status_message)
+        %             %
+        %             % The first form checks and receives all messages addressed to
+        %             % job dispatched node where the second form accepts and
+        %             % verifies status message, received by other means
+        %             [ok,failed,mess] = obj.get_state_from_job_control();
+        %             [completed,obj] = check_progress@ClusterWrapper(obj,varargin{:});
+        %             if ~ok
+        %                 if ~completed % the java framework reports job finished but
+        %                     % the head node have not received the final messages.
+        %                     completed = true;
+        %                     mess_body = sprintf(...
+        %                         'Framework launcher reports job finished without returning final messages. Reason: %s',...
+        %                         mess);
+        %                     if failed
+        %                         obj.status = FailedMessage(mess_body);
+        %                     else
+        %                         c_mess = CompletedMessage();
+        %                         c_mess.payload = mess_body;
+        %                         obj.status = c_mess ;
+        %                     end
+        %                     me = obj.mess_exchange_;
+        %                     me.clear_messages()
+        %                 end
+        %             end
+        %         end
         
         %------------------------------------------------------------------
     end
     methods(Access = protected)
-        function [ok,failed,mess] = is_running(obj)
+        function [running,failed,paused,mess] = get_state_from_job_control(obj)
             % Method checks if java framework is running
+            paused = false;
             for i=1:numel(obj.tasks_handles_)
-                [ok,failed,mess] = is_java_process_running(obj,obj.tasks_handles_{i});
-                if ~ok
+                [running,failed,mess] = is_java_process_running(obj,obj.tasks_handles_{i});
+                if ~running
                     mess = ['Process: ',num2str(i),' ',mess];
                     return;
                 end

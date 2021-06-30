@@ -123,7 +123,7 @@ while keep_worker_running
             mess = FailedMessage(err_mess);
             fbMPI.send_message(0,mess);
             ok = MESS_CODES.runtime_error;
-            if exit_at_the_end;     exit;
+            if exit_at_the_end;     quit(254);
             else;                   return;
             end
         else
@@ -164,7 +164,7 @@ while keep_worker_running
         if ok ~= MESS_CODES.ok
             fbMPI.send_message(0,FailedMessage(err_mess));
             if exit_at_the_end
-                exit;
+                quit(254);
             else
                 return
             end
@@ -331,7 +331,7 @@ if DO_DEBUGGING
     pause % for debugging filebased framework
 end
 if exit_at_the_end
-    exit;
+    quit(0);
 end
 %% -------------------------------------------------------
 % Logging functions used to print debug information
