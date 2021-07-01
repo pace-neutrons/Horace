@@ -289,7 +289,12 @@ classdef ClusterWrapper
             %>> [completed, obj] = check_progress(obj,status_message) accept
             %                      and verify status message, provided as
             %                      input
-            
+            % Optional:
+            % '-reset_call_count' -- if provided, resets the counter of
+            %                    failed calls to zero. Should be deployed on
+            %                    the first call to the method during init
+            %                    job phase to reset counter, which counts
+            %                    number of calls, occuring when
             %
             persistent finish_call_count;
             if isempty(finish_call_count)
@@ -307,10 +312,10 @@ classdef ClusterWrapper
                 if obj.is_job_initiated()
                     [running,failedC,paused,messC]=get_state_from_job_control(obj);
                 else
-                    paused = false;
-                    running =false;
-                    failedC = false;
-                    messC  ='running'; % This is correct despite running-false
+                    paused =  false;
+                    running = false;
+                    failedC = true;
+                    messC  =  FailedMessage('Job Initialization process have failed or has not been started');
                 end
             else
                 paused = false;
@@ -339,10 +344,14 @@ classdef ClusterWrapper
                     % been delivered?
                     mess = obj.mess_exchange_.probe_all(1,'completed');
                     if isempty(mess)
-                        fm = FailedMessage(...
-                            'Cluster reports job completed but the final completeon messages has not been received');
-                        obj.status  = fm;
+                        if ~(failedC && ~isempty(messC))
+                            fm = FailedMessage(...
+                                 'Cluster reports job completed but the final completeon messages has not been received');
+
+                            obj.status  = fm;
+                        end                            
                         failed = true;
+
                     end
                 end
             end
@@ -382,7 +391,11 @@ classdef ClusterWrapper
                 if numel(obj.log_value) > 4*obj.LOG_MESSAGE_LENGHT
                     disp(obj.log_value)
                 else
-                    fprintf(obj.log_value);
+                    if contains(obj.log_value,'failed')
+                        fprintf(2,obj.log_value);
+                    else
+                        fprintf(obj.log_value);
+                    end
                 end
             end
         end

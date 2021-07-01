@@ -72,7 +72,7 @@ classdef MException_her < MException
             % MException_her class provided as input
             %
             if ~isa(input,'MException')
-                error('MEXCEPTION_HER:invalid_argument',...
+                error('HERBERT:MException_her:invalid_argument',...
                     'the function needs to be called with the instance of MException or MException_her');
             end
             try

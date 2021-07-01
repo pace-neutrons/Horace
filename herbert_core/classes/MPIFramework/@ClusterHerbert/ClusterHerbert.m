@@ -73,21 +73,11 @@ classdef ClusterHerbert < ClusterWrapper
             
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
             %
-            %
-            obj.tasks_handles_  = cell(1,n_workers);
-            %
-            prog_path  = find_matlab_path();
-            if isempty(prog_path)
-                error('HERBERT:ClusterHerbert:system_error',...
-                    'Can not find Matlab');
-            end
-            
-            if ispc()
-                obj.matlab_starter_ = fullfile(prog_path,'matlab.exe');
-            else
-                obj.matlab_starter_= fullfile(prog_path,'matlab');
+            %            
+            if ~ispc()
                 obj.task_common_str_ = [{'-softwareopengl'},obj.task_common_str_{:}];
             end
+            obj.tasks_handles_  = cell(1,n_workers);            
             
             intecomm_name = obj.pool_exchange_frmwk_name_;
             for task_id=1:n_workers
@@ -112,8 +102,16 @@ classdef ClusterHerbert < ClusterWrapper
                         task_id,n_workers,mess);
                 end
             end
+            
+            [completed,obj] = obj.check_progress('-reset_call_count');
+            if completed
+                error('HERBERT:ClusterHerbert:runtime_error',...
+                    'Herbert cluster for job %s finished before starting any job. State: %s',...
+                    obj.job_id,obj.status_name);
+            end
+            
             if log_level > -1
-                fprintf(obj.started_info_message_);
+                fprintf(2,obj.started_info_message_);                
             end
             
         end
@@ -173,13 +171,25 @@ classdef ClusterHerbert < ClusterWrapper
     methods(Access = protected)
         function [running,failed,paused,mess] = get_state_from_job_control(obj)
             % Method checks if java framework is running
+            %
             paused = false;
+            mess = 'running';
+            res_mess = cell(1,numel(obj.tasks_handles_));
+            n_fail = 0;
             for i=1:numel(obj.tasks_handles_)
                 [running,failed,mess] = is_java_process_running(obj,obj.tasks_handles_{i});
                 if ~running
-                    mess = ['Process: ',num2str(i),' ',mess];
-                    return;
+                    n_fail = n_fail +1;
+                    res_mess{i} = fprintf('Process %d failed with Error %s\n',...
+                        i,mess);
                 end
+            end
+            if n_fail>0
+                failed = true;
+                mess_text = [res_mess{:}];
+                mess = FailedMessage(mess_text,...
+                    MException('HERBERT:ClusterHerbert:runtime_error',...
+                    'Some or all of launched Java processes are not running'));
             end
             
         end

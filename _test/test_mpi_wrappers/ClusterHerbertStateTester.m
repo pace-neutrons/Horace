@@ -1,7 +1,7 @@
-classdef ClusterParpoolStateTester < ClusterParpoolWrapper
-    % Helper class to test ClusterParpoolWrapper states derived from
+classdef ClusterHerbertStateTester < ClusterHerbert
+    % Helper class to test ClusterHerbert states derived from
     % cluster.
-    % 
+    %
     % Overloads init method to communicate via reflective framework
     % and sets up job control to return state from the inputs, provided to
     % init_state propetry
@@ -11,21 +11,14 @@ classdef ClusterParpoolStateTester < ClusterParpoolWrapper
         init_state
     end
     properties
-        % expose parpool cluster properties, initiated by fake job instead
-        % of the real one, intiated by parallel computing toolbox job and
-        % task classes
-        current_job;
-        task;
+        
     end
     properties(Access=protected)
-        init_state_ = 'queued';
-        Error_ = ''
-        ErrorMessage_ = '';
-        ErrorIdentifier_ = 0;
+        init_state_ = 'running';
     end
     
     methods
-        function obj = ClusterParpoolStateTester(n_workers,log_level)
+        function obj = ClusterHerbertStateTester(n_workers,log_level)
             % Constructor, which initiates fake MPI wrapper
             %
             % The wrapper provides common interface to run various kinds of
@@ -42,7 +35,7 @@ classdef ClusterParpoolStateTester < ClusterParpoolWrapper
             %
             % log_level    if present, defines the verbosity of the
             %              operations over the framework
-            obj = obj@ClusterParpoolWrapper();
+            obj = obj@ClusterHerbert();
             
             if nargin < 1
                 return;
@@ -58,51 +51,72 @@ classdef ClusterParpoolStateTester < ClusterParpoolWrapper
             if ~exist('log_level', 'var')
                 log_level = -1;
             end
-            control_struc = struct('job_id','test_ParpoolClusterStates',...
-                        'labID',0,'numLabs',n_workers);            
-            meexch = MessagesMatlabMPI_tester(control_struc);
+            control_struc = iMessagesFramework.build_worker_init(tmp_dir, ...
+                'test_ClusterHerbertStates',...
+                'MessagesFilebased', 0,n_workers,'test_mode');
+            meexch = MessagesFileBasedMPI_mirror_tester(control_struc);
+            
             obj = init@ClusterWrapper(obj,n_workers,meexch,log_level);
             
+            
             obj.init_state = obj.init_state_;
+            obj.tasks_handles_ = cell(1,n_workers);
+            for i=1:n_workers
+                obj.tasks_handles_{i} = fake_handle_for_test();
+            end
+            
+            
+            if ~exist('log_level', 'var')
+                log_level = -1;
+            end
             
             [completed,obj] = obj.check_progress('-reset_call_count');
             if completed
-                error('HERBERT:ClusterParpoolWrapper:system_error',...
+                error('HERBERT:ClusterHerbert:runtime_error',...
                     'parpool cluster for job %s finished before starting any job. State: %s',...
                     obj.job_id,obj.status_name);
             end
             if log_level > -1
-                fprintf(obj.started_info_message_);
+                fprintf(2,obj.started_info_message_);
             end
             
         end
         %
-        function job= get.current_job(obj)
-            job = obj.current_job_;
-        end
-        function task = get.task(obj)
-            task = obj.task_;
-        end
         function state=get.init_state(obj)
             state = obj.init_state_;
         end
         function obj=set.init_state(obj,val)
-            if strcmpi(val,'failed')
-                obj.init_state_ = 'failed';
-                obj.task_ = struct('Error','Job failed',...
-                    'ErrorMessage','Simulated failure',...
-                    'ErrorIdentifier',-1);
-                
-            else
-                obj.init_state_ = val;
-                obj.task_ = struct('Error','',...
-                    'ErrorMessage','',...
-                    'ErrorIdentifier',0);
+            obj.init_state_ = val;
+            if strcmpi(val,'init_failed')
+                obj.tasks_handles_= [];
             end
-            obj.current_job_ = struct('State',obj.init_state_);
         end
+    end
+    methods(Access = protected)
+        function [running,failed,paused,mess] = get_state_from_job_control(obj)
+            % Method checks if java framework is running
+            %
+            paused = false;
+            mess = 'running';
+            running = true;
+            failed = false;
+            if strcmp(obj.init_state_,'failed')
+                running = false;
+                mess = FailedMessage('Simulated Failure');
+            end
+            % this never happens in real poor man MPI cluster as it has no
+            % way of indentifying the non-running and not failed cluster
+            % introduced to satisfy more complex cluster types, which provide
+            % such  possibility
+            if strcmp(obj.init_state_,'finished')
+                running = false;
+                mess = CompletedMessage('Successful completeon');
+            end
+            
+        end
+        %
         
-        
-    end  
+    end
+    
 end
 

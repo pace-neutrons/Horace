@@ -1,4 +1,4 @@
-classdef test_Cluster_check_progress< TestCase
+classdef check_progress_common_methods< TestCase
     %
     %
     properties
@@ -6,12 +6,12 @@ classdef test_Cluster_check_progress< TestCase
     end
     methods
         %
-        function obj=test_Cluster_check_progress(name)
+        function obj=check_progress_common_methods(class_instance,name)
             if ~exist('name', 'var')
-                name = 'test_Cluster_check_progress';
+                name = ['test_progress_',class(class_instance)];
             end
             obj = obj@TestCase(name);
-            obj.cluster_tester = ClusterParpoolStateTester();
+            obj.cluster_tester = class_instance;
         end
         %
         function test_completed_mess_received_after_job_completeon(obj)
@@ -21,6 +21,7 @@ classdef test_Cluster_check_progress< TestCase
             % init cluster with 3 workers
             ct.init_state = 'running';
             ct = ct.init(3);
+            clOb = onCleanup(@()finalize_all(ct));                        
             % use reflective exchange framework to receive ready message
             comm = ct.get_exchange_framework();
             [ok,mess]= comm.send_message(1,'ready');
@@ -57,7 +58,6 @@ classdef test_Cluster_check_progress< TestCase
             ct = ct.display_progress();
             log = ct.log_value;
             assertTrue(contains(log,'completed'))
-            
             %
         end
         
@@ -69,6 +69,7 @@ classdef test_Cluster_check_progress< TestCase
             % init cluster with 3 workers
             ct.init_state = 'running';
             ct = ct.init(3);
+            clOb = onCleanup(@()finalize_all(ct));                        
             % use reflective exchange framework to receive ready message
             comm = ct.get_exchange_framework();
             [ok,mess]= comm.send_message(1,'ready');
@@ -82,9 +83,11 @@ classdef test_Cluster_check_progress< TestCase
             assertTrue(contains(log,'ready'))
             assertEqual(ct.status_name,'ready');
             
-            [ok,mess]= comm.send_message(1,LogMessage(0,10,0.5));
-            assertTrue(isempty(mess));
-            assertEqual(ok,MESS_CODES.ok);
+            % Different frameworks receive log vs completed message in
+            % different order
+            %[ok,mess]= comm.send_message(1,LogMessage(0,10,0.5));
+            %assertTrue(isempty(mess));
+            %assertEqual(ok,MESS_CODES.ok);
             
             % finish job on receiving 'completed' message
             [ok,mess]= comm.send_message(1,CompletedMessage());
@@ -108,6 +111,7 @@ classdef test_Cluster_check_progress< TestCase
             % init cluster with 3 workers
             ct.init_state = 'running';
             ct = ct.init(3);
+            clOb = onCleanup(@()finalize_all(ct));                        
             % use reflective exchange framework to receive ready message
             comm = ct.get_exchange_framework();
             [ok,mess]= comm.send_message(1,'ready');
@@ -174,6 +178,7 @@ classdef test_Cluster_check_progress< TestCase
             % init cluster with 3 workers
             ct.init_state = 'running';
             ct = ct.init(3);
+            clOb = onCleanup(@()finalize_all(ct));
             % use reflective exchange framework to receive ready message
             comm = ct.get_exchange_framework();
             [ok,mess]= comm.send_message(1,'ready');
@@ -229,6 +234,7 @@ classdef test_Cluster_check_progress< TestCase
             % init cluster with 3 workers
             ct.init_state = 'failed';
             ct = ct.init(3);
+            clOb = onCleanup(@()finalize_all(ct));            
             % use reflective exchange framework to receive ready message
             % from node 1
             comm = ct.get_exchange_framework();
@@ -252,6 +258,7 @@ classdef test_Cluster_check_progress< TestCase
             % init cluster with 3 workers
             ct.init_state = 'failed';
             ct = ct.init(3);
+            clOb = onCleanup(@()finalize_all(ct));                        
             %
             % ensure wait receives
             [ct,ok]=ct.wait_started_and_report(0.001);
@@ -264,6 +271,7 @@ classdef test_Cluster_check_progress< TestCase
             ct = obj.cluster_tester;
             % init cluster with 3 workers
             ct = ct.init(3);
+            clOb = onCleanup(@()finalize_all(ct));                        
             ct.cluster_startup_time = 0.01;
             % use reflective exchange framework to receive ready message
             % from node 1
@@ -278,6 +286,7 @@ classdef test_Cluster_check_progress< TestCase
             ct = obj.cluster_tester;
             % init cluster with 3 workers
             ct = ct.init(3);
+            clOb = onCleanup(@()finalize_all(ct));                        
             % use reflective exchange framework to receive ready message
             % from node 1
             comm = ct.get_exchange_framework();
@@ -290,6 +299,23 @@ classdef test_Cluster_check_progress< TestCase
             log = ct.log_value;
             assertTrue(contains(log,'ready'))
         end
+        function test_init_failed_fails(obj)
+            ct = obj.cluster_tester;
+            % init cluster with 3 workers            
+            ct=ct.init(3);
+            clOb = onCleanup(@()finalize_all(ct));                        
+            ct.init_state = 'init_failed';            
+            %
+            [completed,ct] = ct.check_progress();
+            assertTrue(completed);
+            assertTrue(ct.status_changed);
+            assertEqual(ct.status_name,'failed');
+            ct = ct.display_progress();
+            log = ct.log_value;
+            assertTrue(contains(log,'failed'))
+            assertTrue(contains(log,'has not been started'))            
+        end
+        
     end
 end
 
