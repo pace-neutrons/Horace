@@ -287,7 +287,7 @@ classdef config_store < handle
             %                      returns current Herbert config settings for fields
             %                      'use_mex' and 'log_level'
             
-            config_data=this.get_config_(class_to_restore);
+            [config_data,read_from_file]=this.get_config_(class_to_restore);
             % execute class setters.
             
             % Important!!!
@@ -297,9 +297,11 @@ classdef config_store < handle
             % internal private dependent fields so a configuration can not
             % have such fields! (the setting got lost)
             
-            % Do we really need this? It seems works fine without it and
-            % this causes strange side effects
-            %class_to_restore.set_stored_data(config_data);
+            % set active properties only if the data were recovered from
+            % file
+            if read_from_file
+                class_to_restore.set_stored_data(config_data);
+            end
         end
         %
         function has = has_config(this,class_name)
