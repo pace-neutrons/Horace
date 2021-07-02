@@ -58,27 +58,15 @@ classdef ClusterHerbertStateTester < ClusterHerbert
             
             obj = init@ClusterWrapper(obj,n_workers,meexch,log_level);
             
-            
-            obj.init_state = obj.init_state_;
             obj.tasks_handles_ = cell(1,n_workers);
             for i=1:n_workers
                 obj.tasks_handles_{i} = fake_handle_for_test();
-            end
+            end                      
             
+            obj.init_state = obj.init_state_;
             
-            if ~exist('log_level', 'var')
-                log_level = -1;
-            end
-            
-            [completed,obj] = obj.check_progress('-reset_call_count');
-            if completed
-                error('HERBERT:ClusterHerbert:runtime_error',...
-                    'parpool cluster for job %s finished before starting any job. State: %s',...
-                    obj.job_id,obj.status_name);
-            end
-            if log_level > -1
-                fprintf(2,obj.started_info_message_);
-            end
+            % check if job control API reported failure
+            obj.check_failed();            
             
         end
         %
@@ -102,6 +90,7 @@ classdef ClusterHerbertStateTester < ClusterHerbert
             failed = false;
             if strcmp(obj.init_state_,'failed')
                 running = false;
+                failed = true;                
                 mess = FailedMessage('Simulated Failure');
             end
             % this never happens in real poor man MPI cluster as it has no

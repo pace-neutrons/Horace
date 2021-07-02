@@ -289,26 +289,7 @@ classdef ClusterWrapper
             %>> [completed, obj] = check_progress(obj,status_message) accept
             %                      and verify status message, provided as
             %                      input
-            % Optional:
-            % '-reset_call_count' -- if provided, resets the counter of
-            %                    failed calls to zero. Should be deployed on
-            %                    the first call to the method during init
-            %                    job phase to reset counter, which counts
-            %                    number of calls, occuring when
-            %
-            persistent finish_call_count;
-            if isempty(finish_call_count)
-                finish_call_count = 0;
-            end
-            [ok,mess,init_call,argi] = ...
-                parse_char_options(varargin,{'-reset_call_count'});
-            if ~ok
-                error('HERBERT:ClusterWrapper:invalid_argument',mess);
-            end
-            if init_call
-                finish_call_count =0;
-            end
-            if isempty(argi)
+            if isempty(varargin)
                 if obj.is_job_initiated()
                     [running,failedC,paused,messC]=get_state_from_job_control(obj);
                 else
@@ -321,15 +302,18 @@ classdef ClusterWrapper
                 paused = false;
                 running =true;
                 failedC = false;
-                messC = argi{1};
+                messC = varargin{1};
+                if ~isempty(messC) && isa(messC,'FailedMessage')
+                    failedC = true;
+                end
             end
             %
             if paused
                 completed = false;
                 failed    = false;
-                mess = '';
+                mess = 'paused';
             else
-                [completed,failed,mess] = check_progress_from_messages_(obj,argi{:});
+                [completed,failed,mess] = check_progress_from_messages_(obj,varargin{:});
             end
             %
             if isempty(mess) % the information is from job control
@@ -338,32 +322,24 @@ classdef ClusterWrapper
                 obj.status = mess;
             end
             if ~running && ~completed
-                finish_call_count = finish_call_count+1;
-                if finish_call_count > 1
-                    % has Matlab MPI job been completed before status message has
-                    % been delivered?
-                    mess = obj.mess_exchange_.probe_all(1,'completed');
-                    if isempty(mess)
-                        if ~(failedC && ~isempty(messC))
-                            fm = FailedMessage(...
-                                 'Cluster reports job completed but the final completeon messages has not been received');
-
-                            obj.status  = fm;
-                        end                            
-                        failed = true;
-
+                % has Matlab MPI job been completed before status message has
+                % been delivered?
+                mess = obj.mess_exchange_.probe_all(1,'completed');
+                if isempty(mess)
+                    if ~(failedC && ~isempty(messC))
+                        fm = FailedMessage(...
+                            'Cluster reports job completed but the final completeon messages has not been received');
+                        
+                        obj.status  = fm;
                     end
+                    failed = true;
                 end
             end
             
             
             if ~completed && (failed || failedC)
                 % failure. The reason should be in mess.
-                if init_call
-                    completed = failed && failedC;
-                else
-                    completed = failed || failedC;
-                end
+                completed = failed || failedC;
             end
         end
         %
@@ -388,10 +364,22 @@ classdef ClusterWrapper
                 end
             end
             if display_log
-                if numel(obj.log_value) > 4*obj.LOG_MESSAGE_LENGHT
-                    disp(obj.log_value)
+                if contains(obj.log_value,'failed')
+                    highlight_failure = true;
                 else
-                    if contains(obj.log_value,'failed')
+                    highlight_failure = false;
+                end
+                if numel(obj.log_value) > 4*obj.LOG_MESSAGE_LENGHT
+                    if highlight_failure
+                        newStr = splitlines(obj.log_value);
+                        fprintf(2,'%s\n',newStr{1});
+                    end
+                    disp(obj.log_value)
+                    if highlight_failure
+                        fprintf('***************************************************\n');
+                    end
+                else
+                    if highlight_failure
                         fprintf(2,obj.log_value);
                     else
                         fprintf(obj.log_value);
@@ -511,6 +499,34 @@ classdef ClusterWrapper
     end
     
     methods(Access=protected)
+        %
+        function check_failed(obj)
+            % run cluster-specific get_state_from_job_control function and
+            % throw if this function return failure
+            %
+            % Used by init method, to identify cluster startup failure early.
+            [~,failed,~,mess] = obj.get_state_from_job_control();
+            if failed
+                if isa(mess,'FailedMessage')
+                    exc = mess.exception;
+                    % generate exception report only if the exception
+                    % contains useful information about the issue.
+                    if ~isempty(exc) && ~strcmp(exc.identifier,'HERBERT:FailedMessage:no_aruments')
+                        disp(exc.getReport())
+                    end
+                    info = '';
+                    format = 'Herbert cluster for job: %s failed to start parallel execution. State: %s %s';
+                else
+                    format = 'Herbert cluster for job: %s failed to start parallel execution. State: %s Message: %s';
+                    info = mess;
+                end
+                obj = obj.finalize_all();
+                %
+                error('HERBERT:ClusterWrapper:runtime_error',format,...
+                    obj.job_id,obj.status_name,info);
+                
+            end
+        end
         %
         function obj = generate_log(obj,varargin)
             % prepare log message from input parameters and the data, retrieved

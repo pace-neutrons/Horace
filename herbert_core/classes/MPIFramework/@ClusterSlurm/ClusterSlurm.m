@@ -157,10 +157,8 @@ classdef ClusterSlurm < ClusterWrapper
             % parse queue and extract new job ID
             obj = extract_job_id(obj,queue0_rows);
             
-            %
-            if log_level > -1
-                fprintf(2,obj.started_info_message_,obj.slurm_job_id);
-            end
+            % check if job control API reported failure
+            obj.check_failed();
         end
         %
         function obj=finalize_all(obj)

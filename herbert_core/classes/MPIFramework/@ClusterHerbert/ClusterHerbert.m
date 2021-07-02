@@ -44,7 +44,7 @@ classdef ClusterHerbert < ClusterWrapper
             obj.starting_info_message_ = ...
                 ':herbert configured: *** Starting Herbert (poor-man-MPI) cluster with %d workers ***\n';
             obj.started_info_message_  = ...
-                '*** Herbert cluster started                                ***\n';
+                '*** Herbert cluster initialized                              ***\n';
             %
             obj.pool_exchange_frmwk_name_ ='MessagesFilebased';
             if nargin < 2
@@ -73,11 +73,11 @@ classdef ClusterHerbert < ClusterWrapper
             
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
             %
-            %            
+            %
             if ~ispc()
                 obj.task_common_str_ = [{'-softwareopengl'},obj.task_common_str_{:}];
             end
-            obj.tasks_handles_  = cell(1,n_workers);            
+            obj.tasks_handles_  = cell(1,n_workers);
             
             intecomm_name = obj.pool_exchange_frmwk_name_;
             for task_id=1:n_workers
@@ -102,18 +102,8 @@ classdef ClusterHerbert < ClusterWrapper
                         task_id,n_workers,mess);
                 end
             end
-            
-            [completed,obj] = obj.check_progress('-reset_call_count');
-            if completed
-                error('HERBERT:ClusterHerbert:runtime_error',...
-                    'Herbert cluster for job %s finished before starting any job. State: %s',...
-                    obj.job_id,obj.status_name);
-            end
-            
-            if log_level > -1
-                fprintf(2,obj.started_info_message_);                
-            end
-            
+            % check if job control API reported failure
+            obj.check_failed();            
         end
         %
         function obj=finalize_all(obj)
@@ -131,41 +121,7 @@ classdef ClusterHerbert < ClusterWrapper
             % returns true, if the cluster wrapper is running bunch of
             % parallel java processes
             is = ~isempty(obj.tasks_handles_);
-        end
-        
-        %         function [completed, obj] = check_progress(obj,varargin)
-        %             % Check the job progress verifying and receiving all messages,
-        %             % sent from worker N1
-        %             %
-        %             % usage:
-        %             %>> [completed, obj] = check_progress(obj)
-        %             %>> [completed, obj] = check_progress(obj,status_message)
-        %             %
-        %             % The first form checks and receives all messages addressed to
-        %             % job dispatched node where the second form accepts and
-        %             % verifies status message, received by other means
-        %             [ok,failed,mess] = obj.get_state_from_job_control();
-        %             [completed,obj] = check_progress@ClusterWrapper(obj,varargin{:});
-        %             if ~ok
-        %                 if ~completed % the java framework reports job finished but
-        %                     % the head node have not received the final messages.
-        %                     completed = true;
-        %                     mess_body = sprintf(...
-        %                         'Framework launcher reports job finished without returning final messages. Reason: %s',...
-        %                         mess);
-        %                     if failed
-        %                         obj.status = FailedMessage(mess_body);
-        %                     else
-        %                         c_mess = CompletedMessage();
-        %                         c_mess.payload = mess_body;
-        %                         obj.status = c_mess ;
-        %                     end
-        %                     me = obj.mess_exchange_;
-        %                     me.clear_messages()
-        %                 end
-        %             end
-        %         end
-        
+        end                
         %------------------------------------------------------------------
     end
     methods(Access = protected)
@@ -187,9 +143,7 @@ classdef ClusterHerbert < ClusterWrapper
             if n_fail>0
                 failed = true;
                 mess_text = [res_mess{:}];
-                mess = FailedMessage(mess_text,...
-                    MException('HERBERT:ClusterHerbert:runtime_error',...
-                    'Some or all of launched Java processes are not running'));
+                mess = FailedMessage(mess_text);
             end
             
         end

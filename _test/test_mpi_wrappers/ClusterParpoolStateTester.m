@@ -65,15 +65,8 @@ classdef ClusterParpoolStateTester < ClusterParpoolWrapper
             
             obj.init_state = obj.init_state_;
             %
-            [completed,obj] = obj.check_progress('-reset_call_count');
-            if completed
-                error('HERBERT:ClusterParpoolWrapper:system_error',...
-                    'parpool cluster for job %s finished before starting any job. State: %s',...
-                    obj.job_id,obj.status_name);
-            end
-            if log_level > -1
-                fprintf(2,obj.started_info_message_);
-            end
+            % check if job control API reported failure
+            obj.check_failed();            
             
         end
         function obj=finalize_all(obj)
