@@ -83,7 +83,7 @@ for i=1:nobj
     else
         h=wout(i);  % pointer to object
         nfiles=h.main_header.nfiles;
-        tmp=h.header;   % to keep referencing to sub-fields to a minimum
+        tmp=h.header_x;   % to keep referencing to sub-fields to a minimum
     end
     % Change the header
     if nfiles>1
@@ -102,10 +102,10 @@ for i=1:nobj
         ld = ld.upgrade_file_format(); % if file was old version one, upgrade to new,
         % if not, opens for writing
         tt = sqw();
-        tt.header = tmp;
+        tt.header_x = tmp;
         ld = ld.put_instruments(tt);
     else
-        wout(i).header=tmp;
+        wout(i).header_x=tmp;
     end
 end
 

@@ -165,8 +165,9 @@ classdef test_faccess_sqw_v3< TestCase
             sam1=IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
             %inst1=create_test_instrument(95,250,'s');
             %sqw_ob.header(1).instrument = inst1;
-            sqw_ob.header(1).sample = sam1;
-
+            hdr = sqw_ob.my_header();
+            hdr(1).sample = sam1;
+            sqw_ob = sqw_ob.change_header(hdr);
 
             tob = faccess_sqw_v3();
             tob = tob.init(sqw_ob);
@@ -193,8 +194,10 @@ classdef test_faccess_sqw_v3< TestCase
             assertTrue(isa(sqw_ob,'sqw'));
 
             inst1=create_test_instrument(95,250,'s');
-            sqw_ob.header(1).instrument = inst1;
-
+            hdr = sqw_ob.my_header();
+            hdr(1).instrument = inst1;
+            sqw_ob = sqw_ob.change_header(hdr);
+            
             tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
             clob = onCleanup(@()delete(tf));
 
@@ -228,8 +231,10 @@ classdef test_faccess_sqw_v3< TestCase
             assertTrue(isa(sqw_ob,'sqw'));
 
             inst1=create_test_instrument(95,250,'s');
-            sqw_ob.header(1).instrument = inst1;
-
+            hdr = sqw_ob.my_header();
+            hdr(1).instrument = inst1;
+            sqw_ob = sqw_ob.change_header(hdr);
+            
             tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
             clob = onCleanup(@()delete(tf));
 

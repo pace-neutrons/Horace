@@ -30,16 +30,16 @@ if ~has_pixels(w)
     error('Input sqw object does not have sqw type (i.e. does not contain pixel information')
 end
 
-if iscell(w.header)
+if iscell(w.header_x)
     error('sqw object has contributions from more than one spe file')
 end
 
 % Get file name and path from sqw object
-data.filename=w.header.filename;
-data.filepath=w.header.filepath;
+data.filename=w.header_x.filename;
+data.filepath=w.header_x.filepath;
 
 % Extract signal and error
-ne=numel(w.header.en)-1;    % number of energy bins
+ne=numel(w.header_x.en)-1;    % number of energy bins
 ndet0=numel(w.detpar.group);% number of detectors
 
 tmp=w.data.pix.get_data({'detector_idx', 'energy_idx', 'signal', 'variance'})';
@@ -62,7 +62,7 @@ data.S=signal;
 data.ERR=err;
 
 % Get energy bin boundaries
-data.en=w.header.en;
+data.en=w.header_x.en;
 
 % Create output object
 d=spe(data);

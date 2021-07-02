@@ -9,13 +9,21 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
     
     properties
         main_header
-        header
+        header_x
         detpar
+        % CMDEV: data now a dependent property, below
+    end
+    
+    properties (Access=private)
+        %main_header
+        %header_x
+        %detpar
         % CMDEV: data now a dependent property, below
     end
     
     properties(Dependent)
         data;
+        %;
     end
     
     methods (Access = protected)
@@ -62,9 +70,21 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         varargout = resolution_plot (w, varargin);
         wout = noisify(w,varargin);
         
+        function hdr = my_header(obj)
+            hdr = obj.header_x;
+        end
+        
+        function obj = change_header(obj,hdr)
+            obj.header_x = hdr;
+        end
+        
+        
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
             
+            if isempty(varargin)
+                disp("here");
+            end
             [args] = obj.parse_args(varargin{:});
             
             % i) copy
@@ -122,9 +142,21 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
                 tmp = sqw();
                 obj = repmat(tmp, size(S));
                 for i = 1:numel(S)
-                    obj(i) = sqw(S(i));
+                    if isfield(S(i),'header')
+                        ss.main_header = S(i).main_header;
+                        ss.header_x = S(i).header;
+                        ss.detpar = S(i).detpar;
+                        ss.data = S(i).data;
+                    else
+                        ss = S(i);
+                    end
+                    obj(i) = sqw(ss);
                 end
             else
+                if isfield(S,'header')
+                    S.header_x = S.header;
+                    S = rmfield(S,'header');
+                end
                 obj = sqw(S);
             end
         end
@@ -199,14 +231,18 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         function ld_str = get_loader_struct_(~,ldr,pixel_page_size)
             % load sqw structure, using file loader
             ld_str = struct();
-            [ld_str.main_header, ld_str.header, ld_str.detpar, ld_str.data] = ...
+            [ld_str.main_header, ld_str.header_x, ld_str.detpar, ld_str.data] = ...
                 ldr.get_sqw('-legacy', 'pixel_page_size', pixel_page_size);
         end
         function obj = init_from_loader_struct_(obj, data_struct)
             % initialize object contents using structure, obtained from
             % file loader
             obj.main_header = data_struct.main_header;
-            obj.header = data_struct.header;
+            try
+                obj.header_x = data_struct.header_x;
+            catch ME
+                error("X");
+            end
             obj.detpar = data_struct.detpar;
             obj.data = data_struct.data;
         end

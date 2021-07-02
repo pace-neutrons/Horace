@@ -63,13 +63,13 @@ elseif narg==1
         for i=1:numel(wout)
             nfiles=wout(i).main_header.nfiles;
             if nfiles>1
-                tmp=wout(i).header;   % to keep referencing to sub-fields to a minimum
+                tmp=wout(i).header_x;   % to keep referencing to sub-fields to a minimum
                 for ifiles=1:nfiles
                     tmp{ifiles}.sample=sample;
                 end
-                wout(i).header=tmp;
+                wout(i).header_x=tmp;
             else
-                wout(i).header.sample=sample;
+                wout(i).header_x.sample=sample;
             end
         end
         argout{1}=wout;

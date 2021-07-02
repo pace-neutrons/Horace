@@ -162,8 +162,10 @@ f1_2_i0s0=change_header_test(f1_2_i1s1,struct,struct);
 % Create reference object, testing setting of array instrument on the way
 tmpsqwfile=fullfile(tmp_dir,'test_sqw_file_fileref_store.sqw');
 wref=f1_2;
-wref.header{1}.efix=130;
-wref.header{1}.efix=135;
+hdr = wref.my_header();
+hdr{1}.efix=130;
+hdr{1}.efix=135; % betting this is {2} like the instrument change below
+wref = wref.change_header(hdr);
 inst_arr=create_test_instrument(95,250,'s');
 inst_arr(2)=create_test_instrument(105,300,'a');
 wref=change_header_test(wref,inst_arr,sam1);
@@ -175,8 +177,10 @@ wref=sqw(tmpsqwfile);     % creates with same file name will be set with read_sq
 inst_arr=create_test_instrument(400,500,'s');
 inst_arr(2)=create_test_instrument(105,600,'a');
 wtmp_ref=wref;
-wtmp_ref.header{1}.instrument=inst_arr(1);
-wtmp_ref.header{2}.instrument=inst_arr(2);
+hdr = wtmp_ref.my_header();
+hdr{1}.instrument=inst_arr(1);
+hdr{2}.instrument=inst_arr(2);
+wtmp_ref = wtmp_ref.change_header(hdr);
 
 wtmp=set_instrument(wref,@create_test_instrument,[400;105],[500;600],{'s';'a'});
 assertTrue(isequal(wtmp_ref,wtmp),'Incorrectly set instrument for sqw object')
@@ -191,8 +195,10 @@ save(wref,tmpsqwfile);     % recreate reference file
 inst_arr=create_test_instrument(400,500,'s');
 inst_arr(2)=create_test_instrument(400,500,'s');
 wtmp_ref=wref;
-wtmp_ref.header{1}.instrument=inst_arr(1);
-wtmp_ref.header{2}.instrument=inst_arr(2);
+hdr = wtmp_ref.my_header();
+hdr{1}.instrument=inst_arr(1);
+hdr{2}.instrument=inst_arr(2);
+wtmp_ref = wtmp_ref.change_header(hdr);
 
 wtmp=set_instrument(wref,@create_test_instrument,400,500,'s');
 assertTrue(isequal(wtmp_ref,wtmp),'Incorrectly set instrument for sqw object')
@@ -207,8 +213,10 @@ save(wref,tmpsqwfile);     % recreate reference file
 inst_arr=create_test_instrument(135,500,'s');
 inst_arr(2)=create_test_instrument(50,500,'s');
 wtmp_ref=wref;
-wtmp_ref.header{1}.instrument=inst_arr(1);
-wtmp_ref.header{2}.instrument=inst_arr(2);
+hdr = wtmp_ref.my_header();
+hdr{1}.instrument=inst_arr(1);
+hdr{2}.instrument=inst_arr(2);
+wtmp_ref = wtmp_ref.change_header(hdr);
 
 wtmp=set_instrument(wref,@create_test_instrument,'-efix',500,'s');
 assertTrue(isequal(wtmp_ref,wtmp),'Incorrectly set instrument for sqw object')

@@ -280,7 +280,7 @@ main_header_combined.filepath = [fp,filesep];
 %
 data_sum= struct('main_header',main_header_combined,'header',[],'detpar',det);
 data_sum.data = sqw_data;
-data_sum.header = header_combined;
+data_sum.header_x = header_combined;
 
 ds = sqw(data_sum);
 wrtr = sqw_formats_factory.instance().get_pref_access(ds);

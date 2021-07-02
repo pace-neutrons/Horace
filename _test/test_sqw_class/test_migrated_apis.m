@@ -233,7 +233,9 @@ classdef test_migrated_apis < TestCase
            expected_inst =  IX_inst_DGfermi (mod_1, ap_1, chopper_1, 100);
 
            for idx=1:20
-               s.header{idx}.intrument = expected_inst;
+               hdr = s.my_header();
+               hdr{idx}.intrument = expected_inst;
+               s = s.change_header(hdr);
            end
 
            [instrument_class, all_inst] = s.get_inst_class();
@@ -290,7 +292,7 @@ classdef test_migrated_apis < TestCase
             expected_energy = 10101010;
 
             updated = sqw_obj.set_efix(expected_energy);
-            assertTrue(all(cellfun(@(x) x.efix, updated.header) == expected_energy));
+            assertTrue(all(cellfun(@(x) x.efix, updated.my_header()) == expected_energy));
         end
         function test_set_instrument(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
@@ -301,7 +303,7 @@ classdef test_migrated_apis < TestCase
             expected_inst =  IX_inst_DGfermi (mod_1, ap_1, chopper_1, 100);
 
             updated = s.set_instrument(expected_inst);
-            assertTrue(all(cellfun(@(x) equal_to_tol(x.instrument, expected_inst), updated.header)));
+            assertTrue(all(cellfun(@(x) equal_to_tol(x.instrument, expected_inst), updated.my_header())));
         end
 
 %        function test_set_mod_pulse(obj)
@@ -313,8 +315,9 @@ classdef test_migrated_apis < TestCase
 
             s_updated = s.set_sample(sam1);
 
-            assertEqual(s_updated.header{1}.sample, sam1);
-            assertEqual(s_updated.header{end}.sample, sam1);
+            hdr = s_updated.my_header();
+            assertEqual(hdr{1}.sample, sam1);
+            assertEqual(hdr{end}.sample, sam1);
         end
 
         %% shifts

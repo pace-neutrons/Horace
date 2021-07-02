@@ -133,7 +133,7 @@ end
 % Create sqw object (just a packaging of pointers, so no memory penalty)
 % ----------------------------------------------------------------------
 d.main_header=main_header;
-d.header=header;
+d.header_x=header;
 d.detpar=det0;
 d.data=data_sqw_dnd(sqw_datstr);
 w=sqw(d);

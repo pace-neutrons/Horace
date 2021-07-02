@@ -73,7 +73,7 @@ for i=1:nobj
         ld = w.loaders_list{i};
         header = ld.get_header('-all');        
     else
-        header=w.data(i).header;
+        header=w.data(i).header_x;
     end
     if i==1
         [pulse_model,pars,ok,mess,present]=get_mod_pulse_single(header);

@@ -85,13 +85,13 @@ for i=1:nobj
         ld = w.loaders_list{i};
         nfiles = ld.num_contrib_files;
         header = ld.get_header('-all');
-        h.header = header;
+        h.header_x = header;
     else
         h=wout(i);  % pointer to object
         nfiles=h.main_header.nfiles;        
     end
     % Change the header
-    tmp=h.header;   % to keep referencing to sub-fields to a minimum
+    tmp=h.header_x;   % to keep referencing to sub-fields to a minimum
     if nfiles>1
         for ifile=1:nfiles
             if nefix==1
@@ -114,7 +114,7 @@ for i=1:nobj
         ld = ld.upgrade_file_format(); % also reopens file in update mode if format is already the latest one
         ld = ld.put_headers(tmp);
     else
-        wout(i).header=tmp;
+        wout(i).header_x=tmp;
     end
 end
 

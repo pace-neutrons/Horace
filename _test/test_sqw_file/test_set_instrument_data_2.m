@@ -16,10 +16,11 @@ clob = onCleanup(@()delete(data_inst));
 w1 = read_sqw(data_inst_ref);
 
 % check the conversion of the old sample and instrument stored in file
-sam = w1.header{1}.sample;
+hdr = w1.my_header();
+sam = hdr{1}.sample;
 assertTrue(isa(sam,'IX_sample'));
 assertEqual(sam.shape,'cuboid');
-inst = w1.header{1}.instrument;
+inst = hdr{1}.instrument;
 assertTrue(isa(inst,'IX_inst'));
 assertEqual(inst.name,'');
 %% --------------------------------------------------------------------------------------------------

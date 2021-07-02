@@ -30,10 +30,10 @@ wout = copy(win);
 
 %New code (problem spotted by Matt Mena for case when using a single
 %contributing spe file):
-if ~iscell(win.header)
-    header = win.header;
+if ~iscell(win.header_x)
+    header = win.header_x;
 else
-    header = win.header{1};
+    header = win.header_x{1};
 end
 
 if numel(win)~=1

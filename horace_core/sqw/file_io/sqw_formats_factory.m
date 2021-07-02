@@ -194,7 +194,7 @@ classdef sqw_formats_factory < handle
                 the_type = class(varargin{1});
                 if isa(varargin{1},'sqw')
                     sobj = varargin{1};
-                    header =sobj.header;
+                    header =sobj.my_header();
                     if iscell(header)
                         header = header{1};
                     elseif isempty(header)

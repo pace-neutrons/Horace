@@ -22,7 +22,7 @@ if numel(win)~=1
     error('Only a single sqw object is valid - cannot take an array of sqw objects')
 end
 
-header_ave=header_average(win.header);
+header_ave=header_average(win.header_x);
 
 u0 = header_ave.uoffset;
 u = header_ave.u_to_rlu(1:3,1:3);

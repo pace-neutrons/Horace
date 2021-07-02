@@ -66,7 +66,7 @@ for i=1:nobj
         ld = w.loaders_list{i};
         header = ld.get_header('-all');
     else
-        header=w.data(i).header;
+        header=w.data(i).header_x;
     end
     [efix_arr(nbeg(i):nend(i)),emode_arr(nbeg(i):nend(i))]=get_efix_single(header);
 end

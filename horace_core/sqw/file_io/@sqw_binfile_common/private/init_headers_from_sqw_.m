@@ -18,7 +18,7 @@ obj.num_contrib_files_ = n_files;
 obj.header_pos_ = zeros(1,n_files);
 obj.header_pos_(1) = pos;
 
-headers = sqw_obj.header;
+headers = sqw_obj.my_header();
 if iscell(headers)
     process_cell = true;
 else

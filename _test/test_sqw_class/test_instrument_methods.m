@@ -38,7 +38,8 @@ classdef test_instrument_methods < TestCaseWithSave
         function test_set_instrument_updates_all_headers_to_single_value(self)
             % Set all spe file to the same instrument
             wnew_fe = set_instrument(self.w_fe, self.inst_1);
-            assertEqual(wnew_fe.header{3}.instrument, self.inst_1);
+            hdr = wnew_fe.my_header();
+            assertEqual(hdr{3}.instrument, self.inst_1);
         end
 
         %--------------------------------------------------------------------------
@@ -48,9 +49,11 @@ classdef test_instrument_methods < TestCaseWithSave
             inst_arr(100) = self.inst_2;
 
             wnew_fe = set_instrument(self.w_fe, inst_arr);
-            assertEqual(wnew_fe.header{99}.instrument, self.inst_1);
-            assertEqual(wnew_fe.header{100}.instrument, self.inst_2);
-            assertEqual(wnew_fe.header{101}.instrument, self.inst_1);
+            
+            hdr = wnew_fe.my_header();
+            assertEqual(hdr{99}.instrument, self.inst_1);
+            assertEqual(hdr{100}.instrument, self.inst_2);
+            assertEqual(hdr{101}.instrument, self.inst_1);
         end
 
         %--------------------------------------------------------------------------
@@ -58,8 +61,9 @@ classdef test_instrument_methods < TestCaseWithSave
             % Set efix
             efix_new = 777;
             wnew_fe = set_efix(self.w_fe, efix_new);
-
-            efix = wnew_fe.header{45}.efix;
+            
+            hdr = wnew_fe.my_header();
+            efix = hdr{45}.efix;
             assertEqual(efix, efix_new)
         end
 
@@ -85,7 +89,8 @@ classdef test_instrument_methods < TestCaseWithSave
 
             [~, pp] = get_mod_pulse(wnew_fe);
 
-            mod3 = wnew_fe.header{3}.instrument.moderator;
+            hdr = wnew_fe.my_header();
+            mod3 = hdr{3}.instrument.moderator;
             assertEqualToTol(mod3.pp, pp, 'reltol', 1e-13);
         end
 
@@ -99,10 +104,12 @@ classdef test_instrument_methods < TestCaseWithSave
             pp(100, :) = [100, 386, 0.7];  % so pp(2) average is 201
             wnew_fe = set_mod_pulse(wnew_fe, 'ikcarp', pp);
 
-            mod3 = wnew_fe.header{3}.instrument.moderator;
+                hdr = wnew_fe.my_header();
+            mod3 = hdr{3}.instrument.moderator;
             assertEqual(mod3.pp, [100, 200, 0.7]);
 
-            mod100 = wnew_fe.header{100}.instrument.moderator;
+                hdr = wnew_fe.my_header();
+            mod100 = hdr{100}.instrument.moderator;
             assertEqual(mod100.pp, [100,386, 0.7]);
 
             [~,pp_av] = get_mod_pulse(wnew_fe);

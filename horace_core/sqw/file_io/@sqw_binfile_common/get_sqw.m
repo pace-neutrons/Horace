@@ -55,7 +55,7 @@ function [sqw_object,varargout] = get_sqw (obj, varargin)
 %
 opts = parse_args(obj, varargin{:});
 
-sqw_struc = struct('main_header',[],'header',[],'detpar',[],'data',[]);
+sqw_struc = struct('main_header',[],'header_x',[],'detpar',[],'data',[]);
 
 % Get main header
 % ---------------
@@ -97,10 +97,10 @@ end
 data_opt= [opt1, opt2, opt3];
 sqw_struc.data = obj.get_data(data_opt{:}, 'pixel_page_size', opts.pixel_page_size);
 
-sqw_struc.header = headers;
+sqw_struc.header_x = headers;
 if opts.legacy
     sqw_object = sqw_struc.main_header;
-    varargout{1} = sqw_struc.header;
+    varargout{1} = sqw_struc.header_x;
     varargout{2} = sqw_struc.detpar;
     varargout{3} = sqw_struc.data;
 elseif opts.head || opts.his
