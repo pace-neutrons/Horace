@@ -496,6 +496,14 @@ classdef ClusterWrapper
             % and control node.
             frmwk = obj.mess_exchange_;
         end
+        %
+        function [completed,failed,mess] = check_progress_from_messages(obj,varargin)
+            % function analystes received progress messages and calculates
+            % progress from them
+            %
+            % Part of check_progress method. Exposed for testing purposes
+            [completed,failed,mess] = check_progress_from_messages_(obj,varargin{:});
+        end
     end
     
     methods(Access=protected)

@@ -299,7 +299,7 @@ classdef config_store < handle
             
             % Do we really need this? It seems works fine without it and
             % this causes strange side effects
-            class_to_restore.set_stored_data(config_data);
+            %class_to_restore.set_stored_data(config_data);
         end
         %
         function has = has_config(this,class_name)

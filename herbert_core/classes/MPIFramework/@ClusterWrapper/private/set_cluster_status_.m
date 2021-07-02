@@ -5,6 +5,10 @@ function obj = set_cluster_status_(obj,mess)
 % running -> log
 % finished-> completed
 %
+if isempty(mess)
+    obj.status_changed_ = false;    
+    return;
+end
 if isa(mess,'aMessage')
     stat_mess = mess;
 elseif ischar(mess)
