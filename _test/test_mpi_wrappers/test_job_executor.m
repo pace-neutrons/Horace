@@ -645,7 +645,6 @@ classdef test_job_executor< MPI_Test_Common
         end
 
         function test_init_mpiexec_mpi_fw(obj)
-            skipTest('Test disabled')
             if isempty(which('cpp_communicator'))
                 skipTest('MPI framework executable is not available.');
             end

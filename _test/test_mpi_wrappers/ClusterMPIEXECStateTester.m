@@ -53,32 +53,18 @@ classdef ClusterMPIEXECStateTester < ClusterMPI
             end
             control_struc = iMessagesFramework.build_worker_init(tmp_dir, ...
                 'test_ClusterMPIStates',...
-                'MessagesFilebased', 0,n_workers,'test_mode');
-            meexch = MessagesFileBasedMPI_mirror_tester(control_struc);
+                'MessagesCppMPI_tester', 0,n_workers,'test_mode');
+            meexch = MessagesCppMPI_tester(control_struc);
             
-            obj = init@ClusterWrapper(obj,n_workers,meexch,log_level);
-            
-            
+            obj = init@ClusterWrapper(obj,n_workers,meexch,log_level);           
+
+            obj.mpiexec_handle_ = fake_handle_for_test();            
+
             obj.init_state = obj.init_state_;
-            obj.tasks_handles_ = cell(1,n_workers);
-            for i=1:n_workers
-                obj.tasks_handles_{i} = fake_handle_for_test();
-            end
             
+            % check if job control API reported failure
+            obj.check_failed();
             
-            if ~exist('log_level', 'var')
-                log_level = -1;
-            end
-            
-            [completed,obj] = obj.check_progress('-reset_call_count');
-            if completed
-                error('HERBERT:ClusterHerbert:runtime_error',...
-                    'parpool cluster for job %s finished before starting any job. State: %s',...
-                    obj.job_id,obj.status_name);
-            end
-            if log_level > -1
-                fprintf(2,obj.started_info_message_);
-            end
             
         end
         %
@@ -88,7 +74,7 @@ classdef ClusterMPIEXECStateTester < ClusterMPI
         function obj=set.init_state(obj,val)
             obj.init_state_ = val;
             if strcmpi(val,'init_failed')
-                obj.tasks_handles_= [];
+                obj.mpiexec_handle_= [];
             end
         end
     end
@@ -102,6 +88,7 @@ classdef ClusterMPIEXECStateTester < ClusterMPI
             failed = false;
             if strcmp(obj.init_state_,'failed')
                 running = false;
+                failed  = true;
                 mess = FailedMessage('Simulated Failure');
             end
             % this never happens in real poor man MPI cluster as it has no

@@ -89,19 +89,10 @@ classdef ClusterMPI < ClusterWrapper
             runtime = java.lang.ProcessBuilder(task_info);
             pause(0.1);
             obj.mpiexec_handle_ = runtime.start();
-            pause(1);
             
-            [ok,failed,mess] = obj.get_state_from_job_control();
-            if ~ok && failed
-                error('HERBERT:ClusterMPI:runtime_error',...
-                    ' Can not start mpiexec with %d workers, Error: %s',...
-                    n_workers,mess);
-            end
+            % check if job control API reported failure
+            obj.check_failed();
             
-            %
-            if log_level > -1
-                fprintf(obj.started_info_message_);
-            end
         end
         %
         function obj=finalize_all(obj)
@@ -112,39 +103,6 @@ classdef ClusterMPI < ClusterWrapper
             end
         end
         %
-        %         function [completed, obj] = check_progress(obj,varargin)
-        %             % Check the job progress verifying and receiving all messages,
-        %             % sent from worker N1
-        %             %
-        %             % usage:
-        %             %>> [completed, obj] = check_progress(obj)
-        %             %>> [completed, obj] = check_progress(obj,status_message)
-        %             %
-        %             % The first form checks and receives all messages addressed to
-        %             % job dispatched node where the second form accepts and
-        %             % verifies status message, received by other means
-        %             [ok,failed,mess] = obj.get_state_from_job_control();
-        %             [completed,obj] = check_progress@ClusterWrapper(obj,varargin{:});
-        %             if ~ok
-        %                 if ~completed % the java framework reports job finished but
-        %                     % the head node have not received the final messages.
-        %                     completed = true;
-        %                     mess_body = sprintf(...
-        %                         'Framework launcher reports job finished without returning final messages. Reason: %s',...
-        %                         mess);
-        %                     if failed
-        %                         obj.status = FailedMessage(mess_body);
-        %                     else
-        %                         c_mess = aMessage('completed');
-        %                         c_mess.payload = mess_body;
-        %                         obj.status = c_mess ;
-        %                     end
-        %                     me = obj.mess_exchange_;
-        %                     me.clear_messages()
-        %                 end
-        %             end
-        %         end
-        %         %
         function config = get_cluster_configs_available(obj)
             % The function returns the list of the availible clusters
             % to run using correspondent parallel framework.

@@ -2,6 +2,7 @@ classdef MessagesCppMPI_tester < MessagesCppMPI
     % Class to test protected methods of MessagesCppMPI class
     
     properties
+        next_message_folder_name = ''
     end
     
     methods

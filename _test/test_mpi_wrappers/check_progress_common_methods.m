@@ -3,6 +3,7 @@ classdef check_progress_common_methods< TestCase
     %
     properties
         cluster_tester
+        test_disabled
     end
     methods
         %
@@ -15,6 +16,8 @@ classdef check_progress_common_methods< TestCase
         end
         %
         function test_completed_mess_received_after_job_completeon_fails(obj)
+            if obj.test_disabled; return
+            end
             % finish job on receiving "completed" message
             ct = obj.cluster_tester;
             
@@ -51,6 +54,9 @@ classdef check_progress_common_methods< TestCase
         
         %
         function test_completed_mess_received(obj)
+            if obj.test_disabled; return
+            end
+            
             % finish job on receiving "completed" message
             ct = obj.cluster_tester;
             
@@ -94,6 +100,9 @@ classdef check_progress_common_methods< TestCase
         
         
         function test_running_progress_messages_delivered(obj)
+            if obj.test_disabled; return
+            end
+            
             ct = obj.cluster_tester;
             
             % init cluster with 3 workers
@@ -161,6 +170,9 @@ classdef check_progress_common_methods< TestCase
         end
         
         function test_running_no_progress_messages_fails_at_the_end(obj)
+            if obj.test_disabled; return
+            end
+            
             ct = obj.cluster_tester;
             
             % init cluster with 3 workers
@@ -210,6 +222,9 @@ classdef check_progress_common_methods< TestCase
         
         
         function test_init_cluster_fails_receiving_fail_message(obj)
+            if obj.test_disabled; return
+            end
+            
             ct = obj.cluster_tester;
             
             % init cluster with 3 workers
@@ -234,6 +249,9 @@ classdef check_progress_common_methods< TestCase
         end
         %
         function test_init_cluster_fails_control_no_messages(obj)
+            if obj.test_disabled; return
+            end
+            
             ct = obj.cluster_tester;
             % init cluster with 3 workers
             ct.init_state = 'failed';
@@ -249,6 +267,9 @@ classdef check_progress_common_methods< TestCase
         end
         %
         function test_init_cluster_fails_timeout(obj)
+            if obj.test_disabled; return
+            end
+            
             ct = obj.cluster_tester;
             % init cluster with 3 workers
             ct = ct.init(3);
@@ -264,6 +285,9 @@ classdef check_progress_common_methods< TestCase
         end
         %
         function test_init_cluster_reported_ready(obj)
+            if obj.test_disabled; return
+            end
+            
             ct = obj.cluster_tester;
             % init cluster with 3 workers
             ct = ct.init(3);
@@ -281,6 +305,9 @@ classdef check_progress_common_methods< TestCase
             assertTrue(contains(log,'ready'))
         end
         function test_init_failed_fails(obj)
+            if obj.test_disabled; return
+            end
+            
             ct = obj.cluster_tester;
             % init cluster with 3 workers
             ct=ct.init(3);
