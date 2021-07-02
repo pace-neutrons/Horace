@@ -24,17 +24,11 @@ classdef ClusterSlurm < ClusterWrapper
         user_name_
         % The header, returned by squeue command. Defined in the class for
         % purpose of parsing job logs in tests
-        header_ = 'JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)';
+        squeue_header_ = 'JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)';
+        sacct_header_ = 'JobID    JobName  Partition    Account  AllocCPUS      State ExitCode';
     end
-    properties(Access = private)
-        %
-        DEBUG_REMOTE = false;
-        % environmental variables and their default values,
-        % set by the class to propagate to a parallel job.
-        slurm_enviroment = containers.Map(...
-            {'MATLAB_PARALLEL_EXECUTOR','PARALLEL_WORKER','WORKER_CONTROL_STRING'},...
-            {'matlab','worker_v2',''});
-        % Job State description
+    properties(Constant, Access = private)
+        % Job State derived by queue command description
         job_desctiption = containers.Map(...
             {'PD','R','CG','CD','F','TO','S','ST'},...
             {'Pending','Running','Completing','Completed','Failed',...
@@ -48,6 +42,15 @@ classdef ClusterSlurm < ClusterWrapper
         %S    Suspended   A running job has been stopped with its resources released to other jobs
         %ST   Stopped     A running job has been stopped with its resources retained
         %
+        % environmental variables and their default values,
+        % set by the class to propagate to a parallel job.
+        slurm_enviroment = containers.Map(...
+            {'MATLAB_PARALLEL_EXECUTOR','PARALLEL_WORKER','WORKER_CONTROL_STRING'},...
+            {'matlab','worker_v2',''});
+    end
+    properties(Access = private)
+        %
+        DEBUG_REMOTE = false;
     end
     
     methods
@@ -81,10 +84,11 @@ classdef ClusterSlurm < ClusterWrapper
                 '**** Slurm MPI job with ID: %10d submitted                 ****\n';
             %
             obj.pool_exchange_frmwk_name_ ='MessagesCppMPI';
-            % two configurations are expected, namely 'direct', where the job
-            % is run and controlled by 'srun' command and 'batch' where the
+            % two configurations are expected, namely 'srun', where the job
+            % is run and controlled by 'srun' command and 'sbatch' where the
             % job is controlled by 'sbatch' command
-            obj.cluster_config_ = {'direct','batch'};
+            % the scripts, which 
+            obj.cluster_config_ = 'srun';
             obj=obj.init_parser();
             if nargin < 2
                 return;
@@ -118,22 +122,23 @@ classdef ClusterSlurm < ClusterWrapper
             slurm_str = {'srun ',['-N',num2str(n_workers)],' --mpi=pmi2 '};
             % temporary hack. Matlab on nodes differs from Matlab on the
             % headnode. Should be contents of obj.matlab_starter_
-            obj.slurm_enviroment('MATLAB_PARALLEL_EXECUTOR') = ...
+            slenv = obj.slurm_enviroment;
+            slenv('MATLAB_PARALLEL_EXECUTOR') = ...
                 obj.matlab_starter_;
             %'/opt/matlab2020b/bin/matlab';
             % what should be executed by Matlab parallel worker (will be
             % nothing if Matlab parallel worker is compiled)
-            obj.slurm_enviroment('PARALLEL_WORKER') =...
+            slenv('PARALLEL_WORKER') =...
                 sprintf('-batch %s',obj.worker_name_);
             % build worker init string describing the data exchange
             % location
-            obj.slurm_enviroment('WORKER_CONTROL_STRING') =...
+            slenv('WORKER_CONTROL_STRING') =...
                 obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
             % set up job variables on local environment (Does not
             % currently used as ISIS implementation does not transfer
             % environmental variables to cluster)
-            keys = obj.slurm_enviroment.keys;
-            vals = obj.slurm_enviroment.values;
+            keys = slenv.keys;
+            vals = slenv.values;
             cellfun(@(name,val)setenv(name,val),keys,vals);
             
             % modify executor script values to export it to remote Slurm
@@ -156,7 +161,7 @@ classdef ClusterSlurm < ClusterWrapper
             end
             % parse queue and extract new job ID
             obj = extract_job_id(obj,queue0_rows);
-
+            
             % check if job control API reported failure
             obj.check_failed();
         end
@@ -176,39 +181,6 @@ classdef ClusterSlurm < ClusterWrapper
                     error('HERBERT:ClusterSlurm:runtime_error',...
                         'Error cancelling Slurm job with ID %d, Reason: %s',...
                         obj.slurm_job_id_,mess);
-                end
-            end
-        end
-        %
-        function [completed, obj] = check_progress(obj,varargin)
-            % Check the job progress verifying and receiving all messages,
-            % sent from worker N1
-            %
-            % usage:
-            %>> [completed, obj] = check_progress(obj)
-            %>> [completed, obj] = check_progress(obj,status_message)
-            %
-            % The first form checks and receives all messages addressed to
-            % job dispatched node where the second form accepts and
-            % verifies status message, received by other means
-            [ok,failed,mess] = obj.get_state_from_job_control();
-            [completed,obj] = check_progress@ClusterWrapper(obj,varargin{:});
-            if ~ok
-                if ~completed % the Java framework reports job finished but
-                    % the head node have not received the final messages.
-                    completed = true;
-                    mess_body = sprintf(...
-                        'Framework launcher reports job finished without returning final messages. Reason: %s',...
-                        mess);
-                    if failed
-                        obj.status = FailedMessage(mess_body);
-                    else
-                        c_mess = aMessage('completed');
-                        c_mess.payload = mess_body;
-                        obj.status = c_mess ;
-                    end
-                    me = obj.mess_exchange_;
-                    me.clear_messages()
                 end
             end
         end
@@ -249,6 +221,7 @@ classdef ClusterSlurm < ClusterWrapper
         function id = get.slurm_job_id(obj)
             id = obj.slurm_job_id_;
         end
+        %
         function is = is_job_initiated(obj)
             % returns true, if the cluster wrapper is responsible for a job
             is = ~isempty(obj.slurm_job_id_);
@@ -315,7 +288,7 @@ classdef ClusterSlurm < ClusterWrapper
             end
             obj.user_name_ = strtrim(uname);
             % find the location of end of the SATUS string
-            obj.time_field_pos_ = strfind(obj.header_,'ST ')+2;
+            obj.time_field_pos_ = strfind(obj.squeue_header_,'ST ')+2;
         end
         %
         function  obj = extract_job_id(obj,old_queue_rows)

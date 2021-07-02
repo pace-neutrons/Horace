@@ -47,6 +47,8 @@ classdef ClusterHerbert < ClusterWrapper
                 '*** Herbert cluster initialized                              ***\n';
             %
             obj.pool_exchange_frmwk_name_ ='MessagesFilebased';
+            obj.cluster_config_ = 'local';
+
             if nargin < 2
                 return;
             end

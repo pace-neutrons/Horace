@@ -46,6 +46,7 @@ classdef ClusterMPI < ClusterWrapper
                 '**** mpiexec MPI job submitted                                     ****\n';
             %
             obj.pool_exchange_frmwk_name_ ='MessagesCppMPI';
+            obj.cluster_config_ = 'local';
             % define config folder containing cluster configurations
             root = fileparts(which('herbert_init'));
             obj.config_folder_ = fullfile(root,'admin','mpi_cluster_configs');

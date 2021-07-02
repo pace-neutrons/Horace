@@ -66,7 +66,6 @@ classdef ClusterSlurmStateTester < ClusterSlurm
             % check if job control API reported failure
             obj.check_failed();
             
-            
         end
         %
         function state=get.init_state(obj)

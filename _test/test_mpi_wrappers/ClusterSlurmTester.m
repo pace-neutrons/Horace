@@ -55,7 +55,7 @@ classdef ClusterSlurmTester < ClusterSlurm
             obj = obj.extract_job_id(old_queue_rows);
         end
         function head = get_header(obj)
-            head = obj.header_;
+            head = obj.squeue_header_;
         end
         function [user_name,pos]= init_parser_tester(obj)
             % function to test init parser:
