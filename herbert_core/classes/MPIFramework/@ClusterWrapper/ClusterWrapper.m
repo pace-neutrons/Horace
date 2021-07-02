@@ -376,7 +376,7 @@ classdef ClusterWrapper
                     end
                     disp(obj.log_value)
                     if highlight_failure
-                        fprintf('***************************************************\n');
+                        fprintf(2,'***************************************************\n');
                     end
                 else
                     if highlight_failure

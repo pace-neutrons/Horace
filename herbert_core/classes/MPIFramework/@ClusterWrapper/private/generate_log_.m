@@ -70,11 +70,15 @@ elseif stateMess.tag == MESS_NAMES.mess_id('failed')
     if isnumeric(err)
         info = [info,num2str(err)];
     elseif isstruct(err) && isfield(err,'fail_reason')
-        info = sprintf('***Job   : %s : state: %8s |\n***Reason: %s |\n',obj.job_id,name,err.fail_reason);        
+        info = sprintf('***Job   : %s : state: %8s |\n***Reason: %s |\n',obj.job_id,name,err.fail_reason);
         if isfield(err,'error') && isa(err.error,'MException')
-            info = sprintf('%s\n%s\n',info,err.error.getReport());
+            if contains(err.error.message,'automatic exception')
+                info = sprintf('%s\n',info);
+            else  % report only meaningful exceptions logs
+                info = sprintf('%s\n%s\n',info,err.error.getReport());
+            end
         end
-            
+        
         %     elseif isa(err,'MExeption') || isa(err,'ParallelException')
         %         for i=1:numel(err.stack)
         %             info = [info,err.stack{i}];
