@@ -156,7 +156,7 @@ classdef ClusterSlurm < ClusterWrapper
             end
             % parse queue and extract new job ID
             obj = extract_job_id(obj,queue0_rows);
-            
+
             % check if job control API reported failure
             obj.check_failed();
         end
@@ -222,7 +222,7 @@ classdef ClusterSlurm < ClusterWrapper
             % The first configuration in the available clusters list would
             % be the default configuration.
             %
-            config = {'default'};
+            config = {'srun','sbatch'};
         end
         %
         function check_availability(obj)
@@ -259,10 +259,10 @@ classdef ClusterSlurm < ClusterWrapper
     end
     methods(Access = protected)
         %
-        function [ok,failed,mess] = get_state_from_job_control(obj)
+        function [running,failed,paused,mess]=get_state_from_job_control(obj)
             % check if the job is still on the cluster and running
             %
-            ok = true;
+            running = true;
             failed = false;
             mess = '';
         end
@@ -355,7 +355,6 @@ classdef ClusterSlurm < ClusterWrapper
                     bash_target,mess);
             end
         end
-        
     end
     
 end
