@@ -1,39 +1,34 @@
-function [squeue_state,sacct_state] = query_control_state_(obj,testing)
-% retrieve the state of the job issuing Slurm control command and parsing
+function sacct_state = query_control_state_(obj,testing)
+% retrieve the state of the job issuing Slurm sacct query command and parsing
 % the results
 %
-query = cell(2,1);
-info   =cell(2,1);
-result = cell(2,1);
+%
 if testing
-    query{1} = 'squeue_command_output';
-    query{2} = 'sacct_command_output';
+    query = 'sacct_command_output';
 else
-    query{1} = sprintf('squeue --noheader -j %d',obj.slurm_job_id);
-    query{2} = sprintf('sacct --noheader  -j %d --format=JobID,JobName,State,ExitCode',obj.slurm_job_id);
-end
-info{1} = 'squeue';
-info{2} = 'sacct';
-
-for i=1:2
-    if testing
-        res = obj.(query{i});
-    else
-        [fail,res] = system(query{i});
-        if fail
-            error('HERBERT:ClusterSlurm:runtime_error',...
-                'Can not execute %s job %d state query. Error: %s',...
-                info{i},obj.slurn_job_id,res);
-        end
-    end
-    res = strsplit(strtrim(res));
-    if numel(res)>1
-        result{i} = res{obj.log_parse_field_nums_(i)};
-    else
-        result{i} = '_';
-    end
+    % requesting 4 fields with field "State" (field N3) requested. Others
+    % are useful for debugging purposes
+    query = sprintf('sacct --noheader  -j %d --format=JobID,JobName%50,State,ExitCode',obj.slurm_job_id);
 end
 
-squeue_state = obj.qjob_sf_substitution(result{1});
-sacct_state  = result{2};
+
+if testing
+    res = obj.(query);
+else
+    [fail,res] = system(query);
+    if fail
+        error('HERBERT:ClusterSlurm:runtime_error',...
+            'Can not execute sacct query for job %d state Error: %s',...
+            obj.slurn_job_id,res);
+    end
+end
+res = strsplit(strtrim(res));
+if numel(res)>1
+    % the state stored in field N3 out of 4 requested
+    result = res{3};
+else % should not ever happen. Only invalid jobID may lead to this.
+    result = '__';
+end
+
+sacct_state  = result;
 sacct_state  = sacct_state(1:2);

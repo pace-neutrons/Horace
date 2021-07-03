@@ -17,47 +17,10 @@ classdef ClusterSlurm < ClusterWrapper
         % The time (in sec) to wait from job submission to asking for job
         % to appear in the queue.
         time_to_wait_for_job_id_=1;
-        % the number of the job status and sate fields, used for parsing
-        % the job logs
-        log_parse_field_nums_
         % the user name, used to distinguish this user jobs from others
         user_name_
-        % The header, returned by squeue command. Defined in the class for
-        % purpose of parsing job logs in tests
-        squeue_header_ = 'JOBID PARTITION     NAME     USER ST   TIME  NODES NODELIST(REASON)';
-        sacct_header_ = 'JobID    JobName  State  ExitCode';
     end
     properties(Constant, Access = private)
-        % Job State derived by queue command description
-        qjob_states_ = {'PD','R','CG','CD','F','TO','S','ST','_'};
-        qjob_fulstat_ = {'PD','RU','CG','CD','FA','TO','SU','ST',''};
-        qjob_sf_substitution = containers.Map(ClusterSlurm.qjob_states_,...
-            ClusterSlurm.qjob_fulstat_)
-        qjob_short_desctiption_ = containers.Map(ClusterSlurm.qjob_fulstat_ ,...
-            {'Pending','Running','Completing','Completed','Failed',...
-            'Terminated','Suspended','Stopped','Undefined'});
-        qjob_long_description_ = containers.Map(ClusterSlurm.qjob_fulstat_,...
-            {'The job is waiting in a queue for allocation of resources',...
-            'The job currently is allocated to a node and is running',...
-            'The job is finishing but some processes are still active',...
-            'The job has completed successfully',...
-            'Failed with non-zero exit value',...
-            'Job terminated by SLURM after reaching its runtime limit',...
-            'A running job has been stopped with its resources released to other jobs',...
-            'A running job has been stopped with its resources retained'...
-            'squeu command did not returned any output so job state is undefined (probably failed)'})
-        % squeue state description list
-        %PD   Pending     The job is waiting in a queue for allocation of resources
-        %R    Running     The job currently is allocated to a node and is running
-        %CG   Completing  The job is finishing but some processes are still active
-        %CD   Completed   The job has completed successfully
-        %F    Failed      Failed with non-zero exit value
-        %TO   Terminated  Job terminated by SLURM after reaching its runtime limit
-        %S    Suspended   A running job has been stopped with its resources released to other jobs
-        %ST   Stopped     A running job has been stopped with its resources retained
-        qjob_reaction_ = containers.Map(ClusterSlurm.qjob_fulstat_,...
-            {'paused','running','running','finished','failed',...
-            'failed','failed','paused','failed'});
         %------------------------------------------------------------------
         % sacct state description list:
         %BF BOOT_FAIL   Job terminated due to launch failure, typically due to a hardware failure (e.g. unable to boot the node or block and the job can not be requeued).
@@ -74,20 +37,22 @@ classdef ClusterSlurm < ClusterWrapper
         %RS RESIZING    Job is about to change size.
         %S SUSPENDED    Job has an allocation, but execution has been suspended.
         %TO TIMEOUT     Job terminated upon reaching its time limit.
-        sacct_state_abbr_ =  {'RU','RE','SU','CO','CA','FA','TI','PR','BO','DE','NO'}        
+        %Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED,
+        % TIMEOUT, PREEMPTED, BOOT_FAIL, DEADLINE or NODE_FAIL.
+        %
+        sacct_state_abbr_ =  {'RU','RE','SU','CO','CA','FA','TI','PR','BO','DE','NO'}
         sjob_long_description_ = containers.Map(ClusterSlurm.sacct_state_abbr_ ,...
-            {
-            'Job currently has an allocation.',...
+            {'Job currently has an allocation and running.',...
             'Job is about to change size.',...
             'Job has an allocation, but execution has been suspended.',...
             'Job has terminated all processes on all nodes with an exit code of zero.',...
             'Job was explicitly cancelled by the user or system administrator. The job may or may not have been initiated.',...
-            'Job terminated with non-zero exit code or other failure condition.',...            
-            'Job terminated upon reaching its time limit.',...            
-            'Job terminated due to preemption.',...                        
+            'Job terminated with non-zero exit code or other failure condition.',...
+            'Job terminated upon reaching its time limit.',...
+            'Job terminated due to preemption.',...
             'Job terminated due to launch failure, typically due to a hardware failure (e.g. unable to boot the node or block and the job can not be requeued).',...
-            'Job missed its deadline.',...            
-            'Job terminated due to failure of one or more allocated nodes.'})            
+            'Job missed its deadline.',...
+            'Job terminated due to failure of one or more allocated nodes.'})
         sjob_reaction_ = containers.Map(ClusterSlurm.sacct_state_abbr_,...
             {'running','paused','paused','finished','failed','failed','failed',...
             'failed','failed','failed','failed'})
@@ -199,7 +164,7 @@ classdef ClusterSlurm < ClusterWrapper
                 fullfile(fp,[fon,'.sh']));
             obj.runner_script_name_  = runner;
             
-            queue0_rows = obj.get_queue_info('-trim');
+            queue0_rows = obj.get_queue_info();
             
             run_str = [slurm_str{:},runner,' &'];
             %run_str = [slurm_str{:},runner];
@@ -283,9 +248,10 @@ classdef ClusterSlurm < ClusterWrapper
     methods(Access = protected)
         %
         function [running,failed,paused,mess]=get_state_from_job_control(obj)
-            % check if the job is still on the cluster and running
+            % check if the job is still on the cluster and running and
+            % return the job state and the information about this state
             %
-            [squeue_state,sacct_state] = query_control_state(obj,false);
+            sacct_state = query_control_state(obj,false);
             control_state = obj.sjob_reaction_(sacct_state);
             description = obj.sjob_long_description_(sacct_state);
             switch(control_state)
@@ -314,58 +280,37 @@ classdef ClusterSlurm < ClusterWrapper
                         'Undefined sacct control state %s',description);
             end
         end
-        function [squeue_state,sacct_state] = query_control_state(obj,debug_state)
+        function [sacct_state] = query_control_state(obj,debug_state)
+            % retrieve the state of the job issuing Slurm sacct
+            % query command and parsing the results
             %
-            [squeue_state,sacct_state] = query_control_state_(obj,debug_state);
+            % Protected function to overload for testing
+            %
+            sacct_state = query_control_state_(obj,debug_state);
         end
         %
         function queue_rows = get_queue_info(obj,varargin)
             % Auxiliary function to return existing jobs queue list
-            % Options:
-            % '-full_header' -- job list should return the header
-            % '-trim'        -- the job list should be trimmed up to job
-            %                   run time (for identifying existing jobs
-            %                   regardless of their run time)
-            % '-for_this_job -- return the information for the job with
-            %                   this job ID only
-            opt = {'-full_header','-trim','-for_this_job'};
-            [ok,mess,full_header,trim_strings,for_this_job] = parse_char_options(varargin,opt);
+            opt = {'-full_header'};
+            [ok,mess,full_header] = parse_char_options(varargin,opt);
             if ~ok
                 error('HERBERT:ClusterSlurm:invalid_argument',mess);
             end
-            queue_rows = get_queue_info_(obj,full_header,trim_strings,for_this_job);
+            queue_rows = get_queue_info_(obj,full_header);
             
         end
         %
-        function queue_text = get_queue_text_from_system(obj,full_header,job_with_this_id)
+        function queue_text = get_queue_text_from_system(obj,full_header)
             % retrieve queue information from the system
             % Input keys:
             % full_header -- if true, job information should contain header
             %                describing the fields. if talse, only the
             %                job information itself is returned
-            %job_with_this_id -- return information for the job with this
-            %               id only. If false, all jobs for this users are
-            %               returned.
             % Returns:
             % queue_text   -- the text, describing the state of the job
             %                 (squeue command output)
-            if nargin<3
-                job_with_this_id = false;
-            end
-            queue_text = get_queue_text_from_system_(obj,full_header,job_with_this_id);
+            queue_text = get_queue_text_from_system_(obj,full_header);
         end
-        function sacct_text = get_sacct_text_from_system(obj,full_header)
-            % retrieve queue information from the system
-            % Input keys:
-            % full_header -- if true, job information should contain header
-            %                describing the fields. if talse, only the
-            %                job information itself is returned
-            % Returns:
-            % queue_text   -- the text, describing the state of the job
-            %                 (sqacct command output)
-            sacct_text = get_sacct_text_from_system_(obj,full_header);
-        end
-        %
         function obj=init_parser(obj)
             % initialize parameters, needed for job queue management
             
@@ -378,15 +323,11 @@ classdef ClusterSlurm < ClusterWrapper
             end
             obj.user_name_ = strtrim(uname);
             
-            obj.log_parse_field_nums_ = zeros(1,2);
-            % find the location of SATUS cell in squeu reports log
-            squeue_cells = split(strtrim(obj.squeue_header_));
-            pi = ismember(squeue_cells,'ST');
-            obj.log_parse_field_nums_(1) = find(pi>0,1);
-            % find the location of State cell in sacct reports log
-            sacct_cells = split(strtrim(obj.sacct_header_));
-            pi = ismember(sacct_cells,'State');
-            obj.log_parse_field_nums_(2) = find(pi>0,1);
+            %             % find the location of SATUS cell in squeue reports log
+            %             % to trim time, which follows
+            %             squeue_cells = split(strtrim(obj.squeue_header_));
+            %             pi = ismember(squeue_cells,'ST');
+            %             obj.log_parse_field_nums_ = find(pi>0,1);
         end
         %
         function  obj = extract_job_id(obj,old_queue_rows)

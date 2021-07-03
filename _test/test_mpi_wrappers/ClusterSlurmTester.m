@@ -59,7 +59,7 @@ classdef ClusterSlurmTester < ClusterSlurm
         function head = get_header(obj)
             head = obj.squeue_header_;
         end
-        function [user_name,pos]= init_parser_tester(obj)
+        function user_name= init_parser_tester(obj)
             % function to test init parser:
             % Returns:
             % user_name -- the name of the user running the session
@@ -67,13 +67,12 @@ classdef ClusterSlurmTester < ClusterSlurm
             %              time field.
             obj = obj.init_parser();
             user_name = obj.user_name_;
-            pos = obj.log_parse_field_nums_;
         end
     end
     methods(Static)
     end
     methods(Access=protected)
-        function queue_text = get_queue_text_from_system(obj,full_header,for_this_job)
+        function queue_text = get_queue_text_from_system(obj,full_header)
             % last parameter is ignored as this test method returns
             % whatever is set to squeue_command_output
             if full_header
@@ -81,22 +80,12 @@ classdef ClusterSlurmTester < ClusterSlurm
             else
                 queue_text = obj.squeue_command_output;
             end
-        end
-        function sacct_text = get_sacct_text_from_system(obj,full_header)
-            % retrieve queue information from the system
-            % Input keys:
-            % full_header -- if true, job information should contain header
-            %                describing the fields. if talse, only the
-            %                job information itself is returned
-            % Returns:
-            % sacct_text    -- the text, describing the state of the job
-            %                 (sqacct command output)            
-            if full_header
-                sacct_text  =[sprintf('%s\n',obj.sacct_header_),obj.sacct_command_output];
-            else
-                sacct_text  = obj.sacct_command_output;
-            end
-
+        end        
+        function sacct_state = query_control_state(obj,varargin)
+            % retrieve the state of the job issuing Slurm sacct 
+            % query command and parsing the results
+            %
+            sacct_state = query_control_state@ClusterSlurm(obj,true);
         end
         
     end
