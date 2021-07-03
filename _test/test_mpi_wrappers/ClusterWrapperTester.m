@@ -21,8 +21,10 @@ classdef ClusterWrapperTester < ClusterWrapper
         % get the state of running job by requesting reply from the job
         % control mechanism.
         function [ok,failed,paused,mess] = get_state_from_job_control(~)
-            error('HERBERT:ClusterWrapper:not_implemented',...
-                'This method is not implemented on ClusterWrapper level so should not be tested')
+            ok = true;
+            failed = false;
+            paused = false;
+            mess = 'running';
         end
     end
 end
