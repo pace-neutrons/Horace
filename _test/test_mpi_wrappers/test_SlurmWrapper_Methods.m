@@ -39,7 +39,7 @@ classdef test_SlurmWrapper_Methods < TestCase
         function test_init_parser(~)
             clt = ClusterSlurmTester();
             [uname, pos] = clt.init_parser_tester();
-            assertEqual(pos,[5,6]);
+            assertEqual(pos,[5,3]);
             [fail,uname_t] = system('whoami');
             assertEqual(fail,0);
             assertEqual(uname,strtrim(uname_t));

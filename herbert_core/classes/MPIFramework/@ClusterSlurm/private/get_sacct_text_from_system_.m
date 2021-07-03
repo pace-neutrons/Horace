@@ -9,9 +9,9 @@ function sacct_out = get_sacct_text_from_system_(obj,full_header)
 %                (sacct command output)
 
 if full_header
-    query = sprintf('sacct -j%d',obj.slurn_job_id);
+    query = sprintf('sacct -j %d --format=JobID,JobName,State,ExitCode',obj.slurn_job_id);
 else
-    query = sprintf('sacct --noheader  -j%d',obj.slurn_job_id);
+    query = sprintf('sacct --noheader -j %d --format=JobID,JobName,State,ExitCode',obj.slurn_job_id);
 end
 [fail,sacct_out] = system(query);
 if fail

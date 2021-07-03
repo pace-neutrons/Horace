@@ -10,7 +10,7 @@ if testing
     query{2} = 'sacct_command_output';
 else
     query{1} = sprintf('squeue --noheader -j %d',obj.slurm_job_id);
-    query{2} = sprintf('sacct --noheader  -j %d',obj.slurm_job_id);
+    query{2} = sprintf('sacct --noheader  -j %d --format=JobID,JobName,State,ExitCode',obj.slurm_job_id);
 end
 info{1} = 'squeue';
 info{2} = 'sacct';
