@@ -9,8 +9,8 @@ if testing
     query{1} = 'squeue_command_output';
     query{2} = 'sacct_command_output';
 else
-    query{1} = sprintf('squeue --noheader --name=%d',obj.slurn_job_id);
-    query{2} = sprintf('sacct --noheader  -j %d',obj.slurn_job_id);
+    query{1} = sprintf('squeue --noheader -j %d',obj.slurm_job_id);
+    query{2} = sprintf('sacct --noheader  -j %d',obj.slurm_job_id);
 end
 info{1} = 'squeue';
 info{2} = 'sacct';
@@ -19,7 +19,7 @@ for i=1:2
     if testing
         res = obj.(query{i});
     else
-        [fail,res] = system(query);
+        [fail,res] = system(query{i});
         if fail
             error('HERBERT:ClusterSlurm:runtime_error',...
                 'Can not execute %s job %d state query. Error: %s',...

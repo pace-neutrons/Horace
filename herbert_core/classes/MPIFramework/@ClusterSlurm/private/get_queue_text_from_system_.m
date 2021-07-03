@@ -27,4 +27,4 @@ if fail
         ' Can not execute slurm queue query. Error: %s',...
         queue_text);
 end
-queue_text = strtream(queue_text);
+queue_text = strtrim(queue_text);
