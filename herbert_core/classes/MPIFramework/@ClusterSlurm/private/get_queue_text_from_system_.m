@@ -6,11 +6,12 @@ function queue_text = get_queue_text_from_system_(obj,full_header)
 %                describing the fields. if talse, only the
 %                job information itself is returned
 if full_header
-    query = sprintf('squeue --user=%s --format="%.18i %.9P %.8j %.8u %.2t"',obj.user_name_);
+    query = sprintf('squeue --user=%s ',obj.user_name_);
 
 else
-    query = sprintf('squeue --noheader --user=%s --format="%.18i %.9P %.8j %.8u %.2t"',obj.user_name_);    
+    query = sprintf('squeue --noheader --user=%s ',obj.user_name_);    
 end
+query = [query,'--format="%.18i %.9P %.8j %.8u %.2t"'];
 
 [fail,queue_text] = system(query);
 if fail

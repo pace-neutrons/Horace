@@ -80,14 +80,12 @@ classdef ClusterSlurmTester < ClusterSlurm
             else
                 queue_text = obj.squeue_command_output;
             end
-        end        
+        end
         function sacct_state = query_control_state(obj,varargin)
-            % retrieve the state of the job issuing Slurm sacct 
+            % retrieve the state of the job issuing Slurm sacct
             % query command and parsing the results
             %
             sacct_state = query_control_state@ClusterSlurm(obj,true);
         end
-        
     end
 end
-

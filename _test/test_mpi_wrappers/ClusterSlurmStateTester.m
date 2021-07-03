@@ -105,9 +105,6 @@ classdef ClusterSlurmStateTester < ClusterSlurm
                     mess    = 'running';
             end
         end
-        %
-        
-    end
-    
+        %        
+    end    
 end
-

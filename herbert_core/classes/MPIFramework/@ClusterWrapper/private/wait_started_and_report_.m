@@ -26,6 +26,10 @@ else
     t0 = tic();
     while(~started)
         pause(check_time);
+        [~,failed,~,mess]=obj.get_state_from_job_control();
+        if failed
+            break;
+        end
         [obj,mess] =check_receive(obj);
         obj = obj.display_progress();
         started = ~isempty(mess);
@@ -52,12 +56,13 @@ if completed
 else
     ok = true;
     obj.status = 'ready';
-    info = sprintf('Parallel cluster "%s" is ready to accept jobs',...
+    info = sprintf('Parallel cluster "%s" is ready to execute tasks',...
         class(obj));
     obj = obj.display_progress(info,varargin{:});
 end
 
 function [obj,mess] = check_receive(obj)
+
 try
     [ok,err,mess]=obj.mess_exchange_.receive_message(1,'ready');
 catch ME

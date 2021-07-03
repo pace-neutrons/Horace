@@ -40,7 +40,7 @@ classdef ClusterSlurm < ClusterWrapper
         %Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED,
         % TIMEOUT, PREEMPTED, BOOT_FAIL, DEADLINE or NODE_FAIL.
         %
-        sacct_state_abbr_ =  {'RU','RE','SU','CO','CA','FA','TI','PR','BO','DE','NO'}
+        sacct_state_abbr_ =  {'RU','RE','PE','CO','CA','FA','TI','PR','BO','DE','NO'}
         sjob_long_description_ = containers.Map(ClusterSlurm.sacct_state_abbr_ ,...
             {'Job currently has an allocation and running.',...
             'Job is about to change size.',...
@@ -225,8 +225,8 @@ classdef ClusterSlurm < ClusterWrapper
                 error('HERBERT:ClusterWrapper:not_available',...
                     'Slurm job manager available on Unix only');
             end
-            %[status,res] = system('command -v srun');
-            status = system('command -v srun');
+            % keep res variable as it print it otherwise
+            [status,res] = system('command -v srun');
             if status ~= 0
                 error('HERBERT:ClusterWrapper:not_available',...
                     'Slurm manager is not available or not on the search path of this machine');
@@ -251,9 +251,22 @@ classdef ClusterSlurm < ClusterWrapper
             % check if the job is still on the cluster and running and
             % return the job state and the information about this state
             %
-            sacct_state = query_control_state(obj,false);
-            control_state = obj.sjob_reaction_(sacct_state);
-            description = obj.sjob_long_description_(sacct_state);
+            [sacct_state,full_state] = query_control_state(obj,false);
+            % Debugging operation. Seems not all states are described in
+            % manual
+            states = obj.sjob_reaction_.keys;
+            if ~ismember(sacct_state,states)
+                fprintf(2,'*** SLURM control returned unknown state: %s, description %s\n',...
+                    sacct_state,full_state);
+                fprintf(2,'*** Assuming job: %s, Slurm id: %d is paused\n',...
+                    obj.job_id,obj.slurm_job_id);
+                control_state = 'paused';
+                description = sprintf('*** Unknown state %s considered job %s paused',...
+                    full_state,obj.job_id);
+            else
+                control_state = obj.sjob_reaction_(sacct_state);
+                description = obj.sjob_long_description_(sacct_state);
+            end
             switch(control_state)
                 case 'failed'
                     running = false;
@@ -280,13 +293,13 @@ classdef ClusterSlurm < ClusterWrapper
                         'Undefined sacct control state %s',description);
             end
         end
-        function [sacct_state] = query_control_state(obj,debug_state)
+        function [sacct_state,full_state] = query_control_state(obj,debug_state)
             % retrieve the state of the job issuing Slurm sacct
             % query command and parsing the results
             %
             % Protected function to overload for testing
             %
-            sacct_state = query_control_state_(obj,debug_state);
+            [sacct_state,full_state] = query_control_state_(obj,debug_state);
         end
         %
         function queue_rows = get_queue_info(obj,varargin)
