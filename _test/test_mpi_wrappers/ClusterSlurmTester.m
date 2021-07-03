@@ -4,6 +4,8 @@ classdef ClusterSlurmTester < ClusterSlurm
     properties
         % the results of squeue command,
         squeue_command_output
+        % the results of sacct command
+        sacct_command_output
     end
     
     methods
@@ -65,7 +67,7 @@ classdef ClusterSlurmTester < ClusterSlurm
             %              time field.
             obj = obj.init_parser();
             user_name = obj.user_name_;
-            pos = obj.time_field_pos_;
+            pos = obj.log_parse_field_nums_;
         end
     end
     methods(Static)
@@ -75,11 +77,28 @@ classdef ClusterSlurmTester < ClusterSlurm
             % last parameter is ignored as this test method returns
             % whatever is set to squeue_command_output
             if full_header
-                queue_text =[sprintf('%s\n',obj.header_),obj.squeue_command_output];
+                queue_text =[sprintf('%s\n',obj.squeue_header_),obj.squeue_command_output];
             else
                 queue_text = obj.squeue_command_output;
             end
         end
+        function sacct_text = get_sacct_text_from_system(obj,full_header)
+            % retrieve queue information from the system
+            % Input keys:
+            % full_header -- if true, job information should contain header
+            %                describing the fields. if talse, only the
+            %                job information itself is returned
+            % Returns:
+            % sacct_text    -- the text, describing the state of the job
+            %                 (sqacct command output)            
+            if full_header
+                sacct_text  =[sprintf('%s\n',obj.sacct_header_),obj.sacct_command_output];
+            else
+                sacct_text  = obj.sacct_command_output;
+            end
+
+        end
+        
     end
 end
 

@@ -87,18 +87,22 @@ classdef ClusterSlurmStateTester < ClusterSlurm
                 case 'failed'
                     running = false;
                     failed  = true;
-                    paused = false;
+                    paused  = false;
                     mess = FailedMessage('Simulated Failure');
                 case 'finished'
                     running = false;
-                    failed = false;
-                    paused = false;
+                    failed  = false;
+                    paused  = false;
                     mess = CompletedMessage('Successful completeon');
+                case 'paused'
+                    running = false;
+                    failed  = false;
+                    paused  = true;                    
                 otherwise % running
                     running = true;
-                    failed = false;
-                    paused = false;
-                    mess = 'running';
+                    failed  = false;
+                    paused  = false;
+                    mess    = 'running';
             end
         end
         %

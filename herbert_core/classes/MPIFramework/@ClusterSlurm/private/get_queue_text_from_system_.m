@@ -11,7 +11,7 @@ if job_with_this_id
     if full_header
         query = sprintf('squeue --name=%d',obj.slurn_job_id);
     else
-        query = sprintf('squeue --noheader  --name=%d',obj.slurn_job_id);
+        query = sprintf('squeue --noheader --name=%d',obj.slurn_job_id);
     end
     [fail,queue_text] = system(query);
 else
@@ -27,3 +27,4 @@ if fail
         ' Can not execute slurm queue query. Error: %s',...
         queue_text);
 end
+queue_text = strtream(queue_text);

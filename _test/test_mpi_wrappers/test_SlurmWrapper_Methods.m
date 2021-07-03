@@ -13,14 +13,15 @@ classdef test_SlurmWrapper_Methods < TestCase
         function test_extract_job_id_real_header_two_jobs(~)
             clt = ClusterSlurmTester();
             %                                           !<-trim here
-            %       0000000001111111111222222222233333333334
-            %       1234567890123456789012345678901234567890
+            %        1       2            3        4    5       6
             info0 =' 300   debug         bla      abcd  R       10    aa.a..a...a..';            
             info1 =' 300   debug         bla      abcd  R       11    aa.a..a...a..';
             info2 =' 310   debug         bla      abcd  R       1    aa.a..a...a..';            
             clt.squeue_command_output=sprintf('%s\n%s\n',info1,info2);
             
-            clt = clt.extract_job_id_tester({info0(1:37)});
+            info0 = split(strtrim(info0));
+            prev_info = strjoin(info0(1:5),' ');
+            clt = clt.extract_job_id_tester({prev_info});
             
             assertEqual(clt.slurm_job_id,310);
         end
@@ -38,7 +39,7 @@ classdef test_SlurmWrapper_Methods < TestCase
         function test_init_parser(~)
             clt = ClusterSlurmTester();
             [uname, pos] = clt.init_parser_tester();
-            assertEqual(pos,37);
+            assertEqual(pos,[5,6]);
             [fail,uname_t] = system('whoami');
             assertEqual(fail,0);
             assertEqual(uname,strtrim(uname_t));
@@ -64,7 +65,7 @@ classdef test_SlurmWrapper_Methods < TestCase
         
         function test_extract_job_id(~)
             clt = ClusterSlurmTester();
-            clt.squeue_command_output='10 a b c';
+            clt.squeue_command_output='10 a b c 5 6';
             clt = clt.extract_job_id_tester('');
             assertEqual(clt.slurm_job_id,10);
         end
