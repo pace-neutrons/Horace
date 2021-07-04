@@ -279,10 +279,10 @@ classdef test_parallel_config_and_clusters_factory < TestCase
             assertEqual(pc.parallel_cluster,'slurm_mpi');
             
             all_clcfg = pc.known_clust_configs;
-            assertEqual(numel(all_clcfg),1);
+            assertEqual(numel(all_clcfg),2);
             
             cl_config = pc.cluster_config;
-            assertEqual(cl_config,'default')
+            assertEqual(cl_config,'srun')
             
         end
     end
