@@ -30,10 +30,11 @@ elseif isunix()
         % .a also possible
         mpi_lib_2use ={'libmpi.so','libmpich.so','libmpicxx.so'};
     else
-        opt_file = fullfile(herbert_root(),'admin/_compiler_settings/Matlab2020a/mex_C++openmpi_glnxa64.xml');
+        %opt_file = fullfile(herbert_root(),'admin/_compiler_settings/Matlab2020a/mex_C++openmpi_glnxa64.xml');
+        opt_file = '';
         mpi_folder = '/usr/lib64/mpich-3.2/';
         mpi_hdrs_folder='/usr/include/mpich-3.2-x86_64/';
-        mpi_lib_2use ={'libmpi_cxx.so','libmpi.so'};
+        mpi_lib_2use ={'libmpicxx.so','libmpi.so'};
     end
     %mpi_folder = '/home/isis_direct_soft/mpich/';
     
