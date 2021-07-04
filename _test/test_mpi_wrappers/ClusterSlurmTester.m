@@ -59,9 +59,6 @@ classdef ClusterSlurmTester < ClusterSlurm
             % exposes protected method for testing purposes
             obj = obj.extract_job_id(old_queue_rows);
         end
-        function head = get_header(obj)
-            head = obj.squeue_header_;
-        end
         function user_name= init_parser_tester(obj)
             % function to test init parser:
             % Returns:
@@ -84,7 +81,8 @@ classdef ClusterSlurmTester < ClusterSlurm
             % last parameter is ignored as this test method returns
             % whatever is set to squeue_command_output
             if full_header
-                queue_text =[sprintf('%s\n',obj.squeue_header_),obj.squeue_command_output];
+                squeue_header = 'JOBID PARTITION NAME USER ST';
+                queue_text =[sprintf('%s\n',squeue_header),obj.squeue_command_output];
             else
                 queue_text = obj.squeue_command_output;
             end

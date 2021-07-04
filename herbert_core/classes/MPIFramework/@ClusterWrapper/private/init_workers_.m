@@ -3,8 +3,6 @@ function obj = init_workers_(obj,je_init_message,task_init_mess,log_prefix)
 % response informing that the job has started
 %
 
-
-
 me = obj.mess_exchange_;
 n_workers = obj.n_workers;
 me = me.set_framework_range(0,n_workers);

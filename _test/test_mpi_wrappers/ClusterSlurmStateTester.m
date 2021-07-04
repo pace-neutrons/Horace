@@ -1,6 +1,6 @@
 classdef ClusterSlurmStateTester < ClusterSlurm
-    % Helper class to test ClusterMPI states obtained from
-    % running MPI job communicating over MPI and controlled mpiexec.
+    % Helper class to test ClusterSlurm states obtained from
+    % running MPI job submitted by srun (or sbatch in a future).
     %
     % Overloads init method to communicate via reflective framework
     % and sets up job control to return state from the inputs, provided to
