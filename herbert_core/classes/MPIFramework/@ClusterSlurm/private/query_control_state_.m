@@ -14,21 +14,21 @@ end
 
 
 if testing
-    res = obj.(query);
+    full_state = obj.(query);
 else
-    [fail,res] = system(query);
+    [fail,full_state] = system(query);
     if fail
         error('HERBERT:ClusterSlurm:runtime_error',...
             'Can not execute sacct query for job %d state Error: %s',...
-            obj.slurn_job_id,res);
+            obj.slurn_job_id,full_state);
     end
 end
-res = strsplit(strtrim(res));
+res = strsplit(strtrim(full_state));
 if numel(res)>1
     % the state stored in field N3 out of 4 requested
-    full_state = res{3};
+    sacct_state  = res{3};
 else % should not ever happen. Only invalid jobID may lead to this.
-    full_state = '__';
+    sacct_state   = '__';
 end
 
-sacct_state  = full_state(1:2);
+sacct_state  = sacct_state  (1:2);

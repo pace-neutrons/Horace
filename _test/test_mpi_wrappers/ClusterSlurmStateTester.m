@@ -42,14 +42,16 @@ classdef ClusterSlurmStateTester < ClusterSlurm
             end
             
             if ~exist('log_level', 'var')
-                log_level = -1;
+                hc = herbert_config;
+                log_level = hc.log_level;
             end
             obj = obj.init(n_workers,[],log_level);
         end
         %
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
             if ~exist('log_level', 'var')
-                log_level = -1;
+                hc = herbert_config;
+                log_level = hc.log_level;
             end
             control_struc = iMessagesFramework.build_worker_init(tmp_dir, ...
                 'test_ClusterMPIStates',...
@@ -57,7 +59,7 @@ classdef ClusterSlurmStateTester < ClusterSlurm
             meexch = MessagesCppMPI_tester(control_struc);
             
             obj = init@ClusterWrapper(obj,n_workers,meexch,log_level);
-
+            
             % job runs with ID 100
             obj.slurm_job_id_ = 100;
             
@@ -97,7 +99,7 @@ classdef ClusterSlurmStateTester < ClusterSlurm
                 case 'paused'
                     running = false;
                     failed  = false;
-                    paused  = true;                    
+                    paused  = true;
                 otherwise % running
                     running = true;
                     failed  = false;
@@ -105,6 +107,6 @@ classdef ClusterSlurmStateTester < ClusterSlurm
                     mess    = 'running';
             end
         end
-        %        
-    end    
+        %
+    end
 end

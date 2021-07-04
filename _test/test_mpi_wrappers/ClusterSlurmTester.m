@@ -34,11 +34,14 @@ classdef ClusterSlurmTester < ClusterSlurm
             obj = obj@ClusterSlurm();
             obj.time_to_wait_for_job_id_ = 0;
             
+            if ~exist('log_level', 'var')
+                hc = herbert_config;
+                log_level = hc.log_level;
+                obj.log_level = log_level;
+            end            
+            
             if nargin < 2
                 return;
-            end
-            if ~exist('log_level', 'var')
-                log_level = -1;
             end
             obj = obj.init(n_workers,mess_exchange_framework,log_level);
         end
@@ -65,8 +68,13 @@ classdef ClusterSlurmTester < ClusterSlurm
             % user_name -- the name of the user running the session
             % pos       -- the position of the begining of the running
             %              time field.
-            obj = obj.init_parser();
+            obj = obj.init_queue_parser();
             user_name = obj.user_name_;
+        end
+        function [running,failed,paused,mess]=get_state_from_job_control_tester(obj)
+            % method to test get_state_from_job_control, using squeue_command_output
+            % value as the input for queue 
+            [running,failed,paused,mess] = obj.get_state_from_job_control();
         end
     end
     methods(Static)
@@ -81,11 +89,11 @@ classdef ClusterSlurmTester < ClusterSlurm
                 queue_text = obj.squeue_command_output;
             end
         end
-        function sacct_state = query_control_state(obj,varargin)
+        function [sacct_state,description] = query_control_state(obj,varargin)
             % retrieve the state of the job issuing Slurm sacct
             % query command and parsing the results
             %
-            sacct_state = query_control_state@ClusterSlurm(obj,true);
+            [sacct_state,description] = query_control_state@ClusterSlurm(obj,true);
         end
     end
 end

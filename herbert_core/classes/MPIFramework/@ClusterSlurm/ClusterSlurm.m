@@ -19,6 +19,8 @@ classdef ClusterSlurm < ClusterWrapper
         time_to_wait_for_job_id_=1;
         % the user name, used to distinguish this user jobs from others
         user_name_
+        % verbosity of ClusterSlurm specific outputs
+        log_level = 0;        
     end
     properties(Constant, Access = private)
         %------------------------------------------------------------------
@@ -37,10 +39,11 @@ classdef ClusterSlurm < ClusterWrapper
         %RS RESIZING    Job is about to change size.
         %S SUSPENDED    Job has an allocation, but execution has been suspended.
         %TO TIMEOUT     Job terminated upon reaching its time limit.
-        %Output can be RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED,
+        % Expected outputs can be:
+        % RUNNING, RESIZING, SUSPENDED, COMPLETED, CANCELLED, FAILED,
         % TIMEOUT, PREEMPTED, BOOT_FAIL, DEADLINE or NODE_FAIL.
         %
-        sacct_state_abbr_ =  {'RU','RE','PE','CO','CA','FA','TI','PR','BO','DE','NO'}
+        sacct_state_abbr_ =  {'RU','RE','SU','CO','CA','FA','TI','PR','BO','DE','NO'}
         sjob_long_description_ = containers.Map(ClusterSlurm.sacct_state_abbr_ ,...
             {'Job currently has an allocation and running.',...
             'Job is about to change size.',...
@@ -65,7 +68,6 @@ classdef ClusterSlurm < ClusterWrapper
     end
     properties(Access = private)
         %
-        DEBUG_REMOTE = false;
     end
     
     methods
@@ -104,7 +106,8 @@ classdef ClusterSlurm < ClusterWrapper
             % job is controlled by 'sbatch' command
             % the scripts, which
             obj.cluster_config_ = 'srun';
-            obj=obj.init_parser();
+            % initiate parameters necessary for job queue parsing
+            obj=obj.init_queue_parser();
             if nargin < 2
                 return;
             end
@@ -130,8 +133,9 @@ classdef ClusterSlurm < ClusterWrapper
             %              verbosity of the cluster operations output;
             if ~exist('log_level', 'var')
                 log_level = -1;
-            end
+            end            
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
+            obj.log_level = log_level;
             
             
             slurm_str = {'srun ',['-N',num2str(n_workers)],' --mpi=pmi2 '};
@@ -241,7 +245,7 @@ classdef ClusterSlurm < ClusterWrapper
             % returns true, if the cluster wrapper is responsible for a job
             is = ~isempty(obj.slurm_job_id_);
         end
-        
+        %
     end
     methods(Static)
     end
@@ -256,10 +260,12 @@ classdef ClusterSlurm < ClusterWrapper
             % manual
             states = obj.sjob_reaction_.keys;
             if ~ismember(sacct_state,states)
-                fprintf(2,'*** SLURM control returned unknown state: %s, description %s\n',...
-                    sacct_state,full_state);
-                fprintf(2,'*** Assuming job: %s, Slurm id: %d is paused\n',...
-                    obj.job_id,obj.slurm_job_id);
+                if obj.log_level>-1
+                    fprintf(2,'*** SLURM control returned unknown state: %s, description: %s\n',...
+                        sacct_state,full_state);
+                    fprintf(2,'*** Assuming job: %s, Slurm Job id: %d is paused\n',...
+                        obj.job_id,obj.slurm_job_id);
+                end
                 control_state = 'paused';
                 description = sprintf('*** Unknown state %s considered job %s paused',...
                     full_state,obj.job_id);
@@ -268,6 +274,11 @@ classdef ClusterSlurm < ClusterWrapper
                 description = obj.sjob_long_description_(sacct_state);
             end
             switch(control_state)
+                case 'running'
+                    running = true;
+                    failed  = false;
+                    paused  = false;
+                    mess    = 'running';                
                 case 'failed'
                     running = false;
                     failed  = true;
@@ -283,16 +294,12 @@ classdef ClusterSlurm < ClusterWrapper
                     failed  = false;
                     paused  = true;
                     mess = LogMessage(0,0,0,description);
-                case 'running'
-                    running = true;
-                    failed  = false;
-                    paused  = false;
-                    mess    = 'running';
                 otherwise % Never happens
                     error('HERBERT:ClusterSlurn:runtime_error',...
                         'Undefined sacct control state %s',description);
             end
         end
+        %
         function [sacct_state,full_state] = query_control_state(obj,debug_state)
             % retrieve the state of the job issuing Slurm sacct
             % query command and parsing the results
@@ -324,7 +331,7 @@ classdef ClusterSlurm < ClusterWrapper
             %                 (squeue command output)
             queue_text = get_queue_text_from_system_(obj,full_header);
         end
-        function obj=init_parser(obj)
+        function obj=init_queue_parser(obj)
             % initialize parameters, needed for job queue management
             
             % retrieve user name
@@ -335,12 +342,6 @@ classdef ClusterSlurm < ClusterWrapper
                     uname);
             end
             obj.user_name_ = strtrim(uname);
-            
-            %             % find the location of SATUS cell in squeue reports log
-            %             % to trim time, which follows
-            %             squeue_cells = split(strtrim(obj.squeue_header_));
-            %             pi = ismember(squeue_cells,'ST');
-            %             obj.log_parse_field_nums_ = find(pi>0,1);
         end
         %
         function  obj = extract_job_id(obj,old_queue_rows)
