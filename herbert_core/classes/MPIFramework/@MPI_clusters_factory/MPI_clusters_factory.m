@@ -27,7 +27,7 @@ classdef MPI_clusters_factory<handle
     end
     properties(Access=protected)
         % the name of the cluster, used as default
-        parallel_disabled_ = false;
+        framework_available_ = true;
         parallel_cluster_name_ = 'herbert';
     end
     properties(Constant, Access=protected)
@@ -49,9 +49,9 @@ classdef MPI_clusters_factory<handle
                 'parallel_config','parallel_cluster');
             if strcmp(cluster_name,'none')
                 cluster_name = 'herbert';
-                obj.parallel_disabled_ = true;
+                obj.framework_available_ = false;
             else
-                obj.parallel_disabled_ = false;
+                obj.framework_available_ = true;
             end
             obj.parallel_cluster_name_ = cluster_name;
         end
@@ -70,14 +70,14 @@ classdef MPI_clusters_factory<handle
     methods
         %------------------------------------------------------
         function cl = get.parallel_cluster(obj)
-            if obj.parallel_disabled_
-                cl  = [];
-            else
+            if obj.framework_available_
                 cl = obj.known_clusters_(obj.parallel_cluster_name_);
+            else
+                cl  = [];
             end
         end
         function is = get.framework_available(obj)
-            is = ~obj.parallel_disabled_;
+            is = obj.framework_available_;
         end
         function cl = get_default_cluster(obj)
             % get current cluster regardless of it is available or not
@@ -101,41 +101,11 @@ classdef MPI_clusters_factory<handle
             % (can be defined by single symbol) or by a framework number
             % in the list of frameworks.
             %
-            % No protection against invalid input key or cluster availability
-            % is provided here so
-            % use parallel_config to get this protection, or organize it
-            % before the call. Throws invalid_key for unknown framework
-            % names.
-            %
-            if isa(val,'ClusterWrapper')
-                cl_name = class(val);
-                if ~ismember(cl_name,obj.known_cluster_names_)
-                    error('HERBERT:MPI_clusters_factory:invalid_argument',...
-                        'Cluster with name %s is not subscribed to factory',val);
-                end
-                obj.known_clusters_(cl_name) = val;
-            else
-                if ~ismember(val,obj.known_cluster_names_)
-                    error('HERBERT:MPI_clusters_factory:invalid_argument',...
-                        'Setting the cluster with unknown name %s',val);
-                else
-                    cl_name = val;
-                end
-            end
-            obj.parallel_cluster_name_ = cl_name;
-            cl = obj.known_clusters_(cl_name);
-            try
-                cl.check_availability();
-            catch ME
-                if strcmp(ME.identifier,'HERBERT:ClusterWrapper:not_available')
-                    obj.parallel_disabled_ = true;
-                    return
-                else
-                    rethrow(ME);
-                end
-            end
-            obj.parallel_disabled_ = false;
-            %
+            % If the cluster is not available, it is still set up as the
+            % internal cluster, but the framework_available property of the
+            % cluster factory is set up to false, so get_cluster function
+            % would return empty value.
+            select_and_set_working_parallel_cluster_(obj,val);
         end
         %
         function cfg = get_all_configs(obj,varargin)
