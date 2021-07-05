@@ -98,13 +98,13 @@ function [npix_tot,niter]=print_receive_statistics(h_log,messages,npix_tot,niter
 %
 niter = niter+1;
 fprintf(h_log,...
-    '******************** receiving:\n');
+    '******************** receiving from:\n');
 for i=1:numel(messages)
     pl =  messages{i}.payload;
     
     fprintf(h_log,...
         '******************** lab %d mess N %d, npixels: %d; tid %d\n',...
-        pl.lab,pl.messN,pl.npix,task_ids(i));
+        pl.n_source,pl.messN,pl.npix,task_ids(i));
     
     npix_received = npix_received + pl.npix;
 end

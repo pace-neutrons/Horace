@@ -33,20 +33,19 @@ end
 
 while npix>n_pix_written
     %
-    messages = mess_exch.receive_all(2,'data');    
+    message = mess_exch.receive_all(2,'data');
     %
-    if h_log
-        [npix_tot,niter]=print_receive_statistics(h_log,messages,npix_tot,niter);
-    end
-    pix_section = messages{1}.payload;
+    pix_section = message{1}.payload;
     %
     %
     if h_log
-        fprintf(h_log,' Saving n_pixels: %d\n',size(pix_section,2));
+        npix = size(pix_section,2);
+        [npix_tot,niter]=print_receive_statistics(h_log,npix,npix_tot,niter);
     end
+    %
     n_pix_written =obj.write_pixels(pix_section,n_pix_written);
     
-
+    
     if is_deployed
         step = 100*n_pix_written/npix;
         if floor(step)> prev_step
@@ -59,7 +58,7 @@ while npix>n_pix_written
         fprintf(h_log,...
             '********************  Total npix written %d\n',...
             n_pix_written);
-
+        
     end
     mess_completion(n_pix_written);
 end
@@ -70,23 +69,15 @@ if is_deployed
 end
 mess_completion;
 
-function [npix_tot,niter]=print_receive_statistics(h_log,messages,npix_tot,niter)
+function [npix_tot,niter]=print_receive_statistics(h_log,npix_received,npix_tot,niter)
 % print statistics describing current received messages
 %
 niter = niter+1;
 fprintf(h_log,...
-    '******************** receiving:\n');
-for i=1:numel(messages)
-    pl =  messages{i}.payload;
-    
-    fprintf(h_log,...
-        '******************** lab %d mess N %d, npixels: %d; tid %d\n',...
-        pl.lab,pl.messN,pl.npix,task_ids(i));
-    
-    npix_received = npix_received + pl.npix;
-end
+    '******************** receiving from lab2 %d npixels :\n',npix_received);
+
 npix_tot = npix_tot+npix_received;
 
 fprintf(h_log,...
-    '******************** Step %d Npix received: %d. Total received: %d\n',...
+    '******************** Step %d Npix received: %d. Total received: %d Saving received\n',...
     niter,npix_received,npix_tot);

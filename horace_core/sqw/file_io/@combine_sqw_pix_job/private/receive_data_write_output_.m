@@ -98,7 +98,7 @@ for i=1:numel(messages)
     
     fprintf(h_log,...
         '******************** lab %d mess N %d, npixels: %d; tid %d\n',...
-        pl.lab,pl.messN,pl.npix,task_ids(i));
+        pl.n_source,pl.messN,pl.npix,task_ids(i));
     
     npix_received = npix_received + pl.npix;
 end
