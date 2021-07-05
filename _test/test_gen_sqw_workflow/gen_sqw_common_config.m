@@ -87,25 +87,23 @@ classdef gen_sqw_common_config < TestCase
             
             if ~isnumeric(parallel_cluster) % check parallel framework can be enabled
                 cl = MPI_clusters_factory.instance().get_cluster(parallel_cluster);
-                try
-                    cl.check_availability()
-                    obj.skip_test = false;
-                catch ME
-                    if strcmpi(ME.identifier,'HERBERT:parallel_config:not_available')
-                        obj.skip_test = true;
-                        if log_level>0
-                            warning('GEN_SQW_TEST_CONFIG:not_available',...
-                                'Can not initiate framework: %s because %s. This mode will not be tested',...
-                                parallel_cluster,ME.message)
-                        end
-                    else
-                        rethrow(ME);
-                    end
+                if isempty(cl) 
+                    obj.skip_test = true;                                        
+                    if log_level>0
+                        warning('GEN_SQW_TEST_CONFIG:not_available',...
+                          'Can not initiate framework: %s because this cluster is not available on the system. This mode will not be tested',...
+                                parallel_cluster)
+                    end                    
+                else
+                    obj.skip_test = false;                                        
                 end
             end
         end
         
         function setUp(obj)
+            if obj.skip_test
+                return;
+            end
             hc = hor_config;
             hc.saveable = false;
             hc.use_mex = obj.new_mex_;
