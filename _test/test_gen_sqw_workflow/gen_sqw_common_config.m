@@ -91,7 +91,7 @@ classdef gen_sqw_common_config < TestCase
                     cl.check_availability()
                     obj.skip_test = false;
                 catch ME
-                    if strcmpi(ME.identifier,'PARALLEL_CONFIG:not_available')
+                    if strcmpi(ME.identifier,'HERBERT:parallel_config:not_available')
                         obj.skip_test = true;
                         if log_level>0
                             warning('GEN_SQW_TEST_CONFIG:not_available',...
