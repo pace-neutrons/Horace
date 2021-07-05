@@ -61,12 +61,12 @@ classdef ClusterHerbertStateTester < ClusterHerbert
             obj.tasks_handles_ = cell(1,n_workers);
             for i=1:n_workers
                 obj.tasks_handles_{i} = fake_handle_for_test();
-            end                      
+            end
             
             obj.init_state = obj.init_state_;
             
             % check if job control API reported failure
-            obj.check_failed();            
+            obj.check_failed();
             
         end
         %
@@ -90,16 +90,16 @@ classdef ClusterHerbertStateTester < ClusterHerbert
             failed = false;
             if strcmp(obj.init_state_,'failed')
                 running = false;
-                failed = true;                
+                failed = true;
                 mess = FailedMessage('Simulated Failure');
             end
             % this never happens in real poor man MPI cluster as it has no
-            % way of indentifying the non-running and not failed cluster
+            % way of identifying the non-running and not failed cluster
             % introduced to satisfy more complex cluster types, which provide
             % such  possibility
             if strcmp(obj.init_state_,'finished')
                 running = false;
-                mess = CompletedMessage('Successful completeon');
+                mess = CompletedMessage('Successful completion');
             end
             
         end

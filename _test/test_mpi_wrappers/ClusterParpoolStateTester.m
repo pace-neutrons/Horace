@@ -1,10 +1,10 @@
 classdef ClusterParpoolStateTester < ClusterParpoolWrapper
     % Helper class to test ClusterParpoolWrapper states derived from
     % cluster.
-    % 
+    %
     % Overloads init method to communicate via reflective framework
     % and sets up job control to return state from the inputs, provided to
-    % init_state propetry
+    % init_state property
     
     properties(Dependent)
         % the state, fake cluster comes into after initialization
@@ -12,7 +12,7 @@ classdef ClusterParpoolStateTester < ClusterParpoolWrapper
     end
     properties
         % expose parpool cluster properties, initiated by fake job instead
-        % of the real one, intiated by parallel computing toolbox job and
+        % of the real one, initiated by parallel computing toolbox job and
         % task classes
         current_job;
         task;
@@ -58,15 +58,17 @@ classdef ClusterParpoolStateTester < ClusterParpoolWrapper
             if ~exist('log_level', 'var')
                 log_level = -1;
             end
-            control_struc = struct('job_id','test_ParpoolClusterStates',...
-                        'labID',0,'numLabs',n_workers);            
+            control_struc = struct(...
+                'job_id','test_ParpoolClusterStates',...
+                'labID',0,...
+                'numLabs',n_workers);
             meexch = MessagesMatlabMPI_tester(control_struc);
             obj = init@ClusterWrapper(obj,n_workers,meexch,log_level);
             
             obj.init_state = obj.init_state_;
             %
             % check if job control API reported failure
-            obj.check_failed();            
+            obj.check_failed();
             
         end
         function obj=finalize_all(obj)
@@ -91,13 +93,14 @@ classdef ClusterParpoolStateTester < ClusterParpoolWrapper
         function state=get.init_state(obj)
             state = obj.init_state_;
         end
+        %
         function obj=set.init_state(obj,val)
             if strcmpi(val,'failed')
                 obj.task_ = struct('Error','Job failed',...
                     'ErrorMessage','Simulated failure',...
                     'ErrorIdentifier',-1);
             elseif strcmpi(val,'init_failed')
-                obj.task_ = [];                
+                obj.task_ = [];
             else
                 obj.task_ = struct('Error','',...
                     'ErrorMessage','',...
@@ -106,6 +109,5 @@ classdef ClusterParpoolStateTester < ClusterParpoolWrapper
             obj.init_state_ = val;
             obj.current_job_ = struct('State',obj.init_state_);
         end
-    end  
+    end
 end
-

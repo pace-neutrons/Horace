@@ -18,9 +18,14 @@ classdef ClusterWrapperTester < ClusterWrapper
         end
     end
     methods(Access=protected)
-        % get the state of running job by requesting reply from the job
-        % control mechanism.
         function [ok,failed,paused,mess] = get_state_from_job_control(~)
+            % get the state of running job by requesting reply from the job
+            % control mechanism.
+            %
+            % Cluster wrapper does not test this method, but the method is
+            % invoked when some other ClusterWrapper methods are tested.
+            % Always return running state
+            
             ok = true;
             failed = false;
             paused = false;

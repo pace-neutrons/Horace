@@ -210,7 +210,8 @@ classdef check_progress_common_methods< TestCase
             
             
             ct.init_state = 'finished';
-            %
+            % fails as normal completion needs "completed" messages 
+            % to be send and received after the parallel job ceases to run
             [completed,ct] = ct.check_progress();
             assertTrue(completed);
             assertTrue(ct.status_changed);
