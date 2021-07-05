@@ -13,8 +13,11 @@ function [config_data,got_from_file]=get_config_(this,class_to_restore)
 %                     already loaded) or the name of this class. 
 %
 %Returns:
-% the structure, conatining instance with its fields loaded from storage or
-% their default values if all storages are empty. 
+% config_data -- the structure, containing essential part of appropriate config class 
+%                with its fields loaded from storage or
+%                their default values if all storages are empty. 
+% got_from_file-- true, if the data were loaded from file, or false,
+%                 if they have already been located in memory.
 % 
 % Additionally, it class instance was not in memory, it loaded in memory
 % and stays there for further usage. 
@@ -59,7 +62,7 @@ else
     try
         if isempty(config_data) % get defaults
             config_data = class_to_restore.get_defaults();
-            got_from_file = false;                
+            got_from_file = false;
         end
     catch ME
         if (strcmp(ME.identifier,'MATLAB:noSuchMethodOrField'))
@@ -67,13 +70,13 @@ else
             if is_file(filename)
                 delete(filename);
             end
-            got_from_file = false;                            
+            got_from_file = false;
         else
             rethrow(ME);
         end
     end
     this.config_storage_.(class_name) = config_data;
-    % this returns current state of saveable property and if it is not
+    % this returns current state of save-able property and if it is not
     % set, returns default state of the object.
     if ~this.saveable_.isKey(class_name)
         this.saveable_(class_name)=class_to_restore.get_saveable_default();
