@@ -300,7 +300,15 @@ classdef config_store < handle
             % set active properties only if the data were recovered from
             % file
             if read_from_file
+                if ~isa(class_to_restore,'config_base') % it mast be char
+                    class_to_restore = feval(class_to_restore);
+                end
+                ss = class_to_restore.saveable;
+                class_to_restore.saveable = false; % avoid resaving the data,
+                % just loaded from disk
                 class_to_restore.set_stored_data(config_data);
+                class_to_restore.saveable = ss; % return saveable state to
+                % its previous value
             end
         end
         %
