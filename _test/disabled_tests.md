@@ -38,6 +38,9 @@
        - test_accumulate_and_combine1to4
        - test_accumulate_sqw1456
        - test_accumulate_sqw11456
+ test_gen_sqw_workflow:
+    -test_gen_sqw_accumulate_sqw_slurm  Disabled everywhere except a system where Slurm cluster is available
+
 
  -test_gen_sqw_workflow:
 - test_gen_sqw_accumulate_sqw_herbert
