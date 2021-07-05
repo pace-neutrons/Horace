@@ -66,6 +66,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                 '*** Matlab MPI job started                                 ***\n';
             obj.cluster_config_ = 'default';
             obj.pool_exchange_frmwk_name_ = 'MessagesParpool';
+            obj.starting_cluster_name_ = class(obj);            
             if nargin < 2
                 return;
             end

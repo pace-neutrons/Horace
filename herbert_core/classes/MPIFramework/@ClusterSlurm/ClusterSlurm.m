@@ -20,7 +20,7 @@ classdef ClusterSlurm < ClusterWrapper
         % the user name, used to distinguish this user jobs from others
         user_name_
         % verbosity of ClusterSlurm specific outputs
-        log_level = 0;        
+        log_level = 0;
     end
     properties(Constant, Access = private)
         %------------------------------------------------------------------
@@ -48,7 +48,7 @@ classdef ClusterSlurm < ClusterWrapper
             {'Job currently has an allocation and running.',...
             'Job is about to change size.',...
             'Job has an allocation, but execution has been suspended.',...
-            'Job is in the process of allocation, and execution is pending',...            
+            'Job is in the process of allocation, and execution is pending',...
             'Job has terminated all processes on all nodes with an exit code of zero.',...
             'Job was explicitly cancelled by the user or system administrator. The job may or may not have been initiated.',...
             'Job terminated with non-zero exit code or other failure condition.',...
@@ -109,12 +109,14 @@ classdef ClusterSlurm < ClusterWrapper
             obj.cluster_config_ = 'srun';
             % initiate parameters necessary for job queue parsing
             obj=obj.init_queue_parser();
+            obj.starting_cluster_name_ = class(obj);
             if nargin < 2
                 return;
             end
             if ~exist('log_level', 'var')
                 log_level = -1;
             end
+            
             
             obj = obj.init(n_workers,mess_exchange_framework,log_level);
         end
@@ -134,7 +136,7 @@ classdef ClusterSlurm < ClusterWrapper
             %              verbosity of the cluster operations output;
             if ~exist('log_level', 'var')
                 log_level = -1;
-            end            
+            end
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
             obj.log_level = log_level;
             
@@ -181,9 +183,10 @@ classdef ClusterSlurm < ClusterWrapper
             end
             % parse queue and extract new job ID
             obj = extract_job_id(obj,queue0_rows);
-            
+            obj.starting_cluster_name_ = sprinft('SlurmJobID%d',obj.slurm_job_id);
             % check if job control API reported failure
             obj.check_failed();
+            
         end
         %
         function obj=finalize_all(obj)
@@ -263,9 +266,9 @@ classdef ClusterSlurm < ClusterWrapper
             if ~ismember(sacct_state,states)
                 if obj.log_level>-1
                     fprintf(2,'*** SLURM control returned unknown state: %s,\n',...
-                        sacct_state)                    
+                        sacct_state)
                     fprintf(2,'*** Description:\n %s\n',...
-                             full_state);
+                        full_state);
                     fprintf(2,'*** Assuming job: %s, Slurm Job id: %d is paused\n',...
                         obj.job_id,obj.slurm_job_id);
                 end
@@ -281,7 +284,7 @@ classdef ClusterSlurm < ClusterWrapper
                     running = true;
                     failed  = false;
                     paused  = false;
-                    mess    = 'running';                
+                    mess    = 'running';
                 case 'failed'
                     running = false;
                     failed  = true;

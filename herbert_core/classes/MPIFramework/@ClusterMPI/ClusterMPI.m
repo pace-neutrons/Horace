@@ -50,6 +50,7 @@ classdef ClusterMPI < ClusterWrapper
             % define config folder containing cluster configurations
             root = fileparts(which('herbert_init'));
             obj.config_folder_ = fullfile(root,'admin','mpi_cluster_configs');
+            obj.starting_cluster_name_ = class(obj);
             if nargin < 2
                 return;
             end

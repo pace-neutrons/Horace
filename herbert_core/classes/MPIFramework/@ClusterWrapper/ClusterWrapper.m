@@ -95,7 +95,10 @@ classdef ClusterWrapper
         running_mess_contents_= 'process has not exited';
         % the string, describing the operations to launch Matlab or
         % compiled Matlab job
-        matlab_starter_  = [];
+        matlab_starter_  = [];        
+        % The name of the cluster to print in logs to inform about parallel
+        % program execution        
+        starting_cluster_name_;
     end
     properties(Hidden,Dependent)
         % helper property to print nicely aligned log messages

@@ -11,7 +11,7 @@ function [obj,ok]=wait_started_and_report_(obj,check_time,varargin)
 %                     the log count
 % log_message      -- message, containing the job progress, and to be displayed
 %                     by display_progress method
-info = [ 'Waiting for parallel cluster: ',class(obj),' to start'];
+info = [ 'Waiting for parallel cluster: ',obj.starting_cluster_name_,' to start'];
 state = StartingMessage();
 state.payload = info;
 if isa(obj.status,'FailedMessage')
