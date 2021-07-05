@@ -4,7 +4,7 @@ classdef ClusterMPIEXECStateTester < ClusterMPI
     %
     % Overloads init method to communicate via reflective framework
     % and sets up job control to return state from the inputs, provided to
-    % init_state propetry
+    % init_state property.
     
     properties(Dependent)
         % the state, fake cluster comes into after initialization
@@ -56,10 +56,10 @@ classdef ClusterMPIEXECStateTester < ClusterMPI
                 'MessagesCppMPI_tester', 0,n_workers,'test_mode');
             meexch = MessagesCppMPI_tester(control_struc);
             
-            obj = init@ClusterWrapper(obj,n_workers,meexch,log_level);           
-
-            obj.mpiexec_handle_ = fake_handle_for_test();            
-
+            obj = init@ClusterWrapper(obj,n_workers,meexch,log_level);
+            
+            obj.mpiexec_handle_ = fake_handle_for_test();
+            
             obj.init_state = obj.init_state_;
             
             % check if job control API reported failure
@@ -92,12 +92,12 @@ classdef ClusterMPIEXECStateTester < ClusterMPI
                 mess = FailedMessage('Simulated Failure');
             end
             % this never happens in real poor man MPI cluster as it has no
-            % way of indentifying the non-running and not failed cluster
+            % way of identifying the non-running and not failed cluster
             % introduced to satisfy more complex cluster types, which provide
             % such  possibility
             if strcmp(obj.init_state_,'finished')
                 running = false;
-                mess = CompletedMessage('Successful completeon');
+                mess = CompletedMessage('Successful completion');
             end
             
         end

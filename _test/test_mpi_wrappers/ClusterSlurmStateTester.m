@@ -4,7 +4,7 @@ classdef ClusterSlurmStateTester < ClusterSlurm
     %
     % Overloads init method to communicate via reflective framework
     % and sets up job control to return state from the inputs, provided to
-    % init_state propetry
+    % init_state property.
     
     properties(Dependent)
         % the state, fake cluster comes into after initialization
@@ -19,10 +19,10 @@ classdef ClusterSlurmStateTester < ClusterSlurm
     
     methods
         function obj = ClusterSlurmStateTester(n_workers,log_level)
-            % Constructor, which initiates fake MPI wrapper
+            % Constructor, which initiates fake SlurmCluster wrapper
             %
             % The wrapper provides common interface to run various kinds of
-            % Herbert parallel jobs, communication over mpi (mpich)
+            % Herbert parallel jobs, communicating over MPI and controlled by Slurm
             %
             % Empty constructor generates wrapper, which has to be
             % initiated by init method.
@@ -82,7 +82,7 @@ classdef ClusterSlurmStateTester < ClusterSlurm
     end
     methods(Access = protected)
         function [running,failed,paused,mess] = get_state_from_job_control(obj)
-            % method check the situations presumably returned by slurm job
+            % method check the situations presumably returned by Slurm job
             % control operations
             %
             switch(obj.init_state_)
@@ -95,11 +95,12 @@ classdef ClusterSlurmStateTester < ClusterSlurm
                     running = false;
                     failed  = false;
                     paused  = false;
-                    mess = CompletedMessage('Successful completeon');
+                    mess = CompletedMessage('Successful completion');
                 case 'paused'
                     running = false;
                     failed  = false;
                     paused  = true;
+                    mess = LogMessage(0,0,0,' Testing pause state');
                 otherwise % running
                     running = true;
                     failed  = false;

@@ -10,7 +10,7 @@ classdef ClusterSlurmTester < ClusterSlurm
     
     methods
         function obj = ClusterSlurmTester(n_workers,mess_exchange_framework,log_level)
-            % Constructor, which initiates MPI wrapper
+            % Constructor, which initiates Slurm wrapper
             %
             % The wrapper provides common interface to run various kinds of
             % Herbert parallel jobs, communication over mpi (mpich)
@@ -24,10 +24,7 @@ classdef ClusterSlurmTester < ClusterSlurm
             % n_workers -- number of independent Matlab workers to execute
             %              a job
             %
-            % mess_exchange_framework -- a class-child of
-            %              iMessagesFramework, used  for communications
-            %              between cluster and the host Matlab session,
-            %              which started and controls the job.
+            % mess_exchange_framework -- ignored here
             %
             % log_level    if present, defines the verbosity of the
             %              operations over the framework
@@ -38,7 +35,7 @@ classdef ClusterSlurmTester < ClusterSlurm
                 hc = herbert_config;
                 log_level = hc.log_level;
                 obj.log_level = log_level;
-            end            
+            end
             
             if nargin < 2
                 return;
@@ -63,19 +60,18 @@ classdef ClusterSlurmTester < ClusterSlurm
             % function to test init parser:
             % Returns:
             % user_name -- the name of the user running the session
-            % pos       -- the position of the begining of the running
+            % pos       -- the position of the beginning of the running
             %              time field.
             obj = obj.init_queue_parser();
             user_name = obj.user_name_;
         end
         function [running,failed,paused,mess]=get_state_from_job_control_tester(obj)
             % method to test get_state_from_job_control, using squeue_command_output
-            % value as the input for queue 
+            % value as the input for queue
             [running,failed,paused,mess] = obj.get_state_from_job_control();
         end
     end
-    methods(Static)
-    end
+    %
     methods(Access=protected)
         function queue_text = get_queue_text_from_system(obj,full_header)
             % last parameter is ignored as this test method returns
@@ -88,7 +84,7 @@ classdef ClusterSlurmTester < ClusterSlurm
             end
         end
         function [sacct_state,description] = query_control_state(obj,varargin)
-            % retrieve the state of the job issuing Slurm sacct
+            % retrieve the state of the job retrieving fake Slurm sacct
             % query command and parsing the results
             %
             [sacct_state,description] = query_control_state@ClusterSlurm(obj,true);

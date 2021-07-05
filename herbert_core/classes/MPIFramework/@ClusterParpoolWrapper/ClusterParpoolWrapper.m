@@ -202,16 +202,18 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                 mess = 'running';
                 return;
             end
-            if code < 3 || code == 4 % paused, pended, not yet started or finished (code==4)
+            if code < 3 % paused, pended, not yet started
                 running = false;
                 failed = false;
-                if code < 3
-                    mess = aMessage('queued');
-                    paused = true;
-                else
-                    mess   = CompletedMessage();
-                    paused = false;
-                end
+                paused = true;
+                mess = LogMessage(0,0,0,sprintf('Matlab MPI job is in %s',state));
+                return;
+            end
+            if code == 4
+                running = false;
+                failed = false;
+                paused = false;
+                mess   = CompletedMessage();
                 return;
             end
             %  failed
