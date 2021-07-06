@@ -124,7 +124,16 @@ end
 outdir = fullfile(out_dir,'');
 
 [~,f_name]=fileparts(files{1});
+
 targ_file=fullfile(outdir,[f_name,'.',mexext]);
+% if description files found somewhere on the path, move them with 
+% target file
+descr_file = [f_name,'.m'];
+descr_source = which(descr_file);
+if ~isempty(descr_source)
+    targ_descr = fullfile(outdir,descr_file);
+    movefile(descr_source,targ_descr,'f');
+end
 if(is_file(targ_file))
     try
         delete(targ_file)

@@ -59,7 +59,7 @@ input_files = cellfun(@(fn)fullfile(code_folder,fn),input_files,'UniformOutput',
 % additional include folder, containing mpich
 add_include = ['-I',mpi_hdrs_folder];
 if verbouse
-    add_include = {'-v',add_include};
+    add_include = {'-v ',add_include};
 else
     add_include = {add_include};
 end
@@ -69,11 +69,14 @@ build_version_h(her_folder)
 try
     % -Wl,-rpath,to_libmpi.so should be provided here for linux clusters but Matlab 2020a
     % does not support this option.
+     %mex('-lut','CXXFLAGS=$CFLAGS -fopenmp -std=c++11','LDFLAGS= -pthread -Wl,--no-undefined  -fopenmp',add_files{:}, '-outdir', outdir);    
+    opt = strjoin(add_include,' ');
+    opt = sprintf('%s -Wl,-rpath=%s',opt,mpi_lib_folder);
     if isempty(opt_file)
-        mex(add_include{:},input_files{:},...
+        mex(opt,input_files{:},...
             mpi_lib{:},'-outdir',outdir);
     else
-        mex(add_include{:},input_files{:},...
+        mex(opt,input_files{:},...
             mpi_lib{:},'-f',opt_file,'-outdir',outdir);
         
     end

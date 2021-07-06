@@ -29,7 +29,13 @@ if isempty(which('herbert_init.m'))
         return;
     end
 end
-DO_LOGGING   = false;
+
+DO_LOGGING = getenv('DO_PARALLEL_MATLAB_LOGGING');
+if isempty(DO_LOGGING)
+    DO_LOGGING = false;
+else
+    DO_LOGGING = feval(DO_LOGGING);
+end
 DO_DEBUGGING = false;
 try
     [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,DO_DEBUGGING);

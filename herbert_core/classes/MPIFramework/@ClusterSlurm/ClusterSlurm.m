@@ -20,7 +20,7 @@ classdef ClusterSlurm < ClusterWrapper
         % the user name, used to distinguish this user jobs from others
         user_name_
         % verbosity of ClusterSlurm specific outputs
-        log_level = 0;
+        log_level = 0;        
     end
     properties(Constant, Access = private)
         %------------------------------------------------------------------
@@ -43,7 +43,7 @@ classdef ClusterSlurm < ClusterWrapper
         % RUNNING, RESIZING, SUSPENDED, PENDING, COMPLETED, CANCELLED, FAILED,
         % TIMEOUT, PREEMPTED, BOOT_FAIL, DEADLINE or NODE_FAIL
         %
-        sacct_state_abbr_ =  {'RU','RE','SU','PE','CO','CA','FA','TI','PR','BO','DE','NO'}
+        sacct_state_abbr_ =  {'RU','RE','SU','PE','CO','CA','FA','TI','PR','BO','DE','NO','PD'}
         sjob_long_description_ = containers.Map(ClusterSlurm.sacct_state_abbr_ ,...
             {'Job currently has an allocation and running.',...
             'Job is about to change size.',...
@@ -56,10 +56,12 @@ classdef ClusterSlurm < ClusterWrapper
             'Job terminated due to preemption.',...
             'Job terminated due to launch failure, typically due to a hardware failure (e.g. unable to boot the node or block and the job can not be requeued).',...
             'Job missed its deadline.',...
-            'Job terminated due to failure of one or more allocated nodes.'})
+            'Job terminated due to failure of one or more allocated nodes.',...
+            'Nodes required for job are DOWN, DRAINED or reserved for jobs in higher priority jobs'
+            })
         sjob_reaction_ = containers.Map(ClusterSlurm.sacct_state_abbr_,...
             {'running','paused','paused','paused','finished','failed','failed','failed',...
-            'failed','failed','failed','failed'})
+            'failed','failed','failed','failed','failed'})
         
         % environmental variables and their default values,
         % set by the class to propagate to a parallel job.
@@ -67,9 +69,7 @@ classdef ClusterSlurm < ClusterWrapper
             {'MATLAB_PARALLEL_EXECUTOR','PARALLEL_WORKER','WORKER_CONTROL_STRING'},...
             {'matlab','worker_v2',''});
     end
-    properties(Access = private)
-        %
-    end
+ 
     
     methods
         function obj = ClusterSlurm(n_workers,mess_exchange_framework,...
@@ -184,7 +184,9 @@ classdef ClusterSlurm < ClusterWrapper
             % parse queue and extract new job ID
             obj = extract_job_id(obj,queue0_rows);
             obj.starting_cluster_name_ = sprintf('SlurmJobID%d',obj.slurm_job_id);
+            
             % check if job control API reported failure
+            pause(obj.time_to_wait_for_job_id_);
             obj.check_failed();
             
         end
@@ -276,6 +278,9 @@ classdef ClusterSlurm < ClusterWrapper
                 description = sprintf('*** Unknown state %s considered job %s paused',...
                     full_state,obj.job_id);
             else
+                if strcmp(sacct_state,'PE')
+                    sacct_state = check_pending_state_(obj,sacct_state);
+                end
                 control_state = obj.sjob_reaction_(sacct_state);
                 description = obj.sjob_long_description_(sacct_state);
             end
