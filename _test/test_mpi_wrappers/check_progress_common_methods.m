@@ -15,7 +15,7 @@ classdef check_progress_common_methods< TestCase
             obj.cluster_tester = class_instance;
         end
         %
-        function test_completed_mess_received_after_job_completeon_fails(obj)
+        function test_completed_mess_not_received_and_job_completion_fails(obj)
             if obj.test_disabled; return
             end
             % finish job on receiving "completed" message
@@ -42,6 +42,8 @@ classdef check_progress_common_methods< TestCase
             % finish job on receiving getting into "completed" state
             ct.init_state = 'finished';
             [completed,ct] = ct.check_progress();
+            % fails as normal completion needs "completed" messages 
+            % to be send and received after the parallel job ceases to run            
             assertTrue(completed);
             assertTrue(ct.status_changed);
             assertEqual(ct.status_name,'failed');
@@ -327,5 +329,3 @@ classdef check_progress_common_methods< TestCase
         
     end
 end
-
-

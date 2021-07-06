@@ -21,8 +21,9 @@ classdef ClusterSlurmStateTester < ClusterSlurm
         function obj = ClusterSlurmStateTester(n_workers,log_level)
             % Constructor, which initiates fake SlurmCluster wrapper
             %
-            % The wrapper provides common interface to run various kinds of
-            % Herbert parallel jobs, communicating over MPI and controlled by Slurm
+            % The wrapper provides fake diagnostics methods representing
+            % behaviour of diagnostics provided by Slurm cluster managment
+            % software
             %
             % Empty constructor generates wrapper, which has to be
             % initiated by init method.

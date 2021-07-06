@@ -28,8 +28,9 @@ classdef ClusterParpoolStateTester < ClusterParpoolWrapper
         function obj = ClusterParpoolStateTester(n_workers,log_level)
             % Constructor, which initiates fake MPI wrapper
             %
-            % The wrapper provides common interface to run various kinds of
-            % Herbert parallel jobs, communication over mpi (mpich)
+            % The wrapper provides fake diagnostics methods representing
+            % behaviour of diagnostics provided by Matlab parallel computing
+            % toolbox Job control classes
             %
             % Empty constructor generates wrapper, which has to be
             % initiated by init method.

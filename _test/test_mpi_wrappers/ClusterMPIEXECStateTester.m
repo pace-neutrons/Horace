@@ -1,6 +1,6 @@
 classdef ClusterMPIEXECStateTester < ClusterMPI
     % Helper class to test ClusterMPI states obtained from
-    % running MPI job communicating over MPI and controlled mpiexec.
+    % running MPI job communicating over MPI and controlled by mpiexec.
     %
     % Overloads init method to communicate via reflective framework
     % and sets up job control to return state from the inputs, provided to
@@ -21,8 +21,8 @@ classdef ClusterMPIEXECStateTester < ClusterMPI
         function obj = ClusterMPIEXECStateTester(n_workers,log_level)
             % Constructor, which initiates fake MPI wrapper
             %
-            % The wrapper provides common interface to run various kinds of
-            % Herbert parallel jobs, communication over mpi (mpich)
+            % The wrapper provides fake diagnostics methods representing
+            % behaviour of diagnostics provided by mpiexec wrapper
             %
             % Empty constructor generates wrapper, which has to be
             % initiated by init method.
@@ -106,4 +106,3 @@ classdef ClusterMPIEXECStateTester < ClusterMPI
     end
     
 end
-
