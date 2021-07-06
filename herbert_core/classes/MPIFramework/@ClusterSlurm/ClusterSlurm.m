@@ -183,7 +183,7 @@ classdef ClusterSlurm < ClusterWrapper
             end
             % parse queue and extract new job ID
             obj = extract_job_id(obj,queue0_rows);
-            obj.starting_cluster_name_ = sprinft('SlurmJobID%d',obj.slurm_job_id);
+            obj.starting_cluster_name_ = sprintf('SlurmJobID%d',obj.slurm_job_id);
             % check if job control API reported failure
             obj.check_failed();
             
