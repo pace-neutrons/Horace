@@ -144,7 +144,7 @@ function [is_mess,is_lock] = is_message_(file_struc,mess_template,len,nolocked_o
 % and received as input is actually the file, with filebased
 % message or is a lock file.
 %
-if ~isfield(file_struc,'isdir') || isfield(file_struc,'name')
+if ~isfield(file_struc,'isdir') || ~isfield(file_struc,'name')
     % some odd input may be provided by dir on some OS
     is_mess = false;
     is_lock = false;
