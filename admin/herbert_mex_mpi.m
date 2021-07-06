@@ -67,18 +67,13 @@ outdir = fullfile(her_folder,'herbert_core','DLL',['_',computer],'_R2015a');
 
 build_version_h(her_folder)
 try
-    % -Wl,-rpath,to_libmpi.so should be provided here for linux clusters but Matlab 2020a
-    % does not support this option.
-     %mex('-lut','CXXFLAGS=$CFLAGS -fopenmp -std=c++11','LDFLAGS= -pthread -Wl,--no-undefined  -fopenmp',add_files{:}, '-outdir', outdir);    
-    opt = strjoin(add_include,' ');
-    opt = sprintf('%s -Wl,-rpath=%s',opt,mpi_lib_folder);
+    opt = sprintf('CXXFLAGS=$CFLAGS -fopenmp -std=c++11 -Wl,-rpath=%s,--no-undefined,-fopenmp',mpi_lib_folder);
     if isempty(opt_file)
-        mex(opt,input_files{:},...
+        mex(add_include{:},opt,input_files{:},...
             mpi_lib{:},'-outdir',outdir);
     else
-        mex(opt,input_files{:},...
-            mpi_lib{:},'-f',opt_file,'-outdir',outdir);
-        
+        mex(add_include{:},opt,input_files{:},...
+            mpi_lib{:},'-f',opt_file,'-outdir',outdir);        
     end
 catch Err
     ok = false;

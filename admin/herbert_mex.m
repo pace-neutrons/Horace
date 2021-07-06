@@ -132,7 +132,9 @@ descr_file = [f_name,'.m'];
 descr_source = which(descr_file);
 if ~isempty(descr_source)
     targ_descr = fullfile(outdir,descr_file);
-    movefile(descr_source,targ_descr,'f');
+    if ~strcmp(descr_source,targ_descr)
+        movefile(descr_source,targ_descr,'f');
+    end
 end
 if(is_file(targ_file))
     try
