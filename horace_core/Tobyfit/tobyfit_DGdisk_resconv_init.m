@@ -256,7 +256,7 @@ for iw=1:nw
     
     % Get detector information
     % Because detpar only contains minimal information, hardwire in the detector type here
-    detpar = wtmp.detpar;   % just get a pointer
+    detpar = wtmp.my_detpar();   % just get a pointer
     if use_tubes
         detectors(iw) = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
             IX_det_He3tube (detpar.width, detpar.height, 6.35e-4, 10));   % 10atms, wall thickness=0.635mm

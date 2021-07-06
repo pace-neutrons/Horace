@@ -181,7 +181,7 @@ data_out.img_db_range = img_db_range;
 if opt.keep_pix
     w.main_header=main_header;
     w.header_x=header;
-    w.detpar=detpar;
+    w.detpar_x=detpar;
     w.data=data_out; % will be missing the field 'pix' if pix_tmpfile_ok=true
 else
     [w,mess]=make_sqw_from_data(true,data_out);   % make dnd-type sqw structure

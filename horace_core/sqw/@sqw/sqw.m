@@ -10,14 +10,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
     properties
         main_header
         header_x
-        detpar
+        detpar_x
         % CMDEV: data now a dependent property, below
     end
     
     properties (Access=private)
         %main_header
         %header_x
-        %detpar
+        %detpar_x
         % CMDEV: data now a dependent property, below
     end
     
@@ -69,6 +69,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         status = adjust_aspect(w);
         varargout = resolution_plot (w, varargin);
         wout = noisify(w,varargin);
+        
+        function dtp = my_detpar(obj)
+            dtp = obj.detpar_x;
+        end
+        
+        function obj = change_detpar(obj,dtp)
+            obj.detpar_x = dtp;
+        end
         
         function hdr = my_header(obj)
             hdr = obj.header_x;
@@ -142,13 +150,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
                 tmp = sqw();
                 obj = repmat(tmp, size(S));
                 for i = 1:numel(S)
+                    ss =S(i);
                     if isfield(S(i),'header')
-                        ss.main_header = S(i).main_header;
                         ss.header_x = S(i).header;
-                        ss.detpar = S(i).detpar;
-                        ss.data = S(i).data;
-                    else
-                        ss = S(i);
+                        rmfield(ss,'header');
+                    end
+                    if isfield(S(i),'detpar')
+                        ss.detpar_x = S(i).detpar;
+                        rmfield(ss,'detpar');
                     end
                     obj(i) = sqw(ss);
                 end
@@ -156,6 +165,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
                 if isfield(S,'header')
                     S.header_x = S.header;
                     S = rmfield(S,'header');
+                end
+                if isfield(S,'detpar')
+                    S.detpar_x = S.detpar;
+                    S = rmfield(S,'detpar');
                 end
                 obj = sqw(S);
             end
@@ -231,7 +244,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         function ld_str = get_loader_struct_(~,ldr,pixel_page_size)
             % load sqw structure, using file loader
             ld_str = struct();
-            [ld_str.main_header, ld_str.header_x, ld_str.detpar, ld_str.data] = ...
+            [ld_str.main_header, ld_str.header_x, ld_str.detpar_x, ld_str.data] = ...
                 ldr.get_sqw('-legacy', 'pixel_page_size', pixel_page_size);
         end
         function obj = init_from_loader_struct_(obj, data_struct)
@@ -243,7 +256,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             catch ME
                 error("X");
             end
-            obj.detpar = data_struct.detpar;
+            try
+               obj.detpar_x = data_struct.detpar_x;
+            catch ME
+                error("Y");
+            end
             obj.data = data_struct.data;
         end
     end

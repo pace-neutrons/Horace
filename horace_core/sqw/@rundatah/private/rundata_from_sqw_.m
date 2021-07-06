@@ -14,7 +14,7 @@ function rd=rundata_from_sqw_(sqw_obj)
 %
 data = sqw_obj.data;
 header = sqw_obj.my_header();
-detpar = sqw_obj.detpar;
+detpar = sqw_obj.my_detpar();
 %
 if iscell(header) && numel(header) > 1
     error('RUNDATAH:invalid_argument',...
