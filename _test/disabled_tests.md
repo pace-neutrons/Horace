@@ -24,21 +24,21 @@
         - test_worker
         - test_do_job
 
-
-- Disabled due to intermittent parallel failures on Jenkins Windows
+Temporary enabled to see how it goes
+#- Disabled due to intermittent parallel failures on Jenkins Windows
+%  -test_gen_sqw_workflow:
+%    -test_gen_sqw_accumulate_sqw_herbert
+%       - test_gen_sqw   
+%       - test_accumulate_and_combine1to4
+%       - test_accumulate_sqw1456
+%       - test_accumulate_sqw11456
+%   - test_gen_sqw_accumulate_sqw_parpool
+%       - test_gen_sqw
+%       - test_accumulate_sqw14
+%       - test_accumulate_and_combine1to4
+%       - test_accumulate_sqw1456
+%       - test_accumulate_sqw11456
   -test_gen_sqw_workflow:
-    -test_gen_sqw_accumulate_sqw_herbert
-       - test_gen_sqw   
-       - test_accumulate_and_combine1to4
-       - test_accumulate_sqw1456
-       - test_accumulate_sqw11456
-    - test_gen_sqw_accumulate_sqw_parpool
-       - test_gen_sqw
-       - test_accumulate_sqw14
-       - test_accumulate_and_combine1to4
-       - test_accumulate_sqw1456
-       - test_accumulate_sqw11456
- test_gen_sqw_workflow:
     -test_gen_sqw_accumulate_sqw_slurm  Disabled everywhere except a system where Slurm cluster is available
 
 

@@ -324,33 +324,33 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
         %------------------------------------------------------------------
         % Block of code to disable some tests for debugging Jenkins jobs
         function test_accumulate_and_combine1to4(obj,varargin)
-            if is_jenkins && ispc
-                skipTest('Test disabled due to intermittent failure')
-            end
+%             if is_jenkins && ispc
+%                 skipTest('Test disabled due to intermittent failure')
+%             end
             test_accumulate_and_combine1to4@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
         end
         function test_accumulate_sqw1456(obj,varargin)
-            if is_jenkins && ispc
-                skipTest('Test disabled due to intermittent failure')
-            end
+%             if is_jenkins && ispc
+%                 skipTest('Test disabled due to intermittent failure')
+%             end
             test_accumulate_sqw1456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
         end
         function test_accumulate_sqw11456(obj,varargin)
-            if is_jenkins && ispc
-                skipTest('Test disabled due to intermittent failure')
-            end
+%             if is_jenkins && ispc
+%                 skipTest('Test disabled due to intermittent failure')
+%             end
             test_accumulate_sqw11456@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
         end
         function test_gen_sqw(obj,varargin)
-            if is_jenkins && ispc
-                skipTest('Test disabled due to intermittent failure')
-            end
+%             if is_jenkins && ispc
+%                 skipTest('Test disabled due to intermittent failure')
+%             end
             test_gen_sqw@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
         end
         function test_accumulate_sqw14(obj,varargin)
-            if is_jenkins && ispc
-                skipTest('Test disabled due to intermittent failure')
-            end
+%             if is_jenkins && ispc
+%                 skipTest('Test disabled due to intermittent failure')
+%             end
             test_accumulate_sqw14@gen_sqw_accumulate_sqw_tests_common(obj,varargin{:});
         end
         
