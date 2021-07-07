@@ -12,3 +12,5 @@
         :test_job_with_logs_3workers
         :test_job_fail_restart
   
+- test_ParpoolMPI_Framework 
+    - test_finish_tasks_reduce_messages Disabled on Windows Jenkins Matlab 2018b only due to launch instability (rare 1/10)
