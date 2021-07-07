@@ -526,15 +526,15 @@ classdef ClusterWrapper
                         disp(exc.getReport())
                     end
                     info = '';
-                    format = 'Herbert cluster for job: %s failed to start parallel execution. State: %s %s';
+                    format = '%s cluster for job: %s failed to start parallel execution. State: %s %s';
                 else
-                    format = 'Herbert cluster for job: %s failed to start parallel execution. State: %s Message: %s';
+                    format = '%s cluster for job: %s failed to start parallel execution. State: %s Message: %s';
                     info = mess;
                 end
                 obj = obj.finalize_all();
                 %
                 error('HERBERT:ClusterWrapper:runtime_error',format,...
-                    obj.job_id,obj.status_name,info);
+                    obj.starting_cluster_name_,obj.job_id,obj.status_name,info);
                 
             end
         end
