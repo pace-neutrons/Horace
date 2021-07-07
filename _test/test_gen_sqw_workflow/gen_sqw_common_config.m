@@ -19,10 +19,15 @@ classdef gen_sqw_common_config < TestCase
         new_cluster_ = 'herbert';
         
         % the worker to use while running parallel tests (if any)
-        worker = 'worker_4tests'
+        worker = 'worker_v2'
         % Store the name of the worker, currently used by Horace parallel
         % framework, to recover after the tests are completed.
         current_worker_cache_ = [];
+        % If true, enable progress logging in worker scripts.
+        % (DO_LOGGING=true for parallel_worker). 
+        % Tested on Slurm cluster manager. May not work for all types of
+        % the clusters
+        WRITE_DEBUG_LOGS = false;
     end
     
     methods
@@ -48,6 +53,10 @@ classdef gen_sqw_common_config < TestCase
             obj.store_initial_config();
             hc = hor_config;
             log_level = hc.log_level;
+            %
+            if obj.WRITE_DEBUG_LOGS
+                setenv('DO_PARALLEL_MATLAB_LOGGING','true');
+            end
             
             
             [~,obj.new_mex_ ] = gen_sqw_common_config.check_change...
