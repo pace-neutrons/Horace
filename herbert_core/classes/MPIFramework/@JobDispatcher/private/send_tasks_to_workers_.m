@@ -52,9 +52,9 @@ function [outputs,n_failed,task_ids,obj]=...
 
     % indicate new cluster created
     obj.job_is_starting_ = true;
-    % initialize cluster, defined by current configuration
+    % retrieve instance of the cluster factory
     par_fc = MPI_clusters_factory.instance();
-
+    % retrieve and initialize the cluster, defined by current configuration
     cluster_wrp = par_fc.get_initialized_cluster(n_workers,mf);
 
     % verify if the cluster have started and report it was.
@@ -83,7 +83,7 @@ function [outputs,n_failed,task_ids,obj]=...
             ic= ic+1;
         end
         if ~ok
-            error('PARALLEL_FRAMEWORK:runtime_error',...
+            error('HERBERT:JobDispatcher:runtime_error',...
                   ' Can not start parallel cluster %s after %d attempts. Parallel job aborted',...
                   class(cluster_wrp),n_restart_attempts+1);
         end

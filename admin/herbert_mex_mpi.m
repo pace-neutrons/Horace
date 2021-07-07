@@ -30,10 +30,11 @@ elseif isunix()
         % .a also possible
         mpi_lib_2use ={'libmpi.so','libmpich.so','libmpicxx.so'};
     else
-        opt_file = fullfile(herbert_root(),'admin/_compiler_settings/Matlab2020a/mex_C++openmpi_glnxa64.xml');
-        mpi_folder = '/usr/lib64/openmpi/';
-        mpi_hdrs_folder='/usr/include/openmpi-x86_64/';
-        mpi_lib_2use ={'libmpi_cxx.so','libmpi.so'};
+        %opt_file = fullfile(herbert_root(),'admin/_compiler_settings/Matlab2020a/mex_C++openmpi_glnxa64.xml');
+        opt_file = '';
+        mpi_folder = '/usr/lib64/mpich-3.2/';
+        mpi_hdrs_folder='/usr/include/mpich-3.2-x86_64/';
+        mpi_lib_2use ={'libmpicxx.so','libmpi.so'};
     end
     %mpi_folder = '/home/isis_direct_soft/mpich/';
     
@@ -58,7 +59,7 @@ input_files = cellfun(@(fn)fullfile(code_folder,fn),input_files,'UniformOutput',
 % additional include folder, containing mpich
 add_include = ['-I',mpi_hdrs_folder];
 if verbouse
-    add_include = {'-v',add_include};
+    add_include = {'-v ',add_include};
 else
     add_include = {add_include};
 end
@@ -66,15 +67,13 @@ outdir = fullfile(her_folder,'herbert_core','DLL',['_',computer],'_R2015a');
 
 build_version_h(her_folder)
 try
-    % -Wl,-rpath,to_libmpi.so should be provided here for linux clusters but Matlab 2020a
-    % does not support this option.
+    opt = sprintf('CXXFLAGS=$CFLAGS -fopenmp -std=c++11 -Wl,-rpath=%s,--no-undefined,-fopenmp',mpi_lib_folder);
     if isempty(opt_file)
-        mex(add_include{:},input_files{:},...
+        mex(add_include{:},opt,input_files{:},...
             mpi_lib{:},'-outdir',outdir);
     else
-        mex(add_include{:},input_files{:},...
-            mpi_lib{:},'-f',opt_file,'-outdir',outdir);
-        
+        mex(add_include{:},opt,input_files{:},...
+            mpi_lib{:},'-f',opt_file,'-outdir',outdir);        
     end
 catch Err
     ok = false;

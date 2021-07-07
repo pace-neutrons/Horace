@@ -82,7 +82,11 @@ for i=1:narg
                 return
             end
         else
-            ok=false; mess=['Input key: ''',args{i},''' is an ambiguous abbreviation of at least two valid options'];
+            ok=false; 
+            multiselected = strjoin(options(ind),'; ');
+            mess=sprintf(...
+                'Input key: ''%s'' is an ambiguous abbreviation of multiple valid options: %s.',...
+                args{i},multiselected);
             return
         end
     else

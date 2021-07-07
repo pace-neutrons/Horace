@@ -6,9 +6,12 @@ classdef CompletedMessage < aMessage
     %
     %
     methods
-        function obj = CompletedMessage()
+        function obj = CompletedMessage(varargin)
             % Construct the data message
             obj = obj@aMessage('completed');
+            if nargin>0
+                obj.payload = varargin{:};
+            end
         end
     end
     methods(Static,Access=protected)

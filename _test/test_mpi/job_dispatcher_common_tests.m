@@ -9,15 +9,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             this = this@MPI_Test_Common(test_name, cluster_name);
         end
         %
-        function test_job_fail_restart(obj, varargin)
-            if is_jenkins() && ispc
-                skipTest( ...
-                    ['Test is unstable - see ' ...
-                    'https://github.com/pace-neutrons/Herbert/issues/329 for ' ...
-                    'updates.'] ...
-                    );
-            end
-            
+        function test_job_fail_restart(obj, varargin)           
             if obj.ignore_test
                 return;
             end
@@ -233,14 +225,6 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
         end
         %
         function test_job_with_logs_3workers(obj, varargin)
-            if is_jenkins() && ispc
-                skipTest( ...
-                    ['Test is unstable - see ' ...
-                    'https://github.com/pace-neutrons/Herbert/issues/329 for ' ...
-                    'updates.'] ...
-                    );
-            end
-            
             if obj.ignore_test
                 return;
             end
@@ -340,13 +324,6 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
         end
         %
         function test_job_with_logs_2workers(obj, varargin)
-            if is_jenkins() && ispc
-                skipTest( ...
-                    ['Test is unstable - see ' ...
-                    'https://github.com/pace-neutrons/Herbert/issues/329 for ' ...
-                    'updates.'] ...
-                    );                
-            end
             if obj.ignore_test
                 return;
             end
@@ -416,16 +393,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             
         end
         %
-        
-        %
         function test_job_with_logs_worker(obj, varargin)
-            if is_jenkins() && ispc
-                skipTest( ...
-                    ['Test is unstable - see ' ...
-                    'https://github.com/pace-neutrons/Herbert/issues/329 for ' ...
-                    'updates.'] ...
-                    );
-            end
             if obj.ignore_test
                 return;
             end

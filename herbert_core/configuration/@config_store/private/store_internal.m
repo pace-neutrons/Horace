@@ -18,7 +18,7 @@ elseif(is_string(config_class))
     class_name = config_class;
     config_class = feval(class_name);
 else
-    error('CONFIG_STORE:invalid_argument',...
+    error('HERBERT:config_store:invalid_argument',...
         'input for config_store should be either instance of config class or string with a config class name')   
 end
 if nargin>3 % we need to set some fields before storing the configuration. 

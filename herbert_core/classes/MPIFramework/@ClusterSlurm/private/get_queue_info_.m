@@ -1,4 +1,4 @@
-function queue_rows = get_queue_info_(obj,full_header,trim_strings,for_this_job)
+function queue_rows = get_queue_info_(obj,full_header)
 % returns existing jobs queue list by asking system for this list and
 % parsing the list apporopriately
 %
@@ -8,24 +8,12 @@ function queue_rows = get_queue_info_(obj,full_header,trim_strings,for_this_job)
 % trim_strings -- if true, the job list should be trimmed up to job
 %                 run time infromation (for identifying existing jobs
 %                 regardless of their run time)
-% for_this_job -- if true, return log for job with this job_id only. 
+% for_this_job -- if true, return log for job with this job_id only.
 %                 job_id has to be defined
 
-queue_list = obj.get_queue_text_from_system(full_header,for_this_job);
-queue_rows = strsplit(queue_list,{'\n','\r'},'CollapseDelimiters',true);
-if trim_strings
-    queue_rows = cellfun(@(rw)trim_fun_(obj.time_field_pos_,rw),...
-        queue_rows,'UniformOutput',false);
-end
+queue_list = obj.get_queue_text_from_system(full_header);
+queue_rows = splitlines(queue_list);
 non_empty = cellfun(@(rw)(~isempty(rw)),...
     queue_rows,'UniformOutput',true);
 queue_rows  = queue_rows(non_empty);
-
-function trimmed_row = trim_fun_(trim_size,row)
-% Function-helper to trim the rows, which are lurgher then the trim_size
-if numel(row)<trim_size
-    trimmed_row = row;
-    return
-end
-trimmed_row = row(1:trim_size);
-
+%

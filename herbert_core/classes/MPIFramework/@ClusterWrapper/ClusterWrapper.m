@@ -95,7 +95,10 @@ classdef ClusterWrapper
         running_mess_contents_= 'process has not exited';
         % the string, describing the operations to launch Matlab or
         % compiled Matlab job
-        matlab_starter_  = [];
+        matlab_starter_  = [];        
+        % The name of the cluster to print in logs to inform about parallel
+        % program execution        
+        starting_cluster_name_;
     end
     properties(Hidden,Dependent)
         % helper property to print nicely aligned log messages
@@ -164,7 +167,7 @@ classdef ClusterWrapper
                 log_level = -1;
             end
             if log_level > -1
-                fprintf(2,'************************************************');
+                fprintf(2,'******************************************************\n');
                 fprintf(2,obj.starting_info_message_,n_workers);
             end
             obj = obj.set_mess_exchange(mess_exchange_framework);
@@ -274,17 +277,73 @@ classdef ClusterWrapper
         end
         %
         function [completed, obj] = check_progress(obj,varargin)
-            % Check the job progress verifying and receiving all messages,
-            % sent from worker N1
+            % Check the job progress from MPI job control system and
+            % verifying and receiving all messages,
+            % sent from Worker 1 in normal circumstances and all
+            % other workers in case of failure.
             %
             % usage:
-            %>> [completed, obj] = check_progress(obj)
-            %>> [completed, obj] = check_progress(obj,status_message)
+            %>> [completed, obj] = check_progress(obj) -- check and receive
+            %                      information from appropriate parallel job
+            %                      control system and receive all messages
+            %                      control/log messages addressed to
+            %                      the headnode to identify the
             %
-            % The first form checks and receives all messages addressed to
-            % job dispatched node where the second form accepts and
-            % verifies status message, received by other means
-            [completed,obj] = check_progress_(obj,varargin{:});
+            %>> [completed, obj] = check_progress(obj,status_message) accept
+            %                      and verify status message, provided as
+            %                      input
+            if isempty(varargin)
+                if obj.is_job_initiated()
+                    [running,failedC,paused,messC]=get_state_from_job_control(obj);
+                else
+                    paused =  false;
+                    running = false;
+                    failedC = true;
+                    messC  =  FailedMessage('Job Initialization process have failed or has not been started');
+                end
+            else
+                paused = false;
+                running =true;
+                failedC = false;
+                messC = varargin{1};
+                if ~isempty(messC) && isa(messC,'FailedMessage')
+                    failedC = true;
+                end
+            end
+            %
+            if paused
+                completed = false;
+                failed    = false;
+                mess = 'paused';
+            else
+                [completed,failed,mess] = check_progress_from_messages_(obj,varargin{:});
+            end
+            %
+            if isempty(mess) % the information is from job control
+                obj.status = messC;
+            else % messages should contain better information about the issue
+                obj.status = mess;
+            end
+            if ~running && ~completed
+                % has Matlab MPI job been completed before status message has
+                % been delivered?
+                mess = obj.mess_exchange_.probe_all(1,'completed');
+                if isempty(mess)
+                    if ~(failedC && ~isempty(messC))
+                        fm = FailedMessage(...
+                            'Cluster reports job completed but the final completeon messages has not been received');
+                        
+                        obj.status  = fm;
+                    end
+                    failed = true;
+                end
+            end
+            
+            
+            if ~completed && (failed || failedC)
+                % failure. The reason should be in mess.
+                completed = failed || failedC;
+            end
         end
         %
         function obj = display_progress(obj,varargin)
@@ -308,10 +367,26 @@ classdef ClusterWrapper
                 end
             end
             if display_log
-                if numel(obj.log_value) > 4*obj.LOG_MESSAGE_LENGHT
-                    disp(obj.log_value)
+                if contains(obj.log_value,'failed')
+                    highlight_failure = true;
                 else
-                    fprintf(obj.log_value);
+                    highlight_failure = false;
+                end
+                if numel(obj.log_value) > 4*obj.LOG_MESSAGE_LENGHT
+                    if highlight_failure
+                        newStr = splitlines(obj.log_value);
+                        fprintf(2,'%s\n',newStr{1});
+                    end
+                    disp(obj.log_value)
+                    if highlight_failure
+                        fprintf(2,'***************************************************\n');
+                    end
+                else
+                    if highlight_failure
+                        fprintf(2,obj.log_value);
+                    else
+                        fprintf(obj.log_value);
+                    end
                 end
             end
         end
@@ -424,9 +499,46 @@ classdef ClusterWrapper
             % and control node.
             frmwk = obj.mess_exchange_;
         end
+        %
+        function [completed,failed,mess] = check_progress_from_messages(obj,varargin)
+            % function analystes received progress messages and calculates
+            % progress from them
+            %
+            % Part of check_progress method. Exposed for testing purposes
+            [completed,failed,mess] = check_progress_from_messages_(obj,varargin{:});
+        end
     end
     
     methods(Access=protected)
+        %
+        function check_failed(obj)
+            % run cluster-specific get_state_from_job_control function and
+            % throw if this function return failure
+            %
+            % Used by init method, to identify cluster startup failure early.
+            [~,failed,~,mess] = obj.get_state_from_job_control();
+            if failed
+                if isa(mess,'FailedMessage')
+                    exc = mess.exception;
+                    % generate exception report only if the exception
+                    % contains useful information about the issue.
+                    if ~isempty(exc) && ~strcmp(exc.identifier,'HERBERT:FailedMessage:no_aruments')
+                        disp(exc.getReport())
+                    end
+                    info = '';
+                    format = '%s cluster for job: %s failed to start parallel execution. State: %s %s';
+                else
+                    format = '%s cluster for job: %s failed to start parallel execution. State: %s Message: %s';
+                    info = mess;
+                end
+                obj = obj.finalize_all();
+                %
+                error('HERBERT:ClusterWrapper:runtime_error',format,...
+                    obj.starting_cluster_name_,obj.job_id,obj.status_name,info);
+                
+            end
+        end
+        %
         function obj = generate_log(obj,varargin)
             % prepare log message from input parameters and the data, retrieved
             % by check_progress method
@@ -439,26 +551,18 @@ classdef ClusterWrapper
                     'This type of cluster wrapper accepts only %s configuration. Changed to %s',...
                     obj.cluster_config_,obj.cluster_config_)
             end
-            
         end
         %
         function obj = set_cluster_status(obj,mess)
-            % protected set status function, necessary to be able to
+            % Setter for status property
+            % defined as function and protected to be able to
             % overload set.status method.
-            if isa(mess,'aMessage')
-                stat_mess = mess;
-            elseif ischar(mess)
-                stat_mess = aMessage(mess);
-            else
-                error('HERBERT:ClusterWrapper:invalid_argument',...
-                    'status is defined by aMessage class only or a message name')
-            end
-            obj.prev_status_ = obj.current_status_;
-            obj.current_status_ = stat_mess;
-            if obj.prev_status_ ~= obj.current_status_
-                obj.status_changed_ = true;
-            end
-            
+            %
+            % Does substiturions for messages
+            % running -> log
+            % finished-> completed
+            %
+            obj = set_cluster_status_(obj,mess);
         end
         %
         function ex = exit_worker_when_job_ends_(~)
@@ -484,7 +588,7 @@ classdef ClusterWrapper
                 return;
             end
             
-            mess = '';
+            mess = 'running';
             is_alive = task_handle.isAlive;
             %             if is_alive
             %                 ok      = true;
@@ -492,11 +596,11 @@ classdef ClusterWrapper
             %             else
             try
                 term = task_handle.exitValue();
-                if ispc() % windows does not hold correct process for Matlab
-                    ok = true;
-                else
-                    ok = false; % unix does
-                end
+                %                 if ispc() % windows does not hold correct process for Matlab
+                %                     ok = true;
+                %                 else
+                %                     ok = false; % unix does
+                %                 end
                 if term == 0
                     %                         if is_alive
                     failed = false;
@@ -528,9 +632,15 @@ classdef ClusterWrapper
             end
             %            end
         end
-        
-        
+    end
+    %----------------------------------------------------------------------
+    methods(Abstract,Access=protected)
+        % get the state of running job by requesting reply from the job
+        % control mechanism.
+        [ok,failed,paused,mess] = get_state_from_job_control(~)
+    end
+    methods(Abstract)
+        % returns true, if the cluster wrapper is running a cluster job
+        ok = is_job_initiated(obj)
     end
 end
-
-

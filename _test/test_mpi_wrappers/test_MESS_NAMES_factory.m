@@ -45,7 +45,7 @@ classdef test_MESS_NAMES_factory< TestCase
             assertTrue(numel(itag)>=1)
             assertTrue(isnumeric(itag))
         end
-        %        
+        %
         function test_selection(~)
             name = MESS_NAMES.mess_name(8);
             assertTrue(ischar(name));
@@ -148,9 +148,9 @@ classdef test_MESS_NAMES_factory< TestCase
             ids1 = MESS_NAMES.mess_id('completed',100);
             assertTrue(isnumeric(ids1));
             assertEqual(numel(ids1),1);
-            assertEqual(ids1,ids(1));            
+            assertEqual(ids1,ids(1));
         end
-        %            
+        %
         function test_specialized_classes(obj)
             try
                 mc = aMessage('nont_exist');
@@ -177,7 +177,7 @@ classdef test_MESS_NAMES_factory< TestCase
                 thrown = false;
             catch ME
                 thrown = true;
-                assertEqual(ME.identifier,'AMESSAGE:invalid_argument');
+                assertEqual(ME.identifier,'HERBERT:aMessage:invalid_argument');
             end
             assertTrue(thrown,' Successfull attempt to intialize specialized message using generic constructor');
             

@@ -32,9 +32,9 @@ classdef test_parallel_config_and_clusters_factory < TestCase
             assertEqual(mf.parallel_cluster_name,'slurm_mpi')
             
             all_cfg = mf.get_all_configs();
-            assertTrue(numel(all_cfg)==1);
+            assertTrue(numel(all_cfg)==2);
             % first cluster after changing from paropool to mpiexec_mpi would be 'local'
-            assertEqual(all_cfg{1},'default');
+            assertEqual(all_cfg{1},'srun');
             
             cl = mf.parallel_cluster;
             if mf.framework_available
@@ -279,10 +279,10 @@ classdef test_parallel_config_and_clusters_factory < TestCase
             assertEqual(pc.parallel_cluster,'slurm_mpi');
             
             all_clcfg = pc.known_clust_configs;
-            assertEqual(numel(all_clcfg),1);
+            assertEqual(numel(all_clcfg),2);
             
             cl_config = pc.cluster_config;
-            assertEqual(cl_config,'default')
+            assertEqual(cl_config,'srun')
             
         end
     end
