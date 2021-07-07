@@ -60,6 +60,9 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
         end
         %
         function test_finish_tasks_reduce_messages(obj,varargin)
+            if is_jenkins() && ispc() && (matlab_version_num()==9.05)
+                skipTest('Test ignored due to instability on Windows Jenkins');                
+            end
             if obj.ignore_test
                 skipTest(obj.ignore_cause);
             end
