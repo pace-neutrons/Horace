@@ -29,7 +29,7 @@ classdef ClusterSlurmTester < ClusterSlurm
             % log_level    if present, defines the verbosity of the
             %              operations over the framework
             obj = obj@ClusterSlurm();
-            obj.time_to_wait_for_job_id_ = 0;
+            obj.time_to_wait_for_job_running_ = 0;
             
             if ~exist('log_level', 'var')
                 hc = herbert_config;
