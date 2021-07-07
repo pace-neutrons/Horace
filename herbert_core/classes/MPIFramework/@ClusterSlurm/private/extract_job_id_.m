@@ -15,7 +15,7 @@ while ~new_job_id_found
     if ~all(old_rows)
         new_job_id_found = true;
     else
-        pause(obj.time_to_wait_for_job_id_);        
+        pause(obj.time_to_wait_for_job_running_);        
         fail_c = fail_c + 1;
         if fail_c > 10
             error('HERBERT:ClusterSlurm:runtime_error',...

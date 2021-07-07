@@ -15,8 +15,8 @@ classdef ClusterSlurm < ClusterWrapper
         % Private parameters exposed as protected for testing
         %
         % The time (in sec) to wait from job submission to asking for job
-        % to appear in the queue.
-        time_to_wait_for_job_id_=1;
+        % getting allocation under normal cirumnstances
+        time_to_wait_for_job_running_=2;
         % the user name, used to distinguish this user jobs from others
         user_name_
         % verbosity of ClusterSlurm specific outputs
@@ -156,6 +156,10 @@ classdef ClusterSlurm < ClusterWrapper
             % location
             slenv('WORKER_CONTROL_STRING') =...
                 obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
+            DO_LOGGING = feval(getenv('DO_PARALLEL_MATLAB_LOGGING'));
+            if DO_LOGGING
+                slenv('DO_PARALLEL_MATLAB_LOGGING') = 'true';
+            end
             % set up job variables on local environment (Does not
             % currently used as ISIS implementation does not transfer
             % environmental variables to cluster)
@@ -186,7 +190,7 @@ classdef ClusterSlurm < ClusterWrapper
             obj.starting_cluster_name_ = sprintf('SlurmJobID%d',obj.slurm_job_id);
             
             % check if job control API reported failure
-            pause(obj.time_to_wait_for_job_id_);
+            pause(obj.time_to_wait_for_job_running_);
             obj.check_failed();
             
         end
