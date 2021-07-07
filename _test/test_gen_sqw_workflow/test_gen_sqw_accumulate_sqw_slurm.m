@@ -1,7 +1,7 @@
 classdef test_gen_sqw_accumulate_sqw_slurm <  ...
         gen_sqw_common_config & gen_sqw_accumulate_sqw_tests_common
-    % Series of tests of gen_sqw and associated functions run on pool of
-    % workers, provided by Matlab parallel computing toolbox.
+    % Series of tests of gen_sqw and associated functions communicating
+    % over MPI (cpp_mpi) and controlled by Slurm.
     %
     %
     % Optionally writes results to output file to compare with previously
