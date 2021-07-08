@@ -107,7 +107,7 @@ classdef ClusterHerbert < ClusterWrapper
                 end
                 env = runtime.environment();
                 obj.set_env(env);
-                task_info = [{obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR')},task_info(:)];
+                task_info = [{obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR')};task_info(:)];
                 runtime = runtime.command(task_info);
                 obj.tasks_handles_{task_id} = runtime.start();
                 [ok,failed,mess] = obj.is_java_process_running(obj.tasks_handles_{task_id});

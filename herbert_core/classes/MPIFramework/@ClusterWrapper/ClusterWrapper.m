@@ -96,7 +96,7 @@ classdef ClusterWrapper
         status_changed_ = false; % if the current_status_ differs from prev_status_
         % messages to display if corresponding cluster is starting.
         starting_info_message_ ='';
-        started_info_message_ ='';        
+        started_info_message_ ='';
     end
     properties(Access=private)
         %------------------------------------------------------------------
@@ -557,7 +557,6 @@ classdef ClusterWrapper
                 env.put(keys{i},val{i});
             end
         end
-        
         %
         function check_failed(obj)
             % run cluster-specific get_state_from_job_control function and
@@ -635,33 +634,33 @@ classdef ClusterWrapper
                 mess = 'process has not been started';
                 return;
             end
-            err_stream = task_handle.getErrorStream();
-            out_stream = task_handle.getOutputStream();
+            % Should redirect process error but does not. Why?
+            %err_stream_scan = java.util.Scanner(task_handle.getErrorStream());
+            %err_stream_scan.useDelimiter("\r\n");
+            %if err_stream_scan.hasNext
+            %    ok      = false;
+            %    failed  = true;
+            %    err_text = cell(1,1);
+            %    err_text{end}='Java error output reported\n';
+            %    while(err_stream_scan.hasNext)
+            %        err_text{end+1} = err_stream_scan.next();
+            %    end
+            %    mess = strjoin(err_text,' ');
+            %    return;
+            %else
             mess = 'running';
-            is_alive = task_handle.isAlive;
-            %             if is_alive
-            %                 ok      = true;
-            %                 failed  = false;
-            %             else
+            %end
+            %err_stream_scan.close();
+            is_alive = task_handle.isAlive(); % Does not work on Windows? Its thread class method, where task may or may not be implemented as thread
+            
             try
                 term = task_handle.exitValue();
-                %                 if ispc() % windows does not hold correct process for Matlab
-                %                     ok = true;
-                %                 else
-                %                     ok = false; % unix does
-                %                 end
                 if term == 0
-                    %                         if is_alive
                     failed = false;
                     ok = true;
-                    %                         else
-                    %                            failed = true;
-                    %                            ok = false;
-                    %                            mess = fprintf('Java process have died without any output');
-                    %                        end
                 else
                     failed = true;
-                    mess = sprintf('Java run error with ID: %d\n',term);
+                    mess = sprintf('Java process abnormal termination. Error: %d\n',term);
                     ok = false;
                 end
             catch Err
@@ -679,7 +678,6 @@ classdef ClusterWrapper
                     rethrow(Err);
                 end
             end
-            %            end
         end
     end
     %----------------------------------------------------------------------
