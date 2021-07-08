@@ -162,8 +162,8 @@ classdef pix_cache
                 n_source = pl.n_source;
                 if h_log
                     fprintf(h_log,...
-                        '********************  Message %d with range [%d , %d], filled in %d bins; has %d pixels\n;',...
-                        i,pl.bin_range,numel(pl.filled_bin_ind),pl.npix);
+                        '********************  Message %d with range [%d , %d], has %d pixels\n;',...
+                        i,pl.bin_range,pl.npix);
                     if pl.bin_range(1)>obj.bin_range_(2,i)+1 % missed short message?
                         fprintf(h_log,...
                             '******************** MessN %d, mes Range %d obj range %d\n',...
@@ -331,7 +331,7 @@ classdef pix_cache
                 fprintf(h_log,' cache contains: \n');
                 for j=1:n_mess
                     fprintf(h_log,'file %d; bin-range: [%d, %d], last bin completed: %u\n',...
-                        j,obj.bin_range_(1,j),obj.bin_range_(2,j),obj.last_bin_completed_{j});
+                        j,obj.bin_range_(1,j),obj.bin_range_(2,j),obj.last_bin_completed_(j));
                 end
             end
             

@@ -1,6 +1,6 @@
-#include "compute_pix_sums/compute_pix_sums_helpers.h"
-#include "compute_pix_sums/compute_pix_sums.h"
-#include "utility/version.h"
+#include "compute_pix_sums_helpers.h"
+#include "compute_pix_sums.h"
+#include "../utility/version.h"
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   // Return version if no arguments

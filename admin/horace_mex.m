@@ -68,7 +68,7 @@ try % mex C++
     mex_single([cpp_in_rel_dir 'bin_pixels_c'], out_rel_dir,'bin_pixels_c.cpp');
     mex_single([cpp_in_rel_dir 'calc_projections_c'], out_rel_dir,'calc_projections_c.cpp');
     mex_single([cpp_in_rel_dir 'sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
-    mex_single([cpp_in_rel_dir 'recompute_bin_data'], out_rel_dir,'compute_pix_sums_c.cpp');
+    mex_single([cpp_in_rel_dir 'compute_pix_sums'], out_rel_dir,'compute_pix_sums_c.cpp','compute_pix_sums_helpers.cpp');
     mex_single([cpp_in_rel_dir 'mtimesx_horace'], out_rel_dir,'mtimesx_mex.cpp');
 
     % create the procedured to access hdf files

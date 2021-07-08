@@ -294,9 +294,13 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             %hc.threads = 1;
             
             
-            [dummy,grid1,pix_range1]=gen_sqw (obj.spe_file, '', sqw_file_123456, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+            [dummy,grid1,pix_range1]=gen_sqw (obj.spe_file, '', ...
+                sqw_file_123456, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             %hc.build_sqw_in_parallel=0;
-            [dummy,grid2,pix_range2]=gen_sqw (obj.spe_file([1,4,5,6,2,3]), '', sqw_file_145623, efix([1,4,5,6,2,3]), emode, alatt, angdeg, u, v, psi([1,4,5,6,2,3]), omega([1,4,5,6,2,3]), dpsi([1,4,5,6,2,3]), gl([1,4,5,6,2,3]), gs([1,4,5,6,2,3]));
+            [dummy,grid2,pix_range2]=gen_sqw (obj.spe_file([1,4,5,6,2,3]),...
+                '', sqw_file_145623, efix([1,4,5,6,2,3]), emode, alatt, angdeg,...
+                u, v, psi([1,4,5,6,2,3]), omega([1,4,5,6,2,3]), ...
+                dpsi([1,4,5,6,2,3]), gl([1,4,5,6,2,3]), gs([1,4,5,6,2,3]));
             
             assertEqual(grid1,grid2);
             assertElementsAlmostEqual(pix_range1,pix_range2);
