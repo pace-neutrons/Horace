@@ -87,12 +87,11 @@ classdef ClusterWrapper
             'HERBERT_PARALLEL_WORKER',... the parameters string used as input arguments for the parallel job. If its Matlab, it is the worker name and the run parameters.
             'WORKER_CONTROL_STRING',...  input for the script, containing encoded info about the location of the exchange folder
             'DO_PARALLEL_MATLAB_LOGGING',...  if 'true' each parallel process will write progress log
-            }, {'','','worker_v2','','false'});
+            }, {'','matlab','worker_v2','','false'});
         %------------------------------------------------------------------
         % properties, indicating changes in the pool status and used by
         % display_progress to build nuce progress logs
         current_status_ = [];  %  message, describing the current status
-        prev_status_=[];       %   message, describing the previous status
         status_changed_ = false; % if the current_status_ differs from prev_status_
         % messages to display if corresponding cluster is starting.
         starting_info_message_ ='';
@@ -550,11 +549,17 @@ classdef ClusterWrapper
         function env = set_env(obj,env)
             % helper function to set enviroment for a java process.
             % Inputs:
-            % env -- Matlab representation of the java env processes
+            % [env] -- If present, Matlab representation of the java env
+            %          the enviroment will be set to java process space.
+            %          If absent, the eniromental variables will be set up
+            %          to current running Matlab version
+            %
             keys = obj.common_env_var_.keys;
             val  = obj.common_env_var_.values;
-            for i=1:numel(keys)
-                env.put(keys{i},val{i});
+            if exist('env','var')
+                cellfun(@(name,val)env.put(name,val),keys,val);                                
+            else
+                cellfun(@(name,val)setenv(name,val),keys,val);                
             end
         end
         %

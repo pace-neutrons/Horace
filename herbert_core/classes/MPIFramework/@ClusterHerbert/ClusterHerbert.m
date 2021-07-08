@@ -39,7 +39,8 @@ classdef ClusterHerbert < ClusterWrapper
                 ':herbert configured: *** Starting Herbert (poor-man-MPI) cluster with %d workers ***\n';
             obj.started_info_message_  = ...
                 '*** Herbert cluster initialized                              ***\n';
-            %
+            % The default name of the messages framework, used for communications
+            % between the nodes of the parallel job
             obj.pool_exchange_frmwk_name_ ='MessagesFilebased';
             obj.cluster_config_ = 'local';
             obj.starting_cluster_name_ = class(obj);
@@ -87,10 +88,8 @@ classdef ClusterHerbert < ClusterWrapper
                     log_file = sprintf('output_jobN%d.log',task_id);
                     task_info = [obj.task_common_str_(1:end-1),...
                         {'-logfile'},{log_file },{'-r'},{worker_init}];
-                    obj.common_env_var_('DO_PARALLEL_MATLAB_LOGGING') = 'true';
                 else
                     task_info = [obj.task_common_str_(1:end),{worker_init}];
-                    obj.common_env_var_('DO_PARALLEL_MATLAB_LOGGING') = 'false';                    
                 end
                 % this not used by java launcher bug may be used if we
                 % decide to run parallel worker from script
@@ -103,7 +102,7 @@ classdef ClusterHerbert < ClusterWrapper
                 if ispc()
                     runtime = java.lang.ProcessBuilder('cmd.exe');
                 else
-                    runtime = java.lang.ProcessBuilder('/bin/sh');                    
+                    runtime = java.lang.ProcessBuilder('/bin/sh');
                 end
                 env = runtime.environment();
                 obj.set_env(env);
@@ -111,10 +110,6 @@ classdef ClusterHerbert < ClusterWrapper
                 runtime = runtime.command(task_info);
                 obj.tasks_handles_{task_id} = runtime.start();
                 [ok,failed,mess] = obj.is_java_process_running(obj.tasks_handles_{task_id});
-                
-                %runtime = java.lang.ProcessBuilder(task_info);
-                %obj.tasks_handles_{task_id} = runtime.start();
-                %[ok,failed,mess] = obj.is_java_process_running(obj.tasks_handles_{task_id});
                 if ~ok && failed
                     error('HERBERT:ClusterHerbert:system_error',...
                         ' Can not start worker N%d#%d, Error: %s',...
@@ -122,7 +117,7 @@ classdef ClusterHerbert < ClusterWrapper
                 end
             end
             % check if job control API reported failure
-            obj.check_failed();            
+            obj.check_failed();
         end
         %
         function obj=finalize_all(obj)
@@ -140,7 +135,7 @@ classdef ClusterHerbert < ClusterWrapper
             % returns true, if the cluster wrapper is running bunch of
             % parallel java processes
             is = ~isempty(obj.tasks_handles_);
-        end                
+        end
         %------------------------------------------------------------------
     end
     methods(Access = protected)

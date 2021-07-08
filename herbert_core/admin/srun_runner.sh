@@ -1,5 +1,7 @@
 #!/bin/sh
 # iDAaaS specific batch script to run mpi job. 
+# The specific is in used MPI version and the way to set it up
+#
 # modify it according to your system to be able to find matlab and mpi (mpich)
 # or compile cpp_communicator to use Herbert own mpich, ensuring Slurm cluster manager 
 # understands it and can use pmi to control mpi job
@@ -37,7 +39,8 @@ export DO_PARALLEL_MATLAB_LOGGING='false'
 #echo "WORKER_CONTROL_STRING: ${WORKER_CONTROL_STRING}"
 #
 #echo "DO_PARALLEL_MATLAB_LOGGING: ${DO_PARALLEL_MATLAB_LOGGING}"
-#
+#---------------------------------------------------------------
+# Combine and run the parallel task:
 CMD="\"${PARALLEL_EXECUTOR}\" \"${HERBERT_PARALLEL_WORKER}\" "
 #
 #echo "COMMAND TO RUN:  ${CMD}"

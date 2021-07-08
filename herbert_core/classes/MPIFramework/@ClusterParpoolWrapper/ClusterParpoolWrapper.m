@@ -7,7 +7,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
     properties(Access = protected)
         cluster_ =[];
         current_job_ = [];
-        task_ = [];        
+        task_ = [];
     end
     properties(Constant,Access = private)
         % list of states available for parallel computer toolbox cluster
@@ -62,8 +62,11 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             obj.started_info_message_  = ...
                 '*** Matlab MPI job started                                 ***\n';
             obj.cluster_config_ = 'default';
+            
+            % The default name of the messages framework, used for communications
+            % between the nodes of the parallel job
             obj.pool_exchange_frmwk_name_ = 'MessagesParpool';
-            obj.starting_cluster_name_ = class(obj);            
+            obj.starting_cluster_name_ = class(obj);
             if nargin < 2
                 return;
             end
@@ -101,6 +104,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             end
             % build generic worker init string without lab parameters
             cs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
+            obj.common_env_var_('WORKER_CONTROL_STRING')=cs;
             pc = parallel_config;
             
             
@@ -129,7 +133,10 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                 cjob.NumWorkersRange  = obj.n_workers;
             end
             cjob.AutoAttachFiles = false;
-            
+            % set enviromental variables. This certainly works for local
+            % variables, but if the cluster is remote, the envriomental
+            % variables transfer should be investigated
+            obj.set_env();
             h_worker = str2func(obj.worker_name_);
             task = createTask(cjob,h_worker,0,{cs});
             
@@ -153,7 +160,6 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             if ~isempty(obj.current_job_)
                 delete(obj.current_job_);
                 obj.current_job_ = [];
-                obj.status_changed_ = false;
             end
             
         end
