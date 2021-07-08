@@ -145,9 +145,6 @@ classdef ClusterSlurm < ClusterWrapper
             % temporary hack. Matlab on nodes differs from Matlab on the
             % headnode. Should be contents of obj.matlab_starter_
             slenv = obj.slurm_enviroment;
-            slenv('MATLAB_PARALLEL_EXECUTOR') = ...
-                obj.matlab_starter_;
-            %'/opt/matlab2020b/bin/matlab';
             % what should be executed by Matlab parallel worker (will be
             % nothing if Matlab parallel worker is compiled)
             slenv('PARALLEL_WORKER') =...
@@ -156,6 +153,7 @@ classdef ClusterSlurm < ClusterWrapper
             % location
             slenv('WORKER_CONTROL_STRING') =...
                 obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
+            %
             DO_LOGGING = feval(getenv('DO_PARALLEL_MATLAB_LOGGING'));
             if DO_LOGGING
                 slenv('DO_PARALLEL_MATLAB_LOGGING') = 'true';

@@ -6,16 +6,10 @@ classdef ClusterHerbert < ClusterWrapper
     %
     %----------------------------------------------------------------------
     properties(Access = protected)
-        
-        cluster_prev_state_ =[];
-        cluster_cur_state_ = [];
-        
         tasks_handles_ = {};
     end
     properties(Access = private)
         task_common_str_ = {'-nosplash','-nodesktop','-r'};
-        %
-        DEBUG_REMOTE = false;
     end
     
     methods
@@ -57,6 +51,7 @@ classdef ClusterHerbert < ClusterWrapper
             end
             obj = init(obj,n_workers,mess_exchange_framework,log_level);
         end
+        %
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
             % The method to initate the cluster wrapper
             %
@@ -84,20 +79,42 @@ classdef ClusterHerbert < ClusterWrapper
             intecomm_name = obj.pool_exchange_frmwk_name_;
             for task_id=1:n_workers
                 cs = obj.mess_exchange_.get_worker_init(intecomm_name ,task_id,n_workers);
-                worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
+                %worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
+                worker_init = obj.worker_name_;
+                %
                 if obj.DEBUG_REMOTE
                     % if debugging client
                     log_file = sprintf('output_jobN%d.log',task_id);
-                    task_info = [{obj.matlab_starter_ },obj.task_common_str_(1:end-1),...
+                    task_info = [obj.task_common_str_(1:end-1),...
                         {'-logfile'},{log_file },{'-r'},{worker_init}];
+                    obj.common_env_var_('DO_PARALLEL_MATLAB_LOGGING') = 'true';
                 else
-                    task_info = [{obj.matlab_starter_},obj.task_common_str_(1:end),...
-                        {worker_init}];
+                    task_info = [obj.task_common_str_(1:end),{worker_init}];
+                    obj.common_env_var_('DO_PARALLEL_MATLAB_LOGGING') = 'false';                    
                 end
-                
-                runtime = java.lang.ProcessBuilder(task_info);
+                % this not used by java launcher bug may be used if we
+                % decide to run parallel worker from script
+                obj.common_env_var_('HERBERT_PARALLEL_WORKER')= strjoin(task_info,' ');
+                % encoded information about the location of exchange folder
+                % and the parameters of the proceses pool.
+                obj.common_env_var_('WORKER_CONTROL_STRING') = cs;
+                %
+                % prepate and start java process
+                if ispc()
+                    runtime = java.lang.ProcessBuilder('cmd.exe');
+                else
+                    runtime = java.lang.ProcessBuilder('/bin/sh');                    
+                end
+                env = runtime.environment();
+                obj.set_env(env);
+                task_info = [{obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR')},task_info(:)];
+                runtime = runtime.command(task_info);
                 obj.tasks_handles_{task_id} = runtime.start();
                 [ok,failed,mess] = obj.is_java_process_running(obj.tasks_handles_{task_id});
+                
+                %runtime = java.lang.ProcessBuilder(task_info);
+                %obj.tasks_handles_{task_id} = runtime.start();
+                %[ok,failed,mess] = obj.is_java_process_running(obj.tasks_handles_{task_id});
                 if ~ok && failed
                     error('HERBERT:ClusterHerbert:system_error',...
                         ' Can not start worker N%d#%d, Error: %s',...

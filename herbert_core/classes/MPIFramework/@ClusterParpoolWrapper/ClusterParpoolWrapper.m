@@ -7,10 +7,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
     properties(Access = protected)
         cluster_ =[];
         current_job_ = [];
-        task_ = [];
-        
-        cluster_prev_state_ =[];
-        cluster_cur_state_ = [];
+        task_ = [];        
     end
     properties(Constant,Access = private)
         % list of states available for parallel computer toolbox cluster
@@ -156,8 +153,6 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             if ~isempty(obj.current_job_)
                 delete(obj.current_job_);
                 obj.current_job_ = [];
-                obj.cluster_prev_state_ = obj.cluster_cur_state_;
-                obj.cluster_cur_state_ = [];
                 obj.status_changed_ = false;
             end
             

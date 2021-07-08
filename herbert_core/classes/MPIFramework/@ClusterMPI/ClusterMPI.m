@@ -10,8 +10,6 @@ classdef ClusterMPI < ClusterWrapper
         %
     end
     properties(Access = private)
-        %
-        DEBUG_REMOTE = false;
         % the folder, containing mpiexec cluster configurations (host files)
         config_folder_
     end
