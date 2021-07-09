@@ -196,7 +196,13 @@ classdef ClusterMPI < ClusterWrapper
             paused = false;
             task_handle = obj.mpiexec_handle_;
             [running,failed,mess] = obj.is_java_process_running(task_handle);
+            if failed
+                mess = FailedMessage(mess);
+            else % not failed
+                if ~running
+                    mess = CompletedMessage(mess);
+                end
+            end
         end
-        
     end
 end
