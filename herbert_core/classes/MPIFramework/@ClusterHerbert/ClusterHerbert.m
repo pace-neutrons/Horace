@@ -85,7 +85,7 @@ classdef ClusterHerbert < ClusterWrapper
                 %
                 if obj.DEBUG_REMOTE
                     % if debugging client
-                    log_file = sprintf('output_jobN%d.log',task_id);
+                    log_file = sprintf('output_job_logfileN%d.log',task_id);
                     task_info = [obj.task_common_str_(1:end-1),...
                         {'-logfile'},{log_file },{'-r'},{worker_init}];
                 else
@@ -150,13 +150,13 @@ classdef ClusterHerbert < ClusterWrapper
                 [running,failed,mess] = is_java_process_running(obj,obj.tasks_handles_{i});
                 if ~running
                     n_fail = n_fail +1;
-                    res_mess{i} = fprintf('Process %d failed with Error %s\n',...
+                    res_mess{i} = sprintf('Process %d failed with Error: %s',...
                         i,mess);
                 end
             end
             if n_fail>0
                 failed = true;
-                mess_text = [res_mess{:}];
+                mess_text = strjoin(res_mess,';\n');
                 mess = FailedMessage(mess_text);
             end
             

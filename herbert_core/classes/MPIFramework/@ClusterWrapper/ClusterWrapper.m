@@ -82,7 +82,7 @@ classdef ClusterWrapper
         % the map containing the enviroment variables, common for all
         % clusters
         common_env_var_= containers.Map(...
-            {'MATLAB_PATH',...  Additional Matlab m-files search path, containing horace_on/herbert_on initialization scripts and Matlab worker script ($PARALLEL_WORKER value), run by Matlab when it runs in the script mode
+            {'MATLABPATH',...  Additional Matlab m-files search path, containing horace_on/herbert_on initialization scripts and Matlab worker script ($PARALLEL_WORKER value), run by Matlab when it runs in the script mode
             'HERBERT_PARALLEL_EXECUTOR',... the program which executes the parallel job on server. Matlab or compiled Horace
             'HERBERT_PARALLEL_WORKER',... the parameters string used as input arguments for the parallel job. If its Matlab, it is the worker name and the run parameters.
             'WORKER_CONTROL_STRING',...  input for the script, containing encoded info about the location of the exchange folder
@@ -221,12 +221,17 @@ classdef ClusterWrapper
             end
             % additional Matlab m-files search path to be available to
             % workers
-            existing_addpath = getenv('MATLAB_PATH');
+            existing_addpath = getenv('MATLABPATH');
             possible_addpath = fileparts(which(pc.worker));
             if  contains(existing_addpath,possible_addpath)
-                obj.common_env_var_('MATLAB_PATH') = existing_addpath;
+                obj.common_env_var_('MATLABPATH') = existing_addpath;
             else
-                obj.common_env_var_('MATLAB_PATH') = [existing_addpath pathsep, possible_addpath];
+                if isempty(existing_addpath)
+                    obj.common_env_var_('MATLABPATH') = possible_addpath;
+                else
+                    obj.common_env_var_('MATLABPATH') = ...
+                        [possible_addpath,pathsep,existing_addpath];
+                end
             end
             if obj.DEBUG_REMOTE
                 obj.common_env_var_('DO_PARALLEL_MATLAB_LOGGING') = 'true';
@@ -557,9 +562,11 @@ classdef ClusterWrapper
             keys = obj.common_env_var_.keys;
             val  = obj.common_env_var_.values;
             if exist('env','var')
-                cellfun(@(name,val)env.put(name,val),keys,val);                                
+                cellfun(@(name,val)env.put(name,val),keys,val,...
+                    'UniformOutput',false);
             else
-                cellfun(@(name,val)setenv(name,val),keys,val);                
+                cellfun(@(name,val)setenv(name,val),keys,val,...
+                    'UniformOutput',false);
             end
         end
         %
@@ -583,10 +590,12 @@ classdef ClusterWrapper
                     format = '%s cluster for job: %s failed to start parallel execution. State: %s Message: %s';
                     info = mess;
                 end
+                jobid = obj.job_id;
+                stat_name  = obj.status_name;
                 obj = obj.finalize_all();
                 %
                 error('HERBERT:ClusterWrapper:runtime_error',format,...
-                    obj.starting_cluster_name_,obj.job_id,obj.status_name,info);
+                    obj.starting_cluster_name_,jobid,stat_name,info);
                 
             end
         end
@@ -624,7 +633,7 @@ classdef ClusterWrapper
             ex  = true;
         end
         %
-        function [ok,failed,mess] = is_java_process_running(obj,task_handle)
+        function [running,failed,mess] = is_java_process_running(obj,task_handle)
             % check if java process is still running or has been completed
             %
             % inputs:
@@ -634,7 +643,7 @@ classdef ClusterWrapper
             %                               indicating that the process is
             %                               still running
             if isempty(task_handle)
-                ok      = false;
+                running      = false;
                 failed  = true;
                 mess = 'process has not been started';
                 return;
@@ -656,17 +665,33 @@ classdef ClusterWrapper
             mess = 'running';
             %end
             %err_stream_scan.close();
-            is_alive = task_handle.isAlive(); % Does not work on Windows? Its thread class method, where task may or may not be implemented as thread
+            if isunix()
+                is_alive = task_handle.isAlive();
+                if is_alive
+                    running = true;
+                    failed  = false;
+                    return;
+                end
+            else %isAlive does not work on Windows Its thread class method, where task may or may not be implemented as thread
+                is_alive = false;
+            end
             
             try
                 term = task_handle.exitValue();
                 if term == 0
-                    failed = false;
-                    ok = true;
+                    if is_alive % thread is still running despite task have been completed
+                        running = true;
+                        failed  = false;
+                        return;
+                    else
+                        failed = false;
+                        running = false;
+                        mess = 'Java process sucsessfulluy completed';
+                    end
                 else
                     failed = true;
-                    mess = sprintf('Java process abnormal termination. Error: %d\n',term);
-                    ok = false;
+                    mess = sprintf('Java process abnormal termination. Error ID: %d\n',term);
+                    running = false;
                 end
             catch Err
                 if strcmp(Err.identifier,'MATLAB:Java:GenericException')
@@ -674,9 +699,9 @@ classdef ClusterWrapper
                     if isempty(part)
                         mess = Err.message;
                         failed = true;
-                        ok   = false;
+                        running   = false;
                     else
-                        ok = true;
+                        running = true;
                         failed = false;
                     end
                 else

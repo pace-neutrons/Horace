@@ -11,7 +11,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
         %
         function test_job_fail_restart(obj, varargin)           
             if obj.ignore_test
-                return;
+                skipTest('test_job_fail_restart is disabled');
             end
             fprintf('test_job_dispatcher_%s:test_job_fail_restart\n', ...
                 obj.cluster_name)
@@ -226,7 +226,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
         %
         function test_job_with_logs_3workers(obj, varargin)
             if obj.ignore_test
-                return;
+                skipTest('test_job_with_logs_3workers is disabled');
             end
             fprintf('test_job_dispatcher_%s:test_job_with_logs_3workers\n', ...
                 obj.cluster_name)
@@ -325,7 +325,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
         %
         function test_job_with_logs_2workers(obj, varargin)
             if obj.ignore_test
-                return;
+                skipTest('test_job_with_logs_2workers is disabled');
             end
             fprintf('test_job_dispatcher_%s:test_job_with_logs_2workers\n', ...
                 obj.cluster_name)
@@ -395,7 +395,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
         %
         function test_job_with_logs_worker(obj, varargin)
             if obj.ignore_test
-                return;
+                skipTest('test_job_with_logs_worker is disabled');
             end
             fprintf('test_job_dispatcher_%s:test_job_with_logs_worker\n', ...
                 obj.cluster_name)

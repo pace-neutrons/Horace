@@ -57,7 +57,7 @@ log_file = fullfile(getuserdir,log_file_name );
 if isa(ERROR,'MException')
     error_contents = ERROR.getReport();
 else
-    error_contents = fevalc('disp(ERROR)');
+    error_contents = evalc('disp(ERROR)');
 end
 
 fh = fopen(log_file,'w');

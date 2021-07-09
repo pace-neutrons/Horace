@@ -11,22 +11,29 @@
 
 module load mpi/mpich-3.2-x86_64
 #
-# Set up additional Matlab files search path, containing horace_on/herbert_on 
-# initialization scripts and Matlab worker script ($PARALLEL_WORKER value),
-# run by Matlab when it runs in the script mode
-export MATLABPATH='/usr/local/mprogs/Users/':$MATLABPATH
 #--------------------------------------------------------------------------------------
 # WILL be modified by SlurmWrapper init function according to the particular job settings
 #
+# Set up additional Matlab files search path, containing horace_on/herbert_on 
+# initialization scripts and Matlab worker script ($PARALLEL_WORKER value),
+# run by Matlab when it runs in the script mode
+# This is to find init (worker script)
+export MATLABPATH='/usr/local/mprogs/Users/':$MATLABPATH
+#------------------------------------------------
+#Two below to start them the script
 # HERBERT_PARALLEL_EXECUTOR -- the program which executes the parallel job on server. Usually Matlab
 export HERBERT_PARALLEL_EXECUTOR='matlab'
+#
 # HERBERT_PARALLEL_WORKER -- the parameters string used as input arguments for the parallel job. If its Matlab, 
 # it is the worker name and the run parameters. If PARALLEL_EXECUTOR is compiled Matlab job,
 # the string may be empty
 export HERBERT_PARALLEL_WORKER='-batch worker_v2'
-# WORKER_CONTROL_STRING -- the base64 encoded string, which defines location of the common for MPI workers
-# communication folder
+#------------------------------------------------
+# Data to be read by script from enviroment to understand what to do
+# WORKER_CONTROL_STRING -- the base64 encoded string, which defines location
+# of the common for MPI workers communication folder
 export WORKER_CONTROL_STRING=''
+#
 # The variable enables progress logs writing in parallel workers
 export DO_PARALLEL_MATLAB_LOGGING='false'
 #---------------------------------------------------------------
@@ -41,7 +48,7 @@ export DO_PARALLEL_MATLAB_LOGGING='false'
 #echo "DO_PARALLEL_MATLAB_LOGGING: ${DO_PARALLEL_MATLAB_LOGGING}"
 #---------------------------------------------------------------
 # Combine and run the parallel task:
-CMD="\"${PARALLEL_EXECUTOR}\" \"${HERBERT_PARALLEL_WORKER}\" "
+CMD="\"${HERBERT_PARALLEL_EXECUTOR}\" \"${HERBERT_PARALLEL_WORKER}\" "
 #
 #echo "COMMAND TO RUN:  ${CMD}"
 #
