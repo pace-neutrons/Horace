@@ -154,7 +154,7 @@ classdef MPI_clusters_factory<handle
             catch ME
                 if strcmp(ME.identifier,'HERBERT:ClusterWrapper:runtime_error')
                     if log_level > -1
-                        fprintf(2,'*** Cluster Initialization failure: %s',ME.message);
+                        fprintf(2,'*** Cluster Initialization failure: %s\n',ME.message);
                     end
                     cl=[];
                 else

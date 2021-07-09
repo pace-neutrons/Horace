@@ -45,7 +45,10 @@ if exist('task_query_time', 'var') && ~isempty(task_query_time)
 end
 
 mf = obj.mess_framework_;
-
+% if cluster has to be restarted, this information may be destroyed
+% lets keep it just in case
+job_info = mf.initial_framework_info;
+%
 % if loop param defines less loop parameters then there are workers requested,
 % the number of workers will be decreased.
 n_workers = check_loop_param(loop_params,n_workers);
@@ -71,13 +74,14 @@ if ~ok
     pc = parallel_config;
     
     while ~ok && ic <n_restart_attempts
-        cluster_wrp.display_progress(...
-            sprintf(' Trying to restart parallel cluster for the %d time',ic+1));
-        
-        job_info = mf.initial_framework_info;
-        if ~isempty(cluster_wrp)
+        if isempty(cluster_wrp)
+            fprintf(2,'*** Trying to restart parallel cluster for the %d time\n',ic+1);
+        else
+            cluster_wrp.display_progress(...
+                sprintf(' Trying to restart parallel cluster for the %d time',ic+1));
             cluster_wrp.finalize_all(); % will destroy current mf
         end
+        
         % Reinitialize mf and create job folder
         mf = MessagesFilebased(job_info);
         if ~isempty(pc.shared_folder_on_local)
