@@ -145,21 +145,30 @@ classdef ClusterHerbert < ClusterWrapper
             paused = false;
             mess = 'running';
             res_mess = cell(1,numel(obj.tasks_handles_));
+            is_failed = false(1,numel(obj.tasks_handles_));
+            is_running   = true(1,numel(obj.tasks_handles_));
             n_fail = 0;
             for i=1:numel(obj.tasks_handles_)
                 [running,failed,mess] = is_java_process_running(obj,obj.tasks_handles_{i});
-                if ~running
+                if failed
                     n_fail = n_fail +1;
                     res_mess{i} = sprintf('Process %d failed with Error: %s',...
                         i,mess);
+                    is_failed(i) = true;
+                else
+                    is_running(i) = running;
                 end
             end
+            running = any(is_running);
             if n_fail>0
                 failed = true;
-                mess_text = strjoin(res_mess,';\n');
+                mess_text = strjoin(res_mess(is_failed),';\n');
                 mess = FailedMessage(mess_text);
+            else
+                if ~running
+                    mess = CompletedMessage(mess);
+                end
             end
-            
         end
         %
         

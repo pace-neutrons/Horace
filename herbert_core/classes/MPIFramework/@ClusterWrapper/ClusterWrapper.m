@@ -673,7 +673,7 @@ classdef ClusterWrapper
                     return;
                 end
             else %isAlive does not work on Windows Its thread class method, where task may or may not be implemented as thread
-                is_alive = false;
+                is_alive = true;
             end
             
             try
