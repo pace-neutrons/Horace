@@ -4,8 +4,6 @@ function path=horace_on(non_default_path)
 %  horace_on(non_default_horace_path)  -- calls Horace with non-default Horace folder;
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
 %
 default_horace_path = '${Horace_CORE}';
 default_herbert_path = '${Herbert_CORE}';
