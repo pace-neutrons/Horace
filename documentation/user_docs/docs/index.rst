@@ -7,6 +7,7 @@
    The_Horace_Rationale
 
    Download_and_setup
+   Download_and_Setup_Troubleshutting
    Support_and_updates
 
    Getting_started
@@ -51,7 +52,6 @@
    [NULL] <Horace_and_Libisis_installation>
    [NULL] <Horace_command_line>
    [NULL] <New>
-   [NULL] <Official_download_v1>
    [NULL] <Read_or_write_to_disk>
    [NULL] <Remote_data_analysis>
    [NULL] <Reshaping_etc>

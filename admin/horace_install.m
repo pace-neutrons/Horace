@@ -14,25 +14,42 @@ function horace_install(varargin)
 %
 HORACE_ON_PLACEHOLDER = '${Horace_CORE}';
 HERBERT_ON_PLACEHOLDER = '${Herbert_CORE}';
-try % remove from path any possible previous version of Horace/Herbert
+
+try % remove from search path any possible previous version of Horace/Herbert
     herbert_off();
-catch
-end
+catch % ignore errors if the code has not been installed before and script 
+end   % has not been found
 try
     horace_off();
-catch
+catch  % ignore errors if the code has not been installed before and script 
+end    % has not been found
+%
+% is there an old installation present?
+old_horace_on = which('horace_on');
+if ~isempty(old_horace_on)
+    delete(old_horace_on);
+    use_existing_path = true;
+    install_root = fileparts(old_horace_on);
+else
+    use_existing_path = false;    
+    code_root = fileparts(mfilename('fullpath'));    
+    install_root= fullfile(code_root,'ISIS');    
+end
+old_herbert_on = which('herbert_on');
+if ~isempty(old_herbert_on)
+    delete(old_herbert_on);
 end
 
 
-
-code_root = fileparts(mfilename('fullpath'));
 opts = parse_args(code_root, varargin{:});
-install_root= fullfile(code_root,'ISIS');
+
 if ~exist(install_root,'dir')
     mkdir(install_root);
 end
-addpath(install_root);
-savepath
+if ~use_existing_path % path have already been modified. Do not create mess
+    addpath(install_root);
+    savepath
+end
 
 
 % Find required files/directories
@@ -41,23 +58,23 @@ savepath
 hor_init_dir = find_directory( ...
     'horace_init.m', ...
     {fullfile(code_root, 'Horace'), fullfile(opts.horace_root, 'horace_core')} ...
-);
+    );
 her_init_dir = find_directory( ...
     'herbert_init.m', ...
     {fullfile(code_root, 'Herbert'), fullfile(opts.herbert_root, 'herbert_core')} ...
-);
+    );
 horace_on_path = find_file( ...
     'horace_on.m.template', ...
     {code_root, fullfile(opts.horace_root, 'admin')} ...
-);
+    );
 herbert_on_path = find_file( ...
     'herbert_on.m.template', ...
     {code_root, fullfile(opts.herbert_root, 'admin')} ...
-);
+    );
 worker_path = find_file( ...
     'worker_v2.m.template', ...
     {code_root, fullfile(opts.horace_root, 'admin')} ...
-);
+    );
 
 % Install horace_on
 install_file( ...
@@ -65,14 +82,14 @@ install_file( ...
     fullfile(install_root, 'horace_on.m'), ...
     {HORACE_ON_PLACEHOLDER, HERBERT_ON_PLACEHOLDER}, ...
     {hor_init_dir, her_init_dir} ...
-);
+    );
 % Install herbert_on
 install_file( ...
     herbert_on_path, ...
     fullfile(install_root, 'herbert_on.m'), ...
     {HERBERT_ON_PLACEHOLDER}, ...
     {her_init_dir} ...
-);
+    );
 % Install worker_v2 script (required by parallel routines) to userpath
 install_file(worker_path, fullfile(install_root, 'worker_v2.m'));
 
@@ -88,172 +105,135 @@ end
 
 % -----------------------------------------------------------------------------
 function opts = parse_args(install_root, varargin)
-    %PARSE_ARGS parse install script options
-    %
-    % Use defaults that will work for the common Git checkout set-up, i.e.
-    % Herbert and Horace cloned into a common directory
-    %
+%PARSE_ARGS parse install script options
+%
+% Use defaults that will work for the common Git checkout set-up, i.e.
+% Herbert and Horace cloned into a common directory
+%
 
     function validate_path(x, arg_name)
         validateattributes( ...
             x, {'string', 'char'}, {'scalartext'}, 'horace_install', arg_name ...
-        );
+            );
     end
 
-    hor_root_default = fileparts(install_root);
-    her_root_default = fullfile(fileparts(hor_root_default), 'Herbert');
+hor_root_default = fileparts(install_root);
+her_root_default = fullfile(fileparts(hor_root_default), 'Herbert');
 
-    parser = inputParser();
-    % Default herbert_root is "<horace_root>/../Herbert"
-    parser.addParameter( ...
-        'herbert_root', ...
-        her_root_default, ...
-        @(x) validate_path(x, 'herbert_root') ...
+parser = inputParser();
+% Default herbert_root is "<horace_root>/../Herbert"
+parser.addParameter( ...
+    'herbert_root', ...
+    her_root_default, ...
+    @(x) validate_path(x, 'herbert_root') ...
     );
-    % Default horace_root is one directory above this script
-    parser.addParameter( ...
-        'horace_root', ...
-        hor_root_default, ...
-        @(x) validate_path(x, 'horace_root') ...
+% Default horace_root is one directory above this script
+parser.addParameter( ...
+    'horace_root', ...
+    hor_root_default, ...
+    @(x) validate_path(x, 'horace_root') ...
     );
-    parser.parse(varargin{:});
-    opts = parser.Results;
+parser.parse(varargin{:});
+opts = parser.Results;
 end
 
 
 function install_file(source, dest, placeholders, replace_strs)
-    %INSTALL_FILE copy the given file to the given destination
-    % if placeholders and replace_strs are given, then replace the string values
-    % in placeholders with the string at the corresponding index in
-    % replace_strs.
-    %
-    if ~exist('placeholders', 'var')
-        copy_file(source, dest);
-    else
-        file_contents = fileread(source);
-        for i = 1:numel(placeholders)
-            file_contents = replace(file_contents, placeholders{i}, replace_strs{i});
-        end
-        write_file(dest, file_contents);
+%INSTALL_FILE copy the given file to the given destination
+% if placeholders and replace_strs are given, then replace the string values
+% in placeholders with the string at the corresponding index in
+% replace_strs.
+%
+if ~exist('placeholders', 'var')
+    copy_file(source, dest);
+else
+    file_contents = fileread(source);
+    for i = 1:numel(placeholders)
+        file_contents = replace(file_contents, placeholders{i}, replace_strs{i});
     end
+    write_file(dest, file_contents);
+end
 end
 
 
 function file_path = find_file(file_name, candidate_dirs)
-    %FIND_FILE search for the given file name in the candidate directories
-    % Throw 'HORACE:horace_install:file_not_found' if the file cannot be found.
-    %
-    file_dir = '';
-    for i = 1:numel(candidate_dirs)
-        candidate_file_path = fullfile(candidate_dirs{i}, file_name);
-        if exist(candidate_file_path, 'file') == 2
-            file_path = candidate_file_path;
-            return
-        end
+%FIND_FILE search for the given file name in the candidate directories
+% Throw 'HORACE:horace_install:file_not_found' if the file cannot be found.
+%
+file_dir = '';
+for i = 1:numel(candidate_dirs)
+    candidate_file_path = fullfile(candidate_dirs{i}, file_name);
+    if exist(candidate_file_path, 'file') == 2
+        file_path = candidate_file_path;
+        return
     end
-    if isempty(file_dir)
-        error( ...
-            'HORACE:horace_install:file_not_found', ...
-            ['Could not find file ''%s'' in any of the following ' ...
-             'candidate paths:\n  %s'], ...
-            file_name, ...
-            strjoin(candidate_dirs, '\n  ') ...
+end
+if isempty(file_dir)
+    error( ...
+        'HORACE:horace_install:file_not_found', ...
+        ['Could not find file ''%s'' in any of the following ' ...
+        'candidate paths:\n  %s'], ...
+        file_name, ...
+        strjoin(candidate_dirs, '\n  ') ...
         );
-    end
+end
 end
 
 
 function directory = find_directory(file_name, candidate_dirs)
-    %FIND_DIRECTORY find the directory that contains the given file name
-    % in 'candidate_dirs'
-    %
-    % Throw 'HORACE:horace_install:file_not_found' if a directory cannot be
-    % found.
-    %
-    directory = fileparts(find_file(file_name, candidate_dirs));
-end
-
-
-function user_path = find_userpath()
-    %FIND_USERPATH get the Matlab `userpath`
-    % If the userpath does not exist, create it in the default place
-    %
-    % See `help userpath` for more info on Matlab's userpath.
-    %
-    user_path = userpath();
-    if isempty(user_path)
-        user_path = create_userpath();
-    end
-end
-
-
-function user_path = create_userpath()
-    %CREATE_USERPATH create the Matlab userpath directory in the default place
-    %
-    if ispc
-        user_dir = getenv('USERPROFILE');
-    else
-        user_dir = getenv('HOME');
-    end
-    user_path = fullfile(user_dir, 'Documents', 'MATLAB');
-    if ~exist(user_path, 'dir')
-        [ok, err_msg] = mkdir(user_path);
-        if ~ok
-            error( ...
-                'HORACE:horace_install:io_error', ...
-                'Could not create Matlab userpath directory ''%s'': %s.', ...
-                user_path, err_msg ...
-            );
-        end
-    end
-    % Now add it to path so we don't need to restart Matlab
-    addpath(userpath);
+%FIND_DIRECTORY find the directory that contains the given file name
+% in 'candidate_dirs'
+%
+% Throw 'HORACE:horace_install:file_not_found' if a directory cannot be
+% found.
+%
+directory = fileparts(find_file(file_name, candidate_dirs));
 end
 
 
 function write_file(file_path, contents)
-    %WRITE_FILE create/overwrite file at the given path with the given text
-    %
-    [fid, err_msg] = fopen(file_path, 'w');
-    if fid < 0
-        error( ...
-            'HORACE:horace_install:io_error', ...
-            'Could not create file ''%s'': %s.', ...
-            file_path, err_msg ...
+%WRITE_FILE create/overwrite file at the given path with the given text
+%
+[fid, err_msg] = fopen(file_path, 'w');
+if fid < 0
+    error( ...
+        'HORACE:horace_install:io_error', ...
+        'Could not create file ''%s'': %s.', ...
+        file_path, err_msg ...
         );
-    end
-    cleanup_fid = onCleanup(@() fclose(fid));
-    fprintf(fid, '%s', contents);
+end
+cleanup_fid = onCleanup(@() fclose(fid));
+fprintf(fid, '%s', contents);
 end
 
 
 function copy_file(source, dest)
-    %COPY_FILE copy the file 'source' to 'dest', throw an error if unsuccessful
-    %
-    [ok, message] = copyfile(source, dest);
-    if ~ok
-        error( ...
-            'HORACE:horace_install:io_error', ...
-            'Could not copy file ''%s'' to ''%s'': %s.', ...
-            source, dest, message ...
+%COPY_FILE copy the file 'source' to 'dest', throw an error if unsuccessful
+%
+[ok, message] = copyfile(source, dest);
+if ~ok
+    error( ...
+        'HORACE:horace_install:io_error', ...
+        'Could not copy file ''%s'' to ''%s'': %s.', ...
+        source, dest, message ...
         );
-    end
+end
 end
 
 
 function validate_function(func, post_func)
-    %VALIDATE_FUNCTIONS validate the given function can ve called
-    % The second argument is called after the first, with the intended purpose
-    % being clean up.
-    %
-    try
-        func();
-    catch ME
-        error( ...
-            'HORACE:horace_install:failure', ...
-            'Installation failed, error calling function: %s', ...
-            ME.message ...
+%VALIDATE_FUNCTIONS validate the given function can ve called
+% The second argument is called after the first, with the intended purpose
+% being clean up.
+%
+try
+    func();
+catch ME
+    error( ...
+        'HORACE:horace_install:failure', ...
+        'Installation failed, error calling function: %s', ...
+        ME.message ...
         );
-    end
-    post_func();
+end
+post_func();
 end

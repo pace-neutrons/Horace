@@ -1,3 +1,6 @@
+.. toctree::
+   Download_and_Setup_Troubleshutting
+
 ####################
  Download and setup
 ####################
@@ -10,7 +13,9 @@
 
 -  Plenty of free disk space in order to cope with the combined data files (> 30GB)
 
--  16GB RAM (at the very least)
+-  16GB RAM (at the very least). It should run on a machine with 4 or 8Gb memory,
+   but this mode has not been tested for a long time and may be very inconvenient
+   to process average experimental results.
 
 -  Preferably a recent version of Matlab.
    Horace is not tested on releases of Matlab older than R2018b,
@@ -36,12 +41,22 @@ including `Herbert <https://github.com/pace-neutrons/Herbert>`__.
  Installation Instructions
 ***************************
 
-To install Horace for the current user:
+To install Horace you should ideally have the administrative rights. To 
+install Horace:
 
 1. Extract the release archive to your preferred location.
 2. Open Matlab and set that location as your working directory.
-3. Run ``horace_install``.
+3. Run ``horace_install``. Under  Unix, where Matlab GUI would not always run with root privileges
+   go to the package folder and run Matlab from command line: ``>>sudo matlab -r horace_install``
 4. Now you can call ``horace_on`` from anywhere to start using Horace.
+5. Optional: Launch Matlab from your home folder or GUI and type ``>>edit startup.m``. 
+   Add strings `herbert_on();` `horace_on();`
+   to have Horace available each time you start your Matlab session.
+6. If you do not have administrative access, the installation would still be possible,
+   and will probably work as described. You may encounter problems with parallel extensions
+   and not be able to launch Horace from any folder.
+   See :ref:`Troubleshooting <Download_and_Setup_Troubleshutting:Download and Setup Trouble-Shutting>` for the details 
+   of the installation process.
 
 **********************
  Horace Configuration
@@ -104,8 +119,10 @@ Use the usual Matlab syntax to set configuration values:
  High Performance Computing Configuration
 ******************************************
 
-If your machine has several cores, then you may benefit from using Horace's
-parallel computing options.
+If your have large machine with multiple several cores, fast hard drive and large memory, you may benefit from using Horace's
+parallel computing options. The memory, necessary to make parallel extensions useful may be estimated as 32Gb per main session 
+and 16 per each parallel worker as minimum, so if you want to use 4 parallel processes productively, your machine wound normally 
+have 96Gb of RAM.
 
 The ``hpc`` command can be used to enable/disable parallel computing options,
 as well as provide suggested settings for the current system.
