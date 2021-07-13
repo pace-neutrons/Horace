@@ -17,13 +17,14 @@ HERBERT_ON_PLACEHOLDER = '${Herbert_CORE}';
 
 try % remove from search path any possible previous version of Horace/Herbert
     herbert_off();
-catch % ignore errors if the code has not been installed before and script 
+catch % ignore errors if the code has not been installed before and script
 end   % has not been found
 try
     horace_off();
-catch  % ignore errors if the code has not been installed before and script 
+catch  % ignore errors if the code has not been installed before and script
 end    % has not been found
 %
+code_root = fileparts(mfilename('fullpath'));
 % is there an old installation present?
 old_horace_on = which('horace_on');
 if ~isempty(old_horace_on)
@@ -31,9 +32,8 @@ if ~isempty(old_horace_on)
     use_existing_path = true;
     install_root = fileparts(old_horace_on);
 else
-    use_existing_path = false;    
-    code_root = fileparts(mfilename('fullpath'));    
-    install_root= fullfile(code_root,'ISIS');    
+    use_existing_path = false;
+    install_root= fullfile(code_root,'ISIS');
 end
 old_herbert_on = which('herbert_on');
 if ~isempty(old_herbert_on)
