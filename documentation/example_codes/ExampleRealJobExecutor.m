@@ -38,7 +38,7 @@ classdef ExampleRealJobExecutor < JobExecutor
             end
 
             % Recieve the data
-            [ok, err_mess, data] = obj.mess_framework.recieve_message(mod(obj.labIndex + 3,4)+1, 'any');
+            [ok, err_mess, data] = obj.mess_framework.receive_message(mod(obj.labIndex + 3,4)+1, 'any');
             if ~ok
                 error('HORACE:ExampleRealJobExecutor:receive_error', err_mess)
             end

@@ -41,7 +41,7 @@ if obj.emode==1
     qspec = repmat([ki;0;0],[1,ne*ndet]) - ...
         repmat(kf',[3,ndet]).*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
     en=repmat(eps',1,ndet);
-    
+
 elseif obj.emode==2
     %kf=sqrt(obj.efix(:)'/k_to_e);
     kf=sqrt(obj.efix/k_to_e);
@@ -69,7 +69,7 @@ elseif obj.emode==2
             kf*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
     end
     en=repmat(eps',1,ndet);
-    
+
 elseif obj.emode==0
     % The data is assumed to have bin boundaries as the logarithm of wavelength
     if length(obj.en)==ne+1
@@ -81,8 +81,7 @@ elseif obj.emode==0
     Q_by_k = repmat([1;0;0],[1,ndet]) - detdcn;   % [3 x ndet]
     qspec = repmat(k',[3,ndet]).*reshape(repmat(reshape(Q_by_k,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
     en=zeros(1,ne*ndet);
-    
+
 else
     error('RUNDATAH:invalid_argument','EMODE must =1 (direct geometry), =2 (indirect geometry), or =0 (elastic)')
 end
-
