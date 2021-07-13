@@ -50,7 +50,7 @@ install Horace:
    go to the package folder and run Matlab from command line: ``>>sudo matlab -nosplash -nodesktop -r horace_install``
 4. Now you can call ``horace_on`` from anywhere to start using Horace.
 5. Optional: Launch Matlab from your home folder or GUI and type ``>>edit startup.m``. 
-   Add strings `herbert_on();` `horace_on();`
+   Add string `horace_on();` to enable Horace for each Matlab startup.
    to have Horace available each time you start your Matlab session.
 6. If you do not have administrative access, the installation would still be possible,
    and will probably work as described. You may encounter problems with parallel extensions
