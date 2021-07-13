@@ -77,4 +77,4 @@ end % of local function do_sqw_eval_in_memory
         obj.data_.pix.variance = zeros(1,numel(stmp));
         obj = recompute_bin_data(obj);
     end
- %}  
+ %}
