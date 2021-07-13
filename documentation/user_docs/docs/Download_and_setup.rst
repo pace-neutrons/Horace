@@ -47,7 +47,7 @@ install Horace:
 1. Extract the release archive to your preferred location.
 2. Open Matlab and set that location as your working directory.
 3. Run ``horace_install``. Under  Unix, where Matlab GUI would not always run with root privileges
-   go to the package folder and run Matlab from command line: ``>>sudo matlab -nosplash -nojvm -r horace_install``
+   go to the package folder and run Matlab from command line: ``>>sudo matlab -nosplash -nodesktop -r horace_install``
 4. Now you can call ``horace_on`` from anywhere to start using Horace.
 5. Optional: Launch Matlab from your home folder or GUI and type ``>>edit startup.m``. 
    Add strings `herbert_on();` `horace_on();`

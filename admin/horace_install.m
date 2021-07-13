@@ -48,7 +48,15 @@ if ~exist(install_root,'dir')
 end
 if ~use_existing_path % path have already been modified. Do not create mess
     addpath(install_root);
-    savepath
+    err = savepath();
+    if err
+        userpath = find_userpath();
+        warning('HORACE:installation',...
+            ['Can not save installation-modified pathdef into system-restricted area.',...
+            ' Saving modified pathdef.m into userpath: %s'],...
+            userpath);
+        savepath(fullfile(userpath,'pathdef.m'));
+    end
 end
 
 
@@ -177,6 +185,42 @@ if isempty(file_dir)
         strjoin(candidate_dirs, '\n  ') ...
         );
 end
+end
+
+function user_path = find_userpath()
+%FIND_USERPATH get the Matlab `userpath`
+% If the userpath does not exist, create it in the default place
+%
+% See `help userpath` for more info on Matlab's userpath.
+%
+user_path = userpath();
+if isempty(user_path)
+    user_path = create_userpath();
+end
+end
+
+
+function user_path = create_userpath()
+%CREATE_USERPATH create the Matlab userpath directory in the default place
+%
+if ispc
+    user_dir = getenv('USERPROFILE');
+else
+    user_dir = getenv('HOME');
+end
+user_path = fullfile(user_dir, 'Documents', 'MATLAB');
+if ~exist(user_path, 'dir')
+    [ok, err_msg] = mkdir(user_path);
+    if ~ok
+        error( ...
+            'HORACE:horace_install:io_error', ...
+            'Could not create Matlab userpath directory ''%s'': %s.', ...
+            user_path, err_msg ...
+            );
+    end
+end
+% Now add it to path so we don't need to restart Matlab
+addpath(userpath);
 end
 
 
