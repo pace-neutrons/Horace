@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+alias cmake=cmake3
 set -o errexit  # exit early on any error
 set -o nounset  # raise error using unset variables
 
