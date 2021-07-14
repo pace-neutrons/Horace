@@ -169,8 +169,11 @@ classdef TestRunDisplay < TestRunMonitor
             else
                 result = 'FAILED';
             end
-
-            fprintf(self.FileHandle, '\n%s in %.3f seconds, %d tests skipped.\n', result, toc(self.InitialTic), self.NumSkips);
+            if strcmp(result,'FAILED') && (self.FileHandle==1)
+                fprintf(2, '\n%s in %.3f seconds, %d tests skipped.\n', result, toc(self.InitialTic), self.NumSkips);                
+            else
+                fprintf(self.FileHandle, '\n%s in %.3f seconds, %d tests skipped.\n', result, toc(self.InitialTic), self.NumSkips);
+            end
 
             self.displayFaults();
         end
@@ -198,9 +201,9 @@ classdef TestRunDisplay < TestRunMonitor
                     str = 'Failure';
                 elseif strcmp(faultData.Type, 'skip')
                     % Only print if verbose
-                    if ~isa(self, 'VerboseTestRunDisplay')
-                        continue
-                    end
+                    %if ~isa(self, 'VerboseTestRunDisplay')
+                    %    continue
+                    %end
                     str = 'Skipped';
                 else
                     str = 'Error';

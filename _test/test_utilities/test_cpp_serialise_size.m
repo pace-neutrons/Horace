@@ -12,7 +12,12 @@ classdef test_cpp_serialise_size < TestCase
             end
             this = this@TestCase(name);
             this.warned = get(herbert_config, 'log_level') > 0;
-            this.use_mex = get(herbert_config,'use_mex');
+            [~,nerr] = check_herbert_mex();
+            if nerr>0
+                this.use_mex = false;
+            else
+                this.use_mex = true;
+            end
         end
         %% Test Objects
         %------------------------------------------------------------------

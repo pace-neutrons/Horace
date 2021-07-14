@@ -191,8 +191,8 @@ classdef test_serialize_size < TestCase
         end
 
         %------------------------------------------------------------------
-        function test_ser_size_complex_array(this)
-            test_obj = [3+4i, 5+7i; 2+i, 1-i];
+        function test_ser_size_complex_array(~)
+            test_obj = [3+4i, 5+7i; 2+1i, 1-1i];
             ser =  hlp_serialize(test_obj);
             ser_siz = hlp_serial_size(test_obj);
             assertEqual(numel(ser), ser_siz)
