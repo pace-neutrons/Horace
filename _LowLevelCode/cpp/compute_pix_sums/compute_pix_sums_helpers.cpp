@@ -1,4 +1,4 @@
-#include "compute_pix_sums/compute_pix_sums_helpers.h"
+#include "compute_pix_sums_helpers.h"
 
 #include <memory>
 #include <sstream>

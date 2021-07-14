@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.15)
+
+set(Horace_ROOT ${CMAKE_CURRENT_LIST_DIR})
 
 file(READ "${CMAKE_SOURCE_DIR}/VERSION" _version)
 string(STRIP "${_version}" _version)
@@ -22,7 +24,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 # Set some useful global variables
 # This will hold herbert/horace_on.m and worker_v2.m
 set(LOCAL_INIT_DIR "${CMAKE_BINARY_DIR}/local_init")
-# This sets the destination for mex build artifacts (used in PACE_AddMex)
+# This sets the destination for mex build artefacts (used in PACE_AddMex)
 set(Horace_DLL_DIRECTORY "${CMAKE_SOURCE_DIR}/horace_core/DLL")
 
 # Set our options

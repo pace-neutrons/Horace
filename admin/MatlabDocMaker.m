@@ -321,8 +321,8 @@ classdef MatlabDocMaker
            
             %% Preparations
             ip = inputParser;
-            ip.addParamValue('open',false,@islogical);
-            ip.addParamValue('latex',false,@islogical);
+            ip.addParameter('open',false,@islogical);
+            ip.addParameter('latex',false,@islogical);
             ip.parse(varargin{:});
             genlatex = ip.Results.latex;
             

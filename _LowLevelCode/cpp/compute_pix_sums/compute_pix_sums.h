@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CommonCode.h"
+#include "../CommonCode.h"
 
 template <class T>
 void compute_pix_sums(double *const pSignal, double *const pVariance,

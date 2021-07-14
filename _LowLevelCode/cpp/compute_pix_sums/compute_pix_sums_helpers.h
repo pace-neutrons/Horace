@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CommonCode.h"
+#include "../CommonCode.h"
 
 enum InputArguments { Npix_data, Pixel_data, Num_threads, N_INPUT_Arguments };
 enum OutputArguments { // unique output arguments,

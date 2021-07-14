@@ -71,16 +71,20 @@ if there are no parameters specified, then defaults are parameters[]={1,1,0,1,8}
 based on Matlab code of T.G.Perring   19 July 2007; C-version Alex Buts 02 July 2009
 */
 
-void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 {
     if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
+#ifdef _OPENMP
         plhs[0] = mxCreateString(Horace::VERSION);
+#else
+        plhs[0] = mxCreateString(Horace::VER_NOOMP);    
+#endif
         return;
     }
 
     //* Check for proper number of arguments. */
     {
-        if (nrhs != N_INPUT_Arguments&&nrhs != N_INPUT_Arguments - 1) {
+        if (nrhs != N_INPUT_Arguments && nrhs != N_INPUT_Arguments - 1) {
             std::stringstream buf;
             buf << "ERROR::Accomulate_cut needs " << (short)N_INPUT_Arguments << " or one less, but got " << (short)nrhs
                 << " input arguments and " << (short)nlhs << " output argument(s)\n";
@@ -101,14 +105,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         }
     }
     // program parameters; get from the data or use defaults
-    mxArray *ppS(NULL);
+    mxArray* ppS(NULL);
     // inputs:
     std::vector<double> projSettings(4);
     if (nrhs == N_INPUT_Arguments) {
-        double  *pProg_settings;
-        pProg_settings = (double *)mxGetPr(prhs[Program_settings]);
+        double* pProg_settings;
+        pProg_settings = (double*)mxGetPr(prhs[Program_settings]);
         for (size_t i = 0; i < 4; i++) {
-            projSettings[i]=pProg_settings[i];
+            projSettings[i] = pProg_settings[i];
         }
     }
     else {
@@ -123,35 +127,35 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     size_t  nPixDataCols = mxGetN(prhs[Pixel_data]);
     mxClassID  category = mxGetClassID(prhs[Pixel_data]);
     bool pixDataAreDouble;
-    switch(category) {
-        case(mxDOUBLE_CLASS):
-            pixDataAreDouble = true;
-            break;
-        case(mxSINGLE_CLASS):
-            pixDataAreDouble = false;
-            break;
-        default:
-            mexErrMsgTxt("pixels type can be either single or double. Got unsupported type");
+    switch (category) {
+    case(mxDOUBLE_CLASS):
+        pixDataAreDouble = true;
+        break;
+    case(mxSINGLE_CLASS):
+        pixDataAreDouble = false;
+        break;
+    default:
+        mexErrMsgTxt("pixels type can be either single or double. Got unsupported type");
     }
     // Make it double to cast to necessary type later
-    double const *pPixelData = (double *)mxGetPr(prhs[Pixel_data]);
+    double const* pPixelData = (double*)mxGetPr(prhs[Pixel_data]);
 
     // * s                           Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
     int    nDimensions = (int)mxGetNumberOfDimensions(prhs[Signal]);
-    mwSize const*pmDims = mxGetDimensions(prhs[Signal]);
+    mwSize const* pmDims = mxGetDimensions(prhs[Signal]);
     mwSize signalSize(1);
     for (int i = 0; i < nDimensions; i++) {
         signalSize *= pmDims[i];
     }
 
-    double const* rot_matrix = (double *)mxGetPr(prhs[CoordRotation_matrix]);
-    double const* shift_matrix = (double *)mxGetPr(prhs[CoordShif_matrix]);
+    double const* rot_matrix = (double*)mxGetPr(prhs[CoordRotation_matrix]);
+    double const* shift_matrix = (double*)mxGetPr(prhs[CoordShif_matrix]);
     double const  e_shift = *mxGetPr(prhs[Shift_energy]);
     double const  ebin = *mxGetPr(prhs[Scale_energy]);
 
-    double const *data_limits = (double *)mxGetPr(prhs[DataCut_range]);
+    double const* data_limits = (double*)mxGetPr(prhs[DataCut_range]);
     // plot axis
-    double const *pPAX = mxGetPr(prhs[Plot_axis]);
+    double const* pPAX = mxGetPr(prhs[Plot_axis]);
     int    const nAxis = (int)mxGetN(prhs[Plot_axis]);
 
     // check the consistency of the input data
@@ -250,30 +254,30 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     dims[0] = nPixDataCols;
     dims[1] = 1;
 
-    mxArray *pixOK = mxCreateLogicalArray(2, dims);
+    mxArray* pixOK = mxCreateLogicalArray(2, dims);
     if (!pixOK) {
         mexErrMsgTxt(" Can not allocate memory for pixel validity array\n");
     }
-    mxLogical *ok = (mxLogical *)mxGetPr(pixOK);
+    mxLogical* ok = (mxLogical*)mxGetPr(pixOK);
 
     plhs[Actual_Pix_Range] = mxCreateDoubleMatrix(2, 4, mxREAL);
     if (!plhs[Actual_Pix_Range]) {
         mexErrMsgTxt(" Can not allocate memory for actual pixel range matrix\n");
     }
-    double *pPixRange = (double *)mxGetPr(plhs[Actual_Pix_Range]);
+    double* pPixRange = (double*)mxGetPr(plhs[Actual_Pix_Range]);
 
     // Due to COW pointers, we need to duplicate output into inputs
     // signals
-    plhs[Signal_modified]=mxDuplicateArray(prhs[Signal]);
+    plhs[Signal_modified] = mxDuplicateArray(prhs[Signal]);
     // errors
     plhs[Error_Modified] = mxDuplicateArray(prhs[Error]);
     // nPixels
-    plhs[Npixels_out]    = mxDuplicateArray(prhs[Npixels]);
+    plhs[Npixels_out] = mxDuplicateArray(prhs[Npixels]);
     // *s
-    double *pSignal = (double *)mxGetPr(plhs[Signal_modified]);
+    double* pSignal = (double*)mxGetPr(plhs[Signal_modified]);
     // * e                           Array of accumulated variance
-    double *pError = (double *)mxGetPr(plhs[Error_Modified]);
-    double *pNpix = (double *)mxGetPr(plhs[Npixels_out]);
+    double* pError = (double*)mxGetPr(plhs[Error_Modified]);
+    double* pNpix = (double*)mxGetPr(plhs[Npixels_out]);
 
 
     plhs[Npix_Retained] = mxCreateDoubleMatrix(1, 1, mxREAL);
@@ -290,8 +294,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
                 ok, plhs[Pixels_Ind], pPixRange,
                 rot_matrix, shift_matrix, ebin, e_shift, data_limits,
                 grid_size, iAxis, nAxis, projSettings);
-        }else {
-            const float *pFloatPixData = reinterpret_cast<const float *>(pPixelData);
+        }
+        else {
+            const float* pFloatPixData = reinterpret_cast<const float*>(pPixelData);
             nPixels_retained = accumulate_cut<float>(pSignal, pError, pNpix,
                 pFloatPixData, nPixDataCols,
                 ok, plhs[Pixels_Ind], pPixRange,
@@ -300,9 +305,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
         }
     }
-    catch (const char *err) {
+    catch (const char* err) {
         mexErrMsgTxt(err);
-    } catch (...) {
+    }
+    catch (...) {
         mexErrMsgTxt("Got unhandled exception from accumulate_cut block");
     }
 
@@ -322,7 +328,4 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     }
     *(mxGetPr(plhs[Npix_Retained])) = (double)nPixels_retained;
 }
-
-
-
 
