@@ -24,6 +24,7 @@ function [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,D
 %%
 je = [];
 ok = false;
+is_tested  = false;
 err_mess = 'Failure in the initialization procedure';
 if ~exist('DO_LOGGING', 'var')
     DO_LOGGING = false;
@@ -38,7 +39,8 @@ try
     % within Matlab code to run
     mis = MPI_State.instance();
     mis.is_deployed = true;
-    is_tested = mis.is_tested; % set up to tested state within unit tests.
+    is_tested = mis.is_tested; % set up to tested state within unit tests not to 
+    % exit running Matlab on test failure
     %
     % for testing we need to recover 'not-deployed' state to avoid clashes with
     % other unit tests. The production job finishes Matlab and clean-up is not necessary
@@ -96,7 +98,11 @@ try
 catch ME0 %unhandled exception during init procedure
     ok = false;
     err_mess = ME0;
-    return;
+    if is_tested
+        return;
+    else
+        quit(100);
+    end
 end
 %%
 

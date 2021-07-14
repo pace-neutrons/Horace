@@ -20,7 +20,7 @@ classdef ClusterSlurm < ClusterWrapper
         % the user name, used to distinguish this user jobs from others
         user_name_
         % verbosity of ClusterSlurm specific outputs
-        log_level = 0;        
+        log_level = 0;
     end
     properties(Constant, Access = private)
         %------------------------------------------------------------------
@@ -61,15 +61,9 @@ classdef ClusterSlurm < ClusterWrapper
             })
         sjob_reaction_ = containers.Map(ClusterSlurm.sacct_state_abbr_,...
             {'running','paused','paused','paused','finished','failed','failed','failed',...
-            'failed','failed','failed','failed','failed'})
-        
-        % environmental variables and their default values,
-        % set by the class to propagate to a parallel job.
-        slurm_enviroment = containers.Map(...
-            {'MATLAB_PARALLEL_EXECUTOR','PARALLEL_WORKER','WORKER_CONTROL_STRING'},...
-            {'matlab','worker_v2',''});
+            'failed','failed','failed','failed','failed'})        
     end
- 
+    
     
     methods
         function obj = ClusterSlurm(n_workers,mess_exchange_framework,...
@@ -100,7 +94,9 @@ classdef ClusterSlurm < ClusterWrapper
                 '**** Slurm MPI job configured,  Starting MPI job  with %d workers ****\n';
             obj.started_info_message_  = ...
                 '**** Slurm MPI job with ID: %10d submitted                 ****\n';
-            %
+            
+            % The default name of the messages framework, used for communications
+            % between the nodes of the parallel job
             obj.pool_exchange_frmwk_name_ ='MessagesCppMPI';
             % two configurations are expected, namely 'srun', where the job
             % is run and controlled by 'srun' command and 'sbatch' where the
@@ -142,35 +138,26 @@ classdef ClusterSlurm < ClusterWrapper
             
             
             slurm_str = {'srun ',['-N',num2str(n_workers)],' --mpi=pmi2 '};
-            % temporary hack. Matlab on nodes differs from Matlab on the
-            % headnode. Should be contents of obj.matlab_starter_
-            slenv = obj.slurm_enviroment;
-            slenv('MATLAB_PARALLEL_EXECUTOR') = ...
-                obj.matlab_starter_;
-            %'/opt/matlab2020b/bin/matlab';
-            % what should be executed by Matlab parallel worker (will be
-            % nothing if Matlab parallel worker is compiled)
-            slenv('PARALLEL_WORKER') =...
+            %
+            % May change for compiled Horace
+            obj.common_env_var_('HERBERT_PARALLEL_WORKER') =...
                 sprintf('-batch %s',obj.worker_name_);
             % build worker init string describing the data exchange
             % location
-            slenv('WORKER_CONTROL_STRING') =...
+            obj.common_env_var_('WORKER_CONTROL_STRING') =...
                 obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
-            DO_LOGGING = feval(getenv('DO_PARALLEL_MATLAB_LOGGING'));
-            if DO_LOGGING
-                slenv('DO_PARALLEL_MATLAB_LOGGING') = 'true';
-            end
+            %
             % set up job variables on local environment (Does not
             % currently used as ISIS implementation does not transfer
             % environmental variables to cluster)
-            keys = slenv.keys;
-            vals = slenv.values;
-            cellfun(@(name,val)setenv(name,val),keys,vals);
-            
+            obj.set_env();
+           
             % modify executor script values to export it to remote Slurm
             % session
             run_source = fullfile(herbert_root,'herbert_core','admin','srun_runner.sh');
             [fp,fon] = fileparts(mess_exchange_framework.mess_exchange_folder);
+            % the enviromental variables are transferred and stored and set
+            % in the shel script
             runner= obj.create_runparam_script(run_source,...
                 fullfile(fp,[fon,'.sh']));
             obj.runner_script_name_  = runner;
@@ -377,7 +364,7 @@ classdef ClusterSlurm < ClusterWrapper
             % to provide remote parallel job startup information
             %
             [~,cont,var_pos] = extract_bash_exports(bash_source);
-            cont = modify_contents(cont,var_pos,obj.slurm_enviroment);
+            cont = modify_contents(cont,var_pos,obj.common_env_var_);
             fh = fopen(bash_target,'w');
             if fh<1
                 error('HERBERT:ClusterSlurm:io_error',...

@@ -149,11 +149,20 @@ classdef MPI_clusters_factory<handle
                     ' Can not run jobs in parallel. Any parallel framework is not available. Worker may be not installed.')
             end
             %
-            cl= cl.init(n_workers,cluster_to_host_exch_fmwork,log_level);
+            try
+                cl= cl.init(n_workers,cluster_to_host_exch_fmwork,log_level);
+            catch ME
+                if strcmp(ME.identifier,'HERBERT:ClusterWrapper:runtime_error')
+                    if log_level > -1
+                        fprintf(2,'**** Cluster Initialization failure: %s\n',ME.message);
+                    end
+                    cl=[];
+                else
+                    rethrow(ME);
+                end
+            end
+            
         end
         
     end
-    
-    
 end
-

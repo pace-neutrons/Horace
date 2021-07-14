@@ -10,8 +10,6 @@ classdef ClusterMPI < ClusterWrapper
         %
     end
     properties(Access = private)
-        %
-        DEBUG_REMOTE = false;
         % the folder, containing mpiexec cluster configurations (host files)
         config_folder_
     end
@@ -45,6 +43,8 @@ classdef ClusterMPI < ClusterWrapper
             obj.started_info_message_  = ...
                 '**** mpiexec MPI job submitted                                     ****\n';
             %
+            % The default name of the messages framework, used for communications
+            % between the nodes of the parallel job
             obj.pool_exchange_frmwk_name_ ='MessagesCppMPI';
             obj.cluster_config_ = 'local';
             % define config folder containing cluster configurations
@@ -85,11 +85,32 @@ classdef ClusterMPI < ClusterWrapper
             % build generic worker init string without lab parameters
             cs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
             worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
-            task_info = [mpiexec_str(:)',{obj.matlab_starter_},...
+            task_info = [mpiexec_str(:)',...
+                {obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR')},...
                 {'-batch'},{worker_init}];
-            pause(0.1);
-            runtime = java.lang.ProcessBuilder(task_info);
-            pause(0.1);
+            % this not used by java launcher bug may be used if we
+            % decide to run parallel worker from script
+            %obj.common_env_var_('HERBERT_PARALLEL_WORKER')= strjoin(task_info,' ');
+            % encoded information about the location of exchange folder
+            % and the parameters of the proceses pool.
+            obj.common_env_var_('WORKER_CONTROL_STRING') = cs;
+            %
+            % prepate and start java process
+            if ispc()
+                runtime = java.lang.ProcessBuilder('cmd.exe');
+            else
+                runtime = java.lang.ProcessBuilder('/bin/sh');
+            end
+            env = runtime.environment();
+            obj.set_env(env);
+            % TODO:
+            % this command does not currently transfer all necessary
+            % enviromental variables to the remote. The procedure
+            % to provide variables to transfer is MPI version specific
+            % for MPICH it is the option of MPIEXEC: -envlist <list>
+            % If mpiexec is used on a cluster, thos or similar option
+            % for other mpi implementation should be implemented
+            runtime = runtime.command(task_info);
             obj.mpiexec_handle_ = runtime.start();
             
             % check if job control API reported failure
@@ -175,7 +196,13 @@ classdef ClusterMPI < ClusterWrapper
             paused = false;
             task_handle = obj.mpiexec_handle_;
             [running,failed,mess] = obj.is_java_process_running(task_handle);
+            if failed
+                mess = FailedMessage(mess);
+            else % not failed
+                if ~running
+                    mess = CompletedMessage(mess);
+                end
+            end
         end
-        
     end
 end

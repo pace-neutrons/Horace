@@ -77,9 +77,6 @@ classdef ClusterParpoolStateTester < ClusterParpoolWrapper
             % and complete parallel job
             if ~isempty(obj.current_job_)
                 obj.current_job_ = [];
-                obj.cluster_prev_state_ = obj.cluster_cur_state_;
-                obj.cluster_cur_state_ = [];
-                obj.status_changed_ = false;
             end
             
         end

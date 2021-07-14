@@ -8,6 +8,9 @@ classdef ClusterWrapper
         % exceeded,
         % the cluster reports failure and parallel job will not start.
         cluster_startup_time = 120 % 2min
+        % If true, write logs containing information about each parallel
+        % executor (sets DO_LOGGING=true) in parallel worker
+        DEBUG_REMOTE = false;
     end
     properties(Dependent)   %
         % The string, providing unique identifier(name) for the job and cluster.
@@ -53,20 +56,15 @@ classdef ClusterWrapper
         % if the worker is compiled Matlab application or Matlab script
         is_compiled_script_ = false;
         %------------------------------------------------------------------
-        
         % number of workers in the pool
         n_workers_   = 0;
-        % the holder for class, responsible for the communications with pool
+        % the holder for class, responsible for the communications between
+        % the pool and control node
         mess_exchange_ =[];
         % The name of the class, responsible for message exchange
         % between the workers within the pool (cluster)
         pool_exchange_frmwk_name_ = '';
-        % property, indicating changes in the pool status
-        status_changed_ = false;
-        %  property, containing the message, describing the current status
-        current_status_ = [];
-        %  property, containing the message, describing the previous status
-        prev_status_=[];
+        
         % the holder for the string, which describes the current pool
         % status.
         log_value_ = '';
@@ -74,6 +72,32 @@ classdef ClusterWrapper
         % by children as different type of children have different types of
         % configuration.
         cluster_config_ = 'local'
+        %------------------------------------------------------------------
+        % the string, describing the operations to launch Matlab or
+        % compiled Matlab job
+        matlab_starter_  = [];
+        % The name of the cluster to print in logs to inform about parallel
+        % program execution
+        starting_cluster_name_;
+        % the map containing the enviroment variables, common for all
+        % clusters
+        common_env_var_= containers.Map(...
+            {'MATLABPATH',...  Additional Matlab m-files search path, containing horace_on/herbert_on initialization scripts and Matlab worker script ($PARALLEL_WORKER value), run by Matlab when it runs in the script mode
+            'HERBERT_PARALLEL_EXECUTOR',... the program which executes the parallel job on server. Matlab or compiled Horace
+            'HERBERT_PARALLEL_WORKER',... the parameters string used as input arguments for the parallel job. If its Matlab, it is the worker name and the run parameters.
+            'WORKER_CONTROL_STRING',...  input for the script, containing encoded info about the location of the exchange folder
+            'DO_PARALLEL_MATLAB_LOGGING',...  if 'true' each parallel process will write progress log
+            }, {'','matlab','worker_v2','','false'});
+        %------------------------------------------------------------------
+        % properties, indicating changes in the pool status and used by
+        % display_progress to build nuce progress logs
+        current_status_ = [];  %  message, describing the current status
+        status_changed_ = false; % if the current_status_ differs from prev_status_
+        % messages to display if corresponding cluster is starting.
+        starting_info_message_ ='';
+        started_info_message_ ='';
+    end
+    properties(Access=private)
         %------------------------------------------------------------------
         % Auxiliary properties, defining the output of the log messages
         % about the cluster status.
@@ -85,21 +109,12 @@ classdef ClusterWrapper
         LOG_MESSAGE_WRAP_LENGTH =10;
         % total length of the string with log message to display (redefined in constructor)
         LOG_MESSAGE_LENGHT=40;
-        % messages to display if corresponding cluster is starting.
-        starting_info_message_ ='';
-        started_info_message_ ='';
-        
         %
         % running process Java exception message contents, used to identify
         % if java process report it has been completed
         running_mess_contents_= 'process has not exited';
-        % the string, describing the operations to launch Matlab or
-        % compiled Matlab job
-        matlab_starter_  = [];        
-        % The name of the cluster to print in logs to inform about parallel
-        % program execution        
-        starting_cluster_name_;
     end
+    %
     properties(Hidden,Dependent)
         % helper property to print nicely aligned log messages
         log_wrap_length;
@@ -131,7 +146,6 @@ classdef ClusterWrapper
             else
                 obj.running_mess_contents_= 'process hasn''t exited';
             end
-            
             if nargin < 2
                 return;
             end
@@ -184,22 +198,45 @@ classdef ClusterWrapper
             pc = parallel_config();
             obj.worker_name_ = pc.worker;
             obj.is_compiled_script_ = pc.is_compiled;
-            
             %
-            if ~obj.is_compiled_script_
-                % define Matlab:
-                prog_path  = find_matlab_path();
-                if isempty(prog_path)
-                    error('HERBERT:ClusterWrapper:runtime_error',...
-                        'Can not find Matlab');
-                end
-                obj.matlab_starter_ = prog_path;
-                
+            % define Matlab:
+            prog_path  = find_matlab_path();
+            if isempty(prog_path)
+                error('HERBERT:ClusterWrapper:runtime_error',...
+                    'Can not find Matlab');
             end
+            %
+            obj.matlab_starter_ = prog_path;
             if ispc()
                 obj.matlab_starter_ = fullfile(obj.matlab_starter_,'matlab.exe');
             else
                 obj.matlab_starter_= fullfile(obj.matlab_starter_,'matlab');
+            end
+            if obj.is_compiled_script_
+                % TODO -- need checking and may be expansion when compiled
+                % horace ticket is executed.
+                obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR')= obj.worker_name_;
+            else
+                obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR') =  obj.matlab_starter_;
+            end
+            % additional Matlab m-files search path to be available to
+            % workers
+            existing_addpath = getenv('MATLABPATH');
+            possible_addpath = fileparts(which(pc.worker));
+            if  contains(existing_addpath,possible_addpath)
+                obj.common_env_var_('MATLABPATH') = existing_addpath;
+            else
+                if isempty(existing_addpath)
+                    obj.common_env_var_('MATLABPATH') = possible_addpath;
+                else
+                    obj.common_env_var_('MATLABPATH') = ...
+                        [possible_addpath,pathsep,existing_addpath];
+                end
+            end
+            if obj.DEBUG_REMOTE
+                obj.common_env_var_('DO_PARALLEL_MATLAB_LOGGING') = 'true';
+            else
+                obj.common_env_var_('DO_PARALLEL_MATLAB_LOGGING') = 'false';
             end
             
         end
@@ -342,7 +379,7 @@ classdef ClusterWrapper
             
             if ~completed && (failed || failedC)
                 % failure. The reason should be in mess.
-                completed = failed || failedC;
+                completed = true;
             end
         end
         %
@@ -406,6 +443,10 @@ classdef ClusterWrapper
                 end
                 obj.mess_exchange_ = [];
             end
+            % clear enviromental variables set earlier to avoid
+            % possible interference
+            vars = obj.common_env_var_.keys;
+            cellfun(@(var)setenv(var,''),vars);
         end
         %
         function [outputs,n_failed,obj]=  retrieve_results(obj)
@@ -510,6 +551,24 @@ classdef ClusterWrapper
     end
     
     methods(Access=protected)
+        function env = set_env(obj,env)
+            % helper function to set enviroment for a java process.
+            % Inputs:
+            % [env] -- If present, Matlab representation of the java env
+            %          the enviroment will be set to java process space.
+            %          If absent, the eniromental variables will be set up
+            %          to current running Matlab version
+            %
+            keys = obj.common_env_var_.keys;
+            val  = obj.common_env_var_.values;
+            if exist('env','var')
+                cellfun(@(name,val)env.put(name,val),keys,val,...
+                    'UniformOutput',false);
+            else
+                cellfun(@(name,val)setenv(name,val),keys,val,...
+                    'UniformOutput',false);
+            end
+        end
         %
         function check_failed(obj)
             % run cluster-specific get_state_from_job_control function and
@@ -531,10 +590,12 @@ classdef ClusterWrapper
                     format = '%s cluster for job: %s failed to start parallel execution. State: %s Message: %s';
                     info = mess;
                 end
+                jobid = obj.job_id;
+                stat_name  = obj.status_name;
                 obj = obj.finalize_all();
                 %
                 error('HERBERT:ClusterWrapper:runtime_error',format,...
-                    obj.starting_cluster_name_,obj.job_id,obj.status_name,info);
+                    obj.starting_cluster_name_,jobid,stat_name,info);
                 
             end
         end
@@ -572,7 +633,7 @@ classdef ClusterWrapper
             ex  = true;
         end
         %
-        function [ok,failed,mess] = is_java_process_running(obj,task_handle)
+        function [running,failed,mess] = is_java_process_running(obj,task_handle)
             % check if java process is still running or has been completed
             %
             % inputs:
@@ -582,38 +643,55 @@ classdef ClusterWrapper
             %                               indicating that the process is
             %                               still running
             if isempty(task_handle)
-                ok      = false;
+                running      = false;
                 failed  = true;
                 mess = 'process has not been started';
                 return;
             end
-            
+            % Should redirect process error but does not. Why?
+            %err_stream_scan = java.util.Scanner(task_handle.getErrorStream());
+            %err_stream_scan.useDelimiter("\r\n");
+            %if err_stream_scan.hasNext
+            %    ok      = false;
+            %    failed  = true;
+            %    err_text = cell(1,1);
+            %    err_text{end}='Java error output reported\n';
+            %    while(err_stream_scan.hasNext)
+            %        err_text{end+1} = err_stream_scan.next();
+            %    end
+            %    mess = strjoin(err_text,' ');
+            %    return;
+            %else
             mess = 'running';
-            is_alive = task_handle.isAlive;
-            %             if is_alive
-            %                 ok      = true;
-            %                 failed  = false;
-            %             else
+            %end
+            %err_stream_scan.close();
+            if isunix()
+                is_alive = task_handle.isAlive();
+                if is_alive
+                    running = true;
+                    failed  = false;
+                    return;
+                end
+            else %isAlive does not work on Windows Its thread class method, where task may or may not be implemented as thread
+                is_alive = true;
+            end
+            
             try
                 term = task_handle.exitValue();
-                %                 if ispc() % windows does not hold correct process for Matlab
-                %                     ok = true;
-                %                 else
-                %                     ok = false; % unix does
-                %                 end
                 if term == 0
-                    %                         if is_alive
-                    failed = false;
-                    ok = true;
-                    %                         else
-                    %                            failed = true;
-                    %                            ok = false;
-                    %                            mess = fprintf('Java process have died without any output');
-                    %                        end
+                    if is_alive % thread is still running despite task have been completed
+                        running = true;
+                        failed  = false;
+                        return;
+                    else
+                        failed = false;
+                        running = false;
+                        mess = 'Java process sucsessfulluy completed';
+                    end
                 else
                     failed = true;
-                    mess = sprintf('Java run error with ID: %d\n',term);
-                    ok = false;
+                    mess = sprintf('Java process abnormal termination. Error ID: %d\n',term);
+                    running = false;
                 end
             catch Err
                 if strcmp(Err.identifier,'MATLAB:Java:GenericException')
@@ -621,16 +699,15 @@ classdef ClusterWrapper
                     if isempty(part)
                         mess = Err.message;
                         failed = true;
-                        ok   = false;
+                        running   = false;
                     else
-                        ok = true;
+                        running = true;
                         failed = false;
                     end
                 else
                     rethrow(Err);
                 end
             end
-            %            end
         end
     end
     %----------------------------------------------------------------------
