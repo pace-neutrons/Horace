@@ -54,9 +54,9 @@ install Horace:
    to have Horace available each time you start your Matlab session.
 6. If you do not have administrative access, the installation would still be possible,
    and will probably work as described. You may encounter problems with parallel extensions
-   and not be able to launch Horace from any folder.
+   and not be able to initialize Horace from a folder different from "Userpath" folder.
    See :ref:`Troubleshooting <Download_and_Setup_Troubleshutting:Download and Setup Trouble-Shutting>` for the details 
-   of the installation process.
+   of the installation process in this situation.
 
 **********************
  Horace Configuration
