@@ -15,7 +15,7 @@ classdef test_iMPI_methods< TestCase
     methods
         %
         function obj=test_iMPI_methods(name)
-            if ~exist('name','var')
+            if ~exist('name', 'var')
                 name = 'test_iMPI_methods';
             end
             obj = obj@TestCase(name);
@@ -173,7 +173,7 @@ classdef test_iMPI_methods< TestCase
             jobControlMess = InitMessage(job_param,3,false,1);
             
             mess_exchange_folder = mpi_comm.mess_exchange_folder;
-            assertTrue(exist(mess_exchange_folder,'dir') == 7)
+            assertTrue(is_folder(mess_exchange_folder))
             
             
             mpi_comm.send_message(1,je_initMess);
@@ -189,9 +189,9 @@ classdef test_iMPI_methods< TestCase
             % initialize worker as if is running on a remote system
             obj.worker_h(worker_init);
             
-            assertTrue(exist(created_files{1},'file')==2)
-            assertTrue(exist(created_files{2},'file')==2)
-            assertTrue(exist(created_files{3},'file')==2)
+            assertTrue(is_file(created_files{1}))
+            assertTrue(is_file(created_files{2}))
+            assertTrue(is_file(created_files{3}))
         end
         
     end

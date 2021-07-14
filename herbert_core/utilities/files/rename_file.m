@@ -22,8 +22,8 @@ function [ok,mess]=rename_file(source,destination)
 
 % Check existence of files - side effect is to check that arguments are OK
 try
-    if exist(source,'file'), s_ex=true; else s_ex=false; end
-    if exist(destination,'file'), d_ex=true; else d_ex=false; end
+    if is_file(source), s_ex=true; else s_ex=false; end
+    if is_file(destination), d_ex=true; else d_ex=false; end
 catch
     ok=false; mess='Check input arguments are characters strings';
     if nargout==0, error(mess), else return, end

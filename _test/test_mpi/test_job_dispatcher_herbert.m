@@ -4,7 +4,7 @@ classdef test_job_dispatcher_herbert < job_dispatcher_common_tests
     methods
         %
         function this=test_job_dispatcher_herbert(name)
-            if ~exist('name','var')
+            if ~exist('name', 'var')
                 name = 'test_job_dispatcher_herbert';
             end
             this = this@job_dispatcher_common_tests(name,'herbert');

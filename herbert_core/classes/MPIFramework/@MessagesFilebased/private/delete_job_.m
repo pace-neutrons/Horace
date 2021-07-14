@@ -3,7 +3,7 @@ function   delete_job_(obj)
 % delete all messages, in the exchange folder, which satisfy the message template
 %
 mess_folder = obj.mess_exchange_folder;
-if ~exist(mess_folder,'dir')
+if ~is_folder(mess_folder)
     return;
 end
 %

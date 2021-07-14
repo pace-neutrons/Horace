@@ -1,8 +1,8 @@
 function self = load_figs_(self,filename)
 % load previously saved figs to memory, add then to
 % fig controlled list and replot all
-if ~(exist(filename,'file')==2)
-    if exist([filename,'.fig'],'file')==2
+if ~(is_file(filename))
+    if is_file([filename,'.fig'])
         filename = [filename,'.fig'];
     else
         error('FIG_SPREAD:invalid_argument',...

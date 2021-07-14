@@ -1,33 +1,43 @@
 classdef pdf_table_lookup
-    % Create a lookup table of probability distribution functions for a set of object arrays
+    % Optimised lookup table of one dimensional probability distribution functions for a set of objects
+    %
     % The purpose of this class is twofold:
     %
-    %   (1) to minimise the memory requirements and creation time for the pdfs by
+    %   (1) To minimise the memory requirements and creation time for the pdfs by
     %       creating pdf tables only for unique instances of the objects in the
     %       set of arrays;
     %   (2) to optimise  the speed of selection of random numbers for an array of
     %       indices into one of the original object arrays. The optimisation arises
-    %       when the array contains large numbers of repeated indices.
+    %       when the array contains large numbers of repeated indices,
+    %       that is, when the number of indices is much larger than the number
+    %       of unique objects.
     %
     % For an instance of this class to be created, there must be a method of the
     % input object call pdf_table that returns a <a href="matlab:help('pdf_table');">pdf_table object</a>.
     % This creates a probability distribution function lookup table for the object.
     %
+    %
+    % Relationship to object_lookup:
+    % ------------------------------
     % This class is similar to <a href="matlab:help('object_lookup');">object_lookup</a>
     % That class is more general because it supports random sampling that results
     % in a vector or array e.g. when the object method rand suplies a set of
     % points in 3D volume. This class provides random sampling from a one-
     % dimensional probability distribution function only.
     %
+    % Generally, it is better to create an object_lookup object from your set of objects
+    % as it is more general, offering optimised evaluation of other properties than just
+    % randomly sampling distributions.
+    %
     % The reason for using this class rather than object_lookup is when all of
     % the following apply:
-    %   (1) the pdf is one dimensional
-    %   (2) random numbers are expensive to evaluate and so creating a lookup
-    %       table will save time in the long run
-    %   (3) access to the originating class properties is not going to be
-    %       required
+    %   (1) The pdf is one dimensional and there is an object method called pdf_table;
+    %   (2) Random numbers are expensive to evaluate and the object does not have an
+    %       internal cache of the pdf;
+    %   (3) No other function evaluation on the originating objects is going to be
+    %       needed.
     %
-    % See also pdf_table pdf_table_array object_lookup
+    % See also object_lookup
     
     properties (Access=private)
         % Class version number

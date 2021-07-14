@@ -1,6 +1,6 @@
 function [y, name, pnames, pin] = soft_hat(x, p, flag)
 % Hat function broadened by Gaussians (different at each end) and with an overall slope.
-% 
+%
 %   >> y = soft_hat(x,p)
 %   >> [y, name, pnames, pin] = soft_hat(x,p,flag)
 %
@@ -37,38 +37,42 @@ if nargin==2
     sig2fwhh=sqrt(8*log(2));
     rt2=sqrt(2);
     height=p(1); grad=p(2); x1=p(3); x2=p(4); sig1=abs(p(5))/sig2fwhh; sig2=abs(p(6))/sig2fwhh;
-    % linearly interpolate sig for x1<x<x2
-    sig = ((x2-x)*sig1-(x1-x)*sig2)/(x2-x1);    
+% linearly interpolate sig for x1<x<x2
+    sig = ((x2-x)*sig1-(x1-x)*sig2)/(x2-x1);
     sig(x<x1)=sig1;
     sig(x>x2)=sig2;
-    % calculate blurred hat function with gradient
+% calculate blurred hat function with gradient
     e1=(x1-x)./(rt2*sig);
     e2=(x2-x)./(rt2*sig);
     y=(erf(e2)-erf(e1)).*((height+grad*(x-(x2+x1)/2))/2);
 else
-	y=[];
-	name='psd_calib';
-	pnames=str2mat('Hat height','Hat gradient','Hat start','Hat end','Start FWHH','End FWHH');
-	if flag==1
+    y=[];
+    name='psd_calib';
+    pnames=char('Hat height','Hat gradient','Hat start','Hat end','Start FWHH','End FWHH');
+    if flag==1
         pin=[];
     elseif flag==2
-		mf_msg('Hat start - full height');
-		[x1,h1]=ginput(1);
-		mf_msg('Hat start - half height');
-		[hat_start,dummy]=ginput(1);
-		mf_msg('Hat start - quarter height');
-		[start_fwhh,dummy]=ginput(1);
+        mf_msg('Hat start - full height');
+        [x1,h1]=ginput(1);
+        mf_msg('Hat start - half height');
+        [hat_start,~]=ginput(1);
+        mf_msg('Hat start - quarter height');
+        [start_fwhh,~]=ginput(1);
         start_fwhh=abs(start_fwhh-hat_start)/0.28642942;
-		mf_msg('Hat end - full height');
-		[x2,h2]=ginput(1);
-		mf_msg('Hat end - half height');
-		[hat_end,dummy]=ginput(1);
-		mf_msg('Hat end - quarter height');
-		[end_fwhh,dummy]=ginput(1);
+        mf_msg('Hat end - full height');
+        [x2,h2]=ginput(1);
+        mf_msg('Hat end - half height');
+        [hat_end,~]=ginput(1);
+        mf_msg('Hat end - quarter height');
+        [end_fwhh,~]=ginput(1);
         end_fwhh=abs(end_fwhh-hat_end)/0.28642942;
         hat_height=(h1+h2)/2;
         grad=(h2-h1)/(x2-x1);
-        if isnan(grad); grad=0; end;        
-		pin=[hat_height,grad,hat_start,hat_end,start_fwhh,end_fwhh];
-	end
+        if isnan(grad)
+            grad=0;
+        end
+        pin=[hat_height,grad,hat_start,hat_end,start_fwhh,end_fwhh];
+    end
+end
+
 end

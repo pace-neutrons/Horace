@@ -1,6 +1,6 @@
 function [y, name, pnames, pin] = gauss(x, p, flag)
 % Gaussian function
-% 
+%
 %   >> y = gauss(x,p)
 %   >> [y, name, pnames, pin] = gauss(x,p,flag)
 %
@@ -33,17 +33,19 @@ if nargin==2
     y=p(1)*exp(-0.5*((x-p(2))/p(3)).^2);
 else
     % Return parameter names or interactively prompt for parameter values
-	y=[];
-	name='Gaussian';
-	pnames=str2mat('Height','Centre','Sigma');
-	if flag==1
+    y=[];
+    name='Gaussian';
+    pnames=char('Height','Centre','Sigma');
+    if flag==1
         pin=zeros(size(p));
     elseif flag==2
-		mf_msg('Click on peak maximum');
-		[centre,height]=ginput(1);
-		mf_msg('Click on half-height');
-		[width,dummy]=ginput(1);
-		sigma=0.8493218*abs(width-centre);
-		pin=[height,centre,sigma];
-	end
+        mf_msg('Click on peak maximum');
+        [centre,height]=ginput(1);
+        mf_msg('Click on half-height');
+        [width,~]=ginput(1);
+        sigma=0.8493218*abs(width-centre);
+        pin=[height,centre,sigma];
+    end
+end
+
 end

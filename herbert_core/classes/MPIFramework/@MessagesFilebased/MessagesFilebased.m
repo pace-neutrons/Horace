@@ -127,7 +127,7 @@ classdef MessagesFilebased < iMessagesFramework
                 return;
             end
             % We are setting new folder so should delete old message exchange folder if one exist
-            if exist(obj.mess_exchange_folder,'dir') == 7
+            if is_folder(obj.mess_exchange_folder)
                 rmdir(obj.mess_exchange_folder,'s');
             end
             construct_me_folder_(obj,val);
@@ -217,7 +217,7 @@ classdef MessagesFilebased < iMessagesFramework
         function [ok,err]=labBarrier(obj,nothrow)
             %  if nothrow == true, do not throw on errors in message
             %  propagation
-            if ~exist('nothrow','var')
+            if ~exist('nothrow', 'var')
                 nothrow = false;
             end
             if obj.is_tested % no blocking in testing mode
@@ -228,10 +228,10 @@ classdef MessagesFilebased < iMessagesFramework
             [ok,err]=wait_at_barrier_(obj,nothrow);
         end
         %
-        function is = is_job_canceled(obj)
-            % method verifies if job has been canceled
-            is = ~exist(obj.mess_exchange_folder_,'dir') || ...
-                ~isempty(obj.probe_all('all','canceled'));
+        function is = is_job_cancelled(obj)
+            % method verifies if job has been cancelled
+            is = ~is_folder(obj.mess_exchange_folder_) || ...
+                ~isempty(obj.probe_all('all','cancelled'));
         end
         %------------------------------------------------------------------
         % Filebased framework specific properties:
@@ -351,7 +351,7 @@ classdef MessagesFilebased < iMessagesFramework
             %               its receiver.
             %               if true, defines data message name for sender.
             %               false - for received.
-            if ~exist('lab_from','var')
+            if ~exist('lab_from', 'var')
                 lab_from = obj.labIndex;
             end
             if nargin < 5
@@ -384,7 +384,7 @@ classdef MessagesFilebased < iMessagesFramework
                     [fp,fs] = fileparts(obj.mess_exchange_folder_);
                     if strcmpi(fs,old_id)
                         obj.mess_exchange_folder_ = fullfile(fp,new_job_id);
-                        if delete_old_folder && (exist(old_exchange,'dir') == 7)
+                        if delete_old_folder && (is_folder(old_exchange))
                             ok=rmdir(old_exchange,'s');
                             n_allowed = 1000;
                             n_tries = 0;
@@ -414,7 +414,7 @@ classdef MessagesFilebased < iMessagesFramework
             % The exchange folder name is equal to job_id and located
             % within the configuration folder.
             
-            if ~exist('top_exchange_folder','var')
+            if ~exist('top_exchange_folder', 'var')
                 top_exchange_folder = config_store.instance().config_folder;
             end
             [top_exchange_folder,mess_subfolder] = constr_exchange_folder_name_(obj,top_exchange_folder);

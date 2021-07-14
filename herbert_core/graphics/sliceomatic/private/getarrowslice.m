@@ -1,7 +1,7 @@
 function [a, s]=getarrowslice
 % Return the Arrow and Slice based on the GCO
 
-  if isempty(getappdata(gco,'controlarrow')) & ...
+  if isempty(getappdata(gco,'controlarrow')) && ...
         isempty(getappdata(gco,'isosurface'))
     a = gco;
     s = getappdata(a,'arrowslice');
@@ -15,4 +15,6 @@ function [a, s]=getarrowslice
     end
     a = getappdata(s,'controlarrow');
   end
+  
+end
 

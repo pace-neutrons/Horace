@@ -82,7 +82,7 @@ function addgenpath_message (varargin)
 % T.G.Perring
 
 string=fullfile(varargin{:},'');    % '' needed to circumvent bug in fullfile if only one argument, Matlab 2008b (& maybe earlier)
-if exist(string,'dir')==7
+if exist(string,'dir')==7 % is_dir has not been loaded yet
     try
         addpath (genpath_special(string),'-frozen');
     catch ME
@@ -136,8 +136,8 @@ function print_banner()
     lines = {'ISIS utilities for visualization and analysis', ...
              'of neutron spectroscopy data', ...
              ['Herbert ', herbert_version()]
-    };            
-    fprintf('!%s!\n', repmat('=', 1, width));                
+    };
+    fprintf('!%s!\n', repmat('=', 1, width));
     for i = 1:numel(lines)
         fprintf('!%s!\n', center_and_pad_string(lines{i}, ' ', width));
     end

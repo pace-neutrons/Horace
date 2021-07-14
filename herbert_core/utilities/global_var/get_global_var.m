@@ -35,7 +35,7 @@ if nargin>0
     if nargin==1    % must catch this case to avoid {} being passed as a name
         status = ixf_global_var (varargin{1}, 'exist');
         if status
-            [dummy,varargout{1}] = ixf_global_var (varargin{1}, 'get');
+            [~,varargout{1}] = ixf_global_var (varargin{1}, 'get');
         else
             error('Variable set does not exist')
         end
@@ -47,7 +47,7 @@ if nargin>0
             error('Variable set or at least of the variables, does not exist')
         end
     else            % package arguments as cell; if valid names this will be a cellstr
-        status = ixf_global_var (varargin{1}, 'exist', {varargin{2:end}});
+        status = ixf_global_var (varargin{1}, 'exist', varargin(2:end));
         if all(status)
             var_struct = ixf_global_var (varargin{1}, 'get', varargin{2:end});
             if nargin>2
@@ -65,3 +65,6 @@ if nargin>0
 else
     varargout{1} = ixf_global_var;
 end
+
+end
+

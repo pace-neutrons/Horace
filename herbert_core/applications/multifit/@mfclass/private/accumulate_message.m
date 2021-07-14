@@ -1,5 +1,5 @@
 function mess = accumulate_message (varargin)
-% Accumulate messages 
+% Accumulate messages
 %
 %   >> mess = accumulate_message (mess1, mess2, ...)
 %
@@ -25,3 +25,4 @@ if ~ok
     error('One or more inputs are not character strings or cell array of characters')
 end
 
+end

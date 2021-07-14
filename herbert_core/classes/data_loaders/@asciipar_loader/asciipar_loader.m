@@ -11,7 +11,6 @@ classdef asciipar_loader < a_detpar_loader_interface
     % both with ASCII par files and the detector information containing in
     % the main data file (if the later intended to be used)
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
     % the properties common for all data loaders.
     %
@@ -26,6 +25,12 @@ classdef asciipar_loader < a_detpar_loader_interface
         par_file_name_ ='';
         % The data fields an ascii par loader defines
         par_can_define_ = {'det_par','n_det_in_par'};
+    end
+    properties(Constant)
+        % when read ascii parameters, keep the specified number of digits after
+        % decimal point to obtain consitent results on different operating
+        % systen
+        ASCII_PARAM_ACCURACY = 4;
     end
     methods
         % constructor;

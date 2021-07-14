@@ -16,7 +16,7 @@ classdef test_config_base < TestCase
             config_store.instance().clear_config(config)
             config_file = fullfile(config_store.instance().config_folder(),'config_base_tester.mat');
             % set up
-            if exist(config_file,'file')
+            if is_file(config_file)
                 delete(config_file);
             end
               
@@ -49,7 +49,7 @@ classdef test_config_base < TestCase
             config_store.instance().clear_config(config)
             config_file = fullfile(config_store.instance().config_folder(),'config_base_tester.mat');
             % set up
-            if exist(config_file,'file')
+            if is_file(config_file)
                 delete(config_file);
             end
                           

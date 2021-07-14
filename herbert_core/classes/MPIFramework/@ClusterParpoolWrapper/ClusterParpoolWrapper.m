@@ -8,9 +8,6 @@ classdef ClusterParpoolWrapper < ClusterWrapper
         cluster_ =[];
         current_job_ = [];
         task_ = [];
-        
-        cluster_prev_state_ =[];
-        cluster_cur_state_ = [];
     end
     properties(Constant,Access = private)
         % list of states available for parallel computer toolbox cluster
@@ -65,11 +62,15 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             obj.started_info_message_  = ...
                 '*** Matlab MPI job started                                 ***\n';
             obj.cluster_config_ = 'default';
+            
+            % The default name of the messages framework, used for communications
+            % between the nodes of the parallel job
             obj.pool_exchange_frmwk_name_ = 'MessagesParpool';
+            obj.starting_cluster_name_ = class(obj);
             if nargin < 2
                 return;
             end
-            if ~exist('log_level','var')
+            if ~exist('log_level', 'var')
                 log_level = -1;
             end
             obj = obj.init(n_workers,mess_exchange_framework,log_level);
@@ -88,15 +89,11 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             %              which started and controls the job.
             %log_level     if present, the number, which describe the
             %              verbosity of the cluster operations outpt;
-            if ~exist('log_level','var')
+            if ~exist('log_level', 'var')
                 log_level = -1;
             end
             
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
-            % get worker defined in parallel config
-            pc = parallel_config();
-            obj.worker_name_ = pc.worker;
-            obj.is_compiled_script_ = pc.is_compiled;
             
             % delete interactive parallel cluster if any exist
             cl = gcp('nocreate');
@@ -107,9 +104,12 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             end
             % build generic worker init string without lab parameters
             cs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
+            obj.common_env_var_('WORKER_CONTROL_STRING')=cs;
+            pc = parallel_config;
             
             
             cl  = parcluster();
+            cl.JobStorageLocation = pc.working_directory;
             
             % By default Matlab only utilises physical cores; enable use of
             % logical cores if required
@@ -123,7 +123,7 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             
             num_labs = cl.NumWorkers;
             if num_labs < obj.n_workers
-                error('PARPOOL_CLUSTER_WRAPPER:runtime_error',...
+                error('HERBERT:ClusterParpoolWrapper:invalid_argument',...
                     'job %s requested %d workers while the cluster allows only %d',...
                     obj.job_id,obj.n_workers,num_labs);
             end
@@ -133,7 +133,10 @@ classdef ClusterParpoolWrapper < ClusterWrapper
                 cjob.NumWorkersRange  = obj.n_workers;
             end
             cjob.AutoAttachFiles = false;
-            
+            % set enviromental variables. This certainly works for local
+            % variables, but if the cluster is remote, the envriomental
+            % variables transfer should be investigated
+            obj.set_env();
             h_worker = str2func(obj.worker_name_);
             task = createTask(cjob,h_worker,0,{cs});
             
@@ -141,83 +144,13 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             obj.current_job_  = cjob;
             obj.task_ = task;
             
-            [completed,obj] = obj.check_progress();
-            if completed
-                error('PARPOOL_CLUSTER_WRAPPER:runtime_error',...
-                    'parpool cluster for job %s finished before starting any job. State: %s',...
-                    obj.job_id,obj.status_name);
-            end
             %actually submit the job
             submit(cjob);
             %wait(cjob);
-            if log_level > -1
-                fprintf(obj.started_info_message_);
-            end
-        end
-        %
-        function [completed,obj] = check_progress(obj,varargin)
-            % overload check progress method to account for changes
-            % reported by parpool cluster
-            [completed, obj] = check_progress@ClusterWrapper(obj,varargin{:});
-            %
-            if nargin == 1 && ~isempty(obj.current_job_)
-                cljob = obj.current_job_;
-                obj.cluster_prev_state_ = obj.cluster_cur_state_;
-                obj.cluster_cur_state_ = cljob.State;
-                if ~strcmp(obj.cluster_prev_state_,obj.cluster_cur_state_)
-                    obj.status_changed_ = true;
-                end
-                code = obj.cluster_name2code(obj.cluster_cur_state_);
-                if code > 3 % job completed
-                    if code > 4 %failed
-                        mess_texst = obj.task_.ErrorMessage;
-                        err = obj.task_.Error;
-                        if ~isa(obj.current_status_,'FailedMessage')
-                            pause(1);
-                            [completed, obj] = check_progress@ClusterWrapper(obj,varargin{:});
-                            if ~completed
-                                obj.current_status_ = FailedMessage(...
-                                    sprintf('cluster job %s failed returning error:  %s, code: %s',...
-                                    obj.job_id,mess_texst,obj.cluster_cur_state_ ),...
-                                    err);
-                                completed = true;
-                            end
-                        end
-                    else % finished
-                        if ~completed
-                            [completed, obj] = check_progress@ClusterWrapper(obj);
-                        end
-                        if isempty(obj.current_status_) || ~strcmpi(obj.current_status_.mess_name,'completed')
-                            % has Matlab MPI job been completed before status message has
-                            % been delivered?
-                            mess = obj.mess_exchange_.probe_all(1,'completed');
-                            if isempty(mess)
-                                if ~completed
-                                    completed = true;
-                                    fm = FailedMessage('Cluster reports job completed but results have not been returned to host');
-                                else
-                                    fm = FailedMessage('Cluster reports job completed but the final completed message has not been received');
-                                end
-                                obj.current_status_  = fm;
-                            else
-                                completed = true;
-                                [ok,err,mess] = obj.mess_exchange_.receive_message(1,mess{1},'-synch');
-                                if ok ~= MESS_CODES.ok
-                                    error('CLUSTER_WRAPPER:runtime_error',...
-                                        'Error %s receiving existing message: %s from job %s',...
-                                        err,mess{1},obj.job_id);
-                                end
-                                obj.status= mess;
-                            end
-                        end
-                    end
-                else
-                    if ~obj.status_changed
-                        obj.status = cljob.State;
-                    end
-                end
-                
-            end
+            
+            % check if job control API reported failure
+            obj.check_failed();
+            
         end
         %
         function obj=finalize_all(obj)
@@ -227,61 +160,91 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             if ~isempty(obj.current_job_)
                 delete(obj.current_job_);
                 obj.current_job_ = [];
-                obj.cluster_prev_state_ = obj.cluster_cur_state_;
-                obj.cluster_cur_state_ = [];
-                obj.status_changed_ = false;
             end
             
         end
+        %
         function check_availability(obj)
             % verify the availability of the Matlab Parallel Computing
             % toolbox and the possibility to use the paropool cluster to
             % run parallel jobs.
             %
-            % Should throw PARALLEL_CONFIG:not_avalable exception
+            % Should throw HERBERT:ClusterWrapper:not_available exception
             % if the particular framework is not avalable.
             %
             check_availability@ClusterWrapper(obj);
             check_parpool_can_be_enabled_(obj);
         end
-        
+        %
+        function is = is_job_initiated(obj)
+            % returns true, if the cluster wrapper is running communicating
+            % job
+            is = ~isempty(obj.task_);
+        end
         %------------------------------------------------------------------
+        
     end
     methods(Access = protected)
-        function ex = exit_worker_when_job_ends_(obj)
+        function ex = exit_worker_when_job_ends_(~)
             ex  = false;
         end
-        function obj = set_cluster_status(obj,mess)
-            % protected set status function, necessary to be able to
-            % overload set.status method.
-            if isa(mess,'aMessage')
-                stat_mess = mess;
-            elseif ischar(mess)
-                if strcmp(mess,'log') || strcmpi(mess,'running')
-                    if strcmpi(mess,'running')
-                        mess = 'log';
-                    end
-                    if ~isempty(obj.current_status_) && ...
-                            strcmp(obj.current_status_.mess_name,'log')
-                        stat_mess = obj.current_status_;
-                    else
-                        stat_mess  = MESS_NAMES.instance().get_mess_class(mess);
-                    end
-                elseif strcmp(mess,'finished')
-                    stat_mess = CompletedMessage();
+        %         %
+        function [running,failed,paused,mess]=get_state_from_job_control(obj)
+            % retrieve the job state by accessing job control framework
+            % and set current status accordingly
+            %
+            cljob = obj.current_job_;
+            state = cljob.State;
+            
+            code = obj.cluster_name2code(state);
+            if code == 3 % job is running
+                running = true;
+                failed = false;
+                paused = false;
+                mess = 'running';
+                return;
+            end
+            if code < 3 % paused, pended, not yet started
+                running = false;
+                failed = false;
+                paused = true;
+                mess = LogMessage(0,0,0,sprintf('Matlab MPI job is in %s',state));
+                return;
+            end
+            if code == 4
+                running = false;
+                failed = false;
+                paused = false;
+                mess   = CompletedMessage();
+                return;
+            end
+            %  failed
+            paused = false;
+            running= false;
+            failed = true;
+            
+            %ErrorMessage	Message from task error
+            err = obj.task_.Error;
+            %Error	Task error information
+            messer_txt = obj.task_.ErrorMessage;
+            %ErrorIdentifier	Task error identifier
+            err_id = obj.task_.ErrorIdentifier;
+            
+            fail_text = sprintf('Cluster job: %s failed. Message: %s, Code: %d',obj.job_id,messer_txt,err_id);
+            if isa(err,'MException')
+                rep_err = err;
+            elseif ischar(err)
+                if contains(err,':')
+                    rep_err = MException(err,messer_txt);
                 else
-                    stat_mess = MESS_NAMES.instance().get_mess_class(mess);
+                    rep_err = MException(['HERBERT:',strrep(err,' ','_')],messer_txt);
                 end
             else
-                error('CLUSTER_WRAPPER:invalid_argument',...
-                    'status is defined by aMessage class only or a message name')
+                err = strtrim(evalc('disp(err)'));
+                rep_err = MException(['HERBERT:ParpoolWrapper:',strrep(err,' ','_')],messer_txt);
             end
-            obj.prev_status_ = obj.current_status_;
-            obj.current_status_ = stat_mess;
-            if obj.prev_status_ ~= obj.current_status_
-                obj.status_changed_ = true;
-            end
-            
+            mess   = FailedMessage(fail_text,rep_err);
         end
     end
+    
 end

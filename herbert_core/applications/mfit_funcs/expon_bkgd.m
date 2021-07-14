@@ -1,6 +1,6 @@
 function [y, name, pnames, pin] = expon_bkgd (x, p, flag)
 % Exponential function on a linear background
-% 
+%
 %   >> y = expon_bkgd (x,p)
 %   >> [y, name, pnames, pin] = expon_bkgd (x,p,flag)
 %
@@ -33,27 +33,32 @@ if nargin==2
     y=p(1)*exp(-x/p(2)) + (p(3)+x*p(4));
 else
     % Return parameter names or interactively prompt for parameter values
-	y=[];
-	name='Exponential';
-	pnames=str2mat('Height','Decay','Constant','Slope');
-	if flag==1
+    y=[];
+    name='Exponential';
+    pnames=char('Height','Decay','Constant','Slope');
+    if flag==1
         pin=[];
     elseif flag==2
-		mf_msg('Click on one point');
-		[x1,y1]=ginput(1);
-		mf_msg('Click on 2nd point');
-		[x2,y2]=ginput(1);
-		mf_msg('Click on left background');
-		[xb1,yb1]=ginput(1);
-		mf_msg('Click on right background');
-		[xb2,yb2]=ginput(1);
+        mf_msg('Click on one point');
+        [x1,y1]=ginput(1);
+        mf_msg('Click on 2nd point');
+        [x2,y2]=ginput(1);
+        mf_msg('Click on left background');
+        [xb1,yb1]=ginput(1);
+        mf_msg('Click on right background');
+        [xb2,yb2]=ginput(1);
         const=(xb2*yb1-xb1*yb2)/(xb2-xb1);
         slope=(yb2-yb1)/(xb2-xb1);
-        if isnan(const)||isnan(slope); const=0; slope=0; end;
+        if isnan(const)||isnan(slope)
+            const=0;
+            slope=0;
+        end
         y1=y1-(const+slope*x1);
         y2=y2-(const+slope*x2);
         tau = (x2-x1)/log(y1/y2);
         ht  = y1*exp(x1/tau);
-		pin=[ht,tau,const,slope];
-	end
+        pin=[ht,tau,const,slope];
+    end
+end
+
 end

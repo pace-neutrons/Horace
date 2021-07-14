@@ -10,7 +10,7 @@ rootpath = fileparts(which('herbert_init'));
 if nargin==0
     switch_on=true;
 else
-    if exist('on_off','var')
+    if exist('on_off', 'var')
         if strcmpi(on_off,'off')
             switch_on=false;
         else

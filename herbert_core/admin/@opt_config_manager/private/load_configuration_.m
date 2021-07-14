@@ -8,7 +8,7 @@ function obj = load_configuration_(obj,set_config,set_defaults_only,force_save)
 %
 %
 config_file = fullfile(obj.config_info_folder,obj.config_filename);
-if ~(exist(config_file,'file') == 2)
+if ~(is_file(config_file))
     warning('No existing configuration file %s found. Current configuration left unchanged',...
         config_file)
     return;

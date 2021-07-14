@@ -30,7 +30,7 @@ if nargin==1
         [ok,mess,wout]=checkfields(varargin{1});   % Make checkfields the ultimate arbiter of the validity of a structure
         if ok, wout = class(wout,classname); return, else error(mess); end
     elseif ischar(varargin{1}) && length(size(varargin{1}))==2 && size(varargin{1},1)==1
-        if exist(varargin{1},'file') % file name
+        if is_file(varargin{1}) % file name
             [wout,ok,mess]=get_phxObject(varargin{1});
             if ~ok, error(mess); end
             [ok,mess,wout]=checkfields(wout);   % Make checkfields the ultimate arbiter of the validity of a structure

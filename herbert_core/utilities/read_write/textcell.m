@@ -18,30 +18,49 @@ end
 info=dir(file);
 if ~isempty(info)
     if info.bytes>ceil(1048576*max_size_MB)
-        C=cell(1,0); ok=false; mess=['File exceeds maximum size of ',num2str(max_size_MB),' MB'];
-        if nargout<=1, error(mess), else return, end
+        C=cell(1,0);
+        ok=false;
+        mess=['File exceeds maximum size of ',num2str(max_size_MB),' MB'];
+        if nargout<=1
+            error(mess)
+        else
+            return
+        end
     end
 else
     C=cell(1,0); ok=false; mess=['File does not exist: ', file];
-    if nargout<=1, error(mess), else return, end
+    if nargout<=1
+        error(mess)
+    else
+        return
+    end
 end
 
 % Read one long string from file
 try
     str=fileread(file);
-catch
+catch ME
     C=cell(1,0); ok=false; mess=['Error reading file: ', file];
-    if nargout<=1, disp(mess), rethrow(lasterror), else return, end
+    if nargout<=1
+        disp(mess)
+        rethrow(ME)
+    else
+        return
+    end
 end
 
 % Return if empty
 if isempty(str)
     C=cell(1,0); ok=true; mess=['Empty file: ', file];
-    if nargout<=1, disp(mess), else return, end
+    if nargout<=1
+        disp(mess)
+    else
+        return
+    end
 end
 
 % Determine if unix or Windows, and how last line is terminated
-lf=find(double(str)==char(10));
+lf=find(double(str)==newline);
 cr=find(double(str)==char(13));
 if numel(lf)==numel(cr) && all(lf-cr==1)    % Windows was used to create the text file
     nterm=2;
@@ -73,4 +92,10 @@ end
 
 % Message to screen
 ok=true; mess=[num2str(nline) ' lines read from: ' file];
-if nargout<=1, disp(mess), else return, end
+if nargout<=1
+    disp(mess)
+else
+    return
+end
+
+end

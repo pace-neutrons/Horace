@@ -10,7 +10,7 @@ mess_files_list = arrayfun(@(tid)job_stat_fname_(obj,lab_num,mess_name,tid,false
     task_ids_requested,'UniformOutput',false);
 %
 % check if the messages are indeed present
-mess_present = cellfun(@(fn)(exist(fn,'file')==2),mess_files_list,...
+mess_present = cellfun(@(fn)(is_file(fn)),mess_files_list,...
     'UniformOutput',true);
 mid_from = task_ids_requested(mess_present);
 if allow_locked || isempty(mid_from)
@@ -27,11 +27,12 @@ mid_from     =  mid_from(nolocked);
 mess_present = mess_present(nolocked);
 all_messages =  arrayfun(@(x)(mess_name),1:sum(mess_present),'UniformOutput',false);
 
-
+end
 
 function no = check_nolocked(filename)
 % check if given file is not locked
 [rlock,wlock] = build_lock_fname_(filename);
 
-no = ~(exist(rlock,'file')==2 || exist(wlock,'file')==2);
+no = ~(is_file(rlock) || is_file(wlock));
 
+end

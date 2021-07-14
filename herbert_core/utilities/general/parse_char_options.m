@@ -60,7 +60,7 @@ if nargout == nopt+3
 end
 
 if return_remaining
-    remaining_args=logical(zeros(narg,1));
+    remaining_args=false(narg,1);
 end
 varargout = cell(nouts,1);
 varargout = cellfun(@(x){false},varargout);
@@ -82,7 +82,11 @@ for i=1:narg
                 return
             end
         else
-            ok=false; mess=['Input key: ''',args{i},''' is an ambiguous abbreviation of at least two valid options'];
+            ok=false; 
+            multiselected = strjoin(options(ind),'; ');
+            mess=sprintf(...
+                'Input key: ''%s'' is an ambiguous abbreviation of multiple valid options: %s.',...
+                args{i},multiselected);
             return
         end
     else
@@ -99,5 +103,3 @@ mess='';
 if return_remaining
     varargout{nouts} = args(remaining_args);
 end
-
-

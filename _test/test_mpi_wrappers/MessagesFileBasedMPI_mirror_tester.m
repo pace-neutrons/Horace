@@ -1,7 +1,10 @@
 classdef MessagesFileBasedMPI_mirror_tester < MFTester
-    % The class, which mimicks the file-based messages mirroring, i.e.
-    % when one sends message to a particular worker, the class reflects it and
-    % provides the same message as available from this worker.
+    % The class, which mimicks the file-based messages mirroring
+    %
+    % i.e.
+    % when one sends a message to a particular worker, the class reflects it
+    % and provides the sent message as available from the worker to which
+    % the initial message has been sent
     properties(Access=protected)
         mess_name_fun_
     end
@@ -45,7 +48,7 @@ classdef MessagesFileBasedMPI_mirror_tester < MFTester
     methods (Access=protected)
         function mess_fname = job_stat_fname_(obj,lab_to,mess_name,lab_from,varargin)
             %build filename for a specific message
-            if ~exist('lab_from','var')
+            if ~exist('lab_from', 'var')
                 lab_from = obj.labIndex;
             end
             mess_fname= obj.mess_name_fun_(mess_name,lab_to,lab_from,varargin{:});

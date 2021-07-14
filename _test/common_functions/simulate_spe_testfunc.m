@@ -16,7 +16,7 @@ if isempty(seeds_store)
     seed_dir = fileparts(which('simulate_spe_testfunc.m'));
     seeds_file = fullfile(seed_dir,'sim_spe_testfun_seeds_file.mat');
     
-    if exist(seeds_file,'file')==2
+    if is_file(seeds_file)
         storage = load(seeds_file);
         seeds_store = storage.seeds_store;
         seed_defined = true;

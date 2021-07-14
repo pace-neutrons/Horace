@@ -4,8 +4,8 @@ classdef MESS_CODES < uint32
     enumeration
         not_exist       (0)
         ok              (1)
-        job_canceled    (2)
-        job_canceled_request  (3) % received job canceled message request
+        job_cancelled    (2)
+        job_cancelled_request  (3) % received job cancelled message request
         a_recieve_error (4)
         a_send_error    (5)
         runtime_error   (6) % should it just throw in this case?

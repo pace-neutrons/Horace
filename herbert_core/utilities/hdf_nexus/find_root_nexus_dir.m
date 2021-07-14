@@ -28,7 +28,7 @@ function [root_nx_path,data_version,data_structure] = find_root_nexus_dir(hdf_fi
 %
 %
 
-if ~exist('nexus_application_name','var')
+if ~exist('nexus_application_name', 'var')
     nexus_application_name = 'NXSPE';
 end
 if nargin>2

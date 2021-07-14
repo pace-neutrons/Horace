@@ -30,7 +30,7 @@ if ~isstruct(global_paths) && isempty(global_paths)
 end
 
 % Check if name given
-if exist('name','var')
+if exist('name', 'var')
     if ~isvarname(name)
         error('Global path name is not a valid variable name')
     end
@@ -64,7 +64,7 @@ switch operation
             varargout{1}=fieldnames(global_paths);
         else
             if isfield(global_paths,name)
-                if ~exist('val','var')  % no option given
+                if ~exist('val', 'var')  % no option given
                     varargout{1}=global_paths.(name);
                 elseif isequal(val,'full')
                     dirs=resolve_path(global_paths.(name));
@@ -82,7 +82,7 @@ switch operation
         if ~named
             error('Must give name of global path to be set')
         else
-            if exist('val','var') && iscellstr(val)
+            if exist('val', 'var') && iscellstr(val)
                 % Must now check that no global paths will be recursive or too deeply nested
                 % (expensive, but safest to do here, the only place where a global path can be altered)
                 if ~nesting_ok(val(:))
@@ -133,7 +133,7 @@ function ok=nesting_ok(celldir,depth)
 % Also calls ixf_global_path recursively
 
 depth_max=20;
-if ~exist('depth','var')
+if ~exist('depth', 'var')
     ok=true;
     depth=1;
 elseif depth<depth_max

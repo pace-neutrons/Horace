@@ -25,6 +25,7 @@
 %   See also TestComponent, TestSuite
 
 %   Steven L. Eddins
+%   Modified J. Wilkins 19-01-2021
 %   Copyright 2008-2010 The MathWorks, Inc.
 
 classdef TestCase < TestComponent
@@ -32,7 +33,6 @@ classdef TestCase < TestComponent
     properties
         MethodName
     end
-    
     
     methods
         function self = TestCase(testMethod)
@@ -66,7 +66,7 @@ classdef TestCase < TestComponent
                 num_tests_run = 0;
             end
             
-            did_pass = true;
+            did_pass = self.passed;
             monitor.testComponentStarted(self);
             
             try
@@ -92,8 +92,13 @@ classdef TestCase < TestComponent
                     % Call the test method.
                     f(self);
                 catch failureException
-                    monitor.testCaseFailure(self, failureException);
-                    did_pass = false;
+                    if (strcmp(failureException.identifier,'testSkipped:testSkipped'))
+                        monitor.testCaseSkip(self, failureException);
+                        did_pass = self.skipped;
+                    else
+                        monitor.testCaseFailure(self, failureException);
+                        did_pass = self.failed;
+                    end
                 end
                 if self.print_running_tests
                     tEnd = toc(tStart);
@@ -108,7 +113,7 @@ classdef TestCase < TestComponent
                 
             catch errorException
                 monitor.testCaseError(self, errorException);
-                did_pass = false;
+                did_pass = self.failed;
             end
             
             monitor.testComponentFinished(self, did_pass);

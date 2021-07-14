@@ -1,5 +1,6 @@
 function folder_path=make_config_folder(folder_name,in_folder_path,ext)
-% Return location of a folder to store user configuration files, creating if necessary.
+% Return location of a folder to store user configuration files, creating it
+% if necessary.
 %
 %   >> folder_path=make_config_folder(folder_name)
 % or:
@@ -12,7 +13,7 @@ function folder_path=make_config_folder(folder_name,in_folder_path,ext)
 %   in_folder_path      Optional path to the config folder above.
 %                       if the variable is specified and the folder can not
 %                       be created on this path, the routine throws
-%                       'CONFIG_FOLDER:invalid_argument'
+%                       'HERBERT:config_folder:invalid_argument'
 %   ext                 if present, added to test folder to
 %                       distinguish one from created by other MPI worker
 %                       with the same RNG settings
@@ -38,12 +39,12 @@ function folder_path=make_config_folder(folder_name,in_folder_path,ext)
 if nargin<3
     ext = '';
 end
-if exist('in_folder_path','var')
+if exist('in_folder_path', 'var')
     [success,folder_path,err_mess] = try_to_create_folder(in_folder_path,folder_name,ext);
     if success
         return
     else
-        error('CONFIG_FOLDER:invalid_argument',...
+        error('HERBERT:config_folder:invalid_argument',...
             'Can not create folder at the requested path: %s\n; Error: %s',...
             in_folder_path,err_mess);
     end
@@ -60,7 +61,7 @@ end
 
 % Try to use matlab preferences directory
 location = prefdir();
-if exist(location,'dir')
+if is_folder(location)
     % store configuration in a version-independent location;
     version_folder=regexp(version() ,'\w*','match');
     verstr=version_folder{5};
@@ -82,31 +83,31 @@ else
     location = getenv('HOME');
 end
 
-if exist(location,'dir')
+if is_folder(location)
     [success,folder_path] = try_to_create_folder(location,folder_name,ext);
     if success, return, end
 end
 
 % Something wrong with user profile, try matlab user folder
 location = userpath;
-if exist(location,'dir')
+if is_folder(location)
     [success,folder_path] = try_to_create_folder(location,folder_name,ext);
     if success, return, end
 end
 
 % Something is fundamentally wrong
 location = pwd;
-if exist(location,'dir')
+if is_folder(location)
     [success,folder_path,message] = try_to_create_folder(location,folder_name,ext);
     if ~success
-        help make_config_folder;
-        error('Cannot create configuration directory %s; Error: %s',folder_name,message);
+        error('HERBERT:config_folder:runtime_error',...
+            'Cannot create configuration directory %s; Error: %s',folder_name,message);
     end
 else
-    help make_config_folder;
-    error('CONFIG_FOLDER:runtime_error',...
+    error('HERBERT:config_folder:runtime_error',...
         'None of default locations exists or available for writing to create folder %s',...
         folder_name);
 end
 
+end
 %--------------------------------------------------------------------------------------------------

@@ -27,32 +27,46 @@ classdef config_store < handle
         % Singleton superclass.
         function newStore = config_store(varargin)
             % create and initialize config_store;
+            p = inputParser;
+            addOptional(p, 'path', '', @(x)(validateattributes(x,...
+                {'char', 'string'}, {'scalartext', 'nonempty'})));
+            parse(p, varargin{:});
+            newPath = p.Results.path;
+            
+            % initialize configurations storage.
+            newStore.config_storage_ = struct();
+            newStore.saveable_ = containers.Map();
+            
             [is_virtual,type]=is_idaaas();
             if is_virtual
                 newStore.config_folder_name_ = ['mprogs_config_',type];
             end
-            [is_virtual,build_name] = is_jenkins();
-            if is_virtual
-                [~,build_name] = fileparts(build_name); % remove all possible folder path's of the build name 
+            
+            [is_jenk,build_name,workspace] = is_jenkins();
+            if is_jenk
+                % remove all possible folder paths of the build name
                 % to be able to create valid file name.
+                [~,build_name] = fileparts(build_name);
                 newStore.config_folder_name_ = ['mprogs_config_',build_name];
             end
             
-            if nargin>0
-                [fp,fn] = fileparts(varargin{1});
+            if ~isempty(newPath)
+                [fp,fn] = fileparts(newPath);
                 cfn = config_store.instance().config_folder_name;
                 if strcmpi(fn,cfn)
                     newStore.config_folder_ = make_config_folder(cfn,fp);
                 else
-                    newStore.config_folder_ = make_config_folder(cfn,varargin{1});
+                    newStore.config_folder_ = make_config_folder(cfn,newPath);
                 end
             else
                 % Initialise default config folder path according to
-                newStore.config_folder_ = make_config_folder(newStore.config_folder_name);
+                % configuration
+                if is_jenk
+                    newStore.config_folder_ = make_config_folder(newStore.config_folder_name, workspace);
+                else
+                    newStore.config_folder_ = make_config_folder(newStore.config_folder_name);
+                end
             end
-            % initialize configurations storage.
-            newStore.config_storage_ = struct();
-            newStore.saveable_ = containers.Map();
         end
     end
     
@@ -203,6 +217,7 @@ classdef config_store < handle
                 this.saveable_(class_name)=is;
             end
         end
+        %
         function set_saveable(this,class_instance,is_it)
             % set or clear the property, which defines if the changes in
             % the class configuration are stored on hdd
@@ -235,10 +250,12 @@ classdef config_store < handle
             % from a config class, with specific class name
             %
             %Usage:
-            %>>val =
+            %>>val = ...
             %      config_store.instance().get_value(class_name,property_name)
             % or
-            %>>[val1,val2,val3] = config_store.instance().get_value(class_name,property_name1,property_name2,property_name3)
+            %>>[val1,val2,val3] = ...
+            %       config_store.instance().get_value(class_name,...
+            %                               property_name1,property_name2,property_name3);
             %
             [config_val,out] = this.get_config_val_internal(class_name,value_name,varargin);
             nout = max(nargout,1) - 1;
@@ -270,7 +287,7 @@ classdef config_store < handle
             %                      returns current Herbert config settings for fields
             %                      'use_mex' and 'log_level'
             
-            config_data=this.get_config_(class_to_restore);
+            [config_data,read_from_file]=this.get_config_(class_to_restore);
             % execute class setters.
             
             % Important!!!
@@ -279,15 +296,29 @@ classdef config_store < handle
             % set up unit test directories. But this can not set up
             % internal private dependent fields so a configuration can not
             % have such fields! (the setting got lost)
-            class_to_restore.set_stored_data(config_data);
+            
+            % set active properties only if the data were recovered from
+            % file
+            if read_from_file
+                if ~isa(class_to_restore,'config_base') % it mast be char
+                    class_to_restore = feval(class_to_restore);
+                end
+                ss = class_to_restore.saveable;
+                class_to_restore.saveable = false; % avoid resaving the data,
+                % just loaded from disk
+                class_to_restore.set_stored_data(config_data);
+                class_to_restore.saveable = ss; % return saveable state to
+                % its previous value
+            end
         end
+        %
         function has = has_config(this,class_name)
             % method checks if the class with given name has given
             % configuration stored in file.
             % In other words, has a configuration been ever been changed from
             % defaults.
             conf_file = fullfile(this.config_folder,[class_name,'.mat']);
-            if exist(conf_file,'file')
+            if is_file(conf_file)
                 has = true;
             else
                 has = false;
@@ -363,5 +394,3 @@ classdef config_store < handle
         
     end
 end
-
-
