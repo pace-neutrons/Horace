@@ -13,23 +13,27 @@
 %       testComponentFinished - Called when test component run finished
 %       testCaseFailure       -   Called when a test case fails
 %       testCaseError         - Called when a test case causes an error
+%       testCaseSkip          - Called when a test case is skipped
 %
 %   See also CommandWindowTestRunDisplay, TestRunLogger, TestCase, TestSuite
 
 %   Steven L. Eddins
+%   Modified J. Wilkins 19-01-2021
+
 %   Copyright 2008-2009 The MathWorks, Inc.
 
 classdef TestRunMonitor < handle
 
     methods (Abstract)
-        
+
         testComponentStarted(self, component)
-            
+
         testComponentFinished(self, component, did_pass)
-        
+
         testCaseFailure(self, test_case, failure_exception)
-        
+
         testCaseError(self, test_case, error_exception)
-        
+
+        testCaseSkip(self, test_case, skip_exception)
     end
 end
