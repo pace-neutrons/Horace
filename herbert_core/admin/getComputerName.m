@@ -25,3 +25,8 @@ end
 name = strtrim(lower(name));
 name = strrep(name,'-','_');
 
+if isempty(name)
+    name = 'unknownPC';
+end
+
+end

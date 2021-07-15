@@ -36,7 +36,7 @@ version_number = matlab_version_num();
 % Get default matlab directory name from which to use mex file dlls
 if version_number<8.05      % i.e. matlab version 8.4 i.e. R20014b
     matlab_dirname='_R2014b';    
-elseif(version_number>9.08) % tested up to R2020a
+elseif(version_number>9.09) % tested up to R2021b
     warning(['This subversion of mex-files has not been tested with Matlab version %s \n',...
         'Trying to use the files tested with Matlab 9.07 (2019b) but they may not work'],...
         version());
