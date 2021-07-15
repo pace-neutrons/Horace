@@ -1,8 +1,5 @@
-#ifndef H_COMMON_CODE
-#define H_COMMON_CODE
-
+#pragma once
 //
-// $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)" 
 //
 
 
@@ -203,9 +200,6 @@ private:
     double* largeMemory;
 
 };
-
-
-#endif
 
 
 

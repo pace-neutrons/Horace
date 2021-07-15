@@ -1,11 +1,15 @@
-#include "compute_pix_sums/compute_pix_sums_helpers.h"
-#include "compute_pix_sums/compute_pix_sums.h"
-#include "utility/version.h"
+#include "compute_pix_sums_helpers.h"
+#include "compute_pix_sums.h"
+#include "../utility/version.h"
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   // Return version if no arguments
   if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
-    plhs[0] = mxCreateString(Horace::VERSION);
+#ifdef _OPENMP
+        plhs[0] = mxCreateString(Horace::VERSION);
+#else
+        plhs[0] = mxCreateString(Horace::VER_NOOMP);
+#endif
     return;
   }
 
