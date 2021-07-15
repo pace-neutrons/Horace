@@ -51,7 +51,7 @@ classdef MESS_NAMES < handle
         mess_names_ = ...
             {'any','completed','pending','queued','init',...
             'ready','starting','started','log',...
-            'barrier','data','canceled','failed'};
+            'barrier','data','cancelled','failed'};
         
         % the messages which may communicate when Matlab MPI job is running
         % and which should be checked by probe_all for presence. The
@@ -59,7 +59,7 @@ classdef MESS_NAMES < handle
         % does not return tag of the message available, so check for every
         % message is necessary to identify which one is present. Failed
         % message can also me present but its already verified explicitly.
-        matlab_pool_fixture_ = {'completed','started','log','data','canceled'}
+        matlab_pool_fixture_ = {'completed','started','log','data','cancelled'}
     end
     properties(Access = private,Hidden=true)
         %

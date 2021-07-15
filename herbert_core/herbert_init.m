@@ -82,7 +82,7 @@ function addgenpath_message (varargin)
 % T.G.Perring
 
 string=fullfile(varargin{:},'');    % '' needed to circumvent bug in fullfile if only one argument, Matlab 2008b (& maybe earlier)
-if exist(string,'dir')==7
+if exist(string,'dir')==7 % is_dir has not been loaded yet
     try
         addpath (genpath_special(string),'-frozen');
     catch ME

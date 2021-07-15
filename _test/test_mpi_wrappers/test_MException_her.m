@@ -6,7 +6,7 @@ classdef test_MException_her < TestCase
     methods
         %
         function this=test_MException_her(name)
-            if ~exist('name','var')
+            if ~exist('name', 'var')
                 name = 'test_MException_her';
             end
             this = this@TestCase(name);

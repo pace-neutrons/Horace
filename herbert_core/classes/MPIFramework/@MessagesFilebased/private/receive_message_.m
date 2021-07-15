@@ -5,9 +5,9 @@ function [err_code,err_mess,message] = receive_message_(obj,from_task_id,mess_na
 %
 %
 %
-[is,~,err_mess] = check_job_canceled_(obj); % only framework dead
-%  returns canceled, canceled message still can and should be received later.
-if is; error('MESSAGE_FRAMEWORK:canceled',err_mess);
+[is,~,err_mess] = check_job_cancelled_(obj); % only framework dead
+%  returns cancelled, cancelled message still can and should be received later.
+if is; error('MESSAGE_FRAMEWORK:cancelled',err_mess);
 end
 %
 message = obj.get_interrupt(from_task_id);
@@ -21,7 +21,7 @@ end
 mess_present= false;
 t0 = tic;
 while ~mess_present
-    % may return failed or canceled message
+    % may return failed or cancelled message
     mess_name_present = obj.probe_all(from_task_id,mess_name);
     if ~isempty(mess_name_present )
         mess_present = true;
@@ -48,9 +48,9 @@ while ~mess_present
             
         else
             pause(obj.time_to_react_);
-            [is,~,err_mess] = check_job_canceled_(obj); % only framework dead
-            %  returns canceled, canceled message still can and should be received later.
-            if is; error('MESSAGE_FRAMEWORK:canceled',err_mess);
+            [is,~,err_mess] = check_job_cancelled_(obj); % only framework dead
+            %  returns cancelled, cancelled message still can and should be received later.
+            if is; error('MESSAGE_FRAMEWORK:cancelled',err_mess);
             end
         end
     end
@@ -68,7 +68,7 @@ try_limit = 100;
 received = false;
 [rlock_file,wlock_file] = build_lock_fname_(mess_fname);
 %
-while exist(wlock_file,'file')==2 % wait until message is writing.
+while is_file(wlock_file) % wait until message is writing.
     % CAN IT LOCK the wlock_file deletion by the sender? There were
     % suspicions.
     %

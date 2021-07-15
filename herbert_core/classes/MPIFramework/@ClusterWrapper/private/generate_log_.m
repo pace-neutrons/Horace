@@ -13,7 +13,7 @@ else
     log = '';
 end
 
-if exist('log_message','var')
+if exist('log_message', 'var')
     obj.display_results_count_ = 0;
     n_symbols = numel(log_message);
     if n_symbols <=obj.LOG_MESSAGE_LENGHT
@@ -69,6 +69,16 @@ elseif stateMess.tag == MESS_NAMES.mess_id('failed')
     err = stateMess.payload;
     if isnumeric(err)
         info = [info,num2str(err)];
+    elseif isstruct(err) && isfield(err,'fail_reason')
+        info = sprintf('***Job   : %s : state: %8s |\n***Reason: %s |\n',obj.job_id,name,err.fail_reason);
+        if isfield(err,'error') && isa(err.error,'MException')
+            if contains(err.error.message,'automatic exception')
+                info = sprintf('%s\n',info);
+            else  % report only meaningful exceptions logs
+                info = sprintf('%s\n%s\n',info,err.error.getReport());
+            end
+        end
+        
         %     elseif isa(err,'MExeption') || isa(err,'ParallelException')
         %         for i=1:numel(err.stack)
         %             info = [info,err.stack{i}];

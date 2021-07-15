@@ -144,12 +144,12 @@ classdef MessagesParpool < iMessagesFramework
             err = [];
         end
         %
-        function is = is_job_canceled(obj,tid)
-            % method verifies if job has been canceled
+        function is = is_job_cancelled(obj,tid)
+            % method verifies if job has been cancelled
             if nargin<2
-                mess = obj.probe_all('all','canceled');
+                mess = obj.probe_all('all','cancelled');
             else
-                mess = obj.probe_all(tid,'canceled');
+                mess = obj.probe_all(tid,'cancelled');
             end
             if ~isempty(mess)
                 is = true;

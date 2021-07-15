@@ -36,6 +36,22 @@ len = numel(mess_template);
 
 
 
+
+if ~isstruct(folder_contents)
+    % the code to deal with strange situation on Linux, where sometimes,
+    % very rarely, dir returns something strange. Interesting to know what
+    % it is actually.
+    warning('HERBERT:MessagesFilebased:runtime_error',...
+        '*** dir have returned unusual output:\n ***%s\n',...
+        evalc('disp(folder_contents)'))
+    mess_names = {};
+    mid_from = [];
+    mid_to   = [];
+    if nargout > 3
+        varargout{1}  = {};
+    end
+    return;
+end
 % extract only messages
 [is_mess,is_lock] = arrayfun(@(x)is_message_(x,mess_template,len,nolocked_only),folder_contents);
 
@@ -127,6 +143,15 @@ function [is_mess,is_lock] = is_message_(file_struc,mess_template,len,nolocked_o
 % the functon verifies if the file structure produced by dir
 % and received as input is actually the file, with filebased
 % message or is a lock file.
+%
+if ~isfield(file_struc,'isdir') || ~isfield(file_struc,'name')
+    % some odd input may be provided by dir on some OS
+    is_mess = false;
+    is_lock = false;
+    return;    
+end
+
+
 if file_struc.isdir
     is_mess = false;
     is_lock = false;

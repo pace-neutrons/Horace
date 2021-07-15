@@ -29,7 +29,7 @@ classdef MException_her < MException
                 anInput = struct();
             end
             obj = obj@MException(identifier,message);
-            if exist('stack','var') && ~isempty(stack)
+            if exist('stack', 'var') && ~isempty(stack)
                 obj.stack_r = stack;
             end
             if (isfield(anInput,'cause') || isprop(anInput,'cause'))...
@@ -72,7 +72,7 @@ classdef MException_her < MException
             % MException_her class provided as input
             %
             if ~isa(input,'MException')
-                error('MEXCEPTION_HER:invalid_argument',...
+                error('HERBERT:MException_her:invalid_argument',...
                     'the function needs to be called with the instance of MException or MException_her');
             end
             try

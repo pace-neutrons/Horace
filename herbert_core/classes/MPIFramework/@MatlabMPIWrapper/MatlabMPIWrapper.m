@@ -71,7 +71,7 @@ classdef MatlabMPIWrapper < handle
             %              "participating" in parallel pool.
             obj.interrupt_chan_tag_ = intrpt_chnl;
             
-            if ~exist('is_tested','var')
+            if ~exist('is_tested', 'var')
                 obj.is_tested_ = false;
             else
                 obj.is_tested_ = logical(is_tested);
@@ -226,7 +226,7 @@ classdef MatlabMPIWrapper < handle
             if nargin<2
                 lab_id = [];
             end
-            if ~exist('is_blocking','var') % occurs only in testing
+            if ~exist('is_blocking', 'var') % occurs only in testing
                 if mess_tag ~= obj.interrupt_chan_tag_
                     is_blocking = MESS_NAMES.is_blocking(mess_tag);
                 else

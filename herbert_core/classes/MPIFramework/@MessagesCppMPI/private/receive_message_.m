@@ -50,6 +50,6 @@ end
 if isempty(mess_data) % no message present at asynchronous receive.
     mess  = [];
 else
-    mess = hlp_deserialize(mess_data);
+    mess = deserialise(mess_data);
 end
 obj.set_interrupt(mess,from_task_id);

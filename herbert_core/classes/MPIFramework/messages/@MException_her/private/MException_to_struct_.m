@@ -1,7 +1,7 @@
 function mess_struc = MException_to_struct_(theException)
 % Helper function used to serialize MException
 %
-% The MExeption class can not be serialzied by hlp_serialize as does not
+% The MExeption class can not be serialzied by serialise as does not
 % posess the requested properties. This is why this helper routine is
 % necessary
 %

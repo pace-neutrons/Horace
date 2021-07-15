@@ -1,9 +1,10 @@
 classdef MPI_Test_Common < TestCase
     % The class used as the parent to test various mpi exchange classes.
     %
-    % Contains all common settings, necessary to test parpool mpi
-    %   Detailed explanation goes here
-    
+    % Contains all common settings, necessary to test various MPI clusters
+    % and their common operations.
+    %
+    %
     properties
         %
         working_dir
@@ -11,6 +12,7 @@ classdef MPI_Test_Common < TestCase
         % available, test should be counted as  passed but ignored.
         % Warning is necessary.
         ignore_test = false;
+        ignore_cause = '';
         % current name of the framework to test
         cluster_name;
         % current worker used in tests
@@ -20,7 +22,7 @@ classdef MPI_Test_Common < TestCase
         old_parallel_config_;
         parallel_config_restore_ = '';
     end
-    
+
     methods
         function obj = MPI_Test_Common(name,varargin)
             obj = obj@TestCase(name);
@@ -28,13 +30,13 @@ classdef MPI_Test_Common < TestCase
             ni = MPI_Test_Common.num_instances();
             MPI_Test_Common.num_instances(ni+1);
 
-            
+
             if nargin > 1
                 obj.cluster_name = varargin{1};
             else
                 obj.cluster_name = 'parpool';
             end
-            
+
             [pc, opc] = set_local_parallel_config();
             if isempty(old_parallel_config) || ni == 1
                 old_parallel_config = opc;
@@ -47,15 +49,14 @@ classdef MPI_Test_Common < TestCase
                 pc.worker = 'worker_4tests_idaaas';
                 obj.worker = 'worker_4tests_idaaas';
             end
-            
+
             obj.old_parallel_config_ = opc;
             obj.parallel_config_restore_ = onCleanup(@()set(parallel_config,opc));
-            
-            
+
+
             if strcmpi(pc.parallel_cluster,'none')
                 obj.ignore_test = true;
-                warning('MPI_Test_Common:not_available',...
-                    'unit test to check parallel framework is not available as framework is not installed properly')
+                obj.ignore_cause = 'Unit test to check parallel framework is not available as framework is not installed properly';
                 return;
             end
             %pc.saveable = false;
@@ -68,10 +69,10 @@ classdef MPI_Test_Common < TestCase
                     set_framework = false;
                 end
             catch ME
-                if strcmp(ME.identifier,'PARALLEL_CONFIG:invalid_configuration')
+                if strcmp(ME.identifier,'HERBERT:parallel_config:invalid_argument')
                     set_framework = false;
                     warning(ME.identifier,'%s',ME.message);
-                elseif strcmp(ME.identifier,'PARALLEL_CONFIG:not_available')
+                elseif strcmp(ME.identifier,'HERBERT:parallel_config:not_available')
                     set_framework = false;
                     warning(ME.identifier,'%s',ME.message);
                 else
@@ -81,16 +82,11 @@ classdef MPI_Test_Common < TestCase
             %
             if ~set_framework
                 obj.ignore_test = true;
-                hc = herbert_config;
-                if hc.log_level>0
-                    warning('MPI_TEST_COMMON:not_availible',...
-                        ['The framework: ', obj.cluster_name, ...
-                        ' can not be enabled so is not tested'])
-                end
+                obj.ignore_cause = ['The framework: ', obj.cluster_name, ' can not be enabled so is not tested'];
             else
                 obj.ignore_test = false;
             end
-            
+
         end
         %
         function setUp(obj)
@@ -117,8 +113,8 @@ classdef MPI_Test_Common < TestCase
     end
     methods(Static)
         function ni = num_instances(set_value)
-            persistent num_instances;            
-            if exist('set_value','var')
+            persistent num_instances;
+            if exist('set_value', 'var')
                 num_instances = set_value;
             else
                 if isempty(num_instances)
@@ -127,7 +123,6 @@ classdef MPI_Test_Common < TestCase
             end
             ni = num_instances;
         end
-        
+
     end
 end
-

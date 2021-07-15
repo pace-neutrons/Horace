@@ -8,7 +8,7 @@ while ~finished
     try
         [all_messages,mid_from] = list_all_messages_(obj,'all');
     catch ME
-        if strcmp(ME.identifier,'MESSAGE_FRAMEWORK:canceled')
+        if strcmp(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')
             return;
         else
             rethrow(ME);
@@ -21,10 +21,10 @@ while ~finished
     
     for i=1:numel(mid_from) % delete messages files sent to this lab.
         mess_fname = obj.job_stat_fname_(obj.labIndex,all_messages{i},mid_from(i),false);
-        if exist(mess_fname,'file') == 2
+        if is_file(mess_fname)
             delete(mess_fname);        
         end
-        if exist(mess_fname,'file')==2
+        if is_file(mess_fname)
             unlock_(mess_fname);
         end
     end

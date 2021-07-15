@@ -1,34 +1,56 @@
-classdef test_cluster_wrapper < TestCase
+classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
     % Test running using the parpool job dispatcher.
     
     properties
+        stored_config = 'defaults';
     end
     
     methods
         function obj = test_cluster_wrapper(varargin)
-            if ~exist('name','var')
+            if ~exist('name', 'var')
                 name = 'test_cluster_wrapper';
             end
             obj = obj@TestCase(name);
         end
-        function test_init_failed_canceled(~)
+        
+        function clear_jenkins_var(obj)
+            % clear fake Jenkins configuration, for is_jenkins routine
+            % returning false
+            clear_jenkins_var@FakeJenkins4Tests(obj);
+            
+            config_store.instance().clear_all();
+            hc= herbert_config;
+            set(hc,obj.stored_config);
+            hc.init_tests = true;
+        end
+        
+        function set_up_fake_jenkins(obj)
+            % set up fake Jenkins configuration, for is_jenkins routine
+            % returning true
+            set_up_fake_jenkins@FakeJenkins4Tests(obj,'test_jenkins_migration');
+            
+            hrc = herbert_config;
+            obj.stored_config = hrc.get_data_to_store();
+        end
+        
+        function test_init_failed_cancelled(~)
             fii = iMessagesFramework.build_worker_init(tmp_dir, ...
                 'test_init_failed_timeout', 'MessagesFilebased', 0, 3,'test_mode');
             
             mf = MessagesFilebased(fii);
-            cluster = ClusterWrapper(3,mf);
+            cluster = ClusterWrapperTester(3,mf);
             clob = onCleanup(@()finalize_all(cluster));
             
             % build message framework to respond instead of a worker
             cs = mf.get_worker_init('MessagesParpool',1,3);
             css = mf.deserialize_par(cs);
             meR1 = MessagesFilebased(css);
-            mc  = CanceledMessage('Test cancellation',...
-                MException('MESSAGES_FRAMEWORK:canceled','test cancellation'));
+            mc  = CancelledMessage('Test cancellation',...
+                MException('MESSAGES_FRAMEWORK:cancelled','test cancellation'));
             meR1.send_message(0,mc );
             
             cluster = cluster.wait_started_and_report(1);
-            assertEqual(cluster.status_name,'canceled');
+            assertEqual(cluster.status_name,'cancelled');
         end
         
         function test_init_failed_timeout(~)
@@ -36,7 +58,7 @@ classdef test_cluster_wrapper < TestCase
                 'test_init_failed_timeout', 'MessagesFilebased', 0, 3,'test_mode');
             
             mf = MessagesFilebased(fii);
-            cluster = ClusterWrapper(3,mf);
+            cluster = ClusterWrapperTester(3,mf);
             clob = onCleanup(@()finalize_all(cluster));
             
             cluster.cluster_startup_time =0;
@@ -46,11 +68,15 @@ classdef test_cluster_wrapper < TestCase
         end
         
         function test_cluster_init(~)
+            hrc = herbert_config;
+            hrc.saveable = false;
+            hrc.init_tests = true;
+            
             fii = iMessagesFramework.build_worker_init(tmp_dir, ...
                 'test_cluster_init', 'MessagesFilebased', 0, 3,'test_mode');
             
             mf = MessagesFilebased(fii);
-            cluster = ClusterWrapper(3,mf);
+            cluster = ClusterWrapperTester(3,mf);
             clob = onCleanup(@()finalize_all(cluster));
             
             % build message framework to respond instead of a worker
@@ -85,9 +111,11 @@ classdef test_cluster_wrapper < TestCase
             %             worker 1 and not tested here
             %             meR3.send_message(1,'started');
             
-            [completed,cluster] = cluster.check_progress();
+            [completed,failed,mess] = cluster.check_progress_from_messages();
+            cluster.status = mess;
             assertEqual(cluster.status.mess_name,'started');
             assertFalse(completed)
+            assertFalse(failed)
             %--------------------------------------------------------------
             % receive "starting" messages used to provide jeInit info to
             % each worker
@@ -115,13 +143,33 @@ classdef test_cluster_wrapper < TestCase
             assertEqual(worker_init_mess{3},mess3)
             
         end
-        
-        function test_check_progress_disp_results(obj)
+        %
+        function test_cluster_init_on_fake_jenkins(obj)
+            if is_jenkins() % do not run it on real Jenkins, it may mess
+                % the whole Jenkins enviroment
+                return;
+            end
+            obj.set_up_fake_jenkins();
+            clearJenkinsSignature = onCleanup(@()clear_jenkins_var(obj));
+            %
+            assertTrue(is_jenkins);
+            % clear configuration from memory to ensure the configuration
+            % will be rebuild as Jenkins configuration
+            config_store.instance().clear_all();
+            %
+            obj.test_cluster_init();
+            %
+            clear clearJenkinsSignature;
+            assertFalse(is_jenkins);
+            
+        end
+        %
+        function test_check_progress_disp_results(~)
             
             mf = MessagesFilebased('disp_prgrs');
             % test mode -- framework with 0 workers would not start
             % anything
-            cluster = ClusterWrapper(0,mf);
+            cluster = ClusterWrapperTester(0,mf);
             
             clob = onCleanup(@()finalize_all(cluster));
             
@@ -144,42 +192,69 @@ classdef test_cluster_wrapper < TestCase
             else
                 CR =newline; % sprintf('\n');
             end
-            [completed,cluster] = cluster.check_progress();
-            assertFalse(completed);
+            %
+            [completed,failed,mess] = cluster.check_progress_from_messages();
+            cluster.status = mess;
+            assertFalse(completed)
+            assertFalse(failed)
+            
             cluster = cluster.display_progress();
             ref_string = ['***Job : ',mf.job_id,' : state: starting |',CR];
             assertEqual(cluster.log_value,ref_string);
-            [completed,cluster] = cluster.check_progress();
-            assertFalse(completed);
+            
+            [completed,failed,mess] = cluster.check_progress_from_messages();
+            cluster.status = mess;
+            assertFalse(completed)
+            assertFalse(failed)
+            
             cluster = cluster.display_progress();
             assertEqual(cluster.log_value,'.');
-            [completed,cluster] = cluster.check_progress();
+            
+            [completed,failed,mess] = cluster.check_progress_from_messages();
+            cluster.status = mess;
+            assertFalse(completed)
+            assertFalse(failed)
+            
+            [completed,failed,mess] = cluster.check_progress_from_messages();
+            cluster.status = mess;
+            assertFalse(failed)
             assertFalse(completed);
-            [completed,cluster] = cluster.check_progress();
-            assertFalse(completed);
+            
             cluster = cluster.display_progress();
             assertEqual(cluster.log_value,'.');
             n_steps = cluster.log_wrap_length;
             for i=3:n_steps
-                [completed,cluster] = cluster.check_progress();
+                [completed,failed,mess] = cluster.check_progress_from_messages();
+                cluster.status = mess;
+                assertFalse(failed)
                 assertFalse(completed);
                 cluster = cluster.display_progress();
                 assertEqual(cluster.log_value,'.');
             end
-            [completed,cluster] = cluster.check_progress();
+            [completed,failed,mess] = cluster.check_progress_from_messages();
+            cluster.status = mess;
+            assertFalse(failed)
             assertFalse(completed);
+            
             cluster = cluster.display_progress();
             assertEqual(cluster.log_value,[CR,ref_string]);
             
-            [completed,cluster] = cluster.check_progress();
+            [completed,failed,mess] = cluster.check_progress_from_messages();
+            cluster.status = mess;
+            assertFalse(failed)
             assertFalse(completed);
+            
             cluster = cluster.display_progress();
             assertEqual(cluster.log_value,'.');
             
             mess = LogMessage(1,50,0,[]);
             meR.send_message(0,mess);
             
-            [completed,cluster] = cluster.check_progress();
+            [completed,failed,mess] = cluster.check_progress_from_messages();
+            cluster.status = mess;
+            assertFalse(failed)
+            assertFalse(completed);
+            
             assertFalse(completed);
             cluster = cluster.display_progress();
             ref_string = [CR,'***Job : ',mf.job_id,' : state:  running |Step#1.00/50, Estimated time left:  Unknown | ',CR];
@@ -188,7 +263,11 @@ classdef test_cluster_wrapper < TestCase
             %
             mess = LogMessage(2,50,1,[]);
             meR.send_message(0,mess);
-            [completed,cluster] = cluster.check_progress();
+            [completed,failed,mess] = cluster.check_progress_from_messages();
+            cluster.status = mess;
+            assertFalse(failed)
+            assertFalse(completed);
+            
             assertFalse(completed);
             cluster = cluster.display_progress();
             ref_string = ['***Job : ',mf.job_id,' : state:  running |Step#2.00/50, Estimated time left: 0.80(min)| ',CR];
@@ -196,11 +275,10 @@ classdef test_cluster_wrapper < TestCase
             
         end
         
-        function test_utilises_logical_cores_when_n_workers_gt_physical_cores(obj)
+        function test_utilises_logical_cores_when_n_workers_gt_physical_cores(~)
             [physical_cores, logical_cores] = get_num_cores();
             if physical_cores == logical_cores
-                % If no extra logical cores available, this test can do nothing
-                return
+                skipTest('No extra logical cores available, this test can do nothing')
             end
             msg_framework = MessagesFilebased('logical_cores_when_n_workers_gt');
             clust = ClusterParpoolWrapper();
@@ -214,7 +292,7 @@ classdef test_cluster_wrapper < TestCase
             
         end
         
-        function test_num_workers_set_when_n_workers_lt_num_physical_cores(obj)
+        function test_num_workers_set_when_n_workers_lt_num_physical_cores(~)
             physical_cores = get_num_cores();
             msg_framework = MessagesFilebased('num_workers_set_when_n_workers_lt');
             clust = ClusterParpoolWrapper();
@@ -227,7 +305,7 @@ classdef test_cluster_wrapper < TestCase
             assertEqual(clust.n_workers, n_workers);
         end
         
-        function test_num_workers_set_when_n_workers_eq_num_physical_cores(obj)
+        function test_num_workers_set_when_n_workers_eq_num_physical_cores(~)
             physical_cores = get_num_cores();
             msg_framework = MessagesFilebased('num_workers_set_when_n_workers_eq');
             clob1 = onCleanup(@()finalize_all(msg_framework));
@@ -242,7 +320,7 @@ classdef test_cluster_wrapper < TestCase
             assertEqual(clust.n_workers, physical_cores);
         end
         
-        function test_init_fails_if_n_workers_gt_num_logical_cores(obj)
+        function test_init_fails_if_n_workers_gt_num_logical_cores(~)
             [~, logical_cores] = get_num_cores();
             msg_framework = MessagesFilebased('init_fails_if_n_workers');
             clob1 = onCleanup(@()finalize_all(msg_framework));
@@ -252,7 +330,7 @@ classdef test_cluster_wrapper < TestCase
             n_workers = logical_cores + 1;
             assertExceptionThrown(@() clust.init(n_workers, msg_framework, ...
                 herbert_config().log_level), ...
-                'PARPOOL_CLUSTER_WRAPPER:runtime_error');
+                'HERBERT:ClusterParpoolWrapper:invalid_argument');
             clob3 = onCleanup(@()finalize_all(clust));
         end
     end
