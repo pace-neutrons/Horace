@@ -1,8 +1,8 @@
 function [f,added] = get_labels_to_struct (fid, f_in)
 % Reads label information from an open file with file identifier fid, or from a cell array.
 %
-%   >> struc = get_labels_to_struct (input)  
-%   >> [struc,added] = get_labels_to_struct (input, struc_in)  
+%   >> struc = get_labels_to_struct (input)
+%   >> [struc,added] = get_labels_to_struct (input, struc_in)
 %
 % Input:
 % ------
@@ -48,7 +48,7 @@ elseif nargin==2 && isstruct(f_in)
     added=false;
 else
     error('Can only add fields to a structure')
-    
+
 end
 
 t = '';
@@ -62,20 +62,20 @@ while (ischar(t))
         value=t(pos(1)+1:length(t));
         value=strtrim(value);	% extract string value
         if isvarname(field)
-            if ~isfield(f,field),	% new field 
-                f=setfield(f,field,value);
+            if ~isfield(f,field)	% new field
+                f.(field) = value;
                 added=true;
             else                    % field already exists
-                temp=getfield(f,field);
-                if isempty(temp),
-                    f=setfield(f,field,value);         
+                temp = f.(field);
+                if isempty(temp)
+                    f.(field) = value;
                     added=true;
-                elseif ischar(temp),		% make into a cell of strings
-                    f=setfield(f,field,{temp value});
+                elseif ischar(temp)		% make into a cell of strings
+                    f.(field) = {temp value};
                     added=true;
-                elseif iscell(temp),
+                elseif iscell(temp)
                     temp{length(temp)+1}=value;
-                    f=setfield(f,field,temp);
+                    f.(field) = temp;
                     added=true;
                 end
             end
@@ -98,4 +98,6 @@ while (ischar(t))
     else
         t = -1;
     end
+end
+
 end
