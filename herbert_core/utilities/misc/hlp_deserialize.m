@@ -53,9 +53,9 @@ switch m(pos)
     case 134
         [v,pos] = deserialize_object(m,pos);
     case 135
-        [v,pos] = obj_deserialize_itself(m,pos);        
+        [v,pos] = obj_deserialize_itself(m,pos);
     otherwise
-        error('Unknown class');
+        error('MATLAB:deserialize_value:unrecognised_tag', 'Unsupported tag %s.', m(pos));
 end
 end
 
@@ -237,8 +237,7 @@ switch kind
         v = cell(size(content));
         for k=1:numel(v)
             v{k} = content(k); end
-        [reality,pos] = deserialize_value(m,pos);
-        v(reality) = real(v(reality));
+         [reality,pos] = deserialize_value(m,pos);
     case 36 % cell array with horizontal or empty strings
         [chars,pos] = deserialize_string(m,pos);
         [lengths,pos] = deserialize_numeric_simple(m,pos);
@@ -259,7 +258,7 @@ switch kind
             case 128 % struct - struct()
                 prot = struct();
             otherwise
-                error('Unsupported type tag.');
+              error('MATLAB:deserialize_cell:unrecognised_tag', 'Unsupported tag %s.', tag);
         end
         % Number of dims
         ndms = double(m(pos));
@@ -286,7 +285,7 @@ switch kind
         for k=1:numel(v)
             v{k} = content(k); end
     otherwise
-        error('Unsupported cell array type.');
+        error('MATLAB:deserialize_cell:unrecognised_tag', 'Unsupported tag %s.', m(pos));
 end
 end
 % object which can deserialize itself
@@ -304,7 +303,7 @@ pos = pos + 1;
 % Get class name.
 [cls,pos] = deserialize_string(m,pos);
 % Get contents
-[conts,pos] = deserialize_value(m,pos); 
+[conts,pos] = deserialize_value(m,pos);
 % construct object
 try
     % try to use the loadobj function
@@ -319,10 +318,10 @@ catch ME
             v = feval(cls);
             for fn=fieldnames(conts)'
                 try
-                    set(v,fn{1},conts.(fn{1})); 
+                    set(v,fn{1},conts.(fn{1}));
                 catch
                     % Note: if this happens, your deserialized object might not be fully identical
-                    % to the original (if you are lucky, it didn't matter, through). Consider 
+                    % to the original (if you are lucky, it didn't matter, through). Consider
                     % relaxing the access rights to this property or add support for loadobj from
                     % a struct.
                     warn_once('hlp_deserialize:restricted_access','No permission to set property %s in object of type %s.',fn{1},cls);
@@ -377,7 +376,11 @@ switch kind
                 % to a nested function. This is not natively supported by MATLAB and can only be made
                 % to work if your function's parent implements some mechanism to return such a handle.
                 % The below call assumes that your function uses the BCILAB arg system to do this.
-                v = arg_report('handle',v,parentage{k});
+                try
+                    v = arg_report('handle',v,parentage{k});
+                catch
+                    error('MATLAB:deserialise_function_handle:hlp_deserialise', 'Cannot deserialise a function handle to a nested function.')
+                end
             end
             db_nested.(key) = v;
         end
@@ -389,7 +392,7 @@ function f = restore_function(decl__,workspace__)
 % create workspace
 for fn__=fieldnames(workspace__)'
     % we use underscore names here to not run into conflicts with names defined in the workspace
-    eval([fn__{1} ' = workspace__.(fn__{1}) ;']); 
+    eval([fn__{1} ' = workspace__.(fn__{1}) ;']);
 end
 clear workspace__ fn__;
 % evaluate declaration
