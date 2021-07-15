@@ -13,6 +13,11 @@ function [ok,err_mess,je]=worker_4tests(worker_controls_string)
 %              contains only minimal initialization information, namely the
 %              folder name where the job initialization data are located on
 %              a remote system.
+
+
+if nargin<1 || isempty(worker_controls_string)    
+    worker_controls_string = getenv('WORKER_CONTROL_STRING');
+end
 je = [];
 ok = false;
 if isempty(which('herbert_init.m'))
@@ -24,7 +29,13 @@ if isempty(which('herbert_init.m'))
         return;
     end
 end
-DO_LOGGING   = false;
+
+DO_LOGGING = getenv('DO_PARALLEL_MATLAB_LOGGING');
+if isempty(DO_LOGGING)
+    DO_LOGGING = false;
+else
+    DO_LOGGING = feval(DO_LOGGING);
+end
 DO_DEBUGGING = false;
 try
     [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,DO_DEBUGGING);
@@ -45,7 +56,7 @@ log_file = fullfile(getuserdir,log_file_name );
 if isa(ERROR,'MException')
     error_contents = ERROR.getReport();
 else
-    error_contents = fevalc('disp(ERROR)');
+    error_contents = evalc('disp(ERROR)');
 end
 
 fh = fopen(log_file,'w');

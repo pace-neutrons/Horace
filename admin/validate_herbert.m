@@ -15,7 +15,7 @@ function err = validate_herbert(varargin)
 %              computer toolbox is available. Needs large memory as some
 %              tests start its own version of parallel computing toolbox.
 %
-% '-talkative' prints output of the tests and
+% '-verbose'   prints output of the tests and
 %              various herbert log messages (log_level in configurations
 %              is set to default, not quiet as default)
 %
@@ -33,7 +33,7 @@ end
 
 % Parse arguments
 % ---------------
-options = {'-parallel', '-talkative', '-exit_on_completion'};
+options = {'-parallel', '-verbose', '-exit_on_completion'};
 [ok, mess, parallel, talkative, exit_on_completion, test_folders] = ...
     parse_char_options(varargin, options);
 if ~ok
@@ -50,14 +50,16 @@ if isempty(test_folders) % No tests specified on command line - run them all
         'test_config', ...
         'test_IX_classes', ...
         'test_map_mask', ...
-        'test_multifit', ...
-        'test_multifit_legacy', ...
         'test_utilities', ...
+        'test_geometry',...
         'test_instrument_classes', ...
         'test_docify', ...
         'test_admin', ...
+        'test_multifit', ...
+        'test_multifit_legacy', ...
         'test_mpi_wrappers', ...
         'test_mpi', ...
+        'test_xunit_framework', ...
         };
 end
 %=============================================================================
@@ -100,9 +102,13 @@ clear config_store;
 
 % Run unit tests
 % --------------
-if ~talkative
-    hc.log_level = -1; % turn off herbert informational output
+if talkative
+    argi = {'-verbose'};
+else
+    hc.log_level = -1; % turn off herbert informational output    
+    argi = {};    
 end
+
 
 if parallel && license('checkout', 'Distrib_Computing_Toolbox')
     cores = feature('numCores');
@@ -112,12 +118,12 @@ if parallel && license('checkout', 'Distrib_Computing_Toolbox')
         end
         matlabpool(cores);
     end
-    
+
     test_ok = false(1, numel(test_folders_full));
     time = bigtic();
     parfor i = 1:numel(test_folders_full)
         addpath(test_folders_full{i})
-        test_ok(i) = runtests(test_folders_full{i})
+        test_ok(i) = runtests(test_folders_full{i}, argi{:})
         rmpath(test_folders_full{i})
     end
     bigtoc(time, '===COMPLETED UNIT TESTS IN PARALLEL');
@@ -126,12 +132,12 @@ else
     time = bigtic();
     test_ok = false(1,numel(test_folders_full));
     for i=1:numel(test_folders_full)
-        [test_ok(i),suite] = runtests(test_folders_full{i});
+        [test_ok(i),suite] = runtests(test_folders_full{i}, argi{:});
         suite.delete();
     end
-    tests_ok = all(test_ok);    
+    tests_ok = all(test_ok);
     bigtoc(time, '===COMPLETED UNIT TESTS RUN ');
-    
+
 end
 
 if tests_ok

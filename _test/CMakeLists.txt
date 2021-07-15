@@ -40,7 +40,7 @@ foreach(_test_dir ${TEST_DIRECTORIES})
         NAME
         "${TEST_NAME}"
         CUSTOM_TEST_COMMAND
-        "validate_herbert ${_test_dir} -talkative -exit_on_completion"
+        "validate_herbert ${_test_dir} -verbose -exit_on_completion"
         ADDITIONAL_PATH
         "${CMAKE_SOURCE_DIR}/admin"
         TIMEOUT
