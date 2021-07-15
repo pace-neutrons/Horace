@@ -37,6 +37,6 @@ fi
 run_in_dir "echo -e \"\nBuilding Herbert revision \$(git rev-parse HEAD)...\"" \
            "${HERBERT_DIR}"
 
-build_cmd="${HERBERT_DIR}/tools/build_config/build.sh --build"
+build_cmd="${HERBERT_DIR}/tools/build_config/build.sh --configure --build"
 build_cmd+=" --build_tests OFF ${build_args}"
 echo_and_run "${build_cmd}"
