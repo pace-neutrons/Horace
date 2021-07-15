@@ -19,6 +19,9 @@ horace_core/admin/horace_get_build_version.m
 # debug folder
 cmake-build-debug/*
 
+# Build documentation
+documentation/user_docs/build 
+
 # Compiled MEX binaries (all platforms)
 # *.mex*  # commented out for now - uncomment when distribution channel is up
 /_test/test_spinw_integration

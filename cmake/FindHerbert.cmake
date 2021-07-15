@@ -7,8 +7,13 @@ Looks for the Herbert Matlab software package.
 Variables defined by the module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``Herbert_ROOT``
+``Herbert_CORE``
 The directory within Herbert that contains ``herbert_init.m``
+
+``Herbert_ROOT``
+The root directory of Herbert allows the user to overload the search paths 
+   for admin files if they are not in the ``Herbert_CORE`` variable. 
+   Does not usually need to be manually set. 
 
 ``Herbert_ON_TEMPLATE``
 The path to the template file for herbert_on - usually in Herbert/admin
@@ -24,31 +29,45 @@ endif()
 
 set(DIRS_TO_SEARCH
     ENV{HERBERT_ROOT}
-    ${CMAKE_SOURCE_DIR}/Herbert
-    ${CMAKE_SOURCE_DIR}/../Herbert/
+    ${Horace_ROOT}/Herbert
+    ${Horace_ROOT}/../Herbert/
     /usr/local/mprogs/Herbert
     /usr/local/Herbert
     ENV{ProgramFiles}/Herbert
 )
 
-# Always call this find_path as it make Herbert_ROOT editable in the CMake GUI
-find_path(Herbert_ROOT
+# If given defined Herbert root as arg.
+if (Herbert_ROOT)
+  set(DIRS_TO_SEARCH ${DIRS_TO_SEARCH} ${Herbert_ROOT})
+endif()
+
+# Always call this find_path as it make Herbert_CORE editable in the CMake GUI
+find_path(Herbert_CORE
     NAMES "herbert_init.m"
     PATHS ${DIRS_TO_SEARCH}
     PATH_SUFFIXES "herbert_core"
-    DOC "The Herbert root directory - the directory containing herbert_init.m"
+    DOC "The Herbert core directory - the directory containing herbert_init.m"
 )
 
-# Deals with the case where Herbert_ROOT is given on the command line but to
+# Deals with the case where Herbert_CORE is given on the command line but to
 # somewhere incorrect
-if(Herbert_ROOT AND NOT EXISTS "${Herbert_ROOT}/herbert_init.m")
+if(Herbert_CORE AND NOT EXISTS "${Herbert_CORE}/herbert_init.m")
     message(FATAL_ERROR
-        "Could not find herbert_init.m inside Herbert_ROOT: '${Herbert_ROOT}'")
+        "Could not find herbert_init.m inside Herbert_CORE: '${Herbert_CORE}'")
 endif()
+
+if (NOT Herbert_ROOT)
+  # Root is one dir above core
+  set(Herbert_ROOT "${Herbert_CORE}/.." CACHE PATH "Directory containing Herbert. Sets default search paths for admin, etc. Be careful when overriding.")
+else()
+  # If given through CLI
+  set(Herbert_ROOT "${Herbert_ROOT}" CACHE PATH "Directory containing Herbert. Sets default search paths for admin, etc. Be careful when overriding.")
+endif()
+mark_as_advanced(Herbert_ROOT)
 
 find_file(Herbert_ON_TEMPLATE
     NAMES "herbert_on.m.template"
-    PATHS ${Herbert_ROOT} ${Herbert_ROOT}/admin ${Herbert_ROOT}/../admin
+    PATHS ${Herbert_CORE} ${Herbert_CORE}/admin ${Herbert_ROOT}/admin
     NO_DEFAULT_PATH
 )
 mark_as_advanced(Herbert_ON_TEMPLATE)
@@ -56,14 +75,16 @@ mark_as_advanced(Herbert_ON_TEMPLATE)
 
 find_path(Herbert_CMAKE_DIR
     NAMES ".cmake-find"
-    PATHS ${Herbert_ROOT}/cmake ${Herbert_ROOT}/../cmake
+    PATHS ${Herbert_CORE}/cmake ${Herbert_ROOT}/cmake
     NO_DEFAULT_PATH
 )
 mark_as_advanced(Herbert_CMAKE_DIR)
 
+
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Herbert DEFAULT_MSG
     Herbert_ROOT
+    Herbert_CORE
     Herbert_CMAKE_DIR
 )
 
