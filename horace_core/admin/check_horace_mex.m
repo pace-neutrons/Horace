@@ -9,9 +9,14 @@ function [rez, n_errors, can_use_mex_4_combine] = check_horace_mex()
 % If some mex files are cannot be launched,the function returns the number of
 % files not launched as n_errors, these mex files' versions strings will be
 % empty.
-%
+
 % rez is cellarray, which contains the reply from mex files queried about their
 % version
+%
+% NOTE:
+% TODO: currently routine does not counts hdf_mex_reader function errors
+%       because this function is used in tests only. If the situation changes,
+%       the routine has to be modified
 %
 %
 
