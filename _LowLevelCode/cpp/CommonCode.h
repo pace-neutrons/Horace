@@ -17,7 +17,7 @@
 //#include <omp_guard.hpp>
 
 #ifndef _OPENMP
-void omp_set_num_threads(int nThreads) {};
+inline void omp_set_num_threads(int nThreads) {};
 #define omp_get_num_threads() 1
 #define omp_get_max_threads() 1
 #define omp_get_thread_num()  0
