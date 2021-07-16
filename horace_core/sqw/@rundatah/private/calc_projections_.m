@@ -83,7 +83,9 @@ if use_mex
             %proj_mode = 2;
             %nThreads = 1;
             [urange,pix] =calc_projections_c(spec_to_u, data, det, efix, k_to_e, emode, nThreads,proj_mode);
-            pix = PixelData(pix);
+            if proj_mode==2
+            	pix = PixelData(pix);
+            end
         catch  ERR % use Matlab routine
             warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',ERR.message);
             use_mex=false;
@@ -118,25 +120,23 @@ if ~use_mex
         return;
     end
 
-    % Fill pixel array
-    pix=PixelData(ones(9,ne*ndet));
-    pix.coordinates=ucoords;
-    clear ucoords;  % delete big array before creating another big array
+    % Fill in pixel data object
     if ~qspec_provided
         det = obj.det_par;
         if isfield(det,'group')
-            pix.detector_idx=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
+            detector_idx=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
         else
             group = 1:ndet;
-            pix.detector_idx=reshape(repmat(group,[ne,1]),[1,ne*ndet]); % detector index
+            detector_idx=reshape(repmat(group,[ne,1]),[1,ne*ndet]); % detector index
         end
-        pix.energy_idx=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
+        energy_idx=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index
     else
-        pix.detector_idx = 1;
-        pix.energy_idx = 1;
+        detector_idx = ones(1,ne*ndet);
+        energy_idx = ones(1,ne*ndet);
     end
-    pix.signal=obj.S(:)';
-    pix.variance=((obj.ERR(:)).^2)';
-
+    sig_var =[obj.S(:)';((obj.ERR(:)).^2)'];
+    run_id = ones(1,numel(detector_idx))*obj.run_id();
+    pix = PixelData([ucoords;run_id;detector_idx;energy_idx;sig_var]);
+    %pix_range=pix.pix_range;
 end
 
