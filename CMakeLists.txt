@@ -1,6 +1,7 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.15)
 
-file(READ "${CMAKE_SOURCE_DIR}/VERSION" _version)
+set(Herbert_ROOT ${CMAKE_CURRENT_LIST_DIR})
+file(READ "${Herbert_ROOT}/VERSION" _version)
 string(STRIP "${_version}" _version)
 project("Herbert" VERSION "${_version}")
 
@@ -10,14 +11,22 @@ set(CMAKE_CXX_STANDARD 11)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Set our options
-option(BUILD_TESTS "Build the C++ tests" ON)
+option(BUILD_TESTS "Build the C++ tests" OFF)
+option(USE_HERBERT_MPI "Use MPI libraries provided with Herbert" ON)
 
 # Add cmake directory to CMake's path
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake"
      "${CMAKE_SOURCE_DIR}/cmake/external" "${CMAKE_SOURCE_DIR}/cmake/shared")
 
 # This sets the destination for mex build artifacts (used in PACE_AddMex)
-set(Herbert_DLL_DIRECTORY "${CMAKE_SOURCE_DIR}/herbert_core/DLL")
+set(Herbert_DLL_DIRECTORY "${Herbert_ROOT}/herbert_core/DLL")
+# This is the directory that contains herbert_init.m
+set(Herbert_CORE "${CMAKE_CURRENT_LIST_DIR}/herbert_core")
+# This will hold herbert_on.m and worker_v2.m. This directory will hold any
+# files needed for "local initialization", the files mentioned are required
+# for running tests. So we automatically add this path to the MATLABPATH when
+# we run CTest.
+set(LOCAL_INIT_DIR "${CMAKE_BINARY_DIR}/local_init")
 
 # Look for packages early so we can exit if they're not found
 include(herbert_FindMPI)

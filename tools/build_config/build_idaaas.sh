@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 
 set -o errexit  # exit early on any error
 set -o nounset  # raise error using unused variables
@@ -14,18 +14,10 @@ readonly HERBERT_ROOT="$(realpath "$(dirname "$0")"/../..)"
 readonly MATLAB_ROOT="$(realpath "$(dirname "$(readlink -f "$(command -v matlab)")")"/..)"
 readonly MAX_CTEST_SUCCESS_OUTPUT_LENGTH="10000" # 10kB
 
-function echo_and_run {
-  echo "+ $1"
-  eval "$1"
-}
-
-function warning {
-  echo -e "\e[33m$1\e[0m"
-}
+. "${HERBERT_ROOT}/tools/bash/bash_helpers.sh"
 
 function print_package_versions() {
-  cmake --version | head -n 1
-  echo "Matlab: ${MATLAB_ROOT}"
+  cmake3 --version | head -n 1
   g++ --version | head -n 1
   cppcheck --version | head -n 1
   echo
@@ -38,12 +30,13 @@ function run_configure() {
   local matlab_release=$4
   local cmake_flags="${5-}"  # Default value is empty string
 
-  cmake_cmd="cmake ${HERBERT_ROOT}"
+  cmake_cmd="cmake3 ${HERBERT_ROOT}"
   cmake_cmd+=" -G \"${CMAKE_GENERATOR}\""
   cmake_cmd+=" -DMatlab_ROOT_DIR=${MATLAB_ROOT}"
   cmake_cmd+=" -DCMAKE_BUILD_TYPE=${build_config}"
   cmake_cmd+=" -DBUILD_TESTS=${build_tests}"
   cmake_cmd+=" -DMatlab_RELEASE=${matlab_release}"
+  cmake_cmd+=" -DUSE_HERBERT_MPI=OFF"
   cmake_cmd+=" ${cmake_flags}"
 
   echo -e "\nRunning CMake configure step..."
@@ -54,7 +47,7 @@ function run_build() {
   local build_dir=$1
 
   echo -e "\nRunning build step..."
-  build_cmd="cmake --build ${build_dir}"
+  build_cmd="cmake3 --build ${build_dir}"
   echo_and_run "${build_cmd}"
 }
 
@@ -72,7 +65,7 @@ function run_tests() {
 function run_analysis() {
   local build_dir=$1
 
-  echo_and_run "cmake --build ${build_dir} -- analyse"
+  echo_and_run "cmake3 --build ${build_dir} -- analyse"
 }
 
 function run_package() {
@@ -96,8 +89,10 @@ flags:
       Run the Herbert build commands.
   -t, --test
       Run all Herbert tests.
+  -c, --configure
+      Run cmake configuration stage
   -a, --analyze
-      Run static analysis on Herbert C++ code.
+      Run static analysis on Herbert code.
   -p, --package
       Pacakge Herbert into a .tar.gz file.
   -v, --print_versions
@@ -128,6 +123,7 @@ function main() {
   # set default parameter values
   local build=$FALSE
   local test=$FALSE
+  local configure=$FALSE
   local analyze=$FALSE
   local package=$FALSE
   local print_versions=$FALSE
@@ -137,6 +133,7 @@ function main() {
   local cmake_flags=""
   local matlab_release=""
 
+  
   # If no input arguments, print the help and exit
   if [ $# -eq 0 ]; then
     print_help
@@ -150,6 +147,7 @@ function main() {
         # flags
         -b|--build) build=$TRUE; shift ;;
         -t|--test) test=$TRUE; shift ;;
+        -c|--configure) configure=$TRUE; shift;;
         -a|--analyze) analyze=$TRUE; shift ;;
         -p|--package) package=$TRUE; shift ;;
         -v|--print_versions) print_versions=$TRUE; shift ;;
@@ -168,15 +166,18 @@ function main() {
     print_package_versions
   fi
 
-  if ((analyze)); then
-    run_analysis "${HERBERT_ROOT}"
-  fi
-
-  if ((build)); then
+  if ((configure)) || [ ! -e ${build_dir}/CMakeCache.txt ]; then
     warning_msg="Warning: Build directory ${build_dir} already exists.\n\
         This may not be a clean build."
     echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
     run_configure "${build_dir}" "${build_config}" "${build_tests}" "${matlab_release}" "${cmake_flags}"
+  fi
+
+  if ((analyze)); then
+    run_analysis "${build_dir}"
+  fi
+
+  if ((build)); then
     run_build "${build_dir}"
   fi
 

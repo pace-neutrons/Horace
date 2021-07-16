@@ -47,7 +47,8 @@ function run_configure() {
   cmake_cmd+=" ${cmake_flags}"
 
   echo -e "\nRunning CMake configure step..."
-  run_in_dir "${cmake_cmd}" "${build_dir}"
+  echo_and_run "cd ${build_dir}"
+  echo_and_run "${cmake_cmd}"
 }
 
 function run_build() {
@@ -70,15 +71,24 @@ function run_tests() {
 }
 
 function run_analysis() {
-  local build_dir=$1
+  local output_dir=$1
 
-  echo_and_run "cmake --build ${build_dir} -- analyse"
+  if [ -f "$(which cppcheck)" ]; then
+    echo -e "\nRunning analysis step..."
+
+    analysis_cmd="cppcheck --enable=all --inconclusive"
+    analysis_cmd+=" --xml --xml-version=2"
+    analysis_cmd+=" -I ${HERBERT_ROOT}/_LowLevelCode/cpp"
+    analysis_cmd+=" ${HERBERT_ROOT}/_LowLevelCode/"
+    analysis_cmd+=" 2> ${output_dir}/cppcheck.xml"
+    echo_and_run "${analysis_cmd}"
+  fi
 }
 
 function run_package() {
   echo -e "\nRunning package step..."
-
-  run_in_dir "cpack -G TGZ" "${build_dir}"
+  echo_and_run "cd ${build_dir}"
+  echo_and_run "cpack -G TGZ"
 }
 
 function print_help() {
