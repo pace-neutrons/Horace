@@ -7,6 +7,7 @@
    The_Horace_Rationale
 
    Download_and_setup
+   Download_and_Setup_Troubleshutting
    Support_and_updates
 
    Getting_started
@@ -51,7 +52,6 @@
    [NULL] <Horace_and_Libisis_installation>
    [NULL] <Horace_command_line>
    [NULL] <New>
-   [NULL] <Official_download_v1>
    [NULL] <Read_or_write_to_disk>
    [NULL] <Remote_data_analysis>
    [NULL] <Reshaping_etc>
@@ -71,6 +71,9 @@ Horace: visualising and manipulating S(**Q**,w) measured in all four dimensions
 ===============================================================================
 
 Horace is a suite of programs for the visualisation and analysis of large datasets from time-of-flight neutron inelastic scattering spectrometers. The theory behind, and application of, Horace has been published in Nuclear Instruments and Methods in Physics Research. It is freely available online `here <http://www.sciencedirect.com/science/article/pii/S016890021630777X>`__, from where you can also download a pdf copy under the `Creative Commons Attribution License <https://creativecommons.org/licenses/by/4.0/>`__. Please cite this paper if you have used Horace in your research. More details about citing Horace can be found :ref:`here <How_to_cite_Horace:How to cite Horace>`.
+
+If you have problem using or installing Horace, found bug or have other questions related to Horace, please contact `our team <mailto:HoraceHelp.stfc.ac.uk>`__, and somebody will come back and try to help you answering your question.
+ 
 
 Download, support & updates
 ===========================
