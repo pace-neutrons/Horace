@@ -13,7 +13,6 @@ function [rez, n_errors, can_use_mex_4_combine] = check_horace_mex()
 % rez is cellarray, which contains the reply from mex files queried about their
 % version
 %
-% $Revision: 1738 $    $Date: 2019-03-12 14:31:09 +0000 (Tue, 12 Mar 2019) $
 %
 
 % list of the function names used in nice formatted messages formed by the
@@ -27,10 +26,7 @@ functions_name_list={
     'combine_sqw       : ', ...
     'mtimesx_mex       : ', ...
     'hdf_mex_reader    : '
-   };
-
-% provide special treatment for combine_sqw function
-combine_num = numel(functions_name_list)-2;
+    };
 
 % list of the mex file handles used by Horace and verified by this script.
 functions_handle_list={
@@ -52,8 +48,13 @@ for i=1:numel(functions_name_list)
         rez{i}=[functions_name_list{i},functions_handle_list{i}()];
     catch Err
         rez{i}=[' Error in ',functions_name_list{i},Err.message];
-        if strcmpi(functions_name_list{combine_num},functions_name_list{i})
+        
+        if contains(functions_name_list{i},'combine_sqw') % provide special treatment
+            % for combine_sqw function
             can_use_mex_4_combine=false;
+        elseif contains(functions_name_list{i},'hdf_mex_reader') % until hdf_mex reader is not used,
+            % ignore errors in its compilation
+            continue
         else
             n_errors=n_errors+1;
         end
