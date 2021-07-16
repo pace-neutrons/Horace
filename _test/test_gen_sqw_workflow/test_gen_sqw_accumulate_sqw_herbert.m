@@ -51,7 +51,7 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             end
             combine_algorithm = 'mpi_code'; % this is what should be tested
             if is_jenkins && ispc
-                combine_algorithm = 'mex_code'; % disable mpi combine on Jenkins. It is extreamly slow.
+                combine_algorithm = 'mex_code'; % disable poor man MPI combine on Jenkins. It is extremely slow.
             end
             %
             obj = obj@gen_sqw_common_config(-1,1,combine_algorithm,'herbert');
@@ -66,8 +66,14 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
                 end
             end
         end
+        
+        function test_worker_operations_and_communications(obj)
+            % The test verifies the communication protocol between host and
+            % remote system running two "remote" sessions with remote workers
+            % running the remote job "accumulate_headers" job.
+            % The communicatins occur between host and workers and between
+            % workers themselves.
         %
-        function test_worker(obj)
             worker_local = 'parallel_worker';
             
             mis = MPI_State.instance('clear');
@@ -194,9 +200,8 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             res_s = mess1.payload{1};
             assertEqual(sum(reshape(res_s.npix,1,numel(res_s.npix))),2246);
         end
-        %
-        function test_do_job(obj)
             
+        function test_do_job(obj)
             mis = MPI_State.instance('clear');
             mis.is_tested = true;
             mis.is_deployed = true;

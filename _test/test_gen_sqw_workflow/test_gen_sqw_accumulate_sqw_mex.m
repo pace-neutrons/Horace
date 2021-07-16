@@ -61,7 +61,7 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
             % shortest code to debug in case of errors
             %-------------------------------------------------------------
             if obj.skip_test
-                return
+                skipTest('MEX is disabled');
             end
             if nargin> 1
                 % running in single test method mode.

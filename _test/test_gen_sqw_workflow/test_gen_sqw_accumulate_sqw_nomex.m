@@ -66,8 +66,6 @@ classdef test_gen_sqw_accumulate_sqw_nomex < ...
             
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
             spe_files = obj.spe_file([1,5,4,5,6]);
-            [fpath,fname]=fileparts(spe_files{5});
-            cod = onCleanup(@()delete(fullfile(fpath,[fname,'_2.tmp'])));
             
             try
                 gen_sqw (spe_files, '', sqw_file_15456, efix([1,5,4,5,6]),...
@@ -102,7 +100,5 @@ classdef test_gen_sqw_accumulate_sqw_nomex < ...
             assertTrue(ok,'Should have failed because of repeated spe file name');
             
         end
-        
-        
     end
 end
