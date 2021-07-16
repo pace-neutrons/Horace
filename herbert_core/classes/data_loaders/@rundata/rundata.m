@@ -18,8 +18,6 @@ classdef rundata
     % do not have default, the method get_rundata will fail
     %
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-    %
     properties(Dependent)
         n_detectors ;   % Number of detectors, used when dealing with masked detectors  -- will be derived
         %
@@ -50,6 +48,9 @@ classdef rundata
         instrument;
         % sample model
         sample;
+        % the number (id) uniquely identyfying the particular experiment
+        % which is the source of this object data.
+        run_id;
     end
     
     properties(Constant,Access=private)
@@ -75,6 +76,8 @@ classdef rundata
         instrument_ = struct();
         % sample model holder
         sample_ = struct();
+        %
+        run_id_ = [];
     end
     methods(Static)
         function fields = main_data_fields()
@@ -156,6 +159,20 @@ classdef rundata
             obj = set_up_from_struct_(struc);
             
         end
+        %
+        function id = extract_id_from_filename(file_name)
+            % method used to extract run id from a filename, if runnumber is
+            % present in the filename, and is first number among all other
+            % numbers
+            %
+            [~,filename] = fileparts(file_name);
+            [l_range,r_range] = regexp(filename,'\d+');
+            if isempty(l_range)
+                id = 1;
+                return;
+            end
+            id = str2double(filename(l_range(1):r_range(1)));
+        end
     end
     methods(Static,Access=protected)
         function [runfiles_list,defined]= gen_runfiles_of_type(type_name,spe_files,varargin)
@@ -201,7 +218,7 @@ classdef rundata
         [ok, mess,this] = isvalid (this);
         % method removes failed (NaN or Inf) data from the data array and deletes
         % detectors, which provided such signal
-        [S_m,Err_m,det_m]=rm_masked(this);
+        [S_m,Err_m,det_m]=rm_masked(this,varargin);
         
         % method sets a field of  lattice if the lattice
         % present and initates the lattice first if it is not present
@@ -267,7 +284,7 @@ classdef rundata
             fields = {'emode'};
             if ~isempty(this.oriented_lattice_)
                 lattice_fields = oriented_lattice.fields_with_defaults();
-                fields ={fields{:},lattice_fields{:}};
+                fields = [fields, lattice_fields];
             end
         end
         %----
@@ -321,6 +338,24 @@ classdef rundata
             end
         end
         %
+        function id = get.run_id(obj)
+            % return the index (numerical id which uniquely identifies
+            % the experiment)
+            % of the data used as the source of the rundata
+            if ~isempty(obj.run_id_)
+                id = obj.run_id_;
+                return
+            end
+            id = find_run_id_(obj);
+        end
+        function obj = set.run_id(obj,val)
+            if ~isnumeric(val)
+                error('RUNDATA:invalid_argument',...
+                    ' run_id can be only numeric')
+            end
+            obj.run_id_ = val;
+        end
+
         %
         function loader=get.loader(this)
             loader=this.loader_;
@@ -495,4 +530,3 @@ classdef rundata
         end
     end
 end
-

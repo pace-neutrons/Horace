@@ -27,4 +27,3 @@ if if_empty
 else
     this.oriented_lattice_.(name)=val;
 end
-
