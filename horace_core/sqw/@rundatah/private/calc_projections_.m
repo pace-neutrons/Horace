@@ -76,7 +76,7 @@ if use_mex
             c=neutron_constants;
             k_to_e = c.c_k_to_emev;  % used by calc_projections_c;
 
-            data = struct('S',obj.S,'ERR',obj.ERR,'en',obj.en);
+            data = struct('S',obj.S,'ERR',obj.ERR,'en',obj.en,'run_id',obj.run_id);
             det  = obj.det_par;
             efix  = obj.efix;
             emode = obj.emode;
