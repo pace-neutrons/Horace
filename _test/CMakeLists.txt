@@ -46,7 +46,7 @@ set(ENV_VARIABLES
 
 foreach(_test_dir ${TEST_DIRECTORIES})
     if("${_test_dir}" STREQUAL "test_sqw")
-        set(TEST_TIMEOUT_LENGTH "1500")  # 25 minutes
+        set(TEST_TIMEOUT_LENGTH "2000")  # 33.3 minutes
     elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_parpool")
         set(TEST_TIMEOUT_LENGTH "2100")  # 35 minutes
     elseif("${_test_dir}" STREQUAL "test_tobyfit")
@@ -60,7 +60,7 @@ foreach(_test_dir ${TEST_DIRECTORIES})
         NAME "${TEST_NAME}"
         CUSTOM_TEST_COMMAND
             "validate_horace ${_test_dir} -talkative -forcemex -exit_on_completion"
-        ADDITIONAL_PATH "${CMAKE_SOURCE_DIR}/admin"
+        ADDITIONAL_PATH "${Horace_ROOT}/admin"
         TIMEOUT ${TEST_TIMEOUT_LENGTH}
     )
     set_tests_properties("${TEST_NAME}"

@@ -28,6 +28,8 @@
   https://github.com/pace-neutrons/Horace
 #>
 param (
+  # Run the Horace configure commands.
+  [switch][Alias("g")]$configure,
   # Run the Horace build commands.
   [switch][Alias("b")]$build,
   # Run all Horace tests.
@@ -100,14 +102,14 @@ $VS_VERSION_MAP = @{
   2019 = 'Visual Studio 16 2019';
 }
 # Horace's root directory is two levels above this script
-$HORACE_ROOT = Resolve-Path (Join-Path -Path $PSScriptRoot -ChildPath '/../..')
+$HORACE_ROOT = Resolve-Path (Join-Path -Path "$PSScriptRoot" -ChildPath "/../..")
 $MAX_CTEST_SUCCESS_OUTPUT_LENGTH = 10000 # 10kB
 
 function New-Build-Directory {
   param([string]$build_dir)
   try {
-    Write-Output "Creating build directory: $build_dir"
-    $mkdir_cmd = "New-Item -Path $build_dir -ItemType Directory -ErrorAction Stop | Out-Null"
+    Write-Output "Creating build directory: ""$build_dir"""
+    $mkdir_cmd = "New-Item -Path ""$build_dir"" -ItemType Directory -ErrorAction Stop | Out-Null"
     Write-And-Invoke "$mkdir_cmd"
   }
   catch [System.IO.IOException] {
@@ -145,13 +147,13 @@ function Invoke-Configure {
     [string]$cmake_flags
   )
   Write-Output "`nRunning CMake configure step..."
-  $cmake_cmd = "cmake $HORACE_ROOT"
+  $cmake_cmd = "cmake ""$HORACE_ROOT"""
   $cmake_cmd += " $(New-CMake-Generator-Command -vs_version $vs_version)"
-  $cmake_cmd += " -DBUILD_TESTS=$build_tests"
+  $cmake_cmd += " -DBUILD_TESTING=$build_tests"
   $cmake_cmd += " -DMatlab_RELEASE=$matlab_release"
-  $cmake_cmd += " $cmake_flags"
+  $cmake_cmd += " ${cmake_flags}"
 
-  Invoke-In-Dir -directory $build_dir -command $cmake_cmd
+  Invoke-In-Dir -directory "$build_dir" -command "$cmake_cmd"
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
   }
@@ -160,7 +162,7 @@ function Invoke-Configure {
 function Invoke-Build {
   param([string]$build_dir, [string]$build_config)
   Write-Output "`nRunning CMake build step..."
-  Write-And-Invoke "cmake --build $build_dir --config $build_config"
+  Write-And-Invoke "cmake --build ""$build_dir"" --config ""$build_config"""
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
   }
@@ -173,7 +175,7 @@ function Invoke-Test {
   $test_cmd += " -T Test --no-compress-output"
   $test_cmd += " --output-on-failure"
   $test_cmd += " --test-output-size-passed $MAX_CTEST_SUCCESS_OUTPUT_LENGTH"
-  Invoke-In-Dir -directory $build_dir -command $test_cmd
+  Invoke-In-Dir -directory "$build_dir" -command "$test_cmd"
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
   }
@@ -182,7 +184,11 @@ function Invoke-Test {
 function Invoke-Package {
   param([string]$build_dir)
   Write-Output "`nRunning package step..."
-  Invoke-In-Dir -directory $build_dir -command "cpack -G ZIP"
+  Invoke-In-Dir -directory "$build_dir" -command "cpack -G ZIP"
+  if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+  }
+
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
   }
@@ -190,29 +196,33 @@ function Invoke-Package {
 
 # Resolve/set default parameters
 if ($build_dir -eq "") {
-  $build_dir = Join-Path -Path $HORACE_ROOT -ChildPath 'build'
+  $build_dir = Join-Path -Path "$HORACE_ROOT" -ChildPath "build"
 }
 
-if ($print_versions -eq $true) {
+if ($print_versions) {
   Write-Versions
 }
 
-if ($build -eq $true) {
-  New-Build-Directory -build_dir $build_dir
+if ($configure -or -not (Test-Path -Path "${build_dir}/CMakeCache.txt" -PathType Leaf)) {
+  New-Build-Directory -build_dir "$build_dir"
   Invoke-Configure `
     -vs_version $vs_version `
-    -build_dir $build_dir `
-    -build_config $build_config `
-    -build_tests $build_tests `
-    -matlab_release $matlab_release `
-    -cmake_flags $cmake_flags
-  Invoke-Build -build_dir $build_dir -build_config $build_config
+    -build_dir "$build_dir" `
+    -build_config "$build_config" `
+    -build_tests "$build_tests" `
+    -matlab_release "$matlab_release" `
+    -cmake_flags "$cmake_flags"
 }
 
-if ($test -eq $true) {
-  Invoke-Test -build_dir $build_dir -build_config $build_config
+if ($build) {
+  Invoke-Build -build_dir "$build_dir" -build_config "$build_config"
 }
 
-if ($package -eq $true) {
-  Invoke-Package -build_dir $build_dir
+if ($test) {
+  Invoke-Test -build_dir "$build_dir" -build_config "$build_config"
 }
+
+if ($package) {
+  Invoke-Package -build_dir "$build_dir"
+}
+
