@@ -16,10 +16,6 @@ img_signal_sum = zeros(1, numel(npix));
 img_variance_sum = zeros(1, numel(npix));
 [npix_chunks, idxs] = split_vector_fixed_sum(npix(:), obj.base_page_size);
 
-psidisp('~/dump/npix', npix);
-psidisp('~/dump/npix_chunks', npix_chunks{1});
-psidisp('~/dump/idxs', idxs);
-
 for i = 1:numel(npix_chunks)
     npix_chunk = npix_chunks{i};
     idx = idxs(:, i);
@@ -32,10 +28,6 @@ for i = 1:numel(npix_chunks)
     % We need to set the increment size in the accumarray call or it will
     % ignore trailing zeros on the npix chunk. Meaning the increment will be a
     % different length to the chunk of the image we're updating
-    psidisp('~/dump/accum_indices', accum_indices);
-    psidisp('~/dump/signal', obj.signal);
-    psidisp('~/dump/signal_sort', sort(obj.signal));
-    psidisp('~/dump/increment_size', increment_size);
 
     sig_increment = accumarray(accum_indices, obj.signal, increment_size);
     img_signal_sum(idx(1):idx(2)) = img_signal_sum(idx(1):idx(2)) + sig_increment';
@@ -53,3 +45,6 @@ img_signal_sum = reshape(img_signal_sum, npix_shape);
 img_variance_sum = reshape(img_variance_sum, npix_shape);
 
 [mean_signal,mean_variance] = normalize_signal(img_signal_sum,img_variance_sum,npix);
+
+end
+
