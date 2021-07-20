@@ -28,8 +28,6 @@
   https://github.com/pace-neutrons/Horace
 #>
 param (
-  # Run the Horace configure commands.
-  [switch][Alias("g")]$configure,
   # Run the Horace build commands.
   [switch][Alias("b")]$build,
   # Run all Horace tests.
@@ -162,7 +160,7 @@ function Invoke-Configure {
 function Invoke-Build {
   param([string]$build_dir, [string]$build_config)
   Write-Output "`nRunning CMake build step..."
-  Write-And-Invoke "cmake --build ""$build_dir"" --config ""$build_config"""
+  Write-And-Invoke "cmake --build ""$build_dir"""
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
   }
@@ -175,7 +173,7 @@ function Invoke-Test {
   $test_cmd += " -T Test --no-compress-output"
   $test_cmd += " --output-on-failure"
   $test_cmd += " --test-output-size-passed $MAX_CTEST_SUCCESS_OUTPUT_LENGTH"
-  Invoke-In-Dir -directory "$build_dir" -command "$test_cmd"
+  Invoke-In-Dir -directory $build_dir -command $test_cmd
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
   }
