@@ -15,8 +15,8 @@ option(BUILD_TESTS "Build the C++ tests" OFF)
 option(USE_HERBERT_MPI "Use MPI libraries provided with Herbert" ON)
 
 # Add cmake directory to CMake's path
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake"
-     "${CMAKE_SOURCE_DIR}/cmake/external" "${CMAKE_SOURCE_DIR}/cmake/shared")
+list(APPEND CMAKE_MODULE_PATH "${Herbert_ROOT}/cmake"
+     "${Herbert_ROOT}/cmake/external" "${Herbert_ROOT}/cmake/shared")
 
 # This sets the destination for mex build artifacts (used in PACE_AddMex)
 set(Herbert_DLL_DIRECTORY "${Herbert_ROOT}/herbert_core/DLL")

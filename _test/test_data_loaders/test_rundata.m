@@ -1,6 +1,5 @@
 classdef test_rundata< TestCase
     %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
     %
     
     properties
@@ -8,7 +7,7 @@ classdef test_rundata< TestCase
         test_data_path;
         
         test_par_file = 'demo_par.par';
-        EXPECTED_DET_NUM = 28160        
+        EXPECTED_DET_NUM = 28160
     end
     methods
         function fn=f_name(obj,short_filename)
@@ -95,7 +94,7 @@ classdef test_rundata< TestCase
         function test_defaultsOK_andFixed(obj)
             nn=numel(fields(rundata));
             % number of public fields by default;
-            assertEqual(14,nn);
+            assertEqual(15,nn);
         end
         function test_build_from_wrong_struct(obj)
             a.x=10;

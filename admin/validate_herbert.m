@@ -58,7 +58,7 @@ if isempty(test_folders) % No tests specified on command line - run them all
         'test_multifit_legacy', ...
         'test_mpi_wrappers', ...
         'test_mpi', ...
-        'test_xunit_framework', ...
+        %'test_xunit_framework', ...
         };
 end
 %=============================================================================
@@ -129,13 +129,14 @@ if parallel && license('checkout', 'Distrib_Computing_Toolbox')
     tests_ok = all(test_ok);
 else
     time = bigtic();
-    test_ok = false(1,numel(test_folders_full));
-    for i=1:numel(test_folders_full)
-        fprintf('=== Starting tests for: %s\n',test_folders_full{i});
-        [test_ok(i),suite] = runtests(test_folders_full{i}, argi{:});
-        suite.delete();
-    end
-    tests_ok = all(test_ok);
+    tests_ok= runtests(test_folders_full{:}, argi{:});
+%     test_ok = false(1,numel(test_folders_full));
+%     for i=1:numel(test_folders_full)
+%         fprintf('=== Starting tests for: %s\n',test_folders_full{i});
+%         [test_ok(i),suite] = runtests(test_folders_full{i}, argi{:});
+%         suite.delete();
+%     end
+%     tests_ok = all(test_ok);
     bigtoc(time, '===COMPLETED UNIT TESTS RUN ');
 
 end
