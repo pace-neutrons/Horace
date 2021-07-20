@@ -1,6 +1,6 @@
 /* ${Herbert_AUTO_GENERATED_FILE_WARNING} */
 
 namespace Horace {
-    constexpr char VERSION[] = "${Herbert_SHORT_VERSION}";
-    constexpr char VER_NOOMP[] = "${Herbert_SHORT_VERSION} no-omp";
+    constexpr char VERSION[] = "${Horace_SHORT_VERSION}";
+    constexpr char VER_NOOMP[] = "${Horace_SHORT_VERSION} no-omp";
 }

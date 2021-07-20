@@ -195,11 +195,7 @@ std::string  verify_index_array(const mxArray * pix_cell_array_ptr, bool &is_int
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
-#ifdef _OPENMP
         plhs[0] = mxCreateString(Horace::VERSION);
-#else
-        plhs[0] = mxCreateString(Horace::VER_NOOMP);
-#endif
         return ;
     }
 
