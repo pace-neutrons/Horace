@@ -18,7 +18,6 @@ readonly MAX_CTEST_SUCCESS_OUTPUT_LENGTH="10000" # 10kB
 
 function print_package_versions() {
   cmake --version | head -n 1
-  echo "Matlab: ${MATLAB_ROOT}"
   g++ --version | head -n 1
   cppcheck --version | head -n 1
   echo
@@ -34,8 +33,8 @@ function run_configure() {
   cmake_cmd="cmake ${HERBERT_ROOT}"
   cmake_cmd+=" -G \"${CMAKE_GENERATOR}\""
   cmake_cmd+=" -DMatlab_ROOT_DIR=${MATLAB_ROOT}"
-  #cmake_cmd+=" -DCMAKE_BUILD_TYPE=${build_config}"
-  cmake_cmd+=" -DBUILD_TESTS=${build_tests}"
+  cmake_cmd+=" -DCMAKE_BUILD_TYPE=${build_config}"
+  cmake_cmd+=" -DBUILD_TESTING=${build_tests}"
   cmake_cmd+=" -DMatlab_RELEASE=${matlab_release}"
   cmake_cmd+=" ${cmake_flags}"
 
@@ -89,8 +88,10 @@ flags:
       Run the Herbert build commands.
   -t, --test
       Run all Herbert tests.
+  -c, --configure
+      Run cmake configuration stage
   -a, --analyze
-      Run static analysis on Herbert C++ code.
+      Run static analysis on Herbert code.
   -p, --package
       Pacakge Herbert into a .tar.gz file.
   -v, --print_versions
@@ -121,6 +122,7 @@ function main() {
   # set default parameter values
   local build=$FALSE
   local test=$FALSE
+  local configure=$FALSE
   local analyze=$FALSE
   local package=$FALSE
   local print_versions=$FALSE
@@ -143,6 +145,7 @@ function main() {
         # flags
         -b|--build) build=$TRUE; shift ;;
         -t|--test) test=$TRUE; shift ;;
+        -c|--configure) configure=$TRUE; shift;;
         -a|--analyze) analyze=$TRUE; shift ;;
         -p|--package) package=$TRUE; shift ;;
         -v|--print_versions) print_versions=$TRUE; shift ;;
@@ -161,15 +164,18 @@ function main() {
     print_package_versions
   fi
 
-  if ((analyze)); then
-    run_analysis "${HERBERT_ROOT}"
-  fi
-
-  if ((build)); then
+  if ((configure)) || [ ! -e ${build_dir}/CMakeCache.txt ]; then
     warning_msg="Warning: Build directory ${build_dir} already exists.\n\
         This may not be a clean build."
     echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
     run_configure "${build_dir}" "${build_config}" "${build_tests}" "${matlab_release}" "${cmake_flags}"
+  fi
+
+  if ((analyze)); then
+    run_analysis "${build_dir}"
+  fi
+
+  if ((build)); then
     run_build "${build_dir}"
   fi
 

@@ -33,5 +33,6 @@ install(
         "validate_herbert.m"
         "worker_4tests.m.template"
         "worker_v2.m.template"
+        "lint_json.m"
     DESTINATION "Herbert/admin/"
 )
