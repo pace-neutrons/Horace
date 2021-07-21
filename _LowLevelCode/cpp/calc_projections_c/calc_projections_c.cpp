@@ -19,7 +19,7 @@ enum inPar {
 
 //============================================================================================
 //**
-//> the function transforms the detector positions from the instrumental to the crystal system of coordinates
+//> the function transforms the detector positions from the instrumental to the crystal cartesian system of coordinates
 //
 // usage:
 // ucoordinates=calc_projections_c(transf_matrix,data,detectors);
@@ -46,12 +46,12 @@ enum inPar {
 //* Possible prototype for a generic function
 double getMatlabScalar(const mxArray *pPar, const char * const fieldName) {
     if (pPar == NULL) {
-        mexErrMsgTxt(" The parameter has to be defined");
+        mexErrMsgIdAndTxt("MEX:invalid_argument", " The parameter has to be defined");
     }
     if (mxGetM(pPar) != 1 || mxGetN(pPar) != 1) {
         std::stringstream buf;
         buf << *fieldName << " has to be a scalar\n";
-        mexErrMsgTxt(buf.str().c_str());
+        mexErrMsgIdAndTxt("MEX:invalid_argument", buf.str().c_str());
     }
     return (double)*mxGetPr(pPar);
 };
@@ -59,14 +59,14 @@ void getMatlabVector(const mxArray *pPar, double *&pValue, size_t &NComponents, 
     if (pPar == NULL) {
         std::stringstream buf;
         buf << "The parameter: " << *fieldName << " has to be defined\n";
-        mexErrMsgTxt(buf.str().c_str());
+        mexErrMsgIdAndTxt("MEX:invalid_argument", buf.str().c_str());
     }
     auto NRows = mxGetM(pPar);
     auto NCols = mxGetN(pPar);
     if (!(NRows == 1 || NCols == 1)) {
         std::stringstream buf;
         buf << "The variable " << *fieldName << " should be 1-dimensional array\n";
-        mexErrMsgTxt(buf.str().c_str());
+        mexErrMsgIdAndTxt("MEX:invalid_argument", buf.str().c_str());
     }
     NComponents = size_t(NRows*NCols);
     pValue = mxGetPr(pPar);
@@ -85,7 +85,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     urangeModes uRange_mode;
 
     if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
+#ifdef _OPENMP
         plhs[0] = mxCreateString(Horace::VERSION);
+#else
+        plhs[0] = mxCreateString(Horace::VER_NOOMP);
+#endif
         return;
     }
 
@@ -98,7 +102,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             std::stringstream buf;
             buf << " this function takes " << NUM_IN_args << " input parameters, namely ";
             buf << "transf_matrix, data, detector_coordinates and four or three system variables";
-            mexErrMsgTxt(buf.str().c_str());
+            mexErrMsgIdAndTxt("MEX:invalid_argument", buf.str().c_str());
         }
     }
     bool forceNoUrange(false);
@@ -108,7 +112,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             forceNoUrange = true; // no urange is forced if no place for output array is provided. No point of allocating it then.
         }
         else {
-            mexErrMsgTxt("this function takes two output arguments ");
+            mexErrMsgIdAndTxt("MEX:invalid_argument", 
+                "this function takes two output arguments ");
         }
     }
 
@@ -116,14 +121,16 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         if (!prhs[i]) {
             std::stringstream buf;
             buf << " parameter N " << i << " can not be empty";
-            mexErrMsgTxt(buf.str().c_str());
+            mexErrMsgIdAndTxt("MEX:invalid_argument", buf.str().c_str());
         }
     }
     if (!mxIsStruct(prhs[Data])) {
-        mexErrMsgTxt("second argument (Data) has to be a single structure ");
+        mexErrMsgIdAndTxt("MEX:invalid_argument", 
+            "second argument (Data) has to be a single structure ");
     }
     if (!mxIsStruct(prhs[Detectors])) {
-        mexErrMsgTxt("third argument (Detectors) has to be a single structure");
+        mexErrMsgIdAndTxt("MEX:invalid_argument", 
+            "third argument (Detectors) has to be a single structure");
     }
 
 
@@ -137,7 +144,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     k_to_e = getMatlabScalar(prhs[nK_to_e], "variable k_to_e");
     int ieMode = (int)getMatlabScalar(prhs[nEmode], "variable eMode");
     if (ieMode < 0 || ieMode > 2) {
-        mexErrMsgTxt("only modes 0-2 (Elastic,Direct,Indirect) are currently supported");
+        mexErrMsgIdAndTxt("MEX:invalid_argument", 
+            "only modes 0-2 (Elastic,Direct,Indirect) are currently supported");
     }
     eMode mode = eMode(ieMode);
 
@@ -162,21 +170,33 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     }
 
     if (mxGetM(prhs[Spec_to_proj]) != 3 || mxGetN(prhs[Spec_to_proj]) != 3) {
-        mexErrMsgTxt("first argument (projection matrix) has to be 3x3 matrix");
+        mexErrMsgIdAndTxt("MEX:invalid_argument", 
+            "first argument (projection matrix) has to be 3x3 matrix");
     }
     if (pEnergy == NULL) {
-        mexErrMsgTxt("experimental data can not be empty");
+        mexErrMsgIdAndTxt("MEX:invalid_argument", 
+            "experimental data can not be empty");
     }
 
     mxArray *maSignal = mxGetField(prhs[Data], 0, "S");
     if (maSignal == NULL) {
-        mexErrMsgTxt("Can not retrieve signal (S field) array from the data structure");
+        mexErrMsgIdAndTxt("MEX:invalid_argument",
+            "Can not retrieve signal (S field) array from the data structure");
     }
     double * pSignal = (double *)mxGetPr(maSignal);
     double * pError = (double *)mxGetPr(mxGetField(prhs[Data], 0, "ERR"));
     if (pError == NULL) {
-        mexErrMsgTxt("Can not retrieve error (ERR field) array from the data structure");
+        mexErrMsgIdAndTxt("MEX:invalid_argument", 
+            "Can not retrieve error (ERR field) array from the data structure");
     }
+    double *pRunID = (double *)mxGetPr(mxGetField(prhs[Data], 0, "run_id"));
+    double defaultValue(1);
+    if (pRunID == NULL) {
+        mexWarnMsgIdAndTxt("MEX:invalid_argument",
+            "Can not retrieve pointer to run_id value from the data structure. Using default value (1)");
+        pRunID = &defaultValue;
+    }
+
 
     nDataPoints = mxGetN(maSignal);
     nEnShed = mxGetM(maSignal);
@@ -290,7 +310,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     double *pMinMax = (double *)mxGetPr(plhs[0]);
     double *pTransfDet = (double *)mxGetPr(plhs[1]);
     try {
-        calc_projections_emode(pMinMax, pTransfDet, mode, uRange_mode, pSignal, pError, pDetGroup,
+        calc_projections_emode(pMinMax, pTransfDet, *pRunID, mode, uRange_mode, pSignal, pError, pDetGroup,
             pProj_matrix, pEnPoints, nEnPoints, pDetPhi, pDetPsi, nDetectors, pEfix, nEfixed, k_to_e, nThreads);
         mxFree(pEnPoints);
     }
@@ -309,18 +329,19 @@ const double    grad2rad = Pi / 180;
 
 void calc_projections_emode(double * const pMinMax,
     double * const pTransfDetectors,
-    eMode emode, urangeModes urange_mode,
+    double runID, eMode emode, urangeModes urange_mode,
     double const * const pSignal, double const * const pError, double const * const pDetGroup,
     double const * const pMatrix, double const * const pEnergies, mwSize nEnergies,
     double const * const pDetPhi, double const * const pDetPsi, mwSize nDetectors,
     double const * const pEfix, size_t nEfixed, double k_to_e, int nThreads)
 {
     /********************************************************************************************************************
-    * Calculate projections in direct mode;
+    * Calculate projections in direct indirect or elastic mode;
     * Output:
     * pTransfDetectors[4*nDetectors*nEnergies] the matrix of 4D coordinates detectors. The coordinates are transformed  into the projections axis
     * Inputs:
-    * pMatrix[3,3]          Matrix to convert components from the spectrometer frame to projection axes
+    * pMatrix[3,3]    Matrix to convert components from the spectrometer frame to projection axes
+    * runID           The number uniquely identifying the experiment, the data are obtained from
     * pEnergies[nEnergies]  Array of energies of arrival of detected particles
     * pDetPhi[nDetectors]   ! -- arrays of  ... and
     * pDetPsi[nDetectors]   ! -- azimutal coordinates of the detectors
@@ -374,7 +395,7 @@ void calc_projections_emode(double * const pMinMax,
     std::vector<double> qe_max(4 * nThreads, -FLT_MAX);
 #pragma omp parallel default(none)  \
     shared(pKf,qe_min,qe_max) \
-    firstprivate(nDetectors,nEnergies,ki,urange_mode,emode,singleEfixed,pEfix,pEnergies,k_to_e) //\
+    firstprivate(nDetectors,nEnergies,ki,urange_mode,emode,singleEfixed,pEfix,pEnergies,k_to_e,runID) //\
     //reduction(min: q1_min,q2_min,q3_min,e_min; max: q1_max,q2_max,q3_max,e_max)
     {
 #pragma omp for
@@ -478,7 +499,7 @@ void calc_projections_emode(double * const pMinMax,
                     }
 
                     // to be consistent with MATLAB; should be ii+1 to be correct
-                    pTransfDetectors[j0 + 4] = 1;
+                    pTransfDetectors[j0 + 4] = runID;
                     // pix(6,:)=reshape(repmat(det.group,[ne,1]),[1,ne*ndet]); % detector index
                     pTransfDetectors[j0 + 5] = pDetGroup[ii];
                     //pix(7,:)=reshape(repmat((1:ne)',[1,ndet]),[1,ne*ndet]); % energy bin index

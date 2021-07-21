@@ -1,6 +1,6 @@
-/* ${Horace_AUTO_GENERATED_FILE_WARNING} */
-#pragma once
+/* ${Herbert_AUTO_GENERATED_FILE_WARNING} */
 
 namespace Horace {
     constexpr char VERSION[] = "${Horace_SHORT_VERSION}";
+    constexpr char VER_NOOMP[] = "${Horace_SHORT_VERSION} no-omp";
 }

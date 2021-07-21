@@ -32,6 +32,10 @@ function run_configure() {
   local matlab_release=$4
   local cmake_flags="${5-}"  # Default value is empty string
 
+  warning_msg="Warning: Build directory ${build_dir} already exists.\n\
+                              This may not be a clean build."
+  echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
+
   cmake_cmd="cmake ${HORACE_ROOT}"
   cmake_cmd+=" -G \"${CMAKE_GENERATOR}\""
   cmake_cmd+=" -DMatlab_ROOT_DIR=${MATLAB_ROOT}"
@@ -41,8 +45,7 @@ function run_configure() {
   cmake_cmd+=" ${cmake_flags}"
 
   echo -e "\nRunning CMake configure step..."
-  echo_and_run "cd ${build_dir}"
-  echo_and_run "${cmake_cmd}"
+  run_in_dir "${cmake_cmd}" "${build_dir}"
 }
 
 function run_build() {
@@ -57,11 +60,10 @@ function run_tests() {
   local build_dir=$1
 
   echo -e "\nRunning test step..."
-  echo_and_run "cd ${build_dir}"
   test_cmd="ctest -T Test --no-compress-output"
   test_cmd+=" --output-on-failure"
   test_cmd+=" --test-output-size-passed ${MAX_CTEST_SUCCESS_OUTPUT_LENGTH}"
-  echo_and_run "${test_cmd}"
+  run_in_dir "${test_cmd}" "${build_dir}"
 }
 
 function run_analysis() {

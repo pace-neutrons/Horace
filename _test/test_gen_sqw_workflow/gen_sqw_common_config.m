@@ -18,10 +18,16 @@ classdef gen_sqw_common_config < TestCase
         new_combine_ = 'mex_code'
         new_cluster_ = 'herbert';
         
+        % the worker to use while running parallel tests (if any)
         worker = 'worker_v2'
         % Store the name of the worker, currently used by Horace parallel
         % framework, to recover after the tests are completed.
         current_worker_cache_ = [];
+        % If true, enable progress logging in worker scripts.
+        % (DO_LOGGING=true for parallel_worker). 
+        % Tested on Slurm cluster manager. May not yet work for all types of
+        % the clusters
+        WRITE_DEBUG_LOGS = false;
     end
     
     methods
@@ -47,6 +53,10 @@ classdef gen_sqw_common_config < TestCase
             obj.store_initial_config();
             hc = hor_config;
             log_level = hc.log_level;
+            %
+            if obj.WRITE_DEBUG_LOGS
+                setenv('DO_PARALLEL_MATLAB_LOGGING','true');
+            end
             
             
             [~,obj.new_mex_ ] = gen_sqw_common_config.check_change...
@@ -87,31 +97,32 @@ classdef gen_sqw_common_config < TestCase
             
             if ~isnumeric(parallel_cluster) % check parallel framework can be enabled
                 cl = MPI_clusters_factory.instance().get_cluster(parallel_cluster);
-                try
-                    cl.check_availability()
-                    obj.skip_test = false;
-                catch ME
-                    if strcmpi(ME.identifier,'PARALLEL_CONFIG:not_available')
+                if isempty(cl) 
                         obj.skip_test = true;
                         if log_level>0
                             warning('GEN_SQW_TEST_CONFIG:not_available',...
-                                'Can not initiate framework: %s because %s. This mode will not be tested',...
-                                parallel_cluster,ME.message)
+                          'Can not initiate framework: %s because this cluster is not available on the system. This mode will not be tested',...
+                                parallel_cluster)
                         end
-                    else
-                        rethrow(ME);
-                    end
+                else
+                    obj.skip_test = false;                                        
                 end
             end
         end
         
         function setUp(obj)
+            if obj.skip_test
+                return;
+            end
             hc = hor_config;
+            hc.saveable = false;
             hc.use_mex = obj.new_mex_;
             hpc = hpc_config;
+            hpc.saveable = false;
             hpc.build_sqw_in_parallel = obj.new_mpi_;
             hpc.combine_sqw_using = obj.new_combine_;
             parc = parallel_config;
+            parc.saveable = false;
             parc.parallel_cluster = obj.new_cluster_;
             if ~isempty(obj.new_working_folder)
                 parc.working_directory = obj.new_working_folder;
@@ -123,6 +134,9 @@ classdef gen_sqw_common_config < TestCase
         end
         %
         function tearDown(obj)
+            if obj.skip_test
+                return;
+            end            
             obj.restore_initial_config();
         end
         %

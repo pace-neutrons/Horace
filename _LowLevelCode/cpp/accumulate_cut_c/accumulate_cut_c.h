@@ -4,9 +4,7 @@
 #include "../CommonCode.h"
 
 #define iRound(x) (int)floor((x) + 0.5)
-//
-// $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)"
-//
+
 enum program_settings
 {
     Ignore_Nan,
@@ -27,13 +25,13 @@ bool isNaN(T val)
 //static std::unique_ptr<omp_storage> pStorHolder;
 /** Routine to calculate pixels data belonging to appropriate range */
 template <class T>
-mwSize accumulate_cut(double *s, double *e, double *npix,
-                      T const *const pixel_data, size_t data_size,
-                      mxLogical *ok, mxArray *&ix_final_pixIndex, double *actual_pix_range,
-                      double const *rot_ustep, double const *trans_bott_left, double ebin, double trans_elo, // transformation matrix
-                      double const *cut_range,
-                      const std::vector<mwSize> &grid_size, const std::vector<int> &iAxis, int nAxis,
-                      const std::vector<double> &progSettings)
+mwSize accumulate_cut(double* s, double* e, double* npix,
+    T const* const pixel_data, size_t data_size,
+    mxLogical* ok, mxArray*& ix_final_pixIndex, double* actual_pix_range,
+    double const* rot_ustep, double const* trans_bott_left, double ebin, double trans_elo, // transformation matrix
+    double const* cut_range,
+    const std::vector<mwSize>& grid_size, const std::vector<int>& iAxis, int nAxis,
+    const std::vector<double>& progSettings)
 {
 
     T Inf(0);
@@ -86,7 +84,7 @@ mwSize accumulate_cut(double *s, double *e, double *npix,
     size_t ds = data_size;
     if (ds == 0)
         ds = 1;
-    mwSize *ind = (mwSize *)mxCalloc(ds, sizeof(mwSize)); //working array of indexes of transformed pixels
+    mwSize* ind = (mwSize*)mxCalloc(ds, sizeof(mwSize)); //working array of indexes of transformed pixels
     if (!ind)
     {
         throw("accumulate_cut_c: Can not allocate memory for array of indexes\n");
@@ -235,9 +233,13 @@ mwSize accumulate_cut(double *s, double *e, double *npix,
             mwSize indE = (mwSize)floor(Ett - cut_range[6]);
 
             mwSize il = indX * nDimX + indY * nDimY + indZ * nDimZ + indE * nDimE;
+            // check for round-off errors; assure the errors are not bring pixel outside of the histogram
+            // range
+            if (il >= distribution_size)
+                il = distribution_size - 1;
             ok[i] = true;
             ind[i] = il;
-            //	i0=nPixel_retained*OUT_PIXEL_DATA_WIDTH;    // transformed pixels;
+            // i0=nPixel_retained*OUT_PIXEL_DATA_WIDTH;    // transformed pixels;
             //
             //
             //    actual_pix_range = [min(actual_pix_range(1,:),min(indx,[],1));max(actual_pix_range(2,:),max(indx,[],1))];  % true range of data
@@ -328,7 +330,7 @@ mwSize accumulate_cut(double *s, double *e, double *npix,
         return nPixel_retained;
     }
 
-    uint64_t *pFin_pix = reinterpret_cast<uint64_t *>(mxGetPr(ix_final_pixIndex));
+    uint64_t* pFin_pix = reinterpret_cast<uint64_t*>(mxGetPr(ix_final_pixIndex));
     if (nPixel_retained == 0)
     {
         mxFree(ind);

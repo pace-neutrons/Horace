@@ -48,7 +48,7 @@ try % mex C++
     disp('**********> Creating mex files from C++ code')
     % root directory is assumed to be that in which this function resides
     cd(root_dir);
-
+    
     cpp_in_rel_dir = ['_LowLevelCode',filesep,'cpp',filesep];
     % get folder names corresponding to the current Matlab version and OS
     [VerFolderName, ~, OSdirname] = matlab_version_folder();
@@ -59,7 +59,7 @@ try % mex C++
         out_rel_dir = fullfile('horace_core','DLL',OSdirname,VerFolderName);
         out_hdf_dir = out_rel_dir;
     end
-
+    
     if(~exist(out_rel_dir,'dir'))
         mkdir(out_rel_dir);
     end
@@ -68,22 +68,22 @@ try % mex C++
     mex_single([cpp_in_rel_dir 'bin_pixels_c'], out_rel_dir,'bin_pixels_c.cpp');
     mex_single([cpp_in_rel_dir 'calc_projections_c'], out_rel_dir,'calc_projections_c.cpp');
     mex_single([cpp_in_rel_dir 'sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
-    mex_single([cpp_in_rel_dir 'recompute_bin_data'], out_rel_dir,'compute_pix_sums_c.cpp');
     mex_single([cpp_in_rel_dir 'mtimesx_horace'], out_rel_dir,'mtimesx_mex.cpp');
-
+    mex_single([cpp_in_rel_dir 'compute_pix_sums'], out_rel_dir,'compute_pix_sums_c.cpp','compute_pix_sums_helpers.cpp');
+    
+    
     % create the procedured to access hdf files
     cof = {'hdf_mex_reader.cpp','hdf_pix_accessor.cpp','input_parser.cpp',...
         'pix_block_processor.cpp'};
     mex_hdf([cpp_in_rel_dir 'hdf_mex_reader'], out_hdf_dir,hdf_root_dir,cof{:} );
-
-
+    
+    
     disp('**********> Successfully created required mex files from C++')
     C_compiled=true;
-    add_version_foloder(out_rel_dir);
+    add_version_folder(out_rel_dir);
 catch ME
-    message=ME.message;
-    warning('**********> Can not create C++ mex files, reason: %s. Please try to do it manually.',message);
-
+    warning('HORACE:horace_mex:no_mex', 'Can not create C++ mex files, reason: %s. Please try to do it manually.',ME.message);
+    
 end
 try
     cof = {'combine_sqw.cpp','exchange_buffer.cpp','fileParameters.cpp',...
@@ -91,8 +91,7 @@ try
     mex_single([cpp_in_rel_dir 'combine_sqw'], out_rel_dir,cof{:} );
     disp('**********> Successfully created mex file for combining components from C++')
 catch ME
-    message=ME.message;
-    warning('**********> Can not create C++ combining procedure, reason: %s. combining using C++ is not availile',message);
+    warning('HORACE:horace_mex:no_mex', 'Can not create C++ combining procedure, reason: %s. Combining using C++ is not available',ME.message);
 end
 
 cd(start_dir);
@@ -100,7 +99,7 @@ if C_compiled
     set(hor_config,'use_mex',true);
 end
 
-function add_version_foloder(out_rel_dir)
+function add_version_folder(out_rel_dir)
 % Add folder with compiled mex files to Matlab search path
 %
 %hor_folder = fileparts(which('horace_init.m'));
@@ -127,7 +126,7 @@ if(nargin<1)
     error('MEX_SINGLE:invalid_arg',' request at leas one file name to process');
 end
 fnames = varargin(:);
-nFiles   = numel(fnames);% files go in varargin
+nFiles   = numel(fnames); % files go in varargin
 add_fNames = cellfun(@(x)[x,' '],fnames,'UniformOutput',false);
 add_files  = cellfun(@(x)(fullfile(curr_dir,in_rel_dir,x)),fnames,'UniformOutput',false);
 outdir = fullfile(curr_dir,out_rel_dir);
@@ -176,13 +175,20 @@ disp(['Mex file creation from ',short_fname,' ...'])
 if ~check_access(outdir,add_files{1})
     error('MEX_SINGLE:invalid_arg',' can not get write access to new mex file: %s',fullfile(outdir,add_files{1}));
 end
+if ispc
+    cxx_flags = 'COMPFLAGS= $COMPFLAGS /openmp'; 
+    ld_flags = 'LDFLAGS= --no-undefined';
+else
+    cxx_flags = 'CXXFLAGS= $CFLAGS  -fopenmp -std=c++11';
+    ld_flags  = 'LDFLAGS= -pthread -Wl,--no-undefined  -fopenmp';
+end
 if(nFiles==1)
     fname      = strtrim(add_files{1});
     %cxx_flags = "
-    mex('CXXFLAGS= $CFLAGS  -fopenmp -std=c++11','LDFLAGS= -pthread -Wl,--no-undefined  -fopenmp',fname, '-outdir', outdir);
+    mex(cxx_flags,ld_flags,fname, '-outdir', outdir);
 else
     %mex('-g',add_files{:}, '-outdir', outdir);
-    mex('-lut','CXXFLAGS=$CFLAGS -fopenmp -std=c++11','LDFLAGS= -pthread -Wl,--no-undefined  -fopenmp',add_files{:}, '-outdir', outdir);
+    mex('-lut',cxx_flags,ld_flags,add_files{:}, '-outdir', outdir);
 end
 
 function access =check_access(outdir,filename)
@@ -217,36 +223,27 @@ function str = cell2str(c)
 %
 %   See also MAT2STR
 
-
 if ~iscell(c)
-
+    
     if ischar(c)
         str = c;
     elseif isnumeric(c)
         str = mat2str(c);
     else
-        error('Illegal array in input.')
+        error('HORACE:horace_mex:invalid_argument', 'Illegal array in input.')
     end
-
+    
 else
-
-    N = length(c);
-    if N > 0
-        if ischar(c{1})
-            str = c{1};
-            for ii=2:N
-                if ~ischar(c{ii})
-                    error('Inconsistent cell array');
-                end
-                str = [str,c{ii}];
-            end
-        else
-            error(' char cells requested');
-        end
-    else
+    
+    if isempty(c)
         str = '';
+    else
+        if ~all(ischar(c))
+            error('HORACE:horace_mex:invalid_argument', 'Char cell array required');
+        end
+        str = cell2mat(c);
     end
-
+    
 end
 
 function copy_get_ascii_to_herbert()
