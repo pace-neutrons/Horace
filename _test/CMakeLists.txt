@@ -13,6 +13,7 @@ set(TEST_DIRECTORIES
     "test_mpi/test_job_dispatcher_herbert"
     "test_mpi/test_job_dispatcher_mpiexec"
     "test_mpi/test_job_dispatcher_parpool"
+    "test_mpi/test_job_dispatcher_slurm"
     "test_mpi/test_ParpoolMPI_Framework")
 
 # The MPI tests require that `herbert_on.m` be on the path for all workers when
