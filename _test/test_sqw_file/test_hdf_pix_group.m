@@ -155,10 +155,12 @@ classdef test_hdf_pix_group < TestCase
         %
         function  test_mex_reader(obj)
             if isempty(which('hdf_mex_reader'))
-                warning('TEST_MEX_READER:runtime_error',...
+                skipTest(...
                     'the hdf mex reader was not found in the Matlab path. Testing skipped');
                 return
             end
+            skipTest('hdf mex reader tests are disabled unitl dealing with hdf mex readers');
+            
             % use when mex code debuging only
             %clob0 = onCleanup(@()clear('mex'));
             
