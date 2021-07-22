@@ -124,10 +124,27 @@ function wout = do_binary_op_sqw_sqw(w1, w2, binary_op, flip)
         end
 
         wout = copy(w1);
-        wout.data.pix = w1.data.pix.do_binary_op(w2.data.pix, binary_op, 'flip', flip);
+        if is_sqw_type(wout) && is_sqw_type(w2)
+            wout.data.pix = wout.data.pix.do_binary_op(w2.data.pix, binary_op, 'flip', flip);
         wout = recompute_bin_data(wout);
     else
-        error('SQW:binary_op_manager_single', ...
+            isdndbased1 = sum(reshape(wout.data.npix,1,numel(wout.data.npix)))>0;
+            isdndbased2 = sum(reshape(w2.data.npix,1,numel(wout.data.npix)))>0;
+            if  isdndbased1
+                [wout,npix]= fake_pixels(wout);
+            end
+            if  isdndbased2
+                w2_rhs = fake_pixels(w2);
+            end       
+            wout.data.pix = wout.data.pix.do_binary_op(w2_rhs.data.pix, binary_op, 'flip', flip);
+            wout = recompute_bin_data(wout);            
+            wout.data.npix = npix;
+            wout.data.pix = PixelData();
+        end
+
+        
+    else
+        error('HORACE:sqw:invalid_argument', ...
               ['sqw type objects must have commensurate array dimensions ' ...
                'for binary operations']);
     end
