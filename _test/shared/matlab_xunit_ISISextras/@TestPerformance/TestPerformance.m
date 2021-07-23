@@ -45,7 +45,7 @@ classdef TestPerformance < TestCaseWithSave
         % time to run current test which should not be substantially increase
         % on a given machine. The first time one runs the test on the
         % machine, it is ignored
-        time_to_run = [];
+        time_to_run;
         % performance data to compare against or store current results,
         % containing the results of all previous performance tests on
         % different pc.
@@ -97,6 +97,62 @@ classdef TestPerformance < TestCaseWithSave
                 obj.perf_data_ = ts;
             end
         end
+        function [x_axis,res_sum,res_split] = get_filtered_res(obj,dataset_template,x_axis_template,foi)
+            % extract all datasets, corresponding to the dataset template
+            % and obtain the data change as function of the variable,
+            % defined as x_axis_template
+            % x_axis_template -- the format string, used to parse the field
+            %                    name,e.g. to parse string
+            %                    'gen_sqw_nwk0_comb_mex_code_MODE1', a
+            %                    format string
+            %                    'gen_sqw_nwk%d_comb_mex_code_MODE1' used
+            %                    to extract number of workers
+            % foi -- number of the field of interest, i.e. if you
+            %        parse string "gen_sqw_slurm_nwk2_comb_mex_code_MODE1" using
+            %        format "gen_sqw_%s_nwk%d_comb_%s_MODE1", the foi = 2 to
+            %       retrieve the number of workers
+            %
+            % Returns:
+            % x_axis   -- the arrau of the values, the datasets depednd on
+            %
+            % res_sum  -- nres x 2 array containing average time to
+            %             exectute test as function of the input parameters
+            %
+            % res_split -- nres x nDataset array containing the time to
+            %              test for each dataset selected
+            res = obj.perf_data;
+            fn = fieldnames(res);
+            ds_selected = contains(fn,dataset_template);
+            n_datasets = sum(ds_selected);
+            if n_datasets ==0
+                x_axis  = [];
+                res_sum = [];
+                res_split=[];
+                warning('No datasets containing name: "%s" found within the results',dataset_template)
+                return
+            end
+            ds = fn(ds_selected);
+            for i=1:n_datasets
+                data = res.(ds{i});
+                x_ax = extract_x_axis_(data,x_axis_template,foi);
+                if i == 1
+                    x_axis = x_ax;
+                else
+                    x_axis = union(x_ax,x_axis);
+                end
+            end
+            res_split = NaN(numel(x_axis),numel(ds));
+            for i=1:n_datasets
+                data = res.(ds{i});
+                res_split(:,i) = extract_data_(data,x_axis,x_axis_template,foi);
+            end
+            if n_datasets == 1
+                res_sum = [res_split,zeros(numel(x_axis),1)];
+            else
+                res_sum = calc_averages_(res_split);
+            end
+            x_axis = double(x_axis');
+        end
         
         function tr = get.time_to_run(obj)
             % the time to run resent test case
@@ -110,6 +166,12 @@ classdef TestPerformance < TestCaseWithSave
             % available for tests. Can be equivalent to loading the whole
             % perf_test_res_file in memory
             pfd = obj.perf_data_;
+            fn = fieldnames(pfd);
+            for i=1:numel(fn)
+                if isempty(pfd.(fn{i}))
+                    pfd = rmfield(pfd,fn{i});
+                end
+            end
         end
         %------------------------------------------------------------------
         function obj = TestPerformance(varargin)
@@ -153,9 +215,11 @@ classdef TestPerformance < TestCaseWithSave
         end
         %
         function perf = knownPerformance(obj,perf_test_name,varargin)
-            % method return the known performance structure for given test name if
-            % such performance is known, or empty string if the performance has not
-            % been measured;
+            % method return the known performance structure for given test suite name
+            % (the bunch of tests, tried on the particular machine) if
+            % such performance is known, or empty string if the performance
+            % has not been measured or stored
+            %
             % Inputs:
             % pert_test_name -- the name of the test to check results for
             % Optional:
@@ -205,10 +269,13 @@ classdef TestPerformance < TestCaseWithSave
             %               function
             % test_method_name -- the name of the test method to verify
             %
-            % comments    -- optional string describing the test
+            % Optional:
             %
-            % force_save -- if present, performance results are saved
-            %                regardless of the changes in the performance
+            % comments    -- string describing the test, to be stored in
+            %                xml for clarity
+            %
+            % force_save -- performance results are saved
+            %               regardless of the changes in the performance
             %
             if ~exist('comments','var')
                 comments = '';
@@ -262,41 +329,6 @@ classdef TestPerformance < TestCaseWithSave
             
         end
         %-------------------------------------------------------------
-        function test_name = build_test_suite_name(obj,addinfo)
-            % function used to generate test suite name. The name should
-            % include name of the computer the test is run on + some additional
-            % information to identify this pc performance settings,e.g.
-            % number of files for gen_sqw test or number of workers to run.
-            %
-            % The parent version uses only computer name and
-            % attaches to this name any additional information,
-            % contained in addinfo string.
-            % A child class should/may overload this method to provide
-            % additional information for the test suite
-            %
-            % The addinfo string should have form, allowed to use as the
-            % name of a field in a structure.
-            %
-            hpc = parallel_config;
-            cluster_name = hpc.parallel_cluster;
-            comp_name = getComputerName();
-            p_pos = strfind(comp_name,'.');
-            if ~isempty(p_pos)
-                comp_name = comp_name(1:p_pos-1);
-            end
-            if strcmp(cluster_name,'herbert')
-                test_name = comp_name;
-            else
-                test_name = [comp_name,'_',cluster_name];
-            end
-            test_name = regexprep(test_name,'[/\\]','_');
-            if exist('addinfo','var')
-                test_name = [test_name,'_',addinfo];
-            end
-            % remove all . from a computer name to include unix names.
-            %name   = strrep(name  ,'.','_');
-            
-        end
         %
         function  save_performance(obj)
             % save performance results into a performance results file
@@ -338,7 +370,7 @@ classdef TestPerformance < TestCaseWithSave
         end
     end
     methods(Access=protected)
-        function filename = check_test_results_file(obj,name)
+        function filename = check_test_results_file(~,name)
             % The method to check test results file name used in
             % set.test_results_file method. Made protected to allow child
             % classes to overload it.
@@ -363,6 +395,42 @@ classdef TestPerformance < TestCaseWithSave
             % test file location.
             %
             test_file = build_default_perf_test_fname_(test_location);
+        end
+        %
+        function test_name = build_test_suite_name(addinfo)
+            % function used to generate test suite name. The name should
+            % include name of the computer the test is run on + some additional
+            % information to identify this pc performance settings,e.g.
+            % number of files for gen_sqw test or number of workers to run.
+            %
+            % The parent version uses only computer name and
+            % attaches to this name any additional information,
+            % contained in addinfo string.
+            % A child class should/may overload this method to provide
+            % additional information for the test suite
+            %
+            % The addinfo string should have form, allowed to use as the
+            % name of a field in a structure.
+            %
+            hpc = parallel_config;
+            cluster_name = hpc.parallel_cluster;
+            comp_name = getComputerName();
+            p_pos = strfind(comp_name,'.');
+            if ~isempty(p_pos)
+                comp_name = comp_name(1:p_pos-1);
+            end
+            if strcmp(cluster_name,'herbert')
+                test_name = comp_name;
+            else
+                test_name = [comp_name,'_',cluster_name];
+            end
+            test_name = regexprep(test_name,'[/\\]','_');
+            if exist('addinfo','var')
+                test_name = [test_name,'_',addinfo];
+            end
+            % remove all . from a computer name to include unix names.
+            %name   = strrep(name  ,'.','_');
+            
         end
     end
 end
