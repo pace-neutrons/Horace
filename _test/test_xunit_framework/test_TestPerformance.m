@@ -11,12 +11,33 @@ classdef test_TestPerformance < TestCase
             self = self@TestCase(name);
             self.this_path = fileparts(mfilename('fullpath'));
         end
+        function test_get_milti_perf_array_filterd_by_feature(obj)
+            tc = pTestPerformanceTester(fullfile(obj.this_path,'TestPerformanceTester_PerfRez.xml'));
+            [x_axis,res_sum,res_split] = tc.get_filtered_res('host_172_16_113_202','gen_%s_nwk%d_%s',2);
+            assertEqual(numel(x_axis),12);
+            assertEqual(size(res_sum),[12,2])
+            assertEqual(size(res_split),[12,1])            
+        end
+        
+        function test_get_perf_array_filterd_by_feature(obj)
+            tc = pTestPerformanceTester(fullfile(obj.this_path,'TestPerformanceTester_PerfRez.xml'));
+            [x_axis,res_sum,res_split] = tc.get_filtered_res('host_172_16_113_202_slurm_mpi_nf100','gen_sqw_slurm_nwk%d_comb_mex_code_MODE1',1);
+            assertEqual(numel(x_axis),12);
+            assertEqual(size(res_sum),[12,2])
+            assertEqual(size(res_split),[12,1])            
+        end
+        function test_filter_perfom_no_ds(~)
+            tc = pTestPerformanceTester();
+            [res_sum,res_split] = tc.get_filtered_res('host_172_16_113_202_slurm_mpi_nf100',{'nwk','_'});
+            assertTrue(isempty(res_sum));
+            assertTrue(isempty(res_split));
+        end
         %
         function test_got_reference_data(obj)
             tc = pTestPerformanceTester(fullfile(obj.this_path,'TestPerformanceTester_PerfRez.xml'));
             res = tc.perf_data;
             fn = fieldnames(res);
-            assertEqual(numel(fn),19);
+            assertEqual(numel(fn),11);
         end
         %
         function test_got_empy_data_from_tmp_folder(~)
@@ -29,8 +50,6 @@ classdef test_TestPerformance < TestCase
             % empty data exist
             res = tc.perf_data;
             assertTrue(isstruct(res));
-            fieldname = [getComputerName(),'_','pTestPerformanceTester'];
-            assertTrue(isfield(res,fieldname));
             if is_file(trf)
                 delete(trf);
             end
