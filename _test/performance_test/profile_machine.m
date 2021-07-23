@@ -26,18 +26,18 @@ clob1 = onCleanup(@()set(hrc,'delete_tmp',true));
 % calculating test performance name
 comb_method = hor_tes.combine_method();
 
-hor_tes.n_files_to_use=50;
+hor_tes.n_files_to_use=100;
 
-n_workers = [0,1,2,4,6,8,10,12,14,16];
-perf_graph = zeros(numel(n_workers),2);
+n_workers = [0,1,2,4,6,8,10,12,14,16,20,32];
+perf_graph = zeros(numel(n_workers),3);
 
 for i=1:numel(n_workers)
     nwk = num2str(n_workers(i));
-    test_name = sprintf('gen_sqw_nwk%s_comb_%s',nwk,comb_method);
+    test_name = sprintf('gen_sqw_slurm_nwk%s_comb_%s',nwk,comb_method);
     per = hor_tes.knownPerformance(test_name);
     if isempty(per) || force_perf
         try
-            perf_rez = hor_tes.test_gensqw_performance(n_workers(i),'gen_sqw');
+            perf_rez = hor_tes.test_gensqw_performance(n_workers(i),'gen_sqw',{test_name});
         catch ME
             perf_graph = perf_graph(1:i-1,:);
             plot(perf_graph(:,1),perf_graph(:,2),'o-');

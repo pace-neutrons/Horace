@@ -3367,4 +3367,127 @@
          <completed_on>[2021 6 9 15 59 9.159]</completed_on>
       </combine_tmp_using_mex_code_MODE0>
    </ndlt1121_parpool_nf50>
+   <host_172_16_113_202_parpool_SQW_GENCUT_perf/>
+   <host_172_16_113_202_parpool_nf10/>
+   <host_172_16_113_202_parpool_nf100>
+      <gen_sqw_nwk0_comb_mex_code_MODE1>
+         <time_sec>497.065661</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 22 11 2 30.401453]</completed_on>
+      </gen_sqw_nwk0_comb_mex_code_MODE1>
+      <gen_sqw_nwk1_comb_mex_code_MODE1>
+         <time_sec>527.950558</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 22 11 48 43.286991]</completed_on>
+      </gen_sqw_nwk1_comb_mex_code_MODE1>
+      <gen_sqw_nwk2_comb_mex_code_MODE1>
+         <time_sec>526.940898</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 22 11 57 32.234514]</completed_on>
+      </gen_sqw_nwk2_comb_mex_code_MODE1>
+      <gen_sqw_nwk4_comb_mex_code_MODE1>
+         <time_sec>450.783247</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 22 12 5 4.746598]</completed_on>
+      </gen_sqw_nwk4_comb_mex_code_MODE1>
+      <gen_sqw_nwk6_comb_mex_code_MODE1>
+         <time_sec>421.936312</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 22 12 12 8.785468]</completed_on>
+      </gen_sqw_nwk6_comb_mex_code_MODE1>
+      <gen_sqw_nwk8_comb_mex_code_MODE1>
+         <time_sec>412.57181</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 22 12 19 4.317142]</completed_on>
+      </gen_sqw_nwk8_comb_mex_code_MODE1>
+      <gen_sqw_nwk10_comb_mex_code_MODE1>
+         <time_sec>429.843792</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 22 12 26 16.60771]</completed_on>
+      </gen_sqw_nwk10_comb_mex_code_MODE1>
+      <gen_sqw_nwk12_comb_mex_code_MODE1>
+         <time_sec>445.487759</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 22 12 33 44.149162]</completed_on>
+      </gen_sqw_nwk12_comb_mex_code_MODE1>
+      <gen_sqw_nwk14_comb_mex_code_MODE1>
+         <time_sec>433.671953</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 22 12 40 59.670816]</completed_on>
+      </gen_sqw_nwk14_comb_mex_code_MODE1>
+      <gen_sqw_nwk16_comb_mex_code_MODE1>
+         <time_sec>438.254899</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 22 12 48 20.13151]</completed_on>
+      </gen_sqw_nwk16_comb_mex_code_MODE1>
+   </host_172_16_113_202_parpool_nf100>
+   <host_172_16_113_202_slurm_mpi_SQW_GENCUT_perf/>
+   <host_172_16_113_202_slurm_mpi_nf10/>
+   <host_172_16_113_202_slurm_mpi_nf100>
+      <gen_sqw_nwk0_comb_mex_code_MODE1>
+         <time_sec>478.638048</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 22 20 3 37.139622]</completed_on>
+      </gen_sqw_nwk0_comb_mex_code_MODE1>
+      <gen_sqw_slurm_nwk0_comb_mex_code_MODE1>
+         <time_sec>470.29913</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 22 20 39 58.105952]</completed_on>
+      </gen_sqw_slurm_nwk0_comb_mex_code_MODE1>
+      <gen_sqw_slurm_nwk1_comb_mex_code_MODE1>
+         <time_sec>10269.758319</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 22 23 31 9.808379]</completed_on>
+      </gen_sqw_slurm_nwk1_comb_mex_code_MODE1>
+      <gen_sqw_slurm_nwk2_comb_mex_code_MODE1>
+         <time_sec>5414.187918</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 23 1 1 25.317819]</completed_on>
+      </gen_sqw_slurm_nwk2_comb_mex_code_MODE1>
+      <gen_sqw_slurm_nwk4_comb_mex_code_MODE1>
+         <time_sec>2120.677592</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 23 1 36 51.20206]</completed_on>
+      </gen_sqw_slurm_nwk4_comb_mex_code_MODE1>
+      <gen_sqw_slurm_nwk6_comb_mex_code_MODE1>
+         <time_sec>1882.889249</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 23 2 8 16.038674]</completed_on>
+      </gen_sqw_slurm_nwk6_comb_mex_code_MODE1>
+      <gen_sqw_slurm_nwk8_comb_mex_code_MODE1>
+         <time_sec>1587.433538</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 23 2 34 45.39586]</completed_on>
+      </gen_sqw_slurm_nwk8_comb_mex_code_MODE1>
+      <gen_sqw_slurm_nwk10_comb_mex_code_MODE1>
+         <time_sec>1494.767623</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 23 2 59 41.904497]</completed_on>
+      </gen_sqw_slurm_nwk10_comb_mex_code_MODE1>
+      <gen_sqw_slurm_nwk12_comb_mex_code_MODE1>
+         <time_sec>1279.104698</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 23 3 21 2.842873]</completed_on>
+      </gen_sqw_slurm_nwk12_comb_mex_code_MODE1>
+      <gen_sqw_slurm_nwk14_comb_mex_code_MODE1>
+         <time_sec>1048.57103</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 23 3 38 33.269914]</completed_on>
+      </gen_sqw_slurm_nwk14_comb_mex_code_MODE1>
+      <gen_sqw_slurm_nwk16_comb_mex_code_MODE1>
+         <time_sec>1024.818452</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 23 3 55 39.821095]</completed_on>
+      </gen_sqw_slurm_nwk16_comb_mex_code_MODE1>
+      <gen_sqw_slurm_nwk20_comb_mex_code_MODE1>
+         <time_sec>925.294871</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 23 4 11 6.866426]</completed_on>
+      </gen_sqw_slurm_nwk20_comb_mex_code_MODE1>
+      <gen_sqw_slurm_nwk32_comb_mex_code_MODE1>
+         <time_sec>880.054637</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 7 23 4 25 48.743121]</completed_on>
+      </gen_sqw_slurm_nwk32_comb_mex_code_MODE1>
+   </host_172_16_113_202_slurm_mpi_nf100>
 </SQW_GENCUT_perf>
