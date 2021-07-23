@@ -14,16 +14,16 @@ function ok = is_file(name)
 %  >> is_file('test.m');                   % True if file exists in current dir
 %
 
-    % Remove searching MATLAB path with explicit path
-    if ~verLessThan('matlab', '9.1') % R2016b
-        ok = isfile(name);
-    else
-        currpath = fileparts(name);
-        if isempty(currpath)
-            currpath = pwd();
-            name = fullfile(currpath, name);
-        end
-
-        ok = exist(name, 'file') == 2;
+% Remove searching MATLAB path with explicit path
+if ~verLessThan('matlab', '9.1') % R2016b
+    ok = isfile(name);
+else
+    currpath = fileparts(name);
+    if isempty(currpath)
+        currpath = pwd();
+        name = fullfile(currpath, name);
     end
+    
+    ok = exist(name, 'file') == 2;
+end
 end
