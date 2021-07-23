@@ -5,8 +5,10 @@ classdef split_sqw < sqw
         nWorkers = -1;
         s;
         e;
+        uoffset;
         npix;
         num_pixels;
+        is_sqw;
     end
 
     properties
@@ -18,11 +20,16 @@ classdef split_sqw < sqw
             obj = obj@sqw();
         end
 
-        function [s,var,mask_null] = sigvar_get (obj)
+        function [s,var,mask_null] = sigvar_get(obj)
             s = obj.s;
             var = obj.e;
             mask_null = logical(obj.data_.npix);
         end
+
+        function pixels = has_pixels(obj)
+            pixels = obj.is_sqw;
+        end
+
     end
 
     methods(Static)
@@ -58,17 +65,22 @@ classdef split_sqw < sqw
                 end
 
                 points = [0, cumsum(num_pixels)];
-                for i=1:nWorkers
-                    obj(i) = sqw;
-                    obj(i).s = sqw.s(points(i)+1:points(i+1));
-                    obj(i).e = sqw.e(points(i)+1:points(i+1));
-                    obj(i).npix = sqw.npix(points(i)+1:points(i+1));
-                    obj(i).num_pixels = num_pixels(i);
-                end
 
+                for i=1:nWorkers
+                    obj(i).is_sqw = false;
+                    obj(i).data_ = sqw.data_;
+                    obj(i).data_.s = sqw.s(points(i)+1:points(i+1));
+                    obj(i).data_.e = sqw.e(points(i)+1:points(i+1));
+                    obj(i).s = obj(i).data_.s;
+                    obj(i).e = obj(i).data_.e;
+                    obj(i).data_.npix = sqw.npix(points(i)+1:points(i+1));
+                    obj(i).npix = obj(i).data_.npix;
+                    obj(i).num_pixels = 0; %num_pixels(i);
+                end
             elseif isa(sqw, 'sqw')
 
                 for i=1:nWorkers
+                    obj(i).is_sqw = true;
                     obj(i).main_header = sqw.main_header;
                     obj(i).header = sqw.header;
                     obj(i).detpar = sqw.detpar;

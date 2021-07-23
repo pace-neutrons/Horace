@@ -14,7 +14,7 @@ function obj = sqw_eval_nopix_(obj, sqwfunc, all_bins, pars)
     %   pars       Arguments needed by the function.
     %
     %=================================================================
-    
+
        qw = calculate_qw_bins(obj);
        if ~all_bins                      % only evaluate at the bins actually containing data
            ok = (obj.data_.npix ~= 0);   % should be faster than isfinite(1./win.data_.npix), as we know that npix is zero or finite
@@ -27,5 +27,3 @@ function obj = sqw_eval_nopix_(obj, sqwfunc, all_bins, pars)
        end
        obj.data_.e = zeros(size(obj.data_.e));
     end
-    
-    
