@@ -31,7 +31,6 @@ classdef TestPerformance < TestCaseWithSave
     % The host_name is the variable combined from the prefix containing the
     % output of Herbert getHostName function
     %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
     %
     properties(Dependent)
         % current performance suite name to run.
@@ -51,6 +50,8 @@ classdef TestPerformance < TestCaseWithSave
         % containing the results of all previous performance tests on
         % different pc.
         perf_data
+        % list of the tests, which are available to run
+        tests_available
     end
     
     
@@ -65,6 +66,8 @@ classdef TestPerformance < TestCaseWithSave
         % The name of the test to run or have just been running. Defined by
         % assertPerformance method.
         current_test_name_ =[];
+        %
+        
         % time to run the test which should not be substantially increase
         % on a given machine. The first time one runs the test on the
         % machine, it is ignored
@@ -72,6 +75,10 @@ classdef TestPerformance < TestCaseWithSave
         % The name of the test class, used as the name of the root node in
         % the performance test results
         root_name_
+        % list of the tests, which are available to run. Define within the
+        % constructor for the particular performance tests, which tests are
+        % available
+        tests_available_ = {};
     end
     methods
         %------------------------------------------------------------------
@@ -145,7 +152,7 @@ classdef TestPerformance < TestCaseWithSave
             obj.perf_suite_name = obj.build_test_suite_name(name);
         end
         %
-        function perf = knownPerformance(obj,pert_test_name,varargin)
+        function perf = knownPerformance(obj,perf_test_name,varargin)
             % method return the known performance structure for given test name if
             % such performance is known, or empty string if the performance has not
             % been measured;
@@ -164,10 +171,22 @@ classdef TestPerformance < TestCaseWithSave
             else
                 suite_name        = obj.perf_suite_name;
             end
+            if ~exist('perf_test_name','var')
+                known_suite_names = strjoin(obj.tests_available,'; ');
+                error('HERBERT:TestPerformance:invalid_argument',...
+                    'The performance can be selected for one out of the existing performance tests namely: %s',...
+                    known_suite_names);
+                
+            elseif ~ismember(perf_test_name,obj.tests_available)
+                known_suite_names = strjoin(obj.tests_available,'; ');
+                error('HERBERT:TestPerformance:invalid_argument',...
+                    'The performance test: %s is not among existing performance tests: %s',...
+                    perf_test_name,known_suite_names);
+            end
             if isfield(obj.perf_data_,suite_name)
                 this_pc_perf_data = obj.perf_data_.(suite_name);
-                if isfield(this_pc_perf_data,pert_test_name)
-                    perf = this_pc_perf_data.(pert_test_name);
+                if isfield(this_pc_perf_data,perf_test_name)
+                    perf = this_pc_perf_data.(perf_test_name);
                 else
                     perf = [];
                 end
@@ -278,12 +297,12 @@ classdef TestPerformance < TestCaseWithSave
             %name   = strrep(name  ,'.','_');
             
         end
-        
+        %
         function  save_performance(obj)
             % save performance results into a performance results file
             save_performance_data_(obj);
         end
-        
+        %
         function save_to_csv(obj,varargin)
             % save performance data into csv file for further analysis.
             %
@@ -312,6 +331,10 @@ classdef TestPerformance < TestCaseWithSave
                 filename = fullfile(tdir,[fn,'.csv']);
             end
             export_perf_to_csv_(obj.perf_data,filename,short);
+        end
+        %
+        function tav = get.tests_available(obj)
+            tav = obj.tests_available_;
         end
     end
     methods(Access=protected)

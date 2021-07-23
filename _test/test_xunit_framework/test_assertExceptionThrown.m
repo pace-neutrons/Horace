@@ -7,7 +7,7 @@ classdef test_assertExceptionThrown < TestCase
             self = self@TestCase(name);
         end
 
-        function test_exception_returned_when_expected_exception_is_thrown(obj)
+        function test_exception_returned_when_expected_exception_is_thrown(~)
             ex = assertExceptionThrown(...
                 @() error('MyProd:MyFun:MyId', 'my message'), ...
                 'MyProd:MyFun:MyId');
@@ -15,14 +15,14 @@ classdef test_assertExceptionThrown < TestCase
             assertEqual(ex.identifier, 'MyProd:MyFun:MyId');
         end
 
-        function test_wrong_exception_thrown(obj)
+        function test_wrong_exception_thrown(~)
             assertExceptionThrown(@() assertExceptionThrown(...
                 @() error('MyProd:MyFun:MyId', 'my message'), ...
                         'MyProd:MyFun:DifferentId'), ...
                 'assertExceptionThrown:wrongException');
         end
 
-        function test_no_exception_thrown(obj)
+        function test_no_exception_thrown(~)
             assertExceptionThrown(@() assertExceptionThrown(@() sin(pi), 'foobar'), ...
                 'assertExceptionThrown:noException');
         end
