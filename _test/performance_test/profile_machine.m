@@ -33,26 +33,32 @@ perf_graph = zeros(numel(n_workers),2);
 
 for i=1:numel(n_workers)
     nwk = num2str(n_workers(i));
-    test_name = sprintf('gen_sqw_nwk%s_comb_%s',nwk,comb_method);
-    per = hor_tes.knownPerformance(test_name);
+    hor_tes.build_d
+    test_names{1} = sprintf('gen_tmp_slurm_nwk%s_comb_%s',nwk,comb_method);
+    test_names{2} = sprintf('comb_tmp_slurm_nwk%s_comb_%s',nwk,comb_method);    
+    per = hor_tes.knownPerformance(test_names{2});
     if isempty(per) || force_perf
         try
-            perf_rez = hor_tes.test_gensqw_performance(n_workers(i),'gen_sqw');
+            perf_rez = hor_tes.test_gensqw_performance(n_workers(i),'gen_sqw',test_names);
         catch ME
             perf_graph = perf_graph(1:i-1,:);
             plot(perf_graph(:,1),perf_graph(:,2),'o-');
             getReport(ME)
             rethrow(ME);
         end
-        per = perf_rez.(test_name);
+        per1 = perf_rez.(test_names{1});
+        per2 = perf_rez.(test_names{2});        
     end
     
     perf_graph(i,1) = n_workers(i);
-    perf_graph(i,2) = per.time_sec;
+    perf_graph(i,2) = per1.time_sec/hor_tes.data_size;
+    perf_graph(i,3) = per2.time_sec/hor_tes.data_size;    
     
 end
 figure;
 plot(perf_graph(:,1),perf_graph(:,2),'o-');
+hold on
+plot(perf_graph(:,1),perf_graph(:,3),'*-');
 
 buf_val = [-1,0,1024,2048,4*1024,8*1024,16*1024,32*1024,64*1024];
 comb_perf = zeros(numel(buf_val),2);

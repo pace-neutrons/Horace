@@ -1,4 +1,4 @@
-function [tmp_file,grid_size,pix_range] = gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+function [tmp_file,grid_size,pix_range,varargout] = gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
     u, v, psi, omega, dpsi, gl, gs, varargin)
 % Read one or more spe files and a detector parameter file, and create an output sqw file.
 %
@@ -78,9 +78,6 @@ function [tmp_file,grid_size,pix_range] = gen_sqw (spe_file, par_file, sqw_file,
 %                  would symmetrize pixels of the generated sqw file by
 %                  reflecting them in the plane specified by vectors
 %                  [0,1,0], and [0,0,1] (see symmeterise_sqw for details)
-
-%
-%
 % Output:
 % --------
 %   tmp_file        Cell array with list of temporary files created by this call to gen_sqw.
@@ -91,6 +88,10 @@ function [tmp_file,grid_size,pix_range] = gen_sqw (spe_file, par_file, sqw_file,
 %   pix_db_range   The range of pixels (in crystal cartesian),
 %                  contributing into sqw file. The pixels in sqw file are
 %                  rebinned on the grid, which has this range
+%
+%  parallel_cluster if job is executed in parallel and nargout >3, this
+%                  variable would return the initialized instance of the
+%                  job dispatcher, running a parallel job to continue
 
 % T.G.Perring  14 August 2007
 % T.G.Perring  19 March 2013   Massively updated, also includes functionality of accumulate_sqw
@@ -135,7 +136,9 @@ if present.transform_sqw
         end
     end
 end
-
+if nargout>3
+    varargout{1} = [];
+end
 
 %If we are to run in 'time' mode, where execution waits for some period,
 %then must do so here, because any later we check whether or not spe files
@@ -449,16 +452,21 @@ else
             sample     = sample(ix);
         end
     end
+
     if opt.replicate && ~spe_unique 
         % expand run_ids for replicated files to make run_id-s unique
-        run_files = update_duplicated_rf_id(run_files);        
+        run_files = update_duplicated_rf_id(run_files);
     end
+    keep_par_cl_running = ~opt.tmp_only || nargout>3;
     
     % Generate unique temporary sqw files, one for each of the spe files
     [grid_size,pix_range,update_runid,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
-        instrument,sample,pix_db_range,grid_size_in,opt.tmp_only);
+        instrument,sample,pix_db_range,grid_size_in,keep_par_cl_running);
     verify_pix_range_est(pix_range,pix_range_est,log_level);
-    
+
+    if keep_par_cl_running
+        varargout{1} = parallel_job_dispatcher;
+    end    
     if use_partial_tmp
         delete_tmp = false;
     end
