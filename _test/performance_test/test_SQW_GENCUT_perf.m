@@ -5,10 +5,12 @@ classdef test_SQW_GENCUT_perf < TestPerformance
     % The performance results (in second) are stored in a Matlab binary file
     % combining results for all hosts where the tests were run
     % The format of the file is as follows:
-    % -host_name1->test_name1(nworkers)->test_time(sec)
+    % -host_name1_testClassName...
+    %            ->test_name1(nworkers)->test_time(sec)
     %           |->test_name2(nworkers)->test_time(sec)
     %           |->test_name3(nworkers)->test_time(sec)
-    % -host_name2->test_name1(nworkers)->test_time(sec)
+    % -host_name2_testClassName...
+    %            ->test_name1(nworkers)->test_time(sec)
     %           |->test_name2(nworkers)->test_time(sec)
     %           |->test_name3(nworkers)->test_time(sec)
     %
@@ -532,8 +534,6 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 hc.build_sqw_in_parallel = true;
                 hc.parallel_workers_number = n_workers;
             end
-            
-        end
-        
-    end
+        end  %function
+    end %Methods
 end
