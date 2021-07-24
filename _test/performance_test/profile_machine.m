@@ -10,7 +10,11 @@ else
     force_perf = false;
 end
 
-hor_tes = test_SQW_GENCUT_perf();
+%hor_tes = test_SQW_GENCUT_perf(); % build new performance results per
+%                                  session
+hor_tes = test_SQW_GENCUT_perf(... % Load previous performance result, do not recalculate
+    fullfile(fileparts(mfilename('fullpath')),'test_SQW_GENCUT_perf_PerfRez.xml'));
+%
 hpcc = hpc_config;
 conf_2store = hpcc.get_data_to_store;
 clob = onCleanup(@()set(hpcc,conf_2store));
@@ -23,10 +27,10 @@ hrc.delete_tmp = false;
 clob1 = onCleanup(@()set(hrc,'delete_tmp',true));
 
 
-hor_tes.n_files_to_use=10;
+hor_tes.n_files_to_use=50;
 
-%n_workers = [0,1,2,4,6,8,10,12,14,16,20,32];
-n_workers = [0,1,2,4,8,10];
+n_workers = [0,1,2,4,6,8,10,12,14,16,20,32];
+%n_workers = [0,1,2,4,8,10];
 perf_graph = zeros(numel(n_workers),3);
 
 for i=1:numel(n_workers)
@@ -35,7 +39,7 @@ for i=1:numel(n_workers)
     test_names_map = hor_tes.default_test_names;
     tn = test_names_map('gen_sqw');
     per1 = hor_tes.known_performance(tn{1});
-    per2 = hor_tes.known_performance(tn{1});    
+    per2 = hor_tes.known_performance(tn{2});    
     if isempty(per1) || isempty(per2) || force_perf
         try
             perf_rez = hor_tes.test_gensqw_performance(n_workers(i),'gen_sqw');
@@ -58,9 +62,13 @@ figure;
 plot(perf_graph(:,1),perf_graph(:,2),'o-');
 ylabel('Processing Time (sec/Mb)')
 xlabel('n-workers');
-title(sprintf('Dataset silze :~ %dMb',round(hor_tes.data_size)))
+tc1 = strrep(tn{1},'_','\_');
+tc2 = strrep(tn{2},'_','\_');
+title(sprintf('Dataset silze~ %dGb, %d input files;\n Final DB test codes:\n %s; %s',...
+    round(hor_tes.data_size/1024),hor_tes.n_files_to_use,tc1,tc2))
 hold on
 plot(perf_graph(:,1),perf_graph(:,3),'*-');
+legend('gen\_tmp perf','combine perf')
 
 buf_val = [-1,0,1024,2048,4*1024,8*1024,16*1024,32*1024,64*1024];
 comb_perf = zeros(numel(buf_val),2);
