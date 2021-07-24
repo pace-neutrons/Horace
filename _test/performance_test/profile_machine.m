@@ -22,32 +22,31 @@ hrc.saveable = false;
 hrc.delete_tmp = false;
 clob1 = onCleanup(@()set(hrc,'delete_tmp',true));
 
-% get the method used to combine partial sqw files together. Used in
-% calculating test performance name
-comb_method = hor_tes.combine_method();
 
 hor_tes.n_files_to_use=50;
 
-n_workers = [0,1,2,4,6,8,10,12,14,16];
-perf_graph = zeros(numel(n_workers),2);
+%n_workers = [0,1,2,4,6,8,10,12,14,16,20,32];
+n_workers = [0,1,2,4,8,10];
+perf_graph = zeros(numel(n_workers),3);
 
 for i=1:numel(n_workers)
     nwk = num2str(n_workers(i));
-    hor_tes.build_d
-    test_names{1} = sprintf('gen_tmp_slurm_nwk%s_comb_%s',nwk,comb_method);
-    test_names{2} = sprintf('comb_tmp_slurm_nwk%s_comb_%s',nwk,comb_method);    
-    per = hor_tes.knownPerformance(test_names{2});
-    if isempty(per) || force_perf
+    hor_tes.build_default_test_names(nwk);
+    test_names_map = hor_tes.default_test_names;
+    tn = test_names_map('gen_sqw');
+    per1 = hor_tes.known_performance(tn{1});
+    per2 = hor_tes.known_performance(tn{1});    
+    if isempty(per1) || isempty(per2) || force_perf
         try
-            perf_rez = hor_tes.test_gensqw_performance(n_workers(i),'gen_sqw',test_names);
+            perf_rez = hor_tes.test_gensqw_performance(n_workers(i),'gen_sqw');
         catch ME
             perf_graph = perf_graph(1:i-1,:);
             plot(perf_graph(:,1),perf_graph(:,2),'o-');
             getReport(ME)
             rethrow(ME);
         end
-        per1 = perf_rez.(test_names{1});
-        per2 = perf_rez.(test_names{2});        
+        per1 = perf_rez.(tn{1});
+        per2 = perf_rez.(tn{2});        
     end
     
     perf_graph(i,1) = n_workers(i);
@@ -57,6 +56,9 @@ for i=1:numel(n_workers)
 end
 figure;
 plot(perf_graph(:,1),perf_graph(:,2),'o-');
+ylabel('Processing Time (sec/Mb)')
+xlabel('n-workers');
+title(sprintf('Dataset silze :~ %dMb',round(hor_tes.data_size)))
 hold on
 plot(perf_graph(:,1),perf_graph(:,3),'*-');
 
