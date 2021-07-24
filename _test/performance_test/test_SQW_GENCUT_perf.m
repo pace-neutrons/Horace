@@ -150,7 +150,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             fb = 'GenSQW_perfTest';
             obj.sqw_file = sprintf('%s_%dFiles.sqw',fb,obj.n_files_to_use_);
             
-            obj.data_size_ = obj.n_files_to_use_*obj.sample_data_size_/ ... Convert to MB
+            obj.data_size_ = obj.n_files_to_use_*obj.sample_data_size_*(4*9)/ ... Convert to MB
                 (1024*1024);
         end
         %
@@ -366,7 +366,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 ts = tic();
                 write_nsqw_to_sqw (tmp_files, obj.sqw_file,'allow_equal_headers',jd);
                 perf_res=obj.assertPerformance(ts,tfm{2},...
-                    'whole sqw file generation');
+                    'calc headers and combine all tmp files');
                 
             end
             
@@ -466,15 +466,15 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             pc = parallel_config;
             cluster = pc.parallel_cluster;
             % 1
-            tf{1} = sprintf('gen_tmp_%s_nwk%s_comb_%s',cluster,nwk,comb_method);
+            tf{1} = sprintf('gen_tmp_%s_nwk%s',cluster,nwk);
             % combine method name includes workers if they are used
             tf{2} = sprintf('comb_tmp_%s',comb_method);
             obj.default_test_names_('gen_sqw') = tf;
             % 2
-            tf{1} = ['cutH1D_Small_nwk',nwk,'_comb_',comb_method];
-            tf{2} = ['cutK1D_Small_nwk',nwk,'_comb_',comb_method];
-            tf{3} = ['cutL1D_Small_nwk',nwk,'_comb_',comb_method];
-            tf{4} = ['cutE_Small_nwk',nwk,'_comb_',comb_method];
+            tf{1} = ['cutH1D_Small_nwk',nwk];
+            tf{2} = ['cutK1D_Small_nwk',nwk];
+            tf{3} = ['cutL1D_Small_nwk',nwk];
+            tf{4} = ['cutE_Small_nwk',nwk];
             obj.default_test_names_('small_cut') = tf;
             % 3
             tf{1} = ['cutH1D_AllInt_nopix_nwk',nwk];
