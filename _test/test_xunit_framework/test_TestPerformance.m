@@ -34,9 +34,12 @@ classdef test_TestPerformance < TestCase
             assertTrue(isfield(perf,'time_sec'));
             known_ds = tc.known_perf_data_names();
             assertEqual(numel(known_ds),1);
-
-            perf1  = tc.known_performance('some_test_3',known_ds{1});            
+            
+            perf1  = tc.known_performance('some_test_3',known_ds{1});
             assertEqual(perf,perf1);
+            if is_file('pTestPerformanceTester_PerfRez.xml')
+                delete('pTestPerformanceTester_PerfRez.xml');
+            end
         end
         function test_get_perf_array_filterd_by_feature(obj)
             tc = pTestPerformanceTester(fullfile(obj.this_path,'TestPerformanceTester_PerfRez.xml'));
