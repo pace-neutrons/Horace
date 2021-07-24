@@ -36,7 +36,8 @@ classdef test_SQW_GENCUT_perf < TestPerformance
         sample_data_size
         % The size of generated data (in Mb)
         data_size
-        % The names of the tests,
+        % The names of the tests, used as the fields of the database
+        % (test_nameN(nWorkergs) above)
         default_test_names
     end
     
@@ -149,8 +150,6 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             
             obj.data_size_ = obj.n_files_to_use_*obj.sample_data_size_/ ... Convert to MB
                 (1024*1024);
-            method = obj.combine_method();
-            obj.build_defailt_test_names(obj.n_files_to_use,method);
         end
         %
         function method = combine_method(~,add_info)
@@ -269,6 +268,19 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             end
             
         end
+        function delete_tmp_files(obj)
+            function tmp_name = gen_tmp_name(fname)
+                [fp,fn] = fileparts(fname);
+                tmp_name = fullfile(fp,[fn,'.tmp']);
+            end
+            tmp_files = cellfun(@gen_tmp_name,obj.test_source_files_list_,...
+                'UniformOutput',false);
+            for i=1:numel(tmp_files)
+                if is_file(tmp_files{i})
+                    delete(tmp_files{i});
+                end
+            end
+        end
         %------------------------------------------------------------------
         function perf_res= test_gensqw_performance(obj,varargin)
             % test performance (time spent on processing) class-defined
@@ -295,7 +307,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             [clob_wk,~,nwk] = check_and_set_workers_(obj,n_workers);
             if nargin >= 3 && ~isempty(varargin{2})
                 test_names_to_run = varargin{2};
-                tests_to_run  = ismember(obj.tests_availible,test_names_to_run);
+                tests_to_run  = ismember(obj.tests_available,test_names_to_run);
             else
                 tests_to_run = true(1,numel(obj.tests_availible));
             end
@@ -337,6 +349,9 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             obj.add_to_files_cleanList(obj.sqw_file)
             if tests_to_run(1)
                 tfm = field_names_map('gen_sqw');
+                % delete exisiting tmp files as gen_sqw keeps existing in
+                % 'tmp_only' mode
+                obj.delete_tmp_files();
                 % generate
                 ts = tic();
                 [tmp_files,~,~,jd]=gen_sqw (obj.test_source_files_list_,'',...
@@ -441,6 +456,41 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             % before the end of the test
             assertTrue(isa(clob_wk,'onCleanup'))
         end
+        function build_default_test_names(obj,nwk)
+            if isnumeric(nwk)
+                nwk = num2str(nwk);
+            end
+            comb_method = obj.combine_method();
+            pc = parallel_config;
+            cluster = pc.parallel_cluster;
+            % 1
+            tf{1} = sprintf('gen_tmp_%s_nwk%s_comb_%s',cluster,nwk,comb_method);
+            % combine method name includes workers if they are used
+            tf{2} = sprintf('comb_tmp_%s',comb_method);
+            obj.default_test_names_('gen_sqw') = tf;
+            % 2
+            tf{1} = ['cutH1D_Small_nwk',nwk,'_comb_',comb_method];
+            tf{2} = ['cutK1D_Small_nwk',nwk,'_comb_',comb_method];
+            tf{3} = ['cutL1D_Small_nwk',nwk,'_comb_',comb_method];
+            tf{4} = ['cutE_Small_nwk',nwk,'_comb_',comb_method];
+            obj.default_test_names_('small_cut') = tf;
+            % 3
+            tf{1} = ['cutH1D_AllInt_nopix_nwk',nwk];
+            tf{2} = ['cutK1D_AllInt_nopix_nwk',nwk];
+            tf{3} = ['cutL1D_AllInt_nopix_nwk',nwk];
+            tf{4} = ['cutE_AllInt_nopix_nwk',nwk];
+            obj.default_test_names_('big_cut_nopix') = tf;
+            % 4
+            tf{1} =sprintf('cutH1D_AllInt_flBsd_nwk%s_comb_%s',nwk,comb_method);
+            tf{2} =sprintf('cutK1D_AllInt_flBsd_nwk%s_comb_%s',nwk,comb_method);
+            tf{3} =sprintf('cutL1D_AllInt_flBsd_nwk%s_comb_%s',nwk,comb_method);
+            tf{4} =sprintf('cutE_AllInt_flBsd_nwk%s_comb_%s',nwk,comb_method);
+            obj.default_test_names_('big_cut_filebased') = tf;
+        end
+        %------------------------------------------------------------------
+        function ds = get.data_size(obj)
+            ds = obj.data_size_;
+        end
         %
         function sds = get.sample_data_size(obj)
             sds  = obj.sample_data_size_;
@@ -485,35 +535,5 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             
         end
         
-        function build_default_test_names(obj,nwk)
-            if isnumeric(nwk)
-                nwk = num2str(nwk);
-            end
-            comb_method = obj.combine_method();
-            
-            % 1
-            tf{1} = sprintf('gen_tmp_nwk%s_comb_%s',nwk,comb_method);
-            % combine method name includes workers if they are used
-            tf{2} = sprintf('comb_tmp_comb_%s',comb_method);
-            obj.default_test_names_('gen_sqw') = tf;
-            % 2
-            tf{1} = ['cutH1D_Small_nwk',nwk,'_comb_',comb_method];
-            tf{2} = ['cutK1D_Small_nwk',nwk,'_comb_',comb_method];
-            tf{3} = ['cutL1D_Small_nwk',nwk,'_comb_',comb_method];
-            tf{4} = ['cutE_Small_nwk',nwk,'_comb_',comb_method];
-            obj.default_test_names('small_cut') = tf;
-            % 3
-            tf{1} = ['cutH1D_AllInt_nopix_nwk',nwk];
-            tf{2} = ['cutK1D_AllInt_nopix_nwk',nwk];
-            tf{3} = ['cutL1D_AllInt_nopix_nwk',nwk];
-            tf{4} = ['cutE_AllInt_nopix_nwk',nwk];
-            obj.default_test_names('big_cut_nopix') = tf;
-            % 4
-            tf{1} =sprintf('cutH1D_AllInt_flBsd_nwk%s_comb_%s',nwk,comb_method);
-            tf{2} =sprintf('cutK1D_AllInt_flBsd_nwk%s_comb_%s',nwk,comb_method);
-            tf{3} =sprintf('cutL1D_AllInt_flBsd_nwk%s_comb_%s',nwk,comb_method);
-            tf{4} =sprintf('cutE_AllInt_flBsd_nwk%s_comb_%s',nwk,comb_method);
-            obj.default_test_names('big_cut_filebased') = tf;
-        end
     end
 end
