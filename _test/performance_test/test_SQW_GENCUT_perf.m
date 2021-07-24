@@ -31,6 +31,13 @@ classdef test_SQW_GENCUT_perf < TestPerformance
         %  Number of input files to use. Depending on this number the test
         %  would verify small, large or huge datasets
         n_files_to_use% = 10;
+        % the byte-size of the sample file, used to estimate the
+        % performance in MB/sec
+        sample_data_size
+        % The size of generated data (in Mb)
+        data_size
+        % The names of the tests,
+        default_test_names
     end
     
     properties
@@ -42,8 +49,6 @@ classdef test_SQW_GENCUT_perf < TestPerformance
         % target file for gen_sqw command and source file for cut commands
         sqw_file = 'GenSQW_perfTest.sqw'
         %
-        tests_availible = {'gen_sqw','small_cut',...
-            'big_cut_nopix','big_cut_filebased'}
     end
     
     properties(Access=private)
@@ -52,14 +57,22 @@ classdef test_SQW_GENCUT_perf < TestPerformance
         %
         %  Number of input files to use. Depending on this number the test
         %  would verify small, large or huge datasets
-        n_files_to_use_ = 10;
+        n_files_to_use_ = 5;
         % Template file name: the name of the file used as a template for
         % others. HACK. Nice version would generate test source files from
         % some scattering and instrument models.
         template_file_ = 'MER19566_22.0meV_one2one125.nxspe';
         % parameter file
         par_file = 'one2one_125.par'
-        
+        % the byte-size of the sample file, used to estimate the
+        % performance in MB/sec = n_detectors*nEnerty_transfer_Bins.
+        % The value is defined by the size of the reference template file
+        % template_file_
+        sample_data_size_ = 20262912;
+        % Total size of generated data (in mb)
+        data_size_
+        %
+        default_test_names_ = containers.Map();
     end
     methods
         %------------------------------------------------------------------
@@ -83,6 +96,10 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             end
             obj = obj@TestPerformance(argi{:});
             %
+            % define the list of the tests available to run
+            obj.tests_available_ = {'gen_sqw','small_cut',...
+                'big_cut_nopix','big_cut_filebased'};
+            %
             obj.source_data_dir = pwd();
             % locate the test data folder
             stat = mkdir('test_SQWGEN_performance_rw_test');
@@ -101,6 +118,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             obj.add_to_files_cleanList(obj.sqw_file);
         end
         %-------------------------------------------------------------
+        
         
         function set.n_files_to_use(obj,val)
             % change number of files to use and modify all related
@@ -128,8 +146,14 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             obj.test_source_files_list_ = filelist;
             fb = 'GenSQW_perfTest';
             obj.sqw_file = sprintf('%s_%dFiles.sqw',fb,obj.n_files_to_use_);
+            
+            obj.data_size_ = obj.n_files_to_use_*obj.sample_data_size_/ ... Convert to MB
+                (1024*1024);
+            method = obj.combine_method();
+            obj.build_defailt_test_names(obj.n_files_to_use,method);
         end
-        function method = combine_method(obj,add_info)
+        %
+        function method = combine_method(~,add_info)
             % method returns name and parameters of a combine method used
             % during sqw file generation.
             hpc = hpc_config;
@@ -146,15 +170,20 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             if exist('add_info','var')
                 method  = [method,add_info];
             end
-            
         end
         %--------------------------------------------------------------------------
         function perf_val=combine_performance_test(obj,varargin)
-            % this method tests tmp file combine operations only. It can be
+            % Test the speed of tmp file combine operations only.
+            %
+            % tmp files should to be available so the method can be
             % deployed after test_gensqw_performance method has been run
             % with hor_config class delete_tmp option set to false. In this
             % case tmp files created by gen_sqw method are kept and this
-            % method may test combine operations only.
+            % method will test combine operations only.
+            %
+            % if tmp files are not available, the method generates them,
+            % which may take significant time (not included in the combine
+            % performance evaluations)
             %
             % Usage:
             % tob.combine_performance_test([n_workers],[addinfo],['-keep_tmp'])
@@ -189,7 +218,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 [~,fn] = fileparts(fn);
                 fn = fullfile(fp,[fn,'.tmp']);
             end
-
+            
             wk_dir = obj.working_dir;
             spe_files = obj.test_source_files_list_;
             tmp_files = cellfun(@(fn)(replace_fext(wk_dir,fn)),spe_files,'UniformOutput',false);
@@ -221,12 +250,12 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             combine_method = obj.combine_method(addinfo);
             
             obj.add_to_files_cleanList(obj.sqw_file)
-            test_name = ['combine_tmp_using_',combine_method];            
+            test_name = ['combine_tmp_using_',combine_method];
             
             ts = tic();
             write_nsqw_to_sqw(tmp_files,obj.sqw_file);
             %
-
+            
             perf_val=obj.assertPerformance(ts,...
                 test_name,...
                 'performance of the tmp-files combine procedure');
@@ -270,22 +299,15 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             else
                 tests_to_run = true(1,numel(obj.tests_availible));
             end
-            comb_metnod = obj.combine_method();            
             if nargin>3
-                test_field_names = varargin{3};
+                field_names_map = varargin{3};
                 if numel(test_field_names) ~= sum(tests_to_run)
                     error('HORACE:performance_tests:invalid_argument',...
                         'number of test field names differs from the numner of tests to run')
-                    
                 end
             else
-                test_field_names = cell(1,numel(tests_to_run));
-                test_field_names{1} = sprintf('gen_sqw_nwk%s_comb_%s',nwk,comb_metnod);
-                test_field_names{2} = ['cutH1D_Small_nwk',nwk,'_comb_',comb_metnod];
-                test_field_names{3} = ['cutK1D_Small_nwk',nwk,'_comb_',comb_metnod];
-                test_field_names{4} = ['cutL1D_Small_nwk',nwk,'_comb_',comb_metnod];
-                test_field_names{5} = ['cutE_Small_nwk',nwk,'_comb_',comb_metnod];
-                test_field_names{6} = ['cutH1D_AllInt_nopix_nwk',nwk];
+                obj.build_default_test_names(nwk);
+                field_names_map = obj.default_test_names;
             end
             
             efix= 22.8;%incident energy in meV
@@ -303,7 +325,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             nfiles=numel(obj.test_source_files_list_);
             psi= 0.5*(1:nfiles);
             %psi=round(psi);
-
+            
             % define location of the sqw file to be the same as working
             % directory
             fp = fileparts(obj.sqw_file);
@@ -314,66 +336,78 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             
             obj.add_to_files_cleanList(obj.sqw_file)
             if tests_to_run(1)
+                tfm = field_names_map('gen_sqw');
+                % generate
                 ts = tic();
-                gen_sqw (obj.test_source_files_list_,'',obj.sqw_file, efix, emode, alatt, angdeg,u, v, psi, omega, dpsi, gl, gs,'replicate');
-
-                perf_res=obj.assertPerformance(ts,test_field_names{1},...
-                        'whole sqw file generation');
-
+                [tmp_files,~,~,jd]=gen_sqw (obj.test_source_files_list_,'',...
+                    obj.sqw_file, efix, ...
+                    emode, alatt, angdeg,u, v, psi, omega, dpsi, gl, gs,...
+                    'replicate','tmp_only');
+                perf_res=obj.assertPerformance(ts,tfm{1},...
+                    'whole sqw file generation');
+                % combine
+                ts = tic();
+                write_nsqw_to_sqw (tmp_files, obj.sqw_file,'allow_equal_headers',jd);
+                perf_res=obj.assertPerformance(ts,tfm{2},...
+                    'whole sqw file generation');
+                
             end
             
             if tests_to_run(2)
+                tfm = field_names_map('small_cut');
                 % test small 1 dimensional cuts, non-axis aligned
                 ts = tic();
                 proj1 = struct('u',[1,0,0],'v',[0,1,1]);
                 sqw1 = cut_sqw(obj.sqw_file,proj1,0.01,[-0.1,0.1],[-0.1,0.1],[-5,5]);
-                obj.assertPerformance(ts,test_field_names{2},...
+                obj.assertPerformance(ts,tfm{1},...
                     'small memory based 1D cut in non-axis aligned direction 1');
                 
                 ts = tic();
                 sqw1 = cut_sqw(obj.sqw_file,proj1,[-0.1,0.1],0.01,[-0.1,0.1],[-5,5]);
-                obj.assertPerformance(ts,test_field_names{3},...
+                obj.assertPerformance(ts,tfm{2},...
                     'small memory based 1D cut in non-axis aligned direction 2');
                 
                 ts = tic();
                 sqw1 = cut_sqw(obj.sqw_file,proj1,[-0.1,0.1],[-0.1,0.1],0.01,[-5,5]);
-                obj.assertPerformance(ts,test_field_names{4},...
+                obj.assertPerformance(ts,tfm{3},...
                     'small memory based 1D cut in non-axis aligned direction 3');
                 
                 ts = tic();
                 sqw1 = cut_sqw(obj.sqw_file,proj1,[-0.1,0.1],[-0.1,0.1],[-0.1,0.1],0.2);
-                perf_res=obj.assertPerformance(ts,test_field_names{5},...
+                perf_res=obj.assertPerformance(ts,tfm{4},...
                     'small memory based 1D cut along energy direction (q are not axis aligned)');
             end
             % check nopix performance -- read and integrate the whole file from the HDD
             hs = head_sqw(obj.sqw_file);
             urng = hs.urange';
             if tests_to_run(3)
+                tfm = field_names_map('big_cut_nopix');
                 ts = tic();
                 proj1 = struct('u',[1,0,0],'v',[0,1,1]);
                 sqw1=cut_sqw(obj.sqw_file,proj1,0.01,urng(2,:),urng(3,:),urng(4,:),'-nopix');
-                obj.assertPerformance(ts,test_field_names{6},...
+                obj.assertPerformance(ts,tfm{1},...
                     'large 1D cut direction 1 with whole dataset integration along 3 other directions. -nopix mode');
                 
                 ts = tic();
                 sqw1=cut_sqw(obj.sqw_file,proj1,urng(1,:),0.01,urng(3,:),urng(4,:),'-nopix');
-                obj.assertPerformance(ts,['cutK1D_AllInt_nopix_nwk',nwk],...
+                obj.assertPerformance(ts,tfm{2},...
                     'large 1D cut direction 2 with whole dataset integration along 3 other directions. -nopix mode');
                 
                 ts = tic();
                 sqw1=cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),0.01,urng(4,:),'-nopix');
-                obj.assertPerformance(ts,['cutL1D_AllInt_nopix_nwk',nwk],...
+                obj.assertPerformance(ts, tfm{3},...
                     'large 1D cut direction 3 with whole dataset integration along 3 other directions. -nopix mode');
                 
                 ts = tic();
                 sqw1=cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),urng(3,:),0.2,'-nopix');
                 
-                perf_res=obj.assertPerformance(ts,['cutE_AllInt_nopix_nwk',nwk],...
+                perf_res=obj.assertPerformance(ts, tfm{4},...
                     'large 1D cut along energy direction with whole dataset integration along 3 other directions. -nopix mode');
             end
             
             
             if tests_to_run(4)
+                tfm = field_names_map('big_cut_filebased');
                 % test large 1 dimensional cuts, non-axis aligned, with whole
                 % integration. for big input sqw files this should go to
                 % file-based cuts
@@ -384,22 +418,22 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 ts = tic();
                 proj1 = struct('u',[1,0,0],'v',[0,1,1]);
                 cut_sqw(obj.sqw_file,proj1,0.01,urng(2,:),urng(3,:),urng(4,:),'cutH1D_AllInt.sqw');
-                obj.assertPerformance(ts,['cutH1D_AllInt_filebased_nwk',nwk],...
+                obj.assertPerformance(ts,tfm{1},...
                     'large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions');
                 
                 ts = tic();
                 cut_sqw(obj.sqw_file,proj1,urng(1,:),0.01,urng(3,:),urng(4,:),'cutK1D_AllInt.sqw');
-                obj.assertPerformance(ts,['cutK1D_AllInt_filebased_nwk',nwk],...
+                obj.assertPerformance(ts,tfm{2},...
                     'large file-based 1D cut. Direction 2; Whole dataset integration along 3 other directions');
                 
                 ts = tic();
                 cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),0.01,urng(4,:),'cutL1D_AllInt.sqw');
-                obj.assertPerformance(ts,['cutL1D_AllInt_filebased_nwk',nwk],...
+                obj.assertPerformance(ts,tfm{3},...
                     'large file-based 1D cut. Direction 3; Whole dataset integration along 3 other directions');
                 
                 ts = tic();
                 cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),urng(3,:),0.2,'cutE_AllInt.sqw');
-                perf_res=obj.assertPerformance(ts,['cutE_AllInt_filebased_nwk',nwk],...
+                perf_res=obj.assertPerformance(ts,tfm{4},...
                     'large file-based 1D cut. Energy direction; Whole dataset integration along 3 other directions');
             end
             
@@ -407,9 +441,16 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             % before the end of the test
             assertTrue(isa(clob_wk,'onCleanup'))
         end
+        %
+        function sds = get.sample_data_size(obj)
+            sds  = obj.sample_data_size_;
+        end
+        function names_map = get.default_test_names(obj)
+            names_map = obj.default_test_names_;
+        end
     end
     methods(Access=private)
-        function [clob,hc,nwkc] = check_and_set_workers_(obj,n_workers)
+        function [clob,hc,nwkc] = check_and_set_workers_(~,n_workers)
             % function verifies and sets new number of MPI workers
             %
             % returns cleanup object which returns the number of temporary
@@ -418,9 +459,9 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             % workers remains unchanged
             %
             hc = hpc_config;
-            bsp = hc.build_sqw_in_parallel;            
+            bsp = hc.build_sqw_in_parallel;
             if n_workers == 0 % keep existing number of workers unchanged
-                clob = onCleanup(@()(0));                
+                clob = onCleanup(@()(0));
                 if bsp
                     nwkc = num2str(hc.parallel_workers_number);
                 else
@@ -430,7 +471,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             else
                 nwkc = num2str(n_workers);
             end
-
+            
             an = hc.parallel_workers_number;
             if bsp && an > 1
                 clob = onCleanup(@()set(hc,'build_sqw_in_parallel',bsp,'parallel_workers_number',an));
@@ -442,6 +483,37 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 hc.parallel_workers_number = n_workers;
             end
             
+        end
+        
+        function build_default_test_names(obj,nwk)
+            if isnumeric(nwk)
+                nwk = num2str(nwk);
+            end
+            comb_method = obj.combine_method();
+            
+            % 1
+            tf{1} = sprintf('gen_tmp_nwk%s_comb_%s',nwk,comb_method);
+            % combine method name includes workers if they are used
+            tf{2} = sprintf('comb_tmp_comb_%s',comb_method);
+            obj.default_test_names_('gen_sqw') = tf;
+            % 2
+            tf{1} = ['cutH1D_Small_nwk',nwk,'_comb_',comb_method];
+            tf{2} = ['cutK1D_Small_nwk',nwk,'_comb_',comb_method];
+            tf{3} = ['cutL1D_Small_nwk',nwk,'_comb_',comb_method];
+            tf{4} = ['cutE_Small_nwk',nwk,'_comb_',comb_method];
+            obj.default_test_names('small_cut') = tf;
+            % 3
+            tf{1} = ['cutH1D_AllInt_nopix_nwk',nwk];
+            tf{2} = ['cutK1D_AllInt_nopix_nwk',nwk];
+            tf{3} = ['cutL1D_AllInt_nopix_nwk',nwk];
+            tf{4} = ['cutE_AllInt_nopix_nwk',nwk];
+            obj.default_test_names('big_cut_nopix') = tf;
+            % 4
+            tf{1} =sprintf('cutH1D_AllInt_flBsd_nwk%s_comb_%s',nwk,comb_method);
+            tf{2} =sprintf('cutK1D_AllInt_flBsd_nwk%s_comb_%s',nwk,comb_method);
+            tf{3} =sprintf('cutL1D_AllInt_flBsd_nwk%s_comb_%s',nwk,comb_method);
+            tf{4} =sprintf('cutE_AllInt_flBsd_nwk%s_comb_%s',nwk,comb_method);
+            obj.default_test_names('big_cut_filebased') = tf;
         end
     end
 end

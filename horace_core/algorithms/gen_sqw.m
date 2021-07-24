@@ -1,4 +1,4 @@
-function [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+function [tmp_file,grid_size,urange,varargout] = gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
     u, v, psi, omega, dpsi, gl, gs, varargin)
 % Read one or more spe files and a detector parameter file, and create an output sqw file.
 %
@@ -78,9 +78,6 @@ function [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, ef
 %                  would symmetrize pixels of the generated sqw file by
 %                  reflecting them in the plane specified by vectors
 %                  [0,1,0], and [0,0,1] (see symmeterise_sqw for details)
-
-%
-%
 % Output:
 % --------
 %   tmp_file        Cell array with list of temporary files created by this call to gen_sqw.
@@ -89,7 +86,10 @@ function [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, ef
 %   grid_size       Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   urange          Actual range of grid
-
+%
+%  parallel_cluster if job is executed in parallel and nargout >3, this
+%                  variable would return the initialized instance of the
+%                  job dispatcher, running a parallel job to continue
 
 % T.G.Perring  14 August 2007
 % T.G.Perring  19 March 2013   Massively updated, also includes functionality of accumulate_sqw
@@ -134,7 +134,9 @@ if present.transform_sqw
         end
     end
 end
-
+if nargout>3
+    varargout{1} = [];
+end
 
 %If we are to run in 'time' mode, where execution waits for some period,
 %then must do so here, because any later we check whether or not spe files
@@ -420,10 +422,15 @@ else
         end
         
     end
+    keep_par_cl_running = ~opt.tmp_only || nargout>3;
+    
     
     % Generate unique temporary sqw files, one for each of the spe files
     [grid_size,urange,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
-        instrument,sample,urange_in,grid_size_in,opt.tmp_only);
+        instrument,sample,urange_in,grid_size_in,keep_par_cl_running);
+    if keep_par_cl_running
+        varargout{1} = parallel_job_dispatcher;
+    end
     
     if use_partial_tmp
         delete_tmp = false;
