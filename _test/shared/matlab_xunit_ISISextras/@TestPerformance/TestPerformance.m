@@ -6,7 +6,8 @@ classdef TestPerformance < TestCaseWithSave
     % The performance results (in second) are stored in a xml file
     % combining results for all hosts where the tests were run
     % The format of the file is as follows:
-    % -host_name1|->test_name1|->test_time(sec)
+    % -host_name1_perfClassName...
+    %             ->test_name1|->test_time(sec)
     %                         |->comment
     %                         |->completeon date
     %            |->test_name2|->test_time(sec)
@@ -15,7 +16,8 @@ classdef TestPerformance < TestCaseWithSave
     %            |->test_name3|->test_time(sec)
     %                         |->comment
     %                         |->completeon data
-    % -host_name2|->test_name1|->test_time(sec)
+    % -host_name2_perfClassName...
+    %             ->test_name1|->test_time(sec)
     %                         |->comment
     %                         |->completeon date
     %            |->test_name2|->test_time(sec)
@@ -52,6 +54,9 @@ classdef TestPerformance < TestCaseWithSave
         perf_data
         % list of the tests, which are available to run
         tests_available
+        % list of the performance test results (the structures
+        % host_nameXXX_perfClassName with the data)
+        known_perf_data_names
     end
     
     
@@ -149,11 +154,26 @@ classdef TestPerformance < TestCaseWithSave
             if n_datasets == 1
                 res_sum = [res_split,zeros(numel(x_axis),1)];
             else
-                res_sum = calc_averages_(res_split);
+                res_sum = obj.calc_averages(res_split);
             end
             x_axis = double(x_axis');
         end
-        
+        %
+        function serr = calc_averages(obj,res_split)
+            % calculates averages and min/max deviations from
+            % the given sequence ignoring NaN-s
+            % data provide average and minimal and maximal values
+            n_points = size(res_split,1);
+            serr = zeros(n_points ,3);
+            for i=1:n_points
+                valid = ~isnan(res_split(i,:));
+                data = res_split(i,valid);
+                serr(i,1) = sum(data)/numel(data);
+                serr(i,2)  = min(data);
+                serr(i,3)  = max(data);
+            end
+        end
+        %
         function tr = get.time_to_run(obj)
             % the time to run resent test case
             tr = obj.time_to_run_;
@@ -161,6 +181,14 @@ classdef TestPerformance < TestCaseWithSave
         function tn = get.current_test_name(obj)
             tn = obj.current_test_name_;
         end
+        function tm = get.known_perf_data_names(obj)
+            pfd = obj.perf_data_;
+            fnames = fieldnames(pfd);
+            valid = cellfun(@(fn)(~isempty(pfd.(fn))),fnames,'UniformOutput',true);
+            tm  = fnames(valid);
+            
+        end
+        %
         function pfd = get.perf_data(obj)
             % returns the structure, containing all performance data,
             % available for tests. Can be equivalent to loading the whole
@@ -214,7 +242,7 @@ classdef TestPerformance < TestCaseWithSave
             obj.perf_suite_name = obj.build_test_suite_name(name);
         end
         %
-        function perf = knownPerformance(obj,perf_test_name,varargin)
+        function perf = known_performance(obj,perf_test_name,varargin)
             % method return the known performance structure for given test suite name
             % (the bunch of tests, tried on the particular machine) if
             % such performance is known, or empty string if the performance
@@ -230,22 +258,14 @@ classdef TestPerformance < TestCaseWithSave
             %                   if such result exist or empty array if they
             %                   are not.
             %
+            if nargin <2
+                error('HERBERT:TestPerformance:invalid_argument',...
+                    'This function request perfromance test name as input');
+            end
             if nargin > 2
                 suite_name = varargin{1};
             else
                 suite_name        = obj.perf_suite_name;
-            end
-            if ~exist('perf_test_name','var')
-                known_suite_names = strjoin(obj.tests_available,'; ');
-                error('HERBERT:TestPerformance:invalid_argument',...
-                    'The performance can be selected for one out of the existing performance tests namely: %s',...
-                    known_suite_names);
-                
-            elseif ~ismember(perf_test_name,obj.tests_available)
-                known_suite_names = strjoin(obj.tests_available,'; ');
-                error('HERBERT:TestPerformance:invalid_argument',...
-                    'The performance test: %s is not among existing performance tests: %s',...
-                    perf_test_name,known_suite_names);
             end
             if isfield(obj.perf_data_,suite_name)
                 this_pc_perf_data = obj.perf_data_.(suite_name);
