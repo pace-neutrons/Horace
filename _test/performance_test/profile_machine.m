@@ -30,7 +30,7 @@ clob1 = onCleanup(@()set(hrc,'delete_tmp',true));
 hor_tes.n_files_to_use=50;
 
 n_workers = [0,1,2,4,6,8,10,12,14,16,20,32];
-%n_workers = [0,1,2,4,8,10];
+n_workers = [0,1,2,4,8,12,14,16]; % local machine
 perf_graph = zeros(numel(n_workers),3);
 
 for i=1:numel(n_workers)
@@ -58,14 +58,28 @@ for i=1:numel(n_workers)
     perf_graph(i,3) = per2.time_sec/hor_tes.data_size;    
     
 end
-figure;
-plot(perf_graph(:,1),perf_graph(:,2),'o-');
-ylabel('Processing Time (sec/Mb)')
-xlabel('n-workers');
+% Process some averages to display
+min_gen_time = min(perf_graph(:,2));
+max_gen_time = max(perf_graph(:,2));
+min_comb_time = min(perf_graph(:,3));
+max_comb_time = max(perf_graph(:,3));
+
+min_prod_time = round((min_gen_time+min_comb_time)*hor_tes.data_size/60,1); % in minutes
+max_prod_time = round((max_gen_time+max_comb_time)*hor_tes.data_size/60,1); % in minutes
 tc1 = strrep(tn{1},'_','\_');
 tc2 = strrep(tn{2},'_','\_');
-title(sprintf('Dataset silze~ %dGb, %d input files;\n Final DB test codes:\n %s; %s',...
-    round(hor_tes.data_size/1024),hor_tes.n_files_to_use,tc1,tc2))
+title_string = sprintf(['Dataset silze~ %dGb, %d input files;\n',...
+    ' Final DB test codes:\n %s; %s\n',...
+    'Production time: min=%.1f(min); max=%.1f(min)'],...
+    round(hor_tes.data_size),hor_tes.n_files_to_use,...
+    tc1,tc2,min_prod_time,max_prod_time );
+
+%plot results
+figure;
+plot(perf_graph(:,1),perf_graph(:,2),'o-');
+ylabel('Processing Time (sec/Gb)')
+xlabel('n-workers');
+title(title_string)
 hold on
 plot(perf_graph(:,1),perf_graph(:,3),'*-');
 legend('gen\_tmp perf','combine perf')
