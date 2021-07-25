@@ -150,8 +150,8 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             fb = 'GenSQW_perfTest';
             obj.sqw_file = sprintf('%s_%dFiles.sqw',fb,obj.n_files_to_use_);
             
-            obj.data_size_ = obj.n_files_to_use_*obj.sample_data_size_*(4*9)/ ... Convert to MB
-                (1024*1024);
+            obj.data_size_ = obj.n_files_to_use_*obj.sample_data_size_*(4*9)/ ... %numWords*word_size = bytes
+                (1024*1024*1024); %Convert to Gb
         end
         %
         function method = combine_method(~,add_info)
@@ -466,9 +466,12 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             pc = parallel_config;
             cluster = pc.parallel_cluster;
             % 1
-            tf{1} = sprintf('gen_tmp_%s_nwk%s',cluster,nwk);
-            % combine method name includes workers if they are used
-            tf{2} = sprintf('comb_tmp_%s',comb_method);
+            tf{1} = sprintf('gen_tmp_nwk_%s_%s',nwk,cluster);
+            % combine method name includes workers if they are used, but if
+            % they are not, we still need them to store appropriate
+            % dependence.
+            tf{2} = sprintf('comb_tmp_nwk_%s_%s',nwk,comb_method);
+            
             obj.default_test_names_('gen_sqw') = tf;
             % 2
             tf{1} = ['cutH1D_Small_nwk',nwk];
