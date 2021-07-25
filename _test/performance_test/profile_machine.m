@@ -30,7 +30,7 @@ clob1 = onCleanup(@()set(hrc,'delete_tmp',true));
 hor_tes.n_files_to_use=50;
 
 n_workers = [0,1,2,4,6,8,10,12,14,16,20,32];
-n_workers = [0,1,2,4,8,12,14,16]; % local machine
+%n_workers = [0,1,2,4,8,12,14,16]; % local machine
 perf_graph = zeros(numel(n_workers),3);
 
 for i=1:numel(n_workers)
@@ -39,7 +39,7 @@ for i=1:numel(n_workers)
     test_names_map = hor_tes.default_test_names;
     tn = test_names_map('gen_sqw');
     per1 = hor_tes.known_performance(tn{1});
-    per2 = hor_tes.known_performance(tn{2});    
+    per2 = hor_tes.known_performance(tn{2});
     if isempty(per1) || isempty(per2) || force_perf
         try
             perf_rez = hor_tes.test_gensqw_performance(n_workers(i),'gen_sqw');
@@ -50,12 +50,12 @@ for i=1:numel(n_workers)
             rethrow(ME);
         end
         per1 = perf_rez.(tn{1});
-        per2 = perf_rez.(tn{2});        
+        per2 = perf_rez.(tn{2});
     end
     
     perf_graph(i,1) = n_workers(i);
     perf_graph(i,2) = per1.time_sec/hor_tes.data_size;
-    perf_graph(i,3) = per2.time_sec/hor_tes.data_size;    
+    perf_graph(i,3) = per2.time_sec/hor_tes.data_size;
     
 end
 % Process some averages to display
@@ -125,7 +125,7 @@ for i=1:n_buf
     end
     comb_perf(i,1) = buf;
     comb_perf(i,2) = per.time_sec;
-        
+    
 end
 figure
 plot(comb_perf(:,1),comb_perf(:,2),'o-');

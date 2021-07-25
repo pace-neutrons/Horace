@@ -34,9 +34,9 @@ classdef test_SQW_GENCUT_perf < TestPerformance
         %  would verify small, large or huge datasets
         n_files_to_use% = 10;
         % the byte-size of the sample file, used to estimate the
-        % performance in MB/sec
+        % performance in Gb/sec
         sample_data_size
-        % The size of generated data (in Mb)
+        % The size of generated data (in Gb)
         data_size
         % The names of the tests, used as the fields of the database
         % (test_nameN(nWorkergs) above)
