@@ -29,8 +29,8 @@ clob1 = onCleanup(@()set(hrc,'delete_tmp',true));
 
 hor_tes.n_files_to_use=50;
 
-n_workers = [0,1,2,4,6,8,10,12,14,16,20,32];
-%n_workers = [0,1,2,4,8,12,14,16]; % local machine
+%n_workers = [0,1,2,4,6,8,10,12,14,16,20,32];
+n_workers = [0,1,2,4,8,12,14,16]; % local machine
 perf_graph = zeros(numel(n_workers),3);
 
 for i=1:numel(n_workers)

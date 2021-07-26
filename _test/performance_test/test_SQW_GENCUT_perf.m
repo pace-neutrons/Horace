@@ -349,82 +349,85 @@ classdef test_SQW_GENCUT_perf < TestPerformance
             end
             
             obj.add_to_files_cleanList(obj.sqw_file)
-            if tests_to_run(1)
-                tfm = field_names_map('gen_sqw');
+            if tests_to_run(1)                
+                test_fld_names = field_names_map('gen_sqw');
                 % delete exisiting tmp files as gen_sqw keeps existing in
                 % 'tmp_only' mode
                 obj.delete_tmp_files();
+                
+                profile on                
                 % generate
                 ts = tic();
                 [tmp_files,~,~,jd]=gen_sqw (obj.test_source_files_list_,'',...
                     obj.sqw_file, efix, ...
                     emode, alatt, angdeg,u, v, psi, omega, dpsi, gl, gs,...
                     'replicate','tmp_only');
-                perf_res=obj.assertPerformance(ts,tfm{1},...
+                perf_res=obj.assertPerformance(ts,test_fld_names{1},...
                     'whole sqw file generation');
                 % combine
                 ts = tic();
                 write_nsqw_to_sqw (tmp_files, obj.sqw_file,'allow_equal_headers',jd);
-                perf_res=obj.assertPerformance(ts,tfm{2},...
+                perf_res=obj.assertPerformance(ts,test_fld_names{2},...
                     'calc headers and combine all tmp files');
-                
+                profile off
+                profile viewer
             end
             
             if tests_to_run(2)
-                tfm = field_names_map('small_cut');
+                test_fld_names = field_names_map('small_cut');
                 % test small 1 dimensional cuts, non-axis aligned
                 ts = tic();
                 proj1 = struct('u',[1,0,0],'v',[0,1,1]);
                 sqw1 = cut_sqw(obj.sqw_file,proj1,0.01,[-0.1,0.1],[-0.1,0.1],[-5,5]);
-                obj.assertPerformance(ts,tfm{1},...
+                obj.assertPerformance(ts,test_fld_names{1},...
                     'small memory based 1D cut in non-axis aligned direction 1');
                 
                 ts = tic();
                 sqw1 = cut_sqw(obj.sqw_file,proj1,[-0.1,0.1],0.01,[-0.1,0.1],[-5,5]);
-                obj.assertPerformance(ts,tfm{2},...
+                obj.assertPerformance(ts,test_fld_names{2},...
                     'small memory based 1D cut in non-axis aligned direction 2');
                 
                 ts = tic();
                 sqw1 = cut_sqw(obj.sqw_file,proj1,[-0.1,0.1],[-0.1,0.1],0.01,[-5,5]);
-                obj.assertPerformance(ts,tfm{3},...
+                obj.assertPerformance(ts,test_fld_names{3},...
                     'small memory based 1D cut in non-axis aligned direction 3');
                 
                 ts = tic();
                 sqw1 = cut_sqw(obj.sqw_file,proj1,[-0.1,0.1],[-0.1,0.1],[-0.1,0.1],0.2);
-                perf_res=obj.assertPerformance(ts,tfm{4},...
+                perf_res=obj.assertPerformance(ts,test_fld_names{4},...
                     'small memory based 1D cut along energy direction (q are not axis aligned)');
             end
             % check nopix performance -- read and integrate the whole file from the HDD
             hs = head_sqw(obj.sqw_file);
             urng = hs.urange';
             if tests_to_run(3)
-                tfm = field_names_map('big_cut_nopix');
+                test_fld_names = field_names_map('big_cut_nopix');
                 ts = tic();
                 proj1 = struct('u',[1,0,0],'v',[0,1,1]);
                 sqw1=cut_sqw(obj.sqw_file,proj1,0.01,urng(2,:),urng(3,:),urng(4,:),'-nopix');
-                obj.assertPerformance(ts,tfm{1},...
+                obj.assertPerformance(ts,test_fld_names{1},...
                     'large 1D cut direction 1 with whole dataset integration along 3 other directions. -nopix mode');
                 
                 ts = tic();
                 sqw1=cut_sqw(obj.sqw_file,proj1,urng(1,:),0.01,urng(3,:),urng(4,:),'-nopix');
-                obj.assertPerformance(ts,tfm{2},...
+                obj.assertPerformance(ts,test_fld_names{2},...
                     'large 1D cut direction 2 with whole dataset integration along 3 other directions. -nopix mode');
                 
                 ts = tic();
                 sqw1=cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),0.01,urng(4,:),'-nopix');
-                obj.assertPerformance(ts, tfm{3},...
+                obj.assertPerformance(ts, test_fld_names{3},...
                     'large 1D cut direction 3 with whole dataset integration along 3 other directions. -nopix mode');
                 
                 ts = tic();
                 sqw1=cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),urng(3,:),0.2,'-nopix');
                 
-                perf_res=obj.assertPerformance(ts, tfm{4},...
+                perf_res=obj.assertPerformance(ts, test_fld_names{4},...
                     'large 1D cut along energy direction with whole dataset integration along 3 other directions. -nopix mode');
             end
             
             
             if tests_to_run(4)
-                tfm = field_names_map('big_cut_filebased');
+                test_fld_names = field_names_map('big_cut_filebased');
                 % test large 1 dimensional cuts, non-axis aligned, with whole
                 % integration. for big input sqw files this should go to
                 % file-based cuts
@@ -435,22 +438,22 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 ts = tic();
                 proj1 = struct('u',[1,0,0],'v',[0,1,1]);
                 cut_sqw(obj.sqw_file,proj1,0.01,urng(2,:),urng(3,:),urng(4,:),'cutH1D_AllInt.sqw');
-                obj.assertPerformance(ts,tfm{1},...
+                obj.assertPerformance(ts,test_fld_names{1},...
                     'large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions');
                 
                 ts = tic();
                 cut_sqw(obj.sqw_file,proj1,urng(1,:),0.01,urng(3,:),urng(4,:),'cutK1D_AllInt.sqw');
-                obj.assertPerformance(ts,tfm{2},...
+                obj.assertPerformance(ts,test_fld_names{2},...
                     'large file-based 1D cut. Direction 2; Whole dataset integration along 3 other directions');
                 
                 ts = tic();
                 cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),0.01,urng(4,:),'cutL1D_AllInt.sqw');
-                obj.assertPerformance(ts,tfm{3},...
+                obj.assertPerformance(ts,test_fld_names{3},...
                     'large file-based 1D cut. Direction 3; Whole dataset integration along 3 other directions');
                 
                 ts = tic();
                 cut_sqw(obj.sqw_file,proj1,urng(1,:),urng(2,:),urng(3,:),0.2,'cutE_AllInt.sqw');
-                perf_res=obj.assertPerformance(ts,tfm{4},...
+                perf_res=obj.assertPerformance(ts,test_fld_names{4},...
                     'large file-based 1D cut. Energy direction; Whole dataset integration along 3 other directions');
             end
             
