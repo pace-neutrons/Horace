@@ -81,12 +81,14 @@ classdef test_TestPerformance < TestCase
         function test_suite_name_is_computer_name_and_test_class_name(~)
             tc = pTestPerformanceTester();
             name = tc.build_test_suite_name('SomeName');
-            p_pos = strfind(name,'.');
+            
+            com_name = getComputerName();
+            p_pos = strfind(com_name,'.');
             if ~isempty(p_pos)
-                name = name(1:p_pos(1)-1);
+                com_name= com_name(1:p_pos(1)-1);
             end
             
-            assertEqual(name,[getComputerName(),'_','SomeName']);
+            assertEqual(name,[com_name,'_','SomeName']);
         end
         %
         function test_default_test_name(~)
