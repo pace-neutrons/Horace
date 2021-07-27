@@ -355,7 +355,7 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 % 'tmp_only' mode
                 obj.delete_tmp_files();
                 
-                profile on                
+                %profile on                
                 % generate
                 ts = tic();
                 [tmp_files,~,~,jd]=gen_sqw (obj.test_source_files_list_,'',...
@@ -369,8 +369,8 @@ classdef test_SQW_GENCUT_perf < TestPerformance
                 write_nsqw_to_sqw (tmp_files, obj.sqw_file,'allow_equal_headers',jd);
                 perf_res=obj.assertPerformance(ts,test_fld_names{2},...
                     'calc headers and combine all tmp files');
-                profile off
-                profile viewer
+                %profile off
+                %profile viewer
             end
             
             if tests_to_run(2)
