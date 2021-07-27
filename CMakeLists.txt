@@ -12,7 +12,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Set our options
 option(BUILD_TESTS "Build the C++ tests" OFF)
-option(USE_HERBERT_MPI "Use MPI libraries provided with Herbert" ON)
+option(USE_HERBERT_MPI "Use MPI libraries provided with Herbert" OFF)
 
 # Add cmake directory to CMake's path
 list(APPEND CMAKE_MODULE_PATH "${Herbert_ROOT}/cmake"
