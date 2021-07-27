@@ -34,15 +34,22 @@ option(BUILD_TESTS "Build the C++ tests" ON)
 # Look for packages early so we can exit if they're not found
 find_package(Herbert REQUIRED)
 find_package(OpenMP)
+MESSAGE(NOTICE "**************************Found Herbert and openMP")
 include(PACE_AddMex)
+MESSAGE(NOTICE "**************************Executed  Addmex")
 include(PACE_FindMatlab)
+MESSAGE(NOTICE "**************************Found Matlab")
 include(horace_FindHDF5)
+MESSAGE(NOTICE "**************************Found hdf")
 include(PACE_Version)
+MESSAGE(NOTICE "**************************Executed pace version")
 if(${BUILD_TESTS})
     include(CTest)
     include(PACE_FindGTest)
     enable_testing()
+    MESSAGE(NOTICE "************************** BUILT and enabled tests")
 endif()
+
 
 add_subdirectory("_LowLevelCode")
 if(${BUILD_TESTS})
@@ -54,7 +61,7 @@ add_subdirectory("admin")
 # Install commands
 # =============================================================================
 include(PACE_CPackConfig)
-
+MESSAGE(NOTICE "************************** executed PACE CPack config")
 if(WIN32)
     # Don't package external Linux libraries on Windows
     set(EXTERNAL_IGNORE_PATTERN "*/external/glnxa64")
