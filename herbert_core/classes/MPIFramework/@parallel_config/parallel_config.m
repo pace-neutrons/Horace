@@ -47,10 +47,9 @@ classdef parallel_config<config_base
     % ---------------------------------------------------------------------
     % external_mpiexec     - if cpp_communicator is compiled with MPI, 
     %                        installed on system rather then the one, 
-    %                        provided with Herbert, and this MPI mpiexec is
-    %                        not on the path, the full name (with path)
+    %                        provided with Herbert,the full name (with path)
     %                        to mpiexec program used to run parallel job
-    %                      Used ony when  parallel_cluster=='mpi_cluster'
+    %            Used ony when  parallel_cluster=='mpiexec_mpi'
     % =====================================================================
     % known_clusters       - Information method returning the list of
     %                        the parallel clusters, known to Herbert.
@@ -180,7 +179,9 @@ classdef parallel_config<config_base
         
         % if set up, specifies the mpiexc program with full path to it,
         % used to launch parallel jobs instead of internal mpiexec
-        % program, provided with Herbert
+        % program, provided with Herbert. Must be used when you compiled
+        % cpp_communicator with external MPI libraries, so it has to be
+        % launched by the mpiexec, provided with these libraries.
         external_mpiexec
     end
     %
