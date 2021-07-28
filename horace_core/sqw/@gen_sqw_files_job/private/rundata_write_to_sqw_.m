@@ -26,6 +26,12 @@ function [grid_size, urange] = rundata_write_to_sqw_(run_files, sqw_file, ...
 % Original author: T.G.Perring
 
 nfiles = numel(run_files);
+if nfiles == 0
+    grid_size = grid_size_in;
+    pix_range = pix_db_range;
+    update_runlabels = false;
+    return
+end
 
 [hor_log_level,use_mex]=get(hor_config,'log_level','use_mex');
 %
@@ -79,6 +85,14 @@ for i=1:nfiles
     end
     
 end
+uniq_runid = unique(run_id);
+if numel(uniq_runid) == nfiles
+    update_runlabels = false;
+else
+    update_runlabels = true;
+end
+
+
 function range = get_cut_range(r_min,r_max,n_bins)
 % calculate input range 
 n_bins = n_bins-1;
