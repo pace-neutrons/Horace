@@ -794,6 +794,7 @@ if gen_tmp_files_only
         end
         run_files  = run_files(~f_valid_exist);
         tmp_file  = tmp_file(~f_valid_exist);
+        pix_ranges = pix_ranges(f_valid_exist);
         pix_range = pix_ranges{1};
         for i=2:numel(pix_ranges)
             pix_range = [min([pix_range(1,:);pix_ranges{i}(1,:)]);...
@@ -869,7 +870,7 @@ else
 end
 %
 if isempty(pix_range)
-    pix_range = pix_rang1;
+    pix_range = pix_range1;
 else
     pix_range = [min([pix_range(1,:);pix_range1(1,:)]);...
         max([pix_range(2,:);pix_range1(2,:)])];
