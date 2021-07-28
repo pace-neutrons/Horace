@@ -718,7 +718,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             
             assertEqual(pix_range1,pix_range2);
             % Estimated ranges the pixels rebinned onto are different but
-            % actual ranges are the same as the data files are the same. 
+            % actual pix ranges are the same as the data files are the same. 
             % This is why the cut have to be made within the specified
             % ranges to get the same result
             [ok,mess,w2_11456,w2_11456acc]=...
