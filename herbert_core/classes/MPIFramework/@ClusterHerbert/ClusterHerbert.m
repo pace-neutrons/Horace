@@ -165,6 +165,7 @@ classdef ClusterHerbert < ClusterWrapper
                 mess_text = strjoin(res_mess(is_failed),';\n');
                 mess = FailedMessage(mess_text);
             else
+                failed = false;
                 if ~running
                     mess = CompletedMessage(mess);
                 end
