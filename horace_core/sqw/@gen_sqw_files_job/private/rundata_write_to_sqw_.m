@@ -23,8 +23,8 @@ function [grid_size, pix_range,update_runlabels] = rundata_write_to_sqw_(run_fil
 % pix_range       -  Actual range of grid, should be different from
 %                    pix_range_in only if pix_range_in is not provided
 % update_runlabels-  if true, each run-id for every runfile has to be
-%                    modified as some runfiles have the same run-id(s). 
-%                    This possible e.g. in "replicate" mode. 
+%                    modified as some runfiles have the same run-id(s).
+%                    This possible e.g. in "replicate" mode.
 
 
 % Original author: T.G.Perring
@@ -33,6 +33,7 @@ nfiles = numel(run_files);
 if nfiles == 0
     grid_size = grid_size_in;
     pix_range = pix_db_range;
+    update_runlabels = false;
     return
 end
 
@@ -89,7 +90,7 @@ for i=1:nfiles
 end
 uniq_runid = unique(run_id);
 if numel(uniq_runid) == nfiles
-    update_runlabels = false;    
+    update_runlabels = false;
 else
     update_runlabels = true;
 end
