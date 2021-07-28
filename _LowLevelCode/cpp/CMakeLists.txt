@@ -9,6 +9,6 @@ foreach(_module ${MODULES})
     add_subdirectory("${_module}")
 endforeach()
 
-if(${BUILD_TESTS})
+if(BUILD_TESTING)
     add_subdirectory("test")
 endif()
