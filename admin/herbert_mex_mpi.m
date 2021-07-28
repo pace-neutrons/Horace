@@ -14,6 +14,8 @@ end
 % the files, contributing into the communicator.
 input_files = {'cpp_communicator.cpp', 'input_parser.cpp', 'MPI_wrapper.cpp'};
 % Dependency set-up part
+opt_file = '';
+
 if ispc()
     % let's use Microsof MPI, compartible with mpich
     mpi_folder = 'C:\programming\MS_MPI_sdk';
@@ -22,7 +24,6 @@ if ispc()
     mpi_lib_2use ={'msmpi.lib'};
 elseif isunix()
     if use_her_mpich
-        opt_file = '';
         % let's use MPICH
         %mpi_folder = '/usr/local/mpich/';
         mpi_folder = fullfile(herbert_root(), '_LowLevelCode/external/glnxa64/mpich-3.3a2/');
