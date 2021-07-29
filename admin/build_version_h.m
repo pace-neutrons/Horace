@@ -12,6 +12,15 @@ if is_file(ver_file_fp)
     delete(ver_file_fp);
 end
 [~,pack_name] = fileparts(pack_folder);
+if contains(pack_name,'Herbert')
+    pack_name = 'Herbert';
+elseif contains(pack_name,'Horace')
+    pack_name = 'Horace';
+else
+    error('HERBERT:invalid_argument',...
+        'Building version for unknown package %s. Only Horace and Herbert are accepted',...
+        pack_name)
+end
 %
 version_template = fullfile(pack_folder,'VERSION');
 fh_source = fopen(version_template );
