@@ -437,7 +437,7 @@ classdef TestPerformance < TestCaseWithSave
             comp_name = getComputerName();
             p_pos = strfind(comp_name,'.');
             if ~isempty(p_pos)
-                comp_name = comp_name(1:p_pos-1);
+                comp_name = comp_name(1:p_pos(1)-1);
             end
             if strcmp(cluster_name,'herbert')
                 test_name = comp_name;
