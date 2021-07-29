@@ -197,7 +197,6 @@ classdef test_main_mex < TestCase
             if n_errors>0
                 skipTest('MEX code is broken and can not be used to check against Matlab for recompute_bin_data');
             end
-
             set(hor_config,'use_mex',true,'threads',1);
             new_sqw1 = recompute_bin_data_tester(test_sqw);
             assertElementsAlmostEqual(new_sqw1.data.s,s)
@@ -284,11 +283,11 @@ classdef test_main_mex < TestCase
             % test sorting parameters and matlab sorting
             t1=tic();
             pix1 = sort_pix(pix0,ix0,npix,'-force_mex','-keep_type');
-            t=toc(t1)
+            t2=toc(t1)
             pix1 = sort_pix(pix,ix,npix,'-force_mex','-keep_type');
-            t=toc(t1)
+            t3=toc(t2);
             pix1 = sort_pix(pix0,ix0,npix,'-nomex','-keep_type');
-            t=toc(t1)
+            t4=toc(t3);
 
             profile off
             profview;
