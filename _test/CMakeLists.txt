@@ -15,6 +15,7 @@ set(TEST_DIRECTORIES
     "test_mpi/test_job_dispatcher_herbert"
     "test_mpi/test_job_dispatcher_mpiexec"
     "test_mpi/test_job_dispatcher_parpool"
+    "test_mpi/test_job_dispatcher_slurm"
     "test_mpi/test_ParpoolMPI_Framework")
 
 # Add the local_init directory - which contains worker_v2 and herbert_on -
@@ -41,7 +42,7 @@ foreach(_test_dir ${TEST_DIRECTORIES})
         NAME
         "${TEST_NAME}"
         CUSTOM_TEST_COMMAND
-        "validate_herbert ${_test_dir} -talkative -exit_on_completion"
+        "validate_herbert ${_test_dir} -verbose -exit_on_completion"
         ADDITIONAL_PATH
         "${Herbert_ROOT}/admin"
         TIMEOUT

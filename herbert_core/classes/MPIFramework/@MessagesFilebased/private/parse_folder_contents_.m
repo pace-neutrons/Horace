@@ -75,23 +75,37 @@ else
 end
 
 if numel(mess_files) ==0
-    mess_names = {};
-    mid_from = [];
-    mid_to   = [];
+    [mess_names,mid_from,mid_to]=set_empty();
     if nargout > 3
         varargout{1}  = {};
     end
     return;
+    
 end
 % Sort messages according to their access date, the most recent come first
 if isfield(mess_files,'datenum')
     mess_date = arrayfun(@extract_datenum,mess_files,'UniformOutput',true);
+    invalid = isnan(mess_date);
+    if any(invalid)
+        mess_date = mess_date(~invalid);
+        if isempty(mess_date)
+            [mess_names,mid_from,mid_to]=set_empty();
+            if nargout > 3
+                varargout{1}  = {};
+            end
+            return;
+        end
+        mess_files = mess_files(~invalid);
+    end
     %[~,ind] = sort(mess_date,'descend');
-    [~,ind] = sort(mess_date);
+    [~,ind] = sort(mess_date); %  dos command sorts files with oldest coming last
     mess_files = mess_files(ind);
-else %  dos command sorts files with oldest coming last
-    %
-    % mess_files = fliplr(mess_files);
+else
+    [mess_names,mid_from,mid_to]=set_empty();
+    if nargout > 3
+        varargout{1}  = {};
+    end
+    return;
 end
 
 % identify messages sources and destinations
@@ -111,9 +125,16 @@ if nargout > 3
     varargout{1} = arrayfun(@get_fext,mess_files,'UniformOutput',false);
 end
 end
+%
+function [mess_names,mid_from,mid_to]=set_empty()
+mess_names={};
+mid_from = [];
+mid_to   = [];
+end
+%
 function dn = extract_datenum(f_info)
 dn = f_info.datenum;
-if ~isnumeric(dn) || numel(dn) > 1
+if ~isnumeric(dn) || numel(dn) ~= 1
     warning(' Non-numeric or non-scalar datenum for file %s in folder %s; Contains: %s',...
         evalc('disp(f_info.name)'),evalc('disp(f_info.folder)'),evalc('disp(f_info.datenum)'));
     dn = NaN;

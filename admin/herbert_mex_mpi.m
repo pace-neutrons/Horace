@@ -5,7 +5,7 @@ function [ok,mess] = herbert_mex_mpi(varargin)
 % Manually modify this script to specify the mpi libraries location in your
 % system.
 %
-use_her_mpich = false;
+use_her_mpich = true
 if nargin > 0
     verbouse = true;
 else
@@ -14,15 +14,23 @@ end
 % the files, contributing into the communicator.
 input_files = {'cpp_communicator.cpp', 'input_parser.cpp', 'MPI_wrapper.cpp'};
 % Dependency set-up part
+opt_file = '';
+
 if ispc()
-    % let's use Microsof MPI, compartible with mpich
-    mpi_folder = 'C:\programming\MS_MPI_sdk';
-    mpi_lib_folder = fullfile(mpi_folder,'lib','x64');
-    mpi_hdrs_folder    = fullfile(mpi_folder,'include');
+    if use_her_mpich
+        mpi_folder = fullfile(herbert_root(), '_LowLevelCode/external/win64/MSMPI-8.0.12/');
+        mpi_hdrs_folder    = fullfile(mpi_folder,'include');
+        mpi_lib_folder = fullfile(mpi_folder,'lib');
+        
+    else
+        % let's use Microsof MPI, compartible with mpich
+        mpi_folder = 'C:\programming\MS_MPI_sdk';
+        mpi_lib_folder = fullfile(mpi_folder,'lib','x64');
+        mpi_hdrs_folder    = fullfile(mpi_folder,'include');
+    end
     mpi_lib_2use ={'msmpi.lib'};
 elseif isunix()
     if use_her_mpich
-        opt_file = '';
         % let's use MPICH
         %mpi_folder = '/usr/local/mpich/';
         mpi_folder = fullfile(herbert_root(), '_LowLevelCode/external/glnxa64/mpich-3.3a2/');
@@ -59,7 +67,7 @@ input_files = cellfun(@(fn)fullfile(code_folder,fn),input_files,'UniformOutput',
 % additional include folder, containing mpich
 add_include = ['-I',mpi_hdrs_folder];
 if verbouse
-    add_include = {'-v ',add_include};
+    add_include = {'-v',add_include};
 else
     add_include = {add_include};
 end
@@ -73,7 +81,7 @@ try
             mpi_lib{:},'-outdir',outdir);
     else
         mex(add_include{:},opt,input_files{:},...
-            mpi_lib{:},'-f',opt_file,'-outdir',outdir);        
+            mpi_lib{:},'-f',opt_file,'-outdir',outdir);
     end
 catch Err
     ok = false;

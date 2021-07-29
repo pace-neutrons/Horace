@@ -295,7 +295,7 @@ classdef TestPerformance < TestCaseWithSave
             %                xml for clarity
             %
             % force_save -- performance results are saved
-            %               regardless of the changes in the performance
+            %                regardless of the changes in the performance
             %
             if ~exist('comments','var')
                 comments = '';
@@ -349,7 +349,7 @@ classdef TestPerformance < TestCaseWithSave
             
         end
         %-------------------------------------------------------------
-        %
+            %
         function  save_performance(obj)
             % save performance results into a performance results file
             save_performance_data_(obj);

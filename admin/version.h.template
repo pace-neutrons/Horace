@@ -2,4 +2,5 @@
 
 namespace Herbert {
     constexpr char VERSION[] = "${Herbert_SHORT_VERSION}";
+    constexpr char VER_NOOMP[] = "${Herbert_SHORT_VERSION} no-omp";
 }

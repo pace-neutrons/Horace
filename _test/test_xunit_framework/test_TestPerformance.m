@@ -100,7 +100,7 @@ classdef test_TestPerformance < TestCase
         end
         
         %
-        function test_suite_name_is_computer_name_and_test_class_name(~)
+        function test_suite_name_is_computer_name_and_test_class_name_for_herbert(~)
             pc = parallel_config;
             cur_config = pc.get_data_to_store();
             clob = onCleanup(@()set(pc,cur_config));
