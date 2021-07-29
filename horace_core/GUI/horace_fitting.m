@@ -22,7 +22,7 @@ function varargout = horace_fitting(varargin)
 
 % Edit the above text to modify the response to help horace_fitting
 
-% Last Modified by GUIDE v2.5 07-Dec-2010 14:03:47
+% Last Modified by GUIDE v2.5 22-Jun-2021 15:39:27
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -62,11 +62,13 @@ guidata(hObject, handles);
 % uiwait(handles.figure1);
 
 
-set(handles.message_info_text,'String','');
+set(handles.message_text_field,'String','');
 guidata(hObject,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
@@ -131,11 +133,13 @@ function obj_list_popupmenu_Callback(hObject, eventdata, handles)
 
 %
 %Clear error message
-set(handles.message_info_text,'String','');
+set(handles.message_text_field,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
@@ -156,7 +160,7 @@ if ~exist('cellofvars','var')
     mess1=' No dnd or sqw objects in current workspace  ';
     mess2='---------------------------------------------';
     mess3='Load objects into Matlab workspace to proceed';
-    set(handles.message_info_text,'String',[mess1; mess2; mess3]);
+    set(handles.message_text_field,'String',[mess1; mess2; mess3]);
     guidata(gcbo,handles);
     set(handles.obj_list_popupmenu,'String','No objects to select');
     guidata(gcbo, handles);
@@ -206,7 +210,10 @@ function refresh_list_pushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
@@ -227,7 +234,7 @@ if ~exist('cellofvars','var')
     mess1=' No dnd or sqw objects in current workspace  ';
     mess2='---------------------------------------------';
     mess3='Load objects into Matlab workspace to proceed';
-    set(handles.message_info_text,'String',[mess1; mess2; mess3]);
+    set(handles.message_text_field,'String',[mess1; mess2; mess3]);
     guidata(gcbo,handles);
     set(handles.obj_list_popupmenu,'String','No objects to select');
     guidata(gcbo, handles);
@@ -367,7 +374,7 @@ function plot_pushbutton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 %Clear error message
-set(handles.message_info_text,'String','');
+set(handles.message_text_field,'String','');
 guidata(gcbo,handles);
 
 datetime=fix(clock);
@@ -392,12 +399,12 @@ else
     flag=0;
 end
 
-if isfield(handles,'w_in');
+if isfield(handles,'w_in')
     if flag==0
         win=handles.w_in;
         if numel(win)~=1
             mess='No plot performed - object selected is an array of Horace objects';
-            set(handles.message_info_text,'String',char({mess_initialise,mess}));
+            set(handles.message_text_field,'String',char({mess_initialise,mess}));
             drawnow;
             guidata(gcbo,handles);
             return;
@@ -413,12 +420,12 @@ if isfield(handles,'w_in');
             [fig_handle,axis_handle,plot_handle]=dp(win);
             drawnow;
             handles.horacefig=fig_handle;
-            set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
+            set(handles.message_text_field,'String',char({mess_initialise,'Success!'}));
             drawnow;
             guidata(gcbo,handles);
         else
             mess='Selected object is not 1-dimensional, to plot it use the main Horace GUI';
-            set(handles.message_info_text,'String',char({mess_initialise,mess}));
+            set(handles.message_text_field,'String',char({mess_initialise,mess}));
             guidata(gcbo,handles);
             return;
         end
@@ -429,7 +436,7 @@ if isfield(handles,'w_in');
         w_fitsim=handles.w_in;
         if numel(w_fitsim)~=1
             mess='No plot performed - object selected is an array of Horace objects';
-            set(handles.message_info_text,'String',char({mess_initialise,mess}));
+            set(handles.message_text_field,'String',char({mess_initialise,mess}));
             drawnow;
             guidata(gcbo,handles);
             return;
@@ -448,12 +455,12 @@ if isfield(handles,'w_in');
             [fig_handle,axis_handle,plot_handle]=pl(w_fitsim);
             drawnow;
             handles.horacefig=fig_handle;
-            set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
+            set(handles.message_text_field,'String',char({mess_initialise,'Success!'}));
             drawnow;
             guidata(gcbo,handles);
         else
             mess='Selected object is not 1-dimensional, to plot it use the main Horace GUI';
-            set(handles.message_info_text,'String',char({mess_initialise,mess}));
+            set(handles.message_text_field,'String',char({mess_initialise,mess}));
             guidata(gcbo,handles);
             return;
         end
@@ -461,7 +468,7 @@ if isfield(handles,'w_in');
         
     else
         mess='Horace GUI logic flaw - contact horacehelp@stfc.ac.uk so that we can fix this';
-        set(handles.message_info_text,'String',char({mess_initialise,mess}));
+        set(handles.message_text_field,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
     end    
@@ -555,7 +562,7 @@ function fit_pushbutton_Callback(hObject, eventdata, handles)
 
 
 %Clear error message
-set(handles.message_info_text,'String','');
+set(handles.message_text_field,'String','');
 guidata(gcbo,handles);
 drawnow;
 
@@ -575,21 +582,21 @@ if isfield(handles,'w_in')
     end
 else
     mess='No valid object selected -- no fitting performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
 end
 
 if ~isfield(handles,'peakfunc')
     mess='No peak function selected -- no fitting performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
 end
 
 if ~isfield(handles,'bgfunc')
     mess='No background function selected -- no fitting performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
 end
@@ -641,24 +648,24 @@ widarray=str2num(widlist);
 
 if isempty(amparray) || any(isnan(amparray))
     mess='Amplitude list must comprise comma separated numbers -- no fitting performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
 elseif isempty(cenarray) || any(isnan(cenarray))
     mess='Centre list must comprise comma separated numbers -- no fitting performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
 elseif isempty(widarray) || any(isnan(widarray))
     mess='Width list must comprise comma separated numbers -- no fitting performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
 end
 
 if ~isequal(size(amparray),size(cenarray)) || ~isequal(size(widarray),size(cenarray))
     mess='Lists of amplitude, centre and width must contain the same number of entries -- no fitting performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
 end
@@ -678,22 +685,22 @@ slopearray=str2num(slopelist);
 x2array=str2num(x2list);
 
 bgon=strcmp(get(handles.background_edit,'Enable'),'on');
-slopeon=strcmp(get(handles.bgslope_edit,'Enable'),'on');;
+slopeon=strcmp(get(handles.bgslope_edit,'Enable'),'on');
 x2on=strcmp(get(handles.bgx2_edit,'Enable'),'on');
 
-if (isempty(constarray) & bgon) || (any(isnan(constarray)) & bgon) 
+if (isempty(constarray) && bgon) || (any(isnan(constarray)) && bgon)
     mess='Background must be a single number -- no fitting performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
-elseif (isempty(slopearray) & slopeon) || (any(isnan(slopearray)) & slopeon) 
+elseif (isempty(slopearray) && slopeon) || (any(isnan(slopearray)) && slopeon)
     mess='Slope must be a single number -- no fitting performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
-elseif (isempty(x2array) & x2on) || (any(isnan(x2array)) & x2on) 
+elseif (isempty(x2array) && x2on) || (any(isnan(x2array)) && x2on)
     mess='x^2 coefficient must be a single number -- no fitting performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
 end
@@ -746,15 +753,21 @@ end
 %Now do the operation:
 try
     [out,fitdata]=fit_func(win,str2func(funcstr),pin,pfree,str2func(bgfuncstr),bpin,bpfree,'list',2);
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No fit performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+           sprintf('**** Error %s Message: %s',...
+           the_err.identifier,the_err.message),...
+           '**** fit_func failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
+    
+    set(handles.message_text_field,'String',char(err));
     guidata(gcbo,handles);
-    return;
+    
+    rethrow(the_err);
 end
     
 assignin('base',outname,out);
@@ -779,8 +792,8 @@ end
 %also must include background info (a little trickier):
 counter=1;
 if bgon
-    myout=['Background  = ',num2str(fitdata.bp{1}(counter)),...
-        ' +/- ',num2str(fitdata.bsig{1}(counter))];
+    myout=['Background  = ',num2str(fitdata.bp(counter)),...
+        ' +/- ',num2str(fitdata.bsig(counter))];
     mess_to_print=[mess_to_print,myout];
     counter=counter+1;
 end
@@ -797,7 +810,7 @@ if x2on
 end
 
 
-set(handles.message_info_text,'String',char(mess_to_print));
+set(handles.message_text_field,'String',char(mess_to_print));
 guidata(gcbo,handles);
 
 
@@ -1007,7 +1020,7 @@ function simulate_pushbutton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 %Clear error message
-set(handles.message_info_text,'String','');
+set(handles.message_text_field,'String','');
 guidata(gcbo,handles);
 drawnow;
 
@@ -1027,21 +1040,21 @@ if isfield(handles,'w_in')
     end
 else
     mess='No valid object selected -- no simulation performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
 end
 
 if ~isfield(handles,'peakfunc')
     mess='No peak function selected -- no simulation performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
 end
 
 if ~isfield(handles,'bgfunc')
     mess='No background function selected -- no simulation performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
 end
@@ -1093,24 +1106,24 @@ widarray=str2num(widlist);
 
 if isempty(amparray) || any(isnan(amparray))
     mess='Amplitude list must comprise comma separated numbers -- no simulation performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
 elseif isempty(cenarray) || any(isnan(cenarray))
     mess='Centre list must comprise comma separated numbers -- no simulation performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
 elseif isempty(widarray) || any(isnan(widarray))
     mess='Width list must comprise comma separated numbers -- no simulation performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
 end
 
 if ~isequal(size(amparray),size(cenarray)) || ~isequal(size(widarray),size(cenarray))
     mess='Lists of amplitude, centre and width must contain the same number of entries -- no simulation performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
 end
@@ -1130,22 +1143,22 @@ slopearray=str2num(slopelist);
 x2array=str2num(x2list);
 
 bgon=strcmp(get(handles.background_edit,'Enable'),'on');
-slopeon=strcmp(get(handles.bgslope_edit,'Enable'),'on');;
+slopeon=strcmp(get(handles.bgslope_edit,'Enable'),'on');
 x2on=strcmp(get(handles.bgx2_edit,'Enable'),'on');
 
-if (isempty(constarray) & bgon) || (any(isnan(constarray)) & bgon) 
+if (isempty(constarray) && bgon) || (any(isnan(constarray)) && bgon)
     mess='Background must be a single number -- no simulation performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
-elseif (isempty(slopearray) & slopeon) || (any(isnan(slopearray)) & slopeon) 
+elseif (isempty(slopearray) && slopeon) || (any(isnan(slopearray)) && slopeon)
     mess='Slope must be a single number -- no simulation performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
-elseif (isempty(x2array) & x2on) || (any(isnan(x2array)) & x2on) 
+elseif (isempty(x2array) && x2on) || (any(isnan(x2array)) && x2on)
     mess='x^2 coefficient must be a single number -- no simulation performed';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
+    set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
 end
@@ -1167,19 +1180,25 @@ try
     out=func_eval(win,str2func(funcstr),pin);
     bgout=func_eval(win,str2func(bgfuncstr),bpin);
     out=plus(out,bgout);
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No simulation performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+catch the_err
+    err = {sprintf('**** %s',mess_initialise),...
+           sprintf('**** Error %s Message: %s',...
+           the_err.identifier,the_err.message),...
+           '**** func_eval failed at: '};
+    stack_depth = numel(the_err.stack);
+    for i=stack_depth-3:-1:1
+        err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+            the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+    end
+    
+    set(handles.message_text_field,'String',char(err));
     guidata(gcbo,handles);
-    return;
+    
+    rethrow(the_err);
 end
     
 assignin('base',outname,out);
-set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
+set(handles.message_text_field,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
 
 

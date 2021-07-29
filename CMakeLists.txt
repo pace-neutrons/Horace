@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.7.2)
 
 set(Horace_ROOT ${CMAKE_CURRENT_LIST_DIR})
 file(READ "${Horace_ROOT}/VERSION" _version)
@@ -28,31 +28,28 @@ set(Horace_DLL_DIRECTORY "${Horace_ROOT}/horace_core/DLL")
 # This is the directory that contains horace_init.m (used in admin/CMakeLists.txt)
 set(Horace_CORE "${CMAKE_CURRENT_LIST_DIR}/horace_core")
 
-# Set our options
-option(BUILD_TESTS "Build the C++ tests" ON)
-
 # Look for packages early so we can exit if they're not found
 find_package(Herbert REQUIRED)
 find_package(OpenMP)
-MESSAGE(NOTICE "**************************Found Herbert and openMP")
 include(PACE_AddMex)
-MESSAGE(NOTICE "**************************Executed  Addmex")
 include(PACE_FindMatlab)
-MESSAGE(NOTICE "**************************Found Matlab")
 include(horace_FindHDF5)
-MESSAGE(NOTICE "**************************Found hdf")
 include(PACE_Version)
-MESSAGE(NOTICE "**************************Executed pace version")
-if(${BUILD_TESTS})
-    include(CTest)
+
+# Make analysis ignore Herbert in case of nesting
+# Needs to have found herbert for Herbert_ROOT
+set(PACE_MLINT_IGNORE ${PACE_MLINT_IGNORE} "${Herbert_ROOT}/**/*.m")
+
+include(PACE_CodeAnalysis)
+include(CTest)
+if(BUILD_TESTING)
     include(PACE_FindGTest)
     enable_testing()
-    MESSAGE(NOTICE "************************** BUILT and enabled tests")
 endif()
-
+include(PACE_Docs)
 
 add_subdirectory("_LowLevelCode")
-if(${BUILD_TESTS})
+if(BUILD_TESTING)
     add_subdirectory("_test")
 endif()
 add_subdirectory("admin")
@@ -61,7 +58,6 @@ add_subdirectory("admin")
 # Install commands
 # =============================================================================
 include(PACE_CPackConfig)
-MESSAGE(NOTICE "************************** executed PACE CPack config")
 if(WIN32)
     # Don't package external Linux libraries on Windows
     set(EXTERNAL_IGNORE_PATTERN "*/external/glnxa64")
@@ -79,7 +75,7 @@ install(
     DESTINATION "."
 )
 install(
-    DIRECTORY "${Herbert_ROOT}/"
+    DIRECTORY "${Herbert_CORE}/"
     DESTINATION "Herbert"
     USE_SOURCE_PERMISSIONS
     PATTERN "*.m~" EXCLUDE

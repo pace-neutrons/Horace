@@ -22,16 +22,16 @@ function varargout = horace(varargin)
 
 % Edit the above text to modify the response to help horace
 
-% Last Modified by GUIDE v2.5 19-Nov-2015 11:00:22
+% Last Modified by GUIDE v2.5 22-Jun-2021 11:54:33
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
-                   'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @horace_OpeningFcn, ...
-                   'gui_OutputFcn',  @horace_OutputFcn, ...
-                   'gui_LayoutFcn',  [] , ...
-                   'gui_Callback',   []);
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @horace_OpeningFcn, ...
+    'gui_OutputFcn',  @horace_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...
+    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
@@ -42,6 +42,12 @@ else
     gui_mainfcn(gui_State, varargin{:});
 end
 % End initialization code - DO NOT EDIT
+
+function is_sqw_obj = is_sqw_dnd(element_class)
+% Returns true if the test element, from evalin, is the name of a concrete SQW class type
+is_sqw_obj = strcmp(element_class,'d1d') || strcmp(element_class,'d2d') ||...
+    strcmp(element_class,'d3d') || strcmp(element_class,'d4d') ||...
+    strcmp(element_class,'sqw');
 
 
 % --- Executes just before horace is made visible.
@@ -76,13 +82,13 @@ set(handles.message_info_text,'String','');
 guidata(hObject,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -93,7 +99,7 @@ if exist('cellofvars','var')
     drawnow;
     set(handles.obj_list_popupmenu,'String',cellofvars);
     guidata(hObject, handles);
-
+    
     str = get(handles.obj_list_popupmenu, 'String');
     val = get(handles.obj_list_popupmenu,'Value');
     %
@@ -131,7 +137,7 @@ guidata(hObject,handles);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = horace_OutputFcn(hObject, eventdata, handles) 
+function varargout = horace_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -195,13 +201,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -248,7 +254,7 @@ ndim=dimensions(w_in);
 [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = plot_titles (sqw(w_in));
 
 %Get the info about the object:
-if is_sqw_type(sqw(w_in))
+if has_pixels(w_in)
     getit=get(w_in);
     gg=getit.data;
 else
@@ -339,7 +345,7 @@ guidata(gcbo,handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 
@@ -359,7 +365,7 @@ timestring=[num2str(timenow(1)),':',num2str(timenow(2)),':',num2str(timenow(3))]
 mess_initialise=['Plotting started at ',timestring,'...'];
 drawnow
 
-if isfield(handles,'w_in');
+if isfield(handles,'w_in')
     win=handles.w_in;
     if numel(win)~=1
         mess='No plot performed - object selected is an array of Horace objects';
@@ -401,7 +407,7 @@ if isfield(handles,'w_in');
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end        
+    end
 end
 
 guidata(gcbo,handles);
@@ -447,7 +453,7 @@ guidata(gcbo,handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 
@@ -485,7 +491,7 @@ guidata(gcbo,handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 guidata(gcbo,handles);
@@ -494,13 +500,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -517,12 +523,12 @@ guidata(gcbo, handles);
 % % hObject    handle to cut_from_file_pushbutton (see GCBO)
 % % eventdata  reserved - to be defined in a future version of MATLAB
 % % handles    structure with handles and user data (see GUIDATA)
-% 
+%
 % %Clear error message
 % set(handles.message_info_text,'String','');
 % guidata(gcbo,handles);
 % drawnow;
-% 
+%
 % sqw_flname=get(handles.sqw_filename_edit,'String');
 % if ~isempty(sqw_flname)
 %     assignin('base','sqw_filename_internal',sqw_flname);
@@ -533,7 +539,7 @@ guidata(gcbo, handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 % --- Executes on button press in overplot_pushbutton.
@@ -552,7 +558,7 @@ timestring=[num2str(timenow(1)),':',num2str(timenow(2)),':',num2str(timenow(3))]
 mess_initialise=['Overplotting started at ',timestring,'...'];
 drawnow
 
-if isfield(handles,'w_in');
+if isfield(handles,'w_in')
     win=handles.w_in;
     if numel(win)~=1
         mess='No plot-over performed - object selected is an array of Horace objects';
@@ -602,7 +608,7 @@ if isfield(handles,'w_in');
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         drawnow;
         guidata(gcbo,handles);
-    end        
+    end
 end
 
 
@@ -828,7 +834,7 @@ if isfield(handles,'w_in')
             mess='Saving of file failed -- check object and/or filename';
             set(handles.message_info_text,'String',char({mess_initialise,mess}));
             return;
-        end         
+        end
     else
         mess='No file written -- select a filename';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
@@ -842,7 +848,7 @@ else
     guidata(gcbo,handles);
 end
 
-    
+
 
 
 % --- Executes on button press in bose_pushbutton.
@@ -879,7 +885,7 @@ guidata(gcbo,handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 
@@ -931,13 +937,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class);
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -999,13 +1005,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -1057,7 +1063,7 @@ guidata(gcbo,handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 
@@ -1088,13 +1094,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -1119,7 +1125,7 @@ guidata(gcbo, handles);
 % %handles.object_name=object_name;
 % w_in2=evalin('base',template_name);%get the data from the base workspace.
 % handles.w_in2=w_in2;%store the object in the handles structure
-% 
+%
 % guidata(gcbo,handles);
 
 % if isfield(handles,'w_in');
@@ -1140,7 +1146,7 @@ guidata(gcbo, handles);
 %     drawnow;
 %     guidata(gcbo,handles);
 % end
-% 
+%
 % guidata(gcbo,handles);
 
 
@@ -1420,22 +1426,22 @@ elseif isempty(a3) && ndims>=2.9
     mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
     set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
     guidata(gcbo,handles);
-    return;  
+    return;
 elseif isempty(a4) && ndims>=3.9
     mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
     mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
     set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
     guidata(gcbo,handles);
-    return;  
+    return;
 else
     try
         %must strip out square brackets, if user has inserted them:
         s1=strfind(a1,'['); s2=strfind(a1,']');
         if isempty(s1) && isempty(s2)
-            a1new=strread(a1,'%f','delimiter',',');
+            a1new=textscan(a1,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             a1=a1(s1+1:s2-1);
-            a1new=strread(a1,'%f','delimiter',',');
+            a1new=textscan(a1,'%f','delimiter',',');
         else
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
@@ -1445,10 +1451,10 @@ else
         end
         s1=strfind(a2,'['); s2=strfind(a2,']');
         if isempty(s1) && isempty(s2)
-            a2new=strread(a2,'%f','delimiter',',');
+            a2new=textscan(a2,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             a2=a2(s1+1:s2-1);
-            a2new=strread(a2,'%f','delimiter',',');
+            a2new=textscan(a2,'%f','delimiter',',');
         else
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
@@ -1458,10 +1464,10 @@ else
         end
         s1=strfind(a3,'['); s2=strfind(a3,']');
         if isempty(s1) && isempty(s2)
-            a3new=strread(a3,'%f','delimiter',',');
+            a3new=textscan(a3,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             a3=a3(s1+1:s2-1);
-            a3new=strread(a3,'%f','delimiter',',');
+            a3new=textscan(a3,'%f','delimiter',',');
         else
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
@@ -1471,10 +1477,10 @@ else
         end
         s1=strfind(a4,'['); s2=strfind(a4,']');
         if isempty(s1) && isempty(s2)
-            a4new=strread(a4,'%f','delimiter',',');
+            a4new=textscan(a4,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             a4=a4(s1+1:s2-1);
-            a4new=strread(a4,'%f','delimiter',',');
+            a4new=textscan(a4,'%f','delimiter',',');
         else
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
@@ -1491,10 +1497,10 @@ else
     end
 end
 %
-if a1new==0; a1new=[]; a1=''; end; %intrinsic binning case
-if a2new==0; a2new=[]; a2=''; end;
-if a3new==0; a3new=[]; a3=''; end;
-if a4new==0; a4new=[]; a4=''; end;
+if a1new==0; a1new=[]; a1=''; end %intrinsic binning case
+if a2new==0; a2new=[]; a2=''; end
+if a3new==0; a3new=[]; a3=''; end
+if a4new==0; a4new=[]; a4=''; end
 a1new=a1new'; a2new=a2new'; a3new=a3new'; a4new=a4new';
 if numel(a1new)>3 || numel(a2new)>3 || numel(a3new)>3 || numel(a4new)>3
     mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
@@ -1665,19 +1671,12 @@ try
             guidata(gcbo,handles);
             return;
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No operation performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
+catch the_err
+    report_error(the_err,'**** cut failed at: ')
 end
-    
-    
-    
+
+
+
 assignin('base',outobjname,out);
 if extra_flag==false
     set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
@@ -1707,7 +1706,7 @@ function Rebin_template_radiobutton_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of Rebin_template_radiobutton
 
 button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max');%button is pressed
+if button_state==get(hObject,'Max') %button is pressed
     set(handles.Rebin_lostephi_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -1726,13 +1725,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -1796,7 +1795,7 @@ function Rebin_lostephi_radiobutton_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of Rebin_lostephi_radiobutton
 
 button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max');%button is pressed
+if button_state==get(hObject,'Max') %button is pressed
     set(handles.Rebin_template_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -1926,7 +1925,7 @@ if isfield(handles,'w_in')
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end    
+    end
     ndims1=dimensions(win1);
 else
     mess='No valid data object selected -- operation not performed';
@@ -1945,7 +1944,7 @@ if isfield(handles,'w_in2_rebin') && ~(manspec==nummax)
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end    
+    end
     ndims2=dimensions(win2);
     obj_to_cut2='win2';
 elseif manspec==nummax
@@ -1969,7 +1968,7 @@ if manspec==nummax
         %must strip out square brackets, if user has inserted them:
         s1=strfind(lostephi,'['); s2=strfind(lostephi,']');
         if isempty(s1) && isempty(s2)
-            lostephinew{1}=strread(lostephi,'%f','delimiter',',');
+            lostephinew{1}=textscan(lostephi,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             if length(s1)~=length(s2)
                 mess1='Ensure manual rebinning is of form [lo1,step1,hi1], [step], or []';
@@ -1985,7 +1984,7 @@ if manspec==nummax
             end
             for i=1:numel(s1)
                 lostephi_tmp=lostephi(s1(i)+1:s2(i)-1);
-                lostephinew{i}=strread(lostephi_tmp,'%f','delimiter',',');
+                lostephinew{i}=textscan(lostephi_tmp,'%f','delimiter',',');
             end
         else
             mess1='Ensure manual rebinning is of form [lo1,step1,hi1], [step], or []';
@@ -1994,7 +1993,7 @@ if manspec==nummax
             guidata(gcbo,handles);
             return;
         end
-
+        
         for i=1:numel(lostephinew)
             if ~all(isnan(lostephinew{i})) && ...
                     (numel(lostephinew{i})==3 || numel(lostephinew{i})==1 || numel(lostephinew{i})==0)
@@ -2006,15 +2005,21 @@ if manspec==nummax
                 guidata(gcbo,handles);
             end
         end
-    catch
-        mess1='Formatting error of manual rebinning entries';
-        mess2='Ensure they are of the form [lo,step,hi], [step], or [], and are numeric';
-        set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+    catch the_err
+        err = {sprintf('**** %s',mess_initialise),...
+            sprintf('**** Error %s Message: %s',...
+            the_err.identifier,the_err.message),...
+            '**** Formatting error of manual rebinning entries: ',...
+            '**** Ensure they are of the form [lo,step,hi], [step], or [], and are numeric'};
+        
+        set(handles.message_text_field,'String',char(err));
         guidata(gcbo,handles);
+        
+        
         return;
-    end    
+    end
 end
- 
+
 %====
 if isempty(outobjname)
     mess='Provide a name for the output object that will be created by combine operation';
@@ -2103,18 +2108,11 @@ try
         save(out,outfilename);
     end
     
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No rebin performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
+catch the_err
+    report_error(the_err,'**** rebin failed at: ')
 end
-    
-    
+
+
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
@@ -2129,7 +2127,7 @@ function Sym_midpoint_radiobutton_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of Sym_midpoint_radiobutton
 
 button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max');%button is pressed
+if button_state==get(hObject,'Max') %button is pressed
     set(handles.Sym_plane_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -2167,7 +2165,7 @@ function Sym_plane_radiobutton_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of Sym_plane_radiobutton
 
 button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max');%button is pressed
+if button_state==get(hObject,'Max') %button is pressed
     set(handles.Sym_midpoint_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -2363,10 +2361,10 @@ if midspec==midmax
         %must strip out square brackets, if user has inserted them:
         s1=strfind(midpoint,'['); s2=strfind(midpoint,']');
         if isempty(s1) && isempty(s2)
-            midpointnew=strread(midpoint,'%f','delimiter',',');
+            midpointnew=textscan(midpoint,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             midpoint=midpoint(s1+1:s2-1);
-            midpointnew=strread(midpoint,'%f','delimiter',',');
+            midpointnew=textscan(midpoint,'%f','delimiter',',');
         else
             mess1='Ensure midpoint is of form [val] for 1d, or [val_x,val_y] for 2d';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -2389,7 +2387,7 @@ if midspec==midmax
         set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
         guidata(gcbo,handles);
         return;
-    end            
+    end
 else
     %we have a reflection plane specified.
     %==
@@ -2399,10 +2397,10 @@ else
         %must strip out square brackets, if user has inserted them:
         s1=strfind(v1,'['); s2=strfind(v1,']');
         if isempty(s1) && isempty(s2)
-            v1new=strread(v1,'%f','delimiter',',');
+            v1new=textscan(v1,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             v1=v1(s1+1:s2-1);
-            v1new=strread(v1,'%f','delimiter',',');
+            v1new=textscan(v1,'%f','delimiter',',');
         else
             mess1='Ensure v1 is of form [a,b,c]';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -2421,10 +2419,10 @@ else
         %must strip out square brackets, if user has inserted them:
         s1=strfind(v2,'['); s2=strfind(v2,']');
         if isempty(s1) && isempty(s2)
-            v2new=strread(v2,'%f','delimiter',',');
+            v2new=textscan(v2,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             v2=v2(s1+1:s2-1);
-            v2new=strread(v2,'%f','delimiter',',');
+            v2new=textscan(v2,'%f','delimiter',',');
         else
             mess1='Ensure v2 is of form [a,b,c]';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -2440,15 +2438,15 @@ else
         %==
         %Case for v3 is slightly different
         v3=get(handles.Sym_v3_edit,'String');
-
+        
         if ~isempty(v3)
             %must strip out square brackets, if user has inserted them:
             s1=strfind(v3,'['); s2=strfind(v3,']');
             if isempty(s1) && isempty(s2)
-                v1new=strread(v3,'%f','delimiter',',');
+                v1new=textscan(v3,'%f','delimiter',',');
             elseif ~isempty(s1) && ~isempty(s2)
                 v3=v3(s1+1:s2-1);
-                v3new=strread(v3,'%f','delimiter',',');
+                v3new=textscan(v3,'%f','delimiter',',');
             else
                 mess1='Ensure v3 is of form [a,b,c]';
                 set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -2474,7 +2472,7 @@ else
         set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
         guidata(gcbo,handles);
         return;
-    end           
+    end
 end
 %====
 
@@ -2557,18 +2555,11 @@ try
         save(out,outfilename);
     end
     
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No symmetrise performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
+catch the_err
+    report_error(the_err,'**** symmetrise  failed at: ')
 end
-    
-    
+
+
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
@@ -2592,13 +2583,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -2785,7 +2776,7 @@ if isfield(handles,'w_in')
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end    
+    end
     ndims1=dimensions(win1);
 else
     mess='No valid object#1 selected -- operation not performed';
@@ -2801,7 +2792,7 @@ if isfield(handles,'w_in2_comb')
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end 
+    end
     ndims2=dimensions(win2);
     obj_to_cut2='win2';
 else
@@ -2822,17 +2813,17 @@ if tolspec==nummax
         %must strip out square brackets, if user has inserted them:
         s1=strfind(tol,'['); s2=strfind(tol,']');
         if isempty(s1) && isempty(s2)
-            tolnew=strread(tol,'%f','delimiter',',');
+            tolnew=textscan(tol,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             tol=tol(s1+1:s2-1);
-            tolnew=strread(tol,'%f','delimiter',',');
+            tolnew=textscan(tol,'%f','delimiter',',');
         else
             mess1='Ensure tolerance is of form [tol1,tol2,...], depending on the dimensionality';
             set(handles.message_info_text,'String',mess1);
             guidata(gcbo,handles);
             return;
         end
-
+        
         if ~all(isnan(tolnew)) && numel(tolnew)==ndims1
             istol=true;
         elseif numel(tolnew)~=ndims1
@@ -2848,7 +2839,7 @@ if tolspec==nummax
         return;
     end
 end
- 
+
 %====
 if isempty(outobjname)
     mess='Provide a name for the output object that will be created by combine operation';
@@ -2927,18 +2918,11 @@ try
         save(out,outfilename);
     end
     
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No combine performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
+catch the_err
+    report_error(the_err,'**** combine failed at: ')
 end
-    
-    
+
+
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
@@ -2986,13 +2970,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -3232,19 +3216,12 @@ try
             out=eval(['replicate(',obj_to_cut_dnd,',',obj_to_cut2,');']);
             save(out,outfilename);
         end
-    end     
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No replication performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
+    end
+catch the_err
+    report_error(the_err,'**** replication failed at: ')
 end
-    
-if ~sqw_flag    
+
+if ~sqw_flag
     assignin('base',outobjname,out);
     set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
     guidata(gcbo,handles);
@@ -3437,7 +3414,7 @@ end
 %Now we execute the bose factor correction:
 try
     if ~saveafile
-            out=eval(['bose(',obj_to_cut,',',temperature,');']);
+        out=eval(['bose(',obj_to_cut,',',temperature,');']);
     elseif saveafile && strcmp(outfilename,'-save')
         out=eval(['bose(',obj_to_cut,',',temperature,');']);
         save(out);
@@ -3445,17 +3422,10 @@ try
         out=eval(['bose(',obj_to_cut,',',temperature,');']);
         save(out,outfilename);
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No bose correction performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
+catch the_err
+    report_error(the_err,'**** bose_correction failed at: ')
 end
-    
+
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
@@ -3581,13 +3551,13 @@ set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -3672,7 +3642,7 @@ function Bin_obj_radiobutton_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of Bin_obj_radiobutton
 
 button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max');%button is pressed
+if button_state==get(hObject,'Max') %button is pressed
     set(handles.Bin_number_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -3687,7 +3657,7 @@ function Bin_number_radiobutton_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of Bin_number_radiobutton
 
 button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max');%button is pressed
+if button_state==get(hObject,'Max') %button is pressed
     set(handles.Bin_obj_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -3746,7 +3716,7 @@ if ~isfield(handles,'bin_funcstr')
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     pause(2);
-%     return;
+    %     return;
 else
     funcstr=handles.bin_funcstr;
 end
@@ -3810,7 +3780,7 @@ elseif oponobj~=objmax && oponnum==nummax
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end    
+    end
 end
 
 %====
@@ -3871,18 +3841,11 @@ try
         end
         save(out,outfilename);
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No operation performed (formatting error?)';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
+catch the_err
+    report_error(the_err,'**** Formatting error? Unit operation failed at: ')
 end
-    
-    
+
+
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
@@ -4081,17 +4044,10 @@ try
         out=eval([funcstr,'(',obj_to_cut,');']);
         save(out,outfilename);
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No operation performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
+catch the_err
+    report_error(the_err,'**** unit operation failed at: ')
 end
-    
+
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
@@ -4107,7 +4063,7 @@ function Cutfile_rlu_1_radiobutton_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of Cutfile_rlu_1_radiobutton
 
 button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max');%button is pressed
+if button_state==get(hObject,'Max') %button is pressed
     set(handles.Cutfile_ang_1_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -4122,7 +4078,7 @@ function Cutfile_ang_1_radiobutton_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of Cutfile_ang_1_radiobutton
 
 button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max');%button is pressed
+if button_state==get(hObject,'Max') %button is pressed
     set(handles.Cutfile_rlu_1_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -4137,7 +4093,7 @@ function Cutfile_rlu_2_radiobutton_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of Cutfile_rlu_2_radiobutton
 
 button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max');%button is pressed
+if button_state==get(hObject,'Max') %button is pressed
     set(handles.Cutfile_ang_2_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -4152,7 +4108,7 @@ function Cutfile_ang_2_radiobutton_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of Cutfile_ang_2_radiobutton
 
 button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max');%button is pressed
+if button_state==get(hObject,'Max') %button is pressed
     set(handles.Cutfile_rlu_2_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -4167,7 +4123,7 @@ function Cutfile_rlu_3_radiobutton_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of Cutfile_rlu_3_radiobutton
 
 button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max');%button is pressed
+if button_state==get(hObject,'Max') %button is pressed
     set(handles.Cutfile_ang_3_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -4181,7 +4137,7 @@ function Cutfile_ang_3_radiobutton_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of Cutfile_ang_3_radiobutton
 
 button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max');%button is pressed
+if button_state==get(hObject,'Max') %button is pressed
     set(handles.Cutfile_rlu_3_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -4485,8 +4441,8 @@ if isempty(u) || isempty(v)
     return;
 else
     try
-        u=strread(u,'%f','delimiter',',');
-        v=strread(v,'%f','delimiter',',');
+        u=textscan(u,'%f','delimiter',',');
+        v=textscan(v,'%f','delimiter',',');
         if numel(u)~=3 || numel(v)~=3
             mess='u and v must comprise 3 numbers specifying h, k, and l of projection axes';
             set(handles.message_info_text,'String',char({mess_initialise,mess}));
@@ -4494,7 +4450,7 @@ else
             return;
         end
         if ~isempty(w)
-            w=strread(w,'%f','delimiter',',');
+            w=textscan(w,'%f','delimiter',',');
         end
     catch
         mess='Check the format of the vectors u, v, and/or w. They must be numeric with 3 elements';
@@ -4545,10 +4501,10 @@ else
         %must strip out square brackets, if user has inserted them:
         s1=strfind(a1,'['); s2=strfind(a1,']');
         if isempty(s1) && isempty(s2)
-            a1new=strread(a1,'%f','delimiter',',');
+            a1new=textscan(a1,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             a1=a1(s1+1:s2-1);
-            a1new=strread(a1,'%f','delimiter',',');
+            a1new=textscan(a1,'%f','delimiter',',');
         else
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
@@ -4558,10 +4514,10 @@ else
         end
         s1=strfind(a2,'['); s2=strfind(a2,']');
         if isempty(s1) && isempty(s2)
-            a2new=strread(a2,'%f','delimiter',',');
+            a2new=textscan(a2,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             a2=a2(s1+1:s2-1);
-            a2new=strread(a2,'%f','delimiter',',');
+            a2new=textscan(a2,'%f','delimiter',',');
         else
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
@@ -4571,10 +4527,10 @@ else
         end
         s1=strfind(a3,'['); s2=strfind(a3,']');
         if isempty(s1) && isempty(s2)
-            a3new=strread(a3,'%f','delimiter',',');
+            a3new=textscan(a3,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             a3=a3(s1+1:s2-1);
-            a3new=strread(a3,'%f','delimiter',',');
+            a3new=textscan(a3,'%f','delimiter',',');
         else
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
@@ -4584,10 +4540,10 @@ else
         end
         s1=strfind(a4,'['); s2=strfind(a4,']');
         if isempty(s1) && isempty(s2)
-            a4new=strread(a4,'%f','delimiter',',');
+            a4new=textscan(a4,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             a4=a4(s1+1:s2-1);
-            a4new=strread(a4,'%f','delimiter',',');
+            a4new=textscan(a4,'%f','delimiter',',');
         else
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
@@ -4603,10 +4559,10 @@ else
     end
 end
 %
-if a1new==0; a1new=[]; a1=''; end; %intrinsic binning case
-if a2new==0; a2new=[]; a2=''; end;
-if a3new==0; a3new=[]; a3=''; end;
-if a4new==0; a4new=[]; a4=''; end;
+if a1new==0; a1new=[]; a1=''; end %intrinsic binning case
+if a2new==0; a2new=[]; a2=''; end
+if a3new==0; a3new=[]; a3=''; end
+if a4new==0; a4new=[]; a4=''; end
 a1new=a1new'; a2new=a2new'; a3new=a3new'; a4new=a4new';
 if numel(a1new)>3 || numel(a2new)>3 || numel(a3new)>3 || numel(a4new)>3
     mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
@@ -4663,17 +4619,10 @@ try
         out=eval(['cut_sqw(''',filestring,''',proj',',[',a1,'],[',...
             a2,'],[',a3,'],[',a4,'],''',outfilename,''');']);
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='Cut from file failed -- re-check all inputs';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
+catch the_err
+    report_error(the_err,'**** Invalid inputs? Cut from file failed at: ')
 end
-    
+
 assignin('base',outobjname,out);
 cc=char({mess_initialise,'Success!',['Click ''DATA IN MEMORY'' then ''Refresh List'' to make plots etc of ',outobjname]});
 set(handles.message_info_text,'String',cc);
@@ -4687,13 +4636,13 @@ function refresh_list_pushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
-    if strcmp(test_el.class,'d1d') || strcmp(test_el.class,'d2d') ||...
-            strcmp(test_el.class,'d3d') || strcmp(test_el.class,'d4d') ||...
-            strcmp(test_el.class,'sqw');
+    if is_sqw_dnd(test_el.class)
         cellofnames{counter}=test_el.name;
         cellofvars{counter}=[test_el.name,'.........',test_el.class];
         counter=counter+1;
@@ -4754,7 +4703,7 @@ timestring=[num2str(timenow(1)),':',num2str(timenow(2)),':',num2str(timenow(3))]
 mess_initialise=['Smooth plotting started at ',timestring,'...'];
 drawnow
 
-if isfield(handles,'w_in');
+if isfield(handles,'w_in')
     win=handles.w_in;
     if numel(win)~=1
         mess='No plot performed - object selected is an array of Horace objects';
@@ -4818,7 +4767,7 @@ if isfield(handles,'w_in');
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
         return;
-    end        
+    end
 end
 
 guidata(gcbo,handles);
@@ -5126,7 +5075,7 @@ function gen_sqw_spefile_browse_pushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-[spe_filename,spe_pathname,FilterIndex] = uigetfile({'*.spe; *.SPE','spe files (*.spe, *.SPE)';'*.*','All files (*.*)' },...
+[spe_filename,spe_pathname,FilterIndex] = uigetfile({'*.spe; *.SPE; *.nxspe; *.NXSPE','spe files (*.spe, *.nxspe)';'*.*','All files (*.*)' },...
     'Select spe files','Multiselect','on');
 
 if ischar(spe_pathname) && ischar(spe_filename)
@@ -5145,14 +5094,14 @@ elseif ischar(spe_pathname) && iscell(spe_filename)
     if ~isempty(original_string)
         the_string=original_string;
         for i=1:numel(spe_filename)
-            the_string=char({the_string;[spe_pathname,spe_filename{i}]});        
+            the_string=char({the_string;[spe_pathname,spe_filename{i}]});
         end
     else
         the_string=char({[spe_pathname,spe_filename{1}]});
         for i=2:numel(spe_filename)
-            the_string=char({the_string;[spe_pathname,spe_filename{i}]});        
+            the_string=char({the_string;[spe_pathname,spe_filename{i}]});
         end
-    end   
+    end
     set(handles.gen_sqw_listbox,'string',the_string);
     guidata(gcbo,handles);
 else
@@ -5258,7 +5207,7 @@ elseif isempty(efix)
     mess1='Ensure incident energy is specified';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
     guidata(gcbo,handles);
-    return;  
+    return;
 elseif isempty(alatt)
     mess1='Ensure lattice parameters are specified as a 3 element vector';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5268,8 +5217,8 @@ elseif isempty(angdeg)
     mess1='Ensure lattice angles are specified as a 3 element vector';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
     guidata(gcbo,handles);
-    return;      
-elseif isempty(parfile)
+    return;
+elseif isempty(parfile) && sqw_list_not_nxspe(handles.gen_sqw_listbox)
     mess1='Ensure you have specified a par file name';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
     guidata(gcbo,handles);
@@ -5278,16 +5227,16 @@ elseif isempty(sqwfile)
     mess1='Ensure you have specified a sqw file name';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
     guidata(gcbo,handles);
-    return;    
+    return;
 else
     try
         %must strip out square brackets, if user has inserted them:
         s1=strfind(u,'['); s2=strfind(u,']');
         if isempty(s1) && isempty(s2)
-            unew=strread(u,'%f','delimiter',',');
+            unew=textscan(u,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             u=u(s1+1:s2-1);
-            unew=strread(u,'%f','delimiter',',');
+            unew=textscan(u,'%f','delimiter',',');
         else
             mess1='Ensure u is a 3-element vector with comma-separated elements';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5296,10 +5245,10 @@ else
         end
         s1=strfind(v,'['); s2=strfind(v,']');
         if isempty(s1) && isempty(s2)
-            vnew=strread(v,'%f','delimiter',',');
+            vnew=textscan(v,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             v=v(s1+1:s2-1);
-            vnew=strread(v,'%f','delimiter',',');
+            vnew=textscan(v,'%f','delimiter',',');
         else
             mess1='Ensure v is a 3-element vector with comma-separated elements';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5308,10 +5257,10 @@ else
         end
         s1=strfind(efix,'['); s2=strfind(efix,']');
         if isempty(s1) && isempty(s2)
-            efixnew=strread(efix,'%f','delimiter',',');
+            efixnew=textscan(efix,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             efix=efix(s1+1:s2-1);
-            efixnew=strread(efix,'%f','delimiter',',');
+            efixnew=textscan(efix,'%f','delimiter',',');
         else
             mess1='Ensure incident energy is a single number';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5320,10 +5269,10 @@ else
         end
         s1=strfind(alatt,'['); s2=strfind(alatt,']');
         if isempty(s1) && isempty(s2)
-            alattnew=strread(alatt,'%f','delimiter',',');
+            alattnew=textscan(alatt,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             alatt=alatt(s1+1:s2-1);
-            alattnew=strread(alatt,'%f','delimiter',',');
+            alattnew=textscan(alatt,'%f','delimiter',',');
         else
             mess1='Ensure lattice parameters are a 3-element vector with comma-separated elements';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5332,10 +5281,10 @@ else
         end
         s1=strfind(angdeg,'['); s2=strfind(angdeg,']');
         if isempty(s1) && isempty(s2)
-            angdegnew=strread(angdeg,'%f','delimiter',',');
+            angdegnew=textscan(angdeg,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             angdeg=angdeg(s1+1:s2-1);
-            angdegnew=strread(angdeg,'%f','delimiter',',');
+            angdegnew=textscan(angdeg,'%f','delimiter',',');
         else
             mess1='Ensure lattice angles are a 3-element vector with comma-separated elements';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5344,10 +5293,10 @@ else
         end
         s1=strfind(offsets,'['); s2=strfind(offsets,']');
         if isempty(s1) && isempty(s2)
-            offsetsnew=strread(offsets,'%f','delimiter',',');
+            offsetsnew=textscan(offsets,'%f','delimiter',',');
         elseif ~isempty(s1) && ~isempty(s2)
             offsets=offsets(s1+1:s2-1);
-            offsetsnew=strread(offsets,'%f','delimiter',',');
+            offsetsnew=textscan(offsets,'%f','delimiter',',');
         else
             mess1='Ensure offset angles are a 4-element vector with comma-separated elements';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5383,7 +5332,7 @@ if isfield(handles,'gen_emode')
         emode=1;
     elseif strcmp(handles.gen_emode,'Indirect')
         emode=2;
-    elseif strcmp(handles.gen_emode,'Diffraction');
+    elseif strcmp(handles.gen_emode,'Diffraction')
         emode=0;
     else
         mess1='Select a spectrometer geometry';
@@ -5403,8 +5352,9 @@ end
 %also ensure that every spe file has an associated value of psi.
 spe_psi_list=get(handles.gen_sqw_listbox,'String');
 %convert to cell array:
+spe_psi_cell = cell(size(spe_psi_list,1), 1);
 for i=1:size(spe_psi_list,1)
-    spe_psi_cell{i}=strtrim(spe_psi_list(i,:));%get rid of leading and trailing white space
+    spe_psi_cell{i}=strtrim(spe_psi_list(i,:)); %get rid of leading and trailing white space
 end
 
 %Now we have to ensure that every string has a psi attached to it:
@@ -5417,7 +5367,7 @@ for i=1:numel(spe_psi_cell)
         spe_cell{i}=strtrim(spe_psi_cell{i}(1:(ff-1)));
         ff2=strfind(spe_psi_cell{i},'psi=');
         ff3=strfind(spe_psi_cell{i},'...');
-        psi_vec(i)=str2double(spe_psi_cell{i}((ff2+4):(ff3(2)-1)));        
+        psi_vec(i)=str2double(spe_psi_cell{i}((ff2+4):(ff3(2)-1)));
     else
         mess1='Not every spe file has an associated value of psi - check list';
         set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5433,23 +5383,15 @@ try
     mess1='Combining SPE files into SQW file -- working';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
     guidata(gcbo,handles);
-    pause(2);
+    pause(1);
     gen_sqw(spe_cell,parfile,sqwfile,efixnew,emode,alattnew,angdegnew,unew,vnew,...
         psi_vec,offsetsnew(1),offsetsnew(2),offsetsnew(3),offsetsnew(4));
     mess1='Success!';
     mess2='SQW file generation complete';
     set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
     guidata(gcbo,handles);
-catch
-    mess1='Formatting error of inputs';
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess2='gen_sqw failed because:';
-    mess3=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2,mess3}));
-    guidata(gcbo,handles);
-    return;
+catch the_err
+    report_erro(the_err,'**** gen_sqw failed at: ')
 end
 
 
@@ -5487,10 +5429,10 @@ else
         %must strip out square brackets, if user has inserted them:
         s1=strfind(psi_string,'['); s2=strfind(psi_string,']');
         if isempty(s1) && isempty(s2)
-            psinew=strread(psi_string,'%s');
+            psinew=textscan(psi_string,'%s');
         elseif ~isempty(s1) && ~isempty(s2)
             psi_string=psi_string(s1+1:s2-1);
-            psinew=strread(psi_string,'%s');
+            psinew=textscan(psi_string,'%s');
         else
             mess1='check formatting of psi input - must be in form of a Matlab vector';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -5553,7 +5495,7 @@ set(handles.gen_sqw_listbox,'string',char(spelist));%enusre spelist is a charact
 mess1='File / psi list updated';
 set(handles.message_info_text,'String',char({mess_initialise,mess1}));
 guidata(gcbo,handles);
-    
+
 
 % --- Executes on button press in gen_sqw_removelist_pushbutton.
 function gen_sqw_removelist_pushbutton_Callback(hObject, eventdata, handles)
@@ -5601,8 +5543,8 @@ else
     guidata(gcbo,handles);
     return;
 end
-    
-    
+
+
 
 
 % --- Executes on button press in saveguiconfig_pushbutton.
@@ -5642,7 +5584,7 @@ else
     mess='No file selected for GUI configuration - not saved';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
-    return; 
+    return;
 end
 
 guidata(gcbo,handles);
@@ -5669,7 +5611,7 @@ mess_initialise=['Loading GUI configuration at ',timestring,'...'];
 
 if ischar(gui_pathname) && ischar(gui_filename)
     filetoload=[gui_pathname,gui_filename];
-    %Here we need to go through all of the various edit fields and 
+    %Here we need to go through all of the various edit fields and
     %radiobuttons, and fill them in.
     %separate subfunction to do this, as rather long-winded
     fid=fopen(filetoload,'r');
@@ -5683,12 +5625,12 @@ if ischar(gui_pathname) && ischar(gui_filename)
     handles=set_horace_fields(handles,data_loaded);
     mess='GUI configuration successfully loaded';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
-    guidata(gcbo,handles); 
+    guidata(gcbo,handles);
 else
     mess='No file selected for GUI configuration - not loaded';
     set(handles.message_info_text,'String',mess);
     guidata(gcbo,handles);
-    return; 
+    return;
 end
 
 
@@ -5729,7 +5671,7 @@ if isfield(handles,'w_in')
             mess='Saving of file failed -- check object and/or filename';
             set(handles.message_info_text,'String',char({mess_initialise,mess}));
             return;
-        end         
+        end
     else
         mess='No file written -- select a filename';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
@@ -5823,7 +5765,7 @@ function Cutfile_orthaxes_radiobutton_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of Cutfile_orthaxes_radiobutton
 
 button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max');%button is pressed
+if button_state==get(hObject,'Max') %button is pressed
     set(handles.Cutfile_nonorth_axes_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -5838,8 +5780,35 @@ function Cutfile_nonorth_axes_radiobutton_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of Cutfile_nonorth_axes_radiobutton
 
 button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max');%button is pressed
+if button_state==get(hObject,'Max') %button is pressed
     set(handles.Cutfile_orthaxes_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
+
+
+% --- Checks if inputfiles are all nxspe or not
+function out = sqw_list_not_nxspe(listbox_handle)
+spe_psi_list=get(listbox_handle,'String');
+for i=1:size(spe_psi_list,1)
+    spe_psi_cell{i}=strtrim(spe_psi_list(i,:));%get rid of leading and trailing white space
+end
+out = all(cellfun(@(x)isempty(strfind(x, 'nxspe')), spe_psi_cell));
+
+
+% --------------------------------------------------------------------
+function report_error(the_err,err_info)
+err = {sprintf('**** %s',mess_initialise),...
+    sprintf('**** Error %s Message: %s',...
+    the_err.identifier,the_err.message),...
+    err_info};
+stack_depth = numel(the_err.stack);
+for i=stack_depth-3:-1:1
+    err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+        the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+end
+
+set(handles.message_text_field,'String',char(err));
+guidata(gcbo,handles);
+
+rethrow(the_err);
 
