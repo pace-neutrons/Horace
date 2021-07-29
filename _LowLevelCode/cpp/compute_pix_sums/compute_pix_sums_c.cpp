@@ -5,7 +5,11 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
   // Return version if no arguments
   if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
+#ifdef _OPENMP
     plhs[0] = mxCreateString(Horace::VERSION);
+#else
+        plhs[0] = mxCreateString(Horace::VER_NOOMP);
+#endif
     return;
   }
 
