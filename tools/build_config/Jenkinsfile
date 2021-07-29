@@ -281,25 +281,13 @@ pipeline {
         script {
           if (isUnix()) {
             sh '''
-                export PATH=${PATH}:~/.local/bin &&
-                module load python/3.6 &&
-                module load cmake/\$CMAKE_VERSION &&
-                ./tools/build_config/build.sh --docs
+                echo "building docs are not implemented for release 3.5"
             '''
-            archiveArtifacts(
-              artifacts: 'build/docs.tar.gz',
-              allowEmptyArchive: true,
-              fingerprint: true
-            )
           }
           else {
             powershell '''
-              ./tools/build_config/build.ps1 -docs
+                echo "building docs are not implemented for release 3.5"
             '''
-            archiveArtifacts(
-              artifacts: 'build/docs.zip',
-              allowEmptyArchive: true,
-              fingerprint: true
             )
           }
         }
