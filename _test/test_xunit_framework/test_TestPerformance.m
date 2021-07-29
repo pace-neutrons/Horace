@@ -78,10 +78,25 @@ classdef test_TestPerformance < TestCase
             end
         end
         %
-        function test_suite_name_is_computer_name_and_test_class_name(~)
+         function test_suite_nme_is_comp_nme_and_clstr_and_tst_clss_nme(~)
+            pc = parallel_config;
+            cur_config = pc.get_data_to_store();
+            clob = onCleanup(@()set(pc,cur_config));
+            try
+                pc.parallel_cluster = 'mpiexec_mpi';
+            catch
+                skipTest('mpiexec_mpi cluster is not available on the test machine');
+            end
+            
             tc = pTestPerformanceTester();
             name = tc.build_test_suite_name('SomeName');
-            assertEqual(name,[getComputerName(),'_','SomeName']);
+            
+            com_name = getComputerName();
+            p_pos = strfind(com_name,'.');
+            if ~isempty(p_pos)
+                com_name= com_name(1:p_pos(1)-1);
+            end
+            assertEqual(name,[com_name,'_','mpiexec_mpi_SomeName']);
         end
         %
         function test_default_test_name(~)
