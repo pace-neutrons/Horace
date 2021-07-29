@@ -31,9 +31,9 @@ function [tmp_file,sqw_file_tmp] = gen_tmp_filenames (spe_file, sqw_file,ind)
 %                    arise because one may try to accumulate to a previously
 %                    existing tmp file).
 %
-%   sqw_file_tgp    Temporary sqw file (character)
-%                  This is a unique name that can be used to accumulate
-%                  output to, and then rename as sqw_file.
+%   sqw_file_tmp    Temporary sqw file (character)
+%                   This is a unique name that can be used to accumulate
+%                   output to, and then rename as sqw_file.
 %
 %
 % Note: the functions that call this routine should already have checked that none
