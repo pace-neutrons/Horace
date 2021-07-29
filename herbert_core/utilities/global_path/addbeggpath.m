@@ -3,7 +3,7 @@ function addbeggpath(name,varargin)
 %
 %   >> addbeggpath(pathname,dir1,dir2,...)
 %
-% e.g. 
+% e.g.
 %   >> addbeggpath('my_data_area','c:\rawfiles','d:\scratch\rawfiles')
 %
 % See also: mkgpath, delgpath, addgpath, rmgpath, addendgpath, addbeggpath, showgpath, existgpath
@@ -16,7 +16,7 @@ end
 if ~existgpath(name)
     error(['Global path named ''',name,''' does not exist'])
 end
-    
+
 % Check directory names are character strings, not empty etc
 if ~isempty(varargin)
     if isempty(varargin)
@@ -31,9 +31,9 @@ if ~isempty(varargin)
     if isempty(dirs_add) || numel(dirs_add)~=n
         error('One or more additional directory name(s) &/or global path name(s) are empty.')
     end
-    [dummy,ind]=unique(dirs_add,'first');
+    [~,ind]=unique(dirs_add,'first');
     if numel(ind)~=numel(dirs_add)
-        display('Additional directory names or global path names are duplicated. Taking first occurence(s)')
+        disp('Additional directory names or global path names are duplicated. Taking first occurence(s)')
     end
     dirs_add=dirs_add(sort(ind));       % unique directories in order of first appearance
 else
@@ -42,11 +42,14 @@ end
 
 % Add directories to path:
 dirs=[dirs_add;getgpath(name)];
-[dummy,ind]=unique(dirs,'first');
+[~,ind]=unique(dirs,'first');
 if numel(ind)~=numel(dirs)
-    display('Duplicate directory names or global path names to be added to path. Taking first occurence(s)')
+    disp('Duplicate directory names or global path names to be added to path. Taking first occurence(s)')
 end
 dirs=dirs(sort(ind));       % unique directories in order of first appearance
 
 % Add global path to Matlab
 ixf_global_path('set',name,dirs);
+
+end
+

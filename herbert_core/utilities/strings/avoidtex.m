@@ -22,13 +22,15 @@ s1 = cellstr(s1);
 s2 = s1;
 
 for j = 1:length(s1)
-    pos=sort([findstr(s1{j},'\') findstr(s1{j},'_') findstr(s1{j},'^') findstr(s1{j},'{') findstr(s1{j},'}')]);
-    for i=1:length(pos),
+    pos=sort([strfind(s1{j},'\'), strfind(s1{j},'_'), strfind(s1{j},'^'), strfind(s1{j},'{'), strfind(s1{j},'}')]);
+    for i=1:length(pos)
        s2{j}=[s2{j}(1:(pos(i)+i-2)) '\' s2{j}((pos(i)+i-1):length(s2{j}))];
-    end   
+    end
 end
 
 % If input started as a char, it should end as a char
 if char_flag
     s2 = char(s2);
+end
+
 end

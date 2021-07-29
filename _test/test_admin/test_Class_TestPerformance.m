@@ -17,13 +17,13 @@ classdef test_Class_TestPerformance< TestCase
         end
         function test_constructor(this)
             tc = TestPerformance();
-            
+
             time = tic();
             sum = 0;
             for i=1:100
                 sum = sum+i;
             end
-            
+
             tc.assertPerformance(time,'test_constructor_operations',...
                 'this is not a performance test itself but the test of performance test operational');
         end
@@ -35,18 +35,17 @@ classdef test_Class_TestPerformance< TestCase
             copyfile(perf_test_source,per_test_working,'f');
             clob = onCleanup(@()delete(per_test_working));
             tc = TestPerformanceChildTestHelper('TestPerformanceChildTestHelper',per_test_working);
-            
+
             assertEqual(tc.test_results_file,per_test_working)
-            assertEqual(exist(tc.test_results_file,'file'),2);
-            
+            assertTrue(is_file(tc.test_results_file));
+
             delete(tc.test_results_file);
-            
+
             tc.fake_test_method()
-            
-            assertEqual(exist(tc.test_results_file,'file'),2);
+
+            assertTrue(is_file(tc.test_results_file));
         end
-        
-        
+
+
     end
 end
-

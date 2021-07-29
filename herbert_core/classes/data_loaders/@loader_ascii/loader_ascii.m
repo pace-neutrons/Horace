@@ -2,10 +2,16 @@ classdef loader_ascii < a_loader
     % helper class to provide loading experiment data from
     % ASCII spe file and  ASCII par file
     %
-    % $Author: Alex Buts; 20/10/2011
+    % $Author: AB; 20/10/2011
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
+    properties(Constant)
+        % when read ascii data, keep the specified number of digits after
+        % decimal point to obtain consitent results on different operating
+        % systems
+        ASCII_DATA_ACCURACY = 4;
+    end
+    
     
     methods(Static)
         function fext=get_file_extension()
@@ -61,7 +67,7 @@ classdef loader_ascii < a_loader
             %                   (e.g .spe if lower case extension spe file exist or SPE if upper case extension file exist)
             %
             %
-            if ~exist('file_name','var')
+            if ~exist('file_name', 'var')
                 error('LOAD_ASCII:invalid_argument',' has to be called with valid file name');
             end
             
@@ -105,8 +111,8 @@ classdef loader_ascii < a_loader
             % The run_data structure fields which become defined if proper spe file is provided
             
             obj=obj@a_loader(varargin{:});
-            obj.loader_define_ ={'S','ERR','en','n_detectors'};            
-            if exist('full_spe_file_name','var')
+            obj.loader_define_ ={'S','ERR','en','n_detectors'};
+            if exist('full_spe_file_name', 'var')
                 obj = obj.init(full_spe_file_name);
             else
                 obj = obj.init();
@@ -128,18 +134,18 @@ classdef loader_ascii < a_loader
             %                      energy bins and full file name for this file
             %
             
-            if ~exist('full_spe_file_name','var')
+            if ~exist('full_spe_file_name', 'var')
                 return
             end
             
-            if exist('full_par_file_name','var')
-                if isstruct(full_par_file_name) && ~exist('fh','var')
+            if exist('full_par_file_name', 'var')
+                if isstruct(full_par_file_name) && ~exist('fh', 'var')
                     fh = full_par_file_name; % second parameters defines spe file structure
                 else
                     ascii_loader.par_file_name = full_par_file_name;
                 end
             end
-            if exist('fh','var')
+            if exist('fh', 'var')
                 ascii_loader.n_detindata_    = fh.n_detectors;
                 ascii_loader.en_             = fh.en;
                 ascii_loader.data_file_name_ = fh.file_name;

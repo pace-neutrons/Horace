@@ -2,9 +2,8 @@ classdef loader_nxspe < a_loader
     %  helper class to provide loading experiment data and detectors angular
     %  positions  from NeXus nxspe file,
     %
-    % $Author: Alex Buts; 20/10/2011
+    % $Author: AB; 20/10/2011
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
     properties
         % incident energy
@@ -81,7 +80,7 @@ classdef loader_nxspe < a_loader
             % nexus_datast_info -- the structure, containing all nxspe data
             %                    layout within the nexus file
             %
-            if ~exist('file_name','var')
+            if ~exist('file_name', 'var')
                 error('LOAD_NXSPE:invalid_argument',' has to be called with valid file name');
             end
             [ndet,nxspe_ver,nexus_dir,nexus_datast_info]=...
@@ -162,7 +161,7 @@ classdef loader_nxspe < a_loader
             % The run_data structure fields which become defined if proper spe file is provided
             obj.loader_define_ ={'S','ERR','en','efix','psi','det_par','n_detectors'};
             
-            if exist('full_nxspe_file_name','var')
+            if exist('full_nxspe_file_name', 'var')
                 obj= obj.init(full_nxspe_file_name,varargin{:});
             end
         end

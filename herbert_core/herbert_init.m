@@ -136,8 +136,8 @@ function print_banner()
     lines = {'ISIS utilities for visualization and analysis', ...
              'of neutron spectroscopy data', ...
              ['Herbert ', herbert_version()]
-    };            
-    fprintf('!%s!\n', repmat('=', 1, width));                
+    };
+    fprintf('!%s!\n', repmat('=', 1, width));
     for i = 1:numel(lines)
         fprintf('!%s!\n', center_and_pad_string(lines{i}, ' ', width));
     end

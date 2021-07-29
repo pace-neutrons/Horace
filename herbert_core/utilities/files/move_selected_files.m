@@ -54,7 +54,7 @@ filename=file_name_list(source,varargin{1:min(narg,2)});
 if ~isempty(filename)
     relpath=relative_path(root_source,source);
     target=fullfile(root_target,relpath);
-    if ~exist(target,'dir')
+    if ~is_folder(target)
         ok=mkdir(target);
         if ~ok
             warning([' UNABLE TO CREATE FOLDER ',target,' - NO FILES COPIED'])

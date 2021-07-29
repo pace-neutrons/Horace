@@ -84,12 +84,12 @@ classdef test_fig_spread < TestCase
             
             fs.save_figs(tf);
             if verLessThan('matlab','8.1')
-                assertTrue(exist(fn{1},'file')==2);
-                assertTrue(exist(fn{2},'file')==2);
-                assertTrue(exist(fn{3},'file')==2);
-                assertTrue(exist(fn{4},'file')==2);
+                assertTrue(is_file(fn{1}));
+                assertTrue(is_file(fn{2}));
+                assertTrue(is_file(fn{3}));
+                assertTrue(is_file(fn{4}));
             else
-                assertTrue(exist(tf,'file')==2);
+                assertTrue(is_file(tf));
                 
                 fs = fs.load_figs(tf);
                 assertEqual(fs.fig_count,8);

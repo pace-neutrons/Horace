@@ -701,7 +701,7 @@ MyTree=[];
 try
   MyTree.('My-Number') = 13;
   MyTree.MyString.CONTENT = 'Hello World';
-  MyTree.MyString.ATTRIBUTE.('Num_ö') = 2;
+  MyTree.MyString.ATTRIBUTE.('Num_Ã¶') = 2;
 catch  %#ok<CTCH>
   err = lasterror; %#ok<LERR>
   disp(err.message);
@@ -711,7 +711,7 @@ end
 % It can be overcome by replacing offending characters with their 
 % hexadecimal representation. That can be done manually or with use of 
 % genvarname function. Note that MATLAB 'type' function does not show
-% correctly 'ö' letter in xml file, but opening the file in editor shows 
+% correctly 'Ã¶' letter in xml file, but opening the file in editor shows 
 % that it is correct.
 MyTree=[];
 MyTree.(genvarname('My-Number')) = 13;
@@ -764,7 +764,7 @@ gen_object_display(tree);
 
 %% Read XML files with special node types
 % Display and read the file, then show the data structure. Note that 
-% MATLAB 'type' function shows 'ö' letter incorrectly as 'A¶' in xml file, 
+% MATLAB 'type' function shows 'Ã¶' letter incorrectly as 'AÂ¶' in xml file, 
 % but opening the file in editor shows that it is correct.
 fprintf('Test xml file:\n');
 type('test_file.xml')

@@ -1,4 +1,4 @@
-function [varargout]=load_data(this,new_file_name)
+function [varargout]=load_data(obj,new_file_name)
 % Loads ASCII spe data into run_data structure
 %
 % this fucntion is the method of load_spe class
@@ -11,21 +11,21 @@ function [varargout]=load_data(this,new_file_name)
 %>>[S,ERR,en,this] = load_data(this,[new_file_name])
 %>>this            = load_data(this,[new_file_name])
 
-% $Author: Alex Buts; 20/10/2011
+% $Author: AB; 20/10/2011
 %
 
-if exist('new_file_name','var')
+if exist('new_file_name', 'var')
     if ~isa(new_file_name,'char')
         error('LOAD_ASCII:load_data','new file name has to be a string')
     end
-    this.file_name  = new_file_name;
+    obj.file_name  = new_file_name;
 else
-    if isempty(this.file_name)
+    if isempty(obj.file_name)
         error('LOAD_ASCII:load_data','input spe file is not fully defined')
     end
     
 end
-file_name  = this.file_name;
+file_name  = obj.file_name;
 
 use_mex=config_store.instance().get_value('herbert_config','use_mex');
 if use_mex
@@ -53,29 +53,30 @@ nans      = (S(:,:)<-1.e+29);
 S(nans)   = NaN;
 ERR(nans) = 0;
 
+accuracy = obj.ASCII_DATA_ACCURACY;
 % Fill output argument(s)
 if nargout == 1
     % set also all dependent on S variables
-    this.S_  =S;
-    this.ERR_=ERR;
-    this.en_ =en;
+    obj.S_  =round(S,accuracy );
+    obj.ERR_=round(ERR,accuracy );
+    obj.en_ =round(en,accuracy );
     
-    varargout{1}=this;
+    varargout{1}=obj;
 elseif nargout ==2
-    varargout{1}=S;
-    varargout{2}=ERR;
+    varargout{1}=round(S,accuracy );
+    varargout{2}=round(ERR,accuracy );
 elseif nargout == 3
-    varargout{1}=S;
-    varargout{2}=ERR;
-    varargout{3}=en;
+    varargout{1}=round(S,accuracy );
+    varargout{2}=round(ERR,accuracy );
+    varargout{3}=round(en,accuracy );
 elseif nargout == 4
-    this.S_  =S;
-    this.ERR_=ERR;
-    this.en_ =en;
+    obj.S_  =round(S,accuracy );
+    obj.ERR_=round(ERR,accuracy);
+    obj.en_ =round(en,accuracy);
     
-    varargout{1}=S;
-    varargout{2}=ERR;
-    varargout{3}=en;
-    varargout{4}=this;
+    varargout{1}=obj.S_ ;
+    varargout{2}=obj.ERR_;
+    varargout{3}=obj.en_;
+    varargout{4}=obj;
 end
 

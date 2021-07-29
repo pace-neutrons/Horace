@@ -1,4 +1,4 @@
-function [data_out, calcdata, ok, mess] = simulate (obj, varargin)
+function [data_out, calcdata] = simulate (obj, varargin)
 % Perform a simulation of the data using the current functions and parameter values
 %
 % Return calculated sum of foreground and background:
@@ -92,19 +92,10 @@ function [data_out, calcdata, ok, mess] = simulate (obj, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 
 % Default return values if there is an error
 data_out = [];
-calcdata = [];
-
-% Determine if not ok will throw an error
-if nargout<3
-    throw_error = true;
-else
-    throw_error = false;
-end
 
 % Check option
 opt_default = struct('sum',false,'foreground',false,'background',false,...
@@ -119,50 +110,40 @@ if ok
         elseif sum(lopt)==1
             output_type = flagnames{lopt};
         else
-            ok = false; mess = 'Check the value of output option';
+            error("HERBERT:mfclass:invalid_argument", 'Check the value of output option')
         end
     else
-        ok = false; mess = 'Check number of input arguments';
+        error("HERBERT:mfclass:invalid_argument", 'Check number of input arguments')
     end
-end
-if ~ok
-    if throw_error, error_message(mess), else, return, end
+else
+    error("HERBERT:mfclass:invalid_argument", mess)
 end
 
 % Check that there is data present
 if obj.ndatatot_ == 0
-    ok = false; mess = 'No data has been provided for simulation';
-    if throw_error, error_message(mess), else, return, end
+    error("HERBERT:mfclass:invalid_argument", 'No data has been provided for fitting')
 end
 
 % Check that all functions are present
 foreground_present = ~all(cellfun(@isempty,obj.fun_));
 background_present = ~all(cellfun(@isempty,obj.bfun_));
+
 if ~foreground_present && ~background_present
-    ok = false; mess = 'No fit functions have been provided';
-    if throw_error, error_message(mess), else, return, end
+    error("HERBERT:mfclass:invalid_argument", 'No fit functions have been provided')
 end
 
 % Mask the data
-[wmask, msk_out, ok, mess] = mask_data_for_fit (obj.w_, obj.msk_);
-if ~ok
-    if throw_error, error_message(mess), else, return, end
-end
+[wmask, msk_out] = mask_data_for_fit (obj.w_, obj.msk_);
 
 % Check that the parameters are OK, and for chisqr calculation that the data is fittable
 [ok_sim, ~, mess, pfin, p_info] = ptrans_initialise_ (obj);
 if ~ok_sim
-    ok = false;
-    if throw_error, error_message(mess), else, return, end
+    error("HERBERT:mfclass:bad_ptrans_init", mess)
 end
 
 % Allow for the case of input argument over-riding parameter values for simulation
 if numel(args)==1
-    [pfin,ok_sim,mess] = ptrans_par_inverse(args{1}, p_info);
-    if ~ok_sim
-        ok = false;
-        if throw_error, error_message(mess), else, return, end
-    end
+    pfin = ptrans_par_inverse(args{1}, p_info);
 end
 
 % Now simulate the data
@@ -173,11 +154,8 @@ bf_pass_caller = obj.wrapfun_.bf_pass_caller;
 selected = obj.options_.selected;
 if selected
     % Get wrapped functions and parameters after performing initialisation if required
-    [ok, mess, fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = ...
+    [fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = ...
         wrap_functions_and_parameters (obj.wrapfun_, wmask, obj.fun_, obj.pin_, obj.bfun_, obj.bpin_);
-    if ~ok
-        if throw_error, error_message(mess), else, return, end
-    end
 
     % Now compute output
     wout = multifit_func_eval (wmask, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
@@ -193,11 +171,8 @@ if selected
 
 else
     % Get wrapped functions and parameters after performing initialisation if required
-    [ok, mess, fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = ...
+    [fun_wrap, pin_wrap, bfun_wrap, bpin_wrap] = ...
         wrap_functions_and_parameters (obj.wrapfun_, obj.w_, obj.fun_, obj.pin_, obj.bfun_, obj.bpin_);
-    if ~ok
-        if throw_error, error_message(mess), else, return, end
-    end
 
     % Now compute output
     wout = multifit_func_eval (obj.w_, xye, fun_wrap, bfun_wrap, pin_wrap, bpin_wrap,...
@@ -223,3 +198,4 @@ converged = false;
 calcdata = repackage_output_parameters (pfin, sig, cor, chisqr_red, converged, p_info,...
     foreground_present, background_present);
 
+end

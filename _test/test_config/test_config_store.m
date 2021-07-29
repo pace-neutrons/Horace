@@ -22,13 +22,13 @@ classdef test_config_store < TestCase
             test_class_name = tsc.class_name;
             
             config_file = fullfile(config_store.instance().config_folder(),[test_class_name ,'.mat']);
-            if exist(config_file,'file')
+            if is_file(config_file)
                 delete(config_file);
             end
             %testing
             
             config_store.instance().store_config(tsc);
-            assertTrue(exist(config_file,'file')==2);
+            assertTrue(is_file(config_file));
             
             tsc1=config_store.instance().get_config(tsc);
             tsc1 = tsc.set_stored_data(tsc1);
@@ -47,7 +47,7 @@ classdef test_config_store < TestCase
             
             % clean up
             config_store.instance().clear_config(tsc,'-file');
-            assertFalse(exist(config_file,'file')==2)
+            assertFalse(is_file(config_file))
         end
         
         function this=test_two_classes(this)
@@ -64,18 +64,18 @@ classdef test_config_store < TestCase
             
             config_file1 = fullfile(config_store.instance().config_folder(),[test_class_name1 ,'.mat']);
             config_file2 = fullfile(config_store.instance().config_folder(),[test_class_name2 ,'.mat']);
-            if exist(config_file1,'file')
+            if is_file(config_file1)
                 delete(config_file1);
             end
-            if exist(config_file2,'file')
+            if is_file(config_file2)
                 delete(config_file2);
             end
             
             %testing
             config_store.instance().store_config(tsc1);
             config_store.instance().store_config(tsc2);
-            assertTrue(exist(config_file1,'file')==2);
-            assertTrue(exist(config_file2,'file')==2);
+            assertTrue(is_file(config_file1));
+            assertTrue(is_file(config_file2));
             
             tsc2a=config_store.instance().get_config(tsc2);
             tsc2a = tsc2.set_stored_data(tsc2a);
@@ -87,10 +87,10 @@ classdef test_config_store < TestCase
             
             
             config_store.instance().clear_config(tsc1,'-file');
-            assertFalse(exist(config_file1,'file')==2)
+            assertFalse(is_file(config_file1))
             
             config_store.instance().clear_config(tsc2,'-file');
-            assertFalse(exist(config_file2,'file')==2)
+            assertFalse(is_file(config_file2))
             
             assertFalse(config_store.instance().is_configured(tsc1),'-in_mem');
             assertFalse(config_store.instance().is_configured(tsc2),'-in_mem');
@@ -107,25 +107,25 @@ classdef test_config_store < TestCase
             test_class_name = tsc.class_name;
             
             config_file = fullfile(config_store.instance().config_folder(),[test_class_name ,'.mat']);
-            if exist(config_file,'file')
+            if is_file(config_file)
                 delete(config_file);
             end
             %testing
             
             config_store.instance().store_config(tsc);
-            assertTrue(exist(config_file,'file')==2);
+            assertTrue(is_file(config_file));
             
-            if exist(config_file,'file')
+            if is_file(config_file)
                 delete(config_file);
             end
             config_store.instance().store_config(tsc);
-            assertFalse(exist(config_file,'file')==2);
+            assertFalse(is_file(config_file));
             
             config_store.instance().store_config(tsc,'-force');
-            assertTrue(exist(config_file,'file')==2);
+            assertTrue(is_file(config_file));
             
             config_store.instance().clear_config(tsc,'-file')
-            assertFalse(exist(config_file,'file')==2);
+            assertFalse(is_file(config_file));
         end
         
         function test_changed_config(this)
@@ -136,27 +136,27 @@ classdef test_config_store < TestCase
             test_class_name = tsc.class_name;
             
             config_file = fullfile(config_store.instance().config_folder(),[test_class_name ,'.mat']);
-            if exist(config_file,'file')
+            if is_file(config_file)
                 delete(config_file);
             end
             %testing
             
             config_store.instance().store_config(tsc);
-            assertTrue(exist(config_file,'file')==2);
-            if exist(config_file,'file')
+            assertTrue(is_file(config_file));
+            if is_file(config_file)
                 delete(config_file);
             end
             
             tsc1=tsc;
             tsc1.a = 20;
             config_store.instance().store_config(tsc1);
-            assertTrue(exist(config_file,'file')==2);
+            assertTrue(is_file(config_file));
             tsc1a=config_store.instance().get_config(tsc );
             tsc1a = tsc.set_stored_data(tsc1a);
             assertTrue(tsc1==tsc1a);
             
             config_store.instance().clear_config(tsc,'-file')
-            assertFalse(exist(config_file,'file')==2);
+            assertFalse(is_file(config_file));
         end
         
         function test_changed_class(this)
@@ -166,13 +166,13 @@ classdef test_config_store < TestCase
             test_class_name = tsc.class_name;
             
             config_file = fullfile(config_store.instance().config_folder(),[test_class_name ,'.mat']);
-            if exist(config_file,'file')
+            if is_file(config_file)
                 delete(config_file);
             end
             % testing
             
             config_store.instance().store_config(tsc);
-            assertTrue(exist(config_file,'file')==2);
+            assertTrue(is_file(config_file));
             tsc1 = some_test_class2();
             % full the loader forcing it to think that the class have
             % changed
@@ -186,7 +186,7 @@ classdef test_config_store < TestCase
             tsc1a=config_store.instance().get_config(tsc1);
             warning(wc);
             
-            assertFalse(exist(config_file,'file')==2);
+            assertFalse(is_file(config_file));
             tsc1a = tsc1.set_stored_data(tsc1a);
             assertTrue(tsc1==tsc1a);
             
@@ -195,7 +195,7 @@ classdef test_config_store < TestCase
             assertTrue(tsc1==tsc1b);
             
             config_store.instance().clear_config(tsc,'-file')
-            assertFalse(exist(config_file,'file')==2);
+            assertFalse(is_file(config_file));
         end
         
         function test_set_restore_fields(this)
@@ -207,7 +207,7 @@ classdef test_config_store < TestCase
             
             config_file = fullfile(config_store.instance().config_folder(),[test_class_name ,'.mat']);
             
-            if exist(config_file,'file')
+            if is_file(config_file)
                 delete(config_file);
             end
             % testing
@@ -241,7 +241,7 @@ classdef test_config_store < TestCase
             assertEqual(100,tsc1.c);
             
             config_store.instance().clear_config(tsc,'-file')
-            assertFalse(exist(config_file,'file')==2);
+            assertFalse(is_file(config_file));
             
         end
         function test_restore_some_fields(this)
@@ -253,7 +253,7 @@ classdef test_config_store < TestCase
             
             config_file = fullfile(config_store.instance().config_folder(),[test_class_name ,'.mat']);
             
-            if exist(config_file,'file')
+            if is_file(config_file)
                 delete(config_file);
             end
             % testing
@@ -281,7 +281,7 @@ classdef test_config_store < TestCase
             assertEqual(100,c_val);
             %
             config_store.instance().clear_config(tsc,'-file')
-            assertFalse(exist(config_file,'file')==2);
+            assertFalse(is_file(config_file));
             
         end
     end

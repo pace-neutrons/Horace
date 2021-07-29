@@ -1,5 +1,5 @@
 function varargout = func_eval_ind (obj, varargin)
-% Evaluate an object method for indexed occurences in an object lookup table
+% Evaluate a function or an object method for indexed occurences in an object lookup table
 %
 %   >> [X1, X2,...] = func_eval_ind (obj, iarray, ind, funchandle, p1, p2,...)
 %   >> [X1, X2,...] = func_eval_ind (obj, ind, funchandle, p1, p2,...)

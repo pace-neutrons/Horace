@@ -124,7 +124,7 @@ if ~run_by_horace
     copyfile(install_script,fullfile(target_Dir,'herbert_on.m.template'),'f');
     
     her_file_name= 'herbert_distribution_kit.zip';
-    if(exist(her_file_name,'file'))
+    if(is_file(her_file_name))
         delete(her_file_name);
     end
     

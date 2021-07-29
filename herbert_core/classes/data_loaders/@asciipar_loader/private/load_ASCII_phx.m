@@ -1,6 +1,12 @@
-function phx=load_ASCII_phx(filename)
+function phx=load_ASCII_phx(filename,accuracy)
 % Load data from ASCII mslice .phx file
-%   >> par = load_ASCII_phx_as_par(filename)
+%   >> par = load_ASCII_phx(filename)
+%   >> par = load_ASCII_phx(filename,accuracy)
+% Inputs:
+% filename -- name of the par file to read
+% accuracy -- if provided, the number of digits to keep
+%             after decimal point. If not provided, the
+%             accuracy is equal to asciipar_loader.ASCII_PARAM_ACCURACY
 %
 % data has following fields:
 %
@@ -25,9 +31,12 @@ function phx=load_ASCII_phx(filename)
 
 
 % If no input parameter given, return
-if ~exist('filename','var')
+if ~exist('filename', 'var')
     help get_par;
     return
+end
+if ~exist('accuracy', 'var')
+    accuracy = asciipar_loader.ASCII_PARAM_ACCURACY;
 end
 
 filename=strtrim(filename);
@@ -54,9 +63,14 @@ if use_mex
 end
 
 if ~use_mex
-   phx=get_phx_matlab(filename);
-   [ncol,ndet]=size(phx);
+    phx=get_phx_matlab(filename);
+    [ncol,ndet]=size(phx);
 end
+
+% round-off parameters to 'accuracy' digits after decimal point for consistency
+% as the real accuracy is even lower but different OS interpret
+% missing digits differently
+phx = round(phx,accuracy);
 
 group=unique(round(phx(6,:)));
 if numel(group)==1      % all group numbers were the same (when rounded to the nearest integer)
@@ -90,7 +104,8 @@ end
 phx=fscanf(fid,'%f');
 fclose(fid);
 if numel(phx)~=ndet*7
-    error('A_LOADER:io_error',['File determined to have ',num2str(ndet),' detectors, but contents are inconsistent with a .phx file']);
+    error('A_LOADER:io_error',...
+        ['File determined to have ',num2str(ndet),' detectors, but contents are inconsistent with a .phx file']);
 end
 phx = reshape(phx,7,ndet);
 % exclude 2-nd row to have the same format as  par
@@ -101,5 +116,5 @@ phx=[phx(1,:);phx(3:7,:)];
 %     phx.azim=arr(4,:);
 %     phx.dphi=arr(5,:);
 %     phx.danght=arr(6,:);
-    
+
 

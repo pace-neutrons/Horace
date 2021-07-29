@@ -46,14 +46,14 @@ end
 
 % Replace logical arrays
 if isfore
-    if exist('free','var')
+    if exist('free', 'var')
         Sfun.free_(indfun) = free;
     else
         np = Sfun.np_(indfun);
         Sfun.free_(indfun) = mat2cell(true(1,sum(np)),1,np);
     end
 else
-    if exist('free','var')
+    if exist('free', 'var')
         Sfun.bfree_(indfun) = free;
     else
         np = Sfun.nbp_(indfun);

@@ -3,7 +3,7 @@ function rmgpath(name,varargin)
 %
 %   >> rmgpath(pathname,dir1,dir2,...)
 %
-% e.g. 
+% e.g.
 %   >> rmgpath('my_data_area','c:\rawfiles','d:\scratch\rawfiles')
 %
 % See also: mkgpath, delgpath, addgpath, rmgpath, addendgpath, addbeggpath, showgpath, existgpath
@@ -16,7 +16,7 @@ end
 if ~existgpath(name)
     error(['Global path named ''',name,''' does not exist'])
 end
-    
+
 % Check directory names are character strings, not empty etc
 if ~isempty(varargin)
     if isempty(varargin)
@@ -31,9 +31,9 @@ if ~isempty(varargin)
     if isempty(dirs_rm) || numel(dirs_rm)~=n
         error('One or more directory name(s) &/or global path name(s) to be removed are empty.')
     end
-    [dummy,ind]=unique(dirs_rm,'first');
+    [~,ind]=unique(dirs_rm,'first');
     if numel(ind)~=numel(dirs_rm)
-        display('One or more directory names or global path names to be removed are duplicated')
+        disp('One or more directory names or global path names to be removed are duplicated')
     end
     dirs_rm=dirs_rm(sort(ind));       % unique directories in order of first appearance
 else
@@ -45,7 +45,7 @@ dirs=getgpath(name);
 dirs_cmn=array_common(dirs_rm,dirs,'first');
 if ~isempty(dirs_cmn)
     if numel(dirs_cmn)~=numel(dirs_rm)
-        display(['Not all directories and global paths to be removed exist in global path ''',name,''' - these ones will be ignored.'])
+        disp(['Not all directories and global paths to be removed exist in global path ''',name,''' - these ones will be ignored.'])
     end
     ind=array_keep(dirs,dirs_cmn);
     dirs=dirs(ind);
@@ -56,5 +56,8 @@ if ~isempty(dirs_cmn)
         ixf_global_path('del',name);
     end
 else
-    display(['No directories and global paths to be removed exist in global path ''',name,''' - operation had no effect.'])
+    disp(['No directories and global paths to be removed exist in global path ''',name,''' - operation had no effect.'])
 end
+
+end
+

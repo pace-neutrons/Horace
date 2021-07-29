@@ -149,7 +149,7 @@ function [ok,mess,div_store,table_store]=read_store(filename)
 % Read stored divergence profile lookup table
 % ok=true if file does not exist
 
-if exist(filename,'file')
+if is_file(filename)
     disp('Reading stored divergence profile lookup table...')
     try
         load(filename,'-mat');
@@ -204,7 +204,7 @@ end
 function [ok,mess]=delete_store(filename)
 % Read stored divergence profile lookup table
 
-if exist(filename,'file')
+if is_file(filename)
     try
         disp('Deleting divergence profile chopper lookup table...')
         delete(filename)

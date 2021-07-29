@@ -1,24 +1,24 @@
 function varargout=xmlwrite_xerces(varargin)
-%XMLWRITE_XERCES Serialize an XML Document Object Model node using Xerces parser. 
+%XMLWRITE_XERCES Serialize an XML Document Object Model node using Xerces parser.
 %  xmlwrite_xerces(FILENAME,DOMNODE) serializes the DOMNODE to file FILENAME.
 %
-% The function xmlwrite_xerces is very similar the Matlab function xmlwrite 
-% but works directly with the XERCES java classes (written by Apache XML 
+% The function xmlwrite_xerces is very similar the Matlab function xmlwrite
+% but works directly with the XERCES java classes (written by Apache XML
 % Project) instead of the XMLUtils class created by Mathworks. Xerces files
 % are provided in standard MATLAB instalation and live in root\java\jarext
-% directory. 
+% directory.
 %
-% Written by A.Amaro (02-22-2007) and generously donated to xml_io_tools. 
+% Written by A.Amaro (02-22-2007) and generously donated to xml_io_tools.
 % This function is needed as a work-around for a bug in XMLUtils library
-% which can not write CDATA SECTION nodes correctly. Also Xerces and 
-% XMLUtils libraries handle namespaces differently.  
+% which can not write CDATA SECTION nodes correctly. Also Xerces and
+% XMLUtils libraries handle namespaces differently.
 %
 % Examples:
 %   % See xmlwrite examples this function have almost identical behavior.
-%  
+%
 % Advanced use:
 %  FILENAME can also be a URN, java.io.OutputStream or java.io.Writer object
-%  SOURCE can also be a SAX InputSource, JAXP Source, InputStream, or 
+%  SOURCE can also be a SAX InputSource, JAXP Source, InputStream, or
 %    Reader object
 
 returnString = false;
@@ -33,7 +33,7 @@ else
       % filename string. So I have commented this next line
       %  result = F_xmlstringinput(result,false);
     end
-    
+
     source = varargin{2};
     if ischar(source)
         source = F_xmlstringinput(source,true);
@@ -71,7 +71,7 @@ end
 
 if isempty(xString)
     error('Filename is empty');
-elseif ~isempty(findstr(xString,'://'))
+elseif contains(xString,'://')
     %xString is already a URL, most likely prefaced by file:// or http://
     out = xString;
     return;
@@ -89,7 +89,7 @@ if isempty(xPath)
     end
 else
     out = xString;
-    if (nargin<2 || isFullSearch) && ~exist(xString,'file')
+    if (nargin<2 || isFullSearch) && ~is_file(xString)
         %search to see if xString exists when isFullSearch
         error('xml:FileNotFound','File %s not found',xString);
     end
@@ -106,4 +106,3 @@ else
     % DOS filepaths need to look like file:///d:/foo/bar
     out = ['file:///',strrep(out,'\','/')];
 end
-

@@ -1,6 +1,6 @@
 function [y, name, pnames, pin] = gauss_area(x, p, flag)
 % Gaussian. Fits area and width (cf. gauss which fits height and width)
-% 
+%
 %   >> y = gauss_area(x,p)
 %   >> [y, name, pnames, pin] = gauss_area(x,p,flag)
 %
@@ -33,18 +33,20 @@ if nargin==2
     y=(p(1)/(abs(p(3))*sqrt(2*pi)))*exp(-0.5*((x-p(2))/p(3)).^2);
 else
     % Return parameter names or interactively prompt for parameter values
-	y=[];
-	name='Gaussian';
-	pnames=str2mat('Area','Centre','Sigma');
-	if flag==1
+    y=[];
+    name='Gaussian';
+    pnames=char('Area','Centre','Sigma');
+    if flag==1
         pin=zeros(size(p));
     elseif flag==2
-		mf_msg('Click on peak maximum');
-		[centre,height]=ginput(1);
-		mf_msg('Click on half-height');
-		[width,dummy]=ginput(1);
-		sigma=0.8493218*abs(width-centre);
+        mf_msg('Click on peak maximum');
+        [centre,height]=ginput(1);
+        mf_msg('Click on half-height');
+        [width,~]=ginput(1);
+        sigma=0.8493218*abs(width-centre);
         area=height*sigma*sqrt(2*pi);
-		pin=[area,centre,sigma];
-	end
+        pin=[area,centre,sigma];
+    end
+end
+
 end

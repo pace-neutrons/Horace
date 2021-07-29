@@ -3,7 +3,6 @@ classdef loaders_factory < handle
     % demand
     %
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
     
     
@@ -99,7 +98,7 @@ classdef loaders_factory < handle
                 [ok,fh] = loader.can_load(full_data_name);
                 if ok
 					% if loader can, initialize loader with the file.
-                    if exist('par_file_name','var')
+                    if exist('par_file_name', 'var')
                         loader=loader.init(full_data_name,par_file_name,fh);
                     else
                         loader=loader.init(full_data_name,'',fh);

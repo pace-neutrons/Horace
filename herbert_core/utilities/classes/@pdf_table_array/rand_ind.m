@@ -1,17 +1,20 @@
 function X = rand_ind (obj, ind)
-% Generate random numbers from a lookup table of probability distributions
+% Generate random numbers from a set of probability distributions
 %
 %   >> X = rand_ind  (obj, ind)
 %
-% Works by linear interpolation.
+% The pdfs from which the random numbers are drawn are defined
+% by linear interpolation between the array of x coordinates and
+% corresponding function values.
 %
 % Input:
 % ------
 %   obj         pdf_table_array object
+%              (See <a href="matlab:help('pdf_table_array');">pdf_table_array</a> for details)
 %
 %   ind         Array containing the probability distribution function
 %              indices from which a random number is to be taken.
-%              min(ind(:))>=1, max(ind(:))<=npdf
+%              min(ind(:))>=1, max(ind(:))<=obj.npdf
 %
 % Output:
 % -------

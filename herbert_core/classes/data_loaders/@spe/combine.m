@@ -1,6 +1,6 @@
-function mess = combine(dummy_spe,weight,spedir,spefiles,spefileout)
+function mess = combine(~,weight,spedir,spefiles,spefileout)
 % Weighted combination of spe files together. If a pixel is bad in any one of the
-% spe files, it is masked as bad in the output file. 
+% spe files, it is masked as bad in the output file.
 %
 %   >> mess = add(spe,weight,spedir,spefiles,spefileout)
 %
@@ -37,12 +37,12 @@ elseif ~ischar(spedir)||~length(size(spedir))==2||~size(spedir,1)==1
     mess='Default directory must be a character string';
     return
 else
-    if ~exist(spedir,'dir')
+    if ~is_folder(spedir)
         mess=['Default directory for .spe files does not exist (',spedir,')'];
         return
     end
 end
-    
+
 % Check input files form a cell array of strings, construct full path for each file, and check they exist
 if ~iscellstr(spefiles)
     mess='.spe file names must be a cell array of form {''file_1.spe'',''file2.spe'',...}';
@@ -57,7 +57,7 @@ else
             if isempty(filepath)
                 spefiles{i}=fullfile(spedir,spefiles{i});
             end
-            if ~exist(spefiles{i},'file')
+            if ~is_file(spefiles{i})
                 mess=['Cannot find input .spe file ',spefiles{i}];
                 return
             end
@@ -66,7 +66,7 @@ else
 end
 
 % Check number of weights and spefiles are inconsistent
-if numel(weight)~=numel(spefiles),
+if numel(weight)~=numel(spefiles)
     mess=[num2str(numel(weight)),' weights not consistent with ',num2str(numel(spefiles)),' spe files given.'];
     return
 end
@@ -80,7 +80,7 @@ else
     if isempty(filepath)
         spefileout=fullfile(spedir,spefileout);
     else
-        if ~exist(filepath,'dir')
+        if ~is_folder(filepath)
             mess=['Output directory for .spe file does not exist (',filepath,')'];
             return
         end
@@ -117,7 +117,7 @@ clear header tmp
 % Accumulate signal
 for i=1:numel(weight)
     [data,ok,mess]=get_spe(spefiles{i});    % get_spe puts signal=NaN for null data (August 2009)
-    if ~ok,
+    if ~ok
         mess=['Could not read .spe file ',spefiles{i}]; return
     end
     ok_pix=~isnan(data.S);	% true where pixel has data and false where detector has 'nulldata' in current data set
@@ -139,13 +139,13 @@ for i=1:numel(weight)
     masked_detector=all(~ok_pix,1);     % detector is masked if all pixels are null
     ndet_ok=sum(~masked_detector);      % number of unmasked detectors
     npix_bad=sum(reshape(~ok_pix(:,~masked_detector),[ne*ndet_ok,1]));   % number of bad pixels in unmasked detectors
-    disp(sprintf('Current file masked detectors %d; other bad pixels %d',(ndet-ndet_ok),npix_bad));
-    
+    fprintf('Current file masked detectors %d; other bad pixels %d',(ndet-ndet_ok),npix_bad);
+
     % For accumulated file
     masked_detector=all(~cumm_ok_pix,1);% detector is masked if all pixels are null
     ndet_ok=sum(~masked_detector);      % number of unmasked detectors
     npix_bad=sum(reshape(~cumm_ok_pix(:,~masked_detector),[ne*ndet_ok,1]));   % number of bad pixels in unmasked detectors
-    disp(sprintf('     Overall masked detectors %d; other bad pixels %d',(ndet-ndet_ok),npix_bad));
+    fprintf('     Overall masked detectors %d; other bad pixels %d',(ndet-ndet_ok),npix_bad);
     disp(' ')
 
 end
@@ -164,3 +164,5 @@ data.ERR(~cumm_ok_pix)=0;
 
 % Save accumulated data
 save(spe(data),spefileout);
+
+end

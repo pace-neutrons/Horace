@@ -7,7 +7,7 @@ function A = object_elements (obj, varargin)
 % Input:
 % ------
 %   obj         object_lookup object
-%   
+%
 %   iarray      Scalar index of the original object array from the
 %              cell array of object arrays from which the object lookup
 %              was created.
@@ -27,17 +27,17 @@ function A = object_elements (obj, varargin)
 
 % Check validity
 if ~isscalar(obj)
-    error('Only operates on a single object_lookup (i.e. object must be scalar');
+    error('HERBERT:object_lookup:invalid_argument', 'Only operates on a single object_lookup (i.e. object must be scalar');
 end
 if ~obj.filled
-    error('The object_lookup is not initialised')
+    error('HERBERT:object_lookup:invalid_argument', 'The object_lookup is not initialised')
 end
 
 % Get return argument
 if numel(varargin)==2
     iarray = varargin{1};
     if ~isscalar(iarray)
-        error('Index to original object array, ''iarray'', must be a scalar')
+        error('HERBERT:object_lookup:invalid_argument', 'Index to original object array, ''iarray'', must be a scalar')
     end
     ind = varargin{2};
 elseif numel(varargin)==1
@@ -45,10 +45,10 @@ elseif numel(varargin)==1
         iarray = 1;
         ind = varargin{1};
     else
-        error('Must give index to the object array from which samples are to be drawn')
+        error('HERBERT:object_lookup:invalid_argument', 'Must give index to the object array from which elements are to be recovered')
     end
 else
-    error('Insufficient number of input arguments')
+    error('HERBERT:object_lookup:invalid_argument', 'Invalid number of input arguments')
 end
 
 % Get return argument
@@ -56,3 +56,6 @@ Afull = obj.object_store_(obj.indx_{iarray});
 Afull = reshape(Afull,obj.sz_{iarray});
 
 A = Afull(ind);
+
+end
+

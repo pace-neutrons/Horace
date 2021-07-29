@@ -1,21 +1,56 @@
 classdef pdf_table_array
-    % Array of probability distributions from which to pull random samples
+    % Array of one-dimensional probability distribution functions
     %
-    % A pdf_array object reorganises the contents of an array of pdf_table
-    % objects to optimise the speed of random sampling from the array for a
-    % large list of indices into the array, one random point per index:
+    % A pdf_table_array object is created from an array of pdf_table objects.
+    % Its internal structure optimises the speed of random sampling from that
+    % array when random samples are required for a large list of indices into
+    % the array, one random point per index.
+    %
+    % The case when one needs to do this is when the length of the index
+    % array is much greater than the number of elements in the pdf_table
+    % array. For example, if the number of tables is 100, and the number
+    % of indicies is 1e6 (so the index array contains 1e6 values each of
+    % which is in the range 1 to 100 in this case, but which may be in any
+    % order):
     %
     % Useage:
-    %  if pdf is an array of pdf_table objects, and ind is a large array of
+    % -------
+    % If pdf is an array of pdf_table objects, and ind is a large array of
     %  indices into pdf, then replace:
     %
+    %   X = zeros(1,numel(ind));
     %   for i=1:numel(ind)
     %       X(i) = rand(pdf(ind(i)))
     %   end
     %
     % with:
     %   pdfarr = pdf_array(pdf);
+    %     :
     %   X = rand_ind(pdfarr, ind)
+    %
+    %
+    % pdf_table_array Methods:
+    %   pdf_table_array - constructor
+    %   rand_ind        - generate random numbers from the pdf_table_array
+    %
+    %
+    % Relationship with pdf_table_lookup and object_lookup:
+    % -----------------------------------------------------
+    % If you already have an array of one-dimensional probability distributions in
+    % the form of pdf_table objects from which you want to draw a large 
+    % number of random points simultaneously, then create a pdf_table_array
+    % object.
+    %
+    % If you have a large collection of objects which have a method pdf_table
+    % that creates a one-dimensional probability distribution table and you
+    % do not want to evaluate any other properties of the array of objects,
+    % then create a pdf_lookup_table object. It has a further optimisation that
+    % reduces memory use.
+    %
+    % Mostly however, if you have a large collection of objects then the best option
+    % is to create an object_lookup object. This gives speed and memory advantages
+    % for all methods of your objects. See the help for pdf_table_lookup and 
+    % object_lookup for more details.
     %
     % See also pdf_table pdf_table_lookup
     
@@ -68,6 +103,7 @@ classdef pdf_table_array
             % Input:
             % ------
             %   pdf     Array of pdf_table objects
+            %          (See <a href="matlab:help('pdf_table');">pdf_table</a> for details)
             %
             % Output:
             % -------

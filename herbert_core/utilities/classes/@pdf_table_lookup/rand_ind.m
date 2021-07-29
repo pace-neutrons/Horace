@@ -1,12 +1,17 @@
 function X = rand_ind (obj, varargin)
-% Generate random numbers from the pdf
+% Generate random numbers from a set of probability distributions
 %
 %   >> X = rand_ind (obj, iarray, ind)
 %   >> X = rand_ind (obj, ind)
 %
+% The pdfs from which the random numbers are drawn are defined
+% by linear interpolation between the array of x coordinates and
+% corresponding function values.
+%
 % Input:
 % ------
-%   obj         Sampling_table object
+%   obj         pdf_table_lookup object
+%              (See <a href="matlab:help('pdf_table_lookup');">pdf_table_lookup</a> for details)
 %
 %   iarray      Scalar index of the original object array from the
 %              cell array of object arrays from which the sampling_table
@@ -21,7 +26,9 @@ function X = rand_ind (obj, varargin)
 %
 % Output:
 % -------
-%   X           Array of random numbers, with the same size as ind.
+%   X           Array of random numbers from the distributions, one
+%              random number from the pdf for each element of ind.
+%              The size of X is the same as ind.
 
 
 if ~obj.filled

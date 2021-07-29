@@ -1,9 +1,9 @@
 function outd = figmenus(d)
 % Set up sliceomatic's gui menus within structure D
-  
+
 % Main Figure Menu
   set(gcf,'menubar','none');
-  
+
   % File menu
   d.filemenu = uimenu(gcf,'label','File');
   d.fcopy = uimenu(d.filemenu, 'label', 'Copy figure','callback', 'sliceomatic copy');
@@ -32,7 +32,7 @@ function outd = figmenus(d)
 
   % Remove this once we have more controls to enable and disable.
 %  set(d.defcontrols,'vis','off');
-  
+
   % Default for new slices menu
   d.defmenu = uimenu(gcf,'label','Object_Defaults', 'callback', @defaultmenu);
   d.dfacet  = uimenu(d.defmenu,'label','Slice Color Faceted','callback','sliceomatic defaultfaceted');
@@ -57,7 +57,7 @@ function outd = figmenus(d)
   d.dcl4    = uimenu(d.dclinew,'label','4','callback','sliceomatic defaultcontourlinewidth 4');
   d.dcl5    = uimenu(d.dclinew,'label','5','callback','sliceomatic defaultcontourlinewidth 5');
   d.dcl6    = uimenu(d.dclinew,'label','6','callback','sliceomatic defaultcontourlinewidth 6');
-  
+
   d.defcolor='texture';
   d.defalpha='none';
   d.deflight='smooth';
@@ -106,7 +106,7 @@ function outd = figmenus(d)
   d.smcl4     = uimenu(d.smclinew,'label','4','callback','sliceomatic slicecontourlinewidth 4');
   d.smcl5     = uimenu(d.smclinew,'label','5','callback','sliceomatic slicecontourlinewidth 5');
   d.smcl6     = uimenu(d.smclinew,'label','6','callback','sliceomatic slicecontourlinewidth 6');
-  
+
   % Isosurface Context Menu
   d.uiciso=uicontextmenu('callback',@isocontextmenu);
   d.vistogiso = uimenu(d.uiciso,'label','Visible','callback','sliceomatic isotogglevisible');
@@ -120,12 +120,12 @@ function outd = figmenus(d)
   uimenu(d.isoalpha,'label','.8','callback','sliceomatic isoalpha .8');
   uimenu(d.isoalpha,'label','1','callback','sliceomatic isoalpha 1');
   d.isocap=uimenu(d.uiciso,'label','Add IsoCaps','callback','sliceomatic isocaps','separator','on');
-  
+
   outd = d;
-  
-function controlmenu(fig, action)  
+
+function controlmenu(~, ~)
 % Handle doing things to the CONTROLS menu
-  
+
   d=getappdata(gcf,'sliceomatic');
 
   if cameratoolbar('getvisible')
@@ -133,7 +133,7 @@ function controlmenu(fig, action)
   else
     set(d.camtoolbar,'checked','off');
   end
-  
+
   set([d.dcalpha1 d.dcalpha8 d.dcalpha6 d.dcalpha5 d.dcalpha6 d.dcalpha2 d.dcalpha0...
        d.dclabels d.dcvis ],...
       'checked','off');
@@ -147,34 +147,34 @@ function controlmenu(fig, action)
    case .2, set(d.dcalpha2,'checked','on');
    case 0,  set(d.dcalpha0,'checked','on');
   end
-  
+
   if ~isempty(get(d.axx,'xticklabel'))
     set(d.dclabels,'checked','on');
   end
-  
+
   if strcmp(get(d.axx,'visible'),'on')
     set(d.dcvis,'checked','on');
   end
-  
-  if 0
-    xt = get(get(d.axx,'title'),'string');
-    switch xt
-     case 'X Slice Controller'
-      set(d.dcslice,'checked','on');
-    end
-    
-    xt = get(get(d.axiso,'title'),'string');
-    switch xt
-     case 'Iso Surface Controller'
-      set(d.dciso,'checked','on');
-    end
-  end
-  
-function defaultmenu(fig, action)
+
+%   if 0
+%     xt = get(get(d.axx,'title'),'string');
+%     switch xt
+%      case 'X Slice Controller'
+%       set(d.dcslice,'checked','on');
+%     end
+%
+%     xt = get(get(d.axiso,'title'),'string');
+%     switch xt
+%      case 'Iso Surface Controller'
+%       set(d.dciso,'checked','on');
+%     end
+%   end
+
+function defaultmenu(~, ~)
 % Handle toggling bits on the slice defaults menu
-  
+
   d=getappdata(gcf,'sliceomatic');
-  
+
   set([d.dfacet d.dflat d.dinterp d.dtex d.dtnone d.dtflat d.dtinterp ...
        d.dttex d.dcflat d.dcinterp d.dcblack d.dcwhite d.dcnone ...
        d.dlflat d.dlsmooth ...
@@ -226,16 +226,16 @@ function defaultmenu(fig, action)
    case 6, set(d.dcl6,'checked','on');
   end
 
-function slicecontextmenu(fig,action)
+function slicecontextmenu(~,~)
 % Context menu state for slices
 
   d=getappdata(gcf,'sliceomatic');
 
-  [a s]=getarrowslice;
+  [~, s]=getarrowslice;
   set([d.smfacet d.smflat d.sminterp d.smtex d.smtnone d.smtp5 ...
        d.smtflat d.smtinterp d.smttex d.smnone],'checked','off');
   set(d.vistog,'checked',get(s,'visible'));
-  
+
   if propcheck(s,'edgec',[0 0 0])
     set(d.smfacet,'checked','on');
   elseif propcheck(s,'facec','flat')
@@ -286,9 +286,9 @@ function slicecontextmenu(fig,action)
         set(d.smcinterp,'checked','on');
       end
     else
-      if ec == [ 1 1 1 ]
+      if all(ec)
         set(d.smcwhite,'checked','on');
-      elseif ec == [ 0 0 0 ]
+      elseif ~any(ec)
         set(d.smcblack,'checked','on');
       else
         set(d.smccolor,'checked','on');
@@ -304,13 +304,13 @@ function slicecontextmenu(fig,action)
      case 6, set(d.smcl6,'checked','on');
     end
   end
-  
-function isocontextmenu(fig,action)
+
+function isocontextmenu(~,~)
 % Context menu state for isosurfaces
 
   d=getappdata(gcf,'sliceomatic');
-  
-  [a s]=getarrowslice;
+
+  [~, s]=getarrowslice;
   if propcheck(s,'facelighting','flat')
     set(d.isoflatlight,'checked','on');
     set(d.isosmoothlight,'checked','off');

@@ -104,7 +104,7 @@ else
     [mess_names,mid_from,mid_to]=set_empty();
     if nargout > 3
         varargout{1}  = {};
-    end
+end
     return;
 end
 

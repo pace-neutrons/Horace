@@ -121,6 +121,14 @@ name_b = inputname(2);
 if isempty(name_a), name_a = name_a_default; end
 if isempty(name_b), name_b = name_b_default; end
 
+% Lazy handling of MATLAB strings
+if isstring(a)
+    a = convertStringsToChars(a);
+end
+if isstring(b)
+    b = convertStringsToChars(b);
+end
+
 
 % Parse input arguments
 if nargin==2
@@ -128,19 +136,19 @@ if nargin==2
     opt.nan_equal = true;
     opt.ignore_str = false;
     opt.tol = [0,0];
-    
+
 elseif nargin==3 && isnumeric(varargin{1})
     % Case of no optional arguments; save an expensive call to parse_arguments
     opt.nan_equal = true;
     opt.ignore_str = false;
-    
+
     % Determine if legacy input; it must be if tol is scalar
     if isscalar(varargin{1})
         opt.tol=check_tol(varargin{1},0);
     else
         opt.tol=check_tol(varargin{1});
     end
-    
+
 else
     % Optional arguments must have been given; parse input arguments
     % opt filled with default for new format; strip min_denominator away later
@@ -157,7 +165,7 @@ else
     cntl.keys_at_end=false; % as may have name_a or name_b appear first in some cases
     [par, opt, present, ~, ok, mess] = parse_arguments(varargin, opt, cntl);
     if ~ok, error(mess), end
-    
+
     % Determine the tolerance
     ok_positive_scalar = @(x)(isnumeric(x) && isscalar(x) && ~isnan(x) && x>=0);
     if numel(par)==1 && isnumeric(par{1})
@@ -178,7 +186,7 @@ else
             error(['Cannot give the tolerance as third input argument and'...
                 'also as a keyword parameter'])
         end
-        
+
     elseif numel(par)==0
         % No tolerance parameter given, so determine from keywords if possible.
         if ~any([present.tolerance, present.abstolerance, present.reltolerance])
@@ -192,15 +200,15 @@ else
                 % Treat as new format
                 tol = [0,0];
             end
-            
+
         else
             % Tolerance keyword(s) present; usage is therefore non-legacy.
-            
+
             % Check that invalid keyword 'min_denominator' is not present
             if present.min_denominator
                 error('''min_denominator'' is only valid for legacy argument format')
             end
-            
+
             % Determine tolerance
             if present.tolerance && ~(present.abstolerance || present.reltolerance)
                 if isnumeric(opt.tolerance)
@@ -234,12 +242,12 @@ else
             else
                 error('''tol'' cannot be present with ''abstol'' or ''reltol''')
             end
-            
+
         end
     else
         error('Check number and type of non-keyword input arguments')
     end
-    
+
     % Strip away temporary fields
     name_a = opt.name_a;
     name_b = opt.name_b;
@@ -247,7 +255,7 @@ else
     if isempty(name_b), name_b = name_b_default; end
     opt = rmfield(opt, {'min_denominator','name_a','name_b',...
         'tolerance','abstolerance','reltolerance'});
-    
+
     if islognumscalar(opt.ignore_str)
         opt.ignore_str = logical(opt.ignore_str);
     else
@@ -278,7 +286,7 @@ ok_positive_scalar = @(x)(isnumeric(x) && isscalar(x) && ~isnan(x) && x>=0);
 
 if isempty(tol)
     tol_out = [0,0];
-    
+
 elseif isscalar(tol)
     if ~isnan(tol)
         if tol>=0
@@ -295,7 +303,7 @@ elseif isscalar(tol)
         error('CHECK_TOLL:invalid_argument',...
             'Tolerance cannot be NaN');
     end
-    
+
 elseif numel(tol)==2
     if all(tol>=0)
         tol_out = tol;
@@ -335,7 +343,7 @@ if opt.ignore_str && (iscellstr(a)||ischar(a)) && (iscellstr(b)||ischar(b))
     % Case of strings and cell array of strings if they are to be ignored
     % If cell arrays of strings then contents and number of strings are
     % ignored e.g. {'Hello','Mr'}, {'Dog'} and '' are all considered equal
-    
+
 elseif isobject(a) && isobject(b)
     % --------------------------
     % Both arguments are objects
@@ -348,7 +356,7 @@ elseif isobject(a) && isobject(b)
             name_a,name_b);
         return
     end
-    
+
     % Check fieldnames are identical
     fields=fieldnames(struct(a));       % gets hidden properties too
     if ~isequal(fields,fieldnames(struct(b)))
@@ -357,7 +365,7 @@ elseif isobject(a) && isobject(b)
             name_a,name_b);
         return
     end
-    
+
     for i=1:numel(a)
         if numel(a)>1
             name_a_ind = [name_a,'(',arraystr(sz,i),')'];
@@ -377,11 +385,11 @@ elseif isobject(a) && isobject(b)
             [ok,mess] = equal_to_tol_private(Sa.(fields{j}), Sb.(fields{j}), opt,...
                 [name_a_ind,'.',fields{j}], [name_b_ind,'.',fields{j}]);
             if ~ok
-                return, 
+                return,
             end
         end
     end
-    
+
 elseif isstruct(a) && isstruct(b)
     % -----------------------------
     % Both arguments are structures
@@ -394,7 +402,7 @@ elseif isstruct(a) && isstruct(b)
             name_a,name_b);
         return
     end
-    
+
     % Check fieldnames are identical
     fields=fieldnames(a);
     if ~isequal(fields,fieldnames(b))
@@ -403,7 +411,7 @@ elseif isstruct(a) && isstruct(b)
             name_a,name_b);
         return
     end
-    
+
     % Check contents of each field are the same
     for i=1:numel(a)
         if numel(a)>1
@@ -419,7 +427,7 @@ elseif isstruct(a) && isstruct(b)
             if ~ok, return, end
         end
     end
-    
+
 elseif iscell(a) && iscell(b)
     % ------------------------------
     % Both arguments are cell arrays
@@ -432,7 +440,7 @@ elseif iscell(a) && iscell(b)
             name_a,name_b);
         return
     end
-    
+
     % Check contents of each element of the arrays
     for i=1:numel(a)
         name_a_ind = [name_a,'{',arraystr(sz,i),'}'];
@@ -440,14 +448,14 @@ elseif iscell(a) && iscell(b)
         [ok,mess] = equal_to_tol_private (a{i} ,b{i}, opt, name_a_ind, name_b_ind);
         if ~ok, return, end
     end
-    
+
 elseif isnumeric(a) && isnumeric(b)
     % ---------------------------------
     % Both arguments are numeric arrays
     % ---------------------------------
     [ok,mess]=equal_to_tol_numeric(a,b,opt.tol,opt.nan_equal,name_a,name_b);
     if ~ok, return, end
-    
+
 elseif ischar(a) && ischar(b)
     % -----------------------------------
     % Both arguments are character arrays
@@ -459,14 +467,14 @@ elseif ischar(a) && ischar(b)
             name_a,name_b);
         return
     end
-    
+
     if ~strcmp(a,b)
         ok=false;
         mess=sprintf('%s and %s: Character arrays being compared are not equal',...
             name_a,name_b);
         return
     end
-    
+
 elseif strcmp(class(a),class(b))
     % ------------------------------------------------------------------------
     % Catch-all for anything else - should hsve been caught by the cases above
@@ -478,14 +486,14 @@ elseif strcmp(class(a),class(b))
             name_a,name_b);
         return
     end
-    
+
     if ~isequal(a,b)
         ok=false;
         mess=sprintf('%s and %s: Object (or object arrays) are not equal',...
             name_a,name_b);
         return
     end
-    
+
 else
     % -----------------------------------------------
     % Items being compared do not have the same class
@@ -509,7 +517,7 @@ if isequal(size(a),size(b))
     sz=size(a);
     a=a(:);
     b=b(:);
-    
+
     % Treatment of NaN elements
     if nan_equal
         % If NaNs are to be ignored, remove them from consideration
@@ -537,7 +545,7 @@ if isequal(size(a),size(b))
             return
         end
     end
-    
+
     % Treatment of Inf elements
     infs_mark=isinf(a);
     if any(infs_mark)   % Inf elements are present
@@ -557,7 +565,7 @@ if isequal(size(a),size(b))
         a=a(~infs_mark);            % filter out Inf elements from further consideration
         b=b(~infs_mark);
     end
-    
+
     % Compare elements. Pass the case of empty arrays - these are considered equal
     if ~isempty(a)
         % All elements to be compared are finite (dealt with Inf and NaN above)
@@ -572,7 +580,7 @@ if isequal(size(a),size(b))
             mess=sprintf('%s and %s: Not all elements are equal; max. error = %s at element %s',...
                 name_a,name_b,num2str(max_delta),['(',arraystr(sz,ind),')']);
             return
-            
+
         elseif rel_tol==0 && any(delta_abs>abs_tol)
             % Absolute tolerance must be satisfied
             ok= false;
@@ -580,7 +588,7 @@ if isequal(size(a),size(b))
             mess=sprintf('%s and %s: Absolute tolerance failure; max. error = %s at element %s',...
                 name_a,name_b,num2str(max_delta),['(',arraystr(sz,ind),')']);
             return
-            
+
         elseif abs_tol==0 && any(delta_rel>rel_tol)
             % Relative tolerance must be satisfied
             ok= false;
@@ -588,7 +596,7 @@ if isequal(size(a),size(b))
             mess=sprintf('%s and %s: Relative tolerance failure; max. error = %s at element %s',...
                 name_a,name_b,num2str(max_delta),['(',arraystr(sz,ind),')']);
             return
-            
+
         elseif any((delta_abs>abs_tol)&(delta_rel>rel_tol))
             % Absolute or relative tolerance must be satisfied
             ok= false;
@@ -608,7 +616,7 @@ if isequal(size(a),size(b))
             return
         end
     end
-    
+
 else
     ok=false;
     mess=sprintf('%s and %s: Different size numeric arrays',...
@@ -635,4 +643,3 @@ else
     end
     str=str(1:end-1);
 end
-

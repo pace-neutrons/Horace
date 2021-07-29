@@ -1,6 +1,6 @@
-function mess = add(dummy_spe,weight,spedir,spefiles,spefileout,scale)
+function mess = add(~,weight,spedir,spefiles,spefileout,scale)
 % Adds normalised spe files together, ignoring bad pixels and normalising the final output
-% 
+%
 %
 %   >> mess = add(spe,weight,spedir,spefiles,spefileout)
 %   >> mess = add(spe,weight,spedir,spefiles,spefileout,scale)
@@ -44,12 +44,12 @@ elseif ~ischar(spedir)||~length(size(spedir))==2||~size(spedir,1)==1
     mess='Default directory must be a character string';
     return
 else
-    if ~exist(spedir,'dir')
+    if ~is_folder(spedir)
         mess=['Default directory for .spe files does not exist (',spedir,')'];
         return
     end
 end
-    
+
 % Check input files form a cell array of strings, construct full path for each file, and check they exist
 if ~iscellstr(spefiles)
     mess='.spe file names must be a cell array of form {''file_1.spe'',''file2.spe'',...}';
@@ -64,7 +64,7 @@ else
             if isempty(filepath)
                 spefiles{i}=fullfile(spedir,spefiles{i});
             end
-            if ~exist(spefiles{i},'file')
+            if ~is_file(spefiles{i})
                 mess=['Cannot find input .spe file ',spefiles{i}];
                 return
             end
@@ -73,7 +73,7 @@ else
 end
 
 % Check number of weights and spefiles are inconsistent
-if numel(weight)~=numel(spefiles),
+if numel(weight)~=numel(spefiles)
     mess=[num2str(numel(weight)),' weights not consistent with ',num2str(numel(spefiles)),' spe files given.'];
     return
 end
@@ -87,7 +87,7 @@ else
     if isempty(filepath)
         spefileout=fullfile(spedir,spefileout);
     else
-        if ~exist(filepath,'dir')
+        if ~is_folder(filepath)
             mess=['Output directory for .spe file does not exist (',filepath,')'];
             return
         end
@@ -95,7 +95,7 @@ else
 end
 
 % Check scale factor, if any
-if exist('scale','var')
+if exist('scale', 'var')
     if ~isscalar(scale)||~isnumeric(scale)
         mess='Scale factor must be numeric scalar';
         return
@@ -104,7 +104,8 @@ end
 
 % Check weights
 if ~all(weight>=0) || sum(weight(:))==0
-    mess='None of the weights can be negative and not all zero if combining or normalising'; return
+    mess='None of the weights can be negative and not all zero if combining or normalising';
+    return
 end
 
 
@@ -118,11 +119,14 @@ for i=1:numel(spefiles)
             header=tmp;
         else
             if header.ndet~=tmp.ndet
-                mess='Number of detectors not all the same'; return
+                mess='Number of detectors not all the same';
+                return
             elseif numel(header.en)~=numel(tmp.en)
-                mess='Number of energy bins not all the same'; return
+                mess='Number of energy bins not all the same';
+                return
             elseif header.en~=tmp.en    % might generalise to accept a certain tolerance
-                mess='Energy bin boundaries not all the same'; return
+                mess='Energy bin boundaries not all the same';
+                return
             end
         end
     else
@@ -137,8 +141,9 @@ clear header tmp
 % Accumulate signal
 for i=1:numel(weight)
     [data,ok,mess]=get_spe(spefiles{i});    % get_spe puts signal=NaN for null data (August 2009)
-    if ~ok,
-        mess=['Could not read .spe file ',spefiles{i}]; return
+    if ~ok
+        mess=['Could not read .spe file ',spefiles{i}];
+        return
     end
     ok_pix=~isnan(data.S);	% true where pixel has data and false where detector has 'nulldata' in current data set
     data.S(~ok_pix)=0;      % need to set to zero so that we can multiply by ok_pix and accumulate zeros at the bad pixels
@@ -157,19 +162,19 @@ for i=1:numel(weight)
         cumm_S = cumm_S + weight(i)*(ok_pix.*data.S);
         cumm_ERR2 = cumm_ERR2 + (weight(i).^2)*(ok_pix.*(data.ERR).^2);
     end
-    % Information about unmasked detectors and bad pixels
-    % ----------------------------------------------------
-    % For the current file
+% Information about unmasked detectors and bad pixels
+% ----------------------------------------------------
+% For the current file
     masked_detector=all(~ok_pix,1);     % detector is masked if all pixels are null
     ndet_ok=sum(~masked_detector);      % number of unmasked detectors
     npix_bad=sum(reshape(~ok_pix(:,~masked_detector),[ne*ndet_ok,1]));   % number of bad pixels in unmasked detectors
-    disp(sprintf('Current file masked detectors %d; other bad pixels %d',(ndet-ndet_ok),npix_bad));
-    
-    % For accumulated file
+    fprintf('Current file masked detectors %d; other bad pixels %d',(ndet-ndet_ok),npix_bad);
+
+% For accumulated file
     masked_detector=all(~cumm_ok_pix,1);% detector is masked if all pixels are null
     ndet_ok=sum(~masked_detector);      % number of unmasked detectors
     npix_bad=sum(reshape(~cumm_ok_pix(:,~masked_detector),[ne*ndet_ok,1]));   % number of bad pixels in unmasked detectors
-    disp(sprintf('     Overall masked detectors %d; other bad pixels %d',(ndet-ndet_ok),npix_bad));
+    fprintf('     Overall masked detectors %d; other bad pixels %d',(ndet-ndet_ok),npix_bad);
     disp(' ')
 
 end
@@ -181,7 +186,7 @@ data.filepath='';
 data.S=cumm_S./cumm_weight;
 data.ERR=sqrt(cumm_ERR2)./cumm_weight;
 data.en=en;
-if exist('scale','var')
+if exist('scale', 'var')
     data.S=scale*data.S;
     data.ERR=scale*data.ERR;
 end
@@ -191,3 +196,5 @@ data.ERR(~cumm_ok_pix)=0;
 
 % Save accumulated data
 save(spe(data),spefileout);
+
+end

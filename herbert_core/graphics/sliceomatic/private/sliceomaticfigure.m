@@ -44,6 +44,10 @@ uicontrol(fig,'style','edit','string',round_gen(d.clim(1,1),2),...
 % --- end of DJW mod
 
 lim=[min(min(min(d.data))) max(max(max(d.data)))];
+if lim(1)==lim(2)
+    lim(1) = lim(1)-1;
+    lim(2) = lim(2)+1;
+end
 %  d.axmain = axes('units','normal','pos',[.2  .2 .6 .6],'box','on',...
 %                  'ylim',[1 size(d.data,1)],...
 %                  'xlim',[1 size(d.data,2)],...
@@ -137,13 +141,12 @@ d.motionmetaslice = [];
 set(fig,'windowbuttonmotionfcn',@sliceomaticmotion);
 
 % Try setting up the camera toolbar
-try
-    %    modified by I.Bustinduy =============================== <<<<<<<<
-    cameratoolbar(fig,'show');
-    cameratoolbar(fig,'togglescenelight');
-    %cameratoolbar(fig,'setmode','orbit');
-    figure(fig)
-end
+
+%    modified by I.Bustinduy =============================== <<<<<<<<
+cameratoolbar(fig,'show');
+cameratoolbar(fig,'togglescenelight');
+%cameratoolbar(fig,'setmode','orbit');
+figure(fig)
 
 d = figmenus(d);
 
@@ -164,8 +167,8 @@ uicontrol(fig,'style','popup','string',{'rampup','rampdown','vup','vdown','rand'
 
 % Data tip thingydoo
 d.tip = text('visible','off','fontname','helvetica','fontsize',10,'color','white');
-try
-    % Try R13 new feature
-    set(d.tip,'backgroundcolor',[.5 .5 .5],'edgecolor',[.5 .5 .5],'margin',5);
-end
+% Try R13 new feature
+set(d.tip,'backgroundcolor',[.5 .5 .5],'edgecolor',[.5 .5 .5],'margin',5);
 appdata = d;
+
+end

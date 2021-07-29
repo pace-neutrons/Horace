@@ -151,7 +151,7 @@ function [ok,mess,fermi_store,table_store]=read_store(filename)
 % Read stored Fermi chopper lookup table
 % ok=true if file does not exist
 
-if exist(filename,'file')
+if is_file(filename)
     disp('Reading stored Fermi chopper lookup table...')
     try
         load(filename,'-mat');
@@ -206,7 +206,7 @@ end
 function [ok,mess]=delete_store(filename)
 % Read stored Fermi chopper lookup table
 
-if exist(filename,'file')
+if is_file(filename)
     try
         disp('Deleting stored Fermi chopper lookup table...')
         delete(filename)

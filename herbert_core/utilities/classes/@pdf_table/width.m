@@ -7,18 +7,25 @@ function [w,xmax,xlo,xhi] = width (obj, fac)
 % Input:
 % ------
 %   obj     pdf_table object
+%          (See <a href="matlab:help('pdf_table');">pdf_table</a> for details)
+%
 %   fac     Fraction of full height at which to determine the width (0 to 1)
 %           Default: 0.5
 %
 % Output:
 % -------
 %   w       Full width at fractional height
+%
 %   xmax    Position of maximum. If there is more than one point with the
 %          same height, this corresponds to the point closest to the middle
 %          of xlo and xhi
-%   xlo     Position of lower position of frac times peak height
-%          (outermost point)
-%   xhi     Position of upper position of frac times peak height
+%
+%   xlo     Position of lower position of fac times peak height, obtained
+%          by linear interpolation between bracketing points
+%          (innermost point)
+%
+%   xhi     Position of upper position of fac times peak height, obtained
+%          by linear interpolation between bracketing points
 %          (outermost point)
 
 

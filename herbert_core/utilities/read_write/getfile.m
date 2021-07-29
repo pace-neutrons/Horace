@@ -47,7 +47,7 @@ elseif (nargin>0)
 %         elseif (length(findstr('*.',filterspec))>=1 && min(findstr('*.',filterspec))) % filterspec begins '*.', so assume extensions list
         elseif startsWith(filterspec, '*.')
             filterspec_in = fullfile(path_save,filterspec);
-        else                                             
+        else
             [pathstr,~,~] = fileparts(filterspec);
             if (isempty(pathstr))
                 filterspec_in = fullfile(path_save,filterspec);  % no path at front, so use the default path
@@ -60,7 +60,7 @@ elseif (nargin>0)
     else
         error ('FILTERSPEC argument must be a string or an M by 1 or M by 2 cell array.')
     end
-            
+
     if (nargin==1)
         [file,path] = uigetfile(filterspec_in);
     elseif (nargin==2)
@@ -78,4 +78,6 @@ if (isequal(file,0) || isequal(path,0))
 else
     file_out = fullfile(path,file);
     path_save = path;
+end
+
 end

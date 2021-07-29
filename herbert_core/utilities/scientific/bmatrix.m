@@ -29,7 +29,6 @@ function [b, arlu, angrlu, mess] = bmatrix(alatt, angdeg)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 if nargout<4
@@ -57,10 +56,8 @@ elseif min(alatt)<= 0
         b = [];
         arlu = [];
         angrlu = [];
-        
         return
     end
-    
     
 end
 
