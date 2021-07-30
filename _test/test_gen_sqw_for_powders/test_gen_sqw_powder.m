@@ -123,7 +123,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             this.assertEqualToTolWithSave(w1,'ignore_str',true,'reltol',1.e-5)
             this.assertEqualToTolWithSave(w2,'ignore_str',true,'reltol',1.e-5)
             this.assertEqualToTolWithSave(w2rings,'ignore_str',true,'reltol',1.e-5)
-            this.assertEqualToTolWithSave(w1rings,'ignore_str',true,'reltol',1.e-5)
+            this.assertEqualToTolWithSave(w1rings,'ignore_str',true,'abstol',3.e-5)
             
         end
         

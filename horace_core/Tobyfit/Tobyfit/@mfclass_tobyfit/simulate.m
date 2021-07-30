@@ -100,4 +100,4 @@ obj_tmp = obj;
 obj_tmp.wrapfun.p_wrap = append_args (obj_tmp.wrapfun.p_wrap, obj.mc_contributions, obj.mc_points, [], []);
 
 % Perform simulation
-[data_out, calcdata, ok, mess] = simulate@mfclass (obj_tmp, varargin{:});
+[data_out, calcdata] = simulate@mfclass (obj_tmp, varargin{:});
