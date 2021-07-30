@@ -28,8 +28,7 @@ function [grid_size, urange] = rundata_write_to_sqw_(run_files, sqw_file, ...
 nfiles = numel(run_files);
 if nfiles == 0
     grid_size = grid_size_in;
-    pix_range = pix_db_range;
-    update_runlabels = false;
+    urange = urange_in;
     return
 end
 
@@ -85,14 +84,6 @@ for i=1:nfiles
     end
     
 end
-uniq_runid = unique(run_id);
-if numel(uniq_runid) == nfiles
-    update_runlabels = false;
-else
-    update_runlabels = true;
-end
-
-
 function range = get_cut_range(r_min,r_max,n_bins)
 % calculate input range 
 n_bins = n_bins-1;
