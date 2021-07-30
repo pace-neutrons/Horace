@@ -626,7 +626,7 @@ classdef mfclass_Horace_sqw < mfclass
             end
         end
 
-        function [data_out, calcdata, ok, mess] = simulate (obj, varargin)
+        function [data_out, calcdata] = simulate (obj, varargin)
             % Perform a simulation of the data using the current functions and parameter values
             %
             % Return calculated sum of foreground and background:
@@ -724,10 +724,10 @@ classdef mfclass_Horace_sqw < mfclass
                 wrapfun.p_wrap = append_args (wrapfun.p_wrap, 'ave');
                 obj_tmp.wrapfun = wrapfun;
             end
-            [data_out, calcdata, ok, mess] = simulate@mfclass (obj_tmp, varargin{:});
+            [data_out, calcdata] = simulate@mfclass (obj_tmp, varargin{:});
         end
 
-        function [data_out, calcdata, ok, mess] = fit (obj, varargin)
+        function [data_out, calcdata] = fit (obj, varargin)
             % Perform a fit of the data using the current functions and parameter values
             %
             % Return calculated fitted datasets and parameters:
@@ -819,7 +819,7 @@ classdef mfclass_Horace_sqw < mfclass
                 wrapfun.p_wrap = append_args (wrapfun.p_wrap, 'ave');
                 obj_tmp.wrapfun = wrapfun;
             end
-            [data_out, calcdata, ok, mess] = fit@mfclass (obj_tmp, varargin{:});
+            [data_out, calcdata] = fit@mfclass (obj_tmp, varargin{:});
         end
     end
 end

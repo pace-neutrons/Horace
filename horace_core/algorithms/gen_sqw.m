@@ -1,4 +1,4 @@
-function [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
+function [tmp_file,grid_size,urange,varargout] = gen_sqw (spe_file, par_file, sqw_file, efix, emode, alatt, angdeg,...
     u, v, psi, omega, dpsi, gl, gs, varargin)
 % Read one or more spe files and a detector parameter file, and create an output sqw file.
 %
@@ -78,9 +78,6 @@ function [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, ef
 %                  would symmetrize pixels of the generated sqw file by
 %                  reflecting them in the plane specified by vectors
 %                  [0,1,0], and [0,0,1] (see symmeterise_sqw for details)
-
-%
-%
 % Output:
 % --------
 %   tmp_file        Cell array with list of temporary files created by this call to gen_sqw.
@@ -89,7 +86,10 @@ function [tmp_file,grid_size,urange] = gen_sqw (spe_file, par_file, sqw_file, ef
 %   grid_size       Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
 %   urange          Actual range of grid
-
+%
+%  parallel_cluster if job is executed in parallel and nargout >3, this
+%                  variable would return the initialized instance of the
+%                  job dispatcher, running a parallel job to continue
 
 % T.G.Perring  14 August 2007
 % T.G.Perring  19 March 2013   Massively updated, also includes functionality of accumulate_sqw
@@ -134,7 +134,9 @@ if present.transform_sqw
         end
     end
 end
-
+if nargout>3
+    varargout{1} = [];
+end
 
 %If we are to run in 'time' mode, where execution waits for some period,
 %then must do so here, because any later we check whether or not spe files
@@ -420,10 +422,15 @@ else
         end
         
     end
+    keep_par_cl_running = ~opt.tmp_only || nargout>3;
+    
     
     % Generate unique temporary sqw files, one for each of the spe files
     [grid_size,urange,tmp_file,parallel_job_dispatcher]=convert_to_tmp_files(run_files,sqw_file,...
-        instrument,sample,urange_in,grid_size_in,opt.tmp_only);
+        instrument,sample,urange_in,grid_size_in,keep_par_cl_running);
+    if keep_par_cl_running
+        varargout{1} = parallel_job_dispatcher;
+    end
     
     if use_partial_tmp
         delete_tmp = false;
@@ -701,7 +708,7 @@ else
 end
 disp('--------------------------------------------------------------------------------')
 %---------------------------------------------------------------------------------------
-function  [grid_size,urange,tmp_file,jd]=convert_to_tmp_files(run_files,sqw_file,...
+function  [grid_size,urange,tmp_generated,jd]=convert_to_tmp_files(run_files,sqw_file,...
     instrument,sample,urange_in,grid_size_in,gen_tmp_files_only)
 %
 log_level = ...
@@ -714,17 +721,35 @@ log_level = ...
 spe_file = cellfun(@(x)(x.loader.file_name),run_files,...
     'UniformOutput',false);
 tmp_file=gen_tmp_filenames(spe_file,sqw_file);
+tmp_generated = tmp_file;
 if gen_tmp_files_only
-    f_exist = cellfun(@(fn)(exist(fn,'file')==2),tmp_file,'UniformOutput',true);
-    if any(f_exist)
+    [f_valid_exist,pix_ranges] = cellfun(@(fn)(check_tmp_files_range(fn,urange_in,grid_size_in)),...
+        tmp_file,'UniformOutput',false);
+    f_valid_exist = [f_valid_exist{:}];
+    if any(f_valid_exist)
         if log_level >0
             warning([' some tmp files exist while generating tmp files only.'...
                 ' Generating only new tmp files.'...
                 ' Delete all existing tmp files to avoid this'])
         end
-        run_files  = run_files(~f_exist);
-        tmp_file  = tmp_file(~f_exist);
+        run_files  = run_files(~f_valid_exist);
+        tmp_file  = tmp_file(~f_valid_exist);
+        pix_ranges = pix_ranges(f_valid_exist);
+        urange     = pix_ranges{1};
+        for i=2:numel(pix_ranges)
+            urange = [min([urange(1,:);pix_ranges{i}(1,:)]);...
+                max([urange(2,:);pix_ranges{i}(2,:)])];
+        end
+        if isempty(run_files)
+            grid_size = grid_size_in;
+            jd = [];
+            return;
+        end
+    else
+        urange = [];
     end
+else
+    urange = [];
 end
 
 nt=bigtic();
@@ -743,12 +768,9 @@ if use_separate_matlab
     job_name = ['gen_sqw_',fn];
     %
     jd = JobDispatcher(job_name);
-    if gen_tmp_files_only
-        keep_parallel_pool_running = false;
-    else % if further operations are necessary to perform with generated tmp files,
-        % keep parallel pool running to save time on restarting it
-        keep_parallel_pool_running = true;
-    end
+    % if further operations are necessary to perform with generated tmp files,
+    % keep parallel pool running to save time on restarting it.
+    keep_parallel_pool_running = ~gen_tmp_files_only;
     
     % aggregate the conversion parameters into array of structures,
     % suitable for splitting jobs between workers
@@ -761,7 +783,7 @@ if use_separate_matlab
     if n_failed == 0
         outputs   = outputs{1};
         grid_size = outputs.grid_size;
-        urange    = outputs.urange;
+        urange1   = outputs.urange;
     else
         jd.display_fail_job_results(outputs,n_failed,num_matlab_sessions,'GEN_SQW:runtime_error');
     end
@@ -780,9 +802,16 @@ else
     % effective but much easier to identify problem with
     % failing parallel job
     
-    [grid_size,urange]=gen_sqw_files_job.runfiles_to_sqw(run_files,tmp_file,...
+    [grid_size,urange1]=gen_sqw_files_job.runfiles_to_sqw(run_files,tmp_file,...
         grid_size_in,urange_in,true);
     %---------------------------------------------------------------------
+end
+%
+if isempty(urange)
+    urange = urange1;
+else
+    urange= [min([urange(1,:);urange1(1,:)]);...
+        max([urange(2,:);urange1(2,:)])];
 end
 if log_level>-1
     disp('--------------------------------------------------------------------------------')
@@ -791,3 +820,23 @@ if log_level>-1
     disp('--------------------------------------------------------------------------------')
 end
 
+%
+function [present_and_valid,pix_range] = check_tmp_files_range(tmp_file,pix_db_range,grid_size_in)
+% TODO:
+% write check for grid_size_in which has to be equal to grid_size of head.
+% but head (without s,e,npix) does not have method to idnentify grid_size
+% (it should be written and tested)
+if ~is_file(tmp_file)
+    present_and_valid  = false;
+    pix_range = [];
+    return;
+end
+toll = 1.e-7;
+ldr = sqw_formats_factory.instance().get_loader(tmp_file);
+head = ldr.get_data('-head');
+pix_range = head.urange; % this is incorrect. Fixed in rel 4.
+if any(abs(pix_range-pix_db_range)>toll)
+    present_and_valid   = false;
+else
+    present_and_valid   = true;
+end

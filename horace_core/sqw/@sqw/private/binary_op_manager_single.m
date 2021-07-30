@@ -137,7 +137,7 @@ function wout = do_binary_op_sqw_sqw(w1, w2, binary_op, flip)
                 w2_rhs = fake_pixels(w2);
             end       
             wout.data.pix = wout.data.pix.do_binary_op(w2_rhs.data.pix, binary_op, 'flip', flip);
-            wout = recompute_bin_data(wout);            
+            wout = recompute_bin_data(wout);
             wout.data.npix = npix;
             wout.data.pix = PixelData();
         end

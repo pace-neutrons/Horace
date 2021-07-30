@@ -66,7 +66,9 @@ set(handles.message_text_field,'String','');
 guidata(hObject,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
@@ -135,7 +137,9 @@ set(handles.message_text_field,'String','');
 guidata(gcbo,handles);
 drawnow;
 %
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
@@ -206,7 +210,10 @@ function refresh_list_pushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-vars = evalin('base','whos');%gives a structure array with all of the workspace variables in it
+
+% get a structure array with all of the workspace variables in it
+% contains concrete name (.class) and variable name (.name)
+vars = evalin('base','whos');
 counter=1;
 for i=1:numel(vars)
     test_el=vars(i);
@@ -392,7 +399,7 @@ else
     flag=0;
 end
 
-if isfield(handles,'w_in');
+if isfield(handles,'w_in')
     if flag==0
         win=handles.w_in;
         if numel(win)~=1
@@ -678,20 +685,20 @@ slopearray=str2num(slopelist);
 x2array=str2num(x2list);
 
 bgon=strcmp(get(handles.background_edit,'Enable'),'on');
-slopeon=strcmp(get(handles.bgslope_edit,'Enable'),'on');;
+slopeon=strcmp(get(handles.bgslope_edit,'Enable'),'on');
 x2on=strcmp(get(handles.bgx2_edit,'Enable'),'on');
 
-if (isempty(constarray) & bgon) || (any(isnan(constarray)) & bgon) 
+if (isempty(constarray) && bgon) || (any(isnan(constarray)) && bgon)
     mess='Background must be a single number -- no fitting performed';
     set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
-elseif (isempty(slopearray) & slopeon) || (any(isnan(slopearray)) & slopeon) 
+elseif (isempty(slopearray) && slopeon) || (any(isnan(slopearray)) && slopeon)
     mess='Slope must be a single number -- no fitting performed';
     set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
-elseif (isempty(x2array) & x2on) || (any(isnan(x2array)) & x2on) 
+elseif (isempty(x2array) && x2on) || (any(isnan(x2array)) && x2on)
     mess='x^2 coefficient must be a single number -- no fitting performed';
     set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
@@ -1136,20 +1143,20 @@ slopearray=str2num(slopelist);
 x2array=str2num(x2list);
 
 bgon=strcmp(get(handles.background_edit,'Enable'),'on');
-slopeon=strcmp(get(handles.bgslope_edit,'Enable'),'on');;
+slopeon=strcmp(get(handles.bgslope_edit,'Enable'),'on');
 x2on=strcmp(get(handles.bgx2_edit,'Enable'),'on');
 
-if (isempty(constarray) & bgon) || (any(isnan(constarray)) & bgon) 
+if (isempty(constarray) && bgon) || (any(isnan(constarray)) && bgon)
     mess='Background must be a single number -- no simulation performed';
     set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
-elseif (isempty(slopearray) & slopeon) || (any(isnan(slopearray)) & slopeon) 
+elseif (isempty(slopearray) && slopeon) || (any(isnan(slopearray)) && slopeon)
     mess='Slope must be a single number -- no simulation performed';
     set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
-elseif (isempty(x2array) & x2on) || (any(isnan(x2array)) & x2on) 
+elseif (isempty(x2array) && x2on) || (any(isnan(x2array)) && x2on)
     mess='x^2 coefficient must be a single number -- no simulation performed';
     set(handles.message_text_field,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);

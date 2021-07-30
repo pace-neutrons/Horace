@@ -526,5 +526,3 @@ function plot_labels(labels,xvals)
 
 set(gca,'XTick',xvals);
 set(gca,'XTickLabel',labels);
-
-

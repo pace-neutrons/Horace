@@ -26,6 +26,11 @@ function [grid_size, urange] = rundata_write_to_sqw_(run_files, sqw_file, ...
 % Original author: T.G.Perring
 
 nfiles = numel(run_files);
+if nfiles == 0
+    grid_size = grid_size_in;
+    urange = urange_in;
+    return
+end
 
 [hor_log_level,use_mex]=get(hor_config,'log_level','use_mex');
 %

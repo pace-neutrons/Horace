@@ -40,7 +40,7 @@ function run_configure() {
   cmake_cmd+=" -G \"${CMAKE_GENERATOR}\""
   cmake_cmd+=" -DMatlab_ROOT_DIR=${MATLAB_ROOT}"
   cmake_cmd+=" -DCMAKE_BUILD_TYPE=${build_config}"
-  cmake_cmd+=" -DBUILD_TESTS=${build_tests}"
+  cmake_cmd+=" -DBUILD_TESTING=${build_tests}"
   cmake_cmd+=" -DMatlab_RELEASE=${matlab_release}"
   cmake_cmd+=" ${cmake_flags}"
 
@@ -67,24 +67,35 @@ function run_tests() {
 }
 
 function run_analysis() {
-  local output_dir=$1
-
-  if [ -f "$(which cppcheck)" ]; then
-    echo -e "\nRunning analysis step..."
-
-    analysis_cmd="cppcheck --enable=all --inconclusive"
-    analysis_cmd+=" --xml --xml-version=2"
-    analysis_cmd+=" -I ${HORACE_ROOT}/_LowLevelCode/cpp"
-    analysis_cmd+=" ${HORACE_ROOT}/_LowLevelCode/"
-    analysis_cmd+=" 2> ${output_dir}/cppcheck.xml"
-    echo_and_run "${analysis_cmd}"
-  fi
+  local build_dir=$1
+  echo_and_run "cmake --build ${build_dir} -- analyse"
 }
 
 function run_package() {
   echo -e "\nRunning package step..."
   echo_and_run "cd ${build_dir}"
   echo_and_run "cpack -G TGZ"
+}
+
+function build_docs() {
+    # Update release numbers
+    echo_and_run "cmake --build ${build_dir} --target docs-pack"
+}
+
+function push_built_docs() {
+    build_id=$(sed -nr '/CPACK_PACKAGE_FILE_NAME/{s/.*"Horace-([^"]+)".*/\1/p};' ./build/CPackConfig.cmake)
+    git config --local user.name "PACE CI Build Agent"
+    git config --local user.email "pace.builder.stfc@gmail.com"
+    git remote set-url --push origin "https://pace-builder:"${api_token## }"@github.com/pace-neutrons/Horace"
+    git checkout gh-pages
+    git pull
+    echo "Bypassing Jekyll on GitHub Pages" > .nojekyll
+    git add .nojekyll
+    git rm -rf --ignore-unmatch ./unstable
+    cp -r ./documentation/user_docs/build/html ./unstable
+    git add unstable
+    git commit -m "Document build from CI ("$build_id")"
+    git push origin gh-pages
 }
 
 function print_help() {
@@ -105,12 +116,18 @@ flags:
       Run the Horace build commands.
   -t, --test
       Run all Horace tests.
+  -c, --configure
+      Run cmake configuration stage
   -a, --analyze
-      Run static analysis on Horace C++ code.
+      Run static analysis on Horace code.
   -p, --package
       Pacakge Horace into a .tar.gz file.
   -v, --print_versions
       Print the versions of libraries being used e.g. Matlab.
+  -d, --docs
+      Build user docs
+  --push_docs
+      Push docs up to Horace GitHub repo
   -h, --help
       Print help message and exit.
 options:
@@ -137,8 +154,11 @@ function main() {
   # set default parameter values
   local build=$FALSE
   local test=$FALSE
+  local configure=$FALSE
   local analyze=$FALSE
   local package=$FALSE
+  local docs=$FALSE
+  local push_docs=$FALSE
   local print_versions=$FALSE
   local build_tests="ON"
   local build_config='Release'
@@ -153,8 +173,11 @@ function main() {
         # flags
         -b|--build) build=$TRUE; shift ;;
         -t|--test) test=$TRUE; shift ;;
+        -g|--configure) configure=$TRUE; shift;;
         -a|--analyze) analyze=$TRUE; shift ;;
         -p|--package) package=$TRUE; shift ;;
+        -d|--docs) docs=$TRUE; shift;;
+        --push-docs) push_docs=$TRUE; shift;;
         -v|--print_versions) print_versions=$TRUE; shift ;;
         -h|--help) print_help; exit 0 ;;
         # options
@@ -171,15 +194,15 @@ function main() {
     print_package_versions
   fi
 
+  if ((configure)) || [ ! -e ${build_dir}/CMakeCache.txt ]; then
+    run_configure "${build_dir}" "${build_config}" "${build_tests}" "${matlab_release}" "${cmake_flags}"
+  fi
+
   if ((analyze)); then
-    run_analysis "${HORACE_ROOT}"
+    run_analysis "${build_dir}"
   fi
 
   if ((build)); then
-    warning_msg="Warning: Build directory ${build_dir} already exists.\n\
-        This may not be a clean build."
-    echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
-    run_configure "${build_dir}" "${build_config}" "${build_tests}" "${matlab_release}" "${cmake_flags}"
     run_build "${build_dir}"
   fi
 
@@ -189,6 +212,14 @@ function main() {
 
   if ((package)); then
     run_package
+  fi
+
+  if ((docs)); then
+    build_docs
+  fi
+
+  if ((push_docs)); then
+    push_built_docs
   fi
 }
 

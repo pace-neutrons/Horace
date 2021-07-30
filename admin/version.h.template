@@ -1,4 +1,5 @@
-/* ${Herbert_AUTO_GENERATED_FILE_WARNING} */
+/* ${Horace_AUTO_GENERATED_FILE_WARNING} */
+#pragma once
 
 namespace Horace {
     constexpr char VERSION[] = "${Horace_SHORT_VERSION}";

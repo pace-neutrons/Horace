@@ -144,4 +144,3 @@ end
 % execute the callback with any supplied parameters.
 % Due to recursion will execute in a bottom up manner
 function_pointer(directory, varargin{:});
-

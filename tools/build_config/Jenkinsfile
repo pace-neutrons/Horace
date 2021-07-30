@@ -1,222 +1,76 @@
 #!groovy
 
-def get_matlab_release(String job_name) {
-  return 'R' + job_name[-5..-1]
-}
+@Library('PACE-shared-lib') import pace.common.PipeLineInfo
 
-def get_build_type(String job_name) {
-  if (job_name.startsWith('Release-')) {
-    return 'Release'
-  } else if (job_name.startsWith('Branch-')) {
-    return 'Branch'
-  } else if(job_name.startsWith('PR-')) {
-    return 'Pull-request'
-  } else {
-    return 'Nightly'
-  }
-}
-
-def get_agent(String job_name) {
-  if (job_name.contains('Scientific-Linux-7')) {
-    withCredentials([string(credentialsId: 'sl7_agent', variable: 'agent')]) {
-      return "${agent}"
-    }
-  } else if (job_name.contains('Windows-10')) {
-    withCredentials([string(credentialsId: 'win10_agent', variable: 'agent')]) {
-      return "${agent}"
-    }
-  } else {
-    return ''
-  }
-}
-
-def get_release_type(String job_name) {
-  String build_type = get_build_type(job_name);
-
-  switch(build_type) {
-    case 'Release':
-      return 'release'
-
-    case 'Pull-request':
-      return 'pull_request'
-
-    case 'Nightly':
-      return 'nightly'
-
-    default:
-      return ''
-  }
-}
-
-def get_branch_name(String job_name) {
-  String build_type = get_build_type(job_name);
-
-  switch(build_type) {
-    case 'Nightly':
-      return 'master'
-
-    default:
-      return ''
-  }
-}
-
-def get_default_herbert_branch(String job_name) {
-  String build_type = get_build_type(job_name)
-
-  switch(build_type) {
-      case 'Release':
-          return ''
-
-      case 'Nightly':
-        return 'None'
-
-      default:
-          return 'master'
-  }
-}
-
- /* Parse the string of Git issue labels for a label that matches Herbert_*.
-  * If a match is found, build using the Herbert branch of that name.
-  *
-  * This function will return a message beginning 'Error: ' if more than one
-  * matching Herbert branch label is found. Throwing an error directly inside
-  * this function will not fail the pipeline build.
-  */
-def get_herbert_ref_from_labels(String labels, String herbert_branch) {
-  def match = (labels =~ "Herbert_([a-zA-Z0-9_-]+)")
-  try {
-    match[1]
-    // Return an error here as there must be, at most, one Herbert branch label
-    // on the pull request. If the above line does not error, then there must
-    // be at least two.
-    return("Error: Found more than one Herbert branch label on the pull request.")
-  } catch (IndexOutOfBoundsException e1) {
-    try {
-      // There is exactly one matching label on the pull request
-      return match[0][1]
-    } catch (IndexOutOfBoundsException e2) {
-      // We get here if there are no matching labels on the pull request
-      return herbert_branch
-    }
-  }
-}
+pli = new PipeLineInfo(env.JOB_BASE_NAME)
 
 properties([
   parameters([
     string(
-      defaultValue: get_branch_name(env.JOB_BASE_NAME),
-      description: 'The name of the branch to build.',
+      defaultValue: pli.branch_name,
+      description: 'The name of the branch to build. *',
       name: 'BRANCH_NAME',
       trim: true
     ),
     string(
-      defaultValue: get_default_herbert_branch(env.JOB_BASE_NAME),
-      description: 'The name of the branch or tag of Herbert to use.',
+      defaultValue: pli.herbert_branch,
+      description: 'The name of the branch or tag of Herbert to use. *',
       name: 'HERBERT_BRANCH_NAME',
       trim: true
     ),
     string(
-      defaultValue: get_matlab_release(env.JOB_BASE_NAME),
+      defaultValue: '',
       description: 'The release number of the Matlab to load e.g. R2019b.',
       name: 'MATLAB_VERSION',
       trim: true
     ),
     string(
-      defaultValue: get_release_type(env.JOB_BASE_NAME),
-      description: 'The type of the build e.g. "nightly", "release", "pull_request".',
+      defaultValue: pli.release_type,
+      description: 'The type of the build e.g. "nightly", "release", "pull_request". *',
       name: 'RELEASE_TYPE',
       trim: true
     ),
     string(
-      defaultValue: get_agent(env.JOB_BASE_NAME),
-      description: 'The agent to execute the pipeline on.',
+      defaultValue: utilities.get_agent(pli.os),
+      description: 'The agent to execute the pipeline on. *',
       name: 'AGENT',
       trim: true
     ),
     string(
-      defaultValue: '3.7.2',
-      description: 'The version of CMake to run the build with.',
+      defaultValue: '3.19',
+      description: 'The version of CMake to run the build with. Affects Linux builds only.',
       name: 'CMAKE_VERSION',
       trim: true
     ),
     string(
       defaultValue: '6.3.0',
-      description: 'The version of GCC to build with.',
+      description: 'The version of GCC to build with. Affects Linux builds only.',
       name: 'GCC_VERSION',
       trim: true
     ),
     string(
       defaultValue: '2017',
-      description: 'The year of the version of Visual Studio to build with.',
+      description: 'The year of the version of Visual Studio to build with.  Affects Windows builds only.',
       name: 'VS_VERSION',
       trim: true
     ),
     string(
-      defaultValue: '1.77',
-      description: 'The version of CppCheck tooling to load to provide the code-style checks.',
+      defaultValue: '',
+      description: 'The version of CppCheck tooling to load to provide the code-style checks. Affects Linux builds only.',
       name: 'CPPCHECK_VERSION',
       trim: true
+    ),
+    booleanParam(
+      defaultValue: true,
+      description: 'If this pipeline is to build docs.',
+      name: 'BUILD_DOCS'
+    ),
+    booleanParam(
+      description: 'If this pipeline is to push docs.',
+      name: 'PUSH_DOCS'
     )
   ])
 ])
-
-def post_github_status(String state, String message) {
-  // Non-PR builds will not set PR_STATUSES_URL - in which case we do not
-  // want to post any statuses to Git
-  if (env.PR_STATUSES_URL) {
-    script {
-      withCredentials([string(credentialsId: 'GitHub_API_Token',
-          variable: 'api_token')]) {
-        if (isUnix()) {
-          sh """
-            curl -H "Authorization: token ${api_token}" \
-              --request POST \
-              --data '{"state": "${state}", \
-                "description": "${message}", \
-                "target_url": "$BUILD_URL", \
-                "context": "$JOB_BASE_NAME"}' \
-              $PR_STATUSES_URL > /dev/null
-            """
-        }
-        else {
-          powershell """
-            [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
-            \$payload = @{
-              "state" = "${state}";
-              "description" = "${message}";
-              "target_url" = "$BUILD_URL";
-              "context" = "$JOB_BASE_NAME"}
-
-            Invoke-RestMethod -URI "$PR_STATUSES_URL" \
-              -Headers @{Authorization = "token ${api_token}"} \
-              -Method 'POST' \
-              -Body (\$payload|ConvertTo-JSON) \
-              -ContentType "application/json"
-          """
-        }
-      }
-    }
-  }
-}
-
-def write_git_revision_to_file(String file_name) {
-  script {
-    def git_rev_cmd = "git rev-parse HEAD"
-    echo "Writing Git revision to ${file_name}..."
-    if (isUnix()) {
-      sh """
-        echo "\$(${git_rev_cmd})" > ${file_name}
-      """
-    } else {
-      powershell """
-        Write-Output "\$(${git_rev_cmd})" > ${file_name}
-      """
-    }
-  }
-}
-
-
-def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-", "")
 
 if (env.BRANCH_NAME) {
   currentBuild.description = "Branch: ${env.BRANCH_NAME}"
@@ -225,39 +79,39 @@ if (env.BRANCH_NAME) {
   currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA.take(7)}"
 }
 
+def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-", "")
+Boolean run_build_stage = !(env?.PR_LABELS =~ "do-not-build")
+Boolean run_test_stage = !(env?.PR_LABELS =~ "(do-not-build|do-not-test)")
+Boolean run_push_docs_stage = (pli.matlab_release == 'R2019b' &&
+                               pli.build_type == 'Nightly' &&
+                               utilities.get_agent(pli.os) == 'sl7')
 
 pipeline {
+
   agent {
     label env.AGENT
+  }
+
+  environment {
+    MATLAB_VERSION = utilities.get_param('MATLAB_VERSION', pli.matlab_release)
+    CMAKE_VERSION = utilities.get_param('CMAKE_VERSION', '3.19')
+    GCC_VERSION = utilities.get_param('GCC_VERSION', '6.3.0')
+    VS_VERSION = utilities.get_param('VS_VERSION', '2017')
+    CPPCHECK_VERSION = utilities.get_param('CPPCHECK_VERSION', '1.77')
+    BUILD_DOCS = utilities.get_param('BUILD_DOCS', 'true')
+    PUSH_DOCS = utilities.get_param('PUSH_DOCS', 'false')
   }
 
   stages {
 
     stage('Notify') {
       steps {
-        post_github_status("pending", "The build is running")
-      }
-    }
-
-    stage('Analyze') {
-      steps {
         script {
-          if (isUnix()) {
-            sh '''
-              module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
-              module load gcc/\$GCC_VERSION &&
-              module load cppcheck/\$CPPCHECK_VERSION &&
-              ./tools/build_config/build.sh --print_versions --analyze
-            '''
-          }
-          else {
-            powershell '''
-              ./tools/build_config/build.ps1 -print_versions
-              Write-Output \"Static Analysis in not performed on Windows\"
-            '''
+          if (env.PR_LABELS) {
+            echo "Found PR labels: ${env.PR_LABELS}"
           }
         }
+        post_github_status("pending", "The build is running")
       }
     }
 
@@ -297,18 +151,14 @@ pipeline {
             }
 
           } else {
-            if (env.PR_LABELS) {
-              echo "Found PR labels: ${env.PR_LABELS}"
-            }
 
-            def herbert_ref = get_herbert_ref_from_labels(
+            def herbert_ref = utilities.get_herbert_ref_from_labels(
               env.PR_LABELS,
               env.HERBERT_BRANCH_NAME
             )
             if (herbert_ref.startsWith('Error: ')) {
               error(herbert_ref)
             }
-
             // Get Herbert from GitHub and call the build script
             if (isUnix()) {
               sh """
@@ -335,7 +185,49 @@ pipeline {
       }
     }
 
-    stage('Build') {
+    stage('Configure') {
+      steps {
+        script {
+          if (env.BUILD_DOCS?.toBoolean()) {
+            if (isUnix()) {
+              sh '''
+            module load python/3.6 &&
+            pip install --user sphinx &&
+            pip install --user sphinx_rtd_theme
+            '''
+            } else {
+              powershell '''
+             pip install --user sphinx
+             pip install --user sphinx_rtd_theme
+            '''
+            }
+          }
+          if (isUnix()) {
+            sh '''
+              module load python/3.6 &&
+              export PATH=${PATH}:~/.local/bin &&
+              module load cmake/\$CMAKE_VERSION &&
+              module load matlab/\$MATLAB_VERSION &&
+              module load gcc/\$GCC_VERSION &&
+              module load cppcheck/\$CPPCHECK_VERSION &&
+              ./tools/build_config/build.sh \
+                --cmake_flags \"-DHorace_RELEASE_TYPE=\$RELEASE_TYPE\" \
+                --matlab_release \$MATLAB_VERSION \
+                --print_versions --configure
+          '''
+          } else {
+            powershell '''
+              ./tools/build_config/build.ps1 -print_versions -configure \
+                   -cmake_flags \"-DHorace_RELEASE_TYPE=\$env:RELEASE_TYPE\" \
+                   -matlab_release \$env:MATLAB_VERSION \
+                   -vs_version \$env:VS_VERSION
+          '''
+          }
+        }
+      }
+    }
+
+    stage('Analyze') {
       steps {
         script {
           if (isUnix()) {
@@ -343,16 +235,58 @@ pipeline {
               module load cmake/\$CMAKE_VERSION &&
               module load matlab/\$MATLAB_VERSION &&
               module load gcc/\$GCC_VERSION &&
-              ./tools/build_config/build.sh --build \
-                --cmake_flags \"-DHorace_RELEASE_TYPE=\$RELEASE_TYPE\" \
-                --matlab_release \$MATLAB_VERSION
+              module load cppcheck/\$CPPCHECK_VERSION &&
+              ./tools/build_config/build.sh --analyze
             '''
           }
           else {
             powershell '''
-              ./tools/build_config/build.ps1 -build \
-                -cmake_flags \"-DHorace_RELEASE_TYPE=\$env:RELEASE_TYPE\" \
-                -matlab_release \$env:MATLAB_VERSION
+              Write-Output \"Static Analysis in not performed on Windows\"
+            '''
+          }
+        }
+      }
+    }
+
+    stage('Build') {
+      when {
+        expression {
+          run_build_stage == true
+        }
+      }
+      steps {
+        script {
+          if (isUnix()) {
+            sh '''
+              module load cmake/\$CMAKE_VERSION &&
+              module load matlab/\$MATLAB_VERSION &&
+              module load gcc/\$GCC_VERSION &&
+              ./tools/build_config/build.sh --build
+             '''
+          }
+          else {
+            powershell '''
+              ./tools/build_config/build.ps1 -build
+            '''
+          }
+        }
+      }
+    }
+
+    stage('Build-Docs') {
+      when {
+        expression {env.BUILD_DOCS?.toBoolean()}
+      }
+      steps {
+        script {
+          if (isUnix()) {
+            sh '''
+                echo "building docs are not implemented for release 3.5"
+            '''
+          }
+          else {
+            powershell '''
+                echo "building docs are not implemented for release 3.5"
             '''
           }
         }
@@ -360,6 +294,11 @@ pipeline {
     }
 
     stage('Test') {
+      when {
+        expression {
+          run_test_stage == true
+        }
+      }
       steps {
         script {
           if (isUnix()) {
@@ -378,10 +317,18 @@ pipeline {
     }
 
     stage('Package') {
+      when {
+        expression {
+          run_build_stage == true
+        }
+      }
       steps {
         script {
           if (isUnix()) {
-            sh './tools/build_config/build.sh --package'
+            sh '''
+              module load cmake/\$CMAKE_VERSION &&
+              ./tools/build_config/build.sh --package
+            '''
           }
           else {
             powershell './tools/build_config/build.ps1 -package'
@@ -389,9 +336,9 @@ pipeline {
           // Archive a file containing the git revision being built. This
           // enables the Deploy pipelines to validate against this SHA, and
           // ensure the correct revision is tagged in Git.
-          if (get_build_type(env.JOB_BASE_NAME) == 'Release') {
+          if (pli.build_type == 'Release') {
             def git_rev_file_name = "${env.JOB_BASE_NAME}-git-revision.sha"
-            write_git_revision_to_file(git_rev_file_name)
+            utilities.write_git_revision_to_file(git_rev_file_name)
             archiveArtifacts(artifacts: git_rev_file_name, fingerprint: true)
           }
         }
@@ -403,22 +350,50 @@ pipeline {
         )
       }
     }
+
+
+    stage('Push-Docs') {
+      when {
+        expression {env.BUILD_DOCS?.toBoolean() && (env.PUSH_DOCS?.toBoolean() || run_push_docs_stage)}
+      }
+      steps {
+        withCredentials([string(credentialsId: 'GitHub_API_Token',
+                                variable: 'api_token')]) {
+          script {
+            if (isUnix()) {
+              sh './tools/build_config/build.sh --push-docs'
+            }
+            else {
+              powershell './tools/build_config/build.ps1 -push_docs'
+
+            }
+          }
+        }
+      }
+    }
   }
 
   post {
     always {
-      // archive CTest results file and static analysis report
+      // archive static analysis report
       archiveArtifacts(
-        artifacts: 'build/Testing/**/*.xml,**/cppcheck.xml',
+        artifacts: '**/cppcheck.xml,**/mlint.json',
+        allowEmptyArchive: true,
         fingerprint: true
       )
 
-      publishCppcheck (
-        displayAllErrors: true,
-        allowNoReport: true,
-        pattern: '**/cppcheck.xml'
+      recordIssues(
+        tools: [
+          cppCheck(pattern: '**/cppcheck.xml', reportEncoding: 'UTF-8'),
+          issues(id: 'mlint', name: 'MLint', pattern: '**/mlint.json')
+        ]
       )
 
+      archiveArtifacts(
+        artifacts: 'build/Testing/**/*.xml',
+        allowEmptyArchive: true,
+        fingerprint: true
+      )
       xunit (
         testTimeMargin: '3000',
         thresholdMode: 1,
@@ -436,6 +411,7 @@ pipeline {
           )
         ]
       )
+
     }
 
     success {

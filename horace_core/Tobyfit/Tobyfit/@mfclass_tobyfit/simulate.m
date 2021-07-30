@@ -1,4 +1,4 @@
-function [data_out, calcdata, ok, mess] = simulate (obj, varargin)
+function [data_out, calcdata] = simulate (obj, varargin)
 % Perform a simulation of the data using the current functions and parameter values
 %
 % Return calculated sum of foreground and background:
@@ -100,4 +100,4 @@ obj_tmp = obj;
 obj_tmp.wrapfun.p_wrap = append_args (obj_tmp.wrapfun.p_wrap, obj.mc_contributions, obj.mc_points, [], []);
 
 % Perform simulation
-[data_out, calcdata, ok, mess] = simulate@mfclass (obj_tmp, varargin{:});
+[data_out, calcdata] = simulate@mfclass (obj_tmp, varargin{:});

@@ -82,6 +82,11 @@ classdef test_main_mex < TestCase
             urange_step_pix(1,:) =  Inf;
             urange_step_pix(2,:) = -Inf;
             
+            hc = hor_config;
+            current_state = hc.use_mex;
+            clob = onCleanup(@()set(hc,'use_mex',current_state));
+            hc.saveable = false;
+
             %check matlab-part
             set(hor_config,'use_mex',0,'-buffer');
             dummy  = sqw();
@@ -114,6 +119,8 @@ classdef test_main_mex < TestCase
             end                        %
             rd =calc_fake_data(this);
             hc = hor_config;
+            current_state = hc.use_mex;
+            clob = onCleanup(@()set(hc,'use_mex',current_state));
             hc.saveable = false;
             %
             hc.use_mex = false;
@@ -136,6 +143,9 @@ classdef test_main_mex < TestCase
             cleanup_obj=onCleanup(@()set(hcf,'use_mex',1));
             
             rd = calc_fake_data(this);
+            hcf = hor_config;
+            current_state = hcf.use_mex;
+            clob = onCleanup(@()set(hcf,'use_mex',current_state));
             hcf.saveable=false;
             hcf.use_mex = 0;
             [u_to_rlu_matl,urange_matl]=rd.calc_projections();
@@ -184,8 +194,9 @@ classdef test_main_mex < TestCase
             assertElementsAlmostEqual((4*4)*e,npix);
             
             
-            if ~cur_mex
-                return
+            [~,n_errors] = check_horace_mex();
+            if n_errors>0
+                skipTest('MEX code is broken and can not be used to check against Matlab for recompute_bin_data');
             end
             set(hor_config,'use_mex',true,'threads',1);
             new_sqw1 = recompute_bin_data_tester(test_sqw);
@@ -202,6 +213,9 @@ classdef test_main_mex < TestCase
         
         function test_sort_pix(this)
             % prepare pixels to sort
+            [cur_mex,log_level,n_threads] = get(hor_config,'use_mex','log_level','threads');
+            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',cur_mex,'log_level',log_level,'threads',n_threads));
+
             pix=ones(9,40000);
             xs = 9.6:-1:0.6;
             xp = 0.1:0.5:10;
@@ -228,8 +242,9 @@ classdef test_main_mex < TestCase
             pix2 = sort_pix(pix,ix,npix,'-nomex');
             assertElementsAlmostEqual(pix1.data,pix2.data);
             
-            if ~get(hor_config,'use_mex')
-                return
+            [~,n_errors] = check_horace_mex();
+            if n_errors>0
+                skipTest('MEX code is broken and can not be used to check against Matlab for sorting the pixels');
             end
             % test mex
             pix1 = sort_pix(pix,ix,npix,'-force_mex');
@@ -243,7 +258,7 @@ classdef test_main_mex < TestCase
             
             
         end
-        function profile_sort_pix(this)
+        function profile_sort_pix(~)
             xs = 9.99:-0.1:0.01;
             xp = 0.01:0.1:9.99;
             [ux,uy,uz,et]=ndgrid(xs,xp,xs,xp);

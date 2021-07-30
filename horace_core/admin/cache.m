@@ -13,7 +13,6 @@ function cache(filename)
 % to have full information and control over the caching process.
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 if ~isunix
     warning('CACHE:invalid_os',...
@@ -34,4 +33,6 @@ disp('*** Its recommended to execute the "cache.py" script directly in a termina
 disp('*** to observe the progress of the caching.                                            ***');
 disp('******************************************************************************************');
 
-system(sprintf('python %s %s &',fullfile(script_location,'cache.py'),filename),'-echo');;
+system(sprintf('python %s %s &',fullfile(script_location,'cache.py'),filename),'-echo');
+
+end
