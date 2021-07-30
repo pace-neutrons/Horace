@@ -230,19 +230,27 @@ pipeline {
 
   post {
     always {
-      // archive static analysis report
-      archiveArtifacts(
-        artifacts: '**/cppcheck.xml,**/mlint.json',
-        allowEmptyArchive: true,
-        fingerprint: true
-      )
+      if (isUnix()) {
+           // archive static analysis report
+           archiveArtifacts(
+           artifacts: '**/cppcheck.xml,**/mlint.json',
+           allowEmptyArchive: true,
+           fingerprint: true
+           )
 
-      recordIssues(
-        tools: [
-          cppCheck(pattern: '**/cppcheck.xml', reportEncoding: 'UTF-8'),
-          issues(id: 'mlint', name: 'MLint', pattern: '**/mlint.json')
-        ]
-      )
+           recordIssues(
+              tools: [
+              cppCheck(pattern: '**/cppcheck.xml', reportEncoding: 'UTF-8'),
+              issues(id: 'mlint', name: 'MLint', pattern: '**/mlint.json')
+              ]
+            )
+       }
+       else {
+            powershell '''
+              Write-Output \"Static Analysis in not performed on Windows\"
+            '''
+        }
+
 
       archiveArtifacts(
         artifacts: 'build/Testing/**/*.xml',
