@@ -1,4 +1,4 @@
-function [data_out, calcdata, ok, mess] = simulate (obj, varargin)
+function [data_out, calcdata] = simulate (obj, varargin)
 % Perform a simulation of the data using the current functions and parameter values
 %
 % Return calculated sum of foreground and background:
