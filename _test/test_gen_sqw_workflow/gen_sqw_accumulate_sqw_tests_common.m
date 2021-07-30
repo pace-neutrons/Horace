@@ -623,8 +623,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
                 emode, alatt, angdeg, u, v, psi([1,3,4,5,6]),...
                 omega([1,3,4,5,6]), dpsi([1,3,4,5,6]), gl([1,3,4,5,6]), gs([1,3,4,5,6]),...
                 'replicate');
-            assertEqual(exist(sqw_file_11456,'file'),2)
             clobT = onCleanup(@()obj.delete_files(tmp_files));
+            assertEqual(exist(sqw_file_11456,'file'),2)
+            
             
             % Now use accumulate sqw ----------------------
             obj.proj.u=u;
