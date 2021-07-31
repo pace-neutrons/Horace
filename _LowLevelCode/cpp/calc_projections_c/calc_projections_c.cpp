@@ -394,8 +394,10 @@ void calc_projections_emode(double * const pMinMax,
     std::vector<double> qe_min(4 * nThreads, FLT_MAX);
     std::vector<double> qe_max(4 * nThreads, -FLT_MAX);
 #pragma omp parallel default(none)  \
-    shared(pKf,qe_min,qe_max) \
-    firstprivate(nDetectors,nEnergies,ki,urange_mode,emode,singleEfixed,pEfix,pEnergies,k_to_e,runID) //\
+    shared(pKf,qe_min,qe_max,pTransfDetectors) \
+    firstprivate(nDetectors,nEnergies,ki,urange_mode,emode,singleEfixed, \
+            pEfix,pEnergies,k_to_e,runID,pMatrix,pDetPhi,pDetPsi,pDetGroup,\
+            pSignal,pError) //\
     //reduction(min: q1_min,q2_min,q3_min,e_min; max: q1_max,q2_max,q3_max,e_max)
     {
 #pragma omp for
