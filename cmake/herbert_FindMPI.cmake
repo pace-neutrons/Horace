@@ -2,9 +2,9 @@ set(EXTERNAL_ROOT "${Herbert_ROOT}/_LowLevelCode/external")
 if(UNIX)
     if (USE_HERBERT_MPI)
     	set(MPICH_VERSION "3.3a2")
-	set(MPI_ROOT "${EXTERNAL_ROOT}/glnxa64/mpich-${MPICH_VERSION}")
+	    set(MPI_ROOT "${EXTERNAL_ROOT}/glnxa64/mpich-${MPICH_VERSION}")
     endif()
-
+    message(STATUS "looking for MPI in at: ${MPI_ROOT}")
     # We point CMake to the mpicc and mpicxx compiler scripts, these are then
     # used by CMake's "Find" script to find the relevant libraries that we
     # package with Herbert
@@ -14,7 +14,7 @@ if(UNIX)
         PATHS "${MPI_ROOT}/bin"
         DOC "Path to C MPI compiler script"
         NO_DEFAULT_PATH)
-
+    message(STATUS "found mpicc at: ${MPI_C_COMPILER}")
     find_file(
         MPI_CXX_COMPILER
         NAMES "mpicxx"
@@ -31,6 +31,7 @@ else()
 endif()
 
 find_package(MPI REQUIRED)
+
 
 if (MPI_FOUND)
    list(GET MPI_CXX_LIBRARIES 0 libPATH)
