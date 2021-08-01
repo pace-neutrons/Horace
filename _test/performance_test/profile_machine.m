@@ -76,7 +76,7 @@ title_string = sprintf(['Dataset silze~ %dGB, %d input files;\n',...
 %plot results
 figure;
 plot(perf_graph(:,1),perf_graph(:,2),'o-');
-ylabel('Processing Time (sec/Gb)')
+ylabel('Processing Time (sec/GB)')
 xlabel('n-workers');
 title(title_string)
 hold on
@@ -110,7 +110,7 @@ for i=1:n_buf
     
     combine_method = hor_tes.combine_method(addinfo);
     test_name = ['combine_tmp_using_',combine_method];
-    per = hor_tes.knownPerformance(test_name);
+    per = hor_tes.known_performance(test_name);
     if isempty(per) || force_perf
         try
             perf_rez = hor_tes.combine_performance_test(0,addinfo,keep_tmp);
@@ -123,10 +123,12 @@ for i=1:n_buf
         per = perf_rez.(test_name);
     end
     comb_perf(i,1) = buf;
-    comb_perf(i,2) = per.time_sec;
+    comb_perf(i,2) = per.time_sec/hor_tes.data_size;
     
 end
 figure
 plot(comb_perf(:,1),comb_perf(:,2),'o-');
+ylabel('Processing Time (sec/GB)')
+xlabel('IO buffer size');
 
 
