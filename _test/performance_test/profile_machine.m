@@ -67,7 +67,7 @@ min_prod_time = round((min_gen_time+min_comb_time)*hor_tes.data_size/60,1); % in
 max_prod_time = round((max_gen_time+max_comb_time)*hor_tes.data_size/60,1); % in minutes
 tc1 = strrep(tn{1},'_','\_');
 tc2 = strrep(tn{2},'_','\_');
-title_string = sprintf(['Dataset silze~ %dGb, %d input files;\n',...
+title_string = sprintf(['Dataset silze~ %dGB, %d input files;\n',...
     ' Final DB test codes:\n %s; %s\n',...
     'Production time: min=%.1f(min); max=%.1f(min)'],...
     round(hor_tes.data_size),hor_tes.n_files_to_use,...
@@ -76,7 +76,7 @@ title_string = sprintf(['Dataset silze~ %dGb, %d input files;\n',...
 %plot results
 figure;
 plot(perf_graph(:,1),perf_graph(:,2),'o-');
-ylabel('Processing Time (sec/Gb)')
+ylabel('Processing Time (sec/GB)')
 xlabel('n-workers');
 title(title_string)
 hold on
@@ -110,7 +110,7 @@ for i=1:n_buf
     
     combine_method = hor_tes.combine_method(addinfo);
     test_name = ['combine_tmp_using_',combine_method];
-    per = hor_tes.knownPerformance(test_name);
+    per = hor_tes.known_performance(test_name);
     if isempty(per) || force_perf
         try
             perf_rez = hor_tes.combine_performance_test(0,addinfo,keep_tmp);
@@ -123,10 +123,12 @@ for i=1:n_buf
         per = perf_rez.(test_name);
     end
     comb_perf(i,1) = buf;
-    comb_perf(i,2) = per.time_sec;
+    comb_perf(i,2) = per.time_sec/hor_tes.data_size;
     
 end
 figure
 plot(comb_perf(:,1),comb_perf(:,2),'o-');
+ylabel('Processing Time (sec/GB)')
+xlabel('IO buffer size');
 
 
