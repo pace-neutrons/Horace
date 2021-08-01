@@ -138,12 +138,12 @@ mwSize accumulate_cut(double* s, double* e, double* npix,
 
 #pragma omp parallel default(none)                                                           \
     shared(rot_ustep, trans_bott_left, cut_range, ok, ind, qe_min, qe_max,                   \
-           pStor,pixel_data)                                                                 \
+           pStor)                                                                            \
         firstprivate(data_size, distribution_size, num_OMP_Threads,                          \
                      trans_elo, ebin_inv, Inf, PIXEL_data_width,                             \
                      ignote_all, ignore_nan, ignore_inf, ignore_something, transform_energy, \
                      nDimX, nDimY, nDimZ, nDimE,                                             \
-                     s, e, npix)                                                             \
+                     s, e, npix,pixel_data)                                                  \
             reduction(+                                                                      \
                       : nPixel_retained)
     {
