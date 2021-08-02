@@ -195,7 +195,8 @@ end
 
 function [proj, pbin, pin, en] = update_projection_bins(w, proj, pbin)
 % Update projection bins using the sqw header
-header_av = header_average(w.header_x);
+%header_av = header_average(w.header_x);
+header_av = w.header_x.expdata(1);
 [proj, pbin, ~, pin, en] = proj.update_pbins(header_av, w.data, pbin);
 end
 

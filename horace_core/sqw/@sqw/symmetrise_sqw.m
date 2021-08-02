@@ -64,8 +64,13 @@ end
 %========================
 
 %Get B-matrix and reciprocal lattice vectors and angles
-alatt=header.alatt;
-angdeg=header.angdeg;
+if isa(header,'Experiment')
+    alatt=header.samples(1).alatt;
+    angdeg=header.samples(1).angdeg;
+else
+    alatt=header.alatt;
+    angdeg=header.angdeg;
+end
 
 [b, arlu, angrlu, mess] = bmatrix(alatt, angdeg);
 
@@ -91,7 +96,11 @@ end
 % First step, therefore, is to work out what is the reflection matrix in
 % the orthonormal frame specified by u_to_rlu.
 
-uconv=header.u_to_rlu(1:3,1:3);
+if isa(header,'Experiment')
+    uconv=header.expdata(1).u_to_rlu(1:3,1:3);
+else
+    uconv=header.u_to_rlu(1:3,1:3);
+end
 
 %
 %convert the vectors specifying the reflection plane from rlu to the

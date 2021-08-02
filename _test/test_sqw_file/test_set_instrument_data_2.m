@@ -17,10 +17,10 @@ w1 = read_sqw(data_inst_ref);
 
 % check the conversion of the old sample and instrument stored in file
 hdr = w1.my_header();
-sam = hdr{1}.sample;
+sam = hdr.samples(1);
 assertTrue(isa(sam,'IX_sample'));
 assertEqual(sam.shape,'cuboid');
-inst = hdr{1}.instrument;
+inst = hdr.instruments(1);
 assertTrue(isa(inst,'IX_inst'));
 assertEqual(inst.name,'');
 %% --------------------------------------------------------------------------------------------------

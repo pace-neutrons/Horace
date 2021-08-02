@@ -100,6 +100,30 @@ classdef dnd_binfile_common < dnd_file_interface
         npix_position;
         
     end
+    
+    methods
+        function whereami(obj,myloc)
+            persistent oldcurpos;
+                
+            if nargin==1
+                myloc="---";
+            end
+            curpos = ftell(obj.file_id_);
+            if ~isempty(oldcurpos)
+                disp(["diff", curpos-oldcurpos]);
+            end
+            oldcurpos=curpos;
+            fseek(obj.file_id_, 0, 'eof');
+            endpos = ftell(obj.file_id_);
+            fseek(obj.file_id_, curpos, 'bof');
+            newcurpos = ftell(obj.file_id_);
+            disp(["file position" curpos, myloc]);
+            if curpos~=newcurpos
+                disp(["end pos", endpos]);
+                disp(["reset file pos", newcurpos]);
+            end
+        end
+   end
     %
     methods(Access = protected,Hidden=true)
         %

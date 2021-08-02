@@ -159,43 +159,30 @@ elseif narg==1 || isa(args{1},'function_handle')
         
         % Change the header
         nfiles=h.main_header.nfiles;
-        tmp=h.header_x;   % to keep referencing to sub-fields to a minimum
-        if nfiles>1
-            for ifile=1:nfiles
-                if ninst==1
-                    if is_instfunc
-                        args=substitute_arguments(h,ifile,instfunc_args(1,:));
-                        instrument=instfunc(args{:});
-                        if ~isa(instrument,'IX_inst')
-                            error('The instrument definition function does not return an object of class IX_inst')
-                        end
-                        tmp{ifile}.instrument=instrument;
-                    else
-                        tmp{ifile}.instrument=instrument;
+    tmp=h.header_x;   % to keep referencing to sub-fields to a minimum
+        for ifile=1:nfiles
+            if ninst==1
+                if is_instfunc
+                    args=substitute_arguments(h,ifile,instfunc_args(1,:));
+                    instrument=instfunc(args{:});
+                    if ~isa(instrument,'IX_inst')
+                        error('The instrument definition function does not return an object of class IX_inst')
                     end
+                    tmp.instruments(ifile)=instrument;
                 else
-                    if is_instfunc
-                        args=substitute_arguments(h,ifile,instfunc_args(ifile,:));
-                        instrument=instfunc(args{:});
-                        if ~isa(instrument,'IX_inst')
-                            error('The instrument definition function does not return an object of class IX_inst')
-                        end
-                        tmp{ifile}.instrument=instrument;
-                    else
-                        tmp{ifile}.instrument=instrument(ifile);
-                    end
+                    tmp.instruments(ifile)=instrument;
                 end
-            end
-        else
-            if is_instfunc
-                args=substitute_arguments(h,1,instfunc_args(1,:));
-                instrument=instfunc(args{:});
-                if ~isa(instrument,'IX_inst')
-                    error('The instrument definition function does not return an object of class IX_inst')
-                end
-                tmp.instrument=instrument;
             else
-                tmp.instrument=instrument;
+                if is_instfunc
+                    args=substitute_arguments(h,ifile,instfunc_args(ifile,:));
+                    instrument=instfunc(args{:});
+                    if ~isa(instrument,'IX_inst')
+                        error('The instrument definition function does not return an object of class IX_inst')
+                    end
+                    tmp.instruments(ifile)=instrument;
+                else
+                    tmp.instruments(ifile)=instrument(ifile);
+                end
             end
         end
         wout(i).header_x=tmp;
@@ -344,7 +331,7 @@ argout=argin;
 for i=1:numel(argin)
     if is_string(argin{i}) && strcmpi(argin{i},'-efix')
         if ifile>1 || w.main_header.nfiles>1
-            argout{i}=w.header_x{ifile}.efix;
+            argout{i}=w.header_x.expdata(ifile).efix;
         else
             argout{i}=w.header_x.efix;
         end

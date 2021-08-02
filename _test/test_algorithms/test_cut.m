@@ -47,9 +47,10 @@ classdef test_cut < TestCase
                 end
             end
             obj = obj@TestCase(name);
+            obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
+
             obj.sqw_4d = sqw(obj.sqw_file);
             
-            obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
             %
             if save_reference
                 fprintf('*** Rebuilding and overwriting reference cut file %s\n',...

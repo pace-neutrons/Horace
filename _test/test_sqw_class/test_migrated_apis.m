@@ -225,21 +225,34 @@ classdef test_migrated_apis < TestCase
 
         end
         function test_get_inst_class_with_missing_instrument(obj)
+           % s is initially created without instruments
+           % all instruments in s are initially a base-class IX_inst 
+           % with name ''. Previously they were structs with this name
            s = sqw(obj.test_sqw_2d_fullpath);
 
+           % Create a DGfermi instrument with a view to slotting it in
+           % to s.
            mod_1 = IX_moderator(10,11,'ikcarp',[11,111,0.1]);
            ap_1 = IX_aperture(-10,0.1,0.11);
            chopper_1 = IX_fermi_chopper(1,100,0.1,1,0.01);
            expected_inst =  IX_inst_DGfermi (mod_1, ap_1, chopper_1, 100);
 
+           % there are 85 runs. Change the header so that the first 20
+           % runs are now the DGfermi, the rest are still ''. But they
+           % are all IX_inst because that is how the new header is set up.
+           % Previously the unset ones were just structs.
            for idx=1:20
                hdr = s.my_header();
-               hdr{idx}.intrument = expected_inst;
+               hdr.instruments(idx) = expected_inst;
                s = s.change_header(hdr);
            end
 
+           % Now get the instrument classes from s.
+           % Some are DGfermi, some are '', all IX_inst.
            [instrument_class, all_inst] = s.get_inst_class();
-           assertFalse(all_inst);
+           % So assert all_inst is true (they are all IX_inst)
+           % and that the class name is '' (they are not all the same)
+           assertTrue(all_inst);
            assertEqual(instrument_class, '');
         end
 %        function test_get_mod_pulse(obj)
@@ -292,7 +305,7 @@ classdef test_migrated_apis < TestCase
             expected_energy = 10101010;
 
             updated = sqw_obj.set_efix(expected_energy);
-            assertTrue(all(cellfun(@(x) x.efix, updated.my_header()) == expected_energy));
+            assertTrue(all(arrayfun(@(x) x.efix, updated.my_header().expdata) == expected_energy));
         end
         function test_set_instrument(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
@@ -303,7 +316,7 @@ classdef test_migrated_apis < TestCase
             expected_inst =  IX_inst_DGfermi (mod_1, ap_1, chopper_1, 100);
 
             updated = s.set_instrument(expected_inst);
-            assertTrue(all(cellfun(@(x) equal_to_tol(x.instrument, expected_inst), updated.my_header())));
+            assertTrue(all(arrayfun(@(x) equal_to_tol(x, expected_inst), updated.my_header().instruments)));
         end
 
 %        function test_set_mod_pulse(obj)
@@ -316,8 +329,8 @@ classdef test_migrated_apis < TestCase
             s_updated = s.set_sample(sam1);
 
             hdr = s_updated.my_header();
-            assertEqual(hdr{1}.sample, sam1);
-            assertEqual(hdr{end}.sample, sam1);
+            assertEqual(hdr.samples(1), sam1);
+            assertEqual(hdr.samples(end), sam1);
         end
 
         %% shifts

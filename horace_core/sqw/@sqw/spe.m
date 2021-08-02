@@ -35,11 +35,20 @@ if iscell(w.header_x)
 end
 
 % Get file name and path from sqw object
-data.filename=w.header_x.filename;
-data.filepath=w.header_x.filepath;
+if isa(w.header_x,'Experiment')
+    data.filename=w.header_x.expdata(1).filename;
+    data.filepath=w.header_x.expdata(1).filepath;
+else
+    data.filename=w.header_x.filename;
+    data.filepath=w.header_x.filepath;
+end
 
 % Extract signal and error
-ne=numel(w.header_x.en)-1;    % number of energy bins
+if isa(w.header_x,'Experiment')
+    ne=numel(w.header_x.expdata(1).en)-1;    % number of energy bins
+else
+    ne=numel(w.header_x.en)-1;    % number of energy bins
+end
 ndet0=numel(w.detpar_x.group);% number of detectors
 
 tmp=w.data.pix.get_data({'detector_idx', 'energy_idx', 'signal', 'variance'})';
@@ -62,7 +71,11 @@ data.S=signal;
 data.ERR=err;
 
 % Get energy bin boundaries
-data.en=w.header_x.en;
+if isa(w.header_x,'Experiment')
+    data.en=w.header_x.expdata(1).en;
+else
+    data.en=w.header_x.en;
+end
 
 % Create output object
 d=spe(data);

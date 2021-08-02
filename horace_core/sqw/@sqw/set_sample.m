@@ -62,15 +62,19 @@ elseif narg==1
         wout=w.data;
         for i=1:numel(wout)
             nfiles=wout(i).main_header.nfiles;
-            if nfiles>1
-                tmp=wout(i).header_x;   % to keep referencing to sub-fields to a minimum
-                for ifiles=1:nfiles
-                    tmp{ifiles}.sample=sample;
-                end
-                wout(i).header_x=tmp;
-            else
-                wout(i).header_x.sample=sample;
+            tmp=wout(i).header_x;   % to keep referencing to sub-fields to a minimum
+            for ifiles=1:nfiles
+                % the default sample already present will have been set up
+                % with alatt and angdeg values from old-style headers. 
+                % The new sample being entered may not have these. 
+                % Here we assume that the pregenerated sample values are
+                % not valid.
+                oldsample = tmp.samples(ifiles);
+                sample.alatt = oldsample.alatt;
+                sample.angdeg = oldsample.angdeg;
+                tmp.samples(ifiles)=sample;
             end
+            wout(i).header_x=tmp;
         end
         argout{1}=wout;
     end

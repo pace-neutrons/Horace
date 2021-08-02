@@ -38,10 +38,14 @@ if isa(header,'is_holder')
         sampl  = obj.get_sample('-all');
         setting_sample = true;
     end
+elseif isa(header, 'Experiment')
+    hdr = header.convert_to_old_headers();
+    instr = extract_subfield_(hdr,'instrument');
+    sampl = extract_subfield_(hdr,'sample');
 elseif isempty(header)
     instr = struct();
     sampl = struct();
-else % should be header of an sqw file provided
+else % should be header of an sqw file provided, possibly converted from an Experiment
     % extract instrument and sample from the headers block
     instr = extract_subfield_(header,'instrument');
     sampl = extract_subfield_(header,'sample');

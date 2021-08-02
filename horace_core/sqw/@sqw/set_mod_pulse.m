@@ -80,6 +80,9 @@ for i=1:nobj
         ld = w.loaders_list{i};
         nfiles = ld.num_contrib_files;
         tmp = ld.get_header('-all');
+        if ~isa(tmp,'Experiment')
+            tmp=Experiment(tmp);
+        end
     else
         h=wout(i);  % pointer to object
         nfiles=h.main_header.nfiles;
@@ -89,13 +92,13 @@ for i=1:nobj
     if nfiles>1
         for ifile=1:nfiles
             if npp==1
-                tmp{ifile}.instrument=set_mod_pulse_single_inst(tmp{ifile}.instrument,pulse_model,pp);
+                tmp.instruments(ifile)=set_mod_pulse_single_inst(tmp.instruments(ifile),pulse_model,pp);
             else
-                tmp{ifile}.instrument=set_mod_pulse_single_inst(tmp{ifile}.instrument,pulse_model,pp(ifile,:));
+                tmp.instruments(ifile)=set_mod_pulse_single_inst(tmp.instruments(ifile),pulse_model,pp(ifile,:));
             end
         end
     else
-        tmp.instrument=set_mod_pulse_single_inst(tmp.instrument,pulse_model,pp);
+        tmp.instruments(1)=set_mod_pulse_single_inst(tmp.instruments(1),pulse_model,pp);
     end
     % Write back out
     if source_is_file

@@ -68,10 +68,11 @@ function [inst_class,all_inst] = get_inst_class_single (header)
 
 if ~iscell(header), header = {header}; end  % for convenience, turn into a cell array
 
-is_inst = cellfun(@(x)(isa(x.instrument,'IX_inst')), header);
+%is_inst = cellfun(@(x)(isa(x.instrument,'IX_inst')), header);
+is_inst =arrayfun( @(x)(isa(x, 'IX_inst')), header{1}.instruments);
 if all(is_inst)
     all_inst = true;
-    inst_classes = cellfun(@(x)(class(x.instrument)), header, 'uniformoutput', false);
+    inst_classes = arrayfun(@(x)(class(x)), header{1}.instruments, 'UniformOutput', false);
     if all(strcmp(inst_classes{1},inst_classes))
         inst_class = inst_classes{1};
     else

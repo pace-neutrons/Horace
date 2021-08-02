@@ -41,7 +41,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             hdr = wtmp.my_header();
             wtmp_new = set_efix(wtmp,ei);
             hdr_new = wtmp_new.my_header();
-            assertEqual([hdr{10}.efix,hdr_new{10}.efix],[787,1010])
+            assertEqual([hdr.expdata(10).efix,hdr_new.expdata(10).efix],[787,1010])
             
             % old format file implicitly converted into new format
             set_efix_horace (obj.test_file_,ei)
@@ -51,7 +51,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             ldr.delete(); % clear existing loader not to hold test file in case of further modifications
             
             hdr = wtmp_new.my_header();
-            assertEqual([header.efix,hdr{10}.efix],[1010,1010])
+            assertEqual([header.efix,hdr.expdata(10).efix],[1010,1010])
             
             % file is in the new format, see how update goes in this case
             ei=100+(1:186);
@@ -64,7 +64,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             ldr1.delete(); % clear existing loader not to hold test file in case of further modifications
             
             hdr = wtmp_new.my_header();
-            assertEqual([header.efix,hdr{10}.efix],[110,1010])
+            assertEqual([header.efix,hdr.expdata(10).efix],[110,1010])
         end
         %
         function test_set_instrument(obj)
@@ -83,7 +83,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             ldr.delete(); % clear existing loader not to hold test file in case of further modifications
             
             hdr = wtmp.my_header();
-            assertEqual(hdr{1}.instrument,inst);
+            assertEqual(hdr.instruments(1),inst);
             
             %---------------------------------------------------------------------
             wtmp=set_instrument(wref,@create_test_instrument,'-efix',500,'s');
@@ -92,14 +92,14 @@ classdef test_instrument_methods <  TestCase %WithSave
             ldr1 = sqw_formats_factory.instance().get_loader(obj.test_file_);
             inst = ldr1.get_instrument(10);
             hdr = wtmp.my_header();
-            assertEqual(hdr{10}.instrument,inst);
+            assertEqual(hdr.instruments(10),inst);
             
             inst = ldr1.get_instrument('-all');
             ldr1.delete(); % clear existing loader not to hold test file in case of further modifications
             
             assertEqual(numel(inst),186) % all instruments for this file are the same
                         hdr = wtmp.my_header();
-            assertEqual(hdr{186}.instrument,inst(186));
+            assertEqual(hdr.instruments(186),inst(186));
             
             %---------------------------------------------------------------------
             % NOT IMPLEMENTED or implemented wrongly. Does not accept array
@@ -134,7 +134,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             
             wtmp_new = set_mod_pulse(wtmp,pulse_model,pp);
             hdr = wtmp_new.my_header();
-            assertEqual(hdr{10}.instrument.moderator.pp(1),100/sqrt(ei(10)))
+            assertEqual(hdr.instruments(10).moderator.pp(1),100/sqrt(ei(10)))
             
             % Set the incident energies in the file - produces an error as
             % the instrument is empty

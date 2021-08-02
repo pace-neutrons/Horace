@@ -13,7 +13,24 @@ for i=1:numel(fn)
     field_n = fn{i};
     fmt = format.(field_n);
     if ~isa(fmt,'iVirt_field')
-        val = struc.(field_n);
+        sk = [];
+        if isa(struc, 'Experiment')
+            sk = struc;
+            isk = 1;
+        elseif iscell(struc) && isa(struc{1}, 'Experiment')
+            sk = struc{1};
+            isk = struc{2};
+        end
+        if ~isempty(sk)
+            if strcmp(field_n, 'alatt') || strcmp(field_n, 'angdeg')
+                sk = sk.samples(isk);
+            else 
+                sk = sk.expdata(isk);
+            end
+        else
+            sk =struc;
+        end
+        val = sk.(field_n);
     else
         val = [];
     end

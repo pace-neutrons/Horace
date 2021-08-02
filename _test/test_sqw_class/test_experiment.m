@@ -82,8 +82,8 @@ classdef test_experiment < TestCaseWithSave
             clear('expt');
             
             load(tmpfile, 'expt');
-            assertEqual(expt.instruments, [])
-            assertEqual(expt.samples, [])
+            assertEqual(expt.instruments, IX_inst.empty)
+            assertEqual(expt.samples, IX_sample.empty)
             assertEqual(expt.detector_arrays, [])
         end
 

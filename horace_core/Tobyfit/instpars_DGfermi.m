@@ -31,17 +31,20 @@ function [ok,mess,ei,x0,xa,x1,thetam,angvel,moderator,aperture,chopper]=...
 
 
 % Get array of instruments
+%{
 if ~iscell(header)
     nrun=1;
     inst=header.instrument;
     header={header};
 else
-    nrun=numel(header);
-    inst=repmat(header{1}.instrument,[nrun,1]);
+%}
+instruments = header.instruments;
+    nrun=numel(instruments);
+    inst=repmat(instruments(1),[nrun,1]);
     for i=2:nrun
-        inst(i)=header{i}.instrument;
+        inst(i)=instruments(i);
     end
-end
+%end
 
 % Fill output arguments
 ei=zeros(nrun,1);
@@ -54,7 +57,7 @@ moderator=repmat(IX_moderator,[nrun,1]);
 aperture=repmat(IX_aperture,[nrun,1]);
 chopper=repmat(IX_fermi_chopper,[nrun,1]);
 for i=1:nrun
-    ei(i)=header{i}.efix;
+    ei(i)=header.expdata(i).efix;
     x1(i)=abs(inst(i).fermi_chopper.distance);
     x0(i)=abs(inst(i).moderator.distance) - x1(i);      % distance from Fermi chopper to moderator face
     xa(i)=abs(inst(i).aperture.distance) - x1(i);       % distance from Fermi chopper to beam defining aperture

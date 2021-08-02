@@ -114,6 +114,8 @@ classdef sqw_formats_factory < handle
             end
             if ~isnumeric(sqw_file_name)
                 [ok,mess,full_data_name] = check_file_exist(sqw_file_name,'*');
+            else
+            	error('SQW_FILE_IO:runtime_error', 'filename was not numeric');
             end
             if ~ok
                 mess = regexprep(mess,'[\\]','/');
@@ -195,7 +197,14 @@ classdef sqw_formats_factory < handle
                 if isa(varargin{1},'sqw')
                     sobj = varargin{1};
                     header =sobj.my_header();
-                    if iscell(header)
+                    if isa(header, 'Experiment')
+                        if isempty(header.expdata)
+                            loader = obj.supported_accessors_{1};
+                            return;
+                        else
+                            header = header.expdata(1);
+                        end
+                    elseif iscell(header)
                         header = header{1};
                     elseif isempty(header)
                         loader = obj.supported_accessors_{1};

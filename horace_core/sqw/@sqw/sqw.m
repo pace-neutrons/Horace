@@ -90,20 +90,21 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
             
-            if isempty(varargin)
-                disp("here");
-            end
+            
+            % here we go through the various options for what can
+            % initialise an sqw
             [args] = obj.parse_args(varargin{:});
             
-            % i) copy
+            % i) copy - it is an sqw
             if ~isempty(args.sqw_obj)
                 obj = copy(args.sqw_obj);
                 
-                % ii) filename
+                % ii) filename - init from a file
             elseif ~isempty(args.filename)
                 obj = obj.init_from_file_(args.filename, args.pixel_page_size);
                 
-                % iii) struct or data loader
+                % iii) struct or data loader - a struct, pass to the struct
+                % loader
             elseif ~isempty(args.data_struct)
                 if isa(args.data_struct,'dnd_file_interface')
                     args.data_struct = obj.get_loader_struct_(...
@@ -142,10 +143,20 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             % -------
             % Output:
             %   obj     An instance of this object
+            
+            % the assumption here is that either the incoming data S
+            % is either an actual sqw or a struct with the same fields
+            % or an array of the same
+            
+            %if we have an sqw (which could be an array) we just return it
             if isa(S,'sqw')
                 obj = S;
                 return
             end
+            
+            % if we have a struct or array of structs the thing we need to
+            % do is change the header field for header_x and pass the
+            % resulting struct/array into the sqw constructor
             if numel(S)>1
                 tmp = sqw();
                 obj = repmat(tmp, size(S));
@@ -153,11 +164,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
                     ss =S(i);
                     if isfield(S(i),'header')
                         ss.header_x = S(i).header;
-                        rmfield(ss,'header');
+                        ss = rmfield(ss,'header');
                     end
                     if isfield(S(i),'detpar')
                         ss.detpar_x = S(i).detpar;
-                        rmfield(ss,'detpar');
+                        ss = rmfield(ss,'detpar');
                     end
                     obj(i) = sqw(ss);
                 end
@@ -252,14 +263,19 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             % file loader
             obj.main_header = data_struct.main_header;
             try
-                obj.header_x = data_struct.header_x;
+                if ~isempty(data_struct.header_x)
+                    obj.header_x = Experiment(data_struct.header_x);
+                    
+                else
+                    obj.header_x = Experiment();
+                end
             catch ME
-                error("X");
+                error("Developer error in header input");
             end
             try
                obj.detpar_x = data_struct.detpar_x;
             catch ME
-                error("Y");
+                error("Developer error in detpar input");
             end
             obj.data = data_struct.data;
         end

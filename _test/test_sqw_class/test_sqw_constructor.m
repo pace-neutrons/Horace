@@ -28,7 +28,7 @@ methods
 
         assertTrue(isa(sqw_obj, 'sqw'));
         assertEqual(sqw_obj.main_header, struct([]));
-        assertEqual(sqw_obj.my_header(), struct([]));
+        assertEqual(sqw_obj.my_header(), Experiment());
         assertEqual(sqw_obj.my_detpar(), struct([]));
         assertEqual(sqw_obj.data.pix, PixelData());
         assertEqual(numel(sqw_obj.data.pax), 0);
@@ -40,7 +40,7 @@ methods
         % expected data populated from instance of test object
         assertTrue(isa(sqw_obj, 'sqw'));
         assertEqual(sqw_obj.main_header.nfiles, 85)
-        assertEqual(numel(sqw_obj.my_header()), 85)
+        assertEqual(numel(sqw_obj.my_header().expdata), 85)
         assertEqual(numel(sqw_obj.my_detpar().group), 36864);
         assertEqual(numel(sqw_obj.data.pax), 1);
         assertEqual(sqw_obj.data.pix.num_pixels, 100337);
