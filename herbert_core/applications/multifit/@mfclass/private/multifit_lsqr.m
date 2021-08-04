@@ -551,7 +551,7 @@ end
 %-------------------------------
 function fit_listing_iteration(listing,iter,chisqr_red,lambda,pvary)
 if listing==1
-    fprintf('   %3d      %8.3f   %9.4f', iter, toc, chisqr_red);
+    fprintf('   %3d      %8.3f   %9.4f\n', iter, toc, chisqr_red);
 else
     if ~isempty(lambda)
         disp([' Total time = ',num2str(toc),'s    Reduced Chi^2 = ',num2str(chisqr_red),...
