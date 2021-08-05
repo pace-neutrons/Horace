@@ -13,6 +13,7 @@ classdef split_sqw < sqw
 
     properties
         nomerge;
+        nelem;
     end
 
     methods
@@ -94,13 +95,17 @@ classdef split_sqw < sqw
 
                 points = [0, cumsum(num_pixels)];
                 [npix, nomerge] = split_npix(num_pixels, sqw.data.npix);
+
                 for i=1:nWorkers
-                    obj(i).data.pix = get_pix_in_ranges(sqw.data.pix, points(i)+1, points(i+1));
                     obj(i).data.npix = npix{i};
+                    obj(i).data.pix = get_pix_in_ranges(sqw.data.pix, points(i)+1, points(i+1));
+                    obj(i) = obj(i).recompute_bin_data();
                     obj(i).nomerge = nomerge(i);
                     obj(i).s = obj(i).data_.s;
                     obj(i).e = obj(i).data_.e;
+                    obj(i).nelem = sum(logical(obj(i).data_.npix));
                 end
+
             end
         end
 
@@ -118,6 +123,8 @@ function [npix, nomerge] = split_npix(num_pixels, old_npix)
 %
 % Overlaps first and last elements even if aligned with bins for ease of reduction.
 
+    % Force column vector
+    old_npix = old_npix(:);
 
     cumpix = cumsum(old_npix(:));
     cum_npix = cumsum(num_pixels);
@@ -148,12 +155,12 @@ function [npix, nomerge] = split_npix(num_pixels, old_npix)
         diff = cum_npix(i) - cumpix(ind);
 
         npix{i} = old_npix(prev_ind+1:ind);
-        npix{i} = [npix{i}, diff];
+        npix{i} = [npix{i}; diff];
 
 
         % Skip 0th element
         if i > 1
-            npix{i} = [rem, npix{i}];
+            npix{i} = [rem; npix{i}];
         end
 
 
@@ -171,6 +178,6 @@ function [npix, nomerge] = split_npix(num_pixels, old_npix)
     if prev_ind > 0
         npix{nWorkers} = old_npix(prev_ind+1:end);
     end
-    npix{nWorkers} = [rem, npix{nWorkers}];
+    npix{nWorkers} = [rem; npix{nWorkers}];
 
 end
