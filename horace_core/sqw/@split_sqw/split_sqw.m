@@ -76,7 +76,9 @@ classdef split_sqw < sqw
                     obj(i).e = obj(i).data_.e;
                     obj(i).data_.npix = sqw.npix(points(i)+1:points(i+1));
                     obj(i).npix = obj(i).data_.npix;
+                    obj(i).nelem = sum(logical(obj(i).data_.npix));
                     obj(i).num_pixels = 0; %num_pixels(i);
+                    obj(i).nomerge = true;
                 end
             elseif isa(sqw, 'sqw')
 
@@ -104,6 +106,7 @@ classdef split_sqw < sqw
                     obj(i).s = obj(i).data_.s;
                     obj(i).e = obj(i).data_.e;
                     obj(i).nelem = sum(logical(obj(i).data_.npix));
+
                 end
 
             end
