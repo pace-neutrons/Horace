@@ -22,16 +22,16 @@ function varargout = horace(varargin)
 
 % Edit the above text to modify the response to help horace
 
-% Last Modified by GUIDE v2.5 19-Nov-2015 11:00:22
+% Last Modified by GUIDE v2.5 22-Jun-2021 11:54:33
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
-                   'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @horace_OpeningFcn, ...
-                   'gui_OutputFcn',  @horace_OutputFcn, ...
-                   'gui_LayoutFcn',  [] , ...
-                   'gui_Callback',   []);
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @horace_OpeningFcn, ...
+    'gui_OutputFcn',  @horace_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...
+    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
@@ -44,11 +44,11 @@ end
 % End initialization code - DO NOT EDIT
 
 function is_sqw_obj = is_sqw_dnd(element_class)
-    % Returns true if the test element, from evalin, is the name of a concrete SQW class type
-    is_sqw_obj = strcmp(element_class,'d1d') || strcmp(element_class,'d2d') ||...
-            strcmp(element_class,'d3d') || strcmp(element_class,'d4d') ||...
-            strcmp(element_class,'sqw')
-end
+% Returns true if the test element, from evalin, is the name of a concrete SQW class type
+is_sqw_obj = strcmp(element_class,'d1d') || strcmp(element_class,'d2d') ||...
+    strcmp(element_class,'d3d') || strcmp(element_class,'d4d') ||...
+    strcmp(element_class,'sqw');
+
 
 % --- Executes just before horace is made visible.
 function horace_OpeningFcn(hObject, eventdata, handles, varargin)
@@ -99,7 +99,7 @@ if exist('cellofvars','var')
     drawnow;
     set(handles.obj_list_popupmenu,'String',cellofvars);
     guidata(hObject, handles);
-
+    
     str = get(handles.obj_list_popupmenu, 'String');
     val = get(handles.obj_list_popupmenu,'Value');
     %
@@ -1671,15 +1671,8 @@ try
             guidata(gcbo,handles);
             return;
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No operation performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
+catch the_err
+    report_error(the_err,'**** cut failed at: ')
 end
 
 
@@ -2000,7 +1993,7 @@ if manspec==nummax
             guidata(gcbo,handles);
             return;
         end
-
+        
         for i=1:numel(lostephinew)
             if ~all(isnan(lostephinew{i})) && ...
                     (numel(lostephinew{i})==3 || numel(lostephinew{i})==1 || numel(lostephinew{i})==0)
@@ -2012,11 +2005,17 @@ if manspec==nummax
                 guidata(gcbo,handles);
             end
         end
-    catch
-        mess1='Formatting error of manual rebinning entries';
-        mess2='Ensure they are of the form [lo,step,hi], [step], or [], and are numeric';
-        set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+    catch the_err
+        err = {sprintf('**** %s',mess_initialise),...
+            sprintf('**** Error %s Message: %s',...
+            the_err.identifier,the_err.message),...
+            '**** Formatting error of manual rebinning entries: ',...
+            '**** Ensure they are of the form [lo,step,hi], [step], or [], and are numeric'};
+        
+        set(handles.message_text_field,'String',char(err));
         guidata(gcbo,handles);
+        
+        
         return;
     end
 end
@@ -2108,16 +2107,9 @@ try
         end
         save(out,outfilename);
     end
-
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No rebin performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
+    
+catch the_err
+    report_error(the_err,'**** rebin failed at: ')
 end
 
 
@@ -2446,7 +2438,7 @@ else
         %==
         %Case for v3 is slightly different
         v3=get(handles.Sym_v3_edit,'String');
-
+        
         if ~isempty(v3)
             %must strip out square brackets, if user has inserted them:
             s1=strfind(v3,'['); s2=strfind(v3,']');
@@ -2562,16 +2554,9 @@ try
         end
         save(out,outfilename);
     end
-
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No symmetrise performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
+    
+catch the_err
+    report_error(the_err,'**** symmetrise  failed at: ')
 end
 
 
@@ -2838,7 +2823,7 @@ if tolspec==nummax
             guidata(gcbo,handles);
             return;
         end
-
+        
         if ~all(isnan(tolnew)) && numel(tolnew)==ndims1
             istol=true;
         elseif numel(tolnew)~=ndims1
@@ -2932,16 +2917,9 @@ try
         end
         save(out,outfilename);
     end
-
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No combine performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
+    
+catch the_err
+    report_error(the_err,'**** combine failed at: ')
 end
 
 
@@ -3239,15 +3217,8 @@ try
             save(out,outfilename);
         end
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No replication performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
+catch the_err
+    report_error(the_err,'**** replication failed at: ')
 end
 
 if ~sqw_flag
@@ -3443,7 +3414,7 @@ end
 %Now we execute the bose factor correction:
 try
     if ~saveafile
-            out=eval(['bose(',obj_to_cut,',',temperature,');']);
+        out=eval(['bose(',obj_to_cut,',',temperature,');']);
     elseif saveafile && strcmp(outfilename,'-save')
         out=eval(['bose(',obj_to_cut,',',temperature,');']);
         save(out);
@@ -3451,15 +3422,8 @@ try
         out=eval(['bose(',obj_to_cut,',',temperature,');']);
         save(out,outfilename);
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No bose correction performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
+catch the_err
+    report_error(the_err,'**** bose_correction failed at: ')
 end
 
 assignin('base',outobjname,out);
@@ -3752,7 +3716,7 @@ if ~isfield(handles,'bin_funcstr')
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     pause(2);
-%     return;
+    %     return;
 else
     funcstr=handles.bin_funcstr;
 end
@@ -3877,15 +3841,8 @@ try
         end
         save(out,outfilename);
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No operation performed (formatting error?)';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
+catch the_err
+    report_error(the_err,'**** Formatting error? Unit operation failed at: ')
 end
 
 
@@ -4087,15 +4044,8 @@ try
         out=eval([funcstr,'(',obj_to_cut,');']);
         save(out,outfilename);
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='No operation performed';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
+catch the_err
+    report_error(the_err,'**** unit operation failed at: ')
 end
 
 assignin('base',outobjname,out);
@@ -4669,15 +4619,8 @@ try
         out=eval(['cut_sqw(''',filestring,''',proj',',[',a1,'],[',...
             a2,'],[',a3,'],[',a4,'],''',outfilename,''');']);
     end
-catch
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess1='Cut from file failed -- re-check all inputs';
-    mess2=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-    guidata(gcbo,handles);
-    return;
+catch the_err
+    report_error(the_err,'**** Invalid inputs? Cut from file failed at: ')
 end
 
 assignin('base',outobjname,out);
@@ -5132,7 +5075,7 @@ function gen_sqw_spefile_browse_pushbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-[spe_filename,spe_pathname,FilterIndex] = uigetfile({'*.spe; *.SPE','spe files (*.spe, *.SPE)';'*.*','All files (*.*)' },...
+[spe_filename,spe_pathname,FilterIndex] = uigetfile({'*.spe; *.SPE; *.nxspe; *.NXSPE','spe files (*.spe, *.nxspe)';'*.*','All files (*.*)' },...
     'Select spe files','Multiselect','on');
 
 if ischar(spe_pathname) && ischar(spe_filename)
@@ -5275,7 +5218,7 @@ elseif isempty(angdeg)
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
     guidata(gcbo,handles);
     return;
-elseif isempty(parfile)
+elseif isempty(parfile) && sqw_list_not_nxspe(handles.gen_sqw_listbox)
     mess1='Ensure you have specified a par file name';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
     guidata(gcbo,handles);
@@ -5440,23 +5383,15 @@ try
     mess1='Combining SPE files into SQW file -- working';
     set(handles.message_info_text,'String',char({mess_initialise,mess1}));
     guidata(gcbo,handles);
-    pause(2);
+    pause(1);
     gen_sqw(spe_cell,parfile,sqwfile,efixnew,emode,alattnew,angdegnew,unew,vnew,...
         psi_vec,offsetsnew(1),offsetsnew(2),offsetsnew(3),offsetsnew(4));
     mess1='Success!';
     mess2='SQW file generation complete';
     set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
     guidata(gcbo,handles);
-catch
-    mess1='Formatting error of inputs';
-    the_err=lasterror;
-    emess=the_err.message;
-    nchar=strfind(emess,['at ',num2str(the_err.stack(1).line)]);
-    mess2='gen_sqw failed because:';
-    mess3=emess(nchar+9:end);
-    set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2,mess3}));
-    guidata(gcbo,handles);
-    return;
+catch the_err
+    report_erro(the_err,'**** gen_sqw failed at: ')
 end
 
 
@@ -5849,3 +5784,31 @@ if button_state==get(hObject,'Max') %button is pressed
     set(handles.Cutfile_orthaxes_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
+
+
+% --- Checks if inputfiles are all nxspe or not
+function out = sqw_list_not_nxspe(listbox_handle)
+spe_psi_list=get(listbox_handle,'String');
+for i=1:size(spe_psi_list,1)
+    spe_psi_cell{i}=strtrim(spe_psi_list(i,:));%get rid of leading and trailing white space
+end
+out = all(cellfun(@(x)isempty(strfind(x, 'nxspe')), spe_psi_cell));
+
+
+% --------------------------------------------------------------------
+function report_error(the_err,err_info)
+err = {sprintf('**** %s',mess_initialise),...
+    sprintf('**** Error %s Message: %s',...
+    the_err.identifier,the_err.message),...
+    err_info};
+stack_depth = numel(the_err.stack);
+for i=stack_depth-3:-1:1
+    err{end+1} = sprintf('*** Row: %d, function: %20s file: %s',...
+        the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
+end
+
+set(handles.message_text_field,'String',char(err));
+guidata(gcbo,handles);
+
+rethrow(the_err);
+

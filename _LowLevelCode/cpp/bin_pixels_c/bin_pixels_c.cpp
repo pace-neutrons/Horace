@@ -70,7 +70,11 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     mxArray* PixelSorted;
     //
     if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
+#ifdef _OPENMP
         plhs[0] = mxCreateString(Horace::VERSION);
+#else
+        plhs[0] = mxCreateString(Horace::VER_NOOMP);
+#endif
         return;
     }
 
@@ -249,7 +253,7 @@ bool bin_pixels(double* s, double* e, double* npix,
                       pixel_data, ok, nGridCell, pStor, ppInd, \
                       tPixelSorted,pPixelSorted,pPixels,PixelSorted,pix_retained,nPixel_retained,\
                       s, e, npix,comb_size)\
-          firstprivate(num_threads,data_size,distribution_size,\
+          firstprivate(num_threads,data_size,distribution_size,cut_range,\
                         nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR)
 #else
 #ifdef C_MUTEXES
@@ -257,14 +261,14 @@ bool bin_pixels(double* s, double* e, double* npix,
                       pixel_data, ok, nGridCell, pStor, ppInd, \
                       tPixelSorted,pPixelSorted,pPixels,PixelSorted,pix_retained,nPixel_retained,\
                       s, e, npix,comb_size)\
-          firstprivate(num_threads,data_size,distribution_size,\
+          firstprivate(num_threads,data_size,distribution_size,cut_range,\
                         nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR)
 #else
 #pragma omp parallel default(none),shared( \
                       pixel_data, ok, nGridCell, pStor, ppInd, \
                       tPixelSorted,pPixelSorted,pPixels,PixelSorted,pix_retained,nPixel_retained,\
                       s, e, npix,comb_size)\
-          firstprivate(num_threads,data_size,distribution_size,\
+          firstprivate(num_threads,data_size,distribution_size,cut_range,\
                         nDimX,nDimY,nDimZ,nDimE,xBinR,yBinR,zBinR,eBinR)
 #endif //C_MUTEXES
 #endif //OMP_VERSION_3

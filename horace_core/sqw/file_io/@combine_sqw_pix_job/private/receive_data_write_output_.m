@@ -36,13 +36,13 @@ end
 while ~isempty(data_providers)|| pix_cache.npix_in_cache ~= 0
     %
     if isempty(data_providers)
-        messages = {};
+        messages = {};task_ids=[];
     else
-        messages = mess_exch.receive_all(data_providers,'data');
+        [messages,task_ids] = mess_exch.receive_all(data_providers,'data');
     end
     %
     if h_log
-        [npix_tot,niter]=print_receive_statistics(h_log,messages,npix_tot,niter);
+        [npix_tot,niter]=print_receive_statistics(h_log,messages,npix_tot,niter,task_ids);
     end
     %
     pix_cache = pix_cache.push_messages(messages,h_log);
@@ -87,10 +87,11 @@ if is_deployed
 end
 mess_completion;
 
-function [npix_tot,niter]=print_receive_statistics(h_log,messages,npix_tot,niter)
+function [npix_tot,niter]=print_receive_statistics(h_log,messages,npix_tot,niter,task_ids)
 % print statistics describing current received messages
 %
 niter = niter+1;
+npix_received = 0;
 fprintf(h_log,...
     '******************** receiving:\n');
 for i=1:numel(messages)
@@ -98,7 +99,7 @@ for i=1:numel(messages)
     
     fprintf(h_log,...
         '******************** lab %d mess N %d, npixels: %d; tid %d\n',...
-        pl.lab,pl.messN,pl.npix,task_ids(i));
+        pl.n_source,pl.messN,pl.npix,task_ids(i));
     
     npix_received = npix_received + pl.npix;
 end
