@@ -143,7 +143,7 @@ mwSize accumulate_cut(double* s, double* e, double* npix,
                      trans_elo, ebin_inv, Inf, PIXEL_data_width,                             \
                      ignote_all, ignore_nan, ignore_inf, ignore_something, transform_energy, \
                      nDimX, nDimY, nDimZ, nDimE,                                             \
-                     s, e, npix)                                                             \
+                     s, e, npix,pixel_data)                                                  \
             reduction(+                                                                      \
                       : nPixel_retained)
     {

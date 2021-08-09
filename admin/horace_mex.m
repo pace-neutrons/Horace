@@ -68,8 +68,9 @@ try % mex C++
     mex_single([cpp_in_rel_dir 'bin_pixels_c'], out_rel_dir,'bin_pixels_c.cpp');
     mex_single([cpp_in_rel_dir 'calc_projections_c'], out_rel_dir,'calc_projections_c.cpp');
     mex_single([cpp_in_rel_dir 'sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
-    mex_single([cpp_in_rel_dir 'compute_pix_sums'], out_rel_dir,'compute_pix_sums_c.cpp','compute_pix_sums_helpers.cpp');
     mex_single([cpp_in_rel_dir 'mtimesx_horace'], out_rel_dir,'mtimesx_mex.cpp');
+    mex_single([cpp_in_rel_dir 'compute_pix_sums'], out_rel_dir,'compute_pix_sums_c.cpp','compute_pix_sums_helpers.cpp');
+    
 
     % create the procedured to access hdf files
     cof = {'hdf_mex_reader.cpp','hdf_pix_accessor.cpp','input_parser.cpp',...
@@ -98,7 +99,7 @@ if C_compiled
     set(hor_config,'use_mex',true);
 end
 
-function add_version_foloder(out_rel_dir)
+function add_version_folder(out_rel_dir)
 % Add folder with compiled mex files to Matlab search path
 %
 %hor_folder = fileparts(which('horace_init.m'));
@@ -174,13 +175,20 @@ disp(['Mex file creation from ',short_fname,' ...'])
 if ~check_access(outdir,add_files{1})
     error('MEX_SINGLE:invalid_arg',' can not get write access to new mex file: %s',fullfile(outdir,add_files{1}));
 end
+if ispc
+    cxx_flags = 'COMPFLAGS= $COMPFLAGS /openmp'; 
+    ld_flags = 'LDFLAGS= --no-undefined';
+else
+    cxx_flags = 'CXXFLAGS= $CFLAGS  -fopenmp -std=c++11';
+    ld_flags  = 'LDFLAGS= -pthread -Wl,--no-undefined  -fopenmp';
+end
 if(nFiles==1)
     fname      = strtrim(add_files{1});
     %cxx_flags = "
-    mex('CXXFLAGS= $CFLAGS  -fopenmp -std=c++11','LDFLAGS= -pthread -Wl,--no-undefined  -fopenmp',fname, '-outdir', outdir);
+    mex(cxx_flags,ld_flags,fname, '-outdir', outdir);
 else
     %mex('-g',add_files{:}, '-outdir', outdir);
-    mex('-lut','CXXFLAGS=$CFLAGS -fopenmp -std=c++11','LDFLAGS= -pthread -Wl,--no-undefined  -fopenmp',add_files{:}, '-outdir', outdir);
+    mex('-lut',cxx_flags,ld_flags,add_files{:}, '-outdir', outdir);
 end
 
 function access =check_access(outdir,filename)
