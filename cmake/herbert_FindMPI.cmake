@@ -1,8 +1,8 @@
 set(EXTERNAL_ROOT "${Herbert_ROOT}/_LowLevelCode/external")
 if(UNIX)
     if (USE_HERBERT_MPI)
-    	set(MPICH_VERSION "3.3a2")
-	    set(MPI_ROOT "${EXTERNAL_ROOT}/glnxa64/mpich-${MPICH_VERSION}")
+        set(MPICH_VERSION "3.3a2")
+        set(MPI_ROOT "${EXTERNAL_ROOT}/glnxa64/mpich-${MPICH_VERSION}")
     endif()
     message(STATUS "looking for MPI in at: ${MPI_ROOT}")
     # We point CMake to the mpicc and mpicxx compiler scripts, these are then
