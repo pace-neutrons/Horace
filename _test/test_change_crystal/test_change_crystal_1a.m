@@ -73,7 +73,9 @@ classdef test_change_crystal_1a < TestCase
             obj.clob = {onCleanup(@()clearner(nxs_file_s,sim_sqw_file,cof_path)),hpc_restore};
 
         end
-        function DISABLED_test_u_alighnment_tf_way(obj)
+        function test_u_alighnment_tf_way(obj)
+            skipTest('Test is disabled');
+
             % Fit Bragg peak positions
             % ------------------------
             proj.u=obj.u;
@@ -137,9 +139,8 @@ classdef test_change_crystal_1a < TestCase
 
         end
         %
-        function xest_u_alighnment(obj)
-            % have not been finished, does not work
-            % Test is disabled
+        function test_u_alighnment(obj)
+            skipTest('Has not been finished, does not work. Test is disabled');
             %
             % Fit Bragg peak positions
             % ------------------------
