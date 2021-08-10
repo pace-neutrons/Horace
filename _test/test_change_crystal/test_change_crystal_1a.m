@@ -56,7 +56,7 @@ classdef test_change_crystal_1a < TestCase
             common_data_dir=fullfile(hor_root,'_test','common_data');
             % -----------------------------------------------------------------------------
             % generate shifted sqw file
-            obj.par_file=fullfile(common_data_dir,'9cards_4_4to1.par');
+            obj.par_file=fullfile(common_data_dir,'map_4to1_dec09.par');
             % Parameters for generation of reference sqw file
             obj.dir_out=tmp_dir;
 
