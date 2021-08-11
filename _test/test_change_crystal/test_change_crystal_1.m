@@ -94,7 +94,7 @@ if max(abs(rlu0_corr(:)-rlu(:)))>qfwhh
 end
 
 
-% Success announcement and cleanup
+% Success announcement and clean-up
 % --------------------------------
 
 banner_to_screen([mfilename,': Test(s) passed (matches are within requested tolerances)'],'bot')
