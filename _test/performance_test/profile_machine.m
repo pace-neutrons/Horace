@@ -27,9 +27,10 @@ hrc.delete_tmp = false;
 clob1 = onCleanup(@()set(hrc,'delete_tmp',true));
 
 
-hor_tes.n_files_to_use=250;
+hor_tes.n_files_to_use=10;
 %n_workers = [0,1,2,4,6,8,10,12,14,16,20,32];
-n_workers = [0,1,2,4,8,12,14,16]; % local machine
+%n_workers = [0,1,2,4,8,12,14,16]; % local machine
+n_workers = [0,1,2]; %
 perf_graph = zeros(numel(n_workers),3);
 
 for i=1:numel(n_workers)
@@ -41,7 +42,7 @@ for i=1:numel(n_workers)
     per2 = hor_tes.known_performance(tn{2});
     if isempty(per1) || isempty(per2) || force_perf
         try
-            perf_rez = hor_tes.test_gensqw_performance(n_workers(i),'gen_sqw');
+            perf_rez = hor_tes.workflow_performance(n_workers(i),'gen_sqw');
         catch ME
             perf_graph = perf_graph(1:i-1,:);
             plot(perf_graph(:,1),perf_graph(:,2),'o-');
@@ -67,7 +68,7 @@ min_prod_time = round((min_gen_time+min_comb_time)*hor_tes.data_size/60,1); % in
 max_prod_time = round((max_gen_time+max_comb_time)*hor_tes.data_size/60,1); % in minutes
 tc1 = strrep(tn{1},'_','\_');
 tc2 = strrep(tn{2},'_','\_');
-title_string = sprintf(['Dataset silze~ %dGb, %d input files;\n',...
+title_string = sprintf(['Dataset silze~ %dGB, %d input files;\n',...
     ' Final DB test codes:\n %s; %s\n',...
     'Production time: min=%.1f(min); max=%.1f(min)'],...
     round(hor_tes.data_size),hor_tes.n_files_to_use,...
@@ -76,14 +77,15 @@ title_string = sprintf(['Dataset silze~ %dGb, %d input files;\n',...
 %plot results
 figure;
 plot(perf_graph(:,1),perf_graph(:,2),'o-');
-ylabel('Processing Time (sec/Gb)')
+ylabel('Processing Time (sec/GB)')
 xlabel('n-workers');
 title(title_string)
 hold on
 plot(perf_graph(:,1),perf_graph(:,3),'*-');
 legend('gen\_tmp perf','combine perf')
 
-buf_val = [-1,0,1024,2048,4*1024,8*1024,16*1024,32*1024,64*1024];
+%buf_val = [-1,0,1024,2048,4*1024,8*1024,16*1024,32*1024,64*1024];
+buf_val = [-1,0,1024];%,2048,4*1024,8*1024,16*1024,32*1024,64*1024];
 comb_perf = zeros(numel(buf_val),2);
 hpcc.mex_combine_thread_mode = 0;
 keep_tmp = '-keep';
@@ -108,13 +110,13 @@ for i=1:n_buf
         keep_tmp = '';
     end
     
-    combine_method = hor_tes.combine_method(addinfo);
+    combine_method = hor_tes.combine_method_name(addinfo);
     test_name = ['combine_tmp_using_',combine_method];
-    per = hor_tes.knownPerformance(test_name);
+    per = hor_tes.known_performance(test_name);
     if isempty(per) || force_perf
         try
-            perf_rez = hor_tes.combine_performance_test(0,addinfo,keep_tmp);
-        catch
+            perf_rez = hor_tes.combine_task_performance(0,addinfo,keep_tmp);
+        catch ME
             comb_perf = comb_perf(1:i-1,:);
             plot(comb_perf(:,1),comb_perf(:,2),'o-');
             return
@@ -123,10 +125,21 @@ for i=1:n_buf
         per = perf_rez.(test_name);
     end
     comb_perf(i,1) = buf;
-    comb_perf(i,2) = per.time_sec;
+    comb_perf(i,2) = per.time_sec/hor_tes.data_size;
     
 end
+min_comb_time = round(min(comb_perf(:,2))*hor_tes.data_size/60,1);
+max_comb_time = round(max(comb_perf(:,2))*hor_tes.data_size/60,1);
+
 figure
 plot(comb_perf(:,1),comb_perf(:,2),'o-');
+title_string = sprintf(['Dataset silze~ %dGB, %d input files\n',...
+    'Combine time: min=%.1f(min); max=%.1f(min)'],...
+    round(hor_tes.data_size),hor_tes.n_files_to_use,...
+    min_comb_time,max_comb_time);
+title(title_string)
+
+ylabel('Processing Time (sec/GB)')
+xlabel('IO buffer size');
 
 
