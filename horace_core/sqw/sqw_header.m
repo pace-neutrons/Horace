@@ -7,7 +7,7 @@ classdef sqw_header
     %
     methods(Static)
         function hstruct=header_struct()
-            % return the structure correspongint to an sqw file header.
+            % return the structure correspondent to an sqw file header.
             %
             % Under normal operations the values of
             % at least some fields of this header should usually be
@@ -102,15 +102,15 @@ classdef sqw_header
             %               file being passed as a structure is allowed.
             %Optional:
             % allow_equal_headers  disables checking input files for absolutely
-            %               equal headers. Two input files with equal haders is an error
+            %               equal headers. Two input files with equal headers is an error
             %               in normal operations so this option  used in
             %               tests only.
             %drop_subzones_headers if headers provided are the subzone
             %               headers, i.e. the headers obtained as the
-            %               headers of the cuts from sinlge sqw file, these
-            %               headers have special field, indicationg that
+            %               headers of the cuts from single sqw file, these
+            %               headers have special field, indication that
             %               they are the subzone headers and should be
-            %               dropped for combine purpoces.
+            %               dropped for combine purposes.
             %
             % Output:
             % -------
@@ -172,7 +172,7 @@ classdef sqw_header
             end
             %
             function is=is_subzone_header(hd)
-                % identify if this header belong to zone divided into subzones or not
+                % identify if this header belong to zone divided into sub-zones or not
                 %
                 % a first subzone header assumed not to belong to subzone headers
                 [numbers,~] = regexp(hd.filepath,'\d*','match','split');
@@ -223,7 +223,7 @@ classdef sqw_header
             
             % Check the headers are all unique across the relevant fields, and have equality in other required fields
             % -------------------------------------------------------------------------------------------------------
-            % Make a stucture array of the fields that define uniqueness
+            % Make a structure array of the fields that define uniqueness
             hstruct = sqw_header.create_header_array(header_out);
             names=fieldnames(hstruct(1));
             % Sort structure array
