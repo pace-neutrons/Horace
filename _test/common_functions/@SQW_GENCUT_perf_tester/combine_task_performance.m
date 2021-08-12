@@ -16,8 +16,9 @@ function perf_val=combine_task_performance(obj,varargin)
 % where:
 % n_workers, if present, specify the number of parallel
 %            workers to run the test routines with.
-% addinfo   if present n_workers have to be present too. (set it
-%            to 0
+% addinfo   Text, profiding additional information about
+%           the test, which will go as part of test result database field.
+%           if present n_workers have to be present too. (set nworkers==0)
 %
 % As this test method violates unit test agreement, demanding
 % test method independence on each other, it does not start
@@ -27,10 +28,10 @@ function perf_val=combine_task_performance(obj,varargin)
 if ~ok
     error('test_SQW_GENCUT:invalid_argument',mess);
 end
-if numel(argi) >= 0
-    n_workers = 0;
-else
+if numel(argi) > 0
     n_workers = argi{1};
+else
+    n_workers = 0;
 end
 if numel(argi)>1
     addinfo = argi{2};

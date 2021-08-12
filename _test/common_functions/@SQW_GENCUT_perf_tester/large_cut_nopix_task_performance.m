@@ -1,9 +1,13 @@
-function  [perf_res,sqw1,sqw2,sqw3,sqw4] = large_cut_nopix_task_performance(obj)
+function  [perf_res,sqw1,sqw2,sqw3,sqw4] = large_cut_nopix_task_performance(obj,field_names_map)
 
 test_fld_names = field_names_map('big_cut_nopix');
 
 hs = head_sqw(obj.sqw_file);
-urng = hs.urange';
+if horace_version('-num') < 400
+    urng = hs.urange';
+else
+    urng = hs.img_db_range';
+end
 
 
 ts = tic();

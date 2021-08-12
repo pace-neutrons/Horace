@@ -1,4 +1,4 @@
-function varargout = horace_version()
+function varargout = horace_version(varargin)
 % Returns the version of this instance of Horace
 %
 % If one or fewer output arguments are specified, the full version string is
@@ -8,10 +8,23 @@ function varargout = horace_version()
 % than there are version numbers, an error is raised.
 %
 % Usage:
-%   >> version_string = herbert_version();
-%   >> [major, minor] = herbert_version();
-%   >> [major, minor, patch] = herbert_version();
+%   >> version_string = horace_version();
+%   >> [major, minor] = horace_version();
+%   >> [major, minor, patch] = horace_version();
+%   >> [major, minor, patch] = horace_version('-numeric');
 %
+% if option '-numeric' is provided, the routine returns the results in the
+% numeric form, i.e. string major.minor.patch will have the form
+% 100*major+minor.patch. This option is selected for convenience of the
+% version comparison and assumes that minor version will never be higher
+% than 99
+
+options = {'-numeric'};
+[ok,mess,return_numeric] = parse_char_options(varargin,options );
+if ~ok
+    error('HORACE:horace_version:invalid_argument',mess);
+end
+
 try
     VERSION = horace_get_build_version();
 catch ME
@@ -22,7 +35,7 @@ catch ME
 end
 
 % If only one output requested, return whole version string
-if nargout <= 1
+if nargout <= 1 && ~return_numeric
     varargout{1} = VERSION;
     return;
 end
@@ -33,16 +46,23 @@ if nargout > numel(version_numbers)
 end
 
 % Return as many version numbers as requested
-for i = 1:numel(version_numbers)
+for i = 1:nargout
     varargout(i) = version_numbers(i);
+end
+%
+if return_numeric
+    num_patch_digits = numel(version_numbers{3});
+    varargout{1} = 100*str2double(version_numbers{1})+...
+        str2double(version_numbers{2})+...
+        0.1^num_patch_digits*str2double(version_numbers{3});   
 end
 
 
 function version_str = read_from_version_file()
-    try
-        horace_root = fileparts(fileparts(which('horace_init')));
-        version_file = fullfile(horace_root , 'VERSION');
-        version_str = [strtrim(fileread(version_file)), '.dev'];
-    catch
-        version_str = '0.0.0.dev';
-    end
+try
+    horace_root = fileparts(fileparts(which('horace_init')));
+    version_file = fullfile(horace_root , 'VERSION');
+    version_str = [strtrim(fileread(version_file)), '.dev'];
+catch
+    version_str = '0.0.0.dev';
+end

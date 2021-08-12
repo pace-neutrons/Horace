@@ -15,7 +15,7 @@ classdef test_SQW_GENCUT_perf < SQW_GENCUT_perf_tester
     properties(Access=private)
         % Template file name: the name of the file used as a template for
         % others.
-        template_file_ = 'MER19566_22.0meV_one2one125.nxspe';
+        source_template_file_ = 'MER19566_22.0meV_one2one125.nxspe';
     end
     methods
         
@@ -37,7 +37,7 @@ classdef test_SQW_GENCUT_perf < SQW_GENCUT_perf_tester
             obj = obj@SQW_GENCUT_perf_tester(argi{:});
             %
             % the byte-size of the sample file, used to estimate the
-            % performance in MB/sec = n_detectors*nEnerty_transfer_Bins.
+            % performance in GB/sec = n_detectors*nEnerty_transfer_Bins.
             % The value is defined by the size of the reference template file
             % template_file_
             obj.sample_data_size_ = 20262912;
@@ -64,17 +64,15 @@ classdef test_SQW_GENCUT_perf < SQW_GENCUT_perf_tester
             n_files = obj.n_files_to_use_;
             data_dir = obj.source_data_dir;
             working_dir = obj.working_dir;
-            template_name = obj.template_file_;
             
             spe_filelist=cell(1,n_files);
             %
-            source_file = fullfile(data_dir,template_name);
+            source_file = fullfile(data_dir,obj.source_template_file_);
             
-            [~,tpfn] = fileparts(template_name);
-            
+            template_name_form = obj.template_name_form_;
             %
             for i=1:n_files
-                fname =sprintf('%s_%03d.nxspe',tpfn,i);
+                fname =sprintf([template_name_form,'.nxspe'],i);
                 spe_filelist{i} = fullfile(working_dir,fname);
                 if ~(exist(spe_filelist{i},'file')==2)
                     copyfile(source_file,spe_filelist{i},'f');

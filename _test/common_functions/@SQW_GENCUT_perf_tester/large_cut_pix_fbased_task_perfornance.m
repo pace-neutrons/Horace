@@ -1,6 +1,11 @@
-function perf_res = large_cut_pix_fbased_task_perfornance(obj)
+function perf_res = large_cut_pix_fbased_task_perfornance(obj,field_names_map)
 hs = head_sqw(obj.sqw_file);
-urng = hs.urange';
+
+if horace_version('-num') < 400
+    urng = hs.urange';
+else
+    urng = hs.img_db_range';
+end
 
 test_fld_names = field_names_map('big_cut_filebased');
 % test large 1 dimensional cuts, non-axis aligned, with whole

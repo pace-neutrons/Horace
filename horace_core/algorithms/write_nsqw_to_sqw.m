@@ -7,38 +7,38 @@ function [img_db_range,pix_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 % ------
 %   infiles         Cell array or character array of sqw file name(s) of input file(s)
 %   outfile         Full name of output sqw file
-%   varargin        If present can be the keyword one or all of the keywords
-%                   or the instance of initialized JobDispatcher, running
-%                   parallel framework or non-initialized JobDispatcher to
-%                   combine sqw tiles in parallel
-%Optional inputs:
-% allow_equal_headers -- disables checking input files for absolutely
+%
+% Optional inputs:
+% -allow_equal_headers -- disables checking input files for absolutely
 %                       equal headers. Two file having equal headers is an error
 %                       in normal operations so this option  used in
 %                       tests or when equal zones are combined.
-% drop_subzones_headers -- in combine_equivalent_zones all subfiles are cut from
+% -drop_subzones_headers -- in combine_equivalent_zones all subfiles are cut from
 %                       single sqw file and may be divided into subzones.
 %                       this option used to avoid duplicating headers
 %                       from the same zone
-% parallel           -- combine files using Herbert parallel framework.
+% -parallel           -- combine files using Herbert parallel framework.
 %                       this is duplicate for hpc_config option (currently
 %                       missing) so either this keyword or hpc_config
 %                       option or the instance of the JobDispatcher has to
 %                       be present to combine sqw files in  parallel.
-% keep_runid         -- if present, forces routine to keep run-id specific
-%                       defined in the contributing run-files instead of 
+% -keep_runid         -- if present, forces routine to keep run-id specific
+%                       defined in the contributing run-files instead of
 %                       generating run-id on the basis of the data, stored
 %                       in the runfiles
 %
 % JobDispatcherInstance-- the initialized instance of JobDispatcher,
 %                       to use in combining sqw files in parallel
-% WARNING:
+%
 % pix_range          -- [2x4] array of ranges (min/max q-dE coordinates values)
-%                       of all pixels, from all contributing files. If provided,
-%                       will be set as the range of the pixels, combined
-%                       together. If not, the range will be recalculated 
-%                       No checks are performed, so this range has to be
-%                       correct.
+%                       of all pixels, from all contributing files combined
+%                       together. The value is stored in the file
+% WARNING:
+%     If pix_range is not provided the pix_range in the file will be
+%     calculated as the range of the input file.
+%     If it is not provided, the value in file will be set to
+%     the provided value.  No checks are performed, so this range has to be
+%     correct.
 %
 % Output:
 % -------
@@ -52,8 +52,8 @@ function [img_db_range,pix_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 % T.G.Perring   22 March 2013  Modified to enable sqw files with more than one spe file to be combined.
 %
 
-accepted_options = {'allow_equal_headers','keep_runid',...
-    'drop_subzones_headers','parallel'};
+accepted_options = {'-allow_equal_headers','-keep_runid',...
+    '-drop_subzones_headers','-parallel'};
 
 if nargin<2
     error('WRITE_NSQW_TO_SQW:invalid_argument',...

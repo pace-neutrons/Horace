@@ -42,6 +42,8 @@ end
 
 %--------------------------------------------------------------------------
 % run performance tests for small sqw file (default file)
+hor_tes.n_files_to_use = 10;
+
 small_perf = hor_tes.workflow_performance(n_workers,selected_tests);
 perf_res.small_ds_perf = small_perf;
 hor_tes.save_performance();

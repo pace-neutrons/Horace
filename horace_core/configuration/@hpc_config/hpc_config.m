@@ -1,5 +1,13 @@
 classdef hpc_config < config_base
-    % Class responsible for high performance computing setting
+    % Class responsible for setting related to the algorithms, which may
+    % run in parallel. Defines which parallel algorithms should run in
+    % parallel and what parallel options to use to achieve the best
+    % performance on given machine.
+    %
+    % The settings optimal for given machine (or rather given machine
+    % configuration) should be enabled/disabled running hpc on/hpc off
+    % helper method.
+    % 
     % To see the list of current configuration option values:
     %   >> hpc_config
     %
@@ -18,26 +26,28 @@ classdef hpc_config < config_base
     %hpc_config methods are:
     %----------------------------
     % build_sqw_in_parallel - if true, use parallel framework to generate tmp files
-    %                             and do other computational-expensive
-    %                             tasks, benefiting from parallelization.
-    % parallel_workers_number  - number of Matlab sessions (MPI workers) to launch to run parallel code
+    %                         and do other computational-expensive
+    %                         tasks, benefiting from parallelization.
+    % parallel_workers_number  - number of Matlab sessions (MPI workers) to
+    %                           launch to run parallel code
     %
-    %
-    % combine_sqw_using        - what type of sub-algorithm to use for c
-    %                            ombining sqw/tmp files together.
+    % combine_sqw_using        - what type of sub-algorithm to use for
+    %                            combining sqw/tmp files together.
     % combine_sqw_options      - the helper property providing options,
     %                            available to provide for
-    %                            'combine_sqw_using' property.
+    %                           'combine_sqw_using' property.
     %                            Currently these options are 'matlab', 'mex_code' and 'mpi_code'
     %---
     % mex_combine_thread_mode   - various thread modes deployed when
     %                             combining sqw files using mex code.
+    % mex_combine_buffer_size  - size of buffer used by mex code while
+    %                            combining files per each contributing file.    
     %---
     % parallel_cluster          - what parallel cluster type to use to perform
     %                             parallel  tasks. Possibilities currenlty are
-    %                             'herbert', 'parpool' or mpiexec_mpi
-    % mex_combine_buffer_size   - size of buffer used by mex code while
-    %                             combining files per each contributing file.
+    %                            'herbert', 'parpool', 'mpiexec_mpi' or
+    %                            'slurm' (if appropriate clusters are
+    %                             available)
     %
     %
     % Type >> hpc_config  to see the list of current configuration option values.
@@ -46,12 +56,13 @@ classdef hpc_config < config_base
         % if true, launch separate Matlab session(s) or parallel job to
         % generate tmp files
         build_sqw_in_parallel;
+        
         % number of workers to deploy in parallel jobs
         parallel_workers_number;
-        %
+
         % set-up algorithm, to use for combining multiple sqw(tmp) filesL
         combine_sqw_using
-        %
+
         % helper read-only property, displaying possible codes to use to
         % combines sqw (combine_sqw_using) available options, namely:
         % matlab   : this mode uses initial Matlab code to combine multiple
@@ -66,6 +77,7 @@ classdef hpc_config < config_base
         %            of MPI workers and the speed of parallel file system.
         % To select one of the options above, one can provide only first
         % distinctive input for any option. (e.g. ma, me or mp)
+        
         combine_sqw_options
         % If mex code is used for combining tmp files various thread
         % modes can be deployed for this operation:
@@ -83,19 +95,26 @@ classdef hpc_config < config_base
         %      information while common thread is used to read bin
         %      information
         mex_combine_thread_mode
+        
         % size of buffer used by mex code while combining files per each
         % file.
         mex_combine_buffer_size
-        %
+        
+        % exposes the folder used by the parallel_config for
+        % storing/reading job data        
         remote_folder;
+        
         % what parallel framework to use for parallel  tasks. Available
         % options are: matlab, partool, mpiexec. Defined in parallel_config and
         % exposed here for clarity.
         parallel_cluster;
+        
+        %----
         % immutable reference to the class, which describes the parallel
         % configuration. To change the parallel configuration, work with
         % this configuration class itself;
         parallel_configuration
+        
         % helper read-only property, returining the list of options, which
         % define hpc configuration. Coinsides with saved_properties_list_
         hpc_options
