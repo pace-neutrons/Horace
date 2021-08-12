@@ -1,8 +1,8 @@
 function [perf_res,perf_res1]=gen_sqw_task_performance(obj,field_names_map)
-% test to check the perfornamce of gen_sqw task
+% test to check the performance of gen_sqw task
 
 test_fld_names = field_names_map('gen_sqw');
-% delete exisiting tmp files as gen_sqw keeps existing in
+% delete existing tmp files as gen_sqw keeps existing in
 % 'tmp_only' mode
 obj.delete_tmp_files();
 
@@ -20,7 +20,7 @@ perf_res1=obj.assertPerformance(ts,test_fld_names{1},...
     'whole sqw file generation');
 % combine
 ts = tic();
-write_nsqw_to_sqw (tmp_files, obj.sqw_file,'allow_equal_headers',jd);
+write_nsqw_to_sqw (tmp_files, obj.sqw_file,'-allow_equal_headers',jd);
 perf_res=obj.assertPerformance(ts,test_fld_names{2},...
     'calc headers and combine all tmp files');
 %profile off

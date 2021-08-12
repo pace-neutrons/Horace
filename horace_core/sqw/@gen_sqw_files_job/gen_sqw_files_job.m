@@ -1,5 +1,5 @@
 classdef gen_sqw_files_job < JobExecutor
-    %Class to build sqw files on separtate Matlab session
+    %Class to build sqw files on separate Matlab session
     %
     % If run in serial, provides methods to generate range of tmp files from
     % range of runfiles

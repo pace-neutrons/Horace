@@ -13,8 +13,8 @@ function [img_db_range,pix_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 %                       equal headers. Two file having equal headers is an error
 %                       in normal operations so this option  used in
 %                       tests or when equal zones are combined.
-% -drop_subzones_headers -- in combine_equivalent_zones all subfiles are cut from
-%                       single sqw file and may be divided into subzones.
+% -drop_subzones_headers -- in combine_equivalent_zones all sub-files are cut from
+%                       single sqw file and may be divided into sub-zones.
 %                       this option used to avoid duplicating headers
 %                       from the same zone
 % -parallel           -- combine files using Herbert parallel framework.
@@ -35,10 +35,11 @@ function [img_db_range,pix_range]=write_nsqw_to_sqw (infiles, outfile,varargin)
 %                       together. The value is stored in the file
 % WARNING:
 %     If pix_range is not provided the pix_range in the file will be
-%     calculated as the range of the input file.
-%     If it is not provided, the value in file will be set to
-%     the provided value.  No checks are performed, so this range has to be
-%     correct.
+%     calculated from the pix ranges from all input files and stored
+%     together with pixels.
+%     If it is provided, the provided value will be stored as the pixels
+%     range.  No checks are performed, so this range has to be
+%     correct to avoid very difficult to trace errors.
 %
 % Output:
 % -------

@@ -346,7 +346,7 @@ void calc_projections_emode(double * const pMinMax,
     * pDetPhi[nDetectors]   ! -- arrays of  ... and
     * pDetPsi[nDetectors]   ! -- azimuthal coordinates of the detectors
     * efix      -- initial energy of the particles
-    * k_to_e    -- De-Broyle parameter to transform energy of particles into their wavelength
+    * k_to_e    -- De-Broglie parameter to transform energy of particles into their wavelength
     * enRange   -- how to treat energy array -- relate energies to the bin centre or to the bin edges
     * nThreads  -- number of computational threads to start in parallel mode
     */
