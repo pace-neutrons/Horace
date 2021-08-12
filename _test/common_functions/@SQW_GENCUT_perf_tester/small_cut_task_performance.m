@@ -1,4 +1,4 @@
-function [perf_res,sqw1,sqw2,sqw3,sqw4] = small_cut_task_performance(obj)
+function [perf_res,sqw1,sqw2,sqw3,sqw4] = small_cut_task_performance(obj,field_names_map)
 % check the perfromance of a small cut operation
 test_fld_names = field_names_map('small_cut');
 % test small 1 dimensional cuts, non-axis aligned

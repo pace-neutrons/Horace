@@ -34,7 +34,7 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
     properties(Dependent)
         %  Number of input files to use. Depending on this number the test
         %  would verify small, large or huge datasets
-        n_files_to_use% = 10;
+        n_files_to_use% ;
         % the byte-size of the sample file, used to estimate the
         % performance in Gb/sec
         sample_data_size
@@ -46,14 +46,20 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
     end
     
     properties
+        % if true, when number of test files changes, (n_files_to_use)
+        % build directly sqw file, not
+        build_test_sqw_file = false;
         % directory, containing data file necessary for the tests
         source_data_dir
         % directory to keep temporary working files
         working_dir
         %
         % target file for gen_sqw command and source file for cut commands
-        sqw_file = 'GenSQW_perfTest.sqw'
-        %
+        sqw_file = 'SQW_WORKFLOW_perfTest_source'
+        % the par file, used in test files generation
+        par_file = 'MERLIN_one2one_181.par'
+        % number of energy transfer bins used by test files generation routine
+        num_energy_bins = 220;
     end
     
     properties(Access=protected)
@@ -62,7 +68,7 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
         %
         %  Number of input files to use. Depending on this number the test
         %  would verify small, large or huge datasets
-        n_files_to_use_ = 1;
+        n_files_to_use_ = 0;
         %
         % Total size of generated data (in GB)
         data_size_
@@ -70,56 +76,28 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
         % performance in GB/sec and equal to n_detectors*nEnerty_transfer_Bins.
         % The value is defined by the size of the reference template file
         % to use
-        sample_data_size_ = 0;        
+        sample_data_size_ = 0;
         %
         default_test_names_ = containers.Map();
+        %
+        % format of the filename used as test result
+        template_name_form_ = 'MER_fake_run_N%03d';
     end
     methods
-        %------------------------------------------------------------------
-        % Interface defining existing perfornance tests
-        %
-        [perf,varargout]=gen_sqw_task_performance(obj,field_names_map)
-        [perf,varargout]=small_cut_task_performance(obj,field_names_map);
-        [perf,varargout]=large_cut_nopix_task_performance(obj,field_names_map);
-        [perf,varargout]=large_cut_pix_fbased_task_perfornance(obj,field_names_map);
-        %
-        [perf,varargout]=combine_task_performance(obj,varargin);
-        
-        %------------------------------------------------------------------
-        function nf = get.n_files_to_use(obj)
-            % number of test files, used in performance tests
-            nf = obj.n_files_to_use_;
-        end
-        %
-        function [psi,efix,alatt,angdeg,u,v,omega,dpsi,gl,gs]=gen_sqw_parameters(obj)
-            % return list of the parameters, used for sqw file generation
-            % set up the exactly the same parameters as defined below
-            % in test_gensqw_performance method.
-            efix= 22.8;%incident energy in meV
-            alatt=10.7488*[1 1 1];%lattice parameters [a,b,c]
-            angdeg=[90,90,90];%lattice angles [alpha,beta,gamma]
-            u=[1,1,0];%u=// to incident beam
-            v=[0,0,1];%v= perpendicular to the incident beam, pointing towards the large angle detectors on Merlin in the horizontal plane
-            omega=0;
-            dpsi=-1.8464+(0.9246);
-            gl=-3.1871+(-0.1634);
-            gs=-1.7047+(0.0028);
-            
-            nfiles=numel(obj.test_source_files_list_);
-            %psi angles (in degrees). Should be the same number of these as there are runs
-            %also the first element of irun must correspond to the first element of psi, and so on.            
-            psi= 0.5*(1:nfiles);
-        end
         %------------------------------------------------------------------
         function obj = SQW_GENCUT_perf_tester(varargin)
             % create test suite, generate source files and load existing
             % performance data.
             %
             % usage:
-            % tester = test_SQW_GENCUT_perf(['previous test results file name'])
+            % tester = test_SQW_GENCUT_perf([test_name,['previous test results file name']])
             %
             if nargin > 0
-                argi = {'SQW_GENCUT_perf',varargin{1}};
+                if nargin> 1
+                    argi = varargin;
+                else
+                    argi = {'SQW_GENCUT_perf',varargin{1}};
+                end
             else
                 argi = {'SQW_GENCUT_perf',...
                     TestPerformance.default_PerfTest_fname(mfilename('fullpath'))};
@@ -147,6 +125,55 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             % completed.
             obj.add_to_files_cleanList(obj.sqw_file);
         end
+        
+        %------------------------------------------------------------------
+        % Interface defining existing perfornance tests
+        %
+        [perf,varargout]=gen_sqw_task_performance(obj,field_names_map)
+        [perf,varargout]=small_cut_task_performance(obj,field_names_map);
+        [perf,varargout]=large_cut_nopix_task_performance(obj,field_names_map);
+        [perf,varargout]=large_cut_pix_fbased_task_perfornance(obj,field_names_map);
+        %
+        [perf,varargout]=combine_task_performance(obj,varargin);
+        
+        %------------------------------------------------------------------
+        function nf = get.n_files_to_use(obj)
+            % number of test files, used in performance tests
+            nf = obj.n_files_to_use_;
+        end
+        %
+        function [psi,efix,alatt,angdeg,u,v,omega,dpsi,gl,gs,...
+                en,par_file,alatt_true,angdeg_true,qfwhh,efwhh,rotvec]=...
+                gen_sqw_parameters(obj)
+            % return list of the parameters, used for sqw file generation
+            % set up the exactly the same parameters as defined below
+            % in test_gensqw_performance method.
+            efix= 22.8;%incident energy in meV
+            alatt=10.7488*[1 1 1];%lattice parameters [a,b,c]
+            angdeg=[90,90,90];%lattice angles [alpha,beta,gamma]
+            u=[1,1,0];%u=// to incident beam
+            v=[0,0,1];%v= perpendicular to the incident beam, pointing towards the large angle detectors on Merlin in the horizontal plane
+            omega=0;
+            dpsi=-1.8464+(0.9246);
+            gl=-3.1871+(-0.1634);
+            gs=-1.7047+(0.0028);
+            
+            nfiles=obj.n_files_to_use_;
+            %psi angles (in degrees). Should be the same number of these as there are runs
+            %also the first element of irun must correspond to the first element of psi, and so on.
+            psi= 0.5*(1:nfiles);
+            
+            %  parameters, used at fake sqw files generation
+            step = (21+1)/obj.num_energy_bins;
+            en=-1:step:21;
+            par_file = fullfile(horace_root,'_test','common_data',obj.par_file);
+            
+            alatt_true=[10.5,10.5,10.5];
+            angdeg_true=[90,90,90];
+            qfwhh=0.1;                  % Spread of Bragg peaks
+            efwhh=1;                    % Energy width of Bragg peaks
+            rotvec=[10,10,0]*(pi/180);  % orientation of the true lattice w.r.t reference lattice
+        end
         %-------------------------------------------------------------
         
         function set.n_files_to_use(obj,val)
@@ -154,11 +181,13 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             % internal properties which depends on this number
             %
             obj.n_files_to_use_ = floor(abs(val));
-            if obj.n_files_to_use_ < 1
-                obj.n_files_to_use_ = 1;
+            if obj.n_files_to_use_ < 0
+                obj.n_files_to_use_ = 0;
             end
             % change performance suite name as different number of input
-            % files has different impact on performance
+            % files has different impact on performance, so tests keys to
+            % store performance results should be different
+            %
             perf_test_name = obj.build_test_suite_name(['nf',num2str(obj.n_files_to_use_)]);
             obj.perf_suite_name = perf_test_name;
             %
@@ -166,15 +195,17 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             if pc.wkdir_is_default
                 pc.working_directory = obj.source_data_dir;
             end
-            % 
+            [~,fb] = fileparts(obj.sqw_file);
+            [~,fb] = fileparts(fb);
+            obj.sqw_file = fullfile(obj.source_data_dir,sprintf('%s.%dFiles.sqw',fb,obj.n_files_to_use_));
+            
+            %
             [filelist,smpl_data_size] = obj.generate_source_test_files();
             obj.sample_data_size_ = smpl_data_size;
             %
             % delete generated files after the test completed.
             obj.add_to_files_cleanList(filelist);
             obj.test_source_files_list_ = filelist;
-            fb = 'GenSQW_perfTest';
-            obj.sqw_file = sprintf('%s_%dFiles.sqw',fb,obj.n_files_to_use_);
             
             obj.data_size_ = obj.n_files_to_use_*smpl_data_size*(4*9)/ ... %numWords*word_size = bytes
                 (1024*1024*1024); %Convert to GB
@@ -283,10 +314,21 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             assertTrue(isa(clob_wk,'onCleanup'))
         end
         %
-        function build_default_test_names(obj,nwk)
+        function names = build_default_test_names(obj,nwk,varargin)
             % generate default test names to use as keys for performance
             % database structure
-            build_default_test_names_(obj,nwk)
+            
+            % Inputs:
+            % nwk      -- Number of parallel workers used to run the algorithm
+            % addinfo  -- char array, describing other properties of the algorithm.
+            
+            % Returns:
+            % map in the form key=test name, value -- cellarray of subtests
+            % to run for the given test.
+            % 
+            % this map is also set as the value of the property:
+            % obj.default_test_names
+            names = build_default_test_names_(obj,nwk,varargin{:});
         end
         %------------------------------------------------------------------
         function ds = get.data_size(obj)

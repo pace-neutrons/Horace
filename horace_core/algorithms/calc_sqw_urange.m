@@ -1,11 +1,10 @@
-function urange = calc_sqw_urange (efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+function [urange,ndet] = calc_sqw_urange (efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 % Compute range of data for a collection of data files given the projection axes and crystal orientation
 %
 %   >> urange = calc_grid (efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 %
 % Input: (in the following, nfile = no. spe files)
 % ------
-%   dummy           Dummy sqw object  - used only to ensure that this service routine was called
 %   efix            Fixed energy (meV)                 [scalar or vector length nfile]
 %   emode           Direct geometry=1, indirect geometry=2    [scalar]
 %   eps_lo          Lower energy transfer (meV)        [scalar or vector length nfile]
@@ -27,6 +26,7 @@ function urange = calc_sqw_urange (efix, emode, eps_lo, eps_hi, det, alatt, angd
 % --------
 %   urange          Actual range of data in crystal Cartesian coordinates and
 %                   energy transfer (2x4 array)
+%   ndet            number of detectors positions, defined by the par file
 
 
 % Original author: T.G.Perring
@@ -59,7 +59,6 @@ end
 if ischar(det) && size(det,1)==1
     det=get_par(det);
 end
-
 % Get urange
 rd_list = rundatah.gen_runfiles(cell(1,numel(efix)),det,...
     efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs,'-allow_missing');
