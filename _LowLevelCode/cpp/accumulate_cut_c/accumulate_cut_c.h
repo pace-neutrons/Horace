@@ -123,29 +123,30 @@ mwSize accumulate_cut(double* s, double* e, double* npix,
 
     omp_set_num_threads(num_OMP_Threads);
     int PIXEL_data_width = pix_fields::PIX_WIDTH;
+#ifdef _DEBUG
+    size_t ntot_pix0(0); // number of pixels containing within the distribution at the start of the algorithm
+    for (size_t i = 0; i < distribution_size; i++)
+    {
+        ntot_pix0 += size_t(npix[i]);
+    }
+#endif
 
     std::vector<double> qe_min(4 * num_OMP_Threads, FLT_MAX);
     std::vector<double> qe_max(4 * num_OMP_Threads, -FLT_MAX);
 
     std::unique_ptr<omp_storage> pStorHolder(new omp_storage(num_OMP_Threads, distribution_size, s, e, npix));
-    //if (!pStorHolder){
-    //  pStorHolder.reset(new omp_storage(num_OMP_Threads, distribution_size, s, e, npix));
-    //} else {
-    //    pStorHolder->init_storage(num_OMP_Threads, distribution_size, s, e, npix);
-    //}
-
     auto pStor = pStorHolder.get();
+
 
 #pragma omp parallel default(none)                                                           \
     shared(rot_ustep, trans_bott_left, cut_range, ok, ind, qe_min, qe_max,                   \
            pStor)                                                                            \
-        firstprivate(data_size, distribution_size, num_OMP_Threads,                          \
+        firstprivate(data_size, distribution_size,                                           \
                      trans_elo, ebin_inv, Inf, PIXEL_data_width,                             \
                      ignote_all, ignore_nan, ignore_inf, ignore_something, transform_energy, \
                      nDimX, nDimY, nDimZ, nDimE,                                             \
                      s, e, npix)                                                             \
-            reduction(+                                                                      \
-                      : nPixel_retained)
+        reduction(+: nPixel_retained)
     {
 #pragma omp for
         for (long i = 0; i < data_size; i++)
@@ -268,23 +269,16 @@ mwSize accumulate_cut(double* s, double* e, double* npix,
             pStor->add_signal(double(pixel_data[j0 + 7]), double(pixel_data[j0 + 8]), n_thread, il);
 
         } // end for -- implicit barrier;
-#pragma omp barrier
         if (pStor->is_mutlithreaded)
         {
 #pragma omp for
             for (long i = 0; i < distribution_size; i++)
             {
-                for (int i0 = 0; i0 < num_OMP_Threads; i0++)
-                {
-                    size_t indl = i0 * distribution_size + i;
-                    s[i] += *(pStor->pSignal + indl);
-                    e[i] += *(pStor->pError + indl);
-                    npix[i] += *(pStor->pNpix + indl);
+                pStor->combibe_storage(s, e, npix, i);
                 }
             }
-        }
     } // end parallel region
-
+    // delete OMP storage, free memory
     pStorHolder.reset();
     // min-max value initialization
     for (int i = 0; i < 4; i++)
@@ -309,7 +303,7 @@ mwSize accumulate_cut(double* s, double* e, double* npix,
     {
         ntot_pix += size_t(npix[i]);
     }
-    if (ntot_pix != nPixel_retained)
+    if (ntot_pix-ntot_pix0 != nPixel_retained)
     {
         throw(" Multithreading error, number of pixels in array not equal to number of pixels retained");
     }
