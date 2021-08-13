@@ -81,7 +81,10 @@ std::string  verify_pix_array(const mxArray * pix_cell_array_ptr, bool &single_p
             category = mxGetClassID(cell_element_ptr);
             if (category == mxDOUBLE_CLASS) {
                 if (array_type_is_known) {
-                    if (single_precision)return "Input pixels array contains blocks with different type of pixels. Only one type of pixels (single or double) is supported";
+                    if (single_precision) {
+                        if (!mxIsEmpty(cell_element_ptr))
+                            return "Input pixels array contains blocks with different type of pixels. Only one type of pixels (single or double) is supported";
+                    }
                 }
                 else {
                     single_precision = false;
@@ -89,25 +92,35 @@ std::string  verify_pix_array(const mxArray * pix_cell_array_ptr, bool &single_p
             }
             else if (category == mxSINGLE_CLASS) {
                 if (array_type_is_known) {
-                    if (!single_precision)return "Input pixels array contains blocks with different type of pixels. Only one type of pixels (single or double) is supported";
+                    if (!single_precision) {
+                        if (!mxIsEmpty(cell_element_ptr))
+                            return "Input pixels array contains blocks with different type of pixels. Only one type of pixels (single or double) is supported";
+                    }
                 }
                 else {
                     single_precision = true;
                 }
             }
-            else
-                return "Input pixels array contains unsupported type of pixels. Only single and double precision pixels are supported";
+            else {
+                if (!mxIsEmpty(cell_element_ptr))
+                    return "Input pixels array contains unsupported type of pixels. Only single and double precision pixels are supported";
+            }
             array_type_is_known = true;
+            if (mxIsEmpty(cell_element_ptr)) {
+                pix_block_sizes[ind] = 0;
+                pPix_blocks[ind] = nullptr;
+            }
+            else {
+                auto number_of_dimensions = mxGetNumberOfDimensions(cell_element_ptr);
+                auto dims = mxGetDimensions(cell_element_ptr);
+                if (number_of_dimensions != 2)return "Input pixels array contains non-2D block of pixels";
 
-            auto number_of_dimensions = mxGetNumberOfDimensions(cell_element_ptr);
-            auto dims = mxGetDimensions(cell_element_ptr);
-            if (number_of_dimensions != 2)return "Input pixels array contains non-2D block of pixels";
-
-            if (dims[0] != pix_fields::PIX_WIDTH)return "Input pixels array contains block of pixels with dimension 1 not equal to 9. Can not process this";
-            // retrieve pixels block data
-            n_tot_pixels += dims[1];
-            pix_block_sizes[ind] = dims[1];
-            pPix_blocks[ind] = reinterpret_cast<const double *>(mxGetPr(cell_element_ptr));
+                if (dims[0] != pix_fields::PIX_WIDTH)return "Input pixels array contains block of pixels with dimension 1 not equal to 9. Can not process this";
+                // retrieve pixels block data
+                n_tot_pixels += dims[1];
+                pix_block_sizes[ind] = dims[1];
+                pPix_blocks[ind] = reinterpret_cast<const double *>(mxGetPr(cell_element_ptr));
+            }
         }
     }
 
@@ -148,7 +161,10 @@ std::string  verify_index_array(const mxArray * pix_cell_array_ptr, bool &is_int
             category = mxGetClassID(cell_element_ptr);
             if (category == mxDOUBLE_CLASS) {
                 if (array_type_is_known) {
-                    if (is_integer)return "Input indexes array contains blocks with different type of indexes. Only one type of indexes (int64 or double) is supported";
+                    if (is_integer) {
+                        if (!mxIsEmpty(cell_element_ptr))
+                            return "Input indexes array contains blocks with different type of indexes. Only one type of indexes (int64 or double) is supported";
+                    }
                 }
                 else {
                     is_integer = false;
@@ -156,25 +172,34 @@ std::string  verify_index_array(const mxArray * pix_cell_array_ptr, bool &is_int
             }
             else if (category == mxINT64_CLASS) {
                 if (array_type_is_known) {
-                    if (!is_integer)return "Input indexes array contains blocks with different type of indexes. Only one type of indexes (int64 or double) is supported";
+                    if (!is_integer) {
+                        if (!mxIsEmpty(cell_element_ptr))
+                            return "Input indexes array contains blocks with different type of indexes. Only one type of indexes (int64 or double) is supported";
+                    }
                 }
                 else {
                     is_integer = true;
                 }
             }
-            else
-                return "Input indexes array contains unsupported type of indexes. Only int64 and double precision indexes are supported";
+            else {
+                if (!mxIsEmpty(cell_element_ptr))
+                    return "Input indexes array contains unsupported type of indexes. Only int64 and double precision indexes are supported";
+            }
             array_type_is_known = true;
+            if (mxIsEmpty(cell_element_ptr)) {
+                ind_block_sizes[ind] = 0;
+                pInd_blocks[ind] = nullptr;
+            }
+            else {
+                auto number_of_dimensions = mxGetNumberOfDimensions(cell_element_ptr);
+                auto dims = mxGetDimensions(cell_element_ptr);
+                if (number_of_dimensions != 2)return "Input pixels array contains non-2D block of pixels";
 
-            auto number_of_dimensions = mxGetNumberOfDimensions(cell_element_ptr);
-            auto dims = mxGetDimensions(cell_element_ptr);
-            if (number_of_dimensions != 2)return "Input pixels array contains non-2D block of pixels";
-
-            auto nInd = (dims[1] + dims[0] - 1);
-            n_tot_pixels += nInd;
-            ind_block_sizes[ind] = nInd;
-            pInd_blocks[ind] = reinterpret_cast<const double *>(mxGetPr(cell_element_ptr));
-
+                auto nInd = (dims[1] + dims[0] - 1);
+                n_tot_pixels += nInd;
+                ind_block_sizes[ind] = nInd;
+                pInd_blocks[ind] = reinterpret_cast<const double *>(mxGetPr(cell_element_ptr));
+            }
         }
 
     }
