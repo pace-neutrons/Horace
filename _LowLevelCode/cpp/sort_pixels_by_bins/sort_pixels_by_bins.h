@@ -32,8 +32,10 @@ void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, std::vec
     {
         size_t nBlockInd = NIndexes[nblock];
         const N* pCellInd = PixelIndexes[nblock];
+        if (pCellInd == nullptr)continue;
 
         const T* pPixData= PixelData[nblock];
+        if (pPixData == nullptr)continue;
 
         for (size_t j = 0; j < nBlockInd ; j++) {    // sort pixels according to cells
             size_t i0 = j*pix_fields::PIX_WIDTH;

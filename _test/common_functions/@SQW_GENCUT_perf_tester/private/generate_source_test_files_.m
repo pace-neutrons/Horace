@@ -34,7 +34,7 @@ end
 
 % Create sqw file for refinement testing
 % --------------------------------------
-[pix_range,ndet] = calc_sqw_pix_range (efix, 1, en(1), en(end), par_file, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+[pix_range,ndet] = calc_sqw_urange(efix, 1, en(1), en(end), par_file, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 
 smpl_data_size = ndet*obj.num_energy_bins;
 for i=1:n_files
