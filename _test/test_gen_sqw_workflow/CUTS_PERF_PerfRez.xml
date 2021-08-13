@@ -2,44 +2,44 @@
 <test_cuts_performance>
    <ndlt1121_nf5>
       <cutH1D_Small_nwk0_nomex>
-         <time_sec>12.1696071</time_sec>
+         <time_sec>0.6205378</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 1</comment>
-         <completed_on>[2021 8 13 20 5 49.331]</completed_on>
+         <completed_on>[2021 8 13 22 12 22.735]</completed_on>
       </cutH1D_Small_nwk0_nomex>
       <cutK1D_Small_nwk0_nomex>
-         <time_sec>12.412207</time_sec>
+         <time_sec>0.3594119</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 2</comment>
-         <completed_on>[2021 8 13 20 6 1.863]</completed_on>
+         <completed_on>[2021 8 13 22 12 23.255]</completed_on>
       </cutK1D_Small_nwk0_nomex>
       <cutL1D_Small_nwk0_nomex>
-         <time_sec>13.094351</time_sec>
+         <time_sec>0.3785199</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 3</comment>
-         <completed_on>[2021 8 13 20 6 15.056]</completed_on>
+         <completed_on>[2021 8 13 22 12 23.722]</completed_on>
       </cutL1D_Small_nwk0_nomex>
       <cutE_Small_nwk0_nomex>
-         <time_sec>4.7897063</time_sec>
+         <time_sec>0.31563</time_sec>
          <comment>small memory based 1D cut along energy direction (q are not axis aligned)</comment>
-         <completed_on>[2021 8 13 20 6 19.941]</completed_on>
+         <completed_on>[2021 8 13 22 12 24.138]</completed_on>
       </cutE_Small_nwk0_nomex>
       <cutH1D_Small_nwk0_mex>
-         <time_sec>15.4282513</time_sec>
+         <time_sec>0.3090705</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 1</comment>
-         <completed_on>[2021 8 13 21 45 34.082]</completed_on>
+         <completed_on>[2021 8 13 22 12 24.535]</completed_on>
       </cutH1D_Small_nwk0_mex>
       <cutK1D_Small_nwk0_mex>
-         <time_sec>7.7124709</time_sec>
+         <time_sec>0.3292756</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 2</comment>
-         <completed_on>[2021 8 13 21 45 41.989]</completed_on>
+         <completed_on>[2021 8 13 22 12 24.979]</completed_on>
       </cutK1D_Small_nwk0_mex>
       <cutL1D_Small_nwk0_mex>
-         <time_sec>4.9679777</time_sec>
+         <time_sec>0.3476735</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 3</comment>
-         <completed_on>[2021 8 13 21 45 47.05]</completed_on>
+         <completed_on>[2021 8 13 22 12 25.448]</completed_on>
       </cutL1D_Small_nwk0_mex>
       <cutE_Small_nwk0_mex>
-         <time_sec>4.841379</time_sec>
+         <time_sec>0.3221895</time_sec>
          <comment>small memory based 1D cut along energy direction (q are not axis aligned)</comment>
-         <completed_on>[2021 8 13 21 45 52.009]</completed_on>
+         <completed_on>[2021 8 13 22 12 25.885]</completed_on>
       </cutE_Small_nwk0_mex>
       <cutH1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
          <time_sec>49.9710625</time_sec>
