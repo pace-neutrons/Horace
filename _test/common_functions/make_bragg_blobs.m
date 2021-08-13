@@ -1,4 +1,4 @@
-function weight = make_bragg_blobs (qh,qk,ql,en,p,lattice0,lattice,rotvec)
+function weight = make_bragg_blobs (qh,qk,ql,en,p,lattice0,lattice,rotvec,varargin)
 % Blobs at Bragg positions on a lattice rotated and scaled w.r.t. input lattice
 %
 %   >> weight = make_bragg_blobs (qh,qk,ql,en,p,lattice0,lattice,rotvec)
@@ -55,3 +55,7 @@ dqrlu=qrlu-round(qrlu);
 dq=b*dqrlu;     % convert back to orthonormal frame:  B^-1*Q  = Q[hkl]
 weight=exp(-(sum((dq/qsig).^2,1) + (en(:)'/esig).^2)/2);
 weight=reshape(weight,size(qh));
+if nargin > 8 % debug mode, used in test cuts. 
+     % add constant to pixels
+     weight = weight+varargin{1};
+end
