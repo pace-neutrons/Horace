@@ -24,12 +24,6 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
     % and the suffix containing the number of files used as the input for
     % the test.
     %
-    % HACK: currently the test uses large real nxspe file specified as value
-    % of the property template_file_. The file size is large then the whole
-    % Horace codebase, so there are no point of keeping it in SVN. Currently
-    % this file should be distributed manually or randomly chosen from the
-    % files available to user In a future, such file should be auto-generated.
-    %
     %
     properties(Dependent)
         %  Number of input files to use. Depending on this number the test
@@ -80,7 +74,7 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
         %
         default_test_names_ = containers.Map();
         %
-        % format of the filename used as test result
+        % format of the filenames used as the source of the test data
         template_name_form_ = 'MER_fake_run_N%03d';
     end
     methods
@@ -325,7 +319,7 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
             % Returns:
             % map in the form key=test name, value -- cellarray of subtests
             % to run for the given test.
-            % 
+            %
             % this map is also set as the value of the property:
             % obj.default_test_names
             names = build_default_test_names_(obj,nwk,varargin{:});

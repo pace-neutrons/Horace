@@ -36,7 +36,7 @@ classdef test_cuts_performance < SQW_GENCUT_perf_tester
             set(parallel_config,obj.cleanup_config.parallel_config);
         end
         
-        function test_small_cut_perf_mex(obj)
+        function test_small_cut_mex(obj)
             hc = hor_config;
             hc.saveable = false;
             hc.use_mex = true;
@@ -51,7 +51,7 @@ classdef test_cuts_performance < SQW_GENCUT_perf_tester
             names_map = obj.build_default_test_names(0,'mex');
             pr = obj.large_cut_nopix_task_performance(names_map);
         end
-        function test_large_cut_filebased_perf_mex(obj)
+        function test_large_cut_filebased_mex(obj)
             hc = hor_config;
             hc.saveable = false;
             hc.use_mex = true;
@@ -59,25 +59,25 @@ classdef test_cuts_performance < SQW_GENCUT_perf_tester
             names_map = obj.build_default_test_names(0,'mex');
             pr = obj.large_cut_pix_fbased_task_perfornance(names_map);
         end
-        function test_small_cut_perf_nomex(obj)
+        function test_small_cut_nomex(obj)
             hc = hor_config;
             hc.saveable = false;
-            hc.use_mex = true;
+            hc.use_mex = false;
             names_map = obj.build_default_test_names(0,'nomex');
             pr = obj.small_cut_task_performance(names_map);
         end
-        function test_large_cut_nopix_perf_nomex(obj)
+        function test_large_cut_nopix_nomex(obj)
             hc = hor_config;
             hc.saveable = false;
-            hc.use_mex = true;
+            hc.use_mex = false;
             
             names_map = obj.build_default_test_names(0,'nomex');
             pr = obj.large_cut_nopix_task_performance(names_map);
         end
-        function test_large_cut_filebased_perf_nomex(obj)
+        function test_large_cut_filebased_nomex(obj)
             hc = hor_config;
             hc.saveable = false;
-            hc.use_mex = true;
+            hc.use_mex = false;
             
             names_map = obj.build_default_test_names(0,'nomex');
             pr = obj.large_cut_pix_fbased_task_perfornance(names_map);
