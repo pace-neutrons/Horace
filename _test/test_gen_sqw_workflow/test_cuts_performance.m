@@ -57,10 +57,10 @@ classdef test_cuts_performance < SQW_GENCUT_perf_tester
             names_map = obj.build_default_test_names(0,'mex');
             [pr_m,cut1m,cut2m,cut3m,cut4m] = obj.small_cut_task_performance(names_map);
             
-            assertEqual(cut1n,cut1m);
-            assertEqual(cut2n,cut2m);
-            assertEqual(cut3n,cut3m);
-            assertEqual(cut4n,cut4m);
+            assertEqualToTol(cut1n,cut1m,'tol',1.e-8);
+            assertEqualToTol(cut2n,cut2m,'tol',1.e-8);
+            assertEqualToTol(cut3n,cut3m,'tol',1.e-8);
+            assertEqualToTol(cut4n,cut4m,'tol',1.e-8);
             
         end
         function test_large_cut_nopix_perf_mex(obj)
