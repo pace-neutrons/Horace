@@ -34,14 +34,10 @@ function [obj, merge_data] = split_sqw(varargin)
 
         for i=1:nWorkers
             obj(i) = sqw_in;
-            obj(i).data_.s = sqw_in.s(points(i)+1:points(i+1));
-            obj(i).data_.e = sqw_in.e(points(i)+1:points(i+1));
-            obj(i).s = obj(i).data_.s;
-            obj(i).e = obj(i).data_.e;
-            obj(i).data_.npix = sqw_in.npix(points(i)+1:points(i+1));
-            obj(i).npix = obj(i).data_.npix;
-            obj(i).num_pixels = 0; %num_pixels(i);
-            merge_data(i).nelem = sum(logical(obj(i).data_.npix));
+            obj(i).s = sqw_in.s(points(i)+1:points(i+1));
+            obj(i).e = sqw_in.e(points(i)+1:points(i+1));
+            obj(i).npix = sqw_in.npix(points(i)+1:points(i+1));
+            merge_data(i).nelem = sum(logical(obj(i).npix));
             merge_data(i).nomerge = true;
         end
     elseif isa(sqw_in, 'sqw')
