@@ -93,7 +93,6 @@ function [obj, merge_data] = split_sqw(varargin)
     else
         error('HORACE:split_sqw:invalid_argument', 'Split SQW cannot handle type %s', class(sqw_in))
     end
-
 end
 
 function [npix, nomerge] = split_npix(num_pixels, old_npix)
