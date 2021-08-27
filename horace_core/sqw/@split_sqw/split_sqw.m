@@ -1,120 +1,73 @@
-classdef split_sqw < sqw
+function [obj, merge_data] = split_sqw(varargin)
+    ip = inputParser();
 
-    properties (Access=private)
-        region = [];
-        nWorkers = -1;
-        s;
-        e;
-        uoffset;
-        npix;
-        num_pixels;
-        is_sqw;
-    end
+    addRequired(ip, 'sqw', @(x)(isa(x, 'SQWDnDBase')))
+    addParameter(ip, 'nWorkers', 1, @(x)(validateattributes(x, {'numeric'}, {'positive', 'integer', 'scalar'})));
+    ip.parse(varargin{:})
 
-    properties
-        nomerge;
-        nelem;
-    end
-
-    methods
-        function obj = split_sqw(varargin)
-            obj = obj@sqw();
-        end
-
-        function [s,var,mask_null] = sigvar_get(obj)
-            s = obj.s;
-            var = obj.e;
-            mask_null = logical(obj.data_.npix);
-        end
-
-        function pixels = has_pixels(obj)
-            pixels = obj.is_sqw;
-        end
-
-    end
-
-    methods(Static)
-        function obj = distribute(varargin)
-            ip = inputParser();
-
-            addRequired(ip, 'sqw', @(x)(isa(x, 'SQWDnDBase')))
-            addParameter(ip, 'nWorkers', 1, @(x)(validateattributes(x, {'numeric'}, {'positive', 'integer', 'scalar'})));
-            ip.parse(varargin{:})
-
-            sqw = ip.Results.sqw;
-            nWorkers = ip.Results.nWorkers;
-            obj(1:nWorkers) = split_sqw();
+    sqw_in = ip.Results.sqw;
+    nWorkers = ip.Results.nWorkers;
 
 % $$$       debugging
 % $$$             for nw=1:8
-% $$$                 nPer = floor(sqw.data.num_pixels / nw);
+% $$$                 nPer = floor(sqw_in.data.num_pixels / nw);
 % $$$                 num_pixels = repmat(nPer, 1, nw);
-% $$$                 for i=1:mod(sqw.data.num_pixels, nw)
+% $$$                 for i=1:mod(sqw_in.data.num_pixels, nw)
 % $$$                     num_pixels(i) = num_pixels(i)+1;
 % $$$                 end
-% $$$                 split_npix(num_pixels, sqw.data.npix)
-% $$$                 cellfun(@sum, split_npix(num_pixels, sqw.data.npix))
-% $$$                 sum(cellfun(@sum, split_npix(num_pixels, sqw.data.npix)))
+% $$$                 split_npix(num_pixels, sqw_in.data.npix)
+% $$$                 cellfun(@sum, split_npix(num_pixels, sqw_in.data.npix))
+% $$$                 sum(cellfun(@sum, split_npix(num_pixels, sqw_in.data.npix)))
 % $$$             end
 
-            if isa(sqw, 'DnDBase') % DnD object
-                N = numel(sqw.npix);
-                nPer = floor(N / nWorkers);
-                num_pixels = repmat(nPer, 1, nWorkers);
-                for i=1:mod(N, nWorkers)
-                    num_pixels(i) = num_pixels(i)+1;
-                end
+    merge_data = arrayfun(@(x) struct(), 1:3);
 
-                points = [0, cumsum(num_pixels)];
-
-                for i=1:nWorkers
-                    obj(i).is_sqw = false;
-                    obj(i).data_ = sqw.data_;
-                    obj(i).data_.s = sqw.s(points(i)+1:points(i+1));
-                    obj(i).data_.e = sqw.e(points(i)+1:points(i+1));
-                    obj(i).s = obj(i).data_.s;
-                    obj(i).e = obj(i).data_.e;
-                    obj(i).data_.npix = sqw.npix(points(i)+1:points(i+1));
-                    obj(i).npix = obj(i).data_.npix;
-                    obj(i).nelem = sum(logical(obj(i).data_.npix));
-                    obj(i).num_pixels = 0; %num_pixels(i);
-                    obj(i).nomerge = true;
-                end
-            elseif isa(sqw, 'sqw')
-
-                for i=1:nWorkers
-                    obj(i).is_sqw = true;
-                    obj(i).main_header = sqw.main_header;
-                    obj(i).header = sqw.header;
-                    obj(i).detpar = sqw.detpar;
-                    obj(i).data = sqw.data;
-                end
-                nPer = floor(sqw.data.num_pixels / nWorkers);
-                num_pixels = repmat(nPer, 1, nWorkers);
-                for i=1:mod(sqw.data.num_pixels, nWorkers)
-                    num_pixels(i) = num_pixels(i)+1;
-                end
-
-                points = [0, cumsum(num_pixels)];
-                [npix, nomerge] = split_npix(num_pixels, sqw.data.npix);
-
-                for i=1:nWorkers
-                    obj(i).data.npix = npix{i};
-                    obj(i).data.pix = get_pix_in_ranges(sqw.data.pix, points(i)+1, points(i+1));
-                    obj(i) = obj(i).recompute_bin_data();
-                    obj(i).nomerge = nomerge(i);
-                    obj(i).s = obj(i).data_.s;
-                    obj(i).e = obj(i).data_.e;
-                    obj(i).nelem = sum(logical(obj(i).data_.npix));
-
-                end
-
-            end
+    if isa(sqw_in, 'DnDBase') % DnD object
+        N = numel(sqw_in.npix);
+        nPer = floor(N / nWorkers);
+        num_pixels = repmat(nPer, 1, nWorkers);
+        for i=1:mod(N, nWorkers)
+            num_pixels(i) = num_pixels(i)+1;
         end
 
+        points = [0, cumsum(num_pixels)];
+
+        for i=1:nWorkers
+            obj(i) = sqw_in;
+            obj(i).data_.s = sqw_in.s(points(i)+1:points(i+1));
+            obj(i).data_.e = sqw_in.e(points(i)+1:points(i+1));
+            obj(i).s = obj(i).data_.s;
+            obj(i).e = obj(i).data_.e;
+            obj(i).data_.npix = sqw_in.npix(points(i)+1:points(i+1));
+            obj(i).npix = obj(i).data_.npix;
+            obj(i).num_pixels = 0; %num_pixels(i);
+            merge_data(i).nelem = sum(logical(obj(i).data_.npix));
+            merge_data(i).nomerge = true;
+        end
+    elseif isa(sqw_in, 'sqw')
+
+        nPer = floor(sqw_in.data.num_pixels / nWorkers);
+        num_pixels = repmat(nPer, 1, nWorkers);
+        for i=1:mod(sqw_in.data.num_pixels, nWorkers)
+            num_pixels(i) = num_pixels(i)+1;
+        end
+
+        points = [0, cumsum(num_pixels)];
+        [npix, nomerge] = split_npix(num_pixels, sqw_in.data.npix);
+
+        for i=1:nWorkers
+            obj(i) = sqw_in;
+            obj(i).data.npix = npix{i};
+            obj(i).data.pix = get_pix_in_ranges(sqw_in.data.pix, points(i)+1, points(i+1));
+% $$$             obj(i) = recompute_bin_data(obj(i));
+% $$$             obj(i).s = obj(i).data_.s;
+% $$$             obj(i).e = obj(i).data_.e;
+            merge_data(i).nomerge = nomerge(i);
+            merge_data(i).nelem = sum(logical(obj(i).data.npix));
+
+        end
 
     end
-
 end
 
 function [npix, nomerge] = split_npix(num_pixels, old_npix)
@@ -126,13 +79,19 @@ function [npix, nomerge] = split_npix(num_pixels, old_npix)
 %
 % Overlaps first and last elements even if aligned with bins for ease of reduction.
 
-    % Force column vector
+% Force column vector
     old_npix = old_npix(:);
 
     cumpix = cumsum(old_npix(:));
     cum_npix = cumsum(num_pixels);
 
     nWorkers = numel(num_pixels);
+
+    if nWorkers == 1
+        npix = {old_npix};
+        nomerge = true;
+        return
+    end
 
     % Preallocate
     npix = cell(nWorkers, 1);

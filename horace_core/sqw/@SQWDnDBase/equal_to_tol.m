@@ -60,64 +60,63 @@ function [ok, mess] = equal_to_tol(w1, w2, varargin)
 %                    the sequence of keywords means true). If provided,
 %                    ignore file creation date stored in main header.
 %
-%  	The reorder and fraction options are available because the order of the
+%       The reorder and fraction options are available because the order of the
 %   pixels within the pix array for a given bin is unimportant. Reordering
 %   takes time, however, so the option to test on a few bins is given.
 
-if isa(w1, 'SQWDnDBase') && isa(w2, 'SQWDnDBase')
-    % Check array sizes match
-    if ~isequal(size(w1), size(w2))
-        ok = false;
-        mess = 'Sizes of object arrays being compared are not equal';
-        return
-    end
-
-    % Check that corresponding objects in the array have the same type
-    base_message = 'Objects being compared are not both sqw-type or both dnd-type';
-    for i = 1:numel(w1)
-        if class(w1(i)) ~= class(w2(i))
-            elmtstr = '';
-            if numel(w1) > 1
-                elmtstr = ['(element ', num2str(i), ')'];
-            end
-
-            ok = false;
-            if numel(w1) > 1
-                mess = [base_message, ' ', elmtstr];
-            else
-                mess = base_message;
-            end
-            return
-        end
-    end
-
-    % Perform comparison
-    sz = size(w1);
-    for i = 1:numel(w1)
-        in_name = cell(1, 2);
-        in_name{1} = variable_name(inputname(1), false, sz, i, 'input_1');
-        in_name{2} = variable_name(inputname(2), false, sz, i, 'input_2');
-        if nargin > 2
-            opt = {'name_a', 'name_b'};
-            [keyval_list, other] = extract_keyvalues(varargin, opt);
-            if ~isempty(keyval_list)
-                ic = 1;
-                for j = 1:2:numel(keyval_list) - 1
-                    in_name{ic} = variable_name(keyval_list{j+1}, false, sz, i);
-                    ic = ic + 1;
-                end
-            end
-        else
-            other = varargin;
-        end
-
-        [ok, mess] = equal_to_tol_internal(w1(i), w2(i), in_name{1}, in_name{2}, other{:});
-        if ~ok
-            return
-        end
-    end
-else
+if ~isa(w1, 'SQWDnDBase') || ~isa(w2, 'SQWDnDBase')
     ok = false;
     mess = 'One of the objects to be compared is not an sqw or dnd object';
+    return
 end
 
+% Check array sizes match
+if ~isequal(size(w1), size(w2))
+    ok = false;
+    mess = 'Sizes of object arrays being compared are not equal';
+    return
+end
+
+% Check that corresponding objects in the array have the same type
+% $$$     base_message = 'Objects being compared are not both sqw-type or both dnd-type';
+% $$$     for i = 1:numel(w1)
+% $$$         if class(w1(i)) ~= class(w2(i))
+% $$$             elmtstr = '';
+% $$$             if numel(w1) > 1
+% $$$                 elmtstr = ['(element ', num2str(i), ')'];
+% $$$             end
+% $$$
+% $$$             ok = false;
+% $$$             if numel(w1) > 1
+% $$$                 mess = [base_message, ' ', elmtstr];
+% $$$             else
+% $$$                 mess = base_message;
+% $$$             end
+% $$$             return
+% $$$         end
+% $$$     end
+
+% Perform comparison
+sz = size(w1);
+for i = 1:numel(w1)
+    in_name = cell(1, 2);
+    in_name{1} = variable_name(inputname(1), false, sz, i, 'input_1');
+    in_name{2} = variable_name(inputname(2), false, sz, i, 'input_2');
+    if nargin > 2
+        opt = {'name_a', 'name_b'};
+        [keyval_list, other] = extract_keyvalues(varargin, opt);
+        if ~isempty(keyval_list)
+            ic = 1;
+            for j = 1:2:numel(keyval_list) - 1
+                in_name{ic} = variable_name(keyval_list{j+1}, false, sz, i);
+                ic = ic + 1;
+            end
+        end
+    else
+        other = varargin;
+    end
+    [ok, mess] = equal_to_tol_internal(w1(i), w2(i), in_name{1}, in_name{2}, other{:});
+    if ~ok
+        return
+    end
+end
