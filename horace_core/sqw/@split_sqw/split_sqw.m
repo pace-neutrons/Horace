@@ -20,7 +20,7 @@ function [obj, merge_data] = split_sqw(varargin)
 % $$$                 sum(cellfun(@sum, split_npix(num_pixels, sqw_in.data.npix)))
 % $$$             end
 
-    merge_data = arrayfun(@(x) struct(), 1:3);
+    merge_data = arrayfun(@(x) struct(), 1:nWorkers);
 
     if isa(sqw_in, 'DnDBase') % DnD object
         N = numel(sqw_in.npix);
@@ -60,7 +60,6 @@ function [obj, merge_data] = split_sqw(varargin)
 % $$$             obj(i).e = obj(i).data_.e;
             merge_data(i).nomerge = nomerge(i);
             merge_data(i).nelem = sum(logical(obj(i).data.npix));
-
         end
 
     end
