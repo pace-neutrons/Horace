@@ -287,18 +287,23 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             if ~obj.save_output
                 cleanup_obj1=onCleanup(@()obj.delete_files(sqw_file_123456,sqw_file_145623,sqw_file{:}));
             end
-            %% ---------------------------------------
+            % ---------------------------------------
             % Test gen_sqw ---------------------------------------
             
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
             %hc.threads = 1;
             
             
-            [dummy,grid,urange1]=gen_sqw (obj.spe_file, '', sqw_file_123456, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
+            [dummy,grid1,pix_range1]=gen_sqw (obj.spe_file, '', ...
+                sqw_file_123456, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
             %hc.build_sqw_in_parallel=0;
-            [dummy,grid,urange2]=gen_sqw (obj.spe_file([1,4,5,6,2,3]), '', sqw_file_145623, efix([1,4,5,6,2,3]), emode, alatt, angdeg, u, v, psi([1,4,5,6,2,3]), omega([1,4,5,6,2,3]), dpsi([1,4,5,6,2,3]), gl([1,4,5,6,2,3]), gs([1,4,5,6,2,3]));
+            [dummy,grid2,pix_range2]=gen_sqw (obj.spe_file([1,4,5,6,2,3]),...
+                '', sqw_file_145623, efix([1,4,5,6,2,3]), emode, alatt, angdeg,...
+                u, v, psi([1,4,5,6,2,3]), omega([1,4,5,6,2,3]), ...
+                dpsi([1,4,5,6,2,3]), gl([1,4,5,6,2,3]), gs([1,4,5,6,2,3]));
             
-            assertElementsAlmostEqual(urange1,urange2,'relative',1.e-6);
+            assertEqual(grid1,grid2);
+            assertElementsAlmostEqual(pix_range1,pix_range2);
             
             % Make some cuts: ---------------
             obj.proj.u=[1,0,0.1]; obj.proj.v=[0,0,1];
@@ -315,6 +320,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             obj.save_or_test_variables(w1a,w1b);
             
         end
+        %
         function test_gen_sqw_sym(obj,varargin)
             %-------------------------------------------------------------
             if obj.save_output
@@ -344,7 +350,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             if ~obj.save_output
                 cleanup_obj1=onCleanup(@()obj.delete_files(sqw_file_base,sqw_file_sym));
             end
-            %% ---------------------------------------
+            % ---------------------------------------
             
             [~,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
             hh = hpc_config;
@@ -353,7 +359,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             config_cleanup = onCleanup(@()set(hpc_config,hpc_settings));
             hh.build_sqw_in_parallel = false;
             hh.combine_sqw_using = 'mex_code';
-            % Test symetrisation ---------------------------------------
+            % Test symmetrisation ---------------------------------------
             % Standard reference file. Done serially with mex combining for
             % speed.
             gen_sqw (obj.spe_file, '', sqw_file_base,...
@@ -409,9 +415,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % Create some sqw files against which to compare the output of
             % accumulate_sqw
             % ---------------------------------------------------------------------------
-            [dummy,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
+            [~,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
             
-            [dummy,dummy,urange14]=gen_sqw (obj.spe_file([1,4]), '', sqw_file_14, efix([1,4]),...
+            [~,grid1,pix_range14]=gen_sqw (obj.spe_file([1,4]), '', sqw_file_14, efix([1,4]),...
                 emode, alatt, angdeg, u, v, psi([1,4]), omega([1,4]), dpsi([1,4]), gl([1,4]), gs([1,4]));
             
             % Now use accumulate sqw ----------------------
@@ -428,9 +434,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             tmp_fls = cellfun(@file_rename,fin,'UniformOutput',false);
             clobT = onCleanup(@()obj.delete_files(tmp_fls));
             
-            [dummy,dummy,acc_urange14]=accumulate_sqw (spe_accum, '', sqw_file_accum,efix(1:4), ...
+            [~,grid2,acc_pix_range14]=accumulate_sqw (spe_accum, '', sqw_file_accum,efix(1:4), ...
                 emode, alatt, angdeg, u, v, psi(1:4), omega(1:4), dpsi(1:4), gl(1:4), gs(1:4),'clean');
-            
+            assertEqual(grid1,grid2);
             
             if not(obj.save_output)
                 assertElementsAlmostEqual(urange14,acc_urange14,'relative',1.e-2)

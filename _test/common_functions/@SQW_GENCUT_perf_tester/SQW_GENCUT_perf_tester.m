@@ -41,7 +41,8 @@ classdef SQW_GENCUT_perf_tester < TestPerformance
     
     properties
         % if true, when number of test files changes, (n_files_to_use)
-        % build directly sqw file, not
+        % build sqw file directly, not contributing nxspe files for testing
+        % gen_sqw performance
         build_test_sqw_file = false;
         % directory, containing data file necessary for the tests
         source_data_dir
