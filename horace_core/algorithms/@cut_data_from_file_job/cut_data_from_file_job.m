@@ -129,7 +129,7 @@ classdef cut_data_from_file_job < JobExecutor
 
         end
         function [s, e, npix, pix_range_step, npix_retain, ok, ix] = accumulate_cut(s, e, npix, pix_range_step, keep_pix, ...
-                v, proj, pax)
+                v, proj, pax,keep_precision)
             % Accumulate signal and pixel if requested into the output arrays
             %
             %   >> [s,e,npix,npix_retain] = accumulate_cut (s, e, npix, v, pix_range_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, keep_pix)
@@ -159,8 +159,11 @@ classdef cut_data_from_file_job < JobExecutor
             %   ix              If keep_pix==true: column vector of single bin index of each retained pixel; otherwise =[]
             %
             %
+            if ~exist('keep_precision','var')
+                keep_precision = false;
+            end
             [s, e, npix, pix_range_step, npix_retain, ok, ix] = accumulate_cut_ (s, e, npix, pix_range_step, keep_pix, ...
-                v, proj, pax);
+                v, proj, pax,keep_precision );
         end
 
         function pix_comb_info = accumulate_pix_to_file(varargin)
@@ -181,7 +184,7 @@ classdef cut_data_from_file_job < JobExecutor
             % npix             The npix array associated with this chunk of pixels
             % max_buf_size     The maximum buffer size for reading/writing
             % del_npix_retain  Number of pixels retained in this chunk of the cut
-            %
+            % 
             pix_comb_info = accumulate_pix_to_file_(varargin{:});
         end
 

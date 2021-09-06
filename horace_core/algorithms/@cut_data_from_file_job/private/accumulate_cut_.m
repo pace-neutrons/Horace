@@ -1,5 +1,5 @@
 function [s, e, npix, img_range_step, npix_retain,ok, ix] = accumulate_cut_(s, e, npix,img_range_step, keep_pix,...
-    v,proj,pax)
+    v,proj,pax,keep_precision)
 %function [s, e, npix, img_range_step, npix_retain,ok, ix] = accumulate_cut (s, e, npix, img_range_step, keep_pix,...
 %    v, img_range_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax)
 % Accumulate signal into output arrays
@@ -25,6 +25,8 @@ function [s, e, npix, img_range_step, npix_retain,ok, ix] = accumulate_cut_(s, e
 %   ebin            Energy bin width (plays role of rot_ustep for energy axis)
 %   trans_elo       Bottom of energy scale (plays role of trans_bott_left for energy axis)
 %   pax             Indices of plot axes (with two or more bins) [row vector]
+%   keep_precision  if true, do not convert pixels in the double but keep
+%                   their precision the same as input pixels
 %
 % Output:
 % -------
@@ -52,7 +54,7 @@ ignore_inf=logical(ignore_inf);
 
 if proj.can_mex_cut && use_mex
     [img_range_step_recent, ok, ix, s, e, npix, npix_retain,mex_success]=...
-        proj.accumulate_cut(v,s,e,npix,pax,ignore_nan,ignore_inf,keep_pix,n_threads);
+        proj.accumulate_cut(v,s,e,npix,pax,ignore_nan,ignore_inf,keep_pix,n_threads,keep_precision);
     if npix_retain>0
         img_range_step =[min(img_range_step(1,:),img_range_step_recent(1,:));max(img_range_step(2,:),img_range_step_recent(2,:))];  % true range of data
     else
@@ -69,6 +71,6 @@ end
 
 if ~use_mex
     [s, e, npix, img_range_step, npix_retain, ok, ix] = accumulate_cut_matlab_(s, e, npix, img_range_step, keep_pix,...
-        v, proj, pax);
+        v, proj, pax,keep_precision);
 end
 

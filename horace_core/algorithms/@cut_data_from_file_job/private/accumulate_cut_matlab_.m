@@ -1,5 +1,5 @@
 function [s, e, npix, img_range_step, npix_retain, ok, ix] = accumulate_cut_matlab_(s, e, npix, img_range_step, keep_pix,...
-    v, proj, pax)
+    v, proj, pax,keep_precision)
 
 %function [s, e, npix, img_range_step, npix_retain, ok, ix] = accumulate_cut_matlab (s, e, npix, img_range_step, keep_pix,...
 %    v, img_range_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax)
@@ -25,6 +25,8 @@ function [s, e, npix, img_range_step, npix_retain, ok, ix] = accumulate_cut_matl
 %   ebin            Energy bin width (plays role of rot_ustep for energy axis)
 %   trans_elo       Bottom of energy scale (plays role of trans_bott_left for energy axis)
 %   pax             Indices of plot axes (with two or more bins) [row vector]
+%   keep_precision  if true, keep piexl precision, i.e. do not convert from
+%                   single to double
 %
 % Output:
 %   s               Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
@@ -44,7 +46,7 @@ function [s, e, npix, img_range_step, npix_retain, ok, ix] = accumulate_cut_matl
 %
 % Temporary and ineffective solution to keep pixels double all through the
 % Horace. TODO: redefine pixels as single and propagate it through all Horace
-if isa(v.data,'single')
+if isa(v.data,'single') && ~keep_precision
     v.data = double(v.data);
 end
 
