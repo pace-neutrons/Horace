@@ -1,7 +1,7 @@
 classdef test_cuts_performance < SQW_GENCUT_perf_tester
     properties
         % how many test files to use to define the perfromance results
-        n_test_files = 50;
+        n_test_files = 150;
         cleanup_config
         skip_mex_tests = false;
     end
@@ -15,7 +15,9 @@ classdef test_cuts_performance < SQW_GENCUT_perf_tester
             the_test_loc = fileparts(mfilename('fullpath'));
             test_res_filename = fullfile(the_test_loc,'CUTS_PERF_PerfRez.xml');
             obj = obj@SQW_GENCUT_perf_tester(test_name,test_res_filename);
-            
+            % this switch, if True, disables generation of target sqw file
+            % if the file is present and the number of contributing files
+            % is equal to the number of files to use
             obj.build_test_sqw_file = true;
             % this expression will generate test files and build sqw file
             obj.n_files_to_use = obj.n_test_files;
@@ -47,7 +49,7 @@ classdef test_cuts_performance < SQW_GENCUT_perf_tester
             hc.saveable = false;
             hc.use_mex = false;
             names_map = obj.build_default_test_names(0,'nomex');
-            [pr_nm,cut1n,cut2n,cut3n,cut4n] = obj.small_cut_task_performance(names_map);
+            [perf_nm,cut1n,cut2n,cut3n,cut4n] = obj.small_cut_task_performance(names_map);
             
             if obj.skip_mex_tests
                 skipTest('test_small_cut_mex disabled as mex files are compiled with errors')
@@ -55,7 +57,7 @@ classdef test_cuts_performance < SQW_GENCUT_perf_tester
             
             hc.use_mex = true;
             names_map = obj.build_default_test_names(0,'mex');
-            [pr_m,cut1m,cut2m,cut3m,cut4m] = obj.small_cut_task_performance(names_map);
+            [perf_m,cut1m,cut2m,cut3m,cut4m] = obj.small_cut_task_performance(names_map);
             
             assertEqualToTol(cut1n,cut1m,'tol',1.e-8);
             assertEqualToTol(cut2n,cut2m,'tol',1.e-8);
@@ -101,7 +103,7 @@ classdef test_cuts_performance < SQW_GENCUT_perf_tester
             hc.use_mex = false;
             
             names_map = obj.build_default_test_names(0,'nomex');
-            pr = obj.large_cut_pix_fbased_task_perfornance(names_map);
+            perf_res = obj.large_cut_pix_fbased_task_perfornance(names_map);
         end
     end
 end
