@@ -48,8 +48,8 @@ if isempty(bin_starts)
     img_range = img_range_step;
     return
 end
-
-block_size = obj.data.pix.base_page_size;
+hc = hor_config;
+block_size = hc.mem_chunk_size;
 % Get indices in order to split the candidate bin ranges into chunks whose sums
 % are less than, or equal to, a pixel page size
 bin_sizes = bin_ends - bin_starts+1;

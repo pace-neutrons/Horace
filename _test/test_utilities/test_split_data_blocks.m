@@ -93,6 +93,7 @@ classdef test_split_data_blocks < TestCase
             end
             
         end
+        
         %
         function test_split_pseudo_block(~)
             vector     = [3, 3, 3, 5];
@@ -192,6 +193,31 @@ classdef test_split_data_blocks < TestCase
             assertEqual(pos,start_pos');
             assertEqual(size,vector');
         end
+        function compare_chunks(~,chunks,blocks,ref_pos,ref_sizes)
+            assertEqual(sum([ref_sizes{:}]),sum(blocks));
+            for i=1:numel(chunks)
+                ch = chunks{i};
+                pos = ch{1};
+                size = ch{2};
+                assertEqual(pos,ref_pos{i});
+                assertEqual(size,ref_sizes{i});
+            end
+            
+        end
+        
+        function test_split_two_adjacent_one_block(obj)
+            blocks     = [3, 3, 3, 3, 5];
+            %             !--------!----;
+            start_pos  = [1, 4, 7, 20, 23]; %2 Pages, one block
+            max_sum = 20;
+            chunks = split_data_blocks(start_pos,blocks, max_sum);
+            assertEqual(numel(chunks),1);
+            ref_pos = {[1,20]};
+            ref_sizes = {[9,7]};
+            
+            obj.compare_chunks(chunks,blocks ,ref_pos,ref_sizes);
+        end
+        
         
     end
     
