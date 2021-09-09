@@ -50,24 +50,23 @@ cumulative_sum = cumsum(block_sizes);
 last_block_pos = block_sizes+start_pos;
 % remove border between adjacent blocks
 remove_border  = start_pos(2:end)==last_block_pos(1:end-1);
-if any(remove_border)    
+if any(remove_border)
+    % keep boder positions, which should not be removed
+    start_pos= start_pos([true,~remove_border]);
     % number of blocks to keep is equal to the number of borders +1
-    n_unique_blocks = sum(~remove_border)+1;
-    block_ind = ones(1
-    
-    for i=1:n_unique_blocks 
+    % n_unique_blocks = sum(~remove_border)+1;
+    n_blocks = numel(block_sizes);
+    block_ind = zeros(1,n_blocks);
+    cur_ind = 1;
+    block_ind(1) = cur_ind;
+    for i=2:n_blocks
+        if ~remove_border(i-1)
+            cur_ind = cur_ind+1;
+        end
+        block_ind(i) = cur_ind;
     end
-    % cell previous to the cell indexed as adjacent is adjacent too
-    adj(remove_border) = true;    
-    adj_ind_end = find(remove_border);
-    adj_ind_start = adj_ind_end-1;
-    start_unique_pos = start_pos(non_adj);
-    
-    block_ind = 1:numel(blocks);
-    adj_bl_start_ind  = block_ind()
-    adj_ind = ismember(start_pos,start_unique_pos);
-    
-
+    block_sizes  = accumarray(block_ind',block_sizes')';
+    cumulative_sum = cumsum(block_sizes);
 end
 
 % split blocks not fitting double buffer into separate blocks
@@ -78,7 +77,7 @@ if any(block_sizes>2*buf_size) % split big ranges into parts to fit buffer.
     block_sizes = cell2mat(block_sizes);
     start_pos   = [cell_offcet{:}];
     start_pos   = cell2mat(start_pos);
-    cumulative_sum = cumsum(block_sizes);    
+    cumulative_sum = cumsum(block_sizes);
 end
 
 
@@ -91,26 +90,33 @@ end
 
 if (max_num_chunks == 1) || (ceil(cumulative_sum(end)/buf_size) == 1)
     % Only one chunk of data, return it
-    chunks = {{start_pos',block_sizes'}};
+    chunks = {{start_pos,block_sizes}};
     return
 end
 
 chunks = cell(1, max_num_chunks);
 run_sum = buf_size;
 first_ind = 1;
+n_blocks = numel(block_sizes);
 for i=1:max_num_chunks
-    
+    n_chunks = i;
     last_ind = find(cumulative_sum >= run_sum,1);
     if isempty(last_ind)
-        chunks{i} = {start_pos(first_ind:end)',block_sizes(first_ind:end)'};
+        chunks{i} = {start_pos(first_ind:end),block_sizes(first_ind:end)};
         break;
     end
-    chunks{i} = {start_pos(first_ind:last_ind)',block_sizes(first_ind:last_ind)'};
+    pre_buf_cont_size = sum(block_sizes(first_ind:last_ind-1));
+    if pre_buf_cont_size >=0.9*buf_size && block_sizes(last_ind)>0.1*buf_size
+        last_ind = last_ind-1;
+    end
+    chunks{i} = {start_pos(first_ind:last_ind),block_sizes(first_ind:last_ind)};
     first_ind  = last_ind+1;
-    
-    run_sum = cumulative_sum(last_ind)+buf_size;
-    
+    if first_ind>n_blocks
+        break;
+    end
+    run_sum = cumulative_sum(last_ind)+buf_size;    
 end
+chunks  = chunks(1:n_chunks);
 
 %
 %--------------------
@@ -122,11 +128,15 @@ if range<2*buf_size
     return;
 end
 %
-n_cells = floor(range/buf_size)+1;
+n_cells = floor(range/buf_size);
+
 cell_rg = cell(1,n_cells);
 cell_off = cell(1,n_cells);
+
 cell_rg{1} = buf_size;
 cell_off{1}= offset;
+cs0 = 0;
+cs1 = buf_size;
 for i=2:n_cells
     t_range = buf_size;
     shift = buf_size*(i-1);
@@ -134,5 +144,10 @@ for i=2:n_cells
     if t_range > 0
         cell_rg{i} = t_range;
     end
-    cell_off{i} = 0;
+    cell_off{i} = cell_off{i-1}+cell_rg{i-1};
+    cs0 = cs1;
+    cs1 = cs1+cell_rg{i};
+end
+if cs1 < range
+    cell_rg{n_cells} = range-cs0;
 end
