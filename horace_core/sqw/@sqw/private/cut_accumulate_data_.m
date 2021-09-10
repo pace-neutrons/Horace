@@ -75,10 +75,10 @@ end
 if keep_pix && use_tmp_files
     clearPixAccum = onCleanup(@()cut_data_from_file_job.accumulate_pix_to_file('cleanup'));
 end
-if keep_pix && use_tmp_files
-    keep_precision = true;    
+if keep_pix && ~use_tmp_files
+    keep_precision = false; % change single precision to double precision for further operations
 else
-    keep_precision = false;
+    keep_precision = true;
 end
 
 
@@ -89,8 +89,7 @@ for iter = 1:num_chunks
     block_sizes = chunk{2};
     pix_end = pix_start+block_sizes-1;
     candidate_pix = obj.data.pix.get_pix_in_ranges( ...
-        pix_start, pix_end  ...
-        );
+        pix_start, pix_end, keep_pix);
     
     if log_level >= 1
         fprintf(['Step %3d of %3d; Read data for %d pixels -- ' ...

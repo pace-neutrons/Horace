@@ -9,12 +9,15 @@ else
     urng = hs.img_db_range';
 end
 
-
+%profile on
 ts = tic();
 proj1 = struct('u',[1,0,0],'v',[0,1,1]);
 sqw1=cut_sqw(obj.sqw_file,proj1,0.01,urng(2,:),urng(3,:),urng(4,:),'-nopix');
 obj.assertPerformance(ts,test_fld_names{1},...
     'large 1D cut direction 1 with whole dataset integration along 3 other directions. -nopix mode');
+%profile off
+%profile viewer
+%stop
 
 ts = tic();
 sqw2=cut_sqw(obj.sqw_file,proj1,urng(1,:),0.01,urng(3,:),urng(4,:),'-nopix');

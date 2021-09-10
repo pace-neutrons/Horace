@@ -151,9 +151,81 @@
    </ndlt1121_nf50>
    <ndlt1121_nf20>
       <cutH1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
-         <time_sec>454.2710003</time_sec>
+         <time_sec>57.0458922</time_sec>
          <comment>large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions</comment>
-         <completed_on>[2021 9 10 13 56 6.327]</completed_on>
+         <completed_on>[2021 9 10 14 11 54.813]</completed_on>
       </cutH1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
+      <cutK1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
+         <time_sec>68.7017779</time_sec>
+         <comment>large file-based 1D cut. Direction 2; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2021 9 10 14 13 3.516]</completed_on>
+      </cutK1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
+      <cutL1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
+         <time_sec>80.422045</time_sec>
+         <comment>large file-based 1D cut. Direction 3; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2021 9 10 14 14 24.09]</completed_on>
+      </cutL1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
+      <cutE_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
+         <time_sec>62.1121564</time_sec>
+         <comment>large file-based 1D cut. Energy direction; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2021 9 10 14 15 26.312]</completed_on>
+      </cutE_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
+      <cutH1D_AllInt_nopix_nwk0_nomex>
+         <time_sec>19.4328064</time_sec>
+         <comment>large 1D cut direction 1 with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2021 9 10 17 54 34.946]</completed_on>
+      </cutH1D_AllInt_nopix_nwk0_nomex>
+      <cutK1D_AllInt_nopix_nwk0_nomex>
+         <time_sec>21.1611069</time_sec>
+         <comment>large 1D cut direction 2 with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2021 9 10 17 54 56.112]</completed_on>
+      </cutK1D_AllInt_nopix_nwk0_nomex>
+      <cutL1D_AllInt_nopix_nwk0_nomex>
+         <time_sec>22.9382875</time_sec>
+         <comment>large 1D cut direction 3 with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2021 9 10 17 55 19.051]</completed_on>
+      </cutL1D_AllInt_nopix_nwk0_nomex>
+      <cutE_AllInt_nopix_nwk0_nomex>
+         <time_sec>19.0897811</time_sec>
+         <comment>large 1D cut along energy direction with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2021 9 10 17 53 4.736]</completed_on>
+      </cutE_AllInt_nopix_nwk0_nomex>
+      <cutH1D_AllInt_nopix_nwk0_mex>
+         <time_sec>8.1909723</time_sec>
+         <comment>large 1D cut direction 1 with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2021 9 10 17 53 13.295]</completed_on>
+      </cutH1D_AllInt_nopix_nwk0_mex>
+      <cutK1D_AllInt_nopix_nwk0_mex>
+         <time_sec>8.8035144</time_sec>
+         <comment>large 1D cut direction 2 with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2021 9 10 17 53 22.099]</completed_on>
+      </cutK1D_AllInt_nopix_nwk0_mex>
+      <cutL1D_AllInt_nopix_nwk0_mex>
+         <time_sec>9.8631857</time_sec>
+         <comment>large 1D cut direction 3 with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2021 9 10 17 53 32.096]</completed_on>
+      </cutL1D_AllInt_nopix_nwk0_mex>
+      <cutE_AllInt_nopix_nwk0_mex>
+         <time_sec>7.819052</time_sec>
+         <comment>large 1D cut along energy direction with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2021 9 10 17 53 40.048]</completed_on>
+      </cutE_AllInt_nopix_nwk0_mex>
    </ndlt1121_nf20>
+   <ndlt1121_nf150>
+      <cutH1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
+         <time_sec>815.984234</time_sec>
+         <comment>large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2021 9 10 14 44 53.47]</completed_on>
+      </cutH1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
+      <cutK1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
+         <time_sec>1133.6115703</time_sec>
+         <comment>large file-based 1D cut. Direction 2; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2021 9 10 15 3 47.348]</completed_on>
+      </cutK1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
+      <cutL1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
+         <time_sec>810.1935826</time_sec>
+         <comment>large file-based 1D cut. Direction 3; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2021 9 10 15 17 18.042]</completed_on>
+      </cutL1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
+   </ndlt1121_nf150>
 </test_cuts_performance>

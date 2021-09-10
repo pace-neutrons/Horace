@@ -53,7 +53,7 @@ ignore_inf=logical(ignore_inf);
 % Temporary and ineffective solution to keep pixels double all through the
 % Horace. TODO: redefine pixels as single and propagate it through all Horace
 if isa(v.data,'single') && ~keep_precision
-    v.data = double(v.data);
+    v.data_ = double(v.data);
 end
 
 
