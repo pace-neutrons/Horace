@@ -1,7 +1,7 @@
 classdef test_cuts_performance < SQW_GENCUT_perf_tester
     properties
         % how many test files to use to define the perfromance results
-        n_test_files = 50;
+        n_test_files = 20;
         cleanup_config
         skip_mex_tests = false;
     end
@@ -77,18 +77,6 @@ classdef test_cuts_performance < SQW_GENCUT_perf_tester
             names_map = obj.build_default_test_names(0,'mex');
             pr = obj.large_cut_nopix_task_performance(names_map);
         end
-        function test_large_cut_filebased_mex(obj)
-            if obj.skip_mex_tests
-                skipTest('test_small_cut_mex disabled as mex files are compiled with errors')
-            end
-            
-            hc = hor_config;
-            hc.saveable = false;
-            hc.use_mex = true;
-            
-            names_map = obj.build_default_test_names(0,'mex');
-            pr = obj.large_cut_pix_fbased_task_perfornance(names_map);
-        end
         function test_large_cut_nopix_nomex(obj)
             hc = hor_config;
             hc.saveable = false;
@@ -105,5 +93,18 @@ classdef test_cuts_performance < SQW_GENCUT_perf_tester
             names_map = obj.build_default_test_names(0,'nomex');
             perf_res = obj.large_cut_pix_fbased_task_perfornance(names_map);
         end
+        function test_large_cut_filebased_mex(obj)
+            if obj.skip_mex_tests
+                skipTest('test_large_cut_filebased_mex disabled as mex files are compiled with errors')
+            end
+            
+            hc = hor_config;
+            hc.saveable = false;
+            hc.use_mex = true;
+            
+            names_map = obj.build_default_test_names(0,'mex');
+            perf_res = obj.large_cut_pix_fbased_task_perfornance(names_map);
+        end
+        
     end
 end

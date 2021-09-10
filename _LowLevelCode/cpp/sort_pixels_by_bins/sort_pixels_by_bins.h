@@ -10,7 +10,7 @@
 #define  PIXEL_DATA_WIDTH  9
 
 
-// $Revision$ $Date$
+//
 template<class T, class N, class K>
 void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, std::vector<const T *> &PixelData, std::vector<size_t> &NPixels,
     std::vector<const N *> &PixelIndexes, std::vector<size_t> NIndexes,

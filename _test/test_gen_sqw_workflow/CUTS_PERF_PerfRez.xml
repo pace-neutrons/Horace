@@ -143,5 +143,17 @@
          <comment>small memory based 1D cut along energy direction (q are not axis aligned)</comment>
          <completed_on>[2021 8 14 0 55 32.086]</completed_on>
       </cutE_Small_nwk0_mex>
+      <cutH1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
+         <time_sec>309.1518475</time_sec>
+         <comment>large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2021 9 9 16 52 36.75]</completed_on>
+      </cutH1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
    </ndlt1121_nf50>
+   <ndlt1121_nf20>
+      <cutH1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
+         <time_sec>454.2710003</time_sec>
+         <comment>large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2021 9 10 13 56 6.327]</completed_on>
+      </cutH1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
+   </ndlt1121_nf20>
 </test_cuts_performance>

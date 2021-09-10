@@ -50,11 +50,17 @@ function [s, e, npix, img_range_step, npix_retain,ok, ix] = accumulate_cut_(s, e
 ignore_nan=logical(ignore_nan);
 ignore_inf=logical(ignore_inf);
 
+% Temporary and ineffective solution to keep pixels double all through the
+% Horace. TODO: redefine pixels as single and propagate it through all Horace
+if isa(v.data,'single') && ~keep_precision
+    v.data = double(v.data);
+end
+
 
 
 if proj.can_mex_cut && use_mex
     [img_range_step_recent, ok, ix, s, e, npix, npix_retain,mex_success]=...
-        proj.accumulate_cut(v,s,e,npix,pax,ignore_nan,ignore_inf,keep_pix,n_threads,keep_precision);
+        proj.accumulate_cut(v,s,e,npix,pax,ignore_nan,ignore_inf,keep_pix,n_threads);
     if npix_retain>0
         img_range_step =[min(img_range_step(1,:),img_range_step_recent(1,:));max(img_range_step(2,:),img_range_step_recent(2,:))];  % true range of data
     else
@@ -71,6 +77,6 @@ end
 
 if ~use_mex
     [s, e, npix, img_range_step, npix_retain, ok, ix] = accumulate_cut_matlab_(s, e, npix, img_range_step, keep_pix,...
-        v, proj, pax,keep_precision);
+        v, proj, pax);
 end
 

@@ -80,6 +80,8 @@ if keep_pix && use_tmp_files
 else
     keep_precision = false;
 end
+
+
 for iter = 1:num_chunks
     % Get pixels that will likely contribute to the cut
     chunk = block_chunks{iter};
@@ -119,9 +121,8 @@ for iter = 1:num_chunks
             % Generate tmp files and get a pix_combine_info object to manage
             % the files - this object then recombines the files once it is
             % passed to 'put_sqw'.
-            buf_size = obj.data.pix.page_size;
             pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file( ...
-                pix_comb_info, false, candidate_pix, ok, ix, npix, buf_size, ...
+                pix_comb_info, false, candidate_pix, ok, ix, npix, block_size, ...
                 del_npix_retain ...
                 );
         else
@@ -134,7 +135,7 @@ end  % loop over pixel blocks
 
 if keep_pix
     [pix_out, pix_comb_info] = combine_pixels( ...
-        pix_retained, pix_ix_retained, pix_comb_info, npix, obj.data.pix.page_size ...
+        pix_retained, pix_ix_retained, pix_comb_info, npix, block_size ...
         );
 else
     pix_out = PixelData();

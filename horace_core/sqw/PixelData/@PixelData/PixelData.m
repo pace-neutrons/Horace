@@ -90,8 +90,9 @@ classdef PixelData < handle
             'detector_idx', ...
             'energy_idx', ...
             'signal', ...
-            'variance'}, ...
-            {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9});
+            'variance',...
+            'all'}, ...
+            {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9,1:9});
         PIXEL_BLOCK_COLS_ = PixelData.DEFAULT_NUM_PIX_FIELDS;
         
         dirty_page_edited_ = false;  % true if a dirty page has been edited since it was loaded
@@ -104,34 +105,30 @@ classdef PixelData < handle
         page_number_ = 1;  % the index of the currently loaded page
         raw_data_ = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, 0);  % the underlying data cached in the object
         tmp_io_handler_;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
-        pix_range_=PixelData.EMPTY_RANGE_; % range of pixels in Crystal cartesian coordinate system
+        pix_range_=PixelData.EMPTY_RANGE_; % range of pixels in Crystal Cartesian coordinate system
     end
     
     properties (Constant)
         DATA_POINT_SIZE = 8;  % num bytes in a double
         DEFAULT_NUM_PIX_FIELDS = 9;
         DEFAULT_PAGE_SIZE = realmax;  % this gives no paging by default
+    end
+    properties (Constant,Hidden)
         % the range, an empty pixel class has
-        EMPTY_RANGE_ = [inf,inf,inf,inf;-inf,-inf,-inf,-inf];
-    end
-    
-    properties (Dependent, Access=private)
-        data_;  % points to raw_data_ but with a layer of validation for setting correct array sizes
-        
-        pix_position_;  % the pixel index in the file of the first pixel in the cache
-    end
-    
+        EMPTY_RANGE_ = [inf,inf,inf,inf;-inf,-inf,-inf,-inf];        
+    end    
+   
     properties (Dependent)
-        % The 1st dimension of the crystal cartesian orientation (1 x n array) [A^-1]
+        % The 1st dimension of the crystal Cartesian orientation (1 x n array) [A^-1]
         u1;
         
-        % The 2nd dimension of the crystal cartesian orientation (1 x n array) [A^-1]
+        % The 2nd dimension of the crystal Cartesian orientation (1 x n array) [A^-1]
         u2;
         
-        % The 3rd dimension of the crystal cartesian orientation (1 x n array) [A^-1]
+        % The 3rd dimension of the crystal Cartesian orientation (1 x n array) [A^-1]
         u3;
         
-        % The spatial dimensions of the crystal cartesian orientation (3 x n array)
+        % The spatial dimensions of the crystal Cartesian orientation (3 x n array)
         q_coordinates;
         
         % The array of energy deltas of the pixels (1 x n array) [meV]
@@ -177,6 +174,12 @@ classdef PixelData < handle
         
         % The number of pixels that can fit in one page of data
         base_page_size;
+    end
+    properties(Dependent,Hidden)
+        %
+        data_;  % points to raw_data_ but with a layer of validation for setting correct array sizes
+        %
+        pix_position_;  % the pixel index in the file of the first pixel in the cache                
     end
     properties(Access=public,Hidden)
         % Contains the range(min/max value) of a block of pixels,
@@ -279,7 +282,7 @@ classdef PixelData < handle
             %
             %   >> obj = PixelData(ones(9, 200))
             %
-            %   >> obj = PixelData(200)  % intialise 200 pixels with underlying data set to zero
+            %   >> obj = PixelData(200)  % initialise 200 pixels with underlying data set to zero
             %
             %   >> obj = PixelData(file_path)  % initialise pixel data from an sqw file
             %
@@ -526,6 +529,7 @@ classdef PixelData < handle
                 error('PIXELDATA:data', msg, class(pixel_data));
             end
             obj.raw_data_ = pixel_data;
+            obj.num_pixels_ = size(pixel_data,2);
         end
         
         function u1 = get.u1(obj)
@@ -708,7 +712,7 @@ classdef PixelData < handle
             % calculations are expensive
             %
             if any(size(pix_range) ~=[2,4])
-                error('PIXELDATA:InvalidArgument',...
+                error('HORACE:PixelData:InvalidArgument',...
                     'pixel_range should be [2x4] array');
             end
             obj.pix_range_ = pix_range;

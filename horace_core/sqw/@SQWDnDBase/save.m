@@ -18,7 +18,6 @@ function save (w, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 [ok,mess,upgrade,argi] = parse_char_options(varargin,{'-update'});
 if ~ok

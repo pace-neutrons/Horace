@@ -163,7 +163,7 @@ classdef cut_data_from_file_job < JobExecutor
                 keep_precision = false;
             end
             [s, e, npix, pix_range_step, npix_retain, ok, ix] = accumulate_cut_ (s, e, npix, pix_range_step, keep_pix, ...
-                v, proj, pax,keep_precision );
+                v, proj, pax,keep_precision);
         end
 
         function pix_comb_info = accumulate_pix_to_file(varargin)
