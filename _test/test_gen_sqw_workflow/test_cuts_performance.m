@@ -1,7 +1,7 @@
 classdef test_cuts_performance < SQW_GENCUT_perf_tester
     properties
         % how many test files to use to define the perfromance results
-        n_test_files = 20;
+        n_test_files = 150;
         cleanup_config
         skip_mex_tests = false;
     end
@@ -44,7 +44,7 @@ classdef test_cuts_performance < SQW_GENCUT_perf_tester
             set(parallel_config,obj.cleanup_config.parallel_config);
         end
         
-        function [perf_nm,perf_mex]=test_small_cut_mex_nomex(obj)
+        function [perf_nm,perf_mex]=test_small_cut_nomex_mex(obj)
             hc = hor_config;
             hc.saveable = false;
             hc.use_mex = false;
