@@ -138,6 +138,7 @@ end
 n_blocks = 0;
 if hor_log_level>=1, bigtic(1), end
 %
+mem_clob = onCleanup(@()accumulate_pix_to_file_('cleanup'));
 
 try
     for i=1:nsteps
@@ -244,6 +245,7 @@ if hor_log_level>=1
     disp(' ')
 end
 
+clear mem_clob;
 end
 
 

@@ -105,7 +105,7 @@ if ischar(data_source)
             opt.keep_pix, pix_tmpfile_ok, proj, targ_pax, targ_nbin);
         clear clobInput;
     end
-
+    
 else
     % Pixel information taken from object
     [s, e, npix, urange_step_pix, pix, npix_retain, npix_read] = cut_data_from_array...

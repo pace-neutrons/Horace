@@ -13,6 +13,11 @@ persistent n_pix_in_memory; % number of pixels, stored in memory
 persistent pix_mem_retained; % cellarray of pixels blocks in memory to retain
 persistent pix_mem_ix_retained; % cellarray of pixels index information blocks in memory to retain
 
+if ischar(pix_comb_info) && strcmp(pix_comb_info,'cleanup')
+    clear_memory();
+    return
+end
+
 
 if isempty(npix_prev) % first call to the function
     sz = size(npix);
@@ -40,8 +45,11 @@ if finish_accum
     pix_comb_info.npix_cumsum = cumsum(npix(:));
 
     pix_comb_info  = pix_comb_info.trim_nfiles(n_writ_files);
-    clear npix_prev pix_mem_retained pix_mem_ix_retained n_pix_in_memory;
+    clear_memory();
 end
+    function clear_memory()
+        clear npix_prev pix_mem_retained pix_mem_ix_retained n_pix_in_memory;
+    end
 
 
     function pix_comb_info= save_pixels_to_file(pix_comb_info)

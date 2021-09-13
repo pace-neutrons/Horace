@@ -17,9 +17,13 @@ clob1 = onCleanup(@()obj.delete_files(fl2del));
 
 ts = tic();
 proj1 = struct('u',[1,0,0],'v',[0,1,1]);
+profile on
 cut_sqw(obj.sqw_file,proj1,0.01,urng(2,:),urng(3,:),urng(4,:),'cutH1D_AllInt.sqw');
 obj.assertPerformance(ts,test_fld_names{1},...
     'large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions');
+profile off
+profile viewer
+stop
 
 ts = tic();
 cut_sqw(obj.sqw_file,proj1,urng(1,:),0.01,urng(3,:),urng(4,:),'cutK1D_AllInt.sqw');
