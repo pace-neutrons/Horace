@@ -2,7 +2,7 @@ classdef test_cuts_performance < SQW_GENCUT_perf_tester
     properties
         % how many test files to use to define the perfromance results
         n_test_files = 20;
-        cleanup_config
+        cleanup_config_holder
         skip_mex_tests = false;
     end
     methods
@@ -35,24 +35,32 @@ classdef test_cuts_performance < SQW_GENCUT_perf_tester
             hpcds = hpc.get_data_to_store();
             parc = parallel_config();
             parcds = parc.get_data_to_store();
-            obj.cleanup_config = struct('hor_config',hcds,'hpc_config',hpcds,...
+            obj.cleanup_config_holder = struct('hor_config',hcds,'hpc_config',hpcds,...
                 'parallel_config',parcds);
         end
         function tearDown(obj)
-            set(hor_config,obj.cleanup_config.hor_config);
-            set(hpc_config,obj.cleanup_config.hpc_config);
-            set(parallel_config,obj.cleanup_config.parallel_config);
+            set(hor_config,obj.cleanup_config_holder.hor_config);
+            set(hpc_config,obj.cleanup_config_holder.hpc_config);
+            set(parallel_config,obj.cleanup_config_holder.parallel_config);
         end
         
         function [perf_nm,perf_mex]=test_small_cut_mex_nomex(obj)
             hc = hor_config;
             hc.saveable = false;
             hc.use_mex = false;
+            if hc.log_level >0
+                disp('**** Testing test_small_cut no-mex performance')
+            end
+            
             names_map = obj.build_default_test_names(0,'nomex');
             [perf_nm,cut1n,cut2n,cut3n,cut4n] = obj.small_cut_task_performance(names_map);
             
             if obj.skip_mex_tests
                 skipTest('test_small_cut_mex disabled as mex files are compiled with errors')
+            else
+                if hc.log_level >0
+                    disp('**** Testing test_small_cut mex performance')
+                end
             end
             
             hc.use_mex = true;
@@ -69,25 +77,35 @@ classdef test_cuts_performance < SQW_GENCUT_perf_tester
             hc = hor_config;
             hc.saveable = false;
             hc.use_mex = false;
+            if hc.log_level >0
+                disp('**** Testing test_large_cut_nopix no-mex performance')
+            end
+            
             
             names_map = obj.build_default_test_names(0,'nomex');
             [perf_nom,cut1n,cut2n,cut3n,cut4n] = obj.large_cut_nopix_task_performance(names_map);
             
             if obj.skip_mex_tests
                 skipTest('test_small_cut_mex disabled as mex files are compiled with errors')
+            else
+                if hc.log_level >0
+                    disp('**** Testing test_large_cut_nopix mex performance')
+                end
+                
             end
             
             hc.use_mex = true;
             
             names_map = obj.build_default_test_names(0,'mex');
             [perf_mex,cut1m,cut2m,cut3m,cut4m] = obj.large_cut_nopix_task_performance(names_map);
-            
+            % this test does not work because of binning errors/ Physically
+            % cuts are equivalent
             assertEqualToTol(cut1n,cut1m,'tol',1.e-5);
             assertEqualToTol(cut2n,cut2m,'tol',1.e-5);
             assertEqualToTol(cut3n,cut3m,'tol',1.e-5);
             assertEqualToTol(cut4n,cut4m,'tol',1.e-5);
             
-        end  
+        end
         function perf_res=test_large_cut_filebased_nomex(obj)
             hc = hor_config;
             hc.saveable = false;

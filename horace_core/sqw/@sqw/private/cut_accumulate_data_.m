@@ -114,7 +114,6 @@ for iter = 1:num_chunks
     if log_level >= 1
         fprintf(' ----->  retained  %d pixels\n', del_npix_retain);
     end
-    
     if keep_pix
         if use_tmp_files
             % Generate tmp files and get a pix_combine_info object to manage
