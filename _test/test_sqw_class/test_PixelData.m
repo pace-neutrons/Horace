@@ -92,12 +92,12 @@ classdef test_PixelData < TestCase
         
         function test_PIXELDATA_raised_on_construction_with_data_with_lt_9_cols(~)
             f = @() PixelData(ones(3, 3));
-            assertExceptionThrown(f, 'PIXELDATA:data');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
         function test_PIXELDATA_raised_on_construction_with_data_with_gt_9_cols(~)
             f = @() PixelData(ones(10, 3));
-            assertExceptionThrown(f, 'PIXELDATA:data');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
         function test_coordinates_returns_empty_array_if_pixel_data_empty(~)
@@ -223,7 +223,7 @@ classdef test_PixelData < TestCase
         function test_PIXELDATA_error_raised_if_setting_data_with_lt_9_cols(~)
             f = @(x) PixelData(zeros(x, 10));
             for i = [-10, -5, 0, 5]
-                assertExceptionThrown(@() f(i), 'PIXELDATA:data');
+                assertExceptionThrown(@() f(i), 'HORACE:PixelData:invalid_argument');
             end
         end
         
@@ -279,13 +279,13 @@ classdef test_PixelData < TestCase
         function test_PIXELDATA_error_if_constructed_with_struct(~)
             s = struct();
             f = @() PixelData(s);
-            assertExceptionThrown(f, 'PIXELDATA:data');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
         function test_PIXELDATA_error_if_constructed_with_cell_array(~)
             s = {'a', 1};
             f = @() PixelData(s);
-            assertExceptionThrown(f, 'PIXELDATA:data');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
         function test_PIXELDATA_error_if_data_set_with_non_numeric_type(~)
@@ -390,7 +390,7 @@ classdef test_PixelData < TestCase
         
         function test_construction_with_float_raises_PIXELDATA_error(~)
             f = @() PixelData(1.2);
-            assertExceptionThrown(f, 'PIXELDATA:data');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
         function test_construction_with_file_path_sets_file_path_on_object(obj)
@@ -1790,7 +1790,7 @@ classdef test_PixelData < TestCase
             new_data = ones(numel(fields) + 1, 7);
             idxs = [4, 3, 9, 24, 29, 10, 11];
             f = @() pix.set_data(fields, new_data, idxs);
-            assertExceptionThrown(f, 'HORACE:PIXELDATA:incorrect_num_rows');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
 
         function test_set_data_errors_if_data_ncols_ne_to_num_indices(~)
@@ -1799,7 +1799,7 @@ classdef test_PixelData < TestCase
             idxs = [4, 3, 9, 24, 29, 10, 11];
             new_data = ones(numel(fields), numel(idxs) - 1);
             f = @() pix.set_data(fields, new_data, idxs);
-            assertExceptionThrown(f, 'HORACE:PIXELDATA:incorrect_num_cols');
+            assertExceptionThrown(f, 'HORACE:PIXELDATA:invalid_argument');
         end
 
         function test_set_data_sets_fields_with_given_values_with_logical_idxs(~)
