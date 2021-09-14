@@ -18,6 +18,7 @@ perf_res = obj.assertPerformance(ts,test_fld_names{1},...
     'large 1D cut direction 1 with whole dataset integration along 3 other directions. -nopix mode');
 %profile off
 %profile viewer
+%stop
 %sqw2=[];sqw3=[];sqw4=[];
 %return
 ts = tic();

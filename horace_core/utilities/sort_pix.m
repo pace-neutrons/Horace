@@ -83,7 +83,7 @@ if use_mex
         raw_pix = sort_pixels_by_bins(raw_pix, pix_ix_retained, npix);
         if use_given_pix_range
             pix = PixelData();
-            pix.data_ = raw_pix;
+            set_data(pix,'all',raw_pix);
             pix.set_range(pix_range);
         else
             pix = PixelData(raw_pix);

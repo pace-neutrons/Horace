@@ -89,7 +89,7 @@ for iter = 1:num_chunks
     block_sizes = chunk{2};
     pix_end = pix_start+block_sizes-1;
     candidate_pix = obj.data.pix.get_pix_in_ranges( ...
-        pix_start, pix_end, keep_pix);
+        pix_start, pix_end, false);
     
     if log_level >= 1
         fprintf(['Step %3d of %3d; Read data for %d pixels -- ' ...

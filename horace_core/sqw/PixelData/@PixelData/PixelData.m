@@ -115,9 +115,9 @@ classdef PixelData < handle
     end
     properties (Constant,Hidden)
         % the range, an empty pixel class has
-        EMPTY_RANGE_ = [inf,inf,inf,inf;-inf,-inf,-inf,-inf];        
-    end    
-   
+        EMPTY_RANGE_ = [inf,inf,inf,inf;-inf,-inf,-inf,-inf];
+    end
+    
     properties (Dependent)
         % The 1st dimension of the crystal Cartesian orientation (1 x n array) [A^-1]
         u1;
@@ -162,8 +162,11 @@ classdef PixelData < handle
         % this value may get invalid, as the range never shrinks.
         pix_range;
         
-        % The full raw pixel data block. Usage of this attribute is
-        % discouraged, the structure of the return value is not guaranteed
+        % The full raw pixel data block. Usage of this attribute exposes
+        % current pixels layout, so when the pixels layout changes in a
+        % future, the code using this attribute will change too. So, the usage
+        % of this attribute is discouraged as the structure of the return
+        % value is not guaranteed in a future.
         data;
         
         % The file that the pixel data has been read from, empty if no file
@@ -175,11 +178,11 @@ classdef PixelData < handle
         % The number of pixels that can fit in one page of data
         base_page_size;
     end
-    properties(Dependent,Hidden)
+    properties(Dependent,Access=private)
         %
         data_;  % points to raw_data_ but with a layer of validation for setting correct array sizes
         %
-        pix_position_;  % the pixel index in the file of the first pixel in the cache                
+        pix_position_;  % the pixel index in the file of the first pixel in the cache
     end
     properties(Access=public,Hidden)
         % Contains the range(min/max value) of a block of pixels,
@@ -521,15 +524,16 @@ classdef PixelData < handle
             if size(pixel_data, 1) ~= obj.PIXEL_BLOCK_COLS_
                 msg = ['Cannot set pixel data, invalid dimensions. Axis 1 must '...
                     'have length %i, found ''%i''.'];
-                error('PIXELDATA:data', msg, obj.PIXEL_BLOCK_COLS_, ...
+                error('HORACE:PixelData:invalid_argument', msg, obj.PIXEL_BLOCK_COLS_, ...
                     size(pixel_data, 1));
             elseif ~isnumeric(pixel_data)
                 msg = ['Cannot set pixel data, invalid type. Data must have a '...
                     'numeric type, found ''%s''.'];
-                error('PIXELDATA:data', msg, class(pixel_data));
+                error('HORACE:PixelData:invalid_argument', msg, class(pixel_data));
             end
             obj.raw_data_ = pixel_data;
-            obj.num_pixels_ = size(pixel_data,2);
+            %obj.num_pixels_ = size(pixel_data,2); % breaks filebased
+            %PixelData
         end
         
         function u1 = get.u1(obj)

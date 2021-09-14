@@ -151,9 +151,9 @@
    </ndlt1121_nf50>
    <ndlt1121_nf20>
       <cutH1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
-         <time_sec>103.036341</time_sec>
+         <time_sec>40.7843864</time_sec>
          <comment>large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions</comment>
-         <completed_on>[2021 9 13 14 38 26.894]</completed_on>
+         <completed_on>[2021 9 14 18 31 55.49]</completed_on>
       </cutH1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
       <cutK1D_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
          <time_sec>115.0556835</time_sec>
@@ -171,9 +171,9 @@
          <completed_on>[2021 9 13 14 44 12.131]</completed_on>
       </cutE_AllInt_flBsd_nwk0_comb_mex_code_MODE0>
       <cutH1D_AllInt_nopix_nwk0_nomex>
-         <time_sec>24.252329</time_sec>
+         <time_sec>10.4651083</time_sec>
          <comment>large 1D cut direction 1 with whole dataset integration along 3 other directions. -nopix mode</comment>
-         <completed_on>[2021 9 13 14 44 37.601]</completed_on>
+         <completed_on>[2021 9 14 17 37 36.775]</completed_on>
       </cutH1D_AllInt_nopix_nwk0_nomex>
       <cutK1D_AllInt_nopix_nwk0_nomex>
          <time_sec>23.0676311</time_sec>
@@ -211,44 +211,44 @@
          <completed_on>[2021 9 13 14 46 27.464]</completed_on>
       </cutE_AllInt_nopix_nwk0_mex>
       <cutH1D_Small_nwk0_nomex>
-         <time_sec>0.4317839</time_sec>
+         <time_sec>4.590876</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 1</comment>
-         <completed_on>[2021 9 13 14 46 41.73]</completed_on>
+         <completed_on>[2021 9 14 16 54 57.791]</completed_on>
       </cutH1D_Small_nwk0_nomex>
       <cutK1D_Small_nwk0_nomex>
-         <time_sec>0.5422942</time_sec>
+         <time_sec>3.7174314</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 2</comment>
-         <completed_on>[2021 9 13 14 46 42.273]</completed_on>
+         <completed_on>[2021 9 14 16 55 1.704]</completed_on>
       </cutK1D_Small_nwk0_nomex>
       <cutL1D_Small_nwk0_nomex>
-         <time_sec>0.4738352</time_sec>
+         <time_sec>0.7635914</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 3</comment>
-         <completed_on>[2021 9 13 14 46 42.747]</completed_on>
+         <completed_on>[2021 9 14 16 55 2.596]</completed_on>
       </cutL1D_Small_nwk0_nomex>
       <cutE_Small_nwk0_nomex>
-         <time_sec>0.3452181</time_sec>
+         <time_sec>0.3783583</time_sec>
          <comment>small memory based 1D cut along energy direction (q are not axis aligned)</comment>
-         <completed_on>[2021 9 13 14 31 26.407]</completed_on>
+         <completed_on>[2021 9 14 16 55 3.098]</completed_on>
       </cutE_Small_nwk0_nomex>
       <cutH1D_Small_nwk0_mex>
-         <time_sec>0.4097496</time_sec>
+         <time_sec>0.4496751</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 1</comment>
-         <completed_on>[2021 9 13 14 31 26.82]</completed_on>
+         <completed_on>[2021 9 14 16 55 3.56]</completed_on>
       </cutH1D_Small_nwk0_mex>
       <cutK1D_Small_nwk0_mex>
-         <time_sec>0.5129947</time_sec>
+         <time_sec>0.5540809</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 2</comment>
-         <completed_on>[2021 9 13 14 31 27.333]</completed_on>
+         <completed_on>[2021 9 14 16 55 4.115]</completed_on>
       </cutK1D_Small_nwk0_mex>
       <cutL1D_Small_nwk0_mex>
-         <time_sec>0.4705043</time_sec>
+         <time_sec>0.4917012</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 3</comment>
-         <completed_on>[2021 9 13 14 31 27.803]</completed_on>
+         <completed_on>[2021 9 14 16 55 4.607]</completed_on>
       </cutL1D_Small_nwk0_mex>
       <cutE_Small_nwk0_mex>
-         <time_sec>0.3348831</time_sec>
+         <time_sec>0.3910838</time_sec>
          <comment>small memory based 1D cut along energy direction (q are not axis aligned)</comment>
-         <completed_on>[2021 9 10 19 11 11.619]</completed_on>
+         <completed_on>[2021 9 14 16 55 4.999]</completed_on>
       </cutE_Small_nwk0_mex>
    </ndlt1121_nf20>
    <ndlt1121_nf150>

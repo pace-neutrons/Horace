@@ -40,8 +40,11 @@ if obj.is_filebacked()
     end
 else
     if abs_pix_indices == NO_INPUT_INDICES
-        if size(data,1) == obj.DEFAULT_NUM_PIX_FIELDS && strcmp(pix_fields{1},'all')
-            obj.data_ = data;
+        if size(data,1) == obj.DEFAULT_NUM_PIX_FIELDS && ...
+                ischar(pix_fields) && strcmp(pix_fields,'all')
+            obj.raw_data_   = data; % all arguments have been already verified,
+            %            no point of using data_ setter
+            obj.num_pixels_ = size(data,2);
         else
             obj.data_(field_indices, 1:end) = data;
         end
