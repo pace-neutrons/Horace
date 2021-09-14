@@ -271,13 +271,6 @@ if accumulate_old_sqw    % combine with existing sqw file
             if log_level>-1
                 disp('Creating output sqw file:')
             end
-            if update_runid
-                wnsq_argi = {};
-            else
-                wnsq_argi = {'-keep_runid'};
-            end
-            % will recaluclate pixel_range
-            [~,pix_range]=write_nsqw_to_sqw (tmp_file, sqw_file,pix_range_present,wnsq_argi{:});
             
             write_nsqw_to_sqw (tmp_file, sqw_file);
             
@@ -457,10 +450,7 @@ else
         if require_spe_unique
             wsqw_arg = {parallel_job_dispatcher};
         else
-            wsqw_arg = {'-allow_equal_headers',parallel_job_dispatcher};
-        end
-        if ~update_runid
-            wsqw_arg = {wsqw_arg{:},'-keep_runid'};
+            wsqw_arg = {'allow_equal_headers',parallel_job_dispatcher};
         end
         if ~accumulate_old_sqw || use_partial_tmp
             if log_level>-1

@@ -42,13 +42,12 @@ tol = keyval.tol;
 if equal_to_tol(w1tot.data.npix,w2tot.data.npix,'tol',tol) &&...
         equal_to_tol(w1tot.data.s,w2tot.data.s,'tol',tol) &&...
         equal_to_tol(w1tot.data.e,w2tot.data.e,'tol',tol) &&...
-        equal_to_tol(w1tot.data.img_db_range,w2tot.data.img_db_range,'tol',tol)
+        equal_to_tol(w1tot.data.urange,w2tot.data.urange,'tol',tol)
     if isempty(w1tot.data.pix)
         ok=true;
         mess='';
     else
-        if equal_to_tol(w1tot.data.pix.pix_range,w2tot.data.pix.pix_range,'tol',tol) && ...
-                equal_to_tol(w1tot.data.pix.num_pixels,w2tot.data.pix.num_pixels,'tol',tol)
+        if equal_to_tol(w1tot.data.pix.num_pixels,w2tot.data.pix.num_pixels,'tol',tol)
             ok=true;
             mess='';
         else
