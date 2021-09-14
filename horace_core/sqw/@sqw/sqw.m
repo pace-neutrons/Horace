@@ -92,13 +92,13 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             val = obj.data_;
         end
         function obj = set.data(obj, d)
-            if isa(d,'data_sqw_dnd') || isempty(d)
+            %if isa(d,'data_sqw_dnd') || isempty(d)
                 obj.data_ = d;
-            else
-                error('HORACE:sqw:invalid_argument',...
-                    'Only data_sqw_dnd class or empty value may be used as data value. Trying to set up: %s',...
-                    class(d))
-            end
+            %else
+            %    error('HORACE:sqw:invalid_argument',...
+            %        'Only data_sqw_dnd class or empty value may be used as data value. Trying to set up: %s',...
+            %        class(d))
+            %end
         end
         
         
