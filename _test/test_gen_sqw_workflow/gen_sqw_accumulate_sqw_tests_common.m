@@ -385,7 +385,9 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             %             plot(w1_f_sym)
             %             pd(w1_m_sym)
             
-            [ok,mess]=is_cut_equal(sqw_file_sym,w_mem_sym,loc_proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
+            [ok,mess]=is_cut_equal(sqw_file_sym,w_mem_sym,loc_proj,...
+                [-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf],...
+                'tol',1.e-7);
             assertTrue(ok,[' Cuts are not equal Error: ',mess]);
             
         end
