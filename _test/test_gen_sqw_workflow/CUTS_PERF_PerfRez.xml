@@ -196,4 +196,91 @@
          <completed_on>[2021 9 10 16 44 35.723]</completed_on>
       </cutE_AllInt_nopix_nwk0_mex>
    </ndlt1121_nf20>
+   <host_192_168_243_72_mpiexec_mpi_nf150>
+      <cutH1D_AllInt_flBsd_nwk0_comb_mex_code_MODE1>
+         <time_sec>1009.963385</time_sec>
+         <comment>large file-based 1D cut. Direction 1; Whole dataset integration along 3 other directions</comment>
+         <completed_on>[2021 9 15 10 54 21.274664]</completed_on>
+      </cutH1D_AllInt_flBsd_nwk0_comb_mex_code_MODE1>
+      <cutH1D_AllInt_nopix_nwk0_nomex>
+         <time_sec>440.251606</time_sec>
+         <comment>large 1D cut direction 1 with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2021 9 15 11 1 43.706672]</completed_on>
+      </cutH1D_AllInt_nopix_nwk0_nomex>
+      <cutK1D_AllInt_nopix_nwk0_nomex>
+         <time_sec>210.987154</time_sec>
+         <comment>large 1D cut direction 2 with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2021 9 15 11 5 14.835327]</completed_on>
+      </cutK1D_AllInt_nopix_nwk0_nomex>
+      <cutL1D_AllInt_nopix_nwk0_nomex>
+         <time_sec>141.455449</time_sec>
+         <comment>large 1D cut direction 3 with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2021 9 15 11 7 36.368486]</completed_on>
+      </cutL1D_AllInt_nopix_nwk0_nomex>
+      <cutE_AllInt_nopix_nwk0_nomex>
+         <time_sec>141.358218</time_sec>
+         <comment>large 1D cut along energy direction with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2021 9 15 11 9 57.816062]</completed_on>
+      </cutE_AllInt_nopix_nwk0_nomex>
+      <cutH1D_AllInt_nopix_nwk0_mex>
+         <time_sec>68.905291</time_sec>
+         <comment>large 1D cut direction 1 with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2021 9 15 11 11 7.284021]</completed_on>
+      </cutH1D_AllInt_nopix_nwk0_mex>
+      <cutK1D_AllInt_nopix_nwk0_mex>
+         <time_sec>85.329616</time_sec>
+         <comment>large 1D cut direction 2 with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2021 9 15 11 12 32.867678]</completed_on>
+      </cutK1D_AllInt_nopix_nwk0_mex>
+      <cutL1D_AllInt_nopix_nwk0_mex>
+         <time_sec>70.504562</time_sec>
+         <comment>large 1D cut direction 3 with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2021 9 15 11 13 43.565049]</completed_on>
+      </cutL1D_AllInt_nopix_nwk0_mex>
+      <cutE_AllInt_nopix_nwk0_mex>
+         <time_sec>70.428414</time_sec>
+         <comment>large 1D cut along energy direction with whole dataset integration along 3 other directions. -nopix mode</comment>
+         <completed_on>[2021 9 15 11 14 54.073727]</completed_on>
+      </cutE_AllInt_nopix_nwk0_mex>
+      <cutH1D_Small_nwk0_nomex>
+         <time_sec>1.779943</time_sec>
+         <comment>small memory based 1D cut in non-axis aligned direction 1</comment>
+         <completed_on>[2021 9 15 11 14 56.083811]</completed_on>
+      </cutH1D_Small_nwk0_nomex>
+      <cutK1D_Small_nwk0_nomex>
+         <time_sec>1.686825</time_sec>
+         <comment>small memory based 1D cut in non-axis aligned direction 2</comment>
+         <completed_on>[2021 9 15 11 14 57.858776]</completed_on>
+      </cutK1D_Small_nwk0_nomex>
+      <cutL1D_Small_nwk0_nomex>
+         <time_sec>1.098567</time_sec>
+         <comment>small memory based 1D cut in non-axis aligned direction 3</comment>
+         <completed_on>[2021 9 15 11 14 59.034915]</completed_on>
+      </cutL1D_Small_nwk0_nomex>
+      <cutE_Small_nwk0_nomex>
+         <time_sec>0.958323</time_sec>
+         <comment>small memory based 1D cut along energy direction (q are not axis aligned)</comment>
+         <completed_on>[2021 9 15 11 15 0.071462]</completed_on>
+      </cutE_Small_nwk0_nomex>
+      <cutH1D_Small_nwk0_mex>
+         <time_sec>1.243933</time_sec>
+         <comment>small memory based 1D cut in non-axis aligned direction 1</comment>
+         <completed_on>[2021 9 15 11 15 1.46538]</completed_on>
+      </cutH1D_Small_nwk0_mex>
+      <cutK1D_Small_nwk0_mex>
+         <time_sec>1.249878</time_sec>
+         <comment>small memory based 1D cut in non-axis aligned direction 2</comment>
+         <completed_on>[2021 9 15 11 15 2.916217]</completed_on>
+      </cutK1D_Small_nwk0_mex>
+      <cutL1D_Small_nwk0_mex>
+         <time_sec>0.993884</time_sec>
+         <comment>small memory based 1D cut in non-axis aligned direction 3</comment>
+         <completed_on>[2021 9 15 11 15 3.994247]</completed_on>
+      </cutL1D_Small_nwk0_mex>
+      <cutE_Small_nwk0_mex>
+         <time_sec>0.952732</time_sec>
+         <comment>small memory based 1D cut along energy direction (q are not axis aligned)</comment>
+         <completed_on>[2021 9 15 11 15 5.124559]</completed_on>
+      </cutE_Small_nwk0_mex>
+   </host_192_168_243_72_mpiexec_mpi_nf150>
 </test_cuts_performance>

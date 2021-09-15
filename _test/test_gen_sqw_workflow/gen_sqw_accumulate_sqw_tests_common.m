@@ -439,7 +439,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             assertEqual(grid1,grid2);
             
             if not(obj.save_output)
-                assertElementsAlmostEqual(urange14,acc_urange14,'relative',1.e-2)
+                assertElementsAlmostEqual(pix_range14,acc_pix_range14,'relative',1.e-2)
             end
             
             [ok,mess,w2_14]=is_cut_equal(sqw_file_14,sqw_file_accum,obj.proj,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
