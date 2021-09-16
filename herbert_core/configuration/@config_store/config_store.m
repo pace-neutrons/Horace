@@ -190,6 +190,40 @@ classdef config_store < handle
             end
             
         end
+        %
+        function config_cont = get_all_configs(obj)
+            % return all config info, currently loaded in memory
+            config_cont = obj.config_storage_;
+            
+            fldn = fieldnames(config_cont);
+            for i=1:numel(fldn)
+                cfcl = feval(fldn{i});
+                conf = cfcl.get_data_to_store();
+                conf.saveable = obj.saveable_(fldn{i});
+                config_cont.(fldn{i}) = conf;
+            end
+            config_cont.config_folder = obj.config_folder;
+        end
+        %
+        function set_all_configs(obj,config_struct)
+            % set up config info, previously retrieved by get_all_configs
+            % function into memory as current configuration
+            %
+            obj.config_folder_ = config_struct.config_folder;
+            config_struct = rmfield(config_struct,'config_folder');
+            
+            fldn = fieldnames(config_struct);
+            for i=1:numel(fldn)
+                cfcl = feval(fldn{i});
+                cfdata = config_struct.(fldn{i});
+                cfcl.saveable = cfdata.saveable;
+                cfdata = rmfield(cfdata,'saveable');
+                cl_fld = fieldnames(cfdata);
+                for j=1:numel(cl_fld)
+                    cfcl.(cl_fld{j}) = cfdata.(cl_fld{j});
+                end
+            end
+        end        
         %------------------------------------------------------------------
         % Two methods responsible for the class to be configured savable
         % savable property is not stored to HDD and is the property
@@ -379,12 +413,27 @@ classdef config_store < handle
             fn = obj.config_folder_name_;
         end
         %
-        function set_config_path(obj,new_path)
-            % set new config store path. Existing configurations are
-            % unloaded from memory.
-            %
-            % Should be used with care and necessary mainly for MPI workers
-            obj.instance(new_path);
+        function set_config_path(obj,new_path,varargin)
+            % set new config store path. 
+            % usage:
+            % config_store.instance(new_path,['-clean']);
+            % 
+            % Inputs:
+            % new_path -- the path to store new configuration
+            % Optional:
+            % '-clean' -- existing configuration is unloaded from memory
+            %             this option should be used within MPI workers
+            %             to ensure they are keep any spurions configuration
+            %             in memory, and loaded shared configuration
+            if ~ischar(new_path)
+                error('HERBERT:config_store:invalid_argiment',...
+                    'The input path has to be a char. Got : %s',fevalc('disp(new_path)'));
+            end
+            if nargin>2
+                obj.instance(new_path);
+            else
+                obj.config_folder_ = new_path;
+            end
         end
         
         %

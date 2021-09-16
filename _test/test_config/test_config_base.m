@@ -1,13 +1,20 @@
 classdef test_config_base < TestCase
     properties
+        stored_config;
     end
     methods
         %
         function this=test_config_base (name)
             this = this@TestCase(name);
         end
+        function setUp(obj)
+            obj.stored_config = config_store.instance().get_all_configs();
+        end
+        function tearDown(obj)
+            config_store.instance().set_all_configs(obj.stored_config);
+        end
         
-        function test_store_restore_in_memory(this)
+        function test_store_restore_in_memory(~)
             config = config_base_tester();
             ws=warning('off','CONFIG_STORE:restore_config');
             clob = onCleanup(@()warning(ws));
@@ -39,8 +46,27 @@ classdef test_config_base < TestCase
             
             config_store.instance().clear_config(config,'-file')
         end
+        %
+        function test_set_extern_folder_with_config_name(~)
+            wkf = fullile(tmp_dir(),'mprogs_config_blabla');
+            config_store.instance().set_config_path(wkf);
+            cfn = config_store.instance().config_folder_name;
+            assertEqual(cfn,'mprogs_config_blabla');
+            
+            assertEqual(config_store_instance().config_folder_name,...
+                fullfile(wkf,'mprogs_config_blabla'));
+        end        
+        %
+        function test_set_extern_folder_no_config_name(~)
+            wkf = tmp_dir();
+            config_store.instance().set_config_path(wkf);
+            cfn = config_store.instance().config_folder_name;
+            
+            assertEqual(config_store_instance().config_folder_name,...
+                fullfile(wkf,cfn));
+        end
    
-        function test_store_restore_in_file(this)
+        function test_store_restore_in_file(~)
             ws=warning('off','CONFIG_STORE:restore_config');
             clob = onCleanup(@()warning(ws));
             

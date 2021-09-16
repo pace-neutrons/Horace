@@ -91,6 +91,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             assertTrue(all(all_ok));
             [ok,err,mess] = serverfbMPI.receive_message(1,'started');
             assertEqual(ok,MESS_CODES.ok,err);
+            asseptTrue(isa(mess,'aMessage'));
             assertEqual(mess.mess_name,'started');
             [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
             assertEqual(ok,MESS_CODES.ok,err);
