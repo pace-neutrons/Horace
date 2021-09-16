@@ -78,23 +78,23 @@ if ~isequal(size(w1), size(w2))
 end
 
 % Check that corresponding objects in the array have the same type
-% $$$     base_message = 'Objects being compared are not both sqw-type or both dnd-type';
-% $$$     for i = 1:numel(w1)
-% $$$         if class(w1(i)) ~= class(w2(i))
-% $$$             elmtstr = '';
-% $$$             if numel(w1) > 1
-% $$$                 elmtstr = ['(element ', num2str(i), ')'];
-% $$$             end
-% $$$
-% $$$             ok = false;
-% $$$             if numel(w1) > 1
-% $$$                 mess = [base_message, ' ', elmtstr];
-% $$$             else
-% $$$                 mess = base_message;
-% $$$             end
-% $$$             return
-% $$$         end
-% $$$     end
+base_message = 'Objects being compared are not both sqw-type or both dnd-type';
+for i = 1:numel(w1)
+    if class(w1(i)) ~= class(w2(i))
+        elmtstr = '';
+        if numel(w1) > 1
+            elmtstr = ['(element ', num2str(i), ')'];
+        end
+
+        ok = false;
+        if numel(w1) > 1
+            mess = [base_message, ' ', elmtstr];
+        else
+            mess = base_message;
+        end
+        return
+    end
+end
 
 % Perform comparison
 sz = size(w1);
