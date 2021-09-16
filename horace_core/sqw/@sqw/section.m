@@ -42,7 +42,7 @@ if ndim==0  % no sectioning possible
     error('HORACE:sqw:invalid_argument', 'Cannot section a zero dimensional object')
 end
 
-if any(cellfun(@(x)(dimensions(x)~=ndim), win(2:end)))
+if numel(win) > 1 && any(cellfun(@(x)(dimensions(x)~=ndim), win(2:end)))
     error('HORACE:sqw:invalid_argument', 'All objects must have same dimensionality for sectioning to work')
 end
 
