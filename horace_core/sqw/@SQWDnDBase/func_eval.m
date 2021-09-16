@@ -78,7 +78,7 @@ function wout = func_eval (win, func_handle, pars, varargin)
 %       >>  wout = func_eval(dnd(win), func_handle, pars)
 %    (note, if revert to latter, if array input then all objects must have same dimensionality)
 %
-
+psidisp('~/dump/falgla', win, func_handle, pars, varargin{:})
 [func_handle, pars, opts] = parse_args(win, func_handle, pars, varargin{:});
 
 % Input sqw objects must have equal no. of dimensions in image or the input
@@ -178,11 +178,13 @@ function [func_handle, pars, opts] = parse_args(win, func_handle, pars, varargin
     [~, ~, all_flag, args] = parse_char_options(varargin, {'-all'});
 
     parser = inputParser();
+    parser.StructExpand = false;
     parser.addRequired('func_handle', @(x) isa(x, 'function_handle'));
     parser.addRequired('pars');
     parser.addParameter('outfile', {}, @(x) iscellstr(x) || ischar(x) || isstring(x));
     parser.addParameter('all', all_flag, @islognumscalar);
     parser.addParameter('filebacked', false, @islognumscalar);
+    psidisp('~/dump/what', func_handle, pars, args{:})
     parser.parse(func_handle, pars, args{:});
     opts = parser.Results;
 
