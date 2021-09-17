@@ -13,9 +13,6 @@ function ok=finish_task_tester(worker_controls_string,varargin)
 %             neighboring workers, used as sources of messages to
 %             test cpp_mpi communications.
 
-comp_name = getComputerName();
-[is_daas,size_suffix] = is_idaaas(comp_name);
-warning('HERBERT:finish_task_tester',' is_idaaas: %d, size_suffix: %s\n',is_daas,size_suffix);
 if isempty(which('herbert_init.m'))
     herbert_on();
 end
