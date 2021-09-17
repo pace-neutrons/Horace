@@ -15,7 +15,7 @@ function [success,folder_path,mess]=try_to_create_folder(location,folder_name,ex
 % folder_path -- the path to the created folder.
 % mess        -- empty if success or reason for the issue if it was not.
 %
-folder_path = [location,filesep,folder_name];
+folder_path = fullfile(location,folder_name);
 if nargin<3
     ext = '';
 end

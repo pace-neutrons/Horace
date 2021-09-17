@@ -26,7 +26,7 @@ classdef test_config_base < TestCase
             if is_file(config_file)
                 delete(config_file);
             end
-              
+            
             
             assertEqual('beee',config.my_prop);
             
@@ -42,30 +42,31 @@ classdef test_config_base < TestCase
             assertEqual('meee',config2.my_prop);
             
             config2.returns_defaults = true;
-            assertEqual('beee',config2.my_prop);            
+            assertEqual('beee',config2.my_prop);
             
             config_store.instance().clear_config(config,'-file')
         end
         %
         function test_set_extern_folder_with_config_name(~)
-            wkf = fullile(tmp_dir(),'mprogs_config_blabla');
+            wkf = fullfile(tmp_dir(),'mprogs_config_blabla');
             config_store.instance().set_config_path(wkf);
             cfn = config_store.instance().config_folder_name;
             assertEqual(cfn,'mprogs_config_blabla');
             
-            assertEqual(config_store_instance().config_folder_name,...
-                fullfile(wkf,'mprogs_config_blabla'));
-        end        
+            assertEqual(config_store.instance().config_folder,wkf);
+        end
         %
         function test_set_extern_folder_no_config_name(~)
             wkf = tmp_dir();
             config_store.instance().set_config_path(wkf);
             cfn = config_store.instance().config_folder_name;
+            % config folder name is system dependent
+            %assertEqual(cfn,'mprogs_config_blabla');
             
-            assertEqual(config_store_instance().config_folder_name,...
+            assertEqual(config_store.instance().config_folder,...
                 fullfile(wkf,cfn));
         end
-   
+        
         function test_store_restore_in_file(~)
             ws=warning('off','CONFIG_STORE:restore_config');
             clob = onCleanup(@()warning(ws));
@@ -78,8 +79,8 @@ classdef test_config_base < TestCase
             if is_file(config_file)
                 delete(config_file);
             end
-                          
-            assertEqual('beee',config.my_prop);            
+            
+            assertEqual('beee',config.my_prop);
             
             config.my_prop = 'meee';
             assertEqual('meee',config.my_prop);
@@ -87,10 +88,10 @@ classdef test_config_base < TestCase
             config1 = config_base_tester();
             assertEqual('meee',config1.my_prop);
             
-
+            
             set(config_base_tester,'my_prop','veee','-buffer');
             config1 = config_base_tester();
-            assertEqual('veee',config1.my_prop);            
+            assertEqual('veee',config1.my_prop);
             
             % clear configuration from memory
             config_store.instance().clear_config(config);
@@ -99,11 +100,11 @@ classdef test_config_base < TestCase
             assertEqual('meee',config2.my_prop);
             
             config2.returns_defaults = true;
-            assertEqual('beee',config2.my_prop);            
+            assertEqual('beee',config2.my_prop);
             
             config_store.instance().clear_config(config,'-file')
         end
-           
+        
     end
     
 end

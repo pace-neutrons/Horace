@@ -20,56 +20,7 @@ classdef config_store < handle
         saveable_;
         config_folder_name_ = 'mprogs_config';
     end
-    
-    methods(Access=private)
-        % Guard the constructor against external invocation.  We only want
-        % to allow a single instance of this class.  See description in
-        % Singleton superclass.
-        function newStore = config_store(varargin)
-            % create and initialize config_store;
-            p = inputParser;
-            addOptional(p, 'path', '', @(x)(validateattributes(x,...
-                {'char', 'string'}, {'scalartext', 'nonempty'})));
-            parse(p, varargin{:});
-            newPath = p.Results.path;
-            
-            % initialize configurations storage.
-            newStore.config_storage_ = struct();
-            newStore.saveable_ = containers.Map();
-            
-            [is_virtual,type]=is_idaaas();
-            if is_virtual
-                newStore.config_folder_name_ = ['mprogs_config_',type];
-            end
-            
-            [is_jenk,build_name,workspace] = is_jenkins();
-            if is_jenk
-                % remove all possible folder paths of the build name
-                % to be able to create valid file name.
-                [~,build_name] = fileparts(build_name);
-                newStore.config_folder_name_ = ['mprogs_config_',build_name];
-            end
-            
-            if ~isempty(newPath)
-                [fp,fn] = fileparts(newPath);
-                cfn = config_store.instance().config_folder_name;
-                if strcmpi(fn,cfn)
-                    newStore.config_folder_ = make_config_folder(cfn,fp);
-                else
-                    newStore.config_folder_ = make_config_folder(cfn,newPath);
-                end
-            else
-                % Initialise default config folder path according to
-                % configuration
-                if is_jenk
-                    newStore.config_folder_ = make_config_folder(newStore.config_folder_name, workspace);
-                else
-                    newStore.config_folder_ = make_config_folder(newStore.config_folder_name);
-                end
-            end
-        end
-    end
-    
+    %
     methods(Static)
         function obj = instance(varargin)
             % Get instance of unique config_store implementation.
@@ -223,7 +174,7 @@ classdef config_store < handle
                     cfcl.(cl_fld{j}) = cfdata.(cl_fld{j});
                 end
             end
-        end        
+        end
         %------------------------------------------------------------------
         % Two methods responsible for the class to be configured savable
         % savable property is not stored to HDD and is the property
@@ -414,10 +365,10 @@ classdef config_store < handle
         end
         %
         function set_config_path(obj,new_path,varargin)
-            % set new config store path. 
+            % set new config store path.
             % usage:
             % config_store.instance(new_path,['-clean']);
-            % 
+            %
             % Inputs:
             % new_path -- the path to store new configuration
             % Optional:
@@ -432,7 +383,7 @@ classdef config_store < handle
             if nargin>2
                 obj.instance(new_path);
             else
-                obj.config_folder_ = new_path;
+                obj.build_and_set_config_folder_(new_path);
             end
         end
         
@@ -441,5 +392,73 @@ classdef config_store < handle
             storage = fieldnames(this.config_storage_);
         end
         
+    end
+    methods(Access=private)
+        % Guard the constructor against external invocation.  We only want
+        % to allow a single instance of this class.  See description in
+        % Singleton superclass.
+        function newStore = config_store(varargin)
+            % create and initialize config_store;
+            p = inputParser;
+            addOptional(p, 'path', '', @(x)(validateattributes(x,...
+                {'char', 'string'}, {'scalartext', 'nonempty'})));
+            parse(p, varargin{:});
+            new_path = p.Results.path;
+            
+            % initialize configurations storage.
+            newStore.config_storage_ = struct();
+            newStore.saveable_ = containers.Map();
+            
+            build_and_set_config_folder_(newStore,new_path);
+        end
+        %
+        function build_and_set_config_folder_(obj,new_path)
+            % construct the name of the config folder and set it up
+            % as config folder at the path specified.
+            %
+            % If new_path does not exist or is not defined, build and set
+            % config folder in default location, specified by
+            % make_config_folder routine
+            %
+            
+            %if ~exist('new_path','var') % not currently necessary as is
+            %                              always called with new_path,
+            %                              but to be aware of the futuire
+            %    new_path = '';
+            %end
+            [is_virtual,type]=is_idaaas();
+            if is_virtual
+                obj.config_folder_name_ = ['mprogs_config_',type];
+            end
+            [is_jenk,build_name,workspace] = is_jenkins();
+            if is_jenk                % remove all possible folder paths of the build name
+                % to be able to create valid file name.
+                [~,build_name] = fileparts(build_name);
+                obj.config_folder_name_ = ['mprogs_config_',build_name];
+            end
+            if ~isempty(new_path)
+                [fp,fn] = fileparts(new_path);
+                if contains(fn,'mprogs_config_') % use new path config folder
+                    %                              name provided as input
+                    obj.config_folder_name_ = fn;
+                end
+                
+                cfn = config_store.instance().config_folder_name;
+                if strcmpi(fn,cfn)  % build config folder with the name,
+                    % specified as defined on level up then
+                    obj.config_folder_ = make_config_folder(cfn,fp);
+                else  % build config folder under the new path
+                    obj.config_folder_ = make_config_folder(cfn,new_path);
+                end
+            else
+                % Initialise default config folder path according to
+                % configuration
+                if is_jenk % build config folder on the Jenkins workspace
+                    obj.config_folder_ = make_config_folder(obj.config_folder_name, workspace);
+                else % build defailt config folder somewhere on available config path
+                    obj.config_folder_ = make_config_folder(obj.config_folder_name);
+                end
+            end
+        end
     end
 end
