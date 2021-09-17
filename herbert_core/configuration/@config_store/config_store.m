@@ -437,16 +437,19 @@ classdef config_store < handle
                 obj.config_folder_name_ = ['mprogs_config_',build_name];
             end
             if ~isempty(new_path)
-                [fp,fn] = fileparts(new_path);
+                [file_path,fn] = fileparts(new_path);
                 if contains(fn,'mprogs_config_') % use new path config folder
                     %                              name provided as input
                     obj.config_folder_name_ = fn;
+                    use_external_path = true;
+                else
+                    use_external_path = false;
                 end
                 
                 cfn = config_store.instance().config_folder_name;
-                if strcmpi(fn,cfn)  % build config folder with the name,
+                if use_external_path || strcmpi(fn,cfn)  % build config folder with the name,
                     % specified as defined on level up then
-                    obj.config_folder_ = make_config_folder(cfn,fp);
+                    obj.config_folder_ = make_config_folder(cfn,file_path);
                 else  % build config folder under the new path
                     obj.config_folder_ = make_config_folder(cfn,new_path);
                 end
