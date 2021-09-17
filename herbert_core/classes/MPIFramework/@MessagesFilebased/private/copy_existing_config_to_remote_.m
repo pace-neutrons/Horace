@@ -10,6 +10,6 @@ try
 catch ME
     warning('HERBERT:MessagesFilebased:runtime_error',...
         ' Error in copy_existing contig_to_remote:\n %s',...
-        fevalc('disp(ME)'));
+        evalc('disp(ME)'));
 end
 
