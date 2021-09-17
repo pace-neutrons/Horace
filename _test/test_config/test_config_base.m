@@ -47,6 +47,15 @@ classdef test_config_base < TestCase
             config_store.instance().clear_config(config,'-file')
         end
         %
+        function test_set_extern_config_folder_with_config_name(~)
+            wkf = fullfile(tmp_dir(),'mprogs_config_blabla');
+            config_store.set_config_folder(wkf);
+            cfn = config_store.instance().config_folder_name;
+            assertEqual(cfn,'mprogs_config_blabla');
+            
+            assertEqual(config_store.instance().config_folder,wkf);
+        end
+        
         function test_set_extern_folder_with_config_name(~)
             wkf = fullfile(tmp_dir(),'mprogs_config_blabla');
             config_store.instance().set_config_path(wkf);

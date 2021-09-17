@@ -409,10 +409,10 @@ classdef config_store < handle
             newStore.config_storage_ = struct();
             newStore.saveable_ = containers.Map();
             
-            build_and_set_config_folder_(newStore,new_path);
+            newStore=build_and_set_config_folder_(newStore,new_path);
         end
         %
-        function build_and_set_config_folder_(obj,new_path)
+        function obj=build_and_set_config_folder_(obj,new_path)
             % construct the name of the config folder and set it up
             % as config folder at the path specified.
             %
@@ -446,7 +446,7 @@ classdef config_store < handle
                     use_external_path = false;
                 end
                 
-                cfn = config_store.instance().config_folder_name;
+                cfn = obj.config_folder_name;
                 if use_external_path || strcmpi(fn,cfn)  % build config folder with the name,
                     % specified as defined on level up then
                     obj.config_folder_ = make_config_folder(cfn,file_path);
