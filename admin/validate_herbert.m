@@ -105,7 +105,7 @@ clear config_store;
 if talkative
     argi = {'-verbose'};
 else
-    hc.log_level = -1; % turn off herbert informational output    
+    hc.log_level = -1; % turn off herbert informational output
     argi = {};    
 end
 
