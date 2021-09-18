@@ -175,7 +175,7 @@ public:
         pError[ind] += error;
         pNpix[ind] += 1;
     }
-    void combibe_storage(double *const s, double *const e, double *const npix, long i) {
+    void combine_storage(double *const s, double *const e, double *const npix, long i) {
         for (int ns = 0; ns < num_threads; ns++) {
             size_t ind = ns * distr_size + i;
             s[i] += pSignal[ind];

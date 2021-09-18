@@ -338,7 +338,7 @@ bool bin_pixels(double* s, double* e, double* npix,
 #pragma omp single
         {
             for (long i = 0; i < comb_size; i++) {
-                pStor->combibe_storage(s, e, npix, i);
+                pStor->combine_storage(s, e, npix, i);
             }
         }
         //    sqw_data.s=sqw_data.s./sqw_data.npix;       % normalize data

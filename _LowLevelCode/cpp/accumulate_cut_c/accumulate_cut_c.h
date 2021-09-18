@@ -274,7 +274,7 @@ mwSize accumulate_cut(double* s, double* e, double* npix,
 #pragma omp for
             for (long i = 0; i < distribution_size; i++)
             {
-                pStor->combibe_storage(s, e, npix, i);
+                pStor->combine_storage(s, e, npix, i);
             }
         }
     } // end parallel region
