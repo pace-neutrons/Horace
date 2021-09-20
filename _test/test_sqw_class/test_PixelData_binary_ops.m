@@ -1,4 +1,4 @@
-classdef test_PixelData_binary_ops < TestCase
+classdef test_PixelData_binary_ops < TestCase & common_state_holder
     
     properties
         BYTES_PER_PIX = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
@@ -7,7 +7,6 @@ classdef test_PixelData_binary_ops < TestCase
         
         FLOAT_TOLERANCE = 4.75e-4;
         
-        this_dir = fileparts(mfilename('fullpath'));
         test_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
         test_sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw';
         ref_raw_pix_data = [];
@@ -18,17 +17,18 @@ classdef test_PixelData_binary_ops < TestCase
         pix_with_pages;
         
         old_warn_state;
+        %
+        call_count_transfer_;
     end
     
     methods
         
-        function obj = test_PixelData_binary_ops(~)
-            obj = obj@TestCase('test_PixelData_binary_ops');
-            
-            
-            % Swallow any warnings for when pixel page size set too small
-            obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
-            
+        function obj = test_PixelData_binary_ops(name)
+            if ~exist('name','var')
+                name = 'test_PixelData_binary_ops';
+            end
+            obj = obj@TestCase(name);
+                        
             % Load a 1D SQW file
             sqw_test_obj = sqw(obj.test_sqw_file_path);
             obj.ref_raw_pix_data = sqw_test_obj.data.pix.data;
@@ -37,22 +37,10 @@ classdef test_PixelData_binary_ops < TestCase
             obj.pix_in_memory_base = sqw_test_obj.data.pix;
             obj.pix_with_pages_base = PixelData(obj.test_sqw_file_path, page_size);
         end
-        
-        function delete(obj)
-            path_links = strsplit(path(),filesep);
-            if ismember(fullfile(obj.this_dir, 'utils'),path_links)
-                rmpath(fullfile(obj.this_dir, 'utils'));
-            end
-            warning(obj.old_warn_state);
-        end
-        
+                
         function setUp(obj)
-            addpath(fullfile(obj.this_dir, 'utils'));
             obj.pix_in_memory = copy(obj.pix_in_memory_base);
             obj.pix_with_pages = copy(obj.pix_with_pages_base);
-        end
-        function tearDown(obj)
-            rmpath(fullfile(obj.this_dir, 'utils'));
         end
         
         function test_plus_with_scalar_adds_operand_to_signal_with_unpaged_pix(obj)

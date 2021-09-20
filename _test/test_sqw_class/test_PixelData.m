@@ -1,7 +1,6 @@
-classdef test_PixelData < TestCase
+classdef test_PixelData < TestCase & common_state_holder
     
     properties
-        old_warn_state;
         
         SMALL_PG_SIZE = 1e6;  % 1Mb
         ALL_IN_MEM_PG_SIZE = 1e12;
@@ -48,12 +47,8 @@ classdef test_PixelData < TestCase
     methods
         
         function obj = test_PixelData(~)
-            obj = obj@TestCase('test_PixelData');
+            obj = obj@TestCase('test_PixelData');            
             
-            addpath(fullfile(obj.this_dir, 'utils'));
-            
-            % Swallow any warnings for when pixel page size set too small
-            obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
             obj.raw_pix_range = obj.get_ref_range(obj.raw_pix_data);
             
             source_sqw_file = java.io.File(pwd(), obj.tst_source_sqw_file_path);
@@ -74,14 +69,7 @@ classdef test_PixelData < TestCase
             % Construct an object from file accessor with small page size
             obj.pix_data_small_page = PixelData(f_accessor, obj.SMALL_PG_SIZE);
         end
-        
-        function delete(obj)
-            if ismember(fullfile(obj.this_dir, 'utils'), split(path, pathsep))
-                rmpath(fullfile(obj.this_dir, 'utils'));
-            end
-            warning(obj.old_warn_state);
-        end
-        
+                
         % --- Tests for in-memory operations ---
         function test_default_construction_sets_empty_pixel_data(~)
             pix_data = PixelData();
