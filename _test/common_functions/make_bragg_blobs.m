@@ -66,7 +66,7 @@ rlu_corr=b\(R*b0);
 qrlu=rlu_corr*[qh(:),qk(:),ql(:)]';
 dqrlu=qrlu-round(qrlu);
 dq=b*dqrlu;     % convert back to orthonormal frame:  B^-1*Q  = Q[hkl]
-weight=exp(-(sum((dq/qsig).^2,1) + (en(:)'/esig).^2)/2);
+weight=amp*exp(-(sum((dq/qsig).^2,1) + (en(:)'/esig).^2)/2);
 weight=reshape(weight,size(qh));
 if nargin > 8 % debug mode, used in test cuts. 
      % add constant to pixels

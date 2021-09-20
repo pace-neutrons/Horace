@@ -25,7 +25,7 @@ methods
         lt_pix_size = floor(pix_size) - 1;
 
         f = @() set(hor_config, obj.PIXEL_PAGE_SIZE_OPT, lt_pix_size);
-        assertExceptionThrown(f, 'PIXELDATA:validate_mem_alloc');
+        assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
     end
 
 end
