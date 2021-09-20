@@ -25,7 +25,6 @@ classdef test_PixelData_binary_ops < TestCase
         function obj = test_PixelData_binary_ops(~)
             obj = obj@TestCase('test_PixelData_binary_ops');
             
-            addpath(fullfile(obj.this_dir, 'utils'));
             
             % Swallow any warnings for when pixel page size set too small
             obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
@@ -40,13 +39,20 @@ classdef test_PixelData_binary_ops < TestCase
         end
         
         function delete(obj)
-            rmpath(fullfile(obj.this_dir, 'utils'));
+            path_links = strsplit(path(),filesep);
+            if ismember(fullfile(obj.this_dir, 'utils'),path_links)
+                rmpath(fullfile(obj.this_dir, 'utils'));
+            end
             warning(obj.old_warn_state);
         end
         
         function setUp(obj)
+            addpath(fullfile(obj.this_dir, 'utils'));
             obj.pix_in_memory = copy(obj.pix_in_memory_base);
             obj.pix_with_pages = copy(obj.pix_with_pages_base);
+        end
+        function tearDown(obj)
+            rmpath(fullfile(obj.this_dir, 'utils'));
         end
         
         function test_plus_with_scalar_adds_operand_to_signal_with_unpaged_pix(obj)
