@@ -82,7 +82,7 @@ classdef test_sqw_main < TestCase
             fpath = fullfile(obj.tests_dir, 'test_sqw_file', 'sqw_1d_2.sqw');
             s = struct();
             f = @() sqw(fpath, 'pixel_page_size', s);
-            assertExceptionThrown(f, 'PIXELDATA:validate_mem_alloc');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
 
     end
