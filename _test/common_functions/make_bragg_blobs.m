@@ -1,6 +1,7 @@
 function weight = make_bragg_blobs (qh,qk,ql,en,p,lattice0,lattice,rotvec,varargin)
 % Blobs at Bragg positions on a lattice rotated and scaled w.r.t. input lattice
 %
+%   >> weight = make_bragg_blobs (qh,qk,ql,en,p,lattice0)
 %   >> weight = make_bragg_blobs (qh,qk,ql,en,p,lattice0,lattice,rotvec)
 %
 % The purpose of this routine is to enable the spectral weight to be
@@ -36,18 +37,30 @@ function weight = make_bragg_blobs (qh,qk,ql,en,p,lattice0,lattice,rotvec,vararg
 
 % Author: T.G.Perring
 
-qsig=p(1)/sqrt(log(256));
-esig=p(2)/sqrt(log(256));
+amp=p(1);
+qsig=p(2)/sqrt(log(256));
+esig=p(3)/sqrt(log(256));
 
-% Conversion matrix to turn h,k,l into corresponding values for the lattice defined by parameters
+% Conversion matrix to turn h,k,l into correponding values for the lattice defined by parameters
+% -------------------------------------------------------------------------------------
+% b0 is the matrix to convert rlu in the reference lattice to crystal Cartesian coords
 [b0,arlu,angrlu,mess] = bmatrix(lattice0(1:3),lattice0(4:6));
 if ~isempty(mess), error(mess), end
 
+% b is the matrix to convert rlu in the true lattice to crystal Cartesian coords
+if exist('lattice','var')
 [b,arlu,angrlu,mess] = bmatrix(lattice(1:3),lattice(4:6));
 if ~isempty(mess), error(mess), end
+else
+    b=b0;
+end
 
+if exist('rotvec','var')
 R=rotvec_to_rotmat2(rotvec');
-rlu_corr=b\(R*b0); % Converts to Q[A^-1]
+else
+    R=eye(3);
+end
+rlu_corr=b\(R*b0);
 
 % Get h,k,l in new lattice and get weight
 qrlu=rlu_corr*[qh(:),qk(:),ql(:)]';

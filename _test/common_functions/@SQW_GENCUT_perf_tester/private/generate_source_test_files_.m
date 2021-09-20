@@ -8,7 +8,7 @@ if n_files ==0
     return;
 end
 filelist = cell(n_files,1);
-if obj.build_test_sqw_file
+if obj.build_sqw_file_directly
     file_name_form = [obj.template_name_form_,'.tmp'];
     if is_file(obj.sqw_file)
         hh = head_sqw(obj.sqw_file);
@@ -48,7 +48,7 @@ for i=1:n_files
     wtmp=sqw_eval(wtmp{1},@make_bragg_blobs,{[qfwhh,efwhh],[alatt,angdeg],[alatt_true,angdeg_true],rotvec,1});
     
     
-    if obj.build_test_sqw_file
+    if obj.build_sqw_file_directly
         save(wtmp,filelist{i});
     else
         rd = rundatah(wtmp);
@@ -57,7 +57,7 @@ for i=1:n_files
 end
 %
 
-if obj.build_test_sqw_file
+if obj.build_sqw_file_directly
     write_nsqw_to_sqw(filelist,obj.sqw_file);
     hc = hor_config;
     if hc.delete_tmp

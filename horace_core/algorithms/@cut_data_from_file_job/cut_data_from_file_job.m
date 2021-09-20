@@ -14,16 +14,16 @@ classdef cut_data_from_file_job < JobExecutor
     properties(Access=protected)
         is_finished_ = false;
     end
-
+    
     methods
         function obj = cut_data_from_file_job()
             obj = obj@JobExecutor();
         end
-
+        
         function obj=do_job(obj)
             % Run main accumulation for a worker.
             %
-
+            
             % unpack input data transferred though MPI channels for
             % runfiles_to_sqw to understand.
             %common_par = this.common_data_;
@@ -31,10 +31,10 @@ classdef cut_data_from_file_job < JobExecutor
             for i=1:numel(sqw_loaders)
                 sqw_loaders{i} = sqw_loaders{i}.activate();
             end
-
+            
             % Do accumulation
             [obj.s_accum,obj.e_accum,obj.npix_accum] = obj.accumulate_headers(sqw_loaders);
-
+            
         end
         function  obj=reduce_data(obj)
             % method to summarize all particular data from all workers.
@@ -43,7 +43,7 @@ classdef cut_data_from_file_job < JobExecutor
                 error('ACCUMULATE_HEADERS_JOB:runtime_error',...
                     'MPI framework is not initialized');
             end
-
+            
             if mf.labIndex == 1
                 all_messages = mf.receive_all('all','data');
                 for i=1:numel(all_messages)
@@ -59,7 +59,7 @@ classdef cut_data_from_file_job < JobExecutor
                 the_mess = aMessage('data');
                 the_mess.payload = struct('s',obj.s_accum,...
                     'e',obj.e_accum,'npix',obj.npix_accum);
-
+                
                 [ok,err]=mf.send_message(1,the_mess);
                 if ok ~= MESS_CODES.ok
                     error('ACCUMULATE_HEADERS_JOB:runtime_error',err);
@@ -73,7 +73,8 @@ classdef cut_data_from_file_job < JobExecutor
         end
     end
     methods(Static)
-        function [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = cut_data_from_file(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
+        function [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = ...
+                cut_data_from_file(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
                 proj,pax, nbin)
             % Accumulates pixels retrieved from sqw file into bins defined by cut parameters
             %
@@ -121,51 +122,74 @@ classdef cut_data_from_file_job < JobExecutor
             % Note:
             % - Redundant input variables in that pix_range_step(2,pax)=nbin in implementation of 19 July 2007
             % - Aim to take advantage of in-place working within accumulate_cut
-
+            
             % T.G.Perring   19 July 2007 (based on earlier prototype TGP code)
             %
-            [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = cut_data_from_file_(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
+            [s, e, npix, pix_range_step, pix, npix_retain, npix_read] = ...
+                cut_data_from_file_(fid, nstart, nend, keep_pix, pix_tmpfile_ok,...
                 proj,pax, nbin);
-
+            
         end
-        function [s, e, npix, pix_range_step, npix_retain, ok, ix] = accumulate_cut(s, e, npix, pix_range_step, keep_pix, ...
+        function [s, e, npix, pix_range_step, npix_retain, ok, ix] = ...
+                accumulate_cut(s, e, npix, pix_range_step, keep_pix, ...
                 v, proj, pax,keep_precision)
             % Accumulate signal and pixel if requested into the output arrays
             %
-            %   >> [s,e,npix,npix_retain] = accumulate_cut (s, e, npix, v, pix_range_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, keep_pix)
+            %>> [s,e,npix,npix_retain] = accumulate_cut s, e, npix, pix_range_step, keep_pix, 
+            %                            v, proj, pax,[keep_precision])
             %
             % Input: (* denotes output argument with same name exists - exploits in-place working of Matlab R2007a)
             % ------
-            % * s               Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
+            % * s               Array of accumulated signal from all 
+            %                   contributing pixels (dimensions match the plot axes)
             % * e               Array of accumulated variance
             % * npix            Array of number of contributing pixels
-            % * pix_range_step Actual range of contributing pixels
-            %   keep_pix        Set to true if wish to retain the information about individual pixels; set to false if not
-            %   v               A PixelData object
-            %
+            % * pix_range_step  Actual range of contributing pixels
+            %   keep_pix        Set to true if wish to retain the information
+            %                   about individual pixels; set to false if not
+            %   v               A PixelData object, containing input pixels
+            %                   information
             %   proj            the projection class, used to transform pixels info in
-            %                   crystal cartezian coordinate sytem (as v is into the coordinate system
+            %                   crystal cartezian coordinate sytem 
+            %                   (as v is into the coordinate system
             %                   of the cut
-            %   pax             Indices of plot axes (with two or more bins) [row vector]
+            %   pax             Indices of plot axes (with two or more bins) 
+            %                   [row vector]
+            %
+            % Optional:
+            % ---------
+            %   keep_precision  if provided and true, prevents from sinlge
+            %                   precision pixels provided as input
+            %                   being converted to double precision. 
+            %                   Extreamly useful in
+            %                   filebased cuts, as the data, read from disk
+            %                   as single precision are not converted to
+            %                   double, processed as double and written
+            %                   back as single again.
+            %                   By default, false
             %
             % Output:
             % -------
-            %   s               Array of accumulated signal from all contributing pixels (dimensions match the plot axes)
+            %   s               Array of accumulated signal from all 
+            %                   contributing pixels (dimensions match the plot axes)
             %   e               Array of accumulated variance
             %   npix            Array of number of contributing pixels
-            %   pix_range_step Actual range of contributing pixels
+            %   pix_range_step  Actual range of contributing pixels
             %   npix_retain     Number of pixels that contribute to the cut
-            %   ok              If keep_pix==true: v(:,ok) are the pixels that are retained; otherwise =[]
-            %   ix              If keep_pix==true: column vector of single bin index of each retained pixel; otherwise =[]
+            %   ok              If keep_pix==true: v(:,ok) are the pixels
+            %                   that are retained; otherwise =[]
+            %   ix              If keep_pix==true: column vector of single 
+            %                   bin index of each retained pixel; otherwise =[]
             %
             %
             if ~exist('keep_precision','var')
                 keep_precision = false;
             end
-            [s, e, npix, pix_range_step, npix_retain, ok, ix] = accumulate_cut_ (s, e, npix, pix_range_step, keep_pix, ...
+            [s, e, npix, pix_range_step, npix_retain, ok, ix] = ...
+                accumulate_cut_ (s, e, npix, pix_range_step, keep_pix, ...
                 v, proj, pax,keep_precision);
         end
-
+        
         function pix_comb_info = accumulate_pix_to_file(varargin)
             % Accumulate pixel data into temporary files and return a pix_combine_info
             % object that manages the files
@@ -184,10 +208,10 @@ classdef cut_data_from_file_job < JobExecutor
             % npix             The npix array associated with this chunk of pixels
             % max_buf_size     The maximum buffer size for reading/writing
             % del_npix_retain  Number of pixels retained in this chunk of the cut
-            % 
+            %
             pix_comb_info = accumulate_pix_to_file_(varargin{:});
         end
-
+        
         function [common_par,loop_par] = pack_job_pars(sqw_loaders)
             % Pack the the job parameters into the form, suitable
             % for division between workers and MPI transfer.

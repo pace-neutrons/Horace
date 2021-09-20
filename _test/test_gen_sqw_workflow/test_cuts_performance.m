@@ -1,7 +1,7 @@
 classdef test_cuts_performance < SQW_GENCUT_perf_tester
     properties
         % how many test files to use to define the perfromance results
-        n_test_files = 20;
+        n_test_files = 10;
         cleanup_config_holder
         skip_mex_tests = false;
     end
@@ -16,9 +16,9 @@ classdef test_cuts_performance < SQW_GENCUT_perf_tester
             test_res_filename = fullfile(the_test_loc,'CUTS_PERF_PerfRez.xml');
             obj = obj@SQW_GENCUT_perf_tester(test_name,test_res_filename);
             % this switch, if True, disables generation of target sqw file
-            % if the file is present and the number of contributing files
-            % is equal to the number of files to use
-            obj.build_test_sqw_file = true;
+            % if the file already exists and the number of contributing files
+            % is equal to the number of files provided in n_test_files.
+            obj.build_sqw_file_directly = false;
             % this expression will generate test files and build sqw file
             obj.n_files_to_use = obj.n_test_files;
             

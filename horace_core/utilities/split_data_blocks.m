@@ -6,21 +6,26 @@ function [chunks, cumulative_sum] = split_data_blocks(start_pos,block_sizes, buf
 % ------
 % start_pos          A vector of numeric, non-negative, values describing a
 %                    positions of blocks on some media
-% block_sizes        A vector of numeric, non-negative, values describing
-%                    block sizes, to process. Its assumed that the block is
-%                    continuously located on the media.
+% block_sizes        A vector of numeric non-negative values describing
+%                    block sizes to process. Its assumed that the block is
+%                    continuously located on the media starging at start_pos
+%                    and extending to block_size. The next position can not
+%                    lie within previous [start_pos:start_pos+block_size]
+%                    but may be at start_pos+block_size+1.
+%
 % buf_size           A positive value specifying the limiting size for each
 %                    sub-block, the initial values need to be split into
 %                    The actual size should be the range from this size to
-%                    double of the buffer size
+%                    double of the buffer size.
 %
 %
 % Output:
 % -------
 % chunks          Cell array of cells, containing parts of the start_val
 %                 and block_sizes array.
-%                 {start_val(part),block_sizes(part)}
-%                 split in such way, that sum(block_sizes(part))==max_chunk_sum
+%                 {start_val(part),block_sizes(part)},
+%                 split in such way, that
+%                 sum(block_sizes(part))==max_chunk_sum
 %                 for every chunk except the final one. The final may
 %                 sum for final chunk may contain less data, i.e.
 %                 sum(block_sizes(last part))<=max_chunk_sum
@@ -51,7 +56,7 @@ last_block_pos = block_sizes+start_pos;
 % remove border between adjacent blocks
 remove_border  = start_pos(2:end)==last_block_pos(1:end-1);
 if any(remove_border)
-    % keep boder positions, which should not be removed
+    % keep boder positions which should not be removed
     start_pos= start_pos([true,~remove_border]);
     % number of blocks to keep is equal to the number of borders +1
     % n_unique_blocks = sum(~remove_border)+1;
@@ -80,9 +85,8 @@ if any(block_sizes>2*buf_size) % split big ranges into parts to fit buffer.
     cumulative_sum = cumsum(block_sizes);
 end
 
-
-
-
+% identify  maximal number of chunks, which fit the single sized buffer
+% to avoid multipe reallocations of chunk memory as number of chunks grow.
 max_num_chunks = floor(cumulative_sum(end)/buf_size);
 if max_num_chunks*buf_size<cumulative_sum(end)
     max_num_chunks = max_num_chunks+1;
@@ -94,12 +98,17 @@ if (max_num_chunks == 1) || (ceil(cumulative_sum(end)/buf_size) == 1)
     return
 end
 
+% split data into buffer-sized chunks, trying to place split border at the
+% ends of whole data blocks if this is possible.
 chunks = cell(1, max_num_chunks);
 run_sum = buf_size;
 first_ind = 1;
 n_blocks = numel(block_sizes);
 for i=1:max_num_chunks
     n_chunks = i;
+    % find block index such that the sum of all previous blocks is equal or
+    % bigger than buffer size (it can not be larger then 2 buffer sizes due
+    % to previous operations)
     last_ind = find(cumulative_sum >= run_sum,1);
     if isempty(last_ind)
         chunks{i} = {start_pos(first_ind:end),block_sizes(first_ind:end)};
@@ -107,6 +116,8 @@ for i=1:max_num_chunks
     end
     pre_buf_cont_size = sum(block_sizes(first_ind:last_ind-1));
     if pre_buf_cont_size >=0.9*buf_size && block_sizes(last_ind)>0.1*buf_size
+        % select 90% smaller amount of data in the buffer in favour of 110%
+        % larger
         last_ind = last_ind-1;
     end
     chunks{i} = {start_pos(first_ind:last_ind),block_sizes(first_ind:last_ind)};
@@ -114,7 +125,9 @@ for i=1:max_num_chunks
     if first_ind>n_blocks
         break;
     end
-    run_sum = cumulative_sum(last_ind)+buf_size;    
+    % adjust the size of next block as the size of the block selected plus
+    % the size of the buffer
+    run_sum = cumulative_sum(last_ind)+buf_size;
 end
 chunks  = chunks(1:n_chunks);
 

@@ -119,16 +119,16 @@ classdef PixelData < handle
     end
     
     properties (Dependent)
-        % The 1st dimension of the crystal Cartesian orientation (1 x n array) [A^-1]
+        % The 1st dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
         u1;
         
-        % The 2nd dimension of the crystal Cartesian orientation (1 x n array) [A^-1]
+        % The 2nd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
         u2;
         
-        % The 3rd dimension of the crystal Cartesian orientation (1 x n array) [A^-1]
+        % The 3rd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
         u3;
         
-        % The spatial dimensions of the crystal Cartesian orientation (3 x n array)
+        % The spatial dimensions of the Crystal Cartesian orientation (3 x n array)
         q_coordinates;
         
         % The array of energy deltas of the pixels (1 x n array) [meV]
@@ -238,23 +238,23 @@ classdef PixelData < handle
         
         function validate_mem_alloc(mem_alloc)
             if ~isnumeric(mem_alloc)
-                error('PIXELDATA:validate_mem_alloc', ...
+                error('HORACE:PixelData:invalid_argument', ...
                     ['Invalid mem_alloc. ''mem_alloc'' must be numeric, ' ...
                     'found class ''%s''.'], class(mem_alloc));
             elseif ~isscalar(mem_alloc)
-                error('PIXELDATA:validate_mem_alloc', ...
+                error('HORACE:PixelData:invalid_argument', ...
                     ['Invalid mem_alloc. ''mem_alloc'' must be a scalar, ' ...
                     'found size ''%s''.'], mat2str(size(mem_alloc)));
             end
             MIN_RECOMMENDED_PG_SIZE = 100e6;
             bytes_in_pix = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
             if mem_alloc < bytes_in_pix
-                error('PIXELDATA:validate_mem_alloc', ...
+                error('HORACE:PixelData:invalid_argument', ...
                     ['Error setting pixel page size. Cannot set page '...
                     'size less than %i bytes, as this is less than one pixel.'], ...
                     bytes_in_pix);
             elseif mem_alloc < MIN_RECOMMENDED_PG_SIZE
-                warning('PIXELDATA:validate_mem_alloc', ...
+                warning('HORACE:PixelData:invalid_argument', ...
                     ['A pixel page size of less than 100MB is not ' ...
                     'recommended. This may degrade performance.']);
             end
@@ -378,7 +378,7 @@ classdef PixelData < handle
             % Input sets underlying data
             if exist('mem_alloc', 'var') && ...
                     (obj.calculate_page_size_(mem_alloc) < size(arg, 2))
-                error('PIXELDATA:PixelData', ...
+                error('HORACE:PixelData:invalid_argument', ...
                     ['The size of the input array cannot exceed the given ' ...
                     'memory_allocation.']);
             end
@@ -466,8 +466,8 @@ classdef PixelData < handle
                     obj.move_to_page(obj.page_number_ + 1, varargin{:});
                 catch ME
                     switch ME.identifier
-                        case 'PIXELDATA:load_page_'
-                            error('PIXELDATA:advance', ...
+                        case 'HORACE:PixelData:runtime_error'
+                            error('HORACE:PixelData:runtime_error', ...
                                 'Attempting to advance past final page of data in %s', ...
                                 obj.file_path);
                         otherwise
@@ -504,7 +504,8 @@ classdef PixelData < handle
                 msg = ['Cannot set pixel data, invalid dimensions. Axis 2 ' ...
                     'must have num elements matching current page size (%i), ' ...
                     'found ''%i''.'];
-                error('PIXELDATA:data', msg, required_page_size, size(pixel_data, 2));
+                error('HORACE:PixelData:invalid_argument', msg,...
+                    required_page_size, size(pixel_data, 2));
             end
             obj.data_ = pixel_data;
             obj.reset_changed_coord_range('coordinates');
@@ -772,7 +773,7 @@ classdef PixelData < handle
             % Load the given page of data from the sqw file backing this object
             pix_idx_start = (page_number - 1)*obj.base_page_size + 1;
             if pix_idx_start > obj.num_pixels
-                error('PIXELDATA:load_page_', ...
+                error('HORACE:PixelData:runtime_error', ...
                     'pix_idx_start exceeds number of pixels in file. %i >= %i', ...
                     pix_idx_start, obj.num_pixels);
             end

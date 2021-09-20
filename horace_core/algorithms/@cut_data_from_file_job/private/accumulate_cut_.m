@@ -50,8 +50,8 @@ function [s, e, npix, img_range_step, npix_retain,ok, ix] = accumulate_cut_(s, e
 ignore_nan=logical(ignore_nan);
 ignore_inf=logical(ignore_inf);
 
-% Temporary and ineffective solution to keep pixels double all through the
-% Horace. TODO: redefine pixels as single and propagate it through all Horace
+% Temporary and inefficient solution to keep pixels double all through the
+% Horace. Needs better logic or may be real pixels 
 if isa(v.data,'single') && ~keep_precision
     set_data(v,'all',double(v.data));
 end
