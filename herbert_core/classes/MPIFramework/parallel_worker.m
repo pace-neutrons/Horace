@@ -60,15 +60,10 @@ try
     % Initialize config files to use on remote session. Needs to be initialized
     % first as may be used by message framework.
     %
-    %
-    % remove configurations, may be loaded in memory while Horace was
-    % initialized.
-    config_store.instance('clear');
     % Place where config files are stored:
-    cfn = config_store.instance().config_folder_name;
-    config_exchange_folder = fullfile(control_struct.data_path,cfn);
-    
-    % set path to the config sources:
+    config_exchange_folder = control_struct.data_path;    
+    % set path to the config sources, remove configurations, 
+    % may be loaded in memory while Horace was initialized.
     config_store.set_config_folder(config_exchange_folder);
     % Initialize the frameworks, responsible for communications within the
     % cluster and between the cluster and the headnode.

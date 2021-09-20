@@ -104,7 +104,7 @@ else
     [mess_names,mid_from,mid_to]=set_empty();
     if nargout > 3
         varargout{1}  = {};
-    end
+end
     return;
 end
 
@@ -169,7 +169,7 @@ if ~isfield(file_struc,'isdir') || ~isfield(file_struc,'name')
     % some odd input may be provided by dir on some OS
     is_mess = false;
     is_lock = false;
-    return;    
+    return;
 end
 
 

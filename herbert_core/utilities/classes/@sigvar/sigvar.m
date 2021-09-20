@@ -72,19 +72,20 @@ classdef sigvar
                     % error:
                     wfields = fieldnames(w);
                     if ~any(ismember(wfields,'s'))
-                        error("HORACE:sigvar:invalid argument", "input structure must contain 's'");
+                        error("HORACE:sigvar:invalid_argument",...
+                            "input structure must contain 's'");
                     end
                     
                     % if w does not have the variance field 'e', an empty
                     % one is created for it:
                     if ~any(ismember(wfields,'e'))
-                        w.e = []
+                        w.e = [];
                     end
                     
                     % if w does not have the mask field 'msk', an empty one
                     % is created for it:
                     if ~any(ismember(wfields,'msk'))
-                        w.msk = []
+                        w.msk = [];
                     end
                     
                     % converts empty fields to appropriately sized arrays

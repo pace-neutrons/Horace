@@ -170,7 +170,7 @@ classdef iMessagesFramework < handle
             %                  workers in the pool.
             %
             %
-            datapath = fileparts(fileparts(fileparts(obj.mess_exchange_folder)));
+            datapath = fileparts(fileparts(obj.mess_exchange_folder));
             if exist('labID', 'var') % Herbert MPI worker. numlabs and labNum are defined by configuration
                 if nargin> 4
                     if ischar(varargin{1})

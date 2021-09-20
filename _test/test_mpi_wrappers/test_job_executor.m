@@ -250,7 +250,7 @@ classdef test_job_executor< MPI_Test_Common
             % will be reverted to the initial value
             cs = config_store.instance();
             obj.current_config_folder = cs.config_folder;
-            clob1 = onCleanup(@()(set_config_path(cs,obj.current_config_folder)));
+            clob1 = onCleanup(@()(set_config_path(cs,obj.current_config_folder,'-clear')));
 
             file1= fullfile(obj.working_dir,'test_jobDispatcher1_nf1.txt');
             file1a= fullfile(obj.working_dir,'test_jobDispatcher1_nf2.txt');

@@ -19,24 +19,25 @@ classdef MPI_Test_Common < TestCase
         worker='worker_4tests'
     end
     properties(Access=private)
+        stored_config_
         old_parallel_config_;
         parallel_config_restore_ = '';
     end
-
+    
     methods
         function obj = MPI_Test_Common(name,varargin)
             obj = obj@TestCase(name);
             persistent old_parallel_config;
             ni = MPI_Test_Common.num_instances();
             MPI_Test_Common.num_instances(ni+1);
-
-
+            
+            
             if nargin > 1
                 obj.cluster_name = varargin{1};
             else
                 obj.cluster_name = 'parpool';
             end
-
+            
             [pc, opc] = set_local_parallel_config();
             if isempty(old_parallel_config) || ni == 1
                 old_parallel_config = opc;
@@ -49,11 +50,11 @@ classdef MPI_Test_Common < TestCase
                 pc.worker = 'worker_4tests_idaaas';
                 obj.worker = 'worker_4tests_idaaas';
             end
-
+            
             obj.old_parallel_config_ = opc;
             obj.parallel_config_restore_ = onCleanup(@()set(parallel_config,opc));
-
-
+            
+            
             if strcmpi(pc.parallel_cluster,'none')
                 obj.ignore_test = true;
                 obj.ignore_cause = 'Unit test to check parallel framework is not available as framework is not installed properly';
@@ -86,13 +87,15 @@ classdef MPI_Test_Common < TestCase
             else
                 obj.ignore_test = false;
             end
-
+            
         end
         %
         function setUp(obj)
             if obj.ignore_test
                 return;
             end
+            obj.stored_config_ = config_store.instance().get_all_configs();
+            
             pc = parallel_config;
             pc.parallel_cluster = obj.cluster_name;
             pc.worker = obj.worker;
@@ -102,7 +105,7 @@ classdef MPI_Test_Common < TestCase
             if obj.ignore_test
                 return;
             end
-            set(parallel_config,obj.old_parallel_config_);
+            config_store.instance().set_all_configs(obj.stored_config_);
         end
         function delete(obj)
             ni = MPI_Test_Common.num_instances();
@@ -123,6 +126,6 @@ classdef MPI_Test_Common < TestCase
             end
             ni = num_instances;
         end
-
+        
     end
 end
