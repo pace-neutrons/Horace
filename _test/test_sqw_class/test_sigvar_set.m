@@ -8,7 +8,7 @@ classdef test_sigvar_set < TestCase
             obj = obj@TestCase('test_sigvar_set');
         end
 
-        function test_sigvar_set_raises_error_if_s_not_same_size_as_dnd_object(obj)
+        function test_sigvar_set_raises_error_if_s_not_same_size_as_dnd_object(~)
             sqw_obj = sqw();
             sqw_obj.data.s = zeros(3, 5);
             sqw_obj.data.e = zeros(1,3);
@@ -25,7 +25,7 @@ classdef test_sigvar_set < TestCase
             end
         end
 
-        function test_sigvar_set_raises_error_if_e_not_same_size_as_dnd_object(obj)
+        function test_sigvar_set_raises_error_if_e_not_same_size_as_dnd_object(~)
             sqw_obj = sqw();
             sqw_obj.data.s = zeros(1,3);
             sqw_obj.data.e = zeros(3, 5);
@@ -42,7 +42,7 @@ classdef test_sigvar_set < TestCase
             end
         end
 
-        function test_sigvar_set_updates_s_and_e_values(obj)
+        function test_sigvar_set_updates_s_and_e_values(~)
             sqw_obj = sqw();
             sqw_obj.data.s = zeros(2,3);
             sqw_obj.data.e = zeros(2,3);
@@ -56,7 +56,7 @@ classdef test_sigvar_set < TestCase
             assertEqualToTol(result.data.e, sigvar_obj.e);
         end
 
-        function test_sigvar_set_sets_pixel_data_as_npix_replica_of_image(obj)
+        function test_sigvar_set_sets_pixel_data_as_npix_replica_of_image(~)
             sqw_obj = sqw();
             sqw_obj.data.s = zeros(1,3);
             sqw_obj.data.e = zeros(1,3);
@@ -74,7 +74,7 @@ classdef test_sigvar_set < TestCase
             assertEqualToTol(result.data.pix.variance, expected_varince);
         end
 
-        function test_sigvar_set_zero_s_and_e_where_npix_zero(obj)
+        function test_sigvar_set_zero_s_and_e_where_npix_zero(~)
             sqw_obj = sqw();
             sqw_obj.data.s = zeros(1,3);
             sqw_obj.data.e = zeros(1,3);

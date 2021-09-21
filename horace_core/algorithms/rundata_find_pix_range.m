@@ -13,7 +13,7 @@ function pix_range = rundata_find_pix_range(run_files,varargin)
 %   pix_range  2x4 array, describing min-max values in momentum/energy
 %              transfer, in crystal Cartesian coordinates and meV.
 %              Uses bin centres of energy bins and q-coordinates
-%              corresponting to these centers
+%              corresponding to these centres
 %
 
 

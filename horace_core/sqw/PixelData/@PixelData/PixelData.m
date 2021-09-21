@@ -90,8 +90,9 @@ classdef PixelData < handle
             'detector_idx', ...
             'energy_idx', ...
             'signal', ...
-            'variance'}, ...
-            {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9});
+            'variance',...
+            'all'}, ...
+            {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9,1:9});
         PIXEL_BLOCK_COLS_ = PixelData.DEFAULT_NUM_PIX_FIELDS;
         
         dirty_page_edited_ = false;  % true if a dirty page has been edited since it was loaded
@@ -104,34 +105,30 @@ classdef PixelData < handle
         page_number_ = 1;  % the index of the currently loaded page
         raw_data_ = zeros(PixelData.DEFAULT_NUM_PIX_FIELDS, 0);  % the underlying data cached in the object
         tmp_io_handler_;  % a PixelTmpFileHandler object that handles reading/writing of tmp files
-        pix_range_=PixelData.EMPTY_RANGE_; % range of pixels in Crystal cartesian coordinate system
+        pix_range_=PixelData.EMPTY_RANGE_; % range of pixels in Crystal Cartesian coordinate system
     end
     
     properties (Constant)
         DATA_POINT_SIZE = 8;  % num bytes in a double
         DEFAULT_NUM_PIX_FIELDS = 9;
         DEFAULT_PAGE_SIZE = realmax;  % this gives no paging by default
+    end
+    properties (Constant,Hidden)
         % the range, an empty pixel class has
         EMPTY_RANGE_ = [inf,inf,inf,inf;-inf,-inf,-inf,-inf];
     end
     
-    properties (Dependent, Access=private)
-        data_;  % points to raw_data_ but with a layer of validation for setting correct array sizes
-        
-        pix_position_;  % the pixel index in the file of the first pixel in the cache
-    end
-    
     properties (Dependent)
-        % The 1st dimension of the crystal cartesian orientation (1 x n array) [A^-1]
+        % The 1st dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
         u1;
         
-        % The 2nd dimension of the crystal cartesian orientation (1 x n array) [A^-1]
+        % The 2nd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
         u2;
         
-        % The 3rd dimension of the crystal cartesian orientation (1 x n array) [A^-1]
+        % The 3rd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
         u3;
         
-        % The spatial dimensions of the crystal cartesian orientation (3 x n array)
+        % The spatial dimensions of the Crystal Cartesian orientation (3 x n array)
         q_coordinates;
         
         % The array of energy deltas of the pixels (1 x n array) [meV]
@@ -165,8 +162,11 @@ classdef PixelData < handle
         % this value may get invalid, as the range never shrinks.
         pix_range;
         
-        % The full raw pixel data block. Usage of this attribute is
-        % discouraged, the structure of the return value is not guaranteed
+        % The full raw pixel data block. Usage of this attribute exposes
+        % current pixels layout, so when the pixels layout changes in a
+        % future, the code using this attribute will change too. So, the usage
+        % of this attribute is discouraged as the structure of the return
+        % value is not guaranteed in a future.
         data;
         
         % The file that the pixel data has been read from, empty if no file
@@ -177,6 +177,12 @@ classdef PixelData < handle
         
         % The number of pixels that can fit in one page of data
         base_page_size;
+    end
+    properties(Dependent,Access=private)
+        %
+        data_;  % points to raw_data_ but with a layer of validation for setting correct array sizes
+        %
+        pix_position_;  % the pixel index in the file of the first pixel in the cache
     end
     properties(Access=public,Hidden)
         % Contains the range(min/max value) of a block of pixels,
@@ -232,23 +238,23 @@ classdef PixelData < handle
         
         function validate_mem_alloc(mem_alloc)
             if ~isnumeric(mem_alloc)
-                error('PIXELDATA:validate_mem_alloc', ...
+                error('HORACE:PixelData:invalid_argument', ...
                     ['Invalid mem_alloc. ''mem_alloc'' must be numeric, ' ...
                     'found class ''%s''.'], class(mem_alloc));
             elseif ~isscalar(mem_alloc)
-                error('PIXELDATA:validate_mem_alloc', ...
+                error('HORACE:PixelData:invalid_argument', ...
                     ['Invalid mem_alloc. ''mem_alloc'' must be a scalar, ' ...
                     'found size ''%s''.'], mat2str(size(mem_alloc)));
             end
             MIN_RECOMMENDED_PG_SIZE = 100e6;
             bytes_in_pix = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
             if mem_alloc < bytes_in_pix
-                error('PIXELDATA:validate_mem_alloc', ...
+                error('HORACE:PixelData:invalid_argument', ...
                     ['Error setting pixel page size. Cannot set page '...
                     'size less than %i bytes, as this is less than one pixel.'], ...
                     bytes_in_pix);
             elseif mem_alloc < MIN_RECOMMENDED_PG_SIZE
-                warning('PIXELDATA:validate_mem_alloc', ...
+                warning('HORACE:PixelData:memory_allocation', ...
                     ['A pixel page size of less than 100MB is not ' ...
                     'recommended. This may degrade performance.']);
             end
@@ -264,7 +270,7 @@ classdef PixelData < handle
         pix_out = do_unary_op(obj, unary_op);
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
         pix_out = get_data(obj, fields, abs_pix_indices);
-        pix_out = get_pix_in_ranges(obj, abs_indices_starts, abs_indices_ends);
+        pix_out = get_pix_in_ranges(obj, abs_indices_starts, abs_indices_ends,recalculate_pix_ranges);
         pix_out = get_pixels(obj, abs_pix_indices);
         pix_out = mask(obj, mask_array, npix);
         [page_num, total_number_of_pages] = move_to_page(obj, page_number, varargin);
@@ -279,7 +285,7 @@ classdef PixelData < handle
             %
             %   >> obj = PixelData(ones(9, 200))
             %
-            %   >> obj = PixelData(200)  % intialise 200 pixels with underlying data set to zero
+            %   >> obj = PixelData(200)  % initialise 200 pixels with underlying data set to zero
             %
             %   >> obj = PixelData(file_path)  % initialise pixel data from an sqw file
             %
@@ -372,7 +378,7 @@ classdef PixelData < handle
             % Input sets underlying data
             if exist('mem_alloc', 'var') && ...
                     (obj.calculate_page_size_(mem_alloc) < size(arg, 2))
-                error('PIXELDATA:PixelData', ...
+                error('HORACE:PixelData:invalid_argument', ...
                     ['The size of the input array cannot exceed the given ' ...
                     'memory_allocation.']);
             end
@@ -460,8 +466,8 @@ classdef PixelData < handle
                     obj.move_to_page(obj.page_number_ + 1, varargin{:});
                 catch ME
                     switch ME.identifier
-                        case 'PIXELDATA:load_page_'
-                            error('PIXELDATA:advance', ...
+                        case 'HORACE:PixelData:runtime_error'
+                            error('HORACE:PixelData:runtime_error', ...
                                 'Attempting to advance past final page of data in %s', ...
                                 obj.file_path);
                         otherwise
@@ -498,7 +504,8 @@ classdef PixelData < handle
                 msg = ['Cannot set pixel data, invalid dimensions. Axis 2 ' ...
                     'must have num elements matching current page size (%i), ' ...
                     'found ''%i''.'];
-                error('PIXELDATA:data', msg, required_page_size, size(pixel_data, 2));
+                error('HORACE:PixelData:invalid_argument', msg,...
+                    required_page_size, size(pixel_data, 2));
             end
             obj.data_ = pixel_data;
             obj.reset_changed_coord_range('coordinates');
@@ -518,14 +525,16 @@ classdef PixelData < handle
             if size(pixel_data, 1) ~= obj.PIXEL_BLOCK_COLS_
                 msg = ['Cannot set pixel data, invalid dimensions. Axis 1 must '...
                     'have length %i, found ''%i''.'];
-                error('PIXELDATA:data', msg, obj.PIXEL_BLOCK_COLS_, ...
+                error('HORACE:PixelData:invalid_argument', msg, obj.PIXEL_BLOCK_COLS_, ...
                     size(pixel_data, 1));
             elseif ~isnumeric(pixel_data)
                 msg = ['Cannot set pixel data, invalid type. Data must have a '...
                     'numeric type, found ''%s''.'];
-                error('PIXELDATA:data', msg, class(pixel_data));
+                error('HORACE:PixelData:invalid_argument', msg, class(pixel_data));
             end
             obj.raw_data_ = pixel_data;
+            %obj.num_pixels_ = size(pixel_data,2); % breaks filebased
+            %PixelData
         end
         
         function u1 = get.u1(obj)
@@ -708,7 +717,7 @@ classdef PixelData < handle
             % calculations are expensive
             %
             if any(size(pix_range) ~=[2,4])
-                error('PIXELDATA:InvalidArgument',...
+                error('HORACE:PixelData:InvalidArgument',...
                     'pixel_range should be [2x4] array');
             end
             obj.pix_range_ = pix_range;
@@ -764,7 +773,7 @@ classdef PixelData < handle
             % Load the given page of data from the sqw file backing this object
             pix_idx_start = (page_number - 1)*obj.base_page_size + 1;
             if pix_idx_start > obj.num_pixels
-                error('PIXELDATA:load_page_', ...
+                error('HORACE:PixelData:runtime_error', ...
                     'pix_idx_start exceeds number of pixels in file. %i >= %i', ...
                     pix_idx_start, obj.num_pixels);
             end

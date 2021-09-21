@@ -41,7 +41,6 @@ classdef hor_config < config_base
     %                       Use hpc_config class directly to modify these
     %                       settings.
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Dependent)
         % Maximum number of pixels that are processed at one go during cuts
@@ -49,8 +48,6 @@ classdef hor_config < config_base
         % not provide obvious performance benefits) but on older machines
         % with ~4Gb it has to be reduced to 10^6
         mem_chunk_size
-        % PixelData page size in bytes
-        pixel_page_size
         % Number of threads to use in mex files. No more then number
         % of processors but value higher then 8 do not provide obvious
         % performance benefits for given mem_chink_size.
@@ -97,6 +94,11 @@ classdef hor_config < config_base
         %      The larger the value, the more information is printed.
         % See log_level for more details.
         horace_info_level
+        % PixelData page size in bytes. Overrides mem_chunk_size for
+        % filebased PixelData if pixel_page_size is smaller then
+        % appropriate mem_chunk_size expressed in bytes. 
+        % 
+        pixel_page_size        
     end
 
     properties(Access=protected, Hidden=true)

@@ -4,18 +4,23 @@ test_fld_names = field_names_map('big_cut_nopix');
 
 hs = head_sqw(obj.sqw_file);
 if horace_version('-num') < 400
-    urng = hs.urange';
+    urng = hs.urange;
 else
-    urng = hs.img_db_range';
+    urng = hs.img_db_range;
 end
+urng = range_add_border(urng,-1.e-4)';
 
-
+%profile on
 ts = tic();
 proj1 = struct('u',[1,0,0],'v',[0,1,1]);
 sqw1=cut_sqw(obj.sqw_file,proj1,0.01,urng(2,:),urng(3,:),urng(4,:),'-nopix');
-obj.assertPerformance(ts,test_fld_names{1},...
+perf_res = obj.assertPerformance(ts,test_fld_names{1},...
     'large 1D cut direction 1 with whole dataset integration along 3 other directions. -nopix mode');
-
+%profile off
+%profile viewer
+%stop
+%sqw2=[];sqw3=[];sqw4=[];
+%return
 ts = tic();
 sqw2=cut_sqw(obj.sqw_file,proj1,urng(1,:),0.01,urng(3,:),urng(4,:),'-nopix');
 obj.assertPerformance(ts,test_fld_names{2},...

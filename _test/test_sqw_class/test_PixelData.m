@@ -1,7 +1,6 @@
-classdef test_PixelData < TestCase
+classdef test_PixelData < TestCase & common_state_holder
     
     properties
-        old_warn_state;
         
         SMALL_PG_SIZE = 1e6;  % 1Mb
         ALL_IN_MEM_PG_SIZE = 1e12;
@@ -48,12 +47,8 @@ classdef test_PixelData < TestCase
     methods
         
         function obj = test_PixelData(~)
-            obj = obj@TestCase('test_PixelData');
+            obj = obj@TestCase('test_PixelData');            
             
-            addpath(fullfile(obj.this_dir, 'utils'));
-            
-            % Swallow any warnings for when pixel page size set too small
-            obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
             obj.raw_pix_range = obj.get_ref_range(obj.raw_pix_data);
             
             source_sqw_file = java.io.File(pwd(), obj.tst_source_sqw_file_path);
@@ -74,14 +69,7 @@ classdef test_PixelData < TestCase
             % Construct an object from file accessor with small page size
             obj.pix_data_small_page = PixelData(f_accessor, obj.SMALL_PG_SIZE);
         end
-        
-        function delete(obj)
-            if ismember(fullfile(obj.this_dir, 'utils'), split(path, pathsep))
-                rmpath(fullfile(obj.this_dir, 'utils'));
-            end
-            warning(obj.old_warn_state);
-        end
-        
+                
         % --- Tests for in-memory operations ---
         function test_default_construction_sets_empty_pixel_data(~)
             pix_data = PixelData();
@@ -92,12 +80,12 @@ classdef test_PixelData < TestCase
         
         function test_PIXELDATA_raised_on_construction_with_data_with_lt_9_cols(~)
             f = @() PixelData(ones(3, 3));
-            assertExceptionThrown(f, 'PIXELDATA:data');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
         function test_PIXELDATA_raised_on_construction_with_data_with_gt_9_cols(~)
             f = @() PixelData(ones(10, 3));
-            assertExceptionThrown(f, 'PIXELDATA:data');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
         function test_coordinates_returns_empty_array_if_pixel_data_empty(~)
@@ -223,7 +211,7 @@ classdef test_PixelData < TestCase
         function test_PIXELDATA_error_raised_if_setting_data_with_lt_9_cols(~)
             f = @(x) PixelData(zeros(x, 10));
             for i = [-10, -5, 0, 5]
-                assertExceptionThrown(@() f(i), 'PIXELDATA:data');
+                assertExceptionThrown(@() f(i), 'HORACE:PixelData:invalid_argument');
             end
         end
         
@@ -279,13 +267,29 @@ classdef test_PixelData < TestCase
         function test_PIXELDATA_error_if_constructed_with_struct(~)
             s = struct();
             f = @() PixelData(s);
-            assertExceptionThrown(f, 'PIXELDATA:data');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
         function test_PIXELDATA_error_if_constructed_with_cell_array(~)
             s = {'a', 1};
             f = @() PixelData(s);
-            assertExceptionThrown(f, 'PIXELDATA:data');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
+        end
+        function test_PixelData_set_data_all(~)
+            pix_data_obj = PixelData();
+            data = zeros(9,1);
+            pix_data_obj.set_data('all',data)
+            assertEqual(pix_data_obj.num_pixels,1);
+            assertEqual(pix_data_obj.coordinates,zeros(4,1));
+            
+        end
+        function test_PixelData_set_data_all_wrong_size(~)
+            pix_data_obj = PixelData();
+            data = zeros(4,1);
+            f = @()set_data(pix_data_obj,'all',data);
+            
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');            
+            
         end
         
         function test_PIXELDATA_error_if_data_set_with_non_numeric_type(~)
@@ -296,7 +300,7 @@ classdef test_PixelData < TestCase
             end
             
             f = @() set_data({1, 'abc'});
-            assertExceptionThrown(f, 'PIXELDATA:data');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
         function test_numel_returns_the_number_of_elements_in_the_data(obj)
@@ -338,7 +342,7 @@ classdef test_PixelData < TestCase
         
         function test_get_data_throws_PIXELDATA_on_non_valid_field_name(obj)
             f = @() obj.pixel_data_obj.get_data('not_a_field');
-            assertExceptionThrown(f, 'HORACE:PIXELDATA:invalid_field');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
         function test_get_data_orders_columns_corresponding_to_input_cell_array(obj)
@@ -390,7 +394,7 @@ classdef test_PixelData < TestCase
         
         function test_construction_with_float_raises_PIXELDATA_error(~)
             f = @() PixelData(1.2);
-            assertExceptionThrown(f, 'PIXELDATA:data');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
         function test_construction_with_file_path_sets_file_path_on_object(obj)
@@ -672,7 +676,7 @@ classdef test_PixelData < TestCase
             end
             
             f = @() set_pix(ones(9, 10));
-            assertExceptionThrown(f, 'PIXELDATA:data');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
         function test_you_cannot_set_page_of_data_with_larger_sized_array(obj)
@@ -685,7 +689,7 @@ classdef test_PixelData < TestCase
             end
             
             f = @() set_pix(ones(9, 20));
-            assertExceptionThrown(f, 'PIXELDATA:data');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
         function test_num_pixels_is_a_double_if_faccess_returns_uint(~)
@@ -1167,13 +1171,13 @@ classdef test_PixelData < TestCase
             pix_size = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
             
             f = @() PixelData(rand(9, 10), pix_size - 1);
-            assertExceptionThrown(f, 'PIXELDATA:validate_mem_alloc');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
         function test_PIXELDATA_raised_if_mem_alloc_argument_is_not_scalar(~)
             mem_alloc = 200e6*ones(1, 2);
             f = @() PixelData(zeros(9, 1), mem_alloc);
-            assertExceptionThrown(f, 'PIXELDATA:validate_mem_alloc');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
         function test_move_to_page_loads_given_page_into_memory(obj)
@@ -1790,7 +1794,7 @@ classdef test_PixelData < TestCase
             new_data = ones(numel(fields) + 1, 7);
             idxs = [4, 3, 9, 24, 29, 10, 11];
             f = @() pix.set_data(fields, new_data, idxs);
-            assertExceptionThrown(f, 'HORACE:PIXELDATA:incorrect_num_rows');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
 
         function test_set_data_errors_if_data_ncols_ne_to_num_indices(~)
@@ -1799,7 +1803,7 @@ classdef test_PixelData < TestCase
             idxs = [4, 3, 9, 24, 29, 10, 11];
             new_data = ones(numel(fields), numel(idxs) - 1);
             f = @() pix.set_data(fields, new_data, idxs);
-            assertExceptionThrown(f, 'HORACE:PIXELDATA:incorrect_num_cols');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
 
         function test_set_data_sets_fields_with_given_values_with_logical_idxs(~)

@@ -20,9 +20,8 @@ function set_data(obj, pix_fields, data, varargin)
 %
 NO_INPUT_INDICES = -1;
 
-[pix_fields, abs_pix_indices] = parse_args(obj, pix_fields, data, varargin{:});
+[field_indices, abs_pix_indices] = parse_args(obj, pix_fields, data, varargin{:});
 
-field_indices = cell2mat(obj.FIELD_INDEX_MAP_.values(pix_fields));
 
 if obj.is_filebacked()
     base_pg_size = obj.base_page_size;
@@ -41,7 +40,14 @@ if obj.is_filebacked()
     end
 else
     if abs_pix_indices == NO_INPUT_INDICES
-        obj.data_(field_indices, 1:end) = data;
+        if size(data,1) == obj.DEFAULT_NUM_PIX_FIELDS && ...
+                ischar(pix_fields) && strcmp(pix_fields,'all')
+            obj.raw_data_   = data; % all arguments have been already verified,
+            %            no point of using data_ setter
+            obj.num_pixels_ = size(data,2);
+        else
+            obj.data_(field_indices, 1:end) = data;
+        end
     else
         obj.data_(field_indices, abs_pix_indices) = data;
     end
@@ -67,7 +73,7 @@ function [pix_fields, abs_pix_indices] = parse_args(obj, pix_fields, data, varar
     abs_pix_indices = parser.Results.abs_pix_indices;
 
     pix_fields = cellstr(pix_fields);
-    check_pixel_fields_(obj, pix_fields);
+    pix_fields = check_pixel_fields_(obj, pix_fields);
 
     if islogical(abs_pix_indices)
         abs_pix_indices = logical_to_normal_index_(obj, abs_pix_indices);
@@ -75,15 +81,15 @@ function [pix_fields, abs_pix_indices] = parse_args(obj, pix_fields, data, varar
 
     if size(data, 1) ~= numel(pix_fields)
         error( ...
-            'HORACE:PIXELDATA:incorrect_num_rows', ...
+            'HORACE:PixelData:invalid_argument', ...
             ['Number of fields in ''pix_fields'' must be equal to number ' ...
-             'of columns in ''data''.\nFound %i and %i.'], ...
+             'of columns in ''data''.\nn_pix_fields: %i n_data_columns: %i.'], ...
             numel(pix_fields), size(data, 1) ...
         );
     end
     if ~isequal(abs_pix_indices, NO_INPUT_INDICES) && size(data, 2) ~= numel(abs_pix_indices)
         error( ...
-            'HORACE:PIXELDATA:incorrect_num_cols', ...
+            'HORACE:PixelData:invalid_argument', ...
             ['Number of indices in ''abs_pix_indices'' must be equal to ' ...
             'number of rows in ''data''.\nFound %i and %i.'], ...
             numel(abs_pix_indices), size(data, 2) ...

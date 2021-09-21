@@ -9,6 +9,8 @@ function   pix = sort_pix(pix_retained,pix_ix_retained,npix,varargin)
 % npix  auxiliary array, containing numbers of pixels in each cell of
 %       n-D array
 % Optional input:
+%  pix_range -- if provided, prohibits pix range recalculation in pix
+%               constructor. The range  provided will be used instead
 %
 % '-nomex'    -- do not use mex code even if its available
 %               (usually for testing)
@@ -26,18 +28,29 @@ function   pix = sort_pix(pix_retained,pix_ix_retained,npix,varargin)
 %pix  array of pixels sorted into 1D array according to indexes provided
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
+%
 %
 
 %  Process inputs
 options = {'-nomex','-force_mex','-keep_type'};
 %[ok,mess,nomex,force_mex,missing]=parse_char_options(varargin,options);
-[ok,mess,nomex,force_mex,keep_type]=parse_char_options(varargin,options);
+[ok,mess,nomex,force_mex,keep_type,argi]=parse_char_options(varargin,options);
 if ~ok
-    error('SORT_PIXELS:invalid_argument',['sort_pixels: invalid argument',mess])
+    error('HORACE:utilities:invalid_argument',['sort_pixels: invalid argument',mess])
 end
 if nomex && force_mex
-    error('SORT_PIXELS:invalid_argument','sort_pixels: invalid argument -- nomex and force mex options can not be used together' )
+    error('HORACE:utilities:invalid_argument','sort_pixels: invalid argument -- nomex and force mex options can not be used together' )
+end
+if isempty(argi)
+    use_given_pix_range = false;
+else
+    use_given_pix_range =true;
+    pix_range = argi{:};
+    if any(size(pix_range) ~= [2,4])
+        error('HORACE:utilities:invalid_argument',...
+            'if pix_range is provided, it has to be 2x4 array. Actually its size is: %',...
+            evalc('disp(size(pix_range))'))
+    end
 end
 
 if ~iscell(pix_retained)
@@ -66,9 +79,15 @@ if use_mex
         % function retrieves keep_type variable value from this file
         % so returns double or single resolution pixels depending on this
         raw_pix = cellfun(@(pix_data) pix_data.data, pix_retained, ...
-                          'UniformOutput', false);
-        pix = sort_pixels_by_bins(raw_pix, pix_ix_retained, npix);
-        pix = PixelData(pix);
+            'UniformOutput', false);
+        raw_pix = sort_pixels_by_bins(raw_pix, pix_ix_retained, npix);
+        if use_given_pix_range
+            pix = PixelData();
+            set_data(pix,'all',raw_pix);
+            pix.set_range(pix_range);
+        else
+            pix = PixelData(raw_pix);
+        end
         clear pix_retained pix_ix_retained;  % clear big arrays
     catch ME
         use_mex=false;
@@ -101,7 +120,7 @@ if ~use_mex
         pix = PixelData();
         return;
     end
-
+    
     pix=pix.get_pixels(ind);     % reorders pix
     clear ind;
     % TODO: make "keep type" a default behaviour!
@@ -110,7 +129,7 @@ if ~use_mex
             pix = PixelData(double(pix.data));
         end
     end
-
+    
 end
 
 

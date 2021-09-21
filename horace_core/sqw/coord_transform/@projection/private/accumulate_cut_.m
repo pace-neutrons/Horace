@@ -4,7 +4,11 @@ function [urange_step_pix, ok, ix, s, e, npix, npix_retain, success] = ...
 %Interface to accumulate rectangular cut using mex code.
 %
 [rot_ustep,trans_bott_left,ebin,trans_elo,urange_step] = this.get_pix_transf_();
+if isa(v.data,'single') % necessary for mex/nomex returning equal results
+    urange_step = round(urange_step,7);
+end
 urange_step = range_add_border(urange_step);
+
 try
     % Parameters have to be doubles in current version of the c-program
     parameters = zeros(5,1);

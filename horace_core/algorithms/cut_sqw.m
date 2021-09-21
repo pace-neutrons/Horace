@@ -27,5 +27,10 @@ if ~isa(source, 'sqw')
               class(source));
     end
 end
+if nargout>0
+    wout = cut(source, varargin{:});    
+else
+    cut(source, varargin{:});        
+end
 
-wout = cut(source, varargin{:});
+
