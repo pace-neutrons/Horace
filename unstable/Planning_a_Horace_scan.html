@@ -1,79 +1,37 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-  <title>Planning a Horace scan &mdash; Horace 4.0.0.b4a7b19 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+  <title>Planning a Horace scan &mdash; Horace 4.0.0.d473c61 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Generating SQW files" href="Generating_SQW_files.html" />
     <link rel="prev" title="Changing Horace settings" href="Changing_Horace_settings.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> Horace
-          
-
-          
-            
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                4.0.0.b4a7b19
+                4.0.0.d473c61
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -81,18 +39,6 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="The_Horace_Rationale.html">The Horace Rationale</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Download_and_Setup_Troubleshutting.html">Download and Setup Trouble-Shutting</a></li>
@@ -131,75 +77,34 @@
 <li class="toctree-l1"><a class="reference internal" href="Privacy_policy.html">Privacy Policy</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">Horace</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>Planning a Horace scan</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="_sources/Planning_a_Horace_scan.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="planning-a-horace-scan">
-<h1>Planning a Horace scan<a class="headerlink" href="#planning-a-horace-scan" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="horace-planner-a-simple-scan-planner">
-<h2>horace_planner: a simple scan planner<a class="headerlink" href="#horace-planner-a-simple-scan-planner" title="Permalink to this headline">¶</a></h2>
+             
+  <section id="planning-a-horace-scan">
+<h1>Planning a Horace scan<a class="headerlink" href="#planning-a-horace-scan" title="Permalink to this headline"></a></h1>
+<section id="horace-planner-a-simple-scan-planner">
+<h2>horace_planner: a simple scan planner<a class="headerlink" href="#horace-planner-a-simple-scan-planner" title="Permalink to this headline"></a></h2>
 <p>Horace has a useful little tool which allows you to work out the coverage of reciprocal space that will be achieved for a given instrument / incident energy / sample angle range.</p>
 <p>You start it up by typing</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">horace_planner</span><span class="w"></span>
@@ -211,9 +116,9 @@
 <li><p>Enter the incident energy, Ei, and the energy transfer you are interested in, then the minimum and maximum values of psi you are considering.</p></li>
 <li><p>The three views shown in the image above correspond to looking at the Q-coverage volume from three different perspectives. On the top left we see the view from above (i.e. down an axis perpendicular to <strong>u</strong> and <strong>v</strong>), on the top right we see the view from the right-hand side (i.e. along <strong>u</strong> from the positive side), and on the bottom left we see a view from the bottom (i.e. along <strong>v</strong> from the negative side)</p></li>
 </ul>
-</div>
-<div class="section" id="more-detailed-planning-of-scans">
-<h2>More detailed planning of scans<a class="headerlink" href="#more-detailed-planning-of-scans" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="more-detailed-planning-of-scans">
+<h2>More detailed planning of scans<a class="headerlink" href="#more-detailed-planning-of-scans" title="Permalink to this headline"></a></h2>
 <p>An example script for generating fake data is given below.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">en</span><span class="p">=[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">:</span><span class="mi">190</span><span class="p">];</span><span class="w">  </span><span class="c">% energy bins (coarse for simulation)</span><span class="w"></span>
 <span class="n">sqw_file_fake</span><span class="p">=</span><span class="s">&#39;/home/maps/maps_users/Gruenwald/fake_200meV.sqw&#39;</span><span class="p">;</span><span class="w">         </span><span class="c">% name of output file</span><span class="w"></span>
@@ -246,54 +151,36 @@
 </div>
 <p><strong>Sample plot of fake dataset</strong></p>
 <a class="reference internal image-reference" href="_images/Scan_figure.png"><img alt="2d simulation" src="_images/Scan_figure.png" style="width: 300px;" /></a>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="Changing_Horace_settings.html" class="btn btn-neutral float-left" title="Changing Horace settings" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-      <span class="lastupdated">
-      </span>
-
-    </p>
+      </span></p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

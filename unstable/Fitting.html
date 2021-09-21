@@ -1,79 +1,37 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-  <title>Fitting &mdash; Horace 4.0.0.b4a7b19 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+  <title>Fitting &mdash; Horace 4.0.0.d473c61 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Herbert" href="Herbert.html" />
     <link rel="prev" title="Developer information" href="Developer_information.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> Horace
-          
-
-          
-            
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                4.0.0.b4a7b19
+                4.0.0.d473c61
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -81,18 +39,6 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="The_Horace_Rationale.html">The Horace Rationale</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Download_and_Setup_Troubleshutting.html">Download and Setup Trouble-Shutting</a></li>
@@ -132,77 +78,36 @@
 </li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">Horace</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>Fitting</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="_sources/Fitting.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="fitting">
-<h1>Fitting<a class="headerlink" href="#fitting" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="fitting">
+<h1>Fitting<a class="headerlink" href="#fitting" title="Permalink to this headline"></a></h1>
 <p>Horace comes with a rich and powerful fitting syntax that is common to the methods used to fit functions or models of S(Q,w) to one or more datasets. For an introduction and overview of how to use the following fitting functions, please read <a class="reference internal" href="Multifit.html#multifit"><span class="std std-ref">Fitting data</span></a>. For comprehensive help, please use the Matlab documentation for the various fitting functions that can be obtained by using the <code class="docutils literal notranslate"><span class="pre">doc</span></code> command, for example <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">d1d/multifit</span></code> (for fitting function like Gaussians to d1d objects) or <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/multifit_sqw</span></code> (fitting models for S(Q,w) to sqw objects). It is strongly recommended that you use <code class="docutils literal notranslate"><span class="pre">doc</span></code>, not <code class="docutils literal notranslate"><span class="pre">help</span></code> to explore how to use these methods, so that you can navigate between the numerous pages of documentation in the Matlab help window.</p>
 <p>Several multifit variants are available for sqw and d1d,d2d,…d4d objects. The only substantive difference is the form of the fit functions they require: either they are functions of the numeric values of the plot coordinates, or they are function of wave vector in reciprocal lattice units and energy.</p>
-<div class="section" id="multifit">
-<h2>multifit<a class="headerlink" href="#multifit" title="Permalink to this headline">¶</a></h2>
+<section id="multifit">
+<h2>multifit<a class="headerlink" href="#multifit" title="Permalink to this headline"></a></h2>
 <p>This is identical to <code class="docutils literal notranslate"><span class="pre">multifit_func</span></code>)
 The foreground and background functions both are functions of the plot axes x1,x2,…for as many x arrays as there are plot axes:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">y</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">my_function</span><span class="w"> </span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="k">...</span><span class="c"> ,xn,pars)</span><span class="w"></span>
@@ -216,9 +121,9 @@ The foreground and background functions both are functions of the plot axes x1,x
 - x1,x2,.xn Arrays of x coordinates along each of the n dimensions
 - pars Parameters needed by the function
 - c1,c2,… Any further constant arguments needed by the function. For example, they could be the filenames of lookup tables</p>
-</div>
-<div class="section" id="multifit-sqw">
-<h2>multifit_sqw<a class="headerlink" href="#multifit-sqw" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="multifit-sqw">
+<h2>multifit_sqw<a class="headerlink" href="#multifit-sqw" title="Permalink to this headline"></a></h2>
 <p>The foreground function(s) are functions of S(Q,w), and the background functions are functions of the plot axes x1,x2,…</p>
 <p>The general form of a model for S(Q,w) is:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">weight</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqwfunc</span><span class="w"> </span><span class="p">(</span><span class="n">qh</span><span class="p">,</span><span class="n">qk</span><span class="p">,</span><span class="n">ql</span><span class="p">,</span><span class="n">en</span><span class="p">,</span><span class="n">p</span><span class="p">)</span><span class="w"></span>
@@ -234,58 +139,40 @@ The foreground and background functions both are functions of the plot axes x1,x
 - c1,c2,… Other constant parameters e.g. file name for look-up table
 - weight Array containing calculated spectral weight</p>
 <p>The form for the background model(s) is the same as is required by <code class="docutils literal notranslate"><span class="pre">multifit</span></code>.</p>
-</div>
-<div class="section" id="multifit-sqw-sqw">
-<h2>multifit_sqw_sqw<a class="headerlink" href="#multifit-sqw-sqw" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="multifit-sqw-sqw">
+<h2>multifit_sqw_sqw<a class="headerlink" href="#multifit-sqw-sqw" title="Permalink to this headline"></a></h2>
 <p>The foreground and background function(s) are all functions of S(Q,w). The form of these models is the same as is required by <code class="docutils literal notranslate"><span class="pre">multifit_sqw</span></code>.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="Developer_information.html" class="btn btn-neutral float-left" title="Developer information" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-      <span class="lastupdated">
-      </span>
-
-    </p>
+      </span></p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

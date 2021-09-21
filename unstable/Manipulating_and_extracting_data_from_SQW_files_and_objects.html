@@ -1,79 +1,37 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-  <title>Manipulating and extracting data from SQW files and objects &mdash; Horace 4.0.0.b4a7b19 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+  <title>Manipulating and extracting data from SQW files and objects &mdash; Horace 4.0.0.d473c61 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Correcting for sample misalignment" href="Correcting_for_sample_misalignment.html" />
     <link rel="prev" title="Generating SQW files" href="Generating_SQW_files.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> Horace
-          
-
-          
-            
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                4.0.0.b4a7b19
+                4.0.0.d473c61
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -81,18 +39,6 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="The_Horace_Rationale.html">The Horace Rationale</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Download_and_Setup_Troubleshutting.html">Download and Setup Trouble-Shutting</a></li>
@@ -141,75 +87,34 @@
 <li class="toctree-l1"><a class="reference internal" href="Privacy_policy.html">Privacy Policy</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">Horace</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>Manipulating and extracting data from SQW files and objects</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="_sources/Manipulating_and_extracting_data_from_SQW_files_and_objects.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="manipulating-and-extracting-data-from-sqw-files-and-objects">
-<h1>Manipulating and extracting data from SQW files and objects<a class="headerlink" href="#manipulating-and-extracting-data-from-sqw-files-and-objects" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="cut-sqw">
-<h2>cut_sqw<a class="headerlink" href="#cut-sqw" title="Permalink to this headline">¶</a></h2>
+             
+  <section id="manipulating-and-extracting-data-from-sqw-files-and-objects">
+<h1>Manipulating and extracting data from SQW files and objects<a class="headerlink" href="#manipulating-and-extracting-data-from-sqw-files-and-objects" title="Permalink to this headline"></a></h1>
+<section id="cut-sqw">
+<h2>cut_sqw<a class="headerlink" href="#cut-sqw" title="Permalink to this headline"></a></h2>
 <p>There are various different forms of input for this function, the purpose of which is to take data from an SQW file and turn it into a n-dimensional cut which can be plotted, manipulated, etc. The “compulsory” inputs are given as follows:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">my_cut</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="n">p1_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p2_bin</span><span class="p">,</span><span class="w"> </span><span class="n">p3_bin</span><span class="p">)</span><span class="w"></span>
 </pre></div>
@@ -248,9 +153,9 @@ There are optional fields too:
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">filename</span></code> is a string specifying a full filename (including path) for the data to be stored, in addition to being stored in the Matlab workspace.</p></li>
 </ul>
-</div>
-<div class="section" id="cut">
-<h2>cut<a class="headerlink" href="#cut" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="cut">
+<h2>cut<a class="headerlink" href="#cut" title="Permalink to this headline"></a></h2>
 <p>This is a specific case of cut_sqw that can be used to take cuts from sqw objects that are already in memory, rather than on disk in the SQW file. Such objects can either be the result of using cut_sqw, or if have been read into memory from disk using the read_horace function</p>
 <p>To take a cut from an existing sqw or dnd object, retaining the existing projection axes and binning:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w1</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">w</span><span class="p">,[],[</span><span class="n">lo1</span><span class="p">,</span><span class="n">hi1</span><span class="p">],[</span><span class="n">lo2</span><span class="p">,</span><span class="n">hi2</span><span class="p">],</span><span class="k">...</span><span class="c">)</span><span class="w"></span>
@@ -266,78 +171,78 @@ There are optional fields too:
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">pbin_1</span></code>, <code class="docutils literal notranslate"><span class="pre">pbin_2</span></code>,… have the same form as for cut_sqw described above, and there are as many binning arguments as the dimensionality of the object. This is essentially the same syntax as <code class="docutils literal notranslate"><span class="pre">cut_sqw</span></code>, but with an sqw object rather than an SQW file as the first input. The same set of optional arguments, namely <code class="docutils literal notranslate"><span class="pre">'-nopix'</span></code> and <code class="docutils literal notranslate"><span class="pre">filename</span></code> also applies.</p>
-</div>
-<div class="section" id="head-horace">
-<h2>head_horace<a class="headerlink" href="#head-horace" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="head-horace">
+<h2>head_horace<a class="headerlink" href="#head-horace" title="Permalink to this headline"></a></h2>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">info</span><span class="p">=</span><span class="n">head_horace</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
 
 <span class="n">info</span><span class="p">=</span><span class="n">head_horace</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s">&#39;-full&#39;</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 <p>This is a function to give the header information in an SQW file or file to which an sqw object or dnd object has been saved, and whose full filename is given by the argument <code class="docutils literal notranslate"><span class="pre">filename</span></code>. If the option <code class="docutils literal notranslate"><span class="pre">'-full'</span></code> is used then a fuller set of header information, rather than just the principal header, is returned. The purpose of this function is to read the contents regardless of your knowledge of whether or not the file contains an sqw object or a dnd object.</p>
-</div>
-<div class="section" id="head-sqw">
-<h2>head_sqw<a class="headerlink" href="#head-sqw" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="head-sqw">
+<h2>head_sqw<a class="headerlink" href="#head-sqw" title="Permalink to this headline"></a></h2>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">info</span><span class="p">=</span><span class="n">head_sqw</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
 
 <span class="n">info</span><span class="p">=</span><span class="n">head_sqw</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s">&#39;-full&#39;</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 <p>This is a function to give the header information in an SQW file or file to which an sqw object has been saved, whose full filename is given by the argument <code class="docutils literal notranslate"><span class="pre">filename</span></code>. If the option <code class="docutils literal notranslate"><span class="pre">'-full'</span></code> is used then a fuller set of header information, rather than just the principal header, is returned.</p>
-</div>
-<div class="section" id="head-dnd">
-<h2>head_dnd<a class="headerlink" href="#head-dnd" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="head-dnd">
+<h2>head_dnd<a class="headerlink" href="#head-dnd" title="Permalink to this headline"></a></h2>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">info</span><span class="p">=</span><span class="n">head_dnd</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>This is a function to give the header information in file to which a dnd object has been saved, whose full filename is given by the argument <code class="docutils literal notranslate"><span class="pre">filename</span></code>.</p>
-</div>
-<div class="section" id="read-horace">
-<h2>read_horace<a class="headerlink" href="#read-horace" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="read-horace">
+<h2>read_horace<a class="headerlink" href="#read-horace" title="Permalink to this headline"></a></h2>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">output</span><span class="p">=</span><span class="n">read_horace</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>This is a function to read sqw or dnd data from a file. The object type is determined from the contents of the file. If the file contains a full sqw dataset (whether created using gen_sqw or as the result of saving a cut), the returned variable is an sqw object; if the file contains a dnd dataset, the output is the corresponding d01, d1d, …or d4d object.</p>
-</div>
-<div class="section" id="read-sqw">
-<h2>read_sqw<a class="headerlink" href="#read-sqw" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="read-sqw">
+<h2>read_sqw<a class="headerlink" href="#read-sqw" title="Permalink to this headline"></a></h2>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">output</span><span class="p">=</span><span class="n">read_sqw</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="read-dnd">
-<h2>read_dnd<a class="headerlink" href="#read-dnd" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="read-dnd">
+<h2>read_dnd<a class="headerlink" href="#read-dnd" title="Permalink to this headline"></a></h2>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">output</span><span class="p">=</span><span class="n">read_dnd</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Exactly the same as above, but reads dnd data saved to file. If the file contains full sqw dataset, then it will be read as if it contained just a dnd dataset.</p>
-</div>
-<div class="section" id="save">
-<h2>save<a class="headerlink" href="#save" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="save">
+<h2>save<a class="headerlink" href="#save" title="Permalink to this headline"></a></h2>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="nb">save</span><span class="p">(</span><span class="n">object</span><span class="p">,</span><span class="n">filename</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Saves the sqw object or dnd object <code class="docutils literal notranslate"><span class="pre">object</span></code> from the Matlab workspace into the file specified by <code class="docutils literal notranslate"><span class="pre">filename</span></code>.</p>
-</div>
-<div class="section" id="save-xye">
-<h2>save_xye<a class="headerlink" href="#save-xye" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="save-xye">
+<h2>save_xye<a class="headerlink" href="#save-xye" title="Permalink to this headline"></a></h2>
 <p>Save data in an sqw or dnd dataset to an ascii file.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span><span class="p">=</span><span class="s">&#39;C:\\mprogs\\my_ascii_file.txt&#39;</span><span class="p">;</span><span class="w"></span>
 <span class="n">save_xye</span><span class="p">(</span><span class="n">w_in</span><span class="p">,</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The format of the ascii file for an n-dimensional dataset is n columns of co-ordinates along each of the axes, plus one column of signal and another column of error (standard deviation).</p>
-</div>
-<div class="section" id="xye">
-<h2>xye<a class="headerlink" href="#xye" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="xye">
+<h2>xye<a class="headerlink" href="#xye" title="Permalink to this headline"></a></h2>
 <p>Extract the bin centres, intensity and standard errors from an sqw or dnd object.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">S</span><span class="p">=</span><span class="n">xye</span><span class="p">(</span><span class="n">w</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The output is a structure with fields S.x (bin centres if a 1D object, or cell array of vectors containing the bin centres along each axis if 2D, 3D or 4D object), S.y (array of intensities), S.e (array of estimated error on the intensities).</p>
-</div>
-<div class="section" id="hkle">
-<h2>hkle<a class="headerlink" href="#hkle" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="hkle">
+<h2>hkle<a class="headerlink" href="#hkle" title="Permalink to this headline"></a></h2>
 <p>Obtain the reciprocal space coordinate [h,k,l,e] for points in the coordinates of the display axes for an sqw object <strong>from a single spe file</strong></p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">qe1</span><span class="p">,</span><span class="n">qe2</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">hkle</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="n">x</span><span class="p">)</span><span class="w"></span>
 </pre></div>
@@ -348,54 +253,36 @@ There are optional fields too:
 <p>The outputs take the form:</p>
 <p><code class="docutils literal notranslate"><span class="pre">qe1</span></code> - Components of momentum (in rlu) and energy for each bin in the dataset. Generally, will be (n x 4) array, where n is the number of points</p>
 <p><code class="docutils literal notranslate"><span class="pre">qe2</span></code> - For the second root</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="Generating_SQW_files.html" class="btn btn-neutral float-left" title="Generating SQW files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-      <span class="lastupdated">
-      </span>
-
-    </p>
+      </span></p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
