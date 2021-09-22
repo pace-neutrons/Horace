@@ -66,6 +66,13 @@ try
         % build C++ files
         mex_single_c(fullfile(herbert_C_code_dir,'get_ascii_file'), herbert_mex_target_dir,...
             'get_ascii_file.cpp','IIget_ascii_file.cpp')
+        mex_single_c(fullfile(herbert_C_code_dir,'serialiser'), herbert_mex_target_dir,...
+            'c_serialise.cpp')
+        mex_single_c(fullfile(herbert_C_code_dir,'serialiser'), herbert_mex_target_dir,...
+            'c_deserialise.cpp')
+        mex_single_c(fullfile(herbert_C_code_dir,'serialiser'), herbert_mex_target_dir,...
+            'c_serial_size.cpp')
+        
 
         try % failure in using this routine does not affect use_mex option as the routine is not checking it and
             % created for compatibility with older versions of Matlab
@@ -117,7 +124,18 @@ end
 outdir = fullfile(out_dir,'');
 
 [~,f_name]=fileparts(files{1});
+
 targ_file=fullfile(outdir,[f_name,'.',mexext]);
+% if description files found somewhere on the path, move them with 
+% target file
+descr_file = [f_name,'.m'];
+descr_source = which(descr_file);
+if ~isempty(descr_source)
+    targ_descr = fullfile(outdir,descr_file);
+    if ~strcmp(descr_source,targ_descr)
+        movefile(descr_source,targ_descr,'f');
+    end
+end
 if(is_file(targ_file))
     try
         delete(targ_file)
@@ -172,11 +190,11 @@ end
 
 function set_mex = ask2SetMex()
 disp('!==================================================================!')
-disp('! Would you like to use mex files immediately after successful     !')
+disp('! Would you like to use mex files immediately after successful    !')
 disp('! compilation?: y/n                                                !')
 disp('! if no, you will be able to use them  by setting herbert          !')
 disp('! configuration                                                    !')
-disp('! >>set(herbert_config,''use_mex'',1,')                            !')
+disp('!>>set(herbert_config,''use_mex'',1,)                              !')
 disp('! when compilation was successful,                                 !')
 disp('! if yes, this script will do it for you                           !')
 disp('!------------------------------------------------------------------!')

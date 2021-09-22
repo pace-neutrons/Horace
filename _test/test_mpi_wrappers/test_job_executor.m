@@ -250,7 +250,7 @@ classdef test_job_executor< MPI_Test_Common
             % will be reverted to the initial value
             cs = config_store.instance();
             obj.current_config_folder = cs.config_folder;
-            clob1 = onCleanup(@()(set_config_path(cs,obj.current_config_folder)));
+            clob1 = onCleanup(@()(set_config_path(cs,obj.current_config_folder,'-clear')));
 
             file1= fullfile(obj.working_dir,'test_jobDispatcher1_nf1.txt');
             file1a= fullfile(obj.working_dir,'test_jobDispatcher1_nf2.txt');
@@ -645,7 +645,6 @@ classdef test_job_executor< MPI_Test_Common
         end
 
         function test_init_mpiexec_mpi_fw(obj)
-            skipTest('Test disabled')
             if isempty(which('cpp_communicator'))
                 skipTest('MPI framework executable is not available.');
             end
@@ -806,6 +805,9 @@ classdef test_job_executor< MPI_Test_Common
             end
 
             worker_name = obj.worker;
+            setenv('DO_PARALLEL_MATLAB_LOGGING','true');
+            clOb = onCleanup(@()setenv('DO_PARALLEL_MATLAB_LOGGING',''));
+            %
             [ok,err] = feval(worker_name,'invalid_input');
             assertFalse(ok);
             assertTrue(isa(err,'MException'));
@@ -868,6 +870,9 @@ classdef test_job_executor< MPI_Test_Common
             fbMPIs2.send_message(1,ms);
 
             worker_name = obj.worker;
+            setenv('DO_PARALLEL_MATLAB_LOGGING','true');
+            clOb = onCleanup(@()setenv('DO_PARALLEL_MATLAB_LOGGING',''));
+            
             [ok,err,je]=feval(worker_name,css1);
             assertFalse(isempty(je));
             assertFalse(ok);

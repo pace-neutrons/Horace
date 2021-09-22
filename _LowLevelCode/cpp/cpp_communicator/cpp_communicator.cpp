@@ -1,3 +1,4 @@
+#include <mex.h>
 #include "cpp_communicator.h"
 #include "../utility/version.h"
 /* The mex file provides media for MPI communications betwen various Horace workers.
@@ -21,7 +22,7 @@ Inputs:  -- optional,
   3     --  data_messages_tag: the tag of the channel, used to transmit blocking messages. Default is 8
   4     -- interrupt_messages_tag: the tag of the channel used to transmint interrupt messages. Default is 100
   5     -- Ignored in this mode. In test mode its 2-element array, containing labIndex and numLabs for cluster under investigation.
-           
+
 
 Outputs:
   1     -- pointer to  new initialized MPI framework.
@@ -107,10 +108,10 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         plhs[0] = mxCreateString(Herbert::VERSION);
         return;
     }
-  
-  
+    //mexWarnMsgIdAndTxt("MEX:runtime_info","In mex file");
+
     //* Check and parse input  arguments. */
-    uint8_t * data_buffer(nullptr);
+    uint8_t* data_buffer(nullptr);
 
     std::vector<int32_t> data_addresses;
     std::vector<int32_t> data_tag;
@@ -201,9 +202,9 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 /* If appropriate number of output arguments are availiable, set up the mex routine output arguments to mpi_numLab and mpi_labNum values
    extracted from initialized MPI framework.
 */
-void set_numlab_and_nlabs(class_handle<MPI_wrapper> * const pCommunicatorHolder, int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
+void set_numlab_and_nlabs(class_handle<MPI_wrapper>* const pCommunicatorHolder, int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 
-    if (nlhs >= (int)labIndex_Out::numLab + 1) {
+    if (nlhs >= (int)labIndex_Out::numLab + 1) { // return labIndex
         plhs[(int)labIndex_Out::numLab] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
         uint64_t* pNlab = (uint64_t*)mxGetData(plhs[(int)labIndex_Out::numLab]);
         if (pCommunicatorHolder) {
@@ -213,14 +214,26 @@ void set_numlab_and_nlabs(class_handle<MPI_wrapper> * const pCommunicatorHolder,
             *pNlab = 0;
         }
     }
-    if (nlhs == (int)labIndex_Out::n_workers + 1) {
+    if (nlhs >= (int)labIndex_Out::n_workers + 1) { // also return NumLabs
         plhs[(int)labIndex_Out::n_workers] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS, mxREAL);
         uint64_t* pNworkers = (uint64_t*)mxGetData(plhs[(int)labIndex_Out::n_workers]);
         if (pCommunicatorHolder) {
-            *pNworkers = (uint64_t)(uint64_t)pCommunicatorHolder->class_ptr->numLabs;
+            *pNworkers = (uint64_t)pCommunicatorHolder->class_ptr->numLabs;
         }
         else {
             *pNworkers = 0;
+        }
+    }
+    if (nlhs == (int)labIndex_Out::MAX_N_Outputs) { // also return the names of the pool nodes
+        if (!pCommunicatorHolder) {
+            plhs[(int)labIndex_Out::pool_names] = mxCreateCellMatrix(0, 1);
+            return;
+        }
+        auto nLabs = pCommunicatorHolder->class_ptr->numLabs;
+        auto pNames = mxCreateCellMatrix(nLabs, 1);
+        plhs[(int)labIndex_Out::pool_names] = pNames;
+        for (auto i = 0; i < nLabs; i++) {
+            mxSetCell(pNames, i, mxCreateString(pCommunicatorHolder->class_ptr->node_names[i].c_str()));
         }
     }
 }

@@ -3,9 +3,6 @@ function isit = check_isconfigured(this,class_instance,check_mem_only)
 % memory or still on HDD
 %
 
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-
-
 class_name = class_instance.class_name;
 if isfield(this.config_storage_,class_name)
     isit = true;

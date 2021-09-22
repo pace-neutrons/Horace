@@ -5,8 +5,8 @@ function [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,D
 %Inputs:
 % worker_controls_string - the structure, containing information, necessary to
 %              initiate the job.
-%              Due to the fact this string is transferred
-%              through pipes its size is system dependent and limited, so
+%              Due to the fact this string may be transferred
+%              through pipes, its size is system dependent and limited, so
 %              contains only minimal initialization information, namely the
 %              folder name where the job initialization data are located on
 %              a remote system.
@@ -24,21 +24,23 @@ function [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,D
 %%
 je = [];
 ok = false;
+is_tested  = false;
 err_mess = 'Failure in the initialization procedure';
+if ~exist('DO_LOGGING', 'var')
+    DO_LOGGING = false;
+end
+if nargin<3
+    DO_DEBUGGING = false;
+end
 
 try
-    if ~exist('DO_LOGGING', 'var')
-        DO_LOGGING = false;
-    end
-    if nargin<3
-        DO_DEBUGGING = false;
-    end
     %
     % Check current state of mpi framework and set up deployment status
     % within Matlab code to run
     mis = MPI_State.instance();
     mis.is_deployed = true;
-    is_tested = mis.is_tested; % set up to tested state within unit tests.
+    is_tested = mis.is_tested; % set up to tested state within unit tests not to 
+    % exit running Matlab on test failure
     %
     % for testing we need to recover 'not-deployed' state to avoid clashes with
     % other unit tests. The production job finishes Matlab and clean-up is not necessary
@@ -58,20 +60,15 @@ try
     % Initialize config files to use on remote session. Needs to be initialized
     % first as may be used by message framework.
     %
-    %
-    % remove configurations, may be loaded in memory while Horace was
-    % initialized.
-    config_store.instance('clear');
     % Place where config files are stored:
-    cfn = config_store.instance().config_folder_name;
-    config_exchange_folder = fullfile(control_struct.data_path,cfn);
-    
-    % set path to the config sources:
+    config_exchange_folder = control_struct.data_path;    
+    % set path to the config sources, remove configurations, 
+    % may be loaded in memory while Horace was initialized.
     config_store.set_config_folder(config_exchange_folder);
     % Initialize the frameworks, responsible for communications within the
     % cluster and between the cluster and the headnode.
     % initiate file-based framework to exchange messages between head node and
-    % the pool of workers    
+    % the pool of workers
     [fbMPI,intercomm] = JobExecutor.init_frameworks(control_struct);
     %--------------------------------------------------------------------------
     % step 1 the initialization has been completed providing the
@@ -91,12 +88,16 @@ try
     end
     % inform the control node that the cluster have been started and ready
     % to accept jobs
-
+    
     JobExecutor.report_cluster_ready(fbMPI,intercomm);
 catch ME0 %unhandled exception during init procedure
     ok = false;
     err_mess = ME0;
-    return;
+    if is_tested
+        return;
+    else
+        quit(100);
+    end
 end
 %%
 
@@ -123,7 +124,7 @@ while keep_worker_running
             mess = FailedMessage(err_mess);
             fbMPI.send_message(0,mess);
             ok = MESS_CODES.runtime_error;
-            if exit_at_the_end;     exit;
+            if exit_at_the_end;     quit(254);
             else;                   return;
             end
         else
@@ -164,7 +165,7 @@ while keep_worker_running
         if ok ~= MESS_CODES.ok
             fbMPI.send_message(0,FailedMessage(err_mess));
             if exit_at_the_end
-                exit;
+                quit(254);
             else
                 return
             end
@@ -184,8 +185,8 @@ while keep_worker_running
         % something wrong with the code. We can not process interrupt
         % properly, but filebased framework should still be
         % available.
-
-        if ~strcmp(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')  
+        
+        if ~strcmp(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')
             % if job is cancelled, we can recover further, as it will throw
             % below at first call to log progress. Any other exception is unhandled one
             if DO_LOGGING; log_input_message_exception_caught();  end
@@ -296,7 +297,7 @@ while keep_worker_running
                 continue;
             else
                 % useful for testing only
-                je=je.migrate_job_folder(false);                
+                je=je.migrate_job_folder(false);
                 break;
             end
         catch ME1 % the only exception happen is due to error in JE system
@@ -331,7 +332,7 @@ if DO_DEBUGGING
     pause % for debugging filebased framework
 end
 if exit_at_the_end
-    exit;
+    quit(0);
 end
 %% -------------------------------------------------------
 % Logging functions used to print debug information
@@ -354,14 +355,21 @@ end
         fprintf(fh,'      LabNum         : %d:\n',fbMPI.labIndex);
         fprintf(fh,'      NumLabs        : %d:\n',fbMPI.numLabs);
         fprintf(fh,'Real MPI settings:\n');
-        fprintf(fh,'      Communicator:  : %s:\n',class(intercomm));        
+        fprintf(fh,'      Communicator:  : %s:\n',class(intercomm));
         fprintf(fh,'      Job ID         : %s:\n',intercomm.job_id);
         fprintf(fh,'      LabNum         : %d:\n',intercomm.labIndex);
         fprintf(fh,'      NumLabs        : %d:\n',intercomm.numLabs);
+        
         % assing logging file-handle to the available frameworks to allow
         % internal logging
         fbMPI.ext_log_fh = fh;
         intercomm.ext_log_fh = fh;
+        pool_nodes = intercomm.get_node_names();
+        fprintf(fh,'   ***************************************\n');
+        fprintf(fh,'Pool visible to node : %s:\n',pool_nodes{intercomm.labIndex});
+        for i=1:intercomm.numLabs
+            fprintf(fh,'  Node: %d  : Name : %s \n',i,pool_nodes{i});
+        end
     end
 %
     function log_num_runs(num_of_runs)

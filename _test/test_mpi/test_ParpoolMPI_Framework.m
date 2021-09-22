@@ -60,7 +60,9 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
         end
         %
         function test_finish_tasks_reduce_messages(obj,varargin)
-            skipTest('Skipping test due to intermittent failure')
+            if is_jenkins() && ispc() && (matlab_version_num()==9.05)
+                skipTest('Test ignored due to instability on Windows Jenkins');                
+            end
             if obj.ignore_test
                 skipTest(obj.ignore_cause);
             end
@@ -89,6 +91,7 @@ classdef test_ParpoolMPI_Framework< MPI_Test_Common
             assertTrue(all(all_ok));
             [ok,err,mess] = serverfbMPI.receive_message(1,'started');
             assertEqual(ok,MESS_CODES.ok,err);
+            assertTrue(isa(mess,'aMessage'));
             assertEqual(mess.mess_name,'started');
             [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
             assertEqual(ok,MESS_CODES.ok,err);

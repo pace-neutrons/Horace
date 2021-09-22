@@ -5,15 +5,11 @@ classdef ClusterMPI < ClusterWrapper
     %----------------------------------------------------------------------
     properties(Access = protected)
         
-        % the string user to launch Matlab
-        matlab_starter_  = [];
         % the string containing Java handle to running mpiexec process
         mpiexec_handle_ = [];
         %
     end
     properties(Access = private)
-        %
-        DEBUG_REMOTE = false;
         % the folder, containing mpiexec cluster configurations (host files)
         config_folder_
     end
@@ -47,10 +43,14 @@ classdef ClusterMPI < ClusterWrapper
             obj.started_info_message_  = ...
                 '**** mpiexec MPI job submitted                                     ****\n';
             %
+            % The default name of the messages framework, used for communications
+            % between the nodes of the parallel job
             obj.pool_exchange_frmwk_name_ ='MessagesCppMPI';
+            obj.cluster_config_ = 'local';
             % define config folder containing cluster configurations
             root = fileparts(which('herbert_init'));
             obj.config_folder_ = fullfile(root,'admin','mpi_cluster_configs');
+            obj.starting_cluster_name_ = class(obj);
             if nargin < 2
                 return;
             end
@@ -78,50 +78,44 @@ classdef ClusterMPI < ClusterWrapper
             end
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
             
-            pc = parallel_config();
-            obj.worker_name_        = pc.worker;
-            obj.is_compiled_script_ = pc.is_compiled;
-            
             %
-            
-            %
-            prog_path  = find_matlab_path();
-            if isempty(prog_path)
-                error('CLUSTER_HERBERT:runtime_error','Can not find Matlab');
-            end
-            
             mpiexec = obj.get_mpiexec();
-            if ispc()
-                obj.running_mess_contents_= 'process has not exited';
-                obj.matlab_starter_ = fullfile(prog_path,'matlab.exe');
-            else
-                obj.running_mess_contents_= 'process hasn''t exited';
-                obj.matlab_starter_= fullfile(prog_path,'matlab');
-            end
             mpiexec_str = {mpiexec,'-n',num2str(n_workers)};
             
             % build generic worker init string without lab parameters
             cs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
             worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
-            task_info = [mpiexec_str(:)',{obj.matlab_starter_},...
+            task_info = [mpiexec_str(:)',...
+                {obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR')},...
                 {'-batch'},{worker_init}];
-            pause(0.1);
-            runtime = java.lang.ProcessBuilder(task_info);
-            pause(0.1);
-            obj.mpiexec_handle_ = runtime.start();
-            pause(1);
-            
-            [ok,failed,mess] = obj.is_running();
-            if ~ok && failed
-                error('CLUSTER_MPI:runtime_error',...
-                    ' Can not start mpiexec with %d workers, Error: %s',...
-                    n_workers,mess);
-            end
-            
+            % this not used by java launcher bug may be used if we
+            % decide to run parallel worker from script
+            %obj.common_env_var_('HERBERT_PARALLEL_WORKER')= strjoin(task_info,' ');
+            % encoded information about the location of exchange folder
+            % and the parameters of the proceses pool.
+            obj.common_env_var_('WORKER_CONTROL_STRING') = cs;
             %
-            if log_level > -1
-                fprintf(obj.started_info_message_);
+            % prepate and start java process
+            if ispc()
+                runtime = java.lang.ProcessBuilder('cmd.exe');
+            else
+                runtime = java.lang.ProcessBuilder('/bin/sh');
             end
+            env = runtime.environment();
+            obj.set_env(env);
+            % TODO:
+            % this command does not currently transfer all necessary
+            % enviromental variables to the remote. The procedure
+            % to provide variables to transfer is MPI version specific
+            % for MPICH it is the option of MPIEXEC: -envlist <list>
+            % If mpiexec is used on a cluster, thos or similar option
+            % for other mpi implementation should be implemented
+            runtime = runtime.command(task_info);
+            obj.mpiexec_handle_ = runtime.start();
+            
+            % check if job control API reported failure
+            obj.check_failed();
+            
         end
         %
         function obj=finalize_all(obj)
@@ -129,39 +123,6 @@ classdef ClusterMPI < ClusterWrapper
             if ~isempty(obj.mpiexec_handle_)
                 obj.mpiexec_handle_.destroy();
                 obj.mpiexec_handle_ = [];
-            end
-        end
-        %
-        function [completed, obj] = check_progress(obj,varargin)
-            % Check the job progress verifying and receiving all messages,
-            % sent from worker N1
-            %
-            % usage:
-            %>> [completed, obj] = check_progress(obj)
-            %>> [completed, obj] = check_progress(obj,status_message)
-            %
-            % The first form checks and receives all messages addressed to
-            % job dispatched node where the second form accepts and
-            % verifies status message, received by other means
-            [ok,failed,mess] = obj.is_running();
-            [completed,obj] = check_progress@ClusterWrapper(obj,varargin{:});
-            if ~ok
-                if ~completed % the java framework reports job finished but
-                    % the head node have not received the final messages.
-                    completed = true;
-                    mess_body = sprintf(...
-                        'Framework launcher reports job finished without returning final messages. Reason: %s',...
-                        mess);
-                    if failed
-                        obj.status = FailedMessage(mess_body);
-                    else
-                        c_mess = aMessage('completed');
-                        c_mess.payload = mess_body;
-                        obj.status = c_mess ;
-                    end
-                    me = obj.mess_exchange_;
-                    me.clear_messages()
-                end
             end
         end
         %
@@ -183,17 +144,31 @@ classdef ClusterMPI < ClusterWrapper
             % communicaton library and the possibility to use the MPI cluster
             % to run parallel jobs.
             %
-            % Should throw PARALLEL_CONFIG:not_avalable exception
+            % Should throw HERBERT:ClusterWrapper:not_available exception
             % if the particular framework is not avalable.
             %
             check_availability@ClusterWrapper(obj);
             check_mpi_mpiexec_can_be_enabled_(obj);
         end
-        
+        %
+        function is = is_job_initiated(obj)
+            % returns true, if the cluster wrapper is mpiexec job
+            is = ~isempty(obj.mpiexec_handle_);
+        end
         %------------------------------------------------------------------
     end
     methods(Static)
         function mpi_exec = get_mpiexec()
+            mpi_exec  = config_store.instance().get_value('parallel_config','external_mpiexec');
+            if ~isempty(mpi_exec)
+                if is_file(mpi_exec) % found external mpiexec
+                    return
+                else
+                    warning('HERBERT:ClusterMPI:invalid_argument',...
+                        'External mpiexec %s selected but is not available',mpi_exec);
+                end
+            end
+            
             rootpath = fileparts(which('herbert_init'));
             external_dll_dir = fullfile(rootpath, 'DLL','external');
             if ispc()
@@ -214,13 +189,20 @@ classdef ClusterMPI < ClusterWrapper
         end
     end
     methods(Access = protected)
-        function [ok,failed,mess] = is_running(obj)
+        function [running,failed,paused,mess] = get_state_from_job_control(obj)
             % check if java process is still running or has been completed
             %
             % inputs:
+            paused = false;
             task_handle = obj.mpiexec_handle_;
-            [ok,failed,mess] = obj.is_java_process_running(task_handle);
+            [running,failed,mess] = obj.is_java_process_running(task_handle);
+            if failed
+                mess = FailedMessage(mess);
+            else % not failed
+                if ~running
+                    mess = CompletedMessage(mess);
+                end
+            end
         end
-        
     end
 end

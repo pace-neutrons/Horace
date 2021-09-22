@@ -12,7 +12,7 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             end
             obj = obj@TestCase(name);
         end
-
+        
         function clear_jenkins_var(obj)
             % clear fake Jenkins configuration, for is_jenkins routine
             % returning false
@@ -38,7 +38,7 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
                 'test_init_failed_timeout', 'MessagesFilebased', 0, 3,'test_mode');
             
             mf = MessagesFilebased(fii);
-            cluster = ClusterWrapper(3,mf);
+            cluster = ClusterWrapperTester(3,mf);
             clob = onCleanup(@()finalize_all(cluster));
             
             % build message framework to respond instead of a worker
@@ -58,7 +58,7 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
                 'test_init_failed_timeout', 'MessagesFilebased', 0, 3,'test_mode');
             
             mf = MessagesFilebased(fii);
-            cluster = ClusterWrapper(3,mf);
+            cluster = ClusterWrapperTester(3,mf);
             clob = onCleanup(@()finalize_all(cluster));
             
             cluster.cluster_startup_time =0;
@@ -76,7 +76,7 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
                 'test_cluster_init', 'MessagesFilebased', 0, 3,'test_mode');
             
             mf = MessagesFilebased(fii);
-            cluster = ClusterWrapper(3,mf);
+            cluster = ClusterWrapperTester(3,mf);
             clob = onCleanup(@()finalize_all(cluster));
             
             % build message framework to respond instead of a worker
@@ -111,9 +111,11 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             %             worker 1 and not tested here
             %             meR3.send_message(1,'started');
             
-            [completed,cluster] = cluster.check_progress();
+            [completed,failed,mess] = cluster.check_progress_from_messages();
+            cluster.status = mess;
             assertEqual(cluster.status.mess_name,'started');
             assertFalse(completed)
+            assertFalse(failed)
             %--------------------------------------------------------------
             % receive "starting" messages used to provide jeInit info to
             % each worker
@@ -167,7 +169,7 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             mf = MessagesFilebased('disp_prgrs');
             % test mode -- framework with 0 workers would not start
             % anything
-            cluster = ClusterWrapper(0,mf);
+            cluster = ClusterWrapperTester(0,mf);
             
             clob = onCleanup(@()finalize_all(cluster));
             
@@ -190,42 +192,69 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             else
                 CR =newline; % sprintf('\n');
             end
-            [completed,cluster] = cluster.check_progress();
-            assertFalse(completed);
+            %
+            [completed,failed,mess] = cluster.check_progress_from_messages();
+            cluster.status = mess;
+            assertFalse(completed)
+            assertFalse(failed)
+            
             cluster = cluster.display_progress();
             ref_string = ['***Job : ',mf.job_id,' : state: starting |',CR];
             assertEqual(cluster.log_value,ref_string);
-            [completed,cluster] = cluster.check_progress();
-            assertFalse(completed);
+            
+            [completed,failed,mess] = cluster.check_progress_from_messages();
+            cluster.status = mess;
+            assertFalse(completed)
+            assertFalse(failed)
+            
             cluster = cluster.display_progress();
             assertEqual(cluster.log_value,'.');
-            [completed,cluster] = cluster.check_progress();
+            
+            [completed,failed,mess] = cluster.check_progress_from_messages();
+            cluster.status = mess;
+            assertFalse(completed)
+            assertFalse(failed)
+            
+            [completed,failed,mess] = cluster.check_progress_from_messages();
+            cluster.status = mess;
+            assertFalse(failed)
             assertFalse(completed);
-            [completed,cluster] = cluster.check_progress();
-            assertFalse(completed);
+            
             cluster = cluster.display_progress();
             assertEqual(cluster.log_value,'.');
             n_steps = cluster.log_wrap_length;
             for i=3:n_steps
-                [completed,cluster] = cluster.check_progress();
+                [completed,failed,mess] = cluster.check_progress_from_messages();
+                cluster.status = mess;
+                assertFalse(failed)
                 assertFalse(completed);
                 cluster = cluster.display_progress();
                 assertEqual(cluster.log_value,'.');
             end
-            [completed,cluster] = cluster.check_progress();
+            [completed,failed,mess] = cluster.check_progress_from_messages();
+            cluster.status = mess;
+            assertFalse(failed)
             assertFalse(completed);
+            
             cluster = cluster.display_progress();
             assertEqual(cluster.log_value,[CR,ref_string]);
             
-            [completed,cluster] = cluster.check_progress();
+            [completed,failed,mess] = cluster.check_progress_from_messages();
+            cluster.status = mess;
+            assertFalse(failed)
             assertFalse(completed);
+            
             cluster = cluster.display_progress();
             assertEqual(cluster.log_value,'.');
             
             mess = LogMessage(1,50,0,[]);
             meR.send_message(0,mess);
             
-            [completed,cluster] = cluster.check_progress();
+            [completed,failed,mess] = cluster.check_progress_from_messages();
+            cluster.status = mess;
+            assertFalse(failed)
+            assertFalse(completed);
+            
             assertFalse(completed);
             cluster = cluster.display_progress();
             ref_string = [CR,'***Job : ',mf.job_id,' : state:  running |Step#1.00/50, Estimated time left:  Unknown | ',CR];
@@ -234,7 +263,11 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             %
             mess = LogMessage(2,50,1,[]);
             meR.send_message(0,mess);
-            [completed,cluster] = cluster.check_progress();
+            [completed,failed,mess] = cluster.check_progress_from_messages();
+            cluster.status = mess;
+            assertFalse(failed)
+            assertFalse(completed);
+            
             assertFalse(completed);
             cluster = cluster.display_progress();
             ref_string = ['***Job : ',mf.job_id,' : state:  running |Step#2.00/50, Estimated time left: 0.80(min)| ',CR];
@@ -297,7 +330,7 @@ classdef test_cluster_wrapper < TestCase & FakeJenkins4Tests
             n_workers = logical_cores + 1;
             assertExceptionThrown(@() clust.init(n_workers, msg_framework, ...
                 herbert_config().log_level), ...
-                'PARPOOL_CLUSTER_WRAPPER:runtime_error');
+                'HERBERT:ClusterParpoolWrapper:invalid_argument');
             clob3 = onCleanup(@()finalize_all(clust));
         end
     end

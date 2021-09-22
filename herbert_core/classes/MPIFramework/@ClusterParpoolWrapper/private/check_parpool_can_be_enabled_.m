@@ -1,4 +1,4 @@
-function check_parpool_can_be_enabled_(obj)
+function check_parpool_can_be_enabled_(~)
 % verify if one can set and use parallel framework based on Matlab parallel
 % computing toolbox
 
@@ -21,5 +21,5 @@ catch ME
 end
 
 if ~isempty(err_mess)
-    error('PARALLEL_CONFIG:not_available',err_mess);
+    error('HERBERT:ClusterWrapper:not_available',err_mess);
 end

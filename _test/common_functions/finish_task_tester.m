@@ -13,7 +13,6 @@ function ok=finish_task_tester(worker_controls_string,varargin)
 %             neighboring workers, used as sources of messages to
 %             test cpp_mpi communications.
 
-
 if isempty(which('herbert_init.m'))
     herbert_on();
 end
@@ -31,13 +30,12 @@ control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
 % Initialize config files to use on remote session. Needs to be initialized
 % first as may be used by message framework.
 %
-% remove configurations, may be loaded in memory while Horace was
-% initialized.
-config_store.instance('clear');
 % Where config files are stored:
-cfn = config_store.instance().config_folder_name;
-config_exchange_folder = fullfile(control_struct.data_path,cfn);
-% set pas to config sources:
+% Place where config files are stored:
+config_exchange_folder = control_struct.data_path;
+
+% set path to the config sources removimg configurations, may be loaded 
+% in memory while Horace was initialized.
 config_store.set_config_folder(config_exchange_folder);
 % Initialize the frameworks, responsible for communications within the
 % cluster and between the cluster and the headnode.

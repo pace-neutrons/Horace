@@ -56,7 +56,7 @@ classdef test_get_revert_bytestream< TestCase
 
         end
 
-        function test_mex_nomex(this)
+        function test_mex_nomex(~)
             if matlab_version_num>8.02
                 skipTest('Matlab 2014a+ can not currently run mex files build for lower matlab versions');
             end

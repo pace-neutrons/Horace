@@ -20,56 +20,7 @@ classdef config_store < handle
         saveable_;
         config_folder_name_ = 'mprogs_config';
     end
-    
-    methods(Access=private)
-        % Guard the constructor against external invocation.  We only want
-        % to allow a single instance of this class.  See description in
-        % Singleton superclass.
-        function newStore = config_store(varargin)
-            % create and initialize config_store;
-            p = inputParser;
-            addOptional(p, 'path', '', @(x)(validateattributes(x,...
-                {'char', 'string'}, {'scalartext', 'nonempty'})));
-            parse(p, varargin{:});
-            newPath = p.Results.path;
-            
-            % initialize configurations storage.
-            newStore.config_storage_ = struct();
-            newStore.saveable_ = containers.Map();
-            
-            [is_virtual,type]=is_idaaas();
-            if is_virtual
-                newStore.config_folder_name_ = ['mprogs_config_',type];
-            end
-            
-            [is_jenk,build_name,workspace] = is_jenkins();
-            if is_jenk
-                % remove all possible folder paths of the build name
-                % to be able to create valid file name.
-                [~,build_name] = fileparts(build_name);
-                newStore.config_folder_name_ = ['mprogs_config_',build_name];
-            end
-            
-            if ~isempty(newPath)
-                [fp,fn] = fileparts(newPath);
-                cfn = config_store.instance().config_folder_name;
-                if strcmpi(fn,cfn)
-                    newStore.config_folder_ = make_config_folder(cfn,fp);
-                else
-                    newStore.config_folder_ = make_config_folder(cfn,newPath);
-                end
-            else
-                % Initialise default config folder path according to
-                % configuration
-                if is_jenk
-                    newStore.config_folder_ = make_config_folder(newStore.config_folder_name, workspace);
-                else
-                    newStore.config_folder_ = make_config_folder(newStore.config_folder_name);
-                end
-            end
-        end
-    end
-    
+    %
     methods(Static)
         function obj = instance(varargin)
             % Get instance of unique config_store implementation.
@@ -190,6 +141,40 @@ classdef config_store < handle
             end
             
         end
+        %
+        function config_cont = get_all_configs(obj)
+            % return all config info, currently loaded in memory
+            config_cont = obj.config_storage_;
+            
+            fldn = fieldnames(config_cont);
+            for i=1:numel(fldn)
+                cfcl = feval(fldn{i});
+                conf = cfcl.get_data_to_store();
+                conf.saveable = obj.saveable_(fldn{i});
+                config_cont.(fldn{i}) = conf;
+            end
+            config_cont.config_folder = obj.config_folder;
+        end
+        %
+        function set_all_configs(obj,config_struct)
+            % set up config info, previously retrieved by get_all_configs
+            % function into memory as current configuration
+            %
+            obj.config_folder_ = config_struct.config_folder;
+            config_struct = rmfield(config_struct,'config_folder');
+            
+            fldn = fieldnames(config_struct);
+            for i=1:numel(fldn)
+                cfcl = feval(fldn{i});
+                cfdata = config_struct.(fldn{i});
+                cfcl.saveable = cfdata.saveable;
+                cfdata = rmfield(cfdata,'saveable');
+                cl_fld = fieldnames(cfdata);
+                for j=1:numel(cl_fld)
+                    cfcl.(cl_fld{j}) = cfdata.(cl_fld{j});
+                end
+            end
+        end
         %------------------------------------------------------------------
         % Two methods responsible for the class to be configured savable
         % savable property is not stored to HDD and is the property
@@ -217,6 +202,7 @@ classdef config_store < handle
                 this.saveable_(class_name)=is;
             end
         end
+        %
         function set_saveable(this,class_instance,is_it)
             % set or clear the property, which defines if the changes in
             % the class configuration are stored on hdd
@@ -249,10 +235,12 @@ classdef config_store < handle
             % from a config class, with specific class name
             %
             %Usage:
-            %>>val =
+            %>>val = ...
             %      config_store.instance().get_value(class_name,property_name)
             % or
-            %>>[val1,val2,val3] = config_store.instance().get_value(class_name,property_name1,property_name2,property_name3)
+            %>>[val1,val2,val3] = ...
+            %       config_store.instance().get_value(class_name,...
+            %                               property_name1,property_name2,property_name3);
             %
             [config_val,out] = this.get_config_val_internal(class_name,value_name,varargin);
             nout = max(nargout,1) - 1;
@@ -284,7 +272,7 @@ classdef config_store < handle
             %                      returns current Herbert config settings for fields
             %                      'use_mex' and 'log_level'
             
-            config_data=this.get_config_(class_to_restore);
+            [config_data,read_from_file]=this.get_config_(class_to_restore);
             % execute class setters.
             
             % Important!!!
@@ -293,8 +281,22 @@ classdef config_store < handle
             % set up unit test directories. But this can not set up
             % internal private dependent fields so a configuration can not
             % have such fields! (the setting got lost)
-            class_to_restore.set_stored_data(config_data);
+            
+            % set active properties only if the data were recovered from
+            % file
+            if read_from_file
+                if ~isa(class_to_restore,'config_base') % it mast be char
+                    class_to_restore = feval(class_to_restore);
+                end
+                ss = class_to_restore.saveable;
+                class_to_restore.saveable = false; % avoid resaving the data,
+                % just loaded from disk
+                class_to_restore.set_stored_data(config_data);
+                class_to_restore.saveable = ss; % return saveable state to
+                % its previous value
+            end
         end
+        %
         function has = has_config(this,class_name)
             % method checks if the class with given name has given
             % configuration stored in file.
@@ -362,12 +364,27 @@ classdef config_store < handle
             fn = obj.config_folder_name_;
         end
         %
-        function set_config_path(obj,new_path)
-            % set new config store path. Existing configurations are
-            % unloaded from memory.
+        function set_config_path(obj,new_path,varargin)
+            % set new config store path.
+            % usage:
+            % config_store.instance(new_path,['-clean']);
             %
-            % Should be used with care and necessary mainly for MPI workers
-            obj.instance(new_path);
+            % Inputs:
+            % new_path -- the path to store new configuration
+            % Optional:
+            % '-clean' -- existing configuration is unloaded from memory
+            %             this option should be used within MPI workers
+            %             to ensure they are keep any spurions configuration
+            %             in memory, and loaded shared configuration
+            if ~ischar(new_path)
+                error('HERBERT:config_store:invalid_argiment',...
+                    'The input path has to be a char. Got : %s',fevalc('disp(new_path)'));
+            end
+            if nargin>2
+                obj.instance(new_path);
+            else
+                obj.build_and_set_config_folder_(new_path);
+            end
         end
         
         %
@@ -375,5 +392,76 @@ classdef config_store < handle
             storage = fieldnames(this.config_storage_);
         end
         
+    end
+    methods(Access=private)
+        % Guard the constructor against external invocation.  We only want
+        % to allow a single instance of this class.  See description in
+        % Singleton superclass.
+        function newStore = config_store(varargin)
+            % create and initialize config_store;
+            p = inputParser;
+            addOptional(p, 'path', '', @(x)(validateattributes(x,...
+                {'char', 'string'}, {'scalartext', 'nonempty'})));
+            parse(p, varargin{:});
+            new_path = p.Results.path;
+            
+            % initialize configurations storage.
+            newStore.config_storage_ = struct();
+            newStore.saveable_ = containers.Map();
+            
+            newStore=build_and_set_config_folder_(newStore,new_path);
+        end
+        %
+        function obj=build_and_set_config_folder_(obj,new_path)
+            % construct the name of the config folder and set it up
+            % as config folder at the path specified.
+            %
+            % If new_path does not exist or is not defined, build and set
+            % config folder in default location, specified by
+            % make_config_folder routine
+            %
+            
+            %if ~exist('new_path','var') % not currently necessary as is
+            %                              always called with new_path,
+            %                              but to be aware of the futuire
+            %    new_path = '';
+            %end
+            [is_virtual,type]=is_idaaas();
+            if is_virtual
+                obj.config_folder_name_ = ['mprogs_config_',type];
+            end
+            [is_jenk,build_name,workspace] = is_jenkins();
+            if is_jenk                % remove all possible folder paths of the build name
+                % to be able to create valid file name.
+                [~,build_name] = fileparts(build_name);
+                obj.config_folder_name_ = ['mprogs_config_',build_name];
+            end
+            if ~isempty(new_path)
+                [file_path,fn] = fileparts(new_path);
+                if contains(fn,'mprogs_config_') % use new path config folder
+                    %                              name provided as input
+                    obj.config_folder_name_ = fn;
+                    use_external_path = true;
+                else
+                    use_external_path = false;
+                end
+                
+                cfn = obj.config_folder_name;
+                if use_external_path || strcmpi(fn,cfn)  % build config folder with the name,
+                    % specified as defined on level up then
+                    obj.config_folder_ = make_config_folder(cfn,file_path);
+                else  % build config folder under the new path
+                    obj.config_folder_ = make_config_folder(cfn,new_path);
+                end
+            else
+                % Initialise default config folder path according to
+                % configuration
+                if is_jenk % build config folder on the Jenkins workspace
+                    obj.config_folder_ = make_config_folder(obj.config_folder_name, workspace);
+                else % build defailt config folder somewhere on available config path
+                    obj.config_folder_ = make_config_folder(obj.config_folder_name);
+                end
+            end
+        end
     end
 end

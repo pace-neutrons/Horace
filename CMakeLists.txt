@@ -11,13 +11,14 @@ set(CMAKE_CXX_STANDARD 11)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Set our options
-option(BUILD_TESTS "Build the C++ tests" ON)
+option(BUILD_TESTS "Build the C++ tests" OFF)
+option(USE_HERBERT_MPI "Use MPI libraries provided with Herbert" ON)
 
 # Add cmake directory to CMake's path
 list(APPEND CMAKE_MODULE_PATH "${Herbert_ROOT}/cmake"
      "${Herbert_ROOT}/cmake/external" "${Herbert_ROOT}/cmake/shared")
 
-# This sets the destination for mex build artifacts (used in PACE_AddMex)
+# This sets the destination for mex build artefacts (used in PACE_AddMex)
 set(Herbert_DLL_DIRECTORY "${Herbert_ROOT}/herbert_core/DLL")
 # This is the directory that contains herbert_init.m
 set(Herbert_CORE "${CMAKE_CURRENT_LIST_DIR}/herbert_core")

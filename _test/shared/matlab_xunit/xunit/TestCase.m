@@ -29,22 +29,22 @@
 %   Copyright 2008-2010 The MathWorks, Inc.
 
 classdef TestCase < TestComponent
-
+    
     properties
         MethodName
     end
-
+    
     methods
         function self = TestCase(testMethod)
             %TestCase Constructor
             %   TestCase(methodName) constructs a TestCase object using the
             %   specified testMethod (a string).
-
+            
             self.MethodName = testMethod;
             self.Name = testMethod;
             self.Location = which(class(self));
         end
-
+        
         function [did_pass,num_tests_run] = run(self, monitor,num_tests_run)
             %run Execute the test case
             %    test_case.run(monitor) calls the TestCase object's setUp()
@@ -58,17 +58,17 @@ classdef TestCase < TestComponent
             %    test_case.run() automatically uses a
             %    CommandWindowTestRunDisplay object in order to print test
             %    suite execution information to the Command Window.
-
+            
             if nargin < 2
                 monitor = CommandWindowTestRunDisplay();
             end
             if nargin< 3
                 num_tests_run = 0;
             end
-
+            
             did_pass = self.passed;
             monitor.testComponentStarted(self);
-
+            
             try
                 self.setUp();
                 if ischar(self.MethodName)
@@ -87,7 +87,7 @@ classdef TestCase < TestComponent
                     fprintf('************  starting test: %s\n',name2print);
                     fprintf('**************************************************** \n');
                 end
-
+                
                 try
                     % Call the test method.
                     f(self);
@@ -107,30 +107,30 @@ classdef TestCase < TestComponent
                         name2print,tEnd);
                     fprintf('**************************************************** \n');
                 end
-
-
+                
+                
                 self.tearDown();
-
+                
             catch errorException
                 monitor.testCaseError(self, errorException);
                 did_pass = self.failed;
             end
-
+            
             monitor.testComponentFinished(self, did_pass);
             num_tests_run = num_tests_run+1;
         end
-
+        
         function num = numTestCases(self)
             num = 1;
         end
-
+        
         function print(self, numLeadingBlanks)
             if nargin < 2
                 numLeadingBlanks = 0;
             end
             fprintf('%s%s\n', blanks(numLeadingBlanks), self.Name);
         end
-
+        
     end
-
+    
 end

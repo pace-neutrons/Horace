@@ -3,8 +3,6 @@ function obj = init_workers_(obj,je_init_message,task_init_mess,log_prefix)
 % response informing that the job has started
 %
 
-
-
 me = obj.mess_exchange_;
 n_workers = obj.n_workers;
 me = me.set_framework_range(0,n_workers);
@@ -13,7 +11,7 @@ me = me.set_framework_range(0,n_workers);
 %
 n_locked = 0;
 wlock_obj_arr = cell(1,n_workers);
-obj=obj.display_progress([log_prefix,' parallel job: ',obj.job_id]);
+obj=obj.display_progress([log_prefix,' parallel task: ',obj.job_id]);
 for tid=n_workers:-1:1
     [ok,err,wlock] = me.send_message(tid,je_init_message);
     if ok ~= MESS_CODES.ok

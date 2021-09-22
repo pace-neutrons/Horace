@@ -490,6 +490,11 @@ classdef rundata
 
         function this=saveNXSPE(this,filename,varargin)
             % Saves current rundata in nxspe format.
+            % usage:
+            %>> rd.saveNXSPE(filename,[options]);
+            %
+            % Inputs:
+            % filename -- the name of the nxspe file to save data to.
             %
             % if some data are necessary for nxspe format have not yet been
             % loaded in memory, loads them in memory first.
@@ -500,8 +505,8 @@ classdef rundata
             %
             %             psi and efix are not reloaded (BUG?)
             %
-            % w, a,w+ and a+  options define readwrite or write access to the
-            %               file. (see Matlab manual for details of these options)
+            % w, a, w+ and a+  options define readwrite or write access to the
+            %             file. (see Matlab manual for details of these options)
             %              Adding to existing nxspe file is not
             %              currently supported, so the only difference
             %              between the options is that method will throw

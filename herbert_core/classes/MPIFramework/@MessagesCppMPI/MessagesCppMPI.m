@@ -38,6 +38,8 @@ classdef MessagesCppMPI < iMessagesFramework
         data_message_tag_;
         % The holder for is_tested property value
         is_tested_ = true;
+        % the list of node names, participating in the pool
+        node_names_ = {};
     end
     %----------------------------------------------------------------------
     methods
@@ -184,6 +186,10 @@ classdef MessagesCppMPI < iMessagesFramework
             
         end
         %
+        function names= get_node_names(obj)
+            % Return list of node names, participating in the pool
+            names = obj.node_names_;
+        end
     end
     %----------------------------------------------------------------------
     methods (Access=protected)
