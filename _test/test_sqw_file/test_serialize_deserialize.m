@@ -351,9 +351,10 @@ classdef test_serialize_deserialize< TestCase
             
             %---  Sample
             samp = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
+         
             [struc_pos,pos] = ser.calculate_positions(test_format,samp);
             
-            assertEqual(pos-1,1126);
+            assertEqual(pos-1,1231); % was 1126 before adding alatt/angdeg to IX_sample
             
             bytes = ser.serialize(samp,test_format);
             assertEqual(numel(bytes),pos-1);

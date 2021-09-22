@@ -216,8 +216,8 @@ if ~ok, error('GEN_SQW:invalid_argument',mess), end
 
 % Check optional arguments (grid, pix_db_range, instrument, sample) for size, type and validity
 grid_default=[];
-instrument_default=struct;  % default 1x1 struct
-sample_default=struct;      % default 1x1 struct
+instrument_default=IX_null_inst();  % default 1x1 struct
+sample_default=IX_null_sample();      % default 1x1 struct
 [ok,mess,present,grid_size_in,pix_db_range,instrument,sample]=gen_sqw_check_optional_args(...
     n_all_spe_files,grid_default,instrument_default,sample_default,args{:});
 if ~ok, error('GEN_SQW:invalid_argument',mess), end
@@ -274,7 +274,9 @@ if accumulate_old_sqw    % combine with existing sqw file
     %
     [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
         u, v, psi, omega, dpsi, gl, gs, instrument, sample, opt.replicate, header_sqw);
-    if ~ok, error(mess), end
+    if ~ok
+        error(mess)
+    end
     if any(head_only) && log_level>-1
         disp('********************************************************************************')
         disp('***  WARNING: The sqw file contains at least one data set that does not      ***')
@@ -449,6 +451,12 @@ else
             sample     = sample(ix);
         end
     end
+    for i=1:numel(run_files)
+        run_files{i}.instrument = instrument(i);
+        run_files{i}.sample = sample(i);
+    end
+    
+    
     if opt.replicate && ~spe_unique 
         % expand run_ids for replicated files to make run_id-s unique
         run_files = update_duplicated_rf_id(run_files);        

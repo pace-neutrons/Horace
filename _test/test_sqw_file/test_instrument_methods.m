@@ -154,9 +154,9 @@ classdef test_instrument_methods <  TestCase %WithSave
             
             assertEqual(numel(inst),186) % all instruments for this file are the same
             hdr = wtmp_new.my_header();
-            assertEqual(hdr{186}.instrument,inst(186));
-            assertEqual(hdr{10}.instrument,inst(10));
-            assertEqual(hdr{1}.instrument,inst(1));
+            assertEqual(hdr.instruments(186),inst(186));
+            assertEqual(hdr.instruments(10),inst(10));
+            assertEqual(hdr.instruments(1),inst(1));
             
             
         end

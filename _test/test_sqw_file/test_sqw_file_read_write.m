@@ -23,9 +23,23 @@ end
 
 
 % Create three different samples
+alatt1=f1_1.my_header().samples(1).alatt;
+angdeg1=f1_1.my_header().samples(1).angdeg;
 sam1=IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
+sam1.alatt=alatt1;
+sam1.angdeg=angdeg1;
+
+alatt2=f1_2.my_header().samples(1).alatt;
+angdeg2=f1_2.my_header().samples(1).angdeg;
 sam2=IX_sample(true,[1,1,1],[5,0,1],'cuboid',[0.10,0.33,0.22]);
+sam2.alatt=alatt2;
+sam2.angdeg=angdeg2;
+
+alatt3=f1_3.my_header().samples(1).alatt;
+angdeg3=f1_3.my_header().samples(1).angdeg;
 sam3=IX_sample(true,[1,1,0],[0,0,1],'point',[]);
+sam3.alatt=alatt3;
+sam3.angdeg=angdeg3;
 
 % T.G.Perring 22/7/19: These do not currently exist, so replaced
 % sam2=IX_sample(true,[1,1,1],[0,2,1],'cylinder_long_name',rand(1,5));
@@ -89,7 +103,10 @@ end
 % Remove the sample again, and confirm the same as original object after writing and reading
 % ------------------------------------------------------------------------------------------
 % Set sample
-f1_1_s0=set_sample(f1_1_s1,[]);
+sam0=IX_null_sample();
+sam0.alatt=[4 5 6];
+sam0.angdeg=[91 92 93];
+f1_1_s0=set_sample(f1_1_s1,sam0);
 [ok,mess]=equal_to_tol(f1_1,f1_1_s0,'ignore_str',1);
 assertTrue(ok,mess)
 
@@ -151,10 +168,15 @@ f1_1_i1s1=change_header_test(f1_2,inst1,sam1);
 f1_2_i1s1=change_header_test(f1_2,inst1,sam1);
 
 % Do some fancy stuff: overwrite instrument and sample
-f1_2_i0s2=change_header_test(f1_2_i1s1,struct,sam2);
+ins=IX_null_inst();
+f1_2_i0s2=change_header_test(f1_2_i1s1,ins,sam2);
 
 % Do some fancy stuff: remove instrument and sample
-f1_2_i0s0=change_header_test(f1_2_i1s1,struct,struct);
+ins=IX_null_inst();
+sam=IX_null_sample();
+sam.alatt=[4 5 6];
+sam.angdeg=[91 92 93]
+f1_2_i0s0=change_header_test(f1_2_i1s1,ins,sam);
 
 
 % Use instrument function definition to change instrument
@@ -163,8 +185,8 @@ f1_2_i0s0=change_header_test(f1_2_i1s1,struct,struct);
 tmpsqwfile=fullfile(tmp_dir,'test_sqw_file_fileref_store.sqw');
 wref=f1_2;
 hdr = wref.my_header();
-hdr{1}.efix=130;
-hdr{1}.efix=135; % betting this is {2} like the instrument change below
+hdr.expdata(1).efix=130;
+hdr.expdata(1).efix=135; % betting this is {2} like the instrument change below
 wref = wref.change_header(hdr);
 inst_arr=create_test_instrument(95,250,'s');
 inst_arr(2)=create_test_instrument(105,300,'a');
@@ -178,8 +200,8 @@ inst_arr=create_test_instrument(400,500,'s');
 inst_arr(2)=create_test_instrument(105,600,'a');
 wtmp_ref=wref;
 hdr = wtmp_ref.my_header();
-hdr{1}.instrument=inst_arr(1);
-hdr{2}.instrument=inst_arr(2);
+hdr.instruments(1)=inst_arr(1);
+hdr.instruments(2)=inst_arr(2);
 wtmp_ref = wtmp_ref.change_header(hdr);
 
 wtmp=set_instrument(wref,@create_test_instrument,[400;105],[500;600],{'s';'a'});
@@ -196,8 +218,8 @@ inst_arr=create_test_instrument(400,500,'s');
 inst_arr(2)=create_test_instrument(400,500,'s');
 wtmp_ref=wref;
 hdr = wtmp_ref.my_header();
-hdr{1}.instrument=inst_arr(1);
-hdr{2}.instrument=inst_arr(2);
+hdr.instruments(1)=inst_arr(1);
+hdr.instruments(2)=inst_arr(2);
 wtmp_ref = wtmp_ref.change_header(hdr);
 
 wtmp=set_instrument(wref,@create_test_instrument,400,500,'s');
@@ -214,8 +236,8 @@ inst_arr=create_test_instrument(135,500,'s');
 inst_arr(2)=create_test_instrument(50,500,'s');
 wtmp_ref=wref;
 hdr = wtmp_ref.my_header();
-hdr{1}.instrument=inst_arr(1);
-hdr{2}.instrument=inst_arr(2);
+hdr.instruments(1)=inst_arr(1);
+hdr.instruments(2)=inst_arr(2);
 wtmp_ref = wtmp_ref.change_header(hdr);
 
 wtmp=set_instrument(wref,@create_test_instrument,'-efix',500,'s');

@@ -85,8 +85,8 @@ end
 
 if setting_sample
     % serialize sample(s)
-    if iscell(sampl) % allow only one sample! TODO: very bad. Change with class resesighn
-        sampl = sampl{1};
+    if iscell(sampl) % NO LONGER allow only one sample! TODO: very bad. Change with class resesighn
+        sampl = [sampl{:}];
     end
     [bytes,sample_size] = serialize_si_block_(obj,sampl,'sample');
     %clc_size = obj.instr_sample_end_pos_ - obj.sample_pos_;

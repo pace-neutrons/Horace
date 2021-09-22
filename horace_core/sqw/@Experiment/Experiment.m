@@ -49,12 +49,11 @@ classdef Experiment
                 alatt = varargin{1}.alatt;
                 angdeg = varargin{1}.angdeg;
                 if isstruct(varargin{1}.instrument) && isempty(fieldnames(varargin{1}.instrument))
-                    try
+                    % as the instrument struct is empty, create a null
+                    % instrument to represent it
                     obj.instruments_(end+1) = IX_inst();
-                    catch ME
-                        error("T");
-                    end
                 elseif isa(varargin{1}.instrument,'IX_inst')
+                    % hoping that the IX_inst is in fact a subclass
                     obj.instruments_(end+1) = varargin{1}.instrument;
                 elseif isstruct(varargin{1}.instrument)
                     if isfield(varargin{1}.instrument,'fermi_chopper') && ...
@@ -63,7 +62,9 @@ classdef Experiment
                                                                   varargin{1}.instrument.aperture,  ...
                                                                   varargin{1}.instrument.fermi_chopper)
                     else
-                        error("this instrument not implemented yet");
+                        % where this instrument is probably a DGdisk which
+                        % actually is implemented but may be somethig else
+                        error("Horace:Experiment:this instrument not implemented yet");
                     end
                 end
                 if isstruct(varargin{1}.sample) && isempty(fieldnames(varargin{1}.sample))

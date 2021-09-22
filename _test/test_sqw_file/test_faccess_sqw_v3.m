@@ -163,6 +163,8 @@ classdef test_faccess_sqw_v3< TestCase
             assertTrue(isa(sqw_ob,'sqw'));
             % Create sample
             sam1=IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
+            sam1.alatt=[4 5 6];
+            sam1.angdeg=[91 92 93];
             %inst1=create_test_instrument(95,250,'s');
             %sqw_ob.header(1).instrument = inst1;
             hdr = sqw_ob.my_header();
@@ -232,7 +234,7 @@ classdef test_faccess_sqw_v3< TestCase
 
             inst1=create_test_instrument(95,250,'s');
             hdr = sqw_ob.my_header();
-            hdr(1).instrument = inst1;
+            hdr.instruments(1) = inst1;
             sqw_ob = sqw_ob.change_header(hdr);
             
             tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');

@@ -325,7 +325,9 @@ classdef test_migrated_apis < TestCase
         function test_set_sample(obj)
             s = sqw(obj.test_sqw_2d_fullpath);
             sam1=IX_sample('test_sample_name', true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
-
+            sam1.alatt = [4.2275 4.2275 4.2275];
+            sam1.angdeg = [90 90 90];
+            
             s_updated = s.set_sample(sam1);
 
             hdr = s_updated.my_header();

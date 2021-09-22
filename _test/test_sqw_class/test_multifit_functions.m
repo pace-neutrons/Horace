@@ -25,6 +25,8 @@ classdef test_multifit_functions < TestCase
 
         function test_tobyfit(obj)
             sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02]);
+            sample.alatt = [2.8700 2.8700 2.8700];
+            sample.angdeg = [90 90 90];
             obj.sqw_4_test = ...
                 set_instrument(obj.sqw_4_test, @maps_instrument,'-efix',800,'S');
             obj.sqw_4_test = ...

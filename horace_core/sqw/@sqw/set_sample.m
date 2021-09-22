@@ -42,7 +42,7 @@ if narg==0
         argout{1}=w.data;
     end
 elseif narg==1
-    if isscalar(args{1}) && (isstruct(args{1}) || isa(args{1},'IX_sample'))
+    if isscalar(args{1}) && (isstruct(args{1}) || isa(args{1},'IX_samp'))
         sample=args{1};     % single structure or IX_sample
     elseif isempty(args{1})
         sample=struct();    % empty item indicates no sample; set to default 1x1 empty structure
@@ -64,14 +64,6 @@ elseif narg==1
             nfiles=wout(i).main_header.nfiles;
             tmp=wout(i).header_x;   % to keep referencing to sub-fields to a minimum
             for ifiles=1:nfiles
-                % the default sample already present will have been set up
-                % with alatt and angdeg values from old-style headers. 
-                % The new sample being entered may not have these. 
-                % Here we assume that the pregenerated sample values are
-                % not valid.
-                oldsample = tmp.samples(ifiles);
-                sample.alatt = oldsample.alatt;
-                sample.angdeg = oldsample.angdeg;
                 tmp.samples(ifiles)=sample;
             end
             wout(i).header_x=tmp;

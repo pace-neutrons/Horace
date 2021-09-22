@@ -107,6 +107,8 @@ qfwhh=0.1;                  % Spread of Bragg peaks
 efwhh=1;                    % Energy width of Bragg peaks
 
 sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02]);
+sample.alatt = [5 5 5]; % if it should be wsim's parameters, could be [4.75 4.75 4.75] if it is alatt_true
+sample.angdeg = [90 90 90]; % both the same for this one
 
 if save_data
     % Create sqw file for refinement testing
