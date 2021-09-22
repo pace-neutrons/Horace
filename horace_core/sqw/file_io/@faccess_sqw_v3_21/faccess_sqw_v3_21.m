@@ -60,13 +60,13 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
         % the transient class stores pix range together with the data
         % footer.
         pix_range_ = [];
-    end    
+    end
     properties(Constant,Access=protected,Hidden=true)
         % list of fileldnames to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
         fields_to_save_3_3 = {'pix_range_'};
     end
-        
+    
     methods
         %
         %
@@ -105,8 +105,7 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
             % upgrade the file to recent write format and open this file
             % for writing/updating
             %
-            % v3.2 is not upgradable recent file format, so
-            % the method just reopens file for update.
+            % v3.21 is upgradable from v3_2
             if ~isempty(obj.filename)
                 obj = obj.set_file_to_update();
             end
@@ -130,8 +129,8 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
             obj.position_info_pos_= obj.instr_sample_end_pos_;
             %
             data = obj.extract_correct_subobj('data');
-            obj.pix_range_ = data.pix.pix_range;            
-            num_pix = data.pix.num_pixels;            
+            obj.pix_range_ = data.pix.pix_range;
+            num_pix = data.pix.num_pixels;
             
             if any(any(obj.pix_range_ == PixelData.EMPTY_RANGE_)) && num_pix > 0
                 data.pix.recalc_pix_range();
