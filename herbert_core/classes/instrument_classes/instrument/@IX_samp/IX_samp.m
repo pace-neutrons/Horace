@@ -39,7 +39,32 @@ classdef IX_samp  < matlab.mixin.Heterogeneous
             else
                 obj.name_ = thename;
             end
-	    end
+        end
+        
+        function iseq = eq(obj1, obj2)
+            iseq = strcmp(obj1.name, obj2.name);
+            if numel(obj1.alatt)==3 && numel(obj2.alatt)==3
+                iseq = iseq && obj1.alatt(1)==obj2.alatt(1);
+                iseq = iseq && obj1.alatt(2)==obj2.alatt(2);
+                iseq = iseq && obj1.alatt(3)==obj2.alatt(3);
+            elseif isempty(obj1.alatt) && isempty(obj2.alatt)
+                iseq = iseq && true; % heavyhanded but gets the point across
+            else
+                iseq = false;
+                return
+            end
+            if numel(obj1.angdeg)==3 && numel(obj2.angdeg)==3
+                iseq = iseq && obj1.angdeg(1)==obj2.angdeg(1);
+                iseq = iseq && obj1.angdeg(2)==obj2.angdeg(2);
+                iseq = iseq && obj1.angdeg(3)==obj2.angdeg(3);
+            elseif isempty(obj1.angdeg) && isempty(obj2.angdeg)
+                iseq = iseq && true; % heavyhanded but gets the point across
+            else
+                iseq = false;
+                return
+            end
+        end
+        
         %------------------------------------------------------------------
         % Set methods
         %

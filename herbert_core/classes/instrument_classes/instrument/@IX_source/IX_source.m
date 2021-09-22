@@ -57,6 +57,12 @@ classdef IX_source
                 end
             end
         end
+        
+        function iseq = eq(obj1,obj2)
+            iseq = strcmp(obj1.name, obj2.name);
+            iseq = iseq && strcmp(obj1.target_name, obj2.target_name);
+            iseq = iseq && obj1.frequency==obj2.frequency;
+        end
 
         %------------------------------------------------------------------
         % Set methods for independent properties
