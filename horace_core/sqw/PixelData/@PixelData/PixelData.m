@@ -372,6 +372,9 @@ classdef PixelData < handle
             if isa(arg, 'sqw_binfile_common')
                 % input is a file accessor
                 obj = obj.init_from_file_accessor_(arg);
+                if all(obj.pix_range == obj.EMPTY_RANGE_)
+                    obj.reset_changed_coord_range('coordinates');                   
+                end
                 return;
             end
             

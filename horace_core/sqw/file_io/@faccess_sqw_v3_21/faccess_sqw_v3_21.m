@@ -1,15 +1,15 @@
-classdef faccess_sqw_v3_2 < faccess_sqw_v3
-    % Class to access Horace binary files written in binary format v3.2
-    % The format differs from 3.1 format as it used for
-    % indirect instrument with range of efixed energies.
+classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
+    % Class to access Horace binary files written in binary format v3.2.1
+    % The format differs from 3.2 as it contains pixel range stored within
+    % the footer, similarly to sqw_v3_3 but for indirect instrument
     %
     %
     % Usage:
     %1)
-    %>>sqw_access = faccess_sqw_v3_2(filename)
+    %>>sqw_access = faccess_sqw_v3_21(filename)
     % or
     % 2)
-    %>>sqw_access = faccess_sqw_v3_2(sqw_dnd_object,filename)
+    %>>sqw_access = faccess_sqw_v3_21(sqw_dnd_object,filename)
     %
     % 1)
     % First form initializes accessor to existing sqw file where
@@ -56,34 +56,39 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
     %
     %
     %
-    
-    %
-    methods(Access=protected,Hidden=true)
+    properties(Access=public,Hidden=true)
+        % the transient class stores pix range together with the data
+        % footer.
+        pix_range_ = [];
+    end    
+    properties(Constant,Access=protected,Hidden=true)
+        % list of fileldnames to save on hdd to be able to recover
+        % all substantial parts of appropriate sqw file
+        fields_to_save_3_3 = {'pix_range_'};
     end
-    %
-    %
+        
     methods
         %
         %
-        function obj=faccess_sqw_v3_2(varargin)
+        function obj=faccess_sqw_v3_21(varargin)
             % constructor, to build sqw reader/writer version 3
             %
             % Usage:
-            % ld = faccess_sqw_v3_2() % initialize empty sqw reader/writer
-            %                        version 3.2
+            % ld = faccess_sqw_v3_21() % initialize empty sqw reader/writer
+            %                        version 3.21
             %                       The class should be initialized later using
             %                       init command
-            % ld = faccess_sqw_v3_2(filename) % initialize sqw reader/writer
-            %                       version 3.2
-            %                       to load sqw file version 3.
+            % ld = faccess_sqw_v3_21(filename) % initialize sqw reader/writer
+            %                       version 3.21
+            %                       to load sqw file version 3.21
             %                       Throws error if the file version is not sqw
             %                       version 3.2
-            % ld = faccess_sqw_v3_2(sqw_object) % initialize sqw
-            %                       reader/writer version 3
+            % ld = faccess_sqw_v3_21(sqw_object) % initialize sqw
+            %                       reader/writer version 3.21
             %                       to save sqw object provided. The name
             %                       of the file to save the object should
             %                       be provided separately.
-            % ld = faccess_sqw_v3_2(sqw_object,filename) % initialize sqw
+            % ld = faccess_sqw_v3_21(sqw_object,filename) % initialize sqw
             %                       reader/writer version 3
             %                       to save sqw object provided. The name
             %                       of the file to save the object should
@@ -91,8 +96,8 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
             
             %
             % set up fields, which define appropriate file version
-            obj = obj@faccess_sqw_v3(varargin{:});
-            obj.file_ver_ = 3.2;
+            obj = obj@faccess_sqw_v3_2(varargin{:});
+            obj.file_ver_ = 3.21;
         end
         
         %
@@ -108,39 +113,44 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
         end
         %
     end
-    methods(Static,Hidden=true)
-        function header = get_header_form(varargin)
-            % Return structure of the contributing file header in the form
-            % it is written on hdd.
-            % Usage:
-            % header = obj.get_header_form();
-            % header = obj.get_header_form('-const');
-            % Second option returns only the fields which do not change if
-            % filename or title changes
+    methods(Access=protected,Hidden=true)
+        function flds = fields_to_save(obj)
+            % returns the fields to save in the structure in sqw binfile v3 format
+            head_flds = fields_to_save@faccess_sqw_v3(obj);
+            flds = [head_flds(:);obj.fields_to_save_3_3(:)];
+        end
+        %
+        function obj = init_v3_specific(obj)
+            % Initialize position information specific for sqw v3.3 object.
             %
-            % Fields in file are:
-            % --------------------------
-            %   header.filename     Name of sqw file excluding path
-            %   header.filepath     Path to sqw file including terminating file separator
-            %   header.efix         Array of fixed energies for all crystal analysers
-            %   header.emode        Emode=1 direct geometry, =2 indirect geometry
-            %   header.alatt        Lattice parameters (Angstroms)
-            %   header.angdeg       Lattice angles (deg)
-            %   header.cu           First vector defining scattering plane (r.l.u.)
-            %   header.cv           Second vector defining scattering plane (r.l.u.)
-            %   header.psi          Orientation angle (deg)
-            %   header.omega        --|
-            %   header.dpsi           |  Crystal misorientation description (deg)
-            %   header.gl             |  (See notes elsewhere e.g. Tobyfit manual
-            %   header.gs           --|
-            %   header.en           Energy bin boundaries (meV) [column vector]
-            %   header.uoffset      Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
-            %   header.u_to_rlu     Matrix (4x4) of projection axes in hkle representation
-            %                        u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-            %   header.ulen         Length of projection axes vectors in Ang^-1 or meV [row vector]
-            %   header.ulabel       Labels of the projection axes [1x4 cell array of character strings]
+            % Used by this class init and faccess_sqw_v2&similar for
+            % upgrading to v3.3
+            obj = init_sample_instr_records(obj);
             %
-            header = get_header_form_(varargin{:});
+            obj.position_info_pos_= obj.instr_sample_end_pos_;
+            %
+            data = obj.extract_correct_subobj('data');
+            obj.pix_range_ = data.pix.pix_range;            
+            num_pix = data.pix.num_pixels;            
+            
+            if any(any(obj.pix_range_ == PixelData.EMPTY_RANGE_)) && num_pix > 0
+                data.pix.recalc_pix_range();
+                obj.pix_range_ = data.pix.pix_range;
+            end
+            obj = init_sqw_footer(obj);
+        end
+        
+        function obj=init_from_structure(obj,obj_structure_from_saveobj)
+            % init file accessors using structure, obtained for object
+            % serialization (saveobj method);
+            obj = init_from_structure@faccess_sqw_v3(obj,obj_structure_from_saveobj);
+            %
+            flds = obj.fields_to_save_3_3;
+            for i=1:numel(flds)
+                if isfield(obj_structure_from_saveobj,flds{i})
+                    obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
+                end
+            end
         end
     end
     %
