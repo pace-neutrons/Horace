@@ -22,8 +22,6 @@ function  [obj,pos] = calc_pos_check_input_set_defaults_(obj,input,varargin)
 %
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
 
 if isstruct(input)
     obj.input_is_stuct_ = true;
