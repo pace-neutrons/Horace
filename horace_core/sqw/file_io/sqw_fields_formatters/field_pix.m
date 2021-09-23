@@ -1,11 +1,12 @@
 classdef field_pix < field_var_array
     %  The class describes conversion applied to save/restore
-    %  unknown length array of single or double precision values
+    %  pixel data.
     %
-    %  The length of the array is specified || identified during conversion
+    %  The length of the pixel data array is specified || identified from
+    %  the class information, but pixel data themselves are written
+    %  separately as plain array
     %
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     
     properties(Access=private)
@@ -41,9 +42,13 @@ classdef field_pix < field_var_array
                 typecast(reshape(data,1,nel),'uint8')];
         end
         function sz = size_of_field(obj,val)
-            % calculate length of string defined by format string
-            % invertible sequence of bytes
-            nel = numel(val);
+            % calculate length of pixel field
+            
+            if isa(val,'PixelData')
+                nel = val.num_pixels*val.DEFAULT_NUM_PIX_FIELDS;
+            else
+                nel = numel(val);
+            end
             sz = 8+nel*obj.elem_byte_size;
         end
         
@@ -54,14 +59,14 @@ classdef field_pix < field_var_array
             if obj.old_matlab_
                 npix = double(npix);
             end
-            numel = npix*9;
+            numel = npix*PixelData.DEFAULT_NUM_PIX_FIELDS;
             length = numel*obj.elem_byte_size;
             start = 8;
             if numel ==0
                 val = [];
             else
                 val = typecast(bytes(pos+start:pos+start+length-1),obj.precision);
-                val = reshape(val,[9,npix]);
+                val = reshape(val,[PixelData.DEFAULT_NUM_PIX_FIELDS,npix]);
             end
             length = double(length +start);
         end
@@ -77,13 +82,13 @@ classdef field_pix < field_var_array
             if res ~=0
                 err = true;
                 return;
-            end            
-            nelem = fread(fid,1,'*uint64')*9;
+            end
+            nelem = fread(fid,1,'*uint64')*PixelData.DEFAULT_NUM_PIX_FIELDS;
             [~,res] = ferror(fid);
             if res ~=0
                 err = true;
                 return;
-            end            
+            end
             
             sz = double(nelem*obj.elem_byte_size +8 );
         end

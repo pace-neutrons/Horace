@@ -82,19 +82,8 @@ classdef PixelData < handle
     %   page_size      - The number of pixels in the currently loaded page.
     %
     properties (Access=private)
-        FIELD_INDEX_MAP_ = containers.Map(...
-            {'u1', 'u2', 'u3', 'dE', ...
-            'coordinates', ...
-            'q_coordinates', ...
-            'run_idx', ...
-            'detector_idx', ...
-            'energy_idx', ...
-            'signal', ...
-            'variance',...
-            'all'}, ...
-            {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9,1:9});
         PIXEL_BLOCK_COLS_ = PixelData.DEFAULT_NUM_PIX_FIELDS;
-        
+        %
         dirty_page_edited_ = false;  % true if a dirty page has been edited since it was loaded
         f_accessor_;  % instance of faccess object to access pixel data from file
         file_path_ = '';  % the path to the file backing this object - empty string if all data in memory
@@ -114,69 +103,64 @@ classdef PixelData < handle
         DEFAULT_PAGE_SIZE = realmax;  % this gives no paging by default
     end
     properties (Constant,Hidden)
-        % the range, an empty pixel class has
+        % the coordinate range, an empty pixel class has
         EMPTY_RANGE_ = [inf,inf,inf,inf;-inf,-inf,-inf,-inf];
+        % the version of the class to store/restore data in Matlab files
+        version = 1;
+    end
+    properties(Constant,Access=private)
+        FIELD_INDEX_MAP_ = containers.Map(...
+            {'u1', 'u2', 'u3', 'dE', ...
+            'coordinates', ...
+            'q_coordinates', ...
+            'run_idx', ...
+            'detector_idx', ...
+            'energy_idx', ...
+            'signal', ...
+            'variance',...
+            'all'}, ...
+            {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9,1:9});
+        % list of the fields, used for exporting PixelData class to
+        % structure
+        % TODO: Does not properly support filebased data. What to do about it?
+        fields_to_save_ = {'file_path','data','num_pixels','pix_range'};
     end
     
     properties (Dependent)
-        % The 1st dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
-        u1;
+        u1; % The 1st dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
+        u2; % The 2nd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
+        u3; % The 3rd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
+        dE; % The array of energy deltas of the pixels (1 x n array) [meV]
         
-        % The 2nd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
-        u2;
+        q_coordinates; % The spatial dimensions of the Crystal Cartesian
+        %                orientation (3 x n array)
+        coordinates;   % The coordinates of the pixels in the projection axes, i.e.: u1,
+        %                u2, u3 and dE (4 x n array)
         
-        % The 3rd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]
-        u3;
+        run_idx; % The run index the pixel originated from (1 x n array)
+        detector_idx; % The detector group number in the detector listing for the pixels (1 x n array)
+        energy_idx;   % The energy bin numbers (1 x n array)
         
-        % The spatial dimensions of the Crystal Cartesian orientation (3 x n array)
-        q_coordinates;
+        signal;   % The signal array (1 x n array)
+        variance; % The variance on the signal array
+        %            (variance i.e. error bar squared) (1 x n array)
+        num_pixels;         % The number of pixels in the data block
         
-        % The array of energy deltas of the pixels (1 x n array) [meV]
-        dE;
+        pix_range; % The range of pixels coordinates in Crystal Cartesian
+        % coordinate system. [2x4] array of [min;max] values of pixels
+        % coordinates field. If data are file-based and you are setting
+        % pixels coordinates, this value may get invalid, as the range
+        % never shrinks.
         
-        % The coordinates of the pixels in the projection axes, i.e.: u1,
-        % u2, u3 and dE (4 x n array)
-        coordinates;
-        
-        % The run index the pixel originated from (1 x n array)
-        run_idx;
-        
-        % The detector group number in the detector listing for the pixels (1 x n array)
-        detector_idx;
-        
-        % The energy bin numbers (1 x n array)
-        energy_idx;
-        
-        % The signal array (1 x n array)
-        signal;
-        
-        % The variance on the signal array (variance i.e. error bar squared) (1 x n array)
-        variance;
-        
-        % The number of pixels in the data block
-        num_pixels;
-        
-        % The range of pixels coordinates in Crystal Cartesian coordinate
-        % system. [2x4] array of [min;max] values of pixels coordinates
-        % field. If data are file-based and you are setting pixels coordinates,
-        % this value may get invalid, as the range never shrinks.
-        pix_range;
-        
-        % The full raw pixel data block. Usage of this attribute exposes
+        data; % The full raw pixel data block. Usage of this attribute exposes
         % current pixels layout, so when the pixels layout changes in a
         % future, the code using this attribute will change too. So, the usage
         % of this attribute is discouraged as the structure of the return
         % value is not guaranteed in a future.
-        data;
         
-        % The file that the pixel data has been read from, empty if no file
-        file_path;
-        
-        % The number of pixels in the current page
-        page_size;
-        
-        % The number of pixels that can fit in one page of data
-        base_page_size;
+        file_path;  % The file that the pixel data has been read from, empty if no file
+        page_size;  % The number of pixels in the current page
+        base_page_size;  % The number of pixels that can fit in one page of data
     end
     properties(Dependent,Access=private)
         %
@@ -227,13 +211,41 @@ classdef PixelData < handle
             % -------
             %   obj     An instance of this object
             %
-            if isempty(S.page_memory_size_)
-                % This if statement allows us to load old PixelData objects that
-                % were saved in .mat files that do not have the 'page_memory_size_'
-                % property
-                S.page_memory_size_ = PixelData.DEFAULT_PAGE_SIZE;
+            if isstruct(S)
+                obj = PixelData();
+                if numel(S)> 1
+                    obj = repmat(obj,size(S));
+                end
+                if isfield(S,'version')
+                    % load PixelData objects, written when saveobj method was
+                    % written
+                    if S.version == 1
+                        for i=1:numel(S)
+                            obj(i).set_data('all',S(i).data);
+                            obj(i).set_range(S(i).pix_range);
+                            obj(i).file_path_ = S.file_path_;
+                        end
+                    else
+                        error('HORACE:PixelData:invalid_argument',...
+                            'Unknown PixelData input structire version');
+                    end
+                else % previous version,
+                    for i=1:numel(S)
+                        obj(i).set_data('all',S(i).raw_data_);
+                        obj(i).set_range(S(i).pix_range_);
+                        obj(i).file_path_ = S.file_path_;                        
+                    end
+                    
+                end
+            else
+                if isempty(S.page_memory_size_)
+                    % This if statement allows us to load old PixelData objects that
+                    % were saved in .mat files that do not have the 'page_memory_size_'
+                    % property
+                    S.page_memory_size_ = PixelData.DEFAULT_PAGE_SIZE;
+                end
+                obj = PixelData(S);
             end
-            obj = PixelData(S);
         end
         
         function validate_mem_alloc(mem_alloc)
@@ -369,11 +381,11 @@ classdef PixelData < handle
                 obj = obj.init_from_file_accessor_(f_accessor);
                 return;
             end
-            if isa(arg, 'sqw_binfile_common')
+            if isa(arg, 'sqw_file_interface')
                 % input is a file accessor
                 obj = obj.init_from_file_accessor_(arg);
                 if all(obj.pix_range == obj.EMPTY_RANGE_)
-                    obj.reset_changed_coord_range('coordinates');                   
+                    obj.reset_changed_coord_range('coordinates');
                 end
                 return;
             end
@@ -398,18 +410,20 @@ classdef PixelData < handle
                 obj.tmp_io_handler_.delete_files();
             end
         end
+        %
+        function data=saveobj(obj)
+            if obj.is_filebacked()
+                error('HORACE:PixelData:runtime_error',...
+                    'Can not save filebacked PixelData object');
+            end
+            data = struct(obj);
+            data.version = obj.version;
+        end
         
         function is_empty = isempty(obj)
             % Return true if the PixelData object holds no pixel data
             is_empty = obj.num_pixels == 0;
         end
-        
-        %function nel = numel(obj)
-            % Return the number of data points in the pixel data block
-            %   If the data is file backed, this returns the number of values in
-            %   the file.
-        %     nel = obj.PIXEL_BLOCK_COLS_*obj.num_pixels;
-        %end
         
         function pix_copy = copy(obj)
             % Make an independent copy of this object
@@ -732,7 +746,17 @@ classdef PixelData < handle
             %
             is = ~isempty(obj.f_accessor_) || obj.get_num_pages_() > 1;
         end
-        
+        %
+        function st = struct(obj)
+            % convert object into saveable and serializable structure
+            %
+            flds = obj.fields_to_save_;
+            st = struct();
+            for i=1:numel(flds)
+                fldn = flds{i};
+                st.(fldn) = obj.(fldn);
+            end
+        end
     end
     
     methods (Access=private)
