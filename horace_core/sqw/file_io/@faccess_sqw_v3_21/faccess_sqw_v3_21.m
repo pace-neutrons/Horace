@@ -153,41 +153,6 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
             end
         end
     end
-    methods(Static,Hidden=true)
-        function header = get_header_form(varargin)
-            % Return structure of the contributing file header in the form
-            % it is written on hdd.
-            % Usage:
-            % header = obj.get_header_form();
-            % header = obj.get_header_form('-const');
-            % Second option returns only the fields which do not change if
-            % filename or title changes
-            %
-            % Fields in file are:
-            % --------------------------
-            %   header.filename     Name of sqw file excluding path
-            %   header.filepath     Path to sqw file including terminating file separator
-            %   header.efix         Array of fixed energies for all crystal analysers
-            %   header.emode        Emode=1 direct geometry, =2 indirect geometry
-            %   header.alatt        Lattice parameters (Angstroms)
-            %   header.angdeg       Lattice angles (deg)
-            %   header.cu           First vector defining scattering plane (r.l.u.)
-            %   header.cv           Second vector defining scattering plane (r.l.u.)
-            %   header.psi          Orientation angle (deg)
-            %   header.omega        --|
-            %   header.dpsi           |  Crystal misorientation description (deg)
-            %   header.gl             |  (See notes elsewhere e.g. Tobyfit manual
-            %   header.gs           --|
-            %   header.en           Energy bin boundaries (meV) [column vector]
-            %   header.uoffset      Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
-            %   header.u_to_rlu     Matrix (4x4) of projection axes in hkle representation
-            %                        u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-            %   header.ulen         Length of projection axes vectors in Ang^-1 or meV [row vector]
-            %   header.ulabel       Labels of the projection axes [1x4 cell array of character strings]
-            %
-            header = get_header_form_(varargin{:});
-        end
-    end
     
     %
 end
