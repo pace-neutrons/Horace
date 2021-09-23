@@ -48,8 +48,8 @@ if isempty(bin_starts)
     img_range = img_range_step;
     return
 end
-
-block_size = obj.data.pix.base_page_size;
+hc = hor_config;
+block_size = hc.mem_chunk_size;
 % Get indices in order to split the candidate bin ranges into chunks whose sums
 % are less than, or equal to, a pixel page size
 bin_sizes = bin_ends - bin_starts+1;
@@ -72,16 +72,24 @@ if keep_pix
         pix_comb_info = [];
     end
 end
+if keep_pix && use_tmp_files
+    clearPixAccum = onCleanup(@()cut_data_from_file_job.accumulate_pix_to_file('cleanup'));
+end
+if keep_pix && ~use_tmp_files
+    keep_precision = false; % change single precision to double precision for further operations
+else
+    keep_precision = true;
+end
+
 
 for iter = 1:num_chunks
     % Get pixels that will likely contribute to the cut
     chunk = block_chunks{iter};
     pix_start = chunk{1};
-    block_sizes = chunk{2};    
+    block_sizes = chunk{2};
     pix_end = pix_start+block_sizes-1;
     candidate_pix = obj.data.pix.get_pix_in_ranges( ...
-        pix_start, pix_end  ...
-        );
+        pix_start, pix_end, false);
     
     if log_level >= 1
         fprintf(['Step %3d of %3d; Read data for %d pixels -- ' ...
@@ -98,28 +106,21 @@ for iter = 1:num_chunks
         ok, ...
         ix ...
         ] = cut_data_from_file_job.accumulate_cut( ...
-        s, ...
-        e, ...
-        npix, ...
-        img_range_step, ...
-        keep_pix, ...
+        s, e, npix, ...
+        img_range_step, keep_pix, ...
         candidate_pix, ...
-        proj, ...
-        proj.target_pax ...
-        );
+        proj, proj.target_pax,keep_precision);
     
     if log_level >= 1
         fprintf(' ----->  retained  %d pixels\n', del_npix_retain);
     end
-    
     if keep_pix
         if use_tmp_files
             % Generate tmp files and get a pix_combine_info object to manage
             % the files - this object then recombines the files once it is
             % passed to 'put_sqw'.
-            buf_size = obj.data.pix.page_size;
             pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file( ...
-                pix_comb_info, false, candidate_pix, ok, ix, npix, buf_size, ...
+                pix_comb_info, false, candidate_pix, ok, ix, npix, block_size, ...
                 del_npix_retain ...
                 );
         else
@@ -132,7 +133,7 @@ end  % loop over pixel blocks
 
 if keep_pix
     [pix_out, pix_comb_info] = combine_pixels( ...
-        pix_retained, pix_ix_retained, pix_comb_info, npix, obj.data.pix.page_size ...
+        pix_retained, pix_ix_retained, pix_comb_info, npix, block_size ...
         );
 else
     pix_out = PixelData();

@@ -48,7 +48,7 @@ while ibin_end<nbin
         pix_section_mess  = DataMessage(payload);
         [ok,err_mess]=mess_exch.send_message(targ_worker,pix_section_mess);
         if ok ~= MESS_CODES.ok
-            error('COMBINE_SQW_PIX_JOB:runtime_error',err_mess);
+            error('HORACE:combine_sqw_pix_job:runtime_error',err_mess);
         end
         if h_log
             fprintf(h_log,'**** Processed ranges : [%d , %d], npix: %d#of%d\n',...

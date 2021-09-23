@@ -25,7 +25,9 @@ for idx = 1:numel(class_fields)
     field_name = class_fields{idx};
     tmp1 = w1.(field_name);
     tmp2 = w2.(field_name);
-    [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a', name_a, 'name_b', name_b);
+    name_aa = [name_a,'.',field_name];
+    name_bb = [name_b,'.',field_name];    
+    [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a', name_aa, 'name_b', name_bb);
 
     if ~ok
         return; % break on first failure

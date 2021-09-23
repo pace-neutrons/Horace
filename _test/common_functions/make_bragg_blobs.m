@@ -1,4 +1,4 @@
-function weight = make_bragg_blobs (qh,qk,ql,en,p,lattice0,lattice,rotvec)
+function weight = make_bragg_blobs (qh,qk,ql,en,p,lattice0,lattice,rotvec,varargin)
 % Blobs at Bragg positions on a lattice rotated and scaled w.r.t. input lattice
 %
 %   >> weight = make_bragg_blobs (qh,qk,ql,en,p,lattice0)
@@ -49,14 +49,14 @@ if ~isempty(mess), error(mess), end
 
 % b is the matrix to convert rlu in the true lattice to crystal Cartesian coords
 if exist('lattice','var')
-    [b,arlu,angrlu,mess] = bmatrix(lattice(1:3),lattice(4:6));
-    if ~isempty(mess), error(mess), end
+[b,arlu,angrlu,mess] = bmatrix(lattice(1:3),lattice(4:6));
+if ~isempty(mess), error(mess), end
 else
     b=b0;
 end
 
 if exist('rotvec','var')
-    R=rotvec_to_rotmat2(rotvec');
+R=rotvec_to_rotmat2(rotvec');
 else
     R=eye(3);
 end
@@ -65,6 +65,10 @@ rlu_corr=b\(R*b0);
 % Get h,k,l in new lattice and get weight
 qrlu=rlu_corr*[qh(:),qk(:),ql(:)]';
 dqrlu=qrlu-round(qrlu);
-dq=b*dqrlu;     % convert back to orthonormal frame
+dq=b*dqrlu;     % convert back to orthonormal frame:  B^-1*Q  = Q[hkl]
 weight=amp*exp(-(sum((dq/qsig).^2,1) + (en(:)'/esig).^2)/2);
 weight=reshape(weight,size(qh));
+if nargin > 8 % debug mode, used in test cuts. 
+     % add constant to pixels
+     weight = weight+varargin{1};
+end

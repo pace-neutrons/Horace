@@ -1,11 +1,10 @@
-function pix_range = calc_sqw_pix_range (efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+function [pix_range,ndet] = calc_sqw_pix_range (efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 % Compute range of data for a collection of data files given the projection axes and crystal orientation
 %
 %   >> pix_range = calc_grid (efix, emode, eps_lo, eps_hi, det, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 %
 % Input: (in the following, nfile = no. spe files)
 % ------
-%   dummy           Dummy sqw object  - used only to ensure that this service routine was called
 %   efix            Fixed energy (meV)                 [scalar or vector length nfile]
 %   emode           Direct geometry=1, indirect geometry=2    [scalar]
 %   eps_lo          Lower energy transfer (meV)        [scalar or vector length nfile]
@@ -27,6 +26,7 @@ function pix_range = calc_sqw_pix_range (efix, emode, eps_lo, eps_hi, det, alatt
 % --------
 %   pix_range       Actual range of data in crystal Cartesian coordinates and
 %                   energy transfer (2x4 array)
+%   ndet            number of detectors positions, defined by the par file
 
 
 % Original author: T.G.Perring
@@ -58,7 +58,6 @@ end
 if ischar(det) && size(det,1)==1
     det=get_par(det);
 end
-
 % Get pix_range
 rd_list = rundatah.gen_runfiles(cell(1,numel(efix)),det,...
     efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs,'-allow_missing');
@@ -67,7 +66,7 @@ S = zeros(1,ndet);
 ERR = S;
 for i=1:numel(rd_list)
     rd_list{i}.S = S;
-    rd_list{i}.ERR = ERR;    
+    rd_list{i}.ERR = ERR;
     rd_list{i}.en = [eps_lo(i);eps_hi(i)];
 end
 pix_range = rundata_find_pix_range(rd_list);

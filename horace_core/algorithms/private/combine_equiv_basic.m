@@ -8,7 +8,7 @@ function transf_list=combine_equiv_basic(data_source,proj,pos,step,erange,outfil
 %All of the inputs have been checked by this stage, so we do not need to do
 %that again.
 
-%We are combining all equivalent wavevectors, so all we need to do here is
+%We are combining all equivalent wave-vectors, so all we need to do here is
 %work out what are the equivalent zones, package them up in a cell array
 %and then pass them to combine_equiv_list
 

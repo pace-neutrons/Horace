@@ -165,7 +165,7 @@ disp('');
 
 %Finally save the correct output to disk:
 write_nsqw_to_sqw (zone_fnames_list, outfile,...
-    'allow_equal_headers','drop_subzones_headers');
+    '-allow_equal_headers','-drop_subzones_headers');
 
 %if nargout>0
 %    wout = read_sqw(outfile);

@@ -213,5 +213,28 @@ At the time of writing, the only way I know to get these onto your laptop is to 
 I use WinSCP. The user id and password are the same as for getting into ISIS Analysis (your STFC email and your chosen password),
 and the hostname can be found in the window title bar of the VM browser window -
 **NOT** the local name starting `host-192...` which you see in the individual terminal windows.
-Port is the default 22. An alternative tool is rsync, which I have not tried.
+Port is the default 22. An alternative tool is rsync, which I have not tried. 
+
+The Scratch location for this directory is not ideal, and to provide a more permanent home, 
+a zipped copy of this directory is now available at `\\isis.cclrc.ac.uk\Shares\PACE_Project_Tool_Source` (the SAN disk) 
+under the directory `PACE_Demo`. This disk is not mounted on IDaaS. 
+In the event that the `.../Scratch/Perring` location referred to above or its contents become unavailable, 
+the zipped copy can be copied back to the `babylon` disk from our Windows server machine. 
+This can be accessed by Remote Desktop. The computer name is the IP address `130.246.49.165` and 
+the user name is the communal user `NDW1676\Jenkins`. A colleague will be able to tell you the password. 
+Note that one or more colleagues may be using this machine - 
+i.e. you may see the desktop populated with working windows. 
+If you minimize any that are in the way and confine yourself to launching one or two explorer windows 
+to do the file transfer, that should be fine.
+
+The required drives are already mapped. 
+`N:` maps to `\\Olympic\Babylon5`, which is the location of the `babylon\Scratch` directory. 
+`Z:` maps to the SAN disk. 
+You should be able to use these to make the copy to (say) 
+your own subdirectory of `babylon/Scratch` (here `N:\Scratch`).
+Note that you can access the SAN disk from your own machine by mapping a network drive.
+Here the user id is `clrc\myFedID` where myFedID is your normal federal ID for login, 
+and the password is your normal federal password. An administrator should already have added you 
+to the list of allowed users for the SAN disk.
+
 

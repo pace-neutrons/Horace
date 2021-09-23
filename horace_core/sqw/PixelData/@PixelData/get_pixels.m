@@ -1,5 +1,5 @@
-function pix_out = get_pixels(obj, abs_pix_indices)
-% GET_PIXELS Retrieve the pixels at the given indices in the full pixel block,
+function pix_out = get_pixels(obj, abs_pix_indices,varargin)
+% Retrieve the pixels at the given indices in the full pixel block,
 % return a new PixelData object.
 %
 %  >> pix_out = pix.get_pixels(15640:19244)  % retrieve pixels at indices 15640 to 19244
@@ -22,12 +22,16 @@ function pix_out = get_pixels(obj, abs_pix_indices)
 %                    "out-of-order". However, you cannot use `end`, but it is
 %                    possible to achieve the same effect using the `num_pixels`
 %                    property.
-%
+%  Optional:
+%  '-ignore_range'  -- if provided, new pix_object will not contain correct
+%                      pixel ranges
+
 % Output:
 % -------
 %   pix_out        Another PixelData object containing only the pixels
 %                  specified in the abs_pix_indices argument.
 %
+
 abs_pix_indices = parse_args(obj, abs_pix_indices);
 
 if obj.is_filebacked()
@@ -67,7 +71,8 @@ if obj.is_filebacked()
     end
 else
     % All pixels in memory
-    pix_out = PixelData(obj.data(:, abs_pix_indices));
+    raw_pix = obj.data(:, abs_pix_indices);
+    pix_out = PixelData(raw_pix);
 end
 
 

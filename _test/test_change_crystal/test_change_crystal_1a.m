@@ -56,7 +56,7 @@ classdef test_change_crystal_1a < TestCase
             common_data_dir=fullfile(hor_root,'_test','common_data');
             % -----------------------------------------------------------------------------
             % generate shifted sqw file
-            obj.par_file=fullfile(common_data_dir,'9cards_4_4to1.par');
+            obj.par_file=fullfile(common_data_dir,'map_4to1_dec09.par');
             % Parameters for generation of reference sqw file
             obj.dir_out=tmp_dir;
 
@@ -246,7 +246,7 @@ classdef test_change_crystal_1a < TestCase
                         obj.dpsi, obj.gl, obj.gs, [1,1,1,1], pix_range);
                     % Simulate cross-section on every the sqw file: place blobs at Bragg positions of the true lattice
                     sqw_obj=sqw_eval(sqw_obj{1},@make_bragg_blobs,...
-                        {[qfwhh,efwhh],[obj.alatt,obj.angdeg],...
+                        {[1,qfwhh,efwhh],[obj.alatt,obj.angdeg],...
                         [obj.alatt,obj.angdeg],rotvec});
                     % mainly to propagate errors as sqw_eval nullified errors?
                     npix = sqw_obj.data.pix.num_pixels;

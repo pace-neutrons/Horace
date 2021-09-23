@@ -13,6 +13,7 @@ set(TEST_DIRECTORIES
     "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_mex"
     "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_nomex"
     "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_parpool"
+    "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_slurm"
     "test_herbert_utilites"
     "test_mex_nomex"
     "test_multifit"

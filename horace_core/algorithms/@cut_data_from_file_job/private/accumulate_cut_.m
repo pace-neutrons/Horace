@@ -1,5 +1,5 @@
 function [s, e, npix, img_range_step, npix_retain,ok, ix] = accumulate_cut_(s, e, npix,img_range_step, keep_pix,...
-    v,proj,pax)
+    v,proj,pax,keep_precision)
 %function [s, e, npix, img_range_step, npix_retain,ok, ix] = accumulate_cut (s, e, npix, img_range_step, keep_pix,...
 %    v, img_range_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax)
 % Accumulate signal into output arrays
@@ -25,6 +25,8 @@ function [s, e, npix, img_range_step, npix_retain,ok, ix] = accumulate_cut_(s, e
 %   ebin            Energy bin width (plays role of rot_ustep for energy axis)
 %   trans_elo       Bottom of energy scale (plays role of trans_bott_left for energy axis)
 %   pax             Indices of plot axes (with two or more bins) [row vector]
+%   keep_precision  if true, do not convert pixels in the double but keep
+%                   their precision the same as input pixels
 %
 % Output:
 % -------
@@ -47,6 +49,12 @@ function [s, e, npix, img_range_step, npix_retain,ok, ix] = accumulate_cut_(s, e
     config_store.instance().get_value('hor_config','ignore_nan','ignore_inf','use_mex','threads');
 ignore_nan=logical(ignore_nan);
 ignore_inf=logical(ignore_inf);
+
+% Temporary and inefficient solution to keep pixels double all through the
+% Horace. Needs better logic or may be real pixels 
+if isa(v.data,'single') && ~keep_precision
+    set_data(v,'all',double(v.data));
+end
 
 
 

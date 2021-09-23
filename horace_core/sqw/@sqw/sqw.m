@@ -118,13 +118,16 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         
         % Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)
-            val = '';
-            if ~isempty(obj.data_)
-                val = obj.data_;
-            end
+            val = obj.data_;
         end
         function obj = set.data(obj, d)
-            obj.data_ = d;
+            %if isa(d,'data_sqw_dnd') || isempty(d)
+                obj.data_ = d;
+            %else
+            %    error('HORACE:sqw:invalid_argument',...
+            %        'Only data_sqw_dnd class or empty value may be used as data value. Trying to set up: %s',...
+            %        class(d))
+            %end
         end
         
         

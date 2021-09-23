@@ -1,10 +1,11 @@
-classdef test_sqw_constructor < TestCase
+classdef test_sqw_constructor < TestCase & common_state_holder
 
 properties
     sqw_file_1d_name = 'sqw_1d_1.sqw';
     sqw_files_path = '../test_sqw_file/';
 
     test_sqw_1d_fullpath = '';
+        %
 end
 
 methods
@@ -16,7 +17,8 @@ methods
         obj.test_sqw_1d_fullpath = char(test_sqw_file.getCanonicalPath());
     end
 
-    function test_sqw_class_follows_expected_class_heirarchy(obj)
+        
+        function test_sqw_class_follows_expected_class_heirarchy(~)
         sqw_obj = sqw();
 
         assertTrue(isa(sqw_obj, 'sqw'));

@@ -37,19 +37,19 @@ properties([
       trim: true
     ),
     string(
-      defaultValue: '',
+      defaultValue: '3.19',
       description: 'The version of CMake to run the build with. Affects Linux builds only.',
       name: 'CMAKE_VERSION',
       trim: true
     ),
     string(
-      defaultValue: '',
+      defaultValue: '6.3.0',
       description: 'The version of GCC to build with. Affects Linux builds only.',
       name: 'GCC_VERSION',
       trim: true
     ),
     string(
-      defaultValue: '',
+      defaultValue: '2017',
       description: 'The year of the version of Visual Studio to build with.  Affects Windows builds only.',
       name: 'VS_VERSION',
       trim: true

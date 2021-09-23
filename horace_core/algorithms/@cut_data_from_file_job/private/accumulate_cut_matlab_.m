@@ -42,11 +42,6 @@ function [s, e, npix, img_range_step, npix_retain, ok, ix] = accumulate_cut_matl
 % T.G.Perring   19 July 2007
 %
 %
-% Temporary and ineffective solution to keep pixels double all through the
-% Horace. TODO: redefine pixels as single and propagate it through all Horace
-if isa(v.data,'single')
-    v.data = double(v.data);
-end
 
 [indx,ok] = proj.get_contributing_pix_ind(v);
 if isempty(indx)    % if no pixels in range, return

@@ -85,7 +85,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     urangeModes uRange_mode;
 
     if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
+#ifdef _OPENMP
         plhs[0] = mxCreateString(Horace::VERSION);
+#else
+        plhs[0] = mxCreateString(Horace::VER_NOOMP);
+#endif
         return;
     }
 
@@ -340,10 +344,10 @@ void calc_projections_emode(double * const pMinMax,
     * runID           The number uniquely identifying the experiment, the data are obtained from
     * pEnergies[nEnergies]  Array of energies of arrival of detected particles
     * pDetPhi[nDetectors]   ! -- arrays of  ... and
-    * pDetPsi[nDetectors]   ! -- azimutal coordinates of the detectors
+    * pDetPsi[nDetectors]   ! -- azimuthal coordinates of the detectors
     * efix      -- initial energy of the particles
-    * k_to_e    -- De-Broyle parameter to transform energy of particles into their wavelength
-    * enRange   -- how to treat energy array -- relate energies to the bin center or to the bin edges
+    * k_to_e    -- De-Broglie parameter to transform energy of particles into their wavelength
+    * enRange   -- how to treat energy array -- relate energies to the bin centre or to the bin edges
     * nThreads  -- number of computational threads to start in parallel mode
     */
 
@@ -391,7 +395,9 @@ void calc_projections_emode(double * const pMinMax,
     std::vector<double> qe_max(4 * nThreads, -FLT_MAX);
 #pragma omp parallel default(none)  \
     shared(pKf,qe_min,qe_max) \
-    firstprivate(nDetectors,nEnergies,ki,urange_mode,emode,singleEfixed,pEfix,pEnergies,k_to_e,runID) //\
+    firstprivate(nDetectors,nEnergies,ki,urange_mode,emode,singleEfixed, \
+            pEfix,pEnergies,k_to_e,runID,pMatrix,pDetPhi,pDetPsi,pDetGroup,\
+            pSignal,pError,pTransfDetectors) //\
     //reduction(min: q1_min,q2_min,q3_min,e_min; max: q1_max,q2_max,q3_max,e_max)
     {
 #pragma omp for

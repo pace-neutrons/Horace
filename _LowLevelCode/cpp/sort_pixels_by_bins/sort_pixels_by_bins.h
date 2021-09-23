@@ -10,7 +10,7 @@
 #define  PIXEL_DATA_WIDTH  9
 
 
-// $Revision$ $Date$
+//
 template<class T, class N, class K>
 void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, std::vector<const T *> &PixelData, std::vector<size_t> &NPixels,
     std::vector<const N *> &PixelIndexes, std::vector<size_t> NIndexes,
@@ -32,8 +32,10 @@ void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, std::vec
     {
         size_t nBlockInd = NIndexes[nblock];
         const N* pCellInd = PixelIndexes[nblock];
+        if (pCellInd == nullptr)continue;
 
         const T* pPixData= PixelData[nblock];
+        if (pPixData == nullptr)continue;
 
         for (size_t j = 0; j < nBlockInd ; j++) {    // sort pixels according to cells
             size_t i0 = j*pix_fields::PIX_WIDTH;

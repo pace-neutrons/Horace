@@ -1,4 +1,4 @@
-classdef test_PixelData_operations < TestCase
+classdef test_PixelData_operations < TestCase & common_state_holder
     
     properties
         BYTES_PER_PIX = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
@@ -6,16 +6,16 @@ classdef test_PixelData_operations < TestCase
         VARIANCE_IDX = 9;
         ALL_IN_MEM_PG_SIZE = 1e12;
         FLOAT_TOLERANCE = 4.75e-4;
-
+        
     end
     
     methods
         
         function obj = test_PixelData_operations(~)
             obj = obj@TestCase('test_PixelData_operations');
-
+            
         end
-
+        
         function test_do_unary_op_returns_correct_output_with_cosine_gt_1_page(obj)
             data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 50);
             npix_in_page = 11;

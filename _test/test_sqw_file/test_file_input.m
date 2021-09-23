@@ -16,8 +16,7 @@ classdef  test_file_input < TestCase
         
         refcount_;
         clob_obj_
-    end
-    
+    end    
     
     methods
         function obj = test_file_input(varargin)

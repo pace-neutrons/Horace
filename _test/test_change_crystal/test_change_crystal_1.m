@@ -27,7 +27,7 @@ hp.combine_sqw_using = 'mex_code';
 efix=45;
 emode=1;
 en=-0.75:0.5:0.75;
-par_file=fullfile(common_data_dir,'9cards_4_4to1.par');
+par_file=fullfile(common_data_dir,'map_4to1_dec09.par');
 
 % Parameters for generation of reference sqw file
 alatt=[5,5,5];
@@ -54,7 +54,7 @@ for i=1:numel(psi)
     wtmp=fake_sqw (en, par_file, '', efix, emode, alatt, angdeg,...
         u, v, psi(i), omega, dpsi, gl, gs, [1,1,1,1], pix_range);
     % Simulate cross-section on all the sqw files: place blobs at Bragg positions of the true lattice
-    wtmp=sqw_eval(wtmp{1},@make_bragg_blobs,{[qfwhh,efwhh],[alatt,angdeg],[alatt_true,angdeg_true],rotvec});
+    wtmp=sqw_eval(wtmp{1},@make_bragg_blobs,{[1,qfwhh,efwhh],[alatt,angdeg],[alatt_true,angdeg_true],rotvec});
     sqw_file{i}=fullfile(dir_out,['dummy_test_change_crystal_1_',num2str(i),'.sqw']);
     save(wtmp,sqw_file{i});
 end
@@ -94,7 +94,7 @@ if max(abs(rlu0_corr(:)-rlu(:)))>qfwhh
 end
 
 
-% Success announcement and cleanup
+% Success announcement and clean-up
 % --------------------------------
 
 banner_to_screen([mfilename,': Test(s) passed (matches are within requested tolerances)'],'bot')

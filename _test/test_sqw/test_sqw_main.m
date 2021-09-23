@@ -75,14 +75,14 @@ classdef test_sqw_main < TestCase
             fpath = fullfile(obj.tests_dir, 'test_sqw_file', 'sqw_1d_2.sqw');
             page_size_bytes = -1000;
             f = @() sqw(fpath, 'pixel_page_size', page_size_bytes);
-            assertExceptionThrown(f, 'PIXELDATA:validate_mem_alloc');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
 
         function test_error_setting_non_numeric_pix_page_size_in_constructor(obj)
             fpath = fullfile(obj.tests_dir, 'test_sqw_file', 'sqw_1d_2.sqw');
             s = struct();
             f = @() sqw(fpath, 'pixel_page_size', s);
-            assertExceptionThrown(f, 'PIXELDATA:validate_mem_alloc');
+            assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
 
     end
