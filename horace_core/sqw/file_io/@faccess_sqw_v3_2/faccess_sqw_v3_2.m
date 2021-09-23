@@ -96,15 +96,13 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
         end
         
         %
-        function obj = upgrade_file_format(obj)
+        function new_obj = upgrade_file_format(obj)
             % upgrade the file to recent write format and open this file
             % for writing/updating
             %
-            % v3.2 is not upgradable recent file format, so
-            % the method just reopens file for update.
-            if ~isempty(obj.filename)
-                obj = obj.set_file_to_update();
-            end
+            % The operation upgrades format 3.2 to format 3.21, containing
+            % pix_range information
+            new_obj = upgrade_file_format_(obj);
         end
         %
     end

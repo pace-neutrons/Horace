@@ -3,7 +3,6 @@ classdef test_faccess_sqw_v3< TestCase
     % Validate fast sqw reader used in combining sqw
     %
     %
-    % $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
     %
 
 

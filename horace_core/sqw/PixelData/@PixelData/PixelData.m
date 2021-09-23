@@ -404,12 +404,12 @@ classdef PixelData < handle
             is_empty = obj.num_pixels == 0;
         end
         
-        function nel = numel(obj)
+        %function nel = numel(obj)
             % Return the number of data points in the pixel data block
             %   If the data is file backed, this returns the number of values in
             %   the file.
-            nel = obj.PIXEL_BLOCK_COLS_*obj.num_pixels;
-        end
+        %     nel = obj.PIXEL_BLOCK_COLS_*obj.num_pixels;
+        %end
         
         function pix_copy = copy(obj)
             % Make an independent copy of this object

@@ -62,9 +62,9 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
         pix_range_ = [];
     end
     properties(Constant,Access=protected,Hidden=true)
-        % list of fileldnames to save on hdd to be able to recover
+        % list of field-names to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
-        fields_to_save_3_3 = {'pix_range_'};
+        fields_to_save_3_21 = {'pix_range_'};
     end
     
     methods
@@ -105,7 +105,8 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
             % upgrade the file to recent write format and open this file
             % for writing/updating
             %
-            % v3.21 is upgradable from v3_2
+            % v3.21 is not currently further upgradable. Just reopen the
+            % file
             if ~isempty(obj.filename)
                 obj = obj.set_file_to_update();
             end
@@ -116,14 +117,14 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
         function flds = fields_to_save(obj)
             % returns the fields to save in the structure in sqw binfile v3 format
             head_flds = fields_to_save@faccess_sqw_v3(obj);
-            flds = [head_flds(:);obj.fields_to_save_3_3(:)];
+            flds = [head_flds(:);obj.fields_to_save_3_21(:)];
         end
         %
         function obj = init_v3_specific(obj)
             % Initialize position information specific for sqw v3.3 object.
             %
             % Used by this class init and faccess_sqw_v2&similar for
-            % upgrading to v3.3
+            % upgrading to v3.21
             obj = init_sample_instr_records(obj);
             %
             obj.position_info_pos_= obj.instr_sample_end_pos_;
@@ -144,7 +145,7 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
             % serialization (saveobj method);
             obj = init_from_structure@faccess_sqw_v3(obj,obj_structure_from_saveobj);
             %
-            flds = obj.fields_to_save_3_3;
+            flds = obj.fields_to_save_3_21;
             for i=1:numel(flds)
                 if isfield(obj_structure_from_saveobj,flds{i})
                     obj.(flds{i}) = obj_structure_from_saveobj.(flds{i});
@@ -152,6 +153,42 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
             end
         end
     end
+    methods(Static,Hidden=true)
+        function header = get_header_form(varargin)
+            % Return structure of the contributing file header in the form
+            % it is written on hdd.
+            % Usage:
+            % header = obj.get_header_form();
+            % header = obj.get_header_form('-const');
+            % Second option returns only the fields which do not change if
+            % filename or title changes
+            %
+            % Fields in file are:
+            % --------------------------
+            %   header.filename     Name of sqw file excluding path
+            %   header.filepath     Path to sqw file including terminating file separator
+            %   header.efix         Array of fixed energies for all crystal analysers
+            %   header.emode        Emode=1 direct geometry, =2 indirect geometry
+            %   header.alatt        Lattice parameters (Angstroms)
+            %   header.angdeg       Lattice angles (deg)
+            %   header.cu           First vector defining scattering plane (r.l.u.)
+            %   header.cv           Second vector defining scattering plane (r.l.u.)
+            %   header.psi          Orientation angle (deg)
+            %   header.omega        --|
+            %   header.dpsi           |  Crystal misorientation description (deg)
+            %   header.gl             |  (See notes elsewhere e.g. Tobyfit manual
+            %   header.gs           --|
+            %   header.en           Energy bin boundaries (meV) [column vector]
+            %   header.uoffset      Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
+            %   header.u_to_rlu     Matrix (4x4) of projection axes in hkle representation
+            %                        u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
+            %   header.ulen         Length of projection axes vectors in Ang^-1 or meV [row vector]
+            %   header.ulabel       Labels of the projection axes [1x4 cell array of character strings]
+            %
+            header = get_header_form_(varargin{:});
+        end
+    end
+    
     %
 end
 
