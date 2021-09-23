@@ -39,6 +39,7 @@ if numel(argi)==0
         error ('No file given')
     end
 elseif numel(argi)>1 && isa(argi{2},'dnd_binfile_common') % specific loader provided
+    file_internal = argi{1};
     ldw  = argi{2};
 else
     [file_internal,mess]=putfile_horace(argi{1});
@@ -59,13 +60,15 @@ hor_log_level = ...
 
 for i=1:numel(w)
     if isempty(ldw)
-        if isa(w(i), 'DnDBase') %TODO:  OOP violation -- save dnd should be associated with dnd class
+        if isa(w(i), 'DnDBase') %
             sqw_type = false;
             ldw = sqw_formats_factory.instance().get_pref_access('dnd');
         else
             sqw_type = true;
             ldw = sqw_formats_factory.instance().get_pref_access(w(i));
         end
+    else
+        sqw_type = isa(w(i),'sqw');
     end
 
     % Write data to file   x

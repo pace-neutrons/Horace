@@ -24,19 +24,19 @@ if ~ismember(acc,{'wb+','rb+'})
 end
 %
 %
-data = obj.get_data();
-pix = data.pix;
-if any(any(pix.pix_range == PixelData.EMPTY_RANGE_))
-    pix.recalc_pix_range();
-    new_obj.pix_range_ = pix.pix_range;
+if isempty(obj.sqw_holder_)
+    data = obj.get_data('-nopix');
+else
+    pix = obj.sqw_holder_.data.pix;
+    if any(any(pix.pix_range == PixelData.EMPTY_RANGE_))
+        pix.recalc_pix_range();
+    end    
 end
 
+new_obj.pix_range_ = pix.pix_range;
+new_obj.sqw_holder_ = data;
 new_obj = new_obj.put_app_header();
 new_obj = new_obj.put_sqw_footer();
-
-if clear_sqw_holder
-    new_obj.sqw_holder_ = [];
-end
 
 
 

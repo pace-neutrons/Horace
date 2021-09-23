@@ -55,7 +55,9 @@ classdef test_faccess_sqw_v3_21< TestCase
             
         end
         function delete(obj)
-            obj.delete_files(obj.sqw_file)
+            if is_file(obj.sqw_file)
+                delete(obj.sqw_file)
+            end
         end
         
         % tests
@@ -76,19 +78,22 @@ classdef test_faccess_sqw_v3_21< TestCase
             
             sqw_obj = fl_acc.get_sqw();
             pix_range = sqw_obj.data.pix.pix_range;
-            assertFalse(any(pix_range == PixelData.EMPTY_RANGE_));
+            assertFalse(any(any(pix_range == PixelData.EMPTY_RANGE_)));
             
             
             assertTrue(isa(sqw_obj,'sqw'));
             assertEqual(sqw_obj.main_header.filename,fl_acc.filename)
             assertEqual(sqw_obj.main_header.filepath,fl_acc.filepath)
             
-            test_file=fullfile(obj.working_dir,'test_read_wr_upd_indirect.sqw');
+            test_file=fullfile(obj.working_dir,'test_read_wr_upd_indirect_v3_2.sqw');
             co2 = onCleanup(@()delete(test_file));
             save(sqw_obj,test_file,faccess_sqw_v3_2());
             
             ldr =sqw_formats_factory.instance().get_loader(test_file);
             assertTrue(isa(ldr,'faccess_sqw_v3_2'));
+            
+            %ldr = ldr.set_file_to_update(test_file);
+            %ldr=ldr.put_sqw();
             
             ldr = ldr.upgrade_file_format();
             
@@ -97,9 +102,12 @@ classdef test_faccess_sqw_v3_21< TestCase
             pix_range1 = ldr.get_pix_range();
             assertTrue(all(pix_range == pix_range1));
             ldr.delete();
+            
+            ldr =sqw_formats_factory.instance().get_loader(test_file);
+            assertTrue(isa(ldr,'faccess_sqw_v3_21'));
+            
         end
         %
         
     end
 end
-
