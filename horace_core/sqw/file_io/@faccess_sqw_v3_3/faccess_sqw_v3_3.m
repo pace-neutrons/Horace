@@ -134,7 +134,7 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
                 struc.(flds{i}) = obj.(flds{i});
             end
         end
-        function obj = upgrade_file_format(obj)
+        function obj = upgrade_file_format(obj,varargin)
             % upgrade the file to recent write format and open this file
             % for writing/updating
             %

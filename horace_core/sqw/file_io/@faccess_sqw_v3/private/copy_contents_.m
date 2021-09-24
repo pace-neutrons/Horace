@@ -1,6 +1,8 @@
 function  [obj,missing_fields] = copy_contents_(obj,other_obj,keep_internals)
-% Copy constructor
+% Copied position information from one loader to another one
 %
+% keep_internals -- if true, do not overwrite service fields
+%                   not related to the position information
 %
 this_pos = obj.get_pos_info();
 other_pos = other_obj.get_pos_info();

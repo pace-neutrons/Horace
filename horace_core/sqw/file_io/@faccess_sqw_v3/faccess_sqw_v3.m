@@ -286,7 +286,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             obj.position_info_pos_= obj.instr_sample_end_pos_;
         end
         %
-        function new_obj = upgrade_file_format(obj)
+        function new_obj = upgrade_file_format(obj,varargin)
             % upgrade the file to recent write format and open this file
             % for writing/updating
             %

@@ -186,13 +186,12 @@ classdef sqw_binfile_common < sqw_file_interface
             img_db_range = fread(obj.file_id_,[2,4],'float32');
         end
         %
-        function pix_range = get_pix_range(~,varargin)
+        function pix_range = get_pix_range(~)
             % get [2x4] array of min/max ranges of the pixels contributing
             % into an object. Empty for DND object
             %
             pix_range = PixelData.EMPTY_RANGE_;
-        end
-        
+        end        
         
         % read pixels information
         pix = get_pix(obj,varargin);

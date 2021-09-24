@@ -101,7 +101,7 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
         end
         
         %
-        function obj = upgrade_file_format(obj)
+        function obj = upgrade_file_format(obj,varargin)
             % upgrade the file to recent write format and open this file
             % for writing/updating
             %
@@ -111,6 +111,13 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
                 obj = obj.set_file_to_update();
             end
         end
+        function pix_range = get_pix_range(obj)
+            % get [2x4] array of min/max ranges of the pixels contributing
+            % into an object. Empty for DND object
+            %
+            pix_range = obj.pix_range_;
+        end        
+        
         %
     end
     methods(Access=protected,Hidden=true)
