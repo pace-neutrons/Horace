@@ -229,11 +229,21 @@ classdef PixelData < handle
                         error('HORACE:PixelData:invalid_argument',...
                             'Unknown PixelData input structire version');
                     end
-                else % previous version,
-                    for i=1:numel(S)
-                        obj(i).set_data('all',S(i).raw_data_);
-                        obj(i).set_range(S(i).pix_range_);
-                        obj(i).file_path_ = S.file_path_;                        
+                else % previous version(s), written without info
+                    if isfield(S,'data_')
+                        for i=1:numel(S)
+                            set_data(obj(i),'all',S(i).data_);
+                            obj(i).reset_changed_coord_range('coordinates')
+                        end
+                    elseif isfield(S,'raw_data_')
+                        for i=1:numel(S)
+                            obj(i).set_data('all',S(i).raw_data_);
+                            obj(i).set_range(S(i).pix_range_);
+                            obj(i).file_path_ = S.file_path_;
+                        end
+                    else
+                        error('HORACE:PixelData:invalid_argument',...
+                            'Unknown PixelData input structire version');
                     end
                     
                 end
@@ -277,7 +287,7 @@ classdef PixelData < handle
     methods
         % --- Pixel operations ---
         pix_out = append(obj, pix);
-        [mean_signal, mean_variance] = compute_bin_data(obj, npix)
+        [mean_signal, mean_variance] = compute_bin_data(obj, npix);
         pix_out = do_binary_op(obj, operand, binary_op, varargin);
         pix_out = do_unary_op(obj, unary_op);
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
