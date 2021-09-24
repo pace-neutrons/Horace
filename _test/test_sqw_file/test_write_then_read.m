@@ -1,4 +1,4 @@
-classdef test_write_then_read < TestCase
+classdef test_write_then_read < TestCase & common_state_holder
 
 properties
     old_warn_state;
@@ -13,13 +13,8 @@ methods
     function obj = test_write_then_read(~)
         obj = obj@TestCase('test_write_then_read');
 
-        % Swallow any warnings for when pixel page size set too small
-        obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
     end
 
-    function delete(obj)
-        warning(obj.old_warn_state);
-    end
 
     function test_sqw_with_paged_pix_saved_is_eq_to_original_with_all_pix(obj)
         sqw_obj = sqw(obj.test_sqw_file_path, ...

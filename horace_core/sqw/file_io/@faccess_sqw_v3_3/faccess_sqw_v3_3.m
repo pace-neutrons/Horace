@@ -63,7 +63,7 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
     properties(Access=public,Hidden=true)
         % the transient class stores pix range together with the data
         % footer.
-        pix_range_ = [];
+        pix_range_ = PixelData.EMPTY_RANGE_;
     end
     properties(Constant,Access=protected,Hidden=true)
         % list of fileldnames to save on hdd to be able to recover

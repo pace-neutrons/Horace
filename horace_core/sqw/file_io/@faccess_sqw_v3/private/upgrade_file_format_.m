@@ -1,9 +1,12 @@
-function  new_obj = upgrade_file_format_(obj)
+function  new_obj = upgrade_file_format_(obj,pix_range)
 % Upgrade file from format 3 to the preferred file format
 %
 % currently preferred is format v 3.3
 %
 %
+if ~exist('pix_range','var')
+    pix_range = [];
+end
 
 new_obj = sqw_formats_factory.instance().get_pref_access();
 if ischar(obj.num_dim) % source object is not initiated. Just return
@@ -32,16 +35,21 @@ if isempty(new_obj.sqw_holder_) % all file positions except instrument and sampl
 end
 
 %
-data = obj.get_data();
-pix = data.pix;
-if any(any(pix.pix_range == PixelData.EMPTY_RANGE_))
-    pix.recalc_pix_range();
-    new_obj.pix_range_ = pix.pix_range;
+if isempty(pix_range)
+    data = obj.get_data();
+    pix = data.pix;
+    if any(any(pix.pix_range == PixelData.EMPTY_RANGE_))
+        pix.recalc_pix_range();
+    end
+else
+    data = obj.get_data('-nopix');
+    data.pix.set_range(pix_range);
 end
+new_obj.sqw_holder_.data = data;
+new_obj.pix_range_ = pix.pix_range;
 
 new_obj = new_obj.put_app_header();
 new_obj = new_obj.put_sqw_footer();
-
 
 if clear_sqw_holder
     new_obj.sqw_holder_ = [];
