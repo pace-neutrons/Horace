@@ -19,16 +19,7 @@ classdef test_sqw_file_read_write < TestCase
         function obj = test_sqw_file_read_write(~)
             obj = obj@TestCase('test_sqw_file_read_write');
             obj.ds = load('testdata_base_objects.mat');
-            %             existing_objects=fieldnames(ds);
-            %
-            %             for i=1:numel(existing_objects)
-            %                 % HACK ! deal with old style sqw objects, which have not stored
-            %                 % @axis_name
-            %                 cur_sqw=sqw(struct(ds.(existing_objects{i})));
-            %                 var_name = existing_objects{i};
-            %
-            %                 eval(sprintf('%s = cur_sqw;', var_name));
-            %             end
+
             % Create three different samples
             obj.sam1=IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
             obj.sam2=IX_sample(true,[1,1,1],[5,0,1],'cuboid',[0.10,0.33,0.22]);
@@ -38,9 +29,7 @@ classdef test_sqw_file_read_write < TestCase
             % sam3=IX_sample(true,[1,1,0],[0,0,1],'hypercube_really_long_name',rand(1,6));
             
             % Create three different instruments
-            obj.inst1=create_test_instrument(95,250,'s');
-            
-            
+            obj.inst1=create_test_instrument(95,250,'s');                        
             %inst2=create_test_instrument(56,300,'s');
             %inst2.flipper=true;
             %inst3=create_test_instrument(195,600,'a');
@@ -177,7 +166,8 @@ classdef test_sqw_file_read_write < TestCase
         function test_change_instrument(obj)
             % TODO: constructor creates file_backed objects here. 
             % wref is filebacked. 
-            % what to do about them?
+            % what to do about them? Without row 239 the file is not
+            % deleted as opened and filebacked. 
             
             % Use instrument function definition to change instrument
             % -------------------------------------------------------

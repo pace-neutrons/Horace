@@ -1,4 +1,4 @@
-classdef test_faccess_dnd_v2< TestCase
+classdef test_faccess_dnd_v2< TestCase & common_state_holder
     %
     % Validate fast sqw reader used in combining sqw
     %
