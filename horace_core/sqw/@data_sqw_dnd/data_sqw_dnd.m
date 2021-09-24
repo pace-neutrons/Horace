@@ -5,6 +5,9 @@ classdef data_sqw_dnd
     
     % Original author: T.G.Perring
     %
+    properties(Dependent)
+        pix;
+    end
     properties
         filename=''   % Name of sqw file that is being read, excluding path
         filepath=''   % Path to sqw file that is being read, including terminating file separator
@@ -38,9 +41,8 @@ classdef data_sqw_dnd
         %             [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
         img_db_range=[Inf,Inf,Inf,Inf;... %True range of the data grid along each axis [img_db_range(2,4)].
             -Inf,-Inf,-Inf,-Inf] % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf] -- convention if no pixels
-        % The pixels are rebinned on this grid
-        pix = PixelData()      % Object containing data for each pixel
         axis_caption=an_axis_caption(); %  Reference to class, which define axis captions
+        % The pixels are rebinned on this grid
         %
         % returns number of pixels, stored within the PixelData class
         num_pixels
@@ -50,6 +52,9 @@ classdef data_sqw_dnd
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
         % exceeds real pix_range (or input pix_range) by this value.
         border_size = -4*eps
+    end
+    properties(Access=protected)
+        pix_ = PixelData()      % Object containing data for each pixel
     end
     
     methods (Static)
@@ -71,7 +76,7 @@ classdef data_sqw_dnd
         % Extract projection, used to build sqw file from full data_sqw_dnd
         % object (full-- containing pixels)
         proj = get_projection(obj)
-        % find the coordinates along each of the axes of the smallest cuboid 
+        % find the coordinates along each of the axes of the smallest cuboid
         % that contains bins with non-zero values of contributing pixels.
         [val, n] = data_bin_limits (din);
         %------------------------------------------------------------------
@@ -235,6 +240,17 @@ classdef data_sqw_dnd
         function obj=clear_sqw_data(obj)
             obj.pix = PixelData();
         end
+        function pix = get.pix(obj)
+            pix = obj.pix_;
+        end
+        function obj = set.pix(obj,val)
+            if isa(val,'PixelData')
+                obj.pix_ = val;
+            else
+                obj.pix_ = PixelData(val);
+            end
+        end
+        
         %
         function [ok, type, mess]=check_sqw_data(obj, type_in, varargin)
             % old style validator for consistency of input data.

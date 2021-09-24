@@ -122,7 +122,8 @@ classdef PixelData < handle
             {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9,1:9});
         % list of the fields, used for exporting PixelData class to
         % structure
-        % TODO: Does not properly support filebased data. What to do about it?
+        % Does not properly support filebased data. The decision is not to
+        % save filebased data into mat files
         fields_to_save_ = {'file_path','data','num_pixels','pix_range'};
     end
     
@@ -201,61 +202,16 @@ classdef PixelData < handle
         function obj = loadobj(S)
             % Load a PixelData object from a .mat file
             %
-            %   >> obj = loadobj(S)
-            %
+            %>> obj = PixelData.loadobj(S)
             % Input:
             % ------
-            %   S       An instance of this object
-            %
+            %   S       A data, produeced by saveobj operation and stored
+            %           in .mat file
             % Output:
             % -------
-            %   obj     An instance of this object
+            %   obj     An instance of PixelData object or array of objects
             %
-            if isstruct(S)
-                obj = PixelData();
-                if numel(S)> 1
-                    obj = repmat(obj,size(S));
-                end
-                if isfield(S,'version')
-                    % load PixelData objects, written when saveobj method was
-                    % written
-                    if S.version == 1
-                        for i=1:numel(S)
-                            obj(i).set_data('all',S(i).data);
-                            obj(i).set_range(S(i).pix_range);
-                            obj(i).file_path_ = S.file_path_;
-                        end
-                    else
-                        error('HORACE:PixelData:invalid_argument',...
-                            'Unknown PixelData input structire version');
-                    end
-                else % previous version(s), written without info
-                    if isfield(S,'data_')
-                        for i=1:numel(S)
-                            set_data(obj(i),'all',S(i).data_);
-                            obj(i).reset_changed_coord_range('coordinates')
-                        end
-                    elseif isfield(S,'raw_data_')
-                        for i=1:numel(S)
-                            obj(i).set_data('all',S(i).raw_data_);
-                            obj(i).set_range(S(i).pix_range_);
-                            obj(i).file_path_ = S.file_path_;
-                        end
-                    else
-                        error('HORACE:PixelData:invalid_argument',...
-                            'Unknown PixelData input structire version');
-                    end
-                    
-                end
-            else
-                if isempty(S.page_memory_size_)
-                    % This if statement allows us to load old PixelData objects that
-                    % were saved in .mat files that do not have the 'page_memory_size_'
-                    % property
-                    S.page_memory_size_ = PixelData.DEFAULT_PAGE_SIZE;
-                end
-                obj = PixelData(S);
-            end
+            obj = loadobj_(S);
         end
         
         function validate_mem_alloc(mem_alloc)
@@ -299,6 +255,7 @@ classdef PixelData < handle
         pix_out = noisify(obj, varargin);
         obj = recalc_pix_range(obj);
         set_data(obj, fields, data, abs_pix_indices);
+
         
         function obj = PixelData(arg, mem_alloc)
             % Construct a PixelData object from the given data. Default
@@ -343,6 +300,11 @@ classdef PixelData < handle
             %               argument does nothing if the class is constructed with
             %               in-memory data. (Optional)
             %
+            if nargin> 0 && isstruct(arg)
+                obj = PixelData.loadobj(arg);
+                return;
+            end
+            
             obj.object_id_ = polyval(randi([0, 9], 1, 5), 10);
             if exist('mem_alloc', 'var')
                 obj.validate_mem_alloc(mem_alloc);
@@ -398,7 +360,9 @@ classdef PixelData < handle
                     obj.reset_changed_coord_range('coordinates');
                 end
                 return;
+                
             end
+            
             
             % Input sets underlying data
             if exist('mem_alloc', 'var') && ...
@@ -427,7 +391,6 @@ classdef PixelData < handle
                     'Can not save filebacked PixelData object');
             end
             data = struct(obj);
-            data.version = obj.version;
         end
         
         function is_empty = isempty(obj)
@@ -761,11 +724,27 @@ classdef PixelData < handle
             % convert object into saveable and serializable structure
             %
             flds = obj.fields_to_save_;
-            st = struct();
-            for i=1:numel(flds)
-                fldn = flds{i};
-                st.(fldn) = obj.(fldn);
+            if numel(obj)>1
+                flds =['version','shape',flds(:)'];
+                shpe = size(obj);
+            else
+                flds =['version',flds(:)'];
             end
+            
+            cell_dat = cell(numel(flds),numel(obj));
+            for j=1:numel(obj)
+                for i=1:numel(flds)
+                    fldn = flds{i};
+                    if strcmp(fldn,'version')
+                        cell_dat{i,j} = PixelData.version;
+                    elseif strcmp(fldn,'shape')
+                        cell_dat{i,j} = shpe;
+                    else
+                        cell_dat{i,j} = obj(j).(fldn);
+                    end
+                end
+            end
+            st = cell2struct(cell_dat,flds,1);
         end
     end
     
