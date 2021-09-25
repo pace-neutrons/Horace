@@ -302,7 +302,7 @@ classdef PixelData < handle
             if nargin> 0 && isstruct(arg)
                 if ~isfield(arg,'version')
                     fnms = fieldnames(arg);
-                    if all(ismember(fnms,PixelData.fields_to_save_)) % the current pixdata structure
+                    if all(ismember(PixelData.fields_to_save_,fnms)) % the current pixdata structure
                         % provided as input
                         if numel(arg) > 1 % the same as saveobj
                             arg = struct('version',PixelData.version,...

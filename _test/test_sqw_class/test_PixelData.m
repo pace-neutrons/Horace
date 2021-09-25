@@ -264,7 +264,7 @@ classdef test_PixelData < TestCase & common_state_holder
             assertTrue(isempty(pix_data_obj));
         end
         
-        function test_PIXELDATA_error_if_constructed_with_struct(~)
+        function test_error_if_constructed_with_struct(~)
             s = struct();
             f = @() PixelData(s);
             assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
