@@ -20,7 +20,10 @@ if isstruct(S)
         % written
         if S(1).version == 1
             for i=1:numel(S)
-                obj(i) = PixelData();
+                if i>1 % cloning handle object as repmat makes the handles
+                    %    identical
+                    obj(i) = PixelData();
+                end
                 obj(i).set_data('all',S(i).data);
                 obj(i).set_range(S(i).pix_range);
                 obj(i).file_path_ = S(i).file_path;

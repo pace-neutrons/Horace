@@ -244,7 +244,7 @@ classdef data_sqw_dnd
             pix = obj.pix_;
         end
         function obj = set.pix(obj,val)
-            if isa(val,'PixelData')
+            if isa(val,'PixelData') || isa(val,'pix_combine_info')
                 obj.pix_ = val;
             else
                 obj.pix_ = PixelData(val);
