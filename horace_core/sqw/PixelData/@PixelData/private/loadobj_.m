@@ -12,30 +12,32 @@ function obj = loadobj_(S)
 %
 if isstruct(S)
     obj = PixelData();
-    if numel(S)> 1
-        obj = repmat(obj,size(S));
-    end
     if isfield(S,'version')
         % load PixelData objects, written when saveobj method was
         % written
-        if S(1).version == 1
-            for i=1:numel(S)
-                if i>1 % cloning handle object as repmat makes the handles
-                    %    identical
-                    obj(i) = PixelData();
+        if S.version == 1
+            if isfield(S,'array_data') % multidimensional array of pixel data
+                S = S.array_data;
+                obj = repmat(obj,size(S));                
+                for i=1:numel(S)
+                    if i>1 % cloning handle object as repmat makes the handles
+                        %    identical
+                        obj(i) = PixelData();
+                    end
+                    obj(i).set_data('all',S(i).data);
+                    obj(i).set_range(S(i).pix_range);
+                    obj(i).file_path_ = S(i).file_path;
                 end
-                obj(i).set_data('all',S(i).data);
-                obj(i).set_range(S(i).pix_range);
-                obj(i).file_path_ = S(i).file_path;
+            else % Single object
+                obj.set_data('all',S.data);
+                obj.set_range(S.pix_range);
+                obj.file_path_ = S.file_path;
             end
         else
             error('HORACE:PixelData:invalid_argument',...
                 'Unknown PixelData input structire version');
         end
-        if isfield(S,'shape')
-            obj = reshape(obj,S(1).shape);
-        end
-    else % previous version(s), written without info
+    else % previous version(s), written without version info
         if isfield(S,'data_')
             for i=1:numel(S)
                 set_data(obj(i),'all',S(i).data_);
@@ -51,7 +53,6 @@ if isstruct(S)
             error('HORACE:PixelData:invalid_argument',...
                 'Unknown PixelData input structire version');
         end
-        
     end
 else
     if isempty(S.page_memory_size_)

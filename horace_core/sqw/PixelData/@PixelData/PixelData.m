@@ -237,7 +237,6 @@ classdef PixelData < handle
                     'recommended. This may degrade performance.']);
             end
         end
-        
     end
     
     methods
@@ -255,7 +254,7 @@ classdef PixelData < handle
         pix_out = noisify(obj, varargin);
         obj = recalc_pix_range(obj);
         set_data(obj, fields, data, abs_pix_indices);
-
+        
         
         function obj = PixelData(arg, mem_alloc)
             % Construct a PixelData object from the given data. Default
@@ -301,6 +300,20 @@ classdef PixelData < handle
             %               in-memory data. (Optional)
             %
             if nargin> 0 && isstruct(arg)
+                if ~isfield(arg,'version')
+                    fnms = fieldnames(arg);
+                    if all(ismember(fnms,PixelData.fields_to_save_)) % the current pixdata structure
+                        % provided as input
+                        if numel(arg) > 1 % the same as saveobj
+                            arg = struct('version',PixelData.version,...
+                                'array_data',arg);
+                        else
+                            arg.version = PixelData.version;
+                        end
+                    end
+                    %else: some unknown structure. May be saved earlier without version?
+                    % let loadobj check its validity
+                end
                 obj = PixelData.loadobj(arg);
                 return;
             end
@@ -362,8 +375,6 @@ classdef PixelData < handle
                 return;
                 
             end
-            
-            
             % Input sets underlying data
             if exist('mem_alloc', 'var') && ...
                     (obj.calculate_page_size_(mem_alloc) < size(arg, 2))
@@ -391,6 +402,12 @@ classdef PixelData < handle
                     'Can not save filebacked PixelData object');
             end
             data = struct(obj);
+            if numel(obj)>1
+                data = struct('version',PixelData.version,...
+                    'array_data',data);
+            else
+                data.version = obj.version;
+            end
         end
         
         function is_empty = isempty(obj)
@@ -717,34 +734,31 @@ classdef PixelData < handle
             % Return true if the pixel data is backed by a file or files. Returns
             % false if all pixel data is held in memory
             %
-            is = ~isempty(obj.f_accessor_) || obj.get_num_pages_() > 1;
+            if numel(obj) > 1
+                is = arrayfun(@(x)(~isempty(x.f_accessor_) || x.get_num_pages_() > 1),...
+                    obj,'UniformOutput',true);
+                is = any(reshape(is,1,numel(is)));
+            else
+                is = ~isempty(obj.f_accessor_) || obj.get_num_pages_() > 1;
+            end
         end
         %
         function st = struct(obj)
             % convert object into saveable and serializable structure
             %
             flds = obj.fields_to_save_;
-            if numel(obj)>1
-                flds =['version','shape',flds(:)'];
-                shpe = size(obj);
-            else
-                flds =['version',flds(:)'];
-            end
             
             cell_dat = cell(numel(flds),numel(obj));
             for j=1:numel(obj)
                 for i=1:numel(flds)
                     fldn = flds{i};
-                    if strcmp(fldn,'version')
-                        cell_dat{i,j} = PixelData.version;
-                    elseif strcmp(fldn,'shape')
-                        cell_dat{i,j} = shpe;
-                    else
-                        cell_dat{i,j} = obj(j).(fldn);
-                    end
+                    cell_dat{i,j} = obj(j).(fldn);
                 end
             end
             st = cell2struct(cell_dat,flds,1);
+            if numel(obj)>1
+                st = reshape(st,size(obj));
+            end
         end
     end
     
