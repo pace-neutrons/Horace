@@ -11,10 +11,16 @@ if nargout ~= 1
 end
 
 original_config = config_instance.get_data_to_store();
-cleanup_handle = onCleanup(@() set(config_instance, original_config));
+cleanup_handle = onCleanup(@()restore(config_instance,original_config));
+config_instance.saveable = false;
 
 for i = 1:2:numel(varargin)
     config_field = varargin{i};
     value = varargin{i + 1};
-    set(config_instance, config_field, value);
+    config_instance.(config_field) = value;
 end
+
+function restore(config_instance,original_config)
+
+set(config_instance, original_config);
+config_instance.saveable = true;
