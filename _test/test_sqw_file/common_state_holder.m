@@ -1,6 +1,6 @@
 classdef common_state_holder < handle
-    % Class holds the common states, to be removed/restored when all tests get
-    % completed
+    % Class holds the common states, to be set up for all tests in the 
+    % folder and removed/restored when all tests are completed
     properties
     end
     
@@ -26,8 +26,8 @@ classdef common_state_holder < handle
         function delete(obj)
             call_count = obj.call_count('-');
             if call_count == 0
-                old_warm = obj.store_holder('','old_warn_state');
-                warning(old_warm);
+                old_warn = obj.store_holder('','old_warn_state');
+                warning(old_warn);
                 search_path_herbert_shared = obj.store_holder('','search_path_herbert_shared');
                 rmpath(search_path_herbert_shared);
             end
@@ -36,6 +36,8 @@ classdef common_state_holder < handle
     methods (Static)
         function stor_val = store_holder(var_to_store,field_name)
             % provides persistent data storage
+            % If the value for variable is already sored, replaces this
+            % name with new value provided as input.
             persistent storage;
             if isempty(storage)
                 storage = struct();
