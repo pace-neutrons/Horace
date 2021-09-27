@@ -38,9 +38,10 @@ classdef sqw_formats_factory < handle
         supported_accessors_ = { ...
             faccess_sqw_v3_3(), ...
             faccess_sqw_v3(), ...
-            faccess_sqw_v3_2(), ...
+            faccess_sqw_v3_21(), ...
             faccess_sqw_v2(), ...
             faccess_dnd_v2(), ...
+            faccess_sqw_v3_2(), ...
             faccess_sqw_prototype()};
         %
         % Rules to load/save different classes:
@@ -56,7 +57,7 @@ classdef sqw_formats_factory < handle
         % the factory
         supported_accessors
     end
-
+    
     methods(Access=private)
         % Guard the constructor against external invocation.  We only want
         % to allow a single instance of this class.  See description in
@@ -67,7 +68,7 @@ classdef sqw_formats_factory < handle
                 obj.access_to_type_ind_);
         end
     end
-
+    
     methods(Static)
         % Concrete implementation.
         function obj = instance()
@@ -90,7 +91,7 @@ classdef sqw_formats_factory < handle
             end
         end
     end
-
+    
     methods % Public Access
         function loader = get_loader(obj,sqw_file_name,varargin)
             % Returns initiated loader which can load the data from the specified data file.
@@ -122,7 +123,7 @@ classdef sqw_formats_factory < handle
             % read initial bytes of binary file and interpret them as Horace headers to identify file format.
             % Returns header block and open file handle not to open file again
             [head_struc,fh] = dnd_file_interface.get_file_header(full_data_name);
-
+            
             for i=1:numel(obj.supported_accessors_)
                 loader = obj.supported_accessors_{i};
                 % check if loader should load the file. Initiate loaders
@@ -160,7 +161,7 @@ classdef sqw_formats_factory < handle
                     ' Is it not a sqw file?'],...
                     full_data_name);
             end
-
+            
         end
         %
         function loader = get_pref_access(obj,varargin)
@@ -220,21 +221,24 @@ classdef sqw_formats_factory < handle
             end
         end
         %
-        function is_compartible = check_compatibility(obj,obj1,obj2)
+        function is_compartible = check_compatibility(~,obj1,obj2)
             % Check if second loader can be used to upgrade the first one
             %
             %Usage:
             %is_com =sqw_formats_factory.instance().check_compatibility(obj1,obj2)
             %        where obj1 and obj2 are the instances of sqw-file
             %        accessors, known to the factory.
-            %
-            % is_com is true if position info of obj1 is compatible with
-            %        pos_info stored in obj2 and is subset of position
+            %Returns:
+            % is_compartible  -- true if position info of obj1 is compatible
+            %        with pos_info stored in obj2 and is subset of position
             %        info of object 2
             %
             % currently returns true either for the same type of
-            % accessors (class(obj1)==class(obj2)) or when
+            % accessors (class(obj1)==class(obj2)) 
+            % or when
             % class(obj1) == 'faccess_sqw_v2' and class(obj2) == 'faccess_sqw_v3'.
+            % or 
+            % when class(obj1) == faccess_sqw_v3_2 and class(obj2) == 'faccess_sqw_v3_21'.
             %
             %NOTE:
             % faccess_sqw_v3 is not compatible with faccess_sqw_v3_2 as
@@ -247,11 +251,14 @@ classdef sqw_formats_factory < handle
                     isa(obj1,'faccess_sqw_v2') && isa(obj2,'faccess_sqw_v3') || ...
                     isa(obj1,'faccess_sqw_v3') && isa(obj2,'faccess_sqw_v3_3')
                 is_compartible = true;
+            elseif isa(obj1,'faccess_sqw_v3_2') && isa(obj2,'faccess_sqw_v3_21') || ...
+                    isa(obj2,'faccess_sqw_v3_2') && isa(obj1,'faccess_sqw_v3_21')
+                is_compartible = true;
             else
                 is_compartible = false;
             end
         end
-
+        
         %
         function obj_list = get.supported_accessors(obj)
             obj_list = obj.supported_accessors_;

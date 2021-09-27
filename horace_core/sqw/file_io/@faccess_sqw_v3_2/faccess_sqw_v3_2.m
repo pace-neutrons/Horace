@@ -55,8 +55,6 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
     % already exists in the file.
     %
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-    %
     %
     
     %
@@ -98,15 +96,13 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
         end
         
         %
-        function obj = upgrade_file_format(obj)
+        function new_obj = upgrade_file_format(obj,varargin)
             % upgrade the file to recent write format and open this file
             % for writing/updating
             %
-            % v3.2 is not upgradable recent file format, so
-            % the method just reopens file for update.
-            if ~isempty(obj.filename)
-                obj = obj.set_file_to_update();
-            end
+            % The operation upgrades format 3.2 to format 3.21, containing
+            % pix_range information
+            new_obj = upgrade_file_format_(obj,varargin{:});
         end
         %
     end

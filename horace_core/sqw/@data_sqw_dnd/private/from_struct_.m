@@ -10,8 +10,8 @@ if ~isfield(input,'version')
         if isfield(input,'pix') && isa(input.pix,'PixelData')
             input.pix_range = input.pix.pix_range;
         else
-            % no info, need to use existing urange in hope its pix_range
-            input.pix_range = input.urange;
+            % no info, keep pix range undefined
+            input.pix_range = PixelData.EMPTY_RANGE_;
         end
         input = rmfield(input,'urange');
         input.img_db_range = dnd_binfile_common.calc_img_db_range(input);

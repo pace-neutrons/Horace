@@ -3,7 +3,6 @@ classdef test_faccess_sqw_v3< TestCase
     % Validate fast sqw reader used in combining sqw
     %
     %
-    % $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
     %
 
 
@@ -314,6 +313,7 @@ classdef test_faccess_sqw_v3< TestCase
             ld = sqw_formats_factory.instance.get_loader(targ_file_2);
             assertEqual(ld.filename,test_name_2);
             assertEqual(ld.filepath,tmp_dir());
+            ld.delete();
         end
         %
         function test_correct_file_activated(obj)
@@ -326,6 +326,7 @@ classdef test_faccess_sqw_v3< TestCase
             fo = fo.init(targ_file);
             assertEqual(fo.filename,test_name);
             assertEqual(fo.filepath,tmp_dir());
+            fo.delete();
         end
 
         %% get_pix_at_indices

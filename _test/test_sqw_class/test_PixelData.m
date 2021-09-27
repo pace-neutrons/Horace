@@ -264,7 +264,7 @@ classdef test_PixelData < TestCase & common_state_holder
             assertTrue(isempty(pix_data_obj));
         end
         
-        function test_PIXELDATA_error_if_constructed_with_struct(~)
+        function test_error_if_constructed_with_struct(~)
             s = struct();
             f = @() PixelData(s);
             assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
@@ -303,8 +303,9 @@ classdef test_PixelData < TestCase & common_state_holder
             assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
         
-        function test_numel_returns_the_number_of_elements_in_the_data(obj)
-            assertEqual(numel(obj.pixel_data_obj), numel(obj.pixel_data_obj.data));
+        function test_num_pix_returns_the_number_of_elements_in_the_data(obj)
+            assertEqual(obj.pixel_data_obj.num_pixels*PixelData.DEFAULT_NUM_PIX_FIELDS,...
+                numel(obj.pixel_data_obj.data));
         end
         
         function test_can_construct_from_another_PixelData_object(obj)

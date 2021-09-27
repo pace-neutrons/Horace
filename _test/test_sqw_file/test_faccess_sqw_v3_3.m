@@ -233,8 +233,8 @@ classdef test_faccess_sqw_v3_3< TestCase
             assertEqual(fo,fr);
             
             by = hlp_serialise(fo);
-            fr = hlp_deserialise(by);            
-            assertEqual(fo,fr);            
+            fr = hlp_deserialise(by);
+            assertEqual(fo,fr);
         end
         %
         

@@ -40,6 +40,7 @@ end
 hc = hor_config;
 dts = hc.get_data_to_store();
 clob = onCleanup(@()set(hc,dts));
+hc.saveable = false;
 log_level = hc.log_level;
 hc.pixel_page_size = hc.mem_chunk_size*9*4;
 
@@ -71,3 +72,4 @@ for i=1:n_inputs
     %ld = ld.put_sqw_footer();
     ld.delete();
 end
+hc.saveable = true;

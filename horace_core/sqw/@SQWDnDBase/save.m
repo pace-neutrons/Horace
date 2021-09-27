@@ -3,6 +3,10 @@ function save (w, varargin)
 %
 %   >> save (w)              % prompt for file
 %   >> save (w, file)        % give file
+%   >> save (w, file,loader) % save file using specific data loader
+%                             (-update option, is provided, will be
+%                             ignored)
+% 
 %   >> save (w, file,'-update') % if the target file exist, update it to
 %                               latest format if this is possible. If
 %                               update is possible, pixels in file will not be
@@ -28,11 +32,15 @@ end
 file_ext = lower(class(w));
 
 % Get file name - prompting if necessary
+ldw = [];
 if numel(argi)==0
     file_internal = putfile(['*.' file_ext]);
     if (isempty(file_internal))
         error ('No file given')
     end
+elseif numel(argi)>1 && isa(argi{2},'dnd_binfile_common') % specific loader provided
+    file_internal = argi{1};
+    ldw  = argi{2};
 else
     [file_internal,mess]=putfile_horace(argi{1});
     if ~isempty(mess)
@@ -51,12 +59,16 @@ hor_log_level = ...
 
 
 for i=1:numel(w)
-    if isa(w(i), 'DnDBase') %TODO:  OOP violation -- save dnd should be associated with dnd class
-        sqw_type = false;
-        ldw = sqw_formats_factory.instance().get_pref_access('dnd');
+    if isempty(ldw)
+        if isa(w(i), 'DnDBase') %
+            sqw_type = false;
+            ldw = sqw_formats_factory.instance().get_pref_access('dnd');
+        else
+            sqw_type = true;
+            ldw = sqw_formats_factory.instance().get_pref_access(w(i));
+        end
     else
-        sqw_type = true;
-        ldw = sqw_formats_factory.instance().get_pref_access(w(i));
+        sqw_type = isa(w(i),'sqw');
     end
 
     % Write data to file   x
@@ -82,4 +94,3 @@ for i=1:numel(w)
     end
     ldw = ldw.delete();
 end
-

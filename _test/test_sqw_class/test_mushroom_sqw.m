@@ -53,7 +53,7 @@ classdef test_mushroom_sqw < TestCaseWithSave
                 test_class_name = 'test_mushroom_sqw';
             end
             data_path= fullfile(fileparts(mfilename('fullpath')),'data');
-
+            
             % Reads previously created test data sets.
             obj = obj@TestCaseWithSave(test_class_name,fullfile(data_path,'test_mushroom_sqw.mat'));
             obj.data_path = data_path;
@@ -91,8 +91,15 @@ classdef test_mushroom_sqw < TestCaseWithSave
             
             gen_sqw (data_file, '', sqw_file, obj.det_energy,...
                 2, [2*pi,2*pi,2*pi], [90,90,90], [0,0,1], [0,-1,0],0,0,0,0,0);
-
+            
+            ldr = sqw_formats_factory.instance().get_loader(sqw_file);
+            assertTrue(isa(ldr,'faccess_sqw_v3_21'));
+            
             sqo = sqw(sqw_file);
+            
+            assertTrue(isprop(sqo.data.pix,'pix_range'))
+            assertFalse(any(any(sqo.data.pix.pix_range == PixelData.EMPTY_RANGE_)));
+            %
             % Make some cuts: ---------------
             u=[0,0,1]; v=[0,1,0];
             proj = struct('u',u,'v',v);
@@ -118,6 +125,7 @@ classdef test_mushroom_sqw < TestCaseWithSave
             %
             %             plot(w2yz)
             %             keep_figure
+            
             
         end
         %
