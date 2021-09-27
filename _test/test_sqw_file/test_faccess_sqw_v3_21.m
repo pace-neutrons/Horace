@@ -41,8 +41,8 @@ classdef test_faccess_sqw_v3_21< TestCase
             obj.det_energy = zeros(1,n_det );
             for k=1:n_det
                 tline = fgets(fid);
-                Cont = textscan(tline ,'%9d %11.5f %11.5f %11.5f  %11.5f  %11.5f');
-                obj.det_energy(k) = Cont{6};
+                contents = textscan(tline ,'%9d %11.5f %11.5f %11.5f  %11.5f  %11.5f');
+                obj.det_energy(k) = contents{6};
             end
             wkdir = obj.working_dir;
             sqw_file= fullfile(wkdir,'test_gen_sqw_indirect.sqw');
@@ -66,12 +66,12 @@ classdef test_faccess_sqw_v3_21< TestCase
             % preference for indirect
             fl_acc = faccess_sqw_v3_21();
             assertEqual(fl_acc.file_version,'-v3.21');
-            co = onCleanup(@()delete(fl_acc));
             %--------------------------------------------------------------            
             % by default, test file has been creaded by constructor as
             % v3.21
             [stream,fid] = fl_acc.get_file_header(obj.sqw_file);
             [ok,initobj] = fl_acc.should_load_stream(stream,fid);
+            co = onCleanup(@()delete(fl_acc));            
             assertTrue(ok);
             assertTrue(initobj.file_id>0);
             % we can read and access these data using loader v3.21

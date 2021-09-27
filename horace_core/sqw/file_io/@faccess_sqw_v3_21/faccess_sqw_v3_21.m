@@ -1,5 +1,5 @@
 classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
-    % Class to access Horace binary files written in binary format v3.2.1
+    % Class to access Horace binary files written in binary format v3.21
     % The format differs from 3.2 as it contains pixel range stored within
     % the footer, similarly to sqw_v3_3 but for indirect instrument
     %
@@ -17,7 +17,7 @@ classdef faccess_sqw_v3_21 < faccess_sqw_v3_2
     %                     in sqw v3.2 format.
     %
     % Throws if file with filename is missing or is not written in
-    % sqw v3.2 format.
+    % sqw v3.21 format.
     %
     % To avoid attempts to initialize this accessor using incorrect sqw file,
     % access to existing sqw files should be organized using sqw
