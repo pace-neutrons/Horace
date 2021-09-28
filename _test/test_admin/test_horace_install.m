@@ -23,7 +23,7 @@ classdef test_horace_install < TestCase
             test_install = fullfile(obj.this_folder,'folder_for_install_repo');
             mkdir(test_install);
             test_admin = fullfile(test_install,'Horace','admin');
-            mkdir(test_admin);            
+            mkdir(test_admin);
             clob = onCleanup(@()(rmdir(test_install,'s')));
             
             template_files = {'horace_install.m','horace_on.m.template',...
@@ -39,12 +39,19 @@ classdef test_horace_install < TestCase
             init_files = {'herbert_init.m'};
             obj.copy_install_files(init_files ,her_test_source);
             her_admin = fullfile(fileparts(her_test_source),'admin');
-            mkdir(her_admin);            
+            mkdir(her_admin);
             obj.copy_install_files({'herbert_on.m.template'} ,her_admin);
             
-            old_ho = fileparts(which('horace_on.m'));
-            rmpath(old_ho);
-            clob2 = onCleanup(@()addpath(old_ho));
+            path_list_recover = cell(1,1);
+            n_path = 0;
+            old_hor_path = fileparts(which('horace_on.m'));
+            while ~isempty(old_hor_path)
+                rmpath(old_hor_path);
+                n_path = n_path+1;
+                path_list_recover{n_path} = old_hor_path;
+                old_hor_path = fileparts(which('horace_on.m'));
+            end
+            clob2 = onCleanup(@()addpath(path_list_recover{:}));
             
             current_dir = pwd;
             cd(test_admin);
