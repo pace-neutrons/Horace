@@ -96,8 +96,8 @@ classdef test_horace_install < TestCase
             clear clob1;
         end
         
-        function test_folder_provided(obj)
-            code_root = fileparts(fileparts(fileparts(obj.this_folder)));
+        function test_folder_provided(~)
+            code_root = fileparts(fileparts(fileparts(which('horace_init'))));
             herbert_code = fullfile(code_root,'Herbert');
             horace_code = fullfile(code_root,'Horace');
             
