@@ -98,11 +98,11 @@ classdef test_horace_install < TestCase
         
         function test_folder_provided(~)
             herbert_code = fileparts(fileparts(which('herbert_init')));
-            disp('*********** herbert code:')
-            disp(herbert_code)
+            %disp('*********** herbert code:')
+            %disp(herbert_code)
             horace_code = fileparts(fileparts(which('horace_init')));
-            disp('*********** horace code:')
-            disp(horace_code)
+            %disp('*********** horace code:')
+            %disp(horace_code)
             
             [install_folder,her_init_dir,hor_init_dir] = horace_install(...
                 'herbert_root',herbert_code,...

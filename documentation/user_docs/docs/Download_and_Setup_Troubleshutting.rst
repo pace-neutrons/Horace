@@ -2,6 +2,10 @@
 Download and Setup Trouble-Shutting
 ###################################
 
+Installation script assumes that you have unpacked instillation archive in a folder of your choice or cloned
+Github Horace and Herbert repositories in such folder one near another. In the first case, you will run the ``horace_install`` script from the folder where the archive is unpacked. In the second -- from ***Horace/admin*** directory.
+If you file layout is different, pleas run the installation script with the parameters, which specify the location of the Horace and Herbert folders (see ``install_horace`` help on how to do this), and ensure that ***Horace/admin*** and ***Herbert/admin*** folders contains all necessary templates described below.
+
 Installation process modifies three files, namely `horace_on.m.template <https://github.com/pace-neutrons/Horace/blob/master/admin/horace_on.m.template>`__, 
 `herbert_on.m.template <https://github.com/pace-neutrons/Herbert/blob/master/admin/herbert_on.m.template>`__ and `worker_v2.m.template <https://github.com/pace-neutrons/Horace/blob/master/admin/worker_v2.m.template>`__ by renaming them to ``horace_on.m``, ``herbert_on.m`` and ``worker_v2.m`` and inserting the location of the Horace and Herbert packages (``package installation folder`` -- the place where you have unpacked these packages) into these files. ``herbert_on`` and ``horace_on`` files contain the scripts, used to initialize Herbert and Horace correspondingly. ``horace_on`` also executes ``herbert_on`` if ``herbert_on`` has not been executed earlier. ``worker_v2`` script is used by Horace parallel extensions to initialize Horace from independent parallel workers communicating over MPI. 
 
