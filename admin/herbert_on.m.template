@@ -26,14 +26,17 @@ if exist('non_default_path','var') && (strcmpi(non_default_path,'where') || strc
     return;
 end
 if nargin == 1
-    start_herbert(non_default_path);
+    init_herbert(non_default_path);
 else
-    start_herbert(default_herbert_path);
+    init_herbert(default_herbert_path);
 end
 path = fileparts(which('herbert_init.m'));
 
 % -----------------------------------------------------------------------------
-function start_herbert(path)
+function init_herbert(path)
+    if ~exist(fullfile(path,'herbert_init.m'),'file')
+        path = fullfile(path,'herbert_core');
+    end
     addpath(path);
     herbert_init;
 
