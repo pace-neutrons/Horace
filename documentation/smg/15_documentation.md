@@ -21,25 +21,19 @@ On Linux (Optional):
 * Make
 
 ### Building Locally
-First, with a clone of the `Horace` repository, go to the `documentation/user_docs` folder.
+First, with a clone of the `Horace` repository:
 
-* Windows
+* Cmake **(Recommended)**
+
+  Use the appropriate build command to make the docs following standard CMake procedures (e.g. `make docs`). 
   
-  With a command terminal in the root folder of the horace-docs project run:
+  This automatically determine OS specific commands and will check if the appropriate programs are available and writes the documentation to `documentation/user_docs/build/html` by default. It also performs cleanup of the documentation's temporary sidebar links.
+  
+* Manual
+  
+  With a command terminal in the manual documentation folder (`documentation/user_docs`) run:
     
-      make.bat html
-
-* Linux (With Make)
-
-  With `make` installed simply run:
-
-      make html
-    
-* Linux (No Make)
-
-  If you do not have `make` installed, run:
-
-      sphinx-build -M html "docs" "build"
+      python sphinx-build -M html "docs" "build"
 
 
 Built documents will be put in the `/build/html` folder, the main file is the `index.rst` file.
@@ -88,7 +82,43 @@ More info can be found https://www.sphinx-doc.org/en/master/usage/restructuredte
 
 The contents list is a manual table of contents linking to main documentation which will appear on the main page. Any contributions which wish to be listed in the main table of contents should appear here.
 
+## Updating documentation
+
+When producing a new version, the `conf.py` (in `documentation/user_docs/docs`) should have the version updated to match that of the version being built. The documentation should be built manually (as described [here](#building-docs))
+
 ## Deploying documentation
 
-The documentation will be deployed automatically on a nightly build to the `latest` page of the GitHub pages. 
-On release, documentation will be deployed to the folder corresponding to the version number of the relase and redirected to by the `stable` page of the GitHub pages
+### Automatic procedure (recommended)
+The documentation will be deployed automatically on a nightly build to the `unstable` page of the GitHub pages (`https://pace-neutrons.github.io/Horace/unstable`). 
+On release, documentation will be deployed to the folder corresponding to the version number of the relase and redirected to by the `stable` page of the GitHub pages.
+
+### Manual procedure
+This should be used only in dire circumstances i.e. if forcing an update to old documentation or Jenkins failure, and not as the main method. 
+
+The raw docs are stored on the `gh-pages` branch of the main Horace repository. 
+
+First the project should be checked out to the version whose docs need to be updated. 
+
+The docs should be built (see [here](#building-docs)) and the appropriate substitutions made (**N.B.** not necessary if built through CMake):
+
+* Linux
+  
+  From within the built HTML directory (`documentation/user_docs/build/html`) run:
+     
+  `sed -r -i '/\[NULL\]/d' *html`
+  
+* Windows
+
+  From within the root Horace dir (or set `-Path` appropriately) run:
+     
+  ```
+  Foreach($f in Get-ChildItem -Path documentation/user_docs/build/html -Filter *.html) { \
+     (Get-Content $f.FullName) | Where-Object {$_ -notmatch '\\[NULL\\]'} | Set-Content $f.FullName \    
+           }
+  ```
+  
+  These should then be copied outside the project (recommend equivalent to \[from Horace root dir\] `version_number='3.5.3'; mv documentation/user_docs/build/html ../${version_number}`
+  
+  The next step is to checkout the `gh-pages` (**N.B**, you may need to forcibly ignore changes to the repo from building the docs \[`git reset --hard` will do this, but care must be taken\]), then move the built documentation from outside the project to a folder of the appropriate version name in the project root directory. 
+  
+  If the documentation is the most recent version of the documentation (i.e. `stable`), within the `stable` folder update `index.html` to redirect to the appropriate documentation version folder (the one which has been just copied). 
