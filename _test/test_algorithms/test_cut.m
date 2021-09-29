@@ -47,7 +47,7 @@ classdef test_cut < TestCase
                 end
             end
             obj = obj@TestCase(name);
-            obj.sqw_4d = sqw(obj.sqw_file);
+            obj.sqw_4d = read_sqw(obj.sqw_file);
             
             obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
             %
