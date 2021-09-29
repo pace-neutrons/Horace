@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tobyfit &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="List of functions" href="List_of_functions.html" />
+    <link rel="prev" title="Advanced Multifit" href="Advanced_Multifit.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Horace
+            <img src="_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                3.6.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="The_Horace_Rationale.html">The Horace Rationale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_Setup_Troubleshutting.html">Download and Setup Trouble-Shutting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_setup.html">Download and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_Setup_Troubleshutting.html">Download and Setup Trouble-Shutting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Support_and_updates.html">Support and updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced_use.html">Advanced use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Horace_GUI.html">Horace GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Symmetrising_etc.html">Symmetrising etc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Unary_operations.html">Unary operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Simulation.html">Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Multifit.html">Multifit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced_Multifit.html">Advanced Multifit</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tobyfit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#performing-resolution-convolution">Performing resolution convolution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setting-the-sample-and-instrument-information">Setting the sample and instrument information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fitting-data">Fitting data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#controlling-number-of-monte-carlo-points">Controlling number of Monte Carlo points</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#controlling-which-contributions-to-include-in-the-resolution-function">Controlling which contributions to include in the resolution function</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FAQ.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Example_scripts.html">Example scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="How_to_cite_Horace.html">How to cite Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Papers_citing_Horace.html">Papers citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Known_bugs.html">Known bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Become_a_developer.html">Become a developer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="For_Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Developer_info.html">Developer info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Tobyfit</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Tobyfit.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tobyfit">
+<h1>Tobyfit<a class="headerlink" href="#tobyfit" title="Permalink to this headline"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline"></a></h2>
+<p>The purpose of Tobyfit is to enable you to fit to Horace datasets taking into account the broadening of the data arising from the resolution of the instrument. Even if the excitations in your sample were infinitely long-lives you would have non-zero broadening in energy and wave vector arising from numerous contributions. The spread of energies arise from:</p>
+<ul class="simple">
+<li><p>the non-zero width in the moderator pulse;</p></li>
+<li><p>the non-zero pulse width from the Fermi or disk choppers;</p></li>
+<li><p>the different flight-times for the neutrons due to different distances that neutrons travel depending on the point of emission from the moderator, point of scattering ion the sampel and point of absorption in the detector.</p></li>
+</ul>
+<p>The spread of wavevector arises from:
+- spread of angle of the incident neutrons at the sample from the non-zero width of the moderator;
+- the non-zero size of the sample;
+- a spread of scattering angles into a given detector element because of the non-zero size of the detector element.</p>
+<p>Resolution effects can be quite considerable. Not only do they result in an increase in the energy width of peaks (thereby giving an illusory shorter lifetime of the excitations), they can also shift the positions of peaks depending on, for example, the curvature of dispersion relation within the resolution function. This can result in incorrect values of exchange constants being extracted from the data is resolution is ignored.</p>
+<p>Tobyfit uses the multifit fitting interface to enable you fit your data to a model for S(Q,w) together with background functions. By default the S(Q,w) model can be global to all of the datasets you pass to Tobyfit i.e. a single model that applies with the same parameter values to all datasets, with independent background functions for each of the datasets. Alternatively, you can specify that the S(Q,w) model is local i.e. the parameters vary independently for each dataset, but you can constrain parameters to be bound between the S(Q,w) models so that, for example, they all share common magnetic exchange constants but the intensities and intrinsic lifetimes can vary independently for each cut.</p>
+<p>Tobyfit therefore appears to operate just like <a class="reference internal" href="Multifit.html#multifit-sqw"><span class="std std-ref">multifit_sqw</span></a>, with the same set of capabilities of controlling parameter setting, binding etc that all other <a class="reference internal" href="Multifit.html#multifit"><span class="std std-ref">multifit variants</span></a> have. The difference is that Tobyfit uses instrument information in the sqw objects to convolute the S(Q,w) model(s) with the instrument resolution function using a Monte Carlo multi-dimensional integration, and provides some additional methods to control how the convolution is carried out. Note that the background functions are *not* convoluted with the resolution function - the assumption is that they are simply empirical functions such as linear background models and so resolution function convolution makes little sense.</p>
+</section>
+<section id="performing-resolution-convolution">
+<h2>Performing resolution convolution<a class="headerlink" href="#performing-resolution-convolution" title="Permalink to this headline"></a></h2>
+<section id="setting-the-sample-and-instrument-information">
+<h3>Setting the sample and instrument information<a class="headerlink" href="#setting-the-sample-and-instrument-information" title="Permalink to this headline"></a></h3>
+<p>The first thing you need to do is provide the sample and instrument information to your datasets. You can do this by creating a sample object. There is an object class called <code class="docutils literal notranslate"><span class="pre">IX_sample</span></code> which does this; type <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">IX_sample</span></code> for more information. An example invocation is :</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">my_sample</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">IX_sample</span><span class="p">(</span><span class="nb">true</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="s">&#39;cuboid&#39;</span><span class="p">,[</span><span class="mf">0.03</span><span class="p">,</span><span class="mf">0.03</span><span class="p">,</span><span class="mf">0.04</span><span class="p">])</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Next you must create an instrument description. Horace provides functions for the ISIS chopper spectrometers that do this. For example, for the MAPS spectrometer you can use</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">instru</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">maps_instrument</span><span class="w"> </span><span class="p">(</span><span class="n">ei</span><span class="p">,</span><span class="w"> </span><span class="n">frequency</span><span class="p">,</span><span class="w"> </span><span class="n">chopper_type</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>where</p>
+<dl class="simple">
+<dt>ei</dt><dd><p>incident energy (meV)</p>
+</dd>
+<dt>frequency</dt><dd><p>frequency of the Fermi chopper</p>
+</dd>
+<dt>chopper_type</dt><dd><p>character that indicates the chopper type (in the case of MAPS this is ‘A’ , ‘B’ or ‘S’ for the sloppy chopper)</p>
+</dd>
+</dl>
+<p>The functions for the other spectrometers are <code class="docutils literal notranslate"><span class="pre">merlin_instrument</span></code>, <code class="docutils literal notranslate"><span class="pre">mari_instrument</span></code>, and <code class="docutils literal notranslate"><span class="pre">let_instrument</span></code>.</p>
+<p>Now you need to associate this information with the cuts you wish to fit with Tobyfit. Tobyfit will only fit sqw objects, because the information of each individual detector-energy bin is needed to perform the resolution convolution. This information is removed when you create cuts of type d1d, d2d, etc. If you have already created the cuts then you do the following:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">my_cuts</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">set_sample</span><span class="w"> </span><span class="p">(</span><span class="n">my_cuts</span><span class="p">,</span><span class="w"> </span><span class="n">my_sample</span><span class="p">)</span><span class="w"></span>
+<span class="n">my_cuts</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">set_instrument</span><span class="w"> </span><span class="p">(</span><span class="n">my_cuts</span><span class="p">,</span><span class="w"> </span><span class="n">instru</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Note that these functions will operate on arrays of sqw objects, so you do not need to write <code class="docutils literal notranslate"><span class="pre">for</span></code> loops.</p>
+<p>Alternatively, you can attach the information to the sqw file from which you are going to make the cuts:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">set_sample_horace</span><span class="w"> </span><span class="p">(</span><span class="n">my_sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">my_sample</span><span class="p">)</span><span class="w"></span>
+<span class="n">set_instrument_horace</span><span class="w"> </span><span class="p">(</span><span class="n">my_sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">instru</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The advantage of doing this is that every cut you take from the sqw file will also have the sample and instrument information.</p>
+</section>
+<section id="fitting-data">
+<h3>Fitting data<a class="headerlink" href="#fitting-data" title="Permalink to this headline"></a></h3>
+<p>Once you have set the sample and instrument you can start fitting your data. To start, you need to create a fitting object, which in the following example we’ll give the name <code class="docutils literal notranslate"><span class="pre">tf</span></code>:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tobyfit</span><span class="w"> </span><span class="p">(</span><span class="n">my_cuts</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Now you have created this object, the procedure is just the same as for the various other flavours of <code class="docutils literal notranslate"><span class="pre">multifit</span></code>, and specifically the form of the fitting functions is the same as <code class="docutils literal notranslate"><span class="pre">multifit_sqw</span></code>. You can follow the link to <a class="reference internal" href="Multifit.html#multifit"><span class="std std-ref">multifit</span></a> for the general information about how to create a fit, and <a class="reference internal" href="Multifit.html#multifit-sqw"><span class="std std-ref">multifit_sqw</span></a> for the form of the function that models S(Q,w). For complete documentation use the Matlab help by typing <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/tobyfit</span></code> and navigate the links to the various methods for setting functions, parameters, fixed/free parameters and bindings between parameters.</p>
+<p>In addition to all of the methods for setting up and performing a fit, there are a few that are specific to Tobyfit (and which are documented in full in the Matlab documentation at <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/tobyfit</span></code>). The most important are outlined below. There is also the possibility to refine the crystal orientation and the moderator lineshape.</p>
+<section id="controlling-number-of-monte-carlo-points">
+<h4>Controlling number of Monte Carlo points<a class="headerlink" href="#controlling-number-of-monte-carlo-points" title="Permalink to this headline"></a></h4>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tobyfit</span><span class="w"> </span><span class="p">(</span><span class="n">my_data</span><span class="p">)</span><span class="w"></span>
+<span class="o">\</span><span class="n">t</span><span class="p">:</span><span class="w"></span>
+<span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tf</span><span class="p">.</span><span class="n">set_mc_points</span><span class="w"> </span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>and to enquire of the current values</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">tf</span><span class="p">.</span><span class="n">mc_points</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The default is 10. This is a good starting value.</p>
+</section>
+<section id="controlling-which-contributions-to-include-in-the-resolution-function">
+<h4>Controlling which contributions to include in the resolution function<a class="headerlink" href="#controlling-which-contributions-to-include-in-the-resolution-function" title="Permalink to this headline"></a></h4>
+<p>There are a number of contributions to the resolution function. As an example:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tobyfit</span><span class="w"> </span><span class="p">(</span><span class="n">my_data</span><span class="p">)</span><span class="w"></span>
+<span class="o">\</span><span class="n">t</span><span class="p">:</span><span class="w"></span>
+<span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tf</span><span class="p">.</span><span class="n">set_mc_contributions</span><span class="w"> </span><span class="p">(</span><span class="s">&#39;nomoderator&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">\</span><span class="n">t</span><span class="c">% excludes the contribution from the moderator</span><span class="w"></span>
+</pre></div>
+</div>
+<p>To control the other contributions navigate the Matlab help <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/tobyfit</span></code>. To enquire of the current values:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">tf</span><span class="p">.</span><span class="n">mc_contributions</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Advanced_Multifit.html" class="btn btn-neutral float-left" title="Advanced Multifit" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="List_of_functions.html" class="btn btn-neutral float-right" title="List of functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, STFC RAL.
+      <span class="lastupdated">Last updated on Sep 29, 2021, 3:52:54 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

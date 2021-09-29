@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Multifit &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Advanced Multifit" href="Advanced_Multifit.html" />
+    <link rel="prev" title="Simulation" href="Simulation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Horace
+            <img src="_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                3.6.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="The_Horace_Rationale.html">The Horace Rationale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_Setup_Troubleshutting.html">Download and Setup Trouble-Shutting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_setup.html">Download and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_Setup_Troubleshutting.html">Download and Setup Trouble-Shutting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Support_and_updates.html">Support and updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced_use.html">Advanced use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Horace_GUI.html">Horace GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Symmetrising_etc.html">Symmetrising etc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Unary_operations.html">Unary operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Simulation.html">Simulation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Multifit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#introduction-to-setting-up-and-performing-a-fit">Introduction to setting up and performing a fit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#simple-fitting">Simple fitting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#background-functions">Background functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#binding-parameters">Binding parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#semi-global-fits">Semi-global fits</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#summary-of-commands-with-multifit">Summary of commands with multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fitting-functions">Fitting functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#multifit-function">multifit function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#multifit-func">multifit_func</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#multifit-sqw">multifit_sqw</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#multifit-sqw-sqw">multifit_sqw_sqw</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced_Multifit.html">Advanced Multifit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FAQ.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Example_scripts.html">Example scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="How_to_cite_Horace.html">How to cite Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Papers_citing_Horace.html">Papers citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Known_bugs.html">Known bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Become_a_developer.html">Become a developer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="For_Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Developer_info.html">Developer info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Multifit</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Multifit.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="multifit">
+<h1>Multifit<a class="headerlink" href="#multifit" title="Permalink to this headline"></a></h1>
+<p>Horace (and the parent utilities library, Herbert) comes with a rich and powerful fitting syntax that is common to the methods used to fit functions or models of S(Q,w) to one or more datasets. The documentation here is only meant to give an introduction and overview. For the full help, please use the Matlab documentation for the various fitting functions that can be obtained by using the <code class="docutils literal notranslate"><span class="pre">doc</span></code> command, for example <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">d1d/multifit</span></code> (for fitting function like Gaussians to d1d objects) or <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/multifit_sqw</span></code> (fitting models for S(Q,w) to sqw objects). It is strongly recommended that you use <code class="docutils literal notranslate"><span class="pre">doc</span></code>, not <code class="docutils literal notranslate"><span class="pre">help</span></code> to explore how to use these methods, so that you can navigate between the numerous pages of documentation in the Matlab help window.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline"></a></h2>
+<p>Horace provides a set of methods for fitting sqw and d1d,d2d,…d4d objects. which all share the same fitting syntax and capabilities. The various forms of multifit enable you to:</p>
+<ul>
+<li><p>fit a function to single dataset</p>
+<p>For example, fitting a Gaussian function to a single one-dimensional dataset</p>
+</li>
+<li><p>fit a function with a global set of parameters to several datasets simultaneously</p>
+<p>For example, fitting a model for S(Q,w) from spin waves to several function sqw objects to determine the global intensity scale and magnetic exchange constants that best fit the set of data</p>
+</li>
+<li><p>fit a global foreground function with local background functions</p>
+<p>For example, in the previous illustration, allowing an independent linear background for each sqw dataset, or even different functional forms for the background for different datasets</p>
+</li>
+<li><p>fix one or more parameters in the foreground functions and background functions</p></li>
+<li><p>bind the values of pairs of parameters so that they vary in a fixed ratio in the fit</p></li>
+</ul>
+<p>The last functionality can be very useful if you have a model for S(Q,w) where you want to have parameters that apply globally (for example, magnetic exchange constants that define spin wave dispersion) but other parameters that can vary independently for each dataset (for example, the spin wave lifetime) . In this instance, you can define the foreground function to be local, then bind the exchange constants across all datasets with ratio unity.</p>
+<p>The following multifit variants are available for sqw and d1d,d2d,…d4d objects:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">multifit_func</span></code> (or equivalently <code class="docutils literal notranslate"><span class="pre">multifit</span></code>)</p>
+<p>The foreground and background functions both are functions of the plot axes x1,x2,…</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">multifit_sqw</span></code> </p>
+<p>The foreground function(s) are functions of S(Q,w), and the background functions are functions of the plot axes x1,x2,…</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">multifit_sqw_sqw</span></code> </p>
+<p>The foreground and background function(s) are all functions of S(Q,w)</p>
+</li>
+</ul>
+</section>
+<section id="introduction-to-setting-up-and-performing-a-fit">
+<h2>Introduction to setting up and performing a fit<a class="headerlink" href="#introduction-to-setting-up-and-performing-a-fit" title="Permalink to this headline"></a></h2>
+<p>All the variants of multifit share a common procedure for setting up and performing a fit - they differ only in the form of the functions which are either functions of the plot coordinates or qh,qk,ql,en. In what follows we refer to <code class="docutils literal notranslate"><span class="pre">multifit</span></code>, but for this you can equally read <code class="docutils literal notranslate"><span class="pre">multifit_func</span></code>, <code class="docutils literal notranslate"><span class="pre">multifit_sqw</span></code>, <code class="docutils literal notranslate"><span class="pre">multifit_sqw</span></code>, and even the resolution convolution program <code class="docutils literal notranslate"><span class="pre">Tobyfit</span></code>.</p>
+<section id="simple-fitting">
+<h3>Simple fitting<a class="headerlink" href="#simple-fitting" title="Permalink to this headline"></a></h3>
+<p>First you have to create a multifit object with the data you want to fit. You can give it any name you like - here we’ll use the name <code class="docutils literal notranslate"><span class="pre">kk</span></code></p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">multifit</span><span class="w"> </span><span class="p">(</span><span class="n">w1</span><span class="p">)</span><span class="w"> </span><span class="o">\</span><span class="n">t</span><span class="c">% w1 is an object (or array of objects) to be fitted</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">multifit</span><span class="w"> </span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">,</span><span class="n">w3</span><span class="p">,</span><span class="n">w4</span><span class="p">)</span><span class="w"> </span><span class="o">\</span><span class="n">t</span><span class="c">% several (arrays of) objects to be fitted simultaneously</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Next you need to set the fitting functions. In this case, let us assume that you are fitting an array of three objects and that you are going to fit Gaussian functions to all three objects simultaneously:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">multifit</span><span class="w"> </span><span class="p">(</span><span class="n">my_data</span><span class="p">)</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_fun</span><span class="w"> </span><span class="p">(@</span><span class="n">gauss</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>In the Horace installation there is a folder with a selection of fitting functions, including <code class="docutils literal notranslate"><span class="pre">gauss.m</span></code>. A fit function requires a particular set of input and output arguments. Type <code class="docutils literal notranslate"><span class="pre">help</span> <span class="pre">gauss</span></code> for help for an example of a function, or <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/multifit</span></code>and click on the links in the help window that is opened up. The way to set the fit functions follows the generic syntax of multifit, which is to set properties of the object using a command of the form <code class="docutils literal notranslate"><span class="pre">myobj</span> <span class="pre">=</span> <span class="pre">myobj.command(arg1,arg2,...)</span></code>.</p>
+<p>Now we need to provide the starting parameters for the fit. This is a row vector of the numerical values for the parameters, which in the case of <code class="docutils literal notranslate"><span class="pre">gauss</span></code> is the height, position and standard deviation:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_pin</span><span class="w"> </span><span class="p">([</span><span class="mi">100</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">]);</span><span class="w"> </span><span class="o">\</span><span class="n">t</span><span class="c">% height 100, centred on 0, standard deviation 10</span><span class="w"></span>
+</pre></div>
+</div>
+<p>By default, multifit will allow all these parameters to float freely in the fit. However, suppose you want to keep the Gaussian centred on the origin. Then you can provide a list of which parameters are allowed to float (1) or are fixed (0). In this example:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_free</span><span class="w"> </span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]);</span><span class="w"> </span><span class="o">\</span><span class="n">t</span><span class="c">% keep the second parameter fixed in the fit</span><span class="w"></span>
+</pre></div>
+</div>
+<p>At this point, you can perform a fit:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[</span><span class="n">my_fitted_data</span><span class="p">,</span><span class="w"> </span><span class="n">fit_params</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">fit</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>This returns two arguments: <code class="docutils literal notranslate"><span class="pre">my_fitted_data</span></code> is an array of objects which is the same as the input data except that the signal (or equivalently, the intensity) is set to the values calculated at the fitted parameter values; and <code class="docutils literal notranslate"><span class="pre">fit_params</span></code>, which is a structure that contains the fitted parameter values, estimated errors on those fitted values, the value of chi-squared for the fit and the covariance matrix of the fitted parameters.</p>
+<p>If you want to see how the fit is progressing from one iteration to the next, and also get a listing in the Matlab command window of the final fit parameters, you can ask for more verbose output by changing one of the multifit options:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_options</span><span class="w"> </span><span class="p">(</span><span class="s">&#39;list&#39;</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span><span class="w"> </span><span class="o">\</span><span class="n">t</span><span class="c">% prints highly verbose output to the screen</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Other options change the fit convergence criteria, and whether or not the final fit is calculated only are data points that remained once points with zero error bars were removed or at all data points.</p>
+<p>Fitting can be computationally very expensive. Before you start fitting, it can be very useful to simulate at the initial parameters to see if your starting point is reasonable:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">[</span><span class="n">my_fitted_data</span><span class="p">,</span><span class="w"> </span><span class="n">fit_params</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">simulate</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="background-functions">
+<h3>Background functions<a class="headerlink" href="#background-functions" title="Permalink to this headline"></a></h3>
+<p>One of the nice features of multifit is that as well as fitting a global function (the ‘foreground’) function to all your datsets, you can define local ‘background’ functions, that is functions whose parameters vary independently for each dataset. This can be useful, for example, if you have a model for S(Q,w) which should apply to all your datasets, but you need to have a linear background that is independent for each dataset. We continue with our example of an array of three datasets which we set up above; to recap:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">multifit</span><span class="w"> </span><span class="p">(</span><span class="n">my_data</span><span class="p">)</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_fun</span><span class="w"> </span><span class="p">(@</span><span class="n">gauss</span><span class="p">);</span><span class="w"></span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_pin</span><span class="w"> </span><span class="p">([</span><span class="mi">100</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">]);</span><span class="w"></span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_free</span><span class="w"> </span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Now let us add an independent linear background for each of the three datasets:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_bfun</span><span class="w"> </span><span class="p">(@</span><span class="n">linear_bg</span><span class="p">);</span><span class="w"> </span><span class="o">\</span><span class="n">t</span><span class="o">\</span><span class="n">t</span><span class="c">% set_bfun sets the background functions</span><span class="w"></span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_bpin</span><span class="w"> </span><span class="p">([</span><span class="mf">5.5</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span><span class="w">         </span><span class="c">% initial background constant and gradient</span><span class="w"></span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_bfree</span><span class="w"> </span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span><span class="w">    </span><span class="c">% fix the backgroun gradient</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Even though only one background function was given in the example above, the default is assume that it applies locally. That is, multifit will assume that we want an independent linear background for each dataset. The same is true of the initial parameter values and the free/fixed parameters.</p>
+<p>If you wanted to have different initial starting parameters for each of the linear backgrounds, you should provide a cell array of row vectors, one per dataset:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_bpin</span><span class="w"> </span><span class="p">({[</span><span class="mf">5.5</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]},</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">1.2</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Similarly, if you wanted to fit a linear background to the first two datasets and a quadratic background to the to the third then you should provide a cell array of function handles, one per dataset. Note that three parameters are required for a quadratic background, so you need to give a cell array of starting values as well.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_fun</span><span class="w"> </span><span class="p">({@</span><span class="n">linear_bg</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">linear_bg</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">quad_bg</span><span class="p">});</span><span class="w"></span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_bpin</span><span class="w"> </span><span class="p">({[</span><span class="mf">5.5</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]},</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">1.2</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="binding-parameters">
+<h3>Binding parameters<a class="headerlink" href="#binding-parameters" title="Permalink to this headline"></a></h3>
+<p>You can bind parameters together so that they are always in a fixed ratio. For example if you wanted the height to always be ten times the standard deviation of the Gaussian, you set a binding descriptor, which is a cell array that gives in sequence the bound parameter, the free parameter, and the ratio of the bound to free parameter:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_bind</span><span class="w"> </span><span class="p">({</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">10</span><span class="p">});</span><span class="w"></span>
+</pre></div>
+</div>
+<p>This is a particular case of a binding descriptor. More generally, you need to give the parameter index and the function index for each of the bound and free parameters. The general syntax of a binding descriptor is:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">{[</span><span class="n">ipar_bound</span><span class="p">,</span><span class="w"> </span><span class="n">ifun_bound</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="n">ipar_free</span><span class="p">,</span><span class="w"> </span><span class="n">ifun_free</span><span class="p">],</span><span class="w"> </span><span class="n">ratio</span><span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>You can also give more than one binding in one command, by providing a cell array of binding descriptors. For example, if you want to bind the linear background constants together in the example above:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_bbind</span><span class="w"> </span><span class="p">({[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span><span class="w"> </span><span class="p">{[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="mi">1</span><span class="p">});</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Various defaults apply if you abbreviate the descriptor. For example, if you don’t give the parameter ratio, then multifit will assume the value determined by the initial parameter values in set_pin and <code class="docutils literal notranslate"><span class="pre">set_bpin</span></code>. If you don’t give the bound function index then it is assumed that you mean that the binding applies for all functions of that type (i.e. the type being foreground or background functions). The syntax enables complex bindings to be created in quite a succinct form, and you should navigate to the help for <code class="docutils literal notranslate"><span class="pre">set_bind</span></code> (foreground function bindings) and <code class="docutils literal notranslate"><span class="pre">set_bbind</span></code> (background function bindings) from <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/multifit</span></code>. You can also accumulate bindings to ones you’ve already set using <code class="docutils literal notranslate"><span class="pre">add_bind</span></code> and <code class="docutils literal notranslate"><span class="pre">add_bbind</span></code>.</p>
+</section>
+<section id="semi-global-fits">
+<h3>Semi-global fits<a class="headerlink" href="#semi-global-fits" title="Permalink to this headline"></a></h3>
+<p>So far we’ve seen how to have a global ‘foreground’ function that applies to all datasets (a Gaussian in the above, but it could be a model for S(Q,w)) together with independent ‘background’ functions for each dataset. A commonly encountered requirement is to have a model for the foreground where some parameters are global and other are local - for example a single exchange constant in a model for spin waves but independent intensities and inverse lifetimes. To achieve this you can set the background model to be local rather than global, just as teh default is for the background functions. Then you can use binding s to link a parameter across all datasets. For example, returning to our Gaussian foreground model, if we want the position constrained to be the same (but not necessarily zero) for all datasets, but the height and standard deviation allowed to be different:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">multifit</span><span class="w"> </span><span class="p">(</span><span class="n">my_data</span><span class="p">)</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_local_foreground</span><span class="w">     </span><span class="c">% override the default</span><span class="w"></span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_fun</span><span class="w"> </span><span class="p">(@</span><span class="n">gauss</span><span class="p">);</span><span class="w">        </span><span class="c">% sets every function to be Gaussian</span><span class="w"></span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_pin</span><span class="w"> </span><span class="p">([</span><span class="mi">100</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">]);</span><span class="w"> </span><span class="o">\</span><span class="n">t</span><span class="c">% same initial parameter for all functions</span><span class="w"></span>
+<span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_bind</span><span class="w"> </span><span class="p">({</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">]});</span><span class="w"> </span><span class="o">\</span><span class="n">t</span><span class="c">% bind parameter 2 of all functions</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The syntax of the last function means that parameter 2 of all foreground functions is bound to parmaeter 2 of the first function. The ratio will be unity because they were all initialised to the same value.</p>
+</section>
+</section>
+<section id="summary-of-commands-with-multifit">
+<h2>Summary of commands with multifit<a class="headerlink" href="#summary-of-commands-with-multifit" title="Permalink to this headline"></a></h2>
+<p>The command set and the inputs they take is considerably richer than the taster that has been given above. The multifit help in Matlab that you invoke by typing <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/multifit</span></code> (and any of the variants for d1d,d2d… objects, and multifit_func, multifit_sqw, multifit_sqw_sqw) is the gateway to discovering more about the commands and links to example fitting functions. The summary of the commands is as follows:</p>
+<p>To set data:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">set_data</span><span class="w">     </span><span class="o">-</span><span class="w"> </span><span class="n">Set</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">clearing</span><span class="w"> </span><span class="nb">any</span><span class="w"> </span><span class="n">existing</span><span class="w"> </span><span class="n">datasets</span><span class="w"></span>
+<span class="n">append_data</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">Append</span><span class="w"> </span><span class="n">further</span><span class="w"> </span><span class="n">datasets</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">datasets</span><span class="w"></span>
+<span class="n">remove_data</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="nb">Remove</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="nb">more</span><span class="w"> </span><span class="n">dataset</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="w"></span>
+<span class="n">replace_data</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Replace</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="nb">more</span><span class="w"> </span><span class="n">dataset</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>To mask data points:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">set_mask</span><span class="w">     </span><span class="o">-</span><span class="w"> </span><span class="n">Mask</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="n">points</span><span class="w"></span>
+<span class="n">add_mask</span><span class="w">     </span><span class="o">-</span><span class="w"> </span><span class="n">Mask</span><span class="w"> </span><span class="n">additional</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="n">points</span><span class="w"></span>
+<span class="n">clear_mask</span><span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">Clear</span><span class="w"> </span><span class="n">masking</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="nb">more</span><span class="w"> </span><span class="n">dataset</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>To set fitting functions:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">set_fun</span><span class="w">      </span><span class="o">-</span><span class="w"> </span><span class="n">Set</span><span class="w"> </span><span class="n">foreground</span><span class="w"> </span><span class="n">fit</span><span class="w"> </span><span class="nb">functions</span><span class="w"></span>
+<span class="n">clear_fun</span><span class="w">    </span><span class="o">-</span><span class="w"> </span><span class="n">Clear</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="nb">more</span><span class="w"> </span><span class="n">foreground</span><span class="w"> </span><span class="n">fit</span><span class="w"> </span><span class="nb">functions</span><span class="w"></span>
+
+<span class="n">set_bfun</span><span class="w">     </span><span class="o">-</span><span class="w"> </span><span class="n">Set</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="n">fit</span><span class="w"> </span><span class="nb">functions</span><span class="w"></span>
+<span class="n">clear_bfun</span><span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">Clear</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="nb">more</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="n">fit</span><span class="w"> </span><span class="nb">functions</span><span class="w"></span>
+</pre></div>
+</div>
+<p>To set initial function parameter values:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">set_pin</span><span class="w">      </span><span class="o">-</span><span class="w"> </span><span class="n">Set</span><span class="w"> </span><span class="n">foreground</span><span class="w"> </span><span class="n">fit</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="n">parameters</span><span class="w"></span>
+<span class="n">clear_pin</span><span class="w">    </span><span class="o">-</span><span class="w"> </span><span class="n">Clear</span><span class="w"> </span><span class="n">parameters</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="nb">more</span><span class="w"> </span><span class="n">foreground</span><span class="w"> </span><span class="n">fit</span><span class="w"> </span><span class="nb">functions</span><span class="w"></span>
+
+<span class="n">set_bpin</span><span class="w">     </span><span class="o">-</span><span class="w"> </span><span class="n">Set</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="n">fit</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="n">parameters</span><span class="w"></span>
+<span class="n">clear_bpin</span><span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">Clear</span><span class="w"> </span><span class="n">parameters</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="nb">more</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="n">fit</span><span class="w"> </span><span class="nb">functions</span><span class="w"></span>
+</pre></div>
+</div>
+<p>To set which parameters are fixed or free:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">set_free</span><span class="w">     </span><span class="o">-</span><span class="w"> </span><span class="n">Set</span><span class="w"> </span><span class="n">free</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="nb">fix</span><span class="w"> </span><span class="n">foreground</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="n">parameters</span><span class="w"></span>
+<span class="n">clear_free</span><span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">Clear</span><span class="w"> </span><span class="nb">all</span><span class="w"> </span><span class="n">foreground</span><span class="w"> </span><span class="n">parameters</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">free</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="nb">more</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="n">sets</span><span class="w"></span>
+
+<span class="n">set_bfree</span><span class="w">    </span><span class="o">-</span><span class="w"> </span><span class="n">Set</span><span class="w"> </span><span class="n">free</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="nb">fix</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="n">parameters</span><span class="w"></span>
+<span class="n">clear_bfree</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">Clear</span><span class="w"> </span><span class="nb">all</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="n">parameters</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">free</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="nb">more</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="n">sets</span><span class="w"></span>
+</pre></div>
+</div>
+<p>To bind parameters:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">set_bind</span><span class="w">     </span><span class="o">-</span><span class="w"> </span><span class="n">Bind</span><span class="w"> </span><span class="n">foreground</span><span class="w"> </span><span class="n">parameter</span><span class="w"> </span><span class="nb">values</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">fixed</span><span class="w"> </span><span class="n">ratios</span><span class="w"></span>
+<span class="n">add_bind</span><span class="w">     </span><span class="o">-</span><span class="w"> </span><span class="n">Add</span><span class="w"> </span><span class="n">further</span><span class="w"> </span><span class="n">foreground</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="n">bindings</span><span class="w"></span>
+<span class="n">clear_bind</span><span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">Clear</span><span class="w"> </span><span class="n">parameter</span><span class="w"> </span><span class="n">bindings</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="nb">more</span><span class="w"> </span><span class="n">foreground</span><span class="w"> </span><span class="nb">functions</span><span class="w"></span>
+
+<span class="n">set_bbind</span><span class="w">    </span><span class="o">-</span><span class="w"> </span><span class="n">Bind</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="n">parameter</span><span class="w"> </span><span class="nb">values</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">fixed</span><span class="w"> </span><span class="n">ratios</span><span class="w"></span>
+<span class="n">add_bbind</span><span class="w">    </span><span class="o">-</span><span class="w"> </span><span class="n">Add</span><span class="w"> </span><span class="n">further</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="n">bindings</span><span class="w"></span>
+<span class="n">clear_bbind</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">Clear</span><span class="w"> </span><span class="n">parameter</span><span class="w"> </span><span class="n">bindings</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="nb">more</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="nb">functions</span><span class="w"></span>
+</pre></div>
+</div>
+<p>To set functions as operating globally or local to a single dataset</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">set_global_foreground</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Specify</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">there</span><span class="w"> </span><span class="n">will</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">global</span><span class="w"> </span><span class="n">foreground</span><span class="w"> </span><span class="n">fit</span><span class="w"> </span><span class="k">function</span><span class="w"></span>
+<span class="n">set_local_foreground</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">Specify</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">there</span><span class="w"> </span><span class="n">will</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">local</span><span class="w"> </span><span class="n">foreground</span><span class="w"> </span><span class="n">fit</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="w"></span>
+
+<span class="n">set_global_background</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Specify</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">there</span><span class="w"> </span><span class="n">will</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">global</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="n">fit</span><span class="w"> </span><span class="k">function</span><span class="w"></span>
+<span class="n">set_local_background</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">Specify</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">there</span><span class="w"> </span><span class="n">will</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">local</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="n">fit</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>To fit or simulate:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">fit</span><span class="w">          </span><span class="o">-</span><span class="w"> </span><span class="n">Fit</span><span class="w"> </span><span class="n">data</span><span class="w"></span>
+<span class="n">simulate</span><span class="w">     </span><span class="o">-</span><span class="w"> </span><span class="n">Simulate</span><span class="w"> </span><span class="n">datasets</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">initial</span><span class="w"> </span><span class="n">parameter</span><span class="w"> </span><span class="nb">values</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Fit control parameters and other options:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">set_options</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">Set</span><span class="w"> </span><span class="n">options</span><span class="w"></span>
+<span class="n">get_options</span><span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">Get</span><span class="w"> </span><span class="nb">values</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="nb">more</span><span class="w"> </span><span class="n">specific</span><span class="w"> </span><span class="n">options</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="fitting-functions">
+<h2>Fitting functions<a class="headerlink" href="#fitting-functions" title="Permalink to this headline"></a></h2>
+<p>Several multifit variants are available for sqw and d1d,d2d,…d4d objects. The only substantive difference is the form of the fit functions they require: either they are functions of the numeric values of the plot coordinates, or they are function of wavevector in reciprocal lattice units and energy.</p>
+<section id="multifit-function">
+<h3>multifit function<a class="headerlink" href="#multifit-function" title="Permalink to this headline"></a></h3>
+<p>This method is identical to <code class="docutils literal notranslate"><span class="pre">multifit_func</span></code>.</p>
+<ul class="simple">
+<li><p>Foreground function(s): function of the plot axes x1,x2,…for as many x arrays as there are plot axes</p></li>
+<li><p>Background function(s): functions of the plot axes x1,x2,…for as many x arrays as there are plot axes</p></li>
+</ul>
+<p>The general form of a function of plot axis coordinates is:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">y</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">my_function</span><span class="w"> </span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="k">...</span><span class="c"> ,xn,pars)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>or, more generally:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">y</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">my_function</span><span class="w"> </span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="k">...</span><span class="c"> ,xn,pars,c1,c2,...)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>where
+- x1,x2,.xn Arrays of x coordinates along each of the n dimensions
+- pars Parameters needed by the function
+- c1,c2,… Any further constant arguments needed by the function. For example, they could be the filenames of lookup tables</p>
+</section>
+<section id="multifit-func">
+<h3>multifit_func<a class="headerlink" href="#multifit-func" title="Permalink to this headline"></a></h3>
+<p>This method is identical to <code class="docutils literal notranslate"><span class="pre">multifit</span></code>.</p>
+</section>
+<section id="multifit-sqw">
+<h3>multifit_sqw<a class="headerlink" href="#multifit-sqw" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p>Foreground function(s): functions of S(Q,w)</p></li>
+<li><p>Background function(s): functions of the plot axes x1,x2,…for as many x arrays as there are plot axes</p></li>
+</ul>
+<p>The general form of a model for S(Q,w) is:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">weight</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqwfunc</span><span class="w"> </span><span class="p">(</span><span class="n">qh</span><span class="p">,</span><span class="n">qk</span><span class="p">,</span><span class="n">ql</span><span class="p">,</span><span class="n">en</span><span class="p">,</span><span class="n">p</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>or, more generally:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">weight</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqwfunc</span><span class="w"> </span><span class="p">(</span><span class="n">qh</span><span class="p">,</span><span class="n">qk</span><span class="p">,</span><span class="n">ql</span><span class="p">,</span><span class="n">en</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="n">c1</span><span class="p">,</span><span class="n">c2</span><span class="p">,..)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>where</p>
+<ul class="simple">
+<li><p>qh,qk,ql,en Arrays containing the coordinates of a set of points</p></li>
+<li><p>p Vector of parameters needed by the model e.g. [A,js,gam] as intensity, exchange, lifetime</p></li>
+<li><p>c1,c2,… Other constant parameters e.g. file name for look-up table weight Array containing calculated spectral weight</p></li>
+</ul>
+<p>The general form of a function of plot axis coordinates is:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">y</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">my_function</span><span class="w"> </span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="k">...</span><span class="c"> ,xn,pars)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>or, more generally:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">y</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">my_function</span><span class="w"> </span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="k">...</span><span class="c"> ,xn,pars,c1,c2,...)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>where</p>
+<ul class="simple">
+<li><p>x1,x2,.xn Arrays of x coordinates along each of the n dimensions</p></li>
+<li><p>pars Parameters needed by the function</p></li>
+<li><p>c1,c2,… Any further constant arguments needed by the function. For example, they could be the filenames of lookup tables</p></li>
+</ul>
+</section>
+<section id="multifit-sqw-sqw">
+<h3>multifit_sqw_sqw<a class="headerlink" href="#multifit-sqw-sqw" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p>Foreground function(s): functions of S(Q,w)</p></li>
+<li><p>Background function(s): functions of S(Q,w)</p></li>
+</ul>
+<p>The general form of a model for S(Q,w) is:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">weight</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqwfunc</span><span class="w"> </span><span class="p">(</span><span class="n">qh</span><span class="p">,</span><span class="n">qk</span><span class="p">,</span><span class="n">ql</span><span class="p">,</span><span class="n">en</span><span class="p">,</span><span class="n">p</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>or, more generally:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">weight</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqwfunc</span><span class="w"> </span><span class="p">(</span><span class="n">qh</span><span class="p">,</span><span class="n">qk</span><span class="p">,</span><span class="n">ql</span><span class="p">,</span><span class="n">en</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="n">c1</span><span class="p">,</span><span class="n">c2</span><span class="p">,..)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>where</p>
+<ul class="simple">
+<li><p>qh,qk,ql,en Arrays containing the coordinates of a set of points</p></li>
+<li><p>p Vector of parameters needed by the model e.g. [A,js,gam] as intensity, exchange, lifetime</p></li>
+<li><p>c1,c2,… Other constant parameters e.g. file name for look-up table</p></li>
+<li><p>weight Array containing calculated spectral weight</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Simulation.html" class="btn btn-neutral float-left" title="Simulation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Advanced_Multifit.html" class="btn btn-neutral float-right" title="Advanced Multifit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, STFC RAL.
+      <span class="lastupdated">Last updated on Sep 29, 2021, 3:52:54 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
