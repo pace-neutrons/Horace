@@ -23,7 +23,7 @@ function obj = loadobj_private_ (S)
 %
 % Generally a class-specific function
 
-obj = IX_null_inst();  % default instance of the object
+obj = IX_null_sample();  % default instance of the object
 
 % Version history
 % ----------------
@@ -49,3 +49,5 @@ else
     error('init_object_from_structure_:unrecognisedVersion',...
         'Unrecognised class version number')
 end
+
+
