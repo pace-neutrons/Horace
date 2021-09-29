@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Download and Setup Trouble-Shutting &mdash; Horace 4.0.0.bd1412b documentation</title>
+  <title>Download and Setup Trouble-Shutting &mdash; Horace 3.6.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -30,7 +30,7 @@
             <a href="index.html" class="icon icon-home"> Horace
           </a>
               <div class="version">
-                4.0.0.bd1412b
+                3.6.0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -100,7 +100,11 @@
              
   <section id="download-and-setup-trouble-shutting">
 <h1>Download and Setup Trouble-Shutting<a class="headerlink" href="#download-and-setup-trouble-shutting" title="Permalink to this headline"></a></h1>
-<p>Installation process modifies three files, namely <a class="reference external" href="https://github.com/pace-neutrons/Horace/blob/master/admin/horace_on.m.template">horace_on.m.template</a>, <cite>herbert_on.m.template &lt;https://github.com/pace-neutrons/Herbert/blob/master/admin/herbert_on.m.template&gt;</cite> and <a class="reference external" href="https://github.com/pace-neutrons/Horace/blob/master/admin/worker_v2.m.template">worker_v2.m.template</a> by renaming them to <code class="docutils literal notranslate"><span class="pre">horace_on.m</span></code>, <code class="docutils literal notranslate"><span class="pre">herbert_on.m</span></code> and <code class="docutils literal notranslate"><span class="pre">worker_v2.m</span></code> and inserting the location of the Horace and Herbert packages (<code class="docutils literal notranslate"><span class="pre">package</span> <span class="pre">installation</span> <span class="pre">folder</span></code> – the place where you have unpacked these packages) into these files. <code class="docutils literal notranslate"><span class="pre">herbert_on</span></code> and <code class="docutils literal notranslate"><span class="pre">horace_on</span></code> files contain the scripts, used to initialize Herbert and Horace correspondingly. <code class="docutils literal notranslate"><span class="pre">horace_on</span></code> also executes <code class="docutils literal notranslate"><span class="pre">herbert_on</span></code> if <code class="docutils literal notranslate"><span class="pre">herbert_on</span></code> has not been executed earlier. <code class="docutils literal notranslate"><span class="pre">worker_v2</span></code> script is used by Horace parallel extensions to initialize Horace from independent parallel workers, communicating over MPI.</p>
+<p>Installation script assumes that you have unpacked instillation archive in a folder of your choice or cloned
+Github Horace and Herbert repositories in such folder one near another. In the first case, you will run the <code class="docutils literal notranslate"><span class="pre">horace_install</span></code> script from the folder where the archive is unpacked. In the second – from <strong>*Horace/admin*</strong> directory.
+If you file layout is different, pleas run the installation script with the parameters, which specify the location of the Horace and Herbert folders (see <code class="docutils literal notranslate"><span class="pre">install_horace</span></code> help on how to do this), and ensure that <strong>*Horace/admin*</strong> and <strong>*Herbert/admin*</strong> folders contains all necessary templates described below.</p>
+<p>Installation process modifies three files, namely <a class="reference external" href="https://github.com/pace-neutrons/Horace/blob/master/admin/horace_on.m.template">horace_on.m.template</a>,
+<a class="reference external" href="https://github.com/pace-neutrons/Herbert/blob/master/admin/herbert_on.m.template">herbert_on.m.template</a> and <a class="reference external" href="https://github.com/pace-neutrons/Horace/blob/master/admin/worker_v2.m.template">worker_v2.m.template</a> by renaming them to <code class="docutils literal notranslate"><span class="pre">horace_on.m</span></code>, <code class="docutils literal notranslate"><span class="pre">herbert_on.m</span></code> and <code class="docutils literal notranslate"><span class="pre">worker_v2.m</span></code> and inserting the location of the Horace and Herbert packages (<code class="docutils literal notranslate"><span class="pre">package</span> <span class="pre">installation</span> <span class="pre">folder</span></code> – the place where you have unpacked these packages) into these files. <code class="docutils literal notranslate"><span class="pre">herbert_on</span></code> and <code class="docutils literal notranslate"><span class="pre">horace_on</span></code> files contain the scripts, used to initialize Herbert and Horace correspondingly. <code class="docutils literal notranslate"><span class="pre">horace_on</span></code> also executes <code class="docutils literal notranslate"><span class="pre">herbert_on</span></code> if <code class="docutils literal notranslate"><span class="pre">herbert_on</span></code> has not been executed earlier. <code class="docutils literal notranslate"><span class="pre">worker_v2</span></code> script is used by Horace parallel extensions to initialize Horace from independent parallel workers communicating over MPI.</p>
 </section>
 
 
