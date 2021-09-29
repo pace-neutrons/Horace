@@ -1,0 +1,312 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Unary operations &mdash; Horace  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Binary operations" href="Binary_operations.html" />
+    <link rel="prev" title="Symmetrising etc" href="Symmetrising_etc.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Horace
+          
+
+          
+            
+            <img src="_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="The_Horace_Rationale.html">The Horace Rationale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_setup.html">Download and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Support_and_updates.html">Support and updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced_use.html">Advanced use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Horace_GUI.html">Horace GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Symmetrising_etc.html">Symmetrising etc</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Unary operations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#unary-plus">unary plus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#unary-minus">unary minus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#trigonometric-and-hyperbolic-functions">Trigonometric and hyperbolic functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#other-mathematical-functions">Other mathematical functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Simulation.html">Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Multifit.html">Multifit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced_Multifit.html">Advanced Multifit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FAQ.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Example_scripts.html">Example scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="How_to_cite_Horace.html">How to cite Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Papers_citing_Horace.html">Papers citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Known_bugs.html">Known bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Become_a_developer.html">Become a developer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="For_Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Developer_info.html">Developer info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Horace</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Unary operations</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/Unary_operations.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="unary-operations">
+<h1>Unary operations<a class="headerlink" href="#unary-operations" title="Permalink to this headline">¶</a></h1>
+<p>A unary operation is one that is performed on a single object, with no additional inputs. A single object is returned.</p>
+<div class="section" id="unary-plus">
+<h2>unary plus<a class="headerlink" href="#unary-plus" title="Permalink to this headline">¶</a></h2>
+<p>Unary plus. Returns the input object <code class="docutils literal notranslate"><span class="pre">win</span></code> with no modification.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">+</span><span class="n">win</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Equivalent to <code class="docutils literal notranslate"><span class="pre">wout</span> <span class="pre">=</span> <span class="pre">uplus(win)</span></code></p>
+</div>
+<div class="section" id="unary-minus">
+<h2>unary minus<a class="headerlink" href="#unary-minus" title="Permalink to this headline">¶</a></h2>
+<p>Unary minus. Returns the intensity field of the input object multiplied by -1, i.e. <code class="docutils literal notranslate"><span class="pre">wout</span> <span class="pre">=</span> <span class="pre">-1</span>&#160; <span class="pre">win</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">-</span><span class="n">win</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Equivalent to <code class="docutils literal notranslate"><span class="pre">wout</span> <span class="pre">=</span> <span class="pre">uminus(win)</span></code></p>
+</div>
+<div class="section" id="trigonometric-and-hyperbolic-functions">
+<h2>Trigonometric and hyperbolic functions<a class="headerlink" href="#trigonometric-and-hyperbolic-functions" title="Permalink to this headline">¶</a></h2>
+<p>With the form</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="k">function</span><span class="p">(</span><span class="n">win</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">function</span></code> is any of the following, trigonometric or hyperbolic operations may be performed on dnd or sqw objects.</p>
+<ul class="simple">
+<li><p>acos - arc cosine</p></li>
+<li><p>acosh - arc cosh</p></li>
+<li><p>acot - arc cot</p></li>
+<li><p>acoth - arc coth</p></li>
+<li><p>acsc - arc cosec</p></li>
+<li><p>acsch - arc cosech</p></li>
+<li><p>asec - arc sec</p></li>
+<li><p>asech - arc sech</p></li>
+<li><p>asin - arc sine</p></li>
+<li><p>asinh - arc sinh</p></li>
+<li><p>atan - arc tangent</p></li>
+<li><p>atanh - arc tanh</p></li>
+<li><p>cos - cosine</p></li>
+<li><p>cosh - cosh</p></li>
+<li><p>cot - cot</p></li>
+<li><p>coth - coth</p></li>
+<li><p>csc - cosec</p></li>
+<li><p>csch - cosech</p></li>
+<li><p>sec - sec</p></li>
+<li><p>sech - sech</p></li>
+<li><p>sin - sine</p></li>
+<li><p>sinh - sinh</p></li>
+<li><p>tan - tangent</p></li>
+<li><p>tanh - tanh</p></li>
+</ul>
+</div>
+<div class="section" id="other-mathematical-functions">
+<h2>Other mathematical functions<a class="headerlink" href="#other-mathematical-functions" title="Permalink to this headline">¶</a></h2>
+<p>Using the same syntax as above, one can perform the following operations:</p>
+<ul class="simple">
+<li><p>exp - exponential</p></li>
+<li><p>log - natural logarithm</p></li>
+<li><p>log10 - logarithm base 10</p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="Binary_operations.html" class="btn btn-neutral float-right" title="Binary operations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Symmetrising_etc.html" class="btn btn-neutral float-left" title="Symmetrising etc" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, STFC RAL.
+      <span class="lastupdated">
+        Last updated on May 14, 2021, 11:30:13 AM.
+      </span>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
