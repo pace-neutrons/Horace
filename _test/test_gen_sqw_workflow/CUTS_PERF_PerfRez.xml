@@ -574,4 +574,36 @@
          <completed_on>[2021 9 20 11 20 58.266837]</completed_on>
       </cutE_Small_nwk0_mex>
    </host_172_16_114_142_parpool_nf20>
+   <host_172_16_114_55_parpool_nf10>
+      <gen_tmp_nwk_0_parpool>
+         <time_sec>101.296522</time_sec>
+         <comment>whole sqw file generation</comment>
+         <completed_on>[2021 9 29 20 13 26.986004]</completed_on>
+      </gen_tmp_nwk_0_parpool>
+      <comb_tmp_nwk_0_matlab>
+         <time_sec>28.327142</time_sec>
+         <comment>calc headers and combine all tmp files</comment>
+         <completed_on>[2021 9 29 20 13 56.840482]</completed_on>
+      </comb_tmp_nwk_0_matlab>
+      <cutH1D_Small_nwk0_nomex>
+         <time_sec>0.480439</time_sec>
+         <comment>small memory based 1D cut in non-axis aligned direction 1</comment>
+         <completed_on>[2021 9 29 20 18 35.742212]</completed_on>
+      </cutH1D_Small_nwk0_nomex>
+      <cutK1D_Small_nwk0_nomex>
+         <time_sec>0.214121</time_sec>
+         <comment>small memory based 1D cut in non-axis aligned direction 2</comment>
+         <completed_on>[2021 9 29 20 18 35.95713]</completed_on>
+      </cutK1D_Small_nwk0_nomex>
+      <cutL1D_Small_nwk0_nomex>
+         <time_sec>0.215012</time_sec>
+         <comment>small memory based 1D cut in non-axis aligned direction 3</comment>
+         <completed_on>[2021 9 29 20 18 36.383182]</completed_on>
+      </cutL1D_Small_nwk0_nomex>
+      <cutE_Small_nwk0_nomex>
+         <time_sec>0.173626</time_sec>
+         <comment>small memory based 1D cut along energy direction (q are not axis aligned)</comment>
+         <completed_on>[2021 9 29 20 4 53.895825]</completed_on>
+      </cutE_Small_nwk0_nomex>
+   </host_172_16_114_55_parpool_nf10>
 </test_cuts_performance>
