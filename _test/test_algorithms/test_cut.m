@@ -76,13 +76,13 @@ classdef test_cut < TestCase
         end
         
         function test_you_can_take_a_cut_from_an_sqw_object(obj)
-            sqw_obj = sqw(obj.sqw_file);
+            sqw_obj = read_sqw(obj.sqw_file);
             sqw_cut = cut(sqw_obj, obj.ref_params{:});
             %
             % offset is currently expressed in hkl
             assertElementsAlmostEqual(sqw_cut.data.uoffset,obj.ref_params{1}.uoffset);
             
-            ref_sqw = sqw(obj.ref_file);
+            ref_sqw = read_sqw(obj.ref_file);
             assertEqualToTol(sqw_cut, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
         end
         
