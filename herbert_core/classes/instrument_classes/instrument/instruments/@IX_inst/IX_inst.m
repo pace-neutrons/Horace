@@ -44,6 +44,11 @@ classdef IX_inst < matlab.mixin.Heterogeneous
                 end
             end
         end
+        
+        function iseq = eq(obj1, obj2)
+            iseq = strcmp(obj1.name, obj2.name);
+            iseq = iseq && obj1.source==obj2.source;
+        end
 
         %------------------------------------------------------------------
         % Set methods for independent properties
