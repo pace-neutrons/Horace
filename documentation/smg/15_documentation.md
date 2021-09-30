@@ -27,7 +27,7 @@ First, with a clone of the `Horace` repository:
 
   Use the appropriate build command to make the docs following standard CMake procedures (e.g. `make docs`). 
   
-  This automatically determine OS specific commands and will check if the appropriate programs are available and writes the documentation to `documentation/user_docs/build/html` by default. It also performs cleanup of the documentation's temporary sidebar links.
+  This automatically determines OS specific commands and will check if the appropriate programs are available and writes the documentation to `documentation/user_docs/build/html` by default. It also performs cleanup of the documentation's temporary sidebar links.
   
 * Manual
   
@@ -90,10 +90,11 @@ When producing a new version, the `conf.py` (in `documentation/user_docs/docs`) 
 
 ### Automatic procedure (recommended)
 The documentation will be deployed automatically on a nightly build to the `unstable` page of the GitHub pages (`https://pace-neutrons.github.io/Horace/unstable`). 
-On release, documentation will be deployed to the folder corresponding to the version number of the relase and redirected to by the `stable` page of the GitHub pages.
+On release, documentation will be deployed to the folder corresponding to the version number of the release and 
+the `stable` page will be updated to redirect to the most recent (chronological) version of the documentation.
 
 ### Manual procedure
-This should be used only in dire circumstances i.e. if forcing an update to old documentation or Jenkins failure, and not as the main method. 
+This should be used only in dire circumstances e.g. if forcing an update to old documentation or Jenkins failure, and not as the main method. 
 
 The raw docs are stored on the `gh-pages` branch of the main Horace repository. 
 
@@ -109,7 +110,7 @@ The docs should be built (see [here](#building-docs)) and the appropriate substi
   
 * Windows
 
-  From within the root Horace dir (or set `-Path` appropriately) run:
+  From Powershell within the root Horace dir (or set `-Path` appropriately) run:
      
   ```
   Foreach($f in Get-ChildItem -Path documentation/user_docs/build/html -Filter *.html) { \
@@ -117,8 +118,12 @@ The docs should be built (see [here](#building-docs)) and the appropriate substi
            }
   ```
   
-  These should then be copied outside the project (recommend equivalent to \[from Horace root dir\] `version_number='3.5.3'; mv documentation/user_docs/build/html ../${version_number}`
+  These should then be copied outside the project to avoid any risk of changes from a repo checkout
+  (recommend copying `documentation/user_docs/build/html` to a folder named for the version number)
   
-  The next step is to checkout the `gh-pages` (**N.B**, you may need to forcibly ignore changes to the repo from building the docs \[`git reset --hard` will do this, but care must be taken\]), then move the built documentation from outside the project to a folder of the appropriate version name in the project root directory. 
+  The next step is to checkout the `gh-pages` 
+  (**N.B**, you may need to forcibly ignore changes to the repo from building the docs \[`git reset --hard` will do this, but care must be taken\]),
+  then move the built documentation from outside the project to a folder of the appropriate version name in the project root directory. 
   
-  If the documentation is the most recent version of the documentation (i.e. `stable`), within the `stable` folder update `index.html` to redirect to the appropriate documentation version folder (the one which has been just copied). 
+  If the documentation is the most recent version of the documentation (i.e. `stable`), within the `stable` folder, update `index.html` to redirect to the
+  appropriate documentation version folder (the one which has been just copied). 
