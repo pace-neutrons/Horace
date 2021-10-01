@@ -5,7 +5,6 @@ classdef field_var_array < sqw_field_format_interface
     %  and restored during conversion
     %
     %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     
     properties(Access=private)

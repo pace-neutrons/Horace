@@ -58,8 +58,8 @@ if legacy
     return
 end
 
-warning('off','MATLAB:structOnObject');
-clob = onCleanup(@()warning('on','MATLAB:structOnObject'));
+ws = warning('off','MATLAB:structOnObject');
+clob = onCleanup(@()warning(ws));
 switch ndim %TODO: the dnd constructor should deal with this switch.
     case 0
         res = d0d(dat);

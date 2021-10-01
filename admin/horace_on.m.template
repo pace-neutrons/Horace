@@ -5,7 +5,7 @@ function path=horace_on(non_default_path)
 %
 %
 %
-default_horace_path = '${Horace_CORE}';
+default_horace_path  = '${Horace_CORE}';
 default_herbert_path = '${Herbert_CORE}';
 
 % To use spinW together with Horace, modify the row below pointing to correct
@@ -48,16 +48,20 @@ end
 
 % init Horace
 if nargin==1
-    start_app(non_default_path);
+    init_horace(non_default_path);
 else
-    start_app(default_horace_path);
+    init_horace(default_horace_path);
 end
 path = fileparts(which('horace_init.m'));
 %
 
 warning('off','MATLAB:subscripting:noSubscriptsSpecified');
 
-function start_app(path)
+function init_horace(path)
+if ~(exist(fullfile(path,'horace_init.m'),'file') == 2)
+    path = fullfile(path,'horace_core');
+end
+
 addpath(path);
 horace_init;
 
@@ -83,5 +87,3 @@ if exist(default_herbert_path,'var')
 else
     herbert_on();
 end
-
-

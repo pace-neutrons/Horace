@@ -128,7 +128,7 @@ classdef sqw_file_interface < dnd_binfile_common
             % % construction. Should not be stored
             % caches = {'sqw_serializer_','file_closer_','sqw_holder_'};
             % struc = rmfield(struc,caches);
-        end
+        end        
     end
     %----------------------------------------------------------------------
     %----------------------------------------------------------------------
@@ -140,6 +140,7 @@ classdef sqw_file_interface < dnd_binfile_common
         [header,pos]= get_header(obj,varargin);
         detpar      = get_detpar(obj,varargin);
         pix         = get_pix(obj,varargin);
+        range       = get_pix_range(obj);        
         [inst,obj]  = get_instrument(obj,varargin);
         [samp,obj]  = get_sample(obj,varargin);
         
@@ -154,7 +155,7 @@ classdef sqw_file_interface < dnd_binfile_common
         obj = put_samples(obj,varargin);
         % upgrade current sqw file to recent file format. May change the
         % sqw file and always opens it in write mode.
-        new_obj = upgrade_file_format(obj);
+        new_obj = upgrade_file_format(obj,varargin);
     end
 end
 

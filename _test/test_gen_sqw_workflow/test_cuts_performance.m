@@ -26,6 +26,18 @@ classdef test_cuts_performance < SQW_GENCUT_perf_tester
             if nerrors> 0
                 obj.skip_mex_tests = true;
             end
+            if ~obj.build_sqw_file_directly
+                % source sqw file has not been generated
+                % we need to build it now
+                if obj.skip_mex_tests
+                    build_mode = 'nomex';
+                else
+                    build_mode = 'mex';
+                end
+                names_map = obj.build_default_test_names(0,build_mode);
+                obj.gen_sqw_task_performance(names_map)
+            end
+            
         end
         
         function setUp(obj)

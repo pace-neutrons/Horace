@@ -1,9 +1,7 @@
 classdef test_upgrade_pix_pixrange< TestCase
     %
-    % Validate if the update woks
+    % Validate if the update works
     %
-    
-    
     properties
         test_dir;
     end
@@ -20,7 +18,6 @@ classdef test_upgrade_pix_pixrange< TestCase
             this=this@TestCase(name);
             
             this.test_dir = fullfile(fileparts(mfilename('fullpath')));
-            
         end
         
         % tests
@@ -57,6 +54,8 @@ classdef test_upgrade_pix_pixrange< TestCase
             
             assertEqual(ld1.get_pix_range(),pix2.pix_range);
             assertEqual(pix1.pix_range,pix2.pix_range);
+            ld1.delete();
+            ld0.delete();
         end
         
         function obj = test_upgrade_v2_toV3_3(obj)
@@ -103,9 +102,8 @@ classdef test_upgrade_pix_pixrange< TestCase
             modify_pix_ranges(test_file,'use_urange');
             ld1 = ld1.init(test_file);
             assertEqual(ld1.get_pix_range(),ld0.get_img_db_range());
+            ld1.delete();
         end
         %
     end
 end
-
-

@@ -1,4 +1,4 @@
-digraph CollabDiag {
+	/*edge [dir=back,arrowhead=odiamond];*/digraph CollabDiag {
    /* Collaboration&inheritance diagram showing relationship between various classes supporting sqw file access*/
 	edge [dir=back];
 	dnd_binfile_common [shape=box];
@@ -10,8 +10,12 @@ digraph CollabDiag {
 	sqw_binfile_common-> faccess_sqw_v3;
 
 	/*edge [dir=back,arrowhead=odiamond];*/
+    
+                    faccess_sqw_v3-> faccess_sqw_v3_2
+                    faccess_sqw_v3-> faccess_sqw_v3_3
 
-
+                        faccess_sqw_v3_2-> faccess_sqw_v3_21
+                        
 	edge [dir=normal,arrowhead=odiamond]
 	{rank = same;"dnd_binfile_common";"sqw_serializer";"const_blocks_map"};
 	sqw_serializer  -> dnd_binfile_common;

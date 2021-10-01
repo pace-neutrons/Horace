@@ -26,7 +26,7 @@ else
         elseif numel(val)==numel(tmp.expdata)
             if strcmp(field,'instrument')
                 for i=1:numel(tmp.instruments)
-                    tmp.instruments(i)=val(i)
+                    tmp.instruments(i)=val(i);
                 end
             elseif strcmp(field,'sample')
                 for i=1:numel(tmp.samples)
