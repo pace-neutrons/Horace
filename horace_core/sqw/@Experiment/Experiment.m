@@ -51,7 +51,7 @@ classdef Experiment
                 if isstruct(varargin{1}.instrument) && isempty(fieldnames(varargin{1}.instrument))
                     % as the instrument struct is empty, create a null
                     % instrument to represent it
-                    obj.instruments_(end+1) = IX_inst();
+                    obj.instruments_(end+1) = IX_null_inst();
                 elseif isa(varargin{1}.instrument,'IX_inst')
                     % hoping that the IX_inst is in fact a subclass
                     obj.instruments_(end+1) = varargin{1}.instrument;
@@ -60,7 +60,7 @@ classdef Experiment
                        isa(varargin{1}.instrument.fermi_chopper,'IX_fermi_chopper')
                         obj.instruments_(end+1) = IX_inst_DGfermi(varargin{1}.instrument.moderator, ...
                                                                   varargin{1}.instrument.aperture,  ...
-                                                                  varargin{1}.instrument.fermi_chopper)
+                                                                  varargin{1}.instrument.fermi_chopper);
                     else
                         % where this instrument is probably a DGdisk which
                         % actually is implemented but may be somethig else
@@ -109,11 +109,21 @@ classdef Experiment
                     hdr = headers{i};
                     alatt = hdr.alatt;
                     angdeg = hdr.angdeg;
-                    if isstruct(hdr.instrument) && isempty(fieldnames(hdr.instrument))
-                        try
-                        obj.instruments_(end+1) = IX_null_inst();
-                        catch ME
-                            error("T");
+                    if isstruct(hdr.instrument)
+                        if isempty(fieldnames(hdr.instrument))
+                            try
+                            obj.instruments_(end+1) = IX_null_inst();
+                            catch ME
+                                error("T");
+                            end
+                        elseif isfield(hdr.instrument,'fermi_chopper')
+                            ins = hdr.instrument;
+                            hdr.instrument = IX_inst_DGfermi(ins.moderator, ...
+                                                             ins.aperture,  ...
+                                                             ins.fermi_chopper);
+                            obj.instruments_(end+1) = hdr.instrument;
+                        else
+                            error('HORACE:Experiment-ctor','unknown struct');
                         end
                     else
                         obj.instruments_(end+1) = hdr.instrument;
