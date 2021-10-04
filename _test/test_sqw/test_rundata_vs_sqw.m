@@ -1,4 +1,4 @@
-classdef test_rundata_vs_sqw < TestCaseWithSave
+classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
     % Series of tests to check work of mex files against Matlab files
     
     properties
