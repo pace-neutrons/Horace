@@ -1,4 +1,4 @@
-function [proj,pbin,mess]=make_sqw_data_calc_proj_pbin(obj,varargin)
+function [proj,pbin,mess]=make_sqw_data_calc_proj_pbin(varargin)
 % Create data filed for sqw object from input of the form
 %
 %   >> [proj,pbin,mess] = make_sqw_data_calc_proj_pbin (u1,p1,u2,p2,...,un,pn)

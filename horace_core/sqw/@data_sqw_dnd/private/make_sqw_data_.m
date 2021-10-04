@@ -1,21 +1,21 @@
-function [data,mess] = make_sqw_data_(data,varargin)
+function [obj,mess] = make_sqw_data_(obj,varargin)
 % Make a valid data structure
 % Create a valid structure for an sqw object
 %
 % Simplest constructor
-%   >> [data,mess] = make_sqw_data_          % assumes ndim=0
-%   >> [data,mess] = make_sqw_data_(ndim)   % sets dimensionality
+%   >> [obj,mess] = make_sqw_data_          % assumes ndim=0
+%   >> [obj,mess] = make_sqw_data_(ndim)   % sets dimensionality
 %
 % Old style syntax:
-%   >> [data,mess] = make_sqw_data_(u1,p1,u2,p2,...,un,pn)  % Define plot axes
-%   >> [data,mess] = make_sqw_data_(u0,...)
-%   >> [data,mess] = make_sqw_data_(lattice,...)
-%   >> [data,mess] = make_sqw_data_(lattice,u0,...)
-%   >> [data,mess] = make_sqw_data_(...,'nonorthogonal')    % permit non-orthogonal axes
+%   >> [obj,mess] = make_sqw_data_(u1,p1,u2,p2,...,un,pn)  % Define plot axes
+%   >> [obj,mess] = make_sqw_data_(u0,...)
+%   >> [obj,mess] = make_sqw_data_(lattice,...)
+%   >> [obj,mess] = make_sqw_data_(lattice,u0,...)
+%   >> [obj,mess] = make_sqw_data_(...,'nonorthogonal')    % permit non-orthogonal axes
 %
 % New style syntax:
-%   >> [data,mess] = make_sqw_data_(proj, p1_bin, p2_bin, p3_bin, p4_bin)
-%   >> [data,mess] = make_sqw_data_(lattice,...)
+%   >> [obj,mess] = make_sqw_data_(proj, p1_bin, p2_bin, p3_bin, p4_bin)
+%   >> [obj,mess] = make_sqw_data_(lattice,...)
 %
 %
 % Input:
@@ -109,28 +109,20 @@ function [data,mess] = make_sqw_data_(data,varargin)
 %
 
 mess='';
-define_axis_caption=true;
 
 narg = length(varargin);
 
-if narg==0 || (narg==1 && isscalar(varargin{1}) && isnumeric(varargin{1}))
+if narg==1
     % ----------------------------------------------------
     % Call of form: make_sqw_data() or make_sqw_data(ndim)
     % ----------------------------------------------------
-    if narg==0
-        ndim=0;
-    else
-        ndim=varargin{1};
-        if ~any(ndim==[0,1,2,3,4])
-            mess='Numeric input must be 0,1,2,3 or 4 to create empty dataset';
-            return
-        end
-    end
     lattice=[2*pi,2*pi,2*pi,90,90,90];
-    pbin=[repmat({{[0,1]}},1,ndim),cell(1,4-ndim)];
-    data = make_sqw_data_from_proj (data,lattice, projaxes, pbin{:});
-
-elseif narg>=1
+    proj = varargin{1};
+    if isempty(proj)
+        proj = projaxes;
+    end
+    obj = make_sqw_data_from_proj (obj,lattice, proj);
+elseif narg>=2
     % -------------------------------------------------------------------------------------
     % Call of form: make_sqw_data(u1,p1,u2,p2,...,un,pn) or make_sqw_data(proj,p1,p2,p3,p4)
     % -------------------------------------------------------------------------------------
@@ -148,25 +140,20 @@ elseif narg>=1
     % Determine if remaining input is proj,p1,p2,p3,p4, or uoffset,[u0,]u1,p1,...
     if narg==5 && (isstruct(varargin{1+n0}) || isa(varargin{1+n0},'projaxes'))
         % Remaining input has form proj,p1,p2,p3,p4
-        [data,mess]=make_sqw_data_from_proj(data,latt,varargin{1+n0:end});
-    elseif nargin == 2 && isstruct(varargin{1})
-        [data,define_axis_caption]=copy_data_from_structure(data,varargin{1},true);
+        [obj,mess]=make_sqw_data_from_proj(obj,latt,varargin{1+n0:end});
     else
-        % Remaining input has form uoffset,[u0,]u1,p1,...
-        [proj,pbin,mess]=make_sqw_data_calc_proj_pbin(data,varargin{1+n0:end});
+        % Remaining input has form uoffset,[u0,]u1,p1,... 
+        [proj,pbin,mess]=make_sqw_data_calc_proj_pbin(varargin{1+n0:end});
         if ~isempty(mess)
             return
         end
-        [data,mess]=make_sqw_data_from_proj(data,latt,proj,pbin{:});
+        [obj,mess]=make_sqw_data_from_proj(obj,latt,proj,pbin{:});
     end
 end
-if define_axis_caption
-    data.axis_caption = an_axis_caption();
-end
 if isempty(mess)
-    type_in = data.data_type();
-    [ok, ~, mess,data]=data.check_sqw_data_(type_in);
+    type_in = obj.data_type();
+    [ok, ~, mess,obj]=obj.check_sqw_data_(type_in);
     if ~ok
-        error('DATA_SQW_DND:invalid_arguments',mess);
+        error('HORACE:data_sqw_dnd:invalid_arguments',mess);
     end
 end

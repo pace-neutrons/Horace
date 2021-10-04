@@ -6,7 +6,8 @@ function  obj = from_struct_(obj,input)
 
 if ~isfield(input,'version')
     if isfield(input,'urange')
-        % urange contents in new file types is unreliable
+        % urange contents in new file types is unreliable as its meaning
+        % changes depending on new sqw file or cut is stored on the disk
         if isfield(input,'pix') && isa(input.pix,'PixelData')
             input.pix_range = input.pix.pix_range;
         else
@@ -14,7 +15,7 @@ if ~isfield(input,'version')
             input.pix_range = PixelData.EMPTY_RANGE_;
         end
         input = rmfield(input,'urange');
-        input.img_db_range = dnd_binfile_common.calc_img_db_range(input);
+        input.img_db_range = dnd_binfile_common.calc_img_db_range(obj);
     end
     if isfield(input,'img_range')
         input.img_db_range = input.img_range;

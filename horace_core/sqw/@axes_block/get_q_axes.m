@@ -2,6 +2,7 @@ function  [q1,q2,q3] = get_q_axes(obj)
 % return 3 q-axes in the order of dnd object regardless of the integration
 % along any of sqw_dnd object dimensions
 %
+%TODO: Probably should be removed
 
 pin=cell(1,4);
 pin(obj.pax)=obj.p;   % works even if zero elements
@@ -10,13 +11,19 @@ pin(obj.pax)=obj.p;   % works even if zero elements
 iint = obj.iint;
 inf_min = find(iint(1,:)==-Inf);
 if ~isempty(inf_min)
-    iax = obj.iax(inf_min);
-    iint(1,inf_min) = obj.img_db_range(1,iax);
+    error('HORACE:axes_block:runtime_error',...
+        ['Transition to new classes logic: Object integration ranges can not be infinite\n',...
+        'found range(s): %s equal to -Inf'],fevalc('disp(inf_min)'))    
+    %iax = obj.iax(inf_min);
+    %iint(1,inf_min) = obj.img_db_range(1,iax);
 end
 inf_max = find(iint(2,:)==Inf);
 if ~isempty(inf_max)
-    iax = obj.iax(inf_max);
-    iint(2,inf_max) = obj.img_db_range(2,iax);
+    error('HORACE:axes_block:runtime_error',...
+        ['Transition to new classes logic: Object integration ranges can not be infinite\n',...
+        'found range(s): %s equal to +Inf'],fevalc('disp(inf_max)'))
+    %iax = obj.iax(inf_max);
+    %iint(2,inf_max) = obj.img_db_range(2,iax);
 end
 
 pin(obj.iax)=mat2cell(iint,2,ones(1,numel(obj.iax)));
