@@ -3,7 +3,7 @@ function  [perf_res,sqw1,sqw2,sqw3,sqw4] = large_cut_nopix_task_performance(obj,
 test_fld_names = field_names_map('big_cut_nopix');
 
 hs = head_sqw(obj.sqw_file);
-if horace_version('-num') < 400
+if horace_version('-num') < 306
     urng = hs.urange;
 else
     urng = hs.img_db_range;
