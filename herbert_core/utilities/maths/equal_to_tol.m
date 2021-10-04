@@ -405,7 +405,8 @@ elseif isstruct(a) && isstruct(b)
 
     % Check fieldnames are identical
     fields=fieldnames(a);
-    if ~any(ismember(fields,fieldnames(b)))
+    fb = fieldnames(b);
+    if ~(isempty(fields)&&isempty(fb)) && ~any(ismember(fields,fb))
         ok=false;
         mess=sprintf('%s and %s: Fieldnames of structures being compared are not identical',...
             name_a,name_b);
