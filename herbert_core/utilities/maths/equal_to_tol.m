@@ -404,7 +404,8 @@ elseif isstruct(a) && isstruct(b)
     % Check fieldnames are identical
     fieldsA = fieldnames(a);
     fieldsB = fieldnames(b);
-    if ~(isempty(fieldsA)&&isempty(fieldsB)) && ~any(ismember(fieldsA,fieldsB))
+    if (numel(fieldsA) ~= numel(fieldsB))...
+            || (~(isempty(fieldsA)&&isempty(fieldsB)) && ~any(ismember(fieldsA,fieldsB)))
         ok=false;
         isa=ismember(fieldsA,fieldsB);
         isb=ismember(fieldsB,fieldsA);
@@ -621,7 +622,7 @@ if isequal(size(a),size(b))
             end
             return
         end
-    end    
+    end
 else
     ok=false;
     mess=sprintf('%s and %s: Different size numeric arrays',...
