@@ -280,7 +280,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             catch ME
                 error("Developer error in detpar input");
             end
-            obj.data = data_struct.data;
+            if isfield(data_struct,'data')
+                obj.data = data_struct.data;
+            elseif isfield(data_struct,'data_')
+                obj.data = data_struct.data_;
+            end
         end
     end
 end
