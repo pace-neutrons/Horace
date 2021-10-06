@@ -50,6 +50,8 @@ classdef (Abstract) SQWDnDBase
 
         wout = smooth(win, varargin);
         wout = smooth_units(win, varargin);
+        
+        %dat = struct(obj);
     end
 
     methods (Access = protected)

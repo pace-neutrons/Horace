@@ -155,7 +155,7 @@ return_cut = nargout > 0;
 [proj, pbin, opt] = validate_args(obj, return_cut, ndims_source, varargin{:});
 
 % Process projection
-[proj, pbin, pin, en] = update_projection_bins(obj, proj, pbin);
+[proj, pbin, pin, en] = define_target_projection(obj, proj, pbin);
 
 sz = cellfun(@(x) max(size(x, 1), 1), pbin);
 if return_cut
@@ -182,18 +182,18 @@ function [proj, pbin, opt] = validate_args(obj, return_cut, ndims_source, vararg
     obj, ndims_source, return_cut, varargin{:} ...
     );
 if ~ok
-    error('CUT_SQW:invalid_arguments', mess)
+    error('HORACE:cut:invalid_argument', mess)
 end
 
 % Ensure there are no excess input arguments
 if numel(args) ~= 0
-    error ('CUT_SQW:invalid_arguments', ...
+    error ('HORACE:cut:invalid_argument', ...
         'Check the number and type of input arguments.')
 end
 end
 
 
-function [proj, pbin, pin, en] = update_projection_bins(w, proj, pbin)
+function [proj, pbin, pin, en] = define_target_projection(w, proj, pbin)
 % Update projection bins using the sqw header
 header_av = header_average(w.header);
 [proj, pbin, ~, pin, en] = proj.update_pbins(header_av, w.data, pbin);

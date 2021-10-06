@@ -75,7 +75,7 @@ classdef test_cut < TestCase
             assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
         end
         
-        function test_you_can_take_a_cut_from_an_sqw_object(obj)
+        function test_take_a_cut_from_an_sqw_object(obj)
             sqw_obj = read_sqw(obj.sqw_file);
             sqw_cut = cut(sqw_obj, obj.ref_params{:});
             %

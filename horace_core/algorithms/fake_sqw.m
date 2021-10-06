@@ -148,10 +148,10 @@ if nfiles>1 && numel(en)==1
     en_hi=en_hi*ones(1,nfiles);
 end
 
-% Check optional arguments (grid, pix_range, instument, sample) for size, type and validity
+% Check optional arguments (grid, pix_range, instrument, sample) for size, type and validity
 grid_default=[];
-instrument_default=struct;  % default 1x1 struct
-sample_default=struct;      % default 1x1 struct
+instrument_default=struct;  % default 1x1 structure with no fields
+sample_default=struct;      % default 1x1 structure with no fields
 [ok,mess,present,grid_size,img_db_range,instrument,sample]=gen_sqw_check_optional_args(...
     nfiles,grid_default,instrument_default,sample_default,varargin{:});
 

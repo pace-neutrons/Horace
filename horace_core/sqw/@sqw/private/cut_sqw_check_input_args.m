@@ -46,6 +46,7 @@ opt = struct();
 
 % Determine if data source is sqw object or file
 % ----------------------------------------------
+%TODO: OOP violation. at this stage cut should only work on sqw object
 if iscellstr(data_source_in)
     data_source=data_source_in{1};
 elseif ischar(data_source_in)

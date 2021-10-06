@@ -30,6 +30,7 @@ classdef axes_block
     methods (Static)
         % Create bin boundaries for integration and plot axes from requested limits and step sizes
         [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
+
     end
     
 
@@ -50,6 +51,11 @@ classdef axes_block
         % find the coordinates along each of the axes of the smallest cuboid
         % that contains bins with non-zero values of contributing pixels.
         [val, n] = data_bin_limits (din);
+        
+        % build new axes_block object from the binning parameters, provided
+        % as input. If some input binning parameters are missing, the
+        % defauls are taken from existing axes_block object.
+        obj = build_from_input_binning(obj,targ_proj,img_db_range,source_proj,pin);        
         
         function obj = axes_block(varargin)
             % constructor
