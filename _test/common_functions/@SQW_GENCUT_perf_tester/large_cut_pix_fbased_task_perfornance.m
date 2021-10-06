@@ -1,7 +1,7 @@
 function perf_res = large_cut_pix_fbased_task_perfornance(obj,field_names_map)
 hs = head_sqw(obj.sqw_file);
 
-if horace_version('-num') < 400
+if horace_version('-num') < 306
     urng = hs.urange;
 else
     urng = hs.img_db_range;
