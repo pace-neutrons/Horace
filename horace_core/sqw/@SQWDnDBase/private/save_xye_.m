@@ -54,8 +54,10 @@ function save_xye_(obj,varargin)
 
 % Check input
 % -----------
-%TODO: when data_sqw_dnd inherits DnDBase format, remove this and move
-%the code to DnDBase/private. Ticket #730
+%TODO: when data_sqw_dnd inherits DnDBase format, remove this and 
+% the row:
+% function save_xye_internal(obj,varargin)
+% and move the code to DnDBase/private. Ticket #730
 if isprop(obj,'data')
     save_xye_internal(obj.data,varargin{:});
 else
