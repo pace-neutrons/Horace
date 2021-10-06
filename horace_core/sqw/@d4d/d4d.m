@@ -24,7 +24,7 @@ classdef d4d < DnDBase
             % -------
             % Output:
             %   obj     An instance of this object
-            obj = d4d(S);
+            %obj = d4d(S);
             if isa(S,'d4d')
                obj = S;
                return
