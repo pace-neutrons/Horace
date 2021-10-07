@@ -112,12 +112,15 @@ mess='';
 
 narg = length(varargin);
 
-if narg==1
+if narg<=1
     % ----------------------------------------------------
     % Call of form: make_sqw_data() or make_sqw_data(ndim)
     % ----------------------------------------------------
     lattice=[2*pi,2*pi,2*pi,90,90,90];
-    proj = varargin{1};
+    proj = [];
+    if nargin==2
+        proj = varargin{1};
+    end
     if isempty(proj)
         proj = projaxes;
     end
@@ -126,7 +129,7 @@ elseif narg>=2
     % -------------------------------------------------------------------------------------
     % Call of form: make_sqw_data(u1,p1,u2,p2,...,un,pn) or make_sqw_data(proj,p1,p2,p3,p4)
     % -------------------------------------------------------------------------------------
-
+    
     % Determine if first argument is lattice parameters
     if isnumeric(varargin{1}) && isvector(varargin{1}) && numel(varargin{1})==6
         n0=1;   % position of lattice argument in list
@@ -136,18 +139,18 @@ elseif narg>=2
         latt=[2*pi,2*pi,2*pi,90,90,90];
     end
     narg=narg-n0;   % number of arguments following lattice
-
+    
     % Determine if remaining input is proj,p1,p2,p3,p4, or uoffset,[u0,]u1,p1,...
     if narg==5 && (isstruct(varargin{1+n0}) || isa(varargin{1+n0},'projaxes'))
         % Remaining input has form proj,p1,p2,p3,p4
-        [obj,mess]=make_sqw_data_from_proj(obj,latt,varargin{1+n0:end});
+        [obj,mess]=make_sqw_data_from_proj_(obj,latt,varargin{1+n0});
     else
-        % Remaining input has form uoffset,[u0,]u1,p1,... 
-        [proj,pbin,mess]=make_sqw_data_calc_proj_pbin(varargin{1+n0:end});
+        % Remaining input has form uoffset,[u0,]u1,p1,...
+        [proj,pbin,mess]=get_projection_from_pbin_inputs_(varargin{1+n0:end});
         if ~isempty(mess)
             return
         end
-        [obj,mess]=make_sqw_data_from_proj(obj,latt,proj,pbin{:});
+        obj=make_sqw_data_from_proj_(obj,latt,proj);
     end
 end
 if isempty(mess)

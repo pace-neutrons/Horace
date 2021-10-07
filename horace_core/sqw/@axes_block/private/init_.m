@@ -1,7 +1,7 @@
 function [obj,remains] = init_(obj,varargin)
 %
 %
-remains = [];
+remains = {};
 nargi = nargin-1;
 if isa(varargin{1},'axes_block') % handle shallow copy constructor
     obj =varargin{1};            % its COW for Matlab anyway
@@ -17,13 +17,16 @@ elseif nargi==1
         end
         %
         [obj,remains] = from_struct(obj,varargin{1});
+        remains = {remains};
     elseif isscalar(varargin{1}) && isnumeric(varargin{1})
         ndim=varargin{1};
         if ~any(ndim==[0,1,2,3,4])
             error('HORACE:axes_block:invalid_argument',...
                 'Numeric input must be 0,1,2,3 or 4 to create empty dataset');
         end
-        pbin=[repmat({{[0,1]}},1,ndim),cell(1,4-ndim)];
+        
+        rest = arrayfun(@(x)zeros(1,0),1:4-ndim,'UniformOutput',false);
+        pbin=[repmat({{[0,1]}},1,ndim),rest];
         obj = set_axis_bins_(obj,pbin{:});
         obj.axis_caption = an_axis_caption();
     elseif iscell(varargin{1}) && numel(varargin{1})==4 % input is the array of binning parameters
@@ -35,12 +38,12 @@ elseif nargi==1
     end
 elseif nargi>= 4 %remaining input is p1,p2,p3,p4
     if nargi>4
-        remains = varargin{1};
-        argi = varargin(2:end);
+        [pbin,remains]=make_sqw_data_shifted_pbin_(varargin{:});
     else % ,p1,p2,p3,p4 form
-        argi = varargin;
+        pbin = varargin;
     end
-    obj = set_axis_bins_(obj,argi{:});
+    obj = set_axis_bins_(obj,pbin{:});
+    
     obj.axis_caption = an_axis_caption();
     
 else

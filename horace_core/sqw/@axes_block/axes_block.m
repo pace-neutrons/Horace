@@ -100,5 +100,14 @@ classdef axes_block
             end
         end
     end
+    methods(Access=protected)
+        function [ind_range,ind_en,u_to_rlu]=get_projection_from_pbin_inputs(ndim,varargin)
+            % Parce binning inputs and try to guess some u_to_rlu from them.
+            % Ugly. Try to remove from here. Makes artificial dependence
+            % between axes_block and projection. Probably need not be here
+            %
+            [ind_range,ind_en,u_to_rlu]=get_projection_from_pbin_inputs_(ndim,varargin{:});
+        end
+    end
 end
 

@@ -1,4 +1,4 @@
-function obj=make_sqw_data_from_proj(obj,lattice,proj_in)
+function obj=make_sqw_data_from_proj_(obj,lattice,proj_in)
 % Create data filed for sqw object from input of the form
 %
 %   >> [data,mess] = make_sqw_data_from_proj(lattice,proj)

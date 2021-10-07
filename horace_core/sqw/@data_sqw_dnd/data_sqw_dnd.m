@@ -169,7 +169,7 @@ classdef data_sqw_dnd < axes_block
                 obj = from_struct(obj,varargin{1});
             else
                 [obj,remains] = init@axes_block(obj,varargin{:});
-                [obj,mess]=make_sqw_data_(obj,remains);
+                [obj,mess]=make_sqw_data_(obj,remains{:});
                 if ~isempty(mess)
                     error('HORACE:data_sqw_dnd:invalid_argument',mess);
                 end
