@@ -228,6 +228,8 @@ pause(2)
 
 if test_output
     disp('Comparing with stored fit')
+    fp110a1
+    tmp.fp110a1
     if ~is_same_fit (fp110a1,   tmp.fp110a1,   fac, [1,0,0,0,0])
         error('fp110a1 not same')
     end
