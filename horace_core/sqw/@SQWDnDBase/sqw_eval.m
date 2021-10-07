@@ -95,7 +95,7 @@ function wout = sqw_eval(win, sqwfunc, pars, varargin)
 
     for i=1:numel(wout)
         if has_pixels(wout(i))   % determine if object contains pixel data
-           wout(i) = wout(i).sqw_eval_pix_(sqwfunc, opts.average, pars, opts.outfile, i);
+            wout(i) = wout(i).sqw_eval_pix_(sqwfunc, opts.average, pars, opts.outfile, i);
        else
            wout(i) = wout(i).sqw_eval_nopix_(sqwfunc, opts.all, pars);
        end

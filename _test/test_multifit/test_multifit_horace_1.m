@@ -39,6 +39,31 @@ classdef test_multifit_horace_1 < TestCaseWithSave
         end
 
         % ------------------------------------------------------------------------------------------------
+        function this = test_fit_one_dataset(this)
+            % Example of simultaneously fitting more than one sqw object
+
+            mss = multifit_sqw_sqw([this.w1data]);
+            mss = mss.set_fun(@sqw_bcc_hfm,  [5,5,0,10,0]);  % set foreground function(s)
+            mss = mss.set_free([1,1,0,0,0]); % set which parameters are floating
+            mss = mss.set_bfun(@sqw_bcc_hfm, {[5,5,1.2,10,0]}); % set background function(s)
+            mss = mss.set_bfree([1,1,1,1,1]);    % set which parameters are floating
+            mss = mss.set_bbind({1,[1,-1],1},{2,[2,-1],1});
+
+            % Simulate at the initial parameter values
+            wsim_1 = mss.simulate();
+
+            % And now fit
+            [wfit_1, fitpar_1] = mss.fit();
+
+            % Test against saved or store to save later; ingnore string
+            % changes - these are filepaths
+            tol = [1e-10,1e-8];
+            assertEqualToTolWithSave (this, wsim_1, 'tol', tol, 'ignore_str', 1)
+            assertEqualToTolWithSave (this, wfit_1, 'tol', tol, 'ignore_str', 1)
+            assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, 'ignore_str', 1)
+        end
+
+
         function this = test_fit_two_datasets(this)
             % Example of simultaneously fitting more than one sqw object
 
