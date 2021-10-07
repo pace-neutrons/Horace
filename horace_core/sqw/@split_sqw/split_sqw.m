@@ -40,8 +40,8 @@ function [obj, merge_data] = split_sqw(varargin)
             merge_data(i).nelem = sum(logical(obj(i).npix));
             merge_data(i).nomerge = true;
         end
-    elseif isa(sqw_in, 'sqw')
 
+    elseif isa(sqw_in, 'sqw')
         nPer = floor(sqw_in.data.num_pixels / nWorkers);
         num_pixels = repmat(nPer, 1, nWorkers);
         for i=1:mod(sqw_in.data.num_pixels, nWorkers)
@@ -54,15 +54,19 @@ function [obj, merge_data] = split_sqw(varargin)
         for i=1:nWorkers
             obj(i) = sqw_in;
             obj(i).data.npix = npix{i};
-            obj(i).data.pix = get_pix_in_ranges(sqw_in.data.pix, points(i)+1, points(i+1));
-% $$$             obj(i) = recompute_bin_data(obj(i));
-% $$$             obj(i).s = obj(i).data_.s;
-% $$$             obj(i).e = obj(i).data_.e;
+% $$$             obj(i).data.pix = get_pix_in_ranges(sqw_in.data.pix, points(i)+1, points(i+1));
+
+            obj(i).data.pix = PixelData(num_pixels(i));
+            obj(i).data.pix.data = sqw_in.data.pix.data(:, points(i)+1:points(i+1));
+            obj(i).data.num_pixels = num_pixels(i);
+
+            [obj(i).data.s, obj(i).data.e] = obj(i).data.pix.compute_bin_data(obj(i).data.npix);
             merge_data(i).nomerge = nomerge(i);
-            merge_data(i).nelem = sum(logical(obj(i).data.npix));
+            merge_data(i).nelem = [obj(i).data.npix(1), obj(i).data.npix(end)]; % number of pixels to recombine
         end
 
     end
+
 end
 
 function [npix, nomerge] = split_npix(num_pixels, old_npix)
