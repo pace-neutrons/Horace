@@ -3,7 +3,7 @@ function obj=set_axis_bins_(obj,varargin)
 %
 %   >> obj=calc_axis_bins_(obj,p1,p2,p3,p4)
 % where the routine sets the following object fields:
-% iax,iint,pax,p
+% iax,iint,pax,p and dax
 %
 % Input:
 % ------

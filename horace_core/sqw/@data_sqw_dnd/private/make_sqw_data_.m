@@ -1,4 +1,4 @@
-function [obj,mess] = make_sqw_data_(obj,varargin)
+function [obj,mess] = make_sqw_data_(obj,uoffset,varargin)
 % Make a valid data structure
 % Create a valid structure for an sqw object
 %
@@ -124,6 +124,7 @@ if narg<=1
     if isempty(proj)
         proj = projaxes;
     end
+    proj.uoffset = uoffset;
     obj = make_sqw_data_from_proj (obj,lattice, proj);
 elseif narg>=2
     % -------------------------------------------------------------------------------------
@@ -146,10 +147,17 @@ elseif narg>=2
         [obj,mess]=make_sqw_data_from_proj_(obj,latt,varargin{1+n0});
     else
         % Remaining input has form uoffset,[u0,]u1,p1,...
-        [proj,pbin,mess]=get_projection_from_pbin_inputs_(varargin{1+n0:end});
-        if ~isempty(mess)
-            return
-        end
+        [~,ind_en,u_to_rlu]=obj.get_projection_from_pbin_inputs(varargin{1+n0:end});
+        nq=ndim-length(ind_en);    % Number of Q axes
+        
+% if nq<=2    % third axis not given, so cannot have 'p' type normalisation for third axis
+%     proj=projaxes(u_to_rlu(1:3,1)', u_to_rlu(1:3,2)', 'uoffset', u0(1:3), 'type', 'ppr',...
+%         'nonorthogonal',nonorthogonal);
+% else
+%     proj=projaxes(u_to_rlu(1:3,1)', u_to_rlu(1:3,2)', u_to_rlu(1:3,3)', 'uoffset', u0(1:3), 'type', 'ppp',...
+%         'nonorthogonal',nonorthogonal);
+% end
+        
         obj=make_sqw_data_from_proj_(obj,latt,proj);
     end
 end

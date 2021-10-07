@@ -168,8 +168,8 @@ classdef data_sqw_dnd < axes_block
             elseif nargin==2 && isstruct(varargin{1})
                 obj = from_struct(obj,varargin{1});
             else
-                [obj,remains] = init@axes_block(obj,varargin{:});
-                [obj,mess]=make_sqw_data_(obj,remains{:});
+                [obj,uoffset,remains] = init@axes_block(obj,varargin{:});
+                [obj,mess]=make_sqw_data_(obj,uoffset,remains{:});
                 if ~isempty(mess)
                     error('HORACE:data_sqw_dnd:invalid_argument',mess);
                 end
@@ -190,7 +190,7 @@ classdef data_sqw_dnd < axes_block
             obj = from_struct_(obj,input_remain);
         end
         %
-%TODO: Is it still needed? Remove after refactoring      
+        %TODO: Is it still needed? Remove after refactoring
         function type= data_type(obj)
             % compatibility function
             %   data   Output data structure which must contain the fields listed below

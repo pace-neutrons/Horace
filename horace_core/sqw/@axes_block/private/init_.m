@@ -1,7 +1,8 @@
-function [obj,remains] = init_(obj,varargin)
+function [obj,uoffset,remains] = init_(obj,varargin)
 %
 %
 remains = {};
+uoffset = [0,0,0,0];
 nargi = nargin-1;
 if isa(varargin{1},'axes_block') % handle shallow copy constructor
     obj =varargin{1};            % its COW for Matlab anyway
@@ -38,7 +39,7 @@ elseif nargi==1
     end
 elseif nargi>= 4 %remaining input is p1,p2,p3,p4
     if nargi>4
-        [pbin,remains]=make_sqw_data_shifted_pbin_(varargin{:});
+        [pbin,uoffset,remains]=make_sqw_data_shifted_pbin_(varargin{:});
     else % ,p1,p2,p3,p4 form
         pbin = varargin;
     end
