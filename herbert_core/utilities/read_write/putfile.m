@@ -49,7 +49,7 @@ if (nargin==0)
                                                          % no default extension (cf Matlab files)
 elseif (nargin>0)
     if (ischar(filterspec) && isvector(filterspec))  % filterspec is a one-dimensional string array
-        if (is_dir(filterspec))                 % is a directory, ensure no default extension
+        if (is_folder(filterspec))                 % is a directory, ensure no default extension
             filterspec_in = fullfile(filterspec,'*.*');
 %         elseif (length(findstr('*.',filterspec))>=1 & min(findstr('*.',filterspec))) % filterspec begins '*.', so assume extensions list
         elseif startsWith(filterspec, '*.')
