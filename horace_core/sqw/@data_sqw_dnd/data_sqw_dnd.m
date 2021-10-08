@@ -168,11 +168,9 @@ classdef data_sqw_dnd < axes_block
             elseif nargin==2 && isstruct(varargin{1})
                 obj = from_struct(obj,varargin{1});
             else
-                [obj,uoffset,remains] = init@axes_block(obj,varargin{:});
-                [obj,mess]=make_sqw_data_(obj,uoffset,remains{:});
-                if ~isempty(mess)
-                    error('HORACE:data_sqw_dnd:invalid_argument',mess);
-                end
+                [obj,uoffset_,remains] = init@axes_block(obj,varargin{:});
+                obj.uoffset = uoffset_;
+                obj=make_sqw_data_(obj,uoffset_,remains{:});
             end
         end
         %
@@ -252,6 +250,7 @@ classdef data_sqw_dnd < axes_block
             end
         end
         
+        
     end
     methods(Static)
         %
@@ -261,12 +260,23 @@ classdef data_sqw_dnd < axes_block
             elseif isstruct(input)
                 obj = data_sqw_dnd(input);
             else
-                error('DATA_SQW_DND:invalid_argument',...
+                error('HORACE:data_sqw_dnd:invalid_argument',...
                     'loadobj can not process input of type: %s',...
                     class(input));
             end
         end
+        
+        function [ind_range,ind_en,proj]=...
+                get_projection_from_pbin_inputs(ndim,uoffset,nonorthogonal,varargin)
+            % Parce binning inputs and try to guess some u_to_rlu from them.
+            % Ugly. Try to remove from here. Makes artificial dependence
+            % between axes_block and projection. Probably need not be here
+            %
+            nout = nargout;
+            [ind_range,ind_en,proj]=...
+                get_projection_from_pbin_inputs_(nout,ndim,uoffset,nonorthogonal,...
+                varargin{:});
+        end
+        
     end
 end
-
-

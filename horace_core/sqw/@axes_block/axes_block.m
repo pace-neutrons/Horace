@@ -26,14 +26,19 @@ classdef axes_block
         %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
         %                  be reordered [row vector]
         axis_caption=an_axis_caption(); %  Reference to class, which define axis captions
+        %
+        %TODO: think about best place to put this property
+        %  it may belong to projection but should be here if used in
+        %  plotting. Should non-orthogonal be just different axes_block?        
+        nonorthogonal = false % if the coordinate system is non-orthogonal.
     end
     methods (Static)
         % Create bin boundaries for integration and plot axes from requested limits and step sizes
         [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
-
+        
     end
     
-
+    
     properties(Constant,Access=private)
         % fields which fully represent the state of the class and allow to
         % recover it
@@ -55,7 +60,7 @@ classdef axes_block
         % build new axes_block object from the binning parameters, provided
         % as input. If some input binning parameters are missing, the
         % defauls are taken from existing axes_block object.
-        obj = build_from_input_binning(obj,targ_proj,img_db_range,source_proj,pin);        
+        obj = build_from_input_binning(obj,targ_proj,img_db_range,source_proj,pin);
         
         function obj = axes_block(varargin)
             % constructor
@@ -73,16 +78,18 @@ classdef axes_block
             end
             obj = obj.init(varargin{:});
         end
-        function [obj,remains] = init(obj,varargin)
+        function [obj,uoffset,remains] = init(obj,varargin)
             % initialize object with axis parameters.
-            % 
+            %
             % The parameters are defined as in constructor.
             % Returns:
             % obj     -- initialized by inputs axis_block object
+            % uoffset -- the offset for axis box from the origin of the
+            %            coordinate system
             % remains -- the arguments, not used in initialization if any
             %            were provided as input
-            %        
-            [obj,remains] = init_(obj,varargin{:});
+            %
+            [obj,uoffset,remains] = init_(obj,varargin{:});
         end
         
         function [obj,remain] = from_struct(obj,inputs)
@@ -98,15 +105,6 @@ classdef axes_block
             for i=1:numel(flds)
                 str.(flds{i}) = obj.(flds{i});
             end
-        end
-    end
-    methods(Access=protected)
-        function [ind_range,ind_en,u_to_rlu]=get_projection_from_pbin_inputs(ndim,varargin)
-            % Parce binning inputs and try to guess some u_to_rlu from them.
-            % Ugly. Try to remove from here. Makes artificial dependence
-            % between axes_block and projection. Probably need not be here
-            %
-            [ind_range,ind_en,u_to_rlu]=get_projection_from_pbin_inputs_(ndim,varargin{:});
         end
     end
 end

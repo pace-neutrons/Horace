@@ -24,8 +24,8 @@ function obj=make_sqw_data_from_proj_(obj,lattice,proj_in)
 if isstruct(proj_in) || isa(proj_in,'projaxes')
     proj = projaxes(proj_in);
 else
-    error('HORACE:data_sqw_dnd:invalid_argument',...    
-    'projection must be valid projection structure or projaxes object')
+    error('HORACE:data_sqw_dnd:invalid_argument',...
+        'projection must be valid projection structure or projaxes object')
 end
 
 [~, u_to_rlu, ulen, mess] = projaxes_to_rlu(proj, lattice(1:3), lattice(4:6));

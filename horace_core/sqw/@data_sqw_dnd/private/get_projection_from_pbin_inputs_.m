@@ -1,9 +1,14 @@
-function [ind_range,ind_en,u_to_rlu]=get_projection_from_pbin_inputs_(ndim,varargin)
+function [ind_range,ind_en,proj]=get_projection_from_pbin_inputs_(nout,...
+    ndim,uoffset,nonorthogonal,varargin)
 % Parce binning inputs and try to guess some u_to_rlu from them
-% 
-% NOT UNIT TESTED. Usage unknown -- very complicated. Leave for the time
-% being but remove after some efforts
 %
+% NOT WELL UNIT TESTED. Usage unknown -- very complicated. Leave for the time
+% being but remove after some efforts
+% Inputs:
+% nout    -- number of output to return
+% ndim    -- number of dimensions the data object has
+% uoffset -- shift of the data object wrt to the 
+
 % Outputs:
 % ind_range index to the range in the input argument list (may permute the projection axes)
 % ind_en    -- the position of the energy axis among input arguments
@@ -13,7 +18,7 @@ function [ind_range,ind_en,u_to_rlu]=get_projection_from_pbin_inputs_(ndim,varar
 % Get the vectors and binning for plot axes
 u_to_rlu = zeros(4,4);
 for i=1:ndim
-    urlu=varargin{2*i};
+    urlu=varargin{2*i-1};
     ncmp=numel(urlu);
     if isnumeric(urlu) && (ncmp==3||ncmp==4)
         u_to_rlu(1:ncmp,i)=urlu(:);
@@ -67,10 +72,16 @@ elseif nq==1
         u_to_rlu(1:3,2)=[1,0,0];   % make u2 parallel to a*
     end
 end
-% if nq<=2    % third axis not given, so cannot have 'p' type normalisation for third axis
-%     proj=projaxes(u_to_rlu(1:3,1)', u_to_rlu(1:3,2)', 'uoffset', u0(1:3), 'type', 'ppr',...
-%         'nonorthogonal',nonorthogonal);
-% else
-%     proj=projaxes(u_to_rlu(1:3,1)', u_to_rlu(1:3,2)', u_to_rlu(1:3,3)', 'uoffset', u0(1:3), 'type', 'ppp',...
-%         'nonorthogonal',nonorthogonal);
-% end
+
+if nout<3 % do not build projection if not requested
+    proj = [];    
+    return;
+end
+
+if nq<=2    % third axis not given, so cannot have 'p' type normalisation for third axis
+    proj=projaxes(u_to_rlu(1:3,1)', u_to_rlu(1:3,2)', 'uoffset', uoffset(1:3), 'type', 'ppr',...
+        'nonorthogonal',nonorthogonal);
+else
+    proj=projaxes(u_to_rlu(1:3,1)', u_to_rlu(1:3,2)', u_to_rlu(1:3,3)', 'uoffset', uoffset(1:3), 'type', 'ppp',...
+        'nonorthogonal',nonorthogonal);
+end

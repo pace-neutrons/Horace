@@ -1,9 +1,10 @@
-function [pbin,uoffset,remains]=make_sqw_data_shifted_pbin_(varargin)
-% Create data filed for sqw object from input of the form
+function [pbin,uoffset,nonorthogonal,remains]=make_axes_from_shifted_pbin_(varargin)
+% Create axes_block from input of the form of set of specific parameters
+% Legacy function
 %
-%   >> [pbin,remains] = make_sqw_data_calc_proj_pbin (u1,p1,u2,p2,...,un,pn)
-%   >> [pbin,remains] = make_sqw_data_calc_proj_pbin (u0,u1,p1,u2,p2,...,un,pn)
-%   >> [pbin,remains] = make_sqw_data_calc_proj_pbin (...,'nonorthogonal')
+%   >> [pbin,remains] = make_axes_from_shifted_pbin_(u1,p1,u2,p2,...,un,pn)
+%   >> [pbin,remains] = make_axes_from_shifted_pbin_(u0,u1,p1,u2,p2,...,un,pn)
+%   >> [pbin,remains] = make_axes_from_shifted_pbin_(...,'nonorthogonal')
 %
 %
 % Input:
@@ -26,14 +27,15 @@ function [pbin,uoffset,remains]=make_sqw_data_shifted_pbin_(varargin)
 %
 % Output:
 % -------
-%   remains     things related to projection, which are not processed by
-%               this routine
+% pbin       Cell array of the four binning descriptors for each of the
+%            four axes of momentum and energy. They
+%            each have one fo the forms:
+%          - [pcent_lo,pstep,pcent_hi] (pcent_lo<=pcent_hi; pstep>0)
+%          - [] or empty               (interpreted as [0,0])
+% uoffset    shift from 
+% remains    things related to projection, which are not processed by
+%            this routine
 %
-%   pbin        Cell array of the four binning descriptors for each of the
-%               four axes of momentum and energy. They
-%               each have one fo the forms:
-%               - [pcent_lo,pstep,pcent_hi] (pcent_lo<=pcent_hi; pstep>0)
-%               - [] or empty               (interpreted as [0,0])
 %
 
 
@@ -42,27 +44,31 @@ function [pbin,uoffset,remains]=make_sqw_data_shifted_pbin_(varargin)
 
 
 pbin=cell(1,4);
-remains = {};
 % Determine if last argument is 'nonorthogonal'
 narg=numel(varargin);
-if narg>=1 && is_string(varargin{end})
-    if ~isempty(varargin{end}) && numel(varargin{end})<=13 &&...
-            strncmpi(varargin{end},'nonorthogonal',numel(varargin{end}))
-        narg=narg-1;
-        remains = {'nonorthogonal'};
-    else
-        error('HORACE:axes_block:invalid_argument',...
-            'Invalid argument types')
+nonorthogonal = false;
+if narg>=1
+    is_char  = cellfun(@(x)isa(x,'char'),varargin,'UniformOutput',true);
+    if any(is_char)
+        if sum(is_char)==1 && strcmp(varargin{is_char},'nonorthogonal')
+            narg=narg-1;
+            nonorthogonal = true;
+        else
+            error('HORACE:axes_block:invalid_argument',...
+                'more then one character argument present')
+        end
     end
+    argi = varargin(~is_char);
 else
+    argi = varargin;
 end
 
-for i=1:narg
-    if ~isnumeric(varargin{i})
-        error('HORACE:axes_block:invalid_argument',...
-            'Arguments [uoffset],u1,p1,... should be numeric. Argument N%d is invalid: %s',...
-            i,evalc('disp(varargin{i})'));
-    end
+is_num = cellfun(@(x)isnumeric(x),argi,'UniformOutput',true);
+if ~all(is_num)
+    ind = find(~is_num);
+    error('HORACE:axes_block:invalid_argument',...
+        'Arguments [uoffset],u1,p1,... should be numeric. Argument(s) N: %s are invalid: %s',...
+        num2str(ind),evalc('disp(argi{~is_num})'));
 end
 
 % Create offset vector uoffset
@@ -75,11 +81,11 @@ if ndim>4 || ndim<0
         narg)
 end
 if narg-2*ndim>0    % odd number of arguments, so first must be an offset
-    ncmp = numel(varargin{1});
+    ncmp = numel(argi{1});
     if ncmp==3
-        uoffset=[varargin{1}(:);0];
+        uoffset=[argi{1}(:);0];
     elseif ncmp==4
-        uoffset=varargin{1}(:);
+        uoffset=argi{1}(:);
     else
         error('HORACE:axes_block:invalid_argument',...
             'Origin offset must have form [h,k,l] or [h,k,l,e]');
@@ -92,8 +98,9 @@ end
 
 % Create proj object
 % ------------------
-remains=[remains{:}, varargin(1+noff:end)];
-[ind_range,ind_en]=get_projection_from_pbin_inputs_(ndim,varargin{noff-1:end});
+remains=argi(1+noff:end);
+[ind_range,ind_en]=data_sqw_dnd.get_projection_from_pbin_inputs(...
+    ndim,uoffset,nonorthogonal,argi{noff+1:end});
 
 % Get cell array of bin descriptors
 % ---------------------------------

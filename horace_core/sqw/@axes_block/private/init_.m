@@ -2,7 +2,7 @@ function [obj,uoffset,remains] = init_(obj,varargin)
 %
 %
 remains = {};
-uoffset = [0,0,0,0];
+uoffset = zeros(4,1);
 nargi = nargin-1;
 if isa(varargin{1},'axes_block') % handle shallow copy constructor
     obj =varargin{1};            % its COW for Matlab anyway
@@ -38,15 +38,31 @@ elseif nargi==1
             'unrecognized type of single axis_block constructor argument');
     end
 elseif nargi>= 4 %remaining input is p1,p2,p3,p4
-    if nargi>4
-        [pbin,uoffset,remains]=make_sqw_data_shifted_pbin_(varargin{:});
+    if nargi>4 %legacy operations
+        if (isstruct(varargin{1}) && isfield(varargin{1},'u')) || ...
+                isa(varargin{1},'aProjection')
+            argi = varargin(2:end);
+            remains = varargin(1);
+            if numel(argi) == 4
+                obj = set_axis_bins_(obj,argi{:});
+                obj.axis_caption = an_axis_caption();
+                return
+            end
+        else
+            proj = [];
+            argi = varargin;
+        end
+        [pbin,uoffset,nonorthogonal_,remains]=make_axes_from_shifted_pbin_(argi{:});
+        if ~isempty(proj)
+            remains= [proj;remains(:)];
+        end
     else % ,p1,p2,p3,p4 form
         pbin = varargin;
     end
     obj = set_axis_bins_(obj,pbin{:});
     
     obj.axis_caption = an_axis_caption();
-    
+    obj.nonorthogonal = nonorthogonal_;
 else
     error('HORACE:axes_block:invalid_argument',...
         'unrecognized number %d of input arguments',nargi);
