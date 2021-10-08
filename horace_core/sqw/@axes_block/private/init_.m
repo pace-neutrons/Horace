@@ -44,7 +44,10 @@ elseif nargi>= 4 %remaining input is p1,p2,p3,p4
                 'UniformOutput',true);
         if any(is_proj)
             proj_ind = find(is_proj);
-            obj.nonorthogonal = varargin{proj_ind}.nonorthogonal;
+            if isprop(varargin{proj_ind},'nonorthogonal') ||...
+                    isfield(varargin{proj_ind},'nonorthogonal')
+                obj.nonorthogonal = varargin{proj_ind}.nonorthogonal;
+            end
             argi = varargin(proj_ind+1:end);
             remains = varargin(1:proj_ind);
             if numel(argi) == 4

@@ -51,8 +51,8 @@ classdef test_equal_to_tol < TestCase & common_state_holder
         end
         
         function test_sqw_and_d2d_objects_are_not_equal(obj)
-            dnd_2d = d2d(obj.test_dnd_file_path);
-            [ok, mess] = equal_to_tol(obj.sqw_2d, dnd_2d);
+            dnd_2d_ = d2d(obj.test_dnd_file_path);
+            [ok, mess] = equal_to_tol(obj.sqw_2d, dnd_2d_);
             assertFalse(ok);
             assertEqual(mess, 'Objects being compared are not both sqw-type or both dnd-type');
         end
@@ -211,14 +211,14 @@ classdef test_equal_to_tol < TestCase & common_state_holder
         function test_using_fraction_argument_is_faster_than_comparing_all_pix(obj)
             sqw_copy = copy(obj.sqw_2d);
             
-            num_reps = 10;
+            num_reps = 50;
             num_iters = 1;
             
             f = @() equal_to_tol(sqw_copy, obj.sqw_2d);
             times_taken = benchmark_function(f, num_iters, num_reps);
             median_time_full = median(times_taken);
             
-            f_partial = @() equal_to_tol(sqw_copy, obj.sqw_2d, 'fraction', 0.2);
+            f_partial = @() equal_to_tol(sqw_copy, obj.sqw_2d, 'fraction', 0.1);
             times_taken_partial = benchmark_function(f_partial, num_iters, num_reps);
             median_time_partial = median(times_taken_partial);
             
@@ -290,7 +290,7 @@ classdef test_equal_to_tol < TestCase & common_state_holder
                 assertEqual(sum(shuffled_bin_pix, 2), sum(pix_in_bin, 2), '', 1e-8);
             end
         end
-        
+        %
         function pix = get_pix_with_fake_faccess(data, npix_in_page)
             faccess = FakeFAccess(data);
             bytes_in_pixel = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
