@@ -211,14 +211,14 @@ classdef test_equal_to_tol < TestCase & common_state_holder
         function test_using_fraction_argument_is_faster_than_comparing_all_pix(obj)
             sqw_copy = copy(obj.sqw_2d);
             
-            num_reps = 10;
+            num_reps = 50;
             num_iters = 1;
             
             f = @() equal_to_tol(sqw_copy, obj.sqw_2d);
             times_taken = benchmark_function(f, num_iters, num_reps);
             median_time_full = median(times_taken);
             
-            f_partial = @() equal_to_tol(sqw_copy, obj.sqw_2d, 'fraction', 0.2);
+            f_partial = @() equal_to_tol(sqw_copy, obj.sqw_2d, 'fraction', 0.1);
             times_taken_partial = benchmark_function(f_partial, num_iters, num_reps);
             median_time_partial = median(times_taken_partial);
             
