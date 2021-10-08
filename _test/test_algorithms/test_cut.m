@@ -291,7 +291,7 @@ classdef test_cut < TestCase
         
         function test_calling_cut_with_no_outfile_and_no_nargout_throws_error(obj)
             f = @() cut(obj.sqw_file, obj.ref_params{:});
-            assertExceptionThrown(f, 'CUT_SQW:invalid_arguments');
+            assertExceptionThrown(f, 'HORACE:cut:invalid_argument');
         end
         
         function test_you_can_take_a_cut_with_nopix_arg_and_output_to_file(obj)

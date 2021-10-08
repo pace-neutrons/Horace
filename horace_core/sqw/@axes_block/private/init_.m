@@ -39,10 +39,14 @@ elseif nargi==1
     end
 elseif nargi>= 4 %remaining input is p1,p2,p3,p4
     if nargi>4 %legacy operations
-        if (isstruct(varargin{1}) && isfield(varargin{1},'u')) || ...
-                isa(varargin{1},'aProjection')
-            argi = varargin(2:end);
-            remains = varargin(1);
+        is_proj = cellfun(@(x)((isstruct(x) && isfield(x,'u')) || ...
+                isa(x,'aProjection') || isa(x,'projaxes')),varargin,...
+                'UniformOutput',true);
+        if any(is_proj)
+            proj_ind = find(is_proj);
+            obj.nonorthogonal = varargin{proj_ind}.nonorthogonal;
+            argi = varargin(proj_ind+1:end);
+            remains = varargin(1:proj_ind);
             if numel(argi) == 4
                 obj = set_axis_bins_(obj,argi{:});
                 obj.axis_caption = an_axis_caption();

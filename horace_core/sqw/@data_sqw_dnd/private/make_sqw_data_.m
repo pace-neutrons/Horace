@@ -106,7 +106,8 @@ elseif narg>=2
     narg=narg-n0;   % number of arguments following lattice
     
     % Determine if remaining input is proj,p1,p2,p3,p4, or uoffset,[u0,]u1,p1,...
-    if narg==5 && (isstruct(varargin{1+n0}) || isa(varargin{1+n0},'projaxes'))
+        
+    if narg==1 && (isstruct(varargin{1+n0}) || isa(varargin{1+n0},'projaxes'))
         % Remaining input has form proj,p1,p2,p3,p4
         obj=make_sqw_data_from_proj_(obj,latt,varargin{1+n0});
     else

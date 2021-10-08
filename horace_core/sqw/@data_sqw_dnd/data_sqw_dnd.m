@@ -232,14 +232,14 @@ classdef data_sqw_dnd < axes_block
         end
         
         %
-        function [ok, type, mess]=check_sqw_data(obj, type_in, varargin)
+        function [type,obj]=check_sqw_data(obj, type_in, varargin)
             % old style validator for consistency of input data.
             %
             % only 'a' and 'b+' types are possible as inputs and outputs
             % varargin may contain 'field_names_only' which in fact
             % disables validation
             %
-            [ok, type, mess]=check_sqw_data_(obj,type_in);
+            [type,obj]=check_sqw_data_(obj,type_in);
         end
         %
         function npix= get.num_pixels(obj)
