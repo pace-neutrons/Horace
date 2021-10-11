@@ -50,8 +50,11 @@ classdef (Abstract) SQWDnDBase
 
         wout = smooth(win, varargin);
         wout = smooth_units(win, varargin);
-        
-        %dat = struct(obj);
+        %dat = struct(obj);        %
+        function save_xye(obj,varargin)
+            %TODO remove this doing Ticket #730
+            save_xye_(obj,varargin{:});
+        end
     end
 
     methods (Access = protected)

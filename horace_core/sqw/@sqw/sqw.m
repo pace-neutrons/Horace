@@ -100,6 +100,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             %        class(d))
             %end
         end
+%        function  save_xye(obj,varargin)
+%            %TODO: Enable this when doing #730
+%            % save data in xye format
+%            save_xye@DnDBase(obj.data,varargin{:});
+%        end
         
         
     end

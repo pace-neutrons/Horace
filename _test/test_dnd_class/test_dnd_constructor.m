@@ -250,7 +250,7 @@ methods
         sqw_obj = sqw(obj.test_sqw_1d_fullpath);
         f = @() d2d(sqw_obj);
 
-        assertExceptionThrown(f, 'D2D:d2d');
+        assertExceptionThrown(f, 'HORACE:DnDBase:invalid_argument');
     end
 
     function test_d1d_sqw_constuctor_creates_d1d_from_1d_sqw_object(obj)
