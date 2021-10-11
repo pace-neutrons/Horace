@@ -24,7 +24,7 @@ function wout = cut(obj, varargin)
 %                  Can also be a cell array of file names or an array of
 %                  sqw objects.
 %
-%   proj            Data structure containing details of projection axes,
+%   proj           Data structure containing details of projection axes,
 %                  with fields described below. Alternatively, a projaxes
 %                  object created from those fields (type >> help projaxes
 %                  for details).
@@ -77,12 +77,15 @@ function wout = cut(obj, varargin)
 %   p3_bin          Binning along third Q axis
 %           - [] or ''          Plot axis: use bin boundaries of input data
 %           - [pstep]           Plot axis: sets step size; plot limits
-%                              taken from the extent of the data
+%                               taken from the extent of the data. If pstep
+%                               is 0, step is also taken from input data
+%                               (equivalent to [])
 %           - [plo, phi]        Integration axis: range of integration
 %           - [plo, pstep, phi] Plot axis: minimum and maximum bin centers
 %                              and step size
 %                              For example, [106, 4, 116] will define a plot
 %                              axis with bin edges 104-108, 108-112, 112-116.
+%                              if step is 0,                                
 %           - [plo, rdiff, phi, rwidth]
 %                                Integration axis: minimum range center,
 %                                distance between range centers, maximum range
@@ -152,10 +155,10 @@ if dnd_type
 end
 
 return_cut = nargout > 0;
-[proj, pbin, opt] = validate_args(obj, return_cut, ndims_source, varargin{:});
+[proj, pbin, opt] = process_and_validate_cut_inputs(obj, return_cut, ndims_source, varargin{:});
 
 % Process projection
-[proj, pbin, pin, en] = define_target_projection(obj, proj, pbin);
+[proj, pbin, pin, en] = define_target_axes_block(obj, proj, pbin);
 
 sz = cellfun(@(x) max(size(x, 1), 1), pbin);
 if return_cut
@@ -175,25 +178,9 @@ end
 
 end  % function
 
+%
 
-% -----------------------------------------------------------------------------
-function [proj, pbin, opt] = validate_args(obj, return_cut, ndims_source, varargin)
-[ok, mess, ~, proj, pbin, args, opt] = cut_sqw_check_input_args( ...
-    obj, ndims_source, return_cut, varargin{:} ...
-    );
-if ~ok
-    error('HORACE:cut:invalid_argument', mess)
-end
-
-% Ensure there are no excess input arguments
-if numel(args) ~= 0
-    error ('HORACE:cut:invalid_argument', ...
-        'Check the number and type of input arguments.')
-end
-end
-
-
-function [proj, pbin, pin, en] = define_target_projection(w, proj, pbin)
+function [proj, pbin, pin, en] = define_target_axes_block(w, proj, pbin)
 % Update projection bins using the sqw header
 header_av = header_average(w.header);
 [proj, pbin, ~, pin, en] = proj.update_pbins(header_av, w.data, pbin);

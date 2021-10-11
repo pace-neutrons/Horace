@@ -139,6 +139,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
         
         wout = sqw_eval_(wout, sqwfunc, ave_pix, all_bins, pars);
+        
+        % take the inputs for a cut and return them in a standard form
+        [proj, pbin, opt] = process_and_validate_cut_inputs(obj, return_cut, ndims_source, varargin);        
     end
     
     methods(Static, Access = private)
