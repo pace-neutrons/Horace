@@ -39,14 +39,14 @@ classdef IX_aperture
             %
             %
             % Note: any number of the arguments can given in arbitrary order
-            % after leading positional arguments if they are preceded by the 
+            % after leading positional arguments if they are preceded by the
             % argument name (including abbreviations) with a preceding hyphen e.g.
             %
             %   ap = IX_aperture (distance, width, height,'-name','in-pile')
             
             
             % Original author: T.G.Perring
-
+            
             
             % Use the non-dependent property set functions to force a check of type,
             % size etc.
@@ -66,51 +66,9 @@ classdef IX_aperture
                     obj.width_ = S.width;
                     obj.height_ = S.height;
                 else
-                    error('Must give distance, width and height')
+                    error('HERBERT:IX_apperture:invalid_argument',...
+                        'Must give distance, width and height')
                 end
-            end
-        end
-        
-        %------------------------------------------------------------------
-        % Set methods
-        %
-        % Set the non-dependent properties. We cannot make the set
-        % functions depend on other non-dependent properties (see Matlab
-        % documentation). Have to devolve any checks on interdependencies to the
-        % constructor (where we refer only to the non-dependent properties)
-        % and in the set functions for the dependent properties. There is a
-        % synchronisation that must be maintained as the checks in both places
-        % must be identical.
-        
-        function obj=set.name_(obj,val)
-            if is_string(val)
-                obj.name_=val;
-            else
-                error('Sample name must be a character string (or empty string)')
-            end
-        end
-        
-        function obj=set.distance_(obj,val)
-            if isscalar(val) && isnumeric(val)
-                obj.distance_=val;
-            else
-                error('Distance must be a numeric scalar')
-            end
-        end
-        
-        function obj=set.width_(obj,val)
-            if isscalar(val) && isnumeric(val) && val>=0
-                obj.width_=val;
-            else
-                error('Aperture width must be a numeric scalar greater than or equal to zero')
-            end
-        end
-        
-        function obj=set.height_(obj,val)
-            if isscalar(val) && isnumeric(val) && val>=0
-                obj.height_=val;
-            else
-                error('Aperture height must be a numeric scalar greater than or equal to zero')
             end
         end
         
@@ -121,18 +79,46 @@ classdef IX_aperture
         % for the non-dependent properties. However, any interdependencies with
         % other properties must be checked here.
         function obj=set.name(obj,val)
+            if is_string(val)
+                obj.name_=val;
+            else
+                error('HERBERT:IX_apperture:invalid_argument',...
+                    'Sample name must be a character string (or empty string)')
+            end
+            
             obj.name_=val;
         end
         
         function obj=set.distance(obj,val)
+            if isscalar(val) && isnumeric(val)
+                obj.distance_=val;
+            else
+                error('HERBERT:IX_apperture:invalid_argument',...
+                    'Distance must be a numeric scalar')
+            end
+            
             obj.distance_=val;
         end
         
         function obj=set.width(obj,val)
+            if isscalar(val) && isnumeric(val) && val>=0
+                obj.width_=val;
+            else
+                error('HERBERT:IX_apperture:invalid_argument',...
+                    'Aperture width must be a numeric scalar greater than or equal to zero')
+            end
+            
             obj.width_=val;
         end
         
         function obj=set.height(obj,val)
+            if isscalar(val) && isnumeric(val) && val>=0
+                obj.height_=val;
+            else
+                error('HERBERT:IX_apperture:invalid_argument',...
+                    'Aperture height must be a numeric scalar greater than or equal to zero')
+            end
+            
             obj.height_=val;
         end
         
@@ -165,7 +151,7 @@ classdef IX_aperture
             % Determine the independent property names and cache the result.
             % Code is boilerplate
             persistent names_store
-            if isempty(names_store)
+            if isempty(names_store)                
                 names_store = fieldnamesIndep(eval(mfilename('class')));
             end
             names = names_store;
@@ -271,7 +257,7 @@ classdef IX_aperture
                     S.(names{i}) = obj.(names{i});
                 end
             end
-
+            
         end
         
         function S = structPublic(obj)
@@ -338,34 +324,7 @@ classdef IX_aperture
                     S.(names{i}) = obj.(names{i});
                 end
             end
-
-        end
-    end
-    
-    %======================================================================
-    % Custom loadobj and saveobj
-    % - to enable custom saving to .mat files and bytestreams
-    % - to enable older class definition compatibility
-
-    methods
-        %------------------------------------------------------------------
-        function S = saveobj(obj)
-            % Method used my Matlab save function to support custom
-            % conversion to structure prior to saving.
-            %
-            %   >> S = saveobj(obj)
-            %
-            % Input:
-            % ------
-            %   obj     Scalar instance of the object class
-            %
-            % Output:
-            % -------
-            %   S       Structure created from obj that is to be saved
             
-            % The following is boilerplate code
-            
-            S = structIndep(obj);
         end
     end
     

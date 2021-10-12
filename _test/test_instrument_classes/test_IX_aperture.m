@@ -1,10 +1,18 @@
 classdef test_IX_aperture < TestCaseWithSave
     % Test of IX_aperture
-    
+    properties
+        home_folder
+    end
     methods
         %--------------------------------------------------------------------------
-        function self = test_IX_aperture (name)
+        function self = test_IX_aperture (varargin)
+            if nargin> 0
+                name = varargin{1};
+            else
+                name ='test_IX_aperture';
+            end
             self@TestCaseWithSave(name);
+            self.home_folder = fileparts(mfilename('fullpath'));
             
             self.save()
         end
@@ -12,23 +20,23 @@ classdef test_IX_aperture < TestCaseWithSave
         %--------------------------------------------------------------------------
         function test_1 (self)
             ap = IX_aperture (12,0.1,0.06);
-            assertEqualWithSave (self,ap);            
+            assertEqualWithSave (self,ap);
         end
         
         %--------------------------------------------------------------------------
         function test_2 (self)
             ap = IX_aperture (12,0.1,0.06,'-name','in-pile');
-            assertEqualWithSave (self,ap);            
+            assertEqualWithSave (self,ap);
         end
         
         %--------------------------------------------------------------------------
         function test_3 (self)
             ap = IX_aperture ('in-pile',12,0.1,0.06);
-            assertEqualWithSave (self,ap);            
+            assertEqualWithSave (self,ap);
         end
         
         %--------------------------------------------------------------------------
-        function test_cov (self)
+        function test_cov (~)
             ap = IX_aperture ('in-pile',12,0.1,0.06);
             cov = ap.covariance();
             assertEqualToTol(cov, [0.1^2,0;0,0.06^2]/12, 'tol', 1e-12);
@@ -36,7 +44,7 @@ classdef test_IX_aperture < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
-        function test_pdf (self)
+        function test_pdf (~)
             ap = IX_aperture ('in-pile',12,0.1,0.06);
             
             npnt = 4e7;
