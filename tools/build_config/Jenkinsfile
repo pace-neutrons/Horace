@@ -83,8 +83,8 @@ def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-",
 Boolean run_build_stage = !(env?.PR_LABELS =~ "do-not-build")
 Boolean run_test_stage = !(env?.PR_LABELS =~ "(do-not-build|do-not-test)")
 Boolean run_push_docs_stage = (pli.matlab_release == 'R2019b' &&
-                               pli.build_type == 'Nightly' &&
-                               utilities.get_agent(pli.os) == 'sl7')
+			       pli.build_type == 'Nightly' &&
+			       utilities.get_agent(pli.os) == 'sl7')
 
 pipeline {
 
@@ -106,12 +106,12 @@ pipeline {
 
     stage('Notify') {
       steps {
-        script {
-          if (env.PR_LABELS) {
-            echo "Found PR labels: ${env.PR_LABELS}"
-          }
-        }
-        post_github_status("pending", "The build is running")
+	script {
+	  if (env.PR_LABELS) {
+	    echo "Found PR labels: ${env.PR_LABELS}"
+	  }
+	}
+	post_github_status("pending", "The build is running")
       }
     }
 
@@ -130,258 +130,258 @@ pipeline {
        * branch.
        */
       steps {
-        script {
-          if (env.RELEASE_TYPE == "nightly") {
-            // Get the last successful Herbert master build
-            copyArtifacts(
-              filter: 'build/Herbert-*',
-              fingerprintArtifacts: true,
-              projectName: "PACE-neutrons/Herbert/${base_job_name}",
-              selector: lastSuccessful()
-            )
+	script {
+	  if (env.RELEASE_TYPE == "nightly") {
+	    // Get the last successful Herbert master build
+	    copyArtifacts(
+	      filter: 'build/Herbert-*',
+	      fingerprintArtifacts: true,
+	      projectName: "PACE-neutrons/Herbert/${base_job_name}",
+	      selector: lastSuccessful()
+	    )
 
-            if (isUnix()) {
-              sh '''
-                archive_name="\$(find -name Herbert-*.tar.gz)"
-                tar --wildcards --strip-components=1 -xf \$archive_name */Herbert
-              '''
-            }
-            else {
-              powershell './tools/pwsh/extract_herbert_artifact.ps1'
-            }
+	    if (isUnix()) {
+	      sh '''
+		archive_name="\$(find -name Herbert-*.tar.gz)"
+		tar --wildcards --strip-components=1 -xf \$archive_name */Herbert
+	      '''
+	    }
+	    else {
+	      powershell './tools/pwsh/extract_herbert_artifact.ps1'
+	    }
 
-          } else {
+	  } else {
 
-            def herbert_ref = utilities.get_herbert_ref_from_labels(
-              env.PR_LABELS,
-              env.HERBERT_BRANCH_NAME
-            )
-            if (herbert_ref.startsWith('Error: ')) {
-              error(herbert_ref)
-            }
-            // Get Herbert from GitHub and call the build script
-            if (isUnix()) {
-              sh """
-                module load cmake/\$CMAKE_VERSION &&
-                module load matlab/\$MATLAB_VERSION &&
-                module load gcc/\$GCC_VERSION &&
-                ./tools/bash/clone_herbert_branch.sh\
-                  --branch ${herbert_ref}\
-                  --build_args \
-                    \"--cmake_flags \\\"-DHerbert_RELEASE_TYPE=\$RELEASE_TYPE\\\" \
-                    --matlab_release \$MATLAB_VERSION\"
-              """
-            } else {
-              powershell """
-                ./tools/pwsh/clone_herbert_branch.ps1\
-                  -branch ${herbert_ref}\
-                  -build_args\
-                    \"-cmake_flags \"\"-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE\"\" \
-                    -matlab_release \$env:MATLAB_VERSION\"
-              """
-            }
-          }
-        }
+	    def herbert_ref = utilities.get_herbert_ref_from_labels(
+	      env.PR_LABELS,
+	      env.HERBERT_BRANCH_NAME
+	    )
+	    if (herbert_ref.startsWith('Error: ')) {
+	      error(herbert_ref)
+	    }
+	    // Get Herbert from GitHub and call the build script
+	    if (isUnix()) {
+	      sh """
+		module load cmake/\$CMAKE_VERSION &&
+		module load matlab/\$MATLAB_VERSION &&
+		module load gcc/\$GCC_VERSION &&
+		./tools/bash/clone_herbert_branch.sh\
+		  --branch ${herbert_ref}\
+		  --build_args \
+		    \"--cmake_flags \\\"-DHerbert_RELEASE_TYPE=\$RELEASE_TYPE\\\" \
+		    --matlab_release \$MATLAB_VERSION\"
+	      """
+	    } else {
+	      powershell """
+		./tools/pwsh/clone_herbert_branch.ps1\
+		  -branch ${herbert_ref}\
+		  -build_args\
+		    \"-cmake_flags \"\"-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE\"\" \
+		    -matlab_release \$env:MATLAB_VERSION\"
+	      """
+	    }
+	  }
+	}
       }
     }
 
     stage('Configure') {
       steps {
-        script {
-          if (env.BUILD_DOCS?.toBoolean()) {
-            if (isUnix()) {
-              sh '''
-            module load python/3.6 &&
-            pip install --user sphinx &&
-            pip install --user sphinx_rtd_theme
-            '''
-            } else {
-              powershell '''
-             pip install --user sphinx
-             pip install --user sphinx_rtd_theme
-            '''
-            }
-          }
-          if (isUnix()) {
-            sh '''
-              module load python/3.6 &&
-              export PATH=${PATH}:~/.local/bin &&
-              module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
-              module load gcc/\$GCC_VERSION &&
-              module load cppcheck/\$CPPCHECK_VERSION &&
-              ./tools/build_config/build.sh \
-                --cmake_flags \"-DHorace_RELEASE_TYPE=\$RELEASE_TYPE\" \
-                --matlab_release \$MATLAB_VERSION \
-                --print_versions --configure
-          '''
-          } else {
-            powershell '''
-              ./tools/build_config/build.ps1 -print_versions -configure \
-                   -cmake_flags \"-DHorace_RELEASE_TYPE=\$env:RELEASE_TYPE\" \
-                   -matlab_release \$env:MATLAB_VERSION \
-                   -vs_version \$env:VS_VERSION
-          '''
-          }
-        }
+	script {
+	  if (env.BUILD_DOCS?.toBoolean()) {
+	    if (isUnix()) {
+	      sh '''
+	    module load python/3.6 &&
+	    pip install --user sphinx &&
+	    pip install --user sphinx_rtd_theme
+	    '''
+	    } else {
+	      powershell '''
+	     pip install --user sphinx
+	     pip install --user sphinx_rtd_theme
+	    '''
+	    }
+	  }
+	  if (isUnix()) {
+	    sh '''
+	      module load python/3.6 &&
+	      export PATH=${PATH}:~/.local/bin &&
+	      module load cmake/\$CMAKE_VERSION &&
+	      module load matlab/\$MATLAB_VERSION &&
+	      module load gcc/\$GCC_VERSION &&
+	      module load cppcheck/\$CPPCHECK_VERSION &&
+	      ./tools/build_config/build.sh \
+		--cmake_flags \"-DHorace_RELEASE_TYPE=\$RELEASE_TYPE\" \
+		--matlab_release \$MATLAB_VERSION \
+		--print_versions --configure
+	  '''
+	  } else {
+	    powershell '''
+	      ./tools/build_config/build.ps1 -print_versions -configure \
+		   -cmake_flags \"-DHorace_RELEASE_TYPE=\$env:RELEASE_TYPE\" \
+		   -matlab_release \$env:MATLAB_VERSION \
+		   -vs_version \$env:VS_VERSION
+	  '''
+	  }
+	}
       }
     }
 
     stage('Analyze') {
       steps {
-        script {
-          if (isUnix()) {
-            sh '''
-              module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
-              module load gcc/\$GCC_VERSION &&
-              module load cppcheck/\$CPPCHECK_VERSION &&
-              ./tools/build_config/build.sh --analyze
-            '''
-          }
-          else {
-            powershell '''
-              Write-Output \"Static Analysis in not performed on Windows\"
-            '''
-          }
-        }
+	script {
+	  if (isUnix()) {
+	    sh '''
+	      module load cmake/\$CMAKE_VERSION &&
+	      module load matlab/\$MATLAB_VERSION &&
+	      module load gcc/\$GCC_VERSION &&
+	      module load cppcheck/\$CPPCHECK_VERSION &&
+	      ./tools/build_config/build.sh --analyze
+	    '''
+	  }
+	  else {
+	    powershell '''
+	      Write-Output \"Static Analysis in not performed on Windows\"
+	    '''
+	  }
+	}
       }
     }
 
     stage('Build') {
       when {
-        expression {
-          run_build_stage == true
-        }
+	expression {
+	  run_build_stage == true
+	}
       }
       steps {
-        script {
-          if (isUnix()) {
-            sh '''
-              module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
-              module load gcc/\$GCC_VERSION &&
-              ./tools/build_config/build.sh --build
-             '''
-          }
-          else {
-            powershell '''
-              ./tools/build_config/build.ps1 -build
-            '''
-          }
-        }
+	script {
+	  if (isUnix()) {
+	    sh '''
+	      module load cmake/\$CMAKE_VERSION &&
+	      module load matlab/\$MATLAB_VERSION &&
+	      module load gcc/\$GCC_VERSION &&
+	      ./tools/build_config/build.sh --build
+	     '''
+	  }
+	  else {
+	    powershell '''
+	      ./tools/build_config/build.ps1 -build
+	    '''
+	  }
+	}
       }
     }
 
     stage('Build-Docs') {
       when {
-        expression {env.BUILD_DOCS?.toBoolean()}
+	expression {env.BUILD_DOCS?.toBoolean()}
       }
       steps {
-        script {
-          if (isUnix()) {
-            sh '''
-                export PATH=${PATH}:~/.local/bin &&
-                module load python/3.6 &&
-                module load cmake/\$CMAKE_VERSION &&
-                ./tools/build_config/build.sh --docs
-            '''
-            archiveArtifacts(
-              artifacts: 'build/docs.tar.gz',
-              allowEmptyArchive: true,
-              fingerprint: true
-            )
-          }
-          else {
-            powershell '''
-              ./tools/build_config/build.ps1 -docs
-            '''
-            archiveArtifacts(
-              artifacts: 'build/docs.zip',
-              allowEmptyArchive: true,
-              fingerprint: true
-            )
-          }
-        }
+	script {
+	  if (isUnix()) {
+	    sh '''
+		export PATH=${PATH}:~/.local/bin &&
+		module load python/3.6 &&
+		module load cmake/\$CMAKE_VERSION &&
+		./tools/build_config/build.sh --docs
+	    '''
+	    archiveArtifacts(
+	      artifacts: 'build/docs.tar.gz',
+	      allowEmptyArchive: true,
+	      fingerprint: true
+	    )
+	  }
+	  else {
+	    powershell '''
+	      ./tools/build_config/build.ps1 -docs
+	    '''
+	    archiveArtifacts(
+	      artifacts: 'build/docs.zip',
+	      allowEmptyArchive: false,
+	      fingerprint: true
+	    )
+	  }
+	}
       }
     }
 
     stage('Test') {
       when {
-        expression {
-          run_test_stage == true
-        }
+	expression {
+	  run_test_stage == true
+	}
       }
       steps {
-        script {
-          if (isUnix()) {
-            sh '''
-              module load cmake/\$CMAKE_VERSION &&
-              module load matlab/\$MATLAB_VERSION &&
-              module load gcc/\$GCC_VERSION &&
-              ./tools/build_config/build.sh --test
-            '''
-          }
-          else {
-            powershell './tools/build_config/build.ps1 -test'
-          }
-        }
+	script {
+	  if (isUnix()) {
+	    sh '''
+	      module load cmake/\$CMAKE_VERSION &&
+	      module load matlab/\$MATLAB_VERSION &&
+	      module load gcc/\$GCC_VERSION &&
+	      ./tools/build_config/build.sh --test
+	    '''
+	  }
+	  else {
+	    powershell './tools/build_config/build.ps1 -test'
+	  }
+	}
       }
     }
 
     stage('Package') {
       when {
-        expression {
-          run_build_stage == true
-        }
+	expression {
+	  run_build_stage == true
+	}
       }
       steps {
-        script {
-          if (isUnix()) {
-            sh '''
-              module load cmake/\$CMAKE_VERSION &&
-              ./tools/build_config/build.sh --package
-            '''
-          }
-          else {
-            powershell './tools/build_config/build.ps1 -package'
-          }
-          // Archive a file containing the git revision being built. This
-          // enables the Deploy pipelines to validate against this SHA, and
-          // ensure the correct revision is tagged in Git.
-          if (pli.build_type == 'Release') {
-            def git_rev_file_name = "${env.JOB_BASE_NAME}-git-revision.sha"
-            utilities.write_git_revision_to_file(git_rev_file_name)
-            archiveArtifacts(artifacts: git_rev_file_name, fingerprint: true)
-          }
-        }
+	script {
+	  if (isUnix()) {
+	    sh '''
+	      module load cmake/\$CMAKE_VERSION &&
+	      ./tools/build_config/build.sh --package
+	    '''
+	  }
+	  else {
+	    powershell './tools/build_config/build.ps1 -package'
+	  }
+	  // Archive a file containing the git revision being built. This
+	  // enables the Deploy pipelines to validate against this SHA, and
+	  // ensure the correct revision is tagged in Git.
+	  if (pli.build_type == 'Release') {
+	    def git_rev_file_name = "${env.JOB_BASE_NAME}-git-revision.sha"
+	    utilities.write_git_revision_to_file(git_rev_file_name)
+	    archiveArtifacts(artifacts: git_rev_file_name, fingerprint: true)
+	  }
+	}
 
-        // Archive the release package
-        archiveArtifacts(
-          artifacts: 'build/Horace-*',
-          fingerprint: true
-        )
+	// Archive the release package
+	archiveArtifacts(
+	  artifacts: 'build/Horace-*',
+	  fingerprint: true
+	)
       }
     }
 
 
     stage('Push-Docs') {
       when {
-        expression {env.BUILD_DOCS?.toBoolean() && (env.PUSH_DOCS?.toBoolean() || run_push_docs_stage)}
+	expression {env.BUILD_DOCS?.toBoolean() && (env.PUSH_DOCS?.toBoolean() || run_push_docs_stage)}
       }
       steps {
-        withCredentials([string(credentialsId: 'GitHub_API_Token',
-                                variable: 'api_token')]) {
-          script {
-            if (isUnix()) {
-              sh './tools/build_config/build.sh --push-docs'
-            }
-            else {
-              powershell './tools/build_config/build.ps1 -push_docs'
+	withCredentials([string(credentialsId: 'GitHub_API_Token',
+				variable: 'api_token')]) {
+	  script {
+	    if (isUnix()) {
+	      sh './tools/build_config/build.sh --push-docs'
+	    }
+	    else {
+	      powershell './tools/build_config/build.ps1 -push_docs'
 
-            }
-          }
-        }
+	    }
+	  }
+	}
       }
     }
   }
@@ -390,39 +390,39 @@ pipeline {
     always {
       // archive static analysis report
       archiveArtifacts(
-        artifacts: '**/cppcheck.xml,**/mlint.json',
-        allowEmptyArchive: true,
-        fingerprint: true
+	artifacts: '**/cppcheck.xml,**/mlint.json',
+	allowEmptyArchive: true,
+	fingerprint: true
       )
 
       recordIssues(
-        tools: [
-          cppCheck(pattern: '**/cppcheck.xml', reportEncoding: 'UTF-8'),
-          issues(id: 'mlint', name: 'MLint', pattern: '**/mlint.json')
-        ]
+	tools: [
+	  cppCheck(pattern: '**/cppcheck.xml', reportEncoding: 'UTF-8'),
+	  issues(id: 'mlint', name: 'MLint', pattern: '**/mlint.json')
+	]
       )
 
       archiveArtifacts(
-        artifacts: 'build/Testing/**/*.xml',
-        allowEmptyArchive: true,
-        fingerprint: true
+	artifacts: 'build/Testing/**/*.xml',
+	allowEmptyArchive: true,
+	fingerprint: true
       )
       xunit (
-        testTimeMargin: '3000',
-        thresholdMode: 1,
-        thresholds: [
-          skipped(failureThreshold: '0'),
-          failed(failureThreshold: '0')
-        ],
-        tools: [
-          CTest(
-            pattern: 'build/Testing/**/*.xml',
-            deleteOutputFiles: true,
-            failIfNotNew: false,
-            skipNoTestFiles: true,
-            stopProcessingIfError: true
-          )
-        ]
+	testTimeMargin: '3000',
+	thresholdMode: 1,
+	thresholds: [
+	  skipped(failureThreshold: '0'),
+	  failed(failureThreshold: '0')
+	],
+	tools: [
+	  CTest(
+	    pattern: 'build/Testing/**/*.xml',
+	    deleteOutputFiles: true,
+	    failIfNotNew: false,
+	    skipNoTestFiles: true,
+	    stopProcessingIfError: true
+	  )
+	]
       )
 
     }
