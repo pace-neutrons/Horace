@@ -56,23 +56,23 @@ find_program(latexmk NAMES latexmk)
 
 execute_process(COMMAND ${Python3_EXECUTABLE} ${sphinx-build} ERROR_VARIABLE test)
 string(REGEX MATCH "ModuleNotFoundError" sphinx-build-failed ${test})
-
+message("Here")
 if (NOT sphinx-build-failed)
   add_custom_target(docs
     COMMENT "Building HTML user documentation"
     BYPRODUCTS "${Horace_DOCS_OUTPUT_DIR}/*"
     COMMAND ${Python3_EXECUTABLE} ${sphinx-build} -b html "${Horace_DOCS_SOURCE_DIR}" "${Horace_DOCS_OUTPUT_DIR}" ${SPHINX_OPTS}
-                            -D "release=${${PROJECT_NAME}_SHORT_VERSION}"
-                            -D "version=${${PROJECT_NAME}_SHORT_VERSION}"
+			    -D "release=${${PROJECT_NAME}_SHORT_VERSION}"
+			    -D "version=${${PROJECT_NAME}_SHORT_VERSION}"
     )
 
   if (WIN32)
 
     add_custom_command(TARGET docs POST_BUILD
       COMMAND powershell -ExecutionPolicy Bypass -command
-                 "Foreach($f in Get-ChildItem -Path '${Horace_DOCS_OUTPUT_DIR}' -Filter *.html) { \
-                      (Get-Content $f.FullName) | Where-Object {$_ -notmatch '\\[NULL\\]'} | Set-Content $f.FullName \
-                  }"
+		 "Foreach($f in Get-ChildItem -Path '${Horace_DOCS_OUTPUT_DIR}' -Filter *.html) { \
+		      (Get-Content $f.FullName) | Where-Object {$_ -notmatch '\\[NULL\\]'} | Set-Content $f.FullName \
+		  }"
       DEPENDS build-docs
       VERBATIM
       )
@@ -81,7 +81,7 @@ if (NOT sphinx-build-failed)
     add_custom_target(docs-pack
       COMMENT "Zipping HTML documentation to ${Horace_DOCS_PACK_OUTPUT}"
       COMMAND powershell -ExecutionPolicy Bypass -command
-                "Compress-Archive -Path \"${Horace_DOCS_OUTPUT_DIR}/*\" -DestinationPath \"${Horace_DOCS_PACK_OUTPUT}\""
+		"Compress-Archive -Path \"${Horace_DOCS_OUTPUT_DIR}/*\" -DestinationPath \"${Horace_DOCS_PACK_OUTPUT}\""
       DEPENDS docs
       )
 
@@ -103,8 +103,8 @@ if (NOT sphinx-build-failed)
   if (pdflatex AND latexmk)
     add_custom_command(OUTPUT horace.tex
       COMMAND ${Python3_EXECUTABLE} ${sphinx-build} -b latex "${Horace_DOCS_SOURCE_DIR}" "${Horace_MANUAL_WORK_DIR}" ${SPHINX_OPTS}
-                              -D "release=${${PROJECT_NAME}_SHORT_VERSION}"
-                              -D "version=${${PROJECT_NAME}_SHORT_VERSION}"
+			      -D "release=${${PROJECT_NAME}_SHORT_VERSION}"
+			      -D "version=${${PROJECT_NAME}_SHORT_VERSION}"
       WORKING_DIRECTORY "${Horace_DOCS_ROOT_DIR}"
       )
 
