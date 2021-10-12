@@ -54,8 +54,6 @@ string(CONCAT RUN_MLINT "\""
                         "exit;"
                         "\"")
 
-message(${RUN_MLINT})
-
 add_custom_target(analyse-mlint
   COMMENT "- Performing MATLAB analysis (Mlint)..."
   BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/mlint.out"
