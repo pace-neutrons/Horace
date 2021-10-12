@@ -2,9 +2,11 @@ function [proj, pbin, opt] = process_and_validate_cut_inputs(obj, return_cut, nd
 % Take cut parameters in any possible form (see below)
 % and return the standard form of the parameters.
 % Inputs:
-% return_cut -- if true, th
+% return_cut -- if true, cut should be returned as requested, if false, cut
+%               would be written to file
+% ndims      -- number of dimensions in the input data object to cut
 %
-%
+% varargin   -- any of the following:
 %   >> {data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin}
 %
 %   >> {..., '-nopix'}      % output cut is dnd structure (i.e. no
