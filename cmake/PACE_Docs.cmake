@@ -49,7 +49,6 @@ else()
     set(Horace_DOCS_PACK_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/docs.tar.gz" CACHE FILEPATH "File to store packed HTML documentation")
 endif()
 
-message("Here")
 find_package(Python3)
 find_program(sphinx-build NAMES sphinx-build HINTS ${Horace_DOCS_ROOT_DIR})
 find_program(pdflatex NAMES pdflatex)
@@ -62,7 +61,7 @@ if (NOT sphinx-build-failed)
   add_custom_target(docs
     COMMENT "Building HTML user documentation"
     BYPRODUCTS "${Horace_DOCS_OUTPUT_DIR}/*"
-    COMMAND ${Python3_EXECUTABLE} ${sphinx-build} -b html "${Horace_DOCS_SOURCE_DIR}" "${Horace_DOCS_OUTPUT_DIR}" ${SPHINX_OPTS}
+    COMMAND "echo 'Hello';" ${Python3_EXECUTABLE} ${sphinx-build} -b html "${Horace_DOCS_SOURCE_DIR}" "${Horace_DOCS_OUTPUT_DIR}" ${SPHINX_OPTS}
 			    -D "release=${${PROJECT_NAME}_SHORT_VERSION}"
 			    -D "version=${${PROJECT_NAME}_SHORT_VERSION}"
     )
