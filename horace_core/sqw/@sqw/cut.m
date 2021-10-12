@@ -155,7 +155,13 @@ if dnd_type
 end
 
 return_cut = nargout > 0;
-[proj, pbin, opt] = process_and_validate_cut_inputs(obj, return_cut, ndims_source, varargin{:});
+[proj, pbin, opt,args] = process_and_validate_cut_inputs(obj,...
+    ndims_source, return_cut, varargin{:});
+if numel(args)>0
+    error('HORACE:sqw:invalid_argument',...
+        'Extra arguments provided for cut. Args: %s',...
+        evalc('disp(args{:})'))
+end
 
 % Process projection
 [proj, pbin, pin, en] = define_target_axes_block(obj, proj, pbin);

@@ -142,6 +142,16 @@ if ~isempty(mess), error(mess); end
 % ------------------
 nout=w.nargout_req;
 nw=numel(w.data);
+% HACK -- TODO: modify cut_sum to use the same interface as cut
+for i=1:nw
+    if iscell(w(i).data)
+        if w(i).sqw_type(1)
+            w(i).data = sqw(w(i).loaders_list{1});
+        else
+            w(i).data = dnd(w(i).loaders_list{1});
+        end
+    end
+end
 
 if all(w.sqw_type(:))
     % sqw type data

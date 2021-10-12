@@ -1,10 +1,11 @@
-function [proj, pbin, opt] = process_and_validate_cut_inputs(obj, return_cut, ndims, varargin)
+function [proj, pbin, opt,args] = process_and_validate_cut_inputs(obj,ndims, return_cut, varargin)
 % Take cut parameters in any possible form (see below)
 % and return the standard form of the parameters.
 % Inputs:
+% ndims      -- number of dimensions in the input data object to cut
+%
 % return_cut -- if true, cut should be returned as requested, if false, cut
 %               would be written to file
-% ndims      -- number of dimensions in the input data object to cut
 %
 % varargin   -- any of the following:
 %   >> {data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin}
@@ -52,13 +53,10 @@ function [proj, pbin, opt] = process_and_validate_cut_inputs(obj, return_cut, nd
 %                                integration range for three cuts, the first
 %                                cut integrates the axis over 105-107, the
 %                                second over 109-111 and the third 113-115.
+%   args            Cell array of any other arguments not related to main
+%                   binning
 
-[~, proj, pbin, args, opt] = cut_sqw_parse_inputs_(obj, ...
+[~, proj, pbin, opt, args] = cut_sqw_parse_inputs_(obj, ...
  ndims, return_cut, varargin{:});
 
-% Ensure there are no excess input arguments
-if numel(args) ~= 0
-    error ('HORACE:cut:invalid_argument', ...
-        'Check the number and type of input arguments.')
-end
 

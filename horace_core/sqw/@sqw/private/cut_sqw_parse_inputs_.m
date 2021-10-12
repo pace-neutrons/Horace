@@ -1,4 +1,4 @@
-function [data_source, proj, pbin, args, opt] = ...
+function [data_source, proj, pbin, opt, args] = ...
     cut_sqw_parse_inputs_(data_source_in, ndims_in, return_cut, varargin)
 % Parse the input arguments to cut_sqw_main and cut_sqw_sym_main
 %
@@ -38,8 +38,6 @@ function [data_source, proj, pbin, args, opt] = ...
 
 % Default output of correct classes
 proj = projection();
-pbin = cell(1,0);
-args = cell(1,0);
 opt = struct();
 
 

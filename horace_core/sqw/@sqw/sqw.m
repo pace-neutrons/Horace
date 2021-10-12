@@ -10,7 +10,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
     properties
         main_header
         header %| Experiment
-        detpar %| 
+        detpar %|
         % CMDEV: data now a dependent property, below
     end
     
@@ -87,24 +87,24 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             
         end
         
-        % Public getters/setters expose all wrapped data attributes       
+        % Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)
             val = obj.data_;
         end
         function obj = set.data(obj, d)
             %if isa(d,'data_sqw_dnd') || isempty(d)
-                obj.data_ = d;
+            obj.data_ = d;
             %else
             %    error('HORACE:sqw:invalid_argument',...
             %        'Only data_sqw_dnd class or empty value may be used as data value. Trying to set up: %s',...
             %        class(d))
             %end
         end
-%        function  save_xye(obj,varargin)
-%            %TODO: Enable this when doing #730
-%            % save data in xye format
-%            save_xye@DnDBase(obj.data,varargin{:});
-%        end
+        %        function  save_xye(obj,varargin)
+        %            %TODO: Enable this when doing #730
+        %            % save data in xye format
+        %            save_xye@DnDBase(obj.data,varargin{:});
+        %        end
         
         
     end
@@ -146,7 +146,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         wout = sqw_eval_(wout, sqwfunc, ave_pix, all_bins, pars);
         
         % take the inputs for a cut and return them in a standard form
-        [proj, pbin, opt] = process_and_validate_cut_inputs(obj, return_cut, ndims_source, varargin);        
+        [proj, pbin, opt,args] = process_and_validate_cut_inputs(obj, ndims_source, return_cut, varargin);
     end
     
     methods(Static, Access = private)
