@@ -1,4 +1,4 @@
-classdef test_cut < TestCase
+classdef test_cut < TestCase & common_state_holder
     % Testing cuts and comparing the results against the reference cuts.
     %
     % This is a non-standard test class, as it compares cut
@@ -14,8 +14,6 @@ classdef test_cut < TestCase
     % provided
     properties
         FLOAT_TOL = 1e-5;
-        
-        old_warn_state;
         
         sqw_file = '../test_sym_op/test_cut_sqw_sym.sqw';
         ref_file = 'test_cut_ref_sqw.sqw'
@@ -49,7 +47,6 @@ classdef test_cut < TestCase
             obj = obj@TestCase(name);
             obj.sqw_4d = read_sqw(obj.sqw_file);
             
-            obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
             %
             if save_reference
                 fprintf('*** Rebuilding and overwriting reference cut file %s\n',...
@@ -59,9 +56,6 @@ classdef test_cut < TestCase
             end
         end
         
-        function delete(obj)
-            warning(obj.old_warn_state);
-        end
         
         function test_you_can_take_a_cut_from_an_sqw_file(obj)
             conf = hor_config();
@@ -242,7 +236,7 @@ classdef test_cut < TestCase
             outfile = fullfile('P:', 'not', 'a_valid', 'path.sqw');
             
             f = @() cut(obj.sqw_file, obj.ref_params{:}, outfile);
-            assertExceptionThrown(f, 'SQW:cut_sqw_check_input_args:outfile_creation_error');
+            assertExceptionThrown(f, 'HORACE:cut:invalid_argument');
         end
         
         function test_error_raised_if_cut_called_with_multiple_files(obj)

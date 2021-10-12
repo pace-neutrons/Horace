@@ -9,8 +9,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
     
     properties
         main_header
-        header
-        detpar
+        header %| Experiment
+        detpar %| 
         % CMDEV: data now a dependent property, below
     end
     
@@ -87,7 +87,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             
         end
         
-        % Public getters/setters expose all wrapped data attributes
+        % Public getters/setters expose all wrapped data attributes       
         function val = get.data(obj)
             val = obj.data_;
         end
