@@ -25,7 +25,7 @@ classdef test_sqw_constructor < TestCase & common_state_holder
             assertTrue(isa(sqw_obj, 'SQWDnDBase'));
         end
         
-        function test_default_constructor_returns_empty_instance(obj)
+        function test_default_constructor_returns_empty_instance(~)
             sqw_obj = sqw();
             
             assertTrue(isa(sqw_obj, 'sqw'));

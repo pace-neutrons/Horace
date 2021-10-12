@@ -1,6 +1,6 @@
 function [chunks, cumulative_sum] = split_data_blocks(start_pos,block_sizes, buf_size)
 % Split the array of the data blocks into the blocks, which have equal or
-% almost equal size
+% almost equal number of data points, stored in each block
 %
 % Input:
 % ------
@@ -8,7 +8,7 @@ function [chunks, cumulative_sum] = split_data_blocks(start_pos,block_sizes, buf
 %                    positions of blocks on some media
 % block_sizes        A vector of numeric non-negative values describing
 %                    block sizes to process. Its assumed that the block is
-%                    continuously located on the media starging at start_pos
+%                    continuously located on the media starting at start_pos
 %                    and extending to block_size. The next position can not
 %                    lie within previous [start_pos:start_pos+block_size]
 %                    but may be at start_pos+block_size+1.

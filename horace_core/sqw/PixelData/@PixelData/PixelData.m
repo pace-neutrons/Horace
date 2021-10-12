@@ -702,7 +702,7 @@ classdef PixelData < handle
         end
         
         function page_size = get.base_page_size(obj)
-            page_size = obj.calculate_page_size_(obj.page_memory_size_);
+            page_size = calculate_page_size_(obj,obj.page_memory_size_);
         end
         
         function range = get.pix_range(obj)

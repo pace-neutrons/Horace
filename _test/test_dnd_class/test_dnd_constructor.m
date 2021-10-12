@@ -235,7 +235,7 @@ methods
         assertEqual(d2d_obj.u_to_rlu, expected_u_to_rlu, 'tol', 1e-5);
     end
 
-    function test_filename_constructor_returns_same_object_as_sqw_constructor_from_sqw_file(obj)
+    function test_fname_constr_returns_same_obj_as_sqw_constr_from_sqw_file(obj)
         sqw_obj = sqw(obj.test_sqw_2d_fullpath);
         d2d_obj = d2d(obj.test_sqw_2d_fullpath);
 

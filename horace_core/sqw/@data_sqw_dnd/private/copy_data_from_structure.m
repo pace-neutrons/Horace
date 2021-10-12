@@ -1,4 +1,4 @@
-function [data,define_axis_caption] = copy_data_from_structure(data,sqw_data_structure,conv2double)
+function data = copy_data_from_structure(data,sqw_data_structure,conv2double)
 % method copies data from structure to internal class structure
 %
 % The structure should fields with names, correspondent to class names.
@@ -6,18 +6,9 @@ function [data,define_axis_caption] = copy_data_from_structure(data,sqw_data_str
 % if structure contains fields with data not appropriate for the class,
 % the verification procedure will flag them later.
 
-if isfield(sqw_data_structure,'axis_caption') && ~isempty(sqw_data_structure.axis_caption)
-    define_axis_caption = false;
-else
-    define_axis_caption = true;
-end
 fields = fieldnames(sqw_data_structure);
 for i=1:numel(fields)
     fld = fields{i};
-    targ_fld = fld; %Tempoprary
-    if strcmp(fld,'pix_range') % TODO: fix it
-        targ_fld  = 'urange';
-    end
     
     if isempty(data.(targ_fld)) && isempty(sqw_data_structure.(fld))  
         continue; %keep the shape of the empty source structure, ignore shape of the input
