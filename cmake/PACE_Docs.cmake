@@ -50,7 +50,7 @@ else()
 endif()
 
 message(STATUS "Here")
-find_package(Python)
+find_package(PythonInterp)
 find_program(sphinx-build NAMES sphinx-build HINTS ${Horace_DOCS_ROOT_DIR})
 find_program(pdflatex NAMES pdflatex)
 find_program(latexmk NAMES latexmk)
