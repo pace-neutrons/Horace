@@ -66,14 +66,13 @@ if (NOT sphinx-build-failed)
   add_custom_target(docs
     COMMENT "Building HTML user documentation"
     BYPRODUCTS "${Horace_DOCS_OUTPUT_DIR}/*"
-    COMMAND powershell -ExecutionPolicy Bypass -commmand "Write-Message \"Hello\""
     COMMAND ${PYTHON_EXECUTABLE} ${sphinx-build} -b html "${Horace_DOCS_SOURCE_DIR}" "${Horace_DOCS_OUTPUT_DIR}" ${SPHINX_OPTS}
 			    -D "release=${${PROJECT_NAME}_SHORT_VERSION}"
 			    -D "version=${${PROJECT_NAME}_SHORT_VERSION}"
     )
 
   if (WIN32)
-
+    message(STATUS "Windows")
     add_custom_command(TARGET docs POST_BUILD
       COMMAND powershell -ExecutionPolicy Bypass -command
 		 "Foreach($f in Get-ChildItem -Path '${Horace_DOCS_OUTPUT_DIR}' -Filter *.html) { \
@@ -92,6 +91,7 @@ if (NOT sphinx-build-failed)
       )
 
   else()
+    message(STATUS "UNIX")
     add_custom_command(TARGET docs POST_BUILD
       COMMAND sed -i -r "/\[NULL\]/d" "${Horace_DOCS_OUTPUT_DIR}/*html"
       DEPENDS build-docs
