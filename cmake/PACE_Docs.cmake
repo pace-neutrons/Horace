@@ -58,6 +58,7 @@ find_program(latexmk NAMES latexmk)
 execute_process(COMMAND ${Python3_EXECUTABLE} ${sphinx-build} ERROR_VARIABLE test)
 string(REGEX MATCH "ModuleNotFoundError" sphinx-build-failed ${test})
 message(${sphinx-build-failed})
+message(${test})
 
 if (NOT sphinx-build-failed)
   add_custom_target(docs
