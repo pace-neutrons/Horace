@@ -56,6 +56,7 @@ find_program(pdflatex NAMES pdflatex)
 find_program(latexmk NAMES latexmk)
 
 execute_process(COMMAND ${Python_EXECUTABLE} ${sphinx-build} ERROR_VARIABLE test)
+  message(STATUS ${test})
 string(REGEX MATCH "ModuleNotFoundError" sphinx-build-failed ${test})
 
 if (NOT sphinx-build-failed)
