@@ -1,4 +1,4 @@
-function struc = to_struct(obj)
+function struc = struct(obj)
 % Convert sqw-type object into a structure
 %  
 % Inputs:
@@ -11,10 +11,9 @@ for j=1:numel(obj)
     for i=1:numel(flds)
         fldn = flds{i};
         val = obj(j).(fldn);
-        if isa(val,'serializeable')
-            val = to_struct(val);
-        elseif isobject(val) % should be convertable to standard structure
-            % not fully generic but let's not overcomplicate
+        if isobject(val) % should be convertable to standard structure
+            % not fully generic but let's not overcomplicate -- all our
+            % classes should have this method
             val= struct(val);
         end
         cell_dat{i,j} = val;

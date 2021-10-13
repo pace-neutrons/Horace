@@ -12,7 +12,7 @@ classdef serializable
         ver  = classVersion(obj);
     end
     methods(Abstract,Static)
-        % Static method used my Matlab load function to support custom
+        % Static method used by Matlab load function to support custom
         % loading. The method has to be overloaded in the class using
         % loadobj_generic function in the form:
         %
@@ -21,12 +21,22 @@ classdef serializable
         %   obj = class_instance.loadobj_generic(S,class_instance)
         % end
         %
-        % where
+        % where EmpytClassConstructor is the empty constructor of the
+        % class to recover from the record
         obj = loadobj(S);
     end
     
     
     methods
+        % convert class into a plain structure using independent properties
+        % obtained from indepFields method
+        str = struct(obj);
+        %
+        %------------------------------------------------------------------
+        % resore object from a plain structure, previously obtained by
+        % struct operation
+        obj = from_struct(obj,inputs);
+        %
         %======================================================================
         % Custom loadobj and saveobj
         % - to enable custom saving to .mat files and bytestreams
@@ -47,7 +57,7 @@ classdef serializable
             %   S       Structure created from obj that is to be saved
             
             % The following is generic code. Overload if really necessary
-            S = to_struct(obj);
+            S = struct(obj);
             ver = obj.classVersion();
             if numel(obj)>1
                 S = struct('version',ver,...
@@ -57,10 +67,20 @@ classdef serializable
             end
         end
         
-        % convert class into a plain structure using independent properties
-        % obtained from indepFields method
-        str = to_struct(obj,varargin);
         %
+        function obj = from_old_struct(obj,inputs)
+            % restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % Generally, this function interfaces the current from_struct
+            % function, but when the old strucure substantially differs from
+            % the moden structure, this method needs particular overloading
+            % for loadob to recover new structure from an old structure.
+            if isfield(inputs,'version')
+                inputs = rmfield(inputs,'version');
+            end
+            obj = from_struct(obj,inputs);
+        end
         %
         function obj = serializable()
             % generic class constructor. Does nothing
@@ -77,8 +97,8 @@ classdef serializable
             %   S       Either (1) an object of the class, or (2) a structure
             %           or structure array previously obtained by saveobj
             %           method
-            %  class_instance -- the instance of the class to recover from
-            %          input S
+            %  class_instance -- the instance of a serializable class to
+            %          recover from input S
             %
             % Output:
             % -------
@@ -90,21 +110,6 @@ classdef serializable
             else % call private implementation
                 obj = loadobj_(S,class_instance);
             end
-        end
-        %------------------------------------------------------------------
-        % resore object from a plain structure, previously obtained by
-        % struct operation
-        [obj,remains] = from_struct(inputs);
-        
-        function [obj,remains] = from_old_struct(inputs)
-            % restore object from the old structure, which describes the
-            % previous version of the object.
-            %
-            % Generally, this function interfaces the current from_struct
-            % function, but when the old strucure substantially differs from
-            % the moden structure, this method needs particular overloading
-            % for loadob to recover new structure from an old structure.
-            [obj,remains] = from_struct(inputs);
         end
     end
     
