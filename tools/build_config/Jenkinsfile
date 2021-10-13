@@ -298,7 +298,7 @@ pipeline {
 	    '''
 	    archiveArtifacts(
 	      artifacts: 'build/docs.zip',
-	      allowEmptyArchive: false,
+	      allowEmptyArchive: true,
 	      fingerprint: true
 	    )
 	  }

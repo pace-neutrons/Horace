@@ -49,15 +49,12 @@ else()
     set(Horace_DOCS_PACK_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/docs.tar.gz" CACHE FILEPATH "File to store packed HTML documentation")
 endif()
 
-message(STATUS "Here")
 find_package(PythonInterp)
 find_program(sphinx-build NAMES sphinx-build HINTS ${Horace_DOCS_ROOT_DIR})
 find_program(pdflatex NAMES pdflatex)
 find_program(latexmk NAMES latexmk)
-message(STATUS "Here now" ${PYTHON_EXECUTABLE} ${sphinx-build})
 
 execute_process(COMMAND ${PYTHON_EXECUTABLE} ${sphinx-build} ERROR_VARIABLE test)
-message(STATUS ${test})
 string(REGEX MATCH "ModuleNotFoundError" sphinx-build-failed ${test})
 
 if (NOT sphinx-build-failed)
@@ -72,7 +69,6 @@ if (NOT sphinx-build-failed)
     )
 
   if (WIN32)
-    message(STATUS "Windows")
     add_custom_command(TARGET docs POST_BUILD
       COMMAND powershell -ExecutionPolicy Bypass -command
 		 "Foreach($f in Get-ChildItem -Path '${Horace_DOCS_OUTPUT_DIR}' -Filter *.html) { \
@@ -91,7 +87,6 @@ if (NOT sphinx-build-failed)
       )
 
   else()
-    message(STATUS "UNIX")
     add_custom_command(TARGET docs POST_BUILD
       COMMAND sed -i -r "/\[NULL\]/d" "${Horace_DOCS_OUTPUT_DIR}/*html"
       DEPENDS build-docs
