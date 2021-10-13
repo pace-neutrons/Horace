@@ -49,6 +49,7 @@ else()
     set(Horace_DOCS_PACK_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/docs.tar.gz" CACHE FILEPATH "File to store packed HTML documentation")
 endif()
 
+message("Here")
 find_package(Python3)
 find_program(sphinx-build NAMES sphinx-build HINTS ${Horace_DOCS_ROOT_DIR})
 find_program(pdflatex NAMES pdflatex)
@@ -56,6 +57,7 @@ find_program(latexmk NAMES latexmk)
 
 execute_process(COMMAND ${Python3_EXECUTABLE} ${sphinx-build} ERROR_VARIABLE test)
 string(REGEX MATCH "ModuleNotFoundError" sphinx-build-failed ${test})
+message(${sphinx-build-failed})
 
 if (NOT sphinx-build-failed)
   add_custom_target(docs
