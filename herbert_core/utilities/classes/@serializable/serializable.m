@@ -1,11 +1,11 @@
 classdef serializable
-    % Class supports common interface to convert class from/to structure
-    % used in serialization and standard for Horace/Herbert loadobj,saveobj
-    % methods.
-    %
+    % Class supports common interface to convert class or array of classes
+    % from/to structure used in serialization and defines the
+    % standard for any Horace/Herbert custom class loadobj/saveobj methods.
     %
     methods(Abstract,Access=protected)
-        % get independent fields, which fully define the state of the object
+        % get independent fields, which fully define the state of a
+        % serializable object.
         flds = indepFields(obj);
         % get class version, which would affect the way class is stored on/
         % /restore from an external media
@@ -28,13 +28,13 @@ classdef serializable
     
     
     methods
-        % convert class into a plain structure using independent properties
-        % obtained from indepFields method
+        % convert class or array of classes into a plain structure
+        % using independent properties obtained from indepFields method.
         str = struct(obj);
         %
         %------------------------------------------------------------------
-        % resore object from a plain structure, previously obtained by
-        % struct operation
+        % set up object or array of objects from a plain structure,
+        % previously obtained by struct operation
         obj = from_struct(obj,inputs);
         %
         %======================================================================
@@ -72,14 +72,22 @@ classdef serializable
             % restore object from the old structure, which describes the
             % previous version of the object.
             %
-            % Generally, this function interfaces the current from_struct
+            % The method is called by loadobj in the case if the input
+            % structure does not contain version or the version, stored
+            % in the structure does not correspond to the current version
+            %
+            % By default, this function interfaces the default from_struct
             % function, but when the old strucure substantially differs from
-            % the moden structure, this method needs particular overloading
-            % for loadob to recover new structure from an old structure.
+            % the moden structure, this method needs the specific overloading
+            % to allow loadob to recover new structure from an old structure.
             if isfield(inputs,'version')
                 inputs = rmfield(inputs,'version');
             end
-            obj = from_struct(obj,inputs);
+            if isfield(inputs,'array_data')
+                obj = from_struct(obj,inputs.array_data);
+            else
+                obj = from_struct(obj,inputs);
+            end
         end
         %
         function obj = serializable()
@@ -114,4 +122,3 @@ classdef serializable
     end
     
 end
-

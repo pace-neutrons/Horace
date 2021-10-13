@@ -21,5 +21,5 @@ for j=1:numel(obj)
 end
 struc = cell2struct(cell_dat,flds,1);
 if numel(obj)>1
-    struc = reshape(st,size(obj));
+    struc = reshape(struc,size(obj));
 end
