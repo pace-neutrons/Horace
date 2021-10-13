@@ -55,9 +55,8 @@ find_program(sphinx-build NAMES sphinx-build HINTS ${Horace_DOCS_ROOT_DIR})
 find_program(pdflatex NAMES pdflatex)
 find_program(latexmk NAMES latexmk)
 
-execute_process(COMMAND ${Python3_EXECUTABLE} ${sphinx-build} ERROR_VARIABLE test)
+execute_process(COMMAND ${Python_EXECUTABLE} ${sphinx-build} ERROR_VARIABLE test)
 string(REGEX MATCH "ModuleNotFoundError" sphinx-build-failed ${test})
-message(STATUS ${test})
 
 if (NOT sphinx-build-failed)
   message(STATUS "Docs: Available")
@@ -66,7 +65,7 @@ if (NOT sphinx-build-failed)
     COMMENT "Building HTML user documentation"
     BYPRODUCTS "${Horace_DOCS_OUTPUT_DIR}/*"
     COMMAND powershell -ExecutionPolicy Bypass -commmand "Write-Message \"Hello\""
-    COMMAND ${Python3_EXECUTABLE} ${sphinx-build} -b html "${Horace_DOCS_SOURCE_DIR}" "${Horace_DOCS_OUTPUT_DIR}" ${SPHINX_OPTS}
+    COMMAND ${Python_EXECUTABLE} ${sphinx-build} -b html "${Horace_DOCS_SOURCE_DIR}" "${Horace_DOCS_OUTPUT_DIR}" ${SPHINX_OPTS}
 			    -D "release=${${PROJECT_NAME}_SHORT_VERSION}"
 			    -D "version=${${PROJECT_NAME}_SHORT_VERSION}"
     )
@@ -107,7 +106,7 @@ if (NOT sphinx-build-failed)
 
   if (pdflatex AND latexmk)
     add_custom_command(OUTPUT horace.tex
-      COMMAND ${Python3_EXECUTABLE} ${sphinx-build} -b latex "${Horace_DOCS_SOURCE_DIR}" "${Horace_MANUAL_WORK_DIR}" ${SPHINX_OPTS}
+      COMMAND ${Python_EXECUTABLE} ${sphinx-build} -b latex "${Horace_DOCS_SOURCE_DIR}" "${Horace_MANUAL_WORK_DIR}" ${SPHINX_OPTS}
 			      -D "release=${${PROJECT_NAME}_SHORT_VERSION}"
 			      -D "version=${${PROJECT_NAME}_SHORT_VERSION}"
       WORKING_DIRECTORY "${Horace_DOCS_ROOT_DIR}"
