@@ -50,17 +50,18 @@ else()
 endif()
 
 message(STATUS "Here")
-find_package(Python3)
+find_package(Python)
 find_program(sphinx-build NAMES sphinx-build HINTS ${Horace_DOCS_ROOT_DIR})
 find_program(pdflatex NAMES pdflatex)
 find_program(latexmk NAMES latexmk)
 
 execute_process(COMMAND ${Python3_EXECUTABLE} ${sphinx-build} ERROR_VARIABLE test)
 string(REGEX MATCH "ModuleNotFoundError" sphinx-build-failed ${test})
-message(STATUS ${sphinx-build-failed})
 message(STATUS ${test})
 
 if (NOT sphinx-build-failed)
+  message(STATUS "Docs: Available")
+
   add_custom_target(docs
     COMMENT "Building HTML user documentation"
     BYPRODUCTS "${Horace_DOCS_OUTPUT_DIR}/*"
@@ -133,6 +134,8 @@ if (NOT sphinx-build-failed)
   endif()
 
 else()
+  message(STATUS "Docs: Unvailable")
+
   add_custom_target(docs
     COMMENT "HTML Docs require sphinx and sphinx-rtd-theme to build"
     )
