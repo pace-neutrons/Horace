@@ -35,7 +35,18 @@ this.ref_data_ = struct();
 for i=1:numel(test_methods)
     fhandle=@(x)this.(test_methods{i});
     this.setUp();   % ensure any setup method is called
-    fhandle(this);
+    try
+        fhandle(this);
+    catch ME
+        switch (ME.identifier)
+          case 'testSkipped:testSkipped'
+            if hc.log_level>-1
+                disp(['Skipping test: ', test_methods{i}])
+            end
+          otherwise
+            rethrow(ME)
+        end
+    end
     this.tearDown();% ensure any teardown method is called
 end
 
@@ -60,13 +71,13 @@ if ~isempty(fieldnames(this.ref_data_))
                 ' Can only add or replace test data in a pre-existing test results file')
         end
     end
-    
+
     if hc.log_level>-1
         disp(' ')
         disp(['Output saved to: ',this.test_results_file_])
         disp(' ')
     end
-    
+
 else
     % No data to be saved
     if hc.log_level>-1
