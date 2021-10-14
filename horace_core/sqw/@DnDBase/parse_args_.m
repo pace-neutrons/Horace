@@ -11,34 +11,45 @@ function args = parse_args_(obj, varargin)
 if ~isempty(varargin) && isvector(varargin{1}) && isnumeric(varargin{1})
     % attempting to parse the numeric projection form of the input always
     % seems to cause the parser to think a parameter is involved, so
-    % detecting this separately and passing it to the processing  function 
+    % detecting this separately and passing it to the processing  function
     % whole, to produce a data_sqw_dnd
     input_data = varargin;
-
+    
     input_data = data_sqw_dnd(input_data{:});
 else
     parser = inputParser();
     
-    parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase')   || ... %sqw/dnd 
-                                          isa(x, 'data_sqw_dnd') || ... % data_sqw_dnd
-                                          is_string(x)           || ... % filename
-                                          isstruct(x)));                % struct of data_sqw_dnd type
+    parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase')   || ... %sqw/dnd
+        isa(x, 'data_sqw_dnd') || ... % data_sqw_dnd
+        is_string(x)           || ... % filename
+        isstruct(x)));                % struct of data_sqw_dnd type
     parser.KeepUnmatched = true;
     parser.parse(varargin{:});
-
+    
     input_data = parser.Results.input;
 end
+if is_string(input_data)
+    array_numel = 1;
+    array_size  = [1,1];
+else
+    array_numel = numel(input_data);
+    array_size  = size(input_data) ;
+end
 
-args = struct('dnd_obj',      [], ...
-              'sqw_obj',      [], ...
-              'filename',     [], ...
-              'data_struct',  [], ...
-              'data_sqw_dnd', []);
+args = struct(...
+    'array_numel',array_numel , ...
+    'array_size',   array_size, ...
+    'dnd_obj',              [], ...
+    'sqw_obj',              [], ...
+    'filename',             [], ...
+    'data_struct',          [], ...
+    'data_sqw_dnd',         []);
 
-          
+
 if isa(input_data, 'SQWDnDBase')
     if isa(input_data, class(obj))
         args.dnd_obj = input_data;
+        
     elseif isa(input_data, 'sqw')
         args.sqw_obj = input_data;
     else
@@ -48,7 +59,7 @@ if isa(input_data, 'SQWDnDBase')
 elseif isa(input_data, 'data_sqw_dnd')
     args.data_sqw_dnd = input_data;
 elseif is_string(input_data)
-    args.filename = input_data;
+    args.filename = {input_data};
 elseif isstruct(input_data) && ~isempty(input_data)
     args.data_struct = input_data;
 else
