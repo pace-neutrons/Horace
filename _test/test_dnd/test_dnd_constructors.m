@@ -55,6 +55,34 @@ classdef test_dnd_constructors< TestCase
             assertEqual(sqw_obj.data.s,dnd_obj.s);
             assertEqual(sqw_obj.data.e,dnd_obj.e);
         end
+        function this = test_dnd_from_sqw_array(this)
+            par_file = fullfile(this.common_data,'96dets.par');
+            S=ones(10,96);
+            ERR=ones(10,96);
+            en = 0:2:20;
+            rd = gen_nxspe(S,ERR,en,par_file,'',20,1,2);
+            sqw_obj1 = rd.calc_sqw([]);
+            S=2*ones(10,96);
+            ERR=2*ones(10,96);
+            rd = gen_nxspe(S,ERR,en,par_file,'',20,1,2);            
+            sqw_obj2 = rd.calc_sqw([]);            
+            sqw_obj = [sqw_obj1,sqw_obj2];
+            
+            dnd_obj = dnd(sqw_obj);
+            assertEqual(size(sqw_obj),size(dnd_obj));
+            assertEqual(sqw_obj(1).data.s,dnd_obj(1).s);
+            assertEqual(sqw_obj(1).data.e,dnd_obj(1).e);
+            assertEqual(sqw_obj(2).data.s,dnd_obj(2).s);
+            assertEqual(sqw_obj(2).data.e,dnd_obj(2).e);
+            
+            dnd_obj = d4d(sqw_obj);
+            assertEqual(size(sqw_obj),size(dnd_obj));
+            assertEqual(sqw_obj(1).data.s,dnd_obj(1).s);
+            assertEqual(sqw_obj(1).data.e,dnd_obj(1).e);
+            assertEqual(sqw_obj(2).data.s,dnd_obj(2).s);
+            assertEqual(sqw_obj(2).data.e,dnd_obj(2).e);            
+        end
+        
         
     end
 end
