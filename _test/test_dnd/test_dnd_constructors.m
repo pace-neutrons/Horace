@@ -43,6 +43,12 @@ classdef test_dnd_constructors< TestCase
             t2 = d2d(fullfile(this.test_data,'w2d_qq_d2d.sqw'));
             assertTrue(isa(t2,'d2d'))
         end
+        function test_construct_array_from_multifiles(obj)
+            file = fullfile(obj.test_data,'w2d_qq_d2d.sqw');
+            t2 = d2d({file,file});        
+            assertTrue(isa(t2,'d2d'))
+            assertEqual(size(t2),[1,2]);
+        end
         function this = test_dnd_from_sqw(this)
             par_file = fullfile(this.common_data,'96dets.par');
             S=ones(10,96);

@@ -22,6 +22,7 @@ else
     parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase')   || ... %sqw/dnd
         isa(x, 'data_sqw_dnd') || ... % data_sqw_dnd
         is_string(x)           || ... % filename
+        (iscellstr(x)||isstring(x))&&~any(cellfun(@(a)isempty(a),x))   || ... % multiple files
         isstruct(x)));                % struct of data_sqw_dnd type
     parser.KeepUnmatched = true;
     parser.parse(varargin{:});
@@ -60,6 +61,8 @@ elseif isa(input_data, 'data_sqw_dnd')
     args.data_sqw_dnd = input_data;
 elseif is_string(input_data)
     args.filename = {input_data};
+elseif iscellstr(input_data)||isstring(input_data) % cellarray of filenames
+    args.filename = input_data;    
 elseif isstruct(input_data) && ~isempty(input_data)
     args.data_struct = input_data;
 else
