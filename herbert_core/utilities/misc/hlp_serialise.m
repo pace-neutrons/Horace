@@ -218,6 +218,9 @@ function m = serialise_object(v, type)
     if any(strcmp(methods(v), 'serialize'))
             conts = arrayfun(@(x) (x.serialize()), v);
             ser_tag = uint8(0);
+    elseif isa(v,'serializable')
+        nDims = unit8(1);
+        conts = struct(v);
     else
         try
             % try to use the saveobj method first to get the contents

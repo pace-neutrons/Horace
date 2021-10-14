@@ -5,7 +5,6 @@ classdef serializableTester2 < serializable
     properties
         Property1
         Property2;
-        version_setter =1 
     end
     
     methods
@@ -19,8 +18,8 @@ classdef serializableTester2 < serializable
         end
         % get class version, which would affect the way class is stored on/
         % /restore from an external media
-        function ver  = classVersion(obj)
-            ver = obj.version_setter;
+        function ver  = classVersion(~)
+            ver = serializableTester2.version_holder();
         end
         
     end
@@ -28,7 +27,16 @@ classdef serializableTester2 < serializable
         fields_to_save_ = {'Property1','Property2'};
     end
     methods(Static)
-        
+        function verr = version_holder(ver)
+            persistent version;
+            if nargin>0
+                version = ver;
+            end
+            if isempty(version)
+                version = 1;
+            end
+            verr = version;
+        end
         function obj = loadobj(S)
             class_instance = serializableTester2();
             obj = class_instance.loadobj_generic(S,class_instance);

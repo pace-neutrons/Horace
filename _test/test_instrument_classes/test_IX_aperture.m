@@ -6,14 +6,30 @@ classdef test_IX_aperture < TestCaseWithSave
     methods
         %--------------------------------------------------------------------------
         function self = test_IX_aperture (varargin)
-            if nargin> 0
-                name = varargin{1};
-            else
-                name ='test_IX_aperture';
-            end
-            self@TestCaseWithSave(name);
-            self.home_folder = fileparts(mfilename('fullpath'));
             
+            test_files_folder = fileparts(mfilename('fullpath'));
+            if nargin> 0
+                is = ismember(varargin,'-save');
+                if any(is)
+                    if numel(is)>2
+                        error('HERBERT:test_IX_apperture:invalid_argument',...
+                            'the test can be called only with one or two parameters')
+                    elseif numel(is)==1
+                        filename = 'test_IX_aperture_data.mat';
+                    else
+                        filename = varargin{~is};
+                    end
+                    opt = '-save';
+                    params={opt,filename};
+                else
+                    params= varargin(1);
+                end
+            else
+                params= {'test_IX_aperture'};
+            end
+            self@TestCaseWithSave(params{:});
+            self.home_folder = test_files_folder;                      
+            %does nothing unless the constructor called with '-save' key
             self.save()
         end
         

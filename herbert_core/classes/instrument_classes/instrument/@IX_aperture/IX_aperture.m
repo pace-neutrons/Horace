@@ -139,7 +139,6 @@ classdef IX_aperture
         function val=get.height(obj)
             val=obj.height_;
         end
-        
         %------------------------------------------------------------------
     end
     

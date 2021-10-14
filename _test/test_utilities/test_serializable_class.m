@@ -10,6 +10,31 @@ classdef test_serializable_class < TestCase
             end
             obj = obj@TestCase(name);
         end
+        function test_new_version_saveobj_loadobj_array_recursive(~)
+            % prepare reference data
+            tc = serializableTester2();
+            tc = repmat(tc,2,2);
+            tc2 = serializableTester1();
+            for i=1:numel(tc)
+                tc(i).Property1 = i*10;
+                tc(i).Property2 = repmat(tc2,1,2*i);
+            end
+            % prepara data to store
+            tc_struct = saveobj(tc);
+            
+            % modify the class version assuming new class version appeared
+            ver = serializableTester2.version_holder();
+            serializableTester2.version_holder(ver+1);
+            
+            % recover data stored as old version using new version class
+            tc_rec = serializableTester2.loadobj(tc_struct);
+            % check successful recovery
+            assertEqual(size(tc_rec),size(tc));
+            for i=1:numel(tc)
+                assertEqual(tc(i),tc_rec(i));
+            end
+        end
+        
         function test_to_from_to_struct_classes_array_recursive(~)
             tc = serializableTester1();
             tc = repmat(tc,2,2);
