@@ -91,6 +91,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             [args] = obj.parse_args_(varargin{:});
             if args.array_numel>1
                 obj = repmat(obj,args.array_size);
+            elseif args.array_numel==0
+                obj = obj.init_from_loader_struct_(args.data_struct);
             end
             for i=1:args.array_numel
                 % i) copy
