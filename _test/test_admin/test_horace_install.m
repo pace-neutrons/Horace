@@ -43,9 +43,9 @@ classdef test_horace_install < TestCase
                 'state',{'off','off'});
             warning(ws)
             ws(1).state = 'on';
-            ws(2).state = 'on';            
+            ws(2).state = 'on';
             clOb = onCleanup(@()warning(ws));
-
+            
             warning('MATLAB:DELETE:Permission','test delete permission warning');
             [install_folder,her_init_dir,hor_init_dir] = horace_install('-test_mode');
             [~,id]=lastwarn();
@@ -95,11 +95,12 @@ classdef test_horace_install < TestCase
             clob1 = onCleanup(@()cd(current_dir));
             
             
-            [install_folder,her_init_dir,hor_init_dir] = horace_install('-test_mode');
+            [install_folder,her_init_dir,hor_init_dir,use_existing_folder] = horace_install('-test_mode');
             new_install = fullfile(test_install,'ISIS');
             assertEqual(new_install,install_folder);
             assertEqual(her_test_source,her_init_dir);
             assertEqual(hor_test_source,hor_init_dir);
+            assertFalse(use_existing_folder);
             clear clob1;
             clear clob2;
         end
