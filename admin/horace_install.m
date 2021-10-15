@@ -1,4 +1,4 @@
-function [init_folder,her_init_dir,hor_init_dir,use_existing_path] = ...
+function [init_folder,her_init_dir,hor_init_dir,use_old_init_path] = ...
     horace_install(varargin)
 % Install an initialize Horace at the location, where the Horace package
 % have been unpacked
@@ -15,14 +15,15 @@ function [init_folder,her_init_dir,hor_init_dir,use_existing_path] = ...
 % herbert_root--   The root directory where Herbert code is unpacked.
 %                  Necessary only if run horace_install from non-standard
 %                  location, where it has been unpacked from archive or
-%                  <>/Horace/admin folder.
+%                  not from <>/Horace/admin folder.
 % horace_root --   The root directory where Horace code is unpacked.
 %                  Necessary only if run horace_install from non-standard
 %                  location, where it has been unpacked from archive or
-%                  <>/Horace/admin folder.
+%                  not from <>/Horace/admin folder.
 % init_folder --   The folder, where init files (horace_on,herbert_on,worker)
 %                  to be installed. If missing,
-%                  <path to Horace code>/../ISIS folder is selected
+%                  <path to Horace code>/../ISIS folder is selected.
+%                  This folder will be added to Matlab search path.
 %
 % test_mode   -- if true, do not install Horace but return installation
 %              folders, i.e. the folder where Horace/Herbert and horace_on
@@ -35,7 +36,7 @@ function [init_folder,her_init_dir,hor_init_dir,use_existing_path] = ...
 %  /Horace/admin folder (cloned from the Github directly)
 %
 % Output parameters:
-%  Expected to be used in test mode only
+%  Expected to be used in test mode only.
 %
 HORACE_ON_PLACEHOLDER = '${Horace_CORE}';
 HERBERT_ON_PLACEHOLDER = '${Herbert_CORE}';
@@ -67,12 +68,13 @@ if ~isempty(old_horace_on)
         % Use custom location and note that horace parallel extensions will
         % unlikely work
         warning('HORACE:installation',...
-            ['Installing Horace on a machine without administrative access where another Horace has been installed by administrator\n',...
-            'Parallel extensions will not work properly']);
+            ['Installing Horace on a machine without administrative access',...
+            ' where another Horace has been installed by administrator\n',...
+            'Parallel extensions will not usually work properly']);
         
     end
 end
-use_existing_path = opt.use_existing_path;
+use_old_init_path = opt.use_old_init_path;
 init_folder= opt.init_folder;
 
 
@@ -97,7 +99,7 @@ if ~opt.test_mode
     end
     %if use_existing_path path have already been modified. Do not create mess
     %
-    if ~use_existing_path
+    if ~use_old_init_path
         if ~isempty(old_init_folder)
             rmpath(old_init_folder);
         end
@@ -191,12 +193,13 @@ end
 hor_root_default = fullfile(code_root, 'Horace');
 % Default herbert_root is "<horace_root>/../Herbert"
 her_root_default = fullfile(code_root, 'Herbert');
-% Defailt init folder location is current init folder of "<horace_root>/../ISIS"
+% Defailt init folder location is either init folder where previous Horace
+% init files are located or, if clean installation, "<horace_root>/../ISIS"
 if isempty(init_folder_default)
-    use_existing_path   = false;
+    use_old_init_path   = false;
     init_folder_default = fullfile(code_root,'ISIS');
 else
-    use_existing_path   = true;
+    use_old_init_path   = true;
 end
 
 parser = inputParser();
@@ -223,13 +226,13 @@ opts = parser.Results;
 
 opts.test_mode = test_mode;
 if ~strcmp(opts.init_folder,init_folder_default)
-    use_existing_path = false;
+    use_old_init_path = false;
     [~,folder_name] = fileparts(opts.init_folder);
     if ~strcmp(folder_name,'ISIS')
         opts.init_folder = fullfile(opts.init_folder,'ISIS');
     end
 end
-opts.use_existing_path = use_existing_path;
+opts.use_old_init_path = use_old_init_path;
 
 end
 
@@ -351,7 +354,6 @@ if ~ok
         );
 end
 end
-
 
 function validate_function(func, post_func)
 % validate the given function can ve called
