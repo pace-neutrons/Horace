@@ -89,22 +89,28 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             obj = obj@SQWDnDBase();
             
             [args] = obj.parse_args_(varargin{:});
-            
-            % i) copy
-            if ~isempty(args.dnd_obj)
-                obj = copy(args.dnd_obj);
-                % ii) struct
-            elseif ~isempty(args.data_struct)
+            if args.array_numel>1
+                obj = repmat(obj,args.array_size);
+            elseif args.array_numel==0
                 obj = obj.init_from_loader_struct_(args.data_struct);
-                % iia) data_sqw_dnd_obj
-            elseif ~isempty(args.data_sqw_dnd)
-                obj = obj.init_from_data_sqw_dnd_(args.data_sqw_dnd);
-                % iii) filename
-            elseif ~isempty(args.filename)
-                obj = obj.init_from_file_(args.filename);
-                % iv) from sqw
-            elseif ~isempty(args.sqw_obj)
-                obj = obj.init_from_sqw_(args.sqw_obj);
+            end
+            for i=1:args.array_numel
+                % i) copy
+                if ~isempty(args.dnd_obj)
+                    obj(i) = copy(args.dnd_obj(i));
+                    % ii) struct
+                elseif ~isempty(args.data_struct)
+                    obj(i) = obj(i).init_from_loader_struct_(args.data_struct(i));
+                    % iia) data_sqw_dnd_obj
+                elseif ~isempty(args.data_sqw_dnd)
+                    obj(i) = obj(i).init_from_data_sqw_dnd_(args.data_sqw_dnd(i));
+                    % iii) filename
+                elseif ~isempty(args.filename)
+                    obj(i) = obj(i).init_from_file_(args.filename{i});
+                    % iv) from sqw
+                elseif ~isempty(args.sqw_obj)
+                    obj(i) = obj(i).init_from_sqw_(args.sqw_obj(i));
+                end
             end
         end
         

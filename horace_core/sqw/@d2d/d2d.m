@@ -69,7 +69,7 @@ classdef d2d < DnDBase
             % -------
             % Output:
             %   obj     An instance of this object
-            obj = d2d(S);
+            %obj = d2d(S);
             if isa(S,'d2d')
                obj = S;
                return
