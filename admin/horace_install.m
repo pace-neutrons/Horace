@@ -41,21 +41,26 @@ function [init_folder,her_init_dir,hor_init_dir,use_old_init_path] = ...
 HORACE_ON_PLACEHOLDER = '${Horace_CORE}';
 HERBERT_ON_PLACEHOLDER = '${Herbert_CORE}';
 
+% presumably the code root is where this file is located 
 code_root = fileparts(mfilename('fullpath'));
-% are we installing the package cloned from git repository?
+% but, are we installing the package cloned from git repository?
 [path,folder_name] = fileparts(code_root);
 if strcmp(folder_name,'admin')
-    [path,folder_name] = fileparts(path);
-    if strcmp(folder_name,'Horace')
-        % yes, we use clone from Github
-        code_root = path; % make the location of the code init routne
-        % one level up then Horace code tree itself
+    [path1,check_up_folder_name] = fileparts(path);
+    if strcmpi(check_up_folder_name,'Horace')
+        % yes, we use clone from GitHub into Horace folder
+        code_root = path1; % make the location of the code init routine
+        % one level up then Horace code tree itself                
+    else % cloned directly into root folder
+        code_root = path;
     end
+else
+    check_up_folder_name = 'Horace';
 end
 % is there an old installation present?
 old_horace_on = which('horace_on');
 old_init_folder = fileparts(old_horace_on);
-opt = parse_args(code_root,old_init_folder,varargin{:});
+opt = parse_args(code_root,old_init_folder,check_up_folder_name,varargin{:});
 %
 if ~isempty(old_horace_on)
     if ~opt.test_mode
@@ -65,7 +70,7 @@ if ~isempty(old_horace_on)
     if strcmp(ERRID,'MATLAB:DELETE:Permission') && exist(old_horace_on,'file')==2
         % attempt to install custom Horace from an account without the root
         % access but having Horace already installed under administrator.
-        % Use custom location and note that horace parallel extensions will
+        % Use custom location and note that Horace parallel extensions will
         % unlikely work
         warning('HORACE:installation',...
             ['Installing Horace on a machine without administrative access',...
@@ -121,11 +126,13 @@ end
 % before creating any files/directories
 hor_init_dir = find_directory( ...
     'horace_init.m', ...
-    {fullfile(code_root, 'Horace'), fullfile(opt.horace_root, 'horace_core')} ...
+    {fullfile(code_root, 'Horace'), fullfile(opt.horace_root, 'horace_core'),...
+    fullfile(opt.horace_root,check_up_folder_name,'horace_core')} ...
     );
 her_init_dir = find_directory( ...
     'herbert_init.m', ...
-    {fullfile(code_root, 'Herbert'), fullfile(opt.herbert_root, 'herbert_core')} ...
+    {fullfile(code_root, 'Herbert'), fullfile(opt.herbert_root, 'herbert_core'),...
+    fullfile(opt.horace_root,check_up_folder_name,'horace_core')} ...
     );
 horace_on_path = find_file( ...
     'horace_on.m.template', ...
@@ -156,7 +163,7 @@ install_file( ...
     {HERBERT_ON_PLACEHOLDER}, ...
     {her_init_dir} ...
     );
-% Install worker_v2 script (required by parallel routines) to userpath
+% Install worker_v2 script (required by parallel routines) to user-path
 install_file(worker_path, fullfile(init_folder, 'worker_v2.m'));
 
 % Validate the installation
@@ -170,7 +177,7 @@ end
 
 
 % -----------------------------------------------------------------------------
-function opts = parse_args(code_root,init_folder_default, varargin)
+function opts = parse_args(code_root,init_folder_default,hor_checkup_folder, varargin)
 % Parse install script options and identify default package
 % location(s)
 %
@@ -190,10 +197,12 @@ end
             'horace_install', arg_name );
     end
 
-hor_root_default = fullfile(code_root, 'Horace');
+% Default horace_root is "<check_up_folder_name>/Horace", but Jenkins
+% checks it up directlry into check_up_folder_name.
+hor_root_default = fullfile(code_root, hor_checkup_folder);
 % Default herbert_root is "<horace_root>/../Herbert"
 her_root_default = fullfile(code_root, 'Herbert');
-% Defailt init folder location is either init folder where previous Horace
+% Default init folder location is either init folder where previous Horace
 % init files are located or, if clean installation, "<horace_root>/../ISIS"
 if isempty(init_folder_default)
     use_old_init_path   = false;
@@ -356,7 +365,7 @@ end
 end
 
 function validate_function(func, post_func)
-% validate the given function can ve called
+% validate the given function can be called
 % The second argument is called after the first, with the intended purpose
 % being clean up.
 %
