@@ -5,7 +5,7 @@ function [install_root,her_init_dir,hor_init_dir] = ...
 % Usage
 %  >>horace_install()
 %  >>horace_install('herbert_root',/path/to/Herbert)
-% >>horace_install('horace_root',/path/to/Horace)
+%  >>horace_install('horace_root',/path/to/Horace)
 %  >>horace_install('herbert_root',/path/to/Herbert,'horace_root',/path/to/Horace)
 %
 % Optional arguments:
@@ -44,8 +44,21 @@ if ~isempty(old_horace_on)
     if ~opt.test_mode
         delete(old_horace_on);
     end
-    use_existing_path = true;
-    install_root = fileparts(old_horace_on);
+    [~,ERRID]=lastwarn;
+    if strcmp(ERRID,'MATLAB:DELETE:Permission') && exist(old_horace_on,'file')==2
+        % attempt to install custom Horace from an account without the root
+        % access but having Horace already installed under administrator.
+        % Use custom location and note that horace parallel extensions will
+        % unlikely work
+        warning('HORACE:installation',...
+            ['Installing Horace on a machine without administrative access where another Horace has been installed by administrator\n',...
+            'Parallel extensions will not work properly']);
+        use_existing_path = false;
+        install_root= fullfile(code_root,'ISIS');
+    else
+        use_existing_path = true;
+        install_root = fileparts(old_horace_on);
+    end
 else
     use_existing_path = false;
     install_root= fullfile(code_root,'ISIS');
