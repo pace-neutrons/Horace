@@ -19,6 +19,43 @@ classdef test_horace_install < TestCase
                 copyfile(source,targ,'f');
             end
         end
+        function test_init_folder_provided(obj)
+            %
+            new_init_path = tmp_dir();
+            if strcmp(fullfile(new_init_path,'ISIS'),fileparts(which('horace_on')))
+                new_init_path = fullfile(new_init_path,'TISIS');
+            end
+            code_root = fileparts(fileparts(fileparts(obj.this_folder)));
+            [install_folder,her_init_dir,hor_init_dir,use_existing_path] = ...
+                horace_install('init_folder',new_init_path,'-test_mode');
+            
+            assertEqual(install_folder,fullfile(tmp_dir(),'ISIS'));
+            assertEqual(her_init_dir,fullfile(code_root,'Herbert','herbert_core'));
+            assertEqual(hor_init_dir,fullfile(code_root,'Horace','horace_core'));
+            assertFalse(use_existing_path);
+        end
+        
+        %
+        function test_warning_on_nonadmin_install(obj)
+            %
+            code_root = fileparts(fileparts(fileparts(obj.this_folder)));
+            ws = struct('identifier',{'MATLAB:DELETE:Permission','HORACE:installation'},...
+                'state',{'off','off'});
+            warning(ws)
+            ws(1).state = 'on';
+            ws(2).state = 'on';            
+            clOb = onCleanup(@()warning(ws));
+
+            warning('MATLAB:DELETE:Permission','test delete permission warning');
+            [install_folder,her_init_dir,hor_init_dir] = horace_install('-test_mode');
+            [~,id]=lastwarn();
+            assertEqual(id,'HORACE:installation');
+            
+            assertEqual(install_folder,fullfile(code_root,'ISIS'));
+            assertEqual(her_init_dir,fullfile(code_root,'Herbert','herbert_core'));
+            assertEqual(hor_init_dir,fullfile(code_root,'Horace','horace_core'));
+        end
+        
         function test_files_in_folder_like_cloned_repo_clean(obj)
             test_install = fullfile(obj.this_folder,'folder_for_install_repo');
             mkdir(test_install);

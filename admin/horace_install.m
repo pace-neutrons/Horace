@@ -1,26 +1,41 @@
-function [install_root,her_init_dir,hor_init_dir] = ...
+function [init_folder,her_init_dir,hor_init_dir,use_existing_path] = ...
     horace_install(varargin)
-% Install an instance of Horace at the place, where the Horace package have
-% been unpacked.
-% Usage
+% Install an initialize Horace at the location, where the Horace package
+% have been unpacked
+%
+% Usage:
 %  >>horace_install()
 %  >>horace_install('herbert_root',/path/to/Herbert)
 %  >>horace_install('horace_root',/path/to/Horace)
 %  >>horace_install('herbert_root',/path/to/Herbert,'horace_root',/path/to/Horace)
+%  >>horace_install(...'init_folder',/path/to/place/where/init_files/to_be_installed)
 %
 % Optional arguments:
 % ------------------
-% herbert_root--   The root directory of Herbert code
-% horace_root --   The root directory of Horace code
+% herbert_root--   The root directory where Herbert code is unpacked.
+%                  Necessary only if run horace_install from non-standard
+%                  location, where it has been unpacked from archive or
+%                  <>/Horace/admin folder.
+% horace_root --   The root directory where Horace code is unpacked.
+%                  Necessary only if run horace_install from non-standard
+%                  location, where it has been unpacked from archive or
+%                  <>/Horace/admin folder.
+% init_folder --   The folder, where init files (horace_on,herbert_on,worker)
+%                  to be installed. If missing,
+%                  <path to Horace code>/../ISIS folder is selected
+%
 % test_mode   -- if true, do not install Horace but return installation
 %              folders, i.e. the folder where Horace/Herbert and horace_on
 %              herbert_on would be located on installation.
-%              Used to test the script
+%              Used to test the script. Should not be used in production
 %
 % Defaults (no arguments)
 %  the horace_install script is located either in the folder, where Horace
 %  and  Herbert folders are extracted to (installation archive) or in
 %  /Horace/admin folder (cloned from the Github directly)
+%
+% Output parameters:
+%  Expected to be used in test mode only
 %
 HORACE_ON_PLACEHOLDER = '${Horace_CORE}';
 HERBERT_ON_PLACEHOLDER = '${Herbert_CORE}';
@@ -36,10 +51,11 @@ if strcmp(folder_name,'admin')
         % one level up then Horace code tree itself
     end
 end
-opt = parse_args(code_root,varargin{:});
-
 % is there an old installation present?
 old_horace_on = which('horace_on');
+old_init_folder = fileparts(old_horace_on);
+opt = parse_args(code_root,old_init_folder,varargin{:});
+%
 if ~isempty(old_horace_on)
     if ~opt.test_mode
         delete(old_horace_on);
@@ -53,16 +69,11 @@ if ~isempty(old_horace_on)
         warning('HORACE:installation',...
             ['Installing Horace on a machine without administrative access where another Horace has been installed by administrator\n',...
             'Parallel extensions will not work properly']);
-        use_existing_path = false;
-        install_root= fullfile(code_root,'ISIS');
-    else
-        use_existing_path = true;
-        install_root = fileparts(old_horace_on);
+        
     end
-else
-    use_existing_path = false;
-    install_root= fullfile(code_root,'ISIS');
 end
+use_existing_path = opt.use_existing_path;
+init_folder= opt.init_folder;
 
 
 if ~opt.test_mode
@@ -81,11 +92,16 @@ if ~opt.test_mode
         delete(old_herbert_on);
     end
     
-    if ~exist(install_root,'dir')
-        mkdir(install_root);
+    if ~exist(init_folder,'dir')
+        mkdir(init_folder);
     end
-    if ~use_existing_path % path have already been modified. Do not create mess
-        addpath(install_root);
+    %if use_existing_path path have already been modified. Do not create mess
+    %
+    if ~use_existing_path
+        if ~isempty(old_init_folder)
+            rmpath(old_init_folder);
+        end
+        addpath(init_folder);
         err = savepath();
         if err
             userpath = find_userpath();
@@ -127,19 +143,19 @@ end
 % Install horace_on
 install_file( ...
     horace_on_path, ...
-    fullfile(install_root, 'horace_on.m'), ...
+    fullfile(init_folder, 'horace_on.m'), ...
     {HORACE_ON_PLACEHOLDER, HERBERT_ON_PLACEHOLDER}, ...
     {hor_init_dir, her_init_dir} ...
     );
 % Install herbert_on
 install_file( ...
     herbert_on_path, ...
-    fullfile(install_root, 'herbert_on.m'), ...
+    fullfile(init_folder, 'herbert_on.m'), ...
     {HERBERT_ON_PLACEHOLDER}, ...
     {her_init_dir} ...
     );
 % Install worker_v2 script (required by parallel routines) to userpath
-install_file(worker_path, fullfile(install_root, 'worker_v2.m'));
+install_file(worker_path, fullfile(init_folder, 'worker_v2.m'));
 
 % Validate the installation
 validate_function(@herbert_on, @herbert_off);
@@ -152,7 +168,7 @@ end
 
 
 % -----------------------------------------------------------------------------
-function opts = parse_args(code_root, varargin)
+function opts = parse_args(code_root,init_folder_default, varargin)
 % Parse install script options and identify default package
 % location(s)
 %
@@ -175,6 +191,13 @@ end
 hor_root_default = fullfile(code_root, 'Horace');
 % Default herbert_root is "<horace_root>/../Herbert"
 her_root_default = fullfile(code_root, 'Herbert');
+% Defailt init folder location is current init folder of "<horace_root>/../ISIS"
+if isempty(init_folder_default)
+    use_existing_path   = false;
+    init_folder_default = fullfile(code_root,'ISIS');
+else
+    use_existing_path   = true;
+end
 
 parser = inputParser();
 parser.addParameter( ...
@@ -188,10 +211,25 @@ parser.addParameter( ...
     hor_root_default, ...
     @(x) validate_path(x, 'horace_root') ...
     );
+parser.addParameter( ...
+    'init_folder', ...
+    init_folder_default, ...
+    @(x) validate_path(x, 'init_folder') ...
+    );
+
 parser.parse(argi{:});
 %
 opts = parser.Results;
+
 opts.test_mode = test_mode;
+if ~strcmp(opts.init_folder,init_folder_default)
+    use_existing_path = false;
+    [~,folder_name] = fileparts(opts.init_folder);
+    if ~strcmp(folder_name,'ISIS')
+        opts.init_folder = fullfile(opts.init_folder,'ISIS');
+    end
+end
+opts.use_existing_path = use_existing_path;
 
 end
 
