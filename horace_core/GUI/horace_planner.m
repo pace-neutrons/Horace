@@ -443,6 +443,8 @@ end
 try
     if ischar(unew)
         u=str2num(unew);
+    elseif iscell(unew)
+        u = unew{:};
     else
         u=unew;
     end   
@@ -453,6 +455,8 @@ try
     end
     if ischar(vnew)
         v=str2num(vnew);
+    elseif iscell(vnew)        
+        v = vnew{:};
     else
         v=vnew;
     end
@@ -475,6 +479,8 @@ try
     
     if ischar(alattnew)
         alatt=str2num(alattnew);
+    elseif iscell(alattnew)        
+        alatt=alattnew{:};
     else
         alatt=alattnew;
     end
@@ -486,6 +492,8 @@ try
     
     if ischar(angdegnew)
         angdeg=str2num(angdegnew);
+    elseif iscell(angdegnew)                
+        angdeg = angdegnew{:};
     else
         angdeg=angdegnew;
     end
@@ -503,6 +511,8 @@ try
     
     if ischar(dennew)
         density=str2num(dennew);
+    elseif iscell(dennew)                        
+        density=dennew{:};
     else
         density=dennew;
     end
