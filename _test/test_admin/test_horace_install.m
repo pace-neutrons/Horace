@@ -19,7 +19,25 @@ classdef test_horace_install < TestCase
                 copyfile(source,targ,'f');
             end
         end
-        function test_init_folder_provided(obj)
+        function test_init_folder_provided_with_isis(~)
+            %
+            new_init_path =fullfile(tmp_dir(),'ISIS');
+            % check if somebody indeed installed Horace there.
+            % Test verifies installation in new place.
+            if strcmp(fullfile(new_init_path),fileparts(which('horace_on')))
+                new_init_path = fullfile(new_init_path,'TestISIS');
+            end
+            code_root = fileparts(fileparts(fileparts(which('horace_init'))));
+            [install_folder,her_init_dir,hor_init_dir,use_old_init_path] = ...
+                horace_install('init_folder',new_init_path,'-test_mode');
+            
+            assertEqual(install_folder,fullfile(tmp_dir(),'ISIS'));
+            assertEqual(her_init_dir,fullfile(code_root,'Herbert','herbert_core'));
+            assertEqual(hor_init_dir,fullfile(code_root,'Horace','horace_core'));
+            assertFalse(use_old_init_path);
+        end
+        
+        function test_init_folder_provided(~)
             %
             new_init_path = tmp_dir();
             % check if somebody indeed installed Horace there.
@@ -27,7 +45,7 @@ classdef test_horace_install < TestCase
             if strcmp(fullfile(new_init_path,'ISIS'),fileparts(which('horace_on')))
                 new_init_path = fullfile(new_init_path,'TestISIS');
             end
-            code_root = fileparts(fileparts(fileparts(obj.this_folder)));
+            code_root = fileparts(fileparts(fileparts(which('horace_init'))));
             [install_folder,her_init_dir,hor_init_dir,use_old_init_path] = ...
                 horace_install('init_folder',new_init_path,'-test_mode');
             
@@ -38,9 +56,9 @@ classdef test_horace_install < TestCase
         end
         
         %
-        function test_warning_on_nonadmin_install(obj)
+        function test_warning_on_nonadmin_install(~)
             %
-            code_root = fileparts(fileparts(fileparts(obj.this_folder)));
+            code_root = fileparts(fileparts(fileparts(which('horace_init'))));
             % hide tested warnings from beeing displayed when the test runs
             ws = struct('identifier',{'MATLAB:DELETE:Permission','HORACE:installation'},...
                 'state',{'off','off'});
