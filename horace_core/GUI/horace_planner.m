@@ -22,7 +22,7 @@ function varargout = horace_planner(varargin)
 
 % Edit the above text to modify the response to help horace_planner
 
-% Last Modified by GUIDE v2.5 21-Aug-2017 13:41:06
+% Last Modified by GUIDE v2.5 16-Oct-2021 22:50:17
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -41,8 +41,9 @@ if nargout
 else
     gui_mainfcn(gui_State, varargin{:});
 end
-
 % End initialization code - DO NOT EDIT
+
+
 function [cm,tooltips,inp3,gui_validators,gui_errors]=getControlsMap()
 persistent controlHandlesMap;
 persistent controlTooltips;
@@ -51,13 +52,13 @@ persistent gui_var_validators;
 persistent gui_errors_map;
 if isempty(controlHandlesMap)
     control_keys = ...
-        {'u','v','ei','eps',  'psimin','psimax','alatt','angdeg','latpt'};
+        {'u','v','ei','en_transf',  'psimin','psimax','alatt','angdeg','latpt'};
     % what inputs can be entered as a single value but should be returned
     % as triple value
     triple_input=...
         {false,false,false,false,false,false',true,true,true};
     control_defaults = ...
-        {'1,0,0','0,1,0','100','95','0','90','2.83,2.83,2.83','90,90,90','1,1,1'};
+        {'1,0,0','0,1,0','100','50','0','90','2.83,2.83,2.83','90,90,90','1,1,1'};
     control_tooltips = ...
         {'Q-space direction parallel to the incident beam when the crystal rotation angle, psi, is equal to 0',...
         'Q-space vector lying in the equatorial plane of the detectors (horizontal for most instruments)',...
@@ -74,17 +75,17 @@ if isempty(controlHandlesMap)
         @(u)  (~isempty(u)&&(numel(u)==3)),...
         @(v)  (~isempty(v)&&(numel(v)==3)),...
         @(Ei) (~isempty(Ei)&&(Ei>0)&&(numel(Ei)==1)),...
-        @(eps)(~isempty(eps)&&(numel(eps)==1)),... %eps
+        @(entr)(~isempty(entr)&&(numel(entr)==1)),... %entr
         @(pmi)(~isempty(pmi)),... %
         @(pma)(~isempty(pma)),... %
         @(lat)(~isempty(lat)&&(numel(lat)==3)||(numel(lat)==1)),...
         @(ang)(~isempty(ang)&&(numel(ang)==3)||(numel(ang)==1)),...
-        @(pd) (~isempty(pd)&&(numel(px)==3||numel(pd)==1)&&all(pd>0))};
+        @(pd) (~isempty(pd)&&(numel(pd)==3||numel(pd)==1)&&all(pd>0))};
     gui_error_codes = ...
-        {'u has to have form a,b,c or [a,b,c]',...
-        'v has to have form a,b,c or [a,b,c]',...
+        {'u has to have form h,k,l or [h,k,l]',...
+        'v has to have form h,k,l or [h,k,l]',...
         'Ei can not be empty and must be single and positive',...
-        'eps can not be empty',...
+        'Energy transfer can not be empty',...
         'psimin can not be empty',...
         'psimax can not be empty',...
         'lattice parameters has to have form a,b,c or [a,b,c] or be a single number if all parameters are the same',...
@@ -124,7 +125,8 @@ guidata(hObject, handles);
 contr = cm.keys;
 for i=1:numel(contr)
     key = contr{i};
-    set(handles.([key,'_edit']),'String',cm(key),'Tooltip',ct(key));
+    set(handles.([key,'_edit']),'String',cm(key),'Tooltip',ct(key),...
+        'BackgroundColor',[0.1,0.5,0.1],'FontWeight','bold');
 end
 
 % UIWAIT makes horace_planner wait for user response (see UIRESUME)
@@ -192,11 +194,12 @@ set(handles.message_text,'String','');
 guidata(gcbo,handles);
 drawnow;
 try
-    filename=get(handles.parfile_edit,'string');
+    filename=get(handles.parfile_edit,'String');
     par=get_par(filename);
     handles.detpar=par;
     set(handles.message_text,'String','Par file loaded successfully',...
         'BackgroundColor','w');
+   set(handles.parfile_edit,'BackgroundColor','w');    
 catch ERR
     set(handles.message_text,'String','Error - see Matlab command window for details',...
         'BackgroundColor','r');
@@ -205,10 +208,7 @@ catch ERR
 end
 guidata(gcbo,handles);
 drawnow;
-
-
-
-
+%
 function u_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to u_edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -216,7 +216,7 @@ function u_edit_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of u_edit as text
 %        str2double(get(hObject,'String')) returns contents of u_edit as a double
-set(hObject,'BackgroundColor','white');
+set(hObject,'BackgroundColor','white','FontWeight','normal');
 
 % --- Executes during object creation, after setting all properties.
 function u_edit_CreateFcn(hObject, eventdata, handles)
@@ -239,7 +239,7 @@ function v_edit_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of v_edit as text
 %        str2double(get(hObject,'String')) returns contents of v_edit as a double
-set(hObject,'BackgroundColor','white');
+set(hObject,'BackgroundColor','white','FontWeight','normal');
 
 
 % --- Executes during object creation, after setting all properties.
@@ -263,7 +263,7 @@ function ei_edit_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of ei_edit as text
 %        str2double(get(hObject,'String')) returns contents of ei_edit as a double
-set(hObject,'BackgroundColor','white');
+set(hObject,'BackgroundColor','white','FontWeight','normal');
 
 % --- Executes during object creation, after setting all properties.
 function ei_edit_CreateFcn(hObject, eventdata, handles)
@@ -274,30 +274,30 @@ function ei_edit_CreateFcn(hObject, eventdata, handles)
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
+    set(hObject,'BackgroundColor','white','FontWeight','normal');
 end
 
 
 
-function eps_edit_Callback(hObject, eventdata, handles)
-% hObject    handle to eps_edit (see GCBO)
+function en_transf_edit_Callback(hObject, eventdata, handles)
+% hObject    handle to en_transf_edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of eps_edit as text
-%        str2double(get(hObject,'String')) returns contents of eps_edit as a double
-set(hObject,'BackgroundColor','white');
+% Hints: get(hObject,'String') returns contents of en_transf_edit as text
+%        str2double(get(hObject,'String')) returns contents of en_transf_edit as a double
+set(hObject,'BackgroundColor','white','FontWeight','normal');
 
 % --- Executes during object creation, after setting all properties.
-function eps_edit_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to eps_edit (see GCBO)
+function en_transf_edit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to en_transf_edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
+    set(hObject,'BackgroundColor','white','FontWeight','normal');
 end
 
 
@@ -309,7 +309,7 @@ function psimin_edit_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of psimin_edit as text
 %        str2double(get(hObject,'String')) returns contents of psimin_edit as a double
-set(hObject,'BackgroundColor','white');
+set(hObject,'BackgroundColor','white','FontWeight','normal');
 
 
 
@@ -322,7 +322,7 @@ function psimin_edit_CreateFcn(hObject, eventdata, handles)
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
+    set(hObject,'BackgroundColor','white','FontWeight','normal');
 end
 
 
@@ -334,7 +334,7 @@ function psimax_edit_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of psimax_edit as text
 %        str2double(get(hObject,'String')) returns contents of psimax_edit as a double
-set(hObject,'BackgroundColor','white');
+set(hObject,'BackgroundColor','white','FontWeight','normal');
 
 
 % --- Executes during object creation, after setting all properties.
@@ -346,7 +346,7 @@ function psimax_edit_CreateFcn(hObject, eventdata, handles)
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
+    set(hObject,'BackgroundColor','white','FontWeight','normal');
 end
 
 function alatt_edit_Callback(hObject, eventdata, handles)
@@ -356,7 +356,7 @@ function alatt_edit_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of alatt_edit as text
 %        str2double(get(hObject,'String')) returns contents of alatt_edit as a double
-set(hObject,'BackgroundColor','white');
+set(hObject,'BackgroundColor','white','FontWeight','normal');
 
 % --- Executes during object creation, after setting all properties.
 function alatt_edit_CreateFcn(hObject, eventdata, handles)
@@ -379,7 +379,7 @@ function angdeg_edit_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of angdeg_edit as text
 %        str2double(get(hObject,'String')) returns contents of angdeg_edit as a double
-set(hObject,'BackgroundColor','white');
+set(hObject,'BackgroundColor','white','FontWeight','normal');
 
 % --- Executes during object creation, after setting all properties.
 function angdeg_edit_CreateFcn(hObject, eventdata, handles)
@@ -390,7 +390,7 @@ function angdeg_edit_CreateFcn(hObject, eventdata, handles)
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
+    set(hObject,'BackgroundColor','white','FontWeight','normal');
 end
 
 function [value,ok] = parse_runparameters_input_box(handles,control_name)
@@ -435,12 +435,13 @@ try
         ok = false;
         set(handles.([control_name,'_edit']),'BackgroundColor','r');
         %
-        err_mess = sprinft('%s',err_codes(control_name));
+        err_mess = sprintf('%s',err_codes(control_name));
         set(handles.message_text,'String',err_mess,'BackgroundColor','r');
-        fprintf(2,'**** control %s ERROR: %s \n',control_name,err_mess);
+        fprintf(2,'**** control "%s" ERROR: %s \n',control_name,err_mess);
         
         guidata(gcbo,handles);
         drawnow;
+        return;
     end
     % triple some inputs if this is appropriate
     if triple_input(control_name) && numel(value) == 1
@@ -454,14 +455,14 @@ try
         val_string = sprintf('%s',num2str(value));
     end
     set(handles.([control_name,'_edit']),'String',val_string,...
-        'BackgroundColor','g');
+        'BackgroundColor','g','FontWeight','normal');
 catch ME
-    ok = false;
     set(handles.([control_name,'_edit']),'BackgroundColor','r');
     
-    err_mess = sprintf('parsing input exception: %s',ME.message);
+    err_mess = sprintf('Input throws error: %s',ME.message);
     set(handles.message_text,'String',err_mess,'BackgroundColor','r');
-    fprintf(2,'**** ERROR in control %s: %s\n',control_name,err_mess);
+    fprintf(2,'**** ERROR in control "%s":\n ****%s\n',control_name,err_mess);
+    rethrow(ME);
 end
 
 % --- Executes on button press in calc_pushbutton.
@@ -471,7 +472,7 @@ function calc_pushbutton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 %Clear error message
-set(handles.message_text,'String','');
+set(handles.message_text,'String','','BackgroundColor','w');
 guidata(gcbo,handles);
 drawnow;
 
@@ -487,234 +488,49 @@ for i=1:numel(control)
         return;
     end
     if numel(result{i})==3
-        eval(sprintf('%s=[%g,%g,%g]',control{i},result{i}));
+        eval(sprintf('%s=[%g,%g,%g];',control{i},result{i}));
     else
-        eval(sprintf('%s=%g',control{i},result{i}));
+        eval(sprintf('%s=%g;',control{i},result{i}));
     end
-
 end
 
-% u=get(handles.u_edit,'String');
-% v=get(handles.v_edit,'String');
-% ei=get(handles.ei_edit,'String');
-% eps=get(handles.eps_edit,'String');
-% psimin=get(handles.psimin_edit,'String');
-% psimax=get(handles.psimax_edit,'String');
-% alatt=get(handles.alatt_edit,'String');
-% angdeg=get(handles.angdeg_edit,'String');
-%
-% density=get(handles.latpt_edit,'String');
-
-% if isempty(u) || isempty(v) || isempty(ei) || isempty(eps) || ...
-%         isempty(psimin) || isempty(psimax)
-%     set(handles.message_text,'String','Error - see Matlab command window for details');
-%     disp('ERROR - Ensure you have given values for u, v, Ei, eps, psi min and psi max');
-%     guidata(gcbo,handles);
-%     drawnow;
-%     warning('on');
-%     return;
-% end
-
-% %must strip out square brackets, if user has inserted them:
-% s1=strfind(u,'['); s2=strfind(u,']');
-% if isempty(s1) && isempty(s2)
-%     unew=textscan(u,'%f','delimiter',',');
-%     unew=unew';
-% elseif ~isempty(s1) && ~isempty(s2)
-%     u=u(s1+1:s2-1);
-%     unew=textscan(u,'%f','delimiter',',');
-% else
-%     set(handles.message_text,'String','Error - see Matlab command window for details');
-%     disp('ERROR - Ensure u is of form a,b,c or [a,b,c]');
-%     guidata(gcbo,handles);
-%     drawnow;
-%     warning('on');
-%     return;
-% end
-% s1=strfind(v,'['); s2=strfind(v,']');
-% if isempty(s1) && isempty(s2)
-%     vnew=textscan(v,'%f','delimiter',',');
-%     vnew=vnew';
-% elseif ~isempty(s1) && ~isempty(s2)
-%     v=v(s1+1:s2-1);
-%     vnew=textscan(v,'%f','delimiter',',');
-% else
-%     set(handles.message_text,'String','Error - see Matlab command window for details');
-%     disp('ERROR - Ensure v is of form a,b,c or [a,b,c]');
-%     guidata(gcbo,handles);
-%     drawnow;
-%     warning('on');
-%     return;
-% end
-% s1=strfind(alatt,'['); s2=strfind(alatt,']');
-% if isempty(s1) && isempty(s2)
-%     alattnew=textscan(alatt,'%f','delimiter',',');
-%     alattnew=alattnew';
-% elseif ~isempty(s1) && ~isempty(s2)
-%     alatt=alatt(s1+1:s2-1);
-%     alattnew=textscan(alatt,'%f','delimiter',',');
-% else
-%     set(handles.message_text,'String','Error - see Matlab command window for details');
-%     disp('ERROR - Ensure lattice angles are of form a,b,c or [a,b,c]');
-%     guidata(gcbo,handles);
-%     drawnow;
-%     warning('on');
-%     return;
-% end
-% s1=strfind(angdeg,'['); s2=strfind(angdeg,']');
-% if isempty(s1) && isempty(s2)
-%     angdegnew=textscan(angdeg,'%f','delimiter',',');
-%     angdegnew=angdegnew';
-% elseif ~isempty(s1) && ~isempty(s2)
-%     angdeg=angdeg(s1+1:s2-1);
-%     angdegnew=textscan(angdeg,'%f','delimiter',',');
-% else
-%     set(handles.message_text,'String','Error - see Matlab command window for details');
-%     disp('ERROR - Ensure lattice angles are of form alpha,beta,gamma or [alpha,beta,gamma]');
-%     guidata(gcbo,handles);
-%     drawnow;
-%     warning('on');
-%     return;
-% end
-% 
-% 
-% if isempty(density)
-%     denno=[1,1,1];%default case with point density is to assume all points plotted
-%     dennew='';
-% else
-%     %must strip out square brackets, if user has inserted them:
-%     s1=strfind(density,'['); s2=strfind(density,']');
-%     if isempty(s1) && isempty(s2)
-%         dennew=textscan(density,'%f','delimiter',',');
-%         dennew=dennew';
-%     elseif ~isempty(s1) && ~isempty(s2)
-%         density=density(s1+1:s2-1);
-%         dennew=textscan(density,'%f','delimiter',',');
-%     else
-%         set(handles.message_text,'String','Error - see Matlab command window for details');
-%         disp('ERROR - Ensure lattice point density of form a,b,c; [a,b,c]; or empty');
-%         guidata(gcbo,handles);
-%         drawnow;
-%         warning('on');
-%         return;
-%     end
-% end
-% 
-% try
-%     if ischar(unew)
-%         u=str2num(unew);
-%     elseif iscell(unew)
-%         u = unew{:};
-%     else
-%         u=unew;
-%     end
-%     if numel(u) ~=3
-%         disp_error('Ensure u has 3 elements');
-%         warning('on');
-%         return;
-%     end
-%     if ischar(vnew)
-%         v=str2num(vnew);
-%     elseif iscell(vnew)
-%         v = vnew{:};
-%     else
-%         v=vnew;
-%     end
-%     if numel(v) ~=3
-%         disp_error('Ensure v has 3 elements');
-%         warning('on');
-%         return;
-%     end
-%     
-%     ei=str2num(ei);
-%     if numel(ei) ~=1
-%         disp_error('Ensure Ei has 1 element');
-%         warning('on');
-%         return;
-%     end
-%     
-%     eps=str2num(eps);
-%     psimin=str2num(psimin);
-%     psimax=str2num(psimax);
-%     
-%     if ischar(alattnew)
-%         alatt=str2num(alattnew);
-%     elseif iscell(alattnew)
-%         alatt=alattnew{:};
-%     else
-%         alatt=alattnew;
-%     end
-%     if numel(alatt) ~=3
-%         disp_error('Ensure lattice have 3 elements');
-%         warning('on');
-%         return;
-%     end
-%     
-%     if ischar(angdegnew)
-%         angdeg=str2num(angdegnew);
-%     elseif iscell(angdegnew)
-%         angdeg = angdegnew{:};
-%     else
-%         angdeg=angdegnew;
-%     end
-%     if numel(angdeg) ~=3
-%         disp_error('Ensure angdeg have 3 elements');
-%         warning('on');
-%         return;
-%     end
-%     
-%     if  numel(eps)~=1 || numel(psimin)~=1 || numel(psimax)~=1
-%         disp_error('eps, psi min and psi max have 1 element');
-%         warning('on');
-%         return;
-%     end
-%     
-%     if ischar(dennew)
-%         density=str2num(dennew);
-%     elseif iscell(dennew)
-%         density=dennew{:};
-%     else
-%         density=dennew;
-%     end
-%     if isempty(dennew)
-%         density=[1,1,1];
-%     end
-%     if numel(density) ~=3
-%         disp_error('Ensure lattice point density has 3 elements');
-%         warning('on');
-%         return;
-%     end
-% catch
-%     disp_error('Ensure u, v, lattice, Ei, eps, psi min, psi max and lattice point density are all numeric');
-%     warning('on');
-%     return;
-% end
-
-if eps>ei
-    disp_error('Ensure eps is smaller than Ei');
+if en_transf>ei
+    set(handles.en_transf_edit,'BackgroundColor','r');
+    set(handles.ei_edit,'BackgroundColor','r');
+    disp_error(handles,'Ensure energy transfer is smaller than Ei');
     return;
 end
+
 
 if isfield(handles,'detpar')
     detpar=handles.detpar;
 else
-    disp_error('Ensure a valid par file is selected and loaded');
-    return;
+    try
+        filename=get(handles.parfile_edit,'string');
+        par=get_par(filename);
+        handles.detpar=par;
+        detpar = par;
+        set(handles.message_text,'String','Par file loaded successfully',...
+            'BackgroundColor','w');
+    catch ME
+        set(handles.parfile_edit,'BackgroundColor','r');
+        disp_error(handles,'Ensure a valid par file is selected and loaded');
+        rethrow ME;
+    end
 end
 
 %If we get to this stage, then all of the inputs are OK, and we can
 %proceed.
-
 try
     [xcoords,ycoords,zcoords,pts,ptlabs]=...
-        calc_coverage_from_detpars_v2(ei,eps,psimin,psimax,detpar,u,v,alatt,angdeg);
+        calc_coverage_from_detpars_v2(ei,en_transf,psimin,psimax,detpar,u,v,alatt,angdeg);
 catch
-    disp_error('non-trivial error on execution of calculations. Check inputs carefully...');
+    disp_error(handles,'non-trivial error on execution of calculations. Check inputs carefully...');
     return;
 end
 
 %Generate point labels with specified density
-[pts2,ptlabs2]=generate_rlps(ei,u,v,alatt,angdeg,density);
+[pts2,ptlabs2]=generate_rlps(ei,u,v,alatt,angdeg,latpt);
 
 
 %==========================================================================
@@ -973,7 +789,7 @@ guidata(gcbo,handles);
 drawnow;
 
 
-function disp_error(err_code)
+function disp_error(handles,err_code)
 fprintf(2,'ERROR: %s\n',err_code);
 set(handles.message_text,'String',['ERROR: ',err_code],...
     'BackgroundColor','r');
@@ -983,11 +799,6 @@ drawnow;
 
 
 % --------------------------------------------------------------------
-function Untitled_1_Callback(hObject, eventdata, handles)
-% hObject    handle to Untitled_1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
 
 % --- Executes on slider movement.
 function zoff_slider_Callback(hObject, eventdata, handles)
@@ -1119,7 +930,7 @@ function xoff_edit_CreateFcn(hObject, eventdata, handles)
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
+    set(hObject,'BackgroundColor','white','FontWeight','normal');
 end
 
 
@@ -1159,7 +970,7 @@ function latpt_edit_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of latpt_edit as text
 %        str2double(get(hObject,'String')) returns contents of latpt_edit as a double
-
+set(hObject,'BackgroundColor','white','FontWeight','normal');
 
 % --- Executes during object creation, after setting all properties.
 function latpt_edit_CreateFcn(hObject, eventdata, handles)
