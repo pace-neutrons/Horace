@@ -41,26 +41,19 @@ function [init_folder,her_init_dir,hor_init_dir,use_old_init_path] = ...
 HORACE_ON_PLACEHOLDER = '${Horace_CORE}';
 HERBERT_ON_PLACEHOLDER = '${Herbert_CORE}';
 
-% presumably the code root is where this file is located 
+% presumably the code root is where this file is located
 code_root = fileparts(mfilename('fullpath'));
 % but, are we installing the package cloned from git repository?
-[path,folder_name] = fileparts(code_root);
-if strcmp(folder_name,'admin')
-    [path1,check_up_folder_name] = fileparts(path);
-    if strcmpi(check_up_folder_name,'Horace')
-        % yes, we use clone from GitHub into Horace folder
-        code_root = path1; % make the location of the code init routine
-        % one level up then Horace code tree itself                
-    else % cloned directly into root folder
-        code_root = path;
-    end
-else
-    check_up_folder_name = 'Horace';
-end
-% is there an old installation present?
+[code_root,hor_checkup_folder,her_checkup_folder] = check_layout_options(code_root);
+
+% is there an old installation present? Use old Horace init directory not
+% to create mess
 old_horace_on = which('horace_on');
 old_init_folder = fileparts(old_horace_on);
-opt = parse_args(code_root,old_init_folder,check_up_folder_name,varargin{:});
+%
+% Are some path or parameters provided as input? If not, use defaults
+opt = parse_args(code_root,old_init_folder,...
+    hor_checkup_folder,her_checkup_folder,varargin{:});
 %
 if ~isempty(old_horace_on)
     if ~opt.test_mode
@@ -76,7 +69,8 @@ if ~isempty(old_horace_on)
             ['Installing Horace on a machine without administrative access',...
             ' where another Horace has been installed by administrator\n',...
             'Parallel extensions will not usually work properly']);
-        
+        % it should already be false, but let's reinforce it
+        opt.use_old_init_path = false;
     end
 end
 use_old_init_path = opt.use_old_init_path;
@@ -126,13 +120,12 @@ end
 % before creating any files/directories
 hor_init_dir = find_directory( ...
     'horace_init.m', ...
-    {fullfile(code_root, 'Horace'), fullfile(opt.horace_root, 'horace_core'),...
-    fullfile(opt.horace_root,check_up_folder_name,'horace_core')} ...
+    {opt.horace_root,fullfile(opt.horace_root,'horace_core')}...
     );
+
 her_init_dir = find_directory( ...
     'herbert_init.m', ...
-    {fullfile(code_root, 'Herbert'), fullfile(opt.herbert_root, 'herbert_core'),...
-    fullfile(opt.horace_root,check_up_folder_name,'horace_core')} ...
+    { opt.herbert_root,fullfile(opt.herbert_root, 'herbert_core')} ...
     );
 horace_on_path = find_file( ...
     'horace_on.m.template', ...
@@ -142,6 +135,7 @@ herbert_on_path = find_file( ...
     'herbert_on.m.template', ...
     {code_root, fullfile(opt.herbert_root, 'admin')} ...
     );
+% take worker_v2 template from Horace/admin
 worker_path = find_file( ...
     'worker_v2.m.template', ...
     {code_root, fullfile(opt.horace_root, 'admin')} ...
@@ -174,10 +168,46 @@ disp('Horace successfully installed.')
 disp('Call ''horace_on'' to start using Horace.')
 
 end
+% -----------------------------------------------------------------------------
+function [code_root,hor_checkup_folder,her_checkup_folder] = check_layout_options(code_root)
+% Check various code layout options in case installation is performed from
+% zip file, Github or by Jenkins
+%
+if exist(fullfile(code_root,'Horace'),'dir')==7 && ... % zip file installation
+        exist(fullfile(code_root,'Herbert'),'dir')==7
+    hor_checkup_folder = 'Horace';
+    her_checkup_folder = 'Herbert';
+    return;
+end
+% Github or Jenkins installation
+[path,folder_name] = fileparts(code_root);
+if strcmp(folder_name,'admin')
+    [path1,hor_checkup_folder] = fileparts(path);
+    if strcmpi(hor_checkup_folder,'Horace')
+        % yes, we use clone from GitHub into Horace folder
+        code_root = path1; % make the location of the code init routine
+        % one level up then Horace code tree itself
+    else % cloned directly into some root folder (Jenkins)
+        code_root = path;
+        hor_checkup_folder = '';
+    end
+    her_checkup_folder = 'Herbert';
+    if ~exist(fullfile(code_root,'Herbert'),'dir')==7
+        warning('HORACE:installation_layout',...
+            'Can not find Herbert at %s',fullfile(code_root,'Herbert'));
+    end
+else
+    hor_checkup_folder = 'Horace'; % when installed from zip file, this is where
+    % Horace is located, and install sctript is one level above
+    her_checkup_folder='Herbert'; % Herbert is located alongside,
+    % under Herbert name
+end
 
+end
 
 % -----------------------------------------------------------------------------
-function opts = parse_args(code_root,init_folder_default,hor_checkup_folder, varargin)
+function opts = parse_args(code_root,init_folder_default,...
+    hor_checkup_folder, her_checkup_folder,varargin)
 % Parse install script options and identify default package
 % location(s)
 %
@@ -201,7 +231,7 @@ end
 % checks it up directlry into check_up_folder_name.
 hor_root_default = fullfile(code_root, hor_checkup_folder);
 % Default herbert_root is "<horace_root>/../Herbert"
-her_root_default = fullfile(code_root, 'Herbert');
+her_root_default = fullfile(code_root, her_checkup_folder);
 % Default init folder location is either init folder where previous Horace
 % init files are located or, if clean installation, "<horace_root>/../ISIS"
 if isempty(init_folder_default)
@@ -234,8 +264,12 @@ parser.parse(argi{:});
 opts = parser.Results;
 
 opts.test_mode = test_mode;
+% check if user provided some specific location for init folder, different
+% from the previous default location
 if ~strcmp(opts.init_folder,init_folder_default)
     use_old_init_path = false;
+    % if user provided init folder without ISIS extension, add ISIS
+    % extension to the folder name
     [~,folder_name] = fileparts(opts.init_folder);
     if ~strcmp(folder_name,'ISIS')
         opts.init_folder = fullfile(opts.init_folder,'ISIS');

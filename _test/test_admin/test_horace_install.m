@@ -76,14 +76,68 @@ classdef test_horace_install < TestCase
             assertEqual(id,'HORACE:installation');
             
             assertEqual(install_folder,fullfile(code_root,'ISIS'));
-            assertTrue(use_old_init_folder)
+            assertFalse(use_old_init_folder)
             assertEqual(her_init_dir,fullfile(code_root,'Herbert','herbert_core'));
             assertEqual(hor_init_dir,fullfile(code_root,'Horace','horace_core'));
         end
+        function test_files_in_folder_like_Jenkins_repo_clean(obj)
+            % prepare fake Horace/Herbert code tree
+            test_install = fullfile(obj.this_folder,'folder4install_jenkins_repo');
+            mkdir(test_install);
+            test_admin = fullfile(test_install,'admin');
+            mkdir(test_admin);
+            clob = onCleanup(@()(rmdir(test_install,'s')));
+            
+            template_files = {'horace_install.m','horace_on.m.template',...
+                'worker_v2.m.template'};
+            obj.copy_install_files(template_files,test_admin);
+            hor_test_source = fullfile(test_install,'horace_core');
+            mkdir(hor_test_source);
+            init_files = {'horace_init.m'};
+            obj.copy_install_files(init_files ,hor_test_source);
+            
+            her_test_source= fullfile(test_install,'Herbert','herbert_core');
+            mkdir(her_test_source);
+            init_files = {'herbert_init.m'};
+            obj.copy_install_files(init_files ,her_test_source);
+            her_admin = fullfile(fileparts(her_test_source),'admin');
+            mkdir(her_admin);
+            obj.copy_install_files({'herbert_on.m.template'} ,her_admin);
+            
+            path_list_recover = cell(1,1);
+            n_path = 0;
+            % clear path to existing Horace init files
+            old_hor_path = fileparts(which('horace_on.m'));
+            while ~isempty(old_hor_path)
+                rmpath(old_hor_path);
+                n_path = n_path+1;
+                path_list_recover{n_path} = old_hor_path;
+                old_hor_path = fileparts(which('horace_on.m'));
+            end
+            % do not forget to recover path to existing installation
+            clob2 = onCleanup(@()addpath(path_list_recover{:}));
+            
+            current_dir = pwd;
+            cd(test_admin);
+            clob1 = onCleanup(@()cd(current_dir));
+            
+            
+            [install_folder,her_init_dir,hor_init_dir,use_old_init_folder] = horace_install('-test_mode');
+            new_install = fullfile(test_install,'ISIS');
+            assertFalse(use_old_init_folder);
+            
+            assertEqual(new_install,install_folder);
+            assertEqual(her_test_source,her_init_dir);
+            assertEqual(hor_test_source,hor_init_dir);
+
+            clear clob1;
+            clear clob2;
+        end
+        
         
         function test_files_in_folder_like_cloned_repo_clean(obj)
             % prepare fake Horace/Herbert code tree
-            test_install = fullfile(obj.this_folder,'folder_for_install_repo');
+            test_install = fullfile(obj.this_folder,'folder4install_repo');
             mkdir(test_install);
             test_admin = fullfile(test_install,'Horace','admin');
             mkdir(test_admin);
