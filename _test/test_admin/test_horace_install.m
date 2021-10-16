@@ -19,7 +19,23 @@ classdef test_horace_install < TestCase
                 copyfile(source,targ,'f');
             end
         end
-        function test_init_folder_provided_with_isis(~)
+        function [hor_unpack,herbert_unpack]=find_hor_her_location(~)
+            % Identify where actually Horace code is unpacked on the system
+            % when code checked out from Github for developers or by
+            % Jenkins
+            %
+            %WARNING! not absolute or smart. Relies on convention from
+            %2021/10/01
+            hor_unpack = fileparts(fileparts(which('horace_init')));
+            [path0,hor_root] = fileparts(hor_unpack);
+            if strcmp(hor_root,'Horace') % is Horace alongside Herbert or inside
+                herbert_unpack = fullfile(path0,'Herbert');
+            else
+                herbert_unpack = fullfile(hor_unpack,'Herbert');
+            end
+        end
+        %
+        function test_init_folder_provided_with_isis(obj)
             %
             new_init_path =fullfile(tmp_dir(),'ISIS');
             % check if somebody indeed installed Horace there.
@@ -27,17 +43,11 @@ classdef test_horace_install < TestCase
             if strcmp(fullfile(new_init_path),fileparts(which('horace_on')))
                 new_init_path = fullfile(new_init_path,'TestISIS');
             end
-            hor_unpack = fileparts(fileparts(which('horace_init')));
-            [path0,hor_root] = fileparts(hor_unpack);
-            if strcmp(hor_root,'Horace')
-                herbert_unpack = fullfile(path0,'Herbert');
-            else
-                herbert_unpack = fullfile(hor_unpack,'Herbert');                
-            end
-
             
             [install_folder,her_init_dir,hor_init_dir,use_old_init_path] = ...
                 horace_install('init_folder',new_init_path,'-test_mode');
+            
+            [hor_unpack,herbert_unpack]=obj.find_hor_her_location();
             
             assertEqual(install_folder,fullfile(tmp_dir(),'ISIS'));
             assertEqual(her_init_dir,fullfile(herbert_unpack,'herbert_core'));
@@ -45,7 +55,7 @@ classdef test_horace_install < TestCase
             assertFalse(use_old_init_path);
         end
         
-        function test_init_folder_provided(~)
+        function test_init_folder_provided(obj)
             %
             new_init_path = tmp_dir();
             % check if somebody indeed installed Horace there.
@@ -53,26 +63,20 @@ classdef test_horace_install < TestCase
             if strcmp(fullfile(new_init_path,'ISIS'),fileparts(which('horace_on')))
                 new_init_path = fullfile(new_init_path,'TestISIS');
             end
-            hor_unpack = fileparts(fileparts(which('horace_init')));
-            [path0,hor_root] = fileparts(hor_unpack);
-            if strcmp(hor_root,'Horace')
-                herbert_unpack = fullfile(path0,'Herbert');
-            else
-                herbert_unpack = fullfile(hor_unpack,'Herbert');                
-            end
-
+            
             [init_folder,her_init_dir,hor_init_dir,use_old_init_path] = ...
                 horace_install('init_folder',new_init_path,'-test_mode');
+            
+            [hor_unpack,herbert_unpack]=obj.find_hor_her_location();
             
             assertEqual(init_folder,fullfile(tmp_dir(),'ISIS'));
             assertEqual(her_init_dir,fullfile(herbert_unpack,'herbert_core'));
             assertEqual(hor_init_dir,fullfile(hor_unpack,'horace_core'));
             assertFalse(use_old_init_path);
-        end        
+        end
         %
-        function test_warning_on_nonadmin_install(~)
+        function test_warning_on_nonadmin_install(obj)
             %
-            code_root = fileparts(fileparts(fileparts(which('horace_init'))));
             % hide tested warnings from beeing displayed when the test runs
             ws = struct('identifier',{'MATLAB:DELETE:Permission','HORACE:installation'},...
                 'state',{'off','off'});
@@ -82,19 +86,22 @@ classdef test_horace_install < TestCase
             % do not forget to recover the warnings when finished with
             % tests
             clob = onCleanup(@()warning(ws));
-
+            
             % throw DELETE warning and test
             warning('MATLAB:DELETE:Permission','test delete permission warning');
             [init_folder,her_init_dir,hor_init_dir,use_old_init_folder] = horace_install('-test_mode');
             [~,id]=lastwarn();
             assertEqual(id,'HORACE:installation');
             
+            
+            [hor_unpack,herbert_unpack]=obj.find_hor_her_location();
+            
             % despite we are testing non-accessible warning, the
             % installation is actually into old init folder
             assertEqual(init_folder,fileparts(which('horace_on')));
             assertFalse(use_old_init_folder)
-            assertEqual(her_init_dir,fullfile(code_root,'Herbert','herbert_core'));
-            assertEqual(hor_init_dir,fullfile(code_root,'Horace','horace_core'));
+            assertEqual(her_init_dir,fullfile(herbert_unpack,'herbert_core'));
+            assertEqual(hor_init_dir,fullfile(hor_unpack,'horace_core'));
         end
         %
         function test_files_in_folder_like_Jenkins_repo_clean(obj)
@@ -146,7 +153,7 @@ classdef test_horace_install < TestCase
             assertEqual(new_install,install_folder);
             assertEqual(her_test_source,her_init_dir);
             assertEqual(hor_test_source,hor_init_dir);
-
+            
             clear clob1;
             clear clob2;
         end
@@ -200,7 +207,7 @@ classdef test_horace_install < TestCase
             assertEqual(new_install,install_folder);
             assertEqual(her_test_source,her_init_dir);
             assertEqual(hor_test_source,hor_init_dir);
-
+            
             clear clob1;
             clear clob2;
         end
