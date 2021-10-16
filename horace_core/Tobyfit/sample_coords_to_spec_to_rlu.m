@@ -23,32 +23,25 @@ function [ok, mess, sample, s_mat, spec_to_rlu, alatt, angdeg] =...
 %   angdeg      Lattice angles in degrees (row vector length 3)
 
 % Check sample descrption the same for all spe files in the sqw object
-%{
-if ~iscell(header)
-    nrun=1;
-    sample=header.sample;
-    alatt=header.alatt;
-    angdeg=header.angdeg;
-else
-%}
 samples = header.samples;
 nrun=numel(samples);
-    sample=samples(1);
-    alatt=sample.alatt;
-    angdeg=sample.angdeg;
-    for i=2:numel(header)
-        if ~isequal(sample,samples(i).sample)
-            ok=false;
-            mess='Sample description must be identical for all contributing spe files';
-            return
-        end
-        if ~all(alatt==samples(i).alatt) && ~all(angdeg==samples(i).angdeg)
-            ok=false;
-            mess='Lattice parameters must be identical for all contributing spe files';
-            return
-        end
+sample=samples(1);
+alatt=sample.alatt;
+angdeg=sample.angdeg;
+for i=2:nrun
+    if ~isequal(sample,samples(i))
+        ok=false;
+        error('HORACE:sample_coords_to_spec_to_rlu:invalid_argument', ...
+            'Sample description must be identical for all contributing spe files');
+        return
     end
-%end
+    if ~all(alatt==samples(i).alatt) || ~all(angdeg==samples(i).angdeg)
+        ok=false;
+        error('HORACE:sample_coords_to_spec_to_rlu:invalid_argument', ...
+            'Lattice parameters must be identical for all contributing spe files');
+        return
+    end
+end
 
 % Fill s_mat
 xgeom=sample.xgeom;

@@ -111,11 +111,7 @@ classdef Experiment
                     angdeg = hdr.angdeg;
                     if isstruct(hdr.instrument)
                         if isempty(fieldnames(hdr.instrument))
-                            try
                             obj.instruments_(end+1) = IX_null_inst();
-                            catch ME
-                                error("T");
-                            end
                         elseif isfield(hdr.instrument,'fermi_chopper')
                             ins = hdr.instrument;
                             hdr.instrument = IX_inst_DGfermi(ins.moderator, ...
@@ -129,14 +125,10 @@ classdef Experiment
                         obj.instruments_(end+1) = hdr.instrument;
                     end
                     if isstruct(hdr.sample) && isempty(fieldnames(hdr.sample))
-                        try
                         ixns = IX_null_sample();
                         ixns.alatt = alatt;
                         ixns.angdeg = angdeg;
                         obj.samples_(end+1) = ixns;
-                        catch ME
-                            error("TT");
-                        end
                     else
                         ixs = hdr.sample;
                         ixs.alatt = alatt;

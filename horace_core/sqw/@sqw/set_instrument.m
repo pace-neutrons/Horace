@@ -159,14 +159,16 @@ elseif narg==1 || isa(args{1},'function_handle')
         
         % Change the header
         nfiles=h.main_header.nfiles;
-    tmp=h.header_x;   % to keep referencing to sub-fields to a minimum
+        tmp=h.header_x;   % to keep referencing to sub-fields to a minimum
         for ifile=1:nfiles
             if ninst==1
                 if is_instfunc
                     args=substitute_arguments(h,ifile,instfunc_args(1,:));
                     instrument=instfunc(args{:});
                     if ~isa(instrument,'IX_inst')
-                        error('The instrument definition function does not return an object of class IX_inst')
+                        error('HORACE:sqw/set_instrument:invalid_output', ...
+                            ['The instrument definition function does not return' ...
+                             ' an object of class IX_inst'])
                     end
                     tmp.instruments(ifile)=instrument;
                 else
@@ -177,7 +179,9 @@ elseif narg==1 || isa(args{1},'function_handle')
                     args=substitute_arguments(h,ifile,instfunc_args(ifile,:));
                     instrument=instfunc(args{:});
                     if ~isa(instrument,'IX_inst')
-                        error('The instrument definition function does not return an object of class IX_inst')
+                        error('HORACE:sqw/set_instrument:invalid_output', ...
+                            ['The instrument definition function does not return' ...
+                             ' an object of class IX_inst'])
                     end
                     tmp.instruments(ifile)=instrument;
                 else

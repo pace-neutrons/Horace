@@ -201,7 +201,7 @@ classdef test_faccess_sqw_v3< TestCase
             
             tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
             clob = onCleanup(@()delete(tf));
-
+            
             tob = faccess_sqw_v3();
             tob = tob.init(sqw_ob,tf);
 
@@ -238,7 +238,7 @@ classdef test_faccess_sqw_v3< TestCase
             
             tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
             clob = onCleanup(@()delete(tf));
-
+            
             tob = faccess_sqw_v3();
             tob = tob.init(sqw_ob,tf);
 

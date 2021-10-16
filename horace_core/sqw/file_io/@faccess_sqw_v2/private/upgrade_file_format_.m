@@ -63,7 +63,6 @@ else
     heads = head;
 end
 sq = sq.change_header(heads);
-%sq.change_header(heads);
 
 function hd= gen_head(head,x)
 hd = head;

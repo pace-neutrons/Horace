@@ -197,28 +197,15 @@ classdef sqw_formats_factory < handle
                 the_type = class(varargin{1});
                 if isa(varargin{1},'sqw')
                     sobj = varargin{1};
-                    header =sobj.my_header();
-                    if isa(header, 'Experiment')
-                        if isempty(header.expdata)
-                            loader = obj.supported_accessors_{1};
-                            return;
-                        else
-                            header = header.expdata(1);
-                        end
-                    elseif iscell(header)
-                        header = header{1};
-                    elseif isempty(header)
+                    the_type = sobj.get_sqw_type();
+                    if strcmp(the_type, 'none')
                         loader = obj.supported_accessors_{1};
                         return;
+                    %else
+                        % it's sqw, or sqw2; gets passed to the loader get
+                        % using the existing the_type 
                     end
-                    emode = header.emode;
-                    if emode == 2
-                        nefix = numel(header.efix);
-                        if nefix>1
-                            the_type = 'sqw2';
-                        end
-                    end
-                end
+                end % isa('sqw')
             end
             if obj.types_map_.isKey(the_type)
                 ld_num = obj.types_map_(the_type);

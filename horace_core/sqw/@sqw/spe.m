@@ -27,11 +27,13 @@ function d=spe(w)
 %               en         Column vector of energy bin boundaries
 
 if ~has_pixels(w)
-    error('Input sqw object does not have sqw type (i.e. does not contain pixel information')
+    error('HORACE:sqw/spe:invalid_argument', ...
+        'Input sqw object does not have sqw type (i.e. does not contain pixel information')
 end
 
 if iscell(w.header_x)
-    error('sqw object has contributions from more than one spe file')
+    error('HORACE:sqw/spe:invalid_argument', ...
+        'sqw object has contributions from more than one spe file')
 end
 
 % Get file name and path from sqw object

@@ -14,13 +14,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         % CMDEV: data now a dependent property, below
     end
     
-    properties (Access=private)
-        %main_header
-        %header_x
-        %detpar_x
-        % CMDEV: data now a dependent property, below
-    end
-    
     properties(Dependent)
         data;
         %;
@@ -86,7 +79,39 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             obj.header_x = hdr;
         end
         
-        
+        function sqw_type = get_sqw_type(obj)
+            % determine the type of sqw object based on data in the header
+            % return value options are:
+            %      sqw_type == 'none' - the header is empty, there is no efix/emode
+            %                           data to determine the type
+            %      sqw_type == 'sqw2' - the header has emode==2 and
+            %                           numel(efix)>1
+            %      sqw_type == 'sqw'  - none of the above so using the
+            %                           class of obj i.e. sqw
+            sqw_type = 'sqw';
+            header =obj.header_x;
+            if isa(header, 'Experiment')
+                if isempty(header.expdata)
+                    sqw_type = 'none';
+                    return;
+                else
+                    header = header.expdata(1);
+                end
+            elseif iscell(header)
+                header = header{1};
+            elseif isempty(header)
+                sqw_type = 'none';
+                return;
+            end
+            emode = header.emode;
+            if emode == 2
+                nefix = numel(header.efix);
+                if nefix>1
+                    sqw_type = 'sqw2';
+                end
+            end
+        end
+
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
             

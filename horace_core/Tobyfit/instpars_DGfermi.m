@@ -31,20 +31,12 @@ function [ok,mess,ei,x0,xa,x1,thetam,angvel,moderator,aperture,chopper]=...
 
 
 % Get array of instruments
-%{
-if ~iscell(header)
-    nrun=1;
-    inst=header.instrument;
-    header={header};
-else
-%}
 instruments = header.instruments;
-    nrun=numel(instruments);
-    inst=repmat(instruments(1),[nrun,1]);
-    for i=2:nrun
-        inst(i)=instruments(i);
-    end
-%end
+nrun=numel(instruments);
+inst=repmat(instruments(1),[nrun,1]);
+for i=2:nrun
+    inst(i)=instruments(i);
+end
 
 % Fill output arguments
 ei=zeros(nrun,1);
