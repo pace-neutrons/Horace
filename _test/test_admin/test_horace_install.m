@@ -27,13 +27,21 @@ classdef test_horace_install < TestCase
             if strcmp(fullfile(new_init_path),fileparts(which('horace_on')))
                 new_init_path = fullfile(new_init_path,'TestISIS');
             end
-            code_root = fileparts(fileparts(fileparts(which('horace_init'))));
+            hor_unpack = fileparts(fileparts(which('horace_init')));
+            [path0,hor_root] = fileparts(hor_unpack);
+            if strcmp(hor_root,'Horace')
+                herbert_unpack = fullfile(path0,'Herbert');
+            else
+                herbert_unpack = fullfile(hor_unpack,'Herbert');                
+            end
+
+            
             [install_folder,her_init_dir,hor_init_dir,use_old_init_path] = ...
                 horace_install('init_folder',new_init_path,'-test_mode');
             
             assertEqual(install_folder,fullfile(tmp_dir(),'ISIS'));
-            assertEqual(her_init_dir,fullfile(code_root,'Herbert','herbert_core'));
-            assertEqual(hor_init_dir,fullfile(code_root,'Horace','horace_core'));
+            assertEqual(her_init_dir,fullfile(herbert_unpack,'herbert_core'));
+            assertEqual(hor_init_dir,fullfile(hor_unpack,'horace_core'));
             assertFalse(use_old_init_path);
         end
         
@@ -45,16 +53,22 @@ classdef test_horace_install < TestCase
             if strcmp(fullfile(new_init_path,'ISIS'),fileparts(which('horace_on')))
                 new_init_path = fullfile(new_init_path,'TestISIS');
             end
-            code_root = fileparts(fileparts(fileparts(which('horace_init'))));
-            [install_folder,her_init_dir,hor_init_dir,use_old_init_path] = ...
+            hor_unpack = fileparts(fileparts(which('horace_init')));
+            [path0,hor_root] = fileparts(hor_unpack);
+            if strcmp(hor_root,'Horace')
+                herbert_unpack = fullfile(path0,'Herbert');
+            else
+                herbert_unpack = fullfile(hor_unpack,'Herbert');                
+            end
+
+            [init_folder,her_init_dir,hor_init_dir,use_old_init_path] = ...
                 horace_install('init_folder',new_init_path,'-test_mode');
             
-            assertEqual(install_folder,fullfile(tmp_dir(),'ISIS'));
-            assertEqual(her_init_dir,fullfile(code_root,'Herbert','herbert_core'));
-            assertEqual(hor_init_dir,fullfile(code_root,'Horace','horace_core'));
+            assertEqual(init_folder,fullfile(tmp_dir(),'ISIS'));
+            assertEqual(her_init_dir,fullfile(herbert_unpack,'herbert_core'));
+            assertEqual(hor_init_dir,fullfile(hor_unpack,'horace_core'));
             assertFalse(use_old_init_path);
-        end
-        
+        end        
         %
         function test_warning_on_nonadmin_install(~)
             %
@@ -71,15 +85,18 @@ classdef test_horace_install < TestCase
 
             % throw DELETE warning and test
             warning('MATLAB:DELETE:Permission','test delete permission warning');
-            [install_folder,her_init_dir,hor_init_dir,use_old_init_folder] = horace_install('-test_mode');
+            [init_folder,her_init_dir,hor_init_dir,use_old_init_folder] = horace_install('-test_mode');
             [~,id]=lastwarn();
             assertEqual(id,'HORACE:installation');
             
-            assertEqual(install_folder,fullfile(code_root,'ISIS'));
+            % despite we are testing non-accessible warning, the
+            % installation is actually into old init folder
+            assertEqual(init_folder,fileparts(which('horace_on')));
             assertFalse(use_old_init_folder)
             assertEqual(her_init_dir,fullfile(code_root,'Herbert','herbert_core'));
             assertEqual(hor_init_dir,fullfile(code_root,'Horace','horace_core'));
         end
+        %
         function test_files_in_folder_like_Jenkins_repo_clean(obj)
             % prepare fake Horace/Herbert code tree
             test_install = fullfile(obj.this_folder,'folder4install_jenkins_repo');
@@ -133,8 +150,7 @@ classdef test_horace_install < TestCase
             clear clob1;
             clear clob2;
         end
-        
-        
+        %
         function test_files_in_folder_like_cloned_repo_clean(obj)
             % prepare fake Horace/Herbert code tree
             test_install = fullfile(obj.this_folder,'folder4install_repo');
