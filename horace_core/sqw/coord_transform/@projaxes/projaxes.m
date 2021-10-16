@@ -70,7 +70,7 @@ classdef projaxes
     
     % Original author: T.G.Perring
     %
-   
+    
     
     properties(Dependent)
         % Row vector of first axis (r.l.u.) defining projection axes
@@ -119,7 +119,7 @@ classdef projaxes
             end
             [proj,mess] = build_projaxes_(projaxes,varargin{:});
             if ~isempty(mess) && nargout < 2
-                error('PROJAXES:invalid_argument',mess)
+                error('HORACE:projaxes:invalid_argument',mess)
             end
             
         end

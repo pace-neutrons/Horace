@@ -360,8 +360,7 @@ classdef test_main_mex < TestCase
             maxv=maxv(1:4);
             %
             data.pix = PixelData(vv);
-            [ok,type,mess] = data.check_sqw_data('a');
-            assertTrue(ok,['Invalid test data generated: ',mess]);
+            [type,data] = data.check_sqw_data('a');
             assertEqual(type,'b+','Invalid test data type generated, type ''b+'' expected')
 
             % set to cut half of the dataset in all 4 dimensions (1/16 of

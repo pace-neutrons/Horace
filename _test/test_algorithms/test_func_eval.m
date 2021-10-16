@@ -1,11 +1,10 @@
-classdef test_func_eval < TestCase
+classdef test_func_eval < TestCase & common_state_holder
 
     properties (Constant)
         FLOAT_TOL = 1e-5;
     end
 
     properties
-        old_warn_state;
 
         d2d_file_path = '../test_symmetrisation/w2d_qq_small_d2d.sqw'
         d2d_obj;
@@ -33,12 +32,8 @@ classdef test_func_eval < TestCase
             obj.d2d_obj = d2d(obj.d2d_file_path);
             obj.sqw_2d_obj = sqw(obj.sqw_2d_file_path);
 
-            obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
         end
 
-        function delete(obj)
-            warning(obj.old_warn_state);
-        end
 
         %% Input validation
         function test_SQW_error_if_func_handle_arg_is_not_a_function_handle(obj)

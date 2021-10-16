@@ -1,4 +1,4 @@
-classdef test_nsqw2sqw_combine_job < TestCase
+classdef test_nsqw2sqw_combine_job < TestCase & common_state_holder
     % Series of tests to check write_nsqw_to_sqw combining
     
     properties

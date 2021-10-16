@@ -24,7 +24,7 @@ classdef d3d < DnDBase
             % -------
             % Output:
             %   obj     An instance of this object
-            obj = d3d(S);
+            %obj = d3d(S);
             if isa(S,'d3d')
                obj = S;
                return

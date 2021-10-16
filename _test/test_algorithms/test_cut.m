@@ -1,4 +1,4 @@
-classdef test_cut < TestCase
+classdef test_cut < TestCase & common_state_holder
     % Testing cuts and comparing the results against the reference cuts.
     %
     % This is a non-standard test class, as it compares cut
@@ -14,8 +14,6 @@ classdef test_cut < TestCase
     % provided
     properties
         FLOAT_TOL = 1e-5;
-        
-        old_warn_state;
         
         sqw_file = '../test_sym_op/test_cut_sqw_sym.sqw';
         ref_file = 'test_cut_ref_sqw.sqw'
@@ -47,9 +45,7 @@ classdef test_cut < TestCase
                 end
             end
             obj = obj@TestCase(name);
-            obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
-
-            obj.sqw_4d = sqw(obj.sqw_file);
+            obj.sqw_4d = read_sqw(obj.sqw_file);
             
             %
             if save_reference
@@ -60,9 +56,6 @@ classdef test_cut < TestCase
             end
         end
         
-        function delete(obj)
-            warning(obj.old_warn_state);
-        end
         
         function test_you_can_take_a_cut_from_an_sqw_file(obj)
             conf = hor_config();
@@ -76,14 +69,14 @@ classdef test_cut < TestCase
             assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
         end
         
-        function test_you_can_take_a_cut_from_an_sqw_object(obj)
-            sqw_obj = sqw(obj.sqw_file);
+        function test_take_a_cut_from_an_sqw_object(obj)
+            sqw_obj = read_sqw(obj.sqw_file);
             sqw_cut = cut(sqw_obj, obj.ref_params{:});
             %
             % offset is currently expressed in hkl
             assertElementsAlmostEqual(sqw_cut.data.uoffset,obj.ref_params{1}.uoffset);
             
-            ref_sqw = sqw(obj.ref_file);
+            ref_sqw = read_sqw(obj.ref_file);
             assertEqualToTol(sqw_cut, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
         end
         
@@ -243,7 +236,7 @@ classdef test_cut < TestCase
             outfile = fullfile('P:', 'not', 'a_valid', 'path.sqw');
             
             f = @() cut(obj.sqw_file, obj.ref_params{:}, outfile);
-            assertExceptionThrown(f, 'SQW:cut_sqw_check_input_args:outfile_creation_error');
+            assertExceptionThrown(f, 'HORACE:cut:invalid_argument');
         end
         
         function test_error_raised_if_cut_called_with_multiple_files(obj)
@@ -292,7 +285,7 @@ classdef test_cut < TestCase
         
         function test_calling_cut_with_no_outfile_and_no_nargout_throws_error(obj)
             f = @() cut(obj.sqw_file, obj.ref_params{:});
-            assertExceptionThrown(f, 'CUT_SQW:invalid_arguments');
+            assertExceptionThrown(f, 'HORACE:cut:invalid_argument');
         end
         
         function test_you_can_take_a_cut_with_nopix_arg_and_output_to_file(obj)

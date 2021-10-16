@@ -1,4 +1,4 @@
-classdef test_sqw_main < TestCase
+classdef test_sqw_main < TestCase & common_state_holder
     % Series of tests to check work of mex files against Matlab files
 
     properties

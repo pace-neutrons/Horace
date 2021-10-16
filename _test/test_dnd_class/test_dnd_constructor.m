@@ -235,7 +235,7 @@ methods
         assertEqual(d2d_obj.u_to_rlu, expected_u_to_rlu, 'tol', 1e-5);
     end
 
-    function test_filename_constructor_returns_same_object_as_sqw_constructor_from_sqw_file(obj)
+    function test_fname_constr_returns_same_obj_as_sqw_constr_from_sqw_file(obj)
         sqw_obj = sqw(obj.test_sqw_2d_fullpath);
         d2d_obj = d2d(obj.test_sqw_2d_fullpath);
 
@@ -250,7 +250,7 @@ methods
         sqw_obj = sqw(obj.test_sqw_1d_fullpath);
         f = @() d2d(sqw_obj);
 
-        assertExceptionThrown(f, 'D2D:d2d');
+        assertExceptionThrown(f, 'HORACE:DnDBase:invalid_argument');
     end
 
     function test_d1d_sqw_constuctor_creates_d1d_from_1d_sqw_object(obj)
