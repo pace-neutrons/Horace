@@ -22,7 +22,7 @@ function varargout = horace_planner(varargin)
 
 % Edit the above text to modify the response to help horace_planner
 
-% Last Modified by GUIDE v2.5 17-Oct-2021 23:30:07
+% Last Modified by GUIDE v2.5 17-Oct-2021 23:55:13
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -171,7 +171,27 @@ function parfile_edit_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of parfile_edit as text
 %        str2double(get(hObject,'String')) returns contents of parfile_edit as a double
-set(hObject,'BackgroundColor','white');
+contents = get(handles.parfile_edit,'String');
+[fpath,fname,fext] = fileparts(contents);
+if isempty(fpath)
+    fpath = pwd;
+end
+file = fullfile(fpath,[fname,fext]);
+if ~is_file(file)
+    err_mess = sprintf('File %s does not exist',file);
+    set(handles.message_text,'String',...
+        err_mess,'BackgroundColor','r');
+    set(handles.parfile_edit,'BackgroundColor','r');    
+    return;
+end
+pc = planner_config;
+pc.par_file = file;
+set(handles.parfile_edit,'String',[fname,fext],'UserData',fpath);
+% clear previous detpar to load new detectors file on calculations
+set(handles.parfile_text,'UserData',[]);
+set(hObject,'BackgroundColor',[0.01,0.5,0.01]);
+set(handles.message_text,'String','','BackgroundColor','w');
+
 
 
 % --- Executes during object creation, after setting all properties.
@@ -996,3 +1016,10 @@ function latpt_edit_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes during object creation, after setting all properties.
+function select_pushbutton_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to select_pushbutton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
