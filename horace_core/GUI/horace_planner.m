@@ -44,21 +44,27 @@ end
 % End initialization code - DO NOT EDIT
 
 
-function [cm,tooltips,inp3,gui_validators,gui_errors]=getControlsMap()
+function [cm,tooltips,inp3,gui_validators,gui_errors]=getControlsMap(varargin)
 persistent controlHandlesMap;
 persistent controlTooltips;
 persistent triple_sinlgle_input;
 persistent gui_var_validators;
 persistent gui_errors_map;
-if isempty(controlHandlesMap)
-    control_keys = ...
-        {'u','v','ei','en_transf',  'psimin','psimax','alatt','angdeg','latpt'};
+
+control_keys = ...
+    {'u','v','ei','en_transf',  'psimin','psimax','alatt','angdeg','latpt'};
+if nargin>0
+    control_defaults  = varargin{1};
+    controlHandlesMap = containers.Map(control_keys,control_defaults);
+else
+    control_defaults = ...
+        {'1,0,0','0,1,0','100','50','0','90','2.83,2.83,2.83','90,90,90','1,1,1'};
+end
+if isempty(controlTooltips)
     % what inputs can be entered as a single value but should be returned
     % as triple value
     triple_input=...
         {false,false,false,false,false,false',true,true,true};
-    control_defaults = ...
-        {'1,0,0','0,1,0','100','50','0','90','2.83,2.83,2.83','90,90,90','1,1,1'};
     control_tooltips = ...
         {'Q-space direction parallel to the incident beam when the crystal rotation angle, psi, is equal to 0',...
         'Q-space vector lying in the equatorial plane of the detectors (horizontal for most instruments)',...
@@ -81,16 +87,16 @@ if isempty(controlHandlesMap)
         @(lat)(~isempty(lat)&&(numel(lat)==3)||(numel(lat)==1)),...
         @(ang)(~isempty(ang)&&(numel(ang)==3)||(numel(ang)==1)),...
         @(pd) (~isempty(pd)&&(numel(pd)==3||numel(pd)==1)&&all(pd>0))};
-    gui_error_codes = ...
-        {'u has to have form h,k,l or [h,k,l]',...
+    gui_error_codes = {...
+        'u has to have form h,k,l or [h,k,l]',...
         'v has to have form h,k,l or [h,k,l]',...
-        'Ei can not be empty and must be single and positive',...
-        'Energy transfer can not be empty',...
-        'psimin can not be empty',...
-        'psimax can not be empty',...
-        'lattice parameters has to have form a,b,c or [a,b,c] or be a single number if all parameters are the same',...
-        'lattice angles have to have a form a,b,c or [a,b,c] or be a single number if all parameters are the same',...
-        'points density can not be empty and must contan one or 3 positive integers' };
+        'Ei can not be empty, has to be numeric and must be single and positive',...
+        'Energy transfer has to be numeric, can not be empty and must be single and positive',...
+        'psimin has to be numeric and can not be empty',...
+        'psimax has to be numeric and can not be empty',...
+        'Lattice param. have to be 3 numbers in a form: a,b,c or [a,b,c] or a single number if all parameters are the same',...
+        'Lattice angles have to be 3 numbers in a form: a,b,c or [a,b,c] or be a single number if all parameters are the same',...
+        'Lattice points density can not be empty and must contan one or 3 positive integers' };
     %
     controlHandlesMap    = containers.Map(control_keys,control_defaults);
     controlTooltips      = containers.Map(control_keys,control_tooltips);
@@ -115,20 +121,32 @@ function horace_planner_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for horace_planner
 handles.output = hObject;
-
+pc = planner_config();
 
 % Update handles structure
 guidata(hObject, handles);
+par_file = pc.par_file;
+set(handles.parfile_edit,'String',par_file);
+% get all other config;
+config_data=pc.get_data_to_store();
+config_data = rmfield(config_data,'par_file');
+defaults = struct2cell(config_data);
+defaults = cellfun(@(x)convert_par_to_str(x),defaults,'UniformOutput',false);
 %
 % Set up default values of the input parameters and tooltips
-[cm,ct] = getControlsMap();
+[cm,ct] = getControlsMap(defaults);
 contr = cm.keys;
 for i=1:numel(contr)
     key = contr{i};
     set(handles.([key,'_edit']),'String',cm(key),'Tooltip',ct(key),...
         'BackgroundColor',[0.1,0.5,0.1],'FontWeight','bold');
 end
-
+function str = convert_par_to_str(val)
+if numel(val)>1
+    str = sprintf('%g,%g,%g',val);
+else
+    str = sprintf('%g',val);
+end
 % UIWAIT makes horace_planner wait for user response (see UIRESUME)
 % uiwait(handles.Planner);
 
@@ -166,12 +184,19 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
 % --- Executes on button press in browse_pushbutton.
 function browse_pushbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to browse_pushbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+pc = planner_config;
+par_file = pc.par_file;
+if ~isempty(par_file)
+    par_path = fileparts(par_file);
+    current_dir = pwd;
+    clob = onCleanup(@()cd(current_dir));
+    cd(par_path);
+end
 
 [par_filename,par_pathname,FilterIndex] = uigetfile({'*.par','*.PAR'},'Select par file');
 
@@ -180,8 +205,6 @@ if ischar(par_pathname) && ischar(par_filename)
     set(handles.parfile_edit,'string',[par_pathname,par_filename]);
     guidata(gcbo,handles);
 end
-
-
 
 % --- Executes on button press in loadpar_pushbutton.
 function loadpar_pushbutton_Callback(hObject, eventdata, handles)
@@ -193,19 +216,9 @@ function loadpar_pushbutton_Callback(hObject, eventdata, handles)
 set(handles.message_text,'String','');
 guidata(gcbo,handles);
 drawnow;
-try
-    filename=get(handles.parfile_edit,'String');
-    par=get_par(filename);
-    handles.detpar=par;
-    set(handles.message_text,'String','Par file loaded successfully',...
-        'BackgroundColor','w');
-   set(handles.parfile_edit,'BackgroundColor','w');    
-catch ERR
-    set(handles.message_text,'String','Error - see Matlab command window for details',...
-        'BackgroundColor','r');
-    fprintf(2,'ERROR - par file %s is not valid par file\n',filename);
-    fprintf(2,'*****   Reason: %s',ERR.message);
-end
+% actually load par file and set it to specifig handle
+load_par_file(handles);
+
 guidata(gcbo,handles);
 drawnow;
 %
@@ -230,8 +243,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-
 function v_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to v_edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -255,7 +266,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
 function ei_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to ei_edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -276,8 +286,6 @@ function ei_edit_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white','FontWeight','normal');
 end
-
-
 
 function en_transf_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to en_transf_edit (see GCBO)
@@ -300,8 +308,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white','FontWeight','normal');
 end
 
-
-
 function psimin_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to psimin_edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -310,8 +316,6 @@ function psimin_edit_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of psimin_edit as text
 %        str2double(get(hObject,'String')) returns contents of psimin_edit as a double
 set(hObject,'BackgroundColor','white','FontWeight','normal');
-
-
 
 % --- Executes during object creation, after setting all properties.
 function psimin_edit_CreateFcn(hObject, eventdata, handles)
@@ -325,8 +329,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white','FontWeight','normal');
 end
 
-
-
 function psimax_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to psimax_edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -335,7 +337,6 @@ function psimax_edit_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of psimax_edit as text
 %        str2double(get(hObject,'String')) returns contents of psimax_edit as a double
 set(hObject,'BackgroundColor','white','FontWeight','normal');
-
 
 % --- Executes during object creation, after setting all properties.
 function psimax_edit_CreateFcn(hObject, eventdata, handles)
@@ -370,8 +371,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-
 function angdeg_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to angdeg_edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -392,6 +391,28 @@ function angdeg_edit_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white','FontWeight','normal');
 end
+
+function detpar=load_par_file(handles)
+try
+    filename=get(handles.parfile_edit,'string');
+    par=get_par(filename);
+    handles.detpar=par;
+    detpar = par;
+    set(handles.message_text,'String','Par file loaded successfully',...
+        'BackgroundColor','w');
+    set(handles.parfile_edit,'BackgroundColor','w');
+catch ME
+    set(handles.message_text,'String',...
+        'Ensure a valid par file is selected and loaded. See matlab windows for additional details',...
+        'BackgroundColor','r');
+    set(handles.parfile_edit,'BackgroundColor','r');
+    
+    fprintf(2,'ERROR - par file %s is not valid par file or error loading it\n',filename);
+    fprintf(2,'*****   Reason: %s',ME.message);
+    
+    rethrow(ME);
+end
+
 
 function [value,ok] = parse_runparameters_input_box(handles,control_name)
 % function to parse input from control box of the user interface
@@ -475,6 +496,7 @@ function calc_pushbutton_Callback(hObject, eventdata, handles)
 set(handles.message_text,'String','','BackgroundColor','w');
 guidata(gcbo,handles);
 drawnow;
+pc = planner_config;
 
 %Turn off annoying warning messages:
 ws = warning('off');
@@ -492,31 +514,27 @@ for i=1:numel(control)
     else
         eval(sprintf('%s=%g;',control{i},result{i}));
     end
+    pc.(control{i})=result{i};
 end
 
+% do some global checks
 if en_transf>ei
     set(handles.en_transf_edit,'BackgroundColor','r');
     set(handles.ei_edit,'BackgroundColor','r');
     disp_error(handles,'Ensure energy transfer is smaller than Ei');
     return;
 end
+if norm(cross(u,v))<1.e-7
+    set(handles.u_transf_edit,'BackgroundColor','r');
+    set(handles.v_edit,'BackgroundColor','r');
+    disp_error(handles,'u and v vectors can not be parallel');
+end
 
 
 if isfield(handles,'detpar')
     detpar=handles.detpar;
 else
-    try
-        filename=get(handles.parfile_edit,'string');
-        par=get_par(filename);
-        handles.detpar=par;
-        detpar = par;
-        set(handles.message_text,'String','Par file loaded successfully',...
-            'BackgroundColor','w');
-    catch ME
-        set(handles.parfile_edit,'BackgroundColor','r');
-        disp_error(handles,'Ensure a valid par file is selected and loaded');
-        rethrow ME;
-    end
+    detpar = load_par_file(handles);
 end
 
 %If we get to this stage, then all of the inputs are OK, and we can
@@ -797,9 +815,7 @@ guidata(gcbo,handles);
 drawnow;
 
 
-
 % --------------------------------------------------------------------
-
 % --- Executes on slider movement.
 function zoff_slider_Callback(hObject, eventdata, handles)
 % hObject    handle to zoff_slider (see GCBO)
