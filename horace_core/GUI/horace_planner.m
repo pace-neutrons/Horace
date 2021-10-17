@@ -22,7 +22,7 @@ function varargout = horace_planner(varargin)
 
 % Edit the above text to modify the response to help horace_planner
 
-% Last Modified by GUIDE v2.5 16-Oct-2021 22:50:17
+% Last Modified by GUIDE v2.5 17-Oct-2021 23:30:07
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -126,7 +126,8 @@ pc = planner_config();
 % Update handles structure
 guidata(hObject, handles);
 par_file = pc.par_file;
-set(handles.parfile_edit,'String',par_file);
+[filepath,filename,fex] = fileparts(par_file);
+set(handles.parfile_edit,'String',[filename,fex],'UserData',filepath);
 % get all other config;
 config_data=pc.get_data_to_store();
 config_data = rmfield(config_data,'par_file');
@@ -170,6 +171,7 @@ function parfile_edit_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of parfile_edit as text
 %        str2double(get(hObject,'String')) returns contents of parfile_edit as a double
+set(hObject,'BackgroundColor','white');
 
 
 % --- Executes during object creation, after setting all properties.
@@ -184,9 +186,9 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-% --- Executes on button press in browse_pushbutton.
-function browse_pushbutton_Callback(hObject, eventdata, handles)
-% hObject    handle to browse_pushbutton (see GCBO)
+% --- Executes on button press in select_pushbutton.
+function select_pushbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to select_pushbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 pc = planner_config;
@@ -199,28 +201,21 @@ if ~isempty(par_file)
 end
 
 [par_filename,par_pathname,FilterIndex] = uigetfile({'*.par','*.PAR'},'Select par file');
+%
+file = fullfile(par_pathname,par_filename);
 
 if ischar(par_pathname) && ischar(par_filename)
     %i.e. the cancel button was not pressed
-    set(handles.parfile_edit,'string',[par_pathname,par_filename]);
+    set(handles.parfile_edit,'String',par_filename,...
+        'UserData',par_pathname);
     guidata(gcbo,handles);
+    drawnow;    
+    pc.par_file = file;
+else
+    return;
 end
-
-% --- Executes on button press in loadpar_pushbutton.
-function loadpar_pushbutton_Callback(hObject, eventdata, handles)
-% hObject    handle to loadpar_pushbutton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-%Clear error message
-set(handles.message_text,'String','');
-guidata(gcbo,handles);
-drawnow;
-% actually load par file and set it to specifig handle
 load_par_file(handles);
 
-guidata(gcbo,handles);
-drawnow;
 %
 function u_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to u_edit (see GCBO)
@@ -393,21 +388,24 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 function detpar=load_par_file(handles)
+% load detector's file defined selected from GUI
 try
-    filename=get(handles.parfile_edit,'string');
-    par=get_par(filename);
-    handles.detpar=par;
-    detpar = par;
+    filename=handles.parfile_edit.String;
+    filepath=handles.parfile_edit.UserData;
+    file = fullfile(filepath,filename);
+    detpar=get_par(file);
     set(handles.message_text,'String','Par file loaded successfully',...
         'BackgroundColor','w');
     set(handles.parfile_edit,'BackgroundColor','w');
+    % store detpar in user data of message 
+    set(handles.parfile_text,'UserData',detpar);
 catch ME
     set(handles.message_text,'String',...
-        'Ensure a valid par file is selected and loaded. See matlab windows for additional details',...
+        'Ensure a valid par file is selected and loaded. See Matlab command window for additional details',...
         'BackgroundColor','r');
     set(handles.parfile_edit,'BackgroundColor','r');
     
-    fprintf(2,'ERROR - par file %s is not valid par file or error loading it\n',filename);
+    fprintf(2,'ERROR - par file %s is not valid par file or error loading it\n',file);
     fprintf(2,'*****   Reason: %s',ME.message);
     
     rethrow(ME);
@@ -525,16 +523,15 @@ if en_transf>ei
     return;
 end
 if norm(cross(u,v))<1.e-7
-    set(handles.u_transf_edit,'BackgroundColor','r');
+    set(handles.u_edit,'BackgroundColor','r');
     set(handles.v_edit,'BackgroundColor','r');
     disp_error(handles,'u and v vectors can not be parallel');
+    return
 end
 
-
-if isfield(handles,'detpar')
-    detpar=handles.detpar;
-else
-    detpar = load_par_file(handles);
+detpar = get(handles.parfile_text,'UserData');
+if isempty(detpar)
+    detpar = load_par_file(handles);    
 end
 
 %If we get to this stage, then all of the inputs are OK, and we can
@@ -542,9 +539,9 @@ end
 try
     [xcoords,ycoords,zcoords,pts,ptlabs]=...
         calc_coverage_from_detpars_v2(ei,en_transf,psimin,psimax,detpar,u,v,alatt,angdeg);
-catch
+catch ME
     disp_error(handles,'non-trivial error on execution of calculations. Check inputs carefully...');
-    return;
+    rethrow(ME)
 end
 
 %Generate point labels with specified density
