@@ -190,7 +190,8 @@ set(handles.parfile_edit,'String',[fname,fext],'UserData',fpath);
 % clear previous detpar to load new detectors file on calculations
 set(handles.parfile_text,'UserData',[]);
 set(hObject,'BackgroundColor',[0.01,0.5,0.01]);
-set(handles.message_text,'String','','BackgroundColor','w');
+set(handles.message_text,'String',...
+    'new par file has been selected successfully','BackgroundColor','w');
 
 
 
