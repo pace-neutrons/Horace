@@ -3,13 +3,13 @@ classdef serializable
     % from/to structure used in serialization and defines the
     % standard for any Horace/Herbert custom class loadobj/saveobj methods.
     %
-    methods(Abstract,Access=protected)
-        % get independent fields, which fully define the state of a
-        % serializable object.
-        flds = indepFields(obj);
+    methods(Abstract,Access=public)
         % get class version, which would affect the way class is stored on/
         % /restore from an external media
         ver  = classVersion(obj);
+        % get independent fields, which fully define the state of a
+        % serializable object.
+        flds = indepFields(obj);        
     end
     methods(Abstract,Static)
         % Static method used by Matlab load function to support custom
@@ -18,7 +18,7 @@ classdef serializable
         %
         % function obj = loadobj(S)
         %   class_instance = EmptyClassConstructur();
-        %   obj = class_instance.loadobj_generic(S,class_instance)
+        %   obj = serializable.loadobj_generic(S,class_instance);
         % end
         %
         % where EmpytClassConstructor is the empty constructor of the
@@ -31,6 +31,10 @@ classdef serializable
         % convert class or array of classes into a plain structure
         % using independent properties obtained from indepFields method.
         str = struct(obj);
+        % convert class or array of classes into a plain structure
+        % using independent properties obtained from indepFields method.
+        str = struct(obj);
+        
         %
         %------------------------------------------------------------------
         % set up object or array of objects from a plain structure,

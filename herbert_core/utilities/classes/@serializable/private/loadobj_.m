@@ -20,6 +20,6 @@ if isfield(S,'version')
     else
         obj = from_old_struct(class_instance,S);        
     end
-else % previous version(s), written without version info
-    obj = from_old_struct(S);
+else % previous version(s), written without version info or any old version
+    obj = from_old_struct(class_instance,S);
 end

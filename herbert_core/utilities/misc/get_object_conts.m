@@ -2,6 +2,8 @@ function conts = get_object_conts(v)
     % Objects need special treatment in C++
     if any(strcmp(methods(v), 'serialize'))
             conts = arrayfun(@(x) (x.serialize()), v);
+    elseif isa(v,'serializable')
+        conts = struct(v);
     else
         try
             % try to use the saveobj method first to get the contents
