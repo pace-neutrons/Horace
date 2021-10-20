@@ -198,7 +198,7 @@ if strcmp(folder_name,'admin')
     end
 else
     hor_checkup_folder = 'Horace'; % when installed from zip file, this is where
-    % Horace is located, and install sctript is one level above
+    % Horace is located, and install script is one level above
     her_checkup_folder='Herbert'; % Herbert is located alongside,
     % under Herbert name
 end
@@ -228,7 +228,7 @@ end
     end
 
 % Default horace_root is "<check_up_folder_name>/Horace", but Jenkins
-% checks it up directlry into check_up_folder_name.
+% checks it up directly into check_up_folder_name.
 hor_root_default = fullfile(code_root, hor_checkup_folder);
 % Default herbert_root is "<horace_root>/../Herbert"
 her_root_default = fullfile(code_root, her_checkup_folder);
