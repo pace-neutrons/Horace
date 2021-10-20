@@ -31,7 +31,7 @@ classdef serializable
         % convert class or array of classes into a plain structure
         % using independent properties obtained from indepFields method.
         strc = struct(obj);
-
+        
         %
         %------------------------------------------------------------------
         % restore object or array of objects from a plain structure,
@@ -41,9 +41,9 @@ classdef serializable
         function struc = shallow_struct(obj)
             % convert object to structure, using only its top level
             % properties, e.g. if a property value is an object, we are not
-            % converting this object into structure. Structure property value
-            % remains object
-            struc = shallow_struct_(obj);            
+            % converting this object into structure. The structure property 
+            % value object remains unchanged
+            struc = shallow_struct_(obj);
         end
         %
         

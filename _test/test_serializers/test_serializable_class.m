@@ -16,8 +16,8 @@ classdef test_serializable_class < TestCase
             tc = repmat(tc,2,2);
             tc2 = serializableTester1();
             for i=1:numel(tc)
-                tc(i).Property1 = i*10;
-                tc(i).Property2 = repmat(tc2,1,2*i);
+                tc(i).Prop_level2_1 = i*10;
+                tc(i).Prop_level2_2 = repmat(tc2,1,2*i);
             end
             % prepara data to store
             tc_struct = saveobj(tc);
@@ -40,8 +40,8 @@ classdef test_serializable_class < TestCase
             tc = repmat(tc,2,2);
             tc2 = serializableTester2();
             for i=1:numel(tc)
-                tc(i).Property1 = i*10;
-                tc(i).Property2 = repmat(tc2,1,2*i);
+                tc(i).Prop_level1_1 = i*10;
+                tc(i).Prop_level1_2 = repmat(tc2,1,2*i);
             end
             tc_struct = struct(tc);
             
@@ -55,8 +55,8 @@ classdef test_serializable_class < TestCase
         
         function test_save_load_single_class(obj)
             tc = serializableTester1();
-            tc.Property1 = 20;
-            tc.Property2 = cell(1,10);
+            tc.Prop_level1_1 = 20;
+            tc.Prop_level1_2 = cell(1,10);
             test_file = fullfile(obj.wk_dir,'test_serializable_single_class.mat');
             clob = onCleanup(@()delete(test_file));
             save(test_file,'tc');
@@ -67,8 +67,8 @@ classdef test_serializable_class < TestCase
         
         function test_saveobj_loadobj_single_class(~)
             tc = serializableTester1();
-            tc.Property1 = 20;
-            tc.Property2 = cell(1,10);
+            tc.Prop_level1_1 = 20;
+            tc.Prop_level1_2 = cell(1,10);
             tc_struct = saveobj(tc);
             
             tc_rec = serializableTester1.loadobj(tc_struct);
@@ -79,8 +79,8 @@ classdef test_serializable_class < TestCase
             tc = serializableTester1();
             tc = repmat(tc,2,2);
             for i=1:numel(tc)
-                tc(i).Property1 = i*10;
-                tc(i).Property2 = cell(1,2*i);
+                tc(i).Prop_level1_1 = i*10;
+                tc(i).Prop_level1_2 = cell(1,2*i);
             end
             tc_struct = struct(tc);
             
@@ -93,8 +93,8 @@ classdef test_serializable_class < TestCase
         end
         function test_to_from_to_struct_single_class(~)
             tc = serializableTester1();
-            tc.Property1 = 20;
-            tc.Property2 = cell(1,10);
+            tc.Prop_level1_1 = 20;
+            tc.Prop_level1_2 = cell(1,10);
             tc_struct = struct(tc);
             
             tc_base = serializableTester1();

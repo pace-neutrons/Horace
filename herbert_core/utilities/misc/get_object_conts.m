@@ -8,7 +8,7 @@ function conts = get_object_conts(v)
 if isa(v, 'serializable')
     % the mentod of serializable class converts to structure both objects
     % and object arrays as one operation
-    conts = shellow_struc(v);
+    conts = shallow_struct(v);
 else
     try
         % try to use the saveobj method first to get the contents

@@ -4,7 +4,7 @@ classdef serializableTester1 < serializable
     
     properties
         Prop_level1_1=10;
-        Pro_level1_2 =20;
+        Prop_level1_2 =20;
     end
     
     methods
@@ -24,7 +24,7 @@ classdef serializableTester1 < serializable
         
     end
     properties(Constant,Access=protected)
-        fields_to_save_ = {'Prop_level1_1','Pro_level1_2'};
+        fields_to_save_ = {'Prop_level1_1','Prop_level1_2'};
     end
     methods(Static)
         
