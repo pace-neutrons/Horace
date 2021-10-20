@@ -14,3 +14,5 @@
   
 - test_ParpoolMPI_Framework 
     - test_finish_tasks_reduce_messages Disabled on Windows Jenkins Matlab 2018b only due to launch instability (rare 1/10)
+    
+- test_multifit_legacy  -- fully disabled due to deprecating the code and the changes according to ticket #392
