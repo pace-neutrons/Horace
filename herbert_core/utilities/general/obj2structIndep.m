@@ -30,5 +30,6 @@ public = false;
 if isstruct(input) || isobject(input)
     output_struct = obj2struct_private(input,public);
 else
-    error('Input argument is not an object or a structure')
+    error('HERBERT:obj2structIndep:invalid_argument',...
+        'Input argument is not an object or a structure. It is %s',class(input))
 end

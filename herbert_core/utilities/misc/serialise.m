@@ -11,10 +11,9 @@ if use_mex
             rethrow(ME);
         else
             warning(ME.identifier,'%s',ME.message);
-            use_mex = false;
         end
     end
 end
-if ~use_mex
-    ser = hlp_serialise(a);
-end
+
+ser = hlp_serialise(a);
+

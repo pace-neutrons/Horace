@@ -3,15 +3,15 @@ classdef serializableTester1 < serializable
     %
     
     properties
-        Property1
-        Property2;
+        Property1=10;
+        Property2=20;
     end
     
     methods
         function obj = serializableTester1()
         end
     end
-    methods(Access=protected)
+    methods(Access=public)
         % get independent fields, which fully define the state of the object
         function flds = indepFields(~)
             flds = serializableTester1.fields_to_save_;

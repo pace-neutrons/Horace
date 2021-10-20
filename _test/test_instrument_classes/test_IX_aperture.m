@@ -69,7 +69,7 @@ classdef test_IX_aperture < TestCaseWithSave
             assertEqualToTol(stdev.^2, [0.1^2;0.06^2]/12, 'reltol', 1e-3);
         end
         
-        function test_apperture_array_prev_versions(obj)
+        function test_aperture_array_prev_versions(obj)
             % 2x2 array example
             ap_arr = [IX_aperture('Ap0', 11, 0.2, 0.25), IX_aperture('Ap1', 121, 0.22, 0.225);...
                 IX_aperture('Ap3', 311, 0.23, 0.325), IX_aperture('Ap4', 114, 0.24, 0.245)];
@@ -97,7 +97,7 @@ classdef test_IX_aperture < TestCaseWithSave
             
         end
         %
-        function test_single_apperture_load_prev_versions(obj)
+        function test_single_aperture_load_prev_versions(obj)
             % Scalar example
             ap = IX_aperture ('Ap0', 11, 0.2, 0.25);
             sample_files_location = obj.home_folder;

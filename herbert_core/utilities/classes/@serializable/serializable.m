@@ -9,7 +9,7 @@ classdef serializable
         ver  = classVersion(obj);
         % get independent fields, which fully define the state of a
         % serializable object.
-        flds = indepFields(obj);        
+        flds = indepFields(obj);
     end
     methods(Abstract,Static)
         % Static method used by Matlab load function to support custom
@@ -30,17 +30,43 @@ classdef serializable
     methods
         % convert class or array of classes into a plain structure
         % using independent properties obtained from indepFields method.
-        str = struct(obj);
-        % convert class or array of classes into a plain structure
-        % using independent properties obtained from indepFields method.
-        str = struct(obj);
-        
+        strc = struct(obj);
+
         %
         %------------------------------------------------------------------
-        % set up object or array of objects from a plain structure,
+        % restore object or array of objects from a plain structure,
         % previously obtained by struct operation
         obj = from_struct(obj,inputs);
+        
+        function struc = shellow_struc(obj)
+            % convert object to structure, using only its top level
+            % properties, e.g. if a property value is an object, we are not
+            % converting this object into structure. Structure property value
+            % remains object
+            struc = shallow_struct_(obj);            
+        end
         %
+        
+        function ser_data = serialize(obj)
+            sh_struc = shallow_struct_(obj);
+            ser_data = serialise(sh_struc);
+        end
+        %
+        function size = serial_size(obj)
+            % returns size of the serialized object
+            str = shallow_struct_(obj);
+            size = serial_size(str);
+        end
+        %
+        function [obj,nbytes] = deserialize(obj,bytes_array,pos)
+            % deserialize underlying data structure and return appropriate
+            % object or array of objects
+            %
+            % pos -- the location of the data of interest within the bytes
+            %         array
+            [struc,nbytes] = deserialise(bytes_array,pos);
+            obj = from_struct(obj,struc);
+        end
         %======================================================================
         % Custom loadobj and saveobj
         % - to enable custom saving to .mat files and bytestreams
@@ -99,6 +125,7 @@ classdef serializable
         end
     end
     methods (Static)
+        
         function obj = loadobj_generic(S,class_instance)
             % Generic method, used by particular class loadobj method
             % to recover any class

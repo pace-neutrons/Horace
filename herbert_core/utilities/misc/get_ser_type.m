@@ -1,6 +1,6 @@
 function type = get_ser_type(v)
     % Objects need special treatment in C++
-    if any(strcmp(methods(v), 'serialize'))
+    if ismethod(v, 'serialize')
             % The object has serialised itself
             type = uint8(0);
     else

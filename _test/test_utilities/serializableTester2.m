@@ -11,7 +11,7 @@ classdef serializableTester2 < serializable
         function obj = serializableTester2()
         end
     end
-    methods(Access=protected)
+    methods(Access=public)
         % get independent fields, which fully define the state of the object
         function flds = indepFields(~)
             flds = serializableTester2.fields_to_save_;

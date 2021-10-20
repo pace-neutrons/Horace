@@ -146,9 +146,13 @@ function siz = serial_sise_object(v, type)
 
     % Serialise class name as char string
     class_name_siz = hlp_serial_types.tag_size + hlp_serial_types.dim_size + numel(class(v));
-
-    if any(strcmp(methods(v), 'serialize'))    % can object serialise/deserialise itself?
-            conts_siz = hlp_serial_sise(arrayfun(@(x) (x.serialize()), v));
+       
+    if any(strcmp(methods(v), 'serial_size'))    % can object calculate its size itself?    
+        nElem = 1;
+        nDims = 2;
+        conts_siz = v.serial_size();        
+    elseif any(strcmp(methods(v), 'serialize'))    % can object serialise/deserialise itself?
+        conts_siz = hlp_serial_sise(arrayfun(@(x) (x.serialize()), v));
     else
         try
             % try to use the saveobj method first to get the contents

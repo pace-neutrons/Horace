@@ -31,7 +31,9 @@ function output = obj2struct_private(input, public)
 
 
 if isstruct(input) || isobject(input)
-    if numel(input)<=1  % include empty structure or object
+    if isa(input,'serializable')
+        output = struct(input);
+    elseif numel(input)<=1  % include empty structure or object
         output = obj2struct_private_single(input,public);   % keep it simple for scalar case
     else
         output = arrayfun(@(x)obj2struct_private_single(x,public), input);
