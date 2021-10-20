@@ -34,6 +34,29 @@ classdef test_serializable_class < TestCase
                 assertEqual(tc(i),tc_rec(i));
             end
         end
+        function test_serialize_classes_array_recursive(~)
+            tc = serializableTester1();
+            tc = repmat(tc,2,2);
+            tc2 = serializableTester2();
+            for i=1:numel(tc)
+                tc(i).Prop_level1_1 = i*10;
+                tc(i).Prop_level1_2 = repmat(tc2,1,2*i);
+            end
+            
+            tc_bytes = tc.serialize();
+            tc_size  = tc.serial_size();
+            assertEqual(numel(tc_bytes),tc_size);
+            
+            tc_base = serializableTester1();
+            [tc_rec,nbytes] = tc_base.deserialize(tc_bytes);
+            
+            assertEqual(size(tc_rec),size(tc));            
+            assertEqual(tc_size,nbytes);
+            for i=1:numel(tc)
+                assertEqual(tc(i),tc_rec(i));
+            end
+        end
+
         
         function test_to_from_to_struct_classes_array_recursive(~)
             tc = serializableTester1();
@@ -75,6 +98,26 @@ classdef test_serializable_class < TestCase
             assertEqual(tc,tc_rec);
         end
         
+        function test_serialize_classes_array(~)
+            tc = serializableTester1();
+            tc = repmat(tc,2,2);
+            for i=1:numel(tc)
+                tc(i).Prop_level1_1 = i*10;
+                tc(i).Prop_level1_2 = cell(1,2*i);
+            end
+            
+            tc_bytes = tc.serialize();
+            tc_size  = tc.serial_size();
+            assertEqual(numel(tc_bytes),tc_size);
+            
+            tc_base = serializableTester1();
+            [tc_rec,nbytes] = tc_base.deserialize(tc_bytes);
+            assertEqual(tc,tc_rec);
+            assertEqual(tc_size,nbytes);        
+        end
+        
+        
+        
         function test_to_from_to_struct_classes_array(~)
             tc = serializableTester1();
             tc = repmat(tc,2,2);
@@ -91,6 +134,21 @@ classdef test_serializable_class < TestCase
                 assertEqual(tc(i),tc_rec(i));
             end
         end
+        function test_serialize_native_single_class(~)
+            tc = serializableTester1();
+            tc.Prop_level1_1 = 20;
+            tc.Prop_level1_2 = cell(1,10);
+            
+            tc_bytes = tc.serialize();
+            tc_size  = tc.serial_size();
+            assertEqual(numel(tc_bytes),tc_size);
+            
+            tc_base = serializableTester1();
+            [tc_rec,nbytes] = tc_base.deserialize(tc_bytes);
+            assertEqual(tc,tc_rec);
+            assertEqual(tc_size,nbytes);        
+        end
+        
         function test_to_from_to_struct_single_class(~)
             tc = serializableTester1();
             tc.Prop_level1_1 = 20;

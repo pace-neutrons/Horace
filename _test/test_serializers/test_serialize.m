@@ -31,7 +31,7 @@ classdef test_serialize < TestCase
 
         %------------------------------------------------------------------
         function test_ser_instrument(~)
-
+            skipTest('Old serialiser does not support serialising object arrays #394')
         % Create three different instruments
             inst1=create_test_instrument(95,250,'s');
             bytes = hlp_serialize(inst1);

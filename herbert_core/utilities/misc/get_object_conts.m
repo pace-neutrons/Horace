@@ -6,7 +6,7 @@ function conts = get_object_conts(v)
 %
 %
 if isa(v, 'serializable')
-    % the mentod of serializable class converts to structure both objects
+    % the method of serializable class converts to structure both objects
     % and object arrays as one operation
     conts = shallow_struct(v);
 else

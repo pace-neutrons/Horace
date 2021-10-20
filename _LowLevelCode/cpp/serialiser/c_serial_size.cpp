@@ -94,13 +94,17 @@ size_t get_size(const mxArray *input) {
   case VALUE_OBJECT:
     {
       std::string name = std::string(mxGetClassName(input));
+      size_t class_name_size = TAG_SIZE + NELEMS_SIZE + name.size() * types_size[CHAR];
+
 
       mxArray* arr = const_cast<mxArray*>(input);
       mxArray* ser_type;
       mexCallMATLAB(1, &ser_type, 1, &arr, "get_ser_type");
       if (*static_cast<uint8_t*>(mxGetData(ser_type)) == 0) { // object serializes itself so has serial_size method
-          mxArray* ser_size;
-          mexCallMATLAB(1, &ser_type, 1, &arr, "get_serial_size");
+          mxArray* ser_size(nullptr);
+          mexCallMATLAB(1, &ser_size, 1, &arr, "get_serial_size");
+          size += (size_t)mxGetScalar(ser_size)+ TAG_SIZE + class_name_size + 1;
+          break;
       }
 
       size_t nElem = mxGetNumberOfElements(input);
@@ -109,7 +113,6 @@ size_t get_size(const mxArray *input) {
 
 
       mxArray* conts;
-      size_t class_name_size = TAG_SIZE + NELEMS_SIZE + name.size() * types_size[CHAR];
       mexCallMATLAB(1, &conts, 1, &arr, "get_object_conts");
       size_t data_size = get_size(conts);
 

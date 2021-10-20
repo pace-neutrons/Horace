@@ -244,7 +244,7 @@ function sz = serial_size_object(v)
 % can object serialize/deserizlize itself?
     if any(strcmp(methods(v), 'serialize'))
             % it has to have serial_size method too
-            sz = hlp_serial_types.tag_size + serial_size_string(class(v))+v.serizl_size();
+            sz = hlp_serial_types.tag_size + serial_size_string(class(v))+v.serial_size();
             %m = [uint8(135); serialize_string(class(v)); v.serialize()];
     else
         try

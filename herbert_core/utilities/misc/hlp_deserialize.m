@@ -55,7 +55,7 @@ switch m(pos)
     case 135
         [v,pos] = obj_deserialize_itself(m,pos);
     otherwise
-        error('MATLAB:deserialize_value:unrecognised_tag', 'Unsupported tag %s.', m(pos));
+        error('MATLAB:deserialize_value:unrecognised_tag', 'Unsupported tag %d in pos %d', uint8(m(pos)),pis);
 end
 end
 

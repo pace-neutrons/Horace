@@ -16,3 +16,9 @@
     - test_finish_tasks_reduce_messages Disabled on Windows Jenkins Matlab 2018b only due to launch instability (rare 1/10)
     
 - test_multifit_legacy  -- fully disabled due to deprecating the code and the changes according to ticket #392
+
+- test_serializers
+  -test_serialise -- number of tests are disabled according to ticket #394
+  -test_serialize_size --  number of tests are disabled according to ticket #394
+  -test_serialize    -- problem with arrays #394
+  -test_cpp_deserialise -- all disabled (#394)

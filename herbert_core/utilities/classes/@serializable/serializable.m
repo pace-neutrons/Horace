@@ -55,7 +55,7 @@ classdef serializable
         function size = serial_size(obj)
             % returns size of the serialized object
             str = shallow_struct_(obj);
-            size = serial_size(str);
+            size = hlp_serial_sise(str);
         end
         %
         function [obj,nbytes] = deserialize(obj,bytes_array,pos)
@@ -64,6 +64,9 @@ classdef serializable
             %
             % pos -- the location of the data of interest within the bytes
             %         array
+            if nargin==2
+                pos = 1;
+            end
             [struc,nbytes] = hlp_deserialise(bytes_array,pos);
             obj = from_struct(obj,struc);
         end
