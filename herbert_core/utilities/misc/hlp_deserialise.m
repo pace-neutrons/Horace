@@ -248,7 +248,8 @@ switch tag
             try
                 v = arg_report('handle',v,parentage{k});
             catch
-                error('MATLAB:deserialise_function_handle:hlp_deserialise', 'Cannot deserialise a function handle to a nested function.')
+                error('MATLAB:deserialise_function_handle:hlp_deserialise',...
+                    'Cannot deserialise a function handle to a nested function.')
             end
         end
 end

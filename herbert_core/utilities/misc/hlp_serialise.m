@@ -34,18 +34,19 @@ function m = hlp_serialise(v)
 %   ... e.g. transfer the 'bytes' array over the network ...
 %   mydata = hlp_deserialise(bytes);
 %
-%                                Jacob Wilkins, SCD, STFC RAL,
-%                                2020-12-24
+%    Jacob Wilkins, SCD, STFC RAL,
+%    2020-12-24
 %
-%                                adapted from hlp_serialize.m
-%                                Christian Kothe, Swartz Center for Computational Neuroscience, UCSD
-%                                2010-04-02
+%    adapted from hlp_serialize.m
+%    Christian Kothe, Swartz Center for Computational Neuroscience, UCSD
+%    2010-04-02
 %
-%                                adapted from serialize.m
-%                                (C) 2010 Tim Hutt
+%    adapted from serialize.m
+%    (C) 2010 Tim Hutt
 
 if any(size(v) > intmax('uint32'))
-    error("MATLAB:serialise:bad_size", "Dimensions of array exceed limit of uint32, cannot serialise.")
+    error("MATLAB:serialise:bad_size",...
+        "Dimensions of array exceed limit of uint32, cannot serialise.")
 end
 
 type = hlp_serial_types.type_mapping(v);

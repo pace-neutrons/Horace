@@ -1,5 +1,7 @@
 function struc = shallow_struct_(obj)
-% convert object into structure, considering only top level properties
+% Convert object into structure, considering only top level properties.
+% All property values object remain untouched.
+%
 flds = indepFields(obj);
 
 cell_dat = cell(numel(flds),numel(obj));

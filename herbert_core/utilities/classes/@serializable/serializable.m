@@ -38,7 +38,7 @@ classdef serializable
         % previously obtained by struct operation
         obj = from_struct(obj,inputs);
         
-        function struc = shellow_struc(obj)
+        function struc = shallow_struct(obj)
             % convert object to structure, using only its top level
             % properties, e.g. if a property value is an object, we are not
             % converting this object into structure. Structure property value
@@ -49,7 +49,7 @@ classdef serializable
         
         function ser_data = serialize(obj)
             sh_struc = shallow_struct_(obj);
-            ser_data = serialise(sh_struc);
+            ser_data = hlp_serialise(sh_struc);
         end
         %
         function size = serial_size(obj)
@@ -64,7 +64,7 @@ classdef serializable
             %
             % pos -- the location of the data of interest within the bytes
             %         array
-            [struc,nbytes] = deserialise(bytes_array,pos);
+            [struc,nbytes] = hlp_deserialise(bytes_array,pos);
             obj = from_struct(obj,struc);
         end
         %======================================================================
