@@ -4,7 +4,6 @@ set(TEST_DIRECTORIES
     "test_IX_classes"
     "test_map_mask"
     "test_multifit"
-    "test_multifit_legacy"
     "test_utilities"
     "test_instrument_classes"
     "test_docify"

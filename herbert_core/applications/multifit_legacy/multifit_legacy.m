@@ -769,7 +769,7 @@ function [wout, fitdata, ok, mess] = multifit_legacy(varargin)
 %
 % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
-
+error('HERBERT:multifit_legacy:deprecated', 'This routine has been deprecated and should no longer be used. See: multifit')
 [ok,mess,wout,fitdata] = multifit_gateway_main (varargin{:});
 if ~ok && nargout<3
     error(mess)
