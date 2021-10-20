@@ -3,11 +3,12 @@ function [v,nbytes] = hlp_deserialise(m,pos)
 % Data = hlp_deserialise(Bytes)
 %
 % In:
-%   Bytes : a representation of the original data as a byte stream
-%
+%  m  :    a representation of the original data as a byte stream
+%  pos:    if present, the initial location of the data to deserise in
+%          within the byte array
 % Out:
-%   Data : some MATLAB data structure
-%
+%   Data  : some MATLAB data structure deseriaised from the bytes
+%  nbytes : number of bytes the structure occupies
 % See also:
 %   hlp_serialise
 %

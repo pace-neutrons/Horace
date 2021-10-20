@@ -51,6 +51,7 @@ if isempty(test_folders) % No tests specified on command line - run them all
         'test_IX_classes', ...
         'test_map_mask', ...
         'test_utilities', ...
+        'test_serializers', ...
         'test_geometry',...
         'test_instrument_classes', ...
         'test_docify', ...
@@ -105,7 +106,7 @@ if talkative
     argi = {'-verbose'};
 else
     hc.log_level = -1; % turn off herbert informational output
-    argi = {};    
+    argi = {};
 end
 
 
@@ -117,7 +118,7 @@ if parallel && license('checkout', 'Distrib_Computing_Toolbox')
         end
         matlabpool(cores);
     end
-
+    
     test_ok = false(1, numel(test_folders_full));
     time = bigtic();
     parfor i = 1:numel(test_folders_full)
@@ -130,15 +131,15 @@ if parallel && license('checkout', 'Distrib_Computing_Toolbox')
 else
     time = bigtic();
     tests_ok= runtests(test_folders_full{:}, argi{:});
-%     test_ok = false(1,numel(test_folders_full));
-%     for i=1:numel(test_folders_full)
-%         fprintf('=== Starting tests for: %s\n',test_folders_full{i});
-%         [test_ok(i),suite] = runtests(test_folders_full{i}, argi{:});
-%         suite.delete();
-%     end
-%     tests_ok = all(test_ok);
+    %     test_ok = false(1,numel(test_folders_full));
+    %     for i=1:numel(test_folders_full)
+    %         fprintf('=== Starting tests for: %s\n',test_folders_full{i});
+    %         [test_ok(i),suite] = runtests(test_folders_full{i}, argi{:});
+    %         suite.delete();
+    %     end
+    %     tests_ok = all(test_ok);
     bigtoc(time, '===COMPLETED UNIT TESTS RUN ');
-
+    
 end
 
 if tests_ok
