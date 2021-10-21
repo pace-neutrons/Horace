@@ -52,10 +52,10 @@ switch m(pos)
         [v,pos] = deserialize_char(m,pos);
     case 134
         [v,pos] = deserialize_object(m,pos);
-    case 135
+    case {135,136}
         [v,pos] = obj_deserialize_itself(m,pos);
     otherwise
-        error('MATLAB:deserialize_value:unrecognised_tag', 'Unsupported tag %d in pos %d', uint8(m(pos)),pis);
+        error('MATLAB:deserialize_value:unrecognised_tag', 'Unsupported tag %s.', m(pos));
 end
 end
 
@@ -237,7 +237,7 @@ switch kind
         v = cell(size(content));
         for k=1:numel(v)
             v{k} = content(k); end
-         [reality,pos] = deserialize_value(m,pos);
+        [reality,pos] = deserialize_value(m,pos);
     case 36 % cell array with horizontal or empty strings
         [chars,pos] = deserialize_string(m,pos);
         [lengths,pos] = deserialize_numeric_simple(m,pos);
@@ -258,7 +258,7 @@ switch kind
             case 128 % struct - struct()
                 prot = struct();
             otherwise
-              error('MATLAB:deserialize_cell:unrecognised_tag', 'Unsupported tag %s.', tag);
+                error('MATLAB:deserialize_cell:unrecognised_tag', 'Unsupported tag %s.', tag);
         end
         % Number of dims
         ndms = double(m(pos));
@@ -285,17 +285,26 @@ switch kind
         for k=1:numel(v)
             v{k} = content(k); end
     otherwise
-        error('MATLAB:deserialize_cell:unrecognised_tag', 'Unsupported tag %s.', m(pos));
+        error('HERBERT:hlp_deserialize:runtime_error',...
+            'Unsupported tag %d at position: %d', uint8(m(pos)),pos);
 end
 end
 % object which can deserialize itself
 function [v,pos]=obj_deserialize_itself(m,pos)
+tag = m(pos);
 pos = pos + 1;
-[cls,pos] = deserialize_string(m,pos);
-instance = feval(cls);
-[v,nbytes] = instance.deserialize(m(pos:end));
-pos = pos+nbytes+8;
-
+if tag == 135    
+    [cls,pos] = deserialize_string(m,pos);
+    instance = feval(cls);
+    [v,nbytes] = instance.deserialize(m(pos:end));
+    pos = pos+nbytes+8;
+elseif tag == 136
+    [v,nbytes] = serializable.deserialize(m(pos:end));    
+    pos = pos+nbytes;    
+else
+    error('HERBERT:hlp_deserialize:runtime_error',...
+        'Unsupported tag %d at position: %d', uint8(m(pos)),pos);
+end
 end
 % object
 function [v,pos] = deserialize_object(m,pos)

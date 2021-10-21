@@ -92,12 +92,12 @@ classdef rundata < serializable
             %
             % do not forget to overload rundatah in Horace
             obj = rundata();
-            obj = from_struct(obj,inputs);
+            obj = from_struct@serializable(obj,inputs);
         end
-        function [obj,nbytes]=deserialze(bytes_array,pos)      
+        function [obj,nbytes]=deserialize(bytes_array,pos)      
             % specialization to recover data from byte-stream            
             obj = rundata();        
-            [obj,nbytes] = obj.deserialize(bytes_array,pos);            
+            [obj,nbytes] = deserialize@serializable(obj,bytes_array,pos);            
         end
         %------------------------------------------------------------------
         % Serializable Interface:

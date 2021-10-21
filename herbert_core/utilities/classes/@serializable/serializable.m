@@ -3,6 +3,8 @@ classdef serializable
     % from/to structure used in serialization and defines the
     % standard for any Horace/Herbert custom class loadobj/saveobj methods.
     %
+    %----------------------------------------------------------------------
+    %   ABSTRACT INTERFACE TO DEFINE
     methods(Abstract,Access=public)
         % get class version, which would affect the way class is stored on/
         % /restore from an external media
@@ -11,69 +13,66 @@ classdef serializable
         % serializable object.
         flds = indepFields(obj);
     end
-    methods(Abstract,Static)
-        % Static method used by Matlab load function to support custom
-        % loading. The method has to be overloaded in the class using
-        % loadobj_generic function in the form:
-        %
-        % function obj = loadobj(S)
-        % % Placeholder code to overload loadobj class
-        %   class_instance = EmptyClassConstructur();
-        %   obj = serializable.loadobj_generic(S,class_instance);
-        % end
-        %
-        % where EmpytClassConstructor is the empty constructor of the
-        % class to recover from the record
-        obj = loadobj(S);
-        
-    end
-    
-    
+    % To support old class versions, generic static loadob has to be
+    % overloaded by the children class (e.g. ChildClass) by uncommenting
+    % and appropriately modifying the following code:
+    %     methods(Static)
+    %         function obj = loadobj(S)
+    %             obj = ChildClass();
+    %             obj = loadobj@serializable(S,obj);
+    %         end
+    %     end
+    %----------------------------------------------------------------------
     methods
-        % convert class or array of classes into a plain structure
-        % using independent properties obtained from indepFields method.
-        strc = struct(obj);
+        function strc = to_struct(obj)
+            % Convert serializable object into a special structure, which allow
+            % serialization and recovery using static "serializable.from_struct"
+            % operation.
+            %
+            % Uses internal class structure produced by to to_struct method.
+            % Contains class information, so the word "class" in the name
+            %
+            % Input:
+            % obj  -- class or array of classes object.
+            % Returns:
+            % struc -- structure, or structure array, containing the full
+            %          information, necessary to restore initial object
+            strc = to_struct_(obj);
+        end
+        function strc = to_bare_struct(obj)
+            % Convert serializable object into a special structure, which allow
+            % serialization and recovery using "from_class_struct" operation
+            %
+            % Uses independent properties obtained from indepFields method.
+            %
+            % Input:
+            % obj  -- class or array of classes object
+            % Returns:
+            % struc -- structure, or structure array, containing the full
+            %          information, necessary to restore the initial object
+            strc = to_bare_struct_(obj);
+        end
         
-        %
         %------------------------------------------------------------------
-        % restore object or array of objects from a plain structure,
-        % previously obtained by struct operation
-        obj = from_struct(obj,inputs);
-        
-        function struc = shallow_struct(obj)
-            % convert object to structure, using only its top level
-            % properties, e.g. if a property value is an object, we are not
-            % converting this object into structure. The structure property 
-            % value object remains unchanged
-            struc = shallow_struct_(obj);
+        function obj = from_class_struct(obj,inputs)
+            % restore object or array of objects from a plain structure,
+            % previously obtained by to_struct operation
+            obj = from_class_struct_(obj,inputs);
         end
         %
-        
         function ser_data = serialize(obj)
-            sh_struc = shallow_struct_(obj);
-            ser_data = serialise(sh_struc);
+            struc = to_struct(obj);
+            ser_data = serialise(struc);
         end
         %
         function size = serial_size(obj)
             % returns size of the serialized object
-            str = shallow_struct_(obj);
-            size = serial_size(str);
+            struc = to_struct(obj);
+            size = serial_size(struc);
         end
         %
-        function [obj,nbytes] = deserialize(obj,bytes_array,pos)
-            % deserialize underlying data structure and return appropriate
-            % object or array of objects
-            %
-            % pos -- the location of the data of interest within the bytes
-            %         array
-            if nargin==2
-                pos = 1;
-            end
-            [struc,nbytes] = deserialise(bytes_array,pos);
-            obj = from_struct(obj,struc);
-        end
         %======================================================================
-        % Custom loadobj and saveobj
+        % Generic loadobj and saveobj
         % - to enable custom saving to .mat files and bytestreams
         % - to enable older class definition compatibility
         %------------------------------------------------------------------
@@ -90,19 +89,12 @@ classdef serializable
             % Output:
             % -------
             %   S       Structure created from obj that is to be saved
-            
-            % The following is generic code. Overload if really necessary
-            S = struct(obj);
-            ver = obj.classVersion();
-            if numel(obj)>1
-                S = struct('version',ver,...
-                    'array_data',S);
-            else
-                S.version = ver;
-            end
+            %
+            S         = to_struct(obj);
+            ver       = obj.classVersion();
+            S.version = ver;
         end
-        
-        %
+        %------------------------------------------------------------------
         function obj = from_old_struct(obj,inputs)
             % restore object from the old structure, which describes the
             % previous version of the object.
@@ -111,30 +103,56 @@ classdef serializable
             % structure does not contain version or the version, stored
             % in the structure does not correspond to the current version
             %
-            % By default, this function interfaces the default from_struct
-            % function, but when the old strucure substantially differs from
+            % By default, this function interfaces the default from_class_struct
+            % method, but when the old strucure substantially differs from
             % the moden structure, this method needs the specific overloading
             % to allow loadob to recover new structure from an old structure.
-            if isfield(inputs,'version')
-                inputs = rmfield(inputs,'version');
-            end
-            if isfield(inputs,'array_data')
-                obj = from_struct(obj,inputs.array_data);
+            %
+            %if isfield(inputs,'version')
+            % do check for previous versions
+            % and appropriate code
+            %end
+            if isfield(inputs,'array_dat')
+                obj = obj.from_class_struct(inputs.array_dat);
             else
-                obj = from_struct(obj,inputs);
+                obj = obj.from_class_struct(inputs);
             end
         end
+        
         %
         function obj = serializable()
             % generic class constructor. Does nothing
         end
     end
     methods (Static)
+        function obj = from_struct(inputs)
+            % restore object or array of objects from a plain structure,
+            % previously obtained by to_class_struct operation
+            obj = from_struct_(inputs);
+        end
         
-        function obj = loadobj_generic(S,class_instance)
+        function [obj,nbytes] = deserialize(byte_array,pos)
+            % recover the object from the serialized into array of bytes
+            % Inputs:
+            % byte_array -- 1D array of bytes, obtained by some
+            %               serialization operation
+            % pos        -- the location of the initial position of
+            %               the sequence to deserialize in the input byte
+            %               array. If absent, assumed to be 1;
+            % Returns:
+            % obj        -- deserialized object
+            % nbytes     -- the number of bytes the object occupies in the
+            %               input array of bytes
+            if nargin==1
+                pos = 1;
+            end
+            [obj,nbytes] = deserialize_(byte_array,pos);
+        end
+        %
+        function obj = loadobj(S,varargin)
             % Generic method, used by particular class loadobj method
-            % to recover any class
-            %   >> obj = loadobj(S,class_instance)
+            % to recover any serializable class
+            %   >> obj = loadobj(S)
             %
             % Input:
             % ------
@@ -149,12 +167,7 @@ classdef serializable
             %   obj     Either (1) the object passed without change, or (2) an
             %           object (or object array) created from the input structure
             %       	or structure array)
-            if isobject(S) && isa(S,class(class_instance))
-                obj = S;
-            else % call private implementation
-                obj = loadobj_(S,class_instance);
-            end
+            obj = loadobj_(S,varargin{:});
         end
     end
-    
 end

@@ -51,9 +51,13 @@ end
 
 type = hlp_serial_types.type_mapping(v);
 switch type.name
-    case {'logical', 'char', 'string', 'double', 'single', 'int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32', 'int64', 'uint64'}
+    case {'logical', 'char', 'string', 'double', 'single', 'int8', ...
+            'uint8','int16', 'uint16', 'int32', 'uint32', 'int64', 'uint64'}
         m = serialise_simple_data(v, type);
-    case {'complex_double', 'complex_single', 'complex_int8', 'complex_uint8', 'complex_int16', 'complex_uint16', 'complex_int32', 'complex_uint32', 'complex_int64', 'complex_uint64'}
+    case {'complex_double', 'complex_single', 'complex_int8',...
+            'complex_uint8', 'complex_int16', 'complex_uint16', ...
+            'complex_int32', 'complex_uint32', 'complex_int64',...
+            'complex_uint64'}
         m = serialise_complex_data(v, type);
     case {'sparse_logical', 'sparse_double', 'sparse_complex_double'}
         m = serialise_sparse_data(v, type);
@@ -65,6 +69,8 @@ switch type.name
         m = serialise_object(v, type);
     case 'function_handle'
         m = serialise_function_handle(v, type);
+    case {'serializable'}
+        m = serialize_themselves(v,type);
     otherwise
         error('MATLAB:hlp_serialise:bad_type', 'Cannot serialise type %s.', type.name);
 end
@@ -209,6 +215,9 @@ else % General array
         data];
 end
 end
+function m = serialize_themselves(v, type)
+
+end
 
 function m = serialise_object(v, type)
 nElem = numel(v);
@@ -216,41 +225,38 @@ nDims = uint8(ndims(v));
 
 class_name = serialise_simple_data(class(v), hlp_serial_types.get_details('char'));
 % can object serialise/deserialise itself?
-if ismethod(v, 'serialize')
-    nElem = 1;
-    nDims = uint8(2);
+if any(strcmp(methods(v), 'serialize'))
+    conts = arrayfun(@(x) (x.serialize()), v);
     ser_tag = uint8(0);
-    byte_cont = v.serialize();
-    %conts = arrayfun(@(x) (x.serialize()), v);
-    %ser_tag = uint8(0);
 else
     try
         % try to use the saveobj method first to get the contents
-        contents = arrayfun(@saveobj, v);
+        conts = arrayfun(@saveobj, v);
         ser_tag = uint8(1);
     catch
-        contents = arrayfun(@struct, v);
+        conts = arrayfun(@struct, v);
         ser_tag = uint8(2);
     end
-    if isstruct(contents) || iscell(contents) || isnumeric(contents) || ischar(contents) || islogical(contents) || isa(contents,'function_handle')
+    if isstruct(conts) || iscell(conts) || isnumeric(conts) ||...
+            ischar(conts) || islogical(conts) || isa(conts,'function_handle')
         % contents is something that we can readily serialize
-        byte_cont = hlp_serialise(contents);
+        conts = hlp_serialise(conts);
     else
         % contents is still an object: turn into a struct now
-        byte_cont = serialise_struct(struct(contents));
+        conts = serialise_struct(struct(conts));
     end
 end
 if nElem == 0 % Null element
     m = [hlp_serial_types.dims_tag(1) + type.tag; ...
         typecast(uint32(0), 'uint8').'; class_name];
 elseif nElem == 1 % Scalar
-    m = [type.tag; class_name; ser_tag; byte_cont];
+    m = [type.tag; class_name; ser_tag; conts];
 elseif nDims == 2 && size(v,1) == 1 % List
     m = [hlp_serial_types.dims_tag(1) + type.tag; ...
-        typecast(uint32(nElem), 'uint8').'; class_name; ser_tag; byte_cont];
+        typecast(uint32(nElem), 'uint8').'; class_name; ser_tag; conts];
 else % General array
     m = [hlp_serial_types.dims_tag(nDims) + type.tag; ...
-        typecast(uint32(size(v)), 'uint8').'; class_name; ser_tag; byte_cont];
+        typecast(uint32(size(v)), 'uint8').'; class_name; ser_tag; conts];
 end
 
 end

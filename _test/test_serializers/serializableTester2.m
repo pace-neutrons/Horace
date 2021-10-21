@@ -11,6 +11,7 @@ classdef serializableTester2 < serializable
         function obj = serializableTester2()
         end
     end
+    
     methods(Access=public)
         % get independent fields, which fully define the state of the object
         function flds = indepFields(~)
@@ -21,8 +22,14 @@ classdef serializableTester2 < serializable
         function ver  = classVersion(~)
             ver = serializableTester2.version_holder();
         end
-        
     end
+    methods(Static)
+        function obj = loadobj(S)
+            obj = serializableTester2();
+            obj = loadobj@serializable(S,obj);
+        end
+    end
+    
     properties(Constant,Access=protected)
         fields_to_save_ = {'Prop_level2_1','Prop_level2_2'};
     end
@@ -37,11 +44,6 @@ classdef serializableTester2 < serializable
             end
             verr = version;
         end
-        function obj = loadobj(S)
-            class_instance = serializableTester2();
-            obj = class_instance.loadobj_generic(S,class_instance);
-        end
-        %
     end
     
 end
