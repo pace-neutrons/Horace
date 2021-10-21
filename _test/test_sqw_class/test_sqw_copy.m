@@ -37,7 +37,7 @@ classdef test_sqw_copy < TestCase
             
             % changed data is not mirrored in initial
             assertFalse(equal_to_tol(sqw_copy.main_header, sqw_obj.main_header));
-            assertFalse(equal_to_tol(sqw_copy.my_header(), sqw_obj.my_header()));
+            assertFalse(equal_to_tol(sqw_copy.experiment_info, sqw_obj.experiment_info));
             assertFalse(equal_to_tol(sqw_copy.my_detpar(), sqw_obj.my_detpar()));
             assertFalse(equal_to_tol(sqw_copy.data, sqw_obj.data));
             assertFalse(equal_to_tol(sqw_copy.data.pix, sqw_obj.data.pix));
@@ -52,7 +52,7 @@ classdef test_sqw_copy < TestCase
             
             % confirm selected other data is copied
             assertEqual(sqw_copy.main_header.title, sqw_obj.main_header.title);
-            assertEqualToTol(sqw_copy.my_header(), sqw_obj.my_header());
+            assertEqualToTol(sqw_copy.experiment_info, sqw_obj.experiment_info);
             assertEqualToTol(sqw_copy.my_detpar(), sqw_obj.my_detpar());
         end
     end

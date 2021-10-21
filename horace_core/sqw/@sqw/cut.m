@@ -188,8 +188,8 @@ end  % function
 
 function [proj, pbin, pin, en] = define_target_axes_block(w, proj, pbin)
 % Update projection bins using the sqw header
-%header_av = header_average(w.header_x);
-header_av = w.header_x.expdata(1);
+%header_av = header_average(w.experiment_info);
+header_av = w.experiment_info.expdata(1);
 [proj, pbin, ~, pin, en] = proj.update_pbins(header_av, w.data, pbin);
 end
 

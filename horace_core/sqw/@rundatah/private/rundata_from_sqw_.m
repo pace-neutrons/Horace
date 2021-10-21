@@ -13,7 +13,7 @@ function rd=rundata_from_sqw_(sqw_obj)
 
 %
 data = sqw_obj.data;
-header = sqw_obj.my_header();
+header = sqw_obj.experiment_info;
 detpar = sqw_obj.my_detpar();
 %
 if (iscell(header) && numel(header) > 1) || (isa(header,'Experiment') && numel(header.expdata)>1)

@@ -62,11 +62,11 @@ elseif narg==1
         wout=w.data;
         for i=1:numel(wout)
             nfiles=wout(i).main_header.nfiles;
-            tmp=wout(i).header_x;   % to keep referencing to sub-fields to a minimum
+            tmp=wout(i).experiment_info;   % to keep referencing to sub-fields to a minimum
             for ifiles=1:nfiles
                 tmp.samples(ifiles)=sample;
             end
-            wout(i).header_x=tmp;
+            wout(i).experiment_info=tmp;
         end
         argout{1}=wout;
     end

@@ -30,9 +30,9 @@ methods
 
         assertTrue(isa(sqw_obj, 'sqw'));
         assertEqual(sqw_obj.main_header, struct([]));
-        assertTrue(isa(sqw_obj.my_header(), 'Experiment'));
+        assertTrue(isa(sqw_obj.experiment_info, 'Experiment'));
         empty_insts = IX_inst.empty;
-        assertEqual(sqw_obj.my_header().instruments, empty_insts);
+        assertEqual(sqw_obj.experiment_info.instruments, empty_insts);
         assertEqual(sqw_obj.my_detpar(), struct([]));
         assertEqual(sqw_obj.data.pix, PixelData());
         assertEqual(numel(sqw_obj.data.pax), 0);
@@ -44,9 +44,9 @@ methods
         % expected data populated from instance of test object
         assertTrue(isa(sqw_obj, 'sqw'));
         assertEqual(sqw_obj.main_header.nfiles, 85)
-        assertEqual(numel(sqw_obj.my_header().expdata), 85)
-        assertEqual(numel(sqw_obj.my_header().instruments), 85)
-        assertEqual(numel(sqw_obj.my_header().samples), 85)
+        assertEqual(numel(sqw_obj.experiment_info.expdata), 85)
+        assertEqual(numel(sqw_obj.experiment_info.instruments), 85)
+        assertEqual(numel(sqw_obj.experiment_info.samples), 85)
         assertEqual(numel(sqw_obj.detpar_x.group), 36864);
         assertEqual(numel(sqw_obj.data.pax), 1);
         assertEqual(sqw_obj.data.pix.num_pixels, 100337);
@@ -92,7 +92,7 @@ methods
 
         % changed data is not mirrored in initial
         assertFalse(equal_to_tol(sqw_copy.main_header, sqw_obj.main_header));
-        assertFalse(equal_to_tol(sqw_copy.my_header(), sqw_obj.my_header()));
+        assertFalse(equal_to_tol(sqw_copy.experiment_info, sqw_obj.experiment_info));
         assertFalse(equal_to_tol(sqw_copy.detpar_x, sqw_obj.detpar_x));
         assertFalse(equal_to_tol(sqw_copy.data, sqw_obj.data));
         assertFalse(equal_to_tol(sqw_copy.data.pix, sqw_obj.data.pix));

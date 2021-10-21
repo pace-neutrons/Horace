@@ -233,7 +233,7 @@ for iw=1:nw
     % Get energy transfer and bin sizes
     % (Could get eps directly from wtmp.data.pix(:,4), but this does not work if the
     %  pixels have been shifted, so recalculate)
-    [deps,eps_lo,eps_hi,ne]=energy_transfer_info(wtmp.my_header());
+    [deps,eps_lo,eps_hi,ne]=energy_transfer_info(wtmp.experiment_info);
     if ne>1
         eps=(eps_lo(irun).*(ne(irun)-ien)+eps_hi(irun).*(ien-1))./(ne(irun)-1);
     else
@@ -242,7 +242,7 @@ for iw=1:nw
     
     % Get instrument information
     [ok,mess,ei{iw},x0{iw},xa{iw},x1{iw},thetam{iw},angvel{iw},...
-        moderator{iw},aperture{iw},chopper{iw}] = instpars_DGfermi(wtmp.my_header());
+        moderator{iw},aperture{iw},chopper{iw}] = instpars_DGfermi(wtmp.experiment_info);
     if ~ok, return, end
     
     % Compute ki and kf
@@ -251,7 +251,7 @@ for iw=1:nw
     
     % Get sample, and both s_mat and spec_to_rlu; each has size [3,3,nrun]
     [ok,mess,sample(iw),s_mat{iw},spec_to_rlu{iw},alatt{iw},angdeg{iw}] =...
-        sample_coords_to_spec_to_rlu(wtmp.my_header());
+        sample_coords_to_spec_to_rlu(wtmp.experiment_info);
     if ~ok, return, end
     
     % Get detector information

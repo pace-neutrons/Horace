@@ -31,25 +31,25 @@ if ~has_pixels(w)
         'Input sqw object does not have sqw type (i.e. does not contain pixel information')
 end
 
-if iscell(w.header_x)
+if iscell(w.experiment_info)
     error('HORACE:sqw/spe:invalid_argument', ...
         'sqw object has contributions from more than one spe file')
 end
 
 % Get file name and path from sqw object
-if isa(w.header_x,'Experiment')
-    data.filename=w.header_x.expdata(1).filename;
-    data.filepath=w.header_x.expdata(1).filepath;
+if isa(w.experiment_info,'Experiment')
+    data.filename=w.experiment_info.expdata(1).filename;
+    data.filepath=w.experiment_info.expdata(1).filepath;
 else
-    data.filename=w.header_x.filename;
-    data.filepath=w.header_x.filepath;
+    data.filename=w.experiment_info.filename;
+    data.filepath=w.experiment_info.filepath;
 end
 
 % Extract signal and error
-if isa(w.header_x,'Experiment')
-    ne=numel(w.header_x.expdata(1).en)-1;    % number of energy bins
+if isa(w.experiment_info,'Experiment')
+    ne=numel(w.experiment_info.expdata(1).en)-1;    % number of energy bins
 else
-    ne=numel(w.header_x.en)-1;    % number of energy bins
+    ne=numel(w.experiment_info.en)-1;    % number of energy bins
 end
 ndet0=numel(w.detpar_x.group);% number of detectors
 
@@ -73,10 +73,10 @@ data.S=signal;
 data.ERR=err;
 
 % Get energy bin boundaries
-if isa(w.header_x,'Experiment')
-    data.en=w.header_x.expdata(1).en;
+if isa(w.experiment_info,'Experiment')
+    data.en=w.experiment_info.expdata(1).en;
 else
-    data.en=w.header_x.en;
+    data.en=w.experiment_info.en;
 end
 
 % Create output object

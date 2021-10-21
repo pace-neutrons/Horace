@@ -78,7 +78,7 @@ if nfiles>1
 else
     heads = head;
 end
-sq.header_x = heads;
+sq.experiment_info = heads;
 
 function hd= gen_head(head,x)
 hd = head;

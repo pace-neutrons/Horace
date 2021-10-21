@@ -159,7 +159,7 @@ elseif narg==1 || isa(args{1},'function_handle')
         
         % Change the header
         nfiles=h.main_header.nfiles;
-        tmp=h.header_x;   % to keep referencing to sub-fields to a minimum
+        tmp=h.experiment_info;   % to keep referencing to sub-fields to a minimum
         for ifile=1:nfiles
             if ninst==1
                 if is_instfunc
@@ -189,7 +189,7 @@ elseif narg==1 || isa(args{1},'function_handle')
                 end
             end
         end
-        wout(i).header_x=tmp;
+        wout(i).experiment_info=tmp;
     end
     
     % Set return argument if necessary
@@ -335,9 +335,9 @@ argout=argin;
 for i=1:numel(argin)
     if is_string(argin{i}) && strcmpi(argin{i},'-efix')
         if ifile>1 || w.main_header.nfiles>1
-            argout{i}=w.header_x.expdata(ifile).efix;
+            argout{i}=w.experiment_info.expdata(ifile).efix;
         else
-            argout{i}=w.header_x.efix;
+            argout{i}=w.experiment_info.efix;
         end
     end
 end

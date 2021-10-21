@@ -18,7 +18,7 @@ obj.num_contrib_files_ = n_files;
 obj.header_pos_ = zeros(1,n_files);
 obj.header_pos_(1) = pos;
 
-headers = sqw_obj.my_header();
+headers = sqw_obj.experiment_info;
 if isa(headers,'Experiment')
     isexpt = true;
     hdr = headers.expdata(1);

@@ -230,7 +230,7 @@ else
         'Sample must be a scalar IX_sample object')
 end
 
-wres.header_x = header;
+wres.experiment_info = header;
 
 
 % Check detector

@@ -38,9 +38,9 @@ classdef test_instrument_methods <  TestCase %WithSave
             
             % Set the incident energies in the object - no problem
             wtmp=read_sqw(obj.test_file_);
-            hdr = wtmp.my_header();
+            hdr = wtmp.experiment_info;
             wtmp_new = set_efix(wtmp,ei);
-            hdr_new = wtmp_new.my_header();
+            hdr_new = wtmp_new.experiment_info;
             assertEqual([hdr.expdata(10).efix,hdr_new.expdata(10).efix],[787,1010])
             
             % old format file implicitly converted into new format
@@ -50,7 +50,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             header = ldr.get_header(10);
             ldr.delete(); % clear existing loader not to hold test file in case of further modifications
             
-            hdr = wtmp_new.my_header();
+            hdr = wtmp_new.experiment_info;
             assertEqual([header.efix,hdr.expdata(10).efix],[1010,1010])
             
             % file is in the new format, see how update goes in this case
@@ -63,7 +63,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             header = ldr1.get_header(10);
             ldr1.delete(); % clear existing loader not to hold test file in case of further modifications
             
-            hdr = wtmp_new.my_header();
+            hdr = wtmp_new.experiment_info;
             assertEqual([header.efix,hdr.expdata(10).efix],[110,1010])
         end
         %
@@ -82,7 +82,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             inst = ldr.get_instrument();
             ldr.delete(); % clear existing loader not to hold test file in case of further modifications
             
-            hdr = wtmp.my_header();
+            hdr = wtmp.experiment_info;
             assertEqual(hdr.instruments(1),inst);
             
             %---------------------------------------------------------------------
@@ -91,14 +91,14 @@ classdef test_instrument_methods <  TestCase %WithSave
             
             ldr1 = sqw_formats_factory.instance().get_loader(obj.test_file_);
             inst = ldr1.get_instrument(10);
-            hdr = wtmp.my_header();
+            hdr = wtmp.experiment_info;
             assertEqual(hdr.instruments(10),inst);
             
             inst = ldr1.get_instrument('-all');
             ldr1.delete(); % clear existing loader not to hold test file in case of further modifications
             
             assertEqual(numel(inst),186) % all instruments for this file are the same
-                        hdr = wtmp.my_header();
+                        hdr = wtmp.experiment_info;
             assertEqual(hdr.instruments(186),inst(186));
             
             %---------------------------------------------------------------------
@@ -133,7 +133,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             wtmp= set_instrument(wtmp,inst);
             
             wtmp_new = set_mod_pulse(wtmp,pulse_model,pp);
-            hdr = wtmp_new.my_header();
+            hdr = wtmp_new.experiment_info;
             assertEqual(hdr.instruments(10).moderator.pp(1),100/sqrt(ei(10)))
             
             % Set the incident energies in the file - produces an error as
@@ -153,7 +153,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             ldr1.delete(); % clear existing loader not to hold test file in case of further modifications
             
             assertEqual(numel(inst),186) % all instruments for this file are the same
-            hdr = wtmp_new.my_header();
+            hdr = wtmp_new.experiment_info;
             assertEqual(hdr.instruments(186),inst(186));
             assertEqual(hdr.instruments(10),inst(10));
             assertEqual(hdr.instruments(1),inst(1));

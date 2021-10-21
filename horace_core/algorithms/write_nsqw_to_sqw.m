@@ -279,9 +279,9 @@ sqw_data.pix.pix_range = pix_range;
 main_header_combined.filename = [fn,fe];
 main_header_combined.filepath = [fp,filesep];
 %
-data_sum= struct('main_header',main_header_combined,'header_x',[],'detpar_x',det);
+data_sum= struct('main_header',main_header_combined,'experiment_info',[],'detpar_x',det);
 data_sum.data = sqw_data;
-data_sum.header_x = header_combined;
+data_sum.experiment_info = header_combined;
 
 ds = sqw(data_sum);
 wrtr = sqw_formats_factory.instance().get_pref_access(ds);

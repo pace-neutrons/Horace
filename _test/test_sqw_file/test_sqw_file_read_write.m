@@ -200,7 +200,7 @@ tmpsqwfile=fullfile(tmp_dir,'test_sqw_file_fileref_store.sqw');
             clob1 = onCleanup(@()delete(tmpsqwfile));
             
             wref=obj.ds.f1_2;
-hdr = wref.my_header();
+hdr = wref.experiment_info;
 hdr.expdata(1).efix=130;
 hdr.expdata(1).efix=135; % betting this is {2} like the instrument change below
 wref = wref.change_header(hdr);
@@ -215,7 +215,7 @@ wref=sqw(tmpsqwfile);     % creates with same file name will be set with read_sq
 inst_arr=create_test_instrument(400,500,'s');
 inst_arr(2)=create_test_instrument(105,600,'a');
 wtmp_ref=wref;
-hdr = wtmp_ref.my_header();
+hdr = wtmp_ref.experiment_info;
 hdr.instruments(1)=inst_arr(1);
 hdr.instruments(2)=inst_arr(2);
 wtmp_ref = wtmp_ref.change_header(hdr);
@@ -235,7 +235,7 @@ assertTrue(isequal(wtmp_ref,wtmp),'Incorrectly set instrument for sqw object')
 inst_arr=create_test_instrument(400,500,'s');
 inst_arr(2)=create_test_instrument(400,500,'s');
 wtmp_ref=wref;
-hdr = wtmp_ref.my_header();
+hdr = wtmp_ref.experiment_info;
 hdr.instruments(1)=inst_arr(1);
 hdr.instruments(2)=inst_arr(2);
 wtmp_ref = wtmp_ref.change_header(hdr);
@@ -255,7 +255,7 @@ assertTrue(isequal(wtmp_ref,wtmp),'Incorrectly set instrument for sqw object')
 inst_arr=create_test_instrument(135,500,'s');
 inst_arr(2)=create_test_instrument(50,500,'s');
 wtmp_ref=wref;
-hdr = wtmp_ref.my_header();
+hdr = wtmp_ref.experiment_info;
 hdr.instruments(1)=inst_arr(1);
 hdr.instruments(2)=inst_arr(2);
 wtmp_ref = wtmp_ref.change_header(hdr);

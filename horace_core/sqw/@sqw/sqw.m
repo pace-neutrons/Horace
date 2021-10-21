@@ -9,7 +9,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
     
     properties
         main_header
-        header_x
+        experiment_info
         detpar_x
         % CMDEV: data now a dependent property, below
     end
@@ -71,12 +71,12 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             obj.detpar_x = dtp;
         end
         
-        function hdr = my_header(obj)
-            hdr = obj.header_x;
-        end
+        %function hdr = my_header(obj)
+        %    hdr = obj.experiment_info;
+        %end
         
         function obj = change_header(obj,hdr)
-            obj.header_x = hdr;
+            obj.experiment_info = hdr;
         end
         
         function sqw_type = get_sqw_type(obj)
@@ -89,7 +89,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             %      sqw_type == 'sqw'  - none of the above so using the
             %                           class of obj i.e. sqw
             sqw_type = 'sqw';
-            header =obj.header_x;
+            header =obj.experiment_info;
             if isa(header, 'Experiment')
                 if isempty(header.expdata)
                     sqw_type = 'none';
@@ -207,7 +207,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             end
             
             % if we have a struct or array of structs the thing we need to
-            % do is change the header field for header_x and pass the
+            % do is change the header field for experiment_info and pass the
             % resulting struct/array into the sqw constructor
             if numel(S)>1
                 tmp = sqw();
@@ -215,7 +215,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
                 for i = 1:numel(S)
                     ss =S(i);
                     if isfield(S(i),'header')
-                        ss.header_x = S(i).header;
+                        ss.experiment_info = S(i).header;
                         ss = rmfield(ss,'header');
                     end
                     if isfield(S(i),'detpar')
@@ -226,7 +226,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
                 end
             else
                 if isfield(S,'header')
-                    S.header_x = S.header;
+                    S.experiment_info = S.header;
                     S = rmfield(S,'header');
                 end
                 if isfield(S,'detpar')
@@ -310,7 +310,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         function ld_str = get_loader_struct_(~,ldr,pixel_page_size)
             % load sqw structure, using file loader
             ld_str = struct();
-            [ld_str.main_header, ld_str.header_x, ld_str.detpar_x, ld_str.data] = ...
+            [ld_str.main_header, ld_str.experiment_info, ld_str.detpar_x, ld_str.data] = ...
                 ldr.get_sqw('-legacy', 'pixel_page_size', pixel_page_size);
         end
         function obj = init_from_loader_struct_(obj, data_struct)
@@ -318,11 +318,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             % file loader
             obj.main_header = data_struct.main_header;
             try
-                if ~isempty(data_struct.header_x)
-                    obj.header_x = Experiment(data_struct.header_x);
+                if ~isempty(data_struct.experiment_info)
+                    obj.experiment_info = Experiment(data_struct.experiment_info);
                     
                 else
-                    obj.header_x = Experiment();
+                    obj.experiment_info = Experiment();
                 end
             catch ME
                 error("Developer error in header input");

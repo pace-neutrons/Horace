@@ -170,7 +170,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             sam1.angdeg=[91 92 93];
             %inst1=create_test_instrument(95,250,'s');
             %sqw_ob.header(1).instrument = inst1;
-            hdr = sqw_ob.my_header();
+            hdr = sqw_ob.experiment_info;
             hdr.samples(1) = sam1;
             sqw_ob = sqw_ob.change_header(hdr);
             
@@ -204,7 +204,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             assertTrue(isa(sqw_ob,'sqw'));
             
             inst1=create_test_instrument(95,250,'s');
-            hdr = sqw_ob.my_header();
+            hdr = sqw_ob.experiment_info;
             hdr.instruments(1) = inst1;
             sqw_ob = sqw_ob.change_header(hdr);
             
