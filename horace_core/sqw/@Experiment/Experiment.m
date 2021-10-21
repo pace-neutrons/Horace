@@ -212,10 +212,12 @@ classdef Experiment
         end
         
         function obj=set.samples_(obj,val)
-            if isa(val,'IX_samp') || isempty(val)
+            if isa(val,'IX_samp')
                 obj.samples_ = val;
+            elseif isempty(val)
+                obj.samples_ = IX_null_sample();
             else
-                error('EXPERIMENT:invalid_argument', ...
+                error('HORACE:Experiment:invalid_argument', ...
                     'Sample must be one or an array of IX_sample or IX_null_sample objects')
             end
         end
