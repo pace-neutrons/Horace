@@ -454,10 +454,6 @@ else
             sample     = sample(ix);
         end
     end
-    for i=1:numel(run_files)
-        run_files{i}.instrument = instrument(i);
-        run_files{i}.sample = sample(i);
-    end
     
     
     if opt.replicate && ~spe_unique 

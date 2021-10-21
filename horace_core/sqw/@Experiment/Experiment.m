@@ -156,10 +156,25 @@ classdef Experiment
                 end
             elseif nargin==3
                 obj.detector_arrays_ = varargin{1};
-                obj.instruments_ =  varargin{2};
-                obj.samples_ = varargin{3};
+                if isa(varargin{2}, 'IX_inst')
+                    obj.instruments_ =  varargin{2};
+                elseif isempty(varargin{2})
+                    % do nothing, instruments is already empty on
+                    % construction
+                else
+                    error('HORACE:Experiment:invalid_argument',...
+                        'bad type for instruments on construction');
+                end
+                if isa(varargin{3}, 'IX_samp')
+                    obj.samples_ = varargin{3};
+                elseif isempty(varargin{3})
+                    % do nothing, samples is already empty on construction
+                else
+                    error('HORACE:Experiment:invalid_argument',...
+                        'bad type for samples on construction');
+                end
             else
-                error('EXPERIMENT:invalid_argument', ...
+                error('HORACE:Experiment:invalid_argument', ...
                     'Must give all of detector_array, instrument and sample')
             end
         end
@@ -197,7 +212,7 @@ classdef Experiment
             if isa(val,'IX_detector_array') || isempty(val)
                 obj.detector_arrays_ = val;
             else
-                error('EXPERIMENT:invalid_argument', ...
+                error('HORACE:Experiment:invalid_argument', ...
                     'Detector array must be one or an array of IX_detector_array object')
             end
         end
@@ -206,7 +221,7 @@ classdef Experiment
             if isa(val,'IX_inst') || isempty(val)
                 obj.instruments_ = val;
             else
-                error('EXPERIMENT:invalid_argument', ...
+                error('HORACE:Experiment:invalid_argument', ...
                     'Instruments must be one or an array of IX_inst objects')
             end
         end
