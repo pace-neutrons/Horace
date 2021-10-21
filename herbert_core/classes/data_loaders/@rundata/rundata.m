@@ -1,4 +1,4 @@
-classdef rundata
+classdef rundata < serializable
     % The class describes single processed run used in Horace and Mslice
     % It used as an interface to load processed run data from any file format
     % supported and to verify that all data necessary for the run
@@ -32,11 +32,11 @@ classdef rundata
         data_file_name;
         % par file name defined in loader
         par_file_name;
-
+        
         % Experiment parameters;
         efix    ;     % Fixed energy (meV)   -- has to be in file or supplied in parameters list
         emode  ;     % Energy transfer mode [Default=1 (direct geometry)]
-
+        
         % accessor to verify if the oriented lattice is present (and the
         % rundata describe crystal)
         is_crystal;
@@ -52,12 +52,17 @@ classdef rundata
         % which is the source of this object data.
         run_id;
     end
-
+    
     properties(Constant,Access=private)
         % list of the fields defined in any loader
         loader_dependent_fields_={'S','ERR','en','det_par','n_detectors'};
         % minimal set of fields, defining reasonable run
         min_field_set_ = {'efix','en','emode','n_detectors','S','ERR','det_par'};
+        %
+        indep_fields_powder_ = {'run_id','emode','efix','en','S','ERR',...
+            'det_par','is_crystal','instrument','sample'};
+        add_fields_crystal_ = {'lattice'};
+        indep_fields_crystal_ = [rundata.indep_fields_powder_(:)',rundata.add_fields_crystal_(:)'];
     end
     properties(Access=private)
         % energy transfer mode
@@ -68,36 +73,40 @@ classdef rundata
         % INTERNAL SERVICE PARAMETERS: (private read, private write in new Matlab versions)
         % The class which provides actual data loading:
         loader_ = [];
-
+        
         % oriented lattice which describes crytsal (present if run describes crystal)
         oriented_lattice_ =[];
-
+        
         % instrument model holder;
-        instrument_ = struct();
+        instrument_ = IX_inst();
         % sample model holder
-        sample_ = struct();
+        sample_ = IX_samp();
         %
         run_id_ = [];
     end
     methods(Static)
-        function fields = main_data_fields()
-            fields = rundata.min_field_set_;
+        %------------------------------------------------------------------
+        % convenience expansion of Serializable interface
+        function obj=from_struct(inputs)
+            % specialization to recover data from structure
+            %
+            % do not forget to overload rundatah in Horace
+            obj = rundata();
+            obj = from_struct(obj,inputs);
         end
-        %
-        function run = from_string(str)
-            % build rundata object from its string representation obrained earlier by
-            % serialize function
-            run = rundata_from_string(str);
+        function [obj,nbytes]=deserialze(bytes_array,pos)      
+            % specialization to recover data from byte-stream            
+            obj = rundata();        
+            [obj,nbytes] = obj.deserialize(bytes_array,pos);            
         end
-        %
-        function [run,size] = deserialize(iarr)
-            % build rundata object from its string representation obrained earlier by
-            % serialize function
-            % returns rudata object and the byte size of array used to store
-            % this object (minus 8 bytes spent on storing the object size itself)
-            [run,size] = deserialize_(iarr);
+        %------------------------------------------------------------------
+        % Serializable Interface:
+        function obj = loadobj(S)
+            ci = rundata();
+            obj = serializable.loadobj_generic(S,ci);
         end
-        %
+        %------------------------------------------------------------------
+        %        %
         function [runfiles_list,defined]=gen_runfiles(spe_files,varargin)
             % Returns array of rundata objects created by the input arguments.
             %
@@ -152,13 +161,7 @@ classdef rundata
             %       is used instead;
             [runfiles_list,defined]= rundata.gen_runfiles_of_type('rundata',spe_files,varargin{:});
         end
-        %
-        function obj = loadobj(struc)
-            % build rundata from the structure, obtained from saveobj
-            % method.
-            obj = set_up_from_struct_(struc);
-
-        end
+        
         %
         function id = extract_id_from_filename(file_name)
             % method used to extract run id from a filename, if runnumber is
@@ -173,6 +176,10 @@ classdef rundata
             end
             id = str2double(filename(l_range(1):r_range(1)));
         end
+        %
+        function fields = main_data_fields()
+            fields = rundata.min_field_set_;
+        end        
     end
     methods(Static,Access=protected)
         function [runfiles_list,defined]= gen_runfiles_of_type(type_name,spe_files,varargin)
@@ -181,8 +188,31 @@ classdef rundata
             [runfiles_list,defined]=gen_runfiles_(type_name,spe_files,varargin{:});
         end
     end
-
+    
     methods
+        %------------------------------------------------------------------
+        % serializable interface:
+        function fields = indepFields(obj)
+            if obj.is_crystal
+                fields = obj.indep_fields_crystal_;
+            else
+                fields = obj.indep_fields_powder_;
+            end
+        end
+        function  ver  = classVersion(~)
+            ver = 1;
+        end
+        function str = struct(obj)
+            % overloaded struct method
+            [undefined,~,fields_undef] = check_run_defined(obj);
+            if (undefined>2)
+                undef_str = strjoin(fields_undef,'; ');
+                error('HERBERT:rundata:invalid_argument',...
+                    'Can not confvert to string undefined rundata class due to undefined fields %s',...
+                    undef_str)
+            end
+            str = struct@serializable(obj);
+        end
         %------------------------------------------------------------------
         % PUBLIC METHODS SIGNATURES:
         %------------------------------------------------------------------
@@ -195,40 +225,40 @@ classdef rundata
         %   >> val = get(object, 'field')  % returns named field, or an array of values
         %                                  % if input is an array
         varargout = get(this, index);
-
+        
         % method returns default values, defined by default fields of
         % the class
         default_values =get_defaults(this,varargin);
-
+        
         % Returns detector parameter data from properly initiated data loader
         [par,this]=get_par(this,format);
-
+        
         % Returns whole or partial data from a rundata object
         [varargout] =get_rundata(this,varargin);
         % Load all data, defined by loader in memory. Do not overload by default
         this = load(this,varargin);
-
+        
         % Load in memory if not yet there all auxiliary data defined for
         % run except big array e.g. S, ERR, en and detectors
         [this,ok,mess,undef_list] = load_metadata(this,varargin);
         % Returns the name of the file which contains experimental data
         [fpath,filename,fext]=get_source_fname(this);
-
+        
         % Check fields for data_array object
         [ok, mess,this] = isvalid (this);
         % method removes failed (NaN or Inf) data from the data array and deletes
         % detectors, which provided such signal
         [S_m,Err_m,det_m]=rm_masked(this,varargin);
-
+        
         % method sets a field of  lattice if the lattice
         % present and initates the lattice first if it is not present
         this = set_lattice_field(this,name,val,varargin);
-
+        
         % Returns the list data fields which have to be defined by the run for cases
         % of crystal or powder experiments
         [data_fields,lattice_fields] = what_fields_are_needed(this,varargin);
         %------------------------------------------------------------------
-
+        
         function this=rundata(varargin)
             % rundata class constructor
             %
@@ -299,7 +329,8 @@ classdef rundata
             if val>-1 && val <3
                 this.emode_ = val;
             else
-                error('RUNDATA:set_emode','unsupported emode %d, only 0 1 and 2 are supported',val);
+                error('HERBERT:rundata:invalid_argument',...
+                    'unsupported emode %d, only 0 1 and 2 are supported',val);
             end
         end
         %----
@@ -321,7 +352,8 @@ classdef rundata
             elseif isa(val,'oriented_lattice')
                 this.oriented_lattice_ = val;
             else
-                error('RUNDATA:set_is_crystal',' you can either remove crystal information or set oriented lattice to define crystal');
+                error('HERBERT:rundata:invalid_argument',...
+                    ' you can either remove crystal information or set oriented lattice to define crystal');
             end
         end
         %
@@ -335,7 +367,8 @@ classdef rundata
             elseif isempty(val)
                 this.oriented_lattice_ =[];
             else
-                error('RUNDATA:set_lattice','set lattice parameter can be oriented_lattice only')
+                error('HERBERT:rundata:invalid_argument',...
+                    'set lattice parameter can be oriented_lattice only')
             end
         end
         %
@@ -349,14 +382,14 @@ classdef rundata
             end
             id = find_run_id_(obj);
         end
+        %
         function obj = set.run_id(obj,val)
             if ~isnumeric(val)
-                error('RUNDATA:invalid_argument',...
+                error('HERBERT:rundata:invalid_argument',...
                     ' run_id can be only numeric')
             end
             obj.run_id_ = val;
         end
-
         %
         function loader=get.loader(this)
             loader=this.loader_;
@@ -387,9 +420,11 @@ classdef rundata
             % method to check number of detectors defined in rundata
             ndet = get_loader_field_(this,'n_detectors');
         end
+        %
         function S=get.S(this)
             S = get_loader_field_(this,'S');
         end
+        %
         function this = set.S(this,val)
             this=set_loader_field(this,'S',val);
         end
@@ -454,7 +489,6 @@ classdef rundata
             % set-up sample (template)
             this.sample_ = val;
         end
-
         %------------------------------------------------------------------
         % A LOADER RELATED PROPERTIES -- END
         %------------------------------------------------------------------
@@ -472,22 +506,7 @@ classdef rundata
                 end
             end
         end
-        function str = to_string(this)
-            % convert class into linear string representation usable for
-            % reverse conversion
-            str = convert_to_string(this);
-        end
-        function iarr = serialize(this)
-            % convert class into arry of bytes suitable for reverse
-            % transformation by deserialize function
-            %
-            % expects main data to be on a HDD, so no data loaded in memory are
-            % serialized except memory only data
-            iarr = serialize_(this);
-        end
         %------------------------------------------------------------------
-        %------------------------------------------------------------------
-
         function this=saveNXSPE(this,filename,varargin)
             % Saves current rundata in nxspe format.
             % usage:
@@ -515,7 +534,8 @@ classdef rundata
             %              overwritten.
             %  readwrite mode is assumed by  default
             if isempty(this.loader)
-                warning('RUNDATA:invalid_argument','nothing to save');
+                warning('HERBERT:rundata:invalid_argument',...
+                    'nothing to save');
                 return
             else
                 ld=this.loader;
@@ -526,13 +546,7 @@ classdef rundata
                 end
                 this.loader_=ld.saveNXSPE(filename,this.efix,psi,varargin{:});
             end
-
-        end
-
-        function out_struct = saveobj(obj)
-            % method converts rundata into structure, used to saveable/olad
-            % rundata object to disk.
-            out_struct = convert_to_struct_(obj);
+            
         end
     end
 end

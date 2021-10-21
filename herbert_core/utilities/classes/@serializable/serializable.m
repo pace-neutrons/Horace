@@ -17,6 +17,7 @@ classdef serializable
         % loadobj_generic function in the form:
         %
         % function obj = loadobj(S)
+        % % Placeholder code to overload loadobj class
         %   class_instance = EmptyClassConstructur();
         %   obj = serializable.loadobj_generic(S,class_instance);
         % end
@@ -24,6 +25,7 @@ classdef serializable
         % where EmpytClassConstructor is the empty constructor of the
         % class to recover from the record
         obj = loadobj(S);
+        
     end
     
     
@@ -49,13 +51,13 @@ classdef serializable
         
         function ser_data = serialize(obj)
             sh_struc = shallow_struct_(obj);
-            ser_data = hlp_serialise(sh_struc);
+            ser_data = serialise(sh_struc);
         end
         %
         function size = serial_size(obj)
             % returns size of the serialized object
             str = shallow_struct_(obj);
-            size = hlp_serial_sise(str);
+            size = serial_size(str);
         end
         %
         function [obj,nbytes] = deserialize(obj,bytes_array,pos)
@@ -67,7 +69,7 @@ classdef serializable
             if nargin==2
                 pos = 1;
             end
-            [struc,nbytes] = hlp_deserialise(bytes_array,pos);
+            [struc,nbytes] = deserialise(bytes_array,pos);
             obj = from_struct(obj,struc);
         end
         %======================================================================

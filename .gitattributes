@@ -1,4 +1,4 @@
-# Set the default behavior, in case people don't have core.autocrlf set.
+# Set the default behaviour, in case people don't have core.autocrlf set.
 * text=auto
 
 # Explicitly declare text files you want to always be normalized and converted
@@ -7,10 +7,13 @@
 *.c text
 *.h text
 *.m text
+*.md text
 *.bat text
 # These can be treated as binary, but the code should properly handle EOL-s.
 *.par text
 *.spe text
+*.cmake text
+*.template text
 
 
 # Declare files that will always have CRLF line endings on checkout.
@@ -20,11 +23,23 @@
 *.vcproj text eol=crlf
 
 
+# only lf
+*.sh  text eol=lf
+
 # Denote all files that are truly binary and should not be modified.
 *.png binary
 *.jpg binary
+*.gif binary
 *.mat binary
 *.sqw binary
 *.nxspe binary
+*.sqw   binary
+*.nxsqw binary
 *.h5 binary
 *.spe_h5 binary
+*.doc binary
+*.docx binary
+*.pptx binary
+*.xls  binary
+*.xlsx binary
+*.vsdx binary
