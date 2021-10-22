@@ -30,7 +30,11 @@ elseif isa(v,'function_handle')
 elseif islogical(v)
     sz = serial_size_logical(v);
 elseif isobject(v)
-    sz = serial_size_object(v);
+    if isa(v,'serializable')
+        sz = size_themselves(v);        
+    else
+        sz = serial_size_object(v);
+    end
 elseif isjava(v)
     warn_once('hlp_serialize:cannot_serialize_java','Cannot properly serialize Java class %s; using a placeholder instead.',class(v));
     sz = serial_size_string(['<<hlp_serialize: ' class(v) ' unsupported>>']);
@@ -238,13 +242,15 @@ else
     end
 end
 end
-
+function   sz = size_themselves(v)
+% serializable object calculates its size for themselves
+    sz = hlp_serial_types.tag_size + v.serial_size();
+end
 % Object / class
 function sz = serial_size_object(v)
 % can object serialize/deserizlize itself?
-if isa(v,'serializable')
-    sz = hlp_serial_types.tag_size + v.serial_size();
-elseif ismethod(v, 'serialize')
+
+if ismethod(v, 'serialize')
     % it has to have serial_size method too
     sz = hlp_serial_types.tag_size + serial_size_string(class(v)) + v.serial_size();
     %m = [uint8(135); serialize_string(class(v)); v.serialize()];

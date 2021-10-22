@@ -43,7 +43,7 @@ switch type
         [v,pos] = deserialise_simple_data(m,pos);
     case {13,14,15,16,17,18,19,20,21,22}
         [v,pos] = deserialise_complex_data(m,pos);
-    case {23}
+    case 23
         [v,pos] = deserialise_cell(m,pos);
     case {24}
         [v,pos] = deserialise_struct(m,pos);
@@ -53,6 +53,8 @@ switch type
         [v,pos] = deserialise_object(m,pos);
     case {29, 30, 31}
         [v,pos] = deserialise_sparse(m,pos);
+%     case 32
+%         [v,pos] = deserialise_themselves(m,pos);        
     otherwise
         error('MATLAB:deserialise_value:unrecognised_tag', 'Cannot deserialise tag %s.', hlp_serial_types.type_details(type+1).name);
 end
@@ -73,7 +75,9 @@ pos = pos + nBytes;
 end
 
 function [v,pos] = deserialise_simple_data(m, pos)
-[type, nDims, pos] = get_tag_data(m, pos);
+[type, nDims] = hlp_serial_types.unpack_tag_data(m(pos));
+pos = pos+1;
+
 
 switch type.name
     case {'logical', 'char', 'string'}
@@ -110,8 +114,8 @@ end
 
 function [v, pos] = deserialise_complex_data(m, pos)
 
-[type, nDims, pos] = get_tag_data(m, pos);
-
+[type, nDims] = hlp_serial_types.unpack_tag_data(m(pos));
+pos = pos+1;
 
 if nDims == 0
     [data, pos] = read_bytes(m, pos, type.name, 1);
@@ -130,7 +134,9 @@ end
 
 % Sparse data types
 function [v, pos] = deserialise_sparse(m, pos)
-[type, ~, pos] = get_tag_data(m, pos);
+[type, ~] = hlp_serial_types.unpack_tag_data(m(pos));
+pos = pos+1;
+
 
 switch type.name
     case 'sparse_logical'
@@ -162,7 +168,10 @@ v = sparse(i,j,data,dims(1),dims(2));
 end
 
 function [v, pos] = deserialise_cell(m, pos)
-[~, nDims, pos] = get_tag_data(m, pos);
+[~, nDims] = hlp_serial_types.unpack_tag_data(m(pos));
+pos = pos+1;
+
+
 
 if nDims == 0
     [v, pos] = deserialise_value(m, pos);
@@ -187,7 +196,10 @@ end
 end
 
 function [v, pos] = deserialise_struct(m, pos)
-[~, nDims, pos] = get_tag_data(m, pos);
+[~, nDims] = hlp_serial_types.unpack_tag_data(m(pos));
+pos = pos+1;
+
+
 if nDims == 0
     v = struct();
 elseif nDims == 1
@@ -228,7 +240,10 @@ v = cell2struct(contents,fieldNames,1);
 end
 
 function [v, pos] = deserialise_function_handle(m, pos)
-[~, tag, pos] = get_tag_data(m, pos);
+[~, tag] = hlp_serial_types.unpack_tag_data(m(pos));
+pos = pos+1;
+
+
 switch tag
     case 1 % Simple
         [name, pos] = deserialise_simple_data(m, pos);
@@ -257,7 +272,9 @@ end
 end
 
 function [v, pos] = deserialise_object(m, pos)
-[~, nDims, pos] = get_tag_data(m, pos);
+[~, nDims] = hlp_serial_types.unpack_tag_data(m(pos));
+pos = pos+1;
+
 
 if nDims == 0
     [class_name, pos] = deserialise_simple_data(m, pos);
@@ -296,7 +313,8 @@ else
                 v(1:totalElem) = feval(class_name);
                 for i=1:totalElem
                     [v(i),nbytes] = v(i).deserialize(m, pos);
-                    pos = pos+nbytes+8;
+                    %pos = pos+nbytes+8;
+					pos = pos+nbytes;
                 end
             case 1 % Serialise as saveobj (must have loadobj)
                 
@@ -323,11 +341,3 @@ if nDims > 1
 end
 end
 
-function [type, nDims, pos] = get_tag_data(m, pos)
-[type, pos] = read_bytes(m, pos, 'uint8', 1);
-% Take top 3 bits
-nDims = bitshift(bitand(32+64+128, type), -5);
-% Take bottom 5 bits
-type = hlp_serial_types.type_details(bitand(31, type) + 1);
-
-end

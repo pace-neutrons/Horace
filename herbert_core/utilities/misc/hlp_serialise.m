@@ -88,18 +88,21 @@ switch type.name
         v = uint8(v);
 end
 
+sizeV1 = size(v,1);
+comb_tag = hlp_serial_types.pack_tag_data(nElem,nDims,sizeV1,type);
+
 if nElem == 0 % Null element
-    m = [hlp_serial_types.dims_tag(1) + type.tag; ...
+    m = [comb_tag; ...
         typecast(uint32(0), 'uint8').'];
 elseif nElem == 1 % Scalar
-    m = [type.tag; ...
+    m = [comb_tag; ...
         typecast(v, 'uint8').'];
-elseif nDims == 2 && size(v,1) == 1 % List
-    m = [hlp_serial_types.dims_tag(1) + type.tag; ...
+elseif nDims == 2 && sizeV1 == 1 % List
+    m = [comb_tag; ...
         typecast(uint32(nElem), 'uint8').'; ...
         typecast(v, 'uint8').'];
 else % General array
-    m = [hlp_serial_types.dims_tag(nDims) + type.tag; ...
+    m = [comb_tag; ...
         typecast(uint32(size(v)), 'uint8').'; ...
         typecast(v(:).', 'uint8').'];
 end
@@ -109,20 +112,24 @@ end
 function m = serialise_complex_data(v, type)
 nElem = numel(v);
 nDims = uint8(ndims(v));
+
+sizeV1 = size(v,1);
+comb_tag = hlp_serial_types.pack_tag_data(nElem,nDims,sizeV1,type);
+
 if nElem == 0 % Null element
-    m = [hlp_serial_types.dims_tag(1) + type.tag; ...
+    m = [comb_tag; ...
         typecast(uint32(0), 'uint8')];
 elseif nElem == 1 % Scalar
-    m = [type.tag; ...
+    m = [comb_tag; ...
         typecast(real(v), 'uint8').'; ...
         typecast(imag(v), 'uint8').'];
-elseif nDims == 2 && size(v,1) == 1 % List
-    m = [hlp_serial_types.dims_tag(1) + type.tag; ...
+elseif nDims == 2 && sizeV1 == 1 % List
+    m = [comb_tag; ...
         typecast(uint32(nElem), 'uint8').'; ...
         typecast(real(v), 'uint8').'; ...
         typecast(imag(v), 'uint8').'];
 else % General array
-    m = [hlp_serial_types.dims_tag(nDims) + type.tag; ...
+    m = [comb_tag; ...
         typecast(uint32(size(v)), 'uint8').'; ...
         typecast(real(v(:)), 'uint8'); ...
         typecast(imag(v(:)), 'uint8')];
@@ -133,6 +140,8 @@ end
 function m = serialise_sparse_data(v, type)
 
 [i,j,data] = find(v);
+% HACK
+comb_tag = hlp_serial_types.pack_tag_data(3,2,1,type);
 
 switch type.name
     case 'sparse_logical'
@@ -143,7 +152,7 @@ end
 
 dims = size(v);
 nElem = nnz(v);
-m = [hlp_serial_types.dims_tag(2) + type.tag; ...
+m = [comb_tag; ...
     typecast(uint32(dims), 'uint8').'; ...
     typecast(uint32(nElem), 'uint8').'; ...
     typecast(uint64(i(:)-1).', 'uint8').'; ...
@@ -173,20 +182,23 @@ end
 nElem = numel(v);
 nDims = uint8(ndims(v));
 
+sizeV1 = size(v,1);
+comb_tag = hlp_serial_types.pack_tag_data(nElem,nDims,sizeV1,type);
+
 if nElem == 0 % Null element
-    m = [hlp_serial_types.dims_tag(1) + type.tag; ...
+    m = [comb_tag; ...
         typecast(uint32(0), 'uint8').'];
 elseif nElem == 1 % Scalar
-    m = [type.tag; ...
+    m = [comb_tag; ...
         fnInfo; ...
         data];
-elseif nDims == 2 && size(v,1) == 1 % List
-    m = [hlp_serial_types.dims_tag(1) + type.tag; ...
+elseif nDims == 2 && sizeV1 == 1 % List
+    m = [comb_tag; ...
         typecast(uint32(nElem), 'uint8').'; ...
         fnInfo; ...
         data];
 else % General array
-    m = [hlp_serial_types.dims_tag(nDims) + type.tag; ...
+    m = [comb_tag; ...
         typecast(uint32(size(v)), 'uint8').'; ...
         fnInfo; ...
         data];
@@ -200,23 +212,28 @@ data = vertcat(data{:});
 nElem = numel(v);
 nDims = uint8(ndims(v));
 
+sizeV1 = size(v,1);
+comb_tag = hlp_serial_types.pack_tag_data(nElem,nDims,sizeV1,type);
+
+
 if nElem == 0 % Null element
-    m = [hlp_serial_types.dims_tag(1) + type.tag; ...
+    m = [comb_tag ; ...
         typecast(uint32(0), 'uint8').'];
 elseif nElem == 1 % Scalar
     m = [type.tag; data];
-elseif nDims == 2 && size(v,1) == 1 % List
-    m = [hlp_serial_types.dims_tag(1) + type.tag; ...
+elseif nDims == 2 && sizeV1 == 1 % List
+    m = [comb_tag ; ...
         typecast(uint32(nElem), 'uint8').'; ...
         data];
 else % General array
-    m = [hlp_serial_types.dims_tag(nDims) + type.tag; ...
+    m = [comb_tag ; ...
         typecast(uint32(size(v)), 'uint8').'; ...
         data];
 end
 end
 function m = serialize_themselves(v, type)
-
+% serializable type serializes itself
+m = [type.tag;v.serialize()];
 end
 
 function m = serialise_object(v, type)
@@ -225,7 +242,7 @@ nDims = uint8(ndims(v));
 
 class_name = serialise_simple_data(class(v), hlp_serial_types.get_details('char'));
 % can object serialise/deserialise itself?
-if any(strcmp(methods(v), 'serialize'))
+if ismethod(v, 'serialize')
     conts = arrayfun(@(x) (x.serialize()), v);
     ser_tag = uint8(0);
 else
@@ -265,21 +282,43 @@ end
 function m = serialise_function_handle(v, type)
 % get the representation
 rep = functions(v);
+
+% HACK
 switch rep.type
     % Tag is used to distinguish function type
     case {'simple', 'classsimple'}
         % simple function
-        m = [hlp_serial_types.dims_tag(1)+type.tag; ... Tag
+        nElem = 0;
+        nDims = 1;
+        sizeV1 = 2; %irrelevant
+    case 'anonymous'
+        % anonymous function
+        nElem = 3;
+        nDims = 2;
+        sizeV1 = 2; % not 1
+    case {'scopedfunction','nested'}
+        % scoped function
+        nElem = 3;
+        nDims = 3;
+        sizeV1 = 2; % not 1
+end
+comb_tag = hlp_serial_types.pack_tag_data(nElem,nDims,sizeV1,type);
+
+switch rep.type
+    % Tag is used to distinguish function type
+    case {'simple', 'classsimple'}
+        % simple function
+        m = [comb_tag; ... Tag
             serialise_simple_data(rep.function, hlp_serial_types.get_details('char'))]; % Name of function
     case 'anonymous'
         % anonymous function
-        m = [hlp_serial_types.dims_tag(2)+type.tag; ... Tag
+        m = [comb_tag; ... Tag
             serialise_simple_data(char(v), hlp_serial_types.get_details('char')); ... % Code
             serialise_struct(rep.workspace{1}, hlp_serial_types.get_details('struct'))]; % Workspace
         
     case {'scopedfunction','nested'}
         % scoped function
-        m = [hlp_serial_types.dims_tag(3)+type.tag; ... Tag
+        m = [comb_tag; ... Tag
             serialise_cell(rep.parentage, hlp_serial_types.get_details('cell'))]; % Parentage
     otherwise
         warn_once('hlp_serialise:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type);

@@ -19,6 +19,22 @@ classdef test_serialise < TestCase
             
             
         end
+        %
+        function test_serial_arrays(~)
+            f1=1:10;
+            f2 =f1';
+            f1 = repmat(f1,5,1,5);
+            f2 = repmat(f2,1,5,5);
+            bytes1 = hlp_serialise(f1);
+            bytes2 = hlp_serialise(f2);
+            [f1_rec,nbytes1] = hlp_deserialise(bytes1);
+            assertEqual(numel(bytes1),nbytes1)
+            [f2_rec,nbytes2] = hlp_deserialise(bytes2);
+            assertEqual(numel(bytes2),nbytes2)
+            %
+            assertEqual(f1,f1_rec);
+            assertEqual(f2,f2_rec);
+        end
         
         
         %------------------------------------------------------------------
@@ -683,7 +699,7 @@ classdef test_serialise < TestCase
             assertEqual(size,numel(ser));
             %--------------------------------------------------------------
             % Serialize using C++
-
+            
             if ~obj.use_mex
                 skipTest('Mex mode is not currently available for: test_ser_serializeble_obj_array');
             end
@@ -724,6 +740,7 @@ classdef test_serialise < TestCase
             
             size = hlp_serial_sise(serCl);
             assertEqual(size,numel(ser));
+            skipTest('C++ deserializer does not work propertly; #394')
             if ~obj.use_mex
                 skipTest('Mex mode is not currently available for: test_ser_serializeble_obj');
             end
@@ -734,7 +751,6 @@ classdef test_serialise < TestCase
             ser_c     = c_serialise(serCl);
             assertEqual(ser_c,ser)
             
-            skipTest('C++ deserializer does not work propertly; #394')
             [serCl_rec,nbytes] = c_deserialise(ser_c);
             
             %
@@ -745,7 +761,23 @@ classdef test_serialise < TestCase
             
             assertEqual(size_c,numel(ser));
         end
-        
-        
+        function test_pack_unpack_header(~)
+            
+            type_details = hlp_serial_types.type_details;
+            for ntype = 1:numel(type_details)
+                for nElem = 1:3
+                    for nDims = 1:8
+                        for sizeV1 = 0:1
+                            packed_tag = hlp_serial_types.pack_tag_data(...
+                                nElem,nDims,sizeV1,type_details(ntype));
+                            [type_rec, nDims_rec] = ...
+                                hlp_serial_types.unpack_tag_data(packed_tag);
+                            assertEqual(type_rec,type_details(ntype));
+                            assertEqual(nDims_rec,nDims);
+                        end
+                    end
+                end
+            end
+        end
     end
 end
