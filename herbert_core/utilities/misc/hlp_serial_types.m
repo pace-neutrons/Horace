@@ -30,7 +30,7 @@ classdef hlp_serial_types
         %
         
         
-        tag_size = 2;  % Size of standard tag (uint8) in bytes
+        tag_size = 1;  % Size of standard tag (uint8) in bytes
         ndims_size = 1;% Size of standard num dimensions (uint8) in bytes
         dim_size = 4;  % Size of standard dimension (uint32) in bytes
         dims_tag = uint8([32 64 96 128 160 192 224]); % Dims tags to set number of dimensions
