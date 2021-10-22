@@ -132,6 +132,8 @@ end
 % mod FWHH=99.37us, shape_chop FWHH=162.4us
 instru = let_instrument_obj_for_tests (efix, 280, 140, 20, 2, 2);
 samp = IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
+samp.alatt = [5 5 5];
+samp.angdeg = [90 90 90];
 
 w1 = set_instrument (w1, instru);
 w1 = set_sample (w1, samp);

@@ -13,15 +13,15 @@ function rd=rundata_from_sqw_(sqw_obj)
 
 %
 data = sqw_obj.data;
-header = sqw_obj.header;
-detpar = sqw_obj.detpar;
+header = sqw_obj.experiment_info;
+detpar = sqw_obj.my_detpar();
 %
-if iscell(header) && numel(header) > 1
+if (iscell(header) && numel(header) > 1) || (isa(header,'Experiment') && numel(header.expdata)>1)
     error('RUNDATAH:invalid_argument',...
         ['a rundatah class can be constructed from an sqw, build from single data file only.'...
         ' Use sqw.split to divide sqw into array of single dataset sqw objects']);
 end
-en     = header.en;
+en     = header.expdata(1).en;
 ne=numel(en)-1;    % number of energy bins
 ndet0=numel(detpar.group);% number of detectors
 
@@ -44,26 +44,26 @@ err(:,ind)=sqrt(reshape(tmp(:,4),ne,numel(group)));
 
 
 lattice = oriented_lattice();
-lattice.alatt = header.alatt;
-lattice.angdeg = header.angdeg;
-lattice.u      = header.cu;
-lattice.v      = header.cv;
-lattice.psi    = header.psi*(180/pi);
-lattice.omega = header.omega*(180/pi);
-lattice.dpsi  = header.dpsi*(180/pi);
-lattice.gl    = header.gl*(180/pi);
-lattice.gs    = header.gs*(180/pi);
+lattice.alatt = header.samples(1).alatt;
+lattice.angdeg = header.samples(1).angdeg;
+lattice.u      = header.expdata(1).cu;
+lattice.v      = header.expdata(1).cv;
+lattice.psi    = header.expdata(1).psi*(180/pi);
+lattice.omega = header.expdata(1).omega*(180/pi);
+lattice.dpsi  = header.expdata(1).dpsi*(180/pi);
+lattice.gl    = header.expdata(1).gl*(180/pi);
+lattice.gs    = header.expdata(1).gs*(180/pi);
 
 rd = rundatah();
 
 rd.lattice = lattice;
 % Set lattice before loader, to have efix redefined on rundata rather then
 % in the loader
-rd.efix = header.efix;
+rd.efix = header.expdata(1).efix;
 % will define loader
 rd.det_par = detpar;
 
-rd.emode   = header.emode;
+rd.emode   = header.expdata(1).emode;
 
 rd.en  = en;
 rd.S   = signal;

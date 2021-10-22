@@ -225,6 +225,7 @@ function write_sqw_with_out_of_mem_pix(sqw_obj, outfile)
     ldr = ldr.validate_pixel_positions();
     ldr = ldr.put_footers();
     ldr.delete();
+
 end
 
 

@@ -100,7 +100,7 @@ classdef dnd_binfile_common < dnd_file_interface
         npix_position;
         
     end
-    %
+    
     methods(Access = protected,Hidden=true)
         %
         function obj=init_from_sqw_obj(obj,varargin)

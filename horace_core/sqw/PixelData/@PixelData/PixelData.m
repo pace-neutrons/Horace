@@ -772,6 +772,7 @@ classdef PixelData < handle
             obj.page_number_ = 1;
             obj.num_pixels_ = double(obj.f_accessor_.npixels);
             %
+            obj.data();
             obj.pix_range_ = f_accessor.get_pix_range();
             obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
             

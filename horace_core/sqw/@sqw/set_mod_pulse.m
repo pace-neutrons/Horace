@@ -80,32 +80,35 @@ for i=1:nobj
         ld = w.loaders_list{i};
         nfiles = ld.num_contrib_files;
         tmp = ld.get_header('-all');
+        if ~isa(tmp,'Experiment')
+            tmp=Experiment(tmp);
+        end
     else
         h=wout(i);  % pointer to object
         nfiles=h.main_header.nfiles;
-        tmp=h.header;   % to keep referencing to sub-fields to a minimum
+        tmp=h.experiment_info;   % to keep referencing to sub-fields to a minimum
     end
     % Change the header
     if nfiles>1
         for ifile=1:nfiles
             if npp==1
-                tmp{ifile}.instrument=set_mod_pulse_single_inst(tmp{ifile}.instrument,pulse_model,pp);
+                tmp.instruments(ifile)=set_mod_pulse_single_inst(tmp.instruments(ifile),pulse_model,pp);
             else
-                tmp{ifile}.instrument=set_mod_pulse_single_inst(tmp{ifile}.instrument,pulse_model,pp(ifile,:));
+                tmp.instruments(ifile)=set_mod_pulse_single_inst(tmp.instruments(ifile),pulse_model,pp(ifile,:));
             end
         end
     else
-        tmp.instrument=set_mod_pulse_single_inst(tmp.instrument,pulse_model,pp);
+        tmp.instruments(1)=set_mod_pulse_single_inst(tmp.instruments(1),pulse_model,pp);
     end
     % Write back out
     if source_is_file
         ld = ld.upgrade_file_format(); % if file was old version one, upgrade to new,
         % if not, opens for writing
         tt = sqw();
-        tt.header = tmp;
+        tt.experiment_info = tmp;
         ld = ld.put_instruments(tt);
     else
-        wout(i).header=tmp;
+        wout(i).experiment_info=tmp;
     end
 end
 

@@ -73,7 +73,7 @@ for i=1:nobj
         ld = w.loaders_list{i};
         header = ld.get_header('-all');        
     else
-        header=w.data(i).header;
+        header=w.data(i).experiment_info;
     end
     if i==1
         [pulse_model,pars,ok,mess,present]=get_mod_pulse_single(header);
@@ -155,17 +155,32 @@ function [pulse_model,pp,ok,mess,present]=get_mod_pulse_single(header)
 
     
 % Get array of moderator objects from the header
-if ~iscell(header), header = {header}; end  % for convenience
-nrun=numel(header);
-moderator = repmat(IX_moderator,nrun,1);
 present = false;
-for i=1:nrun
-    try
-        moderator(i) = header{i}.instrument.moderator;
-    catch
-        pulse_model=''; pp=[]; ok=false;
-        mess='IX_moderator object not found in all instrument descriptions';
-        return
+if isa(header,'Experiment')
+    nrun=numel(header.instruments);
+    moderator = repmat(IX_moderator,nrun,1);
+
+    for i=1:nrun
+        try
+            moderator(i) = header.instruments(i).moderator;
+        catch
+            pulse_model=''; pp=[]; ok=false;
+            mess='IX_moderator object not found in all instrument descriptions';
+            return
+        end
+    end
+else % either a cell of old-style headers or a single such header
+    if ~iscell(header), header = {header}; end  % for convenience
+    nrun=numel(header);
+    moderator = repmat(IX_moderator,nrun,1);
+    for i=1:nrun
+        try
+            moderator(i) = header{i}.instrument.moderator;
+        catch
+            pulse_model=''; pp=[]; ok=false;
+            mess='IX_moderator object not found in all instrument descriptions';
+            return
+        end
     end
 end
 present = true;

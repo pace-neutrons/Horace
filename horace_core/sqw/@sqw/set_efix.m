@@ -85,28 +85,26 @@ for i=1:nobj
         ld = w.loaders_list{i};
         nfiles = ld.num_contrib_files;
         header = ld.get_header('-all');
-        h.header = header;
+        if ~isa(header,'Experiment')
+            h.experiment_info = Experiment(header);
+        else
+            h.experiment_info = header;
+        end
     else
         h=wout(i);  % pointer to object
         nfiles=h.main_header.nfiles;        
     end
     % Change the header
-    tmp=h.header;   % to keep referencing to sub-fields to a minimum
-    if nfiles>1
-        for ifile=1:nfiles
-            if nefix==1
-                tmp{ifile}.efix=efix;
-            else
-                tmp{ifile}.efix=efix(ifile);
-            end
-            if ~isempty(emode)
-                tmp{ifile}.emode=emode;
-            end
+    tmp=h.experiment_info;   % to keep referencing to sub-fields to a minimum
+    for ifile=1:nfiles
+        if nefix==1
+            tmp.expdata(ifile).efix=efix;
+        else
+            tmp.expdata(ifile).efix=efix(ifile);
         end
-    else
-        tmp.efix=efix;
+
         if ~isempty(emode)
-            tmp.emode=emode;
+            tmp.expdata(ifile).emode=emode;
         end
     end
     % Write back out
@@ -114,7 +112,7 @@ for i=1:nobj
         ld = ld.upgrade_file_format(); % also reopens file in update mode if format is already the latest one
         ld = ld.put_headers(tmp);
     else
-        wout(i).header=tmp;
+        wout(i).experiment_info=tmp;
     end
 end
 

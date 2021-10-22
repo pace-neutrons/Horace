@@ -29,9 +29,12 @@ classdef test_experiment < TestCaseWithSave
         end
 
         function test_constructor_raises_error_with_invalid_arguments(self)
-            assertExceptionThrown(@()Experiment(IX_detector_array, IX_inst_DGfermi, 'not-a-sample'), 'EXPERIMENT:invalid_argument');
-            assertExceptionThrown(@()Experiment(IX_detector_array, 'not-an-inst', IX_sample), 'EXPERIMENT:invalid_argument');
-            assertExceptionThrown(@()Experiment('not-a-da', IX_inst_DGfermi, IX_sample), 'EXPERIMENT:invalid_argument');
+            assertExceptionThrown(@()Experiment(IX_detector_array, IX_inst_DGfermi, 'not-a-sample'),...
+                'HORACE:Experiment:invalid_argument');
+            assertExceptionThrown(@()Experiment(IX_detector_array, 'not-an-inst', IX_sample),...
+                'HORACE:Experiment:invalid_argument');
+            assertExceptionThrown(@()Experiment('not-a-da', IX_inst_DGfermi, IX_sample),...
+                'HORACE:Experiment:invalid_argument');
         end
 
         function test_creates_object_with_array_object_arguments(self)
@@ -82,8 +85,8 @@ classdef test_experiment < TestCaseWithSave
             clear('expt');
             
             load(tmpfile, 'expt');
-            assertEqual(expt.instruments, [])
-            assertEqual(expt.samples, [])
+            assertEqual(expt.instruments, IX_inst.empty)
+            assertEqual(expt.samples, IX_samp.empty)
             assertEqual(expt.detector_arrays, [])
         end
 
@@ -99,7 +102,8 @@ classdef test_experiment < TestCaseWithSave
             instruments = 'non-instrument object value';
             expt = Experiment();
             
-            assertExceptionThrown(@() setInstrumentsProperty(expt, instruments), 'EXPERIMENT:invalid_argument');
+            assertExceptionThrown(@() setInstrumentsProperty(expt, instruments),...
+                'HORACE:Experiment:invalid_argument');
             function setInstrumentsProperty(e, i)
                 e.instruments = i;
             end
@@ -117,7 +121,7 @@ classdef test_experiment < TestCaseWithSave
             samples = 'non-sample object value';
             expt = Experiment();
             
-            assertExceptionThrown(@() setSamplesProperty(expt, samples), 'EXPERIMENT:invalid_argument');
+            assertExceptionThrown(@() setSamplesProperty(expt, samples), 'HORACE:Experiment:invalid_argument');
             function setSamplesProperty(e, s)
                 e.samples = s;
             end
@@ -135,7 +139,8 @@ classdef test_experiment < TestCaseWithSave
             detector_arrays = 'non-detector_arrays object value';
             expt = Experiment();
             
-            assertExceptionThrown(@() setDetectorArraysProperty(expt, detector_arrays), 'EXPERIMENT:invalid_argument');
+            assertExceptionThrown(@() setDetectorArraysProperty(expt, detector_arrays),...
+                'HORACE:Experiment:invalid_argument');
             function setDetectorArraysProperty(e, d)
                 e.detector_arrays = d;
             end

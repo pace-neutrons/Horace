@@ -37,7 +37,8 @@ if exist('opt','var')
     end
 end
 
-header_ave=header_average(win.header);
+header_ave=header_average(win.experiment_info); % doing this in 2 lines for R2018b.
+header_ave=header_ave.expdata(1);        % R2019b and later OK
 
 upix_offset = header_ave.uoffset;
 upix_to_rlu = header_ave.u_to_rlu(1:3,1:3);

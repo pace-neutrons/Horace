@@ -30,11 +30,7 @@ wout = copy(win);
 
 %New code (problem spotted by Matt Mena for case when using a single
 %contributing spe file):
-if ~iscell(win.header)
-    header = win.header;
-else
-    header = win.header{1};
-end
+header = win.experiment_info;
 
 if numel(win)~=1
     error('Horace error: symmetrisation only implemented for single sqw object, not arrays of objects. Use a for-loop to deal with arrays');
@@ -64,8 +60,8 @@ end
 %========================
 
 %Get B-matrix and reciprocal lattice vectors and angles
-alatt=header.alatt;
-angdeg=header.angdeg;
+alatt=header.samples(1).alatt;
+angdeg=header.samples(1).angdeg;
 
 [b, arlu, angrlu, mess] = bmatrix(alatt, angdeg);
 
@@ -91,7 +87,7 @@ end
 % First step, therefore, is to work out what is the reflection matrix in
 % the orthonormal frame specified by u_to_rlu.
 
-uconv=header.u_to_rlu(1:3,1:3);
+uconv=header.expdata(1).u_to_rlu(1:3,1:3);
 
 %
 %convert the vectors specifying the reflection plane from rlu to the

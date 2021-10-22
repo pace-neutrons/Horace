@@ -103,6 +103,8 @@ end
 
 % Add instrumnet and sample information to cuts
 sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.02,0.02,0.02]);
+sample.alatt = [4.2240 4.2240 4.2240];
+sample.angdeg = [90 90 90];
 w1inc=set_sample(w1inc,sample);
 w1inc=set_instrument(w1inc,@maps_instrument_obj_for_tests,'-efix',300,'S');
 

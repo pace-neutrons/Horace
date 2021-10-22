@@ -42,7 +42,7 @@ if narg==0
         argout{1}=w.data;
     end
 elseif narg==1
-    if isscalar(args{1}) && (isstruct(args{1}) || isa(args{1},'IX_sample'))
+    if isscalar(args{1}) && (isstruct(args{1}) || isa(args{1},'IX_samp'))
         sample=args{1};     % single structure or IX_sample
     elseif isempty(args{1})
         sample=struct();    % empty item indicates no sample; set to default 1x1 empty structure
@@ -62,15 +62,11 @@ elseif narg==1
         wout=w.data;
         for i=1:numel(wout)
             nfiles=wout(i).main_header.nfiles;
-            if nfiles>1
-                tmp=wout(i).header;   % to keep referencing to sub-fields to a minimum
-                for ifiles=1:nfiles
-                    tmp{ifiles}.sample=sample;
-                end
-                wout(i).header=tmp;
-            else
-                wout(i).header.sample=sample;
+            tmp=wout(i).experiment_info;   % to keep referencing to sub-fields to a minimum
+            for ifiles=1:nfiles
+                tmp.samples(ifiles)=sample;
             end
+            wout(i).experiment_info=tmp;
         end
         argout{1}=wout;
     end

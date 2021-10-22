@@ -62,7 +62,7 @@ if nfiles>1
 else
     heads = head;
 end
-sq.header = heads;
+sq = sq.change_header(heads);
 
 function hd= gen_head(head,x)
 hd = head;

@@ -36,31 +36,60 @@ end
 
 n_files = numel(headers);
 
-
-
 if isstruct(headers)
+    if isstruct(instr)
+        if isempty(instr) || isempty(fieldnames(instr))
+            instr = IX_null_inst();
+        else
+            instr = IX_inst(instr);
+        end
+    end
     headers.instrument = instr;
+    if isstruct(sampl)
+        if isempty(sampl) || isempty(fieldnames(sampl))
+            sampl = IX_null_sample;
+        else
+            sampl = IX_sample(sampl);
+        end
+    end
     headers.sample = sampl;
 else
     for i=1:n_files
-        if numel(instr) > 1
+        if numel(instr)>1
             if iscell(instr)
-                headers{i}.instrument = instr{i};
+                inst = instr{1};
             else
-                headers{i}.instrument = instr(i);
+                inst = instr(i);
             end
         else
-            headers{i}.instrument = instr ;
+            inst = instr;
         end
-        if numel(sampl) > 1
+        if isstruct(inst)
+            if isempty(inst) || isempty(fieldnames(inst))
+                inst = IX_null_inst();
+            else
+                inst = IX_inst(inst);
+            end
+        end
+        headers{i}.instrument = inst;
+
+        if numel(sampl)>1
             if iscell(sampl)
-                headers{i}.sample = sampl{i};
+                samp = sampl{1};
             else
-                headers{i}.sample = sampl(i);
+                samp = sampl(i);
             end
         else
-            headers{i}.sample = sampl;
+            samp = sampl;
         end
+        if isstruct(samp)
+            if isempty(samp) || isempty(fieldnames(samp))
+                samp = IX_null_sample();
+            else
+                samp = IX_sample(samp);
+            end
+        end
+        headers{i}.sample = samp;
     end
 end
 
