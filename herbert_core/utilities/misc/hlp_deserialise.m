@@ -36,9 +36,10 @@ nbytes = pos-pos0;
 end
 
 function [v,pos] = deserialise_value(m,pos)
-type = bitand(31, m(pos));
+%type = bitand(31, m(pos));
+typeID = m(pos);
 
-switch type
+switch typeID
     case {0,1,2,3,4,5,6,7,8,9,10,11,12}
         [v,pos] = deserialise_simple_data(m,pos);
     case {13,14,15,16,17,18,19,20,21,22}
@@ -53,8 +54,8 @@ switch type
         [v,pos] = deserialise_object(m,pos);
     case {29, 30, 31}
         [v,pos] = deserialise_sparse(m,pos);
-%     case 32
-%         [v,pos] = deserialise_themselves(m,pos);        
+    case 32
+        [v,pos] = obj_deserialize_itself(m,pos);
     otherwise
         error('MATLAB:deserialise_value:unrecognised_tag', 'Cannot deserialise tag %s.', hlp_serial_types.type_details(type+1).name);
 end
@@ -75,27 +76,20 @@ pos = pos + nBytes;
 end
 
 function [v,pos] = deserialise_simple_data(m, pos)
-[type, nDims] = hlp_serial_types.unpack_tag_data(m(pos));
-pos = pos+1;
-
+[type, nDims,size,pos] = hlp_serial_types.unpack_data_tag(m,pos);
 
 switch type.name
     case {'logical', 'char', 'string'}
-        deserialiser = 'uint8';
+        field_width = 'uint8';
     otherwise
-        deserialiser = type.name;
+        field_width = type.name;
 end
 
-if nDims == 0
-    [v, pos] = read_bytes(m, pos, deserialiser, 1);
+if nDims > 0
+    nData = prod(size);
+    [v, pos] = read_bytes(m, pos, field_width, nData);
 else
-    [nElems, pos] = read_bytes(m, pos, 'uint32', nDims);
-    totalElem = prod(nElems);
-    if totalElem == 0
-        v = [];
-    else
-        [v, pos] = read_bytes(m, pos, deserialiser, totalElem);
-    end
+    v = [];
 end
 
 switch type.name
@@ -108,34 +102,31 @@ switch type.name
 end
 
 if nDims > 1
-    v = reshape(v, nElems);
+    v = reshape(v, size);
 end
 end
 
 function [v, pos] = deserialise_complex_data(m, pos)
-
-[type, nDims] = hlp_serial_types.unpack_tag_data(m(pos));
-pos = pos+1;
+[type, nDims,size,pos] = hlp_serial_types.unpack_data_tag(m,pos);
 
 if nDims == 0
-    [data, pos] = read_bytes(m, pos, type.name, 1);
-    v = complex(data(1), data(2));
+    v = [];
 else
-    [nElems, pos] = read_bytes(m, pos, 'uint32', nDims);
-    totalElem = prod(nElems);
+    totalElem = prod(size);
     [data, pos] = read_bytes(m, pos, type.name, totalElem);
     v = complex(data(1:totalElem), data(totalElem+1:end));
 end
 
 if nDims > 1
-    v = reshape(v, nElems);
+    v = reshape(v, size);
 end
 end
 
 % Sparse data types
 function [v, pos] = deserialise_sparse(m, pos)
-[type, ~] = hlp_serial_types.unpack_tag_data(m(pos));
-pos = pos+1;
+[type, ~,size,pos] = hlp_serial_types.unpack_data_tag(m,pos);
+%[type, ~,pos] = hlp_serial_types.unpack_data_tag(m,pos);
+
 
 
 switch type.name
@@ -168,57 +159,47 @@ v = sparse(i,j,data,dims(1),dims(2));
 end
 
 function [v, pos] = deserialise_cell(m, pos)
-[~, nDims] = hlp_serial_types.unpack_tag_data(m(pos));
-pos = pos+1;
-
-
+[~, nDims,fh_size,pos] = hlp_serial_types.unpack_data_tag(m,pos);
 
 if nDims == 0
-    [v, pos] = deserialise_value(m, pos);
-    v = {v};
+    v = {};
 else
-    [nElems, pos] = read_bytes(m, pos, 'uint32', nDims);
-    totalElem = prod(nElems);
-    if totalElem == 0
-        v = {};
-    else
-        v = cell(1,totalElem);
-        for i=1:totalElem
-            [v{i}, pos] = deserialise_value(m, pos);
-        end
+    totalElem = prod(fh_size);
+    v = cell(1,totalElem);
+    for i=1:totalElem
+        [v{i}, pos] = deserialise_value(m, pos);
     end
 end
 
 if nDims > 1
-    v = reshape(v, [nElems 1 1]);
+    v = reshape(v,fh_size);
 end
 
 end
 
 function [v, pos] = deserialise_struct(m, pos)
-[~, nDims] = hlp_serial_types.unpack_tag_data(m(pos));
-pos = pos+1;
+[~, nDims,fh_size,pos] = hlp_serial_types.unpack_data_tag(m,pos);
 
-
-if nDims == 0
-    v = struct();
+nElems = prod(fh_size);
+if nDims == 0 && isempty(fh_size)
+    v = struct([]);
+    return;
 elseif nDims == 1
-    [nElems, pos] = read_bytes(m, pos, 'uint32', nDims);
     if nElems == 0
-        v = struct([]);
+        v = struct();
         return
     else
-        v = reshape(struct(), [1 nElems]);
+        %v = reshape(struct(), [1 nElems]);
     end
 else
-    [nElems, pos] = read_bytes(m, pos, 'uint32', nDims);
-    v = reshape(struct(), [nElems 1 1]);
+    %v = reshape(struct(), [nElems 1 1]);
 end
 
 % Number of field names.
 [nFields, pos] = read_bytes(m, pos, 'uint32', 1);
 nFields = double(nFields);
 if nFields == 0
+    v = reshape(struct(), fh_size);
     return;
 end
 
@@ -229,22 +210,19 @@ fnLengths = double(fnLengths);
 [fnChars, pos] = read_bytes(m, pos, 'uint8', sum(fnLengths));
 fnChars = char(fnChars);
 % Field names.
-fieldNames = cell(length(fnLengths),1);
 splits = [0, cumsum(fnLengths)];
-for k=1:length(splits)-1
-    fieldNames{k} = fnChars(splits(k)+1:splits(k+1));
-end
+fieldNames = arrayfun(@(start,size)(fnChars(start+1:start+size)),...
+    splits(1:end-1),fnLengths,'UniformOutput',false);
+%
 % using struct2cell
 [contents,pos] = deserialise_value(m,pos);
 v = cell2struct(contents,fieldNames,1);
 end
 
 function [v, pos] = deserialise_function_handle(m, pos)
-[~, tag] = hlp_serial_types.unpack_tag_data(m(pos));
-pos = pos+1;
-
-
-switch tag
+[~, fTag,~,pos] = hlp_serial_types.unpack_data_tag(m,pos);
+%
+switch fTag
     case 1 % Simple
         [name, pos] = deserialise_simple_data(m, pos);
         v = str2func(name);
@@ -270,74 +248,49 @@ switch tag
         end
 end
 end
+function [v,pos]=obj_deserialize_itself(m,pos)
+% first position is the self-serialization tag. The serializable starts from
+% the following byte
+[v,nbytes] = serializable.deserialize(m,pos+1);
+pos = pos+1+nbytes;
+end
+
 
 function [v, pos] = deserialise_object(m, pos)
-[~, nDims] = hlp_serial_types.unpack_tag_data(m(pos));
-pos = pos+1;
+[~, nDims,size,pos] = hlp_serial_types.unpack_data_tag(m,pos);
 
-
-if nDims == 0
-    [class_name, pos] = deserialise_simple_data(m, pos);
+totalElem = prod(size);
+[class_name, pos] = deserialise_simple_data(m, pos);
+if totalElem == 0
+    v = feval(class_name);
+else
     [ser_tag, pos] = read_bytes(m, pos, 'uint8', 1);
     switch ser_tag
         case 0 % Object serialises itself
-            instance = feval(class_name);
-            [v, nbytes] = instance.deserialize(m,pos);
-            %pos = pos+nbytes+8;
-            pos = pos+nbytes;
+            v(1:totalElem) = feval(class_name);
+            for i=1:totalElem
+                [v(i),nbytes] = v(i).deserialize(m, pos);
+                pos = pos+nbytes;
+            end
         case 1 % Serialise as saveobj (must have loadobj)
             [conts, pos] = deserialise_value(m, pos);
-            v = eval([class_name '.loadobj(conts)']);
+            % Preallocate
+            v(1:totalElem) = feval(class_name);
+            for i=1:totalElem
+                v(i) = eval([class_name '.loadobj(conts(' num2str(i) '))']);
+            end
         case 2 % Serialise as struct
             [conts, pos] = deserialise_value(m, pos);
-            try % Direct assign
-                v = eval([class_name '(conts)']);
-            catch % Loop assign
-                v = feval(class_name);
-                for fn=fieldnames(conts)'
-                    v.(fn{1}) = conts.(fn{1});
-                end
+            % Preallocate
+            v(1:totalElem) = feval(class_name);
+            for i=1:totalElem
+                v(i) = eval([class_name '(conts(' num2str(i) '))']);
             end
     end
-else
-    [nElems, pos] = read_bytes(m, pos, 'uint32', nDims);
-    totalElem = prod(nElems);
-    [class_name, pos] = deserialise_simple_data(m, pos);
-    if totalElem == 0
-        v = feval(class_name);
-    else
-        [ser_tag, pos] = read_bytes(m, pos, 'uint8', 1);
-        switch ser_tag
-            case 0 % Object serialises itself
-                
-                v(1:totalElem) = feval(class_name);
-                for i=1:totalElem
-                    [v(i),nbytes] = v(i).deserialize(m, pos);
-                    %pos = pos+nbytes+8;
-					pos = pos+nbytes;
-                end
-            case 1 % Serialise as saveobj (must have loadobj)
-                
-                [conts, pos] = deserialise_value(m, pos);
-                % Preallocate
-                v(1:totalElem) = feval(class_name);
-                for i=1:totalElem
-                    v(i) = eval([class_name '.loadobj(conts(' num2str(i) '))']);
-                end
-            case 2 % Serialise as struct
-                [conts, pos] = deserialise_value(m, pos);
-                % Preallocate
-                v(1:totalElem) = feval(class_name);
-                for i=1:totalElem
-                    v(i) = eval([class_name '(conts(' num2str(i) '))']);
-                end
-        end
-    end
-    
 end
 
 if nDims > 1
-    v = reshape(v, [nElems 1 1]);
+    v = reshape(v, size);
 end
 end
 

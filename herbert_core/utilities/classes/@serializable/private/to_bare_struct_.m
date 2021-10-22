@@ -1,4 +1,4 @@
-function struc = to_class_struct_(obj)
+function struc = to_bare_struct_(obj)
 % Convert serializable object into a special structure, which allow
 % serialization and recovery using from_class_struct operation
 %

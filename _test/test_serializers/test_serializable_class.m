@@ -49,13 +49,16 @@ classdef test_serializable_class < TestCase
             
             [tc_rec,nbytes] = serializable.deserialize(tc_bytes);
             
-            assertEqual(size(tc_rec),size(tc));            
+            assertEqual(size(tc_rec),size(tc));
             assertEqual(tc_size,nbytes);
             for i=1:numel(tc)
                 assertEqual(tc(i),tc_rec(i));
+                assertEqual(class(tc(i)),class(tc_rec(i)));
+                assertEqual(class(tc(i).Prop_level1_2),...
+                    class(tc_rec(i).Prop_level1_2));
             end
         end
-
+        
         
         function test_to_from_to_struct_classes_array_recursive(~)
             tc = serializableTester1();
@@ -110,7 +113,7 @@ classdef test_serializable_class < TestCase
             
             [tc_rec,nbytes] = serializable.deserialize(tc_bytes);
             assertEqual(tc,tc_rec);
-            assertEqual(tc_size,nbytes);        
+            assertEqual(tc_size,nbytes);
         end
         
         function test_to_from_to_struct_classes_array(~)
@@ -139,7 +142,7 @@ classdef test_serializable_class < TestCase
             
             [tc_rec,nbytes] = serializable.deserialize(tc_bytes);
             assertEqual(tc,tc_rec);
-            assertEqual(tc_size,nbytes);        
+            assertEqual(tc_size,nbytes);
         end
         
         function test_to_from_to_struct_single_class(~)
