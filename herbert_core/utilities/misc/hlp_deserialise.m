@@ -48,7 +48,7 @@ switch typeID
         [v,pos] = deserialise_cell(m,pos);
     case {24}
         [v,pos] = deserialise_struct(m,pos);
-    case {25}
+    case {25+64,25+128,25+192}
         [v,pos] = deserialise_function_handle(m,pos);
     case {26, 27}
         [v,pos] = deserialise_object(m,pos);
@@ -220,17 +220,17 @@ v = cell2struct(contents,fieldNames,1);
 end
 
 function [v, pos] = deserialise_function_handle(m, pos)
-[~, fTag,~,pos] = hlp_serial_types.unpack_data_tag(m,pos);
+[~, ~,fTag,pos] = hlp_serial_types.unpack_data_tag(m,pos);
 %
 switch fTag
-    case 1 % Simple
+    case 64 % Simple
         [name, pos] = deserialise_simple_data(m, pos);
         v = str2func(name);
-    case 2 % Anonymous
+    case 128 % Anonymous
         [code, pos] = deserialise_simple_data(m, pos);
         [workspace, pos] = deserialise_struct(m, pos);
         v = restore_function(code, workspace);
-    case 3 % Scoped/Nested
+    case 192 % Scoped/Nested
         [parentage, pos] = deserialise_cell(m, pos);
         % recursively look up from parents, assuming that these support the arg system
         v = parentage{end};

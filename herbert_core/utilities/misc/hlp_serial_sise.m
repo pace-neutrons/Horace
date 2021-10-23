@@ -115,9 +115,9 @@ function siz = serial_sise_object(v, type_str)
 
 siz = hlp_serial_types.calc_tag_size(size(v),type_str);
 % Serialise class name as char string
-siz =siz + numel(class(v));
-nElem  = numel(v);
+siz =siz + serial_sise_simple_data(class(v), hlp_serial_types.get_details('char'));
 
+nElem  = numel(v);
 if nElem > 0
     siz =siz + 1; % add serialization tag size
     if ismethod(v, 'serialize')    % can object serialise/deserialise itself?
@@ -143,36 +143,31 @@ end
 end
 
 % Function handle
-function siz = serial_sise_function_handle(v, type)
+function siz = serial_sise_function_handle(v, type_struc)
 % get the representation
 rep = functions(v);
+%
+tag_size = hlp_serial_types.calc_tag_size(size(rep),type_struc);
 switch rep.type
     case {'simple', 'classsimple'}
         % simple function: Tag & name
         
-        siz = hlp_serial_types.tag_size +...
-            hlp_serial_types.tag_size + hlp_serial_types.dim_size + numel(rep.function); % String of name
+        siz = tag_size  +...
+            serial_sise_simple_data(rep.function, hlp_serial_types.get_details('char')); % String of name
     case 'anonymous'
-        
         % anonymous function: Tag, Code, and reduced workspace
-        siz = hlp_serial_types.tag_size +...
-            hlp_serial_types.tag_size + hlp_serial_types.dim_size + numel(char(v)); % Code as string
-        if ~isempty(rep.workspace)
-            
-            % If workspace, serialise it
-            siz = siz + serial_sise_struct(rep.workspace{1}, hlp_serial_types.get_details('struct'));
-        else
-            
-            % If workspace, else serialise an empty struct
-            siz = siz + serial_sise_struct(struct(), hlp_serial_types.get_details('struct'));
-        end
+        siz = tag_size +...
+            serial_sise_simple_data(char(v), hlp_serial_types.get_details('char'))+... % Code
+            serial_sise_struct(rep.workspace{1}, hlp_serial_types.get_details('struct'));
     case {'scopedfunction','nested'}
-        
+        %
         % scoped function: Tag and Parentage
-        siz = hlp_serial_types.tag_size + ...
-            serial_sise_cell(rep.parentage, hlp_serial_types.get_details('cell'));
-        
+        siz = tag_size + ... Tag
+            serial_sise_cell(rep.parentage, hlp_serial_types.get_details('cell')); % Parentage
     otherwise
-        error('hlp_serial_sise:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type);
+        warn_once('hlp_serialise:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type);
+        siz = tag_size+...
+            serial_sise_simple_data(['<<hlp_serialise: function handle of type ' rep.type ' unsupported>>'],...
+            hlp_serial_types.get_details('char'));
 end
 end

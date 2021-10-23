@@ -112,7 +112,8 @@ classdef test_serialise < TestCase
             test_obj = [DataMessage(my_struc), DataMessage(10), DataMessage('Hello')];
             
             ser = hlp_serialise(test_obj);
-            test_obj_rec = hlp_deserialise(ser);
+            [test_obj_rec,nbytes] = hlp_deserialise(ser);
+            assertEqual(numel(ser),nbytes);
             assertEqual(test_obj, test_obj_rec)
             
             size = hlp_serial_sise(test_obj);
@@ -437,11 +438,15 @@ classdef test_serialise < TestCase
         function test_ser_function_handle(~)
             test_func = @(x, y) (x^2 + y^2);
             ser = hlp_serialise(test_func);
-            test_func_rec = hlp_deserialise(ser);
-            assertEqual(func2str(test_func), func2str(test_func_rec))
             
             size = hlp_serial_sise(test_func);
             assertEqual(size,numel(ser));
+            
+            
+            [test_func_rec,nbytes] = hlp_deserialise(ser);
+            assertEqual(nbytes,size);
+            
+            assertEqual(func2str(test_func), func2str(test_func_rec))
             
         end
         
@@ -568,21 +573,20 @@ classdef test_serialise < TestCase
             size = hlp_serial_sise(test_str);
             assertEqual(size,numel(ser));
         end
-        
-        
+               
         %------------------------------------------------------------------
         function test_ser_cell_homo_function_handles(~)
             test_cell = {@(x,y) (x+y^2), @(a,b) (b-a)};
             ser =  hlp_serialise(test_cell);
-            test_cell_rec = hlp_deserialise(ser);
+            siz = hlp_serial_sise(test_cell);
+            assertEqual(numel(ser),siz);
+            [test_cell_rec,nbytes] = hlp_deserialise(ser);
+            assertEqual(nbytes,siz);
+            
             test_cell = cellfun(@func2str, test_cell, 'UniformOutput',false);
             test_cell_rec = cellfun(@func2str, test_cell_rec, 'UniformOutput',false);
             assertEqual(test_cell, test_cell_rec)
-            
-            skipTest('C++ this test fails #394')
-            size = hlp_serial_sise(test_cell);
-            assertEqual(size,numel(ser));
-            
+                        
         end
         
         %------------------------------------------------------------------
@@ -598,222 +602,7 @@ classdef test_serialise < TestCase
             size = hlp_serial_sise(test_cell);
             assertEqual(size,numel(ser));
         end
-        %
-        function test_ser_serializeble_obj_array_level2(obj)
-            conf = herbert_config;
-            ds = conf.get_data_to_store();
-            clob = onCleanup(@()set(conf,ds));
-            conf.use_mex = false;
-            %--------------------------------------------------------------
-            % Prepare data
-            serCl = serializableTester1();
-            serCl = repmat(serCl,2,2);
-            setCl2 = serializableTester2();
-            setCl2.Prop_level2_1 = 10;
-            setCl2.Prop_level2_2 = 20;
-            for i=1:numel(serCl)
-                serCl(i).Prop_level1_1 = i*10;
-                serCl(i).Prop_level1_2 = repmat(setCl2,1,2*i);
-            end
-            %--------------------------------------------------------------
-            % Serialize using Matlab
-            ser =  hlp_serialise(serCl);
-            serCl_rec = hlp_deserialise(ser);
-            
-            assertEqual(serCl, serCl_rec)
-            
-            size = hlp_serial_sise(serCl);
-            assertEqual(size,numel(ser));
-            %--------------------------------------------------------------
-            % Serialize using C++
-            skipTest('C++ serializers crashes over arrays of objects #394')
-            if ~obj.use_mex
-                skipTest('Mex mode is not currently available for: test_ser_serializeble_obj_array');
-            end
-            ser_c     = c_serialise(serCl);
-            serCl_rec = c_deserialise(ser_c);
-            
-            assertEqual(serCl, serCl_rec)
-            assertEqual(ser_c,ser);
-            
-            size_c = c_serial_size(serCl);
-            assertEqual(size_c,numel(ser));
-        end
-        %
-        function test_ser_serializeble_obj_array_level1_obj_level2(obj)
-            conf = herbert_config;
-            ds = conf.get_data_to_store();
-            clob = onCleanup(@()set(conf,ds));
-            conf.use_mex = false;
-            %--------------------------------------------------------------
-            % Prepare data
-            serCl = serializableTester1();
-            serCl = repmat(serCl,2,2);
-            for i=1:numel(serCl)
-                setCl2 = serializableTester2();
-                setCl2.Prop_level2_1 = 5*i;
-                setCl2.Prop_level2_2 = 20*i;
-                serCl(i).Prop_level1_1 = i*10;
-                serCl(i).Prop_level1_2 =setCl2;
-            end
-            %--------------------------------------------------------------
-            % Serialize using Matlab
-            ser =  hlp_serialise(serCl);
-            serCl_rec = hlp_deserialise(ser);
-            
-            assertEqual(serCl, serCl_rec)
-            
-            size = hlp_serial_sise(serCl);
-            assertEqual(size,numel(ser));
-            %--------------------------------------------------------------
-            % Serialize using C++
-            skipTest('C++ serializers crashes over arrays of objects #394')
-            if ~obj.use_mex
-                skipTest('Mex mode is not currently available for: test_ser_serializeble_obj_array');
-            end
-            ser_c     = c_serialise(serCl);
-            serCl_rec = c_deserialise(ser_c);
-            
-            assertEqual(serCl, serCl_rec)
-            assertEqual(ser_c,ser);
-            
-            size_c = c_serial_size(serCl);
-            assertEqual(size_c,numel(ser));
-        end
-        
-        function test_ser_serializeble_obj_array_level1(obj)
-            conf = herbert_config;
-            ds = conf.get_data_to_store();
-            clob = onCleanup(@()set(conf,ds));
-            conf.use_mex = false;
-            %--------------------------------------------------------------
-            % Prepare data
-            serCl = serializableTester1();
-            serCl = repmat(serCl,2,2);
-            for i=1:numel(serCl)
-                serCl(i).Prop_level1_1 = i*10;
-                serCl(i).Prop_level1_2 = cell(1,i);
-            end
-            %--------------------------------------------------------------
-            % Serialize using Matlab
-            ser =  hlp_serialise(serCl);
-            serCl_rec = hlp_deserialise(ser);
-            
-            assertEqual(serCl, serCl_rec)
-            
-            size = hlp_serial_sise(serCl);
-            assertEqual(size,numel(ser));
-            %--------------------------------------------------------------
-            % Serialize using C++
-
-            skipTest('C++ serializers crashes over arrays of objects #394')            
-            if ~obj.use_mex
-                skipTest('Mex mode is not currently available for: test_ser_serializeble_obj_array');
-            end
-            size_c = c_serial_size(serCl);
-            assertEqual(size_c,size);
-            
-            ser_c     = c_serialise(serCl);
-            assertEqual(ser,ser_c);
-            %
-            serCl_rec = c_deserialise(ser_c);
-            
-            assertEqual(serCl, serCl_rec)
-            assertEqual(ser_c,ser);
-            
-            size_c = c_serial_size(serCl);
-            assertEqual(size_c,numel(ser));
-        end
-        %
-        function test_ser_serializeble_obj(obj)
-            conf = herbert_config;
-            ds = conf.get_data_to_store();
-            clob = onCleanup(@()set(conf,ds));
-            conf.use_mex = false;
-            %--------------------------------------------------------------
-            serCl = serializableTester2();
-            serCl.Prop_level2_1=100;
-            serCl.Prop_level2_2= serializableTester1();
-            
-            %--------------------------------------------------------------
-              
-            ser =  hlp_serialise(serCl);
-            size = hlp_serial_sise(serCl);
-            assertEqual(size,numel(ser));            
-            [cerCl_rec,nbytes] = hlp_deserialise(ser);
-            
-            assertEqual(nbytes,numel(ser));
-            assertEqual(serCl, cerCl_rec)
-            assertTrue(isa(cerCl_rec.Prop_level2_2,class(serCl.Prop_level2_2)));
-            
-            
-            skipTest('C++ deserializer does not work propertly; #394')
-            if ~obj.use_mex
-                skipTest('Mex mode is not currently available for: test_ser_serializeble_obj');
-            end
-            %--------------------------------------------------------------
-            % Serialize using C++
-            size_c = c_serial_size(serCl);
-            
-            ser_c     = c_serialise(serCl);
-            assertEqual(ser_c,ser)
-            
-            [serCl_rec,nbytes] = c_deserialise(ser_c);
-            
-            %
-            assertEqual(nbytes,numel(ser_c))
-            assertEqual(serCl, serCl_rec)
-            assertTrue(isa(cerCl_rec.Prop_level2_2,class(serCl.Prop_level2_2)));
-            assertEqual(ser_c,ser);
-            
-            assertEqual(size_c,numel(ser));
-        end
-        function test_ser_serializeble_obj_level0(obj)
-            conf = herbert_config;
-            ds = conf.get_data_to_store();
-            clob = onCleanup(@()set(conf,ds));
-            conf.use_mex = false;
-            %--------------------------------------------------------------
-            serCl = serializableTester2();
-            serCl.Prop_level2_1=100;
-            serCl.Prop_level2_2= [1,2,4];
-            
-            %--------------------------------------------------------------
-              
-            ser =  hlp_serialise(serCl);
-            size = hlp_serial_sise(serCl);
-            assertEqual(size,numel(ser));
-            
-            [cerCl_rec,nbytes] = hlp_deserialise(ser);
-            
-            assertEqual(nbytes,numel(ser));
-            assertEqual(serCl, cerCl_rec)
-            assertTrue(isa(cerCl_rec.Prop_level2_2,class(serCl.Prop_level2_2)));
-            
-            
-            skipTest('C++ deserializer does not work propertly; #394')
-            if ~obj.use_mex
-                skipTest('Mex mode is not currently available for: test_ser_serializeble_obj');
-            end
-            %--------------------------------------------------------------
-            % Serialize using C++
-            size_c = c_serial_size(serCl);
-            
-            ser_c     = c_serialise(serCl);
-            assertEqual(ser_c,ser)
-            
-            [serCl_rec,nbytes] = c_deserialise(ser_c);
-            
-            %
-            assertEqual(nbytes,numel(ser_c))
-            assertEqual(serCl, serCl_rec)
-            assertTrue(isa(cerCl_rec.Prop_level2_2,class(serCl.Prop_level2_2)));
-            assertEqual(ser_c,ser);
-            
-            assertEqual(size_c,numel(ser));
-        end
-        
-        
+ 
         function test_pack_unpack_header(~)
             shapes = {[],[1,1],[1,10],[10,1],[10,10],[1,10,10],[10,2,10],...
                 [1,10,10,10],[2,1,10,10]};
@@ -826,15 +615,18 @@ classdef test_serialise < TestCase
                     
                     for fhn=1:numel(fh_types )
                         packed_tag = hlp_serial_types.pack_data_tag(...
-                            0,type_str,fh_types{fhn});
-                        [type_rec,fh_id ,~,pos] = ...
-                            hlp_serial_types.unpack_data_tag(packed_tag,1);
+                            0,type_str,fh_types{fhn});                        
+                        [type_rec,nDims,fh_id,pos] = ...
+                            hlp_serial_types.unpack_data_tag(packed_tag,1);                        
                         tag_size = ...
                             hlp_serial_types.calc_tag_size([],type_str,fh_types{fhn});
+                        %
                         assertEqual(type_rec,type_str);
+                        assertEqual(tag_size,numel(packed_tag))                        
+                        assertEqual(nDims,1);
                         assertEqual(pos, numel(packed_tag)+1);
                         assertEqual(fh_id, hlp_serial_types.fh_map(fh_types{fhn}));
-                        assertEqual(tag_size,numel(packed_tag))
+
                     end
                     
                 else
