@@ -23,7 +23,7 @@ function obj = loadobj_private_ (S)
 %
 % Generally a class-specific function
 
-obj = IX_inst();  % default instance of the object
+obj = IX_null_inst();  % default instance of the object
 
 % Version history
 % ----------------

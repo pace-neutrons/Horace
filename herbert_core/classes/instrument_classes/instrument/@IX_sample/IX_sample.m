@@ -1,4 +1,4 @@
-classdef IX_sample
+classdef IX_sample < IX_samp
     % Sample class definition
 
     properties (Constant, Access=private)
@@ -11,7 +11,6 @@ classdef IX_sample
         % public dependent properties because validity checks of setters
         % require checks against the other properties
         class_version_ = 1;
-        name_ = '';
         hall_symbol_ = '';
         single_crystal_ = true;
         xgeom_ = [1,0,0];
@@ -23,10 +22,13 @@ classdef IX_sample
 
         valid_ = true;
     end
+       
+    properties
+
+    end
 
     properties (Dependent)
         % Mirrors of private properties
-        name
         hall_symbol
         single_crystal
         xgeom
@@ -95,7 +97,12 @@ classdef IX_sample
 
             % Use the non-dependent property set functions to force a check of type,
             % size etc.
-            if nargin==1 && isstruct(varargin{1})
+            if nargin==0
+                return
+            elseif nargin == 2
+                obj.alatt = varargin{1};
+                obj.angdeg = varargin{2};
+            elseif nargin==1 && isstruct(varargin{1})
                 % Assume trying to initialise from a structure array of properties
                 obj = IX_sample.loadobj(varargin{1});
 
@@ -146,7 +153,7 @@ classdef IX_sample
         % and in the set functions for the dependent properties. There is a
         % synchronisation that must be maintained as the checks in both places
         % must be identical.
-
+        %{
         function obj=set.name_(obj,val)
             if is_string(val)
                 obj.name_=val;
@@ -154,7 +161,8 @@ classdef IX_sample
                 error('Sample name must be a character string (or empty string)')
             end
         end
-
+        %}
+        
         function obj=set.single_crystal_(obj,val)
             if islognumscalar(val)
                 obj.single_crystal_=logical(val);
@@ -235,9 +243,11 @@ classdef IX_sample
         % The checks on type, size etc. are performed in the set methods
         % for the non-dependent properties. However, any interdependencies with
         % other properties must be checked here.
+        %{
         function obj=set.name(obj,val)
             obj.name_=val;
         end
+        %}
 
         function obj=set.single_crystal(obj,val)
             obj.single_crystal_=val;
@@ -289,10 +299,12 @@ classdef IX_sample
 
         %------------------------------------------------------------------
         % Get methods for dependent properties
+        %{
         function val=get.name(obj)
             val=obj.name_;
         end
-
+        %}
+        
         function val=get.single_crystal(obj)
             val=obj.single_crystal_;
         end
