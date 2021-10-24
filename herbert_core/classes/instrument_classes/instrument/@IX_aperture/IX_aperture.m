@@ -181,11 +181,8 @@ classdef IX_aperture < serializable
                 % here we rely on agreement that private independent
                 % porperties have the same names as public properties but
                 % have added suffix '_' at the end
-                for i=1:numel(names_store)
-                    if names_store{i}(end)=='_'
-                        names_store{i} = names_store{i}(1:end-1);
-                    end
-                end
+                names_store = cellfun(@(x)x(1:end-1),...
+                    names_store,'UniformOutput',false);
             end
             names = names_store;
         end
@@ -204,12 +201,12 @@ classdef IX_aperture < serializable
     end
     
     %------------------------------------------------------------------
-    methods (Static)
+    methods (Static)        
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
             % saveable class
-            class_instance = IX_aperture();
-            obj = serializable.loadobj_generic(S,class_instance);
+            obj = IX_aperture();
+            obj = loadobj@serializable(S,obj);
         end
     end
     %======================================================================

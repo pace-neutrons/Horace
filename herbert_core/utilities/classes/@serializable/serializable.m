@@ -17,6 +17,8 @@ classdef serializable
     % overloaded by the children class (e.g. ChildClass) by uncommenting
     % and appropriately modifying the following code:
     %     methods(Static)
+    %        % boilerplate loadobj method, calling generic method of
+    %        % saveable class
     %         function obj = loadobj(S)
     %             obj = ChildClass();
     %             obj = loadobj@serializable(S,obj);
