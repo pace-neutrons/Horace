@@ -1,4 +1,4 @@
-function v = hlp_deserialize(m)
+function [v,nbytes] = hlp_deserialize(m,pos)
 % Convert a serialized byte vector back into the corresponding MATLAB data structure.
 % Data = hlp_deserialize(Bytes)
 %
@@ -21,10 +21,14 @@ function v = hlp_deserialize(m)
 %
 %                                adapted from deserialize.m
 %                                (C) 2010 Tim Hutt
-
+if nargin<2
+    pos = 1;
+end
+pos0 = pos;
 % wrap dispatcher
-v = deserialize_value(uint8(m(:)),1);
+[v,pos] = deserialize_value(uint8(m(:)),pos);
 
+nbytes = pos-pos0;
 end
 
 % dispatch
@@ -193,7 +197,8 @@ pos = pos + ndms*4;
 fieldNames = cell(length(fnLengths),1);
 splits = [0; cumsum(double(fnLengths))];
 for k=1:length(splits)-1
-    fieldNames{k} = fnChars(splits(k)+1:splits(k+1)); end
+    fieldNames{k} = fnChars(splits(k)+1:splits(k+1)); 
+end
 % Content.
 v = reshape(struct(),[dms 1 1]);
 if m(pos)
@@ -293,14 +298,14 @@ end
 function [v,pos]=obj_deserialize_itself(m,pos)
 tag = m(pos);
 pos = pos + 1;
-if tag == 135    
+if tag == 135
     [cls,pos] = deserialize_string(m,pos);
     instance = feval(cls);
     [v,nbytes] = instance.deserialize(m(pos:end));
     pos = pos+nbytes+8;
 elseif tag == 136
-    [v,nbytes] = serializable.deserialize(m(pos:end));    
-    pos = pos+nbytes;    
+    [v,nbytes] = serializable.deserialize(m(pos:end));
+    pos = pos+nbytes;
 else
     error('HERBERT:hlp_deserialize:runtime_error',...
         'Unsupported tag %d at position: %d', uint8(m(pos)),pos);

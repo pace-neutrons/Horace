@@ -23,9 +23,7 @@ function [undefined,fields_from_loader,fields_undef] = check_run_defined(run,fie
 %                          loaded from hard-coded defaults
 %   fields_undef    Cellarray of the fields which are unfilled
 
-% $Author: Alex Buts; 20/10/2011
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 
 %
 % What fields have to be defined (as function of crystal/powder parameter)?
@@ -75,7 +73,11 @@ end
 undefined = 1;
 
 % Can missing fields be obtained from data loader?
-loader_provides = loader_define(run.loader);
+if isempty(run.loader)
+    loader_provides ={};
+else
+    loader_provides = loader_define(run.loader);
+end
 is_in_loader    = ismember(fields_undef,loader_provides);
 if sum(is_in_loader)>0
     fields_from_loader=fields_undef(is_in_loader);

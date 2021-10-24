@@ -11,6 +11,7 @@ function obj = loadobj_(S,obj_instance)
 %
 if nargin > 1
     obj = obj_instance;
+    class_name = class(obj_instance);
 else
     if ~isfield(S,'serial_name')
         error('HERBERT:serializable:invalid_argument',...
@@ -21,10 +22,14 @@ else
     class_name = S.serial_name;
     obj = feval(class_name);
 end
+if isa(S,class_name)
+    obj  = S;
+    return;
+end
 %
 ver_requested = obj.classVersion();
 if isfield(S,'version')
-    if S.version == ver_requested        
+    if S.version == ver_requested
         if isfield(S,'array_dat')
             obj = obj.from_class_struct(S.array_dat);
         else

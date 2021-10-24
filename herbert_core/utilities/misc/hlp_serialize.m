@@ -135,7 +135,7 @@ fieldNames = fieldnames(v);
 fnLengths = [length(fieldNames); cellfun('length',fieldNames)];
 fnChars = [fieldNames{:}];
 dims = [ndims(v) size(v)];
-m = [uint8(128); typecast(uint32(fnLengths(:)).','uint8').'; uint8(fnChars(:)); typecast(uint32(dims), 'uint8').'];
+m = [uint8(128); typecast(uint32(fnLengths(:))','uint8')'; uint8(fnChars(:)); typecast(uint32(dims), 'uint8')'];
 % Content.
 if numel(v) > length(fieldNames)
     % more records than field names; serialize each field as a cell array to expose homogenous content

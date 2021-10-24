@@ -85,21 +85,21 @@ classdef rundata < serializable
         run_id_ = [];
     end
     methods(Static)
-        %------------------------------------------------------------------
-        % convenience expansion of Serializable interface
-        function obj=from_struct(inputs)
-            % specialization to recover data from structure
-            %
-            % do not forget to overload rundatah in Horace
-            obj = rundata();
-            obj = from_struct@serializable(obj,inputs);
-        end
-        function [obj,nbytes]=deserialize(bytes_array,pos)      
-            % specialization to recover data from byte-stream            
-            obj = rundata();        
-            [obj,nbytes] = deserialize@serializable(obj,bytes_array,pos);            
-        end
-        %------------------------------------------------------------------
+%         %------------------------------------------------------------------
+%         % convenience expansion of Serializable interface
+%         function obj=from_struct(inputs)
+%             % specialization to recover data from structure
+%             %
+%             % do not forget to overload rundatah in Horace
+%             obj = rundata();
+%             obj = from_struct@serializable(obj,inputs);
+%         end
+%         function [obj,nbytes]=deserialize(bytes_array,pos)      
+%             % specialization to recover data from byte-stream            
+%             obj = rundata();        
+%             [obj,nbytes] = deserialize@serializable(obj,bytes_array,pos);            
+%         end
+%         %------------------------------------------------------------------
         % Serializable Interface:
         function obj = loadobj(S)
             ci = rundata();
@@ -193,11 +193,7 @@ classdef rundata < serializable
         %------------------------------------------------------------------
         % serializable interface:
         function fields = indepFields(obj)
-            if obj.is_crystal
-                fields = obj.indep_fields_crystal_;
-            else
-                fields = obj.indep_fields_powder_;
-            end
+            fields = obj.indep_fields_crystal_;
         end
         function  ver  = classVersion(~)
             ver = 1;
@@ -211,7 +207,9 @@ classdef rundata < serializable
                     'Can not confvert to string undefined rundata class due to undefined fields %s',...
                     undef_str)
             end
-            str = struct@serializable(obj);
+            % this will convert only serializable fields
+            % and make shallow structure            
+            str = to_struct(obj);
         end
         %------------------------------------------------------------------
         % PUBLIC METHODS SIGNATURES:

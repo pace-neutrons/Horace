@@ -13,9 +13,14 @@ if nobj>1
     obj = repmat(obj,size(inputs));
 end
 
-struct_fields = obj.indepFields();
+fields_to_set = obj.indepFields();
+fields_present = fieldnames(inputs);
+is_present = ismember(fields_to_set,fields_present);
+if ~is_present
+    fields_to_set = fields_to_set(is_present);
+end
 for i=1:nobj
-    obj(i) = set_obj(obj(i),inputs(i),struct_fields);
+    obj(i) = set_obj(obj(i),inputs(i),fields_to_set);
 end
 %
 function obj = set_obj(obj,inputs,flds)

@@ -200,7 +200,12 @@ else
     try
         % try to use the saveobj method first to get the contents
         conts = arrayfun(@saveobj, v);
-        ser_tag = uint8(1);
+        if isobject(conts) % object has native saveobj, which has not been overloaded
+            conts =arrayfun(@struct, v);
+            ser_tag = uint8(2);
+        else
+            ser_tag = uint8(1);
+        end
     catch
         conts = arrayfun(@struct, v);
         ser_tag = uint8(2);

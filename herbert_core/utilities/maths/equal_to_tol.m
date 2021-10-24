@@ -357,10 +357,25 @@ elseif isobject(a) && isobject(b)
     
     % Check fieldnames are identical
     fieldsA=fieldnames(struct(a));       % gets hidden properties too
-    if ~isequal(fieldsA,fieldnames(struct(b)))
-        ok=false;
-        mess=sprintf('%s and %s: Fieldnames of classes being compared are not identical',...
-            name_a,name_b);
+    fieldsB=fieldnames(struct(b));
+    if ~(numel(fieldsA)==numel(fieldsB))
+        isBinA = ismember(fieldsA,fieldsB);                
+        isAinB = ismember(fieldsB,fieldsA);        
+        extraA = fieldsA(~isBinA);
+        extraB = fieldsB(~isAinB);
+        ok=false;        
+        mess=sprintf('Input %s with extra fields: "%s" DIFFERENT from Input %s: with extra fields: "%s"',...
+            name_a,strjoin(extraA,'; '),name_b,strjoin(extraB,'; '));
+        return;
+    elseif ~all(ismember(fieldsA,fieldsB))
+        isBinA = ismember(fieldsA,fieldsB);                
+        isAinB = ismember(fieldsB,fieldsA);        
+        extraA = fieldsA(~isBinA);
+        extraB = fieldsB(~isAinB);
+        ok=false;        
+        mess=sprintf('Input''s %s fields: "%s" DIFFERENT from Input''s %s fields: "%s"',...
+            name_a,strjoin(extraA,'; '),name_b,strjoin(extraB,'; '));        
+
         return
     end
     
@@ -428,9 +443,10 @@ elseif isstruct(a) && isstruct(b)
             name_b_ind = name_b;
         end
         for j=1:numel(fieldsA)
-            [ok,mess] = equal_to_tol_private (a(i).(fieldsA{j}),...
-                b(i).(fieldsA{j}), opt,...
-                [name_a_ind,'.',fieldsA{j}], [name_b_ind,'.',fieldsA{j}]);
+            fldn = fieldsA{j};
+            [ok,mess] = equal_to_tol_private (a(i).(fldn),...
+                b(i).(fldn), opt,...
+                [name_a_ind,'.',fldn], [name_b_ind,'.',fldn]);
             if ~ok, return, end
         end
     end
