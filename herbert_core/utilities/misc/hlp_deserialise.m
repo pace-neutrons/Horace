@@ -48,7 +48,7 @@ switch typeID
         [v,pos] = deserialise_cell(m,pos);
     case {24}
         [v,pos] = deserialise_struct(m,pos);
-    case {25+64,25+128,25+192}
+    case {25, 25+64,25+128,25+192}
         [v,pos] = deserialise_function_handle(m,pos);
     case {26, 27}
         [v,pos] = deserialise_object(m,pos);
@@ -124,28 +124,31 @@ end
 
 % Sparse data types
 function [v, pos] = deserialise_sparse(m, pos)
-[type, ~,size,pos] = hlp_serial_types.unpack_data_tag(m,pos);
-%[type, ~,pos] = hlp_serial_types.unpack_data_tag(m,pos);
+% second value, nDims should be always 2
+[type, ~,sze,pos] = hlp_serial_types.unpack_data_tag(m,pos);
 
 
+[nElem, pos] = read_bytes(m, pos, 'uint32', 1);
+if isempty(sze)
+    v = sparse([],[],[]);
+    return;
+end
 
 switch type.name
     case 'sparse_logical'
-        deserialiser = 'uint8';
+        data_format = 'uint8';
     otherwise
-        deserialiser = type.name(8:end);
+        data_format = type.name(8:end);
 end
 
-[dims, pos] = read_bytes(m, pos, 'uint32', 2);
-dims = double(dims);
-[nElem, pos] = read_bytes(m, pos, 'uint32', 1);
 
 [i, pos] = read_bytes(m, pos, 'uint64', nElem);
 [j, pos] = read_bytes(m, pos, 'uint64', nElem);
-% +1 is to align with C API which indexes from 0, not 1
-i = double(i + 1);
-j = double(j + 1);
-[data, pos] = read_bytes(m, pos, deserialiser, nElem);
+% beware that C API which indexes from 0, not 1. Better to do alignment in
+% API itself, as C would do it quicker
+i = double(i);
+j = double(j);
+[data, pos] = read_bytes(m, pos, data_format, nElem);
 
 switch type.name
     case 'sparse_logical'
@@ -155,7 +158,7 @@ switch type.name
     otherwise
 end
 
-v = sparse(i,j,data,dims(1),dims(2));
+v = sparse(i,j,data,sze(1),sze(2));
 end
 
 function [v, pos] = deserialise_cell(m, pos)

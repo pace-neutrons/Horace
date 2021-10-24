@@ -342,8 +342,9 @@ classdef test_serialise < TestCase
         function test_ser_real_sparse_null(~)
             test_sparse = sparse([],[],[]);
             ser =  hlp_serialise(test_sparse);
-            test_sparse_rec = hlp_deserialise(ser);
+            [test_sparse_rec,nBytes] = hlp_deserialise(ser);
             assertEqual(test_sparse, test_sparse_rec)
+            assertEqual(numel(ser),nBytes);
             
             size = hlp_serial_sise(test_sparse);
             assertEqual(size,numel(ser));
@@ -402,11 +403,12 @@ classdef test_serialise < TestCase
         function test_ser_complex_sparse_empty(~)
             test_sparse = sparse([],[],complex([],[]),10,10);
             ser =  hlp_serialise(test_sparse);
-            test_sparse_rec = hlp_deserialise(ser);
+            [test_sparse_rec,nbytes] = hlp_deserialise(ser);
+            assertEqual(nbytes,numel(ser));            
             assertEqual(test_sparse, test_sparse_rec)
             
-            size = hlp_serial_sise(test_sparse);
-            assertEqual(size,numel(ser));
+            sze = hlp_serial_sise(test_sparse);
+            assertEqual(sze,numel(ser));
             
         end
         
@@ -414,7 +416,8 @@ classdef test_serialise < TestCase
         function test_ser_complex_sparse_single(~)
             test_sparse = sparse(1, 1, 1i);
             ser =  hlp_serialise(test_sparse);
-            test_sparse_rec = hlp_deserialise(ser);
+            [test_sparse_rec,nbytes] = hlp_deserialise(ser);
+            assertEqual(nbytes, numel(ser));
             assertEqual(test_sparse, test_sparse_rec)
             
             size = hlp_serial_sise(test_sparse);
@@ -630,25 +633,33 @@ classdef test_serialise < TestCase
                     end
                     
                 else
+                    if strncmp(type_str.name,'sparse',6)
+                        addarg = {1};
+                    else
+                        addarg = {};                        
+                    end
+
                     for nShape = 1:numel(shapes)
                         sh_size =  shapes{nShape};
                         %
                         packed_tag = hlp_serial_types.pack_data_tag(...
-                            sh_size,type_str);
+                            sh_size,type_str,addarg{:});
                         [type_rec, nDims_rec,size_rec,pos] = ...
                             hlp_serial_types.unpack_data_tag(packed_tag,1);
                         tag_size = ...
-                            hlp_serial_types.calc_tag_size(sh_size,type_str);
+                            hlp_serial_types.calc_tag_size(sh_size,type_str,addarg{:});
                         %
                         assertEqual(type_rec,type_str);
-                        if ~isempty(size_rec) && size_rec(1) ==1 && numel(size_rec) == 2
+                        if ~isempty(size_rec) && size_rec(1) ==1 && numel(size_rec) == 2 && isempty(addarg)
                             assertEqual(nDims_rec,1);
                         else
                             assertEqual(nDims_rec,numel(sh_size));
                         end
                         assertEqual(size_rec,sh_size);
                         assertEqual(pos, numel(packed_tag)+1);
-                        assertEqual(tag_size,numel(packed_tag))
+                        assertEqual(tag_size,numel(packed_tag),...
+                            sprintf('Error processing element %s, shape %s',...
+                            type_str.name,evalc('disp(shapes{nShape})')))
                         
                     end
                 end

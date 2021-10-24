@@ -117,8 +117,11 @@ end
 function m = serialise_sparse_data(v, type)
 
 [i,j,data] = find(v);
-% HACK
-comb_tag = hlp_serial_types.pack_data_tag(3,2,[1,1],type);
+%nElem = nzmax(v); % beware that we may serialize matrix with preallocated
+%elements but will deserialize the matrix without these elements
+nElem = nnz(v);
+%
+comb_tag = hlp_serial_types.pack_data_tag(size(v),type,1);
 
 switch type.name
     case 'sparse_logical'
@@ -127,16 +130,12 @@ switch type.name
         data = [real(data(:)); imag(data(:))];
 end
 
-dims = size(v);
-nElem = nnz(v);
 m = [comb_tag; ...
-    typecast(uint32(dims), 'uint8').'; ...
-    typecast(uint32(nElem), 'uint8').'; ...
-    typecast(uint64(i(:)-1).', 'uint8').'; ...
-    typecast(uint64(j(:)-1).', 'uint8').'; ...
-    typecast(data(:).', 'uint8').'];
+    typecast(uint32(nElem), 'uint8')'; ... % is it enough 32 bytes for all elements?
+    typecast(uint64(i(:))', 'uint8')'; ...
+    typecast(uint64(j(:))', 'uint8')'; ...
+    typecast(data(:)', 'uint8')'];
 end
-
 
 % Struct array
 function m = serialise_struct(v, type)
