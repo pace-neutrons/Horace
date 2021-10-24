@@ -39,7 +39,7 @@ classdef test_serialise < TestCase
             assertEqual(numel(bytes),size);
             
             [sam2rec,nbytes] = hlp_deserialise(bytes);
-            assertEqual(nbytes,size);            
+            assertEqual(nbytes,size);
             assertEqual(sam2,sam2rec);
             
         end
@@ -404,7 +404,7 @@ classdef test_serialise < TestCase
             test_sparse = sparse([],[],complex([],[]),10,10);
             ser =  hlp_serialise(test_sparse);
             [test_sparse_rec,nbytes] = hlp_deserialise(ser);
-            assertEqual(nbytes,numel(ser));            
+            assertEqual(nbytes,numel(ser));
             assertEqual(test_sparse, test_sparse_rec)
             
             sze = hlp_serial_sise(test_sparse);
@@ -576,7 +576,7 @@ classdef test_serialise < TestCase
             size = hlp_serial_sise(test_str);
             assertEqual(size,numel(ser));
         end
-               
+        
         %------------------------------------------------------------------
         function test_ser_cell_homo_function_handles(~)
             test_cell = {@(x,y) (x+y^2), @(a,b) (b-a)};
@@ -589,23 +589,25 @@ classdef test_serialise < TestCase
             test_cell = cellfun(@func2str, test_cell, 'UniformOutput',false);
             test_cell_rec = cellfun(@func2str, test_cell_rec, 'UniformOutput',false);
             assertEqual(test_cell, test_cell_rec)
-                        
+            
         end
         
         %------------------------------------------------------------------
         function test_ser_cell_hetero(~)
-            test_cell = {1, 'a', 1+2i, true, struct('boop', 1), {'Hello'}, @(x,y) (x+y^2)};
+            test_cell = {1,[1,2], 'a', 1+2i, true, struct('boop', 1),...
+                {'Hello'}, @(x,y)(x+y^2)};
             ser =  hlp_serialise(test_cell);
-            test_cell_rec = hlp_deserialise(ser);
-            test_cell{7} = func2str(test_cell{7});
-            test_cell_rec{7} = func2str(test_cell_rec{7});
-            assertEqual(test_cell, test_cell_rec)
+            sze = hlp_serial_sise(test_cell);
+            assertEqual(sze,numel(ser));
             
-            skipTest('C++ this test fails #394')
-            size = hlp_serial_sise(test_cell);
-            assertEqual(size,numel(ser));
+            [test_cell_rec,nbytes] = hlp_deserialise(ser);
+            assertEqual(sze,nbytes);
+            
+            test_cell{8} = func2str(test_cell{8});
+            test_cell_rec{8} = func2str(test_cell_rec{8});
+            assertEqual(test_cell, test_cell_rec)
         end
- 
+        %
         function test_pack_unpack_header(~)
             shapes = {[],[1,1],[1,10],[10,1],[10,10],[1,10,10],[10,2,10],...
                 [1,10,10,10],[2,1,10,10]};
@@ -618,27 +620,27 @@ classdef test_serialise < TestCase
                     
                     for fhn=1:numel(fh_types )
                         packed_tag = hlp_serial_types.pack_data_tag(...
-                            0,type_str,fh_types{fhn});                        
+                            0,type_str,fh_types{fhn});
                         [type_rec,nDims,fh_id,pos] = ...
-                            hlp_serial_types.unpack_data_tag(packed_tag,1);                        
+                            hlp_serial_types.unpack_data_tag(packed_tag,1);
                         tag_size = ...
                             hlp_serial_types.calc_tag_size([],type_str,fh_types{fhn});
                         %
                         assertEqual(type_rec,type_str);
-                        assertEqual(tag_size,numel(packed_tag))                        
+                        assertEqual(tag_size,numel(packed_tag))
                         assertEqual(nDims,1);
                         assertEqual(pos, numel(packed_tag)+1);
                         assertEqual(fh_id, hlp_serial_types.fh_map(fh_types{fhn}));
-
+                        
                     end
                     
                 else
                     if strncmp(type_str.name,'sparse',6)
                         addarg = {1};
                     else
-                        addarg = {};                        
+                        addarg = {};
                     end
-
+                    
                     for nShape = 1:numel(shapes)
                         sh_size =  shapes{nShape};
                         %
