@@ -18,6 +18,8 @@ classdef test_cpp_serialise < TestCase
             else
                 this.use_mex = true;
             end
+            this.use_mex = false;
+            warning('C++ tests are currently disabled   #394');
         end
         
         

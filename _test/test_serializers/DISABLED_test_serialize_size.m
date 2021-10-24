@@ -1,8 +1,8 @@
-classdef test_serialize_size < TestCase
+classdef DISABLED_test_serialize_size < TestCase
     properties
     end
     methods
-        function this=test_serialize_size(varargin)
+        function this=DISABLED_test_serialize_size(varargin)
             if nargin>0
                 name = varargin{1};
             else
