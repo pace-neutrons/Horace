@@ -376,8 +376,8 @@ classdef test_rundata< TestCase
         function test_serialization_powder(obj)
             run=rundata(f_name(obj,'MAP11014.nxspe'));
 
-            str1 = struct(run);
-            run1 = rundata.from_struct(str1);
+            str1 = to_string(run);
+            run1 = rundata.from_string(str1);
 
             assertEqual(run,run1);
         end
@@ -391,8 +391,8 @@ classdef test_rundata< TestCase
             par_file = f_name(obj,'demo_par.PAR');
             run=rundata(spe_file,par_file ,ds);
 
-            str1 = struct(run);
-            run1 = rundata.from_struct(str1);
+            str1 = to_string(run);
+            run1 = rundata.from_string(str1);
 
             assertEqual(run,run1);
         end
@@ -412,9 +412,10 @@ classdef test_rundata< TestCase
             run=rundata(f_name(obj,'MAP11014.nxspe'));
             run = run.load();
             db = run.serialize();
-            runr = rundata();
-            runr = runr.deserialize(db);
-
+            runr = rundata.deserialize(db);
+            %HACK
+            ws = warning('off','MATLAB:structOnObject');
+            clOb = onCleanup(@()warning(ws));
             s1 = struct(run);
             s2 = struct(runr);
             assertEqual(s1,s2);
