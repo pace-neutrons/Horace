@@ -151,7 +151,7 @@ classdef test_MESS_NAMES_factory< TestCase
             assertEqual(ids1,ids(1));
         end
         %
-        function test_specialized_classes(obj)
+        function test_specialized_classes(~)
             try
                 mc = aMessage('nont_exist');
                 thrown = false;
@@ -192,6 +192,23 @@ classdef test_MESS_NAMES_factory< TestCase
             assertEqual(mc1.common_data,'other init info');
             
             assertFalse(strcmp(mc1.common_data,mc.common_data));
+        end
+        function test_loadobj_saveobj_messages(~)
+            %
+            mf = MESS_NAMES.instance();
+            mess_list = mf.known_messages();
+            payload = struct('some_info','aaa','other_info',[1,2,3]);
+            
+            for i=2:numel(mess_list) % any message is not a message, so sikip it
+                theMess= mf.get_mess_class(mess_list{i});
+                theMess.payload = payload;
+                cont = theMess.saveobj();
+                
+                rec = aMessage();
+                recMess = rec.loadobj(cont);
+                assertEqual(theMess,recMess);
+            end
+           
         end
     end
 end
