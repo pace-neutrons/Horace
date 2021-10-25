@@ -150,7 +150,7 @@ end
 % Cell array of heterogenous contents
 function m = serialize_cell_heterogenous(v)
 contents = cellfun(@hlp_serialize,v,'UniformOutput',false);
-m = [uint8(33); uint8(ndims(v)); typecast(uint32(size(v)),'uint8').'; vertcat(contents{:})];
+m = [uint8(33); uint8(ndims(v)); typecast(uint32(size(v)),'uint8')'; vertcat(contents{:})];
 end
 
 % Cell array of homogenously-typed contents

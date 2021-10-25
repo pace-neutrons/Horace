@@ -40,29 +40,31 @@ classdef test_serialize < TestCaseWithSave
             % Create three different instruments
             inst1=create_test_instrument(95,250,'s');
             bytes1 = hlp_serialize(inst1);
-            assertEqualWithSave(obj,bytes1);
             
             [inst1rec,nbytes] = hlp_deserialize(bytes1);
             assertEqual(numel(bytes1),nbytes);
             assertEqual(inst1,inst1rec);
+            assertEqualWithSave(obj,inst1rec);
+            
             
             
             inst2=create_test_instrument(56,300,'s');
             inst2.flipper=true;
             bytes2 = hlp_serialize(inst2);
-            assertEqualWithSave(obj,bytes2);
             
             [inst2rec,nbytes] = hlp_deserialize(bytes2);
             assertEqual(numel(bytes2),nbytes);
             assertEqual(inst2,inst2rec );
+            assertEqualWithSave(obj,inst2rec);            
             
             inst3=create_test_instrument(195,600,'a');
             inst3.filter=[3,4,5];
             bytes3 = hlp_serialize(inst3);
-            assertEqualWithSave(obj,bytes3);
+
             
             inst3rec = hlp_deserialize(bytes3);
             assertEqual(inst3,inst3rec );
+            assertEqualWithSave(obj,inst3rec);            
             %------------------------------------------------------------------
         end
         %
