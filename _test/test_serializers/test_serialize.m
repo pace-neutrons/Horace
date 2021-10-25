@@ -44,7 +44,7 @@ classdef test_serialize < TestCaseWithSave
             [inst1rec,nbytes] = hlp_deserialize(bytes1);
             assertEqual(numel(bytes1),nbytes);
             assertEqual(inst1,inst1rec);
-            assertEqualWithSave(obj,inst1rec);
+            %assertEqualWithSave(obj,inst1rec);
             
             
             
@@ -55,7 +55,7 @@ classdef test_serialize < TestCaseWithSave
             [inst2rec,nbytes] = hlp_deserialize(bytes2);
             assertEqual(numel(bytes2),nbytes);
             assertEqual(inst2,inst2rec );
-            assertEqualWithSave(obj,inst2rec);            
+            %assertEqualWithSave(obj,inst2rec);            
             
             inst3=create_test_instrument(195,600,'a');
             inst3.filter=[3,4,5];
@@ -64,7 +64,7 @@ classdef test_serialize < TestCaseWithSave
             
             inst3rec = hlp_deserialize(bytes3);
             assertEqual(inst3,inst3rec );
-            assertEqualWithSave(obj,inst3rec);            
+            %assertEqualWithSave(obj,inst3rec);            
             %------------------------------------------------------------------
         end
         %

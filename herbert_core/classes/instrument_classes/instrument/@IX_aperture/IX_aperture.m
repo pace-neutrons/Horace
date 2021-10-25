@@ -138,6 +138,8 @@ classdef IX_aperture < serializable
         function val=get.height(obj)
             val=obj.height_;
         end
+    end
+    methods(Access=protected)
         %------------------------------------------------------------------
         function obj = from_old_struct(obj,inputs)
             % restore object from the old structure, which describes the

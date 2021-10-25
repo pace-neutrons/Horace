@@ -17,9 +17,9 @@ classdef serializable
     % overloaded by the children class (e.g. ChildClass) by uncommenting
     % and appropriately modifying the following code:
     %     methods(Static)
-    %        % boilerplate loadobj method, calling generic method of
-    %        % saveable class
     %         function obj = loadobj(S)
+    %            % boilerplate loadobj method, calling generic method of
+    %            % saveable class
     %             obj = ChildClass();
     %             obj = loadobj@serializable(S,obj);
     %         end
@@ -96,6 +96,12 @@ classdef serializable
             ver       = obj.classVersion();
             S.version = ver;
         end
+        %
+        function obj = serializable()
+            % generic class constructor. Does nothing
+        end
+    end
+    methods(Access=protected)
         %------------------------------------------------------------------
         function obj = from_old_struct(obj,inputs)
             % restore object from the old structure, which describes the
@@ -111,8 +117,8 @@ classdef serializable
             % to allow loadob to recover new structure from an old structure.
             %
             %if isfield(inputs,'version')
-            % do check for previous versions
-            % and appropriate code
+            %      do check for previous versions
+            %      and appropriate code
             %end
             if isfield(inputs,'array_dat')
                 obj = obj.from_class_struct(inputs.array_dat);
@@ -121,10 +127,6 @@ classdef serializable
             end
         end
         
-        %
-        function obj = serializable()
-            % generic class constructor. Does nothing
-        end
     end
     methods (Static)
         function obj = from_struct(inputs)
