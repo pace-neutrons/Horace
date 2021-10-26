@@ -37,6 +37,14 @@ classdef serializable
             % method and adds more fields, responsible for identifying class,
             % and array information if array of objects is serialized.
             %
+            % Adds the field "version" containing result of getVersion
+            % function to the structure, obtained from to_bare_struct
+            % function.
+            % If converting array of objects, one can not add single value
+            % to the array, so function returns the structure with two fields:
+            % "version" and "array_dat", where array_dat contains the structure
+            % array, produced by "to_bare_struct" function.
+            %
             % Input:
             % obj  -- class or array of classes object.
             % Returns:

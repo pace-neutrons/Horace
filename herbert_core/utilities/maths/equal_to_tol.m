@@ -384,7 +384,7 @@ elseif isobject(a) && isobject(b)
     end
     
     % Check fieldnames are identical
-    fieldsA=fieldnames(struct(a));       % gets hidden properties too
+    fieldsA=fieldnames(struct(a));   % gets hidden properties too
     fieldsB=fieldnames(struct(b));
     if ~(numel(fieldsA)==numel(fieldsB))
         isBinA = ismember(fieldsA,fieldsB);

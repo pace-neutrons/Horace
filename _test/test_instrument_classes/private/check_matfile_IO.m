@@ -17,6 +17,11 @@ function [ok,mess] = check_matfile_IO (ver_str, save_variables, filepath,varargi
 % varargin       -- variables to save/load to/from file. The main part of
 %                   each filename consists of the name of these variables,
 %                   identified using Matlab function "inputname".
+% Outputs:
+% ok           -- true if test passing and false otherwise. 
+% mess         -- the message better identifying the reason for failure.
+%                  Empty if ok==true
+%
 % NOTE:
 % for "inputname" function work correctly, one needs to specify all
 % inputs as variables, e.g. calling workspace needs to have
