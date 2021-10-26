@@ -6,8 +6,11 @@ classdef serializable
     %----------------------------------------------------------------------
     %   ABSTRACT INTERFACE TO DEFINE
     methods(Abstract,Access=public)
-        % get class version, which would affect the way class is stored on/
-        % /restore from an external media
+        % define version of the class to store in mat-files
+        % and nxsqw data format. Each new version would presumably read
+        % the older version, so version substitution is based on this
+        % number
+        
         ver  = classVersion(obj);
         % get independent fields, which fully define the state of a
         % serializable object.
@@ -31,8 +34,9 @@ classdef serializable
             % serialization and recovery using static "serializable.from_struct"
             % operation.
             %
-            % Uses internal class structure produced by to to_struct method.
-            % Contains class information, so the word "class" in the name
+            % Uses internal class structure produced by "to_bare_struct"
+            % method and adds more fields, responsible for identifying class,
+            % and array information if array of objects is serialized.
             %
             % Input:
             % obj  -- class or array of classes object.
@@ -46,6 +50,9 @@ classdef serializable
             % serialization and recovery using "from_class_struct" operation
             %
             % Uses independent properties obtained from indepFields method.
+            % in assumption that the properties, returned by this method
+            % fully define the public interface describing the state of the
+            % pbject.
             %
             % Input:
             % obj  -- class or array of classes object
@@ -58,7 +65,7 @@ classdef serializable
         %------------------------------------------------------------------
         function obj = from_class_struct(obj,inputs)
             % restore object or array of objects from a plain structure,
-            % previously obtained by to_struct operation
+            % previously obtained by to_bare_struct operation
             obj = from_class_struct_(obj,inputs);
         end
         %
