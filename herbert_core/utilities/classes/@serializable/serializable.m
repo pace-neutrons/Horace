@@ -10,7 +10,6 @@ classdef serializable
         % and nxsqw data format. Each new version would presumably read
         % the older version, so version substitution is based on this
         % number
-        
         ver  = classVersion(obj);
         % get independent fields, which fully define the state of a
         % serializable object.
