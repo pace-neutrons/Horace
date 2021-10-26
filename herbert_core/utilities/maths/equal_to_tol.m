@@ -137,6 +137,7 @@ if nargin==2
     opt.nan_equal = true;
     opt.ignore_str = false;
     opt.tol = [0,0];
+    opt.throw_on_err=false;
     
 elseif nargin==3 && isnumeric(varargin{1})
     % Case of no optional arguments; save an expensive call to parse_arguments
@@ -149,7 +150,7 @@ elseif nargin==3 && isnumeric(varargin{1})
     else
         opt.tol=check_tol(varargin{1});
     end
-    
+    opt.throw_on_err=false;    
 else
     % Optional arguments must have been given; parse input arguments
     % opt filled with default for new format; strip min_denominator away later
