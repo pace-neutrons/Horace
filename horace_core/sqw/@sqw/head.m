@@ -96,11 +96,11 @@ else
     else
         for i=1:nw
             if has_pixels(w.data(i)) && hfull
-                h=w.data(i).data.struct();
+                h=w.data(i).data.to_bare_struct();
                 h.data=rmfield(h,{'s','e','npix','pix'});
             else
                 %w.data(i)
-                h=w.data(i).data.struct();
+                h=w.data(i).data.to_bare_struct();
                 h=rmfield(h,{'s','e','npix'});
                 if has_pixels(w.data(i))
                     h=rmfield(h,'pix');

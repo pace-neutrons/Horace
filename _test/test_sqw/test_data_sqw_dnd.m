@@ -14,7 +14,11 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             else
                 name = varargin{1};
             end
-            obj = obj@TestCaseWithSave(name,'data_sqw_dnd_V1_ref_data');
+            % second parameter describes the source of the reference data
+            % currently it is uses as input for assertEqualWithSave, but
+            % when data_sqw_dnd_changes, these data should be used as input
+            % to support loading the previous version
+            obj = obj@TestCaseWithSave(name,'data_sqw_dnd_V1_ref_data.mat');
             
             root_dir = horace_root();
             data_dir = fullfile(root_dir,'_test','common_data');
@@ -24,7 +28,8 @@ classdef test_data_sqw_dnd < TestCaseWithSave
                 [1,0,0], [0,1,0], 5,...
                 0, 0, 0, 0);
             obj.ref_sqw = ref_sqw{1};
-            
+            % does nothing unless called with -save key as input
+            obj.save();
         end
         
         function this=test_get_q_qaxes(this)
@@ -114,16 +119,24 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             assertElementsAlmostEqual(eval_pix_range,full_img_range);
         end
         %
-        function test_loadobj_v0(obj)
+        function test_loadobj_v0_v1(obj)
             proj.u = [1,0,0];
             proj.v = [0,1,0];
             ref_obj = data_sqw_dnd(proj,[1,0.01,2],[-1,1],[0,1],[0,1,10]);
+            
+            % check modern loader (if saved)
+            obj.assertEqualWithSave(ref_obj);
+            
             ld = load('data_sqw_dnd_V0_ref_data.mat');
             loaded_v0_obj = ld.obj;
             assertEqual(ref_obj,loaded_v0_obj);
             
-            % check modern loader (if saved)
-            obj.assertEqualWithSave(ref_obj);
+            % Here we are preparting to restore data_sqw_dnd stored as common
+            % object when it is split to projection and axes_block
+            %ld = load('data_sqw_dnd_V1_ref_data.mat');
+            %loaded_v1_obj = ld.test_loadobj_v0.ref_obj;
+            %assertEqual(ref_obj,loaded_v1_obj);
+            
         end
         
         

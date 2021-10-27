@@ -134,7 +134,7 @@ classdef sqw_binfile_common < sqw_file_interface
             [obj,missinig_fields] = copy_contents_(obj,other_obj,keep_internals);
         end
         %
-        function obj = init_v3_specific(~)
+        function varargout = init_v3_specific(~)
             % Initialize position information specific for sqw v3.1 object.
             % Interface function here. Generic is not implemented and
             % actual implementation in faccess_sqw_v3

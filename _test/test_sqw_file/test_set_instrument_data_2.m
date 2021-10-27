@@ -52,7 +52,7 @@ h_file_s=head_horace(data_inst_ref);
 h_file_s = rmfield(h_file_s,{'npixels','nfiles'});
 
 h_file=head_horace(data_inst_ref,'-full');
-data = h_file.data.struct();
+data = h_file.data.to_bare_struct();
 data = rmfield(data,{'pix','nonorthogonal'});
 assertEqual(data,h_file_s)
 
