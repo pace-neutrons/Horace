@@ -1,4 +1,4 @@
-classdef test_PixelData < TestCase & common_state_holder
+classdef test_PixelData < TestCase & common_sqw_class_state_holder
     
     properties
         

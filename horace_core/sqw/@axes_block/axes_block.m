@@ -6,6 +6,9 @@ classdef axes_block
     
     properties
         title   =''   % Title of sqw data structure
+        filename=''   % Name of sqw file that is being read, excluding path
+        filepath=''   % Path to sqw file that is being read, including terminating file separator
+        
         %
         ulen=[1,1,1,1]      %Length of projection axes vectors in Ang^-1 or meV [row vector]
         ulabel={'Q_h','Q_k','Q_l','En'}  %Labels of the projection axes [1x4 cell array of character strings]
@@ -25,11 +28,11 @@ classdef axes_block
         %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
         %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
         %                  be reordered [row vector]
-        axis_caption=an_axis_caption(); %  Reference to class, which define axis captions
+        axis_caption=an_axis_caption(); %  Reference to class, which define axis captions. TODO: delete this
         %
         %TODO: think about best place to put this property
         %  it may belong to projection but should be here if used in
-        %  plotting. Should non-orthogonal be just different axes_block?        
+        %  plotting. Should non-orthogonal be just different axes_block?
         nonorthogonal = false % if the coordinate system is non-orthogonal.
     end
     methods (Static)
@@ -41,12 +44,20 @@ classdef axes_block
     
     properties(Constant,Access=private)
         % fields which fully represent the state of the class and allow to
-        % recover it
-        fields_to_save_ = {'ulen','ulabel','iax','iint','pax','p','dax'};
+        % recover it through public interface
+        fields_to_save_ = {'title','filename','filepath',...
+            'ulen','ulabel','iax','iint','pax',...
+            'p','dax','nonorthogonal'};
     end
     
     
     methods
+        function flds = indepFields(~)
+            % get independent fields, which fully define the state of a
+            % serializable object.
+            flds = axes_block.fields_to_save_;
+        end
+        
         % return 3 q-axis in the order they mark the dnd object
         % regardless of the integration along some qxis
         % TODO: probably should be removed

@@ -1,4 +1,4 @@
-classdef test_PixelData_saveobj_loadobj < TestCase & common_state_holder
+classdef test_PixelData_saveobj_loadobj < TestCase & common_sqw_class_state_holder
     
     properties
         data_folder;

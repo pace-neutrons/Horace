@@ -116,7 +116,7 @@ classdef sqw_formats_factory < handle
             if ~isnumeric(sqw_file_name)
                 [ok,mess,full_data_name] = check_file_exist(sqw_file_name,'*');
             else
-            	error('SQW_FILE_IO:runtime_error', 'filename was not numeric');
+                error('SQW_FILE_IO:runtime_error', 'filename was not numeric');
             end
             if ~ok
                 mess = regexprep(mess,'[\\]','/');
@@ -139,6 +139,9 @@ classdef sqw_formats_factory < handle
                         loader=loader.init(objinit,varargin{:});
                         return
                     catch ME
+                        if fh>0
+                            fclose(fh);
+                        end
                         err = MException('SQW_FILE_IO:runtime_error',...
                             ['get_loader: Error initializing selected loader: %s : %s\n',...
                             'invalid file format or damaged file?'],...
@@ -197,13 +200,13 @@ classdef sqw_formats_factory < handle
                 the_type = class(varargin{1});
                 if isa(varargin{1},'sqw')
                     sobj = varargin{1};
-                    the_type = sobj.get_sqw_type();
+                    the_type = obj.get_sqw_type(sobj);
                     if strcmp(the_type, 'none')
                         loader = obj.supported_accessors_{1};
                         return;
-                    %else
+                        %else
                         % it's sqw, or sqw2; gets passed to the loader get
-                        % using the existing the_type 
+                        % using the existing the_type
                     end
                 end % isa('sqw')
             end
@@ -230,10 +233,10 @@ classdef sqw_formats_factory < handle
             %        info of object 2
             %
             % currently returns true either for the same type of
-            % accessors (class(obj1)==class(obj2)) 
+            % accessors (class(obj1)==class(obj2))
             % or when
             % class(obj1) == 'faccess_sqw_v2' and class(obj2) == 'faccess_sqw_v3'.
-            % or 
+            % or
             % when class(obj1) == faccess_sqw_v3_2 and class(obj2) == 'faccess_sqw_v3_21'.
             %
             %NOTE:
@@ -259,6 +262,41 @@ classdef sqw_formats_factory < handle
         function obj_list = get.supported_accessors(obj)
             obj_list = obj.supported_accessors_;
         end
+    end
+    methods(Static)
+        function sqw_type = get_sqw_type(sqw_obj)
+            % determine the type of sqw object based on data in the header
+            % return value options are:
+            %      sqw_type == 'none' - the header is empty, there is no efix/emode
+            %                           data to determine the type
+            %      sqw_type == 'sqw2' - the header has emode==2 and
+            %                           numel(efix)>1
+            %      sqw_type == 'sqw'  - none of the above so using the
+            %                           class of obj i.e. sqw
+            sqw_type = 'sqw';
+            header =sqw_obj.experiment_info;
+            if isa(header, 'Experiment')
+                if isempty(header.expdata)
+                    sqw_type = 'none';
+                    return;
+                else
+                    header = header.expdata(1);
+                end
+            elseif iscell(header)
+                header = header{1};
+            elseif isempty(header)
+                sqw_type = 'none';
+                return;
+            end
+            emode = header.emode;
+            if emode == 2
+                nefix = numel(header.efix);
+                if nefix>1
+                    sqw_type = 'sqw2';
+                end
+            end
+        end
+        
     end
 end
 

@@ -119,7 +119,8 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             proj.v = [0,1,0];
             ref_obj = data_sqw_dnd(proj,[1,0.01,2],[-1,1],[0,1],[0,1,10]);
             ld = load('data_sqw_dnd_V0_ref_data.mat');
-            assertEqual(ref_obj,ld.obj);
+            loaded_v0_obj = ld.obj;
+            assertEqual(ref_obj,loaded_v0_obj);
             
             % check modern loader (if saved)
             obj.assertEqualWithSave(ref_obj);

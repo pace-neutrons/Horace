@@ -246,7 +246,7 @@ if ~isfield(detpar,'filename'), detpar.filename = ''; end
 if ~isfield(detpar,'filepath'), detpar.filepath = ''; end
 if ~isfield(detpar,'group'), detpar.group = 1; end
 
-wres.detpar_x = detpar;
+wres.detpar = detpar;
 
 
 % Make data structure

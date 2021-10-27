@@ -279,7 +279,7 @@ sqw_data.pix.pix_range = pix_range;
 main_header_combined.filename = [fn,fe];
 main_header_combined.filepath = [fp,filesep];
 %
-data_sum= struct('main_header',main_header_combined,'experiment_info',[],'detpar_x',det);
+data_sum= struct('main_header',main_header_combined,'experiment_info',[],'detpar',det);
 data_sum.data = sqw_data;
 data_sum.experiment_info = header_combined;
 

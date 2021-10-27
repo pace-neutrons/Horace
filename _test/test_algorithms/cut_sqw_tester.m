@@ -3,7 +3,12 @@ classdef cut_sqw_tester < sqw
     
     methods
         function obj = cut_sqw_tester(varargin)
-            obj@sqw(varargin{:});
+            if isa(varargin{1},'sqw')
+                argi = {to_struct(varargin{1})};
+            else
+                argi = varargin;
+            end
+            obj=obj@sqw(argi{:});
         end
         
         function [proj, pbin, opt] = cut_inputs_tester(obj,varargin)

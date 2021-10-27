@@ -313,14 +313,14 @@ classdef test_serialize_deserialize< TestCase
             end
         end
         %
-        function test_instrument_sample_conversion(obj)
+        function test_instrument_sample_conversion(~)
             test_format = field_generic_class_hv3();
             ser = sqw_serializer();
             
             %---  Instrument
             inst = maps_instrument(300,700,'S');
             [struc_pos,pos] = ser.calculate_positions(test_format,inst);
-            assertEqual(pos-1,9798);
+            assertEqual(pos-1,9730);
             
             bytes = ser.serialize(inst,test_format);
             assertEqual(numel(bytes),pos-1);
@@ -335,7 +335,7 @@ classdef test_serialize_deserialize< TestCase
             % 2 instruments
             inst_s = [inst,maps_instrument(200,300,'A')];
             [struc_pos,pos] = ser.calculate_positions(test_format,inst_s);
-            assertEqual(pos-1,19429);
+            assertEqual(pos-1,19293);
             
             bytes = ser.serialize(inst_s,test_format);
             assertEqual(numel(bytes),pos-1);

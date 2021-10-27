@@ -28,7 +28,7 @@ classdef test_experiment < TestCaseWithSave
             assertTrue(isempty(expt.detector_arrays));
         end
 
-        function test_constructor_raises_error_with_invalid_arguments(self)
+        function test_constructor_raises_error_with_invalid_arguments(~)
             assertExceptionThrown(@()Experiment(IX_detector_array, IX_inst_DGfermi, 'not-a-sample'),...
                 'HORACE:Experiment:invalid_argument');
             assertExceptionThrown(@()Experiment(IX_detector_array, 'not-an-inst', IX_sample),...

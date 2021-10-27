@@ -1,8 +1,7 @@
-classdef Experiment
+classdef Experiment < serializable
     %EXPERIMENT Container object for all data describing the Experiment
     
     properties(Access=private)
-        class_version_ = 1;
         instruments_ = IX_inst.empty;
         detector_arrays_ = []
         samples_ = IX_samp.empty;
@@ -16,6 +15,10 @@ classdef Experiment
         samples
         expdata
     end
+    properties(Constant,Access=private)
+        fields_to_save_ = {'instruments','detector_arrays','samples','expdata'};
+    end
+    
     
     methods
         function obj = Experiment(varargin)
@@ -38,7 +41,7 @@ classdef Experiment
                 obj = varargin{1};
                 return;
             end
-
+            
             if nargin==1 && isstruct(varargin{1})
                 % Assume trying to initialise from a structure array of properties
                 % Actually this is the case where the header has just one
@@ -57,22 +60,23 @@ classdef Experiment
                     obj.instruments_(end+1) = varargin{1}.instrument;
                 elseif isstruct(varargin{1}.instrument)
                     if isfield(varargin{1}.instrument,'fermi_chopper') && ...
-                       isa(varargin{1}.instrument.fermi_chopper,'IX_fermi_chopper')
+                            isa(varargin{1}.instrument.fermi_chopper,'IX_fermi_chopper')
                         obj.instruments_(end+1) = IX_inst_DGfermi(varargin{1}.instrument.moderator, ...
-                                                                  varargin{1}.instrument.aperture,  ...
-                                                                  varargin{1}.instrument.fermi_chopper);
+                            varargin{1}.instrument.aperture,  ...
+                            varargin{1}.instrument.fermi_chopper);
                     else
                         % where this instrument is probably a DGdisk which
                         % actually is implemented but may be somethig else
-                        error("Horace:Experiment:this instrument not implemented yet");
+                        error('HORACE:Experiment:invalid_argument',...
+                            'this instrument not implemented yet');
                     end
                 end
                 if isstruct(varargin{1}.sample) && isempty(fieldnames(varargin{1}.sample))
                     try
-                    ixns = IX_null_sample();
-                    ixns.alatt = alatt;
-                    ixns.angdeg = angdeg;
-                    obj.samples_(end+1) = ixns;
+                        ixns = IX_null_sample();
+                        ixns.alatt = alatt;
+                        ixns.angdeg = angdeg;
+                        obj.samples_(end+1) = ixns;
                     catch ME
                         error("TT");
                     end
@@ -98,7 +102,8 @@ classdef Experiment
                 u_to_rlu = varargin{1}.u_to_rlu;
                 ulen = varargin{1}.ulen;
                 ulabel = varargin{1}.ulabel;
-                obj.expdata_(end+1) = IX_experiment(filename, filepath, efix,emode,cu,cv,psi,omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,ulabel);
+                obj.expdata_(end+1) = IX_experiment(...
+                    filename, filepath, efix,emode,cu,cv,psi,omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,ulabel);
             elseif nargin==1 && iscell(varargin{1})
                 % in this case the header (which is what varargin{1} is in
                 % this case) is a cell of runs. Consequently we run over
@@ -115,11 +120,12 @@ classdef Experiment
                         elseif isfield(hdr.instrument,'fermi_chopper')
                             ins = hdr.instrument;
                             hdr.instrument = IX_inst_DGfermi(ins.moderator, ...
-                                                             ins.aperture,  ...
-                                                             ins.fermi_chopper);
+                                ins.aperture,  ...
+                                ins.fermi_chopper);
                             obj.instruments_(end+1) = hdr.instrument;
                         else
-                            error('HORACE:Experiment-ctor','unknown struct');
+                            error('HORACE:Experiment:invalid_argument',...
+                                'unknown struct');
                         end
                     else
                         obj.instruments_(end+1) = hdr.instrument;
@@ -152,12 +158,12 @@ classdef Experiment
                     ulen = hdr.ulen;
                     ulabel = hdr.ulabel;
                     obj.expdata_(end+1) = IX_experiment(filename, filepath, efix,emode,cu,cv,psi,omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,ulabel);
-
+                    
                 end
             elseif nargin==3
-                obj.detector_arrays_ = varargin{1};
+                obj.detector_arrays = varargin{1};
                 if isa(varargin{2}, 'IX_inst')
-                    obj.instruments_ =  varargin{2};
+                    obj.instruments =  varargin{2};
                 elseif isempty(varargin{2})
                     % do nothing, instruments is already empty on
                     % construction
@@ -166,7 +172,7 @@ classdef Experiment
                         'bad type for instruments on construction');
                 end
                 if isa(varargin{3}, 'IX_samp')
-                    obj.samples_ = varargin{3};
+                    obj.samples = varargin{3};
                 elseif isempty(varargin{3})
                     % do nothing, samples is already empty on construction
                 else
@@ -207,26 +213,37 @@ classdef Experiment
                 oldhdrs{i} = oldhdr;
             end
         end
-
-        function obj=set.detector_arrays_(obj,val)
+                
+        function val=get.detector_arrays(obj)
+            val=obj.detector_arrays_;
+        end
+        function obj=set.detector_arrays(obj, val)
             if isa(val,'IX_detector_array') || isempty(val)
                 obj.detector_arrays_ = val;
             else
                 error('HORACE:Experiment:invalid_argument', ...
                     'Detector array must be one or an array of IX_detector_array object')
-            end
+            end            
+            obj.detector_arrays_ = val;
         end
         
-        function obj=set.instruments_(obj,val)
+        function val=get.instruments(obj)           
+            val=obj.instruments_;
+        end
+        function obj=set.instruments(obj, val)
             if isa(val,'IX_inst') || isempty(val)
                 obj.instruments_ = val;
             else
                 error('HORACE:Experiment:invalid_argument', ...
                     'Instruments must be one or an array of IX_inst objects')
-            end
+            end            
+            obj.instruments_ = val;
         end
         
-        function obj=set.samples_(obj,val)
+        function val=get.samples(obj)
+            val=obj.samples_;
+        end
+        function obj=set.samples(obj, val)
             if isa(val,'IX_samp')
                 obj.samples_ = val;
             elseif isempty(val)
@@ -234,88 +251,41 @@ classdef Experiment
             else
                 error('HORACE:Experiment:invalid_argument', ...
                     'Sample must be one or an array of IX_sample or IX_null_sample objects')
-            end
-        end
-
-        function val=get.detector_arrays(obj)
-            val=obj.detector_arrays_;
-        end
-        function obj=set.detector_arrays(obj, val)
-            obj.detector_arrays_ = val;
-        end
-
-        function val=get.instruments(obj)
-            val=obj.instruments_;
-        end
-        function obj=set.instruments(obj, val)
-            obj.instruments_ = val;
-        end
-
-        function val=get.samples(obj)
-            val=obj.samples_;
-        end
-        function obj=set.samples(obj, val)
+            end            
             obj.samples_ = val;
         end
-
+        
         function val=get.expdata(obj)
             val=obj.expdata_;
         end
         function obj=set.expdata(obj, val)
             obj.expdata_ = val;
         end
-
-        %------------------------------------------------------------------
-        function S = saveobj(obj)
-            % Method used my Matlab save function to support custom
-            % conversion to structure prior to saving.
-            %
-            %   >> S = saveobj(obj)
-            %
-            % Input:
-            % ------
-            %   obj     Scalar instance of the object class
-            %
-            % Output:
-            % -------
-            %   S       Structure created from obj that is to be saved
-            
-            % The following is boilerplate code
-            S = structIndep(obj);
+        function ver  = classVersion(~)
+            % define version of the class to store in mat-files
+            % and nxsqw data format. Each new version would presumably read
+            % the older version, so version substitution is based on this
+            % number
+            ver = 1;
         end
+        function flds = indepFields(~)
+            % get independent fields, which fully define the state of the
+            % serializable object.            
+            flds = Experiment.fields_to_save_;
+        end
+        
+        
     end
-
-    %------------------------------------------------------------------
-    methods (Static)
+    methods(Static)
         function obj = loadobj(S)
-            % Static method used my Matlab load function to support custom
-            % loading.
-            %
-            %   >> obj = loadobj(S)
-            %
-            % Input:
-            % ------
-            %   S       Either (1) an object of the class, or (2) a structure
-            %           or structure array
-            %
-            % Output:
-            % -------
-            %   obj     Either (1) the object passed without change, or (2) an
-            %           object (or object array) created from the input structure
-            %       	or structure array)
-            
-            % The following is boilerplate code; it calls a class-specific function
-            % called loadobj_private_ that takes a scalar structure and returns
-            % a scalar instance of the class
-
-            if isobject(S)
-                obj = S;
-            else
-                obj = arrayfun(@(x)loadobj_private_(x), S);
-            end
+            % boilerplate loadobj method, calling generic method of
+            % saveable class
+            obj = Experiment();
+            obj = loadobj@serializable(S,obj);
         end
-        %------------------------------------------------------------------
     end
+    
+    
     %======================================================================
 end
 

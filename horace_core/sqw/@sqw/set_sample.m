@@ -21,7 +21,7 @@ function varargout = set_sample (varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
+
 
 
 % This routine is also used to set the sample in sqw files, when it overwrites the input file.

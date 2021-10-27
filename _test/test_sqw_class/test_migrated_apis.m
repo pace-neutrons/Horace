@@ -1,4 +1,4 @@
-classdef test_migrated_apis < TestCase & common_state_holder
+classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
     % Collection of placeholder tests to simple run the migrated API functions: these MUST be replaced
     % with more comprehensive tests as soon as possible
 

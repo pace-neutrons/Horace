@@ -9,9 +9,7 @@ classdef data_sqw_dnd < axes_block
         pix;
     end
     properties
-        filename=''   % Name of sqw file that is being read, excluding path
-        filepath=''   % Path to sqw file that is being read, including terminating file separator
-        %
+         %
         alatt   =[2*pi,2*pi,2*pi] % Lattice parameters for data field (Ang^-1)
         angdeg  =[90,90,90]% Lattice angles for data field (degrees)
         uoffset=[0;0;0;0]  %   Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
@@ -34,11 +32,23 @@ classdef data_sqw_dnd < axes_block
         % exceeds real pix_range (or input pix_range) by this value.
         border_size = -4*eps
     end
+    properties(Constant,Access=private)
+        fields_to_save_ = {'alatt','angdeg','uoffset',...
+            'u_to_rlu','s','e','npix','img_db_range','pix'};        
+    end
     properties(Access=protected)
         pix_ = PixelData()      % Object containing data for each pixel
     end
     
     methods
+        function flds = indepFields(obj)
+            % get independent fields, which fully define the state of a
+            % serializable object.
+            
+            flds = indepFields@axes_block(obj);
+            flds = [flds(:);data_sqw_dnd.fields_to_save_(:)];
+        end
+     
         %------------------------------------------------------------------
         % Determine data type of the data field of an sqw data structure
         data_type = data_structure_type(data);
@@ -254,18 +264,7 @@ classdef data_sqw_dnd < axes_block
     end
     methods(Static)
         %
-        function obj = loadobj(input)
-            if isa(input,'data_sqw_dnd')
-                obj = input;
-            elseif isstruct(input)
-                obj = data_sqw_dnd(input);
-            else
-                error('HORACE:data_sqw_dnd:invalid_argument',...
-                    'loadobj can not process input of type: %s',...
-                    class(input));
-            end
-        end
-        
+    
         function [ind_range,ind_en,proj]=...
                 get_projection_from_pbin_inputs(ndim,uoffset,nonorthogonal,varargin)
             % Parce binning inputs and try to guess some u_to_rlu from them.

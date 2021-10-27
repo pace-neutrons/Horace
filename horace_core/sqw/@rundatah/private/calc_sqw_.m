@@ -134,7 +134,7 @@ end
 % ----------------------------------------------------------------------
 d.main_header=main_header;
 d.experiment_info=header;
-d.detpar_x=det0;
+d.detpar=det0;
 d.data=data_sqw_dnd(sqw_datstr);
 w=sqw(d);
 

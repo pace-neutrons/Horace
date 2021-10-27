@@ -1,4 +1,4 @@
-classdef test_equal_to_tol < TestCase & common_state_holder
+classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
     
     
     properties
@@ -24,7 +24,7 @@ classdef test_equal_to_tol < TestCase & common_state_holder
             obj = obj@TestCase(name);
             
             hc = hor_config();
-            obj.horace_config = hc.get_data_to_store();                                   
+            obj.horace_config = hc.get_data_to_store();
             
             % sqw_2d_1.sqw has ~1.8 MB of pixels, a 400 kB page size gives us 5
             % pages of pixel data

@@ -118,7 +118,7 @@ classdef test_nsqw2sqw_combine_job < TestCase & common_state_holder
             
             
             data_sum= struct('main_header',main_header_combined,...
-                'experiment_info',[],'detpar_x',det);
+                'experiment_info',[],'detpar',det);
             data_sum.data = sqw_data;                                    
             data_sum.experiment_info = header_combined;
             
