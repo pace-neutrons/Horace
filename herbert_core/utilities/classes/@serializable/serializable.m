@@ -4,7 +4,7 @@ classdef serializable
     % standard for any Horace/Herbert custom class loadobj/saveobj methods.
     %
     %----------------------------------------------------------------------
-    %   ABSTRACT INTERFACE TO DEFINE
+    %   ABSTRACT INTERFACE TO DEFINE:
     methods(Abstract,Access=public)
         % define version of the class to store in mat-files
         % and nxsqw data format. Each new version would presumably read
@@ -37,19 +37,25 @@ classdef serializable
             % method and adds more fields, responsible for identifying class,
             % and array information if array of objects is serialized.
             %
-            % Adds the field "version" containing result of getVersion
-            % function to the structure, obtained from to_bare_struct
-            % function.
-            % If converting array of objects, one can not add single value
-            % to the array, so function returns the structure with two fields:
-            % "version" and "array_dat", where array_dat contains the structure
+            % Adds the following fields to the structure, obtained from
+            %to_bare_struct function:
+            %.serial_name -- the name of the class to recover from the
+            %                structure when doing deserialize, loadobj or
+            %                from_struct operations
+            %.array_dat   -- this field appears only if conversion is
+            %                applied to the array of objects.
+            % One can not add field containin single value to a structure
+            % array so this function returns the structure with two fields
+            % abowe  where "array_dat" field contains the structure
             % array, produced by "to_bare_struct" function.
             %
             % Input:
             % obj  -- class or array of classes object.
             % Returns:
-            % struc -- structure, or structure array, containing the full
-            %          information, necessary to restore initial object
+            % struc -- structure, or structure, containing structure array
+            %          with all information, necessary to restore the
+            %          initial object
+            %
             strc = to_struct_(obj);
         end
         function strc = to_bare_struct(obj)
@@ -82,7 +88,10 @@ classdef serializable
         end
         %
         function size = serial_size(obj)
-            % returns size of the serialized object
+            % Returns size of the serialized object
+            %
+            % Overload with specific function to avoid conversion to a
+            % structure.
             struc = to_struct(obj);
             size = serial_size(struc);
         end
@@ -106,6 +115,12 @@ classdef serializable
             % -------
             %   S       Structure created from obj that is to be saved
             %
+            % Adds the field "version" to the result of 'to_struct
+            %                operation
+            %.version     -- containing result of getVersion
+            %                function, to distinguish between different
+            %                stored versions of a serializable class
+            %
             S         = to_struct(obj);
             ver       = obj.classVersion();
             S.version = ver;
@@ -118,7 +133,7 @@ classdef serializable
     methods(Access=protected)
         %------------------------------------------------------------------
         function obj = from_old_struct(obj,inputs)
-            % restore object from the old structure, which describes the
+            % Restore object from the old structure, which describes the
             % previous version of the object.
             %
             % The method is called by loadobj in the case if the input
@@ -145,7 +160,11 @@ classdef serializable
     methods (Static)
         function obj = from_struct(inputs)
             % restore object or array of objects from a plain structure,
-            % previously obtained by to_class_struct operation
+            % previously obtained by to_class_struct operation.
+            % To work with a generic structure, the structure should
+            % contain fields:
+            % class_name -- containing the name of the class, with empty
+            %               constructor
             obj = from_struct_(inputs);
         end
         

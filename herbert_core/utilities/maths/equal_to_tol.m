@@ -450,8 +450,8 @@ elseif isstruct(a) && isstruct(b)
         extraB = fieldsB(~isb);
         extraB = strjoin(extraB,'; ');
         error('HERBERT:equal_to_toll:inputs_mismatch',...
-            'The names: %s of structure %s and the names: %s of the structure %s are different',...
-            extraA,name_a,extraB,name_b);
+            'The structue: "%s" names: "%s" DIFFER from the struct: "%s"  names: "%s"',...
+            name_a,extraA,name_b,extraB);
     end
     
     % Check contents of each field are the same

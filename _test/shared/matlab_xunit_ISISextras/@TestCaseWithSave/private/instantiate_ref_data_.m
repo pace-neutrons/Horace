@@ -79,6 +79,5 @@ else
     
     % Store the file name into which to save tests, even if it
     % doesn't exist.
-    this.test_results_file_ = filename;
-    
+    this.test_results_file_ = filename;    
 end
