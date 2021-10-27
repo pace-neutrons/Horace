@@ -181,9 +181,9 @@ if opt.replicate,  require_spe_unique=false; else; require_spe_unique=true; end
 if opt.accumulate, require_spe_exist=false;  else; require_spe_exist=true;  end
 require_sqw_exist=false;
 
-[ok, mess, spe_file, par_file, sqw_file, spe_exist, spe_unique, sqw_exist] = gen_sqw_check_files...
+[spe_file, par_file, sqw_file, spe_exist, spe_unique, sqw_exist] = gen_sqw_check_files...
     (spe_file, par_file, sqw_file, require_spe_exist, require_spe_unique, require_sqw_exist);
-if ~ok, error('GEN_SQW:invalid_argument',mess), end
+
 n_all_spe_files=numel(spe_file);
 
 
