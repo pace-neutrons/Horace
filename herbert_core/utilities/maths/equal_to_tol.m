@@ -370,7 +370,7 @@ if opt.ignore_str && (iscellstr(a)||ischar(a)) && (iscellstr(b)||ischar(b))
     % Case of strings and cell array of strings if they are to be ignored
     % If cell arrays of strings then contents and number of strings are
     % ignored e.g. {'Hello','Mr'}, {'Dog'} and '' are all considered equal
-    
+    return;
 elseif isobject(a) && isobject(b)
     % --------------------------
     % Both arguments are objects

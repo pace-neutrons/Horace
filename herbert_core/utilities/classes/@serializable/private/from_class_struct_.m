@@ -36,8 +36,12 @@ function obj = set_obj(obj,inputs,flds)
 for i=1:numel(flds)
     fld = flds{i};
     val = inputs.(fld);
-    if isstruct(val) && isfield(val,'serial_name')
-        val = serializable.from_struct(val);
+    if isstruct(val)
+        if  isfield(val,'version')
+            val = serializable.loadobj(val);
+        elseif isfield(val,'serial_name')
+            val = serializable.from_struct(val);
+        end
     end
     obj.(fld) = val;
 end
