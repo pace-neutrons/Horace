@@ -58,7 +58,7 @@ classdef serializable
             %
             strc = to_struct_(obj);
         end
-        function strc = to_bare_struct(obj)
+        function strc = to_bare_struct(obj,varargin)
             % Convert serializable object into a special structure, which allow
             % serialization and recovery using "from_class_struct" operation
             %
@@ -68,11 +68,31 @@ classdef serializable
             % pbject.
             %
             % Input:
-            % obj  -- class or array of classes object
+            % obj  -- class or array of classes objects
+            % Optional:
+            % '-recursively' -- key-word '-recusrsively' or logical variable.
+            %                   true/false
+            %                   If provided and true, all 'serializable'
+            %                   subfields of the current object are also
+            %                   converted to bare structure. If false, or
+            %                   absent, they are converted using to_struct
+            %                   method
+            %
             % Returns:
             % struc -- structure, or structure array, containing the full
             %          information, necessary to restore the initial object
-            strc = to_bare_struct_(obj);
+            if nargin>1
+                if isnumeric(varargin{1})
+                    recursively = logical(varargin{1});
+                elseif ischar(varargin{1}) && strncmpi(varargin{1},'-r')
+                    recursively = true;
+                else
+                    recursively = false;
+                end
+            else
+                recursively = false;
+            end
+            strc = to_bare_struct_(obj,recursively);
         end
         
         %------------------------------------------------------------------
@@ -91,7 +111,7 @@ classdef serializable
             % Returns size of the serialized object
             %
             % Overload with specific function to avoid conversion to a
-            % structure.
+            % structure, which may be expensive
             struc = to_struct(obj);
             size = serial_size(struc);
         end

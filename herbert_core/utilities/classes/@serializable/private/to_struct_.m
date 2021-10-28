@@ -10,7 +10,7 @@ function struc = to_struct_(obj)
 % struc -- structure, containing information, fully defining the
 %          serializabe class
 
-struc = obj.to_bare_struct();
+struc = obj.to_bare_struct(false);
 if numel(obj)>1
     struc = struct('serial_name',class(obj),...
         'array_dat',struc);

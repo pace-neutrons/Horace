@@ -22,7 +22,14 @@ classdef IX_experiment
     end
     
     methods
-        function obj = IX_experiment(filename, filepath, efix,emode,cu,cv,psi,omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,ulabel)
+        function obj = IX_experiment(varargin)
+            if nargin==0
+                return
+            end
+            obj = obj.init(filename, filepath, efix,emode,cu,cv,psi,omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,ulabel);
+        end
+        
+        function obj = init(obj,filename, filepath, efix,emode,cu,cv,psi,omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,ulabel)
             %IX_EXPERIMENT Construct an instance of this class
             %   Detailed explanation goes here
             obj.filename = filename;

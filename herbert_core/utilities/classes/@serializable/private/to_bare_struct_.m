@@ -1,10 +1,12 @@
-function struc = to_bare_struct_(obj)
+function struc = to_bare_struct_(obj,recursively)
 % Convert serializable object into a special structure, which allow
 % serialization and recovery using from_class_struct operation
 %
 % Inputs:
 % obj -- the instance of the object to convert to a structure.
 %        the fields to use
+% recursively -- if true, all serializable subobjects of the
+%                class are converted to bare structure,
 % Returns:
 % struc -- structure, containing information, fully defining the
 %          serializabe class
@@ -16,7 +18,11 @@ for j=1:numel(obj)
         fldn = flds{i};
         val = obj(j).(fldn);
         if isa(val,'serializable') % else keep object as before. Serializer should handle it by its own way
-            val= to_struct(val);
+            if recursively
+                val= to_bare_struct_(val,recursively);
+            else
+                val= to_struct(val);
+            end
         end
         cell_dat{i,j} = val;
     end
