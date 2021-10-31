@@ -6,7 +6,7 @@ function [S,present] = parse_args_namelist (namelist_in, varargin)
 %
 % Positional arguments are used to assign values to the names in the order
 % they appear in namelist, and name-value pairs are used to assign values
-% to specific names. The anmes can be abbreviated so long as the abbreviation
+% to specific names. The names can be abbreviated so long as the abbreviation
 % is unambiguous and doesnt clash with another unabbreviated name.
 %
 % Names can only be assigned values once, otherwise an error is thrown (as

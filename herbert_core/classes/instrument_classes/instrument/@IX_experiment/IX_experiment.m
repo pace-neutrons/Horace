@@ -1,4 +1,4 @@
-classdef IX_experiment
+classdef IX_experiment < serializable
     %IX_EXPERIMENT Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -21,14 +21,21 @@ classdef IX_experiment
         ulabel=[];
     end
     properties(Constant,Access=private)
+        % the arguments have to be provided in the order the inputs for
+        % constructor have to be provided
         fields_to_save_ = {'filename','filepath','efix','emode','cu',...
             'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
             'u_to_rlu','ulen','ulabel'};
-    end   
+    end
     methods
         function flds = indepFields(~)
             flds = IX_experiment.fields_to_save_;
         end
+        function ver  = classVersion(~)
+            % return the version of the IX-experiment class
+            ver = 1;
+        end
+        
         %
         function is = isempty(obj)
             is = false(size(obj));
@@ -45,16 +52,23 @@ classdef IX_experiment
             if nargin==0
                 return
             end
-            
-            if nargin==1
+            obj = obj.init(varargin{:});
+        end
+        
+        function obj = init(obj,varargin)
+            % Usage:
+            %   obj = init(obj,filename, filepath, efix,emode,cu,cv,psi,omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,ulabel)
+            %
+            %   IX_EXPERIMENT Construct an instance of this class
+            if nargin == 2
                 input = varargin{1};
                 if isa(input,'IX_experiment')
                     obj = input ;
                     return
-                elseif isstruct(input )
-                    
-                    for i=1:numel(IX_experiment.fields_to_save_)
-                        fld = IX_experiment.fields_to_save_{i};
+                elseif isstruct(input)
+                    flds = obj.indepFields();                    
+                    for i=1:numel(flds)
+                        fld = flds{i};
                         obj.(fld) = input.(fld);
                     end
                 else
@@ -62,35 +76,29 @@ classdef IX_experiment
                         'Unrecognized single input argument of class %s',...
                         class(input));
                 end
+            elseif nargin == 17
+                flds = obj.indepFields();
+                for i=1:numel(varargin)
+                    fldn = flds{i};
+                    obj.(fldn) = varargin{i};
+                end
             else
-                obj = obj.init(varargin{:});
+                error('HERBERT:IX_experiment:invalid_argument',...
+                    'unrecognized number of input arguments: %d',nargin);
             end
-        end
-        
-        function obj = init(obj,filename, filepath, efix,emode,cu,cv,psi,omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,ulabel)
-            %IX_EXPERIMENT Construct an instance of this class
-            %   Detailed explanation goes here
-            obj.filename = filename;
-            obj.filepath = filepath;
-            obj.efix = efix;
-            obj.emode = emode;
-            obj.cu = cu;
-            obj.cv = cv;
-            obj.psi = psi;
-            obj.omega = omega;
-            obj.dpsi = dpsi;
-            obj.gl = gl;
-            obj.gs = gs;
-            obj.en = en;
-            obj.uoffset =  uoffset;
-            obj.u_to_rlu = u_to_rlu;
-            obj.ulen = ulen;
-            obj.ulabel = ulabel;
             if isempty(obj)
                 error('HERBERT:IX_experiment:invalid_argument',...
                     'initialized IX_experiment can not be empty')
             end
         end
     end
+    methods(Static)
+        function obj = loadobj(S)
+            % boilerplate loadobj method, calling generic method of
+            % saveable class
+            obj = IX_experiment();
+            obj = loadobj@serializable(S,obj);
+        end
+    end
+    
 end
-

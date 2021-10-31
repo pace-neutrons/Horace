@@ -138,6 +138,8 @@ classdef IX_aperture < serializable
         %
         % calculate covariance
         C = covariance (self);
+        % Generate random points in an aperture
+        X = rand (self, varargin)
     end
     methods(Access=protected)
         %------------------------------------------------------------------
@@ -153,29 +155,11 @@ classdef IX_aperture < serializable
             % function, but when the old strucure substantially differs from
             % the moden structure, this method needs the specific overloading
             % to allow loadob to recover new structure from an old structure.
-            if isfield(inputs(1),'class_version_') && inputs(1).class_version_ == 1
-                inputs = rmfield(inputs,'class_version_');
-                old_fld_names = fieldnames(inputs(1));
-                % use the fact that the old field names are the new field
-                % names with _ attached at the end
-                new_fld_names = cellfun(@(x)(x(1:end-1)),old_fld_names,...
-                    'UniformOutput',false);
-                cell_data = struct2cell(inputs);
-                inputs = cell2struct(cell_data,new_fld_names);
-            elseif isfield(inputs(1),'name_') % old structure with private names
-                % and without any versions
-                old_fld_names = fieldnames(inputs(1));
-                % use private function which traling _ from field names
-                new_fld_names = cellfun(@remove_back_,old_fld_names,...
-                    'UniformOutput',false);
-                struct_cell = struct2cell(inputs);
-                inputs = cell2struct(struct_cell,new_fld_names);
-                obj = from_old_struct@serializable(obj,inputs);
-                return
-            end
+            inputs = convert_old_struct_(obj,inputs);
             % optimization here is possible to not to use the public
             % interface. But is it necessary? its the question
             obj = from_old_struct@serializable(obj,inputs);
+            
         end
     end
     
