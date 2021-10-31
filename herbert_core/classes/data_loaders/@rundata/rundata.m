@@ -73,9 +73,9 @@ classdef rundata
         oriented_lattice_ =[];
 
         % instrument model holder;
-        instrument_ = struct();
+        instrument_ = IX_inst();
         % sample model holder
-        sample_ = struct();
+        sample_ = IX_samp();
         %
         run_id_ = [];
     end

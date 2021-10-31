@@ -49,12 +49,11 @@ classdef IX_inst < matlab.mixin.Heterogeneous
             iseq = strcmp(obj1.name, obj2.name);
             iseq = iseq && obj1.source==obj2.source;
         end
-
         %------------------------------------------------------------------
         % Set methods for independent properties
         %
         % Devolve any checks on interdependencies to the constructor (where
-        % we refer only to the independent properties) and in the set 
+        % we refer only to the independent properties) and in the set
         % functions for the dependent properties.
         %
         % There is a synchronisation that must be maintained as the checks
@@ -66,17 +65,19 @@ classdef IX_inst < matlab.mixin.Heterogeneous
             end
             obj.name_ = val;
         end
-            
+        
         function obj=set.source_(obj,val)
             if isa(val,'IX_source') && isscalar(val)
                 obj.source_ = val;
             elseif is_string(val)
                 obj.source_ = IX_source('-name',val);
+            elseif isempty(val)
+                obj.source_ = IX_source();
             else
                 error('The source name must be a character string or an IX_source object')
             end
         end
-            
+        
         %------------------------------------------------------------------
         % Set methods for dependent properties
         function obj=set.name(obj,val)
@@ -99,7 +100,7 @@ classdef IX_inst < matlab.mixin.Heterogeneous
         
         %------------------------------------------------------------------
     end
-
+    
     
     %======================================================================
     % Methods for fast construction of structure with independent properties
@@ -177,6 +178,7 @@ classdef IX_inst < matlab.mixin.Heterogeneous
             else
                 args = [names; repmat({cell(size(obj))},size(names))];
                 S = struct(args{:});
+                S.name_ = '';
             end
         end
         
@@ -214,7 +216,7 @@ classdef IX_inst < matlab.mixin.Heterogeneous
                     S.(names{i}) = obj.(names{i});
                 end
             end
-
+            
         end
         
         function S = structPublic(obj)
@@ -281,15 +283,37 @@ classdef IX_inst < matlab.mixin.Heterogeneous
                     S.(names{i}) = obj.(names{i});
                 end
             end
-
+            
         end
+    end
+    methods(Sealed)
+        function is = isempty(obj)
+            % Assume that inst is empty if it was created with
+            % empty constructor and has not been modified
+            %
+            % Assume that if a child is modified, it will also modify some
+            % fields of the parent so the method will still work on
+            % children
+            
+            if numel(obj)==0
+                is = true;
+                return;
+            end
+            is = false(size(obj));
+            for i=1:numel(obj)
+                if isempty(obj(i).name_) && isempty(obj(i).source_)
+                    is(i) = true;
+                end
+            end
+        end
+        
     end
     
     %======================================================================
     % Custom loadobj and saveobj
     % - to enable custom saving to .mat files and bytestreams
     % - to enable older class definition compatibility
-
+    
     methods
         %------------------------------------------------------------------
         function S = saveobj(obj)

@@ -3,30 +3,44 @@ classdef IX_experiment
     %   Detailed explanation goes here
     
     properties
-        filename
-        filepath
-        efix
-        emode
-        cu
-        cv
-        psi
-        omega
-        dpsi
-        gl
-        gs
-        en
-        uoffset
-        u_to_rlu
-        ulen
-        ulabel
+        filename=''
+        filepath='';
+        efix = []
+        emode=[]
+        cu=[];
+        cv=[];
+        psi=[];
+        omega=[];
+        dpsi=[];
+        gl=[];
+        gs=[];
+        en=[];
+        uoffset=[];
+        u_to_rlu=[];
+        ulen=[];
+        ulabel=[];
     end
     properties(Constant,Access=private)
         fields_to_save_ = {'filename','filepath','efix','emode','cu',...
             'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
             'u_to_rlu','ulen','ulabel'};
-    end
-    
+    end   
     methods
+        function flds = indepFields(~)
+            flds = IX_experiment.fields_to_save_;
+        end
+        %
+        function is = isempty(obj)
+            is = false(size(obj));
+            for i=1:numel(obj)
+                for j=3:numel(IX_experiment.fields_to_save_)
+                    if isempty(obj(i).(IX_experiment.fields_to_save_{j}))
+                        is(i) = true;
+                        break;
+                    end
+                end
+            end
+        end
         function obj = IX_experiment(varargin)
             if nargin==0
                 return
@@ -72,6 +86,10 @@ classdef IX_experiment
             obj.u_to_rlu = u_to_rlu;
             obj.ulen = ulen;
             obj.ulabel = ulabel;
+            if isempty(obj)
+                error('HERBERT:IX_experiment:invalid_argument',...
+                    'initialized IX_experiment can not be empty')
+            end
         end
     end
 end

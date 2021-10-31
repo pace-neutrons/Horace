@@ -1,10 +1,9 @@
-classdef IX_source
+classdef IX_source < serializable
     % Neutron source information
     % Basic information about the source, such as name, target_name and
     % operating frequency
     
     properties (Access=private)
-        class_version_ = 1; % Class version number
         name_ = '';         % Name of the source e.g. 'ISIS'
         target_name_ = '';  % Name of target e.g. 'TS1'
         frequency_ = 0;     % Operating frequency (Hz)
@@ -33,7 +32,7 @@ classdef IX_source
             %   target_name     Name of target e.g. 'TS2'
             %
             % Note: any number of the arguments can given in arbitrary order
-            % after leading positional arguments if they are preceded by the 
+            % after leading positional arguments if they are preceded by the
             % argument name (including abbrevioations) with a preceding hyphen e.g.
             %
             %   >> obj = IX_source ('ISIS','-freq',50)
@@ -47,68 +46,59 @@ classdef IX_source
                 [S, present] = parse_args_namelist...
                     ({namelist,{'char','char'}}, varargin{:});
                 if present.name
-                    obj.name_ = S.name;
+                    obj.name = S.name;
                 end
                 if present.target_name
-                    obj.target_name_ = S.target_name;
+                    obj.target_name = S.target_name;
                 end
                 if present.frequency
-                    obj.frequency_ = S.frequency;
+                    obj.frequency = S.frequency;
                 end
             end
         end
-        
+        %
         function iseq = eq(obj1,obj2)
             iseq = strcmp(obj1.name, obj2.name);
             iseq = iseq && strcmp(obj1.target_name, obj2.target_name);
             iseq = iseq && obj1.frequency==obj2.frequency;
         end
-
+        %
+        
         %------------------------------------------------------------------
         % Set methods for independent properties
         %
         % Devolve any checks on interdependencies to the constructor (where
-        % we refer only to the independent properties) and in the set 
+        % we refer only to the independent properties) and in the set
         % functions for the dependent properties.
         %
         % There is a synchronisation that must be maintained as the checks
         % in both places must be identical.
         
-        function obj=set.name_(obj,val)
-            if ~is_string(val)
-                error('The source name must be a character string')
+        function obj=set.name(obj,val)
+            if isempty(val)
+                val = '';
             end
-            obj.name_ = val;
+            if is_string(val)
+                obj.name_ = val;
+            else
+                error('HERBERT:IX_source:invalid_argument',...
+                    'The source name must be a character string')
+            end
         end
         
-        function obj=set.target_name_(obj,val)
+        function obj=set.target_name(obj,val)
             if ~is_string(val)
                 error('The target name must be a character string')
             end
             obj.target_name_ = val;
         end
-            
-        function obj=set.frequency_(obj,val)
+        
+        function obj=set.frequency(obj,val)
             if ~isnumeric(val) || ~isscalar(val) || val<0
                 error('The target frequency must be a non-negative number')
             end
             obj.frequency_ = val;
         end
-
-        %------------------------------------------------------------------
-        % Set methods for dependent properties
-        function obj=set.name(obj,val)
-            obj.name_ = val;
-        end
-        
-        function obj=set.target_name(obj,val)
-            obj.target_name_ = val;
-        end
-        
-        function obj=set.frequency(obj,val)
-            obj.frequency_ = val;
-        end
-        
         %------------------------------------------------------------------
         % Get methods for dependent properties
         function val=get.name(obj)
@@ -122,11 +112,38 @@ classdef IX_source
         function val=get.frequency(obj)
             val = obj.frequency_;
         end
-        
         %------------------------------------------------------------------
+        function flds = indepFields(obj)
+            % Return cellarray of independent properties of the class
+            flds = obj.propNamesIndep_;
+        end
+        function ver  = classVersion(~)
+            % return current class version as it is stored on hdd
+            ver = 2;
+        end
+        
     end
-
-    
+    methods(Sealed)
+        function is = isempty(obj)
+            % Assume that sample is empty if it was created with
+            % empty constructor and has not been modified
+            %
+            % Assume that if a child is modified, it will also modify some
+            % fields of the parent so the method will still work
+            if numel(obj) == 0
+                is = true;
+                return;
+            end
+            is = false(size(obj));
+            for i=1:numel(obj)
+                if isempty(obj(i).name_) && isempty(obj(i).target_name_) && ...
+                        obj(i).frequency_ == 0
+                    is(i) = true;
+                end
+            end
+        end
+        
+    end
     %======================================================================
     % Methods for fast construction of structure with independent properties
     methods (Static, Access = private)
@@ -136,240 +153,65 @@ classdef IX_source
             persistent names_store
             if isempty(names_store)
                 names_store = fieldnamesIndep(eval(mfilename('class')));
+                % here we rely on agreement that private independent
+                % porperties have the same names as public properties but
+                % have added suffix '_' at the end
+                names_store = cellfun(@(x)x(1:end-1),...
+                    names_store,'UniformOutput',false);
             end
             names = names_store;
         end
-        
-        function names = propNamesPublic_
-            % Determine the visible public property names and cache the result.
-            % Code is boilerplate
-            persistent names_store
-            if isempty(names_store)
-                names_store = properties(eval(mfilename('class')));
-            end
-            names = names_store;
-        end
-        
-        function struc = scalarEmptyStructIndep_
-            % Create a scalar structure with empty fields, and cache the result
-            % Code is boilerplate
-            persistent struc_store
-            if isempty(struc_store)
-                names = eval([mfilename('class'),'.propNamesIndep_''']);
-                arg = [names; repmat({[]},size(names))];
-                struc_store = struct(arg{:});
-            end
-            struc = struc_store;
-        end
-        
-        function struc = scalarEmptyStructPublic_
-            % Create a scalar structure with empty fields, and cache the result
-            % Code is boilerplate
-            persistent struc_store
-            if isempty(struc_store)
-                names = eval([mfilename('class'),'.propNamesPublic_''']);
-                arg = [names; repmat({[]},size(names))];
-                struc_store = struct(arg{:});
-            end
-            struc = struc_store;
-        end
     end
-    
-    methods
-        function S = structIndep(obj)
-            % Return the independent properties of an object as a structure
-            %
-            %   >> s = structIndep(obj)
-            %
-            % Use <a href="matlab:help('structArrIndep');">structArrIndep</a> to convert an object array to a structure array
-            %
-            % Has the same behaviour as the Matlab instrinsic struct in that:
-            % - Any structure array is returned unchanged
-            % - If an object is empty, an empty structure is returned with fieldnames
-            %   but the same size as the object
-            % - If the object is non-empty array, returns a scalar structure corresponding
-            %   to the the first element in the array of objects
-            %
-            %
-            % See also structPublic, structArrIndep, structArrPublic
-            
-            names = obj.propNamesIndep_';
-            if ~isempty(obj)
-                tmp = obj(1);
-                S = obj.scalarEmptyStructIndep_;
-                for i=1:numel(names)
-                    S.(names{i}) = tmp.(names{i});
-                end
-            else
-                args = [names; repmat({cell(size(obj))},size(names))];
-                S = struct(args{:});
-            end
-        end
-        
-        function S = structArrIndep(obj)
-            % Return the independent properties of an object array as a structure array
-            %
-            %   >> s = structArrIndep(obj)
-            %
-            % Use <a href="matlab:help('structIndep');">structIndep</a> for behaviour that more closely matches the Matlab
-            % intrinsic function struct.
-            %
-            % Has the same behaviour as the Matlab instrinsic struct in that:
-            % - Any structure array is returned unchanged
-            % - If an object is empty, an empty structure is returned with fieldnames
-            %   but the same size as the object
-            %
-            % However, differs in the behaviour if an object array:
-            % - If the object is non-empty array, returns a structure array of the same
-            %   size. This is different to the instrinsic Matlab, which returns a scalar
-            %   structure from the first element in the array of objects
-            %
-            %
-            % See also structIndep, structPublic, structArrPublic
-            
-            if numel(obj)>1
-                S = arrayfun(@fill_it, obj);
-            else
-                S = structIndep(obj);
-            end
-            
-            function S = fill_it (obj)
-                names = obj.propNamesIndep_';
-                S = obj.scalarEmptyStructIndep_;
-                for i=1:numel(names)
-                    S.(names{i}) = obj.(names{i});
-                end
-            end
-
-        end
-        
-        function S = structPublic(obj)
-            % Return the public properties of an object as a structure
-            %
-            %   >> s = structPublic(obj)
-            %
-            % Use <a href="matlab:help('structArrPublic');">structArrPublic</a> to convert an object array to a structure array
-            %
-            % Has the same behaviour as struct in that
-            % - Any structure array is returned unchanged
-            % - If an object is empty, an empty structure is returned with fieldnames
-            %   but the same size as the object
-            % - If the object is non-empty array, returns a scalar structure corresponding
-            %   to the the first element in the array of objects
-            %
-            %
-            % See also structIndep, structArrPublic, structArrIndep
-            
-            names = obj.propNamesPublic_';
-            if ~isempty(obj)
-                tmp = obj(1);
-                S = obj.scalarEmptyStructPublic_;
-                for i=1:numel(names)
-                    S.(names{i}) = tmp.(names{i});
-                end
-            else
-                args = [names; repmat({cell(size(obj))},size(names))];
-                S = struct(args{:});
-            end
-        end
-        
-        function S = structArrPublic(obj)
-            % Return the public properties of an object array as a structure array
-            %
-            %   >> s = structArrPublic(obj)
-            %
-            % Use <a href="matlab:help('structPublic');">structPublic</a> for behaviour that more closely matches the Matlab
-            % intrinsic function struct.
-            %
-            % Has the same behaviour as the Matlab instrinsic struct in that:
-            % - Any structure array is returned unchanged
-            % - If an object is empty, an empty structure is returned with fieldnames
-            %   but the same size as the object
-            %
-            % However, differs in the behaviour if an object array:
-            % - If the object is non-empty array, returns a structure array of the same
-            %   size. This is different to the instrinsic Matlab, which returns a scalar
-            %   structure from the first element in the array of objects
-            %
-            %
-            % See also structPublic, structIndep, structArrIndep
-            
-            if numel(obj)>1
-                S = arrayfun(@fill_it, obj);
-            else
-                S = structPublic(obj);
-            end
-            
-            function S = fill_it (obj)
-                names = obj.propNamesPublic_';
-                S = obj.scalarEmptyStructPublic_;
-                for i=1:numel(names)
-                    S.(names{i}) = obj.(names{i});
-                end
-            end
-
-        end
-    end
-    
-    %======================================================================
-    % Custom loadobj and saveobj
-    % - to enable custom saving to .mat files and bytestreams
-    % - to enable older class definition compatibility
-
-    methods
-        %------------------------------------------------------------------
-        function S = saveobj(obj)
-            % Method used my Matlab save function to support custom
-            % conversion to structure prior to saving.
-            %
-            %   >> S = saveobj(obj)
-            %
-            % Input:
-            % ------
-            %   obj     Scalar instance of the object class
-            %
-            % Output:
-            % -------
-            %   S       Structure created from obj that is to be saved
-            
-            % The following is boilerplate code
-            
-            S = structIndep(obj);
-        end
-    end
-    
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
-            % Static method used my Matlab load function to support custom
-            % loading.
-            %
-            %   >> obj = loadobj(S)
-            %
-            % Input:
-            % ------
-            %   S       Either (1) an object of the class, or (2) a structure
-            %           or structure array
-            %
-            % Output:
-            % -------
-            %   obj     Either (1) the object passed without change, or (2) an
-            %           object (or object array) created from the input structure
-            %       	or structure array)
+            % boilerplate loadobj method, calling generic method of
+            % saveable class
+            obj =IX_source();
+            obj = loadobj@serializable(S,obj);
             
-            % The following is boilerplate code; it calls a class-specific function
-            % called loadobj_private_ that takes a scalar structure and returns
-            % a scalar instance of the class
-            
-            if isobject(S)
-                obj = S;
-            else
-                obj = arrayfun(@(x)loadobj_private_(x), S);
-            end
         end
         %------------------------------------------------------------------
-        
     end
-    %======================================================================
+    methods(Access=protected)
+        %------------------------------------------------------------------
+        function obj = from_old_struct(obj,inputs)
+            % restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % The method is called by loadobj in the case if the input
+            % structure does not contain version or the version, stored
+            % in the structure does not correspond to the current version
+            %
+            % By default, this function interfaces the default from_struct
+            % function, but when the old strucure substantially differs from
+            % the moden structure, this method needs the specific overloading
+            % to allow loadob to recover new structure from an old structure.
+            if isfield(inputs(1),'class_version_') && inputs(1).class_version_ == 1
+                inputs = rmfield(inputs,'class_version_');
+                old_fld_names = fieldnames(inputs(1));
+                % use the fact that the old field names are the new field
+                % names with _ attached at the end
+                new_fld_names = cellfun(@(x)(x(1:end-1)),old_fld_names,...
+                    'UniformOutput',false);
+                cell_data = struct2cell(inputs);
+                inputs = cell2struct(cell_data,new_fld_names);
+            elseif isfield(inputs(1),'name_') % old structure with private names
+                % and without any versions
+                old_fld_names = fieldnames(inputs(1));
+                % use private function which traling _ from field names
+                new_fld_names = cellfun(@remove_back_,old_fld_names,...
+                    'UniformOutput',false);
+                struct_cell = struct2cell(inputs);
+                inputs = cell2struct(struct_cell,new_fld_names);
+                obj = from_old_struct@serializable(obj,inputs);
+                return
+            end
+            % optimization here is possible to not to use the public
+            % interface. But is it necessary? its the question
+            obj = from_old_struct@serializable(obj,inputs);
+        end        
+    end
     
+    %======================================================================
 end

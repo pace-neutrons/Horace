@@ -53,10 +53,22 @@ classdef IX_inst_DGdisk < IX_inst
                 namelist = {'moderator','shaping_chopper','mono_chopper',...
                     'horiz_div','vert_div','energy','name','source'};
                 [S, present] = parse_args_namelist (namelist, varargin{:});
+                is_present = struct2cell(present);
+                is_present = [is_present{:}];
                 
-                % Superclass properties
+                % Superclass properties: TODO: call superclass to set them
                 if present.name
                     obj.name_ = S.name;
+                    if sum(is_present)<2 % setting only name
+                        return;
+                    end
+                else
+                    if any(is_present) % problem of having property 'isempty'
+                        % sealed on superclass. Will be partially mitigated
+                        % on setting superclass properties on superclass
+                        % (see TODO above)
+                        obj.name_ = '_';
+                    end
                 end
                 
                 if present.source
@@ -297,7 +309,7 @@ classdef IX_inst_DGdisk < IX_inst
                     S.(names{i}) = obj.(names{i});
                 end
             end
-
+            
         end
         
         function S = structPublic(obj)
@@ -364,7 +376,7 @@ classdef IX_inst_DGdisk < IX_inst
                     S.(names{i}) = obj.(names{i});
                 end
             end
-
+            
         end
     end
     
@@ -372,7 +384,7 @@ classdef IX_inst_DGdisk < IX_inst
     % Custom loadobj and saveobj
     % - to enable custom saving to .mat files and bytestreams
     % - to enable older class definition compatibility
-
+    
     methods
         %------------------------------------------------------------------
         function S = saveobj(obj)

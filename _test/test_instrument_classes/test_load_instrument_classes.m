@@ -6,7 +6,7 @@ function test_load_instrument_classes (varargin)
 %   >> test_instrument_class_load_save (ver)            % perform tests for named version
 %   >> test_instrument_class_load_save (ver, '-save')   % save results with version name
 %
-% The version name is just a character string for cinstruction of file names,
+% The version name is just a character string for construction of file names,
 % but by convention they should be chosen to be:
 %   - ver0  Class definitions prior to July 2019 (old-style pre-R2008a matlab
 %           classes

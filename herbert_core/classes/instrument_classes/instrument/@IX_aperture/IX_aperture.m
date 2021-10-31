@@ -17,9 +17,7 @@ classdef IX_aperture < serializable
         width
         height
     end
-    
     methods
-        
         %------------------------------------------------------------------
         % Constructor
         %------------------------------------------------------------------
@@ -53,7 +51,6 @@ classdef IX_aperture < serializable
             if nargin==1 && isstruct(varargin{1})
                 % Assume trying to initialise from a structure array of properties
                 obj = IX_aperture.loadobj(varargin{1});
-                
             elseif nargin>0
                 namelist = {'name','distance','width','height'};
                 [S, present] = parse_args_namelist ({namelist,{'char'}}, varargin{:});
@@ -138,6 +135,9 @@ classdef IX_aperture < serializable
         function val=get.height(obj)
             val=obj.height_;
         end
+        %
+        % calculate covariance
+        C = covariance (self);
     end
     methods(Access=protected)
         %------------------------------------------------------------------
@@ -177,7 +177,6 @@ classdef IX_aperture < serializable
             % interface. But is it necessary? its the question
             obj = from_old_struct@serializable(obj,inputs);
         end
-        
     end
     
     
