@@ -124,7 +124,7 @@ sample_arr = [IX_sample(false,[1,1,1],[0,1,1],'cuboid',[0.005,0.005,0.0005]),...
 
 % Test/save:
 ok = matfile_IO (ver_str, save_variables, sample, sample_arr);
-assertTrue(ok,'Problems saving/reading sample(s)')
+assertTrue(ok,'Problems saving/reading sample(s) ')
 
 
 

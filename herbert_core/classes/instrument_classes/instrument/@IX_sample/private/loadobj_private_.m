@@ -64,8 +64,18 @@ else % A 0 version of the sample class encountered.
         S = rmfield(S,{'shape','ps'});
     end
     
+    all_empty = true;
     for i=1:numel(nams)
         nam = nams{i};
+        if ~isempty(S.(nam))
+            all_empty = false;
+        end
         obj.(nam) = S.(nam);
+    end
+    % consequences of sealed empty on superclass. Deal with on refactoring
+    if ~all_empty
+        if isempty(S.name)
+            obj.name_ = '_';
+        end
     end
 end

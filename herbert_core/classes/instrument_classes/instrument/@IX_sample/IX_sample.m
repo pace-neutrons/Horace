@@ -110,10 +110,24 @@ classdef IX_sample < IX_samp
                 namelist = {'name','single_crystal','xgeom','ygeom',...
                     'shape','ps','eta','temperature','hall_symbol'};
                 [S, present] = parse_args_namelist ({namelist,{'char','logical'}}, varargin{:});
-
+                is_present = struct2cell(present);
+                is_present = [is_present{:}];
+                
+                % Superclass properties: TODO: call superclass to set them
                 if present.name
                     obj.name_ = S.name;
+                    if sum(is_present)<2 % setting only name
+                        return;
+                    end
+                else
+                    if any(is_present) % problem of having property 'isempty'
+                        % sealed on superclass. Will be partially mitigated
+                        % on setting superclass properties on superclass
+                        % (see TODO above)
+                        obj.name_ = '_';
+                    end
                 end
+                
                 if present.single_crystal
                     obj.single_crystal_ = S.single_crystal;
                 end
@@ -234,7 +248,11 @@ classdef IX_sample < IX_samp
             if is_string(val)
                 obj.hall_symbol_=val;
             else
-                error('Sample Hall symbol must be a character string (or empty string)')
+                if isempty(val)
+                    obj.hall_symbol_='';
+                else
+                    error('Sample Hall symbol must be a character string (or empty string)')
+                end
             end
         end
         %------------------------------------------------------------------

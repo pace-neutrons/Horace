@@ -80,7 +80,11 @@ classdef IX_samp  < matlab.mixin.Heterogeneous
             if is_string(val)
                 obj.name_=val;
             else
-                error('Sample name must be a character string (or empty string)')
+                if isempty(val)
+                    obj.name_='';
+                else
+                    error('Sample name must be a character string (or empty string)')
+                end
             end
         end
         

@@ -35,7 +35,7 @@ classdef test_serialize < TestCaseWithSave
         end
         
         %------------------------------------------------------------------
-        function test_ser_instrument(obj)
+        function test_ser_instrument(~)
             
             % Create three different instruments
             inst1=create_test_instrument(95,250,'s');
