@@ -1,71 +1,16 @@
 .. Horace documentation master index file
 
-
 .. toctree::
    :hidden:
 
-   The_Horace_Rationale
-
-   Download_and_setup
-   Download_and_Setup_Troubleshutting
-   Support_and_updates
-
-   Getting_started
-   Advanced_use
-   Horace_GUI
-
-   Changing_Horace_settings
-   Planning_a_Horace_scan
-   Generating_SQW_files
-   Manipulating_and_extracting_data_from_SQW_files_and_objects
-   Correcting_for_sample_misalignment
-   Data_diagnostics
-   Symmetrising_etc
-   Unary_operations
-   Binary_operations
-   Plotting
-   Simulation
-   Multifit
-   Advanced_Multifit
-   Tobyfit
-   List_of_functions
-   Input_file_formats
-   FAQ
-
-   Example_scripts
-
-   How_to_cite_Horace
-   Papers_citing_Horace
-
-   Known_bugs
-   Become_a_developer
-   For_Developers
-   Developer_info
+   Introduction
+   User_guide
+   Horace_manual
+   Citing
+   Developers
 
    General_disclaimer
    Privacy_policy
-
-   [NULL] <Changing_object_type>
-   [NULL] <Developer_information>
-   [NULL] <Fitting>
-   [NULL] <Herbert>
-   [NULL] <Horace_and_Libisis_installation>
-   [NULL] <Horace_command_line>
-   [NULL] <New>
-   [NULL] <Read_or_write_to_disk>
-   [NULL] <Remote_data_analysis>
-   [NULL] <Reshaping_etc>
-   [NULL] <Run_inspector>
-   [NULL] <Script_for_correcting_sample_misalignment>
-   [NULL] <Script_for_data_treatment>
-   [NULL] <Script_for_fitting>
-   [NULL] <Script_for_generating_sqw_files>
-   [NULL] <Script_for_making_cuts_and_plotting>
-   [NULL] <Script_for_making_publication_quality_figures>
-   [NULL] <Script_for_making_simulations>
-   [NULL] <Script_for_planning_an_experiment>
-   [NULL] <s_new>
-
 
 Horace: visualising and manipulating S(**Q**,w) measured in all four dimensions
 ===============================================================================
