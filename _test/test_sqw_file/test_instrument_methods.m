@@ -47,11 +47,11 @@ classdef test_instrument_methods <  TestCase %WithSave
             set_efix_horace (obj.test_file_,ei)
             
             ldr = sqw_formats_factory.instance().get_loader(obj.test_file_);
-            header = ldr.get_header(10);
+            expi_10 = ldr.get_header(10);
             ldr.delete(); % clear existing loader not to hold test file in case of further modifications
             
-            hdr = wtmp_new.experiment_info;
-            assertEqual([header.efix,hdr.expdata(10).efix],[1010,1010])
+            hdr = wtmp_new.experiment_info;            
+            assertEqual([expi_10.expdata.efix,hdr.expdata(10).efix],[1010,1010])
             
             % file is in the new format, see how update goes in this case
             ei=100+(1:186);
@@ -60,11 +60,11 @@ classdef test_instrument_methods <  TestCase %WithSave
             % ASSIGNMENT IN MATLAB 2015b is broken. if I assign to the previous
             % (deleted) loader ldr, the file will close!!!
             ldr1 = sqw_formats_factory.instance().get_loader(obj.test_file_);
-            header = ldr1.get_header(10);
+            expi_10 = ldr1.get_header(10);
             ldr1.delete(); % clear existing loader not to hold test file in case of further modifications
             
             hdr = wtmp_new.experiment_info;
-            assertEqual([header.efix,hdr.expdata(10).efix],[110,1010])
+            assertEqual([expi_10.expdata.efix,hdr.expdata(10).efix],[110,1010])
         end
         %
         function test_set_instrument(obj)
@@ -98,7 +98,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             ldr1.delete(); % clear existing loader not to hold test file in case of further modifications
             
             assertEqual(numel(inst),186) % all instruments for this file are the same
-                        hdr = wtmp.experiment_info;
+            hdr = wtmp.experiment_info;
             assertEqual(hdr.instruments(186),inst(186));
             
             %---------------------------------------------------------------------
@@ -145,8 +145,8 @@ classdef test_instrument_methods <  TestCase %WithSave
             % set up multiple instrument on file
             set_instrument_horace(obj.test_file_,inst_arr);
             % as we have proper instrument, setting moderator pulse should work
-            set_mod_pulse_horace(obj.test_file_,pulse_model,pp);            
-
+            set_mod_pulse_horace(obj.test_file_,pulse_model,pp);
+            
             ldr1 = sqw_formats_factory.instance().get_loader(obj.test_file_);
             
             inst = ldr1.get_instrument('-all');

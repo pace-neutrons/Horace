@@ -83,9 +83,14 @@ classdef test_faccess_sqw_prototype< TestCase
             assertEqual(to.npixels,16);
 
             header = to.get_header();
-            assertEqual(header.filename,'map11014.spe')
-            assertEqual(header.ulabel{4},'E')
-            assertEqual(header.ulabel{3},'Q_\eta')
+            assertTrue(isa(header,'Experiment'));
+            expdata = header.expdata();
+            assertTrue(isa(expdata,'IX_experiment'));
+            assertEqual(numel(expdata),1);
+            assertFalse(isempty(expdata));
+            assertEqual(expdata.filename,'map11014.spe')
+            assertEqual(expdata.ulabel{4},'E')
+            assertEqual(expdata.ulabel{3},'Q_\eta')
 
             det = to.get_detpar();
             assertEqual(det.filename,'demo_par.PAR')

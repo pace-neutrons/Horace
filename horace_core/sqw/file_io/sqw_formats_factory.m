@@ -197,18 +197,7 @@ classdef sqw_formats_factory < handle
             if ischar(varargin{1})
                 the_type = varargin{1};
             else
-                the_type = class(varargin{1});
-                if isa(varargin{1},'sqw')
-                    sobj = varargin{1};
-                    the_type = obj.get_sqw_type(sobj);
-                    if strcmp(the_type, 'none')
-                        loader = obj.supported_accessors_{1};
-                        return;
-                        %else
-                        % it's sqw, or sqw2; gets passed to the loader get
-                        % using the existing the_type
-                    end
-                end % isa('sqw')
+                the_type = sqw_formats_factory.get_sqw_type(varargin{1});
             end
             if obj.types_map_.isKey(the_type)
                 ld_num = obj.types_map_(the_type);

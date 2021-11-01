@@ -128,8 +128,20 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 if isa(args.data_struct,'dnd_file_interface')
                     args.data_struct = obj.get_loader_struct_(...
                         args.data_struct,args.pixel_page_size);
+                    obj = from_class_struct(obj,args.data_struct);
+                elseif isfield(args.data_struct,'data')
+                    if isfield(args.data_struct.data,'version')
+                        obj = sqw.loadobj(args.data_struct);
+                    elseif isfield(args.data_struct.data,'serial_name')
+                        obj = serializable.from_struct(args.data_struct);
+                    else
+                        obj = from_class_struct(obj,args.data_struct);
+                    end
+                else
+                    error('HORACE:sqw:invalid_argument',...
+                        'Unidentified input data structure');
                 end
-                obj = obj.init_from_loader_struct_(args.data_struct);
+                
             end
         end
         
@@ -166,7 +178,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             val = obj.experiment_info_;
         end
         function obj = set.experiment_info(obj,val)
-            %TODO: implement checks for validity
+            if isempty(val)
+                obj.experiment_info_ = Experiment();
+                return;
+            elseif ~isa(val,'Experiment')
+                error('HORACE:sqw:invalid_argument',...
+                    'Experiment info can be only instance of Experiment class, actually it is %s',...
+                    class(val));
+            end
             obj.experiment_info_ = val;
         end
         
@@ -227,7 +246,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 for i = 1:numel(S)
                     ss =S(i);
                     if isfield(ss,'header')
-                        ss.experiment_info = ss.header;
+                        if isa(ss.header,'Experiment')
+                            ss.experiment_info = ss.header;
+                        else
+                            ss.experiment_info = Experiment(ss.header);
+                        end
                         ss = rmfield(ss,'header');
                     end
                     if isfield(ss,'data_')
@@ -272,40 +295,16 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 error('SQW:sqw', 'Data file does not contain valid sqw-type object');
             end
             lds = obj.get_loader_struct_(ldr,pixel_page_size);
-            obj = obj.init_from_loader_struct_(lds);
+            obj = sqw();
+            obj = from_class_struct(obj,lds);
         end
         function ld_str = get_loader_struct_(~,ldr,pixel_page_size)
             % load sqw structure, using file loader
             ld_str = struct();
-            [ld_str.main_header, ld_str.experiment_info, ld_str.detpar, ld_str.data] = ...
+            [ld_str.main_header, old_header, ld_str.detpar, ld_str.data] = ...
                 ldr.get_sqw('-legacy', 'pixel_page_size', pixel_page_size);
+            ld_str.experiment_info = Experiment(old_header);
         end
         %
-        function obj = init_from_loader_struct_(obj, data_struct)
-            % initialize object contents using structure, obtained from
-            % file loader
-            obj.main_header = data_struct.main_header;
-            try
-                if ~isempty(data_struct.experiment_info)
-                    obj.experiment_info = Experiment(data_struct.experiment_info);
-                end
-            catch ME
-                exc = MException('HORACE:sqw:runtime_error',...
-                    'Developer error in header input');
-                exc.addCause(ME);
-                throw(exc);
-            end
-            try
-                obj.detpar = data_struct.detpar;
-            catch ME
-                exc = MException('HORACE:sqw:runtime_error',...
-                    'Developer error in header input');
-                exc.addCause(ME);
-                throw(exc);
-            end
-            if isfield(data_struct,'data')
-                obj.data = data_struct.data;
-            end
-        end
     end
 end

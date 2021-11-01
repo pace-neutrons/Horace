@@ -2,15 +2,16 @@ classdef cut_sqw_tester < sqw
     % The class used for testing cut_sqw input parameters
     
     properties
-        fake_property;
     end
     
     methods
         function obj = cut_sqw_tester(varargin)
-            obj=obj@sqw(varargin{:});
-            % bug in Matlab definition?   I need to define something for
-            % subclass
-            %obj.fake_property= true;
+            if isa(varargin{1},'sqw')
+                inputs = {varargin{1}.to_struct()};
+            else
+                inputs = varargin;
+            end
+            obj=obj@sqw(inputs{:});
         end
         
         function [proj, pbin, opt] = cut_inputs_tester(obj,return_cut,ndims,varargin)

@@ -49,7 +49,6 @@ function varargout = set_instrument (varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 % This routine is also used to set the instrument in sqw files, when it overwrites the input file.
@@ -166,9 +165,9 @@ elseif narg==1 || isa(args{1},'function_handle')
                     args=substitute_arguments(h,ifile,instfunc_args(1,:));
                     instrument=instfunc(args{:});
                     if ~isa(instrument,'IX_inst')
-                        error('HORACE:sqw/set_instrument:invalid_output', ...
+                        error('HORACE:sqw:invalid_output', ...
                             ['The instrument definition function does not return' ...
-                             ' an object of class IX_inst'])
+                            ' an object of class IX_inst'])
                     end
                     tmp.instruments(ifile)=instrument;
                 else
@@ -179,9 +178,9 @@ elseif narg==1 || isa(args{1},'function_handle')
                     args=substitute_arguments(h,ifile,instfunc_args(ifile,:));
                     instrument=instfunc(args{:});
                     if ~isa(instrument,'IX_inst')
-                        error('HORACE:sqw/set_instrument:invalid_output', ...
+                        error('HORACE:sqw:invalid_output', ...
                             ['The instrument definition function does not return' ...
-                             ' an object of class IX_inst'])
+                            ' an object of class IX_inst'])
                     end
                     tmp.instruments(ifile)=instrument;
                 else

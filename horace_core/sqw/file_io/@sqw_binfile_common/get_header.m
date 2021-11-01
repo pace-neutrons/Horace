@@ -1,8 +1,8 @@
-function  [header,pos]   = get_header(obj,varargin)
+function  [exp_info,pos]   = get_header(obj,varargin)
 % Get header of one of the files, contributed into sqw file
 %
 % Usage:
-%>>header = loader.get_header() % -- returns first sqw header
+%>>header = loader.get_header() % -- returns sqw headers
 % or
 %>>header = loader.get_header(n_header) % returns header number n_header
 %
@@ -59,8 +59,8 @@ end
 %themselves!
 for i=1:numel(header)
     if iscell(header)
-        header{i}.instrument = IX_null_inst(); %struct(); % this is necessary
-        header{i}.sample = IX_null_sample(); %struct();      % to satisfy current interface
+        header{i}.instruments = IX_inst(); %struct(); % this is necessary
+        header{i}.samples = IX_samp(); %struct();      % to satisfy current interface
         if size(header{i}.en,1)==1
             header{i}.en = header{i}.en';
         end
@@ -68,11 +68,13 @@ for i=1:numel(header)
         if size(header(i).en,1)==1
             header(i).en = header(i).en';
         end
-        header(i).instrument = IX_null_inst(); %struct();
-        header(i).sample = IX_null_sample(); %struct();
-        
+        header(i).instruments = IX_inst(); %struct();
+        header(i).samples = IX_samp(); %struct();
     end
 end
+%
+exp_info = Experiment(header);
+
 
 
 function [head,pos] = get_single_header(obj,n_header)

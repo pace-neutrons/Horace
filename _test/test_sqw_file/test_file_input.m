@@ -1,4 +1,4 @@
-classdef  test_file_input < TestCase
+classdef  test_file_input < TestCase & common_sqw_file_state_holder
     % Tests functionality of methods that can take object or file input
     %
     % Author: T.G.Perring
@@ -31,6 +31,7 @@ classdef  test_file_input < TestCase
             persistent t_d1d_arr;
             persistent t_d2d_arr;
             global test_file_input_refcount;
+            
             % =================================================================================================
             % Read in test data sets
             % =================================================================================================

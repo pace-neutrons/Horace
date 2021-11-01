@@ -50,7 +50,7 @@ end
 
 [ok,mess,const]=parse_char_options(varargin,{'-const'});
 if ~ok
-    error('SQW_BINILE_COMMON:invalid_argument',mess);
+    error('HORACE:sqw_binfile_common:invalid_argument',mess);
 end
 
 if const

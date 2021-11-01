@@ -216,18 +216,20 @@ end
 % Check numeric parameters (array lengths and sizes, simple requirements on validity)
 [ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
     (n_all_spe_files,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
-if ~ok, error('GEN_SQW:invalid_argument',mess), end
+if ~ok, error('HORACE:gen_sqw:invalid_argument',mess), end
 
 
 % Check optional arguments (grid, pix_db_range, instrument, sample) for size, type and validity
 grid_default=[];
-instrument_default=IX_null_inst();  % default 1x1 struct
-sample_default=IX_null_sample();      % default 1x1 struct
+instrument_default=IX_inst();  % default 1x1 struct
+sample_default=IX_sample();    % default 1x1 struct
+sample_default.alatt = alatt;
+sample_default.angdeg = angdeg;
 [ok,mess,present,grid_size_in,pix_db_range,instrument,sample]=gen_sqw_check_optional_args(...
     n_all_spe_files,grid_default,instrument_default,sample_default,args{:});
-if ~ok, error('GEN_SQW:invalid_argument',mess), end
+if ~ok, error('HORACE:gen_sqw:invalid_argument',mess), end
 if accumulate_old_sqw && (present.grid||present.pix_db_range)
-    error('GEN_SQW:invalid_argument',...
+    error('HORACE:gen_sqw:invalid_argument',...
         'If data is being accumulated to an existing sqw file, then you cannot specify the grid or pix_db_range.')
 end
 

@@ -13,9 +13,6 @@ function obj = put_sample_instr_records_(obj,varargin)
 %         sample information
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
-%
 %
 persistent old_matlab;
 if isempty(old_matlab)
@@ -39,9 +36,8 @@ if isa(header,'is_holder')
         setting_sample = true;
     end
 elseif isa(header, 'Experiment')
-    hdr = header.convert_to_old_headers();
-    instr = extract_subfield_(hdr,'instrument');
-    sampl = extract_subfield_(hdr,'sample');
+    instr = header.instruments; 
+    sampl = header.samples;
 elseif isempty(header)
     instr = struct();
     sampl = struct();
@@ -55,7 +51,9 @@ if setting_instr
     %
     % serialize instrument(s)
     if iscell(instr)
-        instr  = [instr{:}];
+        instr  = [instr{:}];    
+    elseif isempty(instr)
+        instr= struct();
     end
     [bytes,instr_size] = serialize_si_block_(obj,instr,'instrument');
     %
@@ -87,6 +85,8 @@ if setting_sample
     % serialize sample(s)
     if iscell(sampl) % NO LONGER allow only one sample! TODO: very bad. Change with class resesighn
         sampl = [sampl{:}];
+    elseif isempty(sampl)
+        sampl = struct();
     end
     [bytes,sample_size] = serialize_si_block_(obj,sampl,'sample');
     %clc_size = obj.instr_sample_end_pos_ - obj.sample_pos_;

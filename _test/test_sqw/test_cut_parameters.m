@@ -31,8 +31,8 @@ classdef test_cut_parameters < TestCase
         end
         
         function test_cut_param_all_param_given_explicitly(obj)
-            skipTest('This test is incomplete')
             %
+            skipTest('This test is incompleted part of the ticket #716')
             sqw_samp = obj.sample_files{1};
             sqw_test = cut_sqw_tester(sqw_samp);
             %sqw_test = sqw(sqw_samp);

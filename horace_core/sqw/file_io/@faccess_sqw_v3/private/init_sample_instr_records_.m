@@ -3,11 +3,13 @@ function obj = init_sample_instr_records_(obj)
 % sqw file
 %
 
-header = obj.extract_correct_subobj('header');
+exp_info = obj.extract_correct_subobj('header');
 
 % extract instrument and sample from headers block
-instr = extract_subfield_(header,'instrument');
-sampl = extract_subfield_(header,'sample');
+instr=  exp_info.get_unique_instruments();
+sampl = exp_info.get_unique_samples();
+%instr = extract_subfield_(header,'instrument');
+%sampl = extract_subfield_(header,'sample');
 %
 % calculate positions, these objects occupy on hdd
 pos = obj.eof_pix_pos_;

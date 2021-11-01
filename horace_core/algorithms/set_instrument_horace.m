@@ -214,7 +214,7 @@ for i=1:numel(subst_args)
 end
 
 %==============================================================================
-function argout = substitute_arguments(headers,ifile,argin)
+function argout = substitute_arguments(exp_info,ifile,argin)
 % Substitute arguments with values from cellarray of headers
 %
 % Return cellstr with list of all substitution arguments:
@@ -231,14 +231,16 @@ end
 
 % Substitute values
 argout=argin;
+headers = exp_info.expdata;
 for i=1:numel(argin)
     if is_string(argin{i}) && strcmpi(argin{i},'-efix')
         if ifile>1 || numel(headers) > 1
-            argout{i}=headers{ifile}.efix;
+            argout{i}=headers(ifile).efix;
         else
             argout{i}=headers.efix;
         end
     end
 end
+
 
 

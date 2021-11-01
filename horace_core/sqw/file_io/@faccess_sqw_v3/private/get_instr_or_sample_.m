@@ -17,10 +17,17 @@ if ~ok
     error('SQW_FILE_IO:invalid_argument',...
         'get_%s, error: %s',field_name,mess )
 end
-samp_block = get_all_instr_or_samples_(obj,field_name);
-%obj.([field_name,'_holder_']) = samp_block;
+res_block = get_all_instr_or_samples_(obj,field_name);
+if strcmp(field_name,'instrument') && isstruct(res_block) && numel(fields(res_block))==0
+    res_block  = IX_inst();
+end
+if strcmp(field_name,'sample') && isstruct(res_block) && numel(fields(res_block))==0
+    res_block  = IX_samp();
+end
+
+
 if get_all
-    res  = samp_block;
+    res  = res_block;
     return
 end
 
@@ -38,17 +45,17 @@ if ~isempty(other)
 else
     n_inst = 1;
 end
-if iscell(samp_block)
-    if numel(samp_block) == 1
-        res = samp_block{1};
+if iscell(res_block)
+    if numel(res_block) == 1
+        res = res_block{1};
     else
-        res = samp_block{n_inst};
+        res = res_block{n_inst};
     end
 else
-    if numel(samp_block) == 1
-        res = samp_block;
+    if numel(res_block) == 1
+        res = res_block;
     else
-        res = samp_block(n_inst);
+        res = res_block(n_inst);
     end
 end
 %

@@ -61,8 +61,10 @@ classdef test_nsqw2sqw_combine_job < TestCase & common_state_holder
             [main_header,header,datahdr,pos_npixstart,pos_pixstart,npixtot,det,ldrs] = ...
                 accumulate_headers_job.read_input_headers(infiles);
             
-            [header_combined,nspe] = sqw_header.header_combine(header,true,false);
-            nfiles = numel(nspe);
+            [header_combined,nfiles] = Experiment.combine_experiments(header,true,false);
+            %headers_array(i).filename=fullfile(headers{i}.filepath,headers{i}.filename)            
+            %[header_combined,nspe] = sqw_header.header_combine(header,true,false);
+            %nfiles = numel(nspe);
             
             img_db_range=datahdr{1}.img_db_range;
             for i=2:nfiles

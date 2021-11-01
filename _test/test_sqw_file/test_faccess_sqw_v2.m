@@ -3,7 +3,6 @@ classdef test_faccess_sqw_v2< TestCase
     % Validate fast sqw reader used in combining sqw
     %
     %
-    % $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
     %
 
 
@@ -85,10 +84,11 @@ classdef test_faccess_sqw_v2< TestCase
             to = to.init(initob);
             assertEqual(to.npixels,1164180);
 
-            header = to.get_header();
-            assertEqual(header.filename,'slice_n_c_m1_ei140')
-            assertEqual(header.ulabel{4},'E')
-            assertEqual(header.ulabel{3},'Q_\eta')
+            exper = to.get_header();
+            exp_info = exper.expdata;
+            assertEqual(exp_info.filename,'slice_n_c_m1_ei140')
+            assertEqual(exp_info .ulabel{4},'E')
+            assertEqual(exp_info.ulabel{3},'Q_\eta')
 
             det = to.get_detpar();
             assertEqual(det.filename,'slice_n_c_m1_ei140.par')
@@ -114,7 +114,8 @@ classdef test_faccess_sqw_v2< TestCase
             to = to.init(initob);
             assertEqual(to.npixels,179024);
 
-            header = to.get_header();
+            exper = to.get_header();
+            header = exper.expdata;
             assertEqual(header.filename,'map11014.spe;1')
             assertEqual(header.ulabel{4},'E')
             assertEqual(header.ulabel{3},'Q_\eta')
@@ -130,15 +131,16 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(size(data.e,2),numel(data.p{2})-1)
             assertEqual(size(data.npix),size(data.e))
 
-            headers = to.get_header('-all');
-            assertEqual(numel(headers),186)
+            exp_info = to.get_header('-all');
+            assertTrue(isa(exp_info,'Experiment'));
+            assertEqual(exp_info.n_runs,186)
 
-            header = headers{186};
-            assertEqual(header.filename,'map11201.spe;1');
-            assertEqual(header.filepath,'c:\data\Fe\data_nov06\const_ei\');
-            assertEqual(header.ulabel{1},'Q_\zeta')
-            assertEqual(header.ulabel{2},'Q_\xi')
-            assertEqual(header.ulabel{4},'E')
+            exp_n = exp_info.expdata(186);
+            assertEqual(exp_n.filename,'map11201.spe;1');
+            assertEqual(exp_n.filepath,'c:\data\Fe\data_nov06\const_ei\');
+            assertEqual(exp_n.ulabel{1},'Q_\zeta')
+            assertEqual(exp_n.ulabel{2},'Q_\xi')
+            assertEqual(exp_n.ulabel{4},'E')
 
 
             main_h = to.get_main_header('-verbatim');

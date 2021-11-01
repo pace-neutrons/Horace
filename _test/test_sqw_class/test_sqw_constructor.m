@@ -106,7 +106,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             tmp_filename=fullfile(tmp_dir, 'sqw_loadobj_test.mat');
             cleanup_obj=onCleanup(@() delete(tmp_filename));
             
-            sqw_obj = sqw(obj.test_sqw_1d_fullpath);
+            sqw_obj = read_sqw(obj.test_sqw_1d_fullpath);
             save(tmp_filename, 'sqw_obj');
             from_file = load(tmp_filename);
             mat_stored_new = from_file.sqw_obj; % expand variable into full 
