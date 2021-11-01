@@ -18,6 +18,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     properties(Hidden,Dependent)
         % obsolete property, duplicating detpar. Do not use
         detpar_x
+        % compartibility field, providing old interface for new
+        % experiment_info class. Returns array of IX_experiment
+        % from Experiment class. Conversion to old header is not performed
+        header;
     end
     
     properties(Access=private)
@@ -157,6 +161,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     'Only data_sqw_dnd class or empty value may be used as data value. Trying to set up: %s',...
                     class(d))
             end
+        end
+        function hdr = get.header(obj)
+            %
+            if isempty(obj.experiment_info_)
+                hdr = IX_experiment();
+                return;
+            end
+            hdr = obj.experiment_info_.expdata;
         end
         function val = get.detpar(obj)
             val = obj.detpar_;

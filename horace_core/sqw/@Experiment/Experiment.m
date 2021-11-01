@@ -133,18 +133,21 @@ classdef Experiment < serializable
         end
         %
         function obj=set.instruments(obj, val)
-            if isempty(val)
-                obj.instruments_ = IX_inst();
-            elseif isa(val,'IX_inst')
+            if ~isa(val,'IX_inst') && all(isempty(val)) % empty IX_inst may have a shape 
+                % but nice to clear sample by providing empty string
+                val = IX_inst();                
+            end
+            
+            if isa(val,'IX_inst')
                 if size(val,1) > 1
                     val = reshape(val,1,numel(val));
                 end
                 obj.instruments_ = val;
             else
                 error('HORACE:Experiment:invalid_argument', ...
-                    'Instruments must be one or an array of IX_inst objects')
-            end
-            %obj.instruments_ = val;
+                    'Instruments must be one or an array of IX_inst objects. In fact it is %s',...
+                    class(val))
+            end            
         end
         %
         function is = is_same_ebins(obj)
@@ -168,13 +171,16 @@ classdef Experiment < serializable
             val=obj.samples_;
         end
         function obj=set.samples(obj, val)
+            if ~isa(val,'IX_samp') && all(isempty(val))  % empty IX_sample may have a shape 
+                % but nice to clear sample by providing empty string
+                val = IX_samp();                
+            end
+            
             if isa(val,'IX_samp')
                 if size(val,1) > 1
                     val = reshape(val,1,numel(val));
                 end
                 obj.samples_ = val;
-            elseif isempty(val)
-                obj.samples_ = IX_samp();
             else
                 error('HORACE:Experiment:invalid_argument', ...
                     'Sample must be one or an array of IX_samp objects')
@@ -185,12 +191,13 @@ classdef Experiment < serializable
             val=obj.expdata_;
         end
         function obj=set.expdata(obj, val)
+            if ~isa(val,'IX_experiment') && isempty(val)  % empty IX_experiment may have shape
+                val = IX_experiment();                
+            end
             if isa(val,'IX_experiment')
-                if size(val,1) > 1
+                if size(val,1) > 1 % do rows, they are more compact at serialization
                     val = reshape(val,1,numel(val));
                 end
-            elseif isempty(val)
-                val = IX_experiment();
             else
                 error('HORACE:Experiment:invalid_argument', ...
                     'Sample must be one or an array of IX_experiment objects')
