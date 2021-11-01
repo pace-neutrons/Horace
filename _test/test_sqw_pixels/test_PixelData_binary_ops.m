@@ -1,4 +1,4 @@
-classdef test_PixelData_binary_ops < TestCase & common_sqw_class_state_holder
+classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
     
     properties
         BYTES_PER_PIX = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;

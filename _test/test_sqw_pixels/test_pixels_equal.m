@@ -1,4 +1,4 @@
-classdef test_pixels_equal < TestCase & common_sqw_class_state_holder
+classdef test_pixels_equal < TestCase & common_pix_class_state_holder
     
     properties
         old_config;

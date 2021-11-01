@@ -1,4 +1,4 @@
-classdef test_test_sqw_utils < TestCase & common_sqw_class_state_holder
+classdef test_test_sqw_utils < TestCase & common_pix_class_state_holder
     
     properties
         this_dir = fileparts(mfilename('fullpath'));
