@@ -33,8 +33,8 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             assertTrue(isa(sqw_obj, 'sqw'));
             assertEqual(sqw_obj.main_header, struct([]));
             assertTrue(isa(sqw_obj.experiment_info, 'Experiment'));
-            empty_insts = IX_inst.empty;
-            assertEqual(sqw_obj.experiment_info.instruments, empty_insts);
+            
+            assertTrue(isempty(sqw_obj.experiment_info.instruments));
             assertEqual(sqw_obj.detpar, struct([]));
             assertEqual(sqw_obj.data.pix, PixelData());
             assertEqual(numel(sqw_obj.data.pax), 0);

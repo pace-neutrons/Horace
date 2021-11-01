@@ -28,21 +28,36 @@ n_runs = exp_info.n_runs;
 % only one experiment
 if get_all
     instr = obj.get_instrument('-all');
-    sampl = obj.get_sample('-all');
+    main_sampl = obj.get_sample('-all');
 else
     instr = obj.get_instrument(varargin{:});
-    sampl = obj.get_sample(varargin{:});
+    main_sampl = obj.get_sample(varargin{:});
 end
-if ~isempty(sampl(1)) && (isempty(sampl(1).alatt) || isempty(sampl(1).angdeg)) % some odd bug in old file formats?
-    % we currently store only one sample and instrument or
-    % n-samples == n_headers.
-    for i=1:n_runs
-        sam = exp_info.samples(i);
-        if isempty(sampl(i).alatt)
-            sampl(i).alatt = sam.alatt;
+if ~isempty(main_sampl)
+    if numel(main_sampl) > 1 
+        % nsampl needs to be equal to number of runs
+        if numel(main_sampl) ~= exp_info.n_runs
+            error('HORACE:file_io:runtime_error',...
+                'Multiple sample in footer contains %d runs and number of runs stored in header=%d',...
+                numel(main_sampl),exp_info.n_runs)
         end
-        if isempty(sampl(i).angdeg)
-            sampl(i).angdeg = sam.angdeg;
+    else % we need to propagate the sample, stored in the footer to all headers
+        main_sampl = repmat(main_sampl,1,exp_info.n_runs);
+    end
+else
+    main_sampl = exp_info.samples;
+end
+
+if ~isempty(main_sampl(1)) && (isempty(main_sampl(1).alatt) || isempty(main_sampl(1).angdeg)) 
+    % some odd bug in old file formats? sample lattice is not stored with
+    % sample
+    for i=1:n_runs
+        header_sampl = exp_info.samples(i);
+        if isempty(main_sampl(i).alatt)
+            main_sampl(i).alatt = header_sampl.alatt;
+        end
+        if isempty(main_sampl(i).angdeg)
+            main_sampl(i).angdeg = header_sampl.angdeg;
         end
     end
 end
@@ -54,7 +69,6 @@ if ~isempty(instr)
         exp_info.instruments = instr;
     end
 end
-if ~isempty(sampl)
-    sampl_array = repmat(sampl,n_runs,1);
-    exp_info.samples = sampl_array;
+if ~isempty(main_sampl)
+    exp_info.samples = main_sampl;
 end

@@ -222,7 +222,7 @@ if ~ok, error('HORACE:gen_sqw:invalid_argument',mess), end
 % Check optional arguments (grid, pix_db_range, instrument, sample) for size, type and validity
 grid_default=[];
 instrument_default=IX_inst();  % default 1x1 struct
-sample_default=IX_sample();    % default 1x1 struct
+sample_default=IX_samp();    % default 1x1 struct
 sample_default.alatt = alatt;
 sample_default.angdeg = angdeg;
 [ok,mess,present,grid_size_in,pix_db_range,instrument,sample]=gen_sqw_check_optional_args(...
