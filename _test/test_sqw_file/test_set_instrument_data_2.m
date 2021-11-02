@@ -22,7 +22,7 @@ assertTrue(isa(sam,'IX_sample'));
 assertEqual(sam.shape,'cuboid');
 inst = hdr.instruments(1);
 assertTrue(isa(inst,'IX_inst'));
-assertEqual(inst.name,'');
+assertEqual(inst.name,'_');
 %% --------------------------------------------------------------------------------------------------
 % Header:
 % ---------
