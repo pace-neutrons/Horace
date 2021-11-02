@@ -320,7 +320,7 @@ classdef test_serialize_deserialize< TestCase
             %---  Instrument
             inst = maps_instrument(300,700,'S');
             [struc_pos,pos] = ser.calculate_positions(test_format,inst);
-            assertEqual(pos-1,9730);
+            assertEqual(pos-1,9662);
             
             bytes = ser.serialize(inst,test_format);
             assertEqual(numel(bytes),pos-1);
@@ -335,7 +335,7 @@ classdef test_serialize_deserialize< TestCase
             % 2 instruments
             inst_s = [inst,maps_instrument(200,300,'A')];
             [struc_pos,pos] = ser.calculate_positions(test_format,inst_s);
-            assertEqual(pos-1,19293);
+            assertEqual(pos-1,19157);
             
             bytes = ser.serialize(inst_s,test_format);
             assertEqual(numel(bytes),pos-1);
@@ -354,7 +354,7 @@ classdef test_serialize_deserialize< TestCase
          
             [struc_pos,pos] = ser.calculate_positions(test_format,samp);
             
-            assertEqual(pos-1,1231); % was 1126 before adding alatt/angdeg to IX_sample
+            assertEqual(pos-1,1232); % was 1126 before adding alatt/angdeg to IX_sample
             
             bytes = ser.serialize(samp,test_format);
             assertEqual(numel(bytes),pos-1);
