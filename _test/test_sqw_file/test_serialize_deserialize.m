@@ -370,7 +370,7 @@ classdef test_serialize_deserialize< TestCase
             
         end
         %
-        function test_serialize_handle(obj)
+        function test_serialize_handle(~)
             test_format = field_generic_class_hv3();
             ser = sqw_serializer();
             

@@ -116,11 +116,11 @@ classdef sqw_formats_factory < handle
             if ~isnumeric(sqw_file_name)
                 [ok,mess,full_data_name] = check_file_exist(sqw_file_name,'*');
             else
-                error('SQW_FILE_IO:runtime_error', 'filename was not numeric');
+                error('HORACE:file_io:runtime_error', 'filename was not numeric');
             end
             if ~ok
                 mess = regexprep(mess,'[\\]','/');
-                error('SQW_FILE_IO:runtime_error','get_loader: %s',mess);
+                error('HORACE:file_io:runtime_error','get_loader: %s',mess);
             end
             % read initial bytes of binary file and interpret them as Horace headers to identify file format.
             % Returns header block and open file handle not to open file again
@@ -142,7 +142,7 @@ classdef sqw_formats_factory < handle
                         if fh>0
                             fclose(fh);
                         end
-                        err = MException('SQW_FILE_IO:runtime_error',...
+                        err = MException('HORACE:file_io:runtime_error',...
                             ['get_loader: Error initializing selected loader: %s : %s\n',...
                             'invalid file format or damaged file?'],...
                             class(loader),ME.message);
@@ -155,13 +155,13 @@ classdef sqw_formats_factory < handle
             % no appropriate loader found.
             fclose(fh);
             if strcmp(head_struc.name,'horace')
-                error('SQW_FILE_IO:runtime_error',...
+                error('HORACE:file_io:runtime_error',...
                     ['get_loader: this Horace package does not support the sqw',...
                     ' file version %d found in file: %s\n',...
                     ' Update your Horace installation.'],...
                     head_struc.version,full_data_name);
             else
-                error('SQW_FILE_IO:runtime_error',...
+                error('HORACE:file_io:runtime_error',...
                     ['get_loader: Existing readers can not understand format of file: %s\n',...
                     ' Is it not a sqw file?'],...
                     full_data_name);
@@ -197,13 +197,16 @@ classdef sqw_formats_factory < handle
             if ischar(varargin{1})
                 the_type = varargin{1};
             else
-                the_type = sqw_formats_factory.get_sqw_type(varargin{1});
+                [the_type,orig_type] = sqw_formats_factory.get_sqw_type(varargin{1});
+                if strcmp(the_type,'none') % assume sqw
+                    the_type = orig_type;
+                end
             end
             if obj.types_map_.isKey(the_type)
                 ld_num = obj.types_map_(the_type);
                 loader = obj.supported_accessors_{ld_num};
             else
-                error('SQW_FILE_IO:invalid_argument',...
+                error('HORACE:file_io:invalid_argument',...
                     'get_pref_access: input class %s does not have registered accessor',...
                     the_type)
             end
@@ -253,7 +256,7 @@ classdef sqw_formats_factory < handle
         end
     end
     methods(Static)
-        function sqw_type = get_sqw_type(sqw_obj)
+        function [sqw_type,orig_type] = get_sqw_type(sqw_obj)
             % determine the type of sqw object based on data in the header
             % return value options are:
             %      sqw_type == 'none' - the header is empty, there is no efix/emode
@@ -262,30 +265,30 @@ classdef sqw_formats_factory < handle
             %                           numel(efix)>1
             %      sqw_type == 'sqw'  - none of the above so using the
             %                           class of obj i.e. sqw
-            sqw_type = 'sqw';
-            header =sqw_obj.experiment_info;
-            if isa(header, 'Experiment')
-                if isempty(header.expdata)
+            orig_type = class(sqw_obj);
+            sqw_type = orig_type;
+            if strcmp(orig_type,'sqw')
+                header =sqw_obj.experiment_info;
+                if isa(header, 'Experiment')
+                    if isempty(header.expdata)
+                        sqw_type = 'none';
+                        return;
+                    else
+                        header = header.expdata(1);
+                    end
+                elseif isempty(header)
                     sqw_type = 'none';
                     return;
-                else
-                    header = header.expdata(1);
                 end
-            elseif iscell(header)
-                header = header{1};
-            elseif isempty(header)
-                sqw_type = 'none';
-                return;
-            end
-            emode = header.emode;
-            if emode == 2
-                nefix = numel(header.efix);
-                if nefix>1
-                    sqw_type = 'sqw2';
+                emode = header.emode;
+                if emode == 2
+                    nefix = numel(header.efix);
+                    if nefix>1
+                        sqw_type = 'sqw2';
+                    end
                 end
             end
         end
         
     end
 end
-

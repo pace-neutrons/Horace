@@ -102,7 +102,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             file_ficVer = fullfile(fileparts(obj.test_folder),...
                 'test_sqw_file','test_sqw_file_fictional_ver.sqw');
             fl = @()(sqw_formats_factory.instance().get_loader(file_ficVer));
-            assertExceptionThrown(fl,'SQW_FILE_IO:runtime_error');
+            assertExceptionThrown(fl,'HORACE:file_io:runtime_error');
         end
         %
         function test_selection_v1(obj)
@@ -139,7 +139,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             assertTrue(isa(ldrs{1},'faccess_sqw_v2'));
             assertTrue(isa(ldrs{2},'faccess_sqw_v3'));
         end
-        function test_serialize_deserialise_emtpy_accessors(obj)
+        function test_serialize_deserialise_emtpy_accessors(~)
 
             ldrs = sqw_formats_factory.instance().supported_accessors;
             for i=1:numel(ldrs)
