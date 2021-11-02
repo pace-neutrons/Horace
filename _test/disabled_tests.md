@@ -65,3 +65,7 @@ Temporary enabled to see how it goes
 
 - test_calc_projections
   - test_transf1
+
+- test_algorithms
+  -test_cut -- sample comparison and instrument comparison are currently disabled as loader, in some cases, returns
+               bunch of empty instruments and this should be fixed

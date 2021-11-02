@@ -67,13 +67,13 @@ if ~isempty(main_sampl(1)) && (isempty(main_sampl(1).alatt) || isempty(main_samp
     end
 end
 %
-if ~isempty(instr)
+if ~any(isempty(instr))
     if numel(instr)==1
         exp_info.instruments  = repmat(instr,n_runs,1);
     else
         exp_info.instruments = instr;
     end
 end
-if ~isempty(main_sampl)
+if ~any(isempty(main_sampl))
     exp_info.samples = main_sampl;
 end
