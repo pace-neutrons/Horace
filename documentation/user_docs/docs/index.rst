@@ -23,19 +23,19 @@ If you have problem using or installing Horace, found bug or have other question
 Download, support & updates
 ===========================
 
-- :ref:`Download and setup <Download_and_setup:Download and setup>`
+- :ref:`Download and setup <introduction/Download_and_setup:Download and setup>`
 
-- :ref:`Support and updates <Support_and_updates:Support and updates>`
+- :ref:`Support and updates <introduction/Support_and_updates:Support and updates>`
 
 
 How to use Horace
 =================
 
-- :ref:`Getting started: An introduction to the use of Horace with the Matlab command line <Getting_started:Getting started>`
+- :ref:`Getting started: An introduction to the use of Horace with the Matlab command line <user_guide/Getting_started:Getting started>`
 
-- :ref:`Advanced use of Horace with the Matlab command line <Advanced_use:Advanced use>`
+- :ref:`Advanced use of Horace with the Matlab command line <user_guide/Advanced_use:Advanced use>`
 
-- :ref:`Horace Graphical User Interface <Horace_GUI:Horace GUI>`
+- :ref:`Horace Graphical User Interface <user_guide/Horace_GUI:Horace GUI>`
 
 
 Horace Manual
@@ -43,42 +43,42 @@ Horace Manual
 
 - Horace Manual chapters
 
-  - :ref:`Changing Horace settings <Changing_Horace_settings:Changing Horace settings>`
+  - :ref:`Changing Horace settings <manual/Changing_Horace_settings:Changing Horace settings>`
 
-  - :ref:`Planning a Horace scan <Planning_a_Horace_scan:Planning a Horace scan>`
+  - :ref:`Planning a Horace scan <manual/Planning_a_Horace_scan:Planning a Horace scan>`
 
-  - :ref:`Generating SQW files <Generating_SQW_files:Generating SQW files>`
+  - :ref:`Generating SQW files <manual/Generating_SQW_files:Generating SQW files>`
 
-  - :ref:`Taking cuts from data; saving, loading and querying cuts on disk <Manipulating_and_extracting_data_from_SQW_files_and_objects:Manipulating and extracting data from SQW files and objects>`
+  - :ref:`Taking cuts from data; saving, loading and querying cuts on disk <manual/Manipulating_and_extracting_data_from_SQW_files_and_objects:Manipulating and extracting data from SQW files and objects>`
 
-  - :ref:`Correcting for sample misalignment <Correcting_for_sample_misalignment:Correcting for sample misalignment>`
+  - :ref:`Correcting for sample misalignment <manual/Correcting_for_sample_misalignment:Correcting for sample misalignment>`
 
-  - :ref:`Data diagnostics <Data_diagnostics:Data diagnostics>`
+  - :ref:`Data diagnostics <manual/Data_diagnostics:Data diagnostics>`
 
-  - :ref:`Symmetrising etc <Symmetrising_etc:Symmetrising etc>`
+  - :ref:`Symmetrising etc <manual/Symmetrising_etc:Symmetrising etc>`
 
-  - :ref:`Add, subtract, etc <Binary_operations:Binary operations>`
+  - :ref:`Add, subtract, etc <manual/Binary_operations:Binary operations>`
 
-  - :ref:`Plotting <Plotting:Plotting>`
+  - :ref:`Plotting <manual/Plotting:Plotting>`
 
-  - :ref:`Simulation <Simulation:Simulation>`
+  - :ref:`Simulation <manual/Simulation:Simulation>`
 
-  - :ref:`Fitting data <Multifit:Multifit>`
+  - :ref:`Fitting data <manual/Multifit:Multifit>`
 
-  - :ref:`Fitting with resolution function convolution <Tobyfit:Tobyfit>`
+  - :ref:`Fitting with resolution function convolution <manual/Tobyfit:Tobyfit>`
 
 
-- :ref:`Complete list of functions <List_of_functions:List of functions>`
+- :ref:`Complete list of functions <manual/List_of_functions:List of functions>`
 
-- :ref:`Input file formats and creating input files <Input_file_formats:Input file formats>`
+- :ref:`Input file formats and creating input files <manual/Input_file_formats:Input file formats>`
 
-- :ref:`FAQs <FAQ:FAQ>`
+- :ref:`FAQs <manual/FAQ:FAQ>`
 
 
 Example scripts
 ===============
 
-- :ref:`Example scripts <Example_scripts:Example scripts>`
+- :ref:`Example scripts <user_guide/Example_scripts:Example scripts>`
 
 
 Citing Horace
@@ -91,13 +91,13 @@ Citing Horace
 For Developers
 ==============
 
-- :ref:`Known bugs <Known_bugs:Known bugs>`
+- :ref:`Known bugs <developers/Known_bugs:Known bugs>`
 
-- :ref:`Become a developer <Become_a_developer:Become a developer>`
+- :ref:`Become a developer <developers/Become_a_developer:Become a developer>`
 
-- :ref:`MediaWiki information <For_Developers:For Developers>`
+- :ref:`MediaWiki information <developers/For_Developers:For Developers>`
 
-- :ref:`Developer information <Developer_info:Developer info>`
+- :ref:`Developer information <developers/Developer_info:Developer info>`
 
 Indices and tables
 ==================

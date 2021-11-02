@@ -16,7 +16,7 @@ Before starting you must first extract the data files from the supplied zip file
 Creating an SQW file
 ====================
 
-The first step in using Horace is to make your dataset from all of your relevant SPE files. How this works depends somewhat on the properties of your computer, specifically the amount of memory available, and is dealt with :ref:`here <Download_and_setup:System Requirements>`. On most machines (on which the available RAM is <10GB) the dataset is written to a new file with the extension .SQW, and intermediate .TMP files, which contain axes projection information, are written as Horace combines the data. Once you have created your SQW file and are happy with it then you can delete these intermediate .TMP files if you wish, although it is generally a good idea to keep for a few days them unless disk space is a problem for you, in case you wish to re-generate your SQW file. For special cases where large amounts of memory are available then the creation of .TMP files is unnecessary and the SQW file can be created directly. This latter case is dealt with in the section of this manual detailing :ref:`advanced use <Advanced_use:Advanced use>`, for the rest of the following we shall assume you are running a machine with less memory.
+The first step in using Horace is to make your dataset from all of your relevant SPE files. How this works depends somewhat on the properties of your computer, specifically the amount of memory available, and is dealt with :ref:`here <introduction/Download_and_setup:System Requirements>`. On most machines (on which the available RAM is <10GB) the dataset is written to a new file with the extension .SQW, and intermediate .TMP files, which contain axes projection information, are written as Horace combines the data. Once you have created your SQW file and are happy with it then you can delete these intermediate .TMP files if you wish, although it is generally a good idea to keep for a few days them unless disk space is a problem for you, in case you wish to re-generate your SQW file. For special cases where large amounts of memory are available then the creation of .TMP files is unnecessary and the SQW file can be created directly. This latter case is dealt with in the section of this manual detailing :ref:`advanced use <user_guide/Advanced_use:Advanced use>`, for the rest of the following we shall assume you are running a machine with less memory.
 
 In addition to your data there is one other file that is required -- the parameter file for the instrument that you used to collect the data. This file has the extension .PAR, and is **not** the same as a PHX file. If you try to use a PHX file with Horace you will just get an error message! The .PAR file for the instrument you used to generate your data can be obtained from the instrument scientist. It is important that you have the correct version of this file for the configuration of the instrument as it was when you used it (much like for the PHX file).
 
@@ -89,7 +89,7 @@ If after your experiment you realise that your crystal was not aligned how you t
 
 The definitions of these angles are best described with reference to the picture below:
 
-.. image:: images/Gonio_angle_definitions.jpg
+.. image:: ../images/Gonio_angle_definitions.jpg
    :width: 300px
    :alt: Virtual goniometer angle definitions
 
@@ -136,7 +136,7 @@ We are now ready to make our SQW file! This is done by a single function:
 
 If everything has worked then the Matlab command window will show text like this, which will be updated when each successive SPE file is read from the disk.
 
-.. image:: images/Screenshot1.png
+.. image:: ../images/Screenshot1.png
    :width: 500px
    :alt: The command window display during gen_sqw
 
@@ -145,14 +145,14 @@ If everything has worked then the Matlab command window will show text like this
 
 Further through the process you should see something like this:
 
-.. image:: images/Screenshot2.png
+.. image:: ../images/Screenshot2.png
    :width: 500px
    :alt: The command window display during gen_sqw
 
 
 Notice that this was run on a Linux machine, hence the different style of directory name and appearance of the Matlab window.
 
-Horace will now run for some time generating the SQW file. This can be quite a long time, and depends quite a lot on how much memory your computer has and its processor speed. It is probably best at this stage just to leave your computer to run and go for a coffee! As a rough guide 150 SPE files, each of 105MB, would be combined on a machine with 4GB of RAM (with its :ref:`3GB switch enabled <Download_and_setup:System Requirements>`) and a speed of 2.5GHz in about 2 hours.
+Horace will now run for some time generating the SQW file. This can be quite a long time, and depends quite a lot on how much memory your computer has and its processor speed. It is probably best at this stage just to leave your computer to run and go for a coffee! As a rough guide 150 SPE files, each of 105MB, would be combined on a machine with 4GB of RAM (with its :ref:`3GB switch enabled <introduction/Download_and_setup:System Requirements>`) and a speed of 2.5GHz in about 2 hours.
 
 For this demo the data files have purposely been made much smaller (by using only the low angle detector banks on MAPS, and by only including a limited number of energy bins in the SPE files). Each SPE file is about 18MB, and thus it takes about 8 minutes to process all of the data. If all is well messages will be frequently printed to the Matlab command window to let you know the status of your SQW file generation.
 
@@ -200,7 +200,7 @@ We now have all the information needed to make any kind of cut we like. Let's st
    w100_2=cut_sqw (data_source,proj_100,[-0.2,0.2],0.05,[-0.2,0.2],[0,0,500]);
 
 
-.. image:: images/Screenshot_cut1.png
+.. image:: ../images/Screenshot_cut1.png
    :width: 500px
    :alt: Matlab window during cutting
 
@@ -214,7 +214,7 @@ We don't yet get a plot of this slice. All we've done here is create an 'sqw' ob
    plot(w100_2);
 
 
-.. image:: images/Screenshot_cut2.png
+.. image:: ../images/Screenshot_cut2.png
    :width: 301px
    :alt: 2d cut from the data
 
@@ -228,7 +228,7 @@ The ranges of the axes are not quite right, but we can easily change that:
    lz 0 1
 
 
-.. image:: images/Screenshot_cut3.png
+.. image:: ../images/Screenshot_cut3.png
    :width: 301px
    :alt: 2d cut from data, with plot axes modified
 
@@ -245,7 +245,7 @@ If we wanted to make a 1D cut through the data then the syntax is exactly the sa
    ly 0.2 0.8
 
 
-.. image:: images/Screenshot_1dcut.png
+.. image:: ../images/Screenshot_1dcut.png
    :width: 301px
    :alt: 1d cut
 
@@ -254,7 +254,7 @@ would give us a cut along the (0,k,0) axis at a constant energy of 65meV.
 
 3D slices are also possible. To visualize these the 'sliceomatic' program is used. When the plot command is executed a GUI is launched that allows you to plot multiple slices through the data. For example you could plot the same slice with x and y axes of (1,0,0) and (0,1,0) at a range of energies.
 
-.. image:: images/Screenshot_3dslice.png
+.. image:: ../images/Screenshot_3dslice.png
    :width: 501px
    :alt: Sliceomatic in action
 
@@ -342,7 +342,7 @@ Next make a new 2D slice by replicating the cut along one of the integration axe
    plot(wback);
 
 
-.. image:: images/Screenshot_background_replicated.png
+.. image:: ../images/Screenshot_background_replicated.png
    :width: 300px
    :alt: 2d cut made by replicating a 1d cut
 
@@ -355,7 +355,7 @@ This is a 2D slice that is over the same range as w110. We now subtract this fro
    plot(wdiff);
 
 
-.. image:: images/Screenshot_background_subtracted.png
+.. image:: ../images/Screenshot_background_subtracted.png
    :width: 300px
    :alt: Background-subtracted data
 
@@ -374,7 +374,7 @@ It is often the case that you do not have a full model of S(**Q**,E), but rather
 
 This should give a plot that looks like this:
 
-.. image:: images/Screenshot_CutToSim.png
+.. image:: ../images/Screenshot_CutToSim.png
    :width: 300px
    :alt: 2d data
 
@@ -399,7 +399,7 @@ The arguments in the square parentheses are the function inputs, and in this cas
 
 Notice that the syntax of the input arguments is somewhat different for ``func_eval`` compared to ``user_func``, since with the former we input the parameters as a vector, rather than as separate arguments. The form of the function itself is also different, since it takes some arrays of parameters and calculates an intensity at those points, rather than taking an existing intensity array and modifying it.
 
-.. image:: images/Screenshot_SimCut.png
+.. image:: ../images/Screenshot_SimCut.png
    :width: 300px
    :alt: 2d simulation
 
@@ -428,4 +428,4 @@ Fitting
 
 You can also use Horace to fit your data. It can take quite a long time for the fit to converge, so it is therefore a good idea to provide a good initial guess of the fit parameters. You can work these out simulating and then comparing the result to the data by eye.
 
-For an introduction and overview of how to use the following fitting functions, please read :ref:`Fitting data <Multifit:Multifit>`. For comprehensive help, please use the Matlab documentation for the various fitting functions that can be obtained by using the ``doc`` command, for example ``doc d1d/multifit`` (for fitting function like Gaussians to d1d objects) or ``doc sqw/multifit_sqw`` (fitting models for S(Q,w) to sqw objects).
+For an introduction and overview of how to use the following fitting functions, please read :ref:`Fitting data <manual/Multifit:Multifit>`. For comprehensive help, please use the Matlab documentation for the various fitting functions that can be obtained by using the ``doc`` command, for example ``doc d1d/multifit`` (for fitting function like Gaussians to d1d objects) or ``doc sqw/multifit_sqw`` (fitting models for S(Q,w) to sqw objects).

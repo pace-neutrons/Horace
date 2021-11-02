@@ -21,7 +21,7 @@ The graphical user interface shown below should open up
 ..
    Image doesn't exist
 
-   .. image:: images/2019-01-15_11_59_56-Horace_Planner.png
+   .. image:: ../images/2019-01-15_11_59_56-Horace_Planner.png
       :width: 500px
       :alt: 2d simulation
 
@@ -83,6 +83,6 @@ Once you have created this fake dataset you can take cuts and slices out of it i
 
 **Sample plot of fake dataset**
 
-.. image:: images/Scan_figure.png
+.. image:: ../images/Scan_figure.png
    :width: 300px
    :alt: 2d simulation

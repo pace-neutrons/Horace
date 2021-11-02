@@ -5,8 +5,8 @@ User's Guide
 .. toctree::
    :caption: User's Guide
 
-   Getting_started
-   Advanced_use
-   Horace_GUI
-   Example_scripts
+   user_guide/Getting_started
+   user_guide/Advanced_use
+   user_guide/Horace_GUI
+   user_guide/Example_scripts
 

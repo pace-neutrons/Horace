@@ -38,6 +38,6 @@ In order to ensure that the Horace website remains self consistent, there are se
 
 - Generally, you should try to append your new entry to an existing page. If you create a subheading (see existing pages for code examples) then you can link to this from elsewhere.
 
-- Consider whether your new entry merits an addition to the :ref:`Example_scripts <Example_scripts:Example scripts>` section. If so, make the change. Also add the change to the example scripts held on ISIScompute, to ensure consistency.
+- Consider whether your new entry merits an addition to the :ref:`Example_scripts <user_guide/Example_scripts:Example scripts>` section. If so, make the change. Also add the change to the example scripts held on ISIScompute, to ensure consistency.
 
-- Ensure your new edit, if it describes a new routine, is correctly linked in the :ref:`List of functions <List_of_functions:List of functions>` page.
+- Ensure your new edit, if it describes a new routine, is correctly linked in the :ref:`List of functions <manual/List_of_functions:List of functions>` page.

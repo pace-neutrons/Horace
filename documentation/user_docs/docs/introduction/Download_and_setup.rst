@@ -59,7 +59,7 @@ Optional:
 6. If you do not have administrative access, the installation would still be possible,
    and should work as described. You may encounter problems with parallel extensions
    and not be able to initialize Horace if Matlab is launched from a folder different from Matlab's `userpath <https://uk.mathworks.com/help/matlab/ref/userpath.html>`__ folder.
-   See :ref:`Troubleshooting <Download_and_Setup_Troubleshutting:Download and Setup Trouble-Shutting>` for the details 
+   See :ref:`Troubleshooting <introduction/Download_and_Setup_Troubleshutting:Download and Setup Trouble-Shutting>` for the details 
    of the installation process in this situation.
 
 If you installing Horace directly from GitHub repository, clone Herbert and Horace repositories to the folder of your choice in the folders ``Herbert`` and ``Horace`` correspondingly. The ``horace_install`` script to run is located in ``your_folder/Horace/admin`` folder. Horace should work after the script was run but to improve performance of some common Horace operations you may need to build mex files yourself. Currently mex files for Windows are stored in the repository, but this may not always be the case in a future. You will need to build mex files for any other operating system.

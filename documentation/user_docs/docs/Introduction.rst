@@ -3,7 +3,7 @@ Introduction and Setup
 
 .. toctree::
 
-   The_Horace_Rationale
-   Download_and_setup
-   Support_and_updates
+   introduction/The_Horace_Rationale
+   introduction/Download_and_setup
+   introduction/Support_and_updates
 

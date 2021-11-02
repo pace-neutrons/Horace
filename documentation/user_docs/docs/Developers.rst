@@ -3,7 +3,7 @@ For Developers
 
 .. toctree::
 
-   Known_bugs
-   Become_a_developer
-   For_Developers
-   Developer_info
+   developers/Known_bugs
+   developers/Become_a_developer
+   developers/For_Developers
+   developers/Developer_info

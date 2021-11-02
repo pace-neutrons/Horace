@@ -2,7 +2,7 @@
 Advanced use
 ############
 
-The following details more comprehensively the functions in the Horace suite. In the :ref:`Getting started <Getting_started:Getting started>` section a brief tutorial was provided on the use of the essential Horace functions. In addition there is also a :ref:`list of functions <list_of_functions:list of functions>`, which details the syntax for every function.
+The following details more comprehensively the functions in the Horace suite. In the :ref:`Getting started <user_guide/Getting_started:Getting started>` section a brief tutorial was provided on the use of the essential Horace functions. In addition there is also a :ref:`list of functions <manual/list_of_functions:list of functions>`, which details the syntax for every function.
 
 Preamble
 ========
@@ -238,14 +238,14 @@ Horace allows you to perform simple binary arithmetic operations on dnd and sqw 
 - You must be careful to notice that it is possible perform the operation on two objects that do not cover the same area in (**Q**,E)-space. This is fine if, for example, you wish to subtract the scattering around one value of **Q** from that around another. However it is in general advisable to be careful since you can end up adding/subtracting/etc spectra from completely different parts of reciprocal space that you maybe didn't want to...
 
 
-A complete list of binary arithmetic operations can be found :ref:`here <Binary_operations:Binary operations>`
+A complete list of binary arithmetic operations can be found :ref:`here <manual/Binary_operations:Binary operations>`
 
 Unary operations
 ================
 
 One can also use Horace to perform unary mathematical operations, i.e. operations that act on a single object. An example would be ``cos``, which takes the cosine of the intensity at every point in a dnd/sqw object.
 
-A full list of unary operations can be found :ref:`here <Unary_operations:Unary operations>`.
+A full list of unary operations can be found :ref:`here <manual/Unary_operations:Unary operations>`.
 
 
 Obtaining information about objects
@@ -366,7 +366,7 @@ The command for default plotting is
 
 which will produce an appropriate plot based on the dimensions of the object ``obj`` (i.e. a marker and line plot for 1-d, a colourmap for 2-d, and a sliceomatic colourmap for 3-d). Zero dimensional and 4-dimensional objects cannot be plotted, of course.
 
-There are several different ways of plotting two- and one-dimensional data (e.g. with/without errorbars for 1d, etc.). One-dimensional data can be plotted using :ref:``dd, de, dh, dl, dm, dp, mp, pd, pe, peoc, ph, phoc, pl, ploc, pm, pmoc, pp`` and ``sp``, whereas two-dimensional data can be plotted using ``da, ds, mp`` and ``sp``, in addition to ``plot``. The differences between all of these plot commands is given in detail in the `plot functions <List_of_functions:Plotting>` section of this manual. For three-dimensional data only the ``plot`` command exists, since Horace has only one way of plotting 3-d data.
+There are several different ways of plotting two- and one-dimensional data (e.g. with/without errorbars for 1d, etc.). One-dimensional data can be plotted using :ref:``dd, de, dh, dl, dm, dp, mp, pd, pe, peoc, ph, phoc, pl, ploc, pm, pmoc, pp`` and ``sp``, whereas two-dimensional data can be plotted using ``da, ds, mp`` and ``sp``, in addition to ``plot``. The differences between all of these plot commands is given in detail in the `plot functions <manual/List_of_functions:Plotting>` section of this manual. For three-dimensional data only the ``plot`` command exists, since Horace has only one way of plotting 3-d data.
 Once a plot has been made there are various commands that can be used to alter its appearance (e.g. the axes, labels, etc.).
 
 To alter the limits along the x, y, or z axes you use the commands ``lx, ly`` and ``lz``, e.g.
@@ -386,7 +386,7 @@ Fitting
 
 You can also use Horace to fit your data. It can take quite a long time for the fit to converge, so it is therefore a good idea to provide a good initial guess of the fit parameters. You can work these out simulating and then comparing the result to the data by eye.
 
-For an introduction and overview of how to use the following fitting functions, please read :ref:`Fitting data <Multifit:Multifit>`. For comprehensive help, please use the Matlab documentation for the various fitting functions that can be obtained by using the ``doc`` command, for example ``doc d1d/multifit`` (for fitting function like Gaussians to d1d objects) or ``doc sqw/multifit_sqw`` (fitting models for S(Q,w) to sqw objects).
+For an introduction and overview of how to use the following fitting functions, please read :ref:`Fitting data <manual/Multifit:Multifit>`. For comprehensive help, please use the Matlab documentation for the various fitting functions that can be obtained by using the ``doc`` command, for example ``doc d1d/multifit`` (for fitting function like Gaussians to d1d objects) or ``doc sqw/multifit_sqw`` (fitting models for S(Q,w) to sqw objects).
 
 
 Simulating
