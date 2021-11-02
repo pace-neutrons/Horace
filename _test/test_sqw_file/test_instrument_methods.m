@@ -32,8 +32,20 @@ classdef test_instrument_methods <  TestCase %WithSave
                 delete(obj.test_file_);
             end
         end
+        function test_set_ei_emode_in_memory(obj)
+            ei=1000+(1:186);
+            
+            % Set the incident energies in the object - no problem
+            wtmp=read_sqw(obj.test_file_);
+            hdr = wtmp.experiment_info;
+            wtmp_new = set_efix(wtmp,ei,2);
+            hdr_new = wtmp_new.experiment_info;
+            assertEqual([hdr.expdata(10).efix,hdr_new.expdata(10).efix],[787,1010])
+            assertEqual([hdr.expdata(10).emode,hdr_new.expdata(10).emode],[1,2])            
+        end
+        
         %
-        function test_set_ei(obj)
+        function test_set_ei_in_memory(obj)
             ei=1000+(1:186);
             
             % Set the incident energies in the object - no problem
@@ -42,16 +54,18 @@ classdef test_instrument_methods <  TestCase %WithSave
             wtmp_new = set_efix(wtmp,ei);
             hdr_new = wtmp_new.experiment_info;
             assertEqual([hdr.expdata(10).efix,hdr_new.expdata(10).efix],[787,1010])
-            
+        end
+        
+        function test_set_ei_on_file(obj)
+            ei=1000+(1:186);            
             % old format file implicitly converted into new format
-            set_efix_horace (obj.test_file_,ei)
+            set_efix_horace(obj.test_file_,ei)
             
             ldr = sqw_formats_factory.instance().get_loader(obj.test_file_);
             expi_10 = ldr.get_header(10);
             ldr.delete(); % clear existing loader not to hold test file in case of further modifications
             
-            hdr = wtmp_new.experiment_info;            
-            assertEqual([expi_10.expdata.efix,hdr.expdata(10).efix],[1010,1010])
+            assertEqual(expi_10.expdata.efix,1010)
             
             % file is in the new format, see how update goes in this case
             ei=100+(1:186);
@@ -63,13 +77,10 @@ classdef test_instrument_methods <  TestCase %WithSave
             expi_10 = ldr1.get_header(10);
             ldr1.delete(); % clear existing loader not to hold test file in case of further modifications
             
-            hdr = wtmp_new.experiment_info;
-            assertEqual([expi_10.expdata.efix,hdr.expdata(10).efix],[110,1010])
+            assertEqual(expi_10.expdata.efix,110)
         end
         %
         function test_set_instrument(obj)
-            ei=100+(1:186);
-            set_efix_horace (obj.test_file_,ei)
             
             % Set the incident energies in the object - no problem
             wref=read_sqw(obj.test_file_);
@@ -157,8 +168,6 @@ classdef test_instrument_methods <  TestCase %WithSave
             assertEqual(hdr.instruments(186),inst(186));
             assertEqual(hdr.instruments(10),inst(10));
             assertEqual(hdr.instruments(1),inst(1));
-            
-            
         end
         
     end

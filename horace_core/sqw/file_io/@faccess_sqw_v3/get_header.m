@@ -10,6 +10,7 @@ function [exp_info,pos] = get_header(obj,varargin)
 %>>exp_info = obj.get_header(1);
 %>>exp_info = obj.get_header(number);
 %>>exp_info = obj.get_header('-all');
+%>>exp_info = obj.get_header('-no_instument','-no_sample');
 %
 % First three forms return single header, first two return header number 1.
 %
@@ -18,13 +19,17 @@ function [exp_info,pos] = get_header(obj,varargin)
 %
 %
 %
-[ok,mess,get_all,~]= parse_char_options(varargin,{'-all'});
+[ok,mess,get_all,no_instr,no_sampl,~]= parse_char_options(varargin,{'-all','-no_instr','-no_sampl'});
 if ~ok
     error('HORACE:file_io:invalid_argument',mess);
 end
-
 [exp_info,pos] = get_header@sqw_binfile_common(obj,varargin{:});
+
+%
 n_runs = exp_info.n_runs;
+if no_instr && no_sampl
+    return;
+end
 % only one experiment
 if get_all
     instr = obj.get_instrument('-all');
@@ -34,7 +39,7 @@ else
     main_sampl = obj.get_sample(varargin{:});
 end
 if ~isempty(main_sampl)
-    if numel(main_sampl) > 1 
+    if numel(main_sampl) > 1
         % nsampl needs to be equal to number of runs
         if numel(main_sampl) ~= exp_info.n_runs
             error('HORACE:file_io:runtime_error',...
@@ -48,7 +53,7 @@ else
     main_sampl = exp_info.samples;
 end
 
-if ~isempty(main_sampl(1)) && (isempty(main_sampl(1).alatt) || isempty(main_sampl(1).angdeg)) 
+if ~isempty(main_sampl(1)) && (isempty(main_sampl(1).alatt) || isempty(main_sampl(1).angdeg))
     % some odd bug in old file formats? sample lattice is not stored with
     % sample
     for i=1:n_runs

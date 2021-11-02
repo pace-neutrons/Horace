@@ -162,6 +162,7 @@ classdef Experiment < serializable
                 end
             end
         end
+        %
         function expi = get_aver_experiment(obj)
             % some, presumably average, experiment data
             expi = obj.expdata(1);
@@ -170,6 +171,7 @@ classdef Experiment < serializable
         function val=get.samples(obj)
             val=obj.samples_;
         end
+        %
         function obj=set.samples(obj, val)
             if ~isa(val,'IX_samp') && all(isempty(val))  % empty IX_sample may have a shape 
                 % but nice to clear sample by providing empty string
@@ -186,10 +188,11 @@ classdef Experiment < serializable
                     'Sample must be one or an array of IX_samp objects')
             end
         end
-        
+        %
         function val=get.expdata(obj)
             val=obj.expdata_;
         end
+        %
         function obj=set.expdata(obj, val)
             if ~isa(val,'IX_experiment') && isempty(val)  % empty IX_experiment may have shape
                 val = IX_experiment();                
@@ -204,9 +207,25 @@ classdef Experiment < serializable
             end
             obj.expdata_ = val;
         end
+        %
         function nr = get.n_runs(obj)
             nr = numel(obj.expdata_);
         end
+        
+        % instrument methods interface
+        %------------------------------------------------------------------
+        function obj = set_efix_emode(obj,efix,emode)
+            % change efix and (optionally) emode in all experiment descriptions
+            % if emode is absent or described by any character string, 
+            % the emode is kept unchanged
+            if nargin == 2
+                emode = '-keep_emode';
+            end
+            obj = set_efix_emode_(obj,efix,emode);
+        end
+        
+        % SERIALIZABLE interface
+        %------------------------------------------------------------------
         function ver  = classVersion(~)
             % define version of the class to store in mat-files
             % and nxsqw data format. Each new version would presumably read
@@ -221,6 +240,8 @@ classdef Experiment < serializable
             flds = Experiment.fields_to_save_;
         end
         %
+        % GEN_SQW interface
+        %------------------------------------------------------------------
         function avh = header_av(obj)
             % very crude implementation for the header, average over all
             % runs.
@@ -241,8 +262,8 @@ classdef Experiment < serializable
             %
             samp = obj.samples_(1);
         end
-        
-        
+        % GEN_SQW interface
+        %------------------------------------------------------------------
         function [obj,nelements] = add_contents(obj,other_exper)
             % add contents of the other_exper object to the contetns of the
             % current experiment
@@ -262,51 +283,6 @@ classdef Experiment < serializable
         end
     end
     %
-    methods(Access=protected)
-        function obj = from_old_struct(obj,inputs)
-            %TODO: is this thing used anywhere?
-            %
-            alatt = inputs.alatt;
-            angdeg = inputs.angdeg;
-            if isstruct(inputs.instrument) && isempty(fieldnames(inputs.instrument))
-                % as the instrument struct is empty, create a null
-                % instrument to represent it
-                obj.instruments_(end+1) = IX_null_inst();
-            elseif isa(inputs.instrument,'IX_inst')
-                % hoping that the IX_inst is in fact a subclass
-                obj.instruments_(end+1) = inputs.instrument;
-            elseif isstruct(inputs.instrument)
-                if isfield(inputs.instrument,'fermi_chopper') && ...
-                        isa(inputs.instrument.fermi_chopper,'IX_fermi_chopper')
-                    obj.instruments_(end+1) = IX_inst_DGfermi(inputs.instrument.moderator, ...
-                        inputs.instrument.aperture,  ...
-                        inputs.instrument.fermi_chopper);
-                else
-                    % where this instrument is probably a DGdisk which
-                    % actually is implemented but may be somethig else
-                    error('HORACE:Experiment:invalid_argument',...
-                        'this instrument not implemented yet');
-                end
-            end
-            if isstruct(inputs.sample) && isempty(fieldnames(inputs.sample))
-                try
-                    ixns = IX_null_sample();
-                    ixns.alatt = alatt;
-                    ixns.angdeg = angdeg;
-                    obj.samples_(end+1) = ixns;
-                catch ME
-                    error("TT");
-                end
-            else
-                ixs = inputs.sample;
-                ixs.alatt = alatt;
-                ixs.angdeg = angdeg;
-                obj.samples_(end+1) = ixs;
-            end
-            obj.expdata_(end+1) = IX_experiment(inputs);
-            
-        end
-    end
     methods(Access=private)
         % copy non-empty contents to the contents of this class
         [obj,n_added] = check_and_copy_contents_(obj,other_cont,field_name);

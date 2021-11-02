@@ -1,12 +1,12 @@
-function obj = set_efix(obj,varargin)
-% Set the fixed neutron energy for an array of sqw objects.
+function set_efix(filelist,varargin)
+% Set the fixed neutron energy for an array of sqw files.
 %
-%   >> wout = set_efix(win, efix)
-%   >> wout = set_efix(win, efix, emode)
+%   >> wout = set_efix(filelist, efix)
+%   >> wout = set_efix(filelist, efix, emode)
 %
 % Input:
 % ------
-%   obj         Array of sqw objects of sqw type
+%   win         cellarray of files, containing sqw  objects
 %   efix        Value or array of values of efix. If an array, all sqw
 %              objects must have the same number of contributing spe data sets
 %   emode       [Optional] Energy mode: 1=direct inelastic, 2=indirect inelastic, 0=elastic
@@ -20,9 +20,9 @@ function obj = set_efix(obj,varargin)
 %
 
 
+% Parse input
+% -----------
 
-% Perform operations
-% ==================
 narg=numel(varargin);
 if narg<1 || narg>2
     error('HORACE:sqw:invalid_argument',...
@@ -44,32 +44,31 @@ if narg>=2
 else
     emode=[];   % indicates emode to be left untouched
 end
+% get file accessors
+[ldrs,sqw_type] = get_file_loaders(filelist);
 
+% Perform operations
+% ==================
+
+% Check that the data has the correct type
+if ~all(sqw_type)
+    non_sqw_ind = find(~sqw_type);
+    error('HORACE:sqw:invalid_argument',...
+        'efix and emode can only be changed in sqw-type data. Files N: %s are not sqw-type files',...
+        evalc('disp(non_sqw_ind)'))
+end
 
 % Change efix and emode
 % ---------------------
-
-% Check the number of spe files matches the number of efix
-nefix=numel(efix);
-if nefix>1
-    for i=1:numel(obj)
-        if obj(i).experiment_info.n_runs ~=nefix
-            error('HORACE:sqw:invalid_argument',...
-                ['An array of efix values was given but its length (%d) ',...
-                'does not match the number of spe files (%d) in the sqw N:%d source being altered'],...
-                nefix,obj(i).experiment_info.n_runs,i)
-        end
-    end
-end
-
-% Change efix and emode for each data source in a loop
-for i=1:numel(obj)
-    % Change the header
-    exp_inf  = obj(i).experiment_info;
+n_files = numel(ldrs);
+for i=1:n_files
+    exp_inf   = ldrs{i}.get_header('-all','-no_instument','-no_sample');
     if isempty(emode)
         exp_inf   = exp_inf.set_efix_emode(efix,'-keep_emode');   %
     else
         exp_inf   = exp_inf.set_efix_emode(efix,emode);
     end
-    obj(i).experiment_info = exp_inf;
+    ld = ldrs{i}.upgrade_file_format(); % also reopens file in update mode if format is already the latest one    
+    ld.put_headers(exp_inf);
+    ld.delete();
 end

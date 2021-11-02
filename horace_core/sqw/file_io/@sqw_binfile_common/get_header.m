@@ -19,13 +19,19 @@ function  [exp_info,pos]   = get_header(obj,varargin)
 % always verbatim
 [ok,mess,get_all,~,argi]= parse_char_options(varargin,{'-all','-verbatim'});
 if ~ok
-    error('SQW_FILE_IO:invalid_argument',mess);
+    error('HORACE:sqw_binfile_common:invalid_argument',mess);
+end
+% remove unnecessary keywords, which may be relevant to other versions of
+% the sqw file format
+prop_keys =  cellfun(@(x)strncmp('-',x,1),varargin);
+if any(prop_keys)
+    argi = varargin(~prop_keys);
 end
 
 
 %
 if ischar(obj.num_contrib_files)
-    error('SQW_FILE_IO:runtime_error',...
+    error('HORACE:sqw_binfile_common:runtime_error',...
         ' get_header called on un-initialized loader')
 end
 
@@ -34,14 +40,14 @@ if isempty(argi)
 else
     n_header = argi{1};
     if ~isnumeric(n_header)
-        error('SQW_FILE_IO:invalid_argument',...        
+        error('HORACE:sqw_binfile_common:invalid_argument',...
             'get_header do not understand input argument: %s',n_header);
     end
     
 end
 
 if n_header<1 || (n_header>obj.num_contrib_files)
-    error('SQW_FILE_IO:invalid_argument',...
+    error('HORACE:sqw_binfile_common:invalid_argument',...
         ' wrong number of header requested : %d, Available numbers are 1-%d',...
         n_header,n_header>obj.num_contrib_files);
 end
@@ -88,14 +94,14 @@ end
 fseek(obj.file_id_,obj.header_pos_(n_header),'bof');
 [mess,res] = ferror(obj.file_id_);
 if res ~= 0
-    error('SQW_FILE_IO:runtime_error',...
+    error('HORACE:sqw_binfile_common:runtime_error',...
         'get_single_header: can not move at the start of header N%d, reason: %s',n_header,mess);
 end
 %
 bytes = fread(obj.file_id_,sz,'*uint8');
 [mess,res] = ferror(obj.file_id_);
 if res ~=0
-    error('SQW_FILE_IO:runtime_error',...
+    error('HORACE:sqw_binfile_common:runtime_error',...
         'get_single_header: Can not read header N%d data; error: %s',n_header,mess);
 end
 
