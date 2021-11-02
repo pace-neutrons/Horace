@@ -294,7 +294,7 @@ classdef Experiment < serializable
             obj = Experiment();
             obj = loadobj@serializable(S,obj);
         end
-        function [exp,n_combined] = combine_experiments(exp_cellarray,allow_equal_headers,drop_subzone_headers)
+        function [exp,nspe] = combine_experiments(exp_cellarray,allow_equal_headers,drop_subzone_headers)
             % take cellarray of experiments (e.g., generated from each runfile build
             % during gen_sqw generation)
             % and combine then together into single Experiment info class
@@ -302,17 +302,36 @@ classdef Experiment < serializable
             %TODO: Do proper optinization on the way. See sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers)
             %TODO: use allow_equal_headers,drop_subzone_headers variables
             %      appropriately
+            %TODO: repeat at least the logic within sqw_header helper class
             n_contrib = numel(exp_cellarray);
-            exp = Experiment();
-            if iscell(exp_cellarray)
-                for i=1:n_contrib
-                    [exp,n_combined] = exp.add_contents(exp_cellarray{i});
-                end
-            else
-                for i=1:n_contrib
-                    [exp,n_combined] = exp.add_contents(exp_cellarray(i));
-                end
+            nspe = zeros(n_contrib,1);
+            for i=1:n_contrib
+                nspe(i) = exp_cellarray{i}.n_runs;
             end
+            n_tot = sum(nspe);
+            instr  = repmat(IX_inst(),1,n_tot );
+            sampl  = repmat(IX_samp(),1,n_tot);
+            expinfo= repmat(IX_experiment(),1,n_tot);
+            ic = 1;
+            for i=1:n_contrib
+                for j=1:exp_cellarray{i}.n_runs
+                    instr(ic) = exp_cellarray{i}.instruments(j);
+                    sampl(ic) = exp_cellarray{i}.samples(j);  
+                    expinfo(ic) =exp_cellarray{i}.expdata(j);  
+                end
+                ic = ic+1;
+            end
+            exp = Experiment([], instr, sampl);
+            exp.expdata = expinfo;
+%             if iscell(exp_cellarray)
+%                 for i=1:n_contrib
+%                     [exp,n_combined] = exp.add_contents(exp_cellarray{i});
+%                 end
+%             else
+%                 for i=1:n_contrib
+%                     [exp,n_combined] = exp.add_contents(exp_cellarray(i));
+%                 end
+%             end
         end
     end
     %======================================================================
