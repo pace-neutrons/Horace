@@ -48,9 +48,20 @@ classdef IX_inst_DGfermi < IX_inst
                     'name','source'};
                 [S, present] = parse_args_namelist (namelist, varargin{:});
                 
+                is_present = struct2cell(present);
+                is_present = [is_present{:}];
+                
                 % Superclass properties
                 if present.name
                     obj.name_ = S.name;
+                    if sum(is_present)<2 % setting only name
+                        return;
+                    end
+                else
+                    if any(is_present) % problem of having property 'isempty'
+                        % sealed on superclass
+                        obj.name_ = '_';
+                    end
                 end
                 
                 if present.source
@@ -66,14 +77,16 @@ classdef IX_inst_DGfermi < IX_inst
                         obj.fermi_chopper_.energy = S.energy;
                     end
                 else
-                    error('Must give both moderator and fermi chopper')
+                    error('HERBERT:IX_inst_DGfermi:invalid_argument',...
+                        'Must give both moderator and fermi chopper')
                 end
                 
                 % Set aperture
                 if present.aperture
                     obj.aperture_ = S.aperture;
                 else
-                    error('Must give the beam defining aperture after the moderator')
+                    error('HERBERT:IX_inst_DGfermi:invalid_argument',...
+                        'Must give the beam defining aperture after the moderator');
                 end
                 
             end
@@ -152,7 +165,7 @@ classdef IX_inst_DGfermi < IX_inst
         
         %------------------------------------------------------------------
     end
-
+    
     
     %======================================================================
     % Methods for fast construction of structure with independent properties
@@ -267,7 +280,7 @@ classdef IX_inst_DGfermi < IX_inst
                     S.(names{i}) = obj.(names{i});
                 end
             end
-
+            
         end
         
         function S = structPublic(obj)
@@ -334,7 +347,7 @@ classdef IX_inst_DGfermi < IX_inst
                     S.(names{i}) = obj.(names{i});
                 end
             end
-
+            
         end
     end
     
@@ -342,7 +355,7 @@ classdef IX_inst_DGfermi < IX_inst
     % Custom loadobj and saveobj
     % - to enable custom saving to .mat files and bytestreams
     % - to enable older class definition compatibility
-
+    
     methods
         %------------------------------------------------------------------
         function S = saveobj(obj)

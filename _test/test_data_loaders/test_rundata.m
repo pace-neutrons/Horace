@@ -89,12 +89,12 @@ classdef test_rundata< TestCase
             f = @()rundata(10);
             assertExceptionThrown(f,'PARSE_CONFIG_ARG:wrong_arguments');
         end
-        function test_defaultsOK_andFixed(obj)
+        function test_defaultsOK_andFixed(~)
             nn=numel(fields(rundata));
             % number of public fields by default;
             assertEqual(15,nn);
         end
-        function test_build_from_wrong_struct(obj)
+        function test_build_from_wrong_struct(~)
             a.x=10;
             a.y=20;
             f = @()rundata(a);
@@ -275,7 +275,7 @@ classdef test_rundata< TestCase
             assertTrue(isempty(run.det_par));
         end
         %
-        function default_rundata_type(obj)
+        function default_rundata_type(~)
             run=rundata();
             assertEqual(run.is_crystal,get(rundata_config,'is_crystal'));
         end
@@ -401,6 +401,7 @@ classdef test_rundata< TestCase
             %
             run=rundata(f_name(obj,'MAP11014.nxspe'));
             db = run.serialize();
+            
             runr = rundata.deserialize(db);
 
             assertEqual(run,runr);

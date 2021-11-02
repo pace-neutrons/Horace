@@ -36,12 +36,11 @@ classdef oriented_lattice
     %   dpsi            Correction to psi (deg)            [scalar or vector length nfile]
     %   gl              Large goniometer arc angle (deg)   [scalar or vector length nfile]
     %   gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
-
+    
     %
     % All angular units set in degrees but can be retrieved in degrees
     % or radians.
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
     %
     % On 2017/03 it is far from completion and have many of its methods
@@ -52,7 +51,7 @@ classdef oriented_lattice
         alatt
         % Lattice angles [alf,bet,gam] (deg)
         angdeg
-
+        
         % Crystal orientation wrt the beam direction
         % u -- vector along beam direction
         u
@@ -73,13 +72,13 @@ classdef oriented_lattice
         % units have to be set in degrees, but can be retrieved as radians)
         angular_units;
     end
-
-
+    
+    
     properties(Access=private)
         %
         alatt_  = [1,1,1];
         angdeg_ = [90,90,90];
-
+        
         % the defaults for these fields are:
         u_   = [1,0,0];
         v_   = [0,1,0];
@@ -89,10 +88,10 @@ classdef oriented_lattice
         dpsi_  = 0;         %  Correction to psi (deg)  [Default=0]
         gl_    = 0;         %  Large goniometer arc angle (deg)  [Default=0]
         gs_    = 0;         %  Small goniometer arc angle (deg)  [Default=0]
-
+        
         % by default, units used in the class are degree.
         angular_units_= true %'deg';
-
+        
         % service variable used to help checking u and v
         uv_cros_=[0,0,1]; % cross(u,v);
         surf_ar_ = 1;  % abs(uv_cros_.*uv_cros_);
@@ -173,7 +172,7 @@ classdef oriented_lattice
                 is = true;
             end
         end
-
+        
         %-----------------------------------------------------------------
         function psi = get.psi(this)
             psi = transform_and_get_angular_(this,this.psi_);
@@ -242,7 +241,7 @@ classdef oriented_lattice
             this.uv_cros_=cross(this.u_,this.v_);
             this.surf_ar_ = sum(this.uv_cros_.*this.uv_cros_);
         end
-
+        
         %------------------------------------------------------------------
         %------------------------------------------------------------------
         function alat=get.alatt(this)

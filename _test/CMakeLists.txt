@@ -5,6 +5,7 @@ set(TEST_DIRECTORIES
     "test_map_mask"
     "test_multifit"
     "test_utilities"
+    "test_serializers"
     "test_instrument_classes"
     "test_docify"
     "test_geometry"

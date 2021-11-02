@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mex.h>
+#include <matrix.h>
 #include <limits>
 
 enum ser_types{
@@ -154,6 +155,7 @@ enum types{
 struct tag_type {
   unsigned int type:5;
   unsigned int dim:3;
+  tag_type() {};
 };
 
 const size_t TAG_SIZE = types_size[UINT8];

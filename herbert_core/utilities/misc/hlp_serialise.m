@@ -34,244 +34,226 @@ function m = hlp_serialise(v)
 %   ... e.g. transfer the 'bytes' array over the network ...
 %   mydata = hlp_deserialise(bytes);
 %
-%                                Jacob Wilkins, SCD, STFC RAL,
-%                                2020-12-24
+%    Jacob Wilkins, SCD, STFC RAL,
+%    2020-12-24
 %
-%                                adapted from hlp_serialize.m
-%                                Christian Kothe, Swartz Center for Computational Neuroscience, UCSD
-%                                2010-04-02
+%    adapted from hlp_serialize.m
+%    Christian Kothe, Swartz Center for Computational Neuroscience, UCSD
+%    2010-04-02
 %
-%                                adapted from serialize.m
-%                                (C) 2010 Tim Hutt
+%    adapted from serialize.m
+%    (C) 2010 Tim Hutt
 
-    if any(size(v) > intmax('uint32'))
-        error("MATLAB:serialise:bad_size", "Dimensions of array exceed limit of uint32, cannot serialise.")
-    end
+if any(size(v) > intmax('uint32'))
+    error("MATLAB:serialise:bad_size",...
+        "Dimensions of array exceed limit of uint32, cannot serialise.")
+end
 
-    type = hlp_serial_types.type_mapping(v);
-    switch type.name
-      case {'logical', 'char', 'string', 'double', 'single', 'int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32', 'int64', 'uint64'}
+type = hlp_serial_types.type_mapping(v);
+switch type.name
+    case {'logical', 'char', 'string', 'double', 'single', 'int8', ...
+            'uint8','int16', 'uint16', 'int32', 'uint32', 'int64', 'uint64'}
         m = serialise_simple_data(v, type);
-      case {'complex_double', 'complex_single', 'complex_int8', 'complex_uint8', 'complex_int16', 'complex_uint16', 'complex_int32', 'complex_uint32', 'complex_int64', 'complex_uint64'}
+    case {'complex_double', 'complex_single', 'complex_int8',...
+            'complex_uint8', 'complex_int16', 'complex_uint16', ...
+            'complex_int32', 'complex_uint32', 'complex_int64',...
+            'complex_uint64'}
         m = serialise_complex_data(v, type);
-      case {'sparse_logical', 'sparse_double', 'sparse_complex_double'}
+    case {'sparse_logical', 'sparse_double', 'sparse_complex_double'}
         m = serialise_sparse_data(v, type);
-      case 'struct'
+    case 'struct'
         m = serialise_struct(v, type);
-      case 'cell'
+    case 'cell'
         m = serialise_cell(v, type);
-      case {'value_object', 'handle_object_ref'}
+    case {'value_object', 'handle_object_ref'}
         m = serialise_object(v, type);
-      case 'function_handle'
+    case 'function_handle'
         m = serialise_function_handle(v, type);
-      otherwise
+    case {'serializable'}
+        m = serialize_themselves(v,type);
+    otherwise
         error('MATLAB:hlp_serialise:bad_type', 'Cannot serialise type %s.', type.name);
-    end
+end
 end
 
 % Simple data types
 function m = serialise_simple_data(v, type)
-    nElem = numel(v);
-    nDims = uint8(ndims(v));
+nElem = numel(v);
+comb_tag = hlp_serial_types.pack_data_tag(size(v),type);
 
-    switch type.name
-      case {'string'}
+switch type.name
+    case {'string'}
         v = uint8(convertStringsToChars(v));
-      case {'logical', 'char'}
+    case {'logical', 'char'}
         v = uint8(v);
-    end
+end
 
-    if nElem == 0 % Null element
-        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
-             typecast(uint32(0), 'uint8').'];
-    elseif nElem == 1 % Scalar
-        m = [type.tag; ...
-             typecast(v, 'uint8').'];
-    elseif nDims == 2 && size(v,1) == 1 % List
-        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
-             typecast(uint32(nElem), 'uint8').'; ...
-             typecast(v, 'uint8').'];
-    else % General array
-        m = [hlp_serial_types.dims_tag(nDims) + type.tag; ...
-             typecast(uint32(size(v)), 'uint8').'; ...
-             typecast(v(:).', 'uint8').'];
-    end
+if nElem == 0 % Null element
+    m = comb_tag;
+else %
+    m = [comb_tag; typecast(v(:)', 'uint8')'];
+end
 end
 
 % Complex data types
 function m = serialise_complex_data(v, type)
-    nElem = numel(v);
-    nDims = uint8(ndims(v));
-    if nElem == 0 % Null element
-        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
-             typecast(uint32(0), 'uint8')];
-    elseif nElem == 1 % Scalar
-        m = [type.tag; ...
-             typecast(real(v), 'uint8').'; ...
-             typecast(imag(v), 'uint8').'];
-    elseif nDims == 2 && size(v,1) == 1 % List
-        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
-             typecast(uint32(nElem), 'uint8').'; ...
-             typecast(real(v), 'uint8').'; ...
-             typecast(imag(v), 'uint8').'];
-    else % General array
-        m = [hlp_serial_types.dims_tag(nDims) + type.tag; ...
-             typecast(uint32(size(v)), 'uint8').'; ...
-             typecast(real(v(:)), 'uint8'); ...
-             typecast(imag(v(:)), 'uint8')];
-    end
+nElem = numel(v);
+comb_tag = hlp_serial_types.pack_data_tag(size(v),type);
+
+if nElem == 0 % Null element
+    m = comb_tag;
+elseif nElem == 1 % Scalar
+    m = [comb_tag; ...
+        typecast(real(v), 'uint8').'; ...
+        typecast(imag(v), 'uint8').'];
+else% General array
+    m = [comb_tag; ...
+        typecast(real(v(:)), 'uint8'); ...
+        typecast(imag(v(:)), 'uint8')];
+end
 end
 
 % Sparse data types
 function m = serialise_sparse_data(v, type)
 
-    [i,j,data] = find(v);
+[i,j,data] = find(v);
+%nElem = nzmax(v); % beware that we may serialize matrix with preallocated
+%elements but will deserialize the matrix without these elements
+nElem = nnz(v);
+%
+comb_tag = hlp_serial_types.pack_data_tag(size(v),type,1);
 
-    switch type.name
-      case 'sparse_logical'
+switch type.name
+    case 'sparse_logical'
         data = uint8(data);
-      case 'sparse_complex_double'
+    case 'sparse_complex_double'
         data = [real(data(:)); imag(data(:))];
-    end
-
-    dims = size(v);
-    nElem = nnz(v);
-    m = [hlp_serial_types.dims_tag(2) + type.tag; ...
-         typecast(uint32(dims), 'uint8').'; ...
-         typecast(uint32(nElem), 'uint8').'; ...
-         typecast(uint64(i(:)-1).', 'uint8').'; ...
-         typecast(uint64(j(:)-1).', 'uint8').'; ...
-         typecast(data(:).', 'uint8').'];
 end
 
+m = [comb_tag; ...
+    typecast(uint32(nElem), 'uint8')'; ... % is it enough 32 bytes for all elements?
+    typecast(uint64(i(:))', 'uint8')'; ...
+    typecast(uint64(j(:))', 'uint8')'; ...
+    typecast(data(:)', 'uint8')'];
+end
 
 % Struct array
 function m = serialise_struct(v, type)
 
-    % Tag, Field Count, Field name lengths, Field name char data, #dimensions, dimensions
+nElem = numel(v);
+if nElem>0
     fieldNames = fieldnames(v);
+    %fnInfo = serialize_cell(fieldNames',hlp_serial_types.get_details('cell'));
     fnLengths = [length(fieldNames); cellfun('length',fieldNames)];
     fnChars = [fieldNames{:}];
-    % dims = [ndims(v) size(v)];
+    
+    %Content.
+    fnInfo = [typecast(uint32(fnLengths)','uint8')'; uint8(fnChars')];
+else
+    fieldNames ={};
+end
+if isempty(fieldNames)
+    data = [];
+else
+    data = serialise_cell(struct2cell(v), hlp_serial_types.get_details('cell'));
+end
 
-    % Content.
-    fnInfo = [typecast(uint32(fnLengths(:)).','uint8').'; uint8(fnChars(:))];
-
-    if ~isempty(fieldNames)
-        data = serialise_cell(struct2cell(v), hlp_serial_types.get_details('cell'));
-    else
-        data = [];
-    end
-
-    nElem = numel(v);
-    nDims = uint8(ndims(v));
-
-    if nElem == 0 % Null element
-        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
-             typecast(uint32(0), 'uint8').'];
-    elseif nElem == 1 % Scalar
-        m = [type.tag; ...
-             fnInfo; ...
-             data];
-    elseif nDims == 2 && size(v,1) == 1 % List
-        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
-             typecast(uint32(nElem), 'uint8').'; ...
-             fnInfo; ...
-             data];
-    else % General array
-        m = [hlp_serial_types.dims_tag(nDims) + type.tag; ...
-             typecast(uint32(size(v)), 'uint8').'; ...
-             fnInfo; ...
-             data];
-    end
+comb_tag = hlp_serial_types.pack_data_tag(size(v),type);
+if nElem == 0 % Null element
+    m = comb_tag;
+else
+    m = [comb_tag; fnInfo; data];
+end
 end
 
 function m = serialise_cell(v, type)
 % Cell array of heterogenous contents
-    data = cellfun(@hlp_serialise,v,'UniformOutput',false);
-    data = vertcat(data{:});
-    nElem = numel(v);
-    nDims = uint8(ndims(v));
+data = cellfun(@hlp_serialise,v,'UniformOutput',false);
+data = vertcat(data{:});
 
-    if nElem == 0 % Null element
-        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
-             typecast(uint32(0), 'uint8').'];
-    elseif nElem == 1 % Scalar
-        m = [type.tag; data];
-    elseif nDims == 2 && size(v,1) == 1 % List
-        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
-             typecast(uint32(nElem), 'uint8').'; ...
-             data];
-    else % General array
-        m = [hlp_serial_types.dims_tag(nDims) + type.tag; ...
-             typecast(uint32(size(v)), 'uint8').'; ...
-             data];
-    end
+comb_tag = hlp_serial_types.pack_data_tag(size(v),type);
+nElem = numel(v);
+
+if nElem == 0 % Null element
+    m = comb_tag ;
+else
+    m = [comb_tag;data];
+end
+end
+
+function m = serialize_themselves(v, type)
+% serializable type serializes itself
+m = [type.tag;v.serialize()];
 end
 
 function m = serialise_object(v, type)
-    nElem = numel(v);
-    nDims = uint8(ndims(v));
+%
+comb_tag = hlp_serial_types.pack_data_tag(size(v),type);
+nElem = numel(v);
 
-    class_name = serialise_simple_data(class(v), hlp_serial_types.get_details('char'));
-    % can object serialise/deserialise itself?
-    if any(strcmp(methods(v), 'serialize'))
-            conts = arrayfun(@(x) (x.serialize()), v);
-            ser_tag = uint8(0);
-    else
-        try
-            % try to use the saveobj method first to get the contents
-            conts = arrayfun(@saveobj, v);
-            ser_tag = uint8(1);
-        catch
-            conts = arrayfun(@struct, v);
+class_name = serialise_simple_data(class(v), hlp_serial_types.get_details('char'));
+% can object serialise/deserialise itself?
+if ismethod(v, 'serialize')
+    conts = arrayfun(@(x) (x.serialize()), v);
+    ser_tag = uint8(0);
+else
+    try
+        % try to use the saveobj method first to get the contents
+        conts = arrayfun(@saveobj, v);
+        if isobject(conts) % object has native saveobj, which has not been overloaded
+            conts =arrayfun(@struct, v);
             ser_tag = uint8(2);
-        end
-        if isstruct(conts) || iscell(conts) || isnumeric(conts) || ischar(conts) || islogical(conts) || isa(conts,'function_handle')
-            % contents is something that we can readily serialize
-            conts = hlp_serialise(conts);
         else
-            % contents is still an object: turn into a struct now
-            conts = serialise_struct(struct(conts));
+            ser_tag = uint8(1);
         end
+    catch
+        conts = arrayfun(@struct, v);
+        ser_tag = uint8(2);
     end
-    if nElem == 0 % Null element
-        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
-             typecast(uint32(0), 'uint8').'; class_name];
-    elseif nElem == 1 % Scalar
-        m = [type.tag; class_name; ser_tag; conts];
-    elseif nDims == 2 && size(v,1) == 1 % List
-        m = [hlp_serial_types.dims_tag(1) + type.tag; ...
-             typecast(uint32(nElem), 'uint8').'; class_name; ser_tag; conts];
-    else % General array
-        m = [hlp_serial_types.dims_tag(nDims) + type.tag; ...
-             typecast(uint32(size(v)), 'uint8').'; class_name; ser_tag; conts];
-    end
-
+    conts = hlp_serialise(conts);
+end
+if nElem == 0 % Null element
+    m = [comb_tag; class_name];
+else
+    m = [comb_tag; class_name; ser_tag; conts];
+end
 end
 
 % Function handle
 function m = serialise_function_handle(v, type)
 % get the representation
-    rep = functions(v);
-    switch rep.type
-        % Tag is used to distinguish function type
-      case {'simple', 'classsimple'}
-        % simple function
-        m = [hlp_serial_types.dims_tag(1)+type.tag; ... Tag
-             serialise_simple_data(rep.function, hlp_serial_types.get_details('char'))]; % Name of function
-      case 'anonymous'
-        % anonymous function
-        m = [hlp_serial_types.dims_tag(2)+type.tag; ... Tag
-             serialise_simple_data(char(v), hlp_serial_types.get_details('char')); ... % Code
-             serialise_struct(rep.workspace{1}, hlp_serial_types.get_details('struct'))]; % Workspace
+rep = functions(v);
 
-      case {'scopedfunction','nested'}
+%Possible types are:
+%  switch rep.type
+%     % Tag is used to distinguish function type
+%     case {'simple', 'classsimple'}
+%         % simple function
+%     case 'anonymous'
+%         % anonymous function
+%     case {'scopedfunction','nested'}
+%         % scoped function
+% end
+comb_tag = hlp_serial_types.pack_data_tag(size(rep),type,rep.type);
+
+switch rep.type
+    % Tag is used to distinguish function type
+    case {'simple', 'classsimple'}
+        % simple function
+        m = [comb_tag; ... Tag
+            serialise_simple_data(rep.function, hlp_serial_types.get_details('char'))]; % Name of function
+    case 'anonymous'
+        % anonymous function
+        m = [comb_tag; ... Tag
+            serialise_simple_data(char(v), hlp_serial_types.get_details('char')); ... % Code
+            serialise_struct(rep.workspace{1}, hlp_serial_types.get_details('struct'))]; % Workspace
+        
+    case {'scopedfunction','nested'}
         % scoped function
-        m = [hlp_serial_types.dims_tag(3)+type.tag; ... Tag
-             serialise_cell(rep.parentage, hlp_serial_types.get_details('cell'))]; % Parentage
-      otherwise
+        m = [comb_tag; ... Tag
+            serialise_cell(rep.parentage, hlp_serial_types.get_details('cell'))]; % Parentage
+    otherwise
         warn_once('hlp_serialise:unknown_handle_type','A function handle with unsupported type "%s" was encountered; using a placeholder instead.',rep.type);
         m = serialise_string(['<<hlp_serialise: function handle of type ' rep.type ' unsupported>>']);
-    end
+end
 end

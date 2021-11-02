@@ -60,8 +60,17 @@ if ~strcmp(class(A), class(B))
         'The inputs differ in class.', A, B);
     throwAsCaller(MException('assertEqual:classNotEqual', '%s', message));
 end
+name_a = inputname(1);
+if isempty(name_a)
+    name_a ='A';
+end
+name_b = inputname(2);
+if isempty(name_b)
+    name_b ='B';
+end
 
-[ok,mess] = equal_to_tol(A,B,tol);
+
+[ok,mess] = equal_to_tol(A,B,tol,'name_a',name_a,'name_b',name_b);
 if ~ok
     if verLessThan('Matlab','R2016a')        
         nl = sprintf('\n');

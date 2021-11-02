@@ -1,6 +1,6 @@
 classdef IX_inst < matlab.mixin.Heterogeneous
     % Defines the base instrument class. This superclass must be
-    % inherited by all instrumnet classes to unsure that they are
+    % inherited by all instrument classes to unsure that they are
     % discoverable as instruments using isa(my_obj,'IX_inst')
     
     properties (Access=protected)
@@ -10,8 +10,8 @@ classdef IX_inst < matlab.mixin.Heterogeneous
     end
     
     properties (Dependent)
-        name = '';          % Name of instrument (e.g. 'LET')
-        source = IX_source; % Source (name, or class of type IX_source)
+        name ;          % Name of instrument (e.g. 'LET')
+        source; % Source (name, or class of type IX_source)
     end
     
     methods
@@ -49,12 +49,11 @@ classdef IX_inst < matlab.mixin.Heterogeneous
             iseq = strcmp(obj1.name, obj2.name);
             iseq = iseq && obj1.source==obj2.source;
         end
-
         %------------------------------------------------------------------
         % Set methods for independent properties
         %
         % Devolve any checks on interdependencies to the constructor (where
-        % we refer only to the independent properties) and in the set 
+        % we refer only to the independent properties) and in the set
         % functions for the dependent properties.
         %
         % There is a synchronisation that must be maintained as the checks
@@ -66,17 +65,19 @@ classdef IX_inst < matlab.mixin.Heterogeneous
             end
             obj.name_ = val;
         end
-            
+        
         function obj=set.source_(obj,val)
             if isa(val,'IX_source') && isscalar(val)
                 obj.source_ = val;
             elseif is_string(val)
                 obj.source_ = IX_source('-name',val);
+            elseif isempty(val)
+                obj.source_ = IX_source();
             else
                 error('The source name must be a character string or an IX_source object')
             end
         end
-            
+        
         %------------------------------------------------------------------
         % Set methods for dependent properties
         function obj=set.name(obj,val)
@@ -99,7 +100,7 @@ classdef IX_inst < matlab.mixin.Heterogeneous
         
         %------------------------------------------------------------------
     end
-
+    
     
     %======================================================================
     % Methods for fast construction of structure with independent properties
@@ -157,7 +158,7 @@ classdef IX_inst < matlab.mixin.Heterogeneous
             %
             % Use <a href="matlab:help('structArrIndep');">structArrIndep</a> to convert an object array to a structure array
             %
-            % Has the same behaviour as the Matlab instrinsic struct in that:
+            % Has the same behaviour as the Matlab intrinsic struct in that:
             % - Any structure array is returned unchanged
             % - If an object is empty, an empty structure is returned with fieldnames
             %   but the same size as the object
@@ -177,6 +178,7 @@ classdef IX_inst < matlab.mixin.Heterogeneous
             else
                 args = [names; repmat({cell(size(obj))},size(names))];
                 S = struct(args{:});
+                S.name_ = '';
             end
         end
         
@@ -188,14 +190,14 @@ classdef IX_inst < matlab.mixin.Heterogeneous
             % Use <a href="matlab:help('structIndep');">structIndep</a> for behaviour that more closely matches the Matlab
             % intrinsic function struct.
             %
-            % Has the same behaviour as the Matlab instrinsic struct in that:
+            % Has the same behaviour as the Matlab intrinsic struct in that:
             % - Any structure array is returned unchanged
             % - If an object is empty, an empty structure is returned with fieldnames
             %   but the same size as the object
             %
             % However, differs in the behaviour if an object array:
             % - If the object is non-empty array, returns a structure array of the same
-            %   size. This is different to the instrinsic Matlab, which returns a scalar
+            %   size. This is different to the intrinsic Matlab, which returns a scalar
             %   structure from the first element in the array of objects
             %
             %
@@ -214,7 +216,7 @@ classdef IX_inst < matlab.mixin.Heterogeneous
                     S.(names{i}) = obj.(names{i});
                 end
             end
-
+            
         end
         
         function S = structPublic(obj)
@@ -255,14 +257,14 @@ classdef IX_inst < matlab.mixin.Heterogeneous
             % Use <a href="matlab:help('structPublic');">structPublic</a> for behaviour that more closely matches the Matlab
             % intrinsic function struct.
             %
-            % Has the same behaviour as the Matlab instrinsic struct in that:
+            % Has the same behaviour as the Matlab intrinsic struct in that:
             % - Any structure array is returned unchanged
             % - If an object is empty, an empty structure is returned with fieldnames
             %   but the same size as the object
             %
             % However, differs in the behaviour if an object array:
             % - If the object is non-empty array, returns a structure array of the same
-            %   size. This is different to the instrinsic Matlab, which returns a scalar
+            %   size. This is different to the intrinsic Matlab, which returns a scalar
             %   structure from the first element in the array of objects
             %
             %
@@ -281,15 +283,37 @@ classdef IX_inst < matlab.mixin.Heterogeneous
                     S.(names{i}) = obj.(names{i});
                 end
             end
-
+            
         end
+    end
+    methods(Sealed)
+        function is = isempty(obj)
+            % Assume that inst is empty if it was created with
+            % empty constructor and has not been modified
+            %
+            % Assume that if a child is modified, it will also modify some
+            % fields of the parent so the method will still work on
+            % children
+            
+            if numel(obj)==0
+                is = true;
+                return;
+            end
+            is = false(size(obj));
+            for i=1:numel(obj)
+                if isempty(obj(i).name_) && isempty(obj(i).source_)
+                    is(i) = true;
+                end
+            end
+        end
+        
     end
     
     %======================================================================
     % Custom loadobj and saveobj
     % - to enable custom saving to .mat files and bytestreams
     % - to enable older class definition compatibility
-
+    
     methods
         %------------------------------------------------------------------
         function S = saveobj(obj)

@@ -13,23 +13,23 @@ classdef aMessage
         % message name, describing the message category (e.g. starting, started
         % etc...)
         mess_name;
-
+        
         % Numerical representation of the message name
         tag;
-
+        
         % message contents (arbitrary data distributed from sender to
         % receiver. The data have to be serializable
         payload;
-
+        
         %-- Static class properties:
         %
-
+        
         % If the message is a blocking message. If false, the next
         % message of the same type overwrites this message, if this message
         % has not been received. If true, the system waits for message to
         % be received.
         is_blocking;
-
+        
         % If the message stays in the system until task is completed
         % playing the role of parallel interrupt, which sticks until the
         % task is reset
@@ -39,13 +39,18 @@ classdef aMessage
         payload_     = [];
         mess_name_   = [];
     end
-
+    
     methods
         function obj=aMessage(name)
+            if nargin==0 % empty constructor for messages.
+                % Does not build correct messages, but may be used for
+                % furhter deserialization with e.g. loadobj operator
+                return;
+            end
             % constructor, which may return any children messages classes
             mfi = MESS_NAMES.instance();
             mess_class_name = MESS_NAMES.get_class_name(name);
-
+            
             if ~strcmp(class(obj),mess_class_name) % called from constructor
                 error('HERBERT:aMessage:invalid_argument',...
                     [' Message with name %s has specialized constructor %s',...
@@ -66,9 +71,9 @@ classdef aMessage
             % Do not! modify to send tag instead of the name!
             % -- some special messages have the same tags but different
             %    names
-
+            
             ser_struc = struct('message_name',obj.mess_name);
-
+            
             ws = warning('off','MATLAB:structOnObject');
             clob = onCleanup(@()warning(ws));
             ser_struc.payload = parce_payload_(obj.payload_);
@@ -118,7 +123,7 @@ classdef aMessage
         function obj = loadobj(ser_struc)
             % Retrieve message object from the structure
             % produced by saveobj method.
-
+            
             if numel(ser_struc) >1
                 ss = ser_struc(1);
                 pp = {ser_struc(:).payload};

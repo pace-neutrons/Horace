@@ -3,8 +3,8 @@
  * Serialise MATLAB object into a uint8 data stream
  *
  * See also:
- * hlp_serialize
- * hlp_deserialize
+ * hlp_serialise
+ * hlp_deserialise
  *
  * This is a MEX-file for MATLAB.
  *=======================================================*/
@@ -92,9 +92,9 @@ void serialise(uint8_t* data, size_t& memPtr, const mxArray* input){
 
   tag_type tag = tag_data(input);
 
-  const size_t nElem = mxGetNumberOfElements(input);
+  size_t nElem = mxGetNumberOfElements(input);
   const mwSize* dims = mxGetDimensions(input);
-  const size_t nDims = mxGetNumberOfDimensions(input);
+  size_t nDims = mxGetNumberOfDimensions(input);
 
   for (size_t i=0; i < nDims; i++) {
     if (dims[i] > DIM_MAX) {
@@ -186,6 +186,14 @@ void serialise(uint8_t* data, size_t& memPtr, const mxArray* input){
 
   case VALUE_OBJECT:
     {
+      mxArray* arr = const_cast<mxArray*>(input);
+      mxArray* ser_type;
+      mexCallMATLAB(1, &ser_type, 1, &arr, "get_ser_type");
+      if (*static_cast<uint8_t*>(mxGetData(ser_type)) == 0) { // object serializes itself together with dimensions transforming array structure into structure arrau
+          nElem = 1;
+          nDims = 2;
+      }
+
       write_header(data, memPtr, tag, nElem, dims, nDims);
       const char* name = mxGetClassName(input);
       tag_type name_tag;
@@ -193,10 +201,8 @@ void serialise(uint8_t* data, size_t& memPtr, const mxArray* input){
       const mwSize name_dim[] = {1, strlen(name)};
       write_header(data, memPtr, name_tag, name_dim[1], name_dim, 2);
       ser(data, memPtr, name, name_dim[1]*types_size[CHAR]);
-      mxArray* arr = const_cast<mxArray*>(input);
+
       {
-        mxArray* ser_type;
-        mexCallMATLAB(1, &ser_type, 1, &arr, "get_ser_type");
         ser(data, memPtr, mxGetPr(ser_type), types_size[UINT8]);
         mxDestroyArray(ser_type);
       }

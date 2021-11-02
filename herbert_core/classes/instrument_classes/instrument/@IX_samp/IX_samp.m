@@ -1,31 +1,31 @@
 classdef IX_samp  < matlab.mixin.Heterogeneous
     % Base class for samples to include the null sample case defined from a
     % struct with no fields (IX_null_sample) and the standard IX_sample
-
-   properties (Access=protected)
+    
+    properties (Access=protected)
         name_ = '';   % suitable string to identify sample
         alatt_;
         angdeg_;
     end
-
-   properties (Access=private)
+    
+    properties (Access=private)
         % Stored properties - but kept private and accessible only through
         % public dependent properties because validity checks of setters
         % require checks against the other properties
     end
-   
-   properties
+    
+    properties
         %
-   end
-        
-   properties (Dependent)
+    end
+    
+    properties (Dependent)
         % Mirrors of private/protected properties
         name;
         alatt;
         angdeg;
-   end
-   
-   methods
+    end
+    
+    methods
         %------------------------------------------------------------------
         % Constructor
         %------------------------------------------------------------------
@@ -33,14 +33,14 @@ classdef IX_samp  < matlab.mixin.Heterogeneous
             % Create base sample object
             %
             %   >> base_sample = IX_samp (name)
-            % 
+            %
             if nargin==0
-                 obj.name_ = '';
+                obj.name_ = '';
             else
                 obj.name_ = thename;
             end
         end
-        
+        %
         function iseq = eq(obj1, obj2)
             iseq = strcmp(obj1.name, obj2.name);
             if numel(obj1.alatt)==3 && numel(obj2.alatt)==3
@@ -75,12 +75,16 @@ classdef IX_samp  < matlab.mixin.Heterogeneous
         % and in the set functions for the dependent properties. There is a
         % synchronisation that must be maintained as the checks in both places
         % must be identical.
-
+        
         function obj=set.name(obj,val)
             if is_string(val)
                 obj.name_=val;
             else
-                error('Sample name must be a character string (or empty string)')
+                if isempty(val)
+                    obj.name_='';
+                else
+                    error('Sample name must be a character string (or empty string)')
+                end
             end
         end
         
@@ -88,7 +92,7 @@ classdef IX_samp  < matlab.mixin.Heterogeneous
             n = obj.name_;
         end
         
-        function obj=set.alatt(obj,val) 
+        function obj=set.alatt(obj,val)
             if isnumeric(val)
                 obj.alatt_=val;
             else
@@ -111,8 +115,30 @@ classdef IX_samp  < matlab.mixin.Heterogeneous
         function n=get.angdeg(obj)
             n = obj.angdeg_;
         end
-end
-        
+    end
+    methods(Sealed)
+        %
+        function is = isempty(obj)
+            % Assume that sample is empty if it was created with
+            % empty constructor and has not been modified
+            %
+            % Assume that if a child is modified, it will also modify some
+            % fields of the parent so the method will still work
+            if numel(obj)==0
+                is = true;
+                return;
+            end
+            is = false(size(obj));
+            for i=1:numel(obj)
+                if isempty(obj(i).name_) && isempty(obj(i).alatt_)...
+                        && isempty(obj(i).angdeg_)
+                    is(i) = true;
+                end
+            end
+        end
+        %
+    end
+    
     %======================================================================
     % Methods for fast construction of structure with independent properties
     methods (Static, Access = private)
@@ -125,7 +151,7 @@ end
             end
             names = names_store;
         end
-
+        
         function names = propNamesPublic_
             % Determine the visible public property names and cache the result.
             % Code is boilerplate
@@ -135,7 +161,7 @@ end
             end
             names = names_store;
         end
-
+        
         function struc = scalarEmptyStructIndep_
             % Create a scalar structure with empty fields, and cache the result
             % Code is boilerplate
@@ -147,7 +173,7 @@ end
             end
             struc = struc_store;
         end
-
+        
         function struc = scalarEmptyStructPublic_
             % Create a scalar structure with empty fields, and cache the result
             % Code is boilerplate
@@ -160,7 +186,7 @@ end
             struc = struc_store;
         end
     end
-
+    
     methods
         function S = structIndep(obj)
             % Return the independent properties of an object as a structure
@@ -178,7 +204,7 @@ end
             %
             %
             % See also structPublic, structArrIndep, structArrPublic
-
+            
             names = obj.propNamesIndep_';
             if ~isempty(obj)
                 tmp = obj(1);
@@ -189,9 +215,10 @@ end
             else
                 args = [names; repmat({cell(size(obj))},size(names))];
                 S = struct(args{:});
+                S.name_ = '';
             end
         end
-
+        
         function S = structArrIndep(obj)
             % Return the independent properties of an object array as a structure array
             %
@@ -212,13 +239,13 @@ end
             %
             %
             % See also structIndep, structPublic, structArrPublic
-
+            
             if numel(obj)>1
                 S = arrayfun(@fill_it, obj);
             else
                 S = structIndep(obj);
             end
-
+            
             function S = fill_it (obj)
                 names = obj.propNamesIndep_';
                 S = obj.scalarEmptyStructIndep_;
@@ -226,9 +253,9 @@ end
                     S.(names{i}) = obj.(names{i});
                 end
             end
-
+            
         end
-
+        
         function S = structPublic(obj)
             % Return the public properties of an object as a structure
             %
@@ -245,7 +272,7 @@ end
             %
             %
             % See also structIndep, structArrPublic, structArrIndep
-
+            
             names = obj.propNamesPublic_';
             if ~isempty(obj)
                 tmp = obj(1);
@@ -258,7 +285,7 @@ end
                 S = struct(args{:});
             end
         end
-
+        
         function S = structArrPublic(obj)
             % Return the public properties of an object array as a structure array
             %
@@ -279,13 +306,13 @@ end
             %
             %
             % See also structPublic, structIndep, structArrIndep
-
+            
             if numel(obj)>1
                 S = arrayfun(@fill_it, obj);
             else
                 S = structPublic(obj);
             end
-
+            
             function S = fill_it (obj)
                 names = obj.propNamesPublic_';
                 S = obj.scalarEmptyStructPublic_;
@@ -293,15 +320,15 @@ end
                     S.(names{i}) = obj.(names{i});
                 end
             end
-
+            
         end
     end
-
+    
     %======================================================================
     % Custom loadobj and saveobj
     % - to enable custom saving to .mat files and bytestreams
     % - to enable older class definition compatibility
-
+    
     methods
         %------------------------------------------------------------------
         function S = saveobj(obj)
@@ -317,13 +344,13 @@ end
             % Output:
             % -------
             %   S       Structure created from obj that is to be saved
-
+            
             % The following is boilerplate code
-
+            
             S = structIndep(obj);
         end
     end
-
+    
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
@@ -342,22 +369,21 @@ end
             %   obj     Either (1) the object passed without change, or (2) an
             %           object (or object array) created from the input structure
             %       	or structure array)
-
+            
             % The following is boilerplate code; it calls a class-specific function
             % called loadobj_private_ that takes a scalar structure and returns
             % a scalar instance of the class
-
+            
             if isobject(S)
                 obj = S;
             else
                 obj = arrayfun(@(x)loadobj_private_(x), S);
-                disp("");
             end
         end
         %------------------------------------------------------------------
-
+        
     end
     %======================================================================
-
+    
 end
 
