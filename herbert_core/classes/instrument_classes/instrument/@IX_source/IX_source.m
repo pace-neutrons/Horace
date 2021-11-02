@@ -87,6 +87,10 @@ classdef IX_source < serializable
         end
         
         function obj=set.target_name(obj,val)
+            if isempty(val)
+                val = '';
+            end
+            
             if ~is_string(val)
                 error('The target name must be a character string')
             end
@@ -94,8 +98,12 @@ classdef IX_source < serializable
         end
         
         function obj=set.frequency(obj,val)
+            if isempty(val)
+                val = 0;
+            end
             if ~isnumeric(val) || ~isscalar(val) || val<0
-                error('The target frequency must be a non-negative number')
+                error('HERBERT:IX_source:invalid_argument',...
+                    'The target frequency must be a non-negative number')
             end
             obj.frequency_ = val;
         end
