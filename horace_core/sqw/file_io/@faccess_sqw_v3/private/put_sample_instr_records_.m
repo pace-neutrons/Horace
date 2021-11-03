@@ -38,10 +38,14 @@ if isa(header,'is_holder')
         sampl  = obj.get_sample('-all');
         setting_sample = true;
     end
+elseif isa(header, 'Experiment')
+    hdr = header.convert_to_old_headers();
+    instr = extract_subfield_(hdr,'instrument');
+    sampl = extract_subfield_(hdr,'sample');
 elseif isempty(header)
     instr = struct();
     sampl = struct();
-else % should be header of an sqw file provided
+else % should be header of an sqw file provided, possibly converted from an Experiment
     % extract instrument and sample from the headers block
     instr = extract_subfield_(header,'instrument');
     sampl = extract_subfield_(header,'sample');
@@ -81,8 +85,8 @@ end
 
 if setting_sample
     % serialize sample(s)
-    if iscell(sampl) % allow only one sample! TODO: very bad. Change with class resesighn
-        sampl = sampl{1};
+    if iscell(sampl) % NO LONGER allow only one sample! TODO: very bad. Change with class resesighn
+        sampl = [sampl{:}];
     end
     [bytes,sample_size] = serialize_si_block_(obj,sampl,'sample');
     %clc_size = obj.instr_sample_end_pos_ - obj.sample_pos_;

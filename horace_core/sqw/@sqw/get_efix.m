@@ -66,7 +66,7 @@ for i=1:nobj
         ld = w.loaders_list{i};
         header = ld.get_header('-all');
     else
-        header=w.data(i).header;
+        header=w.data(i).experiment_info;
     end
     [efix_arr(nbeg(i):nend(i)),emode_arr(nbeg(i):nend(i))]=get_efix_single(header);
 end
@@ -115,7 +115,16 @@ if ~isempty(mess), error(mess), end
 %------------------------------------------------------------------------------
 function [efix,emode]=get_efix_single(header)
 % Get array of efix and emode for a single sqw object header
-if ~iscell(header)
+if isa(header,'Experiment')
+    expdata = header.expdata;
+    nrun=numel(expdata);
+    efix=zeros(nrun,1);
+    emode=zeros(nrun,1);
+    for i=1:nrun
+        efix(i)=expdata(i).efix;
+        emode(i)=expdata(i).emode;
+    end
+elseif ~iscell(header)
     efix=header.efix;
     emode=header.emode;
 else

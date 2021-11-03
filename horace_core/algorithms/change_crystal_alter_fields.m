@@ -83,6 +83,15 @@ if ~isempty(header)     % not dnd-type object
             header{i}.uoffset(1:3)=rlu_corr*header{i}.uoffset(1:3);
             header{i}.u_to_rlu(1:3,1:3)=rlu_corr*header{i}.u_to_rlu(1:3,1:3);
         end
+    elseif isa(header,'Experiment')
+        for i=1:numel(header.expdata)
+            header.samples(i).alatt=alatt;
+            header.samples(i).angdeg=angdeg;
+            header.expdata(i).cu=(rlu_corr*header.expdata(i).cu')';
+            header.expdata(i).cv=(rlu_corr*header.expdata(i).cv')';
+            header.expdata(i).uoffset(1:3)=rlu_corr*header.expdata(i).uoffset(1:3);
+            header.expdata(i).u_to_rlu(1:3,1:3)=rlu_corr*header.expdata(i).u_to_rlu(1:3,1:3);
+        end
     else
         header.alatt=alatt;
         header.angdeg=angdeg;

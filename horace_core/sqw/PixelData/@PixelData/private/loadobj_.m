@@ -18,7 +18,7 @@ if isstruct(S)
         if S.version == 1
             if isfield(S,'array_data') % multidimensional array of pixel data
                 S = S.array_data;
-                obj = repmat(obj,size(S));                
+                obj = repmat(obj,size(S));                                
                 for i=1:numel(S)
                     if i>1 % cloning handle object as repmat makes the handles
                         %    identical

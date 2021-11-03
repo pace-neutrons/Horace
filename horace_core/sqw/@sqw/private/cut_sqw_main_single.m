@@ -180,8 +180,8 @@ data_out.img_db_range = img_db_range;
 % Collect fields to make those for a valid sqw object
 if opt.keep_pix
     w.main_header=main_header;
-    w.header=header;
-    w.detpar=detpar;
+    w.experiment_info=header;
+    w.detpar_x=detpar;
     w.data=data_out; % will be missing the field 'pix' if pix_tmpfile_ok=true
 else
     [w,mess]=make_sqw_from_data(true,data_out);   % make dnd-type sqw structure

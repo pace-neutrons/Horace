@@ -22,6 +22,15 @@ if nargout>=2   % requested energy bin information
                 break
             end
         end
+    elseif isa(header,'Experiment')
+        ebins_all_same=true;
+        en=header.expdata(1).en;
+        for i=2:numel(header.expdata)
+            if numel(en)~=numel(header.expdata(i).en) || ~all(en==header.expdata(i).en)
+                ebins_all_same=false;
+                break
+            end
+        end
     else
         ebins_all_same=true;  % only one contributing dataset, so energy bins of all datasetsets are the same, by definition
     end

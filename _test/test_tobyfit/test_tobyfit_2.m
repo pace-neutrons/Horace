@@ -109,6 +109,8 @@ end
 
 % Add instrument and sample information to cuts
 sample_fe=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.03,0.03,0.04]);
+sample_fe.alatt = [2.8504 2.8504 2.8504];
+sample_fe.angdeg = [90 90 90];
 fe_1=set_sample_and_inst(fe_1,sample_fe,@maps_instrument_obj_for_tests,'-efix',600,'S');
 fe_2=set_sample_and_inst(fe_2,sample_fe,@maps_instrument_obj_for_tests,'-efix',600,'S');
 for i=1:numel(fe_arr)
@@ -116,6 +118,8 @@ for i=1:numel(fe_arr)
 end
 
 sample_rb=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.02,0.02,0.02]);
+sample_rb.alatt = [4.2240 4.2240 4.2240];
+sample_rb.angdeg = [90 90 90];
 rb_1=set_sample_and_inst(rb_1,sample_rb,@maps_instrument_obj_for_tests,'-efix',300,'S');
 for i=1:numel(rb_arr)
     rb_arr(i)=set_sample_and_inst(rb_arr(i),sample_rb,@maps_instrument_obj_for_tests,'-efix',300,'S');

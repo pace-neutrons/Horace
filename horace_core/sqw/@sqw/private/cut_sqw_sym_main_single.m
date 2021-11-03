@@ -64,11 +64,18 @@ else
 
     % Store some parameters for later loops
     header_ave=header_average(header);
-    alatt = header_ave.alatt;
-    angdeg = header_ave.angdeg;
-    upix_to_rlu = header_ave.u_to_rlu(1:3,1:3);
-    upix_offset = header_ave.uoffset;
-
+    if isa(header_ave,'Experiment')
+        alatt = header_ave.samples(1).alatt;
+        angdeg = header_ave.samples(1).angdeg;
+        upix_to_rlu = header_ave.expdata(1).u_to_rlu(1:3,1:3);
+        upix_offset = header_ave.expdata(1).uoffset;
+    else
+        alatt = header_ave.alatt;
+        angdeg = header_ave.angdeg;
+        upix_to_rlu = header_ave.u_to_rlu(1:3,1:3);
+        upix_offset = header_ave.uoffset;
+    end
+    
     for i=2:numel(sym)+1
         % Transform primary cut binning and projection
         [ok, mess, proj_trans, pbin_trans] = transform_proj (sym{i-1},...

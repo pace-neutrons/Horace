@@ -55,7 +55,7 @@ function [sqw_object,varargout] = get_sqw (obj, varargin)
 %
 opts = parse_args(obj, varargin{:});
 
-sqw_struc = struct('main_header',[],'header',[],'detpar',[],'data',[]);
+sqw_struc = struct('main_header',[],'experiment_info',[],'detpar',[],'data',[]);
 
 % Get main header
 % ---------------
@@ -72,7 +72,7 @@ headers  = obj.get_header('-all');
 % Get detector parameters
 % -----------------------
 if ~(opts.head||opts.his)
-    sqw_struc.detpar = obj.get_detpar();
+    sqw_struc.detpar_x = obj.get_detpar();
 end
 
 % Get data
@@ -97,11 +97,11 @@ end
 data_opt= [opt1, opt2, opt3];
 sqw_struc.data = obj.get_data(data_opt{:}, 'pixel_page_size', opts.pixel_page_size);
 
-sqw_struc.header = headers;
+sqw_struc.experiment_info = headers;
 if opts.legacy
     sqw_object = sqw_struc.main_header;
-    varargout{1} = sqw_struc.header;
-    varargout{2} = sqw_struc.detpar;
+    varargout{1} = sqw_struc.experiment_info;
+    varargout{2} = sqw_struc.detpar_x;
     varargout{3} = sqw_struc.data;
 elseif opts.head || opts.his
     sqw_object  = sqw_struc;

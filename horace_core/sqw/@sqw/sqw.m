@@ -9,13 +9,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
     
     properties
         main_header
-        header
-        detpar
+        experiment_info
+        detpar_x
         % CMDEV: data now a dependent property, below
     end
     
     properties(Dependent)
         data;
+        %;
     end
     
     methods (Access = protected)
@@ -62,20 +63,73 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         varargout = resolution_plot (w, varargin);
         wout = noisify(w,varargin);
         
+        function dtp = my_detpar(obj)
+            dtp = obj.detpar_x;
+        end
+        
+        function obj = change_detpar(obj,dtp)
+            obj.detpar_x = dtp;
+        end
+        
+        %function hdr = my_header(obj)
+        %    hdr = obj.experiment_info;
+        %end
+        
+        function obj = change_header(obj,hdr)
+            obj.experiment_info = hdr;
+        end
+        
+        function sqw_type = get_sqw_type(obj)
+            % determine the type of sqw object based on data in the header
+            % return value options are:
+            %      sqw_type == 'none' - the header is empty, there is no efix/emode
+            %                           data to determine the type
+            %      sqw_type == 'sqw2' - the header has emode==2 and
+            %                           numel(efix)>1
+            %      sqw_type == 'sqw'  - none of the above so using the
+            %                           class of obj i.e. sqw
+            sqw_type = 'sqw';
+            header =obj.experiment_info;
+            if isa(header, 'Experiment')
+                if isempty(header.expdata)
+                    sqw_type = 'none';
+                    return;
+                else
+                    header = header.expdata(1);
+                end
+            elseif iscell(header)
+                header = header{1};
+            elseif isempty(header)
+                sqw_type = 'none';
+                return;
+            end
+            emode = header.emode;
+            if emode == 2
+                nefix = numel(header.efix);
+                if nefix>1
+                    sqw_type = 'sqw2';
+                end
+            end
+        end
+
         function obj = sqw(varargin)
             obj = obj@SQWDnDBase();
             
+            
+            % here we go through the various options for what can
+            % initialise an sqw
             [args] = obj.parse_args(varargin{:});
             
-            % i) copy
+            % i) copy - it is an sqw
             if ~isempty(args.sqw_obj)
                 obj = copy(args.sqw_obj);
                 
-                % ii) filename
+                % ii) filename - init from a file
             elseif ~isempty(args.filename)
                 obj = obj.init_from_file_(args.filename, args.pixel_page_size);
                 
-                % iii) struct or data loader
+                % iii) struct or data loader - a struct, pass to the struct
+                % loader
             elseif ~isempty(args.data_struct)
                 if isa(args.data_struct,'dnd_file_interface')
                     args.data_struct = obj.get_loader_struct_(...
@@ -93,20 +147,39 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         end
         function obj = set.data(obj, d)
             %if isa(d,'data_sqw_dnd') || isempty(d)
-                obj.data_ = d;
+            obj.data_ = d;
             %else
             %    error('HORACE:sqw:invalid_argument',...
             %        'Only data_sqw_dnd class or empty value may be used as data value. Trying to set up: %s',...
             %        class(d))
             %end
         end
-%        function  save_xye(obj,varargin)
-%            %TODO: Enable this when doing #730
-%            % save data in xye format
-%            save_xye@DnDBase(obj.data,varargin{:});
-%        end
+        %        function  save_xye(obj,varargin)
+        %            %TODO: Enable this when doing #730
+        %            % save data in xye format
+        %            save_xye@DnDBase(obj.data,varargin{:});
+        %        end
         
         
+        function S = saveobj(obj)
+            % Method used my Matlab save function to support custom
+            % conversion to structure prior to saving.
+            %
+            %   >> S = saveobj(obj)
+            %
+            % Input:
+            % ------
+            %   obj     Scalar instance of the object class
+            %
+            % Output:
+            % -------
+            %   S       Structure created from obj that is to be saved
+            
+            % The following is boilerplate code
+                        
+            S = structIndep(obj);
+        end
+    
     end
     
     methods(Static)
@@ -122,17 +195,44 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             % -------
             % Output:
             %   obj     An instance of this object
+            
+            % the assumption here is that either the incoming data S
+            % is either an actual sqw or a struct with the same fields
+            % or an array of the same
+            
+            %if we have an sqw (which could be an array) we just return it
             if isa(S,'sqw')
                 obj = S;
                 return
             end
+            
+            % if we have a struct or array of structs the thing we need to
+            % do is change the header field for experiment_info and pass the
+            % resulting struct/array into the sqw constructor
             if numel(S)>1
                 tmp = sqw();
                 obj = repmat(tmp, size(S));
                 for i = 1:numel(S)
-                    obj(i) = sqw(S(i));
+                    ss =S(i);
+                    if isfield(S(i),'header')
+                        ss.experiment_info = S(i).header;
+                        ss = rmfield(ss,'header');
+                    end
+                    if isfield(S(i),'detpar')
+                        ss.detpar_x = S(i).detpar;
+                        ss = rmfield(ss,'detpar');
+                    end
+                    obj(i) = sqw(ss);
                 end
             else
+                if isfield(S,'header')
+                    S.experiment_info = S.header;
+                    S = rmfield(S,'header');
+                end
+                if isfield(S,'detpar')
+                    S.detpar_x = S.detpar;
+                    S = rmfield(S,'detpar');
+                end
                 obj = sqw(S);
             end
         end
@@ -144,6 +244,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
         
         wout = sqw_eval_(wout, sqwfunc, ave_pix, all_bins, pars);
+        
+        % take the inputs for a cut and return them in a standard form
+        [proj, pbin, opt,args] = process_and_validate_cut_inputs(obj, ndims_source, return_cut, varargin);
     end
     
     methods(Static, Access = private)
@@ -207,16 +310,33 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         function ld_str = get_loader_struct_(~,ldr,pixel_page_size)
             % load sqw structure, using file loader
             ld_str = struct();
-            [ld_str.main_header, ld_str.header, ld_str.detpar, ld_str.data] = ...
+            [ld_str.main_header, ld_str.experiment_info, ld_str.detpar_x, ld_str.data] = ...
                 ldr.get_sqw('-legacy', 'pixel_page_size', pixel_page_size);
         end
         function obj = init_from_loader_struct_(obj, data_struct)
             % initialize object contents using structure, obtained from
             % file loader
             obj.main_header = data_struct.main_header;
-            obj.header = data_struct.header;
-            obj.detpar = data_struct.detpar;
-            obj.data = data_struct.data;
+            try
+                if ~isempty(data_struct.experiment_info)
+                    obj.experiment_info = Experiment(data_struct.experiment_info);
+                    
+                else
+                    obj.experiment_info = Experiment();
+                end
+            catch ME
+                error("Developer error in header input");
+            end
+            try
+               obj.detpar_x = data_struct.detpar_x;
+            catch ME
+                error("Developer error in detpar input");
+            end
+            if isfield(data_struct,'data')
+                obj.data = data_struct.data;
+            elseif isfield(data_struct,'data_')
+                obj.data = data_struct.data_;
+            end
         end
     end
 end

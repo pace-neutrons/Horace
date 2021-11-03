@@ -100,7 +100,7 @@ classdef dnd_binfile_common < dnd_file_interface
         npix_position;
         
     end
-    %
+    
     methods(Access = protected,Hidden=true)
         %
         function obj=init_from_sqw_obj(obj,varargin)
@@ -580,7 +580,7 @@ classdef dnd_binfile_common < dnd_file_interface
         % correspondent to the structure form_fields
         [fn_start,fn_end,is_last] = extract_field_range(pos_fields,form_fields);
         %
-        function img_db_range = calc_img_db_range(ds)
+        function img_db_range = calc_img_db_range(axes_block_instance)
             % function used to retrieve 4D range used for rebinning pixels from old
             % style sqw objects, where this range was not stored directlry
             % 
@@ -589,36 +589,35 @@ classdef dnd_binfile_common < dnd_file_interface
             %
             % Inputs: either data_sqw_dnd instance or a structure
             % containing:
-            % The relevant data structure used as source of image range is as follows:
-            %
-            %   ds.iax        Index of integration axes into the projection axes  [row vector]
-            %                  Always in increasing numerical order
-            %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
-            %   ds.iint       Integration range along each of the integration axes. [iint(2,length(iax))]
-            %                       e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
-            %   ds.pax        Index of plot axes into the projection axes  [row vector]
-            %                  Always in increasing numerical order
-            %                       e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
-            %                                       2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
-            %   ds.p          Cell array containing bin boundaries along the plot axes [column vectors]
-            %                       i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
-            %   ds.dax        Index into data.pax of the axes for display purposes. For example we may have
-            %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
-            %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
-            %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
-            %
-            
+            % The relevant data used as source of image range is as follows:
+            %axes_block_instance fields
+            %   .iax --    Index of integration axes into the projection axes  [row vector]
+            %              Always in increasing numerical order
+            %              e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
+            %   .iint --  Integration range along each of the integration axes. [iint(2,length(iax))]
+            %             e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
+            %   .pax --   Index of plot axes into the projection axes  [row vector]
+            %             Always in increasing numerical order
+            %             e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
+            %             2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
+            %   .p  --    Cell array containing bin boundaries along the plot axes [column vectors]
+            %             i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
+            %   .dax --   Index into data.pax of the axes for display purposes. For example we may have
+            %             data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
+            %             the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
+            %             the display axes to be permuted but without the contents of the fields p, s,..pix needing to
+            %            
             img_db_range = zeros(2,4);
-            img_db_range(:,ds.iax) = ds.iint;
+            img_db_range(:,axes_block_instance.iax) = axes_block_instance.iint;
             
-            npax = numel(ds.p);
+            npax = numel(axes_block_instance.p);
             pax_range = zeros(2,npax);
             for i=1:npax % this is incorrect for cuts as additional range in cuts is extended by half-bin
                 % but this is correct for newly generated sqw objects.
-                pax_range(:,i) = [ds.p{i}(1);...
-                    ds.p{i}(end)];
+                pax_range(:,i) = [axes_block_instance.p{i}(1);...
+                    axes_block_instance.p{i}(end)];
             end
-            img_db_range(:,ds.pax) = pax_range;
+            img_db_range(:,axes_block_instance.pax) = pax_range;
         end
     end
 end

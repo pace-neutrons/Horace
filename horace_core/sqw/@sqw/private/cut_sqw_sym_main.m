@@ -141,11 +141,8 @@ hor_log_level = config_store.instance().get_value('herbert_config','log_level');
 return_cut = (nargout>0);
 return_comp = (nargout>1);
 
-[ok, mess, data_source, proj, pbin, args, opt] = ...
-    cut_sqw_check_input_args (data_source, ndims_source, return_cut, varargin{:});
-if ~ok
-    error ('CUT_SQW:invalid_arguments', mess)
-end
+[proj, pbin, opt,args] = ...
+    process_and_validate_cut_inputs(data_source, ndims_source, return_cut, varargin{:});
 
 % Checks on symmetry description - check valid, and remove empty descriptions
 if numel(args)==1

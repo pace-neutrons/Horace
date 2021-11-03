@@ -14,7 +14,7 @@ function [iax, iint, pax, p, img_db_range_out] = calc_transf_img_bins(proj,img_d
 %
 % Input:
 % ------
-%   pix_range_in   [2x4] array of range of pixels along the initial projection axes (elements must all be finite)
+%   img_db_range_in  [2x4] array of range of pixels along the initial projection axes (elements must all be finite)
 %
 %   proj        The class which defines the projection
 %

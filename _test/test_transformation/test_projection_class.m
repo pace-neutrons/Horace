@@ -35,7 +35,7 @@ classdef test_projection_class<TestCase
             assertTrue(isempty(proj.w))
             
             f = @()projection([0,1,0]);
-            assertExceptionThrown(f,'PROJAXES:invalid_argument');
+            assertExceptionThrown(f,'HORACE:projaxes:invalid_argument');
             
             proj = projection([0,1,0],[1,0,0]);
             assertElementsAlmostEqual(proj.u,[0,1,0])

@@ -17,7 +17,7 @@ classdef test_gen_runfiles < TestCase
             % -----------------------------------------------------------------------------
         end
 
-        function test_gen_sqw_serial(obj)
+        function test_gen_sqw_serial(~)
             
             % This test should always run serially
             % test_gen_sqw_accumulate_sqw_<framework> tests in parallel

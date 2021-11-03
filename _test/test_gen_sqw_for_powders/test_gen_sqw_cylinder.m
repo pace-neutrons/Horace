@@ -92,5 +92,3 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
         end
     end
 end
-
-

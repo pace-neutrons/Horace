@@ -75,7 +75,9 @@ classdef test_upgrade_pix_pixrange< TestCase
             ld0 = ld0.init(source_file);
             
             assertEqual(ld1.get_main_header('-keep_original'),ld0.get_main_header('-keep_original'));
-            assertEqual(ld1.get_header(),ld0.get_header());
+            %THIS IS OFFICIALLY NO LONGER EQUAL BECAUSE v2 HAS RAW STRUCTS
+            %FOR INST, SAMPLE, WHILE V33 HAS IX_NULL TYPES
+            %assertEqual(ld1.get_header(),ld0.get_header());
             d1 = ld1.get_data();
             pix1 = d1.pix;
             d1.pix = PixelData();

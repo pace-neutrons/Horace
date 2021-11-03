@@ -221,8 +221,8 @@ if ~ok, error('GEN_SQW:invalid_argument',mess), end
 
 % Check optional arguments (grid, pix_db_range, instrument, sample) for size, type and validity
 grid_default=[];
-instrument_default=struct;  % default 1x1 struct
-sample_default=struct;      % default 1x1 struct
+instrument_default=IX_null_inst();  % default 1x1 struct
+sample_default=IX_null_sample();      % default 1x1 struct
 [ok,mess,present,grid_size_in,pix_db_range,instrument,sample]=gen_sqw_check_optional_args(...
     n_all_spe_files,grid_default,instrument_default,sample_default,args{:});
 if ~ok, error('GEN_SQW:invalid_argument',mess), end
@@ -261,10 +261,10 @@ if accumulate_old_sqw    % combine with existing sqw file
         if ~ok, error(mess), end
         % It is expected that one would not run replicate and accumulate
         % together and add replicated files without run_id changes after
-        % first accumulation because the files with identical run-ids will
-        % contribute into pixels but headers (experiment info)
+        % first accumulation because the files with identical run-ids will 
+        % contribute into pixels but headers (experiment info) 
         % will be added for each file
-        %
+        % 
         % Assume:
         % the file has been calculated and run_id-s are stored in the file
         % All its run-id-s are unique, as doing opposite,
@@ -455,9 +455,10 @@ else
         end
     end
     
-    if opt.replicate && ~spe_unique
+    
+    if opt.replicate && ~spe_unique 
         % expand run_ids for replicated files to make run_id-s unique
-        run_files = update_duplicated_rf_id(run_files);
+        run_files = update_duplicated_rf_id(run_files);        
     end
     keep_par_cl_running = ~opt.tmp_only || nargout>3;
     

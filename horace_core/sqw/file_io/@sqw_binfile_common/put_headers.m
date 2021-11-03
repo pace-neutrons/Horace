@@ -64,6 +64,9 @@ if ~isempty(header_num)
 else
     n_files2_process = obj.num_contrib_files;
     data_2save = headers;
+    if isa(data_2save,'Experiment')
+        data_2save = data_2save.convert_to_old_headers();
+    end
 end
 
 if update
