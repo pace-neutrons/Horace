@@ -107,6 +107,7 @@ else
                 data = struct();
                 [data.main_header,data.header,data.detpar,data.data] = ...
                     loaders{i}.get_sqw('-legacy','-nopix','-verbatim');
+                data.header = data.header.header;
             else
                 data         = loaders{i}.get_data('-verbatim','-nopix');
                 if isa(data,'data_sqw_dnd')

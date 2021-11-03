@@ -16,6 +16,10 @@ classdef Experiment < serializable
         samples
         expdata
     end
+    properties(Dependent,Hidden)
+        % property providing compartibility with old header interface
+        header
+    end
     properties(Constant,Access=private)
         fields_to_save_ = {'instruments','detector_arrays','samples','expdata'};
     end
@@ -133,9 +137,9 @@ classdef Experiment < serializable
         end
         %
         function obj=set.instruments(obj, val)
-            if ~isa(val,'IX_inst') && all(isempty(val)) % empty IX_inst may have a shape 
+            if ~isa(val,'IX_inst') && all(isempty(val)) % empty IX_inst may have a shape
                 % but nice to clear sample by providing empty string
-                val = IX_inst();                
+                val = IX_inst();
             end
             
             if isa(val,'IX_inst')
@@ -147,7 +151,7 @@ classdef Experiment < serializable
                 error('HORACE:Experiment:invalid_argument', ...
                     'Instruments must be one or an array of IX_inst objects. In fact it is %s',...
                     class(val))
-            end            
+            end
         end
         %
         function is = is_same_ebins(obj)
@@ -173,9 +177,9 @@ classdef Experiment < serializable
         end
         %
         function obj=set.samples(obj, val)
-            if ~isa(val,'IX_samp') && all(isempty(val))  % empty IX_sample may have a shape 
+            if ~isa(val,'IX_samp') && all(isempty(val))  % empty IX_sample may have a shape
                 % but nice to clear sample by providing empty string
-                val = IX_samp();                
+                val = IX_samp();
             end
             
             if isa(val,'IX_samp')
@@ -195,7 +199,7 @@ classdef Experiment < serializable
         %
         function obj=set.expdata(obj, val)
             if ~isa(val,'IX_experiment') && isempty(val)  % empty IX_experiment may have shape
-                val = IX_experiment();                
+                val = IX_experiment();
             end
             if isa(val,'IX_experiment')
                 if size(val,1) > 1 % do rows, they are more compact at serialization
@@ -216,7 +220,7 @@ classdef Experiment < serializable
         %------------------------------------------------------------------
         function obj = set_efix_emode(obj,efix,emode)
             % change efix and (optionally) emode in all experiment descriptions
-            % if emode is absent or described by any character string, 
+            % if emode is absent or described by any character string,
             % the emode is kept unchanged
             if nargin == 2
                 emode = '-keep_emode';
@@ -261,6 +265,9 @@ classdef Experiment < serializable
             % compartibility fields with old binary file formats
             %
             samp = obj.samples_(1);
+        end
+        function head = get.header(obj)
+            head  = obj.expdata;
         end
         % GEN_SQW interface
         %------------------------------------------------------------------
@@ -316,22 +323,22 @@ classdef Experiment < serializable
             for i=1:n_contrib
                 for j=1:exp_cellarray{i}.n_runs
                     instr(ic) = exp_cellarray{i}.instruments(j);
-                    sampl(ic) = exp_cellarray{i}.samples(j);  
-                    expinfo(ic) =exp_cellarray{i}.expdata(j);  
+                    sampl(ic) = exp_cellarray{i}.samples(j);
+                    expinfo(ic) =exp_cellarray{i}.expdata(j);
                 end
                 ic = ic+1;
             end
             exp = Experiment([], instr, sampl);
             exp.expdata = expinfo;
-%             if iscell(exp_cellarray)
-%                 for i=1:n_contrib
-%                     [exp,n_combined] = exp.add_contents(exp_cellarray{i});
-%                 end
-%             else
-%                 for i=1:n_contrib
-%                     [exp,n_combined] = exp.add_contents(exp_cellarray(i));
-%                 end
-%             end
+            %             if iscell(exp_cellarray)
+            %                 for i=1:n_contrib
+            %                     [exp,n_combined] = exp.add_contents(exp_cellarray{i});
+            %                 end
+            %             else
+            %                 for i=1:n_contrib
+            %                     [exp,n_combined] = exp.add_contents(exp_cellarray(i));
+            %                 end
+            %             end
         end
     end
     %======================================================================
