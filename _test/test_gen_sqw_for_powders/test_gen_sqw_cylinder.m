@@ -62,6 +62,8 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
 
             %add_to_files_cleanList(this,this.spe_file);
             add_to_path_cleanList(this,test_functions_path);
+            %
+            this.save();
         end
 
         function this=test_gen_sqw_cyl(this)

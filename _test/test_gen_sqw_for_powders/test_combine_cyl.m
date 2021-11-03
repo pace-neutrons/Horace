@@ -69,7 +69,7 @@ classdef test_combine_cyl < TestCaseWithSave
             %add_to_files_cleanList(this,this.spe_file_1,this.spe_file_2);
             add_to_path_cleanList(this,test_functions_path);
 
-
+            this.save();
         end
 
         function this=test_combine_cyl1(this)
