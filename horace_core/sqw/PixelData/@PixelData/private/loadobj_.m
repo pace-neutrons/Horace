@@ -41,12 +41,16 @@ if isstruct(S)
         if isfield(S,'data_')
             for i=1:numel(S)
                 set_data(obj(i),'all',S(i).data_);
-                obj(i).reset_changed_coord_range('coordinates')
+                obj(i).reset_changed_coord_range('coordinates');
             end
         elseif isfield(S,'raw_data_')
             for i=1:numel(S)
                 obj(i).set_data('all',S(i).raw_data_);
-                obj(i).set_range(S(i).pix_range_);
+                if isfield(S(i),'pix_range_')
+                    obj(i).set_range(S(i).pix_range_);
+                else
+                    obj(i).reset_changed_coord_range('coordinates');                    
+                end
                 obj(i).file_path_ = S(i).file_path_;
             end
         else
