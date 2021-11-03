@@ -9,7 +9,7 @@ if isnumeric(nwk)
     nwk = num2str(nwk);
 end
 if ~exist('addinfo','var')
-    addinfo = '';
+    addinfo = '_';
 end
 if ischar(addinfo)
     if addinfo(1) ~='_'
