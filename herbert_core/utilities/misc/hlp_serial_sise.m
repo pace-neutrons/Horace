@@ -106,6 +106,7 @@ else
     siz = siz+ data_siz;
 end
 end
+%
 function  siz = serial_sise_itself(v, ~)
 % one for tag;
 siz = v.serial_size()+1;
@@ -131,7 +132,7 @@ if nElem > 0
         try
             % try to use the saveobj method first to get the contents
             conts = arrayfun(@saveobj, v);
-            if isobject(conts) % saveob has not been overloaded
+            if isobject(conts) % saveobj has not been overloaded
                 conts = arrayfun(@struct,v);
             end
         catch 
