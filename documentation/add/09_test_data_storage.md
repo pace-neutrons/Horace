@@ -58,7 +58,7 @@ Instructions on how to gain access to the SAN can be found [here](https://github
 * Trickier to manage version control which may result in inconsistencies between current code state and test data.
 
 
-### GitHub LFS
+## GitHub LFS
 Git has an extension for Large File Storage (LFS), 
 which could be used to track and store data as part of the git repo as we have been currently, albeit more efficiently.
 
@@ -68,6 +68,8 @@ which could be used to track and store data as part of the git repo as we have b
 ### Cons
 * Requires extra git extension to manage for all developers (`git lfs install`).
 * Requires extra git command to handle large-data (`git lfs track "*.psd"`).
+* Costs money ($5/month for 50GB storage and 50GB of transfers) if using Github provided servers.
+* Some effort to manage a LFS file server (e.g. on SCD cloud) otherwise.
 
 ## Separate test data repo
 It is also possible to set up a separate test data repo to store and track test data which may be pulled as submodules within the main git repos.
@@ -82,7 +84,11 @@ It is also possible to set up a separate test data repo to store and track test 
 * Submodules are a mess.
 
 ## STFC Cloud Storage
-\<Different to FTP?\>
+An FTP or LFS server can be run on the [SCD Cloud](https://openstack.stfc.ac.uk/) with attached CEPH storage.
+This could be made world-accessible (public IP).
 
 ### Pros
+* Most flexible
+* Satisfies all requirements
 ### Cons
+* Requires effort to maintain the server.
