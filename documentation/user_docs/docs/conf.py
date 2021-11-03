@@ -10,7 +10,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
+import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Horace'
-copyright = '2020, STFC RAL'
+copyright = '2020-2021, STFC RAL'
 authors = ['A. Buts','T.G. Perring','N. Battam','H. Saunders','M.D. Le','C. Marooney','J. Wilkins', 'R.A. Ewings', 'J. van Duijn', 'I. Bustinduy', 'G. Tucker', 'R. Fair']
 
 author = ', '.join(sorted(authors,key=lambda x: x.split()[-1])) # Authors by surname
@@ -30,7 +30,11 @@ author = ', '.join(sorted(authors,key=lambda x: x.split()[-1])) # Authors by sur
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinxcontrib.matlab",
     "sphinx.ext.autosectionlabel",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.napoleon",
 ]
 
 source_suffix = {
@@ -42,6 +46,16 @@ source_suffix = {
 highlight_language = "matlab"
 
 autosectionlabel_prefix_document = True
+
+autosummary_generate = True
+
+napoleon_use_ivar = True
+napoleon_use_param = False
+napoleon_use_admonition_for_notes = True
+
+matlab_src_dir = os.path.abspath(os.path.join(os.path.abspath('.'), "../../../horace_core"))
+matlab_keep_package_prefix = False
+primary_domain = 'mat'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
