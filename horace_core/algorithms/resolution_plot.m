@@ -92,6 +92,9 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 %     object oriented sqw object construction would deal with this, but for the
 %     mean time, create an sqw object here.
 
+% NOTE:
+% if you have alatt and angdeg defined in sample, these are ignored
+% and overided by input alall and angdeg
 
 % Check parameters
 % ----------------
@@ -194,6 +197,7 @@ wres.main_header = main_header;
 
 
 % Make header
+
 header.filename = '';
 header.filepath = '';
 header.efix = efix;
@@ -215,22 +219,24 @@ header.u_to_rlu = zeros(4,4);
 header.u_to_rlu(4,4) = 1;
 header.ulen = [1,1,1,1];
 header.ulabel = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
+expdata = IX_experiment(header);
 
-if isa(instrument,'IX_inst') && isscalar(instrument)
-    header.instrument = instrument;
-else
+if ~(isa(instrument,'IX_inst') && isscalar(instrument))
     error('HORACE:resolution_plot:invalid_argument',...
         'Instrument must be a scalar instrument object')
 end
 
-if isa(sample,'IX_sample')
-    header.sample = sample;
-else
+if ~isa(sample,'IX_sample')
     error('HORACE:resolution_plot:invalid_argument',...
         'Sample must be a scalar IX_sample object')
+else
+    sample.alatt = alatt;
+    sample.angdeg = angdeg;
 end
+exper = Experiment([],instrument,sample);
+exper.expdata = expdata;
 
-wres.experiment_info = header;
+wres.experiment_info = exper;
 
 
 % Check detector
@@ -286,7 +292,7 @@ data.npix = [0,0,0; 0,1,0; 0,0,0];
 data.img_db_range = [data.uoffset;data.uoffset];
 data.pix = PixelData([zeros(4,1);1;1;1;0;0]);  % wrong (Q,w) - but this is OK
 
-wres.data = data;
+wres.data = data_sqw_dnd(data);
 
 % Make the sqw object. The defining qualities of this sqw object that mean it can be
 % picked out as special are that it is:
