@@ -45,6 +45,8 @@ classdef IX_inst_DGdisk < IX_inst
             %   source          Source: name (e.g. 'ISIS') or IX_source object
             
             % General case
+            % make DGdisk not empty by default
+            obj.name_ = '_';
             if nargin==1 && isstruct(varargin{1})
                 % Assume trying to initialise from a structure array of properties
                 obj = IX_inst_DGdisk.loadobj(varargin{1});
@@ -53,24 +55,11 @@ classdef IX_inst_DGdisk < IX_inst
                 namelist = {'moderator','shaping_chopper','mono_chopper',...
                     'horiz_div','vert_div','energy','name','source'};
                 [S, present] = parse_args_namelist (namelist, varargin{:});
-                is_present = struct2cell(present);
-                is_present = [is_present{:}];
                 
                 % Superclass properties: TODO: call superclass to set them
                 if present.name
                     obj.name_ = S.name;
-                    if sum(is_present)<2 % setting only name
-                        return;
-                    end
-                else
-                    if any(is_present) % problem of having property 'isempty'
-                        % sealed on superclass. Will be partially mitigated
-                        % on setting superclass properties on superclass
-                        % (see TODO above)
-                        obj.name_ = '_';
-                    end
                 end
-                
                 if present.source
                     obj.source_ = S.source;
                 end
