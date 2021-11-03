@@ -2,20 +2,24 @@
 
 Date: 3-11-2021
 
+## Introduction
+Data for Horace tests is currently stored in the repo, which has implications for the data size required for upload, download and storage.
+This document describes these issues in detail, provides requirements for alternative storage location and gives possible alternative storage strategies".
+
 ## Current State
 Currently, the test data are stored on the GitHub Repo as part of the Herbert/Horace project. 
 Anyone who clones the GitHub repo also clones all test data and the history of binary mat files.
 
-All users of the GitHub version have direct access to the test data, stored in the correct location.
+All users of the GitHub version have direct access to the test data, and said data are created on the local machine in the correct (searchable) locations.
 
-### Issues
+## Issues
 * Cloning the repo can take excessive time and Repo is approaching 1GB in size. 
   Because of their binary format, git cannot easily calculate the diffs and as such will store multiple full copies in the history.
 * In order to remedy this, a workaround has been performed 
   (removing copies from the history) on a semi-regular basis which requires all branches to be saved, pulled and merged; 
   this can result in corruption if care is not taken.
 * Future requirements of the project include benchmarking. 
-  Should benchmarking tests require large data (likely), these should not be stored in the repo for above reasons.
+  Should benchmarking tests require large data (likely), these should not be stored in the repo for the above reasons.
 
 ## Requirements
 * It is not necessary that the data should be secure/private and does not require special considerations, however, write-access should be protected.
@@ -25,8 +29,7 @@ All users of the GitHub version have direct access to the test data, stored in t
 * Data should be programatically retrievable (particularly important for CI testing)
   either through shell or through mounting virtual drive.
 
-
-# Appendix - Potential solutions to issues
+## Potential solutions to issues
 ## FTP server
 Externally accessible FTP server to store and recover files. 
 
@@ -35,6 +38,7 @@ Externally accessible FTP server to store and recover files.
 * Can be linked into CMake with possibility of only pulling test data if deemed necessary.
 
 ### Cons
+* Files may have to be manually copied to the correct locations (possible through CMake)
 * Requires management/support of external server.
 * Trickier to manage version control which may result in inconsistencies between current code state and test data.
 
