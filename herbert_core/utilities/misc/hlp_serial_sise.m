@@ -131,7 +131,10 @@ if nElem > 0
         try
             % try to use the saveobj method first to get the contents
             conts = arrayfun(@saveobj, v);
-        catch
+            if isobject(conts) % saveob has not been overloaded
+                conts = arrayfun(@struct,v);
+            end
+        catch 
             conts = arrayfun(@struct, v);
         end
         conts_siz = hlp_serial_sise(conts);
