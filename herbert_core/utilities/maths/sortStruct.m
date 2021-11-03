@@ -13,7 +13,7 @@ function [bStruct, ix] = sortStruct(aStruct, varargin)
 % Similar to the intrinsic Matlab sort but here for a struct array
 %
 % For a more general sorting algorithm that recursively resolves any objects
-% into its properties and which can sort variable types of dissimilar 
+% into its properties and which can sort variable types of dissimilar
 % types and sizes, use <a href="matlab:help('gensort');">gensort</a>
 %
 % Input
