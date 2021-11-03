@@ -105,7 +105,7 @@ else
 end
 
 
-data_out = data;
+data_out = data_sqw_dnd();
 data_out.s = reshape(s, nbin_as_size);
 data_out.e = reshape(e, nbin_as_size);
 data_out.npix = reshape(npix, nbin_as_size);
