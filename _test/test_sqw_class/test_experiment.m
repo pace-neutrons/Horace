@@ -11,7 +11,7 @@ classdef test_experiment < TestCaseWithSave
         
         function test_creates_object_with_single_object_arguments(~)
             detector_array = IX_detector_array;
-            instrument = IX_inst_DGfermi('-name','MERLIN');
+            instrument = IX_inst_DGfermi();
             sample = IX_sample;
             expt = Experiment(detector_array, instrument, sample);
             
@@ -47,7 +47,7 @@ classdef test_experiment < TestCaseWithSave
         
         function test_creates_object_with_array_object_arguments(~)
             detector_array = IX_detector_array;
-            instrument = IX_inst_DGfermi('-name','LET');
+            instrument = IX_inst_DGfermi();
             sample = IX_sample;
             expt = Experiment( ...
                 [detector_array, detector_array], ...
@@ -63,7 +63,7 @@ classdef test_experiment < TestCaseWithSave
             tmpfile = fullfile([tempdir(), 'test_experiment', 'loadsave.mat']);
             clobR=onCleanup(@()self.delete_files(tmpfile));
             
-            instruments = [IX_inst_DGfermi('-name','LET'), IX_inst_DGdisk('-name','MER')];
+            instruments = [IX_inst_DGfermi(), IX_inst_DGdisk()];
             sample1 = IX_sample;
             sample1.name = 'sample1';
             sample2 = IX_sample;
@@ -99,8 +99,8 @@ classdef test_experiment < TestCaseWithSave
         end
         
         function test_instruments_setter_updates_value_for_valid_value(~)
-            instruments = [IX_inst_DGfermi('-name','my_fermi'),...
-                IX_inst_DGdisk('-name','my_disk')];
+            instruments = [IX_inst_DGfermi(),...
+                IX_inst_DGdisk()];
             expt = Experiment();
             expt.instruments = instruments;
             
