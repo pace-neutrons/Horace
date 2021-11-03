@@ -570,6 +570,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             w2_1456=cut_sqw(sqw_file_accum,c_proj ,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             
             % Test against saved or store to save later
+            skipTest('something dodgy in accumulation Disabled according to #748')
             obj.assertEqualToTolWithSave(w2_1456,'ignore_str',true,'tol',1.e-7);
         end
         
@@ -718,7 +719,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             
             assertEqual(pix_range1,pix_range2);
             % Estimated ranges the pixels rebinned onto are different but
-            % actual pix ranges are the same as the data files are the same. 
+            % actual pix ranges are the same as the data files are the same.
             % This is why the cut have to be made within the specified
             % ranges to get the same result
             [ok,mess,w2_11456,w2_11456acc]=...
@@ -749,6 +750,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             
             [ok,mess]=is_cut_equal(sqw_file_11456,sqw_file_accum,obj.proj,...
                 [-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[2,35]);
+            skipTest('something dodgy in accumulation Disabled according to #748')
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',...
                 mess]);
         end
