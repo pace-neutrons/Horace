@@ -45,7 +45,7 @@ else
     emode=[];   % indicates emode to be left untouched
 end
 % get file accessors
-[ldrs,sqw_type] = get_file_loaders(filelist);
+[ldrs,sqw_type] = get_loaders(filelist);
 
 % Perform operations
 % ==================

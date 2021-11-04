@@ -48,21 +48,7 @@ classdef Experiment < serializable
                     obj = S;
                     return;
                 elseif isstruct(S)
-                    % Assume trying to initialise from a structure array of properties
-                    % Actually this is the case where the header has just one
-                    % run in it. It may be simpler to convert the header to a
-                    % cell of one - but leaving this for the moment,
-                    if isfield(S,'version')
-                        obj =Experiment.loadobj(S);
-                    elseif isfield(varargin{1},'serial_name')
-                        obj =serializable.from_struct(S);
-                    else
-                        if isfield(S,'filename') && isfield(S,'efix') % this is probably old single header
-                            obj = build_from_old_headers_(obj,{S});
-                        else
-                            obj =from_class_struct(obj,S);
-                        end
-                    end
+                    obj =Experiment.loadobj(S);
                 elseif iscell(S)
                     obj = build_from_old_headers_(obj,S);
                 else
@@ -95,8 +81,13 @@ classdef Experiment < serializable
         end
         %
         function oldhdrs = convert_to_old_headers(obj,header_num)
-            % convert Experiment into the old header structure, initially
-            % stored within binary files
+            % convert Experiment into the structure suitable to be 
+            % stored in old binary sqw files (up to version 3.xxx) 
+            % 
+            % this structure is also used in number of places of the old
+            % code where, e.g., structure sorting is implemented but this
+            % usage is deprecated and will be removed in a future.
+            %
             samp = obj.get_unique_samples();
             if nargin == 2
                 oldhdrs = obj.expdata_(header_num).to_bare_struct();
@@ -138,7 +129,7 @@ classdef Experiment < serializable
         %
         function obj=set.instruments(obj, val)
             if ~isa(val,'IX_inst') && all(isempty(val)) % empty IX_inst may have a shape
-                % but nice to clear sample by providing empty string
+                % but nice to clear instrument by providing empty input
                 val = IX_inst();
             end
             
@@ -155,7 +146,7 @@ classdef Experiment < serializable
         end
         %
         function is = is_same_ebins(obj)
-            % return true if all energy bins of all experiments are the
+            % return true if all energy bins of all runs are the
             % same
             is=true;
             en=obj.expdata(1).en;
@@ -168,7 +159,8 @@ classdef Experiment < serializable
         end
         %
         function expi = get_aver_experiment(obj)
-            % some, presumably average, experiment data
+            % some, presumably average, run-data. Naive implementation, 
+            % all data are the same
             expi = obj.expdata(1);
         end
         
@@ -177,8 +169,9 @@ classdef Experiment < serializable
         end
         %
         function obj=set.samples(obj, val)
-            if ~isa(val,'IX_samp') && all(isempty(val))  % empty IX_sample may have a shape
-                % but nice to clear sample by providing empty string
+            if ~isa(val,'IX_samp') && all(isempty(val))  % empty IX_sample 
+                % may have a shape but nice to clear sample by providing
+                % empty string
                 val = IX_samp();
             end
             
@@ -189,7 +182,8 @@ classdef Experiment < serializable
                 obj.samples_ = val;
             else
                 error('HORACE:Experiment:invalid_argument', ...
-                    'Sample must be one or an array of IX_samp objects')
+                    'Sample must be one or an array of IX_samp objects. Actually it is: %s',...
+                    class(v))
             end
         end
         %
@@ -198,7 +192,7 @@ classdef Experiment < serializable
         end
         %
         function obj=set.expdata(obj, val)
-            if ~isa(val,'IX_experiment') && isempty(val)  % empty IX_experiment may have shape
+            if ~isa(val,'IX_experiment') && all(isempty(val)) % empty IX_experiment may have shape
                 val = IX_experiment();
             end
             if isa(val,'IX_experiment')
@@ -207,7 +201,8 @@ classdef Experiment < serializable
                 end
             else
                 error('HORACE:Experiment:invalid_argument', ...
-                    'Sample must be one or an array of IX_experiment objects')
+                    'Sample must be one or an array of IX_experiment objects. Actually it is: %s',...
+                    class(v))
             end
             obj.expdata_ = val;
         end
@@ -249,7 +244,7 @@ classdef Experiment < serializable
         function [avh,ebins_are_the_same] = header_average(obj)
             % very crude implementation for the header, average over all
             % runs.
-            % 
+            %
             if isempty(obj.expdata)
                 avh = [];
             else
@@ -263,41 +258,56 @@ classdef Experiment < serializable
             avh = avh.to_bare_struct();
             sampl = obj.samples_(1);
             avh.alatt = sampl.alatt;
-            avh.angdeg = sampl.angdeg;            
+            avh.angdeg = sampl.angdeg;
         end
         %
         function instr = get_unique_instruments(obj)
             % compartibility fields with old binary file formats
+            % TODO: needs proper implementation            
             instr = obj.instruments_(1);
         end
         %
         function samp = get_unique_samples(obj)
             % compartibility fields with old binary file formats
-            %
+            % TODO: needs proper implementation
             samp = obj.samples_(1);
         end
+        %
         function head = get.header(obj)
-            head  = obj.expdata;
+            head = obj.convert_to_old_headers();
+            head = rmfield(head,{'instrument','sample'});
         end
-        % GEN_SQW interface
+    end
+    methods(Access=protected)
         %------------------------------------------------------------------
-        function [obj,nelements] = add_contents(obj,other_exper)
-            % add contents of the other_exper object to the contetns of the
-            % current experiment
+        function obj = from_old_struct(obj,inputs)
+            % Restore object from the old structure, which describes the
+            % previous version of the object.
             %
-            % TODO: do proper optiomization on the way, avoid copying the
-            % same information.
-            n_exisiting_inst = sum(~isempty(obj.instruments));
-            n_exisiting_samp = sum(~isempty(obj.samples));
-            n_existing_expi = sum(~isempty(obj.expdata));
-            
-            [obj,n_added_inst] = check_and_copy_contents_(obj,other_exper.instruments(),'instruments_');
-            [obj,n_added_samp] = check_and_copy_contents_(obj,other_exper.samples(),'samples_');
-            [obj,n_added_expi] = check_and_copy_contents_(obj,other_exper.expdata(),'expdata_');
-            
-            nelements = max([n_exisiting_inst+n_added_inst,...
-                n_exisiting_samp+n_added_samp,n_existing_expi+n_added_expi]);
+            % The method is called by loadobj in the case if the input
+            % structure does not contain version or the version, stored
+            % in the structure does not correspond to the current version
+            %
+            % By default, this function interfaces the default from_class_struct
+            % method, but when the old strucure substantially differs from
+            % the moden structure, this method needs the specific overloading
+            % to allow loadob to recover new structure from an old structure.
+            %
+            %if isfield(inputs,'version')
+            %      do check for previous versions
+            %      and appropriate code
+            %end
+            if isfield(S,'filename') && isfield(S,'efix') % this is probably old single header
+                obj = build_from_old_headers_(obj,{S});
+            else
+                if isfield(inputs,'array_dat')
+                    obj = obj.from_class_struct(inputs.array_dat);
+                else
+                    obj = obj.from_class_struct(inputs);
+                end
+            end
         end
+        
     end
     %
     methods(Access=private)
@@ -316,10 +326,16 @@ classdef Experiment < serializable
             % during gen_sqw generation)
             % and combine then together into single Experiment info class
             %
-            %TODO: Do proper optinization on the way. See sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers)
+            %This is the HACK, providing only basic functionality. Previous
+            %header-s on the basis of sqw_header and part, present in 
+            %write_nsqw_to_sqw implementation offers much more.
+            %
+            %TODO: Do proper optinization on the way. See 
+            % sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers)
             %TODO: use allow_equal_headers,drop_subzone_headers variables
             %      appropriately
             %TODO: repeat at least the logic within sqw_header helper class
+            %      and write_nsqw_to_sqw combine/check headers operation
             n_contrib = numel(exp_cellarray);
             nspe = zeros(n_contrib,1);
             for i=1:n_contrib

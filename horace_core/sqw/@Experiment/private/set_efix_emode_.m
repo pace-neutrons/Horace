@@ -7,13 +7,15 @@ elseif isnumeric(emode) && emode>-1 && emode<3
     change_emode = true;
 else
     error('HORACE:Experiment:invalid_argument',...
-        'invalid emode specified. It can be number from 0 to 2. Actually it is %s',...
+        'invalid emode specified. It should be number from 0 to 2. Actually it is %s',...
         evalc('disp(emode)'));
 end
 
 if numel(efix)>1
     multiefix = true;
-    if numel(efix) ~= obj.n_runs
+    if numel(efix) ~= obj.n_runs % this would not work for Mushrum. The question is if this
+        % method should be used for mushroom or should be used at all
+        % but...
         error('HORACE:Experiment:invalid_argument',...
             'number of elements in efix must be one or equal to the number of experiment info. Actually n_efix = %d, n_runs= %d',...
             numel(efix),obj.n_runs);
@@ -34,4 +36,3 @@ for i=1:obj.n_runs
     end
 end
 obj.expdata_ = expd;
-

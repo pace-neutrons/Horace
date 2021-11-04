@@ -43,7 +43,7 @@ for i=1:numel(headers)
     sampl = hdr.samples;
     %
     if isstruct(sampl) && isempty(fieldnames(sampl))
-        %TODO: IBID: it should be sample factory, returning samples as function
+        %TODO: should it be sample factory?, returning samples as function
         % of inputs. The same as instrument
         sampl = IX_samp();
         sampl.alatt = alatt;
