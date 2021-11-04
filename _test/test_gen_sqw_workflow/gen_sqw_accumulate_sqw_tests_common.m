@@ -211,7 +211,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             for i=1:numel(instrument)
                 instrument(i).IX_fermi_chopper.frequency=100*i;
             end
-            obj.instrum = instrument;
+            obj.instrum = IX_inst_DGfermi(instrument_ref);
             obj.sample  = sample_ref;
             
             
