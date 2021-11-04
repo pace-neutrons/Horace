@@ -67,7 +67,7 @@ end
 % parameters from there
 if footer_sample_present % set up its lattice
     for i=1:n_runs
-        bas_sample= exp_info.sample(i);
+        bas_sample= exp_info.samples(i);
         if isempty(main_sampl(i).alatt)
             main_sampl(i).alatt = bas_sample.alatt;
         end
