@@ -533,6 +533,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             clear ldr;
             img_db_range1 = dat.img_db_range;
             
+            skipTest('something dodgy in accumulation Disabled according to #748')            
             % add new file to the list of the files
             [~,~,pix_range_f145]=accumulate_sqw(spe_names, '', sqw_file_accum, ...
                 efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
@@ -570,7 +571,6 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             w2_1456=cut_sqw(sqw_file_accum,c_proj ,[-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[-Inf,Inf]);
             
             % Test against saved or store to save later
-            skipTest('something dodgy in accumulation Disabled according to #748')
             obj.assertEqualToTolWithSave(w2_1456,'ignore_str',true,'tol',1.e-7);
         end
         
@@ -740,7 +740,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             if obj.save_output
                 return;
             end
-            
+            skipTest('something dodgy in accumulation Disabled according to #748')
             % Accumulate nothing, all files already accumulated.
             spe_accum={obj.spe_file{1},'',obj.spe_file{1},obj.spe_file{4},obj.spe_file{5},obj.spe_file{6}};
             [~,grid_size,pix_range]=accumulate_sqw (spe_accum, '', sqw_file_accum,...
@@ -750,7 +750,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             
             [ok,mess]=is_cut_equal(sqw_file_11456,sqw_file_accum,obj.proj,...
                 [-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[2,35]);
-            skipTest('something dodgy in accumulation Disabled according to #748')
+
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',...
                 mess]);
         end

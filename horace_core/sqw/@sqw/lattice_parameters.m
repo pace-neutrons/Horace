@@ -17,7 +17,7 @@ function [alatt,angdeg,ok,mess] = lattice_parameters(win)
 %
 % It is assumed that the lattice parameters are all the same within one sqw object
 
-h_ave=header_average(win(1).experiment_info);
+h_ave=win(1).header_average();
 
 alatt=h_ave.samples(1).alatt;
 angdeg=h_ave.samples(1).angdeg;

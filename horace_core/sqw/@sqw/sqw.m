@@ -68,6 +68,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wtot=combine_cuts(w);
         wout=recompute_bin_data_tester(sqw_obj);
         wout = dnd (win);
+        %
+        % return the header, common for all runs (average?)
         [header_ave, ebins_all_same]=header_average(header);
         [alatt,angdeg,ok,mess] = lattice_parameters(win);
         [wout, pars_out] = refine_crystal_strip_pars (win, xtal, pars_in);

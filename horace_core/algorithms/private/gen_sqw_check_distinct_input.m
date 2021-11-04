@@ -124,7 +124,11 @@ if ~exist('header_exper','var') || isempty(header_exper)
 else
     % TODO:
     %Use header_combine to check the header and create a structure with the same fields as pstruct
-    %HACK: fix to work properly
+    %HACK: fix to work properly. Move majority of the checks into
+    %Experiment
+    if ~isa(header_exper,'cell')
+        header_exper = {header_exper};
+    end
     %
     %header = cell(1,numel(header_exper));
     n_accum_runs = 0;
@@ -132,13 +136,15 @@ else
         n_accum_runs  = n_accum_runs+header_exper{i}.n_runs;
     end
     
-    header = repmat(IX_experiment,1,n_accum_runs);
+    exp_struc = Experiment().convert_to_old_headers(1);
+    header = repmat(exp_struc,1,n_accum_runs);
     ic = 1;    
     for i=1:numel(header_exper)
-        for j=1:header_exper{i}.n_runs
-            header(ic) = header_exper{i}.expdata(j);
-            ic = ic+1;
-        end
+        nr = header_exper{i}.n_runs;
+        tmp_cell = header_exper{i}.convert_to_old_headers();
+        tmp_cell = [tmp_cell{:}];
+        header(ic:ic+nr-1) = tmp_cell(1:1+nr-1);        
+        ic = ic+nr;
     end
     
     
@@ -154,9 +160,6 @@ else
             rethrow(ME);
         end
     end
-    if isstruct(header_out)
-        header_out={header_out};    % make a cell array for convenience later on
-    end
     % % Check the fields are the same in pstruct and hstruct - to catch editing that has introduced inconsistencies
     names_hstruct_sort=fieldnames(hstruct_sort)';
     %if numel(names)~=numel(names_hstruct_sort) || ~all(strcmp(names,names_hstruct_sort))
@@ -165,9 +168,7 @@ else
     %HACK:
     in_names = ismember(names_hstruct_sort,names);
     extra_names  = names_hstruct_sort(~in_names);
-    for i=1:numel(extra_names)
-        hstruct_sort = rmfield(hstruct_sort,extra_names{i});
-    end
+    hstruct_sort = rmfield(hstruct_sort,extra_names);    
     
     % % Find the entries in pstruct_sort that also appear in hstruct_sort
      i=1; j=1; n1=numel(pstruct_sort); n2=numel(hstruct_sort);

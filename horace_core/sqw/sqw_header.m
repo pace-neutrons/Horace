@@ -151,7 +151,7 @@ classdef sqw_header
             
             % Catch case of a single header block from a single spe file - no processing required.
             if nsqw==1
-                hstruct_sort =headers.to_bare_struct();
+                hstruct_sort =headers;
                 nspe=1;
                 ind=1;
                 return
@@ -161,8 +161,8 @@ classdef sqw_header
             % Check the headers are all unique across the relevant fields, and have equality in other required fields
             % -------------------------------------------------------------------------------------------------------
             % Make a structure array of the fields that define uniqueness 
-            hstruct = headers.to_bare_struct();
-            hstruct = rmfield(hstruct,'ulabel');
+            hstruct = headers;
+            hstruct = rmfield(hstruct,{'ulabel','instrument','sample'});
             %hstruct = sqw_header.create_header_array(header_out);
             names=fieldnames(hstruct(1));
             % Sort structure array

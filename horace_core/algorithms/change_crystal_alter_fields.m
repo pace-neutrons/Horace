@@ -13,7 +13,7 @@ ok=true;
 mess='';
 
 % Get alatt, angdeg and rlu_corr
-header_ave=header_average(header);  % this gets the header for the first spe file that contributed.
+header_ave=header.header_average();  % this gets the header for the first spe file that contributed.
 alatt0=data_in.alatt;
 angdeg0=data_in.angdeg;
 

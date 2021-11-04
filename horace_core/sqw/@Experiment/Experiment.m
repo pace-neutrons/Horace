@@ -246,14 +246,24 @@ classdef Experiment < serializable
         %
         % GEN_SQW interface
         %------------------------------------------------------------------
-        function avh = header_av(obj)
+        function [avh,ebins_are_the_same] = header_average(obj)
             % very crude implementation for the header, average over all
             % runs.
+            % 
             if isempty(obj.expdata)
                 avh = [];
             else
                 avh = obj.expdata_(1);
             end
+            if nargout>1
+                ebins_are_the_same = obj.is_same_ebins();
+            else
+                ebins_are_the_same=[];
+            end
+            avh = avh.to_bare_struct();
+            sampl = obj.samples_(1);
+            avh.alatt = sampl.alatt;
+            avh.angdeg = sampl.angdeg;            
         end
         %
         function instr = get_unique_instruments(obj)
