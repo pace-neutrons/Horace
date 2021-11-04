@@ -23,6 +23,9 @@ function [exp_info,pos] = get_header(obj,varargin)
 if ~ok
     error('HORACE:file_io:invalid_argument',mess);
 end
+% recovers old (v2) header without actual sample and instrument
+% despite that, it builds basic sample and sets up sample lattice
+% parameters from header
 [exp_info,pos] = get_header@sqw_binfile_common(obj,varargin{:});
 
 %
@@ -30,11 +33,11 @@ n_runs = exp_info.n_runs;
 if no_instr && no_sampl
     return;
 end
-% only one experiment
-if get_all
+
+if get_all % load all runs
     instr = obj.get_instrument('-all');
     main_sampl = obj.get_sample('-all');
-else
+else % only one run requested
     instr = obj.get_instrument(varargin{:});
     main_sampl = obj.get_sample(varargin{:});
 end
@@ -46,34 +49,41 @@ if ~isempty(main_sampl)
                 'Multiple sample in footer contains %d runs and number of runs stored in header=%d',...
                 numel(main_sampl),exp_info.n_runs)
         end
-    else % we need to propagate the sample, stored in the footer to all headers
+    else % we need to propagate the sample(s), stored in the footer to all headers
         main_sampl = repmat(main_sampl,1,exp_info.n_runs);
     end
+    footer_sample_present = true;
 else
+    footer_sample_present = false;
     main_sampl = exp_info.samples;
 end
 
-if ~isempty(main_sampl(1)) && (isempty(main_sampl(1).alatt) || isempty(main_sampl(1).angdeg))
-    % some odd bug in old file formats? sample lattice is not stored with
-    % sample
+
+% Lets assume that when we store headers and sample(s) on disk, lattice
+% stored in headers is always correct. Some old Horace versions did not store
+% correct lattice to sample. This is why, here we set up sample lattice
+% from headers here regardless of version
+% base class header have read header and built basic sample with lattice
+% parameters from there
+if footer_sample_present % set up its lattice
     for i=1:n_runs
-        header_sampl = exp_info.samples(i);
+        bas_sample= exp_info.sample(i);
         if isempty(main_sampl(i).alatt)
-            main_sampl(i).alatt = header_sampl.alatt;
+            main_sampl(i).alatt = bas_sample.alatt;
         end
         if isempty(main_sampl(i).angdeg)
-            main_sampl(i).angdeg = header_sampl.angdeg;
+            main_sampl(i).angdeg = bas_sample.angdeg;
         end
     end
-end
+    exp_info.samples = main_sampl;
+else % basic sample have already been built from lattice stored in header
+end  % so nothibng to do.
 %
+% TODO: this needs to be optimized not to copy the array of identical samples
 if ~any(isempty(instr))
     if numel(instr)==1
         exp_info.instruments  = repmat(instr,n_runs,1);
     else
         exp_info.instruments = instr;
     end
-end
-if ~any(isempty(main_sampl))
-    exp_info.samples = main_sampl;
 end

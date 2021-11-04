@@ -297,8 +297,8 @@ classdef Experiment < serializable
             %      do check for previous versions
             %      and appropriate code
             %end
-            if isfield(S,'filename') && isfield(S,'efix') % this is probably old single header
-                obj = build_from_old_headers_(obj,{S});
+            if isfield(inputs,'filename') && isfield(inputs,'efix') % this is probably old single header
+                obj = build_from_old_headers_(obj,{inputs});
             else
                 if isfield(inputs,'array_dat')
                     obj = obj.from_class_struct(inputs.array_dat);

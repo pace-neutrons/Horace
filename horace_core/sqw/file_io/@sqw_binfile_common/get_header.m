@@ -1,4 +1,4 @@
-function  [exp_info,pos]   = get_header(obj,varargin)
+function  [exp_info,pos,alatt,angdeg]   = get_header(obj,varargin)
 % Get header of one of the files, contributed into sqw file
 %
 % Usage:
@@ -63,7 +63,8 @@ end
 
 %TODO: en conversion sucks. Should  be implemented within formatters
 %themselves!
-for i=1:numel(header)
+n_header = numel(header);
+for i=1:n_header
     if iscell(header)
         header{i}.instruments = IX_inst(); %struct(); % this is necessary
         header{i}.samples = IX_samp(); %struct();      % to satisfy current interface
