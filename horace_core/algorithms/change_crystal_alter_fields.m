@@ -13,7 +13,6 @@ ok=true;
 mess='';
 
 % Get alatt, angdeg and rlu_corr
-header_ave=header.header_average();  % this gets the header for the first spe file that contributed.
 alatt0=data_in.alatt;
 angdeg0=data_in.angdeg;
 
@@ -53,6 +52,9 @@ elseif narg>=1 && narg<=4
         end
         rlu_corr=b\rotmat*b0;
     elseif narg==4
+
+        header_ave=header.header_average();  % this gets the header for the first spe file that contributed.
+        
         u=varargin{3}(:)';
         v=varargin{4}(:)';
         if (~isnumeric(u)||numel(u)~=3||all(abs(u)<=1e-12)) || (~isnumeric(v)||numel(v)~=3||all(abs(v)<=1e-12))
