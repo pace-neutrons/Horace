@@ -21,7 +21,7 @@ classdef common_state_holder < handle
                 % common Herbert utilities
                 search_path_herbert_shared = fullfile(herbert_root, '_test/shared');
                 obj.store_holder(search_path_herbert_shared);
-                addpath(search_path_herbert_shared);                
+                addpath(search_path_herbert_shared);
             end
         end
         function delete(obj)
@@ -32,8 +32,10 @@ classdef common_state_holder < handle
                 old_warm = obj.store_holder('','old_warn_state');
                 warning(old_warm);
                 %
-                search_path_herbert_shared = obj.store_holder('','search_path_herbert_shared');
-                rmpath(search_path_herbert_shared);                
+                % Seemps this path is needed by number of other utilities
+                % so let's not remove it
+                %search_path_herbert_shared = obj.store_holder('','search_path_herbert_shared');
+                %rmpath(search_path_herbert_shared);
             end
         end
     end

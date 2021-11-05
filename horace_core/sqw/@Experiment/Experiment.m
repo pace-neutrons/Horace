@@ -183,7 +183,7 @@ classdef Experiment < serializable
             else
                 error('HORACE:Experiment:invalid_argument', ...
                     'Sample must be one or an array of IX_samp objects. Actually it is: %s',...
-                    class(v))
+                    class(val))
             end
         end
         %

@@ -7,8 +7,8 @@ function [exp_info,pos] = get_header(obj,varargin)
 %
 % Usage:
 %>>exp_info = obj.get_header();
-%>>exp_info = obj.get_header(1);
-%>>exp_info = obj.get_header(number);
+%>>exp_info = obj.get_header(1);      -- get header number 1
+%>>exp_info = obj.get_header(number); -- get header with specified number
 %>>exp_info = obj.get_header('-all');
 %>>exp_info = obj.get_header('-no_instument','-no_sample');
 %
@@ -62,9 +62,10 @@ end
 % Lets assume that when we store headers and sample(s) on disk, lattice
 % stored in headers is always correct. Some old Horace versions did not store
 % correct lattice to sample. This is why, here we set up sample lattice
-% from headers here regardless of version
-% base class header have read header and built basic sample with lattice
-% parameters from there
+% from headers here regardless of version.
+% Base class header have read header and built basic sample with lattice
+% parameters from header and here we set up this lattice to the particular
+% implementation of sample if such implementation is present.
 if footer_sample_present % set up its lattice
     for i=1:n_runs
         bas_sample= exp_info.samples(i);
