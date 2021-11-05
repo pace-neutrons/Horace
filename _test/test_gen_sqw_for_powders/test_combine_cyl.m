@@ -145,8 +145,8 @@ classdef test_combine_cyl < TestCaseWithSave
             w1_tot=cut_sqw(sqw_file_tot,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
             
             
-            this.assertEqualToTolWithSave(w2_tot,'ignore_str',true,'tol',1.e-7)
-            this.assertEqualToTolWithSave(w1_tot,'ignore_str',true,'tol',1.e-7)
+            this.assertEqualToTolWithSave(w2_tot,'ignore_str',true,'tol',[0,3.e-3])
+            this.assertEqualToTolWithSave(w1_tot,'ignore_str',true,'tol',[0,1.e-3])
             
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
