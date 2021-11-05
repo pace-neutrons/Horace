@@ -26,7 +26,6 @@ DND_CONSTRUCTORS = {@d0d, @d1d, @d2d, @d3d, @d4d};
 log_level = get(hor_config, 'log_level');
 return_cut = nargout > 0;
 
-wout = copy(w, 'exclude_pix', true);
 
 % Get bin boundaries
 [ ...
@@ -69,6 +68,10 @@ data_out = compile_sqw_data(...
 % Assign the new data_sqw_dnd object to the output SQW object, or create a new
 % dnd.
 if keep_pix
+    wout = sqw();
+    wout.main_header = w.main_header;
+    wout.header = w.header;
+    wout.detpar = w.detpar;    
     wout.data = data_out;
 else
     dnd_constructor = DND_CONSTRUCTORS{numel(data_out.pax) + 1};
@@ -136,6 +139,8 @@ if keep_pix
     else
         data_out.pix = pix_out;
     end
+else
+    data_out.pix = PixelData();
 end
 end
 
