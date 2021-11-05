@@ -275,6 +275,7 @@ classdef Experiment < serializable
         %
         function head = get.header(obj)
             head = obj.convert_to_old_headers();
+            head = [head{:}];
             head = rmfield(head,{'instrument','sample'});
         end
     end
