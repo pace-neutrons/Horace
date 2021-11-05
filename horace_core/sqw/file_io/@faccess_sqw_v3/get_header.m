@@ -10,7 +10,9 @@ function [exp_info,pos] = get_header(obj,varargin)
 %>>exp_info = obj.get_header(1);      -- get header number 1
 %>>exp_info = obj.get_header(number); -- get header with specified number
 %>>exp_info = obj.get_header('-all');
-%>>exp_info = obj.get_header('-no_instument','-no_sample');
+%>>exp_info = obj.get_header('-no_samp_inst'); % do not set up sample and instrument to header
+%                    even if they are defined in the file, except the basic sample and inst,
+%                    defined in version 2 (downgrades header to version 2)
 %
 % First three forms return single header, first two return header number 1.
 %
@@ -19,7 +21,7 @@ function [exp_info,pos] = get_header(obj,varargin)
 %
 %
 %
-[ok,mess,get_all,no_instr,no_sampl,~]= parse_char_options(varargin,{'-all','-no_instr','-no_sampl'});
+[ok,mess,get_all,no_isamp_inst,~]= parse_char_options(varargin,{'-all','-no_samp_inst'});
 if ~ok
     error('HORACE:file_io:invalid_argument',mess);
 end
@@ -30,7 +32,7 @@ end
 
 %
 n_runs = exp_info.n_runs;
-if no_instr && no_sampl
+if no_isamp_inst
     return;
 end
 
@@ -55,7 +57,6 @@ if ~isempty(main_sampl)
     footer_sample_present = true;
 else
     footer_sample_present = false;
-    main_sampl = exp_info.samples;
 end
 
 

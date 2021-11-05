@@ -62,9 +62,9 @@ end
 % ---------------------
 n_files = numel(ldrs);
 for i=1:n_files
-    exp_inf   = ldrs{i}.get_header('-all','-no_instument','-no_sample');
+    exp_inf   = ldrs{i}.get_header('-all','-no_sampinst');
     if isempty(emode)
-        exp_inf   = exp_inf.set_efix_emode(efix,'-keep_emode');   %
+        exp_inf   = exp_inf.set_efix_emode(efix,'-keep_emode');%
     else
         exp_inf   = exp_inf.set_efix_emode(efix,emode);
     end
