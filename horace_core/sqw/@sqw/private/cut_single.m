@@ -70,7 +70,7 @@ data_out = compile_sqw_data(...
 if keep_pix
     wout = sqw();
     wout.main_header = w.main_header;
-    wout.header = w.header;
+    wout.experiment_info = w.experiment_info;
     wout.detpar = w.detpar;    
     wout.data = data_out;
 else
