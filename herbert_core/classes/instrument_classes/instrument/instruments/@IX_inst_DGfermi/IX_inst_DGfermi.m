@@ -39,6 +39,8 @@ classdef IX_inst_DGfermi < IX_inst
             %   source          Source: name (e.g. 'ISIS') or IX_source object
             
             % General case
+            % make DGfermi not empty by default
+            obj.name_ = '_';
             if nargin==1 && isstruct(varargin{1})
                 % Assume trying to initialise from a structure array of properties
                 obj = IX_inst_DGfermi.loadobj(varargin{1});
@@ -48,22 +50,10 @@ classdef IX_inst_DGfermi < IX_inst
                     'name','source'};
                 [S, present] = parse_args_namelist (namelist, varargin{:});
                 
-                is_present = struct2cell(present);
-                is_present = [is_present{:}];
-                
-                % Superclass properties
+                % Superclass properties TODO: call superclass to set them
                 if present.name
                     obj.name_ = S.name;
-                    if sum(is_present)<2 % setting only name
-                        return;
-                    end
-                else
-                    if any(is_present) % problem of having property 'isempty'
-                        % sealed on superclass
-                        obj.name_ = '_';
-                    end
                 end
-                
                 if present.source
                     obj.source_ = S.source;
                 end
