@@ -14,7 +14,7 @@ API Reference
 ``SQWDndBase`` class
 --------------------------
 
-.. automodule:: sqw.@SQWDndBase
+.. automodule:: sqw.@SQWDnDBase
    :members:
 
 

@@ -35,6 +35,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
 ]
 
 source_suffix = {
@@ -56,6 +57,10 @@ napoleon_use_admonition_for_notes = True
 matlab_src_dir = os.path.abspath(os.path.join(os.path.abspath('.'), "../../../horace_core"))
 matlab_keep_package_prefix = False
 primary_domain = 'mat'
+
+intersphinx_mapping = {
+    'euphonic': ('https://euphonic.readthedocs.io/en/stable/', None),
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
