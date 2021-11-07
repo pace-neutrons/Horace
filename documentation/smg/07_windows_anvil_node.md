@@ -8,6 +8,7 @@ local network is `130.246.49.165`.
 The node is available on [Anvil](https://anvil.softeng-support.ac.uk/) as **PACE Windows (Private)**
 
 A local `Jenkins` account is enabled for non-admin users. Users can log on via Remote Desktop Connection using this account (as `ndw1676\Jenkins`) providing the agreed local password.
+To allow doing that, Jenkins account is configured as the member of "Remote Desktop Users" group on this computer.
 
 A number of Matlab versions are installed in `c:\programming\Matlab[Year][Arch]`
 (i.e. `c:\programming\Matlab2019b64` or `c:\programming\Matlab2015a32`). These use ISIS floating licenses. If other Matlab versions are necessary, they should be installed alongside (needs administrative rights to do that).

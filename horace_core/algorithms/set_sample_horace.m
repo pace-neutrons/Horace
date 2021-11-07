@@ -19,7 +19,7 @@ function varargout=set_sample_horace(filename,sample,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
+
 
 if nargout > 0
     varargout = set_instr_or_sample_horace_(filename,'-sample',sample,varargin{:});

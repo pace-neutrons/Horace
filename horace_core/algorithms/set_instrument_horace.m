@@ -11,8 +11,9 @@ function varargout=set_instrument_horace(filename,instrument,varargin)
 %              change is performed on each file
 %
 %   instrument  Instrument object, or array of objects with number of elements 
-%              equal to the number of
-%              runs contributing to the sqw object(s).
+%               equal to the number of
+%               runs contributing to the runs stored in sqw object(s).
+%
 %              If the instrument is any empty object, then the instrument
 %              is set to the default empty structure.
 %
@@ -43,7 +44,6 @@ function varargout=set_instrument_horace(filename,instrument,varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 if isa(instrument,'function_handle')
     instfunc=instrument; % single function handle
     % Check instrument definition function arguments are OK and consistent
@@ -214,7 +214,7 @@ for i=1:numel(subst_args)
 end
 
 %==============================================================================
-function argout = substitute_arguments(headers,ifile,argin)
+function argout = substitute_arguments(exp_info,ifile,argin)
 % Substitute arguments with values from cellarray of headers
 %
 % Return cellstr with list of all substitution arguments:
@@ -231,14 +231,16 @@ end
 
 % Substitute values
 argout=argin;
+headers = exp_info.expdata;
 for i=1:numel(argin)
     if is_string(argin{i}) && strcmpi(argin{i},'-efix')
         if ifile>1 || numel(headers) > 1
-            argout{i}=headers{ifile}.efix;
+            argout{i}=headers(ifile).efix;
         else
             argout{i}=headers.efix;
         end
     end
 end
+
 
 

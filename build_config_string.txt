@@ -1,0 +1,4 @@
+./tools/build_config/build.sh --cmake_flags "-DHerbert_RELEASE_TYPE=release" --matlab_release R2020a --print_versions  --configure
+
+
+ ./tools/build_config/build.ps1 -cmake_flags "-DHerbert_RELEASE_TYPE=release"  -matlab_release R2020a -vs_version 2019 -print_versions -configure

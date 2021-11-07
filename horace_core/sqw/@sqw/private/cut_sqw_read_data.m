@@ -71,7 +71,7 @@ else
     if hor_log_level>=0, disp('Taking cut from sqw object...'), end
     main_header = data_source.main_header;
     header = data_source.experiment_info;
-    detpar = data_source.detpar_x;
+    detpar = data_source.detpar;
     data   = data_source.data;
     npixtot= data.pix.num_pixels;
     pix_position = [];

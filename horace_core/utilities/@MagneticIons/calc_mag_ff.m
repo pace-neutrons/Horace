@@ -19,7 +19,6 @@ function magFF=calc_mag_ff(self,win)
 %                   but the values equal to the magnetic form factors values
 %                   for the selected magnetic ion.
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 
 
@@ -27,7 +26,7 @@ function magFF=calc_mag_ff(self,win)
 %
 % Get conversion matrix used to change from rlu to wave-vector in A^(-1)
 if isa(win,'sqw')
-    header_ave=header_average(win);    
+    header_ave=win.header_average();
     self.u_2_rlu_ = header_ave.u_to_rlu(1:3,1:3);    
     %self.u_2_rlu_ = win.data.u_to_rlu(1:3,1:3);
 else

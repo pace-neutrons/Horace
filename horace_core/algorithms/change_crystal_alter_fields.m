@@ -13,7 +13,6 @@ ok=true;
 mess='';
 
 % Get alatt, angdeg and rlu_corr
-header_ave=header_average(header);  % this gets the header for the first spe file that contributed.
 alatt0=data_in.alatt;
 angdeg0=data_in.angdeg;
 
@@ -43,7 +42,7 @@ elseif narg>=1 && narg<=4
     if ~isempty(mess), ok=false; return, end
     [b,arlu,angrlu,mess] = bmatrix(alatt,angdeg);
     if ~isempty(mess), ok=false; return, end
-
+    
     if narg<=2
         rlu_corr=b\b0;
     elseif narg==3
@@ -53,6 +52,9 @@ elseif narg>=1 && narg<=4
         end
         rlu_corr=b\rotmat*b0;
     elseif narg==4
+
+        header_ave=header.header_average();  % this gets the header for the first spe file that contributed.
+        
         u=varargin{3}(:)';
         v=varargin{4}(:)';
         if (~isnumeric(u)||numel(u)~=3||all(abs(u)<=1e-12)) || (~isnumeric(v)||numel(v)~=3||all(abs(v)<=1e-12))
@@ -67,39 +69,25 @@ elseif narg>=1 && narg<=4
         rlu_corr=ub\ub0;
     end
     
-
+    
 else
     ok=false; mess='Check number of input arguments'; return
 end
 
 % Change fields of header and data as required
 if ~isempty(header)     % not dnd-type object
-    if iscell(header)   % multiple spe files
-        for i=1:numel(header)
-            header{i}.alatt=alatt;
-            header{i}.angdeg=angdeg;
-            header{i}.cu=(rlu_corr*header{i}.cu')';
-            header{i}.cv=(rlu_corr*header{i}.cv')';
-            header{i}.uoffset(1:3)=rlu_corr*header{i}.uoffset(1:3);
-            header{i}.u_to_rlu(1:3,1:3)=rlu_corr*header{i}.u_to_rlu(1:3,1:3);
-        end
-    elseif isa(header,'Experiment')
-        for i=1:numel(header.expdata)
-            header.samples(i).alatt=alatt;
-            header.samples(i).angdeg=angdeg;
-            header.expdata(i).cu=(rlu_corr*header.expdata(i).cu')';
-            header.expdata(i).cv=(rlu_corr*header.expdata(i).cv')';
-            header.expdata(i).uoffset(1:3)=rlu_corr*header.expdata(i).uoffset(1:3);
-            header.expdata(i).u_to_rlu(1:3,1:3)=rlu_corr*header.expdata(i).u_to_rlu(1:3,1:3);
-        end
-    else
-        header.alatt=alatt;
-        header.angdeg=angdeg;
-        header.cu=(rlu_corr*header.cu')';
-        header.cv=(rlu_corr*header.cv')';
-        header.uoffset(1:3)=rlu_corr*header.uoffset(1:3);
-        header.u_to_rlu(1:3,1:3)=rlu_corr*header.u_to_rlu(1:3,1:3);
+    sam = header.samples;
+    exper = header.expdata;
+    for i=1:header.n_runs
+        sam(i).alatt=alatt;
+        sam(i).angdeg=angdeg;
+        exper(i).cu=(rlu_corr*header.expdata(i).cu')';
+        exper(i).cv=(rlu_corr*header.expdata(i).cv')';
+        exper(i).uoffset(1:3)=rlu_corr*header.expdata(i).uoffset(1:3);
+        exper(i).u_to_rlu(1:3,1:3)=rlu_corr*header.expdata(i).u_to_rlu(1:3,1:3);
     end
+    header.samples = sam;
+    header.expdata = exper;
 end
 
 data.alatt=alatt;

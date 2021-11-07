@@ -15,10 +15,6 @@ classdef common_state_holder < handle
                     'state',{'off','off'});
                 old_warn_state = warning(ws);
                 obj.store_holder(old_warn_state);
-%                 this_dir = fileparts(mfilename('fullpath'));
-%                 % add path to local utilities
-%                 obj.store_holder(this_dir);
-%                 addpath(fullfile(this_dir, 'utils'));
                 %
             end
         end
@@ -27,10 +23,6 @@ classdef common_state_holder < handle
             if call_count == 0
                 old_warm = obj.store_holder('','old_warn_state');
                 warning(old_warm);
-%                this_dir = obj.store_holder('','this_dir');
-%                 rmpath(fullfile(this_dir, 'utils'));
-%                 search_path_herbert_shared = obj.store_holder('','search_path_herbert_shared');
-%                 rmpath(search_path_herbert_shared);
             end
         end
     end

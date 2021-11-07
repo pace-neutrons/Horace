@@ -211,7 +211,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             for i=1:numel(instrument)
                 instrument(i).IX_fermi_chopper.frequency=100*i;
             end
-            obj.instrum = instrument;
+            obj.instrum = IX_inst_DGfermi(instrument_ref);
             obj.sample  = sample_ref;
             
             
@@ -533,6 +533,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             clear ldr;
             img_db_range1 = dat.img_db_range;
             
+            skipTest('something dodgy in accumulation Disabled according to #748')            
             % add new file to the list of the files
             [~,~,pix_range_f145]=accumulate_sqw(spe_names, '', sqw_file_accum, ...
                 efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
@@ -718,7 +719,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             
             assertEqual(pix_range1,pix_range2);
             % Estimated ranges the pixels rebinned onto are different but
-            % actual pix ranges are the same as the data files are the same. 
+            % actual pix ranges are the same as the data files are the same.
             % This is why the cut have to be made within the specified
             % ranges to get the same result
             [ok,mess,w2_11456,w2_11456acc]=...
@@ -739,7 +740,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             if obj.save_output
                 return;
             end
-            
+            skipTest('something dodgy in accumulation Disabled according to #748')
             % Accumulate nothing, all files already accumulated.
             spe_accum={obj.spe_file{1},'',obj.spe_file{1},obj.spe_file{4},obj.spe_file{5},obj.spe_file{6}};
             [~,grid_size,pix_range]=accumulate_sqw (spe_accum, '', sqw_file_accum,...
@@ -749,6 +750,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             
             [ok,mess]=is_cut_equal(sqw_file_11456,sqw_file_accum,obj.proj,...
                 [-1.5,0.025,0],[-2.1,-1.9],[-0.5,0.5],[2,35]);
+
             assertTrue(ok,['Cuts from gen_sqw output and accumulate_sqw are not the same: ',...
                 mess]);
         end

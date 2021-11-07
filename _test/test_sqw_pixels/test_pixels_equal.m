@@ -1,4 +1,4 @@
-classdef test_pixels_equal < TestCase & common_state_holder
+classdef test_pixels_equal < TestCase & common_pix_class_state_holder
     
     properties
         old_config;
@@ -187,7 +187,7 @@ classdef test_pixels_equal < TestCase & common_state_holder
             sqw_copy = copy(obj.sqw_2d);
             
             num_reps = 5;
-            num_iters = 1;
+            num_iters = 5;
             
             f = @() equal_to_tol(sqw_copy, obj.sqw_2d);
             times_taken = benchmark_function(f, num_iters, num_reps);

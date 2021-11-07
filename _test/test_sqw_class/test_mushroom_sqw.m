@@ -54,7 +54,8 @@ classdef test_mushroom_sqw < TestCaseWithSave
             end
             data_path= fullfile(fileparts(mfilename('fullpath')),'data');
             
-            % Reads previously created test data sets.
+            % Reads previously created test data sets or stores them if
+            % -save option provided as the constructor input.
             obj = obj@TestCaseWithSave(test_class_name,fullfile(data_path,'test_mushroom_sqw.mat'));
             obj.data_path = data_path;
             
@@ -78,7 +79,8 @@ classdef test_mushroom_sqw < TestCaseWithSave
                 Cont = textscan(tline ,'%9d %11.5f %11.5f %11.5f  %11.5f  %11.5f');
                 obj.det_energy(k) = Cont{6};
             end
-            
+            %does nothing without '-save' key provided
+            obj.save();
         end
         %
         function test_gen_sqw(obj)
@@ -95,7 +97,7 @@ classdef test_mushroom_sqw < TestCaseWithSave
             ldr = sqw_formats_factory.instance().get_loader(sqw_file);
             assertTrue(isa(ldr,'faccess_sqw_v3_21'));
             
-            sqo = sqw(sqw_file);
+            sqo = read_sqw(sqw_file);
             
             assertTrue(isprop(sqo.data.pix,'pix_range'))
             assertFalse(any(any(sqo.data.pix.pix_range == PixelData.EMPTY_RANGE_)));

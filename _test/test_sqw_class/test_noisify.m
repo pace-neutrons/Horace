@@ -1,4 +1,4 @@
-classdef test_noisify < TestCase & common_state_holder
+classdef test_noisify < TestCase & common_sqw_class_state_holder
     
     properties
         

@@ -30,7 +30,7 @@ function varargout = head (varargin)
 %
 % Optional keyword:
 %   '-full'     Keyword option; if present, then returns all header and the
-%              detecetor information. In fact, it returns the full data structure
+%              detector information. In fact, it returns the full data structure
 %              except for the signal, error and pixel arrays.
 %
 % Output (optional):
@@ -40,7 +40,7 @@ function varargout = head (varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
+
 
 
 % Parse input
@@ -96,11 +96,12 @@ else
     else
         for i=1:nw
             if has_pixels(w.data(i)) && hfull
-                h=w.data(i);
-                h.data=rmfield(h.data.struct(),{'s','e','npix','pix'});
+                h=w.data(i).data.to_bare_struct();
+                h.data=rmfield(h,{'s','e','npix','pix'});
             else
-                %w.data(i).
-                h=rmfield(w.data(i).data.struct(),{'s','e','npix'});
+                %w.data(i)
+                h=w.data(i).data.to_bare_struct();
+                h=rmfield(h,{'s','e','npix'});
                 if has_pixels(w.data(i))
                     h=rmfield(h,'pix');
                 else

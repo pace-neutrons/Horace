@@ -152,7 +152,7 @@ classdef gen_sqw_files_job < JobExecutor
             common_par = struct(...
                 'grid_size_in',grid_size_in,'pix_range_in',pix_range_in);
             % simplify -- no instrument, no sample
-            if ~isempty(instr) && (isstruct(instr(1)) && ~isempty(fieldnames(instr(1))))
+            if ~any(isempty(instr)) && (isstruct(instr(1)) && ~isempty(fieldnames(instr(1))))
                 if numel(instr) == numel(sample) && (numel(sample) ==numel(runfiles ))
                     n_files = numel(runfiles);
                     for i=1:n_files

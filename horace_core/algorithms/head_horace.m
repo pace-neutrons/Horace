@@ -105,8 +105,9 @@ else
         if loaders{i}.sqw_type
             if hfull
                 data = struct();
-                [data.main_header,data.header,data.detpar,data.data] = ...
+                [data.main_header,exper_block,data.detpar,data.data] = ...
                     loaders{i}.get_sqw('-legacy','-nopix','-verbatim');
+                data.header = exper_block.header;
             else
                 data         = loaders{i}.get_data('-verbatim','-nopix');
                 if isa(data,'data_sqw_dnd')

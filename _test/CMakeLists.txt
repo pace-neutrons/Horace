@@ -21,6 +21,7 @@ set(TEST_DIRECTORIES
     "test_sqw_file"
     "test_sqw"
     "test_sqw_class"
+    "test_sqw_pixels"
     "test_sym_op"
     "test_symmetrisation"
     "test_tobyfit"

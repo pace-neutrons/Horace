@@ -134,16 +134,14 @@ classdef sqw_file_interface < dnd_binfile_common
     %----------------------------------------------------------------------
     methods(Abstract)
         % retrieve different parts of sqw data
-        %main_header = get_main_header(obj,['-verbatim']);
-        main_header = get_main_header(obj,varargin);
-        %
+        %------------------------------------------------------------------
         [header,pos]= get_header(obj,varargin);
         detpar      = get_detpar(obj,varargin);
         pix         = get_pix(obj,varargin);
         range       = get_pix_range(obj);        
         [inst,obj]  = get_instrument(obj,varargin);
         [samp,obj]  = get_sample(obj,varargin);
-        
+        %------------------------------------------------------------------
         % common write interface;
         obj = put_main_header(obj,varargin);
         obj = put_headers(obj,varargin);

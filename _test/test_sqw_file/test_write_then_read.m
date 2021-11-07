@@ -1,4 +1,4 @@
-classdef test_write_then_read < TestCase & common_state_holder
+classdef test_write_then_read < TestCase & common_sqw_file_state_holder
 
 properties
     old_warn_state;

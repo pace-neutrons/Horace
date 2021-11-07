@@ -3,6 +3,10 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
     % The format differs from 3.1 format as it used for
     % indirect instrument with range of efixed energies.
     %
+    % The energy in a header is written as array rather then single energy
+    % which would be very inefficient if there are multiple runs combined.
+    % Luckily, at the moment there are no such runs.
+    %
     %
     % Usage:
     %1)

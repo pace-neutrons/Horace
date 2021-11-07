@@ -3,7 +3,7 @@ function [var,sz] = restore_class_(obj,bytes,names,type,shape,pos,sz)
 %
 %
 var = make_object_(type,shape);
-if ~isempty(var)     % not recognised as an object
+if isa(var,type)    % not recognised as an object
     tmpvar=cell2struct(cell(numel(names),1),names,1);
     for i=1:prod(shape)
         for j=1:numel(names)

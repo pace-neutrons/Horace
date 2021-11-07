@@ -134,7 +134,7 @@ classdef sqw_binfile_common < sqw_file_interface
             [obj,missinig_fields] = copy_contents_(obj,other_obj,keep_internals);
         end
         %
-        function obj = init_v3_specific(~)
+        function varargout = init_v3_specific(~)
             % Initialize position information specific for sqw v3.1 object.
             % Interface function here. Generic is not implemented and
             % actual implementation in faccess_sqw_v3
@@ -254,13 +254,13 @@ classdef sqw_binfile_common < sqw_file_interface
         function [inst,obj] = get_instrument(obj,varargin)
             % get instrument, stored in a file. If no instrument is
             % defined, return empty structure.
-            inst = struct();
+            inst = IX_inst();
         end
         %
         function [samp,obj] = get_sample(obj,varargin)
             % get sample, stored in a file. If no sample is defined, return
             % empty structure.
-            samp = struct();
+            samp = IX_samp();
         end
         %
         function data_form = get_data_form(obj,varargin)

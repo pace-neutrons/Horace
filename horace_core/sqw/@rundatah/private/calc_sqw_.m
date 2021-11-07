@@ -71,12 +71,12 @@ if grid_is_unity && data_in_range   % the most work we have to do is just change
         sqw_datstr.p{id}=[pix_db_range(1,id);pix_db_range(2,id)];
     end
     grid_size = grid_size_in;
-
+    
 else
     if hor_log_level>-1
         disp('Sorting pixels ...')
     end
-
+    
     [use_mex,nThreads]=config_store.instance().get_value('hor_config','use_mex','threads');
     if use_mex
         try
@@ -91,9 +91,9 @@ else
             sqw_fields{3}=grid_size;
             sqw_fields{4}=sqw_datstr.pix.data;
             clear sqw_datstr.s sqw_datstr.e sqw_datstr.npix;
-
+            
             out_fields=bin_pixels_c(sqw_fields);
-
+            
             sqw_datstr.s   = out_fields{1};
             sqw_datstr.e   = out_fields{2};
             sqw_datstr.npix= out_fields{3};
@@ -108,7 +108,7 @@ else
         
         sqw_datstr.p=p;   % added by RAE 10/6/11 to avoid crash when doing non-mex generation of sqw files
         sqw_datstr.pix=sqw_datstr.pix.get_pixels(ix);
-
+        
         sqw_datstr.s=reshape(accumarray(ibin,sqw_datstr.pix.signal,[prod(grid_size),1]),grid_size);
         sqw_datstr.e=reshape(accumarray(ibin,sqw_datstr.pix.variance,[prod(grid_size),1]),grid_size);
         sqw_datstr.npix=reshape(npix,grid_size);      % All we do is write to file, but reshape for consistency with definition of sqw data structure
@@ -118,23 +118,23 @@ else
         nopix=(sqw_datstr.npix==0);
         sqw_datstr.s(nopix)=0;
         sqw_datstr.e(nopix)=0;
-
+        
         clear nopix     % biggish array no longer needed
     end
     
     % If pixels were truncated, true range have to change to the truncated range
     pix_range = sqw_datstr.pix.pix_range;
-    out_of_range = [pix_range(1,:)<pix_db_range(1,:);pix_range(2,:)>pix_db_range(2,:)];    
+    out_of_range = [pix_range(1,:)<pix_db_range(1,:);pix_range(2,:)>pix_db_range(2,:)];
     extra_pix_range  = range_add_border(pix_range);
     sqw_datstr.img_db_range(out_of_range) = extra_pix_range(out_of_range);
-
+    
 end
 
 % Create sqw object (just a packaging of pointers, so no memory penalty)
 % ----------------------------------------------------------------------
 d.main_header=main_header;
 d.experiment_info=header;
-d.detpar_x=det0;
+d.detpar=det0;
 d.data=data_sqw_dnd(sqw_datstr);
 w=sqw(d);
 
@@ -173,33 +173,26 @@ function [header,sqw_datstr] = calc_sqw_data_and_header (obj,detdcn)
 % -------------------
 [fp,fn,fe]=fileparts(obj.data_file_name);
 
-header.filename = [fn,fe];
-header.filepath = [fp,filesep];
-header.efix     = obj.efix;
-header.emode = obj.emode;
-%TODO: Wrap in lattice:
-%header.lattice  = obj.lattice;
 lat = obj.lattice.set_rad();
-header.alatt = lat.alatt;
-header.angdeg = lat.angdeg;
-header.cu = lat.u;
-header.cv = lat.v;
-header.psi = lat.psi;
-header.omega = lat.omega;
-header.dpsi = lat.dpsi;
-header.gl = lat.gl;
-header.gs = lat.gs;
-%<< -- end of lattice
+if all(isempty(obj.sample)) || isempty(fieldnames(obj.sample)) || any(isempty(obj.sample.alatt))
+    sample = IX_samp();
+    sample.alatt = obj.lattice.alatt;
+    sample.angdeg = obj.lattice.angdeg;    
+else
+    sample = obj.sample;
+end
+header = Experiment([],obj.instrument,sample);
 
-header.en       = obj.en;
-header.uoffset = [0;0;0;0];
-header.u_to_rlu = [[u_to_rlu;[0,0,0]],[0;0;0;1]];
-header.ulen = [1,1,1,1];
-header.ulabel = {'Q_\zeta','Q_\xi','Q_\eta','E'};
-% Update some header fields
-header.instrument=obj.instrument;
-header.sample=obj.sample;
 
+uoffset = [0;0;0;0];
+u_to_rlu = [[u_to_rlu;[0,0,0]],[0;0;0;1]];
+ulen = [1,1,1,1];
+ulabel = {'Q_\zeta','Q_\xi','Q_\eta','E'};
+%
+header.expdata = IX_experiment([fn,fe], [fp,filesep], ...
+    obj.efix,obj.emode,lat.u,lat.v,...
+    lat.psi,lat.omega,lat.dpsi,lat.gl,lat.gs,...
+    obj.en,uoffset,u_to_rlu,ulen,ulabel);
 
 % Now package the data
 % --------------------
@@ -208,8 +201,8 @@ sqw_datstr.filepath = '';
 sqw_datstr.title = '';
 sqw_datstr.alatt = obj.lattice.alatt;
 sqw_datstr.angdeg = obj.lattice.angdeg;
-sqw_datstr.uoffset=[0;0;0;0];
-sqw_datstr.u_to_rlu = [[u_to_rlu;[0,0,0]],[0;0;0;1]];
+sqw_datstr.uoffset=uoffset;
+sqw_datstr.u_to_rlu = u_to_rlu;
 sqw_datstr.ulen = [1,1,1,1];
 sqw_datstr.ulabel = {'Q_\zeta','Q_\xi','Q_\eta','E'};
 sqw_datstr.iax=zeros(1,0);

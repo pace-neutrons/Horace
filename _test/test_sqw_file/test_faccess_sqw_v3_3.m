@@ -79,11 +79,16 @@ classdef test_faccess_sqw_v3_3< TestCase
             assertEqual(mheader.filepath,...
                 'C:\Users\abuts\Documents\developing_soft\Horace\_test\test_sqw_file\');
             
-            header = file_accessor.get_header();
-            assertEqual(header.filename,'')
-            assertElementsAlmostEqual(header.psi,0.2967,'absolute',1.e-4);
-            assertEqual(header.ulabel{4},'E')
-            assertEqual(header.ulabel{3},'Q_\eta')
+            exp_info = file_accessor.get_header();
+            %exp_info = header.get_header();
+            assertTrue(isa(exp_info,'Experiment'));
+            inf = exp_info.expdata(1);
+            
+            assertEqual(inf.filename,'')
+            assertElementsAlmostEqual(inf.psi,0.2967,'absolute',1.e-4);
+            assertEqual(inf.ulabel{4},'E')
+            assertEqual(inf.ulabel{3},'Q_\eta')
+            
             
             det = file_accessor.get_detpar();
             assertEqual(det.filename,'')

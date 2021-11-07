@@ -72,7 +72,7 @@ headers  = obj.get_header('-all');
 % Get detector parameters
 % -----------------------
 if ~(opts.head||opts.his)
-    sqw_struc.detpar_x = obj.get_detpar();
+    sqw_struc.detpar = obj.get_detpar();
 end
 
 % Get data
@@ -101,7 +101,7 @@ sqw_struc.experiment_info = headers;
 if opts.legacy
     sqw_object = sqw_struc.main_header;
     varargout{1} = sqw_struc.experiment_info;
-    varargout{2} = sqw_struc.detpar_x;
+    varargout{2} = sqw_struc.detpar;
     varargout{3} = sqw_struc.data;
 elseif opts.head || opts.his
     sqw_object  = sqw_struc;

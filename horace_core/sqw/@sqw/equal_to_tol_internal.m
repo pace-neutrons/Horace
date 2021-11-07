@@ -32,8 +32,10 @@ for idx = 1:numel(class_fields)
         tmp1.pix = PixelData();
         tmp2.pix = PixelData();
     end
+    name1 = [name_a,'.',field_name];
+    name2 = [name_b,'.',field_name];    
     
-    [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a', name_a, 'name_b', name_b);
+    [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a', name1, 'name_b', name2);
 
     if ~ok
         return; % break on first failure

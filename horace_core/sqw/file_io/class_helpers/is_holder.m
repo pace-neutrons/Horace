@@ -3,8 +3,8 @@ classdef is_holder
     % a client in homogeneous form
     %
     properties(Access=protected,Hidden=true)
-        instrument_=[];
-        sample_ = [];
+        instrument_=IX_inst();
+        sample_ = IX_samp();
         n_files_=0;
         set_samp_ = false;
         set_inst_ = false;
@@ -35,6 +35,9 @@ classdef is_holder
             %       (can be empty if instrument is not intented to be set)
             %samp - the cellarray or array of sample(s) to save.
             %       (can be empty if sample is not intented to be set)
+            if isnumeric(sampl) && isempty(sampl)
+                sampl = IX_samp();
+            end
             nin = numel(instr);
             if nin  == 0
                 obj.set_inst_ = false; % if instrument is empty, we are not setting it
@@ -66,7 +69,7 @@ classdef is_holder
         function is= is_empty(obj)
             % checks if the class is empty, e.g. not contains neither
             % sample not the instrument.
-            if isempty(obj.instrument_) && isempty(obj.sample_)
+            if all(isempty(obj.instrument_)) && all(isempty(obj.sample_))
                 is = true;
             else
                 is = false;

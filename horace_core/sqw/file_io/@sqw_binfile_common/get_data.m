@@ -84,7 +84,7 @@ function [data,obj] = get_data(obj,varargin)
 %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-%   data.pix_range     True range of the data along each axis [pix_range(2,4)]
+%   data.pix_range  True range of the data along each axis [pix_range(2,4)]
 %   data.pix        A PixelData objects
 %
 %

@@ -23,9 +23,9 @@ if npixtot == 0
 end
 
 % Non-zero number of pixels
-h_ave = header_average(w.experiment_info);
-pix_to_rlu = h_ave.expdata(1).u_to_rlu(1:3, 1:3); % pix to rlu
-pix0 = h_ave.expdata(1).uoffset;                  % pix offset (in hkl)
+h_ave = w.header_average();
+pix_to_rlu = h_ave.u_to_rlu(1:3, 1:3); % pix to rlu
+pix0 = h_ave.uoffset;                  % pix offset (in hkl)
 u_to_rlu = w.data.u_to_rlu(1:3, 1:3);  % proj to rlu
 u0 = w.data.uoffset;                   % proj offset (in hkl)
 

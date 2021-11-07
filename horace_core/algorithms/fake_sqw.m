@@ -103,7 +103,7 @@ require_spe_unique=false;
 require_sqw_exist=false;
 if isempty(sqw_file)
     return_sqw_obj = true;
-    sqw_file = 'never_generated_sqw_file.sqw';
+    sqw_file = '';%'never_generated_sqw_file.sqw';
 else
     return_sqw_obj = false;
 end
@@ -131,14 +131,12 @@ if ~ischar(par_file) && (isnumeric(par_file) )
     par_file = build_det_from_q_range(par_file,efix,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
 end
 
-
-[ok, mess, spe_file, par_file, sqw_file] = gen_sqw_check_files...
-    (spe_file, par_file, sqw_file, require_spe_exist, require_spe_unique, require_sqw_exist);
-if ~ok, error(mess), end
 if return_sqw_obj
     sqw_file = '';
 end
 
+[spe_file, par_file, sqw_file] = gen_sqw_check_files...
+    (spe_file, par_file, sqw_file, require_spe_exist, require_spe_unique, require_sqw_exist);
 
 
 nfiles=numel(efix);

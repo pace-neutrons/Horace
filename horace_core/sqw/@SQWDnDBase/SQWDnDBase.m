@@ -4,7 +4,7 @@ classdef (Abstract) SQWDnDBase
     %   DnD objects
     properties (Access = protected)
         % base_property
-        data_;
+        data_ = data_sqw_dnd();
     end
 
     methods (Abstract)
