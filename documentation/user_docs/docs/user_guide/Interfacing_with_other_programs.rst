@@ -569,14 +569,15 @@ For simplicity we have passed the sample temperature as a fit variable but it sh
 .. code-block:: matlab
 
    % Make a cut of the data
-   wfe = cut_sqw('fe_cut.sqw', proj, [-3,0.05,3], [-1.05,-0.95], [-0.05,0.05], [70, 90]);
+   proj = projaxes([1,1,0], [-1,1,0], 'type', 'rrr');
+   w_fe = cut_sqw('fe_cut.sqw', proj, [-3,0.05,3], [-1.05,-0.95], [-0.05,0.05], [70, 90]);
 
    % Define starting parameters
-   J = 35;     # Exchange interaction in meV
-   D = 0;      # Single-ion anisotropy in meV
-   gam = 30;   # Intrinsic linewidth in meV (inversely proportional to excitation lifetime)
-   temp = 10;  # Sample measurement temperature in Kelvin
-   amp = 300;  # Magnitude of the intensity of the excitation (arbitrary units)
+   J = 35;     % Exchange interaction in meV
+   D = 0;      % Single-ion anisotropy in meV
+   gam = 30;   % Intrinsic linewidth in meV (inversely proportional to excitation lifetime)
+   temp = 10;  % Sample measurement temperature in Kelvin
+   amp = 300;  % Magnitude of the intensity of the excitation (arbitrary units)
 
    % Define the fitting problem
    kk = multifit_sqw(w_fe)
@@ -585,7 +586,8 @@ For simplicity we have passed the sample temperature as a fit variable but it sh
    kk = kk.set_bfun (@linear_bg, [0.1, 0])
    kk = kk.set_bfree ([1, 0])
 
-   [wfit, fitdata] = kk.fit();
+   [wfit, fitdata] = kk.fit()
+   plot(w_fe); pl(wfit);
 
 Note that we have used an alternative syntax for ``set_fun`` where the initial parameter is also set and then
 forced the sample temperature (the 5th parameter) to be fixed during the fitting with ``kk = kk.set_free([1,1,1,1,0])``.

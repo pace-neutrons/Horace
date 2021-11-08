@@ -193,12 +193,14 @@ pipeline {
 	      sh '''
 	    module load python/3.6 &&
 	    pip install --user sphinx &&
-	    pip install --user sphinx_rtd_theme
+	    pip install --user sphinx_rtd_theme &&
+	    pip install --user sphinxcontrib-matlabdomain
 	    '''
 	    } else {
 	      powershell '''
 	     pip install --user sphinx
 	     pip install --user sphinx_rtd_theme
+	     pip install --user sphinxcontrib-matlabdomain
 	    '''
 	    }
 	  }
