@@ -1,45 +1,53 @@
 classdef test_experiment < TestCaseWithSave
-
+    
     methods
-        function test_default_constructor_creates_object_of_empty_arrays(self)
+        function test_default_constructor_creates_object_of_empty_arrays(~)
             expt = Experiment();
             
             assertTrue(isempty(expt.samples));
             assertTrue(isempty(expt.instruments));
             assertTrue(isempty(expt.detector_arrays));
         end
-
-        function test_creates_object_with_single_object_arguments(self)
+        
+        function test_creates_object_with_single_object_arguments(~)
             detector_array = IX_detector_array;
-            instrument = IX_inst_DGfermi;
+            instrument = IX_inst_DGfermi();
             sample = IX_sample;
             expt = Experiment(detector_array, instrument, sample);
             
-            assertEqual(expt.samples, [sample]);
-            assertEqual(expt.instruments, [instrument]);
-            assertEqual(expt.detector_arrays, [detector_array]);
+            assertEqual(expt.samples, sample);
+            assertEqual(expt.instruments, instrument);
+            assertEqual(expt.detector_arrays, detector_array);
         end
-
-        function test_creates_object_with_empty_object_arguments(self)
+        
+        function test_creates_object_with_empty_object_arguments(~)
             expt = Experiment([], [], []);
             
             assertTrue(isempty(expt.samples));
             assertTrue(isempty(expt.instruments));
             assertTrue(isempty(expt.detector_arrays));
         end
-
-        function test_constructor_raises_error_with_invalid_arguments(self)
+        function test_constructor_raises_error_with_invalid_single_input(~)
+            assertExceptionThrown(@()Experiment('something icorrect'),...
+                'HORACE:Experiment:invalid_argument');
+        end
+        
+        function test_constructor_raises_error_with_no_sample(~)
             assertExceptionThrown(@()Experiment(IX_detector_array, IX_inst_DGfermi, 'not-a-sample'),...
                 'HORACE:Experiment:invalid_argument');
+        end
+        function test_constructor_raises_error_with_no_instrument(~)
             assertExceptionThrown(@()Experiment(IX_detector_array, 'not-an-inst', IX_sample),...
                 'HORACE:Experiment:invalid_argument');
+        end
+        function test_constructor_raises_error_with_no_detectors(~)
             assertExceptionThrown(@()Experiment('not-a-da', IX_inst_DGfermi, IX_sample),...
                 'HORACE:Experiment:invalid_argument');
         end
-
-        function test_creates_object_with_array_object_arguments(self)
+        
+        function test_creates_object_with_array_object_arguments(~)
             detector_array = IX_detector_array;
-            instrument = IX_inst_DGfermi;
+            instrument = IX_inst_DGfermi();
             sample = IX_sample;
             expt = Experiment( ...
                 [detector_array, detector_array], ...
@@ -50,12 +58,12 @@ classdef test_experiment < TestCaseWithSave
             assertEqual(expt.instruments, [instrument, instrument]);
             assertEqual(expt.detector_arrays, [detector_array, detector_array]);
         end
-
+        
         function test_load_save_object_creates_identical_object(self)
             tmpfile = fullfile([tempdir(), 'test_experiment', 'loadsave.mat']);
             clobR=onCleanup(@()self.delete_files(tmpfile));
             
-            instruments = [IX_inst_DGfermi, IX_inst_DGdisk];
+            instruments = [IX_inst_DGfermi(), IX_inst_DGdisk()];
             sample1 = IX_sample;
             sample1.name = 'sample1';
             sample2 = IX_sample;
@@ -74,8 +82,8 @@ classdef test_experiment < TestCaseWithSave
             assertTrue(isa(expt.instruments(2), 'IX_inst_DGdisk'));
             assertEqual(expt.detector_arrays, IX_detector_array);
         end
-
-        function test_load_save_default_object_creates_default_object(self)  
+        
+        function test_load_save_default_object_creates_default_object(self)
             tmpfile = fullfile([tempdir(), 'test_experiment', 'loadsave_default.mat']);
             clobR=onCleanup(@()self.delete_files(tmpfile));
             
@@ -85,20 +93,21 @@ classdef test_experiment < TestCaseWithSave
             clear('expt');
             
             load(tmpfile, 'expt');
-            assertEqual(expt.instruments, IX_inst.empty)
-            assertEqual(expt.samples, IX_samp.empty)
+            assertEqual(expt.instruments, IX_inst())
+            assertEqual(expt.samples, IX_samp())
             assertEqual(expt.detector_arrays, [])
         end
-
-        function test_instruments_setter_updates_value_for_valid_value(self)
-            instruments = [IX_inst_DGfermi, IX_inst_DGdisk];
+        
+        function test_instruments_setter_updates_value_for_valid_value(~)
+            instruments = [IX_inst_DGfermi(),...
+                IX_inst_DGdisk()];
             expt = Experiment();
             expt.instruments = instruments;
             
             assertEqual(expt.instruments, instruments);
         end
-
-        function test_instruments_setter_raises_error_for_invalid_value(self)
+        
+        function test_instruments_setter_raises_error_for_invalid_value(~)
             instruments = 'non-instrument object value';
             expt = Experiment();
             
@@ -108,34 +117,35 @@ classdef test_experiment < TestCaseWithSave
                 e.instruments = i;
             end
         end
-
-        function test_samples_setter_updates_value_for_valid_value(self)
-            samples = [IX_sample];
+        
+        function test_samples_setter_updates_value_for_valid_value(~)
+            samples = IX_sample;
             expt = Experiment();
             expt.samples = samples;
             
             assertEqual(expt.samples, samples);
         end
-
-        function test_samples_setter_raises_error_for_invalid_value(self)
+        
+        function test_samples_setter_raises_error_for_invalid_value(~)
             samples = 'non-sample object value';
             expt = Experiment();
             
-            assertExceptionThrown(@() setSamplesProperty(expt, samples), 'HORACE:Experiment:invalid_argument');
+            assertExceptionThrown(@() setSamplesProperty(expt, samples),...
+                'HORACE:Experiment:invalid_argument');
             function setSamplesProperty(e, s)
                 e.samples = s;
             end
         end
-
-        function test_detector_arrays_setter_updates_value_for_valid_value(self)
-            detector_arrays = [IX_detector_array];
+        
+        function test_detector_arrays_setter_updates_value_for_valid_value(~)
+            detector_arrays = IX_detector_array;
             expt = Experiment();
             expt.detector_arrays = detector_arrays;
             
             assertEqual(expt.detector_arrays, detector_arrays);
         end
-
-        function test_detector_arrays_setter_raises_error_for_invalid_value(self)
+        
+        function test_detector_arrays_setter_raises_error_for_invalid_value(~)
             detector_arrays = 'non-detector_arrays object value';
             expt = Experiment();
             

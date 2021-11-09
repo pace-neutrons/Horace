@@ -25,20 +25,20 @@ if ~ismember(acc,{'wb+','rb+'})
 end
 %
 %
-if isempty(new_obj.sqw_holder_) 
-
+if isempty(new_obj.sqw_holder_)
+    
 end
 
 clear_sqw_holder = false;
 if isempty(obj.sqw_holder_)
-    clear_sqw_holder = true;    
+    clear_sqw_holder = true;
     % all file positions except instrument and sample
     % are already defined so we need just nominal object with instrument and sample
     nf = new_obj.num_contrib_files();
     % make pseudo-sqw  with instrument and sample
-    new_obj.sqw_holder_ = make_pseudo_sqw(nf);    
+    new_obj.sqw_holder_ = make_pseudo_sqw(nf);
     if isempty(pix_range)
-        data = obj.get_data();        
+        data = obj.get_data();
     else
         data = obj.get_data('-nopix');
         data.pix.set_range(pix_range);
@@ -49,7 +49,7 @@ else
     pix = obj.sqw_holder_.data.pix;
     if any(any(pix.pix_range == PixelData.EMPTY_RANGE_))
         pix.recalc_pix_range();
-    end    
+    end
 end
 
 new_obj.pix_range_ = pix.pix_range;
@@ -69,8 +69,8 @@ head.uoffset = zeros(4,1);
 head.u_to_rlu = zeros(4,4);
 head.ulen = ones(1,4);
 head.ulabel = {'a','b','c','d'};
-head.instrument = struct();
-head.sample = struct();
+head.instruments = struct();
+head.samples = struct();
 if nfiles>1
     heads = cell(1,nfiles);
     % matlab bug fixed in 2016b
@@ -78,16 +78,9 @@ if nfiles>1
 else
     heads = head;
 end
-sq.experiment_info = heads;
+exp = Experiment(heads);
+sq = sq.change_header(exp);
 
 function hd= gen_head(head,x)
 hd = head;
-
-
-
-
-
-
-
-
 

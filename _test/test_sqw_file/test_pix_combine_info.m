@@ -1,4 +1,4 @@
-classdef test_pix_combine_info < TestCase & common_state_holder
+classdef test_pix_combine_info < TestCase & common_sqw_file_state_holder
     % Test checks some components of pix_combine_info
     %
     %---------------------------------------------------------------------

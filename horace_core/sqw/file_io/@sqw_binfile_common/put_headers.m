@@ -37,7 +37,7 @@ if ~isempty(argi)
 end
 
 
-[headers,new_obj] = obj.extract_correct_subobj('header',argi{:});
+[exp_info,new_obj] = obj.extract_correct_subobj('header',argi{:});
 if new_obj
     update = true;
 end
@@ -59,11 +59,11 @@ if ~isempty(header_num)
             'put_header: number of header to save %d is out of range of existing headers %d',...
             header_num,obj.num_contrib_files);
     end
-    data_2save = headers(header_num);
+    data_2save = exp_info.convert_to_old_headers(header_num);
     n_files2_process = 1;
 else
     n_files2_process = obj.num_contrib_files;
-    data_2save = headers;
+    data_2save = exp_info;
     if isa(data_2save,'Experiment')
         data_2save = data_2save.convert_to_old_headers();
     end

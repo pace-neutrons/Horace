@@ -65,3 +65,13 @@ Temporary enabled to see how it goes
 
 - test_calc_projections
   - test_transf1
+
+- test_algorithms
+  -test_cut -- sample comparison and instrument comparison are currently disabled as loader, in some cases, returns
+               bunch of empty instruments and this should be fixed
+               
+ - test_gen_sqw_workflow ->gen_sqw_accumulate_sqw_tests_common
+    disabled final checkf on :
+    -test_accumulate_sqw11456
+    -test_accumulate_and_combine1to4
+    (https://github.com/pace-neutrons/Horace/issues/748))

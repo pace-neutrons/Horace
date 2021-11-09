@@ -39,7 +39,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             current = hcfg.use_mex;
             clob = onCleanup(@()set(hcfg,'use_mex',current));
             hcfg.use_mex = false;
-             
+            
             % =====================================================================================================================
             % Create sqw file:
             en = 0:1:90;
@@ -97,7 +97,9 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             
             obj.cleanup_obj = onCleanup(@()obj.rm_files(...
                 obj.sqw_pow_file,obj.sqw_pow_rings_file));
-            
+            % does nothing if -save is not enabled and saves saveable if it
+            % is
+            obj.save();
         end
         function test_powder_cuts(obj)
             %--------------------------------------------------------------------------------------------------
@@ -106,7 +108,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             %cuts_list= containers.Map();
             w2 = cut_sqw(wpow, [0, 0.031, 7], 0, '-nopix');
             w1 = cut_sqw(wpow, [2, 0.03, 6.5], [53, 57], '-nopix');
-
+            
             % Visual inspection
             % Plot the powder averaged sqw data
             plot(w2)
@@ -121,7 +123,7 @@ classdef test_gen_sqw_powder < TestCaseWithSave
             
             w2rings = cut_sqw(wpowrings, [0, 0.03, 7], 0, '-nopix');
             w1rings = cut_sqw(wpowrings, [2, 0.03, 6.5], [53, 57], '-nopix');
-
+            
             
             % Plot the same slice and cut from the sqw file created using the rings map
             % Slightly different - as expected, because of the summing of a ring of pixels

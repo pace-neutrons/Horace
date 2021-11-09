@@ -1,4 +1,4 @@
-function [ok, mess, spe_file_out, par_file_out, sqw_file_out, spe_exist, spe_unique, sqw_exist] =...
+function [spe_file_out, par_file_out, sqw_file_out, spe_exist, spe_unique, sqw_exist] =...
     gen_sqw_check_files (spe_file, par_file, sqw_file, require_spe_exist, require_spe_unique, require_sqw_exist)
 % Check that the input data files and output sqw file are OK. Throws error if fails check criteria
 %
@@ -31,10 +31,7 @@ function [ok, mess, spe_file_out, par_file_out, sqw_file_out, spe_exist, spe_uni
 % The output files have all leading and trailing whitespace removed.
 
 
-ext_horace={'.tmp','.sqw','.d0d','.d1d','.d2d','.d3d','.d4d'};
-
-% Default return arguments in case an error is encountered
-spe_file_out=[]; par_file_out=[]; sqw_file_out=[]; spe_exist=[]; spe_unique=[]; sqw_exist=[];
+ext_horace={'.tmp','.sqw','.nxsqw','.d0d','.d1d','.d2d','.d3d','.d4d'};
 
 
 % Check spe file input
@@ -55,10 +52,12 @@ elseif iscellstr(spe_file)
     if ok
         spe_file_out=strtrim(spe_file_out);
     else
-        mess='spe file input must be a single file name or cell array of file names'; return
+        error('HORACE:algorithms:invalid_argument',...
+            'spe file input must be a single file name or cell array of file names');
     end
 else
-    ok=false; mess='spe file input must be a single file name or cell array of file names'; return
+    error('HORACE:algorithms:invalid_argument',...
+        'spe file input must be a single file name or cell array of file names');
 end
 
 % Check all spe files exist and do not have a reserved extension name
@@ -69,19 +68,21 @@ for i=1:numel(spe_file_out)
         spe_filled(i)=true;
         [path,name,ext]=fileparts(spe_file_out{i});
         if any(strcmpi(ext,[ext_horace,'.par']))
-            ok=false;
-            mess=['spe files must not have the reserved extension ''',ext,...
-                '''. Check the file is spe type and rename.'];
-            return
+            error('HORACE:algorithms:invalid_argument',...
+                ['spe files must not have the reserved extension "%s". ',...
+                'Check the file is spe type and rename.'],ext);
         end
     end
     if ~spe_filled(i) || ~exist(spe_file_out{i},'file')
         spe_exist(i)=false;
         if require_spe_exist
             if isempty(spe_file_out{i})
-                ok=false; mess='spe file names must be non-empty strings'; return
+                error('HORACE:algorithms:invalid_argument',...
+                    'spe file names must be non-empty strings. Name of spe file N%d is empty',...
+                    i);
             else
-                ok=false; mess=sprintf('spe file: %s does not exist',spe_file_out{i}); return
+                error('HORACE:algorithms:invalid_argument',...
+                    'spe file: %s does not exist',spe_file_out{i});
             end
         end
     end
@@ -92,7 +93,8 @@ spe_unique=true;
 if any(spe_filled) && ~(numel(unique(spe_file_out(spe_filled)))==numel(spe_file_out(spe_filled)))
     spe_unique=false;
     if require_spe_unique
-        ok=false; mess='One or more spe file names are repeated. All spe files must be unique'; return
+        error('HORACE:algorithms:invalid_argument',...
+            'One or more spe file names are repeated. All spe files must be unique');
     end
 end
 
@@ -106,24 +108,26 @@ if ~isempty(par_file)
     elseif isstruct(par_file)
         det_par_file = false;
     else
-        ok=false; mess='If given, par filename  must be a non-empty string'; return
+        error('HORACE:algorithms:invalid_argument',...
+            'If given, par filename  must be a non-empty string');
     end
     if det_par_file
         % Check par file exists
         [~,~,ext]=fileparts(par_file_out);
         if any(strcmpi(ext,[ext_horace,'.spe']))
-            ok=false;
-            mess=['Detector parameter files must not have the reserved extension ''',ext,...
-                '''. Check the file is .par type and rename.'];
-            return
+            error('HORACE:algorithms:invalid_argument',...
+                ['Detector parameter files must not have the reserved extension: "%s". ',...
+                '''. Check the file is .par type and rename.'],ext);
         end
         if ~exist(par_file_out,'file')
-            ok=false; mess=['Detector parameter file ',par_file_out,' not found']; return
+            error('HORACE:algorithms:invalid_argument',...
+                'Detector parameter file "%s" not found',par_file_out);
         end
     else
         pf = {'filename','filepath','group','x2','phi','azim','width','height'};
         if ~all(isfield(par_file,pf))
-            ok=false; mess='Detector parameter information should be in Horace par_file format'; return
+            error('HORACE:algorithms:invalid_argument',...
+                'Detector parameter information provided as input structure must be in Horace par_file format');
         end
         par_file_out = par_file.filename;
     end
@@ -135,32 +139,42 @@ end
 
 % Check sqw file
 % ---------------
-[ok,sqw_exist,sqw_file_out,mess] = check_file_writable(sqw_file,require_sqw_exist);
-if ~ok
-    return;
+if ~isempty(sqw_file) % we may not want to write a file and return an object instead
+    [ok,sqw_exist,sqw_file_out,mess] = check_file_writable(sqw_file,require_sqw_exist);
+    if ~ok
+        error('HORACE:algorithms:runtime_error',...
+            mess);
+    end
+else
+    if require_sqw_exist
+       error('HORACE:algorithms:runtime_error',...        
+           'sqw file existense requested but the actual sqw file name is empty');
+    end
+    sqw_file_out = '';
 end
 %See above (RAE)
 
 
 % Check that spe, par and sqw file names do not match
 % ---------------------------------------------------
-if any(strcmpi(sqw_file_out,spe_file_out))
-    ok=false; mess='Output sqw file name matches one of the input spe file names'; return
+if any(strcmpi(sqw_file_out,spe_file_out)) && ~isempty(sqw_file_out)
+    error('HORACE:algorithms:invalid_argument',...
+        'Output sqw file name %s matches one of the input spe file names',sqw_file_out);
 end
 
 if ~isempty(par_file_out)
     if any(strcmpi(par_file_out,spe_file_out))
-        ok=false; mess='Detector parameter file name matches one of the input spe file names'; return
+        error('HORACE:algorithms:invalid_argument',...
+            'Detector parameter file name %s matches one of the input spe file names',par_file_out);
     elseif strcmpi(par_file_out,sqw_file_out)
-        ok=false; mess='Detector parameter file name and output sqw file name match'; return
+        error('HORACE:algorithms:invalid_argument',...
+            'Detector parameter file name %s and output sqw file name match',par_file_out);
     end
 end
 
 
 % Fill error flags
 % ----------------
-ok=true;
-mess='';
 if ~det_par_file
     par_file_out = par_file;
 end

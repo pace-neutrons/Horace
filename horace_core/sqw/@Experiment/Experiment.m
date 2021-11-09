@@ -1,21 +1,29 @@
-classdef Experiment
+classdef Experiment < serializable
     %EXPERIMENT Container object for all data describing the Experiment
     
     properties(Access=private)
-        class_version_ = 1;
-        instruments_ = IX_inst.empty;
+        instruments_ = IX_inst();
         detector_arrays_ = []
-        samples_ = IX_samp.empty;
-        expdata_ = IX_experiment.empty;
+        samples_ = IX_samp();
+        expdata_ = IX_experiment();
     end
     
     properties (Dependent)
+        n_runs;  % return the number of runs, this class contains
         % Mirrors of private properties
         instruments
         detector_arrays
         samples
         expdata
     end
+    properties(Dependent,Hidden)
+        % property providing compartibility with old header interface
+        header
+    end
+    properties(Constant,Access=private)
+        fields_to_save_ = {'instruments','detector_arrays','samples','expdata'};
+    end
+    
     
     methods
         function obj = Experiment(varargin)
@@ -34,130 +42,23 @@ classdef Experiment
                 return;
             end
             
-            if nargin==1 && isa(varargin{1},'Experiment')
-                obj = varargin{1};
-                return;
-            end
-
-            if nargin==1 && isstruct(varargin{1})
-                % Assume trying to initialise from a structure array of properties
-                % Actually this is the case where the header has just one
-                % run in it. It may be simpler to convert the header to a
-                % cell of one - but leaving this for the moment,
-                
-                %obj = IX_fermi_chopper.loadobj(varargin{1});
-                alatt = varargin{1}.alatt;
-                angdeg = varargin{1}.angdeg;
-                if isstruct(varargin{1}.instrument) && isempty(fieldnames(varargin{1}.instrument))
-                    % as the instrument struct is empty, create a null
-                    % instrument to represent it
-                    obj.instruments_(end+1) = IX_null_inst();
-                elseif isa(varargin{1}.instrument,'IX_inst')
-                    % hoping that the IX_inst is in fact a subclass
-                    obj.instruments_(end+1) = varargin{1}.instrument;
-                elseif isstruct(varargin{1}.instrument)
-                    if isfield(varargin{1}.instrument,'fermi_chopper') && ...
-                       isa(varargin{1}.instrument.fermi_chopper,'IX_fermi_chopper')
-                        obj.instruments_(end+1) = IX_inst_DGfermi(varargin{1}.instrument.moderator, ...
-                                                                  varargin{1}.instrument.aperture,  ...
-                                                                  varargin{1}.instrument.fermi_chopper);
-                    else
-                        % where this instrument is probably a DGdisk which
-                        % actually is implemented but may be somethig else
-                        error("Horace:Experiment:this instrument not implemented yet");
-                    end
-                end
-                if isstruct(varargin{1}.sample) && isempty(fieldnames(varargin{1}.sample))
-                    try
-                    ixns = IX_null_sample();
-                    ixns.alatt = alatt;
-                    ixns.angdeg = angdeg;
-                    obj.samples_(end+1) = ixns;
-                    catch ME
-                        error("TT");
-                    end
+            S = varargin{1};
+            if nargin==1
+                if isa(S,'Experiment')
+                    obj = S;
+                    return;
+                elseif isstruct(S)
+                    obj =Experiment.loadobj(S);
+                elseif iscell(S)
+                    obj = build_from_old_headers_(obj,S);
                 else
-                    ixs = varargin{1}.sample;
-                    ixs.alatt = alatt;
-                    ixs.angdeg = angdeg;
-                    obj.samples_(end+1) = ixs;
-                end
-                filename = varargin{1}.filename;
-                filepath = varargin{1}.filepath;
-                cu = varargin{1}.cu;
-                cv = varargin{1}.cv;
-                efix = varargin{1}.efix;
-                emode = varargin{1}.emode;
-                psi = varargin{1}.psi;
-                omega = varargin{1}.omega;
-                dpsi = varargin{1}.dpsi;
-                gl = varargin{1}.gl;
-                gs = varargin{1}.gs;
-                en = varargin{1}.en;
-                uoffset = varargin{1}.uoffset;
-                u_to_rlu = varargin{1}.u_to_rlu;
-                ulen = varargin{1}.ulen;
-                ulabel = varargin{1}.ulabel;
-                obj.expdata_(end+1) = IX_experiment(filename, filepath, efix,emode,cu,cv,psi,omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,ulabel);
-            elseif nargin==1 && iscell(varargin{1})
-                % in this case the header (which is what varargin{1} is in
-                % this case) is a cell of runs. Consequently we run over
-                % the runs in the cell doing just what we did to one run
-                % header in the if block above
-                headers = varargin{1};
-                for i=1:numel(headers)
-                    hdr = headers{i};
-                    alatt = hdr.alatt;
-                    angdeg = hdr.angdeg;
-                    if isstruct(hdr.instrument)
-                        if isempty(fieldnames(hdr.instrument))
-                            obj.instruments_(end+1) = IX_null_inst();
-                        elseif isfield(hdr.instrument,'fermi_chopper')
-                            ins = hdr.instrument;
-                            hdr.instrument = IX_inst_DGfermi(ins.moderator, ...
-                                                             ins.aperture,  ...
-                                                             ins.fermi_chopper);
-                            obj.instruments_(end+1) = hdr.instrument;
-                        else
-                            error('HORACE:Experiment-ctor','unknown struct');
-                        end
-                    else
-                        obj.instruments_(end+1) = hdr.instrument;
-                    end
-                    if isstruct(hdr.sample) && isempty(fieldnames(hdr.sample))
-                        ixns = IX_null_sample();
-                        ixns.alatt = alatt;
-                        ixns.angdeg = angdeg;
-                        obj.samples_(end+1) = ixns;
-                    else
-                        ixs = hdr.sample;
-                        ixs.alatt = alatt;
-                        ixs.angdeg = angdeg;
-                        obj.samples_(end+1) = ixs;
-                    end
-                    filename = hdr.filename;
-                    filepath = hdr.filepath;
-                    cu = hdr.cu;
-                    cv = hdr.cv;
-                    efix = hdr.efix;
-                    emode = hdr.emode;
-                    psi = hdr.psi;
-                    omega = hdr.omega;
-                    dpsi = hdr.dpsi;
-                    gl = hdr.gl;
-                    gs = hdr.gs;
-                    en = hdr.en;
-                    uoffset = hdr.uoffset;
-                    u_to_rlu = hdr.u_to_rlu;
-                    ulen = hdr.ulen;
-                    ulabel = hdr.ulabel;
-                    obj.expdata_(end+1) = IX_experiment(filename, filepath, efix,emode,cu,cv,psi,omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,ulabel);
-
+                    error('HORACE:Experiment:invalid_argument',...
+                        'unrecoginzed Experiment constructor type: %s',class(varargin{1}));
                 end
             elseif nargin==3
-                obj.detector_arrays_ = varargin{1};
+                obj.detector_arrays = S;
                 if isa(varargin{2}, 'IX_inst')
-                    obj.instruments_ =  varargin{2};
+                    obj.instruments =  varargin{2};
                 elseif isempty(varargin{2})
                     % do nothing, instruments is already empty on
                     % construction
@@ -166,7 +67,7 @@ classdef Experiment
                         'bad type for instruments on construction');
                 end
                 if isa(varargin{3}, 'IX_samp')
-                    obj.samples_ = varargin{3};
+                    obj.samples = varargin{3};
                 elseif isempty(varargin{3})
                     % do nothing, samples is already empty on construction
                 else
@@ -175,40 +76,45 @@ classdef Experiment
                 end
             else
                 error('HORACE:Experiment:invalid_argument', ...
-                    'Must give all of detector_array, instrument and sample')
+                    'Must give all of detector_array, instrument and sample or the structure representing them')
             end
         end
-        
-        function oldhdrs = convert_to_old_headers(obj)
-            nruns = numel(obj.expdata);
-            oldhdrs = cell(nruns,1);
-            edflds = fields(obj.expdata);
-            for i=1:nruns
-                oldhdr = struct();
-                for j=1:numel(edflds)
-                    oldhdr.(edflds{j}) = obj.expdata(i).(edflds{j});
+        %
+        function oldhdrs = convert_to_old_headers(obj,header_num)
+            % convert Experiment into the structure suitable to be 
+            % stored in old binary sqw files (up to version 3.xxx) 
+            % 
+            % this structure is also used in number of places of the old
+            % code where, e.g., structure sorting is implemented but this
+            % usage is deprecated and will be removed in a future.
+            %
+            samp = obj.get_unique_samples();
+            if nargin == 2
+                oldhdrs = obj.expdata_(header_num).to_bare_struct();
+                oldhdrs.alatt = samp.alatt;
+                oldhdrs.angdeg = samp.angdeg;
+                oldhdrs.instrument = struct();
+                oldhdrs.sample = struct();
+            else
+                nruns = obj.n_runs;
+                oldhdrs = cell(nruns,1);
+                for i=1:nruns
+                    old_hdr = obj.expdata_(i).to_bare_struct();
+                    old_hdr.alatt = samp.alatt;
+                    old_hdr.angdeg = samp.angdeg;
+                    
+                    old_hdr.instrument = struct();
+                    old_hdr.sample = struct();
+                    oldhdrs{i} = old_hdr;
                 end
-                oldhdr.alatt = obj.samples(i).alatt;
-                oldhdr.angdeg = obj.samples(i).angdeg;
-                if isa(obj.instruments(i),'IX_null_inst')
-                    oldhdr.instrument = struct();
-                else
-                    oldhdr.instrument = obj.instruments(i);
-                end
-                if isa(obj.samples(i),'IX_null_sample')
-                    oldhdr.sample = struct();
-                    oldhdr.alatt = obj.samples(i).alatt;
-                    oldhdr.angdeg = obj.samples(i).angdeg;
-                else
-                    oldhdr.sample = obj.samples(i);
-                end
-                oldhdr.alatt = obj.samples(i).alatt;
-                oldhdr.angdeg = obj.samples(i).angdeg;
-                oldhdrs{i} = oldhdr;
             end
         end
-
-        function obj=set.detector_arrays_(obj,val)
+        %
+        function val=get.detector_arrays(obj)
+            val=obj.detector_arrays_;
+        end
+        %
+        function obj=set.detector_arrays(obj, val)
             if isa(val,'IX_detector_array') || isempty(val)
                 obj.detector_arrays_ = val;
             else
@@ -216,105 +122,251 @@ classdef Experiment
                     'Detector array must be one or an array of IX_detector_array object')
             end
         end
-        
-        function obj=set.instruments_(obj,val)
-            if isa(val,'IX_inst') || isempty(val)
-                obj.instruments_ = val;
-            else
-                error('HORACE:Experiment:invalid_argument', ...
-                    'Instruments must be one or an array of IX_inst objects')
-            end
-        end
-        
-        function obj=set.samples_(obj,val)
-            if isa(val,'IX_samp')
-                obj.samples_ = val;
-            elseif isempty(val)
-                obj.samples_ = IX_null_sample();
-            else
-                error('HORACE:Experiment:invalid_argument', ...
-                    'Sample must be one or an array of IX_sample or IX_null_sample objects')
-            end
-        end
-
-        function val=get.detector_arrays(obj)
-            val=obj.detector_arrays_;
-        end
-        function obj=set.detector_arrays(obj, val)
-            obj.detector_arrays_ = val;
-        end
-
+        %
         function val=get.instruments(obj)
             val=obj.instruments_;
         end
+        %
         function obj=set.instruments(obj, val)
-            obj.instruments_ = val;
+            if ~isa(val,'IX_inst') && all(isempty(val)) % empty IX_inst may have a shape
+                % but nice to clear instrument by providing empty input
+                val = IX_inst();
+            end
+            
+            if isa(val,'IX_inst')
+                if size(val,1) > 1
+                    val = reshape(val,1,numel(val));
+                end
+                obj.instruments_ = val;
+            else
+                error('HORACE:Experiment:invalid_argument', ...
+                    'Instruments must be one or an array of IX_inst objects. In fact it is %s',...
+                    class(val))
+            end
         end
-
+        %
+        function is = is_same_ebins(obj)
+            % return true if all energy bins of all runs are the
+            % same
+            is=true;
+            en=obj.expdata(1).en;
+            for i=2:obj.n_runs
+                if numel(en)~=numel(obj.expdata(i).en) || ~all(en==obj.expdata(i).en)
+                    is=false;
+                    break
+                end
+            end
+        end
+        %
+        function expi = get_aver_experiment(obj)
+            % some, presumably average, run-data. Naive implementation, 
+            % all data are the same
+            expi = obj.expdata(1);
+        end
+        
         function val=get.samples(obj)
             val=obj.samples_;
         end
+        %
         function obj=set.samples(obj, val)
-            obj.samples_ = val;
+            if ~isa(val,'IX_samp') && all(isempty(val))  % empty IX_sample 
+                % may have a shape but nice to clear sample by providing
+                % empty string
+                val = IX_samp();
+            end
+            
+            if isa(val,'IX_samp')
+                if size(val,1) > 1
+                    val = reshape(val,1,numel(val));
+                end
+                obj.samples_ = val;
+            else
+                error('HORACE:Experiment:invalid_argument', ...
+                    'Sample must be one or an array of IX_samp objects. Actually it is: %s',...
+                    class(val))
+            end
         end
-
+        %
         function val=get.expdata(obj)
             val=obj.expdata_;
         end
+        %
         function obj=set.expdata(obj, val)
+            if ~isa(val,'IX_experiment') && all(isempty(val)) % empty IX_experiment may have shape
+                val = IX_experiment();
+            end
+            if isa(val,'IX_experiment')
+                if size(val,1) > 1 % do rows, they are more compact at serialization
+                    val = reshape(val,1,numel(val));
+                end
+            else
+                error('HORACE:Experiment:invalid_argument', ...
+                    'Sample must be one or an array of IX_experiment objects. Actually it is: %s',...
+                    class(v))
+            end
             obj.expdata_ = val;
         end
-
+        %
+        function nr = get.n_runs(obj)
+            nr = numel(obj.expdata_);
+        end
+        
+        % instrument methods interface
         %------------------------------------------------------------------
-        function S = saveobj(obj)
-            % Method used my Matlab save function to support custom
-            % conversion to structure prior to saving.
+        function obj = set_efix_emode(obj,efix,emode)
+            % change efix and (optionally) emode in all experiment descriptions
+            % if emode is absent or described by any character string,
+            % the emode is kept unchanged
+            if nargin == 2
+                emode = '-keep_emode';
+            end
+            obj = set_efix_emode_(obj,efix,emode);
+        end
+        
+        % SERIALIZABLE interface
+        %------------------------------------------------------------------
+        function ver  = classVersion(~)
+            % define version of the class to store in mat-files
+            % and nxsqw data format. Each new version would presumably read
+            % the older version, so version substitution is based on this
+            % number
+            ver = 1;
+        end
+        %
+        function flds = indepFields(~)
+            % get independent fields, which fully define the state of the
+            % serializable object.
+            flds = Experiment.fields_to_save_;
+        end
+        %
+        % GEN_SQW interface
+        %------------------------------------------------------------------
+        function [avh,ebins_are_the_same] = header_average(obj)
+            % very crude implementation for the header, average over all
+            % runs.
             %
-            %   >> S = saveobj(obj)
-            %
-            % Input:
-            % ------
-            %   obj     Scalar instance of the object class
-            %
-            % Output:
-            % -------
-            %   S       Structure created from obj that is to be saved
-            
-            % The following is boilerplate code
-            S = structIndep(obj);
+            if isempty(obj.expdata)
+                avh = [];
+            else
+                avh = obj.expdata_(1);
+            end
+            if nargout>1
+                ebins_are_the_same = obj.is_same_ebins();
+            else
+                ebins_are_the_same=[];
+            end
+            avh = avh.to_bare_struct();
+            sampl = obj.samples_(1);
+            avh.alatt = sampl.alatt;
+            avh.angdeg = sampl.angdeg;
+        end
+        %
+        function instr = get_unique_instruments(obj)
+            % compartibility fields with old binary file formats
+            % TODO: needs proper implementation            
+            instr = obj.instruments_(1);
+        end
+        %
+        function samp = get_unique_samples(obj)
+            % compartibility fields with old binary file formats
+            % TODO: needs proper implementation
+            samp = obj.samples_(1);
+        end
+        %
+        function head = get.header(obj)
+            head = obj.convert_to_old_headers();
+            head = [head{:}];
+            head = rmfield(head,{'instrument','sample'});
         end
     end
-
-    %------------------------------------------------------------------
-    methods (Static)
-        function obj = loadobj(S)
-            % Static method used my Matlab load function to support custom
-            % loading.
+    methods(Access=protected)
+        %------------------------------------------------------------------
+        function obj = from_old_struct(obj,inputs)
+            % Restore object from the old structure, which describes the
+            % previous version of the object.
             %
-            %   >> obj = loadobj(S)
+            % The method is called by loadobj in the case if the input
+            % structure does not contain version or the version, stored
+            % in the structure does not correspond to the current version
             %
-            % Input:
-            % ------
-            %   S       Either (1) an object of the class, or (2) a structure
-            %           or structure array
+            % By default, this function interfaces the default from_class_struct
+            % method, but when the old strucure substantially differs from
+            % the moden structure, this method needs the specific overloading
+            % to allow loadob to recover new structure from an old structure.
             %
-            % Output:
-            % -------
-            %   obj     Either (1) the object passed without change, or (2) an
-            %           object (or object array) created from the input structure
-            %       	or structure array)
-            
-            % The following is boilerplate code; it calls a class-specific function
-            % called loadobj_private_ that takes a scalar structure and returns
-            % a scalar instance of the class
-
-            if isobject(S)
-                obj = S;
+            %if isfield(inputs,'version')
+            %      do check for previous versions
+            %      and appropriate code
+            %end
+            if isfield(inputs,'filename') && isfield(inputs,'efix') % this is probably old single header
+                obj = build_from_old_headers_(obj,{inputs});
             else
-                obj = arrayfun(@(x)loadobj_private_(x), S);
+                if isfield(inputs,'array_dat')
+                    obj = obj.from_class_struct(inputs.array_dat);
+                else
+                    obj = obj.from_class_struct(inputs);
+                end
             end
         end
-        %------------------------------------------------------------------
+        
+    end
+    %
+    methods(Access=private)
+        % copy non-empty contents to the contents of this class
+        [obj,n_added] = check_and_copy_contents_(obj,other_cont,field_name);
+    end
+    methods(Static)
+        function obj = loadobj(S)
+            % boilerplate loadobj method, calling generic method of
+            % saveable class
+            obj = Experiment();
+            obj = loadobj@serializable(S,obj);
+        end
+        function [exp,nspe] = combine_experiments(exp_cellarray,allow_equal_headers,drop_subzone_headers)
+            % take cellarray of experiments (e.g., generated from each runfile build
+            % during gen_sqw generation)
+            % and combine then together into single Experiment info class
+            %
+            %This is the HACK, providing only basic functionality. Previous
+            %header-s on the basis of sqw_header and part, present in 
+            %write_nsqw_to_sqw implementation offers much more.
+            %
+            %TODO: Do proper optinization on the way. See 
+            % sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers)
+            %TODO: use allow_equal_headers,drop_subzone_headers variables
+            %      appropriately
+            %TODO: repeat at least the logic within sqw_header helper class
+            %      and write_nsqw_to_sqw combine/check headers operation
+            n_contrib = numel(exp_cellarray);
+            nspe = zeros(n_contrib,1);
+            for i=1:n_contrib
+                nspe(i) = exp_cellarray{i}.n_runs;
+            end
+            n_tot = sum(nspe);
+            instr  = repmat(IX_inst(),1,n_tot );
+            sampl  = repmat(IX_samp(),1,n_tot);
+            expinfo= repmat(IX_experiment(),1,n_tot);
+            ic = 1;
+            for i=1:n_contrib
+                for j=1:exp_cellarray{i}.n_runs
+                    instr(ic) = exp_cellarray{i}.instruments(j);
+                    sampl(ic) = exp_cellarray{i}.samples(j);
+                    expinfo(ic) =exp_cellarray{i}.expdata(j);
+                end
+                ic = ic+1;
+            end
+            exp = Experiment([], instr, sampl);
+            exp.expdata = expinfo;
+            %             if iscell(exp_cellarray)
+            %                 for i=1:n_contrib
+            %                     [exp,n_combined] = exp.add_contents(exp_cellarray{i});
+            %                 end
+            %             else
+            %                 for i=1:n_contrib
+            %                     [exp,n_combined] = exp.add_contents(exp_cellarray(i));
+            %                 end
+            %             end
+        end
     end
     %======================================================================
 end

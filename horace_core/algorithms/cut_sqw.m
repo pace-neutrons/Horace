@@ -16,21 +16,21 @@ if ~isa(source, 'sqw')
             ldr = sqw_formats_factory.instance().get_loader(source);
             if ~ldr.sqw_type
                 error('HORACE:cut_sqw', ...
-                      'Cannot perform cut_sqw, ''%s'' is not a valid SQW file.', ...
-                      source);
+                    'Cannot perform cut_sqw, ''%s'' is not a valid SQW file.', ...
+                    source);
             end
             source = ldr;
         end
     else
         error('HORACE:cut_sqw', ...
-              'Cannot perform cut_sqw, expected sqw type, found ''%s''.', ...
-              class(source));
+            'Cannot perform cut_sqw, expected sqw type, found ''%s''.', ...
+            class(source));
     end
 end
 if nargout>0
-    wout = cut(source, varargin{:});    
+    wout = cut(source, varargin{:});
 else
-    cut(source, varargin{:});        
+    cut(source, varargin{:});
 end
 
 

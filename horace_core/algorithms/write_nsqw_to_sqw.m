@@ -144,7 +144,8 @@ end
 % We must have same data information for alatt, angdeg, uoffset, u_to_rlu, ulen, pax, iint, p
 % This guarantees that the pixels are independent (the data may be the same if an spe file name is repeated, but
 % it is assigned a different Q, and is in the spirit of independence)
-[header_combined,nspe] = sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers);
+[header_combined,nspe] = Experiment.combine_experiments(header,allow_equal_headers,drop_subzone_headers);
+%[header_combined,nspe] = sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers);
 
 
 img_db_range=datahdr{1}.img_db_range;
@@ -279,7 +280,7 @@ sqw_data.pix.pix_range = pix_range;
 main_header_combined.filename = [fn,fe];
 main_header_combined.filepath = [fp,filesep];
 %
-data_sum= struct('main_header',main_header_combined,'experiment_info',[],'detpar_x',det);
+data_sum= struct('main_header',main_header_combined,'experiment_info',[],'detpar',det);
 data_sum.data = sqw_data;
 data_sum.experiment_info = header_combined;
 

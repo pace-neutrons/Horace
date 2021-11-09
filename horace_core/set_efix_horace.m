@@ -1,4 +1,4 @@
-function varargout=set_efix_horace(varargin)
+function set_efix_horace(files,varargin)
 % Set the fixed neutron energy for an array of sqw objects.
 %
 %   >> set_efix(file, efix)
@@ -15,14 +15,4 @@ function varargout=set_efix_horace(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
-if nargin<1 || nargin>3
-    error('Check number of input arguments')
-elseif nargout>0
-    error('No output arguments returned by this function')
-end
-
-[varargout,mess] = horace_function_call_method (nargout, @set_efix, '$hor', varargin{:});
-if ~isempty(mess), error(mess), end
-
+set_efix(files,varargin{:});

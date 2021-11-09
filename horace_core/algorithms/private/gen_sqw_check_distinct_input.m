@@ -1,5 +1,5 @@
 function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
-    u, v, psi, omega, dpsi, gl, gs, instrument, sample, replicate, header)
+    u, v, psi, omega, dpsi, gl, gs, instrument, sample, replicate, header_exper)
 % Check that the input arguments to gen_sqw define distinct input with required equality of some fields.
 % Optionally, determine in addition which input are not included in the header of an sqw file
 %
@@ -115,18 +115,44 @@ for i=2:numel(pstruct)
 end
 
 % If a header was passed, check spe data arguments against contents of header
-if ~exist('header','var') || isempty(header)
+if ~exist('header_exper','var') || isempty(header_exper)
     ok=true;
     mess='';
     spe_only=true(numel(pstruct),1);
     head_only=false(0,1);
     
 else
-    % Use header_combine to check the header and create a structure with the same fields as pstruct
+    % TODO:
+    %Use header_combine to check the header and create a structure with the same fields as pstruct
+    %HACK: fix to work properly. Move majority of the checks into
+    %Experiment
+    if ~isa(header_exper,'cell')
+        header_exper = {header_exper};
+    end
+    %
+    %header = cell(1,numel(header_exper));
+    n_accum_runs = 0;
+    for i=1:numel(header_exper)
+        n_accum_runs  = n_accum_runs+header_exper{i}.n_runs;
+    end
+    
+    exp_struc = Experiment().convert_to_old_headers(1);
+    header = repmat(exp_struc,1,n_accum_runs);
+    ic = 1;    
+    for i=1:numel(header_exper)
+        nr = header_exper{i}.n_runs;
+        tmp_cell = header_exper{i}.convert_to_old_headers();
+        tmp_cell = [tmp_cell{:}];
+        header(ic:ic+nr-1) = tmp_cell(1:1+nr-1);        
+        ic = ic+nr;
+    end
+    
+    
+    
     try
         [header_out,~,hstruct_sort,indh]=sqw_header.header_combine(header);
     catch ME
-        if strcmp(ME.identifier,'SQW_HEADER:invalid_header')
+        if strcmp(ME.identifier,'HORACE:algorithms:invalid_argument')
             spe_only=[]; head_only=[];
             mess=['Error in sqw file header: ',ME.message];
             return
@@ -134,68 +160,68 @@ else
             rethrow(ME);
         end
     end
-    if ~ok
-        
-    end
-    if isstruct(header_out)
-        header_out={header_out};    % make a cell array for convenience later on
-    end
-    % Check the fields are the same in pstruct and hstruct - to catch editing that has introduced inconsistencies
+    % % Check the fields are the same in pstruct and hstruct - to catch editing that has introduced inconsistencies
     names_hstruct_sort=fieldnames(hstruct_sort)';
-    if numel(names)~=numel(names_hstruct_sort) || ~all(strcmp(names,names_hstruct_sort))
-        error('Fieldnames not identical in pstruct and hstruct: error in code; see T.G.Perring')
-    end
-    % Find the entries in pstruct_sort that also appear in hstruct_sort
-    i=1; j=1; n1=numel(pstruct_sort); n2=numel(hstruct_sort);
-    pcommon=false(n1,1); hcommon=false(n2,1);
-    tol = 2.0e-7;    % test number to define equality allowing for rounding errors (recall header fields were saved only as float32)
-    while (i<=n1 && j<=n2)
-        if equal_to_tol(pstruct_sort(i),hstruct_sort(j),-tol,'min_denominator',1)
-            pcommon(i)=true;
-            hcommon(j)=true;
-            i=i+1;
-            j=j+1;
-        else
-            [tmp,tmpind]=sortStruct([pstruct_sort(i),hstruct_sort(j)],names);
-            if tmpind(1)==1
-                i=i+1;
-            else
-                j=j+1;
-            end
-        end
-    end
-    ip0=indp(pcommon); ih0=indh(hcommon);   % indicies of the common entries in the original structure arrays
-    % Check that the fields that are required to be equal are indeed
-    for i=1:numel(ip0)
-        ok = (emode(ip0(i))==header_out{ih0(i)}.emode);
-        ok = ok & equal_to_relerr(dsd(alatt(ip0(i),:)),header_out{ih0(i)}.alatt,tol,1);
-        ok = ok & equal_to_relerr(dsd(angdeg(ip0(i),:)),header_out{ih0(i)}.angdeg,tol,1);
-        ok = ok & equal_to_relerr(dsd(u(ip0(i),:)),header_out{ih0(i)}.cu,tol,1);
-        ok = ok & equal_to_relerr(dsd(v(ip0(i),:)),header_out{ih0(i)}.cv,tol,1);
-        if ~ok
-            spe_only=[]; head_only=[];
-            mess='spe data and header of sqw file are inconsistent';
-            return
-        end
-        ok = isequal(sample(ip0(i)),header_out{ih0(i)}.sample);
-        if ~ok
-            spe_only=[]; head_only=[];
-            mess='spe data and header of sqw file have inconsistent sample information';
-            return
-        end
-        ok = isequal(instrument(ip0(i)),header_out{ih0(i)}.instrument);   % we require the instrument is also equal
-        if ~ok
-            spe_only=[]; head_only=[];
-            mess='spe data and header of sqw file have inconsistent instrument information';
-            return
-        end
-    end
-    ok=true;
-    mess='';
-    spe_only=true(numel(pstruct),1);
-    head_only=true(numel(header_out),1);
-    spe_only(ip0)=false;
-    head_only(ih0)=false;
+    %if numel(names)~=numel(names_hstruct_sort) || ~all(strcmp(names,names_hstruct_sort))
+    %    error('Fieldnames not identical in pstruct and hstruct: error in code; see T.G.Perring')
+    %end
+    %HACK:
+    in_names = ismember(names_hstruct_sort,names);
+    extra_names  = names_hstruct_sort(~in_names);
+    hstruct_sort = rmfield(hstruct_sort,extra_names);    
+    
+    % % Find the entries in pstruct_sort that also appear in hstruct_sort
+     i=1; j=1; n1=numel(pstruct_sort); n2=numel(hstruct_sort);
+     pcommon=false(n1,1); hcommon=false(n2,1);
+     tol = 2.0e-7;    % test number to define equality allowing for rounding errors (recall header fields were saved only as float32)
+     while (i<=n1 && j<=n2)
+         if equal_to_tol(pstruct_sort(i),hstruct_sort(j),-tol,'min_denominator',1)
+             pcommon(i)=true;
+             hcommon(j)=true;
+             i=i+1;
+             j=j+1;
+         else
+             [tmp,tmpind]=sortStruct([pstruct_sort(i),hstruct_sort(j)],names);
+             if tmpind(1)==1
+                 i=i+1;
+             else
+                 j=j+1;
+             end
+         end
+     end
+     ip0=indp(pcommon); ih0=indh(hcommon);   % indicies of the common entries in the original structure arrays
+     % Check that the fields that are required to be equal are indeed
+     for i=1:numel(ip0)
+         ok = (emode(ip0(i))==header_out{ih0(i)}.emode);
+         ok = ok & equal_to_relerr(dsd(alatt(ip0(i),:)),header_out{ih0(i)}.alatt,tol,1);
+         ok = ok & equal_to_relerr(dsd(angdeg(ip0(i),:)),header_out{ih0(i)}.angdeg,tol,1);
+         ok = ok & equal_to_relerr(dsd(u(ip0(i),:)),header_out{ih0(i)}.cu,tol,1);
+         ok = ok & equal_to_relerr(dsd(v(ip0(i),:)),header_out{ih0(i)}.cv,tol,1);
+         if ~ok
+             spe_only=[]; head_only=[];
+             mess='spe data and header of sqw file are inconsistent';
+             return
+         end
+         ok = isequal(sample(ip0(i)),header_out{ih0(i)}.sample);
+         if ~ok
+             spe_only=[]; head_only=[];
+             mess='spe data and header of sqw file have inconsistent sample information';
+             return
+         end
+         ok = isequal(instrument(ip0(i)),header_out{ih0(i)}.instrument);   % we require the instrument is also equal
+         if ~ok
+             spe_only=[]; head_only=[];
+             mess='spe data and header of sqw file have inconsistent instrument information';
+             return
+         end
+     end
+     ok=true;
+     mess='';
+     spe_only=true(numel(pstruct),1);
+     head_only=true(numel(header_out),1);
+     spe_only(ip0)=false;
+     head_only(ih0)=false;
+    
 end
 
 %--------------------------------------------------------------------------]

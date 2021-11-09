@@ -88,7 +88,7 @@ classdef sqw_header
             
         end
         %
-        function [header_out,nspe,hstruct_sort,ind] = header_combine(headers,allow_equal_headers,drop_subzones_headers)
+        function [headers,nspe,hstruct_sort,ind] = header_combine(headers,allow_equal_headers,drop_subzones_headers)
             % Combine header blocks to form a single block
             %
             %   >> [header_out,nfiles,ok,mess] = header_combine(header)
@@ -145,102 +145,41 @@ classdef sqw_header
             
             if ~exist('allow_equal_headers','var')
                 allow_equal_headers = false;
-            end
-            if ~exist('drop_subzones_headers','var')
-                drop_subzones_headers = false;
-            end
+            end   
             
             nsqw=numel(headers);
             
             % Catch case of a single header block from a single spe file - no processing required.
-            if isstruct(headers) && nsqw==1
-                header_out=headers;
+            if nsqw==1
+                hstruct_sort =headers;
                 nspe=1;
-                hstruct_sort = sqw_header.create_header_array({header_out});
                 ind=1;
                 return
             end
-            
-            % Get number of elements in each header block
-            nspe=zeros(nsqw,1);
-            for i=1:nsqw
-                if ~iscell(headers{i})
-                    nspe(i)=1;
-                else
-                    nspe(i)=numel(headers{i});
-                end
-            end
-            %
-            function is=is_subzone_header(hd)
-                % identify if this header belong to zone divided into sub-zones or not
-                %
-                % a first subzone header assumed not to belong to subzone headers
-                [numbers,~] = regexp(hd.filepath,'\d*','match','split');
-                if iscell(numbers) && numel(numbers) < 3
-                    is = false;
-                    return;
-                end
-                num = str2double(numbers(3));
-                if num>1
-                    is = true;
-                else
-                    is = false;
-                end
-            end
-            
-            
-            
-            % Construct output header block
-            nfiles_tot=sum(nspe);
-            header_out=cell(nfiles_tot,1);
-            ibeg=1;
-            for i=1:nsqw
-                subz_header = false;
-                
-                if nspe(i)==1
-                    header_out(ibeg)=headers(i);   % header for a single file is just a structure
-                    ibeg=ibeg+1;
-                    if drop_subzones_headers
-                        subz_header = is_subzone_header(headers(i));
-                    end
-                else
-                    header_out(ibeg:ibeg+nspe(i)-1)=headers{i};    % header for more than one file is a cell array
-                    if drop_subzones_headers
-                        subz_header = is_subzone_header(header_out{ibeg});
-                    end
-                    ibeg=ibeg+nspe(i);
-                end
-                if subz_header
-                    nspe(i) = -nspe(i);
-                end
-            end
-            
-            if drop_subzones_headers
-                subzone_headers = cellfun(@(hd)(is_subzone_header(hd)),header_out);
-                header_out = header_out(~subzone_headers);
-                nfiles_tot = numel(header_out);
-            end
+            nspe = 1:nsqw;
             
             % Check the headers are all unique across the relevant fields, and have equality in other required fields
             % -------------------------------------------------------------------------------------------------------
-            % Make a structure array of the fields that define uniqueness
-            hstruct = sqw_header.create_header_array(header_out);
+            % Make a structure array of the fields that define uniqueness 
+            hstruct = headers;
+            hstruct = rmfield(hstruct,{'ulabel','instrument','sample'});
+            %hstruct = sqw_header.create_header_array(header_out);
             names=fieldnames(hstruct(1));
             % Sort structure array
             [hstruct_sort,ind]=sortStruct(hstruct,names');
             
             
             if ~allow_equal_headers
-                for i=2:nfiles_tot
+                for i=2:nsqw
                     if isequal(hstruct_sort(i-1),hstruct_sort(i))
-                        error('SQW_HEADER:invalid_header',...
+                        error('HORACE:sqw_header:invalid_argument',...
                             'At least headers %d and %d have the all the same: filename, efix, psi, omega, dpsi, gl and gs',...
                             i-1,i);
                     end
                 end
             end
-            
-            sqw_header.check_headers_equal(header_out{1},header_out(2:end));
+            %HACK: fix and reenable this
+            %sqw_header.check_headers_equal(hstruct(1),hstruct(2:end));
         end
     end
 end

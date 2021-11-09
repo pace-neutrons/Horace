@@ -64,8 +64,8 @@ head.uoffset = zeros(4,1);
 head.u_to_rlu = zeros(4,4);
 head.ulen = ones(1,4);
 head.ulabel = {'a','b','c','d'};
-head.instrument = struct();
-head.sample = struct();
+head.instruments = struct();
+head.samples = struct();
 if nfiles>1
     heads = cell(1,nfiles);
     % matlab bug fixed in 2016b
@@ -73,7 +73,8 @@ if nfiles>1
 else
     heads = head;
 end
-sq = sq.change_header(heads);
+exp = Experiment(heads);
+sq = sq.change_header(exp);
 
 function hd= gen_head(head,x)
 hd = head;

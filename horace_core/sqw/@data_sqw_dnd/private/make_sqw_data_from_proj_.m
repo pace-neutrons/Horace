@@ -55,6 +55,6 @@ obj.ulabel=proj.lab;
 obj.s=zeros(sz);
 obj.e=zeros(sz);
 obj.npix=ones(sz);
-obj.img_db_range = dnd_binfile_common.calc_img_db_range(obj);
+obj.img_db_range = axes_block.calc_img_db_range(obj);
 
 

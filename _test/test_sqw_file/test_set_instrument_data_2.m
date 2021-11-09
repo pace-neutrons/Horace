@@ -22,7 +22,7 @@ assertTrue(isa(sam,'IX_sample'));
 assertEqual(sam.shape,'cuboid');
 inst = hdr.instruments(1);
 assertTrue(isa(inst,'IX_inst'));
-assertEqual(inst.name,'');
+assertEqual(inst.name,'_');
 %% --------------------------------------------------------------------------------------------------
 % Header:
 % ---------
@@ -52,8 +52,8 @@ h_file_s=head_horace(data_inst_ref);
 h_file_s = rmfield(h_file_s,{'npixels','nfiles'});
 
 h_file=head_horace(data_inst_ref,'-full');
-data = h_file.data.struct();
-data = rmfield(data,{'pix','axis_caption','num_pixels','version','border_size','nonorthogonal'});
+data = h_file.data.to_bare_struct();
+data = rmfield(data,{'pix','nonorthogonal'});
 assertEqual(data,h_file_s)
 
 

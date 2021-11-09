@@ -61,9 +61,9 @@ end
 check_spe_exist=true;
 check_spe_unique=true;
 check_sqw_exist=false;
-[ok, mess, spe_file, par_file, sqw_file] = gen_sqw_check_files...
+[spe_file, par_file, sqw_file] = gen_sqw_check_files...
     (spe_file, par_file, sqw_file, check_spe_exist, check_spe_unique, check_sqw_exist);
-if ~ok, error(mess), end
+
 nfiles=numel(spe_file);
 if nfiles~=1
     error('This function takes only a single spe file data source')

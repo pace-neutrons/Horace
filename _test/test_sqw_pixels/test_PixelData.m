@@ -1,4 +1,4 @@
-classdef test_PixelData < TestCase & common_state_holder
+classdef test_PixelData < TestCase & common_pix_class_state_holder
     
     properties
         
@@ -418,7 +418,7 @@ classdef test_PixelData < TestCase & common_state_holder
         function test_error_on_construction_with_non_existent_file(~)
             file_path = 'not-a-file';
             f = @() PixelData(file_path);
-            assertExceptionThrown(f, 'SQW_FILE_IO:runtime_error');
+            assertExceptionThrown(f, 'HORACE:file_io:runtime_error');
         end
         
         function test_construction_with_faccess_populates_data_from_file(obj)

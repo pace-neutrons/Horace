@@ -17,17 +17,17 @@ function [alatt,angdeg,ok,mess] = lattice_parameters(win)
 %
 % It is assumed that the lattice parameters are all the same within one sqw object
 
-h_ave=header_average(win(1).experiment_info);
+h_ave=win(1).header_average();
 
-alatt=h_ave.samples(1).alatt;
-angdeg=h_ave.samples(1).angdeg;
+alatt=h_ave.alatt;
+angdeg=h_ave.angdeg;
 ok=true;
 mess='';
 
 small=2e-7;
 for i=2:numel(win)
     h_ave=header_average(win(i).experiment_info);
-    if any(abs(h_ave.samples(1).alatt-alatt)>small) || any(abs(h_ave.samples(1).angdeg-angdeg)>small)
+    if any(abs(h_ave.alatt-alatt)>small) || any(abs(h_ave.angdeg-angdeg)>small)
         alatt=[0,0,0];
         angdeg=[0,0,0];
         ok=false;

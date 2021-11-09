@@ -57,49 +57,32 @@ classdef test_experiment_loadsave < TestCase
             matfile = fullfile(obj.test_dir, 'multisqw.mat');
             % the file is loaded; the load process should convert the old 
             % struct-type headers into an Experiment class
-            load(matfile);
-            assertEqual( numel(sq3), 2);
-            assertTrue( isa(sq3(1).experiment_info, 'Experiment') );
-            assertTrue( isa(sq3(2).experiment_info, 'Experiment') );
-            assertEqual( numel(sq3(1).experiment_info.expdata), 2);
-            assertEqual( numel(sq3(1).experiment_info.instruments), 2);
-            assertEqual( numel(sq3(1).experiment_info.samples), 2);
-            assertEqual( numel(sq3(2).experiment_info.expdata), 2);
-            assertEqual( numel(sq3(2).experiment_info.instruments), 2);
-            assertEqual( numel(sq3(2).experiment_info.samples), 2);
-            % the sq3 object is copied as 'sq3_original' to distinguish it
-            % from a reload
-            sq3_orig = copy(sq3);
+            ldd = load(matfile);
+            assertEqual( numel(ldd.sq3), 2);
+            assertTrue( isa(ldd.sq3(1).experiment_info, 'Experiment') );
+            assertTrue( isa(ldd.sq3(2).experiment_info, 'Experiment') );
+            assertEqual( numel(ldd.sq3(1).experiment_info.expdata), 2);
+            assertEqual( numel(ldd.sq3(1).experiment_info.instruments), 2);
+            assertEqual( numel(ldd.sq3(1).experiment_info.samples), 2);
+            assertEqual( numel(ldd.sq3(2).experiment_info.expdata), 2);
+            assertEqual( numel(ldd.sq3(2).experiment_info.instruments), 2);
+            assertEqual( numel(ldd.sq3(2).experiment_info.samples), 2);
             % the sqw object is saved with the new Experiment class
             % experiment_info
-            loadsavefile = fullfile(obj.test_dir, 'experiment_multisqw.mat');
+            loadsavefile = fullfile(tmp_dir, 'experiment_multisqw.mat');
             cleanup_obj = onCleanup(@()delete(loadsavefile));
+            sq3 = ldd.sq3;            
             save(loadsavefile, 'sq3');
-            % sq3 is marked so that it can be seen the mark is removed
-            % on reload
-            sq3(1).main_header.extra='new';
-            sq3(2).main_header.extra='new';
-            assertTrue( isfield( sq3(1).main_header, 'extra') );
-            assertTrue( isfield( sq3(2).main_header, 'extra') );
             % sq3 is reloaded from the .mat file, it should reload the
             % Experiment class experiment_info as-is
-            load('experiment_multisqw.mat');
+            ld1 = load(loadsavefile);
             % sq3 is checked that it now does not have the marker field
             % extra in its main_header
-            assertTrue( ~isfield( sq3(1).main_header, 'extra') );
-            assertTrue( ~isfield( sq3(2).main_header, 'extra') );
-            assertTrue( isa(sq3(1).experiment_info, 'Experiment') );
-            assertTrue( isa(sq3(2).experiment_info, 'Experiment') );
-            assertEqual( numel(sq3), 2);
-            assertTrue( isa(sq3(1).experiment_info, 'Experiment') );
-            assertTrue( isa(sq3(2).experiment_info, 'Experiment') );
-            assertEqual( numel(sq3(1).experiment_info.expdata), 2);
-            assertEqual( numel(sq3(1).experiment_info.instruments), 2);
-            assertEqual( numel(sq3(1).experiment_info.samples), 2);
-            assertEqual( numel(sq3(2).experiment_info.expdata), 2);
-            assertEqual( numel(sq3(2).experiment_info.instruments), 2);
-            assertEqual( numel(sq3(2).experiment_info.samples), 2);
-            assertEqual( sq3, sq3_orig);
+            assertTrue( isa(ld1.sq3(1).experiment_info, 'Experiment') );
+            assertTrue( isa(ld1.sq3(2).experiment_info, 'Experiment') );
+            assertEqual( numel(ld1.sq3), 2);
+            assertEqualToTol(sq3,ld1.sq3,'ignore_str',true);
+            
         end
     end
 end
