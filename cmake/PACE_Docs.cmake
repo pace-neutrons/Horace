@@ -59,8 +59,6 @@ string(REGEX MATCH "ModuleNotFoundError" sphinx-build-failed ${test})
 
 if (NOT sphinx-build-failed)
   message(STATUS "Docs: Available")
-  MESSAGE(STATUS "Running sphinx")
-  MESSAGE(STATUS "${PYTHON_EXECUTABLE} ${sphinx-build} -b html ${Horace_DOCS_SOURCE_DIR} ${Horace_DOCS_OUTPUT_DIR} ${SPHINX_OPTS} -D release=${${PROJECT_NAME}_SHORT_VERSION} -D version=${${PROJECT_NAME}_SHORT_VERSION}")
 
   add_custom_target(docs
     COMMENT "Building HTML user documentation"

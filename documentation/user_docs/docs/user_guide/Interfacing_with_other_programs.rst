@@ -109,15 +109,16 @@ and to tell Matlab about this.
 Please see `here <https://horace-euphonic-interface.readthedocs.io/en/latest/#set-up-python-in-matlab>`__
 for more detailed information.
 
-If you haven't installed the `Euphonic` Python package (using ``pip install euphonic``)
-then you can do this within Horace using:
+If you haven't installed the `Euphonic` Python package then you can do this within Horace using:
 
 .. code-block:: matlab
 
-    euphonic.install_python_modules
+    euphonic.install_python_modules()
 
-This may not work for all Python distributions, in which you should use ``pip install euphonic``
-in the Python command line.
+This may not work for all Python distributions, in which case you should install Euphonic manually.
+Euphonic can be installed with ``pip install euphonic`` in the Python command line,
+but there are also other ways of installing Euphonic, which are detailed in the
+`Euphonic installation instructions <https://euphonic.readthedocs.io/en/stable/installation.html>`__.
 
 On the `IDAaaS system <https://isis.analysis.stfc.ac.uk/>`__, you can access the pre-installed
 Euphonic Python environment using:
@@ -209,15 +210,19 @@ The following code reads the force constants from a CASTEP file, sets up the
 
 - The ``asr`` parameter specifies whether and how the *acoustic sum rule* (ASR) correction should be applied:
 
-  * ``realspace`` applies the ASR correction is applied to the force constant matrix in real space
+  * ``reciprocal`` applies the ASR correction to the dynamical matrix at every :math:`q`-point (recommended).
 
-  * ``reciprocal`` applies the ASR correction to the dynamical matrix at every :math:`q`-point.
+  * ``realspace`` applies the ASR correction is applied to the force constant matrix in real space.
+    This method is known to fail for polar systems.
 
-  If not specified, the ASR correction is not applied.
+  If this parameter is not specified, the ASR correction is not applied.
+  This means that the phonon modes are not enforced to have zero energy at the :math:`\Gamma` point,
+  and the dispersion close to :math:`\Gamma` may not be linear.
   It's generally best to specify it in the ``reciprocal`` mode.
 
 - The ``use_c`` parameter specifies whether to use the compiled C extension module for faster calculation or not.
 
+For further information and other options, type `help(euphonic.CoherentCrystal)` in the Matlab command window.
 
 
 Fitting data with Euphonic and Horace

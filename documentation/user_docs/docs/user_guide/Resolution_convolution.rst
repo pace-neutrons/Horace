@@ -176,6 +176,16 @@ geometry spectrometers which can measure single crystals:
     + ``1`` - LET until autumn 2016 (with the original double funnel snout at Chopper 5).
     + ``2`` - LET since autumn 2016 (with a single focusing final guide section).
 
+In addition to the above parameters all instruments also take a optional ``'mod_value'``
+argument specifying the type of moderator pulse model to use.
+At present, only two options are available:
+
+* ``'empirical'`` - based on the Ikeda-Carpenter distribution of Ref [3]_ (default).
+* ``'base2016'`` - a look-up table from ray-tracing simulations of ISIS moderators in 2016.
+
+For the empirical model, there is also an option to refine the parameters which define
+the model as :ref:`described below <refine_moderator_section>`.
+
 Once the sample and instrument setup information is configured on a workspace,
 a fitting or modelling problem can be defined using the ``tobyfit`` class in place of ``multifit_sqw``.
 The exact same syntax as ``multifit`` for defining fixed and free parameters and background
@@ -185,11 +195,116 @@ In addition to standard ``multifit`` methods (``set_fun``, ``set_free`` etc),
 there are some additional methods specifically for the resolution convolution:
 
 * ``kk = kk.set_mc_points(n)`` - sets the number of Monte Carlo points per pixel (default :math:`N=10`).
+* ``kk = kk.set_mc_contributions(contrib1, contrib2, ...)`` -
+  sets which instrument component contributes to the Monte Carlo sum.
+  ``contrib1`` etc are strings, and can also be ``'all'`` (default) or ``'none'``.
+  The contributions depend on the instrument and can be listed with ``kk.mc_contributions``.
+  In addition, you can specify to include all contribution except certain ones with ``'no<contrib>'``.
+  E.g. ``kk = kk.set_mc_contributions('nosample')`` will include all contribution except for the
+  ``'sample'`` contribution.
+* ``kk = kk.set_refine_moderator(true)`` - tells Horace to try to refine the moderator pulse width model
+  concurrently with running a fit.
+  That is, the moderator model parameters will be added to the list of model parameters and will be
+  fitted at the same time as the user model parameters when ``kk.fit()`` is called.
 
+.. _refine_moderator_section:
+
+The last option only has effect if an empirical moderator model is chosen
+(which is the default for all instruments).
+In addition to the syntax above, you can also use an alternative syntax which specifies
+initial values for the moderator model and if any of those parameters should be fixed:
+
+.. code-block:: matlab
+
+   kk = kk.set_refine_moderator(model_name, initial_pars, vary);
+
+Only ``'ikcarp'`` is valid as a ``model_name`` at present.
+This model takes three parameters: ``initial_pars = [tau_f, tau_s, R]``
+where ``tau_f`` is the fast decay time in microseconds
+(:math:`\tau_f = 1/\alpha` compared to the Ikeda-Carpenter paper [3]_),
+``tau_s`` is the slow decay time in microseconds
+(:math:`\tau_s = 1/\beta` in Ikeda-Carpenter's notation),
+and ``R`` is the weight of the storage term.
+
+.. note::
+
+  By default, Horace sets ``tau_f = 70/sqrt(Ei)``, ``tau_s = 0`` and ``R = 0``.
+  That is, it uses a simple :math:`\chi^2` distribution with only the fast decay term.
+
+``vary`` is a 3-element logical vector of which parameters to vary.
+
+For example, to fit an empirical moderator model varying only the fast decay term use:
+
+.. code-block:: matlab
+
+  tauf=5; taus=25; R=0.3; vary = [1, 0, 0];
+  kk = kk.set_refine_moderator ('ikcarp', [tauf, taus, R], vary)
 
 
 A worked example
 ----------------
+
+The following script will make a cut from a data file, set up a fitting problem
+with resolution convolution, run a simulation and plot it.
+It uses data on bcc-Iron, which can be
+`downloaded here <https://github.com/pace-neutrons/pace-python-demo/blob/main/datafiles/fe_cut.sqw>`__.
+The model function is an analytic spin-wave model, defined by a dispersion relation:
+
+.. math::
+
+   E_0(q_h, q_k, q_l, E) = \Delta + 8 J \left(1 - \cos(\pi q_h) \cos(\pi q_k) \cos(\pi q_l) \right)
+
+convolved with a Gaussian line shape.
+The :ref:`next section <user_guide/Interfacing_with_other_programs:Generic interface>` has a
+better model with a harmonic-oscillator line shape which fits the data better.
+We have chosen the simpler model here so it can fit into a Matlab anonymous function.
+
+
+.. code-block:: matlab
+
+   % Make cut
+   proj = projaxes([1,1,0], [-1,1,0], 'type', 'rrr');
+   w1 = cut_sqw('fe_cut.sqw', proj, 0.05, [-1.05,-0.95], [-0.1,0.1], [80, 100])
+   
+   % Define the instrument and sample information on the cut
+   xdir = [1,0,0]; ydir = [0,1,0]; ei = 401; freq = 600; chop_type = 's';
+   w1 = set_sample(w1, IX_sample(xdir, ydir, 'cuboid', [0.03,0.03,0.03]));
+   w1 = set_instrument(w1, maps_instrument(ei, freq, chop_type));
+   
+   % Define a fitting / model function
+   % (spin waves in bcc-Iron with Gaussian peak shape and magnetic form factor).
+   ff_fun = MagneticIons('Fe0').getFF_calculator(w1);
+   E0 = @(h,k,l,e,js,d) d + (8*js) .* (1 - cos(pi * h) .* cos(pi * k) .* cos(pi * l));
+   fe_sqw_ff = @(h,k,l,e,p) (p(4)/p(3)) * transpose(ff_fun(h,k,l,e,[])) ...
+       .* exp(-((e - E0(h,k,l,e,p(1),p(2))) ./ p(3)) .^2)
+   
+   % Set initial parameters
+   J = 35; d = 0; sigma = 25; amp = 150;
+   
+   % Set up tobyfit object
+   tf = tobyfit(w1);
+   tf = tf.set_fun(fe_sqw_ff);
+   tf = tf.set_pin([J d sigma amp]);
+   tf = tf.set_bfun(@linear_bg);
+   tf = tf.set_bpin([0.2 0]);
+   
+   % Run the simulation and plot
+   wsim = tf.simulate()
+   acolor('k'); plot(w1); acolor('r'); pl(wsim)
+   
+   % Run it again without resolution convolution
+   kk = multifit_sqw(w1);
+   % We can also set input pars when we define the model function
+   kk = kk.set_fun(fe_sqw_ff, [J d sigma amp]);
+   kk = kk.set_bfun(@linear_bg, [0.2 0]);
+   wnores = kk.simulate()
+   acolor('k'); pl(wnores);
+
+.. image:: ../images/iron_resolution_cut.png
+   :width: 500px
+
+A constant energy cut along :math:`[110]` centred at 90 meV of the Iron dataset
+with a model calculation including instrument resolution (red) and without (black lines).
 
 
 Plotting resolution ellipsoids
@@ -201,7 +316,7 @@ Finally, Horace can also plot a resolution ellipsoid over a *2D* plot
 .. code-block:: matlab
 
    proj = projaxes([1,1,0], [-1,1,0], 'type', 'rrr');
-   w1 = cut_sqw('iron.sqw', proj, [0.5,0.05,1.5], [-1.1,-0.9], [-0.1, 0.1], [50,5,150]);
+   w1 = cut_sqw('fe_cut.sqw', proj, 0.05, [-1.1,-0.9], [-0.1, 0.1], [50,5,120]);
    xdir = [1,0,0]; ydir = [0,1,0]; ei = 401; freq = 600; chop_type = 's';
    w1 = set_sample(w1, IX_sample(xdir, ydir, 'cuboid', [0.03,0.03,0.03]));
    w1 = set_instrument(w1, maps_instrument(ei, freq, chop_type));
@@ -238,3 +353,5 @@ References
    `here <https://github.com/pace-neutrons/Horace/blob/master/horace_core/Tobyfit/dq_matrix_DGfermi.m>`__.
    Note that the :math:`T` matrix is called ``qk_mat``.
 
+.. [3] `S. Ikeda and J. M. Carpenter, Nucl. Inst. and Meth. in Phys. Res. A239, pp536 (1985)
+   <http://dx.doi.org/10.1016/0168-9002(85)90033-6>`__
