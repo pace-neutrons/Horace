@@ -69,16 +69,6 @@ if (NOT sphinx-build-failed)
     )
 
   if (WIN32)
-    add_custom_command(TARGET docs POST_BUILD
-      COMMAND powershell -ExecutionPolicy Bypass -command
-		 "Foreach($f in Get-ChildItem -Path '${Horace_DOCS_OUTPUT_DIR}' -Filter *.html) { \
-		      (Get-Content $f.FullName) | Where-Object {$_ -notmatch '\\[NULL\\]'} | Set-Content $f.FullName \
-		  }"
-      DEPENDS build-docs
-      VERBATIM
-      )
-
-
     add_custom_target(docs-pack
       COMMENT "Zipping HTML documentation to ${Horace_DOCS_PACK_OUTPUT}"
       COMMAND powershell -ExecutionPolicy Bypass -command
@@ -87,11 +77,6 @@ if (NOT sphinx-build-failed)
       )
 
   else()
-    add_custom_command(TARGET docs POST_BUILD
-      COMMAND sed -i "/][NULL]/d" "${Horace_DOCS_OUTPUT_DIR}/*html"
-      DEPENDS build-docs
-      )
-
     add_custom_target(docs-pack
       COMMENT "Tarring HTML documentation to ${Horace_DOCS_PACK_OUTPUT}"
       COMMAND tar -czf "${Horace_DOCS_PACK_OUTPUT}" "*"
