@@ -167,7 +167,7 @@ use the ``hpc_config`` class.
  Troubleshooting
 *****************
 
-If you used a `release archive <https://github.com/pace-neutrons/Horace/releases>`,
+If you used a `release archive <https://github.com/pace-neutrons/Horace/releases>`__,
 then both `Horace` and `Herbert` will be in the same folder (called ``<extracted_folder>`` below)
 with ``horace_install`` and this script can be called with no arguments
 (it will automatically detect the folders).

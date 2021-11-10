@@ -6,7 +6,7 @@ Horace: visualising and manipulating :math:`S(\mathbf{Q},\omega)` measured in al
 Horace is a suite of programs for the visualisation and analysis of large datasets
 from time-of-flight neutron inelastic scattering spectrometers.
 The theory behind, and application of, Horace has been published as an
-`open access article here <http://www.sciencedirect.com/science/article/pii/S016890021630777X>`__
+`open access article here <https://doi.org/10.1016/j.nima.2016.07.036>`__.
 under the `Creative Commons Attribution License <https://creativecommons.org/licenses/by/4.0/>`__.
 Please cite this paper if you have used Horace in your research.
 More details about citing Horace can be found :ref:`here <How_to_cite_Horace:How to cite Horace>`.
