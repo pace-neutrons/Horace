@@ -29,7 +29,7 @@ export HERBERT_PARALLEL_EXECUTOR='matlab'
 # the string may be empty
 export HERBERT_PARALLEL_WORKER='-batch worker_v2'
 #------------------------------------------------
-# Data to be read by script from enviroment to understand what to do
+# Data to be read by script from environment to understand what to do
 # WORKER_CONTROL_STRING -- the base64 encoded string, which defines location
 # of the common for MPI workers communication folder
 export WORKER_CONTROL_STRING=''

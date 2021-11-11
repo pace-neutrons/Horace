@@ -333,6 +333,7 @@ classdef ClusterSlurm < ClusterWrapper
             %                 (squeue command output)
             queue_text = get_queue_text_from_system_(obj,full_header);
         end
+        %
         function obj=init_queue_parser(obj)
             % initialize parameters, needed for job queue management
             

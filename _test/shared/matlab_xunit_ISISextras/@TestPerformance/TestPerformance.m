@@ -349,7 +349,7 @@ classdef TestPerformance < TestCaseWithSave
             
         end
         %-------------------------------------------------------------
-            %
+        %
         function  save_performance(obj)
             % save performance results into a performance results file
             save_performance_data_(obj);

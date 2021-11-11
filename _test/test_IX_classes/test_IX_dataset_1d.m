@@ -4,9 +4,6 @@ classdef test_IX_dataset_1d <  TestCase
     %
     
     
-    %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
-    %
     
     properties
     end
@@ -21,7 +18,7 @@ classdef test_IX_dataset_1d <  TestCase
             this = this@TestCase(name);
         end
         
-        function test_properties(obj)
+        function test_properties(~)
             id = IX_dataset_1d();
             id.title = 'my title';
             assertEqual(id.title,{'my title'});
@@ -58,21 +55,103 @@ classdef test_IX_dataset_1d <  TestCase
             assertEqual(val,ones(10,1));
             assertEqual(id.error,ones(10,1));
         end
+       function test_fraction_split_NaNs(~)
+            ds = IX_dataset_1d(1:10);
+            ss = ones(10,1);
+            in = [2,4,7,9];
+            ss(in) = NaN;
+            ds.signal = ss;
+            assertTrue(ds.get_isvalid());
+            
+            [frac,n_points] = ds.calc_continuous_fraction();
+
+            assertEqual(frac,2/6);
+            assertEqual(n_points,6);
+        end        
         
-        function test_constructor(obj)
+       function test_fraction_edge_NaNs(~)
+            ds = IX_dataset_1d(1:10);
+            ss = ones(10,1);
+            in = [2,5,9];
+            ss(in) = NaN;
+            ds.signal = ss;
+            assertTrue(ds.get_isvalid());
+            
+            [frac,n_points] = ds.calc_continuous_fraction();
+
+            assertEqual(frac,5/7);
+            assertEqual(n_points,7);
+        end        
+        
+       function test_fraction_other_NaNs(~)
+            ds = IX_dataset_1d(1:10);
+            ss = ones(10,1);
+            in = [3,4,7,10];
+            ss(in) = NaN;
+            ds.signal = ss;
+            assertTrue(ds.get_isvalid());
+            
+            [frac,n_points] = ds.calc_continuous_fraction();
+
+            assertEqual(frac,1);
+            assertEqual(n_points,6);
+        end        
+        
+       function test_fraction_some_NaNs(~)
+            ds = IX_dataset_1d(1:10);
+            ss = ones(10,1);
+            in = [2,3,7,10];
+            ss(in) = NaN;
+            ds.signal = ss;
+            assertTrue(ds.get_isvalid());
+            
+            [frac,n_points] = ds.calc_continuous_fraction();
+
+            assertEqual(frac,5/6);
+            assertEqual(n_points,6);
+        end        
+        
+       function test_fraction_hald_NaNs(~)
+            ds = IX_dataset_1d(1:10);
+            ss = ones(10,1);
+            in = 1:2:10;
+            ss(in) = NaN;
+            ds.signal = ss;
+            assertTrue(ds.get_isvalid());
+            
+            [frac,n_points] = ds.calc_continuous_fraction();
+
+            assertEqual(frac,0);
+            assertEqual(n_points,5);
+        end        
+        function test_fraction_no_NANs(~)
+            ds = IX_dataset_1d(1:10);
+            assertTrue(ds.get_isvalid());
+            
+            [frac,n_points] = ds.calc_continuous_fraction();
+
+            assertEqual(frac,1);
+            assertEqual(n_points,10);
+        end
+        
+        
+        function test_constructor_x(~)
             %   >> w = IX_dataset_1d (x)
             ds = IX_dataset_1d(1:10);
             assertTrue(ds.get_isvalid());
             assertEqual(ds.x,1:10);
             assertEqual(ds.signal,zeros(10,1));
             assertEqual(ds.error,zeros(10,1));
+        end
+        function test_constructor_xs(~)
             %   >> w = IX_dataset_1d (x,signal)
             ds = IX_dataset_1d(1:10,ones(1,9));
             assertTrue(ds.get_isvalid());
             assertEqual(ds.x,1:10);
             assertEqual(ds.signal,ones(9,1));
             assertEqual(ds.error,zeros(9,1));
-            
+        end
+        function test_constructor_xse(~)
             %   >> w = IX_dataset_1d (x,signal,error)
             ds = IX_dataset_1d(1:10,ones(1,10),ones(1,10));
             assertTrue(ds.get_isvalid());
@@ -86,6 +165,9 @@ classdef test_IX_dataset_1d <  TestCase
             assertEqual(ds.x,1:10);
             assertEqual(ds.signal,2*ones(10,1));
             assertEqual(ds.error,ones(10,1));
+        end
+        
+        function test_constructor_xse_title_axis(~)
             %   >> w = IX_dataset_1d (x,signal,error,title,x_axis,s_axis)
             ds = IX_dataset_1d(1:10,ones(1,10),ones(1,10),'my object','x-axis name','y-axis name');
             assertTrue(ds.get_isvalid());
@@ -95,6 +177,8 @@ classdef test_IX_dataset_1d <  TestCase
             assertEqual(ds.title,{'my object'});
             assertEqual(ds.x_axis.caption,{'x-axis name'});
             assertEqual(ds.s_axis.caption,{'y-axis name'});
+        end
+        function test_constructor_xse_title_axis_distribution(~)
             %   >> w = IX_dataset_1d (x,signal,error,title,x_axis,s_axis, x_distribution)
             ds = IX_dataset_1d(1:10,ones(1,10),ones(1,10),...
                 'my object','x-axis name','y-axis name',false);
@@ -106,8 +190,9 @@ classdef test_IX_dataset_1d <  TestCase
             assertEqual(ds.x_axis.caption,{'x-axis name'});
             assertEqual(ds.s_axis.caption,{'y-axis name'});
             assertEqual(ds.x_distribution,false);
-            
-            
+        end
+        %
+        function test_constructor_xse_title_axis_distr_random_order(~)
             %   >> w = IX_dataset_1d (title, signal, error, s_axis, x, x_axis, x_distribution)
             ds = IX_dataset_1d('my object',ones(1,10),ones(1,10),...
                 'y-axis name',1:10,'x-axis name',false);
@@ -121,7 +206,7 @@ classdef test_IX_dataset_1d <  TestCase
             assertEqual(ds.x_distribution,false);
         end
         
-        function test_methods(obj)
+        function test_methods(~)
             ds = IX_dataset_1d(1:10,ones(1,10),ones(1,10),...
                 'my object','x-axis name','y-axis name');
             [ax,hist] = ds.axis;
@@ -150,7 +235,7 @@ classdef test_IX_dataset_1d <  TestCase
             %           assertEqual(dsa,idr);
             
         end
-        function test_op_managers(obj)
+        function test_op_managers(~)
             ds = IX_dataset_1d(1:10,ones(1,10),ones(1,10),...
                 'my object','x-axis name','y-axis name');
             dsa = repmat(ds,2,1);
@@ -172,8 +257,6 @@ classdef test_IX_dataset_1d <  TestCase
             dss  = 1+ dss;
             assertEqual(dss.signal,3*ones(10,1));
             assertElementsAlmostEqual(dss.error,sqrt(3*ones(10,1)));
-            
-            
         end
         
     end
