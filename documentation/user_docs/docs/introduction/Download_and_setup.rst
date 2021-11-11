@@ -28,14 +28,14 @@
  Download
 **********
 
-Horace releases for Windows and Linux are available to download on
+Horace releases for supported operating systems are available to download on
 `GitHub here <https://github.com/pace-neutrons/Horace/releases>`__.
 These packages contain pre-compiled `mex` libraries for each OS.
 
 The released and packaged *Horace distribution* contains both 
 `Horace <https://github.com/pace-neutrons/Horace>`__
-and its support `Herbert <https://github.com/pace-neutrons/Herbert>`__
-library of low-level graphics and data manipulation routines.
+and its support Herbert `library <https://github.com/pace-neutrons/Herbert>`__
+of low-level graphics and data manipulation routines.
 If you need to run the latest development version you need to download these
 two programs separately (see below).
 
@@ -48,20 +48,25 @@ To install Horace you should ideally have the administrative rights. To
 install Horace:
 
 1. Extract the release archive to your preferred location.
-2. Open Matlab and set that location as your working directory.
-3. Run ``horace_install``. Under  Unix, where Matlab GUI would not always run with root privileges
-   go to the package folder and run Matlab from command line: ``>>sudo matlab -nosplash -nodesktop -r horace_install``   
+2. Open Matlab and change to the ``admin`` folder under that location.
+3. Run ``horace_install``.
+   Under Unix, where Matlab GUI may not always run with root privileges
+   go to the ``admin`` folder under the package folder and run Matlab
+   from the command line as: ``sudo matlab -nosplash -nodesktop -r horace_install``   
 4. Now you can call ``horace_on`` from anywhere to start using Horace.
 
 Optional:
 
-5. Launch Matlab from your home folder or GUI and type ``>>edit startup.m``.
-   Add ``horace_on();`` to the end of the file to have Horace available each time you start your Matlab session.
-6. If you do not have administrative access, the installation would still be possible,
-   and should work as described. You may encounter problems with parallel extensions
-   and not be able to initialize Horace if Matlab is launched from a folder different from Matlab's
-   `userpath <https://uk.mathworks.com/help/matlab/ref/userpath.html>`__ folder.
-   See the `Troubleshooting`_ section below for details of the installation process in this situation.
+5. To have Horace available each time you start your Matlab session,
+   you can add ``horace_on`` to your start-up file:
+   Launch Matlab from your home folder or GUI and type ``>> edit startup.m``.
+   Then add ``horace_on();`` to the end of the file.
+   
+If you do not have administrative access, the installation would still be possible,
+and should work as described. You may encounter problems with parallel extensions
+and not be able to initialize Horace if Matlab is launched from a folder different from Matlab's
+`userpath <https://uk.mathworks.com/help/matlab/ref/userpath.html>`__ folder.
+See the `Troubleshooting`_ section below for details of the installation process in this situation.
 
 If you want to install the latest development version of Horace,
 you should first *clone* the `Horace <https://github.com/pace-neutrons/Horace>`__

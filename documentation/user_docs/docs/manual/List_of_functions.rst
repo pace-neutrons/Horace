@@ -116,12 +116,26 @@ Listed here are all the functions and commands that can be used in Horace. Each 
 
 :ref:`Changing object type <manual/Changing_object_type:Changing object type>`
 
+.. Comment from Chris
+   The sqw->dnd bits here have the useful information that the pixels are thrown away.
+   It could be added that an average of the pixels are left in the image data.
+
+   The dnd->sqw bit is lacking such a comment.
+   As the pixel data will be constructed,
+   and will presumably lack detail that will be present in a "real" sqw,
+   worth at least a note saying how the construction is done
+
 - :ref:`d0d <manual/Changing_object_type:d0d>`
 - :ref:`d1d <manual/Changing_object_type:d1d>`
 - :ref:`d2d <manual/Changing_object_type:d2d>`
 - :ref:`d3d <manual/Changing_object_type:d3d>`
 - :ref:`d4d <manual/Changing_object_type:d4d>`
 - :ref:`sqw <manual/Changing_object_type:sqw>`
+
+.. Comment from Chris
+   A brief description of what IX_dataset_nd is and why it is useful would be good
+   Duc: I'm not sure users need to know - maybe just remove this?
+
 - :ref:`IX_dataset_1d <manual/Changing_object_type:IX_dataset_1d>`
 - :ref:`IX_dataset_2d <manual/Changing_object_type:IX_dataset_2d>`
 - :ref:`IX_dataset_3d <manual/Changing_object_type:IX_dataset_3d>`

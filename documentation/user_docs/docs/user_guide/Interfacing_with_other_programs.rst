@@ -10,7 +10,11 @@ This document describes two interfaces with other `PACE <https://www.isis.stfc.a
 
 - `SpinW <https://spinw.org/>`__
 
-as well as a generic way of interfacing with codes you might have written.
+as well as a generic way of interfacing with modelling codes you may want to use with Horace.
+
+We also note that the `Brille library <https://brille.github.io>`__ for :math:`q`-space interpolation
+is also a PACE project and is used internally by Euphonic and SpinW to speed up calculations.
+Documentation for how to accomplish may be found in the relevant Euphonic and SpinW documentation.
 
 
 .. contents:: Contents

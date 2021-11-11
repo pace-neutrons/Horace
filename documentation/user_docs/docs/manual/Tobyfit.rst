@@ -23,6 +23,9 @@ Tobyfit uses the multifit fitting interface to enable you fit your data to a mod
 
 Tobyfit therefore appears to operate just like :ref:`multifit_sqw <manual/Multifit:multifit_sqw>`, with the same set of capabilities of controlling parameter setting, binding etc that all other :ref:`multifit variants <manual/Multifit:Multifit>` have. The difference is that Tobyfit uses instrument information in the sqw objects to convolute the S(Q,w) model(s) with the instrument resolution function using a Monte Carlo multi-dimensional integration, and provides some additional methods to control how the convolution is carried out. Note that the background functions are \*not\* convoluted with the resolution function - the assumption is that they are simply empirical functions such as linear background models and so resolution function convolution makes little sense.
 
+This also means that instrument information must be included in the ``sqw`` object. At present, this is done using the ``<inst>_instrument`` functions which are defined for the three ISIS spectrometers LET, MAPS and MERLIN. In future, this information will be included when the ``sqw`` file is constructed by ``gen_sqw`` if the input files contain suitable information.
+
+
 Performing resolution convolution
 =================================
 
