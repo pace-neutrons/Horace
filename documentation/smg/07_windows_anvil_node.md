@@ -4,15 +4,16 @@ The document describes mainly existing Windows Anvil node `ndw1676` but may be a
 to be added to Jenkins as a slave.
 
 The current Windows Anvil Jenkins slave node is `ndw1676` windows machine located in R3 office UG14.
+Additional machine, provided by SCD is `icdpacewin`, configured identically
 
-Some subnets in ISIS may not propagate hosts names so current address this node within
-local network is `130.246.49.165`.
+Some subnets in ISIS may not propagate hosts names so current address of `ndw1676` node within
+the local network is `130.246.49.165`.
 
 The node is available on [Anvil](https://anvil.softeng-support.ac.uk/) as **PACE Windows (Private)**
 
 The following packages are necessary to run a Windows machine as ANVIL node for PACE:
 
-Maltab (appropriate version)
+Matlab (appropriate version)
 git for Windows
 Visual studio 2019 community edition (C++ tools are probably sufficient but did not tried)
 Java community edition (GPL Java from https://jdk.java.net/java-se-ri/17 was working fine)
