@@ -55,7 +55,7 @@ classdef test_IX_dataset_1d <  TestCase
             assertEqual(val,ones(10,1));
             assertEqual(id.error,ones(10,1));
         end
-       function test_fraction_split_NaNs(~)
+        function test_fraction_split_NaNs(~)
             ds = IX_dataset_1d(1:10);
             ss = ones(10,1);
             in = [2,4,7,9];
@@ -64,12 +64,12 @@ classdef test_IX_dataset_1d <  TestCase
             assertTrue(ds.get_isvalid());
             
             [frac,n_points] = ds.calc_continuous_fraction();
-
+            
             assertEqual(frac,2/6);
             assertEqual(n_points,6);
-        end        
+        end
         
-       function test_fraction_edge_NaNs(~)
+        function test_fraction_edge_NaNs(~)
             ds = IX_dataset_1d(1:10);
             ss = ones(10,1);
             in = [2,5,9];
@@ -78,12 +78,12 @@ classdef test_IX_dataset_1d <  TestCase
             assertTrue(ds.get_isvalid());
             
             [frac,n_points] = ds.calc_continuous_fraction();
-
+            
             assertEqual(frac,5/7);
             assertEqual(n_points,7);
-        end        
+        end
         
-       function test_fraction_other_NaNs(~)
+        function test_fraction_other_NaNs(~)
             ds = IX_dataset_1d(1:10);
             ss = ones(10,1);
             in = [3,4,7,10];
@@ -92,12 +92,12 @@ classdef test_IX_dataset_1d <  TestCase
             assertTrue(ds.get_isvalid());
             
             [frac,n_points] = ds.calc_continuous_fraction();
-
+            
             assertEqual(frac,1);
             assertEqual(n_points,6);
-        end        
+        end
         
-       function test_fraction_some_NaNs(~)
+        function test_fraction_some_NaNs(~)
             ds = IX_dataset_1d(1:10);
             ss = ones(10,1);
             in = [2,3,7,10];
@@ -106,12 +106,12 @@ classdef test_IX_dataset_1d <  TestCase
             assertTrue(ds.get_isvalid());
             
             [frac,n_points] = ds.calc_continuous_fraction();
-
+            
             assertEqual(frac,5/6);
             assertEqual(n_points,6);
-        end        
+        end
         
-       function test_fraction_hald_NaNs(~)
+        function test_fraction_hald_NaNs(~)
             ds = IX_dataset_1d(1:10);
             ss = ones(10,1);
             in = 1:2:10;
@@ -120,16 +120,16 @@ classdef test_IX_dataset_1d <  TestCase
             assertTrue(ds.get_isvalid());
             
             [frac,n_points] = ds.calc_continuous_fraction();
-
+            
             assertEqual(frac,0);
             assertEqual(n_points,5);
-        end        
+        end
         function test_fraction_no_NANs(~)
             ds = IX_dataset_1d(1:10);
             assertTrue(ds.get_isvalid());
             
             [frac,n_points] = ds.calc_continuous_fraction();
-
+            
             assertEqual(frac,1);
             assertEqual(n_points,10);
         end

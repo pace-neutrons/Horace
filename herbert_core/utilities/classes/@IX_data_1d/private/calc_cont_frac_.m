@@ -4,11 +4,12 @@ function [frac,n_points] = calc_cont_frac_(obj)
 % e.g:
 % if signal = [1,NaN,2,3,NaN,4] the continuious plot area would
 % be 2,3, and points 1 and 4 are not displaying if you are
-% plotting a line. Such dataset contains 5 pieces, only one
-% would be displayed, so the function returns frac = 1/5 = 0.2;
-% Returns
-% frac  -- fraction of the points to be plotted
-% n_points -- number of not-NaN points
+% plotting a line. Such dataset contains 4 points, only two
+% would be plotted by pl, so the function returns frac = 2/4 = 0.5;
+%
+% Returns:
+% frac  -- fraction of the points to be plotted out of all
+% n_points -- number of points containing information (not NaN-s)
 
 if ~obj.valid_
     error('HERBERT:IX_data:invalid_argument',...
@@ -33,11 +34,11 @@ continuous= arrayfun(@(i)(not_nan(i)&&(not_nan(i-1)||not_nan(i+1))),ic);
 n_continuous = sum(continuous);
 % first point belongs to continuious if first element of continous arry is
 % true
-if not_nan(1) && continuous(1) 
+if not_nan(1) && continuous(1)
     n_continuous = n_continuous +1;
 end
 % last point is continuous if the previous is not nan
-if not_nan(end) && continuous(end) 
+if not_nan(end) && continuous(end)
     n_continuous = n_continuous +1;
 end
 

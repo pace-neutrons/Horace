@@ -93,8 +93,12 @@ classdef IX_data_1d < IX_dataset
             % e.g:
             % if signal = [1,NaN,2,3,NaN,4] the continuious plot area would
             % be 2,3, and points 1 and 4 are not displaying if you are
-            % plotting a line. Such dataset contains 5 pieces, only one
-            % would be displayed, so the function returns pers = 1/5 = 0.2;
+            % plotting a line. Such dataset contains 4 points, only two
+            % would be plotted by pl, so the function returns frac = 2/4 = 0.5;
+            %
+            % Returns:
+            % frac  -- fraction of the points to be plotted out of all
+            % n_points -- number of points containing information (not NaN-s)
             %
             
             [frac,n_points] = calc_cont_frac_(obj);
