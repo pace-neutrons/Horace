@@ -29,7 +29,6 @@ classdef IX_data_1d < IX_dataset
     
     % Default class - empty point dataset
     %
-    % $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
     %
     properties(Dependent)
         % x - vector of bin boundaries for histogram data or bin centers
@@ -87,6 +86,22 @@ classdef IX_data_1d < IX_dataset
             % TODO: should setting it to true/false involve chaning x from
             % disrtibution to bin centers and v.v.?
             obj.xyz_distribution_(1) = logical(val);
+        end
+        function [frac,n_points] = calc_continuous_fraction(obj)
+            % Calculate the fraction of continuous areas of plot
+            % not containing NaNs, so to be displayed on a plot.
+            % e.g:
+            % if signal = [1,NaN,2,3,NaN,4] the continuious plot area would
+            % be 2,3, and points 1 and 4 are not displaying if you are
+            % plotting a line. Such dataset contains 4 points, only two
+            % would be plotted by pl, so the function returns frac = 2/4 = 0.5;
+            %
+            % Returns:
+            % frac  -- fraction of the points to be plotted out of all
+            % n_points -- number of points containing information (not NaN-s)
+            %
+            
+            [frac,n_points] = calc_cont_frac_(obj);
         end
     end
     %======================================================================

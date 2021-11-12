@@ -149,6 +149,13 @@ if plot_type(1)=='e'
 elseif plot_type(1)=='h'
     plot_histogram (w);
 elseif plot_type(1)=='l'
+    [frac, np] = w.calc_continuous_fraction();
+    if frac<0.8
+        warning('HERBERT:IX_dataset_1D:invalid_argument',...
+            ['Your dataset contains NaN-s and you are plotting %3.1f%%',...
+            ' of your %d valid datapoints. Use pp/pm to see all your data points'],...
+            frac*100,np);
+    end
     plot_line (w)
 elseif plot_type(1)=='m'
     plot_markers (w)
