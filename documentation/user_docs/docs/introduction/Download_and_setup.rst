@@ -10,16 +10,13 @@
 
 -  Plenty of free disk space in order to cope with the combined data files (> 30GB)
 
--  16GB RAM (at the very least). It should run on a machine with 4 or 8Gb memory,
-   but this mode has not been tested for a long time. It may be very inconvenient
-   to process average experimental results on such a machine.
+-  16GB RAM or more. Horace will run on a machine with 4 or 8Gb memory,
+   but may be quite slow and may not be able to process newer larger datasets.
 
 -  Preferably a recent version of Matlab.
-   Horace is not tested on releases of Matlab older than R2018b,
-   although we make efforts for it to be compatible with the last 5 years of
-   releases.
-   If you are forced to use an earlier release and run into a problem,
-   please open a ticket on
+   Horace is not tested on releases of Matlab older than R2018b.
+   However, if you require Horace to run on older versions of Matlab,
+   and encounter problems, please open a ticket on
    `GitHub <https://github.com/pace-neutrons/Horace/issues>`__
    or write e-mail to `Horace support team <mailto:HoraceHelp@stfc.ac.uk>`__ 
    and we will try to help you.

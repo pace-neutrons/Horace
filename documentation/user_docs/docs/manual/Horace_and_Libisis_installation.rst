@@ -2,6 +2,11 @@
 Horace and Libisis installation
 ###############################
 
+.. warning::
+
+   This section is out of date for the current version of Horace.
+   Libisis is no longer needed to run Horace.
+
 
 THIS PAGE IS UNDER CONSTRUCTION
 *******************************
