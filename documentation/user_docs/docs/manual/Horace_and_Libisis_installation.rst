@@ -2,6 +2,11 @@
 Horace and Libisis installation
 ###############################
 
+.. warning::
+
+   This section is out of date for the current version of Horace.
+   Libisis is no longer needed to run Horace.
+
 
 THIS PAGE IS UNDER CONSTRUCTION
 *******************************
@@ -103,7 +108,7 @@ Supporting package (Herbert or Libisis) will be the package, initiated last. If 
 Installation using package_on file
 ==================================
 
-If you installed :ref:`Herbert <Herbert:Herbert>` or Libisis editing **package_on** file, (see, e.g. `Installing Herbert using herbert_on file <http://horace.isis.rl.ac.uk/Herbert#Installation_by_editing_and_registering_package_on_file>`__) you can install horace using **horace_on** file too. If you have in your system both Libisis and Herbert and want to use both packages, you should probably adopt initiating the packages using package_on approach (where package can be herbert, libisis or horace).
+If you installed :ref:`Herbert <manual/Herbert:Herbert>` or Libisis editing **package_on** file, (see, e.g. `Installing Herbert using herbert_on file <http://horace.isis.rl.ac.uk/Herbert#Installation_by_editing_and_registering_package_on_file>`__) you can install horace using **horace_on** file too. If you have in your system both Libisis and Herbert and want to use both packages, you should probably adopt initiating the packages using package_on approach (where package can be herbert, libisis or horace).
 
 The **horace_on.m.template** can be found in *Horace/admin* folder. As before, edit this template, replacing first row with the path where you are installing Horace and **horace_init.m** file can be found, e.g.:
 

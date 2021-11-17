@@ -6,7 +6,7 @@ Horace is a suite of programs for the visualisation and analysis of large datase
 
 To understand why this is not possible with a single run, consider the diagram shown below.
 
-.. image:: images/ToF_QE_coupling.jpg
+.. image:: ../images/ToF_QE_coupling.jpg
    :width: 300px
    :alt: This is a caption
 

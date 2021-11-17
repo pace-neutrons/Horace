@@ -10,7 +10,7 @@ This page tells you how to generate an SQW file. There are two different situati
 
 The two functions have almost identical syntax, as is explained in the sections below.
 
-To generate the SQW file neutron data for each individual run needs to be provided in one of two formats: the legacy ASCII format SPE file, together with an ASCII detector parameter file (the PAR file), or their replacements the HDF (hierarchical Data Format) NXSPE file. More details about these files and how to create them can be found :ref:`here <Input_file_formats:Input file formats>`
+To generate the SQW file neutron data for each individual run needs to be provided in one of two formats: the legacy ASCII format SPE file, together with an ASCII detector parameter file (the PAR file), or their replacements the HDF (hierarchical Data Format) NXSPE file. More details about these files and how to create them can be found :ref:`here <manual/Input_file_formats:Input file formats>`
 
 
 accumulate_sqw
@@ -71,7 +71,7 @@ The input parameters are defined as follows:
 - ``omega``, ``dpsi``, ``gl``, and ``gs`` specify the offsets (in degrees of various angles). ``gl`` and ``gs`` describe the settings of the large and small goniometers. ``omega`` is the offset of the axis of the small goniometer with respect to the notional ``u``. Finally ``dpsi`` allows you to specify an offset in ``psi``, should you wish. These angle definitions are shown below:
 
 
-.. image:: images/Gonio_angle_definitions.jpg
+.. image:: ../images/Gonio_angle_definitions.jpg
    :width: 300px
    :alt: Virtual goniometer angle definitions
 
@@ -94,7 +94,7 @@ The optional input arguments are as follows:
 gen_sqw
 =======
 
-This is the main function you will use to turn the data accumulated in multiple SPE files into a single SQW file that will be used by the rest of the Horace functions. An introduction to its use is given in the :ref:`getting started <Getting_started:Creating an SQW file>` section. The syntax is the same as for ``accumulate_sqw``; the only difference is that you give a list of existing input datasets rather than the anticipated list.
+This is the main function you will use to turn the data accumulated in multiple SPE files into a single SQW file that will be used by the rest of the Horace functions. An introduction to its use is given in the :ref:`getting started <user_guide/Getting_started:Creating an SQW file>` section. The syntax is the same as for ``accumulate_sqw``; the only difference is that you give a list of existing input datasets rather than the anticipated list.
 
 The essential inputs take the following form:
 

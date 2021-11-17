@@ -4,7 +4,7 @@ Simulation
 
 There are a variety of simulation tools available in Horace, so that if you have a theoretical model to describe your data you can simulate the results for the specific data points that you measured.
 
-**IMPORTANT** When simulating an S(Q,w) model (see sqw_eval below), bear in mind the difference between what is calculated for equivalent dnd and sqw datasets. See :ref:`FAQ <FAQ:FAQ>`.
+**IMPORTANT** When simulating an S(Q,w) model (see sqw_eval below), bear in mind the difference between what is calculated for equivalent dnd and sqw datasets. See :ref:`FAQ <manual/FAQ:FAQ>`.
 
 func_eval
 =========
