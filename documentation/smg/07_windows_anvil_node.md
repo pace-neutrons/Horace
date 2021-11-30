@@ -4,7 +4,7 @@ The document describes mainly existing Windows Anvil node `ndw1676` but may be a
 to be added to Jenkins as a slave.
 
 The current Windows Anvil Jenkins slave node is `ndw1676` windows machine located in R3 office UG14.
-Additional machine, provided by SCD is `icdpacewin`, configured identically
+Additional machine, provided by SCD is `icdpacewin`, configured identically.
 
 Some subnets in ISIS may not propagate hosts names so current address of `ndw1676` node within
 the local network is `130.246.49.165`.
@@ -17,6 +17,7 @@ Matlab (appropriate version)
 git for Windows
 Visual studio 2019 community edition (C++ tools are probably sufficient but did not tried)
 Java community edition (GPL Java from https://jdk.java.net/java-se-ri/17 was working fine)
+Miniconda3 (on 01/12/2021) for integration with Euphonics.
 
 A local `Jenkins` account is enabled for non-admin users. Users can log on via Remote Desktop Connection using this account (as `ndw1676\Jenkins`) providing the agreed local password.
 To allow doing that, Jenkins account is configured as the member of "Remote Desktop Users" group on this computer.
@@ -41,5 +42,8 @@ which is done in the above mentioned file. The connection addresses for Windows 
 
 The batch file currently is running in the scheduler so is started as soon as the windows machine is up.
 It tries to restart the job every file minutes in case job script crashes.
+
+To be able to run the batch file successfully, one needs to specify full path to the package in the scheduler (autoselected when choosing "browse" in Action->New(Edit)->Program/script) and (**IMPORTANT**) define the folder where the script needs to start in. E.g. if the batch file is: *D:\Jenkins\startup_anvil.bat*, **Start in (optional)** field of the scheduler has to be set up to *D:\Jenkins*. Otherwise, the Jenkins job would finish (pretending successfully) without giving any error messages.
+
 
 The batch file supposed to be run in scheduler or as a service as soon as the Horace Build job setup is completed.
