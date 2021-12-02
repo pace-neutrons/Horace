@@ -51,7 +51,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         sz = sigvar_size(w);
         %[sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);
-        
+
+        % TOBYFIT intreface
+        %------------------------------------------------------------------        
+        %TODO: Something in this interface looks dodgy. Should it be just
+        %      TOBYFIT interface?
         varargout = tobyfit (varargin);
         [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,store_in,...
             sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
@@ -59,9 +63,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         [wout,state_out,store_out]=tobyfit_DGfermi_resconv(win,caller,state_in,store_in,...
             sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
         [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win, indx);
-        [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw);
-        wout=combine_sqw(w1,w2);
         
+        %------------------------------------------------------------------
+        [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw);
+        
+        wout=combine_sqw(w1,w2);        
         wout=rebin_sqw(win,varargin);
         wout=symmetrise_sqw(win,v1,v2,v3);
         [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin);
@@ -109,7 +115,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             if nargin==0 % various serializers need empty constructor
                 return;
             end
-            obj = init(obj,varargin{:});
+            obj = obj.init(varargin{:});
             
         end
         function obj = init(obj,varargin)
@@ -242,7 +248,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = sqw_eval_pix_(w, sqwfunc, ave_pix, pars, outfilecell, i);
         
         % take the inputs for a cut and return them in a standard form
-        [proj, pbin, opt,args] = process_and_validate_cut_inputs(obj, ndims_source, return_cut, varargin);
+        
         function obj = from_old_struct(obj,S)
             % restore object from the old structure, which describes the
             % previous version of the object.
@@ -288,18 +294,24 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             end
         end
         
+        function [proj, pbin, opt] = process_and_validate_cut_inputs(obj,...
+                return_cut, varargin)
+            % interface to private cut parameters parser/validator
+            % checking and parsing cut inputs in any acceptable form
+            ndims = obj.data.data_dims();
+            [proj, pbin, opt]= cut_sqw_parse_inputs_(ndims, return_cut, varargin{:});
+        end
     end
-    
-    
+    %----------------------------------------------------------------------
     methods(Static, Access = private)
-        % Signatures of private functions declared in files
+        % Signatures of private class functions declared in files
         sqw_struct = make_sqw(ndims);
         detpar_struct = make_sqw_detpar();
         header = make_sqw_header();
         main_header = make_sqw_main_header();
         
     end
-    
+    %----------------------------------------------------------------------
     methods(Access = 'private')
         % process various inputs for the constructor and return some
         % standard output used in sqw construction

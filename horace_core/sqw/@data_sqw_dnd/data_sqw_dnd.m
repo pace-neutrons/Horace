@@ -53,7 +53,7 @@ classdef data_sqw_dnd < axes_block
         % Extract projection, used to build sqw file from full data_sqw_dnd
         % object (full-- containing pixels)
         proj = get_projection(obj)
-        %------------------------------------------------------------------
+         %------------------------------------------------------------------
         function obj = data_sqw_dnd(varargin)
             % constructor || copy-constructor:
             % Builds valid data_sqw_dnd object from various data structures
@@ -262,16 +262,16 @@ classdef data_sqw_dnd < axes_block
             % in the structure does not correspond to the current version
             %
             if isfield(inputs,'urange')
-            %      do check for previous versions
-            %      and add appropriate code to convert the old data into
-            %      the modern data
+                %      do check for previous versions
+                %      and add appropriate code to convert the old data into
+                %      the modern data
                 inputs.img_db_range = inputs.urange;
                 inputs = rmfield(inputs,'urange');
             elseif isfield(inputs,'img_range')
-                inputs.img_db_range = inputs.img_range;                
-                inputs = rmfield(inputs,'img_range');                
+                inputs.img_db_range = inputs.img_range;
+                inputs = rmfield(inputs,'img_range');
             end
-            if any(any(inputs.img_db_range==PixelData.EMPTY_RANGE_)) % 
+            if any(any(inputs.img_db_range==PixelData.EMPTY_RANGE_)) %
                 % assume that img_db_range can be restored from axis range.
                 % This is not always possible and correct, but may be
                 % correct for majority of old data
@@ -282,8 +282,6 @@ classdef data_sqw_dnd < axes_block
             end
             obj = obj.from_class_struct(inputs);
         end
-        
-        
     end
     methods(Static)
         %

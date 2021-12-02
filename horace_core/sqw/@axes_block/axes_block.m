@@ -48,8 +48,6 @@ classdef axes_block < serializable
         % Create bin boundaries for integration and plot axes from requested limits and step sizes
         [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
         
-    end
-    methods(Static)
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
             % saveable class
@@ -123,9 +121,7 @@ classdef axes_block < serializable
             end
             img_db_range(:,ax_data.pax) = pax_range;
         end        
-    end
-    
-    
+    end   
     
     
     methods
@@ -141,7 +137,9 @@ classdef axes_block < serializable
             % number
             ver = 1;
         end
-        
+       % Find number of dimensions and extent along each dimension of
+        % the signal arrays.
+        [nd,sz] = data_dims(data);        
         % return 3 q-axis in the order they mark the dnd object
         % regardless of the integration along some qxis
         % TODO: probably should be removed

@@ -85,7 +85,7 @@ function wout = cut(obj, varargin)
 %                              and step size
 %                              For example, [106, 4, 116] will define a plot
 %                              axis with bin edges 104-108, 108-112, 112-116.
-%                              if step is 0,                                
+%                              if step is 0,
 %           - [plo, rdiff, phi, rwidth]
 %                                Integration axis: minimum range center,
 %                                distance between range centers, maximum range
@@ -145,26 +145,23 @@ if numel(obj) > 1
 end
 
 dnd_type = obj.data.pix.num_pixels == 0;
-ndims_source = numel(obj.data.pax);
-
 if dnd_type
     % Input has no pixels, delegate to cut_dnd
     % TODO: refactor so cut_dnd_main sits on DnDBase class
+    ndims_source = numel(obj.data.pax);    
     wout = cut_dnd_main(obj, ndims_source, varargin{:});
     return
 end
 
 return_cut = nargout > 0;
-[proj, pbin, opt,args] = process_and_validate_cut_inputs(obj,...
-    ndims_source, return_cut, varargin{:});
-if numel(args)>0
-    error('HORACE:sqw:invalid_argument',...
-        'Extra arguments provided for cut. Args: %s',...
-        evalc('disp(args{:})'))
-end
+[targ_proj, pbin, opt] = obj.process_and_validate_cut_inputs(...
+    return_cut, varargin{:});
+
 
 % Process projection
-[proj, pbin, pin, en] = define_target_axes_block(obj, proj, pbin);
+% source_proj = obj.get_projection()
+%targ_ax_block = obj.build_from_input_binning(proj,img_db_range,source_proj,pbin);
+[targ_proj, pbin, pin, en] = define_target_axes_block(obj, targ_proj, pbin);
 
 sz = cellfun(@(x) max(size(x, 1), 1), pbin);
 if return_cut
@@ -174,7 +171,7 @@ end
 % This loop enables multicuts
 for cut_num = 1:prod(sz)
     pbin_tmp = get_pbin_for_cut(sz, cut_num, pbin);
-    args = {obj, proj, pbin_tmp, pin, en, opt.keep_pix, opt.outfile};
+    args = {obj, targ_proj, pbin_tmp, pin, en, opt.keep_pix, opt.outfile};
     if return_cut
         wout(cut_num) = cut_single(args{:});
     else

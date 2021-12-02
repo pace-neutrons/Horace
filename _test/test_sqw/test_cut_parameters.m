@@ -8,7 +8,7 @@ classdef test_cut_parameters < TestCase
     end
     
     methods
-
+        
         function obj = test_cut_parameters(varargin)
             if nargin>0
                 name = varargin{1};
@@ -29,18 +29,85 @@ classdef test_cut_parameters < TestCase
                 struct('u',[1,0,0],'v',[0,1,0]),[],[],[],[0,10]);
             obj.sample_files{4} = sqw_4d_samp;
         end
-        
-        function test_cut_param_all_param_given_explicitly(obj)
+        function test_cut_param_all_implicit_2D(obj)
             %
-            skipTest('This test is incompleted part of the ticket #716')
+            
+            sqw_samp = obj.sample_files{2};
+            sqw_test = cut_sqw_tester(sqw_samp);
+            %sqw_test = sqw(sqw_samp);
+            [proj, pbin, opt]=sqw_test.cut_inputs_tester(true,...
+                struct('u',[1,0,0],'v',[0,1,0]),...
+                [],[],[],[],'-nopix');
+            assertEqual(pbin{1},[-0.1,0.01,0.1])
+            assertEqual(pbin{2},[-0.2,0.02,0.2])
+            assertEqual(pbin{3},[-0.3,0.03,0.3])
+            assertEqual(pbin{4},[0,1,10])
+            
+            assertTrue(isa(proj,'aProjection'));
+            assertEqual(proj.u,[1,0,0])
+            assertEqual(proj.v,[0,1,0])
+            
+            assertTrue(opt.keep_pix);
+            assertFalse(opt.parallel);
+            assertTrue(isempty(opt.outfile));
+        end
+        
+        function test_cut_param_all_param_given_explicitly_3D(obj)
+            %
+            sqw_samp = obj.sample_files{3};
+            sqw_test = cut_sqw_tester(sqw_samp);
+            %sqw_test = sqw(sqw_samp);
+            [proj, pbin, opt]=sqw_test.cut_inputs_tester(true,...
+                struct('u',[1,0,0],'v',[0,1,0]),...
+                [-0.1,0.01,0.1],[-0.2,0.02,0.2],[-0.3,0.03,0.3],[0,1,10]);
+            assertEqual(pbin{1},[-0.1,0.01,0.1])
+            assertEqual(pbin{2},[-0.2,0.02,0.2])
+            assertEqual(pbin{3},[-0.3,0.03,0.3])
+            assertEqual(pbin{4},[0,1,10])
+            
+            assertTrue(isa(proj,'aProjection'));
+            assertEqual(proj.u,[1,0,0])
+            assertEqual(proj.v,[0,1,0])
+            
+            assertTrue(opt.keep_pix);
+            assertFalse(opt.parallel);
+            assertTrue(isempty(opt.outfile));
+        end
+        
+        
+        function test_cut_param_all_param_given_explicitly_1D(obj)
+            %
             sqw_samp = obj.sample_files{1};
             sqw_test = cut_sqw_tester(sqw_samp);
             %sqw_test = sqw(sqw_samp);
-            [proj, pbin, opt]=sqw_test.cut_inputs_tester(true,1,...
+            [proj, pbin, opt]=sqw_test.cut_inputs_tester(true,...
                 struct('u',[1,0,0],'v',[0,1,0]),...
                 [-0.1,0.01,0.1],[-0.2,0.02,0.2],[-0.3,0.03,0.3],[0,1,10]);
+            assertEqual(pbin{1},[-0.1,0.01,0.1])
+            assertEqual(pbin{2},[-0.2,0.02,0.2])
+            assertEqual(pbin{3},[-0.3,0.03,0.3])
+            assertEqual(pbin{4},[0,1,10])
             
+            assertTrue(isa(proj,'aProjection'));
+            assertEqual(proj.u,[1,0,0])
+            assertEqual(proj.v,[0,1,0])
+            
+            assertTrue(opt.keep_pix);
+            assertFalse(opt.parallel);
+            assertTrue(isempty(opt.outfile));
         end
+        
+        function test_unrecognized_extra_par_throw(obj)
+            %
+            sqw_samp = obj.sample_files{1};
+            sqw_test = cut_sqw_tester(sqw_samp);
+            %sqw_test = sqw(sqw_samp);
+            assertExceptionThrown(@()cut_inputs_tester(sqw_test,true,...
+                struct('u',[1,0,0],'v',[0,1,0]),...
+                [-0.1,0.01,0.1],[-0.2,0.02,0.2],[-0.3,0.03,0.3],[0,1,10],...
+                100,200),...
+                'HORACE:cut:invalid_argument');
+        end        
         
     end
 end

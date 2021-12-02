@@ -55,8 +55,7 @@ classdef test_cut < TestCase & common_state_holder
                 save(sqw_cut,obj.ref_file);
             end
         end
-        
-        
+        %        
         function test_you_can_take_a_cut_from_an_sqw_file(obj)
             conf = hor_config();
             old_conf = conf.get_data_to_store();
@@ -74,7 +73,7 @@ classdef test_cut < TestCase & common_state_holder
             assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
             skipTest('SAMPLE COMPARISON and instrument comparison are disabled as some routes ignore empty samples/instruments')
         end
-        
+        %
         function test_take_a_cut_from_an_sqw_object(obj)
             sqw_obj = read_sqw(obj.sqw_file);
             sqw_cut = cut(sqw_obj, obj.ref_params{:});

@@ -1,4 +1,4 @@
-function sqw_display_single (din,npixtot,type)
+function sqw_display_single_(din,npixtot,type)
 % Display useful information from an sqw object
 %
 % Syntax:
