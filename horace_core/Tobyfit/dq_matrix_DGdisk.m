@@ -48,7 +48,44 @@ function dq_mat =  dq_matrix_DGdisk (wi, wf, xa, x1, x2, s_mat, f_mat, d_mat,...
 
 
 npix = numel(wi);
+nchunk = 1;
+free_mem = get_free_mem();
+% We need at least ~350*npix elements free (each element is 4 bytes)
+% Round it to 400*npix as a fudge-factor.
+if free_mem < (1600 * npix)
+    % We need 44*npix element for the actual dq matrix (round to 50*npix)
+    if free_mem < (200 * npix)
+        error('Insufficient memory to compute the dq matrix');
+    end
+    max_block = ceil(free_mem / 1600);
+    nchunk = ceil(npix / max_block);
+    block_size = ceil(npix / nchunk);
+    idx0 = 1;
+    dq_mat = [];
+    for ii = 1:nchunk
+        if ii < nchunk
+            idx1 = ii * block_size;
+        else
+            idx1 = npix;
+        end
+        idv = idx0:idx1;
+        dq_mat = cat(3, dq_mat, ...
+                     dq_chunk(wi(idv), wf(idv), xa(idv), x1(idv), x2(idv), ...
+                              s_mat(:,:,idv), f_mat(:,:,idv), d_mat(:,:,idv), ...
+                              spec_to_rlu(:,:,idv), k_to_v, k_to_e));
+        idx0 = idx1 + 1;
+    end
+else
+    dq_mat = dq_chunk(wi, wf, xa, x1, x2, s_mat, f_mat, d_mat,...
+                      spec_to_rlu, k_to_v, k_to_e);
+end
 
+end % function dq_matrix
+
+function dq_mat =  dq_chunk (wi, wf, xa, x1, x2, s_mat, f_mat, d_mat,...
+    spec_to_rlu, k_to_v, k_to_e)
+
+npix = numel(wi);
 % Calculate velocities and times:
 % -------------------------------
 veli = k_to_v * wi;
@@ -109,3 +146,20 @@ qk_mat(4,1,:) = (2*k_to_e)*wi;
 qk_mat(4,4,:) =-(2*k_to_e)*wf;
 
 dq_mat=mtimesx_horace(qk_mat,b_mat);
+
+end % function dq_chunk
+
+function mem = get_free_mem()
+    if ispc
+        memStr = memory;
+        mem = memStr.MemAvailableAllArrays;
+    elseif ismac
+        [~,memStr] = unix('vm_stat | grep free');
+        mem = sscanf(memStr(14:end),'%f')*4096;
+    elseif isunix
+        [~, memStr] = unix('free -b | grep Mem');
+        [~, mem_free] = strtok(memStr);
+        mem = sscanf(mem_free,'%f');
+        mem = mem(6);
+    end
+end
