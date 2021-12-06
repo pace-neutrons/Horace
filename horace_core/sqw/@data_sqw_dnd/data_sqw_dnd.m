@@ -45,8 +45,7 @@ classdef data_sqw_dnd < axes_block
             
             flds = indepFields@axes_block(obj);
             flds = [flds(:);data_sqw_dnd.fields_to_save_(:)];
-        end
-        
+        end        
         %------------------------------------------------------------------
         % Determine data type of the data field of an sqw data structure
         data_type = data_structure_type(data);

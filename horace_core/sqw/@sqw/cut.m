@@ -148,7 +148,7 @@ dnd_type = obj.data.pix.num_pixels == 0;
 if dnd_type
     % Input has no pixels, delegate to cut_dnd
     % TODO: refactor so cut_dnd_main sits on DnDBase class
-    ndims_source = numel(obj.data.pax);    
+    ndims_source = numel(obj.data.pax);
     wout = cut_dnd_main(obj, ndims_source, varargin{:});
     return
 end
@@ -160,7 +160,7 @@ return_cut = nargout > 0;
 
 % Process projection
 % source_proj = obj.get_projection()
-%targ_ax_block = obj.build_from_input_binning(proj,img_db_range,source_proj,pbin);
+%targ_ax_block = obj.build_from_input_binning(source_proj,targ_proj,img_db_range,pbin);
 [targ_proj, pbin, pin, en] = define_target_axes_block(obj, targ_proj, pbin);
 
 sz = cellfun(@(x) max(size(x, 1), 1), pbin);
@@ -178,17 +178,14 @@ for cut_num = 1:prod(sz)
         cut_single(args{:});
     end
 end
-
-end  % function
-
-%
+% End function
 
 function [proj, pbin, pin, en] = define_target_axes_block(w, proj, pbin)
 % Update projection bins using the sqw header
 %
 header_av = header_average(w);
 [proj, pbin, ~, pin, en] = proj.update_pbins(header_av, w.data, pbin);
-end
+
 
 
 function num_dims = get_num_output_dims(pbin)
@@ -203,7 +200,7 @@ function num_dims = get_num_output_dims(pbin)
 is_non_int_axis = @(x) numel(x) ~= 2 && numel(x) < 4 && ~isempty(x);
 non_integrated_axis = cellfun(is_non_int_axis, pbin);
 num_dims = sum(non_integrated_axis);
-end
+
 
 
 function out = allocate_output(sz, pbin, keep_pix, dnd_constructors)
@@ -215,7 +212,7 @@ else
     out_dims = get_num_output_dims(pbin);
     out = repmat(dnd_constructors{out_dims + 1}(), sz_squeeze);
 end
-end
+
 
 
 function pbin_out = get_pbin_for_cut(sz, cut_num, pbin_in)
@@ -230,4 +227,4 @@ for i = 1:numel(pbin_out)
         pbin_out{i} = pbin_in{i};
     end
 end
-end
+

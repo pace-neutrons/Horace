@@ -1,5 +1,5 @@
-function [proj, pbin, opt] = ...
-    cut_sqw_parse_inputs_(ndims_in, return_cut, varargin)
+function [proj, pbin,opt] = ...
+    cut_sqw_parse_inputs_(obj,ndims_in, return_cut, varargin)
 % Take cut parameters in any possible form (see below)
 % and return the standard form of the parameters.
 %
@@ -99,7 +99,6 @@ function [proj, pbin, opt] = ...
 
 
 % Default output of correct classes
-proj = projection();
 opt = struct();
 
 
@@ -128,14 +127,15 @@ end
 % -----------------------------------------------------------------
 if numel(par)>=1 && (isstruct(par{1}) ||...
         isa(par{1},'aProjection') || isa(par{1},'projaxes'))
-    proj_given=true;
     if isa(par{1},'aProjection')
         proj=par{1};
     else
         proj=projection(par{1});
     end
     par = par(2:end);
+    proj_given=true;
 else
+    proj = obj.get_projection();
     proj_given=false;
 end
 
@@ -157,7 +157,7 @@ if numel(par)>=npbin_expected
         if isempty(pbin{i})
             pbin{i} = [];
         elseif isnumeric(pbin{i})
-            pbin{i} = pbin{i}(:)';  % ensure row vectors
+            pbin{i} = make_row(pbin{i});  % ensure row vectors
         else
             pbin_ok(i) = false;
         end
@@ -182,6 +182,20 @@ else
         error('HORACE:cut:invalid_argument',...
             'Must give binning arguments for all four dimensions if new projection axes');
     end
+end
+if ~proj_given % it may be fewer parameters then actual dimensions and
+    % if no projection is given, we would like to append missing binning
+    % parameters with their default values.
+    pbin_tmp = pbin;
+    pbin = cell(4,1);
+    % run checks on given pbin, and if given pbin is empty, take pbin from
+    % existing projection axis
+    paxis = cellfun(@select_pbin,pbin_tmp,obj.p,'UniformOutput',false);
+    pbin(obj.pax) = paxis(:);
+    % set other limits to integration axis
+    pbin(obj.iax) = num2cell(obj.iint,1);
+    % ensure row vectors    
+    pbin = cellfun(@make_row,pbin,'UniformOutput',false);
 end
 
 
@@ -241,5 +255,26 @@ elseif ~return_cut
     error('HORACE:cut:invalid_argument', ...
         'Neither output cut object nor output file requested - routine is not being asked to do anything');
 end
-
 opt.outfile = outfile;
+%
+function x=make_row(x)
+if size(x,1)>1
+    x = x';
+end
+
+function pbin=select_pbin(pbin_given,paxis)
+
+if isempty(pbin_given)
+    bin_width = paxis(2)-paxis(1);
+    pbin = [paxis(1),bin_width,paxis(end)];
+    return
+end
+if numel(pbin_given) == 1
+    pbin = [paxis(1),pbin_given,paxis(end)];
+    return
+end
+if size(pbin_given,1)>1
+    pbin = pbin_given';
+else
+    pbin = pbin_given;
+end

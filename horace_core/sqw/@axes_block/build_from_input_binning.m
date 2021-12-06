@@ -1,5 +1,5 @@
-function  [new_obj,targ_img_range] = build_from_input_binning(obj,...
-    targ_proj,source_proj,source_img_range,pbin)
+function  [new_axes_block,targ_img_db_range] = build_from_input_binning(...
+    cur_img_range_and_steps,pbin)
 % build new axes_block object from the binning parameters, provided
 % as input. If some input binning parameters are missing, the
 % defauls are taken from existing axes_block object.
@@ -8,208 +8,220 @@ function  [new_obj,targ_img_range] = build_from_input_binning(obj,...
 % (in target coordinate system), the existing image range is selected
 %
 % Inputs:
-% targ_proj       -- the projection, defining the target coordinate system
-% source_proj     -- the projection, defining the coordinate system where
-%                    current image is expressed
-%source_img_range -- the ranges of source image, where cut is taken from
-% pbin            -- cellarray of input binning parameters, which define
-%                    target image binning
+% cur_img_range_and_steps
+%          --   cellarray of the ranges and steps of source
+%               image, expressed in the target coordinates and
+%               used as source of default ranges
+%               if these ranges are not specified by pbin
+% pbin     --   cellarray of input binning parameters, which define
+%               target image binning
 % where each cell can contains the following parameters:
-%               - [] or ''          Use default bins (bin size and limits)
+%               - [] or ''          Use default (existing) bins (bin size and limits)
 %               - [pstep]           Plot axis: sets step size; plot limits taken from extent of the data
 %               - [plo, phi]        Integration axis: range of integration
 %               - [plo, pstep, phi] Plot axis: minimum and maximum bin centres and step size
 % Outputs:
-% obj            - initialized instance of axes_block class
-% targ_img_range - the ranges of the target image to rebin within
+% new_axis_block    -- initialized instance of axes_block class
+% targ_img_db_range -- the range to bin pixels
+
+if numel(pbin) ~=4
+    error('HORACE:axes_block:invalid_argument',...
+        'Have not provided binning descriptor for all three momentun axes and the energy axis');
+end
+if numel(cur_img_range_and_steps) ~=4
+    error('HORACE:axes_block:invalid_argument',...
+        'Have not provided default binning for all three momentun axes and the energy axis');
+end
+
 
 % calculate target image ranges from the binning requested:
 % set up NaN=s for values, which have to be redefined from source
-targ_img_range = cellfun(@(x)parce_pbin(obj,x),pbin,'UniformOutput',false);
-
-n=length(pbin);
-if n<3 || n>4
-    error('aPROJECTION:invalid_arguments',...
-        'Have not provided binning descriptor for all three momentum axes and (optionally) the energy axis');
-end
-
-if ~(isempty(pbin{1})||(isa_size(pbin{1},'row','double') && length(pbin{1})>=1 && length(pbin{1})<=3)) || ...
-        ~(isempty(pbin{2})||(isa_size(pbin{2},'row','double') && length(pbin{2})>=1 && length(pbin{2})<=3)) || ...
-        ~(isempty(pbin{3})||(isa_size(pbin{3},'row','double') && length(pbin{3})>=1 && length(pbin{3})<=3))
-    
-    error('aPROJECTION:invalid_arguments',...
-        'Check format of integration range / plotting description for momentum axes');
-end
-
-if n==4
-    if ~(isempty(pbin{4})||(isa_size(pbin{4},'row','double') && length(pbin{4})>=1 && length(pbin{4})<=3))
-        error('aPROJECTION:invalid_arguments',...
-            'Check format of integration range / plotting description for energy axis');
-    end
-end
-
-
-% Check values are acceptable, and make ranges 1x3 (for plot) or 1x2 for integration axes
+idim = 1:4;
+ind = num2cell(idim);
+% Check values are acceptable, and make ranges (3+2)x1 (for plot) or (2+2)x1 for integration axes
+% plus parameters, which define the bin ranges
 % ---------------------------------------------------------------------------------------
-% At this point, we are just filling in the values for the missing elements according to
-% the convention
-% (1) absent binning description: use default bin information in pin
-% (2) missing plot ranges are +inf, -inf (upper, lower) and missing bin width for energy is 0.
-% Will combine with the limits of the data in the block of code that follows the this block
-npax = 0;
-niax = 0;
-pax = zeros(1,4);
-iax = zeros(1,4);
-pbin_from_pin = false(1,4); % will contain true if bin boundaries / integration ranges are to be taken from defaults
-vstep = NaN(4,1); % will contain requested step sizes if plot axis (NaN otherwise)
-cut_lmts_req = zeros(4,2); % will contain requested limits of bin centres / integration range
-for idim=1:4
-    if n==3     % case when energy axis not given
-        pbin{4}=[-inf,0,inf];
-    end
-    if isempty(pbin{idim})
-        pbin_from_pin(idim)=true;
-        % Could be integration axis or plot axis depending if number of bins=2 or >2
-        if length(pin{idim})==2
-            niax = niax + 1;
-            iax(niax) = idim;
-            cut_lmts_req(idim,:) = pin{idim};
-        elseif length(pin{idim})>2
-            npax = npax + 1;
-            pax(npax) = idim;
-            vstep(idim) = pin{idim}(2)-pin{idim}(1);    % not used as of 13/5/09, but put here for completeness
-            cut_lmts_req(idim,:) = [pin{idim}(1),pin{idim}(end)];
-        end
-    elseif length(pbin{idim})==2
-        % the case of an integration axis
-        niax = niax + 1;
-        iax(niax) = idim;
-        cut_lmts_req(idim,:) = pbin{idim};
-    else
-        % must be a plot axis
-        npax = npax + 1;
-        pax(npax) = idim;
-        if length(pbin{idim})==1
-            vstep(idim) = pbin{idim}(1);
-            cut_lmts_req(idim,:) = [-inf,inf];
-        elseif length(pbin{idim})==3
-            vstep(idim) = pbin{idim}(2);
-            cut_lmts_req(idim,:) = [pbin{idim}(1),pbin{idim}(3)];
-        end
-        % Check validity of step sizes
-        if idim==4 && vstep(idim)<0 % recall that step of zero is valid for energy axis
-            error('aPROJECTION:invalid_arguments',...
-                'Cannot have negative energy step size');
-        elseif idim~=4 && vstep(idim)<=0
-            error('aPROJECTION:invalid_arguments',...
-                'Cannot have zero step size for plotting - check axis  N: %d',num2str(idim));
-            
-        end
-    end
-    % check validity of data ranges
-    if cut_lmts_req(idim,2)<cut_lmts_req(idim,1)
-        error('aPROJECTION:invalid_arguments',...
-            'Check upper limit greater or equal to the lower limit - check axis N: %d',idim);
-    end
-end
-% Compact down iax and pax
-pax = pax(1:npax);
-iax = iax(1:niax);
+targ_img_range = cellfun(@(i,bin_rec,bin_def)parce_pbin(i,bin_rec,bin_def),...
+    ind,pbin,cur_img_range_and_steps,'UniformOutput',false);
+
+is_iax = cellfun(@(bin)(numel(bin)==4),targ_img_range);
+iax = idim(is_iax);
+pax = idim(~is_iax);
+
+niax = sum(is_iax);
+npax = 4-niax;
 
 
 % Compute plot bin boundaries and integration ranges
-% ------------------------------------------------------------------------
-% Get range of initial data, expressed in the coordinate frame of requested
-% projection from the 8 points defined in momentum space by img_db_range_in:
-% This gives the maximum extent of the image pixels that can possibly contribute to the output data.
-% third coordinate is not used.
-old_img_db_range = proj.find_old_img_range(img_db_range_in);
 
-% Compute plot bin boundaries and range that fully encloses the requested output plot axes
 iint=zeros(2,niax);
 p   =cell(1,npax);
-img_db_range_out=zeros(2,4);
-%pbin_out = cell(1,4);
+%
+targ_img_db_range=zeros(2,4);
 
+% Compute plot bin boundaries and range that fully encloses the requested output plot axes
 for i=1:npax
     ipax = pax(i);
-    if pbin_from_pin(ipax)
-        % Use default input bins
-        p{i}=pin{ipax};
-        %pbin_out{ipax} = make_const_bin_boundaries_descr(p{i});
-    else
-        pbin_tmp=[cut_lmts_req(ipax,1),vstep(ipax),cut_lmts_req(ipax,2)];
-        if ipax<4 || (ipax==4 && vstep(ipax)>0)
-            % Q axes, and also treat energy axis like other axes if provided with energy bin greater than zero
-            p{i}=make_const_bin_boundaries(pbin_tmp,old_img_db_range(:,ipax));
-        else
-            % Only reaches here if energy axis and requested energy bin width is explicity or implicitly zero
-            % Handle this case differently to above, because we ensure bin boundaries synchronised to boundaries in array en
-            p{i}=make_const_bin_boundaries(pbin_tmp,old_img_db_range(:,ipax),en,true);
+    the_range = targ_img_range{ipax};
+    step = the_range(2);
+    if the_range(4) == 1 && the_range(5) == 1
+        pmin    = the_range(1)-step/2;
+        pmax    = the_range(3)+step/2;
+        nsteps  = floor((pmax-pmin)/step);
+        if pmin+nsteps*step<pmax
+            nsteps = nsteps+1;
         end
-        % No bins
-        if isempty(p{i})
-            error('aPROJECTION:invalid_arguments',...
-                'Plot range outside extent of data for at least one plot axis (axis N%d)',i);
+        pp = pmin+(0:nsteps)*step;
+    elseif the_range(4) == 0 && the_range(5) == 1
+        pmin = the_range(1);
+        pmax = the_range(3)+step/2;
+        nsteps  = floor((pmax-pmin)/step);
+        % Old behaviour:
+        if pmax-nsteps*step>pmin
+            nsteps = nsteps+1;
         end
-        % For a plot axis we have declared that we need at least two bins
-        if numel(p{i})<=2
-            str=str_compress(num2str(pbin_tmp));
-            mess=['Only one bin in range [',str,'] - cannot make this a plot axis'];
-            error('aPROJECTION:invalid_arguments',mess)
+        pp = sort(pmax-(0:nsteps)*step);
+        % would be more reasonable to set up hard bin range on -inf?
+        %         if pmin+nsteps*step<the_range(3)
+        %             if abs(pmax-nsteps*step-the_range(3))>1.e-12
+        %                 nsteps = nsteps+1;
+        %             else
+        %                 step = (pmax-pmin)/(nsteps+1);
+        %             end
+        %         end
+        %         pp = pmin+(0:nsteps)*step;
+    elseif the_range(4) == 1 && the_range(5) == 0
+        pmin = the_range(1)-step/2;
+        pmax = the_range(3);
+        nsteps  = floor((pmax-pmin)/step);
+        % Old behaviour:
+        if pmin+nsteps*step<pmax
+            nsteps = nsteps+1;
         end
-        %pbin_out{ipax} = pbin_tmp;
+        pp = pmin+(0:nsteps)*step;
+        %         % would it be more reasonable to set up hard bin range on inf?
+        %         if the_range(1)-nsteps*step>pmin
+        %             if abs(the_range(1)-nsteps*step-pmin)>1.e-12
+        %                 nsteps = nsteps+1;
+        %             else
+        %                 step = (pmax-pmin)/(nsteps+1);
+        %             end
+        %         end
+        %         pp = sort(pmax-(0:nsteps)*step);
+    else % the_range(4) == 0 && the_range(5) == 0
+        pmin = the_range(1);
+        pmax = the_range(3);
+        nsteps  = floor((pmax-pmin)/step);
+        if pmin+nsteps*step<pmax
+            if abs(pmin+nsteps*step-pmax)>1.e-12
+                nsteps = nsteps+1;
+            else
+                step = (pmax-pmin)/(nsteps+1);
+            end
+            % change in behaviour. +-Inf spefies hard ranges
+            %step = (pmax-pmin)/(nsteps+1);
+        end
+        pp = pmin+(0:nsteps)*step;
     end
-    img_db_range_out(:,ipax)=[p{i}(1);p{i}(end)];
+    p{i} =  pp;
+    targ_img_db_range(:,ipax)=[pmin;pmax];
 end
 
 % Compute integration ranges.
 for i=1:niax
     iiax = iax(i);
-    iint(1,i)=cut_lmts_req(iiax,1);
-    iint(2,i)=cut_lmts_req(iiax,2);
-    % force new binning ranges for integration axis regardless to actual
-    % data range
-    %img_db_range_out(1,iiax) =vlims(iiax,1);
-    %img_db_range_out(2,iiax) =vlims(iiax,2);
-    % Select the range - union between image range and the requested cut range
-    [img_db_range_out(1,iiax),img_db_range_out(2,iiax),inf_removed] =...
-        min_max_range(cut_lmts_req(iiax,1),old_img_db_range(1,iiax),...
-        cut_lmts_req(iiax,2),old_img_db_range(2,iiax));
-    if inf_removed
-        iint(1,i)=img_db_range_out(1,iiax);
-        iint(2,i)=img_db_range_out(2,iiax);
+    the_range = targ_img_range{iiax};
+    %
+    iint(1,i)=the_range(1);
+    iint(2,i)=the_range(2);
+    %
+    targ_img_db_range(:,iiax)=[iint(1,i);iint(2,i)];
+end
+
+new_axes_block = axes_block();
+new_axes_block.iax  = iax;
+new_axes_block.iint = iint;
+new_axes_block.pax  = pax;
+new_axes_block.p    = p;
+new_axes_block.dax  = 1:npax;
+
+
+
+
+function range = parce_pbin(ind,bin_req,bin_default)
+% get defined binning range from the various input parameters
+%
+% This function defines the logic behind the binning parameters
+% interpretation
+%
+% Returns:
+% range  5x1 or 4x1 vector containing the bin ranges and information on how
+%        to interpret the ranges, i.e. if true (1) the correspondent range
+%        is treated as bin center and if false(0) the range is treated as
+%        limit
+%        If range contains 5 elements, its first three elements describe
+%        binning and if there are 4 elements, it is about integration
+%        ranges
+if  numel(bin_req) == 2 || (isempty(bin_req) && numel(bin_default)==2)
+    left_range_is_bs = 0; % left range not used as a bin center
+    right_range_is_bs = 0; % right range not used as a bin center
+else
+    left_range_is_bs = 1; % left range used as a bin center
+    right_range_is_bs = 1; % right range not used as a bin center
+end
+%
+if isempty(bin_req)
+    range = [bin_default,left_range_is_bs,right_range_is_bs];
+elseif numel(bin_req) == 1
+    if bin_req == 0 % this may fail if bin_default is integration axis
+        bin_req = bin_default(2);
     end
-    
-    if img_db_range_out(1,iiax)>img_db_range_out(2,iiax)
-        % *** T.G.Perring 28 Sep 2018:********************
-        img_db_range_out(2,iiax) = img_db_range_out(1,iiax);    % do not want to stop the cutting - just want to ensure no unnecessary read from input object or cut
-        %         iax=[]; iint=[]; pax=[]; p=[]; img_db_range=[];
-        %         ok = false;
-        %         mess = sprintf('Integration range outside extent of data for projection axis %d (integration axis %d)',iiax,i);
-        %         return
-        % ************************************************
+    range  = [bin_default(1),bin_req,bin_default(end),left_range_is_bs,right_range_is_bs];
+else
+    range = [bin_req,left_range_is_bs,right_range_is_bs];
+    if isinf(range(1))
+        range(1) = bin_default(1);
+        range(end-1) = 0;
     end
-    %pbin_out{iiax} = vlims(iiax,:)';
+    if isinf(bin_req(end))
+        range(numel(bin_req)) = bin_default(end);
+        range(end) = 0;
+    end
+    if numel(range) == 5 && range(2)==0
+        if numel(bin_default) == 3
+            range(2) = bin_default(2);
+        else % integrate in ranges, defined by default bin boundaries if step is 0
+            % and the default bin boundaries are integration boundaries
+            range = [range(1),range(3:end)];
+        end
+    end
+end
+if numel(range)==5 % check if min+step >= max, so it is actually integration range
+    % regardless of anything
+    if range(1)+range(2)>=range(3)
+        range = [range(1),range(3),0,0];
+    end
 end
 
-function [a_min,a_max,inf_removed]=min_max_range(min_range1,min_range2,max_range1,max_range2)
-% calculate minimal enclosing range -- intersect of two overlapping ranges
-inf_removed = false;
-if isinf(min_range1)
-    min_range1 = min_range2;
-    inf_removed = true;
+% check validity of data ranges
+last_range = 3;
+if numel(range)==4
+    last_range = 2;
 end
-if isinf(max_range1)
-    max_range1 = max_range2;
-    inf_removed = true;
+if range(last_range) <= range(1)
+    error('HORACE:axes_block:invalid_argument',...
+        'Upper limit greater or equal to the lower limit - check axis N: %d',ind);
 end
-center = 0.5*(min(min_range1,min_range2)+max(max_range1,max_range2));
-
-a_min = max(min_range1-center,min_range2-center)+center;
-a_max = min(max_range1-center,max_range2-center)+center;
-
-
-
-function range = parce_pbin(obj,pbin)
-% get defined binning range from the 
+if size(range,1)>1
+    range = range';
+end
+if size(range,1)>1
+    error('HORACE:axes_block:invalid_argument',...
+        'Binning range for axis %d is not a vector but have size: %s',...
+        ind,evalc('disp(size(range))'));
+end
+if numel(range)>5
+    error('HORACE:axes_block:invalid_argument',...
+        'The binning range for axis %d have invalid value: %s',...
+        ind,evalc('disp(size(range))'));
+end

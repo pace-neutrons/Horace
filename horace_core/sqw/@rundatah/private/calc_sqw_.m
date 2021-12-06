@@ -122,12 +122,6 @@ else
         clear nopix     % biggish array no longer needed
     end
     
-    % If pixels were truncated, true range have to change to the truncated range
-    pix_range = sqw_datstr.pix.pix_range;
-    out_of_range = [pix_range(1,:)<pix_db_range(1,:);pix_range(2,:)>pix_db_range(2,:)];
-    extra_pix_range  = range_add_border(pix_range);
-    sqw_datstr.img_db_range(out_of_range) = extra_pix_range(out_of_range);
-    
 end
 
 % Create sqw object (just a packaging of pointers, so no memory penalty)
@@ -177,7 +171,7 @@ lat = obj.lattice.set_rad();
 if all(isempty(obj.sample)) || isempty(fieldnames(obj.sample)) || any(isempty(obj.sample.alatt))
     sample = IX_samp();
     sample.alatt = obj.lattice.alatt;
-    sample.angdeg = obj.lattice.angdeg;    
+    sample.angdeg = obj.lattice.angdeg;
 else
     sample = obj.sample;
 end

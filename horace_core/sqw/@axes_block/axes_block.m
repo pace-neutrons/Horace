@@ -45,6 +45,11 @@ classdef axes_block < serializable
     end
     
     methods (Static)
+        % build new axes_block object from the binning parameters, provided
+        % as input. If some input binning parameters are missing, the
+        % defauls are taken from the given image range which should be
+        % properly prepared
+        [obj,targ_img_db_range] = build_from_input_binning(cur_img_range_and_steps,pbin);
         % Create bin boundaries for integration and plot axes from requested limits and step sizes
         [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
         
@@ -92,7 +97,7 @@ classdef axes_block < serializable
             
             img_db_range = zeros(2,4);
             img_db_range(:,ax_data.iax) = ax_data.iint;
-            if numel(ax_data.iax)>0 
+            if numel(ax_data.iax)>0
                 % let's assume that newly generated sqw file has
                 % 4 dimensions and cuts have at least one direction
                 % integrated.
@@ -120,8 +125,8 @@ classdef axes_block < serializable
                 end
             end
             img_db_range(:,ax_data.pax) = pax_range;
-        end        
-    end   
+        end
+    end
     
     
     methods
@@ -137,23 +142,37 @@ classdef axes_block < serializable
             % number
             ver = 1;
         end
-       % Find number of dimensions and extent along each dimension of
+        % Find number of dimensions and extent along each dimension of
         % the signal arrays.
-        [nd,sz] = data_dims(data);        
+        [nd,sz] = data_dims(data);
         % return 3 q-axis in the order they mark the dnd object
         % regardless of the integration along some qxis
         % TODO: probably should be removed
         [q1,q2,q3] = get_q_axes(obj);
-        % return binning range of existing data object
-        range = get_bin_range(obj);
+        % return binning range of existing data object, so that cut without
+        % parameters, performed within this range would return the same cut
+        % as the original object
+        range = get_cut_range(obj);
+        %
         % find the coordinates along each of the axes of the smallest cuboid
         % that contains bins with non-zero values of contributing pixels.
         [val, n] = data_bin_limits (din);
+        %
+        function range = get_default_binning_range(obj,cur_proj,new_proj)
+            % get the default binning range to use in cut, defined by new
+            % projection
+            % Inputs:
+            % obj      - current instance of the axes block
+            % cur_proj - the projection, current block is defined for
+            % new_proj - the projection, for which the requested range should
+            %            be defined
+            % Output:
+            % range    - 4-element cellarray of ranges, containing current
+            %            binning range expressed in the coordinate system,
+            %            defined by the new projection
+            range  = get_default_binning_range_(obj,cur_proj,new_proj);
+        end
         
-        % build new axes_block object from the binning parameters, provided
-        % as input. If some input binning parameters are missing, the
-        % defauls are taken from existing axes_block object.
-        obj = build_from_input_binning(obj,targ_proj,img_db_range,source_proj,pin);
         %
         function obj = axes_block(varargin)
             % constructor
