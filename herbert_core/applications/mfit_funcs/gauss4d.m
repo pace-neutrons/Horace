@@ -1,4 +1,4 @@
-function y = gauss4d (x1, x2, x3, p)
+function y = gauss4d (x1, x2, x3, x4, p)
 % Four-dimensional Gaussian
 %
 %   >> y = gauss4d (x1, x2, s3, x4, p)
@@ -6,10 +6,10 @@ function y = gauss4d (x1, x2, x3, p)
 %  For each data point
 %       y = h * exp(-1/2 * [dx1,dx2,dx3].*cov^-1.*[dx1;dx2;dx3])
 %   where
-%       dx1 = x1-x1_0
-%       dx2 = x2-x2_0
-%       dx3 = x3-x3_0
-%       dx3 = x4-x4_0
+%       dx1 = x1 - x1_0
+%       dx2 = x2 - x2_0
+%       dx3 = x3 - x3_0
+%       dx3 = x4 - x4_0
 %   
 %       cov = Covariance matrix, a 3x3 matrix
 %               (c11 is the variance of x1, c22 is the variance of x2
@@ -34,7 +34,10 @@ function y = gauss4d (x1, x2, x3, p)
 %   y   Array of calculated y-axis values. Same size as x1.
 
 
-% T.G.Perring
+if numel(p)~=15
+    error('HERBERT:gauss:invalid_argument',...
+        'The vector of parameters must have length 15')
+end
 
 ht=p(1); x1_0=p(2); x2_0=p(3); x3_0=p(4); x4_0=p(5);
 c11=p(6); c12=p(7); c13=p(8); c14=p(9);

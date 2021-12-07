@@ -1,7 +1,7 @@
-function y=linear4D_bg(x1,x2,x3,p)
+function y=linear4D_bg(x1,x2,x3,x4,p)
 % Linear background function in four dimensiona
 %
-%   >> y = linear4D_bg (x1,x2,x3,p)
+%   >> y = linear4D_bg (x1,x2,x3,x4,p)
 %
 % Input:
 % =======

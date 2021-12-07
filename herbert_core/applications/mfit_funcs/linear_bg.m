@@ -13,6 +13,7 @@ function y=linear_bg(x,p)
 % ========
 %   y   Array of calculated y-axis values
 
+
 if length(p)~=2
     error('Input parameters must be a vector of length 2');
 end
