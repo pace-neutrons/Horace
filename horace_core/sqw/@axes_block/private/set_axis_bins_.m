@@ -70,7 +70,7 @@ obj.dax = 1:np;
 
 
 %----------------------------------------------------------------------------------------
-function pout=pbin_check(p)
+ function pout=pbin_check(p)
 % Check form of the bin descriptions and return bin boundaries
 %
 %   >> [pout,mess]=pbin_check(p)

@@ -209,7 +209,6 @@ classdef projection<aProjection
             %
             pix_cc = transform_img_to_pix_(obj,pix_hkl);
         end
-        
     end
     
     methods(Static)
@@ -267,4 +266,3 @@ classdef projection<aProjection
         end
     end
 end
-

@@ -38,6 +38,7 @@ elseif nargi==1
             'unrecognized type of single axis_block constructor argument');
     end
 elseif nargi>= 4 %remaining input is p1,p2,p3,p4
+    nonorthogonal_ = false;
     if nargi>4 %legacy operations
         is_proj = cellfun(@(x)((isstruct(x) && isfield(x,'u')) || ...
                 isa(x,'aProjection') || isa(x,'projaxes')),varargin,...

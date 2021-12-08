@@ -1,8 +1,16 @@
-function range = get_default_binning_range_(obj,cur_proj,new_proj)
+function bin_range = get_default_binning_range_(obj,img_db_range,cur_proj,new_proj)
 % get the default binning range to use in cut, defined by new
-% projection
+% projection.
+%
+% If new projection is not aligned with the old projection, the new
+% projection binning is copied from old projection binning according to
+% axis, i.e. if axis 1 of cur_proj had 10 bins, axis 1 of target proj would
+% have 10 bins, etc. 
+%
 % Inputs:
 % obj      - current instance of the axes block
+% img_db_range -- the range pixels are binned on and the current binning is
+%            applied
 % cur_proj - the projection, current block is defined for
 % new_proj - the projection, for which the requested range should
 %            be defined
@@ -12,26 +20,33 @@ function range = get_default_binning_range_(obj,cur_proj,new_proj)
 %            defined by the new projection
 
 % convert existing binning range into set of 4-D vectors
-range = zeros(2,4);
-p = obj.p;
-minmax = cellfun(@(x)([min(x);max(x)]),p);
-range(:,obj.pax) = minmax;
-range(:,obj.iax) = obj.iint;
+range = img_db_range;
 
-% convert step into 4-D step vector (from 0-point)
-step= zeros(1,4);
-stepv = cellfun(@(r0,x)(x(2)-x(1)),p);
-step(obj.pax) = stepv;
-step(obj.iax) = obj.iint(2,:)-obj.iint(1,:);
+% Calculate number of steps in each axis direction, to transfer these
+% numbers into steps in other directions
+nsteps = zeros(4,1);
+p = obj.p;
+naxis_step = cellfun(@(x)(numel(x)-1),p);
+nsteps(obj.pax) = naxis_step;
+nsteps(obj.iax) = 1;
 
 % convert ranges and step into target coordinate system
 full_range = expand_box(range(1,:),range(2,:));
-cc_range = cur_proj.transform_img_to_pix(full_range);
-cc_step  = cur_proj.transform_img_to_pix(step+range(1,:));
+%
+targ_range = cur_proj.convert_to_target_coord(new_proj,full_range);
 
-targ_range = new_proj.transform_pix_to_img(cc_range);
-targ_step  = new_proj.transform_pix_to_img(cc_step);
+% transformed 4D-range
+range = [min(targ_range,[],2)';max(targ_range,[],2)'];
+% extract binning descriptors, necessary for building approprtiate axes
+% block, transferring the binning
+bin_range = arrayfun(@build_binning,range(1,:)',range(2,:)',nsteps,'UniformOutput',false);
 
-% 4-D step vector;
-range = [min(targ_range,[],1);max(targ_range,[],1)];
-targ_step = targ_step-range(1,:);
+function bin_range = build_binning(min_range,max_range,nsteps)
+%
+if nsteps == 1% integration range
+    bin_range = [min_range,max_range];
+    return
+end
+step = (max_range-min_range)/(nsteps-1);
+% axis parameters
+bin_range = [min_range,step,max_range];

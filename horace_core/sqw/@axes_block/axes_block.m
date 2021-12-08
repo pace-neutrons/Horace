@@ -158,11 +158,21 @@ classdef axes_block < serializable
         % that contains bins with non-zero values of contributing pixels.
         [val, n] = data_bin_limits (din);
         %
-        function range = get_default_binning_range(obj,cur_proj,new_proj)
+        function range = get_default_binning_range(obj,img_db_range,...
+                cur_proj,new_proj)
             % get the default binning range to use in cut, defined by new
             % projection
+            %
+            % If new projection is not aligned with the old projection, the new
+            % projection binning is copied from old projection binning according to
+            % axis, i.e. if axis 1 of cur_proj had 10 bins, axis 1 of target proj would
+            % have 10 bins, etc.
+            
             % Inputs:
             % obj      - current instance of the axes block
+            % img_db_range -- the range pixels are binned on and the current binning is
+            %            applied
+            
             % cur_proj - the projection, current block is defined for
             % new_proj - the projection, for which the requested range should
             %            be defined
@@ -170,7 +180,7 @@ classdef axes_block < serializable
             % range    - 4-element cellarray of ranges, containing current
             %            binning range expressed in the coordinate system,
             %            defined by the new projection
-            range  = get_default_binning_range_(obj,cur_proj,new_proj);
+            range  = get_default_binning_range_(obj,img_db_range,cur_proj,new_proj);
         end
         
         %

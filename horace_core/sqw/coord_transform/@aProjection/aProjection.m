@@ -80,6 +80,24 @@ classdef aProjection
             can_mex_cut  = can_mex_cut_(self);
         end
         %------------------------------------------------------------------
+        function pix_target = convert_to_target_coord(obj,targ_proj,pix_origin,varargin)
+            % generic function to convert from current to target projeciton 
+            % coordinate system. Can be overloaded to optimize for number
+            % of particular cases. (e.g. two orthogonal projections do
+            % shift and rotation as the result)
+            % Inputs:
+            % obj       -- current projection, describing the system of 
+            %              coordinates where the input pixels vector is
+            %              expressed in
+            % targ_proj -- the projection which describes the target system
+            %              coordinates, where the current coordinates
+            %              should be transformed into
+            % pix_origin   4xNpix vecor of pixels coordinates expressed in 
+            pic_cc = obj.transform_img_to_pix(pix_origin,varargin{:});
+            pix_target  = targ_proj.transform_pix_to_img(pic_cc,varargin{:});
+        end
+        
+        %------------------------------------------------------------------
         % Common interface to projection data
         %------------------------------------------------------------------
         % build the binning and axis for the coordinate system related to cut

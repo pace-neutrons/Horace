@@ -42,17 +42,16 @@ classdef data_sqw_dnd < axes_block
         function flds = indepFields(obj)
             % get independent fields, which fully define the state of a
             % serializable object.
-            
             flds = indepFields@axes_block(obj);
             flds = [flds(:);data_sqw_dnd.fields_to_save_(:)];
-        end        
+        end
         %------------------------------------------------------------------
         % Determine data type of the data field of an sqw data structure
         data_type = data_structure_type(data);
         % Extract projection, used to build sqw file from full data_sqw_dnd
         % object (full-- containing pixels)
         proj = get_projection(obj)
-         %------------------------------------------------------------------
+        %------------------------------------------------------------------
         function obj = data_sqw_dnd(varargin)
             % constructor || copy-constructor:
             % Builds valid data_sqw_dnd object from various data structures
