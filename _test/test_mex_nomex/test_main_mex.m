@@ -374,7 +374,7 @@ classdef test_main_mex < TestCase
             pix_range(2,:) =  (maxv-minv);
 
             % Prepare cut projection to cut half of the data
-            proj = projection(prj);
+            proj = ortho_proj(prj);
             upix_to_rlu=eye(3);
             upix_offset = zeros(4,1);
 

@@ -48,7 +48,7 @@ if numel(v)==3, v=repmat(v(:)',[nfile,1]); end
 
 % Invoke public get_par routine
 if ischar(det) && size(det,1)==1
-    det=get_par(det,'-hor');    
+    det=get_par(det,'-hor');
 end
 ndet=length(det.group);
 

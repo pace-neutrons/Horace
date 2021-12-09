@@ -16,12 +16,12 @@ pix_range = obj.pix.pix_range-repmat(shift,2,1);
 img_range_guess = range_add_border(pix_range,obj.border_size);
 if  all(abs(img_range_guess(:)-obj.img_db_range(:))<=abs(obj.border_size)) || ... 
     (all(obj.ulen == 1) && any(abs(diag(obj.u_to_rlu)-1)>eps)) % the input is the raw sqw object
-    proj=projection();    
+    proj=ortho_proj();    
 else % the input is the cut 
-    [u,v]=projection.uv_from_rlu_mat(alatt,angdeg,obj.u_to_rlu(1:3,1:3),...
+    [u,v]=ortho_proj.uv_from_rlu_mat(alatt,angdeg,obj.u_to_rlu(1:3,1:3),...
         obj.ulen(1:3));
     proja = projaxes(u,v,'lab',obj.ulabel);
-    proj = projection(proja);
+    proj = ortho_proj(proja);
     
 end
 proj.alatt=alatt;

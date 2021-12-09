@@ -9,7 +9,7 @@ classdef rundatah < rundata
         transform_sqw
     end
     properties
-        % optional handle to precaluclated detectors directions array
+        % optional handle to pre-calculated detectors directions array
         detdcn_cache = []
         % optional handle to list of q-vectors, used instead of detectors
         % positions
@@ -157,7 +157,7 @@ classdef rundatah < rundata
             else
                 proj_mode = 2;
             end
-            % Calculate projections            
+            % Calculate projections
             [u_to_rlu,pix_range,pix] = obj.calc_projections_(obj.detdcn_cache,[],proj_mode);
         end
     end

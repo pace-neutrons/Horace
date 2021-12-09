@@ -2,7 +2,7 @@ function [pix_range,u_to_rlu]=calc_pix_range(obj,varargin)
 % Method calculates q-dE range, this rundata object has
 %
 %Usage:
-%>>[pix_range,u_to_rlu]=obj.calc_pix_range()  Calculate crystal cartesian range
+%>>[pix_range,u_to_rlu]=obj.calc_pix_range()  Calculate crystal Cartesian range
 %                                      for fully defined rundatah object
 %
 %>>[pix_range,u_to_rlu]=obj.calc_pix_range(emin,emax) Calculate range of the

@@ -130,7 +130,7 @@ if numel(par)>=1 && (isstruct(par{1}) ||...
     if isa(par{1},'aProjection')
         proj=par{1};
     else
-        proj=projection(par{1});
+        proj=ortho_proj(par{1});
     end
     par = par(2:end);
     proj_given=true;
@@ -171,7 +171,7 @@ if numel(par)>=npbin_expected
     if ~isempty(args)
         args = evalc('disp(args)');
         error('HORACE:cut:invalid_argument',...
-            'Unrecognized additional input(s): "%s" were provided to cut',...
+            'Unrecognised additional input(s): "%s" were provided to cut',...
             args);
     end
 else

@@ -12,8 +12,8 @@ function data_form = get_data_form_(obj,varargin)
 % where options can be any or all of
 % '-head','-const','-data','-pix_only','-nopix','-header'
 % where
-% -head is equivalend to -head on dnd object will return dnd object
-%  methadata
+% -head is equivalent to -head on dnd object will return dnd object
+%  metadata
 % -const will return only part of data,
 %
 %  Which returns some parts of the full data structure below.

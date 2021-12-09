@@ -1,11 +1,8 @@
 classdef aProjection
-    %  Abstract class, defining interface used by cut_sqw
-    %  when transforming pixels from original to the cut's coordinate
-    %  system
-    %
-    % Also defines generic operations on sqw object, which may be useful
-    % and can be used by any projection class.
-    %
+    %  Abstract class, defining interface and common properties used for 
+    %  transforming pixels from crystal Cartesian
+    %  to the coordinate system defined by sqw image (dnd-object)
+    %  and vice-versa.
     %
     properties(Dependent)
         % is special mex routines, written for performance reason and as such
@@ -81,7 +78,7 @@ classdef aProjection
         end
         %------------------------------------------------------------------
         function pix_target = convert_to_target_coord(obj,targ_proj,pix_origin,varargin)
-            % generic function to convert from current to target projeciton 
+            % generic function to convert from current to target projection 
             % coordinate system. Can be overloaded to optimize for number
             % of particular cases. (e.g. two orthogonal projections do
             % shift and rotation as the result)
@@ -92,7 +89,7 @@ classdef aProjection
             % targ_proj -- the projection which describes the target system
             %              coordinates, where the current coordinates
             %              should be transformed into
-            % pix_origin   4xNpix vecor of pixels coordinates expressed in 
+            % pix_origin   4xNpix vector of pixels coordinates expressed in 
             pic_cc = obj.transform_img_to_pix(pix_origin,varargin{:});
             pix_target  = targ_proj.transform_pix_to_img(pic_cc,varargin{:});
         end
@@ -178,7 +175,7 @@ classdef aProjection
             nbin = obj.nbin_gt1_;
         end
         %
-        % Temporary method, here unil projection is refactored
+        % Temporary method, here until projection is refactored
         % will belong to another projection or become a property
         % Ticket #34(https://github.com/pace-neutrons/Horace/issues/34)        
         function upix_to_rlu = get_data_pix_to_rlu(obj)

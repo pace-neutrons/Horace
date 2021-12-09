@@ -21,8 +21,8 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
             
-            proj1 = projection([1,0,0],[0,1,0]);
-            proj2 = projection([1,1,0],[1,-1,0]);            
+            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj2 = ortho_proj([1,1,0],[1,-1,0]);            
             
             bin = ab.get_default_binning_range(dbr,proj1,proj2);
             
@@ -38,8 +38,8 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
             
-            proj1 = projection([1,0,0],[0,1,0]);
-            proj2 = projection([1,1,0],[1,-1,0]);            
+            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj2 = ortho_proj([1,1,0],[1,-1,0]);            
             
             bin = ab.get_default_binning_range(dbr,proj1,proj2);
             
@@ -55,8 +55,8 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};            
             ab = axes_block(bin0{:});
             
-            proj1 = projection([1,0,0],[0,1,0]);
-            proj2 = projection([1,0,0],[0,0,1]);            
+            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj2 = ortho_proj([1,0,0],[0,0,1]);            
             
             bin = ab.get_default_binning_range(dbr,proj1,proj2);
             
@@ -77,7 +77,7 @@ classdef test_axes_block < TestCase
             assertEqual(ab.iax,[2,4]);
             assertEqual(ab.iint,[-2,0;2,10]);
             
-            proj1 = projection([1,0,0],[0,1,0]);
+            proj1 = ortho_proj([1,0,0],[0,1,0]);
             
             bin = ab.get_default_binning_range(dbr,proj1,proj1);
             

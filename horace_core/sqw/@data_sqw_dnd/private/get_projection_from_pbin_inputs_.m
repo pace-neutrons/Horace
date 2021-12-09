@@ -1,6 +1,6 @@
 function [ind_range,ind_en,proj]=get_projection_from_pbin_inputs_(nout,...
     ndim,uoffset,nonorthogonal,varargin)
-% Parce binning inputs and try to guess some u_to_rlu from them
+% Parse binning inputs and try to guess some u_to_rlu from them
 %
 % NOT WELL UNIT TESTED. Usage unknown -- very complicated. Leave for the time
 % being but remove after some efforts

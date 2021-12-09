@@ -30,7 +30,7 @@ classdef test_symm_equivalent_zones< TestCase
             mis.is_tested = true;
             clot = onCleanup(@()(setattr(mis,'is_deployed',false,'is_tested',false)));
 
-            proj = projection([1,1,0],[1,-1,0]);
+            proj = ortho_proj([1,1,0],[1,-1,0]);
             pos = [1,1,0];
             zone1=[1,-1,0];
             data_source = fullfile(this.testdir,'w3d_sqw.sqw');
@@ -95,7 +95,7 @@ classdef test_symm_equivalent_zones< TestCase
         function test_do_job(this)
             skipTest('does not currently work -- changes for the future');
             %
-            proj = projection([1,1,0],[1,-1,0]);
+            proj = ortho_proj([1,1,0],[1,-1,0]);
             pos = [1,1,0];
             zone1=[1,-1,0];
             data_source = fullfile(this.testdir,'w3d_sqw.sqw');

@@ -1,4 +1,4 @@
-classdef projection<aProjection
+classdef ortho_proj<aProjection
     %  Class defines coordinate projections necessary to make Horace cuts
     %  in crystal coordinate system (orthogonal or non-orthogonal)
     %
@@ -67,7 +67,7 @@ classdef projection<aProjection
     end
     
     methods
-        function proj=projection(varargin)
+        function proj=ortho_proj(varargin)
             proj = proj@aProjection();
             if nargin==0 % return defaults
                 proj.projaxes_ = [];
@@ -112,7 +112,7 @@ classdef projection<aProjection
         function this =set.type(this,val)
             if isempty(this.projaxes_)
                 error('HORACE:rundatah:invalid_argument',...
-                    'define projection plains first');
+                    'define ortho_proj plains first');
             else
                 this.projaxes_.type = val;
             end
@@ -127,7 +127,7 @@ classdef projection<aProjection
         end
         function obj = set.uoffset(obj,val)
             if isempty(obj.projaxes_)
-                error('HORACE:projection:invalid_argument',...
+                error('HORACE:ortho_proj:invalid_argument',...
                     'Can not set up uoffset when projaxes transformation is not defined');
             end
             obj.projaxes_.uoffset = val;

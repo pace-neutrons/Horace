@@ -131,7 +131,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             loaded_v0_obj = ld.obj;
             assertEqual(ref_obj,loaded_v0_obj);
             
-            % Here we are preparting to restore data_sqw_dnd stored as common
+            % Here we are preparing to restore data_sqw_dnd stored as common
             % object when it is split to projection and axes_block
             %ld = load('data_sqw_dnd_V1_ref_data.mat');
             %loaded_v1_obj = ld.test_loadobj_v0.ref_obj;
@@ -141,7 +141,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
         
         
         function test_get_proj_hkl_from_cut(obj)
-            proj = projection([1,1,0],[1,-1,0]);
+            proj = ortho_proj([1,1,0],[1,-1,0]);
             proj.type='rrr';
             % Be sure that cut is within the ranges of the real pixel range
             % and cuts some pixels from all sides for the cut limits to be
@@ -178,7 +178,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             
             
             
-            proj1 = projection([1,0,0],[0,0,1]);
+            proj1 = ortho_proj([1,0,0],[0,0,1]);
             proj.type='rrr';
             % Cut in the data within existing image ranges to make new
             % pixels range correspond to transformed pixels range
@@ -219,7 +219,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
         end
         
         function test_get_proj_hkl_3D_45deg(obj)
-            proj = projection([1,1,0],[1,-1,0]);
+            proj = ortho_proj([1,1,0],[1,-1,0]);
             ref_cut = cut_sqw(obj.ref_sqw,proj,[],[],[],[-8,8]);
             
             proj1 =  ref_cut.data.get_projection();
@@ -231,7 +231,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
         end
         
         function test_get_proj_hkl_3D(obj)
-            proj = projection([1,0,0],[0,0,1]);
+            proj = ortho_proj([1,0,0],[0,0,1]);
             ref_cut = cut_sqw(obj.ref_sqw,proj,[],[],[],[-8,8]);
             
             proj1 =  ref_cut.data.get_projection();

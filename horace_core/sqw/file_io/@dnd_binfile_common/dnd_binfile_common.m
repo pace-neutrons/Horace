@@ -427,7 +427,7 @@ classdef dnd_binfile_common < dnd_file_interface
             %
             % where the options:
             % '-head' returns metadata field only and
-            % '-const' returns partial methadata which do not change size on hdd
+            % '-const' returns partial metadata which do not change size on hdd
             % '-data'  returns format for data fields, namely signal, error
             %          and npix. This information may be used to identify
             %          the size, these fields occupy on hdd

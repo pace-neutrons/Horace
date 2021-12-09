@@ -78,7 +78,7 @@ proj.v = [0, 1, 1];
 proj.uoffset = [2, 0, 0];
 
 % Type is Q units for each axis and can be either 'r' for r.l.u. or 'a' 
-% for absolute (A^-1). E.g. 'rar' means u and w are normalissed to in r.l.u, v in A^-1.
+% for absolute (A^-1). E.g. 'rar' means u and w are normalised to in r.l.u, v in A^-1.
 proj.type = 'rrr';
 
 % Actually, it is better to make a projection object with this information

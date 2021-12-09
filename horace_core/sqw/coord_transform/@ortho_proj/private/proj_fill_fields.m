@@ -2,7 +2,7 @@ function [self, mess] = proj_fill_fields (self,proj_in)
 % Fill the fields of proj class from input and defaults for missing information
 %
 % Input:
-%   proj_in Data structure containing details of projection axes:
+%   proj_in Data structure containing details of ortho_proj axes:
 %           Defines two vectors u and v that give the direction of u1
 %           (parallel to u) and u2 (in the plane of u1 and u2, with u2
 %           having positive component along v); also defines the
@@ -19,11 +19,11 @@ function [self, mess] = proj_fill_fields (self,proj_in)
 %                   - if 'r': then if (h,k,l) in r.l.u., is normalised so max(abs(h,k,l))=1
 %                   - if 'p': then normalised so that if the orthogonal set created from u and v is u1, u2, u3:
 %                       |u1|=|u|, (u x u2)=(u x v), (u x u3)=(u x w)
-%                      i.e. the projections of u,v,w along u1,u2,u3 match the lengths of u1,u2,u3
+%                      i.e. the ortho_projs of u,v,w along u1,u2,u3 match the lengths of u1,u2,u3
 %                   Default:
 %                       'ppr'  if w not given
 %                       'ppp'  if w is given
-%               proj.uoffset    Row or column vector of offset of origin of projection axes (r.l.u.)
+%               proj.uoffset    Row or column vector of offset of origin of ortho_proj axes (r.l.u.)
 %               proj.lab        Short labels for u1,u2,u3,u4 as cell array (e.g. {'Q_h', 'Q_k', 'Q_l', 'En'})
 %                  *OR*
 %               proj.lab1       Short label for u1 axis (e.g. 'Q_h' or 'Q_{kk}')
@@ -38,21 +38,21 @@ function [self, mess] = proj_fill_fields (self,proj_in)
 %           Optional arguments:
 %              proj.w          [1x3] Vector of third axis (r.l.u.) (set to [] if not given in proj_in)
 %              proj.type       [1x3] Char. string defining normalisation:
-%              proj.uoffset    [4x1] column vector of offset of origin of projection axes (r.l.u. and en)
-%              proj.lab        [1x4] cell array of projection axis labels
+%              proj.uoffset    [4x1] column vector of offset of origin of ortho_proj axes (r.l.u. and en)
+%              proj.lab        [1x4] cell array of ortho_proj axis labels
 
 % T.G.Perring 24 July 2007
 
 
 mess = '';
 
-% Check definition of projection axes
+% Check definition of ortho_proj axes
 if (isfield(proj_in,'u') && isa_size(proj_in.u,[1,3],'double')) && (isfield(proj_in,'v') && isa_size(proj_in.v,[1,3],'double'))
     self.u = proj_in.u;
     self.v = proj_in.v;
 else
     self = [];
-    mess = 'Check that projection description contains fields u and v that are both three-vectors in r.l.u.';
+    mess = 'Check that ortho_proj description contains fields u and v that are both three-vectors in r.l.u.';
     return
 end
 
@@ -64,7 +64,7 @@ if isfield(proj_in,'w')
         self.w=[];  % will be recognised as meaning unassigned in code that uses proj structure
     else
         self = [];
-        mess = 'If given, the projection description field w must be a three-vector in r.l.u., (or empty)';
+        mess = 'If given, the ortho_proj description field w must be a three-vector in r.l.u., (or empty)';
         return
     end
 else
@@ -77,17 +77,17 @@ if isfield(proj_in,'type')
         self.type = lower(proj_in.type);
         if any(arrayfun(@(t)(~contains('arp', t)), proj_in.type))
             self = [];
-            mess = 'In projection description, normalisation type for each axis must be ''a'', ''r'' or ''p''';
+            mess = 'In ortho_proj description, normalisation type for each axis must be ''a'', ''r'' or ''p''';
             return
         end
         if isempty(self.w) && self.type(3)=='p'
             self= [];
-            mess = 'In projection description, must give third axis, w, if normalisation of third axis is ''p''';
+            mess = 'In ortho_proj description, must give third axis, w, if normalisation of third axis is ''p''';
             return
         end
     else
         self = [];
-        mess = 'Check that normalisation type in the projection description is a three character string';
+        mess = 'Check that normalisation type in the ortho_proj description is a three character string';
         return
     end
 else
@@ -106,7 +106,7 @@ if isfield(proj_in,'uoffset')
         self.uoffset(1:n)= proj_in.uoffset; % fill with values from input (energy offset will by default be zero)
     else
         self=[];
-        mess = 'Check that uoffset in the projection description has form (qh0,qk0,ql0) or (qh0,qk0,ql0,en0)';
+        mess = 'Check that uoffset in the ortho_proj description has form (qh0,qk0,ql0) or (qh0,qk0,ql0,en0)';
         return
     end
 else
@@ -120,14 +120,14 @@ if isfield(proj_in,'lab')
     % Can either give one or more of lab1, lab2,... as separate fields, or a single cell array with all four
     if isfield(proj_in,'lab1')||isfield(proj_in,'lab2')||isfield(proj_in,'lab3')||isfield(proj_in,'lab4')
         self=[];
-        mess = 'In projection description, either give one or more of lab1, lab2,... as separate fields, or a single cell array, lab, with all four labels';
+        mess = 'In ortho_proj description, either give one or more of lab1, lab2,... as separate fields, or a single cell array, lab, with all four labels';
         return
     end
     if iscellstr(proj_in.lab)
         self.lab=proj_in.lab(:)';   % ensure row cell array
     else
         self=[];
-        mess = 'In projection description, axes labels must all be character strings';
+        mess = 'In ortho_proj description, axes labels must all be character strings';
         return
     end
 
@@ -137,7 +137,7 @@ else
             self.lab{1}=proj_in.lab1;
         else
             self = [];
-            mess = 'In projection description, check that label for axis 1 is a character string';
+            mess = 'In ortho_proj description, check that label for axis 1 is a character string';
             return
         end
     end
@@ -147,7 +147,7 @@ else
             self.lab{2}=proj_in.lab2;
         else
             self = [];
-            mess = 'In projection description, check that label for axis 2 is a character string';
+            mess = 'In ortho_proj description, check that label for axis 2 is a character string';
             return
         end
     end
@@ -157,7 +157,7 @@ else
             self.lab{3}=proj_in.lab3;
         else
             self = [];
-            mess = 'In projection description, check that label for axis 3 is a character string';
+            mess = 'In ortho_proj description, check that label for axis 3 is a character string';
             return
         end
     end
@@ -167,7 +167,7 @@ else
             self.lab{4}=proj_in.lab4;
         else
             self = [];
-            mess = 'In projection description, check that label for axis 4 is a character string';
+            mess = 'In ortho_proj description, check that label for axis 4 is a character string';
             return
         end
     end

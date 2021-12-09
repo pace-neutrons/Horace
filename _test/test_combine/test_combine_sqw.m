@@ -17,7 +17,7 @@ classdef test_combine_sqw < TestCase
         working_dir
         % test parameters file, used in fake_sqw calculations
         par_file
-        % sample sqw object, used as source for tests with non-orhtogonal
+        % sample sqw object, used as source for tests with non-orthogonal
         % coordinate system
         sqw_sample_gen
         %
@@ -75,7 +75,7 @@ classdef test_combine_sqw < TestCase
             %  img_db_range generated with non-orthogonal lattice is equal
             %  to pix_range, when in fact it should be diffetent
             % (see cut_source_range below).
-            proj = projection(projaxes([1,0,0],[0,1,0]));
+            proj = ortho_proj(projaxes([1,0,0],[0,1,0]));
             proj.alatt = obj.sqw_sample_gen.data.alatt;
             proj.angdeg = obj.sqw_sample_gen.data.angdeg;
             pr = obj.sqw_sample_gen.data.pix.pix_range;

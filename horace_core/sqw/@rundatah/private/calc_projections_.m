@@ -11,7 +11,7 @@ function [u_to_rlu, pix_range, pix] = calc_projections_(obj, detdcn,qspec,proj_m
 %   qspec       4xn_detectors array of qx,qy,qz,eps
 %   detdcn      Direction of detector in spectrometer coordinates ([3 x ndet] array)
 %                   [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
-%               This should be precalculated from the contents of det
+%               This should be pre-calculated from the contents of det
 %   proj_mode   The format of the pix output, the routine returns,
 %               when proj_mode is as follows:
 %     0         pix arry will be empty array
@@ -64,7 +64,7 @@ if proj_mode<0 || proj_mode >2
 end
 
 
-% Create matrix to convert from spectrometer axes to coordinates along crystal cartesizn projection axes
+% Create matrix to convert from spectrometer axes to coordinates along crystal Cartesian projection axes
 [spec_to_cc, u_to_rlu] = obj.lattice.calc_proj_matrix();
 
 % Calculate Q in spectrometer coordinates for each pixel

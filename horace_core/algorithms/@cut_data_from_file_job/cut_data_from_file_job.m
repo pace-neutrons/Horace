@@ -150,7 +150,7 @@ classdef cut_data_from_file_job < JobExecutor
             %   v               A PixelData object, containing input pixels
             %                   information
             %   proj            the projection class, used to transform pixels info in
-            %                   crystal cartezian coordinate sytem 
+            %                   crystal Cartesian coordinate system
             %                   (as v is into the coordinate system
             %                   of the cut
             %   pax             Indices of plot axes (with two or more bins) 

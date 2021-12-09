@@ -37,7 +37,7 @@ targ_range = cur_proj.convert_to_target_coord(new_proj,full_range);
 
 % transformed 4D-range
 range = [min(targ_range,[],2)';max(targ_range,[],2)'];
-% extract binning descriptors, necessary for building approprtiate axes
+% extract binning descriptors, necessary for building appropriate axes
 % block, transferring the binning
 bin_range = arrayfun(@build_binning,range(1,:)',range(2,:)',nsteps,'UniformOutput',false);
 
