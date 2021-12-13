@@ -1,5 +1,5 @@
 classdef aProjection
-    %  Abstract class, defining interface and common properties used for 
+    %  Abstract class, defining interface and common properties used for
     %  transforming pixels from crystal Cartesian
     %  to the coordinate system defined by sqw image (dnd-object)
     %  and vice-versa.
@@ -76,20 +76,47 @@ classdef aProjection
             % generic projection can not run mex code
             can_mex_cut  = can_mex_cut_(self);
         end
+        function [nstart,nend] = get_nrange_a(obj,npix,my_axes_block,targ_proj,targ_axes_block)
+            % return the bin numbers (from/to) which pixels may contribute
+            % to the final cut
+            %
+            % Generic (less efficient) implementation
+            char_cube = my_axes_block.get_axes_scales();
+            char_cube = obj.convert_to_target_coord(targ_proj,char_cube);
+            
+            % get all nodes belonging to target axes block
+            bin_nodes = targ_axes_block.get_bin_nodes(char_cube);
+            % convert these notes to the coordinate system, described by
+            % this projection
+            nodes_here = targ_proj.convert_to_target_coord(obj,bin_nodes);
+            nbin_in_bin = my_axes_block.bin_pixels(nodes_here);
+            %
+            % identify cell numbers containing pixels
+            cell_num = 1:numel(nbin_in_bin);
+            ncell_contrib = cell_num(nbin_in_bin>0);
+            % compress indexes of сontributing cells into nstart:nend form
+            % good for filebased but bad for arrays
+            adjacent= ncell_contrib(1:end-1)+1==ncell_contrib(2:end);
+            adjacent = [false,adjacent];
+            adj_end  = [adjacent(2:end)<adjacent(1:end-1),true];
+            bin_start = [0,cumsum(npix)]+1;
+            nstart  = ncell_contrib(~adjacent);
+            nend    = ncell_contrib(~adj_end);
+        end
         %------------------------------------------------------------------
         function pix_target = convert_to_target_coord(obj,targ_proj,pix_origin,varargin)
-            % generic function to convert from current to target projection 
+            % generic function to convert from current to target projection
             % coordinate system. Can be overloaded to optimize for number
             % of particular cases. (e.g. two orthogonal projections do
             % shift and rotation as the result)
             % Inputs:
-            % obj       -- current projection, describing the system of 
+            % obj       -- current projection, describing the system of
             %              coordinates where the input pixels vector is
             %              expressed in
             % targ_proj -- the projection which describes the target system
             %              coordinates, where the current coordinates
             %              should be transformed into
-            % pix_origin   4xNpix vector of pixels coordinates expressed in 
+            % pix_origin   4xNpix vector of pixels coordinates expressed in
             pic_cc = obj.transform_img_to_pix(pix_origin,varargin{:});
             pix_target  = targ_proj.transform_pix_to_img(pic_cc,varargin{:});
         end
@@ -177,7 +204,7 @@ classdef aProjection
         %
         % Temporary method, here until projection is refactored
         % will belong to another projection or become a property
-        % Ticket #34(https://github.com/pace-neutrons/Horace/issues/34)        
+        % Ticket #34(https://github.com/pace-neutrons/Horace/issues/34)
         function upix_to_rlu = get_data_pix_to_rlu(obj)
             upix_to_rlu = obj.data_upix_to_rlu_;
         end

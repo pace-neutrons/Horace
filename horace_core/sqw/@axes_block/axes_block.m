@@ -38,7 +38,7 @@ classdef axes_block < serializable
     end
     properties(Constant,Access=private)
         % fields which fully represent the state of the class and allow to
-        % recover it through public interface
+        % recover it state by setting properties through public interface
         fields_to_save_ = {'title','filename','filepath',...
             'ulen','ulabel','iax','iint','pax',...
             'p','dax','nonorthogonal'};
@@ -47,7 +47,7 @@ classdef axes_block < serializable
     methods (Static)
         % build new axes_block object from the binning parameters, provided
         % as input. If some input binning parameters are missing, the
-        % defauls are taken from the given image range which should be
+        % defaults are taken from the given image range which should be
         % properly prepared
         [obj,targ_img_db_range] = build_from_input_binning(cur_img_range_and_steps,pbin);
         % Create bin boundaries for integration and plot axes from requested limits and step sizes
@@ -70,7 +70,7 @@ classdef axes_block < serializable
             %                  build the grid used as keys to get the pixels,
             %                  contributed into the image
             %
-            % Should not be used directly, only for compartibility with old
+            % Should not be used directly, only for compatibility with old
             % data formats. New sqw object should maintain correct
             % img_db_range during all operations
             %
@@ -130,33 +130,57 @@ classdef axes_block < serializable
     
     
     methods
-        function flds = indepFields(~)
-            % get independent fields, which fully define the state of a
-            % serializable object.
-            flds = axes_block.fields_to_save_;
+        function obj = axes_block(varargin)
+            % constructor
+            %
+            %>>obj = axes_block() % return empty axis block
+            %>>obj = axes_block(ndim) % return unit block with ndim
+            %                           dimensions
+            %>>obj = axes_block(p1,p2,p3,p4) % build axis block from axis
+            %                                  arrays
+            %>>obj = axes_block(pbin1,pbin2,pbin3,pbin4) % build axis block
+            %                                       from binning parameters
+            %
+            if nargin==0
+                return;
+            end
+            obj = obj.init(varargin{:});
         end
-        function ver  = classVersion(~)
-            % define version of the class to store in mat-files
-            % and nxsqw data format. Each new version would presumably read
-            % the older version, so version substitution is based on this
-            % number
-            ver = 1;
-        end
+        %        
         % Find number of dimensions and extent along each dimension of
         % the signal arrays.
         [nd,sz] = data_dims(data);
         % return 3 q-axis in the order they mark the dnd object
-        % regardless of the integration along some qxis
+        % regardless of the integration along some axis
         % TODO: probably should be removed
         [q1,q2,q3] = get_q_axes(obj);
         % return binning range of existing data object, so that cut without
-        % parameters, performed within this range would return the same cut
+        % projection, performed within this range would return the same cut
         % as the original object
         range = get_cut_range(obj);
         %
         % find the coordinates along each of the axes of the smallest cuboid
         % that contains bins with non-zero values of contributing pixels.
         [val, n] = data_bin_limits (din);
+        %
+        % Return 4D cube, describing the minimal grid cell of the axes block
+        [cube_coord,step] = get_axes_scales(obj);
+        
+        function [nodes,varargout] = get_bin_nodes(obj,varargin)
+            % returns [4,nBins] or [3,nBins] array of points, where each point
+            % coordinate is a node of the grid, formed by axes_block axes.
+            % 
+            % Inputs: 
+            % varargin{1} -- if present, contains 4D cube, describing the 
+            %                characteristic scale of the grid, the generated
+            %                grid should fit to.
+            if nargout == 2
+                [nodes,en_axis] = calc_bin_nodes_(obj,varargin{:});
+                varargout{1} = en_axis;
+            else
+                nodes = calc_bin_nodes_(obj,varargin{:},'4D');
+            end
+        end
         %
         function range = get_default_binning_range(obj,img_db_range,...
                 cur_proj,new_proj)
@@ -184,22 +208,6 @@ classdef axes_block < serializable
         end
         
         %
-        function obj = axes_block(varargin)
-            % constructor
-            %
-            %>>obj = axes_block() % return empty axis block
-            %>>obj = axes_block(ndim) % return unit block with ndim
-            %                           dimensions
-            %>>obj = axes_block(p1,p2,p3,p4) % build axis block from axis
-            %                                  arrays
-            %>>obj = axes_block(pbin1,pbin2,pbin3,pbin4) % build axis block
-            %                                       from binning parameters
-            %
-            if nargin==0
-                return;
-            end
-            obj = obj.init(varargin{:});
-        end
         function [obj,uoffset,remains] = init(obj,varargin)
             % initialize object with axis parameters.
             %
@@ -213,5 +221,17 @@ classdef axes_block < serializable
             %
             [obj,uoffset,remains] = init_(obj,varargin{:});
         end
+        function flds = indepFields(~)
+            % get independent fields, which fully define the state of a
+            % serializable object.
+            flds = axes_block.fields_to_save_;
+        end
+        function ver  = classVersion(~)
+            % define version of the class to store in mat-files
+            % and nxsqw data format. Each new version would presumably read
+            % the older version, so version substitution is based on this
+            % number
+            ver = 1;
+        end        
     end
 end

@@ -3,7 +3,7 @@ classdef test_sqw_save_xye < TestCase
     
     properties
         out_dir = tmp_dir();
-        root_dir = fileparts(mfilename('fullpath'));
+        det_dir = fileparts(fileparts(mfilename('fullpath')));
         sample_files
     end
     
@@ -16,7 +16,7 @@ classdef test_sqw_save_xye < TestCase
                 name = 'test_sqw_save_xye';
             end
             obj = obj@TestCase(name);
-            det_file = fullfile(obj.root_dir,'96dets.par');
+            det_file = fullfile(obj.det_dir,'common_data','96dets.par');
             params = {1:10,det_file,'',11,1,[2.8,2.8,2.8],[90,90,90],...
                 [1,0,0],[0,1,0],10, 0, 0, 0, 0};
             sqw_4d_samp = fake_sqw(params{:},[5,5,5,5]);
