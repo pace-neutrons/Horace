@@ -26,7 +26,18 @@ classdef test_projection_class<TestCase
             this.fake_sqw_par{1} = en;
             this.fake_sqw_par{2} = this.par_file;
         end
-        function test_constructor(this)
+        function test_binning_range_the_same(~)
+            proj1 = ortho_proj([1,0,0],[0,1,0]);            
+            dbr = [-1,-2,-3,0;1,2,3,10];
+            bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
+            ab0 = axes_block(bin0{:});
+            
+            
+            
+            
+        end
+        function test_constructor(~)
             proj = ortho_proj();
             assertEqual(proj.u,'dnd-X-aligned')
             assertEqual(proj.v,'dnd-Y-aligned')

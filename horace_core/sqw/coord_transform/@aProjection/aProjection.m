@@ -76,22 +76,28 @@ classdef aProjection
             % generic projection can not run mex code
             can_mex_cut  = can_mex_cut_(self);
         end
-        function [nstart,nend] = get_nrange_a(obj,npix,my_axes_block,targ_proj,targ_axes_block)
+        function [nstart,nend] = get_nrange_a(obj,npix,my_axes_block,new_proj,targ_axes_block)
             % return the bin numbers (from/to) which pixels may contribute
             % to the final cut
             %
             % Generic (less efficient) implementation
-            char_cube = my_axes_block.get_axes_scales();
-            char_cube = obj.convert_to_target_coord(targ_proj,char_cube);
             
-            % get all nodes belonging to target axes block
+            % Get the cube, which describes the binning of the current lattice
+            char_cube = my_axes_block.get_axes_scales();
+            % and convert it into the target lattice
+            char_cube = obj.convert_to_target_coord(new_proj,char_cube);
+            
+            % get all nodes belonging to target axes block, doing the
+            % binning with the bin size, slightly smaller then the current
+            % lattice size
             bin_nodes = targ_axes_block.get_bin_nodes(char_cube);
             % convert these notes to the coordinate system, described by
-            % this projection
-            nodes_here = targ_proj.convert_to_target_coord(obj,bin_nodes);
+            % the existing projection
+            nodes_here = new_proj.convert_to_target_coord(obj,bin_nodes);
+            % bin target nodes on the current lattice
             nbin_in_bin = my_axes_block.bin_pixels(nodes_here);
             %
-            % identify cell numbers containing pixels
+            % identify cell numbers containing nodes
             cell_num = 1:numel(nbin_in_bin);
             ncell_contrib = cell_num(nbin_in_bin>0);
             % compress indexes of сontributing cells into nstart:nend form
@@ -100,8 +106,8 @@ classdef aProjection
             adjacent = [false,adjacent];
             adj_end  = [adjacent(2:end)<adjacent(1:end-1),true];
             bin_start = [0,cumsum(npix)]+1;
-            nstart  = ncell_contrib(~adjacent);
-            nend    = ncell_contrib(~adj_end);
+            nstart  = bin_start(ncell_contrib(~adjacent));
+            nend    = bin_start(ncell_contrib(~adj_end));
         end
         %------------------------------------------------------------------
         function pix_target = convert_to_target_coord(obj,targ_proj,pix_origin,varargin)
@@ -351,7 +357,7 @@ classdef aProjection
         end
     end
     %----------------------------------------------------------------------
-    %  ABSTRACT INTERFACE -- use
+    %  ABSTRACT INTERFACE
     %----------------------------------------------------------------------
     methods(Abstract)
         % find the whole range of input data which may contribute

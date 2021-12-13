@@ -128,7 +128,6 @@ classdef axes_block < serializable
         end
     end
     
-    
     methods
         function obj = axes_block(varargin)
             % constructor
@@ -146,7 +145,7 @@ classdef axes_block < serializable
             end
             obj = obj.init(varargin{:});
         end
-        %        
+        %
         % Find number of dimensions and extent along each dimension of
         % the signal arrays.
         [nd,sz] = data_dims(data);
@@ -154,6 +153,7 @@ classdef axes_block < serializable
         % regardless of the integration along some axis
         % TODO: probably should be removed
         [q1,q2,q3] = get_q_axes(obj);
+        %
         % return binning range of existing data object, so that cut without
         % projection, performed within this range would return the same cut
         % as the original object
@@ -163,17 +163,37 @@ classdef axes_block < serializable
         % that contains bins with non-zero values of contributing pixels.
         [val, n] = data_bin_limits (din);
         %
-        % Return 4D cube, describing the minimal grid cell of the axes block
-        [cube_coord,step] = get_axes_scales(obj);
+
+        function [cube_coord,step] = get_axes_scales(obj)
+            % Return 4D cube, describing the minimal grid cell of the axes block            
+            [cube_coord,step] = get_axes_scales_(obj);
+        end
+        function range = get_binning_range(obj)
+            % return binning range, defined by current projection and
+            % integration axes ranges
+            %
+            % Returns:
+            % range  -- 2x4 array of min/max values of the axes grid,
+            %           described by the axes_block and used for the
+            %           pixels binning.
+            range = get_binning_range_(obj);
+        end
+        
+        function [nbin,s,e,pix] = bin_pixels(obj,pix_data,varargin)
+            % bin and distribute data expressed in the coordinate system
+            % described by this axes block over the current lattice
+            [nbin,s,e,pix] = bin_pixels_(obj,pix_data,varargin);
+        end
         
         function [nodes,varargout] = get_bin_nodes(obj,varargin)
             % returns [4,nBins] or [3,nBins] array of points, where each point
             % coordinate is a node of the grid, formed by axes_block axes.
-            % 
-            % Inputs: 
-            % varargin{1} -- if present, contains 4D cube, describing the 
-            %                characteristic scale of the grid, the generated
-            %                grid should fit to.
+            %
+            % Inputs:
+            % varargin{1} -- if present, contains the nodes of 4D cube, or
+            %                this cube min/max nodes coordinates, describing
+            %                the  characteristic scale of the grid,
+            %                the generated grid should fit to.
             if nargout == 2
                 [nodes,en_axis] = calc_bin_nodes_(obj,varargin{:});
                 varargout{1} = en_axis;
@@ -185,7 +205,7 @@ classdef axes_block < serializable
         function range = get_default_binning_range(obj,img_db_range,...
                 cur_proj,new_proj)
             % get the default binning range to use in cut, defined by new
-            % projection
+            % projection, and extrapolated from existing binning range
             %
             % If new projection is not aligned with the old projection, the new
             % projection binning is copied from old projection binning according to
@@ -232,6 +252,6 @@ classdef axes_block < serializable
             % the older version, so version substitution is based on this
             % number
             ver = 1;
-        end        
+        end
     end
 end

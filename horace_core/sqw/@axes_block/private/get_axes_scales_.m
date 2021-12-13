@@ -1,4 +1,4 @@
-function  [cube_coord,step,data_range] = get_axes_scales(obj,return_data_range)
+function  [cube_coord,step] = get_axes_scales_(obj)
 % Return 4D cube, describing the grid cell of the axes block
 
 step = zeros(4,1);
@@ -16,12 +16,3 @@ step(obj.pax) = pax_bin_width;
 r0(obj.pax) = pax_r0;
 r1 = r0+step;
 cube_coord = expand_box(r0,r1);
-if return_data_range
-    r_end   = zeros(4,1);
-    pax_r1  = cellfun(@(x,bw)(x(end)-0.5*bw),p,pax_bin_width);
-    r_end(obj.pax) = pax_r1;
-    r_end(obj.iax) = obj.iint(2,:)';
-    data_range = [r0,r_end]';
-else
-    data_range = [];
-end

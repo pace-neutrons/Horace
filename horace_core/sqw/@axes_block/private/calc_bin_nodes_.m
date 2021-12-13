@@ -4,7 +4,7 @@ function [nodes,en_axis] = calc_bin_nodes_(obj,varargin)
 % Inputs:
 % obj       -- initialized axes_block instance
 % char_cube -- if present, the cube, describing the scale of the grid,
-%              to construct the lattice on
+%              to construct the lattice on.
 % use4D     -- the character variable, indicating if to return 4D or 3D
 %              points The value of the vaiable is ignored. The routine returns
 %              3D or 4D representation of the vector depending on the presence
@@ -19,11 +19,27 @@ function [nodes,en_axis] = calc_bin_nodes_(obj,varargin)
 axes = cell(4,1);
 if isempty(char_size)
     axes(obj.pax) = obj.p(:);
+    for i=1:numel(obj.pax)
+        ax = axes{obj.pax(i)};
+        axes{obj.pax(i)} = 0.5*(ax(1:end-1)+ax(2:end));
+    end
+    
     iint_ax = num2cell(obj.iint,1);
     axes(obj.iax) = iint_ax(:);
 else
-    
-    
+    range = obj.get_binning_range();
+    size = range(2,:)'-range(1,:)';
+    dNR = floor(size./(0.98*char_size));
+    zer = dNR ==0;
+    dNR(zer) = 1;
+    steps = size./dNR;
+    for i=1:4
+        if zer(i)
+            axes{i} = [range(1,i),range(2,i)];
+        else
+            axes{i} = range(1,i):steps(i):range(2,i);
+        end
+    end
 end
 
 if use4D
@@ -54,8 +70,8 @@ if ninputs > 1
         if ninputs == 3
             use4D = true;
         end
-        r0 = min(cube,[],2)';
-        r1 = max(cube,[],2)';
+        r0 = min(cube,[],2);
+        r1 = max(cube,[],2);
         char_size = r1-r0;
     else
         use4D = true;
