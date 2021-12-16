@@ -26,17 +26,106 @@ classdef test_projection_class<TestCase
             this.fake_sqw_par{1} = en;
             this.fake_sqw_par{2} = this.par_file;
         end
-        function test_binning_range_the_same(~)
-            proj1 = ortho_proj([1,0,0],[0,1,0]);            
+        function test_binning_range_half_sampe_proj2Drot45(~)
+            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            dbr = [0,0,0,0;1,2,3,10];
+            bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
+            ab0 = axes_block(bin0{:});
+            [~,sz] = ab0.data_dims();
+            npix = ones(sz);
+            bin1 = {[0.5,0.1,dbr(2,1)];[0,0.2,dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
+            ab1 = axes_block(bin1{:});
+            proj2 = ortho_proj([1,1,0],[1,-1,0]);
+            
+            
+            [bl_start,bl_size] = proj1.get_nrange(npix,ab0,proj2,ab1);
+            assertEqual(numel(bl_start),numel(bl_size));
+            
+            assertEqual(numel(bl_start),6);
+            assertEqual(bl_start,[10,19,28,40,53,66]);
+            assertEqual(bl_size,[2,4,6,5,3,1]);
+        end
+        
+        %
+        function test_binning_range_half_sampe_proj2Drot90(~)
+            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            dbr = [0,0,0,0;1,2,3,10];
+            bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
+            ab0 = axes_block(bin0{:});
+            [~,sz] = ab0.data_dims();
+            npix = ones(sz);
+            bin1 = {[0.5,0.1,dbr(2,1)];[0,0.2,dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
+            ab1 = axes_block(bin1{:});
+            proj2 = ortho_proj([0,1,0],[1,0,0]);
+            
+            
+            [bl_start,bl_size] = proj1.get_nrange(npix,ab0,proj2,ab1);
+            assertEqual(numel(bl_start),numel(bl_size));
+            
+            [nd,sz1] = ab1.data_dims();
+            assertEqual(nd,2)
+            assertEqual(numel(bl_start),1);
+            assertEqual(bl_start,2*sz1(2)+1);
+            assertEqual(bl_size,4*sz1(2));
+        end
+        
+        
+        function test_binning_range_half_sampe_proj2D(~)
+            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            dbr = [0,0,0,0;1,2,3,10];
+            bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
+            ab0 = axes_block(bin0{:});
+            [~,sz] = ab0.data_dims();
+            npix = ones(sz);
+            bin1 = {[0.5,0.1,dbr(2,1)];[0,0.2,dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
+            ab1 = axes_block(bin1{:});
+            
+            
+            [bl_start,bl_size] = proj1.get_nrange(npix,ab0,proj1,ab1);
+            assertEqual(numel(bl_start),numel(bl_size));
+            
+            [nd,sz1] = ab1.data_dims();
+            assertEqual(nd,2)
+            assertEqual(bl_start(1),6);
+            assertEqual(numel(bl_start),sz1(2));
+            assertEqual(bl_size,ones(1,sz1(2))*6);
+        end
+        
+        function test_binning_range_the_same_1D(~)
+            proj1 = ortho_proj([1,0,0],[0,1,0]);
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
-                [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab0 = axes_block(bin0{:});
+            [~,sz] = ab0.data_dims();
+            npix = ones(sz,1);
             
-            
-            
-            
+            [bl_start,bl_end] = proj1.get_nrange(npix,ab0,proj1,ab0);
+            assertEqual(bl_start,1);
+            assertEqual(bl_end,numel(npix));
         end
+        
+        
+        function test_binning_range_the_same_4D(~)
+            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            dbr = [-1,-2,-3,0;1,2,3,10];
+            bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
+                [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
+            ab0 = axes_block(bin0{:});
+            [~,sz] = ab0.data_dims();
+            npix = ones(sz);
+            
+            [nstart,nend] = proj1.get_nrange(npix,ab0,proj1,ab0);
+            assertEqual(nstart,1);
+            assertEqual(nend,numel(npix));
+        end
+        %
         function test_constructor(~)
             proj = ortho_proj();
             assertEqual(proj.u,'dnd-X-aligned')
@@ -77,13 +166,14 @@ classdef test_projection_class<TestCase
             data.p={1:10;1:20;1:30;1:40};
             
             
-            proj=proj.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
+            proj1=proj.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
+            assertEqual(proj,proj1)
         end
-        function test_set_can_mex_keep(this)
+        function test_set_can_mex_keep(~)
             proj = ortho_proj();
             assertTrue(proj.can_mex_cut);
         end
-        function test_cut(this)
+        function test_cut_dnd(this)
             hc = hor_config();
             cur_mex = hc.use_mex;
             hc.use_mex = 0;

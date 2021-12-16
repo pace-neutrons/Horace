@@ -30,6 +30,11 @@ classdef aProjection
         %number of bins in the target projection
         target_nbin
     end
+    properties
+        % the target projection, used by cut to transform from 
+        % source to target coordinate system
+        targ_proj
+    end
     %----------------------------------------------------------------------
     properties(Access=protected)
         alatt_=[1,1,1];
@@ -76,55 +81,66 @@ classdef aProjection
             % generic projection can not run mex code
             can_mex_cut  = can_mex_cut_(self);
         end
-        function [nstart,nend] = get_nrange_a(obj,npix,my_axes_block,new_proj,targ_axes_block)
+        function [npix,s,e,pix_data] = bin_pixels(obj,axes_block,pix_data)
+             pix_transformed = obj.transform_pix_to_img(pix_data);            
+            [npix,s,e,pix_data]=axes_block.bin_pixels(pix_transformed);
+        end
+        function [bl_start,bl_size] = get_nrange(obj,npix,cur_axes_block,targ_proj,targ_axes_block)
             % return the bin numbers (from/to) which pixels may contribute
             % to the final cut
             %
             % Generic (less efficient) implementation
             
-            % Get the cube, which describes the binning of the current lattice
-            char_cube = my_axes_block.get_axes_scales();
+            targ_proj.targ_proj = obj;
+            obj.targ_proj = targ_proj;
+            % Get the hypercube, which describes the one step of binning
+            % of the current coordinate axes grid
+            ch_cube = cur_axes_block.get_axes_scales();
             % and convert it into the target lattice
-            char_cube = obj.convert_to_target_coord(new_proj,char_cube);
+            trans_chcube = obj.from_cur_to_targ_coord(ch_cube);
             
             % get all nodes belonging to target axes block, doing the
             % binning with the bin size, slightly smaller then the current
             % lattice size
-            bin_nodes = targ_axes_block.get_bin_nodes(char_cube);
+            bin_nodes = targ_axes_block.get_bin_nodes(trans_chcube);
             % convert these notes to the coordinate system, described by
             % the existing projection
-            nodes_here = new_proj.convert_to_target_coord(obj,bin_nodes);
+            nodes_here = targ_proj.from_cur_to_targ_coord(bin_nodes);
             % bin target nodes on the current lattice
-            nbin_in_bin = my_axes_block.bin_pixels(nodes_here);
+            nbin_in_bin = cur_axes_block.bin_pixels(nodes_here);
             %
             % identify cell numbers containing nodes
             cell_num = 1:numel(nbin_in_bin);
             ncell_contrib = cell_num(nbin_in_bin>0);
-            % compress indexes of сontributing cells into nstart:nend form
+            % compress indexes of сontributing cells into bl_start:bl_start+bl_size-1 form
             % good for filebased but bad for arrays
             adjacent= ncell_contrib(1:end-1)+1==ncell_contrib(2:end);
             adjacent = [false,adjacent];
-            adj_end  = [adjacent(2:end)<adjacent(1:end-1),true];
-            bin_start = [0,cumsum(npix)]+1;
-            nstart  = bin_start(ncell_contrib(~adjacent));
-            nend    = bin_start(ncell_contrib(~adj_end));
+            adj_end  = [ncell_contrib(1:end-1)+1<ncell_contrib(2:end),true];
+            bin_start = [0,cumsum(reshape(npix,1,numel(npix)))]+1;
+            bl_start  = bin_start(ncell_contrib(~adjacent));
+            bl_size   = bin_start(ncell_contrib(adj_end))-bl_start+1;
         end
         %------------------------------------------------------------------
-        function pix_target = convert_to_target_coord(obj,targ_proj,pix_origin,varargin)
+        function pix_target = from_cur_to_targ_coord(obj,pix_origin,varargin)
             % generic function to convert from current to target projection
-            % coordinate system. Can be overloaded to optimize for number
-            % of particular cases. (e.g. two orthogonal projections do
+            % coordinate system. Can be overloaded to optimize for 
+            % a particular case. (e.g. two orthogonal projections do
             % shift and rotation as the result)
             % Inputs:
             % obj       -- current projection, describing the system of
             %              coordinates where the input pixels vector is
-            %              expressed in
-            % targ_proj -- the projection which describes the target system
-            %              coordinates, where the current coordinates
-            %              should be transformed into
+            %              expressed in. The target projection has to be
+            %              set up 
+            %
             % pix_origin   4xNpix vector of pixels coordinates expressed in
+            targproj = obj.targ_proj;
+            if isempty(targproj)
+                error('HORACE:aProjection:runtime_error',...
+                    'Target projection property has to be set up to convert to target coordinate system')
+            end
             pic_cc = obj.transform_img_to_pix(pix_origin,varargin{:});
-            pix_target  = targ_proj.transform_pix_to_img(pic_cc,varargin{:});
+            pix_target  = targproj.transform_pix_to_img(pic_cc,varargin{:});
         end
         
         %------------------------------------------------------------------
@@ -280,39 +296,39 @@ classdef aProjection
             [irange,inside,outside] = get_irange_(urange,varargin{:});
         end
         %
-        function [nstart,nend] = get_nrange(nelmts,irange)
-            % Get contiguous ranges of an array for a section of the binning array
-            %
-            % Given an array containing number of points in bins, and a section of
-            % that array, return column vectors of the start and end indicies of
-            % ranges of contiguous points in the column representation of the points.
-            % Works for any dimensionality 1,2,...
-            %
-            %   >> [nstart,nend] = get_nrange(nelmts,irange)
-            %
-            % Input:
-            % ------
-            %   nelmts      Array of number of points in n-dimensional array of bins
-            %              e.g. 3x5x7 array such that nelmts(i,j,k) gives no. points in
-            %              the (i,j,k)th bin. If the number of dimensions defined by irange,
-            %              ndim=size(irange,2), is greater than the number of dimensions
-            %              defined by nelmts, n=numel(size(nelmts)), then the excess
-            %              dimensions required of nelmts are all assumed to be singleton
-            %              following the usual matlab convention.
-            %   irange      Ranges of section [irange_lo;irange_hi]
-            %              e.g. [1,2,6;3,4,7] means bins 1:3, 2:4, 6:7 along the three
-            %              axes. Assumes irange_lo<=irange_hi.
-            % Output:
-            % -------
-            %   nstart      Column vector of starting values of contiguous blocks in
-            %              the array of values with the number of elements in a bin
-            %              given by nelmts(:).
-            %   nend        Column vector of finishing values.
-            %
-            %               nstart and nend have column length zero if there are no
-            %              elements i.e. have the value zeros(0,1).
-            [nstart,nend] = get_nrange_(nelmts,irange);
-        end
+%         function [nstart,nend] = get_nrange(nelmts,irange)
+%             % Get contiguous ranges of an array for a section of the binning array
+%             %
+%             % Given an array containing number of points in bins, and a section of
+%             % that array, return column vectors of the start and end indicies of
+%             % ranges of contiguous points in the column representation of the points.
+%             % Works for any dimensionality 1,2,...
+%             %
+%             %   >> [nstart,nend] = get_nrange(nelmts,irange)
+%             %
+%             % Input:
+%             % ------
+%             %   nelmts      Array of number of points in n-dimensional array of bins
+%             %              e.g. 3x5x7 array such that nelmts(i,j,k) gives no. points in
+%             %              the (i,j,k)th bin. If the number of dimensions defined by irange,
+%             %              ndim=size(irange,2), is greater than the number of dimensions
+%             %              defined by nelmts, n=numel(size(nelmts)), then the excess
+%             %              dimensions required of nelmts are all assumed to be singleton
+%             %              following the usual matlab convention.
+%             %   irange      Ranges of section [irange_lo;irange_hi]
+%             %              e.g. [1,2,6;3,4,7] means bins 1:3, 2:4, 6:7 along the three
+%             %              axes. Assumes irange_lo<=irange_hi.
+%             % Output:
+%             % -------
+%             %   nstart      Column vector of starting values of contiguous blocks in
+%             %              the array of values with the number of elements in a bin
+%             %              given by nelmts(:).
+%             %   nend        Column vector of finishing values.
+%             %
+%             %               nstart and nend have column length zero if there are no
+%             %              elements i.e. have the value zeros(0,1).
+%             [nstart,nend] = get_nrange_(nelmts,irange);
+%         end
         %
         function [nstart,nend] = get_nrange_4D(nelmts,istart,iend,irange)
             % Get contiguous ranges of an array for a section of the binning array

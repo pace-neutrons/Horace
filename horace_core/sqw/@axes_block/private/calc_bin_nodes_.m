@@ -29,12 +29,10 @@ if isempty(char_size)
 else
     range = obj.get_binning_range();
     size = range(2,:)'-range(1,:)';
-    dNR = floor(size./(0.98*char_size));
-    zer = dNR ==0;
-    dNR(zer) = 1;
-    steps = size./dNR;
+    dNR = floor(size./(0.5*char_size));
+    steps = size./(dNR+1);
     for i=1:4
-        if zer(i)
+        if range(1,i)+ steps(i)>range(2,i)
             axes{i} = [range(1,i),range(2,i)];
         else
             axes{i} = range(1,i):steps(i):range(2,i);
