@@ -179,10 +179,31 @@ classdef axes_block < serializable
             range = get_binning_range_(obj);
         end
         
-        function [nbin,s,e,pix] = bin_pixels(obj,pix_data,varargin)
+        function [npix,s,e,pix] = bin_pixels(obj,coord,varargin)
             % bin and distribute data expressed in the coordinate system
             % described by this axes block over the current lattice
-            [nbin,s,e,pix] = bin_pixels_(obj,pix_data,varargin);
+            % Usage:
+            % >>npix = obj.bin_pixels(coord);
+            % >>[npix,s,e] = obj.bin_pixels(coord,signal,error);
+            % >>[npix,s,e,pix] = bin_pixels(obj,coord,signal,error,pix_obj)
+            % Where
+            % Inputs:
+            % coord   -- [4,npix] array of pixels coordinates to bin
+            % signal  -- npix array of pixel signal
+            % error   -- npix array of pixels error
+            % pix_obj -- PixelData or pixel file access object, providing
+            %            the access to the full pixels information
+            % Returns:
+            % npix    -- the array, containing the numbers of pixels
+            %            contributing into each grid cell
+            % s       -- empty if input signal and error are absent or
+            %            array, containing the accumulated signal for each 
+            %            grid bin
+            % e       -- empty if input signal and error are absent or
+            %            array, containing the accumulated error for each 
+            %            grid bin
+            % pix     -- 
+            [npix,s,e,pix] = bin_pixels_(obj,coord,varargin{:});            
         end
         
         function [nodes,varargout] = get_bin_nodes(obj,varargin)
