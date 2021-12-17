@@ -14,25 +14,30 @@ function yout = time_waster (yin, nloop)
 % Input:
 % ------
 %   yin     Array of values
-%   nloop   Number of times to perform the operation
+%   nloop   Number of times to perform the operation. If nloop <= 0 then
+%           the operation is ignored.
 %
 % Output:
 % -------
 %   yout    Output array
 
 
-if nloop~=0
+if round(nloop)>0
     tiny = 1e-13;
     fac = 1;
     sz = size(yin);
-    for i=1:nloop
+    for i=1:round(nloop)
         fac = fac - tiny*rand(sz);
         fac = log(exp(fac) + tiny*rand(sz));
         fac = tan(atan(fac) - tiny*rand(sz));
         fac = asin(sin(fac) + tiny*rand(sz));
         fac = fac - 1;
         maxdev = max(abs(fac));
-        fac = 1 + tiny*(fac./maxdev);
+        if maxdev>0     % catch case of zero deviation
+            fac = 1 + tiny*(fac./maxdev);
+        else
+            fac = 1;
+        end
     end
     yout = yin .*fac;
     

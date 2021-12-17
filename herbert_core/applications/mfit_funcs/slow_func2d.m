@@ -24,7 +24,7 @@ function y = slow_func2d (x1, x2, p, funchandle, nslow)
 %               alters each calculated value from the function call by a
 %               factor <= 10^-13 (regardless of the value of nslow.
 %               Each value of nslow takes about the time of 25 
-%               exponentiations.
+%               exponentiations per data point.
 %                   nslow >=0
 %               Default if not given: nslow = 1
 %
@@ -34,14 +34,6 @@ function y = slow_func2d (x1, x2, p, funchandle, nslow)
 
 if nargin==4
     nslow = 1;
-else
-    nslow = round(nslow);
-    if nslow < 0
-        nslow = 0;
-    end
 end
 y = funchandle (x1, x2, p);
-
-if nslow > 0
-    y = time_waster (y, nslow);
-end
+y = time_waster (y, nslow);

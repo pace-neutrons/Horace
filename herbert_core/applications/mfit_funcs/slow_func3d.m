@@ -20,14 +20,14 @@ function y = slow_func3d (x1, x2, x3, p, funchandle, nslow)
 %
 %   funchandle  Handle to function to evaluate e.g. @gauss3d
 %               The function can be any function that evaluates in
-%               two dimensions with the format expected by multifit
+%               three dimensions with the format expected by multifit
 %
 % Optionally:
 %   nslow       Number of times to run the time_waster function, which
 %               alters each calculated value from the function call by a
 %               factor <= 10^-13 (regardless of the value of nslow.
 %               Each value of nslow takes about the time of 25 
-%               exponentiations.
+%               exponentiations per data point.
 %                   nslow >=0
 %               Default if not given: nslow = 1
 %
@@ -37,14 +37,6 @@ function y = slow_func3d (x1, x2, x3, p, funchandle, nslow)
 
 if nargin==5
     nslow = 1;
-else
-    nslow = round(nslow);
-    if nslow < 0
-        nslow = 0;
-    end
 end
 y = funchandle (x1, x2, x3, p);
-
-if nslow > 0
-    y = time_waster (y, nslow);
-end
+y = time_waster (y, nslow);
