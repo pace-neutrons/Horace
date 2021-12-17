@@ -1,4 +1,4 @@
-function wout = noisify (w,varargin)
+function wout = noisify (w, varargin)
 % Adds random noise to an IX_dataset_2d or array of IX_dataset_2d
 %
 % Syntax:
@@ -16,5 +16,7 @@ function wout = noisify (w,varargin)
 %
 wout=w;
 for i=1:numel(w)
-    [wout(i).signal,wout(i).error]=noisify(w(i).signal,w(i).error,varargin{:});
+    [wout(i).signal, errsqr] = noisify (...
+        w(i).signal, (w(i).error).^2, varargin{:});
+    wout(i).error = sqrt(errsqr);
 end
