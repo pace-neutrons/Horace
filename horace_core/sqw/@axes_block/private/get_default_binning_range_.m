@@ -3,9 +3,9 @@ function bin_range = get_default_binning_range_(obj,img_db_range,cur_proj,new_pr
 % projection.
 %
 % If new projection is not aligned with the old projection, the new
-% projection binning is copied from old projection binning according to
-% axis, i.e. if axis 1 of cur_proj had 10 bins, axis 1 of target proj would
-% have 10 bins, etc. 
+% projection binning is copied from the old projection binning according to
+% axis number, i.e. if axis 1 of cur_proj had 10 bins, axis 1 of target 
+% proj would have 10 bins, etc. 
 %
 % Inputs:
 % obj      - current instance of the axes block
@@ -21,6 +21,8 @@ function bin_range = get_default_binning_range_(obj,img_db_range,cur_proj,new_pr
 
 % convert existing binning range into set of 4-D vectors
 range = img_db_range;
+cur_proj.targ_proj = new_proj;
+
 
 % Calculate number of steps in each axis direction, to transfer these
 % numbers into steps in other directions
@@ -33,7 +35,7 @@ nsteps(obj.iax) = 1;
 % convert ranges and step into target coordinate system
 full_range = expand_box(range(1,:),range(2,:));
 %
-targ_range = cur_proj.convert_to_target_coord(new_proj,full_range);
+targ_range = cur_proj.from_cur_to_targ_coord(full_range);
 
 % transformed 4D-range
 range = [min(targ_range,[],2)';max(targ_range,[],2)'];

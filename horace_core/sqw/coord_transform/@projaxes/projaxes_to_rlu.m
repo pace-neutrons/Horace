@@ -24,8 +24,8 @@ function [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu (proj, alatt, an
 %                  u1,u2,u3, as multiples of the step size along those axes
 %                       Vstep(i) = rlu_to_ustep(i,j)*Vrlu(j)
 %
-%   u_to_rlu       The projection axis vectors u1, u2, u3 in reciprocal
-%                  lattice vectors. The ith column is ui in r.l.u. i.e.
+%   u_to_rlu       The projection axis vectors u_1, u_2, u_3 in reciprocal
+%                  lattice vectors. The ith column is u_i in r.l.u. i.e.
 %                       ui = u_to_rlu(:,i)
 %
 %   ulen            Row vector of lengths of ui in Ang^-1

@@ -1,10 +1,12 @@
-function [s, e, npix, pix_out, img_range, pix_comb_info] = ...
-    cut_accumulate_data_(obj, proj, keep_pix, log_level, return_cut)
+function [s, e, npix, pix_out, pix_comb_info] = ...
+    cut_accumulate_data_(obj, proj, axes,keep_pix, log_level, return_cut)
 %%CUT_ACCUMULATE_DATA Accumulate image and pixel data for a cut
 %
 % Input:
 % ------
 % proj       A 'projection' object, defining the projection of the cut.
+% axes       A 'axes_block' object defining the ranges, binning and geometry
+%            of the target cut
 % keep_pix   A boolean defining whether pixel data should be retained. If this
 %            is false return variable 'pix_out' will be empty.
 % log_level  The verbosity of the log messages. The values correspond to those
@@ -21,8 +23,6 @@ function [s, e, npix, pix_out, img_range, pix_comb_info] = ...
 %                bin. size(npix) == size(s)
 % pix_out        A PixelData object containing pixels that contribute to the
 %                cut.
-% img_range      The real range of u1, u2, u3, and dE in the units of projection
-%                axis coordinates. size(urange_pix) == [2, 4].
 % pix_combine_info Temp file manager/combiner class instance for performing
 %                  out-of-memory cuts. If keep_pix is false, or return_cut
 %                  is true, this will be empty.
@@ -31,31 +31,35 @@ function [s, e, npix, pix_out, img_range, pix_comb_info] = ...
 %
 
 % Pre-allocate image data
-nbin_as_size = get_nbin_as_size(proj.target_nbin);
+[~,sz1] = axes.data_dims();
+% note that 1D allocator of size N returns NxN array while we need Nx1
+% array
+nbin_as_size = get_nbin_as_size(sz1);
 s = zeros(nbin_as_size);
 e = zeros(nbin_as_size);
 npix = zeros(nbin_as_size);
-img_range_step = [Inf(1, 4); -Inf(1, 4)];
 
 % Get bins that may contain pixels that contribute to the cut.
 % The bins selected are those that sit within (or intersect) the bounds of the
 % cut. See the relevant projection function for more details.
-[bin_starts, bin_ends] = proj.get_nbin_range(obj.data.npix);
-if isempty(bin_starts)
+sproj = obj.data.get_projection();
+[bloc_starts, block_sizes] = sproj.get_nrange(obj.data.npix,obj.data,proj,axes);
+if isempty(bloc_starts)
     % No pixels in range, we can return early
     pix_out = PixelData();
     pix_comb_info = [];
-    img_range = img_range_step;
     return
 end
-hc = hor_config;
-block_size = hc.mem_chunk_size;
-% Get indices in order to split the candidate bin ranges into chunks whose sums
-% are less than, or equal to, a pixel page size
-bin_sizes = bin_ends - bin_starts+1;
-block_chunks = split_data_blocks(bin_starts,bin_sizes, block_size);
-num_chunks = numel(block_chunks);
-
+if obj.data.pix.is_filebacked()
+    hc = hor_config;
+    chunk_size = hc.mem_chunk_size;
+    % Get indices in order to split the candidate bin ranges into chunks whose sums
+    % are less than, or equal to, a pixel page size
+    block_chunks = split_data_blocks(bloc_starts,block_sizes, chunk_size);
+    num_chunks = numel(block_chunks);
+else
+    num_chunks = 1;
+end
 % If we only have one iteration of pixels to cut then we must be able to fit
 % all pixels in memory, hence no need to use temporary files.
 use_tmp_files = ~return_cut && num_chunks > 1;

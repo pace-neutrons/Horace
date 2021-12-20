@@ -156,13 +156,12 @@ end
 return_cut = nargout > 0;
 [targ_proj, pbin, opt] = obj.process_and_validate_cut_inputs(...
     return_cut, varargin{:});
-
-
-% Process projection
-% source_proj = obj.get_projection()
-%targ_ax_block = obj.build_from_input_binning(source_proj,targ_proj,img_db_range,pbin);
-[targ_proj, pbin, pin, en] = define_target_axes_block(obj, targ_proj, pbin);
-
+% Set up new projection properties, related to lattice. This together with
+% projection inputs defines pixels-to-image transformation.
+header_av = header_average(obj);
+targ_proj.alatt  = header_av.alatt;
+targ_proj.angdeg = header_av.angdeg;
+%
 sz = cellfun(@(x) max(size(x, 1), 1), pbin);
 if return_cut
     wout = allocate_output(sz, pbin, opt.keep_pix, DND_CONSTRUCTORS);
@@ -171,7 +170,9 @@ end
 % This loop enables multicuts
 for cut_num = 1:prod(sz)
     pbin_tmp = get_pbin_for_cut(sz, cut_num, pbin);
-    args = {obj, targ_proj, pbin_tmp, pin, en, opt.keep_pix, opt.outfile};
+    targ_ax_block = define_target_axes_block(obj, targ_proj, pbin_tmp );
+    
+    args = {obj, targ_proj, targ_ax_block, opt.keep_pix, opt.outfile};
     if return_cut
         wout(cut_num) = cut_single(args{:});
     else
@@ -180,11 +181,17 @@ for cut_num = 1:prod(sz)
 end
 % End function
 
-function [proj, pbin, pin, en] = define_target_axes_block(w, proj, pbin)
-% Update projection bins using the sqw header
+function targ_ax_block = define_target_axes_block(w, targ_proj, pbin)
+% define target axes from existing axes, inputs and the projections
 %
-header_av = header_average(w);
-[proj, pbin, ~, pin, en] = proj.update_pbins(header_av, w.data, pbin);
+img_block = w.data;
+source_proj = img_block.get_projection();
+% it is actually axes_block method, so source projection is provided as
+% input of this method. Left in this form for refactoring
+source_binning = img_block.get_default_binning_range(img_block.img_db_range,...
+    source_proj,targ_proj);
+targ_ax_block = axes_block.build_from_input_binning(source_binning,pbin);
+
 
 
 
@@ -227,4 +234,3 @@ for i = 1:numel(pbin_out)
         pbin_out{i} = pbin_in{i};
     end
 end
-

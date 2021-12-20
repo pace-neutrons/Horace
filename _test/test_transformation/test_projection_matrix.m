@@ -11,7 +11,7 @@ classdef test_projection_matrix<TestCase
             this=this@TestCase(name);
         end
         % tests themself
-        function test_square(this)
+        function test_square(~)
             alatt = [1,2,3];
             angdeg= [90,90,90];
             u=[1,0,0];
@@ -25,7 +25,7 @@ classdef test_projection_matrix<TestCase
             assertElementsAlmostEqual(diag(alatt),u_to_rlu*2*pi);
             assertElementsAlmostEqual(eye(3),spec_to_proj);
         end
-        function test_rec(this)
+        function test_rec(~)
             alatt = [1,2,3];
             angdeg= [75,45,35];
             u=[1,0,0];
@@ -54,7 +54,7 @@ classdef test_projection_matrix<TestCase
             aa(3,3)=-1;
             assertElementsAlmostEqual(aa,spec_to_proj);
         end
-        function test_rec3(this)
+        function test_rec3(~)
             alatt = [1,2,3];
             angdeg= [75,45,90];
             u=[1,1,0];
@@ -69,7 +69,7 @@ classdef test_projection_matrix<TestCase
             assertElementsAlmostEqual(aa,spec_to_proj,'absolute',2E-4);
             
         end
-        function test_rec4(this)
+        function test_rec4(~)
             alatt = [1,1,3];
             angdeg= [90,90,90];
             u=[1,1,0];
@@ -97,7 +97,7 @@ classdef test_projection_matrix<TestCase
             aa=[0.9397  0.3420  0;   -0.3420  0.9397  0;   0   0  1.0000];
             assertElementsAlmostEqual(aa,spec_to_proj,'absolute',2E-4);
         end
-        function test_DPSI(this)
+        function test_DPSI(~)
             alatt = [1,1,1];
             angdeg= [90,90,90];
             u=[1,0,0];
@@ -111,7 +111,7 @@ classdef test_projection_matrix<TestCase
             aa=[0.9397  0.3420  0;   -0.3420  0.9397  0;   0   0  1.0000];
             assertElementsAlmostEqual(aa,spec_to_proj,'absolute',2E-4);
         end
-        function test_GL(this)
+        function test_GL(~)
             alatt = [1,1,1];
             angdeg= [90,90,90];
             u=[1,0,0];
@@ -125,7 +125,7 @@ classdef test_projection_matrix<TestCase
             aa=[0.9397 0 -0.3420; 0 1.0000 0;   0.3420 0  0.9397];
             assertElementsAlmostEqual(aa,spec_to_proj,'absolute',2E-4);
         end
-        function test_GS(this)
+        function test_GS(~)
             alatt = [1,1,1];
             angdeg= [90,90,90];
             u=[1,0,0];

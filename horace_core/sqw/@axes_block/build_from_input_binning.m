@@ -31,6 +31,10 @@ end
 if numel(cur_img_range_and_steps) ~=4
     error('HORACE:axes_block:invalid_argument',...
         'Have not provided default binning for all three momentun axes and the energy axis');
+else
+    if size(cur_img_range_and_steps,1) > 1
+        cur_img_range_and_steps = cur_img_range_and_steps';
+    end
 end
 
 

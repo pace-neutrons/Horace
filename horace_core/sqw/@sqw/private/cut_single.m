@@ -1,14 +1,13 @@
-function wout = cut_single(w, proj, pbin, pin, en, keep_pix, outfile)
+function wout = cut_single(w, tag_proj, targ_axes, keep_pix, outfile)
 %%CUT_SINGLE Perform a cut on a single sqw object
 %
 % Input:
 % ------
 % w           The sqw object to take a cut from.
-% proj        A `projection` object, defining the projection of the cut.
-% pbin        The binning along each projection axis of the cut (cell array).
-%             See p1_bin, p2_bin etc. in sqw/cut.
-% pin         The binning of the input sqw object (cell array).
-% en          Energy bins of input sqw header average (double).
+% tag_proj    A `projection` object, defining the projection of the cut.
+% targ_axes   `axes_block` object defining the ranges, binning and geometry
+%             of the target cut
+%
 % keep_pix    True if pixel information is to be retained in cut, else false.
 % outfile     The output file to write the cut to, empty if cut is not to be
 %             written to file (char).
@@ -26,27 +25,9 @@ DND_CONSTRUCTORS = {@d0d, @d1d, @d2d, @d3d, @d4d};
 log_level = get(hor_config, 'log_level');
 return_cut = nargout > 0;
 
-
-% Get bin boundaries
-[ ...
-    ubins.integration_axis_idx, ...
-    ubins.integration_range, ...
-    ubins.plot_ax_idx, ...
-    ubins.plot_ax_bounds, ...
-    ubins.img_range ...
-    ] = proj.calc_transf_img_bins(w.data.img_db_range, pbin, pin, en);
-
-% Update projection with binning
-proj = proj.set_proj_binning( ...
-    ubins.img_range, ...
-    ubins.plot_ax_idx, ...
-    ubins.integration_axis_idx, ...
-    ubins.plot_ax_bounds ...
-    );
-
 % Accumulate image and pixel data for cut
-[s, e, npix, pix_out, acutal_img_range, pix_comb_info] = cut_accumulate_data_( ...
-    w, proj, keep_pix, log_level, return_cut ...
+[s, e, npix, pix_out, pix_comb_info] = cut_accumulate_data_( ...
+    w, tag_proj,targ_axes,keep_pix, log_level, return_cut ...
     );
 % acutal_img_range left here for debugging purposes
 %

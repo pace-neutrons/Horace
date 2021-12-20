@@ -20,12 +20,16 @@ classdef ortho_proj<aProjection
         uoffset; %=[0,0,0,0];
         lab     %={'\zeta','\xi','\eta','E'};
         %
-        %
+        % Matrix to convert from Crystal Cartesian (pix coordinate system)
+        % to the image coordinate system (normally in rlu, except initially
+        % generated sqw file, when this image is also in Crystal Cartesian)
+        u_to_rlu
     end
     properties(Access=private)
         % reference to the class, which defines the projection axis
         projaxes_=[]
         %
+        u_to_rlu_;
     end
     methods(Access = protected)
         % overloads for static methods which define if the projection can
@@ -44,24 +48,24 @@ classdef ortho_proj<aProjection
             %         (3 or 4). Depending on this number the routine
             %         returns 3D or 4D transformation matrix
             %
-            [rlu_to_ustep, u_to_rlu] = projaxes_to_rlu(obj.projaxes_,obj.alatt, obj.angdeg, [1,1,1]);
+            [rlu_to_ustep, ~] = projaxes_to_rlu(obj.projaxes_,obj.alatt, obj.angdeg, [1,1,1]);
             b_mat  = bmatrix(obj.alatt, obj.angdeg);
             rot_to_img = rlu_to_ustep/b_mat;
             %
             if ndim==4
                 shift  = obj.uoffset';
-                u_to_rlu  = [b_mat,[0;0;0];[0,0,0,1]];
+                u_to_rlu_l  = [b_mat,[0;0;0];[0,0,0,1]];
                 rot_to_img = [rot_to_img,[0;0;0];[0,0,0,1]];
             elseif ndim == 3
                 shift  = obj.uoffset(1:3)';
-                u_to_rlu  = b_mat;
+                u_to_rlu_l  = b_mat;
             else
                 error('HORACE:rundatah:invalid_argument',...
                     'The size of the pixels array should be [3xNpix] or [4xNpix], actually it is: %s',...
                     evalc('disp(size(pix_cc))'));
             end
             % convert shift, expressed in hkl into crystal Cartesian
-            shift = u_to_rlu \shift';
+            shift = u_to_rlu_l \shift';
             
         end
     end
@@ -70,8 +74,11 @@ classdef ortho_proj<aProjection
         function proj=ortho_proj(varargin)
             proj = proj@aProjection();
             if nargin==0 % return defaults
-                proj.projaxes_ = [];
-                proj.data_lab_ = {'qx','qy','qz','en'};
+                %proj.projaxes_ = [];
+                %proj.data_lab_ = {'qx','qy','qz','en'};
+                proj.u_to_rlu_ =eye(3)/(2*pi);
+                [ul,vl]=proj.uv_from_rlu_mat(proj.alatt,proj.angdeg,proj.u_to_rlu_,[1,1,1]);                
+                proj.projaxes_ = projaxes(ul,vl,[0,0,0.5/pi],'type','ppp');
             else
                 if isa(varargin{1},'projaxes')
                     proj.projaxes_ = varargin{1};
@@ -80,6 +87,17 @@ classdef ortho_proj<aProjection
                 end
             end
         end
+        function mat = get.u_to_rlu(obj)
+            mat = obj.u_to_rlu_;
+        end
+        function obj = set.u_to_rlu(obj,mat)
+            
+            obj.u_to_rlu_ = mat;
+            %[ul,vl]=obj.uv_from_rlu_mat(obj.alatt,obj.angdeg,mat,[1,1,1]);
+            %obj.u_ = ul;
+            %obj.v_ = vl;
+        end
+        
         
         function u = get.u(this)
             if isempty(this.projaxes_)
@@ -229,7 +247,7 @@ classdef ortho_proj<aProjection
             %          system to the image coordinate system (normally
             %          expressed in rlu)
             % ulen  -- length of the unit vectors of the reciprocal lattice
-            %          the Horace image is expressed in
+            %          units, the Horace image is expressed in
             % Outputs:
             % u     -- [1x3] vector expressed in rlu and defining the cut
             %          direction
