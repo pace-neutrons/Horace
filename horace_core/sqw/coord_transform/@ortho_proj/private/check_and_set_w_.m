@@ -8,19 +8,17 @@ if  isnum &&numel(val)==3
     if any(is_small)
         if all(is_small)
             error('HORACE:ortho_proj:invalid_argument',...
-                'vector v can not be a 0-vector: [%g,%g,%g]',...
-                cand)
+                'vector w can not be a 0-vector: [%g,%g,%g]',...
+                cand(1),cand(2),cand(3))
         else
             cand(is_small) = 0;
         end
     end
     obj.w_ = cand;
-elseif isempty(val) || (isnum && norm(val)<obj.tol_)
+elseif isempty(val)
     obj.w_ = [];
 else
     error('HORACE:ortho_proj:invalid_argument',...
-        'w should be non-zero length numeric 3-vector or emtpy value')
+        'w should be non-zero length numeric 3-vector or empty value but it is: %s',...
+        evalc('disp(val)'))
 end
-
-
-

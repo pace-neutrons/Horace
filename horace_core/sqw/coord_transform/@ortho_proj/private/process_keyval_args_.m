@@ -42,9 +42,9 @@ function obj = process_keyval_args_(obj,varargin)
 par = inputParser();
 opt_par = {'nonorthogonal','type','u','v','w'};
 setters =   {...
-    @(x)check_and_set_nonorthogonal_(obj,x),@(x)check_and_set_type_(obj,x),...
-    @(x)check_and_set_uv_(obj,'u',x),@(x)check_and_set_uv_(obj,'v',x),...
-    @(x)check_and_set_w_(obj,x)};
+    @(x,ob)check_and_set_nonorthogonal_(ob,x),@(x,ob)check_and_set_type_(ob,x),...
+    @(x,ob)check_and_set_uv_(ob,'u',x),@(x,ob)check_and_set_uv_(ob,'v',x),...
+    @(x,ob)check_and_set_w_(ob,x)};
 for i=1:numel(opt_par)
     addParameter(par,opt_par{i},[]); % validation will be performed on setters
 end
@@ -65,7 +65,7 @@ if numel(par.UsingDefaults) ~= numel(opt_par)
     for i=1:numel(opt_par)
         fn = opt_par{i};
         if ~isempty(res.(fn))
-            obj = setters{i}(res.(fn));
+            obj = setters{i}(res.(fn),obj);
             %obj=feval(['check_and_set_,fn,'_'],obj,);
         end
     end

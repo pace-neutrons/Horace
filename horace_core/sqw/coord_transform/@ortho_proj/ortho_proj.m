@@ -122,8 +122,7 @@ classdef ortho_proj<aProjection
             [ok,mess,obj] = obj.isvalid();
             if ~ok
                 error('HORACE:ortho_proj:invalid_argument',mess);
-            end
-            
+            end            
         end
         %-----------------------------------------------------------------
         %         function mat = get.u_to_rlu(obj)

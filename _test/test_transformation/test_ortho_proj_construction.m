@@ -14,10 +14,81 @@ classdef test_ortho_proj_construction<TestCase
             end
             this=this@TestCase(name);
         end
+        function test_constructor_keys_override_defaults(~)
+            proj = ortho_proj([1,0,0],[0,1,0],...
+                'alatt',[2,3,4],'type','aaa','nonorthogonal',true,...
+                'u',[0,1,0],'v',[1,0,0],'w',[0,0,1]);
+            assertEqual(proj.u,[0,1,0]);
+            assertEqual(proj.v,[1,0,0]);
+            assertEqual(proj.w,[0,0,1]);
+            assertEqual(proj.alatt,[2,3,4]);
+            assertEqual(proj.angdeg,[90,90,90]);
+            assertEqual(proj.type,'aaa');
+            assertEqual(proj.nonorthogonal,true);
+        end
+        
+        function test_constructor_type(~)
+            proj = ortho_proj([1,0,0],[0,1,0],[0,0,1],...
+                'alatt',[2,3,4],'type','aaa');
+            assertEqual(proj.u,[1,0,0]);
+            assertEqual(proj.v,[0,1,0]);
+            assertEqual(proj.w,[0,0,1]);
+            assertEqual(proj.alatt,[2,3,4]);
+            assertEqual(proj.angdeg,[90,90,90]);
+            assertEqual(proj.type,'aaa');
+        end
+        
+        
+        function test_constructor_third_long_throws(~)
+            assertExceptionThrown(...
+                @()ortho_proj([1,0,0],[0,1,0],[1,1,1,1],'alatt',[2,3,4],'angdeg',[80,70,85]),...
+                'HORACE:ortho_proj:invalid_argument');
+        end
+        
+        function test_constructor_third_zero_throws(~)
+            assertExceptionThrown(...
+                @()ortho_proj([1,0,0],[0,1,0],[0,0,0],'alatt',[2,3,4],'angdeg',[80,70,85]),...
+                'HORACE:ortho_proj:invalid_argument');
+        end
+        
+        function test_three_vector_constructor(~)
+            proj = ortho_proj([1,0,0],[0,1,0],[0,0,1],...
+                'alatt',[2,3,4],'angdeg',[80,70,85]);
+            assertEqual(proj.u,[1,0,0]);
+            assertEqual(proj.v,[0,1,0]);
+            assertEqual(proj.w,[0,0,1]);
+            assertEqual(proj.alatt,[2,3,4]);
+            assertEqual(proj.angdeg,[80,70,85]);
+        end
+        
+        function test_incorrect_constructor_throws_on_positional_zero(~)
+            assertExceptionThrown(...
+                @()ortho_proj([0,0,0],1,'alatt',[2,3,4],'angdeg',[80,70,85]),...
+                'HORACE:ortho_proj:invalid_argument');
+        end
+        
+        function test_incorrect_constructor_throws_on_positional(~)
+            assertExceptionThrown(...
+                @()ortho_proj([1,0,0],1,'alatt',[2,3,4],'angdeg',[80,70,85]),...
+                'HORACE:ortho_proj:invalid_argument');
+        end
+        
+        function test_incorrect_constructor_throws_on_combo(~)
+            assertExceptionThrown(...
+                @()ortho_proj([1,0,0],[1,0,0],'alatt',[2,3,4],'angdeg',[80,70,85]),...
+                'HORACE:ortho_proj:invalid_argument');
+        end
+        
+        function test_set_wrong_u(~)
+            proj = ortho_proj([1,0,0],[0,1,0],'alatt',[2,3,4],'angdeg',[80,70,85]);
+            proj.u = [0,1,0];
+            assertTrue(ischar(proj.u));
+            assertExceptionThrown(@()isvalid(proj),'HORACE:ortho_proj:runtime_error');
+        end
         function test_serialization(~)
             proj = ortho_proj([1,0,0],[0,1,0],'alatt',[2,3,4],'angdeg',[80,70,85]);
             
-            ser = proj.serialize();            
+            ser = proj.serialize();
             rec = serializable.deserialize(ser);
             
             assertEqual(proj,rec);
@@ -58,7 +129,7 @@ classdef test_ortho_proj_construction<TestCase
         end
         %
         function test_get_projection(~)
-
+            
             data = struct();
             data.alatt = [2,3,4];
             data.angdeg = [90,90,90];

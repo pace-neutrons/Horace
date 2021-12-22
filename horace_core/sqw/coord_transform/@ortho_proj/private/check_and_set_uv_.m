@@ -9,7 +9,7 @@ if isnumeric(val) && numel(val)==3
         if all(is_small)
             error('HORACE:ortho_proj:invalid_argument',...
                 'vector %s can not be a 0-vector: [%g,%g,%g]',...
-                name,cand)
+                name,cand(1),cand(2),cand(3))
         else
             cand(is_small) = 0;
         end

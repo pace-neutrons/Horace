@@ -17,3 +17,8 @@ function [ok, mess, wout] = isvalid (w)
 %  03/04/2017       Checking only combo aruments as ivalid arguments can
 %                   not be set up separately using class setters 
 [ok,mess,wout] = check_combo_arg_(w);
+if ~ok && nargout<2 
+    error('HORACE:ortho_proj:runtime_error',...
+        'ortho_proj class instance is invalid: %s',...
+        mess);
+end
