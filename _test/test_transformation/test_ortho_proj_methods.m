@@ -1,4 +1,4 @@
-classdef test_projection_class<TestCase
+classdef test_ortho_proj_methods<TestCase
     % The test class to verify how projection works
     %
     properties
@@ -11,9 +11,9 @@ classdef test_projection_class<TestCase
     end
     
     methods
-        function this=test_projection_class(varargin)
+        function this=test_ortho_proj_methods(varargin)
             if nargin == 0
-                name = 'test_projection_class';
+                name = 'test_ortho_proj_class';
             else
                 name = varargin{1};
             end
@@ -26,6 +26,7 @@ classdef test_projection_class<TestCase
             this.fake_sqw_par{1} = en;
             this.fake_sqw_par{2} = this.par_file;
         end
+        %------------------------------------------------------------------
         function test_binning_range_half_sampe_proj2Drot45(~)
             proj1 = ortho_proj([1,0,0],[0,1,0]);
             dbr = [0,0,0,0;1,2,3,10];
@@ -71,8 +72,7 @@ classdef test_projection_class<TestCase
             assertEqual(bl_start,2*sz1(2)+1);
             assertEqual(bl_size,4*sz1(2));
         end
-        
-        
+        %
         function test_binning_range_half_sampe_proj2D(~)
             proj1 = ortho_proj([1,0,0],[0,1,0]);
             dbr = [0,0,0,0;1,2,3,10];
@@ -95,7 +95,7 @@ classdef test_projection_class<TestCase
             assertEqual(numel(bl_start),sz1(2));
             assertEqual(bl_size,ones(1,sz1(2))*6);
         end
-        
+        %
         function test_binning_range_the_same_1D(~)
             proj1 = ortho_proj([1,0,0],[0,1,0]);
             dbr = [-1,-2,-3,0;1,2,3,10];
@@ -124,63 +124,6 @@ classdef test_projection_class<TestCase
             assertEqual(nend,numel(npix));
         end
         %------------------------------------------------------------------
-        function test_default_constructor(~)
-            proj = ortho_proj();
-            assertElementsAlmostEqual(proj.u,[0.5/pi,0,0])
-            assertElementsAlmostEqual(proj.v,[0,0.5/pi,0])
-            assertElementsAlmostEqual(proj.w,[0,0,0.5/pi])
-            assertElementsAlmostEqual(proj.uoffset,[0;0;0;0])
-            assertEqual(proj.type,'ppp')
-            full_box = expand_box([0,0,0,0],[1,1,1,1]);
-            pixi = proj.transform_pix_to_img(full_box );
-            assertElementsAlmostEqual(full_box,pixi);
-            pixi = proj.transform_img_to_pix(full_box );
-            assertElementsAlmostEqual(full_box,pixi);
-        end
-        function test_invalid_constructor_throw(~)
-            f = @()ortho_proj([0,1,0]);
-            assertExceptionThrown(f,'HORACE:projaxes:invalid_argument');
-        end
-        function test_uv_set_in_constructor(~)
-            proj = ortho_proj([0,1,0],[1,0,0]);
-            assertElementsAlmostEqual(proj.u,[0,1,0])
-            assertElementsAlmostEqual(proj.v,[1,0,0])
-            assertTrue(isempty(proj.w))
-        end
-        function test_uvw_set_in_constructor(~)
-            
-            prja = projaxes([1,0,0],[0,1,1],[0,-1,1]);
-            proj = ortho_proj(prja);
-            assertElementsAlmostEqual(proj.u,[1,0,0])
-            assertElementsAlmostEqual(proj.v,[0,1,1])
-            assertElementsAlmostEqual(proj.w,[0,-1,1])
-        end
-        function test_set_u_transf(~)
-            skipTest('should be modified with projection refactored')
-            proj = ortho_proj();
-            data = struct();
-            data.alatt = [2,3,4];
-            data.angdeg = [90,90,90];
-            %
-            data.u_to_rlu = eye(4); %(4x4)
-            data.uoffset = zeros(1,4);      %(4x1)
-            upix_to_rlu = eye(3);
-            upix_offset = zeros(4,1);
-            data.ulabel = {'a','b','c','d'};
-            data.ulen = ones(4,1);
-            data.iax=[];
-            data.pax=[1,2,3,4];
-            data.iint=[];
-            data.p={1:10;1:20;1:30;1:40};
-            
-            
-            proj1=proj.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
-            assertEqual(proj,proj1)
-        end
-        function test_set_can_mex_keep(~)
-            proj = ortho_proj();
-            assertTrue(proj.can_mex_cut);
-        end
         %
         function test_cut_dnd(this)
             skipTest('waits for cut_dnd beeing refactored')
@@ -193,23 +136,25 @@ classdef test_projection_class<TestCase
             %w = w{1};
             %wc = cut_dnd(w,0.01,0.01,[-0.1,0.1],2);
         end
+        %------------------------------------------------------------------
+        %        
+        %------------------------------------------------------------------
         function test_uv_to_rlu_and_vv_complex_nonorth_with_rrr(~)
             u = [1,1,0];
             v = [0,-0.5,1];
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
-            pra = projaxes(u,v,'type','rrr');
+            pra = ortho_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg);
             %
             %pra.nonorthogonal = true;
             %TODO: This option does not currently work.
             % if this is possible to make it to work is the question worth
             % an independent investigation.
             %
-            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu(...
-                alatt,angdeg);
+            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
             %
             % but recovered the values, correspondent to ppr?
-            [u_par,v_par] = ortho_proj.uv_from_rlu_mat(alatt,angdeg,u_to_rlu,ulen);
+            [u_par,v_par] = pra.uv_from_rlu_public(u_to_rlu,ulen);
             assertElementsAlmostEqual(u,u_par);
             % find part of the v vector, orthogonal to u
             b_mat = bmatrix(alatt,angdeg);
@@ -223,18 +168,17 @@ classdef test_projection_class<TestCase
             % this part should be recovered from the u_to_rlu matrix
             assertElementsAlmostEqual(v_tr,v_par);
         end
-        
         %
         function test_uv_to_rlu_and_vv_complex_nonorthogonal(~)
             u = [1,1,0];
             v = [0,-0.5,1];
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
-            pra = projaxes(u,v);
-            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu(...
-                alatt,angdeg);
+            pra = ortho_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg);            
             
-            [u_par,v_par] = ortho_proj.uv_from_rlu_mat(alatt,angdeg,u_to_rlu,ulen);
+            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
+            
+            [u_par,v_par] = pra.uv_from_rlu_public(u_to_rlu, ulen);
             assertElementsAlmostEqual(u,u_par);
             % find part of the v vector, orthogonal to u
             b_mat = bmatrix(alatt,angdeg);
@@ -253,11 +197,10 @@ classdef test_projection_class<TestCase
             v = [0,0,1];
             alatt = [2.83,2,3.83];
             angdeg = [95,85,97];
-            pra = projaxes(u,v);
-            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu(...
-                alatt,angdeg);
+            pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
+            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
             
-            [u_par,v_par] = ortho_proj.uv_from_rlu_mat(alatt,angdeg,u_to_rlu,ulen);
+            [u_par,v_par] = pra.uv_from_rlu_public(u_to_rlu,ulen);
             assertElementsAlmostEqual(u,u_par);
             
             % find part of the v vector, orthogonal to u
@@ -280,11 +223,10 @@ classdef test_projection_class<TestCase
             v = [0,-0.5,1];
             alatt = [2.83,2.83,2.83];
             angdeg = [90,90,90];
-            pra = projaxes(u,v);
-            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu(...
-                alatt,angdeg);
+            pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
+            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
             
-            [u_par,v_par] = ortho_proj.uv_from_rlu_mat(alatt,angdeg,u_to_rlu,ulen);
+            [u_par,v_par] = pra.uv_from_rlu_public(u_to_rlu,ulen);
             
             assertElementsAlmostEqual(u,u_par);
             % find part of the v vector, orthogonal to u
@@ -295,8 +237,8 @@ classdef test_projection_class<TestCase
             % this part should be recovered from the u_to_rlu matrix
             assertElementsAlmostEqual(v_tr,sign(v_tr).*abs(v_par));
             
-            pra = projaxes(u_par,v_par);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu(alatt,angdeg);
+            pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg);
+            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
             
             assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
             assertElementsAlmostEqual(ulen,ulen_rec);
@@ -308,105 +250,25 @@ classdef test_projection_class<TestCase
             v = [0,0,1];
             alatt = [2.83,2.83,2.83];
             angdeg = [90,90,90];
-            pra = projaxes(u,v);
-            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu(...
-                alatt,angdeg);
+            pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
+            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
             
-            [u_par,v_par] = ortho_proj.uv_from_rlu_mat(alatt,angdeg,u_to_rlu,ulen);
+            [u_par,v_par] = pra.uv_from_rlu_public(u_to_rlu,ulen);
             assertElementsAlmostEqual(u,u_par);
             assertElementsAlmostEqual(v,v_par);
             
-            pra = projaxes(u_par,v_par);
-            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu(alatt,angdeg);
+            pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg);
+            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
             
             assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
             assertElementsAlmostEqual(ulen,ulen_rec);
         end
+        %------------------------------------------------------------------
         %
-        function test_alatt_column_gives_row(~)
-            proj = ortho_proj();
-            proj.alatt = [3;4;5];
-            assertEqual(proj.alatt,[3,4,5]);
-        end
-        
-        function test_alatt_row_gives_row(~)
-            proj = ortho_proj();
-            proj.alatt = [3,4,5];
-            assertEqual(proj.alatt,[3,4,5]);
-        end
-        
-        function test_alatt_single_gives3(~)
-            proj = ortho_proj();
-            proj.alatt = 3;
-            assertEqual(proj.alatt,[3,3,3]);
-        end
-        
-        function test_alatt_invalid_throw(~)
-            proj = ortho_proj();
-            pass = false;
-            try
-                proj.alatt = [1,1,1,1];
-                pass = true;
-            catch ERR
-                assertEqual(ERR.identifier,'aPROJECTION:invalid_argument');
-            end
-            assertFalse(pass,'invalid alatt value should throw an error')
-        end
-        function test_angdeg_column_gives_row(~)
-            proj = ortho_proj();
-            proj.angdeg = [90;95;80];
-            assertEqual(proj.angdeg,[90,95,80]);
-        end
-        
-        function test_angdeg_row_gives_row(~)
-            proj = ortho_proj();
-            proj.angdeg = [90,95,80];
-            assertEqual(proj.angdeg,[90,95,80]);
-        end
-        
-        function test_angdeg_single_gives3(~)
-            proj = ortho_proj();
-            proj.angdeg = 30;
-            assertEqual(proj.angdeg,[30,30,30]);
-        end
-        
-        function test_angdeg_invalid_length_throw(~)
-            proj = ortho_proj();
-            pass = false;
-            try
-                proj.angdeg = [1,1,1,1];
-                pass = true;
-            catch ERR
-                assertEqual(ERR.identifier,'aPROJECTION:invalid_argument');
-            end
-            assertFalse(pass,'invalid angdeg vector length should throw an error')
-        end
-        %
-        function test_angdeg_invalid_angle_throw(~)
-            proj = ortho_proj();
-            pass = false;
-            try
-                proj.angdeg = [200,10,30];
-                pass = true;
-            catch ERR
-                assertEqual(ERR.identifier,'aPROJECTION:invalid_argument');
-            end
-            assertFalse(pass,'invalid angdeg value should throw an error')
-        end
-        %
-        function test_transform_to_img_and_back_reverts_noprojaxis(~)
-            pix = ones(4,5);
-            proj = ortho_proj();
-            pix_transf = proj.transform_pix_to_img(pix);
-            assertEqual(size(pix_transf),[4,5]);
-            pix_rec = proj.transform_img_to_pix(pix_transf);
-            assertEqual(pix_rec,pix);
-        end
-        %
+        %------------------------------------------------------------------
         function test_transform_to_img_and_back_reverts_proj_ortho_3D(~)
             pix = ones(3,5);
-            pra = projaxes([1,0,0],[0,1,1]);
-            proj = ortho_proj(pra);
+            proj = ortho_proj([1,0,0],[0,1,1]);
             proj.alatt = 3;
             proj.angdeg = 90;
             
@@ -416,10 +278,18 @@ classdef test_projection_class<TestCase
             assertElementsAlmostEqual(pix_rec,pix);
         end
         %
+        function test_transform_to_img_and_back_reverts_noprojaxis(~)
+            pix = ones(4,5);
+            proj = ortho_proj();
+            pix_transf = proj.transform_pix_to_img(pix);
+            assertEqual(size(pix_transf),[4,5]);
+            pix_rec = proj.transform_img_to_pix(pix_transf);
+            assertEqual(pix_rec,pix);
+        end        
+        %
         function transform_to_img_and_back_reverts_proj_ortho(~)
             pix = ones(4,5);
-            pra = projaxes([1,0,0],[0,1,1]);
-            proj = ortho_proj(pra);
+            proj = ortho_proj([1,0,0],[0,1,1]);
             proj.alatt = 3;
             proj.angdeg = 90;
             
@@ -431,8 +301,7 @@ classdef test_projection_class<TestCase
         %
         function transform_to_img_and_back_reverts_proj_nonorth(~)
             pix = ones(4,5);
-            pra = projaxes([1,0,0],[0,1,1]);
-            proj = ortho_proj(pra);
+            proj = ortho_proj([1,0,0],[0,1,1]);
             proj.alatt = [3,4,7];
             proj.angdeg = [95,70,85];
             

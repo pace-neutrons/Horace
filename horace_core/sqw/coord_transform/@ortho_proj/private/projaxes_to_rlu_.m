@@ -1,8 +1,9 @@
-function [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu (proj, alatt, angdeg, ustep)
-% Determine matricies to convert rlu <=> projection axes, and their lengths
+function [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu_(proj,ustep)
+% Determine matricies to convert rlu <=> projection axes, and the scaler
+% 
 %
-%   >> [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu (proj, alatt, angdeg)
-%   >> [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu (proj, alatt, angdeg, ustep)
+%   >> [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu (proj)
+%   >> [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu (proj, ustep)
 %
 % The projection axes are three vectors that may or may not be orthononal
 % which are used to create the bins in an sqw object. The bin sizes are in ustep
@@ -11,8 +12,6 @@ function [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu (proj, alatt, an
 % ------
 %   proj    projaxes object containg information about projection axes
 %          (type >> help projaxes for details)
-%   alatt   Row vector of lattice parameters (Angstroms)
-%   angdeg  Row vector of lattice angles (degrees)
 %   ustep   Row vector giving step sizes along the projection axes as multiple
 %           of the projection axes (e.g. [0.05,0.05,0.025]
 %           Default if not given: [1,1,1] i.e. unit step
@@ -30,12 +29,7 @@ function [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu (proj, alatt, an
 %
 %   ulen            Row vector of lengths of ui in Ang^-1
 %
-%   mess            Error message
-%                   - all OK:   empty
-%                   - if error: message, and rlu_to_ustep, u_to_rlu, ulen are empty
 %
-
-
 % Original author: T.G.Perring
 %
 %
@@ -46,7 +40,7 @@ if ~exist('ustep','var')
     ustep=[1,1,1];
 end
 
-[b, ~, ~, mess] = bmatrix(alatt, angdeg);
+[b, ~, ~, mess] = bmatrix(proj.alatt, proj.angdeg);
 if ~isempty(mess); rlu_to_ustep=[]; u_to_rlu=[]; ulen=[]; return; end
 
 u=proj.u;

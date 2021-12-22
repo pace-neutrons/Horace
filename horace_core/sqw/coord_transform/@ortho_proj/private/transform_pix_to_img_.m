@@ -11,10 +11,7 @@ function pix_transf = transform_pix_to_img_(obj,pix_cc,varargin)
 %
 
 ndim = size(pix_cc,1);
-if isempty(obj.projaxes_)
-    pix_transf  = pix_cc;
-else
-    [rot_to_img,shift]=obj.get_pix_img_transformation(ndim);
-    %
-    pix_transf= ((bsxfun(@minus,pix_cc,shift))'*rot_to_img')';
-end
+[rot_to_img,shift]=obj.get_pix_img_transformation(ndim);
+%
+pix_transf= ((bsxfun(@minus,pix_cc,shift))'*rot_to_img')';
+

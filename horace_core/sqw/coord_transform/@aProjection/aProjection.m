@@ -1,52 +1,117 @@
-classdef aProjection
+classdef aProjection < serializable
     %  Abstract class, defining interface and common properties used for
     %  transforming pixels from crystal Cartesian
     %  to the coordinate system defined by sqw image (dnd-object)
     %  and vice-versa.
     %
+    % Common (non-virtual) properties
+    %  alatt       3-element vector, containing lattice parameters
+    %  angdeg      3-element vector, containing lattice angles
+    %
+    %   offset     Row or column vector of offset of origin of a projection axes (rlu)
+    %
+    %   lab         Short labels for u1,u2,u3,u4 as cell array
+    %               e.g. {'Q_h', 'Q_k', 'Q_l', 'En'})
+    %                   *OR*
+    %   lab1        Short label for u1 axis (e.g. 'Q_h' or 'Q_{kk}')
+    %   lab2        Short label for u2 axis
+    %   lab3        Short label for u3 axis
+    %   lab4        Short label for u4 axis (e.g. 'E' or 'En')
+    
     properties(Dependent)
         % is special mex routines, written for performance reason and as such
         % deeply embedded with cut_sqw objects  are available for given
         % projection type
         can_mex_cut; %false
         %---------------------------------
-        %
-        % Convenience function, providing common interface to projection
-        % data
         % the lattice parameters
         alatt
         % angles between the lattice edges
         angdeg
         %---------------------------------
-        %Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
-        range_offset;
-        %
+        %TODO: Will be refactored to axes_caption and transferred to axes
+        %block?
+        lab
         
-    end
-    properties
+        %Offset of origin of the projection in r.l.u. and energy ie. [h; k; l; en] [row vector]
+        offset;
+        %
         % the target projection, used by cut to transform from
         % source to target coordinate system
         targ_proj
+    end
+    properties
         pix_to_rlu
+    end
+    properties(Constant, Access=private)
+        fields_to_save_ = {'alatt','angdeg','lab','offset'}
+    end
+    properties(Constant, Access=protected)    
+        % minimal value of a vector norm e.g. how close couple of vectors
+        % should be to be considered parallel u*v are orthogonal if u*v'<tol
+        % or what vector should be consigdered a
+        % null vector (e.g. abs([9.e-13,0,0,0]) will be converted to [0,0,0,0]
+        % at setup
+        tol_=1e-12;
     end
     %----------------------------------------------------------------------
     properties(Access=protected)
         alatt_=[1,1,1];
         angdeg_= [90,90,90];
         %------------------------------------
-        data_u_to_rlu_ = eye(4); %  Matrix (4x4) of projection axes in hkle representation
         %  u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-        range_offset_  = [0;0;0;0] %Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
+        offset_  = [0,0,0,0] %Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
+        %
+        labels_={'Q_h','Q_k','Q_l','En'};
+        %
+        % target projection holder
+        targ_proj_;
     end
     
     methods
-        function proj=aProjection(varargin)
+        function [obj,par]=aProjection(varargin)
+            % aProjection constructor.
+            %
+            % Accepts any combination (including empty) of aProjection 
+            % class properties containing setters in the form:
+            % {property_name1, value1, property_name2, value2....}
+            %
+            % Returns:
+            %
+            % obj  -- Instance of aProjection class
+            % par  -- if input arguments contains key-value pairs, which do
+            %         not describe aProjection class, the output contains
+            %         cellarray of such parameters. Empty, if all inputs
+            %         define the projecton parameters.
+            if nargin == 0
+                par = {};
+                return;
+            end
+            [obj,par] = init(obj,varargin{:});
+        end
+        function [obj,par] = init(obj,varargin)
+            % Method to initialize empty constructor
+            % Inputs:
+            % A combination (including empty) of aProjection 
+            % class properties containing setters in the form:
+            % {property_name1, value1, property_name2, value2....}            
+            % Returns:
+            % obj  -- Initialized instance of aProjection class
+            % par  -- if input arguments contains key-value pairs, which do
+            %         not describe aProjection class, the output contains
+            %         cellarray of such parameters. Empty, if all inputs
+            %         define the projecton parameters.
+            % 
+            [obj,par] = init_(obj,varargin{:});
         end
         
         function can_mex_cut = get.can_mex_cut(self)
             % generic projection can not run mex code
             can_mex_cut  = can_mex_cut_(self);
         end
+        %------------------------------------------------------------------
+        %
+        %------------------------------------------------------------------
         function [npix,s,e,pix_data] = bin_pixels(obj,axes_block,pix_data)
             pix_transformed = obj.transform_pix_to_img(pix_data);
             [npix,s,e,pix_data]=axes_block.bin_pixels(pix_transformed);
@@ -163,7 +228,7 @@ classdef aProjection
             %
             % The parameters expected to be in A
             %
-            obj.alatt_ = check_alatt_return_standard_val_(val);
+            obj = check_and_set_alatt(obj,val);
         end
         %
         function angl = get.angdeg(obj)
@@ -175,34 +240,35 @@ classdef aProjection
             %
             % All angles are in degrees.
             %
-            obj.angdeg_ = check_angdeg_return_standard_val_(val);
+            obj = check_and_set_andgdeg(obj,val);
         end
-        function  roff = get.range_offset(obj)
-            roff = obj.range_offset_;
+        %
+        function lab=get.lab(obj)
+            lab = obj.labels_;
         end
-        function  obj = set.range_offset(obj,val)
-            if numel(value) == 1
-                val = ones(4,1)*value;
-            elseif numel(value) == 3
-                if size(value,2)>1
-                    val = [val';0];
-                else
-                    val = [val;0];
-                end
-            elseif numel(value) == 4
-                if size(value,2)>1
-                    val = val';
-                end
-            else
+        function obj=set.lab(obj,val)
+            obj = check_and_set_labels_(obj,val);
+        end
+        %
+        function uoffset = get.offset(this)
+            uoffset = this.offset_;
+        end
+        function obj = set.offset(obj,val)
+            obj = check_and_set_uoffset_(obj,val);
+        end
+        %
+        function proj = get.targ_proj(obj)
+            proj = obj.targ_proj_;
+        end
+        function obj = set.targ_proj(obj,val)
+            if ~isa(val,'aProjection')
                 error('HORACE:aProjection:invalid_argument',...
-                    'Can not interpret object of size %s. Range_offset have define 4D vector describing the offset of the projection region',...
-                    evalc('disp(size(value))'));
+                    'only member of aProjection family can be set up as target projection. Attempted to use: %s',...
+                    evalc('disp(type(val))'))
             end
-            obj.range_offset_ = val;
+            obj.targ_proj_ = val;
         end
-        
-        
-        
+        %------------------------------------------------------------------
         %
         %
         % Temporary method, here until projection is refactored
@@ -217,12 +283,26 @@ classdef aProjection
         %         function obj = set_data_pix_to_rlu(obj,data_upix_to_rlu)
         %             obj.data_upix_to_rlu_ = data_upix_to_rlu;
         %         end
+        %------------------------------------------------------------------
+        % Serializable interface
+        function ver  = classVersion(~)
+            ver = 1;
+        end
+        function  flds = indepFields(obj)
+            flds = obj.fields_to_save_;
+        end
     end
     %
     methods(Access = protected)
         %
         function isit= can_mex_cut_(~)
             isit = false;
+        end
+        function obj = check_and_set_alatt(obj,val)
+            obj.alatt_ = check_alatt_return_standard_val_(obj,val);
+        end
+        function obj = check_and_set_andgdeg(obj,val)
+            obj.angdeg_ = check_angdeg_return_standard_val_(obj,val);
         end
         function [nbin_in,pin]= get_input_data_binning_(obj)
             % input data binning how data are initially binned, and full
@@ -359,20 +439,20 @@ classdef aProjection
     methods(Abstract)
         % find the whole range of input data which may contribute
         % into the result.
-        urange_out = find_old_img_range(obj,urange_in);
+        % urange_out = find_old_img_range(obj,urange_in);
         
         
-%         % Get ranges of bins that partially or wholly lie inside an n-dimensional shape,
-%         % defined by projection limits.
-%         [istart,iend,irange,inside,outside] = get_irange_proj(obj,urange,varargin);
-%         
-%         % get list of pixels indexes contributing into the cut
-%         [indx,ok] = get_contributing_pix_ind(obj,v);
-%         
-%         % get projection parameters, necessary for properly definind a sqw
-%         % or dnd object from the projection        %
-%         [uoffset,ulabel,dax,u_to_rlu,ulen,title_function] = get_proj_param(obj,data_in,pax);
-%         
+        %         % Get ranges of bins that partially or wholly lie inside an n-dimensional shape,
+        %         % defined by projection limits.
+        %         [istart,iend,irange,inside,outside] = get_irange_proj(obj,urange,varargin);
+        %
+        %         % get list of pixels indexes contributing into the cut
+        %         [indx,ok] = get_contributing_pix_ind(obj,v);
+        %
+        %         % get projection parameters, necessary for properly definind a sqw
+        %         % or dnd object from the projection        %
+        %         [uoffset,ulabel,dax,u_to_rlu,ulen,title_function] = get_proj_param(obj,data_in,pax);
+        %
         % Transform pixels expressed in crystal cartezian coordinate systems
         % into image coordinate system
         pix_transformed = transform_pix_to_img(obj,pix_cc,varargin);

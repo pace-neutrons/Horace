@@ -3,6 +3,9 @@ classdef axes_block < serializable
     % object
     %
     %  This is the block of axis in Cartesian coordinate system.
+    properties(Dependent)
+        ulen     %Length of projection axes vectors in Ang^-1 or meV [row vector]
+    end
     
     properties
         title   =''   % Title of sqw data structure
@@ -11,7 +14,7 @@ classdef axes_block < serializable
         %               Used in titles
         
         %
-        ulen=[1,1,1,1]      %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        
         ulabel={'Q_h','Q_k','Q_l','En'}  %Labels of the projection axes [1x4 cell array of character strings]
         iax=1:4;          %Index of integration axes into the projection axes  [row vector]
         %                  Always in increasing numerical order
@@ -35,6 +38,9 @@ classdef axes_block < serializable
         %  it may belong to projection but should be here if used in
         %  plotting. Should non-orthogonal be just different axes_block?
         nonorthogonal = false % if the coordinate system is non-orthogonal.
+    end
+    properties(Access=protected)
+        ulen_=[1,1,1,1]      %Length of projection axes vectors in Ang^-1 or meV [row vector]
     end
     properties(Constant,Access=private)
         % fields which fully represent the state of the class and allow to
@@ -163,9 +169,9 @@ classdef axes_block < serializable
         % that contains bins with non-zero values of contributing pixels.
         [val, n] = data_bin_limits (din);
         %
-
+        
         function [cube_coord,step] = get_axes_scales(obj)
-            % Return 4D cube, describing the minimal grid cell of the axes block            
+            % Return 4D cube, describing the minimal grid cell of the axes block
             [cube_coord,step] = get_axes_scales_(obj);
         end
         function range = get_binning_range(obj)
@@ -197,13 +203,13 @@ classdef axes_block < serializable
             % npix    -- the array, containing the numbers of pixels
             %            contributing into each grid cell
             % s       -- empty if input signal and error are absent or
-            %            array, containing the accumulated signal for each 
+            %            array, containing the accumulated signal for each
             %            grid bin
             % e       -- empty if input signal and error are absent or
-            %            array, containing the accumulated error for each 
+            %            array, containing the accumulated error for each
             %            grid bin
-            % pix     -- 
-            [npix,s,e,pix] = bin_pixels_(obj,coord,varargin{:});            
+            % pix     --
+            [npix,s,e,pix] = bin_pixels_(obj,coord,varargin{:});
         end
         
         function [nodes,varargout] = get_bin_nodes(obj,varargin)
@@ -262,6 +268,23 @@ classdef axes_block < serializable
             %
             [obj,uoffset,remains] = init_(obj,varargin{:});
         end
+        %------------------------------------------------------------------
+        % ACCESSORS
+        %------------------------------------------------------------------
+        function ul = get.ulen(obj)
+            ul = obj.ulen_;
+        end
+        function obj = set.ulen(obj,val)
+            if ~(isnumeric(val) && numel(val) == 4)
+                error('HORACE:axes_block:invalid_argument',...
+                    'ulen should be vector, containing 4 elements')
+            end
+            obj.ulen_ = val(:)';
+        end
+        
+        
+        %
+        %------------------------------------------------------------------
         function flds = indepFields(~)
             % get independent fields, which fully define the state of a
             % serializable object.
