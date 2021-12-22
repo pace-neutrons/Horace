@@ -14,6 +14,15 @@ classdef test_ortho_proj_construction<TestCase
             end
             this=this@TestCase(name);
         end
+        function test_serialization(~)
+            proj = ortho_proj([1,0,0],[0,1,0],'alatt',[2,3,4],'angdeg',[80,70,85]);
+            
+            ser = proj.serialize();            
+            rec = serializable.deserialize(ser);
+            
+            assertEqual(proj,rec);
+        end
+        
         %------------------------------------------------------------------
         function test_default_constructor(~)
             proj = ortho_proj();
@@ -48,7 +57,7 @@ classdef test_ortho_proj_construction<TestCase
             assertElementsAlmostEqual(proj.w,[0,-1,1])
         end
         %
-        function test_set_u_transf(~)
+        function test_get_projection(~)
 
             data = struct();
             data.alatt = [2,3,4];

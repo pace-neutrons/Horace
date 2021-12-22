@@ -295,7 +295,7 @@ classdef ortho_proj<aProjection
         %
         function  flds = indepFields(obj)
             flds = indepFields@aProjection(obj);
-            flds = [flds(:),obj.fields_to_save_(:)];
+            flds = [flds(:);obj.fields_to_save_(:)];
         end
     end
     %----------------------------------------------------------------------
