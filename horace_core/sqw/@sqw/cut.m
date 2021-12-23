@@ -191,6 +191,9 @@ source_proj = img_block.get_projection();
 source_binning = img_block.get_default_binning_range(img_block.img_db_range,...
     source_proj,targ_proj);
 targ_ax_block = axes_block.build_from_input_binning(source_binning,pbin);
+%TODO: will be something more involved when its generic projection, as the
+%projection defines the structure of axis block for plotting
+targ_ax_block.ulabel = targ_proj.lab;
 
 
 

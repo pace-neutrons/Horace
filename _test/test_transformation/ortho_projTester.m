@@ -1,5 +1,5 @@
 classdef ortho_projTester < ortho_proj
-    %  Helper class to test non-abstract aProjection methods
+    %  Helper class to test protected ortho-proj methods
     %----------------------------------------------------------------------
     properties(Access=protected)
     end

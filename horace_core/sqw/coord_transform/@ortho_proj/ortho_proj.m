@@ -318,7 +318,7 @@ classdef ortho_proj<aProjection
             isit = true;
         end
         %
-        function [rot_to_img,shift]=get_pix_img_transformation(obj,ndim)
+        function [rot_to_img,shift]=get_pix_img_transformation(obj,ndim,varargin)
             % Return the transformation, necessary for conversion from pix
             % to image coordinate system and vise-versa if the projaxes is
             % defined
@@ -343,8 +343,11 @@ classdef ortho_proj<aProjection
                     'The ndim input may be 3 or 4  actually it is: %s',...
                     evalc('disp(size(ndim))'));
             end
-            % convert shift, expressed in hkl into crystal Cartesian
-            shift = u_to_rlu_l \shift';
+            if nargin == 2
+                % convert shift, expressed in hkl into crystal Cartesian
+                shift = u_to_rlu_l \shift';
+            else % do not convert anything
+            end
             
         end
         function  [rlu_to_ustep, u_to_rlu, ulen] = uv_to_rlu(proj,ustep)

@@ -266,6 +266,18 @@ classdef test_ortho_proj_methods<TestCase
         %------------------------------------------------------------------
         %
         %------------------------------------------------------------------
+        function test_transf_to_img_and_back_reverts_proj_ortho_3D_with_offset(~)
+            pix = ones(3,5);
+            proj = ortho_proj([1,0,0],[0,1,1],'offset',[1,0,0]);
+            proj.alatt = 3;
+            proj.angdeg = 90;
+            
+            pix_transf = proj.transform_pix_to_img(pix);
+            assertEqual(size(pix_transf),[3,5]);
+            pix_rec = proj.transform_img_to_pix(pix_transf);
+            assertElementsAlmostEqual(pix_rec,pix);
+        end
+        
         function test_transform_to_img_and_back_reverts_proj_ortho_3D(~)
             pix = ones(3,5);
             proj = ortho_proj([1,0,0],[0,1,1]);
@@ -278,6 +290,7 @@ classdef test_ortho_proj_methods<TestCase
             assertElementsAlmostEqual(pix_rec,pix);
         end
         %
+        
         function test_transform_to_img_and_back_reverts_noprojaxis(~)
             pix = ones(4,5);
             proj = ortho_proj();
@@ -286,6 +299,19 @@ classdef test_ortho_proj_methods<TestCase
             pix_rec = proj.transform_img_to_pix(pix_transf);
             assertEqual(pix_rec,pix);
         end        
+        %
+        function transform_to_img_and_back_reverts_proj_ortho_with_offset(~)
+            pix = ones(4,5);
+            proj = ortho_proj([1,0,0],[0,1,1],'offset',[1,1,1]);
+            proj.alatt = 3;
+            proj.angdeg = 90;
+            
+            pix_transf = proj.transform_pix_to_img(pix);
+            assertEqual(size(pix_transf),[4,5]);
+            pix_rec = proj.transform_img_to_pix(pix_transf);
+            assertElementsAlmostEqual(pix_rec,pix);
+        end
+        
         %
         function transform_to_img_and_back_reverts_proj_ortho(~)
             pix = ones(4,5);
