@@ -1,4 +1,4 @@
-function [npix,s,e,pix] = bin_pixels_(obj,coord,signal,error,candidate_pix,varargin)
+function [npix,s,e,pix] = bin_pixels_(obj,coord,sig,err,candidate_pix,varargin)
 
 if ~isnumeric(coord) || size(coord,1) ~= 4
     error('HORACE:axes_block:invalid_argument',...
@@ -54,8 +54,8 @@ if numel(sz_proj)==1
 end
 npix = accumarray(indx, ones(1,size(indx,1)), sz_proj);
 if exist('signal','var')
-    s = accumarray(indx, signal(ok), sz_proj);
-    e = accumarray(indx, error(ok), sz_proj);
+    s = accumarray(indx, sig(ok), sz_proj);
+    e = accumarray(indx, err(ok), sz_proj);
 else
     s = [];
     e = [];

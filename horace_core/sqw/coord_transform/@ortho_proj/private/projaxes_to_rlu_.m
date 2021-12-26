@@ -25,9 +25,9 @@ function [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu_(proj,ustep)
 %
 %   u_to_rlu       The projection axis vectors u_1, u_2, u_3 in reciprocal
 %                  lattice vectors. The ith column is u_i in r.l.u. i.e.
-%                       ui = u_to_rlu(:,i)
+%                  ui = u_to_rlu(:,i)
 %
-%   ulen            Row vector of lengths of ui in Ang^-1
+%   ulen           Row vector of lengths of ui in Ang^-1
 %
 %
 % Original author: T.G.Perring

@@ -19,10 +19,6 @@ classdef aProjection < serializable
     %   lab4        Short label for u4 axis (e.g. 'E' or 'En')
     
     properties(Dependent)
-        % is special mex routines, written for performance reason and as such
-        % deeply embedded with cut_sqw objects  are available for given
-        % projection type
-        can_mex_cut; %false
         %---------------------------------
         % the lattice parameters
         alatt
@@ -105,16 +101,17 @@ classdef aProjection < serializable
             [obj,par] = init_(obj,varargin{:});
         end
         
-        function can_mex_cut = get.can_mex_cut(self)
-            % generic projection can not run mex code
-            can_mex_cut  = can_mex_cut_(self);
-        end
         %------------------------------------------------------------------
         %
         %------------------------------------------------------------------
-        function [npix,s,e,pix_data] = bin_pixels(obj,axes_block,pix_data)
+        function [npix,s,e,pix_data] = bin_pixels(obj,axes_block,pix_data,npix,s,e,varargin)
+            % Convert pixels into the coordinate system, defined by the
+            % projection and bin them into the coordinate system, defined
+            % by the axes block, specified as input
+            % 
             pix_transformed = obj.transform_pix_to_img(pix_data);
-            [npix,s,e,pix_data]=axes_block.bin_pixels(pix_transformed);
+            [npix,s,e,pix_data]=axes_block.bin_pixels(pix_transformed,...
+                npix,s,e,varargin{:});
         end
         function [bl_start,bl_size] = get_nrange(obj,npix,cur_axes_block,targ_proj,targ_axes_block)
             % return the bin numbers (from/to) which pixels may contribute

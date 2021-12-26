@@ -75,7 +75,8 @@ classdef test_cut < TestCase & common_state_holder
         end
         %
         function test_take_a_cut_from_an_sqw_object(obj)
-            sqw_obj = read_sqw(obj.sqw_file);
+            %sqw_obj = read_sqw(obj.sqw_file);
+            sqw_obj = obj.sqw_4d; % it have just been read in constructor
             sqw_cut = cut(sqw_obj, obj.ref_params{:});
             %
             % offset is currently expressed in hkl

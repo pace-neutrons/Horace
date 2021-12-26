@@ -104,12 +104,15 @@ classdef axes_block < serializable
             img_db_range = zeros(2,4);
             img_db_range(:,ax_data.iax) = ax_data.iint;
             if numel(ax_data.iax)>0
-                % let's assume that newly generated sqw file has
-                % 4 dimensions and cuts have at least one direction
-                % integrated.
+                % newly generated sqw file alvays has 4 dimentions, so
+                % if it is less then 4, its a cut
                 newly_generated = false;
             else
-                newly_generated = true;
+                if all(ax_data.ulen == [1,1,1,1])                    
+                    newly_generated = true;
+                else
+                    newly_generated = false;                    
+                end                
             end
             
             npax = numel(ax_data.p);

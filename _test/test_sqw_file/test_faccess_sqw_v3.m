@@ -366,13 +366,14 @@ classdef test_faccess_sqw_v3< TestCase
             faccess = faccess_sqw_v3(obj.sample_file);
             pix_starts = [4, 100, 7679];
             pix_ends = [6, 104, 7680];
+            block_sizes = pix_ends -pix_starts+1;
             pix_indices = [4:6, 100:104, 7679:7680];
 
             % we trust .get_pix, which is tested elsewhere, to load in the full
             % range
             raw_pix_full = faccess.get_pix(1, faccess.npixels);
 
-            raw_pix = faccess.get_pix_in_ranges(pix_starts, pix_ends);
+            raw_pix = faccess.get_pix_in_ranges(pix_starts, block_sizes);
             expected_pix = raw_pix_full(:, pix_indices);
 
             assertEqualToTol(raw_pix, expected_pix, 5e-4);
@@ -382,9 +383,10 @@ classdef test_faccess_sqw_v3< TestCase
             faccess = faccess_sqw_v3(obj.sample_file);
             pix_starts = [4, 52, 7679];
             pix_ends = [6, 49, 7680];  % note 52 > 49
+            bl_sizes = pix_ends-pix_starts+1;
 
-            f = @() faccess.get_pix_in_ranges(pix_starts, pix_ends);
-            assertExceptionThrown(f, 'FACCESS_SQW_V3:get_pix_in_ranges');
+            f = @() faccess.get_pix_in_ranges(pix_starts, bl_sizes);
+            assertExceptionThrown(f, 'HORACE:sqw_binfile_common:invalid_argument');
         end
 
         function test_get_pix_in_ranges_can_handle_out_of_order_ranges(obj)
@@ -392,12 +394,14 @@ classdef test_faccess_sqw_v3< TestCase
             pix_starts = [4, 7679, 100];
             pix_ends = [6, 7680, 104];
             pix_indices = [4:6, 7679:7680, 100:104];
+            bl_sizes = pix_ends-pix_starts+1;
+            
 
             % we trust .get_pix, which is tested elsewhere, to load in the full
             % range
             raw_pix_full = faccess.get_pix(1, faccess.npixels);
 
-            raw_pix = faccess.get_pix_in_ranges(pix_starts, pix_ends);
+            raw_pix = faccess.get_pix_in_ranges(pix_starts, bl_sizes);
             expected_pix = raw_pix_full(:, pix_indices);
 
             assertEqualToTol(raw_pix, expected_pix, 5e-4);
@@ -408,12 +412,14 @@ classdef test_faccess_sqw_v3< TestCase
             pix_starts = [4, 7679, 10];
             pix_ends = [20, 7680, 24];
             pix_indices = [4:20, 7679:7680, 10:24];
+            bl_sizes = pix_ends-pix_starts+1;
+            
 
             % we trust .get_pix, which is tested elsewhere, to load in the full
             % range
             raw_pix_full = faccess.get_pix(1, faccess.npixels);
 
-            raw_pix = faccess.get_pix_in_ranges(pix_starts, pix_ends);
+            raw_pix = faccess.get_pix_in_ranges(pix_starts, bl_sizes);
             expected_pix = raw_pix_full(:, pix_indices);
 
             assertEqualToTol(raw_pix, expected_pix, 5e-4);
@@ -422,9 +428,10 @@ classdef test_faccess_sqw_v3< TestCase
         function test_get_pix_in_ranges_raises_if_index_arrays_ne_size(obj)
             faccess = faccess_sqw_v3(obj.sample_file);
             pix_starts = [1, 3, 5, 7];
-            pix_ends = [2, 4, 6];
-            f = @() faccess.get_pix_in_ranges(pix_starts, pix_ends);
-            assertExceptionThrown(f, 'FACCESS_SQW_V3:get_pix_in_ranges');
+            bl_sizes = [2, 4, 6];
+            
+            f = @() faccess.get_pix_in_ranges(pix_starts, bl_sizes);
+            assertExceptionThrown(f, 'HORACE:sqw_binfile_common:invalid_argument');
         end
     end
 end

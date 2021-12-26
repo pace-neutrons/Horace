@@ -131,8 +131,8 @@ classdef cut_data_from_file_job < JobExecutor
             
         end
         function [s, e, npix, pix_range_step, npix_retain, ok, ix] = ...
-                accumulate_cut(s, e, npix, pix_range_step, keep_pix, ...
-                v, proj, pax,keep_precision)
+                accumulate_cut(s, e, npix, axes, proj, ...
+                v, keep_pix, keep_precision)
             % Accumulate signal and pixel if requested into the output arrays
             %
             %>> [s,e,npix,npix_retain] = accumulate_cut s, e, npix, pix_range_step, keep_pix, 
@@ -186,8 +186,8 @@ classdef cut_data_from_file_job < JobExecutor
                 keep_precision = false;
             end
             [s, e, npix, pix_range_step, npix_retain, ok, ix] = ...
-                accumulate_cut_ (s, e, npix, pix_range_step, keep_pix, ...
-                v, proj, pax,keep_precision);
+                accumulate_cut_ (s, e, npix, axes, proj, ...
+                v, keep_pix, keep_precision);
         end
         
         function pix_comb_info = accumulate_pix_to_file(varargin)

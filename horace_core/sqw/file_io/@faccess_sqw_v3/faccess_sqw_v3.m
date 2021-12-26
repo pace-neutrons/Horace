@@ -78,7 +78,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             'position_info_pos_';'eof_pos_'};
         v3_data_form_ = field_generic_class_hv3();
     end
-
+    
     %
     methods(Access=protected,Hidden=true)
         function obj=init_from_sqw_file(obj,varargin)
@@ -141,7 +141,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
                 end
             end
         end
-
+        
         function obj = init_sample_instr_records(obj)
             obj = init_sample_instr_records_(obj);
         end
@@ -164,7 +164,15 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         obj = put_footers(obj);
         obj = put_bytes(obj, to_write);
         obj = validate_pixel_positions(obj);
-
+        
+        function [data_obj,obj] = get_data (obj,varargin)
+            [data_obj,obj] = get_data@sqw_binfile_common(obj,varargin{:});
+            if isa(obj,'faccess_sqw_v3') % these have incorrect
+                % (different meaining) img_db_range stored in file
+                data_obj.img_db_range = axes_block.calc_img_db_range(data_obj);
+            end
+        end
+        
         function obj=faccess_sqw_v3(varargin)
             % constructor, to build sqw reader/writer version 3
             %
@@ -188,7 +196,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             %                       to save sqw object provided. The name
             %                       of the file to save the object should
             %                       be provided separately.
-
+            
             %
             % set up fields, which define appropriate file version
             obj.file_ver_ = 3.1;
@@ -196,7 +204,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             if nargin>0
                 obj = obj.init(varargin{:});
             end
-
+            
         end
         %
         function [inst,obj] = get_instrument(obj,varargin)
@@ -310,8 +318,6 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             % positions of all main data blocks within the binary file
             obj = put_sqw_footer_(obj);
         end
-
-
     end
     %
     methods(Static,Hidden=true)
@@ -328,8 +334,8 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             % information
             form = faccess_sqw_v3.v3_data_form_;
         end
-
+        
     end
-
+    
 end
 
