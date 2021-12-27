@@ -4,7 +4,7 @@ function pix_cc = transform_img_to_pix_(obj,pix_data)
 %
 % Input:
 % pix_data -- [3xNpix] or [4xNpix] array of pix coordinates
-%             expressed in crystal image coordinate system (mainly hkl)
+%             expressed in crystal image coordinate system (e.g. hkl)
 % Returns
 % pix_cc -- pixels coordinates expressed in Crystal Cartesian coordinate
 %           system

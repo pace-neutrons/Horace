@@ -67,7 +67,6 @@ use_tmp_files = ~return_cut && num_chunks > 1;
 if keep_pix
     % Pre-allocate cell arrays to hold PixelData chunks
     pix_retained = cell(1, num_chunks);
-    pix_ix_retained = cell(1, num_chunks);
     
     if use_tmp_files
         % Create a pix_comb_info object to handle tmp files of pixels
@@ -92,16 +91,20 @@ for iter = 1:num_chunks
     chunk = block_chunks{iter};
     pix_start = chunk{1};
     block_sizes = chunk{2};
-    pix_end = pix_start+block_sizes-1;
     candidate_pix = obj.data.pix.get_pix_in_ranges( ...
-        pix_start, pix_end, false);
+        pix_start, block_sizes, false,keep_precision);
     
     if log_level >= 1
         fprintf(['Step %3d of %3d; Read data for %d pixels -- ' ...
             'processing data...'], iter, num_chunks, ...
             candidate_pix.num_pixels);
     end
-    [npix,s,e,pix_ok] = proj.bin_pixels(axes,candidate_pix,npix,s,e,keep_pix);    
+    if keep_pixels
+        [npix,s,e,pix_ok] = proj.bin_pixels(axes,candidate_pix,npix,s,e);    
+    else
+        [npix,s,e] = proj.bin_pixels(axes,candidate_pix,npix,s,e);            
+        pix_ok = [];
+    end
     
 %     [ ...
 %         s, ...
@@ -139,7 +142,7 @@ end  % loop over pixel blocks
 
 if keep_pix
     [pix_out, pix_comb_info] = combine_pixels( ...
-        pix_retained, pix_ix_retained, pix_comb_info, npix, block_size ...
+        pix_retained, pix_comb_info, npix, block_size ...
         );
 else
     pix_out = PixelData();
@@ -190,16 +193,16 @@ end
 
 
 function [pix, pix_comb_info] = combine_pixels( ...
-    pix_retained, pix_ix_retained, pix_comb_info, npix, buf_size ...
+    pix_retained, npix, buf_size ...
     )
 % Combine and sort in-memory pixels or finalize accumulation of pixels in
 % temporary files managed by a pix_combine_info object.
-if ~isempty(pix_comb_info)
+if ~isa(pix_retained,'pix_comb_info')
     % Pixels are stored in tmp files managed by pix_combine_info object
     pix = PixelData();
     finish_accumulation = true;
     pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file( ...
-        pix_comb_info, finish_accumulation, pix, [], [], npix, buf_size, 0 ...
+        pix_retained, finish_accumulation, pix, [], [], npix, buf_size, 0 ...
         );
 else
     % Pixels stored in-memory in PixelData object

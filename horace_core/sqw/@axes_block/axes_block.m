@@ -188,20 +188,21 @@ classdef axes_block < serializable
             range = get_binning_range_(obj);
         end
         
-        function [npix,s,e,pix] = bin_pixels(obj,coord,varargin)
+        function [npix,s,e,pix] = bin_pixels(obj,pix_coord_transf,varargin)
             % bin and distribute data expressed in the coordinate system
             % described by this axes block over the current lattice
             % Usage:
             % >>npix = obj.bin_pixels(coord);
-            % >>[npix,s,e] = obj.bin_pixels(coord,signal,error);
-            % >>[npix,s,e,pix] = bin_pixels(obj,coord,signal,error,pix_obj)
+            % >>[npix,s,e] = obj.bin_pixels(coord,s,e,sigvar);
+            % >>[npix,s,e,pix_ok] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
             % Where
             % Inputs:
-            % coord   -- [4,npix] array of pixels coordinates to bin
-            % signal  -- npix array of pixel signal
-            % error   -- npix array of pixels error
-            % pix_obj -- PixelData or pixel file access object, providing
-            %            the access to the full pixels information
+            % pix_candidates
+            %         -- either [4,npix] array of pixels coordinates to bin
+            %            or PixelData object or pixel file access object, 
+            %            providing the access to the full pixels information
+            % Optional:
+            % 
             % Returns:
             % npix    -- the array, containing the numbers of pixels
             %            contributing into each grid cell
@@ -211,8 +212,10 @@ classdef axes_block < serializable
             % e       -- empty if input signal and error are absent or
             %            array, containing the accumulated error for each
             %            grid bin
-            % pix     --
-            [npix,s,e,pix] = bin_pixels_(obj,coord,varargin{:});
+            % pix     -- if requested, pixel array or PixelData 
+            %            object (the output format is the same as of pix_candidates
+            narg = nargout;
+            [npix,s,e,pix] = bin_pixels_(obj,pix_coord_transf,narg,varargin{:});
         end
         
         function [nodes,varargout] = get_bin_nodes(obj,varargin)

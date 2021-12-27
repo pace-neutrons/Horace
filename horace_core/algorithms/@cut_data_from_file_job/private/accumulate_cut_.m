@@ -1,7 +1,5 @@
 function [s, e, npix, img_range_step, npix_retain,ok, ix] = accumulate_cut_(s, e, npix, axes, proj, ...
                 v, keep_pix, keep_precision)
-%function [s, e, npix, img_range_step, npix_retain,ok, ix] = accumulate_cut (s, e, npix, img_range_step, keep_pix,...
-%    v, img_range_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax)
 % Accumulate signal into output arrays
 %
 %   >> [s,e,npix,npix_retain] = accumulate_cut (s, e, npix, v, img_range_step, rot_ustep, trans_bott_left, ebin, trans_elo, pax, keep_pix)

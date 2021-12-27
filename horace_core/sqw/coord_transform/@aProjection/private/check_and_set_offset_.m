@@ -1,6 +1,6 @@
-function obj = check_and_set_uoffset_(obj,offset)
+function obj = check_and_set_offset_(obj,offset)
 % Verify correct values for offset and set offset field
-% if validation is succsessful
+% if validation is successful
 %
 if isnumeric(offset)
     if (numel(offset)==3)

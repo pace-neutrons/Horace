@@ -1,10 +1,7 @@
-function [npix,s,e,pix] = bin_pixels_(obj,coord,sig,err,candidate_pix,varargin)
+function [npix,s,e,pix] = bin_pixels_(obj,coord,mode,varargin)
 
-if ~isnumeric(coord) || size(coord,1) ~= 4
-    error('HORACE:axes_block:invalid_argument',...
-        'Unknown input type %s or shape %s of the input coordinates',...
-        class(coord),evalc('disp(size(coord))'));
-end
+
+[accum_se,return_pixels,coord,s,e]=parse_inputs(obj,coord,mode,varargin{:});
 
 [ndims,sz_proj] = obj.data_dims();
 data_range = obj.get_binning_range();
@@ -15,18 +12,8 @@ r2 = data_range(2,:)';
 ok = all(coord>=r1 & coord<=r2,1);
 coord = coord(:,ok);
 if isempty(coord)
-    npix = zeros(sz_proj);
-    if exist('signal','var')
-        s =  zeros(sz_proj);
-        e =  zeros(sz_proj);
-    else
-        s = [];
-        e = [];
-    end
-    if exist('candidate_pix','var')
+    if return_pixels
         pix = PixelData();
-    else
-        pix = [];
     end
     return;
 end
@@ -66,3 +53,24 @@ if exist('candidate_pix','var')
 else
     pix = [];
 end
+function [accum_se,return_pixels]=parse_inputs(narg,varargin)
+if ~isnumeric(coord) || size(coord,1) ~= 4
+    error('HORACE:axes_block:invalid_argument',...
+        'Unknown input type %s or shape %s of the input coordinates',...
+        class(coord),evalc('disp(size(coord))'));
+end
+
+    npix = zeros(sz_proj);
+    if exist('signal','var')
+        s =  zeros(sz_proj);
+        e =  zeros(sz_proj);
+    else
+        s = [];
+        e = [];
+    end
+    if exist('candidate_pix','var')
+        pix = PixelData();
+    else
+        pix = [];
+    end
+
