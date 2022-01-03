@@ -8,7 +8,7 @@ function pix_transf = transform_pix_to_img_(obj,pix_input,varargin)
 %             or pixelData object.
 % Returns:
 % pix_out -- the pixels coordinates transformed into coordinate
-%             system, related to image (often hkl system)
+%             system, related to image (e.g. hkl system)
 %
 if isa(pix_input,'PixelData')
     pix_cc = pix_input.q_coordinates;

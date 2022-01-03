@@ -167,8 +167,8 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         
         function [data_obj,obj] = get_data (obj,varargin)
             [data_obj,obj] = get_data@sqw_binfile_common(obj,varargin{:});
-            if isa(obj,'faccess_sqw_v3') % these have incorrect
-                % (different meaining) img_db_range stored in file
+            if strcmp(class(obj),'faccess_sqw_v3') % these have incorrect
+                % (different meaining) value of img_db_range stored in file
                 data_obj.img_db_range = axes_block.calc_img_db_range(data_obj);
             end
         end
