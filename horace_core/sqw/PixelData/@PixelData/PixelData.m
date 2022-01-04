@@ -118,9 +118,8 @@ classdef PixelData < handle
             'energy_idx', ...
             'signal', ...
             'variance',...
-            'sig_var',...
             'all'}, ...
-            {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9,8:9,1:9});
+            {1, 2, 3, 4, 1:4, 1:3, 5, 6, 7, 8, 9,1:9});
         % list of the fields, used for exporting PixelData class to
         % structure
         % Does not properly support filebased data. The decision is not to
@@ -146,7 +145,6 @@ classdef PixelData < handle
         signal;   % The signal array (1 x n array)
         variance; % The variance on the signal array
         %            (variance i.e. error bar squared) (1 x n array)
-        sig_var;
         num_pixels;         % The number of pixels in the data block
         
         pix_range; % The range of pixels coordinates in Crystal Cartesian
@@ -605,16 +603,6 @@ classdef PixelData < handle
             obj.reset_changed_coord_range('coordinates');
             obj.set_page_dirty_(true);
         end
-        function sigvar = get.sig_var(obj)
-            obj = obj.load_current_page_if_data_empty_();
-            sigvar = obj.data(obj.FIELD_INDEX_MAP_('sig_var'), :);
-        end
-        function set.sig_var(obj, sigvar)
-            obj = obj.load_current_page_if_data_empty_();
-            obj.data(obj.FIELD_INDEX_MAP_('sig_var'), :) = sigvar;
-            obj.set_page_dirty_(true);
-        end
-        
         
         function coord_data = get.q_coordinates(obj)
             obj = obj.load_current_page_if_data_empty_();

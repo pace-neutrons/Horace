@@ -1,5 +1,5 @@
 function out = get_ind_from_ranges(range_starts, block_sizes)
-% Get an array of indexes fom the arrays, defining the initial indexes 
+% Get an array of indexes fom the arrays, defining the initial indexes
 % and the size of the continuous blocks of intexes
 % e.g.
 %   >> range_starts = [1, 15, 12]
@@ -24,4 +24,3 @@ value_diffs(range_boundary_idxs(1:end - 1)) = ...
     [range_starts(1),range_starts(2:end) - range_ends(1:end - 1)];
 % Take the cumulative sum
 out = cumsum(value_diffs);
-end

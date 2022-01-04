@@ -56,6 +56,8 @@ classdef axes_block < serializable
         % defaults are taken from the given image range which should be
         % properly prepared
         [obj,targ_img_db_range] = build_from_input_binning(cur_img_range_and_steps,pbin);
+        %
+        % TODO: redundant
         % Create bin boundaries for integration and plot axes from requested limits and step sizes
         [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
         
@@ -65,8 +67,9 @@ classdef axes_block < serializable
             obj = axes_block();
             obj = loadobj@serializable(S,obj);
         end
+        %
         function img_db_range = calc_img_db_range(ax_data)
-            % function used to retrieve 4D range used for rebinning pixels
+            % Retrieve 4D range used for rebinning pixels
             % from old style sqw objects, where this range was not stored
             % directly as it may become incorrect after some
             % transformations.
@@ -100,40 +103,7 @@ classdef axes_block < serializable
             %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
             %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
             %
-            
-            img_db_range = zeros(2,4);
-            img_db_range(:,ax_data.iax) = ax_data.iint;
-            if numel(ax_data.iax)>0
-                % newly generated sqw file alvays has 4 dimentions, so
-                % if it is less then 4, its a cut
-                newly_generated = false;
-            else
-                if all(ax_data.ulen == [1,1,1,1])                    
-                    newly_generated = true;
-                else
-                    newly_generated = false;                    
-                end                
-            end
-            
-            npax = numel(ax_data.p);
-            pax_range = zeros(2,npax);
-            for i=1:npax
-                if newly_generated
-                    % newly generated old sqw files have axis extended to
-                    % range of pixel data
-                    pax_range(:,i) = [ax_data.p{i}(1);...
-                        ax_data.p{i}(end)];
-                    
-                else
-                    %   cuts axis rage is extended by half-bin
-                    %   wrt to actual pixel rebinning range
-                    h_bin_width = 0.5*abs(ax_data.p{i}(2)-ax_data.p{i}(1));
-                    pax_range(:,i) = [ax_data.p{i}(1)+h_bin_width,...
-                        ax_data.p{i}(end)-h_bin_width];
-                    
-                end
-            end
-            img_db_range(:,ax_data.pax) = pax_range;
+            img_db_range = calc_img_db_range_(ax_data);
         end
     end
     
@@ -155,17 +125,17 @@ classdef axes_block < serializable
             obj = obj.init(varargin{:});
         end
         %
-        % Find number of dimensions and extent along each dimension of
+        % Return number of dimensions and extent along each dimension of
         % the signal arrays.
-        [nd,sz] = data_dims(data);
+        [nd,sz,nse_size] = data_dims(data);
         % return 3 q-axis in the order they mark the dnd object
         % regardless of the integration along some axis
         % TODO: probably should be removed
         [q1,q2,q3] = get_q_axes(obj);
         %
-        % return binning range of existing data object, so that cut without
+        % return binning range of existing data object, so that a cut without
         % projection, performed within this range would return the same cut
-        % as the original object
+        % as the original object.
         range = get_cut_range(obj);
         %
         % find the coordinates along each of the axes of the smallest cuboid
@@ -193,15 +163,28 @@ classdef axes_block < serializable
             % described by this axes block over the current lattice
             % Usage:
             % >>npix = obj.bin_pixels(coord);
-            % >>[npix,s,e] = obj.bin_pixels(coord,s,e,sigvar);
+            % >>[npix,s,e] = obj.bin_pixels(coord,npix,s,e,sigvar);
             % >>[npix,s,e,pix_ok] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
             % Where
             % Inputs:
-            % pix_candidates
-            %         -- either [4,npix] array of pixels coordinates to bin
-            %            or PixelData object or pixel file access object, 
-            %            providing the access to the full pixels information
+            % pix_coord_transf
+            %         -- [4,npix] array of pixels coordinates to bin.
             % Optional:
+            % npix    -- the array of size of the grid, defined by this
+            %            axes_block, containing the information about
+            %            previous pixel data contribution to the axes grid
+            %            cells
+            % s        --  the array of size of the grid, defined by this
+            %            axes_block, containing the information about
+            %            previous pixel data contribution to the axes grid
+            %            signal cells.
+            % e        --  the array of size of the grid, defined by this
+            %            axes_block, containing the information about
+            %            previous pixel data contribution to the axes grid
+            %            variance cells. Must be present if s is present
+            %  pix_candidates 
+            %          -- the PixelData or pixAccees data object,
+            %          containing full pixel information
             % 
             % Returns:
             % npix    -- the array, containing the numbers of pixels
@@ -214,8 +197,13 @@ classdef axes_block < serializable
             %            grid bin
             % pix     -- if requested, pixel array or PixelData 
             %            object (the output format is the same as of pix_candidates
-            narg = nargout;
-            [npix,s,e,pix] = bin_pixels_(obj,pix_coord_transf,narg,varargin{:});
+            nargou = nargout;
+            % convert different inputs into fully expanded common form
+            [npix,s,e,pix_cand,argi]=...
+                obj.normalize_bin_input(pix_coord_transf,nargou,varargin{:});
+            
+            [npix,s,e,pix] = bin_pixels_(obj,pix_coord_transf,nargou,...
+                npix,s,e,pix_cand,argi{:});
         end
         
         function [nodes,varargout] = get_bin_nodes(obj,varargin)
@@ -261,18 +249,18 @@ classdef axes_block < serializable
         end
         
         %
-        function [obj,uoffset,remains] = init(obj,varargin)
+        function [obj,offset,remains] = init(obj,varargin)
             % initialize object with axis parameters.
             %
             % The parameters are defined as in constructor.
             % Returns:
             % obj     -- initialized by inputs axis_block object
-            % uoffset -- the offset for axis box from the origin of the
+            % offset -- the offset for axis box from the origin of the
             %            coordinate system
             % remains -- the arguments, not used in initialization if any
             %            were provided as input
             %
-            [obj,uoffset,remains] = init_(obj,varargin{:});
+            [obj,offset,remains] = init_(obj,varargin{:});
         end
         %------------------------------------------------------------------
         % ACCESSORS
@@ -303,5 +291,15 @@ classdef axes_block < serializable
             % number
             ver = 1;
         end
+    end
+    methods(Access=protected)
+        function [npix,s,e,pix_candidates,argi]=...
+                normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
+            % verify inputs of the bin_pixels function and convert various
+            % forms of the inputs of this function into common form
+            [npix,s,e,pix_candidates,argi]=...
+                normalize_bin_input_(obj,pix_coord_transf,n_argout,varargin{:});
+        end
+        
     end
 end

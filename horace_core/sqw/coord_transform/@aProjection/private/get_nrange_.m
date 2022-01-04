@@ -1,15 +1,16 @@
 function  [bl_start,bl_size] = get_nrange_(obj,...
     npix,cur_axes_block,targ_proj,targ_axes_block)
-% return the bin numbers and the block sizes containing pixels,
-% which may contribute to the final cut defined by the
-% projections, provided as input
+% return the the positions and the sizes of the pixels blocks
+% belonging to the cells, which may contribute to the final cut defined by the
+% projections and axes_block-s, provided as input.
+%
 
 targ_proj.targ_proj = obj;
 obj.targ_proj = targ_proj;
-% Get the hypercube, which describes the one step of binning
-% of the current coordinate axes grid
+% Get the hypercube, which equal to minimal cell of the current grid
+% described by axes_block class.
 ch_cube = cur_axes_block.get_axes_scales();
-% and convert it into the target lattice
+% and convert it into the target coordinate system
 trans_chcube = obj.from_cur_to_targ_coord(ch_cube);
 
 % get all nodes belonging to target axes block, doing the
@@ -30,6 +31,7 @@ if isempty(ncell_contrib)
     bl_size = [];
     return;
 end
+% Convert
 % compress indexes of сontributing cells into bl_start:bl_start+bl_size-1 form
 % good for filebased but bad for arrays
 adjacent= ncell_contrib(1:end-1)+1==ncell_contrib(2:end);

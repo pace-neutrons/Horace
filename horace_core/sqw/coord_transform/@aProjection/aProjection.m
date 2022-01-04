@@ -110,36 +110,35 @@ classdef aProjection < serializable
             % by the axes block, specified as input.
             %
             % Inputs:
-            % axes -- the instance of axes block class, defining the
+            % axes -- the instance of axes_block class, defining the
             %         shape and the binning of the target coodinate system
             % pix_candidates -- the 4xNpix array of pixel coordinates or
             %         PixelData object or pixel data accessor from file
             %         providing access to the full pixel information
             % Optional:
             % npix    -- the array, containing the numbers of pixels
-            %            contributing into each axes grid bin
+            %            contributing into each axes grid cell
             % s       -- array, containing the accumulated signal for each
-            %            axes grid bin
+            %            axes grid cell
             % e       -- aray, containing the accumulated error for each
-            %            axes grid bin
+            %            axes grid cell
             % Outputs:
-            %  The same npix, s, e arrays of inputs modified with added
-            %  information from pix_candidates if npim, s, e arrays were
-            %  present or axes-shaped arrays of this information of there
-            %  were no inputs
+            %  The same npix, s, e arrays as inputs modified with added
+            %  information from pix_candidates if npix, s, e arrays were
+            %  present or axes class - shaped arrays of this information
+            %  if there were no inputs.
             %
             % pix_ok -- if requested, the pixel coordinate array or
             %           PixelData object (as input pix_candidates) containing
-            %           pixels contributing to grid and sorted according to
-            %           the axes block grid.
+            %           pixels contributing to the grid and sorted according
+            %           to the axes block grid.
             pix_transformed = obj.transform_pix_to_img(pix_candidates);
             if nargout == 4
                 [npix,s,e,pix_ok]=axes.bin_pixels(pix_transformed,...
                     npix,s,e,pix_candidates,varargin{:});
             elseif nargout == 3
-                sigvar = pix_candidates.sig_var;
                 [npix,s,e]=axes.bin_pixels(pix_transformed,...
-                    npix,s,e,sigvar,varargin{:});
+                    npix,s,e,pix_candidates,varargin{:});
             elseif nargout ==1
                 npix=axes.bin_pixels(pix_transformed,...
                     npix,varargin{:});
@@ -148,10 +147,11 @@ classdef aProjection < serializable
                     'This function requests 1,3 or 4 output arguments');
             end
         end
-        function [bl_start,bl_size] = get_nrange(obj,npix,cur_axes_block,targ_proj,targ_axes_block)
-            % return the bin numbers and the block sizes containing pixels, 
-            % which may contribute to the final cut defined by the
-            % projections, provided as input
+        function [bl_start,bl_size] = get_nrange(obj,npix,cur_axes_block,...
+                targ_proj,targ_axes_block)
+            % return the the positions and the sizes of the pixels blocks
+            % belonging to the cells, which may contribute to the final cut defined by the
+            % projections and axes_block-s, provided as input.
             %
             % Generic (less efficient) implementation
             [bl_start,bl_size] = get_nrange_(obj,...
@@ -163,7 +163,7 @@ classdef aProjection < serializable
             % Converts from current to target projection coordinate system.
             %
             % Should be overloaded to optimize for a particular case to
-            % improve efficiency.            
+            % improve efficiency.
             % (e.g. two orthogonal projections do shift and rotation
             % as the result, so worth combining them into one operation)
             % Inputs:
@@ -182,7 +182,7 @@ classdef aProjection < serializable
             end
             pic_cc = obj.transform_img_to_pix(pix_origin,varargin{:});
             pix_target  = targproj.transform_pix_to_img(pic_cc,varargin{:});
-        end                
+        end
         %------------------------------------------------------------------
         % accessors
         %------------------------------------------------------------------
@@ -223,10 +223,11 @@ classdef aProjection < serializable
         function obj = set.offset(obj,val)
             obj = check_and_set_uoffset_(obj,val);
         end
-        %
+        %------------------------------------------------------------------
         function proj = get.targ_proj(obj)
             proj = obj.targ_proj_;
         end
+        %
         function obj = set.targ_proj(obj,val)
             if ~isa(val,'aProjection')
                 error('HORACE:aProjection:invalid_argument',...
@@ -235,21 +236,6 @@ classdef aProjection < serializable
             end
             obj.targ_proj_ = val;
         end
-        %------------------------------------------------------------------
-        %
-        %
-        % Temporary method, here until projection is refactored
-        % will belong to another projection or become a property
-        % Ticket #34(https://github.com/pace-neutrons/Horace/issues/34)
-        function upix_to_rlu = get_data_pix_to_rlu(obj)
-            upix_to_rlu = obj.data_upix_to_rlu_;
-        end
-        % Temporary method, here unil projection is refactored
-        % will belong to another projection or become a property
-        % Ticket #34(https://github.com/pace-neutrons/Horace/issues/34)
-        %         function obj = set_data_pix_to_rlu(obj,data_upix_to_rlu)
-        %             obj.data_upix_to_rlu_ = data_upix_to_rlu;
-        %         end
         %------------------------------------------------------------------
         % Serializable interface
         function ver  = classVersion(~)
@@ -261,50 +247,17 @@ classdef aProjection < serializable
     end
     %
     methods(Access = protected)
-        %
-        function isit= can_mex_cut_(~)
-            isit = false;
-        end
         function obj = check_and_set_alatt(obj,val)
             obj.alatt_ = check_alatt_return_standard_val_(obj,val);
         end
         function obj = check_and_set_andgdeg(obj,val)
             obj.angdeg_ = check_angdeg_return_standard_val_(obj,val);
         end
-        function [nbin_in,pin]= get_input_data_binning_(obj)
-            % input data binning how data are initially binned, and full
-            % data projection axis
-            %
-            % auxiliary variable derived from input data projection axis
-            pin=cell(1,4);
-            pin(obj.data_pax_)=obj.data_p_;
-            pin(obj.data_iax_)=mat2cell(obj.new_img_db_range_(:,obj.data_iax_),2,ones(1,length(obj.data_iax_)));
-            nbin_in=zeros(1,4);
-            for i=1:4
-                nbin_in(i)=length(pin{i})-1;
-            end
-        end
     end
     %----------------------------------------------------------------------
     %  ABSTRACT INTERFACE
     %----------------------------------------------------------------------
     methods(Abstract)
-        % find the whole range of input data which may contribute
-        % into the result.
-        % urange_out = find_old_img_range(obj,urange_in);
-        
-        
-        %         % Get ranges of bins that partially or wholly lie inside an n-dimensional shape,
-        %         % defined by projection limits.
-        %         [istart,iend,irange,inside,outside] = get_irange_proj(obj,urange,varargin);
-        %
-        %         % get list of pixels indexes contributing into the cut
-        %         [indx,ok] = get_contributing_pix_ind(obj,v);
-        %
-        %         % get projection parameters, necessary for properly definind a sqw
-        %         % or dnd object from the projection        %
-        %         [uoffset,ulabel,dax,u_to_rlu,ulen,title_function] = get_proj_param(obj,data_in,pax);
-        %
         % Transform pixels expressed in crystal cartezian coordinate systems
         % into image coordinate system
         pix_transformed = transform_pix_to_img(obj,pix_cc,varargin);

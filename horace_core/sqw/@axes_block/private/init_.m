@@ -1,8 +1,8 @@
-function [obj,uoffset,remains] = init_(obj,varargin)
+function [obj,offset,remains] = init_(obj,varargin)
 %
 %
 remains = {};
-uoffset = zeros(4,1);
+offset = zeros(4,1);
 nargi = nargin-1;
 if isa(varargin{1},'axes_block') % handle shallow copy constructor
     obj =varargin{1};            % its COW for Matlab anyway
@@ -60,7 +60,7 @@ elseif nargi>= 4 %remaining input is p1,p2,p3,p4
             proj = [];
             argi = varargin;
         end
-        [pbin,uoffset,nonorthogonal_,remains]=make_axes_from_shifted_pbin_(argi{:});
+        [pbin,offset,nonorthogonal_,remains]=make_axes_from_shifted_pbin_(argi{:});
         if ~isempty(proj)
             remains= [proj;remains(:)];
         end
