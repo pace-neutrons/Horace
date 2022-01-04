@@ -29,11 +29,7 @@ function [vals_av, vals_var, vals_devsqr] = average_bin_data(w, vals)
 % See also recompute_bin_data, which uses en essentially the same algorithm. Any changes
 % to the one routine must be propagated to the other.
 
-if nargout>=2
-    var_request=true;
-else
-    var_request=false;
-end
+var_request = nargout>=2;
 
 % Get the bin index for each pixel
 nend=cumsum(w.data.npix(:));
@@ -46,18 +42,12 @@ for i=1:nbin
 end
 
 % Check size(s) of input array(s)
-if iscell(vals)
-    for i=1:numel(vals)
-        if numel(vals{i})~=npixtot
-            error('HORACE:average_bin_data:invalid_argument',...
-                'Invalid number of elements in input array(s)')
-        end
-    end
-else
-    if numel(vals)~=npixtot
-        error('HORACE:average_bin_data:invalid_argument',...
-            'Invalid number of elements in input array')
-    end
+if iscell(vals) && any(cellfun(@numel, vals) ~= npixtot)
+    error('HORACE:average_bin_data:invalid_argument',...
+          'Invalid number of elements in input array(s)')
+elseif numel(vals)~=npixtot
+    error('HORACE:average_bin_data:invalid_argument',...
+          'Invalid number of elements in input array')
 end
 
 % Accumulate signal
@@ -89,4 +79,6 @@ else
         vals_var=reshape(vals_var,size(w.data.npix));
         vals_var(nopix)=0;
     end
+end
+
 end

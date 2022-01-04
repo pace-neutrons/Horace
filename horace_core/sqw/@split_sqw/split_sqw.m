@@ -3,10 +3,12 @@ function [obj, merge_data] = split_sqw(varargin)
 
     addRequired(ip, 'sqw', @(x)(isa(x, 'SQWDnDBase')))
     addParameter(ip, 'nWorkers', 1, @(x)(validateattributes(x, {'numeric'}, {'positive', 'integer', 'scalar'})));
+    addParameter(ip, 'split_bins', true, @islognumscalar)
     ip.parse(varargin{:})
 
     sqw_in = ip.Results.sqw;
     nWorkers = ip.Results.nWorkers;
+    split_bins = ip.Results.split_bins;
 
 % $$$       debugging
 % $$$             for nw=1:8
@@ -49,22 +51,54 @@ function [obj, merge_data] = split_sqw(varargin)
         end
 
         points = [0, cumsum(num_pixels)];
-        [npix, nomerge] = split_npix(num_pixels, sqw_in.data.npix);
 
-        for i=1:nWorkers
-            obj(i) = sqw_in;
-            obj(i).data.npix = npix{i};
+        if split_bins
+
+            [npix, nomerge] = split_npix(num_pixels, sqw_in.data.npix);
+
+            for i=1:nWorkers
+                obj(i) = copy(sqw_in);
+                obj(i).data.npix = npix{i};
 % $$$             obj(i).data.pix = get_pix_in_ranges(sqw_in.data.pix, points(i)+1, points(i+1));
 
-            obj(i).data.pix = PixelData(num_pixels(i));
-            obj(i).data.pix.data = sqw_in.data.pix.data(:, points(i)+1:points(i+1));
-            obj(i).data.num_pixels = num_pixels(i);
+                obj(i).data.pix = PixelData(num_pixels(i));
+                obj(i).data.pix.data = sqw_in.data.pix.data(:, points(i)+1:points(i+1));
+                obj(i).data.num_pixels = num_pixels(i);
+                [obj(i).data.s, obj(i).data.e] = obj(i).data.pix.compute_bin_data(obj(i).data.npix);
+                merge_data(i).nomerge = nomerge(i);
+                merge_data(i).nelem = [obj(i).data.npix(1), obj(i).data.npix(end)]; % number of pixels to recombine
+            end
+        else % Take whole bins
+            loc = cumsum(sqw_in.data.npix(:));
+            prev = 0;
+            for i=1:nWorkers
+                obj(i) = copy(sqw_in);
 
-            [obj(i).data.s, obj(i).data.e] = obj(i).data.pix.compute_bin_data(obj(i).data.npix);
-            merge_data(i).nomerge = nomerge(i);
-            merge_data(i).nelem = [obj(i).data.npix(1), obj(i).data.npix(end)]; % number of pixels to recombine
+% $$$             obj(i).data.pix = get_pix_in_ranges(sqw_in.data.pix, points(i)+1, points(i+1));
+                curr = find(loc > points(i+1), 1);
+                if loc(curr - 1) == points(i+1)
+                    curr = curr - 1;
+                elseif isempty(curr)
+                    curr = numel(loc);
+                end
+                new_pix = sqw_in.data.npix(prev+1:curr);
+                num_pixels(i) = sum(new_pix);
+                points(i+1) = points(i) + num_pixels(i);
+
+                obj(i).data.pix = PixelData(num_pixels(i));
+                obj(i).data.npix = new_pix;
+                obj(i).data.pix.data = sqw_in.data.pix.data(:, points(i)+1:points(i+1));
+                obj(i).data.num_pixels = num_pixels(i);
+
+                merge_data(i).nomerge = true;
+                merge_data(i).nelem = 0;
+
+                prev = curr;
+            end
         end
 
+    else
+        error('HORACE:split_sqw:invalid_argument', 'Split SQW cannot handle type %s', class(sqw_in))
     end
 
 end
