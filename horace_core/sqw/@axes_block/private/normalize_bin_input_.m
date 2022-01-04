@@ -21,9 +21,7 @@ else
             class(pix));
     end
     
-    if mode == 3
-        pix_cand = [];
-    elseif mode == 4
+    if mode == 3 || mode == 4
         pix_cand = pix;
     else
         error('HORACE:axes_block:invalid_argument',...

@@ -182,10 +182,21 @@ classdef axes_block < serializable
             %            axes_block, containing the information about
             %            previous pixel data contribution to the axes grid
             %            variance cells. Must be present if s is present
-            %  pix_candidates 
+            %  pix_candidates
             %          -- the PixelData or pixAccees data object,
             %          containing full pixel information
-            % 
+            % Parameters:
+            % '-nomex'    -- do not use mex code even if its available
+            %               (usually for testing)
+            %
+            % '-force_mex' -- use only mex code and fail if mex is not available
+            %                (usually for testing)
+            % '-force_double'
+            %              -- if provided, the routine changes type of pixels
+            %                 it get on input, into double. if not, output pixels will
+            %                 keep their initial type
+            % -nomex and -force_mex options can not be used together.
+            %
             % Returns:
             % npix    -- the array, containing the numbers of pixels
             %            contributing into each grid cell
@@ -195,8 +206,9 @@ classdef axes_block < serializable
             % e       -- empty if input signal and error are absent or
             %            array, containing the accumulated error for each
             %            grid bin
-            % pix     -- if requested, pixel array or PixelData 
+            % pix     -- if requested, pixel array or PixelData
             %            object (the output format is the same as of pix_candidates
+            
             nargou = nargout;
             % convert different inputs into fully expanded common form
             [npix,s,e,pix_cand,argi]=...
@@ -275,8 +287,6 @@ classdef axes_block < serializable
             end
             obj.ulen_ = val(:)';
         end
-        
-        
         %
         %------------------------------------------------------------------
         function flds = indepFields(~)

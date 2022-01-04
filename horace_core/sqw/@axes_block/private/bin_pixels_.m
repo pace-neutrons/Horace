@@ -1,6 +1,15 @@
 function [npix,s,e,pix] = bin_pixels_(obj,coord,mode,npix,s,e,...
     pix_cand,varargin)
 
+if nargin>7
+    options = {'-force_double'};
+    [ok,mess,force_double,argi]=parse_char_options(varargin,options);
+    if ~ok
+        error('HORACE:axes_block:invalid_argument',mess)
+    end
+    
+    
+end
 
 [ndims,sz_proj] = obj.data_dims();
 data_range = obj.get_binning_range();
@@ -73,4 +82,8 @@ if ndims > 1
 end
 if ndims > 0
     pix = sort_pix(pix,indx,npix,varargin{:});
+elseif ndims == 0 && force_double % TODO: this should be moved to get_pixels
+    if ~isa(pix.data,'double')
+        pix = PixelData(double(pix.data));
+    end
 end
