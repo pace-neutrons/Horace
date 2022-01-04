@@ -7,8 +7,8 @@ if nargin>7
     if ~ok
         error('HORACE:axes_block:invalid_argument',mess)
     end
-    
-    
+else    
+    force_double =false;
 end
 
 [ndims,sz_proj] = obj.data_dims();
