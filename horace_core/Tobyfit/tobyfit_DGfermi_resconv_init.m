@@ -114,7 +114,7 @@ function [ok,mess,lookup,npix] = tobyfit_DGfermi_resconv_init (win, varargin)
 %
 %       Cell arrays of q,w and transformation arrays, one array per dataset
 %           qw          Cell array size [1,4] with components of momentum (in rlu) and energy
-%                      for each pixel [Columns]
+%                        for each pixel [Columns of size npix]
 %
 %           dq_mat      Array of matricies, size [4,11,npix],  to convert deviations in
 %                      tm, tch etc. into deviations in Q in rlu
