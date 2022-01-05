@@ -177,7 +177,6 @@ function [func_handle, pars, opts] = parse_args(win, func_handle, pars, varargin
     [~, ~, all_flag, args] = parse_char_options(varargin, {'-all'});
 
     parser = inputParser();
-    parser.StructExpand = false;
     parser.addRequired('func_handle', @(x) isa(x, 'function_handle'));
     parser.addRequired('pars');
     parser.addParameter('outfile', {}, @(x) iscellstr(x) || ischar(x) || isstring(x));
