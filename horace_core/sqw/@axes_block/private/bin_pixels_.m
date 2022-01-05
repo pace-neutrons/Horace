@@ -3,6 +3,8 @@ function [npix,s,e,pix] = bin_pixels_(obj,coord,mode,npix,s,e,...
 
 if nargin>7
     options = {'-force_double'};
+    % keep unused argi paraemeter to tell parce_char_options to ignore 
+    % unknown options
     [ok,mess,force_double,argi]=parse_char_options(varargin,options);
     if ~ok
         error('HORACE:axes_block:invalid_argument',mess)
@@ -78,7 +80,7 @@ pix = pix_cand.get_pixels(ok);
 clear ok;
 if ndims > 1
     stride = cumprod(sz_proj);
-    indx =indx*[1,stride(1:end-1)]';
+    indx =(indx-1)*[1,stride(1:end-1)]'+1;
 end
 if ndims > 0
     pix = sort_pix(pix,indx,npix,varargin{:});

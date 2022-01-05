@@ -16,6 +16,57 @@ classdef test_axes_block < TestCase
             
         end
         %------------------------------------------------------------------
+        function test_correct_binning_2D(~)
+            dbr = [0,0.1,0,0.5;1,1.9,3,9.5];
+            bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
+            ab = axes_block(bin0{:});
+            
+            [nd,szs] = ab.data_dims();
+            assertEqual(nd,2)
+            
+            xi = dbr(1,1)+0.05:0.1:dbr(2,1);
+            yi = dbr(1,2):0.2:dbr(2,2); % 10 points
+            zi = dbr(1,3)+0.15:0.3:dbr(2,3);
+            ei = dbr(1,4):1:dbr(2,4); % 10 points
+            [X,Y,Z,E] = ndgrid(xi,yi,zi,ei);
+            
+            % draw cross in [yi,ei] plain
+            pix_data = [reshape(X,1,numel(X));reshape(Y,1,numel(Y));...
+                reshape(Z,1,numel(Z));reshape(E,1,numel(E))];
+            pix_dat_full = [pix_data;zeros(5,numel(X))];
+            line1 = pix_dat_full(2,:)>1 & pix_dat_full(2,:)<=1.1;
+            npoints = sum(line1); % 10xi*10yi*10zi = 1000;
+            pix_dat_full(8,line1)=1;
+            pix_dat_full(9,line1)=1;            
+            line2 = pix_dat_full(4,:)>5 & pix_dat_full(4,:)<6;            
+            npoints = npoints + sum(line2);            
+
+            pix_dat_full(8,line2)=pix_dat_full(8,line2)+1;
+            pix_dat_full(9,line2)=1;            
+            
+            pix = PixelData(pix_dat_full);
+            
+            [npix,s,e,pix_ok] = ab.bin_pixels(pix_data,[],[],[],pix);
+            
+            assertEqual(size(npix),szs);
+            assertEqual(size(s),szs);
+            assertEqual(size(e),szs);
+            % no pixels were lost at binning
+            assertEqual(sum(sum(npix)),size(pix_data,2));
+            % homogeneous distribution
+            assertTrue(any(any(npix==100)));                        
+            %
+            assertEqual(s(6,1),100);
+            assertEqual(s(1,6),100);            
+            assertEqual(s(6,6),200);                        
+            assertTrue(all(e(6,:)==100));
+            assertTrue(all(e(:,6)==100));            
+            assertEqual(sum(sum(s)),npoints)
+            
+            assertEqual(pix_ok.num_pixels,pix.num_pixels);            
+        end
+        
         function test_bin_all_pix_0D(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
