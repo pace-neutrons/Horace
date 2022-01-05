@@ -79,7 +79,7 @@ datafile='test_tobyfit_1_data.mat';   % filename where saved results are written
 savefile='test_tobyfit_1_out.mat';   % filename where saved results are written
 
 % This seed provides a passing test at time of writing
-fixed_seed = 8972;
+fixed_seed = 0;
 [old_rng_state, rng_state] = seed_rng(fixed_seed);
 clean_up = onCleanup(@() rng(old_rng_state));
 fprintf('RNG seed: %i\n', rng_state.Seed);
@@ -228,8 +228,6 @@ pause(2)
 
 if test_output
     disp('Comparing with stored fit')
-    fp110a1
-    tmp.fp110a1
     if ~is_same_fit (fp110a1,   tmp.fp110a1,   fac, [1,0,0,0,0])
         error('fp110a1 not same')
     end
