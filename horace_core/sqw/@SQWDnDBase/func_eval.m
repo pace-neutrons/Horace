@@ -78,6 +78,7 @@ function wout = func_eval (win, func_handle, pars, varargin)
 %       >>  wout = func_eval(dnd(win), func_handle, pars)
 %    (note, if revert to latter, if array input then all objects must have same dimensionality)
 %
+
 [func_handle, pars, opts] = parse_args(win, func_handle, pars, varargin{:});
 
 % Input sqw objects must have equal no. of dimensions in image or the input

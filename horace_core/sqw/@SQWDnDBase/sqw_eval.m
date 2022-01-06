@@ -78,7 +78,7 @@ function wout = sqw_eval(win, sqwfunc, pars, varargin)
     %               Output argument must be specified if `outfile` not given.
     %
     %===============================================================
-
+    
     [sqwfunc, pars, opts] = parse_arguments(win, sqwfunc, pars, varargin{:});
     if isempty(opts.outfile) || opts.filebacked
         % Make sure we have exactly one output argument if no outfile is specified,
@@ -87,20 +87,20 @@ function wout = sqw_eval(win, sqwfunc, pars, varargin)
         % generated. This is not much use to a user if it's not returned.
         nargoutchk(1, 1);
     end
-
+    
     wout = copy(win);
     if ~iscell(pars)
         pars = {pars};  % package parameters as a cell for convenience
     end
-
+    
     for i=1:numel(wout)
-        if has_pixels(wout(i))   % determine if object contains pixel data
-            wout(i) = wout(i).sqw_eval_pix_(sqwfunc, opts.average, pars, opts.outfile, i);
+       if has_pixels(wout(i))   % determine if object contains pixel data
+           wout(i) = wout(i).sqw_eval_pix_(sqwfunc, opts.average, pars, opts.outfile, i);
        else
            wout(i) = wout(i).sqw_eval_nopix_(sqwfunc, opts.all, pars);
        end
     end
-
+    
     if opts.filebacked
         % If filebacked, always return file paths not objects. This stops us from
         % leaking file-backed objects
@@ -110,15 +110,15 @@ function wout = sqw_eval(win, sqwfunc, pars, varargin)
             wout = opts.outfile{1};
         end
     end
-
+    
     end % of function sqw_eval
-
+    
     % -----------------------------------------------------------------------------
     function [sqwfunc, pars, opts] = parse_arguments(win, sqwfunc, pars, varargin)
         % Parse arguments for sqw_eval
         flags = {'-all', '-average', '-filebacked'};
         [~, ~, all_flag, ave_flag, filebacked_flag, args] = parse_char_options(varargin, flags);
-
+    
         parser = inputParser();
         parser.addRequired('sqwfunc', @(x) isa(x, 'function_handle'));
         parser.addRequired('pars');
@@ -128,11 +128,11 @@ function wout = sqw_eval(win, sqwfunc, pars, varargin)
         parser.addParameter('outfile', {}, @(x) iscellstr(x) || ischar(x) || isstring(x));
         parser.parse(sqwfunc, pars, args{:});
         opts = parser.Results;
-
+    
         if ~iscell(opts.outfile)
             opts.outfile = {opts.outfile};
         end
-
+    
         outfiles_empty = all(cellfun(@(x) isempty(x), opts.outfile));
         if ~outfiles_empty && (numel(win) ~= numel(opts.outfile))
             error( ...
@@ -142,12 +142,13 @@ function wout = sqw_eval(win, sqwfunc, pars, varargin)
             numel(opts.outfile), numel(win) ...
         );
         end
-
+    
         if outfiles_empty && opts.filebacked
             opts.outfile = gen_unique_file_paths( ...
                 numel(win), 'horace_sqw_eval', tmp_dir(), 'sqw' ...
             );
         end
     end
-
+    
     %=================================================================
+    
