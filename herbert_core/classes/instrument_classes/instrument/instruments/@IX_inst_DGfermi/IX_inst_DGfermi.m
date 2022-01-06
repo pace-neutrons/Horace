@@ -82,6 +82,15 @@ classdef IX_inst_DGfermi < IX_inst
             end
         end
         
+        % SERIALIZABLE interface
+        %-----------------------------------------------------------
+        function ver = classVersion(~)
+            ver = 1;
+        end
+        
+        function flds = indepFields(~)
+            flds = {'moderator','aperture', 'fermi_chopper', 'energy'};
+        end
         %------------------------------------------------------------------
         % Set methods for independent properties
         %
@@ -156,7 +165,7 @@ classdef IX_inst_DGfermi < IX_inst
         %------------------------------------------------------------------
     end
     
-    
+    %{ Methods below should all have been replaced by base class serializable in IX_inst
     %======================================================================
     % Methods for fast construction of structure with independent properties
     methods (Static, Access = private)
@@ -400,6 +409,7 @@ classdef IX_inst_DGfermi < IX_inst
         %------------------------------------------------------------------
         
     end
+    %}
     %======================================================================
     
 end

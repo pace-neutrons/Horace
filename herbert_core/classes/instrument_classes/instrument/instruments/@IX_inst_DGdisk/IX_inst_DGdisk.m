@@ -86,6 +86,18 @@ classdef IX_inst_DGdisk < IX_inst
                 end
                 
             end
+
+        end
+        
+        % SERIALIZABLE interface
+        %---------------------------------------------------------
+        function ver = classVersion(~)
+            ver = 1;
+        end
+
+        function flds = indepFields(~)
+            flds = {'mod_shape_mono','moderator','shaping_chopper','mono_chopper',...
+                    'horiz_div',     'vert_div', 'energy'};
         end
         
         %------------------------------------------------------------------
@@ -185,6 +197,9 @@ classdef IX_inst_DGdisk < IX_inst
         %------------------------------------------------------------------
     end
     
+    %{
+    % Everything here should now be done by serializable, base class
+    % of IX_inst, base class of this function.
     %======================================================================
     % Methods for fast construction of structure with independent properties
     methods (Static, Access = private)
@@ -428,6 +443,7 @@ classdef IX_inst_DGdisk < IX_inst
         %------------------------------------------------------------------
         
     end
+    %}
     %======================================================================
     
 end

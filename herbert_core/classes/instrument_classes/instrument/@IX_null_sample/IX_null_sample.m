@@ -7,13 +7,23 @@ classdef IX_null_sample < IX_samp
     end
     
     methods
+        
+        % Constructor
+        %------------
         function obj = IX_null_sample()
-            
             obj = obj@IX_samp(''); %[1.0 1.0 1.0],[90 90 90]);
         end
         
+        % ?
+        %-----
         function str = null_struct(~)
             str = struct();
+        end
+        
+        % SERIALIZABLE interface
+        %------------------------------------------------------------------
+        function ver = classVersion(~)
+            ver = 1;
         end
     end
 

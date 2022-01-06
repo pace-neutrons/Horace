@@ -10,14 +10,25 @@ classdef IX_null_inst < IX_inst
     end
     
     methods
+    
+        % Constructor
+        %-------------------------------
         function obj = IX_null_inst()
             % constructs a vanilla instance based on IX_inst
             obj = obj@IX_inst();
         end
         
+        % ?
+        %------
         function str = null_struct(~)
             %makes the null struct for storage in a file
             str = struct();
+        end
+        
+        % SERIALIZABLE interface
+        %------------------------------------------------------------------
+        function ver = classVersion(~)
+            ver = 1;
         end
     end
 

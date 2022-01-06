@@ -1,5 +1,7 @@
 classdef IX_mosaic
     % Mosaic spread object
+    % DO NOT SUBCLASS FROM serialize - there is class-specific coding in
+    % the serialize-equivalent methods to deal with function handles
     
     properties (Access=private)
         % Stored properties - but kept private and accessible only through

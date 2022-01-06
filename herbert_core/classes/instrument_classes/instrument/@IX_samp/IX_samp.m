@@ -1,4 +1,4 @@
-classdef IX_samp  < matlab.mixin.Heterogeneous
+classdef (Abstract) IX_samp  < matlab.mixin.Heterogeneous & serializable
     % Base class for samples to include the null sample case defined from a
     % struct with no fields (IX_null_sample) and the standard IX_sample
     
@@ -26,6 +26,7 @@ classdef IX_samp  < matlab.mixin.Heterogeneous
     end
     
     methods
+        
         %------------------------------------------------------------------
         % Constructor
         %------------------------------------------------------------------
@@ -40,7 +41,20 @@ classdef IX_samp  < matlab.mixin.Heterogeneous
                 obj.name_ = thename;
             end
         end
+        
+        % SERIALIZABLE interface
+        %------------------------------------------------------------------
+        function vers = classVersion(~)
+            vers = 0; % base class function, dummy value
+        end
+        
+        function flds = indepFields(~)
+            flds = {'name', 'alatt', 'angdeg'};
+        end
+        
         %
+        % other methods
+        %------------------------------------------------------------------
         function iseq = eq(obj1, obj2)
             iseq = strcmp(obj1.name, obj2.name);
             if numel(obj1.alatt)==3 && numel(obj2.alatt)==3
@@ -117,7 +131,7 @@ classdef IX_samp  < matlab.mixin.Heterogeneous
         end
     end
     methods(Sealed)
-        %
+        %{
         function is = isempty(obj)
             % Assume that sample is empty if it was created with
             % empty constructor and has not been modified
@@ -136,7 +150,7 @@ classdef IX_samp  < matlab.mixin.Heterogeneous
                 end
             end
         end
-        %
+        %}
     end
     
     %======================================================================
@@ -331,6 +345,7 @@ classdef IX_samp  < matlab.mixin.Heterogeneous
     
     methods
         %------------------------------------------------------------------
+        %{
         function S = saveobj(obj)
             % Method used my Matlab save function to support custom
             % conversion to structure prior to saving.
@@ -349,10 +364,12 @@ classdef IX_samp  < matlab.mixin.Heterogeneous
             
             S = structIndep(obj);
         end
+        %}
     end
     
     %------------------------------------------------------------------
     methods (Static)
+        %{
         function obj = loadobj(S)
             % Static method used my Matlab load function to support custom
             % loading.
@@ -380,6 +397,7 @@ classdef IX_samp  < matlab.mixin.Heterogeneous
                 obj = arrayfun(@(x)loadobj_private_(x), S);
             end
         end
+        %}
         %------------------------------------------------------------------
         
     end
