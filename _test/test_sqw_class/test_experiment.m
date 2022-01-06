@@ -93,9 +93,9 @@ classdef test_experiment < TestCaseWithSave
             clear('expt');
             
             load(tmpfile, 'expt');
-            assertEqual(expt.instruments, IX_inst())
-            assertEqual(expt.samples, IX_samp())
-            assertEqual(expt.detector_arrays, [])
+            assertTrue( isempty(expt.instruments));
+            assertTrue( isempty(expt.samples));
+            assertEqual(expt.detector_arrays, []);
         end
         
         function test_instruments_setter_updates_value_for_valid_value(~)

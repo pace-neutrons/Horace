@@ -2,9 +2,9 @@ classdef Experiment < serializable
     %EXPERIMENT Container object for all data describing the Experiment
     
     properties(Access=private)
-        instruments_ = IX_inst();
+        instruments_ = IX_inst.empty;
         detector_arrays_ = []
-        samples_ = IX_samp();
+        samples_ = IX_samp.empty;
         expdata_ = IX_experiment();
     end
     
@@ -130,7 +130,7 @@ classdef Experiment < serializable
         function obj=set.instruments(obj, val)
             if ~isa(val,'IX_inst') && all(isempty(val)) % empty IX_inst may have a shape
                 % but nice to clear instrument by providing empty input
-                val = IX_inst();
+                val = IX_null_inst();
             end
             
             if isa(val,'IX_inst')
@@ -172,7 +172,7 @@ classdef Experiment < serializable
             if ~isa(val,'IX_samp') && all(isempty(val))  % empty IX_sample 
                 % may have a shape but nice to clear sample by providing
                 % empty string
-                val = IX_samp();
+                val = IX_null_sample();
             end
             
             if isa(val,'IX_samp')
@@ -343,8 +343,8 @@ classdef Experiment < serializable
                 nspe(i) = exp_cellarray{i}.n_runs;
             end
             n_tot = sum(nspe);
-            instr  = repmat(IX_inst(),1,n_tot );
-            sampl  = repmat(IX_samp(),1,n_tot);
+            instr  = repmat(IX_null_inst(),1,n_tot );
+            sampl  = repmat(IX_null_sample(),1,n_tot);
             expinfo= repmat(IX_experiment(),1,n_tot);
             ic = 1;
             for i=1:n_contrib

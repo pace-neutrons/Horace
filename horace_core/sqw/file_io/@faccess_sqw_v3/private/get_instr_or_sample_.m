@@ -19,10 +19,10 @@ if ~ok
 end
 res_block = get_all_instr_or_samples_(obj,field_name);
 if strcmp(field_name,'instrument') && isstruct(res_block) && numel(fields(res_block))==0
-    res_block  = IX_inst();
+    res_block  = IX_null_inst();
 end
 if strcmp(field_name,'sample') && isstruct(res_block) && numel(fields(res_block))==0
-    res_block  = IX_samp();
+    res_block  = IX_null_sample();
 end
 
 
