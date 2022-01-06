@@ -24,8 +24,6 @@ function qw=calculate_qw_pixels(win)
 
     header_ave = header_average(win);
 
-    psidisp('~/dump/clsy', fieldnames(header_ave))
-
     u0 = header_ave.uoffset;
     u = header_ave.u_to_rlu(1:3,1:3);
 
