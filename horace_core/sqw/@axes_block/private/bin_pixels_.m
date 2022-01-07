@@ -1,15 +1,17 @@
-function [npix,s,e,pix] = bin_pixels_(obj,coord,mode,npix,s,e,...
+function [npix,s,e,pix,pix_indx] = bin_pixels_(obj,coord,mde,npix,s,e,...
     pix_cand,varargin)
 
+pix = [];
+pix_indx = [];
 if nargin>7
     options = {'-force_double'};
-    % keep unused argi paraemeter to tell parce_char_options to ignore 
+    % keep unused argi paraemeter to tell parce_char_options to ignore
     % unknown options
     [ok,mess,force_double,argi]=parse_char_options(varargin,options);
     if ~ok
         error('HORACE:axes_block:invalid_argument',mess)
     end
-else    
+else
     force_double =false;
 end
 
@@ -22,12 +24,10 @@ r2 = data_range(2,:)';
 ok = all(coord>=r1 & coord<=r2,1);
 coord = coord(:,ok);
 if isempty(coord)
-    if mode>3
+    if mde>3
         pix = PixelData();
-    else
-        pix = [];
+        return;
     end
-    return;
 end
 
 % bin only points in dimensions, containing more then one bin
@@ -45,22 +45,21 @@ else
     
     %
     bin_step = 1./step;
-    indx = floor((coord-r1)'.*bin_step')+1;
+    pix_indx = floor((coord-r1)'.*bin_step')+1;
     % Due to round-off errors and general binning procedure, the
     % leftmost points have index, exceeding (by 1) the box size.
     % We include points with these indexes in the leftmost cell.
-    on_edge = indx>n_bins;
+    on_edge = pix_indx>n_bins;
     if any(reshape(on_edge,numel(on_edge),1))
         % assign these points to the leftmost bins
         for i=1:ndims
-            indx(on_edge(:,i),i) = n_bins(i);
+            pix_indx(on_edge(:,i),i) = n_bins(i);
         end
     end
     
-    npix = accumarray(indx, ones(1,size(indx,1)), sz_proj);
+    npix = accumarray(pix_indx, ones(1,size(pix_indx,1)), sz_proj);
 end
-if mode<3
-    pix = [];
+if mde<3
     return;
 end
 sig = pix_cand.signal;
@@ -69,23 +68,33 @@ if ndims == 0
     s = s + sum(sig(ok));
     e = e + sum(var(ok));
 else
-    s = s + accumarray(indx, sig(ok), sz_proj);
-    e = e + accumarray(indx, var(ok), sz_proj);
+    s = s + accumarray(pix_indx, sig(ok), sz_proj);
+    e = e + accumarray(pix_indx, var(ok), sz_proj);
 end
-if mode<4
-    pix = [];
+if mde<4
     return;
 end
 pix = pix_cand.get_pixels(ok);
 clear ok;
-if ndims > 1
+if ndims > 1 % convert to 1D indexes
     stride = cumprod(sz_proj);
-    indx =(indx-1)*[1,stride(1:end-1)]'+1;
+    pix_indx =(pix_indx-1)*[1,stride(1:end-1)]'+1;
 end
+
 if ndims > 0
-    pix = sort_pix(pix,indx,npix,varargin{:});
-elseif ndims == 0 && force_double % TODO: this should be moved to get_pixels
-    if ~isa(pix.data,'double')
+    if mde ==5
+        if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels
+            pix = PixelData(double(pix.data));
+        end
+    else % sort will make pix double if requested % TODO: this should be moved to get_pixels
+        pix = sort_pix(pix,pix_indx,npix,varargin{:});
+    end
+elseif ndims == 0  
+    if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels
         pix = PixelData(double(pix.data));
     end
+    if mde == 5
+        pix_indx = ones(pix.num_pixels,1);
+    end
 end
+

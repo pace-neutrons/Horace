@@ -82,21 +82,25 @@ classdef ortho_proj<aProjection
         % generated sqw file, when this image is also in Crystal Cartesian)
         %u_to_rlu
     end
-    properties(Access=private)
+    properties(Access=protected)
         u_ = [1,0,0]
         v_ = [0,1,0]
         w_ = []
         nonorthogonal_=false
         type_='ppr'
         %
-        %u_to_rlu_;
-        
         %
         % The property reports if the object is valid. It can become
         % invalid if some fields have been set up incorrectly after
         % creation (e.g. u set up parallel to v) See check_combo_arg_ for
         % all options which may be invalid
         valid_ = true
+        %
+        % The properties used to optimize from_current_to_targ method
+        % transfromation, if both current and target projections are
+        % ortho_proj
+        ortho_ortho_transf_mat_;
+        ortho_ortho_offset_;
     end
     
     methods
@@ -122,19 +126,36 @@ classdef ortho_proj<aProjection
             [ok,mess,obj] = obj.isvalid();
             if ~ok
                 error('HORACE:ortho_proj:invalid_argument',mess);
-            end            
+            end
         end
         %-----------------------------------------------------------------
-        %         function mat = get.u_to_rlu(obj)
-        %             mat = obj.u_to_rlu_;
-        %         end
-        %         function obj = set.u_to_rlu(obj,mat)
-        %             obj.u_to_rlu_ = mat;
-        %             %[ul,vl]=obj.uv_from_rlu_mat(obj.alatt,obj.angdeg,mat,[1,1,1]);
-        %             %obj.u_ = ul;
-        %             %obj.v_ = vl;
-        %         end
-        %
+        function pix_target = from_cur_to_targ_coord(obj,pix_origin,varargin)
+            % Converts from current to target projection coordinate system.
+            %
+            % Should be overloaded to optimize for a particular case to
+            % improve efficiency.
+            % (e.g. two orthogonal projections do shift and rotation
+            % as the result, so worth combining them into one operation)
+            % Inputs:
+            % obj       -- current projection, describing the system of
+            %              coordinates where the input pixels vector is
+            %              expressed in. The target projection has to be
+            %              set up
+            %
+            % pix_origin   4xNpix vector of pixels coordinates expressed in
+            %              the coordinate system, defined by current
+            %              projection
+            if isempty(obj.ortho_ortho_transf_mat_)
+                % use generic projection trasformation
+                pix_target = from_cur_to_targ_coord@aProjection(...
+                    obj,pix_origin,varargin{:});
+            else
+                pix_target = do_orhto_ortho_transformation_(...
+                    obj,pix_origin,varargin{:});
+            end
+        end
+        
+        %-----------------------------------------------------------------
         function u = get.u(obj)
             if obj.valid_
                 u = obj.u_;
@@ -220,50 +241,9 @@ classdef ortho_proj<aProjection
                     'Can not set uv from ub-matrix: %s',mess);
             end
         end
-        
         %------------------------------------------------------------------
         % Particular implementation of aProjection abstract interface
         %------------------------------------------------------------------
-        function range_out = find_old_img_range(this,range_in)
-            % find the range of initial data in the coordinate frame
-            % of the new projection.
-            % Input:
-            % range_in -- the range of the data in the initial coordinate
-            % system.
-            % Output:
-            % range_out -- the range the initial image data in the new
-            % (transformed) coordinate system of the cut.
-            range_out  = find_ranges_(this,range_in);
-        end
-        
-        function [istart,iend,irange,inside,outside] =get_irange_proj(this,img_range,varargin)
-            % Get ranges of bins that partially or wholly lie inside an n-dimensional rectangle,
-            % where the first three dimensions can be rotated and translated w.r.t. the
-            % cuboid that is split into bins.
-            [istart,iend,irange,inside,outside] = get_irange_rot(this,img_range,varargin{:});
-        end
-        %
-        function [indx,ok] = get_contributing_pix_ind(this,v)
-            % get list of indexes contributing into the cut
-            [indx,ok] = get_contributing_pix_ind_(this,v);
-        end
-        function [uoffset,ulabel,dax,u_to_rlu,ulen,title_build_class] = get_proj_param(this,data_in,pax)
-            % get projection parameters, necessary for properly defining a sqw or dnd object
-            %
-            [uoffset,ulabel,dax,u_to_rlu,ulen] = get_proj_param_(this,data_in,pax);
-            title_build_class = an_axis_caption();
-        end
-        %
-        function [urange_step_pix_recent, ok, ix, s, e, npix, npix_retain,success]=...
-                accumulate_cut(this,v,s,e,npix,pax,ignore_nan,ignore_inf,keep_pix,n_threads)
-            %Method, used to both project data and allocate memory used by
-            %sqw&dnd objects. Has to be written in close conjunction with
-            %cut_sqw using deep understanding of the ways memory is allocated
-            % within sqw objects
-            [urange_step_pix_recent, ok, ix, s, e, npix, npix_retain,success]=...
-                accumulate_cut_(this,v,s,e,npix,pax,ignore_nan,ignore_inf,keep_pix,n_threads);
-        end
-        %
         function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)
             % Transform pixels expressed in crystal Cartesian coordinate systems
             % into image coordinate system
@@ -311,12 +291,34 @@ classdef ortho_proj<aProjection
         end
     end
     methods(Access = protected)
-        % overloads for static methods which define if the projection can
-        % keep pixels and have mex functions defined
-        function isit= can_mex_cut_(~)
-            % ortho projection have mex procedures defined
-            isit = true;
+        function obj = check_and_set_targ_proj(obj,val)
+            % overloadaed setter for target proj.
+            % Input:
+            % val -- target projection
+            %
+            % sets up target projection as the parrent method.
+            % In addition:
+            % sets up matrices, necessary for optimized transformations
+            % if both projections are ortho_proj
+            %
+            obj = check_and_set_targ_proj@aProjection(obj,val);
+            if isa(obj.targ_proj_,'ortho_proj') && ~obj.do_generic
+                obj = set_ortho_ortho_transf_(obj);
+            else
+                obj.ortho_ortho_transf_mat_ = [];
+                obj.ortho_ortho_offset_ = [];
+            end
         end
+        function obj = check_and_set_do_generic(obj,val)
+            % overloaded setter for do_generic method. Clears up specific
+            % transformation matrices.
+            obj = check_and_set_do_generic@aProjection(obj,val);
+            if obj.do_generic_
+                obj.ortho_ortho_transf_mat_ = [];
+                obj.ortho_ortho_offset_ = [];
+            end
+        end
+        
         %
         function [rot_to_img,shift]=get_pix_img_transformation(obj,ndim,varargin)
             % Return the transformation, necessary for conversion from pix
@@ -350,6 +352,7 @@ classdef ortho_proj<aProjection
             end
             
         end
+        %
         function  [rlu_to_ustep, u_to_rlu, ulen] = uv_to_rlu(proj,ustep)
             % Determine matricies to convert rlu <=> projection axes, and the scaler
             %
@@ -386,6 +389,7 @@ classdef ortho_proj<aProjection
             %
             [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu_(proj,ustep);
         end
+        %
         function [u,v]=uv_from_rlu(obj,u_to_rlu,ulen)
             % Extract initial u/v vectors, defining the plane in hkl from
             % lattice parameters and the matrix converting vectors in

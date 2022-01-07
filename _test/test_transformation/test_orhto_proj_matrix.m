@@ -1,4 +1,4 @@
-classdef test_projection_matrix<TestCase
+classdef test_orhto_proj_matrix<TestCase
     % The test class which gets different transformation
     %
     % the purpose -- compare these transformations with Mantid transformations;
@@ -7,7 +7,7 @@ classdef test_projection_matrix<TestCase
     end
     
     methods
-        function this=test_projection_matrix(name)
+        function this=test_orhto_proj_matrix(name)
             this=this@TestCase(name);
         end
         % tests themself

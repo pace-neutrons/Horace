@@ -222,6 +222,32 @@ classdef test_aProjection_methods <TestCase
             ap.offset = [];
             assertEqual(ap.offset,[0,0,0,0]);
         end
+        function test_set_throws_wrong_numel(~)
+            ap = aProjectionTester();
+            assertFalse(ap.do_generic);
+            
+            function setter()
+                ap.do_generic = [1,10];
+            end
+            assertExceptionThrown(@setter,'HORACE:aProjection:invalid_argument')
+        end
         
+        function test_set_throws_wrong_type(~)
+            ap = aProjectionTester();
+            assertFalse(ap.do_generic);
+            
+            function setter()
+                ap.do_generic = 'b';
+            end
+            assertExceptionThrown(@setter,'HORACE:aProjection:invalid_argument')
+        end
+        
+        function test_set_get_generic(~)
+            ap = aProjectionTester();
+            assertFalse(ap.do_generic);
+            
+            ap.do_generic = true;
+            assertTrue(ap.do_generic);
+        end
     end
 end

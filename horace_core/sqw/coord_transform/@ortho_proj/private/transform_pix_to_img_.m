@@ -12,23 +12,25 @@ function pix_transf = transform_pix_to_img_(obj,pix_input,varargin)
 %
 if isa(pix_input,'PixelData')
     pix_cc = pix_input.q_coordinates;
-    if obj.shift(4) ~=0
+    if obj.offset(4) ~=0
         shift_ei = true;
     else
         shift_ei = false;
     end
     ndim   = 3;
-    pix_input = true;
-else
+    input_is_obj = true;
+else % if pix_input is 4-d, this will use 4-D matrix and shift
+    % if its 3-d -- matrix is 3-dimensional and energy is not shifted
+    % anyway
     pix_cc = pix_input;
     ndim = size(pix_cc,1);
-    pix_input = false;
+    input_is_obj = false;
 end
 
 [rot_to_img,shift]=obj.get_pix_img_transformation(ndim);
 %
 pix_transf= ((bsxfun(@minus,pix_cc,shift))'*rot_to_img')';
-if pix_input
+if input_is_obj
     if shift_ei
         ei = pix_input.dE -obj.shift(4);
     else

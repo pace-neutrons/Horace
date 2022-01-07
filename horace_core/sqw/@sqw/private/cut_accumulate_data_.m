@@ -1,5 +1,5 @@
 function [s, e, npix, pix_out, pix_comb_info] = ...
-    cut_accumulate_data_(obj, proj, axes,keep_pix, log_level, return_cut)
+    cut_accumulate_data_(obj, proj, axes,keep_pixels, log_level, return_cut)
 %%CUT_ACCUMULATE_DATA Accumulate image and pixel data for a cut
 %
 % Input:
@@ -7,7 +7,7 @@ function [s, e, npix, pix_out, pix_comb_info] = ...
 % proj       A 'projection' object, defining the projection of the cut.
 % axes       A 'axes_block' object defining the ranges, binning and geometry
 %            of the target cut
-% keep_pix   A boolean defining whether pixel data should be retained. If this
+% keep_pixels A boolean defining whether pixel data should be retained. If this
 %            is false return variable 'pix_out' will be empty.
 % log_level  The verbosity of the log messages. The values correspond to those
 %            used in 'hor_config', see `help hor_config/log_level`.
@@ -34,16 +34,16 @@ function [s, e, npix, pix_out, pix_comb_info] = ...
 [~,sz1] = axes.data_dims();
 % note that 1D allocator of size N returns NxN array while we need Nx1
 % array
-nbin_as_size = get_nbin_as_size(sz1);
-s = zeros(nbin_as_size);
-e = zeros(nbin_as_size);
-npix = zeros(nbin_as_size);
+%nbin_as_size = get_nbin_as_size(sz1);
+s = zeros(sz1);
+e = zeros(sz1);
+npix = zeros(sz1);
 
 % Get bins that may contain pixels that contribute to the cut.
 % The bins selected are those that sit within (or intersect) the bounds of the
 % cut. See the relevant projection function for more details.
 sproj = obj.data.get_projection();
-[bloc_starts, block_sizes] = sproj.get_nrange(obj.data.npix,obj.data,proj,axes);
+[bloc_starts, block_sizes] = sproj.get_nrange(obj.data.npix,obj.data,axes,proj);
 if isempty(bloc_starts)
     % No pixels in range, we can return early
     pix_out = PixelData();
@@ -64,7 +64,7 @@ end
 % If we only have one iteration of pixels to cut then we must be able to fit
 % all pixels in memory, hence no need to use temporary files.
 use_tmp_files = ~return_cut && num_chunks > 1;
-if keep_pix
+if keep_pixels
     % Pre-allocate cell arrays to hold PixelData chunks
     pix_retained = cell(1, num_chunks);
     
@@ -76,10 +76,10 @@ if keep_pix
         pix_comb_info = [];
     end
 end
-if keep_pix && use_tmp_files
+if keep_pixels && use_tmp_files
     clearPixAccum = onCleanup(@()cut_data_from_file_job.accumulate_pix_to_file('cleanup'));
 end
-if keep_pix && ~use_tmp_files
+if keep_pixels && ~use_tmp_files
     keep_precision = false; % change single precision to double precision for further operations
 else
     keep_precision = true;
@@ -123,7 +123,7 @@ for iter = 1:num_chunks
     if log_level >= 1
         fprintf(' ----->  retained  %d pixels\n', del_npix_retain);
     end
-    if keep_pix
+    if keep_pixels
         if use_tmp_files
             % Generate tmp files and get a pix_combine_info object to manage
             % the files - this object then recombines the files once it is
@@ -140,7 +140,7 @@ for iter = 1:num_chunks
     end
 end  % loop over pixel blocks
 
-if keep_pix
+if keep_pixels
     [pix_out, pix_comb_info] = combine_pixels( ...
         pix_retained, pix_comb_info, npix, block_size ...
         );

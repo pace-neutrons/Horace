@@ -150,10 +150,5 @@ classdef test_ortho_proj_construction<TestCase
             proj1=do.get_projection();
             assertEqual(proj,proj1)
         end
-        %------------------------------------------------------------------
-        function test_set_can_mex_keep(~)
-            proj = ortho_proj();
-            assertTrue(proj.can_mex_cut);
-        end
     end
 end

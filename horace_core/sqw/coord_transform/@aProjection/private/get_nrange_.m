@@ -4,9 +4,12 @@ function  [bl_start,bl_size] = get_nrange_(obj,...
 % belonging to the cells, which may contribute to the final cut defined by the
 % projections and axes_block-s, provided as input.
 %
-
-targ_proj.targ_proj = obj;
-obj.targ_proj = targ_proj;
+if isempty(targ_proj)
+    targ_proj = obj.targ_proj;
+else
+    targ_proj.targ_proj = obj;
+    obj.targ_proj = targ_proj;    
+end
 % Get the hypercube, which equal to minimal cell of the current grid
 % described by axes_block class.
 ch_cube = cur_axes_block.get_axes_scales();
@@ -31,9 +34,8 @@ if isempty(ncell_contrib)
     bl_size = [];
     return;
 end
-% Convert
-% compress indexes of сontributing cells into bl_start:bl_start+bl_size-1 form
-% good for filebased but bad for arrays
+% Compress indexes of contributing cells into bl_start:bl_start+bl_size-1 form
+% Ideal for filebased but not so optimal for arrays
 adjacent= ncell_contrib(1:end-1)+1==ncell_contrib(2:end);
 adjacent = [false,adjacent];
 adj_end  = [ncell_contrib(1:end-1)+1<ncell_contrib(2:end),true];

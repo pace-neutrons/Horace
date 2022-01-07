@@ -1,16 +1,16 @@
 function [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu_(proj,ustep)
-% Determine matricies to convert rlu <=> projection axes, and the scaler
+% Determine matrices to convert rlu <=> projection axes, and the scaler
 % 
 %
 %   >> [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu (proj)
 %   >> [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu (proj, ustep)
 %
-% The projection axes are three vectors that may or may not be orthononal
+% The projection axes are three vectors that may or may not be orthogonal
 % which are used to create the bins in an sqw object. The bin sizes are in ustep
 %
 % Input:
 % ------
-%   proj    projaxes object containg information about projection axes
+%   proj    projaxes object containing information about projection axes
 %          (type >> help projaxes for details)
 %   ustep   Row vector giving step sizes along the projection axes as multiple
 %           of the projection axes (e.g. [0.05,0.05,0.025]

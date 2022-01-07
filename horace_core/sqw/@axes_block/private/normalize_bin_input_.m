@@ -1,5 +1,5 @@
 function [npix,s,e,pix_cand,argi]=...
-    normalize_bin_input_(obj,pix,mode,varargin)
+    normalize_bin_input_(obj,pix,mde,varargin)
 
 if ~isnumeric(pix) || size(pix,1) ~= 4
     error('HORACE:axes_block:invalid_argument',...
@@ -7,7 +7,7 @@ if ~isnumeric(pix) || size(pix,1) ~= 4
 end
 
 [~,sz_proj,bin_size] = obj.data_dims();
-if mode == 1
+if mde == 1
     pix_cand = [];
 else
     if nargin<7
@@ -21,11 +21,11 @@ else
             class(pix));
     end
     
-    if mode == 3 || mode == 4
+    if ismember(mde,[3,4,5])
         pix_cand = pix;
     else
         error('HORACE:axes_block:invalid_argument',...
-            'The procedure accepts 1,3 or 4 output arguments')
+            'The procedure accepts 1,3,4 or 5 output arguments')
     end
 end
 argi = {};
@@ -55,7 +55,7 @@ elseif nargin >6
     check_size(bin_size,npix,s,e);        
     argi = varargin{5:end};
 end
-if mode>1 && isempty(npix)
+if mde>1 && isempty(npix)
     npix = squeeze(zeros(sz_proj));    
     s = squeeze(zeros(sz_proj));
     e = squeeze(zeros(sz_proj));

@@ -158,13 +158,14 @@ classdef axes_block < serializable
             range = get_binning_range_(obj);
         end
         
-        function [npix,s,e,pix] = bin_pixels(obj,pix_coord_transf,varargin)
+        function [npix,s,e,pix,pix_indx] = bin_pixels(obj,pix_coord_transf,varargin)
             % bin and distribute data expressed in the coordinate system
             % described by this axes block over the current lattice
             % Usage:
             % >>npix = obj.bin_pixels(coord);
             % >>[npix,s,e] = obj.bin_pixels(coord,npix,s,e,sigvar);
             % >>[npix,s,e,pix_ok] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
+            % >>[npix,s,e,pix_ok,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates)            
             % Where
             % Inputs:
             % pix_coord_transf
@@ -200,21 +201,24 @@ classdef axes_block < serializable
             % Returns:
             % npix    -- the array, containing the numbers of pixels
             %            contributing into each grid cell
-            % s       -- empty if input signal and error are absent or
-            %            array, containing the accumulated signal for each
-            %            grid bin
-            % e       -- empty if input signal and error are absent or
-            %            array, containing the accumulated error for each
-            %            grid bin
-            % pix     -- if requested, pixel array or PixelData
-            %            object (the output format is the same as of pix_candidates
+            % Optional: Not calculated if not requested as output. Requests
+            %           appropriate pix_candidates inputs if requested.
+            % s       -- array, containing the accumulated signal for each
+            %            grid bin.
+            % e       -- array, containing the accumulated error for each
+            %            grid bin.
+            % pix     -- pixel array or PixelData
+            %            object (the output format is the same as for
+            %            pix_candidates)
+            % pix_indx --indexes for image bins, where pix elements belong
+            %            to
             
             nargou = nargout;
             % convert different inputs into fully expanded common form
             [npix,s,e,pix_cand,argi]=...
                 obj.normalize_bin_input(pix_coord_transf,nargou,varargin{:});
             
-            [npix,s,e,pix] = bin_pixels_(obj,pix_coord_transf,nargou,...
+            [npix,s,e,pix,pix_indx] = bin_pixels_(obj,pix_coord_transf,nargou,...
                 npix,s,e,pix_cand,argi{:});
         end
         

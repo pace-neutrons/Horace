@@ -36,9 +36,15 @@ classdef aProjection < serializable
         % source to target coordinate system
         targ_proj
     end
-    properties
-        pix_to_rlu
+    properties(Dependent,Hidden)
+        % property mainly used in testing. If set to true,
+        % the class will always use generic projection transformation
+        % instead of may be optimized transformation, specific for
+        % particular projection-projection transformation, optimized for
+        % specific projection-projection pair of classes
+        do_generic;
     end
+    
     properties(Constant, Access=private)
         fields_to_save_ = {'alatt','angdeg','lab','offset'}
     end
@@ -62,6 +68,9 @@ classdef aProjection < serializable
         %
         % target projection holder
         targ_proj_;
+        % if true, disable optimized transformation over specific parirs of
+        % the projection types if such optimizaition is available
+        do_generic_ = false;
     end
     
     methods
@@ -104,7 +113,7 @@ classdef aProjection < serializable
         %------------------------------------------------------------------
         %
         %------------------------------------------------------------------
-        function [npix,s,e,pix_ok] = bin_pixels(obj,axes,pix_candidates,npix,s,e,varargin)
+        function [npix,s,e,pix_ok,pix_indx] = bin_pixels(obj,axes,pix_candidates,npix,s,e,varargin)
             % Convert pixels into the coordinate system, defined by the
             % projection and bin them into the coordinate system, defined
             % by the axes block, specified as input.
@@ -127,13 +136,19 @@ classdef aProjection < serializable
             %  information from pix_candidates if npix, s, e arrays were
             %  present or axes class - shaped arrays of this information
             %  if there were no inputs.
-            %
-            % pix_ok -- if requested, the pixel coordinate array or
+            % Optional:
+            % pix_ok -- the pixel coordinate array or
             %           PixelData object (as input pix_candidates) containing
             %           pixels contributing to the grid and sorted according
             %           to the axes block grid.
+            % pix_indx--indexes of the pix_ok coordinates according to the
+            %           bin
             pix_transformed = obj.transform_pix_to_img(pix_candidates);
-            if nargout == 4
+            if nargout == 5
+                [npix,s,e,pix_ok,pix_indx]=...
+                    axes.bin_pixels(pix_transformed,...
+                    npix,s,e,pix_candidates,varargin{:});
+            elseif nargout == 4
                 [npix,s,e,pix_ok]=axes.bin_pixels(pix_transformed,...
                     npix,s,e,pix_candidates,varargin{:});
             elseif nargout == 3
@@ -147,13 +162,17 @@ classdef aProjection < serializable
                     'This function requests 1,3 or 4 output arguments');
             end
         end
+        %
         function [bl_start,bl_size] = get_nrange(obj,npix,cur_axes_block,...
-                targ_proj,targ_axes_block)
+                targ_axes_block,targ_proj)
             % return the the positions and the sizes of the pixels blocks
             % belonging to the cells, which may contribute to the final cut defined by the
             % projections and axes_block-s, provided as input.
             %
             % Generic (less efficient) implementation
+            if ~exist('targ_proj','var')
+                targ_proj = [];
+            end
             [bl_start,bl_size] = get_nrange_(obj,...
                 npix,cur_axes_block,targ_proj,targ_axes_block);
             
@@ -221,7 +240,7 @@ classdef aProjection < serializable
             uoffset = this.offset_;
         end
         function obj = set.offset(obj,val)
-            obj = check_and_set_uoffset_(obj,val);
+            obj = check_and_set_offset_(obj,val);
         end
         %------------------------------------------------------------------
         function proj = get.targ_proj(obj)
@@ -229,13 +248,15 @@ classdef aProjection < serializable
         end
         %
         function obj = set.targ_proj(obj,val)
-            if ~isa(val,'aProjection')
-                error('HORACE:aProjection:invalid_argument',...
-                    'only member of aProjection family can be set up as target projection. Attempted to use: %s',...
-                    evalc('disp(type(val))'))
-            end
-            obj.targ_proj_ = val;
+            obj = obj.check_and_set_targ_proj(val);
         end
+        function gen = get.do_generic(obj)
+            gen = obj.do_generic_;
+        end
+        function obj = set.do_generic(obj,val)
+            obj = obj.check_and_set_do_generic(val);
+        end
+        
         %------------------------------------------------------------------
         % Serializable interface
         function ver  = classVersion(~)
@@ -253,6 +274,27 @@ classdef aProjection < serializable
         function obj = check_and_set_andgdeg(obj,val)
             obj.angdeg_ = check_angdeg_return_standard_val_(obj,val);
         end
+        %
+        function obj = check_and_set_targ_proj(obj,val)
+            % generic overloadable setter for target proj.
+            %
+            % made protected to allow overloading for special
+            % types of projection optimization
+            if ~isa(val,'aProjection')
+                error('HORACE:aProjection:invalid_argument',...
+                    'only member of aProjection family can be set up as target projection. Attempted to use: %s',...
+                    evalc('disp(type(val))'))
+            end
+            obj.targ_proj_ = val;
+        end
+        function obj = check_and_set_do_generic(obj,val)
+            % setter for do_generic method
+            if ~((islogical(val) || isnumeric(val)) && numel(val)==1)
+                error('HORACE:aProjection:invalid_argument',...
+                    'you may set do_generic property into true or false state only');
+            end
+            obj.do_generic_ = logical(val);
+        end
     end
     %----------------------------------------------------------------------
     %  ABSTRACT INTERFACE
@@ -268,4 +310,3 @@ classdef aProjection < serializable
     end
     
 end
-
