@@ -8,7 +8,7 @@ function [frac,n_points] = calc_cont_frac_(obj)
 % would be plotted by pl, so the function returns frac = 2/4 = 0.5;
 %
 % Returns:
-% frac  -- fraction of the points to be plotted out of all
+% frac  -- fraction of the points to be plotted out of all valid points (not-NaN)
 % n_points -- number of points containing information (not NaN-s)
 
 if ~obj.valid_
