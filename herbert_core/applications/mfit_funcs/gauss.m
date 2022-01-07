@@ -26,7 +26,11 @@ function [y, name, pnames, pin] = gauss(x, p, flag)
 %   pin     iflag=1: = [];
 %           iflag=2: = values of the parameters returned from interactive prompting
 
-% T.G.Perring
+
+if numel(p)~=3
+    error('HERBERT:gauss:invalid_argument',...
+        'The vector of parameters must have length 3')
+end
 
 if nargin==2
     % Simply calculate function at input values

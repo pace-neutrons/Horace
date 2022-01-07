@@ -54,7 +54,7 @@ function [yout,eout] = noisify(y,e,varargin)
         eout=abs(y);  % the input y is the mean and variance of the Poisson distribution
     else
         if ~ymax_calculated
-            ymax = max(abs(y(:)))
+            ymax = max(abs(y(:)));
         end
         % make noise dy and add to y for output; make error bar for noise.  
         % randfunc generates the random numbers producing the noise;
@@ -68,7 +68,7 @@ function [yout,eout] = noisify(y,e,varargin)
     end
 
     % adds e (the input variance) to eout if it exists 
-    % (it may not,see @sqw/nosify)
+    % (it may not,see @sqw/noisify)
     if exist('e', 'var') && ~isempty(e)
         if isequal(size(e),size(eout))
             eout=eout+e;
