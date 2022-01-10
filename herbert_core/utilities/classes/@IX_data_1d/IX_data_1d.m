@@ -95,13 +95,36 @@ classdef IX_data_1d < IX_dataset
             % be 2,3, and points 1 and 4 are not displaying if you are
             % plotting a line. Such dataset contains 4 points, only two
             % would be plotted by pl, so the function returns frac = 2/4 = 0.5;
+            % If more than one plot is passed in obj as an array, then the
+            % minimum frac value over all plots and the corresponding point
+            % number is returned.
+            %
+            % Up to 2 dimensions of plots are supported but higher numbers
+            % will error.
             %
             % Returns:
             % frac  -- fraction of the points to be plotted out of all
             % n_points -- number of points containing information (not NaN-s)
             %
             
-            [frac,n_points] = calc_cont_frac_(obj);
+            nd = ndims(obj);
+            if nd>2
+                error('HERBERT:IX_data_1d:calc_continuous_fraction', ...
+                      ['array of IX_data_1d has more than 2 dimensions, ' ...
+                      'and cannot be used with calc_continuous_fraction']);
+            end
+            frac = +2.0; % >1 so enough to trigger fr<frac on any pass below
+            n_points = 0;
+            sz = size(obj);
+            for i = 1:sz(1)
+                for j = 1:sz(2)
+                    [fr,np] = calc_cont_frac_(obj(i,j));
+                    if fr<frac
+                        frac = fr;
+                        n_points = np;
+                    end
+                end
+            end
         end
     end
     %======================================================================
