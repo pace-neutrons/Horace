@@ -149,7 +149,7 @@ The `Axis` classes describes image axes
 (4): u1, u2, u3 have units of Ang^-1, dE has units of meV.
 
 =========================================
-Draft design of the replacement for **data_sqw_dnd_block** (currentl implementation of the image), based on generic projection transformation and the methods, necessary to implement generic cut procedure.:
+Draft design of the replacement for **data_sqw_dnd_block** (current implementation of the image), based on generic projection transformation and the methods, necessary to implement generic cut procedure.:
 
 Image block ( **data_sqw_dnd_block**) consists of 1) an **axes_block** class, defining image binning ranges and coordinates axes used in plotting, 2) a particular instance of **aProjection** class defining the transformation from Crystal Cartesian coordinate system of the **PixelData** class into Image coordinate system (e.g. hkl-dE coordinates for rectilinear projection) and back and 3) *signal*, *error* and *npix* arrays, having the dimensions defined by the **axes_block** and containing information about the pixels, contributed into appropriate bins of the **axes_block**.
 
@@ -159,9 +159,9 @@ The **axes_block** class contains three methods, necessary to implement the cut:
 
 | method | Description | Notes |
 |-----|---------|---|
-| *get_axes_scales* | returns sufficiently small 4D hyper-cube to fit any cell of the **axes_block** grid regardless of any transformatiom, defined by the target projection (see below) | ^1 |
+| *get_axes_scales* | returns sufficiently small 4D hyper-cube to fit any cell of the **axes_block** grid regardless of any transformation, defined by the target projection (see below) | ^1 |
 | *get_bin_nodes* | accepts the hypercube, produced by *get_axes_scales* and generates the grid which covers all range, described by the current **axes_block** class | |
-| *bin_pixels* | takes the coordibates of the pixels, expressed in the **access_block** coordinate system and, optionally, signal and error for these pixels and calculates  *npix*, *signal* and *error* from these pixels to the **axes_block** cells |  |
+| *bin_pixels* | takes the coordinates of the pixels, expressed in the **access_block** coordinate system and, optionally, signal and error for these pixels and calculates  *npix*, *signal* and *error* from these pixels to the **axes_block** cells |  |
 
 
 
@@ -177,7 +177,13 @@ All other methods, necessary for the analysis of different cuts from an sqw obje
 The children of **aProjection** class (e.g. **ortho_proj** class, defining orthogonal projection), may redefine these methods for particular pairs of projections to optimize the performance of cuts.
 
 **Notes**
-^1 e.g., if **axes_block** defines a hupercubic grid with side **a**, the size of the scaler cube with respect to **orhto_projection** (see below) would be the **a/sqrt(2)** |
+^1 e.g., if **axes_block** defines a hypercubic grid with side **a**, the size of the scaler cube with respect to **orhto_projection** (see below) would be the **a/sqrt(2)** |
+
+**Questions**
+1) Should we have specific **axes_block** for each target coordinate system (generic projection) or changes to the special property (axes_caption as it is now) are sufficient.
+
+2) Suggested projection classes currently are **ortho_proj**, **rect_proj**,  **cyl_proj**, **spher_proj**  -- are the names 
+clear. Should **ortho_proj**, **rect_proj** be combined with property *nonorthogonal* 
 
 ### Projection Manager
 
