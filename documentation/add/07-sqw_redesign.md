@@ -18,10 +18,12 @@ which are treated by Horace as 'first class citizens'. They share a common API w
 A redesign of the SQW object is undertaken in the PACE project. It addresses (at least) two issues:
 
 1. The object exists in two distinct forms: 
-   - "SQW" which contains all experimental data and the detector pixel array,
-   - "DND" which contains only processed neutron image data
+   - "DND" which contains  processed neutron image data
+   - "SQW" which cextends "DND" by containing all relevant data describing the experiment, plus the detector pixel array,
 
-​		While conceptually these two forms remain distinct, over time the interdependence of their implementations has grown, and to support further development of the object it is desirable to refactor the objects to remove such interdependence.
+​   When this document was originally written, although these two forms were conceptually distinct, in particular as far as their data content was concerned, 
+over time the interdependence of the implementation of their functionalities had grown, so that SQW functions were often used to implement DND functions. To support the development of the objects described here, it has been desirable to refactor the objects to remove such interdependence, 
+leading to the revised set of classes shown below.
 
 2. Their data includes representations of the instruments, detectors and samples (collectively, components) producing this data - these are used in the Resolution/Convolution form ("Tobyfit") of the fitting algorithms, which fit model calculations to the data including uncertainties due to the components. These components in principle are duplicated in two ways:
    * an experiment consists of a number of runs, and while in principle all components may change between runs, in practice the same components are often used across a number of runs. If duplicates of the components are created for each run, memory usage is increased unnecessarily
