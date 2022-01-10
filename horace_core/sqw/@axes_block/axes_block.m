@@ -56,11 +56,7 @@ classdef axes_block < serializable
         % defaults are taken from the given image range which should be
         % properly prepared
         [obj,targ_img_db_range] = build_from_input_binning(cur_img_range_and_steps,pbin);
-        %
-        % TODO: redundant
-        % Create bin boundaries for integration and plot axes from requested limits and step sizes
-        [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
-        
+        %        
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
             % saveable class

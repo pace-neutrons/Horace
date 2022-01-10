@@ -131,7 +131,7 @@ Image pixel data is generated from the `PixelData` via one or more projections.
 | err[] | Average error, calculated as  `sqrt(Sum(pix_variance(k)/npix(k)))` |(1), (2) |
 | npix[] | Number of detector pixels contributing to each image pixel ||
 | uoffset[] | Offset of pixel projection axes origin | (3) |
-| u_to_rlue\[\]\[\] | Matrix of pixel projection in hkle | (3) |
+| u_to_rlu \[\]\[\] | Matrix of pixel projection in hkle | (3) |
 | ulen[] | Length of pixel projection axes Ang^-1 or meV | (3), (4) |
 
 The `Axis` classes describes image axes
@@ -141,11 +141,43 @@ The `Axis` classes describes image axes
 - matrix mapping these axes to the pixel data
 - requires a well-defined mapping from image pixels to source data pixel
 
+
 **Notes**
 (1): if the image data is updated, e.g. after a slice or projection, the backing pixel data must be updated/reordered
 (2): `pix_signal` represents the array of pixel signal data from which this image data was derived, `pix_variance` the array of pixel variance.
 (3): uoffset and ulen are 4x1 vectors and u_to_rlue is a 4x4 matrix, with the four coordinates are always assumed to be (u1, u2, u3, dE) in that order.
 (4): u1, u2, u3 have units of Ang^-1, dE has units of meV.
+
+=========================================
+Draft design of the replacement for **data_sqw_dnd_block** (currentl implementation of the image), based on generic projection transformation and the methods, necessary to implement generic cut procedure.:
+
+Image block ( **data_sqw_dnd_block**) consists of 1) an **axes_block** class, defining image binning ranges and coordinates axes used in plotting, 2) a particular instance of **aProjection** class defining the transformation from Crystal Cartesian coordinate system of the **PixelData** class into Image coordinate system (e.g. hkl-dE coordinates for rectilinear projection) and back and 3) *signal*, *error* and *npix* arrays, having the dimensions defined by the **axes_block** and containing information about the pixels, contributed into appropriate bins of the **axes_block**.
+
+The cut algorithm takes existing **sqw** object containing existing **projection** and **axes_block** classes. retrieves target **projection** and **axes_block** classes from the input binning parameters of the cut, and calculates *npix*, *signal* and *error* from the pixel information, present in the source **sqw** object or from  *npix*, *signal* and *error* of the source object if the pixel information is not in present the source object.
+
+The **axes_block** class contains three methods, necessary to implement the cut:
+
+| method | Description | Notes |
+|-----|---------|---|
+| *get_axes_scales* | returns sufficiently small 4D hyper-cube to fit any cell of the **axes_block** grid regardless of any transformatiom, defined by the target projection (see below) | ^1 |
+| *get_bin_nodes* | accepts the hypercube, produced by *get_axes_scales* and generates the grid which covers all range, described by the current **axes_block** class | |
+| *bin_pixels* | takes the coordibates of the pixels, expressed in the **access_block** coordinate system and, optionally, signal and error for these pixels and calculates  *npix*, *signal* and *error* from these pixels to the **axes_block** cells |  |
+
+
+
+The particular projection classes are the children of the abstract **aProjection** class defining two abstract **aProjection** methods, namely *transform_pix_to_img* and the opposite *transform_img_to_pix* methods doing transformation from image coordinates to pixel coordinates and vice versa.
+All other methods, necessary for the analysis of different cuts from an sqw object, and implemented using these transformation can be defined using these two abstract methods. These methods together with their short descriptions provided in the table:
+
+| method | Description | Notes |
+|-----|---------|---|
+| *from_cur_to_targ_coord* | Transforms the pixels of the current image coordinate system into other coordinate system the requested cut is presented in. | |
+| *get_nrange* | return ranges of indexes of pixels which may contribute into current cut | |
+| *bin_pixels* | transform input pixels into the coordinate system, defined by the target projection and calculate the contribution of these pixels into the areas, defined by target **axes_block** method. (namely *npix*, *s* and *err* arrays)| |
+
+The children of **aProjection** class (e.g. **ortho_proj** class, defining orthogonal projection), may redefine these methods for particular pairs of projections to optimize the performance of cuts.
+
+**Notes**
+^1 e.g., if **axes_block** defines a hupercubic grid with side **a**, the size of the scaler cube with respect to **orhto_projection** (see below) would be the **a/sqrt(2)** |
 
 ### Projection Manager
 
