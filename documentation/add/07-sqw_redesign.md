@@ -151,9 +151,9 @@ The `Axis` classes describes image axes
 =========================================
 Draft design of the replacement for **data_sqw_dnd_block** (current implementation of the image), based on generic projection transformation and the methods, necessary to implement generic cut procedure.:
 
-Image block ( **data_sqw_dnd_block**) consists of 1) an **axes_block** class, defining image binning ranges and coordinates axes used in plotting, 2) a particular instance of **aProjection** class defining the transformation from Crystal Cartesian coordinate system of the **PixelData** class into Image coordinate system (e.g. hkl-dE coordinates for rectilinear projection) and back and 3) *signal*, *error* and *npix* arrays, having the dimensions defined by the **axes_block** and containing information about the pixels, contributed into appropriate bins of the **axes_block**.
+Suggested Image block ( **data_sqw_dnd_block**) consists of 1) an **axes_block** class, defining image binning ranges and coordinates axes used in plotting, 2) a particular instance of **aProjection** class defining the transformation from Crystal Cartesian coordinate system of the **PixelData** class into Image coordinate system (e.g. hkl-dE coordinates for rectilinear projection) and back and 3) *signal*, *error* and *npix* arrays, having the dimensions defined by the **axes_block** and containing information about the pixels, contributed into appropriate bins of the **axes_block**.
 
-The cut algorithm takes existing **sqw** object containing existing **projection** and **axes_block** classes. retrieves target **projection** and **axes_block** classes from the input binning parameters of the cut, and calculates *npix*, *signal* and *error* from the pixel information, present in the source **sqw** object or from  *npix*, *signal* and *error* of the source object if the pixel information is not in present the source object.
+The cut algorithm takes existing **sqw** object containing existing **projection** and **axes_block** classes. retrieves target **projection** and **axes_block** classes from the input binning parameters of the cut, and calculates *npix*, *signal* and *error* from the pixel information, present in the source **sqw** object or from  *npix*, *signal* and *error* of the source object if the pixel information is not present in the source object.
 
 The **axes_block** class contains three methods, necessary to implement the cut:
 
@@ -183,7 +183,7 @@ The children of **aProjection** class (e.g. **ortho_proj** class, defining ortho
 1) Should we have specific **axes_block** for each target coordinate system (generic projection) or changes to the special property (axes_caption as it is now) are sufficient.
 
 2) Suggested projection classes currently are **ortho_proj**, **rect_proj**,  **cyl_proj**, **spher_proj**  -- are the names 
-clear. Should **ortho_proj**, **rect_proj** be combined with property *nonorthogonal* 
+clear? Should **ortho_proj** and **rect_proj** be combined into single class **rect_proj** with property *nonorthogonal* true/false defining the difference. New type projections: **dEfocus_proj**, **qdEmix_proj**.
 
 ### Projection Manager
 

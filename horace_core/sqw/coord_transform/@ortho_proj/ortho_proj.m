@@ -109,8 +109,8 @@ classdef ortho_proj<aProjection
             if nargin==0 % return defaults, which describe unit transformation from
                 % Crystal Cartesian (pixels) to Crystal Cartesian (image)
                 u_to_rlu =eye(3)/(2*pi);
-                [ul,vl]=proj.uv_from_rlu(u_to_rlu,[1,1,1]);
-                proj = proj.init(ul,vl,[0,0,0.5/pi],'type','ppp');
+                [ul,vl,~,type]=proj.uv_from_rlu(u_to_rlu,[1,1,1]);
+                proj = proj.init(ul,vl,[],'type',type);
             else
                 proj.lab = {'\zeta','\xi','\eta','E'};
                 proj = proj.init(varargin{:});
@@ -150,7 +150,7 @@ classdef ortho_proj<aProjection
                 pix_target = from_cur_to_targ_coord@aProjection(...
                     obj,pix_origin,varargin{:});
             else
-                pix_target = do_orhto_ortho_transformation_(...
+                pix_target = do_ortho_ortho_transformation_(...
                     obj,pix_origin,varargin{:});
             end
         end
@@ -232,9 +232,11 @@ classdef ortho_proj<aProjection
         end
         %
         function obj = set_from_ubmat(obj,u_to_rlu,ulen)
-            [ur,vr]=obj.uv_from_rlu(u_to_rlu(1:3,1:3),ulen(1:3));
+            [ur,vr,wr,tpe]=obj.uv_from_rlu(u_to_rlu(1:3,1:3),ulen(1:3));
             obj.u = ur;
             obj.v = vr;
+            obj.w = wr;            
+            obj.type = tpe;
             [ok,mess,obj] = check_combo_arg_(obj);
             if ~ok
                 error('HORACE:ortho_proj:invalid_argument',...
@@ -318,7 +320,6 @@ classdef ortho_proj<aProjection
                 obj.ortho_ortho_offset_ = [];
             end
         end
-        
         %
         function [rot_to_img,shift]=get_pix_img_transformation(obj,ndim,varargin)
             % Return the transformation, necessary for conversion from pix
@@ -390,7 +391,7 @@ classdef ortho_proj<aProjection
             [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu_(proj,ustep);
         end
         %
-        function [u,v]=uv_from_rlu(obj,u_to_rlu,ulen)
+        function [u,v,w,type]=uv_from_rlu(obj,u_to_rlu,ulen)
             % Extract initial u/v vectors, defining the plane in hkl from
             % lattice parameters and the matrix converting vectors in
             % crystal Cartesian coordinate system into rlu.
@@ -417,7 +418,7 @@ classdef ortho_proj<aProjection
             %          Expressed in degree
             
             
-            [u,v] = uv_from_rlu_mat_(obj,u_to_rlu,ulen);
+            [u,v,w,type] = uv_from_rlu_mat_(obj,u_to_rlu,ulen);
         end
         
     end

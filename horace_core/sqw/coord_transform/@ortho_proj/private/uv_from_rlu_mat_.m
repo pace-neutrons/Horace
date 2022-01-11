@@ -1,4 +1,4 @@
-function [u,v]=uv_from_rlu_mat_(obj,u_to_rlu,ulen)
+function [u,v,w,type]=uv_from_rlu_mat_(obj,u_to_rlu,ulen)
 % Extract initial u/v vectors, defining the plane in hkl from
 % lattice parameters and the matrix converting vectors in
 % crystal Cartesian coordinate system into rlu.
@@ -17,6 +17,9 @@ function [u,v]=uv_from_rlu_mat_(obj,u_to_rlu,ulen)
 %          direction
 % v     -- [1x3] vector expressed in rlu, and together with u
 %          defining the cut plain
+% w    --  [1x3] vector expressed in rlu, defining the cut area. May be
+%          empty
+% type -- 
 %u_to_rlu(:,i) = ubinv(:,i)*ulen(i);
 
 
@@ -42,6 +45,22 @@ w=ubinv(:,3)';  % perpendicular to u and v, length 1 Ang^-1, forms rh set with u
 uvw=[u(:),v(:),w(:)];
 uvw_orthonorm=ubmat*uvw;    % u,v,w in the orthonormal frame defined by u and v
 ulen_new = diag(uvw_orthonorm);
-scale = ulen./ulen_new';
-u = u*scale(1);
-v = v*scale(2);
+lt = cell(3,1);
+for i=1:3
+    if ulen(i)==1
+        lt{i} = 'a';
+    elseif abs(ulen(i)-ulen_new(i))<1.e-7
+        lt{i} = 'p';        
+    else
+        lt{i} = 'r';                
+    end
+end
+if lt{3} ~= 'p'
+    w = [];
+end
+type = [lt{:}];
+
+% scale = ulen./ulen_new';
+% u = u*scale(1);
+% v = v*scale(2);
+

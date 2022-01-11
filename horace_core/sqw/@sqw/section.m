@@ -103,7 +103,7 @@ for n=1:numel(win)
         ind=ind_from_nrange(nstart,nend);
         wout(n).data.pix = win(n).data.pix.get_pixels(ind);
         %TODO: Do we actually need this? is this a suitable algorithm?
-        % need careful checking if the pixels are indeed arranged accoding
+        % need careful checking if the pixels are indeed arranged according
         % to new bins.
         wout(n).data.img_db_range=recompute_img_range(wout(n));
     end

@@ -1,14 +1,17 @@
-function pix_transf = do_orhto_ortho_transformation_(...
+function pix_transf = do_ortho_ortho_transformation_(...
     obj,pix_input,varargin)
-% convert image
-
+% convert image coordinates expressed in one image coordinate system
+% into image coordinates expressed in another image coordinate system
+% given that both coordinate systems are defined by the similar ortholinear
+% transformations, so the final transformation is the shift and rotation
+% with respect to current coordinate system.
+%
 
 if obj.offset(4) ~=0
     shift_ei = true;
 else
     shift_ei = false;
 end
-
 
 if isa(pix_input,'PixelData')
     pix_coord = pix_input.q_coordinates;
@@ -42,4 +45,3 @@ else
     end
     pix_transf = [pix_transf;ei];
 end
-

@@ -12,6 +12,14 @@ function [obj,remains] = process_positional_args_(obj,varargin)
 % ortho_proj object with properties set 
 if numel(varargin)>0 && isnumeric(varargin{1})
     obj = check_and_set_uv_(obj,'u',varargin{1});
+elseif isa(varargin{1},'ortho_proj') % copy constructor
+    if strcmp(class(obj),'ortho_proj')
+        obj = varargin{1}; % clear copy constructor
+    else % works for childrens of the orho_proj; Needs check for arrays. 
+        % It may be better to convert to_struct (certainly works for arrays, but this one may work too)
+        strct = varargin{1}.to_bare_struct(); 
+        obj = obj.from_class_struct(strct);
+    end
 else
     remains= varargin;
     return;
