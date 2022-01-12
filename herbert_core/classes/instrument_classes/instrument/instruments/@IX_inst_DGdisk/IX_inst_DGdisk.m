@@ -197,8 +197,7 @@ classdef IX_inst_DGdisk < IX_inst
         %------------------------------------------------------------------
     end
     
-    %{
-    % Everything here should now be done by serializable, base class
+    %{% Everything here should now be done by serializable , base class
     % of IX_inst, base class of this function.
     %======================================================================
     % Methods for fast construction of structure with independent properties
@@ -443,7 +442,7 @@ classdef IX_inst_DGdisk < IX_inst
         %------------------------------------------------------------------
         
     end
-    %}
+    % %}
     %======================================================================
     
 end
