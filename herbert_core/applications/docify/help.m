@@ -30,10 +30,10 @@ function [out, docTopic] = help(varargin)
         % Show docstring for builtin help
         helpProcess = show_builtin_help(nargout);
     elseif nargin == 1
-        mfilename = check_docify(varargin{1});
-        if ~isempty(mfilename)
+        topic = check_docify(varargin{1});
+        if ~isempty(topic)
             % Topic has docify strings, parse it
-            helpProcess = docify_help(varargin{1}, mfilename, nargout, nargin);
+            helpProcess = docify_help(varargin{1}, topic, nargout, nargin);
         end
     end
     if ~exist('helpProcess', 'var') || isempty(helpProcess)

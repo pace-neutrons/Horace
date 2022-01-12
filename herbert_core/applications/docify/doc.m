@@ -34,10 +34,10 @@ function doc(varargin)
             % Open up the page for doc
             displayDocPage(struct('topic', '(matlab)/doc', 'isElement', 0));
         else
-            mfilename = check_docify(varargin{1});
-            if ~isempty(mfilename)
+            topic = check_docify(varargin{1});
+            if ~isempty(topic)
                 % Topic has docify strings, parse it
-                helpProcess = docify_help(varargin{1}, mfilename, 2, nargin);
+                helpProcess = docify_help(varargin{1}, topic, 2, nargin);
             end
         end
     end
