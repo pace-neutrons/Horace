@@ -113,18 +113,9 @@ classdef IX_data_1d < IX_dataset
                       ['array of IX_data_1d has more than 2 dimensions, ' ...
                       'and cannot be used with calc_continuous_fraction']);
             end
-            frac = +2.0; % >1 so enough to trigger fr<frac on any pass below
-            n_points = 0;
-            sz = size(obj);
-            for i = 1:sz(1)
-                for j = 1:sz(2)
-                    [fr,np] = calc_cont_frac_(obj(i,j));
-                    if fr<frac
-                        frac = fr;
-                        n_points = np;
-                    end
-                end
-            end
+            [fr,np] = arrayfun(@calc_cont_frac_, obj);
+            [frac, ind] = min(fr);
+            n_points = np(ind);
         end
     end
     %======================================================================
