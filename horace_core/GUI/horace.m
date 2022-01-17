@@ -2056,7 +2056,7 @@ if ~ismanual && isfield(handles,'w_in2') && (ndims1 ~= ndims2)
 end
 
 %Work out which of the rebin functions is required:
-if is_sqw_type(sqw(win1))
+if has_pixels(sqw(win1))
     funcstr='rebin_sqw';
 elseif ndims1==1
     funcstr='rebin_horace_1d';
