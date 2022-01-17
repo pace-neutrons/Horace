@@ -5737,7 +5737,7 @@ for i=stack_depth-3:-1:1
         the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
 end
 
-set(handles.message_text_field,'String',char(err));
+set(handles.message_info_text,'String',char(err));
 guidata(gcbo,handles);
 
 rethrow(the_err);
