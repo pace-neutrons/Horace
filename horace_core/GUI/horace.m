@@ -1966,7 +1966,7 @@ if manspec==nummax
         %must strip out square brackets, if user has inserted them:
         s1=strfind(lostephi,'['); s2=strfind(lostephi,']');
         if isempty(s1) && isempty(s2)
-            lostephinew{1}=textscan(lostephi,'%f','delimiter',',');
+            lostephinew{1}=read_vector(lostephi);
         elseif ~isempty(s1) && ~isempty(s2)
             if length(s1)~=length(s2)
                 mess1='Ensure manual rebinning is of form [lo1,step1,hi1], [step], or []';
@@ -1980,9 +1980,10 @@ if manspec==nummax
                 guidata(gcbo,handles);
                 return;
             end
+            lostephinew = cell(numel(s1),1);
             for i=1:numel(s1)
                 lostephi_tmp=lostephi(s1(i)+1:s2(i)-1);
-                lostephinew{i}=textscan(lostephi_tmp,'%f','delimiter',',');
+                lostephinew{i}=read_vector(lostephi_tmp);
             end
         else
             mess1='Ensure manual rebinning is of form [lo1,step1,hi1], [step], or []';
