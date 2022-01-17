@@ -269,7 +269,8 @@ guidata(gcbo,handles);
 ndim=dimensions(w_in);
 
 %Get the plot title info:
-[title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = plot_titles (sqw(w_in));
+ds = sqw(w_in);
+[title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (ds.data);
 
 %Get the info about the object:
 if has_pixels(w_in)
