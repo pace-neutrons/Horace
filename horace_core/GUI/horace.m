@@ -52,7 +52,7 @@ is_sqw_obj = strcmp(element_class,'d1d') || strcmp(element_class,'d2d') ||...
 function [vec_val,ok] = read_vector(str_val)
 % read vector value from a string, obtained from GUI
 ok = true;
-s1=strfind(str_val,'['); str_val=strfind(str_val,']');
+s1=strfind(str_val,'['); s2=strfind(str_val,']');
 if isempty(s1) && isempty(s2)
     sv_new=textscan(str_val,'%f','delimiter',',');
 elseif ~isempty(s1) && ~isempty(s2)
