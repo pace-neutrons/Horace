@@ -1670,7 +1670,7 @@ try
             return;
     end
 catch the_err
-    report_error(the_err,'**** cut failed at: ')
+    report_error(the_err,'**** cut failed at: ',mess_initialise)
 end
 
 
@@ -2108,7 +2108,7 @@ try
     end
     
 catch the_err
-    report_error(the_err,'**** rebin failed at: ')
+    report_error(the_err,'**** rebin failed at: ',mess_initialise)
 end
 
 
@@ -2535,7 +2535,7 @@ try
     end
     
 catch the_err
-    report_error(the_err,'**** symmetrise  failed at: ')
+    report_error(the_err,'**** symmetrise  failed at: ',mess_initialise)
 end
 
 
@@ -2893,7 +2893,7 @@ try
     end
     
 catch the_err
-    report_error(the_err,'**** combine failed at: ')
+    report_error(the_err,'**** combine failed at: ',mess_initialise)
 end
 
 
@@ -3192,7 +3192,7 @@ try
         end
     end
 catch the_err
-    report_error(the_err,'**** replication failed at: ')
+    report_error(the_err,'**** replication failed at: ',mess_initialise)
 end
 
 if ~sqw_flag
@@ -3397,7 +3397,7 @@ try
         save(out,outfilename);
     end
 catch the_err
-    report_error(the_err,'**** bose_correction failed at: ')
+    report_error(the_err,'**** bose_correction failed at: ',mess_initialise)
 end
 
 assignin('base',outobjname,out);
@@ -3816,7 +3816,7 @@ try
         save(out,outfilename);
     end
 catch the_err
-    report_error(the_err,'**** Formatting error? Unit operation failed at: ')
+    report_error(the_err,'**** Formatting error? Unit operation failed at: ',mess_initialise)
 end
 
 
@@ -4019,7 +4019,7 @@ try
         save(out,outfilename);
     end
 catch the_err
-    report_error(the_err,'**** unit operation failed at: ')
+    report_error(the_err,'**** unit operation failed at: ',mess_initialise)
 end
 
 assignin('base',outobjname,out);
@@ -4581,7 +4581,7 @@ try
             a2,'],[',a3,'],[',a4,'],''',outfilename,''');']);
     end
 catch the_err
-    report_error(the_err,'**** Invalid inputs? Cut from file failed at: ')
+    report_error(the_err,'**** Invalid inputs? Cut from file failed at: ',mess_initialise)
 end
 
 assignin('base',outobjname,out);
@@ -5721,8 +5721,13 @@ out = all(cellfun(@(x)isempty(strfind(x, 'nxspe')), spe_psi_cell));
 
 
 % --------------------------------------------------------------------
-function report_error(the_err,err_info)
-err = {sprintf('**** %s',mess_initialise),...
+function report_error(the_err,err_info,varargin)
+if nargin>2
+    head = sprintf('**** %s',varargin{1});
+else
+    head = '';
+end
+err = {head,...
     sprintf('**** Error %s Message: %s',...
     the_err.identifier,the_err.message),...
     err_info};
