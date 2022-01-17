@@ -2010,7 +2010,7 @@ if manspec==nummax
             '**** Formatting error of manual rebinning entries: ',...
             '**** Ensure they are of the form [lo,step,hi], [step], or [], and are numeric'};
         
-        set(handles.message_text_field,'String',char(err));
+        set(handles.message_info_text,'String',char(err));
         guidata(gcbo,handles);
         
         
