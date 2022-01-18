@@ -147,7 +147,7 @@ classdef mfclass_Horace_sqw < mfclass
             if islognumscalar(val)
                 obj.average = logical(val);
             else
-                error ('Property named ''average'' must be a logical scalar (or numeric 0 or 1)')
+                error ('HORACE:mfclass_Horace_sqw:invalid_argument', 'Property named ''average'' must be a logical scalar (or numeric 0 or 1)')
             end
         end
 
