@@ -148,10 +148,10 @@ The `Axis` classes describes image axes
 (3): uoffset and ulen are 4x1 vectors and u_to_rlue is a 4x4 matrix, with the four coordinates are always assumed to be (u1, u2, u3, dE) in that order.
 (4): u1, u2, u3 have units of Ang^-1, dE has units of meV.
 
-=========================================
-Draft design of the replacement for **data_sqw_dnd_block** (current implementation of the image), based on generic projection transformation and the methods, necessary to implement generic cut procedure.:
+### data_sqw_dnd class
+The replacement for **data_sqw_dnd** class (current implementation of the image) is based on generic projection transformation and the methods, necessary to implement generic cut procedure.:
 
-Suggested Image block ( **data_sqw_dnd_block**) consists of 1) an **axes_block** class, defining image binning ranges and coordinates axes used in plotting, 2) a particular instance of **aProjection** class defining the transformation from Crystal Cartesian coordinate system of the **PixelData** class into Image coordinate system (e.g. hkl-dE coordinates for rectilinear projection) and back and 3) *signal*, *error* and *npix* arrays, having the dimensions defined by the **axes_block** and containing information about the pixels, contributed into appropriate bins of the **axes_block**.
+Suggested Image block ( **data_sqw_dnd**) consists of 1) an **axes_block** class, defining image binning ranges and coordinates axes used in plotting, 2) a particular instance of **aProjection** class defining the transformation from Crystal Cartesian coordinate system of the **PixelData** class into Image coordinate system (e.g. hkl-dE coordinates for rectilinear projection) and back and 3) *signal*, *error* and *npix* arrays, having the dimensions defined by the **axes_block** and containing information about the pixels, contributed into appropriate bins of the **axes_block**.
 
 The cut algorithm takes existing **sqw** object containing existing **projection** and **axes_block** classes. retrieves target **projection** and **axes_block** classes from the input binning parameters of the cut, and calculates *npix*, *signal* and *error* from the pixel information, present in the source **sqw** object or from  *npix*, *signal* and *error* of the source object if the pixel information is not present in the source object.
 
@@ -165,7 +165,7 @@ The **axes_block** class contains three methods, necessary to implement the cut:
 
 
 The particular projection classes are the children of the abstract **aProjection** class defining three abstract **aProjection** methods, which should be defined by child classes.
-These methods are: 
+These methods are:
 
 | method | Description | Notes |
 |-----|---------|---|
@@ -186,28 +186,13 @@ The children of **aProjection** class (e.g. **ortho_proj** class, defining ortho
 **Notes**
 ^1 e.g., if **axes_block** defines a hypercubic grid with side **a**, the size of the scaler cube with respect to **orhto_projection** (see below) would be the **a/sqrt(2)** |
 
-**axes_block** should be different for every coordinate system, with possibility to overload plot methods.
+**axes_block** should be overloaded for every coordinate system defined by a projection, with possibility to overload plot methods for the convenience of the plotting in the particular coordinate system.
+
+Operations result in the creation of a new SQW/DND object and are performed to the Image Pixels using data from the backing `PixelData`.
 
 **Questions**
 
-2) Suggested projection classes currently are **ortho_proj**, **rect_proj**,  **cyl_proj**, **spher_proj**  -- are the names clear? Should **ortho_proj** and **rect_proj** be combined into single class **rect_proj** with property *nonorthogonal* true/false defining the difference. New type projections: **dEfocus_proj**, **qdEmix_proj**.
-
-### Projection Manager
-
-The `ProjectionManager` class will manage all projection operations.
-
-![Projection Class Overview](../diagrams/projection.png)
-
-Responsible for all image projections - this includes symmetrization and simpler data operations:
-
-- Crystal Cartesian to h,k,l,
-- arbitrary rotation,
-- arbitrary offset,
-- plane cuts
-- spherical cuts
-- cylindrical cuts
-
-Operations result in the creation of a new SQW/DND object and are performed to the Image Pixels using data from the backing `PixelData`.
+2) Suggested projection classes currently are **ortho_proj**, **rect_proj**,  **cyl_proj**, **spher_proj**  -- are the names clear? New type projections: **dEfocus_proj**, **qdEmix_proj**.
 
 
 ### Operations
