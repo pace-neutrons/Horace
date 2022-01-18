@@ -104,9 +104,9 @@ classdef test_ortho_proj_construction<TestCase
             assertEqual(proj.type,'aaa')
             full_box = expand_box([0,0,0,0],[1,1,1,1]);
             pixi = proj.transform_pix_to_img(full_box );
-            assertElementsAlmostEqual(full_box,pixi);
-            pixi = proj.transform_img_to_pix(full_box );
-            assertElementsAlmostEqual(full_box,pixi);
+            %assertElementsAlmostEqual(full_box,pixi);
+            pixp = proj.transform_img_to_pix(pixi);
+            assertElementsAlmostEqual(full_box,pixp);
         end
         %
         function test_invalid_constructor_throw(~)

@@ -38,9 +38,9 @@ classdef test_ortho_proj_methods<TestCase
             pix = eye(4);
             
             pix_transf_spec = pra.from_cur_to_targ_coord(pix);
-
+            
             pra.do_generic = true;
-            pix_transf_gen = pra.from_cur_to_targ_coord(pix);            
+            pix_transf_gen = pra.from_cur_to_targ_coord(pix);
             
             assertElementsAlmostEqual(pix_transf_spec,pix_transf_gen);
         end
@@ -56,9 +56,9 @@ classdef test_ortho_proj_methods<TestCase
             pix = eye(4);
             
             pix_transf_spec = pra.from_cur_to_targ_coord(pix);
-
+            
             pra.do_generic = true;
-            pix_transf_gen = pra.from_cur_to_targ_coord(pix);            
+            pix_transf_gen = pra.from_cur_to_targ_coord(pix);
             
             assertElementsAlmostEqual(pix_transf_spec,pix_transf_gen);
         end
@@ -72,9 +72,9 @@ classdef test_ortho_proj_methods<TestCase
             pix = eye(4);
             
             pix_transf_spec = pra.from_cur_to_targ_coord(pix);
-
+            
             pra.do_generic = true;
-            pix_transf_gen = pra.from_cur_to_targ_coord(pix);            
+            pix_transf_gen = pra.from_cur_to_targ_coord(pix);
             
             assertElementsAlmostEqual(pix_transf_spec,pix_transf_gen);
         end
@@ -89,7 +89,7 @@ classdef test_ortho_proj_methods<TestCase
             pix = eye(4);
             
             pix_transf = pra.from_cur_to_targ_coord(pix);
-            assertEqual(pix,pix_transf);
+            assertElementsAlmostEqual(pix,pix_transf);
             
         end
         
@@ -115,7 +115,7 @@ classdef test_ortho_proj_methods<TestCase
             ab0 = axes_block(bin0{:});
             [~,sz] = ab0.data_dims();
             npix = ones(sz);
-            bin1 = {[0.5,0.1,dbr(2,1)];[0,0.2,dbr(2,2)];...
+            bin1 = {[0.5,0.1,1];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab1 = axes_block(bin1{:});
             proj2 = ortho_proj([1,1,0],[1,-1,0]);
@@ -126,8 +126,8 @@ classdef test_ortho_proj_methods<TestCase
             assertEqual(numel(bl_start),numel(bl_size));
             
             assertEqual(numel(bl_start),6);
-            assertEqual(bl_start,[10,19,28,40,53,66]);
-            assertEqual(bl_size,[2,4,6,5,3,1]);
+            assertEqual(bl_start,[10    19    28    40    53    66]);
+            assertEqual(bl_size,[5     8     7     4]);
         end
         %
         function test_binning_range_half_sampe_proj2Drot90(~)
@@ -232,27 +232,35 @@ classdef test_ortho_proj_methods<TestCase
             angdeg = [95,85,97];
             pra = ortho_projTester(u,v,'type','rrr','alatt',alatt,'angdeg',angdeg);
             %
-            %pra.nonorthogonal = true;
             %TODO: This option does not currently work.
-            % if this is possible to make it to work is the question worth
-            % an independent investigation.
+            %pra.nonorthogonal = true;            
+            % Is it necessary to make it to work?
             %
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
             %
             % but recovered the values, correspondent to ppr?
-            [u_par,v_par] = pra.uv_from_rlu_public(u_to_rlu,ulen);
+            [u_par,v_par,w,type] = pra.uv_from_rlu_public(u_to_rlu,ulen);
             assertElementsAlmostEqual(u,u_par);
+            assertEqual(type,'ppr');
+            assertTrue(isempty(w));
             % find part of the v vector, orthogonal to u
-            b_mat = bmatrix(alatt,angdeg);
-            eu_cc = b_mat*u';
-            eu = eu_cc/norm(eu_cc);
-            % convert to crystal Cartesian
-            v_cc = b_mat*v';
+%             b_mat = bmatrix(alatt,angdeg);
+%             u_cc = b_mat*u'; % u-vector in Crystal Cartesian
+%             eu = u_cc/norm(u_cc); % unit vector parallel to u in CC
+%             % convert to crystal Cartesian
+%             v_cc = b_mat*v';  % v-vector in Crystal Cartesian
+%             
+%             v_along =eu*(eu'*v_cc); % projection of v to eu
+%             v_tr = (v'-b_mat\v_along)'; % convert v_along (u) to hkl
+%             v_tr = v_tr/norm(v_tr);
+%             % orthogonal v-part should be recovered from the u_to_rlu matrix
+%             assertElementsAlmostEqual(v_tr,v_par);
+            pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg,'type',type);
+            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
             
-            v_along =eu*(eu'*v_cc);
-            v_tr = (b_mat\(v_cc-v_along))';
-            % this part should be recovered from the u_to_rlu matrix
-            assertElementsAlmostEqual(v_tr,v_par);
+            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
+            assertElementsAlmostEqual(ulen,ulen_rec);
+
         end
         %
         function test_uv_to_rlu_and_vv_complex_nonorthogonal(~)
@@ -264,8 +272,9 @@ classdef test_ortho_proj_methods<TestCase
             
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
             
-            [u_par,v_par] = pra.uv_from_rlu_public(u_to_rlu, ulen);
+            [u_par,v_par,w,typ] = pra.uv_from_rlu_public(u_to_rlu, ulen);
             assertElementsAlmostEqual(u,u_par);
+            assertTrue(isempty(w));
             % find part of the v vector, orthogonal to u
             b_mat = bmatrix(alatt,angdeg);
             eu_cc = b_mat*u';
@@ -276,6 +285,13 @@ classdef test_ortho_proj_methods<TestCase
             v_tr = (b_mat\(v_cc-v_along))';
             % this part should be recovered from the u_to_rlu matrix
             assertElementsAlmostEqual(v_tr,v_par);
+            
+            pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg,'type',typ);
+            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
+            
+            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
+            assertElementsAlmostEqual(ulen,ulen_rec);
+            
         end
         %
         function test_uv_to_rlu_and_vv_simple_nonorthogonal(~)
@@ -286,8 +302,9 @@ classdef test_ortho_proj_methods<TestCase
             pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
             
-            [u_par,v_par] = pra.uv_from_rlu_public(u_to_rlu,ulen);
+            [u_par,v_par,w,typ] = pra.uv_from_rlu_public(u_to_rlu,ulen);
             assertElementsAlmostEqual(u,u_par);
+            assertTrue(isempty(w));
             
             % find part of the v vector, orthogonal to u
             b_mat = bmatrix(alatt,angdeg);
@@ -302,36 +319,71 @@ classdef test_ortho_proj_methods<TestCase
             % this part should be recovered from the u_to_rlu matrix
             assertElementsAlmostEqual(v_tr,v_par);
             
+            pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg,'type',typ);
+            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
+            
+            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
+            assertElementsAlmostEqual(ulen,ulen_rec);
+            
+            
         end
         %
         function test_uv_to_rlu_and_vv_complex(~)
-            u = [1,1,0];
+            u = [1,1,0]/norm([1,1,0]);
             v = [0,-0.5,1];
             alatt = [2.83,2.83,2.83];
             angdeg = [90,90,90];
             pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
             
-            [u_par,v_par] = pra.uv_from_rlu_public(u_to_rlu,ulen);
-            
+            [u_par,v_par,w,type] = pra.uv_from_rlu_public(u_to_rlu,ulen);
+
             assertElementsAlmostEqual(u,u_par);
+            assertTrue(isempty(w));
+            assertEqual(type,'ppr');
             % find part of the v vector, orthogonal to u
-            eu =  u/norm(u);
-            v_along =eu*(eu*v');
-            v_tr = v-v_along;
+%             eu =  u/norm(u);
+%             v_along =eu*(eu*v');
+%             v_tr = v-v_along;
+%             v_tr = v_tr/norm(v_tr);
             
             % this part should be recovered from the u_to_rlu matrix
-            assertElementsAlmostEqual(v_tr,sign(v_tr).*abs(v_par));
+            %assertElementsAlmostEqual(v_tr,v_par);
             
-            pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg);
+            pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg,'type',type);
             [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
             
             assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
             assertElementsAlmostEqual(ulen,ulen_rec);
             
         end
+        function test_uv_to_rlu_and_vv_simple_rect_lattice(~)
+            u = [1,0,0];
+            v = [-0.117092223638778,0.993121045574670,0];  % vector in non-orthogonal coordinate system,
+            % orthogonal to u vrt multiplication in B-matrix adjusted 
+            % orthogonal coordinate system
+            alatt = [2.8,2,3.5];
+            angdeg = [92,85,95];
+            %bmat = bmatrix(alatt,angdeg);
+            
+            pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
+            [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
+            
+            [u_par,v_par,w,tpe] = pra.uv_from_rlu_public(u_to_rlu,ulen);
+            assertElementsAlmostEqual(u,u_par,'absolute',1.e-7);
+            assertElementsAlmostEqual(v,v_par,'absolute',1.e-7);
+            assertTrue(isempty(w));
+            assertEqual(tpe,'ppr');
+            
+            pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg);
+            [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();
+            
+            assertElementsAlmostEqual(u_to_rlu,u_to_rlu_rec);
+            assertElementsAlmostEqual(ulen,ulen_rec);
+        end
+        
         %
-        function test_uv_to_rlu_and_vv_simple(~)
+        function test_uv_to_rlu_and_vv_simple_ortho_lattice(~)
             u = [1,0,0];
             v = [0,0,1];
             alatt = [2.83,2.83,2.83];
@@ -339,9 +391,11 @@ classdef test_ortho_proj_methods<TestCase
             pra = ortho_projTester(u,v,'alatt',alatt,'angdeg',angdeg);
             [~, u_to_rlu, ulen] = pra.projaxes_to_rlu_public();
             
-            [u_par,v_par] = pra.uv_from_rlu_public(u_to_rlu,ulen);
+            [u_par,v_par,w,tpe] = pra.uv_from_rlu_public(u_to_rlu,ulen);
             assertElementsAlmostEqual(u,u_par);
             assertElementsAlmostEqual(v,v_par);
+            assertTrue(isempty(w));
+            assertEqual(tpe,'ppr');
             
             pra = ortho_projTester(u_par,v_par,'alatt',alatt,'angdeg',angdeg);
             [~, u_to_rlu_rec, ulen_rec] = pra.projaxes_to_rlu_public();

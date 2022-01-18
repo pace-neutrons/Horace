@@ -59,8 +59,8 @@ else
 end
 
 uvw=[u(:),v(:),w(:)];
-uvw_orthonorm=ubmat*uvw;    % u,v,w in the orthonormal frame defined by u and v
-
+uvw_orthonorm=ubmat*uvw;    % u,v,w in the orthonormal (Crystal Cartesian)
+                            % frame defined by u and v
 
 u_to_rlu = zeros(3,3);
 ulen = zeros(1,3);

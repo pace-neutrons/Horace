@@ -50,7 +50,7 @@ classdef data_sqw_dnd < axes_block
         data_type = data_structure_type(data);
         % Extract projection, used to build sqw file from full data_sqw_dnd
         % object (full-- containing pixels)
-        proj = get_projection(obj)
+        proj = get_projection(obj,header_av)
         %------------------------------------------------------------------
         function obj = data_sqw_dnd(varargin)
             % constructor || copy-constructor:

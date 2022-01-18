@@ -164,9 +164,16 @@ The **axes_block** class contains three methods, necessary to implement the cut:
 | *bin_pixels* | takes the coordinates of the pixels, expressed in the **access_block** coordinate system and, optionally, signal and error for these pixels and calculates  *npix*, *signal* and *error* from these pixels to the **axes_block** cells |  |
 
 
+The particular projection classes are the children of the abstract **aProjection** class defining three abstract **aProjection** methods, which should be defined by child classes.
+These methods are: 
 
-The particular projection classes are the children of the abstract **aProjection** class defining two abstract **aProjection** methods, namely *transform_pix_to_img* and the opposite *transform_img_to_pix* methods doing transformation from image coordinates to pixel coordinates and vice versa.
-All other methods, necessary for the analysis of different cuts from an sqw object, and implemented using these transformation can be defined using these two abstract methods. These methods together with their short descriptions provided in the table:
+| method | Description | Notes |
+|-----|---------|---|
+| *transform_pix_to_img* | Transforms the points with the coordinates in the Crystal Cartesian coordinate system into the Image cordinate system | For **ortho_proj** class image coordinate system would be hkl, for **spher_proj**:  *Q,theta,phi,dE* |
+| *transform_img_to_pix* | Transform the points with the coordinate in the Image coordinate system into Crystal Cartesian coordinate system. | Operation, opposite to *transform_pix_to_img* | 
+| *get_axes_block* | returns the particular **axes_block** class, specific for the coordinate system, defined by the specific projection class | |
+
+Other important methods, necessary for the analysis of different cuts from an sqw object, and implemented using these transformation can be defined using these three abstract methods. These methods together with their short descriptions provided in the table:
 
 | method | Description | Notes |
 |-----|---------|---|
@@ -174,16 +181,16 @@ All other methods, necessary for the analysis of different cuts from an sqw obje
 | *get_nrange* | return ranges of indexes of pixels which may contribute into current cut | |
 | *bin_pixels* | transform input pixels into the coordinate system, defined by the target projection and calculate the contribution of these pixels into the areas, defined by target **axes_block** method. (namely *npix*, *s* and *err* arrays)| |
 
-The children of **aProjection** class (e.g. **ortho_proj** class, defining orthogonal projection), may redefine these methods for particular pairs of projections to optimize the performance of cuts.
+The children of **aProjection** class (e.g. **ortho_proj** class, defining orthogonal projection), need to define the abstract methods and may redefine these methods for particular pairs of projections to optimize the performance of cuts.
 
 **Notes**
 ^1 e.g., if **axes_block** defines a hypercubic grid with side **a**, the size of the scaler cube with respect to **orhto_projection** (see below) would be the **a/sqrt(2)** |
 
-**Questions**
-1) Should we have specific **axes_block** for each target coordinate system (generic projection) or changes to the special property (axes_caption as it is now) are sufficient.
+**axes_block** should be different for every coordinate system, with possibility to overload plot methods.
 
-2) Suggested projection classes currently are **ortho_proj**, **rect_proj**,  **cyl_proj**, **spher_proj**  -- are the names 
-clear? Should **ortho_proj** and **rect_proj** be combined into single class **rect_proj** with property *nonorthogonal* true/false defining the difference. New type projections: **dEfocus_proj**, **qdEmix_proj**.
+**Questions**
+
+2) Suggested projection classes currently are **ortho_proj**, **rect_proj**,  **cyl_proj**, **spher_proj**  -- are the names clear? Should **ortho_proj** and **rect_proj** be combined into single class **rect_proj** with property *nonorthogonal* true/false defining the difference. New type projections: **dEfocus_proj**, **qdEmix_proj**.
 
 ### Projection Manager
 

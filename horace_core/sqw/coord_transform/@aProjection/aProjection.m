@@ -94,6 +94,7 @@ classdef aProjection < serializable
             end
             [obj,par] = init(obj,varargin{:});
         end
+        %
         function [obj,par] = init(obj,varargin)
             % Method to initialize empty constructor
             % Inputs:
@@ -109,7 +110,6 @@ classdef aProjection < serializable
             %
             [obj,par] = init_(obj,varargin{:});
         end
-        
         %------------------------------------------------------------------
         %
         %------------------------------------------------------------------
@@ -173,9 +173,18 @@ classdef aProjection < serializable
             if ~exist('targ_proj','var')
                 targ_proj = [];
             end
-            [bl_start,bl_size] = get_nrange_(obj,...
-                npix,cur_axes_block,targ_proj,targ_axes_block);
+            contrib_ind= get_contrib_cell_ind_(obj,...
+                cur_axes_block,targ_proj,targ_axes_block);
+            if isempty(contrib_ind)
+                bl_start  = [];
+                bl_size = [];
+                return;
+            end
             
+            % Compress indexes of contributing cells into bl_start:bl_start+bl_size-1 form
+            % Ideal for filebased but not so optimal for arrays
+            [bl_start,bl_size] = obj.convert_contrib_cell_into_pix_indexes(...
+                contrib_ind,npix);                        
         end
         %------------------------------------------------------------------
         function pix_target = from_cur_to_targ_coord(obj,pix_origin,varargin)
@@ -295,6 +304,35 @@ classdef aProjection < serializable
             end
             obj.do_generic_ = logical(val);
         end
+    end
+    %
+    methods(Static)
+        function [bl_start,bl_size]=convert_contrib_cell_into_pix_indexes(...
+                cell_ind,npix)
+            % Compress indexes of contributing cells into
+            % bl_start:bl_start+bl_size-1 form, using information about
+            % number of pixels, contributing into each cell
+            %
+            % Inputs:
+            % cell_ind    -- 1D array of linear indexes of cells,
+            %                which may contribute into the cut, to be
+            %                selected from npix array below
+            % npix        -- array with each cell containing the number
+            %                of pixels, contributing to a cell.
+            % Outputs:
+            % bl_start    -- array of the initial positions of the
+            %                blocks of pixels which belong to the
+            %                requested cells
+            % bl_size     -- number of pixels, contributed into each
+            %                block
+            adjacent = cell_ind(1:end-1)+1==cell_ind(2:end);
+            adjacent = [false;adjacent];
+            adj_end  = [cell_ind(1:end-1)+1<cell_ind(2:end);true];
+            bin_start = [0,cumsum(reshape(npix,1,numel(npix)))]+1;
+            bl_start  = bin_start(cell_ind(~adjacent));
+            bl_size   = bin_start(cell_ind(adj_end))-bl_start+1;
+        end
+        
     end
     %----------------------------------------------------------------------
     %  ABSTRACT INTERFACE

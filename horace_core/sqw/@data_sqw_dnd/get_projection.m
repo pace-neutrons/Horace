@@ -1,4 +1,4 @@
-function proj = get_projection(obj)
+function proj = get_projection(obj,header_av)
 % Extract the projection, used to build data_sqw_dnd object from the object
 % itself.
 %
@@ -9,11 +9,22 @@ function proj = get_projection(obj)
 %
 alatt=obj.alatt;
 angdeg=obj.angdeg;
-bmat =  bmatrix (alatt, angdeg);
+if exist('header_av','var')
+    bmat_inv_ext  =  header_av.u_to_rlu;
+else
+    bmat_inv_ext   = [];
+    bmat =     bmatrix(alatt,angdeg);
+end
+
 proj=ortho_proj('alatt',alatt,'angdeg',angdeg,'lab',obj.ulabel);
 %
 offset = obj.uoffset(:);
-shift = ([bmat,[0;0;0];[0,0,0,1]]\offset)';
+if isempty(bmat_inv_ext)
+    shift = (bmat\offset(1:3))';
+    shift = [shift,offset(4)];
+else
+    shift = (bmat_inv_ext*offset)';
+end
 pix_range = obj.pix.pix_range-repmat(shift,2,1);
 img_range_guess = range_add_border(pix_range,obj.border_size);
 if  all(abs(img_range_guess(:)-obj.img_db_range(:))<=abs(obj.border_size)) || ...
@@ -27,5 +38,10 @@ else % the input is the cut
 end
 proj.offset = obj.uoffset;
 
-
+%--------------------------------------------------------------------------
+% TODO: this is compartibility function to support alignment.
+% This will change when alginment matrix is attached to pixels
+if ~isempty(bmat_inv_ext)
+    proj = proj.set_ub_inv_compat(bmat_inv_ext(1:3,1:3));
+end
 

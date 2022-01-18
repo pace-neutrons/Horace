@@ -30,6 +30,8 @@ function [s, e, npix, pix_out, pix_comb_info] = ...
 % CALLED BY cut_single
 %
 
+pix_comb_info = [];
+
 % Pre-allocate image data
 [~,sz1] = axes.data_dims();
 % note that 1D allocator of size N returns NxN array while we need Nx1
@@ -42,7 +44,8 @@ npix = zeros(sz1);
 % Get bins that may contain pixels that contribute to the cut.
 % The bins selected are those that sit within (or intersect) the bounds of the
 % cut. See the relevant projection function for more details.
-sproj = obj.data.get_projection();
+header_av = header_average(obj);
+sproj = obj.data.get_projection(header_av);
 [bloc_starts, block_sizes] = sproj.get_nrange(obj.data.npix,obj.data,axes,proj);
 if isempty(bloc_starts)
     % No pixels in range, we can return early
@@ -59,7 +62,7 @@ if obj.data.pix.is_filebacked()
     num_chunks = numel(block_chunks);
 else
     num_chunks = 1;
-    block_chunks = {{bloc_starts,block_sizes}};
+    block_chunks = {bloc_starts,block_sizes};
 end
 % If we only have one iteration of pixels to cut then we must be able to fit
 % all pixels in memory, hence no need to use temporary files.
@@ -67,7 +70,8 @@ use_tmp_files = ~return_cut && num_chunks > 1;
 if keep_pixels
     % Pre-allocate cell arrays to hold PixelData chunks
     pix_retained = cell(1, num_chunks);
-    
+    pix_ix_retained = cell(1,num_chunks);
+    %
     if use_tmp_files
         % Create a pix_comb_info object to handle tmp files of pixels
         num_bins = numel(s);
@@ -84,93 +88,82 @@ if keep_pixels && ~use_tmp_files
 else
     keep_precision = true;
 end
-
-
-for iter = 1:num_chunks
-    % Get pixels that will likely contribute to the cut
-    chunk = block_chunks{iter};
-    pix_start = chunk{1};
-    block_sizes = chunk{2};
+%
+if num_chunks == 1
+    pix_start = block_chunks{1};
+    block_sizes = block_chunks{2};
     candidate_pix = obj.data.pix.get_pix_in_ranges( ...
         pix_start, block_sizes, false,keep_precision);
-    
     if log_level >= 1
-        fprintf(['Step %3d of %3d; Read data for %d pixels -- ' ...
-            'processing data...'], iter, num_chunks, ...
+        fprintf(['Got data for %d pixels -- ' ...
+            'processing data...'], ...
             candidate_pix.num_pixels);
     end
+    
     if keep_pixels
-        [npix,s,e,pix_ok] = proj.bin_pixels(axes,candidate_pix,npix,s,e);    
+        [npix,s,e,pix_ok] = proj.bin_pixels(axes,candidate_pix,npix,s,e);
     else
-        [npix,s,e] = proj.bin_pixels(axes,candidate_pix,npix,s,e);            
+        [npix,s,e] = proj.bin_pixels(axes,candidate_pix,npix,s,e);
         pix_ok = [];
     end
-    
-%     [ ...
-%         s, ...
-%         e, ...
-%         npix, ...
-%         img_range_step, ...
-%         del_npix_retain, ...
-%         ok, ...
-%         ix ...
-%         ] = cut_data_from_file_job.accumulate_cut( ...
-%         s, e, npix, ...
-%         axes, keep_pix, ...
-%         candidate_pix, ...
-%         proj,keep_precision);
-    
-    if log_level >= 1
-        fprintf(' ----->  retained  %d pixels\n', del_npix_retain);
-    end
-    if keep_pixels
-        if use_tmp_files
-            % Generate tmp files and get a pix_combine_info object to manage
-            % the files - this object then recombines the files once it is
-            % passed to 'put_sqw'.
-            pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file( ...
-                pix_comb_info, false, candidate_pix, ok, ix, npix, block_size, ...
-                del_npix_retain ...
-                );
-        else
-            % Retain only the pixels that contributed to the cut
-            pix_retained{iter} = pix_ok;%candidate_pix.get_pixels(ok);
-            %pix_ix_retained{iter} = ix;
+    pix_retained{1} = pix_ok;%candidate_pix.get_pixels(ok);
+    pix_ix_retained{1} = [];
+else
+    for iter = 1:num_chunks
+        % Get pixels that will likely contribute to the cut
+        chunk = block_chunks{iter};
+        pix_start = chunk{1};
+        block_sizes = chunk{2};
+        candidate_pix = obj.data.pix.get_pix_in_ranges( ...
+            pix_start, block_sizes, false,keep_precision);
+        
+        if log_level >= 1
+            fprintf(['Step %3d of %3d; Read data for %d pixels -- ' ...
+                'processing data...'], iter, num_chunks, ...
+                candidate_pix.num_pixels);
         end
-    end
-end  % loop over pixel blocks
+        if keep_pixels
+            [npix,s,e,pix_ok,pix_indx] = proj.bin_pixels(axes,candidate_pix,npix,s,e);
+        else
+            [npix,s,e] = proj.bin_pixels(axes,candidate_pix,npix,s,e);
+            pix_ok = [];
+        end
+        
+        if log_level >= 1
+            fprintf(' ----->  retained  %d pixels\n', del_npix_retain);
+        end
+        if keep_pixels
+            if use_tmp_files
+                % Generate tmp files and get a pix_combine_info object to manage
+                % the files - this object then recombines the files once it is
+                % passed to 'put_sqw'.
+                pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file( ...
+                    pix_comb_info, false, candidate_pix, ok, pix_indx, npix, block_size, ...
+                    del_npix_retain ...
+                    );
+            else
+                % Retain only the pixels that contributed to the cut
+                pix_retained{iter}    = pix_ok;    %candidate_pix.get_pixels(ok);
+                pix_ix_retained{iter} = pix_indx;
+            end
+        end
+    end  % loop over pixel blocks
+end
 
 if keep_pixels
-    [pix_out, pix_comb_info] = combine_pixels( ...
-        pix_retained, pix_comb_info, npix, block_size ...
-        );
+    if num_chunks > 1
+        [pix_out, pix_comb_info] = combine_pixels( ...
+            pix_retained, pix_ix_retained, npix, block_size ...
+            );
+    else % all done
+    end
 else
     pix_out = PixelData();
-    pix_comb_info = [];
 end
 
 [s, e] = normalize_signal(s, e, npix);
 
 end  % function
-
-
-% -----------------------------------------------------------------------------
-function nbin_as_size = get_nbin_as_size(nbin)
-% Get the given nbin array as a size
-
-% Note: Matlab silliness when one dimensional: MUST add an outer dimension
-% of unity. For 2D and higher, outer dimensions can always be assumed.
-% The problem with 1D is that e.g. zeros([5]) is not the same as
-% zeros([5,1]) whereas zeros([5,3]) is the same as zeros([5,3,1]).
-if isempty(nbin)
-    nbin_as_size = [1, 1];
-elseif length(nbin) == 1
-    nbin_as_size = [nbin, 1];
-else
-    nbin_as_size = nbin;
-end
-end
-
 
 function [s, e] = normalize_signal(s, e, npix)
 % Convert summed signal & error into averages
@@ -193,11 +186,11 @@ end
 
 
 function [pix, pix_comb_info] = combine_pixels( ...
-    pix_retained, npix, buf_size ...
+    pix_retained, pix_ix_retained,npix, buf_size ...
     )
 % Combine and sort in-memory pixels or finalize accumulation of pixels in
 % temporary files managed by a pix_combine_info object.
-if ~isa(pix_retained,'pix_comb_info')
+if isa(pix_retained,'pix_comb_info')
     % Pixels are stored in tmp files managed by pix_combine_info object
     pix = PixelData();
     finish_accumulation = true;

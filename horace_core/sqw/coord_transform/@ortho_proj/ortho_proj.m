@@ -101,6 +101,9 @@ classdef ortho_proj<aProjection
         % ortho_proj
         ortho_ortho_transf_mat_;
         ortho_ortho_offset_;
+        % inverted ub matrix, used to support alignment as in Horace 3.xxx
+        % as real ub matrix is multiplied by alginment matrix
+        ub_inv_compat_ = [];
     end
     
     methods
@@ -115,6 +118,9 @@ classdef ortho_proj<aProjection
                 proj.lab = {'\zeta','\xi','\eta','E'};
                 proj = proj.init(varargin{:});
             end
+        end
+        function obj = set_ub_inv_compat(obj,ub_inv)
+            obj.ub_inv_compat_ = ub_inv;
         end
         function obj = init(obj,varargin)
             if nargin == 0
@@ -235,7 +241,7 @@ classdef ortho_proj<aProjection
             [ur,vr,wr,tpe]=obj.uv_from_rlu(u_to_rlu(1:3,1:3),ulen(1:3));
             obj.u = ur;
             obj.v = vr;
-            obj.w = wr;            
+            obj.w = wr;
             obj.type = tpe;
             [ok,mess,obj] = check_combo_arg_(obj);
             if ~ok
@@ -330,25 +336,31 @@ classdef ortho_proj<aProjection
             %         (3 or 4). Depending on this number the routine
             %         returns 3D or 4D transformation matrix
             %
-            [rlu_to_ustep, ~] = projaxes_to_rlu_(obj, [1,1,1]);
-            b_mat  = bmatrix(obj.alatt, obj.angdeg);
-            rot_to_img = rlu_to_ustep/b_mat;
+            rlu_to_ustep = projaxes_to_rlu_(obj, [1,1,1]);            
+            if isempty(obj.ub_inv_compat_)                
+                b_mat  = bmatrix(obj.alatt, obj.angdeg);
+                rot_to_img = rlu_to_ustep/b_mat;                
+                rlu_to_u  = b_mat;                
+            else
+                u_to_rlu = obj.ub_inv_compat_;
+                rot_to_img = rlu_to_ustep*u_to_rlu;
+                rlu_to_u = inv(u_to_rlu);
+            end
             %
             if ndim==4
                 shift  = obj.offset;
-                u_to_rlu_l  = [b_mat,[0;0;0];[0,0,0,1]];
+                rlu_to_u  = [rlu_to_u,[0;0;0];[0,0,0,1]];
                 rot_to_img = [rot_to_img,[0;0;0];[0,0,0,1]];
             elseif ndim == 3
                 shift  = obj.offset(1:3);
-                u_to_rlu_l  = b_mat;
             else
                 error('HORACE:orhto_proj:invalid_argument',...
                     'The ndim input may be 3 or 4  actually it is: %s',...
-                    evalc('disp(size(ndim))'));
+                    evalc('disp(ndim)'));
             end
             if nargin == 2
                 % convert shift, expressed in hkl into crystal Cartesian
-                shift = u_to_rlu_l \shift';
+                shift = rlu_to_u *shift';
             else % do not convert anything
             end
             

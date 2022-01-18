@@ -161,6 +161,9 @@ return_cut = nargout > 0;
 header_av = header_average(obj);
 targ_proj.alatt  = header_av.alatt;
 targ_proj.angdeg = header_av.angdeg;
+% TODO: this is compartibility function. It will change when alginment matrix
+% is attached to pixels
+targ_proj = targ_proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
 %
 sz = cellfun(@(x) max(size(x, 1), 1), pbin);
 if return_cut
@@ -170,7 +173,7 @@ end
 % This loop enables multicuts
 for cut_num = 1:prod(sz)
     pbin_tmp = get_pbin_for_cut(sz, cut_num, pbin);
-    targ_ax_block = define_target_axes_block(obj, targ_proj, pbin_tmp );
+    targ_ax_block = define_target_axes_block(obj, targ_proj, pbin_tmp,header_av );
     
     args = {obj, targ_proj, targ_ax_block, opt.keep_pix, opt.outfile};
     if return_cut
@@ -181,11 +184,12 @@ for cut_num = 1:prod(sz)
 end
 % End function
 
-function targ_ax_block = define_target_axes_block(w, targ_proj, pbin)
+function targ_ax_block = define_target_axes_block(w, targ_proj, pbin,header_av)
 % define target axes from existing axes, inputs and the projections
 %
 img_block = w.data;
-source_proj = img_block.get_projection();
+source_proj = img_block.get_projection(header_av);
+%--------------------------------------------------------------------------
 % it is actually axes_block method, so source projection is provided as
 % input of this method. Left in this form unil data_sqw_dnd is a axes_block
 source_binning = img_block.get_default_binning_range(img_block.img_db_range,...
