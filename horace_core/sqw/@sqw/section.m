@@ -164,5 +164,5 @@ if numel(nstart)==numel(nend)
     ind(ix)=dind;
     ind=cumsum(ind);
 else
-    error('Number of elements in input arrays incompatible')
+    error('HORACE:sqw:invalid_argument', 'Number of elements in input arrays incompatible')
 end
