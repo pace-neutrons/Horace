@@ -127,7 +127,7 @@ classdef test_ortho_proj_methods<TestCase
             
             assertEqual(numel(bl_start),6);
             assertEqual(bl_start,[10    19    28    40    53    66]);
-            assertEqual(bl_size,[5     8     7     4]);
+            assertEqual(bl_size, [2     4     6     5     3     1]);
         end
         %
         function test_binning_range_half_sampe_proj2Drot90(~)

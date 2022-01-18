@@ -28,5 +28,4 @@ nodes_here = targ_proj.from_cur_to_targ_coord(bin_nodes);
 nbin_in_bin = cur_axes_block.bin_pixels(nodes_here);
 %
 % identify cell indexes containing nodes
-%cell_ind = 1:numel(nbin_in_bin);
 contrib_ind = find(nbin_in_bin>0);
