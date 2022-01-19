@@ -1,4 +1,4 @@
-classdef (Abstract) IX_inst < matlab.mixin.Heterogeneous & serializable
+classdef IX_inst < serializable
     % Defines the base instrument class. This superclass must be
     % inherited by all instrument classes to unsure that they are
     % discoverable as instruments using isa(my_obj,'IX_inst')
@@ -14,6 +14,20 @@ classdef (Abstract) IX_inst < matlab.mixin.Heterogeneous & serializable
         source; % Source (name, or class of type IX_source)
     end
     
+    methods(Static)
+        function isaval = cell_is_class(ca)
+            try
+                isaval = cellfun(@IX_inst.xxx, ca);
+                if all(isaval), isaval = 1; else, isaval = 0; end
+            catch
+                error('HERBERT:IX_inst:cell_is_class', ...
+                      'input could not be converted from cell to logical');
+            end
+        end
+        function rv = xxx(obj)
+            rv = isa(obj,'IX_inst');
+        end
+    end
     methods
         %------------------------------------------------------------------
         % Constructor

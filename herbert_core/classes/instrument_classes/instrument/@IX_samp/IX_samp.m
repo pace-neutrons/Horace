@@ -1,4 +1,4 @@
-classdef (Abstract) IX_samp  < matlab.mixin.Heterogeneous & serializable
+classdef IX_samp  < serializable
     % Base class for samples to include the null sample case defined from a
     % struct with no fields (IX_null_sample) and the standard IX_sample
     
@@ -25,6 +25,20 @@ classdef (Abstract) IX_samp  < matlab.mixin.Heterogeneous & serializable
         angdeg;
     end
     
+    methods(Static)
+        function isaval = cell_is_class(ca)
+            try
+                isaval = cellfun(@IX_samp.xxx, ca);
+                if all(isaval), isaval = 1; else, isaval = 0; end
+            catch
+                error('HERBERT:IX_samp:cell_is_class', ...
+                      'input could not be converted from cell to logical');
+            end
+        end
+        function rv = xxx(obj)
+            rv = isa(obj,'IX_samp');
+        end
+    end
     methods
         
         %------------------------------------------------------------------
