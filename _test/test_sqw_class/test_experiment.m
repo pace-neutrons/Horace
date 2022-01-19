@@ -15,8 +15,8 @@ classdef test_experiment < TestCaseWithSave
             sample = IX_sample;
             expt = Experiment(detector_array, instrument, sample);
             
-            assertEqual(expt.samples, sample);
-            assertEqual(expt.instruments, instrument);
+            assertEqual(expt.samples{1}, sample);
+            assertEqual(expt.instruments{1}, instrument);
             assertEqual(expt.detector_arrays, detector_array);
         end
         
@@ -54,8 +54,8 @@ classdef test_experiment < TestCaseWithSave
                 [instrument, instrument], ...
                 [sample, sample]);
             
-            assertEqual(expt.samples, [sample, sample]);
-            assertEqual(expt.instruments, [instrument, instrument]);
+            assertEqual(expt.samples, {sample, sample});
+            assertEqual(expt.instruments, {instrument, instrument});
             assertEqual(expt.detector_arrays, [detector_array, detector_array]);
         end
         
@@ -63,7 +63,7 @@ classdef test_experiment < TestCaseWithSave
             tmpfile = fullfile([tempdir(), 'test_experiment', 'loadsave.mat']);
             clobR=onCleanup(@()self.delete_files(tmpfile));
             
-            instruments = [IX_inst_DGfermi(), IX_inst_DGdisk()];
+            instruments = {IX_inst_DGfermi(), IX_inst_DGdisk()};
             sample1 = IX_sample;
             sample1.name = 'sample1';
             sample2 = IX_sample;
@@ -76,10 +76,10 @@ classdef test_experiment < TestCaseWithSave
             clear('expt');
             
             load(tmpfile, 'expt');
-            assertEqual(expt.samples(1).name, 'sample1')
-            assertEqual(expt.samples(2).name, 'sample2')
-            assertTrue(isa(expt.instruments(1), 'IX_inst_DGfermi'));
-            assertTrue(isa(expt.instruments(2), 'IX_inst_DGdisk'));
+            assertEqual(expt.samples{1}.name, 'sample1')
+            assertEqual(expt.samples{2}.name, 'sample2')
+            assertTrue(isa(expt.instruments{1}, 'IX_inst_DGfermi'));
+            assertTrue(isa(expt.instruments{2}, 'IX_inst_DGdisk'));
             assertEqual(expt.detector_arrays, IX_detector_array);
         end
         
@@ -99,8 +99,8 @@ classdef test_experiment < TestCaseWithSave
         end
         
         function test_instruments_setter_updates_value_for_valid_value(~)
-            instruments = [IX_inst_DGfermi(),...
-                IX_inst_DGdisk()];
+            instruments = {IX_inst_DGfermi(),...
+                IX_inst_DGdisk()};
             expt = Experiment();
             expt.instruments = instruments;
             
@@ -121,9 +121,10 @@ classdef test_experiment < TestCaseWithSave
         function test_samples_setter_updates_value_for_valid_value(~)
             samples = IX_sample;
             expt = Experiment();
-            expt.samples = samples;
+            expt.samples = {samples};
             
-            assertEqual(expt.samples, samples);
+            assertEqual(expt.samples{1}, samples);
+            assertEqual(expt.samples,    {samples});
         end
         
         function test_samples_setter_raises_error_for_invalid_value(~)

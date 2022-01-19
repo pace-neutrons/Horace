@@ -132,7 +132,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertTrue(isa(samp,'IX_sample'));
 
             inst1 = to.get_instrument(1);
-            assertEqual(inst,inst1);
+            assertEqual(inst{1},inst1);
         end
         %
         function obj = test_get_sqw(obj)
@@ -170,7 +170,7 @@ classdef test_faccess_sqw_v3< TestCase
             %inst1=create_test_instrument(95,250,'s');
             %sqw_ob.header(1).instrument = inst1;
             hdr = sqw_ob.experiment_info;
-            hdr.samples(1) = sam1;
+            hdr.samples{1} = sam1;
             sqw_ob = sqw_ob.change_header(hdr);
 
             tob = faccess_sqw_v3();
@@ -199,7 +199,7 @@ classdef test_faccess_sqw_v3< TestCase
 
             inst1=create_test_instrument(95,250,'s');
             hdr = sqw_ob.experiment_info;
-            hdr.instruments(1) = inst1;
+            hdr.instruments{1} = inst1;
             sqw_ob = sqw_ob.change_header(hdr);
             
             tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
@@ -236,7 +236,7 @@ classdef test_faccess_sqw_v3< TestCase
 
             inst1=create_test_instrument(95,250,'s');
             hdr = sqw_ob.experiment_info;
-            hdr.instruments(1) = inst1;
+            hdr.instruments{1} = inst1;
             sqw_ob = sqw_ob.change_header(hdr);
             
             tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');

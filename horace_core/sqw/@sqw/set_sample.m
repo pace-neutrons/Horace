@@ -64,7 +64,7 @@ elseif narg==1
             nfiles=wout(i).main_header.nfiles;
             tmp=wout(i).experiment_info;   % to keep referencing to sub-fields to a minimum
             for ifiles=1:nfiles
-                tmp.samples(ifiles)=sample;
+                tmp.samples{ifiles}=sample;
             end
             wout(i).experiment_info=tmp;
         end

@@ -24,6 +24,9 @@ end
 if strcmp(field_name,'sample') && isstruct(res_block) && numel(fields(res_block))==0
     res_block  = IX_null_sample();
 end
+if ~iscell(res_block)
+    res_block = num2cell(res_block);
+end
 
 
 if get_all

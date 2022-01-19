@@ -79,8 +79,8 @@ if ~isempty(header)     % not dnd-type object
     sam = header.samples;
     exper = header.expdata;
     for i=1:header.n_runs
-        sam(i).alatt=alatt;
-        sam(i).angdeg=angdeg;
+        sam{i}.alatt=alatt;
+        sam{i}.angdeg=angdeg;
         exper(i).cu=(rlu_corr*header.expdata(i).cu')';
         exper(i).cv=(rlu_corr*header.expdata(i).cv')';
         exper(i).uoffset(1:3)=rlu_corr*header.expdata(i).uoffset(1:3);

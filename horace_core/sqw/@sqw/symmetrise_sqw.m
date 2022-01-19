@@ -60,8 +60,8 @@ end
 %========================
 
 %Get B-matrix and reciprocal lattice vectors and angles
-alatt=header.samples(1).alatt;
-angdeg=header.samples(1).angdeg;
+alatt=header.samples{1}.alatt;
+angdeg=header.samples{1}.angdeg;
 
 [b, arlu, angrlu, mess] = bmatrix(alatt, angdeg);
 

@@ -39,7 +39,7 @@ classdef test_instrument_methods < TestCaseWithSave
             % Set all spe file to the same instrument
             wnew_fe = set_instrument(self.w_fe, self.inst_1);
             hdr = wnew_fe.experiment_info;
-            assertEqual(hdr.instruments(3), self.inst_1);
+            assertEqual(hdr.instruments{3}, self.inst_1);
         end
         
         %--------------------------------------------------------------------------
@@ -51,9 +51,9 @@ classdef test_instrument_methods < TestCaseWithSave
             wnew_fe = set_instrument(self.w_fe, inst_arr);
             
             hdr = wnew_fe.experiment_info;
-            assertEqual(hdr.instruments(99), self.inst_1);
-            assertEqual(hdr.instruments(100), self.inst_2);
-            assertEqual(hdr.instruments(101), self.inst_1);
+            assertEqual(hdr.instruments{99}, self.inst_1);
+            assertEqual(hdr.instruments{100}, self.inst_2);
+            assertEqual(hdr.instruments{101}, self.inst_1);
         end
         
         %--------------------------------------------------------------------------
@@ -90,7 +90,7 @@ classdef test_instrument_methods < TestCaseWithSave
             [~, pp] = get_mod_pulse(wnew_fe);
             
             hdr = wnew_fe.experiment_info;
-            mod3 = hdr.instruments(3).moderator;
+            mod3 = hdr.instruments{3}.moderator;
             assertEqualToTol(mod3.pp, pp, 'reltol', 1e-13);
         end
         
@@ -105,11 +105,11 @@ classdef test_instrument_methods < TestCaseWithSave
             wnew_fe = set_mod_pulse(wnew_fe, 'ikcarp', pp);
             
             hdr = wnew_fe.experiment_info;
-            mod3 = hdr.instruments(3).moderator;
+            mod3 = hdr.instruments{3}.moderator;
             assertEqual(mod3.pp, [100, 200, 0.7]);
             
             hdr = wnew_fe.experiment_info;
-            mod100 = hdr.instruments(100).moderator;
+            mod100 = hdr.instruments{100}.moderator;
             assertEqual(mod100.pp, [100,386, 0.7]);
             
             [~,pp_av] = get_mod_pulse(wnew_fe);

@@ -219,8 +219,8 @@ classdef test_sqw_file_read_write < TestCase
             inst_arr(2)=create_test_instrument(105,600,'a');
             wtmp_ref=wref;
             hdr = wtmp_ref.experiment_info;
-            hdr.instruments(1)=inst_arr(1);
-            hdr.instruments(2)=inst_arr(2);
+            hdr.instruments{1}=inst_arr(1);
+            hdr.instruments{2}=inst_arr(2);
             wtmp_ref = wtmp_ref.change_header(hdr);
             
             wtmp=set_instrument(wref,@create_test_instrument,[400;105],[500;600],{'s';'a'});
@@ -239,8 +239,8 @@ classdef test_sqw_file_read_write < TestCase
             inst_arr(2)=create_test_instrument(400,500,'s');
             wtmp_ref=wref;
             hdr = wtmp_ref.experiment_info;
-            hdr.instruments(1)=inst_arr(1);
-            hdr.instruments(2)=inst_arr(2);
+            hdr.instruments{1}=inst_arr(1);
+            hdr.instruments{2}=inst_arr(2);
             wtmp_ref = wtmp_ref.change_header(hdr);
             
             wtmp=set_instrument(wref,@create_test_instrument,400,500,'s');
@@ -259,8 +259,8 @@ classdef test_sqw_file_read_write < TestCase
             inst_arr(2)=create_test_instrument(50,500,'s');
             wtmp_ref=wref;
             hdr = wtmp_ref.experiment_info;
-            hdr.instruments(1)=inst_arr(1);
-            hdr.instruments(2)=inst_arr(2);
+            hdr.instruments{1}=inst_arr(1);
+            hdr.instruments{2}=inst_arr(2);
             wtmp_ref = wtmp_ref.change_header(hdr);
             
             wtmp=set_instrument(wref,@create_test_instrument,'-efix',500,'s');

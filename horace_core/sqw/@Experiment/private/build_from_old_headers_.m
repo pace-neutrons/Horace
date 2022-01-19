@@ -22,8 +22,8 @@ headers = varargin{1};
 % Make arrays of the hew-style header class types to receive the data
 % coming from each run in headers
 expdata     = repmat(IX_experiment(), 1,numel(headers));
-instruments = repmat(IX_null_inst(),  1,numel(headers));
-samples     = repmat(IX_null_sample(),1,numel(headers));
+instruments = repmat({IX_null_inst()},  1,numel(headers));
+samples     = repmat({IX_null_sample()},1,numel(headers));
 
 % convert old headers, restored differently from sqw and mat files into the
 % same format - there appear to be cases where old-style header structs and
@@ -49,16 +49,16 @@ for i=1:numel(headers)
     if isstruct(instr)
         % Instrument in header is empty struct, replace with null instrument
         if isempty(instr) || numel(fieldnames(instr))==0
-            instruments(i) = IX_null_inst();
+            instruments{i} = IX_null_inst();
         % Struct may have data to make an instrument, delegate to factory
         % method (which may reject the struct and throw)
         else
-            instruments(i) = make_instrument_from_struct(instr);
+            instruments{i} = make_instrument_from_struct(instr);
         end
     % If instr is actually an instrument object (subclass of IX_inst)
     % just assign
     elseif isa(instr,'IX_inst')
-        instruments(i) = instr;
+        instruments{i} = instr;
     else
         error('HORACE:Experiment:invalid_argument',...        
             'unknown type of instrument header: %s for header N %d',...
@@ -76,11 +76,11 @@ for i=1:numel(headers)
             sampl = IX_null_sample();
         sampl.alatt = alatt;
         sampl.angdeg = angdeg;
-            samples(i) = sampl;
+        samples{i} = sampl;
         % struct may have enough info to make a sample (though this is not
         % defined yet - call to factory method will probably fail)
     else
-            samples(i) = make_sample_from_struct(sampl);
+            samples{i} = make_sample_from_struct(sampl);
         end 
     % Sample is actually a subclass of IX_samp, so keep it but overwrite
     % the lattice parameters if they were not in the old version
@@ -98,7 +98,7 @@ for i=1:numel(headers)
                 'incoming sample angdeg and old header angdeg do not match');
         end
     end
-    samples(i) = sampl;
+    samples{i} = sampl;
 
     % Construct the experiment data from the rest of the header
     expdata(i) = IX_experiment(hdr);

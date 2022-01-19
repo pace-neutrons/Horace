@@ -2,9 +2,9 @@ classdef Experiment < serializable
     %EXPERIMENT Container object for all data describing the Experiment
     
     properties(Access=private)
-        instruments_ = IX_inst.empty;
+        instruments_ = {}; %IX_inst.empty;
         detector_arrays_ = []
-        samples_ = IX_samp.empty;
+        samples_ = {}; % IX_samp.empty;
         expdata_ = IX_experiment();
     end
     
@@ -57,22 +57,33 @@ classdef Experiment < serializable
                 end
             elseif nargin==3
                 obj.detector_arrays = S;
-                if isa(varargin{2}, 'IX_inst')
-                    obj.instruments =  varargin{2};
-                elseif isempty(varargin{2})
-                    % do nothing, instruments is already empty on
-                    % construction
+                if isempty(varargin{2})
+                    % do nothing, instruments is already empty on construction
                 else
-                    error('HORACE:Experiment:invalid_argument',...
-                        'bad type for instruments on construction');
+                    instruments = varargin{2};
+                    if ~iscell(instruments)
+                        instruments = num2cell(instruments);
+                    end
+                    if IX_inst.cell_is_class(instruments)
+                        obj.instruments =  instruments;
+                    else
+                        error('HORACE:Experiment:invalid_argument',...
+                            'bad type for instruments on construction');
+                    end
                 end
-                if isa(varargin{3}, 'IX_samp')
-                    obj.samples = varargin{3};
-                elseif isempty(varargin{3})
+                if isempty(varargin{3})
                     % do nothing, samples is already empty on construction
                 else
-                    error('HORACE:Experiment:invalid_argument',...
-                        'bad type for samples on construction');
+                    samples = varargin{3};
+                    if ~iscell(samples)
+                        samples = num2cell(samples);
+                    end
+                    if IX_samp.cell_is_class(samples)
+                        obj.samples = samples;
+                    else
+                        error('HORACE:Experiment:invalid_argument',...
+                            'bad type for samples on construction');
+                    end
                 end
             else
                 error('HORACE:Experiment:invalid_argument', ...
@@ -89,6 +100,9 @@ classdef Experiment < serializable
             % usage is deprecated and will be removed in a future.
             %
             samp = obj.get_unique_samples();
+            if iscell(samp)
+                samp = samp{1};
+            end
             if nargin == 2
                 oldhdrs = obj.expdata_(header_num).to_bare_struct();
                 oldhdrs.alatt = samp.alatt;
@@ -128,20 +142,22 @@ classdef Experiment < serializable
         end
         %
         function obj=set.instruments(obj, val)
-            if ~isa(val,'IX_inst') && all(isempty(val)) % empty IX_inst may have a shape
-                % but nice to clear instrument by providing empty input
-                val = IX_null_inst();
-            end
-            
-            if isa(val,'IX_inst')
-                if size(val,1) > 1
-                    val = reshape(val,1,numel(val));
+            if ~iscell(val)
+                if isa(val,'IX_inst')
+                    val = num2cell(val);
+                else
+                    error('HORACE:Experiment:invalid_argument', ...
+                        'Instruments must be a cell array. In fact it is %s',...
+                        class(val));
                 end
-                obj.instruments_ = val;
-            else
+            end
+            if isempty(val)
+                obj.instruments_ = {};
+            elseif ~IX_inst.cell_is_class(val)
                 error('HORACE:Experiment:invalid_argument', ...
-                    'Instruments must be one or an array of IX_inst objects. In fact it is %s',...
-                    class(val))
+                    'Instruments cell must be all of base class IX_inst.');
+            else
+                obj.instruments_ = val;
             end
         end
         %
@@ -169,21 +185,22 @@ classdef Experiment < serializable
         end
         %
         function obj=set.samples(obj, val)
-            if ~isa(val,'IX_samp') && all(isempty(val))  % empty IX_sample 
-                % may have a shape but nice to clear sample by providing
-                % empty string
-                val = IX_null_sample();
-            end
-            
-            if isa(val,'IX_samp')
-                if size(val,1) > 1
-                    val = reshape(val,1,numel(val));
+            if ~iscell(val)
+                if isa(val,'IX_samp')
+                    val = num2cell(val);
+                else
+                    error('HORACE:Experiment:invalid_argument', ...
+                        'Samples must be a cell array. In fact it is %s',...
+                        class(val));
                 end
-                obj.samples_ = val;
-            else
+            end
+            if isempty(val)
+                obj.samples_ = {};
+            elseif ~IX_samp.cell_is_class(val)
                 error('HORACE:Experiment:invalid_argument', ...
-                    'Sample must be one or an array of IX_samp objects. Actually it is: %s',...
-                    class(val))
+                    'Instruments cell must be all of base class IX_samp.');
+            else
+                obj.samples_ = val;
             end
         end
         %
@@ -256,7 +273,7 @@ classdef Experiment < serializable
                 ebins_are_the_same=[];
             end
             avh = avh.to_bare_struct();
-            sampl = obj.samples_(1);
+            sampl = obj.samples_{1};
             avh.alatt = sampl.alatt;
             avh.angdeg = sampl.angdeg;
         end
@@ -343,14 +360,14 @@ classdef Experiment < serializable
                 nspe(i) = exp_cellarray{i}.n_runs;
             end
             n_tot = sum(nspe);
-            instr  = repmat(IX_null_inst(),1,n_tot );
-            sampl  = repmat(IX_null_sample(),1,n_tot);
+            instr  = repmat({IX_null_inst()},1,n_tot );
+            sampl  = repmat({IX_null_sample()},1,n_tot);
             expinfo= repmat(IX_experiment(),1,n_tot);
             ic = 1;
             for i=1:n_contrib
                 for j=1:exp_cellarray{i}.n_runs
-                    instr(ic) = exp_cellarray{i}.instruments(j);
-                    sampl(ic) = exp_cellarray{i}.samples(j);
+                    instr{i} = exp_cellarray{i}.instruments{j};
+                    sampl{ic} = exp_cellarray{i}.samples{j};
                     expinfo(ic) =exp_cellarray{i}.expdata(j);
                 end
                 ic = ic+1;
