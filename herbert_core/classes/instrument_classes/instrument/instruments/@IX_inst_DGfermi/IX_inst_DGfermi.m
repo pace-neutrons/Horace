@@ -88,8 +88,9 @@ classdef IX_inst_DGfermi < IX_inst
             ver = 1;
         end
         
-        function flds = indepFields(~)
-            flds = {'moderator','aperture', 'fermi_chopper', 'energy'};
+        function flds = indepFields(obj)
+            baseflds = indepFields@IX_inst(obj);
+            flds = { baseflds{:},'moderator','aperture', 'fermi_chopper', 'energy'};
         end
         %------------------------------------------------------------------
         % Set methods for independent properties
@@ -165,6 +166,7 @@ classdef IX_inst_DGfermi < IX_inst
         %------------------------------------------------------------------
     end
     
+    %{
     %{ Methods below should all have been replaced by base class serializable in IX_inst
     %======================================================================
     % Methods for fast construction of structure with independent properties
@@ -376,7 +378,7 @@ classdef IX_inst_DGfermi < IX_inst
             S = structIndep(obj);
         end
     end
-    
+    %}
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
@@ -399,12 +401,15 @@ classdef IX_inst_DGfermi < IX_inst
             % The following is boilerplate code; it calls a class-specific function
             % called loadobj_private_ that takes a scalar structure and returns
             % a scalar instance of the class
-            
+            %{
             if isobject(S)
                 obj = S;
             else
                 obj = arrayfun(@(x)loadobj_private_(x), S);
             end
+            %}
+            obj = IX_inst_DGfermi();
+            obj = loadobj@serializable(S,obj);
         end
         %------------------------------------------------------------------
         

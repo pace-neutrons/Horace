@@ -25,6 +25,9 @@ classdef IX_null_sample < IX_samp
         function ver = classVersion(~)
             ver = 1;
         end
+        
+        %function flds = indepFields: no additional fields beyond base
+        %                             class where this function is defined
     end
 
     %======================================================================

@@ -157,6 +157,19 @@ classdef IX_sample < IX_samp
             end
         end
 
+        % SERIALIZABLE interface
+        %------------------------------------------------------------------
+        function ver = classVersion(~)
+            ver = 1; 
+        end
+
+        function flds = indepFields(obj)
+            baseflds = indepFields@IX_samp(obj);
+            flds = { baseflds{:}, 'hall_symbol', 'single_crystal', ...
+                     'xgeom','ygeom', 'shape', 'ps', 'eta', 'temperature'};
+        end
+        
+
         %------------------------------------------------------------------
         % Set methods
         %
@@ -367,6 +380,7 @@ classdef IX_sample < IX_samp
         end
     end
 
+    %{
     %======================================================================
     % Methods for fast construction of structure with independent properties
     methods (Static, Access = private)
@@ -577,7 +591,7 @@ classdef IX_sample < IX_samp
             S = structIndep(obj);
         end
     end
-
+    %}
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
@@ -600,12 +614,15 @@ classdef IX_sample < IX_samp
             % The following is boilerplate code; it calls a class-specific function
             % called loadobj_private_ that takes a scalar structure and returns
             % a scalar instance of the class
-
+            %{
             if isobject(S)
                 obj = S;
             else
                 obj = arrayfun(@(x)loadobj_private_(x), S);
             end
+            %}
+            obj = IX_sample();
+            obj = loadobj@serializable(S,obj);
         end
         %------------------------------------------------------------------
 

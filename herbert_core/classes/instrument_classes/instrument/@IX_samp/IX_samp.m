@@ -167,6 +167,7 @@ classdef IX_samp  < serializable
         %}
     end
     
+    %{
     %======================================================================
     % Methods for fast construction of structure with independent properties
     methods (Static, Access = private)
@@ -351,7 +352,7 @@ classdef IX_samp  < serializable
             
         end
     end
-    
+    %}
     %======================================================================
     % Custom loadobj and saveobj
     % - to enable custom saving to .mat files and bytestreams
@@ -383,7 +384,7 @@ classdef IX_samp  < serializable
     
     %------------------------------------------------------------------
     methods (Static)
-        %{
+        
         function obj = loadobj(S)
             % Static method used my Matlab load function to support custom
             % loading.
@@ -404,14 +405,17 @@ classdef IX_samp  < serializable
             % The following is boilerplate code; it calls a class-specific function
             % called loadobj_private_ that takes a scalar structure and returns
             % a scalar instance of the class
-            
+            %{
             if isobject(S)
                 obj = S;
             else
                 obj = arrayfun(@(x)loadobj_private_(x), S);
             end
+            %}
+            obj = IX_samp();
+            obj = loadobj@serializable(S,obj);
         end
-        %}
+        
         %------------------------------------------------------------------
         
     end

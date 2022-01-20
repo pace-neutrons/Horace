@@ -30,8 +30,12 @@ classdef IX_null_inst < IX_inst
         function ver = classVersion(~)
             ver = 1;
         end
+        
+        %function indepFields unchanged from base class IX_inst
     end
 
+    
+    %{
     %======================================================================
     % Methods for fast construction of structure with independent properties
     methods (Static, Access = private)
@@ -242,7 +246,7 @@ classdef IX_null_inst < IX_inst
             S = structIndep(obj);
         end
     end
-    
+    %}
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
@@ -265,12 +269,16 @@ classdef IX_null_inst < IX_inst
             % The following is boilerplate code; it calls a class-specific function
             % called loadobj_private_ that takes a scalar structure and returns
             % a scalar instance of the class
-            
+            %{
             if isobject(S)
                 obj = S;
             else
                 obj = arrayfun(@(x)loadobj_private_(x), S);
             end
+            %}
+            obj = IX_null_inst();
+            obj = loadobj@serializable(S,obj);
+
         end
         %------------------------------------------------------------------
         

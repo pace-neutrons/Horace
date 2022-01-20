@@ -95,8 +95,9 @@ classdef IX_inst_DGdisk < IX_inst
             ver = 1;
         end
 
-        function flds = indepFields(~)
-            flds = {'mod_shape_mono','moderator','shaping_chopper','mono_chopper',...
+        function flds = indepFields(obj)
+            baseflds = indepFields@IX_inst(obj);
+            flds = { baseflds{:}, 'mod_shape_mono','moderator','shaping_chopper','mono_chopper',...
                     'horiz_div',     'vert_div', 'energy'};
         end
         
@@ -197,6 +198,7 @@ classdef IX_inst_DGdisk < IX_inst
         %------------------------------------------------------------------
     end
     
+    %{
     %{% Everything here should now be done by serializable , base class
     % of IX_inst, base class of this function.
     %======================================================================
@@ -409,7 +411,7 @@ classdef IX_inst_DGdisk < IX_inst
             S = structIndep(obj);
         end
     end
-    
+    %}
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
@@ -432,17 +434,21 @@ classdef IX_inst_DGdisk < IX_inst
             % The following is boilerplate code; it calls a class-specific function
             % called loadobj_private_ that takes a scalar structure and returns
             % a scalar instance of the class
-            
+            %{
             if isobject(S)
                 obj = S;
             else
                 obj = arrayfun(@(x)loadobj_private_(x), S);
             end
+            %}
+            obj = IX_inst_DGdisk();
+            obj = loadobj@serializable(S,obj);
         end
         %------------------------------------------------------------------
         
     end
     % %}
     %======================================================================
+
     
 end
