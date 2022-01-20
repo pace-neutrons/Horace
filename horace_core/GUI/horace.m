@@ -49,7 +49,7 @@ is_sqw_obj = strcmp(element_class,'d1d') || strcmp(element_class,'d2d') ||...
     strcmp(element_class,'d3d') || strcmp(element_class,'d4d') ||...
     strcmp(element_class,'sqw');
 
-function [vec_val,ok] = read_vector(str_val)
+function vec_val = read_vector(str_val)
 
 % read vector value from a string, obtained from GUI.
 %
@@ -67,16 +67,19 @@ function [vec_val,ok] = read_vector(str_val)
 % ok       -- true if results were obtained. False if only one bracket was
 %             provided.
 
-ok = true;
-s1=strfind(str_val,'['); s2=strfind(str_val,']');
-if isempty(s1) && isempty(s2)
+s1=startsWith(str_val,'[');
+s2=endsWith(str_val,']');
+
+
+if ~s1 && ~s2
     sv_new=textscan(str_val,'%f','delimiter',',');
-elseif ~isempty(s1) && ~isempty(s2)
-    str_val=str_val(s1+1:s2-1);
+elseif s1 && s2
+    str_val=str_val(2:end-1);
     sv_new=textscan(str_val,'%f','delimiter',',');
 else
-    ok = false;
+    error('HORACE:GUI:read_vector_error', 'Vector does not conform to expected format')
 end
+
 if isempty(sv_new)
     vec_val =[];
 else
@@ -133,7 +136,7 @@ if exist('cellofvars','var')
     drawnow;
     set(handles.obj_list_popupmenu,'String',cellofvars);
     guidata(hObject, handles);
-    
+
     str = get(handles.obj_list_popupmenu, 'String');
     val = get(handles.obj_list_popupmenu,'Value');
     %
@@ -1471,38 +1474,66 @@ elseif isempty(a4) && ndims>=3.9
 else
     try
         %must strip out square brackets, if user has inserted them:
-        [a1new,ok] = read_vector(a1);
-        if ~ok
-            mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
-            mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
-            set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-            guidata(gcbo,handles);
-            return;
+        try
+            a1new = read_vector(a1);
+        catch ME
+            switch ME.identifier
+              case 'HORACE:GUI:read_vector_error'
+                mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
+                mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
+                set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+                guidata(gcbo,handles);
+                return;
+              otherwise
+                rethrow(ME)
+            end
         end
-        [a2new,ok] = read_vector(a2);
-        if ~ok
-            mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
-            mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
-            set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-            guidata(gcbo,handles);
-            return;
+
+        try
+            a2new = read_vector(a2);
+        catch ME
+            switch ME.identifier
+              case 'HORACE:GUI:read_vector_error'
+                mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
+                mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
+                set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+                guidata(gcbo,handles);
+                return;
+              otherwise
+                rethrow(ME)
+            end
         end
-        [a3new,ok] = read_vector(a3);
-        if ~ok
-            mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
-            mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
-            set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-            guidata(gcbo,handles);
-            return;
+
+        try
+            a3new = read_vector(a3);
+        catch ME
+            switch ME.identifier
+              case 'HORACE:GUI:read_vector_error'
+                mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
+                mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
+                set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+                guidata(gcbo,handles);
+                return;
+              otherwise
+                rethrow(ME)
+            end
         end
-        [a4new,ok] = read_vector(a4);
-        if ~ok
-            mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
-            mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
-            set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-            guidata(gcbo,handles);
-            return;
+
+        try
+            a4new = read_vector(a4);
+        catch ME
+            switch ME.identifier
+              case 'HORACE:GUI:read_vector_error'
+                mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
+                mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
+                set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+                guidata(gcbo,handles);
+                return;
+              otherwise
+                rethrow(ME)
+            end
         end
+
     catch
         mess1='Formatting error for binning arguments';
         mess2='Ensure they are of the form lo,step,hi / step / lo,hi, and are numeric';
@@ -1511,12 +1542,13 @@ else
         return;
     end
 end
-%
+
 if a1new==0; a1new=[]; a1=''; end %intrinsic binning case
 if a2new==0; a2new=[]; a2=''; end
 if a3new==0; a3new=[]; a3=''; end
 if a4new==0; a4new=[]; a4=''; end
 a1new=a1new'; a2new=a2new'; a3new=a3new'; a4new=a4new';
+
 if numel(a1new)>3 || numel(a2new)>3 || numel(a3new)>3 || numel(a4new)>3
     mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
     mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
@@ -1549,11 +1581,9 @@ end
 
 
 %====
-if keep_pixels==get(handles.Cut_retain_radiobutton,'Max')
-    keeppix=true;
-else
-    keeppix=false;
-end
+
+keeppix = keep_pixels==get(handles.Cut_retain_radiobutton,'Max')
+
 %====
 
 if isempty(outobjname)
@@ -1562,7 +1592,7 @@ if isempty(outobjname)
     guidata(gcbo,handles);
     return;
 end
-%
+
 testexp=regexpi(outobjname,'[A-Z]');
 if testexp(1)~=1
     mess='The first character of the output name must be a letter, not a number or symbol';
@@ -1572,12 +1602,11 @@ if testexp(1)~=1
 end
 
 %====
-if out_to_file==get(handles.Cut_Outfile_radiobutton,'Max')
-    saveafile=true;
-else
-    saveafile=false;
-end
+
+saveafile = out_to_file==get(handles.Cut_Outfile_radiobutton,'Max')
+
 %===
+
 if saveafile && isempty(outfilename)
     outfilename='-save';
 end
@@ -1612,80 +1641,45 @@ ndim=dimensions(win);
 
 for i=1:ndim
     axno=gg.pax(i);
-    if axno==1
+    switch axno
+      case 1
         eval(['a',num2str(i),'=a1old;']);
-    elseif axno==2
+      case 2
         eval(['a',num2str(i),'=a2old;']);
-    elseif axno==3
+      case 3
         eval(['a',num2str(i),'=a3old;']);
-    elseif axno==4
+      case 4
         eval(['a',num2str(i),'=a4old;']);
     end
 end
 
-
-
 %Now make the cut:
 try
+    funcToEval = ['cut(' obj_to_cut];
     switch ndims
-        case 4
-            if ~keeppix && ~saveafile
-                out=eval(['cut(',obj_to_cut,',[',a1,'],[',...
-                    a2,'],[',a3,'],[',a4,'],''-nopix'');']);
-            elseif keeppix && ~saveafile
-                out=eval(['cut(',obj_to_cut,',[',a1,'],[',...
-                    a2,'],[',a3,'],[',a4,']);']);
-            elseif ~keeppix && saveafile
-                out=eval(['cut(',obj_to_cut,',[',a1,'],[',...
-                    a2,'],[',a3,'],[',a4,'],''-nopix'',''',outfilename,''');']);
-            elseif keeppix && saveafile
-                out=eval(['cut(',obj_to_cut,',[',a1,'],[',...
-                    a2,'],[',a3,'],[',a4,'],''',outfilename,''');']);
-            end
-        case 3
-            if ~keeppix && ~saveafile
-                out=eval(['cut(',obj_to_cut,',[',a1,'],[',...
-                    a2,'],[',a3,'],''-nopix'');']);
-            elseif keeppix && ~saveafile
-                out=eval(['cut(',obj_to_cut,',[',a1,'],[',...
-                    a2,'],[',a3,']);']);
-            elseif ~keeppix && saveafile
-                out=eval(['cut(',obj_to_cut,',[',a1,'],[',...
-                    a2,'],[',a3,'],''-nopix'',''',outfilename,''');']);
-            elseif keeppix && saveafile
-                out=eval(['cut(',obj_to_cut,',[',a1,'],[',...
-                    a2,'],[',a3,'],''',outfilename,''');']);
-            end
-        case 2
-            if ~keeppix && ~saveafile
-                out=eval(['cut(',obj_to_cut,',[',a1,'],[',...
-                    a2,'],''-nopix'');']);
-            elseif keeppix && ~saveafile
-                out=eval(['cut(',obj_to_cut,',[',a1,'],[',...
-                    a2,']);']);
-            elseif ~keeppix && saveafile
-                out=eval(['cut(',obj_to_cut,',[',a1,'],[',...
-                    a2,'],''-nopix'',''',outfilename,''');']);
-            elseif keeppix && saveafile
-                out=eval(['cut(',obj_to_cut,',[',a1,'],[',...
-                    a2,'],''',outfilename,''');']);
-            end
-        case 1
-            if ~keeppix && ~saveafile
-                out=eval(['cut(',obj_to_cut,',[',a1,'],''-nopix'');']);
-            elseif keeppix && ~saveafile
-                out=eval(['cut(',obj_to_cut,',[',a1,']);']);
-            elseif ~keeppix && saveafile
-                out=eval(['cut(',obj_to_cut,',[',a1,'],''-nopix'',''',outfilename,''');']);
-            elseif keeppix && saveafile
-                out=eval(['cut(',obj_to_cut,',[',a1,'],''',outfilename,''');']);
-            end
-        case 0
-            mess='Selected object is zero dimensional -- cut not possible';
-            set(handles.message_info_text,'String',char({mess_initialise,mess}));
-            guidata(gcbo,handles);
-            return;
+      case 0
+        mess='Selected object is zero dimensional -- cut not possible';
+        set(handles.message_info_text,'String',char({mess_initialise,mess}));
+        guidata(gcbo,handles);
+        return;
+      case 1
+        funcToEval = [funcToEval ',[' a1 ']'];
+      case 2
+        funcToEval = [funcToEval ',[' a1 ']' ',[' a2 ']'];
+      case 3
+        funcToEval = [funcToEval ',[' a1 ']' ',[' a2 ']' ',[' a3 ']'];
+      case 4
+        funcToEval = [funcToEval ',[' a1 ']' ',[' a2 ']' ',[' a3 ']' ',[' a4 ']'];
     end
+    if keeppix
+        funcToEval = [funcToEval ',''-nopix'''];
+    end
+    if saveafile
+        funcToEval = [funcToEval ',''' outfilename ''''];
+    end
+    funcToEval = [funcToEval ');'];
+    out = eval(funcToEval);
+
 catch the_err
     report_error(handles,the_err,'**** cut failed at: ',mess_initialise)
 end
@@ -1693,23 +1687,14 @@ end
 
 
 assignin('base',outobjname,out);
-if extra_flag==false
-    set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
-    guidata(gcbo,handles);
-else
+if extra_flag
     mess='Selected object has no pixel info -- proceeding with cut, but no pixel info retained...';
     set(handles.message_info_text,'String',char({mess_initialise,mess,'Success!'}));
     guidata(gcbo,handles);
+else
+    set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
+    guidata(gcbo,handles);
 end
-
-
-
-
-
-
-
-
-
 
 
 % --- Executes on button press in Rebin_template_radiobutton.
@@ -1720,8 +1705,7 @@ function Rebin_template_radiobutton_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of Rebin_template_radiobutton
 
-button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max') %button is pressed
+if get(hObject,'Value')==get(hObject,'Max') %button is pressed
     set(handles.Rebin_lostephi_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -1809,8 +1793,7 @@ function Rebin_lostephi_radiobutton_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of Rebin_lostephi_radiobutton
 
-button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max') %button is pressed
+if get(hObject,'Value') == get(hObject,'Max') %button is pressed
     set(handles.Rebin_template_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -2009,7 +1992,7 @@ if manspec==nummax
             guidata(gcbo,handles);
             return;
         end
-        
+
         for i=1:numel(lostephinew)
             if ~all(isnan(lostephinew{i})) && ...
                     (numel(lostephinew{i})==3 || numel(lostephinew{i})==1 || numel(lostephinew{i})==0)
@@ -2027,11 +2010,11 @@ if manspec==nummax
             the_err.identifier,the_err.message),...
             '**** Formatting error of manual rebinning entries: ',...
             '**** Ensure they are of the form [lo,step,hi], [step], or [], and are numeric'};
-        
+
         set(handles.message_info_text,'String',char(err));
         guidata(gcbo,handles);
-        
-        
+
+
         return;
     end
 end
@@ -2043,7 +2026,7 @@ if isempty(outobjname)
     guidata(gcbo,handles);
     return;
 end
-%
+
 testexp=regexpi(outobjname,'[A-Z]');
 if testexp(1)~=1
     mess='The first character of the output name must be a letter, not a number or symbol';
@@ -2123,7 +2106,7 @@ try
         end
         save(out,outfilename);
     end
-    
+
 catch the_err
     report_error(handles,the_err,'**** rebin failed at: ',mess_initialise)
 end
@@ -2375,14 +2358,20 @@ if midspec==midmax
         midpoint=get(handles.Sym_midpoint_edit,'String');
         %tol=str2mat(tol);
         %must strip out square brackets, if user has inserted them:
-        [midpointnew,ok] = read_vector(midpoint);
-        if ~ok
-            mess1='Ensure midpoint is of form [val] for 1d, or [val_x,val_y] for 2d';
-            set(handles.message_info_text,'String',char({mess_initialise,mess1}));
-            guidata(gcbo,handles);
-            return;
+        try
+            midpointnew = read_vector(midpoint);
+        catch ME
+            switch ME.identifier
+              case 'HORACE:GUI:read_vector_error'
+                mess1='Ensure midpoint is of form [val] for 1d, or [val_x,val_y] for 2d';
+                set(handles.message_info_text,'String',char({mess_initialise,mess1}));
+                guidata(gcbo,handles);
+                return;
+              otherwise
+                rethrow(ME)
+            end
         end
-        %
+
         if ~all(isnan(midpointnew)) && numel(midpointnew)==ndims
             ismid=true;
             midpointnew=reshape(midpointnew,1,numel(midpointnew));
@@ -2406,13 +2395,21 @@ else
         v1=get(handles.Sym_v1_edit,'String');
         %tol=str2mat(tol);
         %must strip out square brackets, if user has inserted them:
-        [v1new,ok] = read_vector(v1);
-        if ~ok
-            mess1='Ensure v1 is of form [a,b,c]';
-            set(handles.message_info_text,'String',char({mess_initialise,mess1}));
-            guidata(gcbo,handles);
-            return;
+
+        try
+            v1new = read_vector(v1);
+        catch ME
+            switch ME.identifier
+              case 'HORACE:GUI:read_vector_error'
+                mess1='Ensure v1 is of form [a,b,c]';
+                set(handles.message_info_text,'String',char({mess_initialise,mess1}));
+                guidata(gcbo,handles);
+                return;
+              otherwise
+                rethrow(ME)
+            end
         end
+
         if numel(v1new)~=3
             mess1='Ensure v1 is of form [a,b,c]';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
@@ -2423,23 +2420,32 @@ else
         v2=get(handles.Sym_v2_edit,'String');
         %tol=str2mat(tol);
         %must strip out square brackets, if user has inserted them:
-        [v2new,ok] = read_vector(v2);
-        if ~ok
-            mess1='Ensure v2 is of form [a,b,c]';
-            set(handles.message_info_text,'String',char({mess_initialise,mess1}));
-            guidata(gcbo,handles);
-            return;
+
+        try
+            v2new = read_vector(v2);
+        catch ME
+            switch ME.identifier
+              case 'HORACE:GUI:read_vector_error'
+                mess1='Ensure v2 is of form [a,b,c]';
+                set(handles.message_info_text,'String',char({mess_initialise,mess1}));
+                guidata(gcbo,handles);
+                return;
+              otherwise
+                rethrow(ME)
+            end
         end
+
         if numel(v2new)~=3
             mess1='Ensure v2 is of form [a,b,c]';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
             guidata(gcbo,handles);
             return;
         end
+
         %==
         %Case for v3 is slightly different
         v3=get(handles.Sym_v3_edit,'String');
-        
+
         if ~isempty(v3)
             %must strip out square brackets, if user has inserted them:
             [v3new,ok] = read_vector(v3);
@@ -2503,7 +2509,7 @@ if isempty(outobjname)
     guidata(gcbo,handles);
     return;
 end
-%
+
 testexp=regexpi(outobjname,'[A-Z]');
 if testexp(1)~=1
     mess='The first character of the output name must be a letter, not a number or symbol';
@@ -2550,7 +2556,7 @@ try
         end
         save(out,outfilename);
     end
-    
+
 catch the_err
     report_error(handles,the_err,'**** symmetrise  failed at: ',mess_initialise)
 end
@@ -2559,11 +2565,6 @@ end
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
-
-
-
-
-
 
 
 % --- Executes on selection change in Comb_obj2_popupmenu.
@@ -2609,14 +2610,14 @@ guidata(gcbo, handles);
 
 str = get(hObject, 'String');
 val = get(hObject,'Value');
-%
+
 drawnow;
 reqstring=str{val};
 reqstring(end-11:end)=[];
 request=['whos(''',reqstring,''')'];
 %determine what kind of object we are dealing with:
 workobj2=evalin('base',request);%returns a structure array with info about the object
-%
+
 object_name2=workobj2.name;
 handles.object_name2=object_name2;
 w_in2=evalin('base',object_name2);%get the data from the base workspace.
@@ -2814,7 +2815,7 @@ if tolspec==nummax
             guidata(gcbo,handles);
             return;
         end
-        
+
         if ~all(isnan(tolnew)) && numel(tolnew)==ndims1
             istol=true;
         elseif numel(tolnew)~=ndims1
@@ -2838,7 +2839,7 @@ if isempty(outobjname)
     guidata(gcbo,handles);
     return;
 end
-%
+
 testexp=regexpi(outobjname,'[A-Z]');
 if testexp(1)~=1
     mess='The first character of the output name must be a letter, not a number or symbol';
@@ -2846,13 +2847,13 @@ if testexp(1)~=1
     guidata(gcbo,handles);
     return;
 end
+
 %====
-if out_to_file==get(handles.Comb_outfile_radiobutton,'Max')
-    saveafile=true;
-else
-    saveafile=false;
-end
+
+saveafile = out_to_file==get(handles.Comb_outfile_radiobutton,'Max');
+
 %===
+
 if saveafile && isempty(outfilename)
     outfilename='-save';
 end
@@ -2908,7 +2909,7 @@ try
         end
         save(out,outfilename);
     end
-    
+
 catch the_err
     report_error(handles,the_err,'**** combine failed at: ',mess_initialise)
 end
@@ -2991,14 +2992,14 @@ guidata(gcbo, handles);
 
 str = get(hObject, 'String');
 val = get(hObject,'Value');
-%
+
 drawnow;
 reqstring=str{val};
 reqstring(end-11:end)=[];
 request=['whos(''',reqstring,''')'];
 %determine what kind of object we are dealing with:
 workobj2=evalin('base',request);%returns a structure array with info about the object
-%
+
 object_name2=workobj2.name;
 handles.object_name2=object_name2;
 w_in2=evalin('base',object_name2);%get the data from the base workspace.
@@ -3155,28 +3156,30 @@ if testexp(1)~=1
     return;
 end
 %====
-if out_to_file==get(handles.Rep_outfile_radiobutton,'Max')
-    saveafile=true;
-else
-    saveafile=false;
-end
+
+saveafile = out_to_file==get(handles.Rep_outfile_radiobutton,'Max');
+
 %===
+
 if saveafile && isempty(outfilename)
     outfilename='-save';
 end
+
 %===
-sqw_flag=false;
-if is_sqw_type(sqw(win1))
-    sqw_flag=true;
-    if ndims1==0
+
+sqw_flag=is_sqw_type(sqw(win1));
+
+if sqw_flag
+    switch ndims
+      case 0
         obj_to_cut_dnd=d0d(win1);
-    elseif ndims1==1
+      case 1
         obj_to_cut_dnd=d1d(win1);
-    elseif ndims1==2
+      case 2
         obj_to_cut_dnd=d2d(win1);
-    elseif ndims1==3
+      case 3
         obj_to_cut_dnd=d3d(win1);
-    else
+      otherwise
         mess='Object #1 is 4-dimensional -- cannot replicate';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
@@ -3223,11 +3226,6 @@ else
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
 end
-
-
-
-
-
 
 
 function Bose_temp_edit_Callback(hObject, eventdata, handles)
@@ -3363,7 +3361,7 @@ if isempty(outobjname)
     guidata(gcbo,handles);
     return;
 end
-%
+
 testexp=regexpi(outobjname,'[A-Z]');
 if testexp(1)~=1
     mess='The first character of the output name must be a letter, not a number or symbol';
@@ -3371,35 +3369,35 @@ if testexp(1)~=1
     guidata(gcbo,handles);
     return;
 end
+
 %====
+
 if isempty(temperature)
     mess='Provide a temperature to allow correction';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
 end
+
 %====
-if isnan(str2double(temperature))
-    mess='Provide a valid temperature';
-    set(handles.message_info_text,'String',char({mess_initialise,mess}));
-    guidata(gcbo,handles);
-    return;
-elseif temperature<=0
+
+if isnan(str2double(temperature)) || temperature<=0
     mess='Provide a valid temperature';
     set(handles.message_info_text,'String',char({mess_initialise,mess}));
     guidata(gcbo,handles);
     return;
 end
+
 %====
-if out_to_file==get(handles.Bose_outfile_radiobutton,'Max')
-    saveafile=true;
-else
-    saveafile=false;
-end
+
+saveafile = out_to_file==get(handles.Bose_outfile_radiobutton,'Max');
+
 %===
+
 if saveafile && isempty(outfilename)
     outfilename='-save';
 end
+
 %===
 
 %Now we execute the bose factor correction:
@@ -3420,11 +3418,6 @@ end
 assignin('base',outobjname,out);
 set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
 guidata(gcbo,handles);
-
-
-
-
-
 
 
 % --- Executes on selection change in Bin_function_popupmenu.
@@ -3458,7 +3451,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
 function Bin_outobj_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to Bin_outobj_edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -3488,7 +3480,6 @@ function Bin_outfile_radiobutton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of Bin_outfile_radiobutton
-
 
 
 function Bin_outfile_edit_Callback(hObject, eventdata, handles)
@@ -3541,7 +3532,7 @@ function Bin_obj2_popupmenu_Callback(hObject, eventdata, handles)
 set(handles.message_info_text,'String','');
 guidata(gcbo,handles);
 drawnow;
-%
+
 % get a structure array with all of the workspace variables in it
 % contains concrete name (.class) and variable name (.name)
 vars = evalin('base','whos');
@@ -3572,7 +3563,7 @@ guidata(gcbo, handles);
 
 str = get(hObject, 'String');
 val = get(hObject,'Value');
-%
+
 drawnow;
 reqstring=str{val};
 reqstring(end-11:end)=[];
@@ -3599,7 +3590,6 @@ function Bin_obj2_popupmenu_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 
 function Bin_number_edit_Callback(hObject, eventdata, handles)
@@ -3632,8 +3622,7 @@ function Bin_obj_radiobutton_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of Bin_obj_radiobutton
 
-button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max') %button is pressed
+if get(hObject,'Value') == get(hObject,'Max') %button is pressed
     set(handles.Bin_number_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -3647,8 +3636,8 @@ function Bin_number_radiobutton_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of Bin_number_radiobutton
 
-button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max') %button is pressed
+
+if get(hObject,'Value') == get(hObject,'Max') %button is pressed
     set(handles.Bin_obj_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -3781,7 +3770,7 @@ if isempty(outobjname)
     guidata(gcbo,handles);
     return;
 end
-%
+
 testexp=regexpi(outobjname,'[A-Z]');
 if testexp(1)~=1
     mess='The first character of the output name must be a letter, not a number or symbol';
@@ -3789,13 +3778,13 @@ if testexp(1)~=1
     guidata(gcbo,handles);
     return;
 end
+
 %====
-if out_to_file==get(handles.Bin_outfile_radiobutton,'Max')
-    saveafile=true;
-else
-    saveafile=false;
-end
+
+saveafile = out_to_file==get(handles.Bin_outfile_radiobutton,'Max');
+
 %===
+
 if saveafile && isempty(outfilename)
     outfilename='-save';
 end
@@ -3811,27 +3800,20 @@ end
 
 %Now we execute the binary operation:
 try
+    if workonobj
+        out=eval([funcstr,'(',obj_to_cut,',',obj_to_cut2,');']);
+    else
+        out=eval([funcstr,'(',obj_to_cut,',',num2str(numval),');']);
+    end
+
     if ~saveafile
-        if workonobj
-            out=eval([funcstr,'(',obj_to_cut,',',obj_to_cut2,');']);
-        else
-            out=eval([funcstr,'(',obj_to_cut,',',num2str(numval),');']);
-        end
+
     elseif saveafile && strcmp(outfilename,'-save')
-        if workonobj
-            out=eval([funcstr,'(',obj_to_cut,',',obj_to_cut2,');']);
-        else
-            out=eval([funcstr,'(',obj_to_cut,',',num2str(numval),');']);
-        end
         save(out);
     else
-        if workonobj
-            out=eval([funcstr,'(',obj_to_cut,',',obj_to_cut2,');']);
-        else
-            out=eval([funcstr,'(',obj_to_cut,',',num2str(numval),');']);
-        end
         save(out,outfilename);
     end
+
 catch the_err
     report_error(handles,the_err,'**** Formatting error? Unit operation failed at: ',mess_initialise)
 end
@@ -3874,7 +3856,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
 function Unary_outobj_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to Unary_outobj_edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -3904,7 +3885,6 @@ function Unary_outfile_radiobutton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of Unary_outfile_radiobutton
-
 
 
 function Unary_outfile_edit_Callback(hObject, eventdata, handles)
@@ -3943,7 +3923,6 @@ if ischar(save_pathname) && ischar(save_filename)
     set(handles.Unary_outfile_edit,'String',[save_pathname,save_filename]);
     guidata(gcbo,handles);
 end
-
 
 
 % --- Executes on button press in Unary_operate_pushbutton.
@@ -4011,11 +3990,9 @@ if testexp(1)~=1
     return;
 end
 %====
-if out_to_file==get(handles.Unary_outfile_radiobutton,'Max')
-    saveafile=true;
-else
-    saveafile=false;
-end
+
+saveafile = out_to_file==get(handles.Unary_outfile_radiobutton,'Max');
+
 %===
 if saveafile && isempty(outfilename)
     outfilename='-save';
@@ -4053,8 +4030,7 @@ function Cutfile_rlu_1_radiobutton_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of Cutfile_rlu_1_radiobutton
 
-button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max') %button is pressed
+if get(hObject,'Value')==get(hObject,'Max') %button is pressed
     set(handles.Cutfile_ang_1_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -4068,8 +4044,8 @@ function Cutfile_ang_1_radiobutton_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of Cutfile_ang_1_radiobutton
 
-button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max') %button is pressed
+
+if get(hObject,'Value')==get(hObject,'Max') %button is pressed
     set(handles.Cutfile_rlu_1_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -4083,8 +4059,7 @@ function Cutfile_rlu_2_radiobutton_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of Cutfile_rlu_2_radiobutton
 
-button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max') %button is pressed
+if get(hObject,'Value')==get(hObject,'Max') %button is pressed
     set(handles.Cutfile_ang_2_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -4098,8 +4073,7 @@ function Cutfile_ang_2_radiobutton_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of Cutfile_ang_2_radiobutton
 
-button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max') %button is pressed
+if get(hObject,'Value')==get(hObject,'Max') %button is pressed
     set(handles.Cutfile_rlu_2_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -4113,8 +4087,8 @@ function Cutfile_rlu_3_radiobutton_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of Cutfile_rlu_3_radiobutton
 
-button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max') %button is pressed
+
+if get(hObject,'Value')==get(hObject,'Max') %button is pressed
     set(handles.Cutfile_ang_3_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -4127,8 +4101,7 @@ function Cutfile_ang_3_radiobutton_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of Cutfile_ang_3_radiobutton
 
-button_state=get(hObject,'Value');
-if button_state==get(hObject,'Max') %button is pressed
+if get(hObject,'Value')==get(hObject,'Max') %button is pressed
     set(handles.Cutfile_rlu_3_radiobutton,'Value',0);
 end
 guidata(gcbo, handles);
@@ -4154,7 +4127,6 @@ function Cutfile_u_edit_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 
 function Cutfile_v_edit_Callback(hObject, eventdata, handles)
@@ -4202,7 +4174,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
 function Cutfile_ax1_range_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to Cutfile_ax1_range_edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -4223,7 +4194,6 @@ function Cutfile_ax1_range_edit_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 
 function Cutfile_ax2_range_edit_Callback(hObject, eventdata, handles)
@@ -4248,7 +4218,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
 function Cutfile_ax3_range_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to Cutfile_ax3_range_edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -4271,7 +4240,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
 function Cutfile_ax4_range_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to Cutfile_ax4_range_edit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -4292,7 +4260,6 @@ function Cutfile_ax4_range_edit_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 
 function Cutfile_out_obj_edit_Callback(hObject, eventdata, handles)
@@ -4324,7 +4291,6 @@ function Cutfile_out_file_radio_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of Cutfile_out_file_radio
-
 
 
 function Cutfile_out_file_edit_Callback(hObject, eventdata, handles)
@@ -4363,7 +4329,6 @@ if ischar(save_pathname) && ischar(save_filename)
     set(handles.Cutfile_out_file_edit,'String',[save_pathname,save_filename]);
     guidata(gcbo,handles);
 end
-
 
 
 % --- Executes on button press in Cutfile_keep_pix_radiobutton.
@@ -4449,7 +4414,7 @@ else
                 guidata(gcbo,handles);
                 return;
             end
-            
+
         end
     catch
         mess='Check the format of the vectors u, v, and/or w. They must be numeric with 3 elements';
@@ -4475,20 +4440,23 @@ if w_rlu==get(handles.Cutfile_rlu_3_radiobutton,'Max')
 else
     angstring=[angstring,'a'];
 end
-%
+
 if orth_axes
     nonorth=0;
 else
     nonorth=1;
 end
-%
+
 proj.u=u'; proj.v=v';
 if ~isempty(w)
     proj.w=w';
 end
+
 proj.type=angstring;
 proj.nonorthogonal=nonorth;
+
 %===
+
 if isempty(a1) || isempty(a2) || isempty(a3) || isempty(a4)
     mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
     mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
@@ -4498,38 +4466,66 @@ if isempty(a1) || isempty(a2) || isempty(a3) || isempty(a4)
 else
     try
         %must strip out square brackets, if user has inserted them:
-        [a1new,ok] = read_vector(a1);
-        if ~ok
-            mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
-            mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
-            set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-            guidata(gcbo,handles);
-            return;
+        try
+            a1new = read_vector(a1);
+        catch ME
+            switch ME.identifier
+              case 'HORACE:GUI:read_vector_error'
+                mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
+                mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
+                set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+                guidata(gcbo,handles);
+                return;
+              otherwise
+                rethrow(ME)
+            end
         end
-        [a2new,ok] = read_vector(a2);
-        if ~ok
-            mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
-            mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
-            set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-            guidata(gcbo,handles);
-            return;
+
+        try
+            a2new = read_vector(a2);
+        catch ME
+            switch ME.identifier
+              case 'HORACE:GUI:read_vector_error'
+                mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
+                mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
+                set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+                guidata(gcbo,handles);
+                return;
+              otherwise
+                rethrow(ME)
+            end
         end
-        [a3new,ok] = read_vector(a3);
-        if ~ok
-            mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
-            mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
-            set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-            guidata(gcbo,handles);
-            return;
+
+        try
+            a3new = read_vector(a3);
+        catch ME
+            switch ME.identifier
+              case 'HORACE:GUI:read_vector_error'
+                mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
+                mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
+                set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+                guidata(gcbo,handles);
+                return;
+              otherwise
+                rethrow(ME)
+            end
         end
-        [a4new,ok] = read_vector(a4);
-        if ~ok
-            mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
-            mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
-            set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
-            guidata(gcbo,handles);
-            return;
+
+        try
+            a4new = read_vector(a4);
+        catch ME
+            switch ME.identifier
+              case 'HORACE:GUI:read_vector_error'
+                mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
+                mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
+                set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
+                guidata(gcbo,handles);
+                return;
+              otherwise
+                rethrow(ME)
+            end
         end
+
     catch
         mess='Check the format of the axis vectors (1-4). They must be numeric of form lo,step,hi / step / lo,hi';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
@@ -4552,11 +4548,9 @@ if numel(a1new)>3 || numel(a2new)>3 || numel(a3new)>3 || numel(a4new)>3
 end
 
 %====
-if keep_pixels==get(handles.Cutfile_keep_pix_radiobutton,'Max')
-    keeppix=true;
-else
-    keeppix=false;
-end
+
+keeppix= keep_pixels==get(handles.Cutfile_keep_pix_radiobutton,'Max')
+
 %====
 if isempty(outobjname)
     mess='Provide a name for the output object that will be created by cut';
@@ -4564,7 +4558,7 @@ if isempty(outobjname)
     guidata(gcbo,handles);
     return;
 end
-%
+
 testexp=regexpi(outobjname,'[A-Z]');
 if testexp(1)~=1
     mess='The first character of the output name must be a letter, not a number or symbol';
@@ -4572,32 +4566,29 @@ if testexp(1)~=1
     guidata(gcbo,handles);
     return;
 end
+
 %====
-if out_to_file==get(handles.Cutfile_out_file_radio,'Max')
-    saveafile=true;
-else
-    saveafile=false;
-end
+
+saveafile = out_to_file==get(handles.Cutfile_out_file_radio,'Max');
+
 %===
+
 if saveafile && isempty(outfilename)
     outfilename='-save';
 end
 
 %Now make the cut:
 try
-    if ~keeppix && ~saveafile
-        out=eval(['cut_sqw(''',filestring,''',proj',',[',a1,'],[',...
-            a2,'],[',a3,'],[',a4,'],''-nopix'');']);
-    elseif keeppix && ~saveafile
-        out=eval(['cut_sqw(''',filestring,''',proj',',[',a1,'],[',...
-            a2,'],[',a3,'],[',a4,']);']);
-    elseif ~keeppix && saveafile
-        out=eval(['cut_sqw(''',filestring,''',proj',',[',a1,'],[',...
-            a2,'],[',a3,'],[',a4,'],''-nopix'',''',outfilename,''');']);
-    elseif keeppix && saveafile
-        out=eval(['cut_sqw(''',filestring,''',proj',',[',a1,'],[',...
-            a2,'],[',a3,'],[',a4,'],''',outfilename,''');']);
+    funcToEval = ['cut_sqw(''' filestring ''',proj' ',[' a1 '],[' a2 '],[' a3 '],[' a4 ']'];
+    if ~keeppix
+        funcToEval = [funcToEval ',''-nopix'''];
     end
+    if saveafile
+        funcToEval = [funcToEval ',''' outfilename ''''];
+    end
+    funcToEval = [funcToEval ');'];
+    out = eval(funcToEval);
+
 catch the_err
     report_error(handles,the_err,'**** Invalid inputs? Cut from file failed at: ',mess_initialise)
 end
@@ -4606,7 +4597,6 @@ assignin('base',outobjname,out);
 cc=char({mess_initialise,'Success!',['Click ''DATA IN MEMORY'' then ''Refresh List'' to make plots etc of ',outobjname]});
 set(handles.message_info_text,'String',cc);
 guidata(gcbo,handles);
-
 
 
 % --- Executes on button press in refresh_list_pushbutton.
@@ -4650,14 +4640,14 @@ set(handles.Bin_obj2_popupmenu,'String',cellofvars);
 %the current work object:
 str = get(handles.obj_list_popupmenu, 'String');
 val = get(handles.obj_list_popupmenu,'Value');
-%
+
 drawnow;
 reqstring=str{val};
 reqstring(end-11:end)=[];
 request=['whos(''',reqstring,''')'];
 %determine what kind of object we are dealing with:
 workobj=evalin('base',request);%returns a structure array with info about the object
-%
+
 object_name=workobj.name;
 handles.object_name=object_name;
 w_in=evalin('base',object_name);%get the data from the base workspace.
@@ -4699,7 +4689,8 @@ if isfield(handles,'w_in')
         guidata(gcbo,handles);
         pause(2);
     end
-    if ndims==1
+    switch ndims
+     case 1
         if isfield(handles,'plotmarker') && ~isempty(handles.plotmarker)
             amark(handles.plotmarker);
         end
@@ -4717,7 +4708,7 @@ if isfield(handles,'w_in')
         set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
         drawnow;
         guidata(gcbo,handles);
-    elseif ndims==2
+      case 2
         if isfield(handles,'smoothwid')
             smoothing=[str2double(handles.smoothwid) str2double(handles.smoothwid)];
         else
@@ -4729,7 +4720,7 @@ if isfield(handles,'w_in')
         set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
         drawnow;
         guidata(gcbo,handles);
-    elseif ndims==3
+      case 3
         if isfield(handles,'smoothwid')
             smoothing=[str2double(handles.smoothwid) str2double(handles.smoothwid) str2double(handles.smoothwid)];
         else
@@ -4741,7 +4732,7 @@ if isfield(handles,'w_in')
         set(handles.message_info_text,'String',char({mess_initialise,'Success!'}));
         drawnow;
         guidata(gcbo,handles);
-    elseif ndims==4
+      case 4
         mess='Selected object is 4-dimensional, so cannot plot';
         set(handles.message_info_text,'String',char({mess_initialise,mess}));
         guidata(gcbo,handles);
@@ -4763,13 +4754,10 @@ function smoothing_popupmenu_Callback(hObject, eventdata, handles)
 
 str = get(hObject, 'String');
 val = get(hObject,'Value');
-%
+
 drawnow;
-if val~=1
-    reqstring=str{val};
-else
-    reqstring='1';
-end
+reqstring=str{val};
+
 handles.smoothwid=reqstring(1);
 guidata(gcbo,handles);
 
@@ -4787,8 +4775,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
-
 % --- Executes on button press in choose_gen_pushbutton.
 function choose_gen_pushbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to choose_gen_pushbutton (see GCBO)
@@ -4800,8 +4786,6 @@ set(handles.WorkspacePanel, 'Visible', 'off');
 set(handles.gen_sqw_panel, 'Visible', 'on');
 drawnow;
 guidata(gcbo,handles);
-
-
 
 
 function gen_sqw_filename_edit_Callback(hObject, eventdata, handles)
@@ -5210,47 +5194,100 @@ elseif isempty(sqwfile)
 else
     try
         %must strip out square brackets, if user has inserted them:
-        [unew,ok] = read_vector(u);
-        if ~ok
-            mess1='Ensure u is a 3-element vector with comma-separated elements';
-            set(handles.message_info_text,'String',char({mess_initialise,mess1}));
-            guidata(gcbo,handles);
-            return;
+
+        try
+            unew = read_vector(u);
+        catch ME
+            switch ME.identifier
+              case 'HORACE:GUI:read_vector_error'
+
+                mess1='Ensure u is a 3-element vector with comma-separated elements';
+                set(handles.message_info_text,'String',char({mess_initialise,mess1}));
+                guidata(gcbo,handles);
+                return;
+              otherwise
+                rethrow(ME)
+            end
         end
-        [vnew,ok] = read_vector(v);
-        if ~ok
-            mess1='Ensure v is a 3-element vector with comma-separated elements';
-            set(handles.message_info_text,'String',char({mess_initialise,mess1}));
-            guidata(gcbo,handles);
-            return;
+
+        try
+            vnew = read_vector(v);
+        catch ME
+            switch ME.identifier
+              case 'HORACE:GUI:read_vector_error'
+
+                mess1='Ensure v is a 3-element vector with comma-separated elements';
+                set(handles.message_info_text,'String',char({mess_initialise,mess1}));
+                guidata(gcbo,handles);
+                return;
+              otherwise
+                rethrow(ME)
+            end
+
         end
-        [efixnew,ok] = read_vector(efix);
-        if ~ok
-            mess1='Ensure incident energy is a single number';
-            set(handles.message_info_text,'String',char({mess_initialise,mess1}));
-            guidata(gcbo,handles);
-            return;
+
+        try
+            efixnew = read_vector(efix);
+        catch ME
+            switch ME.identifier
+              case 'HORACE:GUI:read_vector_error'
+
+                mess1='Ensure incident energy is a single number';
+                set(handles.message_info_text,'String',char({mess_initialise,mess1}));
+                guidata(gcbo,handles);
+                return;
+              otherwise
+                rethrow(ME)
+            end
+
         end
-        [alattnew,ok] = read_vector(alatt);
-        if ~ok
-            mess1='Ensure lattice parameters are a 3-element vector with comma-separated elements';
-            set(handles.message_info_text,'String',char({mess_initialise,mess1}));
-            guidata(gcbo,handles);
-            return;
+
+        try
+            alattnew = read_vector(alatt);
+        catch ME
+            switch ME.identifier
+              case 'HORACE:GUI:read_vector_error'
+
+                mess1='Ensure lattice parameters are a 3-element vector with comma-separated elements';
+                set(handles.message_info_text,'String',char({mess_initialise,mess1}));
+                guidata(gcbo,handles);
+                return;
+              otherwise
+                rethrow(ME)
+            end
+
         end
-        [angdegnew,ok] = read_vector(angdeg);
-        if ~ok
-            mess1='Ensure lattice angles are a 3-element vector with comma-separated elements';
-            set(handles.message_info_text,'String',char({mess_initialise,mess1}));
-            guidata(gcbo,handles);
-            return;
+
+        try
+            angdegnew = read_vector(angdeg);
+        catch ME
+            switch ME.identifier
+              case 'HORACE:GUI:read_vector_error'
+
+                mess1='Ensure lattice angles are a 3-element vector with comma-separated elements';
+                set(handles.message_info_text,'String',char({mess_initialise,mess1}));
+                guidata(gcbo,handles);
+                return;
+              otherwise
+                rethrow(ME)
+            end
+
         end
-        [offsetsnew,ok] = read_vector(offsets);
-        if ~ok
-            mess1='Ensure offset angles are a 4-element vector with comma-separated elements';
-            set(handles.message_info_text,'String',char({mess_initialise,mess1}));
-            guidata(gcbo,handles);
-            return;
+
+        try
+            offsetsnew = read_vector(offsets);
+        catch ME
+            switch ME.identifier
+              case 'HORACE:GUI:read_vector_error'
+
+                mess1='Ensure offset angles are a 4-element vector with comma-separated elements';
+                set(handles.message_info_text,'String',char({mess_initialise,mess1}));
+                guidata(gcbo,handles);
+                return;
+              otherwise
+                rethrow(ME)
+            end
+
         end
     catch
         mess1='Formatting error for inputs of left-hand side - check that they are all ok';
@@ -5277,13 +5314,15 @@ if numel(offsetsnew)~=4
 end
 
 if isfield(handles,'gen_emode')
-    if strcmp(handles.gen_emode,'Direct')
+    switch handles.gen_emode
+
+      case 'Direct'
         emode=1;
-    elseif strcmp(handles.gen_emode,'Indirect')
+      case 'Indirect'
         emode=2;
-    elseif strcmp(handles.gen_emode,'Diffraction')
+      case 'Diffraction'
         emode=0;
-    else
+      otherwise
         mess1='Select a spectrometer geometry';
         set(handles.message_info_text,'String',char({mess_initialise,mess1}));
         guidata(gcbo,handles);
@@ -5376,12 +5415,19 @@ if isempty(psi_string)
 else
     try
         %must strip out square brackets, if user has inserted them:
-        [psinew,ok] = read_vector(psi_string);
-        if ~ok
-            mess1='check formatting of psi input - must be in form of a Matlab vector';
-            set(handles.message_info_text,'String',char({mess_initialise,mess1}));
-            guidata(gcbo,handles);
-            return;
+        try
+            psinew = read_vector(psi_string);
+        catch ME
+            switch ME.identifier
+              case 'HORACE:GUI:read_vector_error'
+
+                mess1='check formatting of psi input - must be in form of a Matlab vector';
+                set(handles.message_info_text,'String',char({mess_initialise,mess1}));
+                guidata(gcbo,handles);
+                return;
+              otherwise
+                rethrow(ME)
+            end
         end
         handles.psilist=psinew;
         guidata(gcbo,handles);
@@ -5402,9 +5448,9 @@ if isempty(spelist)
     guidata(gcbo,handles);
     return;
 end
-%
+
 numfiles=size(spelist,1);%number of rows in character array of spe files
-%
+
 %convert to cell array for ease of use below
 spelist_old=spelist;
 spelist=cell(size(spelist_old,1),1);
@@ -5759,4 +5805,3 @@ set(handles.message_info_text,'String',char(err));
 guidata(gcbo,handles);
 
 rethrow(the_err);
-
