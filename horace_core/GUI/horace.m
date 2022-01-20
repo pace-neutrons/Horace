@@ -50,6 +50,7 @@ is_sqw_obj = strcmp(element_class,'d1d') || strcmp(element_class,'d2d') ||...
     strcmp(element_class,'sqw');
 
 function [vec_val,ok] = read_vector(str_val)
+
 % read vector value from a string, obtained from GUI.
 %
 % Inputs:
@@ -4443,6 +4444,7 @@ else
             [w,okw] = read_vector(s);
             if ~okw
                 mess='Check the format of the vectors w. It must be empty or numeric with 3 elements';
+
                 set(handles.message_info_text,'String',char({mess_initialise,mess}));
                 guidata(gcbo,handles);
                 return;
