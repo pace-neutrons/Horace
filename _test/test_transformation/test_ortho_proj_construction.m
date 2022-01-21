@@ -128,7 +128,7 @@ classdef test_ortho_proj_construction<TestCase
             assertElementsAlmostEqual(proj.v,[0,1,1])
             assertElementsAlmostEqual(proj.w,[0,-1,1])
         end
-        function test_get_set_from_ubmatrix_ppp(~)
+        function test_get_set_from_data_matrix_ppp(~)
             proj1 = ortho_projTester([1,0,0],[0,1,0],[0,0,1],...
                 'alatt',[2,4,3],'angdeg',[90,90,90],...
                 'lab',{'a','b','c','d'},'type','ppp');
@@ -137,7 +137,7 @@ classdef test_ortho_proj_construction<TestCase
             
             pror = ortho_projTester('alatt',[2,4,3],'angdeg',[90,90,90],...
                 'lab',{'a','b','c','d'});
-            pror = pror.set_from_ubmat(u_to_rlu,ulen);            
+            pror = pror.set_from_data_mat(u_to_rlu,ulen);            
             % TODO: This is something wrong as inputs are not recovered. 
             % Is this correct? Should (can I fix this)
             proj1.type  ='ppr';
@@ -146,7 +146,7 @@ classdef test_ortho_proj_construction<TestCase
         end
         
         
-        function test_get_set_from_ubmatrix_ppr(~)
+        function test_get_set_from_data_matrix_ppr(~)
             proj1 = ortho_projTester('alatt',[2,4,3],'angdeg',[90,90,90],...
                 'lab',{'a','b','c','d'},'type','ppr');
             
@@ -154,7 +154,7 @@ classdef test_ortho_proj_construction<TestCase
             
             pror = ortho_projTester('alatt',[2,4,3],'angdeg',[90,90,90],...
                 'lab',{'a','b','c','d'});
-            pror = pror.set_from_ubmat(u_to_rlu,ulen);            
+            pror = pror.set_from_data_mat(u_to_rlu,ulen);            
             assertEqual(pror,proj1);            
         end
         

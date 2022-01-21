@@ -46,17 +46,13 @@ else
     [Xn,Yn,Zn] = meshgrid(axes{1},axes{2},axes{3});
     En = axes{4};
 end
-Xn = reshape(Xn,1,numel(Xn));
-Yn = reshape(Yn,1,numel(Yn));
-Zn = reshape(Zn,1,numel(Zn));
-En = reshape(En,1,numel(En));
 
 if use4D
-    nodes = [Xn;Yn;Zn;En];
+    nodes = [Xn(:)';Yn(:)';Zn(:)';En(:)'];
     en_axis = [];
 else
-    en_axis = En;
-    nodes = [Xn;Yn;Zn];
+    en_axis = En(:)';
+    nodes = [Xn(:)';Yn(:)';Zn(:)'];
 end
 
 function [use4D,char_size] = parse_inputs(ninputs,varargin)

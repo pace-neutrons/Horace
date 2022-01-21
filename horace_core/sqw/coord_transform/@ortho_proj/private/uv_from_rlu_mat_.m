@@ -1,4 +1,4 @@
-function [u,v,w,type]=uv_from_rlu_mat_(obj,u_to_rlu,ulen)
+function [u,v,w,type]=uv_from_rlu_mat_(obj,u_rot_mat,ulen)
 % Extract initial u/v vectors, defining the plane in hkl from
 % lattice parameters and the matrix converting vectors in
 % crystal Cartesian coordinate system into rlu.
@@ -7,7 +7,7 @@ function [u,v,w,type]=uv_from_rlu_mat_(obj,u_to_rlu,ulen)
 % as only orthogonal to u part of the v-vector can be recovered
 %
 % Inputs:
-% u_to_rlu -- matrix used for conversion from pixel coordinate
+% u_rot_mat -- matrix used for conversion from pixel coordinate
 %          system to the image coordinate system (normally
 %          expressed in rlu)
 % ulen  -- length of the unit vectors of the reciprocal lattice
@@ -20,11 +20,11 @@ function [u,v,w,type]=uv_from_rlu_mat_(obj,u_to_rlu,ulen)
 % w    --  [1x3] vector expressed in rlu, defining the cut area. May be
 %          empty
 % type --
-%u_to_rlu(:,i) = ubinv(:,i)*ulen(i);
+%u_rot_mat(:,i) = ubinv(:,i)*ulen(i);
 
 
 ulen_inv = 1./ulen;
-ubinv = u_to_rlu.*repmat(ulen_inv,3,1);
+ubinv = u_rot_mat.*repmat(ulen_inv,3,1);
 ubmat = inv(ubinv); % correctly recovered ubmatrix; ulen matrix extracted
 b_mat = bmatrix(obj.alatt,obj.angdeg); % converts hkl to Crystal Cartesian
 %ubmat = umat*b_mat;
@@ -71,8 +71,4 @@ if lt{3} ~= 'p'
     w = [];
 end
 type = [lt{:}];
-
-% scale = ulen./ulen_new';
-% u = u*scale(1);
-% v = v*scale(2);
 

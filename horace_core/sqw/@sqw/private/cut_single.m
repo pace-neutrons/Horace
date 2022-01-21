@@ -32,19 +32,15 @@ return_cut = nargout > 0;
 % acutal_img_range left here for debugging purposes
 %
 if ~isempty(pix_comb_info) && isa(pix_comb_info, 'pix_combine_info')
-    % Make sure we clean up temp files
+    % Make sure we clean up temp files. If they were generated, they were 
+    % done already
     cleanup = onCleanup(@() clean_up_tmp_files(pix_comb_info));
 end
-% the range the pixels are rebinned into:
-urange_offset = repmat(proj.urange_offset, [2, 1]);
-bin_range_step = proj.urange_step;
-img_db_range  = bin_range_step.*repmat(proj.usteps, [2, 1]) + urange_offset;
 
 
 % Compile the accumulated cut and projection data into a data_sqw_dnd object
 data_out = compile_sqw_data(...
-    w.data, proj, s, e, npix, pix_out,pix_comb_info, img_db_range, ...
-    ubins, keep_pix);
+    targ_axes, tag_proj, s, e, npix, pix_out,pix_comb_info, keep_pix);
 
 % Assign the new data_sqw_dnd object to the output SQW object, or create a new
 % dnd.
@@ -52,7 +48,7 @@ if keep_pix
     wout = sqw();
     wout.main_header = w.main_header;
     wout.experiment_info = w.experiment_info;
-    wout.detpar = w.detpar;    
+    wout.detpar = w.detpar;
     wout.data = data_out;
 else
     dnd_constructor = DND_CONSTRUCTORS{numel(data_out.pax) + 1};
@@ -73,56 +69,34 @@ if exist('outfile', 'var') && ~isempty(outfile)
     end
 end
 
-end  % function
 
 
 % -----------------------------------------------------------------------------
-function data_out = compile_sqw_data(data, proj, s, e, npix, pix_out, ...
-    pix_comb_info, img_db_range, ubins, keep_pix)
-ppax = ubins.plot_ax_bounds(1:length(ubins.plot_ax_idx));
-if isempty(ppax)
-    nbin_as_size = [1, 1];
-elseif length(ppax) == 1
-    nbin_as_size = [length(ppax{1}) - 1, 1];
-else
-    nbin_as_size = cellfun(@(nd) length(nd) - 1, ppax);
-end
+function data_out = compile_sqw_data(targ_axes, proj, s, e, npix, pix_out, ...
+    pix_comb_info, keep_pix)
+%
+data_str = proj.compart_struct;
+data_str.s = s;
+data_str.e = e;
+data_str.npix = npix;
+data_str.img_db_range = targ_axes.get_binning_range();
+
+data_out = data_sqw_dnd(targ_axes,data_str);
 
 
-data_out = data;
-data_out.s = reshape(s, nbin_as_size);
-data_out.e = reshape(e, nbin_as_size);
-data_out.npix = reshape(npix, nbin_as_size);
-
-[ ...
-    data_out.uoffset, ...
-    data_out.ulabel, ...
-    data_out.dax, ...
-    data_out.u_to_rlu, ...
-    data_out.ulen, ...
-    data_out.axis_caption ...
-    ] = proj.get_proj_param(data, ubins.plot_ax_idx);
-
-data_out.iax = ubins.integration_axis_idx;
-data_out.iint = ubins.integration_range;
-data_out.pax = ubins.plot_ax_idx;
-data_out.p = ubins.plot_ax_bounds;
-data_out.img_db_range = img_db_range;
 
 if keep_pix
-    % If pix_comb_info is not empty then we've been working with temp files
-    % for pixels. We can replace the PixelData object that's normally in
-    % sqw.data with this pix_combine_info object.
-    % When the object is passed to 'put_sqw' (it's saved), 'put_sqw' will
-    % combine the linked tmp files into the new sqw file.
     if ~isempty(pix_comb_info) && isa(pix_comb_info, 'pix_combine_info')
-        data_out.pix = pix_comb_info;
+        % If pix_comb_info is not empty then we've been working with temp files
+        % for pixels and normal sqw object is not returned. Pixels have been
+        % combined on disk earlier.
+        data_out.pix = []; % TODO: Should think more about what we may want
+        % to return in this situation
     else
         data_out.pix = pix_out;
     end
 else
     data_out.pix = PixelData();
-end
 end
 
 
@@ -131,5 +105,4 @@ function clean_up_tmp_files(pix_comb_info)
 for i = 1:numel(pix_comb_info.infiles)
     tmp_fpath = pix_comb_info.infiles{i};
     delete(tmp_fpath);
-end
 end

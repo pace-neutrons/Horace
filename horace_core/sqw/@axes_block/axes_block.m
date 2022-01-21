@@ -6,15 +6,15 @@ classdef axes_block < serializable
     properties(Dependent)
         ulen     %Length of projection axes vectors in Ang^-1 or meV [row vector]
     end
-    
+
     properties
         title   =''   % Title of sqw data structure
         filename=''   % Name of sqw file that is being read, excluding path. Used in titles
         filepath=''   % Path to sqw file that is being read, including terminating file separator.
         %               Used in titles
-        
+
         %
-        
+
         ulabel={'Q_h','Q_k','Q_l','En'}  %Labels of the projection axes [1x4 cell array of character strings]
         iax=1:4;          %Index of integration axes into the projection axes  [row vector]
         %                  Always in increasing numerical order
@@ -34,9 +34,7 @@ classdef axes_block < serializable
         %                  be reordered [row vector]
         axis_caption=an_axis_caption(); %  Reference to class, which define axis captions. TODO: delete this, mutate axes_block
         %
-        %TODO: think about best place to put this property
-        %  it may belong to projection but should be here if used in
-        %  plotting. Should non-orthogonal be just different axes_block?
+        %TODO: Its here temporary, until full projection is stored in sqw obj
         nonorthogonal = false % if the coordinate system is non-orthogonal.
     end
     properties(Access=protected)
@@ -49,14 +47,14 @@ classdef axes_block < serializable
             'ulen','ulabel','iax','iint','pax',...
             'p','dax','nonorthogonal'};
     end
-    
+
     methods (Static)
         % build new axes_block object from the binning parameters, provided
         % as input. If some input binning parameters are missing, the
         % defaults are taken from the given image range which should be
         % properly prepared
         [obj,targ_img_db_range] = build_from_input_binning(cur_img_range_and_steps,pbin);
-        %        
+        %
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
             % saveable class
@@ -102,7 +100,7 @@ classdef axes_block < serializable
             img_db_range = calc_img_db_range_(ax_data);
         end
     end
-    
+
     methods
         function obj = axes_block(varargin)
             % constructor
@@ -123,7 +121,8 @@ classdef axes_block < serializable
         %
         % Return number of dimensions and extent along each dimension of
         % the signal arrays.
-        [nd,sz,nse_size] = data_dims(data);
+        [nd,sz,nse_size] = data_dims(obj);
+
         % return 3 q-axis in the order they mark the dnd object
         % regardless of the integration along some axis
         % TODO: probably should be removed
@@ -138,7 +137,7 @@ classdef axes_block < serializable
         % that contains bins with non-zero values of contributing pixels.
         [val, n] = data_bin_limits (din);
         %
-        
+
         function [cube_coord,step] = get_axes_scales(obj)
             % Return 4D cube, describing the minimal grid cell of the axes block
             [cube_coord,step] = get_axes_scales_(obj);
@@ -153,7 +152,7 @@ classdef axes_block < serializable
             %           pixels binning.
             range = get_binning_range_(obj);
         end
-        
+
         function [npix,s,e,pix,pix_indx] = bin_pixels(obj,pix_coord_transf,varargin)
             % bin and distribute data expressed in the coordinate system
             % described by this axes block over the current lattice
@@ -161,7 +160,7 @@ classdef axes_block < serializable
             % >>npix = obj.bin_pixels(coord);
             % >>[npix,s,e] = obj.bin_pixels(coord,npix,s,e,sigvar);
             % >>[npix,s,e,pix_ok] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
-            % >>[npix,s,e,pix_ok,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates)            
+            % >>[npix,s,e,pix_ok,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
             % Where
             % Inputs:
             % pix_coord_transf
@@ -208,16 +207,16 @@ classdef axes_block < serializable
             %            pix_candidates)
             % pix_indx --indexes for image bins, where pix elements belong
             %            to
-            
+
             nargou = nargout;
-            % convert different inputs into fully expanded common form
+            % convert different input forms into fully expanded common form
             [npix,s,e,pix_cand,argi]=...
                 obj.normalize_bin_input(pix_coord_transf,nargou,varargin{:});
-            
+
             [npix,s,e,pix,pix_indx] = bin_pixels_(obj,pix_coord_transf,nargou,...
                 npix,s,e,pix_cand,argi{:});
         end
-        
+
         function [nodes,varargout] = get_bin_nodes(obj,varargin)
             % returns [4,nBins] or [3,nBins] array of points, where each point
             % coordinate is a node of the grid, formed by axes_block axes.
@@ -237,19 +236,22 @@ classdef axes_block < serializable
         %
         function range = get_default_binning_range(obj,img_db_range,...
                 cur_proj,new_proj)
+            % retrieve default binning if the binning is not defined by
+            % inputs
+            %
             % get the default binning range to use in cut, defined by new
-            % projection, and extrapolated from existing binning range
+            % projection, and extrapolated from the existing binning range.
             %
             % If new projection is not aligned with the old projection, the new
             % projection binning is copied from old projection binning according to
-            % axis, i.e. if axis 1 of cur_proj had 10 bins, axis 1 of target proj would
-            % have 10 bins, etc.
-            
+            % axes numbers, i.e. if axis 1 of cur_proj had 10 bins,
+            % axis 1 of target proj would have 10 bins, etc.
+
             % Inputs:
             % obj      - current instance of the axes block
             % img_db_range -- the range pixels are binned on and the current binning is
             %            applied
-            
+
             % cur_proj - the projection, current block is defined for
             % new_proj - the projection, for which the requested range should
             %            be defined
@@ -259,7 +261,7 @@ classdef axes_block < serializable
             %            defined by the new projection
             range  = get_default_binning_range_(obj,img_db_range,cur_proj,new_proj);
         end
-        
+
         %
         function [obj,offset,remains] = init(obj,varargin)
             % initialize object with axis parameters.
@@ -310,6 +312,6 @@ classdef axes_block < serializable
             [npix,s,e,pix_candidates,argi]=...
                 normalize_bin_input_(obj,pix_coord_transf,n_argout,varargin{:});
         end
-        
+
     end
 end

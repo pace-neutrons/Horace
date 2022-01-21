@@ -156,6 +156,7 @@ if keep_pixels
             pix_retained, pix_ix_retained, npix, block_size ...
             );
     else % all done
+        pix_out = pix_retained{1};
     end
 else
     pix_out = PixelData();

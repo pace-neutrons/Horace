@@ -35,7 +35,7 @@ nsteps(obj.iax) = 1;
 % convert ranges and step into target coordinate system
 full_range = expand_box(range(1,:),range(2,:));
 %
-targ_range = cur_proj.from_cur_to_targ_coord(full_range);
+targ_range = cur_proj.from_this_to_targ_coord(full_range);
 
 % transformed 4D-range
 range = [min(targ_range,[],2)';max(targ_range,[],2)'];

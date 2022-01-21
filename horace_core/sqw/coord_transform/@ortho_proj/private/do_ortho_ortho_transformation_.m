@@ -43,5 +43,7 @@ else
     if shift_ei
         ei = ei + obj.ortho_ortho_offset_(4);
     end
-    pix_transf = [pix_transf;ei];
+    if ndim == 4
+        pix_transf = [pix_transf;ei];
+    end
 end

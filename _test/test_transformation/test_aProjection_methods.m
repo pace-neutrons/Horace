@@ -229,7 +229,8 @@ classdef test_aProjection_methods <TestCase
             function setter()
                 ap.do_generic = [1,10];
             end
-            assertExceptionThrown(@setter,'HORACE:aProjection:invalid_argument')
+            assertExceptionThrown(@setter,...
+                'HORACE:aProjection:invalid_argument');
         end
         
         function test_set_throws_wrong_type(~)
@@ -239,7 +240,8 @@ classdef test_aProjection_methods <TestCase
             function setter()
                 ap.do_generic = 'b';
             end
-            assertExceptionThrown(@setter,'HORACE:aProjection:invalid_argument')
+            assertExceptionThrown(@setter,...
+                'HORACE:aProjection:invalid_argument');
         end
         
         function test_set_get_generic(~)

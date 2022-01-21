@@ -4,8 +4,19 @@ function [obj,offset,remains] = init_(obj,varargin)
 remains = {};
 offset = zeros(4,1);
 nargi = nargin-1;
-if isa(varargin{1},'axes_block') % handle shallow copy constructor
-    obj =varargin{1};            % its COW for Matlab anyway
+if isa(varargin{1},'axes_block')
+    source = varargin{1};
+    if strcmp(class(obj),'axes_block')% handle shallow copy constructor
+        obj =source;                    % its COW for Matlab anyway
+    else % child initiated (may be partially) by an axes_block. 
+         % the case probably will be removed in a future but logically correct
+        ab = axes_block();
+        flds = ab.indepFields();
+        for i=1:numel(flds)
+            obj.(flds{i}) = source.(flds{i});
+        end
+    end    
+    remains = varargin(2:end);
 elseif nargi==1
     if isstruct(varargin{1})
         input_struct = varargin{1};

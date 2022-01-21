@@ -63,7 +63,7 @@ classdef ortho_proj<aProjection
     %                   'ppr'  if w not given
     %                   'ppp'  if w is given
     %
-    
+
     % Original author: T.G.Perring
     %
     %
@@ -82,6 +82,26 @@ classdef ortho_proj<aProjection
         % generated sqw file, when this image is also in Crystal Cartesian)
         %u_to_rlu
     end
+    properties(Dependent,Hidden) %TODO: all this should go with new sqw design
+        % TODO: temporarty properties, which define the values to be
+        % extracted from projection to convert to old style data_sqw_dnd
+        % class. New data_sqw_dnd class will contain the whole projection
+        data_sqw_dnd_export_list
+        % Old confusing u_to_rlu matrix value
+        u_to_rlu
+        % renamed offset projection property        
+        uoffset
+        % Return the compartibility structure, which may be used as additional input to
+        % data_sqw_dnd constructor
+        compart_struct;
+    end
+    properties(Hidden)
+        % Developers option. Use old (v3 and below) subalgorithm in
+        % ortho-ortho transformation to identify cells which may contribute
+        % to a cut. Correct value is selected from performance analysis
+        use_old_cut_sub_alg=true;
+    end
+
     properties(Access=protected)
         u_ = [1,0,0]
         v_ = [0,1,0]
@@ -105,23 +125,25 @@ classdef ortho_proj<aProjection
         % as real ub matrix is multiplied by alginment matrix
         ub_inv_compat_ = [];
     end
-    
+
     methods
         function proj=ortho_proj(varargin)
             proj = proj@aProjection();
             if nargin==0 % return defaults, which describe unit transformation from
                 % Crystal Cartesian (pixels) to Crystal Cartesian (image)
                 u_to_rlu =eye(3)/(2*pi);
-                [ul,vl,~,type]=proj.uv_from_rlu(u_to_rlu,[1,1,1]);
+                [ul,vl,~,type]=proj.uv_from_data_rot(u_to_rlu,[1,1,1]);
                 proj = proj.init(ul,vl,[],'type',type);
             else
                 proj.lab = {'\zeta','\xi','\eta','E'};
                 proj = proj.init(varargin{:});
             end
         end
+        %
         function obj = set_ub_inv_compat(obj,ub_inv)
             obj.ub_inv_compat_ = ub_inv;
         end
+        %
         function obj = init(obj,varargin)
             if nargin == 0
                 return
@@ -135,32 +157,35 @@ classdef ortho_proj<aProjection
             end
         end
         %-----------------------------------------------------------------
-        function pix_target = from_cur_to_targ_coord(obj,pix_origin,varargin)
+        function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)
             % Converts from current to target projection coordinate system.
             %
-            % Should be overloaded to optimize for a particular case to
-            % improve efficiency.
-            % (e.g. two orthogonal projections do shift and rotation
-            % as the result, so worth combining them into one operation)
+            % Overloaded to optimize a ortho_proj to ortho_proj
+            % transformation.
+            %
             % Inputs:
             % obj       -- current projection, describing the system of
             %              coordinates where the input pixels vector is
-            %              expressed in. The target projection has to be
-            %              set up
-            %
+            %              expressed in. The target projection property value
+            %              has to be set up on this object
             % pix_origin   4xNpix vector of pixels coordinates expressed in
             %              the coordinate system, defined by current
             %              projection
+            %Outputs:
+            % pix_target -- 4xNpix vector of the pixels coordinates in the
+            %               coordinate system, defined by the target
+            %               projection.
+            %
             if isempty(obj.ortho_ortho_transf_mat_)
-                % use generic projection trasformation
-                pix_target = from_cur_to_targ_coord@aProjection(...
+                % use generic projection transformation
+                pix_target = from_this_to_targ_coord@aProjection(...
                     obj,pix_origin,varargin{:});
             else
                 pix_target = do_ortho_ortho_transformation_(...
                     obj,pix_origin,varargin{:});
             end
         end
-        
+
         %-----------------------------------------------------------------
         function u = get.u(obj)
             if obj.valid_
@@ -236,9 +261,14 @@ classdef ortho_proj<aProjection
             obj = check_and_set_type_(obj,type);
             [~,~,obj] = check_combo_arg_(obj);
         end
-        %
-        function obj = set_from_ubmat(obj,u_to_rlu,ulen)
-            [ur,vr,wr,tpe]=obj.uv_from_rlu(u_to_rlu(1:3,1:3),ulen(1:3));
+        % -----------------------------------------------------------------
+        % OLD sqw object interface
+        % -----------------------------------------------------------------
+        function obj = set_from_data_mat(obj,u_rot,ulen)
+            % build correct projection from input u_to_rlu and ulen matrix
+            % stored in sqw object ver <4
+            %
+            [ur,vr,wr,tpe]=obj.uv_from_data_rot(u_rot(1:3,1:3),ulen(1:3));
             obj.u = ur;
             obj.v = vr;
             obj.w = wr;
@@ -247,6 +277,27 @@ classdef ortho_proj<aProjection
             if ~ok
                 error('HORACE:ortho_proj:invalid_argument',...
                     'Can not set uv from ub-matrix: %s',mess);
+            end
+        end
+        %------------------------------------------------------------------        
+        % OLD from new sqw object creation interface. Will go when new SQW
+        % object is created
+        %
+        function lst = get.data_sqw_dnd_export_list(~)
+            lst = {'u_to_rlu','nonorthogonal','alatt','angdeg','uoffset'};
+        end        
+        function mat = get.u_to_rlu(obj)
+            [~, mat] = obj.uv_to_rot();
+            mat = [mat,[0;0;0];[0,0,0,1]];
+        end
+        function off = get.uoffset(obj)
+            off = obj.offset';
+        end
+        function str= get.compart_struct(obj)
+            str = struct();
+            flds = obj.data_sqw_dnd_export_list;
+            for i=1:numel(flds)
+                str.(flds{i}) = obj.(flds{i});
             end
         end
         %------------------------------------------------------------------
@@ -299,6 +350,21 @@ classdef ortho_proj<aProjection
         end
     end
     methods(Access = protected)
+        function   contrib_ind= get_contrib_cell_ind(obj,...
+                cur_axes_block,targ_proj,targ_axes_block)
+            % get indexes of cells which may contributing into the cut.
+            %
+            if isempty(obj.ortho_ortho_transf_mat_)
+                contrib_ind= get_contrib_cell_ind@aProjection(obj,...
+                    cur_axes_block,targ_proj,targ_axes_block);
+            elseif obj.use_old_cut_sub_alg
+                contrib_ind= get_contrib_orthocell_ind_(obj,...
+                    cur_axes_block,targ_axes_block);
+            else
+                contrib_ind= get_contrib_cell_ind@aProjection(obj,...
+                    cur_axes_block,targ_proj,targ_axes_block);
+            end
+        end
         function obj = check_and_set_targ_proj(obj,val)
             % overloadaed setter for target proj.
             % Input:
@@ -317,6 +383,7 @@ classdef ortho_proj<aProjection
                 obj.ortho_ortho_offset_ = [];
             end
         end
+        %
         function obj = check_and_set_do_generic(obj,val)
             % overloaded setter for do_generic method. Clears up specific
             % transformation matrices.
@@ -336,15 +403,15 @@ classdef ortho_proj<aProjection
             %         (3 or 4). Depending on this number the routine
             %         returns 3D or 4D transformation matrix
             %
-            rlu_to_ustep = projaxes_to_rlu_(obj, [1,1,1]);            
-            if isempty(obj.ub_inv_compat_)                
+            rlu_to_ustep = projaxes_to_rlu_(obj, [1,1,1]);
+            if isempty(obj.ub_inv_compat_)
                 b_mat  = bmatrix(obj.alatt, obj.angdeg);
-                rot_to_img = rlu_to_ustep/b_mat;                
-                rlu_to_u  = b_mat;                
+                rot_to_img = rlu_to_ustep/b_mat;
+                rlu_to_u  = b_mat;
             else
-                u_to_rlu = obj.ub_inv_compat_;
-                rot_to_img = rlu_to_ustep*u_to_rlu;
-                rlu_to_u = inv(u_to_rlu);
+                u_to_rlu_ = obj.ub_inv_compat_;
+                rot_to_img = rlu_to_ustep*u_to_rlu_;
+                rlu_to_u = inv(u_to_rlu_);
             end
             %
             if ndim==4
@@ -363,23 +430,24 @@ classdef ortho_proj<aProjection
                 shift = rlu_to_u *shift';
             else % do not convert anything
             end
-            
+
         end
         %
-        function  [rlu_to_ustep, u_to_rlu, ulen] = uv_to_rlu(proj,ustep)
-            % Determine matricies to convert rlu <=> projection axes, and the scaler
+        function  [rlu_to_ustep, u_rot, ulen] = uv_to_rot(proj,ustep)
+            % Determine the matrices partially used for conversion
+            % to/from image coordinate system from/to Crystal Cartesian
+            % (PixelData) coordinate system.
             %
+            %   >> [rlu_to_ustep, u_rot, ulen] = uv_to_rot(proj)
+            %   >> [rlu_to_ustep, u_rot, ulen] = uv_to_rot(proj, ustep)
             %
-            %   >> [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu (proj)
-            %   >> [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu (proj, ustep)
-            %
-            % The projection axes are three vectors that may or may not be orthononal
+            % The projection axes are three vectors that may or may not be orthogonal
             % which are used to create the bins in an sqw object. The bin sizes are in ustep
             %
             % Input:
             % ------
-            %   proj    projaxes object containg information about projection axes
-            %          (type >> help projaxes for details)
+            %   proj    projaxes object containing the information about projection axes
+            %           (u,v,[w])
             %   ustep   Row vector giving step sizes along the projection axes as multiple
             %           of the projection axes (e.g. [0.05,0.05,0.025]
             %           Default if not given: [1,1,1] i.e. unit step
@@ -391,8 +459,8 @@ classdef ortho_proj<aProjection
             %                  u1,u2,u3, as multiples of the step size along those axes
             %                       Vstep(i) = rlu_to_ustep(i,j)*Vrlu(j)
             %
-            %   u_to_rlu       The projection axis vectors u_1, u_2, u_3 in reciprocal
-            %                  lattice vectors. The ith column is u_i in r.l.u. i.e.
+            %   u_rot        The projection axis vectors u_1, u_2, u_3 in reciprocal
+            %                lattice vectors. The ith column is u_i in r.l.u. i.e.
             %                       ui = u_to_rlu(:,i)
             %
             %   ulen            Row vector of lengths of ui in Ang^-1
@@ -400,21 +468,24 @@ classdef ortho_proj<aProjection
             %
             % Original author: T.G.Perring
             %
-            [rlu_to_ustep, u_to_rlu, ulen] = projaxes_to_rlu_(proj,ustep);
+            if nargin==1
+                ustep = [1,1,1];
+            end
+            [rlu_to_ustep, u_rot, ulen] = projaxes_to_rlu_(proj,ustep);
         end
         %
-        function [u,v,w,type]=uv_from_rlu(obj,u_to_rlu,ulen)
+        function [u,v,w,type]=uv_from_data_rot(obj,u_rot_mat,ulen)
             % Extract initial u/v vectors, defining the plane in hkl from
-            % lattice parameters and the matrix converting vectors in
-            % crystal Cartesian coordinate system into rlu.
+            % lattice parameters and the matrix converting vectors
+            % used by data_sqw_dnd class.
             %
             % partially inverting projaxes_to_rlu function of projaxes class
             % as only orthogonal to u part of the v-vector can be recovered
             %
             % Inputs:
-            % u_to_rlu -- matrix used for conversion from pixel coordinate
+            % u_rot_mat -- matrix forming the part of the conversion from pixel coordinate
             %          system to the image coordinate system (normally
-            %          expressed in rlu)
+            %          expressed in rlu), defined in old data_sqw_dnd classes
             % ulen  -- length of the unit vectors of the reciprocal lattice
             %          units, the Horace image is expressed in
             % Outputs:
@@ -422,16 +493,16 @@ classdef ortho_proj<aProjection
             %          direction
             % v     -- [1x3] vector expressed in rlu, and together with u
             %          defining the cut plain
-            
+
             %Uses class properties:
             % alatt -- lattice parameters. [1x3]-vector of positive numbers
             %          describing lattice cell size. (In A-units)
             % angdeg-- vector 3 angles describing the angles between lattice cell.
             %          Expressed in degree
-            
-            
-            [u,v,w,type] = uv_from_rlu_mat_(obj,u_to_rlu,ulen);
+
+
+            [u,v,w,type] = uv_from_rlu_mat_(obj,u_rot_mat,ulen);
         end
-        
+
     end
 end

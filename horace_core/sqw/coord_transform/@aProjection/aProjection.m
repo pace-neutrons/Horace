@@ -17,7 +17,7 @@ classdef aProjection < serializable
     %   lab2        Short label for u2 axis
     %   lab3        Short label for u3 axis
     %   lab4        Short label for u4 axis (e.g. 'E' or 'En')
-    
+
     properties(Dependent)
         %---------------------------------
         % the lattice parameters
@@ -28,7 +28,7 @@ classdef aProjection < serializable
         %TODO: Will be refactored to axes_caption and transferred to axes
         %block?
         lab
-        
+
         %Offset of origin of the projection in r.l.u. and energy ie. [h; k; l; en] [row vector]
         offset;
         %
@@ -44,7 +44,7 @@ classdef aProjection < serializable
         % specific projection-projection pair of classes
         do_generic;
     end
-    
+
     properties(Constant, Access=private)
         fields_to_save_ = {'alatt','angdeg','lab','offset'}
     end
@@ -58,21 +58,34 @@ classdef aProjection < serializable
     end
     %----------------------------------------------------------------------
     properties(Access=protected)
-        alatt_=[1,1,1];
+        alatt_ = [1,1,1];
         angdeg_= [90,90,90];
         %------------------------------------
         %  u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
         offset_  = [0,0,0,0] %Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
         %
-        labels_={'Q_h','Q_k','Q_l','En'};
+        labels_  = {'Q_h','Q_k','Q_l','En'};
         %
-        % target projection holder
+        % holds target projection used in cuts.
         targ_proj_;
-        % if true, disable optimized transformation over specific parirs of
-        % the projection types if such optimizaition is available
+        %------------------------------------------------------------------
+        % Developers options:
+        %
+        % if true, disable optimized transformation over
+        % specific pairs of the projection types if such optimizaition
+        % is available
         do_generic_ = false;
+        % majority of projections have energy axis orthogonal to other
+        % coordinate axes, so it is much more efficient to analyze 3D
+        % transformations only.  Specific projections (and test routines)
+        % which request full 4D transformation should set this property to
+        % false.  It may be more reasonable to overload the correspondent
+        % methods for specific projections, but 4D transformation is
+        % algorithmically simpler so actively used in tests.
+        do_3D_transformation_ = false;
+        %------------------------------------------------------------------
     end
-    
+
     methods
         function [obj,par]=aProjection(varargin)
             % aProjection constructor.
@@ -166,28 +179,33 @@ classdef aProjection < serializable
         function [bl_start,bl_size] = get_nrange(obj,npix,cur_axes_block,...
                 targ_axes_block,targ_proj)
             % return the the positions and the sizes of the pixels blocks
-            % belonging to the cells, which may contribute to the final cut defined by the
-            % projections and axes_block-s, provided as input.
+            % belonging to the cells, which may contribute to the final cut
+            % defined by the projections and axes_block-s, provided as input.
             %
             % Generic (less efficient) implementation
             if ~exist('targ_proj','var')
                 targ_proj = [];
+            else
+                %targ_proj.do_generic = true;    %| DEBUGGING generic algorithm,
+                %source_proj.do_generic = true;  %| disable specialization
+                targ_proj.targ_proj = obj;
+                obj.targ_proj = targ_proj;
             end
-            contrib_ind= get_contrib_cell_ind_(obj,...
+            contrib_ind= obj.get_contrib_cell_ind(...
                 cur_axes_block,targ_proj,targ_axes_block);
             if isempty(contrib_ind)
                 bl_start  = [];
                 bl_size = [];
                 return;
             end
-            
+
             % Compress indexes of contributing cells into bl_start:bl_start+bl_size-1 form
             % Ideal for filebased but not so optimal for arrays
             [bl_start,bl_size] = obj.convert_contrib_cell_into_pix_indexes(...
-                contrib_ind,npix);                        
+                contrib_ind,npix);
         end
         %------------------------------------------------------------------
-        function pix_target = from_cur_to_targ_coord(obj,pix_origin,varargin)
+        function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)
             % Converts from current to target projection coordinate system.
             %
             % Should be overloaded to optimize for a particular case to
@@ -203,6 +221,11 @@ classdef aProjection < serializable
             % pix_origin   4xNpix vector of pixels coordinates expressed in
             %              the coordinate system, defined by current
             %              projection
+            %Outputs:
+            % pix_target -- 4xNpix vector of the pixels coordinates in the
+            %               coordinate system, defined by the target
+            %               projection.
+            %
             targproj = obj.targ_proj;
             if isempty(targproj)
                 error('HORACE:aProjection:runtime_error',...
@@ -265,7 +288,7 @@ classdef aProjection < serializable
         function obj = set.do_generic(obj,val)
             obj = obj.check_and_set_do_generic(val);
         end
-        
+
         %------------------------------------------------------------------
         % Serializable interface
         function ver  = classVersion(~)
@@ -287,15 +310,36 @@ classdef aProjection < serializable
         function obj = check_and_set_targ_proj(obj,val)
             % generic overloadable setter for target proj.
             %
-            % made protected to allow overloading for special
-            % types of projection optimization
+            % made protected to allow overloading to enable optimization for
+            % special types of projection pairs
             if ~isa(val,'aProjection')
                 error('HORACE:aProjection:invalid_argument',...
-                    'only member of aProjection family can be set up as target projection. Attempted to use: %s',...
+                    ['only member of aProjection family can be set up as a target projection.',...
+                    ' Attempted to use: %s'],...
                     evalc('disp(type(val))'))
             end
             obj.targ_proj_ = val;
         end
+        function   contrib_ind= get_contrib_cell_ind(obj,...
+                cur_axes_block,targ_proj,targ_axes_block)
+            % get indexes of cells which may contributing into the cut.
+            % Inputs:
+            % cur_axes_block -- the axes block for the current ND_image
+            % targ_proj      -- the projection, which defines the target
+            %                   coordinate system
+            % targ_axes_block-- the axes block for the coordinate system,
+            %                   requested by the cut
+            % use_3D         -- if present, assume that energy axis is
+            %                   orthogonal to q-axis and use this fact
+            %                   for improving the performance of the
+            %                   algorithm
+            % Output:
+            %
+            contrib_ind= get_contrib_cell_ind_(obj,...
+                cur_axes_block,targ_proj,targ_axes_block);
+        end
+
+        %
         function obj = check_and_set_do_generic(obj,val)
             % setter for do_generic method
             if ~((islogical(val) || isnumeric(val)) && numel(val)==1)
@@ -309,9 +353,12 @@ classdef aProjection < serializable
     methods(Static)
         function [bl_start,bl_size]=convert_contrib_cell_into_pix_indexes(...
                 cell_ind,npix)
-            % Compress indexes of contributing cells into
-            % bl_start:bl_start+bl_size-1 form, using information about
-            % number of pixels, contributing into each cell
+            % Compress indexes of contributing cells into the form, which
+            % define the indexes of pixels from PixelData dataset, namely
+            % the form: bl_start:bl_start+bl_size-1, where bl_start and
+            % bl_size are defined below.
+            % The routine uses information about the number of pixels,
+            % belonging to each cell.
             %
             % Inputs:
             % cell_ind    -- 1D array of linear indexes of cells,
@@ -325,14 +372,26 @@ classdef aProjection < serializable
             %                requested cells
             % bl_size     -- number of pixels, contributed into each
             %                block
-            adjacent = cell_ind(1:end-1)+1==cell_ind(2:end);
-            adjacent = [false;adjacent];
-            adj_end  = [cell_ind(1:end-1)+1<cell_ind(2:end);true];
             bin_start = [0,cumsum(reshape(npix,1,numel(npix)))]+1;
-            bl_start  = bin_start(cell_ind(~adjacent));
-            bl_size   = bin_start(cell_ind(adj_end))-bl_start+1;
+            if iscell(cell_ind) % accepted contributing cell indexes 
+                % in the form of cell_start:cell_end
+                bl_start = bin_start(cell_ind{1});
+                bl_end   = bin_start(cell_ind{2});
+                bl_size  = bl_end-bl_start;
+            else % accepted contributing cell indexes as linear array of
+                % indexes               
+                adjacent = cell_ind(1:end-1)+1==cell_ind(2:end);
+                adjacent = [false;adjacent];
+                adj_end  = [cell_ind(1:end-1)+1<cell_ind(2:end);true];
+
+                bl_start  = bin_start(cell_ind(~adjacent));
+                bl_size   = bin_start(cell_ind(adj_end))-bl_start;
+            end
+            non_empty = bl_size~=0;
+            bl_start  = bl_start(non_empty);
+            bl_size   = bl_size(non_empty);
         end
-        
+
     end
     %----------------------------------------------------------------------
     %  ABSTRACT INTERFACE
@@ -344,7 +403,6 @@ classdef aProjection < serializable
         % Transform pixels expressed in image coordinate coordinate systems
         % into crystal cartezian system
         pix_cc = transform_img_to_pix(obj,pix_transformed,varargin);
-        
+
     end
-    
 end

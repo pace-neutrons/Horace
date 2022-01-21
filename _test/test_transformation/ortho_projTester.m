@@ -15,15 +15,16 @@ classdef ortho_projTester < ortho_proj
             if nargin == 1
                 ustep = [1,1,1];
             end
-            [rlu_to_ustep, u_to_rlu, ulen] = obj.uv_to_rlu(ustep);
+            [rlu_to_ustep, u_to_rlu, ulen] = obj.uv_to_rot(ustep);
         end
         %
-        function [u,v,w,type]=uv_from_rlu_public(obj,u_to_rlu,ustep)
+        function [u,v,w,type]=uv_from_data_rot_public(obj,u_to_rlu,ustep)
             if nargin == 1
                 ustep = [1,1,1];
             end
-            [u,v,w,type] = obj.uv_from_rlu(u_to_rlu,ustep);
+            [u,v,w,type] = obj.uv_from_data_rot(u_to_rlu,ustep);
         end
+        %
         function mat=get.ortho_ortho_transf_mat(obj)
             mat = obj.ortho_ortho_transf_mat_;
         end
