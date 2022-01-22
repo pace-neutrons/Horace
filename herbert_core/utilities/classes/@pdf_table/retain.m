@@ -34,10 +34,12 @@ function ok = retain (obj, x)
 
 
 if ~isscalar(obj)
-    error('HERBERT:pdf_table:invalid_argument', 'Method only takes a scalar object')
+    error('HERBERT:pdf_table:invalid_argument',...
+        'Method only takes a scalar object')
 end
 if ~obj.filled
-    error('HERBERT:pdf_table:uninitialised', 'The probability distribution function is not initialised')
+    error('HERBERT:pdf_table:uninitialised',...
+        'The probability distribution function is not initialised')
 end
 
 ok = (x>=obj.x_(1) & x<=obj.x_(end));       % remove points outside range
@@ -45,4 +47,3 @@ f = interp1(obj.x_,obj.f_,x(ok),'linear');  % linear interpolate remaining
 ok(ok) = (f >= obj.fmax_*rand(size(f)));    % rejection ratio on those left
 
 end
-

@@ -24,3 +24,5 @@ if isempty(t)
 else
     y = interp1(pdf.x, pdf.f, t, 'linear', 0);
 end
+
+end

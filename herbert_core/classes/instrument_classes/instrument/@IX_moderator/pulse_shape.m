@@ -1,4 +1,4 @@
-function [y,t] = pulse_shape (self, varargin)
+function [y,t] = pulse_shape (obj, varargin)
 % Calculate normalised moderator pulse shape as a function of time in microseconds
 %
 %   >> [y,t] = pulse_shape (moderator)
@@ -19,9 +19,14 @@ function [y,t] = pulse_shape (self, varargin)
 %               If input was not given or empty, the default set of points
 
 
-if ~isscalar(self), error('Method only takes a scalar moderator object'), end
-if ~self.valid_
-    error('Moderator object is not valid')
+if ~isscalar(obj)
+    error('IX_moderator:pulse_shape:invalid_argument',...
+        'Method only takes a scalar object')
+end
+
+if ~obj.valid_
+    error('IX_moderator:pulse_shape:invalid_argument',...
+        'Moderator object is not valid')
 end
 
 if numel(varargin)==0
@@ -29,21 +34,28 @@ if numel(varargin)==0
 elseif numel(varargin)==1
     t = varargin{1};
 else
-    error('Check number of input arguments')
+    error('IX_moderator:pulse_shape:invalid_argument',...
+        'Check number of input arguments')
 end
 
-models= self.pulse_models_;
-model = self.pulse_model_;
+models= obj.pulse_models_;
+model = obj.pulse_model_;
 
 if models.match('ikcarp',model)
-    [y,t] = ikcarp_pulse_shape (self.pp_, t);
+    [y,t] = ikcarp_pulse_shape (obj.pp_, t);
     
 elseif models.match('ikcarp_param',model)
-    [y,t] = ikcarp_param_pulse_shape (self.pp_, self.energy_, t);
+    [y,t] = ikcarp_param_pulse_shape (obj.pp_, obj.energy_, t);
     
 elseif models.match('table',model)
-    [y,t] = table_pulse_shape (self.pdf_, t);
+    [y,t] = table_pulse_shape (obj.pdf_, t);
+    
+elseif models.match('delta_function',model)
+    [y,t] = delta_function_pulse_shape (obj.pp_, t);
     
 else
-    error('Unrecognised moderator pulse model for computing pulse width')
+    error('IX_moderator:pulse_shape:invalid_argument',...
+        'Unrecognised moderator pulse model for computing pulse shape')
+end
+
 end

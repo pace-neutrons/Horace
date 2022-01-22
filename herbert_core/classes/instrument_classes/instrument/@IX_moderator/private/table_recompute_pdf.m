@@ -22,13 +22,11 @@ function pdf = table_recompute_pdf (pp)
 if isscalar(pp) && isa(pp,'pdf_table')
     pdf = pp;
 else
-    try
-        if iscell(pp)
-            pdf = pdf_table(pp{:});
-        else
-            pdf = pdf_table(pp);
-        end
-    catch ME
-        error(['Moderator parameters: ',ME.message])
+    if iscell(pp)
+        pdf = pdf_table(pp{:});
+    else
+        pdf = pdf_table(pp);
     end
+end
+
 end

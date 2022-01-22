@@ -96,14 +96,14 @@ classdef IX_moderator
             %   energy          Energy of neutrons (meV)
             %
             %   name            Name of the moderator (e.g. 'CH4')
-            % 
+            %
             % Note: any number of the arguments can given in arbitrary order
-            % after leading positional arguments if they are preceded by the 
+            % after leading positional arguments if they are preceded by the
             % argument name (including abbrevioations) with a preceding hyphen e.g.
             %
             %   >> moderator = IX_moderator (distance,angle,pulse_model,pp,...
             %               '-energy',120,'-temp',100)
-
+            
             
             % Original author: T.G.Perring
             
@@ -132,7 +132,8 @@ classdef IX_moderator
                         obj.pulse_model_ = S.pulse_model;
                         obj.pp_ = S.pp;
                     else
-                        error('Must give pulse model and pulse model parameters together')
+                        error('IX_moderator:invalid_argument',...
+                            'Must give pulse model and pulse model parameters together')
                     end
                 end
                 if present.flux_model
@@ -140,7 +141,8 @@ classdef IX_moderator
                         obj.flux_model_ = S.flux_model;
                         obj.pf_ = S.pf;
                     else
-                        error('Must give flux model and flux model parameters together')
+                        error('IX_moderator:invalid_argument',...
+                            'Must give flux model and flux model parameters together')
                     end
                 end
                 if present.width
@@ -178,7 +180,8 @@ classdef IX_moderator
             if is_string(val)
                 obj.name_=val;
             else
-                error('Moderator name must be a character string (or empty string)')
+                error('IX_moderator:invalid_argument',...
+                    'Moderator name must be a character string (or empty string)')
             end
         end
         
@@ -186,7 +189,8 @@ classdef IX_moderator
             if isscalar(val) && isnumeric(val)
                 obj.distance_=val;
             else
-                error('Distance must be a numeric scalar')
+                error('IX_moderator:invalid_argument',...
+                    'Distance must be a numeric scalar')
             end
         end
         
@@ -194,7 +198,8 @@ classdef IX_moderator
             if isscalar(val) && isnumeric(val)
                 obj.angle_=val;
             else
-                error('Moderator face angle must be a numeric scalar')
+                error('IX_moderator:invalid_argument',...
+                    'Moderator face angle must be a numeric scalar')
             end
         end
         
@@ -204,10 +209,12 @@ classdef IX_moderator
                 if ok
                     obj.pulse_model_=fullname;
                 else
-                    error(['Moderator pulse shape model: ',mess])
+                    error('IX_moderator:invalid_argument',...
+                        ['Moderator pulse shape model: ',mess])
                 end
             else
-                error('Moderator pulse shape model must be a non-empty character string')
+                error('IX_moderator:invalid_argument',...
+                    'Moderator pulse shape model must be a non-empty character string')
             end
         end
         
@@ -233,10 +240,12 @@ classdef IX_moderator
                 if ok
                     obj.flux_model_=fullname;
                 else
-                    error(['Moderator flux model: ',mess])
+                    error('IX_moderator:invalid_argument',...
+                        ['Moderator flux model: ',mess])
                 end
             else
-                error('Moderator flux model must be a non-empty character string')
+                error('IX_moderator:invalid_argument',...
+                    'Moderator flux model must be a non-empty character string')
             end
         end
         
@@ -256,7 +265,8 @@ classdef IX_moderator
             if isscalar(val) && isnumeric(val) && val>=0
                 obj.width_=val;
             else
-                error('Moderator width must be a numeric scalar greater or equal to zero')
+                error('IX_moderator:invalid_argument',...
+                    'Moderator width must be a numeric scalar greater or equal to zero')
             end
         end
         
@@ -264,7 +274,8 @@ classdef IX_moderator
             if isscalar(val) && isnumeric(val) && val>=0
                 obj.height_=val;
             else
-                error('Moderator height must be a numeric scalar greater or equal to zero')
+                error('IX_moderator:invalid_argument',...
+                    'Moderator height must be a numeric scalar greater or equal to zero')
             end
         end
         
@@ -272,7 +283,8 @@ classdef IX_moderator
             if isscalar(val) && isnumeric(val) && val>=0
                 obj.thickness_=val;
             else
-                error('Moderator thickness must be a numeric scalar greater or equal to zero')
+                error('IX_moderator:invalid_argument',...
+                    'Moderator thickness must be a numeric scalar greater or equal to zero')
             end
         end
         
@@ -280,7 +292,8 @@ classdef IX_moderator
             if isscalar(val) && isnumeric(val) && val>=0
                 obj.temperature_=val;
             else
-                error('Moderator temperature must be a numeric scalar greater or equal to zero')
+                error('IX_moderator:invalid_argument',...
+                    'Moderator temperature must be a numeric scalar greater or equal to zero')
             end
         end
         
@@ -288,7 +301,8 @@ classdef IX_moderator
             if isscalar(val) && isnumeric(val) && val>=0
                 obj.energy_=val;
             else
-                error('Selected energy must be a numeric scalar greater or equal to zero')
+                error('IX_moderator:invalid_argument',...
+                    'Selected energy must be a numeric scalar greater or equal to zero')
             end
         end
         
@@ -341,7 +355,8 @@ classdef IX_moderator
                     obj.pdf_ = recompute_pdf_(obj);     % recompute the lookup table
                 end
             else
-                error('The number or type of pulse parameters is inconsistent with the pulse model')
+                error('IX_moderator:invalid_argument',...
+                    'The number or type of pulse parameters is inconsistent with the pulse model')
             end
         end
         
@@ -361,7 +376,8 @@ classdef IX_moderator
             if numel(obj.pf_)==obj.n_pf_(obj.flux_model_)
                 obj.valid_=true;
             else
-                error('The number of flux parameters is inconsistent with the flux model')
+                error('IX_moderator:invalid_argument',...
+                    'The number of flux parameters is inconsistent with the flux model')
             end
         end
         
@@ -550,7 +566,7 @@ classdef IX_moderator
                     S.(names{i}) = obj.(names{i});
                 end
             end
-
+            
         end
         
         function S = structPublic(obj)
@@ -617,7 +633,7 @@ classdef IX_moderator
                     S.(names{i}) = obj.(names{i});
                 end
             end
-
+            
         end
     end
     
@@ -625,7 +641,7 @@ classdef IX_moderator
     % Custom loadobj and saveobj
     % - to enable custom saving to .mat files and bytestreams
     % - to enable older class definition compatibility
-
+    
     methods
         %------------------------------------------------------------------
         function S = saveobj(obj)

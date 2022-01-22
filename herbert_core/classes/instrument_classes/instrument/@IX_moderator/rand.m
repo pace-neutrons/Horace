@@ -1,4 +1,4 @@
-function X = rand (self, varargin)
+function X = rand (obj, varargin)
 % Generate random numbers from the moderator pulse shape
 %
 %   >> X = rand (moderator)                % generate a single random number
@@ -19,9 +19,16 @@ function X = rand (self, varargin)
 %   X           Array of random times (microseconds)
 
 
-if ~isscalar(self), error('Method only takes a scalar moderator object'), end
-if ~self.valid_
-    error('Moderator object is not valid')
+if ~isscalar(obj)
+    error('IX_moderator:rand:invalid_argument',...
+        'Method only takes a scalar object')
 end
 
-X = rand (self.pdf_, varargin{:});
+if ~obj.valid_
+    error('IX_moderator:rand:invalid_argument',...
+        'Moderator object is not valid')
+end
+
+X = rand (obj.pdf_, varargin{:});
+
+end

@@ -1,12 +1,11 @@
-function [y,t] = ikcarp_pulse_shape (pp, t)
-% Calculate normalised Ikeda-Carpenter function
+function [y,t] = delta_function_pulse_shape (pp, t)
+% Return normalised pulse width function
 %
-%   >> [y,t] = ikcarp_pulse_shape (pp, t)
+%   >> [y,t] = delta_function_pulse_shape (pp, t)
 %
 % Input:
 % -------
-%   pp          Arguments for Ikeda-Carpenter moderator
-%                   [tauf,taus,R] (times in microseconds)
+%   pp          Parameters for delta function. Empty array []
 %
 %   t           Array of times at which to evaluate pulse shape (microseconds)
 %               If empty, uses a suitable set of points
@@ -20,9 +19,11 @@ function [y,t] = ikcarp_pulse_shape (pp, t)
 
 
 if isempty(t)
-    npnt = 500;
-    t = ikcarp_pdf_xvals (npnt, pp(1), pp(2));
+    t = 0;
+    y = Inf;
+else
+    y = zeros(size(t));
+    y(t=0) = Inf;
 end
-y = ikcarp (t, pp(1), pp(2), pp(3));
 
 end

@@ -1,4 +1,4 @@
-function [dt, t_av, fwhh] = pulse_width (self, varargin)
+function [dt, t_av, fwhh] = pulse_width (obj, varargin)
 % Calculate the standard deviation of the moderator pulse shape
 %
 %   >> [dt, t_av, fwhh] = pulse_width (moderator)
@@ -17,31 +17,41 @@ function [dt, t_av, fwhh] = pulse_width (self, varargin)
 %   fwhh        FWHH (microseconds)
 
 
-if ~isscalar(self), error('Function only takes a scalar moderator object'), end
-if ~self.valid_
-    error('Moderator object is not valid')
+if ~isscalar(obj)
+    error('IX_moderator:pulse_width:invalid_argument',...
+        'Method only takes a scalar object')
+end
+
+if ~obj.valid_
+    error('IX_moderator:pulse_width:invalid_argument',...
+        'Moderator object is not valid')
 end
 
 if numel(varargin)==0
-    energy = self.energy_;
+    energy = obj.energy_;
 elseif numel(varargin)==1
     energy = varargin{1};
 else
-    error('Check number of input arguments')
+    error('IX_moderator:pulse_width:invalid_argument',...
+        'Check number of input arguments')
 end
 
-models= self.pulse_models_;
-model = self.pulse_model_;
+models= obj.pulse_models_;
+model = obj.pulse_model_;
 
 if models.match('ikcarp',model)
-    [dt, t_av, fwhh] = ikcarp_pulse_width (self.pp_, energy);
+    [dt, t_av, fwhh] = ikcarp_pulse_width (obj.pp_, energy);
     
 elseif models.match('ikcarp_param',model)
-    [dt, t_av, fwhh] = ikcarp_param_pulse_width (self.pp_, energy);
+    [dt, t_av, fwhh] = ikcarp_param_pulse_width (obj.pp_, energy);
     
 elseif models.match('table',model)
-    [dt, t_av, fwhh] = table_pulse_width (self.pdf_, energy);
+    [dt, t_av, fwhh] = table_pulse_width (obj.pdf_, energy);
+    
+elseif models.match('delta_function',model)
+    [dt, t_av, fwhh] = delta_function_pulse_width (obj.pp_, energy);
     
 else
-    error('Unrecognised moderator pulse model for computing pulse width')
+    error('IX_moderator:pulse_width:invalid_argument',...
+        'Unrecognised moderator pulse model for computing pulse width')
 end

@@ -17,16 +17,18 @@ function [wpdf, wcdf] = IX_dataset_1d(obj)
 
 
 if ~isscalar(obj)
-    error('HERBERT:pdf_table:invalid_argument', 'Method only takes a scalar object')
+    error('HERBERT:pdf_table:invalid_argument',...
+        'Method only takes a scalar object')
 end
 if ~obj.filled
-    error('HERBERT:pdf_table:uninitialised', 'The probability distribution function is not initialised')
+    error('HERBERT:pdf_table:uninitialised',...
+        'The probability distribution function is not initialised')
 end
 
 wpdf = IX_dataset_1d (obj.x_, obj.f_, zeros(size(obj.f_)),...
     'Probability distribution function','Random variable','Function value');
 
-wcdf = IX_dataset_1d (obj.x_, obj.f_, zeros(size(obj.A_)),...
+wcdf = IX_dataset_1d (obj.x_, obj.A_, zeros(size(obj.A_)),...
     'Cumulative distribution function','Random variable','Function value');
 
 end

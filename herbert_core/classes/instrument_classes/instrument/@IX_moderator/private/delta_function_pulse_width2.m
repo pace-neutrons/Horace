@@ -1,11 +1,11 @@
-function [w, tmax, tlo, thi] = table_pulse_width2 (pdf, frac, ei)
+function [w, tmax, tlo, thi] = delta_function_pulse_width2 (pp, frac, ei)
 % Calculate pulse width quantities (microseconds)
 %
-%   >> [w, tmax, tlo, thi] = table_pulse_width2 (pdf, frac, ei)
+%   >> [w, tmax, tlo, thi] = delta_function_pulse_width2 (pp, frac, ei)
 %
 % Input:
 % -------
-%   pdf         pdf_table object
+%   pp          Parameters for delta function. Empty array []
 %   frac        Fraction of peak height at which to determine the width
 %   ei          Incident energy (meV) (array or scalar)
 %
@@ -16,12 +16,9 @@ function [w, tmax, tlo, thi] = table_pulse_width2 (pdf, frac, ei)
 %   thi         High time fractional height (microseconds)
 
 
-[w,tmax,tlo,thi] = width(pdf, frac);
-if numel(ei)~=1
-    w=w*ones(size(ei));
-    tmax=tmax*ones(size(ei));
-    tlo=tlo*ones(size(ei));
-    thi=thi*ones(size(ei));
-end
+w = zeros(size(ei));
+tmax = zeros(size(ei));
+tlo = zeros(size(ei));
+thi = zeros(size(ei));
 
 end

@@ -1,7 +1,7 @@
 function [dt, t_av, fwhh] = table_pulse_width (pdf, ei)
 % Calculate pulse width quantities (microseconds)
 %
-%   >> [dt, tav, fwhh] = table_pulse_width (pp, ei)
+%   >> [dt, t_av, fwhh] = table_pulse_width (pdf, ei)
 %
 % Input:
 % -------
@@ -28,4 +28,6 @@ if nargout==3
     if numel(ei)~=1
         fwhh=fwhh*ones(size(ei));
     end
+end
+
 end
