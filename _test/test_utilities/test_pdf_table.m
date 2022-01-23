@@ -46,7 +46,7 @@ classdef test_pdf_table < TestCaseWithSave
         end
             
         %--------------------------------------------------------------------------
-        function test_4 (self)
+        function test_3a (self)
             % hat function - again, but this time do not have the closing zeros
             x = [30,40];
             y = [15,15];
@@ -55,6 +55,19 @@ classdef test_pdf_table < TestCaseWithSave
             [x_var, x_av] = var(pdf_hat);
             assertEqualToTol (x_av,35,'reltol',1e-12);
             assertEqualToTol (x_var,(25/3),'reltol',1e-12);
+        end
+            
+        %--------------------------------------------------------------------------
+        function test_4 (self)
+            % delta function
+            pdf_delta = pdf_table (23,Inf);
+            
+            x_av = mean(pdf_delta);
+            assertEqualToTol (x_av,23);
+            
+            [x_var, x_av] = var(pdf_delta);
+            assertEqualToTol (x_av,23);
+            assertEqualToTol (x_var,0);
         end
             
         %--------------------------------------------------------------------------
@@ -124,33 +137,45 @@ classdef test_pdf_table < TestCaseWithSave
         function test_9 (self)
             % Gaussian - to test random number selection
             % Something more complex than a hat or triangle
-            x = linspace(-20,120,1201);
+            x = linspace(31,69,381);
             y = gauss(x,[10,50,10]);
             
             gau = pdf_table(x,y);
             
             S = rng();  % store rng configuration
             rng(0);
-            tic
+            sz = [1e2,1e3,5e2];
             X = gau.rand(1e2,1e3,5e2);
             rng(S);
-            toc
-            
-            N = histcounts(X, 20:2:80);
-            x = (21:2:79);
-            sigma = 10; nsig = 3; bin = 2;
-            
-            y = (N/bin)/(sum(N)/erf(nsig/sqrt(2))) / (sigma*sqrt(2*pi));
-            
-            
-            H = sum(N)/(sigma*sqrt(2*pi)*erf(nsig/sqrt(2)));
-            y = N/H;
-            yref = gauss(x,[1,50,10]);
 
-            w = IX_dataset_1d(x,y);
-            wref = IX_dataset_1d(x,yref);
-            dd(w-wref)
-
+            xb = (31:2:69);
+            N = histcounts(X, xb);
+            
+            % Check that we have the correct number of counts in the histogram
+            assertTrue(sum(N)==prod(sz)) 
+            Nnorm = N / sum(N);
+            
+            % Check relative number of counts in the bins
+            centre = 50; sigma = 10;
+            tb = (xb-centre) / (sigma*sqrt(2));   % into unit of measure for erf function
+            A = zeros(1, numel(tb)-1);
+            for i=1:numel(A)
+                A(i) = erf(tb(i+1)) - erf(tb(i));   % ok as diff(tb) = 0.1414
+            end
+            Anorm = A / sum(A);
+            
+            assertTrue(all(abs(Nnorm-Anorm)./Anorm < 1e-3)) % account for random noise
+            
+        end
+            
+        %--------------------------------------------------------------------------
+        function test_10 (self)
+            % delta function random selection
+            pdf_delta = pdf_table (23,Inf);
+            
+            sz = [3,2,5];
+            X = pdf_delta.rand(sz);
+            assertEqualToTol (X,23*ones(sz));
         end
             
         %--------------------------------------------------------------------------

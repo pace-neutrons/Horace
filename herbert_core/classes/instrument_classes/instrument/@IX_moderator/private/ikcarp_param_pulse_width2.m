@@ -1,4 +1,4 @@
-function [width, tmax, tlo, thi] = ikcarp_param_pulse_width2 (pp, ei)
+function [width, tmax, tlo, thi] = ikcarp_param_pulse_width2 (pp, frac, ei)
 % Calculate st. dev. of moderator pulse width distribution (microseconds)
 %
 %   >> [width, tmax, tlo, thi] = ikcarp_param_pulse_width2 (pp, frac, ei)
@@ -32,7 +32,7 @@ tmax=zeros(size(ei));
 tlo=zeros(size(ei));
 thi=zeros(size(ei));
 for i=1:numel(ei)
-    [width(i), tmax(i), tlo(i), thi(i)] = ikcarp_pulse_width ([tauf(i),taus(i),R(i)], ei(i));
+    [width(i), tmax(i), tlo(i), thi(i)] = ikcarp_pulse_width2 ([tauf(i),taus(i),R(i)], frac, ei(i));
 end
 
 end

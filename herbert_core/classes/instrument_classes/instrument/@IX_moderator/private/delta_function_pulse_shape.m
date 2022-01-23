@@ -23,7 +23,7 @@ if isempty(t)
     y = Inf;
 else
     y = zeros(size(t));
-    y(t=0) = Inf;
+    y(t==0) = Inf;
 end
 
 end

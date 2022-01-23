@@ -10,7 +10,7 @@ function pdf = table_recompute_pdf (pp)
 %                    class pdf_table)
 %                   - A cell array with two numeric vectors with
 %                    the same number of elements; pp{1} is the time
-%                    in microseconds and pp{2} the value of the pusle shape
+%                    in microseconds and pp{2} the value of the pulse shape
 %                    pp{1} must be monotonic increasing; pp{2} need not be
 %                    normalised, as this will be performed internally
 %
