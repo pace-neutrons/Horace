@@ -4,6 +4,7 @@ function [sz,nd] = nbins_as_size(obj)
 % sz
 sz = zeros(4,1);
 nd = numel(obj.p);
-sz(obj.pax) = numel(obj.p{:})-1;
+psize = cellfun(@(x)(numel(x)-1),obj.p);
+sz(obj.pax) = psize(:);
 sz(obj.iax) = 1;
 sz = sz';
