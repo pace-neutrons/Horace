@@ -372,11 +372,11 @@ classdef aProjection < serializable
             %                requested cells
             % bl_size     -- number of pixels, contributed into each
             %                block
-            bin_start = [0,cumsum(reshape(npix,1,numel(npix)))]+1;
+            nelem = [0,cumsum(reshape(npix,1,numel(npix)))];
             if iscell(cell_ind) % accepted contributing cell indexes 
                 % in the form of cell_start:cell_end
-                bl_start = bin_start(cell_ind{1});
-                bl_end   = bin_start(cell_ind{2});
+                bl_start = nelem(cell_ind{1});
+                bl_end   = nelem(cell_ind{2});
                 bl_size  = bl_end-bl_start;
             else % accepted contributing cell indexes as linear array of
                 % indexes               
@@ -384,11 +384,11 @@ classdef aProjection < serializable
                 adjacent = [false;adjacent];
                 adj_end  = [cell_ind(1:end-1)+1<cell_ind(2:end);true];
 
-                bl_start  = bin_start(cell_ind(~adjacent));
-                bl_size   = bin_start(cell_ind(adj_end))-bl_start;
+                bl_start  = nelem(cell_ind(~adjacent));
+                bl_size   = nelem(cell_ind(adj_end))-bl_start;
             end
             non_empty = bl_size~=0;
-            bl_start  = bl_start(non_empty);
+            bl_start  = bl_start(non_empty)+1;
             bl_size   = bl_size(non_empty);
         end
 

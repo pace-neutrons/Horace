@@ -19,10 +19,13 @@ function [nodes,en_axis] = calc_bin_nodes_(obj,varargin)
 axes = cell(4,1);
 if isempty(char_size)
     axes(obj.pax) = obj.p(:);
-    for i=1:numel(obj.pax)
-        ax = axes{obj.pax(i)};
-        axes{obj.pax(i)} = 0.5*(ax(1:end-1)+ax(2:end));
-    end
+%     for i=1:numel(obj.pax)
+%         ax = axes{obj.pax(i)};
+%         % binning was done on bin edges, but axes defined on bin centers
+%         ax= 0.5*(ax(1:end-1)+ax(2:end));
+%         % add last bin boundary to complet binning grid
+%         axes{obj.pax(i)} = [ax;ax(end)+ax(2)-ax(1)];
+%     end
     
     iint_ax = num2cell(obj.iint,1);
     axes(obj.iax) = iint_ax(:);
@@ -43,7 +46,7 @@ end
 if use4D
     [Xn,Yn,Zn,En] = ndgrid(axes{:});
 else
-    [Xn,Yn,Zn] = meshgrid(axes{1},axes{2},axes{3});
+    [Xn,Yn,Zn] = ndgrid(axes{1},axes{2},axes{3});
     En = axes{4};
 end
 

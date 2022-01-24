@@ -123,6 +123,10 @@ classdef axes_block < serializable
         % the signal arrays.
         [nd,sz,nse_size] = data_dims(obj);
 
+        % return number of bins in 4D block, e.g.
+        % 1D object with 10 bins along last (en) axis will have
+        % 1x1x1x10 size.
+        [sz,nd] = nbins_as_size(obj);
         % return 3 q-axis in the order they mark the dnd object
         % regardless of the integration along some axis
         % TODO: probably should be removed

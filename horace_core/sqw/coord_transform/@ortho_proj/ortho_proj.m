@@ -141,6 +141,9 @@ classdef ortho_proj<aProjection
         end
         %
         function obj = set_ub_inv_compat(obj,ub_inv)
+            % Set up inverted ub matrix, used to support alignment as in 
+            % Horace 3.xxx as real ub matrix is multiplied by alginment
+            % matrix
             obj.ub_inv_compat_ = ub_inv;
         end
         %

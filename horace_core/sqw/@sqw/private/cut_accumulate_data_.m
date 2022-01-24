@@ -1,11 +1,11 @@
 function [s, e, npix, pix_out, pix_comb_info] = ...
-    cut_accumulate_data_(obj, proj, axes,keep_pixels, log_level, return_cut)
+    cut_accumulate_data_(obj, targ_proj, targ_axes,keep_pixels, log_level, return_cut)
 %%CUT_ACCUMULATE_DATA Accumulate image and pixel data for a cut
 %
 % Input:
 % ------
-% proj       A 'projection' object, defining the projection of the cut.
-% axes       A 'axes_block' object defining the ranges, binning and geometry
+% targ_proj  A 'projection' object, defining the projection of the cut.
+% targ_axes  A 'axes_block' object defining the ranges, binning and geometry
 %            of the target cut
 % keep_pixels A boolean defining whether pixel data should be retained. If this
 %            is false return variable 'pix_out' will be empty.
@@ -33,7 +33,7 @@ function [s, e, npix, pix_out, pix_comb_info] = ...
 pix_comb_info = [];
 
 % Pre-allocate image data
-[~,sz1] = axes.data_dims();
+[~,sz1] = targ_axes.data_dims();
 % note that 1D allocator of size N returns NxN array while we need Nx1
 % array
 %nbin_as_size = get_nbin_as_size(sz1);
@@ -46,7 +46,7 @@ npix = zeros(sz1);
 % cut. See the relevant projection function for more details.
 header_av = header_average(obj);
 sproj = obj.data.get_projection(header_av);
-[bloc_starts, block_sizes] = sproj.get_nrange(obj.data.npix,obj.data,axes,proj);
+[bloc_starts, block_sizes] = sproj.get_nrange(obj.data.npix,obj.data,targ_axes,targ_proj);
 if isempty(bloc_starts)
     % No pixels in range, we can return early
     pix_out = PixelData();
@@ -101,9 +101,9 @@ if num_chunks == 1
     end
     
     if keep_pixels
-        [npix,s,e,pix_ok] = proj.bin_pixels(axes,candidate_pix,npix,s,e);
+        [npix,s,e,pix_ok] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
     else
-        [npix,s,e] = proj.bin_pixels(axes,candidate_pix,npix,s,e);
+        [npix,s,e] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
         pix_ok = [];
     end
     pix_retained{1} = pix_ok;%candidate_pix.get_pixels(ok);
@@ -123,9 +123,9 @@ else
                 candidate_pix.num_pixels);
         end
         if keep_pixels
-            [npix,s,e,pix_ok,pix_indx] = proj.bin_pixels(axes,candidate_pix,npix,s,e);
+            [npix,s,e,pix_ok,pix_indx] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
         else
-            [npix,s,e] = proj.bin_pixels(axes,candidate_pix,npix,s,e);
+            [npix,s,e] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
             pix_ok = [];
         end
         
