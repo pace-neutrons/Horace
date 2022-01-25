@@ -16,7 +16,7 @@ classdef test_axes_block < TestCase
             
         end
         %------------------------------------------------------------------
-        function test_correct_binning_and_indx_2D(~)
+        function test_correct_binning_and_indx_2D(~)            
             dbr = [0,0.1,0,0.5;1,1.9,3,9.5];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
@@ -72,6 +72,7 @@ classdef test_axes_block < TestCase
             end
             
         end
+        %
         function test_bin_all_pix_indx_0D(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
@@ -105,7 +106,7 @@ classdef test_axes_block < TestCase
             assertEqual(indx,ones(pix_ok.num_pixels,1));
             
         end
-        
+        %
         function test_bin_all_pix_0D(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
@@ -169,7 +170,6 @@ classdef test_axes_block < TestCase
             assertEqual(sum(reshape(e,1,numel(npix))),size(pix_data,2));
             
         end
-        
         %
         function test_bin_all_pix_1D(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
@@ -235,7 +235,6 @@ classdef test_axes_block < TestCase
             assertEqual(pix_ok.num_pixels,pix.num_pixels);
             assertEqual(pix_ok.num_pixels,numel(pix_indx));
         end
-        
         %
         function test_bin_all_pix_2D(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
@@ -322,7 +321,6 @@ classdef test_axes_block < TestCase
             assertEqual(size(npix),szs);
             % no pixels were lost at binning
             assertEqual(npix,size(pix_data,2));
-            
         end
         %
         function test_bin_all_coord_1D(~)

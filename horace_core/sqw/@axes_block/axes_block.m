@@ -4,7 +4,33 @@ classdef axes_block < serializable
     %
     %  This is the block of axis in Cartesian coordinate system.
     properties(Dependent)
+        iax;      %Index of integration axes into the projection axes  [row vector]
+        %          Always in increasing numerical order
+        %                  e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
+        iint; %Integration range along each of the integration axes. [iint(2,length(iax))]
+        %     e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
+        pax   %Index of plot axes into the projection axes  [row vector]
+        %      Always in increasing numerical order
+        %      e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
+        %      2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
+        p;  %  Cell array containing bin boundaries along the plot axes [column vectors]
+        %      i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
+
+        % Number of axes_block object dimensions
+        n_dims;
+
         ulen     %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        %
+        % The range (in axes coordinate system), the binning is made and the
+        % axes block describnes
+        img_range
+        %
+
+        % binning along each dimension of an object assuming that
+        % all objects are 4-dimensional one. E.g. 1D object in with 10 bins in
+        % x-direction would have binning [10,1,1,1] and 1D object with 10
+        % bins in dE direction would have binning [1,1,1,10];
+        nbin_all_dim
     end
 
     properties
@@ -16,17 +42,6 @@ classdef axes_block < serializable
         %
 
         ulabel={'Q_h','Q_k','Q_l','En'}  %Labels of the projection axes [1x4 cell array of character strings]
-        iax=1:4;          %Index of integration axes into the projection axes  [row vector]
-        %                  Always in increasing numerical order
-        %                  e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
-        iint=zeros(2,4);   %Integration range along each of the integration axes. [iint(2,length(iax))]
-        %                   e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
-        pax=zeros(1,0);   %Index of plot axes into the projection axes  [row vector]
-        %                Always in increasing numerical order
-        %                e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
-        %                2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
-        p=cell(1,0);  %  Cell array containing bin boundaries along the plot axes [column vectors]
-        %                i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
         dax=zeros(1,0)    %Index into data.pax of the axes for display purposes. For example we may have
         %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
         %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
@@ -38,7 +53,9 @@ classdef axes_block < serializable
         nonorthogonal = false % if the coordinate system is non-orthogonal.
     end
     properties(Access=protected)
-        ulen_=[1,1,1,1]      %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        ulen_=[1,1,1,1]                 %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        img_range_ = [0,0,0,0;0,0,0,0]; % 2x4 vector of min/max values in 4-dimensions
+        nbin_all_dim_ = [1,1,1,1];      % number of bins in each dimension
     end
     properties(Constant,Access=private)
         % fields which fully represent the state of the class and allow to
@@ -123,10 +140,6 @@ classdef axes_block < serializable
         % the signal arrays.
         [nd,sz,nse_size] = data_dims(obj);
 
-        % return number of bins in 4D block, e.g.
-        % 1D object with 10 bins along last (en) axis will have
-        % 1x1x1x10 size.
-        [sz,nd] = nbins_as_size(obj);
         % return 3 q-axis in the order they mark the dnd object
         % regardless of the integration along some axis
         % TODO: probably should be removed
@@ -283,6 +296,19 @@ classdef axes_block < serializable
         %------------------------------------------------------------------
         % ACCESSORS
         %------------------------------------------------------------------
+        function ir = get.img_range(obj)
+            ir = obj.img_range_;
+        end
+        function obj = set.img_range(obj,val)
+            obj = check_and_set_img_range_(obj,val);
+        end
+        %
+        function nbin = get.nbin_all_dim(obj)
+            nbin = obj.nbin_all_dim_;
+        end
+        function obj = set.nbin_all_dim(obj,val)
+            obj = check_and_set_nbin_all_dim_(obj,val);
+        end
         function ul = get.ulen(obj)
             ul = obj.ulen_;
         end
@@ -292,6 +318,25 @@ classdef axes_block < serializable
                     'ulen should be vector, containing 4 elements')
             end
             obj.ulen_ = val(:)';
+        end
+        %------------------------------------------------------------------
+        % historical and convenience getters for dependent properties
+        % without setters
+        %------------------------------------------------------------------
+        function ndim = get.n_dims(obj)
+            ndim = sum(obj.nbin_all_dim_>1);
+        end
+        function ia = get.iax(obj)
+            ia = find(obj.nbin_all_dim_==1);
+        end
+        function pa = get.pax(obj)
+            pa = find(obj.nbin_all_dim_>1);
+        end
+        function iin = get.iint(obj)
+            iin = obj.img_range_(:,obj.nbin_all_dim_==1);
+        end
+        function pc = get.p(obj)
+            pc = build_axes_from_ranges_(obj);
         end
         %
         %------------------------------------------------------------------
