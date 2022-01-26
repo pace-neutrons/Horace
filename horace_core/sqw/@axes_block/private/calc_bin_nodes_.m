@@ -19,23 +19,16 @@ function [nodes,en_axis] = calc_bin_nodes_(obj,varargin)
 axes = cell(4,1);
 if isempty(char_size)
     axes(obj.pax) = obj.p(:);
-%     for i=1:numel(obj.pax)
-%         ax = axes{obj.pax(i)};
-%         % binning was done on bin edges, but axes defined on bin centers
-%         ax= 0.5*(ax(1:end-1)+ax(2:end));
-%         % add last bin boundary to complet binning grid
-%         axes{obj.pax(i)} = [ax;ax(end)+ax(2)-ax(1)];
-%     end
     
     iint_ax = num2cell(obj.iint,1);
     axes(obj.iax) = iint_ax(:);
 else
-    range = obj.get_binning_range();
+    range = obj.img_range;
     size = range(2,:)'-range(1,:)';
     dNR = floor(size./(0.5*char_size));
     steps = size./(dNR+1);
     for i=1:4
-        if range(1,i)+ steps(i)>range(2,i)
+        if range(1,i)+ steps(i)>=range(2,i)
             axes{i} = [range(1,i),range(2,i)];
         else
             axes{i} = range(1,i):steps(i):range(2,i);

@@ -13,24 +13,28 @@ classdef axes_block < serializable
         %      Always in increasing numerical order
         %      e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
         %      2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
-        p;  %  Cell array containing bin boundaries along the plot axes [column vectors]
+        dax    %Index into data.pax of the axes for display purposes. For example we may have
+        %      data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
+        %      the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
+        %      the display axes to be permuted but without the contents of the fields p, s,..pix needing to
+        %      be reordered [row vector]
+        p;     %Cell array containing bin boundaries along the plot axes [column vectors]
         %      i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
 
-        % Number of axes_block object dimensions
-        n_dims;
+        n_dims;  % Number of axes_block object dimensions
+
 
         ulen     %Length of projection axes vectors in Ang^-1 or meV [row vector]
         %
         % The range (in axes coordinate system), the binning is made and the
         % axes block describnes
         img_range
-        %
 
         % binning along each dimension of an object assuming that
         % all objects are 4-dimensional one. E.g. 1D object in with 10 bins in
         % x-direction would have binning [10,1,1,1] and 1D object with 10
         % bins in dE direction would have binning [1,1,1,10];
-        nbin_all_dim
+        nbins_all_dims
     end
 
     properties
@@ -42,11 +46,6 @@ classdef axes_block < serializable
         %
 
         ulabel={'Q_h','Q_k','Q_l','En'}  %Labels of the projection axes [1x4 cell array of character strings]
-        dax=zeros(1,0)    %Index into data.pax of the axes for display purposes. For example we may have
-        %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
-        %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
-        %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
-        %                  be reordered [row vector]
         axis_caption=an_axis_caption(); %  Reference to class, which define axis captions. TODO: delete this, mutate axes_block
         %
         %TODO: Its here temporary, until full projection is stored in sqw obj
@@ -54,8 +53,10 @@ classdef axes_block < serializable
     end
     properties(Access=protected)
         ulen_=[1,1,1,1]                 %Length of projection axes vectors in Ang^-1 or meV [row vector]
-        img_range_ = [0,0,0,0;0,0,0,0]; % 2x4 vector of min/max values in 4-dimensions
-        nbin_all_dim_ = [1,1,1,1];      % number of bins in each dimension
+        img_range_      = ...
+            [0,0,0,0;0,0,0,0]; % 2x4 vector of min/max values in 4-dimensions
+        nbins_all_dims_ = [1,1,1,1];      % number of bins in each dimension
+        dax_=[];                        % display axes numbers holder
     end
     properties(Constant,Access=private)
         % fields which fully represent the state of the class and allow to
@@ -145,11 +146,7 @@ classdef axes_block < serializable
         % TODO: probably should be removed
         [q1,q2,q3] = get_q_axes(obj);
         %
-        % return binning range of existing data object, so that a cut without
-        % projection, performed within this range would return the same cut
-        % as the original object.
-        range = get_cut_range(obj);
-        %
+
         % find the coordinates along each of the axes of the smallest cuboid
         % that contains bins with non-zero values of contributing pixels.
         [val, n] = data_bin_limits (din);
@@ -158,16 +155,6 @@ classdef axes_block < serializable
         function [cube_coord,step] = get_axes_scales(obj)
             % Return 4D cube, describing the minimal grid cell of the axes block
             [cube_coord,step] = get_axes_scales_(obj);
-        end
-        function range = get_binning_range(obj)
-            % return binning range, defined by current projection and
-            % integration axes ranges
-            %
-            % Returns:
-            % range  -- 2x4 array of min/max values of the axes grid,
-            %           described by the axes_block and used for the
-            %           pixels binning.
-            range = get_binning_range_(obj);
         end
 
         function [npix,s,e,pix,pix_indx] = bin_pixels(obj,pix_coord_transf,varargin)
@@ -251,32 +238,35 @@ classdef axes_block < serializable
             end
         end
         %
-        function range = get_default_binning_range(obj,img_db_range,...
+        function range = get_binning_range(obj,...
                 cur_proj,new_proj)
-            % retrieve default binning if the binning is not defined by
-            % inputs
-            %
-            % get the default binning range to use in cut, defined by new
-            % projection, and extrapolated from the existing binning range.
+            % Get the default binning range to use in cut, defined by new
+            % projection. If no new projection is provided, return current
+            % binning range, i.e. the ranges used to construct this
+            % axes_block.
             %
             % If new projection is not aligned with the old projection, the new
-            % projection binning is copied from old projection binning according to
-            % axes numbers, i.e. if axis 1 of cur_proj had 10 bins,
-            % axis 1 of target proj would have 10 bins, etc.
-
+            % projection binning is copied from the old projection binning according to
+            % axis number, i.e. if axis 1 of cur_proj had 10 bins, axis 1 of target
+            % proj would have 10 bins, etc.
+            %
             % Inputs:
             % obj      - current instance of the axes block
-            % img_db_range -- the range pixels are binned on and the current binning is
-            %            applied
-
             % cur_proj - the projection, current block is defined for
             % new_proj - the projection, for which the requested range should
             %            be defined
+            % if both these projection are empty, returning the current binning range
+            %
             % Output:
             % range    - 4-element cellarray of ranges, containing current
             %            binning range expressed in the coordinate system,
-            %            defined by the new projection
-            range  = get_default_binning_range_(obj,img_db_range,cur_proj,new_proj);
+            %            defined by the new projection (or current binning range if new
+            %            projection is not provided)
+            if nargin < 3
+                cur_proj = [];
+                new_proj = [];
+            end
+            range  = get_binning_range_(obj,cur_proj,new_proj);
         end
 
         %
@@ -303,10 +293,10 @@ classdef axes_block < serializable
             obj = check_and_set_img_range_(obj,val);
         end
         %
-        function nbin = get.nbin_all_dim(obj)
-            nbin = obj.nbin_all_dim_;
+        function nbin = get.nbins_all_dims(obj)
+            nbin = obj.nbins_all_dims_;
         end
-        function obj = set.nbin_all_dim(obj,val)
+        function obj = set.nbins_all_dims(obj,val)
             obj = check_and_set_nbin_all_dim_(obj,val);
         end
         function ul = get.ulen(obj)
@@ -319,21 +309,30 @@ classdef axes_block < serializable
             end
             obj.ulen_ = val(:)';
         end
+        %
+        function da = get.dax(obj)
+            da = obj.dax_;
+        end
+        function obj = set.dax(obj,val)
+            obj = check_and_set_dax_(obj,val);
+        end
+
+
         %------------------------------------------------------------------
         % historical and convenience getters for dependent properties
         % without setters
         %------------------------------------------------------------------
         function ndim = get.n_dims(obj)
-            ndim = sum(obj.nbin_all_dim_>1);
+            ndim = sum(obj.nbins_all_dims_>1);
         end
         function ia = get.iax(obj)
-            ia = find(obj.nbin_all_dim_==1);
+            ia = find(obj.nbins_all_dims_==1);
         end
         function pa = get.pax(obj)
-            pa = find(obj.nbin_all_dim_>1);
+            pa = find(obj.nbins_all_dims_>1);
         end
         function iin = get.iint(obj)
-            iin = obj.img_range_(:,obj.nbin_all_dim_==1);
+            iin = obj.img_range_(:,obj.nbins_all_dims_==1);
         end
         function pc = get.p(obj)
             pc = build_axes_from_ranges_(obj);

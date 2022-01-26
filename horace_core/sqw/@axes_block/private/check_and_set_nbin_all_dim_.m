@@ -11,9 +11,8 @@ if numel(val) ~= 4
     error('HORACE:axes_block:invalid_argument',...
         'Correct nbin_all_dim value have to be 4-element vector. Getting: %s',...
         evalc('disp(val)'));
-elseif size(val,1) == 4
-    val = val';
 end
+val = val(:)'; % make row vector
 val = floor(val);
 if any(val<1)
     mess = sprintf(...
@@ -21,5 +20,6 @@ if any(val<1)
         val);
     error('HORACE:axes_block:invalid_argument',mess);
 end
-obj.nbin_all_dim_ = val;
-
+obj.nbins_all_dims_ = val;
+nd = obj.n_dims;
+obj.dax_ = 1:nd;

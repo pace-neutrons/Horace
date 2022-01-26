@@ -46,14 +46,15 @@ if nargin ~=5
         'Must have four and only four binning descriptors');
 end
 
+range = zeros(2,4);
+nbins  = zeros(4,1);
 for i=1:4
-    [range,nbins]=pbin_parse(varargin{i},i);
-    obj.img_range(:,i) = range;
-    obj.nbins_all_dims(i)= nbins;
-
+    [range1,nbins1]=pbin_parse(varargin{i},i);
+    range(:,i) = range1;
+    nbins(i) = nbins1;
 end
-
-obj.dax = 1:np;
+obj.img_range = range;
+obj.nbins_all_dims = nbins;
 
 
 %----------------------------------------------------------------------------------------
@@ -86,7 +87,7 @@ if isempty(p)
     nbin = 1;
 elseif isnumeric(p)
     if numel(p)==1
-        % Scalar pbin ==> zero thickness integration
+        % Scalar pbin ==> zero thickness integration? Useles.
         range=[p;p];
         nbin  = 1;
     elseif numel(p)==2
@@ -100,17 +101,17 @@ elseif isnumeric(p)
         end
 
     elseif numel(p)==3
-        % pbin has form [plo,pstep,phi]. Handle a Matlab oddity when using x1:dx:x2
+        % pbin has form [plo,pstep,phi]. Always include p(3),
+        % shifting it to move close to the rigthmost bin centre
         if p(1)<=p(3) && p(2)>0
-            range=[p(1);p(3)];            
-            nbin = floor(p(3)-p(1)/p(2))+1;
-%             range=(p(1)-p(2)/2: p(2): p(3)+p(2)/2)';
-%             if range(end)<p(3)
-%                 range=[range;range(end)+p(2)];
-%             elseif numel(range)>1 && range(end-1)>=p(3)
-%                 range=range(1:end-1);
-%             end
-%             range={range};
+            min_v = p(1)-p(2)/2;
+            max_v = p(3)+p(2)/2;
+            nbin = floor((max_v-min_v)/p(2));
+            if min_v + nbin*p(2)< max_v
+                nbin = nbin+1;
+            end
+            max_v = min_v+nbin*p(2); % recalculate to avoid round-off errors
+            range=[min_v;max_v];
         else
             error('HORACE:axes_block:invalid_argument',...
                 'Range N%d: Check that range has form [plo,pstep,phi], plo<=phi and pstep>0',i);
