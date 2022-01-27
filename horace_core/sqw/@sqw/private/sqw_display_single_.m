@@ -33,7 +33,7 @@ function sqw_display_single_(din,npixtot,type)
 % Determine if displaying dnd-type or sqw-type sqw object
 
 
-[ndim,sz] = data_dims(din.data);
+ndim = din.data.n_dims;
 if ~exist('npixtot','var') || isempty(npixtot)
     npixtot = sum(din.data.npix(:));
 end
@@ -86,6 +86,7 @@ end
 
 [title_main, title_pax, title_iax, display_pax, display_iax] = data_plot_titles (din.data);
 if ndim~=0
+    sz = din.data.data_nbins;
     npchar = '[';
     for i=1:ndim
         npchar = [npchar,num2str(sz(din.data.dax(i))),'x'];   % size along each of the display axes

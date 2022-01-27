@@ -5,7 +5,7 @@ pix = [];
 pix_indx = [];
 if nargin>7
     options = {'-force_double'};
-    % keep unused argi paraemeter to tell parce_char_options to ignore
+    % keep unused argi parameter to tell parce_char_options to ignore
     % unknown options
     [ok,mess,force_double,argi]=parse_char_options(varargin,options);
     if ~ok
@@ -15,8 +15,9 @@ else
     force_double =false;
 end
 
-[ndims,sz_proj] = obj.data_dims();
-data_range = obj.get_binning_range();
+bin_size  = obj.dims_as_ssize();
+ndims     = obj.n_dims;
+data_range= obj.img_range;
 
 r1 = data_range(1,:)';
 r2 = data_range(2,:)';
@@ -31,7 +32,7 @@ if isempty(coord)
 end
 
 % bin only points in dimensions, containing more then one bin
-n_bins = sz_proj;
+n_bins = bin_size;
 if ndims<2
     n_bins = n_bins(1);
 end
@@ -57,7 +58,7 @@ else
         end
     end
     
-    npix = accumarray(pix_indx, ones(1,size(pix_indx,1)), sz_proj);
+    npix = accumarray(pix_indx, ones(1,size(pix_indx,1)), bin_size);
 end
 if mde<3
     return;
@@ -68,8 +69,8 @@ if ndims == 0
     s = s + sum(sig(ok));
     e = e + sum(var(ok));
 else
-    s = s + accumarray(pix_indx, sig(ok), sz_proj);
-    e = e + accumarray(pix_indx, var(ok), sz_proj);
+    s = s + accumarray(pix_indx, sig(ok), bin_size);
+    e = e + accumarray(pix_indx, var(ok), bin_size);
 end
 if mde<4
     return;
@@ -77,7 +78,7 @@ end
 pix = pix_cand.get_pixels(ok);
 clear ok;
 if ndims > 1 % convert to 1D indexes
-    stride = cumprod(sz_proj);
+    stride = cumprod(bin_size);
     pix_indx =(pix_indx-1)*[1,stride(1:end-1)]'+1;
 end
 
@@ -97,4 +98,3 @@ elseif ndims == 0
         pix_indx = ones(pix.num_pixels,1);
     end
 end
-

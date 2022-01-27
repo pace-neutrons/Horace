@@ -21,20 +21,22 @@ classdef axes_block < serializable
         p;     %Cell array containing bin boundaries along the plot axes [column vectors]
         %      i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
 
-        n_dims;  % Number of axes_block object dimensions
-
-
         ulen     %Length of projection axes vectors in Ang^-1 or meV [row vector]
         %
         % The range (in axes coordinate system), the binning is made and the
         % axes block describnes
         img_range
 
+        n_dims;  % Number of axes_block object dimensions
+
         % binning along each dimension of an object assuming that
         % all objects are 4-dimensional one. E.g. 1D object in with 10 bins in
         % x-direction would have binning [10,1,1,1] and 1D object with 10
         % bins in dE direction would have binning [1,1,1,10];
         nbins_all_dims
+        % number of bins for each non-unit dimension. This would be the
+        % binning of the data arrays associated witht the given axes_block
+        data_nbins;
     end
 
     properties
@@ -52,18 +54,18 @@ classdef axes_block < serializable
         nonorthogonal = false % if the coordinate system is non-orthogonal.
     end
     properties(Access=protected)
-        ulen_=[1,1,1,1]                 %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        ulen_=[1,1,1,1]         %Length of projection axes vectors in Ang^-1 or meV [row vector]
         img_range_      = ...
             [0,0,0,0;0,0,0,0]; % 2x4 vector of min/max values in 4-dimensions
-        nbins_all_dims_ = [1,1,1,1];      % number of bins in each dimension
+        nbins_all_dims_ = [1,1,1,1];    % number of bins in each dimension
         dax_=[];                        % display axes numbers holder
     end
     properties(Constant,Access=private)
         % fields which fully represent the state of the class and allow to
         % recover it state by setting properties through public interface
         fields_to_save_ = {'title','filename','filepath',...
-            'ulen','ulabel','iax','iint','pax',...
-            'p','dax','nonorthogonal'};
+            'ulen','ulabel','img_range','nbins_all_dims',...
+            'dax','nonorthogonal'};
     end
 
     methods (Static)
@@ -136,10 +138,15 @@ classdef axes_block < serializable
             end
             obj = obj.init(varargin{:});
         end
-        %
-        % Return number of dimensions and extent along each dimension of
-        % the signal arrays.
-        [nd,sz,nse_size] = data_dims(obj);
+
+        function sz = dims_as_ssize(obj)
+            % Return the extent along each dimension of the signal arrays.
+            % suitable for allocating appropriate size memory
+            sz = obj.data_nbins;
+            if isempty(sz)      ; sz = [1,1];
+            elseif numel(sz) ==1; sz = [sz,1];
+            end
+        end
 
         % return 3 q-axis in the order they mark the dnd object
         % regardless of the integration along some axis
@@ -158,11 +165,12 @@ classdef axes_block < serializable
         end
 
         function [npix,s,e,pix,pix_indx] = bin_pixels(obj,pix_coord_transf,varargin)
-            % bin and distribute data expressed in the coordinate system
-            % described by this axes block over the current lattice
+            % Bin and distribute data expressed in the coordinate system
+            % described by this axes block over the current N-D lattice
+            %
             % Usage:
             % >>npix = obj.bin_pixels(coord);
-            % >>[npix,s,e] = obj.bin_pixels(coord,npix,s,e,sigvar);
+            % >>[npix,s,e] = obj.bin_pixels(coord,npix,s,e);
             % >>[npix,s,e,pix_ok] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
             % >>[npix,s,e,pix_ok,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
             % Where
@@ -184,7 +192,7 @@ classdef axes_block < serializable
             %            variance cells. Must be present if s is present
             %  pix_candidates
             %          -- the PixelData or pixAccees data object,
-            %          containing full pixel information
+            %             containing full pixel information.
             % Parameters:
             % '-nomex'    -- do not use mex code even if its available
             %               (usually for testing)
@@ -193,15 +201,16 @@ classdef axes_block < serializable
             %                (usually for testing)
             % '-force_double'
             %              -- if provided, the routine changes type of pixels
-            %                 it get on input, into double. if not, output pixels will
-            %                 keep their initial type
+            %                 it gets on input, into double. if not, output
+            %                 pixels will keep their initial type
             % -nomex and -force_mex options can not be used together.
             %
             % Returns:
             % npix    -- the array, containing the numbers of pixels
             %            contributing into each grid cell
-            % Optional: Not calculated if not requested as output. Requests
-            %           appropriate pix_candidates inputs if requested.
+            % Optional:  Not calculated if not requested as output. Requests
+            %            appropriate pix_candidates inputs if requested as
+            %            output.
             % s       -- array, containing the accumulated signal for each
             %            grid bin.
             % e       -- array, containing the accumulated error for each
@@ -209,14 +218,15 @@ classdef axes_block < serializable
             % pix     -- pixel array or PixelData
             %            object (the output format is the same as for
             %            pix_candidates)
-            % pix_indx --indexes for image bins, where pix elements belong
-            %            to
+            % pix_indx --Array of indexess for the image bins, where 
+            %            the input pix elements belong to
 
             nargou = nargout;
             % convert different input forms into fully expanded common form
             [npix,s,e,pix_cand,argi]=...
                 obj.normalize_bin_input(pix_coord_transf,nargou,varargin{:});
-
+            %
+            % bin pixels
             [npix,s,e,pix,pix_indx] = bin_pixels_(obj,pix_coord_transf,nargou,...
                 npix,s,e,pix_cand,argi{:});
         end
@@ -320,11 +330,15 @@ classdef axes_block < serializable
 
         %------------------------------------------------------------------
         % historical and convenience getters for dependent properties
-        % without setters
+        % which do not have setters
         %------------------------------------------------------------------
         function ndim = get.n_dims(obj)
             ndim = sum(obj.nbins_all_dims_>1);
         end
+        function ds = get.data_nbins(obj)
+            ds= obj.nbins_all_dims_(obj.nbins_all_dims_>1);
+        end
+
         function ia = get.iax(obj)
             ia = find(obj.nbins_all_dims_==1);
         end
@@ -349,17 +363,42 @@ classdef axes_block < serializable
             % and nxsqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
             % number
-            ver = 1;
+            ver = 2;
         end
     end
     methods(Access=protected)
         function [npix,s,e,pix_candidates,argi]=...
                 normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
             % verify inputs of the bin_pixels function and convert various
-            % forms of the inputs of this function into common form
+            % forms of the inputs of this function into a common form, 
+            % where the missing inputs are returned as empty outputs.
+
             [npix,s,e,pix_candidates,argi]=...
                 normalize_bin_input_(obj,pix_coord_transf,n_argout,varargin{:});
         end
+        function obj = from_old_struct(obj,inputs)
+            % Restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % The method is called by loadobj in the case if the input
+            % structure does not contain version or the version, stored
+            % in the structure does not correspond to the current version
+            %
+            % By default, this function interfaces the default from_class_struct
+            % method, but when the old strucure substantially differs from
+            % the moden structure, this method needs the specific overloading
+            % to allow loadob to recover new structure from an old structure.
+            %
+            if isfield(inputs,'version') && (inputs.version == 1) || ...                    
+                isfield(inputs,'iint')
+                inputs = convert_old_struct_into_nbins_(inputs);
+            end
+            if isfield(inputs,'array_dat')
+                obj = obj.from_class_struct(inputs.array_dat);
+            else
+                obj = obj.from_class_struct(inputs);
+            end
+        end        
 
     end
 end

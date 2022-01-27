@@ -298,7 +298,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 return_cut, varargin)
             % interface to private cut parameters parser/validator
             % checking and parsing cut inputs in any acceptable form
-            ndims = obj.data.data_dims();
+            ndims = obj.data.n_dims;
             [proj, pbin, opt]= cut_sqw_parse_inputs_(obj.data,ndims, return_cut, varargin{:});
         end
     end

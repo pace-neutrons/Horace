@@ -2,11 +2,19 @@ classdef aProjection < serializable
     %  Abstract class, defining interface and common properties used for
     %  transforming pixels from crystal Cartesian
     %  to the coordinate system defined by sqw image (dnd-object)
-    %  and vice-versa.
+    %  and vice-versa and used by cut algorithm to make appropriate
+    %  coordinate transformations.
     %
-    % Common (non-virtual) properties
-    %  alatt       3-element vector, containing lattice parameters
-    %  angdeg      3-element vector, containing lattice angles
+    %   Hidden properties: (User should not be setting them as cut
+    %               algorithm resets their value before the cut taking it
+    %               from other places of the sqw object)
+    %
+    %   alatt       3-element vector, containing lattice parameters
+    %   angdeg      3-element vector, containing lattice angles
+    %
+    %
+    %   Other generic properties (user may want or need to set them to modify the
+    %              projection behaviour)
     %
     %   offset     Row or column vector of offset of origin of a projection axes (rlu)
     %
@@ -20,11 +28,6 @@ classdef aProjection < serializable
 
     properties(Dependent)
         %---------------------------------
-        % the lattice parameters
-        alatt
-        % angles between the lattice edges
-        angdeg
-        %---------------------------------
         %TODO: Will be refactored to axes_caption and transferred to axes
         %block?
         lab
@@ -32,11 +35,20 @@ classdef aProjection < serializable
         %Offset of origin of the projection in r.l.u. and energy ie. [h; k; l; en] [row vector]
         offset;
         %
-        % the target projection, used by cut to transform from
-        % source to target coordinate system
-        targ_proj
     end
     properties(Dependent,Hidden)
+        % Common (non-virtual) properties:
+        % the properties are important in any transfomation from Crystal
+        % Cartesian (pixels) to image coordinate system but are hidden as
+        % user is not requested to set these properties -- cut algorithm
+        % would reset their values from other places in sqw object
+        alatt        % the lattice parameters
+        angdeg       % angles between the lattice edges
+        %
+        targ_proj    % the target projection, used by cut to transform from
+        %              source to target coordinate system
+
+        %------------------------------------------------------------------
         % property mainly used in testing. If set to true,
         % the class will always use generic projection transformation
         % instead of may be optimized transformation, specific for
@@ -50,19 +62,20 @@ classdef aProjection < serializable
     end
     properties(Constant, Access=protected)
         % minimal value of a vector norm e.g. how close couple of vectors
-        % should be to be considered parallel u*v are orthogonal if u*v'<tol
-        % or what vector should be consigdered a
-        % null vector (e.g. abs([9.e-13,0,0,0]) will be converted to [0,0,0,0]
-        % at setup
+        % should be to be considered parallel. u*v are orthogonal if u*v'<tol
+        % or they are parallel if the length of their vector product 
+        % is the vector that can be consigdered a null vector
+        % (e.g. abs([9.e-13,0,0,0]) will be treated as [0,0,0,0]
         tol_=1e-12;
     end
     %----------------------------------------------------------------------
     properties(Access=protected)
-        alatt_ = [1,1,1];
+        alatt_ = [2*pi,2*pi,2*pi]; %unit-sized lattice vector
         angdeg_= [90,90,90];
         %------------------------------------
         %  u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-        offset_  = [0,0,0,0] %Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
+        offset_  = [0,0,0,0] %Offset of origin of projection axes in image units
+        % e.g. r.l.u. and energy [h; k; l; en] [row vector]
         %
         labels_  = {'Q_h','Q_k','Q_l','En'};
         %
@@ -373,13 +386,13 @@ classdef aProjection < serializable
             % bl_size     -- number of pixels, contributed into each
             %                block
             nelem = [0,cumsum(reshape(npix,1,numel(npix)))];
-            if iscell(cell_ind) % accepted contributing cell indexes 
+            if iscell(cell_ind) % accepted contributing cell indexes
                 % in the form of cell_start:cell_end
                 bl_start = nelem(cell_ind{1});
                 bl_end   = nelem(cell_ind{2});
                 bl_size  = bl_end-bl_start;
             else % accepted contributing cell indexes as linear array of
-                % indexes               
+                % indexes
                 adjacent = cell_ind(1:end-1)+1==cell_ind(2:end);
                 adjacent = [false;adjacent];
                 adj_end  = [cell_ind(1:end-1)+1<cell_ind(2:end);true];

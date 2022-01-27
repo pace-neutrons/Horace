@@ -31,7 +31,7 @@ else
         if range(1,i)+ steps(i)>=range(2,i)
             axes{i} = [range(1,i),range(2,i)];
         else
-            axes{i} = range(1,i):steps(i):range(2,i);
+            axes{i} = linspace(range(1,i),range(2,i),dNR(i)+1);
         end
     end
 end

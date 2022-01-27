@@ -38,7 +38,7 @@ elseif nargi==1
         end
         
         rest = arrayfun(@(x)zeros(1,0),1:4-ndim,'UniformOutput',false);
-        pbin=[repmat({{[0,1]}},1,ndim),rest];
+        pbin=[repmat({[0,1]},1,ndim),rest];
         obj = set_axis_bins_(obj,pbin{:});
         obj.axis_caption = an_axis_caption();
     elseif iscell(varargin{1}) && numel(varargin{1})==4 % input is the array of binning parameters

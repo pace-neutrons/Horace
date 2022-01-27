@@ -1,12 +1,16 @@
 function [npix,s,e,pix_cand,argi]=...
     normalize_bin_input_(obj,pix,mde,varargin)
+% verify inputs of the bin_pixels function and convert various
+% forms of the inputs of this function into a common form, where the missing
+% inputs are presented as empty outputs.
+
 
 if ~isnumeric(pix) || size(pix,1) ~= 4
     error('HORACE:axes_block:invalid_argument',...
         'first argument of the routine have to be 4xNpix array of pixel coordinates')
 end
 
-[~,sz_proj,bin_size] = obj.data_dims();
+bin_size = obj.dims_as_ssize();
 if mde == 1
     pix_cand = [];
 else
@@ -20,7 +24,7 @@ else
             '7-th argument of the function have to be PixelData class. It is: %s',...
             class(pix));
     end
-    
+
     if ismember(mde,[3,4,5])
         pix_cand = pix;
     else
@@ -30,7 +34,7 @@ else
 end
 argi = {};
 if nargin == 3
-    npix = squeeze(zeros(sz_proj));
+    npix = squeeze(zeros(bin_size));
     s = [];
     e = [];
 elseif nargin == 4
@@ -40,7 +44,7 @@ elseif nargin == 4
     e = [];
 elseif nargin==5 || nargin == 6
     error('HORACE:axes_block:invalid_argument',...
-        'Can not provide only signal or singal and variance accumulation places without providing pixels source')
+        'Can not provide only signal or signal and variance accumulation arrays without providing pixels source')
 elseif nargin ==7
     npix = varargin{1};
     s = varargin{2};
@@ -52,19 +56,19 @@ elseif nargin >6
     npix = varargin{1};
     s    = varargin{2};
     e    = varargin{3};
-    check_size(bin_size,npix,s,e);        
+    check_size(bin_size,npix,s,e);
     argi = varargin{5:end};
 end
 if mde>1 && isempty(npix)
-    npix = squeeze(zeros(sz_proj));    
-    s = squeeze(zeros(sz_proj));
-    e = squeeze(zeros(sz_proj));
+    npix = squeeze(zeros(bin_size));
+    s = squeeze(zeros(bin_size));
+    e = squeeze(zeros(bin_size));
 end
 
 function check_size(sze,varargin)
 for i=1:numel(varargin)
     if any(size(varargin{i}) ~=sze)
-        error('HORACE:axes_block:invalid_argument',...        
+        error('HORACE:axes_block:invalid_argument',...
             'sizes of npix,s, e accumulators (%s) have to be equal to the sizes of the axes binning (%s)',...
             evalc('disp(size(varargin{i}))'),evalc('disp(size(sze))'));
     end

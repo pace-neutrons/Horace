@@ -22,7 +22,8 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            [nd,szs] = ab.data_dims();
+            nd = ab.n_dims;
+            szs = ab.dims_as_ssize();
             assertEqual(nd,2)
 
             xi = dbr(1,1)+0.05:0.1:dbr(2,1);
@@ -79,7 +80,8 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            [nd,szs] = ab.data_dims();
+            nd = ab.n_dims;
+            szs = ab.dims_as_ssize();
             assertEqual(nd,0)
 
             xi = dbr(1,1):0.1:dbr(2,1);
@@ -113,7 +115,8 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            [nd,szs] = ab.data_dims();
+            nd  = ab.n_dims;
+            szs = ab.dims_as_ssize();
             assertEqual(nd,0)
 
             xi = dbr(1,1):0.1:dbr(2,1);
@@ -145,7 +148,8 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            [nd,szs] = ab.data_dims();
+            nd  = ab.n_dims;
+            szs = ab.dims_as_ssize();
             assertEqual(nd,1)
 
             xi = dbr(1,1):0.1:dbr(2,1);
@@ -177,7 +181,8 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            [nd,szs] = ab.data_dims();
+            nd  = ab.n_dims;
+            szs = ab.dims_as_ssize();
             assertEqual(nd,1)
 
             xi = dbr(1,1):0.1:dbr(2,1);
@@ -210,7 +215,8 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            [nd,szs] = ab.data_dims();
+            nd  = ab.n_dims;
+            szs = ab.dims_as_ssize();
             assertEqual(nd,2)
 
             xi = dbr(1,1):0.1:dbr(2,1);
@@ -241,8 +247,9 @@ classdef test_axes_block < TestCase
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
-
-            [nd,szs] = ab.data_dims();
+            
+            nd  = ab.n_dims;
+            szs = ab.dims_as_ssize();
             assertEqual(nd,2)
 
             xi = dbr(1,1):0.1:dbr(2,1);
@@ -273,7 +280,8 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            [nd,szs] = ab.data_dims();
+            nd  = ab.n_dims;
+            szs = ab.dims_as_ssize();
             assertEqual(nd,4)
 
             xi = dbr(1,1):0.1:dbr(2,1);
@@ -305,7 +313,8 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            [nd,szs] = ab.data_dims();
+            nd  = ab.n_dims;
+            szs = ab.dims_as_ssize();
             assertEqual(nd,0)
 
             xi = dbr(1,1):0.1:dbr(2,1);
@@ -329,7 +338,8 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            [nd,szs] = ab.data_dims();
+            nd  = ab.n_dims;
+            szs = ab.dims_as_ssize();
             assertEqual(nd,1)
 
             xi = dbr(1,1):0.1:dbr(2,1);
@@ -353,8 +363,9 @@ classdef test_axes_block < TestCase
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
-
-            [nd,szs] = ab.data_dims();
+            
+            nd  = ab.n_dims;
+            szs = ab.dims_as_ssize();
             assertEqual(nd,2)
 
             xi = dbr(1,1):0.1:dbr(2,1);
@@ -379,7 +390,8 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            [nd,szs] = ab.data_dims();
+            nd = ab.n_dims;
+            szs = ab.dims_as_ssize();
             assertEqual(nd,4)
 
             xi = dbr(1,1):0.1:dbr(2,1);
@@ -551,8 +563,10 @@ classdef test_axes_block < TestCase
 
             [cube,step]  = ab.get_axes_scales();
             assertEqual(size(cube,2),16)
-            assertEqual(dbr(1,:)',cube(:,1))
-            assertEqual(dbr(1,:)'+step,cube(:,16))
+            assertEqual(zeros(4,1),cube(:,1))
+            assertEqual(step,cube(:,16))
+            assertEqual(step,...
+                [dbr(2,1)-dbr(1,1);0.2;dbr(2,3)-dbr(1,3);1]);
         end
         %------------------------------------------------------------------
         function test_get_bin_nodes_4D_2d(~)
@@ -563,8 +577,8 @@ classdef test_axes_block < TestCase
 
             [nodes,en] = ab.get_bin_nodes();
             assertEqual(size(nodes,1),3);
-            [~,sz] = ab.data_dims();
-            %sz = sz+1;
+            sz = ab.nbins_all_dims();
+            sz = sz+1;
 
             assertEqual(numel(en),sz(4));
 
@@ -581,8 +595,9 @@ classdef test_axes_block < TestCase
             [nodes,en] = ab.get_bin_nodes();
             assertEqual(size(nodes,1),3);
 
-            [nd,sz] = ab.data_dims();
-            %sz = sz+1;
+            nd = ab.n_dims;
+            sz = ab.dims_as_ssize();
+            sz = sz+1;
 
             assertEqual(numel(en),sz(end));
 
@@ -599,8 +614,10 @@ classdef test_axes_block < TestCase
 
             nodes = ab.get_bin_nodes();
             assertEqual(size(nodes,1),4);
-            [~,sz] = ab.data_dims();
-            %sz = sz+1;
+            
+            sz = ab.dims_as_ssize();
+            sz = sz+1;
+
             the_size = prod(sz);
             assertEqual(size(nodes,2),the_size);
         end
@@ -618,10 +635,10 @@ classdef test_axes_block < TestCase
             nodes = ab.get_bin_nodes(char_block);
             assertEqual(size(nodes,1),4);
             node_range = [min(nodes,[],2)';max(nodes,[],2)'];
-            assertEqual(dbr,node_range);
+            assertEqual(ab.img_range,node_range);
 
-            %nns = floor((dbr(2,:)-dbr(1,:))'./(0.5*new_step))+1;
-            nns = [81,4,4,202];
+            %nns = floor((ab.img_range(2,:)-ab.img_range(1,:))'./(0.5*new_step))+1;
+            nns = [84,3,3,221];
             the_size = prod(nns);
             assertEqual(size(nodes,2),the_size);
         end
@@ -636,15 +653,17 @@ classdef test_axes_block < TestCase
             r0 = [-1;-2;-3;0];
             r1 = r0+new_step;
             char_block =[r0,r1];
-            nodes = ab.get_bin_nodes(char_block);
-            assertEqual(size(nodes,1),4);
-            node_range = [min(nodes,[],2)';max(nodes,[],2)'];
-            assertEqual(dbr,node_range);
+            [nodes3D,dEgrid] = ab.get_bin_nodes(char_block);
+            assertEqual(size(nodes3D,1),3);
+            node_range = [min(nodes3D,[],2)';max(nodes3D,[],2)'];
+            assertEqual(ab.img_range(:,1:3),node_range);
 
-            %nns = floor((dbr(2,:)-dbr(1,:))'./(0.5*new_step))+1;
-            nns = [81,81,82,202];
-            the_size = prod(nns);
-            assertEqual(size(nodes,2),the_size);
+            %nns = floor((ab.img_range(2,:)-ab.img_range(1,:))'./(0.5*new_step))+1;
+
+            nns = [84,80,81,221];
+            q_size = prod(nns(1:3));
+            assertEqual(numel(dEgrid),nns(4))
+            assertEqual(size(nodes3D,2),q_size);
         end
         %
         function test_get_bin_nodes_2D_4d(~)
@@ -655,7 +674,9 @@ classdef test_axes_block < TestCase
 
             nodes = ab.get_bin_nodes();
             assertEqual(size(nodes,1),4);
-            [nd,sz] = ab.data_dims();
+            
+            nd = ab.n_dims;            
+            sz = ab.dims_as_ssize();
             ni = 4-nd;
             %sz = sz+1;
             the_size = ni*2*prod(sz+1);
@@ -672,7 +693,7 @@ classdef test_axes_block < TestCase
         end
         %------------------------------------------------------------------
         function test_default_binning_2D_cross_proj(~)
-            dbr = [-1,-2,-3,0;1,2,3,10];
+            dbr = [-1,-1.05,-3,0;1,1.05,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
@@ -682,8 +703,17 @@ classdef test_axes_block < TestCase
 
             bin = ab.get_binning_range(proj1,proj2);
 
-            assertEqualToTol([-1.5,0.15,1.5],bin{1},'abstol',1.e-12);
-            assertEqualToTol([-1.5,1.5],bin{2},'abstol',1.e-12);
+            % characteristic size of the block, transformed into proj2
+            % coordinate system. This is absolutely unclear why does this
+            % happen and why does it look lie this.
+            nb = ab.nbins_all_dims;            
+            transformed_block_size = 2;
+            step = transformed_block_size/(nb(1)-1);            
+            int_range = [-0.5*(transformed_block_size+step),0.5*(transformed_block_size+step)];
+            bin_range = [int_range(1)+0.5*step,step,int_range(2)-0.5*step];
+
+            assertEqualToTol(bin_range,bin{1},'abstol',1.e-12);
+            assertEqualToTol(int_range,bin{2},'abstol',1.e-12);
             assertEqualToTol(bin0{3},bin{3},'abstol',1.e-12);
             assertEqualToTol(bin0{4},bin{4},'abstol',1.e-12);
         end
@@ -699,10 +729,10 @@ classdef test_axes_block < TestCase
 
             bin = ab.get_binning_range(proj1,proj2);
 
-            proj1.targ_proj = proj2;
+            %proj1.targ_proj = proj2;
 
-            assertEqualToTol([-1.5,0.15, 1.5],bin{1},'abstol',1.e-12);
-            assertEqualToTol([-1.5,0.075,1.5],bin{2},'abstol',1.e-12);
+            assertEqualToTol([-1,0.1,1],bin{1},'abstol',1.e-12);
+            assertEqualToTol([-1,0.1,1],bin{2},'abstol',1.e-12);
             assertEqualToTol(bin0{3},bin{3},'abstol',1.e-12);
             assertEqualToTol(bin0{4},bin{4},'abstol',1.e-12);
         end

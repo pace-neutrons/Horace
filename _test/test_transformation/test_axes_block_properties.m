@@ -3,6 +3,16 @@ classdef test_axes_block_properties < TestCase
 
     properties
         out_dir=tmp_dir();
+        working_dir;
+        % Test axes block conversion from old to modern structure
+        % sample build and written with previous version of the class
+        % Redefine sample file name and set_save_sample to true
+        % to obtain different sample file if(when) the internal sample
+        % structure changes again
+        axes_block_v1_file = 'axes_block_sample_v1.mat';
+        axes_block_v2_file = 'axes_block_sample_v2.mat';
+        % save sample
+        save_sample = false;
     end
 
     methods
@@ -13,9 +23,35 @@ classdef test_axes_block_properties < TestCase
                 name = varargin{1};
             end
             obj = obj@TestCase(name);
-
+            obj.working_dir = fileparts(mfilename("fullpath"));
         end
         %------------------------------------------------------------------
+        %------------------------------------------------------------------
+        function test_save_load_prev_version(obj)
+            dbr = [-1,-2,-3,0;1,2,3,10];
+            bin2D = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
+            ab2D = axes_block(bin2D{:});
+            bin4D = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
+                [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
+            ab4D = axes_block(bin4D{:});
+            %--------------------------------------------------------------
+            % check version 1
+            sample_file = fullfile(obj.working_dir,obj.axes_block_v1_file);
+            if obj.save_sample
+                save(sample_file,'ab2D','ab4D')
+            end
+            ld = load(sample_file);
+            assertEqual(ld.ab2D,ab2D);
+            assertEqual(ld.ab4D,ab4D);
+            %--------------------------------------------------------------
+            % Check version 2
+            sample_file = fullfile(obj.working_dir,obj.axes_block_v2_file);
+            save(sample_file,'ab2D','ab4D')
+            ld = load(sample_file);
+            assertEqual(ld.ab2D,ab2D);
+            assertEqual(ld.ab4D,ab4D);
+        end
         %------------------------------------------------------------------
         function test_set_nbin_all_dim_all_2D(~)
             range = [0,0,0,0;1,2,3,4];

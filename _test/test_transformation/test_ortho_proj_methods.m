@@ -113,7 +113,7 @@ classdef test_ortho_proj_methods<TestCase
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab0 = axes_block(bin0{:});
-            [~,sz] = ab0.data_dims();
+            sz = ab0.dims_as_ssize();
             npix = ones(sz);
             bin1 = {[0.5,0.1,1];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
@@ -137,7 +137,7 @@ classdef test_ortho_proj_methods<TestCase
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab0 = axes_block(bin0{:});
-            [~,sz] = ab0.data_dims();
+            sz = ab0.dims_as_ssize();
             npix = ones(sz);
             bin1 = {[0.5,0.1,dbr(2,1)];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
@@ -149,7 +149,8 @@ classdef test_ortho_proj_methods<TestCase
             [bl_start,bl_size] = proj1.get_nrange(npix,ab0,ab1,proj2);
             assertEqual(numel(bl_start),numel(bl_size));
             
-            [nd,sz1] = ab1.data_dims();
+            sz1 = ab1.dims_as_ssize();
+            nd = ab1.n_dims;
             assertEqual(nd,2)
             assertEqual(numel(bl_start),1);
             assertEqual(bl_start,2*sz1(2)+1);
@@ -163,7 +164,7 @@ classdef test_ortho_proj_methods<TestCase
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab0 = axes_block(bin0{:});
-            [~,sz] = ab0.data_dims();
+            sz = ab0.dims_as_ssize();
             npix = ones(sz);
             bin1 = {[0.5,0.1,dbr(2,1)];[0,0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
@@ -173,7 +174,8 @@ classdef test_ortho_proj_methods<TestCase
             [bl_start,bl_size] = proj1.get_nrange(npix,ab0,ab1,proj1);
             assertEqual(numel(bl_start),numel(bl_size));
             
-            [nd,sz1] = ab1.data_dims();
+            nd = ab1.n_dims;
+            sz1 = ab1.dims_as_ssize();
             assertEqual(nd,2)
             assertEqual(bl_start(1),6);
             assertEqual(numel(bl_start),sz1(2));
@@ -187,7 +189,7 @@ classdef test_ortho_proj_methods<TestCase
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab0 = axes_block(bin0{:});
-            [~,sz] = ab0.data_dims();
+            sz = ab0.dims_as_ssize();
             npix = ones(sz);
             
             [bl_start,bl_end] = proj1.get_nrange(npix,ab0,ab0,proj1);
@@ -202,7 +204,7 @@ classdef test_ortho_proj_methods<TestCase
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab0 = axes_block(bin0{:});
-            [~,sz] = ab0.data_dims();
+            sz = ab0.dims_as_ssize();
             npix = ones(sz);
             
             [nstart,nend] = proj1.get_nrange(npix,ab0,ab0,proj1);
@@ -212,7 +214,7 @@ classdef test_ortho_proj_methods<TestCase
         %------------------------------------------------------------------
         %
         function test_cut_dnd(this)
-            skipTest('waits for cut_dnd beeing refactored')
+            skipTest('waits for cut_dnd being refactored')
             hc = hor_config();
             cur_mex = hc.use_mex;
             hc.use_mex = 0;

@@ -33,7 +33,7 @@ function [s, e, npix, pix_out, pix_comb_info] = ...
 pix_comb_info = [];
 
 % Pre-allocate image data
-[~,sz1] = targ_axes.data_dims();
+sz1 = targ_axes.dims_as_ssize();
 % note that 1D allocator of size N returns NxN array while we need Nx1
 % array
 %nbin_as_size = get_nbin_as_size(sz1);

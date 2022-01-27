@@ -1,14 +1,17 @@
 classdef ortho_proj<aProjection
-    %  Class defines coordinate projections necessary to make Horace cuts
+    %  Class defines coordinate transformations necessary to make Horace cuts
     %  in crystal coordinate system (orthogonal or non-orthogonal)
     %
     %  Defines coordinate transformations, used by cut_sqw when making
     %  Horace cuts
     %
-    % Object that defines the orhtolinear projection operations
+    %  Object that defines the orhtolinear projection operations
     %
     % Structure input:
     %   >> proj = ortho_proj(proj_struct)
+    %             where proj_struct is the
+    %             structure, containing any fields, with names, equal any
+    %             public fields of the ortho_proj class
     %
     % Argument input:
     %   >> proj = ortho_proj(u,v)
@@ -32,8 +35,8 @@ classdef ortho_proj<aProjection
     % the arguments below, or alternatively the arguments
     %
     % Required arguments:
-    %   u           [1x3] Vector of first axis (r.l.u.) defining projection axes
-    %   v           [1x3] Vector of second axis (r.l.u.) defining projection axes
+    %   u      [1x3] Vector of first axis (r.l.u.) defining cut plain and projection axes
+    %   v      [1x3] Vector of second axis (r.l.u.) defining cut plain and projection axes
     %
     % Optional arguments:
     %   w           [1x3] Vector of third axis (r.l.u.) - only needed if the third
@@ -89,7 +92,7 @@ classdef ortho_proj<aProjection
         data_sqw_dnd_export_list
         % Old confusing u_to_rlu matrix value
         u_to_rlu
-        % renamed offset projection property        
+        % renamed offset projection property
         uoffset
         % Return the compartibility structure, which may be used as additional input to
         % data_sqw_dnd constructor
@@ -141,13 +144,17 @@ classdef ortho_proj<aProjection
         end
         %
         function obj = set_ub_inv_compat(obj,ub_inv)
-            % Set up inverted ub matrix, used to support alignment as in 
-            % Horace 3.xxx as real ub matrix is multiplied by alginment
-            % matrix
+            % Set up inverted ub matrix, used to support alignment as in
+            % Horace 3.xxx where the real inverted ub matrix is multiplied
+            % by alginment matrix.
             obj.ub_inv_compat_ = ub_inv;
         end
         %
         function obj = init(obj,varargin)
+            % initialization routine taking any parameters non-default
+            % constructor would take and initiating internal state of the
+            % projection class.
+            %
             if nargin == 0
                 return
             end
@@ -282,13 +289,13 @@ classdef ortho_proj<aProjection
                     'Can not set uv from ub-matrix: %s',mess);
             end
         end
-        %------------------------------------------------------------------        
+        %------------------------------------------------------------------
         % OLD from new sqw object creation interface. Will go when new SQW
         % object is created
         %
         function lst = get.data_sqw_dnd_export_list(~)
             lst = {'u_to_rlu','nonorthogonal','alatt','angdeg','uoffset'};
-        end        
+        end
         function mat = get.u_to_rlu(obj)
             [~, mat] = obj.uv_to_rot();
             mat = [mat,[0;0;0];[0,0,0,1]];
