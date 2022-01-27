@@ -118,6 +118,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj = obj.init(varargin{:});
             
         end
+        %
         function obj = init(obj,varargin)
             % the content of the non-empty coustructor, also used to
             % initialize empty instance of the object
@@ -227,7 +228,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %            % save data in xye format
         %            save_xye@DnDBase(obj.data,varargin{:});
         %        end
-        
+        % write sqw object in an sqw file
+        write_sqw(obj,sqw_file);
     end
     
     methods(Static)

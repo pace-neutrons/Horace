@@ -2,7 +2,7 @@ classdef data_sqw_dnd < axes_block
     % Class defines structure of the data, used by sqw&dnd objects
     %
     % Trivial implementation, wrapping around a structure
-    
+
     % Original author: T.G.Perring
     %
     properties(Dependent)
@@ -158,8 +158,8 @@ classdef data_sqw_dnd < axes_block
             %   data.img_db_range  The range of the data along each axis, defining the size of the
             %                    grid, the pixels are rebinned into [img_db_range(2,4)]
             %   data.pix        A PixelData object
-            
-            
+
+
             obj = obj@axes_block();
             if nargin>0
                 obj = obj.init(varargin{:});
@@ -170,7 +170,12 @@ classdef data_sqw_dnd < axes_block
             if isa(varargin{1},'data_sqw_dnd') % handle shallow copy constructor
                 obj =varargin{1};                          % its COW for Matlab anyway
             elseif nargin==2 && isstruct(varargin{1})
-                obj = from_class_struct(obj,varargin{1});
+                if isfield(varargin{1},'iint') % old axes_block structure, needs to be converted to new
+                    class_struc = axes_block.convert_old_struct_into_nbins(varargin{1});      
+                else
+                    class_struc = varargin{1};
+                end
+                obj = from_class_struct(obj,class_struc);
             else
                 [obj,uoffset_,remains] = init@axes_block(obj,varargin{:});
                 obj.uoffset = uoffset_;
@@ -207,7 +212,7 @@ classdef data_sqw_dnd < axes_block
                 end
             end
         end
-        
+
         function dnd_struct=get_dnd_data(obj,varargin)
             %function retrieves dnd structure from the sqw_dnd_data class
             % if additional argument provided (+), the resulting structure  also includes
@@ -228,7 +233,7 @@ classdef data_sqw_dnd < axes_block
                 obj.pix_ = PixelData(val);
             end
         end
-        
+
         %
         function [type,obj]=check_sqw_data(obj, type_in, varargin)
             % old style validator for consistency of input data.
@@ -247,8 +252,8 @@ classdef data_sqw_dnd < axes_block
                 npix  = [];
             end
         end
-        
-        
+
+
     end
     methods(Access=protected)
         function obj = from_old_struct(obj,inputs)
@@ -301,6 +306,6 @@ classdef data_sqw_dnd < axes_block
                 get_projection_from_pbin_inputs_(nout,ndim,uoffset,nonorthogonal,...
                 varargin{:});
         end
-        
+
     end
 end

@@ -376,6 +376,7 @@ classdef axes_block < serializable
             [npix,s,e,pix_candidates,argi]=...
                 normalize_bin_input_(obj,pix_coord_transf,n_argout,varargin{:});
         end
+
         function obj = from_old_struct(obj,inputs)
             % Restore object from the old structure, which describes the
             % previous version of the object.
@@ -391,7 +392,7 @@ classdef axes_block < serializable
             %
             if isfield(inputs,'version') && (inputs.version == 1) || ...                    
                 isfield(inputs,'iint')
-                inputs = convert_old_struct_into_nbins_(inputs);
+                inputs = axes_block.convert_old_struct_into_nbins(inputs);
             end
             if isfield(inputs,'array_dat')
                 obj = obj.from_class_struct(inputs.array_dat);
@@ -401,4 +402,13 @@ classdef axes_block < serializable
         end        
 
     end
+    methods(Static, Access=protected)
+        function input = convert_old_struct_into_nbins(input)
+            % the function, used to convert old v1 axes_block structure,
+            % containing axes infomation, into the v2 structure,
+            % containing only range and bin numers
+           input = convert_old_struct_into_nbins_(input);            
+        end
+
+    end    
 end

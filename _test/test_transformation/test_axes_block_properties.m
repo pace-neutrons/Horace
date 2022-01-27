@@ -11,6 +11,7 @@ classdef test_axes_block_properties < TestCase
         % structure changes again
         axes_block_v1_file = 'axes_block_sample_v1.mat';
         axes_block_v2_file = 'axes_block_sample_v2.mat';
+        sample_sqw_file = 'w2d_qq_sqw.sqw'
         % save sample
         save_sample = false;
     end
@@ -27,6 +28,21 @@ classdef test_axes_block_properties < TestCase
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
+        function test_load_save_prev_sqw_version(obj)        
+            sample_file = fullfile(fileparts(obj.working_dir),...
+                'test_combine',obj.sample_sqw_file);
+            sq_sample = read_sqw(sample_file);
+            test_write = fullfile(obj.out_dir,'axes_block_conv_test.sqw');
+            %
+            clob = onCleanup(@()delete(test_write));
+
+            write_sqw(sq_sample,test_write);
+            assertTrue(is_file(test_write))
+            sq_req = read_sqw(test_write);
+
+            assertEqualToTol(sq_sample,sq_req,'ignore_str',true);
+
+        end
         function test_save_load_prev_version(obj)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin2D = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
