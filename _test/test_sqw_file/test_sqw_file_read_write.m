@@ -93,7 +93,7 @@ classdef test_sqw_file_read_write < TestCase
             % Write and read back in
             try
                 save(f1_1_s1,tmpsqwfile);
-                tmp=sqw(tmpsqwfile);
+                tmp=read_sqw(tmpsqwfile);
             catch err
                 warning('test_sqw_file_read_write:io','Error reading/writing sqw object')
                 rethrow(err);

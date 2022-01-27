@@ -80,21 +80,21 @@ for i=1:numel(headers)
         % struct may have enough info to make a sample (though this is not
         % defined yet - call to factory method will probably fail)
     else
-            samples{i} = make_sample_from_struct(sampl);
-        end 
+        samples{i} = make_sample_from_struct(sampl);
+    end 
     % Sample is actually a subclass of IX_samp, so keep it but overwrite
     % the lattice parameters if they were not in the old version
     elseif isa(sampl,'IX_samp')
         if isempty(sampl.alatt)
             sampl.alatt = alatt;
         elseif sampl.alatt ~= alatt
-            warning('HORACE:Experiment:invalid parameter',...
+            warning('HORACE:Experiment:invalid_parameter',...
                 'incoming sample alatt and old header alatt do not match');
         end
         if isempty(sampl.angdeg)
             sampl.angdeg = angdeg;
         elseif sampl.alatt ~= alatt
-            warning('HORACE:Experiment:invalid parameter',...
+            warning('HORACE:Experiment:invalid_parameter',...
                 'incoming sample angdeg and old header angdeg do not match');
         end
     end
