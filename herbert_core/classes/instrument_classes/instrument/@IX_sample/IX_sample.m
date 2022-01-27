@@ -160,7 +160,7 @@ classdef IX_sample < IX_samp
         % SERIALIZABLE interface
         %------------------------------------------------------------------
         function ver = classVersion(~)
-            ver = 1; 
+            ver = 2; 
         end
 
         function flds = indepFields(obj)
@@ -592,6 +592,28 @@ classdef IX_sample < IX_samp
         end
     end
     %}
+    methods(Access=protected)
+        %------------------------------------------------------------------
+        function obj = from_old_struct(obj,inputs)
+            % restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % The method is called by loadobj in the case if the input
+            % structure does not contain version or the version, stored
+            % in the structure does not correspond to the current version
+            %
+            % By default, this function interfaces the default from_struct
+            % function, but when the old strucure substantially differs from
+            % the moden structure, this method needs the specific overloading
+            % to allow loadob to recover new structure from an old structure.
+            inputs = convert_old_struct_(obj,inputs);
+            % optimization here is possible to not to use the public
+            % interface. But is it necessary? its the question
+            obj = from_old_struct@serializable(obj,inputs);
+            
+        end
+    end
+    
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
@@ -621,8 +643,10 @@ classdef IX_sample < IX_samp
                 obj = arrayfun(@(x)loadobj_private_(x), S);
             end
             %}
+            %%{
             obj = IX_sample();
             obj = loadobj@serializable(S,obj);
+            %%}
         end
         %------------------------------------------------------------------
 

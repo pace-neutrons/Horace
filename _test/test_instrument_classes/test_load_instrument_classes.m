@@ -119,7 +119,7 @@ assertTrue(ok,'Problems saving/reading moderator(s)')
 sample = IX_sample('Fe',true,[1,1,0],[0,1,3],'cuboid',[0.020,0.024,0.028]);
 
 % 1x2 array example
-sample_arr = [IX_sample(false,[1,1,1],[0,1,1],'cuboid',[0.005,0.005,0.0005]),...
+sample_arr = [IX_sample('',false,[1,1,1],[0,1,1],'cuboid',[0.005,0.005,0.0005]),...
     IX_sample('FeSi',true,[1,1,0],[0,1,3],'cuboid',[0.020,0.024,0.028],0.5,120)];
 
 % Test/save:

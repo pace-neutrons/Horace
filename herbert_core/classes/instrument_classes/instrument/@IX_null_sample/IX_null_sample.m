@@ -23,13 +23,38 @@ classdef IX_null_sample < IX_samp
         % SERIALIZABLE interface
         %------------------------------------------------------------------
         function ver = classVersion(~)
-            ver = 1;
+            ver = 2;
         end
         
-        %function flds = indepFields: no additional fields beyond base
-        %                             class where this function is defined
+        function flds = indepFields(obj)
+            baseflds = indepFields@IX_samp(obj);
+            flds = { baseflds{:} };
+        end
     end
-
+    
+    methods(Access=protected)
+        %------------------------------------------------------------------
+        function obj = from_old_struct(obj,inputs)
+            % restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % The method is called by loadobj in the case if the input
+            % structure does not contain version or the version, stored
+            % in the structure does not correspond to the current version
+            %
+            % By default, this function interfaces the default from_struct
+            % function, but when the old strucure substantially differs from
+            % the moden structure, this method needs the specific overloading
+            % to allow loadob to recover new structure from an old structure.
+            inputs = convert_old_struct_(obj,inputs);
+            % optimization here is possible to not to use the public
+            % interface. But is it necessary? its the question
+            obj = from_old_struct@serializable(obj,inputs);
+            
+        end
+    end
+    
+    %{
     %======================================================================
     % Methods for fast construction of structure with independent properties
     methods (Static, Access = private)
@@ -240,7 +265,7 @@ classdef IX_null_sample < IX_samp
             S = structIndep(obj);
         end
     end
-    
+    %}
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
@@ -263,12 +288,16 @@ classdef IX_null_sample < IX_samp
             % The following is boilerplate code; it calls a class-specific function
             % called loadobj_private_ that takes a scalar structure and returns
             % a scalar instance of the class
-            
+            %{
             if isobject(S)
                 obj = S;
             else
                 obj = arrayfun(@(x)loadobj_private_(x), S);
             end
+            %}
+            obj = IX_null_sample();
+            obj = loadobj@serializable(S,obj);
+
         end
         %------------------------------------------------------------------
         

@@ -31,6 +31,7 @@ end
 for i=1:nobj
     obj(i) = set_obj(obj(i),inputs(i),fields_to_set);
 end
+end % function from_class_struct_
 %
 function obj = set_obj(obj,inputs,flds)
 for i=1:numel(flds)
@@ -45,3 +46,4 @@ for i=1:numel(flds)
     end
     obj.(fld) = val;
 end
+end % function set_obj
