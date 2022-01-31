@@ -20,10 +20,6 @@ if ~isscalar(obj)
     error('HERBERT:pdf_table:invalid_argument',...
         'Method only takes a scalar object')
 end
-if ~obj.filled
-    error('HERBERT:pdf_table:uninitialised',...
-        'The probability distribution function is not initialised')
-end
 
 x_av = moments_(obj);
 

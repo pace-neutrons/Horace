@@ -4,7 +4,7 @@ function val = mean (obj, varargin)
 %   >> val = mean (obj)
 %
 % Controlling contributions of instrument components
-%   >> val = mean (obj,mc_val)
+%   >> val = mean (obj, mc_val)
 %
 % The average time of the pulse at the shaping chopper position and the Fermi
 % chopper will in general be non-zero, as will the covariance matrix.

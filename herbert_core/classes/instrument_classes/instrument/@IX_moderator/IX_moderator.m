@@ -113,7 +113,12 @@ classdef IX_moderator
                 % Assume trying to initialise from a structure array of properties
                 obj = IX_moderator.loadobj(varargin{1});
                 
+            elseif nargin==0
+                % Compute the pdf for the default object
+                obj.pdf_ = recompute_pdf_(obj);
+                
             elseif nargin>0
+                % One or more input arguments
                 namelist = {'name','distance','angle','pulse_model','pp',...
                     'flux_model','pf','width','height','thickness',...
                     'temperature','energy'};

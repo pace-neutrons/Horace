@@ -8,6 +8,8 @@ function X = rand (obj, varargin)
 %
 % Input:
 % ------
+%   obj         IX_moderator object (scalar)
+%
 %   n           Return square array of random numbers with size n x n
 %      *OR*
 %   sz          Size of array of output array of random numbers

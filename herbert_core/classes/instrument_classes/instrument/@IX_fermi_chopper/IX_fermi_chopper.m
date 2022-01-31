@@ -83,7 +83,7 @@ classdef IX_fermi_chopper
             %   width           Width of aperture (m)
             %   height          Height of aperture (m)
             %   energy          Energy of neutrons transmitted by chopper (mev)
-            %   phase           Phase = true if correctly phased, =false if 180 degree rotated
+            %   phase           Phase = true if optimally phased, =false if 180 degree rotated
             %   jitter          Timing uncertainty on chopper (FWHH) (microseconds)
             %
             %   name            Name of the slit package (e.g. 'sloppy')
@@ -105,6 +105,10 @@ classdef IX_fermi_chopper
             if nargin==1 && isstruct(varargin{1})
                 % Assume trying to initialise from a structure array of properties
                 obj = IX_fermi_chopper.loadobj(varargin{1});
+                
+            elseif nargin==0
+                % Compute the pdf for the default object
+                obj.pdf_ = recompute_pdf_(obj);
                 
             elseif nargin>0
                 namelist = {'name','distance','frequency','radius','curvature',...

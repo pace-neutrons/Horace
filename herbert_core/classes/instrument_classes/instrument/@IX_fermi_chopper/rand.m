@@ -1,13 +1,15 @@
-function X = rand (self, varargin)
+function X = rand (obj, varargin)
 % Generate random numbers from the Fermi chopper pulse shape
 %
-%   >> X = rand (fermi)                % generate a single random number
-%   >> X = rand (fermi, n)             % n x n matrix of random numbers
-%   >> X = rand (fermi, sz)            % array of size sz
-%   >> X = rand (fermi, sz1, sz2,...)  % array of size [sz1,sz2,...]
+%   >> X = rand (obj)                % generate a single random number
+%   >> X = rand (obj, n)             % n x n matrix of random numbers
+%   >> X = rand (obj, sz)            % array of size sz
+%   >> X = rand (obj, sz1, sz2,...)  % array of size [sz1,sz2,...]
 %
 % Input:
 % ------
+%   obj         IX_fermi_chopper object (scalar)
+%
 %   n           Return square array of random numbers with size n x n
 %      *OR*
 %   sz          Size of array of output array of random numbers
@@ -19,6 +21,11 @@ function X = rand (self, varargin)
 %   X           Array of random times (microseconds)
 
 
-if ~isscalar(self), error('Method only takes a scalar Fermi chopper object'), end
+if ~isscalar(obj)
+    error('IX_fermi_chopper:rand:invalid_argument',...
+        'Method only takes a scalar object')
+end
 
-X = rand (self.pdf_, varargin{:});
+X = rand (obj.pdf_, varargin{:});
+
+end

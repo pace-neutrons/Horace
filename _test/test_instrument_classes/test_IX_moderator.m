@@ -23,6 +23,13 @@ classdef test_IX_moderator < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
+        function test_pulse_shape_default (self)
+            mdefault = IX_moderator();
+            mdelta_zero_distAndAngle = IX_moderator(0,0,'delta_function',[]);
+            assertEqual (mdefault, mdelta_zero_distAndAngle);
+        end
+        
+        %--------------------------------------------------------------------------
         function test_pulse_shape_mik (self)
             t = -10:0.01:200;
             [y, t] = pulse_shape (self.mik, t); w_mik = IX_dataset_1d (t, y);

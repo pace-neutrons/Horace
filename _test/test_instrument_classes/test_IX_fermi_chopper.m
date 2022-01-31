@@ -75,6 +75,31 @@ classdef test_IX_fermi_chopper < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
+        % Test of the default object
+        %--------------------------------------------------------------------------
+        function test_default_pulse_shape (self)
+            % Delta function pulse, even though energy = 0
+            f = IX_fermi_chopper ();
+            [y,t] = pulse_shape(f);
+            assertEqual (t, 0)
+            assertEqual (y, Inf)
+        end
+        
+        function test_default_pulse_range (self)
+            % Delta function pulse, even though energy = 0
+            f = IX_fermi_chopper ();
+            [tlo, thi] = pulse_range(f);
+            assertEqual (tlo, 0)
+            assertEqual (thi, 0)
+        end
+        
+        function test_default_partial_transmission (self)
+            % Delta function pulse, even though energy = 0
+            f = IX_fermi_chopper ();
+            T = partial_transmission (f, [-eps,0,eps]);
+            assertEqual (T, [0,0,1])
+        end
+        
+        %--------------------------------------------------------------------------
     end
 end
-

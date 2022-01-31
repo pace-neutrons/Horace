@@ -31,45 +31,53 @@ function [t_cov, t_av] = moments_ (obj)
 %   t_av        Columns with mean times of pulses at shaping and monochromating
 %              chopper positions (microseconds) stacked along second dimension
 %
-%               size(t_av) = [2,8] with the third dimension as above
+%               size(t_av) = [2,8] with the second dimension as above
 
 
-% Pick out constituent instrument components and quantities
-moderator = obj.moderator_;
-shaping_chopper = obj.shaping_chopper_;
-mono_chopper = obj.mono_chopper_;
-
-x1 = mono_chopper.distance;
-x0 = moderator.distance - x1;       % distance from mono chopper to moderator face
-xa = shaping_chopper.distance - x1; % distance from shaping chopper to mono chopper
-alf = (xa/x0);
-bet = (x0-xa)/x0;
-
-t_cov = zeros(2,2,8);
-t_av = zeros(2,8);
-
-sig_m = pulse_width(moderator);
-sig_sh = pulse_width(shaping_chopper);
-sig_ch = pulse_width(mono_chopper);
-
-% mod-shape-chop = [1,1,1]
-[t_cov(:,:,8),t_av(:,8)] = moments_2D (obj, alf);
-
-% mod-shape-chop = [1,1,0]
-[t_cov(1,1,7),t_av(1,7)] = moments_1D (obj, alf);
-
-% mod-shape-chop = [1,0,1]
-t_cov(:,:,6) = [(alf*sig_m)^2 + (bet*sig_ch)^2, bet*sig_ch^2; bet*sig_ch^2, sig_ch^2];
-
-% mod-shape-chop = [1,0,0]
-t_cov(1,1,5) = (alf*sig_m)^2;
-
-% mod-shape-chop = [0,1,1]
-t_cov(1,1,4) = sig_sh^2;
-t_cov(2,2,4) = sig_ch^2;
-
-% mod-shape-chop = [0,1,0]
-t_cov(1,1,3) = sig_sh^2;
+if valid_components_(obj)
+    % Pick out constituent instrument components and quantities
+    moderator = obj.moderator_;
+    shaping_chopper = obj.shaping_chopper_;
+    mono_chopper = obj.mono_chopper_;
+    
+    x1 = mono_chopper.distance;
+    x0 = moderator.distance - x1;       % distance from mono chopper to moderator face
+    xa = shaping_chopper.distance - x1; % distance from shaping chopper to mono chopper
+    alf = (xa/x0);
+    bet = (x0-xa)/x0;
+    
+    t_cov = zeros(2,2,8);
+    t_av = zeros(2,8);
+    
+    sig_m = pulse_width(moderator);
+    sig_sh = pulse_width(shaping_chopper);
+    sig_ch = pulse_width(mono_chopper);
+    
+    % mod-shape-chop = [1,1,1]
+    [t_cov(:,:,8),t_av(:,8)] = moments_2D (obj, alf);
+    
+    % mod-shape-chop = [1,1,0]
+    [t_cov(1,1,7),t_av(1,7)] = moments_1D (obj, alf);
+    
+    % mod-shape-chop = [1,0,1]
+    t_cov(:,:,6) = [(alf*sig_m)^2 + (bet*sig_ch)^2, bet*sig_ch^2; bet*sig_ch^2, sig_ch^2];
+    
+    % mod-shape-chop = [1,0,0]
+    t_cov(1,1,5) = (alf*sig_m)^2;
+    
+    % mod-shape-chop = [0,1,1]
+    t_cov(1,1,4) = sig_sh^2;
+    t_cov(2,2,4) = sig_ch^2;
+    
+    % mod-shape-chop = [0,1,0]
+    t_cov(1,1,3) = sig_sh^2;
+    
+else
+    % Catch the case of invalid combination of moderator, shaping and
+    % monochromating choppers
+    t_cov = zeros(2,2,8);
+    t_av = zeros(2,8);
+end
 
 
 % =================================================================================================
@@ -175,32 +183,32 @@ if (alf*t_m_av) > fac*thi_shape
     % Zeroth moment
     area = integral2 (@(x,y)(fun_shaped(x, y, moderator, shaping_chopper, mono_chopper,...
         alf, t_m_offset, [0,0])), tlo_shape, thi_shape, tlo_mono, thi_mono);
-
+    
     % First moments
     t_av = zeros(1,2);
     t_av(1) = integral2 (@(x,y)(fun_shaped(x, y, moderator, shaping_chopper, mono_chopper,...
         alf, t_m_offset, [1,0])), tlo_shape, thi_shape, tlo_mono, thi_mono) / area;
-
+    
     t_av(2) = integral2 (@(x,y)(fun_shaped(x, y, moderator, shaping_chopper, mono_chopper,...
         alf, t_m_offset, [0,1])), tlo_shape, thi_shape, tlo_mono, thi_mono) / area;
-
+    
     % Second moments
     t_cov = zeros(2,2);
     t_cov(1,1) = integral2 (@(x,y)(fun_shaped(x, y, moderator, shaping_chopper, mono_chopper,...
         alf, t_m_offset, [2,0])), tlo_shape, thi_shape, tlo_mono, thi_mono) / area;
-
+    
     t_cov(1,2) = integral2 (@(x,y)(fun_shaped(x, y, moderator, shaping_chopper, mono_chopper,...
         alf, t_m_offset, [1,1])), tlo_shape, thi_shape, tlo_mono, thi_mono) / area;
-
+    
     t_cov(2,2) = integral2 (@(x,y)(fun_shaped(x, y, moderator, shaping_chopper, mono_chopper,...
         alf, t_m_offset, [0,2])), tlo_shape, thi_shape, tlo_mono, thi_mono) / area;
-
+    
     % Correct covariance matrix for non-zero first moments
     t_cov(1,1) = t_cov(1,1) - t_av(1)^2;
     t_cov(1,2) = t_cov(1,2) - t_av(1)*t_av(2);
     t_cov(2,2) = t_cov(2,2) - t_av(2)^2;
     t_cov(2,1) = t_cov(1,2);
-
+    
 else
     % Random sampling with 10^6 points seems to get the covariance to about 0.5%
     % and seems to be very robust, unlike using the Matlab functions integral

@@ -33,10 +33,6 @@ if ~isscalar(obj)
     error('HERBERT:pdf_table:invalid_argument',...
         'Method only takes a scalar object')
 end
-if ~obj.filled
-    error('HERBERT:pdf_table:uninitialised',...
-        'The probability distribution function is not initialised')
-end
 
 if numel(obj.x_) > 1
     % Non-delta function distribution
@@ -73,12 +69,19 @@ if numel(obj.x_) > 1
     ix = find((dx==min(dx)));
     xmax = sum(x(ind(ix)))/numel(ix);
     
-else
-    % Special case of a single delta function[w,xmax,xlo,xhi]
+elseif numel(obj.x_) == 1
+    % Special case of a single delta function
     w = 0;
     xmax = obj.x;
     xlo = xmax;
     xhi = xmax;
+    
+else
+    % Unfilled (null)
+    w = NaN;
+    xmax = obj.NaN;
+    xlo = NaN;
+    xhi = NaN;
 end
 
 end
