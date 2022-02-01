@@ -575,7 +575,7 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            [nodes,en] = ab.get_bin_nodes();
+            [nodes,en] = ab.get_bin_nodes('-3D');
             assertEqual(size(nodes,1),3);
             sz = ab.nbins_all_dims();
             sz = sz+1;
@@ -592,7 +592,7 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            [nodes,en] = ab.get_bin_nodes();
+            [nodes,en] = ab.get_bin_nodes('-3D');
             assertEqual(size(nodes,1),3);
 
             nd = ab.n_dims;
@@ -653,14 +653,14 @@ classdef test_axes_block < TestCase
             r0 = [-1;-2;-3;0];
             r1 = r0+new_step;
             char_block =[r0,r1];
-            [nodes3D,dEgrid] = ab.get_bin_nodes(char_block);
+            [nodes3D,dEgrid] = ab.get_bin_nodes(char_block,'-3D');
             assertEqual(size(nodes3D,1),3);
             node_range = [min(nodes3D,[],2)';max(nodes3D,[],2)'];
             assertEqual(ab.img_range(:,1:3),node_range);
 
             %nns = floor((ab.img_range(2,:)-ab.img_range(1,:))'./(0.5*new_step))+1;
 
-            nns = [84,80,81,221];
+            nns = [84,80,81,12];
             q_size = prod(nns(1:3));
             assertEqual(numel(dEgrid),nns(4))
             assertEqual(size(nodes3D,2),q_size);

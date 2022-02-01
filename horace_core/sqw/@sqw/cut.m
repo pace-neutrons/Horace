@@ -192,7 +192,7 @@ source_proj = img_block.get_projection(header_av);
 %--------------------------------------------------------------------------
 % it is actually axes_block method, so source projection is provided as
 % input of this method. Left in this form unil data_sqw_dnd is a axes_block
-source_binning = img_block.get_default_binning_range(img_block.img_db_range,...
+source_binning = img_block.get_binning_range(...
     source_proj,targ_proj);
 targ_ax_block = axes_block.build_from_input_binning(source_binning,pbin);
 %TODO: will be something more involved when its generic projection, as the

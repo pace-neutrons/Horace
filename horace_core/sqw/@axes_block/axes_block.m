@@ -81,6 +81,21 @@ classdef axes_block < serializable
             obj = axes_block();
             obj = loadobj@serializable(S,obj);
         end
+        function [any_within,is_within]=bins_in_1Drange(bins,range)
+            % get bins which contribute into the given range in one
+            % dimension
+            % Inputs: 
+            % bins -- equally spaced increasing array of values,
+            %         representing bin edges.
+            % range -- 2 element vector of min/max values which should 
+            %          surround contributing range
+            % Output:
+            % any_within -- true if any input bin contribute into the
+            %               selected range and false otherwise
+            % is_within  -- logical array of size numel(bins)-1 
+            [any_within,is_within]=bins_in_1Drange_(bins,range);
+        end
+        
         %
         function img_db_range = calc_img_db_range(ax_data)
             % Retrieve 4D range used for rebinning pixels
@@ -218,7 +233,7 @@ classdef axes_block < serializable
             % pix     -- pixel array or PixelData
             %            object (the output format is the same as for
             %            pix_candidates)
-            % pix_indx --Array of indexess for the image bins, where 
+            % pix_indx --Array of indexess for the image bins, where
             %            the input pix elements belong to
 
             nargou = nargout;
@@ -231,21 +246,40 @@ classdef axes_block < serializable
                 npix,s,e,pix_cand,argi{:});
         end
 
-        function [nodes,varargout] = get_bin_nodes(obj,varargin)
-            % returns [4,nBins] or [3,nBins] array of points, where each point
-            % coordinate is a node of the grid, formed by axes_block axes.
+        function [nodes,dE_edges,npoints_in_axes] = get_bin_nodes(obj,varargin)
+            % build 3D or 4D vectors, containing all nodes of the axes_block grid,
+            % constructed over axes_block axes points.
             %
             % Inputs:
-            % varargin{1} -- if present, contains the nodes of 4D cube, or
-            %                this cube min/max nodes coordinates, describing
-            %                the  characteristic scale of the grid,
-            %                the generated grid should fit to.
-            if nargout == 2
-                [nodes,en_axis] = calc_bin_nodes_(obj,varargin{:});
-                varargout{1} = en_axis;
-            else
-                nodes = calc_bin_nodes_(obj,varargin{:},'4D');
+            % obj         -- initialized version of the exes block
+            % Optional:
+            %  char_cube -- the cube, describing the scale of the grid,
+            %              to construct the lattice on.
+            %
+            % '-3D'     -- generate separate 3D grid nodes for q-axes and
+            %              energy transfer binning grid as the energy axis
+            %
+            % -halo     -- request to build lattice in the
+            %              specified rane + single sized characteristic
+            %              step
+            % Returns:
+            % nodes     -- [4,nBins] or [3,nBins] array of points,
+            %              (depending on state of '-3D' switch)  where
+            %              the coordinate of each point is a node of the
+            %              grid, formed by axes_block axes.
+            % Optional:
+            % dE_edges  -- if '-3D' switch is present, coordinates of the
+            %              energy transfer grid, empty if not
+            % npoints_in_axes
+            %           -- 4-elements vector, containing numbers of axes 
+            %              nodes in each of 4 directions
+            %
+            opt = {'-3D','-halo'};
+            [ok,mess,do_3D,build_halo,argi] = parse_char_options(varargin,opt);
+            if ~ok
+                error('Horace:axes_block:invalid_argument',mess)
             end
+            [nodes,dE_edges,npoints_in_axes] = calc_bin_nodes_(obj,do_3D,build_halo,argi{:});
         end
         %
         function range = get_binning_range(obj,...
@@ -258,7 +292,11 @@ classdef axes_block < serializable
             % If new projection is not aligned with the old projection, the new
             % projection binning is copied from the old projection binning according to
             % axis number, i.e. if axis 1 of cur_proj had 10 bins, axis 1 of target
-            % proj would have 10 bins, etc.
+            % proj would have 10 bins, etc. This redefines the behaviour of the
+            % cuts when some directions are integraion directions, but
+            % become projection directions, and redefine it when a new
+            % projection direction goes in the direction of  the mixture
+            % of currently projection and integration directions.
             %
             % Inputs:
             % obj      - current instance of the axes block
@@ -370,8 +408,16 @@ classdef axes_block < serializable
         function [npix,s,e,pix_candidates,argi]=...
                 normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
             % verify inputs of the bin_pixels function and convert various
-            % forms of the inputs of this function into a common form, 
+            % forms of the inputs of this function into a common form,
             % where the missing inputs are returned as empty outputs.
+            %
+            %Inputs:
+            % pix_coord_transf -- the array of pixels coordinates
+            %                     transformed into this axes_block
+            %                      coordinate system
+            % n_argout         -- number of argument, requested by the
+            %                     calling function
+            %
 
             [npix,s,e,pix_candidates,argi]=...
                 normalize_bin_input_(obj,pix_coord_transf,n_argout,varargin{:});
@@ -390,8 +436,8 @@ classdef axes_block < serializable
             % the moden structure, this method needs the specific overloading
             % to allow loadob to recover new structure from an old structure.
             %
-            if isfield(inputs,'version') && (inputs.version == 1) || ...                    
-                isfield(inputs,'iint')
+            if isfield(inputs,'version') && (inputs.version == 1) || ...
+                    isfield(inputs,'iint')
                 inputs = axes_block.convert_old_struct_into_nbins(inputs);
             end
             if isfield(inputs,'array_dat')
@@ -399,7 +445,7 @@ classdef axes_block < serializable
             else
                 obj = obj.from_class_struct(inputs);
             end
-        end        
+        end
 
     end
     methods(Static, Access=protected)
@@ -407,8 +453,8 @@ classdef axes_block < serializable
             % the function, used to convert old v1 axes_block structure,
             % containing axes infomation, into the v2 structure,
             % containing only range and bin numers
-           input = convert_old_struct_into_nbins_(input);            
+            input = convert_old_struct_into_nbins_(input);
         end
 
-    end    
+    end
 end

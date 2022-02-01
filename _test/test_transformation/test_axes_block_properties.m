@@ -28,7 +28,7 @@ classdef test_axes_block_properties < TestCase
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
-        function test_load_save_prev_sqw_version(obj)        
+        function test_load_save_prev_sqw_version(obj)
             sample_file = fullfile(fileparts(obj.working_dir),...
                 'test_combine',obj.sample_sqw_file);
             sq_sample = read_sqw(sample_file);

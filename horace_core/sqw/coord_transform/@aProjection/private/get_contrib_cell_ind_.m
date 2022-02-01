@@ -19,9 +19,15 @@ trans_chcube = source_proj.from_this_to_targ_coord(ch_cube);
 % binning with the bin size, slightly smaller then the current
 % lattice size
 if source_proj.do_3D_transformation_
-    [bin_nodes,dEnodes] = targ_axes_block.get_bin_nodes(trans_chcube);    
+    [bin_nodes,dEnodes] = targ_axes_block.get_bin_nodes(trans_chcube,'-3D','-halo');
+    bin_range = targ_axes_block.img_range;
+    [any_inside,e_inside] = axes_block.bins_in_1Drange(dEnodes,bin_range(:,4));
+    if ~any_inside
+        contrib_ind = [];
+        return;
+    end
 else
-    bin_nodes = targ_axes_block.get_bin_nodes(trans_chcube);    
+    bin_nodes = targ_axes_block.get_bin_nodes(trans_chcube,'-halo');
 end
 % convert these notes to the coordinate system, described by
 % the existing projection
@@ -31,4 +37,9 @@ nodes_here = targ_proj.from_this_to_targ_coord(bin_nodes);
 nbin_in_bin = cur_axes_block.bin_pixels(nodes_here);
 %
 % identify cell indexes containing nodes
-contrib_ind = find(nbin_in_bin>0);
+if source_proj.do_3D_transformation_
+    contrib_ind = source_proj.convert_3D_QdE_ind_to_4Dind_ranges(...
+        nbin_in_bin(:)>0,e_inside);
+else
+    contrib_ind = find(nbin_in_bin>0);
+end

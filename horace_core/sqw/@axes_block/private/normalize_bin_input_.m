@@ -3,11 +3,32 @@ function [npix,s,e,pix_cand,argi]=...
 % verify inputs of the bin_pixels function and convert various
 % forms of the inputs of this function into a common form, where the missing
 % inputs are presented as empty outputs.
+%
+% Inputs:
+% pix -- [3,npix] or [4,npix] numeric array of the pixel coordinates
+% mde -- operation mode specifying what the following routine should process.
+%        The mode is defined by number of output arguments. Depending on
+%        the requested outputs, different inputs have to be provided
+% Optional:
+% npix or nothing if mde == 1
+% npix,s,e accumulators if mde in [3,4,5]
+%
+% Outputs:
+% npix  -- array to keep number of pixels belonging to each cell
+% s,e   -- arrays to keep each cell's signal and error values or empty
+%          values (depending on mde)
+% argi  -- anything else, provided as input and not related to the
+%          processed inputs, left for further routines to process
+%
 
-
-if ~isnumeric(pix) || size(pix,1) ~= 4
+if ~isnumeric(pix)
     error('HORACE:axes_block:invalid_argument',...
-        'first argument of the routine have to be 4xNpix array of pixel coordinates')
+        'first argument of the routine have to be 4xNpix or 3xNpix numeric array of pixel coordinates')
+end
+
+if ~(size(pix,1) == 4 || (mde == 1 && size(pix,1) == 3))
+    error('HORACE:axes_block:invalid_argument',...
+        'first argument of the routine have to be 4xNpix or 3xNpix array of pixel coordinates')
 end
 
 bin_size = obj.dims_as_ssize();

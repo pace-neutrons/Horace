@@ -5,7 +5,7 @@ classdef aProjection < serializable
     %  and vice-versa and used by cut algorithm to make appropriate
     %  coordinate transformations.
     %
-    %   Hidden properties: (User should not be setting them as cut
+    %   Lattice parameters: (User should not be setting them as cut
     %               algorithm resets their value before the cut taking it
     %               from other places of the sqw object)
     %
@@ -27,6 +27,14 @@ classdef aProjection < serializable
     %   lab4        Short label for u4 axis (e.g. 'E' or 'En')
 
     properties(Dependent)
+        % Lattice parameters are important in any transfomation from Crystal
+        % Cartesian (pixels) to image coordinate system but are hidden as
+        % user is not requested to set these properties -- cut algorithm
+        % would set their values from their permanent and unique place in
+        % an sqw object. These parameters are the only source of the
+        % lattice for dnd object.
+        alatt        % the lattice parameters
+        angdeg       % angles between the lattice edges        
         %---------------------------------
         %TODO: Will be refactored to axes_caption and transferred to axes
         %block?
@@ -38,16 +46,13 @@ classdef aProjection < serializable
     end
     properties(Dependent,Hidden)
         % Common (non-virtual) properties:
-        % the properties are important in any transfomation from Crystal
-        % Cartesian (pixels) to image coordinate system but are hidden as
-        % user is not requested to set these properties -- cut algorithm
-        % would reset their values from other places in sqw object
-        alatt        % the lattice parameters
-        angdeg       % angles between the lattice edges
+        %
         %
         targ_proj    % the target projection, used by cut to transform from
         %              source to target coordinate system
-
+        %
+        %------------------------------------------------------------------
+        % DEVELOPERS or FINE-TUNNING properties
         %------------------------------------------------------------------
         % property mainly used in testing. If set to true,
         % the class will always use generic projection transformation
@@ -55,6 +60,14 @@ classdef aProjection < serializable
         % particular projection-projection transformation, optimized for
         % specific projection-projection pair of classes
         do_generic;
+        % check if a projection should use 3D transformation assuming that
+        % energy axis is orthogonal to q-axes, which is much more efficient
+        % then doing full 4D transformation, where projecton may be
+        % performed in full 4D space and a cut may be directed in q-dE
+        % direction. The majority of physical cases use do_3D_transformation
+        % true, though testing or the projection used to identify position
+        % of q-dE point in q-dE space may set this property to false.
+        do_3D_transformation
     end
 
     properties(Constant, Access=private)
@@ -63,7 +76,7 @@ classdef aProjection < serializable
     properties(Constant, Access=protected)
         % minimal value of a vector norm e.g. how close couple of vectors
         % should be to be considered parallel. u*v are orthogonal if u*v'<tol
-        % or they are parallel if the length of their vector product 
+        % or they are parallel if the length of their vector product
         % is the vector that can be consigdered a null vector
         % (e.g. abs([9.e-13,0,0,0]) will be treated as [0,0,0,0]
         tol_=1e-12;
@@ -95,7 +108,7 @@ classdef aProjection < serializable
         % false.  It may be more reasonable to overload the correspondent
         % methods for specific projections, but 4D transformation is
         % algorithmically simpler so actively used in tests.
-        do_3D_transformation_ = false;
+        do_3D_transformation_ = true;
         %------------------------------------------------------------------
     end
 
@@ -212,7 +225,9 @@ classdef aProjection < serializable
                 return;
             end
 
-            % Compress indexes of contributing cells into bl_start:bl_start+bl_size-1 form
+            % Calculae pix indexes from cell indexes. Compress indexes of 
+            % contributing cells into bl_start:bl_start+bl_size-1 form if
+            % it has not been done before
             % Ideal for filebased but not so optimal for arrays
             [bl_start,bl_size] = obj.convert_contrib_cell_into_pix_indexes(...
                 contrib_ind,npix);
@@ -291,17 +306,23 @@ classdef aProjection < serializable
         function proj = get.targ_proj(obj)
             proj = obj.targ_proj_;
         end
-        %
         function obj = set.targ_proj(obj,val)
             obj = obj.check_and_set_targ_proj(val);
         end
+        %
         function gen = get.do_generic(obj)
             gen = obj.do_generic_;
         end
         function obj = set.do_generic(obj,val)
             obj = obj.check_and_set_do_generic(val);
         end
-
+        %
+        function do = get.do_3D_transformation(obj)
+            do = obj.do_3D_transformation_;
+        end
+        function obj = set.do_3D_transformation(obj,val)
+            obj.do_3D_transformation_ = logical(val);
+        end
         %------------------------------------------------------------------
         % Serializable interface
         function ver  = classVersion(~)
@@ -342,11 +363,8 @@ classdef aProjection < serializable
             %                   coordinate system
             % targ_axes_block-- the axes block for the coordinate system,
             %                   requested by the cut
-            % use_3D         -- if present, assume that energy axis is
-            %                   orthogonal to q-axis and use this fact
-            %                   for improving the performance of the
-            %                   algorithm
             % Output:
+            % contrib_ind    -- either array of start_ind;
             %
             contrib_ind= get_contrib_cell_ind_(obj,...
                 cur_axes_block,targ_proj,targ_axes_block);
@@ -390,7 +408,7 @@ classdef aProjection < serializable
                 % in the form of cell_start:cell_end
                 bl_start = pix_start(cell_ind{1});
                 bl_end   = pix_start(cell_ind{2});
-                bl_size  = bl_end-bl_start;
+                bl_size  = bl_end-bl_start+1;
             else % accepted contributing cell indexes as linear array of
                 % indexes
                 adjacent = cell_ind(1:end-1)+1==cell_ind(2:end);
@@ -403,6 +421,45 @@ classdef aProjection < serializable
             non_empty = bl_size~=0;
             bl_start  = bl_start(non_empty)+1; % +1 converts to Matlab indexing
             bl_size   = bl_size(non_empty);
+        end
+        function contrib_ind=convert_3D_QdE_ind_to_4Dind_ranges(...
+                bin_inside3D,en_inside)
+            % convert cell indexes calculated on 3D q + 1D orthogonal
+            % lattice into 4D indexes on 4D lattice.
+            % Inputs:
+            % bin_inside3D -- 3D logical array, containing true
+            %                 for indexes to include
+            % en_inside    -- 1D logical array, containing true, for
+            %                 orthogonal 1D indexes to include
+
+            q_block_size = numel(bin_inside3D);
+            change = diff([false;bin_inside3D(:);false]);
+            istart = find(change==1);
+            if isempty(istart)
+                contrib_ind = {};
+                return;
+            end            
+            iend   = find(change==-1)-1;
+
+            % calculate full 4D indexes from the the knowlege of the contributing dE bins,
+            % 3D indexes and 4D array allocation layout
+            q_stride = (0:numel(en_inside)-1)*q_block_size; % the shift of indexes for
+            % every subsequent dE block shifted by q_stride 
+            q_stride = q_stride(en_inside); % but only contributing dE blocks matter
+
+            n_eblocks = numel(q_stride);
+            q_stride  = repmat(q_stride,numel(istart),1); % expand to every q-block
+
+            istart = repmat(istart,1,n_eblocks)+q_stride;
+            iend   = repmat(iend,1,n_eblocks)+q_stride;
+            % if any blocks follow each other through 4-th dimention, we
+            % want to join them together
+            subsequent = iend(1:end-1)+1 == istart(2:end);
+            if any(subsequent)
+                istart = istart([true,~subsequent]);
+                iend   = iend([~subsequent,true]);                
+            end
+            contrib_ind = {istart(:)',iend(:)'};
         end
 
     end
