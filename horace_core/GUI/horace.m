@@ -49,6 +49,40 @@ is_sqw_obj = strcmp(element_class,'d1d') || strcmp(element_class,'d2d') ||...
     strcmp(element_class,'d3d') || strcmp(element_class,'d4d') ||...
     strcmp(element_class,'sqw');
 
+function [vec_val,ok] = read_vector(str_val)
+
+% read vector value from a string, obtained from GUI.
+%
+% Inputs:
+% str_val -- the string with input data obtained fron GUI.
+%            The string should be either set of comma separated values
+%            e.g. 10 or 1,3,5 or similar set of values, surrounded by
+%            square brackets, e.g. [10] or [1,3,5].
+%
+%            String can not be empty (will throw error)
+% Outputs:
+% vec_val  -- numerical value corresponding to the input string
+%             Both bracketed and no-bracketed forms return the same
+%             numeric results, namely vec_val == 10; or vec_val == [1,3,5];
+% ok       -- true if results were obtained. False if only one bracket was
+%             provided.
+
+ok = true;
+s1=strfind(str_val,'['); s2=strfind(str_val,']');
+if isempty(s1) && isempty(s2)
+    sv_new=textscan(str_val,'%f','delimiter',',');
+elseif ~isempty(s1) && ~isempty(s2)
+    str_val=str_val(s1+1:s2-1);
+    sv_new=textscan(str_val,'%f','delimiter',',');
+else
+    ok = false;
+end
+if isempty(sv_new)
+    vec_val =[];
+else
+    vec_val = sv_new{1};
+end
+
 
 % --- Executes just before horace is made visible.
 function horace_OpeningFcn(hObject, eventdata, handles, varargin)
@@ -251,7 +285,8 @@ guidata(gcbo,handles);
 ndim=dimensions(w_in);
 
 %Get the plot title info:
-[title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = plot_titles (sqw(w_in));
+ds = sqw(w_in);
+[title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (ds.data);
 
 %Get the info about the object:
 if has_pixels(w_in)
@@ -1436,52 +1471,32 @@ elseif isempty(a4) && ndims>=3.9
 else
     try
         %must strip out square brackets, if user has inserted them:
-        s1=strfind(a1,'['); s2=strfind(a1,']');
-        if isempty(s1) && isempty(s2)
-            a1new=textscan(a1,'%f','delimiter',',');
-        elseif ~isempty(s1) && ~isempty(s2)
-            a1=a1(s1+1:s2-1);
-            a1new=textscan(a1,'%f','delimiter',',');
-        else
+        [a1new,ok] = read_vector(a1);
+        if ~ok
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
             set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
             guidata(gcbo,handles);
             return;
         end
-        s1=strfind(a2,'['); s2=strfind(a2,']');
-        if isempty(s1) && isempty(s2)
-            a2new=textscan(a2,'%f','delimiter',',');
-        elseif ~isempty(s1) && ~isempty(s2)
-            a2=a2(s1+1:s2-1);
-            a2new=textscan(a2,'%f','delimiter',',');
-        else
+        [a2new,ok] = read_vector(a2);
+        if ~ok
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
             set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
             guidata(gcbo,handles);
             return;
         end
-        s1=strfind(a3,'['); s2=strfind(a3,']');
-        if isempty(s1) && isempty(s2)
-            a3new=textscan(a3,'%f','delimiter',',');
-        elseif ~isempty(s1) && ~isempty(s2)
-            a3=a3(s1+1:s2-1);
-            a3new=textscan(a3,'%f','delimiter',',');
-        else
+        [a3new,ok] = read_vector(a3);
+        if ~ok
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
             set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
             guidata(gcbo,handles);
             return;
         end
-        s1=strfind(a4,'['); s2=strfind(a4,']');
-        if isempty(s1) && isempty(s2)
-            a4new=textscan(a4,'%f','delimiter',',');
-        elseif ~isempty(s1) && ~isempty(s2)
-            a4=a4(s1+1:s2-1);
-            a4new=textscan(a4,'%f','delimiter',',');
-        else
+        [a4new,ok] = read_vector(a4);
+        if ~ok
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
             set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
@@ -1672,7 +1687,7 @@ try
             return;
     end
 catch the_err
-    report_error(the_err,'**** cut failed at: ')
+    report_error(handles,the_err,'**** cut failed at: ',mess_initialise)
 end
 
 
@@ -1968,7 +1983,7 @@ if manspec==nummax
         %must strip out square brackets, if user has inserted them:
         s1=strfind(lostephi,'['); s2=strfind(lostephi,']');
         if isempty(s1) && isempty(s2)
-            lostephinew{1}=textscan(lostephi,'%f','delimiter',',');
+            lostephinew{1}=read_vector(lostephi);
         elseif ~isempty(s1) && ~isempty(s2)
             if length(s1)~=length(s2)
                 mess1='Ensure manual rebinning is of form [lo1,step1,hi1], [step], or []';
@@ -1982,9 +1997,10 @@ if manspec==nummax
                 guidata(gcbo,handles);
                 return;
             end
+            lostephinew = cell(numel(s1),1);
             for i=1:numel(s1)
                 lostephi_tmp=lostephi(s1(i)+1:s2(i)-1);
-                lostephinew{i}=textscan(lostephi_tmp,'%f','delimiter',',');
+                lostephinew{i}=read_vector(lostephi_tmp);
             end
         else
             mess1='Ensure manual rebinning is of form [lo1,step1,hi1], [step], or []';
@@ -2012,7 +2028,7 @@ if manspec==nummax
             '**** Formatting error of manual rebinning entries: ',...
             '**** Ensure they are of the form [lo,step,hi], [step], or [], and are numeric'};
         
-        set(handles.message_text_field,'String',char(err));
+        set(handles.message_info_text,'String',char(err));
         guidata(gcbo,handles);
         
         
@@ -2057,7 +2073,7 @@ if ~ismanual && isfield(handles,'w_in2') && (ndims1 ~= ndims2)
 end
 
 %Work out which of the rebin functions is required:
-if is_sqw_type(sqw(win1))
+if has_pixels(sqw(win1))
     funcstr='rebin_sqw';
 elseif ndims1==1
     funcstr='rebin_horace_1d';
@@ -2109,7 +2125,7 @@ try
     end
     
 catch the_err
-    report_error(the_err,'**** rebin failed at: ')
+    report_error(handles,the_err,'**** rebin failed at: ',mess_initialise)
 end
 
 
@@ -2359,13 +2375,8 @@ if midspec==midmax
         midpoint=get(handles.Sym_midpoint_edit,'String');
         %tol=str2mat(tol);
         %must strip out square brackets, if user has inserted them:
-        s1=strfind(midpoint,'['); s2=strfind(midpoint,']');
-        if isempty(s1) && isempty(s2)
-            midpointnew=textscan(midpoint,'%f','delimiter',',');
-        elseif ~isempty(s1) && ~isempty(s2)
-            midpoint=midpoint(s1+1:s2-1);
-            midpointnew=textscan(midpoint,'%f','delimiter',',');
-        else
+        [midpointnew,ok] = read_vector(midpoint);
+        if ~ok
             mess1='Ensure midpoint is of form [val] for 1d, or [val_x,val_y] for 2d';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
             guidata(gcbo,handles);
@@ -2395,13 +2406,8 @@ else
         v1=get(handles.Sym_v1_edit,'String');
         %tol=str2mat(tol);
         %must strip out square brackets, if user has inserted them:
-        s1=strfind(v1,'['); s2=strfind(v1,']');
-        if isempty(s1) && isempty(s2)
-            v1new=textscan(v1,'%f','delimiter',',');
-        elseif ~isempty(s1) && ~isempty(s2)
-            v1=v1(s1+1:s2-1);
-            v1new=textscan(v1,'%f','delimiter',',');
-        else
+        [v1new,ok] = read_vector(v1);
+        if ~ok
             mess1='Ensure v1 is of form [a,b,c]';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
             guidata(gcbo,handles);
@@ -2417,13 +2423,8 @@ else
         v2=get(handles.Sym_v2_edit,'String');
         %tol=str2mat(tol);
         %must strip out square brackets, if user has inserted them:
-        s1=strfind(v2,'['); s2=strfind(v2,']');
-        if isempty(s1) && isempty(s2)
-            v2new=textscan(v2,'%f','delimiter',',');
-        elseif ~isempty(s1) && ~isempty(s2)
-            v2=v2(s1+1:s2-1);
-            v2new=textscan(v2,'%f','delimiter',',');
-        else
+        [v2new,ok] = read_vector(v2);
+        if ~ok
             mess1='Ensure v2 is of form [a,b,c]';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
             guidata(gcbo,handles);
@@ -2441,13 +2442,8 @@ else
         
         if ~isempty(v3)
             %must strip out square brackets, if user has inserted them:
-            s1=strfind(v3,'['); s2=strfind(v3,']');
-            if isempty(s1) && isempty(s2)
-                v1new=textscan(v3,'%f','delimiter',',');
-            elseif ~isempty(s1) && ~isempty(s2)
-                v3=v3(s1+1:s2-1);
-                v3new=textscan(v3,'%f','delimiter',',');
-            else
+            [v3new,ok] = read_vector(v3);
+            if ~ok
                 mess1='Ensure v3 is of form [a,b,c]';
                 set(handles.message_info_text,'String',char({mess_initialise,mess1}));
                 guidata(gcbo,handles);
@@ -2556,7 +2552,7 @@ try
     end
     
 catch the_err
-    report_error(the_err,'**** symmetrise  failed at: ')
+    report_error(handles,the_err,'**** symmetrise  failed at: ',mess_initialise)
 end
 
 
@@ -2811,13 +2807,8 @@ if tolspec==nummax
         tol=get(handles.Comb_tolerance_edit,'String');
         %tol=str2mat(tol);
         %must strip out square brackets, if user has inserted them:
-        s1=strfind(tol,'['); s2=strfind(tol,']');
-        if isempty(s1) && isempty(s2)
-            tolnew=textscan(tol,'%f','delimiter',',');
-        elseif ~isempty(s1) && ~isempty(s2)
-            tol=tol(s1+1:s2-1);
-            tolnew=textscan(tol,'%f','delimiter',',');
-        else
+        [tolnew,ok] = read_vector(tol);
+        if ~ok
             mess1='Ensure tolerance is of form [tol1,tol2,...], depending on the dimensionality';
             set(handles.message_info_text,'String',mess1);
             guidata(gcbo,handles);
@@ -2919,7 +2910,7 @@ try
     end
     
 catch the_err
-    report_error(the_err,'**** combine failed at: ')
+    report_error(handles,the_err,'**** combine failed at: ',mess_initialise)
 end
 
 
@@ -3218,7 +3209,7 @@ try
         end
     end
 catch the_err
-    report_error(the_err,'**** replication failed at: ')
+    report_error(handles,the_err,'**** replication failed at: ',mess_initialise)
 end
 
 if ~sqw_flag
@@ -3423,7 +3414,7 @@ try
         save(out,outfilename);
     end
 catch the_err
-    report_error(the_err,'**** bose_correction failed at: ')
+    report_error(handles,the_err,'**** bose_correction failed at: ',mess_initialise)
 end
 
 assignin('base',outobjname,out);
@@ -3842,7 +3833,7 @@ try
         save(out,outfilename);
     end
 catch the_err
-    report_error(the_err,'**** Formatting error? Unit operation failed at: ')
+    report_error(handles,the_err,'**** Formatting error? Unit operation failed at: ',mess_initialise)
 end
 
 
@@ -4045,7 +4036,7 @@ try
         save(out,outfilename);
     end
 catch the_err
-    report_error(the_err,'**** unit operation failed at: ')
+    report_error(handles,the_err,'**** unit operation failed at: ',mess_initialise)
 end
 
 assignin('base',outobjname,out);
@@ -4441,16 +4432,24 @@ if isempty(u) || isempty(v)
     return;
 else
     try
-        u=textscan(u,'%f','delimiter',',');
-        v=textscan(v,'%f','delimiter',',');
-        if numel(u)~=3 || numel(v)~=3
+        [u,oku] = read_vector(u);
+        [v,okv] = read_vector(v);
+        if ~oku || ~okv || numel(u)~=3 || numel(v)~=3
             mess='u and v must comprise 3 numbers specifying h, k, and l of projection axes';
             set(handles.message_info_text,'String',char({mess_initialise,mess}));
             guidata(gcbo,handles);
             return;
         end
         if ~isempty(w)
-            w=textscan(w,'%f','delimiter',',');
+            [w,okw] = read_vector(s);
+            if ~okw
+                mess='Check the format of the vectors w. It must be empty or numeric with 3 elements';
+
+                set(handles.message_info_text,'String',char({mess_initialise,mess}));
+                guidata(gcbo,handles);
+                return;
+            end
+            
         end
     catch
         mess='Check the format of the vectors u, v, and/or w. They must be numeric with 3 elements';
@@ -4499,52 +4498,32 @@ if isempty(a1) || isempty(a2) || isempty(a3) || isempty(a4)
 else
     try
         %must strip out square brackets, if user has inserted them:
-        s1=strfind(a1,'['); s2=strfind(a1,']');
-        if isempty(s1) && isempty(s2)
-            a1new=textscan(a1,'%f','delimiter',',');
-        elseif ~isempty(s1) && ~isempty(s2)
-            a1=a1(s1+1:s2-1);
-            a1new=textscan(a1,'%f','delimiter',',');
-        else
+        [a1new,ok] = read_vector(a1);
+        if ~ok
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
             set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
             guidata(gcbo,handles);
             return;
         end
-        s1=strfind(a2,'['); s2=strfind(a2,']');
-        if isempty(s1) && isempty(s2)
-            a2new=textscan(a2,'%f','delimiter',',');
-        elseif ~isempty(s1) && ~isempty(s2)
-            a2=a2(s1+1:s2-1);
-            a2new=textscan(a2,'%f','delimiter',',');
-        else
+        [a2new,ok] = read_vector(a2);
+        if ~ok
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
             set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
             guidata(gcbo,handles);
             return;
         end
-        s1=strfind(a3,'['); s2=strfind(a3,']');
-        if isempty(s1) && isempty(s2)
-            a3new=textscan(a3,'%f','delimiter',',');
-        elseif ~isempty(s1) && ~isempty(s2)
-            a3=a3(s1+1:s2-1);
-            a3new=textscan(a3,'%f','delimiter',',');
-        else
+        [a3new,ok] = read_vector(a3);
+        if ~ok
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
             set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
             guidata(gcbo,handles);
             return;
         end
-        s1=strfind(a4,'['); s2=strfind(a4,']');
-        if isempty(s1) && isempty(s2)
-            a4new=textscan(a4,'%f','delimiter',',');
-        elseif ~isempty(s1) && ~isempty(s2)
-            a4=a4(s1+1:s2-1);
-            a4new=textscan(a4,'%f','delimiter',',');
-        else
+        [a4new,ok] = read_vector(a4);
+        if ~ok
             mess1='   Ensure binning values are entered if the form of lo,step,hi / step / lo,hi    ';
             mess2='NB: enter 0 if you wish to use intrinsic binning and entire data range along axis';
             set(handles.message_info_text,'String',char({mess_initialise,mess1,mess2}));
@@ -4620,7 +4599,7 @@ try
             a2,'],[',a3,'],[',a4,'],''',outfilename,''');']);
     end
 catch the_err
-    report_error(the_err,'**** Invalid inputs? Cut from file failed at: ')
+    report_error(handles,the_err,'**** Invalid inputs? Cut from file failed at: ',mess_initialise)
 end
 
 assignin('base',outobjname,out);
@@ -5231,73 +5210,43 @@ elseif isempty(sqwfile)
 else
     try
         %must strip out square brackets, if user has inserted them:
-        s1=strfind(u,'['); s2=strfind(u,']');
-        if isempty(s1) && isempty(s2)
-            unew=textscan(u,'%f','delimiter',',');
-        elseif ~isempty(s1) && ~isempty(s2)
-            u=u(s1+1:s2-1);
-            unew=textscan(u,'%f','delimiter',',');
-        else
+        [unew,ok] = read_vector(u);
+        if ~ok
             mess1='Ensure u is a 3-element vector with comma-separated elements';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
             guidata(gcbo,handles);
             return;
         end
-        s1=strfind(v,'['); s2=strfind(v,']');
-        if isempty(s1) && isempty(s2)
-            vnew=textscan(v,'%f','delimiter',',');
-        elseif ~isempty(s1) && ~isempty(s2)
-            v=v(s1+1:s2-1);
-            vnew=textscan(v,'%f','delimiter',',');
-        else
+        [vnew,ok] = read_vector(v);
+        if ~ok
             mess1='Ensure v is a 3-element vector with comma-separated elements';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
             guidata(gcbo,handles);
             return;
         end
-        s1=strfind(efix,'['); s2=strfind(efix,']');
-        if isempty(s1) && isempty(s2)
-            efixnew=textscan(efix,'%f','delimiter',',');
-        elseif ~isempty(s1) && ~isempty(s2)
-            efix=efix(s1+1:s2-1);
-            efixnew=textscan(efix,'%f','delimiter',',');
-        else
+        [efixnew,ok] = read_vector(efix);
+        if ~ok
             mess1='Ensure incident energy is a single number';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
             guidata(gcbo,handles);
             return;
         end
-        s1=strfind(alatt,'['); s2=strfind(alatt,']');
-        if isempty(s1) && isempty(s2)
-            alattnew=textscan(alatt,'%f','delimiter',',');
-        elseif ~isempty(s1) && ~isempty(s2)
-            alatt=alatt(s1+1:s2-1);
-            alattnew=textscan(alatt,'%f','delimiter',',');
-        else
+        [alattnew,ok] = read_vector(alatt);
+        if ~ok
             mess1='Ensure lattice parameters are a 3-element vector with comma-separated elements';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
             guidata(gcbo,handles);
             return;
         end
-        s1=strfind(angdeg,'['); s2=strfind(angdeg,']');
-        if isempty(s1) && isempty(s2)
-            angdegnew=textscan(angdeg,'%f','delimiter',',');
-        elseif ~isempty(s1) && ~isempty(s2)
-            angdeg=angdeg(s1+1:s2-1);
-            angdegnew=textscan(angdeg,'%f','delimiter',',');
-        else
+        [angdegnew,ok] = read_vector(angdeg);
+        if ~ok
             mess1='Ensure lattice angles are a 3-element vector with comma-separated elements';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
             guidata(gcbo,handles);
             return;
         end
-        s1=strfind(offsets,'['); s2=strfind(offsets,']');
-        if isempty(s1) && isempty(s2)
-            offsetsnew=textscan(offsets,'%f','delimiter',',');
-        elseif ~isempty(s1) && ~isempty(s2)
-            offsets=offsets(s1+1:s2-1);
-            offsetsnew=textscan(offsets,'%f','delimiter',',');
-        else
+        [offsetsnew,ok] = read_vector(offsets);
+        if ~ok
             mess1='Ensure offset angles are a 4-element vector with comma-separated elements';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
             guidata(gcbo,handles);
@@ -5427,19 +5376,13 @@ if isempty(psi_string)
 else
     try
         %must strip out square brackets, if user has inserted them:
-        s1=strfind(psi_string,'['); s2=strfind(psi_string,']');
-        if isempty(s1) && isempty(s2)
-            psinew=textscan(psi_string,'%s');
-        elseif ~isempty(s1) && ~isempty(s2)
-            psi_string=psi_string(s1+1:s2-1);
-            psinew=textscan(psi_string,'%s');
-        else
+        [psinew,ok] = read_vector(psi_string);
+        if ~ok
             mess1='check formatting of psi input - must be in form of a Matlab vector';
             set(handles.message_info_text,'String',char({mess_initialise,mess1}));
             guidata(gcbo,handles);
             return;
         end
-        psinew=str2num(psinew{1});%convert to numeric format so that we can check it matches the number of files later.
         handles.psilist=psinew;
         guidata(gcbo,handles);
     catch
@@ -5796,8 +5739,13 @@ out = all(cellfun(@(x)isempty(strfind(x, 'nxspe')), spe_psi_cell));
 
 
 % --------------------------------------------------------------------
-function report_error(the_err,err_info)
-err = {sprintf('**** %s',mess_initialise),...
+function report_error(handles,the_err,err_info,varargin)
+if nargin>3
+    head = sprintf('**** %s',varargin{1});
+else
+    head = '';
+end
+err = {head,...
     sprintf('**** Error %s Message: %s',...
     the_err.identifier,the_err.message),...
     err_info};
@@ -5807,7 +5755,7 @@ for i=stack_depth-3:-1:1
         the_err.stack(i).line,the_err.stack(i).name,the_err.stack(i).file);
 end
 
-set(handles.message_text_field,'String',char(err));
+set(handles.message_info_text,'String',char(err));
 guidata(gcbo,handles);
 
 rethrow(the_err);
