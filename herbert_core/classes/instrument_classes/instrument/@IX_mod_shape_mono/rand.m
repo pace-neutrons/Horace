@@ -38,7 +38,6 @@ function X = rand (obj, varargin)
 % Note that in general the deviations in times at the shaping and
 % monochromating choppers are correlated.
 
-%error('Oooerr!')
 
 % Parse input arguments
 if ~isscalar(obj), error('Method only takes a scalar moderator-shaping-monochromatic chopper object'), end

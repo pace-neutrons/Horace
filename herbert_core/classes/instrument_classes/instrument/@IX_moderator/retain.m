@@ -9,6 +9,7 @@ function ok = retain (obj, t)
 % Input:
 % ------
 %   obj     IX_moderator object
+%
 %   t       Array of times (microseconds)
 %
 % Output:

@@ -9,7 +9,7 @@ function [dt, fwhh] = pulse_width(obj,varargin)
 %
 % Input:
 % -------
-%   disk    IX_doubledisk_chopper object (scalar)
+%   obj     IX_doubledisk_chopper object (scalar)
 %
 %   ei      Incident energy (meV) (array or scalar)
 %

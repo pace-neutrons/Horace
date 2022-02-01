@@ -1,5 +1,5 @@
 function [tlo, thi] = pulse_range (obj, varargin)
-% Return lower an upper limits of range of double disk chopper (microseconds)
+% Return lower and upper limits of range of double disk chopper (microseconds)
 %
 %   >> [tlo, thi] = pulse_range (obj)
 %   >> [tlo, thi] = pulse_range (obj, ei)

@@ -9,7 +9,7 @@ function f = partial_transmission (obj, varargin)
 %
 % Input:
 % -------
-%   fermi   IX_fermi_chopper object (scalar)
+%   obj     IX_fermi_chopper object (scalar)
 %
 %   t       Upper limit of integration range [-Inf,t] (microseconds) (array
 %           or scalar)

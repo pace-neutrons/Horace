@@ -6,16 +6,21 @@ function [width, tmax, tlo, thi] = pulse_width2 (obj, frac, varargin)
 %
 % Input:
 % ------
-%   moderator   IX_moderator object
+%   obj         IX_moderator object
+%
 %   frac        Fraction of peak height at which to determine the width
+%
 %   ei          Incident energy (meV) (array or scalar)
 %               If omitted or empty, use the ei value in the IX_moderator object
 %
 % Output:
 % -------
 %   width       Width across the peak (microseconds)
+%
 %   tmax        Position of peak maximum (microseconds)
+%
 %   tlo         Short time fractional height (microseconds)
+%
 %   thi         High time fractional height (microseconds)
 
 

@@ -6,7 +6,7 @@ function [y,t] = pulse_shape (obj, varargin)
 %
 % Input:
 % ------
-%   moderator   IX_moderator object
+%   obj         IX_moderator object
 %
 %   t           Array of times at which to evaluate pulse shape (microseconds)
 %               If omitted or empty, a default suitable set of points for a plot is used

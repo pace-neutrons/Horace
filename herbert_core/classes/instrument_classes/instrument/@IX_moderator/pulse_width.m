@@ -6,14 +6,17 @@ function [dt, t_av, fwhh] = pulse_width (obj, varargin)
 %
 % Input:
 % ------
-%   moderator   IX_moderator object
+%   obj         IX_moderator object
+%
 %   ei          Incident energy (meV) (array or scalar)
 %               If omitted or empty, use the ei value in the IX_moderator object
 %
 % Output:
 % -------
 %   dt          Standard deviation of pulse width (microseconds)
+%
 %   t_av        First moment (microseconds)
+%
 %   fwhh        FWHH (microseconds)
 
 

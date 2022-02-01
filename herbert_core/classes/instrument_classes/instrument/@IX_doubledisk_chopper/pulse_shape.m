@@ -6,7 +6,7 @@ function [y, t] = pulse_shape (obj, t)
 %
 % Input:
 % -------
-%   disk    IX_doubledisk_chopper object (scalar)
+%   obj     IX_doubledisk_chopper object (scalar)
 %
 %   t       Array of times at which to evaluate pulse shape (microseconds)
 %           If omitted, a default suitable set of points for a plot is used

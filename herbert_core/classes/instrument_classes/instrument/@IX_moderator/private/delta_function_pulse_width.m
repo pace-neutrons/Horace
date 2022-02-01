@@ -13,6 +13,9 @@ function [dt, t_av, fwhh] = delta_function_pulse_width (pp, ei)
 %   dt          Standard deviation of pulse width (microseconds)
 %   t_av        First moment (microseconds)
 %   fwhh        Full width half height (microseconds)
+%
+% All these widths are returned as zero because the pulse is a delta
+% function
 
 
 dt = zeros(size(ei));

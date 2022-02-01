@@ -94,7 +94,7 @@ classdef test_IX_moderator < TestCaseWithSave
             wsamp = vals2distr (self.mikp.rand(1,npnt), tbin, 'norm', 'poisson');
             rng(S)
             
-            % Check random sampling and 
+            % Check random sampling
             [ok,mess,wdiff,chisqr] = IX_dataset_1d_same (wsamp,w,3,'rebin','chi'); 
             assert(ok);
         end
