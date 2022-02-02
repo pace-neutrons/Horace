@@ -1,7 +1,7 @@
-function pdf = pdf_table(obj)
+function pdf = pdf_table (obj)
 % Return the pdf in an IX_moderator object
 %
-%   >> pdf = pdf_table(obj)
+%   >> pdf = pdf_table (obj)
 %
 % Input:
 % ------
@@ -12,9 +12,16 @@ function pdf = pdf_table(obj)
 %   pdf     pdf_table object for sampling from the pulse shape
 
 
-if ~isscalar(obj), error('Method only takes a scalar moderator object'), end
-if obj.valid_
-    pdf = obj.pdf_;
-else
-    error('Internal state of the object is invalid so no df can be returned.')
+if ~isscalar(obj)
+    error('IX_moderator:pdf_table:invalid_argument',...
+        'Method only takes a scalar object')
+end
+
+if ~obj.valid_
+    error('IX_moderator:pdf_table:invalid_argument',...
+        'Moderator object is not valid')
+end
+
+pdf = obj.pdf_;
+
 end

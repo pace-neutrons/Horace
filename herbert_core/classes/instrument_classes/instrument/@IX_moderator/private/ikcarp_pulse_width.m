@@ -1,9 +1,9 @@
 function [dt, t_av, fwhh] = ikcarp_pulse_width (pp, ei)
 % Calculate pulse width quantities (microseconds)
 %
-%   >> [dt, tav] = ikcarp_pulse_width (pp, ei)
+%   >> [dt, t_av] = ikcarp_pulse_width (pp, ei)
 %
-%   >> [dt, tav, fwhh] = ikcarp_pulse_width (pp, ei) % generally much slower
+%   >> [dt, t_av, fwhh] = ikcarp_pulse_width (pp, ei) % generally much slower
 %
 % Input:
 % -------
@@ -28,11 +28,13 @@ end
 
 if nargout==3
     if pp(2)==0 || pp(3)==0
-        fwhh=3.394680670846503*pp(1);
+        fwhh = 3.394680670846503*pp(1);
     else
-        fwhh=ikcarp_fwhh (pp(1), pp(2), pp(3));
+        fwhh = ikcarp_fwhh (pp(1), pp(2), pp(3));
     end
     if numel(ei)~=1
-        fwhh=fwhh*ones(size(ei));
+        fwhh = fwhh*ones(size(ei));
     end
+end
+
 end

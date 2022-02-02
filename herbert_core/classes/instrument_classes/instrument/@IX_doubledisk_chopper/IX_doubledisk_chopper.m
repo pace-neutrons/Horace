@@ -88,6 +88,10 @@ classdef IX_doubledisk_chopper
                 % Assume trying to initialise from a structure array of properties
                 obj = IX_doubledisk_chopper.loadobj(varargin{1});
                 
+            elseif nargin==0
+                % Compute the pdf for the default object
+                obj.pdf_ = recompute_pdf_(obj);
+                
             elseif nargin>0
                 namelist = {'name','distance','frequency',...
                     'radius','slot_width','aperture_width','aperture_height','jitter'};

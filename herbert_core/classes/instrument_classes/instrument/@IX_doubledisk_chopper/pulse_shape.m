@@ -1,12 +1,12 @@
-function [y,t] = pulse_shape(self, t)
+function [y, t] = pulse_shape (obj, t)
 % Calculate normalised chopper pulse shape as a function of time in microseconds
 %
-%   >> [y,t] = pulse_shape(disk)
-%   >> y = pulse_shape(disk, t)
+%   >> [y, t] = pulse_shape (obj)
+%   >> y = pulse_shape (obj, t)
 %
 % Input:
 % -------
-%   disk    IX_doubledisk_chopper object
+%   obj     IX_doubledisk_chopper object (scalar)
 %
 %   t       Array of times at which to evaluate pulse shape (microseconds)
 %           If omitted, a default suitable set of points for a plot is used
@@ -21,9 +21,12 @@ function [y,t] = pulse_shape(self, t)
 %           If input was not given, the default set of points
 
 
-if ~isscalar(self), error('Method only takes a scalar double disk chopper object'), end
+if ~isscalar(obj)
+    error('IX_doubledisk_chopper:pulse_shape:invalid_argument',...
+        'Method only takes a scalar double disk chopper object')
+end
 
-[T1,T2] = hat_times(self);
+[T1,T2] = hat_times(obj);
 
 if ~exist('t', 'var')
     if T1==T2
@@ -33,3 +36,5 @@ if ~exist('t', 'var')
     end
 end
 y = conv_hh (t,T1,T2);
+
+end

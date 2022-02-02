@@ -27,19 +27,37 @@ function X = rand (obj, varargin)
 
 
 if ~isscalar(obj)
-    error('HERBERT:pdf_table:invalid_argument', 'Method only takes a scalar object')
-end
-if ~obj.filled
-    error('HERBERT:pdf_table:uninitialised', 'The probability distribution function is not initialised')
+    error('HERBERT:pdf_table:invalid_argument',...
+        'Method only takes a scalar object')
 end
 
-Asamp = rand(varargin{:});
-
-xx = obj.x_; ff = obj.f_; AA = obj.A_; mm = obj.m_;
-ix = upper_index (AA, Asamp(:));
-X = xx(ix) + 2*(Asamp(:) - AA(ix))./...
-    (ff(ix) + sqrt(ff(ix).^2 + 2*mm(ix).*(Asamp(:)-AA(ix))));
-X = reshape(X,size(Asamp));
-
+if numel(obj.x_) > 1
+    % Non-delta function distribution
+    Asamp = rand(varargin{:});
+    
+    xx = obj.x_; ff = obj.f_; AA = obj.A_; mm = obj.m_;
+    ix = upper_index (AA, Asamp(:));
+    
+    twice_dA = 2 * (Asamp(:) - AA(ix));
+    ffix = ff(ix);
+    
+    X = xx(ix) + twice_dA ./ (ffix + sqrt(ffix.^2 + mm(ix).*twice_dA));
+    X = reshape(X,size(Asamp));
+    
+% Original (to 21/01/22)
+%     xx = obj.x_; ff = obj.f_; AA = obj.A_; mm = obj.m_;
+%     ix = upper_index (AA, Asamp(:));
+%     X = xx(ix) + 2*(Asamp(:) - AA(ix))./...
+%         (ff(ix) + sqrt(ff(ix).^2 + 2*mm(ix).*(Asamp(:)-AA(ix))));
+%     X = reshape(X,size(Asamp));
+    
+elseif numel(obj.x_) == 1
+    % Special case of a single delta function
+    X = (obj.x) * ones(varargin{:});
+    
+else
+    % Unfilled (null)
+    X = NaN(varargin{:});
 end
 
+end

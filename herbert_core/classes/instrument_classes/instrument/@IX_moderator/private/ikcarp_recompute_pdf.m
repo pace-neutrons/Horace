@@ -17,3 +17,5 @@ npnt=200;
 t = ikcarp_pdf_xvals (npnt, pp(1), pp(2));
 y = ikcarp (t, pp(1), pp(2), pp(3));
 pdf = pdf_table(t,y);
+
+end

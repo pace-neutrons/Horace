@@ -78,6 +78,7 @@ classdef IX_mod_shape_mono
                         error('Energy must be a scalar value greater than or equal to zero')
                     end
                 end
+                
                 obj.shaped_mod_ = obj.recompute_shaped_mod_();
                 obj.t_m_offset_ = obj.t_m_offset_calibrate_();
                 [obj.t_chop_cov_, obj.t_chop_av_] = obj.moments_ ();
@@ -198,6 +199,9 @@ classdef IX_mod_shape_mono
             xa = obj.shaping_chopper_.distance - x1;    % distance from shaping chopper to mono chopper
             [~,~,fwhh_moderator] = pulse_width(obj.moderator_);
             [~,fwhh_shaping_chopper] = pulse_width(obj.shaping_chopper_);
+            % Determine the status is always determined e.g. if x0=xa=0 then
+            % LHS of the logical statement is NaN which always results in 
+            % status==false
             status = ((x0/xa)*fwhh_shaping_chopper < fwhh_moderator);
         end
     end

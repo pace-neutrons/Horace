@@ -41,8 +41,8 @@ classdef pdf_table
 
     properties (Dependent)
         x       % x values (column vector)
-        f       % Normalised values of the probability distribution function (pdf) at the x values (column vector)
-        fmax    % Maximum value of the values of the probability distribution function (pdf) (column vector)
+        f       % Normalised probability distribution function (pdf) at x (column vector)
+        fmax    % Maximum value of the probability distribution function (pdf)
         A       % Cumulative distribution function at x values (A(1)=0, A(end)=1)) (column vector)
         m       % Gradient m(i) is gradient betwee x(i) and x(i+1) (column vector)
         filled  % True or false according as the object containing a pdf or not
@@ -107,8 +107,10 @@ classdef pdf_table
 
             elseif nargin>0
                 % Check x values
-                if ~isnumeric(x) || ~isvector(x) || numel(x)<2 || any(diff(x)<0)
-                    error('HERBERT:pdf_table:non_monotonic', 'x values must be a vector length at least two and monotonic increasing')
+                if ~isnumeric(x) || ~isvector(x) || numel(x)==0 ||...
+                        ~all(isfinite(x)) || any(diff(x)<0)
+                    error('HERBERT:pdf_table:non_monotonic',...
+                        'x values must be a monotonic increasing vector')
                 else
                     x = x(:);   % ensure column array
                 end
@@ -118,34 +120,51 @@ classdef pdf_table
                     if numel(varargin)==0
                         f = pdf;
                     else
-                        error('HERBERT:pdf_table:invalid_argument', 'Check the number and type of input arguments')
+                        error('HERBERT:pdf_table:invalid_argument',...
+                            'Check the number and type of input arguments')
                     end
                 elseif isa(pdf,'function_handle')
                     f = pdf (x, varargin{:});
                 else
-                    error('HERBERT:pdf_table:bad_pdf', 'The pdf must be a numeric vector or function handle and arguments')
+                    error('HERBERT:pdf_table:bad_pdf', ['The pdf must be a ',...
+                        'numeric vector or function handle and arguments'])
                 end
 
                 if numel(f)~=numel(x)
-                    error('HERBERT:pdf_table:bad_pdf', 'The number of values of the pdf must equal the number of x values.')
-                elseif ~isvector(f) || ~all(isfinite(f)) || any(f<0)
-                    error('HERBERT:pdf_table:bad_pdf', 'The pdf values must all be finite and greater or equal to zero')
+                    error('HERBERT:pdf_table:bad_pdf', ['The number of values ',...
+                        'of the pdf must equal the number of x values.'])
+                elseif ~isvector(f) || any(f<0) || ~(all(isfinite(f)) ||...
+                        (numel(x)==1 && f==Inf))    % special case of a delta-function
+                    error('HERBERT:pdf_table:bad_pdf', ['The pdf values must ',...
+                        'all be finite and greater or equal to zero\n',...
+                        'or a single point with value +Inf (i.e. a delta function)'])
                 else
                     f = f(:);   % ensure column array
                 end
 
                 % Derived quantities to speed up random sampling
-                dA = 0.5*diff(x).*(f(2:end)+f(1:end-1));
-                if all(dA==0)
-                    error('HERBERT:pdf_table:bad_pdf', 'The pdf has zero integrated area. The area must be non zero.')
+                if numel(x)>1
+                    % Properly defined pdf
+                    dA = 0.5*diff(x).*(f(2:end)+f(1:end-1));
+                    if all(dA==0)
+                        error('HERBERT:pdf_table:bad_pdf', ['The pdf has zero ',...
+                            'integrated area. The area must be non-zero.'])
+                    end
+                    A = cumsum(dA);
+                    Atot = A(end);
+                    obj.x_ = x;
+                    obj.f_ = f/Atot;                % to give normalised area
+                    obj.fmax_ = max(obj.f_);        % handy to save time elsewhere
+                    obj.A_ = [0;A(1:end-1)/Atot;1]; % normalise the area
+                    obj.m_ = diff(obj.f_)./diff(obj.x_);
+                else
+                    % delta function
+                    obj.x_ = x;
+                    obj.f_ = f;
+                    obj.fmax_ = f;
+                    obj.A_ = 1;
+                    obj.m_ = NaN;
                 end
-                A = cumsum(dA);
-                Atot = A(end);
-                obj.x_ = x;
-                obj.f_ = f/Atot;                % to give normalised area
-                obj.fmax_ = max(obj.f_);        % handy to save time elsewhere
-                obj.A_ = [0;A(1:end-1)/Atot;1]; % normalise the area
-                obj.m_ = diff(obj.f_)./diff(obj.x_);
             end
         end
 

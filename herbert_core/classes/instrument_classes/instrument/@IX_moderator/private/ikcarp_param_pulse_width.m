@@ -1,9 +1,9 @@
 function [dt, t_av, fwhh] = ikcarp_param_pulse_width (pp, ei)
 % Calculate st. dev. of moderator pulse width distribution (microseconds)
 %
-%   >> [dt, t_av, fwhh] = ikcarp_param_pulse_width (pp,ei)
+%   >> [dt, t_av] = ikcarp_param_pulse_width (pp, ei)
 %
-%   >> [dt, t_av, fwhh] = ikcarp_param_pulse_width (pp,ei) % generally much slower
+%   >> [dt, t_av, fwhh] = ikcarp_param_pulse_width (pp, ei) % generally much slower
 %
 % Input:
 % -------
@@ -24,6 +24,7 @@ function [dt, t_av, fwhh] = ikcarp_param_pulse_width (pp, ei)
 %   t_av        First moment (microseconds)
 %   fwhh        Full width half height (microseconds)
 
+
 [tauf, taus, R] = ikcarp_param_convert (pp, ei);
 dt = zeros(size(ei));
 t_av = zeros(size(ei));
@@ -37,4 +38,6 @@ else
     for i=1:numel(ei)
         [dt(i), t_av(i), fwhh(i)] = ikcarp_pulse_width ([tauf(i),taus(i),R(i)], ei(i));
     end
+end
+
 end

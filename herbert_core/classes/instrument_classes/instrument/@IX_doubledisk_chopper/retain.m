@@ -9,6 +9,7 @@ function ok = retain (obj, t)
 % Input:
 % ------
 %   obj     IX_doubledisk_chopper object
+%
 %   t       Array of times (microseconds)
 %
 % Output:
@@ -16,5 +17,11 @@ function ok = retain (obj, t)
 %   ok      Logical array with the same size as t; true if the
 %           corresponding point is retained, false if rejected
 
-if ~isscalar(obj), error('Method only takes a scalar object'), end
+if ~isscalar(obj)
+    error('IX_doubledisk_chopper:retain:invalid_argument',...
+        'Method only takes a scalar double disk chopper object')
+end
+
 ok = retain (pdf_table(obj), t);
+
+end
