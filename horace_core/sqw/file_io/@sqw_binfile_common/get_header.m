@@ -66,8 +66,8 @@ end
 n_header = numel(header);
 for i=1:n_header
     if iscell(header)
-        header{i}.instruments = IX_inst(); %struct(); % this is necessary
-        header{i}.samples = IX_samp(); %struct();      % to satisfy current interface
+        header{i}.instruments = IX_null_inst(); %struct(); % this is necessary
+        header{i}.samples = IX_null_sample(); %struct();      % to satisfy current interface
         if size(header{i}.en,1)==1
             header{i}.en = header{i}.en';
         end
@@ -75,8 +75,8 @@ for i=1:n_header
         if size(header(i).en,1)==1
             header(i).en = header(i).en';
         end
-        header(i).instruments = IX_inst(); %struct();
-        header(i).samples = IX_samp(); %struct();
+        header(i).instruments = IX_null_inst(); %struct();
+        header(i).samples = IX_null_sample(); %struct();
     end
 end
 %

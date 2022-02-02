@@ -25,17 +25,17 @@ function [ok, mess, sample, s_mat, spec_to_rlu, alatt, angdeg] =...
 % Check sample descrption the same for all spe files in the sqw object
 samples = header.samples;
 nrun=numel(samples);
-sample=samples(1);
+sample=samples{1};
 alatt=sample.alatt;
 angdeg=sample.angdeg;
 for i=2:nrun
-    if ~isequal(sample,samples(i))
+    if ~isequal(sample,samples{i})
         ok=false;
         error('HORACE:sample_coords_to_spec_to_rlu:invalid_argument', ...
             'Sample description must be identical for all contributing spe files');
         return
     end
-    if ~all(alatt==samples(i).alatt) || ~all(angdeg==samples(i).angdeg)
+    if ~all(alatt==samples{i}.alatt) || ~all(angdeg==samples{i}.angdeg)
         ok=false;
         error('HORACE:sample_coords_to_spec_to_rlu:invalid_argument', ...
             'Lattice parameters must be identical for all contributing spe files');
@@ -50,7 +50,7 @@ s_mat=zeros(3,3,nrun);
 spec_to_rlu=zeros(3,3,nrun);
 for i=1:nrun
     %if nrun~=1
-        s=samples(i);
+        s=samples{i};
         e=header.expdata(i);
     %else
     %    h=header;

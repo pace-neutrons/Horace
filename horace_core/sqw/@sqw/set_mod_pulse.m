@@ -92,9 +92,9 @@ for i=1:nobj
     if nfiles>1
         for ifile=1:nfiles
             if npp==1
-                tmp.instruments(ifile)=set_mod_pulse_single_inst(tmp.instruments(ifile),pulse_model,pp);
+                tmp.instruments{ifile}=set_mod_pulse_single_inst(tmp.instruments{ifile},pulse_model,pp);
             else
-                tmp.instruments(ifile)=set_mod_pulse_single_inst(tmp.instruments(ifile),pulse_model,pp(ifile,:));
+                tmp.instruments{ifile}=set_mod_pulse_single_inst(tmp.instruments{ifile},pulse_model,pp(ifile,:));
             end
         end
     else

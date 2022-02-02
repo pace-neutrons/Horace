@@ -50,14 +50,14 @@ aperture=repmat(IX_aperture,[nrun,1]);
 chopper=repmat(IX_fermi_chopper,[nrun,1]);
 for i=1:nrun
     ei(i)=header.expdata(i).efix;
-    x1(i)=abs(inst(i).fermi_chopper.distance);
-    x0(i)=abs(inst(i).moderator.distance) - x1(i);      % distance from Fermi chopper to moderator face
-    xa(i)=abs(inst(i).aperture.distance) - x1(i);       % distance from Fermi chopper to beam defining aperture
-    thetam(i)=inst(i).moderator.angle*(pi/180);         % angle of moderator face to inc. beam (radians)
-    angvel(i)=inst(i).fermi_chopper.frequency*(2*pi);   % angular velocity of Fermi chopper
-    moderator(i)=inst(i).moderator;
-    aperture(i)=inst(i).aperture;
-    chopper(i)=inst(i).fermi_chopper;
+    x1(i)=abs(inst{i}.fermi_chopper.distance);
+    x0(i)=abs(inst{i}.moderator.distance) - x1(i);      % distance from Fermi chopper to moderator face
+    xa(i)=abs(inst{i}.aperture.distance) - x1(i);       % distance from Fermi chopper to beam defining aperture
+    thetam(i)=inst{i}.moderator.angle*(pi/180);         % angle of moderator face to inc. beam (radians)
+    angvel(i)=inst{i}.fermi_chopper.frequency*(2*pi);   % angular velocity of Fermi chopper
+    moderator(i)=inst{i}.moderator;
+    aperture(i)=inst{i}.aperture;
+    chopper(i)=inst{i}.fermi_chopper;
     chopper(i).energy=ei(i);                            % Update incident energy to value in header
 end
 

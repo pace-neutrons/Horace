@@ -169,9 +169,9 @@ elseif narg==1 || isa(args{1},'function_handle')
                             ['The instrument definition function does not return' ...
                             ' an object of class IX_inst'])
                     end
-                    tmp.instruments(ifile)=instrument;
+                    tmp.instruments{ifile}=instrument;
                 else
-                    tmp.instruments(ifile)=instrument;
+                    tmp.instruments{ifile}=instrument;
                 end
             else
                 if is_instfunc
@@ -182,9 +182,9 @@ elseif narg==1 || isa(args{1},'function_handle')
                             ['The instrument definition function does not return' ...
                             ' an object of class IX_inst'])
                     end
-                    tmp.instruments(ifile)=instrument;
+                    tmp.instruments{ifile}=instrument;
                 else
-                    tmp.instruments(ifile)=instrument(ifile);
+                    tmp.instruments{ifile}=instrument(ifile);
                 end
             end
         end

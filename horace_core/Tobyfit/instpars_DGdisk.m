@@ -39,12 +39,12 @@ horiz_div=repmat(IX_divergence_profile,[nrun,1]);
 vert_div=repmat(IX_divergence_profile,[nrun,1]);
 for i=1:nrun
     ei(i)=header.expdata(i).efix;
-    x1(i)=abs(inst(i).mono_chopper.distance);
-    x0(i)=abs(inst(i).moderator.distance) - x1(i);          % distance from mono chopper to moderator face
-    xa(i)=abs(inst(i).shaping_chopper.distance) - x1(i);    % distance from shaping chopper to mono chopper
-    mod_shape_mono(i)=inst(i).mod_shape_mono;
-    horiz_div(i)=inst(i).horiz_div;
-    vert_div(i)=inst(i).vert_div;
+    x1(i)=abs(inst{i}.mono_chopper.distance);
+    x0(i)=abs(inst{i}.moderator.distance) - x1(i);          % distance from mono chopper to moderator face
+    xa(i)=abs(inst{i}.shaping_chopper.distance) - x1(i);    % distance from shaping chopper to mono chopper
+    mod_shape_mono(i)=inst{i}.mod_shape_mono;
+    horiz_div(i)=inst{i}.horiz_div;
+    vert_div(i)=inst{i}.vert_div;
 end
 
 ok=true;

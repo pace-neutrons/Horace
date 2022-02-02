@@ -94,7 +94,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             ldr.delete(); % clear existing loader not to hold test file in case of further modifications
             
             hdr = wtmp.experiment_info;
-            assertEqual(hdr.instruments(1),inst);
+            assertEqual(hdr.instruments{1},inst);
             
             %---------------------------------------------------------------------
             wtmp=set_instrument(wref,@create_test_instrument,'-efix',500,'s');
@@ -103,7 +103,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             ldr1 = sqw_formats_factory.instance().get_loader(obj.test_file_);
             inst = ldr1.get_instrument(10);
             hdr = wtmp.experiment_info;
-            assertEqual(hdr.instruments(10),inst);
+            assertEqual(hdr.instruments{10},inst);
             
             inst = ldr1.get_instrument('-all');
             ldr1.delete(); % clear existing loader not to hold test file in case of further modifications
@@ -145,7 +145,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             
             wtmp_new = set_mod_pulse(wtmp,pulse_model,pp);
             hdr = wtmp_new.experiment_info;
-            assertEqual(hdr.instruments(10).moderator.pp(1),100/sqrt(ei(10)))
+            assertEqual(hdr.instruments{10}.moderator.pp(1),100/sqrt(ei(10)))
             
             % Set the incident energies in the file - produces an error as
             % the instrument is empty

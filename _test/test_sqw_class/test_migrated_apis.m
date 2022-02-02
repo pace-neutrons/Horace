@@ -243,7 +243,7 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
            % Previously the unset ones were just structs.
            for idx=1:20
                hdr = s.experiment_info;
-               hdr.instruments(idx) = expected_inst;
+               hdr.instruments{idx} = expected_inst;
                s = s.change_header(hdr);
            end
 
@@ -316,7 +316,7 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
             expected_inst =  IX_inst_DGfermi (mod_1, ap_1, chopper_1, 100);
 
             updated = s.set_instrument(expected_inst);
-            assertTrue(all(arrayfun(@(x) equal_to_tol(x, expected_inst), updated.experiment_info.instruments)));
+            assertTrue(all(cellfun(@(x) equal_to_tol(x, expected_inst), updated.experiment_info.instruments)));
         end
 
 %        function test_set_mod_pulse(obj)
@@ -331,8 +331,8 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
             s_updated = s.set_sample(sam1);
 
             hdr = s_updated.experiment_info;
-            assertEqual(hdr.samples(1), sam1);
-            assertEqual(hdr.samples(end), sam1);
+            assertEqual(hdr.samples{1}, sam1);
+            assertEqual(hdr.samples{end}, sam1);
         end
 
         %% shifts

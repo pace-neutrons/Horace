@@ -51,8 +51,14 @@ if ~isempty(main_sampl)
                 'Multiple sample in footer contains %d runs and number of runs stored in header=%d',...
                 numel(main_sampl),exp_info.n_runs)
         end
+        if ~iscell(main_sampl)
+            main_sampl = num2cell(main_sampl);
+        end
     else % we need to propagate the sample(s), stored in the footer to all headers
-        main_sampl = repmat(main_sampl,1,exp_info.n_runs);
+        if iscell(main_sampl)
+            main_sampl = main_sampl{1};
+        end
+        main_sampl = repmat({main_sampl},1,exp_info.n_runs);
     end
     footer_sample_present = true;
 else
@@ -69,12 +75,12 @@ end
 % implementation of sample if such implementation is present.
 if footer_sample_present % set up its lattice
     for i=1:n_runs
-        bas_sample= exp_info.samples(i);
-        if isempty(main_sampl(i).alatt)
-            main_sampl(i).alatt = bas_sample.alatt;
+        bas_sample= exp_info.samples{i};
+        if isempty(main_sampl{i}.alatt)
+            main_sampl{i}.alatt = bas_sample.alatt;
         end
-        if isempty(main_sampl(i).angdeg)
-            main_sampl(i).angdeg = bas_sample.angdeg;
+        if isempty(main_sampl{i}.angdeg)
+            main_sampl{i}.angdeg = bas_sample.angdeg;
         end
     end
     exp_info.samples = main_sampl;
@@ -82,10 +88,16 @@ else % basic sample have already been built from lattice stored in header
 end  % so nothibng to do.
 %
 % TODO: this needs to be optimized not to copy the array of identical samples
-if ~any(isempty(instr))
+if ~any(isempty(instr)) % all instruments are valid instruments
     if numel(instr)==1
-        exp_info.instruments  = repmat(instr,n_runs,1);
+        if iscell(instr)
+            instr = instr{1};
+        end
+        exp_info.instruments  = repmat({instr},1,n_runs);
     else
+        if ~iscell(instr)
+            instr = num2cell(instr);
+        end
         exp_info.instruments = instr;
     end
 end

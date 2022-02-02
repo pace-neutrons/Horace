@@ -32,6 +32,7 @@ save(w,tmpsqwfile)
 if ~no_inst, set_instrument_horace(tmpsqwfile,inst); end
 if ~no_samp, set_sample_horace(tmpsqwfile,samp); end
 tmpfromfile=read_sqw(tmpsqwfile);
+newtmpfromfile = sqw(tmpsqwfile);
 [ok,mess]=equal_to_tol(wnew,tmpfromfile,'ignore_str',1); if ~ok, assertTrue(false,mess), end
 
 % Delete output file, if can

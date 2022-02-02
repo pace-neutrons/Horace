@@ -3,8 +3,8 @@ classdef is_holder
     % a client in homogeneous form
     %
     properties(Access=protected,Hidden=true)
-        instrument_=IX_inst();
-        sample_ = IX_samp();
+        instrument_= []; %IX_null_inst();
+        sample_ = []; %IX_null_sample();
         n_files_=0;
         set_samp_ = false;
         set_inst_ = false;
@@ -35,8 +35,19 @@ classdef is_holder
             %       (can be empty if instrument is not intented to be set)
             %samp - the cellarray or array of sample(s) to save.
             %       (can be empty if sample is not intented to be set)
+            %{
             if isnumeric(sampl) && isempty(sampl)
-                sampl = IX_samp();
+                sampl = []; % maybe struct, not! IX_null_sample();
+            end
+            if isnumeric(instr) && isempty(instr)
+                instr = []; % maybe struct, not! IX_null_inst();
+            end
+            %}
+            if ~isa(sampl,'IX_samp')
+                sampl = [];
+            end
+            if ~isa(instr,'IX_inst')
+                instr = [];
             end
             nin = numel(instr);
             if nin  == 0

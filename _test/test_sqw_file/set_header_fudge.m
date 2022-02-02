@@ -12,11 +12,11 @@ else
             if strcmp(field,'instrument')
                 for i=1:numel(tmp.instruments)
 
-                    tmp.instruments(i)=val;
+                    tmp.instruments{i}=val;
                 end
             elseif strcmp(field,'sample')
                 for i=1:numel(tmp.samples)
-                    tmp.samples(i)=val;
+                    tmp.samples{i}=val;
                 end
             else
                 for i=1:numel(tmp.expdata)
@@ -26,11 +26,11 @@ else
         elseif numel(val)==numel(tmp.expdata)
             if strcmp(field,'instrument')
                 for i=1:numel(tmp.instruments)
-                    tmp.instruments(i)=val(i);
+                    tmp.instruments{i}=val(i);
                 end
             elseif strcmp(field,'sample')
                 for i=1:numel(tmp.samples)
-                    tmp.samples(i)=val(i);
+                    tmp.samples{i}=val(i);
                 end
             else
                 for i=1:numel(tmp.expdata)
