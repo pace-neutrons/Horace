@@ -10,7 +10,7 @@ and [Horace](https://github.com/pace-neutrons/Horace) repositories,
 in order to avoid duplication of settings, start-up routines and CI tests.
 
 This system management guide proposes a procedure to accomplish this amalgamation.
-The requirements of this procedure is that:
+The requirements of this procedure are that:
 
 * It should not impact other developments of Horace / Herbert
 * It should retain the histories of both repositories
@@ -31,7 +31,7 @@ consistency with new naming conventions.
 Since *Horace* is the larger repository, the plan is to merge *Herbert* into Horace,
 using the following steps:
 
-0. A fork `pace-neutrons/Herbert_backup` is created to retain the test files in
+0. A fork `pace-neutrons/Horace_backup` is created to retain the test files in
    case they need to be reverted, as they will be deleted from history in step 9.
 1. New branches `Horace/main` and `Herbert/main` are created to mirror the default `master` branches.
    The contents of *Herbert* is copied into *Horace* but not committed.
@@ -61,7 +61,7 @@ on the `master` branches, and new changes there will be rebased into the `main` 
 This ensures a seamless history until the amalgamation in step 6.
 
 Steps 6-11 must be done in a very short period of time (at most a few hours) in order to minimize disruption,
-and this must be done after every pull requests in *Herbert* is closed.
+and this must be done after every pull request in *Herbert* is closed.
 
 Alternatively, if *Herbert* developers are willing to resolve conflicts themselves after step 10 is accomplished,
 they can open a new pull request in *Horace* with their code changes, cherry-picking commits to retain the history.
