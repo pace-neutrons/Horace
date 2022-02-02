@@ -109,12 +109,17 @@ classdef test_IX_inst < TestCaseWithSave
         end
         
         %--------------------------------------------------------------------------
-        function test_array_of_heterogeneous_instruments_is_valid (self)
+        function test_superclass_of_standard_instruments (self)
             inst_disk = IX_inst_DGdisk(self.mod_DGdisk, self.shape_DGdisk, ...
                 self.mono_DGdisk, self.hdiv_DGdisk, self.vdiv_DGdisk);
             inst_fermi = IX_inst_DGfermi();
 
-            assertTrue(isa([inst_disk, inst_fermi], 'IX_inst'));
+            % this was previously a test of whether an array of IX_inst was
+            % correctly mixin.heterogeneous. IX_inst subclasses are now
+            % stored in Experiment as cellarrays. This test modified to
+            % check correct superclasses
+            assertTrue(isa(inst_fermi, 'IX_inst'));
+            assertTrue(isa(inst_disk,  'IX_inst'));
         end
     end
 end
