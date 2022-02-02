@@ -34,7 +34,7 @@ classdef aProjection < serializable
         % an sqw object. These parameters are the only source of the
         % lattice for dnd object.
         alatt        % the lattice parameters
-        angdeg       % angles between the lattice edges        
+        angdeg       % angles between the lattice edges
         %---------------------------------
         %TODO: Will be refactored to axes_caption and transferred to axes
         %block?
@@ -225,7 +225,7 @@ classdef aProjection < serializable
                 return;
             end
 
-            % Calculae pix indexes from cell indexes. Compress indexes of 
+            % Calculae pix indexes from cell indexes. Compress indexes of
             % contributing cells into bl_start:bl_start+bl_size-1 form if
             % it has not been done before
             % Ideal for filebased but not so optimal for arrays
@@ -425,7 +425,8 @@ classdef aProjection < serializable
         function contrib_ind=convert_3D_QdE_ind_to_4Dind_ranges(...
                 bin_inside3D,en_inside)
             % convert cell indexes calculated on 3D q + 1D orthogonal
-            % lattice into 4D indexes on 4D lattice.
+            % lattice into 4D indexes on 4D lattice using assumption that
+            % dE axis is orthogonal to 3 other axis
             % Inputs:
             % bin_inside3D -- 3D logical array, containing true
             %                 for indexes to include
@@ -438,13 +439,13 @@ classdef aProjection < serializable
             if isempty(istart)
                 contrib_ind = {};
                 return;
-            end            
+            end
             iend   = find(change==-1)-1;
 
             % calculate full 4D indexes from the the knowlege of the contributing dE bins,
             % 3D indexes and 4D array allocation layout
             q_stride = (0:numel(en_inside)-1)*q_block_size; % the shift of indexes for
-            % every subsequent dE block shifted by q_stride 
+            % every subsequent dE block shifted by q_stride
             q_stride = q_stride(en_inside); % but only contributing dE blocks matter
 
             n_eblocks = numel(q_stride);
@@ -454,10 +455,10 @@ classdef aProjection < serializable
             iend   = repmat(iend,1,n_eblocks)+q_stride;
             % if any blocks follow each other through 4-th dimention, we
             % want to join them together
-            subsequent = iend(1:end-1)+1 == istart(2:end);
-            if any(subsequent)
-                istart = istart([true,~subsequent]);
-                iend   = iend([~subsequent,true]);                
+            not_subsequent = iend(1:end-1)+1 ~= istart(2:end);
+            if any(~not_subsequent)
+                istart = istart([true,not_subsequent]);
+                iend   = iend([not_subsequent,true]);
             end
             contrib_ind = {istart(:)',iend(:)'};
         end
@@ -473,6 +474,8 @@ classdef aProjection < serializable
         % Transform pixels expressed in image coordinate coordinate systems
         % into crystal cartezian system
         pix_cc = transform_img_to_pix(obj,pix_transformed,varargin);
+        % return the axes block, corresponding to this projection class.
+        ax_bl = get_proj_axes_block(obj,default_binning_ranges,req_binning_ranges)
 
     end
 end

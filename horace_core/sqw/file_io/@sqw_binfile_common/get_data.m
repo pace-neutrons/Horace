@@ -113,7 +113,7 @@ end
 [data_str,obj] = obj.get_data@dnd_binfile_common(obj,argi{:});
 
 %
-data_str.img_db_range = obj.get_img_db_range();
+data_str.img_db_range = obj.get_img_db_range(data_str);
 %
 %
 % parse all arguments, including those that weren't passed to the parent method

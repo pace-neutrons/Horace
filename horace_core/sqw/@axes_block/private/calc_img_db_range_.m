@@ -37,37 +37,12 @@ function  img_db_range = calc_img_db_range_(ax_data)
 
 img_db_range = zeros(2,4);
 img_db_range(:,ax_data.iax) = ax_data.iint;
-if numel(ax_data.iax)>0
-    % newly generated sqw file alvays has 4 dimentions, so
-    % if it is less then 4, its a cut
-    newly_generated = false;
-else
-    if all(ax_data.ulen == [1,1,1,1]) % this is less certain,
-        % may be a cut may have ulen == [1,1,1,1], but newly
-        % generated will certainly have ulen==[1,1,1,1]
-        newly_generated = true;
-    else
-        newly_generated = false;
-    end
-end
-
 npax = numel(ax_data.p);
 pax_range = zeros(2,npax);
 for i=1:npax
-    if newly_generated
-        % newly generated old sqw files have axis extended to
-        % range of pixel data
-        pax_range(:,i) = [ax_data.p{i}(1);...
-            ax_data.p{i}(end)];
-        
-    else
-        %   cuts axis rage is extended by half-bin
-        %   wrt to actual pixel rebinning range
-        h_bin_width = 0.5*abs(ax_data.p{i}(2)-ax_data.p{i}(1));
-        pax_range(:,i) = [ax_data.p{i}(1)+h_bin_width,...
-            ax_data.p{i}(end)-h_bin_width];
-        
-    end
+    pax_range(:,i) = [ax_data.p{i}(1);...
+        ax_data.p{i}(end)];
+
 end
 img_db_range(:,ax_data.pax) = pax_range;
 

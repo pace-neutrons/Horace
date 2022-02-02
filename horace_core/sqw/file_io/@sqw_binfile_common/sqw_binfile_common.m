@@ -88,7 +88,7 @@ classdef sqw_binfile_common < sqw_file_interface
             obj.data_type_ = 'a'; % should it always be 'a'?
             obj = init_from_sqw_obj@dnd_binfile_common(obj,varargin{:});
             obj.sqw_holder_ = varargin{1};
-            
+
             obj = init_pix_info_(obj);
         end
         %
@@ -172,18 +172,12 @@ classdef sqw_binfile_common < sqw_file_interface
         det = get_detpar(obj);
         % read main sqw data  from properly initialized binary file.
         [sqw_data,obj] = get_data(obj,varargin);
-        
-        function img_db_range = get_img_db_range(obj)
+
+        function img_db_range = get_img_db_range(~,data_str)
             % get [2x4] array of min/max ranges of the image, representing
             % DND object. This range is the basis for calcu
             %
-            fseek(obj.file_id_,obj.img_db_range_pos_,'bof');
-            [mess,res] = ferror(obj.file_id_);
-            if res ~= 0
-                error('SQW_BINILE_COMMON:io_error',...
-                    'Can not move to the pix_range start position, Reason: %s',mess);
-            end
-            img_db_range = fread(obj.file_id_,[2,4],'float32');
+            img_db_range = axes_block.calc_img_db_range(data_str);
         end
         %
         function pix_range = get_pix_range(~)
@@ -191,8 +185,8 @@ classdef sqw_binfile_common < sqw_file_interface
             % into an object. Empty for DND object
             %
             pix_range = PixelData.EMPTY_RANGE_;
-        end        
-        
+        end
+
         % read pixels information
         pix = get_pix(obj,varargin);
         % read pixels at the given indices
@@ -225,7 +219,7 @@ classdef sqw_binfile_common < sqw_file_interface
             error('SQW_FILE_IO:runtime_error',...
                 'put_samples is not implemented for faccess_sqw %s',...
                 obj.file_version);
-            
+
         end
         %
         function pix_pos = get.pix_position(obj)
@@ -426,7 +420,7 @@ classdef sqw_binfile_common < sqw_file_interface
             % this structure size
             detpar_form = get_detpar_form_(varargin{:});
         end
-        
+
     end
 end
 

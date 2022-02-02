@@ -21,7 +21,7 @@ classdef axes_block < serializable
         p;     %Cell array containing bin boundaries along the plot axes [column vectors]
         %      i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
 
-        ulen     %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        ulen   %Length of projection axes vectors in Ang^-1 or meV [row vector]
         %
         % The range (in axes coordinate system), the binning is made and the
         % axes block describnes
@@ -290,13 +290,14 @@ classdef axes_block < serializable
             % axes_block.
             %
             % If new projection is not aligned with the old projection, the new
-            % projection binning is copied from the old projection binning according to
+            % projection range is transformed from old projection range and
+            % its binning is copied from the old projection binning according to
             % axis number, i.e. if axis 1 of cur_proj had 10 bins, axis 1 of target
             % proj would have 10 bins, etc. This redefines the behaviour of the
             % cuts when some directions are integraion directions, but
             % become projection directions, and redefine it when a new
-            % projection direction goes in the direction of  the mixture
-            % of currently projection and integration directions.
+            % projection direction goes in a direction mixing
+            % currentl projection and integration directions.
             %
             % Inputs:
             % obj      - current instance of the axes block
@@ -365,7 +366,6 @@ classdef axes_block < serializable
             obj = check_and_set_dax_(obj,val);
         end
 
-
         %------------------------------------------------------------------
         % historical and convenience getters for dependent properties
         % which do not have setters
@@ -409,7 +409,7 @@ classdef axes_block < serializable
                 normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
             % verify inputs of the bin_pixels function and convert various
             % forms of the inputs of this function into a common form,
-            % where the missing inputs are returned as empty outputs.
+            % where the missing inputs are returned as empty.
             %
             %Inputs:
             % pix_coord_transf -- the array of pixels coordinates
