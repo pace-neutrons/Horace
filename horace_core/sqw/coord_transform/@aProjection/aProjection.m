@@ -302,7 +302,7 @@ classdef aProjection < serializable
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
-        % Generic methods, which provide generi interface but should
+        % Generic methods, which provide generic interface but should
         % normally be overloaded for specific projections for efficiency and
         % specific projection differences
         %------------------------------------------------------------------

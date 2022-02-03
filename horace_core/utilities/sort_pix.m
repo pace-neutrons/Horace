@@ -122,7 +122,7 @@ if ~use_mex
         return;
     end
     
-    pix=pix.get_pixels(ind);     % reorders pix
+    pix=pix.get_pixels(ind); % reorders pix according to pix indexes within bins
     clear ind;
     if force_double
         if ~isa(pix.data,'double')

@@ -56,10 +56,10 @@ classdef test_cut < TestCase & common_state_holder
             end
         end
         %        
-        function test_you_can_take_a_cut_from_an_sqw_file(obj)
+        function test_take_a_cut_from_an_sqw_file(obj)
             conf = hor_config();
             old_conf = conf.get_data_to_store();
-            conf.pixel_page_size = 5e5;
+            conf.mem_chunk_size = 4000;
             cleanup = onCleanup(@() set(hor_config, old_conf));
             
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
@@ -93,12 +93,7 @@ classdef test_cut < TestCase & common_state_holder
             skipTest('SAMPLE COMPARISON and instrument comparison are disabled as some routes ignore empty samples/instruments')
         end
         
-        function test_you_can_take_a_cut_with_nopix_argument(obj)
-            conf = hor_config();
-            old_conf = conf.get_data_to_store();
-            conf.pixel_page_size = 5e5;
-            cleanup = onCleanup(@() set(hor_config, old_conf));
-            
+        function test_take_a_cut_with_nopix_argument(obj)            
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:}, '-nopix');
             
             ref_sqw = d3d(obj.ref_file);
@@ -113,13 +108,8 @@ classdef test_cut < TestCase & common_state_holder
             assertExceptionThrown(f, 'SQW:cut');
         end
         
-        function test_you_can_take_a_cut_integrating_over_more_than_1_axis(obj)
-            conf = hor_config();
-            old_conf = conf.get_data_to_store();
-            conf.pixel_page_size = 5e5;
-            cleanup = onCleanup(@() set(hor_config, old_conf));
-            
-            proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+        function test_take_a_cut_integrating_over_more_than_1_axis(obj)            
+            proj = projaxes([1, -1 ,0], [1, 1, 0], 'offset', [1, 1, 0], 'type', 'paa');
             
             u_axis_lims = [-0.1, 0.025, 0.1];
             v_axis_lims = [-0.1, 0.1];
@@ -134,7 +124,12 @@ classdef test_cut < TestCase & common_state_holder
             assertEqual(numel(dnd_cut.pax), 2);
         end
         
-        function test_you_can_take_a_cut_from_an_sqw_file_to_another_sqw_file(obj)
+        function test_take_a_cut_from_an_sqw_file_to_another_sqw_file(obj)
+            conf = hor_config();
+            old_conf = conf.get_data_to_store();
+            conf.mem_chunk_size = 4000;
+            cleanup = onCleanup(@() set(hor_config, old_conf));
+            
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
             ret_sqw = cut(obj.sqw_file, obj.ref_params{:}, outfile);
             cleanup = onCleanup(@() clean_up_file(outfile));

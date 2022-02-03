@@ -53,7 +53,8 @@ end
 % glue adjacent data blocks
 cumulative_sum = cumsum(block_sizes);
 last_block_pos = block_sizes+start_pos;
-% remove border between adjacent blocks
+% remove border between adjacent blocks. Should not currently happen, but
+% worth checking 
 remove_border  = start_pos(2:end)==last_block_pos(1:end-1);
 if any(remove_border)
     % keep boder positions which should not be removed

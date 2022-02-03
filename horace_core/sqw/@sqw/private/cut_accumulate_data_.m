@@ -138,7 +138,7 @@ else
                 % the files - this object then recombines the files once it is
                 % passed to 'put_sqw'.
                 pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file( ...
-                    pix_comb_info, false, candidate_pix, ok, pix_indx, npix, block_size, ...
+                    pix_comb_info, false, candidate_pix, ok, pix_indx, npix, chunk_size, ...
                     del_npix_retain ...
                     );
             else
@@ -153,7 +153,7 @@ end
 if keep_pixels
     if num_chunks > 1
         [pix_out, pix_comb_info] = combine_pixels( ...
-            pix_retained, pix_ix_retained, npix, block_size ...
+            pix_retained, pix_ix_retained, npix, chunk_size ...
             );
     else % all done
         pix_out = pix_retained{1};
@@ -201,5 +201,6 @@ if isa(pix_retained,'pix_comb_info')
 else
     % Pixels stored in-memory in PixelData object
     pix = sort_pix(pix_retained, pix_ix_retained, npix);
+    pix_comb_info = [];
 end
 end
