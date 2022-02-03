@@ -77,7 +77,8 @@ classdef test_cut < TestCase & common_state_holder
         function test_take_a_cut_from_an_sqw_object(obj)
             %sqw_obj = read_sqw(obj.sqw_file);
             sqw_obj = obj.sqw_4d; % it have just been read in constructor
-            sqw_cut = cut(sqw_obj, obj.ref_params{:});
+            ref_par = obj.ref_params;
+            sqw_cut = cut(sqw_obj,ref_par{:});
             %
             % offset is currently expressed in hkl
             assertElementsAlmostEqual(sqw_cut.data.uoffset,obj.ref_params{1}.uoffset);

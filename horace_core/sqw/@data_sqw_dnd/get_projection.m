@@ -16,7 +16,7 @@ else
     bmat =     bmatrix(alatt,angdeg);
 end
 
-proj=ortho_proj('alatt',alatt,'angdeg',angdeg,'lab',obj.ulabel);
+proj=ortho_proj('alatt',alatt,'angdeg',angdeg,'label',obj.label);
 %
 offset = obj.uoffset(:);
 if isempty(bmat_inv_ext)

@@ -38,7 +38,7 @@ nbin_in_bin = cur_axes_block.bin_pixels(nodes_here);
 %
 % identify cell indexes containing nodes
 if source_proj.do_3D_transformation_
-    contrib_ind = source_proj.convert_3D_QdE_ind_to_4Dind_ranges(...
+    contrib_ind = source_proj.convert_3Dplus1Ind_to_4Dind_ranges(...
         nbin_in_bin(:)>0,e_inside);
 else
     contrib_ind = find(nbin_in_bin>0);

@@ -1,9 +1,24 @@
 classdef axes_block < serializable
-    % The class contains information, related to coordinates of sqw or dnd
-    % object
+    % The class contains information about axes and scales used for
+    % displaying sqw/dnd object.
     %
-    %  This is the block of axis in Cartesian coordinate system.
+    % It also conatins main methods, used to produce physical image of the
+    % sqw/dnd object
+    %
     properties(Dependent)
+        title      % Title of sqw data structure
+        filename   % Name of sqw file that is being read, excluding path. Used in titles
+        filepath   % Path to sqw file that is being read, including terminating file separator.
+        %          Used in titles
+
+        label    % labels for u1,u2,u3,u4 as cell array
+        %               e.g. {'Q_h', 'Q_k', 'Q_l', 'En'})
+        %                   *OR*
+        %   label{1}  label for u1 axis (e.g. 'Q_h' or 'Q_{kk}')
+        %   label{2}  label for u2 axis
+        %   label{3}  label for u3 axis
+        %   label{4}  label for u4 axis (e.g. 'E' or 'En')
+
         iax;      %Index of integration axes into the projection axes  [row vector]
         %          Always in increasing numerical order
         %                  e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
@@ -20,15 +35,16 @@ classdef axes_block < serializable
         %      be reordered [row vector]
         p;     %Cell array containing bin boundaries along the plot axes [column vectors]
         %      i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
-
+        %------------------------------------------------------------------
+        %
         ulen   %Length of projection axes vectors in Ang^-1 or meV [row vector]
         %
         % The range (in axes coordinate system), the binning is made and the
         % axes block describnes
         img_range
-
+        %
         n_dims;  % Number of axes_block object dimensions
-
+        %
         % binning along each dimension of an object assuming that
         % all objects are 4-dimensional one. E.g. 1D object in with 10 bins in
         % x-direction would have binning [10,1,1,1] and 1D object with 10
@@ -40,31 +56,34 @@ classdef axes_block < serializable
     end
 
     properties
-        title   =''   % Title of sqw data structure
-        filename=''   % Name of sqw file that is being read, excluding path. Used in titles
-        filepath=''   % Path to sqw file that is being read, including terminating file separator.
-        %               Used in titles
-
         %
-
-        ulabel={'Q_h','Q_k','Q_l','En'}  %Labels of the projection axes [1x4 cell array of character strings]
-        axis_caption=an_axis_caption(); %  Reference to class, which define axis captions. TODO: delete this, mutate axes_block
+        %  Reference to class, which define axis captions. TODO: delete this, mutate axes_block
+        axis_caption
         %
         %TODO: Its here temporary, until full projection is stored in sqw obj
         nonorthogonal = false % if the coordinate system is non-orthogonal.
     end
     properties(Access=protected)
+        title_   =''   % Title of sqw data structure
+        filename_=''   % Name of sqw file that is being read, excluding path. Used in titles
+        filepath_=''   % Path to sqw file that is being read, including terminating file separator.
+        %               Used in titles
+        label_  = {'Q_h','Q_k','Q_l','En'}; %Labels of the projection axes [1x4 cell array of character strings]
         ulen_=[1,1,1,1]         %Length of projection axes vectors in Ang^-1 or meV [row vector]
         img_range_      = ...
             [0,0,0,0;0,0,0,0]; % 2x4 vector of min/max values in 4-dimensions
         nbins_all_dims_ = [1,1,1,1];    % number of bins in each dimension
         dax_=[];                        % display axes numbers holder
+        % e.g. r.l.u. and energy [h; k; l; en] [row vector]
+        %
+
+
     end
     properties(Constant,Access=private)
         % fields which fully represent the state of the class and allow to
         % recover it state by setting properties through public interface
         fields_to_save_ = {'title','filename','filepath',...
-            'ulen','ulabel','img_range','nbins_all_dims',...
+            'label','ulen','img_range','nbins_all_dims',...
             'dax','nonorthogonal'};
     end
 
@@ -73,7 +92,7 @@ classdef axes_block < serializable
         % as input. If some input binning parameters are missing, the
         % defaults are taken from the given image range which should be
         % properly prepared
-        [obj,targ_img_db_range] = build_from_input_binning(cur_img_range_and_steps,pbin);
+        obj = build_from_input_binning(cur_img_range_and_steps,pbin);
         %
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
@@ -84,18 +103,18 @@ classdef axes_block < serializable
         function [any_within,is_within]=bins_in_1Drange(bins,range)
             % get bins which contribute into the given range in one
             % dimension
-            % Inputs: 
+            % Inputs:
             % bins -- equally spaced increasing array of values,
             %         representing bin edges.
-            % range -- 2 element vector of min/max values which should 
+            % range -- 2 element vector of min/max values which should
             %          surround contributing range
             % Output:
             % any_within -- true if any input bin contribute into the
             %               selected range and false otherwise
-            % is_within  -- logical array of size numel(bins)-1 
+            % is_within  -- logical array of size numel(bins)-1
             [any_within,is_within]=bins_in_1Drange_(bins,range);
         end
-        
+
         %
         function img_db_range = calc_img_db_range(ax_data)
             % Retrieve 4D range used for rebinning pixels
@@ -178,7 +197,7 @@ classdef axes_block < serializable
             % Return 4D cube, describing the minimal grid cell of the axes block
             [cube_coord,step] = get_axes_scales_(obj);
         end
-
+        %
         function [npix,s,e,pix,pix_indx] = bin_pixels(obj,pix_coord_transf,varargin)
             % Bin and distribute data expressed in the coordinate system
             % described by this axes block over the current N-D lattice
@@ -245,7 +264,7 @@ classdef axes_block < serializable
             [npix,s,e,pix,pix_indx] = bin_pixels_(obj,pix_coord_transf,nargou,...
                 npix,s,e,pix_cand,argi{:});
         end
-
+        %
         function [nodes,dE_edges,npoints_in_axes] = get_bin_nodes(obj,varargin)
             % build 3D or 4D vectors, containing all nodes of the axes_block grid,
             % constructed over axes_block axes points.
@@ -271,7 +290,7 @@ classdef axes_block < serializable
             % dE_edges  -- if '-3D' switch is present, coordinates of the
             %              energy transfer grid, empty if not
             % npoints_in_axes
-            %           -- 4-elements vector, containing numbers of axes 
+            %           -- 4-elements vector, containing numbers of axes
             %              nodes in each of 4 directions
             %
             opt = {'-3D','-halo'};
@@ -317,7 +336,6 @@ classdef axes_block < serializable
             end
             range  = get_binning_range_(obj,cur_proj,new_proj);
         end
-
         %
         function [obj,offset,remains] = init(obj,varargin)
             % initialize object with axis parameters.
@@ -335,6 +353,48 @@ classdef axes_block < serializable
         %------------------------------------------------------------------
         % ACCESSORS
         %------------------------------------------------------------------
+        function tit = get.title(obj)
+            tit = obj.title_;
+        end
+        function obj = set.title(obj,val)
+            if ~ischar(val) || isstring(val)
+                error('HORACE:axes_block:invalid_argument',...
+                    'title should be defined of array of characters or by a string')
+            end
+            obj.title_ = val;
+        end
+        %
+        function fn = get.filename(obj)
+            fn = obj.filename_;
+        end
+        function obj = set.filename(obj,fn)
+            if ~ischar(fn) || isstring(fn)
+                error('HORACE:axes_block:invalid_argument',...
+                    'filename should be defined of array of characters or by a string')
+            end
+            [~,fn,fext] = fileparts(fn);
+            obj.filename_ = [fn,fext];
+        end
+        %
+        function fp = get.filepath(obj)
+            fp = obj.filepath_;
+        end
+        function obj = set.filepath(obj,fp)
+            if ~ischar(fp) || isstring(fp)
+                error('HORACE:axes_block:invalid_argument',...
+                    'filepath should be defined of array of characters or by a string')
+            end
+            obj.filepath_ = fp;
+        end
+
+        %
+        function lab=get.label(obj)
+            lab = obj.label_;
+        end
+        function obj=set.label(obj,val)
+            obj = check_and_set_labels_(obj,val);
+        end
+        %
         function ir = get.img_range(obj)
             ir = obj.img_range_;
         end
@@ -348,10 +408,14 @@ classdef axes_block < serializable
         function obj = set.nbins_all_dims(obj,val)
             obj = check_and_set_nbin_all_dim_(obj,val);
         end
+        %
         function ul = get.ulen(obj)
             ul = obj.ulen_;
         end
         function obj = set.ulen(obj,val)
+            if isnumeric(val) && numel(val) == 3
+                val = [val(:)',1];
+            end
             if ~(isnumeric(val) && numel(val) == 4)
                 error('HORACE:axes_block:invalid_argument',...
                     'ulen should be vector, containing 4 elements')
@@ -455,6 +519,5 @@ classdef axes_block < serializable
             % containing only range and bin numers
             input = convert_old_struct_into_nbins_(input);
         end
-
     end
 end

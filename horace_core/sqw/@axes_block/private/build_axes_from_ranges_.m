@@ -1,6 +1,7 @@
 function pc = build_axes_from_ranges_(obj)
-% build projection axes from internal ranges and binning
-%
+% build projection axes from internal ranges and the binning 
+% 
+% main part of the p accessor
 is_pax = obj.nbins_all_dims_ > 1;
 npax = sum(is_pax);
 pc = cell(1,npax);

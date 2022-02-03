@@ -18,35 +18,34 @@ classdef aProjection < serializable
     %
     %   offset     Row or column vector of offset of origin of a projection axes (rlu)
     %
-    %   lab         Short labels for u1,u2,u3,u4 as cell array
-    %               e.g. {'Q_h', 'Q_k', 'Q_l', 'En'})
-    %                   *OR*
-    %   lab1        Short label for u1 axis (e.g. 'Q_h' or 'Q_{kk}')
-    %   lab2        Short label for u2 axis
-    %   lab3        Short label for u3 axis
-    %   lab4        Short label for u4 axis (e.g. 'E' or 'En')
 
     properties(Dependent)
         % Lattice parameters are important in any transfomation from Crystal
         % Cartesian (pixels) to image coordinate system but are hidden as
         % user is not requested to set these properties -- cut algorithm
         % would set their values from their permanent and unique place in
-        % an sqw object. These parameters are the only source of the
-        % lattice for dnd object.
+        % an sqw object. These parameters are the only the source of the
+        % lattice for dnd object when cut from dnd object is made
         alatt        % the lattice parameters
+        %
         angdeg       % angles between the lattice edges
+        %
+        offset; % Offset of origin of the projection in r.l.u. 
+        %         and energy ie. [h; k; l; en] [row vector]        
         %---------------------------------
-        %TODO: Will be refactored to axes_caption and transferred to axes
-        %block?
-        lab
-
-        %Offset of origin of the projection in r.l.u. and energy ie. [h; k; l; en] [row vector]
-        offset;
+        label % the method which allows user to change labels present on a
+        %      cut
+        %      This is transient property, which would be carryed out to
+        %      and stored in the axes_block. If you need to modify the
+        %      labels on the final cut, you would work rather with the
+        %      axes block, but here you may request changed labels when the
+        %      projection is provided as input for cut
+        %
         %
     end
     properties(Dependent,Hidden)
-        % Common (non-virtual) properties:
-        %
+        % Internal properties, used by algorithms and better not to be
+        % exposed to users
         %
         targ_proj    % the target projection, used by cut to transform from
         %              source to target coordinate system
@@ -57,8 +56,8 @@ classdef aProjection < serializable
         % property mainly used in testing. If set to true,
         % the class will always use generic projection transformation
         % instead of may be optimized transformation, specific for
-        % particular projection-projection transformation, optimized for
-        % specific projection-projection pair of classes
+        % particular projection-projection pair of transformations,
+        % optimized for specific projection-projection pair of classes
         do_generic;
         % check if a projection should use 3D transformation assuming that
         % energy axis is orthogonal to q-axes, which is much more efficient
@@ -71,7 +70,7 @@ classdef aProjection < serializable
     end
 
     properties(Constant, Access=private)
-        fields_to_save_ = {'alatt','angdeg','lab','offset'}
+        fields_to_save_ = {'alatt','angdeg','offset'}
     end
     properties(Constant, Access=protected)
         % minimal value of a vector norm e.g. how close couple of vectors
@@ -90,7 +89,7 @@ classdef aProjection < serializable
         offset_  = [0,0,0,0] %Offset of origin of projection axes in image units
         % e.g. r.l.u. and energy [h; k; l; en] [row vector]
         %
-        labels_  = {'Q_h','Q_k','Q_l','En'};
+        label_  = {'Q_h','Q_k','Q_l','En'};
         %
         % holds target projection used in cuts.
         targ_proj_;
@@ -224,7 +223,6 @@ classdef aProjection < serializable
                 bl_size = [];
                 return;
             end
-
             % Calculae pix indexes from cell indexes. Compress indexes of
             % contributing cells into bl_start:bl_start+bl_size-1 form if
             % it has not been done before
@@ -233,35 +231,6 @@ classdef aProjection < serializable
                 contrib_ind,npix);
         end
         %------------------------------------------------------------------
-        function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)
-            % Converts from current to target projection coordinate system.
-            %
-            % Should be overloaded to optimize for a particular case to
-            % improve efficiency.
-            % (e.g. two orthogonal projections do shift and rotation
-            % as the result, so worth combining them into one operation)
-            % Inputs:
-            % obj       -- current projection, describing the system of
-            %              coordinates where the input pixels vector is
-            %              expressed in. The target projection has to be
-            %              set up
-            %
-            % pix_origin   4xNpix vector of pixels coordinates expressed in
-            %              the coordinate system, defined by current
-            %              projection
-            %Outputs:
-            % pix_target -- 4xNpix vector of the pixels coordinates in the
-            %               coordinate system, defined by the target
-            %               projection.
-            %
-            targproj = obj.targ_proj;
-            if isempty(targproj)
-                error('HORACE:aProjection:runtime_error',...
-                    'Target projection property has to be set up to convert to target coordinate system')
-            end
-            pic_cc = obj.transform_img_to_pix(pix_origin,varargin{:});
-            pix_target  = targproj.transform_pix_to_img(pic_cc,varargin{:});
-        end
         %------------------------------------------------------------------
         % accessors
         %------------------------------------------------------------------
@@ -289,10 +258,10 @@ classdef aProjection < serializable
             obj = check_and_set_andgdeg(obj,val);
         end
         %
-        function lab=get.lab(obj)
-            lab = obj.labels_;
+        function lab=get.label(obj)
+            lab = obj.label_;
         end
-        function obj=set.lab(obj,val)
+        function obj=set.label(obj,val)
             obj = check_and_set_labels_(obj,val);
         end
         %
@@ -330,6 +299,51 @@ classdef aProjection < serializable
         end
         function  flds = indepFields(obj)
             flds = obj.fields_to_save_;
+        end
+        %------------------------------------------------------------------
+        %------------------------------------------------------------------
+        % Generic methods, which provide generi interface but should
+        % normally be overloaded for specific projections for efficiency and
+        % specific projection differences
+        %------------------------------------------------------------------
+        function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)
+            % Converts from current to target projection coordinate system.
+            %
+            % Should be overloaded to optimize for a particular case to
+            % improve efficiency.
+            % (e.g. two orthogonal projections do shift and rotation
+            % as the result, so worth combining them into one operation)
+            % Inputs:
+            % obj       -- current projection, describing the system of
+            %              coordinates where the input pixels vector is
+            %              expressed in. The target projection has to be
+            %              set up
+            %
+            % pix_origin   4xNpix vector of pixels coordinates expressed in
+            %              the coordinate system, defined by current
+            %              projection
+            %Outputs:
+            % pix_target -- 4xNpix vector of the pixels coordinates in the
+            %               coordinate system, defined by the target
+            %               projection.
+            %
+            targproj = obj.targ_proj;
+            if isempty(targproj)
+                error('HORACE:aProjection:runtime_error',...
+                    'Target projection property has to be set up to convert to target coordinate system')
+            end
+            pic_cc = obj.transform_img_to_pix(pix_origin,varargin{:});
+            pix_target  = targproj.transform_pix_to_img(pic_cc,varargin{:});
+        end
+
+        function ax_bl = get_proj_axes_block(obj,default_binning_ranges,req_binning_ranges)
+            % construct the axes block, corresponding to this projection class
+            % Does generic axes_block
+            % Should be overloaded for specific projection and specific axes
+            % block
+            ax_bl = axes_block.build_from_input_binning(...
+                default_binning_ranges,req_binning_ranges);
+            ax_bl.label = obj.label;
         end
     end
     %
@@ -369,7 +383,6 @@ classdef aProjection < serializable
             contrib_ind= get_contrib_cell_ind_(obj,...
                 cur_axes_block,targ_proj,targ_axes_block);
         end
-
         %
         function obj = check_and_set_do_generic(obj,val)
             % setter for do_generic method
@@ -381,7 +394,7 @@ classdef aProjection < serializable
         end
     end
     %
-    methods(Static)
+    methods(Static,Access=protected)
         function [bl_start,bl_size]=convert_contrib_cell_into_pix_indexes(...
                 cell_ind,npix)
             % Compress indexes of contributing cells into the form, which
@@ -422,16 +435,20 @@ classdef aProjection < serializable
             bl_start  = bl_start(non_empty)+1; % +1 converts to Matlab indexing
             bl_size   = bl_size(non_empty);
         end
-        function contrib_ind=convert_3D_QdE_ind_to_4Dind_ranges(...
+        function contrib_ind=convert_3Dplus1Ind_to_4Dind_ranges(...
                 bin_inside3D,en_inside)
-            % convert cell indexes calculated on 3D q + 1D orthogonal
+            % convert cell indexes calculated on 3D-q + 1D-dE
             % lattice into 4D indexes on 4D lattice using assumption that
-            % dE axis is orthogonal to 3 other axis
+            % dE axis is orthogonal to 3 other q-axes
             % Inputs:
             % bin_inside3D -- 3D logical array, containing true
             %                 for indexes to include
             % en_inside    -- 1D logical array, containing true, for
-            %                 orthogonal 1D indexes to include
+            %                 orthogonal 1D indexes on dE lattice to include
+            %                 into contributing indexes.
+            %
+            % Uses knolege about specific arrangement of 4-D array in
+            % memory and on disk
 
             q_block_size = numel(bin_inside3D);
             change = diff([false;bin_inside3D(:);false]);
@@ -474,8 +491,6 @@ classdef aProjection < serializable
         % Transform pixels expressed in image coordinate coordinate systems
         % into crystal cartezian system
         pix_cc = transform_img_to_pix(obj,pix_transformed,varargin);
-        % return the axes block, corresponding to this projection class.
-        ax_bl = get_proj_axes_block(obj,default_binning_ranges,req_binning_ranges)
 
     end
 end

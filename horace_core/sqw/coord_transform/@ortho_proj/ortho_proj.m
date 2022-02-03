@@ -22,7 +22,7 @@ classdef ortho_proj<aProjection
     %   >> proj = ortho_proj(...,'nonorthogonal',nonorthogonal,..)
     %   >> proj = ortho_proj(...,'type',type,...)
     %   >> proj = ortho_proj(...,'uoffset',uoffset,...)
-    %   >> proj = ortho_proj(...,'lab',labelcellstr,...)
+    %   >> proj = ortho_proj(...,'label',labelcellstr,...)
     %   >> proj = ortho_proj(...,'lab1',labelstr,...)
     %                   :
     %   >> proj = ortho_proj(...,'lab4',labelstr,...)
@@ -138,16 +138,9 @@ classdef ortho_proj<aProjection
                 [ul,vl,~,type]=proj.uv_from_data_rot(u_to_rlu,[1,1,1]);
                 proj = proj.init(ul,vl,[],'type',type);
             else
-                proj.lab = {'\zeta','\xi','\eta','E'};
+                proj.label = {'\zeta','\xi','\eta','E'};
                 proj = proj.init(varargin{:});
             end
-        end
-        %
-        function obj = set_ub_inv_compat(obj,ub_inv)
-            % Set up inverted ub matrix, used to support alignment as in
-            % Horace 3.xxx where the real inverted ub matrix is multiplied
-            % by alginment matrix.
-            obj.ub_inv_compat_ = ub_inv;
         end
         %
         function obj = init(obj,varargin)
@@ -167,35 +160,6 @@ classdef ortho_proj<aProjection
             end
         end
         %-----------------------------------------------------------------
-        function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)
-            % Converts from current to target projection coordinate system.
-            %
-            % Overloaded to optimize a ortho_proj to ortho_proj
-            % transformation.
-            %
-            % Inputs:
-            % obj       -- current projection, describing the system of
-            %              coordinates where the input pixels vector is
-            %              expressed in. The target projection property value
-            %              has to be set up on this object
-            % pix_origin   4xNpix vector of pixels coordinates expressed in
-            %              the coordinate system, defined by current
-            %              projection
-            %Outputs:
-            % pix_target -- 4xNpix vector of the pixels coordinates in the
-            %               coordinate system, defined by the target
-            %               projection.
-            %
-            if isempty(obj.ortho_ortho_transf_mat_)
-                % use generic projection transformation
-                pix_target = from_this_to_targ_coord@aProjection(...
-                    obj,pix_origin,varargin{:});
-            else
-                pix_target = do_ortho_ortho_transformation_(...
-                    obj,pix_origin,varargin{:});
-            end
-        end
-
         %-----------------------------------------------------------------
         function u = get.u(obj)
             if obj.valid_
@@ -272,11 +236,11 @@ classdef ortho_proj<aProjection
             [~,~,obj] = check_combo_arg_(obj);
         end
         % -----------------------------------------------------------------
-        % OLD sqw object interface
+        % OLD sqw object interface compartibility functions
         % -----------------------------------------------------------------
         function obj = set_from_data_mat(obj,u_rot,ulen)
-            % build correct projection from input u_to_rlu and ulen matrix
-            % stored in sqw object ver <4
+            % build correct projection from input u_to_rlu and ulen matrices
+            % stored in sqw object ver < 4
             %
             [ur,vr,wr,tpe]=obj.uv_from_data_rot(u_rot(1:3,1:3),ulen(1:3));
             obj.u = ur;
@@ -289,9 +253,16 @@ classdef ortho_proj<aProjection
                     'Can not set uv from ub-matrix: %s',mess);
             end
         end
+        %
+        function obj = set_ub_inv_compat(obj,ub_inv)
+            % Set up inverted ub matrix, used to support alignment as in
+            % Horace 3.xxx where the real inverted ub matrix is multiplied
+            % by alginment matrix.
+            obj.ub_inv_compat_ = ub_inv;
+        end        
         %------------------------------------------------------------------
-        % OLD from new sqw object creation interface. Will go when new SQW
-        % object is created
+        % OLD from new sqw object creation interface. 
+        % TODO: remove when new SQW object is fully implemented
         %
         function lst = get.data_sqw_dnd_export_list(~)
             lst = {'u_to_rlu','nonorthogonal','alatt','angdeg','uoffset'};
@@ -312,6 +283,7 @@ classdef ortho_proj<aProjection
         end
         %------------------------------------------------------------------
         % Particular implementation of aProjection abstract interface
+        % and oveloads for speficic methods
         %------------------------------------------------------------------
         function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)
             % Transform pixels expressed in crystal Cartesian coordinate systems
@@ -328,6 +300,7 @@ classdef ortho_proj<aProjection
         end
         %
         function pix_cc = transform_img_to_pix(obj,pix_hkl,varargin)
+
             % Transform pixels expressed in image coordinate coordinate systems
             % into crystal Cartesian coordinate system
             %
@@ -339,6 +312,47 @@ classdef ortho_proj<aProjection
             %            system
             %
             pix_cc = transform_img_to_pix_(obj,pix_hkl);
+        end
+        %
+        function ax_bl = get_proj_axes_block(obj,default_binning_ranges,req_binning_ranges)
+            % return the axes block, corresponding to this projection class.
+            ax_bl = get_proj_axes_block@aProjection(obj,default_binning_ranges,req_binning_ranges);
+            [~,~, ulen] = obj.uv_to_rot([1,1,1]);
+            ax_bl.ulen  = ulen;
+            % TODO, delete this, mutate axes_block
+            ax_bl.axis_caption=an_axis_caption();
+            % TODO:  this should go. The projection will keep this property
+            % for itself unless it is specific axes block?
+            ax_bl.nonorthogonal = obj.nonorthogonal;
+        end
+        %
+        function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)
+            % Converts from current to target projection coordinate system.
+            %
+            % Overloaded to optimize a ortho_proj to ortho_proj
+            % transformation.
+            %
+            % Inputs:
+            % obj       -- current projection, describing the system of
+            %              coordinates where the input pixels vector is
+            %              expressed in. The target projection property value
+            %              has to be set up on this object
+            % pix_origin   4xNpix vector of pixels coordinates expressed in
+            %              the coordinate system, defined by current
+            %              projection
+            %Outputs:
+            % pix_target -- 4xNpix vector of the pixels coordinates in the
+            %               coordinate system, defined by the target
+            %               projection.
+            %
+            if isempty(obj.ortho_ortho_transf_mat_)
+                % use generic projection transformation
+                pix_target = from_this_to_targ_coord@aProjection(...
+                    obj,pix_origin,varargin{:});
+            else
+                pix_target = do_ortho_ortho_transformation_(...
+                    obj,pix_origin,varargin{:});
+            end
         end
         %
         function  flds = indepFields(obj)
@@ -440,7 +454,6 @@ classdef ortho_proj<aProjection
                 shift = rlu_to_u *shift';
             else % do not convert anything
             end
-
         end
         %
         function  [rlu_to_ustep, u_rot, ulen] = uv_to_rot(proj,ustep)

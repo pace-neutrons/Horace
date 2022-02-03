@@ -24,7 +24,6 @@ function  new_axes_block = build_from_input_binning(...
 %               - [plo, pstep, phi] Plot axis: minimum and maximum bin centres and step size
 % Outputs:
 % new_axis_block    -- initialized instance of axes_block class
-% targ_img_db_range -- the range to bin pixels
 
 if numel(pbin) ~=4
     error('HORACE:axes_block:invalid_argument',...

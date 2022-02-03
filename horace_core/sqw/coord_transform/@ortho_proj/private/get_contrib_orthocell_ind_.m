@@ -19,7 +19,7 @@ q_coords = source_proj.from_this_to_targ_coord(q_coords);
 
 bin_inside = ~(bin_outside(1)|bin_outside(2)|bin_outside(3));   % =0 if bin outside, =1 if at least partially intersects volume
 %
-contrib_ind = source_proj.convert_3D_QdE_ind_to_4Dind_ranges(...
+contrib_ind = source_proj.convert_3Dplus1Ind_to_4Dind_ranges(...
     bin_inside,e_inside);
 
     function wrk = bin_outside (idim)

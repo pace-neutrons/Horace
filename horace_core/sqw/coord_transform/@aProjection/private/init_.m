@@ -3,7 +3,7 @@ function [obj,remains] = init_(obj,varargin)
 % which are present within input arguments and return values, which
 % do not belong to the input values
 
-opt_par = {'alatt','angdeg','lab','offset','lab1','lab2','lab3','lab4'};
+opt_par = {'alatt','angdeg','label','offset','lab1','lab2','lab3','lab4'};
 lab_par = {'lab1','lab2','lab3','lab4'};
 [result,remains,prop_present] = process_inputs_(opt_par,varargin{:});
 if prop_present
@@ -12,8 +12,7 @@ if prop_present
         if ~isempty(result.(fn))
             is_labpar = ismember(lab_par,fn);
             if any(is_labpar)
-                ind = find(is_labpar);
-                obj.lab{ind} = result.(fn);
+               obj.label{is_labpar} = result.(fn);
             else
                 obj.(fn) = result.(fn);
             end

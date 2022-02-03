@@ -154,3 +154,4 @@ end
 if ~header_only
     data_str = obj.get_se_npix(data_str);
 end
+%

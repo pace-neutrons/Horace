@@ -7,15 +7,15 @@ if iscell(val) && numel(val) == 4
             'all labels has to be strings')
     end
     if size(val,1) == 4
-        obj.labels_ = val';
+        obj.label_ = val';
     else
-        obj.labels_ = val;
+        obj.label_ = val;
     end
 else
     error('HORACE:aProjection:invalid_argument',...
         ['a label should be a 4-element cellarray of strings or '...
         'single string, assighned to a particular label e.g. '...
-        'proj.lab{3} = ''Q_x'' Actually it is: %s'],...
+        'proj.label{3} = ''Q_x'' Actually it is: %s'],...
         evalc('disp(val)'))
 end
 

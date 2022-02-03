@@ -23,4 +23,8 @@ if isfield(in,'img_db_range') && ~any(in.img_db_range(:) == PixelData.EMPTY_RANG
     % old format with img_db_range defined
     in.img_range = in.img_db_range;
 end
+if isfield(in,'ulabel')
+    in.label = in.ulabel;
+    in = rmfield(in,'ulabel');
+end
 

@@ -165,6 +165,7 @@ targ_proj.angdeg = header_av.angdeg;
 % is attached to pixels. In fact, it refefines b-matrix which is the
 % function of lattice
 targ_proj = targ_proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
+
 %
 sz = cellfun(@(x) max(size(x, 1), 1), pbin);
 if return_cut
@@ -174,7 +175,7 @@ end
 % This loop enables multicuts
 for cut_num = 1:prod(sz)
     pbin_tmp = get_pbin_for_cut(sz, cut_num, pbin);
-    targ_ax_block = define_target_axes_block(obj, targ_proj, pbin_tmp,header_av );
+    [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, pbin_tmp,header_av );
     
     args = {obj, targ_proj, targ_ax_block, opt.keep_pix, opt.outfile};
     if return_cut
@@ -185,7 +186,7 @@ for cut_num = 1:prod(sz)
 end
 % End function
 
-function targ_ax_block = define_target_axes_block(w, targ_proj, pbin,header_av)
+function [targ_ax_block,targ_proj] = define_target_axes_block(w, targ_proj, pbin,header_av)
 % define target axes from existing axes, inputs and the projections
 %
 img_block = w.data;
@@ -195,10 +196,8 @@ source_proj = img_block.get_projection(header_av);
 % input of this method. Left in this form unil data_sqw_dnd is a axes_block
 source_binning = img_block.get_binning_range(...
     source_proj,targ_proj);
-targ_ax_block = axes_block.build_from_input_binning(source_binning,pbin);
-%TODO: will be something more involved when its generic projection, as the
-%projection defines the structure of axis block for plotting
-targ_ax_block.ulabel = targ_proj.lab;
+%
+targ_ax_block  = targ_proj.get_proj_axes_block(source_binning,pbin);
 
 
 

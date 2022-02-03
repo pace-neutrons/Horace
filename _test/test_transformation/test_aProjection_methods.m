@@ -17,14 +17,13 @@ classdef test_aProjection_methods <TestCase
         function test_set_label_type_throws(~)
             ap = aProjectionTester();
             function sap()
-                ap.lab= [200,10,10];
+                ap.label= [200,10,10];
             end
             assertExceptionThrown(@sap,...
                 'HORACE:aProjection:invalid_argument');
         end
         function test_serialize_deserialize(~)
             ap = aProjectionTester();
-            ap.lab = {'a';'b';'c';'d'};
             ser_str = ap.serialize();
             ap_rec = serializable.deserialize(ser_str);
             
@@ -39,35 +38,35 @@ classdef test_aProjection_methods <TestCase
         function test_constructor_some_fields_and_extra(~)
             par = {'offset', [1,0,0,0],'lab2','b','extra','blabla','extra1','cryacrya'};
             [ap,extra_par] =aProjectionTester(par{:});
-            assertEqual(ap.lab ,{'Q_h','b','Q_l','En'});
+            assertEqual(ap.label ,{'Q_h','b','Q_l','En'});
             assertEqual(ap.offset ,[1,0,0,0]);
             assertEqual(extra_par,{'extra','blabla','extra1','cryacrya'});
         end
         
         function test_constructor_all_fields(~)
-            par = {'offset', [1,0,0,0],'lab',{'a','b','c','d'}};
+            par = {'offset', [1,0,0,0],'label',{'a','b','c','d'}};
             [ap,extra_par] =aProjectionTester(par{:});
-            assertEqual(ap.lab ,{'a','b','c','d'});
+            assertEqual(ap.label ,{'a','b','c','d'});
             assertEqual(ap.offset ,[1,0,0,0]);
             assertTrue(isempty(extra_par));
         end
         
         function test_default_set_single_label(~)
             ap = aProjectionTester();
-            assertEqual(ap.lab ,{'Q_h', 'Q_k', 'Q_l', 'En'});
-            ap.lab{3} = 'e';
-            assertEqual(ap.lab ,{'Q_h', 'Q_k', 'e', 'En'});
+            assertEqual(ap.label ,{'Q_h', 'Q_k', 'Q_l', 'En'});
+            ap.label{3} = 'e';
+            assertEqual(ap.label ,{'Q_h', 'Q_k', 'e', 'En'});
         end
         
         function test_set_labels_col(~)
             ap = aProjectionTester();
-            ap.lab = {'a';'b';'c';'d'};
-            assertEqual(ap.lab ,{'a','b','c','d'});
+            ap.label = {'a';'b';'c';'d'};
+            assertEqual(ap.label ,{'a','b','c','d'});
         end
         function test_set_labels_row(~)
             ap = aProjectionTester();
-            ap.lab = {'a','b','c','d'};
-            assertEqual(ap.lab ,{'a','b','c','d'});
+            ap.label = {'a','b','c','d'};
+            assertEqual(ap.label ,{'a','b','c','d'});
         end
         
         %------------------------------------------------------------------
