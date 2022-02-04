@@ -282,7 +282,7 @@ classdef sqw_binfile_common < sqw_file_interface
             %   data.u_to_rlu   Matrix (4x4) of projection axes in hkle representation
             %                      u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
             %   data.ulen       Length of projection axes vectors in Ang^-1 or meV [row vector]
-            %   data.ulabel     Labels of the projection axes [1x4 cell array of character strings]
+            %   data.label     Labels of the projection axes [1x4 cell array of character strings]
             %   data.iax        Index of integration axes into the projection axes  [row vector]
             %                  Always in increasing numerical order
             %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
@@ -385,7 +385,7 @@ classdef sqw_binfile_common < sqw_file_interface
             %   header.u_to_rlu     Matrix (4x4) of projection axes in hkle representation
             %                        u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
             %   header.ulen         Length of projection axes vectors in Ang^-1 or meV [row vector]
-            %   header.ulabel       Labels of the projection axes [1x4 cell array of character strings]
+            %   header.label       Labels of the projection axes [1x4 cell array of character strings]
             %
             header = get_header_form_(varargin{:});
         end

@@ -132,13 +132,13 @@ classdef ortho_proj<aProjection
     methods
         function proj=ortho_proj(varargin)
             proj = proj@aProjection();
+            proj.label = {'\zeta','\xi','\eta','E'};            
             if nargin==0 % return defaults, which describe unit transformation from
                 % Crystal Cartesian (pixels) to Crystal Cartesian (image)
                 u_to_rlu =eye(3)/(2*pi);
                 [ul,vl,~,type]=proj.uv_from_data_rot(u_to_rlu,[1,1,1]);
                 proj = proj.init(ul,vl,[],'type',type);
             else
-                proj.label = {'\zeta','\xi','\eta','E'};
                 proj = proj.init(varargin{:});
             end
         end

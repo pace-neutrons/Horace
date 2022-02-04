@@ -58,7 +58,7 @@ classdef axes_block < serializable
     properties
         %
         %  Reference to class, which define axis captions. TODO: delete this, mutate axes_block
-        axis_caption
+        axis_caption = an_axis_caption();
         %
         %TODO: Its here temporary, until full projection is stored in sqw obj
         nonorthogonal = false % if the coordinate system is non-orthogonal.

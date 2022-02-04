@@ -420,8 +420,8 @@ classdef aProjection < serializable
             if iscell(cell_ind) % accepted contributing cell indexes
                 % in the form of cell_start:cell_end
                 bl_start = pix_start(cell_ind{1});
-                bl_end   = pix_start(cell_ind{2});
-                bl_size  = bl_end-bl_start+1;
+                bl_end   = pix_start(cell_ind{2}+1);
+                bl_size  = bl_end-bl_start;
             else % accepted contributing cell indexes as linear array of
                 % indexes
                 adjacent = cell_ind(1:end-1)+1==cell_ind(2:end);

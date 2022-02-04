@@ -131,12 +131,12 @@ classdef test_ortho_proj_construction<TestCase
         function test_get_set_from_data_matrix_ppp(~)
             proj1 = ortho_projTester([1,0,0],[0,1,0],[0,0,1],...
                 'alatt',[2,4,3],'angdeg',[90,90,90],...
-                'lab',{'a','b','c','d'},'type','ppp');
+                'label',{'a','b','c','d'},'type','ppp');
             
             [~, u_to_rlu, ulen] = proj1.projaxes_to_rlu_public([1,1,1]);
             
             pror = ortho_projTester('alatt',[2,4,3],'angdeg',[90,90,90],...
-                'lab',{'a','b','c','d'});
+                'label',{'a','b','c','d'});
             pror = pror.set_from_data_mat(u_to_rlu,ulen);            
             % TODO: This is something wrong as inputs are not recovered. 
             % Is this correct? Should (can I fix this)
@@ -148,12 +148,12 @@ classdef test_ortho_proj_construction<TestCase
         
         function test_get_set_from_data_matrix_ppr(~)
             proj1 = ortho_projTester('alatt',[2,4,3],'angdeg',[90,90,90],...
-                'lab',{'a','b','c','d'},'type','ppr');
+                'label',{'a','b','c','d'},'type','ppr');
             
             [~, u_to_rlu, ulen] = proj1.projaxes_to_rlu_public([1,1,1]);
             
             pror = ortho_projTester('alatt',[2,4,3],'angdeg',[90,90,90],...
-                'lab',{'a','b','c','d'});
+                'label',{'a','b','c','d'});
             pror = pror.set_from_data_mat(u_to_rlu,ulen);            
             assertEqual(pror,proj1);            
         end
@@ -231,7 +231,7 @@ classdef test_ortho_proj_construction<TestCase
             do = data_sqw_dnd(data);
             
             proj = ortho_proj('alatt',data.alatt,'angdeg',data.angdeg,...
-                'lab',{'a','b','c','d'},'type','aaa');
+                'label',{'a','b','c','d'},'type','aaa');
             
             proj1=do.get_projection();
             assertEqual(proj,proj1)

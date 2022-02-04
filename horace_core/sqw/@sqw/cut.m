@@ -192,7 +192,8 @@ function [targ_ax_block,targ_proj] = define_target_axes_block(w, targ_proj, pbin
 img_block = w.data;
 source_proj = img_block.get_projection(header_av);
 %--------------------------------------------------------------------------
-% it is actually axes_block method, so source projection is provided as
+% Get the source binning ranges, transformed into target coordinate system.
+% It is actually axes_block method, so source projection is provided as
 % input of this method. Left in this form unil data_sqw_dnd is a axes_block
 source_binning = img_block.get_binning_range(...
     source_proj,targ_proj);

@@ -30,23 +30,25 @@ function [proj, pbin,opt] = ...
 %   p3_bin          Binning along third Q axis
 %   p4_bin          Binning along the energy axis:
 %   with any of the following formats:
-%           - [] or ''          Plot axis: use bin boundaries of input data
+%           - [] or ''          Plot or integration axis: use bin boundaries
+%                               and the binning of input data.
 %           - [pstep]           Plot axis: sets step size; plot limits
 %                               taken from the extent of the data. If pstep
 %                               is 0, step is also taken from input data
 %                               (equivalent to [])
 %           - [plo, phi]        Integration axis: range of integration
 %           - [plo, pstep, phi] Plot axis: minimum and maximum bin centers
-%                              and step size
-%                              For example, [106, 4, 116] will define a plot
-%                              axis with bin edges 104-108, 108-112, 112-116.
-%                              if step is 0,
+%                               and step size
+%                               For example, [106, 4, 116] will define a plot
+%                               axis with bin edges 104-108, 108-112, 112-116.
+%                               if step is 0, the step is taken from the
+%                               step of the input data
 %           - [plo, rdiff, phi, rwidth]
 %                                Integration axis: minimum range center,
 %                                distance between range centers, maximum range
 %                                center, range size for each cut.
 %                                When using this syntax, an array of cuts is
-%                                outputted. The number of cuts produced will
+%                                returned. The number of cuts produced will
 %                                be the number of rdiff sized steps between plo
 %                                and phi; phi will be automatically increased
 %                                such that rdiff divides phi - plo.
