@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fitting &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Herbert" href="Herbert.html" />
+    <link rel="prev" title="Developer information" href="Developer_information.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Horace
+            <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">Symmetrising etc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">Unary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Plotting.html">Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Simulation.html">Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Multifit.html">Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Advanced_Multifit.html">Advanced Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../Unsorted.html">Unsorted Manual Pages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="Changing_object_type.html">Changing object type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Developer_information.html">Developer information</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Fitting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#multifit">multifit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#multifit-sqw">multifit_sqw</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#multifit-sqw-sqw">multifit_sqw_sqw</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Herbert.html">Herbert</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Horace_and_Libisis_installation.html">Horace and Libisis installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Horace_command_line.html">Horace command line</a></li>
+<li class="toctree-l3"><a class="reference internal" href="New.html">New</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Read_or_write_to_disk.html">Read or write to disk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Remote_data_analysis.html">Remote data analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Reshaping_etc.html">Reshaping etc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Run_inspector.html">Run inspector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_correcting_sample_misalignment.html">Script for correcting sample misalignment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_data_treatment.html">Script for data treatment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_fitting.html">Script for fitting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_generating_sqw_files.html">Script for generating sqw files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_making_cuts_and_plotting.html">Script for making cuts and plotting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_making_publication_quality_figures.html">Script for making publication quality figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_making_simulations.html">Script for making simulations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_planning_an_experiment.html">Script for planning an experiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="s_new.html">S new</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../Horace_manual.html">Horace Manual</a> &raquo;</li>
+          <li><a href="../Unsorted.html">Unsorted Manual Pages</a> &raquo;</li>
+      <li>Fitting</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/manual/Fitting.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="fitting">
+<h1>Fitting<a class="headerlink" href="#fitting" title="Permalink to this headline"></a></h1>
+<p>Horace comes with a rich and powerful fitting syntax that is common to the methods used to fit functions or models of S(Q,w) to one or more datasets. For an introduction and overview of how to use the following fitting functions, please read <a class="reference internal" href="Multifit.html#multifit"><span class="std std-ref">Fitting data</span></a>. For comprehensive help, please use the Matlab documentation for the various fitting functions that can be obtained by using the <code class="docutils literal notranslate"><span class="pre">doc</span></code> command, for example <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">d1d/multifit</span></code> (for fitting function like Gaussians to d1d objects) or <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/multifit_sqw</span></code> (fitting models for S(Q,w) to sqw objects). It is strongly recommended that you use <code class="docutils literal notranslate"><span class="pre">doc</span></code>, not <code class="docutils literal notranslate"><span class="pre">help</span></code> to explore how to use these methods, so that you can navigate between the numerous pages of documentation in the Matlab help window.</p>
+<p>Several multifit variants are available for sqw and d1d,d2d,…d4d objects. The only substantive difference is the form of the fit functions they require: either they are functions of the numeric values of the plot coordinates, or they are function of wave vector in reciprocal lattice units and energy.</p>
+<section id="multifit">
+<h2>multifit<a class="headerlink" href="#multifit" title="Permalink to this headline"></a></h2>
+<p>This is identical to <code class="docutils literal notranslate"><span class="pre">multifit_func</span></code>)
+The foreground and background functions both are functions of the plot axes x1,x2,…for as many x arrays as there are plot axes:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">y</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">my_function</span><span class="w"> </span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="k">...</span><span class="c"> ,xn,pars)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>or, more generally:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">y</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">my_function</span><span class="w"> </span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="k">...</span><span class="c"> ,xn,pars,c1,c2,...)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>where
+- x1,x2,.xn Arrays of x coordinates along each of the n dimensions
+- pars Parameters needed by the function
+- c1,c2,… Any further constant arguments needed by the function. For example, they could be the filenames of lookup tables</p>
+</section>
+<section id="multifit-sqw">
+<h2>multifit_sqw<a class="headerlink" href="#multifit-sqw" title="Permalink to this headline"></a></h2>
+<p>The foreground function(s) are functions of S(Q,w), and the background functions are functions of the plot axes x1,x2,…</p>
+<p>The general form of a model for S(Q,w) is:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">weight</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqwfunc</span><span class="w"> </span><span class="p">(</span><span class="n">qh</span><span class="p">,</span><span class="n">qk</span><span class="p">,</span><span class="n">ql</span><span class="p">,</span><span class="n">en</span><span class="p">,</span><span class="n">p</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>or, more generally:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">weight</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqwfunc</span><span class="w"> </span><span class="p">(</span><span class="n">qh</span><span class="p">,</span><span class="n">qk</span><span class="p">,</span><span class="n">ql</span><span class="p">,</span><span class="n">en</span><span class="p">,</span><span class="n">p</span><span class="p">,</span><span class="n">c1</span><span class="p">,</span><span class="n">c2</span><span class="p">,..)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>where
+- qh,qk,ql,en Arrays containing the coordinates of a set of points
+- p Vector of parameters needed by the model e.g. [A,js,gam] as intensity, exchange, lifetime
+- c1,c2,… Other constant parameters e.g. file name for look-up table
+- weight Array containing calculated spectral weight</p>
+<p>The form for the background model(s) is the same as is required by <code class="docutils literal notranslate"><span class="pre">multifit</span></code>.</p>
+</section>
+<section id="multifit-sqw-sqw">
+<h2>multifit_sqw_sqw<a class="headerlink" href="#multifit-sqw-sqw" title="Permalink to this headline"></a></h2>
+<p>The foreground and background function(s) are all functions of S(Q,w). The form of these models is the same as is required by <code class="docutils literal notranslate"><span class="pre">multifit_sqw</span></code>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Developer_information.html" class="btn btn-neutral float-left" title="Developer information" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Herbert.html" class="btn btn-neutral float-right" title="Herbert" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2021, STFC RAL.
+      <span class="lastupdated">Last updated on Feb 4, 2022, 2:47:27 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Horace: visualising and manipulating S(Q,w) measured in all four dimensions &mdash; Horace 3.6.1 documentation</title>
+  <title>Horace: visualising and manipulating \(S(\mathbf{Q},\omega)\) measured in all four dimensions &mdash; Horace  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -15,10 +15,11 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="The Horace Rationale" href="The_Horace_Rationale.html" /> 
+    <link rel="next" title="Introduction and Setup" href="Introduction.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -27,10 +28,8 @@
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
             <a href="#" class="icon icon-home"> Horace
+            <img src="_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                3.6.1
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -38,36 +37,14 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="The_Horace_Rationale.html">The Horace Rationale</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Download_and_Setup_Troubleshutting.html">Download and Setup Trouble-Shutting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Download_and_setup.html">Download and setup</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Download_and_Setup_Troubleshutting.html">Download and Setup Trouble-Shutting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Support_and_updates.html">Support and updates</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Getting_started.html">Getting started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Advanced_use.html">Advanced use</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Symmetrising_etc.html">Symmetrising etc</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Plotting.html">Plotting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Simulation.html">Simulation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Multifit.html">Multifit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Advanced_Multifit.html">Advanced Multifit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
-<li class="toctree-l1"><a class="reference internal" href="FAQ.html">FAQ</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Example_scripts.html">Example scripts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="How_to_cite_Horace.html">How to cite Horace</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Papers_citing_Horace.html">Papers citing Horace</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Known_bugs.html">Known bugs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Become_a_developer.html">Become a developer</a></li>
-<li class="toctree-l1"><a class="reference internal" href="For_Developers.html">For Developers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Developer_info.html">Developer info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Horace_manual.html">Horace Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API_Reference.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="General_disclaimer.html">General disclaimer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Privacy_policy.html">Privacy Policy</a></li>
 </ul>
@@ -86,7 +63,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li>Horace: visualising and manipulating S(<strong>Q</strong>,w) measured in all four dimensions</li>
+      <li>Horace: visualising and manipulating <span class="math notranslate nohighlight">\(S(\mathbf{Q},\omega)\)</span> measured in all four dimensions</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -96,89 +73,91 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="toctree-wrapper compound">
-</div>
-<section id="horace-visualising-and-manipulating-s-q-w-measured-in-all-four-dimensions">
-<h1>Horace: visualising and manipulating S(<strong>Q</strong>,w) measured in all four dimensions<a class="headerlink" href="#horace-visualising-and-manipulating-s-q-w-measured-in-all-four-dimensions" title="Permalink to this headline"></a></h1>
-<p>If you have problem using or installing Horace, found bug or have other questions related to Horace, please contact <a class="reference external" href="mailto:HoraceHelp&#46;stfc&#46;ac&#46;uk">our team</a>, and somebody will come back and try to help you answering your question.</p>
-</section>
-<section id="download-support-updates">
-<h1>Download, support &amp; updates<a class="headerlink" href="#download-support-updates" title="Permalink to this headline"></a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="Download_and_setup.html#download-and-setup"><span class="std std-ref">Download and setup</span></a></p></li>
-<li><p><a class="reference internal" href="Support_and_updates.html#support-and-updates"><span class="std std-ref">Support and updates</span></a></p></li>
-</ul>
-</section>
-<section id="how-to-use-horace">
-<h1>How to use Horace<a class="headerlink" href="#how-to-use-horace" title="Permalink to this headline"></a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="Getting_started.html#getting-started"><span class="std std-ref">Getting started: An introduction to the use of Horace with the Matlab command line</span></a></p></li>
-<li><p><a class="reference internal" href="Advanced_use.html#advanced-use"><span class="std std-ref">Advanced use of Horace with the Matlab command line</span></a></p></li>
-</ul>
-</section>
-<section id="horace-manual">
-<h1>Horace Manual<a class="headerlink" href="#horace-manual" title="Permalink to this headline"></a></h1>
-<ul class="simple">
-<li><p>Horace Manual chapters</p>
+  <section id="horace-visualising-and-manipulating-s-mathbf-q-omega-measured-in-all-four-dimensions">
+<h1>Horace: visualising and manipulating <span class="math notranslate nohighlight">\(S(\mathbf{Q},\omega)\)</span> measured in all four dimensions<a class="headerlink" href="#horace-visualising-and-manipulating-s-mathbf-q-omega-measured-in-all-four-dimensions" title="Permalink to this headline"></a></h1>
+<p>Horace is a suite of programs for the visualisation and analysis of large datasets
+from time-of-flight neutron inelastic scattering spectrometers.
+The theory behind, and application of, Horace has been published as an
+<a class="reference external" href="https://doi.org/10.1016/j.nima.2016.07.036">open access article here</a>.
+under the <a class="reference external" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution License</a>.
+Please cite this paper if you have used Horace in your research.
+More details about citing Horace can be found <a class="reference internal" href="How_to_cite_Horace.html#how-to-cite-horace"><span class="std std-ref">here</span></a>.</p>
+<p>If you have problem using or installing Horace, found bug or have other questions related to Horace,
+please contact <a class="reference external" href="mailto:HoraceHelp&#46;stfc&#46;ac&#46;uk">our team</a>,
+and somebody will come back and try to help you answering your question.</p>
+<div class="toctree-wrapper compound">
 <ul>
-<li><p><a class="reference internal" href="Changing_Horace_settings.html#changing-horace-settings"><span class="std std-ref">Changing Horace settings</span></a></p></li>
-<li><p><a class="reference internal" href="Planning_a_Horace_scan.html#planning-a-horace-scan"><span class="std std-ref">Planning a Horace scan</span></a></p></li>
-<li><p><a class="reference internal" href="Generating_SQW_files.html#generating-sqw-files"><span class="std std-ref">Generating SQW files</span></a></p></li>
-<li><p><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html#manipulating-and-extracting-data-from-sqw-files-and-objects"><span class="std std-ref">Taking cuts from data; saving, loading and querying cuts on disk</span></a></p></li>
-<li><p><a class="reference internal" href="Correcting_for_sample_misalignment.html#correcting-for-sample-misalignment"><span class="std std-ref">Correcting for sample misalignment</span></a></p></li>
-<li><p><a class="reference internal" href="Data_diagnostics.html#data-diagnostics"><span class="std std-ref">Data diagnostics</span></a></p></li>
-<li><p><a class="reference internal" href="Symmetrising_etc.html#symmetrising-etc"><span class="std std-ref">Symmetrising etc</span></a></p></li>
-<li><p><a class="reference internal" href="Binary_operations.html#binary-operations"><span class="std std-ref">Add, subtract, etc</span></a></p></li>
-<li><p><a class="reference internal" href="Plotting.html#plotting"><span class="std std-ref">Plotting</span></a></p></li>
-<li><p><a class="reference internal" href="Simulation.html#simulation"><span class="std std-ref">Simulation</span></a></p></li>
-<li><p><a class="reference internal" href="Multifit.html#multifit"><span class="std std-ref">Fitting data</span></a></p></li>
-<li><p><a class="reference internal" href="Tobyfit.html#tobyfit"><span class="std std-ref">Fitting with resolution function convolution</span></a></p></li>
+<li class="toctree-l1"><a class="reference internal" href="Introduction.html">Introduction and Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction/The_Horace_Rationale.html">The Horace Rationale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction/Download_and_setup.html">Download and setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction/Support_and_updates.html">Support and updates</a></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="Input_file_formats.html#input-file-formats"><span class="std std-ref">Input file formats and creating input files</span></a></p></li>
-<li><p><a class="reference internal" href="FAQ.html#faq"><span class="std std-ref">FAQs</span></a></p></li>
+<li class="toctree-l1"><a class="reference internal" href="User_guide.html">User’s Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/Getting_started.html">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/Horace_GUI.html">Horace GUI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/Advanced_use.html">Advanced use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/Resolution_convolution.html">Resolution Convolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/Interfacing_with_other_programs.html">Interfacing with other programs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/Example_scripts.html">Example scripts</a></li>
 </ul>
-</section>
-<section id="example-scripts">
-<h1>Example scripts<a class="headerlink" href="#example-scripts" title="Permalink to this headline"></a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="Example_scripts.html#example-scripts"><span class="std std-ref">Example scripts</span></a></p></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Horace_manual.html">Horace Manual</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual/Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Generating_SQW_files.html">Generating SQW files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Data_diagnostics.html">Data diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Symmetrising_etc.html">Symmetrising etc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Unary_operations.html">Unary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Binary_operations.html">Binary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Plotting.html">Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Simulation.html">Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Multifit.html">Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Advanced_Multifit.html">Advanced Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Tobyfit.html">Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/List_of_functions.html">List of functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/FAQ.html">FAQ</a></li>
 </ul>
-</section>
-<section id="citing-horace">
-<h1>Citing Horace<a class="headerlink" href="#citing-horace" title="Permalink to this headline"></a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="How_to_cite_Horace.html#how-to-cite-horace"><span class="std std-ref">How to cite Horace</span></a></p></li>
-<li><p><a class="reference internal" href="Papers_citing_Horace.html#papers-citing-horace"><span class="std std-ref">Papers citing Horace</span></a></p></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Citing.html">Citing Horace</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="How_to_cite_Horace.html">How to cite Horace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Papers_citing_Horace.html">Papers citing Horace</a></li>
 </ul>
-</section>
-<section id="for-developers">
-<h1>For Developers<a class="headerlink" href="#for-developers" title="Permalink to this headline"></a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="Known_bugs.html#known-bugs"><span class="std std-ref">Known bugs</span></a></p></li>
-<li><p><a class="reference internal" href="Become_a_developer.html#become-a-developer"><span class="std std-ref">Become a developer</span></a></p></li>
-<li><p><a class="reference internal" href="For_Developers.html#for-developers"><span class="std std-ref">MediaWiki information</span></a></p></li>
-<li><p><a class="reference internal" href="Developer_info.html#developer-info"><span class="std std-ref">Developer information</span></a></p></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Developers.html">For Developers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="developers/Known_bugs.html">Known bugs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developers/Become_a_developer.html">Become a developer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developers/For_Developers.html">For Developers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developers/Developer_info.html">Developer info</a></li>
 </ul>
-</section>
-<section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline"></a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="API_Reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="API_Reference.html#module-sqw.&#64;SQWDnDBase"><code class="docutils literal notranslate"><span class="pre">SQWDndBase</span></code> class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="API_Reference.html#module-sqw.&#64;Experiment"><code class="docutils literal notranslate"><span class="pre">Experiment</span></code> class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="API_Reference.html#module-sqw.PixelData.&#64;PixelData"><code class="docutils literal notranslate"><span class="pre">PixelData</span></code> class</a></li>
 </ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+</div>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Introduction.html" class="btn btn-neutral float-right" title="Introduction and Setup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
+    <p>&#169; Copyright 2006-2021, STFC RAL.
+      <span class="lastupdated">Last updated on Feb 4, 2022, 2:47:27 PM.
       </span></p>
   </div>
 
@@ -194,6 +173,7 @@
   </div>
   <script>
       jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script> 
 

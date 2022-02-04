@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Symmetrising etc &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Unary operations" href="Unary_operations.html" />
+    <link rel="prev" title="Data diagnostics" href="Data_diagnostics.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Horace
+            <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Symmetrising etc</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#commands-for-cuts-and-slices">Commands for cuts and slices</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#symmetrising">Symmetrising</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#combining">Combining</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rebinning">Rebinning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#symmetrise-data-then-unfold-back-to-original-range">Symmetrise data, then unfold back to original range</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#correcting-for-magnetic-form-factor">Correcting for magnetic form factor</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#commands-for-entire-datasets">Commands for entire datasets</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#advanced-usage">Advanced usage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#limitations">Limitations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">Unary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Plotting.html">Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Simulation.html">Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Multifit.html">Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Advanced_Multifit.html">Advanced Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Unsorted.html">Unsorted Manual Pages</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../Horace_manual.html">Horace Manual</a> &raquo;</li>
+      <li>Symmetrising etc</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/manual/Symmetrising_etc.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="symmetrising-etc">
+<h1>Symmetrising etc<a class="headerlink" href="#symmetrising-etc" title="Permalink to this headline"></a></h1>
+<p>It is possible to do combinational operations on sqw objects, e.g. to combine specified symmetrically equivalent wavevectors such as (-1,0,0) and (1,0,0), for example. The advantage of doing this is that for a given cut or slice you are able to include data from many more detector pixels, thus improving the statistical quality of your data.</p>
+<section id="commands-for-cuts-and-slices">
+<h2>Commands for cuts and slices<a class="headerlink" href="#commands-for-cuts-and-slices" title="Permalink to this headline"></a></h2>
+<section id="symmetrising">
+<span id="symmetrising-etc-symmetrise-sqw"></span><h3>Symmetrising<a class="headerlink" href="#symmetrising" title="Permalink to this headline"></a></h3>
+<section id="symmetrising-data-in-memory">
+<h4>Symmetrising data in memory<a class="headerlink" href="#symmetrising-data-in-memory" title="Permalink to this headline"></a></h4>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">v1</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">v2</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">];</span><span class="w"> </span><span class="n">v3</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"></span>
+<span class="n">wout</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="n">v1</span><span class="p">,</span><span class="n">v2</span><span class="p">,</span><span class="n">v3</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The object <code class="docutils literal notranslate"><span class="pre">wout</span></code> is reflected in the plane specified by the vectors <code class="docutils literal notranslate"><span class="pre">v1</span></code>, <code class="docutils literal notranslate"><span class="pre">v2</span></code>, and <code class="docutils literal notranslate"><span class="pre">v3</span></code>. <code class="docutils literal notranslate"><span class="pre">v1</span></code> and <code class="docutils literal notranslate"><span class="pre">v2</span></code> are vectors which lie parallel to the plane but are not parallel to one another. <code class="docutils literal notranslate"><span class="pre">v3</span></code> specifies the offset from Q=(0,0,0) of the reflection plane. In the above example the plane reflects (-1,0,0) to (1,0,0).</p>
+<p>As you can notice, <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code> works on <em>sqw</em> objects, stored in memory (the Matlab workspace). Therefore the size in memory of a given object can often act as a limitation on what data can be symmetrised. e.g. a large 3d volume may contain information from so many detector pixels that symmetrising it requires more memory than is available on your computer.</p>
+</section>
+<section id="symmetrising-whole-data-files">
+<h4>Symmetrising whole data files<a class="headerlink" href="#symmetrising-whole-data-files" title="Permalink to this headline"></a></h4>
+<p>If you need to symmetrise a large <em>sqw</em> object, it can be done during <em>sqw</em> object generation, i.e. during generation of the <em>sqw</em> file. <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> function has a special option <strong>transform_sqw</strong> which can be used with any method, transforming an existing <em>sqw</em> object into another <em>sqw</em> object in memory.</p>
+<p>For example:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">gen_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">spefile</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sym_sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span><span class="w"></span>
+<span class="w">    </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb">psi</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">,</span><span class="s">&#39;transform_sqw&#39;</span><span class="p">,@(</span><span class="n">x</span><span class="p">)(</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">v1</span><span class="p">,</span><span class="n">v2</span><span class="p">,</span><span class="n">v3</span><span class="p">)))</span><span class="w"></span>
+</pre></div>
+</div>
+<p>or, more generally:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">gen_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">spefile</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sym_sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span><span class="w"></span>
+<span class="w">    </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb">psi</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">,</span><span class="s">&#39;transform_sqw&#39;</span><span class="p">,@(</span><span class="n">x</span><span class="p">)(</span><span class="n">user_symmetrisation_routine</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="w"></span>
+</pre></div>
+</div>
+<p>where <em>spefile, par_file, etc…</em> are the options used during initial <em>sqw</em> file generation (see <a class="reference internal" href="Generating_SQW_files.html#generating-sqw-files"><span class="std std-ref">Generating SQW files</span></a>). The first <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> would build a <em>sqw</em> file reflected as in the example for the reflection in memory, but with the transformation applied to the entire dataset. In the second, more general, case the user defined function (in a m-file on the Matlab path) can define multiple symmetrisation operations that are applied sequentially to the entire data. An example is as follows, which folds a cubic system so that all eight of the symmetrically equivalent (1,0,0) type positions are folded on to each other:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span>wout<span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nf">user_symmetrisation_routine</span><span class="p">(</span>win<span class="p">)</span><span class="w"></span>
+
+<span class="n">wout</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">win</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span><span class="c">%fold about line (1,1,0) in HK plane</span><span class="w"></span>
+<span class="n">wout</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">wout</span><span class="p">,[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span><span class="c">%fold about line (-1,1,0) in HK plane</span><span class="w"></span>
+<span class="n">wout</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">wout</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span><span class="c">%fold about line (1,0,1) in HL plane</span><span class="w"></span>
+<span class="n">wout</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">wout</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span><span class="c">%fold about line (1,0,-1) in HL plane</span><span class="w"></span>
+</pre></div>
+</div>
+<p><strong>VERY IMPORTANT NOTE 1</strong>: When defining the function to apply the symmetrisation (as above) one can ONLY use symmetrisation operations, given by <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code>. Any other transformations may modify the data ranges in unexpected ways, making the resulting transformed <em>sqw</em> file into complete nonsense!</p>
+<p><strong>Note 2</strong>: when a complex transformation is run on the isiscompute cluster in parallel mode, one may want to increase number of MPI workers to increase <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> speed during symmetrisation (if the cluster load permits that). The current default number of workers is optimal for using the maximal bandwidth of parallel file system. If bigger computations are performed in memory, it could be beneficial to increase number of workers to use more CPU power. This can be done by issuing the following commands:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">hpc</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">hpc_config</span><span class="w"></span>
+<span class="n">hpc</span><span class="p">.</span><span class="n">parallel_workers_number</span><span class="p">=</span><span class="w"> </span><span class="mi">16</span><span class="w"></span>
+</pre></div>
+</div>
+<p>This instructs Horace to use 16 MPI workers instead of the default of 8, enabled by <strong>hpc on</strong> command.</p>
+<p><strong>Note 3</strong>: MPI workers are normal Matlab sessions which inherit basic Matlab path and initiate Horace themselves if the Horace path is not stored by the user (Its not usually recommended and may be impossible for multiusers machines). The workers do not process Matlab’s <em>startup.m</em> file. The user’s symmetrisation routine has to be available on the worker’s Matlab path, so the best way to achieve this is to put the routine into current Matlab working folder – the folder where you run the symmetrisation script itself. If this routine uses some additional users functions, located elsewhere on a custom user path, these routines have to be intiated by the user routine. This can be achieved by the following piece of code added in the beginning of your custom symmetrization routine:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="nb">isempty</span><span class="p">(</span><span class="nb">which</span><span class="p">(</span><span class="s">&#39;my_additional_user_routine&#39;</span><span class="p">))</span><span class="w"></span>
+<span class="w">  </span><span class="nb">addpath</span><span class="p">(</span><span class="s">&#39;/home/myFedID/path_to_my_additional_user_routine&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="combining">
+<span id="symmetrising-etc-combine-sqw"></span><h3>Combining<a class="headerlink" href="#combining" title="Permalink to this headline"></a></h3>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="p">=</span><span class="n">combine_sqw</span><span class="p">(</span><span class="n">win</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Combine two sqw objects (w1 and w2) of the SAME dimensionality into a single sqw object in order to improve statistics. The output object will have a combined value for the integration range e.g. combining two 2d slices taken at L=1 and L=2 will result in an output for which the stated value of L is L=1.5. Two objects which use different projection axes can be combined. The output object will have the projection axes of w1.</p>
+</section>
+<section id="rebinning">
+<span id="symmetrising-etc-rebin-sqw"></span><h3>Rebinning<a class="headerlink" href="#rebinning" title="Permalink to this headline"></a></h3>
+<p>Resize the bin boundaries along one or more axes, and rebin the data accordingly. There are several possibilities for the input format:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">rebin_sqw</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="n">step1</span><span class="p">,</span><span class="n">step2</span><span class="p">,</span><span class="k">...</span><span class="c">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Rebin the sqw object <code class="docutils literal notranslate"><span class="pre">win</span></code> with bins along the first axis that have width <code class="docutils literal notranslate"><span class="pre">step1</span></code>, bins along the second axis (if there is one) with width <code class="docutils literal notranslate"><span class="pre">step2</span></code>, and so on. The original limits of the axes will be retained. To leave an axis unaltered, the corresponding step argument can be set to 0.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">rebin_sqw</span><span class="p">(</span><span class="n">win</span><span class="p">,[</span><span class="n">lo1</span><span class="p">,</span><span class="n">step1</span><span class="p">,</span><span class="n">hi1</span><span class="p">],[</span><span class="n">lo2</span><span class="p">,</span><span class="n">step2</span><span class="p">,</span><span class="n">hi2</span><span class="p">],</span><span class="k">...</span><span class="c">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>As above, but specifying new upper and lower limits along each of the axes to be rebinned.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">rebin_sqw</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Rebin the sqw object <code class="docutils literal notranslate"><span class="pre">win</span></code> with the boundaries (and projection axes) of the template object <code class="docutils literal notranslate"><span class="pre">w2</span></code>.</p>
+</section>
+<section id="symmetrise-data-then-unfold-back-to-original-range">
+<h3>Symmetrise data, then unfold back to original range<a class="headerlink" href="#symmetrise-data-then-unfold-back-to-original-range" title="Permalink to this headline"></a></h3>
+<p><strong>N.B.</strong> For producing plots only, any analysis on these results will be invalid due to double / treble / etc. counting of data.</p>
+<p>Below we show a script that uses the <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code> and <code class="docutils literal notranslate"><span class="pre">combine_sqw</span></code> commands to fold a dataset and then unfold. In the example we have a constant energy slice in the (h,k)-plane which we fold twice to obtain the positive quadrant. We then unfold the result in the opposite direction and combine with the positive quadrant, then unfold this and combine. This produces an image which covers all four quadrants with suitably folded versions of just one of the quadrants.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%The original data</span><span class="w"></span>
+<span class="n">proj2</span><span class="p">.</span><span class="n">u</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">proj2</span><span class="p">.</span><span class="n">v</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">proj2</span><span class="p">.</span><span class="n">type</span><span class="p">=</span><span class="s">&#39;rrr&#39;</span><span class="p">;</span><span class="w"> </span><span class="n">proj2</span><span class="p">.</span><span class="n">uoffset</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"></span>
+<span class="n">hkplane</span><span class="p">=</span><span class="n">cut_sqw</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="n">proj2</span><span class="p">,[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.05</span><span class="p">],[</span><span class="mi">13</span><span class="p">,</span><span class="mi">16</span><span class="p">]);</span><span class="w"></span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">smooth</span><span class="p">(</span><span class="n">d2d</span><span class="p">(</span><span class="n">hkplane</span><span class="p">)));</span><span class="w"></span>
+
+<span class="c">%Fold twice to get into a quadrant. Note order of vectors</span><span class="w"></span>
+<span class="n">fold1</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">hkplane</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span><span class="w"></span>
+<span class="n">fold2</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">fold1</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span><span class="w"></span>
+
+<span class="c">%Check the result</span><span class="w"></span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">smooth</span><span class="p">(</span><span class="n">d2d</span><span class="p">(</span><span class="n">fold2</span><span class="p">)));</span><span class="w"></span>
+
+<span class="c">%Fold this back again (reverse order of vectors in first fold)</span><span class="w"></span>
+<span class="n">fold2a</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">fold2</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span><span class="w"></span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">smooth</span><span class="p">(</span><span class="n">d2d</span><span class="p">(</span><span class="n">fold2a</span><span class="p">)))</span><span class="w"></span>
+
+<span class="c">%Combine with what you started with</span><span class="w"></span>
+<span class="n">combi1</span><span class="p">=</span><span class="n">combine_sqw</span><span class="p">(</span><span class="n">fold2</span><span class="p">,</span><span class="n">fold2a</span><span class="p">);</span><span class="w"></span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">smooth</span><span class="p">(</span><span class="n">d2d</span><span class="p">(</span><span class="n">combi1</span><span class="p">)));</span><span class="w"></span>
+
+<span class="c">%Fold back again (reverse order of vectors in second fold)</span><span class="w"></span>
+<span class="n">fold3a</span><span class="p">=</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">combi1</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]);</span><span class="w"></span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">fold3a</span><span class="p">)</span><span class="w"></span>
+
+<span class="c">%Combine and plot</span><span class="w"></span>
+<span class="n">combi2</span><span class="p">=</span><span class="n">combine_sqw</span><span class="p">(</span><span class="n">combi1</span><span class="p">,</span><span class="n">fold3a</span><span class="p">);</span><span class="w"></span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">smooth</span><span class="p">(</span><span class="n">d2d</span><span class="p">(</span><span class="n">combi2</span><span class="p">)));</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="correcting-for-magnetic-form-factor">
+<h3>Correcting for magnetic form factor<a class="headerlink" href="#correcting-for-magnetic-form-factor" title="Permalink to this headline"></a></h3>
+<p>Horace allows basic correction of scattering intensity from simple ions by adjusting it by the magnetic form factor according to formulas provided in International Tables of Crystallography, Vol C. (see, for example <a class="reference external" href="https://www.ill.eu/sites/ccsl/ffacts/ffachtml.html">here</a>)</p>
+<p>The class <strong>MagneticIons</strong> contains the tables of fitting parameters, used to calculate changes in scattering intensity due to changes in magnetic form factor and defines the method <em>correct_mag_ff</em>, which takes a memory based <strong>sqw</strong> object as input and returns a similar object, with intensities adjusted by the magnetic form factor:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">mff</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">MagneticIons</span><span class="p">(</span><span class="s">&#39;Fe0&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="n">w2_fixed</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mff</span><span class="p">.</span><span class="n">correct_mag_ff</span><span class="p">(</span><span class="n">w2</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Where ‘Fe0’ is the name of the ion for which the magnetic form factor is calculated. <strong>This method should be applied only once</strong>.</p>
+<p>The auxiliary <strong>MagneticIons</strong>’s method <em>IonNames</em> returns the cell array of ion names, which are currently tabulated in Horace and for which scattering can be corrected using the expression above. Additional <strong>MagneticIons</strong> methods <em>calc_mag_ff</em> and <em>apply_mag_ff</em> allow one to calculate magnetic form factor on or apply magnetic form factor to the dataset provided.</p>
+</section>
+</section>
+<section id="commands-for-entire-datasets">
+<h2>Commands for entire datasets<a class="headerlink" href="#commands-for-entire-datasets" title="Permalink to this headline"></a></h2>
+<p><strong>For application of symmetry operations to the entire sqw file when it is being generated, see</strong> <a class="reference internal" href="#symmetrising-whole-data-files"><span class="std std-ref">above</span></a></p>
+<p>It is possible to make a new .sqw data file that has had a specified symmetrisation performed on it for a certain data range. You specify which Brillouin zone you are interested in, and then tell Horace which Brillouin zones are symmetrically equivalent to this one. Data are then cut from all of these zones and combined with the data from your original choice. The result is output to a new file. For example:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">transf_list</span><span class="p">=</span><span class="n">combine_equivalent_zones</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="n">proj</span><span class="p">,</span><span class="n">pos</span><span class="p">,</span><span class="n">qstep</span><span class="p">,</span><span class="n">erange</span><span class="p">,</span><span class="n">outfile</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">data_source</span></code> is the master .sqw file, <code class="docutils literal notranslate"><span class="pre">proj</span></code> is the projection structure array (the same format as that used for <code class="docutils literal notranslate"><span class="pre">cut_sqw</span></code>), <code class="docutils literal notranslate"><span class="pre">pos</span></code> is a 3-element vector [h,k,l] specifying the Brillouin zone of interest. <code class="docutils literal notranslate"><span class="pre">qstep</span></code> is a single number specifying the desired step size along h, k, and l of the 4-dimensional output object <code class="docutils literal notranslate"><span class="pre">wout</span></code>. <code class="docutils literal notranslate"><span class="pre">erange</span></code> is a 3-element vector specifying [lo,step,hi] for the energy range to be cut. Finally, <code class="docutils literal notranslate"><span class="pre">outfile</span></code> is the .sqw filename (including path and .sqw extension) where the symmetrised data will be saved. <code class="docutils literal notranslate"><span class="pre">transf_list</span></code> is the cell array of <code class="docutils literal notranslate"><span class="pre">cut_transf</span></code> classes where each element describes a transformation, applied to particular zone. Note that the output argument <code class="docutils literal notranslate"><span class="pre">transf_list</span></code> is optional.</p>
+<p>For the basic case detailed above, data from all permutations of <code class="docutils literal notranslate"><span class="pre">pos=[h,k,l]</span></code> will be included in the output file. The <em>cut_transf</em> objects in the <code class="docutils literal notranslate"><span class="pre">transf_list</span></code> array by default are reflections described by the transformation matrix, specified by <em>cut_transf.transf_matrix</em> property.</p>
+<p>If you wish to be more restrictive then you can either use:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">transf_list</span><span class="p">=</span><span class="n">combine_equivalent_zones</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="n">proj</span><span class="p">,</span><span class="n">pos</span><span class="p">,</span><span class="n">qstep</span><span class="p">,</span><span class="n">erange</span><span class="p">,</span><span class="n">outfile</span><span class="p">,</span><span class="n">keyword</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">transf_list</span><span class="p">=</span><span class="n">combine_equivalent_zones</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="n">proj</span><span class="p">,</span><span class="n">pos</span><span class="p">,</span><span class="n">qstep</span><span class="p">,</span><span class="n">erange</span><span class="p">,</span><span class="n">outfile</span><span class="p">,</span><span class="n">zonelist</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The keywords that can be used are as follows:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-ab</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-ac</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-bc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-cyclic</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-cycwithneg</span></code></p></li>
+</ul>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">-ab</span></code></dt><dd><p>combines all equivalent zones with the same value of L (i.e. (H,K,L), (-H,K,L), (H,-K,L), (-H,-K,L), (K,H,L), (-K,H,L), (K,-H,L), and (-K,-H,L)). <code class="docutils literal notranslate"><span class="pre">-ac</span></code> combines all equivalent zones with the same K, and <code class="docutils literal notranslate"><span class="pre">-bc</span></code> combines equivalent zones with the same H.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-cyclic</span></code></dt><dd><p>combines all equivalent zones that are cyclic permutations of (H,K,L) <strong>with no sign changes</strong>, whereas <code class="docutils literal notranslate"><span class="pre">-cycwithneg</span></code> <strong>does</strong> include sign changes.</p>
+</dd>
+</dl>
+<p>If you wish to specify which zones to combine manually, this can be done by specifying the argument <code class="docutils literal notranslate"><span class="pre">zonelist</span></code>. This is a cell array, with each element a 3-element vector. For example you might have <code class="docutils literal notranslate"><span class="pre">pos=[1,2,3]</span></code>, and <code class="docutils literal notranslate"><span class="pre">zonelist={[1,2,3],[3,2,1],[2,3,1],[2,1,3],[3,1,2]}</span></code>.</p>
+<section id="advanced-usage">
+<h3>Advanced usage<a class="headerlink" href="#advanced-usage" title="Permalink to this headline"></a></h3>
+<p>By default <code class="docutils literal notranslate"><span class="pre">combine_equivalent_zones</span></code> generates a set of reflections, transforming equivalent zones into the target one. For specified Brillouin zones the user can modify transformations to use symmetry, specific to his or her problem. E.g, one can specify shifts, which use the symmetry of the reciprocal lattice to unite various zones together. To combine zones, located at inequivalent hkl positions one may need to apply a correction function. The script below gives the example of combining all equivalent zones and correcting for the magnetic form factor. The shift transformation is defined by the <strong>symmetry_type</strong> keyword, and the function to apply to each zone before combining is specified by the keyword <strong>correct_fun</strong>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">data_source</span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="nb">pwd</span><span class="p">,</span><span class="s">&#39;Data&#39;</span><span class="p">,</span><span class="s">&#39;Fe_ei200.sqw&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="n">proj</span><span class="p">.</span><span class="n">u</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"></span>
+<span class="n">proj</span><span class="p">.</span><span class="n">v</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="c">% move all zones into the centre.</span><span class="w"></span>
+<span class="n">pos</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="c">% define function to fix magnetic form-factor different for &lt;1,1,0&gt; and &lt;2,0,0&gt; zones.</span><span class="w"></span>
+<span class="n">mff</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">MagneticIons</span><span class="p">(</span><span class="s">&#39;Fe0&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="n">fixer</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">@(</span><span class="n">ws</span><span class="p">)(</span><span class="n">mff</span><span class="p">.</span><span class="n">fix_magnetic_ff</span><span class="p">(</span><span class="n">ws</span><span class="p">));</span><span class="w"></span>
+
+<span class="n">erange</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">200</span><span class="p">];</span><span class="w"></span>
+<span class="n">outfile</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="nb">pwd</span><span class="p">,</span><span class="s">&#39;Data&#39;</span><span class="p">,</span><span class="s">&#39;Fe_ei200shift110allSymmetries.sqw&#39;</span><span class="p">);</span><span class="w"></span>
+
+<span class="c">% all zones to combine</span><span class="w"></span>
+<span class="n">zonelist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="k">...</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]},</span><span class="k">...</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]};</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="n">tansf_list</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">combine_equivalent_zones</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="n">proj</span><span class="p">,</span><span class="n">pos</span><span class="p">,</span><span class="k">...</span><span class="w"></span>
+<span class="w">    </span><span class="mf">0.01</span><span class="p">,</span><span class="n">erange</span><span class="p">,</span><span class="n">outfile</span><span class="p">,</span><span class="n">zonelist</span><span class="p">,</span><span class="k">...</span><span class="w"></span>
+<span class="w">    </span><span class="s">&#39;symmetry_type&#39;</span><span class="p">,</span><span class="s">&#39;shift&#39;</span><span class="p">,</span><span class="s">&#39;correct_fun&#39;</span><span class="p">,</span><span class="n">fixer</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p><strong>symmetry_type</strong> currently can be <em>sigma</em> (for reflections) or <em>shift</em> (for moving different zones).</p>
+<p>The sample script above also generates duplicated pixels, as the [2,0,0] zones are moved into [0,0,0] positions and the same zones at the edges of the cuts (e.g [1,1,0]+-1) will be accounted for twice. The direction of the projection should be changed to avoid this.</p>
+</section>
+<section id="limitations">
+<h3>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p>At present <code class="docutils literal notranslate"><span class="pre">symmetrise_sqw</span></code>, <code class="docutils literal notranslate"><span class="pre">combine_sqw</span></code>, and <code class="docutils literal notranslate"><span class="pre">rebin_sqw</span></code> work ONLY for sqw objects, since they require access to individual detector pixel information. The functions will work for any dimensionality of object, however.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">combine_equivalent_zones</span></code> has to perform some memory and hdd-access intensive calculations, which should ideally be performed on <a class="reference external" href="http://www.isis.stfc.ac.uk/groups/excitations/data-analysis-computers/connecting-to-isiscomputendrlacuk-using-nomachine15120.html">high performance computing cluster</a>. The amount of memory used by the code is controlled by <strong>hor_config</strong> parameter <strong>mem_chunk_size</strong> and is approximately 10 times larger then the amount, specified by this parameter.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Data_diagnostics.html" class="btn btn-neutral float-left" title="Data diagnostics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Unary_operations.html" class="btn btn-neutral float-right" title="Unary operations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2021, STFC RAL.
+      <span class="lastupdated">Last updated on Feb 4, 2022, 2:47:27 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

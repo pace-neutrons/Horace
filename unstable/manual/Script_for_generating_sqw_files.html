@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Script for generating sqw files &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Script for making cuts and plotting" href="Script_for_making_cuts_and_plotting.html" />
+    <link rel="prev" title="Script for fitting" href="Script_for_fitting.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Horace
+            <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">Symmetrising etc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">Unary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Plotting.html">Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Simulation.html">Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Multifit.html">Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Advanced_Multifit.html">Advanced Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../Unsorted.html">Unsorted Manual Pages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="Changing_object_type.html">Changing object type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Developer_information.html">Developer information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Fitting.html">Fitting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Herbert.html">Herbert</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Horace_and_Libisis_installation.html">Horace and Libisis installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Horace_command_line.html">Horace command line</a></li>
+<li class="toctree-l3"><a class="reference internal" href="New.html">New</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Read_or_write_to_disk.html">Read or write to disk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Remote_data_analysis.html">Remote data analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Reshaping_etc.html">Reshaping etc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Run_inspector.html">Run inspector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_correcting_sample_misalignment.html">Script for correcting sample misalignment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_data_treatment.html">Script for data treatment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_fitting.html">Script for fitting</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Script for generating sqw files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_making_cuts_and_plotting.html">Script for making cuts and plotting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_making_publication_quality_figures.html">Script for making publication quality figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_making_simulations.html">Script for making simulations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_planning_an_experiment.html">Script for planning an experiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="s_new.html">S new</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../Horace_manual.html">Horace Manual</a> &raquo;</li>
+          <li><a href="../Unsorted.html">Unsorted Manual Pages</a> &raquo;</li>
+      <li>Script for generating sqw files</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/manual/Script_for_generating_sqw_files.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="script-for-generating-sqw-files">
+<h1>Script for generating sqw files<a class="headerlink" href="#script-for-generating-sqw-files" title="Permalink to this headline"></a></h1>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%==================================================</span><span class="w"></span>
+<span class="c">%Option 1 - make an sqw file from a complete list of existing runs (e.g. after an experiment has finished)</span><span class="w"></span>
+
+<span class="n">data_path</span><span class="p">=</span><span class="s">&#39;/my_path/etc/&#39;</span><span class="p">;</span><span class="c">%set director where spe/nxspe files are located</span><span class="w"></span>
+
+<span class="c">%par_file=[data_path,&#39;my_par.par&#39;];%if using spe files, uncomment this line</span><span class="w"></span>
+<span class="n">par_file</span><span class="p">=</span><span class="s">&#39;&#39;</span><span class="p">;</span><span class="c">%if using nxspe files you do not need to specify a par file. Comment this line out if using spe files</span><span class="w"></span>
+
+<span class="n">sqw_file</span><span class="p">=[</span><span class="n">data_path</span><span class="p">,</span><span class="s">&#39;my_real_file.sqw&#39;</span><span class="p">];</span><span class="c">%specify the name of the sqw file - we assume it goes in the same directory as the spe files</span><span class="w"></span>
+
+<span class="n">efix</span><span class="p">=</span><span class="mi">400</span><span class="p">;</span><span class="c">%set incident energy</span><span class="w"></span>
+
+<span class="nb">psi</span><span class="p">=[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">:</span><span class="mi">90</span><span class="p">];</span><span class="c">%set values of sample orientation psi for our runs. We went from 0 to 90 degrees in 2 degree steps here</span><span class="w"></span>
+
+<span class="n">runno</span><span class="p">=[</span><span class="mi">15052</span><span class="p">:</span><span class="mi">15097</span><span class="p">];</span><span class="c">%list of run numbers. The nth run in this list must correspond to the nth value of psi in the previous list</span><span class="w"></span>
+
+<span class="n">emode</span><span class="p">=</span><span class="mi">1</span><span class="p">;</span><span class="c">%specify direct geometry spectrometer</span><span class="w"></span>
+
+<span class="n">alatt</span><span class="p">=[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">];</span><span class="c">%lattice parameters (Angstroms)</span><span class="w"></span>
+
+<span class="n">angdeg</span><span class="p">=[</span><span class="mi">90</span><span class="p">,</span><span class="mi">90</span><span class="p">,</span><span class="mi">120</span><span class="p">];</span><span class="c">%lattice angles (degrees)</span><span class="w"></span>
+
+<span class="n">u</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">v</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="c">%specify scattering plane, where u is the crystal direction // to ki when psi=0, v is another vector so that with u it specifies the equatorial plane</span><span class="w"></span>
+
+<span class="n">omega</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">dpsi</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">gl</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">gs</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span><span class="c">%goniometer offsets for the sample (usually all zero)</span><span class="w"></span>
+
+<span class="c">%Write a for-loop to create a cell array with the same number of elements as there are values of psi</span><span class="w"></span>
+<span class="c">%Each element of the cell array is the full filename of the corresponding nxspe file</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="p">=</span><span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="nb">psi</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">spefile</span><span class="p">{</span><span class="nb">i</span><span class="p">}=[</span><span class="n">data_path</span><span class="p">,</span><span class="s">&#39;map&#39;</span><span class="p">,</span><span class="nb">num2str</span><span class="p">(</span><span class="n">runno</span><span class="p">(</span><span class="nb">i</span><span class="p">)),</span><span class="s">&#39;_processed.nxspe&#39;</span><span class="p">];</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+<span class="c">%Finally, make the sqw file. This will take a few minutes (depending on the number of runs and the size of the data files)</span><span class="w"></span>
+<span class="n">gen_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">spefile</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span><span class="w"></span>
+<span class="w">    </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb">psi</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">)</span><span class="w"></span>
+
+
+<span class="c">%==================================================</span><span class="w"></span>
+<span class="c">%Option 2 - generate an sqw file on the fly during an experiment, so that further runs not yet measured (but planned) can be appended to it</span><span class="w"></span>
+<span class="c">%this will avoid having to regenerate the entire sqw file all over again</span><span class="w"></span>
+
+<span class="c">%The list of input arguments is exactly the same as above, with the difference that psi and spefile are a list of PLANNED scan angles, and</span><span class="w"></span>
+<span class="c">%anticipated spe file names, only some of which will exist yet.</span><span class="w"></span>
+
+<span class="c">%First time run through (sqw file does not yet exist), explicitly demanding that a new sqw file is created:</span><span class="w"></span>
+<span class="n">accumulate_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">spefile</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span><span class="w"></span>
+<span class="w">    </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb">psi</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;clean&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="c">%Subsequent calls are the same, but without the &#39;clean&#39; argument</span><span class="w"></span>
+<span class="n">accumulate_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">spefile</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span><span class="w"></span>
+<span class="w">    </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb">psi</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">)</span><span class="w"></span>
+
+<span class="c">%Note that if you extend your range of psi from that originally planned in the first run through, then you will have to regenerate</span><span class="w"></span>
+<span class="c">%the sqw file.</span><span class="w"></span>
+
+
+<span class="c">%=================================================</span><span class="w"></span>
+<span class="c">%Option 3 - after the experiment is over, and all corrections have been applied (especially alignment) then we</span><span class="w"></span>
+<span class="c">%can symmetrise the entire dataset:</span><span class="w"></span>
+
+<span class="n">gen_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">spefile</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sym_sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span><span class="w"></span>
+<span class="w">    </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb">psi</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">,</span><span class="s">&#39;transform_sqw&#39;</span><span class="p">,@(</span><span class="n">x</span><span class="p">)(</span><span class="n">symmetrise_sqw</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">v1</span><span class="p">,</span><span class="n">v2</span><span class="p">,</span><span class="n">v3</span><span class="p">)))</span><span class="w"></span>
+
+<span class="c">%or more generally</span><span class="w"></span>
+<span class="n">gen_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">spefile</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sym_sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span><span class="w"></span>
+<span class="w">    </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="nb">psi</span><span class="p">,</span><span class="w"> </span><span class="n">omega</span><span class="p">,</span><span class="w"> </span><span class="n">dpsi</span><span class="p">,</span><span class="w"> </span><span class="n">gl</span><span class="p">,</span><span class="w"> </span><span class="n">gs</span><span class="p">,</span><span class="s">&#39;transform_sqw&#39;</span><span class="p">,@(</span><span class="n">x</span><span class="p">)(</span><span class="n">user_symmetrisation_routine</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="w"></span>
+
+<span class="c">%In a separate m-file on the Matlab path, define the following function (for example):</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">% function wout = user_symmetrisation_routine(win)</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">% wout=symmetrise_sqw(win,[1,1,0],[0,0,1],[0,0,0]);%fold about line (1,1,0) in HK plane</span><span class="w"></span>
+<span class="c">% wout=symmetrise_sqw(wout,[-1,1,0],[0,0,1],[0,0,0]);%fold about line (-1,1,0) in HK plane</span><span class="w"></span>
+<span class="c">% wout=symmetrise_sqw(wout,[1,0,1],[0,1,0],[0,0,0]);%fold about line (1,0,1) in HL plane</span><span class="w"></span>
+<span class="c">% wout=symmetrise_sqw(wout,[1,0,-1],[0,1,0],[0,0,0]);%fold about line (1,0,-1) in HL plane</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Script_for_fitting.html" class="btn btn-neutral float-left" title="Script for fitting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Script_for_making_cuts_and_plotting.html" class="btn btn-neutral float-right" title="Script for making cuts and plotting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2021, STFC RAL.
+      <span class="lastupdated">Last updated on Feb 4, 2022, 2:47:27 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resolution Convolution &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Interfacing with other programs" href="Interfacing_with_other_programs.html" />
+    <link rel="prev" title="Advanced use" href="Advanced_use.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Horace
+            <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../User_guide.html">User’s Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Getting_started.html">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Horace_GUI.html">Horace GUI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Advanced_use.html">Advanced use</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Resolution Convolution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#theory-background">Theory Background</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-tobyfit-class">The <code class="docutils literal notranslate"><span class="pre">Tobyfit</span></code> class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-worked-example">A worked example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#plotting-resolution-ellipsoids">Plotting resolution ellipsoids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Interfacing_with_other_programs.html">Interfacing with other programs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Example_scripts.html">Example scripts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../User_guide.html">User’s Guide</a> &raquo;</li>
+      <li>Resolution Convolution</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user_guide/Resolution_convolution.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="resolution-convolution">
+<h1>Resolution Convolution<a class="headerlink" href="#resolution-convolution" title="Permalink to this headline"></a></h1>
+<p>Horace includes support for calculating the effect of instrument resolution on a model simulation and fitting.</p>
+<div class="contents local topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#theory-background" id="id9">Theory Background</a></p></li>
+<li><p><a class="reference internal" href="#the-tobyfit-class" id="id10">The <code class="docutils literal notranslate"><span class="pre">Tobyfit</span></code> class</a></p></li>
+<li><p><a class="reference internal" href="#a-worked-example" id="id11">A worked example</a></p></li>
+<li><p><a class="reference internal" href="#plotting-resolution-ellipsoids" id="id12">Plotting resolution ellipsoids</a></p></li>
+<li><p><a class="reference internal" href="#references" id="id13">References</a></p></li>
+</ul>
+</div>
+<section id="theory-background">
+<h2><a class="toc-backref" href="#id9">Theory Background</a><a class="headerlink" href="#theory-background" title="Permalink to this headline"></a></h2>
+<p>Horace is designed for time-of-flight (ToF) inelastic neutron data from multi-detector spectrometers.
+The detectors measure the angle at which a neutron is scattered from the sample,
+and the neutron’s time of arrival, which is used to determine its speed.
+The data is binned in ToF and this is converted into a nominal energy transfer <span class="math notranslate nohighlight">\(\omega_0\)</span>.
+The angular position of the detector together with the energy information gives a nominal
+momentum transfer from the sample <span class="math notranslate nohighlight">\(\mathbf{Q}_0\)</span>.</p>
+<p>The neutron beam, however, is neither perfectly collimated nor perfectly monochromatic.
+As such, there is a spread of neutron velocities and angles in a physical instrument
+which results in an instrumental resolution broadening.
+This can be described by a resolution function
+<span class="math notranslate nohighlight">\(R(\mathbf{Q}-\mathbf{Q}_0, \omega - \omega_0) = R(\delta\mathbf{Q}, \delta\omega)\)</span>
+where <span class="math notranslate nohighlight">\(\mathbf{Q}\)</span> is the true momentum transfer and
+<span class="math notranslate nohighlight">\(\omega\)</span> is the true energy transfer for a given detected neutron.</p>
+<p>The measured neutron counts at a detector-energy element whose centre is at
+<span class="math notranslate nohighlight">\((\mathbf{Q}_0, \omega_0)\)</span> is thus:</p>
+<div class="math notranslate nohighlight">
+\[I(\mathbf{Q}_0, \omega_0) = \int R(\delta\mathbf{Q}, \delta\omega) S(\mathbf{Q}, \omega) d\mathbf{Q} d\omega\]</div>
+<p>Horace calculates this resolution broadening using a Monte Carlo method,
+by sampling points within the distribution <span class="math notranslate nohighlight">\(R(\delta\mathbf{Q}, \delta\omega)\)</span>, and averaging over them.
+That is, for each detector-energy element it determines <span class="math notranslate nohighlight">\(N\)</span> deviations
+<span class="math notranslate nohighlight">\((\delta\mathbf{Q}_i, \delta\omega_i)\)</span> drawn from <span class="math notranslate nohighlight">\(R\)</span> and evaluates the model function
+<span class="math notranslate nohighlight">\(S\)</span> at these new coordinates, computing the resolution-convolved intensity as:</p>
+<div class="math notranslate nohighlight">
+\[I(\mathbf{Q}_0, \omega_0) = \frac{1}{N} \sum_{i=1}^{N} S(\mathbf{Q}_0+\delta\mathbf{Q}_i, \omega_0 + \delta\omega_i)\]</div>
+<p>By default <span class="math notranslate nohighlight">\(N=10\)</span> is used because often there are many detector-energy elements
+(<code class="docutils literal notranslate"><span class="pre">pixel</span></code> in Horace syntax) which contribute to a single bin (histogram),
+so there is already some broadening included.
+This means, though, that resolution calculations takes <span class="math notranslate nohighlight">\(N\)</span> times longer
+than non-resolution convolved calculations.
+The value of <span class="math notranslate nohighlight">\(N\)</span> is set using the <code class="docutils literal notranslate"><span class="pre">set_mc_points</span></code> method of the <a class="reference internal" href="../manual/Tobyfit.html#tobyfit"><span class="std std-ref">tobyfit class</span></a>.</p>
+<p>The distribution <span class="math notranslate nohighlight">\(R(\delta\mathbf{Q}, \delta\omega)\)</span> is computed analytically in Horace,
+except for a “work-around” for modern neutron guides described below.
+Horace considers 11 variables which contribute to the resolution broadening, ranked in order of importance:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(t_m\)</span> - the time deviation at the moderator
+(time at which a neutron is emitted which is not <span class="math notranslate nohighlight">\(t=0\)</span>)</p></li>
+<li><p><span class="math notranslate nohighlight">\(y_a\)</span>, <span class="math notranslate nohighlight">\(z_a\)</span> (or <span class="math notranslate nohighlight">\(\gamma_y\)</span>, <span class="math notranslate nohighlight">\(\gamma_z\)</span>) - The coordinates of the neutron at the aperture
+(this is the effective angular view the spectrometer has of the moderator).
+Originally, the theory described here <a class="footnote-reference brackets" href="#id6" id="id1">1</a> applied only to instruments without neutron guides,
+so it was assumed that the neutron beam’s angular divergences <span class="math notranslate nohighlight">\((\gamma_y, \gamma_z)\)</span>
+can be determined simply by the size of the aperture / viewport onto the moderator.
+(Horace uses a laboratory coordinate system where <span class="math notranslate nohighlight">\(x\)</span> is the beam direction,
+<span class="math notranslate nohighlight">\(y\)</span> is horizontal perpendicular to the beam and <span class="math notranslate nohighlight">\(z\)</span> is vertical).
+Modern neutron guides are accommodated in this formulism by pre-calculating the
+(incident energy dependent) divergences using a neutron ray-tracing code
+(<a class="reference external" href="http://mcstas.org/">McStas</a> in this case) and using look-up tables in the code.</p></li>
+<li><p><span class="math notranslate nohighlight">\(t_{ch}\)</span> - the time deviation at the chopper
+(e.g. the chopper opening time)</p></li>
+<li><p><span class="math notranslate nohighlight">\(x_s\)</span>, <span class="math notranslate nohighlight">\(y_s\)</span>, <span class="math notranslate nohighlight">\(z_s\)</span> - the neutron coordinate where it scatters at the sample.</p></li>
+<li><p><span class="math notranslate nohighlight">\(x_d\)</span>, <span class="math notranslate nohighlight">\(y_d\)</span>, <span class="math notranslate nohighlight">\(z_d\)</span>, <span class="math notranslate nohighlight">\(t_d\)</span> - the neutron coordinate at the detector</p></li>
+</ul>
+<p>The last two sets (neutron coordinates at the sample and detector) represent the geometrical uncertainty
+in the neutron’s angle and time of arrival due to the finite sizes of the sample and detector.
+In practice, they contribute relatively little to the resolution broadening but may be important for large samples.</p>
+<p>The 11 variables above are sampled to produce an 11-dimensional vector
+<span class="math notranslate nohighlight">\(\mathbf{Y} = (t_m, y_a, z_a, t_{ch}, x_s, y_s, z_s, x_d, y_d, z_d, t_d)\)</span> in the laboratory frame.
+This is mapped to the sample frame by a linear transformation:</p>
+<div class="math notranslate nohighlight">
+\[(\delta\mathbf{Q}, \delta\omega) = \mathbf{T} \mathbf{B} \mathbf{Y}\]</div>
+<p>where the <span class="math notranslate nohighlight">\(\mathbf{T}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{B}\)</span> matrices are given in Appendix A of Ref <a class="footnote-reference brackets" href="#id6" id="id2">1</a>,
+in equation A66 and Table A1 respectively <a class="footnote-reference brackets" href="#id7" id="id3">2</a>.</p>
+</section>
+<section id="the-tobyfit-class">
+<h2><a class="toc-backref" href="#id10">The <code class="docutils literal notranslate"><span class="pre">Tobyfit</span></code> class</a><a class="headerlink" href="#the-tobyfit-class" title="Permalink to this headline"></a></h2>
+<p>For historical reasons, the subclass of <a class="reference internal" href="../manual/Multifit.html#multifit"><span class="std std-ref">multifit</span></a>
+which handles resolution convolution is called <a class="reference internal" href="../manual/Tobyfit.html#tobyfit"><span class="std std-ref">tobyfit</span></a>.
+The intent is make the simulation of a resolution-convoluted model almost the same
+as without resolution convolution.</p>
+<p>For example, given a cut <code class="docutils literal notranslate"><span class="pre">w1</span></code> and a model function <code class="docutils literal notranslate"><span class="pre">&#64;model_fun</span></code> we can set up
+a fitting problem in the ordinary case with:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">multifit_sqw</span><span class="p">(</span><span class="n">w1</span><span class="p">);</span><span class="w"></span>
+<span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_fun</span><span class="p">(@</span><span class="n">model_fun</span><span class="p">,</span><span class="w"> </span><span class="n">initial_parameters</span><span class="p">)</span><span class="w"></span>
+<span class="n">kk</span><span class="p">.</span><span class="n">fit</span><span class="p">()</span><span class="w"></span>
+</pre></div>
+</div>
+<p>To include resolution convolution we have to specify some additional information
+on the sample and instrument (spectrometer) configuration, for example:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">set_sample</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="w"> </span><span class="n">IX_sample</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="s">&#39;cuboid&#39;</span><span class="p">,[</span><span class="mf">0.01</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.01</span><span class="p">]));</span><span class="w"></span>
+<span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">set_instrument</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="w"> </span><span class="n">maps_instrument</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span><span class="w"> </span><span class="mi">300</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;S&#39;</span><span class="p">));</span><span class="w"></span>
+<span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tobyfit</span><span class="p">(</span><span class="n">w1</span><span class="p">);</span><span class="w"></span>
+<span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_fun</span><span class="p">(@</span><span class="n">model_fun</span><span class="p">,</span><span class="w"> </span><span class="n">initial_parameters</span><span class="p">)</span><span class="w"></span>
+<span class="n">kk</span><span class="p">.</span><span class="n">fit</span><span class="p">()</span><span class="w"></span>
+</pre></div>
+</div>
+<p>We can see that aside from two additional lines to append sample and instrument
+information to the cut <code class="docutils literal notranslate"><span class="pre">w1</span></code> the fitting syntax is exactly the same.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">IX_sample</span></code> class has the following signature:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sample</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">IX_sample</span><span class="w"> </span><span class="p">(</span><span class="n">xgeom</span><span class="p">,</span><span class="w"> </span><span class="n">ygeom</span><span class="p">,</span><span class="w"> </span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="n">ps</span><span class="p">,</span><span class="w"> </span><span class="n">eta</span><span class="p">,</span><span class="w"> </span><span class="n">temperature</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">xgeom</span></code> and <code class="docutils literal notranslate"><span class="pre">ygeom</span></code> are vectors in reciprocal lattice units defining the directions
+of the sample’s <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span> axes for definition of the shape parameters <code class="docutils literal notranslate"><span class="pre">ps</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">shape</span></code> is a string defining what shape the sample has.
+Only <code class="docutils literal notranslate"><span class="pre">point</span></code> and <code class="docutils literal notranslate"><span class="pre">cuboid</span></code> are accepted at present.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ps</span></code> is a vector of shape parameters. For the <code class="docutils literal notranslate"><span class="pre">cuboid</span></code> shape it is a 3-element
+vector of the dimensions <strong>in metres</strong> of the sample in the <span class="math notranslate nohighlight">\(x\)</span>, <span class="math notranslate nohighlight">\(y\)</span>, and
+<span class="math notranslate nohighlight">\(z\)</span>, where these directions are defined w.r.t. the crystal orientation by the
+<code class="docutils literal notranslate"><span class="pre">xgeom</span></code> and <code class="docutils literal notranslate"><span class="pre">ygeom</span></code> arguments.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eta</span></code> <em>(optional)</em> is the crystal mosaic spread FWHM in degrees (isotropic mosaicity),
+or an <code class="docutils literal notranslate"><span class="pre">IX_mosaic</span></code> object for anisotropic mosaicity - type <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">IX_mosaic/IX_mosaic</span></code>
+for more information.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code> <em>(optional)</em> is the sample temperature in Kelvin.</p></li>
+</ul>
+<p>For the instrument information, there are 3 helper functions covering the ISIS direct
+geometry spectrometers which can measure single crystals:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">merlin_instrument(ei,</span> <span class="pre">hz,</span> <span class="pre">chopper)</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">ei</span></code> is the incident energy in meV</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hz</span></code> is the chopper frequency in Hz</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chopper</span></code> is the chopper rotor package type, a string either <code class="docutils literal notranslate"><span class="pre">'sloppy'</span></code>, <code class="docutils literal notranslate"><span class="pre">'s'</span></code> or <code class="docutils literal notranslate"><span class="pre">'g'</span></code>.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">maps_instrument(ei,</span> <span class="pre">hz,</span> <span class="pre">chopper,</span> <span class="pre">'-version',</span> <span class="pre">inst_ver)</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">ei</span></code> and <code class="docutils literal notranslate"><span class="pre">hz</span></code> as above.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chopper</span></code> can be either <code class="docutils literal notranslate"><span class="pre">'s'</span></code> or <code class="docutils literal notranslate"><span class="pre">'a'</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inst_ver</span></code> can be:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code> - MAPS from 2000 to 2016 (without a neutron guide)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code> - MAPS since 2017 after the guide upgrade.</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">let_instrument(ei,</span> <span class="pre">hz5,</span> <span class="pre">hz3,</span> <span class="pre">slot_mm,</span> <span class="pre">mode,</span> <span class="pre">'-version',</span> <span class="pre">inst_ver)</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">ei</span></code> is the incident energy of this rep (not the focussed Ei)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hz5</span></code> is the frequency of Chopper 5 in Hz</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hz3</span></code> is the frequency of Chopper 3 in Hz</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">slot_mm</span></code> is the full width of Chopper 5 in mm. Depending on instrument version it is:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">inst_ver=1</span></code> - <code class="docutils literal notranslate"><span class="pre">slot_mm</span></code> must be <code class="docutils literal notranslate"><span class="pre">10</span></code> mm.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inst_ver=2</span></code> - <code class="docutils literal notranslate"><span class="pre">slot_mm</span></code> can be one of <code class="docutils literal notranslate"><span class="pre">15</span></code>, <code class="docutils literal notranslate"><span class="pre">20</span></code>, <code class="docutils literal notranslate"><span class="pre">31</span></code> mm,
+corresponding to “High resolution”, “Intermediate” and “High Flux” modes</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mode</span></code> - running mode of Chopper 1 (pulse shaping) chopper. One of:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">mode=1</span></code> - “High resolution” mode with <code class="docutils literal notranslate"><span class="pre">hz1</span> <span class="pre">=</span> <span class="pre">hz5</span> <span class="pre">/</span> <span class="pre">2</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mode=2</span></code> - “High flux” mode with <code class="docutils literal notranslate"><span class="pre">hz1</span> <span class="pre">=</span> <span class="pre">hz3</span> <span class="pre">/</span> <span class="pre">2</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inst_ver</span></code> can be:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code> - LET until autumn 2016 (with the original double funnel snout at Chopper 5).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code> - LET since autumn 2016 (with a single focusing final guide section).</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>In addition to the above parameters all instruments also take a optional <code class="docutils literal notranslate"><span class="pre">'mod_value'</span></code>
+argument specifying the type of moderator pulse model to use.
+At present, only two options are available:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'empirical'</span></code> - based on the Ikeda-Carpenter distribution of Ref <a class="footnote-reference brackets" href="#id8" id="id4">3</a> (default).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'base2016'</span></code> - a look-up table from ray-tracing simulations of ISIS moderators in 2016.</p></li>
+</ul>
+<p>For the empirical model, there is also an option to refine the parameters which define
+the model as <a class="reference internal" href="#refine-moderator-section"><span class="std std-ref">described below</span></a>.</p>
+<p>Once the sample and instrument setup information is configured on a workspace,
+a fitting or modelling problem can be defined using the <code class="docutils literal notranslate"><span class="pre">tobyfit</span></code> class in place of <code class="docutils literal notranslate"><span class="pre">multifit_sqw</span></code>.
+The exact same syntax as <code class="docutils literal notranslate"><span class="pre">multifit</span></code> for defining fixed and free parameters and background
+can then be used in <code class="docutils literal notranslate"><span class="pre">tobyfit</span></code>.</p>
+<p>In addition to standard <code class="docutils literal notranslate"><span class="pre">multifit</span></code> methods (<code class="docutils literal notranslate"><span class="pre">set_fun</span></code>, <code class="docutils literal notranslate"><span class="pre">set_free</span></code> etc),
+there are some additional methods specifically for the resolution convolution:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">kk</span> <span class="pre">=</span> <span class="pre">kk.set_mc_points(n)</span></code> - sets the number of Monte Carlo points per pixel (default <span class="math notranslate nohighlight">\(N=10\)</span>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kk</span> <span class="pre">=</span> <span class="pre">kk.set_mc_contributions(contrib1,</span> <span class="pre">contrib2,</span> <span class="pre">...)</span></code> -
+sets which instrument component contributes to the Monte Carlo sum.
+<code class="docutils literal notranslate"><span class="pre">contrib1</span></code> etc are strings, and can also be <code class="docutils literal notranslate"><span class="pre">'all'</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">'none'</span></code>.
+The contributions depend on the instrument and can be listed with <code class="docutils literal notranslate"><span class="pre">kk.mc_contributions</span></code>.
+In addition, you can specify to include all contribution except certain ones with <code class="docutils literal notranslate"><span class="pre">'no&lt;contrib&gt;'</span></code>.
+E.g. <code class="docutils literal notranslate"><span class="pre">kk</span> <span class="pre">=</span> <span class="pre">kk.set_mc_contributions('nosample')</span></code> will include all contribution except for the
+<code class="docutils literal notranslate"><span class="pre">'sample'</span></code> contribution.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kk</span> <span class="pre">=</span> <span class="pre">kk.set_refine_moderator(true)</span></code> - tells Horace to try to refine the moderator pulse width model
+concurrently with running a fit.
+That is, the moderator model parameters will be added to the list of model parameters and will be
+fitted at the same time as the user model parameters when <code class="docutils literal notranslate"><span class="pre">kk.fit()</span></code> is called.</p></li>
+</ul>
+<p id="refine-moderator-section">The last option only has effect if an empirical moderator model is chosen
+(which is the default for all instruments).
+In addition to the syntax above, you can also use an alternative syntax which specifies
+initial values for the moderator model and if any of those parameters should be fixed:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_refine_moderator</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span><span class="w"> </span><span class="n">initial_pars</span><span class="p">,</span><span class="w"> </span><span class="n">vary</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Only <code class="docutils literal notranslate"><span class="pre">'ikcarp'</span></code> is valid as a <code class="docutils literal notranslate"><span class="pre">model_name</span></code> at present.
+This model takes three parameters: <code class="docutils literal notranslate"><span class="pre">initial_pars</span> <span class="pre">=</span> <span class="pre">[tau_f,</span> <span class="pre">tau_s,</span> <span class="pre">R]</span></code>
+where <code class="docutils literal notranslate"><span class="pre">tau_f</span></code> is the fast decay time in microseconds
+(<span class="math notranslate nohighlight">\(\tau_f = 1/\alpha\)</span> compared to the Ikeda-Carpenter paper <a class="footnote-reference brackets" href="#id8" id="id5">3</a>),
+<code class="docutils literal notranslate"><span class="pre">tau_s</span></code> is the slow decay time in microseconds
+(<span class="math notranslate nohighlight">\(\tau_s = 1/\beta\)</span> in Ikeda-Carpenter’s notation),
+and <code class="docutils literal notranslate"><span class="pre">R</span></code> is the weight of the storage term.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, Horace sets <code class="docutils literal notranslate"><span class="pre">tau_f</span> <span class="pre">=</span> <span class="pre">70/sqrt(Ei)</span></code>, <code class="docutils literal notranslate"><span class="pre">tau_s</span> <span class="pre">=</span> <span class="pre">0</span></code> and <code class="docutils literal notranslate"><span class="pre">R</span> <span class="pre">=</span> <span class="pre">0</span></code>.
+That is, it uses a simple <span class="math notranslate nohighlight">\(\chi^2\)</span> distribution with only the fast decay term.</p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">vary</span></code> is a 3-element logical vector of which parameters to vary.</p>
+<p>For example, to fit an empirical moderator model varying only the fast decay term use:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">tauf</span><span class="p">=</span><span class="mi">5</span><span class="p">;</span><span class="w"> </span><span class="n">taus</span><span class="p">=</span><span class="mi">25</span><span class="p">;</span><span class="w"> </span><span class="n">R</span><span class="p">=</span><span class="mf">0.3</span><span class="p">;</span><span class="w"> </span><span class="n">vary</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">];</span><span class="w"></span>
+<span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_refine_moderator</span><span class="w"> </span><span class="p">(</span><span class="s">&#39;ikcarp&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">tauf</span><span class="p">,</span><span class="w"> </span><span class="n">taus</span><span class="p">,</span><span class="w"> </span><span class="n">R</span><span class="p">],</span><span class="w"> </span><span class="n">vary</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="a-worked-example">
+<h2><a class="toc-backref" href="#id11">A worked example</a><a class="headerlink" href="#a-worked-example" title="Permalink to this headline"></a></h2>
+<p>The following script will make a cut from a data file, set up a fitting problem
+with resolution convolution, run a simulation and plot it.
+It uses data on bcc-Iron, which can be
+<a class="reference external" href="https://github.com/pace-neutrons/pace-python-demo/blob/main/datafiles/fe_cut.sqw">downloaded here</a>.
+The model function is an analytic spin-wave model, defined by a dispersion relation:</p>
+<div class="math notranslate nohighlight">
+\[E_0(q_h, q_k, q_l, E) = \Delta + 8 J \left(1 - \cos(\pi q_h) \cos(\pi q_k) \cos(\pi q_l) \right)\]</div>
+<p>convolved with a Gaussian line shape.
+The <a class="reference internal" href="Interfacing_with_other_programs.html#generic-interface"><span class="std std-ref">next section</span></a> has a
+better model with a harmonic-oscillator line shape which fits the data better.
+We have chosen the simpler model here so it can fit into a Matlab anonymous function.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Make cut</span><span class="w"></span>
+<span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">projaxes</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;rrr&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut_sqw</span><span class="p">(</span><span class="s">&#39;fe_cut.sqw&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">1.05</span><span class="p">,</span><span class="o">-</span><span class="mf">0.95</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">80</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">])</span><span class="w"></span>
+
+<span class="c">% Define the instrument and sample information on the cut</span><span class="w"></span>
+<span class="n">xdir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">ydir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">ei</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">401</span><span class="p">;</span><span class="w"> </span><span class="n">freq</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">600</span><span class="p">;</span><span class="w"> </span><span class="n">chop_type</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;s&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">set_sample</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="w"> </span><span class="n">IX_sample</span><span class="p">(</span><span class="n">xdir</span><span class="p">,</span><span class="w"> </span><span class="n">ydir</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;cuboid&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">0.03</span><span class="p">,</span><span class="mf">0.03</span><span class="p">,</span><span class="mf">0.03</span><span class="p">]));</span><span class="w"></span>
+<span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">set_instrument</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="w"> </span><span class="n">maps_instrument</span><span class="p">(</span><span class="n">ei</span><span class="p">,</span><span class="w"> </span><span class="n">freq</span><span class="p">,</span><span class="w"> </span><span class="n">chop_type</span><span class="p">));</span><span class="w"></span>
+
+<span class="c">% Define a fitting / model function</span><span class="w"></span>
+<span class="c">% (spin waves in bcc-Iron with Gaussian peak shape and magnetic form factor).</span><span class="w"></span>
+<span class="n">ff_fun</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">MagneticIons</span><span class="p">(</span><span class="s">&#39;Fe0&#39;</span><span class="p">).</span><span class="n">getFF_calculator</span><span class="p">(</span><span class="n">w1</span><span class="p">);</span><span class="w"></span>
+<span class="n">E0</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">@(</span><span class="n">h</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">l</span><span class="p">,</span><span class="n">e</span><span class="p">,</span><span class="n">js</span><span class="p">,</span><span class="n">d</span><span class="p">)</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="mi">8</span><span class="o">*</span><span class="n">js</span><span class="p">)</span><span class="w"> </span><span class="o">.*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">cos</span><span class="p">(</span><span class="nb">pi</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">h</span><span class="p">)</span><span class="w"> </span><span class="o">.*</span><span class="w"> </span><span class="nb">cos</span><span class="p">(</span><span class="nb">pi</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">.*</span><span class="w"> </span><span class="nb">cos</span><span class="p">(</span><span class="nb">pi</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">l</span><span class="p">));</span><span class="w"></span>
+<span class="n">fe_sqw_ff</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">@(</span><span class="n">h</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">l</span><span class="p">,</span><span class="n">e</span><span class="p">,</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">/</span><span class="n">p</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">transpose</span><span class="p">(</span><span class="n">ff_fun</span><span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">l</span><span class="p">,</span><span class="n">e</span><span class="p">,[]))</span><span class="w"> </span><span class="k">...</span><span class="w"></span>
+<span class="w">    </span><span class="o">.*</span><span class="w"> </span><span class="nb">exp</span><span class="p">(</span><span class="o">-</span><span class="p">((</span><span class="n">e</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">E0</span><span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">l</span><span class="p">,</span><span class="n">e</span><span class="p">,</span><span class="n">p</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">p</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span><span class="w"> </span><span class="o">./</span><span class="w"> </span><span class="n">p</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span><span class="w"> </span><span class="o">.^</span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
+
+<span class="c">% Set initial parameters</span><span class="w"></span>
+<span class="n">J</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">35</span><span class="p">;</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">sigma</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">25</span><span class="p">;</span><span class="w"> </span><span class="n">amp</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">150</span><span class="p">;</span><span class="w"></span>
+
+<span class="c">% Set up tobyfit object</span><span class="w"></span>
+<span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tobyfit</span><span class="p">(</span><span class="n">w1</span><span class="p">);</span><span class="w"></span>
+<span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tf</span><span class="p">.</span><span class="n">set_fun</span><span class="p">(</span><span class="n">fe_sqw_ff</span><span class="p">);</span><span class="w"></span>
+<span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tf</span><span class="p">.</span><span class="n">set_pin</span><span class="p">([</span><span class="n">J</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="n">sigma</span><span class="w"> </span><span class="n">amp</span><span class="p">]);</span><span class="w"></span>
+<span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tf</span><span class="p">.</span><span class="n">set_bfun</span><span class="p">(@</span><span class="n">linear_bg</span><span class="p">);</span><span class="w"></span>
+<span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tf</span><span class="p">.</span><span class="n">set_bpin</span><span class="p">([</span><span class="mf">0.2</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span><span class="w"></span>
+
+<span class="c">% Run the simulation and plot</span><span class="w"></span>
+<span class="n">wsim</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tf</span><span class="p">.</span><span class="n">simulate</span><span class="p">()</span><span class="w"></span>
+<span class="n">acolor</span><span class="p">(</span><span class="s">&#39;k&#39;</span><span class="p">);</span><span class="w"> </span><span class="nb">plot</span><span class="p">(</span><span class="n">w1</span><span class="p">);</span><span class="w"> </span><span class="n">acolor</span><span class="p">(</span><span class="s">&#39;r&#39;</span><span class="p">);</span><span class="w"> </span><span class="n">pl</span><span class="p">(</span><span class="n">wsim</span><span class="p">)</span><span class="w"></span>
+
+<span class="c">% Run it again without resolution convolution</span><span class="w"></span>
+<span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">multifit_sqw</span><span class="p">(</span><span class="n">w1</span><span class="p">);</span><span class="w"></span>
+<span class="c">% We can also set input pars when we define the model function</span><span class="w"></span>
+<span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_fun</span><span class="p">(</span><span class="n">fe_sqw_ff</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">J</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="n">sigma</span><span class="w"> </span><span class="n">amp</span><span class="p">]);</span><span class="w"></span>
+<span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_bfun</span><span class="p">(@</span><span class="n">linear_bg</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">0.2</span><span class="w"> </span><span class="mi">0</span><span class="p">]);</span><span class="w"></span>
+<span class="n">wnores</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">simulate</span><span class="p">()</span><span class="w"></span>
+<span class="n">acolor</span><span class="p">(</span><span class="s">&#39;k&#39;</span><span class="p">);</span><span class="w"> </span><span class="n">pl</span><span class="p">(</span><span class="n">wnores</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/iron_resolution_cut.png"><img alt="../_images/iron_resolution_cut.png" src="../_images/iron_resolution_cut.png" style="width: 500px;" /></a>
+<p>A constant energy cut along <span class="math notranslate nohighlight">\([110]\)</span> centred at 90 meV of the Iron dataset
+with a model calculation including instrument resolution (red) and without (black lines).</p>
+</section>
+<section id="plotting-resolution-ellipsoids">
+<h2><a class="toc-backref" href="#id12">Plotting resolution ellipsoids</a><a class="headerlink" href="#plotting-resolution-ellipsoids" title="Permalink to this headline"></a></h2>
+<p>Finally, Horace can also plot a resolution ellipsoid over a <em>2D</em> plot
+(only 2D color plots are supported at present):</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">proj</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">projaxes</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;rrr&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">cut_sqw</span><span class="p">(</span><span class="s">&#39;fe_cut.sqw&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">proj</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="o">-</span><span class="mf">0.9</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">120</span><span class="p">]);</span><span class="w"></span>
+<span class="n">xdir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">ydir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">ei</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">401</span><span class="p">;</span><span class="w"> </span><span class="n">freq</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">600</span><span class="p">;</span><span class="w"> </span><span class="n">chop_type</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;s&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">set_sample</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="w"> </span><span class="n">IX_sample</span><span class="p">(</span><span class="n">xdir</span><span class="p">,</span><span class="w"> </span><span class="n">ydir</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;cuboid&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">0.03</span><span class="p">,</span><span class="mf">0.03</span><span class="p">,</span><span class="mf">0.03</span><span class="p">]));</span><span class="w"></span>
+<span class="n">w1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">set_instrument</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="w"> </span><span class="n">maps_instrument</span><span class="p">(</span><span class="n">ei</span><span class="p">,</span><span class="w"> </span><span class="n">freq</span><span class="p">,</span><span class="w"> </span><span class="n">chop_type</span><span class="p">));</span><span class="w"></span>
+<span class="n">resolution_plot</span><span class="p">(</span><span class="n">w1</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/iron_resolution_ellipsoid.png"><img alt="../_images/iron_resolution_ellipsoid.png" src="../_images/iron_resolution_ellipsoid.png" style="width: 500px;" /></a>
+<p>The above command plots a resolution ellipsoid at the centre of the cut.
+To plot it at a specified (2D) projected coordinate, use <code class="docutils literal notranslate"><span class="pre">resolution_plot(w1,</span> <span class="pre">proj_coord)</span></code>
+where <code class="docutils literal notranslate"><span class="pre">proj_coord</span></code> is a 2-element vector of the coordinate in the projection of the cut,
+or an <span class="math notranslate nohighlight">\(N \times 2\)</span> array of such coordinates.</p>
+<p>The function can also optionally return the covariance matrices at the desired point:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">cov_proj</span><span class="p">,</span><span class="w"> </span><span class="n">cov_spec</span><span class="p">,</span><span class="w"> </span><span class="n">cov_hkle</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">resolution_plot</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="w"> </span><span class="n">proj_coord</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>where each return value is a <span class="math notranslate nohighlight">\(4 \times 4 \times N\)</span> array of covariance matrices
+in the projection axes coordinate (<code class="docutils literal notranslate"><span class="pre">cov_proj</span></code>), the spectrometer Cartesian axes
+(<code class="docutils literal notranslate"><span class="pre">cov_spec</span></code>, with <span class="math notranslate nohighlight">\(x\)</span> along the beam, <span class="math notranslate nohighlight">\(z\)</span> vertical and
+<span class="math notranslate nohighlight">\(y\)</span> horizontal perpendicular to the beam direction),
+or the crystal coordinates (<code class="docutils literal notranslate"><span class="pre">cov_hkle</span></code>).</p>
+</section>
+<section id="references">
+<h2><a class="toc-backref" href="#id13">References</a><a class="headerlink" href="#references" title="Permalink to this headline"></a></h2>
+<dl class="footnote brackets">
+<dt class="label" id="id6"><span class="brackets">1</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id2">2</a>)</span></dt>
+<dd><p>T. G. Perring, <em>High Energy Magnetic Excitations in Hexagonal Cobalt</em>, Ph.D. Thesis,
+University of Cambridge, 1991. Also published as RAL Technical Report RALT-028-94</p>
+</dd>
+<dt class="label" id="id7"><span class="brackets"><a class="fn-backref" href="#id3">2</a></span></dt>
+<dd><p>The matrix elements may also be obtained from the Horace source code
+<a class="reference external" href="https://github.com/pace-neutrons/Horace/blob/master/horace_core/Tobyfit/dq_matrix_DGfermi.m">here</a>.
+Note that the <span class="math notranslate nohighlight">\(T\)</span> matrix is called <code class="docutils literal notranslate"><span class="pre">qk_mat</span></code>.</p>
+</dd>
+<dt class="label" id="id8"><span class="brackets">3</span><span class="fn-backref">(<a href="#id4">1</a>,<a href="#id5">2</a>)</span></dt>
+<dd><p><a class="reference external" href="http://dx.doi.org/10.1016/0168-9002(85)90033-6">S. Ikeda and J. M. Carpenter, Nucl. Inst. and Meth. in Phys. Res. A239, pp536 (1985)</a></p>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Advanced_use.html" class="btn btn-neutral float-left" title="Advanced use" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Interfacing_with_other_programs.html" class="btn btn-neutral float-right" title="Interfacing with other programs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2021, STFC RAL.
+      <span class="lastupdated">Last updated on Feb 4, 2022, 2:47:27 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
