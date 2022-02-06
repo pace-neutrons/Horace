@@ -128,7 +128,7 @@ end
 % Get leading projection, if present, and strip from parameter list
 % -----------------------------------------------------------------
 if numel(par)>=1 && (isstruct(par{1}) ||...
-        isa(par{1},'aProjection') || isa(par{1},'projaxes'))
+        isa(par{1},'aProjection') )
     if isa(par{1},'aProjection')
         proj=par{1};
     else
@@ -155,11 +155,15 @@ end
 if numel(par)>=npbin_expected
     pbin = par(1:npbin_expected);
     pbin_ok = true(size(pbin));
+    pbin_expanded = false(size(pbin)); % if some of the binning parameters have
+    % 4 elements, this means that the binning parameters describe multiple
+    % cuts
     for i=1:npbin_expected
         if isempty(pbin{i})
             pbin{i} = [];
+            pbin_expanded(i) = false;
         elseif isnumeric(pbin{i})
-            pbin{i} = make_row(pbin{i});  % ensure row vectors
+            [pbin{i},pbin_expanded(i)] = make_row_check_expansion(pbin{i});  % ensure row vectors and check if the vector has 4 elements
         else
             pbin_ok(i) = false;
         end
@@ -196,9 +200,17 @@ if ~proj_given % it may be fewer parameters then actual dimensions and
     pbin(obj.pax) = paxis(:);
     % set other limits to integration axis
     pbin(obj.iax) = num2cell(obj.iint,1);
-    % ensure row vectors    
-    pbin = cellfun(@make_row,pbin,'UniformOutput',false);
+    % ensure row vectors
+    [pbin,pbin_expanded] = cellfun(@make_row_check_expansion,pbin,'UniformOutput',false);
+    pbin = pbin';
+    pbin_expanded = [pbin_expanded{:}];
 end
+if any(pbin_expanded)
+    pbin = expand_multicuts(pbin,pbin_expanded);
+else
+    pbin = {pbin};
+end
+
 
 
 % Check consistency of optional arguments
@@ -240,7 +252,7 @@ if save_to_file
                 'No output file name given');
         end
     end
-    
+
     % Test output file can be opened - don't want to discover there are problems after lots of calculation
     % [Not yet fully supported with sqw_formats_factory but can be. Now just test creation of new file
     % is possible  and delete it]
@@ -251,7 +263,7 @@ if save_to_file
     end
     fclose(fout);
     delete(outfile);
-    
+
 elseif ~return_cut
     % Check work needs to be done (*** might want to make this case prompt to save to file)
     error('HORACE:cut:invalid_argument', ...
@@ -259,10 +271,59 @@ elseif ~return_cut
 end
 opt.outfile = outfile;
 %
-function x=make_row(x)
-if size(x,1)>1
-    x = x';
+function [x,multicut]=make_row_check_expansion(x)
+x = x(:)';
+if numel(x) == 4
+    multicut = true;
+else
+    multicut = false;
 end
+
+function pbin = expand_multicuts(pbin,pbin_expanded)
+% expand binning parameters, presented as multicut into matrix of 2&3-element
+% binning parameters (integration ranges and projection axes)
+%
+pbin_tmp = pbin;
+for i=1:numel(pbin_expanded)
+    if pbin_expanded(i)
+        pbin_multi = pbin{i};
+        if pbin_multi(1)>=pbin_multi(3)
+            error('HORACE:cut:invalid_argument',...
+                'third element (phi = %g) of multicut parameter N %d ([plo, rdiff, phi, rwidth]) must be larger then first (plo = %g)',...
+                pbin_multi(3),i,pbin_multi(1));
+        end
+        if pbin_multi(2)<=0
+            error('HORACE:cut:invalid_argument',...
+                'second element (rdiff=%g) of of multicut parameter N %d ([plo, rdiff, phi, rwidth]) must be larger then 0',...
+                pbin_multi(2),i);
+        end
+        if pbin_multi(4)<=0
+            error('HORACE:cut:invalid_argument',...
+                'forth element (rwidth = %g) of of multicut parameter N %d ([plo, rdiff, phi, rwidth]) must be larger then 0',...
+                pbin_multi(4),i);
+        end
+
+        n_cuts = floor((pbin_multi(3)-pbin_multi(1))/pbin_multi(2));
+        if abs(pbin_multi(3)-pbin_multi(1)-n_cuts*pbin_multi(2))>4*eps
+            n_cuts = n_cuts+1;
+        end
+        pbin_multi(3) = pbin_multi(1)+n_cuts*pbin_multi(2);
+        cut_par = cell(1,n_cuts+1);
+        width =  pbin_multi(4);
+        for j=1:n_cuts+1
+            center = pbin_multi(1)+(j-1)*pbin_multi(2);
+            cut_par{j} = [center-0.5*width,center+0.5*width];
+        end
+        cut_par   = repmat(cut_par,size(pbin_tmp,1),1);
+        pbin_tmp  = repmat(pbin_tmp,n_cuts+1,1);
+        pbin_tmp(:,i) = cut_par(:);
+    end
+end
+jind = num2cell(1:size(pbin_tmp,1));
+pbin_tmp = cellfun(@(ind)({pbin_tmp(ind,:)}),jind,'UniformOutput',true);
+
+pbin = pbin_tmp;
+
 
 function pbin=select_pbin(pbin_given,paxis)
 

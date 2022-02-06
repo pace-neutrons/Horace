@@ -303,20 +303,20 @@ classdef axes_block < serializable
         %
         function range = get_binning_range(obj,...
                 cur_proj,new_proj)
-            % Get the default binning range to use in cut, defined by new
+            % Get the default binning range to use in cut, defined by a new
             % projection. If no new projection is provided, return current
             % binning range, i.e. the ranges used to construct this
             % axes_block.
             %
             % If new projection is not aligned with the old projection, the new
-            % projection range is transformed from old projection range and
+            % projection range is transformed from the old projection range and
             % its binning is copied from the old projection binning according to
             % axis number, i.e. if axis 1 of cur_proj had 10 bins, axis 1 of target
             % proj would have 10 bins, etc. This redefines the behaviour of the
             % cuts when some directions are integraion directions, but
             % become projection directions, and redefine it when a new
             % projection direction goes in a direction mixing
-            % currentl projection and integration directions.
+            % the currentl projection and the integration directions.
             %
             % Inputs:
             % obj      - current instance of the axes block

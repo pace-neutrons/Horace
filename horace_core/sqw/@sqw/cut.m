@@ -20,14 +20,12 @@ function wout = cut(obj, varargin)
 %
 % Input:
 % ------
-%   data_source     Data source: sqw file name or sqw-type object
-%                  Can also be a cell array of file names or an array of
-%                  sqw objects.
+%   data_source    Data source: sqw-type object (sqw or sqw data accessor)
 %
-%   proj           Data structure containing details of projection axes,
-%                  with fields described below. Alternatively, a projaxes
-%                  object created from those fields (type >> help projaxes
-%                  for details).
+%   proj           instance of aProjection class (ortho_proj) as defailts
+%                  or Data structure containing the projection class fields,
+%                  (names and its values)
+%                  (type >> help ortho_proj   for details)
 %     ---------------------------------------------------------------------
 %     Required fields:
 %       u           [1x3] Vector of first axis (r.l.u.) defining projection axes
@@ -63,7 +61,7 @@ function wout = cut(obj, varargin)
 %
 %         uoffset   Row or column vector of offset of origin of projection axes (rlu)
 %
-%       lab         Short labels for u1,u2,u3,u4 as cell array
+%       label       Short labels for u1,u2,u3,u4 as cell array
 %                   e.g. {'Q_h', 'Q_k', 'Q_l', 'En'})
 %                       *OR*
 %       lab1        Short label for u1 axis (e.g. 'Q_h' or 'Q_{kk}')
@@ -136,7 +134,6 @@ function wout = cut(obj, varargin)
 %                     - sqw-type object with full pixel information
 %                     - dnd-type object if option '-nopix' given
 %
-DND_CONSTRUCTORS = {@d0d, @d1d, @d2d, @d3d, @d4d};
 
 if numel(obj) > 1
     error('SQW:cut', ...
@@ -167,23 +164,23 @@ targ_proj.angdeg = header_av.angdeg;
 targ_proj = targ_proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
 
 %
-sz = cellfun(@(x) max(size(x, 1), 1), pbin);
-if return_cut
-    wout = allocate_output(sz, pbin, opt.keep_pix, DND_CONSTRUCTORS);
-end
-
+sz = size(pbin);
 % This loop enables multicuts
+if return_cut
+    wout = cell(sz);
+end
 for cut_num = 1:prod(sz)
-    pbin_tmp = get_pbin_for_cut(sz, cut_num, pbin);
+    pbin_tmp = pbin{cut_num};
     [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, pbin_tmp,header_av );
-    
+
     args = {obj, targ_proj, targ_ax_block, opt.keep_pix, opt.outfile};
     if return_cut
-        wout(cut_num) = cut_single(args{:});
+        wout{cut_num} = cut_single(args{:});
     else
         cut_single(args{:});
     end
 end
+wout = [wout{:}];
 % End function
 
 function [targ_ax_block,targ_proj] = define_target_axes_block(w, targ_proj, pbin,header_av)
@@ -199,46 +196,3 @@ source_binning = img_block.get_binning_range(...
     source_proj,targ_proj);
 %
 targ_ax_block  = targ_proj.get_proj_axes_block(source_binning,pbin);
-
-
-
-
-function num_dims = get_num_output_dims(pbin)
-% Get the number of dimensions in the output cut from the projection axis
-% binning.
-
-% pbin axes being integrated over will be an array with two elements - the
-% integration range - else the pbin element will have 1 or 3 elements
-% if pbin{x} has more than 3 elements then we are doing a multicut and that
-% axis is being integrated over.
-% The ~isempty catches any dummy axes that are 0x0 doubles.
-is_non_int_axis = @(x) numel(x) ~= 2 && numel(x) < 4 && ~isempty(x);
-non_integrated_axis = cellfun(is_non_int_axis, pbin);
-num_dims = sum(non_integrated_axis);
-
-
-
-function out = allocate_output(sz, pbin, keep_pix, dnd_constructors)
-% Allocate an array of cut outputs using the projection binning
-sz_squeeze = [sz(sz > 1), ones(1, max(2 - sum(sz > 1), 0))];
-if keep_pix
-    out = repmat(sqw, sz_squeeze);
-else
-    out_dims = get_num_output_dims(pbin);
-    out = repmat(dnd_constructors{out_dims + 1}(), sz_squeeze);
-end
-
-
-
-function pbin_out = get_pbin_for_cut(sz, cut_num, pbin_in)
-% Get pbin for each cut (allow for a bin descriptor being empty)
-ind_subs = cell(1, 4);
-[ind_subs{:}] = ind2sub(sz, cut_num);
-pbin_out = cell(1,4);
-for i = 1:numel(pbin_out)
-    if ~isempty(pbin_in{i})
-        pbin_out{i} = pbin_in{i}(ind_subs{i}, :);
-    else
-        pbin_out{i} = pbin_in{i};
-    end
-end
