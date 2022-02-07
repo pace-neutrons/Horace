@@ -82,23 +82,6 @@ function build_docs() {
     echo_and_run "cmake --build ${build_dir} --target docs-pack"
 }
 
-function push_built_docs() {
-    build_id=$(sed -nr '/CPACK_PACKAGE_FILE_NAME/{s/.*"Horace-([^"]+)".*/\1/p};' ./build/CPackConfig.cmake)
-    git config --local user.name "PACE CI Build Agent"
-    git config --local user.email "pace.builder.stfc@gmail.com"
-    git remote set-url --push origin "https://pace-builder:"${api_token## }"@github.com/pace-neutrons/Horace"
-    git stash
-    git checkout gh-pages
-    git pull
-    echo "Bypassing Jekyll on GitHub Pages" > .nojekyll
-    git add .nojekyll
-    git rm -rf --ignore-unmatch ./unstable
-    cp -r ./documentation/user_docs/build/html ./unstable
-    git add unstable
-    git commit -m "Document build from CI ("$build_id")"
-    git push origin gh-pages
-}
-
 function print_help() {
   readonly local help_msg="Script to build, run static analysis, test and package Horace.
 
@@ -127,8 +110,6 @@ flags:
       Print the versions of libraries being used e.g. Matlab.
   -d, --docs
       Build user docs
-  --push_docs
-      Push docs up to Horace GitHub repo
   -h, --help
       Print help message and exit.
 options:
@@ -159,7 +140,6 @@ function main() {
   local analyze=$FALSE
   local package=$FALSE
   local docs=$FALSE
-  local push_docs=$FALSE
   local print_versions=$FALSE
   local build_tests="ON"
   local build_config='Release'
@@ -178,7 +158,6 @@ function main() {
         -a|--analyze) analyze=$TRUE; shift ;;
         -p|--package) package=$TRUE; shift ;;
         -d|--docs) docs=$TRUE; shift;;
-        --push-docs) push_docs=$TRUE; shift;;
         -v|--print_versions) print_versions=$TRUE; shift ;;
         -h|--help) print_help; exit 0 ;;
         # options
@@ -219,9 +198,6 @@ function main() {
     build_docs
   fi
 
-  if ((push_docs)); then
-    push_built_docs
-  fi
 }
 
 main "$@"
