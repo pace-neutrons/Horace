@@ -87,6 +87,7 @@ function push_built_docs() {
     git config --local user.name "PACE CI Build Agent"
     git config --local user.email "pace.builder.stfc@gmail.com"
     git remote set-url --push origin "https://pace-builder:"${api_token## }"@github.com/pace-neutrons/Horace"
+    git stash
     git checkout gh-pages
     git pull
     echo "Bypassing Jekyll on GitHub Pages" > .nojekyll

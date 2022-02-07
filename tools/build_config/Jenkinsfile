@@ -83,7 +83,7 @@ def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-",
 Boolean run_build_stage = !(env?.PR_LABELS =~ "do-not-build")
 Boolean run_test_stage = !(env?.PR_LABELS =~ "(do-not-build|do-not-test)")
 Boolean run_push_docs_stage = (pli.matlab_release == 'R2019b' &&
-			       pli.build_type == 'Nightly' &&
+			       pli.build_type == 'Nightly_false' &&
 			       utilities.get_agent(pli.os) == 'sl7')
 
 pipeline {
