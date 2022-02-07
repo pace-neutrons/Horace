@@ -61,24 +61,22 @@ obj.nbins_all_dims = nbins;
 function [range,nbin]=pbin_parse(p,i)
 % Check form of the bin descriptions and return bin boundaries
 %
-%   >> [pout,mess]=pbin_check(p)
+%   >> [range,nbin]=pbin_parse(p,i)
 %
 % Input:
 % ------
-%   p       Bin description
+%   p  --   Bin description
 %           - [pcent_lo,pstep,pcent_hi] (pcent_lo<=pcent_hi; pstep>0)
 %           - [pint_lo,pint_hi]         (pint_lo<=pint_hi)
-%           - [pint]                    (interpreted as [pint,pint]
-%           - [] or empty               (interpreted as [0,0]
+%   i  --  Axis number (for displaying error information)
 %
-% TODO:  needs to be processed elsewhere   - scalar numeric cellarray  (interpreted as bin boundaries)
 %
 % Output:
 % -------
-%   pout    If a permissible input, then
-%           - Scalar cell array with a column vector og bin boundaries
-%           - Column vector, length two, with lower an upper integration ranges
-%           If a problem, then pout==[]
+%   range  --  The min/max values of the range, covered by axis number i 
+%              in selected direction.
+%   nbin   --  number of bins, the range is divided into (from 1(integration axis)  
+%              to number (projection axis))
 %
 
 

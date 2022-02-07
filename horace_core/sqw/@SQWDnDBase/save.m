@@ -6,6 +6,14 @@ function save (w, varargin)
 %   >> save (w, file,loader) % save file using specific data loader
 %                             (-update option, is provided, will be
 %                             ignored)
+%   >> save (w, file,['-parallel'|JobDispatcher])
+%                             combine file usging parallel algorithm.
+%                             Useful and would works only if (when) pix
+%                             value of sqw object data is set up to the
+%                             instance of pix_combine_info class,
+%                             containing information on the partial 
+%                             tmp files, written by filebased gen_sqw or
+%                             cut algorithm
 % 
 %   >> save (w, file,'-update') % if the target file exist, update it to
 %                               latest format if this is possible. If
@@ -36,22 +44,40 @@ ldw = [];
 if numel(argi)==0
     file_internal = putfile(['*.' file_ext]);
     if (isempty(file_internal))
-        error ('No file given')
+        error ('HORACE:SQWDnDBase:invalid_argument',...
+            'No file given to save result')
     end
-elseif numel(argi)>1 && isa(argi{2},'dnd_binfile_common') % specific loader provided
-    file_internal = argi{1};
-    ldw  = argi{2};
+elseif numel(argi)>1 
+    if isa(argi{2},'dnd_binfile_common') % specific loader provided
+        file_internal = argi{1};
+        ldw  = argi{2};
+        n_found = 2;
+    else
+        n_found = 1;
+    end
+    if numel(argi) > n_found % Matlab 2021b bug?
+        argi  = argi{n_found+1:end};    
+    else
+        argi  = {};
+    end
+    
 else
     [file_internal,mess]=putfile_horace(argi{1});
     if ~isempty(mess)
-        error(mess)
+        error('HORACE:SQWDnDBase:invalid_argument',mess)
+    end
+    if numel(argi) > 1 % Matlab 2021b bug?
+        argi  = argi{2:end};    
+    else
+        argi  = {};
     end
 end
 if ~iscellstr(file_internal)
     file_internal=cellstr(file_internal);
 end
 if numel(file_internal)~=numel(w)
-    error('Number of data objects in array does not match number of file names')
+    error('HORACE:SQWDnDBase:invalid_argument',...
+        'Number of data objects in array does not match number of file names')
 end
 
 hor_log_level = ...
@@ -87,7 +113,7 @@ for i=1:numel(w)
         end
     else
         if sqw_type   %TODO:  OOP violation -- save dnd should be associated with dnd class
-            ldw = ldw.put_sqw();
+            ldw = ldw.put_sqw(argi{:});
         else
             ldw = ldw.put_dnd();
         end

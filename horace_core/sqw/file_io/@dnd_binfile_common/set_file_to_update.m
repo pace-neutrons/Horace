@@ -18,7 +18,7 @@ end
 file_exist = false;
 
 if nargout < 1
-    error('SQW_FILE_IO:invalid_argument',...
+    error('HORACE:dnd_binfile_common:invalid_argument',...
         'set_file_to_update has to return its value in output object')
 end
 
@@ -28,7 +28,7 @@ old_ldr = [];
 if nargin>1
     new_filename = filename;
     if ~ischar(new_filename)
-        error('SQW_FILE_IO:invalid_argument',...
+        error('HORACE:dnd_binfile_common:invalid_argument',...
             'set_file_to_update: new filename to save needs to be a string')
     end
     if exist(new_filename,'file')
@@ -40,13 +40,13 @@ if nargin>1
             if log_level > 1
                 fprintf('*** Existing file:  %s will be overwritten.\n',new_filename);
             end
-            
+
         end
-        
+
     end
 else
     if isempty(obj.filename)
-        error('SQW_FILE_IO:invalid_argument',...
+        error('HORACE:dnd_binfile_common:invalid_argument',...
             'set_file_to_update: trying to reopen existing file for writing but its filename is empty')
     end
     new_filename  = fullfile(obj.filepath,obj.filename);
@@ -102,7 +102,7 @@ end
 obj.file_id_ = fopen([fp,fn],perm);
 %
 if obj.file_id_ <=0
-    error('SQW_FILE_IO:io_error',...
+    error('HORACE:dnd_binfile_common:io_error',...
         'set_file_to_update: Can not open file %s to write data',[fp,fn])
 end
 obj.file_closer_ = onCleanup(@()obj.fclose());
@@ -116,8 +116,8 @@ if file_exist
         if log_level>1;   fprintf('*** Existing file:  %s can be upgraded with new object data.\n',new_filename);  end
         return;
     end
-    
-    
+
+
     if isempty(old_ldr) && log_level > 1
         fprintf('*** Existing file:  %s will be overwritten.\n',new_filename);
         return
@@ -137,7 +137,7 @@ if file_exist
         obj.upgrade_map_ = upgrade_map;
         if log_level>1;   fprintf('*** Existing file:  %s can be upgraded with new object data.\n',new_filename);  end
     end
-    
+
 else
     obj.upgrade_map_ = [];
 end

@@ -25,6 +25,7 @@ classdef test_cut < TestCase & common_state_holder
             [105, 1, 114], ...
             };
         sqw_4d;
+        working_dir;
     end
     
     methods
@@ -46,6 +47,7 @@ classdef test_cut < TestCase & common_state_holder
             end
             obj = obj@TestCase(name);
             obj.sqw_4d = read_sqw(obj.sqw_file);
+            obj.working_dir = tmp_dir();
             
             %
             if save_reference
@@ -105,7 +107,7 @@ classdef test_cut < TestCase & common_state_holder
             sqw_obj2 = sqw(obj.sqw_file);
             
             f = @() cut([sqw_obj1, sqw_obj2], obj.ref_params{:});
-            assertExceptionThrown(f, 'SQW:cut');
+            assertExceptionThrown(f, 'HORACE:cut:invalid_argument');
         end
         
         function test_take_a_cut_integrating_over_more_than_1_axis(obj)            
@@ -124,13 +126,13 @@ classdef test_cut < TestCase & common_state_holder
             assertEqual(numel(dnd_cut.pax), 2);
         end
         
-        function test_take_a_cut_from_an_sqw_file_to_another_sqw_file(obj)
+        function test_cut_from_an_sqw_file_to_another_sqw_file(obj)
             conf = hor_config();
             old_conf = conf.get_data_to_store();
             conf.mem_chunk_size = 4000;
             cleanup = onCleanup(@() set(hor_config, old_conf));
             
-            outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
+            outfile = fullfile(obj.working_dir, 'tmp_outfile.sqw');
             ret_sqw = cut(obj.sqw_file, obj.ref_params{:}, outfile);
             cleanup = onCleanup(@() clean_up_file(outfile));
             
@@ -138,8 +140,64 @@ classdef test_cut < TestCase & common_state_holder
             
             assertEqualToTol(ret_sqw, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
         end
+        function test_cut_from_an_sqw_file_to_another_sqw_file_combined_mex(obj)
+            conf = hor_config();
+            old_conf = conf.get_data_to_store();
+            conf.mem_chunk_size = 2000;
+            cleanup = onCleanup(@() set(hor_config, old_conf));
+            hpc = hpc_config;
+            old_hpc = hpc.get_data_to_store();            
+            hpc_cleanup = onCleanup(@() set(hpc, old_hpc ));
+            hpc.combine_sqw_using = 'mex';
+
+            % test filebased cut
+            outfile = fullfile(obj.working_dir, 'tmp_outfile.sqw');
+            cut(obj.sqw_file, obj.ref_params{:}, outfile);
+            cleanup = onCleanup(@() clean_up_file(outfile));
+            
+            loaded_cut = sqw(outfile);
+
+            % reference memory-based cut
+            sqw_obj = obj.sqw_4d; % it have just been read in constructor
+            ref_par = obj.ref_params;
+            ref_cut = cut(sqw_obj,ref_par{:});
+            
+            assertEqualToTol(ref_cut, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
+        end
         
-        function test_you_can_take_a_cut_from_an_sqw_object_to_an_sqw_file(obj)
+
+        function test_cut_from_an_sqw_file_to_another_sqw_file_combined_nomex(obj)
+            conf = hor_config();
+            old_conf = conf.get_data_to_store();
+            conf.mem_chunk_size = 2000;
+            cleanup = onCleanup(@() set(hor_config, old_conf));
+            hpc = hpc_config;
+            old_hpc = hpc.get_data_to_store();            
+            hpc_cleanup = onCleanup(@() set(hpc, old_hpc ));
+            hpc.combine_sqw_using = 'matlab';
+
+            % test filebased cut
+            outfile = fullfile(obj.working_dir, 'tmp_outfile.sqw');
+            cut(obj.sqw_file, obj.ref_params{:}, outfile);
+            cleanup = onCleanup(@() clean_up_file(outfile));
+            
+            loaded_cut = sqw(outfile);
+
+            % reference memory-based cut
+            sqw_obj = obj.sqw_4d; % it have just been read in constructor
+            ref_par = obj.ref_params;
+            ref_cut = cut(sqw_obj,ref_par{:});
+            
+            assertEqualToTol(ref_cut, loaded_cut, obj.FLOAT_TOL, 'ignore_str', true);
+        end
+        
+        
+        function test_cut_from_an_sqw_object_to_an_sqw_file(obj)
+            conf = hor_config();
+            old_conf = conf.get_data_to_store();
+            conf.mem_chunk_size = 4000;
+            cleanup = onCleanup(@() set(hor_config, old_conf));
+            
             sqw_obj = sqw(obj.sqw_file);
             
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');

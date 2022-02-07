@@ -1,4 +1,4 @@
-function [s, e, npix, pix_out, pix_comb_info] = ...
+function [s, e, npix, pix_out] = ...
     cut_accumulate_data_(obj, targ_proj, targ_axes,keep_pixels, log_level, return_cut)
 %%CUT_ACCUMULATE_DATA Accumulate image and pixel data for a cut
 %
@@ -17,20 +17,19 @@ function [s, e, npix, pix_out, pix_comb_info] = ...
 %
 % Output:
 % -------
-% s              The image signal data.
-% e              The variance in the image signal data.
-% npix           Array defining how many pixels are contained in each image
-%                bin. size(npix) == size(s)
-% pix_out        A PixelData object containing pixels that contribute to the
-%                cut.
-% pix_combine_info Temp file manager/combiner class instance for performing
-%                  out-of-memory cuts. If keep_pix is false, or return_cut
-%                  is true, this will be empty.
+% s            The image signal data.
+% e            The variance in the image signal data.
+% npix         Array defining how many pixels are contained in each image
+%              bin. size(npix) == size(s)
+% pix_out      A PixelData object containing pixels that contribute to the
+%              cut or Temp file manager/combiner class instance for performing
+%              out-of-memory cuts. Contains information on pixels to be
+%              combibed toghether if cut_to_file is selected for the cuts,
+%              which do not fit memory
 %
 % CALLED BY cut_single
 %
 
-pix_comb_info = [];
 
 % Pre-allocate image data
 sz1 = targ_axes.dims_as_ssize();
@@ -50,7 +49,6 @@ sproj = obj.data.get_projection(header_av);
 if isempty(bloc_starts)
     % No pixels in range, we can return early
     pix_out = PixelData();
-    pix_comb_info = [];
     return
 end
 if obj.data.pix.is_filebacked()
@@ -80,9 +78,11 @@ if keep_pixels
         pix_comb_info = [];
     end
 end
+%
 if keep_pixels && use_tmp_files
     clearPixAccum = onCleanup(@()cut_data_from_file_job.accumulate_pix_to_file('cleanup'));
 end
+%
 if keep_pixels && ~use_tmp_files
     keep_precision = false; % change single precision to double precision for further operations
 else
@@ -99,7 +99,7 @@ if num_chunks == 1
             'processing data...'], ...
             candidate_pix.num_pixels);
     end
-    
+
     if keep_pixels
         [npix,s,e,pix_ok] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
     else
@@ -116,7 +116,7 @@ else
         block_sizes = chunk{2};
         candidate_pix = obj.data.pix.get_pix_in_ranges( ...
             pix_start, block_sizes, false,keep_precision);
-        
+
         if log_level >= 1
             fprintf(['Step %3d of %3d; Read data for %d pixels -- ' ...
                 'processing data...'], iter, num_chunks, ...
@@ -124,13 +124,18 @@ else
         end
         if keep_pixels
             [npix,s,e,pix_ok,pix_indx] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
+            npix_step_retained = pix_ok.num_pixels; % just for logging the progress
         else
             [npix,s,e] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
             pix_ok = [];
+            npix_step_retained = [];
         end
-        
+
         if log_level >= 1
-            fprintf(' ----->  retained  %d pixels\n', del_npix_retain);
+            if isempty(npix_step_retained)
+                npix_step_retained = sum(npix(:));
+            end
+            fprintf(' ----->  retained  %d pixels\n', npix_step_retained);
         end
         if keep_pixels
             if use_tmp_files
@@ -138,9 +143,7 @@ else
                 % the files - this object then recombines the files once it is
                 % passed to 'put_sqw'.
                 pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file( ...
-                    pix_comb_info, false, candidate_pix, ok, pix_indx, npix, chunk_size, ...
-                    del_npix_retain ...
-                    );
+                    pix_comb_info, false, pix_ok, pix_indx, npix, chunk_size);
             else
                 % Retain only the pixels that contributed to the cut
                 pix_retained{iter}    = pix_ok;    %candidate_pix.get_pixels(ok);
@@ -151,12 +154,19 @@ else
 end
 
 if keep_pixels
-    if num_chunks > 1
-        [pix_out, pix_comb_info] = combine_pixels( ...
-            pix_retained, pix_ix_retained, npix, chunk_size ...
-            );
-    else % all done
-        pix_out = pix_retained{1};
+    if use_tmp_files
+        % store partial pixel_blocks remaining memory to tmp files
+        % return pix_out which here is the pix_combine_info.
+        % clear pix_block from memory.
+        pix_out = cut_data_from_file_job.accumulate_pix_to_file( ...
+            pix_comb_info, true);
+
+    else
+        if num_chunks > 1
+            pix_out  = sort_pix(pix_retained, pix_ix_retained, npix);            
+        else % all done
+            pix_out = pix_retained{1};
+        end
     end
 else
     pix_out = PixelData();
@@ -185,22 +195,4 @@ tmp_file_names = gen_unique_file_paths(nfiles, 'horace_cut', wk_dir);
 pci = pix_combine_info(tmp_file_names, nbins);
 end
 
-
-function [pix, pix_comb_info] = combine_pixels( ...
-    pix_retained, pix_ix_retained,npix, buf_size ...
-    )
-% Combine and sort in-memory pixels or finalize accumulation of pixels in
-% temporary files managed by a pix_combine_info object.
-if isa(pix_retained,'pix_comb_info')
-    % Pixels are stored in tmp files managed by pix_combine_info object
-    pix = PixelData();
-    finish_accumulation = true;
-    pix_comb_info = cut_data_from_file_job.accumulate_pix_to_file( ...
-        pix_retained, finish_accumulation, pix, [], [], npix, buf_size, 0 ...
-        );
-else
-    % Pixels stored in-memory in PixelData object
-    pix = sort_pix(pix_retained, pix_ix_retained, npix);
-    pix_comb_info = [];
-end
-end
+%

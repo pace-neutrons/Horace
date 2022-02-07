@@ -1,6 +1,6 @@
 function  new_axes_block = build_from_input_binning(...
     cur_img_range_and_steps,pbin)
-% build new axes_block object from the binning parameters, provided
+% Build new axes_block object from the binning parameters, provided
 % as input. If some input binning parameters are missing, the
 % defauls are taken from existing axes_block object.
 %
@@ -16,9 +16,9 @@ function  new_axes_block = build_from_input_binning(...
 % pbin     --   cellarray of input binning parameters, which define
 %               target image binning
 % where each cell can contains the following parameters:
-%               - [] or ''          Use default (existing) bins (bin size and limits)
-%               - [pstep]           Plot axis: sets step size; plot limits taken from extent of the data
-%               - [plo, phi]        Integration axis: range of integration
+%               - [] or ''      Use default (existing) bins (bin size and limits)
+%               - [pstep]       Plot axis: sets step size; plot limits taken from extent of the data
+%               - [plo, phi]    Integration axis: range of integration
 %               - [plo, 0, phi] Plot axis: minimum and maximum bin centres
 %                               and step size taken from existing binning
 %               - [plo, pstep, phi] Plot axis: minimum and maximum bin centres and step size

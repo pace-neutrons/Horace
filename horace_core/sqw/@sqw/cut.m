@@ -136,10 +136,12 @@ function wout = cut(obj, varargin)
 %
 
 if numel(obj) > 1
-    error('SQW:cut', ...
+    error('HORACE:cut:invalid_argument', ...
         ['You cannot take a cut from an array, or cell array, of sqw or ' ...
         'dnd objects.\nConsider cutting the objects in a loop.']);
 end
+hc= hor_config;
+log_level = hc.log_level;
 
 dnd_type = obj.data.pix.num_pixels == 0;
 if dnd_type
@@ -173,14 +175,16 @@ for cut_num = 1:prod(sz)
     pbin_tmp = pbin{cut_num};
     [targ_ax_block,targ_proj] = define_target_axes_block(obj, targ_proj, pbin_tmp,header_av );
 
-    args = {obj, targ_proj, targ_ax_block, opt.keep_pix, opt.outfile};
+    args = {obj, targ_proj, targ_ax_block, opt.keep_pix, opt.outfile,log_level};
     if return_cut
         wout{cut_num} = cut_single(args{:});
     else
         cut_single(args{:});
     end
 end
-wout = [wout{:}];
+if return_cut
+    wout = [wout{:}];
+end
 % End function
 
 function [targ_ax_block,targ_proj] = define_target_axes_block(w, targ_proj, pbin,header_av)
@@ -196,3 +200,20 @@ source_binning = img_block.get_binning_range(...
     source_proj,targ_proj);
 %
 targ_ax_block  = targ_proj.get_proj_axes_block(source_binning,pbin);
+
+function log_progress(data_source,hor_log_level,npix_total)
+if hor_log_level>=1
+    if ischar(data_source)
+        disp(['Number of points in input file: ',num2str(npixtot)])
+        disp(['         Fraction of file read: ',num2str(100*npix_read/double(npixtot),'%8.4f'),' %   (=',num2str(npix_read),' points)'])
+        disp(['     Fraction of file retained: ',num2str(100*npix_retain/double(npixtot),'%8.4f'),' %   (=',num2str(npix_retain),' points)'])
+    else
+        disp(['    Number of points in object: ',num2str(npixtot)])
+        disp(['  Fraction of object processed: ',num2str(100*npix_read/double(npixtot),'%8.4f'),' %   (=',num2str(npix_read),' points)'])
+        disp(['   Fraction of object retained: ',num2str(100*npix_retain/double(npixtot),'%8.4f'),' %   (=',num2str(npix_retain),' points)'])
+    end
+    disp(' ')
+    bigtoc('Total time in cut_sqw:',hor_log_level)
+    disp('--------------------------------------------------------------------------------')
+end
+

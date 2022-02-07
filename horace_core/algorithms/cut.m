@@ -27,6 +27,7 @@ if nargout > 0
     wout = cut(sqw_dnd_obj, varargin{:});
 else
     cut(sqw_dnd_obj, varargin{:});
+    wout = [];
 end
 
 function sqw_dnd_obj=obj_from_faccessor(ldr)

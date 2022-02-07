@@ -67,7 +67,7 @@ else
     if numel(n_bins) == 1
         n_bins = [n_bins,1];
     end
-    npix = accumarray(pix_indx, ones(1,size(pix_indx,1)), n_bins);
+    npix = npix + accumarray(pix_indx, ones(1,size(pix_indx,1)), n_bins);
 end
 if mde<3
     return;

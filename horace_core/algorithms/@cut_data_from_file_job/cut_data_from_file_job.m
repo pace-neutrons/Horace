@@ -202,12 +202,11 @@ classdef cut_data_from_file_job < JobExecutor
             % pix_comb_info    A pix_combine_info object
             % finish_accum     Boolean flag, set to true to finish accumulation
             % v                PixelData object containing pixel chunk
-            % ok               Indices of pixels in v that contribute to cut
             % ix_add           The indices of retained pixels in the order they
             %                  appear in output file (used for sorting)
             % npix             The npix array associated with this chunk of pixels
             % max_buf_size     The maximum buffer size for reading/writing
-            % del_npix_retain  Number of pixels retained in this chunk of the cut
+            % npix_retained     Number of pixels retained in this chunk of the cut
             %
             pix_comb_info = accumulate_pix_to_file_(varargin{:});
         end

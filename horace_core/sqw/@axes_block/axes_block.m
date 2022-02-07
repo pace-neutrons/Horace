@@ -172,6 +172,21 @@ classdef axes_block < serializable
             end
             obj = obj.init(varargin{:});
         end
+        %
+        function [obj,offset,remains] = init(obj,varargin)
+            % initialize object with axis parameters.
+            %
+            % The parameters are defined as in constructor.
+            % Returns:
+            % obj    -- initialized by inputs axis_block object
+            % offset -- the offset for axis box from the origin of the
+            %            coordinate system
+            % remains -- the arguments, not used in initialization if any
+            %            were provided as input
+            %
+            [obj,offset,remains] = init_(obj,varargin{:});
+        end
+        
 
         function sz = dims_as_ssize(obj)
             % Return the extent along each dimension of the signal arrays.
@@ -335,20 +350,6 @@ classdef axes_block < serializable
                 new_proj = [];
             end
             range  = get_binning_range_(obj,cur_proj,new_proj);
-        end
-        %
-        function [obj,offset,remains] = init(obj,varargin)
-            % initialize object with axis parameters.
-            %
-            % The parameters are defined as in constructor.
-            % Returns:
-            % obj     -- initialized by inputs axis_block object
-            % offset -- the offset for axis box from the origin of the
-            %            coordinate system
-            % remains -- the arguments, not used in initialization if any
-            %            were provided as input
-            %
-            [obj,offset,remains] = init_(obj,varargin{:});
         end
         %------------------------------------------------------------------
         % ACCESSORS
