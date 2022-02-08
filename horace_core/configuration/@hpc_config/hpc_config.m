@@ -318,7 +318,7 @@ classdef hpc_config < config_base
         end
 
         function this = set.parallel_multifit(this,val)
-            p_mf = val>0
+            p_mf = val>0;
             if p_mf
                 [ok,mess] = check_worker_configured(this);
                 if ~ok
@@ -328,7 +328,7 @@ classdef hpc_config < config_base
                     p_mf = false;
                 end
             end
-            config_store.instance().store_config(this,'parallel_multifit',accum);
+            config_store.instance().store_config(this,'parallel_multifit',p_mf);
         end
 
         function this = set.build_sqw_in_parallel(this,val)
