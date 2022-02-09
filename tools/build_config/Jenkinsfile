@@ -76,7 +76,7 @@ pipeline {
     MATLAB_VERSION = utilities.get_param('MATLAB_VERSION', pli.matlab_release)
     CMAKE_VERSION = utilities.get_param('CMAKE_VERSION', '3.19')
     GCC_VERSION = utilities.get_param('GCC_VERSION', '6.3.0')
-    VS_VERSION = utilities.get_param('VS_VERSION', '2017')
+    VS_VERSION = utilities.get_param('VS_VERSION', "${env.AGENT == 'icdpacewin' ? '2019' : '2017'}")
     CPPCHECK_VERSION = utilities.get_param('CPPCHECK_VERSION', '1.77')
   }
 
