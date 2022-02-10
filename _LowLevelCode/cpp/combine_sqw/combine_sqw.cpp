@@ -81,13 +81,14 @@ void combine_sqw(ProgParameters& param, std::vector<sqw_reader>& fileReaders, co
 
     int log_level = param.log_level;
 
+    std::thread writer([&pixWriter]() {
+        pixWriter.run_write_pix_job();
+        });
+
     std::thread reader([&Reader]() {
         Reader.run_read_job();
         });
 
-    std::thread writer([&pixWriter]() {
-        pixWriter.run_write_pix_job();
-        });
     //---------------------------------------------------------------------------------------------------------------
     // Threads have been launched so logging run talking to Matlab session and displaying progress
     //---------------------------------------------------------------------------------------------------------------
@@ -284,7 +285,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         Reader.read_and_combine_pixBuf_from_files(n_buf_pixels, n_bins_processed, nbinBuf);
 
         size_t nReadPixels, n_bin_max;
-        const float* buf = reinterpret_cast<const float*>(Buffer.get_write_buffer(nReadPixels, n_bin_max));
+        const float* buf = reinterpret_cast<const float*>(Buffer.get_and_lock_write_buffer(nReadPixels, n_bin_max));
         n_bins_processed = n_bin_max - 1;
         auto PixBuffer = mxCreateNumericMatrix(9, nReadPixels, mxSINGLE_CLASS, mxREAL);
         if (!PixBuffer) {

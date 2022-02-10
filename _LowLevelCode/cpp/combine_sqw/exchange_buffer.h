@@ -4,6 +4,7 @@
 #include <vector>
 #include <ctime>
 #include <thread>
+#include <chrono>
 #include <condition_variable>
 // Matlab includes
 #include <mex.h>
@@ -19,11 +20,12 @@
 class exchange_buffer {
 public:
     // read buffer
-    char *const  get_write_buffer(size_t &nPixels, size_t &n_bin_processed);
+    char *const  get_and_lock_write_buffer(size_t &nPixels, size_t &n_bin_processed);
+    void unlock_write_buffer();
     float *const get_read_buffer(const size_t buf_size = 0);
     // lock write buffer from modifications by other threads too but unlocks read buffer
-    void set_and_lock_write_buffer(const size_t nPixels, const size_t nBinsProcessed);
-    void unlock_write_buffer();
+    void send_read_buffer_to_writer(const size_t nPixels, const size_t nBinsProcessed);
+
 
     void set_interrupted(const std::string &err_message) {
         interrupted = true;
@@ -49,48 +51,35 @@ public:
     size_t pix_buf_size()const {
         return(buf_size / PIX_SIZE);
     }
+    void wait_for_reader_data();
+
     // logging semaphore
     bool do_logging;
     std::condition_variable logging_ready;
     // error message used in case if program is interrupted;
     std::string error_message;
 
-    void notify_writer_is_ready() {
-        std::unique_lock<std::mutex> ready_lock(this->writer_ready_lock);
-        this->writer_is_ready = true;
-        this->writer_ready.notify_one();
-    }
-    void wait_for_writer_ready() {
-        std::unique_lock<std::mutex> ready_lock(this->writer_ready_lock);
-        while (!this->writer_is_ready){
-            this->writer_ready.wait(ready_lock);
-        }
-    }
-
-
 private:
     size_t buf_size;
     size_t n_read_pixels, n_bins_processed, num_bins_to_process;
-    bool interrupted, write_allowed, write_job_completed,writer_is_ready;
+    bool interrupted, write_job_completed;
     // logging and timing:
     size_t break_step, num_log_messages, break_point, n_read_pix_total;
     std::clock_t c_start;
     time_t t_start, t_prev;
 
-    // two variables to inform reader thread that the writer thread is ready and reader may start to fill buffer and prowide it to writer
-    std::mutex writer_ready_lock;
-    std::condition_variable writer_ready;
-
     // thread synchronization
+    bool write_allowed;
     std::condition_variable data_ready;
-    std::mutex exchange_lock;
+    std::mutex data_ready_lock;
+    bool writer_ready;
+    std::condition_variable data_written;
+    std::mutex data_written_lock;
     std::mutex write_lock;
-
 
     std::vector<float> read_buf;
     std::vector<float> write_buf;
 
     static const size_t PIX_SIZE = 9; // size of the pixel in pixel data units (float)
-
 };
 #endif

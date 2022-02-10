@@ -152,7 +152,8 @@ classdef test_cut < TestCase & common_state_holder
             hpc.combine_sqw_using = 'mex';
             %
             ref_obj= copy(obj.sqw_4d); % it has been read in constructor
-            ref_obj.data.pix.signal = 1:ref_obj.data.pix.num_pixels;
+            %ref_obj.data.pix.signal = 1:ref_obj.data.pix.num_pixels;
+            %ref_obj.data.pix.data = single(ref_obj.data.pix.data);
             ref_tfile = fullfile(obj.working_dir, 'mex_combine_source_from_file_to_file.sqw');
             rf_cleanup = onCleanup(@()delete(ref_tfile ));
             save(ref_obj,ref_tfile);

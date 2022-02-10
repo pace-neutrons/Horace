@@ -89,13 +89,17 @@ else
     keep_precision = true;
 end
 %
+if log_level >= 1
+    report_cut_type(obj,use_tmp_files,keep_pixels)
+end
+
 if num_chunks == 1
     pix_start = block_chunks{1};
     block_sizes = block_chunks{2};
     candidate_pix = obj.data.pix.get_pix_in_ranges( ...
         pix_start, block_sizes, false,keep_precision);
     if log_level >= 1
-        fprintf(['Got data for %d pixels -- ' ...
+        fprintf(['*** Got data for %d pixels -- ' ...
             'processing data...'], ...
             candidate_pix.num_pixels);
     end
@@ -108,6 +112,9 @@ if num_chunks == 1
     end
     pix_retained{1} = pix_ok;%candidate_pix.get_pixels(ok);
     pix_ix_retained{1} = [];
+    if log_level >= 1
+        fprintf(' ----->  retained  %d pixels\n', pix_ok.num_pixels);
+    end
 else
     for iter = 1:num_chunks
         % Get pixels that will likely contribute to the cut
@@ -118,7 +125,7 @@ else
             pix_start, block_sizes, false,keep_precision);
 
         if log_level >= 1
-            fprintf(['Step %3d of %3d; Read data for %d pixels -- ' ...
+            fprintf(['*** Step %3d of %3d; Read data for %d pixels -- ' ...
                 'processing data...'], iter, num_chunks, ...
                 candidate_pix.num_pixels);
         end
@@ -163,7 +170,7 @@ if keep_pixels
 
     else
         if num_chunks > 1
-            pix_out  = sort_pix(pix_retained, pix_ix_retained, npix);            
+            pix_out  = sort_pix(pix_retained, pix_ix_retained, npix);
         else % all done
             pix_out = pix_retained{1};
         end
@@ -194,5 +201,24 @@ wk_dir = get(parallel_config, 'working_directory');
 tmp_file_names = gen_unique_file_paths(nfiles, 'horace_cut', wk_dir);
 pci = pix_combine_info(tmp_file_names, nbins);
 end
-
 %
+function  report_cut_type(obj,use_tmp_files,keep_pixels)
+if isa(obj,'sqw')
+    obj_type = 'memory';
+else
+    obj_type = 'file';
+end
+if use_tmp_files
+    target = 'file';
+else
+    target = 'memory';
+end
+if keep_pixels
+    pix_state = 'kept';
+else
+    pix_state = 'dropped';
+end
+fprintf('*** Cutting sqw object in %s; returning result in: %s; pixels: %s\n',...
+    obj_type,target,pix_state);
+
+end

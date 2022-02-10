@@ -5,16 +5,14 @@
 //
 void nsqw_pix_reader::run_read_job() {
     int log_level = param.log_level;
-
+    //std::this_thread::sleep_for(std::chrono::seconds(2));
 
     size_t start_bin = param.nBin2read;
     size_t n_pixels_processed(0);
     //
     size_t n_bins_total = param.totNumBins;
     //
-    // wait until writer thread starts, open target file and report "ready to accept combined data"
-    Buff.wait_for_writer_ready();
-    //
+  
     while (start_bin < n_bins_total && !Buff.is_interrupted()) {
         size_t n_buf_pixels(0);
         this->read_and_combine_pixBuf_from_files(n_buf_pixels, start_bin);
@@ -96,7 +94,7 @@ void nsqw_pix_reader::read_and_combine_pixBuf_from_files(size_t &n_buf_pixels, s
         }
     }
     // unlocks read buffer too
-    Buff.set_and_lock_write_buffer(n_buf_pixels, n_bins_processed + 1);
+    Buff.send_read_buffer_to_writer(n_buf_pixels, n_bins_processed + 1);
 }
 
 void nsqw_pix_reader::finish_read_jobs() {
