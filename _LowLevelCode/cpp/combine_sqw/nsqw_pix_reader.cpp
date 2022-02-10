@@ -9,14 +9,15 @@ void nsqw_pix_reader::run_read_job() {
 
     size_t start_bin = param.nBin2read;
     size_t n_pixels_processed(0);
-
     //
     size_t n_bins_total = param.totNumBins;
     //
+    // wait until writer thread starts, open target file and report "ready to accept combined data"
+    Buff.wait_for_writer_ready();
     //
     while (start_bin < n_bins_total && !Buff.is_interrupted()) {
         size_t n_buf_pixels(0);
-        this->read_pix_info(n_buf_pixels, start_bin);
+        this->read_and_combine_pixBuf_from_files(n_buf_pixels, start_bin);
 
         //pixWriter.write_pixels(Buff);
         //new start bin is by one shifted wrt the last bin read
@@ -26,7 +27,7 @@ void nsqw_pix_reader::run_read_job() {
     }
     Buff.set_write_allowed();
 }
-/* Read pixels from all input files for correspondent bin and place them all together in the pixels buffer until the buffer is full
+/* Read pixels from all input files for correspondent bins and place them all together in the pixels buffer until the buffer is full
    and contains pixels corresponding to number of bins 
    Input as class parameter:
    BinBuffer -- class containing the storage to place pixels
@@ -35,7 +36,7 @@ void nsqw_pix_reader::run_read_job() {
    @param n_bins_processed -- on input contains number of first bin to read in the buffer, on output --
                               last bin fit to buffer
    */
-void nsqw_pix_reader::read_pix_info(size_t &n_buf_pixels, size_t &n_bins_processed, uint64_t *nBinBuffer) {
+void nsqw_pix_reader::read_and_combine_pixBuf_from_files(size_t &n_buf_pixels, size_t &n_bins_processed, uint64_t *nBinBuffer) {
 
     n_buf_pixels = 0;
     size_t first_bin = n_bins_processed;
@@ -87,7 +88,7 @@ void nsqw_pix_reader::read_pix_info(size_t &n_buf_pixels, size_t &n_bins_process
             }
         }
 
-        // read pixels from all contributing files into the space, intended for target bin
+        // read pixels from all contributing files into the space, intended for the target bin
         for (size_t i = 0; i < n_files; i++) {
             fileReaders[i].get_pix_for_bin(n_bin, pPixBuffer, n_buf_pixels,
                 pix_start_num, npix, common_position);

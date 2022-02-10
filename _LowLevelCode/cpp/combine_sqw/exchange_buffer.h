@@ -54,16 +54,34 @@ public:
     std::condition_variable logging_ready;
     // error message used in case if program is interrupted;
     std::string error_message;
+
+    void notify_writer_is_ready() {
+        std::unique_lock<std::mutex> ready_lock(this->writer_ready_lock);
+        this->writer_is_ready = true;
+        this->writer_ready.notify_one();
+    }
+    void wait_for_writer_ready() {
+        std::unique_lock<std::mutex> ready_lock(this->writer_ready_lock);
+        while (!this->writer_is_ready){
+            this->writer_ready.wait(ready_lock);
+        }
+    }
+
+
 private:
     size_t buf_size;
     size_t n_read_pixels, n_bins_processed, num_bins_to_process;
-    bool interrupted, write_allowed, write_job_completed;
+    bool interrupted, write_allowed, write_job_completed,writer_is_ready;
     // logging and timing:
     size_t break_step, num_log_messages, break_point, n_read_pix_total;
     std::clock_t c_start;
     time_t t_start, t_prev;
 
+    // two variables to inform reader thread that the writer thread is ready and reader may start to fill buffer and prowide it to writer
+    std::mutex writer_ready_lock;
+    std::condition_variable writer_ready;
 
+    // thread synchronization
     std::condition_variable data_ready;
     std::mutex exchange_lock;
     std::mutex write_lock;

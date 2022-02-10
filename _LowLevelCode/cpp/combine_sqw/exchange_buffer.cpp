@@ -2,11 +2,11 @@
 
 exchange_buffer::exchange_buffer(size_t b_size, size_t num_bins_2_process, size_t num_log_ticks) :
     do_logging(false),
-    buf_size(b_size*PIX_SIZE),
+    buf_size(b_size* PIX_SIZE),
     n_read_pixels(0), n_bins_processed(0),
     num_bins_to_process(num_bins_2_process),
     interrupted(false), write_allowed(false),
-    write_job_completed(false),
+    write_job_completed(false), writer_is_ready(false),
     break_step(1), num_log_messages(num_log_ticks), break_point(0), n_read_pix_total(0)
 {
     break_step = num_bins_to_process / num_log_messages;
@@ -19,11 +19,11 @@ exchange_buffer::exchange_buffer(size_t b_size, size_t num_bins_2_process, size_
 };
 
 
-float *const exchange_buffer::get_read_buffer(const size_t changed_buf_size) {
+float* const exchange_buffer::get_read_buffer(const size_t changed_buf_size) {
 
     //this->read_lock.lock();
     if (changed_buf_size != 0) {
-        this->buf_size = changed_buf_size*PIX_SIZE;
+        this->buf_size = changed_buf_size * PIX_SIZE;
     }
 
     if (this->read_buf.size() != this->buf_size)
@@ -38,8 +38,8 @@ float *const exchange_buffer::get_read_buffer(const size_t changed_buf_size) {
 as job finishes when nBinsProcessed=nBinsTotal  */
 void exchange_buffer::set_and_lock_write_buffer(const size_t nPixels, const size_t nBinsProcessed) {
 
-    // try lock in case write have not been completed yet.
-    std::lock_guard<std::mutex> lock(this->write_lock);
+    // try lock in case write have not been completed yet and write buffer is locked
+    this->write_lock.lock();
 
     this->write_buf.swap(this->read_buf);
     this->n_read_pixels = nPixels;
@@ -48,22 +48,25 @@ void exchange_buffer::set_and_lock_write_buffer(const size_t nPixels, const size
     // last bins may not contain pixels so set write allowed instead of npix>0
     this->write_allowed = true;
     this->data_ready.notify_one();
+    this->write_lock.unlock();
 
 }
 
 /* Give write thread access to the write buffer. Returns NULL if no pixels are currently in buffer and locks
 write buffer, which has to be unlocked later. */
-char * const exchange_buffer::get_write_buffer(size_t &n_pix_to_write, size_t &n_bins_processed) {
+char* const exchange_buffer::get_write_buffer(size_t& n_pix_to_write, size_t& n_bins_processed) {
 
     std::unique_lock<std::mutex> lock(this->exchange_lock);
-    this->data_ready.wait(lock, [this]() {return (this->write_allowed); });
+    while (!this->write_allowed) {
+        this->data_ready.wait(lock);
+    }
     this->write_lock.lock();
     this->write_allowed = false;
 
     n_bins_processed = this->n_bins_processed;
     if (this->n_read_pixels > 0) {
         n_pix_to_write = this->n_read_pixels;
-        return reinterpret_cast<char * const>(&write_buf[0]);
+        return reinterpret_cast<char* const>(&write_buf[0]);
     }
     else {
         n_pix_to_write = 0;

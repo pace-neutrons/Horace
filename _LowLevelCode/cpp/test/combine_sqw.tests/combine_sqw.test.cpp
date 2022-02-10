@@ -820,7 +820,7 @@ TEST_F(TestCombineSQW, MXSQW_Reader_Propagate_Pix_Multi) {
   uint64_t *nbinBuf = &nbin_Buffer_noThreads[0];
 
   std::size_t n_buf_pixels, n_bins_processed(0);
-  Reader.read_pix_info(n_buf_pixels, n_bins_processed, nbinBuf);
+  Reader.read_and_combine_pixBuf_from_files(n_buf_pixels, n_bins_processed, nbinBuf);
 
   EXPECT_EQ(n_buf_pixels, ProgSettings.pixBufferSize);
   EXPECT_EQ(n_bins_processed + 1, ProgSettings.totNumBins);
@@ -848,7 +848,7 @@ TEST_F(TestCombineSQW, MXSQW_Reader_Propagate_Pix_Multi) {
   uint64_t *nbinBufThr = &nbin_Buffer_Threads[0];
 
   n_bins_processed = 0;
-  ReaderThr.read_pix_info(n_buf_pixels, n_bins_processed, nbinBufThr);
+  ReaderThr.read_and_combine_pixBuf_from_files(n_buf_pixels, n_bins_processed, nbinBufThr);
 
   EXPECT_EQ(n_buf_pixels, ProgSettings.pixBufferSize);
   EXPECT_EQ(n_bins_processed + 1, ProgSettings.totNumBins);

@@ -29,7 +29,9 @@ void sqw_pix_writer::init(const fileParameters &fpar, const size_t n_bins2proces
 void sqw_pix_writer::run_write_pix_job() {
 
     size_t n_bins_processed(0);
-
+    // inform reader thread that writer thread ready for exchange
+    Buff.notify_writer_is_ready();
+    //
     while (n_bins_processed < this->num_bins_to_process && !Buff.is_interrupted()) {
         size_t n_pix_to_write;
         // this locks until read completed unless read have not been started
