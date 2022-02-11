@@ -27,6 +27,9 @@ else % 3D array binning
     r1 = data_range(1,1:3)';
     r2 = data_range(2,1:3)';
     pax = pax(pax~=4);
+    if isempty(pax)
+        ndims  = 0;
+    end
 end
 
 ok = all(coord>=r1 & coord<=r2,1); % collapse first dimension, all along it should be ok for pixel be ok
@@ -55,8 +58,8 @@ else
     bin_step = 1./step;
     pix_indx = floor((coord-r1)'.*bin_step')+1;
     % Due to round-off errors and general binning procedure, the
-    % leftmost points have index, exceeding (by 1) the box size.
-    % We include points with these indexes in the leftmost cell.
+    % rightmost points have index, exceeding (by 1) the box size.
+    % We include points with these indexes in the rightmost cell.
     on_edge = pix_indx>n_bins;
     if any(on_edge(:))
         % assign these points to the leftmost bins

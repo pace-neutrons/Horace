@@ -1,4 +1,4 @@
-function save (w, varargin)
+function cl=save(w, varargin)
 % Save a sqw object or array of sqw objects to file
 %
 %   >> save (w)              % prompt for file
@@ -26,14 +26,22 @@ function save (w, varargin)
 %   Note that if w is an array of sqw objects then file must be a cell
 %   array of filenames of the same size.
 %
-% Output:
+% Optional output:
+% cl -- running insance of parallel cluster, used to combine multiple tmp
+%       files together if pix field of sqw object contains pix_combine_into
+%       and -parallel option or parallel cluster itself are provided as
+%       inpout. Empty in any other case
+%
+%      TODO: currenlty empty. May reenable when parallel saving is
+%      implemented properly
 
 % Original author: T.G.Perring
 %
 
+cl = []; % parallel cluster used to combine and save 
 [ok,mess,upgrade,argi] = parse_char_options(varargin,{'-update'});
 if ~ok
-    error('SQW_FILE_IO:invalid_argument',mess);
+    error('HORACE:SQWDnDBase:invalid_argument',mess);
 end
 
 % Use the concrete class name as file extension

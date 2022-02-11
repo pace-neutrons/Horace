@@ -54,6 +54,10 @@ else
     end
 end
 argi = {};
+if size(pix,1) ==3  % Q(3D) binning only. Third axis is always missing
+    bin_size = obj.nbins_all_dims;
+    bin_size = bin_size(1:3);
+end
 if nargin == 3
     npix = squeeze(zeros(bin_size));
     s = [];

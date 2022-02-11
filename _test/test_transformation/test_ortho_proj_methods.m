@@ -285,6 +285,27 @@ classdef test_ortho_proj_methods<TestCase
             assertEqual(bl_size,bl_size3)
 
         end
+        function test_binning_range_the_same_1D_dE(~)
+            proj1 = ortho_proj([1,0,0],[0,1,0]);
+            proj1.do_generic = true;
+            dbr = [-1,-2,-3,0;1,2,3,10];
+            bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
+            ab0 = axes_block(bin0{:});
+            sz = ab0.dims_as_ssize();
+            npix = ones(sz);
+
+            proj1.do_3D_transformation = false;
+            [bl_start,bl_end] = proj1.get_nrange(npix,ab0,ab0,proj1);
+            assertEqual(bl_start,1);
+            assertEqual(bl_end,numel(npix));
+
+            proj1.do_3D_transformation = true;
+            [bl_start,bl_end] = proj1.get_nrange(npix,ab0,ab0,proj1);
+            assertEqual(bl_start,1);
+            assertEqual(bl_end,numel(npix));
+        end
+        
         %
         function test_binning_range_the_same_1D(~)
             proj1 = ortho_proj([1,0,0],[0,1,0]);
