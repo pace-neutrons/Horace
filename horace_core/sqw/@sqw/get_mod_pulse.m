@@ -162,7 +162,7 @@ if isa(header,'Experiment')
 
     for i=1:nrun
         try
-            moderator(i) = header.instruments(i).moderator;
+            moderator(i) = header.instruments{i}.moderator;
         catch
             pulse_model=''; pp=[]; ok=false;
             mess='IX_moderator object not found in all instrument descriptions';

@@ -1,0 +1,45 @@
+name: Horace release user documentation update
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      doc_root: $GITHUB_WORKSPACE/documentation/user_docs
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Update dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install wheel
+        python -m pip install -r ${{ env.doc_root }}/requirements.txt
+    - name: Build and Commit
+      run: |
+        tmp_dir=$(mktemp -d -t pages-XXXXXXXXXX)
+        sphinx-build -b html ${{ env.doc_root }}/docs $tmp_dir
+        rm -rf $tmp_dir/.doctrees
+        cd $GITHUB_WORKSPACE
+        git checkout --force gh-pages
+        rm -rf $GITHUB_REF
+        cp -rpav $tmp_dir $GITHUB_REF
+        git add $GITHUB_REF
+        echo "<meta http-equiv=\"Refresh\" content=\"0; url=https://pace-neutrons.github.io/Horace/$GITHUB_REF/\" />" > stable/index.html
+        git add stable/index.html
+        git config --global user.email "actions@github.com"
+        git config --global user.name "Github Actions"
+        git commit --allow-empty -m "Add docs release $GITHUB_REF"
+    - name: Push changes
+      uses: ad-m/github-push-action@v0.6.0
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: gh-pages

@@ -44,8 +44,8 @@ err(:,ind)=sqrt(reshape(tmp(:,4),ne,numel(group)));
 
 
 lattice = oriented_lattice();
-lattice.alatt = header.samples(1).alatt;
-lattice.angdeg = header.samples(1).angdeg;
+lattice.alatt = header.samples{1}.alatt;
+lattice.angdeg = header.samples{1}.angdeg;
 lattice.u      = header.expdata(1).cu;
 lattice.v      = header.expdata(1).cv;
 lattice.psi    = header.expdata(1).psi*(180/pi);

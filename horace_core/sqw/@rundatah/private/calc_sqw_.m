@@ -168,8 +168,14 @@ function [header,sqw_datstr] = calc_sqw_data_and_header (obj,detdcn)
 [fp,fn,fe]=fileparts(obj.data_file_name);
 
 lat = obj.lattice.set_rad();
+
+if all(isempty(obj.instrument)) || isempty(fieldnames(obj.instrument))
+    instrument = IX_null_inst();
+else
+    instrument = obj.instrument;
+end
 if all(isempty(obj.sample)) || isempty(fieldnames(obj.sample)) || any(isempty(obj.sample.alatt))
-    sample = IX_samp();
+    sample = IX_null_sample();
     sample.alatt = obj.lattice.alatt;
     sample.angdeg = obj.lattice.angdeg;
 else
