@@ -77,7 +77,6 @@ classdef axes_block < serializable
         % e.g. r.l.u. and energy [h; k; l; en] [row vector]
         %
 
-
     end
     properties(Constant,Access=private)
         % fields which fully represent the state of the class and allow to
@@ -85,6 +84,10 @@ classdef axes_block < serializable
         fields_to_save_ = {'title','filename','filepath',...
             'label','ulen','img_range','nbins_all_dims',...
             'dax','nonorthogonal'};
+    end
+    properties(Dependent,Hidden)
+        % old interface to label
+        ulabel
     end
 
     methods (Static)
@@ -186,7 +189,7 @@ classdef axes_block < serializable
             %
             [obj,offset,remains] = init_(obj,varargin{:});
         end
-        
+
 
         function sz = dims_as_ssize(obj)
             % Return the extent along each dimension of the signal arrays.
@@ -453,6 +456,13 @@ classdef axes_block < serializable
         end
         function pc = get.p(obj)
             pc = build_axes_from_ranges_(obj);
+        end
+        % old interface
+        function obj = set.ulabel(obj,val)
+            obj.label = val;
+        end
+        function lab = get.ulabel(obj)
+            lab  = obj.label_;
         end
         %
         %------------------------------------------------------------------

@@ -60,9 +60,9 @@ void exchange_buffer::send_read_buffer_to_writer(const size_t nPixels, const siz
 /* execute waiting until reader thread informs writer thread that data are ready*/
 void exchange_buffer::wait_for_reader_data() {
     std::unique_lock<std::mutex> lock(this->data_ready_lock);
-
+    // wait until write_allowed is true and data_ready is unlocked
     this->data_ready.wait(lock, [this]() {return (this->write_allowed); });
-
+    // lock write buffer until write operation is completed
     this->write_lock.lock();
     this->write_allowed = false;
 }
@@ -86,9 +86,11 @@ char* const exchange_buffer::get_write_buffer(size_t& n_pix_to_write, size_t& n_
 /* Indicates the end of single write-pixels operations and unlocks write buffer indicating that the data
 in the buffer can be discarded */
 void exchange_buffer::unlock_write_buffer() {
-
     std::unique_lock<std::mutex> lock(this->data_written_lock);
     this->n_read_pixels = 0;
+
+    // notify reader that it can start process of providing new data buffer. This is initial writer state
+    // when writer is initialized
     this->writer_ready = true;
     this->data_written.notify_one();
 
