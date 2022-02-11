@@ -47,6 +47,9 @@ header_av = header_average(obj);
 sproj = obj.data.get_projection(header_av);
 [bloc_starts, block_sizes] = sproj.get_nrange(obj.data.npix,obj.data,targ_axes,targ_proj);
 if isempty(bloc_starts)
+    if log_level >= 1
+        report_cut_type(obj,false,keep_pixels,'no_pixels');
+    end
     % No pixels in range, we can return early
     pix_out = PixelData();
     return
@@ -90,7 +93,7 @@ else
 end
 %
 if log_level >= 1
-    report_cut_type(obj,use_tmp_files,keep_pixels)
+    pixel_contrib_name = report_cut_type(obj,use_tmp_files,keep_pixels);
 end
 
 if num_chunks == 1
@@ -106,16 +109,23 @@ if num_chunks == 1
 
     if keep_pixels
         [npix,s,e,pix_ok] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
+        npix_step_retained = pix_ok.num_pixels; % just for logging the progress
     else
         [npix,s,e] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
         pix_ok = [];
+        npix_step_retained = [];
     end
     pix_retained{1} = pix_ok;%candidate_pix.get_pixels(ok);
     pix_ix_retained{1} = [];
     if log_level >= 1
-        fprintf(' ----->  retained  %d pixels\n', pix_ok.num_pixels);
+        if isempty(npix_step_retained)
+            npix_step_retained = sum(npix(:));
+        end
+        fprintf(' ----->  %s  %d pixels\n',...
+            pixel_contrib_name,npix_step_retained);
     end
 else
+    npix_tot_retained = 0;
     for iter = 1:num_chunks
         % Get pixels that will likely contribute to the cut
         chunk = block_chunks{iter};
@@ -140,9 +150,12 @@ else
 
         if log_level >= 1
             if isempty(npix_step_retained)
-                npix_step_retained = sum(npix(:));
+                npsr = sum(npix(:));
+                npix_step_retained = npsr - npix_tot_retained;
+                npix_tot_retained = npsr;
             end
-            fprintf(' ----->  retained  %d pixels\n', npix_step_retained);
+            fprintf(' ----->  %s  %d pixels\n',...
+                pixel_contrib_name,npix_step_retained);
         end
         if keep_pixels
             if use_tmp_files
@@ -202,23 +215,38 @@ tmp_file_names = gen_unique_file_paths(nfiles, 'horace_cut', wk_dir);
 pci = pix_combine_info(tmp_file_names, nbins);
 end
 %
-function  report_cut_type(obj,use_tmp_files,keep_pixels)
+function pixel_contrib_name= report_cut_type(obj,use_tmp_files,keep_pixels,no_pixels)
+% analyze the input parameters and print result reporting the cut type, how
+% it intended to be done and what happens with cut pixels
+%
 if isa(obj,'sqw')
-    obj_type = 'memory';
+    obj_type = 'in memory';
 else
-    obj_type = 'file';
+    obj_type = 'on file';
 end
 if use_tmp_files
-    target = 'file';
+    target = 'in file';
 else
-    target = 'memory';
+    target = 'in memory';
 end
 if keep_pixels
     pix_state = 'kept';
+    pixel_contrib_name = 'retained';
 else
     pix_state = 'dropped';
+    pixel_contrib_name ='included';
 end
-fprintf('*** Cutting sqw object in %s; returning result in: %s; pixels: %s\n',...
-    obj_type,target,pix_state);
+if nargin == 4  % no pixels contributed in the cut
+    if use_tmp_files
+        fprintf('*** Cutting sqw object %s; returning result %s --> ignored as cut contains no pixels\n',...
+            obj_type,target);
+    else
+        fprintf('*** Cutting sqw object %s; returning result %s; cut contains no pixels\n',...
+            obj_type,target);
+    end
+else
+    fprintf('*** Cutting sqw object %s; returning result %s; retuning pixels - %s\n',...
+        obj_type,target,pix_state);
+end
 
 end

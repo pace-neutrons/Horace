@@ -69,7 +69,7 @@ void exchange_buffer::wait_for_reader_data() {
 
 /* Give write thread access to the write buffer. Returns NULL if no pixels are currently in buffer and locks
 write buffer, which has to be unlocked later. */
-char* const exchange_buffer::get_and_lock_write_buffer(size_t& n_pix_to_write, size_t& n_bins_processed) {
+char* const exchange_buffer::get_write_buffer(size_t& n_pix_to_write, size_t& n_bins_processed) {
 
 
     n_bins_processed = this->n_bins_processed;

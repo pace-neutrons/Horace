@@ -52,6 +52,13 @@ else
     prop_present = true;
 end
 remain = par.Unmatched;
+
+% compartibility with old projaxis interface
+if isfield(remain,'uoffset') 
+    res.offset = remain.uoffset;
+    remain = rmfield(remain,'uoffset');
+    prop_present = true;
+end
 unmatched = struct2cell(remain);
 if isempty(unmatched)
     remain = {};

@@ -36,7 +36,7 @@ void sqw_pix_writer::run_write_pix_job() {
         size_t n_pix_to_write;
         // this locks until read completed unless read have not been started
         Buff.wait_for_reader_data();
-        const char *buf = Buff.get_and_lock_write_buffer(n_pix_to_write, n_bins_processed);
+        const char *buf = Buff.get_write_buffer(n_pix_to_write, n_bins_processed);
 
         size_t length = n_pix_to_write*PIX_BLOCK_SIZE_BYTES;
 

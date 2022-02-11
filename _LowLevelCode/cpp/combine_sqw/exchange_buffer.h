@@ -19,9 +19,11 @@
 /* Class provides unblocking read/write buffer and logging operations for asynchronous read and write operations on 3 threads */
 class exchange_buffer {
 public:
-    // read buffer
-    char *const  get_and_lock_write_buffer(size_t &nPixels, size_t &n_bin_processed);
+    // write buffer synchronization
+    void wait_for_reader_data();
+    char *const  get_write_buffer(size_t &nPixels, size_t &n_bin_processed);
     void unlock_write_buffer();
+    // read buffer synchronization
     float *const get_read_buffer(const size_t buf_size = 0);
     // lock write buffer from modifications by other threads too but unlocks read buffer
     void send_read_buffer_to_writer(const size_t nPixels, const size_t nBinsProcessed);
@@ -51,7 +53,7 @@ public:
     size_t pix_buf_size()const {
         return(buf_size / PIX_SIZE);
     }
-    void wait_for_reader_data();
+
 
     // logging semaphore
     bool do_logging;

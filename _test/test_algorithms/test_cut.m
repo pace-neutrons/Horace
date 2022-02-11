@@ -111,7 +111,7 @@ classdef test_cut < TestCase & common_state_holder
         end
         
         function test_take_a_cut_integrating_over_more_than_1_axis(obj)            
-            proj = projaxes([1, -1 ,0], [1, 1, 0], 'offset', [1, 1, 0], 'type', 'paa');
+            proj = ortho_proj([1, -1 ,0], [1, 1, 0], 'offset', [1, 1, 0], 'type', 'paa');
             
             u_axis_lims = [-0.1, 0.025, 0.1];
             v_axis_lims = [-0.1, 0.1];
@@ -247,7 +247,7 @@ classdef test_cut < TestCase & common_state_holder
         end
         
         function test_you_can_take_multiple_cuts_over_integration_axis(obj)
-            proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+            proj = ortho_proj([1, -1 ,0], [1, 1, 0], 'offset', [1, 1, 0], 'type', 'paa');
             
             u_axis_lims = [-0.1, 0.025, 0.1];
             v_axis_lims = [-0.1, 0.025, 0.1];
@@ -280,7 +280,7 @@ classdef test_cut < TestCase & common_state_holder
         end
         
         function test_you_can_take_multiple_cuts_over_int_axis_with_nopix(obj)
-            proj = projaxes([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
+            proj = ortho_proj([1, -1 ,0], [1, 1, 0], 'uoffset', [1, 1, 0], 'type', 'paa');
             
             u_axis_lims = [-0.1, 0.025, 0.1];
             v_axis_lims = [-0.1, 0.025, 0.1];
@@ -326,6 +326,7 @@ classdef test_cut < TestCase & common_state_holder
         end
         
         function test_you_can_take_an_out_of_memory_cut_with_tmp_files_with_mex(obj)
+            skipTest('mex cutting is disabled for the time beeing')            
             pix_pg_size = 5e5;  % this gives two pages of pixels over obj.sqw_file
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
             cleanup_config = set_temporary_config_options( ...
@@ -389,7 +390,8 @@ classdef test_cut < TestCase & common_state_holder
             output_obj = ldr.get_dnd();
             ref_object = d3d(obj.ref_file);
             
-            assertEqualToTol(output_obj, ref_object, 'ignore_str', true);
+            assertEqualToTol(output_obj, ref_object, ...
+                'ignore_str', true,'abstol',2.e-7);
         end
     end
     

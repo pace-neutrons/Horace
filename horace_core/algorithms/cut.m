@@ -1,4 +1,4 @@
-function wout = cut(source, varargin)
+function varargout = cut(source, varargin)
 %%CUT Take a cut from the given data source.
 %
 % Inputs:
@@ -24,10 +24,9 @@ else
         class(source));
 end
 if nargout > 0
-    wout = cut(sqw_dnd_obj, varargin{:});
+    varargout{1} = cut(sqw_dnd_obj, varargin{:});
 else
     cut(sqw_dnd_obj, varargin{:});
-    wout = [];
 end
 
 function sqw_dnd_obj=obj_from_faccessor(ldr)

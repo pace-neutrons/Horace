@@ -57,7 +57,7 @@ end
 % Write result to file if necessary
 if exist('outfile', 'var') && ~isempty(outfile)
     if log_level >= 0
-        disp(['Writing cut to output file ', outfile, '...']);
+        disp(['*** Writing cut to output file ', outfile, '...']);
     end
     try
         save(wout, outfile);

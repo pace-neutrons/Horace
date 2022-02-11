@@ -21,7 +21,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         u_to_rlu % Matrix (4x4) of projection axes in hkle representation
         %     u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
         ulen % Length of projection axes vectors in Ang^-1 or meV [row vector]
-        ulabel  % Labels of the projection axes [1x4 cell array of character strings]
+        label  % Labels of the projection axes [1x4 cell array of character strings]
         iax % Index of integration axes into the projection axes  [row vector]
         %     Always in increasing numerical order, data.iax=[1,3] means summation has been performed along u1 and u3 axes
         iint % Integration range along each of the integration axes. [iint(2,length(iax))]
@@ -195,14 +195,14 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             obj.data_.ulen = ulen;
         end
         
-        function val = get.ulabel(obj)
+        function val = get.label(obj)
             val = [];
             if ~isempty(obj.data_)
-                val = obj.data_.ulabel;
+                val = obj.data_.label;
             end
         end
-        function obj = set.ulabel(obj, ulabel)
-            obj.data_.ulabel = ulabel;
+        function obj = set.label(obj, label)
+            obj.data_.label = label;
         end
         
         function val = get.iax(obj)

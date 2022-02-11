@@ -183,7 +183,7 @@ for cut_num = 1:prod(sz)
     end
 end
 if return_cut
-    wout = [wout{:}];
+    wout = [wout{:}]';
 end
 % End function
 
