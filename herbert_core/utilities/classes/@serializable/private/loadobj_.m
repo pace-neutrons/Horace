@@ -31,9 +31,9 @@ ver_requested = obj.classVersion();
 if isfield(S,'version')
     if S.version == ver_requested
         if isfield(S,'array_dat')
-            obj = obj.from_class_struct(S.array_dat);
+            obj = obj.from_bare_struct(S.array_dat);
         else
-            obj = obj.from_class_struct(S);
+            obj = obj.from_bare_struct(S);
         end
     else
         obj = obj.from_old_struct(S);

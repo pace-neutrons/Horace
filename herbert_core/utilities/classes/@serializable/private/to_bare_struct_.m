@@ -1,6 +1,6 @@
 function struc = to_bare_struct_(obj,recursively)
 % Convert serializable object into a special structure, which allow
-% serialization and recovery using from_class_struct operation
+% serialization and recovery using from_bare_struct operation
 %
 % Inputs:
 % obj -- the instance of the object to convert to a structure.

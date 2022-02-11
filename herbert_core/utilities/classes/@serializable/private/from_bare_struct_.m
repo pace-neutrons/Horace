@@ -1,4 +1,4 @@
-function obj = from_class_struct_(obj,inputs)
+function obj = from_bare_struct_(obj,inputs)
 % Restore object from the fields, previously obtained by to_struct method
 %
 % Input:
@@ -31,7 +31,7 @@ end
 for i=1:nobj
     obj(i) = set_obj(obj(i),inputs(i),fields_to_set);
 end
-end % function from_class_struct_
+end % function from_bare_struct_
 %
 function obj = set_obj(obj,inputs,flds)
 for i=1:numel(flds)
