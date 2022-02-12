@@ -4,16 +4,16 @@ function struc = to_struct_(obj,add_version)
 % operation.
 %
 % Inputs:
-% obj -- the instance of the object to convert to a structure.
-%        the fields to use
+% obj         -- the instance of the object to convert to a structure.
+%                the fields to use
+% add_version -- if true, add version field to serializable subobjects
+%                and the structure itself
+% 
 % Returns:
 % struc -- structure, containing information, fully defining the
 %          serializabe class
-if nargin == 1
-    add_version = false;
-end
 
-struc = obj.to_bare_struct(false);
+struc = to_bare_struct_(obj,false,add_version);
 if numel(obj)>1
     struc = struct('serial_name',class(obj),...
         'array_dat',struc);

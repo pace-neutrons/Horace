@@ -36,7 +36,13 @@ if isfield(S,'version')
             obj = obj.from_bare_struct(S);
         end
     else
-        obj = obj.from_old_struct(S);
+        % let's assume that old structure do not want to recover from
+        % array?
+        if isfield(S,'array_dat')
+            obj = obj.from_old_struct(S.array_dat);            
+        else
+            obj = obj.from_old_struct(S);
+        end
     end
 else % previous version(s), written without version info or any old version
     obj = obj.from_old_struct(S);

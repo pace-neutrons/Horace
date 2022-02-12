@@ -1,4 +1,4 @@
-function struc = to_bare_struct_(obj,recursively)
+function struc = to_bare_struct_(obj,recursively,add_version_to_subobjects)
 % Convert serializable object into a special structure, which allow
 % serialization and recovery using from_bare_struct operation
 %
@@ -7,9 +7,15 @@ function struc = to_bare_struct_(obj,recursively)
 %        the fields to use
 % recursively -- if true, all serializable subobjects of the
 %                class are converted to bare structure,
+% add_version_to_subobjects -- if true, add class version to 
+%                serializable subobjects, which are the children of the
+%                current class version
 % Returns:
 % struc -- structure, containing information, fully defining the
 %          serializabe class
+if ~exist('add_version_to_subobjects','var')
+    add_version_to_subobjects = false;
+end
 flds = indepFields(obj);
 
 cell_dat = cell(numel(flds),numel(obj));
@@ -21,7 +27,7 @@ for j=1:numel(obj)
             if recursively
                 val= to_bare_struct_(val,recursively);
             else
-                val= to_struct(val);
+                val= to_struct(val,add_version_to_subobjects);
             end
         end
         cell_dat{i,j} = val;
