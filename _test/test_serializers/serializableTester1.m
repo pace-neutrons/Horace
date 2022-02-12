@@ -6,7 +6,6 @@ classdef serializableTester1 < serializable
         Prop_level1_1=10;
         Prop_level1_2 =20;
         Prop_level1_3 = 'new_value'
-        class_version_ = 2;
     end
 
     methods
@@ -17,6 +16,17 @@ classdef serializableTester1 < serializable
         function obj = loadobj(S)
             obj = serializableTester1();
             obj = loadobj@serializable(S,obj);
+        end
+        function ver = ver_holder(new_version)
+            persistent version;
+            if isempty(version)
+                version = serializableTester1.class_version_;
+            end
+            if nargin > 0
+                version = new_version;
+            end
+
+            ver = version;
         end
     end
 
@@ -31,10 +41,13 @@ classdef serializableTester1 < serializable
         end
         % get class version, which would affect the way class is stored on/
         % /restore from an external media
-        function ver  = classVersion(obj)
-            ver = obj(1).class_version_;
+        function ver  = classVersion(~)
+           ver = serializableTester1.ver_holder();
         end
 
+    end
+    properties(Constant,Access=private)
+        class_version_ = 2;
     end
     properties(Constant,Access=protected)
         fields_to_save_ = {'Prop_level1_1','Prop_level1_2','Prop_level1_3'};

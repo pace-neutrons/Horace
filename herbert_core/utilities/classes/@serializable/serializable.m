@@ -28,7 +28,7 @@ classdef serializable
     %     end
     %----------------------------------------------------------------------
     methods
-        function strc = to_struct(obj,store_class_version)
+        function strc = to_struct(obj)
             % Convert serializable object into a special structure, which allow
             % serialization and recovery using static "serializable.from_struct"
             % operation.
@@ -56,10 +56,7 @@ classdef serializable
             %          with all information, necessary to restore the
             %          initial object
             %
-            if nargin == 1
-                store_class_version = false;
-            end
-            strc = to_struct_(obj,store_class_version);
+            strc = to_struct_(obj);
         end
         function strc = to_bare_struct(obj,varargin)
             % Convert serializable object into a special structure, which allow
@@ -145,7 +142,7 @@ classdef serializable
             %                function, to distinguish between different
             %                stored versions of a serializable class
             %
-            S         = to_struct_(obj,true);
+            S         = to_struct_(obj);
         end
         %
         function obj = serializable()

@@ -225,29 +225,34 @@ classdef test_serializable_class < TestCase
 
             assertEqual(size_c,numel(ser));
         end
-        function test_new_version_saveobj_loadobj_old_version(~)
+        function test_saveobj_old_version_loadobj_new_version(~)
             % prepare reference data
             tc = serializableTester2();
             tc2 = serializableTester1();
-            tc2.class_version_ = 1;
+            % we have old version object
+            tc2.ver_holder(1);
+            assertEqual(tc2.classVersion(),1);
+
             tc.Prop_level2_1 = 10;
             tc.Prop_level2_2 = repmat(tc2,1,2);
 
-            % prepara data to store
+            % store old verision object on level 2
             tc_struct = saveobj(tc);
 
+            % now we have rebuild the object to have new version
+            tc2.ver_holder(2);            
             % recover data stored as old version using new version class
             tc_rec = serializableTester2.loadobj(tc_struct);
             % check successful recovery
 
             tc2_lev2 = tc_rec.Prop_level2_2;
 
-            assertEqual(tc2_lev2(1).class_version_,2);
+            assertEqual(tc2_lev2(1).classVersion(),2);
             assertEqual(tc2_lev2(1).Prop_level1_3,'recovered_new_from_old_value');
 
-            assertEqual(tc2_lev2(2).class_version_,2);
+            assertEqual(tc2_lev2(2).classVersion(),2);
             assertEqual(tc2_lev2(2).Prop_level1_3,'recovered_new_from_old_value');
-
+            %
         end
 
         %
