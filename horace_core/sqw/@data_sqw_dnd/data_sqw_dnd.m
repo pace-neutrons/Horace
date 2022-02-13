@@ -170,12 +170,7 @@ classdef data_sqw_dnd < axes_block
             if isa(varargin{1},'data_sqw_dnd') % handle shallow copy constructor
                 obj =varargin{1};                          % its COW for Matlab anyway
             elseif nargin==2 && isstruct(varargin{1})
-                if isfield(varargin{1},'iint') % old axes_block structure, needs to be converted to new
-                    class_struc = axes_block.convert_old_struct_into_nbins(varargin{1});      
-                else
-                    class_struc = varargin{1};
-                end
-                obj = from_class_struct(obj,class_struc);
+                obj = from_bare_struct(obj,varargin{1});
             else
                 [obj,uoffset_,remains] = init@axes_block(obj,varargin{:});
                 obj.uoffset = uoffset_;
@@ -283,7 +278,7 @@ classdef data_sqw_dnd < axes_block
             if ~isfield(inputs,'nonorthogonal')
                 inputs.nonorthogonal = false;
             end
-            obj = obj.from_class_struct(inputs);
+            obj = obj.from_bare_struct(inputs);
         end
     end
     methods(Static)
