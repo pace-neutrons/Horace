@@ -33,7 +33,10 @@ function  img_db_range = calc_img_db_range_(ax_data)
 %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
 %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
 %
-
+if isfield(ax_data,'img_range')
+    img_db_range  = ax_data.img_range;
+    return
+end
 
 img_db_range = zeros(2,4);
 img_db_range(:,ax_data.iax) = ax_data.iint;

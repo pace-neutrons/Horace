@@ -523,7 +523,7 @@ classdef axes_block < serializable
         end
 
     end
-    methods(Static, Access=protected)
+    methods(Static)
         function input = convert_old_struct_into_nbins(input)
             % the function, used to convert old v1 axes_block structure,
             % containing axes information, into the v2 structure,

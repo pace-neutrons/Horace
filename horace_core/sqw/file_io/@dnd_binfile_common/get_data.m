@@ -150,6 +150,7 @@ end
 if obj.convert_to_double
     data_str = obj.do_convert_to_double(data_str);
 end
+data_str = axes_block.convert_old_struct_into_nbins(data_str);
 %
 if ~header_only
     data_str = obj.get_se_npix(data_str);

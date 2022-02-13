@@ -123,8 +123,11 @@ if opts.header || opts.hverbatim || noclass
     data  = data_str;
     return;
 end
-data = data_sqw_dnd(data_str);
-
+data_str.serial_name = 'data_sqw_dnd'; % convert structure, stored in 
+                        %  binary file into the form, suitable for
+                        %  recovering using serializable class methods, as
+                        %  data_sqw_dnd is serializable
+data = serializable.loadobj(data_str);
 if ~opts.nopix
     data.pix = PixelData(obj, opts.pixel_page_size);
     %

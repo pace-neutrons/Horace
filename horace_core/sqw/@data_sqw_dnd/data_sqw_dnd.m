@@ -267,13 +267,18 @@ classdef data_sqw_dnd < axes_block
                 inputs = rmfield(inputs,'urange');
             elseif isfield(inputs,'img_range')
                 inputs.img_db_range = inputs.img_range;
-                inputs = rmfield(inputs,'img_range');
             end
             if any(any(inputs.img_db_range==PixelData.EMPTY_RANGE_)) %
                 % assume that img_db_range can be restored from axis range.
                 % This is not always possible and correct, but may be
                 % correct for majority of old data
                 inputs.img_db_range = obj.calc_img_db_range(inputs);
+            end
+            if isfield(inputs,'pax') && isfield(inputs,'iax')
+                inputs.serial_name = 'axes_block';
+                ab = serializable.loadobj(inputs);
+                obj = data_sqw_dnd(ab,inputs);
+                return;
             end
             if ~isfield(inputs,'nonorthogonal')
                 inputs.nonorthogonal = false;

@@ -31,7 +31,9 @@ end
 prs = ortho_proj();
 flds = prs.data_sqw_dnd_export_list;
 for i=1:numel(flds)
-   obj.(flds{i}) = proj_in.(flds{i});
+    if isfield(proj_in,flds{i})
+        obj.(flds{i}) = proj_in.(flds{i});
+    end
 end
 
 

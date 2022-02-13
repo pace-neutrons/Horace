@@ -17,6 +17,9 @@ if isa(varargin{1},'axes_block')
         end
     end    
     remains = varargin(2:end);
+    if isfield(remains{1},'uoffset')
+        offset = remains{1}.uoffset(:);
+    end
 elseif nargi==1
     if isstruct(varargin{1})
         input_struct = varargin{1};
