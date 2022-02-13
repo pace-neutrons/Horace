@@ -2,7 +2,7 @@ classdef axes_block < serializable
     % The class contains information about axes and scales used for
     % displaying sqw/dnd object.
     %
-    % It also conatins main methods, used to produce physical image of the
+    % It also contains main methods, used to produce physical image of the
     % sqw/dnd object
     %
     properties(Dependent)
@@ -40,7 +40,7 @@ classdef axes_block < serializable
         ulen   %Length of projection axes vectors in Ang^-1 or meV [row vector]
         %
         % The range (in axes coordinate system), the binning is made and the
-        % axes block describnes
+        % axes block describes
         img_range
         %
         n_dims;  % Number of axes_block object dimensions
@@ -51,7 +51,7 @@ classdef axes_block < serializable
         % bins in dE direction would have binning [1,1,1,10];
         nbins_all_dims
         % number of bins for each non-unit dimension. This would be the
-        % binning of the data arrays associated witht the given axes_block
+        % binning of the data arrays associated with the given axes_block
         data_nbins;
     end
 
@@ -270,7 +270,7 @@ classdef axes_block < serializable
             % pix     -- pixel array or PixelData
             %            object (the output format is the same as for
             %            pix_candidates)
-            % pix_indx --Array of indexess for the image bins, where
+            % pix_indx --Array of indexes for the image bins, where
             %            the input pix elements belong to
 
             nargou = nargout;
@@ -288,7 +288,7 @@ classdef axes_block < serializable
             % constructed over axes_block axes points.
             %
             % Inputs:
-            % obj         -- initialized version of the exes block
+            % obj         -- initialized version of the axes block
             % Optional:
             %  char_cube -- the cube, describing the scale of the grid,
             %              to construct the lattice on.
@@ -297,7 +297,7 @@ classdef axes_block < serializable
             %              energy transfer binning grid as the energy axis
             %
             % -halo     -- request to build lattice in the
-            %              specified rane + single sized characteristic
+            %              specified range + single sized characteristic
             %              step
             % Returns:
             % nodes     -- [4,nBins] or [3,nBins] array of points,
@@ -331,10 +331,10 @@ classdef axes_block < serializable
             % its binning is copied from the old projection binning according to
             % axis number, i.e. if axis 1 of cur_proj had 10 bins, axis 1 of target
             % proj would have 10 bins, etc. This redefines the behaviour of the
-            % cuts when some directions are integraion directions, but
+            % cuts when some directions are integration directions, but
             % become projection directions, and redefine it when a new
             % projection direction goes in a direction mixing
-            % the currentl projection and the integration directions.
+            % the current projection and the integration directions.
             %
             % Inputs:
             % obj      - current instance of the axes block
@@ -506,19 +506,19 @@ classdef axes_block < serializable
             % structure does not contain version or the version, stored
             % in the structure does not correspond to the current version
             %
-            % By default, this function interfaces the default from_class_struct
-            % method, but when the old strucure substantially differs from
-            % the moden structure, this method needs the specific overloading
-            % to allow loadob to recover new structure from an old structure.
+            % By default, this function interfaces the default from_bare_struct
+            % method, but when the old structure substantially differs from
+            % the modern structure, this method needs the specific overloading
+            % to allow loadobj to recover new structure from an old structure.
             %
             if isfield(inputs,'version') && (inputs.version == 1) || ...
                     isfield(inputs,'iint')
                 inputs = axes_block.convert_old_struct_into_nbins(inputs);
             end
             if isfield(inputs,'array_dat')
-                obj = obj.from_class_struct(inputs.array_dat);
+                obj = obj.from_bare_struct(inputs.array_dat);
             else
-                obj = obj.from_class_struct(inputs);
+                obj = obj.from_bare_struct(inputs);
             end
         end
 
@@ -526,8 +526,8 @@ classdef axes_block < serializable
     methods(Static, Access=protected)
         function input = convert_old_struct_into_nbins(input)
             % the function, used to convert old v1 axes_block structure,
-            % containing axes infomation, into the v2 structure,
-            % containing only range and bin numers
+            % containing axes information, into the v2 structure,
+            % containing only range and bin numbers
             input = convert_old_struct_into_nbins_(input);
         end
     end

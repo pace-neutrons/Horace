@@ -675,7 +675,7 @@ classdef test_axes_block < TestCase
             nodes = ab.get_bin_nodes();
             assertEqual(size(nodes,1),4);
             
-            nd = ab.n_dims;            
+            nd = ab.n_dims;
             sz = ab.dims_as_ssize();
             ni = 4-nd;
             %sz = sz+1;

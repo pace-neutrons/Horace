@@ -24,7 +24,7 @@ function [s, e, npix, pix_out] = ...
 % pix_out      A PixelData object containing pixels that contribute to the
 %              cut or Temp file manager/combiner class instance for performing
 %              out-of-memory cuts. Contains information on pixels to be
-%              combibed toghether if cut_to_file is selected for the cuts,
+%              combined together if cut_to_file is selected for the cuts,
 %              which do not fit memory
 %
 % CALLED BY cut_single
