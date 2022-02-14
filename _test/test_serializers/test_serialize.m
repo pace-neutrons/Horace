@@ -15,7 +15,7 @@ classdef test_serialize < TestCaseWithSave
         
         
         %------------------------------------------------------------------
-        function test_ser_sample(obj)
+        function test_ser_sample(~)
             sam1=IX_sample('',true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
             
             bytes1 = hlp_serialize(sam1);
@@ -112,7 +112,7 @@ classdef test_serialize < TestCaseWithSave
             assertEqual(nbytes,numel(ser));
         end
         
-        function test_ser_serializeble_obj_array_level1(obj)
+        function test_ser_serializeble_obj_array_level1(~)
             % Prepare data
             serCl = serializableTester1();
             serCl = repmat(serCl,2,2);
@@ -148,7 +148,7 @@ classdef test_serialize < TestCaseWithSave
             assertTrue(isa(cerCl_rec.Prop_level2_2,class(serCl.Prop_level2_2)));
         end
         %
-        function test_ser_serializeble_obj_level0(obj)
+        function test_ser_serializeble_obj_level0(~)
             %--------------------------------------------------------------
             serCl = serializableTester2();
             serCl.Prop_level2_1=100;

@@ -15,8 +15,16 @@ end
 class_name = inputs.serial_name;
 %
 obj = feval(class_name);
-if isfield(inputs,'array_dat')
-    obj = obj.from_class_struct(inputs.array_dat);
+if isfield(inputs,'version')
+    if inputs.version == obj.classVersion()
+        if isfield(inputs,'array_dat')
+            obj = obj.from_bare_struct(inputs.array_dat);
+        else
+            obj = obj.from_bare_struct(inputs);
+        end        
+    else
+        obj = obj.from_old_struct(inputs);
+    end
 else
-    obj = obj.from_class_struct(inputs);
+    obj = obj.from_old_struct(inputs);
 end

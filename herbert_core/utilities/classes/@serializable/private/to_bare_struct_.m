@@ -1,12 +1,15 @@
 function struc = to_bare_struct_(obj,recursively)
 % Convert serializable object into a special structure, which allow
-% serialization and recovery using from_class_struct operation
+% serialization and recovery using from_bare_struct operation
 %
 % Inputs:
 % obj -- the instance of the object to convert to a structure.
 %        the fields to use
 % recursively -- if true, all serializable subobjects of the
 %                class are converted to bare structure,
+% add_version_to_subobjects -- if true, add class version to 
+%                serializable subobjects, which are the children of the
+%                current class version
 % Returns:
 % struc -- structure, containing information, fully defining the
 %          serializabe class

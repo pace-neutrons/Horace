@@ -3,7 +3,7 @@ classdef test_serializable_class < TestCase
         wk_dir = tmp_dir()
     end
     methods
-        
+
         function obj = test_serializable_class(name)
             if ~exist('name', 'var')
                 name = 'test_serializable_class ';
@@ -31,9 +31,9 @@ classdef test_serializable_class < TestCase
             % Serialize using Matlab
             ser =  hlp_serialise(serCl);
             serCl_rec = hlp_deserialise(ser);
-            
+
             assertEqual(serCl, serCl_rec)
-            
+
             size = hlp_serial_sise(serCl);
             assertEqual(size,numel(ser));
             %--------------------------------------------------------------
@@ -44,10 +44,10 @@ classdef test_serializable_class < TestCase
             end
             ser_c     = c_serialise(serCl);
             serCl_rec = c_deserialise(ser_c);
-            
+
             assertEqual(serCl, serCl_rec)
             assertEqual(ser_c,ser);
-            
+
             size_c = c_serial_size(serCl);
             assertEqual(size_c,numel(ser));
         end
@@ -72,9 +72,9 @@ classdef test_serializable_class < TestCase
             % Serialize using Matlab
             ser =  hlp_serialise(serCl);
             serCl_rec = hlp_deserialise(ser);
-            
+
             assertEqual(serCl, serCl_rec)
-            
+
             size = hlp_serial_sise(serCl);
             assertEqual(size,numel(ser));
             %--------------------------------------------------------------
@@ -85,14 +85,14 @@ classdef test_serializable_class < TestCase
             end
             ser_c     = c_serialise(serCl);
             serCl_rec = c_deserialise(ser_c);
-            
+
             assertEqual(serCl, serCl_rec)
             assertEqual(ser_c,ser);
-            
+
             size_c = c_serial_size(serCl);
             assertEqual(size_c,numel(ser));
         end
-        
+
         function test_ser_serializeble_obj_array_level1(obj)
             conf = herbert_config;
             ds = conf.get_data_to_store();
@@ -110,29 +110,29 @@ classdef test_serializable_class < TestCase
             % Serialize using Matlab
             ser =  hlp_serialise(serCl);
             serCl_rec = hlp_deserialise(ser);
-            
+
             assertEqual(serCl, serCl_rec)
-            
+
             size = hlp_serial_sise(serCl);
             assertEqual(size,numel(ser));
             %--------------------------------------------------------------
             % Serialize using C++
-            
+
             skipTest('C++ serializers crashes over arrays of objects #394')
             if ~obj.use_mex
                 skipTest('Mex mode is not currently available for: test_ser_serializeble_obj_array');
             end
             size_c = c_serial_size(serCl);
             assertEqual(size_c,size);
-            
+
             ser_c     = c_serialise(serCl);
             assertEqual(ser,ser_c);
             %
             serCl_rec = c_deserialise(ser_c);
-            
+
             assertEqual(serCl, serCl_rec)
             assertEqual(ser_c,ser);
-            
+
             size_c = c_serial_size(serCl);
             assertEqual(size_c,numel(ser));
         end
@@ -146,19 +146,19 @@ classdef test_serializable_class < TestCase
             serCl = serializableTester2();
             serCl.Prop_level2_1=100;
             serCl.Prop_level2_2= serializableTester1();
-            
+
             %--------------------------------------------------------------
-            
+
             ser =  hlp_serialise(serCl);
             size = hlp_serial_sise(serCl);
             assertEqual(size,numel(ser));
             [cerCl_rec,nbytes] = hlp_deserialise(ser);
-            
+
             assertEqual(nbytes,numel(ser));
             assertEqual(serCl, cerCl_rec)
             assertTrue(isa(cerCl_rec.Prop_level2_2,class(serCl.Prop_level2_2)));
-            
-            
+
+
             skipTest('C++ deserializer does not work propertly; #394')
             if ~obj.use_mex
                 skipTest('Mex mode is not currently available for: test_ser_serializeble_obj');
@@ -166,18 +166,18 @@ classdef test_serializable_class < TestCase
             %--------------------------------------------------------------
             % Serialize using C++
             size_c = c_serial_size(serCl);
-            
+
             ser_c     = c_serialise(serCl);
             assertEqual(ser_c,ser)
-            
+
             [serCl_rec,nbytes] = c_deserialise(ser_c);
-            
+
             %
             assertEqual(nbytes,numel(ser_c))
             assertEqual(serCl, serCl_rec)
             assertTrue(isa(cerCl_rec.Prop_level2_2,class(serCl.Prop_level2_2)));
             assertEqual(ser_c,ser);
-            
+
             assertEqual(size_c,numel(ser));
         end
         %
@@ -190,20 +190,20 @@ classdef test_serializable_class < TestCase
             serCl = serializableTester2();
             serCl.Prop_level2_1=100;
             serCl.Prop_level2_2= [1,2,4];
-            
+
             %--------------------------------------------------------------
-            
+
             ser =  hlp_serialise(serCl);
             size = hlp_serial_sise(serCl);
             assertEqual(size,numel(ser));
-            
+
             [cerCl_rec,nbytes] = hlp_deserialise(ser);
-            
+
             assertEqual(nbytes,numel(ser));
             assertEqual(serCl, cerCl_rec)
             assertTrue(isa(cerCl_rec.Prop_level2_2,class(serCl.Prop_level2_2)));
-            
-            
+
+
             skipTest('C++ deserializer does not work propertly; #394')
             if ~obj.use_mex
                 skipTest('Mex mode is not currently available for: test_ser_serializeble_obj');
@@ -211,20 +211,50 @@ classdef test_serializable_class < TestCase
             %--------------------------------------------------------------
             % Serialize using C++
             size_c = c_serial_size(serCl);
-            
+
             ser_c     = c_serialise(serCl);
             assertEqual(ser_c,ser)
-            
+
             [serCl_rec,nbytes] = c_deserialise(ser_c);
-            
+
             %
             assertEqual(nbytes,numel(ser_c))
             assertEqual(serCl, serCl_rec)
             assertTrue(isa(cerCl_rec.Prop_level2_2,class(serCl.Prop_level2_2)));
             assertEqual(ser_c,ser);
-            
+
             assertEqual(size_c,numel(ser));
         end
+        function test_saveobj_old_version_loadobj_new_version(~)
+            % prepare reference data
+            tc = serializableTester2();
+            tc2 = serializableTester1();
+            % we have old version object
+            tc2.ver_holder(1);
+            assertEqual(tc2.classVersion(),1);
+
+            tc.Prop_level2_1 = 10;
+            tc.Prop_level2_2 = repmat(tc2,1,2);
+
+            % store old verision object on level 2
+            tc_struct = saveobj(tc);
+
+            % now we have rebuild the object to have new version
+            tc2.ver_holder(2);            
+            % recover data stored as old version using new version class
+            tc_rec = serializableTester2.loadobj(tc_struct);
+            % check successful recovery
+
+            tc2_lev2 = tc_rec.Prop_level2_2;
+
+            assertEqual(tc2_lev2(1).classVersion(),2);
+            assertEqual(tc2_lev2(1).Prop_level1_3,'recovered_new_from_old_value');
+
+            assertEqual(tc2_lev2(2).classVersion(),2);
+            assertEqual(tc2_lev2(2).Prop_level1_3,'recovered_new_from_old_value');
+            %
+        end
+
         %
         function test_new_version_saveobj_loadobj_array_recursive(~)
             % prepare reference data
@@ -237,11 +267,11 @@ classdef test_serializable_class < TestCase
             end
             % prepara data to store
             tc_struct = saveobj(tc);
-            
+
             % modify the class version assuming new class version appeared
             ver = serializableTester2.version_holder();
             serializableTester2.version_holder(ver+1);
-            
+
             % recover data stored as old version using new version class
             tc_rec = serializableTester2.loadobj(tc_struct);
             % check successful recovery
@@ -258,13 +288,13 @@ classdef test_serializable_class < TestCase
                 tc(i).Prop_level1_1 = i*10;
                 tc(i).Prop_level1_2 = repmat(tc2,1,2*i);
             end
-            
+
             tc_bytes = tc.serialize();
             tc_size  = tc.serial_size();
             assertEqual(numel(tc_bytes),tc_size);
-            
+
             [tc_rec,nbytes] = serializable.deserialize(tc_bytes);
-            
+
             assertEqual(size(tc_rec),size(tc));
             assertEqual(tc_size,nbytes);
             for i=1:numel(tc)
@@ -274,8 +304,8 @@ classdef test_serializable_class < TestCase
                     class(tc_rec(i).Prop_level1_2));
             end
         end
-        
-        
+
+
         function test_to_from_to_struct_classes_array_recursive(~)
             tc = serializableTester1();
             tc = repmat(tc,2,2);
@@ -285,14 +315,14 @@ classdef test_serializable_class < TestCase
                 tc(i).Prop_level1_2 = repmat(tc2,1,2*i);
             end
             tc_struct = to_struct(tc);
-            
+
             tc_rec = serializable.from_struct(tc_struct);
             assertEqual(size(tc_rec),size(tc));
             for i=1:numel(tc)
                 assertEqual(tc(i),tc_rec(i));
             end
         end
-        
+
         function test_save_load_single_class(obj)
             tc = serializableTester1();
             tc.Prop_level1_1 = 20;
@@ -301,20 +331,20 @@ classdef test_serializable_class < TestCase
             clob = onCleanup(@()delete(test_file));
             save(test_file,'tc');
             ld_dat = load(test_file);
-            
+
             assertEqual(tc,ld_dat.tc);
         end
-        
+
         function test_saveobj_loadobj_single_class(~)
             tc = serializableTester1();
             tc.Prop_level1_1 = 20;
             tc.Prop_level1_2 = cell(1,10);
             tc_struct = saveobj(tc);
-            
+
             tc_rec = serializableTester1.loadobj(tc_struct);
             assertEqual(tc,tc_rec);
         end
-        
+
         function test_serialize_classes_array(~)
             tc = serializableTester1();
             tc = repmat(tc,2,2);
@@ -322,16 +352,16 @@ classdef test_serializable_class < TestCase
                 tc(i).Prop_level1_1 = i*10;
                 tc(i).Prop_level1_2 = cell(1,2*i);
             end
-            
+
             tc_bytes = tc.serialize();
             tc_size  = tc.serial_size();
             assertEqual(numel(tc_bytes),tc_size);
-            
+
             [tc_rec,nbytes] = serializable.deserialize(tc_bytes);
             assertEqual(tc,tc_rec);
             assertEqual(tc_size,nbytes);
         end
-        
+
         function test_to_from_to_struct_classes_array(~)
             tc = serializableTester1();
             tc = repmat(tc,2,2);
@@ -340,7 +370,7 @@ classdef test_serializable_class < TestCase
                 tc(i).Prop_level1_2 = cell(1,2*i);
             end
             tc_struct = to_struct(tc);
-            
+
             tc_rec = serializable.from_struct(tc_struct);
             assertEqual(size(tc_rec),size(tc));
             for i=1:numel(tc)
@@ -351,22 +381,22 @@ classdef test_serializable_class < TestCase
             tc = serializableTester1();
             tc.Prop_level1_1 = 20;
             tc.Prop_level1_2 = cell(1,10);
-            
+
             tc_bytes = tc.serialize();
             tc_size  = tc.serial_size();
             assertEqual(numel(tc_bytes),tc_size);
-            
+
             [tc_rec,nbytes] = serializable.deserialize(tc_bytes);
             assertEqual(tc,tc_rec);
             assertEqual(tc_size,nbytes);
         end
-        
+
         function test_to_from_to_struct_single_class(~)
             tc = serializableTester1();
             tc.Prop_level1_1 = 20;
             tc.Prop_level1_2 = cell(1,10);
             tc_struct = to_struct(tc);
-            
+
             tc_rec = serializable.from_struct(tc_struct);
             assertEqual(tc,tc_rec);
         end

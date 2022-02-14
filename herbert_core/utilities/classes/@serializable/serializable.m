@@ -60,7 +60,7 @@ classdef serializable
         end
         function strc = to_bare_struct(obj,varargin)
             % Convert serializable object into a special structure, which allow
-            % serialization and recovery using "from_class_struct" operation
+            % serialization and recovery using "from_bare_struct" operation
             %
             % Uses independent properties obtained from indepFields method.
             % in assumption that the properties, returned by this method
@@ -77,6 +77,7 @@ classdef serializable
             %                   converted to bare structure. If false, or
             %                   absent, they are converted using to_struct
             %                   method
+            % 
             %
             % Returns:
             % struc -- structure, or structure array, containing the full
@@ -96,10 +97,10 @@ classdef serializable
         end
         
         %------------------------------------------------------------------
-        function obj = from_class_struct(obj,inputs)
+        function obj = from_bare_struct(obj,inputs)
             % restore object or array of objects from a plain structure,
             % previously obtained by to_bare_struct operation
-            obj = from_class_struct_(obj,inputs);
+            obj = from_bare_struct_(obj,inputs);
         end
         %
         function ser_data = serialize(obj)
@@ -141,9 +142,7 @@ classdef serializable
             %                function, to distinguish between different
             %                stored versions of a serializable class
             %
-            S         = to_struct(obj);
-            ver       = obj.classVersion();
-            S.version = ver;
+            S         = to_struct_(obj);
         end
         %
         function obj = serializable()
@@ -160,27 +159,27 @@ classdef serializable
             % structure does not contain version or the version, stored
             % in the structure does not correspond to the current version
             %
-            % By default, this function interfaces the default from_class_struct
-            % method, but when the old strucure substantially differs from
-            % the moden structure, this method needs the specific overloading
-            % to allow loadob to recover new structure from an old structure.
+            % By default, this function interfaces the default from_bare_struct
+            % method, but when the old structure substantially differs from
+            % the modern structure, this method needs the specific overloading
+            % to allow loadobj to recover new structure from an old structure.
             %
             %if isfield(inputs,'version')
             %      do check for previous versions
             %      and appropriate code
             %end
             if isfield(inputs,'array_dat')
-                obj = obj.from_class_struct(inputs.array_dat);
+                obj = obj.from_bare_struct(inputs.array_dat);
             else
-                obj = obj.from_class_struct(inputs);
+                obj = obj.from_bare_struct(inputs);
             end
         end
         
     end
     methods (Static)
         function obj = from_struct(inputs)
-            % restore object or array of objects from a plain structure,
-            % previously obtained by to_class_struct operation.
+            % restore object or array of objects from a structure,
+            % previously obtained by to_struct operation.
             % To work with a generic structure, the structure should
             % contain fields:
             % class_name -- containing the name of the class, with empty
