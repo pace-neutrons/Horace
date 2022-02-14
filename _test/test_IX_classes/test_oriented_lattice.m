@@ -34,6 +34,15 @@ classdef test_oriented_lattice< TestCase
                 assertEqual(0,ol.(cur_field));
             end
         end
+        function test_serial_fields(~)
+            ol = oriented_lattice([2;3;4],[30,40,50],10,[1,1,0],[0;0;1],1,2,3,4);
+            ss = ol.serialize();
+
+            rec = serializable.deserialize(ss);
+
+
+            assertEqual(ol,rec);
+        end
         %
         function test_degrees_rad(~)
             ol = oriented_lattice();
@@ -90,10 +99,11 @@ classdef test_oriented_lattice< TestCase
             assertVectorsAlmostEqual([0,1,0],ol.v);
 
             ol.v = [1,0,0];
-            assertTrue(is_string(ol.v));
-            assertTrue(is_string(ol.u));
+            assertFalse(ol.isvalid);
+            assertTrue(ischar(ol.v));
 
             ol.u = 1;
+            assertTrue(ol.isvalid);
             assertEqual([1,1,1],ol.u)
             assertEqual([1,0,0],ol.v)
 
@@ -102,18 +112,20 @@ classdef test_oriented_lattice< TestCase
 
             ol.alatt = [3,5,6]';
             assertEqual([3,5,6],ol.alatt);
-
+        end
+        function test_invalid3Dvectors_throw(~)
+            ol = oriented_lattice();
             %rd.u='a';
             ws=warning('off','MATLAB:subsasgnMustHaveOutput');
             f=@()subsasgn(ol,struct('type','.','subs','u'),'a');
-            assertExceptionThrown(f,'ORIENTED_LATTICE:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
             %rd.v=[]; -- does not accept empty vectors
             f=@()subsasgn(ol,struct('type','.','subs','v'),[]);
-            assertExceptionThrown(f,'ORIENTED_LATTICE:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
 
             %rd.alatt=[10^-10,0,0]; -- does not accept empty vectors
             f=@()subsasgn(ol,struct('type','.','subs','alatt'),[1.e-10,0,0]);
-            assertExceptionThrown(f,'ORIENTED_LATTICE:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
 
             warning(ws);
 
@@ -126,32 +138,32 @@ classdef test_oriented_lattice< TestCase
             ws=warning('off','MATLAB:subsasgnMustHaveOutput');
             f=@()subsasgn(ol,struct('type','.','subs','gl'),'a');
             %            assertEqual(mess,' field: gl has to be numeric but it is not');
-            assertExceptionThrown(f,'ORIENTED_LATTICE:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
 
 
             %ol.gl=[1,2];
             f=@()subsasgn(ol,struct('type','.','subs','gl'),[1,2]);
             %            assertEqual(mess,' field: gl has to have 1 element but has: 2
             %            element(s)');
-            assertExceptionThrown(f,'ORIENTED_LATTICE:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
 
             f=@()subsasgn(ol,struct('type','.','subs','gl'),400);
             %            assertEqual(mess,' field: gl has to in range of +-360 deg but it is not');
-            assertExceptionThrown(f,'ORIENTED_LATTICE:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
 
             %ol.angdeg = [-400,0,0]
             f=@()subsasgn(ol,struct('type','.','subs','angdeg'),[-400,0,0]);
-            assertExceptionThrown(f,'ORIENTED_LATTICE:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
 
             %assertEqual(mess,'field ''angldeg'' does not define correct 3D lattice');
             %ol.angldeg = [45,120,45]
             f=@()subsasgn(ol,struct('type','.','subs','angdeg'),[45,120,50]);
-            assertExceptionThrown(f,'ORIENTED_LATTICE:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
 
             warning(ws);
 
         end
-        function test_full_constructor(this)
+        function test_full_constructor(~)
             ol = oriented_lattice([2;3;4]);
             assertEqual(ol.alatt,[2,3,4])
 
@@ -168,7 +180,20 @@ classdef test_oriented_lattice< TestCase
             assertEqual(ol.v,[0,0,1])
             undef = ol.get_undef_fields();
             assertTrue(isempty(undef));
+        end
+        function test_full_constructor_with_keyval(~)
 
+            ol = oriented_lattice('alatt',[2;3;4],'psi',20,'gl',3,'angdeg',[40,45,50],'angular_units','rad');
+
+            assertTrue(ol.is_defined('psi'));
+            assertTrue(ol.is_defined('alatt'));
+            assertTrue(ol.is_defined('angdeg'));
+
+            assertEqual(ol.alatt,[2,3,4])
+            assertEqual(ol.angular_units,'rad')
+            assertEqual(ol.psi,20*pi/180)
+        end
+        function test_mixed_constructor_with_keyval(~)
 
             ol = oriented_lattice([2;3;4],'psi',20,'gl',3,'alatt',[1,2,3],'angular_units','rad');
 
@@ -176,23 +201,40 @@ classdef test_oriented_lattice< TestCase
             assertTrue(ol.is_defined('alatt'));
             assertFalse(ol.is_defined('angdeg'));
 
-            assertEqual(ol.alatt,[1,2,3])
+            assertEqual(ol.alatt,[1,2,3]) % key arguments redefines positional argumeent
             assertEqual(ol.angular_units,'rad')
             assertEqual(ol.psi,20*pi/180)
         end
-        function test_matrixes(this)
+        function test_mixed_constructor_with_structure(~)
+
+            in_str = struct('alatt',[2;3;4],'psi',20,'gl',3,'angular_units','rad');
+
+            ol = oriented_lattice(in_str);
+
+            assertTrue(ol.is_defined('psi'));
+            assertTrue(ol.is_defined('alatt'));
+            assertFalse(ol.is_defined('angdeg'));
+
+            assertEqual(ol.alatt,[2,3,4]) % key arguments redefines positional argumeent
+            assertEqual(ol.angular_units,'rad')
+            assertEqual(ol.psi,20*pi/180)
+        end
+
+
+        function test_unit_matrixes(~)
             %
             ol = oriented_lattice();
             bm  = ol.bmatrix();
-            assertElementsAlmostEqual(bm,eye(3)*2*pi,'absolute',1.e-9);
+            assertElementsAlmostEqual(bm,eye(3),'absolute',1.e-9);
             [ub,umat] = ol.ubmatrix();
-            assertElementsAlmostEqual(ub,eye(3)*2*pi,'absolute',1.e-9);
+            assertElementsAlmostEqual(ub,eye(3),'absolute',1.e-9);
             assertElementsAlmostEqual(umat,eye(3),'absolute',1.e-9);
             [spec_to_u, u_to_rlu, spec_to_rlu] = ol.calc_proj_matrix();
             assertElementsAlmostEqual(spec_to_u,eye(3),'absolute',1.e-9);
-            assertElementsAlmostEqual(u_to_rlu,eye(3)*(2*pi)^-1,'absolute',1.e-9);
-            assertElementsAlmostEqual(spec_to_rlu,eye(3)*(2*pi)^-1,'absolute',1.e-9);
-
+            assertElementsAlmostEqual(u_to_rlu,eye(3),'absolute',1.e-9);
+            assertElementsAlmostEqual(spec_to_rlu,eye(3),'absolute',1.e-9);
+        end
+        function test_different_matrixes(~)
             %-------------------------------------------------------------
             ol = oriented_lattice([2,3,4],[30;40;50],10,[1,1,0],[0;0;1],1,2,3,4);
             bm  = ol.bmatrix();
