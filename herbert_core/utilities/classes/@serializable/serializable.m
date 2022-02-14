@@ -177,14 +177,32 @@ classdef serializable
         
     end
     methods (Static)
-        function obj = from_struct(inputs)
+        function obj = from_struct(in_struct,existing_obj)
             % restore object or array of objects from a structure,
             % previously obtained by to_struct operation.
             % To work with a generic structure, the structure should
             % contain fields:
-            % class_name -- containing the name of the class, with empty
-            %               constructor
-            obj = from_struct_(inputs);
+            % serial_name -- containing the name of the class, with empty
+            %                constructor
+            % Inputs: 
+            % in_struct    -- the structure, obtained earlier using to_struct
+            %                 method of serializable class
+            % Optional:
+            % existing_obj -- the instance of a serializable
+            %                 object to recover from the structure. This
+            %                 instance of the object will be set as output to
+            %                 the state, defined by in_struct information. 
+            %                 if such class is provided, the in_struct do
+            %                 not have to contain the "serial_name" field.
+            %                 Its assumed that the "in_struct" defines the 
+            %                 state  of the "existing_obj"
+            % Returns:
+            % obj          -- initialized to the state, defined by in_struct
+            %                 structure, instance of the object, which 
+            if nargin == 1
+                existing_obj = [];
+            end
+            obj = from_struct_(in_struct,existing_obj);
         end
         
         function [obj,nbytes] = deserialize(byte_array,pos)

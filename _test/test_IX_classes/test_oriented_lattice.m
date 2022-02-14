@@ -1,6 +1,5 @@
 classdef test_oriented_lattice< TestCase
     %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
     %
 
     properties
@@ -19,7 +18,7 @@ classdef test_oriented_lattice< TestCase
             this.test_data_path = tdp;
         end
 
-        function test_constructor_defaults(this)
+        function test_constructor_defaults(~)
             ol = oriented_lattice();
             default_fld = oriented_lattice.fields_with_defaults();
             for i=1:numel(default_fld)
@@ -36,7 +35,7 @@ classdef test_oriented_lattice< TestCase
             end
         end
         %
-        function test_degrees_rad(this)
+        function test_degrees_rad(~)
             ol = oriented_lattice();
             ol.psi   = 10;
             ol.omega = 20;
@@ -84,7 +83,7 @@ classdef test_oriented_lattice< TestCase
 
         end
         %
-        function test_3Dvectors(this)
+        function test_3Dvectors(~)
 
             ol = oriented_lattice();
             assertVectorsAlmostEqual([1,0,0],ol.u);
