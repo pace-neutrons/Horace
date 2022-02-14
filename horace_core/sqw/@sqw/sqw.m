@@ -18,7 +18,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     properties(Hidden,Dependent)
         % obsolete property, duplicating detpar. Do not use
         detpar_x
-        % compartibility field, providing old interface for new
+        % compatibility field, providing old interface for new
         % experiment_info class. Returns array of IX_experiment
         % from Experiment class. Conversion to old header is not performed
         header;
@@ -113,7 +113,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             
         end
         function obj = init(obj,varargin)
-            % the content of the non-empty coustructor, also used to
+            % the content of the non-empty constructor, also used to
             % initialize empty instance of the object
             %
             % here we go through the various options for what can
@@ -134,14 +134,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 if isa(args.data_struct,'dnd_file_interface')
                     args.data_struct = obj.get_loader_struct_(...
                         args.data_struct,args.pixel_page_size);
-                    obj = from_class_struct(obj,args.data_struct);
+                    obj = from_bare_struct(obj,args.data_struct);
                 elseif isfield(args.data_struct,'data')
                     if isfield(args.data_struct.data,'version')
                         obj = sqw.loadobj(args.data_struct);
                     elseif isfield(args.data_struct.data,'serial_name')
                         obj = serializable.from_struct(args.data_struct);
                     else
-                        obj = from_class_struct(obj,args.data_struct);
+                        obj = from_bare_struct(obj,args.data_struct);
                     end
                 else
                     error('HORACE:sqw:invalid_argument',...
@@ -251,9 +251,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % structure does not contain version or the version, stored
             % in the structure does not correspond to the current version
             %
-            % By default, this function interfaces the default from_class_struct
+            % By default, this function interfaces the default from_bare_struct
             % method, but when the old strucure substantially differs from
-            % the moden structure, this method needs the specific overloading
+            % the modern structure, this method needs the specific overloading
             % to allow loadob to recover new structure from an old structure.
             %
             if ~isfield(S,'version')
@@ -282,9 +282,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 return
             end
             if isfield(inputs,'array_dat')
-                obj = obj.from_class_struct(inputs.array_dat);
+                obj = obj.from_bare_struct(inputs.array_dat);
             else
-                obj = obj.from_class_struct(inputs);
+                obj = obj.from_bare_struct(inputs);
             end
         end
         
@@ -317,7 +317,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             end
             lds = obj.get_loader_struct_(ldr,pixel_page_size);
             obj = sqw();
-            obj = from_class_struct(obj,lds);
+            obj = from_bare_struct(obj,lds);
         end
         function ld_str = get_loader_struct_(~,ldr,pixel_page_size)
             % load sqw structure, using file loader
