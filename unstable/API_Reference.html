@@ -2883,7 +2883,7 @@ and combine then together into single Experiment info class</p>
 header-s on the basis of sqw_header and part, present in
 write_nsqw_to_sqw implementation offers much more.</p>
 <dl class="simple">
-<dt>TODO: Do proper optinization on the way. See</dt><dd><p>sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers)</p>
+<dt>TODO: Do proper optimization on the way. See</dt><dd><p>sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers)</p>
 </dd>
 <dt>TODO: use allow_equal_headers,drop_subzone_headers variables</dt><dd><p>appropriately</p>
 </dd>
@@ -2912,14 +2912,14 @@ all data are the same</p>
 <dl class="mat method">
 <dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.get_unique_instruments">
 <span class="sig-name descname"><span class="pre">get_unique_instruments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.Experiment.get_unique_instruments" title="Permalink to this definition"></a></dt>
-<dd><p>compartibility fields with old binary file formats
+<dd><p>compatibility fields with old binary file formats
 TODO: needs proper implementation</p>
 </dd></dl>
 
 <dl class="mat method">
 <dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.get_unique_samples">
 <span class="sig-name descname"><span class="pre">get_unique_samples</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.Experiment.get_unique_samples" title="Permalink to this definition"></a></dt>
-<dd><p>compartibility fields with old binary file formats
+<dd><p>compatibility fields with old binary file formats
 TODO: needs proper implementation</p>
 </dd></dl>
 
@@ -2937,6 +2937,12 @@ runs.</p>
 serializable object.</p>
 </dd></dl>
 
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.instruments">
+<span class="sig-name descname"><span class="pre">instruments</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.@Experiment.Experiment.instruments" title="Permalink to this definition"></a></dt>
+<dd><p>Mirrors of private properties</p>
+</dd></dl>
+
 <dl class="mat method">
 <dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.is_same_ebins">
 <span class="sig-name descname"><span class="pre">is_same_ebins</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.Experiment.is_same_ebins" title="Permalink to this definition"></a></dt>
@@ -2948,7 +2954,13 @@ same</p>
 <dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.loadobj">
 <em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">loadobj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">S</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.Experiment.loadobj" title="Permalink to this definition"></a></dt>
 <dd><p>boilerplate loadobj method, calling generic method of
-saveable class</p>
+save-able class</p>
+</dd></dl>
+
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.n_runs">
+<span class="sig-name descname"><span class="pre">n_runs</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.@Experiment.Experiment.n_runs" title="Permalink to this definition"></a></dt>
+<dd><p>return the number of runs, this class contains</p>
 </dd></dl>
 
 <dl class="mat method">
@@ -3129,6 +3141,12 @@ advance past the final page of data in the file.</p>
 walk through to complete the algorithm</p>
 </dd></dl>
 
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.base_page_size">
+<span class="sig-name descname"><span class="pre">base_page_size</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.base_page_size" title="Permalink to this definition"></a></dt>
+<dd><p>The number of pixels that can fit in one page of data</p>
+</dd></dl>
+
 <dl class="mat staticmethod">
 <dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.cat">
 <em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">cat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.cat" title="Permalink to this definition"></a></dt>
@@ -3148,6 +3166,12 @@ a straight-forward data concatenation.</p>
 </div></blockquote>
 </dd></dl>
 
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.coordinates">
+<span class="sig-name descname"><span class="pre">coordinates</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.coordinates" title="Permalink to this definition"></a></dt>
+<dd><p>The coordinates of the pixels in the projection axes, i.e.: u1,</p>
+</dd></dl>
+
 <dl class="mat method">
 <dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.copy">
 <span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.copy" title="Permalink to this definition"></a></dt>
@@ -3158,10 +3182,40 @@ this, any properties that need to be explicitly copied must be
 copied within this classes “copy-constructor”.</p>
 </dd></dl>
 
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.dE">
+<span class="sig-name descname"><span class="pre">dE</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.dE" title="Permalink to this definition"></a></dt>
+<dd><p>The array of energy deltas of the pixels (1 x n array) [meV]</p>
+</dd></dl>
+
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.data">
+<span class="sig-name descname"><span class="pre">data</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.data" title="Permalink to this definition"></a></dt>
+<dd><p>The full raw pixel data block. Usage of this attribute exposes</p>
+</dd></dl>
+
 <dl class="mat method">
 <dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.delete">
 <span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.delete" title="Permalink to this definition"></a></dt>
 <dd><p>Class destructor to delete any temporary files</p>
+</dd></dl>
+
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.detector_idx">
+<span class="sig-name descname"><span class="pre">detector_idx</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.detector_idx" title="Permalink to this definition"></a></dt>
+<dd><p>The detector group number in the detector listing for the pixels (1 x n array)</p>
+</dd></dl>
+
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.energy_idx">
+<span class="sig-name descname"><span class="pre">energy_idx</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.energy_idx" title="Permalink to this definition"></a></dt>
+<dd><p>The energy bin numbers (1 x n array)</p>
+</dd></dl>
+
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.file_path">
+<span class="sig-name descname"><span class="pre">file_path</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.file_path" title="Permalink to this definition"></a></dt>
+<dd><p>The file that the pixel data has been read from, empty if no file</p>
 </dd></dl>
 
 <dl class="mat method">
@@ -3215,6 +3269,36 @@ and clear the current cache</p>
 </div></blockquote>
 </dd></dl>
 
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.num_pixels">
+<span class="sig-name descname"><span class="pre">num_pixels</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.num_pixels" title="Permalink to this definition"></a></dt>
+<dd><p>The number of pixels in the data block</p>
+</dd></dl>
+
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.page_size">
+<span class="sig-name descname"><span class="pre">page_size</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.page_size" title="Permalink to this definition"></a></dt>
+<dd><p>The number of pixels in the current page</p>
+</dd></dl>
+
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.pix_range">
+<span class="sig-name descname"><span class="pre">pix_range</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.pix_range" title="Permalink to this definition"></a></dt>
+<dd><p>The range of pixels coordinates in Crystal Cartesian</p>
+</dd></dl>
+
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.q_coordinates">
+<span class="sig-name descname"><span class="pre">q_coordinates</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.q_coordinates" title="Permalink to this definition"></a></dt>
+<dd><p>The spatial dimensions of the Crystal Cartesian</p>
+</dd></dl>
+
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.run_idx">
+<span class="sig-name descname"><span class="pre">run_idx</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.run_idx" title="Permalink to this definition"></a></dt>
+<dd><p>The run index the pixel originated from (1 x n array)</p>
+</dd></dl>
+
 <dl class="mat method">
 <dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.set_range">
 <span class="sig-name descname"><span class="pre">set_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">pix_range</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.set_range" title="Permalink to this definition"></a></dt>
@@ -3230,10 +3314,40 @@ pixels are modified by algorithm and correct range
 calculations are expensive</p>
 </dd></dl>
 
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.signal">
+<span class="sig-name descname"><span class="pre">signal</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.signal" title="Permalink to this definition"></a></dt>
+<dd><p>The signal array (1 x n array)</p>
+</dd></dl>
+
 <dl class="mat method">
 <dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.struct">
 <span class="sig-name descname"><span class="pre">struct</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.struct" title="Permalink to this definition"></a></dt>
 <dd><p>convert object into saveable and serializable structure</p>
+</dd></dl>
+
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.u1">
+<span class="sig-name descname"><span class="pre">u1</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.u1" title="Permalink to this definition"></a></dt>
+<dd><p>The 1st dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]</p>
+</dd></dl>
+
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.u2">
+<span class="sig-name descname"><span class="pre">u2</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.u2" title="Permalink to this definition"></a></dt>
+<dd><p>The 2nd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]</p>
+</dd></dl>
+
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.u3">
+<span class="sig-name descname"><span class="pre">u3</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.u3" title="Permalink to this definition"></a></dt>
+<dd><p>The 3rd dimension of the Crystal Cartesian orientation (1 x n array) [A^-1]</p>
+</dd></dl>
+
+<dl class="mat attribute">
+<dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.variance">
+<span class="sig-name descname"><span class="pre">variance</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.variance" title="Permalink to this definition"></a></dt>
+<dd><p>The variance on the signal array</p>
 </dd></dl>
 
 </dd></dl>
@@ -3567,7 +3681,7 @@ abs_pix_indices  The indices to set data on. If not specified all indices are</p
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2021, STFC RAL.
-      <span class="lastupdated">Last updated on Feb 9, 2022, 1:56:42 PM.
+      <span class="lastupdated">Last updated on Feb 14, 2022, 10:29:24 PM.
       </span></p>
   </div>
 
