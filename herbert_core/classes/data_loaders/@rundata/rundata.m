@@ -49,7 +49,7 @@ classdef rundata
         % sample model
         sample;
         % the number (id) uniquely identyfying the particular experiment
-        % which is the source of this object data.
+        % (run) which is the source of this object data.
         run_id;
     end
     
@@ -205,7 +205,8 @@ classdef rundata
         
         % Returns whole or partial data from a rundata object
         [varargout] =get_rundata(this,varargin);
-        % Load all data, defined by loader in memory. Do not overload by default
+        % Load all data, defined by loader in memory. By default, not relpace
+        % data which are already in memory
         this = load(this,varargin);
         
         % Load in memory if not yet there all auxiliary data defined for

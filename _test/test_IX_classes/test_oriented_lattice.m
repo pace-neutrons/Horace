@@ -195,7 +195,7 @@ classdef test_oriented_lattice< TestCase
         end
         function test_mixed_constructor_with_keyval(~)
 
-            ol = oriented_lattice([2;3;4],'psi',20,'gl',3,'alatt',[1,2,3],'angular_units','rad');
+            ol = oriented_lattice([1;2;3],'psi',20,'gl',3,'angular_units','rad');
 
             assertTrue(ol.is_defined('psi'));
             assertTrue(ol.is_defined('alatt'));

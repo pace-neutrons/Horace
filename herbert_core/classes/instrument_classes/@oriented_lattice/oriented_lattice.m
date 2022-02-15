@@ -26,9 +26,11 @@ classdef oriented_lattice < serializable
     %
     %
     % where:
-    %   alatt           Lattice parameters (Ang^-1)        [row or column vector]
-    %   angdeg          Lattice angles (deg)               [row or column vector]
-    %   psi             Angle of u w.r.t. ki (deg)         [scalar or vector length nfile]
+    %   alatt           [1x3] vector of Lattice parameters (Ang^-1)
+    %   angdeg          [1x3] vector of Lattice angles (deg)
+    %   psi             Angle of u w.r.t. ki (deg) - The rotation angle
+    %                   between the beam direction and the selected
+    %                   orientation of the crystal defined by vector u
     %   u               First vector (1x3) defining scattering plane (r.l.u.)
     %   v               Second vector (1x3) defining scattering plane (r.l.u.)
     %
@@ -37,37 +39,31 @@ classdef oriented_lattice < serializable
     %   gl              Large goniometer arc angle (deg)   [scalar or vector length nfile]
     %   gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
 
-    %
     % All angular units set in degrees but can be retrieved in degrees
     % or radians.
     %
     properties(Dependent)
-        % Lattice parameters [a,b,c] (Ang^-1)
-        alatt
-        % Lattice angles [alf,bet,gam] (deg)
-        angdeg
+        alatt    % Lattice parameters [a,b,c] (Ang^-1)
+        angdeg   % Lattice angles [alf,bet,gam] (deg)
 
         % Crystal orientation wrt the beam direction
-        % u -- vector along beam direction
-        u
-        % v -- together with u vector defines the rotation plane,
-        v
+        u % vector along beam direction when psi = 0
+
+        v % together with u vector defines the rotation plane,
+
         % Goniometer parameters
-        %  Angle of u w.r.t. ki (deg)  [Default=nan]
-        psi ;
-        %  Angle of axis of small goniometer arc w.r.t. notional u (deg)  [Default=0]
-        omega ;
-        %  Correction to psi (deg)  [Default=0]
-        dpsi;
-        %  Large goniometer arc angle (deg)  [Default=0]
-        gl  ;
-        %  Small goniometer arc angle (deg)  [Default=0]
-        gs ;
+        psi;    %  Angle between u w.r.t. ki (deg)  [Default=nan]
+        omega;  %  Angle of axis of small goniometer arc w.r.t. notional u (deg)  [Default=0]
+        dpsi;   %  Correction to psi (deg)  [Default=0]
+        gl;     %  Large goniometer arc angle (deg)  [Default=0]
+        gs;     %  Small goniometer arc angle (deg)  [Default=0]
+
         % what units (deg or rad) used for all angular units. (All angular
         % units have to be set in degrees, but can be retrieved as radians)
         angular_units;
-        % check if the object is in valid state
-        isvalid;
+    end
+    properties(Dependent,Hidden)
+        isvalid; % property, specifies if the object is in valid state
     end
 
 
@@ -94,7 +90,8 @@ classdef oriented_lattice < serializable
         % property
         undef_fields_ = true(3,1);
         isvalid_ = true; % the variable which indicates if the object is valid or
-        % not. Used in
+        % not. Used in checks for interdependent properties validity
+        % (e.g. u is not parallel to v)     
     end
     properties(Constant,Access=private)
         % fields to set up for loader considered to be defined
@@ -102,8 +99,10 @@ classdef oriented_lattice < serializable
         % List of fields which have default values and do not have to be always defined by either file or command arguments;
         fields_have_defaults_ = {'omega','dpsi','gl','gs','u','v'};
         % List of all fields to describe lattice. Provided in order a
-        % lattice constructor with parameters
-        lattice_parameters_ = {'alatt','angdeg','psi','u','v','omega','dpsi','gl','gs'}
+        % lattice constructor with parameters and used in providing
+        % meanings to the positional parameters of the constructor
+        lattice_parameters_ = {'alatt','angdeg','psi','u','v',...
+            'omega','dpsi','gl','gs','angular_units'}
         % radian to degree transformation constant
         deg_to_rad_=pi/180;
         % the minimal norm for two vectors considered to be parallell or 0
@@ -223,7 +222,7 @@ classdef oriented_lattice < serializable
         end
         function obj=set.u(obj,u)
             obj = check_and_set_uv_(obj,'u',u);
-        end        
+        end
         %
         function v=get.v(obj)
             v = check_and_get_combo_vec_(obj,'v');
@@ -263,7 +262,7 @@ classdef oriented_lattice < serializable
             ver = 1;
         end
         function flds = indepFields(~)
-            flds = [oriented_lattice.lattice_parameters_(:);'angular_units'];
+            flds = oriented_lattice.lattice_parameters_;
         end
     end
     %---------------------------------------------------------------------

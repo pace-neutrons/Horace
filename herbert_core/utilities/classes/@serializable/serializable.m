@@ -77,7 +77,7 @@ classdef serializable
             %                   converted to bare structure. If false, or
             %                   absent, they are converted using to_struct
             %                   method
-            % 
+            %
             %
             % Returns:
             % struc -- structure, or structure array, containing the full
@@ -95,7 +95,7 @@ classdef serializable
             end
             strc = to_bare_struct_(obj,recursively);
         end
-        
+
         %------------------------------------------------------------------
         function obj = from_bare_struct(obj,inputs)
             % restore object or array of objects from a plain structure,
@@ -149,33 +149,6 @@ classdef serializable
             % generic class constructor. Does nothing
         end
     end
-    methods(Access=protected)
-        %------------------------------------------------------------------
-        function obj = from_old_struct(obj,inputs)
-            % Restore object from the old structure, which describes the
-            % previous version of the object.
-            %
-            % The method is called by loadobj in the case if the input
-            % structure does not contain version or the version, stored
-            % in the structure does not correspond to the current version
-            %
-            % By default, this function interfaces the default from_bare_struct
-            % method, but when the old structure substantially differs from
-            % the modern structure, this method needs the specific overloading
-            % to allow loadobj to recover new structure from an old structure.
-            %
-            %if isfield(inputs,'version')
-            %      do check for previous versions
-            %      and appropriate code
-            %end
-            if isfield(inputs,'array_dat')
-                obj = obj.from_bare_struct(inputs.array_dat);
-            else
-                obj = obj.from_bare_struct(inputs);
-            end
-        end
-        
-    end
     methods (Static)
         function obj = from_struct(in_struct,existing_obj)
             % restore object or array of objects from a structure,
@@ -184,27 +157,27 @@ classdef serializable
             % contain fields:
             % serial_name -- containing the name of the class, with empty
             %                constructor
-            % Inputs: 
+            % Inputs:
             % in_struct    -- the structure, obtained earlier using to_struct
             %                 method of serializable class
             % Optional:
             % existing_obj -- the instance of a serializable
             %                 object to recover from the structure. This
             %                 instance of the object will be set as output to
-            %                 the state, defined by in_struct information. 
+            %                 the state, defined by in_struct information.
             %                 if such class is provided, the in_struct do
             %                 not have to contain the "serial_name" field.
-            %                 Its assumed that the "in_struct" defines the 
+            %                 Its assumed that the "in_struct" defines the
             %                 state  of the "existing_obj"
             % Returns:
             % obj          -- initialized to the state, defined by in_struct
-            %                 structure, instance of the object, which 
+            %                 structure, instance of the object, which
             if nargin == 1
                 existing_obj = [];
             end
             obj = from_struct_(in_struct,existing_obj);
         end
-        
+
         function [obj,nbytes] = deserialize(byte_array,pos)
             % recover the object from the serialized into array of bytes
             % Inputs:
@@ -244,4 +217,54 @@ classdef serializable
             obj = loadobj_(S,varargin{:});
         end
     end
+    methods(Access=protected)
+        %------------------------------------------------------------------
+        function obj = from_old_struct(obj,inputs)
+            % Restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % The method is called by loadobj in the case if the input
+            % structure does not contain a version or the version, stored
+            % in the structure does not correspond to the current version
+            % of the class.
+            %
+            % By default, this function interfaces the default from_bare_struct
+            % method, but when the old structure substantially differs from
+            % the modern structure, this method needs the specific overloading
+            % to allow loadobj to recover new structure from an old structure.
+            %
+            %if isfield(inputs,'version') % do checks for previous versions
+            %   Add appropriate code to convert from specific version to
+            %   modern version
+            %end
+            if isfield(inputs,'array_dat')
+                obj = obj.from_bare_struct(inputs.array_dat);
+            else
+                obj = obj.from_bare_struct(inputs);
+            end
+        end
+        function [obj,remains] = set_positional_and_key_val_arguments(obj,...
+                positinal_param_names_list,varargin)
+            % Utility function, to use in a serializable class constructor,
+            % allowing to specify the constructor parameters in the form:
+            %
+            % ObjConstructor(positional_par1,positional_par2,positional_par3,...
+            % positional_par...,key1,val1,key2,val2,...keyN,valN);
+            % where all potitional parameters
+            % have to be numeric and all keys from key-value pairs have to
+            % be present in the list returned by indepFields(obj) function.
+            %
+            % Everything found after last Key-Value pair with the last key,
+            % which is a member of the list, returned by indepFields
+            % function is returned in remains cellarray
+            % 
+            % Inputs:
+            % positinal_param_names_list -- list of positional parameter
+            % names, to be associated with 
+            [obj,remains] = ...
+                set_positional_and_key_val_arguments_(obj,...
+                positinal_param_names_list,varargin{:});
+        end
+    end
+
 end
