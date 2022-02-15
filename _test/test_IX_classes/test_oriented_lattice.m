@@ -124,7 +124,7 @@ classdef test_oriented_lattice< TestCase
             assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
 
             %rd.alatt=[10^-10,0,0]; -- does not accept empty vectors
-            f=@()subsasgn(ol,struct('type','.','subs','alatt'),[1.e-10,0,0]);
+            f=@()subsasgn(ol,struct('type','.','subs','alatt'),[1.e-11,0,0]);
             assertExceptionThrown(f,'HERBERT:oriented_lattice:invalid_argument');
 
             warning(ws);
