@@ -1,4 +1,4 @@
-function [S_m,Err_m,det_m,mask]=rm_masked(obj,ignore_nan,ignore_inf)
+function [S_m,Err_m,det_m,line_notmasked]=rm_masked(obj,ignore_nan,ignore_inf)
 % Method removes failed (NaN or Inf) data from the data array and deletes
 % detectors, which provided such signal
 %
@@ -14,7 +14,8 @@ function [S_m,Err_m,det_m,mask]=rm_masked(obj,ignore_nan,ignore_inf)
 % S_m     -- masked signal array
 % Err_m   -- masked error array
 % det_m   -- masked detector structure
-% mask    -- mask, used for masking the object and producing the data above
+% line_notmasked-- the array, containing true where the detectors
+%            contrubute in final S_m,Err_m and det_m arrays
 %
 if isempty(obj.S)||isempty(obj.ERR)||isempty(obj.det_par)
     error('RUNDATA:rm_masked',' signal, error and detectors arrays have to be defined\n');
@@ -33,7 +34,7 @@ if ~(ignore_nan || ignore_inf)
     S_m= obj.S;
     Err_m = obj.ERR;
     det_m = obj.det_par;
-    return    
+    return
 end
 
 if ignore_nan && ignore_inf
@@ -70,7 +71,4 @@ for i=1:numel(det_fields)
     else
         det_m.(field) = det.(field);
     end
-end
-if nargout>3
-    mask = ~line_notmasked;
 end

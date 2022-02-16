@@ -219,7 +219,7 @@ classdef rundata
         [ok, mess,this] = isvalid (this);
         % method removes failed (NaN or Inf) data from the data array and deletes
         % detectors, which provided such signal
-        [S_m,Err_m,det_m,mask]=rm_masked(this,varargin);
+        [S_m,Err_m,det_m,non_masked]=rm_masked(this,varargin);
         
         % method sets a field of  lattice if the lattice
         % present and initates the lattice first if it is not present
