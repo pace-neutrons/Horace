@@ -12,12 +12,9 @@ elseif isstruct(varargin{1}) % strucure with oriented lattice fields
     for i=1:numel(field_names)
         obj.(field_names{i}) = input.(field_names{i});
     end
-elseif isnumeric(varargin{1}) % the initialization is done by positional
-    % arguments followed by key-value pairs
-    key_names = obj.indepFields();
-    [obj,remains] = set_positional_and_key_val_arguments(obj,...
-        key_names,varargin{:});
-elseif ischar(varargin{1})
+elseif isnumeric(varargin{1}) || ischar(varargin{1}) % the initialization is done by positional
+    % arguments followed by key-value pairs or numeric positional arguments
+    % followed (optionally) by key-value pairs
     key_names = obj.indepFields();
     [obj,remains] = set_positional_and_key_val_arguments(obj,...
         key_names,varargin{:});
