@@ -59,6 +59,11 @@ if any(is_positional)
         key_val_arg = {};
         first_keyval = numel(varargin)+1;
     end
+    % check for a positional argument be char, its not mixed up with key
+    % from key-val pair
+    first_keyval = check_for_key_in_position(first_keyval,...
+        positional_arg_names,varargin{:});
+
     pos_arg_val = varargin(1:first_keyval-1);
     pos_arg_names = positional_arg_names(1:first_keyval-1);
     % Extract and set up positional arguments, which should always come
@@ -125,3 +130,26 @@ for i = 1:nargi
 
 end
 
+function first_keyval = check_for_key_in_position(first_keyval,...
+        key_names,varargin)
+
+pos_val_candidates = varargin(1:first_keyval-1); % what values are considered to be values for positional arguments
+is_char = cellfun(@ischar,pos_val_candidates);   
+if ~any(is_char)
+    return
+end
+char_arguments = pos_val_candidates(is_char);   % consider only char values for positional argument
+values_are_keys = ismember(key_names,char_arguments); % are some values equal to key names
+if any(values_are_keys) % remove positional argument value from values list,
+     %  as it is in fact the key for the key-val pair.
+     suspected_key_names = key_names(values_are_keys); 
+     for i=1:numel(varargin)
+         if ischar(varargin{i})
+            is_key = ismember(varargin{i},suspected_key_names);
+            if is_key
+                first_keyval = i;
+                break;
+            end
+         end
+     end
+end

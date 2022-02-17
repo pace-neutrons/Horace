@@ -5,6 +5,7 @@ classdef serializableTester2 < serializable
     properties
         Prop_class2_1
         Prop_class2_2;
+        Prop_class2_3;
     end
 
     methods
@@ -13,9 +14,10 @@ classdef serializableTester2 < serializable
                 return;
             end
             positional_arg_names = obj.indepFields();
+            val = {@isnumeric,@isnumeric,@ischar};
             [obj,remains] = ...
                 set_positional_and_key_val_arguments(obj,...
-                positional_arg_names,[],varargin{:});
+                positional_arg_names,val,varargin{:});
         end
     end
 
@@ -38,7 +40,7 @@ classdef serializableTester2 < serializable
     end
 
     properties(Constant,Access=protected)
-        fields_to_save_ = {'Prop_class2_1','Prop_class2_2'};
+        fields_to_save_ = {'Prop_class2_1','Prop_class2_2','Prop_class2_3'};
     end
     methods(Static)
         function verr = version_holder(ver)

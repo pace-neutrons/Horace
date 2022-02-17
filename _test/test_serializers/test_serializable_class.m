@@ -401,6 +401,15 @@ classdef test_serializable_class < TestCase
             assertEqual(tc,tc_rec);
         end
         %------------------------------------------------------------------
+        function test_pos_constructor_char_pos_sets_key(~)
+            [tc,rem] = serializableTester2(11,20,'Prop_class2_3','aaa',...
+                'Prop_class2_2',20,'blabla');
+            assertEqual(tc.Prop_class2_1,11)
+            assertEqual(tc.Prop_class2_2,20)
+            assertEqual(tc.Prop_class2_3,'aaa')            
+            assertEqual(rem,{'Prop_class2_2',20,'blabla'});            
+        end
+        
         function test_keyval_constructor_nokey_throws_at_the_end(~)
             assertExceptionThrown(@()serializableTester2('Prop_class2_1','a',...
                 'Prop_class2_2'),'HERBERT:serializable:invalid_argument');
