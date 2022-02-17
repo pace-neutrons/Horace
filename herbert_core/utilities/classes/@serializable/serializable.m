@@ -244,26 +244,45 @@ classdef serializable
             end
         end
         function [obj,remains] = set_positional_and_key_val_arguments(obj,...
-                positinal_param_names_list,varargin)
-            % Utility function, to use in a serializable class constructor,
+                positinal_param_names_list,validators,varargin)
+            % Utility method, to use in a serializable class constructor,
             % allowing to specify the constructor parameters in the form:
             %
             % ObjConstructor(positional_par1,positional_par2,positional_par3,...
             % positional_par...,key1,val1,key2,val2,...keyN,valN);
-            % where all potitional parameters
-            % have to be numeric and all keys from key-value pairs have to
+            % where all potitional parameters types
+            % have to be defined in validator list. If the validator list
+            % is empty, all these arguments should be numeric
+            % All keys from the key-value pairs have to
             % be present in the list returned by indepFields(obj) function.
             %
-            % Everything found after last Key-Value pair with the last key,
+            % Everything found after last positional varument and
+            % not belonging to the Key-Value pair with the last key,
             % which is a member of the list, returned by indepFields
             % function is returned in remains cellarray
-            % 
+            %
             % Inputs:
-            % positinal_param_names_list -- list of positional parameter
-            % names, to be associated with 
-            [obj,remains] = ...
+            % positinal_param_names_list
+            %            -- list of positional parameter
+            %               names, the target properties should be
+            %               associated with
+            % validators -- cellarray (size of positinal_param_names_list)
+            %               of the functions, whihch verify
+            %               the types of the input artuments. If empty,
+            %               the checks assume that all input parameters
+            %               should be numeric.
+            % varargin   -- input list of input parameters to process.
+            %
+            % Output:
+            % obj        -- The recognized values or key-values pairs are
+            %               set up as inputs for the correspondent properties
+            %               as obj.(key(i))= value(i);
+            % remains    -- Contains the inputs from varargin, which are not
+            %               recognized as positional parameters or key-value
+            %               pair of parameters
+           [obj,remains] = ...
                 set_positional_and_key_val_arguments_(obj,...
-                positinal_param_names_list,varargin{:});
+                positinal_param_names_list,validators,varargin{:});
         end
     end
 
