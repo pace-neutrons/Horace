@@ -250,37 +250,43 @@ classdef serializable
             %
             % ObjConstructor(positional_par1,positional_par2,positional_par3,...
             % positional_par...,key1,val1,key2,val2,...keyN,valN);
-            % where all potitional parameters types
-            % have to be defined in validator list. If the validator list
-            % is empty, all these arguments should be numeric
-            % All keys from the key-value pairs have to
-            % be present in the list returned by indepFields(obj) function.
             %
-            % Everything found after last positional varument and
-            % not belonging to the Key-Value pair with the last key,
-            % which is a member of the list, returned by indepFields
-            % function is returned in remains cellarray
+            % All potitional parameters should have the type defined in the validators
+            % list. If the validator list is shorter then positional_arg_names list or
+            % empty, the remaining positional argument values assumed to be numeric.
+            %
+            % First argument, which type not corresponds to the type, defined by the
+            % validator list, assumed to be belonging to key-value pair.
+            %
+            % Everything not idenfified as Key-Value pair where the keys,
+            % belong to the property names returned by indepFields function
+            % is returned in remains cellarray
             %
             % Inputs:
             % positinal_param_names_list
             %            -- list of positional parameter
             %               names, the target properties should be
             %               associated with
-            % validators -- cellarray (size of positinal_param_names_list)
-            %               of the functions, whihch verify
+            % validators -- cellarray of the functions, whihch verify
             %               the types of the input artuments. If empty,
-            %               the checks assume that all input parameters
-            %               should be numeric.
-            % varargin   -- input list of input parameters to process.
+            %               the checks assumes that all input parameters
+            %               should be numeric. If the size is smaller then the length of
+            %               positional_arg_names, any missing parameters assumed to be
+            %               numeric
+            % EXAMPLE:
+            % if class have the properties {'a1'=1(numeric), 'a2'='blabla'(char),
+            % 'a3'=sqw() 'a4=[1,1,1] (numeric), and these properties are independent
+            % properties redutned by indepFields() function as list {'a1','a2','a3','a4'}
+            % The list of validators should have form {@isnumeric,@ischar,
+            % @(x)isa(x,'sqw'),'@isnumeric} or {@isnumeric,@ischar,
+            % @(x)isa(x,'sqw')} (last validator missing as it assumed to be numeric)
+            % Then the list of input parameters
+            % set_positional_and_key_val_arguments(1,'blabla',an_sqw_obj,'blabla','a4',[1,0,0])
+            % sets up the three first argument as positional parameters, for properties
+            % a1,a2 and a3, a4 is set as key-value pair and 'blabla' returned in
+            % remains.
             %
-            % Output:
-            % obj        -- The recognized values or key-values pairs are
-            %               set up as inputs for the correspondent properties
-            %               as obj.(key(i))= value(i);
-            % remains    -- Contains the inputs from varargin, which are not
-            %               recognized as positional parameters or key-value
-            %               pair of parameters
-           [obj,remains] = ...
+            [obj,remains] = ...
                 set_positional_and_key_val_arguments_(obj,...
                 positinal_param_names_list,validators,varargin{:});
         end
