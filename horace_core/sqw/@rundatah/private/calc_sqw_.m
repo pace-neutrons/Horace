@@ -9,8 +9,7 @@ function [w, grid_size, pix_range] = calc_sqw_(obj,detdcn, det0, grid_size_in, p
 %   detdcn        - Direction of detector in spectrometer coordinates ([3 x ndet] array)
 %                       [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
 %   det0           Detector structure corresponding to unmasked detectors. This
-%                  is what is used int the creation of the sqw object. It must
-%                  be consistent with det.
+%                  is what is used int the creation of the sqw object.
 %                  [If data has field qspec, then det is ignored]
 % grid_size_in    - Scalar or [1x4] vector of grid dimensions
 % pix_db_range_in - Range of data grid for bin pixels onto as a [2x4] matrix:
@@ -44,6 +43,28 @@ main_header.nfiles=1;
 if hor_log_level>-1
     disp('Calculating projections...');
 end
+proj = instr_proj(obj.lattice,obj.efix,'emode',obj.emode);
+%%
+ax_block = proj.get_proj_axes_block(pix_db_range_in,grid_size_in);
+
+    if isempty(qspec)
+        qspec_provided = false;
+        if isempty(detdcn)
+            detdcn = calc_detdcn(obj.det_par);
+        end
+        [qspec,en]=obj.calc_qspec(detdcn);
+        ucoords = [spec_to_cc*qspec;en];
+    else
+        ucoords = [spec_to_cc*qspec(1:3,:);qspec(4,:)];
+        qspec_provided = true;
+    end
+
+
+% Calculate projections
+[u_to_rlu,pix_range,pix] = obj.calc_projections_(detdcn,obj.qpsecs_cache);
+instr_data = struct()
+[npix,s,e,pix]  = proj.bin_pixels(ax_block,)
+
 [header,sqw_datstr]=calc_sqw_data_and_header(obj,detdcn);
 pix_range = sqw_datstr.pix.pix_range;
 
@@ -67,9 +88,8 @@ sqw_datstr.img_db_range = pix_db_range;
 
 % If grid that is other than 1x1x1x1, or range was given, then sort pixels
 if grid_is_unity && data_in_range   % the most work we have to do is just change the bin boundary fields
-    for id=1:4
-        sqw_datstr.p{id}=[pix_db_range(1,id);pix_db_range(2,id)];
-    end
+    sqw_datstr.img_range = pix_db_range;
+    sqw_datstr.img_db_range = pix_db_range;    
     grid_size = grid_size_in;
     
 else
@@ -134,7 +154,7 @@ w=sqw(d);
 
 
 %------------------------------------------------------------------------------------------------------------------
-function [header,sqw_datstr] = calc_sqw_data_and_header (obj,detdcn)
+function [header,sqw_datstr] = calc_sqw_data_and_header (obj,grid_size_in, pix_db_range,detdcn)
 % Calculate sqw file header and data for a single spe file
 %
 %   >> [header,sqw_datstr] = calc_sqw_header_data (efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, data, det)
@@ -154,6 +174,10 @@ function [header,sqw_datstr] = calc_sqw_data_and_header (obj,detdcn)
 
 % Perform calculations
 % -----------------------
+proj = instr_proj(obj.lattice,obj.efix,'emode',obj.emode);
+%%
+ax_block = proj.get_proj_axes_block(pix_db_range,grid_size_in);
+
 % Get number of data elements
 [ne,ndet]=size(obj.S);
 
@@ -183,38 +207,17 @@ else
 end
 header = Experiment([],obj.instrument,sample);
 
-
-uoffset = [0;0;0;0];
-u_to_rlu = [[u_to_rlu;[0,0,0]],[0;0;0;1]];
-ulen = [1,1,1,1];
-ulabel = {'Q_\zeta','Q_\xi','Q_\eta','E'};
+ab = axes_block(4);
+ab.img_range= pix_db_range;
+ab.nbins_all_dims = grid_size_in;
+sqw_datstr = ...
+    data_sqw_dnd(ab,'alatt',obj.lattice.alatt,'angdeg',obj.lattice.angdeg);
 %
 header.expdata = IX_experiment([fn,fe], [fp,filesep], ...
     obj.efix,obj.emode,lat.u,lat.v,...
     lat.psi,lat.omega,lat.dpsi,lat.gl,lat.gs,...
     obj.en,uoffset,u_to_rlu,ulen,ulabel);
 
-% Now package the data
-% --------------------
-sqw_datstr.filename = '';
-sqw_datstr.filepath = '';
-sqw_datstr.title = '';
-sqw_datstr.alatt = obj.lattice.alatt;
-sqw_datstr.angdeg = obj.lattice.angdeg;
-sqw_datstr.uoffset=uoffset;
-sqw_datstr.u_to_rlu = u_to_rlu;
-sqw_datstr.ulen = [1,1,1,1];
-sqw_datstr.ulabel = {'Q_\zeta','Q_\xi','Q_\eta','E'};
-sqw_datstr.iax=zeros(1,0);
-sqw_datstr.iint=zeros(2,0);
-sqw_datstr.pax=[1,2,3,4];
-sqw_datstr.dax=[1,2,3,4];
-sqw_datstr.s=sum(obj.S(:));
-sqw_datstr.e=sum(pix.variance);   % take advantage of the squaring that has already been done for pix array
-sqw_datstr.npix=ne*ndet;
-% img range expressed in Crystal Cartesian coordinate system. Will be
-% overwritten later if external range is provided.
-sqw_datstr.img_db_range=range_add_border(pix_range,data_sqw_dnd.border_size);
 %
 % this will set up pix_range in Crystal Cartesian.
 sqw_datstr.pix=PixelData(pix);

@@ -7,7 +7,7 @@ classdef ortho_proj<aProjection
     %
     %  Object that defines the orhtolinear projection operations
     %
-    % Structure input:
+    % Input accepting the structure:
     %   >> proj = ortho_proj(proj_struct)
     %             where proj_struct is the
     %             structure, containing any fields, with names, equal any
@@ -17,7 +17,7 @@ classdef ortho_proj<aProjection
     %   >> proj = ortho_proj(u,v)
     %   >> proj = ortho_proj(u,v,w)
     %
-    %   and any of the optional arguments:
+    %   plus any of the optional arguments, provided as key-value pair:
     %
     %   >> proj = ortho_proj(...,'nonorthogonal',nonorthogonal,..)
     %   >> proj = ortho_proj(...,'type',type,...)
@@ -26,6 +26,7 @@ classdef ortho_proj<aProjection
     %   >> proj = ortho_proj(...,'lab1',labelstr,...)
     %                   :
     %   >> proj = ortho_proj(...,'lab4',labelstr,...)
+    %
     %
     % Input:
     % ------

@@ -322,7 +322,7 @@ if accumulate_old_sqw    % combine with existing sqw file
 else
     [ok, mess] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
         u, v, psi, omega, dpsi, gl, gs, instrument, sample, opt.replicate);
-    if ~ok, error('GEN_SQW:invalid_argument',mess), end
+    if ~ok, error('HORACE:gen_sqw:invalid_argument',mess), end
     % Have already checked that all the spe files exist for the case of generate_new_sqw is true
     
     if accumulate_new_sqw && ~any(spe_exist)

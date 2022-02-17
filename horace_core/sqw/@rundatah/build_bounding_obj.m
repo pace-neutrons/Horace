@@ -55,13 +55,17 @@ if ~range_given
     end
 else
     rdl = rundatah(obj);
-    enps = [en_min,en_max];
+    if en_min == 0 || en_max == 0 || sign(en_min)*sign(en_max)>0
+        enps = [en_min,en_max];
+    else
+        enps = [en_min,0,en_max];
+    end
 end
 %
 if isempty(en_max) || en_min==en_max
-    en = [en_min-1,en_min+1];
+    en = [en_min-1,0,en_min+1];
 else
-    en = [en_min*(1-sign(enps(1))*eps);en_max*(1+sign(enps(end))*eps)];
+    en = [enps(1)*(1-sign(enps(1))*eps);0;enps(end)*(1+sign(enps(end))*eps)];
     
 end
 

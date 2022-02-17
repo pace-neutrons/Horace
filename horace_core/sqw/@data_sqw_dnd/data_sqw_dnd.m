@@ -170,7 +170,13 @@ classdef data_sqw_dnd < axes_block
             if isa(varargin{1},'data_sqw_dnd') % handle shallow copy constructor
                 obj =varargin{1};                          % its COW for Matlab anyway
             elseif nargin==2 && isstruct(varargin{1})
-                obj = from_bare_struct(obj,varargin{1});
+                % old interface compartibility
+                struc = varargin{1};
+                if isfield(struc,'ulabel')
+                    struc.label = struc.ulabel;
+                    struc = rmfield(struc,'ulabel');
+                end
+                obj = from_bare_struct(obj,struc);
             else
                 [obj,uoffset_,remains] = init@axes_block(obj,varargin{:});
                 obj.uoffset = uoffset_;

@@ -34,13 +34,16 @@ det = b_obj.get_par();
 %---------------------------------------------------------------------------
 %
 
-if cache_detectors
-    detdcn = calc_or_restore_detdcn_(det);
-else
-    detdcn = [];
-end
+% if cache_detectors
+%     detdcn = calc_or_restore_detdcn_(det);
+% else
+%     detdcn = [];
+% end
 if isempty(obj.transform_sqw) || ignore_transf %
-    [u_to_rlu, pix_range] = b_obj.calc_projections_(detdcn,[],0);
+    proj = b_obj.get_projection();
+    data = b_obj.get_pix_data();
+    pix_range = proj.calc_target_range(data);
+    %[u_to_rlu, pix_range] = b_obj.calc_projections_(detdcn,[],0);
 else
     [b_obj,~,pix_range] = b_obj.calc_sqw(3,[],varargin{:});
     u_to_rlu = b_obj.data.u_to_rlu;

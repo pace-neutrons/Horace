@@ -119,20 +119,24 @@ classdef axes_block < serializable
         end
 
         %
-        function img_db_range = calc_img_db_range(ax_data)
+        function img_range = calc_img_db_range(ax_data)
+            % LEGACY FUNCTION, left for compartibility with old binary sqw
+            % files for transforming the data, stored there into modern
+            % axes_block form
+            % 
             % Retrieve 4D range used for rebinning pixels
             % from old style sqw objects, where this range was not stored
             % directly as it may become incorrect after some
             % transformations.
             %
             % Returns:
-            % img_db_range  -- the estimate for the image range, used to
-            %                  build the grid used as keys to get the pixels,
-            %                  contributed into the image
+            % img_range  -- the estimate for the image range, used to
+            %               build the grid used as keys to get the pixels,
+            %               contributed into the image
             %
             % Should not be used directly, only for compatibility with old
             % data formats. New sqw object should maintain correct
-            % img_db_range during all operations
+            % img_range during all operations
             %
             % Inputs: either data_sqw_dnd instance or a structure
             % containing:
@@ -154,7 +158,7 @@ classdef axes_block < serializable
             %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
             %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
             %
-            img_db_range = calc_img_db_range_(ax_data);
+            img_range = calc_img_db_range_(ax_data);
         end
     end
 

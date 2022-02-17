@@ -30,8 +30,8 @@ classdef aProjection < serializable
         %
         angdeg       % angles between the lattice edges
         %
-        offset; % Offset of origin of the projection in r.l.u. 
-        %         and energy ie. [h; k; l; en] [row vector]        
+        offset; % Offset of origin of the projection in r.l.u.
+        %         and energy ie. [h; k; l; en] [row vector]
         %---------------------------------
         label % the method which allows user to change labels present on a
         %      cut
@@ -151,55 +151,6 @@ classdef aProjection < serializable
         %------------------------------------------------------------------
         %
         %------------------------------------------------------------------
-        function [npix,s,e,pix_ok,pix_indx] = bin_pixels(obj,axes,pix_candidates,npix,s,e,varargin)
-            % Convert pixels into the coordinate system, defined by the
-            % projection and bin them into the coordinate system, defined
-            % by the axes block, specified as input.
-            %
-            % Inputs:
-            % axes -- the instance of axes_block class, defining the
-            %         shape and the binning of the target coodinate system
-            % pix_candidates -- the 4xNpix array of pixel coordinates or
-            %         PixelData object or pixel data accessor from file
-            %         providing access to the full pixel information
-            % Optional:
-            % npix    -- the array, containing the numbers of pixels
-            %            contributing into each axes grid cell
-            % s       -- array, containing the accumulated signal for each
-            %            axes grid cell
-            % e       -- aray, containing the accumulated error for each
-            %            axes grid cell
-            % Outputs:
-            %  The same npix, s, e arrays as inputs modified with added
-            %  information from pix_candidates if npix, s, e arrays were
-            %  present or axes class - shaped arrays of this information
-            %  if there were no inputs.
-            % Optional:
-            % pix_ok -- the pixel coordinate array or
-            %           PixelData object (as input pix_candidates) containing
-            %           pixels contributing to the grid and sorted according
-            %           to the axes block grid.
-            % pix_indx--indexes of the pix_ok coordinates according to the
-            %           bin
-            pix_transformed = obj.transform_pix_to_img(pix_candidates);
-            if nargout == 5
-                [npix,s,e,pix_ok,pix_indx]=...
-                    axes.bin_pixels(pix_transformed,...
-                    npix,s,e,pix_candidates,varargin{:});
-            elseif nargout == 4
-                [npix,s,e,pix_ok]=axes.bin_pixels(pix_transformed,...
-                    npix,s,e,pix_candidates,varargin{:});
-            elseif nargout == 3
-                [npix,s,e]=axes.bin_pixels(pix_transformed,...
-                    npix,s,e,pix_candidates,varargin{:});
-            elseif nargout ==1
-                npix=axes.bin_pixels(pix_transformed,...
-                    npix,varargin{:});
-            else
-                error('HORACE:aProjection:invalid_argument',...
-                    'This function requests 1,3 or 4 output arguments');
-            end
-        end
         %
         function [bl_start,bl_size] = get_nrange(obj,npix,cur_axes_block,...
                 targ_axes_block,targ_proj)
@@ -273,7 +224,7 @@ classdef aProjection < serializable
         end
         %------------------------------------------------------------------
         function proj = get.targ_proj(obj)
-            proj = obj.targ_proj_;
+            proj = obj.get_targ_proj(obj);
         end
         function obj = set.targ_proj(obj,val)
             obj = obj.check_and_set_targ_proj(val);
@@ -306,6 +257,60 @@ classdef aProjection < serializable
         % normally be overloaded for specific projections for efficiency and
         % specific projection differences
         %------------------------------------------------------------------
+        function [npix,s,e,pix_ok,pix_indx] = bin_pixels(obj,axes,pix_candidates,npix,s,e,varargin)
+            % Convert pixels into the coordinate system, defined by the
+            % projection and bin them into the coordinate system, defined
+            % by the axes block, specified as input.
+            %
+            % Inputs:
+            % axes -- the instance of axes_block class, defining the
+            %         shape and the binning of the target coodinate system
+            % pix_candidates -- the 4xNpix array of pixel coordinates or
+            %         PixelData object or pixel data accessor from file
+            %         providing access to the full pixel information, or
+            %         pixel data in any format the particular projection,
+            %         which does thransformation from pix_to_img coordinate
+            %         system accepts
+            % Optional:
+            % npix    -- the array, containing the numbers of pixels
+            %            contributing into each axes grid cell
+            % s       -- array, containing the accumulated signal for each
+            %            axes grid cell
+            % e       -- aray, containing the accumulated error for each
+            %            axes grid cell
+            % Outputs:
+            % npix    -- the npix array
+            %  The same npix, s, e arrays as inputs modified with added
+            %  information from pix_candidates if npix, s, e arrays were
+            %  present or axes class - shaped arrays of this information
+            %  if there were no inputs.
+            % Optional:
+            % pix_ok -- the pixel coordinate array or
+            %           PixelData object (as input pix_candidates) containing
+            %           pixels contributing to the grid and sorted according
+            %           to the axes block grid.
+            % pix_indx--indexes of the pix_ok coordinates according to the
+            %           bin
+            pix_transformed = obj.transform_pix_to_img(pix_candidates);
+            if nargout == 5
+                [npix,s,e,pix_ok,pix_indx]=...
+                    axes.bin_pixels(pix_transformed,...
+                    npix,s,e,pix_candidates,varargin{:});
+            elseif nargout == 4
+                [npix,s,e,pix_ok]=axes.bin_pixels(pix_transformed,...
+                    npix,s,e,pix_candidates,varargin{:});
+            elseif nargout == 3
+                [npix,s,e]=axes.bin_pixels(pix_transformed,...
+                    npix,s,e,pix_candidates,varargin{:});
+            elseif nargout ==1
+                npix=axes.bin_pixels(pix_transformed,...
+                    npix,varargin{:});
+            else
+                error('HORACE:aProjection:invalid_argument',...
+                    'This function requests 1,3 or 4 output arguments');
+            end
+        end
+        %
         function pix_target = from_this_to_targ_coord(obj,pix_origin,varargin)
             % Converts from current to target projection coordinate system.
             %
@@ -335,21 +340,51 @@ classdef aProjection < serializable
             pic_cc = obj.transform_img_to_pix(pix_origin,varargin{:});
             pix_target  = targproj.transform_pix_to_img(pic_cc,varargin{:});
         end
-
+        %
         function ax_bl = get_proj_axes_block(obj,default_binning_ranges,req_binning_ranges)
             % construct the axes block, corresponding to this projection class
-            % Does generic axes_block
+            % Returns generic axes_block, buld from the block ranges or the
+            % binning ranges.
+            %
             % Should be overloaded for specific projection and specific axes
             % block
+            % Inputs:
+            % default_binning_ranges -- the binning ranges of existing 
             ax_bl = axes_block.build_from_input_binning(...
                 default_binning_ranges,req_binning_ranges);
             ax_bl.label = obj.label;
+        end
+        %
+        function targ_range = calc_target_range(obj,pix_origin,varargin)
+            % Calculate and return the range of pixels in target coodinate
+            % system.
+            %
+            % Not very useful in generic form, but may be efficiently
+            % overloaded by children. (especially in mex-mode when transformed
+            % coordinates may not be stored and not occupy memory)
+            %
+            % Inputs:
+            % pix_origin -- the [4xNpix or 3xNpix] pixel coordinates array
+            %               or PixelData object
+            % Returns:
+            % targ_range  -- the range of the pixels, tranformed to target
+            %                coordinate system.
+            pix_transformed = obj.transform_pix_to_img(pix_origin,varargin{:});
+            if isa(pix_origin,'PixelData')
+                targ_range = pix_transformed.pixel_range;
+            else %Input is array and we want to know its ranges
+                targ_range = [min(pix_transformed,[],2),...
+                    max(pix_transformed,[],2)]';
+            end
         end
     end
     %
     methods(Access = protected)
         function obj = check_and_set_alatt(obj,val)
             obj.alatt_ = check_alatt_return_standard_val_(obj,val);
+        end
+        function   proj = get_target_proj(obj)
+            proj = obj.targ_proj_;
         end
         function obj = check_and_set_andgdeg(obj,val)
             obj.angdeg_ = check_angdeg_return_standard_val_(obj,val);
@@ -395,6 +430,7 @@ classdef aProjection < serializable
     end
     %
     methods(Static,Access=protected)
+        %
         function [bl_start,bl_size]=convert_contrib_cell_into_pix_indexes(...
                 cell_ind,npix)
             % Compress indexes of contributing cells into the form, which
@@ -435,6 +471,7 @@ classdef aProjection < serializable
             bl_start  = bl_start(non_empty)+1; % +1 converts to Matlab indexing
             bl_size   = bl_size(non_empty);
         end
+        %
         function contrib_ind=convert_3Dplus1Ind_to_4Dind_ranges(...
                 bin_inside3D,en_inside)
             % convert cell indexes calculated on 3D-q + 1D-dE
@@ -479,18 +516,18 @@ classdef aProjection < serializable
             end
             contrib_ind = {istart(:)',iend(:)'};
         end
-
+        %
     end
     %----------------------------------------------------------------------
     %  ABSTRACT INTERFACE
     %----------------------------------------------------------------------
     methods(Abstract)
-        % Transform pixels expressed in crystal cartezian coordinate systems
-        % into image coordinate system
+        % Transform pixels expressed in crystal cartezian or any source
+        % coordinate systems defined by projection into image coordinate system
         pix_transformed = transform_pix_to_img(obj,pix_cc,varargin);
         % Transform pixels expressed in image coordinate coordinate systems
-        % into crystal cartezian system
+        % into crystal cartezian system or other source coordinate system,
+        % defined by projection
         pix_cc = transform_img_to_pix(obj,pix_transformed,varargin);
-
     end
 end

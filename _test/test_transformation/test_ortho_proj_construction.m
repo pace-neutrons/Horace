@@ -14,12 +14,13 @@ classdef test_ortho_proj_construction<TestCase
             end
             this=this@TestCase(name);
         end
-        function test_constructor_keys_override_defaults(~)
+        
+        function test_constructor_keys_overrides_positional(~)
             proj = ortho_proj([1,0,0],[0,1,0],...
                 'alatt',[2,3,4],'type','aaa','nonorthogonal',true,...
-                'u',[0,1,0],'v',[1,0,0],'w',[0,0,1]);
-            assertEqual(proj.u,[0,1,0]);
-            assertEqual(proj.v,[1,0,0]);
+                'w',[0,0,1]);
+            assertEqual(proj.u,[1,0,0]);
+            assertEqual(proj.v,[0,1,0]);
             assertEqual(proj.w,[0,0,1]);
             assertEqual(proj.alatt,[2,3,4]);
             assertEqual(proj.angdeg,[90,90,90]);

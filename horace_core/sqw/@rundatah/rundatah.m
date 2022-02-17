@@ -9,8 +9,6 @@ classdef rundatah < rundata
         transform_sqw
     end
     properties
-        % optional handle to pre-calculated detectors directions array
-        detdcn_cache = []
         % optional handle to list of q-vectors, used instead of detectors
         % positions
         qpsecs_cache = []
@@ -118,6 +116,17 @@ classdef rundatah < rundata
                     'transform_sqw should be function handle applicable to sqw object as: w_transformed = transform_sqw(w_initial)');
             end
             
+        end
+        function proj = get_projection(obj)
+            % returns instrument projection, used for conversion from 
+            % instrument coordinate system to Crystal Cartesian coordinate
+            % system
+            proj = instr_proj(obj.lattice,obj.efix,obj.emode);
+        end
+        function data = get_data(obj)
+            % return the data describing the neutron image in instrument
+            % frame and recognized by instr_proj class 
+            data = struct()
         end
         
         function [pix_range,u_to_rlu,pix,obj] = calc_projections(obj)

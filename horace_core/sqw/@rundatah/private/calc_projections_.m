@@ -106,10 +106,7 @@ if ~use_mex
         qspec_provided = true;
     end
     
-    
-    
-    % Return without filling the pixel array if pix_range only is requested
-    
+    % Return without filling the pixel array if pix_range only is requested    
     if proj_mode == 0
         pix_range=[min(ucoords,[],2)';max(ucoords,[],2)'];
         pix= [];
