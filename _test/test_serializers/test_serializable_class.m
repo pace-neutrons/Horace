@@ -400,7 +400,7 @@ classdef test_serializable_class < TestCase
             tc_rec = serializable.from_struct(tc_struct);
             assertEqual(tc,tc_rec);
         end
-        %
+        %------------------------------------------------------------------
         function test_keyval_constructor_nokey_throws_at_the_end(~)
             assertExceptionThrown(@()serializableTester2('Prop_class2_1','a',...
                 'Prop_class2_2'),'HERBERT:serializable:invalid_argument');
@@ -410,6 +410,14 @@ classdef test_serializable_class < TestCase
             assertExceptionThrown(@()serializableTester2('Prop_class2_1',...
                 'Prop_class2_2',20,'blabla'),'HERBERT:serializable:invalid_argument');
         end
+        function test_val_keyval_constructor_returns_keyval_remaining(~)
+            [tc,rem] = serializableTester2(11,'Prop_class2_1',10,...
+                'blabla','Prop_class2_2',20);
+            assertEqual(tc.Prop_class2_1,11)
+            assertEqual(tc.Prop_class2_2,20)
+            assertEqual(rem,{'Prop_class2_1',10,'blabla'});            
+        end
+        
         
         function test_keyval_constructor_middle_extra_val_ignored(~)
             [tc,rem] = serializableTester2('Prop_class2_1',10,...
