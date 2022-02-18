@@ -3,6 +3,10 @@ classdef serializable
     % from/to structure used in serialization and defines the
     % standard for any Horace/Herbert custom class loadobj/saveobj methods.
     %
+    % The class is necessary to provide common interface to loading and
+    % saving classes to Matlab .mat files and Horace sqw objects and to
+    % support old versions of the classes 
+    %
     %----------------------------------------------------------------------
     %   ABSTRACT INTERFACE TO DEFINE:
     methods(Abstract,Access=public)
@@ -58,6 +62,8 @@ classdef serializable
             %
             strc = to_struct_(obj);
         end
+
+
         function strc = to_bare_struct(obj,varargin)
             % Convert serializable object into a special structure, which allow
             % serialization and recovery using "from_bare_struct" operation
