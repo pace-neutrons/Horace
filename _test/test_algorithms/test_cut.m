@@ -58,10 +58,10 @@ classdef test_cut < TestCase & common_state_holder
             end
         end
         %        
-        function test_take_a_cut_from_an_sqw_file(obj)
+        function test_take_a_cut_from_an_sqw_file_single_chunk(obj)
             conf = hor_config();
             old_conf = conf.get_data_to_store();
-            conf.mem_chunk_size = 4000;
+            conf.mem_chunk_size = 8000;
             cleanup = onCleanup(@() set(hor_config, old_conf));
             
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
