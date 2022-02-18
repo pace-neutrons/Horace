@@ -48,9 +48,9 @@ classdef serializable
             %                from_struct operations
             %.array_dat   -- this field appears only if conversion is
             %                applied to the array of objects.
-            % One can not add field containin single value to a structure
+            % One can not add field containing single value to a structure
             % array so this function returns the structure with two fields
-            % abowe  where "array_dat" field contains the structure
+            % above  where "array_dat" field contains the structure
             % array, produced by "to_bare_struct" function.
             %
             % Input:
@@ -71,7 +71,7 @@ classdef serializable
             % Uses independent properties obtained from indepFields method.
             % in assumption that the properties, returned by this method
             % fully define the public interface describing the state of the
-            % pbject.
+            % object.
             %
             % Input:
             % obj  -- class or array of classes objects
@@ -219,7 +219,7 @@ classdef serializable
             % -------
             %   obj     Either (1) the object passed without change, or (2) an
             %           object (or object array) created from the input structure
-            %       	or structure array)
+            %           or structure array)
             obj = loadobj_(S,varargin{:});
         end
     end
@@ -257,14 +257,14 @@ classdef serializable
             % ObjConstructor(positional_par1,positional_par2,positional_par3,...
             % positional_par...,key1,val1,key2,val2,...keyN,valN);
             %
-            % All potitional parameters should have the type defined in the validators
+            % All positional parameters should have the type defined in the validators
             % list. If the validator list is shorter then positional_arg_names list or
             % empty, the remaining positional argument values assumed to be numeric.
             %
             % First argument, which type not corresponds to the type, defined by the
             % validator list, assumed to be belonging to key-value pair.
             %
-            % Everything not idenfified as Key-Value pair where the keys,
+            % Everything not identified as Key-Value pair where the keys,
             % belong to the property names returned by indepFields function
             % is returned in remains cellarray
             %
@@ -273,8 +273,8 @@ classdef serializable
             %            -- list of positional parameter
             %               names, the target properties should be
             %               associated with
-            % validators -- cellarray of the functions, whihch verify
-            %               the types of the input artuments. If empty,
+            % validators -- cellarray of the functions, which verify
+            %               the types of the input arguments. If empty,
             %               the checks assumes that all input parameters
             %               should be numeric. If the size is smaller then the length of
             %               positional_arg_names, any missing parameters assumed to be
@@ -288,8 +288,8 @@ classdef serializable
             % @(x)isa(x,'sqw')} (last validator missing as it assumed to be numeric)
             % Then the list of input parameters
             % set_positional_and_key_val_arguments(1,'blabla',an_sqw_obj,'blabla','a4',[1,0,0])
-            % sets up the three first argument as positional parameters, for properties
-            % a1,a2 and a3, a4 is set as key-value pair and 'blabla' returned in
+            % sets up the three first arguments as positional parameters, for properties
+            % a1,a2 and a3 and a4 is set as key-value pair. 'blabla' is returned in
             % remains.
             %
             [obj,remains] = ...
