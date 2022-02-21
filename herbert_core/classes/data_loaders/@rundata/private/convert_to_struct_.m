@@ -23,7 +23,7 @@ if ~isempty(obj.efix_)  %incident energy here is not in the loader or have
     out_struct.efix = obj.efix_;
 end
 if obj.is_crystal
-    out_struct.lattice = obj.oriented_lattice_.struct();
+    out_struct.lattice = obj.oriented_lattice_.to_bare_struct();
 end
 %-------------------- Store data loaded in memory if necessary.
 %
