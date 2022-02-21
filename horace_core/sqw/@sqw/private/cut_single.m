@@ -73,6 +73,7 @@ if keep_pix
     wout.header = w.header;
     wout.detpar = w.detpar;    
     wout.data = data_out;
+    wout.runid_map = w.runid_map; %TODO: this map should inclde contributing indexes only
 else
     dnd_constructor = DND_CONSTRUCTORS{numel(data_out.pax) + 1};
     wout = dnd_constructor(data_out);
