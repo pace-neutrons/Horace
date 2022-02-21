@@ -78,11 +78,12 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(mheader.filepath,...
                 'd:\Users\abuts\Data\ExcitDev\ISIS_svn\Hor#162\_test\test_sqw_file\');
 
-            header = to.get_header();
+            [header,~,runid_map] = to.get_header();
             assertEqual(header.filename,'')
             assertElementsAlmostEqual(header.psi,0.2967,'absolute',1.e-4);
             assertEqual(header.ulabel{4},'E')
             assertEqual(header.ulabel{3},'Q_\eta')
+            assertEqual(runid_map,containers.Map(1,1))
 
             det = to.get_detpar();
             assertEqual(det.filename,'')

@@ -25,20 +25,20 @@ if ~ismember(acc,{'wb+','rb+'})
 end
 %
 %
-if isempty(new_obj.sqw_holder_) 
+if isempty(new_obj.sqw_holder_)
 
 end
 
 clear_sqw_holder = false;
 if isempty(obj.sqw_holder_)
-    clear_sqw_holder = true;    
+    clear_sqw_holder = true;
     % all file positions except instrument and sample
     % are already defined so we need just nominal object with instrument and sample
     nf = new_obj.num_contrib_files();
     % make pseudo-sqw  with instrument and sample
-    new_obj.sqw_holder_ = make_pseudo_sqw(nf);    
+    new_obj.sqw_holder_ = make_pseudo_sqw(nf);
     if isempty(pix_range)
-        data = obj.get_data();        
+        data = obj.get_data();
     else
         data = obj.get_data('-nopix');
         data.pix.set_range(pix_range);
@@ -49,7 +49,7 @@ else
     pix = obj.sqw_holder_.data.pix;
     if any(any(pix.pix_range == PixelData.EMPTY_RANGE_))
         pix.recalc_pix_range();
-    end    
+    end
 end
 
 new_obj.pix_range_ = pix.pix_range;
@@ -79,15 +79,20 @@ else
     heads = head;
 end
 sq.header = heads;
+runid = zeros(numel(heads),1);
+for i=1:numel(heads)
+    if iscell(heads)
+        runid(i) = rundata.extract_id_from_filename(heads{i}.filename);
+    else
+        runid(i) = rundata.extract_id_from_filename(heads(i).filename);
+    end
+end
+ids = 1:numel(heads);
+if any(isnan(runid))
+    runid = ids;
+end
+sq.runid_map = runid;
 
 function hd= gen_head(head,x)
 hd = head;
-
-
-
-
-
-
-
-
 

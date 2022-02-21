@@ -67,7 +67,7 @@ end
 
 % Get cell array of headers for each contributing spe file
 % ------------------------------------------
-headers  = obj.get_header('-all');
+[headers,~,runid_map]  = obj.get_header('-all');
 
 % Get detector parameters
 % -----------------------
@@ -98,11 +98,13 @@ data_opt= [opt1, opt2, opt3];
 sqw_struc.data = obj.get_data(data_opt{:}, 'pixel_page_size', opts.pixel_page_size);
 
 sqw_struc.header = headers;
+sqw_struc.runid_map = runid_map;
 if opts.legacy
     sqw_object = sqw_struc.main_header;
     varargout{1} = sqw_struc.header;
     varargout{2} = sqw_struc.detpar;
     varargout{3} = sqw_struc.data;
+    varargout{4} = sqw_struc.runid_map;    
 elseif opts.head || opts.his
     sqw_object  = sqw_struc;
 else

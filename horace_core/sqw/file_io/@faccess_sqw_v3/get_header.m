@@ -1,4 +1,4 @@
-function [headers,pos] = get_header(obj,varargin)
+function [headers,pos,runid_map] = get_header(obj,varargin)
 % Get full data header or headers for sqw file written in format v3
 %
 % If instrument and sample are present in the file (not the empty
@@ -25,7 +25,7 @@ if ~ok
     error('SQW_FILE_IO:invalid_argument',mess);
 end
 
-[headers,pos] = get_header@sqw_binfile_common(obj,varargin{:});
+[headers,pos,runid_map] = get_header@sqw_binfile_common(obj,varargin{:});
 if get_all
     instr = obj.get_instrument('-all');
     sampl = obj.get_sample('-all');

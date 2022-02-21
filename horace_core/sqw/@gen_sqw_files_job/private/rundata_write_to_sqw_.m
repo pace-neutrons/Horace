@@ -88,8 +88,8 @@ for i=1:nfiles
     end
     
 end
-uniq_runid = unique(run_id);
-if numel(uniq_runid) == nfiles
+unique_runid = unique(run_id);
+if numel(unique_runid) == nfiles && ~any(isnan(unique_runid))
     update_runlabels = false;
 else
     update_runlabels = true;

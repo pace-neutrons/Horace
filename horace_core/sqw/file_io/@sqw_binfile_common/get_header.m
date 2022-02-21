@@ -1,4 +1,4 @@
-function  [header,pos]   = get_header(obj,varargin)
+function  [header,pos,runid_map]   = get_header(obj,varargin)
 % Get header of one of the files, contributed into sqw file
 %
 % Usage:
@@ -10,6 +10,8 @@ function  [header,pos]   = get_header(obj,varargin)
 %     Equal to the location of the last + 1 byte of the header's data in
 %     the bytes array, where the first byte of the header's data has number
 %     1.
+%
+% runid_map -- the map, connecting run_id with the header number
 %
 % Throws if the loader was not initialized properly or n_header is not
 % correct || non-existing header number
@@ -34,10 +36,10 @@ if isempty(argi)
 else
     n_header = argi{1};
     if ~isnumeric(n_header)
-        error('SQW_FILE_IO:invalid_argument',...        
+        error('SQW_FILE_IO:invalid_argument',...
             'get_header do not understand input argument: %s',n_header);
     end
-    
+
 end
 
 if n_header<1 || (n_header>obj.num_contrib_files)
@@ -57,6 +59,7 @@ end
 
 %TODO: en conversion sucks. Should  be implemented within formatters
 %themselves!
+runids = zeros(numel(header),1);
 for i=1:numel(header)
     if iscell(header)
         header{i}.instrument = struct(); % this is necessary
@@ -64,15 +67,25 @@ for i=1:numel(header)
         if size(header{i}.en,1)==1
             header{i}.en = header{i}.en';
         end
+        runids(i) = rundata.extract_id_from_filename(header{i}.filename);                
     else
         if size(header(i).en,1)==1
             header(i).en = header(i).en';
         end
         header(i).instrument = struct();
         header(i).sample = struct();
-        
+        runids(i) = rundata.extract_id_from_filename(header(i).filename);        
     end
+
 end
+header_numbers = 1:numel(header);
+if any(isnan(runids)) % this also had been done in gen_sqw;
+    % rundata_write_to_sqw_ procedure in gen_sqw_files job.
+    % It have setup update_runlabels to true, which aslo made
+    % duplicated headers unique
+    runids = header_numbers;
+end
+runid_map = containers.Map(runids,header_numbers);
 
 
 function [head,pos] = get_single_header(obj,n_header)
