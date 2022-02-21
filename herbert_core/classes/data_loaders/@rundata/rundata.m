@@ -1,4 +1,4 @@
-classdef rundata
+classdef rundata < serializable
     % The class describes single processed run used in Horace and Mslice
     % It used as an interface to load processed run data from any file format
     % supported and to verify that all data necessary for the run
@@ -32,11 +32,11 @@ classdef rundata
         data_file_name;
         % par file name defined in loader
         par_file_name;
-        
+
         % Experiment parameters;
         efix    ;     % Fixed energy (meV)   -- has to be in file or supplied in parameters list
         emode  ;     % Energy transfer mode [Default=1 (direct geometry)]
-        
+
         % accessor to verify if the oriented lattice is present (and the
         % rundata describe crystal)
         is_crystal;
@@ -52,12 +52,45 @@ classdef rundata
         % (run) which is the source of this object data.
         run_id;
     end
-    
+
     properties(Constant,Access=private)
         % list of the fields defined in any loader
         loader_dependent_fields_={'S','ERR','en','det_par','n_detectors'};
         % minimal set of fields, defining reasonable run
         min_field_set_ = {'efix','en','emode','n_detectors','S','ERR','det_par'};
+        % rundata may be filebased or memory based object, describing
+        % crystal or powder
+        common_serial_fields_ = {'efix','emode','run_id','instrument','sample'};        
+        % in each 4 cases save/load fields are different
+        % serializable fields interface
+
+        crystal_in_memory_field_set_ = {'','lattice'}
+%         det_par   ;   % Horace structure of par-values, describing detectors angular positions   -- usually obtained from parFile or equivalent
+%         % Helper variables used to display data file name and redefine
+%         % loader
+%         data_file_name;
+%         % par file name defined in loader
+%         par_file_name;
+% 
+%         % Experiment parameters;
+%         efix    ;     % Fixed energy (meV)   -- has to be in file or supplied in parameters list
+%         emode  ;     % Energy transfer mode [Default=1 (direct geometry)]
+% 
+%         % accessor to verify if the oriented lattice is present (and the
+%         % rundata describe crystal)
+%         is_crystal;
+%         % accessor to access the oriented lattice
+%         lattice;
+%         % visual representation of a loader
+%         loader ;
+%         % instrument model
+%         instrument;
+%         % sample model
+%         sample;
+%         % the number (id) uniquely identyfying the particular experiment
+%         % (run) which is the source of this object data.
+%         run_id;
+        
     end
     properties(Access=private)
         % energy transfer mode
@@ -68,10 +101,10 @@ classdef rundata
         % INTERNAL SERVICE PARAMETERS: (private read, private write in new Matlab versions)
         % The class which provides actual data loading:
         loader_ = [];
-        
+
         % oriented lattice which describes crytsal (present if run describes crystal)
         oriented_lattice_ =[];
-        
+
         % instrument model holder;
         instrument_ = IX_null_inst();
         % sample model holder
@@ -87,15 +120,9 @@ classdef rundata
         function run = from_string(str)
             % build rundata object from its string representation obrained earlier by
             % serialize function
-            run = rundata_from_string(str);
-        end
-        %
-        function [run,size] = deserialize(iarr)
-            % build rundata object from its string representation obrained earlier by
-            % serialize function
-            % returns rudata object and the byte size of array used to store
-            % this object (minus 8 bytes spent on storing the object size itself)
-            [run,size] = deserialize_(iarr);
+            % 
+            % Old interface
+            run = deserialize(str);
         end
         %
         function [runfiles_list,defined]=gen_runfiles(spe_files,varargin)
@@ -153,13 +180,6 @@ classdef rundata
             [runfiles_list,defined]= rundata.gen_runfiles_of_type('rundata',spe_files,varargin{:});
         end
         %
-        function obj = loadobj(struc)
-            % build rundata from the structure, obtained from saveobj
-            % method.
-            obj = set_up_from_struct_(struc);
-            
-        end
-        %
         function id = extract_id_from_filename(file_name)
             % method used to extract run id from a filename, if runnumber is
             % present in the filename, and is first number among all other
@@ -173,6 +193,13 @@ classdef rundata
             end
             id = str2double(filename(l_range(1):r_range(1)));
         end
+        function obj = loadobj(S)
+            % boilerplate loadobj method, calling generic method of
+            % saveable class
+            obj = rundata();
+            obj = loadobj@serializable(S,obj);
+        end
+
     end
     methods(Static,Access=protected)
         function [runfiles_list,defined]= gen_runfiles_of_type(type_name,spe_files,varargin)
@@ -181,7 +208,7 @@ classdef rundata
             [runfiles_list,defined]=gen_runfiles_(type_name,spe_files,varargin{:});
         end
     end
-    
+
     methods
         %------------------------------------------------------------------
         % PUBLIC METHODS SIGNATURES:
@@ -195,41 +222,41 @@ classdef rundata
         %   >> val = get(object, 'field')  % returns named field, or an array of values
         %                                  % if input is an array
         varargout = get(this, index);
-        
+
         % method returns default values, defined by default fields of
         % the class
         default_values =get_defaults(this,varargin);
-        
+
         % Returns detector parameter data from properly initiated data loader
         [par,this]=get_par(this,format);
-        
+
         % Returns whole or partial data from a rundata object
         [varargout] =get_rundata(this,varargin);
         % Load all data, defined by loader in memory. By default, not relpace
         % data which are already in memory
         this = load(this,varargin);
-        
+
         % Load in memory if not yet there all auxiliary data defined for
         % run except big array e.g. S, ERR, en and detectors
         [this,ok,mess,undef_list] = load_metadata(this,varargin);
         % Returns the name of the file which contains experimental data
         [fpath,filename,fext]=get_source_fname(this);
-        
+
         % Check fields for data_array object
         [ok, mess,this] = isvalid (this);
         % method removes failed (NaN or Inf) data from the data array and deletes
         % detectors, which provided such signal
         [S_m,Err_m,det_m,non_masked]=rm_masked(this,varargin);
-        
+
         % method sets a field of  lattice if the lattice
         % present and initates the lattice first if it is not present
         this = set_lattice_field(this,name,val,varargin);
-        
+
         % Returns the list data fields which have to be defined by the run for cases
         % of crystal or powder experiments
         [data_fields,lattice_fields] = what_fields_are_needed(this,varargin);
         %------------------------------------------------------------------
-        
+
         function this=rundata(varargin)
             % rundata class constructor
             %
@@ -357,7 +384,7 @@ classdef rundata
             end
             obj.run_id_ = val;
         end
-        
+
         %
         function loader=get.loader(this)
             loader=this.loader_;
@@ -471,7 +498,7 @@ classdef rundata
                     class(val))
             end
         end
-        
+
         %------------------------------------------------------------------
         % A LOADER RELATED PROPERTIES -- END
         %------------------------------------------------------------------
@@ -489,22 +516,19 @@ classdef rundata
                 end
             end
         end
-        function str = to_string(this)
-            % convert class into linear string representation usable for
-            % reverse conversion
-            str = convert_to_string(this);
+
+        function ver  = classVersion(~)
+            ver = 1;
         end
-        function iarr = serialize(this)
-            % convert class into arry of bytes suitable for reverse
-            % transformation by deserialize function
-            %
-            % expects main data to be on a HDD, so no data loaded in memory are
-            % serialized except memory only data
-            iarr = serialize_(this);
+        function flds = indepFields(obj)
+            if obj.is_crystal
+            else
+                
+            end
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
-        
+
         function this=saveNXSPE(this,filename,varargin)
             % Saves current rundata in nxspe format.
             % usage:
@@ -544,11 +568,6 @@ classdef rundata
                 this.loader_=ld.saveNXSPE(filename,this.efix,psi,varargin{:});
             end
         end
-        
-        function out_struct = saveobj(obj)
-            % method converts rundata into structure, used to saveable/olad
-            % rundata object to disk.
-            out_struct = convert_to_struct_(obj);
-        end
+
     end
 end
