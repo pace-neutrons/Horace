@@ -168,7 +168,7 @@ classdef rundata
             [~,filename] = fileparts(file_name);
             [l_range,r_range] = regexp(filename,'\d+');
             if isempty(l_range)
-                id = 1;
+                id = NaN;
                 return;
             end
             id = str2double(filename(l_range(1):r_range(1)));
