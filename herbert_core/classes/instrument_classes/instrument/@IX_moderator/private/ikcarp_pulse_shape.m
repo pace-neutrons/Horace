@@ -24,3 +24,5 @@ if isempty(t)
     t = ikcarp_pdf_xvals (npnt, pp(1), pp(2));
 end
 y = ikcarp (t, pp(1), pp(2), pp(3));
+
+end

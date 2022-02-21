@@ -24,8 +24,11 @@ function [tauf,taus,R]=ikcarp_param_convert(pp,ei)
 %   R           Slowing down fraction
 
 if ei<=0
-    error('Neutron energy must be greater than zero for parametrised Ikeda-Carpenter function')
+    error('IX_moderator:ikcarp_param_convert:invalid_argument', ['Neutron energy ',...
+        'must be greater than zero for parametrised Ikeda-Carpenter function'])
 end
 tauf=1166.47*pp(1)./sqrt(ei);
 taus=pp(2)*ones(size(ei));
 R=exp(-ei/pp(3));
+
+end

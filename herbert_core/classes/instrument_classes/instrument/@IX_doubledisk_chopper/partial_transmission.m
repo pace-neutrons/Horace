@@ -1,14 +1,14 @@
-function f = partial_transmission(self,varargin)
+function f = partial_transmission (obj, varargin)
 % Calculate partial transmission integrated over [-Inf,t]
 %
-%   >> f = partial_transmission(disk)       % full transmission (integral over -Inf to +Inf); ==1
-%                                           % independent of energy (cf. Fermi chopper)
-%   >> f = partial_transmission(disk, t)    % partial transmission for an array of times
+%   >> f = partial_transmission (obj)    % full transmission (t = +Inf); ==1
+%   >> f = partial_transmission (obj, t)
 %
 %
 % Input:
 % -------
-%   disk    IX_doubledisk_chopper object
+%   obj     IX_doubledisk_chopper object (scalar)
+%
 %   t       time (microseconds) (array or scalar)
 %           If omitted, use t=Inf
 %
@@ -18,14 +18,23 @@ function f = partial_transmission(self,varargin)
 %           Note that transmission(disk) is in fact unity independent of energy
 
 
-if ~isscalar(self), error('Method only takes a scalar double disk chopper object'), end
+if ~isscalar(obj)
+    error('IX_doubledisk_chopper:partial_transmission:invalid_argument',...
+        'Method only takes a scalar double disk chopper object')
+end
 
 if nargin==1
-    f=1;
+    f = 1;
+    
 elseif nargin==2
-    t=varargin{1};     % time in microseconds
-    [T1,T2] = hat_times(self);
+    t = varargin{1};     % time in microseconds
+    [T1, T2] = hat_times (obj);
     f = area_conv_hh (t, T1, T2);
+    
 else
-    error('Check number of input argumnets')
+    error('IX_doubledisk_chopper:partial_transmission:invalid_argument',...
+        'Check number of input arguments')
+
+end
+
 end

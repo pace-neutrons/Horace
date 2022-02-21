@@ -19,13 +19,10 @@ function [x_var, x_av] = var (obj)
 
 
 if ~isscalar(obj)
-    error('HERBERT:pdf_table:invalid_argument', 'Method only takes a scalar object')
-end
-if ~obj.filled
-    error('HERBERT:pdf_table:uninitialised', 'The probability distribution function is not initialised')
+    error('HERBERT:pdf_table:invalid_argument',...
+        'Method only takes a scalar object')
 end
 
 [x_av, x_var] = moments_ (obj);
 
 end
-

@@ -55,11 +55,13 @@ function [sortedStruct, index] = sortStruct_private(aStruct, varargin)
 
 % Check struct
 if ~isstruct(aStruct)
-    error('first input supplied is not a struct.')
+    error('HERBERT:math:invalid_argument',...
+        'first input supplied is not a struct.')
 end
 
 if sum(size(aStruct)>1)>1 % if more than one non-singleton dimension
-    error('I don''t want to sort your multidimensional struct array.')
+    error('HERBERT:math:invalid_argument',...
+        'I don''t want to sort your multidimensional struct array.')
 end
 
 % Parse optional arguments - just check number and assign accordingly
@@ -80,7 +82,8 @@ elseif numel(varargin)==2
     if ~ok, error(mess), end
     directions = varargin{2};
 else
-    error('Too many input arguments')
+    error('HERBERT:math:invalid_argument',...
+        'Too many input arguments')
 end
 
 % Check fieldnames
@@ -89,7 +92,8 @@ if numel(fieldNams)==1
 elseif numel(fieldNams)>1
     [ok, mess, sortedStruct, index] = nestsedSortStruct(aStruct, fieldNams, directions);
 else
-    ok = false; mess = 'Logic error. Contact developers';
+    error('HERBERT:math:runtime_error',...
+        'Logic error. Contact developers');
 end
 if ~ok, error(mess), end
 
@@ -145,15 +149,17 @@ end
 for ii=1:length(fieldNams)
     fieldEntry = aStruct(1).(fieldNams{ii});
     if ~( isnumeric(fieldEntry) || islogical(fieldEntry) || ischar(fieldEntry) )
-        fprintf('%s is not a valid fieldname by which to sort.\n', fieldNams{ii})
-        mess = 'at least one fieldname is not a valid one by which to sort - must be numeric, logical or characater array.';
+        fprintf(2,'%s is not a valid fieldname by which to sort.\n', fieldNams{ii})
+        mess = sprintf('at least one fieldname (%s) is not a valid one by which to sort - must be numeric, logical or characater array.',...
+            fieldNams{ii});
         return
     end
 end
 
 % Check directions, create if necessary (1 for ascending, -1 for descending)
 if ~(isnumeric(directions) && all(ismember(directions, [-1 1])))
-    error('directions, if given, must be a single number or a vector with 1 (ascending) and -1 (descending).')
+    error('HERBERT:math:invalid_argument',...
+        'directions, if given, must be a single number or a vector with 1 (ascending) and -1 (descending).')
 end
 
 if numel(directions)==1

@@ -1,6 +1,6 @@
 classdef test_MException_her < TestCase
     % Test serializanble-deserializable exception
-    
+
     properties
     end
     methods
@@ -25,8 +25,8 @@ classdef test_MException_her < TestCase
             %
             mex_str = myExc.saveobj();
             assertTrue(isstruct(mex_str));
-            
-            
+
+
             MER = myExc.loadobj(mex_str);
             assertTrue(isa(MER,'MException'));
             assertTrue(isa(MER,'MException_her'));
@@ -38,9 +38,9 @@ classdef test_MException_her < TestCase
             %
             ME = MException('TESTEXC:zero_stack','test zero stack exceptions');
             myExc = MException_her(ME);
-            
+
             rep = getReport(myExc);
-            assertTrue(strncmp(rep,'test zero stack exceptions',26));
+            assertTrue(contains(rep,'test zero stack exceptions'));
         end
         %
         function test_convert_to_Exception(~)
@@ -56,17 +56,17 @@ classdef test_MException_her < TestCase
                 ME=ME.addCause(mecc2);
                 myExc = MException_her(ME);
             end
-            
+
             MeR = MException_her.build_MException(myExc);
             w = warning('off','MATLAB:structOnObject');
             clob = onCleanup(@()warning(w));
-            
+
             s1 = struct(ME);
             s2 = struct(MeR);
             s1 = rmfield(s1,'type');
             s2 = rmfield(s2,'type');
             assertEqual(s1,s2);
-            
+
         end
         %
         function test_get_report_advanced(~)
@@ -80,13 +80,13 @@ classdef test_MException_her < TestCase
             catch ME_reas
             end
             ME = ME.addCause(ME_reas);
-            
+
             MEser = MException_her(ME);
-            
+
             mex_str = MEser.saveobj();
             MErec = MEser.loadobj(mex_str);
-            
-            
+
+
             assertEqual(MEser.stack_r,MErec.stack_r);
             assertEqual(ME.stack,MErec.stack_r);
             assertEqual(ME.identifier,MErec.identifier);
@@ -96,21 +96,23 @@ classdef test_MException_her < TestCase
             assertEqual(caus1.stack,caus2.stack_r);
             assertEqual(caus1.identifier,caus2.identifier);
             assertEqual(caus1.message,caus2.message);
-            
-            
+
+
             rep1 = getReport(ME);
             rep2 = getReport(MEser);
             rep3 = getReport(MErec);
-            %
-            rep1 = strsplit(rep1);
-            rep2 = strsplit(rep2);
-            rep3 = strsplit(rep3);
-            %assertEqual(rep1(18:end)',rep2(23:end)');
-            %assertEqual(rep1(17:end-16)',rep3(22:end-5)')
-            ind1 = find(ismember(rep1,{'Test','exception','at'}),1);
-            
-            assertEqual(rep1(ind1:ind1+7)',rep3(1:8)')
-            assertEqual(rep2(1:8)',rep3(1:8)')
+            % Strip "error line" [Error using mex_Thrower (line 29)]
+            if verLessThan('matlab', '9.8')
+                assertTrue(contains(rep1, 'Test exception at level 2'))
+                assertTrue(contains(rep2, 'Test exception at level 2'))
+                assertTrue(contains(rep3, 'Test exception at level 2'))
+                assertTrue(contains(rep1, 'Test exception at level 4'))
+                assertTrue(contains(rep2, 'Test exception at level 4'))
+                assertTrue(contains(rep3, 'Test exception at level 4'))
+            else
+                assertEqual(rep1, rep2)
+                assertEqual(rep1, rep3)
+            end
         end
         %
         function test_get_report(~)
@@ -151,5 +153,5 @@ classdef test_MException_her < TestCase
             assertEqual(me,mer);
         end
     end
-    
+
 end

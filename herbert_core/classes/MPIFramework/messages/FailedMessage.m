@@ -50,7 +50,7 @@ classdef FailedMessage < aMessage
         function struc = saveobj(obj)
             %
             if ~isempty(obj.payload) && isstruct(obj.payload)...
-                    && isa(obj.payload.error,'MException')
+                    && isfield(obj.payload,'error') && isa(obj.payload.error,'MException')
                 obj.payload.error = MException_her(obj.payload.error);
             end
             struc = saveobj@aMessage(obj);

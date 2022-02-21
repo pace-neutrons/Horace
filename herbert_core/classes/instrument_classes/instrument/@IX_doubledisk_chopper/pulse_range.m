@@ -1,32 +1,40 @@
-function [tlo,thi] = pulse_range (self,varargin)
-% Return lower an upper limits of range of double disk chopper (microseconds)
+function [tlo, thi] = pulse_range (obj, varargin)
+% Return lower and upper limits of range of double disk chopper (microseconds)
 %
-%   >> [tlo,thi] = pulse_range (disk)
-%   >> [tlo,thi] = pulse_range (disk, ei)
+%   >> [tlo, thi] = pulse_range (obj)
+%   >> [tlo, thi] = pulse_range (obj, ei)
 %
 % In fact, for a disk chopper the pulse width is trivially independent of the
 % energy
 %
 % Input:
 % -------
-%   disk    IX_doubledisk_chopper object
+%   obj     IX_doubledisk_chopper object (scalar)
+%
 %   ei      Incident energy (meV) (array or scalar)
 %
 % Output:
 % -------
 %   tlo     Opening time of chopper (microseconds)
+%
 %   thi     Closing time of chopper (microseconds)
 
 
-if ~isscalar(self), error('Method only takes a scalar double disk chopper object'), end
+if ~isscalar(obj)
+    error('IX_doubledisk_chopper:pulse_range:invalid_argument',...
+        'Method only takes a scalar double disk chopper object')
+end
 
-[T1,T2] = hat_times(self);
-tlo = -0.5*(T1+T2);
-thi = 0.5*(T1+T2);
+[T1, T2] = hat_times(obj);
+tlo = -(T1+T2) / 2;
+thi = (T1+T2) / 2;
 
 if nargin==2
-    tlo=tlo*ones(size(varargin{1}));
-    thi=thi*ones(size(varargin{1}));
+    tlo = tlo * ones(size(varargin{1}));
+    thi = thi * ones(size(varargin{1}));
 elseif nargin>2
-    error('Check number of input arguments')
+    error('IX_doubledisk_chopper:pulse_range:invalid_argument',...
+        'Check number of input arguments')
+end
+
 end

@@ -30,3 +30,5 @@ function [y,t] = ikcarp_param_pulse_shape (pp, ei, t)
 
 [tauf, taus, R] = ikcarp_param_convert (pp, ei);
 [y,t] = ikcarp_pulse_shape ([tauf, taus, R], t);
+
+end

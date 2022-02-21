@@ -1,7 +1,7 @@
 function [width, tmax, tlo, thi] = ikcarp_pulse_width2 (pp, frac, ei)
 % Calculate pulse width quantities (microseconds)
 %
-%   >> [width, tlo, thi] = ikcarp_pulse_width2 (pp, frac, ei)
+%   >> [width, tmax, tlo, thi] = ikcarp_pulse_width2 (pp, frac, ei)
 %
 % Input:
 % -------
@@ -24,4 +24,6 @@ if numel(ei)~=1
     tmax=tmax*ones(size(ei));
     tlo=tlo*ones(size(ei));
     thi=thi*ones(size(ei));
+end
+
 end

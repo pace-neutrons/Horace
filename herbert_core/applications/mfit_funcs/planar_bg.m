@@ -14,6 +14,7 @@ function y=planar_bg(x1,x2,p)
 % ========
 %   y   Array of calculated y-axis values
 
+
 if length(p)~=3
     error('Input parameters must be a vector of length 3');
 end

@@ -405,6 +405,7 @@ classdef test_serialise_size < TestCase
         function test_ser_sise_cell_hetero(~)
             test_cell = {1, 'a', 1+2i, true, struct('boop', 1), {'Hello'}, @(x,y) (x+y^2)};
             ser =  hlp_serialise(test_cell);
+
             ser_siz = hlp_serial_sise(test_cell);
             assertEqual(numel(ser), ser_siz)
         end

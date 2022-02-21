@@ -6,7 +6,7 @@ function test_load_instrument_classes (varargin)
 %   >> test_instrument_class_load_save (ver)            % perform tests for named version
 %   >> test_instrument_class_load_save (ver, '-save')   % save results with version name
 %
-% The version name is just a character string for cinstruction of file names,
+% The version name is just a character string for construction of file names,
 % but by convention they should be chosen to be:
 %   - ver0  Class definitions prior to July 2019 (old-style pre-R2008a matlab
 %           classes
@@ -119,12 +119,12 @@ assertTrue(ok,'Problems saving/reading moderator(s)')
 sample = IX_sample('Fe',true,[1,1,0],[0,1,3],'cuboid',[0.020,0.024,0.028]);
 
 % 1x2 array example
-sample_arr = [IX_sample(false,[1,1,1],[0,1,1],'cuboid',[0.005,0.005,0.0005]),...
+sample_arr = [IX_sample('',false,[1,1,1],[0,1,1],'cuboid',[0.005,0.005,0.0005]),...
     IX_sample('FeSi',true,[1,1,0],[0,1,3],'cuboid',[0.020,0.024,0.028],0.5,120)];
 
 % Test/save:
 ok = matfile_IO (ver_str, save_variables, sample, sample_arr);
-assertTrue(ok,'Problems saving/reading sample(s)')
+assertTrue(ok,'Problems saving/reading sample(s) ')
 
 
 

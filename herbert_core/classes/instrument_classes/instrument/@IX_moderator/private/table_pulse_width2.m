@@ -1,7 +1,7 @@
 function [w, tmax, tlo, thi] = table_pulse_width2 (pdf, frac, ei)
 % Calculate pulse width quantities (microseconds)
 %
-%   >> [w, tlo, thi] = table_pulse_width2 (pdf, frac, ei)
+%   >> [w, tmax, tlo, thi] = table_pulse_width2 (pdf, frac, ei)
 %
 % Input:
 % -------
@@ -22,4 +22,6 @@ if numel(ei)~=1
     tmax=tmax*ones(size(ei));
     tlo=tlo*ones(size(ei));
     thi=thi*ones(size(ei));
+end
+
 end
