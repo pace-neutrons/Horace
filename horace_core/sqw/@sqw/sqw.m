@@ -128,6 +128,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             %   obj     An instance of this object
             if isa(S,'sqw')
                 obj = S;
+                if isempty(obj.runid_map)
+                    obj.runid_map = recalculate_runid_map_(S.header);
+                end
                 return
             end
             if numel(S)>1
