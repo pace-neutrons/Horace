@@ -19,6 +19,10 @@ if ldr.num_dim ~= obj.NUM_DIMS
 end
 
 ds = ldr.get_data('-nopix');
-ds.pix = PixelData();
-ds.img_db_range = PixelData.EMPTY_RANGE_;
+if isstruct(ds)
+    ds = data_sqw_dnd(ds);
+else
+    ds.pix = PixelData();
+    ds.img_db_range = PixelData.EMPTY_RANGE_;
+end
 obj.data = ds;
