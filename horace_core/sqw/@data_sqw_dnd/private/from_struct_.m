@@ -3,7 +3,7 @@ function  obj = from_struct_(obj,input)
 %
 % maintaining changes in structure according to version.
 %
-
+obj.pix = PixelData();
 if ~isfield(input,'version')
     if isfield(input,'urange')
         % urange contents in new file types is unreliable
@@ -19,6 +19,7 @@ if ~isfield(input,'version')
 elseif input.version == 1
     input = rmfield(input,'version');
 end
+
 if isfield(input,'pix_range')
     obj.pix.set_range(input.pix_range)
     input = rmfield(input,'pix_range');
@@ -27,6 +28,7 @@ if isfield(input,'img_range')
     input.img_db_range = input.img_range;
     input = rmfield(input,'img_range');
 end
+
 
 
 %

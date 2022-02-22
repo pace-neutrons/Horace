@@ -363,7 +363,8 @@ classdef test_faccess_sqw_v2< TestCase
             dn2 = to.get_sqw();
             to.delete();
             assertTrue(isa(dn2,'d2d'));
-
+            
+            dnob.data.img_db_range = PixelData.EMPTY_RANGE_;
             [ok,mess]=equal_to_tol(dn2,dnob,'ignore_str',true);
             assertTrue(ok,mess)
             %

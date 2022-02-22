@@ -277,6 +277,7 @@ classdef  test_file_input < TestCase
             assertTrue(ok,['Error in functionality: ',mess])
             
             tmp=read_dnd(obj.sqw2d_name{2});
+            tmp.data.img_db_range = PixelData.EMPTY_RANGE_; % TODO fix this
             [ok,mess] = equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1);
             assertTrue(ok,['Error in functionality: ',mess])
             
@@ -304,6 +305,10 @@ classdef  test_file_input < TestCase
             assertTrue(ok,['Error in functionality: ',mess])
             
             tmp=read_dnd(obj.sqw2d_name);
+
+            tmp(1).data.img_db_range = PixelData.EMPTY_RANGE_; % TODO:
+            tmp(2).data.img_db_range = PixelData.EMPTY_RANGE_; % This should go with refactoring         
+
             [ok,mess] = equal_to_tol(obj.d2d_arr,tmp,'ignore_str',1);
             assertTrue(ok,['Error in functionality: ',mess])
             
