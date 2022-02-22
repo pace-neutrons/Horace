@@ -278,6 +278,9 @@ classdef data_sqw_dnd
                 pn = fieldsToSave{i};
                 obj_str.(pn) = obj.(pn);
             end
+            if ~isempty(obj.pix) && obj.pix.num_pixels>0
+                obj_str.pix = obj.pix.saveobj();
+            end
 
 
         end
