@@ -2,7 +2,7 @@ classdef data_sqw_dnd
     % Class defines structure of the data, used by sqw&dnd objects
     %
     % Trivial implementation, wrapping around a structure
-    
+
     % Original author: T.G.Perring
     %
     properties(Dependent)
@@ -56,12 +56,12 @@ classdef data_sqw_dnd
     properties(Access=protected)
         pix_ = PixelData()      % Object containing data for each pixel
     end
-    
+
     methods (Static)
         % Create bin boundaries for integration and plot axes from requested limits and step sizes
         [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
     end
-    
+
     methods
         %------------------------------------------------------------------
         % Determine data type of the data field of an sqw data structure
@@ -186,7 +186,7 @@ classdef data_sqw_dnd
             %   data.img_db_range  The range of the data along each axis, defining the size of the
             %                    grid, the pixels are rebinned into [img_db_range(2,4)]
             %   data.pix        A PixelData object
-            
+
             if nargin>0
                 if isa(varargin{1},'data_sqw_dnd') % handle shallow copy constructor
                     obj =varargin{1};                          % its COW for Matlab anyway
@@ -250,7 +250,7 @@ classdef data_sqw_dnd
                 obj.pix_ = PixelData(val);
             end
         end
-        
+
         %
         function [ok, type, mess]=check_sqw_data(obj, type_in, varargin)
             % old style validator for consistency of input data.
@@ -268,6 +268,18 @@ classdef data_sqw_dnd
             else
                 npix  = [];
             end
+        end
+        function obj_str = saveobj(obj)
+            fieldsToSave ={'filename','filepath','title',...
+                'alatt','angdeg','uoffset','u_to_rlu','ulen','ulabel',...
+                'iax','iint','pax','p','dax','s','e','npix','img_db_range'};
+            obj_str=struct();
+            for i=1:numel(fieldsToSave)
+                pn = fieldsToSave{i};
+                obj_str.(pn) = obj.(pn);
+            end
+
+
         end
     end
     methods(Static)

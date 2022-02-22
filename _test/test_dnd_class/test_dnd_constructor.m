@@ -45,42 +45,42 @@ methods
     end
 
     %% Dimension
-    function test_d0d_constructor_returns_zero_d_instance(obj)
+    function test_d0d_constructor_returns_zero_d_instance(~)
         dnd_obj = d0d();
 
         assertEqual(numel(dnd_obj.pax), 0);
         assertEqual(dnd_obj.dimensions(), 0);
     end
 
-    function test_d1d_constructor_returns_1d_instance(obj)
+    function test_d1d_constructor_returns_1d_instance(~)
         dnd_obj = d1d();
 
         assertEqual(numel(dnd_obj.pax), 1);
         assertEqual(dnd_obj.dimensions(), 1);
     end
 
-    function test_d2d_constructor_returns_2d_instance(obj)
+    function test_d2d_constructor_returns_2d_instance(~)
           dnd_obj = d2d();
 
           assertEqual(numel(dnd_obj.pax), 2);
           assertEqual(dnd_obj.dimensions(), 2);
     end
 
-    function test_d3d_constructor_returns_3d_instance(obj)
+    function test_d3d_constructor_returns_3d_instance(~)
         dnd_obj = d3d();
 
         assertEqual(numel(dnd_obj.pax), 3);
         assertEqual(dnd_obj.dimensions(), 3);
     end
 
-    function test_d4d_constructor_returns_4d_instance(obj)
+    function test_d4d_constructor_returns_4d_instance(~)
         dnd_obj = d4d();
 
         assertEqual(numel(dnd_obj.pax), 4);
         assertEqual(dnd_obj.dimensions(), 4);
     end
 
-    function test_default_constructor_returns_empty_instance(obj)
+    function test_default_constructor_returns_empty_instance(~)
         dnd_obj = d2d();
 
         assertEqualToTol(dnd_obj.s, 0, 1e-6);
@@ -113,11 +113,11 @@ methods
         obj.assert_dnd_contains_expected_properties(dnd_obj);
     end
 
-    function assert_dnd_contains_expected_properties(obj, dnd_obj)
+    function assert_dnd_contains_expected_properties(~, dnd_obj)
         expected_props = { ...
             'filename', 'filepath', 'title', 'alatt', 'angdeg', ...
             'uoffset', 'u_to_rlu', 'ulen', 'ulabel', 'iax', ...
-             'iint', 'pax', 'p', 'dax', 's', 'e', 'npix'};
+             'iint', 'pax', 'p', 'dax', 's', 'e', 'npix','data'};
 
         actual_props = fieldnames(dnd_obj);
 
@@ -155,18 +155,28 @@ methods
         obj.assert_dnd_get_returns_set_properties(dnd_obj);
     end
 
-    function assert_dnd_get_returns_set_properties(obj, dnd_obj)
+    function assert_dnd_get_returns_set_properties(~, dnd_obj)
         class_props = fieldnames(dnd_obj);
+        isdata = ismember(class_props,'data');
+        class_props = class_props(~isdata);
 
         % properties are mapped to an internal data structure; verify the getters and
         % setters are correctly wired
+        test_values = cell(numel(class_props),1);
         for idx = 1:numel(class_props)
             test_value = rand(10);
+            test_values{idx} = test_value;
             prop_name = class_props{idx};
             dnd_obj.(prop_name) = test_value;
             assertEqual(dnd_obj.(prop_name), test_value, ...
                 sprintf('Value set to "%s" not returned', prop_name));
         end
+        dat = dnd_obj.data;
+        for idx=1:numel(class_props)
+            prop_name = class_props{idx};
+            assertEqual(dat.(prop_name),test_values{idx});
+        end
+
     end
 
     %% Copy
@@ -235,13 +245,13 @@ methods
         assertEqual(d2d_obj.u_to_rlu, expected_u_to_rlu, 'tol', 1e-5);
     end
 
-    function test_filename_constructor_returns_same_object_as_sqw_constructor_from_sqw_file(obj)
+    function test_fname_constr_returns_same_obj_as_sqw_constr_from_sqw_file(obj)
         sqw_obj = sqw(obj.test_sqw_2d_fullpath);
         d2d_obj = d2d(obj.test_sqw_2d_fullpath);
 
         d2d_from_sqw = d2d(sqw_obj);
 
-        assertEqualToTol(d2d_from_sqw, d2d_obj);
+        assertEqualToTol(d2d_from_sqw, d2d_obj,'ignore_str',true);
     end
 
 
@@ -259,6 +269,18 @@ methods
 
         obj.assert_dnd_sqw_constructor_creates_dnd_from_sqw(sqw_obj, d1d_obj);
     end
+    function test_save_load_d2d(obj)
+        sqw_obj = sqw(obj.test_sqw_2d_fullpath);
+        d2d_obj = d2d(sqw_obj);
+
+        wkdir = tmp_dir();
+        wk_file = fullfile(wkdir,'test_save_load_d2d.mat');
+        clOb = onCleanup(@()delete(wk_file));
+        save(wk_file,'d2d_obj');
+        ld = load(wk_file);
+        assertEqual(ld.d2d_obj,d2d_obj);
+    end
+    
 
     function test_d2d_sqw_constuctor_creates_d2d_from_2d_sqw_object(obj)
         sqw_obj = sqw(obj.test_sqw_2d_fullpath);
@@ -274,13 +296,14 @@ methods
         obj.assert_dnd_sqw_constructor_creates_dnd_from_sqw(sqw_obj, d4d_obj);
     end
 
-    function assert_dnd_sqw_constructor_creates_dnd_from_sqw(obj, sqw_obj, dnd_obj)
+    function assert_dnd_sqw_constructor_creates_dnd_from_sqw(~, sqw_obj, dnd_obj)
         assertEqual(sqw_obj.data.s, dnd_obj.s);
         assertEqual(sqw_obj.data.e, dnd_obj.e);
         assertEqual(sqw_obj.data.p, dnd_obj.p);
         assertEqual(sqw_obj.data.npix, dnd_obj.npix)
         assertEqual(sqw_obj.data.ulabel, dnd_obj.ulabel);
     end
+    
 
 end
 end

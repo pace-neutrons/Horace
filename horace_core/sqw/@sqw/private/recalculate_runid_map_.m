@@ -20,4 +20,8 @@ if any(isnan(runids)) % this also had been done in gen_sqw;
     % duplicated headers unique
     runids = header_numbers;
 end
-runid_map = containers.Map(runids,header_numbers);
+if isempty(runids)
+    runid_map = containers.Map();    
+else
+    runid_map = containers.Map(runids,header_numbers);
+end

@@ -16,10 +16,6 @@ if ~isfield(input,'version')
         input = rmfield(input,'urange');
         input.img_db_range = dnd_binfile_common.calc_img_db_range(input);
     end
-    if isfield(input,'img_range')
-        input.img_db_range = input.img_range;
-        input = rmfield(input,'img_range');
-    end
 elseif input.version == 1
     input = rmfield(input,'version');
 end
@@ -27,6 +23,11 @@ if isfield(input,'pix_range')
     obj.pix.set_range(input.pix_range)
     input = rmfield(input,'pix_range');
 end
+if isfield(input,'img_range')
+    input.img_db_range = input.img_range;
+    input = rmfield(input,'img_range');
+end
+
 
 %
 flds = fieldnames(input);
