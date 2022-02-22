@@ -91,13 +91,13 @@ switch route
 end
 
 % Build the return d1d object
-[sout, eout, nout]=rebin_1d_general(xin_vec, xout, win.data_.s, win.data_.e, win.data_.npix);
+[sout, eout, nout]=rebin_1d_general(xin_vec, xout, win.s, win.e, win.npix);
 wout=d1d(win);
-wout.data_.p{1}=xout(:,1);
-wout.data_.s=sout;
-wout.data_.e=eout;
-wout.data_.npix=nout;
-wout.data_.title=[wout.data_.title,' REBINNED '];
+wout.p{1}=xout(:,1);
+wout.s=sout;
+wout.e=eout;
+wout.npix=nout;
+wout.title=[wout.data_.title,' REBINNED '];
 
 end
 
