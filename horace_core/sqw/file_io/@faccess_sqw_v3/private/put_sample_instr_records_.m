@@ -73,7 +73,7 @@ if setting_instr
     else
         fseek(obj.file_id_,start,'bof');
     end
-    
+
     check_error_report_fail_(obj,'can not move to the instrument(s) start position');
     fwrite(obj.file_id_,bytes,'uint8');
     check_error_report_fail_(obj,'error writing serialized instrument(s)');
@@ -81,8 +81,10 @@ end
 
 if setting_sample
     % serialize sample(s)
-    if iscell(sampl) % allow only one sample! TODO: very bad. Change with class resesighn
-        sampl = sampl{1};
+    if numel(sampl)>1 % allow only one sample! TODO: very bad. Change with class resesighn
+        if iscell(sampl)
+            sampl = sampl{1};
+        end
     end
     [bytes,sample_size] = serialize_si_block_(obj,sampl,'sample');
     %clc_size = obj.instr_sample_end_pos_ - obj.sample_pos_;
@@ -96,7 +98,7 @@ if setting_sample
         um = um.set_cblock_param('sample',obj.sample_pos_,sample_size);
         obj.upgrade_map_ = um;
     end
-    
+
     %
     if old_matlab % some MATLAB problems with moving to correct eof
         fseek(obj.file_id_,double(obj.sample_head_pos_),'bof');

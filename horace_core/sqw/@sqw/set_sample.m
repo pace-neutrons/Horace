@@ -1,5 +1,7 @@
 function varargout = set_sample (varargin)
 % Change the sample in an sqw object or array of objects
+% in memoryю It also sets the sample on-disk, deploying 
+% set_sample_horace algorithm.
 %
 %   >> wout = set_sample (w, sample)
 %
