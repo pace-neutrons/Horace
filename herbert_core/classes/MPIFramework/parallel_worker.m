@@ -39,7 +39,7 @@ try
     % within Matlab code to run
     mis = MPI_State.instance();
     mis.is_deployed = true;
-    is_tested = mis.is_tested; % set up to tested state within unit tests not to 
+    is_tested = mis.is_tested; % set up to tested state within unit tests not to
     % exit running Matlab on test failure
     %
     % for testing we need to recover 'not-deployed' state to avoid clashes with
@@ -55,14 +55,14 @@ try
     worker_controls_string = char(worker_controls_string);
     % Deserialize control string and convert it into a control structure.
     control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
-    
-    
+
+
     % Initialize config files to use on remote session. Needs to be initialized
     % first as may be used by message framework.
     %
     % Place where config files are stored:
-    config_exchange_folder = control_struct.data_path;    
-    % set path to the config sources, remove configurations, 
+    config_exchange_folder = control_struct.data_path;
+    % set path to the config sources, remove configurations,
     % may be loaded in memory while Horace was initialized.
     config_store.set_config_folder(config_exchange_folder);
     % Initialize the frameworks, responsible for communications within the
@@ -76,7 +76,7 @@ try
     % between the clusters nodes. The control node communicator knows the
     % folder for communications
     %--------------------------------------------------------------------------
-    
+
     keep_worker_running = true;
     if DO_LOGGING
         fh = log_inputs_level1();
@@ -88,7 +88,7 @@ try
     end
     % inform the control node that the cluster have been started and ready
     % to accept jobs
-    
+
     JobExecutor.report_cluster_ready(fbMPI,intercomm);
 catch ME0 %unhandled exception during init procedure
     ok = false;
@@ -108,7 +108,7 @@ while keep_worker_running
     fprintf('   *******************************************\n');
     fprintf('   ******  LabN %d  : RUN N : %d  Task: %s *\n',intercomm.labIndex,num_of_runs,fbMPI.job_id);
     fprintf('   *******************************************\n');
-    
+
     %
     %% --------------------------------------------------------------------
     % 2) step 2 of the worker initialization.
@@ -138,7 +138,7 @@ while keep_worker_running
             exit_at_the_end = false; % used for debugging filebased framework, to
             %be able to view the results of a failure.
         end
-        
+
         %
         if DO_LOGGING; log_worker_init_received();  end
         % instantiate job executor class.
@@ -156,8 +156,8 @@ while keep_worker_running
         % 3) step 3 of the worker initialization. Initializing the particular
         % job executor
         %----------------------------------------------------------------------
-        
-        
+
+
         % receive init message which defines the job parameters
         % implicit barrier exists which should block execution until
         % this message is received.
@@ -171,9 +171,9 @@ while keep_worker_running
             end
         end
         if DO_LOGGING; log_init_received();   end
-        
+
         %%
-        
+
         if DO_LOGGING; log_init_je_started();  end
         % to decrease probability of other job started their tasks and
         % failed before node 1 is initialized -- let's set this barrier.
@@ -185,7 +185,7 @@ while keep_worker_running
         % something wrong with the code. We can not process interrupt
         % properly, but filebased framework should still be
         % available.
-        
+
         if ~strcmp(ME.identifier,'MESSAGE_FRAMEWORK:cancelled')
             % if job is cancelled, we can recover further, as it will throw
             % below at first call to log progress. Any other exception is unhandled one
@@ -213,22 +213,25 @@ while keep_worker_running
         % of the code.
         mis.logger = @(step,n_steps,time,add_info)...
             (je.log_progress(step,n_steps,time,add_info));
-        
+
         mis.check_cancelled = @()(f_canc(je));
-        
-        
+
+
         % send first "running" log message and set-up starting time. Runs
         % asynchronously.
         n_steps = je.n_steps;
         if DO_LOGGING; log_disp_message('Logging start and checking for job cancellation before loop je.is_completed loop\n'); end
         mis.do_logging(0,n_steps);
         %%
-        
+
+        % Call initial setup function of JobExecutor
+        je = je.setup()
+
         while ~je.is_completed()
             je.do_job_completed = false; % do 2 barriers on exception (one at process failure)
             % Execute job (run main job executor's do_job method
             if DO_LOGGING; log_disp_message('Entering Je do_job loop'); end
-            
+
             je= je.do_job();
             % explicitly check for cancellation before data reduction
             if DO_LOGGING; log_disp_message('Check for cancellation after Je do_job loop'); end
@@ -237,11 +240,11 @@ while keep_worker_running
                 error('JOB_EXECUTOR:cancelled',...
                     'Job cancelled before synchronization after do_job')
             end
-            
+
             if DO_LOGGING; log_disp_message('Got to barrier for all chunks do_job completion'); end
             % when its tested, workers are tested in single Matlab
             % session so it will hand up on synchronization
-            
+
             % when not tested, the synchronization is mandatory
             je.labBarrier(false); % Wait until all workers finish their
             %                       job before reducing the data
@@ -256,14 +259,17 @@ while keep_worker_running
             end
             je = je.reduce_data();
         end
-        
+
+        % Call final function of JobExecutor
+        je = je.finalise();
+
         % Sent final running message. Implicitly check for cancellation.
         % The node 1 waits for other nodes to send these this kind of messages
         mis.do_logging(n_steps,n_steps);
         % stop other nodes until the node 1 finishes to produce the
         % final message
         if DO_LOGGING; log_disp_message('arriving at JE end of task barrier'); end
-        
+
         je.labBarrier(false);
         je.do_job_completed = true; % do not wait at barrier if cancellation here
         %
@@ -277,10 +283,10 @@ while keep_worker_running
             end
             if DO_LOGGING; log_disp_message(' Completed processing JE fail state'); end
             if DO_LOGGING; log_disp_message('arriving at Process_fail_state end of task barrier'); end
-            
+
             je.labBarrier(true);
             je.do_job_completed = true;
-            
+
             if DO_LOGGING; log_disp_message('--->Arrived at finish task at failure\n'); end
             if is_tested
                 finish_mode = '-asynch';
@@ -288,7 +294,7 @@ while keep_worker_running
                 finish_mode = '-synch';
             end
             [ok,err_mess,je] = je.finish_task(mess,finish_mode);
-            
+
             if keep_worker_running
                 % migrate job folder for message exchange without deleting the old
                 % one
@@ -306,7 +312,7 @@ while keep_worker_running
             err_mess = sprintf('job ID: "%s"; critical failure. JE processing failure error %s:',...
                 control_struct.job_id,ME1.message);
             fbMPI.send_message(0,FailedMessage(err_mess,ME1));
-            
+
             disp(getReport(ME1))
             if exit_at_the_end
                 break;
@@ -315,8 +321,8 @@ while keep_worker_running
             end
         end
     end %Exception
-    
-    
+
+
     %%
     if DO_LOGGING;  fprintf(fh,'************* finishing subtask: %s \n',...
             fbMPI.job_id); end
@@ -324,7 +330,7 @@ while keep_worker_running
     % migrate job folder for message exchange without deleting the old
     % one
     je=je.migrate_job_folder(false);
-    
+
     if DO_LOGGING;  fprintf(fh,'************* subtask: %s  finished\n',fbMPI.job_id); end
 end
 if DO_DEBUGGING
@@ -359,7 +365,7 @@ end
         fprintf(fh,'      Job ID         : %s:\n',intercomm.job_id);
         fprintf(fh,'      LabNum         : %d:\n',intercomm.labIndex);
         fprintf(fh,'      NumLabs        : %d:\n',intercomm.numLabs);
-        
+
         % assing logging file-handle to the available frameworks to allow
         % internal logging
         fbMPI.ext_log_fh = fh;
@@ -414,7 +420,7 @@ end
             fprintf(fh,'%s\n','***************************');
         end
         disp(['WORKER_4TESTS: failing at receiving message: ',ME.identifier])
-        
+
     end
 
     function log_exception_caught()
@@ -428,7 +434,7 @@ end
             fprintf(fh,'%s\n','***************************');
         end
         disp(['WORKER_4TESTS: processing failure: ',ME.identifier])
-        
+
     end
 end
 
