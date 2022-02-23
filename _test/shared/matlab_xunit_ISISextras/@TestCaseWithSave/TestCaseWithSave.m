@@ -213,7 +213,7 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
 
     properties(Access=protected)
         % Structure containing test results
-        % - If save_outptu is false (i.e. in test mode) the structure contains
+        % - If save_output is false (i.e. in test mode) the structure contains
         %   the contents of the file in test_results_file_, if it exists
         % - If save_output is true, it contains tests results to save in
         %   a temporary file whose name is constructed from test_results_file_
@@ -529,6 +529,40 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             this.delete_files (this.files_to_delete_)
             this.remove_paths (this.paths_to_remove_)
         end
+
+        function data = getReferenceData(this, var_name)
+        % Wrapper to assertion methods to enable test or save functionality
+        %
+        %   >> getReferenceData(this, var_name)
+        %
+        % Input:
+        % ------
+        %   var         Variable to test or save
+        %   var_name    Name under which the variable will be saved
+
+        % Get the name of the test method. Determine this as the highest
+        % method of the class in the call stack that begins with 'test'
+        % ignoring character case
+        % (The test method may itself call functions in which the assertion
+        % test is performed, which is why we need to search the stack to get
+        % the test name)
+
+            class_name = class(this);
+            call_struct = dbstack(1);
+            for i=numel(call_struct):-1:2
+                cont=regexp(call_struct(i).name,'\.','split');
+                test_name = cont{end};
+
+                if strcmp(cont{1},class_name) && ~strcmp(cont{end},class_name) &&...
+                        strncmpi(cont{end},'test',4)
+                    break
+                end
+            end
+
+            data = this.get_ref_dataset_(var_name, test_name);
+        end
+
+
     end
 
 
