@@ -59,6 +59,8 @@ classdef test_equal_to_tol < TestCase & common_state_holder
         
         function test_different_sqw_objects_are_not_equal(obj)
             class_fields = properties(obj.sqw_2d);
+            is_npix = ismember(class_fields,'npixels');
+            class_fields = class_fields(~is_npix);
             for idx = 1:numel(class_fields)
                 sqw_copy = obj.sqw_2d;
                 field_name = class_fields{idx};
