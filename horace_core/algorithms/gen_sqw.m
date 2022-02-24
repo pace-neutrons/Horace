@@ -425,6 +425,9 @@ if ~accumulate_old_sqw && nindx==1
     if ~isempty(opt.transform_sqw)
         run_files{1}.transform_sqw = opt.transform_sqw;
     end
+    if isnan(run_files{1}.run_id)
+        run_files{1}.run_id = 1;
+    end
     [w,grid_size,pix_range] = run_files{1}.calc_sqw(grid_size_in,pix_db_range);
     verify_pix_range_est(pix_range,pix_range_est,log_level);
     save(w,sqw_file);

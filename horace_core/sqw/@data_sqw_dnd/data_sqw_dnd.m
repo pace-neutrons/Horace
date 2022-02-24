@@ -42,11 +42,11 @@ classdef data_sqw_dnd < axes_block
         function flds = indepFields(obj)
             % get independent fields, which fully define the state of a
             % serializable object.
-            
+
             flds = indepFields@axes_block(obj);
             flds = [flds(:);data_sqw_dnd.fields_to_save_(:)];
         end
-        
+
         %------------------------------------------------------------------
         % Determine data type of the data field of an sqw data structure
         data_type = data_structure_type(data);
