@@ -512,7 +512,7 @@ classdef test_rundata< TestCase
 
             rd = rundata(test_file);
             id =  rd.run_id;
-            assertEqual(id,1);
+            assertTrue(isnan(id));
         end
         %
         function test_run_id_empty(~)
@@ -542,7 +542,7 @@ classdef test_rundata< TestCase
         function test_extract_runid_empty(~)
             fname = 'nlalflalel';
             id = rundata.extract_id_from_filename(fname);
-            assertEqual(1,id);
+            assertTrue(isnan(id));
         end
         %
         function test_saveNXSPE_unbound(~)
