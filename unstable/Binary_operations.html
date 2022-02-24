@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Binary operations &mdash; Horace 3.6.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Plotting" href="Plotting.html" />
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Horace
+          </a>
+              <div class="version">
+                3.6.2
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="The_Horace_Rationale.html">The Horace Rationale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_Setup_Troubleshutting.html">Download and Setup Trouble-Shutting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_setup.html">Download and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_Setup_Troubleshutting.html">Download and Setup Trouble-Shutting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Support_and_updates.html">Support and updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced_use.html">Advanced use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Symmetrising_etc.html">Symmetrising etc</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Binary operations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sqw-objects">sqw objects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#single-sqw-object">Single sqw object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#array-of-sqw-objects">Array of sqw objects</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#dnd-objects">dnd objects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#single-dnd-object">Single dnd object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#array-of-dnd-objects">Array of dnd objects</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Simulation.html">Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Multifit.html">Multifit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced_Multifit.html">Advanced Multifit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FAQ.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Example_scripts.html">Example scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="How_to_cite_Horace.html">How to cite Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Papers_citing_Horace.html">Papers citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Known_bugs.html">Known bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Become_a_developer.html">Become a developer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="For_Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Developer_info.html">Developer info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Binary operations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Binary_operations.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="binary-operations">
+<h1>Binary operations<a class="headerlink" href="#binary-operations" title="Permalink to this headline"></a></h1>
+<p>Binary operations between two objects can be handled in a variety of ways in Horace. You can either use the Matlab symbols +, - , *, / and \, or you can use the explicit function names <code class="docutils literal notranslate"><span class="pre">plus,</span> <span class="pre">minus,</span> <span class="pre">mtimes,</span> <span class="pre">mrdivide</span></code> and <code class="docutils literal notranslate"><span class="pre">mldivide</span></code>.</p>
+<p>There are several options for the input parameters to binary operations</p>
+<section id="sqw-objects">
+<h2>sqw objects<a class="headerlink" href="#sqw-objects" title="Permalink to this headline"></a></h2>
+<section id="single-sqw-object">
+<h3>Single sqw object<a class="headerlink" href="#single-sqw-object" title="Permalink to this headline"></a></h3>
+<p>You can add to w1 in the following way</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_sqw</span><span class="w"></span>
+<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_sqw_dnd_type</span><span class="w"></span>
+<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_dnd</span><span class="w"></span>
+<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">scalar</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The conditions for these operations are as follows:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">w2_sqw</span></code> is an sqw of sqw type, with a pix array of identical size to the pix array of <code class="docutils literal notranslate"><span class="pre">w1</span></code>. There is only really one circumstance in which doing a binary operation of this type makes sense - when a background dataset has been created that maps exactly onto the real dataset, and needs to be subtracted.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">w2_sqw_dnd_type</span></code> is an sqw of dnd type (i.e. no it has pix array) whose plot axes overlap exactly with those of <code class="docutils literal notranslate"><span class="pre">w1</span></code>. An example is taking a 1d cut along the energy axis from two different regions of reciprocal space, and then adding or subtracting one from the other. In this case the output will be a sqw object of dnd type, since the pixel information has lost its connection with the signal and error that are plottable.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">w2_dnd</span></code> as above, but <code class="docutils literal notranslate"><span class="pre">w2_dnd</span></code> is a dnd object rather than an sqw of dnd type. Similarly to the above, the output is an sqw object of dnd type.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scalar</span></code> is a single number, e.g. if you want to add 4.782 to all of the data in <code class="docutils literal notranslate"><span class="pre">w1</span></code>. The output stays as a full sqw of sqw type (with pix array).</p></li>
+</ul>
+</section>
+<section id="array-of-sqw-objects">
+<h3>Array of sqw objects<a class="headerlink" href="#array-of-sqw-objects" title="Permalink to this headline"></a></h3>
+<p>You can use the same binary operation syntax as for single sqw objects, with the following conditions</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">w2_sqw</span></code> is either an array of sqw of sqw type objects with the pix array of each element matching the pix array of each element of <code class="docutils literal notranslate"><span class="pre">w1</span></code>. Or a single sqw object if the pix array happens to be the same size for all elements of the <code class="docutils literal notranslate"><span class="pre">w1</span></code> array.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">w2_sqw_dnd</span></code> is as above, i.e. an array of dnd-type sqw objects whose plot axes match element by element those of the array <code class="docutils literal notranslate"><span class="pre">w1</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">w2_dnd</span></code> same rules as for sqw of dnd type above.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scalar</span></code> the same scalar is subtracted from every pix array in the array of sqw objects.</p></li>
+</ul>
+<p>There is one additional possibility</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">numeric_array</span><span class="w"></span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">numeric_array</span></code> is an array of scalars whose size matches the size of the sqw array. The output will continue to be an sqw of sqw type, with a pix array.</p></li>
+</ul>
+</section>
+</section>
+<section id="dnd-objects">
+<h2>dnd objects<a class="headerlink" href="#dnd-objects" title="Permalink to this headline"></a></h2>
+<section id="single-dnd-object">
+<h3>Single dnd object<a class="headerlink" href="#single-dnd-object" title="Permalink to this headline"></a></h3>
+<p>The choices for a dnd object are:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_sqw</span><span class="w"></span>
+<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_sqw_dnd_type</span><span class="w"></span>
+<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_dnd</span><span class="w"></span>
+<span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">scalar</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="array-of-dnd-objects">
+<h3>Array of dnd objects<a class="headerlink" href="#array-of-dnd-objects" title="Permalink to this headline"></a></h3>
+<p>As with arrays of sqw objects, there is one further choice compared to a single dnd:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">numeric_array</span><span class="w"></span>
+</pre></div>
+</div>
+<p>As for sqw objects, the numeric array has to be the same size as the array of dnd objects.</p>
+</section>
+</section>
+<section id="list-of-operations-and-their-equivalent-code">
+<p>The arithmetic operations above correspond to equivalent Matlab functions. You should never need to use these, but for reference the corresponding functions are:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="nb">plus</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span><span class="w"></span>
+<span class="n">w1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">minus</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span><span class="w"></span>
+<span class="n">w1</span><span class="w">  </span><span class="s">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="nb">mtimes</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span><span class="w"></span>
+<span class="n">w1</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="nb">mrdivide</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span><span class="w"></span>
+<span class="n">w1</span><span class="w"> </span><span class="o">\\</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="nb">mldivide</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span><span class="w"></span>
+<span class="n">w1</span><span class="w"> </span><span class="s">^</span><span class="w"> </span><span class="s">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="nb">mpower</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p><strong>Important</strong> the matrix operations *, /, \\ and ^ (mtimes, mrdivide, mldivide and mpower) are performed <strong>element-by-element</strong>. So the equivalent Matlab routines would be .*, ./, .\and .^</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+      });
+  </script> 
+
+</body>
+</html>

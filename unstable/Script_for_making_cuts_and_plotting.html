@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Script for making cuts and plotting &mdash; Horace 3.6.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Script for making publication quality figures" href="Script_for_making_publication_quality_figures.html" />
+    <link rel="prev" title="Script for generating sqw files" href="Script_for_generating_sqw_files.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Horace
+          </a>
+              <div class="version">
+                3.6.2
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="The_Horace_Rationale.html">The Horace Rationale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_Setup_Troubleshutting.html">Download and Setup Trouble-Shutting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_setup.html">Download and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_Setup_Troubleshutting.html">Download and Setup Trouble-Shutting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Support_and_updates.html">Support and updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced_use.html">Advanced use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Symmetrising_etc.html">Symmetrising etc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Simulation.html">Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Multifit.html">Multifit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced_Multifit.html">Advanced Multifit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FAQ.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Example_scripts.html">Example scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="How_to_cite_Horace.html">How to cite Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Papers_citing_Horace.html">Papers citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Known_bugs.html">Known bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Become_a_developer.html">Become a developer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="For_Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Developer_info.html">Developer info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Script for making cuts and plotting</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Script_for_making_cuts_and_plotting.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="script-for-making-cuts-and-plotting">
+<h1>Script for making cuts and plotting<a class="headerlink" href="#script-for-making-cuts-and-plotting" title="Permalink to this headline"></a></h1>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Make different kinds of cuts and slices, and make basic plots of them</span><span class="w"></span>
+
+<span class="c">%===============================</span><span class="w"></span>
+<span class="c">%First define the viewing axes that you wish to use. These do not need to have any particular relation to the</span><span class="w"></span>
+<span class="c">%spectrometer axes</span><span class="w"></span>
+<span class="n">proj</span><span class="p">.</span><span class="n">u</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">proj</span><span class="p">.</span><span class="n">v</span><span class="p">=[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">proj</span><span class="p">.</span><span class="n">uoffset</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">proj</span><span class="p">.</span><span class="n">type</span><span class="p">=</span><span class="s">&#39;rrr&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">proj2</span><span class="p">.</span><span class="n">u</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">proj2</span><span class="p">.</span><span class="n">v</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">proj2</span><span class="p">.</span><span class="n">uoffset</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">proj2</span><span class="p">.</span><span class="n">type</span><span class="p">=</span><span class="s">&#39;rrr&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">proj3</span><span class="p">.</span><span class="n">u</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">];</span><span class="w"> </span><span class="n">proj3</span><span class="p">.</span><span class="n">v</span><span class="p">=[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">proj3</span><span class="p">.</span><span class="n">uoffset</span><span class="p">=[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"> </span><span class="n">proj3</span><span class="p">.</span><span class="n">type</span><span class="p">=</span><span class="s">&#39;rrr&#39;</span><span class="p">;</span><span class="w"></span>
+
+<span class="c">%The u and v fields of proj define the first two viewing axes, and the third Q dimension is the cross-product</span><span class="w"></span>
+<span class="c">%of them. The uoffset is if you wish to explicitly give an offset from the origin for your cuts / slices.</span><span class="w"></span>
+<span class="c">%The type field (the best choice is &#39;rrr&#39;) is to say that all 3 Q axes should be in reciprocal lattice units.</span><span class="w"></span>
+<span class="c">%If you prefer inverse Angstroms then use &#39;aaa&#39;</span><span class="w"></span>
+
+<span class="c">%================================</span><span class="w"></span>
+
+<span class="c">%3d volume slice and plot</span><span class="w"></span>
+<span class="n">my_vol</span><span class="p">=</span><span class="n">cut_sqw</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="n">proj</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">8</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mf">0.05</span><span class="p">,</span><span class="mi">6</span><span class="p">],[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">1000</span><span class="p">],</span><span class="s">&#39;-nopix&#39;</span><span class="p">);</span><span class="c">%Makes a Q,Q,E volume plot</span><span class="w"></span>
+<span class="c">%the -nopix option ensures that the output is a &quot;d3d&quot;, which takes less memory on your computer</span><span class="w"></span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_vol</span><span class="p">);</span><span class="c">%default style plot of the 3d volume - opens a new sliceomatic window</span><span class="w"></span>
+
+
+<span class="c">%================================</span><span class="w"></span>
+
+<span class="c">%2d slice and plot</span><span class="w"></span>
+<span class="n">my_slice</span><span class="p">=</span><span class="n">cut_sqw</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="n">proj</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">8</span><span class="p">],[</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">],[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10000</span><span class="p">]);</span><span class="c">%Make as Q,E slice</span><span class="w"></span>
+<span class="c">%this time we did not use the nopix option, so the output is an &quot;sqw&quot;, in which all contributing detector pixel information is retained</span><span class="w"></span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice</span><span class="p">);</span><span class="c">%default style plot of 2d slice</span><span class="w"></span>
+
+<span class="c">%Customise the slice plot:</span><span class="w"></span>
+
+<span class="c">%Make axes tight</span><span class="w"></span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">compact</span><span class="p">(</span><span class="n">my_slice</span><span class="p">));</span><span class="w"></span>
+
+<span class="c">%Default style smoothing (notice conversion to d2d first, since smoothing of sqw objects is not allowed, due to their strong connection to the raw data)</span><span class="w"></span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">smooth</span><span class="p">(</span><span class="n">d2d</span><span class="p">(</span><span class="n">my_slice</span><span class="p">)));</span><span class="w"></span>
+
+<span class="c">%Smoothing options</span><span class="w"></span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">smooth</span><span class="p">(</span><span class="n">d2d</span><span class="p">(</span><span class="n">my_slice</span><span class="p">),[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="s">&#39;gaussian&#39;</span><span class="p">));</span><span class="w"></span>
+
+<span class="c">%Set colour scale and other axes scales in script:</span><span class="w"></span>
+<span class="n">lz</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0.5</span><span class="p">;</span><span class="w"> </span><span class="c">%colour scale</span><span class="w"></span>
+<span class="n">ly</span><span class="w"> </span><span class="s">50</span><span class="w"> </span><span class="s">250</span><span class="w"></span>
+<span class="n">lx</span><span class="w"> </span><span class="o">-</span><span class="mf">1.5</span><span class="w"> </span><span class="mf">1.5</span><span class="w"></span>
+
+<span class="c">%Reset a limit</span><span class="w"></span>
+<span class="n">lx</span><span class="w"></span>
+
+<span class="s">%Make</span><span class="w"> </span><span class="s">a</span><span class="w"> </span><span class="s">plot,</span><span class="w"> </span><span class="s">and</span><span class="w"> </span><span class="s">retain</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">figure</span><span class="w"> </span><span class="s">window</span><span class="w"> </span><span class="s">so</span><span class="w"> </span><span class="s">that</span><span class="w"> </span><span class="s">the</span><span class="w"> </span><span class="s">next</span><span class="w"> </span><span class="s">plot</span><span class="w"> </span><span class="s">appears</span><span class="w"> </span><span class="s">in</span><span class="w"> </span><span class="s">a</span><span class="w"> </span><span class="s">new</span><span class="w"> </span><span class="s">window,</span><span class="w"> </span><span class="s">and</span><span class="w"> </span><span class="s">does</span><span class="w"> </span><span class="s">not</span><span class="w"> </span><span class="s">replace</span><span class="w"> </span><span class="s">this</span><span class="w"> </span><span class="s">one</span><span class="w"></span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_slice</span><span class="p">);</span><span class="w"></span>
+<span class="n">keep_figure</span><span class="p">;</span><span class="w"></span>
+
+
+<span class="c">%================================</span><span class="w"></span>
+
+<span class="c">%1d cut</span><span class="w"></span>
+
+<span class="n">my_cut1</span><span class="p">=</span><span class="n">cut_sqw</span><span class="p">(</span><span class="n">sqw_file</span><span class="p">,</span><span class="n">proj</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">8</span><span class="p">],[</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">],[</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.1</span><span class="p">],[</span><span class="mi">130</span><span class="p">,</span><span class="mi">150</span><span class="p">]);</span><span class="w"></span>
+
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_cut1</span><span class="p">);</span><span class="c">%the lx and ly axes adjustment can be used here too</span><span class="w"></span>
+
+<span class="n">acolor</span><span class="w"> </span><span class="s">red</span><span class="w"></span>
+<span class="n">amark</span><span class="w"> </span><span class="s">s</span><span class="w"></span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_cut1</span><span class="p">);</span><span class="w"></span>
+
+<span class="c">%Overplot another cut on the same set of axes (in this example just the first cut plus a constant):</span><span class="w"></span>
+<span class="n">acolor</span><span class="w"> </span><span class="s">black</span><span class="w"></span>
+<span class="n">amark</span><span class="w"> </span><span class="s">o</span><span class="w"></span>
+<span class="n">pp</span><span class="p">(</span><span class="n">my_cut1</span><span class="o">+</span><span class="mi">3</span><span class="p">);</span><span class="w"> </span><span class="c">%the pp command overplots a &quot;plot&quot;</span><span class="w"></span>
+
+<span class="c">%you can overplot a line using &quot;pl&quot;, just markers using &quot;pm&quot;, just errorbars using &quot;pe&quot;.</span><span class="w"></span>
+
+
+<span class="c">%================================</span><span class="w"></span>
+
+
+<span class="c">%If you have a volume or slice, you can take a lower dimensional cut from it. Because the data are already in memory this</span><span class="w"></span>
+<span class="c">%is much faster than going back to the data file on disk</span><span class="w"></span>
+
+<span class="n">my_cut2</span><span class="p">=</span><span class="n">cut</span><span class="p">(</span><span class="n">my_slice</span><span class="p">,[],[</span><span class="mi">130</span><span class="p">,</span><span class="mi">150</span><span class="p">]);</span><span class="w"></span>
+<span class="c">%note you do not need to specify all 4 axes, because some (in this case 2) have already been integrated</span><span class="w"></span>
+<span class="c">%the empty array [] specifies that you want to keep the same binning as that used in my_slice</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Script_for_generating_sqw_files.html" class="btn btn-neutral float-left" title="Script for generating sqw files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+      });
+  </script> 
+
+</body>
+</html>

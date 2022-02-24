@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Developer info &mdash; Horace 3.6.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="General disclaimer" href="General_disclaimer.html" />
+    <link rel="prev" title="For Developers" href="For_Developers.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Horace
+          </a>
+              <div class="version">
+                3.6.2
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="The_Horace_Rationale.html">The Horace Rationale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_Setup_Troubleshutting.html">Download and Setup Trouble-Shutting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_setup.html">Download and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_Setup_Troubleshutting.html">Download and Setup Trouble-Shutting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Support_and_updates.html">Support and updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced_use.html">Advanced use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Symmetrising_etc.html">Symmetrising etc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Simulation.html">Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Multifit.html">Multifit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced_Multifit.html">Advanced Multifit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FAQ.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Example_scripts.html">Example scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="How_to_cite_Horace.html">How to cite Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Papers_citing_Horace.html">Papers citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Known_bugs.html">Known bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Become_a_developer.html">Become a developer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="For_Developers.html">For Developers</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Developer info</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#github">Github</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#horace-configuration-on-isiscompute-idaaas-servers">Horace configuration on isiscompute|iDaaaS servers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-horace-distribution-kit">Building Horace distribution kit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wiki-page-editing-protocol">Wiki page editing protocol</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Developer info</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Developer_info.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="developer-info">
+<h1>Developer info<a class="headerlink" href="#developer-info" title="Permalink to this headline"></a></h1>
+<section id="github">
+<h2>Github<a class="headerlink" href="#github" title="Permalink to this headline"></a></h2>
+</section>
+<section id="horace-configuration-on-isiscompute-idaaas-servers">
+<h2>Horace configuration on <a class="reference external" href="http://www.isis.stfc.ac.uk/groups/excitations/data-analysis-computers/connecting-to-isiscomputendrlacuk-using-nomachine15120.html">isiscompute</a>|<a class="reference external" href="https://isis.analysis.stfc.ac.uk/#/login">iDaaaS</a> servers<a class="headerlink" href="#horace-configuration-on-isiscompute-idaaas-servers" title="Permalink to this headline"></a></h2>
+</section>
+<section id="building-horace-distribution-kit">
+<h2>Building Horace distribution kit<a class="headerlink" href="#building-horace-distribution-kit" title="Permalink to this headline"></a></h2>
+<p>Physically, the web folder is currently located on ISIS internal network at <strong>shadow</strong> server and exposed through <em>\\shadow\horacekits$</em> (Horace) and <em>\\shadow\libisiskits$</em> (Mslice) folders. Access to these folders as Windows shares needs developers <strong>federal ID</strong> and password. You may need to ask <a class="reference external" href="mailto:freddie&#46;akeroyd&#37;&#52;&#48;stfc&#46;ac&#46;uk">Freddie Akeroyd</a> for write access to the web folders.</p>
+<p><a class="reference external" href="mailto:Alex&#46;Buts&#37;&#52;&#48;stfc&#46;ac&#46;uk">Alex Buts</a> usually updates web distribution kit each time Horace <strong>isiscompute&amp;&amp;iDaaaS</strong> version is updated.</p>
+</section>
+<section id="wiki-page-editing-protocol">
+<h2>Wiki page editing protocol<a class="headerlink" href="#wiki-page-editing-protocol" title="Permalink to this headline"></a></h2>
+<p>In order to ensure that the Horace website remains self consistent, there are several checks you need to make.</p>
+<ul class="simple">
+<li><p>Generally, you should try to append your new entry to an existing page. If you create a subheading (see existing pages for code examples) then you can link to this from elsewhere.</p></li>
+<li><p>Consider whether your new entry merits an addition to the <a class="reference internal" href="Example_scripts.html#example-scripts"><span class="std std-ref">Example_scripts</span></a> section. If so, make the change. Also add the change to the example scripts held on ISIScompute, to ensure consistency.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="For_Developers.html" class="btn btn-neutral float-left" title="For Developers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+      });
+  </script> 
+
+</body>
+</html>

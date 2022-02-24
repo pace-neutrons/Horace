@@ -9,7 +9,7 @@ We are pleased to report that our paper detailing the theory behind and applicat
 
 "Horace: Software for the analysis of data from single crystal spectroscopy experiments at time-of-flight neutron instruments"
 
-R.A. Ewings, A. Buts, M.D. Le, J. van Duijn, I. Bustinduy, T.G. Perring ()
+R.A. Ewings, A. Buts, M.D. Lee, J. van Duijn, I. Bustinduy, T.G. Perring ()
 
 Nuclear Instruments and Methods in Physics Research Section A: Accelerators, Spectrometers, Detectors and Associated Equipment, volume 834 (2016) 132-142
 
@@ -21,4 +21,4 @@ Nuclear Instruments and Methods in Physics Research Section A: Accelerators, Spe
 
 **Cite in papers as:**
 
-R.A. Ewings, A. Buts, M.D. Le, J. van Duijn, I. Bustinduy, T.G. Perring, Nucl. Instrum. Methods Phys. Res. Sect. A 834 (2016) 132
+R.A. Ewings, A. Buts, M.D. Lee, J. van Duijn, I. Bustinduy, T.G. Perring, Nucl. Instrum. Methods Phys. Res. Sect. A 834 (2016) 132

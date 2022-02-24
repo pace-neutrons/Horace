@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Input file formats &mdash; Horace 3.6.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="FAQ" href="FAQ.html" />
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Horace
+          </a>
+              <div class="version">
+                3.6.2
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="The_Horace_Rationale.html">The Horace Rationale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_Setup_Troubleshutting.html">Download and Setup Trouble-Shutting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_setup.html">Download and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Download_and_Setup_Troubleshutting.html">Download and Setup Trouble-Shutting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Support_and_updates.html">Support and updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced_use.html">Advanced use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Symmetrising_etc.html">Symmetrising etc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Simulation.html">Simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Multifit.html">Multifit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced_Multifit.html">Advanced Multifit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Input file formats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#gen-nxspe">gen_nxspe</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#spe-file-and-par-file">SPE file and PAR file</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#spe-file-format">SPE file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#par-file-format">PAR file format</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="FAQ.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Example_scripts.html">Example scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="How_to_cite_Horace.html">How to cite Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Papers_citing_Horace.html">Papers citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Known_bugs.html">Known bugs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Become_a_developer.html">Become a developer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="For_Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Developer_info.html">Developer info</a></li>
+<li class="toctree-l1"><a class="reference internal" href="General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Input file formats</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Input_file_formats.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="input-file-formats">
+<h1>Input file formats<a class="headerlink" href="#input-file-formats" title="Permalink to this headline"></a></h1>
+<section id="nxspe-file">
+<section id="gen-nxspe">
+<h3>gen_nxspe<a class="headerlink" href="#gen-nxspe" title="Permalink to this headline"></a></h3>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">gen_nxspe</span><span class="p">(</span><span class="n">S</span><span class="p">,</span><span class="n">ERR</span><span class="p">,</span><span class="n">en</span><span class="p">,</span><span class="n">par</span><span class="p">,</span><span class="n">nxspefile_name</span><span class="p">,</span><span class="n">efix</span><span class="p">,</span><span class="n">emode</span><span class="p">,</span><span class="nb">psi</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The input parameters are defined as follows:</p>
+<p><code class="docutils literal notranslate"><span class="pre">S</span></code>: Array of signal strength size [ne,nd] where ne is the number of energy bins and nd is the number of detector elements.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ERR</span></code>: Array of estimated standard errors with size [ne,nd].</p>
+<p><code class="docutils literal notranslate"><span class="pre">en</span></code>: Array of energy bin boundaries. The number of elements is therefore (ne+1).</p>
+<p><code class="docutils literal notranslate"><span class="pre">par</span></code>: Array of detector parameters with size [6,nd]. Each column of the array contains information for a detector element:</p>
+<ul class="simple">
+<li><p>ind: Detector index number. The detectors can be numbered 1,2,…nd</p></li>
+<li><p>phi: Scattering angle (degrees) i.e. angle between the incident beam direction and a line connecting the sample to the detector. In spherical polar coordinates where the conventional z-axis points in the direction of the incident beam, this angle is the conventional polar angle theta.</p></li>
+<li><p>azim: Azimuthal angle (degrees). In the spherical polar frame defined above, and with the conventional y-axis pointing vertically upwards, this angle is the conventional azimuthal angle phi.</p></li>
+<li><p>width: Width (m) of the detector perpendicular to the Debye-Scherrer ring through the detector.</p></li>
+</ul>
+<p>The width and length of the detector are not actually used by Horace, but dummy values need to be provided.</p>
+<p><code class="docutils literal notranslate"><span class="pre">nxspefile_name</span></code>: The name of the file to which the data will be saved.</p>
+<p><code class="docutils literal notranslate"><span class="pre">efix</span></code>: Fixed energy (meV). If emode=1 this is the fixed incident energy, if emode=2 it is the fixed final energy.</p>
+<p><code class="docutils literal notranslate"><span class="pre">psi</span></code>: Rotation about the vertical axis. This is the angle between the vector u of the pair of vectors u and v that define the horizontal scattering plane of the crystal.</p>
+</section>
+</section>
+<section id="spe-file-and-par-file">
+<h2>SPE file and PAR file<a class="headerlink" href="#spe-file-and-par-file" title="Permalink to this headline"></a></h2>
+<section id="spe-file-format">
+<h3>SPE file format<a class="headerlink" href="#spe-file-format" title="Permalink to this headline"></a></h3>
+<p>The SPE file contains the intensity and estimated standard deviation on those intensities for each detector element in turn, with header blocks that give the number of detectors and energy bins, and the scattering angle and energy transfer bin boundaries. These blocks are all separated by character strings that begin with ‘###’. In full:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">nd</span><span class="w"> </span><span class="s">ne</span><span class="w"></span>
+
+###<span class="w"> </span><span class="n">Phi</span><span class="w"> </span><span class="n">Grid</span><span class="w"></span>
+
+<span class="n">phi</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">phi</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">    </span><span class="n">phi</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w">  </span><span class="n">phi</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w">  </span><span class="n">phi</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w">  </span><span class="n">phi</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w">  </span><span class="n">phi</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span><span class="w">  </span><span class="n">phi</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="w"></span>
+<span class="n">phi</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span><span class="w"> </span><span class="n">phi</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w">   </span><span class="n">phi</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span><span class="w"> </span><span class="n">phi</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span><span class="w"> </span><span class="n">phi</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span><span class="w"> </span><span class="n">phi</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span><span class="w"> </span><span class="n">phi</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span><span class="w"> </span><span class="n">phi</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span><span class="w"></span>
+<span class="p">:</span><span class="w"></span>
+<span class="k">...</span><span class="c">    phi(nd+1)</span><span class="w"></span>
+
+###<span class="w"> </span><span class="n">Energy</span><span class="w"> </span><span class="n">Grid</span><span class="w"></span>
+
+<span class="n">en</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">en</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">    </span><span class="n">en</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w">  </span><span class="n">en</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w">  </span><span class="n">en</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w">  </span><span class="n">en</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w">  </span><span class="n">en</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span><span class="w">  </span><span class="n">en</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="w"></span>
+<span class="n">en</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span><span class="w"> </span><span class="n">en</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w">   </span><span class="n">en</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span><span class="w"> </span><span class="n">en</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span><span class="w"> </span><span class="n">en</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span><span class="w"> </span><span class="n">en</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span><span class="w"> </span><span class="n">en</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span><span class="w"> </span><span class="n">en</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span><span class="w"></span>
+<span class="p">:</span><span class="w"></span>
+<span class="k">...</span><span class="c">   en(ne+1)</span><span class="w"></span>
+
+###<span class="w"> </span><span class="n">S</span><span class="p">(</span><span class="n">Phi</span><span class="p">,</span><span class="n">w</span><span class="p">)</span><span class="w"></span>
+
+<span class="n">S</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">S</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">  </span><span class="n">S</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w">  </span><span class="n">S</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w">  </span><span class="n">S</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w">  </span><span class="n">S</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w">  </span><span class="n">S</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span><span class="w">  </span><span class="n">S</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="w"></span>
+<span class="n">S</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span><span class="w"> </span><span class="n">S</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="n">S</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span><span class="w"> </span><span class="n">S</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span><span class="w"> </span><span class="n">S</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span><span class="w"> </span><span class="n">S</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span><span class="w"> </span><span class="n">S</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span><span class="w"> </span><span class="n">S</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span><span class="w"></span>
+<span class="p">:</span><span class="w"></span>
+<span class="k">...</span><span class="c">  S(ne)</span><span class="w"></span>
+
+###<span class="w"> </span><span class="n">Errors</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span><span class="w">  </span><span class="n">ERR</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="w"></span>
+<span class="n">ERR</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span><span class="w">     </span><span class="n">ERR</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span><span class="w"> </span><span class="n">ERR</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span><span class="w"></span>
+<span class="p">:</span><span class="w"></span>
+<span class="k">...</span><span class="c">        ERR(ne)</span><span class="w"></span>
+
+###<span class="w"> </span><span class="n">S</span><span class="p">(</span><span class="n">Phi</span><span class="p">,</span><span class="n">w</span><span class="p">)</span><span class="w"></span>
+<span class="p">:</span><span class="w"></span>
+###<span class="w"> </span><span class="n">Errors</span><span class="w"></span>
+<span class="p">:</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Here nd is the number of detectors, ne is the number of energy bins, phi contains scattering angles that are now ignored by all applications as well as Horace (set to 1,2,3…(nd+1)), en contains the energy transfer bin boundaries, and S and ERR contain the signal and standard error on the signal for each detecetor in turn.</p>
+</section>
+<section id="par-file-format">
+<h3>PAR file format<a class="headerlink" href="#par-file-format" title="Permalink to this headline"></a></h3>
+<p>The PAR file contains the position information of the detectors and their sizes. The format is:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 18%" />
+<col style="width: 20%" />
+<col style="width: 22%" />
+<col style="width: 24%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>ndet</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<td><p>phi(1)</p></td>
+<td><p>azim(1)</p></td>
+<td><p>width(1)</p></td>
+<td><p>length(1)</p></td>
+</tr>
+<td><p>phi(2)</p></td>
+<td><p>azim(2)</p></td>
+<td><p>width(2)</p></td>
+<td><p>length(2)</p></td>
+</tr>
+<tr class="row-even"><td><p>:</p></td>
+<td><p>:</p></td>
+<td><p>:</p></td>
+<td><p>:</p></td>
+<td><p>:</p></td>
+</tr>
+<td><p>phi(ndet)</p></td>
+<td><p>azim(ndet)</p></td>
+<td><p>width(ndet)</p></td>
+<td><p>length(ndet)</p></td>
+</tr>
+</tbody>
+</table>
+<p>where</p>
+<ul class="simple">
+<li><p>ndet: Total number of detector elements.</p></li>
+<li><p>phi: Scattering angle (degrees) i.e. angle between the incident beam direction and a line connecting the sample to the detector. In spherical polar coordinates where the conventional z-axis points in the direction of the incident beam, this angle is the conventional polar angle theta.</p></li>
+<li><p>azim: Azimuthal angle (degrees). In the spherical polar frame defined above, and with the conventional y-axis pointing vertically upwards, this angle is the conventional azimuthal angle phi.</p></li>
+<li><p>width: Width (m) of the detector perpendicular to the Debye-Scherrer ring through the detector.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+      });
+  </script> 
+
+</body>
+</html>
