@@ -78,8 +78,13 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(mheader.filepath,...
                 'd:\Users\abuts\Data\ExcitDev\ISIS_svn\Hor#162\_test\test_sqw_file\');
 
+            [exp_info,~,runid_map] = to.get_header();
 
-            exp_info = to.get_header();
+
+
+
+            assertEqual(runid_map,containers.Map(1,1))
+
             assertTrue(isa(exp_info,'Experiment'));
             inf = exp_info.expdata(1);
             assertEqual(inf.filename,'')
@@ -132,7 +137,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertTrue(isa(samp,'IX_sample'));
 
             inst1 = to.get_instrument(1);
-            assertEqual(inst{1},inst1);
+            assertEqual(inst,inst1);
         end
         %
         function obj = test_get_sqw(obj)
@@ -199,7 +204,7 @@ classdef test_faccess_sqw_v3< TestCase
 
             inst1=create_test_instrument(95,250,'s');
             hdr = sqw_ob.experiment_info;
-            hdr.instruments{1} = inst1;
+            hdr.instruments(1) = inst1;
             sqw_ob = sqw_ob.change_header(hdr);
             
             tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
@@ -236,7 +241,7 @@ classdef test_faccess_sqw_v3< TestCase
 
             inst1=create_test_instrument(95,250,'s');
             hdr = sqw_ob.experiment_info;
-            hdr.instruments{1} = inst1;
+            hdr.instruments(1) = inst1;
             sqw_ob = sqw_ob.change_header(hdr);
             
             tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');

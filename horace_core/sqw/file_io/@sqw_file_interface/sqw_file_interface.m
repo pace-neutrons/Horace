@@ -135,7 +135,8 @@ classdef sqw_file_interface < dnd_binfile_common
     methods(Abstract)
         % retrieve different parts of sqw data
         %------------------------------------------------------------------
-        [header,pos]= get_header(obj,varargin);
+        [header,pos,runid_map]...
+            = get_header(obj,varargin);
         detpar      = get_detpar(obj,varargin);
         pix         = get_pix(obj,varargin);
         range       = get_pix_range(obj);        

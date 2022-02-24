@@ -152,7 +152,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
     %
     methods
         % get data header
-        head = get_header(obj,varargin);
+        [head,pos,runid_map] = get_header(obj,varargin);
         % Save new or fully overwrite existing sqw file
         obj = put_sqw(obj,varargin);
         %

@@ -10,8 +10,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     properties(Dependent)
         % the
         main_header
+        runid_map % the map which connects header number with run_id
         experiment_info
         detpar
+        %CMDEV: data now a dependent property, below
         data;
         %;
     end
@@ -44,7 +46,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function flds = indepFields(~)
             flds = sqw.fields_to_save_;
         end
-        
+
         
         wout = sigvar(w);
         w = sigvar_set(win, sigvar_obj);
@@ -134,8 +136,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 if isa(args.data_struct,'dnd_file_interface')
                     args.data_struct = obj.get_loader_struct_(...
                         args.data_struct,args.pixel_page_size);
+                    if isempty(args.data_struct.runid_map)
+                        args.data_struct.runid_map = recalculate_runid_map_( args.data_struct.header);
+                    end
                     obj = from_bare_struct(obj,args.data_struct);
                 elseif isfield(args.data_struct,'data')
+                    if isempty(args.data_struct.runid_map)
+                        args.data_struct.runid_map = recalculate_runid_map_( args.data_struct.header);
+                    end
                     if isfield(args.data_struct.data,'version')
                         obj = sqw.loadobj(args.data_struct);
                     elseif isfield(args.data_struct.data,'serial_name')
@@ -247,15 +255,28 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % restore object from the old structure, which describes the
             % previous version of the object.
             %
+            %   >> obj = loadobj(S)
             % The method is called by loadobj in the case if the input
             % structure does not contain version or the version, stored
             % in the structure does not correspond to the current version
             %
+            % Input:
+            % ------
+            %   S       An instance of this object or struct
             % By default, this function interfaces the default from_bare_struct
             % method, but when the old strucure substantially differs from
             % the modern structure, this method needs the specific overloading
             % to allow loadob to recover new structure from an old structure.
             %
+            % -------
+            % Output:
+            %   obj     An instance of this object
+            if isa(S,'sqw')
+                if isempty(obj.runid_map)
+                    obj.runid_map = recalculate_runid_map_(S.experiment_info);
+                end
+                return
+            end
             if ~isfield(S,'version')
                 % previous version did not store any version data
                 if numel(S)>1
@@ -263,6 +284,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     obj = repmat(tmp, size(S));
                 end
                 for i = 1:numel(S)
+                    obj(i) = sqw(S(i));
+                end
                     ss =S(i);
                     if isfield(ss,'header')
                         if isa(ss.header,'Experiment')
@@ -276,7 +299,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                         ss.data = ss.data_;
                         ss = rmfield(ss,'data_');
                     end
-                    
+        end
+
                     obj(i) = sqw(ss);
                 end
                 return
