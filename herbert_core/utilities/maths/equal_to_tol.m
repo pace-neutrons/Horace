@@ -156,6 +156,7 @@ elseif nargin==3 && isnumeric(varargin{1})
 else
     % Optional arguments must have been given; parse input arguments
     % opt filled with default for new format; strip min_denominator away later
+
     opt = struct(...
         'tolerance',[],...
         'abstolerance',0,...
@@ -460,7 +461,7 @@ elseif isstruct(a) && isstruct(b)
 
     if ~isempty(extraA) || ~isempty(extraB)
         error('HERBERT:equal_to_tol:inputs_mismatch',...
-            'The structue: "%s" names: "%s" DIFFER from the struct: "%s"  names: "%s"',...
+            'The structure: "%s" names: "%s" DIFFER from the struct: "%s"  names: "%s"',...
             name_a,strjoin(extraA,'; '),name_b,strjoin(extraB,'; '));
     end
 
@@ -563,7 +564,9 @@ function equal_to_tol_numeric(a,b,tol,nan_equal,name_a,name_b)
 % Check two arrays have smae size and each element is the same within
 % requested relative or absolute tolerance.
 
-if ~isequal(size(a),size(b))
+sz=size(a);
+
+if sz ~= size(b)
     error('HERBERT:equal_to_tol:inputs_mismatch',...
           '%s and %s: Different size numeric arrays',...
           name_a,name_b);
@@ -571,7 +574,6 @@ end
 
 % Turn arrays into vectors (avoids problems with matlab changing shapes
 % of arrays when logical filtering is performed
-sz=size(a);
 a=a(:);
 b=b(:);
 
