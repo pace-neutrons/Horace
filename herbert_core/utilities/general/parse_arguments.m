@@ -15,7 +15,7 @@ function [par,keyval,present,filled,ok,mess]=parse_arguments(args,varargin)
 %   >> [...] = parse_arguments (args, par_req, par_opt, keyval_def)
 %
 %
-% Optional additional arguments (one or both, in either order) 
+% Optional additional arguments (one or both, in either order)
 % -----------------------------
 % Indicate which keywords are logical flags:
 %   >> [...] = parse_arguments (..., flagnames)
@@ -74,7 +74,7 @@ function [par,keyval,present,filled,ok,mess]=parse_arguments(args,varargin)
 %
 % Optionally: give either the number of required and optional positional
 % parameters:
-%   npar_req    The number of required positional parameters. It can be 
+%   npar_req    The number of required positional parameters. It can be
 %              0,1,2,...  [Default: =[] which is equivalent to 0]
 %
 %   npar_opt    The number of optional positional parameters. It
@@ -90,12 +90,12 @@ function [par,keyval,present,filled,ok,mess]=parse_arguments(args,varargin)
 %              field names of the structure, and the values by the values of
 %              the fields. [Default=[] which means no optional parameters]
 %
-% If neither option is given, then this is interpreted as no required 
+% If neither option is given, then this is interpreted as no required
 % parameters and unlimited optional parameters i.e. it is the same as
 % npar_req=0, npar+opt=Inf [Note this is NOT the same as the default
 % numeric input]
 %
-%               
+%
 %   keyval_def  Structure with field names giving the parameter names, and
 %              default values. Note that some keywords may not be permitted
 %              if negation of logical flags is permitted (which is the
@@ -161,11 +161,11 @@ function [par,keyval,present,filled,ok,mess]=parse_arguments(args,varargin)
 % par       If only the number of required and optional positional parameters
 %          was given (or neither option): Cell array that contains values of
 %          arguments that do not correspond to keywords.
-% 
+%
 %           If the names of required and optional parameters were given:
 %          Structure with fieldnames corresponding to the parameter names
 %          and the values of those fields set to the parameter values.
-%          Optional parameters that did not appear are set to their default 
+%          Optional parameters that did not appear are set to their default
 %          values as given in the input argument par_opt.
 %
 % keyval    Structure with fieldnames corresponding to the keywords and
@@ -187,7 +187,7 @@ function [par,keyval,present,filled,ok,mess]=parse_arguments(args,varargin)
 %
 % ok        True if all is OK, false if not. If there is an error, but ok is
 %          not a return argument, then an exception will be thrown. If ok is
-%          a return argument, then an error will not throw an exception, so 
+%          a return argument, then an error will not throw an exception, so
 %          you must test the value of ok on return.
 %
 % mess      Error message of not ok; empty string if all is ok.
@@ -275,25 +275,25 @@ function [par,keyval,present,filled,ok,mess]=parse_arguments(args,varargin)
 %                       'back',[15000,19000],'mod','nonorm')
 %
 % results in the output:
-%     par = 
-% 
+%     par =
+%
 %         data_source: 'input_file.dat'
 %                  ei: 18
 %                emin: -0.5000
 %                emax: 0.6000
 %                  de: 0.0050
-% 
-% 
-%     argout = 
-% 
+%
+%
+%     argout =
+%
 %         background: [15000 19000]
 %          normalise: 0
 %         modulation: 1
 %             output: 'data.txt'
-% 
-% 
-%     present = 
-% 
+%
+%
+%     present =
+%
 %         data_source: 1
 %                  ei: 1
 %                emin: 1
@@ -305,8 +305,8 @@ function [par,keyval,present,filled,ok,mess]=parse_arguments(args,varargin)
 %              output: 0
 
 
-% Original author: T.G.Perring 
-% 
+% Original author: T.G.Perring
+%
 %
 
 throw_error=(nargout<=4);
@@ -400,19 +400,19 @@ narg=numel(varargin);
 if narg==2 && (iscellstr(varargin{1}) || isempty(varargin{1})) && isstruct(varargin{2})
     flagnames = varargin{1};
     [ok,mess,opt] = update_opt (varargin{2});
-    
+
 elseif narg==1 && iscellstr(varargin{1})
     flagnames=varargin{1};
     [ok,mess,opt] = update_opt (struct());      % loads default
-    
+
 elseif narg==1 && isstruct(varargin{1})
     flagnames={};
     [ok,mess,opt] = update_opt (varargin{1});
-    
+
 elseif narg==0
     flagnames={};
     [ok,mess,opt] = update_opt(struct());   % loads default
-    
+
 else
     ok=false;
     mess='Check validity of optional arguments ''flagnames'' and/or ''opt''';
@@ -432,47 +432,24 @@ function [ok,mess,opt_out] = update_opt (opt)
 ok=true;
 mess='';
 
-nam={'prefix';'prefix_req';'flags_noneg';'flags_noval';...
-    'keys_exact';'keys_at_end';'keys_once';'noffset'};
-val={'';true;false;false;false;true;true;0};
+p = inputParser();
+addParameter(p, 'prefix', '', @is_string);
+addParameter(p, 'prefix_req', true, @islognumscalar);
+addParameter(p, 'flags_noneg', false, @islognumscalar)
+addParameter(p, 'flags_noval', false, @islognumscalar)
+addParameter(p, 'keys_exact', false, @islognumscalar)
+addParameter(p, 'keys_at_end', false, @islognumscalar)
+addParameter(p, 'keys_once', true, @islognumscalar)
+addParameter(p, 'noffset', 0, @(x) validateattributes({'numeric'}, {'nonnegative'}))
 
-optnam=fieldnames(opt);
-for i=1:numel(optnam)
-    ind=find(strcmpi(optnam{i},nam),1);
-    if ~isempty(ind)
-        if ind==1 && is_string(opt.(optnam{i}))
-            val{1}=opt.(optnam{i});     % this way we dont worry about letter case
-            
-        elseif ind==2 && islognumscalar(opt.(optnam{i}))
-            val{2}=logical(opt.(optnam{i}));
-            
-        elseif ind==3 && islognumscalar(opt.(optnam{i}))
-            val{3}=logical(opt.(optnam{i}));
-            
-        elseif ind==4 && islognumscalar(opt.(optnam{i}))
-            val{4}=logical(opt.(optnam{i}));
-            
-        elseif ind==5 && islognumscalar(opt.(optnam{i}))
-            val{5}=logical(opt.(optnam{i}));
-            
-        elseif ind==6 && islognumscalar(opt.(optnam{i}))
-            val{6}=logical(opt.(optnam{i}));
-            
-        elseif ind==7 && islognumscalar(opt.(optnam{i}))
-            val{7}=logical(opt.(optnam{i}));
-            
-        elseif ind==8 && isnumeric(opt.(optnam{i})) && opt.(optnam{i})>=0
-            val{8}=logical(opt.(optnam{i}));
-        end
-        
-    else
-        ok=false;
-        mess=['Unexpected option name, type or value: ''',optnam{i},''''];
-        
-    end
+try
+    parse(p, opt);
+catch ME
+    ok = false;
+    mess = ME.message
 end
 
-opt_out=cell2struct(val,nam);
+opt_out = p.Results;
 
 
 %----------------------------------------------------------------------------------------
@@ -520,7 +497,7 @@ if ~isempty(par_req)
             par={}; nam={}; nreq=0; nopt=0;
             return
         end
-        
+
     elseif iscellstr(par_req)
         for i=1:numel(par_req)
             if ~isvarname(par_req{i})
@@ -722,12 +699,12 @@ if isempty(keyval_in)
     % Any empty object
     keyval=struct([]);
     nam=cell(0,1);
-    
+
 elseif isstruct(keyval_in)
     % Keyword structure given
     keyval=keyval_in;
     nam=fieldnames(keyval);
-    
+
 else
     keyval=struct([]);
     nam=cell(0,1);
@@ -872,7 +849,7 @@ while i<=narg
             end
         end
     end
-    
+
     % Branch on parameter or keyword
     if ~iskey
         if ~expect_key
@@ -890,7 +867,7 @@ while i<=narg
                 ' at position ',num2str(i+opt.noffset),' in the argument list'];
             break
         end
-        
+
     else
         ikey=ind(ipos);
         % Check if the keyword has already appeared or not
@@ -991,4 +968,3 @@ par={};
 keyval=struct([]);
 present=struct([]);
 filled=struct([]);
-
