@@ -35,6 +35,8 @@ classdef test_set_instr_and_sample < TestCase
             obj.clob_holder = [];
         end
         function test_set_sample(obj)
+            %v2large_file= 'c:\Users\abuts\Documents\Data\Fe\Data\sqw\Fe_ei1371_base_a.sqw';
+            %set_sample_horace(v2large_file,obj.sam1);            
             sqw_out = set_sample_horace(obj.test_sqw_file,obj.sam1);
             assertTrue(isa(sqw_out,'sqw'))
 

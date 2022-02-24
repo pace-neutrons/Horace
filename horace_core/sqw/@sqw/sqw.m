@@ -16,7 +16,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
     end
 
     properties(Dependent)
-        data;
+        npixels % common with loaders interface to pix.num_pixels property
+                % used for organizing common interface to pixel data
+        data;   % 
     end
 
     methods (Access = protected)
@@ -109,7 +111,18 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         %            % save data in xye format
         %            save_xye@DnDBase(obj.data,varargin{:});
         %        end
-
+        function npix = get.npixels(obj)
+            if isempty(obj.data_)
+                npix = 'undefined';
+            else
+                pix = obj.data_.pix;
+                if isempty(pix)
+                    npix = 0;
+                else
+                    npix = pix.num_pixels;
+                end
+            end
+        end
 
     end
 
