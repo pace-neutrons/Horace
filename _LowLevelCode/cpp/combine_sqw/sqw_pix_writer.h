@@ -25,7 +25,6 @@ public:
 private:
     exchange_buffer &Buff;
 
-    // size of write pixels buffer (in pixels)
     std::string filename;
 
     std::ofstream h_out_sqw;

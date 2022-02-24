@@ -4,7 +4,7 @@
 #include "sqw_pix_writer.h"
 
 //
-// $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)"
+//
 //
 
 enum readBinInfoOption {
@@ -14,5 +14,4 @@ enum readBinInfoOption {
 
 
 #endif
-
 

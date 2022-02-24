@@ -11,9 +11,6 @@ class sqw_reader
     Created to read bin and pixel information from a cell stored on hdd,
     but optimized for subsequent data access, so subsequent cells are
     cashed in a buffer and provided from the buffer if available
-
-    %
-    % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
     %
     */
 public:
