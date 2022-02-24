@@ -40,10 +40,13 @@ function varargout=set_instrument_horace(filename,instrument,varargin)
 %                  special strings;
 %                       '-efix'     ---->   use value of fixed energy in the
 %                                           header block of the sqw object
-
+% Output:
+%-------
+% if pesent, list of sqw objects read from the disk
 
 % Original author: T.G.Perring
 %
+
 if isa(instrument,'function_handle')
     instfunc=instrument; % single function handle
     % Check instrument definition function arguments are OK and consistent
@@ -102,9 +105,13 @@ else
 end
 
 if nargout > 0
-    varargout = set_instr_or_sample_horace_(filename,'-instrument',instrument,argi{:});
+    sqw_list = set_instr_or_sample_horace_(filename,'-instrument',instrument,nargout,argi{:});
+    for i=1:numel(sqw_list)
+        varargout{i} = sqw_list{i};
+    end
+
 else
-    set_instr_or_sample_horace_(filename,'-instrument',instrument,argi{:});
+    set_instr_or_sample_horace_(filename,'-instrument',instrument,0,argi{:});
 end
 
 

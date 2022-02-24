@@ -88,6 +88,7 @@ if setting_sample
     elseif isempty(sampl)
         sampl = struct();
     end
+    end
     [bytes,sample_size] = serialize_si_block_(obj,sampl,'sample');
     %clc_size = obj.instr_sample_end_pos_ - obj.sample_pos_;
     % recalculate sample positions (just in case)

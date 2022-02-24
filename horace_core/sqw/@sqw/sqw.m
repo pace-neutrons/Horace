@@ -8,7 +8,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %   >> w = sqw (sqw_object)     % Create a new SQW object from a existing one
     
     properties(Dependent)
-        % the
+        npixels % common with loaders interface to pix.num_pixels property
+                % used for organizing common interface to pixel data
         main_header
         runid_map % the map which connects header number with run_id
         experiment_info
@@ -26,10 +27,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         header;
     end
     
-    properties(Access=private)
-        main_header_ = struct([]);
-        experiment_info_ = Experiment();
-        detpar_  = struct([]);
     end
     properties(Constant,Access=private)
         fields_to_save_ = {'main_header','experiment_info','detpar','data'};
@@ -229,6 +226,18 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %            % save data in xye format
         %            save_xye@DnDBase(obj.data,varargin{:});
         %        end
+        function npix = get.npixels(obj)
+            if isempty(obj.data_)
+                npix = 'undefined';
+            else
+                pix = obj.data_.pix;
+                if isempty(pix)
+                    npix = 0;
+                else
+                    npix = pix.num_pixels;
+                end
+            end
+        end
         
     end
     
