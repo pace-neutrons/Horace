@@ -8,7 +8,6 @@ function [bytes,data_sz] = serialize_si_block_(obj,data,type)
 % algorithm, enspired by hlp_serialize/hlp_deserialize.
 %
 %
-%
 
 
 %type = class(data); % not yet a class or not always a class!

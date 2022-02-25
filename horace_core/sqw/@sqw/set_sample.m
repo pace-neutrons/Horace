@@ -18,7 +18,7 @@ function varargout = set_sample (varargin)
 %
 % Output:
 % -------
-%   wout        Output sqw object with changed sample
+%   wout        Output sqw object with changed sample loaded in memory
 
 
 % Original author: T.G.Perring

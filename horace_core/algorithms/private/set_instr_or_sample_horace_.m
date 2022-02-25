@@ -21,12 +21,12 @@ function sqwobj_array=set_instr_or_sample_horace_(filename,kind,obj_to_set,narg,
 %  narg        number of aguments to return, i.e. number of sqw files to
 %              read
 %  varargin    if present, the arguments of the instrument definition function
-% 
+%
 % Output:
 %-------
-% sqwobj_array -- cellarray of sqw objects corresponding to input sqw files 
+% sqwobj_array -- cellarray of sqw objects corresponding to input sqw files
 %                 read from the disk if narg>0. Empty if it is 0
-%                
+%
 
 % Original author: T.G.Perring
 %
@@ -80,5 +80,4 @@ if narg > 0
     end
 else
     sqwobj_array={};
-    end
-
+end

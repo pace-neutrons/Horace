@@ -14,7 +14,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         runid_map % the map which connects header number with run_id
         experiment_info
         detpar
-        %CMDEV: data now a dependent property, below
+        %CMDEV: data now a dependent property, see below.
         data;
         %;
     end
@@ -26,8 +26,15 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         % from Experiment class. Conversion to old header is not performed
         header;
     end
+
+    properties(Access=private)
+        main_header_ = struct([]);
+        experiment_info_ = Experiment();
+        detpar_  = struct([]);
+    end
     properties(Constant,Access=private)
-        fields_to_save_ = {'main_header','experiment_info','detpar','data'};
+        fields_to_save_ = {'main_header','experiment_info','detpar','data',...
+            'runid_map'};
     end
 
     methods
@@ -36,7 +43,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % and nxsqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
             % number
-            ver = 1;
+            ver = 2;
         end
         function flds = indepFields(~)
             flds = sqw.fields_to_save_;
@@ -262,7 +269,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % restore object from the old structure, which describes the
             % previous version of the object.
             %
-            %   >> obj = loadobj(S)
             % The method is called by loadobj in the case if the input
             % structure does not contain version or the version, stored
             % in the structure does not correspond to the current version
@@ -275,15 +281,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % the modern structure, this method needs the specific overloading
             % to allow loadob to recover new structure from an old structure.
             %
-            % -------
-            % Output:
-            %   obj     An instance of this object
-            if isa(S,'sqw')
-                if isempty(obj.runid_map)
-                    obj.runid_map = recalculate_runid_map_(S.experiment_info);
-                end
-                return
-            end
             if ~isfield(S,'version')
                 % previous version did not store any version data
                 if numel(S)>1
@@ -291,69 +288,76 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     obj = repmat(tmp, size(S));
                 end
                 for i = 1:numel(S)
-                    obj(i) = sqw(S(i));
-                end
-                ss =S(i);
-                if isfield(ss,'header')
-                    if isa(ss.header,'Experiment')
-                        ss.experiment_info = ss.header;
-                    else
-                        ss.experiment_info = Experiment(ss.header);
+                    ss =S(i);
+                    if isfield(ss,'header')
+                        if isa(ss.header,'Experiment')
+                            ss.experiment_info = ss.header;
+                        else
+                            ss.experiment_info = Experiment(ss.header);
+                        end
+                        ss = rmfield(ss,'header');
                     end
-                    ss = rmfield(ss,'header');
-                end
-                if isfield(ss,'data_')
-                    ss.data = ss.data_;
-                    ss = rmfield(ss,'data_');
-                end
-            end
+                    if isfield(ss,'data_')
+                        ss.data = ss.data_;
+                        ss = rmfield(ss,'data_');
+                    end
 
-            obj(i) = sqw(ss);
-        if isfield(inputs,'array_dat')
-            obj = obj.from_bare_struct(inputs.array_dat);
-        else
-            obj = obj.from_bare_struct(inputs);
+                    obj(i) = sqw(ss);
+                    if isempty(obj(i).runid_map)
+                        obj(i).runid_map = recalculate_runid_map_(obj(i).experiment_info);
+                    end
+
+                end
+                return
+            end
+            if isfield(inputs,'array_dat')
+                obj = obj.from_bare_struct(inputs.array_dat);
+            else
+                obj = obj.from_bare_struct(inputs);
+            end
+            for i=1:numel(obj)
+                obj(i).runid_map = recalculate_runid_map_(obj(i).experiment_info);
+            end
         end
+
     end
 
-end
 
+    methods(Static, Access = private)
+        % Signatures of private functions declared in files
+        sqw_struct = make_sqw(ndims);
+        detpar_struct = make_sqw_detpar();
+        header = make_sqw_header();
+        main_header = make_sqw_main_header();
 
-methods(Static, Access = private)
-% Signatures of private functions declared in files
-sqw_struct = make_sqw(ndims);
-detpar_struct = make_sqw_detpar();
-header = make_sqw_header();
-main_header = make_sqw_main_header();
+    end
 
-end
+    methods(Access = 'private')
+        % process various inputs for the constructor and return some
+        % standard output used in sqw construction
+        args = parse_sqw_args_(obj,varargin)
 
-methods(Access = 'private')
-% process various inputs for the constructor and return some
-% standard output used in sqw construction
-args = parse_sqw_args_(obj,varargin)
-
-function obj = init_from_file_(obj, in_filename, pixel_page_size)
-% Parse SQW from file
-%
-% An error is raised if the data file is identified not a SQW object
-ldr = sqw_formats_factory.instance().get_loader(in_filename);
-if ~strcmpi(ldr.data_type, 'a') % not a valid sqw-type structure
-    error('HORACE:sqw:invalid_argument',...
-        'Data file: %s does not contain valid sqw-type object',...
-        in_filename);
-end
-lds = obj.get_loader_struct_(ldr,pixel_page_size);
-obj = sqw();
-obj = from_bare_struct(obj,lds);
-end
-function ld_str = get_loader_struct_(~,ldr,pixel_page_size)
-% load sqw structure, using file loader
-ld_str = struct();
-[ld_str.main_header, old_header, ld_str.detpar, ld_str.data] = ...
-    ldr.get_sqw('-legacy', 'pixel_page_size', pixel_page_size);
-ld_str.experiment_info = Experiment(old_header);
-end
-%
-end
+        function obj = init_from_file_(obj, in_filename, pixel_page_size)
+            % Parse SQW from file
+            %
+            % An error is raised if the data file is identified not a SQW object
+            ldr = sqw_formats_factory.instance().get_loader(in_filename);
+            if ~strcmpi(ldr.data_type, 'a') % not a valid sqw-type structure
+                error('HORACE:sqw:invalid_argument',...
+                    'Data file: %s does not contain valid sqw-type object',...
+                    in_filename);
+            end
+            lds = obj.get_loader_struct_(ldr,pixel_page_size);
+            obj = sqw();
+            obj = from_bare_struct(obj,lds);
+        end
+        function ld_str = get_loader_struct_(~,ldr,pixel_page_size)
+            % load sqw structure, using file loader
+            ld_str = struct();
+            [ld_str.main_header, old_header, ld_str.detpar, ld_str.data] = ...
+                ldr.get_sqw('-legacy', 'pixel_page_size', pixel_page_size);
+            ld_str.experiment_info = Experiment(old_header);
+        end
+        %
+    end
 end

@@ -26,6 +26,9 @@ classdef d0d < DnDBase
             obj = d0d(S);
             if isa(S,'d0d')
                obj = S;
+               if isstruct(obj.data_)
+                    obj.data_ = data_sqw_dnd(obj.data_);
+               end
                return
             end
             if numel(S)>1
@@ -33,9 +36,16 @@ classdef d0d < DnDBase
                obj = repmat(tmp, size(S));
                for i = 1:numel(S)
                    obj(i) = d0d(S(i));
+	               if isstruct(obj(i).data_)
+    	                obj(i).data_ = data_sqw_dnd(obj(i).data_);
+        	       end
+
                end
             else
                obj = d0d(S);
+               if isstruct(obj.data_)
+                    obj.data_ = data_sqw_dnd(obj.data_);
+               end
             end
         end
     end

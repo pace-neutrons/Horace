@@ -45,7 +45,7 @@ else
         error('HORACE:sqw_binfile_common:invalid_argument',...
             'get_header do not understand input argument: %s',n_header);
     end
-    
+
 end
 
 if n_header<1 || (n_header>obj.num_contrib_files)
@@ -81,7 +81,11 @@ for i=1:n_header
         end
         header(i).instruments = IX_null_inst(); %struct();
         header(i).samples = IX_null_sample(); %struct();
-        runids(i) = rundata.extract_id_from_filename(header(i).filename);    end
+        runids(i) = rundata.extract_id_from_filename(header(i).filename);
+    end
+    %
+end
+%
 header_numbers = 1:numel(header);
 if any(isnan(runids)) % this also had been done in gen_sqw;
     % rundata_write_to_sqw_ procedure in gen_sqw_files job.
@@ -89,10 +93,9 @@ if any(isnan(runids)) % this also had been done in gen_sqw;
     % duplicated headers unique
     runids = header_numbers;
 end
-%
+
 runid_map = containers.Map(runids,header_numbers);
 exp_info = Experiment(header);
-
 
 
 function [head,pos] = get_single_header(obj,n_header)
@@ -123,5 +126,3 @@ header_format = obj.get_header_form();
 if obj.convert_to_double
     head = obj.do_convert_to_double(head);
 end
-
-
