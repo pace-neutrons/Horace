@@ -789,6 +789,7 @@ spe_file = cellfun(@(x)(x.loader.file_name),run_files,...
 tmp_file=gen_tmp_filenames(spe_file,sqw_file);
 tmp_generated = tmp_file;
 if gen_tmp_files_only
+%    ind = num2cell(1:numel(tmp_file));
     [f_valid_exist,pix_ranges] = cellfun(@(fn)(check_tmp_files_range(fn,pix_db_range,grid_size_in)),...
         tmp_file,'UniformOutput',false);
     f_valid_exist = [f_valid_exist{:}];
@@ -899,8 +900,10 @@ if any(any(abs(pix_range-pix_range_est)>1.e-4)) && log_level>0
     warning('gen_sqw:runtime_logic',...
         ['\nEstimated range of contributed pixels differs from the actual calculated range,\n',...
         'Est  min: %+6.4g %+6.4g %+6.4g %+6.4g  | Max:   %+6.4g %+6.4g %+6.4g %+6.4g\n',...
-        'Calc min: %+6.4g %+6.4g %+6.4g %+6.4g  | Max:   %+6.4g %+6.4g %+6.4g %+6.4g\n'],...
-        args{:});
+        'Calc min: %+6.4g %+6.4g %+6.4g %+6.4g  | Max:   %+6.4g %+6.4g %+6.4g %+6.4g\n',...
+        '%s\n'],...
+        args{:},...
+        'Estimated range is used for binning pixels so all pixels outside the range are lost');
 end
 %
 function [present_and_valid,pix_range] = check_tmp_files_range(tmp_file,pix_db_range,grid_size_in)
@@ -913,7 +916,8 @@ if ~is_file(tmp_file)
     pix_range = [];
     return;
 end
-toll = 1.e-7;
+toll = 4*eps(single(pix_db_range));
+%
 ldr = sqw_formats_factory.instance().get_loader(tmp_file);
 head = ldr.get_data('-head');
 pix_range = ldr.get_pix_range;
