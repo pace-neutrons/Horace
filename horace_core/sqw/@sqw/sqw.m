@@ -146,8 +146,13 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     end
                     obj = from_bare_struct(obj,args.data_struct);
                 elseif isfield(args.data_struct,'data')
-                    if isempty(args.data_struct.runid_map)
-                        args.data_struct.runid_map = recalculate_runid_map_( args.data_struct.header);
+                    if ~isfield(args.data_struct,'runid_map') || isempty(args.data_struct.runid_map)
+                        if isfield(args.data_struct,'header')
+                            head = args.data_struct.header;
+                        else
+                            head = args.data_struct.experiment_info.expdata;                            
+                        end
+                        args.data_struct.runid_map = recalculate_runid_map_(head);
                     end
                     if isfield(args.data_struct.data,'version')
                         obj = sqw.loadobj(args.data_struct);
@@ -334,7 +339,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         main_header = make_sqw_main_header();
 
     end
-
     methods(Access = 'private')
         % process various inputs for the constructor and return some
         % standard output used in sqw construction
