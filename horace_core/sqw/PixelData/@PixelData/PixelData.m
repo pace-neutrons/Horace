@@ -101,6 +101,7 @@ classdef PixelData < handle
         DATA_POINT_SIZE = 8;  % num bytes in a double
         DEFAULT_NUM_PIX_FIELDS = 9;
         DEFAULT_PAGE_SIZE = realmax;  % this gives no paging by default
+        FILE_PIX_SIZE = 4*9;
     end
     properties (Constant,Hidden)
         % the coordinate range, an empty pixel class has

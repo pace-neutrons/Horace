@@ -201,7 +201,7 @@ classdef hor_config < config_base
             hpcc = hpc_config;
         end
         function mcs = get.mem_page_chunk_size_byte_conversion(obj)
-            mcs = obj.mem_chunk_size*9*4;
+            mcs = obj.mem_chunk_size*PixelData.FILE_PIX_SIZE;
         end
         %-----------------------------------------------------------------
         % overloaded setters
@@ -214,7 +214,7 @@ classdef hor_config < config_base
             config_store.instance().store_config(this,'mem_chunk_size',val);
         end
         function obj = set.mem_page_chunk_size_byte_conversion(obj,val)
-             pixel_size = val*9*4;
+             pixel_size = val*PixelData.FILE_PIX_SIZE;
              obj.pixel_page_size = pixel_size;
         end
         

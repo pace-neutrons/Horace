@@ -6,12 +6,15 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %   >> w = sqw (struct)         % Create from a structure with valid fields (internal use)
     %   >> w = sqw (filename)       % Create an sqw object from a file
     %   >> w = sqw (sqw_object)     % Create a new SQW object from a existing one
+    %
+    properties % TODO: incorporate it into experiment_info
+        runid_map % the map which connects header number with run_id
+    end
 
     properties(Dependent)
         npixels % common with loaders interface to pix.num_pixels property
         % used for organizing common interface to pixel data
         main_header
-        runid_map % the map which connects header number with run_id
         experiment_info
         detpar
         %CMDEV: data now a dependent property, see below.
@@ -354,10 +357,23 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         function ld_str = get_loader_struct_(~,ldr,pixel_page_size)
             % load sqw structure, using file loader
             ld_str = struct();
-            [ld_str.main_header, old_header, ld_str.detpar, ld_str.data] = ...
+            [ld_str.main_header, old_header, ld_str.detpar,...
+                ld_str.data,ld_str.runid_map] = ...
                 ldr.get_sqw('-legacy', 'pixel_page_size', pixel_page_size);
             ld_str.experiment_info = Experiment(old_header);
         end
-        %
+        function obj = init_from_loader_struct_(obj, data_struct)
+            % initialize object contents using structure, obtained from
+            % file loader
+            obj.main_header = data_struct.main_header;
+            obj.header = data_struct.header;
+            obj.detpar = data_struct.detpar;
+            obj.data = data_struct.data;
+            if isfield(data_struct,'runid_map')                
+                obj.runid_map = data_struct.runid_map;
+            else % calculate runid map from header file names
+                obj.runid_map = recalculate_runid_map_(data_struct.header);
+            end
+        end
     end
 end
