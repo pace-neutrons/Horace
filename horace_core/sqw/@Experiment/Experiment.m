@@ -17,7 +17,7 @@ classdef Experiment < serializable
         expdata
     end
     properties(Dependent,Hidden)
-        % property providing compartibility with old header interface
+        % property providing compatibility with old header interface
         header
     end
     properties(Constant,Access=private)
@@ -53,7 +53,7 @@ classdef Experiment < serializable
                     obj = build_from_old_headers_(obj,S);
                 else
                     error('HORACE:Experiment:invalid_argument',...
-                        'unrecoginzed Experiment constructor type: %s',class(varargin{1}));
+                        'unrecognised Experiment constructor type: %s',class(varargin{1}));
                 end
             elseif nargin==3
                 obj.detector_arrays = S;
@@ -279,13 +279,13 @@ classdef Experiment < serializable
         end
         %
         function instr = get_unique_instruments(obj)
-            % compartibility fields with old binary file formats
+            % compatibility fields with old binary file formats
             % TODO: needs proper implementation            
             instr = obj.instruments_(1);
         end
         %
         function samp = get_unique_samples(obj)
-            % compartibility fields with old binary file formats
+            % compatibility fields with old binary file formats
             % TODO: needs proper implementation
             samp = obj.samples_(1);
         end
@@ -306,9 +306,9 @@ classdef Experiment < serializable
             % structure does not contain version or the version, stored
             % in the structure does not correspond to the current version
             %
-            % By default, this function interfaces the default from_class_struct
-            % method, but when the old strucure substantially differs from
-            % the moden structure, this method needs the specific overloading
+            % By default, this function interfaces the default from_bare_struct
+            % method, but when the old structure substantially differs from
+            % the modern structure, this method needs the specific overloading
             % to allow loadob to recover new structure from an old structure.
             %
             %if isfield(inputs,'version')
@@ -319,9 +319,9 @@ classdef Experiment < serializable
                 obj = build_from_old_headers_(obj,{inputs});
             else
                 if isfield(inputs,'array_dat')
-                    obj = obj.from_class_struct(inputs.array_dat);
+                    obj = obj.from_bare_struct(inputs.array_dat);
                 else
-                    obj = obj.from_class_struct(inputs);
+                    obj = obj.from_bare_struct(inputs);
                 end
             end
         end
@@ -335,7 +335,7 @@ classdef Experiment < serializable
     methods(Static)
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
-            % saveable class
+            % save-able class
             obj = Experiment();
             obj = loadobj@serializable(S,obj);
         end
@@ -348,7 +348,7 @@ classdef Experiment < serializable
             %header-s on the basis of sqw_header and part, present in 
             %write_nsqw_to_sqw implementation offers much more.
             %
-            %TODO: Do proper optinization on the way. See 
+            %TODO: Do proper optimization on the way. See 
             % sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers)
             %TODO: use allow_equal_headers,drop_subzone_headers variables
             %      appropriately
