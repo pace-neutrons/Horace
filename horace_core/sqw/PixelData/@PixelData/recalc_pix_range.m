@@ -15,16 +15,20 @@ obj.load_current_page_if_data_empty_();
 obj.set_range(obj.EMPTY_RANGE_);
 obj.reset_changed_coord_range('coordinates');
 if obj.has_more
+    ic = 1;
+    dev = 10;
     hc = hor_config;
     ll = hc.log_level;
     while obj.has_more
         [current_page_num,total_num_pages] = obj.advance();
-        if ll>0
+        ic = ic+1;
+        if ll>0 && ic>=dev
+            ic = 0;
             fprintf( ...
-                '*** Processing page %d/%d\n', ...
+                '*** Processing page #%d/of#%d\n', ...
                 current_page_num, ...
                 total_num_pages ...
-            );
+                );
         end
         obj.reset_changed_coord_range('coordinates');
     end
