@@ -1,5 +1,4 @@
 function run_inspector(w,varargin)
-%
 % run_inspector(w)
 %
 % Creates a new window displaying the parts of an sqw dataset that came
@@ -30,17 +29,20 @@ function run_inspector(w,varargin)
 %RAE 30/1/15
 
 %Do some checks on the data:
-if ~isa(w,'sqw') || ~is_sqw_type(w)
-    error('Input dataset has to be sqw object with full contributing run information present');
+if ~isa(w,'sqw') || w.data.pix.is_filebacked()
+    error('HORACE:run_inspector:invalid_argument',...
+        'Input dataset has to be a fully loaded to memory sqw object with full contributing run information present');
 end
 
 if numel(w)~=1
-    error('run inspector can only be used for a single sqw object, rather than an array of objects')
+    error('HORACE:run_inspector:invalid_argument',...    
+    'run inspector can only be used for a single sqw object, rather than an array of objects')
 end
 
 [nd,sz]=dimensions(w);
 if nd<1 || nd>2
-    error('Input dataset must be an sqw object that is 2d or 1d');
+    error('HORACE:run_inspector:invalid_argument',...
+        'Input dataset must be an sqw object that is 2d or 1d');
 end
 
 
@@ -106,8 +108,3 @@ elseif nd==2
         run_inspector_videofig(numel(w.header),@run_inspector_animate_2d,{split(w),[],[]},5,10,[],'Name','Horace Run Inspector');
     end
 end
-
-
-    
-    
-    
