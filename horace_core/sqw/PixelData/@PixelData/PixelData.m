@@ -101,7 +101,6 @@ classdef PixelData < handle
         DATA_POINT_SIZE = 8;  % num bytes in a double
         DEFAULT_NUM_PIX_FIELDS = 9;
         DEFAULT_PAGE_SIZE = realmax;  % this gives no paging by default
-        FILE_PIX_SIZE = 4*9;
     end
     properties (Constant,Hidden)
         % the coordinate range, an empty pixel class has
@@ -371,7 +370,7 @@ classdef PixelData < handle
                 % input is a file accessor
                 obj = obj.init_from_file_accessor_(arg);
                 if all(obj.pix_range == obj.EMPTY_RANGE_)
-                    obj.reset_changed_coord_range('coordinates');
+                    obj.recalc_pix_range();
                 end
                 return;
                 
@@ -471,7 +470,7 @@ classdef PixelData < handle
             total_num_pages = 1;
             if obj.is_filebacked()
                 try
-                    obj.move_to_page(obj.page_number_ + 1, varargin{:});
+                    [current_page_num,total_num_pages]=obj.move_to_page(obj.page_number_ + 1, varargin{:});
                 catch ME
                     switch ME.identifier
                         case 'HORACE:PixelData:runtime_error'
@@ -857,7 +856,7 @@ classdef PixelData < handle
         
         function page_size = calculate_page_size_(obj, mem_alloc)
             % Calculate number of pixels that fit in the given memory allocation
-            num_bytes_in_pixel = obj.DATA_POINT_SIZE*obj.PIXEL_BLOCK_COLS_;
+            num_bytes_in_pixel = sqw_binfile_common.FILE_PIX_SIZE;
             page_size = floor(mem_alloc/num_bytes_in_pixel);
             page_size = max(page_size, size(obj.raw_data_, 2));
         end

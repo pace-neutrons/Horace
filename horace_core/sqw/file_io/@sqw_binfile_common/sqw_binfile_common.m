@@ -57,6 +57,10 @@ classdef sqw_binfile_common < sqw_file_interface
         % separate access to pixel data;
         pix_position
     end
+    properties(Constant)
+        % size of a pixel (in bytes) written on HDD
+        FILE_PIX_SIZE = 4*9;
+    end
     properties(Constant,Access=private,Hidden=true)
         % list of field names to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file

@@ -37,10 +37,14 @@ if isempty(new_obj.sqw_holder_) % all file positions except instrument and sampl
     hc = hor_config;
     buf_size = hc.mem_page_chunk_size_byte_conversion;
     pix_page = hc.pixel_page_size;
+    ll =       hc.log_level;
     if 2*buf_size < pix_page 
         clOb = onCleanup(@()set(hc,'pixel_page_size',pix_page));
         % set up pixel_page size of to be buf_size converted in bytes
         hc.mem_page_chunk_size_byte_conversion = hc.mem_chunk_size;
+    end
+    if ll>0
+        fprintf('*** Upgrading file format to a latest binary version\n')
     end
     new_obj.sqw_holder_.data.pix = PixelData(obj,hc.mem_page_chunk_size_byte_conversion);
     clear_sqw_holder = true; %

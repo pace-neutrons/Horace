@@ -170,12 +170,16 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
                 hc = hor_config;
                 buf_size = hc.mem_page_chunk_size_byte_conversion;
                 pix_page = hc.pixel_page_size;
+                ll = hc.log_level;
                 if 2*buf_size < pix_page
                     clOb = onCleanup(@()set(hc,'pixel_page_size',pix_page));
                     % set up pixel_page size of to be buf_size converted in bytes
                     hc.mem_page_chunk_size_byte_conversion = hc.mem_chunk_size;
                 end
-
+                if ll>0
+                    fprintf(...
+                        '*** Recalculating pixel range to upgrade file format to a latest binary version\n')
+                end
                 data.pix.recalc_pix_range();
                 obj.pix_range_ = data.pix.pix_range;
             end
