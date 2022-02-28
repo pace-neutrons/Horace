@@ -26,13 +26,13 @@ In the resultant sqw file the data from file1 and fileN-1, and file2 and fileN, 
 The difference between sqw and dnd objects
 ------------------------------------------
 
-The technical differences between dnd and sqw objects are dealt with in :ref:`Advanced use <Advanced_use:Creating an object from scratch>`. Both data objects contain the same arrays of signals, variances, plot and integration axis coordinates etc., but the sqw object contains an additional array which provides detailed information about every detector-energy pixel from every run which contributed to the signal in the object. It also contains more information about the original contributing NXSPE files and in particular allows for instrument information to be stored that enables resolution convolution to be performed.
+The technical differences between dnd and sqw objects are dealt with in :ref:`Advanced use <user_guide/Advanced_use:Creating an object from scratch>`. Both data objects contain the same arrays of signals, variances, plot and integration axis coordinates etc., but the sqw object contains an additional array which provides detailed information about every detector-energy pixel from every run which contributed to the signal in the object. It also contains more information about the original contributing NXSPE files and in particular allows for instrument information to be stored that enables resolution convolution to be performed.
 
 
 Memory requirements
 ===================
 
-Equivalent sqw and dnd objects require vastly different amounts of computer memory. The dnd object is usually relatively small (typical 0.1-10MB), whereas an sqw object can easily be >1GB. This is because in the sqw object, nine numbers (see :ref:`Advanced use <Advanced_use:Creating an object from scratch>` for details) are retained about each detector-energy pixel element that contributed to the observed signal. In a normal Horace experiment this often equates to many millions of detector elements, hence the large memory requirement to store all this information. SQW files that are created from experiments can exceed 1TB if read into memory: don't try to do that unless you are very sure about the size of the file and the memory on your computer!
+Equivalent sqw and dnd objects require vastly different amounts of computer memory. The dnd object is usually relatively small (typical 0.1-10MB), whereas an sqw object can easily be >1GB. This is because in the sqw object, nine numbers (see :ref:`Advanced use <user_guide/Advanced_use:Creating an object from scratch>` for details) are retained about each detector-energy pixel element that contributed to the observed signal. In a normal Horace experiment this often equates to many millions of detector elements, hence the large memory requirement to store all this information. SQW files that are created from experiments can exceed 1TB if read into memory: don't try to do that unless you are very sure about the size of the file and the memory on your computer!
 
 Implications for simulations and fitting
 ========================================

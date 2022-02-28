@@ -2,9 +2,9 @@
 Data diagnostics
 ################
 
-Horace contains various tools for diagnosing issues with the data. The foremost of these is the :ref:`run_inspector <run_inspector:run inspector>` tool.
+Horace contains various tools for diagnosing issues with the data. The foremost of these is the :ref:`run_inspector <manual/run_inspector:run inspector>` tool.
 
-If you wish to decompose an sqw object into the data from its constituent runs, the :ref:`split <Data_diagnostics:split>` routine outlined below can be used. After manipulation (if necessary), such data can then be recombined using the :ref:`join <Data_diagnostics:join>` routine.
+If you wish to decompose an sqw object into the data from its constituent runs, the :ref:`split <manual/Data_diagnostics:split>` routine outlined below can be used. After manipulation (if necessary), such data can then be recombined using the :ref:`join <manual/Data_diagnostics:join>` routine.
 
 run_inspector
 -------------
@@ -36,24 +36,24 @@ To toggle through the frames, there are several keyboard options:
 
 Let us illustrate the information that may be obtained by means of an example. First we generate a QE slice such as the one below
 
-.. image:: images/Fe_slice.jpg
+.. image:: ../images/Fe_slice.jpg
    :width: 500px
    :alt: Selected QE slice
 
 
 We can now use ``run_inspector`` to plot a series of slices that come from a single contributing dataset, shown below.
 
-.. image:: images/Fe_slice_run_inspector_1.jpg
+.. image:: ../images/Fe_slice_run_inspector_1.jpg
    :width: 500px
    :alt: Frame 1 in run inspector
 
 
-.. image:: images/Fe_slice_run_inspector_11.jpg
+.. image:: ../images/Fe_slice_run_inspector_11.jpg
    :width: 500px
    :alt: Frame 11 in run inspector
 
 
-.. image:: images/Fe_slice_run_inspector_21.jpg
+.. image:: ../images/Fe_slice_run_inspector_21.jpg
    :width: 500px
    :alt: Frame 21 in run inspector
 

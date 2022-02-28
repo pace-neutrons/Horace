@@ -19,7 +19,7 @@ To open the GUI simply type in the Matlab command window:
 
 The following figure should then appear:
 
-.. image:: images/GUI_main_window.png
+.. image:: ../images/GUI_main_window.png
    :width: 500px
    :alt: Main GUI window
 
@@ -33,7 +33,7 @@ Generate SQW file tab
 
 The first is a tab which guides you through creation of an sqw file
 
-.. image:: images/Gen_sqw_completed.png
+.. image:: ../images/Gen_sqw_completed.png
    :width: 500px
    :alt: SQW file creation completed
 
@@ -43,7 +43,7 @@ Data on file tab
 
 The next is to cut data from an sqw file that has already been made:
 
-.. image:: images/Data_on_file.png
+.. image:: ../images/Data_on_file.png
    :width: 500px
    :alt: Cutting data from a file on disk
 
@@ -53,7 +53,7 @@ Data in memory tab
 
 The main GUI window is for dealing with data that have already been cut from file, and are now sitting in your computer's memory:
 
-.. image:: images/Data_in_mem.png
+.. image:: ../images/Data_in_mem.png
    :width: 500px
    :alt: Cutting data from a file on disk
 
@@ -65,7 +65,7 @@ Symmetrisation
 ..
    TODO: Find image
 
-.. image:: images/symmetrise.png
+.. image:: ../images/Symmetrise.png
    :width: 500px
    :alt: The symmetrisation tab
 
@@ -74,7 +74,7 @@ Binary Operations
 *****************
 
 
-.. image:: images/Binary_ops.png
+.. image:: ../images/Binary_ops.png
    :width: 500px
    :alt: The binary operations tab
 
@@ -82,6 +82,6 @@ Binary Operations
 Unary Operations
 ****************
 
-.. image:: images/unary_ops.png
+.. image:: ../images/unary_ops.png
    :width: 500px
    :alt: The unary operations tab
