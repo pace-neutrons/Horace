@@ -32,7 +32,7 @@ function wout = replicate (win, wref)
 % Note that the second argument cannot be an sqw object, as otherwise the sqw replicate method would have been
 % called, because the sqw class has been defined as superior to dnd classes.
 
-if isscalar(wref) && (isa(wref,'d0d')||isa(wref,'d1d')||isa(wref,'d2d')||isa(wref,'d3d')||isa(wref,'d4d'))
+if isscalar(wref) && isa(wref,'DnDBase')
     wout=replicate_dnd_(win,wref);
 else
     error('HORACE:DnDBase:invalid_argument',...

@@ -1,19 +1,34 @@
 classdef test_replicate< TestCase
     %
-    % Validate dnd objects replication
+    % Validate sqw object replication
     
     
     properties
+        this_dir;
+        sqw_4D_artificial
     end
     
     methods
         
         %The above can now be read into the test routine directly.
-        function this=test_replicate(name)
+        function obj=test_replicate(name)
             if ~exist('name','var')
-                name = 'test_replicate';
+                name = 'test_replicate_sqw';
             end
-            this=this@TestCase(name);
+            obj=obj@TestCase(name);
+            obj.this_dir = fileparts(mfilename('fullpath'));
+            par_file = fullfile(fileparts(obj.this_dir),...
+                'common_data',obj.ref_par_file);
+            en = -5:1:80;
+            efix = 85;
+            alatt = [2.83,2.83,2.83];
+            angdeg = [90,90,90];
+            wtmp = fake_sqw(en,par_file,'',efix,1,...
+                alatt,angdeg,[0,0,1],[0,-1,0],0,0,0,0,0,[50,50,50,50]);
+            
+            obj.sqw_4D_artificial = sqw_eval(wtmp{1},@make_bragg_blobs,...
+                {[10,1,1],[alatt,angdeg],[alatt,angdeg],[0,0,0],0});
+
         end
         
         % tests
