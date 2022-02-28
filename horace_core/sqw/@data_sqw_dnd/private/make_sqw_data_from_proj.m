@@ -36,8 +36,13 @@ else
     mess='projection must be valid projection structure or projaxes object';
     return
 end
-
-[rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu(proj, lattice(1:3), lattice(4:6));
+if isa(lattice,'oriented_lattice')
+    [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu(proj, ...
+        lattice.alatt, lattice.angdeg);
+else
+    [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu(proj, ...
+        lattice(1:3), lattice(4:6));
+end
 if ~isempty(mess)   % problem calculating ub matrix and related quantities
     mess='Check lattice parameters and projection axes';
     return
@@ -58,8 +63,13 @@ end
 data.filename = '';
 data.filepath = '';
 data.title = '';
-data.alatt=lattice(1:3);
-data.angdeg=lattice(4:6);
+if isa(lattice,'oriented_lattice')
+    data.alatt=lattice.alatt;
+    data.angdeg=lattice.angdeg;
+else
+    data.alatt=lattice(1:3);
+    data.angdeg=lattice(4:6);
+end
 data.uoffset=proj.uoffset;
 data.u_to_rlu=zeros(4,4); data.u_to_rlu(1:3,1:3)=u_to_rlu; data.u_to_rlu(4,4)=1;
 data.ulen=[ulen,1];

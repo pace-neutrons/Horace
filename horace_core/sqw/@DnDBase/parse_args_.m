@@ -6,27 +6,30 @@ function args = parse_args_(obj, varargin)
 % - args.dnd_obj   % DnD class instance
 % - args.sqw_obj   % SQW class instance
 % - args.data_struct % generic struct, presumed to represent DnD
+persistent parser
 
-
-if ~isempty(varargin) && isvector(varargin{1}) && isnumeric(varargin{1})
+if ~isempty(varargin) && ((isvector(varargin{1}) && isnumeric(varargin{1})) || ...
+        isa(varargin{1},'oriented_lattice'))
     % attempting to parse the numeric projection form of the input always
     % seems to cause the parser to think a parameter is involved, so
     % detecting this separately and passing it to the processing  function
     % whole, to produce a data_sqw_dnd
     input_data = varargin;
-    
+
     input_data = data_sqw_dnd(input_data{:});
 else
-    parser = inputParser();
-    
-    parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase')   || ... %sqw/dnd
-        isa(x, 'data_sqw_dnd') || ... % data_sqw_dnd
-        is_string(x)           || ... % filename
-        (iscellstr(x)||isstring(x))&&~any(cellfun(@(a)isempty(a),x))   || ... % multiple files
-        isstruct(x)));                % struct of data_sqw_dnd type
-    parser.KeepUnmatched = true;
+    if isempty(parser)
+        parser = inputParser();
+
+        parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase')   || ... %sqw/dnd
+            isa(x, 'data_sqw_dnd') || ... % data_sqw_dnd
+            is_string(x)           || ... % filename
+            (iscellstr(x)||isstring(x))&&~any(cellfun(@(a)isempty(a),x))   || ... % multiple files
+            isstruct(x)));                % struct of data_sqw_dnd type
+        parser.KeepUnmatched = true;
+    end
     parser.parse(varargin{:});
-    
+
     input_data = parser.Results.input;
 end
 if is_string(input_data)
@@ -50,7 +53,7 @@ args = struct(...
 if isa(input_data, 'SQWDnDBase')
     if isa(input_data, class(obj))
         args.dnd_obj = input_data;
-        
+
     elseif isa(input_data, 'sqw')
         args.sqw_obj = input_data;
     else
@@ -62,7 +65,7 @@ elseif isa(input_data, 'data_sqw_dnd')
 elseif is_string(input_data)
     args.filename = {input_data};
 elseif iscellstr(input_data)||isstring(input_data) % cellarray of filenames
-    args.filename = input_data;    
+    args.filename = input_data;
 elseif isstruct(input_data) && ~isempty(input_data)
     args.data_struct = input_data;
 else
