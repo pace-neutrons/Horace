@@ -391,8 +391,12 @@ elseif isobject(a) && isobject(b)
     end
 
     try
-        fieldsA = {metaclass(a).PropertyList(:).Name};
-        fieldsB = {metaclass(b).PropertyList(:).Name};
+% $$$         fieldsA = {metaclass(a).PropertyList(:).Name};
+% $$$         fieldsB = {metaclass(b).PropertyList(:).Name};
+
+        fieldsA = {meta.class.fromName(class(a)).PropertyList(:).Name};
+        fieldsB = {meta.class.fromName(class(b)).PropertyList(:).Name};
+
     catch ME
         % Still some old-style classes floating around
         if isempty(metaclass(a))
