@@ -391,15 +391,13 @@ elseif isobject(a) && isobject(b)
     end
 
     try
-        fieldsA = {metaclass(a).PropertyList(:).Name};
-        fieldsB = {metaclass(b).PropertyList(:).Name};
+        fieldsA = {meta.class.fromName(class(a)).PropertyList(:).Name}
+        fieldsB = {meta.class.fromName(class(b)).PropertyList(:).Name}
 
     catch ME
         % Still some old-style classes floating around
 
-        fieldsA = {meta.class.fromName(class(a)).PropertyList(:).Name}
-        fieldsB = {meta.class.fromName(class(b)).PropertyList(:).Name}
-        if isempty(metaclass(a))
+        if isempty(meta.class.fromName(class(a)))
             fieldsA = fieldnames(struct(a));
             fieldsB = fieldnames(struct(b));
         else
