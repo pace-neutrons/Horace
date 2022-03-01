@@ -71,6 +71,6 @@ for i=1:numel(win)
     %     wout(i).detpar    = win(i).detpar;
 end
 
-% Convert to dnd object
-wout=dnd(wout);
+% Already DND object. Should it be SQW?
+%wout=dnd(wout);
 
