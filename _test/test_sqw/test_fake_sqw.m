@@ -44,10 +44,10 @@ classdef test_fake_sqw < TestCase
         function test_det_from_q_invalid(obj)
             f = @()build_det_from_q_range('wrong_detpar',obj.gen_sqw_par{:});
 
-            assertExceptionThrown(f,'FAKE_SQW:invalid_argument');
+            assertExceptionThrown(f,'HORACE:build_det_from_q_range:invalid_argument');
 
             f = @()build_det_from_q_range(ones(3,1),obj.gen_sqw_par{:});
-            assertExceptionThrown(f,'FAKE_SQW:invalid_argument');
+            assertExceptionThrown(f,'HORACE:build_det_from_q_range:invalid_argument');
 
         end
         function test_det_from_q(obj)
