@@ -33,7 +33,7 @@ classdef test_func_eval < TestCase
             obj.d2d_obj = d2d(obj.d2d_file_path);
             obj.sqw_2d_obj = sqw(obj.sqw_2d_file_path);
 
-            obj.old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
+            obj.old_warn_state = warning('OFF', 'HORACE:PixelData:memory_allocation');
         end
 
         function delete(obj)

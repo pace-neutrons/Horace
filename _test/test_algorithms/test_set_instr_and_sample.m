@@ -43,8 +43,11 @@ classdef test_set_instr_and_sample < TestCase
             sqw_out = set_sample_horace(obj.test_sqw_file,obj.sam1);
             assertTrue(isa(sqw_out,'sqw'))
 
-            hdr = sqw_out.experiment_info;
-            assertEqual(hdr(1).samples{1},obj.sam1)
+            %hdr = sqw_out.experiment_info;
+            %assertEqual(hdr(1).samples{1},obj.sam1)
+            hdr = sqw_out.header;
+            assertEqual(hdr{1}.sample,obj.sam1)
+            
 
             sqw_rec = read_sqw(obj.test_sqw_file);
             assertEqual(sqw_rec,sqw_out)
