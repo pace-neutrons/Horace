@@ -33,3 +33,4 @@ if obj.has_more
         obj.reset_changed_coord_range('coordinates');
     end
 end
+obj.move_to_first_page();

@@ -370,7 +370,11 @@ classdef PixelData < handle
                 % input is a file accessor
                 obj = obj.init_from_file_accessor_(arg);
                 if any(obj.pix_range == obj.EMPTY_RANGE_)
-                    obj.recalc_pix_range();
+                    if config_store.instance().get_value('herbert_config','log_level')>0
+                        fprintf('*** Recalculating actual pixel range missing in file %s:\n', ...
+                            arg.filename);
+                    end
+                    obj.recalc_pix_range();                    
                 end
                 return;
                 

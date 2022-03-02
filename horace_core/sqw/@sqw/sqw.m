@@ -221,7 +221,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             % An error is raised if the data file is identified not a SQW object
             ldr = sqw_formats_factory.instance().get_loader(in_filename);
             if ~strcmpi(ldr.data_type, 'a') % not a valid sqw-type structure
-                error('SQW:sqw', 'Data file does not contain valid sqw-type object');
+                error('HORACE:sqw:invalid_argument', 'Data file does not contain valid sqw-type object');
             end
             lds = obj.get_loader_struct_(ldr,pixel_page_size);
             obj = obj.init_from_loader_struct_(lds);
