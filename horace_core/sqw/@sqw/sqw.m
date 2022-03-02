@@ -91,6 +91,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %[deps,eps_lo,eps_hi,ne]=energy_transfer_info(header);
         %}
         status = adjust_aspect(w);
+        % 
+        wout = replicate (win,wref);
         varargout = resolution_plot (w, varargin);
         wout = noisify(w,varargin);
 

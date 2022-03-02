@@ -25,9 +25,12 @@ end
 
 % -----------------------------------------------------------------------------
 function [page_number,total_num_pages, nosave] = parse_args(obj, varargin)
-parser = inputParser();
-parser.addRequired('page_number', @is_scalar_positive_int);
-parser.addParameter('nosave', false, @islognumscalar);
+persistent parser
+if isempty(parser)
+    parser = inputParser();
+    parser.addRequired('page_number', @is_scalar_positive_int);
+    parser.addParameter('nosave', false, @islognumscalar);
+end
 parser.parse(varargin{:});
 
 page_number = parser.Results.page_number;

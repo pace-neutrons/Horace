@@ -27,8 +27,13 @@ else
     error('HORACE:data_sqw_dnd:invalid_argument',...
         'projection must be valid projection structure or projaxes object')
 end
-
-[~, u_to_rlu, ulen, mess] = projaxes_to_rlu(proj, lattice(1:3), lattice(4:6));
+if isa(lattice,'oriented_lattice')
+    [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu(proj, ...
+        lattice.alatt, lattice.angdeg);
+else
+    [rlu_to_ustep, u_to_rlu, ulen, mess] = projaxes_to_rlu(proj, ...
+        lattice(1:3), lattice(4:6));
+end
 if ~isempty(mess)   % problem calculating ub matrix and related quantities
     error('HORACE:data_sqw_dnd:invalid_argument',...
         'Check lattice parameters and projection axes');
@@ -43,8 +48,13 @@ for i=1:ndim
 end
 obj.filename = '';
 obj.filepath = '';
-obj.alatt=lattice(1:3);
-obj.angdeg=lattice(4:6);
+if isa(lattice,'oriented_lattice')
+    obj.alatt=lattice.alatt;
+    obj.angdeg=lattice.angdeg;
+else
+    obj.alatt=lattice(1:3);
+    obj.angdeg=lattice(4:6);
+end
 obj.uoffset=proj.uoffset;
 %
 obj.u_to_rlu=zeros(4,4); obj.u_to_rlu(1:3,1:3)=u_to_rlu; obj.u_to_rlu(4,4)=1;

@@ -123,7 +123,9 @@ set(gcf,'Color',[1,1,1]);
 %RAE extra: draw the first frame so that there is something to see in
 %the initial view:
 redraw_func(1,redraw_args{:});
-
+if num_frames == 1
+    return;
+end
 %Add a message box that tells users how to control the figure;
 my_char={'Enter (Return) -- play/pause video (5 frames-per-second default)',...
     'Backspace -- play/pause video 5 times slower',...

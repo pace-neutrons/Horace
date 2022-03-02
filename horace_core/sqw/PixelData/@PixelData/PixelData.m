@@ -225,7 +225,7 @@ classdef PixelData < handle
                     'found size ''%s''.'], mat2str(size(mem_alloc)));
             end
             MIN_RECOMMENDED_PG_SIZE = 100e6;
-            bytes_in_pix = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+            bytes_in_pix = sqw_binfile_common.FILE_PIX_SIZE;
             if mem_alloc < bytes_in_pix
                 error('HORACE:PixelData:invalid_argument', ...
                     ['Error setting pixel page size. Cannot set page '...
@@ -369,7 +369,11 @@ classdef PixelData < handle
             if isa(arg, 'sqw_file_interface')
                 % input is a file accessor
                 obj = obj.init_from_file_accessor_(arg);
-                if all(obj.pix_range == obj.EMPTY_RANGE_)
+                if any(obj.pix_range == obj.EMPTY_RANGE_)
+                    if config_store.instance().get_value('herbert_config','log_level')>0
+                        fprintf('*** Recalculating actual pixel range missing in file %s:\n', ...
+                            arg.filename);
+                    end
                     obj.recalc_pix_range();
                 end
                 return;

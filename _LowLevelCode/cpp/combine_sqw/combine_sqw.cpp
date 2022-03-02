@@ -81,13 +81,17 @@ void combine_sqw(ProgParameters &param, std::vector<sqw_reader> &fileReaders, co
 
   int log_level = param.log_level;
 
-  std::thread reader([&Reader]() {
-    Reader.run_read_job();
-  });
   std::thread writer([&pixWriter]() {
     pixWriter.run_write_pix_job();
   });
 
+    std::thread reader([&Reader]() {
+        Reader.run_read_job();
+        });
+
+    //---------------------------------------------------------------------------------------------------------------
+    // Threads have been launched so logging run talking to Matlab session and displaying progress
+    //---------------------------------------------------------------------------------------------------------------
   bool interrupted(false);
   //int count(0);
   std::mutex log_mutex;
@@ -150,10 +154,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     return;
   }
   //--------------------------------------------------------
-  //-------   PROCESS PARAMETERS   -------------------------
+    //-------   PROCESS INPUT PARAMETERS   -------------------
   //--------------------------------------------------------
-
-
 
   bool debug_file_reader(false);
   size_t n_prog_params(4);
@@ -269,8 +271,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     fileReader[i].init(fileParam[i], change_fileno, fileno_provided, read_buf_size, read_files_multitreaded);
   }
   size_t n_buf_pixels(0), n_bins_processed(0);
-  if (debug_file_reader) {
 
+  if (debug_file_reader) {
+        // Test mode
     auto nbin_Buffer = mxCreateNumericMatrix(ProgSettings.totNumBins, 1, mxUINT64_CLASS, mxREAL);
     uint64_t *nbinBuf = (uint64_t *)mxGetPr(nbin_Buffer);
 
@@ -279,7 +282,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 
     n_bins_processed = ProgSettings.nBin2read;
-    Reader.read_pix_info(n_buf_pixels, n_bins_processed, nbinBuf);
+        Reader.read_and_combine_pixBuf_from_files(n_buf_pixels, n_bins_processed, nbinBuf);
 
     size_t nReadPixels, n_bin_max;
     const float * buf = reinterpret_cast<const float *>(Buffer.get_write_buffer(nReadPixels, n_bin_max));
@@ -303,14 +306,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     plhs[npix_in_bins] = nbin_Buffer;
     plhs[pix_info] = OutParam;
   }
-
-
-  else {
+    else { // production mode
     combine_sqw(ProgSettings, fileReader, OutFilePar);
   }
   fileReader.clear();
 }
-
-
-
 

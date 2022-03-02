@@ -24,6 +24,8 @@ classdef test_sqw_eval < TestCase & common_state_holder
         function obj = test_sqw_eval(~)
             obj = obj@TestCase('test_sqw_eval');
 
+            % Swallow any warnings for when pixel page size set too small
+            obj.old_warn_state = warning('OFF', 'HORACE:PixelData:memory_allocation');
 
             % Sum of the gaussian of each coordinate
             obj.gauss_sqw = ...
