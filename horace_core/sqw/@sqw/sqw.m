@@ -320,13 +320,13 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 end
                 return
             end
-            if isfield(inputs,'array_dat')
-                obj = obj.from_bare_struct(inputs.array_dat);
+            if isfield(S,'array_dat')
+                obj = obj.from_bare_struct(S.array_dat);
             else
-                obj = obj.from_bare_struct(inputs);
+                obj = obj.from_bare_struct(S);
             end
             for i=1:numel(obj)
-                obj(i).runid_map = recalculate_runid_map_(obj(i).experiment_info);
+                obj(i).runid_map = recalculate_runid_map_(obj(i).experiment_info.expdata);
             end
         end
 
