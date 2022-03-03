@@ -49,7 +49,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             assertEqual(numel(sqw_obj.experiment_info.expdata), 85)
             assertEqual(numel(sqw_obj.experiment_info.instruments), 85)
             assertEqual(numel(sqw_obj.experiment_info.samples), 85)
-            assertEqual(numel(sqw_obj.detpar.group), 36864);
+            assertEqual(numel(sqw_obj.experiment_info.detector_arrays.id), 36864);
             assertEqual(numel(sqw_obj.data.pax), 1);
             assertEqual(sqw_obj.data.pix.num_pixels, 100337);
         end
@@ -86,19 +86,32 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             sqw_obj = sqw(obj.test_sqw_1d_fullpath);
             sqw_copy = sqw(sqw_obj);
             
+            % combine value changes and tests for them
+            % (1) change main_header
             sqw_copy.main_header.title = 'test_copy';
+            assertFalse(equal_to_tol(sqw_copy.main_header, sqw_obj.main_header));
+            
+            % (2) change detpar values now in experiment_info
+            expinf1 = sqw_copy.experiment_info;
+            for i=1:numel(expinf1.detector_arrays), expinf1.detector_arrays(i).azim = 0; end            
+            sqw_copy = sqw_copy.change_header(expinf1);
+            assertFalse(equal_to_tol(sqw_copy.experiment_info, sqw_obj.experiment_info));
+
+            % (3) change entire experiment_info
             sqw_copy = sqw_copy.change_header(Experiment());
-            sqw_copy.detpar.azim(1:10) = 0;
+            assertFalse(equal_to_tol(sqw_copy.experiment_info, sqw_obj.experiment_info));
+
+            % (4) change data arrays
             sqw_copy.data.dax = [2 1];
             sqw_copy.data.pix.signal = 1;
-            
-            % changed data is not mirrored in initial
-            assertFalse(equal_to_tol(sqw_copy.main_header, sqw_obj.main_header));
-            assertFalse(equal_to_tol(sqw_copy.experiment_info, sqw_obj.experiment_info));
-            assertFalse(equal_to_tol(sqw_copy.detpar, sqw_obj.detpar));
             assertFalse(equal_to_tol(sqw_copy.data, sqw_obj.data));
             assertFalse(equal_to_tol(sqw_copy.data.pix, sqw_obj.data.pix));
             
+            % detpar is now empty struct array, should be unchanged in the
+            % copy
+            assertTrue(equal_to_tol(sqw_copy.detpar, sqw_obj.detpar));
+            
+            % (5) check entire sqw
             assertFalse(equal_to_tol(sqw_copy, sqw_obj));
         end
         

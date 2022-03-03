@@ -108,6 +108,7 @@ else
                 [data.main_header,exper_block,data.detpar,data.data] = ...
                     loaders{i}.get_sqw('-legacy','-nopix','-verbatim');
                 data.header = exper_block.header;
+                data.detpar = exper_block.detpar;
             else
                 data         = loaders{i}.get_data('-verbatim','-nopix');
                 if isa(data,'data_sqw_dnd')

@@ -3,7 +3,7 @@ classdef Experiment < serializable
     
     properties(Access=private)
         instruments_ = {}; %IX_inst.empty;
-        detector_arrays_ = []
+        detector_arrays_ = IX_detector_array.empty;
         samples_ = {}; % IX_samp.empty;
         expdata_ = IX_experiment();
     end
@@ -19,6 +19,7 @@ classdef Experiment < serializable
     properties(Dependent,Hidden)
         % property providing compartibility with old header interface
         header
+        detpar
     end
     properties(Constant,Access=private)
         fields_to_save_ = {'instruments','detector_arrays','samples','expdata'};
@@ -89,6 +90,10 @@ classdef Experiment < serializable
                 error('HORACE:Experiment:invalid_argument', ...
                     'Must give all of detector_array, instrument and sample or the structure representing them')
             end
+        end
+        
+        function add_detector_array(obj,detarr)
+            obj.detector_arrays_(end+1) = detarr;
         end
         %
         function oldhdrs = convert_to_old_headers(obj,header_num)
@@ -295,6 +300,15 @@ classdef Experiment < serializable
             head = [head{:}];
             head = rmfield(head,{'instrument','sample'});
         end
+        
+        function dp = get.detpar(obj)
+            if numel(obj.detector_arrays)>0
+                dp = obj.detector_arrays(1);
+                dp = dp.convert_to_old_detpar();
+            else
+                dp = struct();
+            end
+        end 
     end
     methods(Access=protected)
         %------------------------------------------------------------------

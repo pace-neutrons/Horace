@@ -72,7 +72,14 @@ headers  = obj.get_header('-all');
 % Get detector parameters
 % -----------------------
 if ~(opts.head||opts.his)
-    sqw_struc.detpar = obj.get_detpar();
+    dp = obj.get_detpar();
+    if isa(headers, 'Experiment')
+        dp = obj.get_detpar();
+        headers.detector_arrays(end+1) = IX_detector_array(dp);
+        sqw_struc.detpar = struct([]);
+    else
+        sqw_struc.detpar = obj.get_detpar();
+    end
 end
 
 % Get data

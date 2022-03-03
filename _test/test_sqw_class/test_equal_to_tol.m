@@ -63,7 +63,7 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
                 sqw_copy = obj.sqw_2d;
                 field_name = class_fields{idx};
                 
-                if isstruct(sqw_copy.(field_name))
+                if isstruct(sqw_copy.(field_name)) && ~isempty(sqw_copy.(field_name))
                     sqw_copy.(field_name).test_field = 'test_value';
                 elseif isstring(sqw_copy.(field_name))
                     sqw_copy.(field_name) = 'test_value';
