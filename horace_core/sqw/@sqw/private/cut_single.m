@@ -48,6 +48,7 @@ if keep_pix
     wout.experiment_info = w.experiment_info;
     wout.detpar = w.detpar;
     wout.data   = data_out;
+    wout.runid_map = w.runid_map; %TODO: this map should inclde contributing indexes only
     wout.data.img_db_range = data_out.img_range;
 else
     dnd_constructor = DND_CONSTRUCTORS{numel(data_out.pax) + 1};

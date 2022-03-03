@@ -20,6 +20,7 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 50);
             npix_in_page = 11;
             pix = obj.get_pix_with_fake_faccess(data, npix_in_page);
+            % TODO: as pixels are loaded as single, tests are broken:
             
             pix = pix.do_unary_op(@cos);
             
@@ -27,8 +28,8 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             pix.move_to_first_page();
             iter = 0;
             while true
-                start_idx = (iter*npix_in_page) + 1;
-                end_idx = min(start_idx + npix_in_page - 1, pix.num_pixels);
+                start_idx = (iter*2*npix_in_page) + 1;
+                end_idx = min(start_idx + 2*npix_in_page - 1, pix.num_pixels);
                 
                 original_signal = data(obj.SIGNAL_IDX, start_idx:end_idx);
                 original_variance = data(obj.VARIANCE_IDX, start_idx:end_idx);
@@ -112,11 +113,11 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
                 pix_in_mem = pix_in_mem.do_unary_op(unary_op);
                 in_memory_data = pix_in_mem.data;
                 
-                assertEqual( ...
+                assertElementsAlmostEqual( ...
                     file_backed_data, in_memory_data, ...
+                    'relative',obj.FLOAT_TOLERANCE,...
                     sprintf(['In-memory and file-backed data do not match after ' ...
-                    'operation: ''%s''.'], char(unary_op)), ...
-                    obj.FLOAT_TOLERANCE);
+                    'operation: ''%s''.'], char(unary_op)) );
             end
         end
         
@@ -189,8 +190,8 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             ref_range = obj.get_ref_range(expected_data);
             
             actual_data = pix.get_pixels(1:pix.num_pixels).data;
-            assertEqual(actual_data, expected_data);
-            assertEqual(pix.pix_range, ref_range);
+            assertElementsAlmostEqual(actual_data, expected_data,'relative',4e-8);
+            assertElementsAlmostEqual(pix.pix_range, ref_range,'relative',4e-8);
         end
         
         function test_mask_deletes_pix_with_npix_argument_all_pages_full(obj)
@@ -208,8 +209,8 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
             ref_range = obj.get_ref_range(expected_data);
             
             actual_data = pix.get_pixels(1:pix.num_pixels).data;
-            assertEqual(actual_data, expected_data);
-            assertEqual(pix.pix_range, ref_range);
+            assertElementsAlmostEqual(actual_data, expected_data,'relative',4e-8);
+            assertElementsAlmostEqual(pix.pix_range, ref_range,'relative',4e-8);
         end
         
         function test_mask_deletes_pixels_when_given_npix_argument_pix_in_mem(obj)
@@ -345,12 +346,12 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
         function test_equal_to_tol_throws_if_paged_pix_but_page_sizes_not_equal(obj)
             data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
             data2 = data;
-            npix_in_page = 10;
+            npix_in_page = 5;
             
             pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix2 = obj.get_pix_with_fake_faccess(data2, npix_in_page - 1);
             f = @() pix1.equal_to_tol(pix2);
-            assertExceptionThrown(f, 'PIXELDATA:equal_to_tol');
+            assertExceptionThrown(f, 'HORACE:PixelData:equal_to_tol');
         end
         
         function test_equal_to_tol_true_when_comparing_NaNs_if_nan_equal_true(~)

@@ -1,4 +1,4 @@
-function [exp_info,pos] = get_header(obj,varargin)
+function [exp_info,pos,runid_map] = get_header(obj,varargin)
 % Get full data header or headers for sqw file written in format v3
 %
 % If instrument and sample are present in the file (not the empty
@@ -28,14 +28,12 @@ end
 % recovers old (v2) header without actual sample and instrument
 % despite that, it builds basic sample and sets up sample lattice
 % parameters from header
-[exp_info,pos] = get_header@sqw_binfile_common(obj,varargin{:});
-
+[exp_info,pos,runid_map] = get_header@sqw_binfile_common(obj,varargin{:});
 %
 n_runs = exp_info.n_runs;
 if no_isamp_inst
     return;
 end
-
 if get_all % load all runs
     instr = obj.get_instrument('-all');
     main_sampl = obj.get_sample('-all');

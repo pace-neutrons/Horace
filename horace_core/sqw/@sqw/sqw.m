@@ -6,12 +6,18 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %   >> w = sqw (struct)         % Create from a structure with valid fields (internal use)
     %   >> w = sqw (filename)       % Create an sqw object from a file
     %   >> w = sqw (sqw_object)     % Create a new SQW object from a existing one
+    %
+    properties % TODO: incorporate it into experiment_info
+        runid_map % the map which connects header number with run_id
+    end
     
     properties(Dependent)
-        % the
+        npixels % common with loaders interface to pix.num_pixels property
+        % used for organizing common interface to pixel data
         main_header
         experiment_info
         detpar
+        %CMDEV: data now a dependent property, see below.
         data;
         %;
     end
@@ -30,7 +36,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         detpar_  = struct([]);
     end
     properties(Constant,Access=private)
-        fields_to_save_ = {'main_header','experiment_info','detpar','data'};
+        fields_to_save_ = {'main_header','experiment_info','detpar','data',...
+            'runid_map'};
     end
     
     methods
@@ -39,7 +46,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % and nxsqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
             % number
-            ver = 1;
+            ver = 2;
         end
         function flds = indepFields(~)
             flds = sqw.fields_to_save_;
@@ -90,6 +97,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %[deps,eps_lo,eps_hi,ne]=energy_transfer_info(header);
         %}
         status = adjust_aspect(w);
+        % 
+        wout = replicate (win,wref);
         varargout = resolution_plot (w, varargin);
         wout = noisify(w,varargin);
         
@@ -141,8 +150,19 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 if isa(args.data_struct,'dnd_file_interface')
                     args.data_struct = obj.get_loader_struct_(...
                         args.data_struct,args.pixel_page_size);
+                    if isempty(args.data_struct.runid_map)
+                        args.data_struct.runid_map = recalculate_runid_map_( args.data_struct.header);
+                    end
                     obj = from_bare_struct(obj,args.data_struct);
                 elseif isfield(args.data_struct,'data')
+                    if ~isfield(args.data_struct,'runid_map') || isempty(args.data_struct.runid_map)
+                        if isfield(args.data_struct,'header')
+                            head = args.data_struct.header;
+                        else
+                            head = args.data_struct.experiment_info.expdata;                            
+                        end
+                        args.data_struct.runid_map = recalculate_runid_map_(head);
+                    end
                     if isfield(args.data_struct.data,'version')
                         obj = sqw.loadobj(args.data_struct);
                     elseif isfield(args.data_struct.data,'serial_name')
@@ -228,6 +248,19 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         %            % save data in xye format
         %            save_xye@DnDBase(obj.data,varargin{:});
         %        end
+        function npix = get.npixels(obj)
+            if isempty(obj.data_)
+                npix = 'undefined';
+            else
+                pix = obj.data_.pix;
+                if isempty(pix)
+                    npix = 0;
+                else
+                    npix = pix.num_pixels;
+                end
+            end
+        end
+
         % write sqw object in an sqw file
         write_sqw(obj,sqw_file);
     end
@@ -259,6 +292,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % structure does not contain version or the version, stored
             % in the structure does not correspond to the current version
             %
+            % Input:
+            % ------
+            %   S       An instance of this object or struct
             % By default, this function interfaces the default from_bare_struct
             % method, but when the old strucure substantially differs from
             % the modern structure, this method needs the specific overloading
@@ -286,14 +322,21 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     end
                     
                     obj(i) = sqw(ss);
+                    if isempty(obj(i).runid_map)
+                        obj(i).runid_map = recalculate_runid_map_(obj(i).experiment_info);
+                end
+
                 end
                 return
             end
-            if isfield(inputs,'array_dat')
-                obj = obj.from_bare_struct(inputs.array_dat);
+            if isfield(S,'array_dat')
+                obj = obj.from_bare_struct(S.array_dat);
             else
-                obj = obj.from_bare_struct(inputs);
+                obj = obj.from_bare_struct(S);
             end
+            for i=1:numel(obj)
+                obj(i).runid_map = recalculate_runid_map_(obj(i).experiment_info.expdata);
+        end
         end
         
         function [proj, pbin, opt] = process_and_validate_cut_inputs(obj,...
@@ -337,9 +380,23 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % load sqw structure, using file loader
             ld_str = struct();
             [ld_str.main_header, old_header, ld_str.detpar, ld_str.data] = ...
+            [ld_str.main_header, old_header, ld_str.detpar,...
+                ld_str.data,ld_str.runid_map] = ...
                 ldr.get_sqw('-legacy', 'pixel_page_size', pixel_page_size);
             ld_str.experiment_info = Experiment(old_header);
         end
-        %
+        function obj = init_from_loader_struct_(obj, data_struct)
+            % initialize object contents using structure, obtained from
+            % file loader
+            obj.main_header = data_struct.main_header;
+            obj.header = data_struct.header;
+            obj.detpar = data_struct.detpar;
+            obj.data = data_struct.data;
+            if isfield(data_struct,'runid_map')                
+                obj.runid_map = data_struct.runid_map;
+            else % calculate runid map from header file names
+                obj.runid_map = recalculate_runid_map_(data_struct.header);
+    end
+end
     end
 end

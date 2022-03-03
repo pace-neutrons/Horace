@@ -95,7 +95,9 @@ elseif narg>=2
     % -------------------------------------------------------------------------------------
     
     % Determine if first argument is lattice parameters
-    if isnumeric(varargin{1}) && isvector(varargin{1}) && numel(varargin{1})==6
+    if (isnumeric(varargin{1}) && isvector(varargin{1}) && numel(varargin{1})==6)...
+            || isa(varargin{1},'oriented_lattice')...
+            
         n0=1;   % position of lattice argument in list
     else
         n0=0;

@@ -234,6 +234,10 @@ for iw=1:nw
     % (Could get eps directly from wtmp.data.pix(:,4), but this does not work if the
     %  pixels have been shifted, so recalculate)
     [deps,eps_lo,eps_hi,ne]=energy_transfer_info(wtmp.experiment_info);
+    irun_max = max(irun);    
+    if irun_max>numel(ne)
+        irun = arrayfun(@(x)wtmp.runid_map(x),irun);
+    end
     if ne>1
         eps=(eps_lo(irun).*(ne(irun)-ien)+eps_hi(irun).*(ien-1))./(ne(irun)-1);
     else

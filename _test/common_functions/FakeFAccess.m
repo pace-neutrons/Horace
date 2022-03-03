@@ -9,7 +9,7 @@ end
 methods
 
     function obj = FakeFAccess(data)
-        obj.fake_data = data;
+        obj.fake_data = single(data);
         obj.npixels_ = size(data, 2);
     end
     %
@@ -21,7 +21,7 @@ methods
             pix_hi = size(obj.fake_data, 2);
         end
         try
-            data = obj.fake_data(:, pix_lo:pix_hi);
+            data = double(obj.fake_data(:, pix_lo:pix_hi));
         catch ME
             switch ME.identifier
             case 'MATLAB:badsubscript'
@@ -34,7 +34,7 @@ methods
     %
     function data = get_pix_at_indices(obj, indices)
         try
-            data = obj.fake_data(:, indices);
+            data = double(obj.fake_data(:, indices));
         catch ME
             switch ME.identifier
             case 'MATLAB:badsubscript'
@@ -46,7 +46,7 @@ methods
     end
     %
     function pix_range = get_pix_range(obj)
-        pix_range = [min(obj.fake_data(1:4,:),[],2),max(obj.fake_data(1:4,:),[],2)]';
+        pix_range = double([min(obj.fake_data(1:4,:),[],2),max(obj.fake_data(1:4,:),[],2)]');
     end
     %
     function new_obj = upgrade_file_format(~)

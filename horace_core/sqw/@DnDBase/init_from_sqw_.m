@@ -11,4 +11,5 @@ if sqw_dim ~= obj.NUM_DIMS
         sqw_dim,obj.NUM_DIMS);
 end
 obj.data_ = sqw_obj.data;
-end
+obj.data_.pix = PixelData();
+obj.data_.img_db_range = PixelData.EMPTY_RANGE_;

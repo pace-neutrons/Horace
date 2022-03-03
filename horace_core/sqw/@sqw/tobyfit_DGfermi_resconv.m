@@ -195,6 +195,11 @@ for i=1:numel(ind)
     irun = win(i).data.pix.run_idx';   % column vector
     idet = win(i).data.pix.detector_idx';   % column vector
     npix = win(i).data.pix.num_pixels;
+    max_irun = max(irun);
+    if max_irun>win(i).main_header.nfiles
+        rmp = win(i).runid_map;
+        irun = arrayfun(@(id)rmp(id),irun);
+    end
 
     % Catch case of refining crystal orientation
     if refine_crystal

@@ -8,7 +8,7 @@ classdef d3d < DnDBase
     %   >> w = d3d(struct)         % Create from a structure with valid fields (internal use)
 
     properties (Constant, Access = protected)
-       NUM_DIMS = 3;
+        NUM_DIMS = 3;
     end
 
     methods(Static)
@@ -26,17 +26,20 @@ classdef d3d < DnDBase
             %   obj     An instance of this object
             %obj = d3d(S);
             if isa(S,'d3d')
-               obj = S;
-               return
+                obj = S;
+                if isstruct(obj.data_)
+                    obj.data_ = data_sqw_dnd(obj.data_);
+                end
+                return
             end
             if numel(S)>1
-               tmp = d3d();
-               obj = repmat(tmp, size(S));
-               for i = 1:numel(S)
-                   obj(i) = d3d(S(i));
-               end
+                tmp = d3d();
+                obj = repmat(tmp, size(S));
+                for i = 1:numel(S)
+                    obj(i) = d3d(S(i));
+                end
             else
-               obj = d3d(S);
+                obj = d3d(S);
             end
         end
     end

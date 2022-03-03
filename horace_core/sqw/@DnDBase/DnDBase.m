@@ -33,6 +33,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         s % Cumulative signal
         e % Cumulative variance
         npix % Number of contributing pixels to each bin of the plot axes
+
+        % temporary property, which returns data_ field
+        data
     end
     
     methods(Access = protected)
@@ -84,6 +87,16 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         %    % save data in xye format
         %    save_xye_(obj,varargin{:});
         %end
+        function obj_str= saveobj(obj)
+            prop ={'filename','filepath','title','alatt','angdeg',...
+                'uoffset','u_to_rlu','ulen','ulabel','iax','iint',...
+                'dax','p','pax','s','e','npix'};
+            obj_str=struct();
+            for i=1:numel(prop)
+                pn = prop{i};
+                obj_str.(pn) = obj.(pn);
+            end
+        end
         
         function obj = DnDBase(varargin)
             obj = obj@SQWDnDBase();
@@ -113,7 +126,20 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                 end
             end
         end
+        function val = get.data(obj)
+            val = obj.data_;
+        end
+        function obj = set.data(obj, d)
+            if isa(d,'data_sqw_dnd') || isempty(d)
+                obj.data_ = d;
+            else
+                error('HORACE:DnDBase:invalid_argument',...
+                    'Only data_sqw_dnd class or empty value may be used as data value. Trying to set up: %s',...
+                    class(d))
+            end
+        end
         
+
         %% Public getters/setters expose all wrapped data attributes
         function val = get.filename(obj)
             val = '';

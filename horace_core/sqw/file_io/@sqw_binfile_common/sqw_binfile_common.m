@@ -57,6 +57,10 @@ classdef sqw_binfile_common < sqw_file_interface
         % separate access to pixel data;
         pix_position
     end
+    properties(Constant)
+        % size of a pixel (in bytes) written on HDD
+        FILE_PIX_SIZE = 4*9;
+    end
     properties(Constant,Access=private,Hidden=true)
         % list of field names to save on hdd to be able to recover
         % all substantial parts of appropriate sqw file
@@ -167,7 +171,7 @@ classdef sqw_binfile_common < sqw_file_interface
         % get main sqw header
         main_header = get_main_header(obj,varargin);
         % get header of one of contributed files
-        [header,pos] = get_header(obj,varargin);
+        [header,pos,runid_map] = get_header(obj,varargin);
         % Read the detector parameters from properly initialized binary file.
         det = get_detpar(obj);
         % read main sqw data  from properly initialized binary file.

@@ -1,4 +1,4 @@
-function varargout=set_instr_or_sample_horace_(filename,kind,obj_to_set,varargin)
+function sqwobj_array=set_instr_or_sample_horace_(filename,kind,obj_to_set,narg,varargin)
 % Change the sample in a file or set of files containing a Horace data object
 %
 %   >>set_instr_or_sample_horace_(filename,kind,obj_to_set)
@@ -18,8 +18,15 @@ function varargout=set_instr_or_sample_horace_(filename,kind,obj_to_set,varargin
 %              there is a single sample or instrument for the entire sqw data set
 %              If the sample is any empty object, then the sample is set
 %              to the default empty structure.
+%  narg        number of aguments to return, i.e. number of sqw files to
+%              read
 %  varargin    if present, the arguments of the instrument definition function
-
+%
+% Output:
+%-------
+% sqwobj_array -- cellarray of sqw objects corresponding to input sqw files
+%                 read from the disk if narg>0. Empty if it is 0
+%
 
 % Original author: T.G.Perring
 %
@@ -40,7 +47,6 @@ end
 if ~iscell(filename)
     filename = {filename};
 end
-n_inputs = numel(filename);
 
 lrds = cellfun(@(x)isa(x,'dnd_file_interface'),filename,'UniformOutput',true);
 if any(lrds)
@@ -58,22 +64,20 @@ end
 for i=1:numel(ld)
     ld{i} = ld{i}.upgrade_file_format();
     if set_sample
-        ld{i}.put_samples(obj_to_set,varargin{:});
+        ld{i}=ld{i}.put_samples(obj_to_set,varargin{:});
     else
-        ld{i}.put_instruments(obj_to_set,varargin{:});
+        ld{i}=ld{i}.put_instruments(obj_to_set,varargin{:});
     end
 end
 
 
-if nargout > 0
+if narg > 0
     n_files2read = numel(filename);
-    if nargout>1
-        n_files2read  = nargout;
+    nout = min(n_files2read,narg);
+    sqwobj_array = cell(nout,1);
+    for i=1:nout
+        sqwobj_array{i} = ld{i}.get_sqw();
     end
-    trez = cell(1,n_files2read);
-    for i=1:n_files2read
-        trez{i} = ld{i}.get_sqw();
-    end
-    varargout = pack_outputs(trez,n_inputs,nargout);
+else
+    sqwobj_array={};
 end
-

@@ -46,11 +46,12 @@ classdef test_sqw_main < TestCase & common_state_holder
 
         function test_setting_pix_page_size_in_constructor_pages_pixels(obj)
             % hide warnings when setting pixel page size very small
-            old_warn_state = warning('OFF', 'PIXELDATA:validate_mem_alloc');
+            old_warn_state = warning('OFF', 'HORACE:PixelData:memory_allocation');
             cleanup = onCleanup(@() warning(old_warn_state));
 
             fpath = fullfile(obj.tests_dir, 'test_sqw_file', 'sqw_1d_2.sqw');
-            page_size_bytes = 7.8e4;
+            % set page size accepting half of the pixels
+            page_size_bytes = 4324/2*sqw_binfile_common.FILE_PIX_SIZE;
             sqw_obj = sqw(fpath, 'pixel_page_size', page_size_bytes);
             sqw_pix_pg_size = sqw_obj.data.pix.page_size;
 
@@ -58,7 +59,7 @@ classdef test_sqw_main < TestCase & common_state_holder
             assertTrue(sqw_obj.data.pix.num_pixels > sqw_pix_pg_size);
 
             % check the page size is what we set it to
-            pix_size = PixelData.DATA_POINT_SIZE*PixelData.DEFAULT_NUM_PIX_FIELDS;
+            pix_size = sqw_binfile_common.FILE_PIX_SIZE;
             expected_pg_size = floor(page_size_bytes/pix_size);
             assertEqual(sqw_pix_pg_size, expected_pg_size);
         end

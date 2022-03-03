@@ -80,6 +80,19 @@ else
 end
 exp = Experiment(heads);
 sq = sq.change_header(exp);
+runid = zeros(numel(heads),1);
+for i=1:numel(heads)
+    if iscell(heads)
+        runid(i) = rundata.extract_id_from_filename(heads{i}.filename);
+    else
+        runid(i) = rundata.extract_id_from_filename(heads(i).filename);
+    end
+end
+ids = 1:numel(heads);
+if any(isnan(runid))
+    runid = ids;
+end
+sq.runid_map = runid;
 
 function hd= gen_head(head,x)
 hd = head;

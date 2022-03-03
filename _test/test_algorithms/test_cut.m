@@ -97,6 +97,7 @@ classdef test_cut < TestCase & common_state_holder
         
         function test_take_a_cut_with_nopix_argument(obj)            
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:}, '-nopix');
+            sqw_cut.data.img_db_range = PixelData.EMPTY_RANGE_;
             
             ref_sqw = d3d(obj.ref_file);
             assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);

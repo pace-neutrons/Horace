@@ -48,4 +48,3 @@ else
     obj.img_db_range = obj.get_binning_range();    
 end
 
-
