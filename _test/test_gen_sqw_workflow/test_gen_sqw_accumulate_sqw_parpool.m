@@ -52,6 +52,10 @@ classdef test_gen_sqw_accumulate_sqw_parpool <  ...
                 test_name = mfilename('class');
             end
             combine_algorithm = 'mpi_code'; % this is what should be tested
+            %TODO: but on windows it is not optimized and is very slow, so:
+            if ispc() % TODO: this should be fixed
+                combine_algorithm  = 'mex_code';
+            end
             
             obj = obj@gen_sqw_common_config(-1,1,combine_algorithm,'parpool');
             obj = obj@gen_sqw_accumulate_sqw_tests_common(test_name,'parpool');
