@@ -346,12 +346,12 @@ classdef test_PixelData_operations < TestCase & common_pix_class_state_holder
         function test_equal_to_tol_throws_if_paged_pix_but_page_sizes_not_equal(obj)
             data = ones(PixelData.DEFAULT_NUM_PIX_FIELDS, 20);
             data2 = data;
-            npix_in_page = 10;
+            npix_in_page = 5;
             
             pix1 = obj.get_pix_with_fake_faccess(data, npix_in_page);
             pix2 = obj.get_pix_with_fake_faccess(data2, npix_in_page - 1);
             f = @() pix1.equal_to_tol(pix2);
-            assertExceptionThrown(f, 'PIXELDATA:equal_to_tol');
+            assertExceptionThrown(f, 'HORACE:PixelData:equal_to_tol');
         end
         
         function test_equal_to_tol_true_when_comparing_NaNs_if_nan_equal_true(~)
