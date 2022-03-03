@@ -21,7 +21,7 @@ methods
     end
 
     function test_PIXELDATA_error_if_pixel_page_size_set_lt_one_pixel(obj)
-        pix_size = PixelData.DEFAULT_NUM_PIX_FIELDS*PixelData.DATA_POINT_SIZE;
+        pix_size = sqw_binfile_common.FILE_PIX_SIZE;
         lt_pix_size = floor(pix_size) - 1;
 
         f = @() set(hor_config, obj.PIXEL_PAGE_SIZE_OPT, lt_pix_size);
