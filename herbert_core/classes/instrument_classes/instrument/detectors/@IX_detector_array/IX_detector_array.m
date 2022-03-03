@@ -16,6 +16,8 @@ classdef IX_detector_array
         class_version_ = 1;
         % Array of IX_detector_bank objects (column vector)
         det_bank_ = IX_detector_bank
+        filename_ = ''
+        filepath_ = ''
     end
     
     properties (Dependent)
@@ -39,6 +41,10 @@ classdef IX_detector_array
         det_bank
         % Number of detectors
         ndet
+        % associated filename from detpar
+        filename
+        % associated filepath from detpar
+        filepath
     end
     
     methods
@@ -78,15 +84,32 @@ classdef IX_detector_array
                         error('Detector indentifiers must all be unique')
                     end
                 else
-                    obj.det_bank_ = IX_detector_bank(varargin{:});
+                    [ok,mess] = IX_detector_array.check_detpar_parms(varargin{1});
+                    if ok
+                        dp = varargin{1};
+                        obj.det_bank_ = IX_detector_bank( ...
+                            dp.group, dp.x2, dp.phi, dp.azim, ...
+                            IX_det_TobyfitClassic (dp.width, dp.height));
+                        obj.filename_ = dp.filename;
+                        obj.filepath_ = dp.filepath;
+                    else
+                        obj.det_bank_ = IX_detector_bank(varargin{:});
+                    end
                 end
             end
             
-            
+        end
+                    %------------------------------------------------------------------
+        % Get methods for dependent properties
+        
+        function val = get.filename(obj)
+            val = obj.filename_;
         end
         
-        %------------------------------------------------------------------
-        % Get methods for dependent properties
+        function val = get.filepath(obj)
+            val = obj.filepath_;
+        end
+        
         function val = get.id(obj)
             if numel(obj.det_bank_)>1
                 tmp = arrayfun(@(x)(x.id), obj.det_bank_,'uniformOutput',false);
@@ -123,6 +146,10 @@ classdef IX_detector_array
             end
         end
         
+        function obj = set.azim(obj, val)
+            obj.det_bank_.azim = val;
+        end
+        
         function val = get.dmat(obj)
             if numel(obj.det_bank_)>1
                 tmp = arrayfun(@(x)(x.dmat), obj.det_bank_,'uniformOutput',false);
@@ -146,6 +173,45 @@ classdef IX_detector_array
         end
         
         %------------------------------------------------------------------
+        
+        function detpar = convert_to_old_detpar(obj)
+            detpar = struct();
+            if size(obj.det_bank.id,1)==1
+                detpar.group = obj.det_bank.id;
+                detpar.x2    = obj.det_bank.x2;
+                detpar.phi   = obj.det_bank.phi;
+                detpar.azim  = obj.det_bank.azim;
+                detpar.width = obj.det_bank.det.dia;
+                detpar.height = obj.det_bank.det.height;
+            else
+                detpar.group = obj.det_bank.id';
+                detpar.x2    = obj.det_bank.x2';
+                detpar.phi   = obj.det_bank.phi';
+                detpar.azim  = obj.det_bank.azim';
+                detpar.width = obj.det_bank.det.dia';
+                detpar.height = obj.det_bank.det.height';
+            end
+            detpar.filename = obj.filename;
+            detpar.filepath = obj.filepath;
+        end
+    end
+    
+    methods(Static)
+        function [ok,mess] = check_detpar_parms(varargin)
+            dp = varargin{1};
+            ok = false;
+            mess = 'Not a detpar struct';
+            if ~isstruct(dp)
+                return;
+            end
+            isdetpar = isfield(dp,'group') && isfield(dp,'x2') && isfield(dp,'phi') ...
+                    && isfield(dp,'azim') && isfield(dp,'filename') && isfield(dp,'filepath');
+            if ~isdetpar
+                return;
+            end
+            ok = true;
+            mess = '';
+        end
     end
     
     %======================================================================
