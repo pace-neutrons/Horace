@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Script for fitting &mdash; Horace  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Script for generating sqw files" href="Script_for_generating_sqw_files.html" />
+    <link rel="prev" title="Script for data treatment" href="Script_for_data_treatment.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Horace
+            <img src="../_static/150px-Quintus_Horatius_Flaccus.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Introduction.html">Introduction and Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../User_guide.html">User’s Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Horace_manual.html">Horace Manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Changing_Horace_settings.html">Changing Horace settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Planning_a_Horace_scan.html">Planning a Horace scan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Generating_SQW_files.html">Generating SQW files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Manipulating_and_extracting_data_from_SQW_files_and_objects.html">Manipulating and extracting data from SQW files and objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Correcting_for_sample_misalignment.html">Correcting for sample misalignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Data_diagnostics.html">Data diagnostics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Symmetrising_etc.html">Symmetrising etc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Unary_operations.html">Unary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Binary_operations.html">Binary operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Plotting.html">Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Simulation.html">Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Multifit.html">Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Advanced_Multifit.html">Advanced Multifit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tobyfit.html">Tobyfit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="List_of_functions.html">List of functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Input_file_formats.html">Input file formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="FAQ.html">FAQ</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../Unsorted.html">Unsorted Manual Pages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="Changing_object_type.html">Changing object type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Developer_information.html">Developer information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Fitting.html">Fitting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Herbert.html">Herbert</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Horace_and_Libisis_installation.html">Horace and Libisis installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Horace_command_line.html">Horace command line</a></li>
+<li class="toctree-l3"><a class="reference internal" href="New.html">New</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Read_or_write_to_disk.html">Read or write to disk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Remote_data_analysis.html">Remote data analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Reshaping_etc.html">Reshaping etc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Run_inspector.html">Run inspector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_correcting_sample_misalignment.html">Script for correcting sample misalignment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_data_treatment.html">Script for data treatment</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Script for fitting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_generating_sqw_files.html">Script for generating sqw files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_making_cuts_and_plotting.html">Script for making cuts and plotting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_making_publication_quality_figures.html">Script for making publication quality figures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_making_simulations.html">Script for making simulations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Script_for_planning_an_experiment.html">Script for planning an experiment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="s_new.html">S new</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Citing.html">Citing Horace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Developers.html">For Developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../API_Reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../General_disclaimer.html">General disclaimer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Privacy_policy.html">Privacy Policy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Horace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../Horace_manual.html">Horace Manual</a> &raquo;</li>
+          <li><a href="../Unsorted.html">Unsorted Manual Pages</a> &raquo;</li>
+      <li>Script for fitting</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/manual/Script_for_fitting.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="script-for-fitting">
+<h1>Script for fitting<a class="headerlink" href="#script-for-fitting" title="Permalink to this headline"></a></h1>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%============= Fitting a single 1d cut with a generic peak =================</span><span class="w"></span>
+
+<span class="c">%====</span><span class="w"></span>
+<span class="c">%Simplest case allows all parameters to be free</span><span class="w"></span>
+<span class="n">pars_in</span><span class="p">=[</span><span class="mf">0.4</span><span class="p">,</span><span class="o">-</span><span class="mf">0.7</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.6</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">1.3</span><span class="p">,</span><span class="mf">0.1</span><span class="p">];</span><span class="c">%vector of input parameters, in this case characterising some gaussian peaks</span><span class="w"></span>
+
+<span class="p">[</span><span class="n">wfit</span><span class="p">,</span><span class="n">fitdata</span><span class="p">]=</span><span class="n">fit_func</span><span class="p">(</span><span class="n">my_cut</span><span class="o">-</span><span class="mf">0.3</span><span class="p">,@</span><span class="n">mgauss</span><span class="p">,</span><span class="n">pars_in</span><span class="p">);</span><span class="c">%note subtraction of 0.3 to account for background (see later for background fitting)</span><span class="w"></span>
+
+<span class="c">%The output wfit is an object that covers the same range as the data and is the resultant best fit.</span><span class="w"></span>
+<span class="c">%The output fitdata is a structure array giving information about the fit (parameters, errors, chi^2, correlation matrix, etc)</span><span class="w"></span>
+
+<span class="c">%Plot the result in a nice way (data is black circles + errorbars, fit is red line)</span><span class="w"></span>
+<span class="n">acolor</span><span class="w"> </span><span class="s">black</span><span class="w"></span>
+<span class="nb">plot</span><span class="p">(</span><span class="n">my_cut</span><span class="o">-</span><span class="mf">0.3</span><span class="p">);</span><span class="c">%crude background subtraction</span><span class="w"></span>
+<span class="n">acolor</span><span class="w"> </span><span class="s">red</span><span class="w"></span>
+<span class="n">pl</span><span class="p">(</span><span class="n">wfit</span><span class="p">)</span><span class="w"></span>
+
+
+<span class="c">%====</span><span class="w"></span>
+<span class="c">%Keep the widths of all the peaks fixed, but allow heights and centres to vary;</span><span class="w"></span>
+
+<span class="n">pars_in</span><span class="p">=[</span><span class="mf">0.4</span><span class="p">,</span><span class="o">-</span><span class="mf">0.8</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="o">-</span><span class="mf">0.22</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.22</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.8</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">1.2</span><span class="p">,</span><span class="mf">0.1</span><span class="p">];</span><span class="w"></span>
+
+<span class="n">pars_free</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="c">%vector same size as that giving inputs, with 0 for parameter to be kept fixed, 1 for allowed to vary</span><span class="w"></span>
+
+<span class="p">[</span><span class="n">wfit</span><span class="p">,</span><span class="n">fitdata</span><span class="p">]=</span><span class="n">fit_func</span><span class="p">(</span><span class="n">my_cut</span><span class="o">-</span><span class="mf">0.3</span><span class="p">,@</span><span class="n">mgauss</span><span class="p">,</span><span class="n">pars_in</span><span class="p">,</span><span class="n">pars_free</span><span class="p">);</span><span class="w"></span>
+
+<span class="c">%====</span><span class="w"></span>
+<span class="c">%Now bind some of the positions to follow symmetry (i.e. position of peaks for Q&lt;0 are  reflection of those at Q&gt;0)</span><span class="w"></span>
+<span class="n">pars_in</span><span class="p">=[</span><span class="mf">0.4</span><span class="p">,</span><span class="o">-</span><span class="mf">0.8</span><span class="p">,</span><span class="mf">0.07</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="o">-</span><span class="mf">0.22</span><span class="p">,</span><span class="mf">0.07</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.22</span><span class="p">,</span><span class="mf">0.07</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.8</span><span class="p">,</span><span class="mf">0.07</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">1.2</span><span class="p">,</span><span class="mf">0.07</span><span class="p">];</span><span class="w"></span>
+
+<span class="n">pars_free</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="n">pars_bind</span><span class="p">={{</span><span class="mi">2</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">},{</span><span class="mi">5</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">}};</span><span class="c">%ensures symmetry about x=0; 2nd parameter is bound to 11th parameter in ratio -1, ditto the 5th and 8th parameters</span><span class="w"></span>
+
+<span class="p">[</span><span class="n">wfit</span><span class="p">,</span><span class="n">fitdata</span><span class="p">]=</span><span class="n">fit_func</span><span class="p">(</span><span class="n">my_cut</span><span class="o">-</span><span class="mf">0.3</span><span class="p">,@</span><span class="n">mgauss</span><span class="p">,</span><span class="n">pars_in</span><span class="p">,</span><span class="n">pars_free</span><span class="p">,</span><span class="n">pars_bind</span><span class="p">);</span><span class="w"></span>
+
+
+<span class="c">%====</span><span class="w"></span>
+<span class="c">%Repeat the above, but using some of the options</span><span class="w"></span>
+<span class="n">pars_in</span><span class="p">=[</span><span class="mf">0.4</span><span class="p">,</span><span class="o">-</span><span class="mf">0.8</span><span class="p">,</span><span class="mf">0.07</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="o">-</span><span class="mf">0.22</span><span class="p">,</span><span class="mf">0.07</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.22</span><span class="p">,</span><span class="mf">0.07</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.8</span><span class="p">,</span><span class="mf">0.07</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">1.2</span><span class="p">,</span><span class="mf">0.07</span><span class="p">];</span><span class="w"></span>
+
+<span class="n">pars_free</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="n">pars_bind</span><span class="p">={{</span><span class="mi">2</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">},{</span><span class="mi">5</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">}};</span><span class="c">%ensures symmetry about x=0</span><span class="w"></span>
+
+<span class="p">[</span><span class="n">wfit</span><span class="p">,</span><span class="n">fitdata</span><span class="p">]=</span><span class="n">fit_func</span><span class="p">(</span><span class="n">my_cut</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="mf">0.35</span><span class="p">,@</span><span class="n">multigauss</span><span class="p">,</span><span class="n">pars_in</span><span class="p">,</span><span class="n">pars_free</span><span class="p">,</span><span class="n">pars_bind</span><span class="p">,</span><span class="s">&#39;list&#39;</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="s">&#39;fit&#39;</span><span class="p">,[</span><span class="mf">0.001</span><span class="w"> </span><span class="mi">50</span><span class="w"> </span><span class="mf">0.001</span><span class="p">]);</span><span class="w"></span>
+
+<span class="c">%This example of setting &#39;list&#39; to 2 gives a very verbose output to the Matlab command window as the fit progresses.</span><span class="w"></span>
+<span class="c">%Setting &#39;fit&#39; to [0.001 50 0.001] (from the default setting of fcp=[0.0001 30 0.0001]) changes respectively:</span><span class="w"></span>
+<span class="c">%    - The relative step length for calculation of partial derivatives</span><span class="w"></span>
+<span class="c">%    - The maximum number of iterations</span><span class="w"></span>
+<span class="c">%    - The stopping criterion, that is the relative change in chi-squared (i.e. stops if chisqr_new-chisqr_old &lt; fcp(3)chisqr_old)</span><span class="w"></span>
+
+
+<span class="c">%============== Fitting a single cut with an S(Q,w) model ======================</span><span class="w"></span>
+
+<span class="c">%The syntax, in terms of options, is the same as for fit_func. But this time the routine we use is called fit_sqw</span><span class="w"></span>
+
+<span class="n">pars</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span><span class="w"></span>
+<span class="n">pfree</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="w"></span>
+
+<span class="p">[</span><span class="n">wfit</span><span class="p">,</span><span class="n">fitdata</span><span class="p">]=</span><span class="n">fit_sqw</span><span class="p">(</span><span class="n">my_cut</span><span class="o">-</span><span class="mf">0.3</span><span class="p">,@</span><span class="n">my_sqw_model</span><span class="p">,</span><span class="n">pars</span><span class="p">,</span><span class="n">pfree</span><span class="p">,</span><span class="s">&#39;list&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span><span class="c">%this time we choose a medium level of verbosity during the fit</span><span class="w"></span>
+
+
+
+<span class="c">%============= Fitting a cut with a foreground and background ==================</span><span class="w"></span>
+
+<span class="c">%We will use fit_sqw (S(Q,w) model for the cross-section) here, i.e. use fit_sqw. The same syntax applies for fit_func.</span><span class="w"></span>
+
+<span class="c">%We will fit a linear background model (in the format used for func_eval and fit_func; the function needs to be on the Matlab path like the model function)</span><span class="w"></span>
+<span class="n">bgpars</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
+<span class="n">bgfree</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
+
+<span class="p">[</span><span class="n">wfit</span><span class="p">,</span><span class="n">fitdata</span><span class="p">]=</span><span class="n">fit_sqw</span><span class="p">(</span><span class="n">my_cut</span><span class="p">,@</span><span class="n">my_sqw_model</span><span class="p">,</span><span class="n">pars</span><span class="p">,</span><span class="n">pfree</span><span class="p">,@</span><span class="n">linear_bg</span><span class="p">,</span><span class="n">bgpars</span><span class="p">,</span><span class="n">bgfree</span><span class="p">,</span><span class="s">&#39;list&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+
+
+<span class="c">%============= Fitting multiple cuts simultaneously with the same foreground but different backgrounds ===========</span><span class="w"></span>
+
+<span class="c">%Here we have an array of cuts (or slices). They are all fitted with the same foreground function and parameters, but the background</span><span class="w"></span>
+<span class="c">%for each cut is allowed to be different. This corresponds to the most realistic situation you will encounter in your data analysis</span><span class="w"></span>
+
+<span class="c">%Make an array of cuts:</span><span class="w"></span>
+<span class="n">my_en</span><span class="p">=[</span><span class="mi">2</span><span class="p">:</span><span class="mi">2</span><span class="p">:</span><span class="mi">10</span><span class="p">];</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="p">=</span><span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">my_en</span><span class="p">)</span><span class="w"></span>
+<span class="w">     </span><span class="n">my_cut</span><span class="p">(</span><span class="nb">i</span><span class="p">)=</span><span class="n">cut_sqw</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span><span class="n">proj</span><span class="p">,[</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">8</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="n">my_en</span><span class="p">(</span><span class="nb">i</span><span class="p">)</span><span class="o">-</span><span class="mi">25</span><span class="p">,</span><span class="n">my_en</span><span class="p">(</span><span class="nb">i</span><span class="p">)</span><span class="o">+</span><span class="mi">25</span><span class="p">]);</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+<span class="c">%If all of the backgrounds have the same form (e.g. they are all linear) but have different parameters, then this is easy,</span><span class="w"></span>
+<span class="c">%since we can just re-use the code from above:</span><span class="w"></span>
+
+<span class="n">pars</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span><span class="w"></span>
+<span class="n">pfree</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="w"></span>
+
+<span class="n">bgpars</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
+<span class="n">bgfree</span><span class="p">=[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">];</span><span class="w"></span>
+
+<span class="p">[</span><span class="n">wfit</span><span class="p">,</span><span class="n">fitdata</span><span class="p">]=</span><span class="n">multifit_sqw</span><span class="p">(</span><span class="n">my_cut</span><span class="p">,@</span><span class="n">my_sqw_model</span><span class="p">,</span><span class="n">pars</span><span class="p">,</span><span class="n">pfree</span><span class="p">,@</span><span class="n">linear_bg</span><span class="p">,</span><span class="n">bgpars</span><span class="p">,</span><span class="n">bgfree</span><span class="p">,</span><span class="s">&#39;list&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+
+
+<span class="c">%But suppose the backgrounds have different functional forms. Now we need to use cell arrays for the background function, parameters and pfree.</span><span class="w"></span>
+<span class="c">%In the example here we have a mixture of linear and quadratic backgrounds</span><span class="w"></span>
+
+<span class="n">bgfunc</span><span class="p">={@</span><span class="n">linear_bg</span><span class="p">,@</span><span class="n">linear_bg</span><span class="p">,@</span><span class="n">linear_bg</span><span class="p">,@</span><span class="n">quadratic_bg</span><span class="p">,@</span><span class="n">quadratic_bg</span><span class="p">};</span><span class="w"></span>
+<span class="n">bgpars</span><span class="p">={[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]};</span><span class="c">%use different initial guesses and different free/fixed parameters for the background</span><span class="w"></span>
+<span class="n">bgfree</span><span class="p">={[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]};</span><span class="w"></span>
+
+<span class="p">[</span><span class="n">wfit</span><span class="p">,</span><span class="n">fitdata</span><span class="p">]=</span><span class="n">fit_sqw</span><span class="p">(</span><span class="n">my_cut</span><span class="p">,@</span><span class="n">my_sqw_model</span><span class="p">,</span><span class="n">pars</span><span class="p">,</span><span class="n">pfree</span><span class="p">,</span><span class="n">bgfunc</span><span class="p">,</span><span class="n">bgpars</span><span class="p">,</span><span class="n">bgfree</span><span class="p">,</span><span class="s">&#39;list&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Script_for_data_treatment.html" class="btn btn-neutral float-left" title="Script for data treatment" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Script_for_generating_sqw_files.html" class="btn btn-neutral float-right" title="Script for generating sqw files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2006-2021, STFC RAL.
+      <span class="lastupdated">Last updated on Mar 3, 2022, 1:42:06 PM.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
