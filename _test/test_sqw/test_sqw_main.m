@@ -46,8 +46,6 @@ classdef test_sqw_main < TestCase & common_state_holder
 
         function test_setting_pix_page_size_in_constructor_pages_pixels(obj)
             % hide warnings when setting pixel page size very small
-            old_warn_state = warning('OFF', 'HORACE:PixelData:memory_allocation');
-            cleanup = onCleanup(@() warning(old_warn_state));
 
             fpath = fullfile(obj.tests_dir, 'test_sqw_file', 'sqw_1d_2.sqw');
             % set page size accepting half of the pixels

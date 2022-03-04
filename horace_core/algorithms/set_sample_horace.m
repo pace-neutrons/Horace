@@ -19,7 +19,7 @@ function varargout=set_sample_horace(filename,sample,varargin)
 %
 % Ouptut:
 %  varargout   if present tries to load and returns the sqw objects from
-%              the files, for which the instrument has been set. 
+%              the files, for which the instrument and/or sample has been set. 
 %              Will fail if the sqw objects are too big to fit memory.
 %
 % Original author: T.G.Perring
@@ -28,9 +28,7 @@ function varargout=set_sample_horace(filename,sample,varargin)
 
 if nargout > 0
     out_list = set_instr_or_sample_horace_(filename,'-sample',sample,nargout,varargin{:});
-    for i=1:nargout
-        varargout{i}=out_list{i};
-    end
+    varargout(1:nargout)=out_list(1:nargout);    
 else
     set_instr_or_sample_horace_(filename,'-sample',sample,0,varargin{:});
 end

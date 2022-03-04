@@ -789,7 +789,7 @@ spe_file = cellfun(@(x)(x.loader.file_name),run_files,...
 tmp_file=gen_tmp_filenames(spe_file,sqw_file);
 tmp_generated = tmp_file;
 if gen_tmp_files_only
-%    ind = num2cell(1:numel(tmp_file));
+    %
     [f_valid_exist,pix_ranges] = cellfun(@(fn)(check_tmp_files_range(fn,pix_db_range,grid_size_in)),...
         tmp_file,'UniformOutput',false);
     f_valid_exist = [f_valid_exist{:}];
@@ -916,12 +916,12 @@ if ~is_file(tmp_file)
     pix_range = [];
     return;
 end
-toll = 4*eps(single(pix_db_range));
+tol = 4*eps(single(pix_db_range)); % double of difference between single and double precision
 %
 ldr = sqw_formats_factory.instance().get_loader(tmp_file);
 head = ldr.get_data('-head');
 pix_range = ldr.get_pix_range;
-if any(abs(head.img_db_range-pix_db_range)>toll)
+if any(abs(head.img_db_range-pix_db_range)>tol)
     present_and_valid   = false;
 else
     present_and_valid   = true;
