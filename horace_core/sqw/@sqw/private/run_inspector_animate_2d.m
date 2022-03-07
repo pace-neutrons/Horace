@@ -10,9 +10,13 @@ function run_inspector_animate_2d(frame_no,w,clim,axlim)
 
 
 %Need various checks to go here to ensure that we have valid inputs
+n_headers = numel(w);
 
 for i=frame_no
     ss=w(i).data.s';
+    ridm = w(i).runid_map;
+    run_id = ridm.keys;
+    
     zz=zeros(size(ss));
     zz=zz./w(i).data.npix';
     zz=zz+1;
@@ -39,5 +43,6 @@ for i=frame_no
     ylabel(ylab);
     clab=ylabel(cc,slab);
     set(clab,'Rotation',-90);
-    title(['Run number: ',num2str(i),'; Filename: ',w(i).header.filename,' Psi = ',num2str((180/pi)*w(i).header.psi)]);
+    title(sprintf('Frame: %d#%d; RunID: %d; Filename: %s; Psi = %4.1f',...
+        i,n_headers,run_id{1},w(i).header.filename,(180/pi)*w(i).header.psi),'Interpreter','none');
 end
