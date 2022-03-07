@@ -43,11 +43,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         wout = binary_op_manager_single(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
-        args = parse_args_(obj, varargin);
-        obj = init_from_sqw_(obj, sqw_obj);
-        obj = init_from_file_(obj, in_filename);
-        obj = init_from_loader_struct_(obj, data_struct);
-        obj = init_from_data_sqw_dnd_(obj, data_sqw_dnd_obj);
         wout = sqw_eval_pix_(wout, sqwfunc, ave_pix, pars);
     end
 
@@ -101,11 +96,11 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = DnDBase(varargin)
             obj = obj@SQWDnDBase();
 
-            [args] = obj.parse_args_(varargin{:});
+            [args] = parse_args_(obj,varargin{:});
             if args.array_numel>1
                 obj = repmat(obj,args.array_size);
             elseif args.array_numel==0
-                obj = obj.init_from_loader_struct_(args.data_struct);
+                obj = init_from_loader_struct_(obj,args.data_struct);
             end
             for i=1:args.array_numel
                 % i) copy
@@ -113,16 +108,16 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                     obj(i) = copy(args.dnd_obj(i));
                     % ii) struct
                 elseif ~isempty(args.data_struct)
-                    obj(i) = obj(i).init_from_loader_struct_(args.data_struct(i));
+                    obj(i) = init_from_loader_struct_(obj(i),args.data_struct(i));
                     % iia) data_sqw_dnd_obj
                 elseif ~isempty(args.data_sqw_dnd)
-                    obj(i) = obj(i).init_from_data_sqw_dnd_(args.data_sqw_dnd(i));
+                    obj(i) = init_from_data_sqw_dnd_(obj(i),args.data_sqw_dnd(i));
                     % iii) filename
                 elseif ~isempty(args.filename)
-                    obj(i) = obj(i).init_from_file_(args.filename{i});
+                    obj(i) = init_from_file_(obj(i),args.filename{i});
                     % iv) from sqw
                 elseif ~isempty(args.sqw_obj)
-                    obj(i) = obj(i).init_from_sqw_(args.sqw_obj(i));
+                    obj(i) = init_from_sqw_(obj(i),args.sqw_obj(i));
                 end
             end
         end

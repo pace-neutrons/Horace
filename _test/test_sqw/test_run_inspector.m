@@ -23,10 +23,13 @@ classdef test_run_inspector< TestCase
             source_data = fullfile(fileparts(obj.this_dir),fp,[fn,fe]);
             obj.source_sqw4D = read_sqw(source_data);
             obj.source_sqw2D = cut(obj.source_sqw4D,[-0.2,0.2],[-0.2,0.2],[],[]);
-            obj.source_sqw1D = cut(obj.source_sqw4D,[-0.2,0.2],[-0.2,0.2],[],[]);            
+            obj.source_sqw1D = cut(obj.source_sqw4D,[-0.2,0.2],[-0.2,0.2],[-0.2,0.2],[]);            
 
         end
         % tests
+        function test_run_inspector_1D(obj)
+
+        end
         function test_split(obj)
             n_pix = obj.source_sqw4D.npixels;
             w_spl = split(obj.source_sqw4D);
