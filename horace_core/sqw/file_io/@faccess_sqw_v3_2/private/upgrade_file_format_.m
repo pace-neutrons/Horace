@@ -82,9 +82,9 @@ exp = Experiment(heads);
 sq = sq.change_header(exp);
 
 if iscell(heads)
-    runid = cellfun(@(x)(extract_id_from_filename(x.filename)),heads);
+    runid = cellfun(@(x)(rundata.extract_id_from_filename(x.filename)),heads);
 else
-    runid = arrayfun(@(x)(extract_id_from_filename(x.filename)),heads);
+    runid = arrayfun(@(x)(rundata.extract_id_from_filename(x.filename)),heads);
 end
 
 ids = 1:numel(heads);
