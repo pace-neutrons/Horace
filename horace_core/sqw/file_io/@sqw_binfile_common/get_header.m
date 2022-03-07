@@ -89,7 +89,7 @@ end
 header_numbers = 1:numel(header);
 if any(isnan(runids)) % this also had been done in gen_sqw;
     % rundata_write_to_sqw_ procedure in gen_sqw_files job.
-    % It have setup update_runlabels to true, which aslo made
+    % It have setup update_runlabels to true, which also made
     % duplicated headers unique
     runids = header_numbers;
 end

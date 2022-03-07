@@ -22,12 +22,12 @@ for i=frame_no
     zz=zz+1;
     %the above 4 lines are to ensure we have NaNs rather than zeros where
     %there was no data
-    
-    %2d   
+
+    %2d
     xx=0.5.*(w(i).data.p{1}(1:end-1)+ w(i).data.p{1}(2:end));
     yy=0.5.*(w(i).data.p{2}(1:end-1)+ w(i).data.p{2}(2:end));
     [XX,YY]=meshgrid(xx,yy);
-    
+
     %NB we need to set the color scale (caxis) from the UI
     pcolor(XX,YY,ss.*zz); shading flat; colormap jet;
     cc=colorbar;%ensure there is a handle to the colorbar
