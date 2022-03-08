@@ -84,15 +84,23 @@ classdef IX_detector_array
                         error('Detector indentifiers must all be unique')
                     end
                 else
-                    [ok,mess] = IX_detector_array.check_detpar_parms(varargin{1});
-                    if ok
-                        dp = varargin{1};
+                    dp = varargin{1};
+                    is_detpar_struct = IX_detector_array.check_detpar_parms(dp);
+                    if is_detpar_struct
+                        % the struct has the full recipe for constructing
+                        % the detector bank and the origin filepath.
+                        % Splitting it up and passing it to the object
+                        % components
                         obj.det_bank_ = IX_detector_bank( ...
                             dp.group, dp.x2, dp.phi, dp.azim, ...
                             IX_det_TobyfitClassic (dp.width, dp.height));
                         obj.filename_ = dp.filename;
                         obj.filepath_ = dp.filepath;
                     else
+                        % if varargin{1} isn't a detpar struct, delegate
+                        % processing of varargin to the detector bank.
+                        % This implies that varargin is the whole set of
+                        % detector bank constructor arguments. 
                         obj.det_bank_ = IX_detector_bank(varargin{:});
                     end
                 end
@@ -197,20 +205,18 @@ classdef IX_detector_array
     end
     
     methods(Static)
-        function [ok,mess] = check_detpar_parms(varargin)
-            dp = varargin{1};
-            ok = false;
-            mess = 'Not a detpar struct';
+        function is_dp_struct = check_detpar_parms(dp)
+            % checks input dp to see if it is a proper old-style detpar struct.
+            % the recipe for such a struct is given in the isdetpar= line
+            % below. Such a struct can be consumed by the IX_detector_array
+            % constructor. Other inputs may also be interpretable by the
+            % constructor but are not handled here.
+            is_dp_struct = false;
             if ~isstruct(dp)
                 return;
             end
-            isdetpar = isfield(dp,'group') && isfield(dp,'x2') && isfield(dp,'phi') ...
+            is_dp_struct = isfield(dp,'group') && isfield(dp,'x2') && isfield(dp,'phi') ...
                     && isfield(dp,'azim') && isfield(dp,'filename') && isfield(dp,'filepath');
-            if ~isdetpar
-                return;
-            end
-            ok = true;
-            mess = '';
         end
     end
     
