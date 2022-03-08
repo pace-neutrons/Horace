@@ -35,7 +35,7 @@ classdef sqw_file_interface < dnd_binfile_common
     % upgrade_file_format - upgrade current sqw file to recent file format.
     %                       May change the sqw file and always opens it in
     %                       write or upgrade mode.
-    
+
     %
     %
     properties(Access=protected,Hidden=true)
@@ -52,9 +52,9 @@ classdef sqw_file_interface < dnd_binfile_common
         % number of pixels, contributing into this file.
         npixels
 
-        % size of a pixel (in bytes) stored in binary file, 
+        % size of a pixel (in bytes) stored in binary file,
         % for the loader to read
-        pixel_size;        
+        pixel_size;
     end
     properties(Constant,Access=private,Hidden=true)
         % list of field names to save on hdd to be able to recover
@@ -79,9 +79,9 @@ classdef sqw_file_interface < dnd_binfile_common
             % all substantial parts of appropriate sqw file.
             flds = fields_to_save@dnd_binfile_common(obj);
             flds = [obj.fields_to_save_(:);flds(:)];
-        end 
+        end
     end
-    
+
     %----------------------------------------------------------------------
     methods
         function nfiles = get.num_contrib_files(obj)
@@ -128,18 +128,17 @@ classdef sqw_file_interface < dnd_binfile_common
             % % construction. Should not be stored
             % caches = {'sqw_serializer_','file_closer_','sqw_holder_'};
             % struc = rmfield(struc,caches);
-        end        
+        end
     end
     %----------------------------------------------------------------------
     %----------------------------------------------------------------------
     methods(Abstract)
         % retrieve different parts of sqw data
         %------------------------------------------------------------------
-        [header,pos,runid_map]...
-            = get_header(obj,varargin);
+        [header,pos,runid_map]= get_header(obj,varargin);
         detpar      = get_detpar(obj,varargin);
         pix         = get_pix(obj,varargin);
-        range       = get_pix_range(obj);        
+        range       = get_pix_range(obj);
         [inst,obj]  = get_instrument(obj,varargin);
         [samp,obj]  = get_sample(obj,varargin);
         %------------------------------------------------------------------

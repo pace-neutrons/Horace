@@ -43,11 +43,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         wout = binary_op_manager_single(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
-        args = parse_args_(obj, varargin);
-        obj = init_from_sqw_(obj, sqw_obj);
-        obj = init_from_file_(obj, in_filename);
-        obj = init_from_loader_struct_(obj, data_struct);
-        obj = init_from_data_sqw_dnd_(obj, data_sqw_dnd_obj);
         wout = sqw_eval_pix_(wout, sqwfunc, ave_pix, pars);
     end
 
@@ -101,11 +96,11 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = DnDBase(varargin)
             obj = obj@SQWDnDBase();
 
-            [args] = obj.parse_args_(varargin{:});
+            [args] = parse_args_(obj,varargin{:});
             if args.array_numel>1
                 obj = repmat(obj,args.array_size);
             elseif args.array_numel==0
-                obj = obj.init_from_loader_struct_(args.data_struct);
+                obj = init_from_loader_struct_(obj,args.data_struct);
             end
             for i=1:args.array_numel
                 % i) copy
@@ -113,19 +108,20 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                     obj(i) = copy(args.dnd_obj(i));
                     % ii) struct
                 elseif ~isempty(args.data_struct)
-                    obj(i) = obj(i).init_from_loader_struct_(args.data_struct(i));
+                    obj(i) = init_from_loader_struct_(obj(i),args.data_struct(i));
                     % iia) data_sqw_dnd_obj
                 elseif ~isempty(args.data_sqw_dnd)
-                    obj(i) = obj(i).init_from_data_sqw_dnd_(args.data_sqw_dnd(i));
+                    obj(i) = init_from_data_sqw_dnd_(obj(i),args.data_sqw_dnd(i));
                     % iii) filename
                 elseif ~isempty(args.filename)
-                    obj(i) = obj(i).init_from_file_(args.filename{i});
+                    obj(i) = init_from_file_(obj(i),args.filename{i});
                     % iv) from sqw
                 elseif ~isempty(args.sqw_obj)
-                    obj(i) = obj(i).init_from_sqw_(args.sqw_obj(i));
+                    obj(i) = init_from_sqw_(obj(i),args.sqw_obj(i));
                 end
             end
         end
+        % Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)
             val = obj.data_;
         end
@@ -138,9 +134,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                     class(d))
             end
         end
-
-
-        %% Public getters/setters expose all wrapped data attributes
+        %
         function val = get.filename(obj)
             val = '';
             if ~isempty(obj.data_)
@@ -150,7 +144,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = set.filename(obj, filename)
             obj.data_.filename = filename;
         end
-
+        %
         function val = get.filepath(obj)
             val = '';
             if ~isempty(obj.data_)
@@ -160,7 +154,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = set.filepath(obj, filepath)
             obj.data_.filepath = filepath;
         end
-
+        %
         function val = get.title(obj)
             val = '';
             if ~isempty(obj.data_)
@@ -170,7 +164,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = set.title(obj, title)
             obj.data_.title = title;
         end
-
+        %
         function val = get.alatt(obj)
             val = [];
             if ~isempty(obj.data_)
@@ -180,7 +174,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = set.alatt(obj, alatt)
             obj.data_.alatt = alatt;
         end
-
+        %
         function val = get.angdeg(obj)
             val = [];
             if ~isempty(obj.data_)
@@ -190,7 +184,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = set.angdeg(obj, angdeg)
             obj.data_.angdeg = angdeg;
         end
-
+        %
         function val = get.uoffset(obj)
             val = [];
             if ~isempty(obj.data_)
@@ -200,7 +194,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = set.uoffset(obj, uoffset)
             obj.data_.uoffset = uoffset;
         end
-
+        %
         function val = get.u_to_rlu(obj)
             val = [];
             if ~isempty(obj.data_)
@@ -210,7 +204,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = set.u_to_rlu(obj, u_to_rlu)
             obj.data_.u_to_rlu = u_to_rlu;
         end
-
+        %
         function val = get.ulen(obj)
             val = [];
             if ~isempty(obj.data_)
@@ -220,7 +214,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = set.ulen(obj, ulen)
             obj.data_.ulen = ulen;
         end
-
+        %
         function val = get.ulabel(obj)
             val = [];
             if ~isempty(obj.data_)
@@ -230,7 +224,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = set.ulabel(obj, ulabel)
             obj.data_.ulabel = ulabel;
         end
-
+        %
         function val = get.iax(obj)
             val = [];
             if ~isempty(obj.data_)
@@ -240,7 +234,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = set.iax(obj, iax)
             obj.data_.iax = iax;
         end
-
+        %
         function val = get.iint(obj)
             val = [];
             if ~isempty(obj.data_)
@@ -250,7 +244,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = set.iint(obj, iint)
             obj.data_.iint = iint;
         end
-
+        %
         function val = get.pax(obj)
             val = [];
             if ~isempty(obj.data_)
@@ -260,7 +254,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = set.pax(obj, pax)
             obj.data_.pax = pax;
         end
-
+        %
         function val = get.p(obj)
             val = [];
             if ~isempty(obj.data_)
@@ -270,7 +264,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = set.p(obj, p)
             obj.data_.p = p;
         end
-
+        %
         function val = get.dax(obj)
             val = [];
             if ~isempty(obj.data_)
@@ -280,7 +274,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = set.dax(obj, dax)
             obj.data_.dax = dax;
         end
-
+        %
         function val = get.s(obj)
             val = [];
             if ~isempty(obj.data_)
@@ -290,7 +284,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = set.s(obj, s)
             obj.data_.s = s;
         end
-
+        %
         function val = get.e(obj)
             val = [];
             if ~isempty(obj.data_)
@@ -300,7 +294,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = set.e(obj, e)
             obj.data_.e = e;
         end
-
+        %
         function val = get.npix(obj)
             val = [];
             if ~isempty(obj.data_)

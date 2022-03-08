@@ -328,7 +328,8 @@ classdef test_cut < TestCase & common_state_holder
             output_obj = ldr.get_dnd();
             ref_object = d3d(obj.ref_file);
             
-            assertEqualToTol(output_obj, ref_object, 'ignore_str', true);
+            assertEqualToTol(output_obj, ref_object, [2.e-7,1e-7],...
+                'ignore_str', true);
         end
     end
     

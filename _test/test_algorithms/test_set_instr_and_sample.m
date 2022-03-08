@@ -85,7 +85,7 @@ classdef test_set_instr_and_sample < TestCase
             tmp=sqw(tmpsqwfile);
             [ok,mess]=equal_to_tol(f1_1_s3_ref,tmp,'ignore_str',1); assertTrue(ok,mess)
 
-            % Dummy sample
+            % Dummy sample, empty sample
             set_sample_horace(tmpsqwfile,[]);
             tmp=sqw(tmpsqwfile);
             [ok,mess]=equal_to_tol(obj.ds.f1_1,tmp,'ignore_str',1); assertTrue(ok,mess)

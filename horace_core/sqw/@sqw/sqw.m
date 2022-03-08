@@ -316,6 +316,18 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     if isempty(obj(i).runid_map)
                         obj(i).runid_map = recalculate_runid_map_(obj(i).experiment_info);
                     end
+                    % guard against old data formats:
+                    if ~isempty(obj(i).data.pix) && obj(i).data.pix.num_pixels>0 && ...
+                        ~obj(i).data.pix.is_filebacked()
+                        pix_id = unique(obj(i).data.pix.run_idx);
+                        kind = obj(i).runid_map.keys;
+                        kind = [kind{:}];
+                        if ~all(ismember(pix_id,kind)) % pixel id-s were recalculated
+                            id = 1:numel(kind);
+                            obj(i).runid_map = containers.Map(id,id);
+                        end
+                    end
+
 
                 end
                 return

@@ -26,7 +26,7 @@ end
 %
 %
 if isempty(new_obj.sqw_holder_)
-    
+
 end
 
 clear_sqw_holder = false;
@@ -80,19 +80,18 @@ else
 end
 exp = Experiment(heads);
 sq = sq.change_header(exp);
-runid = zeros(numel(heads),1);
-for i=1:numel(heads)
-    if iscell(heads)
-        runid(i) = rundata.extract_id_from_filename(heads{i}.filename);
-    else
-        runid(i) = rundata.extract_id_from_filename(heads(i).filename);
-    end
+
+if iscell(heads)
+    runid = cellfun(@(x)(rundata.extract_id_from_filename(x.filename)),heads);
+else
+    runid = arrayfun(@(x)(rundata.extract_id_from_filename(x.filename)),heads);
 end
+
 ids = 1:numel(heads);
 if any(isnan(runid))
     runid = ids;
 end
-sq.runid_map = runid;
+sq.runid_map = containers.Map(runid,ids);
 
 function hd= gen_head(head,x)
 hd = head;
