@@ -231,7 +231,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             ld_str = struct();
             [ld_str.main_header, ld_str.header, ld_str.detpar,...
                 ld_str.data,ld_str.runid_map] = ...
-                ldr.get_sqw('-legacy', 'pixel_page_size', pixel_page_size);
+                ldr.get_sqw('-legacy','-noupgrade', 'pixel_page_size', pixel_page_size);
         end
         function obj = init_from_loader_struct_(obj, data_struct)
             % initialize object contents using structure, obtained from

@@ -64,6 +64,12 @@ classdef test_cut < TestCase
         end
         
         function test_you_can_take_a_cut_from_an_sqw_file(obj)
+            % Really large file V2 on disk to ensure that ranges are
+            % calculated using filebased algorithm rather than all data
+            % loaded in memory.
+            %v2large_file= 'c:\Users\abuts\Documents\Data\Fe\Data\sqw\Fe_ei1371_base_a.sqw';
+            %sqw_cut = cut(v2large_file, obj.ref_params{:});            
+            
             conf = hor_config();
             old_conf = conf.get_data_to_store();
             conf.pixel_page_size = 5e5;

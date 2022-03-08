@@ -18,9 +18,9 @@ function [sqw_object,varargout] = get_sqw (obj, varargin)
 %                                                          uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,img_db_range]
 %                                    (If the file was written from a structure of type 'b' or 'b+', then
 %                                    img_db_range does not exist, and the output field will not be created)
-%                   '-his'          - header block in full i.e. with without instrument and sample information, and
+%                   '-his'          - header block in full i.e. without instrument and sample information, and
 %                                   - data block fields as for '-h'
-%                   '-hverbatim'    Same as '-h' except that the file name as stored in the main_header and
+%                   '-hverbatim'   Same as '-h' except that the file name as stored in the main_header and
 %                                  data sections are returned as stored, not constructed from the
 %                                  value of fopen(fid). This is needed in some applications where
 %                                  data is written back to the file with a few altered fields.
@@ -29,6 +29,9 @@ function [sqw_object,varargout] = get_sqw (obj, varargin)
 %                   '-legacy'       Return result in legacy format, e.g. 4
 %                                   fields, namely: main_header, header,
 %                                   detpar and data
+%                   '-noupgrade'    if it is old file format, do not do
+%                                   expensive calculations, necessary for
+%                                   upgrading file format to recent version
 %
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
 %
@@ -92,9 +95,14 @@ if opts.nopix
 else
     opt3={};
 end
+if opts.noupgrade
+    opt4={'-noupgrade'};
+else
+    opt4={};
+end
 
 
-data_opt= [opt1, opt2, opt3];
+data_opt= [opt1, opt2, opt3, opt4];
 sqw_struc.data = obj.get_data(data_opt{:}, 'pixel_page_size', opts.pixel_page_size);
 
 sqw_struc.header = headers;
@@ -129,6 +137,7 @@ function opts = parse_args(varargin)
         'verbatim', ...
         'hverbatim', ...
         'hisverbatim', ...
+        'noupgrade',...
         'nopix', ...
         'legacy' ...
     };
