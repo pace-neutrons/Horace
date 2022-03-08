@@ -207,10 +207,6 @@ classdef test_cut_sqw_sym < TestCaseWithSave
         function test_cut_with_pix (this)
             % Test a simple cut keeping pixels
             
-            % Turn off output, but return to input value when exit or cntl-c
-            finishup = onCleanup(@() set(hor_config,'log_level',this.log_level));
-            set(hor_config,'log_level',-1);  % turn off output
-            
             w2 = cut_sqw (this.data_source, this.proj, this.bin,...
                 this.width, this.width, this.ebins, '-pix');
             this.assertEqualToTolWithSave (w2, this.tol_sp,'ignore_str',1);

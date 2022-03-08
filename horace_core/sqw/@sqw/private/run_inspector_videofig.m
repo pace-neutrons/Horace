@@ -74,6 +74,14 @@ if nargin < 4 || isempty(play_fps), play_fps = 5; end  %play speed (frames per s
 if nargin < 5 || isempty(big_scroll), big_scroll = 10; end  %page-up and page-down advance, in frames
 if nargin < 6, key_func = []; end
 
+if ismember('test_videofig',varargin)
+    testing_videofig = true;
+    argi = varargin(~ismember(varargin,'test_videofig'));
+else
+    testing_videofig = false;
+    argi = varargin;
+end
+
 %check arguments
 check_int_scalar(num_frames);
 check_callback(redraw_func);
@@ -87,7 +95,7 @@ f = 1;  %current frame
 %initialize figure
 fig_handle = figure('Color',[.3 .3 .3], 'MenuBar','none', 'Units','norm', ...
     'WindowButtonDownFcn',@button_down, 'WindowButtonUpFcn',@button_up, ...
-    'WindowButtonMotionFcn', @on_click, 'KeyPressFcn', @key_press, varargin{:});
+    'WindowButtonMotionFcn', @on_click, 'KeyPressFcn', @key_press, argi{:});
 
 %axes for scroll bar
 scroll_axes_handle = axes('Parent',fig_handle, 'Position',[0 0 1 0.03], ...
@@ -123,9 +131,14 @@ set(gcf,'Color',[1,1,1]);
 %RAE extra: draw the first frame so that there is something to see in
 %the initial view:
 redraw_func(1,redraw_args{:});
-if num_frames == 1
+if testing_videofig
+    close(fig_handle);
     return;
 end
+if num_frames ==1
+    return;
+end
+
 %Add a message box that tells users how to control the figure;
 my_char={'Enter (Return) -- play/pause video (5 frames-per-second default)',...
     'Backspace -- play/pause video 5 times slower',...

@@ -37,7 +37,7 @@ end
 
 
 % Compile the accumulated cut and projection data into a data_sqw_dnd object
-data_out = compile_sqw_data(...
+[data_out,unique_ind] = compile_sqw_data(...
     targ_axes, tag_proj, s, e, npix, pix_out,keep_pix);
 
 % Assign the new data_sqw_dnd object to the output SQW object, or create a new
@@ -48,7 +48,15 @@ if keep_pix
     wout.experiment_info = w.experiment_info;
     wout.detpar = w.detpar;
     wout.data   = data_out;
+    % TODO: and this will be redone properly
+    kind = w.runid_map.keys;
+    kind = [kind{:}];
+    if ~all(ismember(unique_ind,kind)) % runid indexes have been renumerated
+        id = 1:w.experiment_info.n_runs;
+        wout.runid_map = containers.Map(id,id);
+    else
     wout.runid_map = w.runid_map; %TODO: this map should inclde contributing indexes only
+    end
     wout.data.img_db_range = data_out.img_range;
 else
     dnd_constructor = DND_CONSTRUCTORS{numel(data_out.pax) + 1};
@@ -85,8 +93,11 @@ data_out = data_sqw_dnd(targ_axes,data_str);
 
 if keep_pix
     data_out.pix = pix_out;
+        unique_ind  = unique(pix_out.run_idx);
+    end
 else
     data_out.pix = PixelData();
+    unique_ind = [];
 end
 
 

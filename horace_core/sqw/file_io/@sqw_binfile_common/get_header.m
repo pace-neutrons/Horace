@@ -69,8 +69,8 @@ n_header = numel(header);
 runids = zeros(n_header,1);
 for i=1:n_header
     if iscell(header)
-        header{i}.instruments = IX_null_inst(); %struct(); % this is necessary
-        header{i}.samples = IX_null_sample(); %struct();      % to satisfy current interface
+        header{i}.instruments = IX_null_inst();  % this is necessary
+        header{i}.samples = IX_null_sample();    % to satisfy current interface
         if size(header{i}.en,1)==1
             header{i}.en = header{i}.en';
         end
@@ -79,8 +79,8 @@ for i=1:n_header
         if size(header(i).en,1)==1
             header(i).en = header(i).en';
         end
-        header(i).instruments = IX_null_inst(); %struct();
-        header(i).samples = IX_null_sample(); %struct();
+        header(i).instruments = IX_null_inst(); 
+        header(i).samples = IX_null_sample();
         runids(i) = rundata.extract_id_from_filename(header(i).filename);
     end
     %
@@ -89,7 +89,7 @@ end
 header_numbers = 1:numel(header);
 if any(isnan(runids)) % this also had been done in gen_sqw;
     % rundata_write_to_sqw_ procedure in gen_sqw_files job.
-    % It have setup update_runlabels to true, which aslo made
+    % It have setup update_runlabels to true, which also made
     % duplicated headers unique
     runids = header_numbers;
 end

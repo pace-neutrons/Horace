@@ -72,28 +72,24 @@ for i=1:nfiles
         pix_range = [min([pix_range_tmp(1,:);pix_range(1,:)],[],1);...
             max([pix_range_tmp(2,:);pix_range(2,:)],[],1)];
     end
-    
-    
+
+
     % Write sqw object
     % ----------------
     bigtic
     save(w,sqw_file{i});
-    
+
     if running_mpi
         mpi_obj.do_logging(i,nfiles,[],[]);
     end
-    
+
     if hor_log_level>-1
         bigtoc('Time to save sqw data to file:',hor_log_level)
     end
-    
+
 end
 unique_runid = unique(run_id);
-if numel(unique_runid) == nfiles && ~any(isnan(unique_runid))
-    update_runlabels = false;
-else
-    update_runlabels = true;
-end
+update_runlabels = numel(unique_runid) ~= nfiles || any(isnan(unique_runid));
 
 
 function range = get_cut_range(r_min,r_max,n_bins)

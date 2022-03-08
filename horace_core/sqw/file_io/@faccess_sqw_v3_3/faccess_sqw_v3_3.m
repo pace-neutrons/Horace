@@ -191,7 +191,7 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
                 end
                 if ll>0
                     fprintf(...
-                        '*** Recalculating pixel range to upgrade file format to a latest binary version\n')
+                        '*** Recalculating pixel range to upgrade file format to the latest binary version\n')
                 end
                 data.pix.recalc_pix_range();
                 obj.pix_range_ = data.pix.pix_range;

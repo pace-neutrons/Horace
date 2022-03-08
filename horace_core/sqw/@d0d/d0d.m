@@ -7,7 +7,7 @@ classdef d0d < DnDBase
     %   >> w = d0d(struct)         % Create from a structure with valid fields (internal use)
 
     properties (Constant, Access = protected)
-       NUM_DIMS = 0;
+        NUM_DIMS = 0;
     end
 
     methods(Static)
@@ -23,29 +23,21 @@ classdef d0d < DnDBase
             % -------
             % Output:
             %   obj     An instance of this object
-            obj = d0d(S);
+            %
             if isa(S,'d0d')
-               obj = S;
-               if isstruct(obj.data_)
+                obj = S;
+                if isstruct(obj.data_)
                     obj.data_ = data_sqw_dnd(obj.data_);
-               end
-               return
+                end
+                return
             end
-            if numel(S)>1
-               tmp = d0d();
-               obj = repmat(tmp, size(S));
-               for i = 1:numel(S)
-                   obj(i) = d0d(S(i));
-	               if isstruct(obj(i).data_)
-    	                obj(i).data_ = data_sqw_dnd(obj(i).data_);
-        	       end
-
-               end
-            else
-               obj = d0d(S);
-               if isstruct(obj.data_)
-                    obj.data_ = data_sqw_dnd(obj.data_);
-               end
+            tmp = d0d();
+            obj = repmat(tmp, size(S));
+            for i = 1:numel(S)
+                obj(i) = d0d(S(i));
+                if isstruct(obj(i).data_)
+                    obj(i).data_ = data_sqw_dnd(obj(i).data_);
+                end
             end
         end
     end
