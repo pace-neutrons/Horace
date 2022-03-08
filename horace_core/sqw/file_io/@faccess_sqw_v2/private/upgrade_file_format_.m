@@ -44,7 +44,8 @@ if isempty(new_obj.sqw_holder_) % all file positions except instrument and sampl
         hc.mem_page_chunk_size_byte_conversion = hc.mem_chunk_size;
     end
     if ll>0
-        fprintf('*** Upgrading file format to a latest binary version\n')
+        fprintf(['*** Upgrading file format to a latest binary version.\n',...
+                 '    This is once per-old file long operation, analyzuing the whole pixels array\n'])
     end
     new_obj.sqw_holder_.data.pix = PixelData(obj,hc.mem_page_chunk_size_byte_conversion);
     clear_sqw_holder = true; %
