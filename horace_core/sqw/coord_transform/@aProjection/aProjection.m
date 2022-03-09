@@ -186,7 +186,7 @@ classdef aProjection < serializable
         % accessors
         %------------------------------------------------------------------
         function alat = get.alatt(obj)
-            alat = obj.alatt_;
+            alat = obj.get_alatt_(obj);
         end
         function obj = set.alatt(obj,val)
             % set lattice parameters as single value, defining 3 equal
@@ -197,8 +197,8 @@ classdef aProjection < serializable
             obj = check_and_set_alatt(obj,val);
         end
         %
-        function angl = get.angdeg(obj)
-            angl = obj.angdeg_;
+        function  angdeg = get.angdeg(obj)
+            angdeg = get_angdeg_(obj);
         end
         function obj = set.angdeg(obj,val)
             % set lattice parameters as single value, defining 3 equal
@@ -349,7 +349,7 @@ classdef aProjection < serializable
             % Should be overloaded for specific projection and specific axes
             % block
             % Inputs:
-            % default_binning_ranges -- the binning ranges of existing 
+            % default_binning_ranges -- the binning ranges of existing
             ax_bl = axes_block.build_from_input_binning(...
                 default_binning_ranges,req_binning_ranges);
             ax_bl.label = obj.label;
@@ -380,11 +380,19 @@ classdef aProjection < serializable
     end
     %
     methods(Access = protected)
+        function  alat = get_alatt_(obj)
+            % overloadable alatt accessor
+            alat  = obj.alatt_;
+        end
         function obj = check_and_set_alatt(obj,val)
             obj.alatt_ = check_alatt_return_standard_val_(obj,val);
         end
         function   proj = get_target_proj(obj)
             proj = obj.targ_proj_;
+        end
+        function  angdeg = get_angdeg_(obj)
+            % overloadable angdeg accessor
+            angdeg  = obj.angdeg_;
         end
         function obj = check_and_set_andgdeg(obj,val)
             obj.angdeg_ = check_angdeg_return_standard_val_(obj,val);

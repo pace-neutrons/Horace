@@ -205,8 +205,8 @@ classdef instr_proj<aProjection
             error('HORACE:inst_proj:not_implemented',...
                 'cuts in instrument frame are not yet implemented')
         end
-        function proj = get_target_proj(obj)
-            proj = ortho_proj()
+        function proj = get_target_proj(~)
+            proj = ortho_proj();
         end
     end
 end
