@@ -26,6 +26,8 @@ function [data,obj] = get_data(obj,varargin)
 %              '-noclass'    do not pack data into sqw_dnd_data class --
 %                            may be useful for current object model, when dnd is
 %                            going to be created. May be removed in a future.
+%              '-noupgrade'  do not upgrade pixel averages from filebased
+%                            data if they are not stored there.
 %
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
 %
@@ -104,8 +106,8 @@ function [data,obj] = get_data(obj,varargin)
 % Initialise output arguments
 
 % remove options unrelated to get_data@dnd_binfile_common
-[ok,mess,~,noclass,argi]=...
-    parse_char_options(varargin,{'-nopix','-noclass'});
+[ok,mess,~,noclass,noupgrade,argi]=...
+    parse_char_options(varargin,{'-nopix','-noclass','-noupgrade'});
 if ~ok
     error('SQW_FILE_INTERFACE:invalid_argument',['get_data: ',mess]);
 end
@@ -129,7 +131,7 @@ data_str.serial_name = 'data_sqw_dnd'; % convert structure, stored in
                         %  data_sqw_dnd is serializable
 data = serializable.loadobj(data_str);
 if ~opts.nopix
-    data.pix = PixelData(obj, opts.pixel_page_size);
+    data.pix = PixelData(obj, opts.pixel_page_size,~noupgrade);
     %
 end
 

@@ -394,7 +394,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
             [ld_str.main_header, old_header, ld_str.detpar,...
                 ld_str.data,ld_str.runid_map] = ...
-                ldr.get_sqw('-legacy', 'pixel_page_size', pixel_page_size);
+                ldr.get_sqw('-legacy','-noupgrade', 'pixel_page_size', pixel_page_size);
             ld_str.experiment_info = Experiment(old_header);
         end
         function obj = init_from_loader_struct_(obj, data_struct)
