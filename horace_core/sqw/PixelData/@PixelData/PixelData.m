@@ -257,7 +257,7 @@ classdef PixelData < handle
         set_data(obj, fields, data, abs_pix_indices);
 
 
-        function obj = PixelData(arg, mem_alloc)
+        function obj = PixelData(arg, mem_alloc,upgrade)
             % Construct a PixelData object from the given data. Default
             % construction initialises the underlying data as an empty (9 x 0)
             % array.
@@ -271,6 +271,10 @@ classdef PixelData < handle
             %   >> obj = PixelData(faccess_reader)  % initialise pixel data from an sqw file reader
             %
             %   >> obj = PixelData(faccess_reader, mem_alloc)  % set maximum memory allocation
+            %
+            %>> obj = PixelData(__,false) -- not upgrade class averages
+            %         (pix_range) for old file format, if these averages
+            %         are not stored in the file. Default -- true
             %
             % Input:
             % ------
@@ -300,6 +304,9 @@ classdef PixelData < handle
             %               argument does nothing if the class is constructed with
             %               in-memory data. (Optional)
             %
+            if nargin<3
+                upgrade= true;
+            end
             if nargin> 0 && isstruct(arg)
                 if ~isfield(arg,'version')
                     fnms = fieldnames(arg);
@@ -370,7 +377,7 @@ classdef PixelData < handle
             if isa(arg, 'sqw_file_interface')
                 % input is a file accessor
                 obj = obj.init_from_file_accessor_(arg);
-                if any(obj.pix_range == obj.EMPTY_RANGE_)
+                if any(any(obj.pix_range == obj.EMPTY_RANGE_)) && upgrade
                     if config_store.instance().get_value('herbert_config','log_level')>0
                         fprintf('*** Recalculating actual pixel range missing in file %s:\n', ...
                             arg.filename);
