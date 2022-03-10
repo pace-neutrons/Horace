@@ -98,7 +98,13 @@ classdef hor_config < config_base
         % filebased PixelData if pixel_page_size is smaller then
         % appropriate mem_chunk_size expressed in bytes. 
         % 
-        pixel_page_size        
+        pixel_page_size  
+        % property to help in conversion from mem_chunk_size, which is 
+        % expressed in number of pixels and pixel_page_size (in bytes)        
+        % on get returns mem_chunk_size expressed in bytes, 
+        % on set, accept value in pixels and sets up pixel_page_size in
+        % bytes
+        mem_page_chunk_size_byte_conversion
     end
 
     properties(Access=protected, Hidden=true)
@@ -194,6 +200,9 @@ classdef hor_config < config_base
         function hpcc = get.high_perf_config_info(~)
             hpcc = hpc_config;
         end
+        function mcs = get.mem_page_chunk_size_byte_conversion(obj)
+            mcs = obj.mem_chunk_size*sqw_binfile_common.FILE_PIX_SIZE;
+        end
         %-----------------------------------------------------------------
         % overloaded setters
         function this = set.mem_chunk_size(this,val)
@@ -204,6 +213,11 @@ classdef hor_config < config_base
             end
             config_store.instance().store_config(this,'mem_chunk_size',val);
         end
+        function obj = set.mem_page_chunk_size_byte_conversion(obj,val)
+             pixel_size = val*sqw_binfile_common.FILE_PIX_SIZE;
+             obj.pixel_page_size = pixel_size;
+        end
+        
 
         function this = set.pixel_page_size(this, val)
             PixelData.validate_mem_alloc(val);

@@ -11,7 +11,7 @@ Input:
 @param fpar           -- input parameters describing the output file
 @param n_bins2process -- number of bins to process (combine)
 */
-void sqw_pix_writer::init(const fileParameters &fpar, const size_t n_bins2process) {
+void sqw_pix_writer::init(const fileParameters& fpar, const size_t n_bins2process) {
 
     this->num_bins_to_process = n_bins2process;
     this->filename = fpar.fileName;
@@ -29,13 +29,17 @@ void sqw_pix_writer::init(const fileParameters &fpar, const size_t n_bins2proces
 void sqw_pix_writer::run_write_pix_job() {
 
     size_t n_bins_processed(0);
-
+    // inform reader thread that writer thread ready for exchange
+    //Buff.notify_writer_is_ready(); // It seems it is unnecessary, as writer waits for reader data below,
+    // but worth remembering that we used this option in the past and it is unnecessary.
+    //
     while (n_bins_processed < this->num_bins_to_process && !Buff.is_interrupted()) {
         size_t n_pix_to_write;
         // this locks until read completed unless read have not been started
-        const char *buf = Buff.get_write_buffer(n_pix_to_write, n_bins_processed);
+        Buff.wait_for_reader_data();
+        const char* buf = Buff.get_write_buffer(n_pix_to_write, n_bins_processed);
 
-        size_t length = n_pix_to_write*PIX_BLOCK_SIZE_BYTES;
+        size_t length = n_pix_to_write * PIX_BLOCK_SIZE_BYTES;
 
         if (buf)
             this->write_pixels(buf, length);
@@ -47,9 +51,9 @@ void sqw_pix_writer::run_write_pix_job() {
     Buff.set_write_job_completed();
 }
 /* Write chunk on pixels stored in write buffer */
-void sqw_pix_writer::write_pixels(const char *buffer, size_t length) {
+void sqw_pix_writer::write_pixels(const char* buffer, size_t length) {
     //
-    size_t pix_pos = pix_array_position + last_pix_written*PIX_BLOCK_SIZE_BYTES;
+    size_t pix_pos = pix_array_position + last_pix_written * PIX_BLOCK_SIZE_BYTES;
     //
     this->h_out_sqw.seekp(pix_pos);
     //

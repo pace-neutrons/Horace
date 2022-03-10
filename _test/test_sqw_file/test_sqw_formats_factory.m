@@ -72,7 +72,7 @@ classdef test_sqw_formats_factory <  TestCase %WithSave
             file_nonHor = fullfile(fileparts(obj.test_folder),...
                 'test_sqw_file','testdata_base_objects.mat');
             fl = @()(sqw_formats_factory.instance().get_loader(file_nonHor));
-            assertExceptionThrown(fl,'SQW_FILE_IO:runtime_error');
+            assertExceptionThrown(fl,'HORACE:file_io:runtime_error');
         end
         function test_selection_v0(obj)
             file_v0 = fullfile(fileparts(obj.test_folder),...

@@ -10,7 +10,7 @@ function varargout=set_instrument_horace(filename,instrument,varargin)
 %   file        File name, or cell array of file names. In latter case, the
 %              change is performed on each file
 %
-%   instrument  Instrument object, or array of objects with number of elements 
+%   instrument  Instrument object, or array of objects with number of elements
 %               equal to the number of
 %               runs contributing to the runs stored in sqw object(s).
 %
@@ -40,10 +40,16 @@ function varargout=set_instrument_horace(filename,instrument,varargin)
 %                  special strings;
 %                       '-efix'     ---->   use value of fixed energy in the
 %                                           header block of the sqw object
-
+% Output:
+%-------
+%  varargout   if present tries to load and returns the sqw objects from
+%              the files, for which the instrument and/or sample has been set.
+%              Will fail if the sqw objects are too big to fit memory.
+%
 
 % Original author: T.G.Perring
 %
+
 if isa(instrument,'function_handle')
     instfunc=instrument; % single function handle
     % Check instrument definition function arguments are OK and consistent
@@ -102,9 +108,13 @@ else
 end
 
 if nargout > 0
-    varargout = set_instr_or_sample_horace_(filename,'-instrument',instrument,argi{:});
+    sqw_list = set_instr_or_sample_horace_(filename,'-instrument',instrument,nargout,argi{:});
+    for i=1:numel(sqw_list)
+        varargout{i} = sqw_list{i};
+    end
+
 else
-    set_instr_or_sample_horace_(filename,'-instrument',instrument,argi{:});
+    set_instr_or_sample_horace_(filename,'-instrument',instrument,0,argi{:});
 end
 
 

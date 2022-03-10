@@ -24,7 +24,6 @@ classdef test_sqw_eval < TestCase & common_state_holder
         function obj = test_sqw_eval(~)
             obj = obj@TestCase('test_sqw_eval');
 
-
             % Sum of the gaussian of each coordinate
             obj.gauss_sqw = ...
                 @(u1, u2, u3, dE, pars) ...

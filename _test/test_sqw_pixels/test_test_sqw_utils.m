@@ -26,7 +26,7 @@ classdef test_test_sqw_utils < TestCase & common_pix_class_state_holder
             pix.advance();
             
             joined_pix_array = concatenate_pixel_pages(pix);
-            assertEqual(joined_pix_array, data);
+            assertElementsAlmostEqual(joined_pix_array, data,'relative',4.e-8);
         end
         
     end
