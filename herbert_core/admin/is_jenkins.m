@@ -4,7 +4,7 @@ function [is_jenkins_pc,job_name,workspace] = is_jenkins()
 %   Jenkins.
 %
 % Returns:
-% is_jenkins -- true if the progam is running on Jenkins
+% is_jenkins -- true if the program is running on Jenkins
 % job_name   -- the value of the Jenkins variable "JOB_NAME",
 % workspace  -- the Jenkins workspace directory
 
