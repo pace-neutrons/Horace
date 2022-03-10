@@ -183,7 +183,9 @@ classdef test_oriented_lattice< TestCase
         end
         function test_full_constructor_with_keyval(~)
 
-            ol = oriented_lattice('alatt',[2;3;4],'psi',20,'gl',3,'angdeg',[40,45,50],'angular_units','rad');
+            mult = pi/180;
+            ol = oriented_lattice('alatt',[2;3;4],'psi',20*mult,...
+                'gl',3*mult,'angdeg',[40,45,50]*mult,'angular_units','rad');
 
             assertTrue(ol.is_defined('psi'));
             assertTrue(ol.is_defined('alatt'));
@@ -191,23 +193,25 @@ classdef test_oriented_lattice< TestCase
 
             assertEqual(ol.alatt,[2,3,4])
             assertEqual(ol.angular_units,'rad')
-            assertEqual(ol.psi,20*pi/180)
+            assertEqual(ol.psi,20*mult)
+            assertEqual(ol.angdeg,[40,45,50]*mult)
         end
         function test_mixed_constructor_with_keyval(~)
 
-            ol = oriented_lattice([1;2;3],'psi',20,'gl',3,'angular_units','rad');
+            ol = oriented_lattice([1;2;3],'psi',20,'gl',3,'angular_units','deg');
 
             assertTrue(ol.is_defined('psi'));
             assertTrue(ol.is_defined('alatt'));
             assertFalse(ol.is_defined('angdeg'));
 
             assertEqual(ol.alatt,[1,2,3]) % key arguments redefines positional argumeent
-            assertEqual(ol.angular_units,'rad')
+            assertEqual(ol.angular_units,'deg')
+            ol.angular_units = 'r';
             assertEqual(ol.psi,20*pi/180)
         end
         function test_mixed_constructor_with_structure(~)
 
-            in_str = struct('alatt',[2;3;4],'psi',20,'gl',3,'angular_units','rad');
+            in_str = struct('alatt',[2;3;4],'psi',20,'gl',3,'angular_units','deg');
 
             ol = oriented_lattice(in_str);
 
@@ -216,10 +220,20 @@ classdef test_oriented_lattice< TestCase
             assertFalse(ol.is_defined('angdeg'));
 
             assertEqual(ol.alatt,[2,3,4]) % key arguments redefines positional argumeent
-            assertEqual(ol.angular_units,'rad')
+            assertEqual(ol.angular_units,'deg')
+            ol = ol.set_rad();
             assertEqual(ol.psi,20*pi/180)
         end
 
+        function test_save_load_serializable_obj(~)
+            ol = oriented_lattice([2,3,4],[pi/2,pi/2,pi/2],10*pi/180,...
+                [1,1,0],[1,-1,0],...
+                0.1,0.2,0.3,0.4,'rad');
+            ss = ol.saveobj();
+
+            olr = serializable.loadobj(ss);
+            assertEqual(ol,olr);
+        end
 
         function test_unit_matrixes(~)
             %

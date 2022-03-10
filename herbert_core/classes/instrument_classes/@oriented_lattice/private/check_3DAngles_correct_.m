@@ -1,4 +1,4 @@
-function val =  check_3DAngles_correct_(val)
+function val =  check_3DAngles_correct_(obj,val)
 % check correct angular values for lattice angles
 %
 if isempty(val)
@@ -21,18 +21,25 @@ end
 if size(val,2)==1
     val = val';
 end
-if max(val) >= 180 || min(val)<=0
+if obj.angular_is_degree_
+    lim = 180;
+    mess = ']0-180[deg';
+else
+    lim = pi;
+    mess = ']0-pi[rad';
+end
+
+if max(val) >= lim || min(val)< 0
     error('HERBERT:oriented_lattice:invalid_argument',...
-        ' lattice angle has to be angles in degree in the range ]0-180[ deg but setting: [%f,%f,%f]',...
-        val(1),val(2),val(3))
+        ' lattice angle has to be angles in degree in the range %s but setting: [%f,%f,%f]',...
+        val(1),val(2),val(3),mess)
 end
 
 % check correct angular values for lattice
 if (val(1)>=(val(2)+val(3)))||...
         (val(2)>=(val(3)+val(1)))||...
         (val(3)>=(val(1)+val(2)))
-    
     error('HERBERT:oriented_lattice:invalid_argument',...
-        'lattice angles do not define correct 3D lattice');
+        'lattice angles can not define correct 3D lattice');
 end
 
