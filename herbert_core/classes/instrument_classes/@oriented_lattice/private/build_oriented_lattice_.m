@@ -1,4 +1,4 @@
-function obj = build_oriented_lattice_(obj,varargin)
+function [obj,remains] = build_oriented_lattice_(obj,varargin)
 % build non-empty oriented lattice from any form of constructor input
 % including positional arguments, defined in the order, returned by
 % indepFields function (i.e. 'alatt','angdeg','psi','u','v'...etc.)
@@ -7,16 +7,12 @@ remains = {};
 if isa(varargin{1},'oriented_lattice') % copy constructor
     obj = varargin{1};
 elseif isstruct(varargin{1}) % strucure with oriented lattice fields
-    input = varargin{1};
-    field_names = fieldnames(input);
-    for i=1:numel(field_names)
-        obj.(field_names{i}) = input.(field_names{i});
-    end
+    obj = obj.from_bare_struct(input);
 elseif isnumeric(varargin{1}) || ischar(varargin{1}) % the initialization is done by positional
     % arguments followed by key-value pairs or numeric positional arguments
     % followed (optionally) by key-value pairs
     key_names = obj.indepFields();
-    [obj,remains] = set_positional_and_key_val_arguments(obj,...
+    [obj,remains] = obj.set_positional_and_key_val_arguments(...
         key_names,[],varargin{:});
 else
     error('HERBERT:oriented_lattcie:invalid_argument',...
