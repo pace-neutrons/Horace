@@ -2978,7 +2978,7 @@ the emode is kept unchanged</p>
 <span id="pixeldata-class"></span><h2><a class="toc-backref" href="#id8"><code class="docutils literal notranslate"><span class="pre">PixelData</span></code> class</a><a class="headerlink" href="#module-sqw.PixelData.@PixelData" title="Permalink to this headline"></a></h2>
 <dl class="mat class">
 <dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sqw.PixelData.&#64;PixelData.</span></span><span class="sig-name descname"><span class="pre">PixelData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">arg</span></em>, <em class="sig-param"><span class="pre">mem_alloc</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sqw.PixelData.&#64;PixelData.</span></span><span class="sig-name descname"><span class="pre">PixelData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">arg</span></em>, <em class="sig-param"><span class="pre">mem_alloc</span></em>, <em class="sig-param"><span class="pre">upgrade</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData" title="Permalink to this definition"></a></dt>
 <dd><p>PixelData Provides an interface for access to pixel data</p>
 <blockquote>
 <div><p>This class provides getters and setters for each data column in an SQW
@@ -3076,9 +3076,9 @@ pix_range      - [2x4] array of the range of pixels coordinates in Crystal Carte
 
 <dl class="mat method">
 <dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData.PixelData">
-<span class="sig-name descname"><span class="pre">PixelData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">arg</span></em>, <em class="sig-param"><span class="pre">mem_alloc</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.PixelData" title="Permalink to this definition"></a></dt>
-<dd><p>Construct a PixelData object from the given data. Default
-construction initialises the underlying data as an empty (9 x 0)
+<span class="sig-name descname"><span class="pre">PixelData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">arg</span></em>, <em class="sig-param"><span class="pre">mem_alloc</span></em>, <em class="sig-param"><span class="pre">upgrade</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.PixelData" title="Permalink to this definition"></a></dt>
+<dd><dl>
+<dt>Construct a PixelData object from the given data. Default</dt><dd><p>construction initialises the underlying data as an empty (9 x 0)
 array.</p>
 <blockquote>
 <div><p>&gt;&gt; obj = PixelData(ones(9, 200))</p>
@@ -3086,6 +3086,11 @@ array.</p>
 <p>&gt;&gt; obj = PixelData(file_path)  % initialise pixel data from an sqw file</p>
 <p>&gt;&gt; obj = PixelData(faccess_reader)  % initialise pixel data from an sqw file reader</p>
 <p>&gt;&gt; obj = PixelData(faccess_reader, mem_alloc)  % set maximum memory allocation</p>
+</div></blockquote>
+</dd>
+<dt>&gt;&gt; obj = PixelData(__,false) – not upgrade class averages</dt><dd><blockquote>
+<div><p>(pix_range) for old file format, if these averages
+are not stored in the file. Default – true</p>
 </div></blockquote>
 <blockquote>
 <div><blockquote>
@@ -3120,6 +3125,8 @@ in-memory data. (Optional)</p>
 </dd>
 </dl>
 </div></blockquote>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="mat method">
@@ -3681,7 +3688,7 @@ abs_pix_indices  The indices to set data on. If not specified all indices are</p
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2021, STFC RAL.
-      <span class="lastupdated">Last updated on Mar 9, 2022, 4:24:23 PM.
+      <span class="lastupdated">Last updated on Mar 10, 2022, 12:50:30 PM.
       </span></p>
   </div>
 
