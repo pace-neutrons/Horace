@@ -23,7 +23,7 @@ if nargin == 1
         disp(struct(this(1)));
     else
         varargout = cell(1,max([1, nargout]));
-        varargout{1} = struct(this(1));
+        varargout{1} = saveobj(this(1));
     end
     return;
 end

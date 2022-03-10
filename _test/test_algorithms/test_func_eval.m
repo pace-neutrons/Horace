@@ -31,7 +31,6 @@ classdef test_func_eval < TestCase & common_state_holder
             obj = obj@TestCase('test_func_eval');
             obj.d2d_obj = d2d(obj.d2d_file_path);
             obj.sqw_2d_obj = sqw(obj.sqw_2d_file_path);
-
         end
 
 

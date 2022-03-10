@@ -60,7 +60,7 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
     %
     %
     %
-    
+
     %
     methods(Access=protected,Hidden=true)
     end
@@ -92,13 +92,13 @@ classdef faccess_sqw_v3_2 < faccess_sqw_v3
             %                       to save sqw object provided. The name
             %                       of the file to save the object should
             %                       be provided separately.
-            
+
             %
             % set up fields, which define appropriate file version
             obj = obj@faccess_sqw_v3(varargin{:});
             obj.file_ver_ = 3.2;
         end
-        
+
         %
         function new_obj = upgrade_file_format(obj,varargin)
             % upgrade the file to recent write format and open this file

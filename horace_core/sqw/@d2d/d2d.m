@@ -72,6 +72,9 @@ classdef d2d < DnDBase
             %obj = d2d(S);
             if isa(S,'d2d')
                obj = S;
+               if isstruct(obj.data_)
+                    obj.data_ = data_sqw_dnd(obj.data_);
+               end
                return
             end
             if numel(S)>1
