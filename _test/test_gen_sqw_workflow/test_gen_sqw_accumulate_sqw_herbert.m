@@ -50,7 +50,11 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
                 test_name = mfilename('class');
             end
             combine_algorithm = 'mpi_code'; % this is what should be tested
-            if is_jenkins && ispc
+            if ispc
+                hc = hor_config;
+                if hc.log_level>0
+                    warning('MPI code combining is currently disabled on windows')
+                end
                 combine_algorithm = 'mex_code'; % disable poor man MPI combine on Jenkins. It is extremely slow.
             end
             %
