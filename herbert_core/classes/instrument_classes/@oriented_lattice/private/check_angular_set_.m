@@ -23,4 +23,3 @@ if abs(val)>lim
         'An angular value should be in the range of %s but it equal to: %g',...
         mess, val);
 end
-

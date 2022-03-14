@@ -5,7 +5,7 @@ classdef serializable
     %
     % The class is necessary to provide common interface to loading and
     % saving classes to Matlab .mat files and Horace sqw objects and to
-    % support old versions of the classes 
+    % support old versions of the classes
     %
     %----------------------------------------------------------------------
     %   ABSTRACT INTERFACE TO DEFINE:
@@ -25,11 +25,17 @@ classdef serializable
     %     methods(Static)
     %         function obj = loadobj(S)
     %            % boilerplate loadobj method, calling generic method of
-    %            % saveable class
+    %            % saveable class. Put it as it is replacing the
+    %            "ChildClass" name by the name of the class the loadobj is
+    %            the method of
     %             obj = ChildClass();
     %             obj = loadobj@serializable(S,obj);
     %         end
     %     end
+    %----------------------------------------------------------------------
+    % OPTIONAL:
+    % to support old file versions, one should overload method
+    % from_old_strct, which, by default, calls from_bare_struct method.
     %----------------------------------------------------------------------
     methods
         function strc = to_struct(obj)

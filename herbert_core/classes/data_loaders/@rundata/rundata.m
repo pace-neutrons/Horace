@@ -58,41 +58,13 @@ classdef rundata < serializable
         loader_dependent_fields_={'S','ERR','en','det_par','n_detectors'};
         % minimal set of fields, defining reasonable run
         min_field_set_ = {'efix','en','emode','n_detectors','S','ERR','det_par'};
-        % rundata may be filebased or memory based object, describing
-        % crystal or powder
-        common_serial_fields_ = {'efix','emode','run_id','instrument','sample'};        
-        % in each 4 cases save/load fields are different
-        % serializable fields interface
 
-        crystal_in_memory_field_set_ = {'','lattice'}
-%         det_par   ;   % Horace structure of par-values, describing detectors angular positions   -- usually obtained from parFile or equivalent
-%         % Helper variables used to display data file name and redefine
-%         % loader
-%         data_file_name;
-%         % par file name defined in loader
-%         par_file_name;
-% 
-%         % Experiment parameters;
-%         efix    ;     % Fixed energy (meV)   -- has to be in file or supplied in parameters list
-%         emode  ;     % Energy transfer mode [Default=1 (direct geometry)]
-% 
-%         % accessor to verify if the oriented lattice is present (and the
-%         % rundata describe crystal)
-%         is_crystal;
-%         % accessor to access the oriented lattice
-%         lattice;
-%         % visual representation of a loader
-%         loader ;
-%         % instrument model
-%         instrument;
-%         % sample model
-%         sample;
-%         % the number (id) uniquely identyfying the particular experiment
-%         % (run) which is the source of this object data.
-%         run_id;
-        
+        % rundata may be filebased or memory based object, describing
+        % crystal or powder. These are the fields which are defined in any
+        % situation. Additional fields will become defined as
+        serial_fields_ = {'efix','emode','run_id','instrument','sample'};
     end
-    properties(Access=private)
+    properties(Access=protected)
         % energy transfer mode
         emode_=1;
         %  incident energy or crystal analyser energy
@@ -103,7 +75,7 @@ classdef rundata < serializable
         loader_ = [];
 
         % oriented lattice which describes crytsal (present if run describes crystal)
-        oriented_lattice_ =[];
+        lattice_ =[];
 
         % instrument model holder;
         instrument_ = IX_null_inst();
@@ -120,7 +92,7 @@ classdef rundata < serializable
         function run = from_string(str)
             % build rundata object from its string representation obrained earlier by
             % serialize function
-            % 
+            %
             % Old interface
             run = deserialize(str);
         end
@@ -311,7 +283,7 @@ classdef rundata < serializable
         function fields = fields_with_defaults(this)
             % method returns data fields, which have default values
             fields = {'emode'};
-            if ~isempty(this.oriented_lattice_)
+            if ~isempty(this.lattice_)
                 lattice_fields = oriented_lattice.fields_with_defaults();
                 fields = [fields, lattice_fields];
             end
@@ -332,7 +304,7 @@ classdef rundata < serializable
         end
         %----
         function is = get.is_crystal(this)
-            if isempty(this.oriented_lattice_)
+            if isempty(this.lattice_)
                 is = false;
             else
                 is = true;
@@ -341,29 +313,31 @@ classdef rundata < serializable
         %
         function this = set.is_crystal(this,val)
             if val == 0
-                this.oriented_lattice_ = [];
+                this.lattice_ = [];
             elseif val == 1
-                if isempty(this.oriented_lattice_)
-                    this.oriented_lattice_ = oriented_lattice();
+                if isempty(this.lattice_)
+                    this.lattice_ = oriented_lattice();
                 end
             elseif isa(val,'oriented_lattice')
-                this.oriented_lattice_ = val;
+                this.lattice_ = val;
             else
-                error('RUNDATA:set_is_crystal',' you can either remove crystal information or set oriented lattice to define crystal');
+                error('HERBERT:rundata:invalid_argument',...
+                    ' you can either remove crystal information or set oriented lattice to define crystal');
             end
         end
         %
         function lattice = get.lattice(this)
-            lattice = this.oriented_lattice_;
+            lattice = this.lattice_;
         end
         %
         function this = set.lattice(this,val)
             if isa(val,'oriented_lattice')
-                this.oriented_lattice_ = val;
+                this.lattice_ = val;
             elseif isempty(val)
-                this.oriented_lattice_ =[];
+                this.lattice_ =[];
             else
-                error('RUNDATA:set_lattice','set lattice parameter can be oriented_lattice only')
+                error('HERBERT:rundata:invalid_argument',...
+                    'lattice can be set as oriented_lattice instance object only')
             end
         end
         %
@@ -516,14 +490,17 @@ classdef rundata < serializable
                 end
             end
         end
-
+        %------------------------------------------------------------------
         function ver  = classVersion(~)
             ver = 1;
         end
         function flds = indepFields(obj)
-            if obj.is_crystal
-            else
-                
+            flds = rundata.serial_fields_;
+            if ~isempty(obj.lattice_)
+                flds = [flds(:)',{'lattice'}];
+            end
+            if ~isempty(obj.loader_)
+                flds = [flds(:)',{'loader'}];
             end
         end
         %------------------------------------------------------------------

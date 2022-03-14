@@ -20,10 +20,10 @@ lattice_fields = oriented_lattice.lattice_fields;
 lattice_loaded = ismember(def_fields,lattice_fields);
 if any(lattice_loaded)
     lat_fields=def_fields(lattice_loaded);
-    if isempty(this.oriented_lattice_)
+    if isempty(this.lattice_)
         lat  = oriented_lattice();
     else
-        lat = this.oriented_lattice_;
+        lat = this.lattice_;
     end
     for i=1:numel(lat_fields)
         fld =lat_fields{i};
@@ -31,5 +31,5 @@ if any(lattice_loaded)
             lat.(fld) = this.loader_.(fld);
         end
     end
-    this.oriented_lattice_ = lat;
+    this.lattice_ = lat;
 end

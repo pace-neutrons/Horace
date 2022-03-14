@@ -34,10 +34,10 @@ classdef test_loader_nxspe< TestCase
         
         % tests themself
         %CONSTRUCTOR:
-        function test_wrong_first_argument(obj)
+        function test_wrong_first_argument(~)
             f = @()loader_nxspe(10);
             % should throw; first argument has to be a file name
-            assertExceptionThrown(f,'A_LOADER:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:a_loader:invalid_argument');
         end
         function test_file_not_exist(obj)
             f = @()loader_nxspe(f_name(obj,'missing_file.nxspe'));
@@ -46,7 +46,7 @@ classdef test_loader_nxspe< TestCase
             % 2009
             ws = warning('off','MATLAB:printf:BadEscapeSequenceInFormat');
             
-            assertExceptionThrown(f,'NXSPEPAR_LOADER:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:nxspepar_loader:invalid_argument');
             warning(ws);
         end
         function test_non_supported_nxspe(obj)
@@ -54,7 +54,7 @@ classdef test_loader_nxspe< TestCase
             f = @()loader_nxspe(nxpse_name);
             % should throw; first argument has to be a file name with single
             % nxspe data structure in it
-            assertExceptionThrown(f,'ISIS_UTILITES:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:isis_utilities:invalid_argument');
         end
         
         function test_loader_nxspe_initated(obj)

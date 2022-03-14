@@ -58,16 +58,16 @@ def_fields = this.loader_.defined_fields();
 lat_fields = oriented_lattice.lattice_fields;
 in_lat  = ismember(lat_fields,def_fields);
 if any(in_lat)
-    if isempty(this.oriented_lattice_)
-        this.oriented_lattice_ = oriented_lattice();
+    if isempty(this.lattice_)
+        this.lattice_ = oriented_lattice();
         lat_fields = lat_fields(in_lat);
         
-        lat = this.oriented_lattice_;
+        lat = this.lattice_;
         for i=1:numel(lat_fields)
             flt = lat_fields{i};
             lat.(flt) = this.loader_.(flt);
         end
-        this.oriented_lattice_ = lat;
+        this.lattice_ = lat;
     end
 end
 

@@ -11,7 +11,6 @@ function  [this,ok,mess,undef_list] = load_metadata(this,varargin)
 % if '-for_pwder'  option is specified, lattice or lattice fields do not
 % need to be defined
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 %
 keys = {'-for_powder'};
 [ok,mess,for_powder] = parse_char_options(varargin,keys);
@@ -43,7 +42,7 @@ if ~isempty(undef_list) && ~isempty(this.loader)
         % extract lattice fields stored in loader
         lat_in_load = ismember(undef_lattice,ldf);
         lat_fld = undef_lattice(lat_in_load);
-        latt = this.oriented_lattice_;
+        latt = this.lattice_;
         %
         for i=1:numel(lat_fld)
             fld = lat_fld{i};
@@ -52,7 +51,7 @@ if ~isempty(undef_list) && ~isempty(this.loader)
                 latt.(fld) = val;
             end
         end
-        this.oriented_lattice_ = latt;
+        this.lattice_ = latt;
         undef_lattice = this.lattice.get_undef_fields();
         
         %

@@ -59,7 +59,7 @@ classdef loader_nxspe < a_loader
                 return;
             end
             [ndet,en,full_file_name,ei,psil,nexus_dir,nxspe_ver,dataset_info]=loader_nxspe.get_data_info(file_name);
-            fh = struct('n_detindata_',ndet,'en',en,'data_file_name_',full_file_name,...
+            fh = struct('n_detindata_',ndet,'en',en,'file_name_',full_file_name,...
                 'efix',ei,'psi',psil,'root_nexus_dir',...
                 nexus_dir,'nxspe_version',nxspe_ver,'nexus_dataset_info_',dataset_info);
         end
@@ -81,7 +81,8 @@ classdef loader_nxspe < a_loader
             %                    layout within the nexus file
             %
             if ~exist('file_name', 'var')
-                error('LOAD_NXSPE:invalid_argument',' has to be called with valid file name');
+                error('HERBERT:loader_nxspe:invalid_argument',...
+                    ' has to be called with valid file name');
             end
             [ndet,nxspe_ver,nexus_dir,nexus_datast_info]=...
                 a_detpar_loader_interface.get_nxspe_file_info(file_name);
@@ -125,14 +126,14 @@ classdef loader_nxspe < a_loader
             if isempty(full_par_file_name) || strcmp(full_par_file_name,full_nxspe_file_name)
                 % detectors and data are taken from the same nxspe file:
                 if isempty(fh)
-                    obj.par_file_name = full_nxspe_file_name;
+                    obj.detpar_loader = full_nxspe_file_name;
                 else
                     ldr = nxspepar_loader();
                     obj.detpar_loader_ = ...
                         ldr.set_nxspe_info(fh);
                 end
             else
-                obj.par_file_name = full_par_file_name;
+                obj.detpar_loader = full_par_file_name;
             end
             if ~isempty(fh) % call from loaders factory
                 defined_fields = fields(fh);
@@ -182,7 +183,7 @@ classdef loader_nxspe < a_loader
         
         function obj = set_data_info(obj,nxspe_file_name)
             % obtain data file information and set it into class
-            [obj.n_detindata_,obj.en_,obj.data_file_name_,...
+            [obj.n_detindata_,obj.en_,obj.file_name_,...
                 obj.efix,obj.psi,...
                 obj.root_nexus_dir,obj.nxspe_version,obj.nexus_dataset_info_]=...
                 loader_nxspe.get_data_info(nxspe_file_name);
@@ -202,7 +203,7 @@ classdef loader_nxspe < a_loader
                     obj.detpar_loader_ = obj.detpar_loader_.delete();
                 end
             end
-            if isempty(obj.data_file_name_)
+            if isempty(obj.file_name_)
                 obj.en_=[];
                 obj.n_detindata_=[];
             end
@@ -220,11 +221,11 @@ classdef loader_nxspe < a_loader
             if ~isempty(obj.detpar_loader_)
                 if strcmp(filename,obj.par_file_name)
                     if ~isa(obj.detpar_loader_,'nxspepar_loader')
-                        error('LOADER_NXSPE:invalid_argument',...
+                        error('HERBERT:loader_nxspe:invalid_argument',...
                             'setting non-nxspe par file %s as the source of the nxspe data',...
                             filename);
                     end
-                    obj.data_file_name_ = filename;
+                    obj.file_name_ = filename;
                     [obj.root_nexus_dir,obj.nexus_dataset_info_,obj.nxspe_version] = ...
                         obj.detpar_loader_.get_nxspe_info();
                     %

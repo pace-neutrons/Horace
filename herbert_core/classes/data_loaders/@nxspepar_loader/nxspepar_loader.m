@@ -11,21 +11,13 @@ classdef nxspepar_loader < a_detpar_loader_interface
     % both with ASCII par files and the detector information containing in
     % the main data file (if the later intended to be used)
     %
-    % $Revision:: 839 ($Date:: 2019-12-16 18:18:44 +0000 (Mon, 16 Dec 2019) $)
     %
     %
     properties (Access=protected)
-        % number of detectors, defined in the file, described by the par
-        % file name
-        n_detinpar_=[];
-        % storage field for detector information
-        det_par_=[];
-        % storage field for a par file name
-        par_file_name_ ='';
         % The data fields an nxspe par loader defines
         par_can_define_ = {'det_par','n_det_in_par'};
     end
-    
+
     properties(Access=private)
         % the hdf folder, containing whole nxspe dataset
         nexus_root_dir_ = '';
@@ -78,7 +70,7 @@ classdef nxspepar_loader < a_detpar_loader_interface
             %  this             -- the instance of properly initiated loader class
             %  '-forcereload'     usually data are loaded in memory onece, and taken from memory after that
             %                     -forcereload request always loading data into memory.
-            
+
             %
             % '-nohor' or '-array' -- if present request to return the data as
             %                      as (6,ndet) array with the data:
@@ -151,7 +143,7 @@ classdef nxspepar_loader < a_detpar_loader_interface
                 obj.par_file_name = filename;
             end
             [det,obj] = load_nxspe_par_(obj,return_array,force_reload,getphx);
-            
+
         end
         %
         function fields = loader_define(this)
@@ -160,7 +152,7 @@ classdef nxspepar_loader < a_detpar_loader_interface
             % the loader is dependent/service field) but other future par
             % files can contain fields with additional information.
             % For such loader this method should be overloaded
-            
+
             %usage:
             %>> fields= loader_can_define(loader);
             %   loader -- the specific loader constructor
@@ -171,13 +163,13 @@ classdef nxspepar_loader < a_detpar_loader_interface
         function fields = par_can_define(obj)
             fields = obj.par_can_define_;
         end
-        
+
         %
         function this=delete(this)
             % clear memory from loaded detectors information
             this.det_par_=[];
             if isempty(this.par_file_name)
-                this.n_detinpar_=[];
+                this.n_det_in_par_=[];
             end
         end
         %-----------------------------------------------------------------
@@ -218,7 +210,7 @@ classdef nxspepar_loader < a_detpar_loader_interface
                 obj.nexus_root_dir_= fh.root_nexus_dir;
                 obj.nexus_dataset_info_= fh.nexus_dataset_info_;
                 obj.nxspe_version_= fh.nxspe_version;
-                obj.par_file_name_ = fh.data_file_name_;
+                obj.par_file_name_ = fh.file_name_;
                 % add old style format information
                 obj.nexus_dataset_info_.Filename = obj.par_file_name_;
             else
@@ -229,9 +221,9 @@ classdef nxspepar_loader < a_detpar_loader_interface
                 obj.nxspe_version_= varargin{2};
                 obj.par_file_name_ = fh.Filename;
             end
-            
+
             dataset_info=find_dataset_info(obj.nexus_dataset_info_,'data','data');
-            obj.n_detinpar_  = dataset_info.Dataspace.Size(2);
+            obj.n_det_in_par_  = dataset_info.Dataspace.Size(2);
             obj.det_par_ = [];
         end
         % ------------------------------------------------------------------
@@ -249,16 +241,16 @@ classdef nxspepar_loader < a_detpar_loader_interface
                 % disconnect detector information in memory from a par file
                 obj.par_file_name_='';
                 if isempty(obj.det_par)
-                    obj.n_detinpar_=[];
+                    obj.n_det_in_par_=[];
                 end
             else
                 [ok,mess,f_name] = check_file_exist(par_f_name,{'.nxspe'});
                 if ~ok
-                    error('NXSPEPAR_LOADER:invalid_argument',mess);
+                    error('HERBERT:nxspepar_loader:invalid_argument',mess);
                 end
                 if ~strcmp(obj.par_file_name_,f_name)
                     obj.par_file_name_= f_name;
-                    [obj.n_detinpar_,obj.nxspe_version_,...
+                    [obj.n_det_in_par_,obj.nxspe_version_,...
                         obj.nexus_root_dir_,obj.nexus_dataset_info_]...
                         = nxspepar_loader.get_par_info(f_name);
                     obj.det_par_=[];
@@ -267,39 +259,11 @@ classdef nxspepar_loader < a_detpar_loader_interface
             %
         end
         %
-        function fn = get_par_file_name(obj)
-            fn  = obj.par_file_name_;
-        end
-        %
-        function ndet = get_n_det_in_par(obj)
-            ndet = obj.n_detinpar_;
-        end
-        %
-        function det_par= get_det_par(obj)
-            det_par = obj.det_par_;
-        end
-        %
-        function obj=set_det_par(obj,value)
-            % method sets detector parameters from memory
-            %Usage:
-            %loader.det_par = value;
-            %where value is 6-column array of detector's value correspondent to
-            %the one, usually defined in par file but with opposite sign of azimuthal angle
-            %or Horace structure with correspondent information
-            %
-            %if the value to set is syntactically correct, the operation sets
-            %also n_detectors to the number of detectors, defined by the array
-            if isempty(value)
-                obj=obj.delete();
-                return
-            end
-            [obj.det_par_,obj.n_detinpar_,obj.par_file_name_] = obj.check_det_par(value);
-        end
     end
-    
+
     %
     methods(Static)
-        
+
         function [ndet,nxspe_version,nexus_dir,NXspeInfo,full_file_name]=...
                 get_par_info(par_file_name)
             % get number of detectors and the structure of nexus file described in nxspe file
@@ -314,7 +278,7 @@ classdef nxspepar_loader < a_detpar_loader_interface
             %                   of the nxspe data file
             % full_file_name -- the name of the file, found by search
             %                   procedure given par_file_name as input
-            
+
             [ndet,nxspe_version,nexus_dir,NXspeInfo,full_file_name]=...
                 a_detpar_loader_interface.get_nxspe_file_info(par_file_name);
         end

@@ -60,7 +60,7 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,varargin)
 control_keys = {'-allow_missing'};
 [ok,mess,allow_missing,params]=parse_char_options(varargin,control_keys);
 if ~ok
-   error('HERBERT:rundata:invalid_argument',mess);
+    error('HERBERT:rundata:invalid_argument',mess);
 end
 
 % Optional parameters names list
@@ -119,7 +119,7 @@ if ~parfile_is_det
     for i=1:numel(par_files)
         file=check_file_exist(par_files{i},{'.par','.nxspe'});
         if isempty(file)
-        error('HERBERT:rundata:invalid_argument',...
+            error('HERBERT:rundata:invalid_argument',...
                 ' par file %s specified but can not be found',file);
         end
     end

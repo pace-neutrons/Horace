@@ -4,8 +4,7 @@ function this = set_consistent_array(this,field_name,value)
 % disabled
 %
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
+
 
 if isempty(value)
     if isempty(this.file_name)
@@ -18,7 +17,7 @@ if isempty(value)
 end
 
 this.(field_name) = value;
-%this.data_file_name_ = '';
+%this.file_name_ = '';
 
 if strcmp(field_name,'en_')
     sig_size = [];

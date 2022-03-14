@@ -17,7 +17,7 @@ classdef test_a_loader< TestCase
             this.test_data_path =tdp;
         end
         
-        function test_abstract_methods(this)
+        function test_abstract_methods(~)
             al=a_loader_tester();
             
             f = @()al.can_load('some_file_name');
@@ -46,7 +46,7 @@ classdef test_a_loader< TestCase
             assertEqual('demo_par',fn);
             assertTrue(strcmpi('.par',fext));
             
-            ldr = al1.get_par_loader();
+            ldr = al1.detpar_loader;
             assertTrue(isa(ldr,'asciipar_loader'));
             
             assertEqual(al1.n_detectors,28160);
@@ -61,7 +61,7 @@ classdef test_a_loader< TestCase
             
             % clear par loader.
             al1.par_file_name = '';
-            ldr = al1.get_par_loader();
+            ldr = al1.detpar_loader;
             assertTrue(isempty(ldr));
             
             assertTrue(isempty(al1.n_detectors));
@@ -73,13 +73,13 @@ classdef test_a_loader< TestCase
             assertEqual('MAP11014',fn);
             assertTrue(strcmpi('.nxspe',fext));
             
-            ldr = al1.get_par_loader();
+            ldr = al1.detpar_loader;
             assertTrue(isa(ldr,'nxspepar_loader'));
             assertEqual(al1.n_detectors,28160);
             
         end
         %
-        function test_constructors0(this)
+        function test_constructors0(~)
             al=a_loader_tester();
             
             assertTrue(isempty(al.par_file_name));
@@ -97,32 +97,32 @@ classdef test_a_loader< TestCase
             al=a_loader_tester();
             al.par_file_name = par_file;
             
-            [fp,fn,fext]=fileparts(al.par_file_name);
+            [~,fn,fext]=fileparts(al.par_file_name);
             assertEqual('map_4to1_jul09',fn);
             assertEqual('.par',fext);
             assertEqual(36864,al.n_detectors);
             
             spe_file  = fullfile(this.test_data_path,'MAP10001.spe');
             
-            ws=warning('off','MATLAB:subsasgnMustHaveOutput');
+
+            function set_spe_file(cli,file)
+                cli.file_name = file;
+            end
             
-            f=@()subsasgn(al,struct('type','.','subs','file_name'),spe_file);
+            f=@(fn)set_spe_file(al,fn);
             
-            assertExceptionThrown(f,'A_LOADER:invalid_argument');
+            assertExceptionThrown(@()f(spe_file),'HERBERT:a_loader:invalid_argument');
             
-            spe_file  = fullfile(tmp_dir(),'abstract_test_file.altf');
-            
-            f=@()subsasgn(al,struct('type','.','subs','file_name'),spe_file);
+            spe_file  = fullfile(tmp_dir(),'abstract_test_file.altf');            
             fl = fopen(spe_file,'w');
             fclose(fl);
+            clob = onCleanup(@()delete(spe_file));
             
-            assertExceptionThrown(f,'A_LOADER:abstract_method_called');
-            warning(ws);
-            
-            delete(spe_file);
+            assertExceptionThrown(@()f(spe_file),'A_LOADER:abstract_method_called');
+
         end
         %
-        function test_setters_getters(this)
+        function test_setters_getters(~)
             al=a_loader_tester();
             al = al.set_defined_fields({'S','ERR','en','n_detectors'});
             al.S = ones(3,5);

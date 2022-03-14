@@ -87,10 +87,10 @@ if isempty(key_pos)
 else
     last_pos_ind = key_pos(1)-1;
 end
-if all(is_num)
+if all(is_num) % all values provided as positional arguments
     all_keys = key_names(is_num);
     values    = argi;
-else
+else % some arguments are positional and some are key-value pairs
     assumed_keys = key_names(1:last_pos_ind);
     provided_keys = argi(~is_num);
     values = argi(is_num);
@@ -101,6 +101,7 @@ if numel(values)< numel(all_keys)
 elseif numel(values)> numel(all_keys)
     remains = values(numel(all_keys):1:end);
 end
+% convert identified keys and values into final structure
 input =  cell2struct(values, all_keys,2);
 
 if ~isempty(deg_rad_ind)
