@@ -21,26 +21,28 @@ classdef test_experiment_loadsave < TestCase
             matfile = fullfile(obj.test_dir, 'rundata_vs_sqw_refdata.mat');
             % the file is loaded; the load process should convert the old 
             % struct-type headers into an Experiment class
-            load(matfile);
-            assertTrue( isa(test_rundata_sqw.sq4.experiment_info, 'Experiment') );
+            ld = load(matfile);
+            assertTrue( isa(ld.test_rundata_sqw.sq4.experiment_info, 'Experiment') );
             % the sq4 object is renamed as 'test_rundata_sqw.sq4' cannot be
             % saved as-is
-            tmp_sqw = test_rundata_sqw.sq4;
+            tmp_sqw = ld.test_rundata_sqw.sq4;
             % the sqw object is saved with the new Experiment class
             % experiment_info
-            save('experiment_sqw.mat', 'tmp_sqw');
+            wkfile = fullfile(tmp_dir,'experiment_sqw.mat');
+            clOb = onCleanup(@()delete(wkfile));
+            save(wkfile, 'tmp_sqw');
             % tmp_sqw is marked so that it can be seen the mark is removed
             % on reload
             tmp_sqw.main_header.extra='new';
             assertTrue( isfield( tmp_sqw.main_header, 'extra') );
             % tmp_sqw is reloaded from the .mat file, it should reload the
             % Experiment class experiment_info as-is
-            load('experiment_sqw.mat');
+            ld1 = load(wkfile);
             % tmp_sqw is checked that it now does not have the marker field
             % extra in its main_header
-            assertTrue( ~isfield( tmp_sqw, 'extra') );
-            assertTrue( isa(tmp_sqw.experiment_info, 'Experiment') );
-            assertEqual( tmp_sqw, test_rundata_sqw.sq4);
+            assertTrue( ~isfield(ld1.tmp_sqw, 'extra') );
+            assertTrue( isa(ld1.tmp_sqw.experiment_info, 'Experiment') );
+            assertEqual( ld1.tmp_sqw, ld.test_rundata_sqw.sq4);
         end
         
         function test_loadsave_multiple_run_and_sqw(obj)
