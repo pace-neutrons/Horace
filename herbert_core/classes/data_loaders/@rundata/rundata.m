@@ -62,7 +62,7 @@ classdef rundata < serializable
         % rundata may be filebased or memory based object, describing
         % crystal or powder. These are the fields which are defined in any
         % situation. Additional fields will become defined as
-        serial_fields_ = {'efix','emode','run_id','instrument','sample'};
+        serial_fields_ = {'loader','lattice','efix','emode','run_id','instrument','sample'};
     end
     properties(Access=protected)
         % energy transfer mode
@@ -87,14 +87,6 @@ classdef rundata < serializable
     methods(Static)
         function fields = main_data_fields()
             fields = rundata.min_field_set_;
-        end
-        %
-        function run = from_string(str)
-            % build rundata object from its string representation obrained earlier by
-            % serialize function
-            %
-            % Old interface
-            run = deserialize(str);
         end
         %
         function [runfiles_list,defined]=gen_runfiles(spe_files,varargin)
@@ -299,7 +291,8 @@ classdef rundata < serializable
             if val>-1 && val <3
                 this.emode_ = val;
             else
-                error('RUNDATA:set_emode','unsupported emode %d, only 0 1 and 2 are supported',val);
+                error('HERBERT:rundata:invalid_argument',...
+                    'unsupported emode %d, only 0 1 and 2 are supported',val);
             end
         end
         %----
@@ -353,15 +346,27 @@ classdef rundata < serializable
         end
         function obj = set.run_id(obj,val)
             if ~isnumeric(val)
-                error('RUNDATA:invalid_argument',...
+                error('HERBERT:rundata:invalid_argument',...
                     ' run_id can be only numeric')
             end
             obj.run_id_ = val;
         end
 
         %
-        function loader=get.loader(this)
-            loader=this.loader_;
+        function loader=get.loader(obj)
+            loader=obj.loader_;
+        end
+        function obj = set.loader(obj,val)
+            if isempty(val)
+                obj.loader_ = [];
+                return
+            end
+            if ~isa(val,'a_loader')
+                error('HERBERT:rundata:invalid_argument',...
+                    'The loader can be assigned by instance of a_loader object only. Actually it is %s',...
+                    class(val))
+            end
+            obj.loader_ = val;
         end
         %------------------------------------------------------------------
         % A LOADER RELATED PROPERTIES
@@ -472,6 +477,14 @@ classdef rundata < serializable
                     class(val))
             end
         end
+        function is = eq(obj,other)
+            if ~(isstruct(other) || isa(other,'rundata'))
+                error('HERBERT:rundata:invalid_argument',...
+                    'Can compare only two rundata objects or rundata object and structure. In fact other object is %s',...
+                    class(other));
+            end
+            is = eq_(obj,other);
+        end
 
         %------------------------------------------------------------------
         % A LOADER RELATED PROPERTIES -- END
@@ -494,14 +507,8 @@ classdef rundata < serializable
         function ver  = classVersion(~)
             ver = 1;
         end
-        function flds = indepFields(obj)
+        function flds = indepFields(~)
             flds = rundata.serial_fields_;
-            if ~isempty(obj.lattice_)
-                flds = [flds(:)',{'lattice'}];
-            end
-            if ~isempty(obj.loader_)
-                flds = [flds(:)',{'loader'}];
-            end
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------

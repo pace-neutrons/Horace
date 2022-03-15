@@ -31,8 +31,9 @@ if isempty(first_file) % assume ASCII spe loader
     end
     assume_ASCII_spe_loader = true;
 elseif ~ischar(first_file)    % build from a file;
-    error('RUNDATA:invalid_argument',...
-        'unsupported first argument. Should be data file name and input is not char');
+    error('HERBERT:rundata:invalid_argument',...
+        'unsupported first argument. Should be data file name but the input is not char and is %s',...
+        class(first_file));
 end
 % check if second parameter is a file
 second_file ='';

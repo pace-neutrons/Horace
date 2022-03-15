@@ -68,11 +68,19 @@ name_b = inputname(2);
 if isempty(name_b)
     name_b ='B';
 end
+if nargin<4 && isa(A,'serializable') && ismethod(A,'eq')
+    if A == B
+        return
+    end
+    message = xunit.utils.comparisonMessage(custom_message, ...
+        'Inputs are not equal according to classes comparison operator', A, B);
+    throwAsCaller(MException('assertEqual:nonEqual', '%s', message));
+end
 
 
 [ok,mess] = equal_to_tol(A,B,tol,'name_a',name_a,'name_b',name_b);
 if ~ok
-    if verLessThan('Matlab','R2016a')        
+    if verLessThan('Matlab','R2016a')
         nl = sprintf('\n');
     else
         nl = newline;

@@ -97,7 +97,9 @@ classdef serializable
             if nargin>1
                 if isnumeric(varargin{1})
                     recursively = logical(varargin{1});
-                elseif ischar(varargin{1}) && strncmpi(varargin{1},'-r')
+                elseif islogical(varargin{1})
+                    recursively = varargin{1};
+                elseif ischar(varargin{1}) && strncmpi(varargin{1},'-r',2)
                     recursively = true;
                 else
                     recursively = false;

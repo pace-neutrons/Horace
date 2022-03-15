@@ -36,12 +36,12 @@ if use_mex
         force_mex = get(herbert_config,'force_mex_if_use_mex');
         if ~force_mex
             if get(herbert_config,'log_level')>-1
-                warning('LOAD_ASCII:load_data',' Cannot read data using C++ routines -- reverted to Matlab\n Reason: %s',err.message);
+                warning('HERBERT:loader_ascii:runtime_error',' Cannot read data using C++ routines -- reverted to Matlab\n Reason: %s',err.message);
             end
             set(herbert_config,'use_mex',false);  % don't use Herbert C++ routines from now on
             use_mex=false;
         else
-            error('LOAD_ASCII:load_data',' Cannot read data using C++ routines \n Reason: %s',err.message);
+            error('HERBERT:loader_ascii:runtime_error',' Cannot read data using C++ routines \n Reason: %s',err.message);
         end
     end
 end

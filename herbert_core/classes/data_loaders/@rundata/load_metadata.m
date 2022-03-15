@@ -21,7 +21,7 @@ mess ='';
 ok = true;
 large_data_fields = {'S','ERR','en','det_par'};
 if ~isempty(this.lattice)
-    undef_lattice = this.lattice.get_undef_fields();
+    undef_lattice = this.lattice.undef_fields;
 else
     if for_powder
         undef_lattice = {};
@@ -52,7 +52,7 @@ if ~isempty(undef_list) && ~isempty(this.loader)
             end
         end
         this.lattice_ = latt;
-        undef_lattice = this.lattice.get_undef_fields();
+        undef_lattice = this.lattice.undef_fields;
         
         %
         % extract data fields stored in loader. It seems, this never 

@@ -269,7 +269,7 @@ classdef a_loader < a_detpar_loader_interface
             options = {'-keepexisting'};
             [ok,mess,keepexising]=parse_char_options(varargin,options);
             if ~ok
-                error('A_LOADER:invalid_argument',mess);
+                error('HERBERT:a_loader:invalid_argument',mess);
             end
 
 
@@ -291,7 +291,7 @@ classdef a_loader < a_detpar_loader_interface
                 end
                 [ok,mess]=is_loader_valid(this);
                 if ~ok
-                    error('A_LOADER:runtime_error',mess);
+                    error('HERBERT:a_loader:runtime_error',mess);
                 end
             else
                 this=this.load_data();
@@ -327,7 +327,7 @@ classdef a_loader < a_detpar_loader_interface
             % rw_mode is default, just for the future, it is not currently used
             [ok,mess,reload,remaining]=parse_char_options(varargin,options);
             if ~ok
-                error('A_LOADER:invalid_argument',mess);
+                error('HERBERT:a_loader:invalid_argument',mess);
             end
             if reload
                 obj=obj.load();

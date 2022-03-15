@@ -73,6 +73,7 @@ classdef oriented_lattice < serializable
     properties(Dependent,Hidden)
         isvalid; % property, specifies if the object is in valid state
         angular_is_degree;
+        undef_fields;
     end
 
 
@@ -201,10 +202,13 @@ classdef oriented_lattice < serializable
                 is = true;
             end
         end
+        %
         function is = get.isvalid(obj)
             is = obj.isvalid_;
         end
-
+        function udf = get.undef_fields(obj)
+            udf  = obj.fields_to_define_(obj.undef_fields_);
+        end
         %-----------------------------------------------------------------
         function psi = get.psi(obj)
             psi = obj.psi_;
@@ -277,23 +281,28 @@ classdef oriented_lattice < serializable
             % angdeg is second in the list of fields to be defined
             obj.undef_fields_(2) = false;
         end
-        %---
-        function undef_fields=get_undef_fields(obj)
-            % return list of lattice fiels which requested to be explicitly defined
-            % but in fact have been not
-            undef_fields = obj.fields_to_define_(obj.undef_fields_);
-        end
+
         %------------------------------------------------------------------
         % SERIALIABLE INTERFACE:
         %------------------------------------------------------------------
         function   ver  = classVersion(~)
             ver = 1;
         end
-        function flds = indepFields(~)
+        function flds = indepFields(obj)
+            call_stack = dbstack;
+            for_saving = strncmp(call_stack(2).name,'to',2);
             flds = oriented_lattice.lattice_parameters_;
+            if for_saving % do not save undefined fields
+                udf = obj.undef_fields;
+                is_udf = ismember(flds,udf);
+                if any(is_udf)
+                    flds = flds(~is_udf);
+                end
+            end
             % place angular units properties first to set up contest
             % for saveable properties
-            flds = [flds(1:end-1),'angular_is_degree'];
+            flds = ['angular_is_degree',flds(1:end-1)];
+
         end
     end
     %---------------------------------------------------------------------

@@ -389,7 +389,7 @@ classdef test_rundata< TestCase
 
             assertEqual(run,run1);
         end
-        
+
         %
         function test_serialization_crystal(obj)
             ds.efix=200;
@@ -412,22 +412,16 @@ classdef test_rundata< TestCase
             db = run.serialize();
 
             runr = rundata.deserialize(db);
-
             assertEqual(run,runr);
         end
         %
         function test_serialize_in_memory(obj)
             %
-            run=rundata(f_name(obj,'MAP11014.nxspe'));
-            run = run.load();
-            db = run.serialize();
+            run  = rundata(f_name(obj,'MAP11014.nxspe'));
+            run  = run.load();
+            db   = run.serialize();
             runr = rundata.deserialize(db);
-            %HACK
-            ws = warning('off','MATLAB:structOnObject');
-            clOb = onCleanup(@()warning(ws));
-            s1 = struct(run);
-            s2 = struct(runr);
-            assertEqual(s1,s2);
+            assertEqual(run,runr);
         end
 
         %

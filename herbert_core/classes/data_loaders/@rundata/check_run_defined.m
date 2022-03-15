@@ -47,7 +47,7 @@ if ~isempty(lattice_fields)
     else
         the_lattice = run.lattice;
     end
-    undef_lattice  = the_lattice.get_undef_fields();
+    undef_lattice  = the_lattice.undef_fields;
     other_fields   = ~ismember(all_fields,lattice_fields);
     all_fields     = all_fields(other_fields);
 

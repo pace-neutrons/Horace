@@ -167,7 +167,7 @@ classdef test_oriented_lattice< TestCase
             ol = oriented_lattice([2;3;4]);
             assertEqual(ol.alatt,[2,3,4])
 
-            undef = ol.get_undef_fields();
+            undef = ol.undef_fields;
             assertEqual(numel(undef),2);
             assertEqual(undef{1},'angdeg');
             assertEqual(undef{2},'psi');
@@ -178,7 +178,7 @@ classdef test_oriented_lattice< TestCase
             assertEqual(ol.psi,10)
             assertEqual(ol.u,[1,1,0])
             assertEqual(ol.v,[0,0,1])
-            undef = ol.get_undef_fields();
+            undef = ol.undef_fields;
             assertTrue(isempty(undef));
         end
         function test_full_constructor_with_keyval(~)
