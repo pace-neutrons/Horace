@@ -46,26 +46,23 @@ if nargin == 1
     remains = {};
     return;
 end
+[obj,remains] = parse_keyval_argi(obj,positional_arg_names,varargin{:});
+
+
 % check what arguments are positional arguments, verifying their types
 % assume that first argument with type different from the one in the list
 % of validators starts the sequence of remaining (not used) or key-val arguments
-is_positional = check_correct_positional_types(validators,varargin{:});
+is_positional = check_correct_positional_types(validators,remains{:});
 % process positional arguments
 if any(is_positional)
     if ~all(is_positional)
-        first_keyval = find(~is_positional,1);
-        key_val_arg   = varargin(first_keyval:end);
+        first_remains = find(~is_positional,1);
     else
-        key_val_arg = {};
-        first_keyval = numel(varargin)+1;
+        first_remains = numel(remains)+1;
     end
-    % check for a positional argument be char, its not mixed up with key
-    % from key-val pair
-    first_keyval = check_for_key_in_position(first_keyval,...
-        positional_arg_names,varargin{:});
 
-    pos_arg_val = varargin(1:first_keyval-1);
-    pos_arg_names = positional_arg_names(1:first_keyval-1);
+    pos_arg_val = remains(1:first_remains-1);
+    pos_arg_names = positional_arg_names(1:first_remains-1);
     % Extract and set up positional arguments, which should always come
     % first
     % assosiate positional argument names with their values
@@ -73,17 +70,9 @@ if any(is_positional)
     for i=1:numel(pos_arg_val)
         obj.(pos_arg_names{i}) = pos_arg_val{i};
     end
-    if isempty(key_val_arg)
-        remains = {};
-        return;
-    end
-    pos_arg_remain = positional_arg_names(first_keyval:end);
-else
-    pos_arg_remain = positional_arg_names;
-    key_val_arg   = varargin;
+    remains       = remains(~is_positional);
 end
 
-[obj,remains] = parse_keyval_argi(obj,pos_arg_remain,key_val_arg{:});
 
 
 function [obj,remains] = parse_keyval_argi(obj,arg_names,varargin)
@@ -130,26 +119,3 @@ for i = 1:nargi
 
 end
 
-function first_keyval = check_for_key_in_position(first_keyval,...
-        key_names,varargin)
-
-pos_val_candidates = varargin(1:first_keyval-1); % what values are considered to be values for positional arguments
-is_char = cellfun(@ischar,pos_val_candidates);   
-if ~any(is_char)
-    return
-end
-char_arguments = pos_val_candidates(is_char);   % consider only char values for positional argument
-values_are_keys = ismember(key_names,char_arguments); % are some values equal to key names
-if any(values_are_keys) % remove positional argument value from values list,
-     %  as it is in fact the key for the key-val pair.
-     suspected_key_names = key_names(values_are_keys); 
-     for i=1:numel(varargin)
-         if ischar(varargin{i})
-            is_key = ismember(varargin{i},suspected_key_names);
-            if is_key
-                first_keyval = i;
-                break;
-            end
-         end
-     end
-end

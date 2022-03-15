@@ -406,10 +406,10 @@ classdef test_serializable_class < TestCase
                 'Prop_class2_2',20,'blabla');
             assertEqual(tc.Prop_class2_1,11)
             assertEqual(tc.Prop_class2_2,20)
-            assertEqual(tc.Prop_class2_3,'aaa')            
-            assertEqual(rem,{'Prop_class2_2',20,'blabla'});            
+            assertEqual(tc.Prop_class2_3,'blabla')
+            assertTrue(isempty(rem));
         end
-        
+
         function test_keyval_constructor_nokey_throws_at_the_end(~)
             assertExceptionThrown(@()serializableTester2('Prop_class2_1','a',...
                 'Prop_class2_2'),'HERBERT:serializable:invalid_argument');
@@ -424,10 +424,11 @@ classdef test_serializable_class < TestCase
                 'blabla','Prop_class2_2',20);
             assertEqual(tc.Prop_class2_1,11)
             assertEqual(tc.Prop_class2_2,20)
-            assertEqual(rem,{'Prop_class2_1',10,'blabla'});            
+            assertTrue(isempty(tc.Prop_class2_3))
+            assertEqual(rem,{'blabla'});
         end
-        
-        
+
+
         function test_keyval_constructor_middle_extra_val_ignored(~)
             [tc,rem] = serializableTester2('Prop_class2_1',10,...
                 'blabla','Prop_class2_2',20);
@@ -435,7 +436,7 @@ classdef test_serializable_class < TestCase
             assertEqual(tc.Prop_class2_2,20)
             assertEqual(rem{1},'blabla');
         end
-        
+
         function test_keyval_constructor_last_extra_val_ignored(~)
             [tc,rem] = serializableTester2('Prop_class2_1',10,...
                 'Prop_class2_2',20,'blabla');
@@ -443,7 +444,7 @@ classdef test_serializable_class < TestCase
             assertEqual(tc.Prop_class2_2,20)
             assertEqual(rem{1},'blabla');
         end
-        
+
         function test_keyval_constructor_first_extra_val_ignored(~)
             [tc,rem] = serializableTester2('blabla','Prop_class2_1',10,...
                 'Prop_class2_2',20);
@@ -451,7 +452,7 @@ classdef test_serializable_class < TestCase
             assertEqual(tc.Prop_class2_2,20)
             assertEqual(rem{1},'blabla');
         end
-        
+
         function test_keyval_constructor(~)
             [tc,rem] = serializableTester2('Prop_class2_1',10,...
                 'Prop_class2_2',20);
