@@ -1,4 +1,4 @@
-function [s, e, npix, pix_out] = ...
+function [s, e, npix, pix_out,unique_runid] = ...
     cut_accumulate_data_(obj, targ_proj, targ_axes,keep_pixels, log_level, return_cut)
 %%CUT_ACCUMULATE_DATA Accumulate image and pixel data for a cut
 %
@@ -108,7 +108,7 @@ if num_chunks == 1
     end
 
     if keep_pixels
-        [npix,s,e,pix_ok] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
+        [npix,s,e,pix_ok,unique_runid] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
         npix_step_retained = pix_ok.num_pixels; % just for logging the progress
     else
         [npix,s,e] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
@@ -126,6 +126,7 @@ if num_chunks == 1
     end
 else
     npix_tot_retained = 0;
+    unique_runid = [];
     for iter = 1:num_chunks
         % Get pixels that will likely contribute to the cut
         chunk = block_chunks{iter};
@@ -140,8 +141,9 @@ else
                 candidate_pix.num_pixels);
         end
         if keep_pixels
-            [npix,s,e,pix_ok,pix_indx] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
+            [npix,s,e,pix_ok,unique_runid_l,pix_indx] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
             npix_step_retained = pix_ok.num_pixels; % just for logging the progress
+            unique_runid = unique([unique_runid,unique_runid_l(:)']);
         else
             [npix,s,e] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
             pix_ok = [];

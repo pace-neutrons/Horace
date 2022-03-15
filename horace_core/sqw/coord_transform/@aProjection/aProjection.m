@@ -20,7 +20,7 @@ classdef aProjection < serializable
     %
 
     properties(Dependent)
-        % Lattice parameters are important in any transfomation from Crystal
+        % Lattice parameters are important in any transformation from Crystal
         % Cartesian (pixels) to image coordinate system but are hidden as
         % user is not requested to set these properties -- cut algorithm
         % would set their values from their permanent and unique place in
@@ -186,7 +186,7 @@ classdef aProjection < serializable
         % accessors
         %------------------------------------------------------------------
         function alat = get.alatt(obj)
-            alat = obj.get_alatt_(obj);
+            alat = obj.get_alatt_();
         end
         function obj = set.alatt(obj,val)
             % set lattice parameters as single value, defining 3 equal
@@ -198,7 +198,7 @@ classdef aProjection < serializable
         end
         %
         function  angdeg = get.angdeg(obj)
-            angdeg = get_angdeg_(obj);
+            angdeg = obj.get_angdeg_();
         end
         function obj = set.angdeg(obj,val)
             % set lattice parameters as single value, defining 3 equal
@@ -257,26 +257,26 @@ classdef aProjection < serializable
         % normally be overloaded for specific projections for efficiency and
         % specific projection differences
         %------------------------------------------------------------------
-        function [npix,s,e,pix_ok,pix_indx] = bin_pixels(obj,axes,pix_candidates,npix,s,e,varargin)
+        function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels(obj,axes,pix_candidates,npix,s,e,varargin)
             % Convert pixels into the coordinate system, defined by the
             % projection and bin them into the coordinate system, defined
             % by the axes block, specified as input.
             %
             % Inputs:
             % axes -- the instance of axes_block class, defining the
-            %         shape and the binning of the target coodinate system
+            %         shape and the binning of the target coordinate system
             % pix_candidates -- the 4xNpix array of pixel coordinates or
             %         PixelData object or pixel data accessor from file
             %         providing access to the full pixel information, or
             %         pixel data in any format the particular projection,
-            %         which does thransformation from pix_to_img coordinate
+            %         which does transformation from pix_to_img coordinate
             %         system accepts
             % Optional:
             % npix    -- the array, containing the numbers of pixels
             %            contributing into each axes grid cell
             % s       -- array, containing the accumulated signal for each
             %            axes grid cell
-            % e       -- aray, containing the accumulated error for each
+            % e       -- array, containing the accumulated error for each
             %            axes grid cell
             % Outputs:
             % npix    -- the npix array
@@ -289,15 +289,21 @@ classdef aProjection < serializable
             %           PixelData object (as input pix_candidates) containing
             %           pixels contributing to the grid and sorted according
             %           to the axes block grid.
+            % unique_runid -- the runid (tags) for the headers, which
+            %           contributed into the cut
             % pix_indx--indexes of the pix_ok coordinates according to the
             %           bin
             pix_transformed = obj.transform_pix_to_img(pix_candidates);
-            if nargout == 5
-                [npix,s,e,pix_ok,pix_indx]=...
+            if nargout == 6
+                [npix,s,e,pix_ok,unique_runid,pix_indx]=...
+                    axes.bin_pixels(pix_transformed,...
+                    npix,s,e,pix_candidates,varargin{:});
+            elseif nargout == 5
+                [npix,s,e,pix_ok,unique_runid]=...
                     axes.bin_pixels(pix_transformed,...
                     npix,s,e,pix_candidates,varargin{:});
             elseif nargout == 4
-                [npix,s,e,pix_ok]=axes.bin_pixels(pix_transformed,...
+                [npix,s,e,pix_ok,unique_runid]=axes.bin_pixels(pix_transformed,...
                     npix,s,e,pix_candidates,varargin{:});
             elseif nargout == 3
                 [npix,s,e]=axes.bin_pixels(pix_transformed,...

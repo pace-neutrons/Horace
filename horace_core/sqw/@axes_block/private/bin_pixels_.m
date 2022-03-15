@@ -1,8 +1,17 @@
-function [npix,s,e,pix,pix_indx] = bin_pixels_(obj,coord,mde,npix,s,e,...
-    pix_cand,varargin)
+function [npix,s,e,pix,unique_runid,pix_indx] = bin_pixels_(obj,coord,num_outputs,...
+    npix,s,e,pix_cand,varargin)
+% sort pixels according to their coordinates in the axes grid, and
+% calculate pixels grid statistics.
+% Inputs:
+% obj   -- the initialized axes_block object with the grid defined
+% coord -- the 3D or 4D array of pixels coordinates transformed into
+%          axes_block coordinate system
+% 
+
 
 pix = [];
 pix_indx = [];
+unique_runid = [];
 if nargin>7
     options = {'-force_double'};
     % keep unused argi parameter to tell parce_char_options to ignore
@@ -35,7 +44,7 @@ end
 ok = all(coord>=r1 & coord<=r2,1); % collapse first dimension, all along it should be ok for pixel be ok
 coord = coord(:,ok);
 if isempty(coord)
-    if mde>3
+    if num_outputs>3
         pix = PixelData();
         return;
     end
@@ -72,7 +81,7 @@ else
     end
     npix = npix + accumarray(pix_indx, ones(1,size(pix_indx,1)), n_bins);
 end
-if mde<3
+if num_outputs<3
     return;
 end
 sig = pix_cand.signal;
@@ -84,10 +93,17 @@ else
     s = s + accumarray(pix_indx, sig(ok), n_bins);
     e = e + accumarray(pix_indx, var(ok), n_bins);
 end
-if mde<4
+if num_outputs<4
     return;
 end
-pix = pix_cand.get_pixels(ok);
+pix          = pix_cand.get_pixels(ok);
+if num_outputs<5
+    return;
+end
+unique_runid = unique(pix.run_idx);
+if num_outputs<6
+    return;    
+end
 clear ok;
 if ndims > 1 % convert to 1D indexes
     stride = cumprod(n_bins);
@@ -95,7 +111,7 @@ if ndims > 1 % convert to 1D indexes
 end
 
 if ndims > 0
-    if mde ==5
+    if num_outputs ==6
         if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels
             pix = PixelData(double(pix.data));
         end
@@ -106,7 +122,7 @@ elseif ndims == 0
     if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels
         pix = PixelData(double(pix.data));
     end
-    if mde == 5
+    if num_outputs == 6
         pix_indx = ones(pix.num_pixels,1);
     end
 end

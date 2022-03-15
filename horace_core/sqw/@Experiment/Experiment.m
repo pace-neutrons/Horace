@@ -173,6 +173,18 @@ classdef Experiment < serializable
                 end
             end
         end
+        function exp = get_experiments(obj,ind)
+            % return experiment info, which corresponds to appropriate
+            % experiment indexes
+            % Inputs:
+            % obj -- the instance of the experiment 
+            % ind -- array of the indexes, to select experiments for
+            %
+            % Returns:
+            % exp -- the Experiment class instance, containing information,
+            %        correspoinding to the run indexes provided as input.
+            exp = get_experiments_(obj,ind);
+        end
         %
         function expi = get_aver_experiment(obj)
             % some, presumably average, run-data. Naive implementation,

@@ -48,7 +48,7 @@ classdef test_axes_block < TestCase
 
             pix = PixelData(pix_dat_full);
 
-            [npix,s,e,pix_ok,indx] = ab.bin_pixels(pix_data,[],[],[],pix);
+            [npix,s,e,pix_ok,unique_runid,indx] = ab.bin_pixels(pix_data,[],[],[],pix);
 
             assertEqual(size(npix),szs);
             assertEqual(size(s),szs);
@@ -94,7 +94,7 @@ classdef test_axes_block < TestCase
             pix_dat_full = [pix_data;ones(5,numel(X))];
             pix = PixelData(pix_dat_full);
 
-            [npix,s,e,pix_ok,indx] = ab.bin_pixels(pix_data,[],[],[],pix);
+            [npix,s,e,pix_ok,uniq_runid,indx] = ab.bin_pixels(pix_data,[],[],[],pix);
 
             assertEqual(size(npix),szs);
             assertEqual(size(s),szs);
@@ -196,7 +196,7 @@ classdef test_axes_block < TestCase
             pix_dat_full = [pix_data;ones(5,numel(X))];
             pix = PixelData(pix_dat_full);
 
-            [npix,s,e,pix_ok] = ab.bin_pixels(pix_data,[],[],[],pix);
+            [npix,s,e,pix_ok,uniq_runid] = ab.bin_pixels(pix_data,[],[],[],pix);
 
             assertEqual(size(npix),szs);
             assertEqual(size(s),szs);
@@ -229,7 +229,7 @@ classdef test_axes_block < TestCase
             pix_dat_full = [pix_data;ones(5,numel(X))];
             pix = PixelData(pix_dat_full);
 
-            [npix,s,e,pix_ok,pix_indx] = ab.bin_pixels(pix_data,[],[],[],pix);
+            [npix,s,e,pix_ok,uniq_runid,pix_indx] = ab.bin_pixels(pix_data,[],[],[],pix);
 
             assertEqual(size(npix),szs);
             assertEqual(size(s),szs);
@@ -262,7 +262,7 @@ classdef test_axes_block < TestCase
             pix_dat_full = [pix_data;ones(5,numel(X))];
             pix = PixelData(pix_dat_full);
 
-            [npix,s,e,pix_ok] = ab.bin_pixels(pix_data,[],[],[],pix);
+            [npix,s,e,pix_ok,uniq_runid] = ab.bin_pixels(pix_data,[],[],[],pix);
 
             assertEqual(size(npix),szs);
             assertEqual(size(s),szs);
@@ -294,7 +294,7 @@ classdef test_axes_block < TestCase
             pix_dat_full = [pix_data;ones(5,numel(X))];
             pix = PixelData(pix_dat_full);
 
-            [npix,s,e,pix_ok] = ab.bin_pixels(pix_data,[],[],[],pix);
+            [npix,s,e,pix_ok,uniq_runid] = ab.bin_pixels(pix_data,[],[],[],pix);
 
             assertEqual(size(npix),szs);
             assertEqual(size(s),szs);

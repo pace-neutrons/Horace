@@ -220,15 +220,15 @@ classdef axes_block < serializable
             [cube_coord,step] = get_axes_scales_(obj);
         end
         %
-        function [npix,s,e,pix,pix_indx] = bin_pixels(obj,pix_coord_transf,varargin)
+        function [npix,s,e,pix,unique_runid,pix_indx] = bin_pixels(obj,pix_coord_transf,varargin)
             % Bin and distribute data expressed in the coordinate system
             % described by this axes block over the current N-D lattice
             %
             % Usage:
             % >>npix = obj.bin_pixels(coord);
             % >>[npix,s,e] = obj.bin_pixels(coord,npix,s,e);
-            % >>[npix,s,e,pix_ok] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
-            % >>[npix,s,e,pix_ok,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
+            % >>[npix,s,e,pix_ok,unque_runid] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
+            % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
             % Where
             % Inputs:
             % pix_coord_transf
@@ -274,6 +274,8 @@ classdef axes_block < serializable
             % pix     -- pixel array or PixelData
             %            object (the output format is the same as for
             %            pix_candidates)
+            % unique_runid-array of unique run-id-s for pixels, contributed
+            %            into the cut,             
             % pix_indx --Array of indexes for the image bins, where
             %            the input pix elements belong to
 
@@ -283,7 +285,7 @@ classdef axes_block < serializable
                 obj.normalize_bin_input(pix_coord_transf,nargou,varargin{:});
             %
             % bin pixels
-            [npix,s,e,pix,pix_indx] = bin_pixels_(obj,pix_coord_transf,nargou,...
+            [npix,s,e,pix,unique_runid,pix_indx] = bin_pixels_(obj,pix_coord_transf,nargou,...
                 npix,s,e,pix_cand,argi{:});
         end
         %
