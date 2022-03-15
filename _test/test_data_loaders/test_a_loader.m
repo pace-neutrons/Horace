@@ -249,7 +249,7 @@ classdef test_a_loader< TestCase
                 delete(test_file);
             end
             f=@()lt.saveNXSPE(test_file,10,3);
-            assertExceptionThrown(f,'A_LOADER:runtime_error');
+            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
             
             lt.det_par = ones(6,3);
             

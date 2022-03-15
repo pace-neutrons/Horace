@@ -144,11 +144,11 @@ classdef test_asciipar_loader< TestCase
             assertEqual(obj.EXPECTED_DET_NUM,ndet)
 
             f=@()asciipar_loader.get_par_info('non_existing_file');
-            assertExceptionThrown(f,'ASCIIPAR_LOADER:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:asciipar_loader:invalid_argument');
 
             other_file_name = fullfile(obj.test_data_path,'MAP11014.nxspe');
             f=@()asciipar_loader.get_par_info(other_file_name);
-            assertExceptionThrown(f,'ASCIIPAR_LOADER:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:asciipar_loader:invalid_argument');
 
         end
 
