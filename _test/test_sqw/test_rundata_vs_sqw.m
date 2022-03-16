@@ -1,12 +1,12 @@
 classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
     % Series of tests to check work of mex files against Matlab files
-    
+
     properties
         out_dir=tmp_dir();
         % use intermediate sqw file to store test data (slower but tests IO
         % as well)
         save_file = false;
-        
+
         en=-80:8:760;
         par_file='map_4to1_dec09.par';
         sqw_file_single='test_build_rundata_from_sqw.sqw';
@@ -17,9 +17,9 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
         u=[1,0,0];
         v=[0,1,0];
         omega=1;dpsi=2;gl=3;gs=4;
-        
+
         psi=4;
-        
+
         sqw_obj=[];
         clob_ = [];
     end
@@ -29,9 +29,9 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
                 delete(filename);
             end
         end
-        
+
     end
-    
+
     methods
         function this=test_rundata_vs_sqw(varargin)
             if nargin==0
@@ -39,7 +39,10 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             else
                 name = varargin{1};
             end
-            this = this@TestCaseWithSave(name,'rundata_vs_sqw_refdata');
+            this_folder = fileparts(mfilename('fullpath'));
+            ref_data = fullfile(fileparts(this_folder),'common_data','rundata_vs_sqw_refdata.mat');
+            this = this@TestCaseWithSave(name,ref_data);
+            %
             root_dir = horace_root();
             data_dir = fullfile(root_dir,'_test','common_data');
             this.sqw_file_single = fullfile(this.out_dir,this.sqw_file_single);
@@ -47,7 +50,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             if this.save_file
                 fn =this.sqw_file_single;
                 this.clob_ = onCleanup(@()this.rm_sqw(fn));
-                
+
                 if ~exist(this.sqw_file_single,'file')
                     fake_sqw(this.en, this.par_file, this.sqw_file_single, this.efix,...
                         this.emode, this.alatt, this.angdeg,...
@@ -55,7 +58,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
                         [10,5,5,5]);
                 end
                 this.sqw_obj = read_sqw(this.sqw_file_single);
-                
+
             else
                 this.sqw_obj = fake_sqw(this.en, this.par_file, '', this.efix,...
                     this.emode, this.alatt, this.angdeg,...
@@ -63,18 +66,18 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
                     [10,5,5,5]);
                 this.sqw_obj = this.sqw_obj{1};
             end
-            
-            
-            
+
+
+
         end
-        
+
         function this=test_build_rundata(this)
-            
+
             rd = rundatah(this.sqw_obj);
-            
+
             assertEqual(rd.emode, this.emode);
             assertEqual(rd.efix, this.efix);
-            
+
             lattice = rd.lattice;
             assertElementsAlmostEqual(lattice.alatt,this.alatt,'absolute',2e-7);
             assertElementsAlmostEqual(lattice.angdeg,this.angdeg);
@@ -85,7 +88,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             assertElementsAlmostEqual(lattice.dpsi,this.dpsi,'absolute',2e-7);
             assertElementsAlmostEqual(lattice.gl,this.gl,'absolute',2e-7);
             assertElementsAlmostEqual(lattice.gs,this.gs,'absolute',2e-7);
-            
+
             det = get_par(this.par_file);
             det_par = rd.det_par;
             %
@@ -100,19 +103,19 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             %assertEqual(det_par,det);
             grid_size = size(this.sqw_obj.data.s);
             img_db_range    = this.sqw_obj.data.img_db_range;
-            
+
             sqw_rev = rd.calc_sqw(grid_size,img_db_range);
-            
+
             proj = struct('u',lattice.u,'v',lattice.v);
             [ok,mess]=is_cut_equal(this.sqw_obj,sqw_rev,proj,0.04*(img_db_range(2,1)-img_db_range(1,1)),0.1*(img_db_range(2,2)-img_db_range(1,2)),[-Inf,Inf],[-Inf,Inf]);
             assertTrue(ok,['Combining cuts from each individual sqw file and the cut from the combined sqw file not the same ',mess]);
             %assertEqual(this.sqw_obj,sqw_rev);
-            
+
             % calculate bounding object surrounding existing data object
             bob = rd.build_bounding_obj();
             bos = bob.calc_sqw(grid_size,img_db_range);
             assertElementsAlmostEqual(bos.data.img_db_range,img_db_range,'relative',1.e-6);
-            
+
             pix_range =[min(bos.data.pix.coordinates,[],2)'; max(bos.data.pix.coordinates,[],2)'];
             assertElementsAlmostEqual(bos.data.img_db_range,pix_range,'relative',1.e-6);
         end
@@ -120,9 +123,9 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
         function  this=test_serialize_deserialize_rundatah(this)
 
             rd = rundatah(this.sqw_obj);
-            
+
             by = rd.serialize();
-            
+
             fa = rundatah.deserialize(by);
             [~,fa] = fa.get_par;
             assertTrue(isa(fa,'rundatah'));
@@ -147,19 +150,19 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             rd = rundatah(obj.sqw_obj);
             v1=[0,1,0]; v2=[0,0,1]; v3=[0,0,0];
             rd.transform_sqw = @(x)symmetrise_sqw(x,v1,v2,v3);
-            
+
             by = rd.serialize();
-            
+
             fa = rundatah.deserialize(by);
-            
+
             grid_size = size(obj.sqw_obj.data.s);
             img_db_range = obj.sqw_obj.data.img_db_range;
-            
+
             sqw_o = rd.calc_sqw(grid_size,img_db_range);
             sqw_r = obj.rd_convert_checker(fa,grid_size,img_db_range);
-            
+
             assertEqual(sqw_o,sqw_r);
-            
+
         end
         %
         function test_rundata_sqw(obj)
@@ -167,15 +170,15 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
                 '_test','common_data','MAP11014.nxspe');
             ds = struct('alatt',[2.63,2.63,2.63],'angdeg',[90,90,90],...
                 'u',[1,0,0],'v',[0,1,0]);
-            
+
             rd = rundatah(test_file,ds);
             rd = rd.load();
-            
+
             hc = hor_config;
             dts = hc.get_data_to_store();
             clob = onCleanup(@()set(hc,dts));
-            hc.use_mex = false;            
-              
+            hc.use_mex = false;
+
             [sq4,grid,pix_range] = rd.calc_sqw();
             assertEqual(grid,[50,50,50,50]);
             ref_range = [0.0576   -6.6475   -6.6475    2.5000;...
@@ -185,7 +188,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
 
             rdr = rundatah(sq4);
             assertEqualToTol(rdr.saveobj(),rd.saveobj(),'ignore_str',true,'tol',1.e-7);
-            
+
         end
         %
         function test_rundata_mex_nomex(~)
@@ -193,21 +196,21 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
                 '_test','common_data','MAP11014.nxspe');
             ds = struct('alatt',[2.63,2.63,2.63],'angdeg',[97,60,80],...
                 'u',[1,0,0],'v',[0,1,0]);
-            
+
             rd = rundatah(test_file,ds);
             rd = rd.load();
             hc = hor_config;
             dts = hc.get_data_to_store();
             clob = onCleanup(@()set(hc,dts));
-            
+
             hc.use_mex = true;
             [sq4_mex,grid_mex,pix_range_mex] = rd.calc_sqw();
             hc.use_mex = false;
             [sq4_nom,grid_nom,pix_range_nom] = rd.calc_sqw();
-            
+
             assertEqual(grid_mex,grid_nom);
             assertEqual(pix_range_mex,pix_range_nom);
-            
+
             assertElementsAlmostEqual(sort(sq4_mex.data.pix.data'),...
                 sort(sq4_nom.data.pix.data'));
             % Binning here is substantially different. TODO: decrease the
