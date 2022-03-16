@@ -8,6 +8,7 @@ set(TEST_DIRECTORIES
     "test_converters"
     "test_dnd"
     "test_dnd_class"
+    "test_experiment"
     "test_gen_sqw_for_powders"
     "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_herbert"
     "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_mex"
