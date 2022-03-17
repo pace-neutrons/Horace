@@ -19,6 +19,7 @@ classdef rundatah < rundata
     properties(Access=private)
         transform_sqw_f_=[];
     end
+
     methods(Static)
         function clear_det_cache()
             % clear cached detectors information and detectors directions
@@ -169,7 +170,7 @@ classdef rundatah < rundata
         end
         function flds = indepFields(obj)
             flds = indepFields@rundata(obj);
-            flds = [flds(:)',{'transform_sqw'}];
+            flds = [flds,'transform_sqw'];
 
         end
 

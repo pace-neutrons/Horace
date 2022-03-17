@@ -1,4 +1,4 @@
-classdef test_serialize_deserialize< TestCase
+classdef test_serialize_deserialize_binary_sqw< TestCase
     %
     % Validate fast sqw reader used in combining sqw
     %
@@ -17,7 +17,7 @@ classdef test_serialize_deserialize< TestCase
     methods
         
         %The above can now be read into the test routine directly.
-        function this=test_serialize_deserialize(varargin)
+        function this=test_serialize_deserialize_binary_sqw(varargin)
             if nargin > 0
                 name = varargin{1};
             else
