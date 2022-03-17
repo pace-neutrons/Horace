@@ -29,16 +29,16 @@ classdef test_loader_ascii< TestCase
 
         % CONSTRUCTOR:
         % tests themself
-        function test_wrong_first_argument(obj)
+        function test_wrong_first_argument(~)
             f = @()loader_ascii(10);
             % should throw; first argument has to be a file name
-            assertExceptionThrown(f,'A_LOADER:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:a_loader:invalid_argument');
         end
 
         function test_wrong_second_argument(obj)
             f = @()loader_ascii(fullfile(obj.test_data_path,'some_spe_file_which_was_checked_before.spe'),10);
             % should throw; third parameter has to be a file name
-            assertExceptionThrown(f,'A_LOADER:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:a_loader:invalid_argument');
         end
         function test_par_file_not_there(obj)
             f = @()loader_ascii(fullfile(obj.test_data_path,'some_spe_file_which_was_checked_before.spe'),...
@@ -51,8 +51,56 @@ classdef test_loader_ascii< TestCase
             par_file = fullfile(obj.test_data_path,obj.test_par_file);
             f = @()loader_ascii(spe_file,par_file);
             % should throw; spe file does not exist
-            assertExceptionThrown(f,'A_LOADER:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:a_loader:invalid_argument');
         end
+        function test_to_from_struct_loader_in_memory(obj)
+            spe_file = fullfile(obj.test_data_path,'MAP10001.spe');
+            par_file = fullfile(obj.test_data_path,obj.test_par_file);
+            ld = loader_ascii(spe_file,par_file);
+            [S,ERR,en,ld] = ld.load_data();
+            [par,ld] = ld.load_par(); 
+            S(:,1) = 1;
+            ERR(:,1) = 1;
+            en(10) = 100;
+            par.x2(1) = 10;
+            ld.S = S;
+            ld.ERR = ERR;
+            ld.en = en;
+            ld.det_par = par;
+            
+            str = ld.to_struct();
+            ld_rec = serializable.from_struct(str);
+
+            assertEqual(ld,ld_rec);
+        end
+        
+
+        function test_saveload_loader_onfile(obj)
+            spe_file = fullfile(obj.test_data_path,'MAP10001.spe');
+            par_file = fullfile(obj.test_data_path,obj.test_par_file);
+            ld = loader_ascii(spe_file,par_file);
+            en = ld.en;
+            en(10)=100;
+            ld.en = en;
+
+            str = ld.saveobj();
+            ld_rec = serializable.loadobj(str);
+
+            assertEqual(ld,ld_rec);
+
+        end
+
+        function test_to_from_struct_loader_onfile(obj)
+            spe_file = fullfile(obj.test_data_path,'MAP10001.spe');
+            par_file = fullfile(obj.test_data_path,obj.test_par_file);
+            ld = loader_ascii(spe_file,par_file);
+
+            str = ld.to_struct();
+            ld_rec = serializable.from_struct(str);
+
+            assertEqual(ld,ld_rec);
+        end
+
         function test_loader_defined(obj)
             spe_file = fullfile(obj.test_data_path,'MAP10001.spe');
             par_file = fullfile(obj.test_data_path,obj.test_par_file);
@@ -68,6 +116,23 @@ classdef test_loader_ascii< TestCase
             end
         end
         % LOAD SPE
+        function test_load_spe_saveobj_loadobj(obj)
+            loader=loader_ascii();
+            % loads only spe data
+            [S,ERR,en,loader]=load_data(loader,fullfile(obj.test_data_path,'MAP10001.spe'));
+            S(:,1) = 1;
+            ERR(:,1) = 1;
+            en(10) = 100;
+            loader.S = S;
+            loader.ERR = ERR;
+            loader.en = en;
+
+            str = loader.to_struct();
+            ldr_rec = serializable.from_struct(str);
+
+            assertEqual(loader,ldr_rec);
+        end
+
         function test_load_spe(obj)
             loader=loader_ascii();
             % loads only spe data
@@ -78,11 +143,11 @@ classdef test_loader_ascii< TestCase
             [~,fname,fext]= fileparts(loader.file_name);
             assertEqual([fname,fext],'MAP10001.spe')
         end
-        function test_load_spe_undefined_throws(obj)
+        function test_load_spe_undefined_throws(~)
             loader=loader_ascii();
             % define spe file loader from undefined spe file
             f = @()load_data(loader);
-            assertExceptionThrown(f,'LOAD_ASCII:load_data');
+            assertExceptionThrown(f,'HERBERT:loader_ascii:invalid_argument');
         end
 
         % DEFINED FIELDS
@@ -133,7 +198,7 @@ classdef test_loader_ascii< TestCase
             f = @()loader_ascii(spe_file,wrong_par);
 
             %f = @()get__info(loader);
-            assertExceptionThrown(f,'ASCIIPAR_LOADER:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:asciipar_loader:invalid_argument');
         end
         %
         function test_get_run_info_wrong_spe(obj)
@@ -178,8 +243,8 @@ classdef test_loader_ascii< TestCase
             % find ISO NaN-s
             mask=isnan(S);
             % check if they are all in right place, defined in 'spe_with_NANs.spe'
-            assertEqual(mask(1:2,1),logical(ones(2,1)))
-            assertEqual(mask(:,5),logical(ones(30,1)));
+            assertEqual(mask(1:2,1),true(2,1))
+            assertEqual(mask(:,5),true(30,1));
         end
         %
         function test_get_data_info(obj)
@@ -252,7 +317,7 @@ classdef test_loader_ascii< TestCase
 
         end
         %
-        function test_get_file_extension(obj)
+        function test_get_file_extension(~)
             fext=loader_ascii.get_file_extension();
 
             assertEqual(fext,'.spe');

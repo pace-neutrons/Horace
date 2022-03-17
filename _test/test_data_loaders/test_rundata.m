@@ -98,7 +98,7 @@ classdef test_rundata< TestCase
             a.x=10;
             a.y=20;
             f = @()rundata(a);
-            assertExceptionThrown(f,'RUNDATA:set_fields');
+            assertExceptionThrown(f,'HERBERT:rundata:invalid_arguments');
         end
         function test_build_from_good_struct(~)
             a.efix=10;
@@ -308,27 +308,27 @@ classdef test_rundata< TestCase
             run=rundata(spe_spource);
             run.lattice = lat;
             f=@()run.saveNXSPE(test_file);
-            assertExceptionThrown(f,'A_LOADER:runtime_error');
+            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
 
             run.par_file_name = f_name(obj,'demo_par.PAR');
             assertEqual(run.lattice,lat);
             f=@()run.saveNXSPE(test_file);
             % efix has to be defined
-            assertExceptionThrown(f,'A_LOADER:runtime_error');
+            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
 
             run.efix = 1;
             f=@()run.saveNXSPE(test_file);
             % efix has to be defined
-            assertExceptionThrown(f,'A_LOADER:runtime_error');
+            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
 
             run.efix = 150;
             f=@()run.saveNXSPE(test_file);
-            assertExceptionThrown(f,'A_LOADER:runtime_error');
+            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
 
             run.data_file_name = fullfile(obj.test_data_path,'MAP10001.spe');
 
             f=@()run.saveNXSPE(test_file);
-            assertExceptionThrown(f,'A_LOADER:runtime_error');
+            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
             run.par_file_name = f_name(obj,'demo_par.PAR');
 
             run=run.saveNXSPE(test_file,'w');
@@ -376,11 +376,20 @@ classdef test_rundata< TestCase
         function test_serialization_powder(obj)
             run=rundata(f_name(obj,'MAP11014.nxspe'));
 
-            str1 = to_string(run);
-            run1 = rundata.from_string(str1);
+            str1 = to_struct(run);
+            run1 = rundata.from_struct(str1);
 
             assertEqual(run,run1);
         end
+        function test_loadobj_powder(obj)
+            run=rundata(f_name(obj,'MAP11014.nxspe'));
+
+            str1 = saveobj(run);
+            run1 = rundata.loadobj(str1);
+
+            assertEqual(run,run1);
+        end
+
         %
         function test_serialization_crystal(obj)
             ds.efix=200;
@@ -391,8 +400,8 @@ classdef test_rundata< TestCase
             par_file = f_name(obj,'demo_par.PAR');
             run=rundata(spe_file,par_file ,ds);
 
-            str1 = to_string(run);
-            run1 = rundata.from_string(str1);
+            str1 = to_struct(run);
+            run1 = rundata.from_struct(str1);
 
             assertEqual(run,run1);
         end
@@ -401,24 +410,18 @@ classdef test_rundata< TestCase
             %
             run=rundata(f_name(obj,'MAP11014.nxspe'));
             db = run.serialize();
-            
-            runr = rundata.deserialize(db);
 
+            runr = rundata.deserialize(db);
             assertEqual(run,runr);
         end
         %
         function test_serialize_in_memory(obj)
             %
-            run=rundata(f_name(obj,'MAP11014.nxspe'));
-            run = run.load();
-            db = run.serialize();
+            run  = rundata(f_name(obj,'MAP11014.nxspe'));
+            run  = run.load();
+            db   = run.serialize();
             runr = rundata.deserialize(db);
-            %HACK
-            ws = warning('off','MATLAB:structOnObject');
-            clOb = onCleanup(@()warning(ws));
-            s1 = struct(run);
-            s2 = struct(runr);
-            assertEqual(s1,s2);
+            assertEqual(run,runr);
         end
 
         %

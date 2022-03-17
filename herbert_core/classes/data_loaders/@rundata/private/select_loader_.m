@@ -31,8 +31,9 @@ if isempty(first_file) % assume ASCII spe loader
     end
     assume_ASCII_spe_loader = true;
 elseif ~ischar(first_file)    % build from a file;
-    error('RUNDATA:invalid_argument',...
-        'unsupported first argument. Should be data file name and input is not char');
+    error('HERBERT:rundata:invalid_argument',...
+        'unsupported first argument. Should be data file name but the input is not char and is %s',...
+        class(first_file));
 end
 % check if second parameter is a file
 second_file ='';
@@ -58,16 +59,16 @@ def_fields = this.loader_.defined_fields();
 lat_fields = oriented_lattice.lattice_fields;
 in_lat  = ismember(lat_fields,def_fields);
 if any(in_lat)
-    if isempty(this.oriented_lattice_)
-        this.oriented_lattice_ = oriented_lattice();
+    if isempty(this.lattice_)
+        this.lattice_ = oriented_lattice();
         lat_fields = lat_fields(in_lat);
         
-        lat = this.oriented_lattice_;
+        lat = this.lattice_;
         for i=1:numel(lat_fields)
             flt = lat_fields{i};
             lat.(flt) = this.loader_.(flt);
         end
-        this.oriented_lattice_ = lat;
+        this.lattice = lat;
     end
 end
 

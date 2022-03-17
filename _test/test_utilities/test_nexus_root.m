@@ -92,7 +92,7 @@ classdef test_nexus_root< TestCase
             
             f = @()find_root_nexus_dir(test_file);
             
-            assertExceptionThrown(f,'ISIS_UTILITES:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:isis_utilities:invalid_argument');
         end
         %
         function test_two_groups_tested(obj)
@@ -113,7 +113,7 @@ classdef test_nexus_root< TestCase
         function test_not_nexust_hdf(obj)
             test_file = fullfile(obj.common_data_folder,'group_search_tester.h5');
             f = @()find_root_nexus_dir(test_file);
-            assertExceptionThrown(f,'ISIS_UTILITES:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:isis_utilities:invalid_argument');
         end
         
         

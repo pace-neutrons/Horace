@@ -1,17 +1,26 @@
 classdef serializableTester2 < serializable
     % Class used as test bench to unittest serializable class
     %
-    
+
     properties
-        Prop_level2_1
-        Prop_level2_2;
+        Prop_class2_1
+        Prop_class2_2;
+        Prop_class2_3;
     end
-    
+
     methods
-        function obj = serializableTester2()
+        function [obj,remains] = serializableTester2(varargin)
+            if nargin==0
+                return;
+            end
+            positional_arg_names = obj.indepFields();
+            val = {@isnumeric,@isnumeric,@ischar};
+            [obj,remains] = ...
+                set_positional_and_key_val_arguments(obj,...
+                positional_arg_names,val,varargin{:});
         end
     end
-    
+
     methods(Access=public)
         % get independent fields, which fully define the state of the object
         function flds = indepFields(~)
@@ -29,9 +38,9 @@ classdef serializableTester2 < serializable
             obj = loadobj@serializable(S,obj);
         end
     end
-    
+
     properties(Constant,Access=protected)
-        fields_to_save_ = {'Prop_level2_1','Prop_level2_2'};
+        fields_to_save_ = {'Prop_class2_1','Prop_class2_2','Prop_class2_3'};
     end
     methods(Static)
         function verr = version_holder(ver)
@@ -45,6 +54,6 @@ classdef serializableTester2 < serializable
             verr = version;
         end
     end
-    
+
 end
 

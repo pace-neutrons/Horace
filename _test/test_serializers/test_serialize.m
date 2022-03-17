@@ -78,11 +78,11 @@ classdef test_serialize < TestCaseWithSave
             serCl = serializableTester1();
             serCl = repmat(serCl,2,2);
             setCl2 = serializableTester2();
-            setCl2.Prop_level2_1 = 10;
-            setCl2.Prop_level2_2 = 20;
+            setCl2.Prop_class2_1 = 10;
+            setCl2.Prop_class2_2 = 20;
             for i=1:numel(serCl)
-                serCl(i).Prop_level1_1 = i*10;
-                serCl(i).Prop_level1_2 = repmat(setCl2,1,2*i);
+                serCl(i).Prop_class1_1 = i*10;
+                serCl(i).Prop_class1_2 = repmat(setCl2,1,2*i);
             end
             %--------------------------------------------------------------
             % Serialize using Matlab
@@ -99,10 +99,10 @@ classdef test_serialize < TestCaseWithSave
             serCl = repmat(serCl,2,2);
             for i=1:numel(serCl)
                 setCl2 = serializableTester2();
-                setCl2.Prop_level2_1 = 5*i;
-                setCl2.Prop_level2_2 = 20*i;
-                serCl(i).Prop_level1_1 = i*10;
-                serCl(i).Prop_level1_2 =setCl2;
+                setCl2.Prop_class2_1 = 5*i;
+                setCl2.Prop_class2_2 = 20*i;
+                serCl(i).Prop_class1_1 = i*10;
+                serCl(i).Prop_class1_2 =setCl2;
             end
             %--------------------------------------------------------------
             % Serialize using Matlab
@@ -117,8 +117,8 @@ classdef test_serialize < TestCaseWithSave
             serCl = serializableTester1();
             serCl = repmat(serCl,2,2);
             for i=1:numel(serCl)
-                serCl(i).Prop_level1_1 = i*10;
-                serCl(i).Prop_level1_2 = cell(1,i);
+                serCl(i).Prop_class1_1 = i*10;
+                serCl(i).Prop_class1_2 = cell(1,i);
             end
             %--------------------------------------------------------------
             % Serialize using Matlab
@@ -135,8 +135,8 @@ classdef test_serialize < TestCaseWithSave
             conf.use_mex = false;
             %--------------------------------------------------------------
             serCl = serializableTester2();
-            serCl.Prop_level2_1=100;
-            serCl.Prop_level2_2= serializableTester1();
+            serCl.Prop_class2_1=100;
+            serCl.Prop_class2_2= serializableTester1();
             
             %--------------------------------------------------------------
             
@@ -145,14 +145,14 @@ classdef test_serialize < TestCaseWithSave
             
             assertEqual(nbytes,numel(ser));
             assertEqual(serCl, cerCl_rec)
-            assertTrue(isa(cerCl_rec.Prop_level2_2,class(serCl.Prop_level2_2)));
+            assertTrue(isa(cerCl_rec.Prop_class2_2,class(serCl.Prop_class2_2)));
         end
         %
         function test_ser_serializeble_obj_level0(~)
             %--------------------------------------------------------------
             serCl = serializableTester2();
-            serCl.Prop_level2_1=100;
-            serCl.Prop_level2_2= [1,2,4];
+            serCl.Prop_class2_1=100;
+            serCl.Prop_class2_2= [1,2,4];
             
             %--------------------------------------------------------------
             ser =  hlp_serialize(serCl);
@@ -160,7 +160,7 @@ classdef test_serialize < TestCaseWithSave
             
             assertEqual(nbytes,numel(ser));
             assertEqual(serCl, cerCl_rec)
-            assertTrue(isa(cerCl_rec.Prop_level2_2,class(serCl.Prop_level2_2)));
+            assertTrue(isa(cerCl_rec.Prop_class2_2,class(serCl.Prop_class2_2)));
         end
         %
         function test_ser_datamessage(~)

@@ -3,9 +3,9 @@ classdef serializableTester1 < serializable
     %
 
     properties
-        Prop_level1_1=10;
-        Prop_level1_2 =20;
-        Prop_level1_3 = 'new_value'
+        Prop_class1_1=10;
+        Prop_class1_2 =20;
+        Prop_class1_3 = 'new_value'
     end
 
     methods
@@ -50,7 +50,7 @@ classdef serializableTester1 < serializable
         class_version_ = 2;
     end
     properties(Constant,Access=protected)
-        fields_to_save_ = {'Prop_level1_1','Prop_level1_2','Prop_level1_3'};
+        fields_to_save_ = {'Prop_class1_1','Prop_class1_2','Prop_class1_3'};
     end
     methods(Access=protected)
         function obj = from_old_struct(obj,inputs)
@@ -58,7 +58,7 @@ classdef serializableTester1 < serializable
                 ~isfield(inputs,'version')
                 obj = from_bare_struct(obj,inputs);
                 for i=1:numel(obj)
-                    obj(i).Prop_level1_3 = 'recovered_new_from_old_value';
+                    obj(i).Prop_class1_3 = 'recovered_new_from_old_value';
                 end
             else
                 obj = from_old_struct@serializable(obj,inputs);

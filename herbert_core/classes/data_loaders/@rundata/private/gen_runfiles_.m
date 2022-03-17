@@ -60,7 +60,7 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,varargin)
 control_keys = {'-allow_missing'};
 [ok,mess,allow_missing,params]=parse_char_options(varargin,control_keys);
 if ~ok
-    error('GEN_GRUNFILES:invalid_arguments',mess);
+    error('HERBERT:rundata:invalid_argument',mess);
 end
 
 % Optional parameters names list
@@ -80,7 +80,8 @@ elseif ~iscellstr(spe_files)
     if allow_missing && iscell(spe_files)
         no_spe    = true;
     else
-        error('spe file input must be a single file name or cell array of file names')
+        error('HERBERT:rundata:invalid_argument',...
+            'spe file input must be a single file name or cell array of file names')
     end
 end
 
@@ -109,7 +110,8 @@ end
 
 % Check number of par files is one, no, or matches the number of spe files
 if ~(numel(par_files)==1 || numel(par_files)==numel(spe_files) || numel(par_files) == 0)
-    error('GEN_RUNFILES:invalid_argument','par files list should be empty, have one par file or number of par files should be equal to the number of spe files');
+    error('HERBERT:rundata:invalid_argument',...
+        'par files list should be empty, have one par file or number of par files should be equal to the number of spe files');
 end
 
 % Check if all requested par files exist:
@@ -117,7 +119,8 @@ if ~parfile_is_det
     for i=1:numel(par_files)
         file=check_file_exist(par_files{i},{'.par','.nxspe'});
         if isempty(file)
-            error('GEN_RUNFILES:invalid_argument',' par file %s specified but can not be found',file);
+            error('HERBERT:rundata:invalid_argument',...
+                ' par file %s specified but can not be found',file);
         end
     end
 end
@@ -284,7 +287,7 @@ if allow_missing
             end
         end
         runfile.lattice = lat;
-        
+
     end
 else
     file_found = check_file_exist(spe_file_name);

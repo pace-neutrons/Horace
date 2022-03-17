@@ -235,7 +235,7 @@ classdef test_rundata_get< TestCase
             assertEqual([6.2832,6.2832,6.2832],alatt);
             % depending on policy decided for angdeg
             %assertEqual([90,90,90]*(pi/180),angdeg);
-            assertEqual([90,90,90],angdeg);
+            assertEqual([90,90,90]*(pi/180),angdeg);
             assertEqual(28160,ndet);
             assertEqual([1,0,0],u);
             assertEqual([0,1,0],v);
@@ -261,8 +261,8 @@ classdef test_rundata_get< TestCase
             
             
             angdeg = get_rundata(r,'angdeg','-rad');
-            %assertEqual([91,92,93]*(pi/180),angdeg);
-            assertEqual([91,92,93],angdeg);
+            assertEqual([91,92,93]*(pi/180),angdeg);
+            %assertEqual([91,92,93],angdeg);
             
         end
         

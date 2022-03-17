@@ -102,7 +102,7 @@ classdef test_rundata_isvalid<TestCase
             
             ws=warning('off','MATLAB:subsasgnMustHaveOutput');
             f=@()subsasgn(rd,struct('type','.','subs','is_crystal'),3);
-            assertExceptionThrown(f,'RUNDATA:set_is_crystal');
+            assertExceptionThrown(f,'HERBERT:rundata:invalid_argument');
             warning(ws);
         end
         function this = test_3vectors(this)
