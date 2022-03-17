@@ -31,17 +31,28 @@ classdef test_IX_sample < TestCaseWithSave
 
             self.save()
         end
+        function test_to_from_struct(~)
+            sample = IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4],...
+                '-hall_symbol', 'hsymbol');            
+            sample.alatt = [1,2,3];
+            sample.angdeg = [91,89,91];
+            str = sample.to_struct();
+
+            samp_rec = serializable.from_struct(str);
+
+            assertEqual(sample,samp_rec);
+        end
 
         %--------------------------------------------------------------------------
         function test_IX_sample_constructor_error_if_required_args_missing(name)
             f = @()IX_sample([1,0,0],[0,1,0],'cuboid');
-            assertExceptionThrown(f, '');
+            assertExceptionThrown(f, 'HERBERT:IX_sample:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
         function test_IX_sample_constructor_error_if_invalid_shape(name)
             f = @()IX_sample([1,0,0],[0,1,0],'banana',[2,3,4]);
-            assertExceptionThrown(f, '');
+            assertExceptionThrown(f, 'HERBERT:IX_sample:invalid_argument');
         end
 
         %--------------------------------------------------------------------------
@@ -57,7 +68,7 @@ classdef test_IX_sample < TestCaseWithSave
         end
         function test_IX_sample_constructor_errors_for_non_numeric_temperature(name)
             f = @()IX_sample([1,0,0], [0,1,0], 'cuboid', [2,3,4], '-temperature', 'string');
-            assertExceptionThrown(f, '');
+            assertExceptionThrown(f, 'HERBERT:IX_sample:invalid_argument');
         end
 
         %--------------------------------------------------------------------------

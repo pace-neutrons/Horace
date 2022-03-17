@@ -10,7 +10,6 @@ classdef IX_sample < IX_samp
         % Stored properties - but kept private and accessible only through
         % public dependent properties because validity checks of setters
         % require checks against the other properties
-        class_version_ = 1;
         hall_symbol_ = '';
         single_crystal_ = true;
         xgeom_ = [1,0,0];
@@ -21,10 +20,13 @@ classdef IX_sample < IX_samp
         temperature_ = 0;
 
         valid_ = true;
+        %TODO: this is wrong. Refactor constructor. Temporary disable
+        % checks of interdependent properties in constructor
+        in_construction_ = false;
     end
-       
-    properties
 
+    properties(Dependent,Hidden)
+        xy_geom;
     end
 
     properties (Dependent)
@@ -99,7 +101,9 @@ classdef IX_sample < IX_samp
             % size etc.
             if nargin==0
                 return
-            elseif nargin == 2
+            end
+            obj.in_construction_ = true;
+            if nargin == 2
                 obj.alatt = varargin{1};
                 obj.angdeg = varargin{2};
             elseif nargin==1 && isstruct(varargin{1})
@@ -112,122 +116,167 @@ classdef IX_sample < IX_samp
                 [S, present] = parse_args_namelist ({namelist,{'char','logical'}}, varargin{:});
                 is_present = struct2cell(present);
                 is_present = [is_present{:}];
-                
+
                 % Superclass properties: TODO: call superclass to set them
                 if present.name
-                    obj.name_ = S.name;
+                    obj.name = S.name;
                     if sum(is_present)<2 % setting only name
+                        obj.in_construction_ = false;
                         return;
                     end
-                else
-                    if any(is_present) % problem of having property 'isempty'
-                        % sealed on superclass. Will be partially mitigated
-                        % on setting superclass properties on superclass
-                        % (see TODO above)
-                        obj.name_ = '_';
-                    end
                 end
-                
+
                 if present.single_crystal
-                    obj.single_crystal_ = S.single_crystal;
+                    obj.single_crystal = S.single_crystal;
                 end
                 if present.xgeom && present.ygeom && present.shape && present.ps
-                    obj.xgeom_ = S.xgeom;
-                    obj.ygeom_ = S.ygeom;
-                    obj.shape_ = S.shape;
-                    obj.ps_ = S.ps;
+                    obj.xgeom = S.xgeom;
+                    obj.ygeom = S.ygeom;
+                    obj.shape = S.shape;
+                    obj.ps = S.ps;
                 else
-                    error('Must give all arguments that define geometry and sample shape')
+                    error('HERBERT:IX_sample:invalid_argument',...
+                        'Must give all arguments that define geometry and sample shape')
                 end
                 if present.eta
-                    obj.eta_ = S.eta;
+                    obj.eta = S.eta;
                 end
                 if present.temperature
-                    obj.temperature_ = S.temperature;
+                    obj.temperature = S.temperature;
                 end
                 if present.hall_symbol
-                    obj.hall_symbol_ = S.hall_symbol;
+                    obj.hall_symbol = S.hall_symbol;
                 end
 
                 [ok,mess] = check_xygeom (obj.xgeom_,obj.ygeom_);
                 if ~ok, error(mess), end
                 if numel(obj.ps_)~=obj.n_ps_(obj.shape_)
-                    error('The number of shape parameters is not correct for the sample type')
+                    error('HERBERT:IX_sample:invalid_argument',...
+                        'The number of shape parameters is not correct for the sample type')
                 end
+                obj.in_construction_ = false;
             end
         end
 
         % SERIALIZABLE interface
         %------------------------------------------------------------------
         function ver = classVersion(~)
-            ver = 2; 
+            ver = 3;
         end
 
         function flds = indepFields(obj)
             baseflds = indepFields@IX_samp(obj);
-            flds = { baseflds{:}, 'hall_symbol', 'single_crystal', ...
-                     'xgeom','ygeom', 'shape', 'ps', 'eta', 'temperature'};
+            flds = [baseflds, {'hall_symbol', 'single_crystal', ...
+                'xy_geom','shape', 'ps', 'eta', 'temperature'}];
         end
-        
-
         %------------------------------------------------------------------
-        % Set methods
-        %
-        % Set the non-dependent properties. We cannot make the set
-        % functions depend on other non-dependent properties (see Matlab
-        % documentation). Have to devolve any checks on interdependencies to the
-        % constructor (where we refer only to the non-dependent properties)
-        % and in the set functions for the dependent properties. There is a
-        % synchronisation that must be maintained as the checks in both places
-        % must be identical.
-        %{
-        function obj=set.name_(obj,val)
-            if is_string(val)
-                obj.name_=val;
+        % Set methods for dependent properties
+        function obj=set.eta(obj,val)
+            if isa(val,'IX_mosaic') && isscalar(val)
+                obj.eta_=val;
+            elseif isnumeric(val)
+                obj.eta_=IX_mosaic(val);
             else
-                error('Sample name must be a character string (or empty string)')
-            end
-        end
-        %}
-        
-        function obj=set.single_crystal_(obj,val)
-            if islognumscalar(val)
-                obj.single_crystal_=logical(val);
-            else
-                error('single_crystal must true or false (or 1 or 0)')
+                error('HERBERT:IX_sample:invalid_argument',...
+                    'Mosaic spread must be numeric or an IX_mosaic object')
             end
         end
 
-        function obj=set.xgeom_(obj,val)
+        function obj=set.temperature(obj,val)
+            if isnumeric(val) && isscalar(val) && val>=0
+                obj.temperature_=val;
+            else
+                error('HERBERT:IX_sample:invalid_argument',...
+                    'Temperature must be numeric scalar greater than or equal to zero')
+            end
+        end
+
+        function obj=set.hall_symbol(obj,val)
+            if is_string(val)
+                obj.hall_symbol_=val;
+            else
+                if isempty(val)
+                    obj.hall_symbol_='';
+                else
+                    error('HERBERT:IX_sample:invalid_argument',...
+                        'Sample Hall symbol must be a character string (or empty string)')
+                end
+            end
+        end
+        function obj=set.xgeom(obj,val)
             if isnumeric(val) && numel(val)==3 && ~all(val==0)
                 obj.xgeom_=val(:)';
             else
-                error('''xgeom'' must be a three-vector')
+                error('HERBERT:IX_sample:invalid_argument',...
+                    '''xgeom'' must be a three-vector')
+            end
+            if ~obj.in_construction_
+                [ok,mess] = check_xygeom (obj.xgeom_,obj.ygeom_);
+                if ~ok, error(mess), end
             end
         end
-
-        function obj=set.ygeom_(obj,val)
+        function obj=set.ygeom(obj,val)
             if isnumeric(val) && numel(val)==3 && ~all(val==0)
                 obj.ygeom_=val(:)';
             else
-                error('''ygeom'' must be a three-vector')
+                error('HERBERT:IX_sample:invalid_argument',...
+                    '''ygeom'' must be a three-vector')
+            end
+            if ~obj.in_construction_
+                [ok,mess] = check_xygeom (obj.xgeom_,obj.ygeom_);
+                if ~ok, error('HERBERT:IX_sample:invalid_argument',mess)
+                end
+            end
+        end
+        function obj = set.xy_geom(obj,val)
+            if isnumeric(val) && all(size(val)==[2,3]) && ~any(all(val'==0))
+                obj.xgeom_=val(1,:);
+                obj.ygeom_=val(2,:);
+            else
+                error('HERBERT:IX_sample:invalid_argument',...
+                    '''xy_geom'' must be a 2x3 matrix, combining two non-zero 3-vectors as strings')
+            end
+            [ok,mess] = check_xygeom (obj.xgeom_,obj.ygeom_);
+            if ~ok, error('HERBERT:IX_sample:invalid_argument',mess)
+            end
+        end
+        function xy = get.xy_geom(obj)
+            xy = [obj.xgeom_;obj.ygeom_];
+        end
+
+        function obj=set.single_crystal(obj,val)
+            if islognumscalar(val)
+                obj.single_crystal_=logical(val);
+            else
+                error('HERBERT:IX_sample:invalid_argument',...
+                    'single_crystal must true or false (or 1 or 0)')
             end
         end
 
-        function obj=set.shape_(obj,val)
+        function obj=set.shape(obj,val)
             if is_string(val) && ~isempty(val)
                 [ok,mess,fullname] = obj.shapes_.valid(val);
                 if ok
                     obj.shape_=fullname;
                 else
-                    error(['Sample shape: ',mess])
+                    error('HERBERT:IX_sample:invalid_argument',...
+                        ['Sample shape: ',mess])
                 end
             else
-                error('Sample shape must be a non-empty character string')
+                error('HERBERT:IX_sample:invalid_argument',...
+                    'Sample shape must be a non-empty character string')
             end
+
+            % Have to set the shape parameters to an invalid quantity if sample shape changes
+            %             val_old = obj.shape_;
+            %             obj.shape_=val;
+            %             if ~strcmp(obj.shape,val_old)
+            %                 obj.ps_ = NaN;
+            %                 obj.valid_ = false;
+            %             end
         end
 
-        function obj=set.ps_(obj,val)
+        function obj=set.ps(obj,val)
             if isnumeric(val) && (isempty(val) || isvector(val))
                 if isempty(val)
                     obj.ps_=[];
@@ -235,107 +284,21 @@ classdef IX_sample < IX_samp
                     obj.ps_=val(:)';    % make a row vector
                 end
             else
-                error('Sample parameters must be a numeric vector')
+                error('HERBERT:IX_sample:invalid_argument',...
+                    'Sample parameters must be a numeric vector')
             end
-        end
-
-        function obj=set.eta_(obj,val)
-            if isa(val,'IX_mosaic') && isscalar(val)
-                obj.eta_=val;
-            elseif isnumeric(val)
-                obj.eta_=IX_mosaic(val);
-            else
-                error('Mosaic spread must be numeric or an IX_mosaic object')
-            end
-        end
-
-        function obj=set.temperature_(obj,val)
-            if isnumeric(val) && isscalar(val) && val>=0
-                obj.temperature_=val;
-            else
-                error('Temperature must be numeric scalar greater than or equal to zero')
-            end
-        end
-
-        function obj=set.hall_symbol_(obj,val)
-            if is_string(val)
-                obj.hall_symbol_=val;
-            else
-                if isempty(val)
-                    obj.hall_symbol_='';
-                else
-                    error('Sample Hall symbol must be a character string (or empty string)')
-                end
-            end
-        end
-        %------------------------------------------------------------------
-        % Set methods for dependent properties
-        %
-        % The checks on type, size etc. are performed in the set methods
-        % for the non-dependent properties. However, any interdependencies with
-        % other properties must be checked here.
-        %{
-        function obj=set.name(obj,val)
-            obj.name_=val;
-        end
-        %}
-
-        function obj=set.single_crystal(obj,val)
-            obj.single_crystal_=val;
-        end
-
-        function obj=set.xgeom(obj,val)
-            obj.xgeom_=val;
-            [ok,mess] = check_xygeom (obj.xgeom_,obj.ygeom_);
-            if ~ok, error(mess), end
-        end
-
-        function obj=set.ygeom(obj,val)
-            obj.ygeom_=val;
-            [ok,mess] = check_xygeom (obj.xgeom_,obj.ygeom_);
-            if ~ok, error(mess), end
-        end
-
-        function obj=set.shape(obj,val)
-            % Have to set the shape parameters to an invalid quantity if sample shape changes
-            val_old = obj.shape_;
-            obj.shape_=val;
-            if ~strcmp(obj.shape,val_old)
-                obj.ps_ = NaN;
-                obj.valid_ = false;
-            end
-        end
-
-        function obj=set.ps(obj,val)
             % Must check the numnber of parameters is consistent with the sample shape
-            obj.ps_=val;
             if numel(obj.ps_)==obj.n_ps_(obj.shape_)
                 obj.valid_=true;
             else
-                error('The number of shape parameters is inconsistent with the shape type')
+                error('HERBERT:IX_sample:invalid_argument',...
+                    'The number of shape parameters is inconsistent with the shape type')
             end
-        end
-
-        function obj=set.eta(obj,val)
-            obj.eta_=val;
-        end
-
-        function obj=set.temperature(obj,val)
-            obj.temperature_=val;
-        end
-
-        function obj=set.hall_symbol(obj,val)
-            obj.hall_symbol_=val;
         end
 
         %------------------------------------------------------------------
         % Get methods for dependent properties
-        %{
-        function val=get.name(obj)
-            val=obj.name_;
-        end
-        %}
-        
+
         function val=get.single_crystal(obj)
             val=obj.single_crystal_;
         end
@@ -370,8 +333,8 @@ classdef IX_sample < IX_samp
 
         %------------------------------------------------------------------
         function is_eq = eq(obj1,obj2)
-            s1 = structIndep(obj1);
-            s2 = structIndep(obj2);
+            s1 = obj1.to_bare_struct;
+            s2 = obj2.to_bare_struct;
             is_eq = equal_to_tol(s1,s2);
         end
 
@@ -398,15 +361,9 @@ classdef IX_sample < IX_samp
             % optimization here is possible to not to use the public
             % interface. But is it necessary? its the question
             obj = from_old_struct@serializable(obj,inputs);
-            
+
         end
     end
-    
-
-    %======================================================================
-    % Custom loadobj
-    % - to enable custom saving to .mat files and bytestreams
-    % - to enable older class definition compatibility
 
     %------------------------------------------------------------------
     methods (Static)
@@ -437,7 +394,6 @@ classdef IX_sample < IX_samp
 
     end
     %======================================================================
-
 end
 
 %------------------------------------------------------------------

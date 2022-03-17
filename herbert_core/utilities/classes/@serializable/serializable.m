@@ -54,7 +54,9 @@ classdef serializable
             %                from_struct operations
             %.array_dat   -- this field appears only if conversion is
             %                applied to the array of objects.
-            % One can not add field containing single value to a structure
+            %.version     -- the class version, to be able to recover the
+            %                previous versions of the classes
+            % One can not add field containing single value to a structure            
             % array so this function returns the structure with two fields
             % above  where "array_dat" field contains the structure
             % array, produced by "to_bare_struct" function.
@@ -122,7 +124,7 @@ classdef serializable
             ser_data = serialise(struc);
         end
         %
-        function size = serial_size(obj)
+        function [size,struc] = serial_size(obj)
             % Returns size of the serialized object
             %
             % Overload with specific function to avoid conversion to a
