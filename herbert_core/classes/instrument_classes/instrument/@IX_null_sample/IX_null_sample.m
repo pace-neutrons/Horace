@@ -1,37 +1,32 @@
 classdef IX_null_sample < IX_samp
     %IX_NULL_SAMPLE Summary of this class goes here
     %   Detailed explanation goes here
-    
+
     properties
         % none beyond IX_sample
     end
-    
+
     methods
-        
+
         % Constructor
         %------------
         function obj = IX_null_sample()
             obj = obj@IX_samp(''); %[1.0 1.0 1.0],[90 90 90]);
         end
-        
+
         % ?
         %-----
         function str = null_struct(~)
             str = struct();
         end
-        
+
         % SERIALIZABLE interface
         %------------------------------------------------------------------
         function ver = classVersion(~)
             ver = 2;
         end
-        
-        function flds = indepFields(obj)
-            baseflds = indepFields@IX_samp(obj);
-            flds = { baseflds{:} };
-        end
     end
-    
+
     methods(Access=protected)
         %------------------------------------------------------------------
         function obj = from_old_struct(obj,inputs)
@@ -50,10 +45,10 @@ classdef IX_null_sample < IX_samp
             % optimization here is possible to not to use the public
             % interface. But is it necessary? its the question
             obj = from_old_struct@serializable(obj,inputs);
-            
+
         end
     end
-    
+
     %======================================================================
     % Custom loadobj
     % - to enable custom saving to .mat files and bytestreams
@@ -76,7 +71,7 @@ classdef IX_null_sample < IX_samp
             %   obj     Either (1) the object passed without change, or (2) an
             %           object (or object array) created from the input structure
             %       	or structure array)
-            
+
             % The following is boilerplate code; it calls a class-specific function
             % called loadobj_private_ that takes a scalar structure and returns
             % a scalar instance of the class
@@ -85,9 +80,9 @@ classdef IX_null_sample < IX_samp
 
         end
         %------------------------------------------------------------------
-        
+
     end
     %======================================================================
-    
+
 end
 

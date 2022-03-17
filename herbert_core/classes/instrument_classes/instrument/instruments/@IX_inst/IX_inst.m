@@ -72,8 +72,10 @@ classdef IX_inst < serializable
         % other methods
         %------------------
         function iseq = eq(obj1, obj2)
-            iseq = strcmp(obj1.name, obj2.name);
-            iseq = iseq && obj1.source==obj2.source;
+            iseq = all(arrayfun(@(x,y)strcmp(x.name, y.name),obj1,obj2));
+            if iseq
+                iseq = all(arrayfun(@(x,y)eq(x.source,y.source),obj1,obj2));
+            end
         end
         %------------------------------------------------------------------
         % Set methods for independent properties

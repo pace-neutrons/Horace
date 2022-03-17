@@ -44,7 +44,7 @@ classdef IX_samp  < serializable
         %------------------------------------------------------------------
         % Constructor
         %------------------------------------------------------------------
-        function obj = IX_samp (varargin)
+        function [obj,remains] = IX_samp (varargin)
             % Create base sample object
             % with possible arguments, 'name','alatt','angdeg';
             %
@@ -53,9 +53,14 @@ classdef IX_samp  < serializable
             if nargin==0
                 return;
             end
+            [obj,remains] = init(obj,varargin{:});
+        end
+        function  [obj,remains] = init(obj,varargin)
+            % initialize serializable object using constructor fiels
+            % 'name','alatt','angdeg'
             fields = obj.indepFields();
             in_types = {@ischar,@isnumeric,@isnumeric};
-            obj = set_positional_and_key_val_arguments(obj,fields,...
+            [obj,remains] = set_positional_and_key_val_arguments(obj,fields,...
                 in_types,varargin{:});
         end
 
@@ -75,9 +80,7 @@ classdef IX_samp  < serializable
         function iseq = eq(obj1, obj2)
             iseq = strcmp(obj1.name, obj2.name);
             if numel(obj1.alatt)==3 && numel(obj2.alatt)==3
-                iseq = iseq && obj1.alatt(1)==obj2.alatt(1);
-                iseq = iseq && obj1.alatt(2)==obj2.alatt(2);
-                iseq = iseq && obj1.alatt(3)==obj2.alatt(3);
+                iseq = iseq && all(obj1.alatt==obj2.alatt);
             elseif isempty(obj1.alatt) && isempty(obj2.alatt)
                 iseq = iseq && true; % heavyhanded but gets the point across
             else
@@ -85,9 +88,7 @@ classdef IX_samp  < serializable
                 return
             end
             if numel(obj1.angdeg)==3 && numel(obj2.angdeg)==3
-                iseq = iseq && obj1.angdeg(1)==obj2.angdeg(1);
-                iseq = iseq && obj1.angdeg(2)==obj2.angdeg(2);
-                iseq = iseq && obj1.angdeg(3)==obj2.angdeg(3);
+                iseq = iseq && all(obj1.angdeg==obj2.angdeg);
             elseif isempty(obj1.angdeg) && isempty(obj2.angdeg)
                 iseq = iseq && true; % heavyhanded but gets the point across
             else
@@ -114,7 +115,8 @@ classdef IX_samp  < serializable
                 if isempty(val)
                     obj.name_='';
                 else
-                    error('Sample name must be a character string (or empty string)')
+                    error('HERBERT:IX_samp:invalid_argument', ...
+                        'Sample name must be a character string (or empty string)')
                 end
             end
         end
@@ -124,35 +126,55 @@ classdef IX_samp  < serializable
         end
 
         function obj=set.alatt(obj,val)
-            if isnumeric(val)
-                obj.alatt_=val;
+            if isempty(val)
+                obj.alatt_ = [];
+                return;
+            end
+            if ~isnumeric(val)
+                error('HERBERT:IX_samp:invalid_argument', ...
+                    'Sample alatt must be a 1 or 3 compoment numeric vector')
+            end
+
+            if numel(val) == 1
+                obj.alatt_ = [val,val,val];
+            elseif numel(val) == 3
+                obj.alatt_=val(:)';
             else
-                error('Sample alatt must be a numeric vector')
+                error('HERBERT:IX_samp:invalid_argument', ...
+                    'Sample alatt must be a 1 or 3 compoment numeric vector')
             end
         end
 
-        function n=get.alatt(obj)
-            n = obj.alatt_;
+        function alat=get.alatt(obj)
+            alat = obj.alatt_;
         end
 
         function obj=set.angdeg(obj,val)
-            if isnumeric(val)
-                obj.angdeg_=val;
-            else
-                error('Sample alatt must be a numeric vector')
+            if isempty(val)
+                obj.angdeg_ = [];
+                return;
             end
+            if ~isnumeric(val)
+                error('HERBERT:IX_samp:invalid_argument', ...
+                    'Sample angdeg must be a numeric vector')
+            end
+
+            if numel(val) == 1
+                obj.angdeg_ = [val,val,val];
+            elseif numel(val) == 3
+                obj.angdeg_=val(:)';
+            else
+                error('HERBERT:IX_samp:invalid_argument', ...
+                    'Sample angdeg must be a numeric vector')
+            end
+
+            obj.angdeg_=val(:)';
         end
 
         function n=get.angdeg(obj)
             n = obj.angdeg_;
         end
     end
-    %======================================================================
-    % Custom loadobj
-    % - to enable custom saving to .mat files and bytestreams
-    % - to enable older class definition compatibility
-
-
     %------------------------------------------------------------------
     methods (Static)
 
@@ -184,6 +206,4 @@ classdef IX_samp  < serializable
 
     end
     %======================================================================
-
 end
-
