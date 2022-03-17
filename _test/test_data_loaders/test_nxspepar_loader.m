@@ -13,11 +13,19 @@ classdef test_nxspepar_loader< TestCase
             this.test_data_path = tdp;
         end
 
-        function test_constructors(this)
+        function test_constr_missing_file_throws(~)
             par_file = 'missing_par_file.nxspe';
-            f = @()nxspepar_loader(par_file);
-            assertExceptionThrown(f,'HERBERT:nxspepar_loader:invalid_argument');
+            ws = warning('off','HERBERT:nxspepar_loader:invalid_argument');
+            clOb = onCleanup(@()warning(ws));
+            pl = nxspepar_loader(par_file);
+            [~,mess_id]=lastwarn;
+            assertEqual(mess_id,'HERBERT:nxspepar_loader:invalid_argument');
 
+            assertExceptionThrown(@()load_par(pl),...
+                'HERBERT:nxspepar_loader:invalid_argument')
+        end
+        %
+        function test_constructors(this)
             par_file = fullfile(this.test_data_path,'MAP11014.nxspe');
             al1=nxspepar_loader(par_file);
 
@@ -55,10 +63,10 @@ classdef test_nxspepar_loader< TestCase
         function test_load_par_fails(this)
             al=nxspepar_loader();
             f = @()al.load_par();
-            assertExceptionThrown(f,'NXSPEPAR_LOADER:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:nxspepar_loader:invalid_argument');
 
             f = @()al.load_par('arg1','arg2');
-            assertExceptionThrown(f,'NXSPEPAR_LOADER:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:nxspepar_loader:invalid_argument');
 
             if get(herbert_config,'log_level')>-1
                 par_file = fullfile(this.test_data_path,'MAP11014v2.nxspe');
@@ -83,7 +91,7 @@ classdef test_nxspepar_loader< TestCase
             al_rec = serializable.from_struct(str);
 
             assertFalse(isempty(al_rec.det_par));
-            assertEqual(al,al_rec)
+            assertEqual(al.to_bare_struct,al_rec.to_bare_struct)
         end
 
         function test_to_from_struct_no_det_in_mem(obj)

@@ -89,10 +89,10 @@ classdef test_loader_nxspe< TestCase
             % should throw; first argument has to be an existing file name
             % disable warning about escape sequences in warning on matlab
             % 2009
-            ws = warning('off','MATLAB:printf:BadEscapeSequenceInFormat');
+            ws = warning('off','HERBERT:nxspepar_loader:invalid_argument');
+            clob = onCleanup(@()warning(ws));
 
-            assertExceptionThrown(f,'HERBERT:nxspepar_loader:invalid_argument');
-            warning(ws);
+            assertExceptionThrown(f,'HERBERT:a_loader:invalid_argument');
         end
         function test_non_supported_nxspe(obj)
             nxpse_name = f_name(obj,'currently_not_supported_NXSPE.nxspe');

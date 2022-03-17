@@ -108,11 +108,11 @@ classdef a_detpar_loader_interface < serializable
             if for_saving  % if conversion is to structure
                 if isempty(obj.det_par_)          % export fields depending on
                     flds = {'par_file_name'};     % the state obj in memory
-                else
-                    flds = {'par_file_name','det_par'};
+                else % order is important
+                    flds = {'det_par','par_file_name'};
                 end
             else % if conversion from structure, all fields are needed
-                flds = {'par_file_name','det_par'};
+                flds = {'det_par','par_file_name'};
             end
         end
     end

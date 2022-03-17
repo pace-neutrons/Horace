@@ -8,8 +8,12 @@ function [par,obj] = load_nxspe_par_(obj,return_array,force_reload,getphx)
 % return_array -- if true, return array rather then Horace structure
 % keep_existing -- keep existing detector parameters if they have not been loaded in memory
 %
+[ok,mess,file_name ] = check_file_exist(obj.par_file_name_,{'.nxspe'});
+if ~ok
+    error('HERBERT:nxspepar_loader:invalid_argument',mess)
+end
+
 root_folder=obj.nexus_root_dir_;
-file_name  =obj.par_file_name;
 nxspe_ver1 = false;
 if get(herbert_config,'log_level')>-1
     if strncmpi(obj.nxspe_version_,'1.0',3)

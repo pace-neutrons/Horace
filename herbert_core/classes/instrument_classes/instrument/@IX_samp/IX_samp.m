@@ -1,30 +1,30 @@
 classdef IX_samp  < serializable
     % Base class for samples to include the null sample case defined from a
     % struct with no fields (IX_null_sample) and the standard IX_sample
-    
+
     properties (Access=protected)
         name_ = '';   % suitable string to identify sample
         alatt_;
         angdeg_;
     end
-    
+
     properties (Access=private)
         % Stored properties - but kept private and accessible only through
         % public dependent properties because validity checks of setters
         % require checks against the other properties
     end
-    
+
     properties
         %
     end
-    
+
     properties (Dependent)
         % Mirrors of private/protected properties
         name;
         alatt;
         angdeg;
     end
-    
+
     methods(Static)
         function isaval = cell_is_class(ca)
             try
@@ -32,7 +32,7 @@ classdef IX_samp  < serializable
                 if all(isaval), isaval = 1; else, isaval = 0; end
             catch
                 error('HERBERT:IX_samp:cell_is_class', ...
-                      'input could not be converted from cell to logical');
+                    'input could not be converted from cell to logical');
             end
         end
         function rv = xxx(obj)
@@ -40,32 +40,35 @@ classdef IX_samp  < serializable
         end
     end
     methods
-        
+
         %------------------------------------------------------------------
         % Constructor
         %------------------------------------------------------------------
-        function obj = IX_samp (thename)
+        function obj = IX_samp (varargin)
             % Create base sample object
+            % with possible arguments, 'name','alatt','angdeg';
             %
             %   >> base_sample = IX_samp (name)
             %
             if nargin==0
-                obj.name_ = '';
-            else
-                obj.name_ = thename;
+                return;
             end
+            fields = obj.indepFields();
+            in_types = {@ischar,@isnumeric,@isnumeric};
+            obj = set_positional_and_key_val_arguments(obj,fields,...
+                in_types,varargin{:});
         end
-        
+
         % SERIALIZABLE interface
         %------------------------------------------------------------------
         function vers = classVersion(~)
             vers = 0; % base class function, dummy value
         end
-        
+
         function flds = indepFields(~)
             flds = {'name', 'alatt', 'angdeg'};
         end
-        
+
         %
         % other methods
         %------------------------------------------------------------------
@@ -92,7 +95,7 @@ classdef IX_samp  < serializable
                 return
             end
         end
-        
+
         %------------------------------------------------------------------
         % Set methods
         %
@@ -103,7 +106,7 @@ classdef IX_samp  < serializable
         % and in the set functions for the dependent properties. There is a
         % synchronisation that must be maintained as the checks in both places
         % must be identical.
-        
+
         function obj=set.name(obj,val)
             if is_string(val)
                 obj.name_=val;
@@ -115,11 +118,11 @@ classdef IX_samp  < serializable
                 end
             end
         end
-        
+
         function n=get.name(obj)
             n = obj.name_;
         end
-        
+
         function obj=set.alatt(obj,val)
             if isnumeric(val)
                 obj.alatt_=val;
@@ -127,11 +130,11 @@ classdef IX_samp  < serializable
                 error('Sample alatt must be a numeric vector')
             end
         end
-        
+
         function n=get.alatt(obj)
             n = obj.alatt_;
         end
-        
+
         function obj=set.angdeg(obj,val)
             if isnumeric(val)
                 obj.angdeg_=val;
@@ -139,7 +142,7 @@ classdef IX_samp  < serializable
                 error('Sample alatt must be a numeric vector')
             end
         end
-        
+
         function n=get.angdeg(obj)
             n = obj.angdeg_;
         end
@@ -148,11 +151,11 @@ classdef IX_samp  < serializable
     % Custom loadobj
     % - to enable custom saving to .mat files and bytestreams
     % - to enable older class definition compatibility
-    
-    
+
+
     %------------------------------------------------------------------
     methods (Static)
-        
+
         function obj = loadobj(S)
             % Static method used my Matlab load function to support custom
             % loading.
@@ -169,18 +172,18 @@ classdef IX_samp  < serializable
             %   obj     Either (1) the object passed without change, or (2) an
             %           object (or object array) created from the input structure
             %       	or structure array)
-            
+
             % The following is boilerplate code; it calls a class-specific function
             % called loadobj_private_ that takes a scalar structure and returns
             % a scalar instance of the class
             obj = IX_samp();
             obj = loadobj@serializable(S,obj);
         end
-        
+
         %------------------------------------------------------------------
-        
+
     end
     %======================================================================
-    
+
 end
 

@@ -1,37 +1,46 @@
-function this=set_param_recursively(this,a_struct,varargin)
+function obj=set_param_recursively(obj,a_struct,varargin)
 % function to fill the rundata class from data, defined in the input
 % structure,class or their combinations
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 %
 if isempty(a_struct)
     return;
 end
 
 if isa(a_struct,'rundata')
-    this = a_struct;
+    obj = a_struct;
     if numel(varargin) == 0
         return;
     end
     if isstruct(varargin{1})
-        this=set_param_recursively(this,varargin{1},varargin{2:end});
+        obj=set_param_recursively(obj,varargin{1},varargin{2:end});
     else
-        this=parse_arg(this,varargin{:});        
+        obj=parse_arg(obj,varargin{:});        
     end
 elseif isstruct(a_struct)
     field_names    = fieldnames(a_struct);
-    targ_fields    = fieldnames(this);
+    targ_fields    = fieldnames(obj);
     field_values   = cell(numel(field_names),1);
+    lat_fields = oriented_lattice.lattice_fields;
+    if any(ismember(field_names,lat_fields))
+        change_sample = true;
+    else
+        change_sample = false;        
+    end
     for i=1:numel(field_names)
         field_values{i} = a_struct.(field_names{i});
     end
-    this=set_fields_skip_special(this,field_names,field_values,targ_fields);
+    obj=set_fields_skip_special(obj,field_names,field_values,targ_fields);
     if numel(varargin)>0
-        this = set_param_recursively(this,varargin{1},varargin{2:end});
+        obj = set_param_recursively(obj,varargin{1},varargin{2:end});
+    end
+    if change_sample
+        lat = obj.lattice; 
+        obj.lattice = lat; % this operation resets sample lattice
     end
 else
     argi = [a_struct,varargin];
-    this=parse_arg(this,argi{:});
+    obj=parse_arg(obj,argi{:});
 end
 
 function this= parse_arg(this,varargin)
@@ -133,7 +142,8 @@ for i=1:numel(field_names)
             this = set_lattice_field(this,cur_field,field_values{i});
             continue
         else
-            error('RUNDATA:set_fields','Attempt to set non-existing field: %s',cur_field);
+            error('HERBERT:rundata:invalid_arguments',...
+                'Attempt to set non-existing field: %s',cur_field);
         end
     end
     

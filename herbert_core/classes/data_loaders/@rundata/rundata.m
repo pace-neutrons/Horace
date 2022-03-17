@@ -260,14 +260,14 @@ classdef rundata < serializable
             end
         end
         %
-        function this = initialize(this,varargin)
+        function obj = initialize(obj,varargin)
             % part of non-default rundata constructor, allowing to
             % cunstruct rundata from different arguments
             if ~isempty(varargin)
                 if ischar(varargin{1})
-                    this=select_loader_(this,varargin{1},varargin{2:end});
+                    obj=select_loader_(obj,varargin{1},varargin{2:end});
                 else
-                    this=set_param_recursively(this,varargin{1},varargin{2:end});
+                    obj=set_param_recursively(obj,varargin{1},varargin{2:end});
                 end
             end
         end
@@ -285,7 +285,6 @@ classdef rundata < serializable
             % method to check emode and verify its default
             mode = this.emode_;
         end
-        %
         function this = set.emode(this,val)
             % method to check emode and verify its defaults
             if val>-1 && val <3
@@ -323,14 +322,31 @@ classdef rundata < serializable
             lattice = this.lattice_;
         end
         %
-        function this = set.lattice(this,val)
+        function obj = set.lattice(obj,val)
             if isa(val,'oriented_lattice')
-                this.lattice_ = val;
+                obj.lattice_ = val;
             elseif isempty(val)
-                this.lattice_ =[];
+                obj.lattice_ =[];
             else
                 error('HERBERT:rundata:invalid_argument',...
                     'lattice can be set as oriented_lattice instance object only')
+            end
+            % TODO: sample and lattice should be the same object
+            lat = obj.lattice_;
+            if ~isempty(lat)
+                lat.angular_units = 'deg';
+                if isa(obj.sample_,'IX_null_sample')
+                    if is_defined(lat,'alatt') && is_defined(lat,'angdeg')
+                        obj.sample_ = IX_samp('',lat.alatt,lat.angdeg);
+                    end
+                else
+                    if is_defined(lat,'alatt')
+                        obj.sample_.alatt = lat.alatt;
+                    end
+                    if is_defined(lat,'angdeg')
+                        obj.sample_.angdeg = lat.angdeg;
+                    end
+                end
             end
         end
         %
@@ -465,16 +481,30 @@ classdef rundata < serializable
             % return sample
             sam = this.sample_;
         end
-        function this = set.sample(this,val)
+        function obj = set.sample(obj,val)
             % set-up sample (template)
             if isa(val,'IX_samp')
-                this.sample_ = val;
+                obj.sample_ = val;
             elseif isempty(val)
-                this.sample_  = IX_null_sample();
+                obj.sample_  = IX_null_sample();
             else
                 error('HERBERT:rundata:invalid_argument',...
                     'only instance of IX_samp class can be set as rundata sample. You are setting %s',...
                     class(val))
+            end
+            if ~isa(obj.sample_,'IX_null_sample') %TODO: reconsile oriented lattice and sample
+                sam = obj.sample;
+                lat = obj.lattice;
+                ou = lat.angular_units;
+                lat.angular_units = 'deg';
+                if ~isempty(sam.alatt)
+                    lat.alatt = sam.alatt;
+                end
+                if ~isempty(sam.angdeg)
+                    lat.angdeg = sam.angdeg;
+                end
+                lat.angular_units = ou;
+                obj.lattice_ = lat;
             end
         end
         function is = eq(obj,other)
@@ -483,7 +513,7 @@ classdef rundata < serializable
                     'Can compare only two rundata objects or rundata object and structure. In fact other object is %s',...
                     class(other));
             end
-            is = eq_(obj,other);
+            is= eq_(obj,other);
         end
 
         %------------------------------------------------------------------

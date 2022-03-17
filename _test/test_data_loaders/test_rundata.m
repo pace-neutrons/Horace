@@ -98,7 +98,7 @@ classdef test_rundata< TestCase
             a.x=10;
             a.y=20;
             f = @()rundata(a);
-            assertExceptionThrown(f,'RUNDATA:set_fields');
+            assertExceptionThrown(f,'HERBERT:rundata:invalid_arguments');
         end
         function test_build_from_good_struct(~)
             a.efix=10;

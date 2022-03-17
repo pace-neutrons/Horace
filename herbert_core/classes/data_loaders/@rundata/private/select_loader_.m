@@ -68,7 +68,7 @@ if any(in_lat)
             flt = lat_fields{i};
             lat.(flt) = this.loader_.(flt);
         end
-        this.lattice_ = lat;
+        this.lattice = lat;
     end
 end
 

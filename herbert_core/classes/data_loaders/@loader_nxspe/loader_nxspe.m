@@ -219,7 +219,8 @@ classdef loader_nxspe < a_loader
             %
             %
             if ~isempty(obj.detpar_loader_)
-                if strcmp(filename,obj.par_file_name)
+                if strcmp(filename,obj.par_file_name) &&...
+                        ~isempty(obj.detpar_loader_.n_det_in_par)
                     if ~isa(obj.detpar_loader_,'nxspepar_loader')
                         error('HERBERT:loader_nxspe:invalid_argument',...
                             'setting non-nxspe par file %s as the source of the nxspe data',...

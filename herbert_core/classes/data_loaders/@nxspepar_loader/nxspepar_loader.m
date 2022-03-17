@@ -46,7 +46,7 @@ classdef nxspepar_loader < a_detpar_loader_interface
                 elseif isa(varargin{1},'nxspepar_loader')
                     this=varargin{1};
                 else
-                    error('NXSPE_LOADER:invalid_argument',...
+                    error('HERBERT:nxspepar_loader:invalid_argument',...
                         'nxspepar_loader constructor argument can be only nxspe file name or open file handler or other loader')
                 end
             else
@@ -245,16 +245,20 @@ classdef nxspepar_loader < a_detpar_loader_interface
                 end
             else
                 [ok,mess,f_name] = check_file_exist(par_f_name,{'.nxspe'});
-                if ~ok
-                    error('HERBERT:nxspepar_loader:invalid_argument',mess);
+                if ok
+                    if ~strcmp(obj.par_file_name_,f_name)
+                        [obj.n_det_in_par_,obj.nxspe_version_,...
+                            obj.nexus_root_dir_,obj.nexus_dataset_info_]...
+                            = nxspepar_loader.get_par_info(f_name);
+                        obj.det_par_=[];
+                    end
+                else
+                    if isempty(obj.det_par_)
+                        warning('HERBERT:nxspepar_loader:invalid_argument',mess);
+                    end
+                    f_name = par_f_name;
                 end
-                if ~strcmp(obj.par_file_name_,f_name)
-                    obj.par_file_name_= f_name;
-                    [obj.n_det_in_par_,obj.nxspe_version_,...
-                        obj.nexus_root_dir_,obj.nexus_dataset_info_]...
-                        = nxspepar_loader.get_par_info(f_name);
-                    obj.det_par_=[];
-                end
+                obj.par_file_name_= f_name;
             end
             %
         end

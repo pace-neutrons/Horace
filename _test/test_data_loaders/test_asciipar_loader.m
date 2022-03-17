@@ -47,10 +47,10 @@ classdef test_asciipar_loader< TestCase
         function test_load_par_fails(obj)
             al=asciipar_loader();
             f = @()al.load_par();
-            assertExceptionThrown(f,'ASCIIPAR_LOADER:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:asciipar_loader:invalid_argument');
 
             f = @()al.load_par('arg1','arg2');
-            assertExceptionThrown(f,'ASCIIPAR_LOADER:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:asciipar_loader:invalid_argument');
 
             if get(herbert_config,'log_level')>-1
                 par_file = fullfile(obj.test_data_path,'map_4to1_jul09.par');
