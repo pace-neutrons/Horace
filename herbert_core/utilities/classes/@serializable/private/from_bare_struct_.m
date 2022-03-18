@@ -4,6 +4,8 @@ function obj = from_bare_struct_(obj,inputs)
 % Input:
 % inputs  -- structure or structure array of data, fully defining the
 %            internal state of the object.
+% check_validity - if true, check if the object build from the input
+%            structure is valid using serializable validify methods
 % Output:
 % obj    --  fully defined object or array of objects, with contents
 %            restored
@@ -28,9 +30,19 @@ if ~all(is_present)
 end
 %--------------------------------------------------------------------------
 %
+throw_on_invalid = obj(1).throw_on_invalid;
 for i=1:nobj
     obj(i) = set_obj(obj(i),inputs(i),fields_to_set);
+    if ~obj(i).isvalid
+        % check interdependent properties again and if the object is still
+        % invalid, throw exception
+        [ok,mess,obj(i)] = obj(i).check_combo_arg();
+        if ~ok && throw_on_invalid 
+            error('HERBERT:serializable:runtime_error',mess);
+        end
+    end
 end
+
 end % function from_bare_struct_
 %
 function obj = set_obj(obj,inputs,flds)
@@ -38,10 +50,8 @@ for i=1:numel(flds)
     fld = flds{i};
     val = inputs.(fld);
     if isstruct(val)
-        if  isfield(val,'version')
-            val = serializable.loadobj(val);
-        elseif isfield(val,'serial_name')
-            val = serializable.from_struct(val);
+        if  isfield(val,'serial_name')
+           val = serializable.from_struct(val);
         end
     end
     obj.(fld) = val;

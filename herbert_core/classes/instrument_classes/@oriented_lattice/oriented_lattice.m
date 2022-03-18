@@ -71,7 +71,6 @@ classdef oriented_lattice < serializable
         angular_units;
     end
     properties(Dependent,Hidden)
-        isvalid; % property, specifies if the object is in valid state
         angular_is_degree;
         undef_fields;
     end
@@ -99,7 +98,7 @@ classdef oriented_lattice < serializable
         % field names and number defined by fields_to_define_ private
         % property
         undef_fields_ = true(3,1);
-        isvalid_ = true; % the variable which indicates if the object is valid or
+        isvalid_ = false; % the variable which indicates if the object is valid or
         % not. Used in checks for interdependent properties validity
         % (e.g. u is not parallel to v)
     end
@@ -151,6 +150,7 @@ classdef oriented_lattice < serializable
                     evalc('disp(rem)'));
             end
         end
+        %
         function units = get.angular_units(obj)
             if obj.angular_is_degree_
                 units = 'deg';
@@ -158,7 +158,6 @@ classdef oriented_lattice < serializable
                 units = 'rad';
             end
         end
-        %
         function obj = set.angular_units(obj,val)
             old_val = obj.angular_is_degree_;
             if val(1) == 'd'
@@ -203,9 +202,6 @@ classdef oriented_lattice < serializable
             end
         end
         %
-        function is = get.isvalid(obj)
-            is = obj.isvalid_;
-        end
         function udf = get.undef_fields(obj)
             udf  = obj.fields_to_define_(obj.undef_fields_);
         end
@@ -234,6 +230,7 @@ classdef oriented_lattice < serializable
             else
                 obj.undef_fields_(3) = false;
             end
+            [~,~,obj] = check_combo_arg(obj);                        
         end
         %
         function obj = set.omega(obj,val)
@@ -250,14 +247,14 @@ classdef oriented_lattice < serializable
         end
         %-----------------------------------------------------------------
         function u=get.u(obj)
-            u = check_and_get_combo_vec_(obj,'u');
+            u = obj.u_;
         end
-        function obj=set.u(obj,u)
+        function obj=set.u(obj,u)            
             obj = check_and_set_uv_(obj,'u',u);
         end
         %
         function v=get.v(obj)
-            v = check_and_get_combo_vec_(obj,'v');
+            v = obj.v_;
         end
         function obj=set.v(obj,v)
             obj = check_and_set_uv_(obj,'v',v);
@@ -275,11 +272,13 @@ classdef oriented_lattice < serializable
             obj.alatt_ = check_3Dvector_correct_(obj,val);
             % alatt is first in the list of fields to be defined
             obj.undef_fields_(1) = false;
+            [~,~,obj] = check_combo_arg(obj);            
         end
         function obj=set.angdeg(obj,val)
             obj.angdeg_ =check_3DAngles_correct_(obj,val);
             % angdeg is second in the list of fields to be defined
             obj.undef_fields_(2) = false;
+            [~,~,obj] = check_combo_arg(obj);                        
         end
 
         %------------------------------------------------------------------
@@ -326,5 +325,13 @@ classdef oriented_lattice < serializable
             obj = oriented_lattice();
             obj = loadobj@serializable(input,obj);
         end
+    end
+    methods(Access = protected)
+        function is = check_validity(obj)
+            % return the validity of the oriented lattice object,
+            % calculated during interface settings
+            is = obj.isvalid_;
+        end
+
     end
 end

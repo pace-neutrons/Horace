@@ -21,15 +21,8 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,varargin)
 %
 %^1 efix            Fixed energy (meV)   [scalar or vector length nfile] ^1
 %   emode           Direct geometry=1, indirect geometry=2
-%^1 alatt           Lattice parameters (Ang^-1)  [vector length 3, or array size [nfile,3]]
-%^1 angdeg          Lattice angles (deg)         [vector length 3, or array size [nfile,3]]
-%   u               First vector defining scattering plane (r.l.u.)  [vector length 3, or array size [nfile,3]]
-%   v               Second vector defining scattering plane (r.l.u.) [vector length 3, or array size [nfile,3]]
-%^1 psi             Angle of u w.r.t. ki (deg)         [scalar or vector length nfile]
-%^2 omega           Angle of axis of small goniometer arc w.r.t. notional u (deg) [scalar or vector length nfile]
-%^2 dpsi            Correction to psi (deg)            [scalar or vector length nfile]
-%^2 gl              Large goniometer arc angle (deg)   [scalar or vector length nfile]
-%^2 gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
+%^1 lattice         The instance of oriented lattice object or
+%                   array of such objects
 %
 % additional control keywords could modify the behaviour of the routine, namely:
 %  -allow_missing   - if such keyword is present, routine allows
@@ -51,8 +44,6 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,varargin)
 % Notes:
 % ^1    This parameter is optional for some formats of spe files. If
 %       provided, overides the information contained in the the "spe" file.
-% ^2    Optional parameter. If absent, the default value defined by the class
-%       is used instead;
 
 %
 %
@@ -64,8 +55,7 @@ if ~ok
 end
 
 % Optional parameters names list
-parameter_nams={'efix','emode','alatt','angdeg','u','v','psi','omega',...
-    'dpsi','gl','gs','instrument','sample'};
+parameter_nams={'efix','emode','lattice','instrument','sample'};
 
 % Input files
 % -----------

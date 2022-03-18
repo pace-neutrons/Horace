@@ -30,7 +30,7 @@ classdef test_rundata< TestCase
         end
         %
 
-        function test_custom_save_loadobj_empty(obj)
+        function test_custom_save_loadobj_empty(~)
             rd = rundata();
             tf = fullfile(tmp_dir,'test_custom_save_loadobj_empty.mat');
             clob = onCleanup(@()delete(tf));
@@ -85,14 +85,9 @@ classdef test_rundata< TestCase
 
 
         % tests themself
-        function test_wrong_first_argument_has_to_be_fileName(obj)
+        function test_wrong_first_argument_has_to_be_fileName(~)
             f = @()rundata(10);
             assertExceptionThrown(f,'PARSE_CONFIG_ARG:wrong_arguments');
-        end
-        function test_defaultsOK_andFixed(~)
-            nn=numel(fields(rundata));
-            % number of public fields by default;
-            assertEqual(15,nn);
         end
         function test_build_from_wrong_struct(~)
             a.x=10;

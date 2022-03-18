@@ -64,6 +64,7 @@ classdef rundata < serializable
         % situation. Additional fields will become defined as
         serial_fields_ = {'loader','lattice','efix','emode','run_id','instrument','sample'};
     end
+
     properties(Access=protected)
         % energy transfer mode
         emode_=1;
@@ -83,7 +84,10 @@ classdef rundata < serializable
         sample_ = IX_null_sample();
         %
         run_id_ = [];
+        %
+        isvalid_ = true;
     end
+
     methods(Static)
         function fields = main_data_fields()
             fields = rundata.min_field_set_;
@@ -109,15 +113,8 @@ classdef rundata < serializable
             %
             %^1 efix            Fixed energy (meV)   [scalar or vector length nfile] ^1
             %   emode           Direct geometry=1, indirect geometry=2
-            %^1 alatt           Lattice parameters (Ang^-1)  [vector length 3, or array size [nfile,3]]
-            %^1 angdeg          Lattice angles (deg)         [vector length 3, or array size [nfile,3]]
-            %   u               First vector defining scattering plane (r.l.u.)  [vector length 3, or array size [nfile,3]]
-            %   v               Second vector defining scattering plane (r.l.u.) [vector length 3, or array size [nfile,3]]
-            %^1 psi             Angle of u w.r.t. ki (deg)         [scalar or vector length nfile]
-            %^2 omega           Angle of axis of small goniometer arc w.r.t. notional u (deg) [scalar or vector length nfile]
-            %^2 dpsi            Correction to psi (deg)            [scalar or vector length nfile]
-            %^2 gl              Large goniometer arc angle (deg)   [scalar or vector length nfile]
-            %^2 gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
+            %^1 lattice         The instance of oriented lattice object or
+            %                   array of such objects
             %
             % additional control keywords could modify the behaviour of the routine, namely:
             %  -allow_missing   - if such keyword is present, routine allows
@@ -139,8 +136,6 @@ classdef rundata < serializable
             % Notes:
             % ^1    This parameter is optional for some formats of spe files. If
             %       provided, overides the information contained in the the "spe" file.
-            % ^2    Optional parameter. If absent, the default value defined by
-            %       is used instead;
             [runfiles_list,defined]= rundata.gen_runfiles_of_type('rundata',spe_files,varargin{:});
         end
         %
@@ -163,8 +158,8 @@ classdef rundata < serializable
             obj = rundata();
             obj = loadobj@serializable(S,obj);
         end
-
     end
+
     methods(Static,Access=protected)
         function [runfiles_list,defined]= gen_runfiles_of_type(type_name,spe_files,varargin)
             % protected function to access private rundata routine.
@@ -177,6 +172,9 @@ classdef rundata < serializable
         %------------------------------------------------------------------
         % PUBLIC METHODS SIGNATURES:
         %------------------------------------------------------------------
+        % check if all interdependent properties
+        [ok, mess,obj] = check_combo_arg(obj);
+        %
         % Method verifies if all necessary run parameters are defined by the class
         [undefined,fields_from_loader,fields_undef] = check_run_defined(run,fields_needed);
         % Get a named field from an object, or a structure with all
@@ -361,9 +359,9 @@ classdef rundata < serializable
             id = find_run_id_(obj);
         end
         function obj = set.run_id(obj,val)
-            if ~isnumeric(val)
+            if ~isnumeric(val) || ~isscalar(val)
                 error('HERBERT:rundata:invalid_argument',...
-                    ' run_id can be only numeric')
+                    ' run_id can be only sigble numeric value')
             end
             obj.run_id_ = val;
         end
@@ -582,6 +580,10 @@ classdef rundata < serializable
                 this.loader_=ld.saveNXSPE(filename,this.efix,psi,varargin{:});
             end
         end
-
+    end
+    methods(Access=protected)
+        function valid = check_validity(obj)
+            valid = obj.isvalid_;
+        end
     end
 end

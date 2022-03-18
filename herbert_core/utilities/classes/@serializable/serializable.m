@@ -7,6 +7,19 @@ classdef serializable
     % saving classes to Matlab .mat files and Horace sqw objects and to
     % support old versions of the classes
     %
+    properties(Dependent)
+        % property verifies the validity of interdependent properties
+        isvalid;
+    end
+    properties(Dependent,Hidden)
+        % Throw exception if deserialized object is invalid
+        throw_on_invalid;
+    end
+    properties(Access=protected)
+        % Throw exception if deserialized object validation shows that it
+        % is invalid
+        throw_on_invalid_ = false;
+    end
     %----------------------------------------------------------------------
     %   ABSTRACT INTERFACE TO DEFINE:
     methods(Abstract,Access=public)
@@ -56,7 +69,7 @@ classdef serializable
             %                applied to the array of objects.
             %.version     -- the class version, to be able to recover the
             %                previous versions of the classes
-            % One can not add field containing single value to a structure            
+            % One can not add field containing single value to a structure
             % array so this function returns the structure with two fields
             % above  where "array_dat" field contains the structure
             % array, produced by "to_bare_struct" function.
@@ -113,9 +126,22 @@ classdef serializable
         end
 
         %------------------------------------------------------------------
-        function obj = from_bare_struct(obj,inputs)
+        function obj = from_bare_struct(obj,inputs,varargin)
             % restore object or array of objects from a plain structure,
             % previously obtained by to_bare_struct operation
+            % Inputs:
+            % obj    -- non-initialized instance of the object to build
+            % inputs -- the structure, obtained by to_bare_struct method,
+            %           and used as initialization for the object
+            % optional:
+            % check_validity -- (default -- true) -- when the object is
+            %           fully constructed, check its validity by check_combo_arg
+            %           method. Throw if the object is invalid.
+            %           If false, the check is still performed, but invalid
+            %           objects do not throw.
+            if nargin > 2
+                obj(1).throw_on_invalid = varargin{1};
+            end
             obj = from_bare_struct_(obj,inputs);
         end
         %
@@ -164,6 +190,28 @@ classdef serializable
         function obj = serializable()
             % generic class constructor. Does nothing
         end
+        function is = get.isvalid(obj)
+            is = check_validity(obj);
+        end
+        %
+        function do = get.throw_on_invalid(obj)
+            do = get_throw_on_invalid(obj);
+        end
+        function obj = set.throw_on_invalid(obj,val)
+            obj.throw_on_invalid_ = logical(val);
+        end
+        %
+        function [ok,mess,obj] = check_combo_arg(obj)
+            % verify interdependent variables and the validity of the
+            % obtained serializable object. Return the result of the check
+            %
+            % Overload to obtain information about the validity of
+            % interdependent properties and information about issues with
+            % interdependent properties
+            ok = true;
+            mess = '';
+        end
+
     end
     methods (Static)
         function obj = from_struct(in_struct,existing_obj)
@@ -234,6 +282,15 @@ classdef serializable
         end
     end
     methods(Access=protected)
+        function is = check_validity(~)
+            % overload this property to verify validity of interdependent
+            % properties
+            is = true;
+        end
+        function do = get_throw_on_invalid(obj)
+            % overloadable accessor to modify throw-on invalid for children
+            do = obj.throw_on_invalid_;
+        end
         %------------------------------------------------------------------
         function obj = from_old_struct(obj,inputs)
             % Restore object from the old structure, which describes the
@@ -307,5 +364,4 @@ classdef serializable
                 positinal_param_names_list,validators,varargin{:});
         end
     end
-
 end

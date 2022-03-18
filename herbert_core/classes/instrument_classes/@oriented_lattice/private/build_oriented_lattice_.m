@@ -16,7 +16,7 @@ elseif isstruct(varargin{1}) % strucure with oriented lattice fields
         obj.angular_units = input.angular_units;
         input = rmfield(input,'angular_units');
     end
-    obj = obj.from_bare_struct(input);
+    obj = obj.from_bare_struct(input,false);
     if numel(varargin)>1
         remains = varargin(2:end);
     end
@@ -30,7 +30,7 @@ elseif isnumeric(varargin{1}) || ischar(varargin{1}) % the initialization is don
         obj.angular_units = input.angular_units;
         input = rmfield(input,'angular_units');
     end
-    obj = obj.from_bare_struct(input);
+    obj = obj.from_bare_struct(input,false);
 else
     error('HERBERT:oriented_lattcie:invalid_argument',...
         ['oriented lattice may be constructed only with an input structure,'...
@@ -43,10 +43,10 @@ if ~isempty(remains)
         evalc('disp(remains)'));
 end
 
-[ok,mess,obj] = check_combo_arg_(obj);
-if ~ok
-    error('HERBERT:oriented_lattcie:invalid_argument',mess);
-end
+% [ok,mess,obj] = check_combo_arg_(obj);
+% if ~ok
+%     error('HERBERT:oriented_lattcie:invalid_argument',mess);
+% end
 %
 function  [input,remains] = convert_inputs_to_structure(obj,varargin)
 % All possible parameters

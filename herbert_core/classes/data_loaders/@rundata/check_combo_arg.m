@@ -1,7 +1,7 @@
-function [ok, mess,this] = isvalid (this)
-% Check fields for data_array object
+function [ok, mess,obj] = check_combo_arg(obj)
+% Check interdependent fields of rundata class
 %
-%   >> [ok, mess] = isvalid (w)
+%   >> [ok, mess] = check_combo_arg(w)
 %
 %   ok      ok=true if valid, =false if not
 %   mess    Message if not a valid object, empty string if is valid.
@@ -16,25 +16,19 @@ function [ok, mess,this] = isvalid (this)
 
 % check numeric
 numeric_fld = {'S','ERR','efix','en','emode','n_detectors'};
-lattice_fld = {'alatt','angdeg','u','v','psi','omega','dpsi','gl','gs'};
 
 for i=1:numel(numeric_fld)
-    [ok,mess]=check_field(this,numeric_fld{i});
+    [ok,mess]=check_field(obj,numeric_fld{i});
     if ~ok
+        obj.isvalid_ = false;
         return;
     end
 end
 
-if this.is_crystal
-    for i=1:numel(lattice_fld)
-        [ok,mess]=check_field(this.lattice,lattice_fld{i});
-        if ~ok
-            return;
-        end
-        
-    end
-    
+if obj.is_crystal
+    [ok,mess] = obj.lattice.check_validity();
 end
+obj.isvalid_ = ok;
 
 function [ok,mess]=check_field(class,field_name)
 ok = true;

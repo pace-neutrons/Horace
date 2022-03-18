@@ -16,7 +16,7 @@ end
 if any(obj.undef_fields_)
     undef_fileds = obj.fields_to_define_(obj.undef_fields_);
     undef_fileds_mess = strjoin(undef_fileds,'; ');
-    mess = sprintf('The necessary field(s): %s remain undefined so the lattice is undefined',...
+    mess = sprintf('The necessary field(s): %s remain undefined so the lattice is invalid',...
         undef_fileds_mess);
     ok=false;
     obj.isvalid_ = false;
