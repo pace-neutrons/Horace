@@ -8,10 +8,9 @@ function [ok, mess,obj] = check_combo_arg(obj)
 %
 %
 
-if isempty(obj.lattice)
-    ok = true;
-    mess = '';
-else
+ok = true;
+mess = '';
+if ~isempty(obj.lattice)
     [ok,mess,obj.lattice] = obj.lattice.check_combo_arg();
 end
 %
@@ -23,5 +22,13 @@ if ok
         ok = false;
         mf = strjoin(fields_undef,'; ');
         mess = sprintf('run is undefined. Need to define missing fields: %s',mf);
+        return;
+    else
+        if ~isempty(obj.loader)
+            [ok,mess,obj.loader] = obj.loader.check_combo_arg();
+            obj.isvalid_ = ok;
+        end
     end
+
+
 end

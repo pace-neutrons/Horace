@@ -71,14 +71,12 @@ classdef test_rundata_get< TestCase
         end
         function this=test_load_nxspe_all_fields(this)
             % this form asks for all present in file run data to be obtained;
-            this.run2_work_with.is_crystal=false;
             data =get_rundata(this.run2_work_with);
             fi = fieldnames(data);
             assertTrue(any(ismember({'efix','en','S','ERR','det_par'},fi)));
         end
         function this=test_load_nxspe_par(this)
             % this form asks for all run data to be obtained;
-            this.run2_work_with.is_crystal=false;
             % and detectors returned as horace structure
             dp =get_rundata(this.run2_work_with,'det_par');
             assertTrue(all(ismember({'filename','filepath','x2','phi','azim','width','height','group'},fields(dp))));
@@ -205,9 +203,7 @@ classdef test_rundata_get< TestCase
         end
         
         function test_suppress_nan(this)
-            % this form asks for all run data to be obtained in class
-            this.run2_work_with.is_crystal=false;
-            
+            % this form asks for all run data to be obtained in class           
             run=get_rundata(this.run2_work_with,'-this');
             
             [S,ERR,det]=get_rundata(run,'-nonan','S','ERR','det_par','en');
@@ -221,7 +217,7 @@ classdef test_rundata_get< TestCase
                 fullfile(this.test_data_path,'MAP11014.nxspe')};
             par_file = fullfile(this.test_data_path,'demo_par.PAR');
             en_sample=[0:5:150]';
-            lat= oriented_lattice(6.2832,[90,90,90],1,...
+            lat= oriented_lattice(4.3,[90,90,90],1,...
                 [1,0,0],[0,1,0]);
             run_files = rundata.gen_runfiles(spe_file,par_file,800,1,lat);
             
@@ -232,14 +228,14 @@ classdef test_rundata_get< TestCase
             assertEqual(800,efix);
             assertEqual(1,emode);
             assertEqual(en_sample,en);
-            assertEqual([6.2832,6.2832,6.2832],alatt);
+            assertEqual([4.3,4.3,4.3],alatt);
             % depending on policy decided for angdeg
             %assertEqual([90,90,90]*(pi/180),angdeg);
             assertEqual([90,90,90]*(pi/180),angdeg);
             assertEqual(28160,ndet);
             assertEqual([1,0,0],u);
             assertEqual([0,1,0],v);
-            assertEqual(0,psi);
+            assertEqual(1*(pi/180),psi);
             assertEqual(0,omega);
             assertEqual(0,dpsi);
             assertEqual(0,gl);
