@@ -304,6 +304,11 @@ classdef oriented_lattice < serializable
             flds = ['angular_is_degree',flds(1:end-1)];
 
         end
+        function [ok,mess,obj] = check_combo_arg(obj)
+            % verify interdependent variables and the validity of the
+            % obtained lattice object
+            [ok,mess,obj] = check_combo_arg_(obj);
+        end
     end
     %---------------------------------------------------------------------
     %---------------------------------------------------------------------
