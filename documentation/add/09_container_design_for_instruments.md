@@ -1,5 +1,4 @@
-# Design for a container for compressed (unique instances of) instruments,
-  samples or detectors within the experiment_info object in an SQW object
+# Design for a container for compressed (unique instances of) instruments, samples or detectors within the experiment_info object in an SQW object
 
 ### Background
 
