@@ -214,7 +214,7 @@ end
 
 
 % Check numeric parameters (array lengths and sizes, simple requirements on validity)
-[ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
+[ok,mess,efix,emode,lattice]=gen_sqw_check_params...
     (n_all_spe_files,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
 if ~ok, error('HORACE:gen_sqw:invalid_argument',mess), end
 
@@ -222,9 +222,7 @@ if ~ok, error('HORACE:gen_sqw:invalid_argument',mess), end
 % Check optional arguments (grid, pix_db_range, instrument, sample) for size, type and validity
 grid_default=[];
 instrument_default=IX_null_inst();  % default 1x1 struct
-sample_default=IX_null_sample();    % default 1x1 struct
-sample_default.alatt = alatt;
-sample_default.angdeg = angdeg;
+sample_default = IX_null_sample();
 [ok,mess,present,grid_size_in,pix_db_range,instrument,sample]=gen_sqw_check_optional_args(...
     n_all_spe_files,grid_default,instrument_default,sample_default,args{:});
 if ~ok, error('HORACE:gen_sqw:invalid_argument',mess), end
@@ -320,8 +318,8 @@ if accumulate_old_sqw    % combine with existing sqw file
     end
     ix=(spe_exist & spe_only);    % the spe data that needs to be processed
 else
-    [ok, mess] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
-        u, v, psi, omega, dpsi, gl, gs, instrument, sample, opt.replicate);
+    [ok, mess] = gen_sqw_check_distinct_input (spe_file, efix, emode, sample,...
+        u, v, psi, omega, dpsi, gl, gs, instrument, opt.replicate);
     if ~ok, error('GEN_SQW:invalid_argument',mess), end
     % Have already checked that all the spe files exist for the case of generate_new_sqw is true
     

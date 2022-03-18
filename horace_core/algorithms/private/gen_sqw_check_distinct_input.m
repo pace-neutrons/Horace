@@ -1,12 +1,12 @@
-function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
-    u, v, psi, omega, dpsi, gl, gs, instrument, sample, replicate, header_exper)
+function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode,sample,...
+    u, v, psi, omega, dpsi, gl, gs, instrument, replicate, header_exper)
 % Check that the input arguments to gen_sqw define distinct input with required equality of some fields.
 % Optionally, determine in addition which input are not included in the header of an sqw file
 %
-%   >> status = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
+%   >> status = gen_sqw_check_distinct_input (spe_file, efix, emode, sample,...
 %                                              u, v, psi, omega, dpsi, gl, gs, instrument, sample)
 %
-%   >> [status, ind] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
+%   >> [status, ind] = gen_sqw_check_distinct_input (spe_file, efix, emode, sample,...
 %                                              u, v, psi, omega, dpsi, gl, gs, instrument, sample, header)
 %
 % Input:
@@ -14,8 +14,7 @@ function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_fil
 %   spe_file        Cell array of spe file name(s)     [column vector length nfile]
 %   efix            Fixed energy (meV)                 [column vector length nfile]
 %   emode           Direct geometry=1, indirect geometry=2, elastic=0   [column vector length nfile]
-%   alatt           Lattice parameters (Ang^-1)        [nfile,3] array
-%   angdeg          Lattice angles (deg)               [nfile,3] array
+%   sample         nfile array containing lattice parameters
 %   u               First vector (1x3) defining scattering plane    [nfile,3] array
 %   v               Second vector (1x3) defining scattering plane   [nfile,3] array
 %   psi             Angle of u w.r.t. ki (deg)         [column vector length nfile]
@@ -96,8 +95,6 @@ for i=2:numel(pstruct)
         mess='At least two spe data input have all the same filename, efix, psi, omega, dpsi, gl and gs'; return
     end
     ok = (emode(i)==emode(1));
-    ok = ok & equal_to_relerr(alatt(i,:),alatt(1,:),tol,1);
-    ok = ok & equal_to_relerr(angdeg(i,:),angdeg(1,:),tol,1);
     ok = ok & equal_to_relerr(u(i,:),u(1,:),tol,1);
     ok = ok & equal_to_relerr(v(i,:),v(1,:),tol,1);
     if ~ok

@@ -65,7 +65,7 @@ if numel(instrument_default)~=1 || ~(isobject(instrument_default)||isstruct(inst
     return
 end
 
-if numel(sample_default)~=1 || ~(isobject(sample_default)||isstruct(sample_default))
+if  ~(isa(sample_default,'IX_samp')||isstruct(sample_default))
     ok=false; mess='Default sample descriptor must be a scalar structure or object'; 
     return
 end
@@ -78,7 +78,7 @@ if narg==0
     pix_db_range=[];
     
     instrument=repmat(instrument_default,[nfile,1]);
-    sample=repmat(sample_default,[nfile,1]);
+    sample=sample_default;
     
 elseif narg==1  % grid
     [grid,mess]=check_grid_size(varargin{1},grid_default);  
@@ -87,7 +87,7 @@ elseif narg==1  % grid
     pix_db_range=[];
     
     instrument=repmat(instrument_default,[nfile,1]);
-    sample=repmat(sample_default,[nfile,1]);
+    sample=sample_default;
 
 elseif narg==2 && isnumeric(varargin{1})    % grid, pix_db_range
     [grid,mess]=check_grid_size(varargin{1},grid_default);  
@@ -98,7 +98,7 @@ elseif narg==2 && isnumeric(varargin{1})    % grid, pix_db_range
     present.pix_db_range=true;
     
     instrument=repmat(instrument_default,[nfile,1]);
-    sample=repmat(sample_default,[nfile,1]);
+    sample=sample_default;
 
 elseif narg==2 && ~isnumeric(varargin{1})   % instrument, sample
     grid=grid_default;

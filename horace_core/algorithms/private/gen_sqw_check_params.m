@@ -1,6 +1,5 @@
-function [ok, mess, efix_out, emode_out, alatt_out, angdeg_out, u_out, v_out,...
-    psi_out, omega_out, dpsi_out, gl_out, gs_out] = gen_sqw_check_params...
-    (nfile, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
+function [ok, mess, efix_out, emode_out, lattice] = gen_sqw_check_params...
+    (nfile, efix, emode,varargin)
 % Check numeric input arguments to gen_sqw are valid, and return as arrays
 %
 %   >> [ok, mess, efix_out, emode_out, alatt_out, angdeg_out, u_out, v_out,...
@@ -32,8 +31,7 @@ function [ok, mess, efix_out, emode_out, alatt_out, angdeg_out, u_out, v_out,...
 %   efix_out        Fixed energy (meV)                 [column vector length nfile]
 %   emode_out       Direct geometry=1, indirect geometry=2, elastic=0
 %                                                      [column vector length nfile]
-%   alatt_out       Lattice parameters (Ang^-1)        [nfile,3] array
-%   angdeg_out      Lattice angles (deg)               [nfile,3] array
+%   sample_defailt  IX_samp() object, containing lattice [nfile,1] array
 %   u_out           First vector (1x3) defining scattering plane    [nfile,3] array
 %   v_out           Second vector (1x3) defining scattering plane   [nfile,3] array
 %   psi_out         Angle of u w.r.t. ki (deg)         [column vector length nfile]
@@ -46,8 +44,7 @@ function [ok, mess, efix_out, emode_out, alatt_out, angdeg_out, u_out, v_out,...
 
 % Initialise return arguments
 ok=false;
-efix_out=[]; emode_out=[]; alatt_out=[]; angdeg_out=[]; u_out=[]; v_out=[];
-psi_out=[]; omega_out=[]; dpsi_out=[]; gl_out=[]; gs_out=[];
+efix_out=[]; emode_out=[];
 
 % Determine number of files if not given
 if ~isempty(nfile)
@@ -97,43 +94,33 @@ if ~isempty(mess), return; end
     'the number of spe files',[0,2]);
 if ~isempty(mess), return; end
 
-[alatt_out,mess]=check_parameter_values_ok(alatt,nfile,3,'alatt',...
-    'the number of spe files',[0,0,0;Inf,Inf,Inf],false(2,3));
-if ~isempty(mess), return; end
 
-[angdeg_out,mess]=check_parameter_values_ok(angdeg,nfile,3,'angdeg',...
-    'the number of spe files',[0,0,0;180,180,180],false(2,3));
-if ~isempty(mess), return; end
-
-[u_out,mess]=check_parameter_values_ok(u,nfile,3,'u','the number of spe files');
-if ~isempty(mess), return; end
-
-[v_out,mess]=check_parameter_values_ok(v,nfile,3,'v','the number of spe files');
-if ~isempty(mess), return; end
-
-small=1e-10;
-umod=sqrt(dot(u_out,u_out,2));
-vmod=sqrt(dot(v_out,v_out,2));
-if any(umod<small) || any(vmod<small)
-    mess='Check that no vectors u and v have zero (or almost zero) length'; return
-elseif any(dot(u_out,v_out,2)./(umod.*vmod)>1-1e-6)
-    mess='Check that u and v are not collinear or almost collinear'; return
+lattice = repmat(oriented_lattice(),nfile,1);
+%  The possible argument to be present in varargin:
+all_arg_names = {'alatt','angdeg', 'u', 'v', 'psi', 'omega', 'dpsi', 'gl', 'gs'};
+max_vargi = numel(all_arg_names);
+real_argi = nunel(varargin);
+for i = 1:nfile
+    for j=1:max_vargi
+        arg_key = all_arg_names{j};
+        if j > real_argi
+            arg_val = 0;
+        else
+            var = varargin{j};
+            nun_inpar = size(var,1);
+            if nun_inpar>1 % array of parameters provided
+                arg_val = var(i,:);
+            else
+                arg_val = var;
+            end
+        end
+        lattice(i).(arg_key) = arg_val;
+    end
+    if ~lattice(i).isvalid
+        [ok,mess] = lattice(i).check_combo_arg();
+        return;
+    end
 end
-
-[psi_out,mess]=check_parameter_values_ok(psi,nfile,1,'psi','the number of spe files');
-if ~isempty(mess), return; end
-
-[omega_out,mess]=check_parameter_values_ok(omega,nfile,1,'omega','the number of spe files');
-if ~isempty(mess), return; end
-
-[dpsi_out,mess]=check_parameter_values_ok(dpsi,nfile,1,'dpsi','the number of spe files');
-if ~isempty(mess), return; end
-
-[gl_out,mess]=check_parameter_values_ok(gl,nfile,1,'gl','the number of spe files');
-if ~isempty(mess), return; end
-
-[gs_out,mess]=check_parameter_values_ok(gs,nfile,1,'gs','the number of spe files');
-if ~isempty(mess), return; end
 
 % Fill error flags
 ok=true;
