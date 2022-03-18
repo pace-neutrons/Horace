@@ -129,7 +129,7 @@ classdef axes_block < serializable
     
     
     methods
-        function flds = indepFields(~)
+        function flds = saveableFields(~)
             % get independent fields, which fully define the state of a
             % serializable object.
             flds = axes_block.fields_to_save_;
