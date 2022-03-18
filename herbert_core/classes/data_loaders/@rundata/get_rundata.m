@@ -86,19 +86,22 @@ function [varargout] =get_rundata(this,varargin)
 keys_recognized={'-nonan','-rad','-this'};
 
 if isempty(this.loader)
-    error('RUNDATA:invalid_arguments','Can not get data as data loader is not defined for this instance of the class');
+    error('RUNDATA:invalid_arguments',...
+        'Can not get data as data loader is not defined for this instance of the class');
 end
 %
 % is input varargin correct (all input fields have to be strings)
 if ~iscellstr(varargin)
-    error('RUNDATA:invalid_arguments','all input parameters have to be a cell strings');
+    error('RUNDATA:invalid_arguments',...
+        'all input parameters have to be a cell strings');
 end
 
 % what is actually defined by this class instance:
 % (should be only public fields but currently works with all)
 [ok,mess,suppress_nan,get_rad,return_this,fields_requested] = parse_char_options(varargin,keys_recognized);
 if(~ok)
-    error('RUNDATA:invalid_arguments',mess);
+    error('RUNDATA:invalid_arguments',...
+        mess);
 end
 [all_fields,lattice_fields] = what_fields_are_needed(this,'all_fields');
 if return_this && isempty(fields_requested)
@@ -107,7 +110,8 @@ end
 
 non_fields =~ismember(fields_requested,all_fields);
 if any(non_fields)
-    error('RUNDATA:invalid_arguments',[' missing fields requested: ',fields_requested{non_fields}]);
+    error('RUNDATA:invalid_arguments',...
+        [' missing fields requested: ',fields_requested{non_fields}]);
 end
 if ~isempty(lattice_fields)
     in_latice = ismember(lattice_fields,fields_requested);

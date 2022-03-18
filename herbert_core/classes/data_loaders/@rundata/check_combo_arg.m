@@ -8,12 +8,13 @@ function [ok, mess,obj] = check_combo_arg(obj)
 %
 %
 
-if obj.is_crystal
-    [ok,mess,obj.lattice] = obj.lattice.check_combo_arg();
-else
+if isempty(obj.lattice)
     ok = true;
     mess = '';
+else
+    [ok,mess,obj.lattice] = obj.lattice.check_combo_arg();
 end
+%
 obj.isvalid_ = ok;
 if ok
     [undefined,~,fields_undef] = obj.check_run_defined();

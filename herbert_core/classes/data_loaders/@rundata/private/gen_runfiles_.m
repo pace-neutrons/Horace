@@ -60,16 +60,12 @@ parameter_nams={'efix','emode','lattice','instrument','sample'};
 % Input files
 % -----------
 % Check spe files
-no_spe = false;
 if ischar(spe_files) &&  size(spe_files,1)==1
     spe_files=cellstr(spe_files);
 elseif isempty(spe_files) && allow_missing
     spe_files = cell(1,1);
-    no_spe    = true;
-elseif ~iscellstr(spe_files)
-    if allow_missing && iscell(spe_files)
-        no_spe    = true;
-    else
+elseif ~(iscellstr(spe_files)||isstring(spe_files))
+    if ~allow_missing && iscell(spe_files)
         error('HERBERT:rundata:invalid_argument',...
             'spe file input must be a single file name or cell array of file names')
     end
@@ -191,6 +187,11 @@ if isempty(par_files)
 elseif numel(par_files)==1
     [runfiles{1},file_exist(1)]= init_runfile_with_par(runfiles{1},spe_files{1},...
         par_files{1},'',dfnd_params(1),allow_missing,parfile_is_det);
+    if file_exist(1) &&  ~runfiles{1}.isvalid
+        [ok,mess,runfiles{1}] = runfiles{1}.check_combo_arg();
+        if ~ok; error('HERBERT:gen_runfiles:invalid_argument',mess)
+        end
+    end
     % Save time on multiple load of the same par into memory by reading it just once
     if n_files>1
         [par,runfiles{1}] = get_par(runfiles{1});
@@ -198,14 +199,24 @@ elseif numel(par_files)==1
     for i=2:n_files
         [runfiles{i},file_exist(i)]= init_runfile_with_par(runfiles{i},...
             spe_files{i},par_files{1},par,dfnd_params(i),allow_missing,parfile_is_det);
-        if isempty(runfiles{i}.det_par) || ischar(runfiles{i}.n_detectors)
-            error('GEN_RUNFILES:invalid_argument','invalid runfile detectors: %s',runfiles{i}.loader.n_detectors);
+        if file_exist(i) && ~runfiles{i}.isvalid
+            [ok,mess,runfiles{i}] = runfiles{i}.check_combo_arg();
+            if ~ok
+                error('HERBERT:gen_runfiles:invalid_argument',mess)
+            end
         end
     end
 else   % multiple par and spe files;
     for i=1:n_files
         [runfiles{i},file_exist(i)]= init_runfile_with_par(runfiles{i},...
             spe_files{i},par_files{i},'',dfnd_params(i),allow_missing,parfile_is_det);
+        if file_exist(i) && ~runfiles{i}.isvalid
+            [ok,mess,runfiles{i}] = runfiles{i}.check_combo_arg();
+            if ~ok
+                error('HERBERT:gen_runfiles:invalid_argument',mess)
+            end
+        end
+
     end
 end
 

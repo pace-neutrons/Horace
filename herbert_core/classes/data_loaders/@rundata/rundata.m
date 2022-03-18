@@ -37,9 +37,6 @@ classdef rundata < serializable
         efix    ;     % Fixed energy (meV)   -- has to be in file or supplied in parameters list
         emode  ;     % Energy transfer mode [Default=1 (direct geometry)]
 
-        % accessor to verify if the oriented lattice is present (and the
-        % rundata describe crystal)
-        is_crystal;
         % accessor to access the oriented lattice
         lattice;
         % visual representation of a loader
@@ -251,8 +248,6 @@ classdef rundata < serializable
             %   n_detectors % Number of detectors, used when dealing with masked detectors
             %   det_par     % Array of par-values, describing detectors angular positions
             %
-            % Crystal parameters:
-            %   is_crystal  % true if single crystal, false if powder
             obj.isvalid_ = false;
             if nargin>0
                 obj = initialize(obj,varargin{:});
@@ -297,28 +292,6 @@ classdef rundata < serializable
             end
         end
         %----
-        function is = get.is_crystal(this)
-            if isempty(this.lattice_)
-                is = false;
-            else
-                is = true;
-            end
-        end
-        %
-        function this = set.is_crystal(this,val)
-            if val == 0
-                this.lattice_ = [];
-            elseif val == 1
-                if isempty(this.lattice_)
-                    this.lattice_ = oriented_lattice();
-                end
-            elseif isa(val,'oriented_lattice')
-                this.lattice_ = val;
-            else
-                error('HERBERT:rundata:invalid_argument',...
-                    ' you can either remove crystal information or set oriented lattice to define crystal');
-            end
-        end
         %
         function lattice = get.lattice(this)
             lattice = this.lattice_;
@@ -580,7 +553,7 @@ classdef rundata < serializable
                 return
             else
                 ld=this.loader;
-                if this.is_crystal
+                if ~isempty(this.lattice)
                     psi = this.lattice.psi;
                 else
                     psi = nan;

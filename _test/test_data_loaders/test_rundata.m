@@ -182,8 +182,7 @@ classdef test_rundata< TestCase
             % checks different option of private function
             % what_fields_are_needed()
             run=rundata(f_name(obj,'MAP10001.spe'),f_name(obj,'demo_par.PAR'),'efix',200.);
-            % run is not defined fully (properly) for crystal
-            run.is_crystal=false;
+
             % but is sufficient for powder
             [is_undef,fields_to_load,undef_fields]=check_run_defined(run);
             assertEqual(1,is_undef);
@@ -365,12 +364,12 @@ classdef test_rundata< TestCase
             run=set_lattice_field(run,'psi',20,'-ifempty');
             assertEqual(10,get_rundata(run,'psi'));
 
-            lat=oriented_lattice();
+            lat=oriented_lattice('psi',10);
             run.lattice = lat;
-            assertEqual(0,get_rundata(run,'psi'));
+            assertEqual(10,get_rundata(run,'psi'));
 
             run=set_lattice_field(run,'psi',20,'-ifempty');
-            assertEqual(20,get_rundata(run,'psi'));
+            assertEqual(10,get_rundata(run,'psi'));
 
         end
         %
