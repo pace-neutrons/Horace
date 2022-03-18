@@ -101,7 +101,7 @@ classdef a_detpar_loader_interface < serializable
         function ver  = classVersion(~)
             ver= 1;
         end
-        function flds = indepFields(obj)
+        function flds = saveableFields(obj)
             call_stack = dbstack;
             for_saving = strncmp(call_stack(2).name,'to',2);
 
@@ -117,7 +117,7 @@ classdef a_detpar_loader_interface < serializable
         end
     end
     methods(Access=protected)
-        % overloadable getters, provided to be replaced in a_loader
+        % over-loadable getters, provided to be replaced in a_loader
         % interface
         function  pfn = get_par_file_name(obj)
             pfn = obj.par_file_name_;

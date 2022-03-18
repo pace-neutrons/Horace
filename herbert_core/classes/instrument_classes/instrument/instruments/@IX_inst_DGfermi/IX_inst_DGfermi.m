@@ -88,8 +88,8 @@ classdef IX_inst_DGfermi < IX_inst
             ver = 2;
         end
         
-        function flds = indepFields(obj)
-            baseflds = indepFields@IX_inst(obj);
+        function flds = saveableFields(obj)
+            baseflds = saveableFields@IX_inst(obj);
             flds = { baseflds{:},'moderator','aperture', 'fermi_chopper', 'energy'};
         end
         %------------------------------------------------------------------

@@ -472,7 +472,7 @@ classdef a_loader < a_detpar_loader_interface
             end
         end
         %------------------------------------------------------------------
-        function flds = indepFields(obj)
+        function flds = saveableFields(obj)
             flds = {'file_name','detpar_loader'};
             call_stack = dbstack;
             for_saving = strncmp(call_stack(2).name,'to',2);

@@ -28,7 +28,7 @@ classdef IX_experiment < serializable
             'u_to_rlu','ulen','ulabel'};
     end
     methods
-        function flds = indepFields(~)
+        function flds = saveableFields(~)
             flds = IX_experiment.fields_to_save_;
         end
         function ver  = classVersion(~)
@@ -66,25 +66,25 @@ classdef IX_experiment < serializable
                     obj = input ;
                     return
                 elseif isstruct(input)
-                    flds = obj.indepFields();                    
+                    flds = obj.saveableFields();
                     for i=1:numel(flds)
                         fld = flds{i};
                         obj.(fld) = input.(fld);
                     end
                 else
                     error('HERBERT:IX_experiment:invalid_argument',...
-                        'Unrecognized single input argument of class %s',...
+                        'Unrecognised single input argument of class %s',...
                         class(input));
                 end
             elseif nargin == 17
-                flds = obj.indepFields();
+                flds = obj.saveableFields();
                 for i=1:numel(varargin)
                     fldn = flds{i};
                     obj.(fldn) = varargin{i};
                 end
             else
                 error('HERBERT:IX_experiment:invalid_argument',...
-                    'unrecognized number of input arguments: %d',nargin);
+                    'unrecognised number of input arguments: %d',nargin);
             end
             if isempty(obj)
                 error('HERBERT:IX_experiment:invalid_argument',...

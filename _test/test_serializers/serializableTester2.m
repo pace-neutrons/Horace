@@ -1,5 +1,5 @@
 classdef serializableTester2 < serializable
-    % Class used as test bench to unittest serializable class
+    % Class used as test bench to unit-test serializable class
     %
 
     properties
@@ -13,7 +13,7 @@ classdef serializableTester2 < serializable
             if nargin==0
                 return;
             end
-            positional_arg_names = obj.indepFields();
+            positional_arg_names = obj.saveableFields();
             val = {@isnumeric,@isnumeric,@ischar};
             [obj,remains] = ...
                 set_positional_and_key_val_arguments(obj,...
@@ -23,7 +23,7 @@ classdef serializableTester2 < serializable
 
     methods(Access=public)
         % get independent fields, which fully define the state of the object
-        function flds = indepFields(~)
+        function flds = saveableFields(~)
             flds = serializableTester2.fields_to_save_;
         end
         % get class version, which would affect the way class is stored on/

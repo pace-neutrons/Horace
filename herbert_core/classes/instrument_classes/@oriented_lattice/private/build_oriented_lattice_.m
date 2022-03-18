@@ -1,7 +1,7 @@
 function [obj,remains] = build_oriented_lattice_(obj,varargin)
 % build non-empty oriented lattice from any form of constructor input
 % including positional arguments, defined in the order, returned by
-% indepFields function (i.e. 'alatt','angdeg','psi','u','v'...etc.)
+% saveableFields function (i.e. 'alatt','angdeg','psi','u','v'...etc.)
 %
 remains = {};
 if isa(varargin{1},'oriented_lattice') % copy constructor
@@ -9,7 +9,7 @@ if isa(varargin{1},'oriented_lattice') % copy constructor
     if numel(varargin)>1
         remains = varargin(2:end);
     end
-elseif isstruct(varargin{1}) % strucure with oriented lattice fields
+elseif isstruct(varargin{1}) % structure with oriented lattice fields
     input = varargin{1};
     if isfield(input,'angular_units') % the constructor defines specific units for
         % the angular values. It has to be set first

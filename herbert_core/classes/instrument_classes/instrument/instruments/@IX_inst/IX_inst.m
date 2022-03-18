@@ -65,7 +65,7 @@ classdef IX_inst < serializable
             ver = 0; % dummy value for abstract base class
         end
         
-        function flds = indepFields(~)
+        function flds = saveableFields(~)
             flds = {'name','source'};
         end
         
