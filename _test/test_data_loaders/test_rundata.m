@@ -38,6 +38,7 @@ classdef test_rundata< TestCase
             ld = load(tf);
 
             assertEqual(ld.rd,rd);
+            assertFalse(rd.isvalid);
         end
         %
         function test_custom_save_loadobj_meta(obj)
@@ -54,13 +55,16 @@ classdef test_rundata< TestCase
             ds.alatt=[1;1;1];
             ds.angdeg=[90;90;90];
             rd=rundata(f_name(obj,'MAP11014v2.nxspe'),ds);
+            assertTrue(rd.isvalid);
             %
             rd = get_rundata (rd,'-this');
+            assertTrue(rd.isvalid);            
 
             tf = fullfile(tmp_dir,'test_custom_save_loadobj_all.mat');
             clob = onCleanup(@()delete(tf));
             save(tf,'rd');
             ld = load(tf);
+            assertTrue(ld.rd.isvalid);
 
             assertEqual(ld.rd,rd);
         end
@@ -87,13 +91,14 @@ classdef test_rundata< TestCase
         % tests themself
         function test_wrong_first_argument_has_to_be_fileName(~)
             f = @()rundata(10);
-            assertExceptionThrown(f,'PARSE_CONFIG_ARG:wrong_arguments');
+            assertExceptionThrown(f,'HERBERT:rundata:invalid_argument');
         end
+        %
         function test_build_from_wrong_struct(~)
             a.x=10;
             a.y=20;
             f = @()rundata(a);
-            assertExceptionThrown(f,'HERBERT:rundata:invalid_arguments');
+            assertExceptionThrown(f,'HERBERT:rundata:invalid_argument');
         end
         function test_build_from_good_struct(~)
             a.efix=10;
@@ -101,6 +106,7 @@ classdef test_rundata< TestCase
             dat=rundata(a);
             assertEqual(dat.efix,10);
             assertEqual(dat.lattice.psi,2);
+            assertFalse(dat.isvalid);
         end
         %
         function test_build_from_Other_rundata(~)

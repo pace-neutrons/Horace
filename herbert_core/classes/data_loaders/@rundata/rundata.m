@@ -84,7 +84,7 @@ classdef rundata < serializable
         sample_ = IX_null_sample();
         %
         run_id_ = [];
-        %
+        % check if the object is valid and can be used to identify runs
         isvalid_ = true;
     end
 
@@ -219,7 +219,7 @@ classdef rundata < serializable
         [data_fields,lattice_fields] = what_fields_are_needed(this,varargin);
         %------------------------------------------------------------------
 
-        function this=rundata(varargin)
+        function obj=rundata(varargin)
             % rundata class constructor
             %
             %   >> run = rundata (nxspe_file_name);
@@ -253,9 +253,13 @@ classdef rundata < serializable
             %
             % Crystal parameters:
             %   is_crystal  % true if single crystal, false if powder
+            obj.isvalid_ = false;
             if nargin>0
-                this = initialize(this,varargin{:});
+                obj = initialize(obj,varargin{:});
             end
+            % check all interacting variables and verify if
+            % the object is valid and fully defined
+            [~,~,obj] = obj.check_combo_arg();
         end
         %
         function obj = initialize(obj,varargin)
@@ -321,13 +325,13 @@ classdef rundata < serializable
         end
         %
         function obj = set.lattice(obj,val)
-            if isa(val,'oriented_lattice')
+            if isa(val,'oriented_lattice') && isscalar(val)
                 obj.lattice_ = val;
             elseif isempty(val)
                 obj.lattice_ =[];
             else
                 error('HERBERT:rundata:invalid_argument',...
-                    'lattice can be set as oriented_lattice instance object only')
+                    'lattice can be set by single oriented_lattice object only')
             end
             % TODO: sample and lattice should be the same object
             lat = obj.lattice_;
@@ -359,6 +363,10 @@ classdef rundata < serializable
             id = find_run_id_(obj);
         end
         function obj = set.run_id(obj,val)
+            if isempty(val)
+                obj.run_id_ = [];
+                return;
+            end
             if ~isnumeric(val) || ~isscalar(val)
                 error('HERBERT:rundata:invalid_argument',...
                     ' run_id can be only sigble numeric value')

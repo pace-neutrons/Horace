@@ -61,6 +61,7 @@ tf.en = data2save.en;
 tf.det_par = [ones(numel(data2save.det_theta),1),data2save.det_theta*(180/pi),...
     data2save.det_psi*(180/pi),data2save.det_dtheta,...
     data2save.det_dpsi,data2save.det_group]';
+tf.efix = data2save.efixed;
 
 lat = oriented_lattice();
 if isfield(data2save,'psi_samp')
@@ -68,7 +69,6 @@ if isfield(data2save,'psi_samp')
 else
     lat.psi = NaN;
 end
+tf.lattice = lat;
 
 rd=rundata(tf);
-rd.lattice = lat;
-rd.efix = data2save.efixed;

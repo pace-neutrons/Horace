@@ -1,4 +1,6 @@
 classdef serializable
+    % SERIALIZABLE interface:
+    %----------------------------------------------------------------------
     % Class supports common interface to convert class or array of classes
     % from/to structure used in serialization and defines the
     % standard for any Horace/Herbert custom class loadobj/saveobj methods.
@@ -6,6 +8,29 @@ classdef serializable
     % The class is necessary to provide common interface to loading and
     % saving classes to Matlab .mat files and Horace sqw objects and to
     % support old versions of the classes
+    %----------------------------------------------------------------------
+    % VALIDATION interface:
+    %----------------------------------------------------------------------
+    % In addition to save/load interface the class defines and uses
+    % validation interface.
+    % two properties and one method, namely "isvalid" and
+    % "throw_on_invalid" properties  and "check_combo_arg" method are
+    % defined on this public interface.
+    %
+    % By default, properties return true and false, and method returns
+    % ok==true, mess = ''.
+    %
+    % The validity of the object is verified (if ~obj.isvalid) after
+    % construction of a serializable object through it public interface.
+    % If property "isvalid" is false, final validation, using  "check_combo_arg"
+    % is provided. Depending on the state of the property "throw_on_invalid",
+    % the exception is thrown if the object is invalid. If this property is
+    % false, the object remains in the state, defined by "check_combo_arg"
+    % method.
+    %
+    % Redefine functions "is = check_validity(obj), "is = get_throw_on_invalid(obj)"
+    % and [ok,mess,obj] = check_combo_arg(obj) to use the interface in your
+    % objects
     %
     properties(Dependent)
         % property verifies the validity of interdependent properties

@@ -43,11 +43,13 @@ if ~isempty(remains)
         evalc('disp(remains)'));
 end
 
-% [ok,mess,obj] = check_combo_arg_(obj);
-% if ~ok
-%     error('HERBERT:oriented_lattcie:invalid_argument',mess);
-% end
-%
+if obj.throw_on_invalid
+    [ok,mess,obj] = check_combo_arg_(obj);
+    if ~ok
+        error('HERBERT:oriented_lattcie:invalid_argument',mess);
+    end
+end
+
 function  [input,remains] = convert_inputs_to_structure(obj,varargin)
 % All possible parameters
 remains = {};

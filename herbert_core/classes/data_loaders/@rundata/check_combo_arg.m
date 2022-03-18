@@ -7,46 +7,20 @@ function [ok, mess,obj] = check_combo_arg(obj)
 %   mess    Message if not a valid object, empty string if is valid.
 %
 %
-% Original author: T.G.Perring
-%
-% 	15 August 2009  Pass w to checkfields, so that checkfields can alter fields
-%                   of object. Because checkfields is a private method, the fields
-%                   can be altered using w.x=<new value> *without* calling
-%                   set.m. (T.G.Perring)
-
-% check numeric
-numeric_fld = {'S','ERR','efix','en','emode','n_detectors'};
-
-for i=1:numel(numeric_fld)
-    [ok,mess]=check_field(obj,numeric_fld{i});
-    if ~ok
-        obj.isvalid_ = false;
-        return;
-    end
-end
 
 if obj.is_crystal
-    [ok,mess] = obj.lattice.check_validity();
+    [ok,mess,obj.lattice] = obj.lattice.check_combo_arg();
+else
+    ok = true;
+    mess = '';
 end
 obj.isvalid_ = ok;
-
-function [ok,mess]=check_field(class,field_name)
-ok = true;
-mess='';
-if ~isempty(class.(field_name))
-    if ~isa(class.(field_name),'numeric')
+if ok
+    [undefined,~,fields_undef] = obj.check_run_defined();
+    if undefined >1
+        obj.isvalid_=false;
         ok = false;
-        val = class.(field_name);
-        if ~ischar(val)
-            if isemtpy(val)
-                val = 'empty';
-            else
-                val = 'unexpected (not empty and not error string)';
-            end
-        end
-        mess = [' field: ',field_name,' has to be numeric but its value is: ',val];
-        return
+        mf = strjoin(fields_undef,'; ');
+        mess = sprintf('run is undefined. Need to define missing fields: %s',mf);
     end
 end
-
-

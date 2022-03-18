@@ -151,9 +151,7 @@ end
 for i=1:n_dfnd_params
     val = params{i};
     name= parameter_nams{i};
-    if ismember(name,{'alatt','angdeg','u','v'})
-        args{i} = spread_vector(val,n_files,3,parameter_nams{i});
-    elseif emode == 2 && strcmpi(name,'efix')
+    if emode == 2 && strcmpi(name,'efix')
         if n_det_efix_guess >1
             args{i} = spread_vector(val,n_files,n_det_efix_guess,parameter_nams{i});
         else
@@ -317,9 +315,14 @@ function res = spread_scalar(val,n_files,name)
 if numel(val)==n_files
     res=num2cell(val(:)');  % 1 x nfiles cell array
 elseif numel(val)==1
-    res=num2cell(val*ones(1,n_files));  % 1 x nfiles cell array
+    if isobject(val)
+        res = num2cell(repmat(val,1,n_files));
+    else
+        res=num2cell(val*ones(1,n_files));  % 1 x nfiles cell array
+    end
 else
-    error('GEN_RUNFILES:invalid_argument','parameter %s must be a single value or a vector of %d values',name,n_files);
+    error('HERBERT:gen_runfiles:invalid_argument',...
+        'parameter %s must be a single value or a vector of %d values',name,n_files);
 end
 
 function res = spread_vector(val,n_files,n_components,name)
