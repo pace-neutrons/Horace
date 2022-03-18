@@ -6,15 +6,15 @@ function  [obj,remains] = set_positional_and_key_val_arguments_(obj,...
 % ObjConstructor(positional_par1,positional_par2,positional_par3,...
 % positional_par...,key1,val1,key2,val2,...keyN,valN);
 %
-% All potitional parameters should have the type defined in the validators
+% All positional parameters should have the type defined in the validators
 % list. If the validator list is shorter then positional_arg_names list or
 % empty, the remaining positional argument values assumed to be numeric.
 %
 % First argument, which type not corresponds to the type, defined by the
 % validator list, assumed to be belonging to key-value pair.
 %
-% Everything not idenfified as Key-Value pair where the keys,
-% belong to the property names returned by indepFields function
+% Everything not identified as Key-Value pair where the keys,
+% belong to the property names returned by saveableFields function
 % is returned in remains cellarray
 %
 % Inputs:
@@ -22,8 +22,8 @@ function  [obj,remains] = set_positional_and_key_val_arguments_(obj,...
 %            -- list of positional parameter
 %               names, the target properties should be
 %               associated with
-% validators -- cellarray of the functions, whihch verify
-%               the types of the input artuments. If empty,
+% validators -- cellarray of the functions, which verify
+%               the types of the input arguments. If empty,
 %               the checks assumes that all input parameters
 %               should be numeric. If the size is smaller then the length of
 %               positional_arg_names, any missing parameters assumed to be
@@ -31,7 +31,7 @@ function  [obj,remains] = set_positional_and_key_val_arguments_(obj,...
 % EXAMPLE:
 % if class have the properties {'a1'=1(numeric), 'a2'='blabla'(char),
 % 'a3'=sqw() 'a4=[1,1,1] (numeric), and these properties are independent
-% properties redutned by indepFields() function as list {'a1','a2','a3','a4'}
+% properties redutned by saveableFields() function as list {'a1','a2','a3','a4'}
 % The list of validators should have form {@isnumeric,@ischar,
 % @(x)isa(x,'sqw'),'@isnumeric} or {@isnumeric,@ischar,
 % @(x)isa(x,'sqw')} (last validator missing as it assumed to be numeric)
@@ -65,7 +65,7 @@ if any(is_positional)
     pos_arg_names = positional_arg_names(1:first_remains-1);
     % Extract and set up positional arguments, which should always come
     % first
-    % assosiate positional argument names with their values
+    % associate positional argument names with their values
     % set up positional arguments values
     for i=1:numel(pos_arg_val)
         obj.(pos_arg_names{i}) = pos_arg_val{i};

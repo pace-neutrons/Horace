@@ -121,7 +121,7 @@ classdef IX_source < serializable
             val = obj.frequency_;
         end
         %------------------------------------------------------------------
-        function flds = indepFields(obj)
+        function flds = saveableFields(obj)
             % Return cellarray of independent properties of the class
             flds = obj.propNamesIndep_;
         end

@@ -82,7 +82,7 @@ classdef IX_inst_DGdisk < IX_inst
                     obj.horiz_div_ = S.horiz_div;
                     obj.vert_div_ = S.vert_div;
                 else
-                    error('Must give both the horizontal and vertical divegences')
+                    error('Must give both the horizontal and vertical divergences')
                 end
                 
             end
@@ -95,8 +95,8 @@ classdef IX_inst_DGdisk < IX_inst
             ver = 2;
         end
 
-        function flds = indepFields(obj)
-            baseflds = indepFields@IX_inst(obj);
+        function flds = saveableFields(obj)
+            baseflds = saveableFields@IX_inst(obj);
             flds = { baseflds{:}, 'mod_shape_mono','moderator','shaping_chopper','mono_chopper',...
                     'horiz_div',     'vert_div', 'energy'};
         end

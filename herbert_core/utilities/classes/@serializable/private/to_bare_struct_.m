@@ -12,8 +12,8 @@ function struc = to_bare_struct_(obj,recursively)
 %                current class version
 % Returns:
 % struc -- structure, containing information, fully defining the
-%          serializabe class
-flds = indepFields(obj);
+%          serializable class
+flds = saveableFields(obj);
 
 cell_dat = cell(numel(flds),numel(obj));
 for j=1:numel(obj)
