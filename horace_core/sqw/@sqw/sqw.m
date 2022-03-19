@@ -48,7 +48,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % number
             ver = 2;
         end
-        function flds = indepFields(~)
+        function flds = saveableFields(~)
             flds = sqw.fields_to_save_;
         end
 
@@ -387,7 +387,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj.header = data_struct.header;
             obj.detpar = data_struct.detpar;
             obj.data = data_struct.data;
-            if isfield(data_struct,'runid_map')                
+            if isfield(data_struct,'runid_map')
                 obj.runid_map = data_struct.runid_map;
             else % calculate runid map from header file names
                 obj.runid_map = recalculate_runid_map_(data_struct.header);
