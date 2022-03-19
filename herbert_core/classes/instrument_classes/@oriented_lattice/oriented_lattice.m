@@ -287,7 +287,7 @@ classdef oriented_lattice < serializable
         function   ver  = classVersion(~)
             ver = 1;
         end
-        function flds = indepFields(obj)
+        function flds = saveableFields(obj)
             call_stack = dbstack;
             for_saving = strncmp(call_stack(2).name,'to',2);
             flds = oriented_lattice.lattice_parameters_;

@@ -53,9 +53,10 @@ classdef serializable
         % the older version, so version substitution is based on this
         % number
         ver  = classVersion(obj);
-        % get independent fields, which fully define the state of a
-        % serializable object.
-        flds = indepFields(obj);
+        % get fields, which fully define the state of a serializable object,
+        % so when the field values are stored on disk
+        % the object can be properly restored from these values.
+        flds = saveableFields(obj);
     end
     % To support old class versions, generic static loadob has to be
     % overloaded by the children class (e.g. ChildClass) by uncommenting
@@ -114,7 +115,7 @@ classdef serializable
             % Convert serializable object into a special structure, which allow
             % serialization and recovery using "from_bare_struct" operation
             %
-            % Uses independent properties obtained from indepFields method.
+            % Uses independent properties obtained from saveableFields method.
             % in assumption that the properties, returned by this method
             % fully define the public interface describing the state of the
             % object.
@@ -357,7 +358,7 @@ classdef serializable
             % validator list, assumed to be belonging to key-value pair.
             %
             % Everything not identified as Key-Value pair where the keys,
-            % belong to the property names returned by indepFields function
+            % belong to the property names returned by saveableFields function
             % is returned in remains cellarray
             %
             % Inputs:
@@ -374,7 +375,7 @@ classdef serializable
             % EXAMPLE:
             % if class have the properties {'a1'=1(numeric), 'a2'='blabla'(char),
             % 'a3'=sqw() 'a4=[1,1,1] (numeric), and these properties are independent
-            % properties redutned by indepFields() function as list {'a1','a2','a3','a4'}
+            % properties redutned by saveableFields() function as list {'a1','a2','a3','a4'}
             % The list of validators should have form {@isnumeric,@ischar,
             % @(x)isa(x,'sqw'),'@isnumeric} or {@isnumeric,@ischar,
             % @(x)isa(x,'sqw')} (last validator missing as it assumed to be numeric)

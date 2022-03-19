@@ -516,7 +516,7 @@ classdef rundata < serializable
         function ver  = classVersion(~)
             ver = 1;
         end
-        function flds = indepFields(~)
+        function flds = saveableFields(~)
             flds = rundata.serial_fields_;
         end
         %------------------------------------------------------------------
@@ -534,12 +534,12 @@ classdef rundata < serializable
             % loaded in memory, loads them in memory first.
             %
             % -reload  -- provide this option if you want to reload data
-            %             from source files brfore saving them on hdd
+            %             from source files before saving them on hdd
             %             discarding anything already in the memory first.
             %
             %             psi and efix are not reloaded (BUG?)
             %
-            % w, a, w+ and a+  options define readwrite or write access to the
+            % w, a, w+ and a+  options define read-write or write access to the
             %             file. (see Matlab manual for details of these options)
             %              Adding to existing nxspe file is not
             %              currently supported, so the only difference
@@ -547,7 +547,7 @@ classdef rundata < serializable
             %              if the file, opened in read-write mode exist.
             %              Existing file in write mode will be silently
             %              overwritten.
-            %  readwrite mode is assumed by  default
+            %  read-write mode is assumed by  default
             if isempty(this.loader)
                 warning('RUNDATA:invalid_argument','nothing to save');
                 return

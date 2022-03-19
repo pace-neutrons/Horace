@@ -15,14 +15,14 @@ if nobj>1
     obj = repmat(obj,size(inputs));
 end
 %--------------------------------------------------------------------------
-% complex verification of intersection of input and outuput fields is
+% complex verification of intersection of input and output fields is
 % necessary for supporting classes with variable field set depending on the
 % state of the object. Also support inheritance, when partial object
 % (parent) is restored from full child structure.
 %
 % The question if one should allow this to happen (e.g. heterogeneous
 % arrays) remains open
-fields_to_set = obj.indepFields();
+fields_to_set = obj.saveableFields();
 fields_present = fieldnames(inputs);
 is_present = ismember(fields_to_set,fields_present);
 if ~all(is_present)

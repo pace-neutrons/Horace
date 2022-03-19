@@ -174,7 +174,7 @@ classdef IX_aperture < serializable
             if isempty(names_store)
                 names_store = fieldnamesIndep(eval(mfilename('class')));
                 % here we rely on agreement that private independent
-                % porperties have the same names as public properties but
+                % properties have the same names as public properties but
                 % have added suffix '_' at the end
                 names_store = cellfun(@(x)x(1:end-1),...
                     names_store,'UniformOutput',false);
@@ -184,7 +184,7 @@ classdef IX_aperture < serializable
     end
     
     methods
-        function flds = indepFields(obj)
+        function flds = saveableFields(obj)
             % Return cellarray of independent properties of the class
             %
             flds = obj.propNamesIndep_;

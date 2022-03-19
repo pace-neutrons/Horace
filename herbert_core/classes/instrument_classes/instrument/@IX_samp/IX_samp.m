@@ -56,9 +56,9 @@ classdef IX_samp  < serializable
             [obj,remains] = init(obj,varargin{:});
         end
         function  [obj,remains] = init(obj,varargin)
-            % initialize serializable object using constructor fiels
+            % initialize serializable object using constructor fields
             % 'name','alatt','angdeg'
-            fields = obj.indepFields();
+            fields = obj.saveableFields();
             in_types = {@ischar,@isnumeric,@isnumeric};
             [obj,remains] = set_positional_and_key_val_arguments(obj,fields,...
                 in_types,varargin{:});
@@ -70,7 +70,7 @@ classdef IX_samp  < serializable
             vers = 0; % base class function, dummy value
         end
 
-        function flds = indepFields(~)
+        function flds = saveableFields(~)
             flds = {'name', 'alatt', 'angdeg'};
         end
 
@@ -82,7 +82,7 @@ classdef IX_samp  < serializable
             if numel(obj1.alatt)==3 && numel(obj2.alatt)==3
                 iseq = iseq && all(obj1.alatt==obj2.alatt);
             elseif isempty(obj1.alatt) && isempty(obj2.alatt)
-                iseq = iseq && true; % heavyhanded but gets the point across
+                iseq = iseq && true; % heavy-handed but gets the point across
             else
                 iseq = false;
                 return
@@ -90,7 +90,7 @@ classdef IX_samp  < serializable
             if numel(obj1.angdeg)==3 && numel(obj2.angdeg)==3
                 iseq = iseq && all(obj1.angdeg==obj2.angdeg);
             elseif isempty(obj1.angdeg) && isempty(obj2.angdeg)
-                iseq = iseq && true; % heavyhanded but gets the point across
+                iseq = iseq && true; % heavy-handed but gets the point across
             else
                 iseq = false;
                 return

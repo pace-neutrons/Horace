@@ -1,5 +1,5 @@
 classdef serializableTester1 < serializable
-    % Class used as test bench to unittest serializable class
+    % Class used as test bench to unit test serializable class
     %
 
     properties
@@ -32,7 +32,7 @@ classdef serializableTester1 < serializable
 
     methods(Access=public)
         % get independent fields, which fully define the state of the object
-        function flds = indepFields(obj)
+        function flds = saveableFields(obj)
             if obj(1).class_version_ == 1
                 flds = serializableTester1.fields_to_save_(1:2);
             else

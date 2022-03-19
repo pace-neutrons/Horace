@@ -164,8 +164,8 @@ classdef IX_sample < IX_samp
             ver = 3;
         end
 
-        function flds = indepFields(obj)
-            baseflds = indepFields@IX_samp(obj);
+        function flds = saveableFields(obj)
+            baseflds = saveableFields@IX_samp(obj);
             flds = [baseflds, {'hall_symbol', 'single_crystal', ...
                 'xy_geom','shape', 'ps', 'eta', 'temperature'}];
         end
