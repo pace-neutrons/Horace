@@ -19,7 +19,7 @@ if isa(a_struct,'rundata')
     end
 elseif isstruct(a_struct)
     field_names    = fieldnames(a_struct);
-    dir_fields = obj.indepFields;
+    dir_fields = obj.saveableFields;
     % check if some fields can be set up directly on the
     [obj,field_names]=set_fields_subset(obj,a_struct,dir_fields,field_names);
     if isempty(field_names)
@@ -30,7 +30,7 @@ elseif isstruct(a_struct)
     if isempty(lat)
         lat = oriented_lattice();
     end
-    lat_fields = lat.indepFields();
+    lat_fields = lat.saveableFields();
     [lat,field_names]=set_fields_subset(lat,a_struct,lat_fields,field_names);
     obj.lattice = lat;
     if isempty(field_names)

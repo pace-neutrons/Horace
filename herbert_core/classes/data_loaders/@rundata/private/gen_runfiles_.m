@@ -30,6 +30,8 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,varargin)
 %                     rundata class would contain runfile with undefined
 %                     loader. Par file(s) if provided, still have always be
 %                     defined
+% -check_validity   - if present, check if the generated runfiles are
+%                     valid, i.e. can be used for transformation
 %
 %
 % Output:
@@ -48,14 +50,19 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,varargin)
 %
 %
 %
-control_keys = {'-allow_missing'};
-[ok,mess,allow_missing,params]=parse_char_options(varargin,control_keys);
+control_keys = {'-allow_missing','-check_validity'};
+[ok,mess,allow_missing,check_validity,params]=parse_char_options(varargin,control_keys);
 if ~ok
     error('HERBERT:rundata:invalid_argument',mess);
 end
 
 % Optional parameters names list
 parameter_nams={'efix','emode','lattice','instrument','sample'};
+if isnumeric(params{4}) && numel(params{4})==3 % old format call
+    lat = convert_old_input_to_lat(params{4:end});
+    params = params(1:4);
+    params{4} = lat;
+end
 
 % Input files
 % -----------
@@ -221,11 +228,17 @@ else   % multiple par and spe files;
 end
 
 % Check if all information necessary to define the run is present
-for i=1:n_files
-    if file_exist(i)
-        undefined = check_run_defined(runfiles{i});
-        if undefined==2
-            error('GEN_RUNFILES:invalid_argument',' the run data for data file %s are not fully defined',runfiles{i}.data_file_name);
+if check_validity
+    for i=1:n_files
+        if file_exist(i)
+            if ~runfiles{i}.isvalid
+                [ok,mess,runfiles{i}] = runfiles{i}.check_combo_arg();
+                if ~ok
+                    error('HERBERT:gen_runfiles:invalid_argument', ...
+                        ' The run data for data file %s are not fully defined: %s', ...
+                        runfiles{i}.data_file_name,mess);
+                end
+            end
         end
     end
 end
@@ -238,18 +251,11 @@ if allow_missing
         runfile = runfile.initialize(spe_file_name,param);
     else
         file_found = false;
-        lat = oriented_lattice();
-        lat_fields = fieldnames(lat);
         par_fields = fieldnames(param);
         for i=1:numel(par_fields)
             field = par_fields{i};
-            if ismember(field,lat_fields)
-                lat.(field) = param.(field);
-            else
-                runfile.(field) = param.(field);
-            end
+            runfile.(field) = param.(field);
         end
-        runfile.lattice = lat;
     end
 else
     runfile = runfile.initialize(spe_file_name,param);
@@ -274,19 +280,11 @@ if allow_missing
         else
             runfile.par_file_name = par_file;
         end
-        lat = oriented_lattice();
-        lat_fields = fieldnames(lat);
         par_fields = fieldnames(param);
         for i=1:numel(par_fields)
             field = par_fields{i};
-            if ismember(field,lat_fields)
-                lat.(field) = param.(field);
-            else
-                runfile.(field) = param.(field);
-            end
+            runfile.(field) = param.(field);
         end
-        runfile.lattice = lat;
-
     end
 else
     file_found = check_file_exist(spe_file_name);
@@ -347,3 +345,45 @@ else
         name,n_components,n_files,n_components);
 end
 
+function  lat = convert_old_input_to_lat(varargin)
+% convert old input oriented lattice parameters into oriented lattice
+%
+latpar_names={'alatt','angdeg','psi','u','v','omega','dpsi','gl','gs'};
+% old format call was:
+%  [1       2    3 4  5]
+% alatt, angdeg,u,v,psi
+% and now we need:
+% alatt,angdeg,psi,u,v
+%  1      2     5  3 4
+% Rearrange parameters:
+seq = 1:numel(varargin);
+seq(3) = 5; seq(4) = 3; seq(5) =4;
+lat_par = varargin(seq);
+n_latpar = numel(lat_par);
+sizes = [3,3,1,3,3,1,1,1,1];
+lat_par_sizes = arrayfun(@(x)numel(x{1}),lat_par);
+if numel(lat_par_sizes) < numel(sizes)
+    sizes = sizes(1:numel(lat_par_sizes));
+end
+lat_rep = lat_par_sizes./sizes;
+rep_factor = max(lat_rep);
+if rep_factor > 1
+    lat = repmat(oriented_lattice,rep_factor,1);
+    for j=1:rep_factor
+        for i=1:n_latpar
+            val = lat_par{i};
+            name= latpar_names{i};
+            if numel(val) == sizes(i)
+                lat(j).(name) = val;
+            else
+                if sizes(i)>1
+                    lat(j).(name) = val(j,:);
+                else
+                    lat(j).(name) = val(j);
+                end
+            end
+        end
+    end
+else
+    lat = oriented_lattice(lat_par{:});
+end

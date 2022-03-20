@@ -154,7 +154,7 @@ classdef nxspepar_loader < a_detpar_loader_interface
             % For such loader this method should be overloaded
 
             %usage:
-            %>> fields= loader_can_define(loader);
+            %>> fields= loader_define(loader);
             %   loader -- the specific loader constructor
             %
             fields = get_par_defined(this);

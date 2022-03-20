@@ -149,7 +149,7 @@ classdef asciipar_loader < a_detpar_loader_interface
             % For such loader this method should be overloaded
 
             %usage:
-            %>> fields= loader_can_define(loader);
+            %>> fields= loader_define(loader);
             %   loader -- the specific loader constructor
             %
             fields = get_par_defined(this);
@@ -185,13 +185,14 @@ classdef asciipar_loader < a_detpar_loader_interface
             else
                 [ok,mess,f_name] = check_file_exist(par_f_name,{'.par','.phx'});
                 if ~ok
-                    error('ASCIIPAR_LOADER:invalid_argument',mess);
+                    error('HERBERT:asciipar_loader:invalid_argument',mess);
                 end
                 if ~strcmp(obj.par_file_name_,f_name)
                     obj.par_file_name_= f_name;
                     obj.n_det_in_par_ = asciipar_loader.get_par_info(f_name);
                     obj.det_par_=[];
                 end
+
             end
         end
         %

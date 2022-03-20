@@ -10,18 +10,16 @@ set(herbert_config,'log_level',-1,'-buffer');
 cleanupObj = onCleanup(@() set(herbert_config,'log_level',log_level,'-buffer'));
 try
     run=rundata(fullfile(path,'MAP10001.spe'),fullfile(path,'demo_par.PAR'));
-    run.is_crystal=false;
     run.efix = 200;
     run=get_rundata(run,'-this');
 catch Err
     disp(['RUNDATAOLD:spe_loader: ',Err.message]);
-    rethrow(err);
+    rethrow(Err);
 end
 
 
 try
     run=rundata(fullfile(path,'MAP11014.nxspe'));
-    run.is_crystal=false;
     run.efix = 200;
     run=get_rundata(run,'-this');
 catch Err

@@ -134,22 +134,26 @@ end
 
 if return_this
     if nargout>1
-        error('RUNDATA:invalid_arguments',' modifying the class structure is not consistent with  more then one output argument\n');
+        error('RUNDATA:invalid_arguments', ...
+            ' modifying the class structure is not consistent with  more then one output argument\n');
     end
 end
 % can and if we should delete NaN-s from output data
 
 if return_this
     if suppress_nan
-        error('RUNDATA:invalid_arguments',' -this and -nonan keys are incompatible\n');
+        error('RUNDATA:invalid_arguments', ...
+            ' -this and -nonan keys are incompatible\n');
         % for nonan you need S fields
     end
     if get_rad
-        error('RUNDATA:invalid_arguments',' -this and -rad keys are incompatible\n');
+        error('RUNDATA:invalid_arguments', ...
+            ' -this and -rad keys are incompatible\n');
     end
 end
 if ~ismember('S',fields_requested) && suppress_nan
-    error('RUNDATA:invalid_arguments',' can not drop NaN values if signal is not defined/not requested \n');
+    error('RUNDATA:invalid_arguments', ...
+        ' can not drop NaN values if signal is not defined/not requested \n');
 end
 
 
@@ -164,11 +168,12 @@ else       % needed the fields requested by varargin, they have been selected ab
     [is_undef,fields_to_load,undef_fields]=check_run_defined(this,fields_requested);
 end
 %
-if is_undef==2 % run can not be defined by the arguments
+if is_undef== 2&& ~return_this % run can not be defined by the arguments
     if get(herbert_config,'log_level')>-1
         fprintf('ERROR: ->field:  %s requested but is not defined by the run\n',undef_fields{:});
     end
-    error('RUNDATA:invalid_arguments',' data field is not defined by the current instance of the run class ');
+    error('RUNDATA:invalid_arguments', ...
+        ' data field is not defined by the current instance of the run class ');
 end
 
 if is_undef==1 % some data have to be either loaded or obtained from defaults
@@ -186,7 +191,8 @@ if is_undef==1 % some data have to be either loaded or obtained from defaults
         if ~isempty(loader.det_par)
             [ok,mess] = loader.is_loader_valid();
             if ~ok % detectors are non-consistent with data
-                error('RUNDATA:invalid_arguments',mess)
+                error('RUNDATA:invalid_arguments', ...
+                    mess)
             end
         end
     end

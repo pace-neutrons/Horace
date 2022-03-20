@@ -153,6 +153,7 @@ classdef rundata < serializable
             % boilerplate loadobj method, calling generic method of
             % saveable class
             obj = rundata();
+            %obj.throw_on_invalid = true;
             obj = loadobj@serializable(S,obj);
         end
     end
@@ -282,14 +283,15 @@ classdef rundata < serializable
             % method to check emode and verify its default
             mode = this.emode_;
         end
-        function this = set.emode(this,val)
+        function obj = set.emode(obj,val)
             % method to check emode and verify its defaults
             if val>-1 && val <3
-                this.emode_ = val;
+                obj.emode_ = val;
             else
                 error('HERBERT:rundata:invalid_argument',...
                     'unsupported emode %d, only 0 1 and 2 are supported',val);
             end
+            [~,~,obj] = obj.check_combo_arg();
         end
         %----
         %
@@ -302,6 +304,19 @@ classdef rundata < serializable
                 obj.lattice_ = val;
             elseif isempty(val)
                 obj.lattice_ =[];
+            elseif isempty(obj.lattice_) && isstruct(val)
+                obj.lattice_ = oriented_lattice();
+                lat_vields = properties(obj.lattice_);
+                fn = fieldnames(val);
+                if all(ismember(fn,lat_vields))
+                    for i=1:numel(fn)
+                        obj.lattice_.(fn{i}) = val.(fn{i});
+                    end
+                else
+                    error('HERBERT:rundata:invalid_argument',...
+                        'unknown fields to set to newly created oriented lattice %s',...
+                        strjoin(fn,'; '));
+                end
             else
                 error('HERBERT:rundata:invalid_argument',...
                     'lattice can be set by single oriented_lattice object only')
@@ -486,6 +501,7 @@ classdef rundata < serializable
                 obj.lattice_ = lat;
             end
         end
+        %
         function is = eq(obj,other)
             if ~(isstruct(other) || isa(other,'rundata'))
                 error('HERBERT:rundata:invalid_argument',...
@@ -499,18 +515,28 @@ classdef rundata < serializable
         % A LOADER RELATED PROPERTIES -- END
         %------------------------------------------------------------------
         function efix = get.efix(this)
-            efix = check_efix_defined_correctly(this);
-        end
-        %
-        function this = set.efix(this,val)
-            % always correct local efix, regardless of the state of the
-            % loader
-            this.efix_=val;
-            if ~isempty(this.loader_)
-                if ismember('efix',loader_define(this.loader_))
-                    this.loader_.efix = val;
+            if isempty(this.loader_)
+                efix = this.efix_;
+            else
+                if ismember('efix',this.loader_.defined_fields())
+                    efix = this.loader_.efix;
+                else
+                    efix = this.efix_;
                 end
             end
+        end
+        function obj = set.efix(obj,val)
+            % always correct local efix, regardless of the state of the
+            % loader
+            obj.efix_=val;
+            %             if isempty(obj.loader_)
+            %                 obj.loader_ = loader_nxspe();
+            %             end
+            if ~isempty(obj.loader_) && ismember('efix',loader_define(obj.loader_))
+                obj.loader_.efix = val;
+            end
+
+            [~,~,obj] = check_combo_arg(obj);
         end
         %------------------------------------------------------------------
         function ver  = classVersion(~)

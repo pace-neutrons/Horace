@@ -22,7 +22,7 @@ classdef test_nxspepar_loader< TestCase
             assertEqual(mess_id,'HERBERT:nxspepar_loader:invalid_argument');
 
             assertExceptionThrown(@()load_par(pl),...
-                'HERBERT:nxspepar_loader:invalid_argument')
+                'HERBERT:nxspepar_loader:invalid_argument');
         end
         %
         function test_constructors(this)

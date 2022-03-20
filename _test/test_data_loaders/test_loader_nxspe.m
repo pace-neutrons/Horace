@@ -85,14 +85,16 @@ classdef test_loader_nxspe< TestCase
             assertExceptionThrown(f,'HERBERT:a_loader:invalid_argument');
         end
         function test_file_not_exist(obj)
-            f = @()loader_nxspe(f_name(obj,'missing_file.nxspe'));
             % should throw; first argument has to be an existing file name
             % disable warning about escape sequences in warning on matlab
             % 2009
             ws = warning('off','HERBERT:nxspepar_loader:invalid_argument');
             clob = onCleanup(@()warning(ws));
+            nxl = loader_nxspe(f_name(obj,'missing_file.nxspe'));
+            assertFalse(nxl.isvalid);
+            assertTrue(isempty(nxl.efix));
+            assertTrue(isempty(nxl.n_detectors));
 
-            assertExceptionThrown(f,'HERBERT:a_loader:invalid_argument');
         end
         function test_non_supported_nxspe(obj)
             nxpse_name = f_name(obj,'currently_not_supported_NXSPE.nxspe');
@@ -112,18 +114,18 @@ classdef test_loader_nxspe< TestCase
             assertEqual(loader.file_name,f_name(obj,'MAP11014.nxspe'));
         end
         % DEFINED FIELDS
-        function test_emptyloader_nxspe_defines_nothing(obj)
+        function test_emptyloader_nxspe_defines_nothing(~)
             loader=loader_nxspe();
             % if file is not defined, no data fields are defined either;
             fields = defined_fields(loader);
             assertTrue(isempty(fields));
         end
         %LOAD_DATA
-        function test_emptyload_throw(obj)
+        function test_emptyload_throw(~)
             loader=loader_nxspe();
             f = @()load_data(loader);
             % input file name is not defined
-            assertExceptionThrown(f,'LOAD_NXSPE:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:load_nxspe:invalid_argument');
         end
 
         function test_loader_nxspe_works(obj)
