@@ -56,7 +56,11 @@ classdef serializableTester1 < serializable
         function obj = from_old_struct(obj,inputs)
             if (isfield(inputs,'version') && inputs(1).version ~= 2) || ...
                 ~isfield(inputs,'version')
-                obj = from_bare_struct(obj,inputs);
+                if isfield(inputs,'array_dat')
+                    obj = from_bare_struct(obj,inputs.array_dat);                    
+                else
+                    obj = from_bare_struct(obj,inputs);
+                end
                 for i=1:numel(obj)
                     obj(i).Prop_class1_3 = 'recovered_new_from_old_value';
                 end
