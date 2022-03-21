@@ -31,40 +31,38 @@ function [ok, mess, efix_out, emode_out, lattice] = gen_sqw_check_params...
 %   efix_out        Fixed energy (meV)                 [column vector length nfile]
 %   emode_out       Direct geometry=1, indirect geometry=2, elastic=0
 %                                                      [column vector length nfile]
-%   sample_defailt  IX_samp() object, containing lattice [nfile,1] array
-%   u_out           First vector (1x3) defining scattering plane    [nfile,3] array
-%   v_out           Second vector (1x3) defining scattering plane   [nfile,3] array
-%   psi_out         Angle of u w.r.t. ki (deg)         [column vector length nfile]
-%   omega_out       Angle of axis of small goniometer arc w.r.t. notional u (deg)
-%                                                      [column vector length nfile]
-%   dpsi_out        Correction to psi (deg)            [column vector length nfile]
-%   gl_out          Large goniometer arc angle (deg)   [column vector length nfile]
-%   gs_out          Small goniometer arc angle (deg)   [column vector length nfile]
-
+%   lattice         oriented_lattice() object, containing lattice [nfile,1]
+%                   array build from lattice and goniometer parameters
+%
 
 % Initialise return arguments
 ok=false;
 efix_out=[]; emode_out=[];
+lattice = [];
+%
+if ~isa(varargin(1),'oriented_lattice') && isnumeric(varargin{1})
+    try
+        lattice = convert_old_input_to_lat(varargin{:});
+    catch ME
+        if strcmp(ME.identifier,'HERBERT:convert_old_input:invalid_argument')
+            mess = ME.message;
+            return;
+        else
+            rethrow(ME);
+        end
+    end
+end
 
 % Determine number of files if not given
 if ~isempty(nfile)
     % Check value provided is OK
     if nfile<1
-        ok=false;
         mess='Number of spe data sets must be a positive integer >= 1';
         return
     end
 else
     % Get nfile from the sizes of the input arguments themselves
-    if rem(numel(alatt),3)==0 && rem(numel(angdeg),3)==0 &&...
-            rem(numel(u),3)==0 && rem(numel(v),3)==0
-        nfile=max([numel(efix), numel(alatt)/3, numel(angdeg)/3, numel(u)/3, numel(v)/3,...
-            numel(psi), numel(omega), numel(dpsi), numel(gl), numel(gs)]);
-    else
-        ok=false;
-        mess='Check the sizes of arrays alatt, angdeg, u and v';
-        return
-    end
+    nfile = numel(lattice);
 end
 
 % Expand the input variables to vectors where values can be different for each spe file
@@ -93,34 +91,6 @@ if ~isempty(mess), return; end
 [emode_out,mess]=check_parameter_values_ok(round(emode),nfile,1,'emode',...
     'the number of spe files',[0,2]);
 if ~isempty(mess), return; end
-
-
-lattice = repmat(oriented_lattice(),nfile,1);
-%  The possible argument to be present in varargin:
-all_arg_names = {'alatt','angdeg', 'u', 'v', 'psi', 'omega', 'dpsi', 'gl', 'gs'};
-max_vargi = numel(all_arg_names);
-real_argi = nunel(varargin);
-for i = 1:nfile
-    for j=1:max_vargi
-        arg_key = all_arg_names{j};
-        if j > real_argi
-            arg_val = 0;
-        else
-            var = varargin{j};
-            nun_inpar = size(var,1);
-            if nun_inpar>1 % array of parameters provided
-                arg_val = var(i,:);
-            else
-                arg_val = var;
-            end
-        end
-        lattice(i).(arg_key) = arg_val;
-    end
-    if ~lattice(i).isvalid
-        [ok,mess] = lattice(i).check_combo_arg();
-        return;
-    end
-end
 
 % Fill error flags
 ok=true;

@@ -39,7 +39,7 @@ function [pix_range,ndet] = calc_sqw_pix_range (efix, emode, eps_lo, eps_hi, det
 % Check input arguments
 % ------------------------
 % Check input arguments, and convert into arrays
-[ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=...
+[ok,mess,efix,emode,lattice]=...
     gen_sqw_check_params ([],efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
 if ~ok, error(mess), end
 nfiles=numel(efix);
@@ -51,7 +51,8 @@ if ~isempty(mess), return; end
 if ~isempty(mess), return; end
 
 if any(eps_lo>eps_hi)
-    error('Must have eps_lo<=eps_hi')
+    error('HORACE:calc_sqw_pix_range:invalid_argument',...
+        'Must have eps_lo<=eps_hi')
 end
 
 % Invoke public get_par routine
@@ -60,7 +61,7 @@ if ischar(det) && size(det,1)==1
 end
 % Get pix_range
 rd_list = rundatah.gen_runfiles(cell(1,numel(efix)),det,...
-    efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs,'-allow_missing');
+    efix,emode,lattice,'-allow_missing');
 ndet = numel(det.group);
 S = zeros(1,ndet);
 ERR = S;

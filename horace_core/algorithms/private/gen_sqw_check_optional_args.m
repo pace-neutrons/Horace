@@ -78,7 +78,7 @@ if narg==0
     pix_db_range=[];
     
     instrument=repmat(instrument_default,[nfile,1]);
-    sample=sample_default;
+    sample=repmat(sample_default,[nfile,1]);
     
 elseif narg==1  % grid
     [grid,mess]=check_grid_size(varargin{1},grid_default);  
@@ -98,7 +98,7 @@ elseif narg==2 && isnumeric(varargin{1})    % grid, pix_db_range
     present.pix_db_range=true;
     
     instrument=repmat(instrument_default,[nfile,1]);
-    sample=sample_default;
+    sample=repmat(sample_default,[nfile,1]);
 
 elseif narg==2 && ~isnumeric(varargin{1})   % instrument, sample
     grid=grid_default;

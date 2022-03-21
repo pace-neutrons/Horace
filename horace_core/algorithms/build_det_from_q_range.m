@@ -1,4 +1,4 @@
-function  [det_pos,par_file_name] = build_det_from_q_range(q_range,efix,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs,filename)
+function  [det_pos,par_file_name] = build_det_from_q_range(q_range,efix,lattice,filename)
 % Create fake detector file which would cover the q-range provided as input
 %
 % Inputs:
@@ -15,16 +15,9 @@ function  [det_pos,par_file_name] = build_det_from_q_range(q_range,efix,alatt,an
 %
 %
 % Goniometer and sample position, defining q-transformation:
-%   efix            Fixed energy (meV)                 [scalar or vector length nfile]
-%   alatt           Lattice parameters (Ang^-1)        [row or column vector]
-%   angdeg          Lattice angles (deg)               [row or column vector]
-%   u               First vector (1x3) defining scattering plane (r.l.u.)
-%   v               Second vector (1x3) defining scattering plane (r.l.u.)
-%   psi             Angle of u w.r.t. ki (deg)         [scalar or vector length nfile]
-%   omega           Angle of axis of small goniometer arc w.r.t. notional u (deg) [scalar or vector length nfile]
-%   dpsi            Correction to psi (deg)            [scalar or vector length nfile]
-%   gl              Large goniometer arc angle (deg)   [scalar or vector length nfile]
-%   gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
+%   efix       Fixed energy (meV)                 [scalar or vector length nfile]
+%   lattice    oriented_lattice object, defining the transformation from 
+%              
 % Optional (Not implemented)
 %  filename  -- if present, defines the name of the par file to save
 %               detector information. If absent, detector infornation is
@@ -71,8 +64,7 @@ elseif all(size(q_range) == [1,3])
     q_range = [reshape(q1,nq,1),reshape(q2,nq,1),reshape(q3,nq,1)];
 end
 
-lat = oriented_lattice(alatt,angdeg,psi,u,v,omega,dpsi,gl,gs);
-[~, ~, spec_to_rlu] = lat.calc_proj_matrix();
+[~, ~, spec_to_rlu] = lattice.calc_proj_matrix();
 
 %
 c=neutron_constants;
