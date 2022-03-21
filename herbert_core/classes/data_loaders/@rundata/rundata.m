@@ -216,7 +216,6 @@ classdef rundata < serializable
         % of crystal or powder experiments
         [data_fields,lattice_fields] = what_fields_are_needed(this,varargin);
         %------------------------------------------------------------------
-
         function obj=rundata(varargin)
             % rundata class constructor
             %
