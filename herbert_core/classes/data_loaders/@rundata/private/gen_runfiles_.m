@@ -112,10 +112,18 @@ end
 
 % Remaining parameters names list:
 parameter_nams={'efix','emode','lattice','instrument','sample'};
-if numel(params)>2 && isnumeric(params{3}) && numel(params{3})==3 % old format call
-    lat = convert_old_input_to_lat(params{4:end});
-    params = params(1:4);
-    params{4} = lat;
+if numel(params)>2 && isnumeric(params{3}) && rem(numel(params{3}),3)==0 % old format call
+    % instead of lattice, one have long row of the lattice and goniometer
+    % parameters.
+    is_present = cellfun(@(x)isa(x,'IX_inst')||isa(x,'IX_samp'),params);
+    if any(is_present)
+        inst_samp = params(is_present);
+    else
+        inst_samp = {};
+    end
+    params = params(~is_present);
+    lat = convert_old_input_to_lat(params{3:end});
+    params = [params(1:2),{lat},inst_samp];
 end
 
 
@@ -360,7 +368,7 @@ if numel(size(val))==2 && all(size(val)==[n_files,n_components])
 elseif numel(val)==n_components
     res=num2cell(repmat(val(:)',[n_files,1]),2)';   % 1 x nfiles cell array containing n_components vectors
 else
-    error('GEN_RUNFILES:invalid_argument',...
+    error('HERBERT:gen_runfiles:invalid_argument',...
         'parameter %s must be a %d-element vector or a [%d x %d] array of doubles',...
         name,n_components,n_files,n_components);
 end
