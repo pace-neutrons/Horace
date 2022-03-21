@@ -19,39 +19,21 @@ obj.header_pos_ = zeros(1,n_files);
 obj.header_pos_(1) = pos;
 
 headers = sqw_obj.experiment_info;
-if isa(headers,'Experiment')
-    isexpt = true;
-    hdr = headers.expdata(1);
-elseif iscell(headers)
-    process_cell = true;
-    isexpt = false;
-    hdr = headers{1};
-else
-    process_cell = false;
-    isexpt = false;
-    hdr = headers(1);
+hdrs = headers.convert_to_old_headers;
+if ~iscell(hdrs)
+    hdrs = {hdrs};
 end
+%HACK: Store runid_map with filenames
+hdrs = sqw_binfile_common.modify_header_with_runid(hdrs,sqw_obj.runid_map);
 
 header_form = obj.get_header_form();
-if isexpt
-    [header_pos,pos]=obj.sqw_serializer_.calculate_positions(header_form,hdr,pos);    
-elseif process_cell
-    [header_pos,pos]=obj.sqw_serializer_.calculate_positions(header_form,headers{1},pos);
-else
-    [header_pos,pos]=obj.sqw_serializer_.calculate_positions(header_form,headers(1),pos);
-end
+[header_pos,pos]=obj.sqw_serializer_.calculate_positions(header_form,hdrs{1},pos);
 obj.header_pos_info_ = repmat(header_pos,1,n_files);
 
 for i=2:n_files
     obj.header_pos_(i) = pos;
     % [header_pos,pos] =
-    if isexpt
-        [header_pos,pos]=obj.sqw_serializer_.calculate_positions(header_form,headers.expdata(i),pos);
-    elseif process_cell
-        [header_pos,pos]=obj.sqw_serializer_.calculate_positions(header_form,headers{i},pos);
-    else
-        [header_pos,pos]=obj.sqw_serializer_.calculate_positions(header_form,headers(i),pos);
-    end
+    [header_pos,pos]=obj.sqw_serializer_.calculate_positions(header_form,hdrs{i},pos);
     obj.header_pos_info_(i) = header_pos;
 end
 obj.detpar_pos_ = pos;

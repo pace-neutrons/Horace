@@ -345,19 +345,19 @@ end
 
 if accumulate_old_sqw % build only runfiles to process
     run_files = rundatah.gen_runfiles(spe_file(ix),par_file,efix(ix),emode(ix),...
-        lattice(ix),rundata_par{:});
+        lattice(ix),instrument,sample,rundata_par{:});
 else % build all runfiles, including missing runfiles. TODO: Lost generality
     if isempty(par_file) && sum(spe_exist) ~= n_all_spe_files % missing rf need to use par file from existing runfiles
         % Get detector parameters
         iex1 = indx(1);
         rf1 = rundatah.gen_runfiles(spe_file{iex1},par_file,efix(1),emode(1),...
-            lattice(iex1),rundata_par{:});
+            lattice(iex1),instrument(iex1),sample(iex1),rundata_par{:});
         par_file = get_par(rf1{1});
     end
 
     % build all runfiles, including missing runfiles
     run_files = rundatah.gen_runfiles(spe_file,par_file,efix,emode,lattice, ...
-        '-allow_missing',rundata_par{:});
+        instrument,sample,'-allow_missing',rundata_par{:});
 end
 % check runfiles correctness
 if emode ~= 0
@@ -416,8 +416,6 @@ if ~accumulate_old_sqw && nindx==1
         disp('--------------------------------------------------------------------------------')
         disp('Creating output sqw file:')
     end
-    run_files{1}.instrument = instrument(indx(1));
-    run_files{1}.sample     = sample(indx(1));
     if ~isempty(opt.transform_sqw)
         run_files{1}.transform_sqw = opt.transform_sqw;
     end
@@ -435,28 +433,6 @@ if ~accumulate_old_sqw && nindx==1
         disp('--------------------------------------------------------------------------------')
     end
 else
-    % cut instrument and sample to rundata array size
-    if verLessThan('matlab','8.0')
-        % Older Matlab compatibility operator: overcome flaw in indexing empty structure arrays pre 2011b or so.
-        if  numel(fields(instrument))~=0
-            instrument = instrument(indx);
-        else
-            instrument  = repmat(struct(),sum(ix),1);
-        end
-        if numel(fields(sample))~=0
-            sample = sample(indx);
-        else
-            sample = repmat(struct(),sum(ix),1);
-        end
-    else
-        if ~all(ix)
-            %tmp_file = tmp_file(not_empty);
-            instrument = instrument(ix);
-            sample     = sample(ix);
-        end
-    end
-
-
     if opt.replicate && ~spe_unique
         % expand run_ids for replicated files to make run_id-s unique
         run_files = update_duplicated_rf_id(run_files);

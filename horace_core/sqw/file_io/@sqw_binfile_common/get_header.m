@@ -69,19 +69,15 @@ n_header = numel(header);
 runids = zeros(n_header,1);
 for i=1:n_header
     if iscell(header)
-        header{i}.instruments = IX_null_inst();  % this is necessary
-        header{i}.samples = IX_null_sample();    % to satisfy current interface
-        if size(header{i}.en,1)==1
-            header{i}.en = header{i}.en';
-        end
-        runids(i) = rundata.extract_id_from_filename(header{i}.filename);
+        header{i}.instruments = IX_null_inst();   % this is necessary
+        header{i}.samples     = IX_null_sample(); % to satisfy current interface
+        header{i}.en = header{i}.en(:);  % ensure energy is a column array
+        [runids(i),header{i}.filename] = rundata.extract_id_from_filename(header{i}.filename);
     else
-        if size(header(i).en,1)==1
-            header(i).en = header(i).en';
-        end
-        header(i).instruments = IX_null_inst(); 
-        header(i).samples = IX_null_sample();
-        runids(i) = rundata.extract_id_from_filename(header(i).filename);
+        header(i).en = header(i).en(:);  % ensure energy is a column array
+        header(i).instruments = IX_null_inst();
+        header(i).samples     = IX_null_sample();
+        [runids(i),header(i).filename] = rundata.extract_id_from_filename(header(i).filename);
     end
     %
 end
@@ -92,6 +88,11 @@ if any(isnan(runids)) % this also had been done in gen_sqw;
     % It have setup update_runlabels to true, which also made
     % duplicated headers unique
     runids = header_numbers;
+else
+    unique_id = unique(runids);
+    if numel(unique_id) ~= numel(header)
+        runids = header_numbers;
+    end
 end
 
 runid_map = containers.Map(runids,header_numbers);
