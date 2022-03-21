@@ -1,4 +1,5 @@
-function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,varargin)
+function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,...
+    varargin)
 % Returns array of rundata objects created by the input arguments.
 %
 %   >> [runfiles_list,file_exist] = gen_runfiles(spe_file,[par_file],arg1,arg2,...)
@@ -23,6 +24,8 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,varargin)
 %   emode           Direct geometry=1, indirect geometry=2
 %^1 lattice         The instance of oriented lattice object or
 %                   array of such objects
+%  instrument       the instance or array of instruments
+%  sample           the instance or array of samples
 %
 % additional control keywords could modify the behaviour of the routine, namely:
 %  -allow_missing   - if such keyword is present, routine allows
@@ -54,14 +57,6 @@ control_keys = {'-allow_missing','-check_validity'};
 [ok,mess,allow_missing,check_validity,params]=parse_char_options(varargin,control_keys);
 if ~ok
     error('HERBERT:rundata:invalid_argument',mess);
-end
-
-% Optional parameters names list
-parameter_nams={'efix','emode','lattice','instrument','sample'};
-if isnumeric(params{4}) && numel(params{4})==3 % old format call
-    lat = convert_old_input_to_lat(params{4:end});
-    params = params(1:4);
-    params{4} = lat;
 end
 
 % Input files
@@ -99,14 +94,11 @@ if nargin>1
 else
     par_files = {};
 end
-
-
 % Check number of par files is one, no, or matches the number of spe files
 if ~(numel(par_files)==1 || numel(par_files)==numel(spe_files) || numel(par_files) == 0)
     error('HERBERT:rundata:invalid_argument',...
         'par files list should be empty, have one par file or number of par files should be equal to the number of spe files');
 end
-
 % Check if all requested par files exist:
 if ~parfile_is_det
     for i=1:numel(par_files)
@@ -116,6 +108,14 @@ if ~parfile_is_det
                 ' par file %s specified but can not be found',file);
         end
     end
+end
+
+% Remaining parameters names list:
+parameter_nams={'efix','emode','lattice','instrument','sample'};
+if numel(params)>2 && isnumeric(params{3}) && numel(params{3})==3 % old format call
+    lat = convert_old_input_to_lat(params{4:end});
+    params = params(1:4);
+    params{4} = lat;
 end
 
 
@@ -134,6 +134,26 @@ else
 end
 
 n_dfnd_params = numel(params);
+if n_dfnd_params>4 % sample provided
+    default_sample = arrayfun(@(x)(isa(x,'IX_null_sample')),params{5});
+    if all(default_sample) % ignore it. Default sample is already on rundata,
+        % and was set from lattice. Setting it again will break rundata
+        % TODO: merge IX_samp and oriented_lattice
+        n_dfnd_params = 4;
+        params = params(1:4);
+        parameter_nams = parameter_nams(1:4);
+    end
+end
+if n_dfnd_params>3 && isa(params{4},'IX_inst') % instrument provided
+    default_inst = arrayfun(@(x)(isa(x,'IX_null_inst')),params{4});
+    if all(default_inst) % some instrument may have already been set on rundata
+        % so better to ignore them here. (not happens currently but let's do it for consistence)
+        n_dfnd_params = n_dfnd_params - 1;
+        params = [params(1:3),params(5:end)];
+        parameter_nams = [parameter_nams(1:3),parameter_nams(5:end)];
+    end
+end
+
 args=cell(1,n_dfnd_params);
 emode = params{2};
 emode = emode(1);

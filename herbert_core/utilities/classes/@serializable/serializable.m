@@ -224,6 +224,9 @@ classdef serializable
             do = get_throw_on_invalid(obj);
         end
         function obj = set.throw_on_invalid(obj,val)
+            if isempty(val)
+                val = false;
+            end
             obj.throw_on_invalid_ = logical(val);
         end
         %

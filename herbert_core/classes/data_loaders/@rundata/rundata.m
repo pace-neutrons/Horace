@@ -136,18 +136,28 @@ classdef rundata < serializable
             [runfiles_list,defined]= rundata.gen_runfiles_of_type('rundata',spe_files,varargin{:});
         end
         %
-        function id = extract_id_from_filename(file_name)
+        function [id,filename] = extract_id_from_filename(file_name)
             % method used to extract run id from a filename, if runnumber is
             % present in the filename, and is first number among all other
             % numbers
             %
             [~,filename] = fileparts(file_name);
-            [l_range,r_range] = regexp(filename,'\d+');
-            if isempty(l_range)
-                id = NaN;
-                return;
+            % the way of writing special filenames and run_id map
+            % with current file format, not introducing new file format
+            % will be removed/ignored in the future versions of the file
+            % format
+            loc = strfind(filename,'$id$');
+            if isempty(loc)
+                [l_range,r_range] = regexp(filename,'\d+');
+                if isempty(l_range)
+                    id = NaN;
+                    return;
+                end
+                id = str2double(filename(l_range(1):r_range(1)));
+            else
+                id       = str2double(filename(loc(1)+4:end));
+                filename = filename(1:loc(1)-1);
             end
-            id = str2double(filename(l_range(1):r_range(1)));
         end
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
