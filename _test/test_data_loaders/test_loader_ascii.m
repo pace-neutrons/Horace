@@ -50,9 +50,8 @@ classdef test_loader_ascii< TestCase
             spe_file = fullfile(obj.test_data_path,'missing_spe_file.spe');
             par_file = fullfile(obj.test_data_path,obj.test_par_file);
             ld = loader_ascii(spe_file,par_file);
-            % should throw; spe file does not exist
+            % should be invalid; spe file does not exist
             assertFalse(ld.isvalid);
-            %assertExceptionThrown(f,'HERBERT:a_loader:invalid_argument');
         end
         function test_to_from_struct_loader_in_memory(obj)
             spe_file = fullfile(obj.test_data_path,'MAP10001.spe');

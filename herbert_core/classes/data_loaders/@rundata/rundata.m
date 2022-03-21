@@ -538,9 +538,10 @@ classdef rundata < serializable
             % always correct local efix, regardless of the state of the
             % loader
             obj.efix_=val;
-            %             if isempty(obj.loader_)
-            %                 obj.loader_ = loader_nxspe();
-            %             end
+            % should we do this?
+            %if isempty(obj.loader_)
+            %    obj.loader_ = loader_nxspe();
+            %end
             if ~isempty(obj.loader_) && ismember('efix',loader_define(obj.loader_))
                 obj.loader_.efix = val;
             end
