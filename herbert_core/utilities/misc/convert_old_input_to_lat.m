@@ -33,8 +33,8 @@ if nargin<5
         nargin);
 end
 % gensqw old format call was:
-%  [1       2    3 4  5]
 % alatt, angdeg,u,v,psi
+%  [1       2    3 4  5]
 % oriented lattice requests:
 % alatt,angdeg,psi,u,v
 %  1      2     5  3 4
