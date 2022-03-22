@@ -86,13 +86,13 @@ function [varargout] =get_rundata(this,varargin)
 keys_recognized={'-nonan','-rad','-this'};
 
 if isempty(this.loader)
-    error('RUNDATA:invalid_arguments',...
+    error('HERBERT:get_rundata:invalid_argument',...
         'Can not get data as data loader is not defined for this instance of the class');
 end
 %
 % is input varargin correct (all input fields have to be strings)
 if ~iscellstr(varargin)
-    error('RUNDATA:invalid_arguments',...
+    error('HERBERT:get_rundata:invalid_argument',...
         'all input parameters have to be a cell strings');
 end
 
@@ -100,7 +100,7 @@ end
 % (should be only public fields but currently works with all)
 [ok,mess,suppress_nan,get_rad,return_this,fields_requested] = parse_char_options(varargin,keys_recognized);
 if(~ok)
-    error('RUNDATA:invalid_arguments',...
+    error('HERBERT:get_rundata:invalid_argument',...
         mess);
 end
 [all_fields,lattice_fields] = what_fields_are_needed(this,'all_fields');
@@ -110,7 +110,7 @@ end
 
 non_fields =~ismember(fields_requested,all_fields);
 if any(non_fields)
-    error('RUNDATA:invalid_arguments',...
+    error('HERBERT:get_rundata:invalid_argument',...
         [' missing fields requested: ',fields_requested{non_fields}]);
 end
 if ~isempty(lattice_fields)
@@ -134,7 +134,7 @@ end
 
 if return_this
     if nargout>1
-        error('RUNDATA:invalid_arguments', ...
+        error('HERBERT:get_rundata:invalid_argument',...
             ' modifying the class structure is not consistent with  more then one output argument\n');
     end
 end
@@ -142,17 +142,17 @@ end
 
 if return_this
     if suppress_nan
-        error('RUNDATA:invalid_arguments', ...
+        error('HERBERT:get_rundata:invalid_argument',...
             ' -this and -nonan keys are incompatible\n');
         % for nonan you need S fields
     end
     if get_rad
-        error('RUNDATA:invalid_arguments', ...
+        error('HERBERT:get_rundata:invalid_argument',...
             ' -this and -rad keys are incompatible\n');
     end
 end
 if ~ismember('S',fields_requested) && suppress_nan
-    error('RUNDATA:invalid_arguments', ...
+    error('HERBERT:get_rundata:invalid_argument',...
         ' can not drop NaN values if signal is not defined/not requested \n');
 end
 
@@ -163,7 +163,7 @@ end
 if isempty(fields_requested) && ~return_this % all data fields are needed
     fields_requested  = what_fields_are_needed(this);
     [is_undef,fields_to_load,undef_fields]=check_run_defined(this,fields_requested);
-    
+
 else       % needed the fields requested by varargin, they have been selected above:
     [is_undef,fields_to_load,undef_fields]=check_run_defined(this,fields_requested);
 end
@@ -172,7 +172,7 @@ if is_undef== 2&& ~return_this % run can not be defined by the arguments
     if get(herbert_config,'log_level')>-1
         fprintf('ERROR: ->field:  %s requested but is not defined by the run\n',undef_fields{:});
     end
-    error('RUNDATA:invalid_arguments', ...
+    error('HERBERT:get_rundata:invalid_argument',...
         ' data field is not defined by the current instance of the run class ');
 end
 
@@ -187,11 +187,11 @@ if is_undef==1 % some data have to be either loaded or obtained from defaults
         % set up all internal fields from loaded data:
         %
         fields_to_load=[fields_to_load;data_fields(~data_members)];
-        
+
         if ~isempty(loader.det_par)
             [ok,mess] = loader.is_loader_valid();
             if ~ok % detectors are non-consistent with data
-                error('RUNDATA:invalid_arguments', ...
+                error('HERBERT:get_rundata:invalid_argument',...
                     mess)
             end
         end
@@ -209,7 +209,7 @@ if is_undef==1 % some data have to be either loaded or obtained from defaults
         % parameters are not already defined
         if any(loader_lattice_fields)
             lattice_in_loader=lattice_fields(loader_lattice_fields);
-            for i=1:numel(lattice_in_loader) 
+            for i=1:numel(lattice_in_loader)
                 % set rundata value using field in loader only if loader
                 % field is empty. Necessary when gen_sqw redefines fields,
                 % stored in the data file (e.g. uses different psi wrt psi
@@ -249,15 +249,15 @@ if return_structure
         out.(fields_requested{i})=get_field(this,fields_requested{i});
     end
     varargout{1}=out;
-    
+
 else % return cell array of output variables, defined by the list of
     %  input variables names
     min_num = nargout;
     if numel(fields_requested)<min_num; min_num =numel(fields_requested);end
-    
+
     for i=1:min_num
         varargout{i}=get_field(this,fields_requested{i});
     end
-    
+
 end
 

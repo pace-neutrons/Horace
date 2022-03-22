@@ -172,7 +172,8 @@ classdef test_gen_runfiles< TestCase
 
         function test_genrunfiles(this)
 
-            run_files = rundata.gen_runfiles(this.test_files,this.par_file,this.efix,this.emode,this.alatt,this.angdeg,...
+            run_files = rundata.gen_runfiles(this.test_files,this.par_file, ...
+                this.efix,this.emode,this.alatt,this.angdeg,...
                 this.u,this.v,this.psi,this.omega,this.dpsi,this.gl,this.gs);
 
             assertEqual(run_files{1}.det_par,run_files{end}.det_par);

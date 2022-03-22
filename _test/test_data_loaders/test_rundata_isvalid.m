@@ -28,7 +28,7 @@ classdef test_rundata_isvalid<TestCase
             assertTrue(strncmp(base_mess,mess,numel(base_mess)));
             rd.ERR=zeros(3,5);
             assertFalse(rd.isvalid);
-            [ok,mess]=rd.check_combo_arg;
+            [ok,mess]=rd.check_combo_arg();
             assertFalse(ok);
             base_mess = 'ill defined en: size(en) ~= size(S,1)+1';
             assertTrue(strncmp(base_mess,mess,numel(base_mess)));
@@ -39,7 +39,7 @@ classdef test_rundata_isvalid<TestCase
             rd.en = ones(5,1);
             assertFalse(rd.isvalid);
             rd.en = ones(1,5);
-            [ok,mess,rd]=check_combo_arg(rd);
+            [ok,mess,rd]=rd.check_combo_arg();
             assertFalse(ok);
             base_mess = 'Energy transfer is defined but signal,error and/or data file are not';
             assertEqual(mess,base_mess);
@@ -47,7 +47,7 @@ classdef test_rundata_isvalid<TestCase
 
             rd.S = ones(4,6);
             assertFalse(rd.isvalid)
-            [ok,mess]=check_combo_arg(rd);
+            [ok,mess,rd]=rd.check_combo_arg();
             assertFalse(ok);
             % S is ill-defined
             base_mess = 'ill defined Signal: size(Signal) ~= size(ERR)';
@@ -55,7 +55,7 @@ classdef test_rundata_isvalid<TestCase
 
             rd.ERR = ones(4,6);
             assertFalse(rd.isvalid);
-            [ok,mess,rd]=check_combo_arg(rd);
+            [ok,mess,rd]=rd.check_combo_arg();
             assertFalse(ok)
             assertEqual(mess,'load_par undefined')
 
@@ -67,13 +67,13 @@ classdef test_rundata_isvalid<TestCase
             rd=rundata();
             rd.efix = 6;
             assertFalse(rd.isvalid);
-            [ok,mess]=check_combo_arg(rd);
+            [ok,mess,rd]=rd.check_combo_arg();
             assertFalse(ok)
             base_mess_S = 'Run is undefined. Need to define missing fields: en; n_detectors; S; ERR; det_par';
             assertTrue(strncmp(mess,base_mess_S,numel(base_mess_S)));
 
             rd.en=(1:10)';
-            [ok,mess]=check_combo_arg(rd);
+            [ok,mess,rd]=rd.check_combo_arg();
             assertFalse(ok);
             base_mess = 'Emode=1 and efix incompatible with max energy transfer, efix: 6.000000 max(dE): 9.500000';
             assertTrue(strncmp(base_mess,mess,numel(base_mess)));
@@ -81,7 +81,7 @@ classdef test_rundata_isvalid<TestCase
 
             rd.en=(1:6)';
             assertFalse(rd.isvalid);
-            [ok,mess]=check_combo_arg(rd);
+            [ok,mess]=rd.check_combo_arg();
             assertFalse(ok);
             base_mess = 'Energy transfer is defined but signal,error and/or data file are not';
             assertTrue(strncmp(mess,base_mess,numel(base_mess)));
@@ -101,7 +101,7 @@ classdef test_rundata_isvalid<TestCase
 
             rd.det_par = ones(6,10);
             rd.S       = ones(3,9);
-            [ok,mess]=check_combo_arg(rd);
+            [ok,mess,rd]=rd.check_combo_arg();
             assertFalse(ok);
             base_mess = 'ill defined Signal: size(Signal) ~= size(ERR)';
             assertTrue(strncmp(base_mess,mess,numel(base_mess)));
@@ -131,7 +131,7 @@ classdef test_rundata_isvalid<TestCase
             assertTrue(rd.lattice.isvalid);
 
             assertFalse(rd.isvalid);
-            [ok,mess]=check_combo_arg(rd);
+            [ok,mess]=rd.check_combo_arg();
             assertFalse(ok);
             assertTrue(strncmp(mess,'Run is undefined',16));
         end
@@ -149,7 +149,7 @@ classdef test_rundata_isvalid<TestCase
             assertTrue(rd.lattice.isvalid);
 
             assertFalse(rd.isvalid);
-            [ok,mess]=check_combo_arg(rd);
+            [ok,mess]=rd.check_combo_arg();
             assertFalse(ok);
             assertTrue(strncmp(mess,'Run is undefined',16));
         end
@@ -161,7 +161,7 @@ classdef test_rundata_isvalid<TestCase
             % becessary to make lattice valid
             assertTrue(rd.lattice.isvalid);
             assertFalse(rd.isvalid);
-            [ok,mess]=check_combo_arg(rd);
+            [ok,mess]=rd.check_combo_arg();
             assertFalse(ok);
             assertTrue(strncmp(mess,'Run is undefined',16));
         end

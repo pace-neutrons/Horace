@@ -1,6 +1,6 @@
 function  obj = set_file_name_(obj,new_name)
-% private function which sets input file name for a loader verifying first 
-% if the file with appropriate name exist
+% Set input file name for a loader verifying 
+% if the file with appropriate name exist.
 %
 if isempty(new_name)
     % disconnect detector information in memory from a par file
@@ -15,6 +15,9 @@ else
     if ok
         obj.isvalid_ = true;        
     else
+        % Should we leave this check throwing? Removed to allow the file to
+        % appear later, but different policy may request to implement it as
+        % exception.
         %error('HERBERT:a_loader:invalid_argument',mess);
         obj.isvalid_ = false;
     end

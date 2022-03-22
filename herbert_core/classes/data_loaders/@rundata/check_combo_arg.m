@@ -41,12 +41,10 @@ function [ok,mess] = check_efix_correct(obj)
 ok = true;
 mess= '';
 efix = obj.efix;
-if isempty(efix)
+if isempty(efix) || isempty(obj.en)
     return;
 end
-if isempty(obj.en)
-    return
-end
+%
 histo_mode = true;
 if ~isempty(obj.S)
     nen = size(obj.S,1);
@@ -55,48 +53,58 @@ if ~isempty(obj.S)
     end
 end
 
-if obj.emode == 1
-    if histo_mode
-        bin_bndry = 0.5*(obj.en(end)+obj.en(end-1));
-    else
-        bin_bndry = obj.en(end);
-    end
-    if (efix<bin_bndry)
-        ok = false;
-        mess = sprintf('Emode=1 and efix incompatible with max energy transfer, efix: %f max(dE): %f',efix,bin_bndry);
-    end
-elseif obj.emode == 2
-    efix_min = min(efix);
-    if histo_mode
-        bin_bndry = 0.5*(obj.en(1)+obj.en(2));
-    else
-        bin_bndry = obj.en(1);
-    end
-    n_efix = numel(efix);
-    % check that if n_efix is array, its size is equal to the size of the
-    % detectors array
-    if n_efix>1
-        if isempty(obj.S)
-            ldr = obj.loader_;
-            if isempty(ldr)
-                return;
-            end
-            n_det = ldr.n_detectors;
+switch(obj.emode)
+    case(1)
+        if histo_mode
+            bin_bndry = 0.5*(obj.en(end)+obj.en(end-1));
         else
-            n_det = size(obj.S,2);
+            bin_bndry = obj.en(end);
         end
-        if n_det ~= n_efix
+        if (efix<bin_bndry)
             ok = false;
-            mess = sprintf(['Emode=2. If efix is a vector,'...
-                ' its size has to be equal to number of detectors. In fact: n_efix: %d, n_detectors: %d'],...
-                n_efix,n_det);
+            mess = sprintf( ...
+                'Emode=1 and efix incompatible with max energy transfer, efix: %f max(dE): %f', ...
+                efix,bin_bndry);
         end
-    end
+    case(2)
+        efix_min = min(efix);
+        if histo_mode
+            bin_bndry = 0.5*(obj.en(1)+obj.en(2));
+        else
+            bin_bndry = obj.en(1);
+        end
+        n_efix = numel(efix);
+        % check that if n_efix is array, its size is equal to the size of the
+        % detectors array
+        if n_efix>1
+            if isempty(obj.S)
+                ldr = obj.loader_;
+                if isempty(ldr)
+                    return;
+                end
+                n_det = ldr.n_detectors;
+            else
+                n_det = size(obj.S,2);
+            end
+            if n_det ~= n_efix
+                ok = false;
+                mess = sprintf( ...
+                    ['Emode=2. If efix is a vector,'...
+                    ' its size has to be equal to number of detectors. In fact: n_efix: %d, n_detectors: %d'],...
+                    n_efix,n_det);
+            end
+        end
 
-    if efix_min+bin_bndry<0
-        ok = false;
-        mess = sprintf('Emode=2 and efix is incompatible with min energy transfer, efix: %f min(dE): %f',efix,bin_bndry);
-    end
-else
-    %efix = 0; %'no efix for elastic mode';
+        if efix_min+bin_bndry<0
+            ok = false;
+            mess = sprintf( ...
+                'Emode=2 and efix is incompatible with min energy transfer, efix: %f min(dE): %f', ...
+                efix,bin_bndry);
+        end
+    case(0)
+        %efix = 0; %no efix for elastic mode. Just ignoring it;
+    otherwise %never happens
+        error('HERBERT:check_combo_arg:runtime_error',...
+            'Incorrect emode has been set ignoring class protection. Error in the program logic')
+
 end

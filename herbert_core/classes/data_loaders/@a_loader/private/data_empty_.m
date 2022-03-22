@@ -1,6 +1,8 @@
 function [s_empty,err_empty,dat_empty,det_empty] = data_empty_(obj)
-% helper method checks which data fields are empty
+% helper method checks which data fields are empty.
 %
+% Returns set of output parameters describing every field, which may be
+% empty, namely signal, error, both signal and error (data) and detectors.
 %
 %
 if isempty(obj.S_)

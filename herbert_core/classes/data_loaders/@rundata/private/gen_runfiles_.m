@@ -272,11 +272,11 @@ if check_validity
 end
 
 function [runfile,file_found] = init_runfile_no_par(runfile,spe_file_name,param,allow_missing)
-% initialize runfile in the case of no par file is present
+% init runfile in the case of no par file is present
 file_found = true;
 if allow_missing
     if check_file_exist(spe_file_name)
-        runfile = runfile.initialize(spe_file_name,param);
+        runfile = runfile.init(spe_file_name,param);
     else
         file_found = false;
         par_fields = fieldnames(param);
@@ -286,20 +286,20 @@ if allow_missing
         end
     end
 else
-    runfile = runfile.initialize(spe_file_name,param);
+    runfile = runfile.init(spe_file_name,param);
 end
 %
 function [runfile,file_found] = init_runfile_with_par(runfile,spe_file_name,...
     par_file,par_data,param,allow_missing,par_is_det)
-% initialize runfile in the case of par file being present
+% init runfile in the case of par file being present
 file_found = true;
 if allow_missing
     if check_file_exist(spe_file_name)
         if par_is_det
-            runfile = runfile.initialize(spe_file_name,param);
+            runfile = runfile.init(spe_file_name,param);
             runfile.det_par = par_file;
         else
-            runfile = runfile.initialize(spe_file_name,par_file,param);
+            runfile = runfile.init(spe_file_name,par_file,param);
         end
     else
         file_found = false;
@@ -317,10 +317,10 @@ if allow_missing
 else
     file_found = check_file_exist(spe_file_name);
     if par_is_det
-        runfile = runfile.initialize(spe_file_name,param);
+        runfile = runfile.init(spe_file_name,param);
         runfile.det_par = par_file;
     else
-        runfile = runfile.initialize(spe_file_name,par_file,param);
+        runfile = runfile.init(spe_file_name,par_file,param);
     end
 end
 %

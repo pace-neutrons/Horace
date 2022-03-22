@@ -3,7 +3,7 @@ function [S_m,Err_m,det_m,line_notmasked]=rm_masked(obj,ignore_nan,ignore_inf)
 % detectors, which provided such signal
 %
 % Input:
-% obj -- initialized rundata object to check for failied detectors
+% obj -- initialized rundata object to check for failed detectors
 % Optional:
 % ignore_nan -- mask detectors with Nan signal. If absent, assumed true
 % ignore_inf -- mask detectors with Inf signal. If absent, assumed true
@@ -15,13 +15,15 @@ function [S_m,Err_m,det_m,line_notmasked]=rm_masked(obj,ignore_nan,ignore_inf)
 % Err_m   -- masked error array
 % det_m   -- masked detector structure
 % line_notmasked-- the array, containing true where the detectors
-%            contrubute in final S_m,Err_m and det_m arrays
+%            contribute in final S_m,Err_m and det_m arrays
 %
 if isempty(obj.S)||isempty(obj.ERR)||isempty(obj.det_par)
-    error('RUNDATA:rm_masked',' signal, error and detectors arrays have to be defined\n');
+    error('HERBERT:rm_masked:invalid_argument',...
+    ' signal, error and detectors arrays have to be defined\n');
 end
 if any(size(obj.S)~=size(obj.ERR))||(size(obj.S,2)~=numel(obj.det_par.x2))
-    error('RUNDATA:rm_masked',' signal error and detectors arrays are not consistent\n');
+    error('HERBERT:rm_masked:invalid_argument',...
+    ' signal error and detectors arrays are not consistent\n');
 end
 if ~exist('ignore_nan', 'var')
     ignore_nan = true;
@@ -52,7 +54,7 @@ if get(herbert_config,'log_level')> 1
     if nnotmasked<ndet
         ndet_mask = ndet-nnotmasked;
         disp(['Masked additional ',num2str(ndet_mask),...
-            ' detectors out of toal ',num2str(ndet), ' detectors'])
+            ' detectors out of total ',num2str(ndet), ' detectors'])
         disp(['This removes      ',num2str(ndet_mask*ne),...
             ' pixels out of total ',num2str(ne*ndet), ' pixels'])
     end

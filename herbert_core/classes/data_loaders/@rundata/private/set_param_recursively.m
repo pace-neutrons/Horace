@@ -79,7 +79,9 @@ function this= parse_arg(this,varargin)
 
 % Parse arguments;
 narg = length(varargin);
-if narg==0; return; end
+if narg==0
+    return;
+end
 
 [field_nams,field_vals] = parse_config_arg(varargin{:});
 valid = ~cellfun('isempty',field_vals);
@@ -103,9 +105,9 @@ function [field_nams,field_vals] = parse_config_arg(varargin)
 
 % Parse arguments;
 narg = length(varargin);
-if narg==0; return; end
-
-if narg==1
+if narg==0
+    return;
+elseif narg==1
     svar = varargin{1};
     is_struct = isa(svar,'struct');
     is_cell   = iscell(svar);

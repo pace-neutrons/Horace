@@ -16,7 +16,9 @@ classdef test_rundata_get_defaults< TestCase
             hc.log_level = -1;
         end
         function this=tearDown(this)
-            set(herbert_config,'log_level',this.log_level,'-buffer');
+            hc = herbert_config;
+            hc.saveable = false;
+            this.log_level = this.log_level;
         end
 
         % TESTS:

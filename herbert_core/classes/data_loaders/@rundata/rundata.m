@@ -260,14 +260,14 @@ classdef rundata < serializable
             %
             obj.isvalid_ = false;
             if nargin>0
-                obj = initialize(obj,varargin{:});
+                obj = obj.init(varargin{:});
             end
             % check all interacting variables and verify if
             % the object is valid and fully defined
             [~,~,obj] = obj.check_combo_arg();
         end
         %
-        function obj = initialize(obj,varargin)
+        function obj = init(obj,varargin)
             % part of non-default rundata constructor, allowing to
             % cunstruct rundata from different arguments
             if ~isempty(varargin)
