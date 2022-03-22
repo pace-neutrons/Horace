@@ -12,7 +12,7 @@ classdef test_rundata_rm_masked< TestCase
         % tests themself
         function test_throws_on_empty_rundata(~)
             f = @()rm_masked(rundata());
-            assertExceptionThrown(f,'RUNDATA:rm_masked');
+            assertExceptionThrown(f,'HERBERT:rm_masked:invalid_argument');
         end
         function test_throws_on_inconsisten_rundata(~)
             run=rundata();
@@ -20,7 +20,7 @@ classdef test_rundata_rm_masked< TestCase
             run.ERR=ones(3,5);
             run.det_par=ones(6,3);
             f = @()rm_masked(run);
-            assertExceptionThrown(f,'RUNDATA:rm_masked');
+            assertExceptionThrown(f,'HERBERT:rm_masked:invalid_argument');
         end
         function test_works_do_nothing(~)
             run=rundata();
