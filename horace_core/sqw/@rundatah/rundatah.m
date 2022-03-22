@@ -168,10 +168,10 @@ classdef rundatah < rundata
             % Calculate projections
             [u_to_rlu,pix_range,pix] = obj.calc_projections_(obj.detdcn_cache,[],proj_mode);
         end
-        function flds = indepFields(obj)
-            flds = indepFields@rundata(obj);
+        %
+        function flds = saveableFields(obj)
+            flds = saveableFields@rundata(obj);
             flds = [flds,'transform_sqw'];
-
         end
 
     end
