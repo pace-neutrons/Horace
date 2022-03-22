@@ -152,7 +152,7 @@ classdef serializable
         end
 
         %------------------------------------------------------------------
-        function obj = from_bare_struct(obj,inputs,varargin)
+        function obj = from_bare_struct(obj,inputs,throw_on_invalid)
             % restore object or array of objects from a plain structure,
             % previously obtained by to_bare_struct operation
             % Inputs:
@@ -160,13 +160,19 @@ classdef serializable
             % inputs -- the structure, obtained by to_bare_struct method,
             %           and used as initialization for the object
             % optional:
-            % check_validity -- (default -- true) -- when the object is
-            %           fully constructed, check its validity by check_combo_arg
-            %           method. Throw if the object is invalid.
+            % throw_on_invalid -- (default -- false) When the object is
+            %           fully constructed the method check its validity
+            %           by running check_combo_arg method. If the option
+            %           is set to true, the method throws if the object is
+            %           invalid.
             %           If false, the check is still performed, but invalid
-            %           objects do not throw.
+            %           objects do not throw. Behaviour depends on the
+            %           implementation of check_combo_arg method. Normally,
+            %           it sets internal isvalid_ property according to the
+            %           result of the check performed.
+            %
             if nargin > 2
-                obj(1).throw_on_invalid = varargin{1};
+                obj(1).throw_on_invalid =throw_on_invalid;
             end
             obj = from_bare_struct_(obj,inputs);
         end

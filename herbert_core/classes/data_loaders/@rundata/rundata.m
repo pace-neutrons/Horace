@@ -45,7 +45,7 @@ classdef rundata < serializable
         instrument;
         % sample model
         sample;
-        % the number (id) uniquely identyfying the particular experiment
+        % the number (id) uniquely identifying the particular experiment
         % (run) which is the source of this object data.
         run_id;
     end
@@ -72,7 +72,7 @@ classdef rundata < serializable
         % The class which provides actual data loading:
         loader_ = [];
 
-        % oriented lattice which describes crytsal (present if run describes crystal)
+        % oriented lattice which describes crystal (present if run describes crystal)
         lattice_ =[];
 
         % instrument model holder;
@@ -103,9 +103,9 @@ classdef rundata < serializable
             %                  more than one file
             %^1 par_file        [Optional] full file name of detector parameter file
             %                  i.e. Tobyfit format detector parameter file. Will override
-            %                  any detector inofmration in the "spe" files
+            %                  any detector information in the "spe" files
             %
-            % Addtional information can be included in the rundata objects, or override
+            % Additional information can be included in the rundata objects, or override
             % if the fields are in the rundata object as follows:
             %
             %^1 efix            Fixed energy (meV)   [scalar or vector length nfile] ^1
@@ -132,14 +132,15 @@ classdef rundata < serializable
             %
             % Notes:
             % ^1    This parameter is optional for some formats of spe files. If
-            %       provided, overides the information contained in the the "spe" file.
+            %       provided, overrides the information contained in the the "spe" file.
             [runfiles_list,defined]= rundata.gen_runfiles_of_type('rundata',spe_files,varargin{:});
         end
         %
         function [id,filename] = extract_id_from_filename(file_name)
-            % method used to extract run id from a filename, if runnumber is
+            % method used to extract run id from a filename, if run-number is
             % present in the filename, and is first number among all other
-            % numbers
+            % numbers, or if it is stored at the end of the filename after special
+            % character string, specifying this number.
             %
             [~,filename] = fileparts(file_name);
             % the way of writing special filenames and run_id map
@@ -202,7 +203,7 @@ classdef rundata < serializable
 
         % Returns whole or partial data from a rundata object
         [varargout] =get_rundata(this,varargin);
-        % Load all data, defined by loader in memory. By default, not relpace
+        % Load all data, defined by loader in memory. By default, not replace
         % data which are already in memory
         this = load(this,varargin);
 
@@ -219,7 +220,7 @@ classdef rundata < serializable
         [S_m,Err_m,det_m,non_masked]=rm_masked(this,varargin);
 
         % method sets a field of  lattice if the lattice
-        % present and initates the lattice first if it is not present
+        % present and initiates the lattice first if it is not present
         this = set_lattice_field(this,name,val,varargin);
 
         % Returns the list data fields which have to be defined by the run for cases
@@ -243,7 +244,7 @@ classdef rundata < serializable
             %               described below and corresponding values to which the fields are set
             %
             %   >> run = rundata(run_data, data_structure)
-            %               where the data structure has fields with values, equivalend to the above
+            %               where the data structure has fields with values, equivalent to the above
             %
             % The keywords (i.e. names of the fields) which can be present are:
             %
@@ -269,7 +270,7 @@ classdef rundata < serializable
         %
         function obj = init(obj,varargin)
             % part of non-default rundata constructor, allowing to
-            % cunstruct rundata from different arguments
+            % construct rundata from different arguments
             if ~isempty(varargin)
                 if ischar(varargin{1})
                     obj=select_loader_(obj,varargin{1},varargin{2:end});
@@ -294,8 +295,8 @@ classdef rundata < serializable
         end
         function obj = set.emode(obj,val)
             % method to check emode and verify its defaults
-            if val>-1 && val <3
-                obj.emode_ = val;
+            if val>=0 && val <=2
+                obj.emode_ = floor(val);
             else
                 error('HERBERT:rundata:invalid_argument',...
                     'unsupported emode %d, only 0 1 and 2 are supported',val);
@@ -314,16 +315,18 @@ classdef rundata < serializable
             elseif isempty(val)
                 obj.lattice_ =[];
             elseif isempty(obj.lattice_) && isstruct(val)
+                % setting field of new lattice, while lattice is not yet
+                % have been defined.
                 obj.lattice_ = oriented_lattice();
-                lat_vields = properties(obj.lattice_);
+                lat_fields = properties(obj.lattice_);
                 fn = fieldnames(val);
-                if all(ismember(fn,lat_vields))
+                if all(ismember(fn,lat_fields))
                     for i=1:numel(fn)
                         obj.lattice_.(fn{i}) = val.(fn{i});
                     end
                 else
                     error('HERBERT:rundata:invalid_argument',...
-                        'unknown fields to set to newly created oriented lattice %s',...
+                        'Attempt to set unknown fields:  %s on newly created oriented lattice',...
                         strjoin(fn,'; '));
                 end
             else
@@ -366,7 +369,7 @@ classdef rundata < serializable
             end
             if ~isnumeric(val) || ~isscalar(val)
                 error('HERBERT:rundata:invalid_argument',...
-                    ' run_id can be only sigble numeric value')
+                    ' run_id can be only single numeric value')
             end
             obj.run_id_ = val;
         end
@@ -495,7 +498,7 @@ classdef rundata < serializable
                     'only instance of IX_samp class can be set as rundata sample. You are setting %s',...
                     class(val))
             end
-            if ~isa(obj.sample_,'IX_null_sample') %TODO: reconsile oriented lattice and sample
+            if ~isa(obj.sample_,'IX_null_sample') %TODO: reconcile oriented lattice and sample
                 sam = obj.sample;
                 lat = obj.lattice;
                 ou = lat.angular_units;
@@ -514,7 +517,7 @@ classdef rundata < serializable
         function is = eq(obj,other)
             if ~(isstruct(other) || isa(other,'rundata'))
                 error('HERBERT:rundata:invalid_argument',...
-                    'Can compare only two rundata objects or rundata object and structure. In fact other object is %s',...
+                    'Can compare only two rundata objects or rundata object and structure. In fact other object is: %s',...
                     class(other));
             end
             is= eq_(obj,other);
@@ -523,15 +526,11 @@ classdef rundata < serializable
         %------------------------------------------------------------------
         % A LOADER RELATED PROPERTIES -- END
         %------------------------------------------------------------------
-        function efix = get.efix(this)
-            if isempty(this.loader_)
-                efix = this.efix_;
+        function efix = get.efix(obj)
+            if ~isempty(obj.loader_) && ismember('efix',obj.loader_.defined_fields())
+                efix = obj.loader_.efix;
             else
-                if ismember('efix',this.loader_.defined_fields())
-                    efix = this.loader_.efix;
-                else
-                    efix = this.efix_;
-                end
+                efix = obj.efix_;
             end
         end
         function obj = set.efix(obj,val)

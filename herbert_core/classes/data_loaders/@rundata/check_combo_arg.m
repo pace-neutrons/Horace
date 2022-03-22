@@ -102,9 +102,11 @@ switch(obj.emode)
                 efix,bin_bndry);
         end
     case(0)
+        % do nothing
         %efix = 0; %no efix for elastic mode. Just ignoring it;
     otherwise %never happens
         error('HERBERT:check_combo_arg:runtime_error',...
-            'Incorrect emode has been set ignoring class protection. Error in the program logic')
+            'Incorrect emode: %d has been set ignoring class protection. Error in the program logic',...
+            obj.emode)
 
 end
