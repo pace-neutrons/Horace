@@ -107,7 +107,7 @@ classdef rundatah < rundata
             if nargin == 1 && isa(varargin{1},'sqw')
                 obj = rundata_from_sqw_(varargin{1});
             else
-                obj = obj.initialize(varargin{:});
+                obj = obj.init(varargin{:});
             end
         end
         %------------------------------------------------------------------
