@@ -42,21 +42,22 @@ classdef test_fake_sqw < TestCase
             obj.par_file=fullfile(common_data,'gen_sqw_96dets.nxspe');
         end
         function test_det_from_q_invalid(obj)
-            f = @()build_det_from_q_range('wrong_detpar',obj.gen_sqw_par{:});
+            f = @()build_det_from_q_range('wrong_detpar',obj.gen_sqw_par{2:end});
 
             assertExceptionThrown(f,'HORACE:build_det_from_q_range:invalid_argument');
 
-            f = @()build_det_from_q_range(ones(3,1),obj.gen_sqw_par{:});
+            f = @()build_det_from_q_range(ones(3,1),obj.gen_sqw_par{2:end});
             assertExceptionThrown(f,'HORACE:build_det_from_q_range:invalid_argument');
 
         end
-        function test_det_from_q(obj)
+        function test_det_from_q_range1D(obj)
             % check if build_det_from_q_range is working and producing
             % reasonable result.
             det=build_det_from_q_range([0,0.1,1],obj.gen_sqw_par{2:end});
             assertTrue(isstruct(det));
             assertEqual(numel(det.group),11*11*11)
-
+        end
+        function build_det_from_q_range3D(obj)
             det=build_det_from_q_range([0,0.1,1;0,0.2,2;0,0.3,3],...
                 obj.gen_sqw_par{2:end});
             assertTrue(isstruct(det));
