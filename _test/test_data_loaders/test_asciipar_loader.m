@@ -15,7 +15,7 @@ classdef test_asciipar_loader< TestCase
         function test_constructors(obj)
             par_file = 'missing_par_file.par';
             f = @()asciipar_loader(par_file);
-            assertExceptionThrown(f,'ASCIIPAR_LOADER:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:asciipar_loader:invalid_argument');
 
             par_file = fullfile(obj.test_data_path,obj.test_par_file);
             al1=asciipar_loader(par_file);

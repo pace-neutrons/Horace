@@ -161,12 +161,13 @@ classdef loader_ascii < a_loader
             end
         end
         %
-        function this = set_data_info(this,full_spe_file_name)
+        function obj = set_data_info(obj,full_spe_file_name)
             % obtain data file information and set it into class
             [ndet,en,full_file_name]=loader_ascii.get_data_info(full_spe_file_name);
-            this.file_name_ = full_file_name;
-            this.n_detindata_ = ndet;
-            this.en_ = en;
+            obj.file_name_ = full_file_name;
+            obj.n_detindata_ = ndet;
+            obj.en_ = en;
+            obj.isvalid_ = true;            
         end
     end
 end

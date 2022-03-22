@@ -14,6 +14,9 @@ classdef IX_source < serializable
         target_name     % Name of target e.g. 'TS1'
         frequency       % Operating frequency (Hz)
     end
+    properties(Constant,Access=protected)
+        fieldsToSave_ = {'name','target_name','frequency'}
+    end
     
     methods
         %------------------------------------------------------------------
@@ -123,7 +126,7 @@ classdef IX_source < serializable
         %------------------------------------------------------------------
         function flds = saveableFields(obj)
             % Return cellarray of independent properties of the class
-            flds = obj.propNamesIndep_;
+            flds = obj.fieldsToSave_;
         end
         function ver  = classVersion(~)
             % return current class version as it is stored on hdd
@@ -153,24 +156,6 @@ classdef IX_source < serializable
         
     end
     %======================================================================
-    % Methods for fast construction of structure with independent properties
-    methods (Static, Access = private)
-        function names = propNamesIndep_
-            % Determine the independent property names and cache the result.
-            % Code is boilerplate
-            persistent names_store
-            if isempty(names_store)
-                names_store = fieldnamesIndep(eval(mfilename('class')));
-                % here we rely on agreement that private independent
-                % porperties have the same names as public properties but
-                % have added suffix '_' at the end
-                names_store = cellfun(@(x)x(1:end-1),...
-                    names_store,'UniformOutput',false);
-            end
-            names = names_store;
-        end
-    end
-    %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of

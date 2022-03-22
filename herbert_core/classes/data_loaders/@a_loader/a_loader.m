@@ -57,6 +57,9 @@ classdef a_loader < a_detpar_loader_interface
         % holder to keep appropriate class, responsible for loading the
         % detectors parameters
         detpar_loader_ = [];
+        % the service property, whcih describes the validity of a_loader
+        % object
+        isvalid_ = true;
     end
     properties(Constant,Access=protected)
         fext_to_parloader_map_ = containers.Map({'.par','.phx','.nxspe'},...
@@ -94,15 +97,15 @@ classdef a_loader < a_detpar_loader_interface
     methods(Abstract)
         % Load main data defined for the loader. (e.g. Signal and Error)
         % Expected interface:
-        %>>this=load_data(this,varargin);             1)
-        %>>[S,ERR]=load_data(this,varargin);          2)
-        %>>[S,ERR,en]=load_data(this,varargin);       3)
-        %>>[S,ERR,en,this]=load_data(this,varargin);  4)
+        %>>obj=load_data(obj,varargin);             1)
+        %>>[S,ERR]=load_data(obj,varargin);          2)
+        %>>[S,ERR,en]=load_data(obj,varargin);       3)
+        %>>[S,ERR,en,obj]=load_data(obj,varargin);  4)
         %
         % the class instance has to be present in the RHS of the load_data statement in form 1 or 4
         % if one wants to load data into the the class memory itself.
         % forms 2) and 3) just load and return signal, error and energy bins if possible.
-        [varargout]=load_data(this,varargin);
+        [varargout]=load_data(obj,varargin);
 
         % the method performs the initialization of the main part of the constructor.
         %
@@ -111,16 +114,16 @@ classdef a_loader < a_detpar_loader_interface
         % Common constructor of a specific loader the_loader should have the form similar to
         % the following:
         %
-        % function this = the_loader(data_file,par_file,varargin)
-        %   this =the_loader@a_loader(par_file);
-        %   this=this.init(data_file,varargin);
+        % function obj = the_loader(data_file,par_file,varargin)
+        %   obj =the_loader@a_loader(par_file);
+        %   obj=obj.init(data_file,varargin);
         % end
         % See loader_ascii or loader_nxspe for actual example of init method and the constructor.
-        this=init(this,data_file_name,varargin);
+        obj=init(obj,data_file_name,varargin);
 
         % method sets internal file information obtained for appropriate file
         % by get_data_info method into internal class memory.
-        this=set_data_info(this,file_name);
+        obj=set_data_info(obj,file_name);
     end
 
     methods
@@ -129,11 +132,11 @@ classdef a_loader < a_detpar_loader_interface
             % initiate the list of the fields this loader defines
             %>>Accepts:
             %   default empty constructor:
-            %>>this=a_loader();
+            %>>obj=a_loader();
             %   constructor, which specifies par file name:
-            %>>this=a_loader(par_file_name);
+            %>>obj=a_loader(par_file_name);
             %   copy constructor:
-            %>>this=a_loader(other_loader);
+            %>>obj=a_loader(other_loader);
             %
             if(nargin>0)
                 if isa(varargin{1},'a_loader')
@@ -144,9 +147,9 @@ classdef a_loader < a_detpar_loader_interface
             end
         end
         %
-        function [ndet,en,this]=get_run_info(this)
+        function [ndet,en,obj]=get_run_info(obj)
             % Get number of detectors and energy boundaries defined by the data files
-            % and detector files processed by this class instance
+            % and detector files processed by obj class instance
             %
             % The definition can be both in data and detector part of the file
             % and this method checks if these data are consistent.
@@ -159,16 +162,16 @@ classdef a_loader < a_detpar_loader_interface
             %
             %
 
-            [ok,mess,ndet,en] = is_loader_valid(this);
+            [ok,mess,ndet,en] = is_loader_valid(obj);
             if ok<1
                 error('A_LOADER:runtime_error',mess);
             end
 
-            if isempty(this.en)
-                this.en_ = en;
+            if isempty(obj.en)
+                obj.en_ = en;
             end
-            if isempty(this.n_detectors)
-                this.n_detectors = ndet;
+            if isempty(obj.n_detectors)
+                obj.n_detectors = ndet;
             end
         end
         %
@@ -185,21 +188,15 @@ classdef a_loader < a_detpar_loader_interface
         function is = is_loaded(obj)
             % function checks if the run data are already located in memory
             %
-            non_ldd = data_empty_(obj);
+            non_ldd = isempty(obj.S_)|| isempty(obj.ERR_)||isempty(obj.en_);
             if non_ldd
                 is = false;
             else
-                arr = get_consistent_array(obj,'S_');
-                if isnumeric(arr) % then data in memory are incorrect
-                    is = true;
-                else
-                    is = false;
-                end
+                is = obj.valid_;
             end
-
         end
         %
-        function fields = defined_fields(this)
+        function fields = defined_fields(obj)
             % the method returns the cellarray of fields names,
             % which are defined by current instance of loader class
             %
@@ -216,7 +213,7 @@ classdef a_loader < a_detpar_loader_interface
             %usage:
             %>> fields= defined_fields(loader);
             %
-            fields = check_defined_fields_(this);
+            fields = check_defined_fields_(obj);
         end
         %
         function obj=delete(obj)
@@ -237,9 +234,10 @@ classdef a_loader < a_detpar_loader_interface
             if ~isempty(obj.detpar_loader_)
                 obj.detpar_loader_ = obj.detpar_loader_.delete();
             end
+            obj.isvalid_ = true;
         end
         %
-        function [ok,mess,ndet,en]=is_loader_valid(this)
+        function [ok,mess,ndet,en]=is_loader_valid(obj)
             % method checks if a loader is fully defined and valid
             %Usage:
             %[ok,message,ndet,en]=loader.is_loader_valid();
@@ -251,10 +249,10 @@ classdef a_loader < a_detpar_loader_interface
             % if ok =1, intenal ndet and en fields are defined. This method can not
             % be invoked for a_loader, as uses abstract class methods,
             % defined by particular loaders
-            [ok,mess,ndet,en] = is_loader_valid_internal(this);
+            [ok,mess,ndet,en] = is_loader_valid_internal(obj);
         end
         %
-        function this=load(this,varargin)
+        function obj=load(obj,varargin)
             % load all information, stored in data and par files into
             % memory
             %usage:
@@ -274,28 +272,28 @@ classdef a_loader < a_detpar_loader_interface
 
 
             if keepexising
-                [s_empty,err_empty,dat_empty,det_empty] = data_empty_(this);
+                [s_empty,err_empty,dat_empty,det_empty] = data_empty_(obj);
                 if dat_empty
-                    [Sl,ERRl,enl]=this.load_data();
-                    this.en_ = enl;
+                    [Sl,ERRl,enl]=obj.load_data();
+                    obj.en_ = enl;
                     if s_empty
-                        this.S_ = Sl;
+                        obj.S_ = Sl;
                     end
                     if err_empty
-                        this.ERR_ = ERRl;
+                        obj.ERR_ = ERRl;
                     end
-                    this.n_detindata_ = size(Sl,2);
+                    obj.n_detindata_ = size(Sl,2);
                 end
                 if det_empty
-                    [~,this]=this.load_par();
+                    [~,obj]=obj.load_par();
                 end
-                [ok,mess]=is_loader_valid(this);
+                [ok,mess]=is_loader_valid(obj);
                 if ~ok
                     error('HERBERT:a_loader:runtime_error',mess);
                 end
             else
-                this=this.load_data();
-                [~,this]=this.load_par();
+                obj=obj.load_data();
+                [~,obj]=obj.load_par();
             end
         end
         %
@@ -351,11 +349,11 @@ classdef a_loader < a_detpar_loader_interface
             obj = set_data_file_name(obj,new_name);
         end
         %
-        function filename = get.file_name(this)
+        function filename = get.file_name(obj)
             % returns actual data file name, which is the source of the data,
             % this class instance is responsible for.
 
-            filename = this.file_name_;
+            filename = obj.file_name_;
         end
         %
         function ndet = get.n_detectors(obj)
@@ -379,40 +377,37 @@ classdef a_loader < a_detpar_loader_interface
             end
         end
         %
-        function S = get.S(this)
+        function S = get.S(obj)
             % get signal if all signal&error&energy fields are well defined
-            S = get_consistent_array(this,'S_');
+            S =obj.S_;
         end
         %
-        function this = set.S(this,value)
+        function obj = set.S(obj,value)
             % set signal value consistent with error value
-            this = set_consistent_array(this,'S_',value);
+            obj = set_consistent_array(obj,'S_',value);
         end
         %
-        function ERR = get.ERR(this)
+        function ERR = get.ERR(obj)
             % get error if all signal&error&energy fields are well defined
-            ERR = get_consistent_array(this,'ERR_');
+            ERR = obj.ERR_;
         end
         %
-        function this = set.ERR(this,value)
+        function obj = set.ERR(obj,value)
             % set error consistent with signal value
             % disabled: and break connection between the error and the
             % data file if any
-            this = set_consistent_array(this,'ERR_',value);
+            obj = set_consistent_array(obj,'ERR_',value);
         end
         %
-        function en = get.en(this)
+        function en = get.en(obj)
             % get energy bins
-            en = this.en_;
+            en = obj.en_;
         end
         %
-        function this = set.en(this,value)
+        function obj = set.en(obj,value)
             % set energy bin boundaries.
-            sv = size(value);
-            if sv(1) == 1 && sv(2)>1
-                value = value(:);
-            end
-            this = set_consistent_array(this,'en_',value);
+            value = value(:);            
+            obj = set_consistent_array(obj,'en_',value);
         end
         %------------------------------------------------------------------
         % PAR file public interface
@@ -424,10 +419,10 @@ classdef a_loader < a_detpar_loader_interface
             obj  = set_detpar_loader(obj,val);
         end
         % ------------------------------------------------------------------
-        function [ok,mess,f_name]=check_file_exist(this,new_name)
-            % method to check if file with extension correspondent to this
+        function [ok,mess,f_name]=check_file_exist(obj,new_name)
+            % method to check if file with extension correspondent to the
             % loader exists. Make public for easy overloading and work with memfiles.
-            [ok,mess,f_name] = check_file_exist(new_name,this.get_file_extension());
+            [ok,mess,f_name] = check_file_exist(new_name,obj.get_file_extension());
         end
         %
         function fields = par_can_define(obj)
@@ -487,9 +482,28 @@ classdef a_loader < a_detpar_loader_interface
                 flds = [flds(:)',{'en','S','ERR'}];
             end
         end
+
+        function [ok,mess,obj] = check_combo_arg(obj)
+            % verify if S,ERR and en  the validity of the
+            % obtained serializable object. Return the result of the check
+            %
+            [ok,mess,obj] = check_combo_arg_(obj);
+        end
+
+
     end
     %
     methods(Access=protected)
+        function is = check_validity(obj)
+            % overload this property to verify validity of interdependent
+            % properties
+            is = obj.isvalid_;
+            if ~is
+                [~,~,obj] = check_combo_arg(obj);
+                is = obj.isvalid_;
+            end
+        end
+
         function obj = set_data_file_name(obj,filename)
             % protected method to call private set file name procedure
             %

@@ -32,7 +32,7 @@ classdef test_loader_ascii< TestCase
         function test_wrong_first_argument(~)
             f = @()loader_ascii(10);
             % should throw; first argument has to be a file name
-            assertExceptionThrown(f,'HERBERT:a_loader:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:loader_ascii:invalid_argument');
         end
 
         function test_wrong_second_argument(obj)
@@ -44,14 +44,14 @@ classdef test_loader_ascii< TestCase
             f = @()loader_ascii(fullfile(obj.test_data_path,'some_spe_file_which_was_checked_before.spe'),...
                 'missing_par_file.par');
             % should throw; par file do not exist
-            assertExceptionThrown(f,'ASCIIPAR_LOADER:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:asciipar_loader:invalid_argument');
         end
         function test_spe_file_not_there(obj)
             spe_file = fullfile(obj.test_data_path,'missing_spe_file.spe');
             par_file = fullfile(obj.test_data_path,obj.test_par_file);
-            f = @()loader_ascii(spe_file,par_file);
-            % should throw; spe file does not exist
-            assertExceptionThrown(f,'HERBERT:a_loader:invalid_argument');
+            ld = loader_ascii(spe_file,par_file);
+            % should be invalid; spe file does not exist
+            assertFalse(ld.isvalid);
         end
         function test_to_from_struct_loader_in_memory(obj)
             spe_file = fullfile(obj.test_data_path,'MAP10001.spe');

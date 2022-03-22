@@ -1,4 +1,4 @@
-function this=select_loader_(this,varargin)
+function obj=select_loader_(obj,varargin)
 % method selects the data loader for the rundata class as function of
 % supplied file names and defines other data fields, if they are specified
 % by command line arguments
@@ -26,7 +26,7 @@ assume_ASCII_spe_loader = false;
 first_file = varargin{1};
 if isempty(first_file) % assume ASCII spe loader
     if isempty(first_file) && numel(varargin) == 1
-        this.loader_ = [];
+        obj.loader_ = [];
         return;
     end
     assume_ASCII_spe_loader = true;
@@ -46,29 +46,29 @@ if nargin>2
 end
 
 if assume_ASCII_spe_loader
-    this.loader_ = loader_ascii();
-    this.loader_.par_file_name =second_file;
+    obj.loader_ = loader_ascii();
+    obj.loader_.par_file_name =second_file;
 else
     if ~verLessThan('matlab', '9.0') && verLessThan('matlab', '9.1')
         warning('off','MATLAB:subscripting:noSubscriptsSpecified')
     end
-    
-    this.loader_ = loaders_factory.instance().get_loader(first_file,second_file);
+
+    obj.loader_ = loaders_factory.instance().get_loader(first_file,second_file);
 end
-def_fields = this.loader_.defined_fields();
+def_fields = obj.loader_.defined_fields();
 lat_fields = oriented_lattice.lattice_fields;
 in_lat  = ismember(lat_fields,def_fields);
 if any(in_lat)
-    if isempty(this.lattice_)
-        this.lattice_ = oriented_lattice();
+    if isempty(obj.lattice_)
+        obj.lattice_ = oriented_lattice();
         lat_fields = lat_fields(in_lat);
-        
-        lat = this.lattice_;
+
+        lat = obj.lattice_;
         for i=1:numel(lat_fields)
             flt = lat_fields{i};
-            lat.(flt) = this.loader_.(flt);
+            lat.(flt) = obj.loader_.(flt);
         end
-        this.lattice = lat;
+        obj.lattice = lat;
     end
 end
 
@@ -76,9 +76,9 @@ end
 if nargin>addarg_start_from
     % set up values which are defined by other arguments
     if isa(varargin{addarg_start_from},'rundata')
-        varargin{addarg_start_from}.loader_ = this.loader_;
+        varargin{addarg_start_from}.loader_ = obj.loader_;
     end
-    this=set_param_recursively(this,varargin{addarg_start_from:end});
+    obj=set_param_recursively(obj,varargin{addarg_start_from:end});
 end
 
 

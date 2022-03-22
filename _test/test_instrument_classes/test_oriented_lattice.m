@@ -19,7 +19,7 @@ classdef test_oriented_lattice< TestCase
         end
 
         function test_constructor_defaults(~)
-            ol = oriented_lattice();
+            ol = oriented_lattice([1,2,3],[90,90,90],0);
             default_fld = oriented_lattice.fields_with_defaults();
             for i=1:numel(default_fld)
                 cur_field = default_fld{i};
@@ -34,6 +34,24 @@ classdef test_oriented_lattice< TestCase
                 assertEqual(0,ol.(cur_field));
             end
         end
+        function test_validity(~)
+            ol = oriented_lattice();
+            assertFalse(ol.isvalid);
+            [ok,mess,ol] = ol.check_combo_arg();
+            assertFalse(ok);
+            mes_base = 'The necessary field(s):';
+            assertTrue(strncmpi(mess,mes_base,numel(mes_base)));
+
+            ol.alatt = [1,2,3];
+            ol.angdeg = [90,90,90];
+            ol.psi = 0;
+            assertTrue(ol.isvalid);
+
+            [ok,mess] = ol.check_combo_arg();
+            assertTrue(ok);
+            assertTrue(isempty(mess));
+        end
+        %
         function test_serial_fields(~)
             ol = oriented_lattice([2;3;4],[30,40,50],10,[1,1,0],[0;0;1],1,2,3,4);
             ss = ol.serialize();
@@ -100,18 +118,28 @@ classdef test_oriented_lattice< TestCase
 
             ol.v = [1,0,0];
             assertFalse(ol.isvalid);
-            assertTrue(ischar(ol.v));
 
             ol.u = 1;
-            assertTrue(ol.isvalid);
+            assertFalse(ol.isvalid);
             assertEqual([1,1,1],ol.u)
             assertEqual([1,0,0],ol.v)
 
             ol.alatt =10;
             assertEqual([10,10,10],ol.alatt);
+            assertFalse(ol.isvalid);
 
             ol.alatt = [3,5,6]';
             assertEqual([3,5,6],ol.alatt);
+            assertFalse(ol.isvalid);
+
+            ol.angdeg = 90;
+            assertFalse(ol.isvalid);
+            assertEqual([90,90,90],ol.angdeg);
+
+            ol.psi = 10;
+            assertTrue(ol.isvalid);
+            assertEqual(10,ol.psi);
+
         end
         function test_invalid3Dvectors_throw(~)
             ol = oriented_lattice();
@@ -248,6 +276,7 @@ classdef test_oriented_lattice< TestCase
             assertElementsAlmostEqual(u_to_rlu,eye(3),'absolute',1.e-9);
             assertElementsAlmostEqual(spec_to_rlu,eye(3),'absolute',1.e-9);
         end
+
         function test_different_matrixes(~)
             %-------------------------------------------------------------
             ol = oriented_lattice([2,3,4],[30;40;50],10,[1,1,0],[0;0;1],1,2,3,4);

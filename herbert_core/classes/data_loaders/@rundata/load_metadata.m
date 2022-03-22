@@ -37,7 +37,7 @@ in_undef_list = cellfun(@(fln)(isemptyfield(this,fln)),metha_fields);
 undef_data = metha_fields(in_undef_list);
 undef_list = [undef_data';undef_lattice(:)'];
 if ~isempty(undef_list) && ~isempty(this.loader)
-    ldf = this.loader.loader_can_define();
+    ldf = this.loader.loader_define();
     if ~for_powder
         % extract lattice fields stored in loader
         lat_in_load = ismember(undef_lattice,ldf);
