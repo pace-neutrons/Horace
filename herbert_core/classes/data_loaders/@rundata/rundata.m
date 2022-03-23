@@ -137,11 +137,21 @@ classdef rundata < serializable
         end
         %
         function [id,filename] = extract_id_from_filename(file_name)
-            % method used to extract run id from a filename, if run-number is
+            % Extract run id from a filename, if run-number is
             % present in the filename, and is first number among all other
-            % numbers, or if it is stored at the end of the filename after special
-            % character string, specifying this number.
+            % numbers. Alternativelym it may be stored at the end of the filename after
+            % special character string, specifying this number.
+            % Inputs:
+            % file_name - string containing filename with runid or mangled string
+            %             containg special representation of runid in the form
+            %             fildname$id$string_representation_of_id;
+            % Output:
+            % id        - number (id) extracted from filename. NaN if routine has not
+            %              been able to identify any numbers in the filename
+            % filename  - unchanged filename if file_name did not contained $id$ or
+            %             unmabgled par of file_name if $id% was present
             %
+
             [id,filename] = extract_id_from_filename_(file_name);
         end
         function obj = loadobj(S)
