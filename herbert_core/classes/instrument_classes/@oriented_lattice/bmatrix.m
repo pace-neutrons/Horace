@@ -29,7 +29,6 @@ function [b, arlu, angrlu] = bmatrix(obj)
 %
 % Horace v0.1   J. van Duijn, T.G.Perring
 %
-
 angdeg = obj.angdeg;
 alatt  = obj.alatt;
 [b,arlu,angrlu] = bmatrix(alatt,angdeg);
