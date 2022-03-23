@@ -815,7 +815,7 @@ if use_separate_matlab
     % aggregate the conversion parameters into array of structures,
     % suitable for splitting jobs between workers
     [common_par,loop_par]=gen_sqw_files_job.pack_job_pars(run_files',tmp_file,...
-        instrument,sample,grid_size_in,pix_db_range);
+        grid_size_in,pix_db_range);
     %
     [outputs,n_failed,~,jd] = jd.start_job('gen_sqw_files_job',...
         common_par,loop_par,true,num_matlab_sessions,keep_parallel_pool_running);
