@@ -193,15 +193,15 @@ classdef test_gen_runfiles< TestCase
                 assertEqual(28160,ndetl);
                 assertEqual(alattl,this.alatt);
                 % Depending on policy decided on angdeg
-                assertEqual(angdegl,this.angdeg*(pi/180));
-                %assertEqual(angdegl,this.angdeg);
+                %assertEqual(angdegl,this.angdeg*(pi/180));
+                assertEqual(angdegl,this.angdeg);
                 assertEqual(ul,this.u);
                 assertEqual(vl,this.v);
-                assertEqual(psil,this.psi(i)*(pi/180));
-                assertEqual(omegal,this.omega(i)*(pi/180));
-                assertEqual(dpsil,this.dpsi(i)*(pi/180));
-                assertEqual(gll,this.gl(i)*(pi/180));
-                assertEqual(gsl,this.gs(i)*(pi/180));
+                assertEqual(psil,deg2rad(this.psi(i)));
+                assertEqual(omegal,deg2rad(this.omega(i)));
+                assertEqual(dpsil,deg2rad(this.dpsi(i)));
+                assertEqual(gll,deg2rad(this.gl(i)));
+                assertEqual(gsl,deg2rad(this.gs(i)));
                 assertEqual(detl,run_files{i}.det_par);
 
 
@@ -220,8 +220,8 @@ classdef test_gen_runfiles< TestCase
                 assertEqual(emodel,this.emode);
                 %assertEqual(ndetl,28158);
                 assertEqual(alattl,this.alatt);
-                assertEqual(angdegl,this.angdeg*(pi/180));
-                %assertEqual(angdegl,this.angdeg);
+                %assertEqual(angdegl,this.angdeg*(pi/180));
+                assertEqual(angdegl,this.angdeg);
                 assertEqual(ul,this.u);
                 assertEqual(vl,this.v);
                 assertEqual(psil,this.psi(i)*(pi/180));
@@ -277,8 +277,8 @@ classdef test_gen_runfiles< TestCase
                     assertEqual(28160,ndetl);
                     assertEqual(alattl,this.alatt);
                     % Depending on policy decided on angdeg
-                    assertEqual(angdegl,this.angdeg*(pi/180));
-                    %assertEqual(angdegl,this.angdeg);
+                    %assertEqual(angdegl,this.angdeg*(pi/180));
+                    assertEqual(angdegl,this.angdeg);
                     assertEqual(ul,this.u);
                     assertEqual(vl,this.v);
                     assertEqual(psil,this.psi(i)*(pi/180));
