@@ -5,13 +5,13 @@ function obj = recalculate_angular_units_values_(obj,old_val)
 if obj.angular_is_degree_ == old_val
     return;
 end
-angular_values = {'angdeg_','psi_','omega_','dpsi_','gl_','gs_'};
-if obj.angular_is_degree_ % ancular changed to degree
-    mult = 1/obj.deg_to_rad_;
-else % angular changed to radians
-    mult = obj.deg_to_rad_;
-end
+angular_values = {'psi_','omega_','dpsi_','gl_','gs_'};
+
 for i=1:numel(angular_values)
     pn = angular_values{i};
-    obj.(pn) = obj.(pn)*mult;
+    if obj.angular_is_degree_ % ancular changed to degree
+        obj.(pn) = rad2deg(obj.(pn));
+    else % angular changed to radians
+        obj.(pn) = deg2rad(obj.(pn));
+    end
 end

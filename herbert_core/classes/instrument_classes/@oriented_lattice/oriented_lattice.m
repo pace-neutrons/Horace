@@ -186,8 +186,15 @@ classdef oriented_lattice < serializable
             is = obj.angular_is_degree_;
         end
         function obj = set.angular_is_degree(obj,val)
+            % the hidden method to change the meaning
+            % of the angular units. Should be used only as a part of the
+            % serializable interface, as does not do any checks and does
+            % not modify actual values.
+            % To change the class behaviour, use public property
+            % "angular_units" = ['deg'|'rad'] or method set_deg/set_rad;
             obj.angular_is_degree_ = logical(val);
         end
+
         %------------------------------------------------------------------
         function is=is_defined(obj,field_name)
             % check if field, which should be defined as do not have
@@ -230,7 +237,7 @@ classdef oriented_lattice < serializable
             else
                 obj.undef_fields_(3) = false;
             end
-            [~,~,obj] = check_combo_arg(obj);                        
+            [~,~,obj] = check_combo_arg(obj);
         end
         %
         function obj = set.omega(obj,val)
@@ -249,7 +256,7 @@ classdef oriented_lattice < serializable
         function u=get.u(obj)
             u = obj.u_;
         end
-        function obj=set.u(obj,u)            
+        function obj=set.u(obj,u)
             obj = check_and_set_uv_(obj,'u',u);
         end
         %
@@ -272,13 +279,13 @@ classdef oriented_lattice < serializable
             obj.alatt_ = check_3Dvector_correct_(obj,val);
             % alatt is first in the list of fields to be defined
             obj.undef_fields_(1) = false;
-            [~,~,obj] = check_combo_arg(obj);            
+            [~,~,obj] = check_combo_arg(obj);
         end
         function obj=set.angdeg(obj,val)
             obj.angdeg_ =check_3DAngles_correct_(obj,val);
             % angdeg is second in the list of fields to be defined
             obj.undef_fields_(2) = false;
-            [~,~,obj] = check_combo_arg(obj);                        
+            [~,~,obj] = check_combo_arg(obj);
         end
 
         %------------------------------------------------------------------
