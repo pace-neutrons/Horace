@@ -17,15 +17,21 @@ obj.reset_changed_coord_range('coordinates');
 if obj.has_more
     hc = hor_config;
     ll = hc.log_level;
+    
+    ic = 1;
+    display_every_nth_iteration = 10;
     while obj.has_more
         [current_page_num,total_num_pages] = obj.advance();
-        if ll>0
+        ic = ic+1;
+        if ll>0 && ic>=display_every_nth_iteration
+            ic = 0;
             fprintf( ...
-                '*** Processing page %d/%d\n', ...
+                '*** Processing page #%d/of#%d\n', ...
                 current_page_num, ...
                 total_num_pages ...
-            );
+                );
         end
         obj.reset_changed_coord_range('coordinates');
     end
 end
+obj.move_to_first_page();

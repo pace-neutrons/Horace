@@ -50,15 +50,15 @@ function [tmp_sqw, grid_size, img_db_range] = fake_sqw (en, par_file, sqw_file, 
 % Output:
 % --------
 %   tmp_sqw        if return_sqw_obj is false (sqw_file is set up)
-%                  the list of temporary file names used as parts of final 
-%                  sqw file. 
-%                  if return_sqw_obj == true -- 
+%                  the list of temporary file names used as parts of final
+%                  sqw file.
+%                  if return_sqw_obj == true --
 %                  cellarray of sqw objects, each corresponging to
 %                  generated tmp sqw file
 %
 %   grid_size      Actual size of grid used (size is unity along dimensions
 %                  where there is zero range of the data points)
-%   img_db_range   The range of the grid (in Crystal Cartesian) on which 
+%   img_db_range   The range of the grid (in Crystal Cartesian) on which
 %                  the pixels are rebinned on.
 %
 %
@@ -82,18 +82,21 @@ if iscellnum(en) || isnumeric(en)
     en_hi=zeros(1,numel(en));
     for i=1:numel(en)
         if ~isvector(en{i}) || numel(en{i})<2
-            error('Energy bins must numeric vectors')
+            error('HORACE:fake_sqw:invalid_argument',...
+                'Energy bins must numeric vectors')
         else
             de=diff(en{i});
             if any(de<=0) || any(abs(diff(de))/de(1)>small_bin)
-                error('Energy bins widths must all be the same and positive')
+                error('HORACE:fake_sqw:invalid_argument',...
+                    'Energy bins widths must all be the same and positive')
             end
             en_lo(i)=(en{i}(1)+en{i}(2))/2;
             en_hi(i)=(en{i}(end-1)+en{i}(end))/2;
         end
     end
 else
-    error('Energy bins must be an array of equally spaced energy bin boundaries')
+    error('HORACE:fake_sqw:invalid_argument',...
+        'Energy bins must be an array of equally spaced energy bin boundaries')
 end
 
 % Check par and sqw file names
@@ -117,17 +120,19 @@ end
 [ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
     (nfiles_in,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
 if ~ok, error(mess), end
-if efix(1)==0, error('Must have emode=1 (director geometry) or =2 (indirect geometry)'), end
+if efix(1)==0, error('HORACE:fake_sqw:invalid_argument',...
+        'Must have emode=1 (director geometry) or =2 (indirect geometry)'),
+end
 
 
 
 % A q-range at zero energy transfer is provided
 if ~ischar(par_file) && (isnumeric(par_file) )
     if ~isempty(nfiles_in) && nfiles_in>1
-        error('FAKE_SQW:invalid_argument',...
+        error('HORACE:fake_sqw:invalid_argument',...
             'Fake sqw with q-range input can not generate mutliple sqw files');
     end
-    % now the par file is the 
+    % now the par file is the
     par_file = build_det_from_q_range(par_file,efix,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
 end
 
@@ -235,7 +240,7 @@ for i=1:nfiles
     run_files{i}.run_id = i;
     %
     w = run_files{i}.calc_sqw(grid_size, img_db_range,cache_opt{:});
-    
+
     if return_sqw_obj
         tmp_sqw{i} = w;
     else
@@ -265,7 +270,7 @@ if nfiles>1 && ~return_sqw_obj
             end
         end
     end
-    
+
 end
 
 % Clear output arguments if nargout==0 to have a silent return

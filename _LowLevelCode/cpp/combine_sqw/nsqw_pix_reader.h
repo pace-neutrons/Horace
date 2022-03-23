@@ -38,7 +38,7 @@ public:
 
     //
     void run_read_job();
-    void read_pix_info(size_t &n_buf_pixels, size_t &n_bins_processed, uint64_t *nBinBuffer = NULL);
+    void read_and_combine_pixBuf_from_files(size_t &n_buf_pixels, size_t &n_bins_processed, uint64_t *nBinBuffer = NULL);
 };
 
 #endif

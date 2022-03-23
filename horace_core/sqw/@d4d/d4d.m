@@ -8,7 +8,7 @@ classdef d4d < DnDBase
     %   >> w = d4d(struct)         % Create from a structure with valid fields (internal use)
 
     properties (Constant, Access = protected)
-       NUM_DIMS = 4;
+        NUM_DIMS = 4;
     end
 
     methods(Static)
@@ -26,17 +26,21 @@ classdef d4d < DnDBase
             %   obj     An instance of this object
             %obj = d4d(S);
             if isa(S,'d4d')
-               obj = S;
-               return
+                obj = S;
+                if isstruct(obj.data_)
+                    obj.data_ = data_sqw_dnd(obj.data_);
+                end
+
+                return
             end
             if numel(S)>1
-               tmp = d4d();
-               obj = repmat(tmp, size(S));
-               for i = 1:numel(S)
-                   obj(i) = d4d(S(i));
-               end
+                tmp = d4d();
+                obj = repmat(tmp, size(S));
+                for i = 1:numel(S)
+                    obj(i) = d4d(S(i));
+                end
             else
-               obj = d4d(S);
+                obj = d4d(S);
             end
         end
     end

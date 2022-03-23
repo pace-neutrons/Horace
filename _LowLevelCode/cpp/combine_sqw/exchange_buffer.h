@@ -4,6 +4,7 @@
 #include <vector>
 #include <ctime>
 #include <thread>
+//#include <chrono> // Use this for debugging various timing intervals between threads
 #include <condition_variable>
 // Matlab includes
 #include <mex.h>
@@ -18,12 +19,15 @@
 /* Class provides unblocking read/write buffer and logging operations for asynchronous read and write operations on 3 threads */
 class exchange_buffer {
 public:
-    // read buffer
+    // write buffer synchronization
+    void wait_for_reader_data();
     char *const  get_write_buffer(size_t &nPixels, size_t &n_bin_processed);
+    void unlock_write_buffer();
+    // read buffer synchronization
     float *const get_read_buffer(const size_t buf_size = 0);
     // lock write buffer from modifications by other threads too but unlocks read buffer
-    void set_and_lock_write_buffer(const size_t nPixels, const size_t nBinsProcessed);
-    void unlock_write_buffer();
+    void send_read_buffer_to_writer(const size_t nPixels, const size_t nBinsProcessed);
+
 
     void set_interrupted(const std::string &err_message) {
         interrupted = true;
@@ -49,30 +53,35 @@ public:
     size_t pix_buf_size()const {
         return(buf_size / PIX_SIZE);
     }
+
+
     // logging semaphore
     bool do_logging;
     std::condition_variable logging_ready;
     // error message used in case if program is interrupted;
     std::string error_message;
+
 private:
     size_t buf_size;
     size_t n_read_pixels, n_bins_processed, num_bins_to_process;
-    bool interrupted, write_allowed, write_job_completed;
+    bool interrupted, write_job_completed;
     // logging and timing:
     size_t break_step, num_log_messages, break_point, n_read_pix_total;
     std::clock_t c_start;
     time_t t_start, t_prev;
 
-
+    // thread synchronization
+    bool write_allowed;
     std::condition_variable data_ready;
-    std::mutex exchange_lock;
+    std::mutex data_ready_lock;
+    bool writer_ready;
+    std::condition_variable data_written;
+    std::mutex data_written_lock;
     std::mutex write_lock;
-
 
     std::vector<float> read_buf;
     std::vector<float> write_buf;
 
     static const size_t PIX_SIZE = 9; // size of the pixel in pixel data units (float)
-
 };
 #endif

@@ -18,11 +18,11 @@ if ldr.num_dim ~= obj.NUM_DIMS
         ['Data file does not contain ' num2str(obj.NUM_DIMS) 'd dnd-type object']);
 end
 
-if isa_sqw_file
-    [~, ~, ~, dnd_data] = ldr.get_sqw('-legacy');
-else % dnd file
-    [~, ~, ~, dnd_data] = ldr.get_dnd('-legacy');
+ds = ldr.get_data('-nopix');
+if isstruct(ds)
+    ds = data_sqw_dnd(ds);
+else
+    ds.pix = PixelData();
+    ds.img_db_range = PixelData.EMPTY_RANGE_;
 end
-
-obj = obj.init_from_loader_struct_(dnd_data);
-end
+obj.data = ds;

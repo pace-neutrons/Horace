@@ -111,6 +111,10 @@ classdef dnd_file_interface
         % all modern data files are either b+ (dnd) or a+ (sqw data) type
         % files.
         data_type
+        % In old style sqw files returns timestamp of the file, Recent
+        % format files return real creatrion time, files store real
+        % creation time within
+        creation_date
         
         % if all numeric types, read from a file to be converted to double.
         % (except pixels)
@@ -165,6 +169,10 @@ classdef dnd_file_interface
         function obj = set.convert_to_double(obj,val)
             lval = logical(val);
             obj.convert_to_double_ = lval;
+        end
+        function tm = get.creation_date(obj)
+            finf= dir(fullfile(obj.filepath,obj.filename));            
+            tm = finf.date;
         end
         %-------------------------
         function obj = delete(obj)

@@ -250,7 +250,7 @@ classdef Experiment < serializable
             ver = 1;
         end
         %
-        function flds = indepFields(~)
+        function flds = saveableFields(~)
             % get independent fields, which fully define the state of the
             % serializable object.
             flds = Experiment.fields_to_save_;

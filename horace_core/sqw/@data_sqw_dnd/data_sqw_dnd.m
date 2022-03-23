@@ -39,11 +39,11 @@ classdef data_sqw_dnd < axes_block
     end
     %
     methods
-        function flds = indepFields(obj)
+        function flds = saveableFields(obj)
             % get independent fields, which fully define the state of a
             % serializable object.
             
-            flds = indepFields@axes_block(obj);
+            flds = saveableFields@axes_block(obj);
             flds = [flds(:);data_sqw_dnd.fields_to_save_(:)];
         end
         

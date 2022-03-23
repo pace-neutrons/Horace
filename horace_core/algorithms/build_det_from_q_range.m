@@ -40,22 +40,20 @@ function  [det_pos,par_file_name] = build_det_from_q_range(q_range,efix,alatt,an
 %
 
 if ischar(q_range) || ~isnumeric(q_range)
-    error('FAKE_SQW:invalid_argument','q_range should be a matrix')
+    error('HORACE:build_det_from_q_range:invalid_argument',...
+        'q_range should be a matrix')
 end
 if ~exist('filename','var')
     par_file_name = ['q_det_',upper(str_random(6)),'.mem'];
-    save_real_file = false;
 else
-    save_real_file = true;
     par_file_name  = filename;
 end
 if nargout > 1
-    save_real_file = false;
     [fp,fn]  = fileparts(par_file_name);
     par_file_name = fullfile(fp,[fn,'.mem']);
 end
 if size(q_range,2) ~=3
-    error('FAKE_SQW:invalid_argument',...
+    error('HORACE:build_det_from_q_range:invalid_argument',...
         'second dimension of the q-range matrix should is not 3 but %d',...
         size(q_range,2))
 end

@@ -10,20 +10,24 @@ function run_inspector_animate_2d(frame_no,w,clim,axlim)
 
 
 %Need various checks to go here to ensure that we have valid inputs
+n_headers = numel(w);
 
 for i=frame_no
     ss=w(i).data.s';
+    ridm = w(i).runid_map;
+    run_id = ridm.keys;
+    
     zz=zeros(size(ss));
     zz=zz./w(i).data.npix';
     zz=zz+1;
     %the above 4 lines are to ensure we have NaNs rather than zeros where
     %there was no data
-    
-    %2d   
+
+    %2d
     xx=0.5.*(w(i).data.p{1}(1:end-1)+ w(i).data.p{1}(2:end));
     yy=0.5.*(w(i).data.p{2}(1:end-1)+ w(i).data.p{2}(2:end));
     [XX,YY]=meshgrid(xx,yy);
-    
+
     %NB we need to set the color scale (caxis) from the UI
     pcolor(XX,YY,ss.*zz); shading flat; colormap jet;
     cc=colorbar;%ensure there is a handle to the colorbar
@@ -39,5 +43,6 @@ for i=frame_no
     ylabel(ylab);
     clab=ylabel(cc,slab);
     set(clab,'Rotation',-90);
-    title(['Run number: ',num2str(i),'; Filename: ',w(i).header.filename,' Psi = ',num2str((180/pi)*w(i).header.psi)]);
+    title(sprintf('Frame: %d#%d; RunID: %d; Filename: %s; Psi = %4.1f',...
+        i,n_headers,run_id{1},w(i).header.filename,(180/pi)*w(i).header.psi),'Interpreter','none');
 end
