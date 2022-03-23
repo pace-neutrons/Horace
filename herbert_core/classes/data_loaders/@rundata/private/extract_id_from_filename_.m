@@ -44,4 +44,8 @@ else
     else
         filename = [filename,id_source(1:loc(1)-1)];
     end
+    if isempty(filename) % transform empty filename into standard form
+        % to be comparable with original empty filename
+        filename = '';
+    end
 end
