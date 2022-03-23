@@ -102,6 +102,7 @@ classdef test_faccess_sqw_v3_21< TestCase
             assertTrue(isa(ldr,'faccess_sqw_v3_21'));
 
             pix_range1 = ldr.get_pix_range();
+            % 3e-7 -- conversion from double to single
             assertTrue(all(all(abs(pix_range - pix_range1)<3.e-7)));
             ldr.delete();
             %--------------------------------------------------------------

@@ -13,9 +13,9 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
             delete(fname);
         end
     end
-    
+
     methods
-        
+
         %The above can now be read into the test routine directly.
         function this=test_serialize_deserialize_binary_sqw(varargin)
             if nargin > 0
@@ -24,9 +24,9 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
                 name= mfilename('class');
             end
             this=this@TestCase(name);
-            
+
             this.working_dir = tmp_dir;
-            
+
         end
         % tests
         function obj = test_serialize(obj)
@@ -39,7 +39,7 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
                 'vararray_single2',[1,2,3;5,6,7],...
                 'carray_single',ones(1,10)*10);
             test_data.cellarray_str = {'aaaa';'nn';'ccc'}';
-            
+
             test_format = struct('double_v',double(1),...
                 'int_a1',int32([1,3]),'double_a2',[2,3],...
                 'int32_v',int32(1),'uint64_t',uint64(1),'string_v','','string_v2','',...
@@ -47,20 +47,20 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
                 field_cellarray_of_strings(),'vararray_single2',field_var_array(2),...
                 'carray_single_size',field_not_in_structure('carray_single'),...
                 'carray_single',field_const_array_dependent('carray_single_size'));
-            
-            
-            
+
+
+
             ser = sqw_serializer();
             [struc_pos,pos] = ser.calculate_positions(test_format,test_data);
             assertEqual(pos-1,208);
-            
+
             bytes = ser.serialize(test_data,test_format);
             assertEqual(numel(bytes),pos-1);
-            
+
             [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
             assertEqual(pos,pos1);
             assertEqual(struc_pos,test_pos);
-            
+
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
             assertTrue(isa(recov.uint64_t,'uint64'));
@@ -78,9 +78,9 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
                 assertEqual(recov.(fn{i}),test_data.(fn{i}),...
                     ['unequal values for field: ',fn{i}])
             end
-            
-            
-            
+
+
+
         end
         %
         function obj = test_serialize_data(obj)
@@ -103,21 +103,21 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
                 's',4*ones(9,9,4,10),'e',ones(9,9,4,10),'npix',2*ones(9,9,4,10),...
                 'pix',ones(9,100));
             test_data1.p = {(1:10)',(2:2:20)',(1:5)',(5:5:55)'};
-            
+
             ser = sqw_serializer();
             [struc_pos,pos] = ser.calculate_positions(test_format,test_data1);
             assertEqual(pos-1,55648);
-            
+
             bytes = ser.serialize(test_data1,test_format);
             assertEqual(numel(bytes),pos-1);
-            
+
             [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
             assertEqual(pos,pos1);
             assertEqual(struc_pos,test_pos);
-            
+
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
-            
+
             assertTrue(isa(recov.pax,'int32'));
             assertTrue(isa(recov.dax,'int32'));
             recov.pax = double(recov.pax);
@@ -130,14 +130,14 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
             recov.npix = double(recov.npix);
             assertTrue(isa(recov.pix,'single'));
             recov.pix = double(recov.pix);
-            
+
             fn = fieldnames(recov);
             for i=1:numel(fn)
                 assertEqual(class(recov.(fn{i})),class(test_data1.(fn{i})),...
                     ['incorrect field types: ',fn{i}]);
             end
-            
-            
+
+
             assertEqual(test_data1,recov);
             %-------------------------------------------------------------
             test_data2 = struct(...
@@ -148,21 +148,21 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
                 's',4,'e',5,'npix',100,...
                 'pix',ones(9,100));
             test_data2.p ={};
-            
+
             ser = sqw_serializer();
             [struc_pos,pos] = ser.calculate_positions(test_format,test_data2);
             assertEqual(pos-1,3680);
-            
+
             bytes = ser.serialize(test_data2,test_format);
             assertEqual(numel(bytes),pos-1);
-            
+
             [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
             assertEqual(pos,pos1);
             assertEqual(struc_pos,test_pos);
-            
+
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
-            
+
             assertTrue(isa(recov.iax,'double'));
             assertTrue(isa(recov.iint,'single'));
             recov.iax = double(recov.iax);
@@ -175,15 +175,15 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
             recov.npix = double(recov.npix);
             assertTrue(isa(recov.pix,'single'));
             recov.pix = double(recov.pix);
-            
+
             fn = fieldnames(recov);
             for i=1:numel(fn)
                 assertEqual(class(recov.(fn{i})),class(test_data2.(fn{i})),...
                     ['incorrect field types: ',fn{i}]);
             end
-            
+
             assertEqual(test_data2,recov);
-            
+
             %-------------------------------------------------------------
             test_data3 = struct(...
                 'iax',[1,3],'iint',[1,1;10,5],...
@@ -193,21 +193,21 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
                 's',4*ones(9,10),'e',3*ones(9,10),'npix',10*ones(9,10),...
                 'pix',ones(9,100));
             test_data3.p = {(2:2:20)',(5:5:55)'};
-            
+
             ser = sqw_serializer();
             [struc_pos,pos] = ser.calculate_positions(test_format,test_data3);
             assertEqual(pos-1,5188);
-            
+
             bytes = ser.serialize(test_data3,test_format);
             assertEqual(numel(bytes),pos-1);
-            
+
             [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
             assertEqual(pos,pos1);
             assertEqual(struc_pos,test_pos);
-            
+
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
-            
+
             assertTrue(isa(recov.iax,'double'));
             assertTrue(isa(recov.iint,'single'));
             assertTrue(isa(recov.pax,'int32'));
@@ -224,17 +224,17 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
             recov.npix = double(recov.npix);
             assertTrue(isa(recov.pix,'single'));
             recov.pix = double(recov.pix);
-            
+
             fn = fieldnames(recov);
             for i=1:numel(fn)
                 assertEqual(class(recov.(fn{i})),class(test_data3.(fn{i})),...
                     ['incorrect field types: ',fn{i}]);
             end
-            
-            
+
+
             assertEqual(test_data3,recov);
-            
-            
+
+
         end
         %
         function obj = test_serialize_classes_v3(obj)
@@ -252,18 +252,18 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
                 'int32_v',field_simple_class_hv3(),'uint64_t',field_simple_class_hv3(),...
                 'double_a1',field_simple_class_hv3(),...
                 'carray_single',field_simple_class_hv3());
-            
+
             ser = sqw_serializer();
             [struc_pos,pos] = ser.calculate_positions(test_format,test_data);
             assertEqual(pos-1,498);
-            
+
             bytes = ser.serialize(test_data,test_format);
             assertEqual(numel(bytes),pos-1);
-            
+
             [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
             assertEqual(pos,pos1);
             assertEqual(struc_pos,test_pos);
-            
+
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
             %
@@ -274,8 +274,8 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
                 assertEqual(recov.(fn{i}),test_data.(fn{i}),...
                     ['unequal values for field: ',fn{i}])
             end
-            
-            
+
+
         end
         %
         function obj = test_serialize_general_v3(obj)
@@ -286,23 +286,23 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
                 'int32_v',int32(10),'uint64_t',100,...
                 'double_a1',[1,2,3],...
                 'carray_single',ones(1,10)*10);
-            
+
             test_format = field_generic_class_hv3();
-            
+
             ser = sqw_serializer();
             [struc_pos,pos] = ser.calculate_positions(test_format,test_data);
             assertEqual(pos-1,675);
-            
+
             bytes = ser.serialize(test_data,test_format);
             assertEqual(numel(bytes),pos-1);
-            
+
             [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
             assertEqual(pos,pos1);
             assertEqual(struc_pos,test_pos);
-            
+
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
-            
+
             %
             fn = fieldnames(recov);
             for i=1:numel(fn)
@@ -313,81 +313,85 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
             end
         end
         %
-        function test_instrument_sample_conversion(~)
+        function test_instrument_conversion(~)
             test_format = field_generic_class_hv3();
             ser = sqw_serializer();
-            
+
             %---  Instrument
             inst = maps_instrument(300,700,'S');
             [struc_pos,pos] = ser.calculate_positions(test_format,inst);
-            assertEqual(pos-1,9662);
-            
+            assertEqual(pos-1,9857);
+
             bytes = ser.serialize(inst,test_format);
             assertEqual(numel(bytes),pos-1);
-            
+
             [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
             assertEqual(pos,pos1);
             assertEqual(struc_pos,test_pos);
-            
+
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
             assertEqual(recov,inst)
             % 2 instruments
             inst_s = [inst,maps_instrument(200,300,'A')];
             [struc_pos,pos] = ser.calculate_positions(test_format,inst_s);
-            assertEqual(pos-1,19157);
-            
+            assertEqual(pos-1,19522);
+
             bytes = ser.serialize(inst_s,test_format);
             assertEqual(numel(bytes),pos-1);
-            
+
             [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
             assertEqual(pos,pos1);
             assertEqual(struc_pos,test_pos);
-            
+
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
             assertEqual(recov,inst_s)
-            
-            
+        end
+        %
+        function test_sample_conversion(~)
+            test_format = field_generic_class_hv3();
+            ser = sqw_serializer();
+
             %---  Sample
             samp = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
-         
+
             [struc_pos,pos] = ser.calculate_positions(test_format,samp);
-            
-            assertEqual(pos-1,1232); % was 1126 before adding alatt/angdeg to IX_sample
-            
+
+            assertEqual(pos-1,1292); % was 1126 before adding alatt/angdeg to IX_sample
+
             bytes = ser.serialize(samp,test_format);
             assertEqual(numel(bytes),pos-1);
-            
+
             [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
             assertEqual(pos,pos1);
             assertEqual(struc_pos,test_pos);
-            
+
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
             assertEqual(recov,samp)
-            
-            
+
+
         end
         %
         function test_serialize_handle(~)
             test_format = field_generic_class_hv3();
             ser = sqw_serializer();
-            
-            
+
+
             f = @fh_serialize_sample;
-            
+
             [struc_pos,pos] = ser.calculate_positions(test_format,f);
-            
+
             assertEqual(pos-1,74);
-            
+
             bytes = ser.serialize(f,test_format);
             assertEqual(numel(bytes),pos-1);
-            
+
             [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
             assertEqual(pos,pos1);
             assertEqual(struc_pos,test_pos);
-            
+
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
             assertEqual(recov,f);
@@ -398,22 +402,22 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
             ob = ob.switch_fun(2);
             [struc_pos,pos] = ser.calculate_positions(test_format,ob);
             assertEqual(pos-1,283);
-            
+
             bytes = ser.serialize(ob,test_format);
             assertEqual(numel(bytes),pos-1);
-            
+
             [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
             assertEqual(pos,pos1);
             assertEqual(struc_pos,test_pos);
-            
+
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
             %             assertEqual(recov,ob);
             %             by = hlp_serialize(ob);
             %             rec = hlp_deserialize(by);
             %             assertEqual(rec,ob);
-            
-            
+
+
         end
         %
         function obj = test_serialize_general_v3_with_file(obj)
@@ -424,38 +428,38 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
                 'int32_v',int32(10),'uint64_t',100,...
                 'double_a1',[1,2,3],...
                 'carray_single',ones(1,10)*10);
-            
+
             test_format = field_generic_class_hv3();
-            
+
             ser = sqw_serializer();
             [struc_pos,pos] = ser.calculate_positions(test_format,test_data);
             assertEqual(pos-1,675);
-            
+
             bytes = ser.serialize(test_data,test_format);
             assertEqual(numel(bytes),pos-1);
-            
+
             tf = fullfile(tmp_dir,'serialize_test_serialize_general_v3_with_file.bin');
             fid = fopen(tf,'w+');
             assertTrue(fid>0);
             clob = onCleanup(@()obj.clean_file(fid));
             sz = fwrite(fid,bytes,'uint8');
             assertEqual(sz,pos-1);
-            
+
             [test_pos,pos1] =  ser.calculate_positions(test_format,fid);
             % file operations calculate positions from 0 while array
             % operations -- from 1. Bad Matlab inconsistency
             test_pos.start_pos_ = test_pos.start_pos_+1;
             assertEqual(pos-1,pos1);
             assertEqual(struc_pos,test_pos);
-            
+
             fseek(fid,0,'bof');
             sz = pos1;
             r_bytes = fread(fid,sz,'*uint8');
             assertEqual(bytes,r_bytes');
-            
+
             [recov,pos] = ser.deserialize_bytes(r_bytes,test_format);
             assertEqual(pos-1,numel(bytes));
-            
+
             %
             fn = fieldnames(recov);
             for i=1:numel(fn)
@@ -464,8 +468,8 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
                 assertEqual(recov.(fn{i}),test_data.(fn{i}),...
                     ['unequal values for field: ',fn{i}])
             end
-            
-            
+
+
         end
         %
         function obj = test_serialize_cells(obj)
@@ -480,23 +484,23 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
             test_data.lead1 = [1,2,3];
             test_data.lead2 = {test_block,test_block,test_block};
             test_data.lead3 = repmat(test_block,1,3);
-            
+
             test_format = field_generic_class_hv3();
-            
+
             ser = sqw_serializer();
             [struc_pos,pos] = ser.calculate_positions(test_format,test_data);
             assertEqual(pos-1,4497);
-            
+
             bytes = ser.serialize(test_data,test_format);
             assertEqual(numel(bytes),pos-1);
-            
+
             [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
             assertEqual(pos,pos1);
             assertEqual(struc_pos,test_pos);
-            
+
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
-            
+
             %
             fn = fieldnames(recov);
             for i=1:numel(fn)
@@ -517,41 +521,41 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
                 'double_a1',[1,2,3],...
                 'carray_single',ones(1,10)*10,...
                 'some_string','bla_bla','empty_str','');
-            
+
             test_data = {test_block,test_block,test_block};
-            
+
             test_format = field_generic_class_hv3();
-            
+
             ser = sqw_serializer();
             [struc_pos,pos] = ser.calculate_positions(test_format,test_data);
             assertEqual(pos-1,2406);
-            
+
             bytes = ser.serialize(test_data,test_format);
             assertEqual(numel(bytes),pos-1);
-            
+
             [test_pos,pos1] =  ser.calculate_positions(test_format,bytes);
             assertEqual(pos,pos1);
             assertEqual(struc_pos,test_pos);
-            
+
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
-            
+
             assertEqual(recov,test_data)
         end
         function test_serialize_deserialize_pix_comb_info(~)
-            
+
             infiles = {'a','bbb','sss','dd'};
             nfiles = numel(infiles);
             run_label = 0:nfiles-1;
             pix_comb = pix_combine_info(infiles,1000,2000,3000,1000,run_label);
-            
+
             struc = pix_comb.saveobj();
             pix_res = pix_combine_info.loadobj(struc);
-            
+
             assertEqual(pix_comb,pix_res);
         end
         %
-        
+
     end
 end
 

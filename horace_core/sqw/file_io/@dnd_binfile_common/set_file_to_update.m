@@ -109,6 +109,7 @@ obj.file_closer_ = onCleanup(@()obj.fclose());
 %-------------------------------------------------------------------------
 
 if file_exist
+    obj.upgrade_headers_ = false;    
     if upgrading_this
         this_pos = old_ldr.get_pos_info();
         upgrade_map = const_blocks_map(this_pos);
@@ -137,9 +138,9 @@ if file_exist
         obj.upgrade_map_ = upgrade_map;
         if log_level>1;   fprintf('*** Existing file:  %s can be upgraded with new object data.\n',new_filename);  end
     end
-    
 else
     obj.upgrade_map_ = [];
+    obj.upgrade_headers_ = true;    
 end
 
 

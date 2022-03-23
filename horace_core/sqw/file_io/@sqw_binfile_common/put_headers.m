@@ -70,8 +70,10 @@ else
 end
 % Store scrambled run_id map not to guess it in a future. In new file
 % formats, runid map will be stored separately
-data_2save = sqw_binfile_common.modify_header_with_runid( ...
-    data_2save,obj.sqw_holder_.runid_map);
+if ~isempty(obj.sqw_holder_)
+    data_2save = obj.modify_header_with_runid( ...
+        data_2save,obj.sqw_holder_.runid_map);
+end
 if update
     pos_list = obj.upgrade_map_.cblocks_map('header');
     size_list = pos_list(2,:);
@@ -79,8 +81,6 @@ if update
 else
     pos_list = obj.header_pos_;
 end
-
-
 
 for i=1:n_files2_process
     if iscell(data_2save)

@@ -3,8 +3,6 @@ function obj=init_headers_from_sqw_(obj,sqw_obj)
 % using sqw object, stored in memory
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
 
 main_h_form = obj.get_main_header_form();
 main_h = sqw_obj.main_header;
@@ -24,7 +22,7 @@ if ~iscell(hdrs)
     hdrs = {hdrs};
 end
 %HACK: Store runid_map with filenames
-hdrs = sqw_binfile_common.modify_header_with_runid(hdrs,sqw_obj.runid_map);
+hdrs = obj.modify_header_with_runid(hdrs,sqw_obj.runid_map);
 
 header_form = obj.get_header_form();
 [header_pos,pos]=obj.sqw_serializer_.calculate_positions(header_form,hdrs{1},pos);
