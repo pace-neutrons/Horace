@@ -1,5 +1,5 @@
 classdef test_axes_block < TestCase
-    % Series of tests to check work of mex files against Matlab files
+    % Tests for main operations of the axes_block
 
     properties
         out_dir=tmp_dir();

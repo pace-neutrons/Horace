@@ -11,5 +11,5 @@ end
 
 [ok,mess,obj] = check_combo_arg_(obj);
 if ~ok
-    error(mess)
+    error('HORACE:ortho_proj:invalid_argument',mess)
 end

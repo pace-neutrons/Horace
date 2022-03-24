@@ -2,7 +2,7 @@ function  new_axes_block = build_from_input_binning(...
     cur_img_range_and_steps,pbin)
 % Build new axes_block object from the binning parameters, provided
 % as input. If some input binning parameters are missing, the
-% defauls are taken from existing axes_block object.
+% defaults are taken from existing axes_block object.
 %
 % if the target range defined by binning exceeds the existing image range
 % (in target coordinate system), the existing image range is selected
@@ -27,11 +27,11 @@ function  new_axes_block = build_from_input_binning(...
 
 if numel(pbin) ~=4
     error('HORACE:axes_block:invalid_argument',...
-        'Have not provided binning descriptor for all three momentun axes and the energy axis');
+        'Have not provided binning descriptor for all three momentum axes and the energy axis');
 end
 if numel(cur_img_range_and_steps) ~=4
     error('HORACE:axes_block:invalid_argument',...
-        'Have not provided default binning for all three momentun axes and the energy axis');
+        'Have not provided default binning for all three momentum axes and the energy axis');
 else
     if size(cur_img_range_and_steps,1) > 1
         cur_img_range_and_steps = cur_img_range_and_steps';

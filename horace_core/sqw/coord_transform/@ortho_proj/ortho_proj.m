@@ -113,24 +113,28 @@ classdef ortho_proj<aProjection
         nonorthogonal_=false
         type_='ppr'
         %
-        %
-        % The property reports if the object is valid. It can become
-        % invalid if some fields have been set up incorrectly after
-        % creation (e.g. u set up parallel to v) See check_combo_arg_ for
-        % all options which may be invalid
-        valid_ = true
-        %
         % The properties used to optimize from_current_to_targ method
         % transfromation, if both current and target projections are
         % ortho_proj
         ortho_ortho_transf_mat_;
         ortho_ortho_offset_;
+
         % inverted ub matrix, used to support alignment as in Horace 3.xxx
         % as real ub matrix is multiplied by alginment matrix
         ub_inv_compat_ = [];
+        % The property reports if the object is valid. It can become
+        % invalid if some fields have been set up incorrectly after
+        % creation (e.g. u set up parallel to v) See check_combo_arg_ for
+        % all options which may be invalid
+        valid_ = true        
     end
 
     methods
+        %------------------------------------------------------------------
+        % Interfaces:
+        %------------------------------------------------------------------        
+       [ok, mess, wout] = check_combo_arg (w)        
+        %------------------------------------------------------------------       
         function proj=ortho_proj(varargin)
             proj = proj@aProjection();
             proj.label = {'\zeta','\xi','\eta','E'};            
@@ -155,7 +159,7 @@ classdef ortho_proj<aProjection
             [obj,remains] = process_positional_args_(obj,varargin{:});
             [obj,remains] = init@aProjection(obj,remains{:});
             obj = process_keyval_args_(obj,remains{:});
-            [ok,mess,obj] = obj.isvalid();
+            [ok,mess,obj] = obj.check_combo_arg();
             if ~ok
                 error('HORACE:ortho_proj:invalid_argument',mess);
             end
@@ -356,8 +360,8 @@ classdef ortho_proj<aProjection
             end
         end
         %
-        function  flds = indepFields(obj)
-            flds = indepFields@aProjection(obj);
+        function  flds = saveableFields(obj)
+            flds = saveableFields@aProjection(obj);
             flds = [flds(:);obj.fields_to_save_(:)];
         end
     end

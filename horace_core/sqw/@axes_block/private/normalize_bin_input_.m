@@ -11,7 +11,8 @@ function [npix,s,e,pix_cand,argi]=...
 %        the requested outputs, different inputs have to be provided
 % Optional:
 % npix or nothing if mde == 1
-% npix,s,e accumulators if mde in [3,4,5]
+% npix,s,e accumulators if mde in [4,5,6]
+%
 %
 % Outputs:
 % npix  -- array to keep number of pixels belonging to each cell
@@ -45,12 +46,21 @@ else
             '7-th argument of the function have to be PixelData class. It is: %s',...
             class(pix));
     end
-
-    if ismember(mde,[3,4,5])
+    % Usage:
+    % >>npix = bin_pixels(obj,coord);
+    %      3
+    % >>[npix,s,e] = bin_pixels(obj,coord,npix,s,e);
+    %      4
+    % >>[npix,s,e,pix_ok] = bin_pixels(obj,coord,npix,s,e,pix_candidates)    
+    %      5
+    % >>[npix,s,e,pix_ok,unque_runid] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
+    %      6
+    % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
+    if ismember(mde,[3,4,5,6])
         pix_cand = pix;
     else
         error('HORACE:axes_block:invalid_argument',...
-            'The procedure accepts 1,3,4 or 5 output arguments')
+            'The procedure accepts 1,3,4,5 or 6 output arguments')
     end
 end
 argi = {};

@@ -181,8 +181,8 @@ classdef instr_proj<aProjection
 
         end
         %
-        function  flds = indepFields(obj)
-            flds = indepFields@aProjection(obj);
+        function  flds = saveableFields(obj)
+            flds = saveableFields@aProjection(obj);
             flds = [flds(:);obj.fields_to_save_(:)];
         end
     end

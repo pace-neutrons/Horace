@@ -1,5 +1,5 @@
-function [ok, mess, wout] = isvalid (w)
-% Check fields for data_array object
+function [ok, mess, wout] = check_combo_arg (w)
+% Check validity of interdependent fields
 %
 %   >> [ok, mess] = isvalid (w)
 %

@@ -123,7 +123,7 @@ classdef axes_block < serializable
             % LEGACY FUNCTION, left for compartibility with old binary sqw
             % files for transforming the data, stored there into modern
             % axes_block form
-            % 
+            %
             % Retrieve 4D range used for rebinning pixels
             % from old style sqw objects, where this range was not stored
             % directly as it may become incorrect after some
@@ -163,13 +163,6 @@ classdef axes_block < serializable
     end
 
     methods
-        function flds = saveableFields(~)
-            % get independent fields, which fully define the state of a
-            % serializable object.
-            flds = axes_block.fields_to_save_;
-        end
-
-        
         % return 3 q-axis in the order they mark the dnd object
         % regardless of the integration along some qxis
         % TODO: probably should be removed
@@ -179,11 +172,6 @@ classdef axes_block < serializable
         % find the coordinates along each of the axes of the smallest cuboid
         % that contains bins with non-zero values of contributing pixels.
         [val, n] = data_bin_limits (din);
-        
-        % build new axes_block object from the binning parameters, provided
-        % as input. If some input binning parameters are missing, the
-        % defauls are taken from existing axes_block object.
-        obj = build_from_input_binning(obj,targ_proj,img_db_range,source_proj,pin);
         %
         function obj = axes_block(varargin)
             % constructor
@@ -216,7 +204,6 @@ classdef axes_block < serializable
             [obj,offset,remains] = init_(obj,varargin{:});
         end
 
-
         function sz = dims_as_ssize(obj)
             % Return the extent along each dimension of the signal arrays.
             % suitable for allocating appropriate size memory
@@ -225,17 +212,6 @@ classdef axes_block < serializable
             elseif numel(sz) ==1; sz = [sz,1];
             end
         end
-
-        % return 3 q-axis in the order they mark the dnd object
-        % regardless of the integration along some axis
-        % TODO: probably should be removed
-        [q1,q2,q3] = get_q_axes(obj);
-        %
-
-        % find the coordinates along each of the axes of the smallest cuboid
-        % that contains bins with non-zero values of contributing pixels.
-        [val, n] = data_bin_limits (din);
-        %
 
         function [cube_coord,step] = get_axes_scales(obj)
             % Return 4D cube, describing the minimal grid cell of the axes block
@@ -297,7 +273,7 @@ classdef axes_block < serializable
             %            object (the output format is the same as for
             %            pix_candidates)
             % unique_runid-array of unique run-id-s for pixels, contributed
-            %            into the cut,             
+            %            into the cut.
             % pix_indx --Array of indexes for the image bins, where
             %            the input pix elements belong to
 
@@ -493,14 +469,6 @@ classdef axes_block < serializable
             lab  = obj.label_;
         end
         %
-        %------------------------------------------------------------------
-        function ver  = classVersion(~)
-            % define version of the class to store in mat-files
-            % and nxsqw data format. Each new version would presumably read
-            % the older version, so version substitution is based on this
-            % number
-            ver = 2;
-        end
     end
     methods(Access=protected)
         function [npix,s,e,pix_candidates,argi]=...
@@ -544,7 +512,20 @@ classdef axes_block < serializable
                 obj = obj.from_bare_struct(inputs);
             end
         end
-
+        %------------------------------------------------------------------
+        function ver  = classVersion(~)
+            % define version of the class to store in mat-files
+            % and nxsqw data format. Each new version would presumably read
+            % the older version, so version substitution is based on this
+            % number
+            ver = 2;
+        end
+        %
+        function flds = saveableFields(~)
+            % get independent fields, which fully define the state of a
+            % serializable object.
+            flds = axes_block.fields_to_save_;
+        end
     end
     methods(Static)
         function input = convert_old_struct_into_nbins(input)
