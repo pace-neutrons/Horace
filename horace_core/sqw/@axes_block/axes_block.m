@@ -1,6 +1,6 @@
 classdef axes_block < serializable
     % The class contains information about axes and scales used for
-    % displaying sqw/dnd object.
+    % displaying sqw/dnd object and provides scales for neutron image data.
     %
     % It also contains main methods, used to produce physical image of the
     % sqw/dnd object
@@ -163,6 +163,28 @@ classdef axes_block < serializable
     end
 
     methods
+        function flds = saveableFields(~)
+            % get independent fields, which fully define the state of a
+            % serializable object.
+            flds = axes_block.fields_to_save_;
+        end
+
+        
+        % return 3 q-axis in the order they mark the dnd object
+        % regardless of the integration along some qxis
+        % TODO: probably should be removed
+        [q1,q2,q3] = get_q_axes(obj);
+        % return binning range of existing data object
+        range = get_bin_range(obj);
+        % find the coordinates along each of the axes of the smallest cuboid
+        % that contains bins with non-zero values of contributing pixels.
+        [val, n] = data_bin_limits (din);
+        
+        % build new axes_block object from the binning parameters, provided
+        % as input. If some input binning parameters are missing, the
+        % defauls are taken from existing axes_block object.
+        obj = build_from_input_binning(obj,targ_proj,img_db_range,source_proj,pin);
+        %
         function obj = axes_block(varargin)
             % constructor
             %
@@ -472,11 +494,6 @@ classdef axes_block < serializable
         end
         %
         %------------------------------------------------------------------
-        function flds = indepFields(~)
-            % get independent fields, which fully define the state of a
-            % serializable object.
-            flds = axes_block.fields_to_save_;
-        end
         function ver  = classVersion(~)
             % define version of the class to store in mat-files
             % and nxsqw data format. Each new version would presumably read

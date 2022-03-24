@@ -70,7 +70,30 @@ classdef sqw_binfile_common < sqw_file_interface
             'pix_pos_';'eof_pix_pos_'};
     end
     %
-    methods(Access = protected,Hidden=true)
+    methods(Access = protected)
+        function hd = modify_header_with_runid(obj,hd,runid_map)
+            % HACK: will go in next versions of sqw file format
+            % Store scrambled run_id map not to guess it in a future. In new file
+            % formats, runid map will be stored separately
+            if ~obj.upgrade_headers_ % should not modify the headers if the 
+                % file is open in upgrade mode
+                return;
+            end
+            keys = runid_map.keys;
+            val  = runid_map.values;
+            val  = [val{:}];
+            for i=1:numel(hd)
+                this_val = ismember(val,i); %found the value->key transformation
+                if sum(this_val)>1  % should be only one value. Will rightly fail if more
+                    error('HORACE:put_headers:runtime_error',...
+                        'More then one run_id corresponds to a header. Error in gen_sqw algorithm')
+                end
+                id = keys{this_val};
+                hd{i}.filename = [hd{i}.filename,'$id$',num2str(id)];
+            end
+
+        end       
+
         function obj=init_from_sqw_obj(obj,varargin)
             % initialize the structure of sqw file using sqw object as input
             %
@@ -425,6 +448,11 @@ classdef sqw_binfile_common < sqw_file_interface
             detpar_form = get_detpar_form_(varargin{:});
         end
 
+        function sq = make_pseudo_sqw(nfiles)
+            % generate pseudo-contents for sqw file, for purpose of
+            % calculating fields posistions while upgrading file format
+            sq = make_pseudo_sqw_(nfiles);
+        end
     end
 end
 

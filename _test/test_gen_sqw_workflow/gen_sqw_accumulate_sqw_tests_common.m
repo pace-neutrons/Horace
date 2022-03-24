@@ -675,8 +675,6 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             co2 = onCleanup(@()set(hc,recovery));
             %-------------------------------------------------------------
             
-            
-            
             % build test files if they have not been build
             obj=build_test_files(obj);
             file_pref = obj.test_pref;
@@ -686,14 +684,11 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             
             % --------------------------------------- Test accumulate_sqw
             % ---------------------------------------
-            
             % Create some sqw files against which to compare the output of
             % accumulate_sqw
             % ---------------------------------------------------------------------------
             [~,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj);
             spe_selected = obj.spe_file([1,1,4,5,6]);
-            
-            
             
             
             [tmp_files,grid_size1,pix_range1]=gen_sqw (spe_selected,...

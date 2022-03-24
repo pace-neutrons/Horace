@@ -262,7 +262,7 @@ classdef Experiment < serializable
             ver = 1;
         end
         %
-        function flds = indepFields(~)
+        function flds = saveableFields(~)
             % get independent fields, which fully define the state of the
             % serializable object.
             flds = Experiment.fields_to_save_;
@@ -360,7 +360,7 @@ classdef Experiment < serializable
             %header-s on the basis of sqw_header and part, present in
             %write_nsqw_to_sqw implementation offers much more.
             %
-            %TODO: Do proper optimization on the way. See 
+            %TODO: Do proper optimization on the way. See
             % sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers)
             %TODO: use allow_equal_headers,drop_subzone_headers variables
             %      appropriately
@@ -372,17 +372,17 @@ classdef Experiment < serializable
                 nspe(i) = exp_cellarray{i}.n_runs;
             end
             n_tot = sum(nspe);
-            instr  = repmat({IX_null_inst()},1,n_tot );
-            sampl  = repmat({IX_null_sample()},1,n_tot);
+            instr  = cell(1,n_tot);
+            sampl  = cell(1,n_tot);
             expinfo= repmat(IX_experiment(),1,n_tot);
             ic = 1;
             for i=1:n_contrib
                 for j=1:exp_cellarray{i}.n_runs
-                    instr{i} = exp_cellarray{i}.instruments{j};
-                    sampl{ic} = exp_cellarray{i}.samples{j};
-                    expinfo(ic) =exp_cellarray{i}.expdata(j);
+                    instr{ic}  = exp_cellarray{i}.instruments{j};
+                    sampl{ic}  = exp_cellarray{i}.samples{j};
+                    expinfo(ic)= exp_cellarray{i}.expdata(j);
+                    ic = ic+1;
                 end
-                ic = ic+1;
             end
             exp = Experiment([], instr, sampl);
             exp.expdata = expinfo;

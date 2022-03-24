@@ -10,13 +10,13 @@ if nargin == 3
 elseif nargin == 1
     range_given = false;
 else
-    error('RUNDATA:invalid_argument',...
+    error('HORACE:build_bounding_obj:invalid_argument',...
         'calc_bounding_obj: method called with wrong number of input arguments');
 end
 
 if isempty(obj.loader)
     if ~range_given
-        error('RUNDATAH:invalid_argument',...
+        error('HORACE:build_bounding_obj:invalid_argument',...
             'calc_bounding_obj: trying to calculate rundata pix_range but the object is not fully defined and energy range is not specified')
     end
     obj_defined = false;
@@ -33,7 +33,7 @@ if ~range_given
     if obj_defined
         [rdl,ok,mess] = obj.load_metadata();
         if ~ok
-            error('RUNDATAH:invalid_argument',...
+            error('HORACE:build_bounding_obj:invalid_argument',...
                 'calc_bounding_obj: incomplete input object, %s',mess);
         end
         en = rdl.en;
@@ -44,13 +44,13 @@ if ~range_given
         elseif numel(en) == 2
             enps = en;
         else
-            error('RUNDATAH:invalid_argument',...
+            error('HORACE:build_bounding_obj:invalid_argument',...
                 'calc_bounding_obj: no energy loaded in input object and no energy ranges are provided');
         end
         en_min = enps(1);
         en_max = enps(end);
     else
-        error('RUNDATAH:invalid_argument',...
+        error('HORACE:build_bounding_obj:invalid_argument',...
             'calc_bounding_obj: no input range is given and source object does not contain enenrgy range');
     end
 else

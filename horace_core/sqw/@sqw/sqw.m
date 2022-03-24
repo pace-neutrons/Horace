@@ -48,7 +48,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % number
             ver = 2;
         end
-        function flds = indepFields(~)
+        function flds = saveableFields(~)
             flds = sqw.fields_to_save_;
         end
 

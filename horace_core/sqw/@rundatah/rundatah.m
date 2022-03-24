@@ -17,11 +17,13 @@ classdef rundatah < rundata
     properties(Access=private)
         transform_sqw_f_=[];
     end
+
     methods(Static)
         function clear_det_cache()
             % clear cached detectors information and detectors directions
             calc_or_restore_detdcn_([]);
         end
+        %
         function [runfiles_list,defined]=gen_runfiles(spe_files,varargin)
             % Returns array of rundatah objects created by the input arguments.
             %
@@ -74,14 +76,13 @@ classdef rundatah < rundata
                 end
             end
         end
+        %------------------------------------------------------------------
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
             % saveable class
             obj = rundatah();
             obj = loadobj@serializable(S,obj);
         end
-
-
     end
 
     methods
@@ -104,7 +105,7 @@ classdef rundatah < rundata
             if nargin == 1 && isa(varargin{1},'sqw')
                 obj = rundata_from_sqw_(varargin{1});
             else
-                obj = obj.initialize(varargin{:});
+                obj = obj.init(varargin{:});
             end
         end
         %------------------------------------------------------------------
@@ -176,9 +177,12 @@ classdef rundatah < rundata
             % Calculate projections
             [u_to_rlu,pix_range,pix] = obj.calc_projections_(obj.detdcn_cache,[],proj_mode);
         end
-        function flds = indepFields(~)
-            flds = indepFields@rundata();
-            flds = [flds(:),{'transform_sqw'}];
+        %
+        function flds = saveableFields(obj)
+            flds = saveableFields@rundata(obj);
+            flds = [flds,'transform_sqw'];
         end
+
     end
+
 end
