@@ -16,7 +16,7 @@ function   obj = put_headers(obj,varargin)
 
 [ok,mess,update,argi] = parse_char_options(varargin,{'-update'});
 if ~ok
-    error('SQW_BINFILE_COMMON:invalid_argument',mess);
+    error('HORACE:put_headers:invalid_argument',mess);
 end
 %
 obj.check_obj_initated_properly();
@@ -27,7 +27,7 @@ if ~isempty(argi)
     % return that header
     if any(numeric_pos)
         if sum(numeric_pos)>1
-            error('SQW_BINFILE_COMMON:invalid_argument',...
+            error('HORACE:put_headers:invalid_argument',...
                 'put_headers: you can only request all or one header number to save, but got %d numerical agruments',...
                 sum(numeric_pos));
         end
@@ -45,17 +45,17 @@ end
 
 if update
     if ~obj.upgrade_mode
-        error('SQW_FILE_IO:runtime_error',...
+        error('HORACE:put_headers:runtime_error',...
             'SQW_BINFILE_COMMON::put_headers : input object has not been initiated for update mode');
     end
-    
+
     head_form = obj.get_header_form('-const');
 else
     head_form = obj.get_header_form();
 end
 if ~isempty(header_num)
     if header_num<=0 || header_num >obj.num_contrib_files
-        error('SQW_BINFILE_COMMON:invalid_argument',...
+        error('HORACE:put_headers:invalid_argument',...
             'put_header: number of header to save %d is out of range of existing headers %d',...
             header_num,obj.num_contrib_files);
     end
@@ -68,7 +68,12 @@ else
         data_2save = data_2save.convert_to_old_headers();
     end
 end
-
+% Store scrambled run_id map not to guess it in a future. In new file
+% formats, runid map will be stored separately
+if ~isempty(obj.sqw_holder_)
+    data_2save = obj.modify_header_with_runid( ...
+        data_2save,obj.sqw_holder_.runid_map);
+end
 if update
     pos_list = obj.upgrade_map_.cblocks_map('header');
     size_list = pos_list(2,:);
@@ -76,8 +81,6 @@ if update
 else
     pos_list = obj.header_pos_;
 end
-
-
 
 for i=1:n_files2_process
     if iscell(data_2save)
@@ -87,10 +90,10 @@ for i=1:n_files2_process
     end
     if update
         if numel(bytes) ~= size_list(i)
-            error('SQW_FILE_IO:runtime_error',...
+            error('HORACE:put_headers:runtime_error',...
                 'SQW_BINFILE_COMMON::put_headers : size of upgraded header N%d (%d)  different from one on hdd (%d)',...
                 i,numel(bytes),size_list(i));
-            
+
         end
     end
     start_pos  = pos_list(i);
@@ -99,5 +102,3 @@ for i=1:n_files2_process
     fwrite(obj.file_id_,bytes,'uint8');
     check_error_report_fail_(obj,sprintf('Error writing data for the header N%d',i));
 end
-
-

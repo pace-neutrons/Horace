@@ -70,7 +70,30 @@ classdef sqw_binfile_common < sqw_file_interface
             'pix_pos_';'eof_pix_pos_'};
     end
     %
-    methods(Access = protected,Hidden=true)
+    methods(Access = protected)
+        function hd = modify_header_with_runid(obj,hd,runid_map)
+            % HACK: will go in next versions of sqw file format
+            % Store scrambled run_id map not to guess it in a future. In new file
+            % formats, runid map will be stored separately
+            if ~obj.upgrade_headers_ % should not modify the headers if the 
+                % file is open in upgrade mode
+                return;
+            end
+            keys = runid_map.keys;
+            val  = runid_map.values;
+            val  = [val{:}];
+            for i=1:numel(hd)
+                this_val = ismember(val,i); %found the value->key transformation
+                if sum(this_val)>1  % should be only one value. Will rightly fail if more
+                    error('HORACE:put_headers:runtime_error',...
+                        'More then one run_id corresponds to a header. Error in gen_sqw algorithm')
+                end
+                id = keys{this_val};
+                hd{i}.filename = [hd{i}.filename,'$id$',num2str(id)];
+            end
+
+        end       
+
         function obj=init_from_sqw_obj(obj,varargin)
             % initialize the structure of sqw file using sqw object as input
             %
@@ -92,7 +115,7 @@ classdef sqw_binfile_common < sqw_file_interface
             obj.data_type_ = 'a'; % should it always be 'a'?
             obj = init_from_sqw_obj@dnd_binfile_common(obj,varargin{:});
             obj.sqw_holder_ = varargin{1};
-            
+
             obj = init_pix_info_(obj);
         end
         %
@@ -176,7 +199,7 @@ classdef sqw_binfile_common < sqw_file_interface
         det = get_detpar(obj);
         % read main sqw data  from properly initialized binary file.
         [sqw_data,obj] = get_data(obj,varargin);
-        
+
         function img_db_range = get_img_db_range(obj)
             % get [2x4] array of min/max ranges of the image, representing
             % DND object. This range is the basis for calcu
@@ -195,8 +218,8 @@ classdef sqw_binfile_common < sqw_file_interface
             % into an object. Empty for DND object
             %
             pix_range = PixelData.EMPTY_RANGE_;
-        end        
-        
+        end
+
         % read pixels information
         pix = get_pix(obj,varargin);
         % read pixels at the given indices
@@ -229,7 +252,7 @@ classdef sqw_binfile_common < sqw_file_interface
             error('SQW_FILE_IO:runtime_error',...
                 'put_samples is not implemented for faccess_sqw %s',...
                 obj.file_version);
-            
+
         end
         %
         function pix_pos = get.pix_position(obj)
@@ -430,7 +453,12 @@ classdef sqw_binfile_common < sqw_file_interface
             % this structure size
             detpar_form = get_detpar_form_(varargin{:});
         end
-        
+
+        function sq = make_pseudo_sqw(nfiles)
+            % generate pseudo-contents for sqw file, for purpose of
+            % calculating fields posistions while upgrading file format
+            sq = make_pseudo_sqw_(nfiles);
+        end
     end
 end
 
