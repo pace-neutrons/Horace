@@ -227,6 +227,7 @@ classdef axes_block < serializable
             % >>[npix,s,e] = obj.bin_pixels(coord,npix,s,e);
             % >>[npix,s,e,pix_ok,unque_runid] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
             % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
+            % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates,unique_runid);
             % Where
             % Inputs:
             % pix_coord_transf
@@ -279,12 +280,12 @@ classdef axes_block < serializable
 
             nargou = nargout;
             % convert different input forms into fully expanded common form
-            [npix,s,e,pix_cand,argi]=...
+            [npix,s,e,pix_cand,unique_runid,argi]=...
                 obj.normalize_bin_input(pix_coord_transf,nargou,varargin{:});
             %
             % bin pixels
             [npix,s,e,pix,unique_runid,pix_indx] = bin_pixels_(obj,pix_coord_transf,nargou,...
-                npix,s,e,pix_cand,argi{:});
+                npix,s,e,pix_cand,unique_runid,argi{:});
         end
         %
         function [nodes,dE_edges,npoints_in_axes] = get_bin_nodes(obj,varargin)
@@ -469,6 +470,21 @@ classdef axes_block < serializable
             lab  = obj.label_;
         end
         %
+        %------------------------------------------------------------------
+        function ver  = classVersion(~)
+            % define version of the class to store in mat-files
+            % and nxsqw data format. Each new version would presumably read
+            % the older version, so version substitution is based on this
+            % number
+            ver = 2;
+        end
+        %
+        function flds = saveableFields(~)
+            % get independent fields, which fully define the state of a
+            % serializable object.
+            flds = axes_block.fields_to_save_;
+        end
+
     end
     methods(Access=protected)
         function [npix,s,e,pix_candidates,argi]=...
@@ -511,20 +527,6 @@ classdef axes_block < serializable
             else
                 obj = obj.from_bare_struct(inputs);
             end
-        end
-        %------------------------------------------------------------------
-        function ver  = classVersion(~)
-            % define version of the class to store in mat-files
-            % and nxsqw data format. Each new version would presumably read
-            % the older version, so version substitution is based on this
-            % number
-            ver = 2;
-        end
-        %
-        function flds = saveableFields(~)
-            % get independent fields, which fully define the state of a
-            % serializable object.
-            flds = axes_block.fields_to_save_;
         end
     end
     methods(Static)

@@ -1,4 +1,4 @@
-function [npix,s,e,pix_cand,argi]=...
+function [npix,s,e,pix_cand,unique_runid,argi]=...
     normalize_bin_input_(obj,pix,mde,varargin)
 % verify inputs of the bin_pixels function and convert various
 % forms of the inputs of this function into a common form, where the missing
@@ -38,7 +38,7 @@ if mde == 1
 else
     if nargin<7
         error('HORACE:axes_block:invalid_argument',...
-            'PixelData have to be provided as 7-th argument if cell-average signal and erros requested');
+            'PixelData have to be provided as 7-th argument if cell-average signal and erros are requested');
     end
     pix = varargin{4};
     if ~isa(pix,'PixelData')

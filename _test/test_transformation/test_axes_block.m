@@ -50,6 +50,8 @@ classdef test_axes_block < TestCase
 
             [npix,s,e,pix_ok,unique_runid,indx] = ab.bin_pixels(pix_data,[],[],[],pix);
 
+            assertEqual(numel(unique_runid),1)
+            assertEqual(unique_runid,1)            
             assertEqual(size(npix),szs);
             assertEqual(size(s),szs);
             assertEqual(size(e),szs);

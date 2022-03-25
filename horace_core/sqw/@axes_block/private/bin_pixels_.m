@@ -1,17 +1,21 @@
 function [npix,s,e,pix,unique_runid,pix_indx] = bin_pixels_(obj,coord,num_outputs,...
-    npix,s,e,pix_cand,varargin)
+    npix,s,e,pix_cand,unique_runid,varargin)
 % sort pixels according to their coordinates in the axes grid, and
 % calculate pixels grid statistics.
 % Inputs:
 % obj   -- the initialized axes_block object with the grid defined
 % coord -- the 3D or 4D array of pixels coordinates transformed into
 %          axes_block coordinate system
+% num_outputs 
+%       -- the number of output parameters, requested to process. Depending
+%          on this number, additional parts of the algorithm will be
+%          deployed
+% 
 % 
 
 
 pix = [];
 pix_indx = [];
-unique_runid = [];
 if nargin>7
     options = {'-force_double'};
     % keep unused argi parameter to tell parce_char_options to ignore
@@ -100,7 +104,8 @@ pix          = pix_cand.get_pixels(ok);
 if num_outputs<5
     return;
 end
-unique_runid = unique(pix.run_idx);
+loc_unique = unique(pix.run_idx);
+unique_runid = unique([unique_runid,loc_unique]);
 if num_outputs<6
     return;    
 end
