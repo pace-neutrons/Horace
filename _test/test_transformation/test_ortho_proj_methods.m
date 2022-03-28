@@ -1,5 +1,5 @@
 classdef test_ortho_proj_methods<TestCase
-    % The test class to verify how projection works
+    % The tests to verify main ortho_proj methods.
     %
     properties
         tests_folder

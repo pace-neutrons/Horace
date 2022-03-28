@@ -1,5 +1,7 @@
 classdef test_instr_proj_construction<TestCase
-    % The test class to verify how projection works
+    % Test operations necessary to build class, responsible 
+    % for projection between instrument frame and crystal Cartesian
+    % coordinate system
     %
     properties
         tests_folder

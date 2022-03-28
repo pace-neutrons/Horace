@@ -6,17 +6,17 @@ function [npix,s,e,pix,unique_runid,pix_indx] = bin_pixels_(obj,coord,num_output
 % obj   -- the initialized axes_block object with the grid defined
 % coord -- the 3D or 4D array of pixels coordinates transformed into
 %          axes_block coordinate system
-% num_outputs 
+% num_outputs
 %       -- the number of output parameters, requested to process. Depending
 %          on this number, additional parts of the algorithm will be
 %          deployed
-% 
-% 
+%
+%
 
 
 pix = [];
 pix_indx = [];
-if nargin>7
+if nargin>8
     options = {'-force_double'};
     % keep unused argi parameter to tell parce_char_options to ignore
     % unknown options
@@ -66,7 +66,7 @@ else
     step = (r2-r1)./n_bins';
 
     coord   = coord(pax,:);
-    
+
     %
     bin_step = 1./step;
     pix_indx = floor((coord-r1)'.*bin_step')+1;
@@ -107,7 +107,7 @@ end
 loc_unique = unique(pix.run_idx);
 unique_runid = unique([unique_runid,loc_unique]);
 if num_outputs<6
-    return;    
+    return;
 end
 clear ok;
 if ndims > 1 % convert to 1D indexes
@@ -123,7 +123,7 @@ if ndims > 0
     else % sort will make pix double if requested % TODO: this should be moved to get_pixels
         pix = sort_pix(pix,pix_indx,npix,varargin{:});
     end
-elseif ndims == 0  
+elseif ndims == 0
     if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels
         pix = PixelData(double(pix.data));
     end

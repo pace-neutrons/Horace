@@ -120,7 +120,7 @@ classdef axes_block < serializable
 
         %
         function img_range = calc_img_db_range(ax_data)
-            % LEGACY FUNCTION, left for compartibility with old binary sqw
+            % LEGACY FUNCTION, left for compatibility with old binary sqw
             % files for transforming the data, stored there into modern
             % axes_block form
             %
@@ -487,7 +487,7 @@ classdef axes_block < serializable
 
     end
     methods(Access=protected)
-        function [npix,s,e,pix_candidates,argi]=...
+        function [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
             % verify inputs of the bin_pixels function and convert various
             % forms of the inputs of this function into a common form,
@@ -499,9 +499,10 @@ classdef axes_block < serializable
             %                      coordinate system
             % n_argout         -- number of argument, requested by the
             %                     calling function
+            % Optional:
             %
 
-            [npix,s,e,pix_candidates,argi]=...
+            [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_bin_input_(obj,pix_coord_transf,n_argout,varargin{:});
         end
 

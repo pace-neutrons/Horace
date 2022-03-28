@@ -1,18 +1,22 @@
 classdef test_axes_block_properties < TestCase
-    % Series of tests to check work of mex files against Matlab files
+    % Series of tests exposing axes_block old interface and
+    % conversion from old to new class contents with the interface
+    % remaining intact.
 
     properties
         out_dir=tmp_dir();
         working_dir;
         % Test axes block conversion from old to modern structure
-        % sample build and written with previous version of the class
+        % Sample file build and written with previous version of the class
+        % are stored in repository.
         % Redefine sample file name and set_save_sample to true
         % to obtain different sample file if(when) the internal sample
         % structure changes again
-        axes_block_v1_file = 'axes_block_sample_v1.mat';
-        axes_block_v2_file = 'axes_block_sample_v2.mat';
+        axes_block_v1_file = 'axes_block_sample_v1.mat'; % savobj/loadobj reference file for version 1
+        axes_block_v2_file = 'axes_block_sample_v2.mat'; % savobj/loadobj reference file for version 2
         sample_sqw_file = 'w2d_qq_sqw.sqw'
-        % save sample
+        % save sample -- simlified TestWithSave interface. 
+        % Generates v2 test files when save_sample = true
         save_sample = false;
     end
 
@@ -54,16 +58,16 @@ classdef test_axes_block_properties < TestCase
             %--------------------------------------------------------------
             % check version 1
             sample_file = fullfile(obj.working_dir,obj.axes_block_v1_file);
-            if obj.save_sample
-                save(sample_file,'ab2D','ab4D')
-            end
+
             ld = load(sample_file);
             assertEqual(ld.ab2D,ab2D);
             assertEqual(ld.ab4D,ab4D);
             %--------------------------------------------------------------
             % Check version 2
             sample_file = fullfile(obj.working_dir,obj.axes_block_v2_file);
-            save(sample_file,'ab2D','ab4D')
+            if obj.save_sample
+                save(sample_file,'ab2D','ab4D')
+            end
             ld = load(sample_file);
             assertEqual(ld.ab2D,ab2D);
             assertEqual(ld.ab4D,ab4D);

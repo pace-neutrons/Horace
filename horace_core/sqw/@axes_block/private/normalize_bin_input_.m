@@ -1,14 +1,15 @@
 function [npix,s,e,pix_cand,unique_runid,argi]=...
-    normalize_bin_input_(obj,pix,mde,varargin)
+    normalize_bin_input_(obj,pix_coord,mdo,varargin)
 % verify inputs of the bin_pixels function and convert various
 % forms of the inputs of this function into a common form, where the missing
 % inputs are presented as empty outputs.
 %
 % Inputs:
-% pix -- [3,npix] or [4,npix] numeric array of the pixel coordinates
-% mde -- operation mode specifying what the following routine should process.
-%        The mode is defined by number of output arguments. Depending on
-%        the requested outputs, different inputs have to be provided
+% pix_coord -- [3,npix] or [4,npix] numeric array of the pixel coordinates
+% mdo       -- operation mode specifying what the following routine should
+%              process. The mode is defined by number of output arguments.
+%              Depending on the requested outputs, different inputs have
+%              to be provided.
 % Optional:
 % npix or nothing if mde == 1
 % npix,s,e accumulators if mde in [4,5,6]
@@ -22,84 +23,120 @@ function [npix,s,e,pix_cand,unique_runid,argi]=...
 %          processed inputs, left for further routines to process
 %
 
-if ~isnumeric(pix)
+if ~isnumeric(pix_coord)
     error('HORACE:axes_block:invalid_argument',...
         'first argument of the routine have to be 4xNpix or 3xNpix numeric array of pixel coordinates')
 end
 
-if ~(size(pix,1) == 4 || (mde == 1 && size(pix,1) == 3))
+if ~(size(pix_coord,1) == 4 || (mdo == 1 && size(pix_coord,1) == 3))
     error('HORACE:axes_block:invalid_argument',...
         'first argument of the routine have to be 4xNpix or 3xNpix array of pixel coordinates')
 end
+unique_runid = [];
+s = [];
+e = [];
 
 bin_size = obj.dims_as_ssize();
-if mde == 1
+if mdo == 1
     pix_cand = [];
 else
     if nargin<7
         error('HORACE:axes_block:invalid_argument',...
             'PixelData have to be provided as 7-th argument if cell-average signal and erros are requested');
     end
-    pix = varargin{4};
-    if ~isa(pix,'PixelData')
-        error('HORACE:axes_block:invalid_argument',...
-            '7-th argument of the function have to be PixelData class. It is: %s',...
-            class(pix));
-    end
     % Usage:
+    %   mde:  1  -------------- 2
     % >>npix = bin_pixels(obj,coord);
-    %      3
+    %                                        3
+    %          normalize_bin_input_(obj,coord,mde)
+    %   mde:  3    -------------------   5
     % >>[npix,s,e] = bin_pixels(obj,coord,npix,s,e);
-    %      4
-    % >>[npix,s,e,pix_ok] = bin_pixels(obj,coord,npix,s,e,pix_candidates)    
-    %      5
+    %                                        6
+    %          normalize_bin_input_(obj,coord,mde,npix,s,e)
+    %   mde:  3    -------------------   5
+    % >>[npix] = bin_pixels(obj,coord,npix);
+    %                                        4
+    %          normalize_bin_input_(obj,coord,mde,npix)
+
+    %   mde:  4    -------------------    6
+    % >>[npix,s,e,pix_ok] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
+    %                                        7
+    %                      normalize_bin_input_(obj,coord,mde,npix,s,e,pix_candidates)
+    %   mde:  5     -------------------                   6
     % >>[npix,s,e,pix_ok,unque_runid] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
-    %      6
+    %                                        7
+    %                      normalize_bin_input_(obj,coord,mde,npix,s,e,pix_candidates)
+
+    %   mde:  6     -------------------                       6
     % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
-    if ismember(mde,[3,4,5,6])
-        pix_cand = pix;
-    else
+    %                                        7
+    %                      normalize_bin_input_(obj,coord,mde,npix,s,e,pix_candidates)
+    %   mde:  6     -------------------                       7
+    % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates,unque_runid)
+    %                                        8
+    %                      normalize_bin_input_(obj,coord,mde,npix,s,e,pix_candidates,unque_runid)
+    if ~ismember(mdo,[1,3,4,5,6])
         error('HORACE:axes_block:invalid_argument',...
             'The procedure accepts 1,3,4,5 or 6 output arguments')
     end
+    if mdo>1 && numel(varargin)<4
+        error('HORACE:axes_block:invalid_argument',...
+            'Calculating signal and error requests providing full pixel information, and this information is missing')
+    end
+    pix_cand  = varargin{4};
+    if ~isa(pix_cand,'PixelData')
+        error('HORACE:axes_block:invalid_argument',...
+            '7-th argument of the function have to be PixelData class. It is: %s',...
+            class(pix_coord));
+    end
 end
 argi = {};
-if size(pix,1) ==3  % Q(3D) binning only. Third axis is always missing
+if size(pix_coord,1) ==3  % Q(3D) binning only. Third axis is always missing
     bin_size = obj.nbins_all_dims;
     bin_size = bin_size(1:3);
 end
+% Analyze the number of input arguments
 if nargin == 3
     npix = squeeze(zeros(bin_size));
-    s = [];
-    e = [];
 elseif nargin == 4
     npix = varargin{1};
     check_size(bin_size,npix);
-    s = [];
-    e = [];
 elseif nargin==5 || nargin == 6
     error('HORACE:axes_block:invalid_argument',...
-        'Can not provide only signal or signal and variance accumulation arrays without providing pixels source')
+        'Can not request signal or signal and variance accumulation arrays without providing pixels source')
 elseif nargin ==7
-    npix = varargin{1};
-    s = varargin{2};
-    e = varargin{3};
-    if ~isempty(npix)
-        check_size(bin_size,npix,s,e);
-    end
-elseif nargin >6
-    npix = varargin{1};
-    s    = varargin{2};
-    e    = varargin{3};
-    check_size(bin_size,npix,s,e);
-    argi = varargin{5:end};
+    [npix,s,e] = check_and_alloc_accum(varargin{1},varargin{2},varargin{3},bin_size);
+elseif nargin ==8
+    [npix,s,e] = check_and_alloc_accum(varargin{1},varargin{2},varargin{3},bin_size);
+    unique_runid = varargin{5};
+elseif nargin >8
+    [npix,s,e] = check_and_alloc_accum(varargin{1},varargin{2},varargin{3},bin_size);
+    unique_runid = varargin{5};
+    argi = varargin{6:end};
 end
-if mde>1 && isempty(npix)
+% initiate accumulators to 0, as no input value is provied
+if mdo>1 && isempty(npix)
     npix = squeeze(zeros(bin_size));
     s = squeeze(zeros(bin_size));
     e = squeeze(zeros(bin_size));
 end
-
+%--------------------------------------------------------------------------
+function [npix,s,e]=check_and_alloc_accum(npix,s,e,bin_size)
+if isempty(npix)
+    npix = squeeze(zeros(bin_size));
+    space_alloc = true;
+else
+    space_alloc = false;
+end
+if isempty(s) % err is also empty
+    s = squeeze(zeros(bin_size));
+    e = squeeze(zeros(bin_size));
+    space_alloc = true;
+end
+if ~space_alloc
+    check_size(bin_size,npix,s,e);
+end
+%--------------------------------------------------------------------------
 function check_size(sze,varargin)
 for i=1:numel(varargin)
     if any(size(varargin{i}) ~=sze)

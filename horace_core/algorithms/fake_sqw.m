@@ -153,8 +153,8 @@ end
 
 % Check optional arguments (grid, pix_range, instrument, sample) for size, type and validity
 grid_default=[];
-instrument_default=struct;  % default 1x1 structure with no fields
-sample_default=struct;      % default 1x1 structure with no fields
+instrument_default=IX_null_inst();  % default 1x1 structure with no fields
+sample_default=IX_null_sample();      % default 1x1 structure with no fields
 [ok,mess,present,grid_size,img_db_range,instrument,sample]=gen_sqw_check_optional_args(...
     nfiles,grid_default,instrument_default,sample_default,varargin{:});
 
@@ -183,20 +183,12 @@ if isempty(grid_size)
 end
 hor_log_level = ...
     config_store.instance().get_value('herbert_config','log_level');
-use_mex = ...
-    config_store.instance().get_value('hor_config','use_mex');
-if use_mex
-    cache_opt = {};
-else
-    cache_opt = {'-cache_detectors'};
-end
-
 
 % Determine pix_range
 if isempty(img_db_range)
     img_db_range = PixelData.EMPTY_RANGE_;
     for i=1:numel(run_files)
-        pix_range_l = run_files{i}.calc_pix_range(en_lo(i),en_hi(i),cache_opt{:});
+        pix_range_l = run_files{i}.calc_pix_range(en_lo(i),en_hi(i));
         img_db_range = [min(pix_range_l(1,:),img_db_range(1,:));max(pix_range_l(2,:),img_db_range(2,:))];
     end
     img_db_range=range_add_border(img_db_range,...
@@ -238,7 +230,7 @@ for i=1:nfiles
     run_files{i}.en = en{i};
     run_files{i}.run_id = i;
     %
-    w = run_files{i}.calc_sqw(grid_size, img_db_range,cache_opt{:});
+    w = run_files{i}.calc_sqw(grid_size, img_db_range);
 
     if return_sqw_obj
         tmp_sqw{i} = w;

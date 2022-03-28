@@ -1,5 +1,6 @@
-classdef test_orhto_proj_matrix<TestCase
-    % The test class which gets different transformation
+classdef test_ortho_proj_matrix<TestCase
+    % Test transformations matices, used in conversion between instrument
+    % and Crystal Cartesian coordinate system
     %
     % the purpose -- compare these transformations with Mantid transformations;
     %
@@ -7,7 +8,7 @@ classdef test_orhto_proj_matrix<TestCase
     end
     
     methods
-        function this=test_orhto_proj_matrix(name)
+        function this=test_ortho_proj_matrix(name)
             this=this@TestCase(name);
         end
         % tests themself

@@ -1,5 +1,5 @@
 classdef test_axes_block_binIn1D < TestCase
-    % Series of tests to check work of mex files against Matlab files
+    % Series of tests for bins_in_1Drange method of axes_block class
 
     properties
         out_dir=tmp_dir();
@@ -18,7 +18,7 @@ classdef test_axes_block_binIn1D < TestCase
         end
         %------------------------------------------------------------------
         %------------------------------------------------------------------
-        function test_range_indide_cross1st_bin(~)
+        function test_range_inside_cross1st_bin(~)
             bins = 1:10;
             range = [-0.5,1.5];
             [in,is_inside] = axes_block.bins_in_1Drange(bins,range);

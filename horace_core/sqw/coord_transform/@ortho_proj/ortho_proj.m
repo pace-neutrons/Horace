@@ -81,17 +81,17 @@ classdef ortho_proj<aProjection
         type;  % Character string length 3 defining normalisation. each character being 'a','r' or 'p' e.g. 'rrp'
         nonorthogonal; % Indicates if non-orthogonal axes are permitted (if true)
         %
-        % Matrix to convert from Crystal Cartesian (pix coordinate system)
-        % to the image coordinate system (normally in rlu, except initially
-        % generated sqw file, when this image is also in Crystal Cartesian)
-        %u_to_rlu
     end
     properties(Dependent,Hidden) %TODO: all this should go with new sqw design
         % TODO: temporarty properties, which define the values to be
         % extracted from projection to convert to old style data_sqw_dnd
         % class. New data_sqw_dnd class will contain the whole projection
         data_sqw_dnd_export_list
-        % Old confusing u_to_rlu matrix value
+
+        % Old confusing u_to_rlu matrix value        
+        % Matrix to convert from Crystal Cartesian (pix coordinate system)
+        % to the image coordinate system (normally in rlu, except initially
+        % generated sqw file, when this image is also in Crystal Cartesian)
         u_to_rlu
         % renamed offset projection property
         uoffset
@@ -126,18 +126,21 @@ classdef ortho_proj<aProjection
         % invalid if some fields have been set up incorrectly after
         % creation (e.g. u set up parallel to v) See check_combo_arg_ for
         % all options which may be invalid
-        valid_ = true        
+        isvalid_ = true
     end
 
     methods
         %------------------------------------------------------------------
         % Interfaces:
-        %------------------------------------------------------------------        
-       [ok, mess, wout] = check_combo_arg (w)        
-        %------------------------------------------------------------------       
+        %------------------------------------------------------------------
+        % check interdependent projection arguments
+        [ok, mess, wout] = check_combo_arg (w)
+        % set u,v & w simulataniously
+        obj = set_axes (obj, u, v, w)
+        %------------------------------------------------------------------
         function proj=ortho_proj(varargin)
             proj = proj@aProjection();
-            proj.label = {'\zeta','\xi','\eta','E'};            
+            proj.label = {'\zeta','\xi','\eta','E'};
             if nargin==0 % return defaults, which describe unit transformation from
                 % Crystal Cartesian (pixels) to Crystal Cartesian (image)
                 u_to_rlu =eye(3)/(2*pi);
@@ -167,7 +170,7 @@ classdef ortho_proj<aProjection
         %-----------------------------------------------------------------
         %-----------------------------------------------------------------
         function u = get.u(obj)
-            if obj.valid_
+            if obj.isvalid_
                 u = obj.u_;
             else
                 [ok,mess] = check_combo_arg_(obj);
@@ -184,7 +187,7 @@ classdef ortho_proj<aProjection
         end
         %
         function v = get.v(obj)
-            if obj.valid_
+            if obj.isvalid_
                 v = obj.v_;
             else
                 [ok,mess] = check_combo_arg_(obj);
@@ -201,7 +204,7 @@ classdef ortho_proj<aProjection
         end
         %
         function w = get.w(obj)
-            if obj.valid_
+            if obj.isvalid_
                 w = obj.w_;
             else
                 [ok,mess] = check_combo_arg_(obj);
@@ -225,7 +228,7 @@ classdef ortho_proj<aProjection
         end
         %
         function typ=get.type(obj)
-            if obj.valid_
+            if obj.isvalid_
                 typ = obj.type_;
             else
                 [ok,mess] = check_combo_arg_(obj);
@@ -264,9 +267,9 @@ classdef ortho_proj<aProjection
             % Horace 3.xxx where the real inverted ub matrix is multiplied
             % by alginment matrix.
             obj.ub_inv_compat_ = ub_inv;
-        end        
+        end
         %------------------------------------------------------------------
-        % OLD from new sqw object creation interface. 
+        % OLD from new sqw object creation interface.
         % TODO: remove when new SQW object is fully implemented
         %
         function lst = get.data_sqw_dnd_export_list(~)
@@ -379,6 +382,13 @@ classdef ortho_proj<aProjection
         end
     end
     methods(Access = protected)
+        function is = check_validity(obj)
+            % overload this property to verify validity of interdependent
+            % properties
+            is = obj.isvalid_;
+        end
+        
+        %
         function   contrib_ind= get_contrib_cell_ind(obj,...
                 cur_axes_block,targ_proj,targ_axes_block)
             % get indexes of cells which may contributing into the cut.
@@ -394,6 +404,7 @@ classdef ortho_proj<aProjection
                     cur_axes_block,targ_proj,targ_axes_block);
             end
         end
+        %
         function obj = check_and_set_targ_proj(obj,val)
             % overloadaed setter for target proj.
             % Input:

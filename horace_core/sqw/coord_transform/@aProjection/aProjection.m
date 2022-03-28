@@ -248,7 +248,7 @@ classdef aProjection < serializable
         function ver  = classVersion(~)
             ver = 1;
         end
-        function  flds = indepFields(obj)
+        function  flds = saveableFields(obj)
             flds = obj.fields_to_save_;
         end
         %------------------------------------------------------------------
@@ -294,26 +294,27 @@ classdef aProjection < serializable
             % pix_indx--indexes of the pix_ok coordinates according to the
             %           bin
             pix_transformed = obj.transform_pix_to_img(pix_candidates);
-            if nargout == 6
-                [npix,s,e,pix_ok,unique_runid,pix_indx]=...
-                    axes.bin_pixels(pix_transformed,...
-                    npix,s,e,pix_candidates,varargin{:});
-            elseif nargout == 5
-                [npix,s,e,pix_ok,unique_runid]=...
-                    axes.bin_pixels(pix_transformed,...
-                    npix,s,e,pix_candidates,varargin{:});
-            elseif nargout == 4
-                [npix,s,e,pix_ok,unique_runid]=axes.bin_pixels(pix_transformed,...
-                    npix,s,e,pix_candidates,varargin{:});
-            elseif nargout == 3
-                [npix,s,e]=axes.bin_pixels(pix_transformed,...
-                    npix,s,e,pix_candidates,varargin{:});
-            elseif nargout ==1
-                npix=axes.bin_pixels(pix_transformed,...
-                    npix,varargin{:});
-            else
-                error('HORACE:aProjection:invalid_argument',...
-                    'This function requests 1,3 or 4 output arguments');
+            switch(nargout)
+                case(1)
+                    npix=axes.bin_pixels(pix_transformed,...
+                        npix,varargin{:});
+                case(3)
+                    [npix,s,e]=axes.bin_pixels(pix_transformed,...
+                        npix,s,e,pix_candidates,varargin{:});
+                case(4)
+                    [npix,s,e,pix_ok]=axes.bin_pixels(pix_transformed,...
+                        npix,s,e,pix_candidates,varargin{:});
+                case(5)
+                    [npix,s,e,pix_ok,unique_runid]=...
+                        axes.bin_pixels(pix_transformed,...
+                        npix,s,e,pix_candidates,varargin{:});
+                case(6)
+                    [npix,s,e,pix_ok,unique_runid,pix_indx]=...
+                        axes.bin_pixels(pix_transformed,...
+                        npix,s,e,pix_candidates,varargin{:});
+                otherwise
+                    error('HORACE:aProjection:invalid_argument',...
+                        'This function requests 1,3,4,5 or 6 output arguments');
             end
         end
         %
@@ -466,14 +467,15 @@ classdef aProjection < serializable
             %                requested cells
             % bl_size     -- number of pixels, contributed into each
             %                block
-            pix_start = [0,cumsum(npix(:)')]; % pixel location in C-indexing
-            if iscell(cell_ind) % accepted contributing cell indexes
-                % in the form of cell_start:cell_end
+            pix_start = [0,cumsum(npix(:)')]; % pixel location in C-indexed
+            % array
+            if iscell(cell_ind) % input contributing cell indexes arranged
+                % in the form of cellarratm, containing cell_start:cell_end
                 bl_start = pix_start(cell_ind{1});
                 bl_end   = pix_start(cell_ind{2}+1);
                 bl_size  = bl_end-bl_start;
-            else % accepted contributing cell indexes as linear array of
-                % indexes
+            else % input contributing cell indexes arranged as linear array
+                % of indexes
                 adjacent = cell_ind(1:end-1)+1==cell_ind(2:end);
                 adjacent = [false;adjacent];
                 adj_end  = [cell_ind(1:end-1)+1<cell_ind(2:end);true];
@@ -488,8 +490,8 @@ classdef aProjection < serializable
         %
         function contrib_ind=convert_3Dplus1Ind_to_4Dind_ranges(...
                 bin_inside3D,en_inside)
-            % convert cell indexes calculated on 3D-q + 1D-dE
-            % lattice into 4D indexes on 4D lattice using assumption that
+            % Convert cell indexes calculated on 3D-q + 1D-dE
+            % grid into 4D indexes on 4D lattice using assumption that
             % dE axis is orthogonal to 3 other q-axes
             % Inputs:
             % bin_inside3D -- 3D logical array, containing true
@@ -498,8 +500,8 @@ classdef aProjection < serializable
             %                 orthogonal 1D indexes on dE lattice to include
             %                 into contributing indexes.
             %
-            % Uses knolege about specific arrangement of 4-D array in
-            % memory and on disk
+            % Uses knolege about specific arrangement of 4-D array of indexes
+            % in memory and on disk
 
             q_block_size = numel(bin_inside3D);
             change = diff([false;bin_inside3D(:);false]);

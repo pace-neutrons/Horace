@@ -1,7 +1,7 @@
 function [ok, mess, wout] = check_combo_arg (w)
 % Check validity of interdependent fields
 %
-%   >> [ok, mess] = isvalid (w)
+%   >> [ok, mess,obj] = check_combo_arg(w)
 %
 %   ok      ok=true if valid, =false if not
 %   mess    Message if not a valid object, empty string if is valid.

@@ -32,7 +32,7 @@ classdef test_axes_block < TestCase
             ei = dbr(1,4):1:dbr(2,4); % 10 points
             [X,Y,Z,E] = ndgrid(xi,yi,zi,ei);
 
-            % draw cross in [yi,ei] plain
+            % draw cross in [yi,ei] plane
             pix_data = [reshape(X,1,numel(X));reshape(Y,1,numel(Y));...
                 reshape(Z,1,numel(Z));reshape(E,1,numel(E))];
             pix_dat_full = [pix_data;zeros(5,numel(X))];
@@ -48,31 +48,72 @@ classdef test_axes_block < TestCase
 
             pix = PixelData(pix_dat_full);
 
+            assertExceptionThrown(@()bin_pixels(ab,pix_data,[],[]),'HORACE:axes_block:invalid_argument');
+            assertExceptionThrown(@()bin_pixels(ab,pix_data,[],[],[]),'HORACE:axes_block:invalid_argument');
+
             [npix,s,e,pix_ok,unique_runid,indx] = ab.bin_pixels(pix_data,[],[],[],pix);
 
-            assertEqual(numel(unique_runid),1)
-            assertEqual(unique_runid,1)            
-            assertEqual(size(npix),szs);
-            assertEqual(size(s),szs);
-            assertEqual(size(e),szs);
-            % no pixels were lost at binning
-            assertEqual(sum(sum(npix)),size(pix_data,2));
-            % homogeneous distribution
-            assertTrue(any(any(npix==100)));
-            %
+            assertEqual(numel(unique_runid),1);
             assertEqual(s(6,1),100);
             assertEqual(s(1,6),100);
             assertEqual(s(6,6),200);
             assertTrue(all(e(6,:)==100));
             assertTrue(all(e(:,6)==100));
             assertEqual(sum(sum(s)),npoints)
-
+            % no pixels were lost at binning
+            assertEqual(sum(sum(npix)),size(pix_data,2));
+            % homogeneous distribution
+            assertTrue(any(any(npix==100)));
             assertEqual(pix_ok.num_pixels,pix.num_pixels);
             assertEqual(numel(indx),pix_ok.num_pixels);
             for i=1:10
                 ii = (i-1)*10+1:1000:10000;
                 assertEqual(indx(ii)',i:10:100);
             end
+            assertEqual(size(npix),szs);
+            assertEqual(size(s),szs);
+            assertEqual(size(e),szs);
+
+        end
+        function test_correct_binning_and_indx_2D_accumulated(~)
+            dbr = [0,0.1,0,0.5;1,1.9,3,9.5];
+            bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
+                [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
+            ab = axes_block(bin0{:});
+
+            nd = ab.n_dims;
+            assertEqual(nd,2)
+
+            xi = dbr(1,1)+0.05:0.1:dbr(2,1);
+            yi = dbr(1,2):0.2:dbr(2,2); % 10 points
+            zi = dbr(1,3)+0.15:0.3:dbr(2,3);
+            ei = dbr(1,4):1:dbr(2,4); % 10 points
+            [X,Y,Z,E] = ndgrid(xi,yi,zi,ei);
+
+            % draw cross in [yi,ei] plain
+            pix_data = [reshape(X,1,numel(X));reshape(Y,1,numel(Y));...
+                reshape(Z,1,numel(Z));reshape(E,1,numel(E))];
+            pix_dat_full = [pix_data;ones(5,numel(X))];
+            pix = PixelData(pix_dat_full);
+
+            [npix1] = ab.bin_pixels(pix_data);
+            [npix2] = ab.bin_pixels(pix_data,npix1);
+            assertEqual(2*npix1,npix2)
+
+
+            [npix3,s1,e1,pix_ok1,unique_runid1] = ab.bin_pixels(pix_data,npix1,[],[],pix);
+            assertEqual(npix3,npix2)
+            assertEqual(npix1,s1)
+            assertEqual(npix1,e1)
+
+            assertEqual(numel(unique_runid1),1);
+            [~,~,~,pix_ok,unique_runid2] = ab.bin_pixels(pix_data,npix1,s1,e1,pix,unique_runid1);
+            assertEqual(unique_runid1,unique_runid2);
+            assertEqual(pix_ok,pix_ok1);
+            assertEqual(unique_runid2,1);
+
+            %
+
 
         end
         %
@@ -97,6 +138,7 @@ classdef test_axes_block < TestCase
             pix = PixelData(pix_dat_full);
 
             [npix,s,e,pix_ok,uniq_runid,indx] = ab.bin_pixels(pix_data,[],[],[],pix);
+            assertEqual(uniq_runid,1)
 
             assertEqual(size(npix),szs);
             assertEqual(size(s),szs);
@@ -249,7 +291,7 @@ classdef test_axes_block < TestCase
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
-            
+
             nd  = ab.n_dims;
             szs = ab.dims_as_ssize();
             assertEqual(nd,2)
@@ -365,7 +407,7 @@ classdef test_axes_block < TestCase
             bin0 = {[dbr(1,1),dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
-            
+
             nd  = ab.n_dims;
             szs = ab.dims_as_ssize();
             assertEqual(nd,2)
@@ -616,7 +658,7 @@ classdef test_axes_block < TestCase
 
             nodes = ab.get_bin_nodes();
             assertEqual(size(nodes,1),4);
-            
+
             sz = ab.dims_as_ssize();
             sz = sz+1;
 
@@ -676,7 +718,7 @@ classdef test_axes_block < TestCase
 
             nodes = ab.get_bin_nodes();
             assertEqual(size(nodes,1),4);
-            
+
             nd = ab.n_dims;
             sz = ab.dims_as_ssize();
             ni = 4-nd;
@@ -708,9 +750,9 @@ classdef test_axes_block < TestCase
             % characteristic size of the block, transformed into proj2
             % coordinate system. This is absolutely unclear why does this
             % happen and why does it look lie this.
-            nb = ab.nbins_all_dims;            
+            nb = ab.nbins_all_dims;
             transformed_block_size = 2;
-            step = transformed_block_size/(nb(1)-1);            
+            step = transformed_block_size/(nb(1)-1);
             int_range = [-0.5*(transformed_block_size+step),0.5*(transformed_block_size+step)];
             bin_range = [int_range(1)+0.5*step,step,int_range(2)-0.5*step];
 

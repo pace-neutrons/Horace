@@ -96,7 +96,8 @@ end
 % Create sqw object
 % -----------------
 bigtic
-if ~cache_q_vectors
+if ~cache_q_vectors % detectors are always cached now. And compared with the 
+    % stored detectors each time
     detdcn = calc_or_restore_detdcn_(det0);
     detdcn = detdcn(:,non_masked);
 end
