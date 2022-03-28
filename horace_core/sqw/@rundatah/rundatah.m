@@ -134,7 +134,9 @@ classdef rundatah < rundata
         function data = get_data(obj)
             % return the data describing the neutron image in instrument
             % frame and recognized by instr_proj class
-            data = struct()
+
+            % TODO: incomplete
+            data = struct();
         end
 
         function [pix_range,u_to_rlu,pix,obj] = calc_projections(obj)

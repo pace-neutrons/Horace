@@ -43,30 +43,20 @@ main_header.nfiles=1;
 if hor_log_level>-1
     disp('Calculating projections...');
 end
-proj = instr_proj(obj.lattice,obj.efix,'emode',obj.emode);
+% TODO: next step. Use instrument projection for everything
+%proj = instr_proj(obj.lattice,obj.efix,'emode',obj.emode);
 %%
-ax_block = proj.get_proj_axes_block(pix_db_range_in,grid_size_in);
+%ax_block = proj.get_proj_axes_block(pix_db_range_in,grid_size_in);
+%
+%[npix,s,e,pix]  = proj.bin_pixels(ax_block,)
 
-    if isempty(qspec)
-        qspec_provided = false;
-        if isempty(detdcn)
-            detdcn = calc_detdcn(obj.det_par);
-        end
-        [qspec,en]=obj.calc_qspec(detdcn);
-        ucoords = [spec_to_cc*qspec;en];
-    else
-        ucoords = [spec_to_cc*qspec(1:3,:);qspec(4,:)];
-        qspec_provided = true;
-    end
 
 
 % Calculate projections
 [u_to_rlu,pix_range,pix] = obj.calc_projections_(detdcn,obj.qpsecs_cache);
-instr_data = struct()
-[npix,s,e,pix]  = proj.bin_pixels(ax_block,)
 
 [header,sqw_datstr]=calc_sqw_data_and_header(obj,detdcn);
-pix_range = sqw_datstr.pix.pix_range;
+%pix_range = sqw_datstr.pix.pix_range;
 
 % Flag if grid is in fact just a box i.e. 1x1x1x1
 grid_is_unity = (isscalar(grid_size_in)&&grid_size_in==1)||(isvector(grid_size_in)&&all(grid_size_in==[1,1,1,1]));
@@ -118,8 +108,9 @@ else
             sqw_datstr.e   = out_fields{2};
             sqw_datstr.npix= out_fields{3};
             sqw_datstr.pix = PixelData(out_fields{4});
-        catch
-            warning('HORACE:using_mex','calc_sqw->Error: ''%s'' received from C-routine to rebin data, using matlab functions',lasterr());
+        catch ME
+            warning('HORACE:using_mex','calc_sqw->Error: ''%s'' received from C-routine to rebin data, using matlab functions', ...
+                ME.message);
             use_mex=false;
         end
     end
@@ -150,10 +141,12 @@ end
 
 % Create sqw object (just a packaging of pointers, so no memory penalty)
 % ----------------------------------------------------------------------
+data = data_sqw_dnd(sqw_datstr);
+data.u_to_rlu = u_to_rlu;
 d.main_header=main_header;
 d.experiment_info=header;
 d.detpar=det0;
-d.data=data_sqw_dnd(sqw_datstr);
+d.data=data;
 d.runid_map = containers.Map(id,1);
 
 w=sqw(d);
@@ -180,9 +173,9 @@ function [header,sqw_datstr] = calc_sqw_data_and_header (obj,grid_size_in, pix_d
 
 % Perform calculations
 % -----------------------
-proj = instr_proj(obj.lattice,obj.efix,'emode',obj.emode);
+%proj = instr_proj(obj.lattice,obj.efix,'emode',obj.emode);
 %%
-ax_block = proj.get_proj_axes_block(pix_db_range,grid_size_in);
+%ax_block = proj.get_proj_axes_block(pix_db_range,grid_size_in);
 
 % Get number of data elements
 [ne,ndet]=size(obj.S);

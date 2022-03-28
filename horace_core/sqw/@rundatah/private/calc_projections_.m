@@ -59,7 +59,9 @@ if ~exist('qspec','var')
     qspec = [];
 end
 if proj_mode<0 || proj_mode >2
-    warning('HORACE:calc_projections',' proj_mode can be 0,1 or 2 and got %d. Assuming mode 2(all pixel information)',proj_mode);
+    warning('HORACE:calc_projections', ...
+        ' proj_mode can be 0,1 or 2 and got %d. Assuming mode 2(all pixel information)', ...
+        proj_mode);
     proj_mode = 2;
 end
 
