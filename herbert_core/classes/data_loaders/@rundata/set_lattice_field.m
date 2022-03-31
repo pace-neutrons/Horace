@@ -10,8 +10,8 @@ function this = set_lattice_field(this,name,val,varargin)
 %                      is set only if it is undefined
 %
 options = {'-ifempty','-if_undef'};
-if isempty(this.oriented_lattice_)
-    this.oriented_lattice_ = oriented_lattice();
+if isempty(this.lattice_)
+    this.lattice_ = oriented_lattice();
     if_empty = false;
 else
     [ok,mess,if_empty,if_undef]=parse_char_options(varargin,options);
@@ -21,9 +21,9 @@ else
     if_empty = if_empty||if_undef;
 end
 if if_empty
-    if ~this.oriented_lattice_.is_defined(name)
-        this.oriented_lattice_.(name)=val;
+    if ~this.lattice_.is_defined(name)
+        this.lattice_.(name)=val;
     end
 else
-    this.oriented_lattice_.(name)=val;
+    this.lattice_.(name)=val;
 end

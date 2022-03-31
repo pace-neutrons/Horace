@@ -7,13 +7,11 @@ function obj = check_and_set_cluster_(obj,cluster_name)
 % The cluster name (can be defined by single symbol)
 % or by a cluster number in the list of clusters
 %
-wrkr = which(obj.worker_);
-mff = MPI_clusters_factory.instance();
+    assert(~isempty(which(obj.worker)) || exist(obj.worker, 'file'), ...
+        'HERBERT:parallel_config:not_available', ...
+        'Parallel worker is not on the Matlab path so parallel features are not available');
 
-if isempty(wrkr)
-    error('HERBERT:parallel_config:not_available',...
-        'Parallel worker is not on the Matlab path so parallel features are not available')
-else
+    mff = MPI_clusters_factory.instance();
     known_clusters = mff.known_cluster_names;
     full_cl_name = obj.select_option(known_clusters,cluster_name);
     mff.parallel_cluster = full_cl_name;

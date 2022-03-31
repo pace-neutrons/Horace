@@ -2,7 +2,8 @@ function obj = set_up_from_struct_(struc)
 % Set up rundata from the structure, obtained from loadobj method
 
 if isfield(struc,'lattice')
-    struc.lattice = oriented_lattice(struc.lattice);
+    lat = oriented_lattice();
+    struc.lattice = lat.from_bare_struct(struc.lattice);
 end
 cln = struc.class_name;
 if isempty(struc.par_file_name)

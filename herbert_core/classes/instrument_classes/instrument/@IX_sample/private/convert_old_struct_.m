@@ -1,14 +1,16 @@
 function inputs = convert_old_struct_(~,inputs)
 %
-if isfield(inputs(1),'class_version_') && inputs(1).class_version_ == 1
-    inputs = rmfield(inputs,'class_version_');
-    old_fld_names = fieldnames(inputs(1));
-    % use the fact that the old field names are the new field
-    % names with _ attached at the end
-    new_fld_names = cellfun(@(x)(x(1:end-1)),old_fld_names,...
-        'UniformOutput',false);
-    cell_data = struct2cell(inputs);
-    inputs = cell2struct(cell_data,new_fld_names);
+if isfield(inputs(1),'class_version_') 
+    if inputs(1).class_version_ == 1
+        inputs = rmfield(inputs,'class_version_');
+        old_fld_names = fieldnames(inputs(1));
+        % use the fact that the old field names are the new field
+        % names with _ attached at the end
+        new_fld_names = cellfun(@(x)(x(1:end-1)),old_fld_names,...
+            'UniformOutput',false);
+        cell_data = struct2cell(inputs);
+        inputs = cell2struct(cell_data,new_fld_names);
+    end
 elseif isfield(inputs(1),'name_') % old structure with private names
     % and without any versions
     old_fld_names = fieldnames(inputs(1));
@@ -17,6 +19,12 @@ elseif isfield(inputs(1),'name_') % old structure with private names
         'UniformOutput',false);
     struct_cell = struct2cell(inputs);
     inputs = cell2struct(struct_cell,new_fld_names);
+end
+if isfield(inputs,'xgeom')
+    for i=1:numel(inputs)
+        inputs(i).xy_geom = [inputs(i).xgeom;inputs(i).ygeom];
+    end
+    inputs = rmfield(inputs,{'xgeom','ygeom'});    
 end
 
 function x = remove_back_(x)

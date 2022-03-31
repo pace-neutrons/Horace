@@ -1,6 +1,5 @@
 classdef a_loader_tester< a_loader
     %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
     %
     
     methods(Static)

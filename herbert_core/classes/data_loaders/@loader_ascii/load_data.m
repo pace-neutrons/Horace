@@ -11,19 +11,20 @@ function [varargout]=load_data(obj,new_file_name)
 %>>[S,ERR,en,this] = load_data(this,[new_file_name])
 %>>this            = load_data(this,[new_file_name])
 
-% $Author: AB; 20/10/2011
 %
 
 if exist('new_file_name', 'var')
     if ~isa(new_file_name,'char')
-        error('LOAD_ASCII:load_data','new file name has to be a string')
+        error('HERBERT:loader_ascii:invalid_argument',...
+            'new file name has to be a string')
     end
     obj.file_name  = new_file_name;
 else
     if isempty(obj.file_name)
-        error('LOAD_ASCII:load_data','input spe file is not fully defined')
+        error('HERBERT:loader_ascii:invalid_argument',...
+            'input spe file is not fully defined')
     end
-    
+
 end
 file_name  = obj.file_name;
 
@@ -35,12 +36,12 @@ if use_mex
         force_mex = get(herbert_config,'force_mex_if_use_mex');
         if ~force_mex
             if get(herbert_config,'log_level')>-1
-                warning('LOAD_ASCII:load_data',' Cannot read data using C++ routines -- reverted to Matlab\n Reason: %s',err.message);
+                warning('HERBERT:loader_ascii:runtime_error',' Cannot read data using C++ routines -- reverted to Matlab\n Reason: %s',err.message);
             end
             set(herbert_config,'use_mex',false);  % don't use Herbert C++ routines from now on
             use_mex=false;
         else
-            error('LOAD_ASCII:load_data',' Cannot read data using C++ routines \n Reason: %s',err.message);
+            error('HERBERT:loader_ascii:runtime_error',' Cannot read data using C++ routines \n Reason: %s',err.message);
         end
     end
 end
@@ -60,7 +61,7 @@ if nargout == 1
     obj.S_  =round(S,accuracy );
     obj.ERR_=round(ERR,accuracy );
     obj.en_ =round(en,accuracy );
-    
+
     varargout{1}=obj;
 elseif nargout ==2
     varargout{1}=round(S,accuracy );
@@ -73,7 +74,7 @@ elseif nargout == 4
     obj.S_  =round(S,accuracy );
     obj.ERR_=round(ERR,accuracy);
     obj.en_ =round(en,accuracy);
-    
+
     varargout{1}=obj.S_ ;
     varargout{2}=obj.ERR_;
     varargout{3}=obj.en_;

@@ -26,7 +26,7 @@ classdef test_loader_utilites< TestCase
         function test_FormatCurrentlyNotSupported(this)               
             f = @()find_root_nexus_dir(f_name(this,'currently_not_supported_NXSPE.nxspe'),'NXSPE');        
             % more then one nxspe folder is not supported at the moment
-            assertExceptionThrown(f,'ISIS_UTILITES:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:isis_utilities:invalid_argument');
         end               
         function test_CorrectHeader(this)       
             [result,version] = find_root_nexus_dir(f_name(this,'MAP11014.nxspe'),'NXSPE'); % file name has loose relation to the result

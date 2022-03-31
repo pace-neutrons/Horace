@@ -63,7 +63,7 @@ end
 
 
 try
-    ang = angdeg*(pi/180);
+    ang  = deg2rad(angdeg);
     cosa = cos(ang);
     sina = abs(sin(ang));
     
@@ -90,7 +90,7 @@ try
     end
     
     if nargout >= 3
-        angrlu = [aa, bb, cc]*(180/pi);
+        angrlu = rad2deg([aa, bb, cc]);
     end
     
     if nargout >= 4
@@ -104,7 +104,7 @@ catch
     angrlu = [];
     mess = 'Unable to calculate B matrix - check lattice parameters';
     if throw_error
-        error('BMATRIX:invalid_argument',mess);
+        error('HERBERT:bmatrix:invalid_argument',mess);
     end
 end
 

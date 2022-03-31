@@ -2,7 +2,6 @@ function default_values =get_defaults(this,varargin)
 % method returns default values, defined by default fields of
 % the class
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 %
 
 if nargin==1
@@ -38,10 +37,11 @@ if nargin>1
     if n_undef>0
         if get(herbert_config,'log_level')>-1
             for i=1:n_undef
-                disp(['RUNDATA:get_defaults:field: ',undef_fields{i},' is not among fields which have defaults']);
+                disp(['HERBERT:get_defaults:field: ',undef_fields{i},' is not among fields which have defaults']);
             end
         end
-        error('RUNDATA:invalid_arguments','get_defaults: requested defaults for fields which do not have any defaults');
+        error('HERBERT:rundata:invalid_argument',...
+            'get_defaults: requested defaults for fields which do not have any defaults');
     end
 end
 

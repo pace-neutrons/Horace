@@ -77,7 +77,7 @@ elseif ischar(Groups) % may be it is a file
     end
     gh = h5info(file);
 else
-    error('FIND_DATASET_INFO:invalid_argument',...
+    error('HERBERT:utilities:invalid_argument',...
         ' input argument is nether hdf file info not a file name\');
 end
 %

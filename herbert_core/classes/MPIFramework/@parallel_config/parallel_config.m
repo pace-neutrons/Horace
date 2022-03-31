@@ -215,33 +215,30 @@ classdef parallel_config<config_base
         %-----------------------------------------------------------------
         % overloaded getters
         function wrkr = get.worker(obj)
-            wrkr= get_or_restore_field(obj,'worker');
+            wrkr = obj.get_or_restore_field('worker');
         end
         function wrkr = get.is_compiled(obj)
-            % incomplete! Should be derived from worker
-            wrkr= obj.is_compiled_;
+            wrkr = obj.get_or_restore_field('is_compiled');
         end
         
-        function frmw =get.parallel_cluster(obj)
+        function frmw = get.parallel_cluster(obj)
             %
             wrkr = config_store.instance.get_value(obj,'worker');
-            pkp = which(wrkr);
-            if isempty(pkp)
-                frmw = 'none';
-                return
+            frmw = 'none';
+            if ~isempty(which(wrkr)) || exist(wrkr, 'file')
+                frmw = obj.get_or_restore_field('parallel_cluster');
             end
-            frmw = get_or_restore_field(obj,'parallel_cluster');
         end
         function conf = get.cluster_config(obj)
-            conf = get_or_restore_field(obj,'cluster_config');
+            conf = obj.get_or_restore_field('cluster_config');
         end
         %
-        function folder =get.shared_folder_on_local(obj)
-            folder = get_or_restore_field(obj,'shared_folder_on_local');
+        function folder = get.shared_folder_on_local(obj)
+            folder = obj.get_or_restore_field('shared_folder_on_local');
             if isempty(folder)
                 is_depl = MPI_State.instance().is_deployed;
                 if is_depl
-                    folder = get_or_restore_field(obj,'working_directory');
+                    folder = obj.get_or_restore_field('working_directory');
                     if isempty(folder)
                         folder = tmp_dir;
                     end
@@ -249,8 +246,8 @@ classdef parallel_config<config_base
             end
         end
         %
-        function folder =get.shared_folder_on_remote(obj)
-            folder = get_or_restore_field(obj,'shared_folder_on_remote');
+        function folder = get.shared_folder_on_remote(obj)
+            folder = obj.get_or_restore_field('shared_folder_on_remote');
             if isempty(folder)
                 folder = obj.shared_folder_on_local;
             end
@@ -261,7 +258,7 @@ classdef parallel_config<config_base
             if is_depl
                 work_dir = obj.shared_folder_on_remote;
             else
-                work_dir = get_or_restore_field(obj,'working_directory');
+                work_dir = obj.get_or_restore_field('working_directory');
             end
             if isempty(work_dir)
                 work_dir = tmp_dir;
@@ -275,7 +272,7 @@ classdef parallel_config<config_base
             if is_depl
                 work_dir = obj.shared_folder_on_remote;
             else
-                work_dir = get_or_restore_field(obj,'working_directory');
+                work_dir = obj.get_or_restore_field('working_directory');
             end
             if isempty(work_dir)
                 is = true;
@@ -411,7 +408,7 @@ classdef parallel_config<config_base
         end
         %
         function mpirunner = get.external_mpiexec(obj)
-            mpirunner  = get_or_restore_field(obj,'external_mpiexec');
+            mpirunner = obj.get_or_restore_field('external_mpiexec');
         end
         %
         function obj=set.external_mpiexec(obj,val)

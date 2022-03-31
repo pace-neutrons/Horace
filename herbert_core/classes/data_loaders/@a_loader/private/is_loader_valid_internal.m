@@ -30,7 +30,7 @@ if isempty(this.file_name)
             mess = 'size(S,1)+1 ~= size(en)';
             return
         end
-        
+
         n_data_detectors = size(this.S_,2);
     end
 else  % check data in memory

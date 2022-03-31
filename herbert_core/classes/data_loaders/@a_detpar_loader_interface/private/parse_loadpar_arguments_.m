@@ -65,7 +65,7 @@ if numel(file_name)>1
         disp('Usage:');
         help([CallClassName,'.load_par']);
     end
-    error([upper(CallClassName),':invalid_argument'],...
+    error(['HERBERT:',CallClassName,':invalid_argument'],...
         'Too many input aruments')
 elseif numel(file_name)==1
     new_filename = file_name{1};
@@ -74,8 +74,8 @@ else
 end
 
 if isempty(obj.par_file_name) && isempty(new_filename)
-    error([upper(CallClassName),':invalid_argument'],...
-        'Attempting to load ASCII detector parameters but the parameters file is not defined')
+    error(['HERBERT:',CallClassName,':invalid_argument'],...
+        'Attempting to load detector parameters but the parameters file is not defined')
 end
 
 if isempty(new_filename)

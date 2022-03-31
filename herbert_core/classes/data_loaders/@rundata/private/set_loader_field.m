@@ -9,3 +9,4 @@ if isempty(obj.loader)
     end
 end
 obj.loader_.(field_name)=val;
+[~,~,obj] = obj.check_combo_arg();
