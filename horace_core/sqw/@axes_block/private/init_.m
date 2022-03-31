@@ -8,14 +8,14 @@ if isa(varargin{1},'axes_block')
     source = varargin{1};
     if strcmp(class(obj),'axes_block')% handle shallow copy constructor
         obj =source;                    % its COW for Matlab anyway
-    else % child initiated (may be partially) by an axes_block. 
-         % the case probably will be removed in a future but logically correct
+    else % child initiated (may be partially) by an axes_block.
+        % the case probably will be removed in a future but logically correct
         ab = axes_block();
         flds = ab.saveableFields();
         for i=1:numel(flds)
             obj.(flds{i}) = source.(flds{i});
         end
-    end    
+    end
     remains = varargin(2:end);
     if isfield(remains{1},'uoffset')
         offset = remains{1}.uoffset(:);
@@ -39,7 +39,7 @@ elseif nargi==1
             error('HORACE:axes_block:invalid_argument',...
                 'Numeric input must be 0,1,2,3 or 4 to create empty dataset');
         end
-        
+
         rest = arrayfun(@(x)zeros(1,0),1:4-ndim,'UniformOutput',false);
         pbin=[repmat({[0,1]},1,ndim),rest];
         obj = set_axis_bins_(obj,pbin{:});
@@ -49,14 +49,14 @@ elseif nargi==1
         obj.axis_caption = an_axis_caption();
     else
         error('HORACE:axes_block:invalid_argument',...
-            'unrecognized type of single axis_block constructor argument');
+            'unrecognised type of single axis_block constructor argument');
     end
 elseif nargi>= 4 %remaining input is p1,p2,p3,p4
     nonorthogonal_ = false;
     if nargi>4 %legacy operations
         is_proj = cellfun(@(x)((isstruct(x) && isfield(x,'u')) || ...
-                isa(x,'aProjection') || isa(x,'projaxes')),varargin,...
-                'UniformOutput',true);
+            isa(x,'aProjection') || isa(x,'projaxes')),varargin,...
+            'UniformOutput',true);
         if any(is_proj)
             proj_ind = find(is_proj);
             if isprop(varargin{proj_ind},'nonorthogonal') ||...
@@ -82,13 +82,13 @@ elseif nargi>= 4 %remaining input is p1,p2,p3,p4
         pbin = varargin;
     end
     obj = set_axis_bins_(obj,pbin{:});
-    
+
     obj.axis_caption = an_axis_caption();
     obj.nonorthogonal = nonorthogonal_;
 else
     error('HORACE:axes_block:invalid_argument',...
         'unrecognised number %d of input arguments',nargi);
-    
+
 end
 
 

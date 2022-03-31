@@ -5,6 +5,9 @@ function pix_coord  = transform_pix_to_img_(~,pix,varargin)
 % As this is instrument projection, its image is crystal
 % Cartesian, so we just extract pixel coordinates.
 %
-% Some symmetry transformation may be applied here
-%
 pix_coord = pix.data;
+%
+% Some symmetry transformation over pixels will be efficient to apply here.
+% TODO: there are currently no interface for such transformation.
+%
+

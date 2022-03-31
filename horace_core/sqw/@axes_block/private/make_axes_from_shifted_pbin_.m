@@ -96,11 +96,7 @@ else
     noff=0;
 end
 
-% Create proj object
-% ------------------
 remains=argi(1+noff:end);
-[ind_range,ind_en]=data_sqw_dnd.get_projection_from_pbin_inputs(...
-    ndim,uoffset,nonorthogonal,argi{noff+1:end});
 
 % Get cell array of bin descriptors
 % ---------------------------------

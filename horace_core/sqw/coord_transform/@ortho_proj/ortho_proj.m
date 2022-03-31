@@ -151,7 +151,7 @@ classdef ortho_proj<aProjection
             end
         end
         %
-        function obj = init(obj,varargin)
+        function [obj,remains] = init(obj,varargin)
             % initialization routine taking any parameters non-default
             % constructor would take and initiating internal state of the
             % projection class.

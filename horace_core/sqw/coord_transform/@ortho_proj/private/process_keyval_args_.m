@@ -1,4 +1,4 @@
-function obj = process_keyval_args_(obj,varargin)
+function [obj,remains] = process_keyval_args_(obj,varargin)
 % Process optional key-val arguments of the ortho_proj constructor and
 % set them up if they are present
 % The possible
@@ -39,7 +39,9 @@ function obj = process_keyval_args_(obj,varargin)
 %           proj.type           [1x3] Char. string defining normalisation
 %                               each character being 'a','r' or 'p' e.g. 'rrp'
 %
+remains = {};
 par = inputParser();
+par.KeepUnmatched = true;
 opt_par = {'nonorthogonal','type','u','v','w'};
 setters =   {...
     @(x,ob)check_and_set_nonorthogonal_(ob,x),@(x,ob)check_and_set_type_(ob,x),...
@@ -69,4 +71,15 @@ if numel(par.UsingDefaults) ~= numel(opt_par)
             %obj=feval(['check_and_set_,fn,'_'],obj,);
         end
     end
+end
+rem_struct = par.Unmatched;
+rem_flds = fieldnames(rem_struct);
+if isempty(rem_flds)
+    return;
+end
+contents = struct2cell(rem_struct);
+remains = cell(2*numel(rem_flds));
+for i=1:numel(rem_flds)
+    remains{2*i-1} = rem_flds{i};
+    remains{2*i  } = contents{i};
 end

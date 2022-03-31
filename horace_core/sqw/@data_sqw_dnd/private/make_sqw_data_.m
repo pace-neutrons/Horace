@@ -93,27 +93,24 @@ elseif narg>=2
     % -------------------------------------------------------------------------------------
     % Call of form: make_sqw_data(u1,p1,u2,p2,...,un,pn) or make_sqw_data(proj,p1,p2,p3,p4)
     % -------------------------------------------------------------------------------------
-    
+
     % Determine if first argument is lattice parameters
     if (isnumeric(varargin{1}) && isvector(varargin{1}) && numel(varargin{1})==6)...
             || isa(varargin{1},'oriented_lattice')...
-            
+
         n0=1;   % position of lattice argument in list
     else
         n0=0;
     end
     narg=narg-n0;   % number of arguments following lattice
-    
+
     % Determine if remaining input is proj,p1,p2,p3,p4, or uoffset,[u0,]u1,p1,...
-        
+
     if narg==1 && (isstruct(varargin{1+n0}) || isa(varargin{1+n0},'aProjection'))
         % Remaining input has form proj,p1,p2,p3,p4
         obj=make_sqw_data_from_proj_(obj,varargin{1+n0});
     else
-        ndims = numel(obj.p);
-        % Remaining input has form uoffset,[u0,]u1,p1,...
-        [~,~,proj]=obj.get_projection_from_pbin_inputs(...
-            ndims,uoffset,obj.nonorthogonal,varargin{1+n0:end});
+        proj = ortho_proj(varargin{:});
         obj=make_sqw_data_from_proj_(obj,proj);
     end
 end

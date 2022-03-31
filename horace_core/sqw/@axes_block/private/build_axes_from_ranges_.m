@@ -11,5 +11,13 @@ end
 prange = obj.img_range_(:,is_pax);
 nbins  = obj.nbins_all_dims_(is_pax);
 for i=1:npax
-    pc{i} = linspace(prange(1,i),prange(2,i),nbins(i)+1);
+    if any(isinf(prange(:,i)))
+        if sign(prange(1,i)) ~= sign(prange(2,i))
+            pc{i} = [prange(1,i),0,prange(2,i)];
+        else
+            pc{i} = [prange(1,i),prange(2,i)];
+        end
+    else
+        pc{i} = linspace(prange(1,i),prange(2,i),nbins(i)+1);
+    end
 end

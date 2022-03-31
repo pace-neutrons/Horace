@@ -102,8 +102,8 @@ classdef test_axes_block_properties < TestCase
             assertEqual(ab.iax,1:3)
             assertEqual(ab.pax,4)
             %
-            assertEqual(ab.iint,zeros(2,3))
-            assertEqual(ab.p{1},[0,0,0])
+            assertEqual(ab.iint,PixelData.EMPTY_RANGE_(:,1:3))
+            assertEqual(ab.p{1},[inf,0,-inf])
             assertEqual(ab.ulen,ones(1,4));
         end
 
@@ -176,12 +176,12 @@ classdef test_axes_block_properties < TestCase
         %
         function test_default_constructor(~)
             ab = axes_block();
-            assertEqual(ab.img_range,zeros(2,4))
+            assertEqual(ab.img_range,PixelData.EMPTY_RANGE_)
             assertEqual(ab.nbins_all_dims,ones(1,4))
 
             assertEqual(ab.n_dims,0)
             assertEqual(ab.iax,1:4)
-            assertEqual(ab.iint,zeros(2,4))
+            assertEqual(ab.iint,PixelData.EMPTY_RANGE_)
             assertTrue(isempty(ab.pax))
             assertTrue(isempty(ab.p))
 
