@@ -1,4 +1,4 @@
-classdef IX_detector_bank
+classdef IX_detector_bank < serializable
     % Defines a detector bank for detectors of one type, for example, helium
     % tubes, or slab detectors. The object contains detector positional
     % information and the detector information for a detector bank of a single
@@ -6,10 +6,10 @@ classdef IX_detector_bank
     
     properties (Access=private)
         class_version_ = 1; % Class version number
-        id_  = 1        % Detector identificers, integers greater than 0 (column vector, in ascending order)
-        x2_  = 0        % Sample-detector distance (m) (column vector)
-        phi_ = 0        % Scattering angle (degrees, in range 0 to 180) (column vector)
-        azim_= 0        % Azimuthal angle (degrees) (column vector)
+        id_  = []        % Detector identificers, integers greater than 0 (column vector, in ascending order)
+        x2_  = []        % Sample-detector distance (m) (column vector)
+        phi_ = []        % Scattering angle (degrees, in range 0 to 180) (column vector)
+        azim_= []        % Azimuthal angle (degrees) (column vector)
         dmat_= eye(3);  % Detector orientation matrix [3,3,ndet]
         det_ = IX_det_slab     % scalar object of IX_det_abstractType
     end
@@ -36,8 +36,19 @@ classdef IX_detector_bank
         det
         % Number of detectors (get access only):
         ndet
+        
+        % combined - all the above in one field
+        % bypasses the expand_args_by_ref of the individual sets
+        combined
+    end
+
+    properties(Constant,Access=private)
+        % fields_to_save_ = {'id','x2','phi','azim', 'dmat', 'det', 'ndet'};
+        fields_to_save_ = {'combined'};
     end
     
+
+
     methods
         %------------------------------------------------------------------
         % Constructor
@@ -175,7 +186,7 @@ classdef IX_detector_bank
             if all(val(:) >= 0) && all(val(:)<180)
                 obj.phi_ = val(:);
             else
-                error('Scattering angle(s) must lie in the range 0 to 180 degrees inclusive')
+                error('Scattering angle(s) must lie in the range 0 inclusive to 180 degrees exclusive')
             end
         end
         
@@ -201,6 +212,25 @@ classdef IX_detector_bank
         % Set methods for dependent properties
         %
         % Checks that rely on interdependencies must go here
+        
+        function val = get.combined(obj)
+            val = struct();
+            val.id = obj.id_;
+            val.x2 = obj.x2_;
+            val.phi = obj.phi_;
+            val.azim = obj.azim_;
+            val.dmat = obj.dmat_;
+            val.det = obj.det_;
+        end
+        
+        function obj = set.combined(obj,val)
+            obj.id_ = val.id;
+            obj.x2_ = val.x2;
+            obj.phi_ = val.phi;
+            obj.azim_ = val.azim;
+            obj.dmat_ = val.dmat;
+            obj.det_ = val.det;
+        end
         
         function obj = set.id (obj,val)
             if numel(val)==numel(obj.id_)
@@ -295,7 +325,27 @@ classdef IX_detector_bank
         %------------------------------------------------------------------
         
     end
+    methods
+            % SERIALIZABLE interface
+        %------------------------------------------------------------------
+        function ver  = classVersion(~)
+            % define version of the class to store in mat-files
+            % and nxsqw data format. Each new version would presumably read
+            % the older version, so version substitution is based on this
+            % number
+            ver = 1;
+        end
+        %
+        function flds = indepFields(~)
+            % get independent fields, which fully define the state of the
+            % serializable object.
+            flds = IX_detector_bank.fields_to_save_;
+        end
+    end
     
+
+    
+    %{
     %======================================================================
     % Methods for fast construction of structure with independent properties
     methods (Static, Access = private)
@@ -479,13 +529,14 @@ classdef IX_detector_bank
 
         end
     end
-    
+    %}
     %======================================================================
     % Custom loadobj and saveobj
     % - to enable custom saving to .mat files and bytestreams
     % - to enable older class definition compatibility
 
     methods
+        %{
         %------------------------------------------------------------------
         function S = saveobj(obj)
             % Method used my Matlab save function to support custom
@@ -505,10 +556,12 @@ classdef IX_detector_bank
             
             S = structIndep(obj);
         end
+        %}
     end
     
     %------------------------------------------------------------------
     methods (Static)
+        %{
         function obj = loadobj(S)
             % Static method used my Matlab load function to support custom
             % loading.
@@ -535,6 +588,13 @@ classdef IX_detector_bank
             else
                 obj = arrayfun(@(x)loadobj_private_(x), S);
             end
+        end
+        %}
+        function obj = loadobj(S)
+            % boilerplate loadobj method, calling generic method of
+            % saveable class 
+            obj = IX_detector_bank();
+            obj = loadobj@serializable(S,obj);
         end
         %------------------------------------------------------------------
         

@@ -1,4 +1,4 @@
-classdef IX_detector_array
+classdef IX_detector_array < serializable
     % Set of detector banks. Allows for banks with different detector types e.g.
     % one detector bank can contain detectors exclusively of type IX_det_He3tube
     % and another can contain detectors exclusively of type IX_det_slab.
@@ -13,7 +13,6 @@ classdef IX_detector_array
     
     properties (Access=private)
         % Class version number
-        class_version_ = 1;
         % Array of IX_detector_bank objects (column vector)
         det_bank_ = IX_detector_bank
         filename_ = ''
@@ -46,6 +45,13 @@ classdef IX_detector_array
         % associated filepath from detpar
         filepath
     end
+    
+    properties(Constant,Access=private)
+        fields_to_save_ = { 'det_bank', ...
+                            'filename', 'filepath'};
+    end
+    
+
     
     methods
         %------------------------------------------------------------------
@@ -114,8 +120,16 @@ classdef IX_detector_array
             val = obj.filename_;
         end
         
+        function obj = set.filename(obj,val)
+            obj.filename_ = val;
+        end
+        
         function val = get.filepath(obj)
             val = obj.filepath_;
+        end
+        
+        function obj = set.filepath(obj,val)
+            obj.filepath_ = val;
         end
         
         function val = get.id(obj)
@@ -171,6 +185,10 @@ classdef IX_detector_array
             val = obj.det_bank_;
         end
         
+        function obj = set.det_bank(obj,val)
+            obj.det_bank_ = val;
+        end
+        
         function val = get.ndet(obj)
             if numel(obj.det_bank_)>1
                 tmp = arrayfun(@(x)(numel(x.id)), obj.det_bank_);
@@ -211,15 +229,40 @@ classdef IX_detector_array
             % below. Such a struct can be consumed by the IX_detector_array
             % constructor. Other inputs may also be interpretable by the
             % constructor but are not handled here.
-            is_dp_struct = false;
+            %{
+             is_dp_struct = false;
             if ~isstruct(dp)
                 return;
             end
+            
             is_dp_struct = isfield(dp,'group') && isfield(dp,'x2') && isfield(dp,'phi') ...
-                    && isfield(dp,'azim') && isfield(dp,'filename') && isfield(dp,'filepath');
+                    && isfield(dp,'azim') && isfield(dp,'filename') && isfield(dp,'filepath') ...
+                    && isfield(dp, 'width') && isfield(dp, 'height');
+            %}
+            
+            is_dp_struct = isstruct(dp) && all( isfield(dp,{'group','x2','phi','azim', ...
+                                                            'filename','filepath','width','height'}));
         end
     end
     
+    methods
+            % SERIALIZABLE interface
+        %------------------------------------------------------------------
+        function ver  = classVersion(~)
+            % define version of the class to store in mat-files
+            % and nxsqw data format. Each new version would presumably read
+            % the older version, so version substitution is based on this
+            % number
+            ver = 1;
+        end
+        %
+        function flds = indepFields(~)
+            % get independent fields, which fully define the state of the
+            % serializable object.
+            flds = IX_detector_array.fields_to_save_;
+        end
+    end
+     %{
     %======================================================================
     % Methods for fast construction of structure with independent properties
     methods (Static, Access = private)
@@ -403,11 +446,12 @@ classdef IX_detector_array
 
         end
     end
-    
+    %}
     %======================================================================
     % Custom loadobj and saveobj
     % - to enable custom saving to .mat files and bytestreams
     % - to enable older class definition compatibility
+    %{
 
     methods
         %------------------------------------------------------------------
@@ -430,9 +474,10 @@ classdef IX_detector_array
             S = structIndep(obj);
         end
     end
-    
+    %}
     %------------------------------------------------------------------
     methods (Static)
+        %{
         function obj = loadobj(S)
             % Static method used my Matlab load function to support custom
             % loading.
@@ -459,6 +504,13 @@ classdef IX_detector_array
             else
                 obj = arrayfun(@(x)loadobj_private_(x), S);
             end
+        end
+        %}
+        function obj = loadobj(S)
+            % boilerplate loadobj method, calling generic method of
+            % saveable class 
+            obj = IX_detector_array();
+            obj = loadobj@serializable(S,obj);
         end
         %------------------------------------------------------------------
         
