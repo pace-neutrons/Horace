@@ -256,7 +256,7 @@ classdef IX_detector_array < serializable
             ver = 1;
         end
         %
-        function flds = indepFields(~)
+        function flds = saveableFields(~)
             % get independent fields, which fully define the state of the
             % serializable object.
             flds = IX_detector_array.fields_to_save_;
