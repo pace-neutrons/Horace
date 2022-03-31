@@ -94,6 +94,9 @@ classdef ClusterParpoolWrapper < ClusterWrapper
             end
             
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
+            assert(~obj.is_compiled_script_, ...
+                'HERBERT:ClusterParpoolWrapper:invalid_argument', ...
+                'Parpool cluster does not work with compiled workers')
             
             % delete interactive parallel cluster if any exist
             cl = gcp('nocreate');
