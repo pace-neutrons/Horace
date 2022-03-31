@@ -11,7 +11,7 @@ if isa(varargin{1},'axes_block')
     else % child initiated (may be partially) by an axes_block. 
          % the case probably will be removed in a future but logically correct
         ab = axes_block();
-        flds = ab.indepFields();
+        flds = ab.saveableFields();
         for i=1:numel(flds)
             obj.(flds{i}) = source.(flds{i});
         end
@@ -87,7 +87,7 @@ elseif nargi>= 4 %remaining input is p1,p2,p3,p4
     obj.nonorthogonal = nonorthogonal_;
 else
     error('HORACE:axes_block:invalid_argument',...
-        'unrecognized number %d of input arguments',nargi);
+        'unrecognised number %d of input arguments',nargi);
     
 end
 

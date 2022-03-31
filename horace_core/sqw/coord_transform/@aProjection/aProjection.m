@@ -540,10 +540,10 @@ classdef aProjection < serializable
     methods(Abstract)
         % Transform pixels expressed in crystal cartezian or any source
         % coordinate systems defined by projection into image coordinate system
-        pix_transformed = transform_pix_to_img(obj,pix_cc,varargin);
+        [pix_transformed,varargout] = transform_pix_to_img(obj,pix_cc,varargin);
         % Transform pixels expressed in image coordinate coordinate systems
         % into crystal cartezian system or other source coordinate system,
         % defined by projection
-        pix_cc = transform_img_to_pix(obj,pix_transformed,varargin);
+        [pix_cc,varargout] = transform_img_to_pix(obj,pix_transformed,varargin);
     end
 end

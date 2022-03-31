@@ -1,4 +1,4 @@
-function detdcn = calc_detdcn(det,keep_detector_id)
+function detdcn = calc_detdcn(det,varargin)
 % Compute the direction from the sample to the detector elements
 %
 %   >> detdcn = calc_detdcn(det,keep_detector_id)
@@ -12,10 +12,13 @@ function detdcn = calc_detdcn(det,keep_detector_id)
 %
 % Output:
 % -------
-%   detdcn  Direction of detector in spectrometer coordinates ([3 x ndet] array)
-%               [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
-% or (if keep_detector_id is provided)
-%   detdcn -
+%  detdcn   [3 x ndet] array of unit vectors, poinitng to the detector's
+%           positions in the spectrometer coordinate system (X-axis
+%           along the beam direction). ndet -- number of detectors
+%           Can be later assigned to the next rundata object
+%           property "detdcn_cache" to accelerate calculations. (not
+%           fully implemented and currently workis with Matlab code only)
+%           [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
 
 ex = cosd(det.phi);
 ey = sind(det.phi).*cosd(det.azim);

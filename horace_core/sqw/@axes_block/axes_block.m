@@ -70,8 +70,9 @@ classdef axes_block < serializable
         %               Used in titles
         label_  = {'Q_h','Q_k','Q_l','En'}; %Labels of the projection axes [1x4 cell array of character strings]
         ulen_=[1,1,1,1]         %Length of projection axes vectors in Ang^-1 or meV [row vector]
-        img_range_      = ...
-            [0,0,0,0;0,0,0,0]; % 2x4 vector of min/max values in 4-dimensions
+        img_range_      = ... % 2x4 vector of min/max values in 4-dimensions
+            PixelData.EMPTY_RANGE_; % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf] 
+
         nbins_all_dims_ = [1,1,1,1];    % number of bins in each dimension
         dax_=[];                        % display axes numbers holder
         % e.g. r.l.u. and energy [h; k; l; en] [row vector]
@@ -218,7 +219,7 @@ classdef axes_block < serializable
             [cube_coord,step] = get_axes_scales_(obj);
         end
         %
-        function [npix,s,e,pix,unique_runid,pix_indx] = bin_pixels(obj,pix_coord_transf,varargin)
+        function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels(obj,pix_coord_transf,varargin)
             % Bin and distribute data expressed in the coordinate system
             % described by this axes block over the current N-D lattice
             %
@@ -245,6 +246,9 @@ classdef axes_block < serializable
             %            axes_block, containing the information about
             %            previous pixel data contribution to the axes grid
             %            variance cells. Must be present if s is present
+            % If these arrays are not provided or provided empty, they are
+            % initialized to the axes_grid size arrays containing 0, by the binning
+            % routine itself
             %  pix_candidates
             %          -- the PixelData or pixAccees data object,
             %             containing full pixel information.
@@ -276,7 +280,14 @@ classdef axes_block < serializable
             % unique_runid-array of unique run-id-s for pixels, contributed
             %            into the cut.
             % pix_indx --Array of indexes for the image bins, where
-            %            the input pix elements belong to
+            %            the input pix elements belong to. If this output
+            %            is requested, pixels_ok are not sorted according
+            %            to bins, but every element of pix_ok array
+            %            corresponds to the appropriate pix_indx.
+            % Note:
+            % unique_runid argument needed to get pixels sorted according
+            % to bins. If it is not requested, pix_ok are returned unsorted.
+            %
 
             nargou = nargout;
             % convert different input forms into fully expanded common form
@@ -284,7 +295,7 @@ classdef axes_block < serializable
                 obj.normalize_bin_input(pix_coord_transf,nargou,varargin{:});
             %
             % bin pixels
-            [npix,s,e,pix,unique_runid,pix_indx] = bin_pixels_(obj,pix_coord_transf,nargou,...
+            [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels_(obj,pix_coord_transf,nargou,...
                 npix,s,e,pix_cand,unique_runid,argi{:});
         end
         %

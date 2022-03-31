@@ -90,7 +90,8 @@ if use_mex
                 pix = PixelData(pix);
             end
         catch  ERR % use Matlab routine
-            warning('HORACE:using_mex','Problem with C-code: %s, using Matlab',ERR.message);
+            warning('HORACE:using_mex', ...
+                'Problem with C-code: %s, using Matlab',ERR.message);
             use_mex=false;
         end
     end
@@ -113,8 +114,7 @@ if ~use_mex
         pix_range=[min(ucoords,[],2)';max(ucoords,[],2)'];
         pix= [];
         return;
-    end
-    if proj_mode == 1
+    elseif proj_mode == 1
         pix_range=[min(ucoords,[],2)';max(ucoords,[],2)'];
         pix = ucoords;
         return

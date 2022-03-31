@@ -2,8 +2,6 @@ classdef rundatah < rundata
     % class responsible for transformations between single run sqw data
     % object and rundata object
     %
-    %
-    %
     properties(Dependent)
         % optional handle to function, used to transform sqw object.
         transform_sqw
@@ -89,9 +87,12 @@ classdef rundatah < rundata
         %
         % method to create sqw object from rundata object
         [w,grid_size,pix_range,varargout] = calc_sqw(rd,grid_size_in,pix_range_in,varargin);
+
         %Method calculates q-dE range, this rundata file contributes into.
         [u_to_rlu,pix_range,varargout]=calc_pix_range(obj,varargin);
-        % build rundata object, which can be used for estimating sqw ranges
+
+        % build rundata object, which can be used for estimating sqw pix
+        % ranges
         bound_obj = build_bounding_obj(obj,varargin);
 
         function obj=rundatah(varargin)
@@ -112,7 +113,7 @@ classdef rundatah < rundata
         function tf = get.transform_sqw(obj)
             % get external transformation to apply to new sqw object
             tf = obj.transform_sqw_f_;
-        end
+        end        
         %
         function obj=set.transform_sqw(obj,fh)
             % define function handle to use to transform sqw
@@ -130,16 +131,12 @@ classdef rundatah < rundata
             % instrument coordinate system to Crystal Cartesian coordinate
             % system
             proj = instr_proj(obj.lattice,obj.efix,obj.emode);
-        end
-        function data = get_data(obj)
-            % return the data describing the neutron image in instrument
-            % frame and recognized by instr_proj class
-
-            % TODO: incomplete
-            data = struct();
+            % TODO:
+            % Set up symmetry transformation over pixels. 
+            % its good place to have it here
         end
 
-        function [pix_range,u_to_rlu,pix,obj] = calc_projections(obj)
+        function [pix_range,u_to_rlu,pix,obj] = calc_projections(obj,qspec)
             % main function to transform rundatah information into
             % crystal Cartesian coordinate system
             %
@@ -154,8 +151,8 @@ classdef rundatah < rundata
             %             system
             % u_to_rlu -- martix to use when converting crystal Cartesian
             %             coordinate systen into rlu coordinate system
-            % pix      -- [9 x npix] array of sqw pixel's information
-            %             in crystal Cartesian
+            % pix      -- PixelData object containing sqw pixel's information
+            %
             %             coordinate system (see sqw pixels information on
             %             the details of the pixels format)
             % obj      -- rundatah object with all data loaded in memory
@@ -165,19 +162,24 @@ classdef rundatah < rundata
             % performance critical aras except fully fledged sqw object is
             % not constructed
 
-            % Load data which have not been loaded in memory yet (do not
-            % reload)
-            obj = obj.load();
-            % remove masked data and detectors
-            [obj.S,obj.ERR,obj.det_par]=obj.rm_masked();
+            %  Removed for the future, in anticipation of making
+            %  rundata memory based only
+            %             % Load data which have not been loaded in memory yet (do not
+            %             % reload)
+            %             obj = obj.load();
+            %             % remove masked data and detectors
+            %             [obj.S,obj.ERR,obj.det_par]=obj.rm_masked();
 
             if nargout<3
                 proj_mode = 0;
             else
                 proj_mode = 2;
             end
+            if nargin <2
+                qspec = [];
+            end
             % Calculate projections
-            [u_to_rlu,pix_range,pix] = obj.calc_projections_(obj.detdcn_cache,[],proj_mode);
+            [u_to_rlu,pix_range,pix] = obj.calc_projections_(obj.detdcn_cache,qspec,proj_mode);
         end
         %
         function flds = saveableFields(obj)

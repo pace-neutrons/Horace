@@ -3,13 +3,15 @@ function [npix,s,e,pix,unique_runid,pix_indx] = bin_pixels_(obj,coord,num_output
 % sort pixels according to their coordinates in the axes grid, and
 % calculate pixels grid statistics.
 % Inputs:
+% 
 % obj   -- the initialized axes_block object with the grid defined
 % coord -- the 3D or 4D array of pixels coordinates transformed into
 %          axes_block coordinate system
 % num_outputs
 %       -- the number of output parameters, requested to process. Depending
 %          on this number, additional parts of the algorithm will be
-%          deployed
+%          deployed. 
+% 
 %
 %
 
@@ -53,10 +55,8 @@ if isempty(coord)
         return;
     end
 end
-
 % bin only points in dimensions, containing more then one bin
 n_bins  = bin_array_size(pax);
-
 
 if ndims == 0
     npix = npix + sum(ok);
@@ -88,6 +88,10 @@ end
 if num_outputs<3
     return;
 end
+%--------------------------------------------------------------------------
+% moree then 1 outputs
+% Calclulating signal and error
+%--------------------------------------------------------------------------
 sig = pix_cand.signal;
 var = pix_cand.variance;
 if ndims == 0
@@ -100,32 +104,38 @@ end
 if num_outputs<4
     return;
 end
+%--------------------------------------------------------------------------
+% more than 4 outputs
+% Get unsorted pixels, contributed to the bins
+%--------------------------------------------------------------------------
 pix          = pix_cand.get_pixels(ok);
 if num_outputs<5
     return;
 end
+%--------------------------------------------------------------------------
+% find unique indexes, 
+% more then 5 outputs apparently requested to obtain sorted pixels
 loc_unique = unique(pix.run_idx);
 unique_runid = unique([unique_runid,loc_unique]);
-if num_outputs<6
-    return;
-end
 clear ok;
+%-------------------------------------------------------------------------
+% sort pixels according to bins
 if ndims > 1 % convert to 1D indexes
     stride = cumprod(n_bins);
     pix_indx =(pix_indx-1)*[1,stride(1:end-1)]'+1;
 end
-
+% i
 if ndims > 0
     if num_outputs ==6
         if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels
-            pix = PixelData(double(pix.data));
+            pix = PixelData(double(pix.data));     % when PixelData is separated into file accessor and memory accessor
         end
-    else % sort will make pix double if requested % TODO: this should be moved to get_pixels
-        pix = sort_pix(pix,pix_indx,npix,varargin{:});
+    else % sort will make pix double if requested       % TODO: this should be moved to get_pixels
+        pix = sort_pix(pix,pix_indx,npix,varargin{:});  % when PixelData is separated into file accessor and memory accessor
     end
 elseif ndims == 0
-    if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels
-        pix = PixelData(double(pix.data));
+    if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels 
+        pix = PixelData(double(pix.data));     % when PixelData is separated into file accessor and memory accessor 
     end
     if num_outputs == 6
         pix_indx = ones(pix.num_pixels,1);

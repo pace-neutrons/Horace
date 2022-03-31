@@ -1,11 +1,11 @@
-function [w,grid_size,pix_range,detdcn] ...
+function [w,grid_size,pix_range] ...
     = calc_sqw(obj,grid_size_in,pix_db_range,varargin)
 % Generate single sqw file from given rundata class.
 %
 % Usage:
-%>>[w,grid_size,pix_range,detdcn] = rundata_obj.calc_sqw(grid_size_in,pix_db_range,varargin);
+%>>[w,grid_size,pix_range] = rundata_obj.calc_sqw(grid_size_in,pix_db_range,varargin);
 % or
-%>>[w,grid_size,pix_range,detdcn] = rundata_obj.calc_sqw(varargin);
+%>>[w,grid_size,pix_range] = rundata_obj.calc_sqw(varargin);
 %
 % Where:
 % rundata_obj -- fully defined rundata object
@@ -35,13 +35,6 @@ function [w,grid_size,pix_range,detdcn] ...
 % pix_range      Actual range of pixels, contributed in the image.
 %                the specified range if it was given,
 %                or the range of the data if not.
-%  detdcn        [3 x ndet] array of unit vectors, poinitng to the detector's
-%                positions in the spectrometer coordinate system (X-axis
-%                along the beam direction). ndet -- number of detectors
-%                Can be later assigned to the next rundata object
-%                property "detdcn_cache" to accelerate calculations. (not
-%                fully implemented and currently workis with Matlab code
-%                only)
 % pix_range_nontransf -- if no transformation is provided, the value is
 %                equal to pix_range. If there is a transformation, the
 %                value describes the pixel range before the transformation
@@ -55,61 +48,17 @@ if ~exist('pix_db_range','var')
     pix_db_range = [];
 end
 
-keys_recognized = {'-qspec'};
+keys_recognized = {'-qspec'}; % do we still need it? if cache is not empty, 
+% then we assume we want to cache it.
 [ok,mess,cache_q_vectors] = parse_char_options(varargin,keys_recognized);
 if ~ok
     error('HORACE:rundatah:invalid_arguments',['calc_pix_range: ',mess])
 end
-qspec_provided = false;
-if cache_q_vectors
-    if ~isempty(obj.qpsecs_cache)
-        qspec_provided = true;
-    end
-else
-    obj.qpsecs_cache = [];
-end
-
-hor_log_level=config_store.instance().get_value('herbert_config','log_level');
-
-bigtic
-% Read spe file and detector parameters
-% -------------------------------------
-if ~qspec_provided || isempty(obj.S)
-    % load signal, error and everything else to memory
-    obj= obj.get_rundata('-this');
-end
-det0 = obj.det_par;
-% Masked detectors (i.e. containing NaN signal) are removed from data and detectors
-[ignore_nan,ignore_inf] = config_store.instance().get_value('hor_config','ignore_nan','ignore_inf');
-[obj.S,obj.ERR,obj.det_par,non_masked]  = obj.rm_masked(ignore_nan,ignore_inf);
-if isempty(obj.S) || isempty(obj.ERR)
-    error('HORACE:rundatah:invalid_arguments',...
-        'File %s contains only masked detectors', obj.data_file_name);
-end
-
-if hor_log_level>-1
-    bigtoc('Time to read spe and detector data:')
-    disp(' ')
-end
-
-
-% Create sqw object
-% -----------------
-bigtic
-if ~cache_q_vectors % detectors are always cached now. And compared with the 
-    % stored detectors each time
-    detdcn = calc_or_restore_detdcn_(det0);
-    detdcn = detdcn(:,non_masked);
-end
 %
-[w, grid_size, pix_range]=obj.calc_sqw_(detdcn, grid_size, pix_db_range);
-
-
-if hor_log_level>-1
-    bigtoc('Time to convert from spe to sqw data:',hor_log_level)
-    disp(' ')
-end
-
+% Create sqw object
+%
+[w, pix_range]=obj.calc_sqw_(grid_size, pix_db_range);
+%
 if ~isempty(obj.transform_sqw_f_)
     % we should assume that transformation maintains correct data pix_range
     % and correct sqw structure, though this pix_range and grid_size-s do not
@@ -124,12 +73,14 @@ if isempty(grid_size_in)
     grid_size = [50,50,50,50];
 else
     grid_size = grid_size_in(:)';
-
+    if numel(grid_size) == 1
+        grid_size = ones(1,4)*grid_size;
+    end
     if ~all(size(grid_size) == [1,4]) || any(grid_size < 1)
         error('HORACE:rundatah:invalid_argument',...
-            'Grid size, if provided, should be 1x4 vector, containing number of bins in each of 3-q and one Energy transfer directions')
+            'Grid size, if provided, should be positive number or 1x4 vector, containing number of bins in each of 3-q and one Energy transfer directions. Actually it is %s',...
+            evalc('disp(grid_size)'))
     end
-
 end
 
 

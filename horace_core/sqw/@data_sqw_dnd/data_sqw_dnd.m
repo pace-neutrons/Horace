@@ -7,6 +7,9 @@ classdef data_sqw_dnd < axes_block
     %
     properties(Dependent)
         pix;
+
+        % The pixels are rebinned on this grid
+        img_db_range;
     end
     properties
         %
@@ -19,8 +22,6 @@ classdef data_sqw_dnd < axes_block
         e=[]          %Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
         npix=[]       %No. contributing pixels to each bin of the plot axes.
         %             [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-        % The pixels are rebinned on this grid
-        img_db_range=PixelData.EMPTY_RANGE_ % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf] -- convention if no pixels
         %
         % returns number of pixels, stored within the PixelData class
         num_pixels
@@ -168,9 +169,9 @@ classdef data_sqw_dnd < axes_block
         %
         function obj = init(obj,varargin)
             if isa(varargin{1},'data_sqw_dnd') % handle shallow copy constructor
-                obj =varargin{1};                          % its COW for Matlab anyway
+                obj =varargin{1};              % its COW for Matlab anyway
             elseif nargin==2 && isstruct(varargin{1})
-                % old interface compartibility
+                % old interface compatibility
                 struc = varargin{1};
                 if isfield(struc,'ulabel')
                     struc.label = struc.ulabel;
@@ -254,7 +255,19 @@ classdef data_sqw_dnd < axes_block
             end
         end
 
-
+        function range = get.img_db_range(obj)
+            range  = obj.img_range_;
+        end
+        function obj = set.img_db_range(obj,val)
+            % this property should not be used, as the change of this
+            % property on defined object would involve whole pixels
+            % rebinning. 
+            % TODO: remove this property or enable rebinning algorithm
+            % on its change
+            warning('HORACE:data_sqw_dnd:runtime_erroe',...
+                'using redundant property img_db_range. Use set/get.img_range instead')
+            obj.img_range = val;
+        end
     end
     methods(Access=protected)
         function obj = from_old_struct(obj,inputs)
@@ -300,18 +313,5 @@ classdef data_sqw_dnd < axes_block
             obj = data_sqw_dnd();
             obj = loadobj@serializable(S,obj);
         end
-        %
-        function [ind_range,ind_en,proj]=...
-                get_projection_from_pbin_inputs(ndim,uoffset,nonorthogonal,varargin)
-            % Parce binning inputs and try to guess some u_to_rlu from them.
-            % Ugly. Try to remove from here. Makes artificial dependence
-            % between axes_block and projection. Probably need not be here
-            %
-            nout = nargout;
-            [ind_range,ind_en,proj]=...
-                get_projection_from_pbin_inputs_(nout,ndim,uoffset,nonorthogonal,...
-                varargin{:});
-        end
-
     end
 end

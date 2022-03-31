@@ -16,7 +16,7 @@ classdef instr_proj<aProjection
     %
     % Argument input:
     %   >> proj = instr_proj(lattice,efix,emode)
-    %   plus any optional argument, representing public porperty of the 
+    %   plus any optional argument, representing public porperty of the
     %   instr_proj class and presented as key-value pair.
     %
     %
@@ -133,22 +133,23 @@ classdef instr_proj<aProjection
         % Particular implementation of aProjection abstract interface
         % and oveloads for speficic methods
         %------------------------------------------------------------------
-        function pix_transformed = transform_pix_to_img(obj,pix_data,varargin)
+        function pix_coord = transform_pix_to_img(obj,pix_data,varargin)
             % Transform pixels expressed in instrument frame into
             % into Crystal Cartesian coordinate system.
             %
             % Input:
-            % pix_data -- [3xNpix] or [4xNpix] array of pix coordinates
-            %             expressed in crystal Cartesian coordinate system
+            % pix_data -- rundatah object containing information about
+            %             detectors positions and the signal receved by
+            %             detectors during the run as function of energy
+            %             transfer
             % Returns:
-            % pix_transformed -- the pixels transformed into coordinate
-            %             system, related to image (often hkl system)
+            % pix_coord -- 4D array of pixel coordinates containing pixel 
+            %              positions in crystal  Cartesian coordinate system
             %
-            pix_transformed = transform_pix_to_img_(obj,pix_data,varargin{:});
+            pix_coord = transform_pix_to_img_(obj,pix_data,varargin{:});
         end
         %
         function pix_cc = transform_img_to_pix(obj,pix_hkl,varargin)
-
             % Transform pixels expressed in image coordinate coordinate systems
             % into crystal Cartesian coordinate system
             %
@@ -162,6 +163,14 @@ classdef instr_proj<aProjection
             error('HORACE:instr_proj:not_implemented',...
                 'transformation from Crystal Cartesian to instrument coordinate frame is not yet implemented')
         end
+        function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels(obj,axes,run_data,varargin)
+            % Convert pixels into the coordinate system, defined by the
+            % projection and bin them into the coordinate system, defined
+            % by the axes block, specified as input.
+            pix  = convert_rundata_to_pix_(obj,run_data);
+            [npix,s,e,pix_ok,unique_runid,pix_indx] = ...
+                bin_pixels@aProjection(obj,axes,pix,varargin{:});
+        end        
         %
         function ax_bl = get_proj_axes_block(~,ranges,bin_numbers)
             % return the axes block, corresponding to this projection class.
