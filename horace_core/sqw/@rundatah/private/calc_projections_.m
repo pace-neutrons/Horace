@@ -1,4 +1,4 @@
-function [u_to_rlu, pix_range, pix] = calc_projections_(obj, detdcn,proj_mode)
+function [u_to_rlu, pix_range, pix,obj] = calc_projections_(obj, detdcn,proj_mode)
 % project detector positions into Crystal Cartesian coordinate system
 %
 % Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer.

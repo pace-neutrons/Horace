@@ -1,4 +1,4 @@
-function [pix_range,u_to_rlu]=calc_pix_range(obj,varargin)
+function [pix_range,u_to_rlu,obj]=calc_pix_range(obj,varargin)
 % Method calculates q-dE range, this rundata object has
 %
 %Usage:
@@ -21,29 +21,22 @@ function [pix_range,u_to_rlu]=calc_pix_range(obj,varargin)
 %                  range without it
 %
 %
-keys_recognized = {'-cache_detectors','-ignore_transformation'};
-[ok,mess,cache_detectors,ignore_transf,params] = parse_char_options(varargin,keys_recognized);
+keys_recognized = {'-ignore_transformation'};
+[ok,mess,ignore_transf,params] = parse_char_options(varargin,keys_recognized);
 if ~ok
     error('HORACE:rundatah:invalid_arguments','calc_pix_range: %s',mess)
 end
 
-b_obj = obj.build_bounding_obj(params{:});
-det = b_obj.get_par();
+[b_obj,obj] = obj.build_bounding_obj(params{:});
+%det = b_obj.get_par();
 % request to return all angular units as radians
 %
 %---------------------------------------------------------------------------
 %
 
-% if cache_detectors
-%     detdcn = calc_or_restore_detdcn_(det);
-% else
-%     detdcn = [];
-% end
+
 if isempty(obj.transform_sqw) || ignore_transf %
-    proj = b_obj.get_projection();
-    data = b_obj.get_pix_data();
-    pix_range = proj.calc_target_range(data);
-    %[u_to_rlu, pix_range] = b_obj.calc_projections_(detdcn,[],0);
+    [u_to_rlu,pix_range] = calc_projections_(b_obj,[],0);
 else
     [b_obj,~,pix_range] = b_obj.calc_sqw(3,[],varargin{:});
     u_to_rlu = b_obj.data.u_to_rlu;

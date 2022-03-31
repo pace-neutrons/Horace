@@ -42,20 +42,22 @@ for i=1:numel(flds)
     end
 end
 
-other_fields = {'s','e','npix'};
+data_fields  = {'s','e','npix'};
+data_defined = false(3,1);
 if isstruct(proj_in)
-    for i=1:numel(other_fields)
-        if isfield(proj_in,other_fields{i})
-            obj.(other_fields{i}) = proj_in.(other_fields{i});
+    for i=1:numel(data_fields)
+        if isfield(proj_in,data_fields{i})
+            obj.(data_fields{i}) = proj_in.(data_fields{i});
+            data_defined(i) = true;
         end
     end
 else
-    sz = obj.dims_as_ssize;
-    for i = 1:numel(other_fields)
-        sz_exist = size(obj.(other_fields{i}));
-        if ~(numel(sz_exist)== numel(sz) && any(sz_exist~=sz))
-            obj.(other_fields{i}) = zeros(sz);
-        end
+end
+sz = obj.dims_as_ssize;
+for i = 1:numel(data_fields)
+    sz_exist = size(obj.(data_fields{i}));
+    if ~(numel(sz_exist)== numel(sz) && any(sz_exist==sz)) && ~data_defined(i)
+        obj.(data_fields{i}) = zeros(sz);
     end
 end
 

@@ -1,4 +1,4 @@
-function rdl = build_bounding_obj(obj,varargin)
+function [rdl,obj] = build_bounding_obj(obj,varargin)
 % return limiting rundata object, namely object with all detectors but only
 % min and max transmitted energy range
 %

@@ -93,7 +93,7 @@ classdef rundatah < rundata
 
         % build rundata object, which can be used for estimating sqw pix
         % ranges
-        bound_obj = build_bounding_obj(obj,varargin);
+        [bound_obj,obj] = build_bounding_obj(obj,varargin);
 
         function obj=rundatah(varargin)
             % rundatah class constructor.
@@ -207,7 +207,7 @@ classdef rundatah < rundata
                 detdcn = [];
             end
             % Calculate projections
-            [u_to_rlu,pix_range,pix] = obj.calc_projections_(detdcn,proj_mode);
+            [u_to_rlu,pix_range,pix,obj] = obj.calc_projections_(detdcn,proj_mode);
         end
         %
         function flds = saveableFields(obj)
