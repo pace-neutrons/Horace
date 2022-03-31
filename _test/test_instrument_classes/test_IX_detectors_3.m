@@ -42,7 +42,7 @@ classdef test_IX_detectors_3 < TestCaseWithSave
             assertEqual(bank.x2, x2);
             assertEqual(bank.phi, phi);
             assertEqual(bank.azim, azim);
-            assertEqual(bank.det, det);
+            assertEqual(bank.det.replicate(-1), det);
         end
         
         %--------------------------------------------------------------------------
