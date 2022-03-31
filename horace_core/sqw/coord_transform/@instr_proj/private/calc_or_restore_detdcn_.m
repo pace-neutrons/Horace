@@ -1,6 +1,18 @@
 function  detdcn = calc_or_restore_detdcn_(det)
 % Calculate unit vectors pointed directed to each detectors or
 % or restore prefetched positions for such detectors
+% Inputs:
+% det    -- the structure, containing detectors information,
+%           as obtained by rundata.get_par method [scalar structure]
+%
+% Returns:
+% detdcn -- [3 x ndet] array of unit vectors, poinitng to the detector's
+%           positions in the spectrometer coordinate system (X-axis
+%           along the beam direction). ndet -- number of detectors
+%           Can be later assigned to the next rundata object
+%           property "detdcn_cache" to accelerate calculations. (not
+%           fully implemented and currently workis with Matlab code only)
+%           [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
 %
 persistent det_buff;
 persistent detdch_buf;

@@ -113,7 +113,7 @@ classdef rundatah < rundata
         function tf = get.transform_sqw(obj)
             % get external transformation to apply to new sqw object
             tf = obj.transform_sqw_f_;
-        end        
+        end
         %
         function obj=set.transform_sqw(obj,fh)
             % define function handle to use to transform sqw
@@ -132,11 +132,34 @@ classdef rundatah < rundata
             % system
             proj = instr_proj(obj.lattice,obj.efix,obj.emode);
             % TODO:
-            % Set up symmetry transformation over pixels. 
+            % Set up symmetry transformation over pixels.
             % its good place to have it here
         end
+        function [qspec,en] = calc_qspec(obj,detdcn)
 
-        function [pix_range,u_to_rlu,pix,obj] = calc_projections(obj,qspec)
+            % Calculate the components of Q in reference frame fixed w.r.t. spectrometer
+            %
+            %   >> qspec = obj.calc_qspec(detdcn)
+            %
+            % Input:
+            % ------
+            %   detdcn  Direction of detector in spectrometer coordinates ([3 x ndet] array)
+            %             [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
+            %
+            % Output:
+            % -------
+            %   qspec   Momentum in spectrometer coordinates
+            %           (x-axis along ki, z-axis vertically upwards) ([3,ne*ndet] array)
+            %   en      Energy transfer for all pixels ([1,ne*ndet] array)
+            %
+            en = obj.en;
+            if size(obj.S,1)+1 == numel(en)
+                en = 0.5*(en(1:end-1)+en(2:end));
+            end
+            [qspec,en]=calc_qspec_(detdcn,obj.efix,en,obj.emode);
+        end
+
+        function [pix_range,u_to_rlu,pix,obj] = calc_projections(obj,detdcn)
             % main function to transform rundatah information into
             % crystal Cartesian coordinate system
             %
@@ -145,7 +168,12 @@ classdef rundatah < rundata
             %
             % Usage:
             %>> [pix_range,u_to_rlu,pix,obj] = rh.calc_projections()
-            %                           where rh is fully defined rundata object
+            %>> [pix_range,u_to_rlu,pix,obj] = rh.calc_projections(detchn)
+            %
+            % Inputs:
+            % rh       -- fully defined (valid) rundatah object
+            %
+            %
             % Returns:
             % pix_range --  q-dE range of pixels in crystal Cartesian coordinate
             %             system
@@ -176,10 +204,10 @@ classdef rundatah < rundata
                 proj_mode = 2;
             end
             if nargin <2
-                qspec = [];
+                detdcn = [];
             end
             % Calculate projections
-            [u_to_rlu,pix_range,pix] = obj.calc_projections_(obj.detdcn_cache,qspec,proj_mode);
+            [u_to_rlu,pix_range,pix] = obj.calc_projections_(detdcn,proj_mode);
         end
         %
         function flds = saveableFields(obj)

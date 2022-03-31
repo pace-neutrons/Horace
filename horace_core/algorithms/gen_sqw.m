@@ -346,7 +346,7 @@ end
 
 if accumulate_old_sqw % build only runfiles to process
     run_files = rundatah.gen_runfiles(spe_file(ix),par_file,efix(ix),emode(ix),...
-        lattice(ix),instrument,sample,rundata_par{:});
+        lattice(ix),instrument(ix),sample(ix),rundata_par{:});
 else % build all runfiles, including missing runfiles. TODO: Lost generality
     if isempty(par_file) && sum(spe_exist) ~= n_all_spe_files % missing rf need to use par file from existing runfiles
         % Get detector parameters

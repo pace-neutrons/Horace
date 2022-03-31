@@ -167,7 +167,8 @@ if ~ok, error(mess), end
 %det=get_par(par_file);
 %detdcn=calc_detdcn(det);
 %ndet=size(det.x2,2);
-run_files = rundatah.gen_runfiles(spe_file,par_file,efix,emode,lattice,'-allow_missing');
+run_files = rundatah.gen_runfiles(spe_file,par_file,efix,emode,lattice, ...
+    instrument,sample,'-allow_missing');
 run_file = run_files{1};
 
 ndet = run_file.n_detectors;

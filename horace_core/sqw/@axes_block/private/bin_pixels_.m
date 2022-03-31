@@ -124,14 +124,13 @@ if ndims > 1 % convert to 1D indexes
     stride = cumprod(n_bins);
     pix_indx =(pix_indx-1)*[1,stride(1:end-1)]'+1;
 end
-% i
 if ndims > 0
     if num_outputs ==6
         if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels
             pix = PixelData(double(pix.data));     % when PixelData is separated into file accessor and memory accessor
         end
-    else % sort will make pix double if requested       % TODO: this should be moved to get_pixels
-        pix = sort_pix(pix,pix_indx,npix,varargin{:});  % when PixelData is separated into file accessor and memory accessor
+    else % sort will make pix double if requested  TODO: this should be moved to get_pixels
+        pix = sort_pix(pix,pix_indx,npix,varargin{:}); % when PixelData is separated into file accessor and memory accessor
     end
 elseif ndims == 0
     if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels 

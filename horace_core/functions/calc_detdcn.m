@@ -1,7 +1,7 @@
 function detdcn = calc_detdcn(det,varargin)
 % Compute the direction from the sample to the detector elements
 %
-%   >> detdcn = calc_detdcn(det,keep_detector_id)
+%   >> detdcn = calc_detdcn(det)
 %
 % Input:
 % ------

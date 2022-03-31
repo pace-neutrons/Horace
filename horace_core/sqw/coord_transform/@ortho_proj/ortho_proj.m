@@ -83,12 +83,7 @@ classdef ortho_proj<aProjection
         %
     end
     properties(Dependent,Hidden) %TODO: all this should go with new sqw design
-        % TODO: temporarty properties, which define the values to be
-        % extracted from projection to convert to old style data_sqw_dnd
-        % class. New data_sqw_dnd class will contain the whole projection
-        data_sqw_dnd_export_list
-
-        % Old confusing u_to_rlu matrix value        
+        % Old confusing u_to_rlu matrix value
         % Matrix to convert from Crystal Cartesian (pix coordinate system)
         % to the image coordinate system (normally in rlu, except initially
         % generated sqw file, when this image is also in Crystal Cartesian)
@@ -272,9 +267,6 @@ classdef ortho_proj<aProjection
         % OLD from new sqw object creation interface.
         % TODO: remove when new SQW object is fully implemented
         %
-        function lst = get.data_sqw_dnd_export_list(~)
-            lst = {'u_to_rlu','nonorthogonal','alatt','angdeg','uoffset'};
-        end
         function mat = get.u_to_rlu(obj)
             [~, mat] = obj.uv_to_rot();
             mat = [mat,[0;0;0];[0,0,0,1]];
@@ -380,6 +372,15 @@ classdef ortho_proj<aProjection
             obj = ortho_proj();
             obj = loadobj@serializable(S,obj);
         end
+        function lst = data_sqw_dnd_export_list()
+            % TODO: temporarty method, which define the values to be
+            % extracted from projection to convert to old style data_sqw_dnd
+            % class. New data_sqw_dnd class will contain the whole projection
+
+
+            lst = {'u_to_rlu','nonorthogonal','alatt','angdeg','uoffset'};
+        end
+
     end
     methods(Access = protected)
         function is = check_validity(obj)
@@ -387,7 +388,7 @@ classdef ortho_proj<aProjection
             % properties
             is = obj.isvalid_;
         end
-        
+
         %
         function   contrib_ind= get_contrib_cell_ind(obj,...
                 cur_axes_block,targ_proj,targ_axes_block)

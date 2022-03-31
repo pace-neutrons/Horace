@@ -1,16 +1,16 @@
-function [u_to_rlu, pix_range, pix] = calc_projections_(obj, detdcn,qspec,proj_mode)
+function [u_to_rlu, pix_range, pix] = calc_projections_(obj, detdcn,proj_mode)
 % project detector positions into Crystal Cartesian coordinate system
 %
 % Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer.
 % Allows for correction scattering plane (omega, dpsi, gl, gs) - see Tobyfit for conventions
 %
-%   >> [u_to_rlu,pix_range, pix] = obj.calc_projections_(detdcn,qspec,proj_mode)
+%   >> [u_to_rlu,pix_range, pix] = obj.calc_projections_(detdcn,detdcn,proj_mode)
 %
 % Optional inputs:
 % ------
-%   qspec       4xn_detectors array of qx,qy,qz,eps
 %   detdcn      Direction of detector in spectrometer coordinates ([3 x ndet] array)
-%                   [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
+%                   [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)] or
+%                   empty array
 %               This should be pre-calculated from the contents of det
 %   proj_mode   The format of the pix output, the routine returns,
 %               when proj_mode is as follows:
@@ -46,18 +46,12 @@ function [u_to_rlu, pix_range, pix] = calc_projections_(obj, detdcn,qspec,proj_m
 % Check input parameters
 % -------------------------
 [ne,ndet]=size(obj.S);
-% Check length of detectors in spe file and par file are same
-% if ~isfield(data,'qspec') &&  ndet~=length(det.phi)
-%     mess1=['.spe file ' data.filename ' and .par file ' det.filename ' not compatible'];
-%     mess2=['Number of detectors is different: ' num2str(ndet) ' and ' num2str(length(det.phi))];
-%     error('%s\n%s',mess1,mess2)
-% end
 if ~exist('proj_mode','var')
     proj_mode = 2;
 end
-if ~exist('qspec','var')
-    qspec = [];
-end
+%   qspec       4xn_detectors array of qx,qy,qz,eps
+qspec = obj.qpsecs_cache; % if provided, used instead of detchn for calculations
+
 if proj_mode<0 || proj_mode >2
     warning('HORACE:calc_projections', ...
         ' proj_mode can be 0,1 or 2 and got %d. Assuming mode 2(all pixel information)', ...
@@ -78,7 +72,7 @@ if use_mex
         try
             c=neutron_constants;
             k_to_e = c.c_k_to_emev;  % used by calc_projections_c;
-            
+
             data = struct('S',obj.S,'ERR',obj.ERR,'en',obj.en,'run_id',obj.run_id);
             det  = obj.det_par;
             efix  = obj.efix;
@@ -97,7 +91,7 @@ if use_mex
     end
 end
 if ~use_mex
-    if isempty(qspec)
+    if isempty(qspec) %   qspec 4xn_detectors array of qx,qy,qz,eps
         qspec_provided = false;
         if isempty(detdcn)
             detdcn = calc_detdcn(obj.det_par);
@@ -108,8 +102,8 @@ if ~use_mex
         ucoords = [spec_to_cc*qspec(1:3,:);qspec(4,:)];
         qspec_provided = true;
     end
-    
-    % Return without filling the pixel array if pix_range only is requested    
+
+    % Return without filling the pixel array if pix_range only is requested
     if proj_mode == 0
         pix_range=[min(ucoords,[],2)';max(ucoords,[],2)'];
         pix= [];
@@ -120,7 +114,7 @@ if ~use_mex
         return
     end
     %Else: proj_mode==2
-    
+
     % Fill in pixel data object
     if ~qspec_provided
         det = obj.det_par;
