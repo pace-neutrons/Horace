@@ -47,14 +47,12 @@ if keep_pix
     wout.main_header = w.main_header;
     wout.detpar = w.detpar;
     wout.data   = data_out;
-    
+
     %TODO: should be single method on experiment info
     runid_ind  = w.runid_map(unique_runid);
-    wout.experiment_info = w.experiment_info(runid_ind);    
+    wout.experiment_info = w.experiment_info(runid_ind);
     id = 1:numel(runid_ind);
     wout.runid_map = containers.Map(unique_runid,id);
-
-    wout.data.img_db_range = data_out.img_range;
 else
     dnd_constructor = DND_CONSTRUCTORS{numel(data_out.pax) + 1};
     wout = dnd_constructor(data_out);

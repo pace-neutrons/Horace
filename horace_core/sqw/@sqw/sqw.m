@@ -164,8 +164,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                         args.data_struct.runid_map = recalculate_runid_map_(head);
                     end
                     if isfield(args.data_struct.data,'version')
-                        obj = sqw.loadobj(args.data_struct);
-                    elseif isfield(args.data_struct.data,'serial_name')
                         obj = serializable.from_struct(args.data_struct);
                     else
                         obj = from_bare_struct(obj,args.data_struct);

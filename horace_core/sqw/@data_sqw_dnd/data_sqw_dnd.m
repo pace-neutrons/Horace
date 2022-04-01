@@ -33,7 +33,7 @@ classdef data_sqw_dnd < axes_block
     end
     properties(Constant,Access=private)
         fields_to_save_ = {'alatt','angdeg','uoffset',...
-            'u_to_rlu','s','e','npix','img_db_range','pix'};
+            'u_to_rlu','s','e','npix','pix'};
     end
     properties(Access=protected)
         pix_ = PixelData()      % Object containing data for each pixel
