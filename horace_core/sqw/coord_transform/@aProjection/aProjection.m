@@ -224,7 +224,7 @@ classdef aProjection < serializable
         end
         %------------------------------------------------------------------
         function proj = get.targ_proj(obj)
-            proj = obj.get_targ_proj(obj);
+            proj = obj.get_target_proj();
         end
         function obj = set.targ_proj(obj,val)
             obj = obj.check_and_set_targ_proj(val);
