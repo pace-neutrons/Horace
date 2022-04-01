@@ -60,7 +60,7 @@ pix_range = pix.pix_range;
 % Create sqw object (just a packaging of pointers, so no memory penalty)
 % ----------------------------------------------------------------------
 
-data.u_to_rlu = eye(4); % conversion from pixels to image. Unity here.
+%data.u_to_rlu = eye(4); % conversion from pixels to image. Unity here.
 d.main_header=main_header;
 d.experiment_info=header;
 d.detpar=det0;
@@ -99,7 +99,8 @@ sqw_data = data_sqw_dnd(axes_bl, ...
 ulen = [1,1,1,1];
 uoffset = [0;0;0;0];
 
-sqw_data.u_to_rlu = u_to_rlu;
+sqw_data.u_to_rlu = eye(4); % conversion from pixels to image. Unity here.
+% Old value creates confusion: sqw_data.u_to_rlu = u_to_rlu;
 sqw_data.ulen = ulen;
 
 header.expdata = IX_experiment([fn,fe], [fp,filesep], ...

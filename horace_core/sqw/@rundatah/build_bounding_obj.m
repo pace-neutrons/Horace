@@ -37,37 +37,27 @@ if ~range_given
                 'calc_bounding_obj: incomplete input object, %s',mess);
         end
         en = rdl.en;
-        if numel(en) > 2
-            enps=(en(2:end)+en(1:end-1))/2;
-        elseif numel(en) == 1
-            enps = en(1);
-        elseif numel(en) == 2
-            enps = en;
-        else
+        if isempty(en)
             error('HORACE:build_bounding_obj:invalid_argument',...
                 'calc_bounding_obj: no energy loaded in input object and no energy ranges are provided');
         end
-        en_min = enps(1);
-        en_max = enps(end);
+        en_min = en(1);
+        en_max = en(end);
     else
         error('HORACE:build_bounding_obj:invalid_argument',...
             'calc_bounding_obj: no input range is given and source object does not contain enenrgy range');
     end
+    if en_min == en_max
+        en = [en_min-1,en_max+1];
+    else
+        en = get_en_from_range(en_min,en_max);
+    end
+
 else
     rdl = rundatah(obj);
-    if en_min == 0 || en_max == 0 || sign(en_min)*sign(en_max)>0
-        enps = [en_min,en_max];
-    else
-        enps = [en_min,0,en_max];
-    end
+    en = get_en_from_range(en_min,en_max);
 end
 %
-if isempty(en_max) || en_min==en_max
-    en = [en_min-1,0,en_min+1];
-else
-    en = [enps(1)*(1-sign(enps(1))*eps);0;enps(end)*(1+sign(enps(end))*eps)];
-    
-end
 
 nen  = numel(en);
 ndet = numel(det.x2);
@@ -81,3 +71,10 @@ rdl.ERR = zeros(nen,ndet);
 rdl.en = en;
 
 
+function en = get_en_from_range(en_min,en_max)
+
+if en_min == 0 || en_max == 0 || sign(en_min)*sign(en_max)>0
+    en = [en_min*(1-sign(en_min)*eps),en_max*(1+sign(en_max)*eps)];
+else
+    en = [en_min*(1-sign(en_min)*eps),0,en_max*(1+sign(en_max)*eps)];
+end

@@ -71,7 +71,7 @@ classdef axes_block < serializable
         label_  = {'Q_h','Q_k','Q_l','En'}; %Labels of the projection axes [1x4 cell array of character strings]
         ulen_=[1,1,1,1]         %Length of projection axes vectors in Ang^-1 or meV [row vector]
         img_range_      = ... % 2x4 vector of min/max values in 4-dimensions
-            PixelData.EMPTY_RANGE_; % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf] 
+            PixelData.EMPTY_RANGE_; % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf]
 
         nbins_all_dims_ = [1,1,1,1];    % number of bins in each dimension
         dax_=[];                        % display axes numbers holder
@@ -456,6 +456,9 @@ classdef axes_block < serializable
         %------------------------------------------------------------------
         function ndim = get.n_dims(obj)
             ndim = sum(obj.nbins_all_dims_>1);
+            %             if ndim == 0 && all(obj.nbins_all_dims_ == 1) % should we do that? Inconsistent and inconvenient
+            %                  ndim =4;
+            %             end
         end
         function ds = get.data_nbins(obj)
             ds= obj.nbins_all_dims_(obj.nbins_all_dims_>1);
