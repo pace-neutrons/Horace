@@ -48,11 +48,13 @@ if keep_pix
     wout.detpar = w.detpar;
     wout.data   = data_out;
 
-    %TODO: should be single method on experiment info
-    runid_ind  = w.runid_map(unique_runid);
-    wout.experiment_info = w.experiment_info(runid_ind);
-    id = 1:numel(runid_ind);
-    wout.runid_map = containers.Map(unique_runid,id);
+    %header_ind = arrayfun(@(id)w.runid_map(id),unique_runid);
+    [exp_info,runid_map] = w.experiment_info.get_subobj(header_ind,w.runid_map);
+    wout.experiment_info = exp_info;
+    wout.runid_map       = runid_map;
+    %wout.runid_map = containers.Map(unique_runid,id);    
+    %id = 1:numel(header_ind);
+
 else
     dnd_constructor = DND_CONSTRUCTORS{numel(data_out.pax) + 1};
     wout = dnd_constructor(data_out);

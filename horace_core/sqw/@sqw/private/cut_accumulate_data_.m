@@ -186,7 +186,7 @@ if keep_pixels
     else
         if num_chunks > 1
             pix_out  = sort_pix(pix_retained, pix_ix_retained, npix);
-        else % all done
+        else % all pixels sorted in cut
             pix_out = pix_retained{1};
         end
     end
