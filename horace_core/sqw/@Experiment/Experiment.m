@@ -186,7 +186,7 @@ classdef Experiment < serializable
             exp = get_experiments_(obj,ind);
         end
         %
-        function subexper = get_subobj(obj,indexes,runid_map)
+        function [subexper,runid_map] = get_subobj(obj,indexes,runid_map)
             % return Experiment object, containing subset of experiments,
             % requested by the method.
             %
@@ -201,15 +201,25 @@ classdef Experiment < serializable
             %              argument is treated as runid-s, which are the
             %              keys of the runid_map rather then direct indexes
             %              of the map.
+            %
+            %              TODO: this map will be part of the Experiment
+            %              object, so the argument will be removed in a
+            %              future.
             % Returns:
             % subexper  -- the Experiment object, containing information
             %              about runs defined by indexes and optionally,
             %              runid_map.
+            % runid_map -- the map, which associates runindexes with the 
+            %              numbers of the headers in the subexper object
+            %
+            %              TODO: this map will be part of the Experiment
+            %              object, so the argument will be removed in a
+            %              future.
             %
             if ~exist('runid_map','var')
                 runid_map = [];
             end
-            subexper = get_subobj_(obj,indexes,runid_map);
+            [subexper,runid_map] = get_subobj_(obj,indexes,runid_map);
         end
         % instrument methods interface
         %------------------------------------------------------------------

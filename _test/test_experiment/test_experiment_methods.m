@@ -29,7 +29,9 @@ classdef test_experiment_methods < TestCase
         function test_get_subobj_by_runid(obj)
             exper = obj.sample_exper;
             ind_map = containers.Map([10,20,30],[2,1,3]);
-            part = exper.get_subobj([20,30],ind_map);
+            [part,id_map] = exper.get_subobj([20,30],ind_map);
+
+            assertEqual(id_map,containers.Map([20,30],[1,2]))            
 
             assertEqual(part.n_runs,2);
             assertTrue(isa(part.instruments{1},'IX_inst_DGfermi'));
@@ -42,12 +44,12 @@ classdef test_experiment_methods < TestCase
             assertEqual(part.expdata(2).filename,'a3')
 
         end
-        
-
 
         function test_get_subobj_by_ind(obj)
             exper = obj.sample_exper;
-            part = exper.get_subobj(2:3);
+            [part,id_map] = exper.get_subobj(2:3);
+
+            assertEqual(id_map,containers.Map([1,2],[1,2]))
 
             assertEqual(part.n_runs,2);
             assertTrue(isa(part.instruments{1},'IX_inst_DGdisk'));
