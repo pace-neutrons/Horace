@@ -62,14 +62,19 @@ classdef test_faccess_sqw_prototype< TestCase
             assertTrue(inob.file_id>0);
 
         end
-
-        function obj = test_init(obj)
+        function test_init_invalid_object_throws(~)
             to = faccess_sqw_prototype();
             assertEqual(to.file_version,'-v0');
 
             %access to incorrect object
             f = @()(to.init());
             assertExceptionThrown(f,'SQW_FILE_IO:invalid_argument');
+            
+        end
+
+        function obj = test_init(obj)
+            to = faccess_sqw_prototype();
+            assertEqual(to.file_version,'-v0');
 
             warning('off','SQW_FILE_IO:legacy_data')
             this.clob = onCleanup(@()(warning('on','SQW_FILE_IO:legacy_data')));

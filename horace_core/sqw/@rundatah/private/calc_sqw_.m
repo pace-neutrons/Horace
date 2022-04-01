@@ -129,6 +129,10 @@ else
     sqw_datstr.img_db_range(out_of_range) = extra_pix_range(out_of_range);
     
 end
+id = obj.run_id;
+if isnan(id)
+    id = 1;
+end
 
 % Create sqw object (just a packaging of pointers, so no memory penalty)
 % ----------------------------------------------------------------------
@@ -137,6 +141,8 @@ d.experiment_info=header;
 d.experiment_info.detector_arrays(end+1) = IX_detector_array(det0);
 d.detpar=struct([]);
 d.data=data_sqw_dnd(sqw_datstr);
+d.runid_map = containers.Map(id,1);
+
 w=sqw(d);
 
 

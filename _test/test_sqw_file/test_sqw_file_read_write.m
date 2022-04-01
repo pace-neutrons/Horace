@@ -18,7 +18,10 @@ classdef test_sqw_file_read_write < TestCase
     methods
         function obj = test_sqw_file_read_write(~)
             obj = obj@TestCase('test_sqw_file_read_write');
-            obj.ds = load('testdata_base_objects.mat');
+            rootdir = fileparts(fileparts(mfilename('fullpath')));
+            testdata = fullfile(rootdir,'common_data',...
+                'sqwfile_readwrite_testdata_base_objects.mat');
+            obj.ds = load(testdata);
             
             % Create three different samples
             obj.sam1=IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
@@ -119,37 +122,6 @@ classdef test_sqw_file_read_write < TestCase
                 rethrow(err);
             end
             [ok,mess]=equal_to_tol(f1_1_s0,tmp,'ignore_str',1); assertTrue(ok,mess)
-        end
-        function test_change_instr_sampl_in_file(obj)
-            f1_1_s1_ref=set_header_fudge(obj.ds.f1_1,'sample',obj.sam1);
-            f1_1_s2_ref=set_header_fudge(obj.ds.f1_1,'sample',obj.sam2);
-            f1_1_s3_ref=set_header_fudge(obj.ds.f1_1,'sample',obj.sam3);
-            
-            % Now change the sample in a file
-            % -------------------------------
-            tmpsqwfile=fullfile(tmp_dir,'test_sqw_file_read_write_tmp.sqw');
-            clob1 = onCleanup(@()delete(tmpsqwfile));
-            
-            % Add sam1 to file with f1_1
-            save(obj.ds.f1_1,tmpsqwfile)
-            set_sample_horace(tmpsqwfile,obj.sam1);
-            tmp=sqw(tmpsqwfile);
-            [ok,mess]=equal_to_tol(f1_1_s1_ref,tmp,'ignore_str',1); assertTrue(ok,mess)
-            
-            % Now add a longer sample - this should be appended to the end
-            set_sample_horace(tmpsqwfile,obj.sam2);
-            tmp=sqw(tmpsqwfile);
-            [ok,mess]=equal_to_tol(f1_1_s2_ref,tmp,'ignore_str',1); assertTrue(ok,mess)
-            
-            % Now add a longer sample still - but shorter than the sum of sam1 and sam2: should overwrite
-            set_sample_horace(tmpsqwfile,obj.sam3);
-            tmp=sqw(tmpsqwfile);
-            [ok,mess]=equal_to_tol(f1_1_s3_ref,tmp,'ignore_str',1); assertTrue(ok,mess)
-            
-            % Dummy sample
-            set_sample_horace(tmpsqwfile,[]);
-            tmp=sqw(tmpsqwfile);
-            [ok,mess]=equal_to_tol(obj.ds.f1_1,tmp,'ignore_str',1); assertTrue(ok,mess)
         end
         function test_syntax_and_file_io_instr_sample(obj)
             

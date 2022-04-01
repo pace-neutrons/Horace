@@ -39,11 +39,11 @@ classdef data_sqw_dnd < axes_block
     end
     %
     methods
-        function flds = indepFields(obj)
+        function flds = saveableFields(obj)
             % get independent fields, which fully define the state of a
             % serializable object.
             
-            flds = indepFields@axes_block(obj);
+            flds = saveableFields@axes_block(obj);
             flds = [flds(:);data_sqw_dnd.fields_to_save_(:)];
         end
         
@@ -172,7 +172,7 @@ classdef data_sqw_dnd < axes_block
             if isa(varargin{1},'data_sqw_dnd') % handle shallow copy constructor
                 obj =varargin{1};                          % its COW for Matlab anyway
             elseif nargin==2 && isstruct(varargin{1})
-                obj = from_class_struct(obj,varargin{1});
+                obj = from_bare_struct(obj,varargin{1});
             else
                 [obj,uoffset_,remains] = init@axes_block(obj,varargin{:});
                 obj.uoffset = uoffset_;
@@ -280,7 +280,7 @@ classdef data_sqw_dnd < axes_block
             if ~isfield(inputs,'nonorthogonal')
                 inputs.nonorthogonal = false;
             end
-            obj = obj.from_class_struct(inputs);
+            obj = obj.from_bare_struct(inputs);
         end
         
         

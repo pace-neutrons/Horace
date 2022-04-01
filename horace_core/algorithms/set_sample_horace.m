@@ -15,15 +15,21 @@ function varargout=set_sample_horace(filename,sample,varargin)
 %              there is a single sample for the entire sqw data set
 %              If the sample is any empty object, then the sample is set
 %              to the default empty structure.
-
-
+%  varargin    if present, the arguments of the instrument definition function
+%
+% Ouptut:
+%  varargout   if present tries to load and returns the sqw objects from
+%              the files, for which the instrument and/or sample has been set. 
+%              Will fail if the sqw objects are too big to fit memory.
+%
 % Original author: T.G.Perring
 %
 
 
 if nargout > 0
-    varargout = set_instr_or_sample_horace_(filename,'-sample',sample,varargin{:});
+    out_list = set_instr_or_sample_horace_(filename,'-sample',sample,nargout,varargin{:});
+    varargout(1:nargout)=out_list(1:nargout);    
 else
-    set_instr_or_sample_horace_(filename,'-sample',sample,varargin{:});
+    set_instr_or_sample_horace_(filename,'-sample',sample,0,varargin{:});
 end
 

@@ -1,13 +1,13 @@
 classdef Experiment < serializable
     %EXPERIMENT Container object for all data describing the Experiment
-    
+
     properties(Access=private)
         instruments_ = {}; %IX_inst.empty;
         detector_arrays_ = IX_detector_array.empty;
         samples_ = {}; % IX_samp.empty;
         expdata_ = IX_experiment();
     end
-    
+
     properties (Dependent)
         n_runs;  % return the number of runs, this class contains
         % Mirrors of private properties
@@ -17,15 +17,15 @@ classdef Experiment < serializable
         expdata
     end
     properties(Dependent,Hidden)
-        % property providing compartibility with old header interface
+        % property providing compatibility with old header interface
         header
         detpar
     end
     properties(Constant,Access=private)
         fields_to_save_ = {'instruments','detector_arrays','samples','expdata'};
     end
-    
-    
+
+
     methods
         function obj = Experiment(varargin)
             % Create a new Experiment object.
@@ -42,7 +42,7 @@ classdef Experiment < serializable
             if nargin == 0
                 return;
             end
-            
+
             S = varargin{1};
             if nargin==1
                 if isa(S,'Experiment')
@@ -54,7 +54,7 @@ classdef Experiment < serializable
                     obj = build_from_old_headers_(obj,S);
                 else
                     error('HORACE:Experiment:invalid_argument',...
-                        'unrecoginzed Experiment constructor type: %s',class(varargin{1}));
+                        'unrecognised Experiment constructor type: %s',class(varargin{1}));
                 end
             elseif nargin==3
                 obj.detector_arrays = S;
@@ -97,9 +97,9 @@ classdef Experiment < serializable
         end
         %
         function oldhdrs = convert_to_old_headers(obj,header_num)
-            % convert Experiment into the structure suitable to be 
-            % stored in old binary sqw files (up to version 3.xxx) 
-            % 
+            % convert Experiment into the structure suitable to be
+            % stored in old binary sqw files (up to version 3.xxx)
+            %
             % this structure is also used in number of places of the old
             % code where, e.g., structure sorting is implemented but this
             % usage is deprecated and will be removed in a future.
@@ -121,7 +121,7 @@ classdef Experiment < serializable
                     old_hdr = obj.expdata_(i).to_bare_struct();
                     old_hdr.alatt = samp.alatt;
                     old_hdr.angdeg = samp.angdeg;
-                    
+
                     old_hdr.instrument = struct();
                     old_hdr.sample = struct();
                     oldhdrs{i} = old_hdr;
@@ -180,11 +180,11 @@ classdef Experiment < serializable
         end
         %
         function expi = get_aver_experiment(obj)
-            % some, presumably average, run-data. Naive implementation, 
+            % some, presumably average, run-data. Naive implementation,
             % all data are the same
             expi = obj.expdata(1);
         end
-        
+
         function val=get.samples(obj)
             val=obj.samples_;
         end
@@ -232,7 +232,7 @@ classdef Experiment < serializable
         function nr = get.n_runs(obj)
             nr = numel(obj.expdata_);
         end
-        
+
         % instrument methods interface
         %------------------------------------------------------------------
         function obj = set_efix_emode(obj,efix,emode)
@@ -244,7 +244,7 @@ classdef Experiment < serializable
             end
             obj = set_efix_emode_(obj,efix,emode);
         end
-        
+
         % SERIALIZABLE interface
         %------------------------------------------------------------------
         function ver  = classVersion(~)
@@ -255,7 +255,7 @@ classdef Experiment < serializable
             ver = 1;
         end
         %
-        function flds = indepFields(~)
+        function flds = saveableFields(~)
             % get independent fields, which fully define the state of the
             % serializable object.
             flds = Experiment.fields_to_save_;
@@ -284,13 +284,13 @@ classdef Experiment < serializable
         end
         %
         function instr = get_unique_instruments(obj)
-            % compartibility fields with old binary file formats
-            % TODO: needs proper implementation            
+            % compatibility fields with old binary file formats
+            % TODO: needs proper implementation
             instr = obj.instruments_(1);
         end
         %
         function samp = get_unique_samples(obj)
-            % compartibility fields with old binary file formats
+            % compatibility fields with old binary file formats
             % TODO: needs proper implementation
             samp = obj.samples_(1);
         end
@@ -320,9 +320,9 @@ classdef Experiment < serializable
             % structure does not contain version or the version, stored
             % in the structure does not correspond to the current version
             %
-            % By default, this function interfaces the default from_class_struct
-            % method, but when the old strucure substantially differs from
-            % the moden structure, this method needs the specific overloading
+            % By default, this function interfaces the default from_bare_struct
+            % method, but when the old structure substantially differs from
+            % the modern structure, this method needs the specific overloading
             % to allow loadob to recover new structure from an old structure.
             %
             %if isfield(inputs,'version')
@@ -333,13 +333,13 @@ classdef Experiment < serializable
                 obj = build_from_old_headers_(obj,{inputs});
             else
                 if isfield(inputs,'array_dat')
-                    obj = obj.from_class_struct(inputs.array_dat);
+                    obj = obj.from_bare_struct(inputs.array_dat);
                 else
-                    obj = obj.from_class_struct(inputs);
+                    obj = obj.from_bare_struct(inputs);
                 end
             end
         end
-        
+
     end
     %
     methods(Access=private)
@@ -349,7 +349,7 @@ classdef Experiment < serializable
     methods(Static)
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
-            % saveable class
+            % save-able class
             obj = Experiment();
             obj = loadobj@serializable(S,obj);
         end
@@ -359,10 +359,10 @@ classdef Experiment < serializable
             % and combine then together into single Experiment info class
             %
             %This is the HACK, providing only basic functionality. Previous
-            %header-s on the basis of sqw_header and part, present in 
+            %header-s on the basis of sqw_header and part, present in
             %write_nsqw_to_sqw implementation offers much more.
             %
-            %TODO: Do proper optinization on the way. See 
+            %TODO: Do proper optimization on the way. See
             % sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers)
             %TODO: use allow_equal_headers,drop_subzone_headers variables
             %      appropriately
@@ -374,17 +374,17 @@ classdef Experiment < serializable
                 nspe(i) = exp_cellarray{i}.n_runs;
             end
             n_tot = sum(nspe);
-            instr  = repmat({IX_null_inst()},1,n_tot );
-            sampl  = repmat({IX_null_sample()},1,n_tot);
+            instr  = cell(1,n_tot);
+            sampl  = cell(1,n_tot);
             expinfo= repmat(IX_experiment(),1,n_tot);
             ic = 1;
             for i=1:n_contrib
                 for j=1:exp_cellarray{i}.n_runs
-                    instr{i} = exp_cellarray{i}.instruments{j};
-                    sampl{ic} = exp_cellarray{i}.samples{j};
-                    expinfo(ic) =exp_cellarray{i}.expdata(j);
+                    instr{ic}  = exp_cellarray{i}.instruments{j};
+                    sampl{ic}  = exp_cellarray{i}.samples{j};
+                    expinfo(ic)= exp_cellarray{i}.expdata(j);
+                    ic = ic+1;
                 end
-                ic = ic+1;
             end
             exp = Experiment([], instr, sampl);
             exp.expdata = expinfo;

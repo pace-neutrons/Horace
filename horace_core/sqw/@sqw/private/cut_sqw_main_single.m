@@ -166,7 +166,6 @@ data_out.s(no_pix)=0;   % want signal to be zero where there are no contributing
 data_out.e(no_pix)=0;
 
 if opt.keep_pix
-
     data_out.pix = PixelData(pix);
 end
 % Convert range from steps to actual range with respect to output uoffset:
@@ -183,6 +182,7 @@ if opt.keep_pix
     w.experiment_info=header;
     w.detpar=detpar;
     w.data=data_out; % will be missing the field 'pix' if pix_tmpfile_ok=true
+    w.runid_map = data_source.runid_map;    
 else
     [w,mess]=make_sqw_from_data(true,data_out);   % make dnd-type sqw structure
     if ~isempty(mess), error(mess), end

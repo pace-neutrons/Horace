@@ -1,4 +1,4 @@
-function  [det_pos,par_file_name] = build_det_from_q_range(q_range,efix,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs,filename)
+function  [det_pos,par_file_name] = build_det_from_q_range(q_range,efix,lattice,varargin)
 % Create fake detector file which would cover the q-range provided as input
 %
 % Inputs:
@@ -15,20 +15,13 @@ function  [det_pos,par_file_name] = build_det_from_q_range(q_range,efix,alatt,an
 %
 %
 % Goniometer and sample position, defining q-transformation:
-%   efix            Fixed energy (meV)                 [scalar or vector length nfile]
-%   alatt           Lattice parameters (Ang^-1)        [row or column vector]
-%   angdeg          Lattice angles (deg)               [row or column vector]
-%   u               First vector (1x3) defining scattering plane (r.l.u.)
-%   v               Second vector (1x3) defining scattering plane (r.l.u.)
-%   psi             Angle of u w.r.t. ki (deg)         [scalar or vector length nfile]
-%   omega           Angle of axis of small goniometer arc w.r.t. notional u (deg) [scalar or vector length nfile]
-%   dpsi            Correction to psi (deg)            [scalar or vector length nfile]
-%   gl              Large goniometer arc angle (deg)   [scalar or vector length nfile]
-%   gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
+%   efix       Fixed energy (meV)                 [scalar or vector length nfile]
+%   lattice    oriented_lattice object, defining the transformation from
+%
 % Optional (Not implemented)
 %  filename  -- if present, defines the name of the par file to save
 %               detector information. If absent, detector infornation is
-%               stored in mem-file.
+%               returned in outputs.
 %
 % Outputs:
 % det_pos     The structure containing calculated detectors positions (in
@@ -38,24 +31,46 @@ function  [det_pos,par_file_name] = build_det_from_q_range(q_range,efix,alatt,an
 %             name of mem file containing the detector positions
 %             information.
 %
+if isnumeric(lattice) % old style inputs, left here for compartibility with
+    % old code
+    % Here alatt, angdeg and other lattice components are provided
+    % separately as inputs for the function.
+    if ischar(varargin{end}) && ~ismember(varargin{end},{'deg','rad'})
+        filename = varargin{end};
+        last_par = numel(varargin)-1;
+    else
+        filename = '';
+        last_par = numel(varargin);
+    end
+    lattice = convert_old_input_to_lat(lattice,varargin{1:last_par});
+else
+    if nargin<4
+        filename ='';
+    else
+        filename = varargin{4};
+    end
+end
+if ~(ischar(filename)|| isstring(filename))
+    error('HORACE:build_det_from_q_range:invalid_argument',...
+        '4-th parameter, if present, have to be a string, describing generated detectors filename')
+end
+
 
 if ischar(q_range) || ~isnumeric(q_range)
-    error('FAKE_SQW:invalid_argument','q_range should be a matrix')
+    error('HORACE:build_det_from_q_range:invalid_argument',...
+        'q_range should be a matrix')
 end
-if ~exist('filename','var')
+if isempty(filename)
     par_file_name = ['q_det_',upper(str_random(6)),'.mem'];
-    save_real_file = false;
 else
-    save_real_file = true;
     par_file_name  = filename;
 end
 if nargout > 1
-    save_real_file = false;
     [fp,fn]  = fileparts(par_file_name);
     par_file_name = fullfile(fp,[fn,'.mem']);
 end
 if size(q_range,2) ~=3
-    error('FAKE_SQW:invalid_argument',...
+    error('HORACE:build_det_from_q_range:invalid_argument',...
         'second dimension of the q-range matrix should is not 3 but %d',...
         size(q_range,2))
 end
@@ -73,8 +88,7 @@ elseif all(size(q_range) == [1,3])
     q_range = [reshape(q1,nq,1),reshape(q2,nq,1),reshape(q3,nq,1)];
 end
 
-lat = oriented_lattice(alatt,angdeg,psi,u,v,omega,dpsi,gl,gs);
-[~, ~, spec_to_rlu] = lat.calc_proj_matrix();
+[~, ~, spec_to_rlu] = lattice.calc_proj_matrix();
 
 %
 c=neutron_constants;

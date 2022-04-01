@@ -61,16 +61,13 @@ classdef test_faccess_sqw_v3< TestCase
             f = @()(to.init());
             assertExceptionThrown(f,'SQW_FILE_IO:invalid_argument');
 
-
             [ok,initobj] = to.should_load(obj.sample_file);
             assertTrue(ok);
             assertTrue(initobj.file_id>0);
 
-
             to = to.init(initobj);
             assertEqual(to.npixels,7680);
             assertEqual(to.num_contrib_files,1);
-
 
             mheader = to.get_main_header('-verbatim');
             assertEqual(numel(mheader.title),0);
@@ -78,8 +75,10 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(mheader.filepath,...
                 'd:\Users\abuts\Data\ExcitDev\ISIS_svn\Hor#162\_test\test_sqw_file\');
 
+            [exp_info,~,runid_map] = to.get_header();
 
-            exp_info = to.get_header();
+            assertEqual(runid_map,containers.Map(1,1))
+
             assertTrue(isa(exp_info,'Experiment'));
             inf = exp_info.expdata(1);
             assertEqual(inf.filename,'')
@@ -201,10 +200,10 @@ classdef test_faccess_sqw_v3< TestCase
             hdr = sqw_ob.experiment_info;
             hdr.instruments{1} = inst1;
             sqw_ob = sqw_ob.change_header(hdr);
-            
+
             tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
             clob = onCleanup(@()delete(tf));
-            
+
             tob = faccess_sqw_v3();
             tob = tob.init(sqw_ob,tf);
 
@@ -238,10 +237,10 @@ classdef test_faccess_sqw_v3< TestCase
             hdr = sqw_ob.experiment_info;
             hdr.instruments{1} = inst1;
             sqw_ob = sqw_ob.change_header(hdr);
-            
+
             tf = fullfile(tmp_dir,'test_save_load_sqwV31.sqw');
             clob = onCleanup(@()delete(tf));
-            
+
             tob = faccess_sqw_v3();
             tob = tob.init(sqw_ob,tf);
 

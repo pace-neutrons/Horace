@@ -15,15 +15,17 @@ classdef rundatah < rundata
         % positions
         qpsecs_cache = []
     end
-    
+
     properties(Access=private)
         transform_sqw_f_=[];
     end
+
     methods(Static)
         function clear_det_cache()
             % clear cached detectors information and detectors directions
             calc_or_restore_detdcn_([]);
         end
+        %
         function [runfiles_list,defined]=gen_runfiles(spe_files,varargin)
             % Returns array of rundatah objects created by the input arguments.
             %
@@ -58,13 +60,13 @@ classdef rundatah < rundata
             arglist=struct('transform_sqw',[]);
             flags={};
             [args,opt,present] = parse_arguments(varargin,arglist,flags);
-            
+
             [runfiles_list,defined]= rundata.gen_runfiles_of_type('rundatah',spe_files,args{:});
             % add check to verify if run_ids for all generated files are
             % unique. non-unique run_ids will be renumbered. This should
             % not normally happen, but additional check will do no harm
             runfiles_list = update_duplicated_rf_id(runfiles_list);
-            
+
             if present.transform_sqw
                 transf = opt.transform_sqw;
                 for i=1:numel(runfiles_list)
@@ -76,9 +78,15 @@ classdef rundatah < rundata
                 end
             end
         end
-        
+        %------------------------------------------------------------------
+        function obj = loadobj(S)
+            % boilerplate loadobj method, calling generic method of
+            % saveable class
+            obj = rundatah();
+            obj = loadobj@serializable(S,obj);
+        end
     end
-    
+
     methods
         %
         % method to create sqw object from rundata object
@@ -87,7 +95,7 @@ classdef rundatah < rundata
         [u_to_rlu,pix_range,varargout]=calc_pix_range(obj,varargin);
         % build rundata object, which can be used for estimating sqw ranges
         bound_obj = build_bounding_obj(obj,varargin);
-        
+
         function obj=rundatah(varargin)
             % rundatah class constructor.
             %
@@ -99,7 +107,7 @@ classdef rundatah < rundata
             if nargin == 1 && isa(varargin{1},'sqw')
                 obj = rundata_from_sqw_(varargin{1});
             else
-                obj = obj.initialize(varargin{:});
+                obj = obj.init(varargin{:});
             end
         end
         %------------------------------------------------------------------
@@ -117,9 +125,9 @@ classdef rundatah < rundata
                 error('RUNDATAH:invalid_argument',...
                     'transform_sqw should be function handle applicable to sqw object as: w_transformed = transform_sqw(w_initial)');
             end
-            
+
         end
-        
+
         function [pix_range,u_to_rlu,pix,obj] = calc_projections(obj)
             % main function to transform rundatah information into
             % crystal Cartesian coordinate system
@@ -145,9 +153,9 @@ classdef rundatah < rundata
             % Substantially overlaps with calc_sqw method within all
             % performance critical aras except fully fledged sqw object is
             % not constructed
-            
+
             % Load data which have not been loaded in memory yet (do not
-            % reload) 
+            % reload)
             obj = obj.load();
             % remove masked data and detectors
             [obj.S,obj.ERR,obj.det_par]=obj.rm_masked();
@@ -157,10 +165,16 @@ classdef rundatah < rundata
             else
                 proj_mode = 2;
             end
-            % Calculate projections            
+            % Calculate projections
             [u_to_rlu,pix_range,pix] = obj.calc_projections_(obj.detdcn_cache,[],proj_mode);
         end
+        %
+        function flds = saveableFields(obj)
+            flds = saveableFields@rundata(obj);
+            flds = [flds,'transform_sqw'];
+        end
+
     end
-    
+
 end
 

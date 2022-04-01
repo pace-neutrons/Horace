@@ -166,32 +166,32 @@ classdef test_rebin < TestCase
             fitdata_sqw = cell(3, 1);
 
             for i=1:3
-                w1d_d1d_reb(i)=rebin_horace_1d(w1d_d1d,reb_ax(i));
-                w1d_sqw_reb(i)=cut(w1d_sqw,reb_ax(i));
+                w1d_d1d_reb{i}=rebin_horace_1d(w1d_d1d,reb_ax(i));
+                w1d_sqw_reb{i}=cut(w1d_sqw,reb_ax(i));
                 if i==2
-                    w1d_d1d_reb(i)=rebin_horace_1d(w1d_d1d_reb(i),0.025);
+                    w1d_d1d_reb{i}=rebin_horace_1d(w1d_d1d_reb(i),0.025);
                 end
-                [wfit_d1d_old(i),fitdata_d1d_old(i)]=fit_sqw(w1d_d1d_reb(i),@fake_cross_sec,[80,0.1,10]);
-                [wfit_sqw_old(i),fitdata_sqw_old(i)]=fit_sqw(w1d_sqw_reb(i),@fake_cross_sec,[80,0.1,10]);
+                [wfit_d1d_old{i},fitdata_d1d_old{i}]=fit_sqw(w1d_d1d_reb{i},@fake_cross_sec,[80,0.1,10]);
+                [wfit_sqw_old{i},fitdata_sqw_old{i}]=fit_sqw(w1d_sqw_reb{i},@fake_cross_sec,[80,0.1,10]);
 
                 mf_d1d = multifit_sqw (w1d_d1d_reb(i));
                 mf_d1d = mf_d1d.set_fun (@fake_cross_sec, 0.9*[80,0.1,10]);
                 [wfit_d1d(i), fitdata_d1d(i)] = mf_d1d.fit();
                 mf_sqw = multifit_sqw (w1d_sqw_reb(i));
                 mf_sqw = mf_sqw.set_fun (@fake_cross_sec, 0.9*[80,0.1,10]);
-                [wfit_sqw(i), fitdata_sqw(i)] = mf_sqw.fit();
+                [wfit_sqw{i}, fitdata_sqw{i}] = mf_sqw.fit();
             end
 
-            [ok,mess]=equal_to_tol(fitdata_d1d(1).p,fitdata_d1d(2).p,-2e-3,'ignore_str', 1);
+            [ok,mess]=equal_to_tol(fitdata_d1d{1}.p,fitdata_d1d{2}.p,-2e-3,'ignore_str', 1);
             assertTrue(ok,['rebin d1d using step syntax fails: ',mess])
 
-            [ok,mess]=equal_to_tol(fitdata_d1d(1).p,fitdata_d1d(3).p,-5e-3,'ignore_str', 1);
+            [ok,mess]=equal_to_tol(fitdata_d1d{1}.p,fitdata_d1d{3}.p,-5e-3,'ignore_str', 1);
             assertTrue(ok,['rebin d1d using step syntax fails: ',mess])
 
             [ok,mess]=equal_to_tol(fitdata_sqw(1).p,fitdata_sqw(2).p,-1e-6,'ignore_str', 1);
             assertTrue(ok,['rebin d1d using step syntax fails: ',mess])
 
-            [ok,mess]=equal_to_tol(fitdata_sqw(1).p,fitdata_sqw(3).p,-1e-6,'ignore_str', 1);
+            [ok,mess]=equal_to_tol(fitdata_sqw{1}.p,fitdata_sqw{3}.p,-1e-6,'ignore_str', 1);
             assertTrue(ok,['rebin d1d using step syntax fails: ',mess])
 
         end

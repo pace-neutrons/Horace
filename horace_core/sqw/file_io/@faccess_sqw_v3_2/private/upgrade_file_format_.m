@@ -25,9 +25,6 @@ if ~ismember(acc,{'wb+','rb+'})
 end
 %
 %
-if isempty(new_obj.sqw_holder_)
-    
-end
 
 clear_sqw_holder = false;
 if isempty(obj.sqw_holder_)
@@ -65,6 +62,11 @@ function sq = make_pseudo_sqw(nfiles)
 sq = sqw();
 head = sqw_binfile_common.get_header_form();
 head.emode = 1;
+head.alatt = ones(3,1);
+head.angdeg = 90*ones(3,1);
+head.cu = [1,0,0];
+head.cv = [0,1,0];
+head.en = 1;
 head.uoffset = zeros(4,1);
 head.u_to_rlu = zeros(4,4);
 head.ulen = ones(1,4);
@@ -80,6 +82,11 @@ else
 end
 exp = Experiment(heads);
 sq = sq.change_header(exp);
+
+ids = 1:numel(heads);
+runid = ids;
+
+sq.runid_map = containers.Map(runid,ids);
 
 function hd= gen_head(head,x)
 hd = head;

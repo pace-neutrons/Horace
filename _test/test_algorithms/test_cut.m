@@ -58,6 +58,12 @@ classdef test_cut < TestCase & common_state_holder
         
         
         function test_you_can_take_a_cut_from_an_sqw_file(obj)
+            % Really large file V2 on disk to ensure that ranges are
+            % calculated using filebased algorithm rather than all data
+            % loaded in memory.
+            %v2large_file= 'c:\Users\abuts\Documents\Data\Fe\Data\sqw\Fe_ei1371_base_a.sqw';
+            %sqw_cut = cut(v2large_file, obj.ref_params{:});            
+            
             conf = hor_config();
             old_conf = conf.get_data_to_store();
             conf.pixel_page_size = 5e5;
@@ -99,6 +105,7 @@ classdef test_cut < TestCase & common_state_holder
             cleanup = onCleanup(@() set(hor_config, old_conf));
             
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:}, '-nopix');
+            sqw_cut.data.img_db_range = PixelData.EMPTY_RANGE_;
             
             ref_sqw = d3d(obj.ref_file);
             assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
@@ -327,7 +334,8 @@ classdef test_cut < TestCase & common_state_holder
             output_obj = ldr.get_dnd();
             ref_object = d3d(obj.ref_file);
             
-            assertEqualToTol(output_obj, ref_object, 'ignore_str', true);
+            assertEqualToTol(output_obj, ref_object, [2.e-7,1e-7],...
+                'ignore_str', true);
         end
     end
     

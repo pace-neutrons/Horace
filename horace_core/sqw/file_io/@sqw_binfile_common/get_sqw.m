@@ -18,9 +18,9 @@ function [sqw_object,varargout] = get_sqw (obj, varargin)
 %                                                          uoffset,u_to_rlu,ulen,ulabel,iax,iint,pax,p,dax[,img_db_range]
 %                                    (If the file was written from a structure of type 'b' or 'b+', then
 %                                    img_db_range does not exist, and the output field will not be created)
-%                   '-his'          - header block in full i.e. with without instrument and sample information, and
+%                   '-his'          - header block in full i.e. without instrument and sample information, and
 %                                   - data block fields as for '-h'
-%                   '-hverbatim'    Same as '-h' except that the file name as stored in the main_header and
+%                   '-hverbatim'   Same as '-h' except that the file name as stored in the main_header and
 %                                  data sections are returned as stored, not constructed from the
 %                                  value of fopen(fid). This is needed in some applications where
 %                                  data is written back to the file with a few altered fields.
@@ -29,6 +29,9 @@ function [sqw_object,varargout] = get_sqw (obj, varargin)
 %                   '-legacy'       Return result in legacy format, e.g. 4
 %                                   fields, namely: main_header, header,
 %                                   detpar and data
+%                   '-noupgrade'    if it is old file format, do not do
+%                                   expensive calculations, necessary for
+%                                   upgrading file format to recent version
 %
 %               Default: read all fields of whatever is the sqw data type contained in the file ('b','b+','a','a-')
 %
@@ -67,7 +70,7 @@ end
 
 % Get cell array of headers for each contributing spe file
 % ------------------------------------------
-headers  = obj.get_header('-all');
+[headers,~,runid_map]  = obj.get_header('-all');
 
 % Get detector parameters
 % -----------------------
@@ -99,17 +102,37 @@ if opts.nopix
 else
     opt3={};
 end
+if opts.noupgrade
+    opt4={'-noupgrade'};
+else
+    opt4={};
+end
 
 
-data_opt= [opt1, opt2, opt3];
+data_opt= [opt1, opt2, opt3, opt4];
 sqw_struc.data = obj.get_data(data_opt{:}, 'pixel_page_size', opts.pixel_page_size);
 
 sqw_struc.experiment_info = headers;
+old_file = obj.creation_date<datetime('01-Feb-2021');
+if (sqw_struc.data.pix.num_pixels >0 && sqw_struc.data.pix.n_pages == 1) || ...
+    old_file
+    runid = unique(sqw_struc.data.pix.run_idx);
+    file_id = runid_map.keys;
+    file_id = [file_id{:}];
+    if ~all(ismember(runid,file_id)) || old_file % old style pixel data, run_id-s 
+        % have been recalculated
+        id=1:headers.n_runs;
+        runid_map = containers.Map(id,id);
+        % 
+    end
+end
+sqw_struc.runid_map = runid_map;
 if opts.legacy
     sqw_object = sqw_struc.main_header;
     varargout{1} = sqw_struc.experiment_info;
     varargout{2} = sqw_struc.detpar;
     varargout{3} = sqw_struc.data;
+    varargout{4} = sqw_struc.runid_map;    
 elseif opts.head || opts.his
     sqw_object  = sqw_struc;
 else
@@ -134,6 +157,7 @@ function opts = parse_args(varargin)
         'verbatim', ...
         'hverbatim', ...
         'hisverbatim', ...
+        'noupgrade',...
         'nopix', ...
         'legacy' ...
     };

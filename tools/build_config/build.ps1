@@ -40,8 +40,6 @@ param (
   [switch][Alias("v")]$print_versions,
   # Build docs
   [switch][Alias("d")]$docs,
-  # Push docs to github
-  [switch]$push_docs,
   # Call Get-Help on this script and exit.
   [switch][Alias("h")]$help,
 
@@ -203,31 +201,6 @@ function Invoke-Docs {
   }
 }
 
-function Invoke-Push {
-  git config --local user.name "PACE CI Build Agent"
-  git config --local user.email "pace.builder.stfc@gmail.com"
-  git remote set-url --push origin "https://pace-builder:$(${env:api_token}.trim())@github.com/pace-neutrons/Horace"
-  git checkout gh-pages
-  # Keep up to date
-  git pull
-
-  Set-Content -Value "Bypassing Jekyll on GitHub Pages" -Path .nojekyll
-  git add .nojekyll
-  git rm -rf --ignore-unmatch ./unstable
-  Copy-Item -Path "./documentation/user_docs/build/html" -Destination "./unstable" -Recurse
-  git add unstable
-
-  (Get-Content "./build/CPackConfig.cmake" |
-    Where-Object {$_ -match 'CPACK_PACKAGE_FILE_NAME'}) -match '.*"Horace-([^"]+)".*'
-  $build_id = $Matches[1]
-
-  git commit -m "Document build from CI (${build_id})"
-  git push origin gh-pages
-  if ($LASTEXITCODE -ne 0) {
-    exit $LASTEXITCODE
-  }
-}
-
 # Resolve/set default parameters
 if ($build_dir -eq "") {
   $build_dir = Join-Path -Path "$HORACE_ROOT" -ChildPath "build"
@@ -262,8 +235,4 @@ if ($package) {
 
 if ($docs) {
   Invoke-Docs -build_dir "$build_dir"
-}
-
-if ($push_docs) {
-  Invoke-Push
 }

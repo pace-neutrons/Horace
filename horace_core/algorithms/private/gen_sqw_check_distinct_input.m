@@ -1,12 +1,12 @@
-function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
-    u, v, psi, omega, dpsi, gl, gs, instrument, sample, replicate, header_exper)
+function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_file, efix, emode,lattice,...
+    instrument, sample,replicate, header_exper)
 % Check that the input arguments to gen_sqw define distinct input with required equality of some fields.
 % Optionally, determine in addition which input are not included in the header of an sqw file
 %
-%   >> status = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
+%   >> status = gen_sqw_check_distinct_input (spe_file, efix, emode, sample,...
 %                                              u, v, psi, omega, dpsi, gl, gs, instrument, sample)
 %
-%   >> [status, ind] = gen_sqw_check_distinct_input (spe_file, efix, emode, alatt, angdeg,...
+%   >> [status, ind] = gen_sqw_check_distinct_input (spe_file, efix, emode, sample,...
 %                                              u, v, psi, omega, dpsi, gl, gs, instrument, sample, header)
 %
 % Input:
@@ -14,15 +14,7 @@ function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_fil
 %   spe_file        Cell array of spe file name(s)     [column vector length nfile]
 %   efix            Fixed energy (meV)                 [column vector length nfile]
 %   emode           Direct geometry=1, indirect geometry=2, elastic=0   [column vector length nfile]
-%   alatt           Lattice parameters (Ang^-1)        [nfile,3] array
-%   angdeg          Lattice angles (deg)               [nfile,3] array
-%   u               First vector (1x3) defining scattering plane    [nfile,3] array
-%   v               Second vector (1x3) defining scattering plane   [nfile,3] array
-%   psi             Angle of u w.r.t. ki (deg)         [column vector length nfile]
-%   omega           Angle of axis of small goniometer arc w.r.t. notional u (deg) [column vector length nfile]
-%   dpsi            Correction to psi (deg)            [column vector length nfile]
-%   gl              Large goniometer arc angle (deg)   [column vector length nfile]
-%   gs              Small goniometer arc angle (deg)   [column vector length nfile]
+%   lattice         nfile array containing lattice parameters
 %   instrument      Instrument descriptors (structure or object) [column vector length nfile]
 %   sample          Sample descriptors (structure or object)    [column vector length nfile]
 %   replicate       If ==true: allow non-distinct input; still perform the required equality checks
@@ -65,7 +57,7 @@ function [ok, mess, spe_only, head_only] = gen_sqw_check_distinct_input (spe_fil
 
 % Make a stucture array of the fields that define uniqueness
 % Convert angles to radians for comparison with header
-d2r=pi/180;
+
 emode_c = emode(1);
 efix_is_array = false;
 if emode_c == 2
@@ -73,18 +65,18 @@ if emode_c == 2
         efix_is_array = true;
     end
 end
-if efix_is_array
-    pstruct=struct('filename',spe_file,...
-        'psi',num2cell(psi*d2r),'omega',num2cell(omega*d2r),...
-        'dpsi',num2cell(dpsi*d2r),'gl',num2cell(gl*d2r),'gs',num2cell(gs*d2r));
-else
-    pstruct=struct('filename',spe_file,'efix',num2cell(efix),...
-        'psi',num2cell(psi*d2r),'omega',num2cell(omega*d2r),...
-        'dpsi',num2cell(dpsi*d2r),'gl',num2cell(gl*d2r),'gs',num2cell(gs*d2r));
+% TODO: make lattice sortable
+pstruct = lattice.to_bare_struct;
+for i=1:numel(spe_file)
+    pstruct(i).filename = spe_file{i};
+    if ~efix_is_array
+        pstruct(i).efix = efix(i);
+    end    
 end
 names=fieldnames(pstruct)';     % row vector
 
 % Sort structure array
+
 [pstruct_sort,indp]=sortStruct(pstruct,names);
 %pstruct_sort = pstruct;
 %indp = 1:numel(spe_file);
@@ -96,10 +88,8 @@ for i=2:numel(pstruct)
         mess='At least two spe data input have all the same filename, efix, psi, omega, dpsi, gl and gs'; return
     end
     ok = (emode(i)==emode(1));
-    ok = ok & equal_to_relerr(alatt(i,:),alatt(1,:),tol,1);
-    ok = ok & equal_to_relerr(angdeg(i,:),angdeg(1,:),tol,1);
-    ok = ok & equal_to_relerr(u(i,:),u(1,:),tol,1);
-    ok = ok & equal_to_relerr(v(i,:),v(1,:),tol,1);
+    ok = ok & equal_to_relerr(lattice(i).u,lattice(1).u,tol,1);
+    ok = ok & equal_to_relerr(lattice(i).v,lattice(1).v,tol,1);
     if ~ok
         spe_only=[]; head_only=[];
         mess=['Not all input spe data have the same values for energy mode (0,1,2)',...
