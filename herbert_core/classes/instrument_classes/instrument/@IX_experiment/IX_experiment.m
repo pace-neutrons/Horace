@@ -10,12 +10,13 @@ classdef IX_experiment < serializable
         %         % providing connection between the particular pixel and
         %         % the experiment info
 
+        en;  % array of all energy transfers, present in the experiment
     end
 
     properties
-
         efix = []
         emode=[]
+
         cu=[];
         cv=[];
         psi=[];
@@ -23,7 +24,6 @@ classdef IX_experiment < serializable
         dpsi=[];
         gl=[];
         gs=[];
-        en=[];
         uoffset=[];
         u_to_rlu=[];
         ulen=[];
@@ -33,6 +33,7 @@ classdef IX_experiment < serializable
         filename_=''
         filepath_='';
         run_id_ = NaN;
+        en_ = zeros(0,1);
     end
     properties(Constant,Access=private)
         % the arguments have to be provided in the order the inputs for
@@ -59,7 +60,7 @@ classdef IX_experiment < serializable
                 error('HERBERT:IX_experiment:invalid_argument',...
                     'filename can be only character array or string. It is %s',...
                     class(val))
-            end
+            end            
             obj.filename_ = val;
         end
         %
@@ -87,7 +88,34 @@ classdef IX_experiment < serializable
             obj.run_id_ = val;
         end
         %
-
+        function en = get.en(obj)
+            en = obj.en_;
+        end
+        function obj = set.en(obj,val)
+            if ~isnumeric(val)
+                error('HERBERT:IX_experiment:invalid_argument',...
+                    'energy transfers have to be array of numeric values. It is: %s',...
+                    class(val));
+            end
+            obj.en_ = val(:);
+        end
+        %------------------------------------------------------------------
+        % SQW_binfile_common methods related to saving to binfile and
+        % run_id scrambling:
+        function old_hdr = convert_to_binfile_header(obj,alatt,angdeg)
+            % convert to the header structure, to be stored in the old
+            % binary files
+            %
+            old_hdr = obj.to_bare_struct();
+            if ~isnan(old_hdr.run_id)
+                old_hdr.filename = sprintf('%s$id$%d',old_hdr.filename,old_hdr.run_id);
+            end
+            old_hdr = rmfield(old_hdr,'run_id');
+            old_hdr.alatt = alatt;
+            old_hdr.angdeg = angdeg;
+            old_hdr.instrument = struct();
+            old_hdr.sample = struct();
+        end
         %------------------------------------------------------------------
         function is = isempty(obj)
             is = false(size(obj));
@@ -165,6 +193,25 @@ classdef IX_experiment < serializable
             obj = IX_experiment();
             obj = loadobj@serializable(S,obj);
         end
+        %------------------------------------------------------------------        
+        % SQW_binfile_common methods related to saving to binfile and
+        % run_id scrambling:
+        function [obj,alatt,angdeg] = build_from_binfile_header(inputs)
+            % Inputs: the old header structure, stored in binfile
+            old_fldnms = {'filename','filepath','efix','emode','cu',...
+                'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
+                'u_to_rlu','ulen','ulabel'};
+            obj = IX_experiment();
+            for i=1:numel(old_fldnms)
+                obj.(old_fldnms{i}) = inputs.(old_fldnms{i});
+            end
+            alatt = inputs.alatt;
+            angdeg = inputs.angdeg;
+            [runid,filename] = rundata.extract_id_from_filename(inputs.filename);
+            if ~isnan(runid)
+                obj.run_id = runid;
+                obj.filename = filename;                
+            end
+        end
     end
-
 end
