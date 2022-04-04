@@ -204,7 +204,14 @@ classdef TestSuite < TestComponent
             suite = TestSuite;
             suite.Name = class_name;
             suite.Location = which(class_name);
-            cli = feval(class_name,class_name);
+            try
+                cli = feval(class_name,class_name);
+            catch ME
+                Cause = MException('HERBERT:TestSuite:invalid_argument', ...
+                    sprintf('Error instantiating class Name: %s',class_name));
+                ME = ME.addCause(Cause);
+                rethrow(ME)
+            end
             suite.TestCaseClasses(class_name) = cli;
             print_addinfo = cli.print_running_tests;
 
