@@ -129,6 +129,25 @@ classdef test_IX_experiment <  TestCase
             exp.run_id = NaN;
             assertTrue(isnan(exp.run_id))
         end
+
+        function test_full_construnctor(~)           
+            par_names={'filename', 'filepath', 'efix','emode','cu',...
+                'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
+                'u_to_rlu','ulen','ulabel','run_id'};
+            par_val = {'my_file','my_name',10,1,[1,0,0],[0,1,0],...
+                10,1,2,3,4,[1,2,4,8]',[0,0,0,0],eye(4),ones(4,1),...
+                {'a','b','c','d'},100};
+
+            pv_map = containers.Map(par_names,par_val);
+
+            exp = IX_experiment(par_val{:});
+
+            fn = exp.saveableFields();
+            for i=1:numel(fn)
+                assertEqual(exp.(fn{i}),pv_map(fn{i}), ...
+                    sprintf('invalid field "%s" value',fn{i}));
+            end
+        end
     end
 end
 

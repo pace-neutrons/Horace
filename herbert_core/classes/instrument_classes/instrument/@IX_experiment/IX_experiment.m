@@ -60,7 +60,7 @@ classdef IX_experiment < serializable
                 error('HERBERT:IX_experiment:invalid_argument',...
                     'filename can be only character array or string. It is %s',...
                     class(val))
-            end            
+            end
             obj.filename_ = val;
         end
         %
@@ -140,13 +140,20 @@ classdef IX_experiment < serializable
             %   obj = init(obj,filename, filepath, efix,emode,cu,cv,psi,omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,ulabel)
             %
             %   IX_EXPERIMENT Construct an instance of this class
+            flds = {'filename', 'filepath', 'efix','emode','cu',...
+                'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
+                'u_to_rlu','ulen','ulabel','run_id'};
+
             if nargin == 2
                 input = varargin{1};
                 if isa(input,'IX_experiment')
                     obj = input ;
                     return
                 elseif isstruct(input)
-                    flds = obj.saveableFields();
+                    %flds = obj.saveableFields();
+                    % constructor
+                    % The constructor parameters names in the order, then can
+                    % appear in constructor
                     for i=1:numel(flds)
                         fld = flds{i};
                         obj.(fld) = input.(fld);
@@ -156,11 +163,17 @@ classdef IX_experiment < serializable
                         'Unrecognised single input argument of class %s',...
                         class(input));
                 end
-            elseif nargin == 17
-                flds = obj.saveableFields();
-                for i=1:numel(varargin)
-                    fldn = flds{i};
-                    obj.(fldn) = varargin{i};
+            elseif nargin > 2
+
+                validate = {@ischar,@ischar,@isnumeric,@isnumeric,@isnumeric,...
+                    @isnumeric,@isnumeric,@isnumeric,@isnumeric,...
+                    @isnumeric,@isnumeric,@isnumeric,@isnumeric,...
+                    @isnumeric,@isnumeric,@iscell,@isnumeric};
+                [obj,remains] = set_positional_and_key_val_arguments(obj,...
+                    flds,validate,varargin{:});
+                if ~isempty(remains)
+                    error('HERBERT:IX_experiment:invalid_argument',...
+                        'Non-recognized extra-arguments provided as input for constructor for IX_experiemt')
                 end
             else
                 error('HERBERT:IX_experiment:invalid_argument',...
@@ -193,7 +206,7 @@ classdef IX_experiment < serializable
             obj = IX_experiment();
             obj = loadobj@serializable(S,obj);
         end
-        %------------------------------------------------------------------        
+        %------------------------------------------------------------------
         % SQW_binfile_common methods related to saving to binfile and
         % run_id scrambling:
         function [obj,alatt,angdeg] = build_from_binfile_header(inputs)
@@ -210,7 +223,7 @@ classdef IX_experiment < serializable
             [runid,filename] = rundata.extract_id_from_filename(inputs.filename);
             if ~isnan(runid)
                 obj.run_id = runid;
-                obj.filename = filename;                
+                obj.filename = filename;
             end
         end
     end
