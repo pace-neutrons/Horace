@@ -36,8 +36,7 @@ classdef IX_experiment < serializable
         en_ = zeros(0,1);
     end
     properties(Constant,Access=private)
-        % the arguments have to be provided in the order the inputs for
-        % constructor have to be provided
+        % fields, which fully define public interface to the class
         fields_to_save_ = {'filename','filepath','run_id','efix','emode','cu',...
             'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
             'u_to_rlu','ulen','ulabel'};
@@ -137,9 +136,14 @@ classdef IX_experiment < serializable
 
         function obj = init(obj,varargin)
             % Usage:
-            %   obj = init(obj,filename, filepath, efix,emode,cu,cv,psi,omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,ulabel)
+            %   obj = init(obj,filename, filepath, efix,emode,cu,cv,psi,...
+            %               omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,...
+            %               ulabel,run_id)
             %
             %   IX_EXPERIMENT Construct an instance of this class
+
+            % the list of the fieldnames, which may appear in constructor
+            % in the order they may appear in the constructor.
             flds = {'filename', 'filepath', 'efix','emode','cu',...
                 'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
                 'u_to_rlu','ulen','ulabel','run_id'};
@@ -150,13 +154,14 @@ classdef IX_experiment < serializable
                     obj = input ;
                     return
                 elseif isstruct(input)
-                    %flds = obj.saveableFields();
                     % constructor
                     % The constructor parameters names in the order, then can
                     % appear in constructor
                     for i=1:numel(flds)
                         fld = flds{i};
-                        obj.(fld) = input.(fld);
+                        if isfield(input,fld)
+                            obj.(fld) = input.(fld);
+                        end
                     end
                 else
                     error('HERBERT:IX_experiment:invalid_argument',...
