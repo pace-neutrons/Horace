@@ -1,10 +1,19 @@
 classdef IX_experiment < serializable
-    %IX_EXPERIMENT Summary of this class goes here
-    %   Detailed explanation goes here
-    
+    %IX_EXPERIMENT
+
+    properties(Dependent)
+        filename; % name of the file which was the source of data for this
+        %         % experiment
+        filepath; % path where the experiment data were initially stored
+        run_id    % the identifier, which uniquely defines this experiment
+        %         % this indentifier is also stored within the PixelData,
+        %         % providing connection between the particular pixel and
+        %         % the experiment info
+
+    end
+
     properties
-        filename=''
-        filepath='';
+
         efix = []
         emode=[]
         cu=[];
@@ -20,10 +29,15 @@ classdef IX_experiment < serializable
         ulen=[];
         ulabel=[];
     end
+    properties(Access=protected)
+        filename_=''
+        filepath_='';
+        run_id_ = NaN;
+    end
     properties(Constant,Access=private)
         % the arguments have to be provided in the order the inputs for
         % constructor have to be provided
-        fields_to_save_ = {'filename','filepath','efix','emode','cu',...
+        fields_to_save_ = {'filename','filepath','run_id','efix','emode','cu',...
             'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
             'u_to_rlu','ulen','ulabel'};
     end
@@ -33,10 +47,48 @@ classdef IX_experiment < serializable
         end
         function ver  = classVersion(~)
             % return the version of the IX-experiment class
-            ver = 1;
+            ver = 2;
         end
-        
+        %------------------------------------------------------------------
+        % ACCESSORS:
+        function fn = get.filename(obj)
+            fn = obj.filename_;
+        end
+        function obj = set.filename(obj,val)
+            if ~(ischar(val) || isstring(val))
+                error('HERBERT:IX_experiment:invalid_argument',...
+                    'filename can be only character array or string. It is %s',...
+                    class(val))
+            end
+            obj.filename_ = val;
+        end
         %
+        function fn = get.filepath(obj)
+            fn = obj.filepath_;
+        end
+        function obj = set.filepath(obj,val)
+            if ~(ischar(val) || isstring(val))
+                error('HERBERT:IX_experiment:invalid_argument',...
+                    'filename can be only character array or string. It is %s',...
+                    class(val))
+            end
+            obj.filepath_ = val;
+        end
+        %
+        function id = get.run_id(obj)
+            id =obj.run_id_;
+        end
+        function obj = set.run_id(obj,val)
+            if ~isnumeric(val) || numel(val)>1
+                error('HERBERT:IX_experiment:invalid_argument',...
+                    'run_id can have only single numeric value. It is %s containing %d elements',...
+                    class(val),numel(val))
+            end
+            obj.run_id_ = val;
+        end
+        %
+
+        %------------------------------------------------------------------
         function is = isempty(obj)
             is = false(size(obj));
             for i=1:numel(obj)
@@ -54,7 +106,7 @@ classdef IX_experiment < serializable
             end
             obj = obj.init(varargin{:});
         end
-        
+
         function obj = init(obj,varargin)
             % Usage:
             %   obj = init(obj,filename, filepath, efix,emode,cu,cv,psi,omega,dpsi,gl,gs,en,uoffset,u_to_rlu,ulen,ulabel)
@@ -92,6 +144,20 @@ classdef IX_experiment < serializable
             end
         end
     end
+    methods(Access=protected)
+        function obj = from_old_struct(obj,inputs)
+            % recover the object from old structure
+            if isfield(inputs,'version') && inputs.version == 1
+                for i=1:numel(inputs)
+                    inputs(i).run_id = NaN;
+                end
+                inputs.version = 2;
+                obj = obj.from_struct(inputs);
+                return;
+            end
+            obj = from_old_struct@serializable(obj,inputs);
+        end
+    end
     methods(Static)
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
@@ -100,5 +166,5 @@ classdef IX_experiment < serializable
             obj = loadobj@serializable(S,obj);
         end
     end
-    
+
 end
