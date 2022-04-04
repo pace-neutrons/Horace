@@ -169,7 +169,11 @@ classdef IX_experiment < serializable
                         class(input));
                 end
             elseif nargin > 2
-
+                % list of crude validators, checking the type of all input 
+                % parameters for constructor. Mainly used to identify the
+                % end of positional arguments and the beginning of the
+                % key-value pairs. The accurate validation should occur on
+                % setters.
                 validate = {@ischar,@ischar,@isnumeric,@isnumeric,@isnumeric,...
                     @isnumeric,@isnumeric,@isnumeric,@isnumeric,...
                     @isnumeric,@isnumeric,@isnumeric,@isnumeric,...
@@ -207,7 +211,8 @@ classdef IX_experiment < serializable
     methods(Static)
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
-            % saveable class
+            % saveable class, necessary to load data from old structures
+            % only
             obj = IX_experiment();
             obj = loadobj@serializable(S,obj);
         end

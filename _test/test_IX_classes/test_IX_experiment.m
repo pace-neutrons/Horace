@@ -14,7 +14,7 @@ classdef test_IX_experiment <  TestCase
             end
             this = this@TestCase(name);
         end
-        function test_convert_to_from_old_binfile_headers(~)
+        function test_convert_to_and_from_old_binfile_headers(~)
             exp = IX_experiment();
             exp(1).filename = 'aa';
             exp(1).filepath = 'bc';
@@ -31,7 +31,8 @@ classdef test_IX_experiment <  TestCase
             exp.run_id = NaN;
             assertEqual(exp,exp_rec);
         end
-        function test_convert_to_from_binfile_headers_empty_fn(~)
+
+        function test_convert_to_and_from_binfile_headers_empty_fn(~)
             exp = IX_experiment();
             exp(1).filename = '';
             exp(1).filepath = 'bc';
@@ -45,15 +46,15 @@ classdef test_IX_experiment <  TestCase
             assertEqual(alatt,[1,2,3]);
             assertEqual(angdeg,[90,90,90]);
             assertEqual(exp,exp_rec);
+
+            % TODO: temporary, until IX_experiment is propertly build class
             ws = warning('off','MATLAB:structOnObject');
             clOb = onCleanup(@()warning(ws));
-            
-            % TODO: temporary, until IX_experiment is propertly build class
             assertEqual(struct(exp),struct(exp_rec));
         end
 
 
-        function test_convert_to_from_binfile_headers(~)
+        function test_convert_to_and_from_binfile_headers(~)
             exp = IX_experiment();
             exp(1).filename = 'aa';
             exp(1).filepath = 'bc';
@@ -67,9 +68,9 @@ classdef test_IX_experiment <  TestCase
             assertEqual(alatt,[1,2,3]);
             assertEqual(angdeg,[90,90,90]);
             assertEqual(exp,exp_rec);
+
             ws = warning('off','MATLAB:structOnObject');
             clOb = onCleanup(@()warning(ws));
-            
             % TODO: temporary, until IX_experiment is propertly build class
             assertEqual(struct(exp),struct(exp_rec));
         end
@@ -82,7 +83,7 @@ classdef test_IX_experiment <  TestCase
             exp(2).filepath = 'de';
 
 
-            v1_struct = exp.to_struct();
+            v1_struct = exp.to_struct(); % this is v2 structure
             % prepare v1 structure, not to bother with the file storage
             v1_struct.version = 1;
             v1_struct.array_dat = rmfield(v1_struct.array_dat,'run_id');
@@ -97,7 +98,7 @@ classdef test_IX_experiment <  TestCase
             exp.filename = 'aa';
             exp.filepath = 'bc';
 
-            v1_struct = exp.to_struct();
+            v1_struct = exp.to_struct(); % this is v2 structure
             % prepare v1 structure, not to bother with the file storage
             v1_struct.version = 1;
             v1_struct = rmfield(v1_struct,'run_id');
@@ -130,7 +131,7 @@ classdef test_IX_experiment <  TestCase
             assertTrue(isnan(exp.run_id))
         end
 
-        function test_full_construnctor(~)           
+        function test_full_construnctor(~)
             par_names={'filename', 'filepath', 'efix','emode','cu',...
                 'cv','psi','omega','dpsi','gl','gs','en','uoffset',...
                 'u_to_rlu','ulen','ulabel','run_id'};
