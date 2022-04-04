@@ -4,14 +4,18 @@ function [size_str,pos,err,template_struc] = calculate_positions_(obj,template_s
 %
 % pos at the end -- the final position
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 err = false;
 size_str= struct('start_pos_',pos);
 
 if isa(template_struc,'sqw_field_format_interface') % field has special convertor
     if obj.input_is_stuct_
-        length = template_struc.size_of_field(input);
+        if isa(input,'serializable')
+            in = input.to_struct();
+            length = template_struc.size_of_field(in);
+        else
+            length = template_struc.size_of_field(input);
+        end
     else
         [length,template_struc,err]  = template_struc.field_size(input,pos);
         if err
@@ -98,7 +102,7 @@ for i=1:numel(fn)
     end % end datatypes
     %
     pos = pos+length;
-    
+
     eof_reached = check_if_eof(obj,pos);
     if eof_reached
         pos = pos - length;
@@ -106,7 +110,7 @@ for i=1:numel(fn)
         err = true;
         break
     end
-    
+
 end
 
 function is = check_if_eof(obj,pos)
@@ -130,7 +134,7 @@ if obj.input_is_file_  %file stream
         err = true;
         return;
     end
-    
+
     sz = fread(input,1,'uint32');
     [~,res] = ferror(input);
     if res ~= 0

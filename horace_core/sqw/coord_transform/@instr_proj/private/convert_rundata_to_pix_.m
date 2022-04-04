@@ -1,4 +1,4 @@
-function [pix,det0]  = convert_rundata_to_pix_(obj,run_data)
+function [pix,det0,axes_bl]  = convert_rundata_to_pix_(obj,run_data,axes_bl)
 % Transform instrument signal obtained from instrument into Crystal
 % Cartesian coordinate system.
 %
@@ -34,9 +34,14 @@ if isempty(qspec) % calculate detectors directions, which are always cached now.
     detdcn = calc_or_restore_detdcn_(det0);
     detdcn = detdcn(:,non_masked);
 end
-[~,~,pix] = run_data.calc_projections(detdcn);
+[pix_range,~,pix] = run_data.calc_projections(detdcn);
 
 if hor_log_level>-1
     bigtoc('Time to convert from spe to sqw data:',hor_log_level)
     disp(' ')
+end
+if any(any(isinf(axes_bl.img_range)))
+    pix_range = range_add_border(pix_range,obj.tol_);
+    undef = isinf(axes_bl.img_range);
+    axes_bl.img_range(undef) =pix_range(undef);
 end

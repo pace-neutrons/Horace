@@ -71,23 +71,27 @@ head.uoffset = zeros(4,1);
 head.u_to_rlu = zeros(4,4);
 head.ulen = ones(1,4);
 head.ulabel = {'a','b','c','d'};
-head.instruments = struct();
-head.samples = struct();
+head.instruments = IX_null_inst();
+head.samples = IX_null_sample();
+head.run_id = 1;
+ids = 1:nfiles;
 if nfiles>1
-    heads = cell(1,nfiles);
+    ids = num2cell(ids);
     % matlab bug fixed in 2016b
-    heads  = cellfun(@(x)gen_head(head,x),heads,'UniformOutput',false);
+    heads  = cellfun(@(x)gen_head(head,x),ids,'UniformOutput',false);
 else
     heads = head;
 end
-exp = Experiment(heads);
+exp_descr = IX_experiment(heads);
+exp = Experiment();
+exp.expdata = exp_descr;
 sq = sq.change_header(exp);
 
-ids = 1:numel(heads);
-runid = ids;
 
+runid = ids;
 sq.runid_map = containers.Map(runid,ids);
 
 function hd= gen_head(head,x)
 hd = head;
+hd.run_id = x;
 

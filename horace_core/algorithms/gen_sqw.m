@@ -325,7 +325,8 @@ else
     % Have already checked that all the spe files exist for the case of generate_new_sqw is true
 
     if accumulate_new_sqw && ~any(spe_exist)
-        error('None of the spe data files exist, so cannot create new sqw file.')
+        error('HORACE:gen_sqw:invalid_argument', ...
+            'None of the spe data files exist, so cannot create new sqw file.')
     end
     ix=spe_exist;  % the spe data that needs to be processed
 end
@@ -512,9 +513,7 @@ end
 if nargout==0
     clear tmp_file grid_size pix_range
 end
-% clear cached detectors information and detectors directions
-rundatah.clear_det_cache();
-
+%
 function delete_tmp_files(file_list,hor_log_level)
 delete_error=false;
 for i=1:numel(file_list)

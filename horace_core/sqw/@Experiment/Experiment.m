@@ -286,22 +286,14 @@ classdef Experiment < serializable
                 samp = samp{1};
             end
             if nargin == 2
-                oldhdrs = obj.expdata_(header_num).to_bare_struct();
-                oldhdrs.alatt = samp.alatt;
-                oldhdrs.angdeg = samp.angdeg;
-                oldhdrs.instrument = struct();
-                oldhdrs.sample = struct();
+                oldhdrs = obj.expdata_(header_num).convert_to_binfile_header( ...
+                    samp.alatt,samp.angdeg);
             else
                 nruns = obj.n_runs;
                 oldhdrs = cell(nruns,1);
                 for i=1:nruns
-                    old_hdr = obj.expdata_(i).to_bare_struct();
-                    old_hdr.alatt = samp.alatt;
-                    old_hdr.angdeg = samp.angdeg;
-
-                    old_hdr.instrument = struct();
-                    old_hdr.sample = struct();
-                    oldhdrs{i} = old_hdr;
+                    oldhdrs{i} = obj.expdata_(i).convert_to_binfile_header( ...
+                        samp.alatt,samp.angdeg);
                 end
             end
         end

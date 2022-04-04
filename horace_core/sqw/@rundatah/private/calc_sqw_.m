@@ -1,5 +1,5 @@
 function [w, pix_range] = calc_sqw_(obj,grid_size_in, pix_db_range_in)
-% Create an sqw object, optionally keeping only those data points within 
+% Create an sqw object, optionally keeping only those data points within
 % the defined data range.
 %
 %   >> [w, grid_size, pix_range] = obj.calc_sqw(grid_size_in,
@@ -48,10 +48,16 @@ end
 proj = obj.get_projection();
 
 axes_bl = proj.get_proj_axes_block(pix_db_range_in,grid_size_in);
-[header,data] = calc_sqw_data_and_header (obj,axes_bl);
+[exp_info,data] = calc_sqw_data_and_header (obj,axes_bl);
 
-[data.npix,data.s,data.e,pix,run_id,det0] = ...
+% in addition to standard operations, recalculates axes_block img_range if
+% the range has not been defined before
+[data.npix,data.s,data.e,pix,run_id,det0,axes_bl] = ...
     proj.bin_pixels(axes_bl,obj,data.npix,data.s,data.e);
+% either does nothing if img_range was defined before, or defines img_range
+% equal to pix_range, if img_range was undefined
+data.img_range = axes_bl.img_range;
+exp_info.expdata(1).run_id = run_id;
 
 data.pix=pix;
 pix_range = pix.pix_range;
@@ -60,9 +66,10 @@ pix_range = pix.pix_range;
 % Create sqw object (just a packaging of pointers, so no memory penalty)
 % ----------------------------------------------------------------------
 
-%data.u_to_rlu = eye(4); % conversion from pixels to image. Unity here.
+%data.u_to_rlu = eye(4); % conversion from pixels to image. Unity here?
+%Different from what was in Horace 3.6.2
 d.main_header=main_header;
-d.experiment_info=header;
+d.experiment_info=exp_info;
 d.detpar=det0;
 d.data=data;
 d.runid_map = containers.Map(run_id,1);

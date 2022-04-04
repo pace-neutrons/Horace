@@ -75,78 +75,75 @@ if isempty(old_matlab)
     old_matlab = verLessThan('matlab','8.3');
 end
 
-convert_old_classes = false;
-
 if ischar(obj.num_contrib_files_)
     error('FACCESS_SQW_V3:runtime_error',...
         'get_instr_or_sample_ for %s called on non-initialized object',...
         field_name);
 end
+[~,version] = read_si_head_block(obj,field_name,old_matlab);
 
+data_start_name = [field_name,'_pos_'];
 if strcmp(field_name,'instrument')
-    ihead_pos = obj.instrument_head_pos_;
-    pos = obj.instrument_pos_;
-    sz = obj.sample_head_pos_-obj.instrument_pos_;
-    % read instrument version:
-    descriptor_sz = pos - ihead_pos;
-    if  old_matlab % some MATLAB problems with moving to correct eof
-        fseek(obj.file_id_,double(ihead_pos),'bof');
-    else
-        fseek(obj.file_id_,ihead_pos,'bof');
-    end
-    [mess,res] = ferror(obj.file_id_);
-    if res ~=0; error('SQW_FILE_IO:io_error',...
-            'Error moving to the instrument descriptor position. Reason: %s',mess); end
-    bytes = fread(obj.file_id_,descriptor_sz,'*uint8');
-    [mess,res] = ferror(obj.file_id_);
-    if res ~=0; error('SQW_FILE_IO:io_error',...
-            'Error readiong the data for instrument descriptor. Reason: %s',mess); end
-    form = obj.get_si_head_form('instrument');
-    
-    instr_descriptor  = obj.sqw_serializer_.deserialize_bytes(bytes,form);
-    if instr_descriptor.version == 1
-        convert_old_classes = true;
-    end
-elseif strcmp(field_name,'sample')
-    pos = obj.sample_pos_;
-    sz  = obj.instr_sample_end_pos_ - obj.sample_pos_;
-else
-    error('FACCESS_SQW_V3:invalid_argument',...
-        'unknown field %s when trying to retrieve instrument or sample from the file',...
-        field_name);
+    data_end_name = 'sample_head_pos_';
+else % sample
+    data_end_name = 'instr_sample_end_pos_';
 end
-
+data_size = obj.(data_end_name)-obj.(data_start_name);
+%
 if  old_matlab % some MATLAB problems with moving to correct eof
-    fseek(obj.file_id_,double(pos),'bof');
+    fseek(obj.file_id_,double(obj.(data_start_name)),'bof');
 else
-    fseek(obj.file_id_,pos,'bof');
+    fseek(obj.file_id_,obj.(data_start_name),'bof');
 end
 [mess,res] = ferror(obj.file_id_);
 if res ~=0; error('SQW_FILE_IO:io_error',...
         'Error moving to the %s position. Reason: %s',field_name,mess); end
 
-bytes = fread(obj.file_id_,sz,'*uint8');
+bytes = fread(obj.file_id_,data_size,'*uint8');
 [mess,res] = ferror(obj.file_id_);
 if res ~=0; error('SQW_FILE_IO:io_error',...
         'Error readiong the data for field %s. Reason: %s',field_name,mess); end
 
 form = obj.get_si_form(field_name);
 res  = form.field_from_bytes(bytes,1);
-
-% only old instrument stored in the file needs conversion and this instrument can be MAPS only
-if convert_old_classes 
-    if isempty(fieldnames(res)) % actually, there are no instrument present.
-        return;
-    end
+if strcmp(field_name,'instrument') && version <2
+    % only old instrument stored in the file needs conversion and this instrument can be MAPS only
     warning('SQW_FILE:old_version',...
         ['Old instrument is stored within the file.',...
-    ' The  instrument was updated automatically',...
-    ' but you should consider replacing it to proper modern instrument using set_instrument_horace command']); 
+        ' The  instrument was updated automatically',...
+        ' but you should consider replacing it to proper modern instrument using set_instrument_horace command']);
     res = convert_legacy_instrument_structure(res);
-%     chop = res.fermi_chopper;
-%     en = chop.energy;
-%     freq = chop.frequency;
-%     ch_name = chop.name;
-%     res = maps_instrument(en,freq,ch_name);
-
 end
+if version == 3
+    res = serializable.from_struct(res);
+end
+
+function [descr,version] = read_si_head_block(obj,field_name,old_matlab)
+% read the block, describing sample or instrument version, stored in the
+% file
+%
+head_name = [field_name,'_head_pos_'];
+body_name = [field_name,'_pos_'];
+ihead_pos = obj.(head_name);
+pos = obj.(body_name);
+% read field version:
+descriptor_sz = pos - ihead_pos;
+if  old_matlab % some MATLAB problems with moving to correct eof
+    fseek(obj.file_id_,double(ihead_pos),'bof');
+else
+    fseek(obj.file_id_,ihead_pos,'bof');
+end
+[mess,res] = ferror(obj.file_id_);
+if res ~=0; error('HORACE:get_instr_or_sample:io_error',...
+        'Error moving to the %s descriptor position. Reason: %s',fieldname,mess);
+end
+bytes = fread(obj.file_id_,descriptor_sz,'*uint8');
+[mess,res] = ferror(obj.file_id_);
+if res ~=0; error('HORACE:get_instr_or_sample:io_error',...
+        'Error reading the data for %s descriptor. Reason: %s',fieldname,mess);
+end
+form = obj.get_si_head_form(field_name);
+
+descr  = obj.sqw_serializer_.deserialize_bytes(bytes,form);
+version = descr.version;
+

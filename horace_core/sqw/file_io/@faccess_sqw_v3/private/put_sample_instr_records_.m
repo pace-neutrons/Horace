@@ -36,8 +36,8 @@ if isa(header,'is_holder')
         setting_sample = true;
     end
 elseif isa(header, 'Experiment')
-    instr = header.instruments; 
-    sampl = header.samples;
+    instr=  header.get_unique_instruments();
+    sampl = header.get_unique_samples();    
 elseif isempty(header)
     instr = struct();
     sampl = struct();
@@ -52,6 +52,7 @@ if setting_instr
     % serialize instrument(s)
     if iscell(instr)
         instr  = [instr{:}];    
+        instr = instr.to_struct();        
     elseif isempty(instr)
         instr= struct();
     end
@@ -85,9 +86,11 @@ if setting_sample
     % serialize sample(s)
     if iscell(sampl) % NO LONGER allow only one sample! TODO: very bad. Change with class resesighn
         sampl = [sampl{:}];
+        sampl = sampl.to_struct();
     elseif isempty(sampl)
         sampl = struct();
     end
+    
     [bytes,sample_size] = serialize_si_block_(obj,sampl,'sample');
     %clc_size = obj.instr_sample_end_pos_ - obj.sample_pos_;
     % recalculate sample positions (just in case)

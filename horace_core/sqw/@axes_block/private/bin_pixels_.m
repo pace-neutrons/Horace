@@ -3,15 +3,15 @@ function [npix,s,e,pix,unique_runid,pix_indx] = bin_pixels_(obj,coord,num_output
 % sort pixels according to their coordinates in the axes grid, and
 % calculate pixels grid statistics.
 % Inputs:
-% 
+%
 % obj   -- the initialized axes_block object with the grid defined
 % coord -- the 3D or 4D array of pixels coordinates transformed into
 %          axes_block coordinate system
 % num_outputs
 %       -- the number of output parameters, requested to process. Depending
 %          on this number, additional parts of the algorithm will be
-%          deployed. 
-% 
+%          deployed.
+%
 %
 %
 
@@ -113,7 +113,7 @@ if num_outputs<5
     return;
 end
 %--------------------------------------------------------------------------
-% find unique indexes, 
+% find unique indexes,
 % more then 5 outputs apparently requested to obtain sorted pixels
 loc_unique = unique(pix.run_idx);
 unique_runid = unique([unique_runid,loc_unique]);
@@ -133,8 +133,8 @@ if ndims > 0
         pix = sort_pix(pix,pix_indx,npix,varargin{:}); % when PixelData is separated into file accessor and memory accessor
     end
 elseif ndims == 0
-    if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels 
-        pix = PixelData(double(pix.data));     % when PixelData is separated into file accessor and memory accessor 
+    if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels
+        pix = PixelData(double(pix.data));     % when PixelData is separated into file accessor and memory accessor
     end
     if num_outputs == 6
         pix_indx = ones(pix.num_pixels,1);

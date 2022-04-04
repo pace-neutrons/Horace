@@ -68,12 +68,12 @@ else
         data_2save = data_2save.convert_to_old_headers();
     end
 end
-% Store scrambled run_id map not to guess it in a future. In new file
-% formats, runid map will be stored separately
-if ~isempty(obj.sqw_holder_)
-    data_2save = obj.modify_header_with_runid( ...
-        data_2save,obj.sqw_holder_.runid_map);
-end
+% % Store scrambled run_id map not to guess it in a future. In new file
+% % formats, runid map will be stored separately
+% if ~isempty(obj.sqw_holder_)
+%     data_2save = obj.modify_header_with_runid( ...
+%         data_2save,obj.sqw_holder_.runid_map);
+% end
 if update
     pos_list = obj.upgrade_map_.cblocks_map('header');
     size_list = pos_list(2,:);

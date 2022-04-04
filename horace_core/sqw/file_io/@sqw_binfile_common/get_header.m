@@ -67,19 +67,18 @@ end
 %themselves!
 n_header = numel(header);
 runids = zeros(n_header,1);
+exper = repmat(IX_experiment,1,n_header);
+samp = cell(n_header,1);
+inst = cell(n_header,1);
 for i=1:n_header
     if iscell(header)
-        header{i}.instruments = IX_null_inst();   % this is necessary
-        header{i}.samples     = IX_null_sample(); % to satisfy current interface
-        header{i}.en = header{i}.en(:);  % ensure energy is a column array
-        [runids(i),header{i}.filename] = rundata.extract_id_from_filename(header{i}.filename);
+        [exper(i),alatt,angdeg] = IX_experiment.build_from_binfile_header(header{i});
     else
-        header(i).en = header(i).en(:);  % ensure energy is a column array
-        header(i).instruments = IX_null_inst();
-        header(i).samples     = IX_null_sample();
-        [runids(i),header(i).filename] = rundata.extract_id_from_filename(header(i).filename);
+        [exper(i),alatt,angdeg] = IX_experiment.build_from_binfile_header(header(i));        
     end
-    %
+    runids(i) = exper.run_id;
+    samp{i}= IX_samp('',alatt,angdeg);
+    inst{i} = IX_null_inst();
 end
 %
 header_numbers = 1:numel(header);
@@ -96,7 +95,8 @@ else
 end
 
 runid_map = containers.Map(runids,header_numbers);
-exp_info = Experiment(header);
+exp_info = Experiment([],inst,samp,exper);
+
 
 
 function [head,pos] = get_single_header(obj,n_header)

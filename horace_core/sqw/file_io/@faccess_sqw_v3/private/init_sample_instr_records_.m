@@ -8,6 +8,7 @@ exp_info = obj.extract_correct_subobj('header');
 % extract instrument and sample from headers block
 instr=  exp_info.get_unique_instruments();
 sampl = exp_info.get_unique_samples();
+
 %instr = extract_subfield_(header,'instrument');
 %sampl = extract_subfield_(header,'sample');
 %

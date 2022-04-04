@@ -163,11 +163,11 @@ classdef instr_proj<aProjection
             error('HORACE:instr_proj:not_implemented',...
                 'transformation from Crystal Cartesian to instrument coordinate frame is not yet implemented')
         end
-        function [npix,s,e,pix_ok,unique_runid,det0] = bin_pixels(obj,axes,run_data,varargin)
+        function [npix,s,e,pix_ok,unique_runid,det0,axes] = bin_pixels(obj,axes,run_data,varargin)
             % Convert pixels into the coordinate system, defined by the
             % projection and bin them into the coordinate system, defined
             % by the axes block, specified as input.
-            [pix,det0]  = convert_rundata_to_pix_(obj,run_data);
+            [pix,det0,axes]  = convert_rundata_to_pix_(obj,run_data,axes);
             [npix,s,e,pix_ok,unique_runid] = ...
                 bin_pixels@aProjection(obj,axes,pix,varargin{:});
         end        

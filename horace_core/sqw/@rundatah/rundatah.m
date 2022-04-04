@@ -17,10 +17,6 @@ classdef rundatah < rundata
     end
 
     methods(Static)
-        function clear_det_cache()
-            % clear cached detectors information and detectors directions
-            calc_or_restore_detdcn_([]);
-        end
         %
         function [runfiles_list,defined]=gen_runfiles(spe_files,varargin)
             % Returns array of rundatah objects created by the input arguments.
