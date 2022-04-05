@@ -221,9 +221,10 @@ if ~ok, error('HORACE:gen_sqw:invalid_argument',mess), end
 
 % Check optional arguments (grid, pix_db_range, instrument, sample) for size, type and validity
 grid_default=[];
-instrument_default=IX_null_inst();  % default 1x1 struct
-sample_default=IX_samp();    % default 1x1 struct
-sample_default = IX_null_sample();
+instrument_default=IX_null_inst();  % 
+sample_default = IX_null_sample();  % default empty sample will be replaced by 
+%                                   % IX_samp containing lattice at setting
+%                                   % it to rundatah
 [ok,mess,present,grid_size_in,pix_db_range,instrument,sample]=gen_sqw_check_optional_args(...
     n_all_spe_files,grid_default,instrument_default,sample_default,args{:});
 if ~ok, error('HORACE:gen_sqw:invalid_argument',mess), end
@@ -683,8 +684,6 @@ function  [pix_db_range,pix_range] = find_pix_range(run_files,efix,emode,ief,ind
 % pix_db_range -- q-dE range of all input data, to rebin pixels on
 % pix_range    -- actual q-dE range of the pixel coordinates
 %
-use_mex = ...
-    config_store.instance().get_value('hor_config','use_mex');
 nindx = numel(indx);
 n_all_spe_files = numel(run_files);
 
@@ -693,14 +692,9 @@ if log_level>-1
     disp(['Calculating limits of data for ',num2str(n_all_spe_files),' spe files...'])
 end
 
-if use_mex
-    cache_det = {};
-else
-    cache_det  = {'-cache_detectors'};
-end
 
 bigtic
-pix_range = rundata_find_pix_range(run_files(ief),cache_det{:});
+pix_range = rundata_find_pix_range(run_files(ief));
 
 % process missing files
 if ~all(ief)

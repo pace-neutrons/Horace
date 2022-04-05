@@ -31,6 +31,10 @@ else
 end
 
 function det_eq = compare_det(det,det_buff)
+if numel(det.phi) ~= numel(det_buff.phi)
+    det_eq = false;
+    return;
+end
 if any(abs(det.group-det_buff.group)<1.e-8) && ...
         any(abs(det.phi-det_buff.phi)<1.e-8) && ...
         any(abs(det.azim-det_buff.azim)<1.e-8)
