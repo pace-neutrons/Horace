@@ -117,21 +117,21 @@ classdef test_read_all< TestCase
             assertTrue(isstruct(out{2}))
             assertEqual(numel(fields(out{2})),20)
             assertTrue(isstruct(out{3}))
-            assertEqual(numel(fields(out{3})),14)
+            assertEqual(numel(fields(out{3})),12)
 
             [out1,out2,out3] = head_horace(files,'-full');
             assertEqual(numel(fields(out1)),4)
             assertEqual(numel(fields(out2)),4)
-            assertEqual(numel(fields(out3)),17)
+            assertEqual(numel(fields(out3)),15)
 
 
             out = head_dnd(obj.sample_file);
             assertTrue(isstruct(out))
-            assertEqual(numel(fields(out)),14)
+            assertEqual(numel(fields(out)),12)
 
             out4 = head_horace(obj.sample_file);
             assertTrue(isstruct(out4))
-            assertEqual(numel(fields(out4)),14)
+            assertEqual(numel(fields(out4)),12)
             assertEqual(out,out4);
 
             tsw = sqw();
