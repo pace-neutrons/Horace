@@ -290,6 +290,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
         % take the inputs for a cut and return them in a standard form
         [proj, pbin, opt,args] = process_and_validate_cut_inputs(obj, ndims_source, return_cut, varargin);
+        
+        
         function obj = from_old_struct(obj,S)
             % restore object from the old structure, which describes the
             % previous version of the object.
