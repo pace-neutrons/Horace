@@ -106,7 +106,7 @@ end
 
 % Construct the new header Experiment object
 % update with expdata, which maybe should go in the Experiment constructor
-obj = Experiment([], instruments, samples);
+obj = Experiment(IX_detector_array.empty, instruments, samples);
 obj.expdata = expdata;
 
 end % function build_from_old_headers

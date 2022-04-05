@@ -138,7 +138,8 @@ end
 % ----------------------------------------------------------------------
 d.main_header=main_header;
 d.experiment_info=header;
-d.detpar=det0;
+d.experiment_info.detector_arrays(end+1) = IX_detector_array(det0);
+d.detpar=struct([]);
 d.data=data_sqw_dnd(sqw_datstr);
 d.runid_map = containers.Map(id,1);
 
@@ -193,7 +194,7 @@ if all(isempty(obj.sample)) || isempty(fieldnames(obj.sample)) || any(isempty(ob
 else
     sample = obj.sample;
 end
-header = Experiment([],obj.instrument,sample);
+header = Experiment(IX_detector_array.empty,instrument,sample);
 
 
 uoffset = [0;0;0;0];

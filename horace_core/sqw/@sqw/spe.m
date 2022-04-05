@@ -51,7 +51,7 @@ if isa(w.experiment_info,'Experiment')
 else
     ne=numel(w.experiment_info.en)-1;    % number of energy bins
 end
-ndet0=numel(w.detpar.group);% number of detectors
+ndet0=numel(w.experiment_info.detector_arrays(1).id);% number of detectors
 
 tmp=w.data.pix.get_data({'detector_idx', 'energy_idx', 'signal', 'variance'})';
 tmp=sortrows(tmp,[1,2]);    % order by detector group number, then energy
@@ -63,7 +63,7 @@ if size(tmp,1)~=ne*numel(group)
 end
 
 % Get the indexing of detector group in the detector information
-[lia,ind]=ismember(group,w.detpar.group);
+[lia,ind]=ismember(group,w.experiment_info.detector_arrays(1).id);
 
 signal=NaN(ne,ndet0);
 err=zeros(ne,ndet0);

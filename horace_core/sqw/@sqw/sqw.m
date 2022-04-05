@@ -97,7 +97,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         wout = noisify(w,varargin);
 
         function dtp = my_detpar(obj)
-            dtp = obj.detpar_x;
+            if ~isempty(obj.detpar_x)
+                dtp = obj.detpar_x;
+            elseif ~isempty(obj.experiment_info.detector_arrays)
+                dtp = obj.experiment_info.detector_arrays(1).convert_to_old_detpar();
+            end
         end
 
         function obj = change_detpar(obj,dtp)
@@ -258,8 +262,19 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
     methods(Static)
         function obj = loadobj(S)
-            % boilerplate loadobj method, calling generic method of
+            % modified boilerplate loadobj method, calling generic method of
             % saveable class
+            % the generic code is preceded by the conversion of old-style
+            % detpar info into the new detector arrays. This allows loading
+            % of .mat files without converting them on disk..
+            if isfield(S,'experiment_info') && isfield(S,'detpar')
+                if ~isempty(S.detpar) && isempty(S.experiment_info.detector_arrays)
+                    dd = IX_detector_array(S.detpar);
+                    S.experiment_info.detector_arrays = IX_detector_array.empty;
+                    S.experiment_info.detector_arrays(end+1) = dd;
+                    S.detpar = struct([]);
+                end
+            end
             obj = sqw();
             obj = loadobj@serializable(S,obj);
         end
@@ -275,6 +290,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
 
         % take the inputs for a cut and return them in a standard form
         [proj, pbin, opt,args] = process_and_validate_cut_inputs(obj, ndims_source, return_cut, varargin);
+        
+        
         function obj = from_old_struct(obj,S)
             % restore object from the old structure, which describes the
             % previous version of the object.
@@ -307,6 +324,18 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                         end
                         ss = rmfield(ss,'header');
                     end
+                    
+                    % assuming that detpar exists and is not empty, convert
+                    % its contents into a detector array. There are test
+                    % datasets with empty detpar and those should be left
+                    % unconverted, they seem to be testing other items in
+                    % the sqw and ignoring the detpar.
+                    if isfield(ss,'experiment_info') && isfield(ss,'detpar') && ~isempty(ss.detpar)
+                        dd = IX_detector_array(ss.detpar);
+                        ss.experiment_info.detector_arrays(end+1) = dd;
+                        ss = rmfield(ss,'detpar');
+                    end
+                    
                     if isfield(ss,'data_')
                         ss.data = ss.data_;
                         ss = rmfield(ss,'data_');

@@ -95,7 +95,7 @@ classdef test_experiment_constructor < TestCase
             load(tmpfile, 'expt');
             assertTrue( isempty(expt.instruments));
             assertTrue( isempty(expt.samples));
-            assertEqual(expt.detector_arrays, []);
+            assertEqual(expt.detector_arrays, IX_detector_array.empty);
         end
 
         function test_instruments_setter_updates_value_for_valid_value(~)

@@ -28,19 +28,36 @@ classdef test_sqw_copy < TestCase
             sqw_copy = copy(sqw_obj);
             
             sqw_copy.main_header.title = 'test_copy';
-            sqw_copy = sqw_copy.change_header(struct([]));
+            assertFalse(equal_to_tol(sqw_copy.main_header, sqw_obj.main_header));
+            
+            % want to test expinfo/instruments and expinfo/detpar
+            % separately, so make 2 copies of expinfo
+            expinf1 = sqw_copy.experiment_info;
+            expinf2 = sqw_copy.experiment_info;
+
+            % all instruments changed with new name to make expinf different
+            for i=1:numel(expinf1.instruments), expinf1.instruments{i}.name = 'copy'; end
+            sqw_copy = sqw_copy.change_header(expinf1);
+            assertFalse(equal_to_tol(sqw_copy.experiment_info, sqw_obj.experiment_info));
+
+            % all detpar detectors changed with new azim value to make expinf different
+            for i=1:numel(expinf2.detector_arrays), expinf2.detector_arrays(i).azim = 0; end
+            sqw_copy = sqw_copy.change_header(expinf2);
+            assertFalse(equal_to_tol(sqw_copy.my_detpar(), sqw_obj.my_detpar()));
+            %{
+            % old version of detpar change with separate detpar left for
+            % reference to see what was intended
             dtp = sqw_copy.my_detpar();
             dtp.azim(1:10) = 0;
             sqw_copy = sqw_copy.change_detpar(dtp);
-            sqw_copy.data.dax = [2, 1];
-            sqw_copy.data.pix.signal = 1;
+            %}
             
             % changed data is not mirrored in initial
-            assertFalse(equal_to_tol(sqw_copy.main_header, sqw_obj.main_header));
-            assertFalse(equal_to_tol(sqw_copy.experiment_info, sqw_obj.experiment_info));
-            assertFalse(equal_to_tol(sqw_copy.my_detpar(), sqw_obj.my_detpar()));
+            sqw_copy.data.dax = [2, 1];
+            sqw_copy.data.pix.signal = 1;
             assertFalse(equal_to_tol(sqw_copy.data, sqw_obj.data));
             assertFalse(equal_to_tol(sqw_copy.data.pix, sqw_obj.data.pix));
+            
         end
         
         function test_copy_excluding_pix_returns_empty_pix_data(obj)
