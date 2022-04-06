@@ -53,19 +53,26 @@ if update
 else
     head_form = obj.get_header_form();
 end
+% Check if original file had mangled headers (or it is new file)
+% and mangle final headers accordingly
+if obj.contains_runid_in_header_
+    opt = {};
+else
+    opt = {'-nomangle'};
+end
 if ~isempty(header_num)
     if header_num<=0 || header_num >obj.num_contrib_files
         error('HORACE:put_headers:invalid_argument',...
             'put_header: number of header to save %d is out of range of existing headers %d',...
             header_num,obj.num_contrib_files);
     end
-    data_2save = exp_info.convert_to_old_headers(header_num);
+    data_2save = exp_info.convert_to_old_headers(header_num,opt{:});
     n_files2_process = 1;
 else
     n_files2_process = obj.num_contrib_files;
     data_2save = exp_info;
     if isa(data_2save,'Experiment')
-        data_2save = data_2save.convert_to_old_headers();
+        data_2save = data_2save.convert_to_old_headers(opt{:});
     end
 end
 % % Store scrambled run_id map not to guess it in a future. In new file

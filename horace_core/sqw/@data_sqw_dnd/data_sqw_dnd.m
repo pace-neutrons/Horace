@@ -285,7 +285,7 @@ classdef data_sqw_dnd < axes_block
                 inputs.img_range = inputs.urange;
                 inputs = rmfield(inputs,'urange');
             end
-            if any(any(inputs.img_db_range==PixelData.EMPTY_RANGE_)) %
+            if isfield(inputs,'img_db_range') && any(any(inputs.img_db_range==PixelData.EMPTY_RANGE_)) %
                 % assume that img_db_range can be restored from axis range.
                 % This is not always possible and correct, but may be
                 % correct for majority of the old data

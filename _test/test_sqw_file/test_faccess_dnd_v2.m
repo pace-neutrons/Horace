@@ -81,7 +81,7 @@ classdef test_faccess_dnd_v2< TestCase & common_sqw_file_state_holder
             
             % access to incorrect object
             f = @()(to.init());
-            assertExceptionThrown(f,'SQW_FILE_IO:invalid_argument');
+            assertExceptionThrown(f,'HORACE:dnd_binfile_common:invalid_argument');
             
             
             [ok,initob] = to.should_load(obj.sample_file);

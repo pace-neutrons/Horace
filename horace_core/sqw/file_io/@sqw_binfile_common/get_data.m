@@ -109,14 +109,11 @@ function [data,obj] = get_data(obj,varargin)
 [ok,mess,~,noclass,noupgrade,argi]=...
     parse_char_options(varargin,{'-nopix','-noclass','-noupgrade'});
 if ~ok
-    error('SQW_FILE_INTERFACE:invalid_argument',['get_data: ',mess]);
+    error('HORACE:sqw_binfile_common:invalid_argument', ...
+        ['get_data: ',mess]);
 end
 
 [data_str,obj] = obj.get_data@dnd_binfile_common(obj,argi{:});
-
-%
-data_str.img_db_range = obj.get_img_db_range(data_str);
-%
 %
 % parse all arguments, including those that weren't passed to the parent method
 opts = parse_args(varargin{:});
@@ -129,7 +126,7 @@ data_str.serial_name = 'data_sqw_dnd'; % convert structure, stored in
                         %  binary file into the form, suitable for
                         %  recovering using serializable class methods, as
                         %  data_sqw_dnd is serializable
-data = serializable.loadobj(data_str);
+data = serializable.from_struct(data_str);
 if ~opts.nopix
     data.pix = PixelData(obj, opts.pixel_page_size,~noupgrade);
     %

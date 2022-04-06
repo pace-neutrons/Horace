@@ -2,10 +2,6 @@ classdef test_faccess_sqw_prototype< TestCase
     %
     % Validate fast sqw reader used in combining sqw
     %
-    %
-    % $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
-    %
-
 
     properties
         sample_dir;
@@ -68,7 +64,7 @@ classdef test_faccess_sqw_prototype< TestCase
 
             %access to incorrect object
             f = @()(to.init());
-            assertExceptionThrown(f,'SQW_FILE_IO:invalid_argument');
+            assertExceptionThrown(f,'HORACE:dnd_binfile_common:invalid_argument');
             
         end
 

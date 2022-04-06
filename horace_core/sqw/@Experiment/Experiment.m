@@ -273,7 +273,7 @@ classdef Experiment < serializable
             head = rmfield(head,{'instrument','sample'});
         end
         %
-        function oldhdrs = convert_to_old_headers(obj,header_num,varargin)
+        function oldhdrs = convert_to_old_headers(obj,varargin)
             % convert Experiment into the structure suitable to be
             % stored in old binary sqw files (up to version 3.xxx)
             %
@@ -289,15 +289,20 @@ classdef Experiment < serializable
             %               "false" when writing new file or "true" when
             %               upgrading file format
             %
-            [ok,mess,nomangle] = parse_char_options(varargin,{'-nomangle'});
+            [ok,mess,nomangle,remains] = parse_char_options(varargin,{'-nomangle'});
             if ~ok
                 error('HORACE:Experiment:invalid_argument',mess);
+            end
+            if ~isempty(remains)
+                header_num = remains{:};
+            else
+                header_num = [];
             end
             samp = obj.get_unique_samples();
             if iscell(samp)
                 samp = samp{1};
             end
-            if nargin == 2
+            if ~isempty(header_num)
                 oldhdrs = obj.expdata_(header_num).convert_to_binfile_header( ...
                     samp.alatt,samp.angdeg,nomangle);
             else

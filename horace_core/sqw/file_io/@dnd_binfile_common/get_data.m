@@ -93,7 +93,7 @@ function [data_str,obj] = get_data (obj,varargin)
 [ok,mess,header_only,verbatim,hverbatim,~]=...
     parse_char_options(varargin,{'-head','-verbatim','-hverbatim'});
 if ~ok
-    error('SQW_FILE_IO:invalid_argument',...
+    error('HORACE:dnd_binfile_common:invalid_argument',...
         'get_data::Error: %s',mess);
 end
 header_only = header_only||hverbatim;
@@ -106,7 +106,7 @@ verbatim    = verbatim||hverbatim;
 % This first set of fields are required for all output options
 % ------------------------------------------------------------
 if ischar(obj.num_dim)
-    error('SQW_FILE_IO:runtime_error',...
+    error('HORACE:dnd_binfile_common:runtime_error',...
         'get_data: method called on un-initialized loader')
 end
 
