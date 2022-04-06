@@ -51,15 +51,15 @@ else
     d1d_arr=dnd(sqw1d_arr);
     d2d_arr=dnd(sqw2d_arr);
 
-    save(sqw1d_arr(1),sqw1d_name{1})
-    save(sqw1d_arr(2),sqw1d_name{2})
+    save(sqw1d_arr(1),sqw1d_name{1});
+    save(sqw1d_arr(2),sqw1d_name{2});
 
-    save(sqw2d_arr(1),sqw2d_name{1})
-    save(sqw2d_arr(2),sqw2d_name{2})
+    save(sqw2d_arr(1),sqw2d_name{1});
+    save(sqw2d_arr(2),sqw2d_name{2});
 
-    save(d1d_arr(1),d1d_name{1})
-    save(d1d_arr(2),d1d_name{2})
+    save(d1d_arr(1),d1d_name{1});
+    save(d1d_arr(2),d1d_name{2});
 
-    save(d2d_arr(1),d2d_name{1})
-    save(d2d_arr(2),d2d_name{2})
+    save(d2d_arr(1),d2d_name{1});
+    save(d2d_arr(2),d2d_name{2});
 end

@@ -57,7 +57,8 @@ classdef test_faccess_sqw_v3_3< TestCase
             
             % access to incorrect object
             f = @()(file_accessor.init());
-            assertExceptionThrown(f,'SQW_FILE_IO:invalid_argument');
+            assertExceptionThrown(f, ...
+                'HORACE:dnd_binfile_common:invalid_argument');
         end
         
         function obj = test_init_and_get(obj)
@@ -195,7 +196,9 @@ classdef test_faccess_sqw_v3_3< TestCase
             img_db_range = tob.get_img_db_range();
             assertElementsAlmostEqual(ref_range,img_db_range)
             pix_range = tob.get_pix_range();
-            assertElementsAlmostEqual(pix_range,img_db_range)
+            assertElementsAlmostEqual(pix_range,img_db_range, ...
+                'relative',5.e-6) % is this the accuracy of conversion from 
+            % double to single?
         end
         %
         function obj = test_save_load_sqwV3_3(obj)

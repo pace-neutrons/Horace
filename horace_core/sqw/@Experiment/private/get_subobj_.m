@@ -26,7 +26,11 @@ info = cell(4,1);
 if numel(obj.detector_arrays_) == obj.n_runs
     info{1} = obj.detector_arrays_(head_num);
 else
-    info{1} = obj.detector_arrays_(1);
+    if isempty(obj.detector_arrays_)
+        info{1} = [];
+    else
+        info{1} = obj.detector_arrays_(1);
+    end
 end
 info{2} = obj.instruments_(head_num);
 info{3} = obj.samples_(head_num);

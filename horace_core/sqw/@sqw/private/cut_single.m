@@ -28,7 +28,7 @@ DND_CONSTRUCTORS = {@d0d, @d1d, @d2d, @d3d, @d4d};
 return_cut = nargout > 0;
 
 % Accumulate image and pixel data for cut
-[s, e, npix, pix_out,unique_runid] = cut_accumulate_data_( ...
+[s, e, npix, pix_out,runid_contributed] = cut_accumulate_data_( ...
     w, tag_proj,targ_axes,keep_pix, log_level, return_cut);
 if isa(pix_out, 'pix_combine_info')
     % Make sure we clean up temp files.
@@ -48,12 +48,9 @@ if keep_pix
     wout.detpar = w.detpar;
     wout.data   = data_out;
 
-    %header_ind = arrayfun(@(id)w.runid_map(id),unique_runid);
-    [exp_info,runid_map] = w.experiment_info.get_subobj(header_ind,w.runid_map);
+    [exp_info,runid_map] = w.experiment_info.get_subobj(runid_contributed,w.runid_map);
     wout.experiment_info = exp_info;
     wout.runid_map       = runid_map;
-    %wout.runid_map = containers.Map(unique_runid,id);    
-    %id = 1:numel(header_ind);
 
 else
     dnd_constructor = DND_CONSTRUCTORS{numel(data_out.pax) + 1};

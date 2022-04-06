@@ -180,7 +180,7 @@ classdef  test_file_input < TestCase & common_sqw_file_state_holder
 
             s1_s=cut(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
             s1_f_h=cut(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
-            [ok,mess] = equal_to_tol(s1_s,s1_f_h,'ignore_str',1);
+            [ok,mess] = equal_to_tol(s1_s,s1_f_h,[1.e-7,1.e-7],'ignore_str',1);
             assertTrue(ok,['Memory based and file based cuts are different: ',mess])
 
             s1_s_h=cut(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
@@ -208,7 +208,7 @@ classdef  test_file_input < TestCase & common_sqw_file_state_holder
             [ok,mess] = equal_to_tol(s1_s,s1_s_s);
             assertTrue(ok,['Error in functionality: ',mess])
 
-            [ok,mess] = equal_to_tol(s1_s,s1_f_s,'ignore_str',1);
+            [ok,mess] = equal_to_tol(s1_s,s1_f_s,[1.e-7,1.e-7],'ignore_str',1);
             assertTrue(ok,['Error in functionality: ',mess])
 
 

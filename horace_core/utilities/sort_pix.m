@@ -37,10 +37,12 @@ options = {'-nomex','-force_mex','-force_double'};
 %[ok,mess,nomex,force_mex,missing]=parse_char_options(varargin,options);
 [ok,mess,nomex,force_mex,force_double,argi]=parse_char_options(varargin,options);
 if ~ok
-    error('HORACE:utilities:invalid_argument',['sort_pixels: invalid argument',mess])
+    error('HORACE:utilities:invalid_argument', ...
+        ['sort_pixels: invalid argument',mess])
 end
 if nomex && force_mex
-    error('HORACE:utilities:invalid_argument','sort_pixels: invalid argument -- nomex and force mex options can not be used together' )
+    error('HORACE:utilities:invalid_argument', ...
+        'sort_pixels: invalid argument -- nomex and force mex options can not be used together' )
 end
 if isempty(argi)
     use_given_pix_range = false;

@@ -57,7 +57,8 @@ opt = {'-head','-his','-hverbatim','-verbatim','-nopix'};
 [ok,mess,~,~,hverbatim,verbatim,~,argi] = parse_char_options(argi,opt);
 verbatim = hverbatim||verbatim;
 if ~ok
-    error('SQW_FILE_IO:invalid_argument',['get_dnd: ',mess]);
+    error('HORACE:sqw_binfile_common:invalid_argument', ...
+        ['get_dnd: ',mess]);
 end
 
 if verbatim

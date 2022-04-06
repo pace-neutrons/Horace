@@ -104,7 +104,7 @@ classdef Experiment < serializable
                     'Instruments must be a cell array or array of instruments. In fact it is %s',...
                     class(val));
             else
-                obj.instruments_ = val;
+                obj.instruments_ = val(:);
             end
             [~,~,obj] = check_combo_arg(obj);
         end
@@ -125,7 +125,7 @@ classdef Experiment < serializable
                     'Samples must be a cellarray or array of IX_samp objects . In fact it is %s',...
                     class(val));
             else
-                obj.samples_ = val;
+                obj.samples_ = val(:);
             end
             [~,~,obj] = check_combo_arg(obj);
         end
