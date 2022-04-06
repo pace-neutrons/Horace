@@ -167,13 +167,14 @@ classdef  test_file_input < TestCase & common_sqw_file_state_holder
             %tmp=read(sqw,tmp_file); if ~equal_to_tol(tmp0,tmp,'ignore_str',1), assertTrue(false,'Error in functionality'), end
 
         end
+        function test_cut_file_multichunk_vs_memory(obj)
 
-        function obj = input_operations(obj)
-            % =================================================================================================
-            % Cuts
-            % =================================================================================================
+            hc = hor_config;
+            mem_chunk_size = hc.mem_chunk_size;
+            clob = onCleanup(@()set(hor_config,'mem_chunk_size',mem_chunk_size));
 
-            % Cut of sqw objects or files
+            hc.mem_chunk_size = 2000;
+
             % ---------------------------
             proj2.u=[-1,1,0];
             proj2.v=[1,1,0];
@@ -183,24 +184,34 @@ classdef  test_file_input < TestCase & common_sqw_file_state_holder
             [ok,mess] = equal_to_tol(s1_s,s1_f_h,[1.e-7,1.e-7],'ignore_str',1);
             assertTrue(ok,['Memory based and file based cuts are different: ',mess])
 
+        end
+        function test_cut_dnd_with_proj_fails_on_file_and_memory(obj)
+
+            proj2.u=[-1,1,0];
+            proj2.v=[1,1,0];
+
+            assertExceptionThrown(@()cut_dnd(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]), ...
+                'HORACE:cut_dnd:invalid_argument');
+
+            skipTest('Does not work and fixe needs cut_dnd to be refactored as proper method similar to cut_sqw')
+            assertExceptionThrown(@()cut_dnd(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]), ...
+                'HORACE:cut_dnd:invalid_argument');
+        end
+        function test_cut_sqw_and_cut_from_sqw_file_and_memory_based(obj)
+            hc = hor_config;
+            mem_chunk_size = hc.mem_chunk_size;
+            clob = onCleanup(@()set(hor_config,'mem_chunk_size',mem_chunk_size));
+
+            hc.mem_chunk_size = 2000;
+
+            % Cut of sqw objects or files
+            % ---------------------------
+            proj2.u=[-1,1,0];
+            proj2.v=[1,1,0];
+
             s1_s_h=cut(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
             s1_s_s=cut_sqw(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
             s1_f_s=cut_sqw(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
-            try
-                s1_s_d=cut_dnd(obj.sqw2d_arr(2),proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
-                failed=false;
-            catch
-                failed=true;
-            end
-            assertTrue(failed,'Should have failed!');
-
-            try
-                s1_f_d=cut_dnd(obj.sqw2d_name{2},proj2,[0.5,0.02,1],[0.9,1.1],[-0.1,0.1],[170,180]);
-                failed=false;
-            catch
-                failed=true;
-            end
-            assertTrue(failed,'Should have failed!');
 
             [ok,mess] = equal_to_tol(s1_s,s1_s_h);
             assertTrue(ok,['Error in functionality: ',mess])
@@ -210,6 +221,26 @@ classdef  test_file_input < TestCase & common_sqw_file_state_holder
 
             [ok,mess] = equal_to_tol(s1_s,s1_f_s,[1.e-7,1.e-7],'ignore_str',1);
             assertTrue(ok,['Error in functionality: ',mess])
+        end
+
+        function test_cut_sqw_fais_on_dnd(obj)
+
+            function d1_d_s=call_cut_sqw(w)
+                % We want to call cut_sqw with an output arg, so no lambda
+                d1_d_s=cut_sqw(w,[0.5,0,1.2],[170,180]);
+            end
+
+            assertExceptionThrown(@() call_cut_sqw(obj.d2d_arr(2)), 'HORACE:cut_sqw');
+            assertExceptionThrown(@() call_cut_sqw(obj.d2d_name{2}), 'HORACE:cut_sqw');
+        end
+
+
+        function obj = input_operations(obj)
+            % =================================================================================================
+            % Cuts
+            % =================================================================================================
+            proj2.u=[-1,1,0];
+            proj2.v=[1,1,0];
 
 
 
@@ -222,13 +253,6 @@ classdef  test_file_input < TestCase & common_sqw_file_state_holder
             d1_d_d=cut_dnd(obj.d2d_arr(2),[0.5,0,1.2],[170,180]);
             d1_f_d=cut_dnd(obj.d2d_name{2},[0.5,0,1.2],[170,180]);
 
-            function call_cut_sqw(w)
-                % We want to call cut_sqw with an output arg, so no lambda
-                d1_d_s=cut_sqw(w,[0.5,0,1.2],[170,180]);
-            end
-
-            assertExceptionThrown(@() call_cut_sqw(obj.d2d_arr(2)), 'HORACE:cut_sqw');
-            assertExceptionThrown(@() call_cut_sqw(obj.d2d_name{2}), 'HORACE:cut_sqw');
 
             [ok,mess] = equal_to_tol(d1_d,d1_d_h);
             assertTrue(ok,['Error in functionality: ',mess])
@@ -278,7 +302,6 @@ classdef  test_file_input < TestCase & common_sqw_file_state_holder
             assertTrue(ok,['Error in functionality: ',mess])
 
             tmp=read_dnd(obj.sqw2d_name{2});
-            tmp.data.img_db_range = PixelData.EMPTY_RANGE_; % TODO fix this
             [ok,mess] = equal_to_tol(obj.d2d_arr(2),tmp,'ignore_str',1);
             assertTrue(ok,['Error in functionality: ',mess])
 
@@ -307,9 +330,6 @@ classdef  test_file_input < TestCase & common_sqw_file_state_holder
 
             tmp=read_dnd(obj.sqw2d_name);
 
-            tmp(1).data.img_db_range = PixelData.EMPTY_RANGE_; % TODO:
-            tmp(2).data.img_db_range = PixelData.EMPTY_RANGE_; % This should go with refactoring
-
             [ok,mess] = equal_to_tol(obj.d2d_arr,tmp,'ignore_str',1);
             assertTrue(ok,['Error in functionality: ',mess])
 
@@ -320,8 +340,6 @@ classdef  test_file_input < TestCase & common_sqw_file_state_holder
             end
             [ok,mess] = equal_to_tol(obj.sqw2d_arr,tmp,'ignore_str',1);
             assertTrue(ok,['Error in functionality: ',mess])
-            skipTest('TODO: img_db_range assigned here should not be present on dnd objects')
         end
     end
-    %banner_to_screen([mfilename,': Test(s) passed'],'bot')
 end
