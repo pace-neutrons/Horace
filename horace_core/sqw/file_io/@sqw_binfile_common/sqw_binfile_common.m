@@ -146,8 +146,8 @@ classdef sqw_binfile_common < sqw_file_interface
             % verify if the filename stored in the header is mangled with
             % run_id information or is it stored without this information.
 
-            fn_size = head_pos.filepath_pos_ - head_pos.filename_pos_;
-            fseek(obj.file_id_,head_pos.filename_pos_,'bof');
+            fn_size = head_pos(1).filepath_pos_ - head_pos(1).filename_pos_;
+            fseek(obj.file_id_,head_pos(1).filename_pos_,'bof');
             [mess,res] = ferror(obj.file_id_);
             if res ~= 0
                 error('HORACE:sqw_binfile_common:io_error',...

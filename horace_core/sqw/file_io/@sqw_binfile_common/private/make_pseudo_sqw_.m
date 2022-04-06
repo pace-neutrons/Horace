@@ -6,6 +6,7 @@ if nfiles>1
     heads = cell(1,nfiles);
     % matlab bug fixed in 2016b
     heads  = cellfun(@(x)gen_head(head,x),heads,'UniformOutput',false);
+    heads = [heads{:}];
 else
     heads = head;
 end
