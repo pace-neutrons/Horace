@@ -36,6 +36,7 @@ if ~(ignore_nan || ignore_inf)
     S_m= obj.S;
     Err_m = obj.ERR;
     det_m = obj.det_par;
+    line_notmasked = true(1,size(S_m,2));
     return
 end
 
