@@ -2,8 +2,6 @@ classdef const_blocks_map
     % Class to support the map of the constant blocks in sqw/dnd file,
     % where const blocks are the blocks which can be overwritten on hdd.
     %
-    %
-    %
     properties(Access =protected)
         cblocks_map_=[];
     end
@@ -34,9 +32,17 @@ classdef const_blocks_map
             {'sample_head_pos_','sample_pos_'},...         % sample header     | strictly necessary, but provided
             {'sample_pos_','instr_sample_end_pos_'},...    % sample block      |
             };                                             %                   | for consistency
+
+        % at construction, the map contains the keys, which describe the
+        % names of various data blocks stored in sqw file and values, which
+        % are the name of the initial position of the binary data and the
+        % name of the final position of the binary data.
+        % After 
         const_block_map_ = containers.Map(const_blocks_map.block_names_,...
             const_blocks_map.block_positions_);
-        % number of fields which must fit if upgrade is possible
+        % list of fields which may be ignored at upgrade (they will be
+        % overwritten) so thir position do not have to fit for upgrade to be
+        % possible
         not_fit_ ={'instr_head','instrument','sample_head','sample'}
         
     end

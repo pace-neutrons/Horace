@@ -92,9 +92,7 @@ for i=1:numel(fn)
                     return;
                 end
             else
-                %val = struct(val);
-                %[size_str,pos] = calculate_positions_(obj,val,input,pos);
-                error('STRUCT_SERIALIZER:unsupported_data_type',...
+                error('HORACE:sqw_serializer:runtime_error',...
                     'Unsupported type for: field %s, type: %s',...
                     field,type)
             end

@@ -334,8 +334,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                             obj(i).runid_map = containers.Map(id,id);
                         end
                     end
-
-
                 end
                 return
             end

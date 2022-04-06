@@ -37,7 +37,7 @@ function obj = common_init_logic_(obj,varargin)
 
 %
 if nargin<1
-    error('SQW_FILE_IO:invalid_argument',...
+    error('HORACE:dnd_binfile_common:invalid_argument',...
         'dnd_binfile_common::init method invoked without any input argument')
 end
 %
@@ -60,7 +60,7 @@ argi = argi(2:end);
 %
 if isa(input,'obj_init')
     if input.file_id<0
-        error('SQW_FILE_IO:invalid_argument',...
+        error('HORACE:dnd_binfile_common:invalid_argument',...
             'dnd_binfile_common::init method: get incorrect initialization information')
     end
     obj = obj.init_by_input_file(input);
@@ -72,7 +72,7 @@ elseif ischar(input) || isnumeric(input)
         else
             fname = fopen(input);
         end
-        error('SQW_FILE_IO:runtime_error',...
+        error('HORACE:dnd_binfile_common:runtime_error',...
             'dnd_binfile_common::init method: Can not read input file: %s\n Reason: %s',...
             fname,mess);
     end
@@ -84,7 +84,7 @@ else
         % still needed check against an obj already defined and new object
         % used as upgrade
         if ~ischar(obj.num_dim) && obj.file_id_ > 0
-            error('SQW_FILE_IO:runtime_error',...
+            error('HORACE:dnd_binfile_common:runtime_error',...
                 'Upgrade of existing object with new sqw/dnd object is not yet implemented')
         end
         obj = obj.init_from_sqw_obj(input);
@@ -97,7 +97,7 @@ else
         end
         return;
     else
-        error('SQW_FILE_IO:invalid_argument',...
+        error('HORACE:dnd_binfile_common:invalid_argument',...
             'dnd_binfile_common::init method: input can be only sqw/dnd object or sqw file name')
     end
 end

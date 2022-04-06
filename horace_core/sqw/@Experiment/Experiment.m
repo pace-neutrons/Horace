@@ -2,9 +2,9 @@ classdef Experiment < serializable
     %EXPERIMENT Container object for all data describing the Experiment
 
     properties(Access=private)
-        instruments_ = {}; %IX_inst.empty;
+        instruments_ = {IX_null_inst()};
         detector_arrays_ = []
-        samples_ = {}; % IX_samp.empty;
+        samples_ = {IX_null_sample()}; % IX_samp.empty;
         expdata_ = IX_experiment();
 
         % property which informs about experiment class validity
@@ -273,27 +273,39 @@ classdef Experiment < serializable
             head = rmfield(head,{'instrument','sample'});
         end
         %
-        function oldhdrs = convert_to_old_headers(obj,header_num)
+        function oldhdrs = convert_to_old_headers(obj,header_num,varargin)
             % convert Experiment into the structure suitable to be
             % stored in old binary sqw files (up to version 3.xxx)
             %
             % this structure is also used in number of places of the old
             % code where, e.g., structure sorting is implemented but this
             % usage is deprecated and will be removed in a future.
+            % 
+            % Optional Inputs:
+            % header_num -- if provided, convert only experiment data
+            %               corresponding to header number provided
+            % '-nomangle'-- if provided, do not modify filename with 
+            %               additional run_id information (normally assumed
+            %               "false" when writing new file or "true" when
+            %               upgrading file format
             %
+            [ok,mess,nomangle] = parse_char_options(varargin,{'-nomangle'});
+            if ~ok
+                error('HORACE:Experiment:invalid_argument',mess);
+            end
             samp = obj.get_unique_samples();
             if iscell(samp)
                 samp = samp{1};
             end
             if nargin == 2
                 oldhdrs = obj.expdata_(header_num).convert_to_binfile_header( ...
-                    samp.alatt,samp.angdeg);
+                    samp.alatt,samp.angdeg,nomangle);
             else
                 nruns = obj.n_runs;
                 oldhdrs = cell(nruns,1);
                 for i=1:nruns
                     oldhdrs{i} = obj.expdata_(i).convert_to_binfile_header( ...
-                        samp.alatt,samp.angdeg);
+                        samp.alatt,samp.angdeg,nomangle);
                 end
             end
         end

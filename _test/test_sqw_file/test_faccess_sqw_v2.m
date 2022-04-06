@@ -23,7 +23,6 @@ classdef test_faccess_sqw_v2< TestCase
 
     end
 
-
     methods
 
         %The above can now be read into the test routine directly.

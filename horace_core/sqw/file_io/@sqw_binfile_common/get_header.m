@@ -87,14 +87,23 @@ if any(isnan(runids)) % this also had been done in gen_sqw;
     % It have setup update_runlabels to true, which also made
     % duplicated headers unique
     runids = header_numbers;
+    runids_redefined = true;
 else
     unique_id = unique(runids);
     if numel(unique_id) ~= numel(header)
         runids = header_numbers;
+        runids_redefined = true;                    
+    else
+        runids_redefined = false;            
     end
 end
 
 runid_map = containers.Map(runids,header_numbers);
+if runids_redefined
+    for i=1:numel(runids)
+        exper(i).run_id = runids(i);
+    end
+end
 exp_info = Experiment([],inst,samp,exper);
 
 

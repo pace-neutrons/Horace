@@ -59,7 +59,8 @@ function data_form = get_data_form_(obj,varargin)
 %   data.pix        A PixelData object
 %
 
-[ok,mess,pix_only,nopix,head,argi] = parse_char_options(varargin,{'-pix_only','-nopix','-header'});
+[ok,mess,pix_only,nopix,head,argi] = parse_char_options(varargin, ...
+    {'-pix_only','-nopix','-header'});
 if ~ok
     error('SQW_BINFILE_COMMON:invalid_argument',mess);
 end

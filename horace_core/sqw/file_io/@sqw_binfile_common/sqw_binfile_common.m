@@ -51,6 +51,10 @@ classdef sqw_binfile_common < sqw_file_interface
         %
         eof_pix_pos_=0;
         %
+        % identify the format of the data file.If true, filenames stored
+        % with headers are mangled with run_id-s. If false, they are clean
+        % filenames. Stored in file
+        contains_runid_in_header_ =[];
     end
     properties(Dependent)
         % the position of pixels information in the file. Used to organize
@@ -71,40 +75,17 @@ classdef sqw_binfile_common < sqw_file_interface
     end
     %
     methods(Access = protected)
-        %         function hd = modify_header_with_runid(obj,hd,runid_map)
-        %             % HACK: will go in next versions of sqw file format
-        %             % Store scrambled run_id map not to guess it in a future. In new file
-        %             % formats, runid map will be stored separately
-        %             if ~obj.upgrade_headers_ % should not modify the headers if the
-        %                 % file is open in upgrade mode
-        %                 return;
-        %             end
-        %             keys = runid_map.keys;
-        %             val  = runid_map.values;
-        %             val  = [val{:}];
-        %             for i=1:numel(hd)
-        %                 this_val = ismember(val,i); %found the value->key transformation
-        %                 if sum(this_val)>1  % should be only one value. Will rightly fail if more
-        %                     error('HORACE:put_headers:runtime_error',...
-        %                         'More then one run_id corresponds to a header. Error in gen_sqw algorithm')
-        %                 end
-        %                 id = keys{this_val};
-        %                 hd{i}.filename = [hd{i}.filename,'$id$',num2str(id)];
-        %             end
-        %
-        %         end
-        %
         function obj=init_from_sqw_obj(obj,varargin)
             % initialize the structure of sqw file using sqw object as input
             %
             % method should be overloaded or expanded by children if more
             % complex then common logic is used
             if nargin < 2
-                error('SQW_FILE_IO:runtime_error',...
+                error('HORACE:sqw_binfile_common:runtime_error',...
                     'init_from_sqw_obj method should be invoked with an existing sqw object as first input argument');
             end
             if ~(isa(varargin{1},'sqw') || is_sqw_struct(varargin{1}))
-                error('SQW_FILE_IO:invalid_argument',...
+                error('HORACE:sqw_binfile_common:invalid_argument',...
                     'init_from_sqw_obj method should be initiated by an sqw object');
             end
             %
@@ -159,6 +140,28 @@ classdef sqw_binfile_common < sqw_file_interface
                 keep_internals = false;
             end
             [obj,missinig_fields] = copy_contents_(obj,other_obj,keep_internals);
+        end
+        %
+        function obj = check_header_mangilig(obj,head_pos)
+            % verify if the filename stored in the header is mangled with
+            % run_id information or is it stored without this information.
+
+            fn_size = head_pos.filepath_pos_ - head_pos.filename_pos_;
+            fseek(obj.file_id_,head_pos.filename_pos_,'bof');
+            [mess,res] = ferror(obj.file_id_);
+            if res ~= 0
+                error('HORACE:sqw_binfile_common:io_error',...
+                    '%s: Reason:  Error moving to the header filename location',mess)
+            end
+
+            bytes = fread(obj.file_id_,fn_size,'char');
+            fname = char(bytes');
+            mangle_pos = strfind(fname,'$id$');
+            if isempty(mangle_pos) %contains is available from 16b only
+                obj.contains_runid_in_header_ = false;
+            else
+                obj.contains_runid_in_header_ = true;
+            end
         end
         %
         function varargout = init_v3_specific(~)
@@ -450,9 +453,8 @@ classdef sqw_binfile_common < sqw_file_interface
 
         function sq = make_pseudo_sqw(nfiles)
             % generate pseudo-contents for sqw file, for purpose of
-            % calculating fields posistions while upgrading file format
+            % calculating fields positions while upgrading file format
             sq = make_pseudo_sqw_(nfiles);
         end
     end
 end
-

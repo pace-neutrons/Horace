@@ -85,6 +85,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             % initialize the structure of faccess class using opened
             % sqw file as input
             obj= get_sqw_footer_(obj,varargin{:});
+            obj = check_header_mangilig(obj,obj.header_pos_info_);
         end
         %
         function obj=init_from_sqw_obj(obj,varargin)

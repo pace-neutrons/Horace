@@ -29,7 +29,8 @@ end
 %
 if ~ok
     mess = regexprep(mess,'[\\]','/');
-    error('SQW_BINFILE_COMMON:invalid_arguments','should_load function: %s',mess);
+    error('HORACE:dnd_binfile_common:invalid_argument', ...
+        'should_load function: %s',mess);
 end
 
 [header,fh] = dnd_file_interface.get_file_header(full_data_name);

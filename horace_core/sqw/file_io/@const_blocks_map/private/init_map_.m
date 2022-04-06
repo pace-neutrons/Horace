@@ -1,5 +1,6 @@
 function bsm = init_map_(obj,pos_info)
-% Calculate map containing the positions 
+% Calculate map containing the positions of the blocks, which one may
+% change on hdd not rewriting other data blocks
 %
 bsm  = containers.Map();
 
@@ -15,7 +16,7 @@ for i=1:numel(keys2check )
     end
     [ok,s2] = get_value(pos_info,fld_range{2});
     if ~ok
-        error('SQW_FILE_IO:invalid_argument',...
+        error('HORACE:const_block_map:invalid_argument',...
             'field %s for block %s is not among input positions structure',fld_range{2},theKey);
     end
     if numel(s1) == 1
