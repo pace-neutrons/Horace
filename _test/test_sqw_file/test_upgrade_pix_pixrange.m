@@ -48,7 +48,6 @@ classdef test_upgrade_pix_pixrange< TestCase
             pix2 = d2.pix;
             d2.pix = PixelData();
             assertEqual(d1,d2);
-            assertEqual(ld1.get_img_db_range(),ld0.get_img_db_range());
             
             pix2.recalc_pix_range();
             
@@ -87,7 +86,6 @@ classdef test_upgrade_pix_pixrange< TestCase
             pix2 = d2.pix;
             d2.pix = PixelData();
             assertEqual(d1,d2);
-            assertEqual(ld1.get_img_db_range(),ld0.get_img_db_range());
             
             pix2.recalc_pix_range();
             
@@ -101,7 +99,6 @@ classdef test_upgrade_pix_pixrange< TestCase
             % and ensure it set it up.
             modify_pix_ranges(test_file,'use_urange');
             ld1 = ld1.init(test_file);
-            assertEqual(ld1.get_pix_range(),ld0.get_img_db_range());
             ld1.delete();
         end
         %
