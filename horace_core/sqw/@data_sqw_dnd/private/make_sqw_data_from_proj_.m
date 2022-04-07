@@ -51,6 +51,9 @@ if isstruct(proj_in)
             data_defined(i) = true;
         end
     end
+    if isfield(proj_in,'pix')
+        obj.pix = proj_in.pix;
+    end
 else
 end
 sz = obj.dims_as_ssize;
@@ -60,4 +63,5 @@ for i = 1:numel(data_fields)
         obj.(data_fields{i}) = zeros(sz);
     end
 end
+
 

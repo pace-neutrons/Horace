@@ -13,7 +13,7 @@ function obj = put_instr_sampl_info_(obj,instrument_or_sample,varargin)
 %
 [ok,message,has_instrument,has_sample,argi] = parse_char_options(varargin,{'instrument','sample'});
 if ~ok
-    error('SQF_FILE_IO:invalid_argument',message)
+    error('HORACE:faccess_sqw_v3:invalid_argument',message)
 end
 
 [inst_obj,argi]=parse_inpuf_for_is(obj,has_instrument,'instrument',instrument_or_sample,varargin,argi);

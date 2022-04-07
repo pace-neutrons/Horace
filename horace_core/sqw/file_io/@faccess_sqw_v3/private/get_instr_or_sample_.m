@@ -14,7 +14,7 @@ function [res,obj] = get_instr_or_sample_(obj,field_name,varargin)
 
 [ok,mess,get_all,other]=parse_char_options(varargin,{'-all'});
 if ~ok
-    error('SQW_FILE_IO:invalid_argument',...
+    error('HORACE:faccess_sqw_v3:invalid_argument',...
         'get_%s, error: %s',field_name,mess )
 end
 res_block = get_all_instr_or_samples_(obj,field_name);
@@ -37,11 +37,11 @@ end
 if ~isempty(other)
     n_inst = other{1};
     if ~isnumeric(n_inst)
-        error('SQW_FILE_IO:invalid_argument',...
+        error('HORACE:faccess_sqw_v3:invalid_argument',...
             'get_%s, error: %s',field_name,mess )
     end
     if n_inst<1 || n_inst > obj.num_contrib_files
-        error('FACCESS_SQW_V3:invalid_argument',...
+        error('HORACE:faccess_sqw_v3:invalid_argument',...
             'get_%s, Requested the %s N%d when only %d %s-s are availible',...
             field_name,field_name,n_inst,obj.num_contrib_files,field_name)
     end
@@ -76,7 +76,7 @@ if isempty(old_matlab)
 end
 
 if ischar(obj.num_contrib_files_)
-    error('FACCESS_SQW_V3:runtime_error',...
+    error('HORACE:faccess_sqw_v3:runtime_error',...
         'get_instr_or_sample_ for %s called on non-initialized object',...
         field_name);
 end
@@ -96,12 +96,13 @@ else
     fseek(obj.file_id_,obj.(data_start_name),'bof');
 end
 [mess,res] = ferror(obj.file_id_);
-if res ~=0; error('SQW_FILE_IO:io_error',...
-        'Error moving to the %s position. Reason: %s',field_name,mess); end
+if res ~=0; error('HORACE:faccess_sqw_v3:io_error',...
+        'Error moving to the %s position. Reason: %s',field_name,mess);
+end
 
 bytes = fread(obj.file_id_,data_size,'*uint8');
 [mess,res] = ferror(obj.file_id_);
-if res ~=0; error('SQW_FILE_IO:io_error',...
+if res ~=0; error('HORACE:faccess_sqw_v3:io_error',...
         'Error readiong the data for field %s. Reason: %s',field_name,mess); end
 
 form = obj.get_si_form(field_name);
