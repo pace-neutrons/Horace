@@ -103,7 +103,7 @@ end
 
 % Construct the new header Experiment object
 % update with expdata, which maybe should go in the Experiment constructor
-obj.insruments = instruments;
+obj.instruments = instruments;
 obj.samples = samples;
 obj.expdata = expdata;
 

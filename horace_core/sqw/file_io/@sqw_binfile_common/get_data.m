@@ -127,7 +127,7 @@ data_str.serial_name = 'data_sqw_dnd'; % convert structure, stored in
                         %  recovering using serializable class methods, as
                         %  data_sqw_dnd is serializable
 data = serializable.from_struct(data_str);
-if ~opts.nopix
+if ~opts.nopix && obj.npixels>0
     data.pix = PixelData(obj, opts.pixel_page_size,~noupgrade);
     %
 end

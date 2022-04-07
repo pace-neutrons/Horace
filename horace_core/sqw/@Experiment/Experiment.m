@@ -51,7 +51,11 @@ classdef Experiment < serializable
                     obj = S;
                     return;
                 elseif isstruct(S)
-                    obj =Experiment.from_struct(S);
+                    if isfield(S,'efix') && isfield(S,'emode')
+                        obj = build_from_old_headers_(obj,{S});                        
+                    else
+                        obj =Experiment.from_struct(S);
+                    end
                 elseif iscell(S)
                     obj = build_from_old_headers_(obj,S);
                 else
