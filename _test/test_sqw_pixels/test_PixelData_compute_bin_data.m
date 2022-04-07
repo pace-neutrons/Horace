@@ -8,8 +8,8 @@ classdef test_PixelData_compute_bin_data < TestCase & common_pix_class_state_hol
         ALL_IN_MEM_PG_SIZE = 1e12;
         FLOAT_TOLERANCE = 4.75e-4;
         
-        test_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
-        test_sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw';
+        test_sqw_file_path = '../common_data/sqw_1d_1.sqw';
+        test_sqw_2d_file_path = '../common_data/sqw_2d_1.sqw';
         ref_npix_data = [];
         ref_s_data = [];
         ref_e_data = [];

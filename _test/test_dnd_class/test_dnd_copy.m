@@ -3,7 +3,7 @@ classdef test_dnd_copy < TestCase
     properties
         sqw_file_2d_name = 'sqw_2d_1.sqw';
         dnd_file_2d_name = 'dnd_2d.sqw';
-        test_file_path = '../test_sqw_file/';
+        test_file_path = '../common_data/';
 
         test_sqw_2d_fullpath = '';
         test_dnd_2d_fullpath = '';

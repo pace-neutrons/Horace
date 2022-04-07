@@ -5,8 +5,8 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
         horace_config;
         ALL_IN_MEM_PG_SIZE = 1e12;
         
-        test_sqw_file_path = '../test_sqw_file/sqw_2d_1.sqw';
-        test_dnd_file_path = '../test_sqw_file/dnd_2d.sqw';
+        test_sqw_file_path = '../common_data/sqw_2d_1.sqw';
+        test_dnd_file_path = '../common_data/dnd_2d.sqw';
         
         dnd_2d;
         sqw_2d;

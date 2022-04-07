@@ -1,4 +1,4 @@
-classdef  test_file_input < TestCase & common_sqw_file_state_holder
+classdef  test_mem_file_cut_and_filebased_construction < TestCase & common_sqw_file_state_holder
     % Tests functionality of methods that can take object or file input
     %
     % Author: T.G.Perring
@@ -17,7 +17,7 @@ classdef  test_file_input < TestCase & common_sqw_file_state_holder
     end
 
     methods
-        function obj = test_file_input(varargin)
+        function obj = test_mem_file_cut_and_filebased_construction(varargin)
             if nargin > 0
                 name = varargin{1};
             else
@@ -77,7 +77,10 @@ classdef  test_file_input < TestCase & common_sqw_file_state_holder
             obj.d2d_name{2}=fullfile(tmp_dir,'test_file_input_d2d_2.d2d');
 
             % now prepare source data objects
-            source=fileparts(which(mfilename));
+            % now prepare source data objects
+            test_root=fileparts(fileparts(which(mfilename)));
+            source = fullfile(test_root,'common_data');
+            %
             sqw_1d_source = {fullfile(source,'sqw_1d_1.sqw'),...
                 fullfile(source,'sqw_1d_2.sqw')};
 

@@ -2,7 +2,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
     
     properties
         sqw_file_1d_name = 'sqw_1d_1.sqw';
-        sqw_files_path = '../test_sqw_file/';
+        sqw_files_path = '../common_data/';
         
         test_sqw_1d_fullpath = '';
         test_dir

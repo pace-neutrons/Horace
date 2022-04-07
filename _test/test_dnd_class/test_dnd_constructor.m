@@ -6,7 +6,7 @@ classdef test_dnd_constructor < TestCase
         SQW_FILE_2D_NAME = 'sqw_2d_1.sqw';
         SQW_FILE_4D_NAME = 'sqw_4d.sqw';
 
-        TEST_FILES_PATH = '../test_sqw_file/';
+        TEST_FILES_PATH = '../common_data/';
     end
 
     properties

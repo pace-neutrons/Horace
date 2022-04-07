@@ -5,7 +5,7 @@ classdef test_run_inspector< TestCase
 
     properties
         this_dir;
-        sqw_source = 'test_sqw_file/sqw_4d.sqw'
+        sqw_source = 'common_data/sqw_4d.sqw'
 
         source_sqw4D;
         source_sqw2D;
