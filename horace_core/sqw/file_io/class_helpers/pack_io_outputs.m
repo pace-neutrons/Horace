@@ -13,11 +13,7 @@ boss_type = type_list{1};
 same_types = cellfun(@(x)strcmp(boss_type,x),type_list,'UniformOutput',true);
 if n_outputs == 1
     if all(same_types)    % return array of the same type classes
-        boss_class = feval(boss_type);
-        out = repmat(boss_class,1,n_inputs);
-        for i=1:n_inputs
-            out(i) = argin{i};
-        end
+        out = [argin{:}];
         argout = {out};
     else % return cellarray of heterogeneous types
         argout = {argin};

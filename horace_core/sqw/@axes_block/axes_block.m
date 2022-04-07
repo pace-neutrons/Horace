@@ -97,6 +97,10 @@ classdef axes_block < serializable
         % defaults are taken from the given image range which should be
         % properly prepared
         obj = build_from_input_binning(cur_img_range_and_steps,pbin);
+
+        %Create bin boundaries for integration and plot axes from requested limits and step sizes
+        % (used by cut_dnd)
+        [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
         %
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
@@ -118,7 +122,6 @@ classdef axes_block < serializable
             % is_within  -- logical array of size numel(bins)-1
             [any_within,is_within]=bins_in_1Drange_(bins,range);
         end
-
         %
         function img_range = calc_img_db_range(ax_data)
             % LEGACY FUNCTION, left for compatibility with old binary sqw

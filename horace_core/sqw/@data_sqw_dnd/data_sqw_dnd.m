@@ -254,10 +254,11 @@ classdef data_sqw_dnd < axes_block
                 npix  = [];
             end
         end
-
+        %
         function range = get.img_db_range(obj)
             range  = obj.img_range_;
         end
+        %
         function obj = set.img_db_range(obj,val)
             % this property should not be used, as the change of this
             % property on defined object would involve whole pixels
