@@ -31,6 +31,19 @@ classdef test_IX_experiment <  TestCase
             exp.run_id = NaN;
             assertEqual(exp,exp_rec);
         end
+        function test_get_runids(~)
+            exp = [IX_experiment(),IX_experiment()];
+            exp(1).filename = 'aa';
+            exp(1).filepath = 'bc';
+            exp(1).run_id = 10;
+            exp(2).filename = 'bb';
+            exp(2).filepath = 'de';
+            exp(2).run_id = 20;
+
+            ids = exp.get_run_ids();
+            assertEqual(ids,[10,20]);
+
+        end
 
         function test_convert_to_and_from_binfile_headers_empty_fn(~)
             exp = IX_experiment();
