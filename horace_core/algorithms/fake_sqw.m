@@ -117,7 +117,7 @@ if numel(en)>1
 else
     nfiles_in=[];        % no. datasets determine from length of arrays of other parameters
 end
-[ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
+[ok,mess,efix,emode,lattice]=gen_sqw_check_params...
     (nfiles_in,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
 if ~ok, error(mess), end
 if efix(1)==0, error('HORACE:fake_sqw:invalid_argument',...
@@ -133,7 +133,7 @@ if ~ischar(par_file) && (isnumeric(par_file) )
             'Fake sqw with q-range input can not generate mutliple sqw files');
     end
     % now the par file is the
-    par_file = build_det_from_q_range(par_file,efix,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
+    par_file = build_det_from_q_range(par_file,efix,lattice);
 end
 
 if return_sqw_obj
@@ -167,8 +167,7 @@ if ~ok, error(mess), end
 %det=get_par(par_file);
 %detdcn=calc_detdcn(det);
 %ndet=size(det.x2,2);
-run_files = rundatah.gen_runfiles(spe_file,par_file,efix,emode,alatt,angdeg,...
-    u,v,psi,omega,dpsi,gl,gs,'-allow_missing');
+run_files = rundatah.gen_runfiles(spe_file,par_file,efix,emode,lattice,'-allow_missing');
 run_file = run_files{1};
 
 ndet = run_file.n_detectors;

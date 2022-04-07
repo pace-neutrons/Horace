@@ -55,6 +55,8 @@ foreach(_test_dir ${TEST_DIRECTORIES})
         set(TEST_TIMEOUT_LENGTH "2000")  # 33.3 minutes
     elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_parpool")
         set(TEST_TIMEOUT_LENGTH "2100")  # 35 minutes
+    elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_herbert")
+        set(TEST_TIMEOUT_LENGTH "2100")  # 35 minutes. It strange thing happens on Jenkins. On laptop its ~4min
     elseif("${_test_dir}" STREQUAL "test_tobyfit")
         set(TEST_TIMEOUT_LENGTH "3000")  # 50 minutes
     elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow")

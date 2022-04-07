@@ -7,15 +7,11 @@ function obj = reopen_to_write(obj,filename)
 % or
 %>>obj= obj.reopen_to_write(filename);
 % Where first form reopens/opens file with filename which already set up in
-% the object (e.g. object has been initialized to read data) 
+% the object (e.g. object has been initialized to read data)
 % and the second form sets up new filename and opens it in write mode
 %
-% 
+%
 % If file with filename exist, it will be overwritten
-%
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
 %
 if ~exist('filename','var')
     filename = '';
@@ -23,12 +19,12 @@ else
     if isnumeric(filename)
         [fname,acc] = fopen(filename);
         if isempty(fname)
-            error('SQW_FILE_IO:invalid_argument',...
+            error('HORACE:dnd_binfile_common:invalid_argument',...
                 'reopen_to_write: wrong file handle specified as input')
-            
+
         end
         if ~ismember(acc,{'wb+','rb+'})
-            error('SQW_FILE_IO:invalid_argument',...
+            error('HORACE:dnd_binfile_common:invalid_argument',...
                 'reopen_to_write: get input file handle with incorrect file access for file %s',fname);
         end
         obj=fclose_file(obj);
@@ -40,15 +36,15 @@ else
         return;
     else
         if ~ischar(filename)
-            error('SQW_FILE_IO:invalid_argument',...
+            error('HORACE:dnd_binfile_common:invalid_argument',...
                 'reopen_to_write: wrong type variable "filename" specified as input')
-            
+
         end
     end
 end
 
 if isempty(obj.filename) && isempty(filename)
-    error('SQW_FILE_IO:runtime_error',...
+    error('HORACE:dnd_binfile_common:runtime_error',...
         'reopen_to_write: can not reopen file if filename is not defined')
 end
 
@@ -75,12 +71,14 @@ else
 end
 %
 if fid<1
-    error('SQW_FILE_IO:runtime_error',...
+    error('HORACE:dnd_binfile_common:runtime_error',...
         'DND_BINFILE_COMMON::reopen_to_write: error reopening file %s in write access mode',...
         fname)
 end
-obj.file_id_ = fid;
-obj.file_closer_ = onCleanup(@()obj.fclose());
+obj.file_id_      = fid;
+obj.file_closer_  = onCleanup(@()obj.fclose());
+% 
+obj.upgrade_headers_ = false;
 
 
 function obj=fclose_file(obj)
@@ -91,6 +89,3 @@ if obj.file_id_>0
         obj = obj.fclose();
     end
 end
-
-
-

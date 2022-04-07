@@ -198,26 +198,28 @@ classdef test_faccess_sqw_v2< TestCase
             samplef  = fullfile(spath,'w2d_qq_small_sqw.sqw');
 
 
-            ts = faccess_sqw_v2(samplef);
-            tob_sqw = ts.get_sqw('-verbatim');
+            source_sqw = faccess_sqw_v2(samplef);
+            tob_sqw = source_sqw.get_sqw('-verbatim');
 
-            tt = faccess_sqw_v2();
+            fresh_sqw = faccess_sqw_v2();
 
             tf = fullfile(tmp_dir,'test_put_sqw_v2.sqw');
             clob = onCleanup(@()delete(tf));
 
-            tt = tt.init(tob_sqw);
-            tt = tt.set_file_to_update(tf);
+            fresh_sqw = fresh_sqw.init(tob_sqw);
+            fresh_sqw = fresh_sqw.set_file_to_update(tf);
 
 
-            tt=tt.put_sqw();
+            fresh_sqw=fresh_sqw.put_sqw();
             assertTrue(exist(tf,'file')==2)
-            tt.delete();
+            fresh_sqw.delete();
             %
             sz1 = obj.fl_size(samplef);
             sz2 = obj.fl_size(tf);
             %
-            assertEqual(sz1,sz2);
+            % new file has been upgraded with runid_map so its size have
+            % increased
+            assertEqual(sz1+numel('$id$1'),sz2);
             %
             tn = faccess_sqw_v2(tf);
             rec_sqw = tn.get_sqw('-ver');

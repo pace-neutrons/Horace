@@ -8,20 +8,19 @@ function rd=rundata_from_sqw_(sqw_obj)
 %
 %
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
+
 
 %
 data = sqw_obj.data;
-header = sqw_obj.experiment_info;
+exp_inf = sqw_obj.experiment_info;
 detpar = sqw_obj.my_detpar();
 %
-if (iscell(header) && numel(header) > 1) || (isa(header,'Experiment') && numel(header.expdata)>1)
-    error('RUNDATAH:invalid_argument',...
+if (iscell(exp_inf) && numel(exp_inf) > 1) || (isa(exp_inf,'Experiment') && numel(exp_inf.expdata)>1)
+    error('HORACE:rundata_from_sqw:invalid_argument',...
         ['a rundatah class can be constructed from an sqw, build from single data file only.'...
         ' Use sqw.split to divide sqw into array of single dataset sqw objects']);
 end
-en     = header.expdata(1).en;
+en     = exp_inf.expdata(1).en;
 ne=numel(en)-1;    % number of energy bins
 ndet0=numel(detpar.group);% number of detectors
 
@@ -31,7 +30,8 @@ group=unique(tmp(:,1));   % unique detector group numbers in the data in numeric
 
 % Now check that the data is complete i.e. no missing pixels
 if size(tmp,1)~=ne*numel(group)
-    error('Data for one or more energy bins is missing in the sqw data')
+    error('HORACE:rundata_from_sqw:runtime_error',...    
+    'Data for one or more energy bins is missing in the sqw data')
 end
 
 % Get the indexing of detector group in the detector information
@@ -44,30 +44,33 @@ err(:,ind)=sqrt(reshape(tmp(:,4),ne,numel(group)));
 
 
 lattice = oriented_lattice();
-lattice.alatt = header.samples{1}.alatt;
-lattice.angdeg = header.samples{1}.angdeg;
-lattice.u      = header.expdata(1).cu;
-lattice.v      = header.expdata(1).cv;
-lattice.psi    = header.expdata(1).psi*(180/pi);
-lattice.omega = header.expdata(1).omega*(180/pi);
-lattice.dpsi  = header.expdata(1).dpsi*(180/pi);
-lattice.gl    = header.expdata(1).gl*(180/pi);
-lattice.gs    = header.expdata(1).gs*(180/pi);
+lattice.alatt = exp_inf.samples{1}.alatt;
+lattice.angdeg = exp_inf.samples{1}.angdeg;
+lattice.u      = exp_inf.expdata(1).cu;
+lattice.v      = exp_inf.expdata(1).cv;
+lattice.psi    = exp_inf.expdata(1).psi*(180/pi);
+lattice.omega = exp_inf.expdata(1).omega*(180/pi);
+lattice.dpsi  = exp_inf.expdata(1).dpsi*(180/pi);
+lattice.gl    = exp_inf.expdata(1).gl*(180/pi);
+lattice.gs    = exp_inf.expdata(1).gs*(180/pi);
 
 rd = rundatah();
-
+rd.run_id = unique(data.pix.run_idx);
 rd.lattice = lattice;
 % Set lattice before loader, to have efix redefined on rundata rather then
 % in the loader
-rd.efix = header.expdata(1).efix;
+rd.efix = exp_inf.expdata(1).efix;
 % will define loader
 rd.det_par = detpar;
 
-rd.emode   = header.expdata(1).emode;
+rd.emode   = exp_inf.expdata(1).emode;
 
 rd.en  = en;
 rd.S   = signal;
 rd.ERR = err;
+
+rd.sample = exp_inf.samples{1};
+rd.instrument = exp_inf.instruments{1};
 
 
 
