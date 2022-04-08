@@ -1,4 +1,4 @@
-function test_set_instrument_data_2()
+function test_set_instrument_data_get_head()
 
 % Set up names of data files
 data_dir = fileparts(which(mfilename));
@@ -52,8 +52,7 @@ h_file_s=head_horace(data_inst_ref);
 h_file_s = rmfield(h_file_s,{'npixels','nfiles'});
 
 h_file=head_horace(data_inst_ref,'-full');
-data = h_file.data.to_bare_struct();
-data = rmfield(data,{'pix','nonorthogonal'});
+data = h_file.data.get_dnd_data('+');
 assertEqual(data,h_file_s)
 
 
