@@ -1,8 +1,7 @@
 classdef test_rundata_get< TestCase
     %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
     %
-    
+
     properties
         the_run; % some defined rundata class instance
         run2_work_with = []; % the copy of sample run to modify by particular tests
@@ -13,14 +12,14 @@ classdef test_rundata_get< TestCase
         function fn=f_name(this,short_filename)
             fn = fullfile(this.test_data_path,short_filename);
         end
-        
+
         %
         function this=test_rundata_get(name)
             this = this@TestCase(name);
             % define default rundata class instance
             [~,tdp] = herbert_root();
             this.test_data_path = tdp;
-            
+
             this.the_run = rundata(fullfile(this.test_data_path,'MAP11014.nxspe'));
             % from 01/04/2017 rundata needs minimal non-default oriented lattice to use
             % get_rundata method if lattice is not defined in the file
@@ -28,7 +27,7 @@ classdef test_rundata_get< TestCase
         end
         function this=setUp(this)
             this.log_level = get(herbert_config,'log_level');
-            set(herbert_config,'log_level',-1,'-buffer');            
+            set(herbert_config,'log_level',-1,'-buffer');
             this.run2_work_with = this.the_run;
 
         end
@@ -36,8 +35,8 @@ classdef test_rundata_get< TestCase
             set(herbert_config,'log_level',this.log_level,'-buffer');
             this.run2_work_with = [];
         end
-        
-        
+
+
         % tests themself
         function test_undefined_loader(~)
             % empty rundata class instance can not provide data
@@ -63,7 +62,7 @@ classdef test_rundata_get< TestCase
             % this form asks for all run data to be obtained;
             [S,Err,en,efix,psi,detectors]=get_rundata( ...
                 this.run2_work_with,'S','ERR','en','efix','psi','det_par');
-            
+
             assertEqual(size(S,1),size(en,1)-1);
             assertEqual(size(S),size(Err));
             assertEqual(800,efix);
@@ -83,16 +82,16 @@ classdef test_rundata_get< TestCase
             assertTrue(all(ismember({'filename','filepath','x2','phi','azim','width','height','group'},fields(dp))));
             assertTrue(all(ismember(fields(dp),{'filename','filepath','x2','phi','azim','width','height','group'})));
         end
-        
+
         function test_not_all_requested_data_present(this)
             % this form asks for all run data to be obtained;
             f = @()get_rundata(this.run2_work_with,'-nonan');
             % but not all data describing the crystall are present in nxspe
             assertExceptionThrown(f,'HERBERT:get_rundata:invalid_argument');
         end
-        
-        
-        
+
+
+
         function test_transform2rad_struct(this)
             % asks to transform some known fields into radians
             ds.alatt  =[1;1;1];
@@ -101,18 +100,18 @@ classdef test_rundata_get< TestCase
             ds.psi  =30;
             ds.gl   =40;
             ds.gs   =50;
-            
+
             run=rundata(f_name(this,'MAP11014.nxspe'),ds);
-            
+
             data=get_rundata(run,'alatt','omega','psi','gl','gs','-rad');
-            
+
             assertEqual(ds.alatt',  data.alatt);
             assertEqual(data.omega,ds.omega*pi/180);
             assertEqual(data.psi,  ds.psi*pi/180);
             assertEqual(data.gl,   ds.gl*pi/180);
             assertEqual(data.gs,   ds.gs*pi/180);
         end
-        
+
         function test_transform2rad_cells(this)
             ds.alatt=[1;1;1];
             ds.angdeg=[90;90;90];
@@ -120,11 +119,11 @@ classdef test_rundata_get< TestCase
             ds.psi  =30;
             ds.gl   =40;
             ds.gs   =50;
-            
+
             run=rundata(f_name(this,'MAP11014.nxspe'),ds);
-            
+
             [alatt,omega,psi,gl,gs]=get_rundata(run,'alatt','omega','psi','gl','gs','-rad');
-            
+
             assertEqual(ds.alatt',alatt);
             assertEqual(omega,ds.omega*pi/180);
             assertEqual(psi,ds.psi*pi/180);
@@ -139,11 +138,11 @@ classdef test_rundata_get< TestCase
             ds.psi  =30;
             ds.gl   =40;
             ds.gs   =50;
-            
+
             run=rundata(f_name(this,'MAP11014.nxspe'),ds);
-            
+
             alatt=get_rundata(run,'alatt');
-            
+
             assertTrue(~isstruct(alatt));
             assertEqual(ds.alatt',alatt);
         end
@@ -155,11 +154,11 @@ classdef test_rundata_get< TestCase
             ds.psi  =30;
             ds.gl   =40;
             ds.gs   =50;
-            
+
             run=rundata(f_name(this,'MAP11014.nxspe'),ds);
-            
+
             run=get_rundata(run,'-this');
-            
+
             assertTrue(isa(run,'rundata'));
             assertEqual(ds.alatt',run.lattice.alatt);
         end
@@ -171,15 +170,15 @@ classdef test_rundata_get< TestCase
             ds.psi  =30;
             ds.gl   =40;
             ds.gs   =50;
-            
+
             run=rundata(f_name(this,'MAP11014.nxspe'),ds);
-            
+
             run=get_rundata(run);
-            
+
             assertTrue(isstruct(run));
             assertEqual([1,1,1],run.alatt);
             assertEqual([90,90,90],run.angdeg);
-            
+
         end
         function test_this_nonc_with_rad(this)
             % inconsistent data mofifiers
@@ -202,17 +201,17 @@ classdef test_rundata_get< TestCase
             f = @()get_rundata(this.run2_work_with,'-nonan','gl','gs','det_par');
             assertExceptionThrown(f,'HERBERT:get_rundata:invalid_argument');
         end
-        
+
         function test_suppress_nan(this)
-            % this form asks for all run data to be obtained in class           
+            % this form asks for all run data to be obtained in class
             run=get_rundata(this.run2_work_with,'-this');
-            
+
             [S,ERR,det]=get_rundata(run,'-nonan','S','ERR','det_par','en');
             assertEqual(size(S),[30,26495]);
             assertEqual(size(S),size(ERR));
             assertEqual(size(S,2),numel(det.azim));
-            
-        end        
+
+        end
         function test_full_get(this)
             spe_file = {fullfile(this.test_data_path,'MAP10001.spe'),...
                 fullfile(this.test_data_path,'MAP11014.nxspe')};
@@ -221,14 +220,14 @@ classdef test_rundata_get< TestCase
             lat= oriented_lattice(4.3,[90,90,90],1,...
                 [1,0,0],[0,1,0]);
             run_files = rundata.gen_runfiles(spe_file,par_file,800,1,lat);
-            
+
             [efix,en,emode,ndet,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs,det]=...
-            get_rundata(run_files{1},...
+                get_rundata(run_files{1},...
                 'efix','en','emode','n_detectors','alatt','angdeg','u','v', ...
                 'psi','omega','dpsi','gl','gs','det_par',...
                 '-rad');
-            
-            
+
+
             assertEqual(800,efix);
             assertEqual(1,emode);
             assertEqual(en_sample,en);
@@ -246,30 +245,27 @@ classdef test_rundata_get< TestCase
             assertEqual(0,gl);
             assertEqual(0,gs);
         end
-        
-        
+
+
         function test_error(this)
             % to test errors, whcuch seems ere observed
             spefile = fullfile(this.test_data_path,'MAP10001.spe');
             parfile = fullfile(this.test_data_path,'demo_par.PAR');
-            
+
             r=rundata(spefile,parfile,'efix',45,'psi',-32, ...
                 'angdeg',[91,92,93],'alatt',[4.5,4.6,4.7]);
             gg=get_rundata(r,'det_par');
             gg1 = get_par(parfile);
-            
+
             ok=equal_to_tol(gg,gg1,1.e-5);
             assertTrue(ok);
-            
-            
+
+
             angdeg = get_rundata(r,'angdeg','-rad');
             % currently angdeg is always degrees
             %assertEqual([91,92,93]*(pi/180),angdeg);
             assertEqual([91,92,93],angdeg);
-            
+
         end
-        
-        
     end
-    
 end

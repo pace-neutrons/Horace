@@ -171,8 +171,8 @@ classdef IX_samp  < serializable
             obj.angdeg_=val(:)';
         end
 
-        function n=get.angdeg(obj)
-            n = obj.angdeg_;
+        function ang=get.angdeg(obj)
+            ang = obj.angdeg_;
         end
     end
     %------------------------------------------------------------------
