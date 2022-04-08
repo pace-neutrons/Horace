@@ -262,13 +262,13 @@ classdef Experiment < serializable
         function instr = get_unique_instruments(obj)
             % compatibility fields with old binary file formats
             % TODO: needs proper implementation
-            instr = obj.instruments_(1);
+            instr = obj.instruments_;
         end
         %
         function samp = get_unique_samples(obj)
             % compatibility fields with old binary file formats
             % TODO: needs proper implementation
-            samp = obj.samples_(1);
+            samp = obj.samples_;
         end
         %
         function head = get.header(obj)

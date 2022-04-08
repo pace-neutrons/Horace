@@ -80,7 +80,7 @@ if ischar(obj.num_contrib_files_)
         'get_instr_or_sample_ for %s called on non-initialized object',...
         field_name);
 end
-[~,version] = read_si_head_block(obj,field_name,old_matlab);
+[descr,version] = read_si_head_block(obj,field_name,old_matlab);
 
 data_start_name = [field_name,'_pos_'];
 if strcmp(field_name,'instrument')

@@ -318,9 +318,10 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
             ser = sqw_serializer();
 
             %---  Instrument
-            inst = maps_instrument(300,700,'S');
+            inst1 = maps_instrument(300,700,'S');
+            inst = inst1.to_struct();
             [struc_pos,pos] = ser.calculate_positions(test_format,inst);
-            assertEqual(pos-1,9857);
+            assertEqual(pos-1,10072);
 
             bytes = ser.serialize(inst,test_format);
             assertEqual(numel(bytes),pos-1);
@@ -331,11 +332,19 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
 
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
-            assertEqual(recov,inst)
+            recov = serializable.from_struct(recov);
+            assertEqual(recov,inst1)
+        end
+        function test_two_instrument_conversion(~)
+            test_format = field_generic_class_hv3();
+            ser = sqw_serializer();
+
             % 2 instruments
-            inst_s = [inst,maps_instrument(200,300,'A')];
+            inst = maps_instrument(300,700,'S');
+            inst_s0 = [inst,maps_instrument(200,300,'A')];
+            inst_s = inst_s0.to_struct();
             [struc_pos,pos] = ser.calculate_positions(test_format,inst_s);
-            assertEqual(pos-1,19522);
+            assertEqual(pos-1,19931);
 
             bytes = ser.serialize(inst_s,test_format);
             assertEqual(numel(bytes),pos-1);
@@ -346,7 +355,8 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
 
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
-            assertEqual(recov,inst_s)
+            recov = serializable.from_struct(recov);
+            assertEqual(recov,inst_s0)
         end
         %
         function test_sample_conversion(~)
@@ -354,11 +364,11 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
             ser = sqw_serializer();
 
             %---  Sample
-            samp = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
-
+            samp1 = IX_sample ([1,0,0],[0,1,0],'cuboid',[2,3,4]);
+            samp = samp1.to_struct();
             [struc_pos,pos] = ser.calculate_positions(test_format,samp);
 
-            assertEqual(pos-1,1292); % was 1126 before adding alatt/angdeg to IX_sample
+            assertEqual(pos-1,1171); % was 1126 before adding alatt/angdeg to IX_sample
 
             bytes = ser.serialize(samp,test_format);
             assertEqual(numel(bytes),pos-1);
@@ -369,7 +379,8 @@ classdef test_serialize_deserialize_binary_sqw< TestCase
 
             [recov,pos] = ser.deserialize_bytes(bytes,test_format);
             assertEqual(pos-1,numel(bytes));
-            assertEqual(recov,samp)
+            recov = serializable.from_struct(recov);
+            assertEqual(recov,samp1)
 
 
         end

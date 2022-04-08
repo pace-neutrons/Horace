@@ -10,12 +10,7 @@ size_str= struct('start_pos_',pos);
 
 if isa(template_struc,'sqw_field_format_interface') % field has special convertor
     if obj.input_is_stuct_
-        if isa(input,'serializable')
-            in = input.to_struct();
-            length = template_struc.size_of_field(in);
-        else
-            length = template_struc.size_of_field(input);
-        end
+        length = template_struc.size_of_field(input);
     else
         [length,template_struc,err]  = template_struc.field_size(input,pos);
         if err
@@ -121,7 +116,6 @@ end
 
 
 function [sz,err] = get_size(obj,input,pos)
-
 
 err = false;
 if obj.input_is_file_  %file stream
