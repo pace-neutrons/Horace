@@ -30,7 +30,7 @@ obj.position_info_pos_= obj.instr_sample_end_pos_;
 obj = obj.put_sqw_footer();
 
 
-function [the_obj,argi]=parse_inpuf_for_is(obj,has_object,obj_name,default_name,all_arg,argi)
+function [the_obj,argi]=parse_inpuf_for_is(~,has_object,obj_name,default_name,all_arg,argi)
 % extract instrument or sample data from input stream.
 % Inputs:
 % has_object  -- true if appropriate keyword was identified in the input
@@ -73,4 +73,8 @@ else
         end
     end
 end
-
+if iscell(the_obj)
+    the_obj = cellfun(@(x)(x.to_struct),the_obj,'UniformOutput',false);
+else
+    the_obj = arrayfun(@(x)(x.to_struct),the_obj,'UniformOutput',false);    
+end

@@ -116,7 +116,13 @@ if strcmp(field_name,'instrument') && version <2
     res = convert_legacy_instrument_structure(res);
 end
 if version == 3
-    res = serializable.from_struct(res);
+    if iscell(res)
+        res = cellfun(@(x)serializable.from_struct(x),res,...
+            'UniformOutput',false);
+    else
+        res = arrayfun(@(x)serializable.from_struct(x),res,...
+            'UniformOutput',false);
+    end
 end
 
 function [descr,version] = read_si_head_block(obj,field_name,old_matlab)

@@ -142,9 +142,22 @@ classdef faccess_sqw_v3 < sqw_binfile_common
                 end
             end
         end
+        function [instr_str,sampl_str] = get_instr_sample_to_save(~,exp_info)
+            % get instrument and sample data in the form they would be written
+            % on hdd.
+            instr = exp_info.get_unique_instruments();
+            sampl = exp_info.get_unique_samples();
+            instr_str = cellfun(@(x)(x.to_struct()),instr,'UniformOutput',false);
+            sampl_str = cellfun(@(x)(x.to_struct()),sampl,'UniformOutput',false);            
+        end
         
-        function obj = init_sample_instr_records(obj)
-            obj = init_sample_instr_records_(obj);
+        
+        function [obj,instr_start,instr_size,sample_start,sample_size] = ...
+                init_sample_instr_records(obj)
+            % calculate the size, sample and instrument records would
+            % occupy on hdd.
+            [obj,instr_start,instr_size,sample_start,sample_size] = ...
+                init_sample_instr_records_(obj);
         end
         function obj = init_sqw_footer(obj)
             obj = init_sqw_footer_(obj);

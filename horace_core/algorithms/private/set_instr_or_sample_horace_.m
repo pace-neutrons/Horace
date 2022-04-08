@@ -33,7 +33,8 @@ function sqwobj_array=set_instr_or_sample_horace_(filename,kind,obj_to_set,narg,
 
 
 if nargin<2
-    error('Check number of input arguments')
+    error('HORACE:set_instr_or_sample_horace_:invalid_argument',...
+        'Wrong number of input arguments')
 end
 if ~exist('obj_to_set','var')
     obj_to_set = struct();

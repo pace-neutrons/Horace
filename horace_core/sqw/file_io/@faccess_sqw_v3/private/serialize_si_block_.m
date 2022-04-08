@@ -33,7 +33,7 @@ else
     % get the format of sample or instrument:
     
     data_form = obj.get_si_form();
-    if data_block.all_same
+    if data_block.all_same        
         if iscell(data)
             bytes2 = obj.sqw_serializer_.serialize(data{1},data_form);
         else
