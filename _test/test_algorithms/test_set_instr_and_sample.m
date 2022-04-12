@@ -6,7 +6,7 @@ classdef test_set_instr_and_sample < TestCase
         sam2
         sam3
         ds
-        source_sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw';
+        source_sqw_2d_file_path = '../common_data/sqw_2d_1.sqw';
         clob_holder
         test_sqw_file
     end

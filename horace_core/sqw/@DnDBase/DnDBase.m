@@ -1,14 +1,14 @@
 classdef (Abstract)  DnDBase < SQWDnDBase
     % DnDBase Abstract base class for n-dimensional DnD object
-    
+
     properties(Access = protected)
         % CMDEV: removed, replaced with data_ on the superclass data % dnd_sqw_data instance
     end
-    
+
     properties(Constant, Abstract, Access = protected)
         NUM_DIMS
     end
-    
+
     % The depdendent props here have been created solely to retain the (old) DnD object API during the refactor.
     % These will be updated/removed at a later phase of the refactor when the class API is modified.
     properties(Dependent)
@@ -34,18 +34,21 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         e % Cumulative variance
         npix % Number of contributing pixels to each bin of the plot axes
 
+        % the properties define shape and binning of the dnd object
+        img_range;
+        nbins_all_dims;
         % temporary property, which returns data_ field
         data
     end
-    
+
     methods(Access = protected)
         wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
-        
+
         wout = sqw_eval_pix_(wout, sqwfunc, ave_pix, pars);
     end
-    
+
     methods (Static)
         function w = make_dnd(data_obj)
             if (isa(data_obj,'data_sqw_dnd'))
@@ -68,7 +71,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             end
         end
     end
-    
+
     methods
         % function signatures
         w = sigvar_set(win, sigvar_obj);
@@ -92,10 +95,10 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                 obj_str.(pn) = obj.(pn);
             end
         end
-        
+
         function obj = DnDBase(varargin)
             obj = obj@SQWDnDBase();
-            
+
             [args] = parse_args_(obj,varargin{:});
             if args.array_numel>1
                 obj = repmat(obj,args.array_size);
@@ -231,18 +234,12 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                 val = obj.data_.iax;
             end
         end
-        function obj = set.iax(obj, iax)
-            obj.data_.iax = iax;
-        end
         %
         function val = get.iint(obj)
             val = [];
             if ~isempty(obj.data_)
                 val = obj.data_.iint;
             end
-        end
-        function obj = set.iint(obj, iint)
-            obj.data_.iint = iint;
         end
         %
         function val = get.pax(obj)
@@ -251,18 +248,12 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                 val = obj.data_.pax;
             end
         end
-        function obj = set.pax(obj, pax)
-            obj.data_.pax = pax;
-        end
         %
         function val = get.p(obj)
             val = [];
             if ~isempty(obj.data_)
                 val = obj.data_.p;
             end
-        end
-        function obj = set.p(obj, p)
-            obj.data_.p = p;
         end
         %
         function val = get.dax(obj)
@@ -304,6 +295,29 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = set.npix(obj, npix)
             obj.data_.npix = npix;
         end
+        %
+        function obj = set.img_range(obj,val)
+            obj.data_.img_range = val;
+        end
+        function range = get.img_range(obj)
+            if isempty(obj.data_)
+                range  = [];
+            else
+                range = obj.data_.img_range;
+            end
+        end
+        %
+        function obj = set.nbins_all_dims(obj,val)
+            obj.data_.nbins_all_dims = val;
+        end
+        function nbins = get.nbins_all_dims(obj)
+            if isempty(obj.data_)
+                nbins  = [];
+            else
+                nbins = obj.data_.nbins_all_dims;
+            end
+        end
+        %
     end
 end
 

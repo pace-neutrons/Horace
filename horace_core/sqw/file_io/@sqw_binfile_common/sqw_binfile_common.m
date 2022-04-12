@@ -222,7 +222,7 @@ classdef sqw_binfile_common < sqw_file_interface
         % read pixels at the given indices
         pix = get_pix_at_indices(obj,indices);
         % read pixels in the given index ranges
-        pix = get_pix_in_ranges(obj,pix_starts,pix_ends,skip_validation);
+        pix = get_pix_in_ranges(obj,pix_starts,pix_ends,skip_validation,keep_precision);
         % retrieve the whole sqw object from properly initialized sqw file
         [sqw_obj,varargout] = get_sqw(obj,varargin);
         % retrieve dnd part of the sqw object

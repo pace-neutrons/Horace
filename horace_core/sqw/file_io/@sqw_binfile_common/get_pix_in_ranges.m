@@ -1,19 +1,20 @@
-function pix = get_pix_in_ranges(obj, pix_starts, pix_bl_sizes, skip_validation)
+function pix = get_pix_in_ranges(obj, pix_starts, pix_bl_sizes, ...
+    skip_validation,keep_precision)
 %%GET_PIX_IN_RANGES read pixels in the specified ranges
 %
-% Read blocks of pixels, which start from pix_starts positions and occupy 
+% Read blocks of pixels, which start from pix_starts positions and occupy
 % pix_bl_sizes sizes
-% 
-% skip_validation -- if present and true, 
-%                    For performance reasons, there is no validation 
-%                    performed on input arguments, but the input arrays 
+%
+% skip_validation -- if present and true,
+%                    For performance reasons, there is no validation
+%                    performed on input arguments, but the input arrays
 %                    should have equal length and for all i we should have:
-% 
+%
 %   pix_bl_sizes(i) > 0
 %   pix_starts(i + 1) > pix_starts(i)
 %   pix_starts(i + 1) >= pix_starts(i)+pix_bl_sizes(i)+1 % not verified in
 %                                                          any case but
-%                                                          should be 
+%                                                          should be
 %
 %   >> pix = get_pix_in_ranges([1, 12, 25], [6, 1, 3])
 %      pix =
@@ -36,6 +37,14 @@ if ~skip_validation
         error('HORACE:sqw_binfile_common:invalid_argument', mess);
     end
 end
+if ~exist('keep_precision','var')
+    keep_precision = true;
+end
+if keep_precision
+    format = '*float32';
+else
+    format = 'float32';
+end
 
 %NUM_BYTES_IN_FLOAT = 4;
 %PIXEL_SIZE = NUM_BYTES_IN_FLOAT*PixelData.DEFAULT_NUM_PIX_FIELDS;  % bytes
@@ -44,7 +53,7 @@ end
 % Should be done elsewhere
 %[pix_starts, pix_bl_sizes] = merge_adjacent_ranges(pix_starts, pix_bl_sizes);
 
-% TODO: verify if there are any performance benifits from commented 
+% TODO: verify if there are any performance benifits from commented
 % code or the currently enabled code. (see
 % [#686](https://github.com/pace-neutrons/Horace/issues/686))
 
@@ -72,17 +81,18 @@ end
 %     end
 %     do_fseek(obj.file_id_, seek_size, 'cof');
 %end
-blocks = arrayfun(@(pix_start,bl_size)(read_block(obj,PixelData.DEFAULT_NUM_PIX_FIELDS,pix_start,bl_size)),...
+blocks = arrayfun(@(pix_start,bl_size)(read_block(obj, ...
+    PixelData.DEFAULT_NUM_PIX_FIELDS,pix_start,bl_size,format)),...
     pix_starts,pix_bl_sizes,'UniformOutput',false);
 pix = [blocks{:}];
 
 end  % function
 
-function block = read_block(obj,NUM_FIELS,pix_start,block_size)
+function block = read_block(obj,NUM_FIELS,pix_start,block_size,format)
 seek_pos = obj.pix_pos_ + (pix_start - 1)*obj.pixel_size;
 do_fseek(obj.file_id_, seek_pos, 'bof');
 read_size = [NUM_FIELS,block_size];
-block  = fread(obj.file_id_,read_size, '*float32');
+block  = fread(obj.file_id_,read_size, format);
 [f_message,n_err] = ferror(obj.file_id_);
 if n_err ~=0
     error('HORACE:sqw_binfile_common:io_error',f_message)
