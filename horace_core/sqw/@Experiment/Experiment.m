@@ -190,7 +190,8 @@ classdef Experiment < serializable
             exp = get_experiments_(obj,ind);
         end
         %
-        function [subexper,runid_map] = get_subobj(obj,indexes,runid_map)
+        function [subexper,runid_map] = get_subobj(obj,indexes,...
+                runid_map,modify_runid)
             % return Experiment object, containing subset of experiments,
             % requested by the method.
             %
@@ -209,6 +210,9 @@ classdef Experiment < serializable
             %              TODO: this map will be part of the Experiment
             %              object, so the argument will be removed in a
             %              future.
+            % modify_runid- if true, change run_id(s) present as the 
+            %               indexes of the runds into the indexes of the
+            %               pixels, really present in PixelData array
             % Returns:
             % subexper  -- the Experiment object, containing information
             %              about runs defined by indexes and optionally,
@@ -223,7 +227,10 @@ classdef Experiment < serializable
             if ~exist('runid_map','var')
                 runid_map = [];
             end
-            [subexper,runid_map] = get_subobj_(obj,indexes,runid_map);
+            if ~exist('modify_runid','var')
+                modify_runid = false;
+            end
+            [subexper,runid_map] = get_subobj_(obj,indexes,runid_map,modify_runid);
         end
         % instrument methods interface
         %------------------------------------------------------------------

@@ -23,6 +23,5 @@ if isstruct(ds)
     ds = data_sqw_dnd(ds);
 else
     ds.pix = PixelData();
-    ds.img_db_range = PixelData.EMPTY_RANGE_;
 end
 obj.data = ds;

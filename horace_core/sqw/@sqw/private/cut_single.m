@@ -37,7 +37,7 @@ end
 
 
 % Compile the accumulated cut and projection data into a data_sqw_dnd object
-[data_out] = compile_sqw_data(...
+data_out = compile_sqw_data(...
     targ_axes, tag_proj, s, e, npix, pix_out,keep_pix);
 
 % Assign the new data_sqw_dnd object to the output SQW object, or create a new
@@ -48,7 +48,14 @@ if keep_pix
     wout.detpar = w.detpar;
     wout.data   = data_out;
 
-    [exp_info,runid_map] = w.experiment_info.get_subobj(runid_contributed,w.runid_map);
+    if isempty(runid_contributed) % Empty cut
+        exp_info = Experiment();
+        runid_map = containers.Map();
+    else
+        [exp_info,runid_map] = w.experiment_info.get_subobj(runid_contributed,w.runid_map);
+    end
+    %
+    wout.main_header.nfiles  = exp_info.n_runs;
     wout.experiment_info = exp_info;
     wout.runid_map       = runid_map;
 

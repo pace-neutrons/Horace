@@ -106,16 +106,25 @@ data_opt= [opt1, opt2, opt3, opt4];
 sqw_struc.data = obj.get_data(data_opt{:}, 'pixel_page_size', opts.pixel_page_size);
 
 sqw_struc.experiment_info = headers;
-old_file = obj.creation_date<datetime('01-Feb-2021');
-if (sqw_struc.data.pix.num_pixels >0 && sqw_struc.data.pix.n_pages == 1) || ...
+old_file = datetime(obj.creation_date)<datetime('01-Mar-2022'); % old file did not store 
+% run_id map in any form, so it is often tried to be resored from filename. 
+% here we try to verify, if this restoration is correct if we can do that
+% without critical drop in performance.
+if (sqw_struc.data.pix.num_pixels >0 && sqw_struc.data.pix.n_pages == 1) && ...
     old_file
     runid = unique(sqw_struc.data.pix.run_idx);
     file_id = runid_map.keys;
     file_id = [file_id{:}];
     if ~all(ismember(runid,file_id)) || old_file % old style pixel data, run_id-s 
         % have been recalculated
-        id=1:headers.n_runs;
-        runid_map = containers.Map(id,id);
+        % use the fact that the headers were recalculated as subsequent numbers 
+        % going from 1 to n_headers
+        id=1:headers.n_runs;        
+        new_runid_map = containers.Map(id,id);  
+        [exp_info,runid_map] = sqw_struc.experiment_info.get_subobj(runid,new_runid_map,true);
+        sqw_struc.experiment_info = exp_info;
+        sqw_struc.runid_map = runid_map;
+        sqw_struc.main_header.nfiles = exp_info.n_runs;
         % 
     end
 end

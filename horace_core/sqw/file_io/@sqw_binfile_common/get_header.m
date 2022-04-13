@@ -76,7 +76,7 @@ for i=1:n_header
     else
         [exper(i),alatt,angdeg] = IX_experiment.build_from_binfile_header(header(i));        
     end
-    runids(i) = exper.run_id;
+    runids(i) = exper(i).run_id;
     samp{i}= IX_samp('',alatt,angdeg);
     inst{i} = IX_null_inst();
 end

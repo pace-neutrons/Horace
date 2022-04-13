@@ -52,6 +52,7 @@ if isempty(bloc_starts)
     end
     % No pixels in range, we can return early
     pix_out = PixelData();
+    unique_runid = [];
     return
 end
 if obj.data.pix.is_filebacked()
@@ -63,7 +64,7 @@ if obj.data.pix.is_filebacked()
     num_chunks = numel(block_chunks);
 else
     num_chunks = 1;
-    block_chunks = {bloc_starts,block_sizes};
+    block_chunks = {{bloc_starts,block_sizes}};
 end
 % If we only have one iteration of pixels to cut then we must be able to fit
 % all pixels in memory, hence no need to use temporary files.
@@ -97,8 +98,9 @@ if log_level >= 1
 end
 
 if num_chunks == 1
-    pix_start = block_chunks{1};
-    block_sizes = block_chunks{2};
+    block_chunk = block_chunks{1};
+    pix_start = block_chunk{1};
+    block_sizes = block_chunk{2};
     candidate_pix = obj.data.pix.get_pix_in_ranges( ...
         pix_start, block_sizes, false,keep_precision);
     if log_level >= 1
@@ -114,6 +116,7 @@ if num_chunks == 1
         [npix,s,e] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
         pix_ok = [];
         npix_step_retained = [];
+        unique_runid = [];
     end
     pix_retained{1} = pix_ok;%candidate_pix.get_pixels(ok);
     pix_ix_retained{1} = [];
@@ -148,6 +151,7 @@ else
             [npix,s,e] = targ_proj.bin_pixels(targ_axes,candidate_pix,npix,s,e);
             pix_ok = [];
             npix_step_retained = [];
+            unique_runid = [];
         end
 
         if log_level >= 1
