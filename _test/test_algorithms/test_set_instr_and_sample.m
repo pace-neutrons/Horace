@@ -70,7 +70,7 @@ classdef test_set_instr_and_sample < TestCase
             clob1 = onCleanup(@()delete(tmpsqwfile));
 
             % Add sam1 to file with f1_1
-            save(obj.ds.f1_1,tmpsqwfile)
+            save(obj.ds.f1_1,tmpsqwfile);
             set_sample_horace(tmpsqwfile,obj.sam1);
             tmp=read_sqw(tmpsqwfile);
             [ok,mess]=equal_to_tol(f1_1_s1_ref,tmp,'ignore_str',1); assertTrue(ok,mess)

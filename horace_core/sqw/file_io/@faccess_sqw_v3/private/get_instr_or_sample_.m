@@ -120,8 +120,16 @@ if version == 3
         res = cellfun(@(x)serializable.from_struct(x),res,...
             'UniformOutput',false);
     else
-        res = arrayfun(@(x)serializable.from_struct(x),res,...
-            'UniformOutput',false);
+        if isempty(res) || isempty(fieldnames(res))
+            if strcmp(field_name,'instrument')
+                res = IX_null_inst();
+            else
+                res = IX_null_sample();
+            end
+        else
+            res = arrayfun(@(x)serializable.from_struct(x),res,...
+                'UniformOutput',false);
+        end
     end
 end
 
