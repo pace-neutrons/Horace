@@ -114,6 +114,9 @@ if ~ok
 end
 
 [data_str,obj] = obj.get_data@dnd_binfile_common(obj,argi{:});
+% 
+% In old files img_range is also stored separately and have better accuracy
+data_str.img_range = obj.get_img_db_range();
 %
 % parse all arguments, including those that weren't passed to the parent method
 opts = parse_args(varargin{:});
