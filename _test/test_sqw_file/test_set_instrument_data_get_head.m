@@ -1,118 +1,169 @@
-function test_set_instrument_data_get_head()
-
-% Set up names of data files
-data_dir = fileparts(which(mfilename));
-wars = warning('off','SQW_FILE:old_version');
-clob0 = onCleanup(@()(warning(wars)));
-
-% Data file with 85 spe files, incident energies 100.1,100.2,...108.5 meV:
-% its the file containing old instrument and old sample
-data_inst_ref = fullfile(data_dir,'w1_inst_ref.sqw');
-data_inst = fullfile(tmp_dir,'test_setup_inst_data_w1_inst.sqw');    % for copying to later
-
-clob = onCleanup(@()delete(data_inst));
-
-% Read as an object too:
-w1 = read_sqw(data_inst_ref);
-
-% check the conversion of the old sample and instrument stored in file
-hdr = w1.experiment_info;
-sam = hdr.samples{1};
-assertTrue(isa(sam,'IX_sample'));
-assertEqual(sam.shape,'cuboid');
-inst = hdr.instruments{1};
-assertTrue(isa(inst,'IX_inst'));
-assertEqual(inst.name,'_');
-%% --------------------------------------------------------------------------------------------------
-% Header:
-% ---------
-% First on object:
-
-% Head without return argument works
-%HACK: should be ivoked without lhs to check disp option
-hh=head(w1); 
-hh=head(w1,'-full');
-% assertThrowsNothing!
-
-h_obj_s=head(w1);
-h_obj=head(w1,'-full');
-assertEqual(h_obj.data,h_obj_s)
+classdef test_set_instrument_data_get_head< TestCase
+    properties
+        data_inst;
+        data_inst_ref;
+        clenup1
+        clenup2
+        w1;
+    end
 
 
-% Now do the same on file: this time no errors:
-copyfile(data_inst_ref,data_inst,'f')
+    methods
+        function obj = test_set_instrument_data_get_head(varargin)
+            if nargin < 1
+                name = 'test_set_instrument_data_get_head';
+            else
+                name = varargin{1};
+            end
+            obj=obj@TestCase(name);
+            data_dir = fileparts(which(mfilename));
+            wars = warning('off','SQW_FILE:old_version');
+            obj.clenup1= onCleanup(@()(warning(wars)));
 
-%HACK: should be ivoked without lhs to check disp option
-hh=head_horace(data_inst_ref);
-hh=head_horace(data_inst_ref,'-full');
+            % Data file with 85 spe files, incident energies 100.1,100.2,...108.5 meV:
+            % its the file containing old instrument and old sample.
+            % only 29 files contribute to the cut, which is reflected in
+            % the loaded files
+            obj.data_inst_ref = fullfile(data_dir,'w1_inst_ref.sqw');
+            obj.data_inst = fullfile(tmp_dir,'test_setup_inst_data_w1_inst.sqw');    % for copying to later
 
-%TODO: look at this carefully. The stuctures, extracted by different means 
-% are a bit different. Do we want this?
-h_file_s=head_horace(data_inst_ref);
-h_file_s = rmfield(h_file_s,{'npixels','nfiles'});
+            das = obj.data_inst;
+            obj.clenup2= onCleanup(@()delete(das));
 
-h_file=head_horace(data_inst_ref,'-full');
-data = h_file.data.get_dnd_data('+');
-assertEqual(data,h_file_s)
+            % Read as an object too:
+            obj.w1 = read_sqw(obj.data_inst_ref);
+            if is_file(obj.data_inst)
+                delete(obj.data_inst);
+            end
+            save(obj.w1,obj.data_inst);            
 
+        end
+        function test_moderator_params(obj)
 
+            %% --------------------------------------------------------------------------------------------------
+            % New moderator parameters
+            % ---------------------------
 
-%% --------------------------------------------------------------------------------------------------
-% New incident energies
-% ---------------------
+            % Get moderator parameters - No errors with new insturment
 
-% Get incident energies - OK
-ei_obj=get_efix(w1);
+            [pulse_model_obj,ppmod,ok,mess,p,present]=get_mod_pulse(obj.w1);
+            assertTrue(ok)
 
-copyfile(data_inst_ref,data_inst,'f')
+            [pulse_model_file,ppmod_f,ok,mess_f,p_f,pres_f]=get_mod_pulse_horace(obj.data_inst);
+            assertTrue(ok)
 
-
-ei=get_efix_horace(data_inst);
-assertEqual(ei_obj,ei);
+            assertEqual(ppmod,ppmod_f)
+            assertEqual(mess,mess_f)
+            pf_m = p_f;              % Only some runs and instrument contribute to 
+            pf_m.pp = pf_m.pp(1:29,:); % the pixels
+            assertEqual(p,pf_m)
+            assertEqual(present,pres_f)
+            assertEqual(pulse_model_obj,pulse_model_file);
 
 
 
-% Set incident energies - OK
-ei=1000+(1:85);
-
-wtmp = set_efix(w1,ei);     % object
-
-copyfile(data_inst_ref,data_inst,'f')
-set_efix_horace(data_inst,ei)  % file
+            % Set moderator parameters - OK
+            ei=300+(1:29);
+            pulse_model = 'ikcarp';
+            pp=[100./sqrt(ei(:)),zeros(29,2)];  % one row per moderator
 
 
+            wtmp = set_mod_pulse(obj.w1,pulse_model,pp);
+            if is_file(obj.data_inst)
+                delete(obj.data_inst);
+            end
+            save(obj.w1,obj.data_inst);
 
 
-%% --------------------------------------------------------------------------------------------------
-% New moderator parameters
-% ---------------------------
+            set_mod_pulse_horace(obj.data_inst,pulse_model,pp);
 
-% Get moderator parameters - No errors with new insturment
+            [pulse_model_obj,ppmod,ok,mess,p,present]=get_mod_pulse(wtmp);
+            assertFalse(ok)
 
-[pulse_model_obj,ppmod,ok,mess,p,present]=get_mod_pulse(w1);
-assertTrue(ok)
+            [pulse_model_file,ppmod_f,ok,mess_f,p_f,pres_f]=get_mod_pulse_horace(obj.data_inst);
 
-[pulse_model_file,ppmod_f,ok,mess_f,p_f,pres_f]=get_mod_pulse_horace(data_inst);
-assertTrue(ok)
+            assertFalse(ok)
+            assertEqual(ppmod,ppmod_f)
+            assertEqual(mess,mess_f)
+            assertEqual(p,p_f)
+            assertEqual(present,pres_f)
+            assertEqual(pulse_model_obj,pulse_model_file);
+        end
+        
+        function test_head_data(obj)
+            % Set up names of data files
 
-assertEqual(ppmod,ppmod_f)
-assertEqual(mess,mess_f)
-assertEqual(p,p_f)
-assertEqual(present,pres_f)
-assertEqual(pulse_model_obj,pulse_model_file);
+            % check the conversion of the old sample and instrument stored in file
+            hdr = obj.w1.experiment_info;
+            sam = hdr.samples{1};
+            assertTrue(isa(sam,'IX_sample'));
+            assertEqual(sam.shape,'cuboid');
+            inst = hdr.instruments{1};
+            assertTrue(isa(inst,'IX_inst'));
+            assertEqual(inst.name,'_');
+            %% --------------------------------------------------------------------------------------------------
+            % Header:
+            % ---------
+            % First on object:
+
+            % Head without return argument works
+            %HACK: should be ivoked without lhs to check disp option
+            hh=head(obj.w1);
+            hh=head(obj.w1,'-full');
+            % assertThrowsNothing!
+
+            h_obj_s=head(obj.w1);
+            h_obj=head(obj.w1,'-full');
+            assertEqual(h_obj.data,h_obj_s)
+
+        end
+        function test_head(obj)
+            % Now do the same on file: this time no errors:
+            copyfile(obj.data_inst_ref,obj.data_inst,'f')
+
+            %HACK: should be ivoked without lhs to check disp option
+            hh=head_horace(obj.data_inst_ref);
+            hh=head_horace(obj.data_inst_ref,'-full');
+
+            %TODO: look at this carefully. The stuctures, extracted by different means
+            % are a bit different. Do we want this?
+            h_file_s=head_horace(obj.data_inst_ref);
+            h_file_s = rmfield(h_file_s,{'npixels','nfiles'});
+
+            h_file=head_horace(obj.data_inst_ref,'-full');
+            data = h_file.data.get_dnd_data('+');
+            assertEqual(data,h_file_s)
+        end
+        function test_get_ei_set_ei(obj)
+
+            %% --------------------------------------------------------------------------------------------------
+            % New incident energies
+            % ---------------------
+
+            % Get incident energies - OK
+            ei_obj=get_efix(obj.w1);
+
+            if is_file(obj.data_inst)
+                delete(obj.data_inst);
+            end
+            save(obj.w1,obj.data_inst);
+
+            ei=get_efix_horace(obj.data_inst);
+            assertEqual(ei_obj,ei);
 
 
 
-% Set moderator parameters - OK
-ei=300+(1:85);
-pulse_model = 'ikcarp';
-pp=[100./sqrt(ei(:)),zeros(85,2)];  % one row per moderator
+            % Set incident energies - OK
+            ei=1000+(1:29);
 
+            wtmp = set_efix(obj.w1,ei);     % object
+            set_efix_horace(obj.data_inst,ei)  % file
 
-wtmp = set_mod_pulse(w1,pulse_model,pp);
+            ei_obj=get_efix(wtmp);
+            ei    =get_efix_horace(obj.data_inst);
+            assertEqual(ei_obj,ei);
 
+        end
 
-copyfile(data_inst_ref,data_inst,'f')
-set_mod_pulse_horace(data_inst,pulse_model,pp);
-
-clear clob;
+    end
+end
