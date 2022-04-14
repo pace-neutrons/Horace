@@ -18,7 +18,7 @@ classdef test_multifit_functions < TestCase
                 name = 'test_multifit_functions';
             end
             obj = obj@TestCase(name);
-            obj.data_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))),'test_sqw_file');
+            obj.data_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))),'common_data');
             test_sqw_file = fullfile(obj.data_dir,'sqw_2d_2.sqw');
             obj.sqw_4_test = sqw(test_sqw_file); % the original of this line, read_sqw(test_sqw_file), did not work;
         end

@@ -171,8 +171,11 @@ classdef axes_block < serializable
         % regardless of the integration along some qxis
         % TODO: probably should be removed
         [q1,q2,q3] = get_q_axes(obj);
-        % return binning range of existing data object
-        range = get_bin_range(obj);
+        
+        % return binning range of existing data object, so that cut without
+        % parameters, performed within this range would return the same cut
+        % as the original object
+        range = get_cut_range(obj);
         % find the coordinates along each of the axes of the smallest cuboid
         % that contains bins with non-zero values of contributing pixels.
         [val, n] = data_bin_limits (din);
