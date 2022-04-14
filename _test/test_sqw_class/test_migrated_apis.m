@@ -175,7 +175,8 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
 
             expected = load('test_migrated_apis_data.mat', 'wout_disp');
 
-            assertEqualToTol(expected.wout_disp.data, wout_disp.data, 'ignore_str', true);
+            assertEqualToTol(expected.wout_disp.data, wout_disp.data, ...
+                'ignore_str', true,'tol',[1.e-6,1.e-6]);
         end
         function test_dispersion_with_disp_and_weight_retval(obj)
             params = {'scale', 10};
@@ -184,8 +185,10 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
 
             expected = load('test_migrated_apis_data.mat', 'wout_disp', 'wout_weight');
 
-            assertEqualToTol(expected.wout_disp.data, wout_disp.data, 'ignore_str', true);
-            assertEqualToTol(expected.wout_weight.data, wout_weight.data, 'ignore_str', true);
+            assertEqualToTol(expected.wout_disp.data, wout_disp.data, ...
+                'ignore_str', true,'tol',[1.e-6,1.e-6]);
+            assertEqualToTol(expected.wout_weight.data, wout_weight.data, ...
+                'ignore_str', true,'tol',[1.e-6,1.e-6]);
         end
 
         %% gets

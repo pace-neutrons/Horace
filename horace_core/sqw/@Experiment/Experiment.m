@@ -53,6 +53,8 @@ classdef Experiment < serializable
                 elseif isstruct(S)
                     if isfield(S,'efix') && isfield(S,'emode')
                         obj = build_from_old_headers_(obj,{S});                        
+                    elseif isempty(fieldnames(S))                        
+                        obj = Experiment(); % empty object
                     else
                         obj =Experiment.from_struct(S);
                     end
