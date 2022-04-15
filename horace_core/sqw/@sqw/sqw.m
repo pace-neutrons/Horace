@@ -31,7 +31,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     end
 
     properties(Access=private)
-        main_header_ = struct();
+        main_header_ = struct([]);
         experiment_info_ = Experiment();
         detpar_  = struct([]);
     end
