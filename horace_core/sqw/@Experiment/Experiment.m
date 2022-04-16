@@ -449,17 +449,7 @@ classdef Experiment < serializable
                     ic = ic+1;
                 end
             end
-            exp = Experiment([], instr, sampl);
-            exp.expdata = expinfo;
-            %             if iscell(exp_cellarray)
-            %                 for i=1:n_contrib
-            %                     [exp,n_combined] = exp.add_contents(exp_cellarray{i});
-            %                 end
-            %             else
-            %                 for i=1:n_contrib
-            %                     [exp,n_combined] = exp.add_contents(exp_cellarray(i));
-            %                 end
-            %             end
+            exp = Experiment([], instr, sampl,expinfo);
         end
     end
     %======================================================================
