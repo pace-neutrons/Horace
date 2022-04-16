@@ -65,7 +65,7 @@ classdef test_cut_simple_to_complex < TestCaseWithSave
             end
             cut1_fc = cut(cut0,pr,[0,0.02,1.5],[-0.1,0.1],[-0.1,0.1],[-5,5]);
             
-            assertEqualWithSave(obj,cut1_fc);
+            assertEqualWithSave(obj,cut1_fc,'ignore_str',1);
         end
         
         
@@ -74,7 +74,7 @@ classdef test_cut_simple_to_complex < TestCaseWithSave
             pr = struct('u',[1,0,0],'v',[0,1,0]);
             cut1D_ng = cut(sqw_obj,pr,[-1.5,0.02,1.5],[-0.1,0.1],[-0.1,0.1],[-5,5]);
             
-            assertEqualWithSave(obj,cut1D_ng);
+            assertEqualWithSave(obj,cut1D_ng,'ignore_str',1);
         end
     end
     
