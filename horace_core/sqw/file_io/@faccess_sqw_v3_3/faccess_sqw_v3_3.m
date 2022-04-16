@@ -145,19 +145,6 @@ classdef faccess_sqw_v3_3 < faccess_sqw_v3
             end
         end
         %-------------------------------------------------------------------
-        function img_db_range = get_img_db_range(obj,data_str)
-            % get [2x4] array of min/max ranges of the image, representing
-            % DND object. This range is the basis for calcu
-            %
-            fseek(obj.file_id_,obj.img_db_range_pos_,'bof');
-            [mess,res] = ferror(obj.file_id_);
-            if res ~= 0
-                error('SQW_BINILE_COMMON:io_error',...
-                    'Can not move to the pix_range start position, Reason: %s',mess);
-            end
-            img_db_range = fread(obj.file_id_,[2,4],'float32');
-        end
-        
     end
     methods(Access=protected,Hidden=true)
         function flds = fields_to_save(obj)

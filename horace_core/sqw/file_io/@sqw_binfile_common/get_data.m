@@ -115,7 +115,10 @@ end
 
 [data_str,obj] = obj.get_data@dnd_binfile_common(obj,argi{:});
 % 
-% In old files img_range is also stored separately and have better accuracy
+% In old files img_range (urange) is also stored separately and contains
+% real image range (the range pixel data converted to image actually
+% occupy) This will be used as range if old files integration range is
+% unlimited
 data_str.img_range = obj.get_img_db_range(data_str);
 %
 % parse all arguments, including those that weren't passed to the parent method

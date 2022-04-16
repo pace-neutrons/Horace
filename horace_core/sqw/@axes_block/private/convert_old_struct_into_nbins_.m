@@ -6,10 +6,6 @@ prop_to_convert = {'iax','iint','pax','p'};
 
 nbins_all_dims = zeros(1,4);
 img_range = zeros(2,4);
-if any(any(isinf(in.iint)))
-    warning('HORACE:convert_old_structure:invalid_argument',...
-        'some integration ranges are infinite')
-end
 
 
 nbins_all_dims(in.iax) = 1;
