@@ -52,10 +52,12 @@ if ~isfield(S,'version')
                 id = 1:numel(kind);
                 obj(i).runid_map = containers.Map(id,id);
             end
+            runids = obj(i).experiment_info.expdata.get_run_ids();
             % remove headers which do not contribute to pixel data and
             % reset run_ids which may have be recovered from filenames
             % to the run_ids, recalculated from 1 to n-contributed runs
-            if numel(pix_id) ~= obj(i).experiment_info.n_runs
+            if numel(pix_id) ~= obj(i).experiment_info.n_runs || ...
+                any(isnan(runids))
                 [exper,runid_map] = obj(i).experiment_info.get_subobj( ...
                     pix_id,obj(i).runid_map,true);
                 obj(i).experiment_info = exper;
