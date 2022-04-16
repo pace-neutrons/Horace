@@ -3,7 +3,7 @@ function modify_pix_ranges(filenames,varargin)
 % (version below 3.2 stored by Horace 3.5 and earlier)
 % to the values, used by Horace 3.6 and later.
 %
-% The file format is upgraderd from version 3.1 or 2.0 into version 3.3
+% The file format is upgraded from version 3.1 or 2.0 into version 3.3
 % version 3.2 is not currently upgradable
 %
 % Input:

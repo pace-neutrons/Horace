@@ -86,8 +86,8 @@ function [data,obj] = get_data(obj,varargin)
 %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-%   data.pix_range  True range of the data along each axis [pix_range(2,4)]
-%   data.pix        A PixelData objects
+%   data.img_range True range of the data along each axis [img_range(2,4)]
+%   data.pix       A PixelData objects
 %
 %
 % NOTES:
@@ -116,7 +116,7 @@ end
 [data_str,obj] = obj.get_data@dnd_binfile_common(obj,argi{:});
 % 
 % In old files img_range is also stored separately and have better accuracy
-data_str.img_range = obj.get_img_db_range();
+data_str.img_range = obj.get_img_db_range(data_str);
 %
 % parse all arguments, including those that weren't passed to the parent method
 opts = parse_args(varargin{:});

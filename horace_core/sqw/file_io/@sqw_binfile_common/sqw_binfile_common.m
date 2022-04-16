@@ -208,18 +208,27 @@ classdef sqw_binfile_common < sqw_file_interface
             % DND object.
             %
             %
-            if nargin == 1 %read img_db_range information form file (better accuracy)
-                fseek(obj.file_id_,obj.img_db_range_pos_,'bof');
-                [mess,res] = ferror(obj.file_id_);
-                if res ~= 0
-                    error('SQW_BINILE_COMMON:io_error',...
-                        'Can not move to the pix_range start position, Reason: %s',mess);
-                end
-                img_db_range = fread(obj.file_id_,[2,4],'float32');
-
+            if nargin == 1 %read ge information form file (better accuracy)
+                img_db_range = read_img_range(obj);
             else % calculate image range from axes
                 img_db_range = axes_block.calc_img_db_range(data_str);
+                if any(isinf(img_db_range(:)))
+                    img_data_range = read_img_range(obj);
+                    undef = isinf(img_db_range);
+                    img_db_range(undef) = img_data_range(undef);
+                end
             end
+        end
+        function img_data_range = read_img_range(obj)
+            % read real data range from disk
+            fseek(obj.file_id_,obj.img_db_range_pos_,'bof');
+            [mess,res] = ferror(obj.file_id_);
+            if res ~= 0
+                error('HORACE:sqw_binfile_common:io_error',...
+                    'Can not move to the pix_range start position, Reason: %s',mess);
+            end
+            img_data_range = fread(obj.file_id_,[2,4],'float32');
+
         end
         %
         function pix_range = get_pix_range(~)

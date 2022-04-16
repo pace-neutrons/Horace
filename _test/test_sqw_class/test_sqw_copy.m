@@ -32,7 +32,6 @@ classdef test_sqw_copy < TestCase
             dtp = sqw_copy.my_detpar();
             dtp.azim(1:10) = 0;
             sqw_copy = sqw_copy.change_detpar(dtp);
-            sqw_copy.data.dax = [2, 1];
             sqw_copy.data.pix.signal = 1;
             
             % changed data is not mirrored in initial

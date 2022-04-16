@@ -117,6 +117,8 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             old_file = fullfile(obj.test_dir,'data','sqw_loadobj_test_v3_6_1.mat');
             from_file = load(old_file);
             mat_stored_old = from_file.sqw_obj;
+            % old and new sqw object define img_range slightly differently
+            mat_stored_old.data.img_range = sqw_obj.data.img_range;
             assertEqualToTol(mat_stored_old, sqw_obj,'ignore_str',true);
         end
     end
