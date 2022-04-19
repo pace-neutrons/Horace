@@ -107,6 +107,13 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             cleanup_obj=onCleanup(@() delete(tmp_filename));
             
             sqw_obj = read_sqw(obj.test_sqw_1d_fullpath);
+            keys = sqw_obj.runid_map.keys;
+            keys = [keys{:}];
+            ids = sqw_obj.experiment_info.expdata.get_run_ids;
+            assertEqual(keys,ids);
+            pix_ids = unique(sqw_obj.data.pix.run_idx);
+            assertEqual(ids,pix_ids)
+
             save(tmp_filename, 'sqw_obj');
             from_file = load(tmp_filename);
             mat_stored_new = from_file.sqw_obj; % expand variable into full 

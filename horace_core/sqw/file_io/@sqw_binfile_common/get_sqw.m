@@ -121,7 +121,13 @@ if (sqw_struc.data.pix.num_pixels >0 && sqw_struc.data.pix.n_pages == 1) && ...
         % going from 1 to n_headers
         id=1:headers.n_runs;        
         new_runid_map = containers.Map(id,id);  
-        [exp_info,runid_map] = sqw_struc.experiment_info.get_subobj(runid,new_runid_map,true);
+        inf = sqw_struc.experiment_info.expdata;
+        for i=1:numel(inf)
+            inf(i).run_id = id(i);
+        end
+        sqw_struc.experiment_info.expdata = inf;
+        %
+        [exp_info,runid_map] = sqw_struc.experiment_info.get_subobj(runid,new_runid_map,false);
         sqw_struc.experiment_info = exp_info;
         sqw_struc.runid_map = runid_map;
         sqw_struc.main_header.nfiles = exp_info.n_runs;

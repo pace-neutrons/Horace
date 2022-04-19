@@ -53,13 +53,23 @@ if ~isfield(S,'version')
                 obj(i).runid_map = containers.Map(id,id);
             end
             runids = obj(i).experiment_info.expdata.get_run_ids();
+            if ~any(ismember(runids,pix_id)) % pixids restored incorrectly
+                info = obj(i).experiment_info.expdata;
+                for j=1:numel(runids)
+                    info(j).run_id = j;
+                end
+                obj(i).experiment_info.expdata = info;
+                recalculate_runid = false;
+            else
+                recalculate_runid = true;                
+            end
             % remove headers which do not contribute to pixel data and
             % reset run_ids which may have be recovered from filenames
             % to the run_ids, recalculated from 1 to n-contributed runs
             if numel(pix_id) ~= obj(i).experiment_info.n_runs || ...
                 any(isnan(runids))
                 [exper,runid_map] = obj(i).experiment_info.get_subobj( ...
-                    pix_id,obj(i).runid_map,true);
+                    pix_id,obj(i).runid_map,recalculate_runid);
                 obj(i).experiment_info = exper;
                 obj(i).runid_map= runid_map;
                 obj(i).main_header.nfiles = exper.n_runs;

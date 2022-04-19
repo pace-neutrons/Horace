@@ -3,17 +3,20 @@ classdef test_experiment_constructor < TestCase
     methods
         function test_default_constructor_creates_object_of_empty_arrays(~)
             expt = Experiment();
+            assertEqual(expt.n_runs,0);
 
-            assertTrue(isempty(expt.samples));
-            assertTrue(isempty(expt.instruments));
+            assertTrue(isa(expt.samples{1},'IX_null_sample'));
+            assertTrue(isa(expt.instruments{1},'IX_null_inst'));
             assertTrue(isempty(expt.detector_arrays));
+            assertTrue(isempty(expt.expdata));
         end
 
         function test_creates_object_with_single_object_arguments(~)
             detector_array = IX_detector_array;
             instrument = IX_inst_DGfermi();
             sample = IX_sample;
-            expt = Experiment(detector_array, instrument, sample);
+            info = IX_experiment();
+            expt = Experiment(detector_array, instrument, sample,info);
 
             assertEqual(expt.samples{1}, sample);
             assertEqual(expt.instruments{1}, instrument);
@@ -22,10 +25,12 @@ classdef test_experiment_constructor < TestCase
 
         function test_creates_object_with_empty_object_arguments(~)
             expt = Experiment([], [], []);
+            assertEqual(expt.n_runs,0);
 
-            assertTrue(isempty(expt.samples));
-            assertTrue(isempty(expt.instruments));
+            assertTrue(isa(expt.samples{1},'IX_null_sample'));
+            assertTrue(isa(expt.instruments{1},'IX_null_inst'));
             assertTrue(isempty(expt.detector_arrays));
+            assertTrue(isempty(expt.expdata));
         end
         function test_constructor_raises_error_with_invalid_single_input(~)
             assertExceptionThrown(@()Experiment('something icorrect'),...
@@ -38,7 +43,7 @@ classdef test_experiment_constructor < TestCase
         end
         function test_constructor_raises_error_with_no_instrument(~)
             assertExceptionThrown(@()Experiment(IX_detector_array, 'not-an-inst', IX_sample),...
-                'HORACE:Experiment:invalid_argument');
+                'HERBERT:IX_inst:invalid_argument');
         end
         function test_constructor_raises_error_with_no_detectors(~)
             assertExceptionThrown(@()Experiment('not-a-da', IX_inst_DGfermi, IX_sample),...
@@ -49,14 +54,21 @@ classdef test_experiment_constructor < TestCase
             detector_array = IX_detector_array;
             instrument = IX_inst_DGfermi();
             sample = IX_sample;
+            info = [IX_experiment,IX_experiment];
             expt = Experiment( ...
                 [detector_array, detector_array], ...
                 [instrument, instrument], ...
-                [sample, sample]);
+                [sample, sample],info);
 
             assertEqual(expt.samples, {sample, sample});
             assertEqual(expt.instruments, {instrument, instrument});
             assertEqual(expt.detector_arrays, [detector_array, detector_array]);
+            info = expt.expdata;
+            assertTrue(expt.runid_recalculated)
+            assertEqual(numel(info),2)
+            assertEqual(info(1).run_id,1)
+            assertEqual(info(2).run_id,2)
+            
         end
 
         function test_load_save_object_creates_identical_object(~)
@@ -69,8 +81,14 @@ classdef test_experiment_constructor < TestCase
             sample2 = IX_sample;
             sample2.name = 'sample2';
             samples = [sample1, sample2];
+            data = [IX_experiment(),IX_experiment()];
 
-            expt = Experiment(IX_detector_array, instruments, samples);
+            expt = Experiment(IX_detector_array, instruments, samples,data);
+            info = expt.expdata;
+            assertEqual(numel(info),2)
+            assertEqual(info(1).run_id,1)
+            assertEqual(info(2).run_id,2)
+            
 
             save(tmpfile, 'expt');
             clear('expt');
@@ -81,6 +99,10 @@ classdef test_experiment_constructor < TestCase
             assertTrue(isa(expt.instruments{1}, 'IX_inst_DGfermi'));
             assertTrue(isa(expt.instruments{2}, 'IX_inst_DGdisk'));
             assertEqual(expt.detector_arrays, IX_detector_array);
+            info = expt.expdata;
+            assertEqual(numel(info),2)
+            assertEqual(info(1).run_id,1)
+            assertEqual(info(2).run_id,2)
         end
 
         function test_load_save_default_object_creates_default_object(~)
@@ -93,8 +115,8 @@ classdef test_experiment_constructor < TestCase
             clear('expt');
 
             load(tmpfile, 'expt');
-            assertTrue( isempty(expt.instruments));
-            assertTrue( isempty(expt.samples));
+            assertTrue(isa(expt.instruments{1},'IX_null_inst'));
+            assertTrue( isa(expt.samples{1},'IX_null_sample'));
             assertEqual(expt.detector_arrays, []);
         end
 
@@ -112,7 +134,7 @@ classdef test_experiment_constructor < TestCase
             expt = Experiment();
 
             assertExceptionThrown(@() setInstrumentsProperty(expt, instruments),...
-                'HORACE:Experiment:invalid_argument');
+                'HERBERT:IX_inst:invalid_argument');
             function setInstrumentsProperty(e, i)
                 e.instruments = i;
             end

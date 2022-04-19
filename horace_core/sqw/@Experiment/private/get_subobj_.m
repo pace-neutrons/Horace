@@ -17,6 +17,7 @@ function [subexper,runid_map_out] = get_subobj_(obj,indexes,runid_map, ...
 % subexper  -- the Experiment object, containing information
 %              about runs defined by indexes and optionally,
 %              runid_map.
+
 if ~isempty(runid_map)
     keys = runid_map.keys;
     keys = [keys{:}];
@@ -34,7 +35,7 @@ if ~isempty(runid_map)
 else
     head_num = indexes;
 end
-info = cell(4,1);
+info = cell(5,1);
 if numel(obj.detector_arrays_) == obj.n_runs
     info{1} = obj.detector_arrays_(head_num);
 else
@@ -47,20 +48,8 @@ end
 info{2} = obj.instruments_(head_num);
 info{3} = obj.samples_(head_num);
 info{4} = obj.expdata_(head_num);
+info{5} = modify_runid;
+
 
 subexper  = Experiment(info{:});
-
-id = 1:numel(indexes);
-if isempty(runid_map)
-    runid_map_out = containers.Map(id,id);
-    indexes = id;
-else
-    runid_map_out = containers.Map(indexes,id);
-end
-if modify_runid
-    exper = subexper.expdata;
-    for i = 1:numel(indexes)
-        exper(i).run_id = indexes(i);
-    end
-    subexper.expdata = exper;
-end
+runid_map_out = subexper.runid_map;

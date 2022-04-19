@@ -1,11 +1,26 @@
 classdef Experiment < serializable
     %EXPERIMENT Container object for all data describing the Experiment
 
-    properties(Access=private)
+    properties(Access=protected)
         instruments_ = {IX_null_inst()};
         detector_arrays_ = []
         samples_ = {IX_null_sample()}; % IX_samp.empty;
         expdata_ = IX_experiment();
+
+        % TODO: rebuild sqw object to use runid_map stored in the Experiment
+        runid_map_ = [];   % the property defines the relationship between
+        % the runid, contained in expdata and the position of the object
+        % with this runid in the appropriate container (e.g. expdata
+        % container but also correspondent samples instrument and (TODO:)
+        % detector_arrays
+
+        % True, if runid contained in expdata are inconsitent, and were
+        % recalculated to make them consistent.
+        runid_recalculated_ = false;
+        % if true, runid map is always recalculated on change in
+        % expdata regardless of the consistency of the runid-s stored in
+        % expdata
+        force_runid_recalculation_ = false;
 
         % property which informs about experiment class validity
         isvalid_ = true;
@@ -18,10 +33,25 @@ classdef Experiment < serializable
         detector_arrays
         samples
         expdata
+        % the property defines the relationship between
+        % the runid, contained in expdata and the position of the object
+        % with this runid in the appropriate container (e.g. expdata
+        % container but also correspondent samples instrument and (TODO:)
+        % detector_arrays
+        runid_map;
+        %
     end
     properties(Dependent,Hidden)
-        % property providing compatibility with old header interface
+        % property providing compatibility with old header interface and
+        % returning array of structures, with information used to written
+        % in binary sqw file header.
         header
+        % True, if runid contained in expdata are inconsitent, and were
+        % recalculated to make them consistent.
+        runid_recalculated
+        % if set to true, runid map is recalculated regardless of the
+        % consistency of the run_id(s) conteined in expdatas
+        force_runid_recalculation;
     end
     properties(Constant,Access=private)
         fields_to_save_ = {'detector_arrays','instruments','samples','expdata'};
@@ -33,27 +63,64 @@ classdef Experiment < serializable
             % Create a new Experiment object.
             %
             %   obj = Experiment()
+            %   obj = Experiment(special_struct)
             %   obj = Experiment(detector_array[s], instrument[s], sample[s],expdata[s])
+            %   obj = Experiment(___,force_runid_recalculation )
             %
-            % Required:
-            %   detector_array  Detector array (IX_detector_array objects)
-            %   instrument      Instrument (Concrete class inheriting IX_inst)
-            %   sample          Sample data (IX_sample object)
+            %
+            % Inputs:
+            % 1) special_struct -- the structure, obtained from
+            %                      experiment by to_struct or to_bare_struct methods
+            %
+            % 2)
+            %   detector_array --  Detector array (IX_detector_array objects)
+            %   instrument     --  cellarray of Instrument (Concrete class inheriting IX_inst)
+            %   sample         --  cellarray of Sample data (IX_sample objects)
+            %   expdata        --  Array of IX_experinent (instr_proj?)
+            %                      objects.
+            %
+            %   The number of elements in instrument sample and expdata
+            %   containers have to be equal
+            % Optional:
+            % force_runid_recalculation -- if true,recalculate runid map
+            %              regardless of the consistency of the runid-s
+            %              stored in expdata property.
+            %
+            %
+            % Returns:
+            % obj       -- initialized instance of the Experiment object.
+            % runid_map -- Temporary property. The map, which makes
+            %              correspondence between IX_experiment run_id and
+            %              the position of particular IX_experiment (and other
+            %              particular objects, i.e. sample and instrument)
+            %              in the container.
+            % TODO: runid_map will be internal property of Experiment
+            %             object
             %
             % Each argument can be a single object or array of objects.
             if nargin == 0
                 return;
             end
+            if isnumeric(varargin{end}) || islogical(varargin{end})
+                argi = varargin(1:end-1);
+                obj.force_runid_recalculation = varargin{end};
+            else
+                argi = varargin;
+            end
+            if isempty(argi)
+                return;
+            end
 
-            S = varargin{1};
-            if nargin==1
+            S = argi{1};
+            narg = numel(argi);
+            if narg  == 1
                 if isa(S,'Experiment')
                     obj = S;
                     return;
                 elseif isstruct(S)
                     if isfield(S,'efix') && isfield(S,'emode')
-                        obj = build_from_old_headers_(obj,{S});                        
-                    elseif isempty(fieldnames(S))                        
+                        obj = build_from_old_headers_(obj,{S});
+                    elseif isempty(fieldnames(S))
                         obj = Experiment(); % empty object
                     else
                         obj =Experiment.from_struct(S);
@@ -66,13 +133,12 @@ classdef Experiment < serializable
                 end
             else
                 flds = obj.saveableFields();
-                narg = nargin;
                 if narg > numel(flds)
                     error('HORACE:Experiment:invalid_argument',...
                         'Experiment constructor accepts only %d input arguments. Actually it has %d inputs',...
                         numel(flds),narg);
                 end
-                input = cell2struct(varargin,flds(1:narg),2);
+                input = cell2struct(argi,flds(1:narg),2);
                 obj = obj.from_bare_struct(input);
             end
             [ok,mess,obj] = obj.check_combo_arg();
@@ -99,7 +165,7 @@ classdef Experiment < serializable
         end
         function obj=set.instruments(obj, val)
             if isempty(val)
-                obj.instruments_ = {};
+                obj.instruments_ = {IX_null_inst()};
                 return;
             elseif isa(val,'IX_inst')
                 val = num2cell(val);
@@ -110,7 +176,7 @@ classdef Experiment < serializable
                     'Instruments must be a cell array or array of instruments. In fact it is %s',...
                     class(val));
             else
-                obj.instruments_ = val(:);
+                obj.instruments_ = val(:)';
             end
             [~,~,obj] = check_combo_arg(obj);
         end
@@ -120,7 +186,7 @@ classdef Experiment < serializable
         end
         function obj=set.samples(obj, val)
             if isempty(val)
-                obj.samples_ = {};
+                obj.samples_ = {IX_null_sample()};
                 return
             elseif ~iscell(val)
                 val = num2cell(val);
@@ -131,7 +197,7 @@ classdef Experiment < serializable
                     'Samples must be a cellarray or array of IX_samp objects . In fact it is %s',...
                     class(val));
             else
-                obj.samples_ = val(:);
+                obj.samples_ = val(:)';
             end
             [~,~,obj] = check_combo_arg(obj);
         end
@@ -152,12 +218,40 @@ classdef Experiment < serializable
                     'Sample must be one or an array of IX_experiment objects. Actually it is: %s',...
                     class(v))
             end
-            obj.expdata_ = val;
+            obj.expdata_ = val(:)';
+            obj = obj.check_and_calculate_runid_map();
             [~,~,obj] = check_combo_arg(obj);
+        end
+        %
+        function map = get.runid_map(obj)
+            map = obj.runid_map_;
+        end
+        function is = get.runid_recalculated(obj)
+            is  = obj.runid_recalculated_;
+        end
+        %
+        function is = get.force_runid_recalculation(obj)
+            is = obj.force_runid_recalculation_;
+        end
+        function obj = set.force_runid_recalculation(obj,val)
+            if ~(isnumeric(val) || islogical(val))
+                error('HORACE:Experiment:invalid_argument',...
+                    'force_runid_recalculatrion input to set can be logical value or value convertable to logical value. Actually its type is %s', ...
+                    class(val));
+            end
+            if isempty(val)
+                val = false;
+            end
+            obj.force_runid_recalculation_ = logical(val);
         end
         %------------------------------------------------------------------
         function nr = get.n_runs(obj)
             nr = numel(obj.expdata_);
+            if nr == 1
+                if isempty(obj.expdata_(1))
+                    nr = 0;
+                end
+            end
         end
         %
         function expi = get_aver_experiment(obj)
@@ -212,14 +306,14 @@ classdef Experiment < serializable
             %              TODO: this map will be part of the Experiment
             %              object, so the argument will be removed in a
             %              future.
-            % modify_runid- if true, change run_id(s) present as the 
+            % modify_runid- if true, change run_id(s) present as the
             %               indexes of the runds into the indexes of the
             %               pixels, really present in PixelData array
             % Returns:
             % subexper  -- the Experiment object, containing information
             %              about runs defined by indexes and optionally,
             %              runid_map.
-            % runid_map -- the map, which associates runindexes with the 
+            % runid_map -- the map, which associates runindexes with the
             %              numbers of the headers in the subexper object
             %
             %              TODO: this map will be part of the Experiment
@@ -293,11 +387,11 @@ classdef Experiment < serializable
             % this structure is also used in number of places of the old
             % code where, e.g., structure sorting is implemented but this
             % usage is deprecated and will be removed in a future.
-            % 
+            %
             % Optional Inputs:
             % header_num -- if provided, convert only experiment data
             %               corresponding to header number provided
-            % '-nomangle'-- if provided, do not modify filename with 
+            % '-nomangle'-- if provided, do not modify filename with
             %               additional run_id information (normally assumed
             %               "false" when writing new file or "true" when
             %               upgrading file format
@@ -353,22 +447,40 @@ classdef Experiment < serializable
             % interdependent properties
             ok = true;
             mess = '';
-            if numel(obj.instruments_) ~= obj.n_runs
+            nruns = numel(obj.expdata_);
+            if numel(obj.instruments_) ~= nruns
                 ok = false;
                 mess = sprintf(...
                     'Number of instruments: %d is not equal to number of runs: %d; ',...
-                    numel(obj.instruments_),obj.n_runs);
+                    numel(obj.instruments_),nruns);
             end
-            if numel(obj.samples_) ~= obj.n_runs
+            if numel(obj.samples_) ~= nruns 
                 ok = false;
                 mess = sprintf(...
                     '%s Number of samples %d is not equal to number of runs: %d; ',...
-                    mess,numel(obj.samples_),obj.n_runs);
+                    mess,numel(obj.samples_),nruns);
             end
             obj.isvalid_ = ok;
         end
+        function obj = check_and_calculate_runid_map(obj,varargin)
+            % Builds runid_map and sets  runid_map_ and runid_recalculated_
+            % properties using contents of expdata property.
+            %
+            % Optional inputs:
+            % force_runid_recalculation -- If present and true, recalculate
+            %                   runid regardless of consistency of runid
+            %                   stored in the expdata.
+            if nargin == 1
+                force_runid_recalc  = obj.force_runid_recalculation_;
+            else
+                obj.force_runid_recalculation = varargin{1};
+                force_runid_recalc   = obj.force_runid_recalculation;
+            end
+            obj = check_and_calculate_runid_map_(obj,force_runid_recalc);
+        end
 
     end
+
     methods(Access=protected)
         function is = check_validity(obj)
             is = obj.isvalid_;

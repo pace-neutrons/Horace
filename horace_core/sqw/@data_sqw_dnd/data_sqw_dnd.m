@@ -263,7 +263,7 @@ classdef data_sqw_dnd < axes_block
             % this property should not be used, as the change of this
             % property on defined object would involve whole pixels
             % rebinning.
-            % TODO: remove this property or enable rebinning algorithm
+            % TODO: remove this property setter or enable rebinning algorithm
             % on its change
             warning('HORACE:data_sqw_dnd:runtime_erroe',...
                 'using redundant property img_db_range. Use set/get.img_range instead')
@@ -293,15 +293,16 @@ classdef data_sqw_dnd < axes_block
                 inputs.img_range = obj.calc_img_db_range(inputs);
                 inputs = rmfield(inputs,'img_db_range');
             end
+            if isfield(inputs,'img_db_range')
+                inputs.img_range = inputs.img_db_range;
+                inputs = rmfield(inputs,'img_db_range');
+            end
+            
             if isfield(inputs,'pax') && isfield(inputs,'iax')
                 inputs.serial_name = 'axes_block';
                 ab = serializable.loadobj(inputs);
                 obj = data_sqw_dnd(ab,inputs);
                 return;
-            end
-            if isfield(inputs,'img_db_range')
-                inputs.img_range = inputs.img_db_range;
-                inputs = rmfield(inputs,'img_db_range');
             end
             if ~isfield(inputs,'nonorthogonal')
                 inputs.nonorthogonal = false;
