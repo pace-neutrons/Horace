@@ -378,7 +378,7 @@ classdef ortho_proj<aProjection
             % class. New data_sqw_dnd class will contain the whole projection
 
 
-            lst = {'u_to_rlu','nonorthogonal','alatt','angdeg','uoffset'};
+            lst = {'u_to_rlu','nonorthogonal','alatt','angdeg','uoffset','label'};
         end
 
     end

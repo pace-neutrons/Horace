@@ -166,12 +166,7 @@ classdef axes_block < serializable
         end
     end
 
-    methods
-        % return 3 q-axis in the order they mark the dnd object
-        % regardless of the integration along some qxis
-        % TODO: probably should be removed
-        [q1,q2,q3] = get_q_axes(obj);
-        
+    methods        
         % return binning range of existing data object, so that cut without
         % parameters, performed within this range would return the same cut
         % as the original object

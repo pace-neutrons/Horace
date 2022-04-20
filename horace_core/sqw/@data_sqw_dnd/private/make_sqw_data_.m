@@ -83,11 +83,14 @@ if narg<=1
     proj = [];
     if nargin==3
         proj = varargin{1};
+        if isstruct(proj)
+            proj = ortho_proj(proj);
+        end
     end
     if isempty(proj)
         proj = ortho_proj;
-        proj.offset = uoffset;
     end
+    proj.offset = uoffset;
     obj = make_sqw_data_from_proj_(obj,proj);
 elseif narg>=2
     % -------------------------------------------------------------------------------------

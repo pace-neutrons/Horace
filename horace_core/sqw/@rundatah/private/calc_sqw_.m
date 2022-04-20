@@ -54,6 +54,8 @@ axes_bl = proj.get_proj_axes_block(pix_db_range_in,grid_size_in);
 % the range has not been defined before
 [data.npix,data.s,data.e,pix,run_id,det0,axes_bl] = ...
     proj.bin_pixels(axes_bl,obj,data.npix,data.s,data.e);
+[data.s, data.e] = normalize_signal(data.s, data.e, data.npix);
+
 % either does nothing if img_range was defined before, or defines img_range
 % equal to pix_range, if img_range was undefined
 data.img_range = axes_bl.img_range;
@@ -75,7 +77,6 @@ d.data=data;
 d.runid_map = containers.Map(run_id,1);
 
 w=sqw(d);
-
 
 %------------------------------------------------------------------------------------------------------------------
 function [header,sqw_data] = calc_sqw_data_and_header (obj,axes_bl)
@@ -104,16 +105,17 @@ sqw_data = data_sqw_dnd(axes_bl, ...
 [~, u_to_rlu] = obj.lattice.calc_proj_matrix();
 ulen = [1,1,1,1];
 uoffset = [0;0;0;0];
-
-sqw_data.u_to_rlu = eye(4); % conversion from pixels to image. Unity here.
+u_to_rlu =  [u_to_rlu,zeros(3,1);[0,0,0,1]];
+%sqw_data.u_to_rlu = eye(4); % conversion from pixels to image. Sould it be
+%unity here?
+sqw_data.u_to_rlu =u_to_rlu;
 % Old value creates confusion: sqw_data.u_to_rlu = u_to_rlu;
 sqw_data.ulen = ulen;
 
 expdata = IX_experiment([fn,fe], [fp,filesep], ...
     obj.efix,obj.emode,lat.u,lat.v,...
     lat.psi,lat.omega,lat.dpsi,lat.gl,lat.gs,...
-    obj.en,uoffset, ...
-    [[u_to_rlu;[0,0,0]],[0;0;0;1]], ...
+    obj.en,uoffset,  u_to_rlu, ...
     ulen,sqw_data.label,obj.run_id);
 
 header = Experiment([],obj.instrument,obj.sample,expdata);
