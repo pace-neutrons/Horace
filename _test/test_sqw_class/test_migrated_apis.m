@@ -90,19 +90,6 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
         end
 
         %% Cut
-        function test_cut(obj)
-            skipTest('Incorrect test data for cut');
-            sqw_obj = sqw(obj.test_sqw_2d_fullpath);
-            proj = projaxes([1,-1,0], [1,1,0], 'uoffset', [1,1,0], 'type', 'paa');
-            range = [0,0.2];    % range of cut
-            step = 0.01;        % Q step
-            bin = [range(1)+step/2,step,range(2)-step/2];
-            width = [-0.15,0.15];  % Width in Ang^-1 of cuts
-            ebins = [105,0,115];
-
-            w2 = sqw_obj.cut(proj, bin, width, width, ebins, '-pix');
-            %            this.assertEqualToTolWithSave (w2, this.tol_sp,'ignore_str',1);
-        end
         function test_cut_sym(obj)
             skipTest('Incorrect test data for cut_sym');
             sqw_obj = sqw(obj.test_sqw_2d_fullpath);

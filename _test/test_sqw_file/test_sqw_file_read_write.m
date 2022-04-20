@@ -62,12 +62,12 @@ classdef test_sqw_file_read_write < TestCase
             % ----------------------------------------------------------------
             save(obj.ds.f1_1,tmpsqwfile);
             tmp=sqw(tmpsqwfile);
-            [ok,mess]=equal_to_tol(obj.ds.f1_1,tmp,'ignore_str',1);
+            [ok,mess]=equal_to_tol(obj.ds.f1_1.to_struct,tmp.to_struct,'ignore_str',1);
             assertTrue(ok,mess);
             
             save(obj.ds.f1_3,tmpsqwfile);
             tmp=sqw(tmpsqwfile);
-            [ok,mess]=equal_to_tol(obj.ds.f1_3,tmp,'ignore_str',1);
+            [ok,mess]=equal_to_tol(obj.ds.f1_3.to_struct,tmp.to_struct,'ignore_str',1);
             assertTrue(ok,mess)
         end
         %
@@ -101,7 +101,8 @@ classdef test_sqw_file_read_write < TestCase
                 warning('test_sqw_file_read_write:io','Error reading/writing sqw object')
                 rethrow(err);
             end
-            [ok,mess]=equal_to_tol(f1_1_s1,tmp,'ignore_str',1); assertTrue(ok,mess)
+             [ok,mess]=equal_to_tol(f1_1_s1.to_struct,tmp.to_struct,'ignore_str',1);
+            assertTrue(ok,mess)
             
             
             % Remove the sample again, and confirm the same as original object after writing and reading
@@ -121,7 +122,7 @@ classdef test_sqw_file_read_write < TestCase
                 warning('test_sqw_file_read_write:io1','Error reading/writing sqw object')
                 rethrow(err);
             end
-            [ok,mess]=equal_to_tol(f1_1_s0,tmp,'ignore_str',1); assertTrue(ok,mess)
+            [ok,mess]=equal_to_tol(f1_1_s0.to_struct(),tmp.to_struct(),'ignore_str',1); assertTrue(ok,mess)
         end
         function test_syntax_and_file_io_instr_sample(obj)
             

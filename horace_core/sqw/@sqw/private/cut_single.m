@@ -52,6 +52,22 @@ if keep_pix
         exp_info = Experiment();
         runid_map = containers.Map();
     else
+        % old stored objects, which do not contain correctly defind runid map
+        % compartibility operation.
+        % TODO: Should be check for old file and after that -- this code.
+        old_runid = w.experiment_info.expdata.get_run_ids();
+        if ~any(ismember(runid_contributed,old_runid))
+            % some old file conains runid, which has been
+            % recalculated from 1 to n_headers on pixels but have not been
+            % stored in runid map and in headers
+            info = w.experiment_info.expdata;
+            for i=1:numel(info)
+                info(i).run_id= i;
+            end
+            w.experiment_info.expdata= info;
+            ind = 1:numel(info);
+            w.runid_map = containers.Map(ind,ind);
+        end
         [exp_info,runid_map] = w.experiment_info.get_subobj(runid_contributed,w.runid_map);
     end
     %

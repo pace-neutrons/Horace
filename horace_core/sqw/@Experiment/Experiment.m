@@ -288,34 +288,31 @@ classdef Experiment < serializable
         %
         function [subexper,runid_map] = get_subobj(obj,indexes,...
                 runid_map,modify_runid)
-            % return Experiment object, containing subset of experiments,
+            % Return Experiment object, containing subset of experiments,
             % requested by the method.
             %
             % Input:
-            % indexes   -- the array of indexes, which identify particular
-            %              experiments to include asof the runs to contribute
-            %              into the final subset of experiment
-            % Optional:
-            % runid_map -- if provided, the map run_id->index, containing
+            % obj       -- initialized instance of the Experiment, containing
+            %              information about experiments(runs) contributed into sqw
+            %              object.
+            % indexes   -- the array of indexes or run_id-s, (see the second parameter)
+            %              which identify particular experiments(runs) to include the
+            %              experiments(runs) contributing into the final subset
+            %              of experiments.
+            % runid_map -- if not empty, the map run_id->index, containing
             %              information about run_id to select as the final
             %              experiment info. If it is provided, first
-            %              argument is treated as runid-s, which are the
+            %              argument is treated as run_id-s, which are the
             %              keys of the runid_map rather then direct indexes
-            %              of the map.
-            %
-            %              TODO: this map will be part of the Experiment
-            %              object, so the argument will be removed in a
-            %              future.
-            % modify_runid- if true, change run_id(s) present as the
-            %               indexes of the runds into the indexes of the
-            %               pixels, really present in PixelData array
+            %              of the experiments(runs) contributing into the final subset.
+            % Optional:
+            % modify_runid
+            %          -- if present and true, redefine final runid_map and run_ind of
+            %             the expdata to count from 1 to n_experiments(runs)
             % Returns:
             % subexper  -- the Experiment object, containing information
-            %              about runs defined by indexes and optionally,
+            %              about experiments(runs) defined by indexes and optionally,
             %              runid_map.
-            % runid_map -- the map, which associates runindexes with the
-            %              numbers of the headers in the subexper object
-            %
             %              TODO: this map will be part of the Experiment
             %              object, so the argument will be removed in a
             %              future.
@@ -454,7 +451,7 @@ classdef Experiment < serializable
                     'Number of instruments: %d is not equal to number of runs: %d; ',...
                     numel(obj.instruments_),nruns);
             end
-            if numel(obj.samples_) ~= nruns 
+            if numel(obj.samples_) ~= nruns
                 ok = false;
                 mess = sprintf(...
                     '%s Number of samples %d is not equal to number of runs: %d; ',...
