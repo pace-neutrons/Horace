@@ -19,7 +19,7 @@ function   pix = sort_pix(pix_retained,pix_ix_retained,npix,varargin)
 %                (usually for testing)
 % '-force_double'
 %              -- if provided, the routine changes type of pixels
-%                 it get on input, into double. if not, output pixels will 
+%                 it get on input, into double. if not, output pixels will
 %                 keep their initial type
 %
 % these two options can not be used together.
@@ -81,25 +81,35 @@ if use_mex
         % TODO: make "keep type" a default behaviour!
         % function retrieves keep_type variable value from this file
         % so returns double or single resolution pixels depending on this
+        if force_double % keep_type is extracted by sort_pix_by_bins routine
+            keep_type = false;
+        else
+            keep_type = true;
+        end
         raw_pix = cellfun(@(pix_data) pix_data.data, pix_retained, ...
             'UniformOutput', false);
-        raw_pix = sort_pixels_by_bins(raw_pix, pix_ix_retained, npix);
+        pix = PixelData();
         if use_given_pix_range
-            pix = PixelData();
-            set_data(pix,'all',raw_pix);
+            raw_pix = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
+                npix,keep_type);
+            pix.set_data('all',raw_pix);
             pix.set_range(pix_range);
         else
-            pix = PixelData(raw_pix);
+            [raw_pix,pix_range_l] = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
+                npix,keep_type);
+            pix.set_data('all',raw_pix);
+            pix.set_range(pix_range_l);
         end
         clear pix_retained pix_ix_retained;  % clear big arrays
     catch ME
         use_mex=false;
         if get(hor_config,'log_level')>=1
             message=ME.message;
-            warning(' Can not sort_pixels_by_bins using c-routines, reason: %s \n trying Matlab',message)
+            warning('HORACE:mex_code_problem', ...
+                ' C-routines returned error: %s, details: %s \n Trying Matlab', ...
+                ME.identifier,message)
             if force_mex
-                error('SORT_PIXELS:c_code_fail','sort_pixels: can not use mex code but force mex requested, Error %s',...
-                    message)
+                rethrow(ME);
             end
         end
     end
@@ -123,15 +133,12 @@ if ~use_mex
         pix = PixelData();
         return;
     end
-    
+
     pix=pix.get_pixels(ind); % reorders pix according to pix indexes within bins
     clear ind;
     if force_double
         if ~isa(pix.data,'double')
             pix = PixelData(double(pix.data));
         end
-    end    
+    end
 end
-
-
-

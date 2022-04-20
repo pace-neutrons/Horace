@@ -3,7 +3,7 @@
 
 
 #include "../CommonCode.h"
-
+#include <algorithm>
 
 #define iRound(x)  (int)floor((x)+0.5)
 
@@ -12,7 +12,8 @@
 
 //
 template<class T, class N, class K>
-void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, std::vector<const T *> &PixelData, std::vector<size_t> &NPixels,
+void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, double *const pPixRange,
+    std::vector<const T *> &PixelData, std::vector<size_t> &NPixels,
     std::vector<const N *> &PixelIndexes, std::vector<size_t> NIndexes,
     double const *const pCellDens, size_t distribution_size,
     size_t *const ppInd) {
@@ -24,6 +25,14 @@ void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, std::vec
     };                                      // plus the number of pixels in the cell previous cell
     if (ppInd[distribution_size - 1] + (size_t)pCellDens[distribution_size - 1] != nPixelsSorted) {
         throw("Sort_pixels_by_bins: pixels data and their cell distributions are inconsistent ");
+    }
+    bool calc_pix_range(false);
+    if (pPixRange) {
+        calc_pix_range = true;
+        for (size_t i = 0; i < 4; i++) {
+            pPixRange[2 * i]     =  std::numeric_limits<double>::max();
+            pPixRange[2 * i + 1] = -std::numeric_limits<double>::max();
+        }
     }
 
 
@@ -42,6 +51,13 @@ void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, std::vec
             size_t ind = (size_t)(pCellInd[j] - 1); // -1 as Matlab arrays start from one;
             size_t jBase = ppInd[ind] * pix_fields::PIX_WIDTH;
             ppInd[ind]++;
+            if (calc_pix_range) {
+                for (size_t i = 0; i < 4; i++) {
+                    double pix_val = static_cast<double>(pPixData[i0 + i]);
+                    pPixRange[2 * i]     = std::min(pPixRange[2 * i], pix_val);
+                    pPixRange[2 * i + 1] = std::max(pPixRange[2 * i + 1], pix_val);
+                }
+            }
 
             for (size_t i = 0; i < pix_fields::PIX_WIDTH; i++) {  // copy all pixel data into the location requested
                 pPixelSorted[jBase + i] = static_cast<K>(pPixData[i0 + i]);

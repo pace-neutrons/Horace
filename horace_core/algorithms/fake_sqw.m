@@ -189,7 +189,7 @@ hor_log_level = ...
 if isempty(img_db_range)
     img_db_range = PixelData.EMPTY_RANGE_;
     for i=1:numel(run_files)
-        [pix_range_l,~,run_files{i}] = run_files{i}.calc_pix_range(en_lo(i),en_hi(i));
+        [pix_range_l,run_files{i}] = run_files{i}.calc_pix_range(en_lo(i),en_hi(i));
         img_db_range = [min(pix_range_l(1,:),img_db_range(1,:));max(pix_range_l(2,:),img_db_range(2,:))];
     end
     img_db_range=range_add_border(img_db_range,...

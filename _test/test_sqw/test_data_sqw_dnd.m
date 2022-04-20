@@ -256,8 +256,8 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             
             % the comparison below is incomplete, but allows the reasonable
             % estimation of the correctness
-            assertElementsAlmostEqual(obj.ref_sqw.data.img_db_range,...
-                same_sqw.data.img_db_range,'relative',1.e-5);
+            assertElementsAlmostEqual(obj.ref_sqw.data.img_range,...
+                same_sqw.data.img_range,'relative',1.e-5);
             assertEqual(obj.ref_sqw.data.pix.num_pixels,...
                 same_sqw.data.pix.num_pixels);
             cut_size  = numel(same_sqw.data.npix);

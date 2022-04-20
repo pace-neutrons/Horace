@@ -1,4 +1,4 @@
-function [u_to_rlu, pix_range, pix,obj] = calc_projections_(obj, detdcn,proj_mode)
+function [pix_range, pix,obj] = calc_projections_(obj, detdcn,proj_mode)
 % project detector positions into Crystal Cartesian coordinate system
 %
 % Label pixels in an spe file with coords in the 4D space defined by crystal Cartesian coordinates and energy transfer.
@@ -23,11 +23,6 @@ function [u_to_rlu, pix_range, pix,obj] = calc_projections_(obj, detdcn,proj_mod
 %
 % Output:
 % -------
-%   u_to_rlu    Matrix (3x3) of crystal Cartesian axes in reciprocal lattice units
-%              i.e. u_to_rlu(:,1) first vector - u(1:3,1) r.l.u. etc.
-%              This matrix can be used to convert components of a vector in
-%              crystal Cartesian axes to r.l.u.: v_rlu = u_to_rlu * v_crystal_Cart
-%              (Same as inv(B) in Busing and Levy convention)
 %   pix_range  [2 x 4] array containing the full extent of the data in crystal Cartesian
 %              coordinates and energy transfer; first row the minima, second row the
 %              maxima.
@@ -61,10 +56,11 @@ end
 
 
 % Create matrix to convert from spectrometer axes to coordinates along crystal Cartesian projection axes
-[spec_to_cc, u_to_rlu] = obj.lattice.calc_proj_matrix();
+spec_to_cc = obj.lattice.calc_proj_matrix();
 
 % Calculate Q in spectrometer coordinates for each pixel
-[use_mex,nThreads]=config_store.instance().get_value('hor_config','use_mex','threads');
+[use_mex,nThreads,pixel_page_size]=config_store.instance().get_value( ...
+    'hor_config','use_mex','threads','pixel_page_size'); % pixel_page_size is redundant property
 if use_mex
     if ~isempty(qspec) % why is this?
         use_mex = false;
@@ -81,7 +77,8 @@ if use_mex
             %nThreads = 1;
             [pix_range,pix] =calc_projections_c(spec_to_cc, data, det, efix,k_to_e, emode, nThreads,proj_mode);
             if proj_mode==2
-                pix = PixelData(pix);
+                pix = PixelData(pix,pixel_page_size,false);
+                pix.set_range(pix_range);
             end
         catch  ERR % use Matlab routine
             warning('HORACE:using_mex', ...

@@ -75,6 +75,6 @@ function en = get_en_from_range(en_min,en_max)
 
 if en_min == 0 || en_max == 0 || sign(en_min)*sign(en_max)>0
     en = [en_min*(1-sign(en_min)*eps),en_max*(1+sign(en_max)*eps)];
-else
+else %we want even number of equally spaced bins, to produce 3 odd bin cenres    
     en = [en_min*(1-sign(en_min)*eps),0,en_max*(1+sign(en_max)*eps)];
 end

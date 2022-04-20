@@ -85,7 +85,7 @@ classdef rundatah < rundata
         [w,grid_size,pix_range,varargout] = calc_sqw(rd,grid_size_in,pix_range_in,varargin);
 
         %Method calculates q-dE range, this rundata file contributes into.
-        [u_to_rlu,pix_range,varargout]=calc_pix_range(obj,varargin);
+        [pix_range,varargout]=calc_pix_range(obj,varargin);
 
         % build rundata object, which can be used for estimating sqw pix
         % ranges
@@ -155,7 +155,7 @@ classdef rundatah < rundata
             [qspec,en]=calc_qspec_(detdcn,obj.efix,en,obj.emode);
         end
 
-        function [pix_range,u_to_rlu,pix,obj] = calc_projections(obj,detdcn)
+        function [pix_range,pix,obj] = calc_projections(obj,detdcn)
             % main function to transform rundatah information into
             % crystal Cartesian coordinate system
             %
@@ -173,8 +173,6 @@ classdef rundatah < rundata
             % Returns:
             % pix_range --  q-dE range of pixels in crystal Cartesian coordinate
             %             system
-            % u_to_rlu -- martix to use when converting crystal Cartesian
-            %             coordinate systen into rlu coordinate system
             % pix      -- PixelData object containing sqw pixel's information
             %
             %             coordinate system (see sqw pixels information on
@@ -194,7 +192,7 @@ classdef rundatah < rundata
             %             % remove masked data and detectors
             %             [obj.S,obj.ERR,obj.det_par]=obj.rm_masked();
 
-            if nargout<3
+            if nargout<2
                 proj_mode = 0;
             else
                 proj_mode = 2;
@@ -203,7 +201,7 @@ classdef rundatah < rundata
                 detdcn = [];
             end
             % Calculate projections
-            [u_to_rlu,pix_range,pix,obj] = obj.calc_projections_(detdcn,proj_mode);
+            [pix_range,pix,obj] = obj.calc_projections_(detdcn,proj_mode);
         end
         %
         function flds = saveableFields(obj)

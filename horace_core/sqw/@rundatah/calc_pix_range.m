@@ -1,22 +1,19 @@
-function [pix_range,u_to_rlu,obj]=calc_pix_range(obj,varargin)
+function [pix_range,obj]=calc_pix_range(obj,varargin)
 % Method calculates q-dE range, this rundata object has
 %
 %Usage:
-%>>[pix_range,u_to_rlu]=obj.calc_pix_range()  Calculate crystal Cartesian range
+%>>[pix_range]=obj.calc_pix_range()  Calculate crystal Cartesian range
 %                                      for fully defined rundatah object
 %
-%>>[pix_range,u_to_rlu]=obj.calc_pix_range(emin,emax) Calculate range of the
+% >>[pix_range]=obj.calc_pix_range(emin,emax) Calculate range of the
 %                  rundata object within the energy range provided.
 %                  the object may be not fully defined (only detectors and
 %                  (currently -- not mandatory) lattice should exist.
 %                  if object is defined, energy range is calculated from
 %                  min(emin,obj.en) to max(emax,obj.en)
 %
-%>>[pix_range,u_to_rlu,detdcn]=obj.calc_pix_range(...,'-cache_detectors')
-%                  Calculate pix_range for fully defined rundatah object,
-%                  using precacluated vectors, pointing to the detectors
-%                  positons
-%>>[pix_range,u_to_rlu,detdcn]=obj.calc_pix_range(...,'-ignore_transformation')
+
+%>>[pix_range,obj]=obj.calc_pix_range(...,'-ignore_transformation')
 %                  if transformation is defined on the rundata, calculate
 %                  range without it
 %
@@ -28,16 +25,12 @@ if ~ok
 end
 
 [b_obj,obj] = obj.build_bounding_obj(params{:});
-%det = b_obj.get_par();
-% request to return all angular units as radians
-%
-%---------------------------------------------------------------------------
-%
-
 
 if isempty(obj.transform_sqw) || ignore_transf %
-    [u_to_rlu,pix_range] = calc_projections_(b_obj,[],0);
+    proj = obj.get_projection();
+    [pix_range,det0] = proj.convert_rundata_to_pix(b_obj);
+    obj.det_par = det0;
 else
-    [b_obj,~,pix_range] = b_obj.calc_sqw(3,[],varargin{:});
-    u_to_rlu = b_obj.data.u_to_rlu;
+    [~,~,pix_range] = b_obj.calc_sqw(3,[],varargin{:});
 end
+

@@ -5,10 +5,12 @@ enum Input_Arguments {
     Pixel_data,
     Pixel_Indexes,
     Pixel_Distribution,
+    keep_type,
     N_INPUT_Arguments
 };
 enum Out_Arguments {
     Pixels_Sorted,
+    Pixels_range,
     N_OUTPUT_Arguments
 };
 /* What kind of input/output types the routine supports*/
@@ -225,22 +227,26 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     std::stringstream buf;
     if (nrhs != N_INPUT_Arguments) {
         buf << "ERROR::sort_pixels_by_bins needs" << (short)N_INPUT_Arguments << "  but got " << (short)nrhs << " input arguments\n";
-        mexErrMsgTxt(buf.str().c_str());
+        mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument",
+            buf.str().c_str());
     }
     if (nlhs > N_OUTPUT_Arguments) {
         buf << "ERROR::sort_pixels_by_bins accept only " << (short)N_OUTPUT_Arguments << " but requested to return" << (short)nlhs << " arguments\n";
-        mexErrMsgTxt(buf.str().c_str());
+        mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument",
+            buf.str().c_str());
     }
 
     for (int i = 0; i < nrhs; i++) {
         if (prhs[i] == NULL) {
             buf << "ERROR::sort_pixels_by_bins=> input argument N" << i + 1 << " undefined\n";
-            mexErrMsgTxt(buf.str().c_str());
+            mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument",
+                buf.str().c_str());
         }
     }
     // check if routine should keep input type
-    const mxArray* pKeep_inputType = mexGetVariablePtr("caller", "keep_type");
-    bool keep_input_type = *(reinterpret_cast<const bool*>(pKeep_inputType));
+    bool keep_input_type(true);
+    keep_input_type = (bool)getMatlabScalar<double>(prhs[keep_type], "keep_type");
+
 
     // evaluate input pixels cell array
     bool pix_single_precision(false);
@@ -249,7 +255,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     size_t n_Input_pixels;
     std::string err_code = verify_pix_array(prhs[Pixel_data], pix_single_precision, pix_sizes, pPix_blocks, n_Input_pixels);
     if (err_code.size() > 0) {
-        mexErrMsgTxt(err_code.c_str());
+        mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument", err_code.c_str());
     }
     // evaluate input indexes cell array
     bool index_is_integer(false);
@@ -258,7 +264,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     size_t nPixelsSorted;
     err_code = verify_index_array(prhs[Pixel_Indexes], index_is_integer, index_sizes, pIndex_blocks, nPixelsSorted);
     if (err_code.size() > 0) {
-        mexErrMsgTxt(err_code.c_str());
+        mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument", err_code.c_str());
     }
     //Get  npix  array
     double* pCellDens = (double*)mxGetPr(prhs[Pixel_Distribution]);
@@ -279,21 +285,34 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
             double_output = true;
         }
         if (!plhs[Pixels_Sorted]) {
-            mexErrMsgTxt("Sort_pixels_by_bins: can not allocate memory for output pixels array");
+            mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:runtime_error",
+                "Can not allocate memory for output pixels array");
         }
     }
     catch (...) {
-        mexErrMsgTxt("Sort_pixels_by_bins: can not allocate memory for output pixels array");
+        mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:runtime_error",
+            "Can not allocate memory for output pixels array");
     }
-    /*
-      mwSize  *const ppInd   = new mwSize[distribution_size]; //working array of indexes for transformed pixels
-      if(!ppInd){
-            mexErrMsgTxt(" can not allocate memory for working array");
-      }
-    */
+    double* pPixelRange(nullptr);
+    if (nlhs == 2) {
+        try {
+            plhs[Pixels_range] = mxCreateDoubleMatrix(2, 4, mxREAL);
+            if (!plhs[Pixels_range]) {
+                mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:runtime_error",
+                    "Can not allocate memory for output pixels ranges");
+            }
+        }
+        catch (...) {
+            mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:runtime_error",
+                "Can not allocate memory for output pixels ranges");
+        }
+        pPixelRange = (double*)mxGetPr(plhs[Pixels_range]);
+    }
+
     InputOutputTypes type_requested = process_types(pix_single_precision, index_is_integer, double_output);
     if (type_requested == ERROR) {
-        mexErrMsgTxt("Sort_pixels_by_bins: unsupported combination of input/output types");
+        mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument",
+            "Sort_pixels_by_bins: unsupported combination of input/output types");
     }
 
     try {
@@ -301,7 +320,8 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         if (array_size == 0)array_size = 1;
         void* ppInd = mxMalloc(array_size * sizeof(size_t)); //working array of indexes for transformed pixels
         if (!ppInd) {
-            mexErrMsgTxt("Sort_pixels_by_bins: memory allocation error for auxiliary array of indexes");
+            mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:runtime_error",
+                "Sort_pixels_by_bins: memory allocation error for auxiliary array of indexes");
         }
         //---------------------------------------------------------------------------------------------
 
@@ -314,7 +334,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
                     piIndex_blocks[i] = reinterpret_cast<const int64_t*>(pIndex_blocks[i]);
                 }
 
-                sort_pixels_by_bins<double, int64_t, double>(pPixelSorted, nPixelsSorted, pPix_blocks, pix_sizes,
+                sort_pixels_by_bins<double, int64_t, double>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
                     piIndex_blocks, index_sizes,
                     pCellDens, distribution_size,
                     reinterpret_cast<size_t*>(ppInd));
@@ -325,7 +345,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
                 double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);
                 std::vector<const int64_t*> piIndex_blocks(pIndex_blocks.size());
 
-                sort_pixels_by_bins<double, double, double>(pPixelSorted, nPixelsSorted, pPix_blocks, pix_sizes,
+                sort_pixels_by_bins<double, double, double>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
                     pIndex_blocks, index_sizes,
                     pCellDens, distribution_size,
                     reinterpret_cast<size_t*>(ppInd));
@@ -341,7 +361,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
                     piIndex_blocks[i] = reinterpret_cast<const int64_t*>(pIndex_blocks[i]);
                 }
                 //
-                sort_pixels_by_bins<float, int64_t, double>(pPixelSorted, nPixelsSorted, psPix_blocks, pix_sizes,
+                sort_pixels_by_bins<float, int64_t, double>(pPixelSorted, nPixelsSorted, pPixelRange, psPix_blocks, pix_sizes,
                     piIndex_blocks, index_sizes,
                     pCellDens, distribution_size,
                     reinterpret_cast<size_t*>(ppInd));
@@ -356,7 +376,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
                     psPix_blocks[i] = reinterpret_cast<const float*>(pPix_blocks[i]);
                 }
                 //
-                sort_pixels_by_bins<float, double, double>(pPixelSorted, nPixelsSorted, psPix_blocks, pix_sizes,
+                sort_pixels_by_bins<float, double, double>(pPixelSorted, nPixelsSorted, pPixelRange, psPix_blocks, pix_sizes,
                     pIndex_blocks, index_sizes,
                     pCellDens, distribution_size,
                     reinterpret_cast<size_t*>(ppInd));
@@ -373,7 +393,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
                     piIndex_blocks[i] = reinterpret_cast<const int64_t*>(pIndex_blocks[i]);
                 }
                 //
-                sort_pixels_by_bins<float, int64_t, float>(pPixelSorted, nPixelsSorted, psPix_blocks, pix_sizes,
+                sort_pixels_by_bins<float, int64_t, float>(pPixelSorted, nPixelsSorted, pPixelRange, psPix_blocks, pix_sizes,
                     piIndex_blocks, index_sizes,
                     pCellDens, distribution_size,
                     reinterpret_cast<size_t*>(ppInd));
@@ -388,7 +408,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
                     psPix_blocks[i] = reinterpret_cast<const float*>(pPix_blocks[i]);
                 }
                 //
-                sort_pixels_by_bins<float, double, float>(pPixelSorted, nPixelsSorted, psPix_blocks, pix_sizes,
+                sort_pixels_by_bins<float, double, float>(pPixelSorted, nPixelsSorted, pPixelRange, psPix_blocks, pix_sizes,
                     pIndex_blocks, index_sizes,
                     pCellDens, distribution_size,
                     reinterpret_cast<size_t*>(ppInd));
@@ -397,24 +417,28 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 
             }
             case ERROR:
-                mexErrMsgTxt("Sort_pixels_by_bins: Got unsupported combination of input/output types");
+                mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument",
+                    "Sort_pixels_by_bins: Got unsupported combination of input/output types");
             case N_InputCases:
-                mexErrMsgTxt("Sort_pixels_by_bins: Got unsupported combination of input/output types");
+                mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument",
+                    "Sort_pixels_by_bins: Got unsupported combination of input/output types");
             default:
-                mexErrMsgTxt("Sort_pixels_by_bins: Got unsupported combination of input/output types");
+                mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument",
+                    "Sort_pixels_by_bins: Got unsupported combination of input/output types");
             }
         }
         catch (const char* err) {
             mxFree(ppInd);
-            mexErrMsgTxt(err);
+            mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:runtime_error", err);
         }
         mxFree(ppInd);
     }
     catch (const char* err) {
-        mexErrMsgTxt(err);
+        mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:runtime_error", err);
     }
     catch (...) {
-        mexErrMsgTxt("Sort_pixels_by_bins: unhandled exception in sort_pixels_by_bins procedure, location 3");
+        mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:runtime_error",
+            "Sort_pixels_by_bins: unhandled exception in sort_pixels_by_bins procedure, location 3");
     }
 
 }
