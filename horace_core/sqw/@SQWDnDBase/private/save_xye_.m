@@ -54,7 +54,7 @@ function save_xye_(obj,varargin)
 
 % Check input
 % -----------
-%TODO: when data_sqw_dnd inherits DnDBase format, remove this and 
+%TODO: when data_sqw_dnd inherits DnDBase format, remove this and
 % the row:
 % function save_xye_internal(obj,varargin)
 % and move the code to DnDBase/private. Ticket #730
@@ -78,17 +78,20 @@ elseif nargs==2 && isnumeric(varargin{1}) && (ischar(varargin{2}) || iscell(vara
     file_given=true;
     file=varargin{2};
 elseif nargs~=0
-    error('Check input parameters')
+    error('HORACE:save_xye:invalid_argument', ...
+        'Wrong number of input parameters')
 end
 
 
 if file_given && numel(obj)>1
     if ~iscell(file) || numel(file)~=numel(obj)
-        error('If an array of objects is to be saved then you must specify the filenames with a cell array of the same size');
+        error('HORACE:save_xye:invalid_argument', ...
+            'If an array of objects is to be saved then you must specify the filenames with a cell array of the same size');
     end
 elseif file_given && numel(obj)==1
     if iscell(file) && numel(file)~=1
-        error('Only a single object to be saved, but a cell array of filenames has been specified. Choose one filename');
+        error('HORACE:save_xye:invalid_argument', ...
+            'Only a single object to be saved, but a cell array of filenames has been specified. Choose one filename');
     elseif iscell(file)
         file=char(file);%convert to a character array
     end
@@ -101,7 +104,8 @@ if ~file_given
     for i=1:numel(obj)
         file_internal{i} = putfile('*.txt');
         if (isempty(file_internal{i}))
-            error ('No file given')
+            error('HORACE:save_xye:invalid_argument', ...
+                'No file to save name is provied')
         end
     end
 elseif numel(obj)==1
@@ -110,24 +114,25 @@ else
     file_internal = file;
 end
 
+fmt_token='%-20g';
 for i=1:numel(obj)
     % Get x-y-e data
     [x,y,e]=get_xye(obj(i),null_value);
-    
+
+    %define format
+    col_format = arrayfun(@(x)(fmt_token),1:size(x,2)+2,'UniformOutput',false);
+    fmt = strjoin(col_format,' ');
+    fmt = [' ',fmt,'\n'];
+
     % write data to file
     fid = fopen (file_internal{i}, 'wt');
     if (fid < 0)
-        error (['ERROR: cannot open file ' file_internal{i}])
+        error ('HORACE:save_xye:runtime_error', ...
+            'ERROR: cannot open file: %s', file_internal{i})
     end
-    
-    fmt_token='%-20g';
-    fmt=[fmt_token,' ',fmt_token,' \n'];
-    for i=1:size(x,2)
-        fmt=[fmt_token,' ',fmt];     % make format string
-    end
-    
+
     fprintf (fid, fmt, [x, y, e]');
-    
+
     fclose(fid);
 end
 
@@ -180,5 +185,8 @@ else
 end
 y(empty)=null_value;
 e(empty)=0;
+if size(x,2) ~= w.n_dims
+    x=x';
+end
 y=y(:);     % make column array
 e=e(:);
