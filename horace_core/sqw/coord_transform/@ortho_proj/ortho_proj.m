@@ -133,7 +133,7 @@ classdef ortho_proj<aProjection
         % set u,v & w simulataniously
         obj = set_axes (obj, u, v, w)
         %------------------------------------------------------------------
-        function proj=ortho_proj(varargin)
+        function [proj,remains]=ortho_proj(varargin)
             proj = proj@aProjection();
             proj.label = {'\zeta','\xi','\eta','E'};
             if nargin==0 % return defaults, which describe unit transformation from
@@ -142,7 +142,7 @@ classdef ortho_proj<aProjection
                 [ul,vl,~,type]=proj.uv_from_data_rot(u_to_rlu,[1,1,1]);
                 proj = proj.init(ul,vl,[],'type',type);
             else
-                proj = proj.init(varargin{:});
+                [proj,remains] = proj.init(varargin{:});
             end
         end
         %
@@ -156,7 +156,7 @@ classdef ortho_proj<aProjection
             end
             [obj,remains] = process_positional_args_(obj,varargin{:});
             [obj,remains] = init@aProjection(obj,remains{:});
-            obj = process_keyval_args_(obj,remains{:});
+            [obj,remains] = process_keyval_args_(obj,remains{:});
             [ok,mess,obj] = obj.check_combo_arg();
             if ~ok
                 error('HORACE:ortho_proj:invalid_argument',mess);

@@ -52,7 +52,8 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             proj.u = [1,0,0];
             proj.v = [0,1,0];
             ref_obj = data_sqw_dnd(proj,[1,0.01,2],[-1,1],[0,1],[0,1,10]);
-            %ref_obj.npix = ones(size(ref_obj.npix));
+            % why did empty old objects contain npix == 1?
+            ref_obj.npix = ones(size(ref_obj.npix));
             
             % check modern loader (if saved)
             obj.assertEqualToTolWithSave(ref_obj,'tol',[1.e-15,1.e-16]);
@@ -165,7 +166,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             ref_cut = cut_sqw(obj.ref_sqw,proj,[],[],[],[-8,8]);
             
             proj1 =  ref_cut.data.get_projection();
-            assertTrue(isa(proj,'aProjection'));
+            assertTrue(isa(proj1,'ortho_proj'));
             
             same_cut = cut_sqw(obj.ref_sqw,proj1,[],[],[],[-8,8]);
             
@@ -192,7 +193,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
                 sum(reshape(same_sqw.data.npix,1,cut_size)));
             assertEqual(sum(reshape(obj.ref_sqw.data.s,1,cut_size)),...
                 sum(reshape(same_sqw.data.s,1,cut_size)));  
-            % This is full comparison
+            % This is the full comparison
             assertEqualToTol(obj.ref_sqw,same_sqw,'tol',[1.e-15,1.e-16])            
 
             same_proj = same_sqw.data.get_projection();

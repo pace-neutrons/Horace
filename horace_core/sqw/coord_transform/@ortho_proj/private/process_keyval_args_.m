@@ -40,15 +40,20 @@ function [obj,remains] = process_keyval_args_(obj,varargin)
 %                               each character being 'a','r' or 'p' e.g. 'rrp'
 %
 remains = {};
-par = inputParser();
-par.KeepUnmatched = true;
-opt_par = {'nonorthogonal','type','u','v','w'};
-setters =   {...
-    @(x,ob)check_and_set_nonorthogonal_(ob,x),@(x,ob)check_and_set_type_(ob,x),...
+persistent par;
+persistent opt_par;
+persistent setters;
+if isempty(par)
+    par = inputParser();
+    par.KeepUnmatched = true;
+    opt_par = {'nonorthogonal','type','u','v','w'};
+    setters =   {...
+        @(x,ob)check_and_set_nonorthogonal_(ob,x),@(x,ob)check_and_set_type_(ob,x),...
     @(x,ob)check_and_set_uv_(ob,'u',x),@(x,ob)check_and_set_uv_(ob,'v',x),...
     @(x,ob)check_and_set_w_(ob,x)};
-for i=1:numel(opt_par)
-    addParameter(par,opt_par{i},[]); % validation will be performed on setters
+    for i=1:numel(opt_par)
+        addParameter(par,opt_par{i},[]); % validation will be performed on setters
+    end
 end
 
 try
@@ -78,7 +83,7 @@ if isempty(rem_flds)
     return;
 end
 contents = struct2cell(rem_struct);
-remains = cell(2*numel(rem_flds));
+remains = cell(2*numel(rem_flds),1);
 for i=1:numel(rem_flds)
     remains{2*i-1} = rem_flds{i};
     remains{2*i  } = contents{i};

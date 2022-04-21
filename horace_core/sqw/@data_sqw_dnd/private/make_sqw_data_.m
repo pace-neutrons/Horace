@@ -83,8 +83,12 @@ if narg<=1
     proj = [];
     if nargin==3
         proj = varargin{1};
-        if isstruct(proj)
-            proj = ortho_proj(proj);
+        if isstruct(proj) && isfield(proj,'u') && isfield(proj,'v')
+            [proj,remains] = ortho_proj(proj);
+            if ~isempty(remains)
+                error('HORACE:data_sqw_dnd:invalid_argument',...
+                    'The input structure for data_sqw_dnd contains not only the projection structure')
+            end
         end
     end
     if isempty(proj)

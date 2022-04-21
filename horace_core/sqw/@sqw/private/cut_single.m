@@ -103,7 +103,6 @@ data_str = proj.compart_struct;
 data_str.s = s;
 data_str.e = e;
 data_str.npix = npix;
-%data_str.img_db_range = targ_axes.img_range();
 
 data_out = data_sqw_dnd(targ_axes,data_str);
 
