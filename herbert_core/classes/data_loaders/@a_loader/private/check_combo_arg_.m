@@ -3,7 +3,8 @@ function [ok,mess,obj] = check_combo_arg_(obj)
 
 
 s_eq_err = all(size(obj.S_)==size(obj.ERR_));
-en_suits_s = (size(obj.en_,1) ==size(obj.S_,1)+1);
+en_suits_s = (size(obj.en_,1) ==size(obj.S_,1)+1) || ...
+    (size(obj.en_,1)==size(obj.S_,1));
 
 if  ~(s_eq_err && en_suits_s)
     mess='ill defined ';
@@ -24,7 +25,7 @@ if  ~(s_eq_err && en_suits_s)
                 return;
             end
         else
-            mess = [mess,'en: size(en) ~= size(S,1)+1'];
+            mess = [mess,'en: size(en) ~= size(S,1)+1 or size(en) ~= size(S,1)'];
             ok = false;
             obj.isvalid_ = false;
             return;
