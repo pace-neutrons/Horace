@@ -47,7 +47,7 @@ classdef test_sqw_main < TestCase & common_state_holder
         function test_setting_pix_page_size_in_constructor_pages_pixels(obj)
             % hide warnings when setting pixel page size very small
 
-            fpath = fullfile(obj.tests_dir, 'test_sqw_file', 'sqw_1d_2.sqw');
+            fpath = fullfile(obj.tests_dir, 'common_data', 'sqw_1d_2.sqw');
             % set page size accepting half of the pixels
             page_size_bytes = 4324/2*sqw_binfile_common.FILE_PIX_SIZE;
             sqw_obj = sqw(fpath, 'pixel_page_size', page_size_bytes);

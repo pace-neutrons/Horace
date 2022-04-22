@@ -1,38 +1,31 @@
-classdef pix_combine_info
+classdef pix_combine_info < serializable
     % Helper class used to carry out and provide information
-    % necessary for pixel combining using write_nsqw_to_sqw algorithm.
+    % necessary for pixel combining using write_nsqw_to_sqw algorithm,
+    % or similar algorithm, deployed when running cut_sqw in file->file
+    % mode
     %
     properties(Dependent)
-        % total number of pixels to combine
-        num_pixels;
-        % number of files, contributing into final result
-        nfiles;
-        % Global range of all pixels, intended for combining
-        pix_range
-        
-        % true if pixel id from each contributing file should be replaced by contributing file number
-        relabel_with_fnum;
-        % true if pixel id for each pixel from contributing files should be changed.
-        change_fileno
-        % numbers of files used as runlabel for pixels if relabel_with_fnum
-        % and change_fileno are set to true
-        filenum
-    end
-    %
-    properties(Access=public)
-        % cellarray of filenames to combine
-        infiles;
+        nfiles;       % number of files, contributing into final result
+        infiles;      % cellarray of filenames to combine.
+        %
+        num_pixels;    % total number of pixels to combine
+        npix_each_file; % array defining numbers of pixels stored in each
+        %                contributing file
+        %
+        % number of bins (number of elements in npix array) in the
+        % contributing sqw(tmp) files. Should be the same for all
+        % files to be able to combine them together
+        nbins;
+
+
         % array of starting positions of the npix information in each
         % contributing file
         pos_npixstart;
+
         % array of starting positions of the pix information in each
         % contributing file
         pos_pixstart;
-        % number of bins in the contributing sqw(tmp) files. Should be the
-        % same for all  files to be combined together.
-        nbins;
-        % array of numbers of pixels stored in each contributing file
-        npix_file_tot;
+
         %   run_label   Indicates how to re-label the run index (pix(5,...)
         %          'fileno'      relabel run index as the index of the file
         %                        in the list infiles
@@ -47,21 +40,93 @@ classdef pix_combine_info
         %      (3) The files correspond to several runs in general, which need to
         %          be offset to give the run indices into the collective list of run parameters
         run_label;
-        % auxiliary propery used by cut_sqw
-        npix_cumsum;
+
+
+        pix_range    % Global range of all pixels, intended for combining
+
+        % numbers of files used as run_label for pixels if relabel_with_fnum
+        % and change_fileno are set to true
+        filenum
+        %
+        % true if pixel id from each contributing file should be replaced by contributing file number
+        relabel_with_fnum;
+        % true if pixel id for each pixel from contributing files should be changed.
+        change_fileno
+    end
+    %
+    properties(Access=public)
+        npix_cumsum = [];  % auxiliary propery used by cut_sqw operating
+        %                   in file->file mode
+        %                   and containing cumsum of npix array
+        %                   where npix is the common npix image array for
+        %                   all contributing files.
     end
     %
     properties(Access = protected)
-        n_pixels_ = 'undefined';
+        num_pixels_ = 0
+        %
+        infiles_ = {}  % cellarray of filenames to combine
+        pos_npixstart_ = [];
+        pos_pixstart_  = [];
+        % array of numbers of pixels stored in each contributing file
+        npix_each_file_ = []
+
+        %
+        run_label_ = 'nochange';
+        %
+        nbins_ = 0;
+        %
         filenum_ = [];
         % Global range of all pixels, intended for combining
         pix_range_ = PixelData.EMPTY_RANGE_;
-        
+
+        isvalid_ = true;
     end
-    
+    properties(Constant,Access=protected)
+        fields_to_save_ = {'infiles','npix_each_file',...
+            'pos_npixstart','pos_pixstart','run_label','nbins',...
+            'npix_cumsum'};
+    end
+
     methods
         %
-        function obj = pix_combine_info(infiles,nbins,pos_npixstart,pos_pixstart,npixtot,run_label,filenums)
+        function obj = pix_combine_info(infiles,nbins,pos_npixstart, ...
+                pos_pixstart,npix_each_file,run_label,filenums)
+            % Build instance of the class, which provides the information
+            % for combining pixels obtained from separate sqw(tmp) files.
+            %
+            % Inputs:
+            % infiles -- cellarray of full names of the files to combine
+            % nbins   -- number of bins (number of elements in npix array)
+            %            in the tmp files and target sqw file (should be
+            %            the same for all components so one number)
+            %pos_npixstart -- array containing the locations of the npix
+            %            array in binary sqw files on hdd. Size equal to
+            %             number of contributing files.
+            %pos_pixstart -- array containing the locations of the pix
+            %            array in binary sqw files on hdd. Size equal to
+            %            number of contributing files.
+            %npix_each_file -- array containign number of pixels in each
+            %            contributing sqw(tmp) file.
+            %run_label
+            %      --either
+            %            the string containing information on the
+            %            treatment of the run_ids, identifying each each
+            %            pixel of the PixelData. As string it may be equal
+            %      either:
+            % 'nochange' - the pixel id-s should be kept as provided within
+            %              contributing files
+            %      or:
+            % 'fileno'   -- the pixels id-s should be modified and be equal
+            %               to the numbers of contributing files
+            %     -- or
+            %            array of unique numbers, providing run_id for each
+            %            contributing run(file)
+            % OPTIONAL:
+            % filenums  -- array, defining the numbers for each
+            %              contributing file. If not present, the contributing
+            %              files are numbered by integers running from 1 to
+            %              n-files
             if nargin == 0
                 return
             end
@@ -70,39 +135,133 @@ classdef pix_combine_info
                 nfiles = obj.nfiles;
                 obj.pos_npixstart = zeros(1,nfiles);
                 obj.pos_pixstart  = zeros(1,nfiles);
-                obj.npix_file_tot       = zeros(1,nfiles);
+                obj.npix_each_file = zeros(1,nfiles);
                 if exist('nbins','var')
                     obj.nbins   = nbins;
-                else
-                    obj.nbins   = 0;
                 end
-                obj.run_label     = 'nochange';
                 return;
             end
-            obj.pos_npixstart= pos_npixstart;
-            obj.pos_pixstart = pos_pixstart;
-            obj.run_label    = run_label;
-            obj.nbins        = nbins;
-            obj.npix_file_tot    = npixtot;
-            obj.n_pixels_ = uint64(sum(npixtot));
-            
+            obj.nbins         = nbins;            
+            obj.pos_npixstart = pos_npixstart;
+            obj.pos_pixstart  = pos_pixstart;
+            obj.npix_each_file = npix_each_file;            
+            if exist('run_label','var')
+                obj.run_label     = run_label;
+            end
             if exist('filenums','var')
                 obj.filenum_ = filenums;
             end
+            [ok,mess,obj] = check_combo_arg(obj);
+            if ~ok
+                error('HORACE:pix_combine_info:invalid_argument',mess);
+            end
         end
-        %
-        function npix = get.num_pixels(obj)
-            % total number of pixels in all contributing files
-            npix = obj.n_pixels_;
-        end
-        function range = get.pix_range(obj)
-            range = obj.pix_range_;
-        end
-        %
+        %------------------------------------------------------------------
         function nf   = get.nfiles(obj)
             % number of contributing files
             nf = numel(obj.infiles);
         end
+        function infls = get.infiles(obj)
+            infls = obj.infiles_;
+        end
+        function obj = set.infiles(obj,val)
+            if ~iscellstr(val)
+                if isstring(val)
+                    val = {val};
+                else
+                    error('HORACE:pix_combine_info:invalid_argument',...
+                        'infiles input should be cellarray of filenames to combine');
+                end
+            end
+            obj.infiles_ = val(:);
+            [~,~,obj] = check_combo_arg(obj);
+        end
+        %
+        %------------------------------------------------------------------
+        function npix = get.num_pixels(obj)
+            % total number of pixels in all contributing files
+            npix = obj.num_pixels_;
+        end
+        function npix_tot = get.npix_each_file(obj)
+            npix_tot = obj.npix_each_file_;
+        end
+        function obj= set.npix_each_file(obj,val)
+            if ~isnumeric(val)
+                error('HORACE:pix_combine_info:invalid_argument',...
+                    'npix_each_file has to be numeric array containing information about number of pixels in each contributing file')
+            end
+            obj.npix_each_file_ = val(:)';
+            obj.num_pixels_ = uint64(sum(val));
+            [~,~,obj] = check_combo_arg(obj);
+        end
+        %------------------------------------------------------------------
+        function nb = get.nbins(obj)
+            nb = obj.nbins_;
+        end
+        function obj = set.nbins(obj,val)
+            if ~isnumeric(val) || val<=1
+                error('HORACE:pix_combine_info:invalid_argument', ...
+                    'number of bins for pix_combine info should be positive number. It is: %s',...
+                    evalc('disp(val)'));
+            end
+            obj.nbins_ = val;
+        end
+        %------------------------------------------------------------------
+        function pos = get.pos_npixstart(obj)
+            pos = obj.pos_npixstart_;
+        end
+        function obj = set.pos_npixstart(obj,val)
+            if ~isnumeric(val)
+                error('HORACE:pix_combine_info:invalid_argument',...
+                    'pos_npixstart has to be numeric array containing information about npix location on hdd')
+            end
+            obj.pos_npixstart_ = val(:)';
+            [~,~,obj] = check_combo_arg(obj);
+        end
+        %
+        function pos = get.pos_pixstart(obj)
+            pos = obj.pos_pixstart_;
+        end
+        function obj = set.pos_pixstart(obj,val)
+            if ~isnumeric(val)
+                error('HORACE:pix_combine_info:invalid_argument',...
+                    'pos_pixstart has to be numeric array containing information about pix location on hdd')
+            end
+            obj.pos_pixstart_ = val(:)';
+            [~,~,obj] = check_combo_arg(obj);
+        end
+        %
+        function range = get.pix_range(obj)
+            range = obj.pix_range_;
+        end
+        function obj = set.pix_range(obj,val)
+            if ~all(size(val) == [2,4])
+                error('HORACE:pix_combine_info:invalid_argument',...
+                    'pix_range size has to be array of 2x4');
+            end
+            obj.pix_range_ = val;
+        end
+        %
+        function rl= get.run_label(obj)
+            rl = obj.run_label_;
+        end
+        function obj = set.run_label(obj,val)
+            if ischar(val)
+                if ~(strcmpi(val,'nochange') || strcmpi(val,'fileno'))
+                    error('HORACE:pix_combine_info:invalid_argument',...
+                        'Invalid string value "%s" for run_label. Can be only "nochange" or "fileno"',...
+                        val)
+                end
+                obj.run_label_ = val;
+            elseif (isnumeric(val) && numel(val)==obj.nfiles)
+                obj.run_label_ = val(:)';
+            else
+                error('HORACE:pix_combine_info:invalid_argument',...
+                    ['Invalid value for run_label. Array of run_id-s should be either specific string' ...
+                    'or array of unique numbers, providing run_id for each contributing file'])
+            end
+        end
+
         %
         function is = get.relabel_with_fnum(obj)
             % true if pixel id from each contributing file
@@ -115,10 +274,6 @@ classdef pix_combine_info
                 end
             else
                 is = false;
-                if ~(isnumeric(obj.run_label) && numel(obj.run_label)==obj.nfiles)
-                    error('SQW_FILE_IO:invalid_argument',...
-                        'relabel_with_fnum: Invalid value for run_label')
-                end
             end
         end
         %
@@ -130,17 +285,10 @@ classdef pix_combine_info
                     is=false;
                 elseif strcmpi(obj.run_label,'fileno')
                     is = true;
-                else
-                    error('SQW_FILE_IO:invalid_argument',...
-                        'change_fileno: Invalid string value "%s" for run_label. Can be only "nochange" or "fileno"',...
-                        obj.run_label)
                 end
-            elseif (isnumeric(obj.run_label) && numel(obj.run_label)==obj.nfiles)
+            elseif isnumeric(obj.run_label)
                 is=true;
-            else
-                error('SQW_FILE_IO:invalid_argument','Invalid value for run_label')
             end
-            
         end
         %
         function fn = get.filenum(obj)
@@ -169,7 +317,7 @@ classdef pix_combine_info
                     fclose(obj.infiles(i));
                 end
             end
-            
+
             parts_carr = cell(1,n_workers);
             pnbins = obj.nbins;
             filenums = 1:n_tasks;
@@ -182,21 +330,14 @@ classdef pix_combine_info
                 else
                     prun_label     = obj.run_label(split_ind(1,i):split_ind(2,i));
                 end
-                pnpixtot       = obj.npix_file_tot(split_ind(1,i):split_ind(2,i));
+                pnpixtot       = obj.npix_each_file(split_ind(1,i):split_ind(2,i));
                 pfilenums    = filenums(split_ind(1,i):split_ind(2,i));
                 %
                 parts_carr{i} = pix_combine_info(part_files,pnbins,ppos_npixstart,ppos_pixstart,pnpixtot,prun_label,pfilenums);
             end
-            
+
         end
         %
-        function obj = set.pix_range(obj,val)
-            if ~all(size(val) == [2,4])
-                error('PIX_COMBINE_INFO:invalid_argument',...
-                    'pix_range size has to be array of 2x4');
-            end
-            obj.pix_range_ = val;
-        end
         %
         function obj = recalc_pix_range(obj)
             % recalculate common range for all pixels analysing pix ranges
@@ -226,26 +367,53 @@ classdef pix_combine_info
             % array of starting positions of the pix information in each
             % contributing file
             obj.pos_pixstart = obj.pos_pixstart(1:nfiles_to_leave);
-            obj.npix_file_tot= obj.npix_file_tot(1:nfiles_to_leave);
-            
-            obj.n_pixels_ = uint64(sum(obj.npix_file_tot));
+            obj.npix_each_file= obj.npix_each_file(1:nfiles_to_leave);
+
+            obj.n_pixels_ = uint64(sum(obj.npix_each_file));
             if ~isempty(obj.filenum_)
                 obj.filenum_ = obj.filenum_(1:nfiles_to_leave);
             end
         end
+        %------------------------------------------------------------------
+        % SERIALIZABLE INTERFACE
+        function ver  = classVersion(~)
+            ver = 1;
+        end
+        function  flds = saveableFields(~)
+            flds = pix_combine_info.fields_to_save_;
+        end
         %
-        function struc = saveobj(obj)
-            struc = structIndep(obj);
+        function [ok,mess,obj] = check_combo_arg(obj)
+            % verify interdependent variables and the validity of the
+            % obtained serializable object. Return the result of the check
+            %
+            ok = true;
+            mess = '';
+            if numel(obj.infiles_) ~= numel(obj.pos_npixstart_)
+                ok = false;
+                mess = sprintf('number of npixstart positions: %d not equal to the number of files to combine: %d',...
+                    numel(obj.pos_npixstart_),numel(obj.infiles_));
+            end
+            if numel(obj.infiles_) ~= numel(obj.pos_pixstart_)
+                ok = false;
+                mess = sprintf('number of pixstart positions: %d not equal to the number of files to combine: %d',...
+                    numel(obj.pos_pixstart_),numel(obj.infiles_));
+            end
+            if numel(obj.infiles_) ~= numel(obj.npix_each_file_)
+                ok = false;
+                mess = sprintf('numel of npix for each file : %d not equal to the number of files to combine: %d',...
+                    numel(obj.npix_each_file_),numel(obj.infiles_));
+            end
+
+            obj.isvalid_ = ok;
+        end
+    end
+    methods(Access=protected)
+        function is = check_validity(obj)
+            is = obj.isvalid_;
         end
     end
     methods(Static)
-        function obj = loadobj(struc)
-            obj = pix_combine_info();
-            flds = fieldnames(struc);
-            for i=1:numel(flds)
-                obj.(flds{i}) = struc.(flds{i});
-            end
-        end
         function pix_range = recalc_pix_range_from_loaders(ldrs)
             % Recalculate pixels range using list of defined loaders
             n_files = numel(ldrs);
@@ -257,10 +425,7 @@ classdef pix_combine_info
                 pix_range = [min([loc_range(1,:);pix_range(1,:)],[],1);
                     max([loc_range(2,:);pix_range(2,:)],[],1)];
             end
-            
         end
     end
-    
+
 end
-
-

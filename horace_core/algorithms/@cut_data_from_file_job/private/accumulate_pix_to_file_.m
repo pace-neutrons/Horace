@@ -94,7 +94,7 @@ end
         clear pix_2write;
         pix_comb_info.pos_npixstart(n_writ_files) = position.npix;
         pix_comb_info.pos_pixstart(n_writ_files)  = position.pix;
-        pix_comb_info.npix_file_tot(n_writ_files) = n_pix_in_memory;
+        pix_comb_info.npix_each_file(n_writ_files) = n_pix_in_memory;
         % clear too.
         n_pix_in_memory = 0;
     end

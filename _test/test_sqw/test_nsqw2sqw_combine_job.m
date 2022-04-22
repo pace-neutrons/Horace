@@ -71,11 +71,7 @@ classdef test_nsqw2sqw_combine_job < TestCase & common_state_holder
                 img_db_range=[min(img_db_range(1,:),datahdr{i}.img_range(1,:));max(img_db_range(2,:),datahdr{i}.img_range(2,:))];
             end
             [s_accum,e_accum,npix_accum] = accumulate_headers_job.accumulate_headers(ldrs);
-            s_accum = s_accum ./ npix_accum;
-            e_accum = e_accum ./ npix_accum.^2;
-            nopix=(npix_accum==0);
-            s_accum(nopix)=0;
-            e_accum(nopix)=0;
+            [s_accum,e_accum] = normalize_signal(s_accum,e_accum,npix_accum);
             %
 
             main_header_combined = struct();
