@@ -8,7 +8,7 @@ function [qspec,en]=calc_qspec_(detdcn,efix,eps,emode)
 %   detdcn  Direction of detector in spectrometer coordinates ([3 x ndet] array)
 %             [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
 %   efix    incident energy for direct mode spectromenter or analyzer(s)
-%           energy(s) for indirect. 
+%           energy(s) for indirect.
 %   eps     bin centers for energy transfer energies
 %   emode   insrument and q-conversion type (1-direct, 2-indirect 0-
 %            elastic)
@@ -37,8 +37,8 @@ if emode==1
     kf=sqrt((efix-eps)/k_to_e); % [ne x 1]
     qspec = repmat([ki;0;0],[1,ne*ndet]) - ...
         repmat(kf',[3,ndet]).*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
-    en=repmat(eps',1,ndet);
-    
+    en=repmat(eps(:)',1,ndet);
+
 elseif emode==2
     %kf=sqrt(efix(:)'/k_to_e);
     kf=sqrt(efix/k_to_e);
@@ -61,7 +61,7 @@ elseif emode==2
             kf*reshape(repmat(reshape(detdcn,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
     end
     en=repmat(eps(:)',1,ndet);
-    
+
 elseif emode==0
     lambda=exp(eps);        % just pass the values as bin centres
 
@@ -69,7 +69,7 @@ elseif emode==0
     Q_by_k = repmat([1;0;0],[1,ndet]) - detdcn;   % [3 x ndet]
     qspec = repmat(k',[3,ndet]).*reshape(repmat(reshape(Q_by_k,[3,1,ndet]),[1,ne,1]),[3,ne*ndet]);
     en=zeros(1,ne*ndet);
-    
+
 else
     error('HORACE:instr_proj:invalid_argument',...
         'EMODE must =1 (direct geometry), =2 (indirect geometry), or =0 (elastic)')

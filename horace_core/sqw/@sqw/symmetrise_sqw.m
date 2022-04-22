@@ -191,6 +191,7 @@ all_sym_range = [img_db_range_minmax,existing_range(:,4)];
 %
 % Extract existing binning: TODO: refactor using future axes_block, extract
 % common code with combine_sqw
+%
 new_range_arg = cell(1,4);
 paxis  = false(4,1);
 paxis(wout.data.pax) = true;
@@ -218,11 +219,9 @@ set(hor_config,'log_level',-1);
 
 % completely break relationship between bins and pixels in memory and make
 % all pixels contribute into single large bin
-wout.data.img_db_range = all_sym_range ;
+wout.data.img_range = all_sym_range ;
 
-wout.data.pax = 1:4;
-wout.data.dax = 1:4;
-wout.data.p  = arrayfun(@(i)(all_sym_range(:,i)),1:4,'UniformOutput',false);
-wout.data.npix = sum(reshape(wout.data.npix,1,numel(wout.data.npix)));
+wout.data.nbins_all_dims = ones(1,4);
+wout.data.npix = sum(wout.data.npix(:));
 %
 wout=cut(wout,proj,new_range_arg{:});

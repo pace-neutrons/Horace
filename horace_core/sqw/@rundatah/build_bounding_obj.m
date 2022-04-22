@@ -36,7 +36,7 @@ if ~range_given
             error('HORACE:build_bounding_obj:invalid_argument',...
                 'calc_bounding_obj: incomplete input object, %s',mess);
         end
-        en = rdl.en;
+        en = 0.5*(rdl.en(1:end-1)+rdl.en(2:end));
         if isempty(en)
             error('HORACE:build_bounding_obj:invalid_argument',...
                 'calc_bounding_obj: no energy loaded in input object and no energy ranges are provided');

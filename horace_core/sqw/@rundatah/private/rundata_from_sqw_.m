@@ -43,16 +43,18 @@ signal(:,ind)=reshape(tmp(:,3),ne,numel(group));
 err(:,ind)=sqrt(reshape(tmp(:,4),ne,numel(group)));
 
 
-lattice = oriented_lattice();
+lattice = oriented_lattice('angular_units','rad');
 lattice.alatt = exp_inf.samples{1}.alatt;
 lattice.angdeg = exp_inf.samples{1}.angdeg;
+% header keeps angular units in radians
 lattice.u      = exp_inf.expdata(1).cu;
 lattice.v      = exp_inf.expdata(1).cv;
-lattice.psi    = exp_inf.expdata(1).psi*(180/pi);
-lattice.omega = exp_inf.expdata(1).omega*(180/pi);
-lattice.dpsi  = exp_inf.expdata(1).dpsi*(180/pi);
-lattice.gl    = exp_inf.expdata(1).gl*(180/pi);
-lattice.gs    = exp_inf.expdata(1).gs*(180/pi);
+lattice.psi    = exp_inf.expdata(1).psi;
+lattice.omega = exp_inf.expdata(1).omega;
+lattice.dpsi  = exp_inf.expdata(1).dpsi;
+lattice.gl    = exp_inf.expdata(1).gl;
+lattice.gs    = exp_inf.expdata(1).gs;
+lattice.angular_units='deg';
 
 rd = rundatah();
 rd.run_id = unique(data.pix.run_idx);
