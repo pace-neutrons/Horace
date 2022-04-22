@@ -29,7 +29,6 @@ classdef test_pix_combine_info < TestCase
             pcr = serializable.loadobj(pc_str);
 
             assertEqual(pc,pcr);
-
         end
         function test_wrong_constructor_inconsistent_positions(~)
             files = {'file_a','file_b','file_c'};

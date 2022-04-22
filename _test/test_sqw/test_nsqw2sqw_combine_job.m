@@ -93,7 +93,8 @@ classdef test_nsqw2sqw_combine_job < TestCase & common_state_holder
             sqw_data.npix=uint64(npix_accum);
 
 
-            run_label = 0:nfiles-1;
+            %run_label = 0:nfiles-1;
+            run_label = header_combined.expdata.get_run_ids();
             pix_comb = pix_combine_info(infiles,numel(sqw_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
             pix_comb.pix_range = img_db_range;
             sqw_data.pix = pix_comb;
@@ -106,6 +107,9 @@ classdef test_nsqw2sqw_combine_job < TestCase & common_state_holder
                 'experiment_info',[],'detpar',det);
             data_sum.data = sqw_data;
             data_sum.experiment_info = header_combined;
+            % TODO: this should go after runid_map sits within Experiment
+            % only
+            data_sum.runid_map = header_combined.runid_map;
 
 
             ds = sqw(data_sum);
@@ -208,6 +212,10 @@ classdef test_nsqw2sqw_combine_job < TestCase & common_state_holder
         end
         %
         function   test_do_combine_sqw_pix_job(obj)
+            % try to combine tmp files using
+            % parallel combine job and compare the result with the
+            % sqw file, produced serially
+            %
             mis = MPI_State.instance('clear');
             mis.is_tested = true;
             mis.is_deployed = true;
@@ -245,6 +253,7 @@ classdef test_nsqw2sqw_combine_job < TestCase & common_state_holder
             fbMPI3 = MessagesFilebased(control_struct);
 
             [task_id_list,init_mess]=JobDispatcher.split_tasks(common_par,loop_par,true,3);
+            assertEqual([task_id_list{:}],1:3);
 
             je1 = combine_sqw_pix_job();
             je3 = je1.init(fbMPI3,fbMPI3,init_mess{3});

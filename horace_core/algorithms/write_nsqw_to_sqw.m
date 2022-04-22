@@ -222,12 +222,7 @@ else
     % read arrays and accumulate headers directly
     [s_accum,e_accum,npix_accum] = accumulate_headers_job.accumulate_headers(ldrs);
 end
-
-s_accum = s_accum ./ npix_accum;
-e_accum = e_accum ./ npix_accum.^2;
-nopix=(npix_accum==0);
-s_accum(nopix)=0;
-e_accum(nopix)=0;
+[s_accum,e_accum] = normalize_signal(s_accum,e_accum,npix_accum);
 %
 sqw_data.s=s_accum;
 sqw_data.e=e_accum;
