@@ -9,29 +9,33 @@ function rd=rundata_from_sqw_(sqw_obj)
 %
 %
 
-
-%
 data = sqw_obj.data;
-exp_inf = sqw_obj.experiment_info;
-detpar = sqw_obj.my_detpar();
+detpar = sqw_obj.detpar();
 %
-if (iscell(exp_inf) && numel(exp_inf) > 1) || (isa(exp_inf,'Experiment') && numel(exp_inf.expdata)>1)
-    error('HORACE:rundata_from_sqw:invalid_argument',...
-        ['a rundatah class can be constructed from an sqw, build from single data file only.'...
-        ' Use sqw.split to divide sqw into array of single dataset sqw objects']);
+tmp=data.pix.get_data({'detector_idx', 'energy_idx', 'signal', 'variance'})';
+run_id = unique(data.pix.run_idx);
+if numel(run_id)>1
+    warning('HORACE:rundata_from_sqw:invalid_argument',...
+        'sqw object contains more then 1 contributing run. Extracting the first one')
+    is_run_1 = (data.pix.run_idx == run_id(1));
+    tmp = tmp(:,is_run_1);
+    run_id = run_id(1);
+    exp_inf = sqw_obj.experiment_info.get_subobj(run_id,sqw_obj.runid_map);
+else
+    exp_inf = sqw_obj.experiment_info;
 end
+tmp=sortrows(tmp,[1,2]);  % order by detector group number, then energy
+group=unique(tmp(:,1));   % unique detector group numbers in the data in numerical increasing order
+
 en     = exp_inf.expdata(1).en;
 ne=numel(en)-1;    % number of energy bins
 ndet0=numel(detpar.group);% number of detectors
 
-tmp=data.pix.get_data({'detector_idx', 'energy_idx', 'signal', 'variance'})';
-tmp=sortrows(tmp,[1,2]);  % order by detector group number, then energy
-group=unique(tmp(:,1));   % unique detector group numbers in the data in numerical increasing order
 
 % Now check that the data is complete i.e. no missing pixels
 if size(tmp,1)~=ne*numel(group)
-    error('HORACE:rundata_from_sqw:runtime_error',...    
-    'Data for one or more energy bins is missing in the sqw data')
+    error('HORACE:rundata_from_sqw:runtime_error',...
+        'Data for one or more energy bins is missing in the sqw data')
 end
 
 % Get the indexing of detector group in the detector information
@@ -57,15 +61,16 @@ lattice.gs    = exp_inf.expdata(1).gs;
 lattice.angular_units='deg';
 
 rd = rundatah();
-rd.run_id = unique(data.pix.run_idx);
+rd.run_id = run_id;
+
 rd.lattice = lattice;
 % Set lattice before loader, to have efix redefined on rundata rather then
 % in the loader
 rd.efix = exp_inf.expdata(1).efix;
 % will define loader
 rd.det_par = detpar;
-
 rd.emode   = exp_inf.expdata(1).emode;
+%rd.data_file_name = fullfile(exp_inf.expdata(1).filepath,exp_inf.expdata(1).filename);
 
 rd.en  = en;
 rd.S   = signal;

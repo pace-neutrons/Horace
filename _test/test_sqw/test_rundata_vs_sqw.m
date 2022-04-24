@@ -114,8 +114,9 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
 
             [ok,mess]=is_cut_equal(obj.sqw_obj,sqw_rev,proj,0.04*(img_range(2,1)-img_range(1,1)),0.1*(img_range(2,2)-img_range(1,2)),[-Inf,Inf],[-Inf,Inf]);
             assertTrue(ok, ...
-                sprintf('Combining cuts from each individual sqw file and the cut from the combined sqw file are not the same:\n %s\n',mess));
-            %assertEqual(this.sqw_obj,sqw_rev);
+                sprintf('The cut from direct sqw obj and sqw->rundata->sqw converted obj are not the same:\n %s\n', ...
+                mess));
+            assertEqualToTol(obj.sqw_obj,sqw_rev,'tol',[1.e-12,1.e-12]);
         end
         function test_bounding_object_provides_correct_img_range(obj)
             rd = rundatah(obj.sqw_obj);

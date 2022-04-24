@@ -127,7 +127,7 @@ if ~use_mex
         energy_idx = ones(1,ne*ndet);
     end
     sig_var =[obj.S(:)';((obj.ERR(:)).^2)'];
-    run_id = ones(1,numel(detector_idx))*obj.run_id();
+    run_id = ones(1,numel(detector_idx))*obj.run_id;
     pix = PixelData([ucoords;run_id;detector_idx;energy_idx;sig_var]);
     pix_range=pix.pix_range;
 end
