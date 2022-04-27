@@ -300,7 +300,7 @@ classdef data_sqw_dnd < axes_block
             
             if isfield(inputs,'pax') && isfield(inputs,'iax')
                 inputs.serial_name = 'axes_block';
-                ab = serializable.loadobj(inputs);
+                ab = serializable.from_struct(inputs);
                 obj = data_sqw_dnd(ab,inputs);
                 return;
             end

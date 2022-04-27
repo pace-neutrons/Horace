@@ -191,7 +191,10 @@ classdef pix_combine_info < serializable
                     'npix_each_file has to be numeric array containing information about number of pixels in each contributing file')
             end
             obj.npix_each_file_ = val(:)';
-            obj.num_pixels_ = uint64(sum(val));
+            if numel(val) == 1 % the number of pixels per each file is the same
+                obj.npix_each_file_  = ones(1,obj.nfiles)*val;
+            end
+            obj.num_pixels_ = uint64(sum(obj.npix_each_file_));
             [~,~,obj] = check_combo_arg(obj);
         end
         %------------------------------------------------------------------
@@ -216,6 +219,10 @@ classdef pix_combine_info < serializable
                     'pos_npixstart has to be numeric array containing information about npix location on hdd')
             end
             obj.pos_npixstart_ = val(:)';
+            if numel(val) == 1 % each contributing file has npix array
+                % located at the same position
+                obj.pos_npixstart_ = ones(1,obj.nfiles)*val;
+            end
             [~,~,obj] = check_combo_arg(obj);
         end
         %
@@ -228,6 +235,10 @@ classdef pix_combine_info < serializable
                     'pos_pixstart has to be numeric array containing information about pix location on hdd')
             end
             obj.pos_pixstart_ = val(:)';
+            if numel(val) == 1 % each contributing file has pixels data 
+                % located at the same position
+                obj.pos_pixstart_  = ones(1,obj.nfiles)*val;
+            end
             [~,~,obj] = check_combo_arg(obj);
         end
         %

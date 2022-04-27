@@ -113,23 +113,26 @@ flags={'replicate','accumulate','clean','tmp_only'};
 %input arguments
 if ~opt.accumulate
     if present.clean && opt.clean
-        error('Invalid option ''clean'' unless also have option ''accumulate''')
+        error('HORACE:gen_sqw:invalid_argument', ...
+            'Invalid option ''clean'' unless also have option ''accumulate''')
     end
     if present.time && (exist(opt.time,'var') || ~isnumeric(opt.time) || opt.time~=0)
-        error('Invalid option ''time'' unless also have option ''accumulate'' and/or a date-time vector following')
+        error('HORACE:gen_sqw:invalid_argument', ...
+            'Invalid option ''time'' unless also have option ''accumulate'' and/or a date-time vector following')
     end
 end
 if present.transform_sqw
     for i=1:numel(opt.transform_sqw)
         [ok,mess] = check_transf_input(opt.transform_sqw);
         if ~ok
-            error('GEN_SQW:invalid_argument',['transform_sqw param N',...
+        error('HORACE:gen_sqw:invalid_argument', ...
+                ['transform_sqw param N',...
                 num2str(i),' Error: ',mess])
         end
     end
     if numel(opt.transform_sqw)>1
         if numel(opt.transform_sqw) ~= numel(psi)
-            error('GEN_SQW:invalid_argument',...
+        error('HORACE:gen_sqw:invalid_argument', ...
                 ['When more then one sqw file transformation is provided', ...
                 ' number of transformations should be equal to number of spe ',...
                 'files to transform\n.',...
@@ -147,16 +150,19 @@ end
 %exist.
 if present.time
     if ~isnumeric(opt.time)
-        error('Argument following option ''time'' must be vector of date-time format [yyyy,mm,dd,hh,mm,ss]')
+        error('HORACE:gen_sqw:invalid_argument', ...
+            'Argument following option ''time'' must be vector of date-time format [yyyy,mm,dd,hh,mm,ss]')
     elseif numel(opt.time)~=6
-        error('Argument following option ''time'' must be vector of date-time format [yyyy,mm,dd,hh,mm,ss]')
+        error('HORACE:gen_sqw:invalid_argument', ...
+            'Argument following option ''time'' must be vector of date-time format [yyyy,mm,dd,hh,mm,ss]')
     end
 
     end_time=datenum(opt.time);
     time_now=now;
 
     if end_time<=time_now
-        error('Date-time for accumulate_sqw to start is in the past');
+        error('HORACE:gen_sqw:invalid_argument', ...
+            'Date-time for accumulate_sqw to start is in the past');
     elseif (end_time-time_now) > 1
         disp('**************************************************************************************************')
         disp('***  WARNING: date-time specified for accumulate_sqw to start is more than 1 day in the future ***');
@@ -714,7 +720,7 @@ if ~all(ief)
         missing_rf{i}.en = [eps_lo(i);eps_hi(i)];
     end
 
-    pix_range_est = rundata_find_pix_range(missing_rf,cache_det{:});
+    pix_range_est = rundata_find_pix_range(missing_rf);
 
     % Expand range to include pix_range_est, if necessary
     pix_range=[min(pix_range(1,:),pix_range_est(1,:));...
