@@ -135,9 +135,8 @@ classdef IX_experiment < serializable
         function is = isempty(obj)
             is = false(size(obj));
             for i=1:numel(obj)
-                for j=3:numel(IX_experiment.fields_to_save_)
-                    if isempty(obj(i).(IX_experiment.fields_to_save_{j}))
-                        is(i) = true;
+                for j=2:numel(IX_experiment.fields_to_save_)
+                    if ~isempty(obj(i).(IX_experiment.fields_to_save_{j}))
                         break;
                     end
                 end
