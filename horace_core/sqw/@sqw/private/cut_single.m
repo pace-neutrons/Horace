@@ -50,30 +50,25 @@ if keep_pix
 
     if isempty(runid_contributed) % Empty cut
         exp_info = Experiment();
-        runid_map = containers.Map();
     else
         % old stored objects, which do not contain correctly defind runid map
         % compartibility operation.
         % TODO: Should be check for old file and after that -- this code.
-        old_runid = w.experiment_info.expdata.get_run_ids();
-        if ~any(ismember(runid_contributed,old_runid))
+        head_runid = w.experiment_info.expdata.get_run_ids();
+        if ~any(ismember(runid_contributed,head_runid))
             % some old file conains runid, which has been
             % recalculated from 1 to n_headers on pixels but have not been
-            % stored in runid map and in headers
-            info = w.experiment_info.expdata;
-            for i=1:numel(info)
-                info(i).run_id= i;
-            end
-            w.experiment_info.expdata= info;
-            ind = 1:numel(info);
-            w.runid_map = containers.Map(ind,ind);
+            % stored in runid map and in headers.
+            % assuming that runid-s indeed been redefined this way, we can 
+            % restore their run-ids in experiment_info
+            id = 1:w.experiment_info.n_runs;
+            w.experiment_info.expdata.runid_map = id;
         end
-        [exp_info,runid_map] = w.experiment_info.get_subobj(runid_contributed,w.runid_map);
+        exp_info = w.experiment_info.get_subobj(runid_contributed);
     end
     %
     wout.main_header.nfiles  = exp_info.n_runs;
     wout.experiment_info = exp_info;
-    wout.runid_map       = runid_map;
 
 else
     dnd_constructor = DND_CONSTRUCTORS{numel(data_out.pax) + 1};

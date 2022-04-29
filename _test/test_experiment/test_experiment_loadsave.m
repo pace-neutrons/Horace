@@ -86,7 +86,6 @@ classdef test_experiment_loadsave < TestCase
             assertTrue( isa(ld1.sq3(2).experiment_info, 'Experiment') );
             assertEqual( numel(ld1.sq3), 2);
             assertEqualToTol(sq3.to_struct,ld1.sq3.to_struct,'ignore_str',true);
-
         end
     end
 end

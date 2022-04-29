@@ -1,48 +1,54 @@
-function [subexper,runid_map_out] = get_subobj_(obj,indexes,runid_map, ...
-    modify_runid)
+function subexper = get_subobj_(obj,runids_to_keep,runid_to_keep_are_indexes)
 % Return Experiment object, containing subset of experiments,
 % requested by the method.
 %
-% Input:
+% Inputs:
 % obj       -- initialized instance of the Experiment, containing
 %              information about experiments(runs) contributed into sqw
 %              object.
-% indexes   -- the array of indexes or run_id-s, (see the second parameter)
-%              which identify particular experiments(runs) to include the
-%              experiments(runs) contributing into the final subset
-%              of experiments.
-% runid_map -- if not empty, the map run_id->index, containing
-%              information about run_id to select as the final
-%              experiment info. If it is provided, first
-%              argument is treated as run_id-s, which are the
-%              keys of the runid_map rather then direct indexes
-%              of the experiments(runs) contributing into the final subset.
-% modify_runid
-%          -- if true, redefine final runid_map and run_ind of
-%             the expdata to count from 1 to n_experiments(runs)
+% runids_to_keep
+%            -- run_id-s,which identify particular experiments(runs)
+%              to include the  experiments(runs) contributing
+%              into the final subset  of experiments.
+% runid_to_keep_are_indexes
+%          --  if true, tread input runids_to_keep as
+%              direct indexes of the experiments to keep rather
+%              then run_id(s). Mainly used for debugging.
+%
 % Returns:
 % subexper  -- the Experiment object, containing information
-%              about experiments(runs) defined by indexes and optionally,
-%              runid_map.
+%              about experiments(runs) defined by
+%              runids_to_keep.
 
-if ~isempty(runid_map)
+if runid_to_keep_are_indexes
+    head_num = runids_to_keep;
+else
+    runid_map = obj.runid_map;
     keys = runid_map.keys;
     keys = [keys{:}];
-    if ~any(ismember(indexes,keys)) % Old files. The pixel run indexes have
-        % been renumbered from 1 to n_headers but headers do not contain
+    if ~any(ismember(runids_to_keep,keys)) % Old files. If the pixel run
+        % indexes have been renumbered from 1 to n_headers but headers do not contain
         % correct runids, despite these ID-s may be extracted from
         % filenames. Assume that indexes correspond to header numbers. (we
-        % have no other chouce then assume this). The run-ids will be
-        % modified and renumbered after using this procedure
-        head_num = indexes;
-        modify_runid = true;
+        % have no other choice then assume this and if this is incorrect,
+        % we can not recover correct correspondence between run information
+        % and pixels id).
+        head_num = runids_to_keep;
+        if min(head_num)<1 || max(head_num)>obj.n_runs
+            error('HORACE:Experiment:invalid_argument',...
+                'requested run_indexes to extract lie outside the range of existing run indexes')
+        end
+        exp = obj.expdata;
+        for i=1:obj.n_runs
+            exp(i).run_id = i;
+        end
+        obj.expdata = exp; % old runid_map gets recalculated on assignment
+        obj.runid_recalculated_ = true;
     else
-        head_num = arrayfun(@(id)runid_map(id),indexes);
+        head_num = arrayfun(@(id)runid_map(id),runids_to_keep);
     end
-else
-    head_num = indexes;
 end
-info = cell(5,1);
+info = cell(4,1);
 if numel(obj.detector_arrays_) == obj.n_runs
     info{1} = obj.detector_arrays_(head_num);
 else
@@ -55,8 +61,8 @@ end
 info{2} = obj.instruments_(head_num);
 info{3} = obj.samples_(head_num);
 info{4} = obj.expdata_(head_num);
-info{5} = modify_runid;
-
 
 subexper  = Experiment(info{:});
-runid_map_out = subexper.runid_map;
+if obj.runid_recalculated_
+    subexper.runid_recalculated_ = true;
+end

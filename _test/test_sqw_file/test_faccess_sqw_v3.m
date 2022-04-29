@@ -76,9 +76,9 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(mheader.filepath,...
                 'd:\Users\abuts\Data\ExcitDev\ISIS_svn\Hor#162\_test\test_sqw_file\');
 
-            [exp_info,~,runid_map] = to.get_header();
+            [exp_info,~] = to.get_header();
 
-            assertEqual(runid_map,containers.Map(1,1))
+            assertEqual(exp_info.runid_map,containers.Map(1,1))
 
             assertTrue(isa(exp_info,'Experiment'));
             inf = exp_info.expdata(1);
@@ -196,6 +196,10 @@ classdef test_faccess_sqw_v3< TestCase
             sqw_ob = so.get_sqw();
 
             assertTrue(isa(sqw_ob,'sqw'));
+            % old sqw object contains incorrect runid map.
+            % This map shoudl be recalculated to maintain consistence
+            % betweem pixels_id and headers
+            assertTrue(sqw_ob.experiment_info.runid_recalculated)
 
             inst1=create_test_instrument(95,250,'s');
             hdr = sqw_ob.experiment_info;
@@ -215,8 +219,13 @@ classdef test_faccess_sqw_v3< TestCase
             tob=tob.init(tf);
             ver_obj =tob.get_sqw('-verbatim');
             tob.delete();
+            % newly stored object contains updated runid map which should
+            % not be recalculated
+            assertFalse(ver_obj.experiment_info.runid_recalculated)
 
             assertEqual(sqw_ob.main_header,ver_obj.main_header);
+
+            ver_obj.experiment_info.runid_recalculated = true;
             assertEqual(sqw_ob,ver_obj);
         end
         %
@@ -254,6 +263,11 @@ classdef test_faccess_sqw_v3< TestCase
             tob.delete();
 
             assertEqual(sqw_ob.main_header,ver_obj.main_header);
+
+            assertTrue(sqw_ob.experiment_info.runid_recalculated);
+            assertFalse(ver_obj.experiment_info.runid_recalculated);
+
+            ver_obj.experiment_info.runid_recalculated = true;
             assertEqual(sqw_ob,ver_obj);
         end
         %
@@ -395,7 +409,7 @@ classdef test_faccess_sqw_v3< TestCase
             pix_ends = [6, 7680, 104];
             pix_indices = [4:6, 7679:7680, 100:104];
             bl_sizes = pix_ends-pix_starts+1;
-            
+
 
             % we trust .get_pix, which is tested elsewhere, to load in the full
             % range
@@ -413,7 +427,7 @@ classdef test_faccess_sqw_v3< TestCase
             pix_ends = [20, 7680, 24];
             pix_indices = [4:20, 7679:7680, 10:24];
             bl_sizes = pix_ends-pix_starts+1;
-            
+
 
             % we trust .get_pix, which is tested elsewhere, to load in the full
             % range
@@ -429,7 +443,7 @@ classdef test_faccess_sqw_v3< TestCase
             faccess = faccess_sqw_v3(obj.sample_file);
             pix_starts = [1, 3, 5, 7];
             bl_sizes = [2, 4, 6];
-            
+
             f = @() faccess.get_pix_in_ranges(pix_starts, bl_sizes);
             assertExceptionThrown(f, 'HORACE:sqw_binfile_common:invalid_argument');
         end

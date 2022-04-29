@@ -105,6 +105,7 @@ end
 % update with expdata, which maybe should go in the Experiment constructor
 obj.instruments = instruments;
 obj.samples = samples;
+% this also calculates and sets up consistent runid_map
 obj.expdata = expdata;
 
 end % function build_from_old_headers

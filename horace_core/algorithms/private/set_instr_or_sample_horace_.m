@@ -18,7 +18,7 @@ function sqwobj_array=set_instr_or_sample_horace_(filename,kind,obj_to_set,narg,
 %              there is a single sample or instrument for the entire sqw data set
 %              If the sample is any empty object, then the sample is set
 %              to the default empty structure.
-%  narg        number of aguments to return, i.e. number of sqw files to
+%  narg        number of arguments to return, i.e. number of sqw files to
 %              read
 %  varargin    if present, the arguments of the instrument definition function
 %

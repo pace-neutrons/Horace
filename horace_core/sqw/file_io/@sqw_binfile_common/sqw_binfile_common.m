@@ -197,7 +197,7 @@ classdef sqw_binfile_common < sqw_file_interface
         % get main sqw header
         main_header = get_main_header(obj,varargin);
         % get header of one of contributed files
-        [header,pos,runid_map] = get_header(obj,varargin);
+        [header,pos] = get_header(obj,varargin);
         % Read the detector parameters from properly initialized binary file.
         det = get_detpar(obj);
         % read main sqw data  from properly initialized binary file.
@@ -261,13 +261,13 @@ classdef sqw_binfile_common < sqw_file_interface
         obj = put_sqw(obj,varargin);
         %
         function obj = put_instruments(obj,varargin)
-            error('SQW_FILE_IO:runtime_error',...
+            error('HORACE:sqw_binfile_common:runtime_error',...
                 'put_instruments is not implemented for faccess_sqw %s',...
                 obj.file_version);
         end
         %
         function obj = put_samples(obj,varargin)
-            error('SQW_FILE_IO:runtime_error',...
+            error('HORACE:sqw_binfile_common:runtime_error',...
                 'put_samples is not implemented for faccess_sqw %s',...
                 obj.file_version);
 

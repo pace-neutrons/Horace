@@ -7,8 +7,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %   >> w = sqw (filename)       % Create an sqw object from a file
     %   >> w = sqw (sqw_object)     % Create a new SQW object from a existing one
     %
-    properties % TODO: incorporate it into experiment_info
-        runid_map % the map which connects header number with run_id
+    properties
+        runid_map % the map which connects header number
+        % with run_id stored in pixels, e.g. map contains connection
+        % runid_pixel->header_number
     end
 
     properties(Dependent)
@@ -36,8 +38,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         detpar_  = struct([]);
     end
     properties(Constant,Access=private)
-        fields_to_save_ = {'main_header','experiment_info','detpar','data',...
-            'runid_map'};
+        fields_to_save_ = {'main_header','experiment_info','detpar','data'};
     end
 
     methods
@@ -46,10 +47,17 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % and nxsqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
             % number
-            ver = 2;
+            ver = 1;
         end
         function flds = saveableFields(~)
             flds = sqw.fields_to_save_;
+        end
+        function map = get.runid_map(obj)
+            if isempty(obj.experiment_info)
+                map = [];
+            else
+                map = obj.experiment_info.runid_map;
+            end
         end
 
 
@@ -150,19 +158,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 if isa(args.data_struct,'dnd_file_interface')
                     args.data_struct = obj.get_loader_struct_(...
                         args.data_struct,args.pixel_page_size);
-                    if isempty(args.data_struct.runid_map)
-                        args.data_struct.runid_map = recalculate_runid_map_( args.data_struct.header);
-                    end
                     obj = from_bare_struct(obj,args.data_struct);
                 elseif isfield(args.data_struct,'data')
-                    if ~isfield(args.data_struct,'runid_map') || isempty(args.data_struct.runid_map)
-                        if isfield(args.data_struct,'header')
-                            head = args.data_struct.header;
-                        else
-                            head = args.data_struct.experiment_info.expdata;
-                        end
-                        args.data_struct.runid_map = recalculate_runid_map_(head);
-                    end
                     if isfield(args.data_struct.data,'version')
                         obj = serializable.from_struct(args.data_struct);
                     else
@@ -341,10 +338,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % load sqw structure, using file loader
             ld_str = struct();
 
-            [ld_str.main_header, old_header, ld_str.detpar,...
-                ld_str.data,ld_str.runid_map] = ...
+            [ld_str.main_header, ld_str.experiment_info, ld_str.detpar,...
+                ld_str.data] = ...
                 ldr.get_sqw('-legacy','-noupgrade', 'pixel_page_size', pixel_page_size);
-            ld_str.experiment_info = Experiment(old_header);
         end
         function obj = init_from_loader_struct_(obj, data_struct)
             % initialize object contents using structure, obtained from
@@ -353,11 +349,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj.header = data_struct.header;
             obj.detpar = data_struct.detpar;
             obj.data = data_struct.data;
-            if isfield(data_struct,'runid_map')
-                obj.runid_map = data_struct.runid_map;
-            else % calculate runid map from header file names
-                obj.runid_map = recalculate_runid_map_(data_struct.header);
-            end
         end
     end
 end

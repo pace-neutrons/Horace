@@ -22,7 +22,7 @@ function [tmp_sqw, grid_size, img_db_range] = fake_sqw (en, par_file, sqw_file, 
 %                   3x3 matrix in the format [qh_min,qh_step,qh_max;
 %                   qk_min,qk_step,qk_max;ql_min,q_step,q;_max] providing
 %                   q-range
-%                   The fake detectors positions used in sqw object caclulations
+%                   The fake detectors positions used in sqw object calculations
 %                   would be calculated from the q-range provided assuming
 %                   elastic scattering (0-energy transfer)
 %
@@ -44,7 +44,7 @@ function [tmp_sqw, grid_size, img_db_range] = fake_sqw (en, par_file, sqw_file, 
 %   grid_size_in   Scalar or row vector of grid dimensions. The default
 %                  size will depend on the product of energy bins and detector elements
 %                  summed across all the spe files.
-%   pix_db_range_in Range of grid used to rebin pixels. If not given, then uses smallest hypercuboid
+%   pix_db_range_in Range of grid used to rebin pixels. If not given, then uses smallest hyper-cuboid
 %                   that encloses the whole pixels range.
 %
 % Output:
@@ -53,7 +53,7 @@ function [tmp_sqw, grid_size, img_db_range] = fake_sqw (en, par_file, sqw_file, 
 %                  the list of temporary file names used as parts of final
 %                  sqw file.
 %                  if return_sqw_obj == true --
-%                  cellarray of sqw objects, each corresponging to
+%                  cellarray of sqw objects, each corresponding to
 %                  generated tmp sqw file
 %
 %   grid_size      Actual size of grid used (size is unity along dimensions
@@ -130,7 +130,7 @@ end
 if ~ischar(par_file) && (isnumeric(par_file) )
     if ~isempty(nfiles_in) && nfiles_in>1
         error('HORACE:fake_sqw:invalid_argument',...
-            'Fake sqw with q-range input can not generate mutliple sqw files');
+            'Fake sqw with q-range input can not generate multiple sqw files');
     end
     % now the par file is the
     par_file = build_det_from_q_range(par_file,efix,lattice);

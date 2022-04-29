@@ -66,9 +66,8 @@ for i=1:n_contrib_run
         data.npix=npix;
         data.pix=pix.get_pixels(ix(nbeg(ind(head_ind)):nend(ind(head_ind))));
         %
-        [exp_info_4run,runid_4run] = exp_info.get_subobj(head_ind,runid_map);
+        exp_info_4run = exp_info.get_subobj(head_ind);
         wout(i).experiment_info = exp_info_4run;
-        wout(i).runid_map       = runid_4run;
         
         wout(i).detpar= detpar;
         wout(i).data=data;

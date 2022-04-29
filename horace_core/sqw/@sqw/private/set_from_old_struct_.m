@@ -34,47 +34,39 @@ if ~isfield(S,'version')
             ss.data = ss.data_;
             ss = rmfield(ss,'data_');
         end
+        if isfield(ss,'runid_map')
+            ss.experiment_info.runid_map = ss.runid_map;
+            ss = rmfield(ss,'runid_map');
+        end
+        % guard against old data formats, which may or may not contain 
+        % runid map and the map may or may not correspond to 
+        % pixel_id
+        if isfield(ss,'data') && isa(ss.data,'data_sqw_dnd') && ...
+           ss.data.pix.num_pixels>0 && ~ss.data.pix.is_filebacked()
+            % check consistency between pixel run_id and header runids. 
+            % this is not always possible to achieve, but is pissible in
+            % assumption that pixel-ids were recalculated from 1 to
+            % n-headers
+            pix_runid = unique(ss.data.pix.run_idx);
+        
+            header_run_id = ss.experiment_info.runid_map.keys();
+            header_run_id = [header_run_id{:}];
+  
+            if ~all(ismember(pix_runid,header_run_id))                 
+                id = 1:ss.experiment_info.n_runs;
+                ss.experiment_info.runid_map = id;
+            end
+            % old data format where headers are stored all together including 
+            % the headers, which do not contributed into the pixels.
+            % retrieve only contributed headers
+            if numel(pix_runid)<ss.experiment_info.n_runs
+                % can do it in assump
+                ss.experiment_info = ss.experiment_info.get_subobj(pix_runid);
+                ss.main_header.nfiles = ss.experiment_info.n_runs;
+            end
+        end        
 
         obj(i) = sqw(ss);
-        if isempty(obj(i).runid_map)
-            obj(i).runid_map = recalculate_runid_map_(obj(i).experiment_info);
-        end
-        % guard against old data formats:
-        if isa(obj(i).data.pix,'PixelData') && obj(i).data.pix.num_pixels>0 && ...
-                ~obj(i).data.pix.is_filebacked()
-            % recalculate runid_map to account for run_id actually present
-            % in the pixels. When pixels were generated, the run_id-s were
-            % recalculated from 1 to number of contributed runs
-            pix_id = unique(obj(i).data.pix.run_idx);
-            kind = obj(i).runid_map.keys;
-            kind = [kind{:}];
-            if ~all(ismember(pix_id,kind)) % pixel id-s were recalculated
-                id = 1:numel(kind);
-                obj(i).runid_map = containers.Map(id,id);
-            end
-            runids = obj(i).experiment_info.expdata.get_run_ids();
-            if ~any(ismember(runids,pix_id)) % pixids restored incorrectly
-                info = obj(i).experiment_info.expdata;
-                for j=1:numel(runids)
-                    info(j).run_id = j;
-                end
-                obj(i).experiment_info.expdata = info;
-                recalculate_runid = false;
-            else
-                recalculate_runid = true;                
-            end
-            % remove headers which do not contribute to pixel data and
-            % reset run_ids which may have be recovered from filenames
-            % to the run_ids, recalculated from 1 to n-contributed runs
-            if numel(pix_id) ~= obj(i).experiment_info.n_runs || ...
-                any(isnan(runids))
-                [exper,runid_map] = obj(i).experiment_info.get_subobj( ...
-                    pix_id,obj(i).runid_map,recalculate_runid);
-                obj(i).experiment_info = exper;
-                obj(i).runid_map= runid_map;
-                obj(i).main_header.nfiles = exper.n_runs;
-            end
-        end
     end
     return
 end
@@ -82,7 +74,4 @@ if isfield(S,'array_dat')
     obj = obj.from_bare_struct(S.array_dat);
 else
     obj = obj.from_bare_struct(S);
-end
-for i=1:numel(obj)
-    obj(i).runid_map = recalculate_runid_map_(obj(i).experiment_info.expdata);
 end
