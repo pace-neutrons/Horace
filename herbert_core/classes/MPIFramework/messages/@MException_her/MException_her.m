@@ -1,6 +1,6 @@
 classdef MException_her < MException
     %class define MException, recovered/prepared from/to custom serialization
-    %
+    % as we can not set up and restore dbstack for normal Matlab exception
     %
     properties
         % holder for stack variable, which can not be set up on MException

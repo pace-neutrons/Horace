@@ -2,9 +2,6 @@ classdef loader_ascii < a_loader
     % helper class to provide loading experiment data from
     % ASCII spe file and  ASCII par file
     %
-    % $Author: AB; 20/10/2011
-    %
-    %
     properties(Constant)
         % when read ASCII data, keep the specified number of digits after
         % decimal point to obtain consistent results on different operating
