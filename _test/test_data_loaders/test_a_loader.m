@@ -1,6 +1,5 @@
 classdef test_a_loader< TestCase
     %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
     %
 
     properties
