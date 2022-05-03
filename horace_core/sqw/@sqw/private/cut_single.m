@@ -62,7 +62,7 @@ if keep_pix
             % assuming that runid-s indeed been redefined this way, we can 
             % restore their run-ids in experiment_info
             id = 1:w.experiment_info.n_runs;
-            w.experiment_info.expdata.runid_map = id;
+            w.experiment_info.runid_map = id;
         end
         exp_info = w.experiment_info.get_subobj(runid_contributed);
     end

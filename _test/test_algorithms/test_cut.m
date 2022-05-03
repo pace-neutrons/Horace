@@ -132,6 +132,9 @@ classdef test_cut < TestCase & common_state_holder
             ret_sqw = cut(obj.sqw_file, obj.ref_params{:}, outfile);
             cleanup = onCleanup(@() clean_up_file(outfile));
 
+            runid = unique(ret_sqw.pix.run_idx);
+            assertEqual(runid,ret_sqw.experiment_info.expdata.get_run_ids());
+
             loaded_cut = sqw(outfile);
             % bug #797 requesting investigation
             loaded_cut.experiment_info.instruments = ret_sqw.experiment_info.instruments;
@@ -376,7 +379,7 @@ classdef test_cut < TestCase & common_state_holder
             real_contr_ind = unique(ref_sqw.data.pix.run_idx);
             assertTrue(all(ismember(contrib_ind,real_contr_ind)));
 
-            contr_headers = output_sqw.experiment_info.get_subobj(contrib_ind,output_sqw.runid_map);
+            contr_headers = output_sqw.experiment_info.get_subobj(contrib_ind);
             assertEqual(contr_headers,output_sqw.experiment_info);
 
             % bug #797 requesting investigation

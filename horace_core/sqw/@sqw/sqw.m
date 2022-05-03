@@ -7,20 +7,24 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %   >> w = sqw (filename)       % Create an sqw object from a file
     %   >> w = sqw (sqw_object)     % Create a new SQW object from a existing one
     %
-    properties
+    properties(Dependent)
+        npixels % common with loaders interface to pix.num_pixels property
+        %
         runid_map % the map which connects header number
         % with run_id stored in pixels, e.g. map contains connection
         % runid_pixel->header_number
-    end
-
-    properties(Dependent)
-        npixels % common with loaders interface to pix.num_pixels property
+        
         % used for organizing common interface to pixel data
         main_header
         experiment_info
         detpar
-        %CMDEV: data now a dependent property, see below.
-        data;
+        %
+        data; % The information about the N-D neutron image, containing
+        %       information about
+        %
+        pix % access to pixel information, if any such information is
+        %     stored within an object. May also return pix_combine_info or
+        %     filebased pixels. (TODO -- this should be modified)
         %;
     end
     properties(Hidden,Dependent)
@@ -186,6 +190,15 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                     class(d))
             end
         end
+        %
+        function pix = get.pix(obj)
+            if isempty(obj.data)
+                pix = [];
+                return;
+            end
+            pix  = obj.data.pix;
+        end
+        %
         function hdr = get.header(obj)
             % return old (legacy) header(s) providing short experiment info
             %
