@@ -215,7 +215,6 @@ classdef test_sqw_eval < TestCase & common_state_holder
             % skip message
             ref_obj = obj.sqw_2d_sqw_eval_ref_obj;
             out_sqw.main_header.nfiles = ref_obj.main_header.nfiles;
-            out_sqw.runid_map = ref_obj.runid_map;
             out_sqw.experiment_info = ref_obj .experiment_info;
             
             assertEqualToTol( ...
@@ -283,7 +282,6 @@ classdef test_sqw_eval < TestCase & common_state_holder
             % Old filebased file does not correctly recalculate contributing pixes. See
             % skip message
             out_sqw.main_header.nfiles = ref_out_sqw.main_header.nfiles;
-            out_sqw.runid_map = ref_out_sqw.runid_map;
             out_sqw.experiment_info = ref_out_sqw.experiment_info;
             assertEqualToTol( ...
                 out_sqw, ref_out_sqw, ...
