@@ -90,7 +90,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             %                                           folder as this
             %                                           function
             %   >> test_gen_sqw_accumulate_sqw ('save') % Save to
-            %   test_multifit_horace_1_output.mat
+            %   test_gen_sqw_accumulate_sqw_output.mat
             %
             % Reads previously created test data sets.
             
@@ -162,6 +162,7 @@ classdef gen_sqw_accumulate_sqw_tests_common < TestCaseWithSave
             % build test files if they have not been build
             obj=build_test_files(obj);
             
+            obj.save();
         end
         %
         %
