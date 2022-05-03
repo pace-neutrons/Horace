@@ -74,7 +74,7 @@ classdef test_cut_simple_to_complex < TestCaseWithSave
             pr = struct('u',[1,0,0],'v',[0,1,0]);
             cut1D_ng = cut(sqw_obj,pr,[-1.5,0.02,1.5],[-0.1,0.1],[-0.1,0.1],[-5,5]);
             
-            assertEqualWithSave(obj,cut1D_ng,'ignore_str',1);
+            assertEqualToTolWithSave(obj,cut1D_ng,'ignore_str',1,'tol',1.e-9);
         end
     end
     

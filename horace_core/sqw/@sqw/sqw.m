@@ -260,11 +260,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             if isempty(obj.data_)
                 npix = 'undefined';
             else
-                pix = obj.data_.pix;
-                if isempty(pix)
+                pix_ = obj.data_.pix;
+                if isempty(pix_)
                     npix = 0;
                 else
-                    npix = pix.num_pixels;
+                    npix = pix_.num_pixels;
                 end
             end
         end
