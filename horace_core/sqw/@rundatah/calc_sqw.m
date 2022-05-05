@@ -64,7 +64,7 @@ if ~isempty(obj.transform_sqw_f_)
     % and correct sqw structure, though this pix_range and grid_size-s do not
     % always coincide with initial range and sizes
     w = obj.transform_sqw_f_(w);
-    pix_range = w.data.pix.pix_range;
+    pix_range = w.pix.pix_range;
     grid_size = size(w.data.s);
 end
 

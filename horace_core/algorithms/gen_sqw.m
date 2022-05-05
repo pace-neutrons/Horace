@@ -374,13 +374,13 @@ if emode ~= 0
         en_tst = run_files{i}.en;
         if ischar(en_tst)
             [~,dfn,dfe] = fileparts(run_files{i}.data_file_name);
-            error('GEN_SQW:invalid_argument',...
+            error('HORACE:gen_sqw:invalid_argument',...
                 'file: %s, N%d, has incorrect energy bins: %s',[dfn,dfe],i,en_tst);
         end
         efix_tst = run_files{i}.efix;
         if ischar(efix_tst)
             [~,dfn,dfe] = fileparts(run_files{i}.data_file_name);
-            error('GEN_SQW:invalid_argument',...
+            error('HORACE:gen_sqw:invalid_argument',...
                 'file: %s, N%d, has incorrect efixed: %s',[dfn,dfe],i,efix_tst);
         end
 
