@@ -134,12 +134,17 @@ classdef IX_experiment < serializable
         %------------------------------------------------------------------
         function is = isempty(obj)
             is = false(size(obj));
+            flds = IX_experiment.fields_to_save_;
             for i=1:numel(obj)
-                for j=2:numel(IX_experiment.fields_to_save_)
-                    if ~isempty(obj(i).(IX_experiment.fields_to_save_{j}))
+                obj_i_empty = true;
+                for j=1:numel(IX_experiment.fields_to_save_)
+                    fld_val = obj(i).(flds{j});
+                    if ~(isempty(fld_val) || (isnumeric(fld_val)&&isnan(fld_val)))
+                        obj_i_empty= false;
                         break;
                     end
                 end
+                is(i) = obj_i_empty;
             end
         end
         function obj = IX_experiment(varargin)

@@ -14,6 +14,29 @@ classdef test_IX_experiment <  TestCase
             end
             this = this@TestCase(name);
         end
+        function test_empty_array(~)
+            exp = [IX_experiment(),IX_experiment()];
+            assertEqual(isempty(exp),[true,true]);
+
+            exp(2).filename = 'some_file';
+            assertEqual(isempty(exp),[true,false]);
+        end
+
+        function test_empty_obj_filename(~)
+            exp = IX_experiment();
+            assertTrue(isempty(exp));
+
+            exp.filename = 'some_file';
+            assertFalse(isempty(exp));
+        end
+
+        function test_empty_obj_runid(~)
+            exp = IX_experiment();
+            assertTrue(isempty(exp));
+
+            exp.run_id = 1;
+            assertFalse(isempty(exp));
+        end
         function test_convert_to_and_from_old_binfile_headers(~)
             exp = IX_experiment();
             exp(1).filename = 'aa';

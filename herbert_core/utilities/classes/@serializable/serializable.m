@@ -73,8 +73,8 @@ classdef serializable
     %     end
     %----------------------------------------------------------------------
     % OPTIONAL:
-    % to support old file versions, one should also overload method:
-    % from_old_struct, which, by default, calls from_bare_struct method.
+    % to support old file versions, one should also overload method
+    % "from_old_struct", which, by default, calls "from_bare_struct" method.
     %----------------------------------------------------------------------
     methods
         function strc = to_struct(obj)
