@@ -13,8 +13,8 @@
 //
 template<class T, class N, class K>
 void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, double *const pPixRange,
-    std::vector<const T *> &PixelData, std::vector<size_t> &NPixels,
-    std::vector<const N *> &PixelIndexes, std::vector<size_t> NIndexes,
+    std::vector<const void *> &PixelData, std::vector<size_t> &NPixels,
+    std::vector<const void *> &PixelIndexes, std::vector<size_t> NIndexes,
     double const *const pCellDens, size_t distribution_size,
     size_t *const ppInd) {
 
@@ -40,10 +40,10 @@ void sort_pixels_by_bins( K * const pPixelSorted, size_t nPixelsSorted, double *
     for(size_t nblock=0; nblock < PixelIndexes.size();nblock++)
     {
         size_t nBlockInd = NIndexes[nblock];
-        const N* pCellInd = PixelIndexes[nblock];
+        const N* pCellInd = reinterpret_cast<const N*>(PixelIndexes[nblock]);
         if (pCellInd == nullptr)continue;
 
-        const T* pPixData= PixelData[nblock];
+        const T* pPixData= reinterpret_cast<const T*>(PixelData[nblock]);
         if (pPixData == nullptr)continue;
 
         for (size_t j = 0; j < nBlockInd ; j++) {    // sort pixels according to cells

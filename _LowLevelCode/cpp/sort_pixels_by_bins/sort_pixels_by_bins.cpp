@@ -21,38 +21,55 @@ enum InputOutputTypes {
     Pix4IndDOut8, // Float pixels Int64 indexes double output
     Pix4IndIOut4, // Float pixels Int64 indexes float output
     Pix4IndDOut4,
+    Pix4Ind4Out4, // float pixels float indexes, fload output
+    Pix4Ind4Out8, // float pixels float indexes, double output
+    Pix8Ind4Out8, // double pixels float indexes, double output
     ERROR,
     N_InputCases
 };
+enum InputIndexesType {
+    IndI64,  // input indexes are unit64 type
+    IndD64,  // input indexes are double64 type
+    IndF32,  // input indexes are float32 type.
+    N_InputIndexes
+};
 
-InputOutputTypes process_types(bool float_pix, bool int_index, bool double_out)
+InputOutputTypes process_types(bool float_pix, InputIndexesType index_type, bool double_out)
 {
-    if (float_pix) {
-        if (int_index) {
+    if (float_pix) { // input pixels are single precision pix
+        switch (index_type)
+        {
+        case(IndI64):
             if (double_out) { return Pix4IndIOut8; }
             else { return Pix4IndIOut4; }
-        }
-        else {
+        case(IndD64):
             if (double_out) { return Pix4IndDOut8; }
             else { return Pix4IndDOut4; }
+        case(IndF32):
+            if (double_out) { return Pix4Ind4Out8; }
+            else { return Pix4Ind4Out4; }
+        default:
+            return ERROR;
         }
     }
-    else {
-        if (int_index) {
-            if (double_out) { return Pix8IndIOut8; }
-            else { return ERROR; }
+    else { // input pixels are double precision pix
+        switch (index_type)
+        {
+        // we do not reduce double to single by this routine
+        case(IndI64):
+            return Pix8IndIOut8; 
+        case(IndD64):
+            return Pix8IndDOut8; 
+        case(IndF32):
+            return Pix8Ind4Out8;
+        default:
+            return ERROR;
         }
-        else {
-            if (double_out) { return Pix8IndDOut8; }
-            else { return ERROR; }
-
-        }
-
     }
 }
 
 std::string  verify_pix_array(const mxArray* pix_cell_array_ptr, bool& single_precision, std::vector<size_t>& pix_block_sizes,
-    std::vector<const double*>& pPix_blocks, size_t& n_tot_pixels) {
+    std::vector<const void*>& pPix_blocks, size_t& n_tot_pixels) {
     /* function processes and validates cell array of input pixels
 
     in particular, it calculates each cell size and number of pixels, containing in each array.
@@ -98,6 +115,7 @@ std::string  verify_pix_array(const mxArray* pix_cell_array_ptr, bool& single_pr
                 else {
                     single_precision = false;
                 }
+                pPix_blocks[ind] = reinterpret_cast<const double*>(mxGetPr(cell_element_ptr));
                 break;
             case (mxSINGLE_CLASS):
                 if (array_type_is_known) {
@@ -107,6 +125,7 @@ std::string  verify_pix_array(const mxArray* pix_cell_array_ptr, bool& single_pr
                 else {
                     single_precision = true;
                 }
+                pPix_blocks[ind] = reinterpret_cast<const float*>(mxGetPr(cell_element_ptr));
                 break;
             default:
                 return "Input pixels array contains unsupported type of pixels. Only single and double precision pixels are supported";
@@ -121,15 +140,14 @@ std::string  verify_pix_array(const mxArray* pix_cell_array_ptr, bool& single_pr
             // retrieve pixels block data
             n_tot_pixels += dims[1];
             pix_block_sizes[ind] = dims[1];
-            pPix_blocks[ind] = reinterpret_cast<const double*>(mxGetPr(cell_element_ptr));
         }
     }
 
     return "";
 };
 
-std::string  verify_index_array(const mxArray* pix_cell_array_ptr, bool& is_integer, std::vector<size_t>& ind_block_sizes,
-    std::vector<const double*>& pInd_blocks, size_t& n_tot_pixels) {
+std::string  verify_index_array(const mxArray* pix_cell_array_ptr, InputIndexesType& ind_type, std::vector<size_t>& ind_block_sizes,
+    std::vector<const void*>& pInd_blocks, size_t& n_tot_pixels) {
     /* function processes and validates cell array of input indexes
 
     in particular, it calculates each cell size and number of indexes, retained in each cell array.
@@ -170,25 +188,37 @@ std::string  verify_index_array(const mxArray* pix_cell_array_ptr, bool& is_inte
             switch (category) {
             case (mxDOUBLE_CLASS):
                 if (array_type_is_known) {
-                    if (is_integer)
-                        return "Input indexes array contains blocks with different type of indexes. Only one type of indexes (int64 or double) is supported";
+                    if (ind_type != IndD64)
+                        return "Input indexes array contains blocks with different type of indexes. Only one type of indexes (int64, float or double) is supported";
                 }
                 else {
-                    is_integer = false;
+                    ind_type = IndD64;
                 }
+                pInd_blocks[ind] = reinterpret_cast<const double*>(mxGetPr(cell_element_ptr));
                 break;
             case (mxINT64_CLASS):
                 if (array_type_is_known) {
-                    if (!is_integer)
-                        return "Input indexes array contains blocks with different type of indexes. Only one type of indexes (int64 or double) is supported";
+                    if (ind_type != IndI64)
+                        return "Input indexes array contains blocks with different type of indexes. Only one type of indexes (int64, float or double) is supported";
                 }
                 else {
-                    is_integer = true;
+                    ind_type = IndI64;
                 }
+                pInd_blocks[ind] = reinterpret_cast<const int64_t*>(mxGetPr(cell_element_ptr));
+                break;
+            case (mxSINGLE_CLASS):
+                if (array_type_is_known) {
+                    if (ind_type != IndF32)
+                        return "Input indexes array contains blocks with different type of indexes. Only one type of indexes (int64, float or double) is supported";
+                }
+                else {
+                    ind_type = IndF32;
+                }
+                pInd_blocks[ind] = reinterpret_cast<const float*>(mxGetPr(cell_element_ptr));
                 break;
             default:
                 if (!mxIsEmpty(cell_element_ptr))
-                    return "Input indexes array contains unsupported type of indexes. Only int64 and double precision indexes are supported";
+                    return "Input indexes array contains unsupported type of indexes. Only int64, float or double precision indexes are supported";
             }
             //
             array_type_is_known = true;
@@ -199,7 +229,7 @@ std::string  verify_index_array(const mxArray* pix_cell_array_ptr, bool& is_inte
             auto nInd = (dims[1] + dims[0] - 1);
             n_tot_pixels += nInd;
             ind_block_sizes[ind] = nInd;
-            pInd_blocks[ind] = reinterpret_cast<const double*>(mxGetPr(cell_element_ptr));
+
         }
     }
 
@@ -251,18 +281,18 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     // evaluate input pixels cell array
     bool pix_single_precision(false);
     std::vector<size_t> pix_sizes;
-    std::vector<const double*> pPix_blocks;
+    std::vector<const void*> pPix_blocks;
     size_t n_Input_pixels;
     std::string err_code = verify_pix_array(prhs[Pixel_data], pix_single_precision, pix_sizes, pPix_blocks, n_Input_pixels);
     if (err_code.size() > 0) {
         mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument", err_code.c_str());
     }
     // evaluate input indexes cell array
-    bool index_is_integer(false);
+    InputIndexesType index_type;
     std::vector<size_t> index_sizes;
-    std::vector<const double*> pIndex_blocks;
+    std::vector<const void*> pIndex_blocks;
     size_t nPixelsSorted;
-    err_code = verify_index_array(prhs[Pixel_Indexes], index_is_integer, index_sizes, pIndex_blocks, nPixelsSorted);
+    err_code = verify_index_array(prhs[Pixel_Indexes], index_type, index_sizes, pIndex_blocks, nPixelsSorted);
     if (err_code.size() > 0) {
         mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument", err_code.c_str());
     }
@@ -309,7 +339,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         pPixelRange = (double*)mxGetPr(plhs[Pixels_range]);
     }
 
-    InputOutputTypes type_requested = process_types(pix_single_precision, index_is_integer, double_output);
+    InputOutputTypes type_requested = process_types(pix_single_precision, index_type, double_output);
     if (type_requested == ERROR) {
         mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument",
             "Sort_pixels_by_bins: unsupported combination of input/output types");
@@ -329,92 +359,81 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
             switch (type_requested) {
             case Pix8IndIOut8: {
                 double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);
-                std::vector<const int64_t*> piIndex_blocks(pIndex_blocks.size());
-                for (int i = 0; i < pIndex_blocks.size(); i++) {
-                    piIndex_blocks[i] = reinterpret_cast<const int64_t*>(pIndex_blocks[i]);
-                }
-
+                //
                 sort_pixels_by_bins<double, int64_t, double>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
-                    piIndex_blocks, index_sizes,
+                    pIndex_blocks, index_sizes,
                     pCellDens, distribution_size,
                     reinterpret_cast<size_t*>(ppInd));
-
                 break;
             }
             case Pix8IndDOut8: {
                 double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);
-                std::vector<const int64_t*> piIndex_blocks(pIndex_blocks.size());
-
                 sort_pixels_by_bins<double, double, double>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
                     pIndex_blocks, index_sizes,
                     pCellDens, distribution_size,
                     reinterpret_cast<size_t*>(ppInd));
-
                 break;
             }
             case Pix4IndIOut8: {
                 double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);
-                std::vector<const float*> psPix_blocks(pPix_blocks.size());
-                std::vector<const int64_t*> piIndex_blocks(pIndex_blocks.size());
-                for (int i = 0; i < pPix_blocks.size(); i++) {
-                    psPix_blocks[i] = reinterpret_cast<const float*>(pPix_blocks[i]);
-                    piIndex_blocks[i] = reinterpret_cast<const int64_t*>(pIndex_blocks[i]);
-                }
-                //
-                sort_pixels_by_bins<float, int64_t, double>(pPixelSorted, nPixelsSorted, pPixelRange, psPix_blocks, pix_sizes,
-                    piIndex_blocks, index_sizes,
+                sort_pixels_by_bins<float, int64_t, double>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
+                    pIndex_blocks, index_sizes,
                     pCellDens, distribution_size,
                     reinterpret_cast<size_t*>(ppInd));
-
-
                 break;
             }
             case Pix4IndDOut8: {
                 double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);
-                std::vector<const float*> psPix_blocks(pPix_blocks.size());
-                for (int i = 0; i < pPix_blocks.size(); i++) {
-                    psPix_blocks[i] = reinterpret_cast<const float*>(pPix_blocks[i]);
-                }
                 //
-                sort_pixels_by_bins<float, double, double>(pPixelSorted, nPixelsSorted, pPixelRange, psPix_blocks, pix_sizes,
+                sort_pixels_by_bins<float, double, double>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
                     pIndex_blocks, index_sizes,
                     pCellDens, distribution_size,
                     reinterpret_cast<size_t*>(ppInd));
-
                 break;
             }
             case Pix4IndIOut4: {
                 float* const pPixelSorted = (float*)mxGetPr(plhs[Pixels_Sorted]);
-                std::vector<const float*> psPix_blocks(pPix_blocks.size());
-                std::vector<const int64_t*> piIndex_blocks(pIndex_blocks.size());
-
-                for (int i = 0; i < pPix_blocks.size(); i++) {
-                    psPix_blocks[i] = reinterpret_cast<const float*>(pPix_blocks[i]);
-                    piIndex_blocks[i] = reinterpret_cast<const int64_t*>(pIndex_blocks[i]);
-                }
                 //
-                sort_pixels_by_bins<float, int64_t, float>(pPixelSorted, nPixelsSorted, pPixelRange, psPix_blocks, pix_sizes,
-                    piIndex_blocks, index_sizes,
+                sort_pixels_by_bins<float, int64_t, float>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
+                    pIndex_blocks, index_sizes,
                     pCellDens, distribution_size,
                     reinterpret_cast<size_t*>(ppInd));
-
                 break;
             }
             case Pix4IndDOut4: {
                 float* const pPixelSorted = (float*)mxGetPr(plhs[Pixels_Sorted]);
-                std::vector<const float*> psPix_blocks(pPix_blocks.size());
-
-                for (int i = 0; i < pPix_blocks.size(); i++) {
-                    psPix_blocks[i] = reinterpret_cast<const float*>(pPix_blocks[i]);
-                }
                 //
-                sort_pixels_by_bins<float, double, float>(pPixelSorted, nPixelsSorted, pPixelRange, psPix_blocks, pix_sizes,
+                sort_pixels_by_bins<float, double, float>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
                     pIndex_blocks, index_sizes,
                     pCellDens, distribution_size,
                     reinterpret_cast<size_t*>(ppInd));
-
                 break;
+            }
+            case Pix4Ind4Out4: {
+                float* const pPixelSorted = (float*)mxGetPr(plhs[Pixels_Sorted]);
+                sort_pixels_by_bins<float, float, float>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
+                    pIndex_blocks, index_sizes,
+                    pCellDens, distribution_size,
+                    reinterpret_cast<size_t*>(ppInd));
+                break;
+            }
+            case Pix4Ind4Out8: {
+                double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);
 
+                sort_pixels_by_bins<float, float, double>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
+                    pIndex_blocks, index_sizes,
+                    pCellDens, distribution_size,
+                    reinterpret_cast<size_t*>(ppInd));
+                break;
+            }
+            case Pix8Ind4Out8: {
+                double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);
+
+                sort_pixels_by_bins <double, float, double >(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
+                    pIndex_blocks, index_sizes,
+                    pCellDens, distribution_size,
+                    reinterpret_cast<size_t*>(ppInd));
+                break;
             }
             case ERROR:
                 mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument",

@@ -12,9 +12,6 @@ function [npix,s,e,pix,unique_runid,pix_indx] = bin_pixels_(obj,coord,num_output
 %          on this number, additional parts of the algorithm will be
 %          deployed.
 %
-%
-%
-
 
 pix = [];
 pix_indx = [];
@@ -124,6 +121,7 @@ if ndims > 1 % convert to 1D indexes
     stride = cumprod(n_bins);
     pix_indx =(pix_indx-1)*[1,stride(1:end-1)]'+1;
 end
+
 if ndims > 0
     if num_outputs ==6
         if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels
