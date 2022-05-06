@@ -248,7 +248,7 @@ end
 if drop_subzone_headers || keep_runid
     run_label = 'nochange';
 else
-    run_label=cumsum([0;nspe(1:end-1)]);
+    run_label=cumsum(nspe(1:end));
 end
 % if old_matlab
 %     npix_cumsum = cumsum(double(sqw_data.npix(:)));

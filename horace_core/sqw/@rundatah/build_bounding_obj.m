@@ -48,7 +48,12 @@ if ~range_given
             'calc_bounding_obj: no input range is given and source object does not contain enenrgy range');
     end
     if en_min == en_max
-        en = [en_min-1,en_max+1];
+        % is it already a bounding object?
+        if numel(rdl.en) == 2 
+            en = rdl.en(1);
+        else
+            en = [en_min-1,en_max+1];
+        end
     else
         en = get_en_from_range(en_min,en_max);
     end

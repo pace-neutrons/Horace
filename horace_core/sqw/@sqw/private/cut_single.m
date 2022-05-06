@@ -55,7 +55,7 @@ if keep_pix
         % compartibility operation.
         % TODO: Should be check for old file and after that -- this code.
         head_runid = w.experiment_info.expdata.get_run_ids();
-        if ~any(ismember(runid_contributed,head_runid))
+        if any(~ismember(runid_contributed,head_runid))
             % some old file conains runid, which has been
             % recalculated from 1 to n_headers on pixels but have not been
             % stored in runid map and in headers.

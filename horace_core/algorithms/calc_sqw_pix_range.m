@@ -54,7 +54,10 @@ if any(eps_lo>eps_hi)
     error('HORACE:calc_sqw_pix_range:invalid_argument',...
         'Must have eps_lo<=eps_hi')
 end
-
+en = cell(numel(eps_lo),1);
+for i=1:numel(eps_lo)
+    en{i} = get_en_from_range(eps_lo(i),eps_hi(i));
+end
 % Invoke public get_par routine
 if ischar(det) && size(det,1)==1
     det=get_par(det);
@@ -63,11 +66,31 @@ end
 rd_list = rundatah.gen_runfiles(cell(1,numel(efix)),det,...
     efix,emode,lattice,'-allow_missing');
 ndet = numel(det.group);
-S = zeros(1,ndet);
-ERR = S;
+pix_range=PixelData.EMPTY_RANGE_;
 for i=1:numel(rd_list)
+    S = zeros(numel(en{i}),ndet);
+    ERR = S;
+    
     rd_list{i}.S = S;
     rd_list{i}.ERR = ERR;
-    rd_list{i}.en = [eps_lo(i);eps_hi(i)];
+    rd_list{i}.en = en{i};
+
+    proj = rd_list{i}.get_projection();
+    pix_range1 = proj.convert_rundata_to_pix(rd_list{i});
+
+    pix_range = [min(pix_range(1,:),pix_range1(1,:));...
+        max(pix_range(2,:),pix_range1(2,:))];
+   rd_list{i} = rd_list{i}.unload();
 end
-pix_range = rundata_find_pix_range(rd_list);
+%TODO:
+% for symmetryzed data, do transformation in symmetry region See #798
+
+
+function en = get_en_from_range(en_min,en_max)
+
+if en_min == 0 || en_max == 0 || sign(en_min)*sign(en_max)>0
+    en = [en_min*(1-sign(en_min)*eps),en_max*(1+sign(en_max)*eps)];
+else %we want even number of equally spaced bins, to produce 3 odd bin cenres    
+    en = [en_min*(1-sign(en_min)*eps),0,en_max*(1+sign(en_max)*eps)];
+end
+

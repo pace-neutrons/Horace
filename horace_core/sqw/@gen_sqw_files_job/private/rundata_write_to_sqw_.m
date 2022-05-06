@@ -84,14 +84,3 @@ for i=1:nfiles
 end
 unique_runid = unique(run_id);
 update_runlabels = numel(unique_runid) ~= nfiles || any(isnan(unique_runid));
-
-
-% function range = get_cut_range(r_min,r_max,n_bins)
-% % calculate input range
-% n_bins = n_bins-1;
-% if n_bins == 0
-%     range = [r_min,r_max];
-% else
-%     range = [r_min,(r_max-r_min)/n_bins,r_max];
-% end
-
