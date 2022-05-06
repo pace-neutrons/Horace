@@ -88,9 +88,6 @@ exp.expdata = exp_descr;
 sq = sq.change_header(exp);
 
 
-runid = ids;
-sq.runid_map = containers.Map(runid,ids);
-
 function hd= gen_head(head,x)
 hd = head;
 hd.run_id = x;
