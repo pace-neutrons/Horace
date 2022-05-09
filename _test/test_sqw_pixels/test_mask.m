@@ -2,7 +2,7 @@ classdef test_mask < TestCase & common_pix_class_state_holder
     
     properties
         
-        sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw';
+        sqw_2d_file_path = '../common_data/sqw_2d_1.sqw';
         sqw_2d;
         idxs_to_mask;
         mask_array_2d;

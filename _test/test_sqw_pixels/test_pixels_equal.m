@@ -5,7 +5,7 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
 
         ALL_IN_MEM_PG_SIZE = 1e12;
 
-        test_sqw_file_path = '../test_sqw_file/sqw_2d_1.sqw';
+        test_sqw_file_path = '../common_data/sqw_2d_1.sqw';
         sqw_2d;
         sqw_2d_paged;
     end
@@ -123,8 +123,11 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
         end
 
         function test_paged_and_non_paged_version_of_same_sqw_file_are_equal(obj)
-            obj.sqw_2d_paged.runid_map = obj.sqw_2d.runid_map;
-            assertTrue(equal_to_tol(obj.sqw_2d_paged, obj.sqw_2d, 'fraction', 0.5));
+            pobj = obj.sqw_2d_paged;
+            pobj.experiment_info = obj.sqw_2d.experiment_info;
+            pobj.main_header.nfiles = obj.sqw_2d.main_header.nfiles;
+            [ok,mess]=equal_to_tol(pobj, obj.sqw_2d, 'fraction', 0.5);
+            assertTrue(ok,mess);
             skipTest('TODO: filebased and memory based versions of run_id map may be different, unitl the map is stored with file')
         end
 

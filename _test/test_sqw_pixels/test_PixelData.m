@@ -1340,7 +1340,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             
             idx_array = 25:35;
             f = @() pix.get_pixels(idx_array);
-            assertExceptionThrown(f, 'PIXELDATA:get_pixels');
+            assertExceptionThrown(f, 'HORACE:PixelData:get_pixels');
         end
         
         function test_get_pixels_throws_if_an_idx_lt_1_with_paged_pix(obj)
