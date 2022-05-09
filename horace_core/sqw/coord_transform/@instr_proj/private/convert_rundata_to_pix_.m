@@ -19,13 +19,18 @@ else
 end
 
 qspec = run_data.qpsecs_cache;
-if isempty(qspec) || isempty(run_data.S)
+if isempty(qspec)
+    qspec_provided = false;        
+else
+    qspec_provided = true;
+end
+if ~qspec_provided || isempty(run_data.S)
     % load signal, error and everything else to memory
     run_data= run_data.get_rundata('-this');
 end
 det0 = run_data.det_par;
 
-if calc_all_pixels
+if calc_all_pixels && ~qspec_provided
     % Masked detectors (i.e. containing NaN signal) are removed from data and detectors
     [ignore_nan,ignore_inf] = config_store.instance().get_value('hor_config','ignore_nan','ignore_inf');
     [run_data.S,run_data.ERR,run_data.det_par,non_masked]  = run_data.rm_masked(ignore_nan,ignore_inf);
@@ -43,7 +48,9 @@ end
 
 % caclulate pixels in standard form:
 % -----------------
-if isempty(qspec) % calculate detectors directions, which are always cached now.
+if qspec_provided 
+    detdcn = [];
+else% calculate detectors directions, which are always cached now.
     % And compared with the stored detectors each time, to recalculate if
     % not
     detdcn = calc_or_restore_detdcn_(det0);

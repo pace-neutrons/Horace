@@ -81,6 +81,11 @@ classdef instr_proj<aProjection
                 return
             end
             input_fields_names = instr_proj.fields_to_save_;
+            if nargin >=4
+                obj.emode = varargin{3}; % set emode first for case when
+                % emode == 0 and efix may be 0 or negative, as efix is
+                % ignored in emode == 0
+            end
             validators = {@(x)isa(x,'oriented_lattice')};
             [obj,remains] = set_positional_and_key_val_arguments(obj,...
                 input_fields_names,validators,varargin{:});
@@ -99,7 +104,7 @@ classdef instr_proj<aProjection
             efix = obj.efix_;
         end
         function obj = set.efix(obj,val)
-            if any(val<=0)
+            if any(val <= 0) && obj.emode_ ~=0
                 error('HORACE:instr_proj:invalid_argument',...
                     'efix can not be negative')
             end
@@ -143,7 +148,7 @@ classdef instr_proj<aProjection
             %             detectors during the run as function of energy
             %             transfer
             % Returns:
-            % pix_coord -- 4D array of pixel coordinates containing pixel 
+            % pix_coord -- 4D array of pixel coordinates containing pixel
             %              positions in crystal  Cartesian coordinate system
             %
             pix_coord = transform_pix_to_img_(obj,pix_data,varargin{:});
@@ -164,7 +169,7 @@ classdef instr_proj<aProjection
                 'transformation from Crystal Cartesian to instrument coordinate frame is not yet implemented')
         end
         function [pix,det0,axes] = convert_rundata_to_pix(obj,run_data,varargin)
-            % convert data provided as 
+            % convert data provided as
             [pix,det0,axes]  = convert_rundata_to_pix_(obj,run_data,varargin{:});
         end
         function [npix,s,e,pix_ok,unique_runid,det0,axes] = bin_pixels(obj,axes,run_data,varargin)
@@ -174,7 +179,7 @@ classdef instr_proj<aProjection
             [pix,det0,axes]  = obj.convert_rundata_to_pix(run_data,axes);
             [npix,s,e,pix_ok,unique_runid] = ...
                 bin_pixels@aProjection(obj,axes,pix,varargin{:});
-        end        
+        end
         %
         function ax_bl = get_proj_axes_block(~,ranges,bin_numbers)
             % return the axes block, corresponding to this projection class.
