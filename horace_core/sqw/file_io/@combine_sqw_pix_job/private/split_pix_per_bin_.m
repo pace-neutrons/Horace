@@ -8,9 +8,7 @@ if nargin > 2
         if(numel(pix_buf) > 0)
             if relabel_with_fnum
                 pix_buf(5,:)=n_file;
-            else % HACK: ?  there is pix_buf(5,:)+=n_file in C++ code. Discrepancy.
-                % No clear test to verify this behaviour.
-
+            else %TODO: No clear test to verify this behaviour.
                 pix_buf(5,:) = run_label; % set run_id to run_label provided
             end
         end

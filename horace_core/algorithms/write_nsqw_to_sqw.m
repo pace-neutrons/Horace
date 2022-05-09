@@ -268,8 +268,6 @@ main_header_combined.filepath = [fp,filesep];
 data_sum= struct('main_header',main_header_combined,'experiment_info',[],'detpar',det);
 data_sum.data = sqw_data;
 data_sum.experiment_info = header_combined;
-% TODO: this will go, as header combined contains runid_map
-data_sum.runid_map = header_combined.runid_map;
 
 ds = sqw(data_sum);
 wrtr = sqw_formats_factory.instance().get_pref_access(ds);

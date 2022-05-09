@@ -202,7 +202,7 @@ classdef pix_combine_info < serializable
             nb = obj.nbins_;
         end
         function obj = set.nbins(obj,val)
-            if ~isnumeric(val) || val<=1
+            if ~isnumeric(val) || val < 1
                 error('HORACE:pix_combine_info:invalid_argument', ...
                     'number of bins for pix_combine info should be positive number. It is: %s',...
                     evalc('disp(val)'));

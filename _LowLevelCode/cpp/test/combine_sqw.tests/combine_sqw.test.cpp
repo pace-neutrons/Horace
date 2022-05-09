@@ -487,7 +487,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix) {
   file_par.total_NfileBins = NUM_BINS_IN_FILE;
   bool initialized(false);
   try {
-    reader.init(file_par, false, false, 128);
+    reader.init(file_par, false, 128);
     initialized = true;
   } catch (...) {
   }
@@ -635,7 +635,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Propagate_Pix_Threads) {
   file_par.total_NfileBins = NUM_BINS_IN_FILE;
   bool initialized(false);
   try {
-    reader.init(file_par, false, false, 128, 1);
+    reader.init(file_par, false, 128, 1);
     initialized = true;
   } catch (...) {
   }
@@ -708,7 +708,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Read_All) {
   std::vector<float> pix_buffer(this->pixels.size());
   std::size_t start_buf_pos(0), pix_start_num, num_bin_pix;
   // --------------------------------------------------------------------------------------------
-  reader.init(file_par, false, false, 0);
+  reader.init(file_par, false, 0);
 
   auto t_start = std::chrono::steady_clock::now();
   start_buf_pos = 0;
@@ -728,7 +728,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Read_All) {
     pix_buffer[i] = 0;
   }
   // --------------------------------------------------------------------------------------------
-  reader.init(file_par, false, false, 1024);
+  reader.init(file_par, false, 1024);
 
   t_start = std::chrono::steady_clock::now();
   start_buf_pos = 0;
@@ -749,7 +749,7 @@ TEST_F(TestCombineSQW, SQW_Reader_Read_All) {
   }
 
   // --------------------------------------------------------------------------------------------
-  reader.init(file_par, false, false, 512, 1);
+  reader.init(file_par, false, 512, 1);
 
   t_start = std::chrono::steady_clock::now();
   start_buf_pos = 0;
@@ -798,7 +798,7 @@ TEST_F(TestCombineSQW, MXSQW_Reader_Propagate_Pix_Multi) {
   try {
     //(fileParam[i], change_fileno, fileno_provided, read_buf_size,
     // read_files_multitreaded);
-    reader_noThread[0].init(file_par, false, false, 64, 0);
+    reader_noThread[0].init(file_par, false, 64, 0);
     initialized = true;
   } catch (...) {
   }
@@ -836,7 +836,7 @@ TEST_F(TestCombineSQW, MXSQW_Reader_Propagate_Pix_Multi) {
   try {
     //(fileParam[i], change_fileno, fileno_provided, read_buf_size,
     // read_files_multitreaded);
-    reader_threads[0].init(file_par, false, false, 64, 1);
+    reader_threads[0].init(file_par, false, 64, 1);
     initialized = true;
   } catch (...) {
   }
