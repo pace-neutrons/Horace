@@ -150,7 +150,7 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
                 S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0);
             aspect1 = get(gca,'DataAspectRatio');
             
-            proj = projaxes (S.u, S.v, 'type', 'rrr');
+            proj = ortho_proj (S.u, S.v, 'type', 'rrr');
             ww2 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
                 S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0, proj);
             aspect2 = get(gca,'DataAspectRatio');
@@ -173,7 +173,7 @@ classdef test_tobyfit_resfun_2 < TestCaseWithSave
             %
             % The second plot should look like the first, but rotated clockwise by 90 deg
             
-            proj = projaxes (S.u, S.v, 'type', 'rrr');
+            proj = ortho_proj (S.u, S.v, 'type', 'rrr');
             ww1 = resolution_plot(S.ebin, S.inst, S.samp, S.det_W, S.ei, S.efix,...
                 S.alatt, S.angdeg, S.u, S.v, 0, 0, 0, 0, 0, proj);
             aspect1 = get(gca,'DataAspectRatio');

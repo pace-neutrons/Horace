@@ -55,11 +55,11 @@ InputOutputTypes process_types(bool float_pix, InputIndexesType index_type, bool
     else { // input pixels are double precision pix
         switch (index_type)
         {
-        // we do not reduce double to single by this routine
+            // we do not reduce double to single by this routine
         case(IndI64):
-            return Pix8IndIOut8; 
+            return Pix8IndIOut8;
         case(IndD64):
-            return Pix8IndDOut8; 
+            return Pix8IndDOut8;
         case(IndF32):
             return Pix8Ind4Out8;
         default:
@@ -350,105 +350,101 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         if (array_size == 0)array_size = 1;
         void* ppInd = mxMalloc(array_size * sizeof(size_t)); //working array of indexes for transformed pixels
         if (!ppInd) {
-            mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:runtime_error",
-                "Sort_pixels_by_bins: memory allocation error for auxiliary array of indexes");
+            throw("Sort_pixels_by_bins: memory allocation error for auxiliary array of indexes");
         }
         //---------------------------------------------------------------------------------------------
 
-        try {
-            switch (type_requested) {
-            case Pix8IndIOut8: {
-                double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);
-                //
-                sort_pixels_by_bins<double, int64_t, double>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
-                    pIndex_blocks, index_sizes,
-                    pCellDens, distribution_size,
-                    reinterpret_cast<size_t*>(ppInd));
-                break;
-            }
-            case Pix8IndDOut8: {
-                double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);
-                sort_pixels_by_bins<double, double, double>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
-                    pIndex_blocks, index_sizes,
-                    pCellDens, distribution_size,
-                    reinterpret_cast<size_t*>(ppInd));
-                break;
-            }
-            case Pix4IndIOut8: {
-                double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);
-                sort_pixels_by_bins<float, int64_t, double>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
-                    pIndex_blocks, index_sizes,
-                    pCellDens, distribution_size,
-                    reinterpret_cast<size_t*>(ppInd));
-                break;
-            }
-            case Pix4IndDOut8: {
-                double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);
-                //
-                sort_pixels_by_bins<float, double, double>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
-                    pIndex_blocks, index_sizes,
-                    pCellDens, distribution_size,
-                    reinterpret_cast<size_t*>(ppInd));
-                break;
-            }
-            case Pix4IndIOut4: {
-                float* const pPixelSorted = (float*)mxGetPr(plhs[Pixels_Sorted]);
-                //
-                sort_pixels_by_bins<float, int64_t, float>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
-                    pIndex_blocks, index_sizes,
-                    pCellDens, distribution_size,
-                    reinterpret_cast<size_t*>(ppInd));
-                break;
-            }
-            case Pix4IndDOut4: {
-                float* const pPixelSorted = (float*)mxGetPr(plhs[Pixels_Sorted]);
-                //
-                sort_pixels_by_bins<float, double, float>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
-                    pIndex_blocks, index_sizes,
-                    pCellDens, distribution_size,
-                    reinterpret_cast<size_t*>(ppInd));
-                break;
-            }
-            case Pix4Ind4Out4: {
-                float* const pPixelSorted = (float*)mxGetPr(plhs[Pixels_Sorted]);
-                sort_pixels_by_bins<float, float, float>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
-                    pIndex_blocks, index_sizes,
-                    pCellDens, distribution_size,
-                    reinterpret_cast<size_t*>(ppInd));
-                break;
-            }
-            case Pix4Ind4Out8: {
-                double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);
-
-                sort_pixels_by_bins<float, float, double>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
-                    pIndex_blocks, index_sizes,
-                    pCellDens, distribution_size,
-                    reinterpret_cast<size_t*>(ppInd));
-                break;
-            }
-            case Pix8Ind4Out8: {
-                double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);
-
-                sort_pixels_by_bins <double, float, double >(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
-                    pIndex_blocks, index_sizes,
-                    pCellDens, distribution_size,
-                    reinterpret_cast<size_t*>(ppInd));
-                break;
-            }
-            case ERROR:
-                mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument",
-                    "Sort_pixels_by_bins: Got unsupported combination of input/output types");
-            case N_InputCases:
-                mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument",
-                    "Sort_pixels_by_bins: Got unsupported combination of input/output types");
-            default:
-                mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument",
-                    "Sort_pixels_by_bins: Got unsupported combination of input/output types");
-            }
+        switch (type_requested) {
+        case Pix8IndIOut8: {
+            double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);
+            //
+            sort_pixels_by_bins<double, int64_t, double>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
+                pIndex_blocks, index_sizes,
+                pCellDens, distribution_size,
+                reinterpret_cast<size_t*>(ppInd));
+            break;
         }
-        catch (const char* err) {
-            mxFree(ppInd);
-            mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:runtime_error", err);
+        case Pix8IndDOut8: {
+            double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);
+            sort_pixels_by_bins<double, double, double>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
+                pIndex_blocks, index_sizes,
+                pCellDens, distribution_size,
+                reinterpret_cast<size_t*>(ppInd));
+            break;
+        }
+        case Pix4IndIOut8: {
+            double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);
+            sort_pixels_by_bins<float, int64_t, double>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
+                pIndex_blocks, index_sizes,
+                pCellDens, distribution_size,
+                reinterpret_cast<size_t*>(ppInd));
+            break;
+        }
+        case Pix4IndDOut8: {
+            double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);
+            //
+            sort_pixels_by_bins<float, double, double>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
+                pIndex_blocks, index_sizes,
+                pCellDens, distribution_size,
+                reinterpret_cast<size_t*>(ppInd));
+            break;
+        }
+        case Pix4IndIOut4: {
+            float* const pPixelSorted = (float*)mxGetPr(plhs[Pixels_Sorted]);
+            //
+            sort_pixels_by_bins<float, int64_t, float>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
+                pIndex_blocks, index_sizes,
+                pCellDens, distribution_size,
+                reinterpret_cast<size_t*>(ppInd));
+            break;
+        }
+        case Pix4IndDOut4: {
+            float* const pPixelSorted = (float*)mxGetPr(plhs[Pixels_Sorted]);
+            //
+            sort_pixels_by_bins<float, double, float>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
+                pIndex_blocks, index_sizes,
+                pCellDens, distribution_size,
+                reinterpret_cast<size_t*>(ppInd));
+            break;
+        }
+        case Pix4Ind4Out4: {
+            float* const pPixelSorted = (float*)mxGetPr(plhs[Pixels_Sorted]);
+            sort_pixels_by_bins<float, float, float>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
+                pIndex_blocks, index_sizes,
+                pCellDens, distribution_size,
+                reinterpret_cast<size_t*>(ppInd));
+            break;
+        }
+        case Pix4Ind4Out8: {
+            double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);
+
+            sort_pixels_by_bins<float, float, double>(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
+                pIndex_blocks, index_sizes,
+                pCellDens, distribution_size,
+                reinterpret_cast<size_t*>(ppInd));
+            break;
+        }
+        case Pix8Ind4Out8: {
+            double* const pPixelSorted = (double*)mxGetPr(plhs[Pixels_Sorted]);
+
+            sort_pixels_by_bins <double, float, double >(pPixelSorted, nPixelsSorted, pPixelRange, pPix_blocks, pix_sizes,
+                pIndex_blocks, index_sizes,
+                pCellDens, distribution_size,
+                reinterpret_cast<size_t*>(ppInd));
+            break;
+        }
+        case ERROR:
+            if (ppInd)
+                mxFree(ppInd);
+            throw("Sort_pixels_by_bins: Got unsupported combination of input / output types");
+        case N_InputCases:
+            if (ppInd)
+                mxFree(ppInd);
+            throw("Sort_pixels_by_bins: Got unsupported combination of input/output types");
+        default:
+            if (ppInd)
+                mxFree(ppInd);
+            throw("Sort_pixels_by_bins: Got unsupported combination of input / output types");
         }
         mxFree(ppInd);
     }

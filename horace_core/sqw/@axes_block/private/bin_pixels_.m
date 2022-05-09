@@ -80,7 +80,10 @@ else
     if numel(n_bins) == 1
         n_bins = [n_bins,1];
     end
-    npix = npix + accumarray(pix_indx, ones(1,size(pix_indx,1)), n_bins);
+    % mex code, if deployed below, needs pixels collected during this
+    % particular accomulation.
+    npix1 = accumarray(pix_indx, ones(1,size(pix_indx,1)), n_bins);
+    npix = npix + npix1;
 end
 if num_outputs<3
     return;
@@ -128,7 +131,7 @@ if ndims > 0
             pix = PixelData(double(pix.data));     % when PixelData is separated into file accessor and memory accessor
         end
     else % sort will make pix double if requested  TODO: this should be moved to get_pixels
-        pix = sort_pix(pix,pix_indx,npix,varargin{:}); % when PixelData is separated into file accessor and memory accessor
+        pix = sort_pix(pix,pix_indx,npix1,varargin{:}); % when PixelData is separated into file accessor and memory accessor
     end
 elseif ndims == 0
     if ~isa(pix.data,'double') && force_double % TODO: this should be moved to get_pixels

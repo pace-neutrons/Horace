@@ -81,10 +81,12 @@ if use_mex
         % TODO: make "keep type" a default behaviour!
         % function retrieves keep_type variable value from this file
         % so returns double or single resolution pixels depending on this
+        %IMPORTANT: use double type as mex code asks for double type, not
+        %logical.
         if force_double % keep_type is extracted by sort_pix_by_bins routine
-            keep_type = false;
+            keep_type = 0; %
         else
-            keep_type = true;
+            keep_type = 1;
         end
         raw_pix = cellfun(@(pix_data) pix_data.data, pix_retained, ...
             'UniformOutput', false);
