@@ -43,7 +43,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             sdiag= symop([1,1,0],[0,0,1],[1,1,0]);
             this.sym = {sdiag,s100,[sdiag,s100]};
             
-            this.proj = projaxes([1,-1,0], [1,1,0], 'uoffset', [1,1,0], 'type', 'paa');
+            this.proj = ortho_proj([1,-1,0], [1,1,0], 'uoffset', [1,1,0], 'type', 'paa');
             range = [0,0.2];    % range of cut
             step = 0.01;        % Q step
             this.bin = [range(1)+step/2,step,range(2)-step/2];
@@ -67,7 +67,7 @@ classdef test_cut_sqw_sym < TestCaseWithSave
             Ws = mat2cell(reshape(Ws,[3,3,12]),3,3,ones(12,1));
             this.sym2 = squeeze(cellfun(@symop, Ws, 'UniformOutput', false));
             % setup projection and binning specifications
-            this.proj2 = projaxes([1,0,0],[0,1,0]);
+            this.proj2 = ortho_proj([1,0,0],[0,1,0]);
             this.ubin2 = [0, 0.05, 0.5];
             this.vbin2 = [-0.1, 0.1];
             this.wbin2 = [-0.1, 0.1];
