@@ -1,4 +1,4 @@
-classdef test_rebin < TestCase
+classdef test_rebin_operations < TestCase
     % Validate the dnd symmetrisation, combination and rebin routines
 
     properties
@@ -15,7 +15,7 @@ classdef test_rebin < TestCase
     end
 
     methods
-        function this=test_rebin(name)
+        function this=test_rebin_operations(name)
             this=this@TestCase(name);
             this.testdir = fileparts(mfilename('fullpath'));
         end
@@ -104,6 +104,7 @@ classdef test_rebin < TestCase
             w2d_qq_small_sqw=sqw(fullfile(this.testdir,'w2d_qq_small_sqw.sqw'));
 
             w2d_qq_small_sqw_1=rebin_sqw(w2d_qq_small_sqw,[0,0.04,0.4],[0,0.04,0.4]);
+            skipTest('DND rebinning disabled unil #798 is fixed')            
             w2d_qq_sqw_reb=rebin_sqw(w2d_qq_sqw,w2d_qq_small_sqw_1);
 
             % Compare output with a direct simulation
@@ -119,6 +120,7 @@ classdef test_rebin < TestCase
 
         % ------------------------------------------------------------------------------------------------
         function this = test_rebin_dnd_steps(this)
+            skipTest('DND rebinning disabled unil #798 is fixed')
             % dnd rebinning
             w2d_qe_sqw=sqw(fullfile(this.testdir,'w2d_qe_sqw.sqw'));
             w2d_qe_d2d=read_dnd(fullfile(this.testdir,'w2d_qe_d2d.sqw'));
