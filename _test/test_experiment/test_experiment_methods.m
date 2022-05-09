@@ -78,7 +78,7 @@ classdef test_experiment_methods < TestCase
             exp = obj.sample_exper;
             hdrs_cell = exp.convert_to_old_headers();
 
-            assertEqual(hdrs_cell{2}.filename,'a1$id$20')
+            assertEqual(hdrs_cell{2}.filename,'a2$id$20')
 
             hdrs_cell = hdrs_cell{2};
             rec_exp = Experiment.build_from_binfile_headers(hdrs_cell);

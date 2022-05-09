@@ -126,15 +126,13 @@ classdef test_main_mex < TestCase
             %
             hc.use_mex = false;
 
-            [pix_range_matl,u_to_rlu_matl,pix_matl]=rd.calc_projections();
+            [pix_range_matl,pix_matl,rd]=rd.calc_projections();
 
             hc.use_mex = true;
-            [pix_range_c,u_to_rlu_c,pix_c]=rd.calc_projections();
+            [pix_range_c,pix_c]=rd.calc_projections();
 
-            assertElementsAlmostEqual(u_to_rlu_matl,u_to_rlu_c,'absolute',1.e-8);
-            assertElementsAlmostEqual(pix_range_matl,pix_range_c,'absolute',1.e-8);
+            assertElementsAlmostEqual(pix_range_matl,pix_range_c,'absolute',1.e-8);            
             assertElementsAlmostEqual(pix_matl.data,pix_c.data,'absolute',1.e-8);
-
         end
 
         function test_calc_proj_options(this)
@@ -152,25 +150,26 @@ classdef test_main_mex < TestCase
 
 
             hcf.use_mex = 0;
-            [pix_range_matl,u_to_rlu_matl]=rd.calc_projections();
+            [pix_range_matl,pix_matl]=rd.calc_projections();
             hcf.use_mex = 1;
-            [pix_range_c,u_to_rlu_c]=rd.calc_projections();
+            [pix_range_c,pix_c]=rd.calc_projections();
 
-            assertElementsAlmostEqual(u_to_rlu_matl,u_to_rlu_c,'absolute',1.e-8);
-            assertElementsAlmostEqual(pix_range_matl,pix_range_c,'absolute',1.e-8);
+            assertElementsAlmostEqual(pix_range_matl,pix_range_c,'absolute',1.e-8);            
+            assertElementsAlmostEqual(pix_matl.data,pix_c.data,'absolute',1.e-8);
+
 
 
             hcf.use_mex = 0;
-            [pix_range_matl,u_to_rlu_matl,pix_m]=rd.calc_projections();
+            [pix_range_matl,pix_matl]=rd.calc_projections();
 
-            assertEqual(size(pix_m.data, 1), 9);
+            assertEqual(size(pix_matl.data, 1), 9);
             hcf.use_mex = 1;
-            [pix_range_c,u_to_rlu_c,pix_c]=rd.calc_projections();
+            [pix_range_c,pix_c]=rd.calc_projections();
 
-            assertElementsAlmostEqual(u_to_rlu_matl,u_to_rlu_c,'absolute',1.e-8);
-            assertElementsAlmostEqual(pix_range_matl,pix_range_c,'absolute',1.e-8);
+            assertElementsAlmostEqual(pix_range_matl,pix_range_c,'absolute',1.e-8);            
+            assertElementsAlmostEqual(pix_matl.data,pix_c.data,'absolute',1.e-8);
+
             assertEqual(size(pix_c.data, 1), 9);
-            assertElementsAlmostEqual(pix_m.data,pix_c.data,'absolute',1.e-8);
         end
         function test_recompute_bin_data(~)
             [cur_mex,log_level,n_threads] = get(hor_config,'use_mex','log_level','threads');
@@ -333,7 +332,7 @@ classdef test_main_mex < TestCase
             E0=min(en);
             E1=max(en);
             Es=2;
-            prj = projaxes(u,v);
+            prj = ortho_proj(u,v);
             data = data_sqw_dnd([3,4,5,90,90,90],prj,[0,1,L1],[0,1,L2],[0,0.1,L3],[E0,Es,E1]);
             % clear npix as we will cut data to fill it in
             if sum(data.npix(:))>0
