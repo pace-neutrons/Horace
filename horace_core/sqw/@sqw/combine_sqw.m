@@ -49,7 +49,7 @@ if iscell(varargin{1})
     inputs = [w1,varargin{1}{:}];
 else
     inputs = [w1,varargin{:}];
-    end
+end
 right_type = arrayfun(@(x)has_pixels(x),inputs);
 if ~all(right_type)
     n_empty = numel(right_type)-sum(right_type);
@@ -73,7 +73,7 @@ end
 %
 % calculate real image ranges for all datasets. Transform the ranges into
 % the coordinate frame of the first dataset
-img_ranges = arrayfun(@(x)(x.data_.img_db_range),inputs,...
+img_ranges = arrayfun(@(x)(x.data_.img_range),inputs,...
     'UniformOutput',false);
 full_img_rng = cellfun(@(box)(expand_box(box(1,:),box(2,:))),img_ranges,...
     'UniformOutput',false);
@@ -99,34 +99,31 @@ combine_range = range_add_border(combine_range);
 
 % Extract binning from the first sqw object and extend this binning onto
 % whole combine range:
-% TODO: refactor using future axes_block, extract common code with symmetrise_sqw
-%
 new_range_arg = cell(1,4);
-paxis  = false(4,1);
-paxis(inputs(1).data_.pax) = true;
+paxis  = inputs(1).data.nbins_all_dims>1;
 npax = 0;
 for i=1:4
     new_range_arg{i} = combine_range(:,i)';
     if paxis(i)
         npax = npax+1;
-        np = numel(inputs(1).data_.p{npax});
+        np = inputs(1).data.nbins_all_dims(i);
         range = new_range_arg{i};
         dist = range(2)-range(1);
         if np>1
             step = dist/(np-1);
-else
+        else
             step = dist;
-end
+        end
         new_range_arg{i} = [range(1),step,range(2)];
     end
 end
 % combine pixels into single pixels block
 wout = copy(inputs(1));
-pixout = wout.data_.pix;
+pixout = wout.pix;
 for i=2:numel(inputs)
-    pixout = PixelData.cat(pixout,inputs(i).data_.pix);
+    pixout = PixelData.cat(pixout,inputs(i).pix);
 end
-wout.data_.pix = pixout;
+wout.pix = pixout;
 
 
 % Turn off horace_info output, but save for automatic clean-up on exit or cntrl-C
@@ -138,11 +135,8 @@ set(hor_config,'log_level',-1);
 % all pixels contribute into single large bin.
 % TODO: refactor and make applicable for file-based operations
 %
-wout.data_.img_db_range = combine_range ;
+wout.data.img_range = combine_range ;
+wout.data.nbins_all_dims = ones(4,1);
+wout.data.npix = wout.pix.num_pixels;
 
-wout.data_.pax = 1:4;
-wout.data_.dax = 1:4;
-wout.data_.p  = arrayfun(@(i)(combine_range(:,i)),1:4,'UniformOutput',false);
-wout.data_.npix = wout.data_.pix.num_pixels;
-%
 wout=cut(wout,proj1,new_range_arg{:});

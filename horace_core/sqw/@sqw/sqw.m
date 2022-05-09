@@ -13,7 +13,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         runid_map % the map which connects header number
         % with run_id stored in pixels, e.g. map contains connection
         % runid_pixel->header_number
-        
+
         % used for organizing common interface to pixel data
         main_header
         experiment_info
@@ -197,6 +197,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
                 return;
             end
             pix  = obj.data.pix;
+        end
+        function obj = set.pix(obj,val)
+            %TODO: when pix is located here, place here the code from set.pix
+            %      in data_sqw_dnd
+            if isempty(obj.data)
+                obj.data_ = data_sqw_dnd();
+            end
+            obj.data_.pix = val;
         end
         %
         function hdr = get.header(obj)
