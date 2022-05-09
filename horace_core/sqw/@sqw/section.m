@@ -65,6 +65,8 @@ for n=1:numel(win)
     irange = zeros(2,ndim);
     array_section = cell(1,ndim);
     p=win(n).data.p;   % extract bin boundaries
+    p_ind = find(win(n).data.nbins_all_dims>1); %what actual indexes of the projection axis along all DnD object indexes
+    % axis are among all indexes
     for i=1:nargs
         if isempty(varargin{i}) || (isscalar(varargin{i}) && isequal(varargin{i},0))
             pax=win(n).data.dax(i);
@@ -73,7 +75,8 @@ for n=1:numel(win)
             array_section{pax}=irange(1,pax):irange(2,pax);
         elseif isa_size(varargin{i},[1,2],'double')
             if varargin{i}(1)>varargin{i}(2)
-                error (['Lower limit larger than upper limit for axis ',num2str(i)])
+                error ('HORACE:section:invalid_argument', ...                
+                'Lower limit larger than upper limit for axis %d',i)
             end
             pax=win(n).data.dax(i);
             pcent = 0.5*(p{pax}(2:end)+p{pax}(1:end-1));          % values of bin centres
@@ -81,13 +84,20 @@ for n=1:numel(win)
             if ~isempty(lis)
                 irange(1,pax) = lis(1);
                 irange(2,pax) = lis(end);
-                wout(n).data.p{pax} = p{pax}(lis(1):lis(end)+1);
+                wout(n).data.img_range(:,p_ind(pax))    = ...
+                    [pcent(irange(1,pax));pcent(irange(1,pax))];
+                wout(n).data.nbins_all_dims(p_ind(pax)) = irange(2,pax)-irange(1,pax)+1;
+                %wout(n).data.p{pax} = p{pax}(lis(1):lis(end)+1);
                 array_section{pax}=irange(1,pax):irange(2,pax);
             else
-                error (['No data along axis ',num2str(i),' in the range [',num2str(varargin{i}(1)),',',num2str(varargin{i}(2)),']'])
+                error ('HORACE:section:invalid_argument', ...
+                    'No data along axis %d in the range [%g, %g]', ...
+                    i,varargin{i}(1),varargin{i}(2))
             end
         else
-            error (['Limits parameter for axis ',num2str(i),' must be zero or a pair of numbers'])
+            error ('HORACE:section:invalid_argument', ...
+                'Limits parameter for axis: %d must be zero or a pair of numbers', ...
+                i)
         end
     end
 
@@ -99,13 +109,15 @@ for n=1:numel(win)
     % Section the pix array, if sqw type, and update img_range
     if has_pixels(win(n))
         % Section pix array
-        [nstart,nend] = aProjection.get_nrange(win(n).data.npix,irange);   % get contiguous ranges of pixels to be retained
-        ind=ind_from_nrange(nstart,nend);
-        wout(n).data.pix = win(n).data.pix.get_pixels(ind);
+        proj = win(n).data.get_projection();
+        [bl_start,bl_size] = proj.get_nrange(win(n).data.npix,win(n).data, ...
+            win(n).data,proj);   % get contiguous ranges of pixels to be retained
+        ind=ind_from_nrange(bl_start,bl_start+bl_size-1);
+        wout(n).pix = win(n).pix.get_pixels(ind);
         %TODO: Do we actually need this? is this a suitable algorithm?
         % need careful checking if the pixels are indeed arranged according
         % to new bins.
-        wout(n).data.img_db_range=recompute_img_range(wout(n));
+        wout(n).data.img_range=recompute_img_range(wout(n));
     end
 
 end
@@ -135,8 +147,6 @@ function ind = ind_from_nrange (nstart, nend)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
 
 if numel(nstart)==numel(nend)
     % Catch trivial case of no ranges
