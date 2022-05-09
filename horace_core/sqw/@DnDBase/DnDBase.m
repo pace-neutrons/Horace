@@ -99,7 +99,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = DnDBase(varargin)
             obj = obj@SQWDnDBase();
 
-            [args] = parse_args_(obj,varargin{:});
+            args = parse_args_(obj,varargin{:});
             if args.array_numel>1
                 obj = repmat(obj,args.array_size);
             elseif args.array_numel==0
