@@ -1,4 +1,4 @@
-classdef (Abstract) SQWDnDBase
+classdef (Abstract) SQWDnDBase < serializable
     %SQWDnDBase Abstract SQW/DnD object base class
     %   Abstract class defining common API and atrributes of the SQW and
     %   DnD objects

@@ -88,7 +88,6 @@ elseif nargi>= 4 %remaining input is p1,p2,p3,p4
 else
     error('HORACE:axes_block:invalid_argument',...
         'unrecognised number %d of input arguments',nargi);
-
 end
 
 

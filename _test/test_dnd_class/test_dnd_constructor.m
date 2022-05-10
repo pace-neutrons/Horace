@@ -35,7 +35,7 @@ classdef test_dnd_constructor < TestCase
             obj.test_dnd_2d_fullpath = obj.build_full_path(obj.TEST_FILES_PATH, obj.DND_FILE_2D_NAME);
         end
 
-        function test_dnd_classes_follow_expected_class_heirarchy(obj)
+        function test_dnd_classes_follow_expected_class_heirarchy(~)
             dnd_objects = { d0d(), d1d(), d2d(), d3d(), d4d() };
             for idx = 1:numel(dnd_objects)
                 dnd_obj = dnd_objects{idx};
@@ -116,15 +116,16 @@ classdef test_dnd_constructor < TestCase
         function assert_dnd_contains_expected_properties(~, dnd_obj)
             expected_props = { ...
                 'filename', 'filepath', 'title', 'alatt', 'angdeg', ...
-                'uoffset', 'u_to_rlu', 'ulen', 'ulabel', 'iax', ...
-                'iint', 'pax', 'p', 'dax', 's', 'e', 'npix','data'};
+                'uoffset', 'u_to_rlu', 'ulen', 'label', 'iax', ...
+                'iint', 'pax', 'p', 'dax', 's', 'e', 'npix','data',...
+                'img_range','nbins_all_dims','isvalid'};
 
             actual_props = fieldnames(dnd_obj);
 
             assertEqual(numel(actual_props), numel(expected_props));
             for idx = 1:numel(actual_props)
                 assertTrue( ...
-                    any(strcmp(expected_props, actual_props(idx))), ...
+                    ismember(actual_props(idx),expected_props), ...
                     sprintf('Unrecognised DnD property "%s"', actual_props{idx}));
             end
         end
@@ -159,22 +160,44 @@ classdef test_dnd_constructor < TestCase
             class_props = fieldnames(dnd_obj);
             isdata = ismember(class_props,'data');
             class_props = class_props(~isdata);
+            sample_prop  = containers.Map({'filename','filepath','title','alatt'},...
+                {'aaa','bbb','title',[1,2,3]});
+            sample_prop('angdeg') = [90,89,90];
+            sample_prop('uoffset')=[1,0,0,0];
+            sample_prop('u_to_rlu')=eye(3);
+            sample_prop('ulen') = [1,2,3,1];
+            sample_prop('label') = {'aaa','bbbb','cccc','e'};
+            sample_prop('s') = ones(3,3);
+            sample_prop('e') = ones(3,3);
+            sample_prop('npix') = ones(3,3);
+            sample_prop('img_range') =[-1,-2,-3,-4;2,3,4,5];
+            sample_prop('nbins_all_dims') = [10,20,30,40];
+            sample_prop('dax') = [1,2,3,4];                        
+
+            dep_prop = {'iint','iax','p','pax','isvalid'};
+            test_prop = sample_prop.keys;            
+     
+            % included all properties, forgot nothing
+            assertTrue(all(ismember(class_props,[test_prop(:);dep_prop(:)])))
 
             % properties are mapped to an internal data structure; verify the getters and
             % setters are correctly wired
-            test_values = cell(numel(class_props),1);
-            for idx = 1:numel(class_props)
-                test_value = rand(10);
-                test_values{idx} = test_value;
-                prop_name = class_props{idx};
+            for idx = 1:numel(test_prop)
+                prop_name = test_prop{idx};
+                test_value = sample_prop(prop_name);
                 dnd_obj.(prop_name) = test_value;
                 assertEqual(dnd_obj.(prop_name), test_value, ...
                     sprintf('Value set to "%s" not returned', prop_name));
             end
-            dat = dnd_obj.data;
-            for idx=1:numel(class_props)
-                prop_name = class_props{idx};
-                assertEqual(dat.(prop_name),test_values{idx});
+            assertTrue(dnd_obj.isvalid);
+
+            function setter(obj,prop)
+                val = obj.(prop);
+                obj.(prop) = val;
+            end            
+            for idx=1:numel(dep_prop)
+                assertExceptionThrown(@()setter(dnd_obj,dep_prop{idx}), ...
+                    'MATLAB:class:noSetMethod');
             end
 
         end
@@ -274,6 +297,7 @@ classdef test_dnd_constructor < TestCase
             sqw_obj = sqw(obj.test_sqw_2d_fullpath);
             d2d_obj = d2d(sqw_obj);
 
+            skipTest("waits for dnd object refactoring #796")
             wkdir = tmp_dir();
             wk_file = fullfile(wkdir,'test_save_load_d2d.mat');
             clOb = onCleanup(@()delete(wk_file));
@@ -302,7 +326,7 @@ classdef test_dnd_constructor < TestCase
             assertEqual(sqw_obj.data.e, dnd_obj.e);
             assertEqual(sqw_obj.data.p, dnd_obj.p);
             assertEqual(sqw_obj.data.npix, dnd_obj.npix)
-            assertEqual(sqw_obj.data.ulabel, dnd_obj.ulabel);
+            assertEqual(sqw_obj.data.label, dnd_obj.label);
         end
 
 

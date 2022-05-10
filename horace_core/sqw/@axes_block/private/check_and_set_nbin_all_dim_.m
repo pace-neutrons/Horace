@@ -16,10 +16,12 @@ val = val(:)'; % make row vector
 val = floor(val);
 if any(val<1)
     mess = sprintf(...
-        'each element nbin_all_dim have to positive value larger or equal to 1. Got : [%g, %g, %g, %g]',...
+        'each element nbin_all_dim have to be positive value larger or equal to 1. Got : [%g, %g, %g, %g]',...
         val);
     error('HORACE:axes_block:invalid_argument',mess);
 end
 obj.nbins_all_dims_ = val;
 nd = obj.n_dims;
-obj.dax_ = 1:nd;
+if isempty(obj.dax_) || numel(obj.dax_)~=nd
+    obj.dax_ = 1:nd;
+end

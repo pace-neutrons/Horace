@@ -8,6 +8,12 @@ classdef (Abstract)  DnDBase < SQWDnDBase
     properties(Constant, Abstract, Access = protected)
         NUM_DIMS
     end
+    properties(Constant,Access=protected)
+        fields_to_save_ = {'filename','filepath','title','alatt','angdeg',...
+                'uoffset','u_to_rlu','ulen','label','iax','iint',...
+                'dax','p','pax','s','e','npix'};
+
+    end
 
     % The depdendent props here have been created solely to retain the (old) DnD object API during the refactor.
     % These will be updated/removed at a later phase of the refactor when the class API is modified.
@@ -70,9 +76,13 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                 error('HORACE:DnDBase:make dnd on not data_sqw_dnd');
             end
         end
+        
     end
 
     methods
+        function flds = saveableFields(obj)
+            flds = obj.fields_to_save_;
+        end
         % function signatures
         w = sigvar_set(win, sigvar_obj);
         pixels = has_pixels(w);
@@ -85,16 +95,10 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         %    % save data in xye format
         %    save_xye_(obj,varargin{:});
         %end
-        function obj_str= saveobj(obj)
-            prop ={'filename','filepath','title','alatt','angdeg',...
-                'uoffset','u_to_rlu','ulen','label','iax','iint',...
-                'dax','p','pax','s','e','npix'};
-            obj_str=struct();
-            for i=1:numel(prop)
-                pn = prop{i};
-                obj_str.(pn) = obj.(pn);
-            end
+        function ver  = classVersion(~)
+            ver = 1;
         end
+        
 
         function obj = DnDBase(varargin)
             obj = obj@SQWDnDBase();

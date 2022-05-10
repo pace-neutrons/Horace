@@ -77,7 +77,7 @@ classdef axes_block < serializable
         dax_=[];                        % display axes numbers holder
         % e.g. r.l.u. and energy [h; k; l; en] [row vector]
         %
-
+        isvalid_ = true; % empty default object is valid
     end
     properties(Constant,Access=private)
         % fields which fully represent the state of the class and allow to
@@ -166,7 +166,7 @@ classdef axes_block < serializable
         end
     end
 
-    methods        
+    methods
         % return binning range of existing data object, so that cut without
         % parameters, performed within this range would return the same cut
         % as the original object
@@ -204,6 +204,10 @@ classdef axes_block < serializable
             %            were provided as input
             %
             [obj,offset,remains] = init_(obj,varargin{:});
+            [ok,mess,obj] = check_combo_arg(obj);
+            if ~ok
+                error('HORACE:axes_block:invalid_argument',mess);
+            end
         end
 
         function sz = dims_as_ssize(obj)
@@ -428,6 +432,7 @@ classdef axes_block < serializable
         end
         function obj = set.nbins_all_dims(obj,val)
             obj = check_and_set_nbin_all_dim_(obj,val);
+            [~,~,obj] = check_combo_arg(obj);            
         end
         %
         function ul = get.ulen(obj)
@@ -448,7 +453,12 @@ classdef axes_block < serializable
             da = obj.dax_;
         end
         function obj = set.dax(obj,val)
-            obj = check_and_set_dax_(obj,val);
+            if min(val(:))~=1
+                error('HORACE:axes_block:invalid_argument',...
+                    'A display axis should refer the first projextion axis')
+            end
+            obj.dax_ = val(:)';
+            [~,~,obj] = check_combo_arg(obj);
         end
 
         %------------------------------------------------------------------
@@ -457,9 +467,10 @@ classdef axes_block < serializable
         %------------------------------------------------------------------
         function ndim = get.n_dims(obj)
             ndim = sum(obj.nbins_all_dims_>1);
-            %             if ndim == 0 && all(obj.nbins_all_dims_ == 1) % should we do that? Inconsistent and inconvenient
-            %                  ndim =4;
-            %             end
+            % should we do that? Inconsistent and inconvenient.
+            %  if ndim == 0 && all(obj.nbins_all_dims_ == 1)
+            %     ndim =4;
+            %  end
         end
         function ds = get.data_nbins(obj)
             ds= obj.nbins_all_dims_(obj.nbins_all_dims_>1);
@@ -499,9 +510,19 @@ classdef axes_block < serializable
             % serializable object.
             flds = axes_block.fields_to_save_;
         end
+        function [ok,mess,obj] = check_combo_arg(obj)
+            % verify interdependent variables and the validity of the
+            % obtained serializable object. Return the result of the check
+            %
+            [ok,mess,obj] = check_combo_arg_(obj);
+        end
 
     end
     methods(Access=protected)
+        function is = check_validity(obj)
+            is = obj.isvalid_;
+        end
+
         function [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
             % verify inputs of the bin_pixels function and convert various
