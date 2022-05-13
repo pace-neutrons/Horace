@@ -225,7 +225,12 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function val = get.label(obj)
             val = [];
             if ~isempty(obj.data_)
-                val = obj.data_.label;
+                if isstruct(obj.data_) && isfield(obj.data_,'label') %TODO: old interface, 
+                    % change at load time; Ticket #796
+                    val = obj.data_.label;                    
+                else
+                    val = obj.data_.ulabel;                                        
+                end
             end
         end
         function obj = set.label(obj, label)
@@ -256,7 +261,10 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function val = get.p(obj)
             val = [];
             if ~isempty(obj.data_)
-                val = obj.data_.p;
+                val = obj.data_.p;                
+                if isstruct(obj.data_)
+                    val = cellfun(@(pp)(pp'),val,'UniformOutput',false);
+                end
             end
         end
         %

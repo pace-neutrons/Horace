@@ -42,20 +42,20 @@ methods
     end
 
     function test_different_d2d_objects_are_not_equal(obj)
-        class_fields = properties(obj.dnd_2d);
+        %class_fields = properties(obj.dnd_2d);
+        class_prop=dnd_object_sample_properties();
+        class_fields = class_prop.keys;
+        %
         for idx = 1:numel(class_fields)
             dnd_copy = obj.dnd_2d;
             field_name = class_fields{idx};
-            if isstruct(dnd_copy.(field_name))
-                dnd_copy.(field_name).test_field = 'test_value';
-            elseif isstring(dnd_copy.(field_name))
-                dnd_copy.(field_name) = 'test_value';
-            else
-                dnd_copy.(field_name) = [];
-            end
+            old_val = dnd_copy.(field_name);
+            dnd_copy.(field_name) = class_prop(field_name);
 
             [ok, mess] = equal_to_tol(obj.dnd_2d, dnd_copy);
-            assertFalse(ok, ['Expected ', field_name, ' to be not equal']);
+            assertFalse(ok, ['Expected ', field_name, ...
+                ' to be not equal. Difference: ', mess]);
+            dnd_copy.(field_name) = old_val;
         end
     end
 

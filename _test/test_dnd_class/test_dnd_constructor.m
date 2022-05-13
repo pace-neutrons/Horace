@@ -160,21 +160,7 @@ classdef test_dnd_constructor < TestCase
             class_props = fieldnames(dnd_obj);
             isdata = ismember(class_props,'data');
             class_props = class_props(~isdata);
-            sample_prop  = containers.Map({'filename','filepath','title','alatt'},...
-                {'aaa','bbb','title',[1,2,3]});
-            sample_prop('angdeg') = [90,89,90];
-            sample_prop('uoffset')=[1,0,0,0];
-            sample_prop('u_to_rlu')=eye(3);
-            sample_prop('ulen') = [1,2,3,1];
-            sample_prop('label') = {'aaa','bbbb','cccc','e'};
-            sample_prop('s') = ones(3,3);
-            sample_prop('e') = ones(3,3);
-            sample_prop('npix') = ones(3,3);
-            sample_prop('img_range') =[-1,-2,-3,-4;2,3,4,5];
-            sample_prop('nbins_all_dims') = [10,20,30,40];
-            sample_prop('dax') = [1,2,3,4];                        
-
-            dep_prop = {'iint','iax','p','pax','isvalid'};
+            [sample_prop,dep_prop]=dnd_object_sample_properties();
             test_prop = sample_prop.keys;            
      
             % included all properties, forgot nothing
