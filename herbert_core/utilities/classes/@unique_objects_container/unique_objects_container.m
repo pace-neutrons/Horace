@@ -166,7 +166,7 @@ classdef unique_objects_container < serializable
             parse(p,varargin{:});
             
             if isempty(p.Results.type)
-                error('HORACE:unique_objects_container:invalid_argument');
+                error('HORACE:unique_objects_container:invalid_argument','must specify container type () or {}');
             end
             
             if strcmp(p.Results.type, '{}')
@@ -344,35 +344,35 @@ classdef unique_objects_container < serializable
                         b = idxstr(1).subs{:};
                         varargout{1} = self.stored_objects_(self.idx_(b));
                     else
-                        error('parentheses for cell storage');
+                        error('HERBERT:unique_objects_container:invalid_argument','parentheses for cell storage');
                     end
                 case '{}'
                     if iscell(self.stored_objects_)
                         b = idxstr(1).subs{:};
                         varargout{1} = self.stored_objects_{self.idx_(b)};
                     else
-                        error('braces for array storage');
+                        error('HERBERT:unique_objects_container:invalid_argument','braces for array storage');
                     end
                 case '.'
-                    x = idxstr(1).subs;
-                    if numel(idxstr)>1
-                        y = idxstr(2).subs;
-                        [varargout{1:nargout}] = self.(x)(y{:});
-                    else
-                        [varargout{1:nargout}] = self.(x);
-                    end
+                    [varargout{1:nargout}] = builtin('subsref',self,idxstr);
             end % end switch
         end % end function subsref
         
-        function self = subsasgn(self,idxstr,val)
-            nuix = idxstr(1).subs{:};
-            if nuix < 1
-                error('non-positive index not allowed');
-            elseif nuix > numel(self.idx_)+1
-                error('index outside legal range');
-            elseif nuix == numel(self.idx_)+1
-                [self,~] = self.add(val);
-                return;
+        function self = subsasgn(self,idxstr,varargin)
+            
+            % initial processing for indexes out of bounds
+            % and add just after end
+            if ~strcmp(idxstr(1).type,'.')
+                val = varargin{1};
+                nuix = idxstr(1).subs{:};
+                if nuix < 1
+                    error('HERBERT:unique_objects_container:invalid_argument','non-positive index not allowed');
+                elseif nuix > numel(self.idx_)+1
+                    error('HERBERT:unique_objects_container:invalid_argument','index outside legal range');
+                elseif nuix == numel(self.idx_)+1
+                    [self,~] = self.add(val);
+                    return;
+                end
             end
             
             % Having eliminated the above options, the assignment position
@@ -386,16 +386,16 @@ classdef unique_objects_container < serializable
                     if ~iscell(self.stored_objects_)
                         self = self.replace(val,nuix);
                     else
-                        error('parentheses for cell replacement');                    
+                        error('HERBERT:unique_objects_container:invalid_argument','parentheses for cell replacement');                    
                     end
                 case '{}'
                     if iscell(self.stored_objects_)
                         self = self.replace(val,nuix);
                     else
-                        error('braces for array replacement');
+                        error('HERBERT:unique_objects_container:invalid_argument','braces for array replacement');
                     end
                 case '.'
-                    error('shouldnt be here - assign to prop');
+                    self = builtin('subsasgn',self,idxstr,varargin{:});
             end
         end % replace()
         

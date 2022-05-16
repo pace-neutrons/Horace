@@ -141,7 +141,8 @@ classdef test_unique_objects < TestCase
             disp('Test: test_constructor_arguments');
             disp('NB This test WILL emit warningS');
             f = @() unique_objects_container();
-            assertExceptionThrown(f, 'MATLAB:error:missingMessageArgument');
+            assertExceptionThrown(f, 'HORACE:unique_objects_container:invalid_argument',...
+                                     'constructor must specify minimum arguments');
             mi1 = merlin_instrument(180, 600, 'g'); 
             sm1 = IX_null_sample();
             uoc = unique_objects_container('type','{}');
@@ -172,6 +173,82 @@ classdef test_unique_objects < TestCase
                 [124   197    72   173   189    40   141    89   154   200    43   138   160    63   243   121] ...
                 );
             assertEqual( u1, uoc.stored_hashes(1,:) );
+        end
+        
+        function test_subscripting(~)
+            % repeats test_constructor_arguments using subscripting
+            disp('Test: test_constructor_arguments');
+            disp('NB This test WILL emit warningS');
+            f = @() unique_objects_container();
+            assertExceptionThrown(f, 'HORACE:unique_objects_container:invalid_argument','mymessage');
+            mi1 = merlin_instrument(180, 600, 'g'); 
+            sm1 = IX_null_sample();
+            uoc = unique_objects_container('type','{}');
+            uoc{1} = mi1;
+            uoc{2} = sm1;
+            assertEqual( numel(uoc.stored_objects), 2);
+            uoc = unique_objects_container('type','{}','baseclass','IX_inst');
+            uoc{1} = mi1;
+            uoc{2} = sm1;
+            assertEqual( numel(uoc.stored_objects), 1);
+            u1 = uint8(...
+                [122    85    30   186    79    64   138   166   121   219   196   239    36   104   116    22]...
+                );
+            assertEqual( u1, uoc.stored_hashes(1,:) );
+            uoc = unique_objects_container('type','{}','baseclass','IX_inst','convert_to_stream',@hlp_serialise);
+            uoc{1} = mi1;
+            uoc{2} = sm1;
+            assertEqual( numel(uoc.stored_objects), 1);
+            u1 = uint8(...
+                [124   197    72   173   189    40   141    89   154   200    43   138   160    63   243   121] ...
+                );
+            assertEqual( u1, uoc.stored_hashes(1,:) );
+            uoc = unique_objects_container('type','{}','convert_to_stream',@hlp_serialise,'baseclass','IX_inst');
+            uoc{1} = mi1;
+            uoc{2} = sm1;
+            assertEqual( numel(uoc.stored_objects), 1);
+            u1 = uint8(...
+                [124   197    72   173   189    40   141    89   154   200    43   138   160    63   243   121] ...
+                );
+            assertEqual( u1, uoc.stored_hashes(1,:) );
+            % additional tests for other subscript functions
+            % NB horrible syntax but way to put assignments in anonymous
+            % functions is worse! Replacements for assertExceptionThrown
+            uoc = unique_objects_container('type','{}','convert_to_stream',@hlp_serialise,'baseclass','IX_inst');
+            try
+                uoc{2} = mi1;
+                error('HERBERT:unique_objects_container:error_not_raised',...
+                      'out of range subscript should error');
+            catch ME
+                if ~(strcmp(ME.identifier,'HERBERT:unique_objects_container:invalid_argument') && ...
+                     strcmp(ME.message, 'index outside legal range'))
+                    rethrow(ME);
+                end
+            end
+            try
+                uoc{-1} = mi1; % should error before next line
+                error('HERBERT:unique_objects_container:error_not_raised',...
+                      'negative subscript should error');
+            catch ME
+                if ~(strcmp(ME.identifier,'HERBERT:unique_objects_container:invalid_argument') && ...
+                     strcmp(ME.message, 'non-positive index not allowed'))
+                    rethrow(ME);
+                end
+            end
+            uoc = unique_objects_container('type','{}','convert_to_stream',@hlp_serialise,'baseclass','IX_inst');
+            uoc{1} = mi1;
+            uoc{2} = IX_null_inst();
+            assertEqual( uoc.n_duplicates(1),1);            
+            uoc{3} = mi1;
+            assertEqual( numel(uoc.stored_objects),2);
+            assertEqual( uoc.n_duplicates(1),2);            
+            uoc{1} = IX_null_inst();
+            assertEqual( numel(uoc.stored_objects),2);            
+            assertEqual( uoc.n_duplicates(1),1);
+            uoc{3} = IX_null_inst();
+            assertEqual( numel(uoc.stored_objects),2);            
+            assertEqual( uoc.n_duplicates(1),0);         
+            uoc
         end
     end
 end
