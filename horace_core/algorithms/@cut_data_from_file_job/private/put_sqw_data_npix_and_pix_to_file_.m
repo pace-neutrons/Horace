@@ -69,7 +69,7 @@ else
         istart = ipix;
         iend   = min(ipix+block_size-1,npixtot);
         pix_block = pix.data(istart:iend);
-        fwrite(fid,pix_block,'float32');
+        fwrite(fid,single(pix_block),'float32');
     end
 end
 
