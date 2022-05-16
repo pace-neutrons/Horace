@@ -153,7 +153,8 @@ Qip_bins=[dQip*(floor((Qip_min-small)/dQip)+0.5),dQip,dQip*(ceil((Qip_max+small)
 Qz_bins=[dQz*(floor((Qz_min-small)/dQz)+0.5),dQz,dQz*(ceil((Qz_max+small)/dQz)-0.5)];
 
 if nfiles==1 && (numel(head_full.header.en)-1)<=50  % one spe file and 50 energy bins or less
-    epsbins=0;           % Use intrinsic energy bins
+    %epsbins=0;           % Use intrinsic energy bins
+    epsbins = min(head_full.header.en(2:end)-head_full.header.en(1:end-1));    
 else
     deps=round_to_vals((eps_max-eps_min)/nepsbin_def);
     epsbins=[eps_min-deps/2,deps,eps_max+deps/2];

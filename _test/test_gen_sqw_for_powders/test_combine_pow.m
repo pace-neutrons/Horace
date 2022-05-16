@@ -68,6 +68,7 @@ classdef test_combine_pow < TestCaseWithSave
             end
             % test files are in svn
             add_to_path_cleanList(this,test_functions_path);
+            this.save();
         end
 
         function this=test_combine_pow1(this)
@@ -84,9 +85,11 @@ classdef test_combine_pow < TestCaseWithSave
 
             w2_1 = cut_sqw(sqw_file_1,[0,0.05,8],0,'-nopix');
             w1_1 = cut_sqw(sqw_file_1,[0,0.05,3],[40,50],'-nopix');
-            tol  = 2.e-2;
-            this.assertEqualToTolWithSave(w2_1,'ignore_str',true,'reltol',tol )
-            this.assertEqualToTolWithSave(w1_1,'ignore_str',true,'reltol',tol )
+
+            this.assertEqualToTolWithSave(w2_1,'ignore_str',true, ...
+                'tol',[1.e-7,1.e-5])
+            this.assertEqualToTolWithSave(w1_1,'ignore_str',true, ...
+                'tol',[1.e-7,1.e-5])
 
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
@@ -113,9 +116,10 @@ classdef test_combine_pow < TestCaseWithSave
 
             w1_2=cut_sqw(sqw_file_2,[0,0.05,3],[40,50],'-nopix');
 
-            tol = 9.e-2;
-            this.assertEqualToTolWithSave(w2_2,'ignore_str',true,'reltol',tol )
-            this.assertEqualToTolWithSave(w1_2,'ignore_str',true,'reltol',tol )
+            this.assertEqualToTolWithSave(w2_2,'ignore_str',true, ...
+                'tol',[1.e-7,1.e-5]);
+            this.assertEqualToTolWithSave(w1_2,'ignore_str',true, ...
+                'tol',[1.e-7,1.e-5]);
 
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
@@ -139,9 +143,10 @@ classdef test_combine_pow < TestCaseWithSave
 
             w1_tot=cut_sqw(sqw_file_tot,[0,0.05,3],[40,50],'-nopix');
 
-            tol = 2.e-2;
-            this.assertEqualToTolWithSave(w2_tot,'ignore_str',true,'reltol',tol )
-            this.assertEqualToTolWithSave(w1_tot,'ignore_str',true,'reltol',tol )
+            this.assertEqualToTolWithSave(w2_tot,'ignore_str',true, ...
+                'tol',[1.e-7,1.e-5])
+            this.assertEqualToTolWithSave(w1_tot,'ignore_str',true, ...
+                'tol',[1.e-7,1.e-5])
 
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
