@@ -45,8 +45,6 @@ function gen_sqw_cylinder(spe_file, par_file, sqw_file, efix, varargin)
 
 % Original author: T.G.Perring  2 August 2013: quick fix for LET
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-
 
 % Check input arguments
 % ---------------------
@@ -120,11 +118,14 @@ set(herbert_config, original_herbert_conf);
 % The special part: replace u1 with sqrt(u1^2+u2^2) and set u2=0 - this allows for cylindrical symmetry
 % -----------------------------------------------------------------------------------------------------
 % Get range of data (is an overestimate, but will certainly contain all the data)
-head=cell(1,nfiles);
+%head=cell(1,nfiles);
 pix_range=zeros(2,4,nfiles);
+head=head_sqw(tmp_file);
+if ~iscell(head)
+    head = {head};
+end
 for i=1:nfiles
-    head{i}=head_sqw(tmp_file{i});
-    pix_range(:,:,i)=head{i}.img_db_range;
+    pix_range(:,:,i)=head{i}.pix_range;
 end
 sgn=sign(pix_range(1,:,:).*pix_range(2,:,:)); % +1 if range does not include zero
 abs_pix_range_min=min(abs(pix_range),[],1);
@@ -166,22 +167,23 @@ proj.lab={'Q_{ip}','dummy','Q_z','E'};
 
 for i=1:nfiles
     % Read in
-    w=sqw(tmp_file{i});
+    w=read_sqw(tmp_file{i});
     % Compute new coordinates
     data=w.data;
     data.pix.coordinates(1:2,:)=[sqrt(sum(data.pix.coordinates(1:2,:).^2,1));zeros(1,data.pix.num_pixels)];
-    data.img_db_range(:,1:2)=data.pix.pix_range(:,1:2);
-    data.iax=2;   % second axis becomes integration axis
-    data.iint=[-Inf;Inf];
-    data.pax=[1,3,4];
-    data.p=[{data.img_db_range(:,1)},data.p([3,4])];
-    data.dax=[1,2,3];
+    data.img_range=range_add_border(data.pix.pix_range);
+    data.nbins_all_dims = [1,1,1,1];
+%     data.iax=2;   % second axis becomes integration axis
+%     data.iint=[-Inf;Inf];
+%     data.pax=[1,3,4];
+%     data.p=[{data.img_db_range(:,1)},data.p([3,4])];
+%     data.dax=[1,2,3];
     data.ulabel={'Q_{ip}','dummy','Q_z','E'};
     w.data=data;
     % Rebin
     w=cut_sqw(w,proj,Qip_bins,[-Inf,Inf],Qz_bins,epsbins);
     % Save to the same tmpfile
-    save(w,tmp_file{i})
+    save(w,tmp_file{i});
 end
 
 

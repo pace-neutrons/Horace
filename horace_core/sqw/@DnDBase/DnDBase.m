@@ -10,8 +10,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase
     end
     properties(Constant,Access=protected)
         fields_to_save_ = {'filename','filepath','title','alatt','angdeg',...
-                'uoffset','u_to_rlu','ulen','label','iax','iint',...
-                'dax','p','pax','s','e','npix'};
+                'uoffset','u_to_rlu','ulen','label',...
+                'dax','img_range','nbins_all_dims','s','e','npix'};
 
     end
 
@@ -53,6 +53,38 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
         wout = sqw_eval_pix_(wout, sqwfunc, ave_pix, pars);
+
+        function obj = from_old_struct(obj,inputs)
+            % Restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % The method is called by loadobj in the case if the input
+            % structure does not contain a version or the version, stored
+            % in the structure does not correspond to the current version
+            % of the class.
+            %
+            % By default, this function interfaces the default from_bare_struct
+            % method, but when the old structure substantially differs from
+            % the modern structure, this method needs the specific overloading
+            % to allow loadobj to recover new structure from an old structure.
+            %
+            %if isfield(inputs,'version') % do checks for previous versions
+            %   Add appropriate code to convert from specific version to
+            %   modern version
+            %end
+            if isfield(inputs,'pax') && isfield(inputs,'iax')
+                inputs.serial_name = 'axes_block';
+                ab = serializable.from_struct(inputs);
+                dat = data_sqw_dnd(ab,inputs);
+                inputs = struct('data_',dat);
+            end            
+
+            if isfield(inputs,'array_dat')
+                obj = obj.from_bare_struct(inputs.array_dat);
+            else
+                obj = obj.from_bare_struct(inputs);
+            end
+        end        
     end
 
     methods (Static)
@@ -96,7 +128,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         %    save_xye_(obj,varargin{:});
         %end
         function ver  = classVersion(~)
-            ver = 1;
+            ver = 2;
         end
         
 

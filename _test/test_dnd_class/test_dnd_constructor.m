@@ -283,7 +283,6 @@ classdef test_dnd_constructor < TestCase
             sqw_obj = sqw(obj.test_sqw_2d_fullpath);
             d2d_obj = d2d(sqw_obj);
 
-            skipTest("waits for dnd object refactoring #796")
             wkdir = tmp_dir();
             wk_file = fullfile(wkdir,'test_save_load_d2d.mat');
             clOb = onCleanup(@()delete(wk_file));

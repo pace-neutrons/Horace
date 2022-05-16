@@ -114,6 +114,7 @@ else
                 data         = loaders{i}.get_data('-verbatim','-nopix');
                 if isa(data,'data_sqw_dnd')
                     data         = data.get_dnd_data('+'); % + get pix_range if available
+                    data.pix_range = loaders{i}.get_pix_range();
                 end
                 data.npixels = loaders{i}.npixels;
                 data.nfiles  = loaders{i}.num_contrib_files;
@@ -124,8 +125,6 @@ else
             else
                 data         = loaders{i}.get_data('-verbatim','-nopix','-head');
             end
-
-
         end
         vout{i} = data;
     end

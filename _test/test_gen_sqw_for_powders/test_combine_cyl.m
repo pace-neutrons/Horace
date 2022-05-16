@@ -87,8 +87,8 @@ classdef test_combine_cyl < TestCaseWithSave
             w1_1 = cut_sqw(sqw_file_1,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
             
             
-            this.assertEqualToTolWithSave(w2_1,'ignore_str',true,'tol',1.e-7)
-            this.assertEqualToTolWithSave(w1_1,'ignore_str',true,'tol',1.e-7)
+            this.assertEqualToTolWithSave(w2_1,'ignore_str',true,'tol',3.e-7);
+            this.assertEqualToTolWithSave(w1_1,'ignore_str',true,'tol',3.e-7);
             
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
@@ -110,15 +110,16 @@ classdef test_combine_cyl < TestCaseWithSave
             
             emode = 1;
             
-            gen_sqw_cylinder(this.spe_file_2, this.par_file, sqw_file_2, this.efix, emode, this.alatt(3), this.psi_2, 90, 0);
+            gen_sqw_cylinder(this.spe_file_2, this.par_file, ...
+                sqw_file_2, this.efix, emode, this.alatt(3), this.psi_2, 90, 0);
             
             w2_2=cut_sqw(sqw_file_2,0.1,0.1,[40,50],'-nopix');
             
             w1_2=cut_sqw(sqw_file_2,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
             
             
-            this.assertEqualToTolWithSave(w2_2,'ignore_str',true,'tol',1.e-7)
-            this.assertEqualToTolWithSave(w1_2,'ignore_str',true,'tol',1.e-7)
+            this.assertEqualToTolWithSave(w2_2,'ignore_str',true,'tol',3.e-7);
+            this.assertEqualToTolWithSave(w1_2,'ignore_str',true,'tol',3.e-7);
             
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
@@ -138,15 +139,18 @@ classdef test_combine_cyl < TestCaseWithSave
             cleanup_obj=onCleanup(@()this.delete_files(sqw_file_tot));
             
             emode = 1;
-            gen_sqw_cylinder({this.spe_file_1,this.spe_file_2}, this.par_file, sqw_file_tot, this.efix, emode, this.alatt(3), [this.psi_1,this.psi_2], 90, 0);
+            gen_sqw_cylinder({this.spe_file_1,this.spe_file_2}, ...
+                this.par_file, sqw_file_tot, this.efix, emode, this.alatt(3), [this.psi_1,this.psi_2], 90, 0);
             
             w2_tot=cut_sqw(sqw_file_tot,0.1,0.1,[40,50],'-nopix');
             
             w1_tot=cut_sqw(sqw_file_tot,[0,0.1,3],[2.2,2.5],[40,50],'-nopix');
             
             
-            this.assertEqualToTolWithSave(w2_tot,'ignore_str',true,'tol',[0,3.e-3])
-            this.assertEqualToTolWithSave(w1_tot,'ignore_str',true,'tol',[0,1.e-3])
+            this.assertEqualToTolWithSave(w2_tot,'ignore_str',true, ...
+                'tol',[1.e-7,1.e-7]);
+            this.assertEqualToTolWithSave(w1_tot,'ignore_str',true, ...
+                'tol',[1.e-7,1.e-7]);
             
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
