@@ -53,7 +53,7 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 %
 % {optional]
 %   proj            Projection structure or object. Defines the coordinate frame in which
-%                  to plot the resolution ellipsoid. Type help projaxes for details or <a href="matlab:help('projaxes');">Click here</a>.
+%                  to plot the resolution ellipsoid. Type help ortho_proj for details or <a href="matlab:help('ortho_proj');">Click here</a>.
 %
 %                   Default: if not given or empty: assume to be spectrometer axes
 %                  i.e. x || ki, z vertical upwards, y perpendicular to z and y.
@@ -150,8 +150,8 @@ elseif numel(par)~=0
         'Check the number and type of optional arguments')
 end
 
-if ~isempty(proj) && ~isa(proj,'projaxes')
-    proj = projaxes(proj);
+if ~isempty(proj) && ~isa(proj,'ortho_proj')
+    proj = ortho_proj(proj);
 end
 
 if ~(isnumeric(pax) && (numel(pax)==2 || numel(pax)==3) &&...
@@ -265,10 +265,14 @@ if ~isempty(proj)
     data.uoffset = proj.uoffset;
     data.u_to_rlu = zeros(4,4);
     data.ulen = zeros(1,4);
-    [~, data.u_to_rlu(1:3,1:3), data.ulen(1:3), mess] = projaxes_to_rlu (proj, lat.alatt, lat.angdeg);
-    if ~isempty(mess), error(mess); end
-    data.u_to_rlu(4,4) = 1;
-    data.ulen(4) = 1;
+    proj.alatt = lat.alatt;
+    proj.angdeg = lat.angdeg;
+    data.u_to_rlu=  proj.u_to_rlu;
+    data.ulen = [1,1,1,1];
+    %[~,data.u_to_rlu(1:3,1:3), data.ulen(1:3), mess] = projaxes_to_rlu (proj, lat.alatt, lat.angdeg);
+    %if ~isempty(mess), error(mess); end
+    %data.u_to_rlu(4,4) = 1;
+    %data.ulen(4) = 1;
 else
     % Make the projection axes correspond to the spectrometer axes
     data.uoffset = [0,0,0,0]';
@@ -283,12 +287,13 @@ data.iax = find(iaxis);
 %data.iint = [-Inf,-Inf; Inf,Inf];
 data.iint = 1e-10*[-1,-1; 1,1];
 data.pax = pax(1:2);
-data.p = {1e-10*(-3:2:3)'/3, 1e-10*(-3:2:3)'/3};    % something tiny
+%data.p = {1e-10*(-3:2:3)'/3, 1e-10*(-3:2:3)'/3};    % something tiny
 data.dax = [1,2];
 data.s = [0,0,0; 0,NaN,0; 0,0,0];
 data.e = [0,0,0; 0,NaN,0; 0,0,0];
 data.npix = [0,0,0; 0,1,0; 0,0,0];
-data.img_db_range = [data.uoffset;data.uoffset];
+data.img_range = range_add_border([data.uoffset,data.uoffset]');
+data.nbins_all_dims = [3,3,1,1];
 data.pix = PixelData([zeros(4,1);1;1;1;0;0]);  % wrong (Q,w) - but this is OK
 
 wres.data = data_sqw_dnd(data);

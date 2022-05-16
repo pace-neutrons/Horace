@@ -1,4 +1,5 @@
 function uproj=calculate_uproj_pixels(win,opt)
+%DODO: Use generic projection!!!!
 % Calculate coordinates in projection axes for the pixels in an sqw dataset
 %
 %   >> qw=calculate_uproj_pixels(win)
