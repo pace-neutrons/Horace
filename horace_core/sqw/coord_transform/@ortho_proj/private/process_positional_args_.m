@@ -20,6 +20,20 @@ elseif isa(varargin{1},'ortho_proj') % copy constructor
         strct = varargin{1}.to_bare_struct();
         obj = obj.from_bare_struct(strct);
     end
+elseif isstruct(varargin{1})
+    prop = properties(obj);
+    remains = varargin{1};
+    for i=1:numel(prop)
+        if isfield(remains,prop{i})
+            obj.(prop{i}) = remains.(prop{i});
+            remains = rmfield(remains,prop{i});
+        end
+    end
+    fn = fieldnames(remains);
+    if isempty(fn)
+        remains = {};
+        return;
+    end
 else
     remains= varargin;
     return;

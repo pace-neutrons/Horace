@@ -163,7 +163,7 @@ end
 proj.u=[1,0,0];
 proj.v=[0,1,0];
 proj.type='rrr';
-proj.lab={'Q_{ip}','dummy','Q_z','E'};
+proj.label={'Q_{ip}','dummy','Q_z','E'};
 
 for i=1:nfiles
     % Read in
@@ -173,12 +173,7 @@ for i=1:nfiles
     data.pix.coordinates(1:2,:)=[sqrt(sum(data.pix.coordinates(1:2,:).^2,1));zeros(1,data.pix.num_pixels)];
     data.img_range=range_add_border(data.pix.pix_range);
     data.nbins_all_dims = [1,1,1,1];
-%     data.iax=2;   % second axis becomes integration axis
-%     data.iint=[-Inf;Inf];
-%     data.pax=[1,3,4];
-%     data.p=[{data.img_db_range(:,1)},data.p([3,4])];
-%     data.dax=[1,2,3];
-    data.ulabel={'Q_{ip}','dummy','Q_z','E'};
+    data.label={'Q_{ip}','dummy','Q_z','E'};
     w.data=data;
     % Rebin
     w=cut_sqw(w,proj,Qip_bins,[-Inf,Inf],Qz_bins,epsbins);
