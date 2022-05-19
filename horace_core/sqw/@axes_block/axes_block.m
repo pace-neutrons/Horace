@@ -99,7 +99,7 @@ classdef axes_block < serializable
         obj = build_from_input_binning(cur_img_range_and_steps,pbin);
 
         %Create bin boundaries for integration and plot axes from requested limits and step sizes
-        % (used by cut_dnd)
+        % (used by cut_dnd). TODO: remove #
         [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
         %
         function obj = loadobj(S)
@@ -207,15 +207,6 @@ classdef axes_block < serializable
             [ok,mess,obj] = check_combo_arg(obj);
             if ~ok
                 error('HORACE:axes_block:invalid_argument',mess);
-            end
-        end
-
-        function sz = dims_as_ssize(obj)
-            % Return the extent along each dimension of the signal arrays.
-            % suitable for allocating appropriate size memory
-            sz = obj.data_nbins;
-            if isempty(sz)      ; sz = [1,1];
-            elseif numel(sz) ==1; sz = [sz,1];
             end
         end
 
@@ -378,6 +369,15 @@ classdef axes_block < serializable
         %------------------------------------------------------------------
         % ACCESSORS
         %------------------------------------------------------------------
+        function sz = dims_as_ssize(obj)
+            % Return the extent along each dimension of the signal arrays.
+            % suitable for allocating appropriate size memory
+            sz = obj.data_nbins;
+            if isempty(sz)      ; sz = [1,1];
+            elseif numel(sz) ==1; sz = [sz,1];
+            end
+        end
+        %
         function tit = get.title(obj)
             tit = obj.title_;
         end
@@ -411,7 +411,6 @@ classdef axes_block < serializable
             end
             obj.filepath_ = fp;
         end
-
         %
         function lab=get.label(obj)
             lab = obj.label_;
@@ -432,7 +431,7 @@ classdef axes_block < serializable
         end
         function obj = set.nbins_all_dims(obj,val)
             obj = check_and_set_nbin_all_dim_(obj,val);
-            [~,~,obj] = check_combo_arg(obj);            
+            [~,~,obj] = check_combo_arg(obj);
         end
         %
         function ul = get.ulen(obj)
@@ -537,9 +536,14 @@ classdef axes_block < serializable
             %                     calling function
             % Optional:
             %
-
+            grid_size = obj.dims_as_ssize();
+            if size(pix_coord_transf,1) ==3  % Q(3D) binning only. Third axis is always missing
+                grid_size = obj.nbins_all_dims;
+                grid_size = grid_size(1:3);
+            end
             [npix,s,e,pix_cand,unique_runid,argi]=...
-                normalize_bin_input_(obj,pix_coord_transf,n_argout,varargin{:});
+                axes_block.normalize_binning_input(...
+                grid_size,pix_coord_transf,n_argout,varargin{:});
         end
 
         function obj = from_old_struct(obj,inputs)
@@ -572,6 +576,24 @@ classdef axes_block < serializable
             % containing axes information, into the v2 structure,
             % containing only range and bin numbers
             input = convert_old_struct_into_nbins_(input);
+        end
+        %
+        function [npix,s,e,pix_cand,unique_runid,argi]=...
+                normalize_binning_input(grid_size,pix_coord_transf,n_argout,varargin)
+            % verify inputs of the bin_pixels function and convert various
+            % forms of the inputs of this function into a common form,
+            % where the missing inputs are returned as empty.
+            %
+            %Inputs:
+            % pix_coord_transf -- the array of pixels coordinates
+            %                     transformed into this axes_block
+            %                      coordinate system
+            % n_argout         -- number of argument, requested by the
+            %                     calling function
+            % Optional:
+
+            [npix,s,e,pix_cand,unique_runid,argi]=...
+                normalize_bin_input_(grid_size,pix_coord_transf,n_argout,varargin{:});
         end
     end
 end

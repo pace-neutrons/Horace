@@ -1,10 +1,13 @@
 function [npix,s,e,pix_cand,unique_runid,argi]=...
-    normalize_bin_input_(obj,pix_coord,mdo,varargin)
+    normalize_bin_input_(grid_size,pix_coord,mdo,varargin)
 % verify inputs of the bin_pixels function and convert various
 % forms of the inputs of this function into a common form, where the missing
 % inputs are presented as empty outputs.
 %
 % Inputs:
+% ------------
+% grid_size -- the size of the grid, the pixels will be rebinned on
+%
 % pix_coord -- [3,npix] or [4,npix] numeric array of the pixel coordinates
 % mdo       -- operation mode specifying what the following routine should
 %              process. The mode is defined by number of output arguments.
@@ -16,11 +19,12 @@ function [npix,s,e,pix_cand,unique_runid,argi]=...
 %
 %
 % Outputs:
+% --------
 % npix  -- array to keep number of pixels belonging to each cell
 % s,e   -- arrays to keep each cell's signal and error values or empty
 %          values (depending on mde)
-% argi  -- anything else, provided as input and not related to the
-%          processed inputs, left for further routines to process
+% argi  -- celarray of character strings, provided as input and not related 
+%          to the processed arrays, left for further routines to process.
 %
 
 if ~isnumeric(pix_coord)
@@ -35,12 +39,16 @@ end
 unique_runid = [];
 s = [];
 e = [];
+% extract possible character keys
+is_key = cellfun(@(x)(ischar(x)||isstring(x)),varargin);
+argi = varargin(is_key);
+inputs = varargin(~is_key);
+narg = numel(inputs)+3;
 
-bin_size = obj.dims_as_ssize();
 if mdo == 1
     pix_cand = [];
 else
-    if nargin<7
+    if narg <7
         error('HORACE:axes_block:invalid_argument',...
             'PixelData have to be provided as 7-th argument if cell-average signal and erros are requested');
     end
@@ -90,35 +98,32 @@ else
             class(pix_coord));
     end
 end
-argi = {};
-if size(pix_coord,1) ==3  % Q(3D) binning only. Third axis is always missing
-    bin_size = obj.nbins_all_dims;
-    bin_size = bin_size(1:3);
-end
+
+
 % Analyze the number of input arguments
-if nargin == 3
-    npix = squeeze(zeros(bin_size));
-elseif nargin == 4
+if narg == 3
+    npix = squeeze(zeros(grid_size));
+elseif narg == 4
     npix = varargin{1};
-    check_size(bin_size,npix);
-elseif nargin==5 || nargin == 6
+    check_size(grid_size,npix);
+elseif narg==5 || narg == 6
     error('HORACE:axes_block:invalid_argument',...
         'Can not request signal or signal and variance accumulation arrays without providing pixels source')
-elseif nargin ==7
-    [npix,s,e] = check_and_alloc_accum(varargin{1},varargin{2},varargin{3},bin_size);
-elseif nargin ==8
-    [npix,s,e] = check_and_alloc_accum(varargin{1},varargin{2},varargin{3},bin_size);
+elseif narg ==7
+    [npix,s,e] = check_and_alloc_accum(varargin{1},varargin{2},varargin{3},grid_size);
+elseif narg ==8
+    [npix,s,e] = check_and_alloc_accum(varargin{1},varargin{2},varargin{3},grid_size);
     unique_runid = varargin{5};
-elseif nargin >8
-    [npix,s,e] = check_and_alloc_accum(varargin{1},varargin{2},varargin{3},bin_size);
+elseif narg >8
+    [npix,s,e] = check_and_alloc_accum(varargin{1},varargin{2},varargin{3},grid_size);
     unique_runid = varargin{5};
     argi = varargin{6:end};
 end
 % initiate accumulators to 0, as no input value is provied
 if mdo>1 && isempty(npix)
-    npix = squeeze(zeros(bin_size));
-    s = squeeze(zeros(bin_size));
-    e = squeeze(zeros(bin_size));
+    npix = squeeze(zeros(grid_size));
+    s = squeeze(zeros(grid_size));
+    e = squeeze(zeros(grid_size));
 end
 %--------------------------------------------------------------------------
 function [npix,s,e]=check_and_alloc_accum(npix,s,e,bin_size)

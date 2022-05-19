@@ -120,8 +120,8 @@ classdef ortho_proj<aProjection
         % The property reports if the object is valid. It can become
         % invalid if some fields have been set up incorrectly after
         % creation (e.g. u set up parallel to v) See check_combo_arg_ for
-        % all options which may be invalid
-        isvalid_ = true
+        % all options which may be invalid.
+        isvalid_ = true % empty ortho_proj considered true projection
     end
 
     methods
@@ -246,9 +246,9 @@ classdef ortho_proj<aProjection
             % stored in sqw object ver < 4
             %
             [ur,vr,wr,tpe]=obj.uv_from_data_rot(u_rot(1:3,1:3),ulen(1:3));
-            obj.u = ur;
-            obj.v = vr;
-            obj.w = wr;
+            obj.u_ = ur;
+            obj.v_ = vr;
+            obj.w_ = wr;
             obj.type = tpe;
             [ok,mess,obj] = check_combo_arg_(obj);
             if ~ok

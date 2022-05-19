@@ -236,7 +236,7 @@ for i=1:nfiles
     if return_sqw_obj
         tmp_sqw{i} = w;
     else
-        save(w,tmp_sqw{i})
+        save(w,tmp_sqw{i});
     end
 end
 %

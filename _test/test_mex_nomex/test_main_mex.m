@@ -45,6 +45,7 @@ classdef test_main_mex < TestCase
             %rmpath(this.accum_cut_folder);
             set(hor_config,'use_mex',this.use_mex);
         end
+
         function this=test_accum_cut_mex_multithread(this)
             [data,proj]=gen_fake_accum_cut_data(this,[1,0,0],[0,1,0]);
             pax = [1,2,3,4];
@@ -72,13 +73,10 @@ classdef test_main_mex < TestCase
                 skipTest('Can not use and test mex code to accumulate_cut');
             end
 
-            
-            
+
+
             [data,proj]=gen_fake_accum_cut_data(this,[1,0,0],[0,1,0]);
             %[v,sizes,rot_ustep,trans_bott_left,ebin,trans_elo,urange_step_pix,urange_step]=gen_fake_accum_cut_data(this,0,0);
-            urange_step_pix=zeros(2,4);
-            urange_step_pix(1,:) =  Inf;
-            urange_step_pix(2,:) = -Inf;
 
             hc = hor_config;
             current_state = hc.use_mex;
@@ -87,29 +85,23 @@ classdef test_main_mex < TestCase
 
             %check matlab-part
             hc.use_mex = false;
-
-            [s_m, e_m, npix_m, urange_step_pix_m, npix_retain_m,ok_m, ix_m] =...
-                cut_data_from_file_job.accumulate_cut(data.s, data.e, data.npix,...
-                urange_step_pix, true,...
-                data.pix,proj, [1,2,3,4]);
-
+            [npix_m,s_m,e_m,pix_ok_m,unique_runid_m] = ...
+                cut_data_from_file_job.bin_pixels(proj,data,data.pix);
 
             %check C-part
             hc.use_mex = true;
+            [npix_c,s_c,e_c,pix_ok_c,unique_runid_c] = ...
+                cut_data_from_file_job.bin_pixels(proj,axes,data.pix);
 
-            [s_c, e_c, npix_c, urange_step_pix_c, npix_retain_c,ok_c, ix_c] = ...
-                cut_data_from_file_job.accumulate_cut(data.s, data.e, data.npix,...
-                urange_step_pix, true,...
-                data.pix,proj, [1,2,3,4]);
 
             % verify results against each other.
-            assertElementsAlmostEqual(urange_step_pix_m,urange_step_pix_c,'relative',1.e-7);
+            assertElementsAlmostEqual(npix_m,npix_c,'absolute',1.e-12);
             assertElementsAlmostEqual(s_m,s_c);
             assertElementsAlmostEqual(e_m,e_c);
             assertElementsAlmostEqual(npix_m,npix_c,'absolute',1.e-12);
-            assertEqual(npix_retain_m,npix_retain_c);
-            assertEqual(ok_m,ok_c);
-            assertElementsAlmostEqual(ix_m,double(ix_c),'absolute',1.e-12);
+            assertEqualToTol(pix_ok_m,pix_ok_c);
+            assertElementsAlmostEqual(unique_runid_m,unique_runid_c);
+            skipTest('Only pixel sorting is currently mexed')
         end
 
         function this=test_calc_proj(this)
@@ -131,7 +123,7 @@ classdef test_main_mex < TestCase
             hc.use_mex = true;
             [pix_range_c,pix_c]=rd.calc_projections();
 
-            assertElementsAlmostEqual(pix_range_matl,pix_range_c,'absolute',1.e-8);            
+            assertElementsAlmostEqual(pix_range_matl,pix_range_c,'absolute',1.e-8);
             assertElementsAlmostEqual(pix_matl.data,pix_c.data,'absolute',1.e-8);
         end
 
@@ -154,7 +146,7 @@ classdef test_main_mex < TestCase
             hcf.use_mex = 1;
             [pix_range_c,pix_c]=rd.calc_projections();
 
-            assertElementsAlmostEqual(pix_range_matl,pix_range_c,'absolute',1.e-8);            
+            assertElementsAlmostEqual(pix_range_matl,pix_range_c,'absolute',1.e-8);
             assertElementsAlmostEqual(pix_matl.data,pix_c.data,'absolute',1.e-8);
 
 
@@ -166,7 +158,7 @@ classdef test_main_mex < TestCase
             hcf.use_mex = 1;
             [pix_range_c,pix_c]=rd.calc_projections();
 
-            assertElementsAlmostEqual(pix_range_matl,pix_range_c,'absolute',1.e-8);            
+            assertElementsAlmostEqual(pix_range_matl,pix_range_c,'absolute',1.e-8);
             assertElementsAlmostEqual(pix_matl.data,pix_c.data,'absolute',1.e-8);
 
             assertEqual(size(pix_c.data, 1), 9);
@@ -254,7 +246,7 @@ classdef test_main_mex < TestCase
             pix0a = sort_pix(pix0,ix0,npix,'-force_mex');
             assertElementsAlmostEqual(pix0a.data, pix2.data,'absolute',1.e-6);
 
-        
+
         end
         function profile_sort_pix(~)
             xs = 9.99:-0.1:0.01;
@@ -332,8 +324,10 @@ classdef test_main_mex < TestCase
             E0=min(en);
             E1=max(en);
             Es=2;
-            prj = ortho_proj(u,v);
-            data = data_sqw_dnd([3,4,5,90,90,90],prj,[0,1,L1],[0,1,L2],[0,0.1,L3],[E0,Es,E1]);
+            proj = ortho_proj(u,v);
+            data = data_sqw_dnd([3,4,5,90,90,90],proj,[0,1,L1],[0,1,L2],[0,0.1,L3],[E0,Es,E1]);
+            proj.alatt = data.alatt;
+            proj.angdeg = data.angdeg;
             % clear npix as we will cut data to fill it in
             if sum(data.npix(:))>0
                 data.s    = zeros(size(data.s));
@@ -352,39 +346,9 @@ classdef test_main_mex < TestCase
             end
             vv(4,:)=repmat(en,1,this.nDet);
 
-
-            minv  =min(vv,[],2);
-            maxv  =max(vv,[],2);
-            minv=minv(1:4);
-            maxv=maxv(1:4);
-            %
             data.pix = PixelData(vv);
             [type,data] = data.check_sqw_data('a');
             assertEqual(type,'b+','Invalid test data type generated, type ''b+'' expected')
-
-            % set to cut half of the dataset in all 4 dimensions (1/16 of
-            % total dataset)
-            pix_range(1,:) =  0.5*(minv+maxv);
-            % move range in e-direction a bit to avoid accum_cut binning
-            % coinside with initial binning and result depending on
-            % round-off errors -- then it give different results in case of
-            % used on different machines and c vs matlab
-            pix_range(1,4) =  1.01*pix_range(1,4);
-            pix_range(2,:) =  (maxv-minv);
-
-            % Prepare cut projection to cut half of the data
-            proj = ortho_proj(prj);
-            upix_to_rlu=eye(3);
-            upix_offset = zeros(4,1);
-
-            proj=proj.retrieve_existing_tranf(data,upix_to_rlu,upix_offset);
-            % Important!!!!! to have the same number of bins as target data.s.
-            % The question is how to assure that.
-            step = (maxv-minv)./size(data.s)';
-            proj=proj.set_proj_binning(pix_range,[1,2,3,4],[],...
-                {minv(1):step(1):maxv(1),minv(2):step(2):maxv(2),minv(3):step(3):maxv(3),minv(4):step(4):maxv(4)});
-
-        
         end
     end
 end

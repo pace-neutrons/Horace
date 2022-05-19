@@ -257,7 +257,8 @@ classdef aProjection < serializable
         % normally be overloaded for specific projections for efficiency and
         % specific projection differences
         %------------------------------------------------------------------
-        function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels(obj,axes,pix_candidates,npix,s,e,varargin)
+        function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels(obj, ...
+                axes,pix_candidates,npix,s,e,varargin)
             % Convert pixels into the coordinate system, defined by the
             % projection and bin them into the coordinate system, defined
             % by the axes block, specified as input.
@@ -271,13 +272,19 @@ classdef aProjection < serializable
             %         pixel data in any format the particular projection,
             %         which does transformation from pix_to_img coordinate
             %         system accepts
-            % Optional:
-            % npix    -- the array, containing the numbers of pixels
-            %            contributing into each axes grid cell
-            % s       -- array, containing the accumulated signal for each
-            %            axes grid cell
-            % e       -- array, containing the accumulated error for each
-            %            axes grid cell
+            % npix -- the array, containing the numbers of pixels
+            %            contributing into each axes grid cell, calculated
+            %            during the previous iteration step. zeros(size(npix)) 
+            %            if this is the first step.
+            % s    -- array, containing the accumulated signal for each
+            %            axes grid cell calculated during the previous
+            %            iteration step. zeros(size(npix)) if this is the
+            %            first step.
+            % e    -- array, containing the accumulated error for each
+            %            axes grid cell calculated during the previous
+            %            iteration step. zeros(size(npix)) if this is the
+            %            first step.
+            % 
             % Outputs:
             % npix    -- the npix array
             %  The same npix, s, e arrays as inputs modified with added
@@ -289,10 +296,28 @@ classdef aProjection < serializable
             %           PixelData object (as input pix_candidates) containing
             %           pixels contributing to the grid and sorted according
             %           to the axes block grid.
-            % unique_runid -- the runid (tags) for the headers, which
+            % unique_runid -- the runid (tags) for the runs, which
             %           contributed into the cut
             % pix_indx--indexes of the pix_ok coordinates according to the
-            %           bin
+            %           bin. If this index is requested, the pix_ok object
+            %           remains unsorted according to the bins and the 
+            %           follow up sorting of data by the bins is expected
+            %
+            % Optional arguments transferred without any change to 
+            % axes_block.bin_pixels( ____ ) routine
+            %
+            % '-nomex'    -- do not use mex code even if its available
+            %               (usually for testing)
+            %
+            % '-force_mex' -- use only mex code and fail if mex is not available
+            %                (usually for testing)
+            % '-force_double'
+            %              -- if provided, the routine changes type of pixels
+            %                 it gets on input, into double. if not, output
+            %                 pixels will keep their initial type
+            % -nomex and -force_mex options can not be used together.
+            %
+
             pix_transformed = obj.transform_pix_to_img(pix_candidates);
             switch(nargout)
                 case(1)
