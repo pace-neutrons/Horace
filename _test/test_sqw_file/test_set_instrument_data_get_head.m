@@ -128,7 +128,7 @@ classdef test_set_instrument_data_get_head< TestCase
             %TODO: look at this carefully. The stuctures, extracted by different means
             % are a bit different. Do we want this?
             h_file_s=head_horace(obj.data_inst_ref);
-            h_file_s = rmfield(h_file_s,{'npixels','nfiles'});
+            h_file_s = rmfield(h_file_s,{'npixels','nfiles','pix_range'});
 
             h_file=head_horace(obj.data_inst_ref,'-full');
             data = h_file.data.get_dnd_data('+');

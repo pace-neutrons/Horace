@@ -113,9 +113,9 @@ classdef test_read_all< TestCase
 
             assertEqual(numel(out),3)
             assertTrue(isstruct(out{1}))
-            assertEqual(numel(fields(out{1})),20)
+            assertEqual(numel(fields(out{1})),21)
             assertTrue(isstruct(out{2}))
-            assertEqual(numel(fields(out{2})),20)
+            assertEqual(numel(fields(out{2})),21)
             assertTrue(isstruct(out{3}))
             assertEqual(numel(fields(out{3})),12)
 

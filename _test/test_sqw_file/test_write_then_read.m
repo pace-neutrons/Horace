@@ -80,7 +80,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
                 );
             [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
-            saved_sqw = sqw(out_file_path);
+            saved_sqw = read_sqw(out_file_path);
 
             [ok,mess]=equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true);
             assertTrue(ok,mess);

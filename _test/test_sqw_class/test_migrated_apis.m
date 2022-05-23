@@ -360,8 +360,6 @@ classdef test_migrated_apis < TestCase & common_sqw_class_state_holder
 
             expected = load('test_migrated_apis_data.mat', 'xye_test');
 
-            expected.xye_test.x{1}= expected.xye_test.x{1}';
-            expected.xye_test.x{2}= expected.xye_test.x{2}';
             assertEqualToTol(result.x, expected.xye_test.x,'tol',[1.e-7,1.e-7]);
             assertEqualToTol(result.y, expected.xye_test.y);
             assertEqualToTol(result.e, expected.xye_test.e);
