@@ -318,12 +318,12 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             obj = set_from_old_struct_(obj,S);
         end
 
-        function [proj, pbin, opt] = process_and_validate_cut_inputs(obj,...
+        function [proj, pbin, opt,args] = process_and_validate_cut_inputs(obj,...
                 return_cut, varargin)
             % interface to private cut parameters parser/validator
             % checking and parsing cut inputs in any acceptable form
             ndims = obj.data.n_dims;
-            [proj, pbin, opt]= cut_sqw_parse_inputs_(obj.data,ndims, return_cut, varargin{:});
+            [proj, pbin, opt,args]= cut_sqw_parse_inputs_(obj.data,ndims, return_cut, varargin{:});
         end
     end
     %----------------------------------------------------------------------

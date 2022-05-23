@@ -1,4 +1,4 @@
-function [proj, pbin,opt] = ...
+function [proj, pbin,opt,args] = ...
     cut_sqw_parse_inputs_(obj,ndims_in, return_cut, varargin)
 % Take cut parameters in any possible form (see below)
 % and return the standard form of the parameters.
@@ -174,12 +174,6 @@ if numel(par)>=npbin_expected
             evalc('disp(find(~pbin_ok))'));
     end
     args = par(npbin_expected+1:end);
-    if ~isempty(args)
-        args = evalc('disp(args)');
-        error('HORACE:cut:invalid_argument',...
-            'Unrecognised additional input(s): "%s" were provided to cut',...
-            args);
-    end
 else
     if ~proj_given          % must refer to plot axes (in the order of the display list)
         error('HORACE:cut:invalid_argument',...
