@@ -49,10 +49,6 @@ classdef test_change_crystal_1a < TestCase
             % -----------------------------------------------------------------------------
             % Add common functions folder to path, and get location of common data
             hor_root = horace_root();
-            cof_path= fullfile(hor_root,'_test','common_functions');
-            addpath(cof_path);
-
-
             common_data_dir=fullfile(hor_root,'_test','common_data');
             % -----------------------------------------------------------------------------
             % generate shifted sqw file
@@ -67,10 +63,10 @@ classdef test_change_crystal_1a < TestCase
             % withon lambda function, so to run proper cleanup operation
             % one needs to assign class variables to clean to
             nxs_file_s = obj.nxs_file;
-            clearner = @(files,sqw_file,cl_path)(...
+            clearner = @(files,sqw_file)(...
                 test_change_crystal_1a.change_crystal_1a_cleanup(...
-                files ,sqw_file,cl_path));
-            obj.clob = {onCleanup(@()clearner(nxs_file_s,sim_sqw_file,cof_path)),hpc_restore};
+                files ,sqw_file));
+            obj.clob = {onCleanup(@()clearner(nxs_file_s,sim_sqw_file)),hpc_restore};
 
         end
         function test_u_alighnment_tf_way(obj)
@@ -270,7 +266,7 @@ classdef test_change_crystal_1a < TestCase
         end
     end
     methods(Static,Access=private)
-        function change_crystal_1a_cleanup(nxs_file,misaligned_sqw_file,cof_path)
+        function change_crystal_1a_cleanup(nxs_file,misaligned_sqw_file)
             % delete all auxiliary generated files on last
             % instance of test_change_crystal_1a class deletion
             %
@@ -290,7 +286,6 @@ classdef test_change_crystal_1a < TestCase
             end
             delete(misaligned_sqw_file);
 
-            rmpath(cof_path);
             warning(ws);
         end
 

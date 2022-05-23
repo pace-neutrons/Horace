@@ -174,6 +174,12 @@ if numel(par)>=npbin_expected
             evalc('disp(find(~pbin_ok))'));
     end
     args = par(npbin_expected+1:end);
+    if ~isempty(args)
+        args = evalc('disp(args)');
+        error('HORACE:cut:invalid_argument',...
+            'Unrecognised additional input(s): "%s" were provided to cut',...
+            args);
+    end
 else
     if ~proj_given          % must refer to plot axes (in the order of the display list)
         error('HORACE:cut:invalid_argument',...

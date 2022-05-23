@@ -28,9 +28,7 @@ classdef test_combine_cyl < TestCaseWithSave
             obj = obj@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_combine_cyl_output.mat'));
             hor_root = horace_root();
             common_data_dir=fullfile(hor_root,'_test','common_data');
-            test_functions_path=fullfile(hor_root,'_test','common_functions');
-            addpath(test_functions_path);
-            
+           
             
             % =====================================================================================================================
             % Create spe files:
@@ -65,9 +63,6 @@ classdef test_combine_cyl < TestCaseWithSave
                 simulate_spe_testfunc (en, obj.par_file, obj.spe_file_2, @sqw_cylinder, [10,1], 0.3,...
                     obj.efix, emode, obj.alatt, angdeg, u, v, obj.psi_2, omega, dpsi, gl, gs)
             end
-            % Handle class! test files are in SVN
-            %add_to_files_cleanList(this,this.spe_file_1,this.spe_file_2);
-            add_to_path_cleanList(obj,test_functions_path);
             
             obj.save();
         end

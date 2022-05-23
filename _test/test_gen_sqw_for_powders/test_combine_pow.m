@@ -28,9 +28,6 @@ classdef test_combine_pow < TestCaseWithSave
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_combine_pow_output.mat'));
             hor_root = horace_root();
             common_data_dir=fullfile(hor_root,'_test','common_data');
-            test_functions_path=fullfile(hor_root,'_test/common_functions');
-            addpath(test_functions_path);
-
 
 
             % =====================================================================================================================
@@ -67,7 +64,6 @@ classdef test_combine_pow < TestCaseWithSave
                     this.efix, emode, alatt, angdeg, u, v, this.psi_2, omega, dpsi, gl, gs)
             end
             % test files are in svn
-            add_to_path_cleanList(this,test_functions_path);
             this.save();
         end
 
