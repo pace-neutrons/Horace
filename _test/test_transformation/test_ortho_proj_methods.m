@@ -355,7 +355,7 @@ classdef test_ortho_proj_methods<TestCase
         %------------------------------------------------------------------
         %
         function test_cut_dnd(this)
-            skipTest('waits for cut_dnd being refactored')
+            skipTest('waits for cut_dnd being refactored, ticket #796')
             hc = hor_config();
             cur_mex = hc.use_mex;
             hc.use_mex = 0;

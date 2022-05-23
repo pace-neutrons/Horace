@@ -215,19 +215,19 @@ classdef axes_block < serializable
             [cube_coord,step] = get_axes_scales_(obj);
         end
         %
-        function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels(obj,pix_coord_transf,varargin)
+        function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels(obj,coord_transf,varargin)
             % Bin and distribute data expressed in the coordinate system
             % described by this axes block over the current N-D lattice
             %
             % Usage:
-            % >>npix = obj.bin_pixels(coord);
-            % >>[npix,s,e] = obj.bin_pixels(coord,npix,s,e);
-            % >>[npix,s,e,pix_ok,unque_runid] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
-            % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
-            % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates,unique_runid);
+            % >>npix = obj.bin_pixels(coord_transf);
+            % >>[npix,s,e] = obj.bin_pixels(coord_transf,npix,s,e);
+            % >>[npix,s,e,pix_ok,unque_runid] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates)
+            % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates)
+            % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord_transf,npix,s,e,pix_candidates,unique_runid);
             % Where
             % Inputs:
-            % pix_coord_transf
+            % coord_transf
             %         -- [4,npix] array of pixels coordinates to bin.
             % Optional:
             % npix    -- the array of size of the grid, defined by this
@@ -288,10 +288,10 @@ classdef axes_block < serializable
             nargou = nargout;
             % convert different input forms into fully expanded common form
             [npix,s,e,pix_cand,unique_runid,argi]=...
-                obj.normalize_bin_input(pix_coord_transf,nargou,varargin{:});
+                obj.normalize_bin_input(coord_transf,nargou,varargin{:});
             %
             % bin pixels
-            [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels_(obj,pix_coord_transf,nargou,...
+            [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels_(obj,coord_transf,nargou,...
                 npix,s,e,pix_cand,unique_runid,argi{:});
         end
         %

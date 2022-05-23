@@ -35,8 +35,8 @@ classdef test_sqw_eval < TestCase & common_state_holder
                 @(u1, u2, u3, dE, pars) sum([u1, u2, u3, dE].*pars, 2);
             obj.linear_params = [2, 1, 1, 4];
 
-            obj.sqw_2d_obj = sqw(obj.sqw_2d_file_path);
-            obj.sqw_2d_sqw_eval_ref_obj = sqw(obj.sqw_2d_sqw_eval_ref_file);
+            obj.sqw_2d_obj = read_sqw(obj.sqw_2d_file_path);
+            obj.sqw_2d_sqw_eval_ref_obj = read_sqw(obj.sqw_2d_sqw_eval_ref_file);
         end
 
 

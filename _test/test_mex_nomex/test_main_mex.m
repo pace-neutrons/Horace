@@ -47,23 +47,33 @@ classdef test_main_mex < TestCase
         end
 
         function this=test_accum_cut_mex_multithread(this)
+            [~,n_errors] = check_horace_mex();
+            if n_errors>0
+                skipTest('Can not use and test mex code to accumulate_cut');
+            end
+
             [data,proj]=gen_fake_accum_cut_data(this,[1,0,0],[0,1,0]);
-            pax = [1,2,3,4];
-            [urange_step_pix_recent1, ok1, ix1, s1, e1, npix1, npix_retain1,success]= ...
-                proj.accumulate_cut(data.pix,data.s,data.e,data.npix,pax,1,0,1,1);
-            assertTrue(success)
-            [urange_step_pix_recent2, ok2, ix2, s2, e2, npix2, npix_retain2,success]= ...
-                proj.accumulate_cut(data.pix,data.s,data.e,data.npix,pax,1,0,1,4);
-            assertTrue(success)
 
-            assertEqual(npix_retain1,npix_retain2)
-            assertElementsAlmostEqual(urange_step_pix_recent1,urange_step_pix_recent2);
-            assertEqual(sum(ok1),sum(ok2));
-            assertEqual(sort(ix1),sort(ix2));
-            assertElementsAlmostEqual(s1,s2);
-            assertElementsAlmostEqual(e1,e2);
-            assertElementsAlmostEqual(npix1,npix2);
+            hc = hor_config;
+            hc.saveable = false;
+            ds = hc.get_data_to_store();
+            clOb = onCleanup(@()set(hc,ds));
 
+            hc.threads = 1;
+            hc.use_mex= true;
+            [npix_1,s_1,e_1,pix_ok_1,unique_runid_1] = ...
+                cut_data_from_file_job.bin_pixels(proj,data,data.pix);
+
+            hc.threads = 8;
+            [npix_8,s_8,e_8,pix_ok_8,unique_runid_8] = ...
+                cut_data_from_file_job.bin_pixels(proj,data,data.pix);
+
+
+            assertEqual(npix_1,npix_8)
+            assertEqual(s_1,s_8)
+            assertEqual(e_1,e_8)
+            assertEqual(pix_ok_1,pix_ok_8)
+            assertEqual(unique_runid_1,unique_runid_8)
         end
 
 
@@ -91,7 +101,7 @@ classdef test_main_mex < TestCase
             %check C-part
             hc.use_mex = true;
             [npix_c,s_c,e_c,pix_ok_c,unique_runid_c] = ...
-                cut_data_from_file_job.bin_pixels(proj,axes,data.pix);
+                cut_data_from_file_job.bin_pixels(proj,data,data.pix);
 
 
             % verify results against each other.

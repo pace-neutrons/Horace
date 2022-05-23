@@ -258,7 +258,7 @@ classdef aProjection < serializable
         % specific projection differences
         %------------------------------------------------------------------
         function [npix,s,e,pix_ok,unique_runid,pix_indx] = bin_pixels(obj, ...
-                axes,pix_candidates,npix,s,e,varargin)
+                axes,pix_cand,npix,s,e,varargin)
             % Convert pixels into the coordinate system, defined by the
             % projection and bin them into the coordinate system, defined
             % by the axes block, specified as input.
@@ -266,12 +266,13 @@ classdef aProjection < serializable
             % Inputs:
             % axes -- the instance of axes_block class, defining the
             %         shape and the binning of the target coordinate system
-            % pix_candidates -- the 4xNpix array of pixel coordinates or
-            %         PixelData object or pixel data accessor from file
+            % pix_cand
+            %      -- PixelData object or pixel data accessor from file
             %         providing access to the full pixel information, or
-            %         pixel data in any format the particular projection,
-            %         which does transformation from pix_to_img coordinate
-            %         system accepts
+            %         data, containing information about pixels
+            %         in any format accepted by the particular projection,
+            %         which does transformation from pix_to_img 
+            %         coordinate system
             % npix -- the array, containing the numbers of pixels
             %            contributing into each axes grid cell, calculated
             %            during the previous iteration step. zeros(size(npix)) 
@@ -318,25 +319,25 @@ classdef aProjection < serializable
             % -nomex and -force_mex options can not be used together.
             %
 
-            pix_transformed = obj.transform_pix_to_img(pix_candidates);
+            pix_transformed = obj.transform_pix_to_img(pix_cand);
             switch(nargout)
                 case(1)
                     npix=axes.bin_pixels(pix_transformed,...
                         npix,varargin{:});
                 case(3)
                     [npix,s,e]=axes.bin_pixels(pix_transformed,...
-                        npix,s,e,pix_candidates,varargin{:});
+                        npix,s,e,pix_cand,varargin{:});
                 case(4)
                     [npix,s,e,pix_ok]=axes.bin_pixels(pix_transformed,...
-                        npix,s,e,pix_candidates,varargin{:});
+                        npix,s,e,pix_cand,varargin{:});
                 case(5)
                     [npix,s,e,pix_ok,unique_runid]=...
                         axes.bin_pixels(pix_transformed,...
-                        npix,s,e,pix_candidates,varargin{:});
+                        npix,s,e,pix_cand,varargin{:});
                 case(6)
                     [npix,s,e,pix_ok,unique_runid,pix_indx]=...
                         axes.bin_pixels(pix_transformed,...
-                        npix,s,e,pix_candidates,varargin{:});
+                        npix,s,e,pix_cand,varargin{:});
                 otherwise
                     error('HORACE:aProjection:invalid_argument',...
                         'This function requests 1,3,4,5 or 6 output arguments');

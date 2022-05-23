@@ -54,6 +54,7 @@ if keep_pix
         % old stored objects, which do not contain correctly defind runid map
         % compartibility operation.
         % TODO: Should be check for old file and after that -- this code.
+        % Ticket #804
         head_runid = w.experiment_info.expdata.get_run_ids();
         if any(~ismember(runid_contributed,head_runid))
             % some old file conains runid, which has been

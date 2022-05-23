@@ -154,7 +154,7 @@ classdef test_ortho_proj_construction<TestCase
             % Is this correct? Should (can I fix this?)
             proj1.type  ='ppr';
             proj1.w = [];
-            assertEqual(pror,proj1);
+            assertEqualToTol(pror,proj1,'tol',[1.e-9,1.e-9]);
         end
 
 
@@ -167,7 +167,7 @@ classdef test_ortho_proj_construction<TestCase
             pror = ortho_projTester('alatt',[2,4,3],'angdeg',[90,90,90],...
                 'label',{'a','b','c','d'});
             pror = pror.set_from_data_mat(u_to_rlu,ulen);
-            assertEqual(pror,proj1);
+            assertEqualToTol(pror,proj1,'tol',[1.e-9,1.e-9]);
         end
 
         function test_get_projection_from_cut3D_sqw(~)
@@ -246,7 +246,7 @@ classdef test_ortho_proj_construction<TestCase
                 'label',{'a','b','c','d'},'type','aaa');
 
             proj1=do.get_projection();
-            assertEqual(proj,proj1)
+            assertEqualToTol(proj,proj1,'tol',[1.e-9,1.e-9])
 
             opt = ortho_projTester(proj1);
 

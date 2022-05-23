@@ -93,7 +93,7 @@ classdef test_rebin_operations < TestCase
             proj.u=[1,1,0]; proj.v=[-1,1,0]; proj.type='rrr';
             w2d_qe_sqw_cut=cut_sqw(w2d_qe_sqw,proj,[-0.5,0.05,1],[-0.1,0.1],[-Inf,Inf],[10,0.7,80]);
 
-            [ok,mess]=equal_to_tol(w2d_qe_sqw_cut,w2d_qe_sqw_reb,-1e-6,'ignore_str', 1);
+            [ok,mess]=equal_to_tol(w2d_qe_sqw_cut,w2d_qe_sqw_reb,3e-9,'ignore_str', 1);
             assertTrue(ok,['rebin sqw using lo,step,hi syntax fails: ',mess])
         end
 
