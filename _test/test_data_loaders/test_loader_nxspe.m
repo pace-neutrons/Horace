@@ -91,7 +91,7 @@ classdef test_loader_nxspe< TestCase
             ws = warning('off','HERBERT:nxspepar_loader:invalid_argument');
             clob = onCleanup(@()warning(ws));
             nxl = loader_nxspe(f_name(obj,'missing_file.nxspe'));
-            assertFalse(nxl.isvalid);
+            assertTrue(nxl.isvalid);
             assertTrue(isempty(nxl.efix));
             assertTrue(isempty(nxl.n_detectors));
 

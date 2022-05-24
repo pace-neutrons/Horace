@@ -90,7 +90,7 @@ classdef test_rundata_isvalid<TestCase
         function this = test_det_par(this)
             rd=rundata();
             rd.det_par = ones(6,3);
-            assertFalse(rd.isvalid);
+            assertTrue(rd.isvalid);
 
             %rd.det_par =
             %[ok,mess]=isvalid(rd);
@@ -101,6 +101,7 @@ classdef test_rundata_isvalid<TestCase
 
             rd.det_par = ones(6,10);
             rd.S       = ones(3,9);
+            assertFalse(rd.isvalid);
             [ok,mess,rd]=rd.check_combo_arg();
             assertFalse(ok);
             base_mess = 'ill defined Signal: size(Signal) ~= size(ERR)';

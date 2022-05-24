@@ -86,6 +86,12 @@ classdef IX_experiment < serializable
             end
             obj.run_id_ = val;
         end
+        function ids = get_run_ids(obj)
+            % retrieve all run_ids, which may be present in the array of
+            % rundata objects
+            ind = 1:numel(obj);
+            ids = arrayfun(@(in)(obj(in).run_id_),ind);
+        end
         %
         function en = get.en(obj)
             en = obj.en_;
@@ -101,12 +107,22 @@ classdef IX_experiment < serializable
         %------------------------------------------------------------------
         % SQW_binfile_common methods related to saving to binfile and
         % run_id scrambling:
-        function old_hdr = convert_to_binfile_header(obj,alatt,angdeg)
+        function old_hdr = convert_to_binfile_header(obj,alatt,angdeg,nomangle)
             % convert to the header structure, to be stored in the old
-            % binary files
+            % binary files.
+            % Inputs:
+            % obj   -- the header to convert
+            % alatt -- lattice cell sizes (3x1 vector)
+            % angdeg --lattice angles (3x1 vector)
+            % Optional:
+            % nomangle -- if false or absent, mangle (append to the end)
+            %             file name with run_id (if one is defined)
             %
+            if ~exist('nomangle','var')
+                nomangle = false;
+            end
             old_hdr = obj.to_bare_struct();
-            if ~isnan(old_hdr.run_id)
+            if ~isnan(old_hdr.run_id) && ~nomangle
                 old_hdr.filename = sprintf('%s$id$%d',old_hdr.filename,old_hdr.run_id);
             end
             old_hdr = rmfield(old_hdr,'run_id');
@@ -118,13 +134,17 @@ classdef IX_experiment < serializable
         %------------------------------------------------------------------
         function is = isempty(obj)
             is = false(size(obj));
+            flds = IX_experiment.fields_to_save_;
             for i=1:numel(obj)
-                for j=3:numel(IX_experiment.fields_to_save_)
-                    if isempty(obj(i).(IX_experiment.fields_to_save_{j}))
-                        is(i) = true;
+                obj_i_empty = true;
+                for j=1:numel(IX_experiment.fields_to_save_)
+                    fld_val = obj(i).(flds{j});
+                    if ~(isempty(fld_val) || (isnumeric(fld_val)&&isnan(fld_val)))
+                        obj_i_empty= false;
                         break;
                     end
                 end
+                is(i) = obj_i_empty;
             end
         end
         function obj = IX_experiment(varargin)
@@ -169,7 +189,7 @@ classdef IX_experiment < serializable
                         class(input));
                 end
             elseif nargin > 2
-                % list of crude validators, checking the type of all input 
+                % list of crude validators, checking the type of all input
                 % parameters for constructor. Mainly used to identify the
                 % end of positional arguments and the beginning of the
                 % key-value pairs. The accurate validation should occur on

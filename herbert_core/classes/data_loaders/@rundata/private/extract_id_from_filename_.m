@@ -11,7 +11,7 @@ function [id,filename] = extract_id_from_filename_(file_name)
 % id        - number (id) extracted from filename. NaN if routine has not 
 %              been able to identify any numbers in the filename
 % filename  - unchanged filename if file_name did not contained $id$ or
-%             unmabgled par of file_name if $id% was present
+%             unmangled par of file_name if $id% was present
 %
 
 [~,filename,fext] = fileparts(file_name);
@@ -21,15 +21,16 @@ function [id,filename] = extract_id_from_filename_(file_name)
 % format
 id_source = filename;
 fn_is_soruce = true;
+% check if extension is empty and run_id is attached to filename
 loc = strfind(id_source,'$id$');
 if isempty(loc)
+    % if filename is empty, try if the run_id is attached to extension
     id_source = fext;
     fn_is_soruce = false;
     loc = strfind(id_source,'$id$');
-else
-
 end
-if isempty(loc)
+if isempty(loc) 
+    % try to extract run_id from the filename
     [l_range,r_range] = regexp(filename,'\d+');
     if isempty(l_range)
         id = NaN;
@@ -38,6 +39,7 @@ if isempty(loc)
     id = str2double(filename(l_range(1):r_range(1)));
     filename = [filename,fext];
 else
+    % run_id is stored in filename after $id$ sign
     id       = str2double(id_source(loc(1)+4:end));
     if fn_is_soruce
         filename = [id_source(1:loc(1)-1),fext];

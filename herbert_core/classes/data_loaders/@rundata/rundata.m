@@ -367,7 +367,6 @@ classdef rundata < serializable
             end
             obj.run_id_ = val;
         end
-
         %
         function loader=get.loader(obj)
             loader=obj.loader_;
@@ -497,10 +496,16 @@ classdef rundata < serializable
                 lat = obj.lattice;
                 ou = lat.angular_units;
                 lat.angular_units = 'deg';
-                if ~isempty(sam.alatt)
+                if isempty(sam.alatt)
+                    sam.alatt = lat.alatt;
+                    obj.sample_ = sam;
+                else
                     lat.alatt = sam.alatt;
                 end
-                if ~isempty(sam.angdeg)
+                if isempty(sam.angdeg)
+                    sam.angdeg = lat.angdeg;
+                    obj.sample_ = sam;
+                else
                     lat.angdeg = sam.angdeg;
                 end
                 lat.angular_units = ou;
