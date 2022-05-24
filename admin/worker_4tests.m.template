@@ -20,9 +20,9 @@ if nargin<1 || isempty(worker_controls_string)
 end
 je = [];
 ok = false;
-if isempty(which('herbert_init.m'))
+if isempty(which('horace_init.m'))
     try
-        herbert_on()
+        horace_on()
     catch ME
         err_mess = ME;
         write_fail_log(ME)
@@ -30,13 +30,14 @@ if isempty(which('herbert_init.m'))
     end
 end
 
+DO_DEBUGGING = false;
 DO_LOGGING = getenv('DO_PARALLEL_MATLAB_LOGGING');
 if isempty(DO_LOGGING)
     DO_LOGGING = false;
 else
     DO_LOGGING = feval(DO_LOGGING);
 end
-DO_DEBUGGING = false;
+
 try
     [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,DO_DEBUGGING);
 catch ME1 % intercepted exception in processing failure or some odd bug indeed

@@ -1,13 +1,13 @@
-set(EXTERNAL_ROOT "${Herbert_ROOT}/_LowLevelCode/external")
+set(EXTERNAL_ROOT "${Horace_ROOT}/_LowLevelCode/external")
 if(UNIX)
-    if (USE_HERBERT_MPI)
+    if (USE_HORACE_MPI)
         set(MPICH_VERSION "3.3a2")
         set(MPI_ROOT "${EXTERNAL_ROOT}/glnxa64/mpich-${MPICH_VERSION}")
     endif()
     message(STATUS "looking for MPI in at: ${MPI_ROOT}")
     # We point CMake to the mpicc and mpicxx compiler scripts, these are then
     # used by CMake's "Find" script to find the relevant libraries that we
-    # package with Herbert
+    # package with Horace
     find_file(
         MPI_C_COMPILER
         NAMES "mpicc"

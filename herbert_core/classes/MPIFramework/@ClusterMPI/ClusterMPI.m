@@ -169,8 +169,8 @@ classdef ClusterMPI < ClusterWrapper
                 end
             end
             
-            rootpath = fileparts(which('herbert_init'));
-            external_dll_dir = fullfile(rootpath, 'DLL','external');
+            rootpath = fileparts(fileparts(which('herbert_init')));
+            external_dll_dir = fullfile(rootpath, 'DLL', 'external');
             if ispc()
                 [rs, rv] = system('where mpiexec');
                 mpis = splitlines(strip(rv));

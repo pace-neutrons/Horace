@@ -2,15 +2,15 @@
 
 #include <string>
 
-namespace Herbert {
+namespace Horace {
 namespace Utility {
 namespace Environment {
-// The HERBERT_ROOT environment variable key
-const std::string HERBERT_ROOT{"HERBERT_ROOT"};
+// The HORACE_ROOT environment variable key
+const std::string HORACE_ROOT{"HORACE_ROOT"};
 // Get an environment variable
 std::string get_env_variable(const std::string &key,
                              const std::string &default_value = "");
 
 } // namespace Environment
 } // namespace Utility
-} // namespace Herbert
+} // namespace Horace

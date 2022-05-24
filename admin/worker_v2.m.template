@@ -20,9 +20,9 @@ end
 
 je = [];
 ok = false;
-if isempty(which('herbert_init.m'))
+if isempty(which('horace_init.m'))
     try
-        herbert_on()
+        horace_on();
     catch ME
         err_mess = ME;
         write_fail_log(ME)

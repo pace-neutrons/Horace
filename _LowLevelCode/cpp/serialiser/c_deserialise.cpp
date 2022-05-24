@@ -381,8 +381,8 @@ mxArray* deserialise(uint8_t* data, size_t& memPtr, size_t size, bool recursed) 
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {
 
     //--------->  RETURN MEX-file version if requested;
-    if (nrhs == 0 && nlhs < 2) {
-        plhs[0] = mxCreateString(Herbert::VERSION);
+    if (nrhs == 0 && (nlhs == 0 || nlhs == 1)) {
+        plhs[0] = mxCreateString(Horace::VERSION);
         return;
     }
 

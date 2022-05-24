@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.15)
 
-set(Herbert_ROOT ${CMAKE_CURRENT_LIST_DIR})
-file(READ "${Herbert_ROOT}/VERSION" _version)
+set(Horace_ROOT ${CMAKE_CURRENT_LIST_DIR})
+file(READ "${Horace_ROOT}/VERSION" _version)
 string(STRIP "${_version}" _version)
-project("Herbert" VERSION "${_version}")
+project("Horace" VERSION "${_version}")
 
+# C++11 is required for GTest
 set(CMAKE_CXX_STANDARD 11)
 
 # Sort our targets into folders
@@ -12,15 +13,22 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Set our options
 option(BUILD_TESTS "Build the C++ tests" OFF)
-option(USE_HERBERT_MPI "Use MPI libraries provided with Herbert" ON)
+option(USE_HORACE_MPI "Use MPI libraries provided with Horace" ON)
+
+# Set CMake policies
+if(POLICY CMP0074)
+    # Ignore warnings when setting <MODULE>_ROOT variables
+    cmake_policy(SET CMP0074 NEW)
+endif()
 
 # Add cmake directory to CMake's path
-list(APPEND CMAKE_MODULE_PATH "${Herbert_ROOT}/cmake"
-     "${Herbert_ROOT}/cmake/external" "${Herbert_ROOT}/cmake/shared")
+list(APPEND CMAKE_MODULE_PATH "${Horace_ROOT}/cmake"
+     "${Horace_ROOT}/cmake/external" "${Horace_ROOT}/cmake/shared")
 
 # This sets the destination for mex build artefacts (used in PACE_AddMex)
-set(Herbert_DLL_DIRECTORY "${Herbert_ROOT}/herbert_core/DLL")
+set(Horace_DLL_DIRECTORY "${Horace_ROOT}/horace_core/DLL")
 # This is the directory that contains herbert_init.m
+set(Horace_CORE "${CMAKE_CURRENT_LIST_DIR}/horace_core")
 set(Herbert_CORE "${CMAKE_CURRENT_LIST_DIR}/herbert_core")
 # This will hold herbert_on.m and worker_v2.m. This directory will hold any
 # files needed for "local initialization", the files mentioned are required
@@ -29,11 +37,14 @@ set(Herbert_CORE "${CMAKE_CURRENT_LIST_DIR}/herbert_core")
 set(LOCAL_INIT_DIR "${CMAKE_BINARY_DIR}/local_init")
 
 # Look for packages early so we can exit if they're not found
-include(herbert_FindMPI)
+find_package(OpenMP)
 include(PACE_FindMatlab)
 include(PACE_Version)
 include(PACE_AddMex)
 include(PACE_CodeAnalysis)
+include(PACE_Docs)
+include(horace_FindHDF5)
+include(herbert_FindMPI)
 include(CTest)
 if(BUILD_TESTING)
     include(PACE_FindGTest)
@@ -52,11 +63,33 @@ add_subdirectory("cmake")
 # =============================================================================
 include(PACE_CPackConfig)
 
+if(WIN32)
+    # Don't package commited mex files
+    set(EXTERNAL_IGNORE_PATTERN "*/external/glnxa64")
+endif()
+
 install(
-    DIRECTORY "herbert_core"
+    DIRECTORY "herbert_core/"
     DESTINATION "Herbert"
     USE_SOURCE_PERMISSIONS
     PATTERN "*.m~" EXCLUDE
     PATTERN "*.asv" EXCLUDE
-    PATTERN "*.gitignore" EXCLUDE)
-install(FILES "LICENSE" "README.md" DESTINATION ".")
+    PATTERN "*.gitignore" EXCLUDE
+    PATTERN "${EXTERNAL_IGNORE_PATTERN}" EXCLUDE
+    PATTERN "*/DLL/_*" EXCLUDE
+)
+
+install(
+    FILES "LICENSE" "README.md"
+    DESTINATION "."
+)
+
+install(
+    DIRECTORY "horace_core/"
+    DESTINATION "Horace"
+    USE_SOURCE_PERMISSIONS
+    PATTERN "*.m~" EXCLUDE
+    PATTERN "*.asv" EXCLUDE
+    PATTERN "*.gitignore" EXCLUDE
+    PATTERN "*/DLL/_*" EXCLUDE
+)

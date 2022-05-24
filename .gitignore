@@ -1,11 +1,13 @@
 ### IDEs ###
 .vs/*
 .vscode/*
+.idea/*
 
 ### Files/Directories ###
 build/*
 # CMake generated file
 _LowLevelCode/cpp/utility/version.h
+horace_core/admin/horace_get_build_version.m
 herbert_core/admin/herbert_get_build_version.m
 
 ### MATLAB ###
@@ -15,5 +17,13 @@ herbert_core/admin/herbert_get_build_version.m
 # OSX / *nix default autosave extension
 *.m~
 
+# debug folder
+cmake-build-debug/*
+
 # Compiled MEX binaries (all platforms)
 # *.mex*  # commented out for now - uncomment when distribution channel is up
+/_test/test_spinw_integration
+
+### Built user documentation ###
+documentation/user_docs/build/*
+

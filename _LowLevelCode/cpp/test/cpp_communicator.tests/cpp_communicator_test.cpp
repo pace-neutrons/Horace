@@ -7,7 +7,7 @@
 
 #include <vector>
 
-using namespace Herbert::Utility;
+using namespace Horace::Utility;
 
 TEST(TestCPPCommunicator, send_sync_multi_receive_sync_multi) {
     // testing test mode. It works this way only in test mode, while

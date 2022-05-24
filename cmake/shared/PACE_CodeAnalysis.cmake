@@ -7,14 +7,14 @@ Run mlint and cppcheck code analysis on Project
 Variables required by the module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``${Herbert_ROOT}``
-This is provided by the `FindHerbert` module which must be loaded first
+``${Horace_ROOT}``
+This is provided by the root CMakeList.txt file
 
 ``${PACE_MLINT_IGNORE}``
 CMake list of filepaths or globs describing files to exclude from mlint parsing
 
 ``${Matlab_MAIN_PROGRAM}``
-This is provided by the `herbert_FindMatlab` module which must be loaded first
+This is provided by the `PACE_FindMatlab` module which must be loaded first
 
 Variables defined by the module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -45,7 +45,7 @@ add_custom_target(analyse
 string(JOIN "','" IGNORE_STRING ${PACE_MLINT_IGNORE})
 
 string(CONCAT RUN_MLINT "\""
-                        "addpath('${Herbert_ROOT}/admin');"
+                        "addpath('${Horace_ROOT}/admin');"
                         "lint_json({'${${PROJECT_NAME}_CORE}/**/*.m',"
                                    "'${${PROJECT_NAME}_ROOT}/admin/**/*.m',"
                                    "'${${PROJECT_NAME}_ROOT}/_test/**/*.m'},"

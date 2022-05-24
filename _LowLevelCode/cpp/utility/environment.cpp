@@ -1,6 +1,6 @@
 #include "utility/environment.h"
 
-namespace Herbert {
+namespace Horace {
 namespace Utility {
 namespace Environment {
 /*
@@ -44,4 +44,4 @@ std::string get_env_variable(const std::string &key,
 
 } // namespace Environment
 } // namespace Utility
-} // namespace Herbert
+} // namespace Horace

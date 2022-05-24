@@ -1,3 +1,0 @@
-% ${Herbert_AUTO_GENERATED_FILE_WARNING}
-function out = herbert_get_build_version()
-out = '${Herbert_SHORT_VERSION}';

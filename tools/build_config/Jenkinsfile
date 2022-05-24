@@ -53,6 +53,11 @@ properties([
       description: 'The version of CppCheck tooling to load to provide the code-style checks.',
       name: 'CPPCHECK_VERSION',
       trim: true
+    ),
+    booleanParam(
+      defaultValue: true,
+      description: 'If this pipeline is to build docs.',
+      name: 'BUILD_DOCS'
     )
   ])
 ])
@@ -78,6 +83,7 @@ pipeline {
     GCC_VERSION = utilities.get_param('GCC_VERSION', '6.3.0')
     VS_VERSION = utilities.get_param('VS_VERSION', "${env.AGENT == 'icdpacewin' ? '2019' : '2017'}")
     CPPCHECK_VERSION = utilities.get_param('CPPCHECK_VERSION', '1.77')
+    BUILD_DOCS = utilities.get_param('BUILD_DOCS', 'true')
   }
 
 
@@ -97,14 +103,33 @@ pipeline {
     stage('Configure') {
       steps {
         script {
+          if (env.BUILD_DOCS?.toBoolean()) {
+            if (isUnix()) {
+              sh '''
+            module load python/3.6 &&
+            pip install --user --upgrade pip &&
+            pip install --user sphinx &&
+            pip install --user sphinx_rtd_theme &&
+            pip install --user sphinxcontrib-matlabdomain
+            '''
+            } else {
+              powershell '''
+             pip install --user sphinx
+             pip install --user sphinx_rtd_theme
+             pip install --user sphinxcontrib-matlabdomain
+            '''
+            }
+          }
           if (isUnix()) {
             sh '''
+              module load python/3.6 &&
+              export PATH=${PATH}:~/.local/bin &&
               module load cmake/\$CMAKE_VERSION &&
               module load matlab/\$MATLAB_VERSION &&
               module load gcc/\$GCC_VERSION &&
               module load cppcheck/\$CPPCHECK_VERSION &&
               ./tools/build_config/build.sh \
-                --cmake_flags \"-DHerbert_RELEASE_TYPE=\$RELEASE_TYPE\" \
+                --cmake_flags \"-DHorace_RELEASE_TYPE=\$RELEASE_TYPE\" \
                 --matlab_release \$MATLAB_VERSION \
                 --print_versions \
                 --configure
@@ -112,7 +137,7 @@ pipeline {
           } else {
             powershell '''
               ./tools/build_config/build.ps1 \
-                -cmake_flags \"-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE\" \
+                -cmake_flags \"-DHorace_RELEASE_TYPE=\$env:RELEASE_TYPE\" \
                 -matlab_release \$env:MATLAB_VERSION \
                 -vs_version \$env:VS_VERSION \
                 -print_versions \
@@ -164,6 +189,39 @@ pipeline {
             powershell '''
               ./tools/build_config/build.ps1 -build
             '''
+          }
+        }
+      }
+    }
+
+    stage('Build-Docs') {
+      when {
+        expression {env.BUILD_DOCS?.toBoolean()}
+      }
+      steps {
+        script {
+          if (isUnix()) {
+            sh '''
+                export PATH=${PATH}:~/.local/bin &&
+                module load python/3.6 &&
+                module load cmake/\$CMAKE_VERSION &&
+                ./tools/build_config/build.sh --docs
+            '''
+            archiveArtifacts(
+              artifacts: 'build/docs.tar.gz',
+              allowEmptyArchive: true,
+              fingerprint: true
+            )
+          }
+          else {
+            powershell '''
+              ./tools/build_config/build.ps1 -docs
+            '''
+            archiveArtifacts(
+              artifacts: 'build/docs.zip',
+              allowEmptyArchive: true,
+              fingerprint: true
+            )
           }
         }
       }
@@ -221,7 +279,7 @@ pipeline {
 
         // Archive the release package
         archiveArtifacts(
-          artifacts: 'build/Herbert-*',
+          artifacts: 'build/Horace-*',
           fingerprint: true
         )
       }

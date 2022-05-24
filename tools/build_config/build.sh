@@ -6,18 +6,19 @@ set -o nounset  # raise error using unused variables
 readonly FALSE=0
 readonly TRUE=1
 readonly CMAKE_GENERATOR="Unix Makefiles"
-# The Herbert root directory is two levels above this script
-readonly HERBERT_ROOT="$(realpath "$(dirname "$0")"/../..)"
+# The Horace root directory is two levels above this script
+readonly HORACE_ROOT="$(realpath "$(dirname "$0")"/../..)"
 # The Matlab root directory is one level above Matlab/bin which contains the
 # matlab executable. The Matlab on the path will likely be a symlink so we need
 # to resolve it with `readlink`
 readonly MATLAB_ROOT="$(realpath "$(dirname "$(readlink -f "$(command -v matlab)")")"/..)"
 readonly MAX_CTEST_SUCCESS_OUTPUT_LENGTH="10000" # 10kB
 
-. "${HERBERT_ROOT}/tools/bash/bash_helpers.sh"
+. "${HORACE_ROOT}/tools/bash/bash_helpers.sh"
 
 function print_package_versions() {
   cmake --version | head -n 1
+  echo "Matlab: ${MATLAB_ROOT}"
   g++ --version | head -n 1
   cppcheck --version | head -n 1
   echo
@@ -30,7 +31,11 @@ function run_configure() {
   local matlab_release=$4
   local cmake_flags="${5-}"  # Default value is empty string
 
-  cmake_cmd="cmake ${HERBERT_ROOT}"
+  warning_msg="Warning: Build directory ${build_dir} already exists.\n\
+                              This may not be a clean build."
+  echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
+
+  cmake_cmd="cmake ${HORACE_ROOT}"
   cmake_cmd+=" -G \"${CMAKE_GENERATOR}\""
   cmake_cmd+=" -DMatlab_ROOT_DIR=${MATLAB_ROOT}"
   cmake_cmd+=" -DCMAKE_BUILD_TYPE=${build_config}"
@@ -54,53 +59,57 @@ function run_tests() {
   local build_dir=$1
 
   echo -e "\nRunning test step..."
-  echo_and_run "cd ${build_dir}"
   test_cmd="ctest -T Test --no-compress-output"
   test_cmd+=" --output-on-failure"
   test_cmd+=" --test-output-size-passed ${MAX_CTEST_SUCCESS_OUTPUT_LENGTH}"
-  echo_and_run "${test_cmd}"
+  run_in_dir "${test_cmd}" "${build_dir}"
 }
 
 function run_analysis() {
   local build_dir=$1
-
   echo_and_run "cmake --build ${build_dir} -- analyse"
 }
 
 function run_package() {
   echo -e "\nRunning package step..."
-
   run_in_dir "cpack -G TGZ" "${build_dir}"
 }
 
+function build_docs() {
+  # Update release numbers
+  echo_and_run "cmake --build ${build_dir} --target docs-pack"
+}
+
 function print_help() {
-  readonly local help_msg="Script to build, run static analysis, test and package Herbert.
+  readonly local help_msg="Script to build, run static analysis, test and package Horace.
 
 This script requires Matlab, GCC, CMake>=3.7 and CTest be installed on your
 system and available on the path.
 
-https://github.com/pace-neutrons/Herbert
+https://github.com/pace-neutrons/Horace
 
 usage:
   ./build.sh flag1 [flag2 [flag3]...] [option1 argument1 [option2 argument2]...]
 flags:
   -b, --build
-      Run the Herbert build commands.
+      Run the Horace build commands.
   -t, --test
-      Run all Herbert tests.
+      Run all Horace tests.
   -c, --configure
       Run cmake configuration stage
   -a, --analyze
-      Run static analysis on Herbert code.
+      Run static analysis on Horace code.
   -p, --package
-      Pacakge Herbert into a .tar.gz file.
+      Pacakge Horace into a .tar.gz file.
   -v, --print_versions
       Print the versions of libraries being used e.g. Matlab.
+  -d, --docs
+      Build user docs
   -h, --help
       Print help message and exit
 options:
   -X, --build_tests {\"ON\", \"OFF\"}
-      Whether to build the Herbert C++ tests and enable testing via CTest.
+      Whether to build the Horace C++ tests and enable testing via CTest.
       This must be \"ON\" in order to run tests with this script. [default: ON]
   -C, --build_config {\"Release\", \"Debug\"}
       The build configuration passed to CMake [default: Release]
@@ -125,10 +134,11 @@ function main() {
   local configure=$FALSE
   local analyze=$FALSE
   local package=$FALSE
+  local docs=$FALSE
   local print_versions=$FALSE
   local build_tests="ON"
   local build_config='Release'
-  local build_dir="${HERBERT_ROOT}/build"
+  local build_dir="${HORACE_ROOT}/build"
   local cmake_flags=""
   local matlab_release=""
 
@@ -148,6 +158,7 @@ function main() {
         -c|--configure) configure=$TRUE; shift;;
         -a|--analyze) analyze=$TRUE; shift ;;
         -p|--package) package=$TRUE; shift ;;
+        -d|--docs) docs=$TRUE; shift;;
         -v|--print_versions) print_versions=$TRUE; shift ;;
         -h|--help) print_help; exit 0 ;;
         # options
@@ -185,6 +196,10 @@ function main() {
 
   if ((package)); then
     run_package
+  fi
+
+  if ((docs)); then
+    build_docs
   fi
 }
 

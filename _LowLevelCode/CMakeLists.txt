@@ -1,4 +1,4 @@
-set(Herbert_DLL_DIR "${Herbert_ROOT}/herbert_core/DLL")
+set(Horace_DLL_DIR "${Horace_ROOT}/horace_core/DLL")
 
 # Add external directory first - this means we can get the location required
 # runtime executables/libraries are copied to
