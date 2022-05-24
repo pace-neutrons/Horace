@@ -161,8 +161,8 @@ header_av = header_average(obj);
 targ_proj.alatt  = header_av.alatt;
 targ_proj.angdeg = header_av.angdeg;
 % TODO: this is compartibility function. It will change when alginment matrix
-% is attached to pixels. In fact, it redefines b-matrix (and partially U-matix used for alignment)
-% which is the function of lattice
+% is attached to pixels. In fact, it redefines b-matrix (and partially U-matix 
+% used for alignment), which is the function of lattice
 targ_proj = targ_proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
 
 %
