@@ -6,11 +6,11 @@ classdef axes_block < serializable
     % sqw/dnd object
     %
     properties(Dependent)
-        title      % Title of sqw data structure
+        title      % Title of sqw data structure, displayed on plots.
         filename   % Name of sqw file that is being read, excluding path. Used in titles
         filepath   % Path to sqw file that is being read, including terminating file separator.
-        %          Used in titles
-
+        %            Used in titles
+        % the cellarray of captions, displayed along various axes of plots
         label    % labels for u1,u2,u3,u4 as cell array
         %               e.g. {'Q_h', 'Q_k', 'Q_l', 'En'})
         %                   *OR*
@@ -91,81 +91,6 @@ classdef axes_block < serializable
         ulabel
     end
 
-    methods (Static)
-        % build new axes_block object from the binning parameters, provided
-        % as input. If some input binning parameters are missing, the
-        % defaults are taken from the given image range which should be
-        % properly prepared
-        obj = build_from_input_binning(cur_img_range_and_steps,pbin);
-
-        %Create bin boundaries for integration and plot axes from requested limits and step sizes
-        % (used by cut_dnd). TODO: remove #
-        [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
-        %
-        function obj = loadobj(S)
-            % boilerplate loadobj method, calling generic method of
-            % saveable class
-            obj = axes_block();
-            obj = loadobj@serializable(S,obj);
-        end
-        function [any_within,is_within]=bins_in_1Drange(bins,range)
-            % get bins which contribute into the given range in one
-            % dimension
-            % Inputs:
-            % bins -- equally spaced increasing array of values,
-            %         representing bin edges.
-            % range -- 2 element vector of min/max values which should
-            %          surround contributing range
-            % Output:
-            % any_within -- true if any input bin contribute into the
-            %               selected range and false otherwise
-            % is_within  -- logical array of size numel(bins)-1
-            [any_within,is_within]=bins_in_1Drange_(bins,range);
-        end
-        %
-        function img_range = calc_img_db_range(ax_data)
-            % LEGACY FUNCTION, left for compatibility with old binary sqw
-            % files for transforming the data, stored there into modern
-            % axes_block form
-            %
-            % Retrieve 4D range used for rebinning pixels
-            % from old style sqw objects, where this range was not stored
-            % directly as it may become incorrect after some
-            % transformations.
-            %
-            % Returns:
-            % img_range  -- the estimate for the image range, used to
-            %               build the grid used as keys to get the pixels,
-            %               contributed into the image
-            %
-            % Should not be used directly, only for compatibility with old
-            % data formats. New sqw object should maintain correct
-            % img_range during all operations
-            %
-            % Inputs: either data_sqw_dnd instance or a structure
-            % containing:
-            % The relevant data structure used as source of image range is as follows:
-            %
-            %   ds.iax        Index of integration axes into the projection axes  [row vector]
-            %                  Always in increasing numerical order
-            %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
-            %   ds.iint       Integration range along each of the integration axes. [iint(2,length(iax))]
-            %                       e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
-            %   ds.pax        Index of plot axes into the projection axes  [row vector]
-            %                  Always in increasing numerical order
-            %                       e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
-            %                                       2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
-            %   ds.p          Cell array containing bin boundaries along the plot axes [column vectors]
-            %                       i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
-            %   ds.dax        Index into data.pax of the axes for display purposes. For example we may have
-            %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
-            %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
-            %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
-            %
-            img_range = calc_img_db_range_(ax_data);
-        end
-    end
-
     methods
         % return binning range of existing data object, so that cut without
         % parameters, performed within this range would return the same cut
@@ -209,9 +134,14 @@ classdef axes_block < serializable
                 error('HORACE:axes_block:invalid_argument',mess);
             end
         end
-
+        %
         function [cube_coord,step] = get_axes_scales(obj)
-            % Return 4D cube, describing the minimal grid cell of the axes block
+            % Return the array of vertices of a 4D cube, describing the grid cell
+            % of the axes block.
+            % Output:
+            % cube_coord -- 4x16 array of vertices of minimal axes cube
+            % step       -- 4x1 vector, containing the axes block grid
+            %               steps
             [cube_coord,step] = get_axes_scales_(obj);
         end
         %
@@ -331,8 +261,7 @@ classdef axes_block < serializable
             [nodes,dE_edges,npoints_in_axes] = calc_bin_nodes_(obj,do_3D,build_halo,argi{:});
         end
         %
-        function range = get_binning_range(obj,...
-                cur_proj,new_proj)
+        function range = get_binning_range(obj,cur_proj,new_proj)
             % Get the default binning range to use in cut, defined by a new
             % projection. If no new projection is provided, return current
             % binning range, i.e. the ranges used to construct this
@@ -509,13 +438,14 @@ classdef axes_block < serializable
             % serializable object.
             flds = axes_block.fields_to_save_;
         end
+        %
         function [ok,mess,obj] = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained serializable object. Return the result of the check
             %
             [ok,mess,obj] = check_combo_arg_(obj);
         end
-
+        %
     end
     methods(Access=protected)
         function is = check_validity(obj)
@@ -570,12 +500,86 @@ classdef axes_block < serializable
             end
         end
     end
+    %
     methods(Static)
         function input = convert_old_struct_into_nbins(input)
             % the function, used to convert old v1 axes_block structure,
             % containing axes information, into the v2 structure,
             % containing only range and bin numbers
             input = convert_old_struct_into_nbins_(input);
+        end
+        % build new axes_block object from the binning parameters, provided
+        % as input. If some input binning parameters are missing, the
+        % defaults are taken from the given image range which should be
+        % properly prepared
+        obj = build_from_input_binning(cur_img_range_and_steps,pbin);
+
+        %Create bin boundaries for integration and plot axes from requested limits and step sizes
+        % (used by cut_dnd). TODO: remove #
+        [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
+        %
+        function obj = loadobj(S)
+            % boilerplate loadobj method, calling generic method of
+            % saveable class
+            obj = axes_block();
+            obj = loadobj@serializable(S,obj);
+        end
+        %
+        function [any_within,is_within]=bins_in_1Drange(bins,range)
+            % get bins which contribute into the given range in one
+            % dimension
+            % Inputs:
+            % bins -- equally spaced increasing array of values,
+            %         representing bin edges.
+            % range -- 2 element vector of min/max values which should
+            %          surround contributing range
+            % Output:
+            % any_within -- true if any input bin contribute into the
+            %               selected range and false otherwise
+            % is_within  -- logical array of size numel(bins)-1
+            [any_within,is_within]=bins_in_1Drange_(bins,range);
+        end
+        %
+        function img_range = calc_img_db_range(ax_data)
+            % LEGACY FUNCTION, left for compatibility with old binary sqw
+            % files for transforming the data, stored there into modern
+            % axes_block form
+            %
+            % Retrieve 4D range used for rebinning pixels
+            % from old style sqw objects, where this range was not stored
+            % directly as it may become incorrect after some
+            % transformations.
+            %
+            % Returns:
+            % img_range  -- the estimate for the image range, used to
+            %               build the grid used as keys to get the pixels,
+            %               contributed into the image
+            %
+            % Should not be used directly, only for compatibility with old
+            % data formats. New sqw object should maintain correct
+            % img_range during all operations
+            %
+            % Inputs: either data_sqw_dnd instance or a structure
+            % containing:
+            % The relevant data structure used as source of image range is as follows:
+            %
+            %   ds.iax        Index of integration axes into the projection axes  [row vector]
+            %                  Always in increasing numerical order
+            %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
+            %   ds.iint       Integration range along each of the integration axes. [iint(2,length(iax))]
+            %                       e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
+            %   ds.pax        Index of plot axes into the projection axes  [row vector]
+            %                  Always in increasing numerical order
+            %                       e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
+            %                                       2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
+            %   ds.p          Cell array containing bin boundaries along the plot axes [column vectors]
+            %                       i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
+            %   ds.dax        Index into data.pax of the axes for display purposes. For example we may have
+            %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
+            %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
+            %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
+            %
+            img_range = calc_img_db_range_(ax_data);
         end
         %
         function [npix,s,e,pix_cand,unique_runid,argi]=...
@@ -595,5 +599,6 @@ classdef axes_block < serializable
             [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_bin_input_(grid_size,pix_coord_transf,n_argout,varargin{:});
         end
+        
     end
 end

@@ -159,8 +159,8 @@ The **axes_block** class contains three methods, necessary to implement the cut:
 
 | method | Description | Notes |
 |-----|---------|---|
-| *get_axes_scales* | returns sufficiently small 4D hyper-cube to fit any cell of the **axes_block** grid regardless of any transformation, defined by the target projection (see below) | ^1 |
-| *get_bin_nodes* | accepts the hypercube, produced by *get_axes_scales* and generates the grid which covers all range, described by the current **axes_block** class | |
+| *get_axes_scales* |  Return the array of vertices of a 4D cube, describing the grid cell of the axes block.  |  |
+| *get_bin_nodes* | accepts the hypercube, produced by *get_axes_scales* and generates the grid which covers all range, described by the current **axes_block** class |^1|
 | *bin_pixels* | takes the coordinates of the pixels, expressed in the **access_block** coordinate system and, optionally, signal and error for these pixels and calculates  *npix*, *signal* and *error* from these pixels to the **axes_block** cells |  |
 
 
@@ -179,12 +179,12 @@ Other important methods, necessary for the analysis of different cuts from an sq
 |-----|---------|---|
 | *from_cur_to_targ_coord* | Transforms the pixels of the current image coordinate system into other coordinate system the requested cut is presented in. | |
 | *get_nrange* | return ranges of indexes of pixels which may contribute into current cut | |
-| *bin_pixels* | transform input pixels into the coordinate system, defined by the target projection and calculate the contribution of these pixels into the areas, defined by target **axes_block** method. (namely *npix*, *s* and *err* arrays)| |
+| *bin_pixels* | transform input pixels into the coordinate system, defined by the target projection and calculate the contribution from these pixels into the areas, defined by the target **axes_block**. (namely calculate number of pixels (*npix*) contributing into each cell of the **axes_block** and summ pixels signal and error data into *s* and *err* accumnulator arrays)| |
 
 The children of **aProjection** class (e.g. **ortho_proj** class, defining orthogonal projection), need to define the abstract methods and may redefine these methods for particular pairs of projections to optimize the performance of cuts.
 
 **Notes**
-^1 e.g., if **axes_block** defines a hypercubic grid with side **a**, the size of the scaler cube with respect to **orhto_projection** (see below) would be the **a/sqrt(2)** |
+^1 Transformed from source **axes_block** coordinate system to the coordinate system, which is the target of the transformation. For operation beeing correct, the hypercube needs to be scaled so that at least one node of the generated grid would belong to a contributed cell of the original grid. E.g. if **a** is the size of the scaler cube with respect to **orhto_projection**, the hypercube should be rescaled as **a/sqrt(2)** |
 
 **axes_block** should be overloaded for every coordinate system defined by a projection, with possibility to overload plot methods for the convenience of the plotting in the particular coordinate system.
 

@@ -2,21 +2,21 @@ function  new_axes_block = build_from_input_binning(...
     cur_img_range_and_steps,pbin)
 % Build new axes_block object from the binning parameters, provided
 % as input. If some input binning parameters are missing, the
-% defaults are taken from existing axes_block object.
+% defaults are taken from the existing axes_block object.
 %
 % if the target range defined by binning exceeds the existing image range
 % (in target coordinate system), the existing image range is selected
 %
 % Inputs:
 % cur_img_range_and_steps
-%          --   cellarray of the ranges and steps of source
+%          --   4-elements cellarray of the ranges and steps of source
 %               image, expressed in the target coordinates and
-%               used as source of default ranges
+%               used as source of default ranges.
 %               if these ranges are not specified by pbin
-% pbin     --   cellarray of input binning parameters, which define
-%               target image binning
-% where each cell can contains the following parameters:
-%               - [] or ''      Use default (existing) bins (bin size and limits)
+% pbin     --   4-elements cellarray of input binning parameters, which define
+%               target image binning.
+% where each cell may contain the following parameters:
+%               - [] or ''      Use default (default) bins (bin size and limits)
 %               - [pstep]       Plot axis: sets step size; plot limits taken from extent of the data
 %               - [plo, phi]    Integration axis: range of integration
 %               - [plo, 0, phi] Plot axis: minimum and maximum bin centres
@@ -45,20 +45,20 @@ idim = 1:4;
 ind = num2cell(idim);
 % Check values are acceptable, and make ranges (3+2)x1 (for plot) or (2+2)x1 for integration axes
 % ---------------------------------------------------------------------------------------
-targ_img_range = cellfun(@(i,bin_rec,bin_def)parce_pbin(i,bin_rec,bin_def),...
+targ_img_range = cellfun(@(i,bin_rec,bin_def)parse_pbin(i,bin_rec,bin_def),...
     ind,pbin,cur_img_range_and_steps,'UniformOutput',false);
 
 new_axes_block = axes_block(targ_img_range{:});
 
 
-function range = parce_pbin(ind,bin_req,bin_default)
+function range = parse_pbin(ind,bin_req,bin_default)
 % get defined binning range from the various input parameters
 %
 % This function defines the logic behind the binning parameters
 % interpretation
 %
 % Returns:
-% range  vector containing the defined bin ranges i.e. the ranges 
+% range  vector containing the defined bin ranges i.e. the ranges
 %        either copied from requested or from default values
 %
 if isempty(bin_req)

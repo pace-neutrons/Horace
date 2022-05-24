@@ -90,9 +90,9 @@ classdef ortho_proj<aProjection
         u_to_rlu
         % renamed offset projection property
         uoffset
-        % Return the compartibility structure, which may be used as additional input to
+        % Return the compatibility structure, which may be used as additional input to
         % data_sqw_dnd constructor
-        compart_struct;
+        compat_struct;
     end
     properties(Hidden)
         % Developers option. Use old (v3 and below) subalgorithm in
@@ -165,16 +165,7 @@ classdef ortho_proj<aProjection
         %-----------------------------------------------------------------
         %-----------------------------------------------------------------
         function u = get.u(obj)
-            if obj.isvalid_
-                u = obj.u_;
-            else
-                [ok,mess] = check_combo_arg_(obj);
-                if ok
-                    u = obj.u_;
-                else
-                    u = mess;
-                end
-            end
+            u = obj.u_;
         end
         function obj = set.u(obj,val)
             obj = check_and_set_uv_(obj,'u',val);
@@ -182,16 +173,7 @@ classdef ortho_proj<aProjection
         end
         %
         function v = get.v(obj)
-            if obj.isvalid_
-                v = obj.v_;
-            else
-                [ok,mess] = check_combo_arg_(obj);
-                if ok
-                    v = obj.v_;
-                else
-                    v = mess;
-                end
-            end
+            v = obj.v_;
         end
         function obj = set.v(obj,val)
             obj = check_and_set_uv_(obj,'v',val);
@@ -199,16 +181,7 @@ classdef ortho_proj<aProjection
         end
         %
         function w = get.w(obj)
-            if obj.isvalid_
-                w = obj.w_;
-            else
-                [ok,mess] = check_combo_arg_(obj);
-                if ok
-                    w = obj.w_;
-                else
-                    w = mess;
-                end
-            end
+            w = obj.w_;
         end
         function obj = set.w(obj,val)
             obj = check_and_set_w_(obj,val);
@@ -223,16 +196,7 @@ classdef ortho_proj<aProjection
         end
         %
         function typ=get.type(obj)
-            if obj.isvalid_
-                typ = obj.type_;
-            else
-                [ok,mess] = check_combo_arg_(obj);
-                if ok
-                    typ = obj.type_;
-                else
-                    typ  = mess;
-                end
-            end
+            typ = obj.type_;
         end
         function obj=set.type(obj,type)
             obj = check_and_set_type_(obj,type);
@@ -274,7 +238,7 @@ classdef ortho_proj<aProjection
         function off = get.uoffset(obj)
             off = obj.offset';
         end
-        function str= get.compart_struct(obj)
+        function str= get.compat_struct(obj)
             str = struct();
             flds = obj.data_sqw_dnd_export_list;
             for i=1:numel(flds)
@@ -388,7 +352,7 @@ classdef ortho_proj<aProjection
             % properties
             is = obj.isvalid_;
         end
-
+        %------------------------------------------------------------------
         %
         function   contrib_ind= get_contrib_cell_ind(obj,...
                 cur_axes_block,targ_proj,targ_axes_block)
@@ -426,8 +390,9 @@ classdef ortho_proj<aProjection
         end
         %
         function obj = check_and_set_do_generic(obj,val)
-            % overloaded setter for do_generic method. Clears up specific
-            % transformation matrices.
+            % Overloaded internal setter for do_generic method.
+            % Clears specific transformation matrices if do_generic
+            % is false.
             obj = check_and_set_do_generic@aProjection(obj,val);
             if obj.do_generic_
                 obj.ortho_ortho_transf_mat_ = [];

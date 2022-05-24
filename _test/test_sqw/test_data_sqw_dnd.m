@@ -156,7 +156,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
 
             proj1 =  ref_cut.data.get_projection();
             % To avoid round-off errors on the edge of the ranges
-            % which give different cut ranges for proj and proj1,
+            % which give different cut ranges using proj and proj1,
             % we rounding the projections to 9 significant digits
             proj1.u = round(proj1.u,9);
             proj1.v = round(proj1.v,9);            

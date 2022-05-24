@@ -51,15 +51,15 @@ if keep_pix
     if isempty(runid_contributed) % Empty cut
         exp_info = Experiment();
     else
-        % old stored objects, which do not contain correctly defind runid map
-        % compartibility operation.
+        % old stored objects, which do not contain correctly defined runid map
+        % compatibility operation.
         % TODO: Should be check for old file and after that -- this code.
         % Ticket #804
         head_runid = w.experiment_info.expdata.get_run_ids();
         if any(~ismember(runid_contributed,head_runid))
-            % some old file conains runid, which has been
+            % some old file contains runid, which has been
             % recalculated from 1 to n_headers on pixels but have not been
-            % stored in runid map and in headers.
+            % stored in runid map and headers.
             % assuming that runid-s indeed been redefined this way, we can 
             % restore their run-ids in experiment_info
             id = 1:w.experiment_info.n_runs;
@@ -95,7 +95,7 @@ end
 function data_out = compile_sqw_data(targ_axes, proj, s, e, npix, pix_out, ...
     keep_pix)
 %
-data_str = proj.compart_struct;
+data_str = proj.compat_struct;
 data_str.s = s;
 data_str.e = e;
 data_str.npix = npix;

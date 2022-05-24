@@ -374,17 +374,28 @@ classdef aProjection < serializable
             pix_target  = targproj.transform_pix_to_img(pic_cc,varargin{:});
         end
         %
-        function ax_bl = get_proj_axes_block(obj,default_binning_ranges,req_binning_ranges)
+        function ax_bl = get_proj_axes_block(obj,def_bin_ranges,req_bin_ranges)
             % construct the axes block, corresponding to this projection class
             % Returns generic axes_block, buld from the block ranges or the
             % binning ranges.
             %
-            % Should be overloaded for specific projection and specific axes
-            % block
+            % Usually overloaded for specific projection and specific axes
+            % block.
+            %
             % Inputs:
-            % default_binning_ranges -- the binning ranges of existing
+            % def_bin_ranges -- 
+            %           cellarray of the binning ranges used as defaults
+            %           if requested binning ranges are undefined or
+            %           infinite. Usually it is the range of the existing
+            %           axes block, transformed into the system
+            %           coordinates, defined by obj projection by
+            %           axes_block.get_binning_range method. 
+            % req_bin_ranges -- cellarray of bin ranges, requested by user.
+            % 
+            % Binning ranges 
+            %
             ax_bl = axes_block.build_from_input_binning(...
-                default_binning_ranges,req_binning_ranges);
+                def_bin_ranges,req_bin_ranges);
             ax_bl.label = obj.label;
         end
         %

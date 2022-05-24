@@ -26,6 +26,9 @@ function [s, e, npix, pix_out,unique_runid] = ...
 %              out-of-memory cuts. Contains information on pixels to be
 %              combined together if cut_to_file is selected for the cuts,
 %              which do not fit memory
+% unique_runid Array of pixel run indexes, contributed to the cut. used to
+%              retain only experiments, which indeed contributed to the
+%              cut.
 %
 % CALLED BY cut_single
 %
@@ -210,8 +213,11 @@ pci = pix_combine_info(tmp_file_names, nbins);
 end
 %
 function pixel_contrib_name= report_cut_type(obj,use_tmp_files,keep_pixels,no_pixels)
-% analyze the input parameters and print result reporting the cut type, how
-% it intended to be done and what happens with cut pixels
+% Routine prints the information about the cut type and how it would be
+% done to inform user about the intended cut and expected results.
+%
+% in some situations report that no data contribute to the cut and the cut
+% is not performed.
 %
 if isa(obj,'sqw')
     obj_type = 'in memory';
