@@ -192,9 +192,13 @@ if strcmp(folder_name,'admin')
         hor_checkup_folder = '';
     end
     her_checkup_folder = 'Herbert';
-    if ~exist(fullfile(code_root,'Herbert'),'dir')==7
-        warning('HORACE:installation_layout',...
-            'Can not find Herbert at %s',fullfile(code_root,'Herbert'));
+    if ~exist(fullfile(code_root,'Herbert'), 'dir')
+        if exist(fullfile(code_root,'herbert_core'), 'dir')
+            her_checkup_folder = '';
+        else
+            warning('HORACE:installation_layout',...
+                'Can not find Herbert at %s',fullfile(code_root,'Herbert'));
+        end
     end
 else
     hor_checkup_folder = 'Horace'; % when installed from zip file, this is where
