@@ -93,7 +93,6 @@ classdef test_ortho_proj_construction<TestCase
             assertTrue(proj.isvalid);
             proj.u = [0,1,0];
             assertFalse(proj.isvalid);
-            assertTrue(ischar(proj.u));
             assertExceptionThrown(@()check_combo_arg(proj), ...
                 'HORACE:ortho_proj:runtime_error');
         end
