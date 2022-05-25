@@ -6,14 +6,16 @@ classdef axes_block < serializable
     % sqw/dnd object
     %
     properties(Dependent)
-        title      % Title of sqw data structure, displayed on plots.
-        filename   % Name of sqw file that is being read, excluding path. Used in titles
-        filepath   % Path to sqw file that is being read, including terminating file separator.
+        title;      % Title of sqw data structure, displayed on plots.
+        filename;   % Name of sqw file that is being read, excluding path. Used in titles
+        filepath;   % Path to sqw file that is being read, including terminating file separator.
         %            Used in titles
         % the cellarray of captions, displayed along various axes of plots
-        label    % labels for u1,u2,u3,u4 as cell array
+        label;    % labels for u1,u2,u3,u4 as cell array
         %               e.g. {'Q_h', 'Q_k', 'Q_l', 'En'})
         %                   *OR*
+        %   access or set up the axes label separately using their indexes,
+        %   i.e.:
         %   label{1}  label for u1 axis (e.g. 'Q_h' or 'Q_{kk}')
         %   label{2}  label for u2 axis
         %   label{3}  label for u3 axis
@@ -24,11 +26,11 @@ classdef axes_block < serializable
         %                  e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
         iint; %Integration range along each of the integration axes. [iint(2,length(iax))]
         %     e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
-        pax   %Index of plot axes into the projection axes  [row vector]
+        pax;   %Index of plot axes into the projection axes  [row vector]
         %      Always in increasing numerical order
         %      e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
         %      2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
-        dax    %Index into data.pax of the axes for display purposes. For example we may have
+        dax;    %Index into data.pax of the axes for display purposes. For example we may have
         %      data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
         %      the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
         %      the display axes to be permuted but without the contents of the fields p, s,..pix needing to
@@ -37,11 +39,11 @@ classdef axes_block < serializable
         %      i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
         %------------------------------------------------------------------
         %
-        ulen   %Length of projection axes vectors in Ang^-1 or meV [row vector]
+        ulen;   %Length of projection axes vectors in Ang^-1 or meV [row vector]
         %
         % The range (in axes coordinate system), the binning is made and the
         % axes block describes
-        img_range
+        img_range;
         %
         n_dims;  % Number of axes_block object dimensions
         %
@@ -49,7 +51,7 @@ classdef axes_block < serializable
         % all objects are 4-dimensional one. E.g. 1D object in with 10 bins in
         % x-direction would have binning [10,1,1,1] and 1D object with 10
         % bins in dE direction would have binning [1,1,1,10];
-        nbins_all_dims
+        nbins_all_dims;
         % number of bins for each non-unit dimension. This would be the
         % binning of the data arrays associated with the given axes_block
         data_nbins;
@@ -136,10 +138,12 @@ classdef axes_block < serializable
         end
         %
         function [cube_coord,step] = get_axes_scales(obj)
-            % Return the array of vertices of a 4D cube, describing the grid cell
-            % of the axes block.
+            % Return the array of vertices of a 4D cube, describing a 
+            % grid cell of the axes block.
             % Output:
-            % cube_coord -- 4x16 array of vertices of minimal axes cube
+            % cube_coord -- 4x16 array of vertices of minimal-sized axes
+            %               cube. (in case if axes contains different sized
+            %               grid, e.g. cylindrical grid)
             % step       -- 4x1 vector, containing the axes block grid
             %               steps
             [cube_coord,step] = get_axes_scales_(obj);
@@ -237,10 +241,11 @@ classdef axes_block < serializable
             %
             % '-3D'     -- generate separate 3D grid nodes for q-axes and
             %              energy transfer binning grid as the energy axis
+            %              instead of 4D lattice
             %
             % -halo     -- request to build lattice in the
-            %              specified range + single sized characteristic
-            %              step
+            %              specified range + single-cell sized
+            %              step expanding the lattice
             % Returns:
             % nodes     -- [4,nBins] or [3,nBins] array of points,
             %              (depending on state of '-3D' switch)  where
@@ -383,7 +388,7 @@ classdef axes_block < serializable
         function obj = set.dax(obj,val)
             if min(val(:))~=1
                 error('HORACE:axes_block:invalid_argument',...
-                    'A display axis should refer the first projextion axis')
+                    'A display axis should refer the first projection axis')
             end
             obj.dax_ = val(:)';
             [~,~,obj] = check_combo_arg(obj);

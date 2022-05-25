@@ -235,20 +235,21 @@ classdef Experiment < serializable
         end
         %
         function exp = get_experiments(obj,ind)
-            % return experiment info, which corresponds to appropriate
-            % experiment indexes
+            % return experiment info, which corresponds to the appropriate
+            % experiment indexes provided.
+            % 
             % Inputs:
             % obj -- the instance of the experiment
-            % ind -- array of the indexes, to select experiments for
+            % ind -- array of the indexes, to select experiments for.
             %
             % Returns:
-            % exp -- the Experiment class instance, containing information,
+            % exp -- the Experiment class instance containing information,
             %        correspoinding to the run indexes provided as input.
             exp = get_experiments_(obj,ind);
         end
         %
         function subexper = get_subobj(obj,runids_to_keep,varargin)
-            % Return Experiment object, containing subset of experiments,
+            % Return Experiment object containing subset of experiments,
             % requested by the method.
             %
             % Input:

@@ -8,7 +8,10 @@ function detdcn = calc_detdcn(det,varargin)
 %   det     Detector structure as read by get_par [scalar structure]
 %
 % Optional:
-% keep_detector_id -- if present, return also the detectors ID
+% keep_detector_id -- if present, return array, also containing the
+%           detectors ID row. If these id-s are missing from input detector
+%           group, the detectors are numbered from 1 to number of elements
+%           in detectors array.
 %
 % Output:
 % -------
