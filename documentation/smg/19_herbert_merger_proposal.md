@@ -50,7 +50,7 @@ using the following steps:
 5. All pull requests in *Herbert* must be closed and rebased into `Herbert/main`.
 6. `Herbert/main` is merged into `Horace/main` so that all the history of *Herbert* is transferred to *Horace*.
 7. All open issues in *Herbert* are transferred to *Horace*.
-8. The back-up fork `pace-neutrons/Herbert_backup` is updated to the current state of the main *Horace* repo
+8. The back-up fork `pace-neutrons/Horace_backup` is updated to the current state of the main *Horace* repo
 9. The history of *Horace* is rewritten to excise the large test data files, and the changes pushed to Github.
 10. The amalgamated branch `Horace/main` is set as the default branch on Github and all open pull
     requests on *Horace* are re-targeted to this rather than the defunct `Horace/master` branch.
@@ -67,4 +67,60 @@ Alternatively, if *Herbert* developers are willing to resolve conflicts themselv
 they can open a new pull request in *Horace* with their code changes, cherry-picking commits to retain the history.
 
 For open *Horace* pull requests, some manual conflict resolution will probably be needed after step 10 but
-this should be much less than for *Herbert* pulls - hopefully only retargeting the branch from `Horace/master` to `Horace/main` 
+this should be much less than for *Herbert* pulls - hopefully only retargeting the branch from `Horace/master` to `Horace/main`
+
+
+## Prototyping Update (May 26 2022)
+
+In order to make some progress with this issue, a bare-bones prototype was carried out.
+This consists of two branches off `master`, called `main`,
+one in [Herbert](https://github.com/pace-neutrons/Herbert/compare/main) and the
+other in [Horace](https://github.com/pace-neutrons/Horace/compare/main).
+These will be kept up to date with `master` by rebasing.
+
+*This working prototype essentially completes step 1 of the above plan.*
+
+When it is decided that Herbert and Horace can be merged, the following commands can
+be used:
+
+```sh
+git clone https://github.com/pace-neutrons/Horace
+cd Horace
+git checkout main
+git remote add herbert https://github.com/pace-neutrons/Herbert
+git fetch herbert
+git merge herbert/main --allow-unrelated-histories \
+                       --strategy=ort --strategy-option=theirs \
+                       -m "Merging Herbert into Horace"
+./tools/build_config/build.sh --configure --cmake_flags "-DHorace_RELEASE_TYPE=Release"
+./tools/build_config/build.sh --analyze
+./tools/build_config/build.sh --build
+./tools/build_config/build.sh --test
+```
+
+Note that the `git merge` command needs `git` version 2.33 or newer as it requires
+the use of the `ort` strategy which is not present in older versions of `git`.
+The `ort` strategy is the default for `git` after 2.33 and handles renamed files
+better than the previous default `recursive` strategy.
+The `--strategy-option=theirs` forces any conflicts to be auto-resolved in
+favour of the code in **Herbert** (e.g. Herbert code where it overlaps will
+overwrite Horace code).
+
+The `merger_diffs` branches contain minimum changes
+(mostly to `CMakeLists.txt` files and similar, but with some clashing folders in
+`documentation` and `_test` renamed - see the linked diffs above).
+This will allow the two codes to live in a single repository, and for tests to pass.
+
+At present some tests in **Horace** fail with this error:
+
+```
+energy transfers have to be array of numeric values. It is: field_var_array
+```
+
+This is due to [recent changes in Herbert](https://github.com/pace-neutrons/Herbert/pull/441)
+to support the [generic projections work](https://github.com/pace-neutrons/Horace/pull/795).
+(Merging the generic projections in makes all tests pass).
+
+After the merge, there will still be separate `herbert_core` and `horace_core` folders but
+all other ancillary folders (e.g. `admin`, `_LowLevelCode`, `_test`, etc.) will be merged.
+Merging `herbert_core` into `horace_core` can be left as a separate PR.
