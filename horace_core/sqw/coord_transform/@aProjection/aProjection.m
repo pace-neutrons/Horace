@@ -1,11 +1,11 @@
 classdef aProjection < serializable
     %  Abstract class, defining interface and common properties used for
     %  transforming pixels from crystal Cartesian
-    %  to the coordinate system defined by sqw image (dnd-object)
-    %  and vice-versa and used by cut algorithm to make appropriate
-    %  coordinate transformations.
+    %  to the coordinate system defined by an sqw image (dnd-object)
+    %  and vice-versa and used by cut, symmetrisation and gen_sqw algorithms
+    %  to make appropriate coordinate transformations.
     %
-    %   Lattice parameters: (User should not be setting them as cut
+    %  Lattice parameters: (User should not be setting them as cut
     %               algorithm resets their value before the cut taking it
     %               from other places of the sqw object)
     %
@@ -39,7 +39,7 @@ classdef aProjection < serializable
         %      and stored in the axes_block. If you need to modify the
         %      labels on the final cut, you would work rather with the
         %      axes block, but here you may request changed labels when the
-        %      projection is provided as input for cut
+        %      projection is provided as input for a cut
         %
         %
     end
@@ -73,7 +73,7 @@ classdef aProjection < serializable
         fields_to_save_ = {'alatt','angdeg','offset'}
     end
     properties(Constant, Access=protected)
-        % minimal value of a vector norm e.g. how close couple of vectors
+        % minimal value of a vector norm e.g. how close couple of unit vectors
         % should be to be considered parallel. u*v are orthogonal if u*v'<tol
         % or they are parallel if the length of their vector product
         % is the vector that can be consigdered a null vector
@@ -134,7 +134,7 @@ classdef aProjection < serializable
         end
         %
         function [obj,par] = init(obj,varargin)
-            % Method to initialize empty constructor
+            % Method to initialize empty object.
             % Inputs:
             % A combination (including empty) of aProjection
             % class properties containing setters in the form:
@@ -271,11 +271,11 @@ classdef aProjection < serializable
             %         providing access to the full pixel information, or
             %         data, containing information about pixels
             %         in any format accepted by the particular projection,
-            %         which does transformation from pix_to_img 
+            %         which does transformation from pix_to_img
             %         coordinate system
             % npix -- the array, containing the numbers of pixels
             %            contributing into each axes grid cell, calculated
-            %            during the previous iteration step. zeros(size(npix)) 
+            %            during the previous iteration step. zeros(size(npix))
             %            if this is the first step.
             % s    -- array, containing the accumulated signal for each
             %            axes grid cell calculated during the previous
@@ -285,7 +285,7 @@ classdef aProjection < serializable
             %            axes grid cell calculated during the previous
             %            iteration step. zeros(size(npix)) if this is the
             %            first step.
-            % 
+            %
             % Outputs:
             % npix    -- the npix array
             %  The same npix, s, e arrays as inputs modified with added
@@ -301,10 +301,10 @@ classdef aProjection < serializable
             %           contributed into the cut
             % pix_indx--indexes of the pix_ok coordinates according to the
             %           bin. If this index is requested, the pix_ok object
-            %           remains unsorted according to the bins and the 
+            %           remains unsorted according to the bins and the
             %           follow up sorting of data by the bins is expected
             %
-            % Optional arguments transferred without any change to 
+            % Optional arguments transferred without any change to
             % axes_block.bin_pixels( ____ ) routine
             %
             % '-nomex'    -- do not use mex code even if its available
@@ -383,16 +383,16 @@ classdef aProjection < serializable
             % block.
             %
             % Inputs:
-            % def_bin_ranges -- 
+            % def_bin_ranges --
             %           cellarray of the binning ranges used as defaults
             %           if requested binning ranges are undefined or
             %           infinite. Usually it is the range of the existing
             %           axes block, transformed into the system
             %           coordinates, defined by obj projection by
-            %           axes_block.get_binning_range method. 
+            %           axes_block.get_binning_range method.
             % req_bin_ranges -- cellarray of bin ranges, requested by user.
-            % 
-            % Binning ranges 
+            %
+            % Binning ranges
             %
             ax_bl = axes_block.build_from_input_binning(...
                 def_bin_ranges,req_bin_ranges);
