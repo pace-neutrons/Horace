@@ -39,10 +39,13 @@ You may optionally choose to use non-orthogonal axes, as in the following exampl
 
 **Binning arguments**
 
-- ``p1_bin``, ``p2_bin``, ``p2_bin`` ``p4_bin``  specify the binning / integration arguments for the Q&Energy axes. Each can independently have one of three different forms:
-   - If a single number (scalar) ``step`` is given then that axis will be a plot axis and the bin width will be the number you specify. The lower and upper limits is determined by the extent of the data along that direction.
-   - If you specify a vector with three components, namely ``[lower,step,upper]`` then that axis will be a plot axis with the first ``lower`` and the last ``upper`` components specifying the centres of the first and the last bins of the data to be cut. The middle component specifies the bin width. The limits of the data to be cut are then lie between ``min = lower-step/2`` and ``max = upper+step/2``, including ``min/max`` values.
+- ``p1_bin``, ``p2_bin``, ``p3_bin`` and ``p4_bin``  specify the binning / integration arguments for the Q&Energy axes in the target coordinate system. Each can independently have one of four different forms:
+   - If a single number (scalar) ``step`` is given then that axis will be a plot axis and the bin width will be the number you specify. The lower and upper limits are determined by the extent of the data along that direction.
+   - If you specify a vector with three components, namely ``[lower,step,upper]`` than that axis is a plot axis with the first ``lower`` and the last ``upper`` components specifying the centres of the first and the last bins of the data to be cut. The middle component specifies the bin width. The limits of the data to be cut are then lie between ``min = lower-step/2`` and ``max = upper+step/2``, including ``min/max`` values. If step in this form equal to 0, the step is taken from the input binning in this direction.
    - If you specify a vector with two components then the signal will be integrated over that axis between limits specified by the two components of the vector.
+   - Four elements vector define multiple cuts with multiple integration limits in the selected direction. The input
+   would have form ``[plo, rdiff, phi, rwidth]`` This defines an integration axis: minimum range center, distance between range centers, maximum range center, range size for each cut. The number of cuts produced will be the number of ``rdiff`` sized steps between ``plo`` and ``phi``; ``phi`` will be automatically increased such that ``rdiff`` divides ``phi - plo``.
+   For example, ``[106, 4, 113, 2]`` defines the integration range for three cuts, the first cut integrates the axis over ``105-107``, the second over ``109-111`` and the third ``113-115``.
 
 
 **Optional arguments**
