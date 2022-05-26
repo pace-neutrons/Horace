@@ -151,7 +151,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
 
         function test_proj_hkl_3D_45deg_old_and_extracted_proj_cut_equals(obj)
             proj = ortho_proj([1,1,0],[1,-1,0]);
-            
+
             ref_cut = cut_sqw(obj.ref_sqw,proj,[],[],[],[-8,8]);
 
             proj1 =  ref_cut.data.get_projection();
@@ -159,7 +159,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             % which give different cut ranges using proj and proj1,
             % we rounding the projections to 9 significant digits
             proj1.u = round(proj1.u,9);
-            proj1.v = round(proj1.v,9);            
+            proj1.v = round(proj1.v,9);
             assertTrue(isa(proj,'aProjection'));
 
             same_cut = cut_sqw(obj.ref_sqw,proj1,[],[],[],[-8,8]);
@@ -172,6 +172,12 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             ref_cut = cut_sqw(obj.ref_sqw,proj,[],[],[],[-8,8]);
 
             proj1 =  ref_cut.data.get_projection();
+            % To avoid round-off errors on the edge of the ranges
+            % which give different cut ranges using proj and proj1,
+            % we rounding the projections to 9 significant digits
+            proj1.u = round(proj1.u,9);
+            proj1.v = round(proj1.v,9);
+
             assertTrue(isa(proj1,'ortho_proj'));
 
             same_cut = cut_sqw(obj.ref_sqw,proj1,[],[],[],[-8,8]);
