@@ -63,6 +63,8 @@ foreach(_test_dir ${TEST_DIRECTORIES})
         set(TEST_TIMEOUT_LENGTH "3000")  # 50 minutes
     elseif("${_test_dir}" STREQUAL "test_tobyfit/test_refine_crystal")
         set(TEST_TIMEOUT_LENGTH "1800")  # 30 minutes
+    elseif("${_test_dir}" STREQUAL "test_tobyfit/test_let")
+        set(TEST_TIMEOUT_LENGTH "2100")  # 35 minutes. I've seen failure due to timeout when two jobs are running on windows
     else()
         set(TEST_TIMEOUT_LENGTH "1200")  # 20 minutes
     endif()
