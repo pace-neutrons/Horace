@@ -138,14 +138,17 @@ classdef axes_block < serializable
         end
         %
         function [cube_coord,step] = get_axes_scales(obj)
-            % Return the array of vertices of a 4D cube, describing a 
+            % Return the array of vertices of a 4D hypercube, describing a 
             % grid cell of the axes block.
             % Output:
             % cube_coord -- 4x16 array of vertices of minimal-sized axes
-            %               cube. (in case if axes contains different sized
-            %               grid, e.g. cylindrical grid)
+            %               cube. (Cubes sizes differ in case if axes 
+            %               contains different sized grid, e.g. 
+            %               cylindrical grid)
             % step       -- 4x1 vector, containing the axes block grid
-            %               steps
+            %               steps. (change of the coordinates in each
+            %               direction, the length of the each side of the 
+            %               axes cell hypercube)
             [cube_coord,step] = get_axes_scales_(obj);
         end
         %
@@ -232,6 +235,10 @@ classdef axes_block < serializable
         function [nodes,dE_edges,npoints_in_axes] = get_bin_nodes(obj,varargin)
             % build 3D or 4D vectors, containing all nodes of the axes_block grid,
             % constructed over axes_block axes points.
+            % 
+            % Note: Nodes are 3D or 4D vertices of the axes grid cells, so the 
+            %       output is 3xN_nodes or 4xN_nodes arrays of the vertices, where each 
+            %       column describes a point on a grid.
             %
             % Inputs:
             % obj         -- initialized version of the axes block
@@ -247,7 +254,7 @@ classdef axes_block < serializable
             %              specified range + single-cell sized
             %              step expanding the lattice
             % Returns:
-            % nodes     -- [4,nBins] or [3,nBins] array of points,
+            % nodes     -- [4 x nBins] or [3 x nBins] array of points,
             %              (depending on state of '-3D' switch)  where
             %              the coordinate of each point is a node of the
             %              grid, formed by axes_block axes.
@@ -485,14 +492,11 @@ classdef axes_block < serializable
             % Restore object from the old structure, which describes the
             % previous version of the object.
             %
-            % The method is called by loadobj in the case if the input
+            % The method is called by loadobj in the case where the input
             % structure does not contain version or the version, stored
             % in the structure does not correspond to the current version
             %
-            % By default, this function interfaces the default from_bare_struct
-            % method, but when the old structure substantially differs from
-            % the modern structure, this method needs the specific overloading
-            % to allow loadobj to recover new structure from an old structure.
+            % Overloaded to accept Horace 3.6.2<version structure.
             %
             if isfield(inputs,'version') && (inputs.version == 1) || ...
                     isfield(inputs,'iint')

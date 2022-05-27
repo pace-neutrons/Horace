@@ -7,6 +7,9 @@ function  new_axes_block = build_from_input_binning(...
 % if the target range defined by binning exceeds the existing image range
 % (in target coordinate system), the existing image range is selected
 %
+% Note: the binning parameters is the cellarray of 1,2 or 3 element vectors
+%       with meaning described by cut_sqw or cut_dnd inputs. See below for more details.
+%
 % Inputs:
 % cur_img_range_and_steps
 %          --   4-elements cellarray of the ranges and steps of source

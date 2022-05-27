@@ -1,6 +1,6 @@
 function [npix,s,e,pix,unique_runid,pix_indx] = bin_pixels_(obj,coord,num_outputs,...
     npix,s,e,pix_cand,unique_runid,varargin)
-% sort pixels according to their coordinates in the axes grid, and
+% sort pixels according to their coordinates in the axes grid and
 % calculate pixels grid statistics.
 % Inputs:
 %
@@ -8,7 +8,7 @@ function [npix,s,e,pix,unique_runid,pix_indx] = bin_pixels_(obj,coord,num_output
 % coord -- the 3D or 4D array of pixels coordinates transformed into
 %          axes_block coordinate system
 % num_outputs
-%       -- the number of output parameters, requested to process. Depending
+%       -- the number of output parameters requested to process. Depending
 %          on this number, additional parts of the algorithm will be
 %          deployed.
 %

@@ -13,7 +13,7 @@ classdef Experiment < serializable
         % container but also correspondent samples instrument and (TODO:)
         % detector_arrays
 
-        % True, if runid contained in expdata are inconsitent, and were
+        % True, if runid contained in expdata are inconsistent, and were
         % recalculated to make them consistent. If this have happened, it
         % is certainly old file, with runid_headers not defined correctly.
         % unfortunately, if it does not happen, it still may be old file
@@ -43,7 +43,7 @@ classdef Experiment < serializable
         % returning array of structures, with information used to written
         % in binary sqw file header.
         header
-        % True, if runid contained in expdata are inconsitent, and were
+        % True, if runid contained in expdata are inconsistent, and were
         % recalculated to make them consistent. If this have happened, it
         % is certainly old file, with runid_headers not defined correctly.
         % unfortunately, if it does not happen, it still may be an old file
@@ -52,8 +52,8 @@ classdef Experiment < serializable
     end
     properties(Constant,Access=private)
         % the order is important as in this order the component will be set
-        % during deserialization, so this order is choosen to avoid
-        % repeatative unnecessary checks
+        % during deserialization, so this order is chosen to avoid
+        % repetitive unnecessary checks
         fields_to_save_ = {'detector_arrays','instruments','samples',...
             'expdata'};
     end
@@ -85,7 +85,7 @@ classdef Experiment < serializable
             %    The set of key-value pairs where the key is the name of the
             %    property and the value -- its value.
             %    force_runid_recalculation, if used must be the last input
-            %    and can  not be preceeded with key.
+            %    and can  not be preceded with key.
             %
             % Returns:
             % obj       -- valid initialized instance of the Experiment
@@ -244,7 +244,7 @@ classdef Experiment < serializable
             %
             % Returns:
             % exp -- the Experiment class instance containing information,
-            %        correspoinding to the run indexes provided as input.
+            %        corresponding to the run indexes provided as input.
             exp = get_experiments_(obj,ind);
         end
         %
@@ -475,7 +475,7 @@ classdef Experiment < serializable
             %                        depending on sample or instrument is
             %                        verified
             % Output:
-            % is       -- true, if sample_or_instrument input is convertable to
+            % is       -- true, if sample_or_instrument input is convertible to
             %             the standard form.
             % std_form -- the standard form of sample or instrument
             %             collection to store within the container
