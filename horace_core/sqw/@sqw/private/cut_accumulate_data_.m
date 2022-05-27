@@ -46,7 +46,7 @@ npix = zeros(sz1);
 % Get bins that may contain pixels that contribute to the cut.
 % The bins selected are those that sit within (or intersect) the bounds of the
 % cut. See the relevant projection function for more details.
-header_av = header_average(obj);
+header_av = header_average(obj); % here is necessary to support current alignment algorithm.
 sproj = obj.data.get_projection(header_av);
 [bloc_starts, block_sizes] = sproj.get_nrange(obj.data.npix,obj.data,targ_axes,targ_proj);
 if isempty(bloc_starts)

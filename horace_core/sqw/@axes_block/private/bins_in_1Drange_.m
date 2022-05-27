@@ -14,8 +14,8 @@ function  [any_within,is_within]=bins_in_1Drange_(bins,minmax)
 %               selected range and false otherwise
 % is_within  -- logical array of size numel(bins), containing true for bins
 %               within the given ranges and false for others. leftmost bin
-%               edge, where minmax(1) value belongs to, also considered as
-%               belonging to range due to the binning algorithm.
+%               edge for the bin, where minmax(1) value contributes to, also
+%               considered as being in the range due to the binning algorithm.
 %
 %
 step = (bins(2)-bins(1));

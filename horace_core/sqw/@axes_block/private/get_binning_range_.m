@@ -1,7 +1,7 @@
 function bin_range = get_binning_range_(obj,cur_proj,new_proj)
-% Get the default binning range to use in cut, defined by the new
+% Get the default binning range to use in cut, which is defined by the new
 % projection. If no new projection is provided, return current binning
-% range
+% range.
 %
 % If new projection is not aligned with the old projection, the new
 % projection binning is copied from the old projection binning according to
@@ -16,10 +16,10 @@ function bin_range = get_binning_range_(obj,cur_proj,new_proj)
 % if both these projection are empty, returning the current binning range
 %
 % Output:
-% range    - 3-element cellarray of ranges, containing current
-%            binning range expressed in the coordinate system,
-%            defined by the new projection (or current binning range if new
-%            projection is not provided)
+% bin_range - 3-element cellarray of ranges, containing current
+%             binning range expressed in the coordinate system
+%             defined by the new projection (or current binning range if new
+%             projection is not provided)
 
 % retrieve existing binning range
 range = obj.img_range;
@@ -31,7 +31,7 @@ if ~isempty(cur_proj)
     full_range = expand_box(range(1,:),range(2,:));
     targ_range = cur_proj.from_this_to_targ_coord(full_range);
 
-    % transformed 4D-range
+    % transformed 4D-range, compressed into min/max 4D-points
     range = [min(targ_range,[],2)';max(targ_range,[],2)'];
 end
 % extract binning descriptors, necessary for building the appropriate axes

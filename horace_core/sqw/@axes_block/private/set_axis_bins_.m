@@ -85,7 +85,8 @@ if isempty(p)
     nbin = 1;
 elseif isnumeric(p)
     if numel(p)==1
-        % Scalar pbin ==> zero thickness integration? Useles.
+        % Scalar pbin ==> zero thickness integration? Useless. Current algorithm always leads to empty cut.
+        % May be left for a future, for doing interpolated 0-thin cuts on dnd objects?
         range=[p;p];
         nbin  = 1;
     elseif numel(p)==2
@@ -100,7 +101,7 @@ elseif isnumeric(p)
 
     elseif numel(p)==3
         % pbin has form [plo,pstep,phi]. Always include p(3),
-        % shifting it to move close to the rigthmost bin centre
+        % shifting it to move close to the rightmost bin centre
         if p(1)<=p(3) && p(2)>0
             min_v = p(1)-p(2)/2;
             max_v = p(3)+p(2)/2;
@@ -108,7 +109,7 @@ elseif isnumeric(p)
             if min_v + nbin*p(2)< max_v
                 nbin = nbin+1;
             end
-            max_v = min_v+nbin*p(2); % recalculate to avoid round-off errors
+            max_v = min_v+nbin*p(2); % always recalculate to avoid round-off errors when generating axis points.
             range=[min_v;max_v];
         else
             error('HORACE:axes_block:invalid_argument',...

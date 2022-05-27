@@ -2,12 +2,11 @@ function in = convert_old_struct_into_nbins_(in)
 % convert old axes_block structure, containing iint, p, iax etc 
 % into the axes_block ver 2 structure
 %
-prop_to_convert = {'iax','iint','pax','p'};
 
 nbins_all_dims = zeros(1,4);
 img_range = zeros(2,4);
 
-
+prop_to_convert = {'iax','iint','pax','p'};
 nbins_all_dims(in.iax) = 1;
 img_range(:,in.iax) = in.iint;
 if ~isempty(in.pax)
@@ -28,4 +27,3 @@ if isfield(in,'ulabel')
     in.label = in.ulabel;
     in = rmfield(in,'ulabel');
 end
-

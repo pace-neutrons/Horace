@@ -4,13 +4,18 @@ function [nodes,en_axis,npoints_in_axes] = calc_bin_nodes_(obj,do3D,halo,varargi
 %
 % Inputs:
 % obj       -- initialized axes_block instance
-% char_cube -- if present, the cube, describing the scale of the grid,
-%              to construct the lattice on.
 % do3D      -- if true, return more efficient 3D grid and separate energy
 %              axes grid instead of more generic 4D grid over q-dE
 %              axes points.
 % halo      -- if true, build one-cell width halo around the generated axes
 %              grid. Not building halo along energy axes in 3D mode
+% Optional:
+% char_cube -- if present, the cube, describing the scale of the grid,
+%              to construct the lattice on. The cube here is 3x4(4x2) or
+%              3x8 (4x16) array of 3-D or 4-D vectors arranged in
+%              columns and describing min/max points or all vertices of
+%              cube or hypercube, representing single cell of the grid,
+%              defined by the axes_block.
 %
 % Output:
 % nodes  -- [3 x nnodes] or [4 x nnodes] aray of grid nodes depending
@@ -53,7 +58,7 @@ else
                     axes{i} = linspace(range(1,i)-steps(i),...
                         range(2,i)+steps(i),npoints_in_axes(i));
                 else
-                    npoints_in_axes(i) = dNR(i)+1;                                    
+                    npoints_in_axes(i) = dNR(i)+1;
                     axes{i} = linspace(range(1,i),range(2,i),npoints_in_axes(i));
                 end
             end

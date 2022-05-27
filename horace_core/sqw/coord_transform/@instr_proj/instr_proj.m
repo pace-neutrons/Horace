@@ -1,6 +1,6 @@
 classdef instr_proj<aProjection
     %  Class defines coordinate transformations necessary to convert the
-    %  results of neutron experiments from the phsical space of inelastic
+    %  results of neutron experiments from the physical space of inelastic
     %  neutron instrument (instrument frame), to orthogonal reciprocal
     %  space related to lattice (Crystal Cartesian)
     %
@@ -11,12 +11,12 @@ classdef instr_proj<aProjection
     % Input accepting a structure:
     %   >> proj = instr_proj(proj_struct)
     %             where proj_struct is the
-    %             structure, containing any fields, with names, equal any
-    %             public fields of the instr_proj class
+    %             structure, containing any fields, with names, corresponding
+    %             to any public fields of the instr_proj class.
     %
     % Argument input:
     %   >> proj = instr_proj(lattice,efix,emode)
-    %   plus any optional argument, representing public porperty of the
+    %   plus any optional argument, representing public property of the
     %   instr_proj class and presented as key-value pair.
     %
     %
@@ -24,23 +24,24 @@ classdef instr_proj<aProjection
     % ------
     % arguments requested by constructor:
     %   lattice -- initialized version of oriented lattice class defining
-    %          the crystall lattice and its orientation with regard to
-    %   efix   incident energy for direct instrument and crystal analyzer
-    %          enery(ies) for indirect. Ignored for elastic
+    %          the crystal lattice and its orientation with relatively to
+    %          the beam.
+    %   efix   incident energy for direct instrument and crystal analyser
+    %          energy(ies) for indirect. Ignored for elastic
     %   emode  -- the operational mode of instrument (1-direct, 2-indirect,
     %          0 - elastic)
     %
     %
-    % The optional arguments control roniometer settings, used to fix the
+    % The optional arguments control goniometer settings, used to fix the
     % rotation in plain [u,v] by psi if initial state deviates from u||ki,
     % plus by labels etc.
     %
-    % The empty constructor build ortho_instr_proj with u=[1,0,0],v=[0,1,0]
+    % The empty constructor builds ortho_instr_proj with u=[1,0,0],v=[0,1,0]
     % and psi=0;
     %
     %
     properties(Dependent)
-        efix % incident energy for direct instrument or crystal alalyzer(s)
+        efix % incident energy for direct instrument or crystal analyser(s)
         %      energy(ies) for indirect. Ignored for elastic
         %
         emode % type of instrument (1-direct,2-indirect,0 - elastic)
@@ -75,7 +76,7 @@ classdef instr_proj<aProjection
             % constructor would take and initiating internal state of the
             % projection class.
             % Here one can provide lattice,efix and emode values as
-            % postional parameters or as key-value pairs
+            % positional parameters or as key-value pairs
             %
             if nargin == 0
                 return
@@ -86,17 +87,16 @@ classdef instr_proj<aProjection
                 % emode == 0 and efix may be 0 or negative, as efix is
                 % ignored in emode == 0
             end
+            % define possible key-value parameters of the constructor,
+            % using standard serializable contsturctor form.
             validators = {@(x)isa(x,'oriented_lattice')};
             [obj,remains] = set_positional_and_key_val_arguments(obj,...
                 input_fields_names,validators,varargin{:});
             if ~isempty(remains)
                 error('HORACE:instr_proj:invalid_argument',...
-                    'provided unrecognized input(s) for instr_proj initialization: %s',...
+                    'provided unrecognised input(s) for instr_proj initialization: %s',...
                     evalc('disp(remains)'));
             end
-            % set
-            obj.alatt = obj.lattice.alatt;
-            obj.angdeg = obj.lattice.angdeg;
         end
         %-----------------------------------------------------------------
         %-----------------------------------------------------------------
@@ -136,7 +136,7 @@ classdef instr_proj<aProjection
         %
         %------------------------------------------------------------------
         % Particular implementation of aProjection abstract interface
-        % and oveloads for speficic methods
+        % and overloads for specific methods
         %------------------------------------------------------------------
         function pix_coord = transform_pix_to_img(obj,pix_data,varargin)
             % Transform pixels expressed in instrument frame into
@@ -144,7 +144,7 @@ classdef instr_proj<aProjection
             %
             % Input:
             % pix_data -- rundatah object containing information about
-            %             detectors positions and the signal receved by
+            %             detectors positions and the signal received by
             %             detectors during the run as function of energy
             %             transfer
             % Returns:
@@ -218,6 +218,15 @@ classdef instr_proj<aProjection
         end
     end
     methods(Access = protected)
+        function  alat = get_alatt_(obj)
+            % get lattice from oriented lattice property
+            alat  = obj.lattice.alatt;
+        end
+        function  angdeg = get_angdeg_(obj)
+            % get lattice angles from oriented lattice property
+            angdeg  = obj.lattice.angdeg;
+        end
+
         %
         function obj = check_and_set_targ_proj(obj,~)
             error('HORACE:inst_proj:not_implemented',...
@@ -226,5 +235,6 @@ classdef instr_proj<aProjection
         function proj = get_target_proj(~)
             proj = ortho_proj();
         end
+
     end
 end

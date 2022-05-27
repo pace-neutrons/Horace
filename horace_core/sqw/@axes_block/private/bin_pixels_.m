@@ -1,7 +1,9 @@
 function [npix,s,e,pix,unique_runid,pix_indx] = bin_pixels_(obj,coord,num_outputs,...
     npix,s,e,pix_cand,unique_runid,varargin)
-% sort pixels according to their coordinates in the axes grid and
+% Sort pixels according to their coordinates in the axes grid and
 % calculate pixels grid statistics.
+%
+%--------------------------------------------------------------------------
 % Inputs:
 %
 % obj   -- the initialized axes_block object with the grid defined
@@ -11,7 +13,55 @@ function [npix,s,e,pix,unique_runid,pix_indx] = bin_pixels_(obj,coord,num_output
 %       -- the number of output parameters requested to process. Depending
 %          on this number, additional parts of the algorithm will be
 %          deployed.
-%
+% npix  -- the array of size of this grid, accumulating the information
+%          about number of pixels contributing into each bin of the grid,
+%          defined by this axes block.
+% s    --  the array of size of the grid, defined by this
+%          axes_block, containing the information about the accumulated
+%          signal from all pixels, contributing to each grid cell.
+% e    --  the array of size of the grid, defined by this
+%          axes_block, containing the information about the error from all
+%          pixels, contributing to each grid cell.
+% npix, s, e arrays on input, contain the previous
+%          state of the accumulator or 0, if this is the first call to
+%          bin_pixels routine.
+% pix_cand
+%      -- if provided (not empty) contain PixelData information with
+%         the pixels to bin. The signal and error, contributing into s and
+%         e arrays are taken from this data. Some outputs may request sorting
+%         pix_cand according to the grid.
+% unique_runid
+%      -- The unuqueue indexes, contributing into the cut. Empty on first
+%         call.
+% Varargin may contain the following parameters:
+% '-force_double'
+%              -- if provided, the routine changes type of pixels
+%                 it gets on input, into double. if not, output
+%                 pixels will keep their initial type.
+%--------------------------------------------------------------------------
+% Outputs:
+% npix  -- the array of size of this grid, accumulating the information
+%          about number of pixels contributing into each bin of the grid,
+%          defined by this axes block.
+% Optional:
+% s,e  -- if num_outputs >=3, contains accumulated signal and errors from
+%         the pixels, contributing into the grid. num_outputs >=3 requests
+%         pix_cand parameter to be present and not empty.
+% pix  -- if num_outputs >=4, returns input pix_cand contributed to 
+%         the the cut and sorted by grid cell or left unsorted, 
+%         depending on requested pix_indx output.
+% unique_runid
+%      -- if num_outputs >=5, array, containing the unique runids from the
+%         pixels, contributed to the cut. If input unique_runid was not
+%         empty, output unique_runid is combined with input unique_runid
+%         and contains no duplicates.
+% pix_indx
+%      -- in num_outputs ==6, contains indexes of the grid cells,
+%         containing the pixels from input pix_cand. If this parameter is
+%         requested, the order of output pix corresponds to the order of
+%         pixels in PixelData. if num_outputs<6, output pix are sorted by
+%         npix bins.
+
 
 pix = [];
 pix_indx = [];
@@ -47,7 +97,8 @@ end
 ok = all(coord>=r1 & coord<=r2,1); % collapse first dimension, all along it should be ok for pixel be ok
 coord = coord(:,ok);
 if isempty(coord)
-    if num_outputs>3
+    if num_outputs>3 % no further calculations are necessary, so all 
+        % following outputs are processed.
         pix = PixelData();
         return;
     end
@@ -89,7 +140,7 @@ if num_outputs<3
     return;
 end
 %--------------------------------------------------------------------------
-% moree then 1 outputs
+% moree then 1 output
 % Calclulating signal and error
 %--------------------------------------------------------------------------
 sig = pix_cand.signal;

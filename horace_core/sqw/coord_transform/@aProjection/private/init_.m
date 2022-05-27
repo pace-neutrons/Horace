@@ -21,11 +21,14 @@ if prop_present
 end
 
 function [res,remain,prop_present]= process_inputs_(opt_par,varargin)
-% parse inputs and return structure containing processed input
+% parse inputs and return structure containing processed input where the input
+% is any collection of key-value pairs where keys are the allowed aProjection
+% property names and values -- their allowed values.
+%
 % Output:
 % res    -- the structure, containing the values of the requested properties
 %           or their default values
-% remain -- the cellarray containing the inputs, not treated as inputs
+% remain -- the cellarray containing the inputs, not recognized as inputs
 %           for the class
 % prop_present -- true if any property, may be defined in varargin have
 %           non-default value. False otherwise.
@@ -53,7 +56,7 @@ else
 end
 remain = par.Unmatched;
 
-% compartibility with old projaxis interface
+% compatibility with old projaxis interface
 if isfield(remain,'uoffset') 
     res.offset = remain.uoffset;
     remain = rmfield(remain,'uoffset');

@@ -1,38 +1,79 @@
 function [npix,s,e,pix_cand,unique_runid,argi]=...
-    normalize_bin_input_(grid_size,pix_coord,mdo,varargin)
+    normalize_bin_input_(grid_size,pix_coord,mod,varargin)
 % verify inputs of the bin_pixels function and convert various
 % forms of the inputs of this function into a common form, where the missing
-% inputs are presented as empty outputs.
+% inputs are presented as empty outputs or zero-values arrays of the
+% appropriate size
 %
 % Inputs:
 % ------------
 % grid_size -- the size of the grid, the pixels will be rebinned on
 %
 % pix_coord -- [3,npix] or [4,npix] numeric array of the pixel coordinates
-% mdo       -- operation mode specifying what the following routine should
+% mod       -- operation mode specifying what the following routine should
 %              process. The mode is defined by number of output arguments.
 %              Depending on the requested outputs, different inputs have
 %              to be provided.
 % Optional:
-% npix or nothing if mde == 1
-% npix,s,e accumulators if mde in [4,5,6]
-%
+% npix or nothing if mod == 1
+% npix,s,e accumulators if mod is [4,5,6]
+% pix_cand  -- if mod == [4,5,6], must be present as a PixelData class 
+%              instance, containing information about pixels
+% unique_runid -- if mod == [5,6], input array of unique_runid-s 
+%                 calculated on the previous step.
 %
 % Outputs:
 % --------
 % npix  -- array to keep number of pixels belonging to each cell
 % s,e   -- arrays to keep each cell's signal and error values or empty
-%          values (depending on mde)
-% argi  -- celarray of character strings, provided as input and not related 
+%          values (depending on mod)
+% pix_cand -- input pix_cand if mod>1 or empty string if it is 1
+%
+% argi  -- celarray of character strings, provided as input and not related
 %          to the processed arrays, left for further routines to process.
 %
+% The the examples input/output parameters and input normalization
+% as the function of bin_pixes procedure parameters and mod parameter as
+% the function of the input arguments are presented below:
+%
+% Usage:
+%   mod:  1  -------------- 2(inputs)
+% >>npix = bin_pixels(obj,coord);
+%                                        3(inputs)
+%          normalize_bin_input_(obj,coord,mod)
+%   mod:  3    -------------------   5(inputs)
+% >>[npix,s,e] = bin_pixels(obj,coord,npix,s,e);
+%                                        6(inputs)
+%          normalize_bin_input_(obj,coord,mod,npix,s,e)
+%   mod:  3    -------------------   5(inputs)
+% >>[npix] = bin_pixels(obj,coord,npix);
+%                                        4(inputs)
+%          normalize_bin_input_(obj,coord,mod,npix)
+
+%   mod:  4    -------------------    6(inputs)
+% >>[npix,s,e,pix_ok] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
+%                                        7(inputs)
+%                      normalize_bin_input_(obj,coord,mod,npix,s,e,pix_candidates)
+%   mod:  5     -------------------                   6(inputs)
+% >>[npix,s,e,pix_ok,unque_runid] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
+%                                        7(inputs)
+%                      normalize_bin_input_(obj,coord,mod,npix,s,e,pix_candidates)
+
+%   mod:  6     -------------------                       6(inputs)
+% >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
+%                                        7(inputs)
+%                      normalize_bin_input_(obj,coord,mod,npix,s,e,pix_candidates)
+%   mod:  6     -------------------                       7(inputs)
+% >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates,unque_runid)
+%                                        8(inputs)
+%                      normalize_bin_input_(obj,coord,mod,npix,s,e,pix_candidates,unque_runid)
 
 if ~isnumeric(pix_coord)
     error('HORACE:axes_block:invalid_argument',...
         'first argument of the routine have to be 4xNpix or 3xNpix numeric array of pixel coordinates')
 end
 
-if ~(size(pix_coord,1) == 4 || (mdo == 1 && size(pix_coord,1) == 3))
+if ~(size(pix_coord,1) == 4 || (mod == 1 && size(pix_coord,1) == 3))
     error('HORACE:axes_block:invalid_argument',...
         'first argument of the routine have to be 4xNpix or 3xNpix array of pixel coordinates')
 end
@@ -45,49 +86,18 @@ argi = varargin(is_key);
 inputs = varargin(~is_key);
 narg = numel(inputs)+3;
 
-if mdo == 1
+if mod == 1
     pix_cand = [];
 else
     if narg <7
         error('HORACE:axes_block:invalid_argument',...
             'PixelData have to be provided as 7-th argument if cell-average signal and erros are requested');
     end
-    % Usage:
-    %   mde:  1  -------------- 2
-    % >>npix = bin_pixels(obj,coord);
-    %                                        3
-    %          normalize_bin_input_(obj,coord,mde)
-    %   mde:  3    -------------------   5
-    % >>[npix,s,e] = bin_pixels(obj,coord,npix,s,e);
-    %                                        6
-    %          normalize_bin_input_(obj,coord,mde,npix,s,e)
-    %   mde:  3    -------------------   5
-    % >>[npix] = bin_pixels(obj,coord,npix);
-    %                                        4
-    %          normalize_bin_input_(obj,coord,mde,npix)
-
-    %   mde:  4    -------------------    6
-    % >>[npix,s,e,pix_ok] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
-    %                                        7
-    %                      normalize_bin_input_(obj,coord,mde,npix,s,e,pix_candidates)
-    %   mde:  5     -------------------                   6
-    % >>[npix,s,e,pix_ok,unque_runid] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
-    %                                        7
-    %                      normalize_bin_input_(obj,coord,mde,npix,s,e,pix_candidates)
-
-    %   mde:  6     -------------------                       6
-    % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates)
-    %                                        7
-    %                      normalize_bin_input_(obj,coord,mde,npix,s,e,pix_candidates)
-    %   mde:  6     -------------------                       7
-    % >>[npix,s,e,pix_ok,unque_runid,pix_indx] = bin_pixels(obj,coord,npix,s,e,pix_candidates,unque_runid)
-    %                                        8
-    %                      normalize_bin_input_(obj,coord,mde,npix,s,e,pix_candidates,unque_runid)
-    if ~ismember(mdo,[1,3,4,5,6])
+    if ~ismember(mod,[1,3,4,5,6])
         error('HORACE:axes_block:invalid_argument',...
             'The procedure accepts 1,3,4,5 or 6 output arguments')
     end
-    if mdo>1 && numel(varargin)<4
+    if mod>1 && numel(varargin)<4
         error('HORACE:axes_block:invalid_argument',...
             'Calculating signal and error requests providing full pixel information, and this information is missing')
     end
@@ -120,7 +130,7 @@ elseif narg >8
     argi = varargin{6:end};
 end
 % initiate accumulators to 0, as no input value is provied
-if mdo>1 && isempty(npix)
+if mod>1 && isempty(npix)
     npix = squeeze(zeros(grid_size));
     s = squeeze(zeros(grid_size));
     e = squeeze(zeros(grid_size));
