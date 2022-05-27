@@ -12,13 +12,13 @@ There are various different forms of input for this function, the purpose of whi
    my_cut = cut_sqw (data_source, proj, p1_bin, p2_bin, p3_bin)
 
 
-Where ``data_source`` is a string giving the full filename (including path) of the input SQW file or just SQW object stored in memory.
+Where ``data_source`` is either a string giving the full filename (including path) of the input SQW file or just the variable containing SQW object stored in memory.
 
 ** Projection **
 
 This defines the coordinate system you will use to view the data.
 
-:ref:``proj`` the instance of ``ortho_proj`` class containing information about the axes and the coordinate system you wish to use to view the data. You can also use the structure, with the same fields as the ``ortho_proj`` class, but using the class is usually easier as the class properties are Because each point in the SQW file is labelled with h, k, and l (the reciprocal lattice vectors), and energy, it is possible, if you wish, to redefine the co-ordinate system with one of your choosing. For example you may wish to view the data in terms of (h,h,0)/(h,-h,0)/(0,0,l). This is distinct from the vectors ``u`` and ``v`` that are specified in `gen_sqw <List_of_functions:gen_sqw>`, which describe how the crystal is oriented with respect to the spectrometer and are determined by the physical orientation of your sample.
+:ref:``proj`` is an instance of ``ortho_proj`` class containing information about the axes and the coordinate system you wish to use to view the data. You can also use the structure, with the same fields as the ``ortho_proj`` class, but using the class is usually easier as the class properties are verified on consistency by class-properties setters and contain reasonable defaults. Because each point in the SQW file is labelled with h, k, and l (the reciprocal lattice vectors) and energy, it is possible, if you wish, to redefine the coordinate system with the one of your choice. For example you may wish to view the data in terms of (h,h,0)/(h,-h,0)/(0,0,l). This is distinct from the vectors ``u`` and ``v`` that are specified in `gen_sqw <List_of_functions:gen_sqw>`, which describe how the crystal is oriented with respect to the spectrometer and are determined by the physical orientation of your sample.
 
 **Orthogonal axes case**
 
@@ -33,7 +33,7 @@ There are optional fields too:
 
 **Non-orthogonal axes case**
 
-In the case when the crystal lattice is not orthogonal there are two options for viewing the data. In the default case the ``proj`` is specified in the same way as above, however remember that, for example, if proj.u = (1,0,0) and proj.v=(0,1,0), but (1,0,0) and (0,1,0) are not orthogonal in reciprocal space, the second viewing axes will actually be the vector orthogonal to proj.u in the plane of proj.u and proj.v. The third axis is then the cross product as before.
+In the case when the crystal lattice is not orthogonal there are two options for viewing the data. In the default case the ``proj`` is specified in the same way as above, however remember that, for example, if proj.u = (1,0,0) and proj.v=(0,1,0), but (1,0,0) and (0,1,0) are not orthogonal in reciprocal space, the second viewing axis will actually be the vector orthogonal to proj.u in the plane of proj.u and proj.v. The third axis is then the cross product as before.
 
 You may optionally choose to use non-orthogonal axes, as in the following example. Specify proj.u = (1,0,0), proj.v=(0,1,0), ``proj.nonorthogonal = true`` (and optionally specify the third projection axis by setting ``proj.w=[0,0,1]``). This forces the axes to be the ones you define, even if they are not orthogonal. Beware the plots that are produced plot them as orthogonal axes so any features may be skewed. However, it does make reading the location of a feature in a two-dimensional Q-Q plot straightforward, which is the main reason for doing this.
 
