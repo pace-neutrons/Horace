@@ -79,15 +79,15 @@
            <div itemprop="articleBody">
              
   <section id="api-reference">
-<h1><a class="toc-backref" href="#id5">API Reference</a><a class="headerlink" href="#api-reference" title="Permalink to this headline"></a></h1>
+<h1><a class="toc-backref" href="#id7">API Reference</a><a class="headerlink" href="#api-reference" title="Permalink to this headline"></a></h1>
 <div class="contents topic" id="table-of-contents">
 <p class="topic-title">Table of Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#api-reference" id="id5">API Reference</a></p>
+<li><p><a class="reference internal" href="#api-reference" id="id7">API Reference</a></p>
 <ul>
-<li><p><a class="reference internal" href="#module-sqw.&#64;SQWDnDBase" id="id6"><code class="docutils literal notranslate"><span class="pre">SQWDndBase</span></code> class</a></p></li>
-<li><p><a class="reference internal" href="#module-sqw.&#64;Experiment" id="id7"><code class="docutils literal notranslate"><span class="pre">Experiment</span></code> class</a></p></li>
-<li><p><a class="reference internal" href="#module-sqw.PixelData.&#64;PixelData" id="id8"><code class="docutils literal notranslate"><span class="pre">PixelData</span></code> class</a></p></li>
+<li><p><a class="reference internal" href="#module-sqw.&#64;SQWDnDBase" id="id8"><code class="docutils literal notranslate"><span class="pre">SQWDndBase</span></code> class</a></p></li>
+<li><p><a class="reference internal" href="#module-sqw.&#64;Experiment" id="id9"><code class="docutils literal notranslate"><span class="pre">Experiment</span></code> class</a></p></li>
+<li><p><a class="reference internal" href="#module-sqw.PixelData.&#64;PixelData" id="id10"><code class="docutils literal notranslate"><span class="pre">PixelData</span></code> class</a></p></li>
 </ul>
 </li>
 </ul>
@@ -96,7 +96,7 @@
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">API Index</span></a></p></li>
 </ul>
 <section id="module-sqw.&#64;SQWDnDBase">
-<span id="sqwdndbase-class"></span><h2><a class="toc-backref" href="#id6"><code class="docutils literal notranslate"><span class="pre">SQWDndBase</span></code> class</a><a class="headerlink" href="#module-sqw.@SQWDnDBase" title="Permalink to this headline"></a></h2>
+<span id="sqwdndbase-class"></span><h2><a class="toc-backref" href="#id8"><code class="docutils literal notranslate"><span class="pre">SQWDndBase</span></code> class</a><a class="headerlink" href="#module-sqw.@SQWDnDBase" title="Permalink to this headline"></a></h2>
 <dl class="mat function">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.IX_dataset_1d">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">IX_dataset_1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">w</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.IX_dataset_1d" title="Permalink to this definition"></a></dt>
@@ -1365,12 +1365,12 @@ pbin    Cell array, a row length 4, of the binning description of the</p>
 <dt>mask_array          Array of 1 or 0 (or true or false) that indicate</dt><dd><dl class="simple">
 <dt>which points to retain (true to retain, false to ignore)</dt><dd><p>Numeric or logical array of same number of elements</p>
 </dd>
-<dt>as the <a href="#id9"><span class="problematic" id="id10">data_</span></a>.</dt><dd><p>Note: mask will be applied to the stored data array</p>
+<dt>as the <a href="#id11"><span class="problematic" id="id12">data_</span></a>.</dt><dd><p>Note: mask will be applied to the stored data array</p>
 </dd>
 </dl>
 <p>according as the projection axes, not the display axes.
 Thus permuting the display axes does not alter the
-effect of masking the <a href="#id11"><span class="problematic" id="id12">data_</span></a>.</p>
+effect of masking the <a href="#id13"><span class="problematic" id="id14">data_</span></a>.</p>
 </dd>
 </dl>
 </div></blockquote>
@@ -1468,14 +1468,14 @@ For example in case of two dimensions:</p>
 </div></blockquote>
 <p>according as the projection axes, not the display axes.
 Thus permuting the display axes does not alter the
-effect of masking the <a href="#id13"><span class="problematic" id="id14">data_</span></a>. The mask array works
+effect of masking the <a href="#id15"><span class="problematic" id="id16">data_</span></a>. The mask array works
 consistently with the input required by the mask method.</p>
 </dd>
 </dl>
 </div></blockquote>
 <blockquote>
 <div><blockquote>
-<div><p>sel     Mask array of same shape as <a href="#id15"><span class="problematic" id="id16">data_</span></a>. true for bins to keep, false to discard.</p>
+<div><p>sel     Mask array of same shape as <a href="#id17"><span class="problematic" id="id18">data_</span></a>. true for bins to keep, false to discard.</p>
 </div></blockquote>
 <p>Advanced use: in addition the following two arguments, if present, suppress failure or the
 display of informational messges. Instead, the messages are returned to be used as desired.</p>
@@ -1497,7 +1497,7 @@ simulations of sqw objects with sqw_eval or fit_sqw, to speed things up</p>
 <blockquote>
 <div><p>win                 Input sqw object</p>
 <dl class="simple">
-<dt>npix_frac           Fraction of pixels in <a href="#id17"><span class="problematic" id="id18">win.data_</span></a>.pix array to keep.</dt><dd><p>These are chosen at random. If win is an array then
+<dt>npix_frac           Fraction of pixels in <a href="#id19"><span class="problematic" id="id20">win.data_</span></a>.pix array to keep.</dt><dd><p>These are chosen at random. If win is an array then
 npix can either be a scalar, in which case all
 outputs will have the same number of retained
 pixels, or an array of the same size as win, in
@@ -1521,7 +1521,7 @@ simulations of sqw objects with sqw_eval or fit_sqw, to speed things up</p>
 <blockquote>
 <div><p>win                 Input sqw object</p>
 <dl class="simple">
-<dt>npix               Number of pixels in <a href="#id19"><span class="problematic" id="id20">win.data_</span></a>.pix array to keep.</dt><dd><p>These are chosen at random. If win is an array then
+<dt>npix               Number of pixels in <a href="#id21"><span class="problematic" id="id22">win.data_</span></a>.pix array to keep.</dt><dd><p>These are chosen at random. If win is an array then
 npix can either be a scalar, in which case all
 outputs will have the same number of retained
 pixels, or an array of the same size as win, in
@@ -2417,6 +2417,14 @@ array holds the energy and the error array holds the spectral weight).</p>
 ignored)</p>
 </div></blockquote>
 <dl class="simple">
+<dt>&gt;&gt; save (w, file,[‘-parallel’<a href="#id5"><span class="problematic" id="id6">|</span></a>JobDispatcher])</dt><dd><p>combine file usging parallel algorithm.
+Useful and would works only if (when) pix
+value of sqw object data is set up to the
+instance of pix_combine_info class,
+containing information on the partial
+tmp files, written by filebased gen_sqw or
+cut algorithm</p>
+</dd>
 <dt>&gt;&gt; save (w, file,’-update’) % if the target file exist, update it to</dt><dd><p>latest format if this is possible. If
 update is possible, pixels in file will not be
 overwritten.</p>
@@ -2430,7 +2438,17 @@ file    [optional] File for output. if none given, then prompted for a file</p>
 array of filenames of the same size.</p>
 </dd>
 </dl>
-<p>Output:</p>
+<p>Optional output:
+cl – running insance of parallel cluster, used to combine multiple tmp</p>
+<blockquote>
+<div><blockquote>
+<div><p>files together if pix field of sqw object contains pix_combine_into
+and -parallel option or parallel cluster itself are provided as
+inpout. Empty in any other case</p>
+</div></blockquote>
+<p>TODO: currenlty empty. May reenable when parallel saving is
+implemented properly</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="mat function">
@@ -2525,7 +2543,7 @@ array of filenames of the same size.</p>
 </dl>
 </div></blockquote>
 <dl class="simple">
-<dt>To get handles to the graphics figure:</dt><dd><p>&gt;&gt; [<a href="#id21"><span class="problematic" id="id22">figureHandle_</span></a>, <a href="#id23"><span class="problematic" id="id24">axesHandle_</span></a>, <a href="#id25"><span class="problematic" id="id26">plotHandle_</span></a>] = sliceomatic(w,…)</p>
+<dt>To get handles to the graphics figure:</dt><dd><p>&gt;&gt; [<a href="#id23"><span class="problematic" id="id24">figureHandle_</span></a>, <a href="#id25"><span class="problematic" id="id26">axesHandle_</span></a>, <a href="#id27"><span class="problematic" id="id28">plotHandle_</span></a>] = sliceomatic(w,…)</p>
 </dd>
 </dl>
 <p>NOTES:</p>
@@ -2560,7 +2578,7 @@ the graphics window.</p>
 </dl>
 </div></blockquote>
 <dl class="simple">
-<dt>To get handles to the graphics figure:</dt><dd><p>&gt;&gt; [<a href="#id27"><span class="problematic" id="id28">figureHandle_</span></a>, <a href="#id29"><span class="problematic" id="id30">axesHandle_</span></a>, <a href="#id31"><span class="problematic" id="id32">plotHandle_</span></a>] = sliceomatic(w,…)</p>
+<dt>To get handles to the graphics figure:</dt><dd><p>&gt;&gt; [<a href="#id29"><span class="problematic" id="id30">figureHandle_</span></a>, <a href="#id31"><span class="problematic" id="id32">axesHandle_</span></a>, <a href="#id33"><span class="problematic" id="id34">plotHandle_</span></a>] = sliceomatic(w,…)</p>
 </dd>
 </dl>
 <p>Do a sliceomatic plot, but set the axes so that we look straight down the
@@ -2678,7 +2696,7 @@ array of file paths with equal number of elements as win.</p>
 </dd>
 <dt>all        If true, requests that the calculated sqw be returned over</dt><dd><p>the whole of the domain of the input dataset. If false, then
 the function will be returned only at those points of the dataset
-that contain <a href="#id33"><span class="problematic" id="id34">data_</span></a>.</p>
+that contain <a href="#id35"><span class="problematic" id="id36">data_</span></a>.</p>
 <blockquote>
 <div><p>Applies only to input with no pixel information - it is ignored if</p>
 </div></blockquote>
@@ -2715,7 +2733,7 @@ Output argument must be specified if <cite>outfile</cite> not given.</p>
 <dl class="mat function">
 <dt class="sig sig-object mat" id="sqw.&#64;SQWDnDBase.sqw_eval_nopix_">
 <span class="sig-prename descclassname"><span class="pre">sqw.&#64;SQWDnDBase.</span></span><span class="sig-name descname"><span class="pre">sqw_eval_nopix_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">sqwfunc</span></em>, <em class="sig-param"><span class="pre">all_bins</span></em>, <em class="sig-param"><span class="pre">pars</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@SQWDnDBase.sqw_eval_nopix_" title="Permalink to this definition"></a></dt>
-<dd><p><a href="#id35"><span class="problematic" id="id36">SQW_EVAL_NOPIX_</span></a></p>
+<dd><p><a href="#id37"><span class="problematic" id="id38">SQW_EVAL_NOPIX_</span></a></p>
 <blockquote>
 <div><p>Helper function for sqw eval executed on a pixel-less object (i.e. DnD or SQW with no pixels
 Called by <cite>sqw_eval_</cite> defined in sqw/DnDBase</p>
@@ -2840,142 +2858,16 @@ the second plot axis etc</p>
 
 </section>
 <section id="module-sqw.&#64;Experiment">
-<span id="experiment-class"></span><h2><a class="toc-backref" href="#id7"><code class="docutils literal notranslate"><span class="pre">Experiment</span></code> class</a><a class="headerlink" href="#module-sqw.@Experiment" title="Permalink to this headline"></a></h2>
+<span id="experiment-class"></span><h2><a class="toc-backref" href="#id9"><code class="docutils literal notranslate"><span class="pre">Experiment</span></code> class</a><a class="headerlink" href="#module-sqw.@Experiment" title="Permalink to this headline"></a></h2>
 <dl class="mat class">
 <dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">Experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.Experiment" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sqw.&#64;Experiment.</span></span><span class="sig-name descname"><span class="pre">Experiment</span></span><a class="headerlink" href="#sqw.@Experiment.Experiment" title="Permalink to this definition"></a></dt>
 <dd><p>EXPERIMENT Container object for all data describing the Experiment</p>
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.Experiment">
-<span class="sig-name descname"><span class="pre">Experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">varargin</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.Experiment.Experiment" title="Permalink to this definition"></a></dt>
-<dd><p>Create a new Experiment object.</p>
-<blockquote>
-<div><p>obj = Experiment()
-obj = Experiment(detector_array[s], instrument[s], sample[s])</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Required:</dt><dd><p>detector_array  Detector array (IX_detector_array objects)
-instrument      Instrument (Concrete class inheriting IX_inst)
-sample          Sample data (IX_sample object)</p>
-</dd>
-</dl>
-<p>Each argument can be a single object or array of objects.</p>
-</dd></dl>
-
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.classVersion">
-<span class="sig-name descname"><span class="pre">classVersion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">~</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.Experiment.classVersion" title="Permalink to this definition"></a></dt>
-<dd><p>define version of the class to store in mat-files
-and nxsqw data format. Each new version would presumably read
-the older version, so version substitution is based on this
-number</p>
-</dd></dl>
-
-<dl class="mat staticmethod">
-<dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.combine_experiments">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">combine_experiments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">exp_cellarray</span></em>, <em class="sig-param"><span class="pre">allow_equal_headers</span></em>, <em class="sig-param"><span class="pre">drop_subzone_headers</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.Experiment.combine_experiments" title="Permalink to this definition"></a></dt>
-<dd><dl class="simple">
-<dt>take cellarray of experiments (e.g., generated from each runfile build</dt><dd><p>during gen_sqw generation)
-and combine then together into single Experiment info class</p>
-</dd>
-</dl>
-<p>This is the HACK, providing only basic functionality. Previous
-header-s on the basis of sqw_header and part, present in
-write_nsqw_to_sqw implementation offers much more.</p>
-<dl class="simple">
-<dt>TODO: Do proper optimization on the way. See</dt><dd><p>sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers)</p>
-</dd>
-<dt>TODO: use allow_equal_headers,drop_subzone_headers variables</dt><dd><p>appropriately</p>
-</dd>
-<dt>TODO: repeat at least the logic within sqw_header helper class</dt><dd><p>and write_nsqw_to_sqw combine/check headers operation</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.convert_to_old_headers">
-<span class="sig-name descname"><span class="pre">convert_to_old_headers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">header_num</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.Experiment.convert_to_old_headers" title="Permalink to this definition"></a></dt>
-<dd><p>convert Experiment into the structure suitable to be
-stored in old binary sqw files (up to version 3.xxx)</p>
-<p>this structure is also used in number of places of the old
-code where, e.g., structure sorting is implemented but this
-usage is deprecated and will be removed in a future.</p>
-</dd></dl>
-
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.get_aver_experiment">
-<span class="sig-name descname"><span class="pre">get_aver_experiment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.Experiment.get_aver_experiment" title="Permalink to this definition"></a></dt>
-<dd><p>some, presumably average, run-data. Naive implementation,
-all data are the same</p>
-</dd></dl>
-
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.get_unique_instruments">
-<span class="sig-name descname"><span class="pre">get_unique_instruments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.Experiment.get_unique_instruments" title="Permalink to this definition"></a></dt>
-<dd><p>compatibility fields with old binary file formats
-TODO: needs proper implementation</p>
-</dd></dl>
-
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.get_unique_samples">
-<span class="sig-name descname"><span class="pre">get_unique_samples</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.Experiment.get_unique_samples" title="Permalink to this definition"></a></dt>
-<dd><p>compatibility fields with old binary file formats
-TODO: needs proper implementation</p>
-</dd></dl>
-
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.header_average">
-<span class="sig-name descname"><span class="pre">header_average</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.Experiment.header_average" title="Permalink to this definition"></a></dt>
-<dd><p>very crude implementation for the header, average over all
-runs.</p>
-</dd></dl>
-
-<dl class="mat attribute">
-<dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.instruments">
-<span class="sig-name descname"><span class="pre">instruments</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.@Experiment.Experiment.instruments" title="Permalink to this definition"></a></dt>
-<dd><p>Mirrors of private properties</p>
-</dd></dl>
-
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.is_same_ebins">
-<span class="sig-name descname"><span class="pre">is_same_ebins</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.Experiment.is_same_ebins" title="Permalink to this definition"></a></dt>
-<dd><p>return true if all energy bins of all runs are the
-same</p>
-</dd></dl>
-
-<dl class="mat staticmethod">
-<dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.loadobj">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">loadobj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">S</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.Experiment.loadobj" title="Permalink to this definition"></a></dt>
-<dd><p>boilerplate loadobj method, calling generic method of
-save-able class</p>
-</dd></dl>
-
-<dl class="mat attribute">
-<dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.n_runs">
-<span class="sig-name descname"><span class="pre">n_runs</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#sqw.@Experiment.Experiment.n_runs" title="Permalink to this definition"></a></dt>
-<dd><p>return the number of runs, this class contains</p>
-</dd></dl>
-
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.saveableFields">
-<span class="sig-name descname"><span class="pre">saveableFields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">~</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.Experiment.saveableFields" title="Permalink to this definition"></a></dt>
-<dd><p>get independent fields, which fully define the state of the
-serializable object.</p>
-</dd></dl>
-
-<dl class="mat method">
-<dt class="sig sig-object mat" id="sqw.&#64;Experiment.Experiment.set_efix_emode">
-<span class="sig-name descname"><span class="pre">set_efix_emode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">efix</span></em>, <em class="sig-param"><span class="pre">emode</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.@Experiment.Experiment.set_efix_emode" title="Permalink to this definition"></a></dt>
-<dd><p>change efix and (optionally) emode in all experiment descriptions
-if emode is absent or described by any character string,
-the emode is kept unchanged</p>
-</dd></dl>
-
 </dd></dl>
 
 </section>
 <section id="module-sqw.PixelData.&#64;PixelData">
-<span id="pixeldata-class"></span><h2><a class="toc-backref" href="#id8"><code class="docutils literal notranslate"><span class="pre">PixelData</span></code> class</a><a class="headerlink" href="#module-sqw.PixelData.@PixelData" title="Permalink to this headline"></a></h2>
+<span id="pixeldata-class"></span><h2><a class="toc-backref" href="#id10"><code class="docutils literal notranslate"><span class="pre">PixelData</span></code> class</a><a class="headerlink" href="#module-sqw.PixelData.@PixelData" title="Permalink to this headline"></a></h2>
 <dl class="mat class">
 <dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.PixelData">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sqw.PixelData.&#64;PixelData.</span></span><span class="sig-name descname"><span class="pre">PixelData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">arg</span></em>, <em class="sig-param"><span class="pre">mem_alloc</span></em>, <em class="sig-param"><span class="pre">upgrade</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData" title="Permalink to this definition"></a></dt>
@@ -2996,7 +2888,7 @@ an instance of sqw_binfile_common.</p>
 data object. No pixel data will be loaded from the file on construction.
 Data will be loaded when a getter is called e.g. pix_data.signal. Data will
 be loaded in pages such that the data held in memory will not exceed the
-size (in bytes) specified by private attribute <a href="#id37"><span class="problematic" id="id38">page_memory_size_</span></a> - this can
+size (in bytes) specified by private attribute <a href="#id39"><span class="problematic" id="id40">page_memory_size_</span></a> - this can
 be set on construction (see mem_alloc above).</p>
 <p>The file-backed operations work by loading “pages” of data into memory as
 required. If editing pixels, to avoid losing changes, if a page has been
@@ -3311,11 +3203,12 @@ and clear the current cache</p>
 <span class="sig-name descname"><span class="pre">set_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">pix_range</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.PixelData.@PixelData.PixelData.set_range" title="Permalink to this definition"></a></dt>
 <dd><p>Function allows to set the pixels range (min/max values of
 pixels coordinates)</p>
-<p>Use with caution!!! No checks that the set range is the
+<p>Use with caution!!! As this is performance function,
+no checks that the set range is the
 correct range for pixels, holded by the class are
 performed, while subsequent algorithms may rely on pix range
-to be correct. A out-of memory write can occur during rebinning
-if the range is smaller, then the actual range.</p>
+to be correct. A out-of memory assignment can occur during
+rebinning if the range is smaller, then the actual range.</p>
 <p>Necessary to set up the pixel range when filebased
 pixels are modified by algorithm and correct range
 calculations are expensive</p>
@@ -3521,14 +3414,25 @@ property.</p>
 
 <dl class="mat function">
 <dt class="sig sig-object mat" id="sqw.PixelData.&#64;PixelData.get_pix_in_ranges">
-<span class="sig-prename descclassname"><span class="pre">sqw.PixelData.&#64;PixelData.</span></span><span class="sig-name descname"><span class="pre">get_pix_in_ranges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">abs_indices_starts</span></em>, <em class="sig-param"><span class="pre">abs_indices_ends</span></em>, <em class="sig-param"><span class="pre">recalculate_pix_range</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.PixelData.@PixelData.get_pix_in_ranges" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">sqw.PixelData.&#64;PixelData.</span></span><span class="sig-name descname"><span class="pre">get_pix_in_ranges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em>, <em class="sig-param"><span class="pre">abs_indices_starts</span></em>, <em class="sig-param"><span class="pre">block_sizes</span></em>, <em class="sig-param"><span class="pre">recalculate_pix_range</span></em>, <em class="sig-param"><span class="pre">keep_precision</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqw.PixelData.@PixelData.get_pix_in_ranges" title="Permalink to this definition"></a></dt>
 <dd><p>GET_PIX_IN_RANGES read pixels in the specified ranges
 Ranges are inclusive.</p>
 <blockquote>
 <div><p>&gt;&gt; pix = get_pix_in_ranges([1, 12, 25], [6, 12, 27])</p>
 </div></blockquote>
 <p>pix_starts  Absolute indices of the starts of pixel ranges [Nx1 or 1xN array].
-pix_ends    Absolute indices of the ends of pixel ranges [Nx1 or 1xN array].</p>
+block_sizes The sizes of the blocks to read                [Nx1 or 1xN array].
+Optional
+recalculate_pix_range – if true, recalulate q-dE range of obrained</p>
+<blockquote>
+<div><p>pixels. Default – true</p>
+</div></blockquote>
+<dl class="simple">
+<dt>keep_precision         –if true, load pixels in memory, as they are</dt><dd><p>stored on hdd (single precision pixels). If
+false, convert pixels into double precision at
+load. Default false</p>
+</dd>
+</dl>
 <p>pix_out     A PixelData object containing the pixels in the given ranges.</p>
 </dd></dl>
 
@@ -3688,7 +3592,7 @@ abs_pix_indices  The indices to set data on. If not specified all indices are</p
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2021, STFC RAL.
-      <span class="lastupdated">Last updated on May 20, 2022, 3:45:20 PM.
+      <span class="lastupdated">Last updated on May 28, 2022, 6:35:05 AM.
       </span></p>
   </div>
 
