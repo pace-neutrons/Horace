@@ -13,9 +13,9 @@ function [cov_proj, cov_spec, cov_hkle] = tobyfit_DGfermi_resfun_covariance(win,
 %   win         Array of sqw objects, or cell array of scalar sqw objects
 %
 %  [Optional]
-%   indx        Pixel indicies:
+%   indx        Pixel indices:
 %               Single sqw object:
-%                 - ipix            Array of pixels indicies
+%                 - ipix            Array of pixels indices
 %            *OR* - {irun,idet,ien} Arrays of run, detector and energy bin index
 %                                   Dimension expansion is performed on scalar
 %                                  quantities i.e. each must be a scalar or array

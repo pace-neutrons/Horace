@@ -23,7 +23,6 @@ classdef test_faccess_sqw_v2< TestCase
 
     end
 
-
     methods
 
         %The above can now be read into the test routine directly.
@@ -73,7 +72,7 @@ classdef test_faccess_sqw_v2< TestCase
 
             % access to incorrect object
             f = @()(to.init());
-            assertExceptionThrown(f,'SQW_FILE_IO:invalid_argument');
+            assertExceptionThrown(f,'HORACE:dnd_binfile_common:invalid_argument');
 
 
             [ok,initob] = to.should_load(obj.sample_file);
@@ -368,7 +367,7 @@ classdef test_faccess_sqw_v2< TestCase
             to.delete();
             assertTrue(isa(dn2,'d2d'));
 
-            dnob.data.img_db_range = PixelData.EMPTY_RANGE_;
+
             [ok,mess]=equal_to_tol(dn2,dnob,'ignore_str',true);
             assertTrue(ok,mess)
             %

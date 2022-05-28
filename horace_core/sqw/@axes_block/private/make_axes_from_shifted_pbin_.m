@@ -96,11 +96,7 @@ else
     noff=0;
 end
 
-% Create proj object
-% ------------------
 remains=argi(1+noff:end);
-[ind_range,ind_en]=data_sqw_dnd.get_projection_from_pbin_inputs(...
-    ndim,uoffset,nonorthogonal,argi{noff+1:end});
 
 % Get cell array of bin descriptors
 % ---------------------------------
@@ -113,8 +109,12 @@ for i=1:ndim
     end
 end
 if ndim>0
-    pbin(1:ndim)=pbin(ind_range);   % rearrange according to the circular shifting done earlier to place energy axis in 4th position
+    % rearrange according to the circular shifting done earlier to place energy axis in 4th position?  
+    % This is the peace of old code with unclear functionality
+    %pbin(1:ndim)=pbin(ind_range);   % rearrange according to the circular 
+    pbin=pbin(1:ndim);   
 end
+ind_en = []; % HACK!
 rest = arrayfun(@(x)zeros(1,0),1:4-ndim,'UniformOutput',false);
 if ~isempty(ind_en)
     pbin=[pbin(1:ndim-1),rest,pbin(ndim)];

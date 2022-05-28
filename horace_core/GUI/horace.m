@@ -12,7 +12,7 @@ function varargout = horace(varargin)
 %      HORACE('Property','Value',...) creates a new HORACE or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
 %      applied to the GUI before horace_OpeningFunction gets called.  An
-%      unrecognized property name or invalid value makes property application
+%      unrecognised property name or invalid value makes property application
 %      stop.  All inputs are passed to horace_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one

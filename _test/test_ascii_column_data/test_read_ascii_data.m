@@ -57,7 +57,9 @@ vvec=[0,1,0];
 psi=0;
 omega=0; dpsi=0; gl=0; gs=0;
 grid_size_in=3;
-write_qspec_to_sqw (ascii_file, sqw_file, efix, emode, alatt, angdeg, uvec, vvec, psi, omega, dpsi, gl, gs, grid_size_in);
+write_qspec_to_sqw ( ...
+    ascii_file, sqw_file, efix, emode, alatt, angdeg, uvec, vvec, psi, ...
+    omega, dpsi, gl, gs, grid_size_in);
 
 
 % =============================================

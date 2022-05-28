@@ -133,6 +133,9 @@ inst=inst_in;
 if isstruct(inst)
     inst = IX_inst(inst_in);
 end
+% if isa(inst_in,'IX_null_instrument')
+%     inst = IX_inst_DGfermi();
+% end
 
 try
     % Change existing moderator fields
@@ -141,6 +144,7 @@ try
     mod.pp=pp;
     inst.moderator=mod;
 catch
-    error('SQW:invalid_instrument','IX_moderator object not found in all instrument descriptions')
+    error('HORACE:set_mod_pulse:invalid_instrument',...
+        'IX_moderator object not found in all instrument descriptions')
 end
 

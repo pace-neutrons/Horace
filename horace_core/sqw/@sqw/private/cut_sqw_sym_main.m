@@ -1,13 +1,13 @@
-function [wout,wsym] = cut_sqw_sym_main (data_source, ndims_source, varargin)
+function [wout,wsym] = cut_sqw_sym_main (data_source, varargin)
 % Take a cut from an sqw object by integrating over one or more axes.
 %
 % Cut using existing projection axes:
-%   >> w = cut_sqw_sym_main (data_source, ndims_source, p1_bin, p2_bin...,sym)
+%   >> w = cut_sqw_sym_main (data_source, p1_bin, p2_bin...,sym)
 %                                           %(as many binning arguments
 %                                           % as there are plot axes)
 %
 % Cut with new projection axes:
-%   >> w = cut_sqw_sym_main (data_source, ndims_source, proj, p1_bin, p2_bin, p3_bin, p4_bin, sym)
+%   >> w = cut_sqw_sym_main (data_source, proj, p1_bin, p2_bin, p3_bin, p4_bin, sym)
 %
 %   >> w = cut_sqw_sym_main (..., '-nopix')     % output cut is dnd structure (i.e. no
 %                                               % pixel information is retained)
@@ -28,9 +28,7 @@ function [wout,wsym] = cut_sqw_sym_main (data_source, ndims_source, varargin)
 % ------
 %   data_source     Data source: sqw object or filename of a file with sqw-type data
 %                  (character string or cellarray with one character string)
-%
-%   ndims           Number of dimensions of the sqw data
-%
+
 %   proj            Data structure containing details of projection axes,
 %                  with fields described below. Alternatively, a projaxes
 %                  object created from those fields (type >> help projaxes
@@ -142,14 +140,15 @@ return_cut = (nargout>0);
 return_comp = (nargout>1);
 
 [proj, pbin, opt,args] = ...
-    process_and_validate_cut_inputs(data_source, ndims_source, return_cut, varargin{:});
+    process_and_validate_cut_inputs(data_source, return_cut, varargin{:});
 
 % Checks on symmetry description - check valid, and remove empty descriptions
 if numel(args)==1
     [ok, mess, sym] = cut_sqw_check_sym_arg (args{1});
     if ~ok, error(mess), end
 else
-    error ('CUT_SQW:invalid_arguments', 'Check the number and type of input arguments')
+    error ('HORACE:cut_sqw_sym:invalid_arguments', ...
+        'Check the number and type of input arguments')
 end
 
 

@@ -7,7 +7,7 @@ properties (Constant)
 end
 
 properties
-    test_sqw_file_path = '../test_sqw_file/sqw_2d_1.sqw';
+    test_sqw_file_path = '../common_data/sqw_2d_1.sqw';
     base_sqw_obj;
     sqw_obj;
     dnd_obj;

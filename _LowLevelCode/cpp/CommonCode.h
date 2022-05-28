@@ -1,9 +1,6 @@
 #pragma once
 //
 //
-
-
-
 #include <limits>
 //
 #include <mex.h>
@@ -75,7 +72,24 @@ inline void copy_pixels(double* pixel_data, long j, double* pPixelSorted, size_t
 
 
 }
+//* Possible prototype for a generic function
+template<class T>
+T getMatlabScalar(const mxArray* pPar, const char* const fieldName) {
+    if (pPar == NULL) {
+        std::stringstream buf;
+        buf << " The input variable: " << *fieldName << " has to be defined\n";
 
+        mexErrMsgIdAndTxt("HORACE:getMatlabScalar_mex:invalid_argument",
+            buf.str().c_str());
+    }
+    if (mxGetM(pPar) != 1 || mxGetN(pPar) != 1) {
+        std::stringstream buf;
+        buf << " The input variable: " << *fieldName << " has to be a scalar\n";
+        mexErrMsgIdAndTxt("HORACE:getMatlabScalar_mex:invalid_argument", 
+            buf.str().c_str());
+    }
+    return static_cast<T>(*mxGetPr(pPar));
+};
 
 class omp_storage
     /** Class to manage dynamical storage used in OMP loops
@@ -175,7 +189,7 @@ public:
         pError[ind] += error;
         pNpix[ind] += 1;
     }
-    void combine_storage(double *const s, double *const e, double *const npix, long i) {
+    void combine_storage(double* const s, double* const e, double* const npix, long i) {
         for (int ns = 0; ns < num_threads; ns++) {
             size_t ind = ns * distr_size + i;
             s[i] += pSignal[ind];
@@ -200,7 +214,4 @@ private:
     double* largeMemory;
 
 };
-
-
-
 

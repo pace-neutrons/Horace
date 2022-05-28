@@ -3,8 +3,8 @@ classdef is_holder
     % a client in homogeneous form
     %
     properties(Access=protected,Hidden=true)
-        instrument_= []; %IX_null_inst();
-        sample_ = []; %IX_null_sample();
+        instrument_= []; 
+        sample_ = []; 
         n_files_=0;
         set_samp_ = false;
         set_inst_ = false;
@@ -35,20 +35,7 @@ classdef is_holder
             %       (can be empty if instrument is not intented to be set)
             %samp - the cellarray or array of sample(s) to save.
             %       (can be empty if sample is not intented to be set)
-            %{
-            if isnumeric(sampl) && isempty(sampl)
-                sampl = []; % maybe struct, not! IX_null_sample();
-            end
-            if isnumeric(instr) && isempty(instr)
-                instr = []; % maybe struct, not! IX_null_inst();
-            end
-            %}
-            if ~isa(sampl,'IX_samp')
-                sampl = [];
-            end
-            if ~isa(instr,'IX_inst')
-                instr = [];
-            end
+
             nin = numel(instr);
             if nin  == 0
                 obj.set_inst_ = false; % if instrument is empty, we are not setting it
@@ -67,7 +54,7 @@ classdef is_holder
                 obj.set_samp_ = true;
             end
             if nsa ~=1 && nin ~= 1 && nsa ~= nin
-                error('SQW_FILE_IO:invalid_argument',...
+                error('HORACE:is_holder:invalid_argument',...
                     ' number of samples %d and number of instruments %d have to be 1 or equal to each other',...
                     nsa,nin);
             end
@@ -129,7 +116,6 @@ classdef is_holder
         function set = get.setting_instr(obj)
             set = obj.set_inst_;
         end
-        
         %
     end
     

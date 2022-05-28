@@ -51,6 +51,10 @@ classdef sqw_binfile_common < sqw_file_interface
         %
         eof_pix_pos_=0;
         %
+        % identify the format of the data file.If true, filenames stored
+        % with headers are mangled with run_id-s. If false, they are clean
+        % filenames. Stored in file
+        contains_runid_in_header_ =[];
     end
     properties(Dependent)
         % the position of pixels information in the file. Used to organize
@@ -71,40 +75,17 @@ classdef sqw_binfile_common < sqw_file_interface
     end
     %
     methods(Access = protected)
-        function hd = modify_header_with_runid(obj,hd,runid_map)
-            % HACK: will go in next versions of sqw file format
-            % Store scrambled run_id map not to guess it in a future. In new file
-            % formats, runid map will be stored separately
-            if ~obj.upgrade_headers_ % should not modify the headers if the 
-                % file is open in upgrade mode
-                return;
-            end
-            keys = runid_map.keys;
-            val  = runid_map.values;
-            val  = [val{:}];
-            for i=1:numel(hd)
-                this_val = ismember(val,i); %found the value->key transformation
-                if sum(this_val)>1  % should be only one value. Will rightly fail if more
-                    error('HORACE:put_headers:runtime_error',...
-                        'More then one run_id corresponds to a header. Error in gen_sqw algorithm')
-                end
-                id = keys{this_val};
-                hd{i}.filename = [hd{i}.filename,'$id$',num2str(id)];
-            end
-
-        end       
-
         function obj=init_from_sqw_obj(obj,varargin)
             % initialize the structure of sqw file using sqw object as input
             %
             % method should be overloaded or expanded by children if more
             % complex then common logic is used
             if nargin < 2
-                error('SQW_FILE_IO:runtime_error',...
+                error('HORACE:sqw_binfile_common:runtime_error',...
                     'init_from_sqw_obj method should be invoked with an existing sqw object as first input argument');
             end
             if ~(isa(varargin{1},'sqw') || is_sqw_struct(varargin{1}))
-                error('SQW_FILE_IO:invalid_argument',...
+                error('HORACE:sqw_binfile_common:invalid_argument',...
                     'init_from_sqw_obj method should be initiated by an sqw object');
             end
             %
@@ -161,6 +142,28 @@ classdef sqw_binfile_common < sqw_file_interface
             [obj,missinig_fields] = copy_contents_(obj,other_obj,keep_internals);
         end
         %
+        function obj = check_header_mangilig(obj,head_pos)
+            % verify if the filename stored in the header is mangled with
+            % run_id information or is it stored without this information.
+
+            fn_size = head_pos(1).filepath_pos_ - head_pos(1).filename_pos_;
+            fseek(obj.file_id_,head_pos(1).filename_pos_,'bof');
+            [mess,res] = ferror(obj.file_id_);
+            if res ~= 0
+                error('HORACE:sqw_binfile_common:io_error',...
+                    '%s: Reason:  Error moving to the header filename location',mess)
+            end
+
+            bytes = fread(obj.file_id_,fn_size,'char');
+            fname = char(bytes');
+            mangle_pos = strfind(fname,'$id$');
+            if isempty(mangle_pos) %contains is available from 16b only
+                obj.contains_runid_in_header_ = false;
+            else
+                obj.contains_runid_in_header_ = true;
+            end
+        end
+        %
         function varargout = init_v3_specific(~)
             % Initialize position information specific for sqw v3.1 object.
             % Interface function here. Generic is not implemented and
@@ -194,23 +197,38 @@ classdef sqw_binfile_common < sqw_file_interface
         % get main sqw header
         main_header = get_main_header(obj,varargin);
         % get header of one of contributed files
-        [header,pos,runid_map] = get_header(obj,varargin);
+        [header,pos] = get_header(obj,varargin);
         % Read the detector parameters from properly initialized binary file.
         det = get_detpar(obj);
         % read main sqw data  from properly initialized binary file.
         [sqw_data,obj] = get_data(obj,varargin);
 
-        function img_db_range = get_img_db_range(obj)
+        function img_db_range = get_img_db_range(obj,data_str)
             % get [2x4] array of min/max ranges of the image, representing
-            % DND object. This range is the basis for calcu
+            % DND object.
             %
+            %
+            if nargin == 1 %read ge information form file (better accuracy)
+                img_db_range = read_img_range(obj);
+            else % calculate image range from axes
+                img_db_range = axes_block.calc_img_db_range(data_str);
+                if any(isinf(img_db_range(:)))
+                    img_data_range = read_img_range(obj);
+                    undef = isinf(img_db_range);
+                    img_db_range(undef) = img_data_range(undef);
+                end
+            end
+        end
+        function img_data_range = read_img_range(obj)
+            % read real data range from disk
             fseek(obj.file_id_,obj.img_db_range_pos_,'bof');
             [mess,res] = ferror(obj.file_id_);
             if res ~= 0
-                error('SQW_BINILE_COMMON:io_error',...
+                error('HORACE:sqw_binfile_common:io_error',...
                     'Can not move to the pix_range start position, Reason: %s',mess);
             end
-            img_db_range = fread(obj.file_id_,[2,4],'float32');
+            img_data_range = fread(obj.file_id_,[2,4],'float32');
+
         end
         %
         function pix_range = get_pix_range(~)
@@ -225,7 +243,7 @@ classdef sqw_binfile_common < sqw_file_interface
         % read pixels at the given indices
         pix = get_pix_at_indices(obj,indices);
         % read pixels in the given index ranges
-        pix = get_pix_in_ranges(obj,pix_starts,pix_ends,skip_validation);
+        pix = get_pix_in_ranges(obj,pix_starts,pix_ends,skip_validation,keep_precision);
         % retrieve the whole sqw object from properly initialized sqw file
         [sqw_obj,varargout] = get_sqw(obj,varargin);
         % retrieve dnd part of the sqw object
@@ -243,13 +261,13 @@ classdef sqw_binfile_common < sqw_file_interface
         obj = put_sqw(obj,varargin);
         %
         function obj = put_instruments(obj,varargin)
-            error('SQW_FILE_IO:runtime_error',...
+            error('HORACE:sqw_binfile_common:runtime_error',...
                 'put_instruments is not implemented for faccess_sqw %s',...
                 obj.file_version);
         end
         %
         function obj = put_samples(obj,varargin)
-            error('SQW_FILE_IO:runtime_error',...
+            error('HORACE:sqw_binfile_common:runtime_error',...
                 'put_samples is not implemented for faccess_sqw %s',...
                 obj.file_version);
 
@@ -315,7 +333,7 @@ classdef sqw_binfile_common < sqw_file_interface
             %   data.u_to_rlu   Matrix (4x4) of projection axes in hkle representation
             %                      u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
             %   data.ulen       Length of projection axes vectors in Ang^-1 or meV [row vector]
-            %   data.ulabel     Labels of the projection axes [1x4 cell array of character strings]
+            %   data.label     Labels of the projection axes [1x4 cell array of character strings]
             %   data.iax        Index of integration axes into the projection axes  [row vector]
             %                  Always in increasing numerical order
             %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
@@ -418,7 +436,7 @@ classdef sqw_binfile_common < sqw_file_interface
             %   header.u_to_rlu     Matrix (4x4) of projection axes in hkle representation
             %                        u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
             %   header.ulen         Length of projection axes vectors in Ang^-1 or meV [row vector]
-            %   header.ulabel       Labels of the projection axes [1x4 cell array of character strings]
+            %   header.label       Labels of the projection axes [1x4 cell array of character strings]
             %
             header = get_header_form_(varargin{:});
         end
@@ -456,9 +474,8 @@ classdef sqw_binfile_common < sqw_file_interface
 
         function sq = make_pseudo_sqw(nfiles)
             % generate pseudo-contents for sqw file, for purpose of
-            % calculating fields posistions while upgrading file format
+            % calculating fields positions while upgrading file format
             sq = make_pseudo_sqw_(nfiles);
         end
     end
 end
-

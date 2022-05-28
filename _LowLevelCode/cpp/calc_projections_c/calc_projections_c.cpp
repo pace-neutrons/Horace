@@ -43,18 +43,7 @@ enum inPar {
 //<
 //============================================================================================
 
-//* Possible prototype for a generic function
-double getMatlabScalar(const mxArray *pPar, const char * const fieldName) {
-    if (pPar == NULL) {
-        mexErrMsgIdAndTxt("MEX:invalid_argument", " The parameter has to be defined");
-    }
-    if (mxGetM(pPar) != 1 || mxGetN(pPar) != 1) {
-        std::stringstream buf;
-        buf << *fieldName << " has to be a scalar\n";
-        mexErrMsgIdAndTxt("MEX:invalid_argument", buf.str().c_str());
-    }
-    return (double)*mxGetPr(pPar);
-};
+
 void getMatlabVector(const mxArray *pPar, double *&pValue, size_t &NComponents, const char * const fieldName) {
     if (pPar == NULL) {
         std::stringstream buf;
@@ -141,8 +130,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
 
     getMatlabVector(prhs[nEfix], pEfix, nEfixed, "efix");
-    k_to_e = getMatlabScalar(prhs[nK_to_e], "variable k_to_e");
-    int ieMode = (int)getMatlabScalar(prhs[nEmode], "variable eMode");
+    k_to_e = getMatlabScalar<double>(prhs[nK_to_e], "k_to_e");
+    int ieMode =(int)getMatlabScalar<double>(prhs[nEmode], "eMode");
     if (ieMode < 0 || ieMode > 2) {
         mexErrMsgIdAndTxt("MEX:invalid_argument", 
             "only modes 0-2 (Elastic,Direct,Indirect) are currently supported");
@@ -153,13 +142,13 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         nThreads = 1;
     }
     else {
-        nThreads = (int)getMatlabScalar(prhs[nNThreads], "variable nThreads");
+        nThreads = (int)getMatlabScalar<double>(prhs[nNThreads], "nThreads");
     }
     if (nThreads < 1)nThreads = 1;
     if (nThreads > 64)nThreads = 64;
     //
     if (nrhs == NUM_IN_args) {
-        int iMode = (int)getMatlabScalar(prhs[uRangeMode], "variable proj_mode");
+        int iMode = (int)getMatlabScalar<double>(prhs[uRangeMode], "proj_mode");
         if (iMode > -1 && iMode < 3) {
             uRange_mode = static_cast<urangeModes>(iMode);
         }
@@ -170,11 +159,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     }
 
     if (mxGetM(prhs[Spec_to_proj]) != 3 || mxGetN(prhs[Spec_to_proj]) != 3) {
-        mexErrMsgIdAndTxt("MEX:invalid_argument", 
+        mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument", 
             "first argument (projection matrix) has to be 3x3 matrix");
     }
     if (pEnergy == NULL) {
-        mexErrMsgIdAndTxt("MEX:invalid_argument", 
+        mexErrMsgIdAndTxt("HORACE:sort_pixels_by_bins_mex:invalid_argument", 
             "experimental data can not be empty");
     }
 

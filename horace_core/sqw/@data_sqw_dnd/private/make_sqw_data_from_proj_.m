@@ -1,12 +1,10 @@
-function obj=make_sqw_data_from_proj_(obj,lattice,proj_in)
-% Create data filed for sqw object from input of the form
+function obj=make_sqw_data_from_proj_(obj,proj_in)
+% Set data filed for sqw object from input of the form
 %
-%   >> [data,mess] = make_sqw_data_from_proj(lattice,proj)
+%   >> [data,mess] = make_sqw_data_from_proj(proj)
 %
 % Input:
 % ------
-%   lattice        [Optional] Defines crystal lattice: [a,b,c,alpha,beta,gamma]
-%                  Assumes to be [2*pi,2*pi,2*pi,90,90,90] if not given.
 %
 %   proj            Projection structure or object.
 %
@@ -21,50 +19,49 @@ function obj=make_sqw_data_from_proj_(obj,lattice,proj_in)
 
 
 % Check projection
-if isstruct(proj_in) || isa(proj_in,'projaxes')
-    proj = projaxes(proj_in);
-else
+if ~(isa(proj_in,'aProjection') || isstruct(proj_in))
     error('HORACE:data_sqw_dnd:invalid_argument',...
         'projection must be valid projection structure or projaxes object')
-end
-if isa(lattice,'oriented_lattice')
-    [~, u_to_rlu, ulen, mess] = projaxes_to_rlu(proj, ...
-        lattice.alatt, lattice.angdeg);
 else
-    [~, u_to_rlu, ulen, mess] = projaxes_to_rlu(proj, ...
-        lattice(1:3), lattice(4:6));
+    if isstruct(proj_in)
+        check = @(x)isfield(proj_in,x);
+    else % aProjection
+        check = @(x)isprop(proj_in,x);
+    end
 end
-if ~isempty(mess)   % problem calculating ub matrix and related quantities
-    error('HORACE:data_sqw_dnd:invalid_argument',...
-        'Check lattice parameters and projection axes');
+if ~isstruct(proj_in) && ~isa(proj_in,'ortho_proj')
+    warning('HORACE:data_sqw_dnd:invalid_argument',...
+        ['old data_sqw_dnd object fully supports ortho_proj only.'...
+        ' Other projection types will be partially lost'])
 end
 
-
-% Fill data structure
-ndim=numel(obj.p);
-sz=ones(1,max(2,ndim));
-for i=1:ndim
-    sz(i)=numel(obj.p{i})-1;
+flds = ortho_proj.data_sqw_dnd_export_list;
+for i=1:numel(flds)
+    if check(flds{i})
+        obj.(flds{i}) = proj_in.(flds{i});
+    end
 end
-obj.filename = '';
-obj.filepath = '';
-if isa(lattice,'oriented_lattice')
-    obj.alatt=lattice.alatt;
-    obj.angdeg=lattice.angdeg;
+
+data_fields  = {'s','e','npix'};
+data_defined = false(3,1);
+if isstruct(proj_in)
+    for i=1:numel(data_fields)
+        if isfield(proj_in,data_fields{i})
+            obj.(data_fields{i}) = proj_in.(data_fields{i});
+            data_defined(i) = true;
+        end
+    end
+    if isfield(proj_in,'pix')
+        obj.pix = proj_in.pix;
+    end
 else
-    obj.alatt=lattice(1:3);
-    obj.angdeg=lattice(4:6);
 end
-obj.uoffset=proj.uoffset;
-%
-obj.u_to_rlu=zeros(4,4); obj.u_to_rlu(1:3,1:3)=u_to_rlu; obj.u_to_rlu(4,4)=1;
-%TODO: this is part of axes_block. To be moved out there
-obj.ulen=[ulen,1];
-obj.ulabel=proj.lab;
-
-obj.s=zeros(sz);
-obj.e=zeros(sz);
-obj.npix=ones(sz);
-obj.img_db_range = axes_block.calc_img_db_range(obj);
+sz = obj.dims_as_ssize;
+for i = 1:numel(data_fields)
+    sz_exist = size(obj.(data_fields{i}));
+    if ~(numel(sz_exist)== numel(sz) && any(sz_exist==sz)) && ~data_defined(i)
+        obj.(data_fields{i}) = zeros(sz);
+    end
+end
 
 

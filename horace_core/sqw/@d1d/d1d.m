@@ -14,6 +14,10 @@ classdef d1d < DnDBase
     methods
         function obj = d1d(varargin)
             obj = obj@DnDBase(varargin{:});
+            if nargin==0
+                obj.nbins_all_dims = [2,1,1,1];
+            end
+            
         end
 
         wout = cut (varargin);
@@ -36,34 +40,10 @@ classdef d1d < DnDBase
 
     methods(Static)
         function obj = loadobj(S)
-            % Load a d1d object from a .mat file
-            %
-            %   >> obj = loadobj(S)
-            %
-            % Input:
-            % ------
-            %   S       An instance of this object or struct
-            %
-            % -------
-            % Output:
-            %   obj     An instance of this object
-            %obj = d1d(S);
-            if isa(S,'d1d')
-                obj = S;
-                if isstruct(obj.data_)
-                    obj.data_ = data_sqw_dnd(obj.data_);
-                end
-                return
-            end
-            if numel(S)>1
-                tmp = d1d();
-                obj = repmat(tmp, size(S));
-                for i = 1:numel(S)
-                    obj(i) = d1d(S(i));
-                end
-            else
-                obj = d1d(S);
-            end
+            % boilerplate loadobj method, calling generic method of
+            % saveable class. Put it as it is replacing the
+            obj = d1d();
+            obj = loadobj@serializable(S,obj);
         end
     end
 end

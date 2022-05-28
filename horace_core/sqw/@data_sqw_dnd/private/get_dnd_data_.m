@@ -10,11 +10,10 @@ dnd_struct = struct('filename','',...
     'iax',[],'iint',[],'pax',[],'p',[],'dax',[],...
     's',[],'e',[],'npix',[]);
 if nargin>1
-    dnd_struct.img_db_range = [];
+    dnd_struct.img_range = [];
 end
 
 fields = fieldnames(dnd_struct);
 for i=1:numel(fields)
     dnd_struct.(fields{i}) = obj.(fields{i});
 end
-

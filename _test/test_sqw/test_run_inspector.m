@@ -5,7 +5,7 @@ classdef test_run_inspector< TestCase
 
     properties
         this_dir;
-        sqw_source = 'test_sqw_file/sqw_4d.sqw'
+        sqw_source = 'common_data/sqw_4d.sqw'
 
         source_sqw4D;
         source_sqw2D;
@@ -102,6 +102,7 @@ classdef test_run_inspector< TestCase
                 assertEqual(numel(keys),1);
                 id = unique(w_spl(i).data.pix.run_idx);
                 assertEqual(keys{1},id);
+                assertEqual(w_spl(i).experiment_info.expdata.run_id,id);
                 n_split_pix  = n_split_pix +w_spl(i).npixels;
             end
             assertEqual(n_pix,n_split_pix);

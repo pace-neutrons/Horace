@@ -2,11 +2,14 @@ classdef data_sqw_dnd < axes_block
     % Class defines structure of the data, used by sqw&dnd objects
     %
     % Trivial implementation, wrapping around a structure
-    
+
     % Original author: T.G.Perring
     %
     properties(Dependent)
         pix;
+
+        % The pixels are rebinned on this grid
+        img_db_range;
     end
     properties
         %
@@ -19,8 +22,6 @@ classdef data_sqw_dnd < axes_block
         e=[]          %Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
         npix=[]       %No. contributing pixels to each bin of the plot axes.
         %             [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-        % The pixels are rebinned on this grid
-        img_db_range=PixelData.EMPTY_RANGE_ % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf] -- convention if no pixels
         %
         % returns number of pixels, stored within the PixelData class
         num_pixels
@@ -32,7 +33,7 @@ classdef data_sqw_dnd < axes_block
     end
     properties(Constant,Access=private)
         fields_to_save_ = {'alatt','angdeg','uoffset',...
-            'u_to_rlu','s','e','npix','img_db_range','pix'};
+            'u_to_rlu','s','e','npix','pix'};
     end
     properties(Access=protected)
         pix_ = PixelData()      % Object containing data for each pixel
@@ -42,17 +43,15 @@ classdef data_sqw_dnd < axes_block
         function flds = saveableFields(obj)
             % get independent fields, which fully define the state of a
             % serializable object.
-            
             flds = saveableFields@axes_block(obj);
             flds = [flds(:);data_sqw_dnd.fields_to_save_(:)];
         end
-        
         %------------------------------------------------------------------
         % Determine data type of the data field of an sqw data structure
         data_type = data_structure_type(data);
         % Extract projection, used to build sqw file from full data_sqw_dnd
-        % object (full-- containing pixels)
-        proj = get_projection(obj)
+        % object.
+        proj = get_projection(obj,header_av)
         %------------------------------------------------------------------
         function obj = data_sqw_dnd(varargin)
             % constructor || copy-constructor:
@@ -160,8 +159,8 @@ classdef data_sqw_dnd < axes_block
             %   data.img_db_range  The range of the data along each axis, defining the size of the
             %                    grid, the pixels are rebinned into [img_db_range(2,4)]
             %   data.pix        A PixelData object
-            
-            
+
+
             obj = obj@axes_block();
             if nargin>0
                 obj = obj.init(varargin{:});
@@ -170,9 +169,15 @@ classdef data_sqw_dnd < axes_block
         %
         function obj = init(obj,varargin)
             if isa(varargin{1},'data_sqw_dnd') % handle shallow copy constructor
-                obj =varargin{1};                          % its COW for Matlab anyway
+                obj =varargin{1};              % its COW for Matlab anyway
             elseif nargin==2 && isstruct(varargin{1})
-                obj = from_bare_struct(obj,varargin{1});
+                % old interface compatibility
+                struc = varargin{1};
+                if isfield(struc,'ulabel')
+                    struc.label = struc.ulabel;
+                    struc = rmfield(struc,'ulabel');
+                end
+                obj = from_bare_struct(obj,struc);
             else
                 [obj,uoffset_,remains] = init@axes_block(obj,varargin{:});
                 obj.uoffset = uoffset_;
@@ -209,7 +214,7 @@ classdef data_sqw_dnd < axes_block
                 end
             end
         end
-        
+
         function dnd_struct=get_dnd_data(obj,varargin)
             %function retrieves dnd structure from the sqw_dnd_data class
             % if additional argument provided (+), the resulting structure  also includes
@@ -230,7 +235,7 @@ classdef data_sqw_dnd < axes_block
                 obj.pix_ = PixelData(val);
             end
         end
-        
+
         %
         function [type,obj]=check_sqw_data(obj, type_in, varargin)
             % old style validator for consistency of input data.
@@ -249,8 +254,21 @@ classdef data_sqw_dnd < axes_block
                 npix  = [];
             end
         end
-        
-        
+        %
+        function range = get.img_db_range(obj)
+            range  = obj.img_range_;
+        end
+        %
+        function obj = set.img_db_range(obj,val)
+            % this property should not be used, as the change of this
+            % property on defined object would involve whole pixels
+            % rebinning.
+            % TODO: remove this property setter or enable rebinning algorithm
+            % on its change
+            warning('HORACE:data_sqw_dnd:runtime_erroe',...
+                'using redundant property img_db_range. Use set/get.img_range instead')
+            obj.img_range = val;
+        end
     end
     methods(Access=protected)
         function obj = from_old_struct(obj,inputs)
@@ -262,28 +280,35 @@ classdef data_sqw_dnd < axes_block
             % in the structure does not correspond to the current version
             %
             if isfield(inputs,'urange')
-            %      do check for previous versions
-            %      and add appropriate code to convert the old data into
-            %      the modern data
-                inputs.img_db_range = inputs.urange;
+                %      do check for previous versions
+                %      and add appropriate code to convert the old data into
+                %      the modern data
+                inputs.img_range = inputs.urange;
                 inputs = rmfield(inputs,'urange');
-            elseif isfield(inputs,'img_range')
-                inputs.img_db_range = inputs.img_range;                
-                inputs = rmfield(inputs,'img_range');                
             end
-            if any(any(inputs.img_db_range==PixelData.EMPTY_RANGE_)) % 
+            if isfield(inputs,'img_db_range') && any(any(inputs.img_db_range==PixelData.EMPTY_RANGE_)) %
                 % assume that img_db_range can be restored from axis range.
                 % This is not always possible and correct, but may be
-                % correct for majority of old data
-                inputs.img_db_range = obj.calc_img_db_range(inputs);
+                % correct for majority of the old data
+                inputs.img_range = obj.calc_img_db_range(inputs);
+                inputs = rmfield(inputs,'img_db_range');
+            end
+            if isfield(inputs,'img_db_range')
+                inputs.img_range = inputs.img_db_range;
+                inputs = rmfield(inputs,'img_db_range');
+            end
+            
+            if isfield(inputs,'pax') && isfield(inputs,'iax')
+                inputs.serial_name = 'axes_block';
+                ab = serializable.from_struct(inputs);
+                obj = data_sqw_dnd(ab,inputs);
+                return;
             end
             if ~isfield(inputs,'nonorthogonal')
                 inputs.nonorthogonal = false;
             end
             obj = obj.from_bare_struct(inputs);
         end
-        
-        
     end
     methods(Static)
         %
@@ -293,18 +318,5 @@ classdef data_sqw_dnd < axes_block
             obj = data_sqw_dnd();
             obj = loadobj@serializable(S,obj);
         end
-        %
-        function [ind_range,ind_en,proj]=...
-                get_projection_from_pbin_inputs(ndim,uoffset,nonorthogonal,varargin)
-            % Parce binning inputs and try to guess some u_to_rlu from them.
-            % Ugly. Try to remove from here. Makes artificial dependence
-            % between axes_block and projection. Probably need not be here
-            %
-            nout = nargout;
-            [ind_range,ind_en,proj]=...
-                get_projection_from_pbin_inputs_(nout,ndim,uoffset,nonorthogonal,...
-                varargin{:});
-        end
-        
     end
 end

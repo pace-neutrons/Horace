@@ -3,6 +3,10 @@ function [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin)
 % add together, and compare with same for another array of files
 %
 %   >> [ok,mess]=is_cut_equal(f1,f2,proj,p1,p2,p3,p4)
+%   >> [ok,mess]=is_cut_equal(___,'tol',[abs_err,rel_err])
+%
+% where 'tol' is the comparison tolerance. See equal_to_tol for the format
+% of the parameter.
 %
 % Only checks the number of pixels per point, and the overall signal and error on the points
 %
@@ -11,6 +15,15 @@ function [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin)
 %   >> f2='sqw_1234.sqw';
 %   >> proj.u=[1,1,0]; proj.v=[0,0,1];
 %   >> w1_2=cut_sqw(f1,f2,proj,[-1.5,0.05,-0.5],[-0.6,-0.44],[-0.5,0.5],[5,10]);
+tol = [1.e-12,1.e-12];
+is_tol  = cellfun(@(x)(ischar(x)&&strcmp(x,tol)),varargin);
+if any(is_tol) % extract tol
+    tol_loc = find(is_tol);
+    tol_val_loc = tol_loc+1;
+    tol = varargin{tol_val_loc};
+    is_tol(tol_val_loc) = true;
+    varargin = varargin(~is_tol);
+end
 
 if ischar(f1), f1={f1}; end
 if ischar(f2), f2={f2}; end
@@ -30,27 +43,27 @@ w1tot=combine_cuts(w1);
 w2tot=combine_cuts(w2);
 
 % To check equality, see if npix, s, e arrays are the same
-if equal_to_tol(w1tot.data.npix,w2tot.data.npix) &&...
-        equal_to_tol(w1tot.data.s,w2tot.data.s) &&...
-        equal_to_tol(w1tot.data.e,w2tot.data.e) &&...
-        equal_to_tol(w1tot.data.img_db_range,w2tot.data.img_db_range)
+if equal_to_tol(w1tot.data.npix,w2tot.data.npix,'tol',tol) &&...
+        equal_to_tol(w1tot.data.s,w2tot.data.s,'tol',tol) &&...
+        equal_to_tol(w1tot.data.e,w2tot.data.e,'tol',tol) &&...
+        equal_to_tol(w1tot.data.img_db_range,w2tot.data.img_db_range,'tol',tol)
     if isempty(w1tot.data.pix)
         ok=true;
         mess='';
     else
-        if equal_to_tol(w1tot.data.pix.pix_range,w2tot.data.pix.pix_range) && ...
-                equal_to_tol(w1tot.data.pix.num_pixels,w2tot.data.pix.num_pixels)
+        if equal_to_tol(w1tot.data.pix.pix_range,w2tot.data.pix.pix_range,'tol',tol) && ...
+                equal_to_tol(w1tot.data.pix.num_pixels,w2tot.data.pix.num_pixels,'tol',tol)
             ok=true;
             mess='';
         else
             ok = false;
+            pixrange_diff = w1tot.data.pix.pix_range-w2tot.data.pix.pix_range;
             mess=sprintf(['Pixels parameters of two cuts are different:\n',...
                 '   npix1=%d and npix2 = %d\n',...
-                'pix_range1 = [%f  %f %f %f; pix_range2=[%f  %f %f  %f;\n',...
-                '              %f  %f %f %f]             %f  %f %f  %f]'],...
-                w1tot.data.pix.num_pixels,w2tot.data.pix.pix_range,...
-                w1tot.data.pix.pix_range(1,:),w2tot.data.pix.pix_range(1,:),...
-                w1tot.data.pix.pix_range(2,:),w2tot.data.pix.pix_range(2,:));
+                '   pix_range difference =  [%g  %g %g %g;\n',...
+                '                            %g  %g %g %g]'],...
+                w1tot.data.pix.num_pixels,w2tot.data.pix.num_pixels,...
+                pixrange_diff');
         end
     end
 else

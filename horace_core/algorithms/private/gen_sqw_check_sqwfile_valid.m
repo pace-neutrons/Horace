@@ -73,10 +73,8 @@ if ~ok
     return
 end
 
-grid_size=zeros(1,4);
-for i=1:4
-    grid_size(i)=numel(data.p{i})-1;
-end
-img_db_range=data.img_db_range;
+grid_size =data.nbins_all_dims;
+
+img_db_range=data.img_range;
 pix_range = ldr.get_pix_range();
 

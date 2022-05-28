@@ -80,44 +80,45 @@ if narg<=1
     % ----------------------------------------------------
     % Call of form: make_sqw_data() or make_sqw_data(ndim)
     % ----------------------------------------------------
-    lattice=[2*pi,2*pi,2*pi,90,90,90];
     proj = [];
     if nargin==3
         proj = varargin{1};
+        if isstruct(proj) && isfield(proj,'u') && isfield(proj,'v')
+            [proj,remains] = ortho_proj(proj);
+            if ~isempty(remains)
+                error('HORACE:data_sqw_dnd:invalid_argument',...
+                    'The input structure for data_sqw_dnd contains not only the projection structure')
+            end
+        end
     end
     if isempty(proj)
-        proj = projaxes;
-        proj.uoffset = uoffset;
+        proj = ortho_proj;
     end
-    obj = make_sqw_data_from_proj_(obj,lattice, proj);
+    proj.offset = uoffset;
+    obj = make_sqw_data_from_proj_(obj,proj);
 elseif narg>=2
     % -------------------------------------------------------------------------------------
     % Call of form: make_sqw_data(u1,p1,u2,p2,...,un,pn) or make_sqw_data(proj,p1,p2,p3,p4)
     % -------------------------------------------------------------------------------------
-    
+
     % Determine if first argument is lattice parameters
     if (isnumeric(varargin{1}) && isvector(varargin{1}) && numel(varargin{1})==6)...
             || isa(varargin{1},'oriented_lattice')...
-            
+
         n0=1;   % position of lattice argument in list
-        latt=varargin{1};
     else
         n0=0;
-        latt=[2*pi,2*pi,2*pi,90,90,90];
     end
     narg=narg-n0;   % number of arguments following lattice
-    
+
     % Determine if remaining input is proj,p1,p2,p3,p4, or uoffset,[u0,]u1,p1,...
-        
-    if narg==1 && (isstruct(varargin{1+n0}) || isa(varargin{1+n0},'projaxes'))
+
+    if narg==1 && (isstruct(varargin{1+n0}) || isa(varargin{1+n0},'aProjection'))
         % Remaining input has form proj,p1,p2,p3,p4
-        obj=make_sqw_data_from_proj_(obj,latt,varargin{1+n0});
+        obj=make_sqw_data_from_proj_(obj,varargin{1+n0});
     else
-        ndims = numel(obj.p);
-        % Remaining input has form uoffset,[u0,]u1,p1,...
-        [~,~,proj]=obj.get_projection_from_pbin_inputs(...
-            ndims,uoffset,obj.nonorthogonal,varargin{1+n0:end});
-        obj=make_sqw_data_from_proj_(obj,latt,proj);
+        proj = ortho_proj(varargin{:});
+        obj=make_sqw_data_from_proj_(obj,proj);
     end
 end
 

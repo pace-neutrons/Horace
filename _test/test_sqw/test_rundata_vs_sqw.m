@@ -71,25 +71,25 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
 
         end
 
-        function this=test_build_rundata(this)
+        function obj=test_build_rundata_from_sqw_keeps_lattice_and_detectors(obj)
 
-            rd = rundatah(this.sqw_obj);
+            rd = rundatah(obj.sqw_obj);
 
-            assertEqual(rd.emode, this.emode);
-            assertEqual(rd.efix, this.efix);
+            assertEqual(rd.emode, obj.emode);
+            assertEqual(rd.efix, obj.efix);
 
             lattice = rd.lattice;
-            assertElementsAlmostEqual(lattice.alatt,this.alatt,'absolute',2e-7);
-            assertElementsAlmostEqual(lattice.angdeg,this.angdeg);
-            assertEqual(lattice.u,this.u);
-            assertEqual(lattice.v,this.v);
-            assertElementsAlmostEqual(lattice.psi,this.psi,'absolute',2e-7);
-            assertElementsAlmostEqual(lattice.omega,this.omega,'absolute',2e-7);
-            assertElementsAlmostEqual(lattice.dpsi,this.dpsi,'absolute',2e-7);
-            assertElementsAlmostEqual(lattice.gl,this.gl,'absolute',2e-7);
-            assertElementsAlmostEqual(lattice.gs,this.gs,'absolute',2e-7);
+            assertElementsAlmostEqual(lattice.alatt,obj.alatt,'absolute',2e-7);
+            assertElementsAlmostEqual(lattice.angdeg,obj.angdeg);
+            assertEqual(lattice.u,obj.u);
+            assertEqual(lattice.v,obj.v);
+            assertElementsAlmostEqual(lattice.psi,obj.psi,'absolute',2e-7);
+            assertElementsAlmostEqual(lattice.omega,obj.omega,'absolute',2e-7);
+            assertElementsAlmostEqual(lattice.dpsi,obj.dpsi,'absolute',2e-7);
+            assertElementsAlmostEqual(lattice.gl,obj.gl,'absolute',2e-7);
+            assertElementsAlmostEqual(lattice.gs,obj.gs,'absolute',2e-7);
 
-            det = get_par(this.par_file);
+            det = get_par(obj.par_file);
             det_par = rd.det_par;
             %
             assertElementsAlmostEqual(det_par.azim,det.azim,'absolute',7.7e-6);
@@ -99,25 +99,38 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             assertElementsAlmostEqual(det_par.width,det.width,'absolute',2.e-6);
             assertElementsAlmostEqual(det_par.x2,det.x2,'absolute',2.e-6);
             assertEqual(det_par.filename,det.filename)
-            %assertEqual(det_par.filepath,det.filepath)
-            %assertEqual(det_par,det);
-            grid_size = size(this.sqw_obj.data.s);
-            img_db_range    = this.sqw_obj.data.img_db_range;
+        end
+        %
+        function obj=test_build_rundata(obj)
+            rd = rundatah(obj.sqw_obj);
 
-            sqw_rev = rd.calc_sqw(grid_size,img_db_range);
+            grid_size = size(obj.sqw_obj.data.s);
+            img_range    = obj.sqw_obj.data.img_range;
 
+            sqw_rev = rd.calc_sqw(grid_size,img_range);
+
+            lattice = rd.lattice;
             proj = struct('u',lattice.u,'v',lattice.v);
-            [ok,mess]=is_cut_equal(this.sqw_obj,sqw_rev,proj,0.04*(img_db_range(2,1)-img_db_range(1,1)),0.1*(img_db_range(2,2)-img_db_range(1,2)),[-Inf,Inf],[-Inf,Inf]);
-            assertTrue(ok,['Combining cuts from each individual sqw file and the cut from the combined sqw file not the same ',mess]);
-            %assertEqual(this.sqw_obj,sqw_rev);
+
+            [ok,mess]=is_cut_equal(obj.sqw_obj,sqw_rev,proj,0.04*(img_range(2,1)-img_range(1,1)),0.1*(img_range(2,2)-img_range(1,2)),[-Inf,Inf],[-Inf,Inf]);
+            assertTrue(ok, ...
+                sprintf('The cut from direct sqw obj and sqw->rundata->sqw converted obj are not the same:\n %s\n', ...
+                mess));
+            assertEqualToTol(obj.sqw_obj,sqw_rev,'tol',[1.e-12,1.e-12]);
+        end
+        function test_bounding_object_provides_correct_img_range(obj)
+            rd = rundatah(obj.sqw_obj);
+
+            grid_size = size(obj.sqw_obj.data.s);
+            img_range    = obj.sqw_obj.data.img_range;
 
             % calculate bounding object surrounding existing data object
             bob = rd.build_bounding_obj();
-            bos = bob.calc_sqw(grid_size,img_db_range);
-            assertElementsAlmostEqual(bos.data.img_db_range,img_db_range,'relative',1.e-6);
+            bos = bob.calc_sqw(grid_size,img_range);
+            assertElementsAlmostEqual(bos.data.img_range,img_range,'relative',1.e-6);
 
             pix_range =[min(bos.data.pix.coordinates,[],2)'; max(bos.data.pix.coordinates,[],2)'];
-            assertElementsAlmostEqual(bos.data.img_db_range,pix_range,'relative',1.e-6);
+            assertElementsAlmostEqual(bos.data.img_range,pix_range,'relative',1.e-6);
         end
         %
         function  this=test_serialize_deserialize_rundatah(this)
@@ -156,7 +169,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             fa = rundatah.deserialize(by);
 
             grid_size = size(obj.sqw_obj.data.s);
-            img_db_range = obj.sqw_obj.data.img_db_range;
+            img_db_range = obj.sqw_obj.data.img_range;
 
             sqw_o = rd.calc_sqw(grid_size,img_db_range);
             sqw_r = obj.rd_convert_checker(fa,grid_size,img_db_range);
@@ -178,6 +191,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             dts = hc.get_data_to_store();
             clob = onCleanup(@()set(hc,dts));
             hc.use_mex = false;
+            hc.ignore_nan = true;
 
             [sq4,grid,pix_range] = rd.calc_sqw();
             assertEqual(grid,[50,50,50,50]);

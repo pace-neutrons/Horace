@@ -18,7 +18,7 @@ classdef test_replicate< TestCase
         
         % tests
         function test_replicate_0Dto4D(~)  
-            pr = projaxes([1,0,0],[0,1,0]);
+            pr = ortho_proj([1,0,0],[0,1,0]);
             ol = oriented_lattice([1,2,4],[90,90,90]);
             d4 = d4d(ol,pr,[-0.1,0.01,0.1],[-2,0.05,2],[0,0.1,1],[-2,0.05,2]);
             assertTrue(isa(d4,'d4d'))
@@ -31,7 +31,7 @@ classdef test_replicate< TestCase
         end
         
         function test_replicate_1Dto4D(~)  
-            pr = projaxes([1,0,0],[0,1,0]);
+            pr = ortho_proj([1,0,0],[0,1,0]);
             ol = oriented_lattice([1,2,4],[90,90,90]);
             d4 = d4d(ol,pr,[-0.1,0.01,0.1],[-2,0.05,2],[0,0.1,1],[-2,0.05,2]);
             assertTrue(isa(d4,'d4d'))
@@ -44,7 +44,7 @@ classdef test_replicate< TestCase
         end
         
         function test_replicate_1Dto3D(~)  
-            pr = projaxes([1,0,0],[0,1,0]);
+            pr = ortho_proj([1,0,0],[0,1,0]);
             ol = oriented_lattice([1,2,4],[90,90,90]);
             d3 = d3d(ol,pr,[-0.1,0.1],[-2,0.05,2],[0,0.1,1],[-2,0.05,2]);
             assertTrue(isa(d3,'d3d'))
@@ -57,7 +57,7 @@ classdef test_replicate< TestCase
         end
         
         function test_replicate_1Dto2D(~)  
-            pr = projaxes([1,0,0],[0,1,0]);
+            pr = ortho_proj([1,0,0],[0,1,0]);
             ol = oriented_lattice([1,2,4],[90,90,90]);
             d2 = d2d(ol,pr,[-0.1,0.1],[-2,0.05,2],[0,1],[-2,0.05,2]);
             assertTrue(isa(d2,'d2d'))

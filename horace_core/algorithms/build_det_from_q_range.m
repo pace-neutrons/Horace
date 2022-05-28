@@ -2,7 +2,7 @@ function  [det_pos,par_file_name] = build_det_from_q_range(q_range,efix,lattice,
 % Create fake detector file which would cover the q-range provided as input
 %
 % Inputs:
-% q_range --  3xNdet array of [h,k,l] momentums corresponding to the
+% q_range --  3xNdet array of [h,k,l] momentum transfers, corresponding to the
 %             detectors positions (in elastic scattering)
 %             or
 %             3x3 matrix in the format [qh_min,qh_step,qh_max;
@@ -12,6 +12,8 @@ function  [det_pos,par_file_name] = build_det_from_q_range(q_range,efix,lattice,
 %             q-range provided.]
 %             or 1x3 vector [q_min,q_step,q_max] providing the same
 %             range in all 3 hkl directions.
+%     TODO: allow to accept any energy loss (not only elastic) in direct
+%           and indirect modes.
 %
 %
 % Goniometer and sample position, defining q-transformation:
@@ -90,7 +92,8 @@ end
 
 [~, ~, spec_to_rlu] = lattice.calc_proj_matrix();
 
-%
+% TODO: Done for elastic only. Make the same for two other modes
+% if memory transfers are provided for inelastic (direct and indirect):
 c=neutron_constants;
 k_to_e = c.c_k_to_emev;
 ki = sqrt(efix/k_to_e);

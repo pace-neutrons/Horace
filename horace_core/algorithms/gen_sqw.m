@@ -113,23 +113,26 @@ flags={'replicate','accumulate','clean','tmp_only'};
 %input arguments
 if ~opt.accumulate
     if present.clean && opt.clean
-        error('Invalid option ''clean'' unless also have option ''accumulate''')
+        error('HORACE:gen_sqw:invalid_argument', ...
+            'Invalid option ''clean'' unless also have option ''accumulate''')
     end
     if present.time && (exist(opt.time,'var') || ~isnumeric(opt.time) || opt.time~=0)
-        error('Invalid option ''time'' unless also have option ''accumulate'' and/or a date-time vector following')
+        error('HORACE:gen_sqw:invalid_argument', ...
+            'Invalid option ''time'' unless also have option ''accumulate'' and/or a date-time vector following')
     end
 end
 if present.transform_sqw
     for i=1:numel(opt.transform_sqw)
         [ok,mess] = check_transf_input(opt.transform_sqw);
         if ~ok
-            error('GEN_SQW:invalid_argument',['transform_sqw param N',...
+        error('HORACE:gen_sqw:invalid_argument', ...
+                ['transform_sqw param N',...
                 num2str(i),' Error: ',mess])
         end
     end
     if numel(opt.transform_sqw)>1
         if numel(opt.transform_sqw) ~= numel(psi)
-            error('GEN_SQW:invalid_argument',...
+        error('HORACE:gen_sqw:invalid_argument', ...
                 ['When more then one sqw file transformation is provided', ...
                 ' number of transformations should be equal to number of spe ',...
                 'files to transform\n.',...
@@ -147,16 +150,19 @@ end
 %exist.
 if present.time
     if ~isnumeric(opt.time)
-        error('Argument following option ''time'' must be vector of date-time format [yyyy,mm,dd,hh,mm,ss]')
+        error('HORACE:gen_sqw:invalid_argument', ...
+            'Argument following option ''time'' must be vector of date-time format [yyyy,mm,dd,hh,mm,ss]')
     elseif numel(opt.time)~=6
-        error('Argument following option ''time'' must be vector of date-time format [yyyy,mm,dd,hh,mm,ss]')
+        error('HORACE:gen_sqw:invalid_argument', ...
+            'Argument following option ''time'' must be vector of date-time format [yyyy,mm,dd,hh,mm,ss]')
     end
 
     end_time=datenum(opt.time);
     time_now=now;
 
     if end_time<=time_now
-        error('Date-time for accumulate_sqw to start is in the past');
+        error('HORACE:gen_sqw:invalid_argument', ...
+            'Date-time for accumulate_sqw to start is in the past');
     elseif (end_time-time_now) > 1
         disp('**************************************************************************************************')
         disp('***  WARNING: date-time specified for accumulate_sqw to start is more than 1 day in the future ***');
@@ -221,8 +227,10 @@ if ~ok, error('HORACE:gen_sqw:invalid_argument',mess), end
 
 % Check optional arguments (grid, pix_db_range, instrument, sample) for size, type and validity
 grid_default=[];
-instrument_default=IX_null_inst();  % default 1x1 struct
-sample_default = IX_null_sample();
+instrument_default=IX_null_inst();  % 
+sample_default = IX_null_sample();  % default empty sample will be replaced by 
+%                                   % IX_samp containing lattice at setting
+%                                   % it to rundatah
 [ok,mess,present,grid_size_in,pix_db_range,instrument,sample]=gen_sqw_check_optional_args(...
     n_all_spe_files,grid_default,instrument_default,sample_default,args{:});
 if ~ok, error('HORACE:gen_sqw:invalid_argument',mess), end
@@ -320,11 +328,12 @@ if accumulate_old_sqw    % combine with existing sqw file
 else
     [ok, mess] = gen_sqw_check_distinct_input (spe_file, efix, emode,...
         lattice, instrument, sample, opt.replicate);
-    if ~ok, error('GEN_SQW:invalid_argument',mess), end
+    if ~ok, error('HORACE:gen_sqw:invalid_argument',mess), end
     % Have already checked that all the spe files exist for the case of generate_new_sqw is true
 
     if accumulate_new_sqw && ~any(spe_exist)
-        error('None of the spe data files exist, so cannot create new sqw file.')
+        error('HORACE:gen_sqw:invalid_argument', ...
+            'None of the spe data files exist, so cannot create new sqw file.')
     end
     ix=spe_exist;  % the spe data that needs to be processed
 end
@@ -345,7 +354,7 @@ end
 
 if accumulate_old_sqw % build only runfiles to process
     run_files = rundatah.gen_runfiles(spe_file(ix),par_file,efix(ix),emode(ix),...
-        lattice(ix),instrument,sample,rundata_par{:});
+        lattice(ix),instrument(ix),sample(ix),rundata_par{:});
 else % build all runfiles, including missing runfiles. TODO: Lost generality
     if isempty(par_file) && sum(spe_exist) ~= n_all_spe_files % missing rf need to use par file from existing runfiles
         % Get detector parameters
@@ -365,13 +374,13 @@ if emode ~= 0
         en_tst = run_files{i}.en;
         if ischar(en_tst)
             [~,dfn,dfe] = fileparts(run_files{i}.data_file_name);
-            error('GEN_SQW:invalid_argument',...
+            error('HORACE:gen_sqw:invalid_argument',...
                 'file: %s, N%d, has incorrect energy bins: %s',[dfn,dfe],i,en_tst);
         end
         efix_tst = run_files{i}.efix;
         if ischar(efix_tst)
             [~,dfn,dfe] = fileparts(run_files{i}.data_file_name);
-            error('GEN_SQW:invalid_argument',...
+            error('HORACE:gen_sqw:invalid_argument',...
                 'file: %s, N%d, has incorrect efixed: %s',[dfn,dfe],i,efix_tst);
         end
 
@@ -511,9 +520,7 @@ end
 if nargout==0
     clear tmp_file grid_size pix_range
 end
-% clear cached detectors information and detectors directions
-rundatah.clear_det_cache();
-
+%
 function delete_tmp_files(file_list,hor_log_level)
 delete_error=false;
 for i=1:numel(file_list)
@@ -639,7 +646,7 @@ for i=1:numel(files_to_check)
             equal_to_relerr(data_ref.u_to_rlu(:), data.u_to_rlu(:), tol, 1) &...
             equal_to_relerr(data_ref.ulen, data.ulen, tol, 1);
         if ~ok
-            error('GEN_SQW:invalid_argument',...
+            error('HORACE:algorithms:invalid_argument',...
                 'the tmp file to combine: %s does not have the the correct projection axes for this operation',...
                 ldr.filename)
         end
@@ -683,8 +690,6 @@ function  [pix_db_range,pix_range] = find_pix_range(run_files,efix,emode,ief,ind
 % pix_db_range -- q-dE range of all input data, to rebin pixels on
 % pix_range    -- actual q-dE range of the pixel coordinates
 %
-use_mex = ...
-    config_store.instance().get_value('hor_config','use_mex');
 nindx = numel(indx);
 n_all_spe_files = numel(run_files);
 
@@ -693,14 +698,9 @@ if log_level>-1
     disp(['Calculating limits of data for ',num2str(n_all_spe_files),' spe files...'])
 end
 
-if use_mex
-    cache_det = {};
-else
-    cache_det  = {'-cache_detectors'};
-end
 
 bigtic
-pix_range = rundata_find_pix_range(run_files(ief),cache_det{:});
+pix_range = rundata_find_pix_range(run_files(ief));
 
 % process missing files
 if ~all(ief)
@@ -720,7 +720,7 @@ if ~all(ief)
         missing_rf{i}.en = [eps_lo(i);eps_hi(i)];
     end
 
-    pix_range_est = rundata_find_pix_range(missing_rf,cache_det{:});
+    pix_range_est = rundata_find_pix_range(missing_rf);
 
     % Expand range to include pix_range_est, if necessary
     pix_range=[min(pix_range(1,:),pix_range_est(1,:));...
@@ -893,7 +893,7 @@ tol = 4*eps(single(pix_db_range)); % double of difference between single and dou
 ldr = sqw_formats_factory.instance().get_loader(tmp_file);
 head = ldr.get_data('-head');
 pix_range = ldr.get_pix_range;
-if any(abs(head.img_db_range-pix_db_range)>tol)
+if any(abs(head.img_range-pix_db_range)>tol)
     present_and_valid   = false;
 else
     present_and_valid   = true;

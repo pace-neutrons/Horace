@@ -20,9 +20,11 @@ function varargout = cut_dnd(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 
 [varargout,mess] = horace_function_call_method (nargout, @cut, '$dnd', varargin{:});
-if ~isempty(mess), error(mess), end
+if ~isempty(mess)
+    error('HORACE:cut_dnd:invalid_argument', ...
+        mess)
+end
 

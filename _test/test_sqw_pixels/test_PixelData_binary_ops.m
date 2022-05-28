@@ -7,8 +7,8 @@ classdef test_PixelData_binary_ops < TestCase & common_pix_class_state_holder
         
         FLOAT_TOLERANCE = 4.75e-4;
         
-        test_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
-        test_sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw';
+        test_sqw_file_path = '../common_data/sqw_1d_1.sqw';
+        test_sqw_2d_file_path = '../common_data/sqw_2d_1.sqw';
         ref_raw_pix_data = [];
         
         pix_in_memory_base;

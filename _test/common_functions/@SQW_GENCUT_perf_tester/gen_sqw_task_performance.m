@@ -20,7 +20,7 @@ perf_res1=obj.assertPerformance(ts,test_fld_names{1},...
     'whole sqw file generation');
 % combine
 ts = tic();
-write_nsqw_to_sqw (tmp_files, obj.sqw_file,'-allow_equal_headers',jd);
+write_nsqw_to_sqw (tmp_files, obj.sqw_file,'-allow_equal_headers','-keep_runid',jd);
 perf_res=obj.assertPerformance(ts,test_fld_names{2},...
     'calc headers and combine all tmp files');
 %profile off

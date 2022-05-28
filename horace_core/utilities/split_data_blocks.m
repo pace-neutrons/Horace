@@ -11,12 +11,12 @@ function [chunks, cumulative_sum] = split_data_blocks(start_pos,block_sizes, buf
 %                    continuously located on the media starting at start_pos
 %                    and extending to block_size. The next position can not
 %                    lie within previous [start_pos:start_pos+block_size]
-%                    but may be at start_pos+block_size+1.
+%                    but may be located at start_pos+block_size+1.
 %
 % buf_size           A positive value specifying the limiting size for each
-%                    sub-block, the initial values need to be split into
-%                    The actual size should be the range from this size to
-%                    double of the buffer size.
+%                    sub-block, the initial values need to be split into.
+%                    The actual chunk size will lie in the range from this 
+%                    size to the double of the buffer size.
 %
 %
 % Output:
@@ -37,8 +37,16 @@ if isempty(block_sizes)
     cumulative_sum = [];
     return;
 end
-validateattributes(start_pos, {'numeric'}, {'vector', 'positive'});
 validateattributes(block_sizes, {'numeric'}, {'vector', 'positive'});
+if isempty(start_pos)
+    bin_with_data = block_sizes(:)~=0;
+    block_sizes = npix(bin_with_data);
+    cumulative_sum = cumsum(block_sizes);
+    start_pos = [1,cumulative_sum(end-1)];    
+else
+    validateattributes(start_pos, {'numeric'}, {'vector', 'positive'});
+end
+
 validateattributes(buf_size, {'numeric'}, {'scalar', 'positive'});
 if any(size(start_pos)~=size(block_sizes))
     error('HORACE:utilities:invalid_argument',...
@@ -53,7 +61,9 @@ end
 % glue adjacent data blocks
 cumulative_sum = cumsum(block_sizes);
 last_block_pos = block_sizes+start_pos;
-% remove border between adjacent blocks
+% remove border between adjacent blocks and combine adjacent blocks
+% together to improve the block access performance (usually when reading
+% data from hdd)
 remove_border  = start_pos(2:end)==last_block_pos(1:end-1);
 if any(remove_border)
     % keep boder positions which should not be removed

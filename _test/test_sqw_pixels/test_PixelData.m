@@ -7,7 +7,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
         
         raw_pix_data = rand(PixelData.DEFAULT_NUM_PIX_FIELDS, 10);
         raw_pix_range;
-        tst_source_sqw_file_path = '../test_sqw_file/sqw_1d_1.sqw';
+        tst_source_sqw_file_path = '../common_data/sqw_1d_1.sqw';
         tst_sqw_file_full_path = '';
         this_dir = fileparts(mfilename('fullpath'));
         
@@ -1340,7 +1340,7 @@ classdef test_PixelData < TestCase & common_pix_class_state_holder
             
             idx_array = 25:35;
             f = @() pix.get_pixels(idx_array);
-            assertExceptionThrown(f, 'PIXELDATA:get_pixels');
+            assertExceptionThrown(f, 'HORACE:PixelData:get_pixels');
         end
         
         function test_get_pixels_throws_if_an_idx_lt_1_with_paged_pix(obj)

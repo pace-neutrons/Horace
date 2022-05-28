@@ -90,13 +90,9 @@ for i=1:numel(win)
 
         % Convert wout(i) into a single bin object
         data = wout(i).data;    % to get a convenient pointer
-        data.iax = (1:4);
-        data.iint = zeros(2,4);
-        for j=1:numel(data.iax)
-            data.iint(:,j) = [pbin{j}(1);pbin{j}(end)];
-        end
-        data.pax = zeros(1,0);
-        data.p = cell(1,0);
+        data.nbins_all_dims = ones(4,1);
+        data.img_range = win(i).data.img_range;        
+
         data.dax = zeros(1,0);
         data.s = 0;
         data.e = 0;
@@ -104,7 +100,7 @@ for i=1:numel(win)
         eps_lo = min(data.pix.dE);
         eps_hi = max(data.pix.dE);
         % TODO: meaning?
-        data.img_db_range(:,4) = [eps_lo;eps_hi];
+        data.img_range(:,4) = [eps_lo;eps_hi];
         wout(i).data = data;
         wout(i) = recompute_bin_data(wout(i));
 
@@ -118,6 +114,7 @@ for i=1:numel(win)
                 pbin{4}(3) = ehi + de*ceil((eps_hi-ehi)/de);
             end
         end
+
         wout(i) = cut(wout(i),proj,pbin{:});
 
     else

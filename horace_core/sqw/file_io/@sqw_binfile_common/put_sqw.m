@@ -7,7 +7,7 @@ function    obj = put_sqw(obj,varargin)
 [ok,mess,update,argi]=parse_char_options(varargin,{'-update'});
 if ~ok
     error('HORACE:sqw_binfile_common:invalid_artgument',...
-        ['DND_BINFILE_COMMON::put_sqw Error: ',mess]);
+        ['put_sqw: Invalid argument: ',mess]);
 end
 %
 jobDispatcher = [];

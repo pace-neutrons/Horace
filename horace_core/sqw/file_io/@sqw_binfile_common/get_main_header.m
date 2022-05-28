@@ -4,7 +4,7 @@ function   main_header = get_main_header(obj,varargin)
 %   >> main_header = obj.get_main_header();
 %   >> main_header = obj.get_main_header('-v');
 %
-% The default behaviour is that the filename and filepath that are written to file are ignored;
+% The default behaviour is that the filename and file-path that are written to file are ignored;
 % we fill with the values corresponding to the file that is actually being read.
 % The name written in the file is read if use the '-hverbatim' option (below). This is needed if
 % want to alter header information by overwriting with a block of exactly the same length.
@@ -14,7 +14,7 @@ function   main_header = get_main_header(obj,varargin)
 %   opt             [Optional] read flag:
 %                   '-verbatim' - report the progress of the operations
 %                   '-keep_original'  Do not override file name, stored in
-%                   sqw file with current filenaeme (necessary for file
+%                   sqw file with current filename (necessary for file
 %                   format upgrade)
 % Output:
 % -------

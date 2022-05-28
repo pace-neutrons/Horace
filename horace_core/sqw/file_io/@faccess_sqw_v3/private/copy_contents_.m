@@ -19,6 +19,7 @@ for i=1:numel(flds)
         missing_fields{n_missing} = fld;
     end
 end
+obj.contains_runid_in_header_ = other_obj.contains_runid_in_header_;
 %
 if other_obj.file_id_>0
     [file,acc] = fopen(other_obj.file_id_);

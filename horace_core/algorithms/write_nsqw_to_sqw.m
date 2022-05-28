@@ -57,13 +57,13 @@ accepted_options = {'-allow_equal_headers','-keep_runid',...
     '-drop_subzones_headers','-parallel'};
 
 if nargin<2
-    error('WRITE_NSQW_TO_SQW:invalid_argument',...
+    error('HORACE:write_nsqw_to_sqw:invalid_argument',...
         'function should have at least 2 input arguments')
 end
 [ok,mess,allow_equal_headers,keep_runid,drop_subzone_headers,combine_in_parallel,argi]...
     = parse_char_options(varargin,accepted_options);
 if ~ok
-    error('WRITE_NSQW_TO_SQW:invalid_argument',mess);
+    error('HORACE:write_nsqw_to_sqw:invalid_argument',mess);
 end
 [pix_range,job_disp,jd_initialized]= parse_additional_input(argi);
 
@@ -111,7 +111,7 @@ end
 nfiles=length(infiles);
 for i=1:nfiles
     if exist(infiles{i},'file')~=2
-        error('WRITE_NSQW_TO_SQW:invalid_argument',...
+        error('HORACE:write_nsqw_to_sqw:invalid_argument',...
             'Can not find file: %s',infiles{i})
     end
 end
@@ -148,9 +148,9 @@ end
 %[header_combined,nspe] = sqw_header.header_combine(header,allow_equal_headers,drop_subzone_headers);
 
 
-img_db_range=datahdr{1}.img_db_range;
+img_db_range=datahdr{1}.img_range;
 for i=2:nfiles
-    img_db_range=[min(img_db_range(1,:),datahdr{i}.img_db_range(1,:));max(img_db_range(2,:),datahdr{i}.img_db_range(2,:))];
+    img_db_range=[min(img_db_range(1,:),datahdr{i}.img_range(1,:));max(img_db_range(2,:),datahdr{i}.img_range(2,:))];
 end
 
 
@@ -168,24 +168,13 @@ main_header_combined.filepath='';
 main_header_combined.title='';
 main_header_combined.nfiles=nfiles_tot;
 
-sqw_data = data_sqw_dnd();
+sqw_data = data_sqw_dnd(datahdr{1});
 sqw_data.filename=main_header_combined.filename;
 sqw_data.filepath=main_header_combined.filepath;
 sqw_data.title=main_header_combined.title;
-sqw_data.alatt=datahdr{1}.alatt;
-sqw_data.angdeg=datahdr{1}.angdeg;
-sqw_data.uoffset=datahdr{1}.uoffset;
-sqw_data.u_to_rlu=datahdr{1}.u_to_rlu;
-sqw_data.ulen=datahdr{1}.ulen;
-sqw_data.ulabel=datahdr{1}.ulabel;
-sqw_data.iax=datahdr{1}.iax;
-sqw_data.iint=datahdr{1}.iint;
-sqw_data.pax=datahdr{1}.pax;
-sqw_data.p=datahdr{1}.p;
-sqw_data.dax=datahdr{1}.dax;    % take the display axes from first file, for sake of choosing something
 % img_db_range at this stage is equal to pix_range + halo ~ eps, if pix_range was
 % estimated or input_pix_range if it has been provided
-sqw_data.img_db_range=img_db_range;
+sqw_data.img_range=img_db_range;
 
 % Now read in binning information
 % ---------------------------------
@@ -224,7 +213,8 @@ if combine_in_parallel
         e_accum = outputs{1}.e;
         npix_accum = outputs{1}.npix;
     else
-        job_disp.display_fail_job_results(outputs,n_failed,n_workers,'WRITE_NSQW_TO_SQW:runtime_error');
+        job_disp.display_fail_job_results(outputs,n_failed,n_workers, ...
+            'HORACE:write_nsqw_to_sqw:runtime_error');
     end
     
     
@@ -232,12 +222,7 @@ else
     % read arrays and accumulate headers directly
     [s_accum,e_accum,npix_accum] = accumulate_headers_job.accumulate_headers(ldrs);
 end
-
-s_accum = s_accum ./ npix_accum;
-e_accum = e_accum ./ npix_accum.^2;
-nopix=(npix_accum==0);
-s_accum(nopix)=0;
-e_accum(nopix)=0;
+[s_accum,e_accum] = normalize_signal(s_accum,e_accum,npix_accum);
 %
 sqw_data.s=s_accum;
 sqw_data.e=e_accum;
@@ -246,7 +231,7 @@ sqw_data.npix=uint64(npix_accum);
 clear nopix
 [ok,sqw_exist,outfile,err_mess] = check_file_writable(outfile);
 if ~ok
-    error('WRITE_NSQW_TO_SQW:invalid_argument',....
+    error('HORACE:write_nsqw_to_sqw:invalid_argument',...
         err_mess);
 end
 if sqw_exist          % init may want to upgrade the file and this
@@ -263,7 +248,7 @@ end
 if drop_subzone_headers || keep_runid
     run_label = 'nochange';
 else
-    run_label=cumsum([0;nspe(1:end-1)]);
+    run_label=cumsum(nspe(1:end));
 end
 % if old_matlab
 %     npix_cumsum = cumsum(double(sqw_data.npix(:)));
@@ -315,13 +300,13 @@ is_jd = cellfun(@(x)(isa(x,'JobDispatcher')),argi,'UniformOutput',true);
 if any(is_jd)
     job_disp = argi(is_jd);
     if numel(job_disp) >1
-        error('WRITE_NSQW_TO_SQW:invalid_argument',...
+    error('HORACE:write_nsqw_to_sqw:invalid_argument',...
             'only one instance of JobDispatcher can be provided as input');
     else
         job_disp  = job_disp{1};
     end
     if ~job_disp.is_initialized
-        error('WRITE_NSQW_TO_SQW:invalid_argument',...
+    error('HORACE:write_nsqw_to_sqw:invalid_argument',...
             ['Only initialized JobDispatcher is currently supported',...
             ' as input for write_nsqw_to_sqw.',...
             ' Use "parallel" option to combine files in parallel']);
@@ -339,7 +324,7 @@ if ~any(is_range)
     return;
 end
 if sum(is_range) > 1
-    error('WRITE_NSQW_TO_SQW:invalid_argument',...
+    error('HORACE:write_nsqw_to_sqw:invalid_argument',...
         ['More then one variable in input arguments is interpreted as range.',...
         ' This is not currently supported'])
 end

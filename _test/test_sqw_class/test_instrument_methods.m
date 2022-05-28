@@ -45,7 +45,7 @@ classdef test_instrument_methods < TestCaseWithSave
         %--------------------------------------------------------------------------
         function test_set_instrument_updates_headers_with_array_values(self)
             % Set instruments individually
-            inst_arr = repmat(self.inst_1, 186, 1);
+            inst_arr = repmat(self.inst_1, 120, 1);
             inst_arr(100) = self.inst_2;
             
             wnew_fe = set_instrument(self.w_fe, inst_arr);
@@ -70,8 +70,8 @@ classdef test_instrument_methods < TestCaseWithSave
         %--------------------------------------------------------------------------
         function test_set_efix_updates_all_data_with_array_values(self)
             % Set efix individually, and test enquiry routine
-            efix_new = 777 * ones(1, 186);
-            efix_new(100) = 777 + 186;  % so the average is 778
+            efix_new = 777 * ones(1, 120);
+            efix_new(100) = 777 + 120;  % so the average is 778
             
             wnew_fe = set_efix(self.w_fe, efix_new);
             
@@ -100,8 +100,8 @@ classdef test_instrument_methods < TestCaseWithSave
             wnew_fe = set_instrument(self.w_fe,self.inst_1);
             
             pp = [100, 200, 0.7];
-            pp = repmat(pp, 186, 1);
-            pp(100, :) = [100, 386, 0.7];  % so pp(2) average is 201
+            pp = repmat(pp, 120, 1);
+            pp(100, :) = [100, 386, 0.7];  % so pp(2) average is 201.55
             wnew_fe = set_mod_pulse(wnew_fe, 'ikcarp', pp);
             
             hdr = wnew_fe.experiment_info;
@@ -113,7 +113,7 @@ classdef test_instrument_methods < TestCaseWithSave
             assertEqual(mod100.pp, [100,386, 0.7]);
             
             [~,pp_av] = get_mod_pulse(wnew_fe);
-            assertEqualToTol(pp_av, [100,201,0.7], 'reltol', 1e-13);
+            assertEqualToTol(pp_av, [100,201.55,0.7], 'reltol', 1e-13);
         end
         
         %--------------------------------------------------------------------------

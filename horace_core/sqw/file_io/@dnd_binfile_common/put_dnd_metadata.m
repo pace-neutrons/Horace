@@ -13,7 +13,7 @@ function obj=put_dnd_metadata(obj,varargin)
 % ignore nopix if it comes as input
 [ok,mess,update,~,argi]=parse_char_options(varargin,{'-update','-nopix'});
 if ~ok
-    error('SQW_FILE_IO:invalid_artgument',...
+    error('HORACE:dnd_binfile_common:invalid_argument',...
         ['put_dnd_metadata: Error: ',mess]);
 end
 % verify we use this method on an properly initialized file accessor
@@ -34,8 +34,8 @@ data_form = obj.get_dnd_form(head_arg{:});
 %
 %
 if update && ~obj.upgrade_mode
-    error('SQW_FILE_IO:runtime_error',...
-        'DND_BINFILE_COMMON::put_dnd_metadata : input object has not been initiated for update mode');
+    error('HORACE:dnd_binfile_common:runtime_error',...
+        'put_dnd_metadata : input object has not been initiated for update mode');
 end
 
 %
@@ -48,8 +48,8 @@ if update
     pos = val(1);
     sz = val(2);
     if numel(bytes) ~= sz
-        error('SQW_FILE_IO:runtime_error',...
-            'DND_BINFILE_COMMON::put_dnd_metadata: Can not upgrade metadata as their disk size is different from memory size')
+        error('HORACE:dnd_binfile_common:runtime_error',...
+            'put_dnd_metadata: Can not upgrade metadata as their disk size is different from memory size')
     end
 else
     pos = obj.data_pos_;

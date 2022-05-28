@@ -8,12 +8,15 @@ classdef d2d < DnDBase
     %   >> w = d2d(struct)         % Create from a structure with valid fields (internal use)
 
     properties (Constant, Access = protected)
-       NUM_DIMS = 2;
+        NUM_DIMS = 2;
     end
 
     methods
         function obj = d2d(varargin)
             obj = obj@DnDBase(varargin{:});
+            if nargin==0
+                obj.nbins_all_dims = [2,2,1,1];
+            end
         end
 
         wout=combine_horace_2d(w1,w2,varargin);
@@ -58,34 +61,11 @@ classdef d2d < DnDBase
 
     methods(Static)
         function obj = loadobj(S)
-            % Load a d2d object from a .mat file
-            %
-            %   >> obj = loadobj(S)
-            %
-            % Input:
-            % ------
-            %   S       An instance of this object or struct
-            %
-            % -------
-            % Output:
-            %   obj     An instance of this object
-            %obj = d2d(S);
-            if isa(S,'d2d')
-               obj = S;
-               if isstruct(obj.data_)
-                    obj.data_ = data_sqw_dnd(obj.data_);
-               end
-               return
-            end
-            if numel(S)>1
-               tmp = d2d();
-               obj = repmat(tmp, size(S));
-               for i = 1:numel(S)
-                   obj(i) = d2d(S(i));
-               end
-            else
-               obj = d2d(S);
-            end
+            % boilerplate loadobj method, calling generic method of
+            % saveable class. Put it as it is replacing the
+            obj = d2d();
+            obj = loadobj@serializable(S,obj);
         end
+
     end
 end

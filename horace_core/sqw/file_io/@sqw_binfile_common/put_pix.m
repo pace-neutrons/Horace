@@ -96,11 +96,8 @@ check_error_report_fail_(obj,'Error moving to the start of the pixels info');
 fwrite(obj.file_id_,bytes,'uint8');
 check_error_report_fail_(obj,'Error writing the pixels information');
 %
-if isa(input_obj.pix,'pix_combine_info')
-    npix = input_obj.pix.num_pixels;
-else
-    npix = input_obj.pix.num_pixels;
-end
+npix = input_obj.pix.num_pixels;
+
 fwrite(obj.file_id_,npix,'uint64');
 %
 obj.eof_pix_pos_ = obj.pix_pos_ + npix * 9*4;

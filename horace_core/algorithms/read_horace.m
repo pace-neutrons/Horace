@@ -8,7 +8,7 @@ function varargout = read_horace(files,varargin)
 %                                            only.
 %   >> w=read_horace(file(s),'-force_sqw')-- fail if the input file
 %                                            contains a dnd object.
-% Additional possible options are transferred to sqw or dnd loader directly 
+% Additional possible options are transferred to sqw or dnd loader directly
 %
 % Original author: T.G.Perring
 %
@@ -32,18 +32,19 @@ function varargout = read_horace(files,varargin)
 % Check number of arguments
 n_outputs = nargout;
 if n_outputs>nargin
-    error('SQW_FILE_IO:invalid_argument',...
+    error('HORACE:read_horace:invalid_argument',...
         'number of output objects requested is bigger then the number of input files provided')
 end
 %
 [ok,mess,get_dnd,force_sqw,argi] = parse_char_options(varargin,{'-get_dnd','-force_sqw'});
 if ~ok
-    error('SQW_FILE_IO:invalid_argument',mess);
+    error('HORACE:read_horace:invalid_argument',...
+        mess);
 end
 %
 if get_dnd && force_sqw
-    error('SQW_FILE_IO:invalid_argument',...
-        'only one option i.e. -get_dnd or -force_sqw can be provided simultaniously');    
+    error('HORACE:read_horace:invalid_argument',...
+        'only one option i.e. -get_dnd or -force_sqw can be provided simultaniously');
 end
 
 %
@@ -53,8 +54,8 @@ n_inputs = numel(loaders);
 if force_sqw
     for i=1:n_inputs
         if ~loaders{i}.sqw_type
-            error('SQW_FILE_IO:invalid_argument',...
-                'read_horace: File %s contans dnd information but only sqw file requested',...
+            error('HORACE:read_horace:invalid_argument',...
+                'File %s contains dnd information but only sqw file requested',...
                 fullfile(loaders{i}.filepath,loaders{i}.filename));
         end
     end

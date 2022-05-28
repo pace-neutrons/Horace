@@ -1,12 +1,12 @@
 classdef test_data_sqw_dnd < TestCaseWithSave
     % Series of tests to check work of mex files against Matlab files
-    
+
     properties
         out_dir=tmp_dir();
         ref_sqw
         par_file = 'map_4to1_dec09.par'
     end
-    
+
     methods
         function obj=test_data_sqw_dnd(varargin)
             if nargin<1
@@ -19,7 +19,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             % when data_sqw_dnd_changes, these data should be used as input
             % to support loading the previous version
             obj = obj@TestCaseWithSave(name,'data_sqw_dnd_V1_ref_data.mat');
-            
+
             root_dir = horace_root();
             data_dir = fullfile(root_dir,'_test','common_data');
             obj.par_file =  fullfile(data_dir,obj.par_file);
@@ -31,77 +31,6 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             % does nothing unless called with -save key as input
             obj.save();
         end
-        
-        function this=test_get_q_qaxes(this)
-            proj.u = [1,0,0];
-            proj.v = [0,1,0];
-            obj = data_sqw_dnd(proj,[1,0.1,2],[-1,0.01,1],[0,0.1,1],[0,1,10]);
-            [qh,qk,ql] = obj.get_q_axes();
-            assertEqual(numel(qh),12);
-            assertEqual(numel(qk),202);
-            assertEqual(numel(ql),12);
-            %
-            assertEqual(qh(1),0.95);
-            assertEqual(qh(12),2.05);
-            assertEqual(qk(1),-1.005);
-            assertEqual(qk(202),1.005);
-            assertEqual(ql(1),-0.05);
-            assertEqual(ql(12),1.05);
-            
-            
-            
-            obj = data_sqw_dnd(proj,[1,0.1,2],[-1,1],[0,0.1,1],[0,1,10]);
-            [qh,qk,ql] = obj.get_q_axes();
-            assertEqual(numel(qh),12);
-            assertEqual(numel(qk),2);
-            assertEqual(numel(ql),12);
-            %
-            assertEqual(qh(1),0.95);
-            assertEqual(qh(12),2.05);
-            assertEqual(qk(1),-1.00);
-            assertEqual(qk(2),1.00);
-            assertEqual(ql(1),-0.05);
-            assertEqual(ql(12),1.05);
-            
-            obj = data_sqw_dnd(proj,[1,2],[-1,1],[0,0.01,1],[0,1,10]);
-            [qh,qk,ql] = obj.get_q_axes();
-            assertEqual(numel(qh),2);
-            assertEqual(numel(qk),2);
-            assertEqual(numel(ql),102);
-            %
-            assertEqual(qh(1),1);
-            assertEqual(qh(2),2);
-            assertEqual(qk(1),-1.00);
-            assertEqual(qk(2),1.00);
-            assertEqual(ql(1),-0.005);
-            assertEqual(ql(102),1.005);
-            
-            obj = data_sqw_dnd(proj,[1,2],[-1,1],[0,1],[0,1,10]);
-            [qh,qk,ql] = obj.get_q_axes();
-            assertEqual(numel(qh),2);
-            assertEqual(numel(qk),2);
-            assertEqual(numel(ql),2);
-            %
-            assertEqual(qh(1),1);
-            assertEqual(qh(2),2);
-            assertEqual(qk(1),-1.00);
-            assertEqual(qk(2),1.00);
-            assertEqual(ql(1),0);
-            assertEqual(ql(2),1);
-            
-            obj = data_sqw_dnd(proj,[1,0.01,2],[-1,1],[0,1],[0,1,10]);
-            [qh,qk,ql] = obj.get_q_axes();
-            assertEqual(numel(qh),102);
-            assertEqual(numel(qk),2);
-            assertEqual(numel(ql),2);
-            %
-            assertEqual(qh(1),0.995);
-            assertEqual(qh(102),2.005);
-            assertEqual(qk(1),-1.00);
-            assertEqual(qk(2),1.00);
-            assertEqual(ql(1),0);
-            assertEqual(ql(2),1);
-        end
         %
         function test_fresh_sqw_ranges_consistent(obj)
             %
@@ -111,9 +40,9 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             full_pix_range = expand_box(pix_range(1,:),pix_range(2,:));
             eval_img_range = proj0.transform_pix_to_img(full_pix_range);
             full_img_range = expand_box(img_range(1,:),img_range(2,:));
-            
+
             assertElementsAlmostEqual(eval_img_range,full_img_range);
-            
+
             full_img_range = expand_box(img_range(1,:),img_range(2,:));
             eval_pix_range = proj0.transform_img_to_pix(full_img_range);
             assertElementsAlmostEqual(eval_pix_range,full_img_range);
@@ -123,25 +52,27 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             proj.u = [1,0,0];
             proj.v = [0,1,0];
             ref_obj = data_sqw_dnd(proj,[1,0.01,2],[-1,1],[0,1],[0,1,10]);
-            
+            % why did empty old objects contain npix == 1?
+            ref_obj.npix = ones(size(ref_obj.npix));
+
             % check modern loader (if saved)
-            obj.assertEqualWithSave(ref_obj);
-            
+            obj.assertEqualToTolWithSave(ref_obj,'tol',[1.e-15,1.e-16]);
+
             ld = load('data_sqw_dnd_V0_ref_data.mat');
             loaded_v0_obj = ld.obj;
             assertEqual(ref_obj,loaded_v0_obj);
-            
-            % Here we are preparting to restore data_sqw_dnd stored as common
+
+            % Here we are preparing to restore data_sqw_dnd stored as common
             % object when it is split to projection and axes_block
             %ld = load('data_sqw_dnd_V1_ref_data.mat');
             %loaded_v1_obj = ld.test_loadobj_v0.ref_obj;
             %assertEqual(ref_obj,loaded_v1_obj);
-            
+
         end
-        
-        
+
+
         function test_get_proj_hkl_from_cut(obj)
-            proj = projection([1,1,0],[1,-1,0]);
+            proj = ortho_proj([1,1,0],[1,-1,0]);
             proj.type='rrr';
             % Be sure that cut is within the ranges of the real pixel range
             % and cuts some pixels from all sides for the cut limits to be
@@ -150,11 +81,11 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             % Check projection 0;
             proj_0 =  source_cut.data.get_projection();
             assertTrue(isa(proj_0 ,'aProjection'));
-            img_range = source_cut.data.img_db_range;
+            img_range = source_cut.data.img_range;
             ref_img_range = [ -1.0100   -2.0100   -1.0000   -4.0000;
                 3.0100    2.0100    1.0000    4.0000]; % actually look at cut ranges
             assertElementsAlmostEqual(ref_img_range,img_range,'absolute',9.e-5);
-            
+
             full_img_range = expand_box(img_range(1,:),img_range(2,:));
             full_pix_img_range = proj_0.transform_img_to_pix(full_img_range);
             eval_pix_range = [min(full_pix_img_range,[],2),max(full_pix_img_range,[],2)]';
@@ -165,7 +96,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             pix_ref_range = [-0.1238   -6.7724   -3.0949   -4.0000;...
                 5.6506   11.9775    3.0949    4.0000];
             assertElementsAlmostEqual(pix_ref_range,real_pix_range,'absolute',9.e-5);
-            
+
             %             %
             %             % visualise correct image ranges if requested .
             %             co = source_cut.data.pix.q_coordinates;
@@ -175,31 +106,31 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             %             scatter3(full_pix_img_range(1,:),full_pix_img_range(2,:),full_pix_img_range(3,:),'go')
             %             full_pix_range = expand_box(real_pix_range(1,:),real_pix_range(2,:));
             %             scatter3(full_pix_range(1,:),full_pix_range(2,:),full_pix_img_range(3,:),'ro')
-            
-            
-            
-            proj1 = projection([1,0,0],[0,0,1]);
+
+
+
+            proj1 = ortho_proj([1,0,0],[0,0,1]);
             proj.type='rrr';
             % Cut in the data within existing image ranges to make new
             % pixels range correspond to transformed pixels range
             ref_cut = cut_sqw(source_cut,proj1,[0,0.01,0.15],[-0.8,0.01,0.8],[-1,1],[-8,8]);
-            
+
             proj_r =  ref_cut.data.get_projection();
             assertTrue(isa(proj,'aProjection'));
-            img_range = ref_cut.data.img_db_range;
+            img_range = ref_cut.data.img_range;
             full_img_range = expand_box(img_range(1,:),img_range(2,:));
-            
+
             full_pix_img_range = proj_r.transform_img_to_pix(full_img_range);
             pix_img_range = [min(full_pix_img_range,[],2),max(full_pix_img_range,[],2)]';
-            ref_imgpix_range = [  -0.0167   -2.7250   -2.7480   -4.0000;...
-                0.5185    2.7250    2.7480    4.0000];
+            ref_imgpix_range = [  -0.0167   -2.7250   -2.7480   -8.0000;...
+                0.5185    2.7250    2.7480    8.0000];
             assertElementsAlmostEqual(pix_img_range,ref_imgpix_range,'absolute',9.e-5);
-            
+
             real_pix_range = ref_cut.data.pix.pix_range;
             ref_pix_range = [  -0.0167   -2.6820   -2.7235   -4.0000;...
                 0.5172    2.7111    2.7227    4.0000];
             assertElementsAlmostEqual(real_pix_range,ref_pix_range,'absolute',9.e-5);
-            
+
             %assertElementsAlmostEqual(real_pix_range,eval_pix_range);
             %             % visualise correct image ranges if requested.
             %             figure
@@ -210,54 +141,63 @@ classdef test_data_sqw_dnd < TestCaseWithSave
             %             scatter3(full_pix_img_range(1,:),full_pix_img_range(2,:),full_pix_img_range(3,:),'go')
             %             full_pix_range = expand_box(real_pix_range(1,:),real_pix_range(2,:));
             %             scatter3(full_pix_range(1,:),full_pix_range(2,:),full_pix_img_range(3,:),'ro')
-            
-            
-            
+
+
+
             same_cut = cut_sqw(source_cut ,proj_r,[0,0.01,0.15],[-0.8,0.01,0.8],[-1,1],[-8,8]);
-            
+
             assertEqualToTol(ref_cut,same_cut,'tol',1.e-9);
         end
-        
-        function test_get_proj_hkl_3D_45deg(obj)
-            proj = projection([1,1,0],[1,-1,0]);
+
+        function test_proj_hkl_3D_45deg_old_and_extracted_proj_cut_equals(obj)
+            proj = ortho_proj([1,1,0],[1,-1,0]);
+
             ref_cut = cut_sqw(obj.ref_sqw,proj,[],[],[],[-8,8]);
-            
+
             proj1 =  ref_cut.data.get_projection();
+            % To avoid round-off errors on the edge of the ranges
+            % which give different cut ranges using proj and proj1,
+            % we rounding the projections to 9 significant digits
+            proj1.u = round(proj1.u,9);
+            proj1.v = round(proj1.v,9);
             assertTrue(isa(proj,'aProjection'));
-            
+
             same_cut = cut_sqw(obj.ref_sqw,proj1,[],[],[],[-8,8]);
-            
-            assertEqualToTol(ref_cut,same_cut,'tol',1.e-9);
+
+            assertEqualToTol(ref_cut,same_cut,'tol',[1.e-9,1.e-9]);
         end
-        
+
         function test_get_proj_hkl_3D(obj)
-            proj = projection([1,0,0],[0,0,1]);
+            proj = ortho_proj([1,0,0],[0,0,1]);
             ref_cut = cut_sqw(obj.ref_sqw,proj,[],[],[],[-8,8]);
-            
+
             proj1 =  ref_cut.data.get_projection();
-            assertTrue(isa(proj,'aProjection'));
-            
+            % To avoid round-off errors on the edge of the ranges
+            % which give different cut ranges using proj and proj1,
+            % we rounding the projections to 9 significant digits
+            proj1.u = round(proj1.u,9);
+            proj1.v = round(proj1.v,9);
+
+            assertTrue(isa(proj1,'ortho_proj'));
+
             same_cut = cut_sqw(obj.ref_sqw,proj1,[],[],[],[-8,8]);
-            
+
             assertEqualToTol(ref_cut,same_cut,'tol',1.e-9);
         end
-        
-        
+
+
         function test_get_proj_crystal_cartesian(obj)
             d_sqw_dnd = obj.ref_sqw.data;
             proj =  d_sqw_dnd.get_projection();
             assertTrue(isa(proj,'aProjection'));
-            
+
             same_sqw = cut_sqw(obj.ref_sqw,proj,[],[],[],[]);
-            % As the range of the cut is epsiln bigger then the initial range,
-            % the comparison below does not work. TODO: fix this after proj
-            % refactoring
-            %assertEqual(obj.ref_sqw,same_sqw);
-            
+
+
             % the comparison below is incomplete, but allows the reasonable
-            % estimation of the correctness
-            assertElementsAlmostEqual(obj.ref_sqw.data.img_db_range,...
-                same_sqw.data.img_db_range,'relative',1.e-5);
+            % initiacl crude estimation of the correctness
+            assertElementsAlmostEqual(obj.ref_sqw.data.img_range,...
+                same_sqw.data.img_range,'relative',1.e-16);
             assertEqual(obj.ref_sqw.data.pix.num_pixels,...
                 same_sqw.data.pix.num_pixels);
             cut_size  = numel(same_sqw.data.npix);
@@ -265,10 +205,11 @@ classdef test_data_sqw_dnd < TestCaseWithSave
                 sum(reshape(same_sqw.data.npix,1,cut_size)));
             assertEqual(sum(reshape(obj.ref_sqw.data.s,1,cut_size)),...
                 sum(reshape(same_sqw.data.s,1,cut_size)));
-            
-            
+            % This is the full comparison
+            assertEqualToTol(obj.ref_sqw,same_sqw,'tol',[2.e-15,3.e-16])
+
             same_proj = same_sqw.data.get_projection();
-            assertEqual(proj,same_proj);
+            assertEqualToTol(proj,same_proj,'tol',[2.e-15,3.e-16]);
         end
     end
 end

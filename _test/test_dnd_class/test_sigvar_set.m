@@ -41,11 +41,29 @@ classdef test_sigvar_set < TestCase
                 assertTrue(contains(ME.message, num2str(size(sigvar_obj.e))));
             end
         end
-
-        function test_sigvar_set_updates_s_and_e_values(obj)
+        function test_sigvar_set_s_and_e_nopix_gives_zero(~)
             d2d_obj = d2d();
             d2d_obj.s = zeros(2,3);
             d2d_obj.e = zeros(2,3);
+            d2d_obj.npix = zeros(2,3);
+
+            sigvar_obj = sigvar(struct(...
+                's', [1, 2, 3; 4, 5, 6], ...
+                'e', [44, 55, 66; 77, 88, 99]));
+            sigvar_zer_obj = sigvar(struct('s',zeros(2,3), ...
+                'e',zeros(2,3)));
+
+            result = d2d_obj.sigvar_set(sigvar_obj);
+            assertEqualToTol(result.s, sigvar_zer_obj.s);
+            assertEqualToTol(result.e, sigvar_zer_obj.e);
+        end
+        
+
+        function test_sigvar_set_updates_s_and_e_values(~)
+            d2d_obj = d2d();
+            d2d_obj.s = zeros(2,3);
+            d2d_obj.e = zeros(2,3);
+            d2d_obj.npix = ones(2,3);
 
             sigvar_obj = sigvar(struct(...
                 's', [1, 2, 3; 4, 5, 6], ...
