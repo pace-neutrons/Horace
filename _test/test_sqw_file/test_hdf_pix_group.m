@@ -3,7 +3,7 @@ classdef test_hdf_pix_group < TestCase
     %
 
     properties
-        skip_tests;
+        ski_tests;
     end
 
     methods
@@ -15,13 +15,13 @@ classdef test_hdf_pix_group < TestCase
             end
             obj = obj@TestCase(class_name);
             ver = matlab_version_num();
-            if ver>9.8
-                obj.skip_tests = true;                
+            if ver>9.10
+                obj.ski_tests = true;                
             else
-                obj.skip_tests = false;
+                obj.ski_tests = false;
             end
         end
-        function close_fid(obj,fid,file_h,group_id)
+        function close_fid(~,fid,file_h,group_id)
             H5G.close(group_id);
             if ~isempty(file_h)
                 H5G.close(fid);
@@ -33,7 +33,7 @@ classdef test_hdf_pix_group < TestCase
 
 
         function test_read_write(obj)
-            if obj.skip_tests
+            if obj.ski_tests
                skipTest(' The test is currently disabled for high matlab versions #809' )
             end
             f_name = [tempname,'.nxsqw'];
@@ -102,7 +102,7 @@ classdef test_hdf_pix_group < TestCase
         end
         %
         function test_missing_file(obj)
-            if obj.skip_tests
+            if obj.ski_tests
                skipTest(' The test is currently disabled for high matlab versions #809' )
             end
             
@@ -118,7 +118,7 @@ classdef test_hdf_pix_group < TestCase
         end
         %
         function test_multiblock_read(obj)
-            if obj.skip_tests
+            if obj.ski_tests
                skipTest(' The test is currently disabled for high matlab versions #809' )
             end
             
@@ -171,7 +171,7 @@ classdef test_hdf_pix_group < TestCase
         end
         %
         function  test_mex_reader(obj)
-            if obj.skip_tests
+            if obj.ski_tests
                skipTest(' The test is currently disabled for high matlab versions #809' )
             end
             
@@ -344,7 +344,7 @@ classdef test_hdf_pix_group < TestCase
         end
         %
         function  test_matlab_multiblock_reader(obj)
-            if obj.skip_tests
+            if obj.ski_tests
                skipTest(' The test is currently disabled for high matlab versions #809' )
             end
 
@@ -513,7 +513,7 @@ classdef test_hdf_pix_group < TestCase
         end
 
         function test_pix_ranges(obj)
-            if obj.skip_tests
+            if obj.ski_tests
                skipTest(' The test is currently disabled for high matlab versions #809' )
             end
             

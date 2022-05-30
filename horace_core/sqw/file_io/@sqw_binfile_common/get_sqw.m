@@ -126,7 +126,7 @@ if (sqw_struc.data.pix.num_pixels >0 ) && ...
             id=1:exp_info.n_runs;
             if min(runid)< 1 || max(runid)>exp_info.n_runs
                 error('HORACE:sqw_binfile_common:invalid_argument', ...
-                    'pixels run_ids were recalculated but lies outside of runid-s, defined for headers. Contact developers to deal with the issue')
+                    'pixels run_ids were recalculated but lie outside of runid-s, defined for headers. Contact developers to deal with the issue')
             end
             % reset run-ids and runid_map stored in current experiment info.
             exp_info.runid_map = id;
@@ -136,13 +136,13 @@ if (sqw_struc.data.pix.num_pixels >0 ) && ...
             %
         end
     else % not all pixels are loaded into memory
-        if ~any(ismember(runid,file_id))  % old style pixel data, run_id-s        
-            % have been recalculated            
-            id=1:exp_info.n_runs;   
-            exp_info.runid_map = id;            
+        if ~any(ismember(runid,file_id))  % old style pixel data, run_id-s
+            % have been recalculated
+            id=1:exp_info.n_runs;
+            exp_info.runid_map = id;
         end
     end
-    sqw_struc.experiment_info = exp_info;    
+    sqw_struc.experiment_info = exp_info;
 end
 if opts.legacy
     sqw_object = sqw_struc.main_header;

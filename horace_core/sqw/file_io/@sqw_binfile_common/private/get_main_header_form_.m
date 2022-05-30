@@ -26,7 +26,7 @@ end
 if update
     header = struct('nfiles',int32(1));
 else
-    header = struct('filename','','filepath','','title','',...
+    header = struct('filename_with_cdate','','filepath','','title','',...
         'nfiles',int32(1));
 end
 
