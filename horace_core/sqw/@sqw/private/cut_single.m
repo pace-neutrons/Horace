@@ -1,17 +1,19 @@
-function wout = cut_single(w, proj, pbin, pin, en, keep_pix, outfile)
+function [wout,log_info] = cut_single(w, tag_proj, targ_axes, keep_pix, outfile,log_level)
 %%CUT_SINGLE Perform a cut on a single sqw object
 %
 % Input:
 % ------
 % w           The sqw object to take a cut from.
-% proj        A `projection` object, defining the projection of the cut.
-% pbin        The binning along each projection axis of the cut (cell array).
-%             See p1_bin, p2_bin etc. in sqw/cut.
-% pin         The binning of the input sqw object (cell array).
-% en          Energy bins of input sqw header average (double).
+% tag_proj    A `projection` object, defining the projection of the cut.
+% targ_axes   `axes_block` object defining the ranges, binning and geometry
+%             of the target cut
+%
 % keep_pix    True if pixel information is to be retained in cut, else false.
 % outfile     The output file to write the cut to, empty if cut is not to be
 %             written to file (char).
+% log_level   verbosity of the cut progress report. Taken from
+%             hor_config.log_level and propagated through the parameters to
+%             avoid subsequent calls to hor_config.
 %
 % Output:
 % -------
@@ -23,57 +25,52 @@ function wout = cut_single(w, proj, pbin, pin, en, keep_pix, outfile)
 % Rework of legacy function cut_sqw_main_single
 
 DND_CONSTRUCTORS = {@d0d, @d1d, @d2d, @d3d, @d4d};
-log_level = get(hor_config, 'log_level');
 return_cut = nargout > 0;
 
-
-% Get bin boundaries
-[ ...
-    ubins.integration_axis_idx, ...
-    ubins.integration_range, ...
-    ubins.plot_ax_idx, ...
-    ubins.plot_ax_bounds, ...
-    ubins.img_range ...
-    ] = proj.calc_transf_img_bins(w.data.img_db_range, pbin, pin, en);
-
-% Update projection with binning
-proj = proj.set_proj_binning( ...
-    ubins.img_range, ...
-    ubins.plot_ax_idx, ...
-    ubins.integration_axis_idx, ...
-    ubins.plot_ax_bounds ...
-    );
-
 % Accumulate image and pixel data for cut
-[s, e, npix, pix_out, acutal_img_range, pix_comb_info] = cut_accumulate_data_( ...
-    w, proj, keep_pix, log_level, return_cut ...
-    );
-% acutal_img_range left here for debugging purposes
-%
-if ~isempty(pix_comb_info) && isa(pix_comb_info, 'pix_combine_info')
-    % Make sure we clean up temp files
-    cleanup = onCleanup(@() clean_up_tmp_files(pix_comb_info));
+[s, e, npix, pix_out,runid_contributed] = cut_accumulate_data_( ...
+    w, tag_proj,targ_axes,keep_pix, log_level, return_cut);
+if isa(pix_out, 'pix_combine_info')
+    % Make sure we clean up temp files.
+    cleanup = onCleanup(@() clean_up_tmp_files(pix_out));
 end
-% the range the pixels are rebinned into:
-urange_offset = repmat(proj.urange_offset, [2, 1]);
-bin_range_step = proj.urange_step;
-img_db_range  = bin_range_step.*repmat(proj.usteps, [2, 1]) + urange_offset;
 
 
 % Compile the accumulated cut and projection data into a data_sqw_dnd object
 data_out = compile_sqw_data(...
-    w.data, proj, s, e, npix, pix_out,pix_comb_info, img_db_range, ...
-    ubins, keep_pix);
+    targ_axes, tag_proj, s, e, npix, pix_out,keep_pix);
 
 % Assign the new data_sqw_dnd object to the output SQW object, or create a new
 % dnd.
 if keep_pix
     wout = sqw();
     wout.main_header = w.main_header;
-    wout.header = w.header;
-    wout.detpar = w.detpar;    
-    wout.data = data_out;
-    wout.runid_map = w.runid_map; %TODO: this map should inclde contributing indexes only
+    wout.detpar = w.detpar;
+    wout.data   = data_out;
+
+    if isempty(runid_contributed) % Empty cut
+        exp_info = Experiment();
+    else
+        % old stored objects, which do not contain correctly defined runid map
+        % compatibility operation.
+        % TODO: Should be check for old file and after that -- this code.
+        % Ticket #804
+        head_runid = w.experiment_info.expdata.get_run_ids();
+        if any(~ismember(runid_contributed,head_runid))
+            % some old file contains runid, which has been
+            % recalculated from 1 to n_headers on pixels but have not been
+            % stored in runid map and headers.
+            % assuming that runid-s indeed been redefined this way, we can 
+            % restore their run-ids in experiment_info
+            id = 1:w.experiment_info.n_runs;
+            w.experiment_info.runid_map = id;
+        end
+        exp_info = w.experiment_info.get_subobj(runid_contributed);
+    end
+    %
+    wout.main_header.nfiles  = exp_info.n_runs;
+    wout.experiment_info = exp_info;
+
 else
     dnd_constructor = DND_CONSTRUCTORS{numel(data_out.pax) + 1};
     wout = dnd_constructor(data_out);
@@ -82,67 +79,34 @@ end
 % Write result to file if necessary
 if exist('outfile', 'var') && ~isempty(outfile)
     if log_level >= 0
-        disp(['Writing cut to output file ', outfile, '...']);
+        disp(['*** Writing cut to output file ', outfile, '...']);
     end
     try
         save(wout, outfile);
     catch ME
-        warning('CUT_SQW:io_error', ...
+        warning('HORACE:cut_sqw:io_error', ...
             'Error writing to file ''%s''.\n%s: %s', ...
             outfile, ME.identifier, ME.message);
     end
 end
 
-end  % function
-
 
 % -----------------------------------------------------------------------------
-function data_out = compile_sqw_data(data, proj, s, e, npix, pix_out, ...
-    pix_comb_info, img_db_range, ubins, keep_pix)
-ppax = ubins.plot_ax_bounds(1:length(ubins.plot_ax_idx));
-if isempty(ppax)
-    nbin_as_size = [1, 1];
-elseif length(ppax) == 1
-    nbin_as_size = [length(ppax{1}) - 1, 1];
-else
-    nbin_as_size = cellfun(@(nd) length(nd) - 1, ppax);
-end
+function data_out = compile_sqw_data(targ_axes, proj, s, e, npix, pix_out, ...
+    keep_pix)
+%
+data_str = proj.compat_struct;
+data_str.s = s;
+data_str.e = e;
+data_str.npix = npix;
 
+data_out = data_sqw_dnd(targ_axes,data_str);
 
-data_out = data;
-data_out.s = reshape(s, nbin_as_size);
-data_out.e = reshape(e, nbin_as_size);
-data_out.npix = reshape(npix, nbin_as_size);
-
-[ ...
-    data_out.uoffset, ...
-    data_out.ulabel, ...
-    data_out.dax, ...
-    data_out.u_to_rlu, ...
-    data_out.ulen, ...
-    data_out.axis_caption ...
-    ] = proj.get_proj_param(data, ubins.plot_ax_idx);
-
-data_out.iax = ubins.integration_axis_idx;
-data_out.iint = ubins.integration_range;
-data_out.pax = ubins.plot_ax_idx;
-data_out.p = ubins.plot_ax_bounds;
-data_out.img_db_range = img_db_range;
 
 if keep_pix
-    % If pix_comb_info is not empty then we've been working with temp files
-    % for pixels. We can replace the PixelData object that's normally in
-    % sqw.data with this pix_combine_info object.
-    % When the object is passed to 'put_sqw' (it's saved), 'put_sqw' will
-    % combine the linked tmp files into the new sqw file.
-    if ~isempty(pix_comb_info) && isa(pix_comb_info, 'pix_combine_info')
-        data_out.pix = pix_comb_info;
-    else
-        data_out.pix = pix_out;
-    end
+    data_out.pix = pix_out;
 else
     data_out.pix = PixelData();
-end
 end
 
 
@@ -151,5 +115,4 @@ function clean_up_tmp_files(pix_comb_info)
 for i = 1:numel(pix_comb_info.infiles)
     tmp_fpath = pix_comb_info.infiles{i};
     delete(tmp_fpath);
-end
 end

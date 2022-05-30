@@ -31,12 +31,14 @@ function varargout=head_horace(varargin)
 % Check number of arguments
 
 if isempty(varargin)
-    error('HEAD:invalid_argument','read: Check number of input arguments')
+    error('HORACE:head:invalid_argument',...
+        'read: Invalid number of input arguments')
 end
 
 [ok,mess,hfull,argi] = parse_char_options(varargin,{'-full'});
 if ~ok
-    error('HEAD:invalid_argument',mess);
+    error('HORACE:head:invalid_argument',...
+        mess);
 end
 
 n_outputs = nargout;
@@ -105,12 +107,14 @@ else
         if loaders{i}.sqw_type
             if hfull
                 data = struct();
-                [data.main_header,data.header,data.detpar,data.data] = ...
+                [data.main_header,exper_block,data.detpar,data.data] = ...
                     loaders{i}.get_sqw('-legacy','-nopix','-verbatim');
+                data.header = exper_block.header;
             else
                 data         = loaders{i}.get_data('-verbatim','-nopix');
                 if isa(data,'data_sqw_dnd')
                     data         = data.get_dnd_data('+'); % + get pix_range if available
+                    data.pix_range = loaders{i}.get_pix_range();
                 end
                 data.npixels = loaders{i}.npixels;
                 data.nfiles  = loaders{i}.num_contrib_files;
@@ -121,8 +125,6 @@ else
             else
                 data         = loaders{i}.get_data('-verbatim','-nopix','-head');
             end
-            
-            
         end
         vout{i} = data;
     end
@@ -132,5 +134,3 @@ else
         varargout = vout(1:n_outputs);
     end
 end
-
-

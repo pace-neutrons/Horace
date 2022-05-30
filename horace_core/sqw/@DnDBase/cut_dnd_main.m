@@ -36,8 +36,6 @@ function wout = cut_dnd_main (data_source, ndims, varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
 
 hor_log_level = config_store.instance.get_value('herbert_config','log_level');
 
@@ -147,7 +145,8 @@ end
 [val, nbin] = data_bin_limits (data);
 
 % Determine new plot and integration axes
-[sub_iax, sub_iint, sub_pax, sub_p, noffset, nkeep, mess] = data.cut_dnd_calc_ubins (pbin(invdax), data.p, nbin);
+[sub_iax, sub_iint, sub_pax, sub_p, noffset, nkeep, mess] =...
+    axes_block.cut_dnd_calc_ubins (pbin(invdax), data.p, nbin);
 if ~isempty(mess)
     error(mess)
 end

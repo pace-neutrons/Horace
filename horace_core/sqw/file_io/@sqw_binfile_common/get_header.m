@@ -1,8 +1,8 @@
-function  [header,pos,runid_map]   = get_header(obj,varargin)
+function  [exp_info,pos]   = get_header(obj,varargin)
 % Get header of one of the files, contributed into sqw file
 %
 % Usage:
-%>>header = loader.get_header() % -- returns first sqw header
+%>>header = loader.get_header() % -- returns sqw headers
 % or
 %>>header = loader.get_header(n_header) % returns header number n_header
 %
@@ -21,13 +21,19 @@ function  [header,pos,runid_map]   = get_header(obj,varargin)
 % always verbatim
 [ok,mess,get_all,~,argi]= parse_char_options(varargin,{'-all','-verbatim'});
 if ~ok
-    error('SQW_FILE_IO:invalid_argument',mess);
+    error('HORACE:sqw_binfile_common:invalid_argument',mess);
+end
+% remove unnecessary keywords, which may be relevant to other versions of
+% the sqw file format
+prop_keys =  cellfun(@(x)strncmp('-',x,1),varargin);
+if any(prop_keys)
+    argi = varargin(~prop_keys);
 end
 
 
 %
 if ischar(obj.num_contrib_files)
-    error('SQW_FILE_IO:runtime_error',...
+    error('HORACE:sqw_binfile_common:runtime_error',...
         ' get_header called on un-initialized loader')
 end
 
@@ -36,14 +42,14 @@ if isempty(argi)
 else
     n_header = argi{1};
     if ~isnumeric(n_header)
-        error('SQW_FILE_IO:invalid_argument',...
+        error('HORACE:sqw_binfile_common:invalid_argument',...
             'get_header do not understand input argument: %s',n_header);
     end
 
 end
 
 if n_header<1 || (n_header>obj.num_contrib_files)
-    error('SQW_FILE_IO:invalid_argument',...
+    error('HORACE:sqw_binfile_common:invalid_argument',...
         ' wrong number of header requested : %d, Available numbers are 1-%d',...
         n_header,n_header>obj.num_contrib_files);
 end
@@ -56,36 +62,9 @@ if get_all && obj.num_contrib_files > 1
 else
     [header,pos] = get_single_header(obj,n_header);
 end
+%
+exp_info = Experiment.build_from_binfile_headers(header);
 
-%TODO: en conversion sucks. Should  be implemented within formatters
-%themselves!
-runids = zeros(numel(header),1);
-for i=1:numel(header)
-    if iscell(header)
-        header{i}.instrument = struct(); % this is necessary
-        header{i}.sample = struct();      % to satisfy current interface
-        if size(header{i}.en,1)==1
-            header{i}.en = header{i}.en';
-        end
-        runids(i) = rundata.extract_id_from_filename(header{i}.filename);                
-    else
-        if size(header(i).en,1)==1
-            header(i).en = header(i).en';
-        end
-        header(i).instrument = struct();
-        header(i).sample = struct();
-        runids(i) = rundata.extract_id_from_filename(header(i).filename);        
-    end
-
-end
-header_numbers = 1:numel(header);
-if any(isnan(runids)) % this also had been done in gen_sqw;
-    % rundata_write_to_sqw_ procedure in gen_sqw_files job.
-    % It have setup update_runlabels to true, which aslo made
-    % duplicated headers unique
-    runids = header_numbers;
-end
-runid_map = containers.Map(runids,header_numbers);
 
 
 function [head,pos] = get_single_header(obj,n_header)
@@ -99,14 +78,14 @@ end
 fseek(obj.file_id_,obj.header_pos_(n_header),'bof');
 [mess,res] = ferror(obj.file_id_);
 if res ~= 0
-    error('SQW_FILE_IO:runtime_error',...
+    error('HORACE:sqw_binfile_common:runtime_error',...
         'get_single_header: can not move at the start of header N%d, reason: %s',n_header,mess);
 end
 %
 bytes = fread(obj.file_id_,sz,'*uint8');
 [mess,res] = ferror(obj.file_id_);
 if res ~=0
-    error('SQW_FILE_IO:runtime_error',...
+    error('HORACE:sqw_binfile_common:runtime_error',...
         'get_single_header: Can not read header N%d data; error: %s',n_header,mess);
 end
 
@@ -116,5 +95,3 @@ header_format = obj.get_header_form();
 if obj.convert_to_double
     head = obj.do_convert_to_double(head);
 end
-
-

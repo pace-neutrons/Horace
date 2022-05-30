@@ -3,7 +3,6 @@ classdef test_faccess_sqw_v2< TestCase
     % Validate fast sqw reader used in combining sqw
     %
     %
-    % $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
     %
 
 
@@ -23,7 +22,6 @@ classdef test_faccess_sqw_v2< TestCase
         end
 
     end
-
 
     methods
 
@@ -74,7 +72,7 @@ classdef test_faccess_sqw_v2< TestCase
 
             % access to incorrect object
             f = @()(to.init());
-            assertExceptionThrown(f,'SQW_FILE_IO:invalid_argument');
+            assertExceptionThrown(f,'HORACE:dnd_binfile_common:invalid_argument');
 
 
             [ok,initob] = to.should_load(obj.sample_file);
@@ -85,10 +83,11 @@ classdef test_faccess_sqw_v2< TestCase
             to = to.init(initob);
             assertEqual(to.npixels,1164180);
 
-            header = to.get_header();
-            assertEqual(header.filename,'slice_n_c_m1_ei140')
-            assertEqual(header.ulabel{4},'E')
-            assertEqual(header.ulabel{3},'Q_\eta')
+            exper = to.get_header();
+            exp_info = exper.expdata;
+            assertEqual(exp_info.filename,'slice_n_c_m1_ei140')
+            assertEqual(exp_info .ulabel{4},'E')
+            assertEqual(exp_info.ulabel{3},'Q_\eta')
 
             det = to.get_detpar();
             assertEqual(det.filename,'slice_n_c_m1_ei140.par')
@@ -114,7 +113,8 @@ classdef test_faccess_sqw_v2< TestCase
             to = to.init(initob);
             assertEqual(to.npixels,179024);
 
-            header = to.get_header();
+            exper = to.get_header();
+            header = exper.expdata;
             assertEqual(header.filename,'map11014.spe;1')
             assertEqual(header.ulabel{4},'E')
             assertEqual(header.ulabel{3},'Q_\eta')
@@ -130,15 +130,16 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(size(data.e,2),numel(data.p{2})-1)
             assertEqual(size(data.npix),size(data.e))
 
-            headers = to.get_header('-all');
-            assertEqual(numel(headers),186)
+            exp_info = to.get_header('-all');
+            assertTrue(isa(exp_info,'Experiment'));
+            assertEqual(exp_info.n_runs,186)
 
-            header = headers{186};
-            assertEqual(header.filename,'map11201.spe;1');
-            assertEqual(header.filepath,'c:\data\Fe\data_nov06\const_ei\');
-            assertEqual(header.ulabel{1},'Q_\zeta')
-            assertEqual(header.ulabel{2},'Q_\xi')
-            assertEqual(header.ulabel{4},'E')
+            exp_n = exp_info.expdata(186);
+            assertEqual(exp_n.filename,'map11201.spe;1');
+            assertEqual(exp_n.filepath,'c:\data\Fe\data_nov06\const_ei\');
+            assertEqual(exp_n.ulabel{1},'Q_\zeta')
+            assertEqual(exp_n.ulabel{2},'Q_\xi')
+            assertEqual(exp_n.ulabel{4},'E')
 
 
             main_h = to.get_main_header('-verbatim');
@@ -196,26 +197,28 @@ classdef test_faccess_sqw_v2< TestCase
             samplef  = fullfile(spath,'w2d_qq_small_sqw.sqw');
 
 
-            ts = faccess_sqw_v2(samplef);
-            tob_sqw = ts.get_sqw('-verbatim');
+            source_sqw = faccess_sqw_v2(samplef);
+            tob_sqw = source_sqw.get_sqw('-verbatim');
 
-            tt = faccess_sqw_v2();
+            fresh_sqw = faccess_sqw_v2();
 
             tf = fullfile(tmp_dir,'test_put_sqw_v2.sqw');
             clob = onCleanup(@()delete(tf));
 
-            tt = tt.init(tob_sqw);
-            tt = tt.set_file_to_update(tf);
+            fresh_sqw = fresh_sqw.init(tob_sqw);
+            fresh_sqw = fresh_sqw.set_file_to_update(tf);
 
 
-            tt=tt.put_sqw();
+            fresh_sqw=fresh_sqw.put_sqw();
             assertTrue(exist(tf,'file')==2)
-            tt.delete();
+            fresh_sqw.delete();
             %
             sz1 = obj.fl_size(samplef);
             sz2 = obj.fl_size(tf);
             %
-            assertEqual(sz1,sz2);
+            % new file has been upgraded with runid_map so its size have
+            % increased
+            assertEqual(sz1+numel('$id$1'),sz2);
             %
             tn = faccess_sqw_v2(tf);
             rec_sqw = tn.get_sqw('-ver');
@@ -363,8 +366,8 @@ classdef test_faccess_sqw_v2< TestCase
             dn2 = to.get_sqw();
             to.delete();
             assertTrue(isa(dn2,'d2d'));
-            
-            dnob.data.img_db_range = PixelData.EMPTY_RANGE_;
+
+
             [ok,mess]=equal_to_tol(dn2,dnob,'ignore_str',true);
             assertTrue(ok,mess)
             %

@@ -6,8 +6,8 @@ function    obj = put_sqw(obj,varargin)
 %
 [ok,mess,update,argi]=parse_char_options(varargin,{'-update'});
 if ~ok
-    error('SQW_FILE_IO:invalid_artgument',...
-        ['DND_BINFILE_COMMON::put_sqw Error: ',mess]);
+    error('HORACE:sqw_binfile_common:invalid_artgument',...
+        ['put_sqw: Invalid argument: ',mess]);
 end
 %
 jobDispatcher = [];
@@ -16,17 +16,18 @@ if ~isempty(argi)
     is_sqw = cellfun(@(x)isa(x,'sqw'),argi,'UniformOutput',true);
     if any(is_sqw)
         if sum(is_sqw) > 1
-            error('SQW_FILE_IO:invalid_artgument','only one sqw object can be provided as input for put_sqw');
+            error('HORACE:sqw_binfile_common:invalid_artgument',...
+                'only one sqw object can be provided as input for put_sqw');
         end
-        obj.sqw_holder_ = argi{is_sqw};        
+        obj.sqw_holder_ = argi{is_sqw};
         argi = argi(~is_sqw);
-    end 
-    if ~isempty(argi)        
-        is_jd = cellfun(@(x)isa(x,'JobDispatcher'),argi,'UniformOutput',true);     
+    end
+    if ~isempty(argi)
+        is_jd = cellfun(@(x)isa(x,'JobDispatcher'),argi,'UniformOutput',true);
         if any(is_jd)
             jobDispatcher = argi{is_jd};
         end
-        argi = argi(~is_jd);        
+        argi = argi(~is_jd);
     end
 end
 %

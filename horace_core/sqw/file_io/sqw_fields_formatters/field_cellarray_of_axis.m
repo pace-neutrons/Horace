@@ -19,7 +19,7 @@ classdef field_cellarray_of_axis < field_const_array_dependent
             tBytes = cell(1,nel);
             for i=1:nel
                 tBytes{i} = [typecast(int32(numel(val{i})),'uint8'),...
-                    typecast(single(val{i}'),'uint8')];
+                    typecast(single(val{i}(:)'),'uint8')];
             end
             bytes = [tBytes{:}];
             

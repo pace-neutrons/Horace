@@ -220,7 +220,7 @@ for iw=1:nw
     else
         wtmp = win(iw);
     end
-    
+
     % Pixel indicies
     if all_pixels
         [ok,mess,irun,idet,ien] = parse_pixel_indicies (wtmp);
@@ -229,40 +229,38 @@ for iw=1:nw
     end
     if ~ok, return, end
     npix(iw) = numel(irun);
-    
+
     % Get energy transfer and bin sizes
     % (Could get eps directly from wtmp.data.pix(:,4), but this does not work if the
     %  pixels have been shifted, so recalculate)
-    [deps,eps_lo,eps_hi,ne]=energy_transfer_info(wtmp.header);
-    irun_max = max(irun);    
-    if irun_max>numel(ne)
-        irun = arrayfun(@(x)wtmp.runid_map(x),irun);
-    end
+    [deps,eps_lo,eps_hi,ne]=energy_transfer_info(wtmp.experiment_info);
+
     if ne>1
         eps=(eps_lo(irun).*(ne(irun)-ien)+eps_hi(irun).*(ien-1))./(ne(irun)-1);
     else
         eps=eps_lo;     % only one bin, so ne=1 eps_lo=eps_hi, and the above line fails
     end
-    
+
     % Get instrument information
     [ok,mess,ei{iw},x0{iw},xa{iw},x1{iw},thetam{iw},angvel{iw},...
-        moderator{iw},aperture{iw},chopper{iw}] = instpars_DGfermi(wtmp.header);
+        moderator{iw},aperture{iw},chopper{iw}] = instpars_DGfermi(wtmp.experiment_info);
     if ~ok, return, end
-    
+
     % Compute ki and kf
     ki{iw}=sqrt(ei{iw}/k_to_e);
     kf{iw}=sqrt((ei{iw}(irun)-eps)/k_to_e);
-    
+
     % Get sample, and both s_mat and spec_to_rlu; each has size [3,3,nrun]
     [ok,mess,sample(iw),s_mat{iw},spec_to_rlu{iw},alatt{iw},angdeg{iw}] =...
-        sample_coords_to_spec_to_rlu(wtmp.header);
+        sample_coords_to_spec_to_rlu(wtmp.experiment_info);
     if ~ok, return, end
-    
+
     % Get detector information
     % Because detpar only contains minimal information, hardwire in the detector type here
-    detpar = wtmp.detpar;   % just get a pointer
+    detpar = wtmp.my_detpar();   % just get a pointer
     if use_tubes
-        detectors(iw) = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
+        detectors(iw) = IX_detector_array (detpar.group, detpar.x2(:), ...
+            detpar.phi(:), detpar.azim(:),...
             IX_det_He3tube (detpar.width, detpar.height, 6.35e-4, 10));   % 10atms, wall thickness=0.635mm
     else
         detectors(iw) = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
@@ -272,21 +270,21 @@ for iw=1:nw
     d_mat{iw} = detectors(iw).dmat;
     f_mat{iw} = spec_to_secondary(detectors(iw));
     detdcn{iw} = det_direction(detectors(iw));
-    
+
     % Time width corresponding to energy bins for each pixel
     dt{iw} = deps_to_dt*(x2{iw}(idet).*deps(irun)./kf{iw}.^3);
-    
+
     % Calculate h,k,l (symmetrised objects will not have true pixel coordinates)
     qw{iw} = cell(1,4);
     qw{iw}(1:3) = calculate_q (ki{iw}(irun), kf{iw}, detdcn{iw}(:,idet), spec_to_rlu{iw}(:,:,irun));
     qw{iw}{4} = eps;
-    
+
     % Matrix that gives deviation in Q (in rlu) from deviations in tm, tch etc. for each pixel
     dq_mat{iw} = dq_matrix_DGfermi (ki{iw}(irun), kf{iw},...
         x0{iw}(irun), xa{iw}(irun), x1{iw}(irun), x2{iw}(idet), thetam{iw}(irun), angvel{iw}(irun),...
         s_mat{iw}(:,:,irun), f_mat{iw}(:,:,idet), d_mat{iw}(:,:,idet),...
         spec_to_rlu{iw}(:,:,irun), k_to_v, k_to_e);
-    
+
 end
 
 % Package output as a structure, in cell array length unity if win was a cell array

@@ -89,6 +89,7 @@ classdef test_unary_ops < TestCase
             dnd_obj = d2d();
             dnd_obj.s = [2, 10245]; % simple dataset for ease of testing
             dnd_obj.e = [1.5, 1021];
+            dnd_obj.npix = [1,1];
             
             % arbitrary unary op for test
             result = log10(dnd_obj);

@@ -120,7 +120,7 @@ classdef gen_sqw_files_job < JobExecutor
     end
     methods(Static)
         function [common_par,loop_par] = pack_job_pars(runfiles,tmp_files,...
-                instr,sample, grid_size_in,pix_range_in)
+                grid_size_in,pix_range_in)
             % helper function packs gen_sqw  input data into the form, suitable
             % for jobDispatcher to split between workers and to prepare
             % to transmit to this class instance on a separated Matlab
@@ -133,9 +133,6 @@ classdef gen_sqw_files_job < JobExecutor
             %                   process
             %   tmp_files       list of full file names of output sqw (tmp)
             %                   files to generate
-            %   instr           object containing instrument information.
-            %                   Single instrument at the moment
-            %   sample          objects containing sample geometry information
             %   grid_size_in    Scalar or row vector of grid dimensions.
             %   pix_range_in       Range of data grid for output.
             %
@@ -151,26 +148,6 @@ classdef gen_sqw_files_job < JobExecutor
             
             common_par = struct(...
                 'grid_size_in',grid_size_in,'pix_range_in',pix_range_in);
-            % simplify -- no instrument, no sample
-            if ~isempty(instr) && (isstruct(instr(1)) && ~isempty(fieldnames(instr(1))))
-                if numel(instr) == numel(sample) && (numel(sample) ==numel(runfiles ))
-                    n_files = numel(runfiles);
-                    for i=1:n_files
-                        if iscell(runfiles)
-                            runfiles{i}.sample     = sample(i);
-                            runfiles{i}.instrument = instr(i);
-                        else
-                            runfiles(i).sample     = sample(i);
-                            runfiles(i).instrument = instr(i);
-                        end
-                    end
-                    
-                else
-                    common_par.instrument    = instr(1);
-                    common_par.sample        = sample(1);
-                    
-                end
-            end
             %
             loop_par = cell2struct({runfiles;tmp_files},...
                 {'runfile','sqw_file_name'});

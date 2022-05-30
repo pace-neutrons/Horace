@@ -35,7 +35,7 @@ classdef test_gen_runfiles < TestCase
             % =====================================================================================================================
             % Make spe files
             % =====================================================================================================================
-            par_file = fullfile('96dets.par');
+            par_file = fullfile(obj.common_data_dir,'96dets.par');
             spe_file = cell(1, nfiles_max);
             for i = 1:nfiles_max
                 spe_file{i} = [outdir, 'test_gen_runfiles_spe_', num2str(i), '.nxspe'];

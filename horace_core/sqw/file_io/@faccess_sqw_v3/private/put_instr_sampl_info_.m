@@ -13,11 +13,11 @@ function obj = put_instr_sampl_info_(obj,instrument_or_sample,varargin)
 %
 [ok,message,has_instrument,has_sample,argi] = parse_char_options(varargin,{'instrument','sample'});
 if ~ok
-    error('SQF_FILE_IO:invalid_argument',message)
+    error('HORACE:faccess_sqw_v3:invalid_argument',message)
 end
 
-[inst_obj,argi]=extract_is_from_input(obj,has_instrument,'instrument',instrument_or_sample,varargin,argi);
-[sample_obj,argi]=extract_is_from_input(obj,has_sample,'sample',instrument_or_sample,varargin,argi);
+[inst_obj,argi]=parse_inpuf_for_is(obj,has_instrument,'instrument',instrument_or_sample,varargin,argi);
+[sample_obj,argi]=parse_inpuf_for_is(obj,has_sample,'sample',instrument_or_sample,varargin,argi);
 
 sh = is_holder(inst_obj,sample_obj); % pack instrument and sample into single class
 if ~sh.is_empty()
@@ -30,7 +30,7 @@ obj.position_info_pos_= obj.instr_sample_end_pos_;
 obj = obj.put_sqw_footer();
 
 
-function [the_obj,argi]=extract_is_from_input(obj,has_object,obj_name,default_name,all_arg,argi)
+function [the_obj,argi]=parse_inpuf_for_is(~,has_object,obj_name,default_name,all_arg,argi)
 % extract instrument or sample data from input stream.
 % Inputs:
 % has_object  -- true if appropriate keyword was identified in the input
@@ -73,4 +73,8 @@ else
         end
     end
 end
-
+if iscell(the_obj)
+    the_obj = cellfun(@(x)(x.to_struct),the_obj,'UniformOutput',false);
+else
+    the_obj = arrayfun(@(x)(x.to_struct),the_obj,'UniformOutput',false);
+end

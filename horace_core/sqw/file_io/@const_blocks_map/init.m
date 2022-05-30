@@ -1,5 +1,6 @@
 function  obj = init(obj,pos_info)
-% Calculate the byte-sizes and positions of constant blocks for upgrading data on hdd
+% Calculate the byte-sizes and positions of constant blocks for 
+% upgrading data on hdd
 
 bsm = init_map_(obj,pos_info);
 if isfield(pos_info,'num_contrib_files_') % sqw file may have multiple headers

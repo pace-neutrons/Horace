@@ -6,7 +6,6 @@ function display(w)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 class_name = class(w);
 if isempty(w)
@@ -15,7 +14,7 @@ if isempty(w)
     disp(' ')
 else
     if numel(w)==1
-        display_single(w)
+        sqw_display_single_(w)
     else
         sz = size(w);
         str = '[';

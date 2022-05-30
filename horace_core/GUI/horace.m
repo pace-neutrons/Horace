@@ -12,7 +12,7 @@ function varargout = horace(varargin)
 %      HORACE('Property','Value',...) creates a new HORACE or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
 %      applied to the GUI before horace_OpeningFunction gets called.  An
-%      unrecognized property name or invalid value makes property application
+%      unrecognised property name or invalid value makes property application
 %      stop.  All inputs are passed to horace_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
@@ -50,7 +50,23 @@ is_sqw_obj = strcmp(element_class,'d1d') || strcmp(element_class,'d2d') ||...
     strcmp(element_class,'sqw');
 
 function [vec_val,ok] = read_vector(str_val)
-% read vector value from a string, obtained from GUI
+
+% read vector value from a string, obtained from GUI.
+%
+% Inputs:
+% str_val -- the string with input data obtained fron GUI.
+%            The string should be either set of comma separated values
+%            e.g. 10 or 1,3,5 or similar set of values, surrounded by
+%            square brackets, e.g. [10] or [1,3,5].
+%
+%            String can not be empty (will throw error)
+% Outputs:
+% vec_val  -- numerical value corresponding to the input string
+%             Both bracketed and no-bracketed forms return the same
+%             numeric results, namely vec_val == 10; or vec_val == [1,3,5];
+% ok       -- true if results were obtained. False if only one bracket was
+%             provided.
+
 ok = true;
 s1=strfind(str_val,'['); s2=strfind(str_val,']');
 if isempty(s1) && isempty(s2)
@@ -4427,7 +4443,8 @@ else
         if ~isempty(w)
             [w,okw] = read_vector(s);
             if ~okw
-                mess='Check the format of the vectors w. It must be emtpy or numeric with 3 elements';
+                mess='Check the format of the vectors w. It must be empty or numeric with 3 elements';
+
                 set(handles.message_info_text,'String',char({mess_initialise,mess}));
                 guidata(gcbo,handles);
                 return;

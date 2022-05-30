@@ -2,28 +2,22 @@ classdef rundatah < rundata
     % class responsible for transformations between single run sqw data
     % object and rundata object
     %
-    %
-    %
     properties(Dependent)
         % optional handle to function, used to transform sqw object.
         transform_sqw
     end
     properties
-        % optional handle to precaluclated detectors directions array
-        detdcn_cache = []
         % optional handle to list of q-vectors, used instead of detectors
         % positions
         qpsecs_cache = []
     end
-    
+
     properties(Access=private)
         transform_sqw_f_=[];
     end
+
     methods(Static)
-        function clear_det_cache()
-            % clear cached detectors information and detectors directions
-            calc_or_restore_detdcn_([]);
-        end
+        %
         function [runfiles_list,defined]=gen_runfiles(spe_files,varargin)
             % Returns array of rundatah objects created by the input arguments.
             %
@@ -58,13 +52,13 @@ classdef rundatah < rundata
             arglist=struct('transform_sqw',[]);
             flags={};
             [args,opt,present] = parse_arguments(varargin,arglist,flags);
-            
+
             [runfiles_list,defined]= rundata.gen_runfiles_of_type('rundatah',spe_files,args{:});
             % add check to verify if run_ids for all generated files are
             % unique. non-unique run_ids will be renumbered. This should
             % not normally happen, but additional check will do no harm
             runfiles_list = update_duplicated_rf_id(runfiles_list);
-            
+
             if present.transform_sqw
                 transf = opt.transform_sqw;
                 for i=1:numel(runfiles_list)
@@ -76,18 +70,27 @@ classdef rundatah < rundata
                 end
             end
         end
-        
+        %------------------------------------------------------------------
+        function obj = loadobj(S)
+            % boilerplate loadobj method, calling generic method of
+            % saveable class
+            obj = rundatah();
+            obj = loadobj@serializable(S,obj);
+        end
     end
-    
+
     methods
         %
         % method to create sqw object from rundata object
         [w,grid_size,pix_range,varargout] = calc_sqw(rd,grid_size_in,pix_range_in,varargin);
+
         %Method calculates q-dE range, this rundata file contributes into.
-        [u_to_rlu,pix_range,varargout]=calc_pix_range(obj,varargin);
-        % build rundata object, which can be used for estimating sqw ranges
-        bound_obj = build_bounding_obj(obj,varargin);
-        
+        [pix_range,varargout]=calc_pix_range(obj,varargin);
+
+        % build rundata object, which can be used for estimating sqw pix
+        % ranges
+        [bound_obj,obj] = build_bounding_obj(obj,varargin);
+
         function obj=rundatah(varargin)
             % rundatah class constructor.
             %
@@ -99,7 +102,7 @@ classdef rundatah < rundata
             if nargin == 1 && isa(varargin{1},'sqw')
                 obj = rundata_from_sqw_(varargin{1});
             else
-                obj = obj.initialize(varargin{:});
+                obj = obj.init(varargin{:});
             end
         end
         %------------------------------------------------------------------
@@ -114,13 +117,45 @@ classdef rundatah < rundata
             if isempty(fh) || isa(fh,'function_handle')
                 obj.transform_sqw_f_ = fh;
             else
-                error('RUNDATAH:invalid_argument',...
+                error('HORACE:rundatah:invalid_argument',...
                     'transform_sqw should be function handle applicable to sqw object as: w_transformed = transform_sqw(w_initial)');
             end
-            
+
         end
-        
-        function [pix_range,u_to_rlu,pix,obj] = calc_projections(obj)
+        function proj = get_projection(obj)
+            % returns instrument projection, used for conversion from
+            % instrument coordinate system to Crystal Cartesian coordinate
+            % system
+            proj = instr_proj(obj.lattice,obj.efix,obj.emode);
+            % TODO:
+            % Set up symmetry transformation over pixels.
+            % its good place to have it here
+        end
+        function [qspec,en] = calc_qspec(obj,detdcn)
+
+            % Calculate the components of Q in reference frame fixed w.r.t. spectrometer
+            %
+            %   >> qspec = obj.calc_qspec(detdcn)
+            %
+            % Input:
+            % ------
+            %   detdcn  Direction of detector in spectrometer coordinates ([3 x ndet] array)
+            %             [cos(phi); sin(phi).*cos(azim); sin(phi).sin(azim)]
+            %
+            % Output:
+            % -------
+            %   qspec   Momentum in spectrometer coordinates
+            %           (x-axis along ki, z-axis vertically upwards) ([3,ne*ndet] array)
+            %   en      Energy transfer for all pixels ([1,ne*ndet] array)
+            %
+            en = obj.en;
+            if size(obj.S,1)+1 == numel(en)
+                en = 0.5*(en(1:end-1)+en(2:end));
+            end
+            [qspec,en]=calc_qspec_(detdcn,obj.efix,en,obj.emode);
+        end
+
+        function [pix_range,pix,obj] = calc_projections(obj,detdcn)
             % main function to transform rundatah information into
             % crystal Cartesian coordinate system
             %
@@ -129,14 +164,17 @@ classdef rundatah < rundata
             %
             % Usage:
             %>> [pix_range,u_to_rlu,pix,obj] = rh.calc_projections()
-            %                           where rh is fully defined rundata object
+            %>> [pix_range,u_to_rlu,pix,obj] = rh.calc_projections(detchn)
+            %
+            % Inputs:
+            % rh       -- fully defined (valid) rundatah object
+            %
+            %
             % Returns:
             % pix_range --  q-dE range of pixels in crystal Cartesian coordinate
             %             system
-            % u_to_rlu -- martix to use when converting crystal Cartesian
-            %             coordinate systen into rlu coordinate system
-            % pix      -- [9 x npix] array of sqw pixel's information
-            %             in crystal Cartesian
+            % pix      -- PixelData object containing sqw pixel's information
+            %
             %             coordinate system (see sqw pixels information on
             %             the details of the pixels format)
             % obj      -- rundatah object with all data loaded in memory
@@ -145,22 +183,32 @@ classdef rundatah < rundata
             % Substantially overlaps with calc_sqw method within all
             % performance critical aras except fully fledged sqw object is
             % not constructed
-            
-            % Load data which have not been loaded in memory yet (do not
-            % reload) 
-            obj = obj.load();
-            % remove masked data and detectors
-            [obj.S,obj.ERR,obj.det_par]=obj.rm_masked();
 
-            if nargout<3
+            %  Removed for the future, in anticipation of making
+            %  rundata memory based only
+            %             % Load data which have not been loaded in memory yet (do not
+            %             % reload)
+            %             obj = obj.load();
+            %             % remove masked data and detectors
+            %             [obj.S,obj.ERR,obj.det_par]=obj.rm_masked();
+
+            if nargout<2
                 proj_mode = 0;
             else
                 proj_mode = 2;
             end
-            % Calculate projections            
-            [u_to_rlu,pix_range,pix] = obj.calc_projections_(obj.detdcn_cache,[],proj_mode);
+            if nargin <2
+                detdcn = [];
+            end
+            % Calculate projections
+            [pix_range,pix,obj] = obj.calc_projections_(detdcn,proj_mode);
         end
-    end
-    
-end
+        %
+        function flds = saveableFields(obj)
+            flds = saveableFields@rundata(obj);
+            flds = [flds,'transform_sqw'];
+        end
 
+    end
+
+end

@@ -8,12 +8,7 @@ function subf = extract_subfield_(header,fld_name)
 % fld_name -- the name of the field to extract
 % nfiles   -- number of elements in header.
 %
-%
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
 
-%
 if iscell(header)
     ns = numel(header);
     subf = cell(1,ns);

@@ -75,21 +75,25 @@ end
 % The special part: replace u1 with sqrt(u1^2+u2^2+u3^2) and set u2=u3=0
 % ----------------------------------------------------------------------
 % Get range of data (is an overestimate, but will certainly contain all the data)
-head=cell(1,nfiles);
-img_db_range=zeros(2,4,nfiles);
-for i=1:nfiles
-    head{i}=head_sqw(tmp_file{i});
-    img_db_range(:,:,i)=head{i}.img_db_range;
+
+pix_range=zeros(2,4,nfiles);
+head=head_sqw(tmp_file);
+if ~iscell(head)
+    head = {head};
 end
-sgn=sign(img_db_range(1,:,:).*img_db_range(2,:,:)); % +1 if range does not include zero
-abs_pix_range_min=min(abs(img_db_range),[],1);
+for i=1:nfiles
+    pix_range(:,:,i)=head{i}.pix_range;
+end
+
+sgn=sign(pix_range(1,:,:).*pix_range(2,:,:)); % +1 if range does not include zero
+abs_pix_range_min=min(abs(pix_range),[],1);
 abs_pix_range_min(sgn<1)=0;
-abs_pix_range=[abs_pix_range_min;max(abs(img_db_range),[],1)];
+abs_pix_range=[abs_pix_range_min;max(abs(pix_range),[],1)];
 abs_pix_range(:,1,:)=sqrt(abs_pix_range(:,1,:).^2 + abs_pix_range(:,2,:).^2 + abs_pix_range(:,3,:).^2);
 Q_min=min(abs_pix_range(1,1,:));
 Q_max=max(abs_pix_range(2,1,:));
-eps_min=min(img_db_range(1,4,:));
-eps_max=max(img_db_range(2,4,:));
+eps_min=min(pix_range(1,4,:));
+eps_max=max(pix_range(2,4,:));
 
 % Choose suitable rebinning for the final sqw file
 nQbin_def=100;
@@ -103,7 +107,8 @@ small=1e-10;
 Q_bins=[dQ*(floor((Q_min-small)/dQ)+0.5),dQ,dQ*(ceil((Q_max+small)/dQ)-0.5)];
 
 if nfiles==1 && (numel(head_full.header.en)-1)<=200  % one spe file and 150 energy bins or less
-    epsbins=0;           % Use intrinsic energy bins
+    %epsbins=0;           % Use intrinsic energy bins
+    epsbins = min(head_full.header.en(2:end)-head_full.header.en(1:end-1));
 else
     deps=round_to_vals((eps_max-eps_min)/nepsbin_def);
     epsbins=[eps_min-deps/2,deps,eps_max+deps/2];
@@ -113,7 +118,7 @@ end
 proj.u=[1,0,0];
 proj.v=[0,1,0];
 proj.type='rrr';
-proj.lab={'|Q|','dummy','dummy','E'};
+proj.label={'|Q|','dummy','dummy','E'};
 
 for i=1:nfiles
     % Read in
@@ -121,18 +126,14 @@ for i=1:nfiles
     % Compute new coordinates
     data=w.data;
     data.pix.q_coordinates=[sqrt(sum(data.pix.q_coordinates.^2,1));zeros(2,data.pix.num_pixels)];
-    data.img_db_range(:,1:3)=data.pix.pix_range(:,1:3);
-    data.iax=[2,3];   % second and third axes become integration axes
-    data.iint=[-Inf,-Inf;Inf,Inf];
-    data.pax=[1,4];
-    data.p=[{data.img_db_range(:,1)},data.p(4)];
-    data.dax=[1,2];
-    data.ulabel={'|Q|','dummy','dummy','E'};
+    data.img_range=range_add_border(data.pix.pix_range);
+    data.nbins_all_dims = [1,1,1,1];
+    data.ulabel={'|Q|','dummy','dummy','E'};    
     w.data=data;
     % Rebin
     w=cut_sqw(w,proj,Q_bins,[-Inf,Inf],[-Inf,Inf],epsbins);
     % Save to the same tmpfile
-    save(w,tmp_file{i})
+    save(w,tmp_file{i});
 end
 
 

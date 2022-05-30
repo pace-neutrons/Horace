@@ -14,7 +14,7 @@ classdef test_sqw_dnd_eval < TestCase
                 name = 'test_sqw_dnd_eval';
             end
             obj = obj@TestCase(name);
-            obj.data_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))),'test_sqw_file');
+            obj.data_dir = fullfile(horace_root(),'_test','common_data');
             test_sqw_file = fullfile(obj.data_dir,'sqw_2d_2.sqw');
             obj.sqw_4_test = sqw(test_sqw_file);
             obj.dnd_4_test = read_dnd(test_sqw_file);
@@ -22,6 +22,8 @@ classdef test_sqw_dnd_eval < TestCase
         function test_tobyfit(obj)
             %
             sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02]);
+            sample.alatt = [2.8700 2.8700 2.8700];
+            sample.angdeg = [90 90 90];
             obj.sqw_4_test = ...
                 set_instrument(obj.sqw_4_test, @maps_instrument,'-efix',800,'S');
             obj.sqw_4_test = ...
@@ -51,7 +53,7 @@ classdef test_sqw_dnd_eval < TestCase
 
 
         function test_dispersion_sqw(obj)
-            skipTest("New dnd objects not implemented");
+            skipTest("New dnd objects to caclulate dispersion are not implemented");
             %
             ds = dispersion(obj.sqw_4_test,@obj.sqw_disp_tester,[]);
 

@@ -3,8 +3,6 @@ classdef an_axis_caption
     %
     % By default implements sqw rectangular cut captions
     %
-    %
-    %
     properties(Dependent)
         % property specifies if 2D or 3D picture, this class captions
         % is created for, changes aspect ration according to aspect ratio

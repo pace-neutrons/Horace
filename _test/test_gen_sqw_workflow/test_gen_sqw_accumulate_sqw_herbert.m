@@ -50,7 +50,11 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
                 test_name = mfilename('class');
             end
             combine_algorithm = 'mpi_code'; % this is what should be tested
-            if is_jenkins && ispc
+            if ispc
+                hc = hor_config;
+                if hc.log_level>0
+                    warning('MPI code combining is currently disabled on windows')
+                end
                 combine_algorithm = 'mex_code'; % disable poor man MPI combine on Jenkins. It is extremely slow.
             end
             %
@@ -102,18 +106,23 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             [path,file] = fileparts(obj.spe_file{1});
             tmp_file1 = fullfile(path,[file,'.tmp']);
             run1=rundatah(obj.spe_file{1},ds);
+            run1.sample = obj.sample;
+            run1.instrument = obj.instrum;
             %
             [path,file] = fileparts(obj.spe_file{2});
             tmp_file2 = fullfile(path,[file,'.tmp']);
             ds.psi=psi(2);
             run2=rundatah(obj.spe_file{1},ds);
+            run2.sample = obj.sample;
+            run2.instrument = obj.instrum;
+            
             runs = {run1;run2};
             tmp_files = {tmp_file1,tmp_file2};
             clof = onCleanup(@()del_tmp(obj,tmp_files));
             %--------------------------------------------------------------
             % prepare job parameters for the parallel processing
             [common_par,loop_par]=gen_sqw_files_job.pack_job_pars(...
-                runs,tmp_files,obj.instrum(1),obj.sample,...
+                runs,tmp_files,...
                 [50,50,50,50],[-1.5,-2.1,-0.5,0;0,0,0.5,35]);
             [task_id_list,init_mess]=JobDispatcher.split_tasks(common_par,loop_par,true,1);
             
@@ -236,10 +245,11 @@ classdef test_gen_sqw_accumulate_sqw_herbert <  ...
             clob = onCleanup(@()delete(tmp_file));
             
             run=rundatah(obj.spe_file{1},ds);
+            run.sample = obj.sample;
+            run.instrument = obj.instrum(1);
             
             [common_par,loop_par]=gen_sqw_files_job.pack_job_pars(...
-                run,tmp_file,obj.instrum(1),obj.sample,...
-                [50,50,50,50],[-1.5,-2.1,-0.5,0;0,0,0.5,35]);
+                run,tmp_file,[50,50,50,50],[-1.5,-2.1,-0.5,0;0,0,0.5,35]);
             
             serverfbMPI  = MessagesFilebased('test_do_job');
             serverfbMPI.mess_exchange_folder = tmp_dir();

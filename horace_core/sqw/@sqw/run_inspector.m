@@ -1,4 +1,4 @@
-function run_inspector(w,varargin)
+function [pr,nd,split_array] = run_inspector(w,varargin)
 % run_inspector(w)
 %
 % Creates a new window displaying the parts of an sqw dataset that came
@@ -25,86 +25,83 @@ function run_inspector(w,varargin)
 % run_inspector(w,'ax',[x_lo,x_hi,y_lo,y_hi]) - for both 1d and 2d cases,
 %       allows you to specify the limits of the x and y axes of the plot. The
 %       default behavior is to use the axes of the original (unsplit) object
+%
+% Test parameters:
+% run_inspector(__,'test_parser',true) - the pair used in unit tests and if
+%         provided 'test_parser',true, roudine does nothing but returns
+%         parsed input parameters
+%
+% Outputs: (used in testing)
+% pm    -- the structure, containing the values of processed input
+%          parameteres. If no input parameters were provided, returns their
+%          default values
+% nd    -- number of dimensions for input sqw object
+%
+% split_array -- array of the non-empty sqw objects, the input multirun sqw
+%          object has been split
 
 %RAE 30/1/15
 
 %Do some checks on the data:
-if ~isa(w,'sqw') || w.data.pix.is_filebacked()
-    error('HORACE:run_inspector:invalid_argument',...
-        'Input dataset has to be a fully loaded to memory sqw object with full contributing run information present');
-end
-
-if numel(w)~=1
-    error('HORACE:run_inspector:invalid_argument',...    
-    'run inspector can only be used for a single sqw object, rather than an array of objects')
-end
-
-[nd,sz]=dimensions(w);
-if nd<1 || nd>2
-    error('HORACE:run_inspector:invalid_argument',...
-        'Input dataset must be an sqw object that is 2d or 1d');
-end
-
-
-% Determine keyword arguments, if present
-if nargin>1 && nargin<4
-    %One keyword used
-    if strcmp(varargin{1},'col') && isvector(varargin{2}) && ...
-            numel(varargin{2})==2 && varargin{2}(2)>varargin{2}(1)
-        clim=varargin{2};
-    elseif strcmp(varargin{1},'ax') && isvector(varargin{2}) && ...
-            numel(varargin{2})==4 && varargin{2}(2)>varargin{2}(1) && ...
-            varargin{2}(4)>varargin{2}(3)
-        axlim=varargin{2};
-    else
-        error('Check keyword argument is either ''col'' or ''ax'', and that color_hi>color_lo / ax_hi>ax_lo');
-    end
-elseif nargin>3 && nargin<6
-    %Both keywords used
-    if strcmp(varargin{1},'col') && isvector(varargin{2}) && ...
-            numel(varargin{2})==2 && varargin{2}(2)>varargin{2}(1)
-        clim=varargin{2};
-    elseif strcmp(varargin{1},'ax') && isvector(varargin{2}) && ...
-            numel(varargin{2})==4 && varargin{2}(2)>varargin{2}(1) && ...
-            varargin{2}(4)>varargin{2}(3)
-        axlim=varargin{2};
-    else
-        error('Check first keyword argument is either ''col'' or ''ax'', and that color_hi>color_lo / ax_hi>ax_lo');
-    end
-    %
-    if strcmp(varargin{3},'col') && isvector(varargin{4}) && ...
-            numel(varargin{4})==2 && varargin{4}(2)>varargin{4}(1)
-        clim=varargin{4};
-    elseif strcmp(varargin{3},'ax') && isvector(varargin{4}) && ...
-            numel(varargin{4})==4 && varargin{4}(2)>varargin{4}(1) && ...
-            varargin{4}(4)>varargin{4}(3)
-        axlim=varargin{4};
-    else
-        error('Check second keyword argument is either ''col'' or ''ax'', and that color_hi>color_lo / ax_hi>ax_lo');
-    end
-elseif nargin==1
-    %Default behaviour, so do nothing
-else
-    error('Check number of input arguments - should be either 1, 3 or 5');
+[pr,nd] = parse_inputs(w,varargin{:});
+if pr.test_parser % provide 'test_parser', true, argument to unit test parser only
+    split_array = [];
+    return;
 end
 
 %=======================================
 
 %Now switch between 1d and 2d cases
+split_array = split(w);
+args = {5,10,[],'Name','Horace Run Inspector'};
+if pr.test_videofig
+    args = [args(:)',{'test_videofig'}];
+end
 if nd==1
-    if exist('axlim','var')
-        run_inspector_videofig(numel(w.header),@run_inspector_animate_1d,{split(w),axlim},5,10,[],'Name','Horace Run Inspector');
-    else
-        run_inspector_videofig(numel(w.header),@run_inspector_animate_1d,{split(w),[]},5,10,[],'Name','Horace Run Inspector');
-    end
+    run_inspector_videofig(numel(split_array),@run_inspector_animate_1d,{split_array,pr.ax},args{:});
 elseif nd==2
-    if exist('axlim','var') && ~exist('clim','var')
-        run_inspector_videofig(numel(w.header),@run_inspector_animate_2d,{split(w),[],axlim},5,10,[],'Name','Horace Run Inspector');
-    elseif ~exist('axlim','var') && exist('clim','var')
-        run_inspector_videofig(numel(w.header),@run_inspector_animate_2d,{split(w),clim,[]},5,10,[],'Name','Horace Run Inspector');
-    elseif exist('axlim','var') && exist('clim','var')
-        run_inspector_videofig(numel(w.header),@run_inspector_animate_2d,{split(w),clim,axlim},5,10,[],'Name','Horace Run Inspector');
+    run_inspector_videofig(numel(split_array),@run_inspector_animate_2d,{split_array,pr.col,pr.ax},args{:});
+end
+
+function [pr,nd] = parse_inputs(obj,varargin)
+% 
+% shorten input file name to the minimal useful abbreviations
+short_par = {'ax','col','test_parser'};
+argi = cellfun(@(x)shorten_kw(x,short_par),varargin,'UniformOutput',false);
+
+
+pm = inputParser;
+val_obj = @(x)(isa(x,'sqw')&&numel(x)==1&&~x.data.pix.is_filebacked());
+pm.addRequired('obj',val_obj)
+pm.addParameter('col',[],@(x)(isnumeric(x)&&numel(x)==2&&x(1)<x(2)))
+pm.addParameter('ax',[],@(x)(isnumeric(x)&&numel(x)==4&&x(1)<x(2)&&x(3)<x(4)))
+pm.addParameter('test_parser',false,@(x)(islogical(x)));
+pm.addParameter('test_videofig',false,@(x)(islogical(x)));
+try
+    parse(pm,obj,argi{:});
+    pr = pm.Results;
+catch ME
+    if ismember(ME.identifier,{'MATLAB:InputParser:ArgumentFailedValidation',...
+            'MATLAB:InputParser:ParamMissingValue'})
+        error('HORACE:run_inspector:invalid_argument',...
+            ME.message);
     else
-        run_inspector_videofig(numel(w.header),@run_inspector_animate_2d,{split(w),[],[]},5,10,[],'Name','Horace Run Inspector');
+        rethrow(ME);
+    end
+end
+nd=dimensions(obj);
+if nd<1 || nd>2
+    error('HORACE:run_inspector:invalid_argument',...
+        'Input dataset must be an sqw object that is 2d or 1d');
+end
+function kw = shorten_kw(x,short_names)
+kw = x;
+if ~ischar(x)
+    return;
+end
+for i=1:numel(short_names)
+    if strncmp(x,short_names{i},numel(short_names{i}))
+        kw = short_names{i};
+        return;
     end
 end

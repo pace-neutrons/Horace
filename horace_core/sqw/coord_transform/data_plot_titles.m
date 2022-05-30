@@ -36,7 +36,7 @@ title = data.title;
 uoff = data.uoffset;
 u_to_rlu = data.u_to_rlu;
 ulen = data.ulen;
-ulabel = data.ulabel;
+label = data.label;
 iax = data.iax;
 iint = data.iint;
 pax = data.pax;
@@ -110,15 +110,15 @@ for j=1:4
         for i=1:3
             if ~strcmp(uofftot_ch{i}(2:end),'0') && ~strcmp(u_to_rlu_ch{i,j}(2:end),'0')     % uofftot(i) and u_to_rlu(i,j) both contain non-zero values
                 if ~strcmp(u_to_rlu_ch{i,j}(2:end),'1')
-                    ch{i,j} = [uofftot_ch{i},u_to_rlu_ch{i,j},ulabel{j}];
+                    ch{i,j} = [uofftot_ch{i},u_to_rlu_ch{i,j},label{j}];
                 else
-                    ch{i,j} = [uofftot_ch{i},u_to_rlu_ch{i,j}(1),ulabel{j}];
+                    ch{i,j} = [uofftot_ch{i},u_to_rlu_ch{i,j}(1),label{j}];
                 end
             elseif strcmp(uofftot_ch{i}(2:end),'0') && ~strcmp(u_to_rlu_ch{i,j}(2:end),'0')  % uofftot(i)=0 but u_to_rlu(i,j)~=0
                 if ~strcmp(u_to_rlu_ch{i,j}(2:end),'1')
-                    ch{i,j} = [u_to_rlu_ch{i,j},ulabel{j}];
+                    ch{i,j} = [u_to_rlu_ch{i,j},label{j}];
                 else
-                    ch{i,j} = [u_to_rlu_ch{i,j}(1),ulabel{j}];
+                    ch{i,j} = [u_to_rlu_ch{i,j}(1),label{j}];
                 end
             else
                 ch{i,j} = uofftot_ch{i};
@@ -134,15 +134,15 @@ for j=1:4
         for i=1:3
             if ~strcmp(uoff_ch{i}(2:end),'0') && ~strcmp(u_to_rlu_ch{i,j}(2:end),'0')     % uoff(i) and u_to_rlu(i,j) both contain non-zero values
                 if ~strcmp(u_to_rlu_ch{i,j}(2:end),'1')
-                    ch{i,j} = [uoff_ch{i},u_to_rlu_ch{i,j},ulabel{j}];
+                    ch{i,j} = [uoff_ch{i},u_to_rlu_ch{i,j},label{j}];
                 else
-                    ch{i,j} = [uoff_ch{i},u_to_rlu_ch{i,j}(1),ulabel{j}];
+                    ch{i,j} = [uoff_ch{i},u_to_rlu_ch{i,j}(1),label{j}];
                 end
             elseif strcmp(uoff_ch{i}(2:end),'0') && ~strcmp(u_to_rlu_ch{i,j}(2:end),'0')  % uoff(i)=0 but u_to_rlu(i,j)~=0
                 if ~strcmp(u_to_rlu_ch{i,j}(2:end),'1')
-                    ch{i,j} = [u_to_rlu_ch{i,j},ulabel{j}];
+                    ch{i,j} = [u_to_rlu_ch{i,j},label{j}];
                 else
-                    ch{i,j} = [u_to_rlu_ch{i,j}(1),ulabel{j}];
+                    ch{i,j} = [u_to_rlu_ch{i,j}(1),label{j}];
                 end
             else
                 ch{i,j} = uoff_ch{i};
@@ -162,13 +162,13 @@ for j=1:4
             else
                 title_pax{ipax} = [totvector{j},' (',Angstrom,'^{-1})'];
             end
-            title_main_pax{ipax} = [ulabel{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
-            display_pax{ipax} = [ulabel{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
+            title_main_pax{ipax} = [label{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
+            display_pax{ipax} = [label{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
         elseif any(j==iax)   % j appears in the list of integration axes
             iiax = find(j==iax);
-            title_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',ulabel{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];
-            title_main_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',ulabel{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];
-            display_iax{iiax} = [num2str(iint(1,iiax)),' =< ',ulabel{j},' =< ',num2str(iint(2,iiax)),in_vector{j}];
+            title_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];
+            title_main_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];
+            display_iax{iiax} = [num2str(iint(1,iiax)),' =< ',label{j},' =< ',num2str(iint(2,iiax)),in_vector{j}];
         else
             error ('ERROR: Axis is neither plot axis nor integration axis')
         end
@@ -179,15 +179,15 @@ for j=1:4
         energy_axis = j;
         if ~strcmp(uofftot_ch{4}(2:end),'0') && ~strcmp(u_to_rlu_ch{4,j}(2:end),'0')     % uofftot(4) and u_to_rlu(4,j) both contain non-zero values
             if ~strcmp(u_to_rlu_ch{4,j}(2:end),'1')
-                ch{4,j} = [uofftot_ch{4},u_to_rlu_ch{4,j},ulabel{j}];
+                ch{4,j} = [uofftot_ch{4},u_to_rlu_ch{4,j},label{j}];
             else
-                ch{4,j} = [uofftot_ch{4},u_to_rlu_ch{4,j}(1),ulabel{j}];
+                ch{4,j} = [uofftot_ch{4},u_to_rlu_ch{4,j}(1),label{j}];
             end
         elseif strcmp(uofftot_ch{4}(2:end),'0') && ~strcmp(u_to_rlu_ch{4,j}(2:end),'0')  % uofftot(4)=0 but u_to_rlu(4,j)~=0
             if ~strcmp(u_to_rlu_ch{4,j}(2:end),'1')
-                ch{4,j} = [u_to_rlu_ch{4,j},ulabel{j}];
+                ch{4,j} = [u_to_rlu_ch{4,j},label{j}];
             else
-                ch{4,j} = [u_to_rlu_ch{4,j}(1),ulabel{j}];
+                ch{4,j} = [u_to_rlu_ch{4,j}(1),label{j}];
             end
         end
         if ch{4,j}(1)=='+'        % strip off leading '+'
@@ -204,15 +204,15 @@ for j=1:4
         % Captions excluding offsets from integration axes
         if ~strcmp(uoff_ch{4}(2:end),'0') && ~strcmp(u_to_rlu_ch{4,j}(2:end),'0')     % uoff(4) and u_to_rlu(4,j) both contain non-zero values
             if ~strcmp(u_to_rlu_ch{4,j}(2:end),'1')
-                ch{4,j} = [uoff_ch{4},u_to_rlu_ch{4,j},ulabel{j}];
+                ch{4,j} = [uoff_ch{4},u_to_rlu_ch{4,j},label{j}];
             else
-                ch{4,j} = [uoff_ch{4},u_to_rlu_ch{4,j}(1),ulabel{j}];
+                ch{4,j} = [uoff_ch{4},u_to_rlu_ch{4,j}(1),label{j}];
             end
         elseif strcmp(uoff_ch{4}(2:end),'0') && ~strcmp(u_to_rlu_ch{4,j}(2:end),'0')  % uoff(4)=0 but u_to_rlu(4,j)~=0
             if ~strcmp(u_to_rlu_ch{4,j}(2:end),'1')
-                ch{4,j} = [u_to_rlu_ch{4,j},ulabel{j}];
+                ch{4,j} = [u_to_rlu_ch{4,j},label{j}];
             else
-                ch{4,j} = [u_to_rlu_ch{4,j}(1),ulabel{j}];
+                ch{4,j} = [u_to_rlu_ch{4,j}(1),label{j}];
             end
         end
         if ch{4,j}(1)=='+'        % strip off leading '+'
@@ -233,13 +233,13 @@ for j=1:4
             else
                 title_pax{ipax} = [totvector{j},' (meV)'];
             end
-            title_main_pax{ipax} = [ulabel{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
-            display_pax{ipax} = [ulabel{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
+            title_main_pax{ipax} = [label{j},'=',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
+            display_pax{ipax} = [label{j},' = ',num2str(uplot(1,ipax)),':',num2str(uplot(2,ipax)),':',num2str(uplot(3,ipax)),in_totvector{j}];
         elseif any(j==iax)   % j appears in the list of integration axes
             iiax = find(j==iax);
-            title_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',ulabel{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];
-            title_main_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',ulabel{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];
-            display_iax{iiax} = [num2str(iint(1,iiax)),' =< ',ulabel{j},' =< ',num2str(iint(2,iiax)),in_vector{j}];
+            title_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];
+            title_main_iax{iiax} = [num2str(iint(1,iiax)),' \leq ',label{j},' \leq ',num2str(iint(2,iiax)),in_vector{j}];
+            display_iax{iiax} = [num2str(iint(1,iiax)),' =< ',label{j},' =< ',num2str(iint(2,iiax)),in_vector{j}];
         else
             error ('ERROR: Axis is neither plot axis nor integration axis')
         end

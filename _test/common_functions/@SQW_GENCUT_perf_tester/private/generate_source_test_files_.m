@@ -32,7 +32,7 @@ end
 [psi,efix,alatt,angdeg,u,v,omega,dpsi,gl,gs,...
     en,par_file,alatt_true,angdeg_true,qfwhh,efwhh,rotvec]=obj.gen_sqw_parameters();
 
-% Create sqw file for refinement testing
+% Create sqw file for performance testing
 % --------------------------------------
 [pix_range,ndet] = calc_sqw_pix_range (efix, 1, en(1), en(end), par_file, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 

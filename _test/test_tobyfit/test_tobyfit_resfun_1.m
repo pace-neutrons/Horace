@@ -82,6 +82,8 @@ end
 
 % Add instrument and sample information to cuts
 sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.02,0.02,0.02]);
+sample.alatt = [4.2240 4.2240 4.2240];
+sample.angdeg = [90 90 90];
 w2a=set_sample_and_inst(w2a,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
 wce=set_sample_and_inst(wce,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
 w2b=set_sample_and_inst(w2b,sample,@maps_instrument_obj_for_tests,'-efix',300,'S');
@@ -102,6 +104,8 @@ pause_time = 0;
 
 inst = maps_instrument_obj_for_tests(90,250,'s');
 samp = IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.02,0.02,0.02]);
+samp.alatt = [4.2240 4.2240 4.2240];
+samp.angdeg = [90 90 90];
 
 det.x2=6;
 det.phi=30;
@@ -111,30 +115,24 @@ det.height=0.0367;
 
 ww1=resolution_plot([12.5,13.5],inst,samp,det,100,1,[3,4,5],[90,90,90],[1,1,0],[0,0,1],24,0,1,2,3);
 if test_output
-    if ~equal_to_tol(ww1,tmp.ww1,[1e-8,1e-8])
-        mess = 'ww1 not the same';
-        error(mess)
-    end
+    [ok,mess] = equal_to_tol(ww1,tmp.ww1,[1e-8,1e-8]);
+    assertTrue(ok,mess)    
 end
 pause(pause_time)
 
 iax = [1,4];
 ww2=resolution_plot([-0.5,0.5],inst,samp,det,100,1,[3,4,5],[90,90,90],[1,1,0],[0,0,1],24,0,1,2,3, iax);
 if test_output
-    if ~equal_to_tol(ww2,tmp.ww2,[1e-8,1e-8])
-        mess = 'ww2 not the same';
-        error(mess)
-    end
+    [ok,mess] = equal_to_tol(ww2,tmp.ww2,[1e-8,1e-8]);
+    assertTrue(ok,mess)
 end
 pause(pause_time)
 
 iax = [1,4];
 ww3=resolution_plot([39.5,40.5],inst,samp,det,100,1,[3,4,5],[90,90,90],[1,1,0],[0,0,1],24,0,1,2,3, iax);
 if test_output
-    if ~equal_to_tol(ww3,tmp.ww3,[1e-8,1e-8])
-        mess = 'ww3 not the same';
-        error(mess)
-    end
+    [ok,mess] = equal_to_tol(ww3,tmp.ww3,[1e-8,1e-8]);    
+    assertTrue(ok,mess)    
 end
 pause(pause_time)
 
@@ -153,7 +151,7 @@ lx -0.5 1.5
 lz 0 1000
 cov1 = resolution_plot (w2a, [0.3,6; 0.7,6], 'curr');
 if test_output
-    if ~equal_to_tol(cov1,tmp.cov1,[1e-8,1e-8])
+    if ~equal_to_tol(cov1,tmp.cov1,[1e-7,1e-7])
         mess = 'cov1 not the same';
         error(mess)
     end
@@ -173,11 +171,11 @@ lz 0 1000
 cov2 = resolution_plot (wce, [0.5,0.3; 0.5,0.7], 'curr');
 cov3 = resolution_plot (wce, [0.64,0.5; 0.36,0.5], 'curr');
 if test_output
-    if ~equal_to_tol(cov2,tmp.cov2,[1e-8,1e-8])
+    if ~equal_to_tol(cov2,tmp.cov2,[1e-7,1e-7])
         mess = 'cov2 not the same';
         error(mess)
     end
-    if ~equal_to_tol(cov3,tmp.cov3,[1e-8,1e-8])
+    if ~equal_to_tol(cov3,tmp.cov3,[1e-7,1e-7])
         mess = 'cov3 not the same';
         error(mess)
     end
@@ -194,7 +192,7 @@ plot(w2b)
 lz 0 1000
 cov4 = resolution_plot (w2b, [0.36,6; 0.64,6], 'curr');
 if test_output
-    if ~equal_to_tol(cov4,tmp.cov4,[1e-8,1e-8])
+    if ~equal_to_tol(cov4,tmp.cov4,[1e-7,1e-7])
         mess = 'cov4 not the same';
         error(mess)
     end

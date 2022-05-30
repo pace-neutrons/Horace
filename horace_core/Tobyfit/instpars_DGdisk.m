@@ -22,16 +22,11 @@ function [ok,mess,ei,x0,xa,x1,mod_shape_mono,horiz_div,vert_div] =...
 
 
 % Get array of instruments
-if ~iscell(header)
-    nrun=1;
-    inst=header.instrument;
-    header={header};
-else
-    nrun=numel(header);
-    inst=repmat(header{1}.instrument,[nrun,1]);
-    for i=2:nrun
-        inst(i)=header{i}.instrument;
-    end
+instruments = header.instruments;
+nrun=numel(instruments);
+inst=repmat(instruments(1),[nrun,1]);
+for i=2:nrun
+    inst(i)=instruments(i);;
 end
 
 % Fill output arguments
@@ -43,13 +38,13 @@ mod_shape_mono=repmat(IX_mod_shape_mono,[nrun,1]);
 horiz_div=repmat(IX_divergence_profile,[nrun,1]);
 vert_div=repmat(IX_divergence_profile,[nrun,1]);
 for i=1:nrun
-    ei(i)=header{i}.efix;
-    x1(i)=abs(inst(i).mono_chopper.distance);
-    x0(i)=abs(inst(i).moderator.distance) - x1(i);          % distance from mono chopper to moderator face
-    xa(i)=abs(inst(i).shaping_chopper.distance) - x1(i);    % distance from shaping chopper to mono chopper
-    mod_shape_mono(i)=inst(i).mod_shape_mono;
-    horiz_div(i)=inst(i).horiz_div;
-    vert_div(i)=inst(i).vert_div;
+    ei(i)=header.expdata(i).efix;
+    x1(i)=abs(inst{i}.mono_chopper.distance);
+    x0(i)=abs(inst{i}.moderator.distance) - x1(i);          % distance from mono chopper to moderator face
+    xa(i)=abs(inst{i}.shaping_chopper.distance) - x1(i);    % distance from shaping chopper to mono chopper
+    mod_shape_mono(i)=inst{i}.mod_shape_mono;
+    horiz_div(i)=inst{i}.horiz_div;
+    vert_div(i)=inst{i}.vert_div;
 end
 
 ok=true;

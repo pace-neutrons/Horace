@@ -12,8 +12,8 @@ function data_form = get_data_form_(obj,varargin)
 % where options can be any or all of
 % '-head','-const','-data','-pix_only','-nopix','-header'
 % where
-% -head is equivalend to -head on dnd object will return dnd object
-%  methadata
+% -head is equivalent to -head on dnd object will return dnd object
+%  metadata
 % -const will return only part of data,
 %
 %  Which returns some parts of the full data structure below.
@@ -34,7 +34,7 @@ function data_form = get_data_form_(obj,varargin)
 %   data.u_to_rlu   Matrix (4x4) of projection axes in hkle representation
 %                      u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
 %   data.ulen       Length of projection axes vectors in Ang^-1 or meV [row vector]
-%   data.ulabel     Labels of the projection axes [1x4 cell array of character strings]
+%   data.label     Labels of the projection axes [1x4 cell array of character strings]
 %   data.iax        Index of integration axes into the projection axes  [row vector]
 %                  Always in increasing numerical order
 %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
@@ -59,7 +59,8 @@ function data_form = get_data_form_(obj,varargin)
 %   data.pix        A PixelData object
 %
 
-[ok,mess,pix_only,nopix,head,argi] = parse_char_options(varargin,{'-pix_only','-nopix','-header'});
+[ok,mess,pix_only,nopix,head,argi] = parse_char_options(varargin, ...
+    {'-pix_only','-nopix','-header'});
 if ~ok
     error('SQW_BINFILE_COMMON:invalid_argument',mess);
 end

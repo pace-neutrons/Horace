@@ -2,9 +2,6 @@ function  obj = set_upgrade_mode_(obj,mode)
 % Set up or initiate the upgrade mode, i.e. calculate constant blocks map
 % and prepare the file info for upgrade or disable such mode
 %
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
 
 mode = logical(mode);
 if mode

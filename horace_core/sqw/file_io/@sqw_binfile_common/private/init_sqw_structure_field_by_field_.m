@@ -7,7 +7,7 @@ function obj = init_sqw_structure_field_by_field_(obj,varargin)
 %
 [ok,mess,init_for_upgrade] = parse_char_options(varargin,{'-upgrade'});
 if ~ok
-    error('INIT_SQW_STRUCTURE:invalid_argument',mess);
+    error('HORACE:sqw_binfile_common:invalid_argument',mess);
 end
 
 fseek(obj.file_id_,obj.main_header_pos_,'bof');
@@ -16,7 +16,7 @@ check_and_throw_error(obj,'Error moving to main data header position');
 template_m_header = obj.get_main_header_form();
 [main_h_pos,pos,io_error] = obj.sqw_serializer_.calculate_positions(template_m_header,obj.file_id_,obj.main_header_pos_);
 if io_error
-    error('SQW_BINFILE_COMMON:io_error',...
+    error('HORACE:sqw_binfile_common:io_error',...
         'IO error while parsing main header')
 end
 obj.main_head_pos_info_ = main_h_pos;
@@ -36,17 +36,19 @@ obj.header_pos_(1) = pos;
 template_header = obj.get_header_form();
 [header_pos,pos,io_error]=obj.sqw_serializer_.calculate_positions(template_header,obj.file_id_,pos);
 if io_error
-    error('SQW_BINFILE_COMMON:io_error',...
+    error('HORACE:sqw_binfile_common:io_error',...
         'IO error while parsing positions of contributing file header N1')
 end
 obj.header_pos_info_ = repmat(header_pos,1,n_files);
+% check if the headers information is mangled with appropriate run-id.
+obj = check_header_mangilig(obj,header_pos);
 
 for i=2:n_files
     obj.header_pos_(i) = pos;
     % [header_pos,pos] =
     [header_pos,pos,io_error]=obj.sqw_serializer_.calculate_positions(template_header,obj.file_id_,pos);
     if io_error
-        error('SQW_BINFILE_COMMON:io_error',...
+        error('HORACE:sqw_binfile_common:io_error',...
             'IO error while parsing contributing file N%d header',i)
     end
     obj.header_pos_info_(i) = header_pos;
@@ -59,7 +61,8 @@ detpar_header = obj.get_detpar_form();
 obj.data_pos_ = pos;
 obj.detpar_pos_info_ = detpar_pos_info;
 if io_error
-    error('SQW_BINFILE_COMMON:io_error','IO error while parsing detector information')
+    error('HORACE:sqw_binfile_common:io_error',...
+        'IO error while parsing detector information')
 end
 
 % data block
@@ -67,7 +70,7 @@ data_header = obj.get_data_form();
 [data_pos,pos,io_error,data_header] =  obj.sqw_serializer_.calculate_positions(data_header,obj.file_id_,pos);
 if io_error
     if ~isfield(data_pos,'s_pos_') || ~isfield(data_pos,'e_pos_')
-        error('SQW_BINFILE_COMMON:io_error',...
+        error('HORACE:sqw_binfile_common:io_error',...
             'IO error while parsing data, can not identify location of signal and error arrays')
     end
 end
@@ -88,7 +91,7 @@ if ~io_error
     obj.npix_pos_=data_pos.npix_pos_;
     obj.img_db_range_pos_=data_pos.img_db_range_pos_;
     obj.pix_pos_=data_pos.pix_pos_+8;  % pixels are written with their size in front of the array.
-    
+
     % calculate number of pixels from pixels block position and its size
     obj.npixels_  = (obj.eof_pix_pos_ - obj.pix_pos_)/(4*9);
 else
@@ -135,7 +138,7 @@ obj.filepath_=[path,filesep];
 function check_and_throw_error(obj,mess_pos)
 [mess,res] = ferror(obj.file_id_);
 if res ~= 0
-    error('SQW_BINFILE_COMMON:io_error',...
-        '%s: Reason %s',mess_pos,mess)
+    error('HORACE:sqw_binfile_common:io_error',...
+        '%s: Reason: %s',mess_pos,mess)
 end
 

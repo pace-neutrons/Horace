@@ -8,6 +8,7 @@ set(TEST_DIRECTORIES
     "test_converters"
     "test_dnd"
     "test_dnd_class"
+    "test_experiment"
     "test_gen_sqw_for_powders"
     "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_herbert"
     "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_mex"
@@ -21,6 +22,7 @@ set(TEST_DIRECTORIES
     "test_sqw_file"
     "test_sqw"
     "test_sqw_class"
+    "test_sqw_pixels"
     "test_sym_op"
     "test_symmetrisation"
     "test_tobyfit"
@@ -53,14 +55,18 @@ foreach(_test_dir ${TEST_DIRECTORIES})
         set(TEST_TIMEOUT_LENGTH "2000")  # 33.3 minutes
     elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_parpool")
         set(TEST_TIMEOUT_LENGTH "2100")  # 35 minutes
-    elseif("${_test_dir}" STREQUAL "test_tobyfit")
-        set(TEST_TIMEOUT_LENGTH "3000")  # 50 minutes
+    elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow/test_gen_sqw_accumulate_sqw_herbert")
+        set(TEST_TIMEOUT_LENGTH "2100")  # 35 minutes. It strange thing happens on Jenkins. On laptop its ~4min
     elseif("${_test_dir}" STREQUAL "test_gen_sqw_workflow")
         set(TEST_TIMEOUT_LENGTH "3000")  # 50 minutes
+    elseif("${_test_dir}" STREQUAL "test_tobyfit")
+        set(TEST_TIMEOUT_LENGTH "3000")  # 50 minutes 
+    elseif("${_test_dir}" STREQUAL "test_tobyfit/test_let")
+       set(TEST_TIMEOUT_LENGTH "1800")  # 30 minutes
     elseif("${_test_dir}" STREQUAL "test_tobyfit/test_refine_crystal")
-        set(TEST_TIMEOUT_LENGTH "1800")  # 30 minutes
+        set(TEST_TIMEOUT_LENGTH "3000")  # 35 min on normal win, 50 minutes for dodgy VM. I've seen failure due to timeout when two jobs are running on windows ndw1676
     else()
-        set(TEST_TIMEOUT_LENGTH "1200")  # 20 minutes
+        set(TEST_TIMEOUT_LENGTH "1800")  # 30 minutes -- increased for running on icdpacewin
     endif()
 
     set(TEST_NAME "Matlab.${_test_dir}")

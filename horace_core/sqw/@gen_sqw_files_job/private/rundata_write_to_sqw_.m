@@ -37,21 +37,15 @@ if nfiles == 0
     return
 end
 
-[hor_log_level,use_mex]=get(hor_config,'log_level','use_mex');
+hor_log_level=get(hor_config,'log_level');
 %
-if use_mex % buffer or not the detector's information
-    cache_det = {};
-else
-    cache_det = {'-cache_detectors'};
-end
-
 
 mpi_obj= MPI_State.instance();
 running_mpi = mpi_obj.is_deployed;
 
 %
-cut_range = arrayfun(@(x,y,z)get_cut_range(x,y,z),...
-    pix_db_range(1,:),pix_db_range(2,:),grid_size_in,'UniformOutput',false);
+% bin_range = arrayfun(@(x,y,z)get_cut_range(x,y,z),...
+%     pix_db_range(1,:),pix_db_range(2,:),grid_size_in,'UniformOutput',false);
 run_id = zeros(1,nfiles);
 for i=1:nfiles
     if hor_log_level>-1 && write_banner
@@ -61,7 +55,7 @@ for i=1:nfiles
     end
     %
     run_id(i) = run_files{i}.run_id;
-    [w,grid_size_tmp,pix_range_tmp] = run_files{i}.calc_sqw(grid_size_in, pix_db_range,cache_det{:});
+    [w,grid_size_tmp,pix_range_tmp] = run_files{i}.calc_sqw(grid_size_in, pix_db_range);
     if i==1
         grid_size = grid_size_tmp;
         pix_range = pix_range_tmp;
@@ -72,36 +66,21 @@ for i=1:nfiles
         pix_range = [min([pix_range_tmp(1,:);pix_range(1,:)],[],1);...
             max([pix_range_tmp(2,:);pix_range(2,:)],[],1)];
     end
-    
-    
+
+
     % Write sqw object
     % ----------------
     bigtic
     save(w,sqw_file{i});
-    
+
     if running_mpi
         mpi_obj.do_logging(i,nfiles,[],[]);
     end
-    
+
     if hor_log_level>-1
         bigtoc('Time to save sqw data to file:',hor_log_level)
     end
-    
+
 end
 unique_runid = unique(run_id);
-if numel(unique_runid) == nfiles && ~any(isnan(unique_runid))
-    update_runlabels = false;
-else
-    update_runlabels = true;
-end
-
-
-function range = get_cut_range(r_min,r_max,n_bins)
-% calculate input range
-n_bins = n_bins-1;
-if n_bins == 0
-    range = [r_min,r_max];
-else
-    range = [r_min,(r_max-r_min)/n_bins,r_max];
-end
-
+update_runlabels = numel(unique_runid) ~= nfiles || any(isnan(unique_runid));

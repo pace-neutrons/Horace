@@ -53,14 +53,14 @@ classdef dnd_binfile_common < dnd_file_interface
         % of Horace data information and the size of this part.
         % 26 is standard position in modern sqw file format.
         data_pos_=26;
-        
+
         % signal information location (in bytes)
         s_pos_=0;
         % error information location (in bytes)
         e_pos_=0;
         % position of the npix field
         npix_pos_='undefined';
-        
+
         % end of dnd info position
         dnd_eof_pos_=0;
         % contains structure with accurate positions of all data fields
@@ -80,6 +80,9 @@ classdef dnd_binfile_common < dnd_file_interface
         real_eof_pos_ = 0; % does it give any advantage? TODO: not currently used or consistent
         %
         upgrade_map_ = [];
+        % internal parameters used to control the process of upgrading
+        % headers with run_id. Should be disabled in upgrade mode
+        upgrade_headers_ = true;
     end
     %
     properties(Constant,Access=private,Hidden=true)
@@ -87,7 +90,7 @@ classdef dnd_binfile_common < dnd_file_interface
         % all substantial parts of appropriate sqw file
         fields_to_save_ = {'data_pos_';'s_pos_';'e_pos_';'npix_pos_';'dnd_eof_pos_';...
             'data_fields_locations_'};
-        
+
     end
     %
     properties(Dependent)
@@ -98,9 +101,9 @@ classdef dnd_binfile_common < dnd_file_interface
         data_position;
         % initial location of npix fields
         npix_position;
-        
+
     end
-    %
+
     methods(Access = protected,Hidden=true)
         %
         function obj=init_from_sqw_obj(obj,varargin)
@@ -224,7 +227,7 @@ classdef dnd_binfile_common < dnd_file_interface
             flds = fields_to_save@dnd_file_interface(obj);
             flds = [flds(:);obj.fields_to_save_(:)];
         end
-        
+
         %
         function obj=init_from_structure(obj,obj_structure_from_saveobj)
             % init file accessors using structure, obtained for object
@@ -266,11 +269,11 @@ classdef dnd_binfile_common < dnd_file_interface
         %
         % Check if this loader should deal with selected data stream
         [should,objinit,mess]= should_load_stream(obj,stream,fid)
-        
+
         % set filename to save sqw data and open file for write/append
         % operations
         [obj,file_exist] = set_file_to_update(obj,filename)
-        
+
         % Reopen existing file to overwrite or write new data to it
         % or open new target file to save data.
         obj = reopen_to_write(obj,filename)
@@ -278,7 +281,7 @@ classdef dnd_binfile_common < dnd_file_interface
         % initialize loader, to be ready to read or write dnd data.
         obj = init(obj,varargin);
         % ----------------------------------------------------------------
-        
+
         % read main dnd data  from properly initialized binary file.
         [dnd_data,obj] = get_data(obj,varargin);
         % write only image signal and error data
@@ -310,11 +313,11 @@ classdef dnd_binfile_common < dnd_file_interface
         % retrieve full dnd object from sqw file containing dnd or dnd and
         % sqw information
         [dnd_obj,varargout] = get_dnd(obj,varargin);
-        
+
         function pix_range = get_pix_range(~)
             % get [2x4] array of min/max ranges of the pixels contributing
             % into an object. Empty for DND object
-            
+
             pix_range = double.empty(0,4);
         end
         %
@@ -329,7 +332,7 @@ classdef dnd_binfile_common < dnd_file_interface
             if isfield(ds,'img_db_range')
                 img_db_range  = ds.img_db_range;
             else
-                img_db_range = obj.calc_img_db_range(ds);
+                img_db_range = axes_block.calc_img_db_range(ds);
             end
         end
         %
@@ -347,12 +350,12 @@ classdef dnd_binfile_common < dnd_file_interface
         [obj,varargout] = put_dnd_data(obj,varargin);
         %
         obj = put_dnd(obj,varargin)
-        
+
         %------   Auxiliary methods
         % build header, which contains information on sqw/dnd object and
         % informs clients on the contents of a binary file
         header = build_app_header(obj,sqw_obj)
-        
+
         %------- Used in upgrade
         function type = get.upgrade_mode(obj)
             % return true if object is set up for upgrade
@@ -360,6 +363,7 @@ classdef dnd_binfile_common < dnd_file_interface
         end
         %
         function obj = set.upgrade_mode(obj,mode)
+            obj.upgrade_headers_ = false;
             obj = set_upgrade_mode_(obj,mode);
         end
         % -------------------------------------------
@@ -405,6 +409,7 @@ classdef dnd_binfile_common < dnd_file_interface
             obj=delete@dnd_file_interface(obj);
             obj.real_eof_pos_ = 0;
             obj.upgrade_map_ = [];
+            obj.upgrade_headers_= true;
         end
         %
         function obj = fclose(obj)
@@ -427,7 +432,7 @@ classdef dnd_binfile_common < dnd_file_interface
             %
             % where the options:
             % '-head' returns metadata field only and
-            % '-const' returns partial methadata which do not change size on hdd
+            % '-const' returns partial metadata which do not change size on hdd
             % '-data'  returns format for data fields, namely signal, error
             %          and npix. This information may be used to identify
             %          the size, these fields occupy on hdd
@@ -447,7 +452,7 @@ classdef dnd_binfile_common < dnd_file_interface
             %   data.u_to_rlu   Matrix (4x4) of projection axes in hkle representation
             %                      u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
             %   data.ulen       Length of projection axes vectors in Ang^-1 or meV [row vector]
-            %   data.ulabel     Labels of the projection axes [1x4 cell array of character strings]
+            %   data.label     Labels of the projection axes [1x4 cell array of character strings]
             %   data.iax        Index of integration axes into the projection axes  [row vector]
             %                  Always in increasing numerical order
             %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
@@ -473,7 +478,7 @@ classdef dnd_binfile_common < dnd_file_interface
             if strcmp(obj.data_type,'un') % we want full data if datatype is undefined
                 argi={};
             end
-            
+
             data_form = process_format_fields_(argi{:});
         end
         %
@@ -500,7 +505,7 @@ classdef dnd_binfile_common < dnd_file_interface
             full_file_path = fullfile(obj.filepath, obj.filename);
             [file_id_path, permission] = fopen(obj.file_id_);
             is = strcmp(full_file_path, file_id_path);
-            
+
             if is && nargin == 2
                 if strcmpi(read_or_write, 'read')
                     READ_MODE_REGEX = '([ra]b\+?)|(wb\+)';
@@ -511,7 +516,7 @@ classdef dnd_binfile_common < dnd_file_interface
                     open_for_writing = regexp(permission, WRITE_MODE_REGEX, 'once');
                     is = ~isempty(open_for_writing);
                 else
-                    error('DNDBINFILECOMMON:is_activated', ...
+                error('HORACE:dnd_binfile_common:invalid_argument',...
                         ['Invalid input for read_or_write. Must be ''read'' ', ...
                         'or ''write'', found ''%s'''], read_or_write);
                 end
@@ -529,6 +534,7 @@ classdef dnd_binfile_common < dnd_file_interface
             end
             obj = obj.fclose();
             obj.file_id_ = 0;
+            obj.upgrade_headers_ = true;
         end
         %
         function obj = activate(obj, read_or_write)
@@ -550,14 +556,14 @@ classdef dnd_binfile_common < dnd_file_interface
                 read_or_write = 'read';
             end
             permission = get_fopen_permission_(read_or_write);
-            
+
             if ~isempty(obj.file_closer_)
                 obj.file_closer_ = [];
             end
-            
+
             obj.file_id_ = fopen(fullfile(obj.filepath,obj.filename), permission);
             if obj.file_id_ <=0
-                error('FILE_IO:runtime_error',...
+                error('HORACE:dnd_binfile_common:runtime_error',...
                     'Can not open file %s at location %s',...
                     obj.filename,obj.filepath);
             end
@@ -580,45 +586,5 @@ classdef dnd_binfile_common < dnd_file_interface
         % correspondent to the structure form_fields
         [fn_start,fn_end,is_last] = extract_field_range(pos_fields,form_fields);
         %
-        function img_db_range = calc_img_db_range(ds)
-            % function used to retrieve 4D range used for rebinning pixels from old
-            % style sqw objects, where this range was not stored directlry
-            % 
-            % Should not be used directly, only for compartibility with old
-            % data formats
-            %
-            % Inputs: either data_sqw_dnd instance or a structure
-            % containing:
-            % The relevant data structure used as source of image range is as follows:
-            %
-            %   ds.iax        Index of integration axes into the projection axes  [row vector]
-            %                  Always in increasing numerical order
-            %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
-            %   ds.iint       Integration range along each of the integration axes. [iint(2,length(iax))]
-            %                       e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
-            %   ds.pax        Index of plot axes into the projection axes  [row vector]
-            %                  Always in increasing numerical order
-            %                       e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
-            %                                       2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
-            %   ds.p          Cell array containing bin boundaries along the plot axes [column vectors]
-            %                       i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
-            %   ds.dax        Index into data.pax of the axes for display purposes. For example we may have
-            %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
-            %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
-            %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
-            %
-            
-            img_db_range = zeros(2,4);
-            img_db_range(:,ds.iax) = ds.iint;
-            
-            npax = numel(ds.p);
-            pax_range = zeros(2,npax);
-            for i=1:npax % this is incorrect for cuts as additional range in cuts is extended by half-bin
-                % but this is correct for newly generated sqw objects.
-                pax_range(:,i) = [ds.p{i}(1);...
-                    ds.p{i}(end)];
-            end
-            img_db_range(:,ds.pax) = pax_range;
-        end
     end
 end

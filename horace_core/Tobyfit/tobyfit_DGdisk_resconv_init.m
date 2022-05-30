@@ -233,7 +233,11 @@ for iw=1:nw
     % Get energy transfer and bin sizes
     % (Could get eps directly from wtmp.data.pix(:,4), but this does not work if the
     %  pixels have been shifted, so recalculate)
-    [deps,eps_lo,eps_hi,ne]=energy_transfer_info(wtmp.header);
+    [deps,eps_lo,eps_hi,ne]=energy_transfer_info(wtmp.experiment_info);
+    irun_max = max(irun);    
+    if irun_max>numel(ne)
+        irun = arrayfun(@(x)wtmp.runid_map(x),irun);
+    end
     if ne>1
         eps=(eps_lo(irun).*(ne(irun)-ien)+eps_hi(irun).*(ien-1))./(ne(irun)-1);
     else
@@ -242,7 +246,7 @@ for iw=1:nw
     
     % Get instrument data
     [ok,mess,ei{iw},x0{iw},xa{iw},x1{iw},mod_shape_mono{iw},...
-        horiz_div{iw},vert_div{iw}] = instpars_DGdisk(wtmp.header);
+        horiz_div{iw},vert_div{iw}] = instpars_DGdisk(wtmp.experiment_info);
     if ~ok, return, end
     
     % Compute ki and kf
@@ -251,12 +255,12 @@ for iw=1:nw
     
     % Get sample, and both s_mat and spec_to_rlu; each has size [3,3,nrun]
     [ok,mess,sample(iw),s_mat{iw},spec_to_rlu{iw},alatt{iw},angdeg{iw}] =...
-        sample_coords_to_spec_to_rlu(wtmp.header);
+        sample_coords_to_spec_to_rlu(wtmp.experiment_info);
     if ~ok, return, end
     
     % Get detector information
     % Because detpar only contains minimal information, hardwire in the detector type here
-    detpar = wtmp.detpar;   % just get a pointer
+    detpar = wtmp.my_detpar();   % just get a pointer
     if use_tubes
         detectors(iw) = IX_detector_array (detpar.group, detpar.x2(:), detpar.phi(:), detpar.azim(:),...
             IX_det_He3tube (detpar.width, detpar.height, 6.35e-4, 10));   % 10atms, wall thickness=0.635mm

@@ -1,4 +1,4 @@
-classdef test_faccess_dnd_v2< TestCase & common_state_holder
+classdef test_faccess_dnd_v2< TestCase & common_sqw_file_state_holder
     %
     % Validate fast sqw reader used in combining sqw
     %
@@ -81,7 +81,7 @@ classdef test_faccess_dnd_v2< TestCase & common_state_holder
             
             % access to incorrect object
             f = @()(to.init());
-            assertExceptionThrown(f,'SQW_FILE_IO:invalid_argument');
+            assertExceptionThrown(f,'HORACE:dnd_binfile_common:invalid_argument');
             
             
             [ok,initob] = to.should_load(obj.sample_file);
@@ -105,6 +105,7 @@ classdef test_faccess_dnd_v2< TestCase & common_state_holder
             
             
             data = to.get_data();
+            data = data_sqw_dnd(data);
             assertEqual(size(data.s,1),numel(data.p{1})-1)
             assertEqual(size(data.e,2),numel(data.p{2})-1)
             assertFalse(isfield(data,'img_db_range'));

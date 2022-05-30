@@ -195,7 +195,9 @@ for i=1:numel(ind)
     dq_mat=lookup.dq_mat{iw};
 
     % Run and detector for each pixel
-    irun = win(i).data.pix.run_idx';   % column vector
+    run_idx = win(i).data.pix.run_idx';   % column vector
+    runid_map = win(i).experiment_info.runid_map;
+    irun = arrayfun(@(idx)runid_map(idx),run_idx);
     idet = win(i).data.pix.detector_idx';   % column vector
     npix = win(i).data.pix.num_pixels;
 
@@ -205,7 +207,7 @@ for i=1:numel(ind)
         [win(i), pars{1}] = refine_crystal_strip_pars (win(i), xtal, pars{1});
 
         % Update s_mat and spec_to_rlu because crystal orientation will have changed
-        [ok,mess,~,s_mat,spec_to_rlu,alatt,angdeg]=sample_coords_to_spec_to_rlu(win(i).header);
+        [ok,mess,~,s_mat,spec_to_rlu,alatt,angdeg]=sample_coords_to_spec_to_rlu(win(i).experiment_info);
         if ~ok, error(mess), end
 
         % Recompute Q because crystal orientation will have changed (dont need to update qw{4})

@@ -61,23 +61,13 @@ switch route
             %
             [irange,uoff]=calculate_integration_range(w1,w2);
             %
-            if isequal(w1.data_.u_to_rlu(:,w1.data_.pax(1)),w2.data_.u_to_rlu(:,w2.data_.pax(1)))
-                [x1,y1]=ndgrid(w1.data_.p{1},w1.data_.p{2});
-                [x2,y2]=ndgrid(w2.data_.p{1},w2.data_.p{2});
-                s1=w1.data_.s; s2=w2.data_.s;
-                e1=w1.data_.e; e2=w2.data_.e;
-                n1=w1.data_.npix; n2=w2.data_.npix;
+            if isequal(w1.data.u_to_rlu(:,w1.data.pax(1)),w2.data_.u_to_rlu(:,w2.data.pax(1)))
+                [x1,y1]=ndgrid(w1.data.p{1},w1.data.p{2});
+                [x2,y2]=ndgrid(w2.data.p{1},w2.data.p{2});
+                s1=w1.data.s; s2=w2.data.s;
+                e1=w1.data.e; e2=w2.data.e;
+                n1=w1.data.npix; n2=w2.data.npix;
                 [xout,yout,sout,eout,nout]=combine_2d(x1,y1,s1,e1,n1,x2,y2,s2,e2,n2,[]);
-                %Now need to construct the output d2d:
-                wout=d2d(w1);
-                wout.data_.p{1}=xout(:,1);
-                wout.data_.p{2}=yout(1,:)';
-                wout.data_.s=sout;
-                wout.data_.e=eout;
-                wout.data_.npix=nout;
-                wout.data_.title=[wout.data_.title,' COMBINED '];
-                wout.data_.iint=irange;
-                wout.data_.uoffset=uoff;
             else
                 %have same axes, but y-axis of w1 is x-axis of w2, and v.v.
                 [x1,y1]=ndgrid(w1.data_.p{1},w1.data_.p{2});
@@ -86,18 +76,22 @@ switch route
                 e1=w1.data_.e; e2=w2.data_.e';
                 n1=w1.data_.npix; n2=w2.data_.npix';
                 [xout,yout,sout,eout,nout]=combine_2d(x1,y1,s1,e1,n1,x2,y2,s2,e2,n2,[]);
-                %Now need to construct the output d2d:
-                wout=d2d(w1);
-                wout.data_.p{1}=xout(:,1);
-                wout.data_.p{2}=yout(1,:)';
-                wout.data_.s=sout;
-                wout.data_.e=eout;
-                wout.data_.npix=nout;
-                wout.data_.title=[wout.data_.title,' COMBINED '];
-                wout.data_.iint=irange;
-                wout.data_.uoffset=uoff;
                 %
             end
+            %Now need to construct the output d2d:
+            wout=d2d(w1);
+            paxis = (wout.nbins_all_dims>1);
+            range = [min(xout(:,1),min(yout(:,1)));max(xout(:,1),max(yout(:,1)))];
+            wout.img_range(paxis) = range;
+            wout.nbins_all_dims(1) = numel(xout(:,1));
+            wout.nbins_all_dims(2) = numel(yout(1,:));
+            wout.s=sout;
+            wout.e=eout;
+            wout.npix=nout;
+            wout.title=[wout.title,' COMBINED '];
+            wout.img_range(~paxis)=irange;
+            wout.uoffset=uoff;
+
         else
             [irange,uoff]=calculate_integration_range(w1,w2);
             %data plane is the same, but the axes are different. So need
@@ -149,16 +143,6 @@ switch route
                 e1=w1.data_.e; e2=w2.data_.e;
                 n1=w1.data_.npix; n2=w2.data_.npix;
                 [xout,yout,sout,eout,nout]=combine_2d(x1,y1,s1,e1,n1,x2,y2,s2,e2,n2,tol);
-                %Now need to construct the output d2d:
-                wout=d2d(w1);
-                wout.data_.p{1}=xout(:,1);
-                wout.data_.p{2}=yout(1,:)';
-                wout.data_.s=sout;
-                wout.data_.e=eout;
-                wout.data_.npix=nout;
-                wout.data_.title=[wout.data_.title,' COMBINED '];
-                wout.data_.iint=irange;
-                wout.data_.uoffset=uoff;
             else
                 %y-axis of w1 is x-axis of w2, and v.v.
                 [x1,y1]=ndgrid(w1.data_.p{1},w1.data_.p{2});
@@ -167,18 +151,22 @@ switch route
                 e1=w1.data_.e; e2=w2.data_.e';
                 n1=w1.data_.npix; n2=w2.data_.npix';
                 [xout,yout,sout,eout,nout]=combine_2d(x1,y1,s1,e1,n1,x2,y2,s2,e2,n2,tol);
-                %Now need to construct the output d2d:
-                wout=d2d(w1);
-                wout.data_.p{1}=xout(:,1);
-                wout.data_.p{2}=yout(1,:)';
-                wout.data_.s=sout;
-                wout.data_.e=eout;
-                wout.data_.npix=nout;
-                wout.data_.title=[wout.data_.title,' COMBINED '];
-                wout.data_.iint=irange;
-                wout.data_.uoffset=uoff;
                 %
             end
+            %Now need to construct the output d2d:
+            wout=d2d(w1);
+            paxis = (wout.nbins_all_dims>1);
+            range = [min(xout(:,1),min(yout(:,1)));max(xout(:,1),max(yout(:,1)))];
+            wout.img_range(paxis) = range;
+            wout.nbins_all_dims(1) = numel(xout(:,1));
+            wout.nbins_all_dims(2) = numel(yout(1,:));
+            wout.s=sout;
+            wout.e=eout;
+            wout.npix=nout;
+            wout.title=[wout.title,' COMBINED '];
+            wout.img_range(~paxis)=irange;
+            wout.uoffset=uoff;
+            
         else
             [irange,uoff]=calculate_integration_range(w1,w2);
             %data plane is the same, but the axes are different. So need

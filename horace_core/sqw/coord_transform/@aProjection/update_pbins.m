@@ -8,10 +8,10 @@ function [proj_update,pbin_update,ndims,pin,en] = update_pbins (proj, header_ave
 % ------
 
 
-en = header_ave.en;  % energy bins for synchronisation with when constructing defaults
+en         = header_ave.en;  % energy bins for synchronisation with when constructing defaults
 upix_to_rlu = header_ave.u_to_rlu(1:3,1:3);
-% This one never differs from [0,0,0,0] may be should be removed
 upix_offset = header_ave.uoffset;
+
 
 % TODO: This will be done in new sqw. Here uoffset is in hkl
 % at input new projection offset is expressed in old hkl coordinates 

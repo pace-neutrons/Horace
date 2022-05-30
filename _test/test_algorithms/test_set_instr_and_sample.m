@@ -6,7 +6,7 @@ classdef test_set_instr_and_sample < TestCase
         sam2
         sam3
         ds
-        source_sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw';
+        source_sqw_2d_file_path = '../common_data/sqw_2d_1.sqw';
         clob_holder
         test_sqw_file
     end
@@ -28,8 +28,15 @@ classdef test_set_instr_and_sample < TestCase
 
             % Create three different samples
             obj.sam1=IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
+            obj.sam1.alatt = [3,4,5];
+            obj.sam1.angdeg = [91,89,92];
             obj.sam2=IX_sample(true,[1,1,1],[5,0,1],'cuboid',[0.10,0.33,0.22]);
             obj.sam3=IX_sample(true,[1,1,0],[0,0,1],'point',[]);
+            obj.sam2.alatt = [5,4,3];
+            obj.sam2.angdeg = [92,89,91];
+            obj.sam3.alatt = [6,4,4];
+            obj.sam3.angdeg = [90,89,91];
+
         end
         function delete(obj)
             obj.clob_holder = [];
@@ -39,14 +46,14 @@ classdef test_set_instr_and_sample < TestCase
             % calculated using filebased algorithm rather than all data
             % loaded in memory.
             %v2large_file= 'c:\Users\abuts\Documents\Data\Fe\Data\sqw\Fe_ei1371_base_a.sqw';
-            %set_sample_horace(v2large_file,obj.sam1);            
+            %set_sample_horace(v2large_file,obj.sam1);
             sqw_out = set_sample_horace(obj.test_sqw_file,obj.sam1);
             assertTrue(isa(sqw_out,'sqw'))
 
-            %hdr = sqw_out.experiment_info;
-            %assertEqual(hdr(1).samples{1},obj.sam1)
-            hdr = sqw_out.header;
-            assertEqual(hdr{1}.sample,obj.sam1)
+            hdr = sqw_out.experiment_info;
+            assertEqual(hdr(1).samples{1},obj.sam1)
+            %hdr = sqw_out.header;
+            %assertEqual(hdr{1}.sample,obj.sam1)
             
 
             sqw_rec = read_sqw(obj.test_sqw_file);
@@ -63,25 +70,33 @@ classdef test_set_instr_and_sample < TestCase
             clob1 = onCleanup(@()delete(tmpsqwfile));
 
             % Add sam1 to file with f1_1
-            save(obj.ds.f1_1,tmpsqwfile)
+            save(obj.ds.f1_1,tmpsqwfile);
             set_sample_horace(tmpsqwfile,obj.sam1);
-            tmp=sqw(tmpsqwfile);
-            [ok,mess]=equal_to_tol(f1_1_s1_ref,tmp,'ignore_str',1); assertTrue(ok,mess)
+            tmp=read_sqw(tmpsqwfile);
+            [ok,mess]=equal_to_tol(f1_1_s1_ref.to_struct(),tmp.to_struct(), ...
+                'ignore_str',1);
+            assertTrue(ok,mess)
 
             % Now add a longer sample - this should be appended to the end
             set_sample_horace(tmpsqwfile,obj.sam2);
             tmp=sqw(tmpsqwfile);
-            [ok,mess]=equal_to_tol(f1_1_s2_ref,tmp,'ignore_str',1); assertTrue(ok,mess)
+            [ok,mess]=equal_to_tol(f1_1_s2_ref.to_struct(),tmp.to_struct(), ...
+                'ignore_str',1); 
+            assertTrue(ok,mess)
 
             % Now add a longer sample still - but shorter than the sum of sam1 and sam2: should overwrite
             set_sample_horace(tmpsqwfile,obj.sam3);
             tmp=sqw(tmpsqwfile);
-            [ok,mess]=equal_to_tol(f1_1_s3_ref,tmp,'ignore_str',1); assertTrue(ok,mess)
+            [ok,mess]=equal_to_tol(f1_1_s3_ref.to_struct(),tmp.to_struct(), ...
+                'ignore_str',1);
+            assertTrue(ok,mess)
 
-            % Dummy sample
+            % Dummy sample, empty sample
             set_sample_horace(tmpsqwfile,[]);
             tmp=sqw(tmpsqwfile);
-            [ok,mess]=equal_to_tol(obj.ds.f1_1,tmp,'ignore_str',1); assertTrue(ok,mess)
+            [ok,mess]=equal_to_tol(obj.ds.f1_1.to_struct(),tmp.to_struct(), ...
+                'ignore_str',1); 
+            assertTrue(ok,mess)
         end
 
     end

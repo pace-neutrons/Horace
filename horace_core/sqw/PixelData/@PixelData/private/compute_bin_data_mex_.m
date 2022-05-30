@@ -11,7 +11,12 @@ if isempty(obj)
 end
 
 if nargin < 3
-    n_threads = config_store.instance().get_value('hor_config','threads');
+% TODO, drop internal page size, revert everything to configuration
+%     [n_threads,buf_size] = config_store.instance().get_value(...
+%         'hor_config','threads','mem_chunk_size');
+     [n_threads] = config_store.instance().get_value(...
+         'hor_config','threads');
+
 end
 
 obj.move_to_first_page();

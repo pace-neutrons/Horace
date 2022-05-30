@@ -26,7 +26,7 @@ function obj = init(obj,varargin)
 %      has already been initiated with this file.
 %
 if nargout<1
-    error('SQW_FILE_IO:invalid_argument',...
+    error('HORACE:dnd_binfile_common:invalid_argument',...
         'dnd_binfile_common::init needs to have one output argument')
 end
 

@@ -1,3 +1,5 @@
+% Runnable Example Code
+%{
 jd = JobDispatcher('JobName');              % Create job dispatcher
 
 [outputs, ...                               % Cell array of results from each worker
@@ -13,10 +15,7 @@ jd = JobDispatcher('JobName');              % Create job dispatcher
                   true, ...                 % Return outputs from workers
                   4);                       % Number of workers
 
-disp(outputs);
-disp(n_failed);
-disp(task_ids);
-disp(jd);
+%}
 
 %%------------------------------------------------------------------
 
@@ -24,7 +23,7 @@ disp(jd);
 jd = JobDispatcher('RunWithInt');
 [outputs, n_failed, task_ids, jd] = jd.start_job('ExampleRealJobExecutor', [1,2], 10, true, 4);
 
-disp(outputs);
+celldisp(outputs);
 disp(n_failed);
 disp(task_ids);
 disp(jd);
@@ -36,7 +35,7 @@ jd = JobDispatcher('RunWithCellStruct');
 data = {struct('a',1), struct('a',2), struct('a',3), struct('a',4)};
 [outputs, n_failed, task_ids, jd] = jd.start_job('ExampleRealJobExecutor', [1,2], data, true, 4);
 
-disp(outputs);
+celldisp(outputs);
 disp(n_failed);
 disp(task_ids);
 disp(jd);
@@ -48,7 +47,7 @@ jd = JobDispatcher('RunWithStruct');
 data = struct('a',{{1,2,3,4}},'b',{{2,2,3,4}}); % Cell arrs must be same size
 [outputs, n_failed, task_ids, jd] = jd.start_job('ExampleRealJobExecutor', [1,2], data, true, 4);
 
-disp(outputs);
+celldisp(outputs);
 disp(n_failed);
 disp(task_ids);
 disp(jd);

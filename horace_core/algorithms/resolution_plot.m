@@ -11,8 +11,8 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 %                                       % energy axis
 %
 %   >> resolution_plot (..., proj)      % Plot in specified projection axes
-%   >> resolution_plot (..., iax)       % Plot for a specified set of axes
-%   >> resolution_plot (..., proj, iax) % Both the above
+%   >> resolution_plot (..., pax)       % Plot for a specified set of axes
+%   >> resolution_plot (..., proj, pax) % Both the above
 %
 % On current plot, or named or numbered existing plot:
 %   >> resolution_plot (..., 'curr')        % on currently active plot
@@ -53,15 +53,15 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 %
 % {optional]
 %   proj            Projection structure or object. Defines the coordinate frame in which
-%                  to plot the resolution ellipsoid. Type help projaxes for details or <a href="matlab:help('projaxes');">Click here</a>.
+%                  to plot the resolution ellipsoid. Type help ortho_proj for details or <a href="matlab:help('ortho_proj');">Click here</a>.
 %
 %                   Default: if not given or empty: assume to be spectrometer axes
 %                  i.e. x || ki, z vertical upwards, y perpendicular to z and y.
 %
-%   iax             Indicies of axes into the projection axes for purposes of plotting:
-%                       [iax1, iax2]        plotting axes
-%                       [iax1, iax2, iax3]  plotting axes and intersection axis
-%                  where iax1 etc. are distinct axes indicies in the range 1 to 4.
+%   pax            Indicies of axes into the projection axes for purposes of plotting:
+%                       [pax1, pax2]        plotting axes
+%                       [pax1, pax2, pax3]  plotting axes and intersection axis
+%                  where pax1 etc. are distinct axes indicies in the range 1 to 4.
 %
 %                   Default: if not given or empty, assume first two projection axes
 %                  and draw intersection with non-zero positive energy transfer deviation
@@ -76,7 +76,7 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 %
 % Output:
 % -------
-%   cov_proj    Covariance matrix for wavevector-energy in projection axes (4x4 array)
+%   cov_proj   Covariance matrix for wavevector-energy in projection axes (4x4 array)
 %              [Note that if the default projection axes were used i.e.
 %               input argument 'proj' was not given, then cov_proj and
 %               cov_spec (below) are identical.]
@@ -92,12 +92,15 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 %     object oriented sqw object construction would deal with this, but for the
 %     mean time, create an sqw object here.
 
+% NOTE:
+% if you have alatt and angdeg defined in sample, these are ignored
+% and overided by input alall and angdeg
 
 % Check parameters
 % ----------------
 % Energies and sample orientation
 nfiles_in = 1;
-[ok,mess,efix,emode,alatt,angdeg,u,v,psi_deg,omega_deg,dpsi_deg,gl_deg,gs_deg]=gen_sqw_check_params...
+[ok,mess,efix,emode,lat]=gen_sqw_check_params...
     (nfiles_in,efix,emode,alatt,angdeg,u,v,psi_deg,omega_deg,dpsi_deg,gl_deg,gs_deg);
 if ~ok, error(mess), end
 if ~(isnumeric(en) && numel(en)==2 && en(2)>=en(1))
@@ -130,29 +133,29 @@ if sum(present_logical)>1
         'Only one of the plot options ''noplot'', ''current'' and ''name'' can be present')
 end
 
-% - Projection and/or iax:
+% - Projection and/or pax:
 proj = [];
-iax = [1,2,4];
+pax = [1,2,4];
 if numel(par)==1
     if ~isnumeric(par{1})   % can only be a projection
         if ~isempty(par{1}), proj = par{1}; end
     else
-        if ~isempty(par{1}), iax = par{1}; end
+        if ~isempty(par{1}), pax = par{1}; end
     end
 elseif numel(par)==2
     if ~isempty(par{1}), proj = par{1}; end
-    if ~isempty(par{2}), iax = par{2}; end
+    if ~isempty(par{2}), pax = par{2}; end
 elseif numel(par)~=0
     error('HORACE:resolution_plot:invalid_argument',...
         'Check the number and type of optional arguments')
 end
 
-if ~isempty(proj) && ~isa(proj,'projaxes')
-    proj = projaxes(proj);
+if ~isempty(proj) && ~isa(proj,'ortho_proj')
+    proj = ortho_proj(proj);
 end
 
-if ~(isnumeric(iax) && (numel(iax)==2 || numel(iax)==3) &&...
-        numel(unique(iax))==numel(iax) && all(iax>=1) && all(iax<=4))
+if ~(isnumeric(pax) && (numel(pax)==2 || numel(pax)==3) &&...
+        numel(unique(pax))==numel(pax) && all(pax>=1) && all(pax<=4))
     error('HORACE:resolution_plot:invalid_argument',...
         'Check axes indicies')
 end
@@ -161,7 +164,6 @@ end
 % if present.current && isempty(findobj(0,'Type','figure'))
 %     error('No current figure exists - cannot overplot')
 % end
-
 newplot = false;
 if present.noplot
     plot_args = {'noplot'};
@@ -178,11 +180,11 @@ end
 % Construct sqw object
 % --------------------
 % Create a two-dimensional sqw object with one pixel
-psi = psi_deg * (pi/180);
-omega = omega_deg * (pi/180);
-dpsi = dpsi_deg * (pi/180);
-gl = gl_deg * (pi/180);
-gs = gs_deg * (pi/180);
+% psi = psi_deg * (pi/180);
+% omega = omega_deg * (pi/180);
+% dpsi = dpsi_deg * (pi/180);
+% gl = gl_deg * (pi/180);
+% gs = gs_deg * (pi/180);
 
 % Make main_header
 main_header.filename = '';
@@ -194,49 +196,52 @@ wres.main_header = main_header;
 
 
 % Make header
+
 header.filename = '';
 header.filepath = '';
-header.efix = efix;
+header.efix =  efix;
 header.emode = emode;
-header.alatt = alatt;
-header.angdeg = angdeg;
-header.cu = u;
-header.cv = v;
-header.psi = psi;
-header.omega = omega;
-header.dpsi = dpsi;
-header.gl = gl;
-header.gs = gs;
+header.alatt = lat.alatt;
+header.angdeg = lat.angdeg;
+header.cu = lat.u;
+header.cv = lat.v;
+lat.angular_units = 'rad';
+header.psi = lat.psi;
+header.omega = lat.omega;
+header.dpsi = lat.dpsi;
+header.gl = lat.gl;
+header.gs = lat.gs;
 header.en = en;
 header.uoffset = [0,0,0,0]';
 header.u_to_rlu = zeros(4,4);
-[~, header.u_to_rlu(1:3,1:3),spec_to_rlu] = calc_proj_matrix (alatt, angdeg,...
-    u, v, psi, omega, dpsi, gl, gs);
+[~, header.u_to_rlu(1:3,1:3),spec_to_rlu] = lat.calc_proj_matrix();
 header.u_to_rlu(4,4) = 1;
 header.ulen = [1,1,1,1];
 header.ulabel = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
+expdata = IX_experiment(header);
 
-if isa(instrument,'IX_inst') && isscalar(instrument)
-    header.instrument = instrument;
-else
+if ~(isa(instrument,'IX_inst') && isscalar(instrument))
     error('HORACE:resolution_plot:invalid_argument',...
         'Instrument must be a scalar instrument object')
 end
 
-if isa(sample,'IX_sample')
-    header.sample = sample;
-else
+if ~isa(sample,'IX_sample')
     error('HORACE:resolution_plot:invalid_argument',...
         'Sample must be a scalar IX_sample object')
+else
+    sample.alatt = lat.alatt;
+    sample.angdeg = lat.angdeg;
 end
+exper = Experiment([],instrument,sample);
+exper.expdata = expdata;
 
-wres.header = header;
+wres.experiment_info = exper;
 
 
 % Check detector
-if ~isstruct(detpar)
+if ~(isstruct(detpar) || (isnumerc(detpar) && all(size(detpar)==[6,1])))
     error('HORACE:resolution_plot:invalid_argument',...
-        'Detector parameters must form a structure')
+        'Detector parameters must form a structure, or be 6x1 array with special meaning for elements')
 end
 if numel(detpar.x2)~=1
     error('HORACE:resolution_plot:invalid_argument',...
@@ -253,17 +258,21 @@ wres.detpar = detpar;
 data.filename = '';
 data.filepath = '';
 data.title = '';
-data.alatt = alatt;
-data.angdeg = angdeg;
+data.alatt = lat.alatt;
+data.angdeg = lat.angdeg;
 if ~isempty(proj)
     % Projection axes were specified
     data.uoffset = proj.uoffset;
     data.u_to_rlu = zeros(4,4);
     data.ulen = zeros(1,4);
-    [~, data.u_to_rlu(1:3,1:3), data.ulen(1:3), mess] = projaxes_to_rlu (proj, alatt, angdeg);
-    if ~isempty(mess), error(mess); end
-    data.u_to_rlu(4,4) = 1;
-    data.ulen(4) = 1;
+    proj.alatt = lat.alatt;
+    proj.angdeg = lat.angdeg;
+    data.u_to_rlu=  proj.u_to_rlu;
+    data.ulen = [1,1,1,1];
+    %[~,data.u_to_rlu(1:3,1:3), data.ulen(1:3), mess] = projaxes_to_rlu (proj, lat.alatt, lat.angdeg);
+    %if ~isempty(mess), error(mess); end
+    %data.u_to_rlu(4,4) = 1;
+    %data.ulen(4) = 1;
 else
     % Make the projection axes correspond to the spectrometer axes
     data.uoffset = [0,0,0,0]';
@@ -273,20 +282,21 @@ else
     data.ulen = [1,1,1,1];
 end
 data.ulabel = {'Q_\zeta'  'Q_\xi'  'Q_\eta'  'E'};
-ok=true(1,4); ok(iax(1:2))=false;
-data.iax = find(ok);
+iaxis=true(1,4); iaxis(pax(1:2))=false;
+data.iax = find(iaxis);
 %data.iint = [-Inf,-Inf; Inf,Inf];
 data.iint = 1e-10*[-1,-1; 1,1];
-data.pax = iax(1:2);
-data.p = {1e-10*(-3:2:3)'/3, 1e-10*(-3:2:3)'/3};    % something tiny
+data.pax = pax(1:2);
+%data.p = {1e-10*(-3:2:3)'/3, 1e-10*(-3:2:3)'/3};    % something tiny
 data.dax = [1,2];
 data.s = [0,0,0; 0,NaN,0; 0,0,0];
 data.e = [0,0,0; 0,NaN,0; 0,0,0];
 data.npix = [0,0,0; 0,1,0; 0,0,0];
-data.img_db_range = [data.uoffset;data.uoffset];
+data.img_range = range_add_border([data.uoffset,data.uoffset]');
+data.nbins_all_dims = [3,3,1,1];
 data.pix = PixelData([zeros(4,1);1;1;1;0;0]);  % wrong (Q,w) - but this is OK
 
-wres.data = data;
+wres.data = data_sqw_dnd(data);
 
 % Make the sqw object. The defining qualities of this sqw object that mean it can be
 % picked out as special are that it is:
@@ -303,10 +313,10 @@ wres = sqw(wres);
 
 % Now plot the resolution function
 % --------------------------------
-if numel(iax)==2
+if numel(pax)==2
     [cov_proj, cov_spec, cov_hkle] = resolution_plot (wres, 'axis', 'none', plot_args{:});
 else
-    [cov_proj, cov_spec, cov_hkle] = resolution_plot (wres, 'axis', iax(3), plot_args{:});
+    [cov_proj, cov_spec, cov_hkle] = resolution_plot (wres, 'axis', pax(3), plot_args{:});
 end
 
 % If newplot, then tidy up the plot
@@ -323,8 +333,8 @@ if newplot
     title_ax{3} = ['Q vertically up  (',Angstrom,'^{-1})'];
     title_ax{4} = 'Energy transfer  (meV)';
     
-    xlabel(title_ax(iax(1)))
-    ylabel(title_ax(iax(2)))
+    xlabel(title_ax(pax(1)))
+    ylabel(title_ax(pax(2)))
     
     % Round up limits
     lx('round')

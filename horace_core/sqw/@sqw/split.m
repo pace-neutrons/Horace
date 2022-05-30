@@ -19,12 +19,10 @@ if nfiles==1
     return
 end
 
-% Default output
-wout=repmat(sqw, [nfiles, 1]);
-
 % Get pointers to components of w:
 main_header=w.main_header;
-header=w.header;
+exp_info =w.experiment_info;
+runid_map = w.runid_map;
 detpar=w.detpar;
 data=w.data;
 npix=w.data.npix;
@@ -49,33 +47,30 @@ run_contributes(irun(nbeg))=true;   % true for runs that contribute to the data
 ind=zeros(nfiles,1);
 ind(run_contributes)=1:numel(nbeg); % index of contributing runs into nbeg and nend
 
+contrib_runids = unique(irun);
+n_contrib_run = numel(contrib_runids);
+% Default output
+wout=repmat(sqw, [n_contrib_run, 1]);
+
 % Put only the relevant pixels in each of the sqw objects
 main_header.nfiles=1;   % each output sqw object will have just one run
 sz=size(data.npix);     % size of signal error and npix arrays
-if sum(run_contributes)~=nfiles     % there is at least one run that does not contribute to the pixels
-    datanull=data;
-    datanull.s=zeros(sz);
-    datanull.e=zeros(sz);
-    datanull.npix=zeros(sz);
-    datanull.img_db_range=PixelData.EMPTY_RANGE_;
-    datanull.pix=PixelData();
-end
-for i=1:nfiles
+for i=1:n_contrib_run
+    head_ind = contrib_runids(i);
     wout(i).main_header=main_header;
-    wout(i).header=header{i};
-    wout(i).detpar=detpar;
-    if run_contributes(i)
-        ib=ibin(nbeg(ind(i)):nend(ind(i))); % the bins to which pixels from this run only contribute
+    if run_contributes(head_ind)
+        ib=ibin(nbeg(ind(head_ind)):nend(ind(head_ind))); % the bins to which pixels from this run only contribute
         nb=find(diff([0;ib])~=0);   % positions of first pixel contributing to each unique bin
         npix=zeros(sz);
         npix(ib(nb))=diff([nb;numel(ib)+1]);
         data.npix=npix;
-        data.pix=pix.get_pixels(ix(nbeg(ind(i)):nend(ind(i))));
-        data.pix.run_idx=1;    % all pixels will be from run 1, by definition
+        data.pix=pix.get_pixels(ix(nbeg(ind(head_ind)):nend(ind(head_ind))));
+        %
+        exp_info_4run = exp_info.get_subobj(head_ind);
+        wout(i).experiment_info = exp_info_4run;
+        
+        wout(i).detpar= detpar;
         wout(i).data=data;
         wout(i)=recompute_bin_data(wout(i));
-    else
-        wout(i).data=datanull;
     end
 end
-

@@ -207,7 +207,7 @@ for i=1:numel(ind)
         [win(i), pars{1}] = refine_crystal_strip_pars (win(i), xtal, pars{1});
 
         % Update s_mat and spec_to_rlu because crystal orientation will have changed
-        [ok,mess,~,s_mat,spec_to_rlu,alatt,angdeg]=sample_coords_to_spec_to_rlu(win(i).header);
+        [ok,mess,~,s_mat,spec_to_rlu,alatt,angdeg]=sample_coords_to_spec_to_rlu(win(i).experiment_info);
         if ~ok, error(mess), end
 
         % Recompute Q because crystal orientation will have changed (don't need to update qw{4})

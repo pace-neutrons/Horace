@@ -4,7 +4,7 @@ classdef symop
     % A symmetry operator object describes how equivalent points are defined by
     % operations performed with respect to a reference frame by:
     %   - Rotation about an axis through a given point
-    %   - Reflection thrugh a plane passing through a given point
+    %   - Reflection through a plane passing through a given point
     %
     % An array, O, of the symmetry operator objects can be created to express a
     % more complex operation, in which operations are applied in sequence O(1), O(2),...

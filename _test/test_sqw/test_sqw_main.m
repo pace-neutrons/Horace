@@ -1,4 +1,4 @@
-classdef test_sqw_main < TestCase
+classdef test_sqw_main < TestCase & common_state_holder
     % Series of tests to check work of mex files against Matlab files
 
     properties
@@ -46,10 +46,8 @@ classdef test_sqw_main < TestCase
 
         function test_setting_pix_page_size_in_constructor_pages_pixels(obj)
             % hide warnings when setting pixel page size very small
-            old_warn_state = warning('OFF', 'HORACE:PixelData:memory_allocation');
-            cleanup = onCleanup(@() warning(old_warn_state));
 
-            fpath = fullfile(obj.tests_dir, 'test_sqw_file', 'sqw_1d_2.sqw');
+            fpath = fullfile(obj.tests_dir, 'common_data', 'sqw_1d_2.sqw');
             % set page size accepting half of the pixels
             page_size_bytes = 4324/2*sqw_binfile_common.FILE_PIX_SIZE;
             sqw_obj = sqw(fpath, 'pixel_page_size', page_size_bytes);
@@ -65,7 +63,7 @@ classdef test_sqw_main < TestCase
         end
 
         function test_pixels_not_paged_if_pixel_page_size_arg_not_given(obj)
-            fpath = fullfile(obj.tests_dir, 'test_sqw_file', 'sqw_1d_2.sqw');
+            fpath = fullfile(obj.tests_dir, 'common_data', 'sqw_1d_2.sqw');
             sqw_obj = sqw(fpath);
 
             sqw_pix_pg_size = sqw_obj.data.pix.page_size;
@@ -73,14 +71,14 @@ classdef test_sqw_main < TestCase
         end
 
         function test_error_setting_negative_pix_page_size_in_constructor(obj)
-            fpath = fullfile(obj.tests_dir, 'test_sqw_file', 'sqw_1d_2.sqw');
+            fpath = fullfile(obj.tests_dir, 'common_data', 'sqw_1d_2.sqw');
             page_size_bytes = -1000;
             f = @() sqw(fpath, 'pixel_page_size', page_size_bytes);
             assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');
         end
 
         function test_error_setting_non_numeric_pix_page_size_in_constructor(obj)
-            fpath = fullfile(obj.tests_dir, 'test_sqw_file', 'sqw_1d_2.sqw');
+            fpath = fullfile(obj.tests_dir, 'common_data', 'sqw_1d_2.sqw');
             s = struct();
             f = @() sqw(fpath, 'pixel_page_size', s);
             assertExceptionThrown(f, 'HORACE:PixelData:invalid_argument');

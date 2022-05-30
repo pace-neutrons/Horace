@@ -10,9 +10,10 @@ function varargout=set_instrument_horace(filename,instrument,varargin)
 %   file        File name, or cell array of file names. In latter case, the
 %              change is performed on each file
 %
-%   instrument  Instrument object, or array of objects with number of elements 
-%              equal to the number of
-%              runs contributing to the sqw object(s).
+%   instrument  Instrument object, or array of objects with number of elements
+%               equal to the number of
+%               runs contributing to the runs stored in sqw object(s).
+%
 %              If the instrument is any empty object, then the instrument
 %              is set to the default empty structure.
 %
@@ -41,7 +42,10 @@ function varargout=set_instrument_horace(filename,instrument,varargin)
 %                                           header block of the sqw object
 % Output:
 %-------
-% if pesent, list of sqw objects read from the disk
+%  varargout   if present tries to load and returns the sqw objects from
+%              the files, for which the instrument and/or sample has been set.
+%              Will fail if the sqw objects are too big to fit memory.
+%
 
 % Original author: T.G.Perring
 %
@@ -220,7 +224,7 @@ for i=1:numel(subst_args)
 end
 
 %==============================================================================
-function argout = substitute_arguments(headers,ifile,argin)
+function argout = substitute_arguments(exp_info,ifile,argin)
 % Substitute arguments with values from cellarray of headers
 %
 % Return cellstr with list of all substitution arguments:
@@ -237,14 +241,16 @@ end
 
 % Substitute values
 argout=argin;
+headers = exp_info.expdata;
 for i=1:numel(argin)
     if is_string(argin{i}) && strcmpi(argin{i},'-efix')
         if ifile>1 || numel(headers) > 1
-            argout{i}=headers{ifile}.efix;
+            argout{i}=headers(ifile).efix;
         else
             argout{i}=headers.efix;
         end
     end
 end
+
 
 

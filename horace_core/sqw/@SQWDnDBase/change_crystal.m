@@ -57,16 +57,17 @@ end
 if w.source_is_file
     for i = 1:numel(w.data)
         ld = w.loaders_list{i};
-        data = ld.get_data('-verbatim', '-head');
+        data = ld.get_data('-nopix');
         target_file = fullfile(ld.filepath,ld.filename);
         ld = ld.set_file_to_update(target_file);
         if ld.sqw_type
-            headers = ld.get_header('-all');
-            [headers, data]=change_crystal_alter_fields(headers,data,args{:});
-            ld = ld.put_headers(headers);
+            exp_info = ld.get_header('-all');
+            [exp_info, data]=change_crystal_alter_fields(exp_info,data,args{:});
+            ld = ld.put_headers(exp_info);
+            ld = ld.put_samples(exp_info.samples);
         else
-            headers = struct([]);
-            [~, data] = change_crystal_alter_fields(headers,data,args{:});
+            exp_info = struct([]);
+            [~, data] = change_crystal_alter_fields(exp_info,data,args{:});
         end
         ld = ld.put_dnd_metadata(data);
         ld.delete();
@@ -75,9 +76,10 @@ if w.source_is_file
 else
     argout{1} = w.data;
     for i = 1:numel(w.data)
-        if isprop(w.data(i),'header')
-            [argout{1}(i).header, argout{1}(i).data, ok, mess] = change_crystal_alter_fields( ...
-                w.data(i).header, w.data(i).data_,args{:});
+        if isprop(w.data(i),'experiment_info')
+            [hdr, argout{1}(i).data, ok, mess] = change_crystal_alter_fields( ...
+                w.data(i).experiment_info, w.data(i).data_,args{:});
+            argout{1}(i) = argout{1}(i).change_header(hdr);
         else
             [~, argout{1}(i).data_, ok, mess] = change_crystal_alter_fields( ...
                 struct([]), w.data(i).data_,args{:});

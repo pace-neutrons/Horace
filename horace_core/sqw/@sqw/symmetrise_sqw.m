@@ -30,24 +30,23 @@ wout = copy(win);
 
 %New code (problem spotted by Matt Mena for case when using a single
 %contributing spe file):
-if ~iscell(win.header)
-    header = win.header;
-else
-    header = win.header{1};
-end
+header = win.experiment_info;
 
 if numel(win)~=1
-    error('Horace error: symmetrisation only implemented for single sqw object, not arrays of objects. Use a for-loop to deal with arrays');
+    error('HORACE:symmetrise_sqw:invalid_argument', ...
+        'symmetrisation only implemented for single sqw object, not arrays of objects. Use a for-loop to deal with arrays');
 end
 
 if ~has_pixels(win)
     %what we should actually do here is go to the dnd-symmetrise function
     %of the correct dimensionality
-    error('Horace error: input object must be sqw type with detector pixel information');
+    error('HORACE:symmetrise_sqw:invalid_argument', ...    
+    'input object must be sqw type with detector pixel information');
 end
 
 if numel(v1)~=3 || numel(v2)~=3 || numel(v3)~=3
-    error('Symmetrise error: the vectors v1, v2 and v3 must all have 3 elements');
+    error('HORACE:symmetrise_sqw:invalid_argument', ...    
+    'the vectors v1, v2 and v3 must all have 3 elements');
 end
 
 if all(size(v1)==[3,1])
@@ -64,8 +63,8 @@ end
 %========================
 
 %Get B-matrix and reciprocal lattice vectors and angles
-alatt=header.alatt;
-angdeg=header.angdeg;
+alatt=header.samples{1}.alatt;
+angdeg=header.samples{1}.angdeg;
 
 [b, arlu, angrlu, mess] = bmatrix(alatt, angdeg);
 
@@ -91,7 +90,7 @@ end
 % First step, therefore, is to work out what is the reflection matrix in
 % the orthonormal frame specified by u_to_rlu.
 
-uconv=header.u_to_rlu(1:3,1:3);
+uconv=header.expdata(1).u_to_rlu(1:3,1:3);
 
 %
 %convert the vectors specifying the reflection plane from rlu to the
@@ -195,6 +194,7 @@ all_sym_range = [img_db_range_minmax,existing_range(:,4)];
 %
 % Extract existing binning: TODO: refactor using future axes_block, extract
 % common code with combine_sqw
+%
 new_range_arg = cell(1,4);
 paxis  = false(4,1);
 paxis(wout.data.pax) = true;
@@ -222,11 +222,9 @@ set(hor_config,'log_level',-1);
 
 % completely break relationship between bins and pixels in memory and make
 % all pixels contribute into single large bin
-wout.data.img_db_range = all_sym_range ;
+wout.data.img_range = all_sym_range ;
 
-wout.data.pax = 1:4;
-wout.data.dax = 1:4;
-wout.data.p  = arrayfun(@(i)(all_sym_range(:,i)),1:4,'UniformOutput',false);
-wout.data.npix = sum(reshape(wout.data.npix,1,numel(wout.data.npix)));
+wout.data.nbins_all_dims = ones(1,4);
+wout.data.npix = sum(wout.data.npix(:));
 %
 wout=cut(wout,proj,new_range_arg{:});

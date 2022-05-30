@@ -7,36 +7,15 @@ classdef d0d < DnDBase
     %   >> w = d0d(struct)         % Create from a structure with valid fields (internal use)
 
     properties (Constant, Access = protected)
-       NUM_DIMS = 0;
+        NUM_DIMS = 0;
     end
 
     methods(Static)
         function obj = loadobj(S)
-            % Load a d0d object from a .mat file
-            %
-            %   >> obj = loadobj(S)
-            %
-            % Input:
-            % ------
-            %   S       An instance of this object or struct
-            %
-            % -------
-            % Output:
-            %   obj     An instance of this object
-            obj = d0d(S);
-            if isa(S,'d0d')
-               obj = S;
-               return
-            end
-            if numel(S)>1
-               tmp = d0d();
-               obj = repmat(tmp, size(S));
-               for i = 1:numel(S)
-                   obj(i) = d0d(S(i));
-               end
-            else
-               obj = d0d(S);
-            end
+            % boilerplate loadobj method, calling generic method of
+            % saveable class. Put it as it is replacing the
+            obj = d0d();
+            obj = loadobj@serializable(S,obj);
         end
     end
 end

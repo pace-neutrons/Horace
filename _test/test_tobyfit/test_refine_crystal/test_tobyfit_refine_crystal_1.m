@@ -107,6 +107,8 @@ qfwhh=0.1;                  % Spread of Bragg peaks
 efwhh=1;                    % Energy width of Bragg peaks
 
 sample=IX_sample(true,[1,0,0],[0,1,0],'cuboid',[0.04,0.03,0.02]);
+sample.alatt = [5 5 5]; % if it should be wsim's parameters, could be [4.75 4.75 4.75] if it is alatt_true
+sample.angdeg = [90 90 90]; % both the same for this one
 
 if save_data
     % Create sqw file for refinement testing
@@ -186,6 +188,7 @@ radial_cut_length=0.4; radial_bin_width=0.005; radial_thickness=0.15;
 trans_cut_length=15; trans_bin_width=0.5; trans_thickness=5;
 opt='Gaussian';
 
+skipTest('cut_dnd is needed and it is currently disabled. Ticket #796');
 [rlu0,width,wcut,wpeak]=bragg_positions(sqw_file_res, rlu,...
     radial_cut_length, radial_bin_width, radial_thickness,...
     trans_cut_length, trans_bin_width, trans_thickness, opt, 'bin_relative');

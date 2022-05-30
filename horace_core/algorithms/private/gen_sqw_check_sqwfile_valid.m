@@ -56,7 +56,7 @@ end
 header = ldr.get_header('-all');
 data   = ldr.get_data('-head');
 %[mess,main_header,header,detpar,data]=get_sqw (sqw_file,'-h');
-header_ave=header_average(header);
+header_ave=header.header_average();
 
 tol=2e-7;    % test number to define equality allowing for rounding errors (recall fields were saved only as float32)
 % TGP (15/5/2015) I am not sure if this is necessary: both the header and data sections are saved as float32, so
@@ -73,10 +73,8 @@ if ~ok
     return
 end
 
-grid_size=zeros(1,4);
-for i=1:4
-    grid_size(i)=numel(data.p{i})-1;
-end
-img_db_range=data.img_db_range;
+grid_size =data.nbins_all_dims;
+
+img_db_range=data.img_range;
 pix_range = ldr.get_pix_range();
 

@@ -27,19 +27,30 @@ function d=spe(w)
 %               en         Column vector of energy bin boundaries
 
 if ~has_pixels(w)
-    error('Input sqw object does not have sqw type (i.e. does not contain pixel information')
+    error('HORACE:sqw/spe:invalid_argument', ...
+        'Input sqw object does not have sqw type (i.e. does not contain pixel information')
 end
 
-if iscell(w.header)
-    error('sqw object has contributions from more than one spe file')
+if iscell(w.experiment_info)
+    error('HORACE:sqw/spe:invalid_argument', ...
+        'sqw object has contributions from more than one spe file')
 end
 
 % Get file name and path from sqw object
-data.filename=w.header.filename;
-data.filepath=w.header.filepath;
+if isa(w.experiment_info,'Experiment')
+    data.filename=w.experiment_info.expdata(1).filename;
+    data.filepath=w.experiment_info.expdata(1).filepath;
+else
+    data.filename=w.experiment_info.filename;
+    data.filepath=w.experiment_info.filepath;
+end
 
 % Extract signal and error
-ne=numel(w.header.en)-1;    % number of energy bins
+if isa(w.experiment_info,'Experiment')
+    ne=numel(w.experiment_info.expdata(1).en)-1;    % number of energy bins
+else
+    ne=numel(w.experiment_info.en)-1;    % number of energy bins
+end
 ndet0=numel(w.detpar.group);% number of detectors
 
 tmp=w.data.pix.get_data({'detector_idx', 'energy_idx', 'signal', 'variance'})';
@@ -62,7 +73,11 @@ data.S=signal;
 data.ERR=err;
 
 % Get energy bin boundaries
-data.en=w.header.en;
+if isa(w.experiment_info,'Experiment')
+    data.en=w.experiment_info.expdata(1).en;
+else
+    data.en=w.experiment_info.en;
+end
 
 % Create output object
 d=spe(data);

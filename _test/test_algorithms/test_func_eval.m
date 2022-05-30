@@ -1,16 +1,15 @@
-classdef test_func_eval < TestCase
+classdef test_func_eval < TestCase & common_state_holder
 
     properties (Constant)
         FLOAT_TOL = 1e-5;
     end
 
     properties
-        old_warn_state;
 
         d2d_file_path = '../test_symmetrisation/w2d_qq_small_d2d.sqw'
         d2d_obj;
-        sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw'
-        sqw_1d_file_path = '../test_sqw_file/sqw_1d_1.sqw'
+        sqw_2d_file_path = '../common_data/sqw_2d_1.sqw'
+        sqw_1d_file_path = '../common_data/sqw_1d_1.sqw'
         sqw_2d_obj;
 
         quadratic = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;
@@ -32,13 +31,8 @@ classdef test_func_eval < TestCase
             obj = obj@TestCase('test_func_eval');
             obj.d2d_obj = d2d(obj.d2d_file_path);
             obj.sqw_2d_obj = sqw(obj.sqw_2d_file_path);
-
-            obj.old_warn_state = warning('OFF', 'HORACE:PixelData:memory_allocation');
         end
 
-        function delete(obj)
-            warning(obj.old_warn_state);
-        end
 
         %% Input validation
         function test_SQW_error_if_func_handle_arg_is_not_a_function_handle(obj)

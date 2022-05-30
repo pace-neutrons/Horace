@@ -58,13 +58,14 @@ end
 % Perform operations
 for i=1:numel(filenames)
     ld = sqw_formats_factory.instance().get_loader(filenames{i});
-    data    = ld.get_data('-verbatim','-head');
+    data    = ld.get_data('-nopix');
     target_file = fullfile(ld.filepath,ld.filename);
     ld = ld.set_file_to_update(target_file);
     if ld.sqw_type
-        headers = ld.get_header('-all');
-        [headers,data]=change_crystal_alter_fields(headers,data,varargin{:});
-        ld = ld.put_headers(headers);
+         exp_info= ld.get_header('-all');
+        [exp_info,data]=change_crystal_alter_fields(exp_info,data,varargin{:});
+        ld = ld.put_headers(exp_info);
+        ld = ld.put_samples(exp_info.samples);
     else
         headers = struct([]);
         [~,data]=change_crystal_alter_fields(headers,data,varargin{:});

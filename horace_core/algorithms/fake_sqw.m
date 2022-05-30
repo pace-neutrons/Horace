@@ -22,7 +22,7 @@ function [tmp_sqw, grid_size, img_db_range] = fake_sqw (en, par_file, sqw_file, 
 %                   3x3 matrix in the format [qh_min,qh_step,qh_max;
 %                   qk_min,qk_step,qk_max;ql_min,q_step,q;_max] providing
 %                   q-range
-%                   The fake detectors positions used in sqw object caclulations
+%                   The fake detectors positions used in sqw object calculations
 %                   would be calculated from the q-range provided assuming
 %                   elastic scattering (0-energy transfer)
 %
@@ -44,7 +44,7 @@ function [tmp_sqw, grid_size, img_db_range] = fake_sqw (en, par_file, sqw_file, 
 %   grid_size_in   Scalar or row vector of grid dimensions. The default
 %                  size will depend on the product of energy bins and detector elements
 %                  summed across all the spe files.
-%   pix_db_range_in Range of grid used to rebin pixels. If not given, then uses smallest hypercuboid
+%   pix_db_range_in Range of grid used to rebin pixels. If not given, then uses smallest hyper-cuboid
 %                   that encloses the whole pixels range.
 %
 % Output:
@@ -53,7 +53,7 @@ function [tmp_sqw, grid_size, img_db_range] = fake_sqw (en, par_file, sqw_file, 
 %                  the list of temporary file names used as parts of final
 %                  sqw file.
 %                  if return_sqw_obj == true --
-%                  cellarray of sqw objects, each corresponging to
+%                  cellarray of sqw objects, each corresponding to
 %                  generated tmp sqw file
 %
 %   grid_size      Actual size of grid used (size is unity along dimensions
@@ -106,7 +106,7 @@ require_spe_unique=false;
 require_sqw_exist=false;
 if isempty(sqw_file)
     return_sqw_obj = true;
-    sqw_file = 'never_generated_sqw_file.sqw';
+    sqw_file = '';%'never_generated_sqw_file.sqw';
 else
     return_sqw_obj = false;
 end
@@ -117,7 +117,7 @@ if numel(en)>1
 else
     nfiles_in=[];        % no. datasets determine from length of arrays of other parameters
 end
-[ok,mess,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs]=gen_sqw_check_params...
+[ok,mess,efix,emode,lattice]=gen_sqw_check_params...
     (nfiles_in,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
 if ~ok, error(mess), end
 if efix(1)==0, error('HORACE:fake_sqw:invalid_argument',...
@@ -130,20 +130,18 @@ end
 if ~ischar(par_file) && (isnumeric(par_file) )
     if ~isempty(nfiles_in) && nfiles_in>1
         error('HORACE:fake_sqw:invalid_argument',...
-            'Fake sqw with q-range input can not generate mutliple sqw files');
+            'Fake sqw with q-range input can not generate multiple sqw files');
     end
     % now the par file is the
-    par_file = build_det_from_q_range(par_file,efix,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
+    par_file = build_det_from_q_range(par_file,efix,lattice);
 end
 
-
-[ok, mess, spe_file, par_file, sqw_file] = gen_sqw_check_files...
-    (spe_file, par_file, sqw_file, require_spe_exist, require_spe_unique, require_sqw_exist);
-if ~ok, error(mess), end
 if return_sqw_obj
     sqw_file = '';
 end
 
+[spe_file, par_file, sqw_file] = gen_sqw_check_files...
+    (spe_file, par_file, sqw_file, require_spe_exist, require_spe_unique, require_sqw_exist);
 
 
 nfiles=numel(efix);
@@ -153,10 +151,10 @@ if nfiles>1 && numel(en)==1
     en_hi=en_hi*ones(1,nfiles);
 end
 
-% Check optional arguments (grid, pix_range, instument, sample) for size, type and validity
+% Check optional arguments (grid, pix_range, instrument, sample) for size, type and validity
 grid_default=[];
-instrument_default=struct;  % default 1x1 struct
-sample_default=struct;      % default 1x1 struct
+instrument_default=IX_null_inst();  % default 1x1 structure with no fields
+sample_default=IX_null_sample();      % default 1x1 structure with no fields
 [ok,mess,present,grid_size,img_db_range,instrument,sample]=gen_sqw_check_optional_args(...
     nfiles,grid_default,instrument_default,sample_default,varargin{:});
 
@@ -169,8 +167,8 @@ if ~ok, error(mess), end
 %det=get_par(par_file);
 %detdcn=calc_detdcn(det);
 %ndet=size(det.x2,2);
-run_files = rundatah.gen_runfiles(spe_file,par_file,efix,emode,alatt,angdeg,...
-    u,v,psi,omega,dpsi,gl,gs,'-allow_missing');
+run_files = rundatah.gen_runfiles(spe_file,par_file,efix,emode,lattice, ...
+    instrument,sample,'-allow_missing');
 run_file = run_files{1};
 
 ndet = run_file.n_detectors;
@@ -186,20 +184,12 @@ if isempty(grid_size)
 end
 hor_log_level = ...
     config_store.instance().get_value('herbert_config','log_level');
-use_mex = ...
-    config_store.instance().get_value('hor_config','use_mex');
-if use_mex
-    cache_opt = {};
-else
-    cache_opt = {'-cache_detectors'};
-end
-
 
 % Determine pix_range
 if isempty(img_db_range)
     img_db_range = PixelData.EMPTY_RANGE_;
     for i=1:numel(run_files)
-        pix_range_l = run_files{i}.calc_pix_range(en_lo(i),en_hi(i),cache_opt{:});
+        [pix_range_l,run_files{i}] = run_files{i}.calc_pix_range(en_lo(i),en_hi(i));
         img_db_range = [min(pix_range_l(1,:),img_db_range(1,:));max(pix_range_l(2,:),img_db_range(2,:))];
     end
     img_db_range=range_add_border(img_db_range,...
@@ -241,12 +231,12 @@ for i=1:nfiles
     run_files{i}.en = en{i};
     run_files{i}.run_id = i;
     %
-    w = run_files{i}.calc_sqw(grid_size, img_db_range,cache_opt{:});
+    w = run_files{i}.calc_sqw(grid_size, img_db_range);
 
     if return_sqw_obj
         tmp_sqw{i} = w;
     else
-        save(w,tmp_sqw{i})
+        save(w,tmp_sqw{i});
     end
 end
 %
@@ -279,4 +269,3 @@ end
 if nargout==0
     clear tmp_file grid_size pix_range
 end
-

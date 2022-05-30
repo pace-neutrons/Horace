@@ -25,9 +25,6 @@ if ~ismember(acc,{'wb+','rb+'})
 end
 %
 %
-if isempty(new_obj.sqw_holder_)
-
-end
 
 clear_sqw_holder = false;
 if isempty(obj.sqw_holder_)
@@ -65,34 +62,33 @@ function sq = make_pseudo_sqw(nfiles)
 sq = sqw();
 head = sqw_binfile_common.get_header_form();
 head.emode = 1;
+head.alatt = ones(3,1);
+head.angdeg = 90*ones(3,1);
+head.cu = [1,0,0];
+head.cv = [0,1,0];
+head.en = 1;
 head.uoffset = zeros(4,1);
 head.u_to_rlu = zeros(4,4);
 head.ulen = ones(1,4);
 head.ulabel = {'a','b','c','d'};
-head.instrument = struct();
-head.sample = struct();
+head.instruments = IX_null_inst();
+head.samples = IX_null_sample();
+head.run_id = 1;
+ids = 1:nfiles;
 if nfiles>1
-    heads = cell(1,nfiles);
+    ids = num2cell(ids);
     % matlab bug fixed in 2016b
-    heads  = cellfun(@(x)gen_head(head,x),heads,'UniformOutput',false);
+    heads  = cellfun(@(x)gen_head(head,x),ids,'UniformOutput',false);
 else
     heads = head;
 end
-sq.header = heads;
-runid = zeros(numel(heads),1);
-for i=1:numel(heads)
-    if iscell(heads)
-        runid(i) = rundata.extract_id_from_filename(heads{i}.filename);
-    else
-        runid(i) = rundata.extract_id_from_filename(heads(i).filename);
-    end
-end
-ids = 1:numel(heads);
-if any(isnan(runid))
-    runid = ids;
-end
-sq.runid_map = runid;
+exp_descr = IX_experiment(heads);
+exp = Experiment();
+exp.expdata = exp_descr;
+sq = sq.change_header(exp);
+
 
 function hd= gen_head(head,x)
 hd = head;
+hd.run_id = x;
 

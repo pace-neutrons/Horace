@@ -1,4 +1,4 @@
-classdef data_sqw_dnd
+classdef data_sqw_dnd < axes_block
     % Class defines structure of the data, used by sqw&dnd objects
     %
     % Trivial implementation, wrapping around a structure
@@ -7,78 +7,51 @@ classdef data_sqw_dnd
     %
     properties(Dependent)
         pix;
+
+        % The pixels are rebinned on this grid
+        img_db_range;
     end
     properties
-        filename=''   % Name of sqw file that is being read, excluding path
-        filepath=''   % Path to sqw file that is being read, including terminating file separator
-        title   =''   % Title of sqw data structure
+        %
         alatt   =[2*pi,2*pi,2*pi] % Lattice parameters for data field (Ang^-1)
         angdeg  =[90,90,90]% Lattice angles for data field (degrees)
         uoffset=[0;0;0;0]  %   Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
         u_to_rlu=eye(4)    %   Matrix (4x4) of projection axes in hkle representation
         %                   u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-        ulen=[1,1,1,1]      %Length of projection axes vectors in Ang^-1 or meV [row vector]
-        ulabel={'Q_h','Q_k','Q_l','En'}  %Labels of the projection axes [1x4 cell array of character strings]
-        iax=1:4;          %Index of integration axes into the projection axes  [row vector]
-        %                  Always in increasing numerical order
-        %                  e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
-        iint=zeros(2,4);   %Integration range along each of the integration axes. [iint(2,length(iax))]
-        %                   e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
-        pax=zeros(1,0);   %Index of plot axes into the projection axes  [row vector]
-        %                Always in increasing numerical order
-        %                e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
-        %                2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
-        p=cell(1,0);  %  Cell array containing bin boundaries along the plot axes [column vectors]
-        %                i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
-        dax=zeros(1,0)    %Index into data.pax of the axes for display purposes. For example we may have
-        %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
-        %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
-        %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
-        %                  be reordered [row vector]
         s=[]          %Cumulative signal.  [size(data.s)=(length(data.p1)-1, length(data.p2)-1, ...)]
         e=[]          %Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
         npix=[]       %No. contributing pixels to each bin of the plot axes.
         %             [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-        img_db_range=[Inf,Inf,Inf,Inf;... %True range of the data grid along each axis [img_db_range(2,4)].
-            -Inf,-Inf,-Inf,-Inf] % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf] -- convention if no pixels
-        axis_caption=an_axis_caption(); %  Reference to class, which define axis captions
-        % The pixels are rebinned on this grid
         %
         % returns number of pixels, stored within the PixelData class
         num_pixels
     end
     properties(Constant)
-        version = 1.0;
         % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
         % exceeds real pix_range (or input pix_range) by this value.
         border_size = -4*eps
     end
+    properties(Constant,Access=private)
+        fields_to_save_ = {'alatt','angdeg','uoffset',...
+            'u_to_rlu','s','e','npix','pix'};
+    end
     properties(Access=protected)
         pix_ = PixelData()      % Object containing data for each pixel
     end
-
-    methods (Static)
-        % Create bin boundaries for integration and plot axes from requested limits and step sizes
-        [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);
-    end
-
+    %
     methods
+        function flds = saveableFields(obj)
+            % get independent fields, which fully define the state of a
+            % serializable object.
+            flds = saveableFields@axes_block(obj);
+            flds = [flds(:);data_sqw_dnd.fields_to_save_(:)];
+        end
         %------------------------------------------------------------------
         % Determine data type of the data field of an sqw data structure
         data_type = data_structure_type(data);
-        % return 3 q-axis in the order they mark the dnd object
-        % regardless of the integration along some qxis
-        [q1,q2,q3] = get_q_axes(obj);
-        % return binning range of existing data object
-        range = get_bin_range(obj);
-        % convert sqw_dnd object into structure
-        struc = struct(obj,varargin);
         % Extract projection, used to build sqw file from full data_sqw_dnd
-        % object (full-- containing pixels)
-        proj = get_projection(obj)
-        % find the coordinates along each of the axes of the smallest cuboid
-        % that contains bins with non-zero values of contributing pixels.
-        [val, n] = data_bin_limits (din);
+        % object.
+        proj = get_projection(obj,header_av)
         %------------------------------------------------------------------
         function obj = data_sqw_dnd(varargin)
             % constructor || copy-constructor:
@@ -187,17 +160,28 @@ classdef data_sqw_dnd
             %                    grid, the pixels are rebinned into [img_db_range(2,4)]
             %   data.pix        A PixelData object
 
+
+            obj = obj@axes_block();
             if nargin>0
-                if isa(varargin{1},'data_sqw_dnd') % handle shallow copy constructor
-                    obj =varargin{1};                          % its COW for Matlab anyway
-                elseif nargin==1 && isstruct(varargin{1})
-                    obj = from_struct_(obj,varargin{1});
-                else
-                    [obj,mess]=make_sqw_data_(obj,varargin{:});
-                    if ~isempty(mess)
-                        error('DATA_SQW_DND:invalid_argument',mess);
-                    end
+                obj = obj.init(varargin{:});
+            end
+        end
+        %
+        function obj = init(obj,varargin)
+            if isa(varargin{1},'data_sqw_dnd') % handle shallow copy constructor
+                obj =varargin{1};              % its COW for Matlab anyway
+            elseif nargin==2 && isstruct(varargin{1})
+                % old interface compatibility
+                struc = varargin{1};
+                if isfield(struc,'ulabel')
+                    struc.label = struc.ulabel;
+                    struc = rmfield(struc,'ulabel');
                 end
+                obj = from_bare_struct(obj,struc);
+            else
+                [obj,uoffset_,remains] = init@axes_block(obj,varargin{:});
+                obj.uoffset = uoffset_;
+                obj=make_sqw_data_(obj,uoffset_,remains{:});
             end
         end
         %
@@ -209,6 +193,7 @@ classdef data_sqw_dnd
             end
         end
         %
+        %TODO: Is it still needed? Remove after refactoring
         function type= data_type(obj)
             % compatibility function
             %   data   Output data structure which must contain the fields listed below
@@ -229,7 +214,7 @@ classdef data_sqw_dnd
                 end
             end
         end
-        %
+
         function dnd_struct=get_dnd_data(obj,varargin)
             %function retrieves dnd structure from the sqw_dnd_data class
             % if additional argument provided (+), the resulting structure  also includes
@@ -252,14 +237,14 @@ classdef data_sqw_dnd
         end
 
         %
-        function [ok, type, mess]=check_sqw_data(obj, type_in, varargin)
+        function [type,obj]=check_sqw_data(obj, type_in, varargin)
             % old style validator for consistency of input data.
             %
             % only 'a' and 'b+' types are possible as inputs and outputs
             % varargin may contain 'field_names_only' which in fact
             % disables validation
             %
-            [ok, type, mess]=check_sqw_data_(obj,type_in);
+            [type,obj]=check_sqw_data_(obj,type_in);
         end
         %
         function npix= get.num_pixels(obj)
@@ -269,36 +254,69 @@ classdef data_sqw_dnd
                 npix  = [];
             end
         end
-        function obj_str = saveobj(obj)
-            fieldsToSave ={'filename','filepath','title',...
-                'alatt','angdeg','uoffset','u_to_rlu','ulen','ulabel',...
-                'iax','iint','pax','p','dax','s','e','npix','img_db_range'};
-            obj_str=struct();
-            for i=1:numel(fieldsToSave)
-                pn = fieldsToSave{i};
-                obj_str.(pn) = obj.(pn);
+        %
+        function range = get.img_db_range(obj)
+            range  = obj.img_range_;
+        end
+        %
+        function obj = set.img_db_range(obj,val)
+            % this property should not be used, as the change of this
+            % property on defined object would involve whole pixels
+            % rebinning.
+            % TODO: remove this property setter or enable rebinning algorithm
+            % on its change
+            warning('HORACE:data_sqw_dnd:runtime_erroe',...
+                'using redundant property img_db_range. Use set/get.img_range instead')
+            obj.img_range = val;
+        end
+    end
+    methods(Access=protected)
+        function obj = from_old_struct(obj,inputs)
+            % restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % The method is called by loadobj in the case if the input
+            % structure does not contain version or the version, stored
+            % in the structure does not correspond to the current version
+            %
+            if isfield(inputs,'urange')
+                %      do check for previous versions
+                %      and add appropriate code to convert the old data into
+                %      the modern data
+                inputs.img_range = inputs.urange;
+                inputs = rmfield(inputs,'urange');
             end
-            if ~isempty(obj.pix) && obj.pix.num_pixels>0
-                obj_str.pix = obj.pix.saveobj();
+            if isfield(inputs,'img_db_range') && any(any(inputs.img_db_range==PixelData.EMPTY_RANGE_)) %
+                % assume that img_db_range can be restored from axis range.
+                % This is not always possible and correct, but may be
+                % correct for majority of the old data
+                inputs.img_range = obj.calc_img_db_range(inputs);
+                inputs = rmfield(inputs,'img_db_range');
             end
-
-
+            if isfield(inputs,'img_db_range')
+                inputs.img_range = inputs.img_db_range;
+                inputs = rmfield(inputs,'img_db_range');
+            end
+            
+            if isfield(inputs,'pax') && isfield(inputs,'iax')
+                inputs.serial_name = 'axes_block';
+                ab = serializable.from_struct(inputs);
+                obj = data_sqw_dnd(ab,inputs);
+                return;
+            end
+            if ~isfield(inputs,'nonorthogonal')
+                inputs.nonorthogonal = false;
+            end
+            obj = obj.from_bare_struct(inputs);
         end
     end
     methods(Static)
         %
-        function obj = loadobj(input)
-            if isa(input,'data_sqw_dnd')
-                obj = input;
-            elseif isstruct(input)
-                obj = data_sqw_dnd(input);
-            else
-                error('DATA_SQW_DND:invalid_argument',...
-                    'loadobj can not process input of type: %s',...
-                    class(input));
-            end
+        function obj = loadobj(S)
+            % boilerplate loadobj method, calling generic method of
+            % saveable class
+            obj = data_sqw_dnd();
+            obj = loadobj@serializable(S,obj);
         end
     end
 end
-
-

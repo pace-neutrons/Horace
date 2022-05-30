@@ -26,18 +26,18 @@ function  [obj,pos] = calc_pos_check_input_set_defaults_(obj,input,varargin)
 if isstruct(input)
     obj.input_is_stuct_ = true;
 elseif isa(input,'double') % file handler is always double
-    obj.input_is_file_ = true; 
-    obj.input_is_stuct_ = false;    
+    obj.input_is_file_ = true;
+    obj.input_is_stuct_ = false;
 else
     if isa(input,'uint8')
         obj.input_is_file_ = false;
-        obj.input_is_stuct_ = false;        
+        obj.input_is_stuct_ = false;
         if size(input,1) == 1
             input = input';
         end
     else % input is a class and we try to tread it as a structure
         obj.input_is_stuct_ =true;
-        obj.input_is_file_ = false;        
+        obj.input_is_file_ = false;
     end
 end
 
@@ -65,7 +65,4 @@ elseif obj.input_is_file_
 else  % bytes
     obj.eof_pos_ = numel(input)+1;
 end
-
-
-
 

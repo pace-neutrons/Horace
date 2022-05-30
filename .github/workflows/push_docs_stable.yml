@@ -3,7 +3,6 @@ name: Horace release user documentation update
 on:
   release:
     types: [published]
-  workflow_dispatch:
 
 jobs:
   build:
@@ -27,19 +26,18 @@ jobs:
     - name: Build and Commit
       run: |
         tmp_dir=$(mktemp -d -t pages-XXXXXXXXXX)
-        RELDIR=$(echo $GITHUB_REF | sed "s/refs\/tags\///")
         sphinx-build -b html ${{ env.doc_root }}/docs $tmp_dir
         rm -rf $tmp_dir/.doctrees
         cd $GITHUB_WORKSPACE
         git checkout --force gh-pages
-        rm -rf $RELDIR
-        cp -rpav $tmp_dir $RELDIR
-        git add $RELDIR
-        echo "<meta http-equiv=\"Refresh\" content=\"0; url=https://pace-neutrons.github.io/Horace/$RELDIR/\" />" > stable/index.html
+        rm -rf $GITHUB_REF
+        cp -rpav $tmp_dir $GITHUB_REF
+        git add $GITHUB_REF
+        echo "<meta http-equiv=\"Refresh\" content=\"0; url=https://pace-neutrons.github.io/Horace/$GITHUB_REF/\" />" > stable/index.html
         git add stable/index.html
         git config --global user.email "actions@github.com"
         git config --global user.name "Github Actions"
-        git commit --allow-empty -m "Add docs release $RELDIR"
+        git commit --allow-empty -m "Add docs release $GITHUB_REF"
     - name: Push changes
       uses: ad-m/github-push-action@v0.6.0
       with:

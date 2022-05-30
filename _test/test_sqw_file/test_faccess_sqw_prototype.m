@@ -2,10 +2,6 @@ classdef test_faccess_sqw_prototype< TestCase
     %
     % Validate fast sqw reader used in combining sqw
     %
-    %
-    % $Revision:: 1753 ($Date:: 2019-10-24 20:46:14 +0100 (Thu, 24 Oct 2019) $)
-    %
-
 
     properties
         sample_dir;
@@ -62,14 +58,19 @@ classdef test_faccess_sqw_prototype< TestCase
             assertTrue(inob.file_id>0);
 
         end
-
-        function obj = test_init(obj)
+        function test_init_invalid_object_throws(~)
             to = faccess_sqw_prototype();
             assertEqual(to.file_version,'-v0');
 
             %access to incorrect object
             f = @()(to.init());
-            assertExceptionThrown(f,'SQW_FILE_IO:invalid_argument');
+            assertExceptionThrown(f,'HORACE:dnd_binfile_common:invalid_argument');
+            
+        end
+
+        function obj = test_init(obj)
+            to = faccess_sqw_prototype();
+            assertEqual(to.file_version,'-v0');
 
             warning('off','SQW_FILE_IO:legacy_data')
             this.clob = onCleanup(@()(warning('on','SQW_FILE_IO:legacy_data')));
@@ -83,9 +84,14 @@ classdef test_faccess_sqw_prototype< TestCase
             assertEqual(to.npixels,16);
 
             header = to.get_header();
-            assertEqual(header.filename,'map11014.spe')
-            assertEqual(header.ulabel{4},'E')
-            assertEqual(header.ulabel{3},'Q_\eta')
+            assertTrue(isa(header,'Experiment'));
+            expdata = header.expdata();
+            assertTrue(isa(expdata,'IX_experiment'));
+            assertEqual(numel(expdata),1);
+            assertFalse(isempty(expdata));
+            assertEqual(expdata.filename,'map11014.spe')
+            assertEqual(expdata.ulabel{4},'E')
+            assertEqual(expdata.ulabel{3},'Q_\eta')
 
             det = to.get_detpar();
             assertEqual(det.filename,'demo_par.PAR')

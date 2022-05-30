@@ -45,7 +45,6 @@ function [dnd_object,varargout] = get_dnd (obj,varargin)
 %
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 
 if nargin>1
     % replace single '-h' with head
@@ -58,7 +57,8 @@ opt = {'-head','-his','-hverbatim','-verbatim','-nopix'};
 [ok,mess,~,~,hverbatim,verbatim,~,argi] = parse_char_options(argi,opt);
 verbatim = hverbatim||verbatim;
 if ~ok
-    error('SQW_FILE_IO:invalid_argument',['get_dnd: ',mess]);
+    error('HORACE:sqw_binfile_common:invalid_argument', ...
+        ['get_dnd: ',mess]);
 end
 
 if verbatim

@@ -1,4 +1,4 @@
-function wout = cut(source, varargin)
+function varargout = cut(source, varargin)
 %%CUT Take a cut from the given data source.
 %
 % Inputs:
@@ -24,7 +24,7 @@ else
         class(source));
 end
 if nargout > 0
-    wout = cut(sqw_dnd_obj, varargin{:});
+    varargout{1} = cut(sqw_dnd_obj, varargin{:});
 else
     cut(sqw_dnd_obj, varargin{:});
 end
@@ -34,16 +34,16 @@ function sqw_dnd_obj=obj_from_faccessor(ldr)
 %
 if ldr.sqw_type
     % harmonize pixel_page_size and mem_chunk_size
-    [mem_chunk,page_size] = config_store.instance().get_config_field('hor_config',...
-        'mem_chunk_size','pixel_page_size');
-    pixel_page_size = mem_chunk*ldr.pixel_size;
-    if page_size<pixel_page_size     % TODO:  this normally should happen in testing only
-        pixel_page_size = page_size; % only one variable (mem_chunk or  page_size should
+    hc = hor_config;
+    mem_pix_page_size  = hc.mem_page_chunk_size_byte_conversion;
+    page_size          = hc.pixel_page_size;
+    if page_size<mem_pix_page_size  % TODO:  this normally should happen in testing only
+        mem_pix_page_size = page_size; % only one variable (mem_chunk or  page_size should
         % remain in a future)
     end
     % Load the .sqw file using the sqw constructor so that we can pass the
     % pixel_page_size argument to get an sqw with file-backed pixels.
-    sqw_dnd_obj = sqw(ldr, 'pixel_page_size', pixel_page_size);
+    sqw_dnd_obj = sqw(ldr, 'pixel_page_size', mem_pix_page_size);
 else
     % In contrast to the above case, we can use the loader to get the dnd
     % as no extra constructor arguments are required.

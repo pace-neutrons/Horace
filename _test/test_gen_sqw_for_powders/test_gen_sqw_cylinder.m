@@ -25,8 +25,6 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_gen_sqw_cylinder_output.mat'));
             hor_root = horace_root();
             common_data_dir=fullfile(hor_root,'_test','common_data');
-            test_functions_path=fullfile(hor_root,'_test','common_functions');
-            addpath(test_functions_path);
 
 
             % =====================================================================================================================
@@ -59,9 +57,6 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
                     this.efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs)
 
             end
-
-            %add_to_files_cleanList(this,this.spe_file);
-            add_to_path_cleanList(this,test_functions_path);
             %
             this.save();
         end
@@ -87,10 +82,8 @@ classdef test_gen_sqw_cylinder < TestCaseWithSave
 
             % dd(w1)
             %--------------------------------------------------------------------------------------------------
-            this.assertEqualToTolWithSave(w2,'ignore_str',true,'reltol',1.e-5)
-            this.assertEqualToTolWithSave(w1,'ignore_str',true,'reltol',1.e-5)
+            this.assertEqualToTolWithSave(w2,'ignore_str',true,'tol',[1.e-9,1.e-9])
+            this.assertEqualToTolWithSave(w1,'ignore_str',true,'tol',[1.e-9,1.e-9])
         end
     end
 end
-
-

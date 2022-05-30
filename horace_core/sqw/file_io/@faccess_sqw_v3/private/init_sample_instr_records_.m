@@ -1,22 +1,26 @@
-function obj = init_sample_instr_records_(obj)
+function [obj,instrument_start,instrument_size,sample_start,sample_size] = ...
+    init_sample_instr_records_(obj)
 % Calculate positions of sample and instrument records to place to binary
 % sqw file
 %
 
-header = obj.extract_correct_subobj('header');
+exp_info = obj.extract_correct_subobj('header');
 
-% extract instrument and sample from headers block
-instr = extract_subfield_(header,'instrument');
-sampl = extract_subfield_(header,'sample');
-%
+[instr_str,sampl_str] = obj.get_instr_sample_to_save(exp_info);
+
 % calculate positions, these objects occupy on hdd
 pos = obj.eof_pix_pos_;
-[pos,obj] = data_block_size(obj,instr,'instrument',pos);
-[pos,obj] = data_block_size(obj,sampl,'sample',pos);
+instrument_start = pos;
+[pos,obj] = data_block_size(obj,instr_str,'instrument',pos);
+instrument_size  = pos - instrument_start;
+sample_start     = pos;
+[pos,obj] = data_block_size(obj,sampl_str,'sample',pos);
 obj.instr_sample_end_pos_ = pos;
+sample_size = pos - sample_start;
 %
 function [pos,obj] = data_block_size(obj,data,type,pos)
 % calculate positions of & within an instrument or sample data block
+% return the position where the next data block would start
 
 %type = class(data);
 obj.([type,'_head_pos_']) = pos;
@@ -30,7 +34,7 @@ else
     data_form = obj.get_si_form();
     if data_block.all_same
         if iscell(data)
-            [~,pos] = obj.sqw_serializer_.calculate_positions(data_form,data{1},pos);            
+            [~,pos] = obj.sqw_serializer_.calculate_positions(data_form,data{1},pos);
         else
             [~,pos] = obj.sqw_serializer_.calculate_positions(data_form,data(1),pos);
         end

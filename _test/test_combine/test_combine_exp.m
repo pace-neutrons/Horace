@@ -112,6 +112,7 @@ classdef test_combine_exp < TestCase
             w2d_qq_d2d_plus=read_dnd(fullfile(this.testdir,'w2d_qq_d2d_plus.sqw'));
             w2d_qq_d2d_minus=read_dnd(fullfile(this.testdir,'w2d_qq_d2d_minus.sqw'));
             
+            skipTest("combine dnd skpped until #796 is fixed")
             w2d_qq_combined=combine_horace_2d(w2d_qq_d2d_minus,w2d_qq_d2d_plus);
             
             mf_qq = multifit_sqw (w2d_qq_d2d);
@@ -134,6 +135,7 @@ classdef test_combine_exp < TestCase
             w1d_d1d_plus=read_dnd(fullfile(this.testdir,'w1d_d1d_plus.sqw'));
             w1d_d1d_minus=read_dnd(fullfile(this.testdir,'w1d_d1d_minus.sqw'));
             
+            skipTest("combine dnd skpped until #796 is fixed")            
             w1d_combined=combine_horace_1d(w1d_d1d_minus,w1d_d1d_plus,0.025);
 
             mf = multifit_sqw (w1d_d1d);

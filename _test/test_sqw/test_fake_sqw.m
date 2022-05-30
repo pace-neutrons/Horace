@@ -42,21 +42,22 @@ classdef test_fake_sqw < TestCase
             obj.par_file=fullfile(common_data,'gen_sqw_96dets.nxspe');
         end
         function test_det_from_q_invalid(obj)
-            f = @()build_det_from_q_range('wrong_detpar',obj.gen_sqw_par{:});
+            f = @()build_det_from_q_range('wrong_detpar',obj.gen_sqw_par{2:end});
 
             assertExceptionThrown(f,'HORACE:build_det_from_q_range:invalid_argument');
 
-            f = @()build_det_from_q_range(ones(3,1),obj.gen_sqw_par{:});
+            f = @()build_det_from_q_range(ones(3,1),obj.gen_sqw_par{2:end});
             assertExceptionThrown(f,'HORACE:build_det_from_q_range:invalid_argument');
 
         end
-        function test_det_from_q(obj)
+        function test_det_from_q_range1D(obj)
             % check if build_det_from_q_range is working and producing
             % reasonable result.
             det=build_det_from_q_range([0,0.1,1],obj.gen_sqw_par{2:end});
             assertTrue(isstruct(det));
             assertEqual(numel(det.group),11*11*11)
-
+        end
+        function build_det_from_q_range3D(obj)
             det=build_det_from_q_range([0,0.1,1;0,0.2,2;0,0.3,3],...
                 obj.gen_sqw_par{2:end});
             assertTrue(isstruct(det));
@@ -75,11 +76,12 @@ classdef test_fake_sqw < TestCase
             assertTrue(isa(tsqw,'sqw'));
 
             pix = tsqw.data.pix.coordinates;
-            de0 = pix(4,:)==0;
+            de0 = pix(4,:)==0; % find the momentum transfers, performed 
+            %                  % with dE = 0 (elastic mode)
             assertEqual(sum(de0),96);
 
             q_range = pix(1:3,de0); % this is q-range in crystal catresizan
-            u_to_rlu = tsqw.data.u_to_rlu(1:3,1:3);
+            u_to_rlu = tsqw.experiment_info.expdata.u_to_rlu(1:3,1:3);
             q_range = (u_to_rlu*q_range)' ; % convert q into hkl
             % verify the fact that the detector positions, processed from
             % the pixel information provide the same result as normal

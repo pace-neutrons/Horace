@@ -33,7 +33,8 @@ function sqw_display_single_(data,npixtot,nfiles,type)
 % Determine if displaying dnd-type or sqw-type sqw object
 
 
-[ndim,sz] = data_dims(data);
+ndim = data.n_dims;
+sz = data.data_nbins;
 if ~exist('npixtot','var') || isempty(npixtot)
     npixtot = sum(data.npix(:));
 end

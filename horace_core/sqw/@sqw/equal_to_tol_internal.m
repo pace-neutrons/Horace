@@ -23,6 +23,10 @@ end
 % Test equality of sqw class fields, excluding the raw pixels which is performed
 % below. Pass class fields to the generic equal_to_tol.
 class_fields = properties(w1);
+% keep only the fields, which are compared in the main loop. Pixels will be
+% compared separately.
+keep = ~ismember(class_fields,'pix');
+class_fields = class_fields(keep);
 for idx = 1:numel(class_fields)
     field_name = class_fields{idx};
     tmp1 = w1.(field_name);
@@ -32,8 +36,10 @@ for idx = 1:numel(class_fields)
         tmp1.pix = PixelData();
         tmp2.pix = PixelData();
     end
+    name1 = [name_a,'.',field_name];
+    name2 = [name_b,'.',field_name];    
     
-    [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a', name_a, 'name_b', name_b);
+    [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a', name1, 'name_b', name2);
 
     if ~ok
         return; % break on first failure
@@ -72,8 +78,8 @@ else
         ipix = replicate_iarray(nbeg(ibin), npix(ibin)) + sawtooth_iarray(npix(ibin)) - 1;
         ibinarr = replicate_iarray(ibin, npix(ibin)); % bin index for each retained pixel
         % Now test contents for equality
-        pix1 = w1.data.pix;
-        pix2 = w2.data.pix;
+        pix1 = w1.pix;
+        pix2 = w2.pix;
         name_a = [name_a, '.pix'];
         name_b = [name_b, '.pix'];
         if opt.reorder

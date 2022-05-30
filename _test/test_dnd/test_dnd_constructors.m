@@ -38,10 +38,13 @@ classdef test_dnd_constructors< TestCase
             
             t2 = d2d();
             assertTrue(isa(t2,'d2d'))
-            t2 = d2d([0,0,0,0],[1,0,0],[-2,0.05,2],[0,1,0],[-2,0.05,2]);
-            assertTrue(isa(t2,'d2d'))
             t2 = d2d(fullfile(this.test_data,'w2d_qq_d2d.sqw'));
             assertTrue(isa(t2,'d2d'))
+            skipTest('dnd object needs refactoring according to #796')
+            t2 = d2d([0,1,1,0],[1,0,0],[-2,0.05,2],[0,1,0],[-2,0.05,2]);
+            assertTrue(isa(t2,'d2d'))
+            assertEqual(t2.uoffset,[0;1;1;0]);
+            
         end
         function test_construct_array_from_multifiles(obj)
             file = fullfile(obj.test_data,'w2d_qq_d2d.sqw');

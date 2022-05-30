@@ -49,7 +49,7 @@ function [d, mess] = make_sqw_from_data(varargin)
 
 
 mess='';
-fields = {'main_header';'header';'detpar';'data'};  % column
+fields = {'main_header';'experiment_info';'detpar';'data'};  % column
 
 dnd_type=varargin{1};
 if nargin==2 && (isstruct(varargin{2}))
@@ -65,7 +65,7 @@ if nargin==2 && (isstruct(varargin{2}))
         end
     elseif dnd_type  % try to interpret as dnd type
         d.main_header=make_sqw_main_header;
-        d.header=make_sqw_header;
+        d.experiment_info=make_sqw_header;
         d.detpar=make_sqw_detpar;
         if isequal(fieldnames(varargin{2}),fields)    % sqw-type top level fields, so interpret as wanting to make dnd from sqw structure
             d.data=varargin{2}.data;
@@ -82,7 +82,7 @@ if nargin==2 && (isstruct(varargin{2}))
     end
 else
     d.main_header=make_sqw_main_header;
-    d.header=make_sqw_header;
+    d.experiment_info=make_sqw_header;
     d.detpar=make_sqw_detpar;
     d.data=data_sqw_dnd(varargin{2:end});
 end

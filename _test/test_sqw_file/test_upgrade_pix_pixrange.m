@@ -48,7 +48,6 @@ classdef test_upgrade_pix_pixrange< TestCase
             pix2 = d2.pix;
             d2.pix = PixelData();
             assertEqual(d1,d2);
-            assertEqual(ld1.get_img_db_range(),ld0.get_img_db_range());
             
             pix2.recalc_pix_range();
             
@@ -75,7 +74,9 @@ classdef test_upgrade_pix_pixrange< TestCase
             ld0 = ld0.init(source_file);
             
             assertEqual(ld1.get_main_header('-keep_original'),ld0.get_main_header('-keep_original'));
-            assertEqual(ld1.get_header(),ld0.get_header());
+            %THIS IS OFFICIALLY NO LONGER EQUAL BECAUSE v2 HAS RAW STRUCTS
+            %FOR INST, SAMPLE, WHILE V33 HAS IX_NULL TYPES
+            %assertEqual(ld1.get_header(),ld0.get_header());
             d1 = ld1.get_data();
             pix1 = d1.pix;
             d1.pix = PixelData();
@@ -85,7 +86,6 @@ classdef test_upgrade_pix_pixrange< TestCase
             pix2 = d2.pix;
             d2.pix = PixelData();
             assertEqual(d1,d2);
-            assertEqual(ld1.get_img_db_range(),ld0.get_img_db_range());
             
             pix2.recalc_pix_range();
             
@@ -99,7 +99,6 @@ classdef test_upgrade_pix_pixrange< TestCase
             % and ensure it set it up.
             modify_pix_ranges(test_file,'use_urange');
             ld1 = ld1.init(test_file);
-            assertEqual(ld1.get_pix_range(),ld0.get_img_db_range());
             ld1.delete();
         end
         %

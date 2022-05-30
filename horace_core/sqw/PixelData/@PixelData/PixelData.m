@@ -162,6 +162,7 @@ classdef PixelData < handle
         file_path;  % The file that the pixel data has been read from, empty if no file
         page_size;  % The number of pixels in the current page
         base_page_size;  % The number of pixels that can fit in one page of data
+        n_pages
     end
     properties(Dependent,Access=private)
         %
@@ -247,7 +248,8 @@ classdef PixelData < handle
         pix_out = do_unary_op(obj, unary_op);
         [ok, mess] = equal_to_tol(obj, other_pix, varargin);
         pix_out = get_data(obj, fields, abs_pix_indices);
-        pix_out = get_pix_in_ranges(obj, abs_indices_starts, abs_indices_ends,recalculate_pix_ranges);
+        pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
+            recalculate_pix_ranges,keep_precision);
         pix_out = get_pixels(obj, abs_pix_indices);
         pix_out = mask(obj, mask_array, npix);
         [page_num, total_number_of_pages] = move_to_page(obj, page_number, varargin);
@@ -261,15 +263,15 @@ classdef PixelData < handle
             % construction initialises the underlying data as an empty (9 x 0)
             % array.
             %
-            %>> obj = PixelData(ones(9, 200))
+            %   >> obj = PixelData(ones(9, 200))
             %
-            %>> obj = PixelData(200)  % initialise 200 pixels with underlying data set to zero
+            %   >> obj = PixelData(200)  % initialise 200 pixels with underlying data set to zero
             %
-            %>> obj = PixelData(file_path)  % initialise pixel data from an sqw file
+            %   >> obj = PixelData(file_path)  % initialise pixel data from an sqw file
             %
-            %>> obj = PixelData(faccess_reader)  % initialise pixel data from an sqw file reader
+            %   >> obj = PixelData(faccess_reader)  % initialise pixel data from an sqw file reader
             %
-            %>> obj = PixelData(faccess_reader, mem_alloc)  % set maximum memory allocation
+            %   >> obj = PixelData(faccess_reader, mem_alloc)  % set maximum memory allocation
             %
             %>> obj = PixelData(__,false) -- not upgrade class averages
             %         (pix_range) for old file format, if these averages
@@ -713,7 +715,7 @@ classdef PixelData < handle
         end
 
         function page_size = get.base_page_size(obj)
-            page_size = obj.calculate_page_size_(obj.page_memory_size_);
+            page_size = calculate_page_size_(obj,obj.page_memory_size_);
         end
 
         function range = get.pix_range(obj)
@@ -724,11 +726,12 @@ classdef PixelData < handle
             % Function allows to set the pixels range (min/max values of
             % pixels coordinates)
             %
-            % Use with caution!!! No checks that the set range is the
+            % Use with caution!!! As this is performance function, 
+            % no checks that the set range is the
             % correct range for pixels, holded by the class are
             % performed, while subsequent algorithms may rely on pix range
-            % to be correct. A out-of memory write can occur during rebinning
-            % if the range is smaller, then the actual range.
+            % to be correct. A out-of memory assignment can occur during 
+            % rebinning if the range is smaller, then the actual range.
             %
             % Necessary to set up the pixel range when filebased
             % pixels are modified by algorithm and correct range
@@ -752,6 +755,9 @@ classdef PixelData < handle
             else
                 is = ~isempty(obj.f_accessor_) || obj.get_num_pages_() > 1;
             end
+        end
+        function np = get.n_pages(obj)
+            np = max(ceil(obj.num_pixels_*sqw_binfile_common.FILE_PIX_SIZE/obj.page_memory_size_),1);
         end
         %
         function st = struct(obj)
@@ -783,6 +789,7 @@ classdef PixelData < handle
             obj.page_number_ = 1;
             obj.num_pixels_ = double(obj.f_accessor_.npixels);
             %
+            obj.data();
             obj.pix_range_ = f_accessor.get_pix_range();
             obj.tmp_io_handler_ = PixelTmpFileHandler(obj.object_id_);
 
@@ -881,7 +888,7 @@ classdef PixelData < handle
         end
 
         function reset_changed_coord_range(obj,field_name)
-            % set appropriate range of pixel coordinates.
+            % Recalculate and set appropriate range of pixel coordinates.
             % The coordinates are defined by the selected field
             %
             % Sets up the property page_range defining the range of block

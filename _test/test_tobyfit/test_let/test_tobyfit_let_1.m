@@ -60,6 +60,8 @@ load(datafile, 'w1a', 'w1b');
 efix = 8.04;
 instru = let_instrument_obj_for_tests (efix, 280, 140, 20, 2, 2);
 sample = IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.012,0.012,0.04]);
+sample.alatt = [3.3000 3.3000 3.3000];
+sample.angdeg = [90 90 90];
 
 w1a = set_instrument (w1a, instru);
 w1a = set_sample (w1a, sample);

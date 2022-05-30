@@ -58,7 +58,7 @@ function [sqw_object,varargout] = get_sqw (obj, varargin)
 %
 opts = parse_args(obj, varargin{:});
 
-sqw_struc = struct('main_header',[],'header',[],'detpar',[],'data',[]);
+sqw_struc = struct('main_header',[],'experiment_info',[],'detpar',[],'data',[]);
 
 % Get main header
 % ---------------
@@ -70,7 +70,7 @@ end
 
 % Get cell array of headers for each contributing spe file
 % ------------------------------------------
-[headers,~,runid_map]  = obj.get_header('-all');
+[exp_info,~]  = obj.get_header('-all');
 
 % Get detector parameters
 % -----------------------
@@ -105,14 +105,50 @@ end
 data_opt= [opt1, opt2, opt3, opt4];
 sqw_struc.data = obj.get_data(data_opt{:}, 'pixel_page_size', opts.pixel_page_size);
 
-sqw_struc.header = headers;
-sqw_struc.runid_map = runid_map;
+sqw_struc.experiment_info = exp_info;
+%old_file = datetime(obj.creation_date)<datetime('01-Mar-2022'); % old file did not store
+old_file = true; % TODO: store file creation date in the main header to reliably identify old files. #804
+% run_id map in any form, so it is often tried to be resored from filename.
+% here we try to verify, if this restoration is correct if we can do that
+% without critical drop in performance.
+if (sqw_struc.data.pix.num_pixels >0 ) && ...
+        old_file
+    runid = unique(sqw_struc.data.pix.run_idx);
+    file_id = exp_info.runid_map.keys;
+    file_id = [file_id{:}];
+    if sqw_struc.data.pix.n_pages == 1 % all pixels are in memory and we
+        % can propertly analyze runids
+
+        if ~all(ismember(runid,file_id))  % old style pixel data, run_id-s
+            % have been recalculated
+            % use the fact that the headers were recalculated as subsequent numbers
+            % going from 1 to n_headers
+            id=1:exp_info.n_runs;
+            if min(runid)< 1 || max(runid)>exp_info.n_runs
+                error('HORACE:sqw_binfile_common:invalid_argument', ...
+                    'pixels run_ids were recalculated but lies outside of runid-s, defined for headers. Contact developers to deal with the issue')
+            end
+            % reset run-ids and runid_map stored in current experiment info.
+            exp_info.runid_map = id;
+            %
+            exp_info = exp_info.get_subobj(runid);
+            sqw_struc.main_header.nfiles = exp_info.n_runs;
+            %
+        end
+    else % not all pixels are loaded into memory
+        if ~any(ismember(runid,file_id))  % old style pixel data, run_id-s        
+            % have been recalculated            
+            id=1:exp_info.n_runs;   
+            exp_info.runid_map = id;            
+        end
+    end
+    sqw_struc.experiment_info = exp_info;    
+end
 if opts.legacy
     sqw_object = sqw_struc.main_header;
-    varargout{1} = sqw_struc.header;
+    varargout{1} = sqw_struc.experiment_info;
     varargout{2} = sqw_struc.detpar;
     varargout{3} = sqw_struc.data;
-    varargout{4} = sqw_struc.runid_map;    
 elseif opts.head || opts.his
     sqw_object  = sqw_struc;
 else
@@ -124,41 +160,41 @@ end  % function
 
 % -----------------------------------------------------------------------------
 function opts = parse_args(varargin)
-    if nargin > 1
-        % replace single '-h' with head
-        argi = cellfun(@replace_h, varargin, 'UniformOutput', false);
-    else
-        argi = {};
-    end
+if nargin > 1
+    % replace single '-h' with head
+    argi = cellfun(@replace_h, varargin, 'UniformOutput', false);
+else
+    argi = {};
+end
 
-    flags = { ...
-        'head', ...
-        'his', ...
-        'verbatim', ...
-        'hverbatim', ...
-        'hisverbatim', ...
-        'noupgrade',...
-        'nopix', ...
-        'legacy' ...
+flags = { ...
+    'head', ...
+    'his', ...
+    'verbatim', ...
+    'hverbatim', ...
+    'hisverbatim', ...
+    'noupgrade',...
+    'nopix', ...
+    'legacy' ...
     };
-    kwargs = struct('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE);
-    for flag_idx = 1:numel(flags)
-        kwargs.(flags{flag_idx}) = false;
-    end
-    parser_opts = struct('prefix', '-', 'prefix_req', false);
-    [~, opts, ~, ~, ok, mess] = parse_arguments(argi, kwargs, flags, ...
-                                                parser_opts);
-    if ~ok
-        error('SQW_FILE_IO:invalid_argument', mess);
-    end
-    opts.verbatim = opts.verbatim || opts.hverbatim;
+kwargs = struct('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE);
+for flag_idx = 1:numel(flags)
+    kwargs.(flags{flag_idx}) = false;
+end
+parser_opts = struct('prefix', '-', 'prefix_req', false);
+[~, opts, ~, ~, ok, mess] = parse_arguments(argi, kwargs, flags, ...
+    parser_opts);
+if ~ok
+    error('SQW_FILE_IO:invalid_argument', mess);
+end
+opts.verbatim = opts.verbatim || opts.hverbatim;
 end
 
 
 function out = replace_h(inp)
-    if strcmp(inp,'-h')
-        out = '-his';
-    else
-        out  = inp;
-    end
+if strcmp(inp,'-h')
+    out = '-his';
+else
+    out  = inp;
+end
 end
