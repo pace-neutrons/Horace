@@ -23,11 +23,11 @@ end
 fseek(obj.file_id_, s_pos, 'bof');
 check_error_report_fail_(obj, 'Error moving to the beginning of the signal record');
 
-fwrite(obj.file_id_, s, 'float32');
+fwrite(obj.file_id_, single(s), 'float32');
 check_error_report_fail_(obj, 'Error writing signal record');
 
 fseek(obj.file_id_, obj.e_pos_, 'bof');
 check_error_report_fail_(obj, 'Error moving to the beginning of the error record');
 
-fwrite(obj.file_id_, e, 'float32');
+fwrite(obj.file_id_, single(e), 'float32');
 check_error_report_fail_(obj, 'Error writing error record');
