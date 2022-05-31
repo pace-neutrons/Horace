@@ -1,5 +1,17 @@
-classdef main_header < serializable
+classdef main_header_cl < serializable
     % Class describes the main header of the Horace sqw object
+    % Construct an instanciation of main header class
+    %
+    % obj = main_header_cl();
+    % obj = main_header_cl(filename);
+    % obj = main_header_cl(filename,filepath);
+    % obj = main_header_cl(filename,filepath,title);
+    % obj = main_header_cl(filename,filepath,title,nfiles);
+    %OR:
+    % obj = main_header_cl(cl_struc);
+    % where cl_struc is the structure, containing any set of public
+    % properties available to contructor with their correspondent values
+    %
 
 
     properties(Dependent)
@@ -11,15 +23,19 @@ classdef main_header < serializable
         %           is responsible for
         %
         creation_date % The date when this header (in the sqw file) was created
-        % method returns true, if the file creation date is not stored
+
+        % method returns false, if the file creation date is not stored
         % together with binary data in old binary files
-        no_cr_date_known
+        creation_date_defined
     end
     properties(Dependent,Hidden)
         % return filename mangled with the creation date, used to write
         % creation data together with filename in old style v3 binary
         % Horace files
         filename_with_cdate
+        % hidden property allowing save/restore creation_date_defined
+        % property used by loadobj/saveobj methods only
+        creation_date_defined_privately;
     end
     properties(Access = protected)
         filename_ = '';
@@ -27,20 +43,23 @@ classdef main_header < serializable
         title_    = '';
         nfiles_   = 0;
         creation_date_='';
-        no_cr_date_known_= true;
+        creation_date_defined_= false;
     end
     properties(Constant,Access = protected)
+        % fields used with serializable interface. Keep order of fields
+        % unchanged, as setting creation_date sets also no_cr_data_known_
+        % and creation_date_defined_privately should override this
         fields_to_save_ = {'filename','filepath','title','nfiles',...
-            'no_cr_date_known','creation_date'};
-        % date/time format to store in file
+            'creation_date','creation_date_defined_privately'};
+        % date/time format to store in a file
         DT_format_ = '%d-%02d-%02dT%02d:%02d:%02d';
         % transform date-time into the requested string
-        DT_out_transf_ = @(dt)sprintf(main_header.DT_format_, ...
+        DT_out_transf_ = @(dt)sprintf(main_header_cl.DT_format_, ...
             dt.Year,dt.Month,dt.Day,dt.Hour,dt.Minute,round(dt.Second));
     end
 
     methods
-        function obj = main_header(varargin)
+        function obj = main_header_cl(varargin)
             % Construct an instance of main header class
             %
             % obj = main_header();
@@ -55,7 +74,7 @@ classdef main_header < serializable
                 if isa(varargin{1},'main_header')
                     obj = varargin{1};
                 elseif isstruct(varargin{1})
-                    obj = serializable.from_structf(varargin{1});
+                    obj = obj.from_bare_struct(varargin{1});
                 elseif ischar(varargin{1})
                     obj.filename = varargin{1};
                 else
@@ -68,7 +87,7 @@ classdef main_header < serializable
                 validators = {@ischar,@ischar,@ischar,@isnumeric};
                 param_names_list = obj.saveableFields();
                 [obj,remains] = obj.set_positional_and_key_val_arguments(...
-                    param_names_list(1:4),validators,varargin);
+                    param_names_list(1:4),validators,varargin{:});
                 if ~isempty(remains)
                     error('HORACE:main_header:invalid_argument',...
                         '')
@@ -131,9 +150,16 @@ classdef main_header < serializable
             % explicitly set up creation date and make it "known"
             obj = set_creation_date_(obj,val);
         end
-        function unknown = get.no_cr_date_known(obj)
-            unknown = obj.no_cr_date_known_;
+        function is = get.creation_date_defined(obj)
+            is = obj.creation_date_defined_;
         end
+        % hidden properties, do not use
+        function is = get.creation_date_defined_privately(obj)
+            is = obj.creation_date_defined_;
+        end
+        function obj = set.creation_date_defined_privately(obj,val)
+            obj.creation_date_defined_ = logical(val);
+        end        
         %------------------------------------------------------------------
         % sqw_binfile_common interface
         %------------------------------------------------------------------
@@ -141,11 +167,11 @@ classdef main_header < serializable
             % this method is used to mangle filename with file creation
             % date and used to save them in a Horace binary file
             % version 3.XXX and lower
-            if obj.no_cr_date_known_
+            if obj.creation_date_defined_
+                fnc = [obj.filename,'$',obj.creation_date];
+            else
                 % if creation date have not been defined, get only filename
                 fnc = obj.filename;
-            else
-                fnc = [obj.filename,'$',obj.creation_date];
             end
         end
         function obj = set.filename_with_cdate(obj,val)
@@ -166,7 +192,22 @@ classdef main_header < serializable
             ver = 1;
         end
         function flds = saveableFields(~)
-            flds = main_header.fields_to_save_;
+            flds = main_header_cl.fields_to_save_;
+        end
+        %
+        function iseq = eq(obj,other_obj)
+            % equality statement
+            if any(size(obj) ~= size(other_obj))
+                iseq = false;
+                return;
+            end
+            iseq = isa(other_obj,class(obj));
+            if ~iseq
+                return;
+            end
+            for i=1:numel(obj)
+                iseq = iseq_(obj(i),other_obj(i));
+            end
         end
     end
 end

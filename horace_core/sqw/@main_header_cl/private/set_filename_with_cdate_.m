@@ -14,10 +14,11 @@ if ~(ischar(val) || isstring(val))
 end
 pos = strfind(val,'$');
 if isempty(pos)
-    obj.no_cr_date_known_ = true;
+    obj.creation_date_defined_ = false;
     obj.filename_ = val;
 else
-    % this also makes file_creation date known
+    % this also makes file_creation date known within creation date
+    % asignment
     obj.creation_date = val(pos+1:end);
     obj.filename_   = val(1:pos-1);
 end

@@ -1,5 +1,5 @@
 function  obj = set_creation_date_(obj,val)
-% explicitly set up creation date and make it "known"
+% explicitly set up creation date and make it "defined"
 
 if ischar(val)
     val = num2cell(sscanf(val,obj.DT_format_));
@@ -12,4 +12,4 @@ else
         obj.DT_format_,evalc('disp(val)'));
 end
 obj.creation_date_    = dt;
-obj.no_cr_date_known_ = false;
+obj.creation_date_defined_ = true;

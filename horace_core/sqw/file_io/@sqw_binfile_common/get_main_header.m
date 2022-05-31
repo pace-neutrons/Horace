@@ -1,4 +1,4 @@
-function   main_header = get_main_header(obj,varargin)
+function   main_head = get_main_header(obj,varargin)
 % Read the main header block for the results of performing calculate projections on spe file(s).
 %
 %   >> main_header = obj.get_main_header();
@@ -36,12 +36,12 @@ function   main_header = get_main_header(obj,varargin)
 [ok,mess,keep_original,verbatim] = parse_char_options(varargin,...
     {'-keep_original','-verbatim'});
 if ~ok
-    error('INIT_SQW_STRUCTURE:invalid_argument',mess);
+    error('HORACE:sqw_binfile_common:invalid_argument',mess);
 end
 
 
 if ischar(obj.num_contrib_files)
-    error('SQW_FILE_INTERFACE:runtime_error',...
+    error('HORACE:sqw_binfile_common:runtime_error',...
         'get_main_sqw_header called on un-initialized loader')
 end
 
@@ -51,23 +51,23 @@ sz = obj.header_pos_(1)-obj.main_header_pos_;
 fseek(obj.file_id_,obj.main_header_pos_,'bof');
 [mess,res] = ferror(obj.file_id_);
 if res ~= 0
-    error('SQW_FILE_INTERFACE:runtime_error',...
+    error('HORACE:sqw_binfile_common:runtime_error',...
         'can not move to the start of the main header, reason: %s',mess);
 end
 %
 bytes = fread(obj.file_id_,sz,'*uint8');
 [mess,res] = ferror(obj.file_id_);
 if res ~= 0
-    error('SQW_FILE_INTERFACE:runtime_error',...
+    error('HORACE:sqw_binfile_common:runtime_error',...
         'can not read main header, Reason: %s',mess);
 end
 
 
 header_format = obj.get_main_header_form();
-main_header = obj.sqw_serializer_.deserialize_bytes(bytes,header_format,1);
+main_head = obj.sqw_serializer_.deserialize_bytes(bytes,header_format,1);
 
 if obj.convert_to_double
-    main_header = obj.do_convert_to_double(main_header);
+    main_head = obj.do_convert_to_double(main_head);
 end
 
 %
@@ -79,9 +79,8 @@ if nargin>1
 end
 if ~keep_original
     [path, name, ext] = fileparts(fopen(obj.file_id_));
-    main_header.filepath =  [path,filesep];
-    main_header.filename = [name, ext];
+    main_head.filepath =  [path,filesep];
+    main_head.filename = [name, ext];
 end
-
-
-
+% build appropriate class from the stored structure
+main_head = main_header_cl(main_head);
