@@ -300,7 +300,7 @@ bool check_address_tag_requsted(SendMessHolder const& Mess, int addr_requested, 
             if (Mess.destination == addr_requested) {
                 if (tag_requested >= 0) {
                     if (Mess.mess_tag == tag_requested)return true; // correct tag
-                    else return false; // weong tag
+                    else return false; // wrong tag
                 }
                 else {
                     return true; // any tag
@@ -420,7 +420,7 @@ void MPI_wrapper::labProbe(const std::vector<int32_t>& data_address, const std::
 
 }
 
-/* Create oputputs for labReceive and return pointers to the arrays locations for copying results
+/* Create outputs for labReceive and return pointers to the arrays locations for copying results
 into these outputs  */
 std::tuple<char*, void*, int32_t*> create_plhs_for_labReceive(mxArray* plhs[], int nlhs, int data_size, int cell_size) {
 
@@ -447,8 +447,8 @@ std::tuple<char*, void*, int32_t*> create_plhs_for_labReceive(mxArray* plhs[], i
 Inputs:
 source_address  -- where ask for message
 source_data_tag -- the requested data tag, If -1, any tag.
-isSynchronous   -- if true, blok the program execution until requested message is received.
-                   If false and message is not present, return emtpy result
+isSynchronous   -- if true, block the program execution until requested message is received.
+                   If false and message is not present, return empty result
 nlhs            -- The number of output arguments. Should be larger or equal than
                    labReceive_Out::N_OUTPUT_Arguments -1
 Output:
@@ -463,7 +463,7 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
     if (source_data_tag == -1)source_data_tag = MPI_ANY_TAG;
     if (source_address == -1) { // not allowed in our framework
         throw_error("MPI_MEX_COMMUNICATOR:runtime_error",
-            "LabReceive from any address is not alowed", MPI_wrapper::MPI_wrapper_gtested);
+            "LabReceive from any address is not allowed", MPI_wrapper::MPI_wrapper_gtested);
     }
     int message_size(0);
     std::tuple<char*, void*, int32_t*> outPtrs;
@@ -493,7 +493,7 @@ void MPI_wrapper::labReceive(int source_address, int source_data_tag, bool isSyn
         if (isSynchronous) {
             if (!this->any_message_present()) {
                 throw_error("MPI_MEX_COMMUNICATOR:runtime_error",
-                    "Synchronous wating in test mode is not alowed", MPI_wrapper::MPI_wrapper_gtested);
+                    "Synchronous waiting in test mode is not allowed", MPI_wrapper::MPI_wrapper_gtested);
             }
         }
 
@@ -644,7 +644,7 @@ void MPI_wrapper::pack_node_names_list(std::vector<char>& buf)const {
 
     size_t i;
     size_t BlockSize = sizeof(size_t);
-    // estimate the size of the nodenames data
+    // estimate the size of the node-names data
     size_t buf_size = BlockSize;
     for (i = 0; i < this->node_names.size(); i++) {
         buf_size += (this->node_names[i].size() + 1);
@@ -681,7 +681,7 @@ void MPI_wrapper::unpack_node_names_list(const std::vector<char>& buf) {
 }
 
 //
-/** Construtor building message from message holder*/
+/** Constructor building message from message holder*/
 SendMessHolder::SendMessHolder(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag) :
     mess_tag(-1), destination(-1) {
 
@@ -693,7 +693,7 @@ SendMessHolder::SendMessHolder(uint8_t* pBuffer, size_t n_bytes, int dest_addres
 * dest_address    -- the  address of the worker to send data to
 * data_tag        -- the MPI messages tag
 * is_synchroneous -- should the message to be send synchronously or not.
-* data_buffer     -- pointer to the begining of the buffer containing the data
+* data_buffer     -- pointer to the beginning of the buffer containing the data
 * nbytes_to_transfer -- amount of bytes of data to transfer.
 */
 void SendMessHolder::init(uint8_t* pBuffer, size_t n_bytes, int dest_address, int data_tag) {
@@ -708,7 +708,7 @@ void SendMessHolder::init(uint8_t* pBuffer, size_t n_bytes, int dest_address, in
     }
 
 }
-/** Check if the non-empty message, asigned to the message holder has been delivered.
+/** Check if the non-empty message, assigned to the message holder has been delivered.
  * Inputs:
  * is_tested -- boolean to check if the framework works in test mode
  * Returns:
@@ -736,7 +736,7 @@ int SendMessHolder::is_delivered(bool is_tested) {
     }
     return isDelivered;
 }
-/** Check if the messag holder is responsible for send message (e.g. non-empty message)
+/** Check if the message holder is responsible for send message (e.g. non-empty message)
 
  * Inputs:
  * is_tested -- boolean to check if the framework works in test mode
