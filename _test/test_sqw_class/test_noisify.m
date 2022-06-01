@@ -67,9 +67,11 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
             %objects are inconsistent. See skipTest operator at the end of
             %the test.
             sqw_obj1.main_header.nfiles = sqw_obj2.main_header.nfiles;
+            sqw_obj1.main_header.creation_date = sqw_obj2.main_header.creation_date;
             sqw_obj1.experiment_info = sqw_obj2.experiment_info;
 
             noisy_obj1.main_header.nfiles = noisy_obj2.main_header.nfiles;
+            noisy_obj1.main_header.creation_date = noisy_obj2.main_header.creation_date;
             noisy_obj1.experiment_info = noisy_obj2.experiment_info;
             % as the page test whether the 2 paged versions are equal
             assertEqual(sqw_obj1, sqw_obj2, '', 5e-4);

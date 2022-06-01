@@ -31,7 +31,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             sqw_obj = sqw();
             
             assertTrue(isa(sqw_obj, 'sqw'));
-            assertEqual(sqw_obj.main_header, struct([]));
+            assertEqual(sqw_obj.main_header, main_header_cl());
             assertTrue(isa(sqw_obj.experiment_info, 'Experiment'));
             
             assertTrue(isa(sqw_obj.experiment_info.instruments{1},'IX_null_inst'));
