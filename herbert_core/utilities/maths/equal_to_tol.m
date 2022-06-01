@@ -383,10 +383,22 @@ elseif isobject(a) && isobject(b)
             name_a,name_b);
     end
     if ismethod(a,'eq') && ~isa(a,'handle')
-        if ~eq(a,b)
+        try
+            [is,mess] = eq(a,b,opt.ignore_str);
+        catch ME
+            if strcmp(ME.identifier,'MATLAB:TooManyInputs')
+                is = eq(a,b);
+                if ~is
+                    mess = 'class "eq" operation returned false';
+                end
+            else
+                rethrow(ME);
+            end
+        end
+        if ~is
             error('HERBERT:equal_to_toll:inputs_mismatch',...
-                'Input object %s differs from input object %s according to class "eq" operation',...
-                name_a,name_b);
+                'Input object %s differs from input object %s reason: %s',...
+                name_a,name_b,mess);
         end
         return;
     end

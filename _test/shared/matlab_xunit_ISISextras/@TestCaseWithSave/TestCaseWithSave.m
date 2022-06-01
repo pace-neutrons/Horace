@@ -531,21 +531,21 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
         end
 
         function data = getReferenceData(this, var_name)
-        % Wrapper to assertion methods to enable test or save functionality
-        %
-        %   >> getReferenceData(this, var_name)
-        %
-        % Input:
-        % ------
-        %   var         Variable to test or save
-        %   var_name    Name under which the variable will be saved
+            % Wrapper to assertion methods to enable test or save functionality
+            %
+            %   >> getReferenceData(this, var_name)
+            %
+            % Input:
+            % ------
+            %   var         Variable to test or save
+            %   var_name    Name under which the variable will be saved
 
-        % Get the name of the test method. Determine this as the highest
-        % method of the class in the call stack that begins with 'test'
-        % ignoring character case
-        % (The test method may itself call functions in which the assertion
-        % test is performed, which is why we need to search the stack to get
-        % the test name)
+            % Get the name of the test method. Determine this as the highest
+            % method of the class in the call stack that begins with 'test'
+            % ignoring character case
+            % (The test method may itself call functions in which the assertion
+            % test is performed, which is why we need to search the stack to get
+            % the test name)
 
             class_name = class(this);
             call_struct = dbstack(1);
@@ -685,12 +685,11 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % Perform the test, or save
             if ~this.save_output
                 stored_reference = this.get_ref_dataset_(var_name, test_name);
-                % ignore creation date if comparing sqw objects (usually
-                % old and new sqw object)
-                if isa(stored_reference,'sqw')
-                    is_def = var.main_header.creation_date_defined_privately;
+                if isa(stored_reference,'sqw') && ~stored_reference.main_header.creation_date_defined
+                    % ignore creation date if comparing sqw objects (usually
+                    % old and new sqw objects are stored)
+                    stored_reference.main_header.creation_date = datetime('now');
                     var.main_header.creation_date = stored_reference.main_header.creation_date;
-                    var.main_header.creation_date_defined_privately = is_def;
                 end
                 funcHandle(var, stored_reference, varargin{:})
             else
