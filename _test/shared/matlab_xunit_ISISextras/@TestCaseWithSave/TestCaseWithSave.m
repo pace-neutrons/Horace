@@ -685,6 +685,13 @@ classdef TestCaseWithSave < TestCase & oldTestCaseWithSaveInterface
             % Perform the test, or save
             if ~this.save_output
                 stored_reference = this.get_ref_dataset_(var_name, test_name);
+                % ignore creation date if comparing sqw objects (usually
+                % old and new sqw object)
+                if isa(stored_reference,'sqw')
+                    is_def = var.main_header.creation_date_defined_privately;
+                    var.main_header.creation_date = stored_reference.main_header.creation_date;
+                    var.main_header.creation_date_defined_privately = is_def;
+                end
                 funcHandle(var, stored_reference, varargin{:})
             else
                 this.set_ref_dataset_ (var, var_name, test_name);
