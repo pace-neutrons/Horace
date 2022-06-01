@@ -1,0 +1,109 @@
+classdef test_main_header_operates_properly< TestCase
+    %
+    %
+    %
+    properties
+        sample_dir;
+        working_dir;
+    end
+    methods
+
+        function obj=test_main_header_operates_properly(varargin)
+            if nargin > 0
+                name = varargin{1};
+            else
+                name= mfilename('class');
+            end
+            obj=obj@TestCase(name);
+            tests_dir = fileparts(fileparts(mfilename('fullpath')));
+            obj.sample_dir = fullfile(tests_dir,'common_data');
+            obj.working_dir = tmp_dir();
+        end
+        function equal_date = get_close_date(~,date_tested)
+            % helper routine to get current date and time, close to one,
+            % to be obtained from main_header_cl method, with purpose of
+            % testing the date to have expected value
+            %
+            % Use after main_header_cl.creation_date function is called.
+            % Inputs:
+            % date_tested -- the date, obtained from main_header_cl.creation_date
+            %                function,
+            date_now = datetime("now");
+            % in case date_tested returned a second earlier time,
+            % modify dt_now to be 1 sec earlier
+            date_now_m = date_now;
+            date_now_m.Second = date_now_m.Second-1;
+            %
+            % convert to properly formatted strings
+            date_now = main_header_cl.convert_datetime_to_str(date_now);
+            date_now_m = main_header_cl.convert_datetime_to_str(date_now_m);
+            if all(date_now == date_tested)
+                equal_date = date_now;
+            else
+                equal_date = date_now_m;
+            end
+        end
+
+        % tests
+        function test_load_save_old_sqw_file(obj)
+            source_file = fullfile(obj.sample_dir,'sqw_1d_2.sqw');
+
+            w1 = read_sqw(source_file);
+            % check that creation date here will be now
+            cr_date = w1.main_header.creation_date;
+            near_date = obj.get_close_date(cr_date);
+            assertEqual(cr_date,near_date);
+
+            assertTrue(isa(w1.main_header,'main_header_cl'));
+            % the old pixels were recalclulated so the creation date gets
+            % defined
+            assertTrue(w1.main_header.creation_date_defined);
+
+            test_file = fullfile(obj.working_dir,'sample_test_load_save_sqw.sqw');
+            clOb = onCleanup(@()delete(test_file));
+
+            write_sqw(w1,test_file);
+            w1_rec = read_sqw(test_file);
+            assertTrue(isa(w1_rec.main_header,'main_header_cl'));
+            assertTrue(w1_rec.main_header.creation_date_defined);
+            assertEqual(w1_rec.main_header.creation_date,cr_date)
+        end
+
+        function test_load_save_old_sqw_file_main_header(obj)
+            source_file = fullfile(obj.sample_dir,'sqw_1d_2.sqw');
+
+            ldr = sqw_formats_factory.instance().get_loader(source_file);
+            hdr = ldr.get_main_header();
+
+            assertTrue(isa(hdr,'main_header_cl'));
+            assertFalse(hdr.creation_date_defined);
+
+            % check that creation date here will be sqw file creation date:
+            cr_date = hdr.creation_date;
+            file_info = dir(source_file);
+            file_date = datetime(file_info.date);
+            file_date = main_header_cl.convert_datetime_to_str(file_date);
+            assertEqual(cr_date,file_date);
+
+        end
+        function test_load_save_old_sqw_mat_file(obj)
+            source_file = fullfile(obj.sample_dir,'sqwfile_readwrite_testdata_base_objects.mat');
+            ld = load(source_file,'f1_1');
+            sq_old = ld.f1_1;
+            cr_date = sq_old.main_header.creation_date;
+            near_date = obj.get_close_date(cr_date);
+            assertTrue(isa(sq_old.main_header,'main_header_cl'));
+            assertTrue(sq_old.main_header.creation_date_defined);
+            assertEqual(cr_date,near_date);
+
+            test_file = fullfile(obj.working_dir,'sample_test_load_save_old_sqw.mat');
+            clOb = onCleanup(@()delete(test_file));
+            save(test_file,'sq_old');
+
+            ld = load(test_file);
+            sq_rec = ld.sq_old;
+            assertEqual(sq_rec.main_header.creation_date,cr_date);
+            assertTrue(sq_rec.main_header.creation_date_defined);
+        end
+    end
+end

@@ -22,6 +22,9 @@ if ~isfield(S,'version')
     end
     for i = 1:numel(S)
         ss =S(i);
+        if isfield(ss,'main_header')
+            ss.main_header = main_header_cl(ss.main_header);
+        end
         if isfield(ss,'header')
             if isa(ss.header,'Experiment')
                 ss.experiment_info = ss.header;
@@ -38,33 +41,38 @@ if ~isfield(S,'version')
             ss.experiment_info.runid_map = ss.runid_map;
             ss = rmfield(ss,'runid_map');
         end
-        % guard against old data formats, which may or may not contain 
-        % runid map and the map may or may not correspond to 
+        % guard against old data formats, which may or may not contain
+        % runid map and the map may or may not correspond to
         % pixel_id
-        if isfield(ss,'data') && isa(ss.data,'data_sqw_dnd') && ...
-           ss.data.pix.num_pixels>0 && ~ss.data.pix.is_filebacked()
-            % check consistency between pixel run_id and header runids. 
-            % this is not always possible to achieve, but is pissible in
-            % assumption that pixel-ids were recalculated from 1 to
-            % n-headers
-            pix_runid = unique(ss.data.pix.run_idx);
-        
-            header_run_id = ss.experiment_info.runid_map.keys();
-            header_run_id = [header_run_id{:}];
-  
-            if ~all(ismember(pix_runid,header_run_id))                 
-                id = 1:ss.experiment_info.n_runs;
-                ss.experiment_info.runid_map = id;
+        if ~ss.main_header.creation_date_defined
+            if isfield(ss,'data') && isa(ss.data,'data_sqw_dnd') && ...
+                    ss.data.pix.num_pixels>0 && ~ss.data.pix.is_filebacked()
+                % check consistency between pixel run_id and header runids.
+                % this is not always possible to achieve, but is pissible in
+                % assumption that pixel-ids were recalculated from 1 to
+                % n-headers
+                pix_runid = unique(ss.data.pix.run_idx);
+
+                header_run_id = ss.experiment_info.runid_map.keys();
+                header_run_id = [header_run_id{:}];
+
+                if ~all(ismember(pix_runid,header_run_id))
+                    id = 1:ss.experiment_info.n_runs;
+                    ss.experiment_info.runid_map = id;
+                end
+                % old data format where headers are stored all together including
+                % the headers, which do not contributed into the pixels.
+                % retrieve only contributed headers
+                if numel(pix_runid)<ss.experiment_info.n_runs
+                    % can do it in assump
+                    ss.experiment_info = ss.experiment_info.get_subobj(pix_runid);
+                    ss.main_header.nfiles = ss.experiment_info.n_runs;
+                end
+                % as pixels id vere recalculated and set aftesh, set
+                % file creatrion date to defined now.
+                ss.main_header.creation_date = datetime('now');
             end
-            % old data format where headers are stored all together including 
-            % the headers, which do not contributed into the pixels.
-            % retrieve only contributed headers
-            if numel(pix_runid)<ss.experiment_info.n_runs
-                % can do it in assump
-                ss.experiment_info = ss.experiment_info.get_subobj(pix_runid);
-                ss.main_header.nfiles = ss.experiment_info.n_runs;
-            end
-        end        
+        end
 
         obj(i) = sqw(ss);
     end

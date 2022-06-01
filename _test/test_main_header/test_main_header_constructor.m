@@ -3,24 +3,48 @@ classdef test_main_header_constructor< TestCase
     %
     %
     properties
-        sample_dir;
-        sample_file;
     end
     methods
 
-        function this=test_main_header_constructor(varargin)
+        function obj=test_main_header_constructor(varargin)
             if nargin > 0
                 name = varargin{1};
             else
                 name= mfilename('class');
             end
-            this=this@TestCase(name);
+            obj=obj@TestCase(name);
         end
         % tests
+        function test_constructor_from_sqw_file_keeps_defined_date(~)
+            inputs = struct('filename_with_cdate', ...
+                'test_file$2021-01-01T20:10:10', ...
+                'filepath','test_path',...
+                'title','my_test_title','nfiles',10);
+            th = main_header_cl(inputs);
+            assertEqual(th.filename,'test_file');
+            assertEqual(th.filepath,'test_path');
+            assertEqual(th.title,'my_test_title');
+            assertEqual(th.nfiles,10);
+            assertTrue(th.creation_date_defined);
+            assertEqual(th.creation_date,'2021-01-01T20:10:10');
+        end
+
+        function test_constructor_from_sqw_file_keeps_undefined_date(~)
+            inputs = struct('filename_with_cdate','test_file', ...
+                'filepath','test_path',...
+                'title','my_test_title','nfiles',10);
+            th = main_header_cl(inputs);
+            assertEqual(th.filename,'test_file');
+            assertEqual(th.filepath,'test_path');
+            assertEqual(th.title,'my_test_title');
+            assertEqual(th.nfiles,10);
+            assertFalse(th.creation_date_defined);
+        end
+
         function test_serialize_deserialize_keeps_defined_date(obj)
             inputs = struct('filename','test_file','filepath','test_path',...
                 'title','my_test_title','nfiles',10);
-            th = main_header_tester(inputs);
+            th = main_header_cl(inputs);
             assertEqual(th.filename,'test_file');
             assertEqual(th.filepath,'test_path');
             assertEqual(th.title,'my_test_title');
@@ -47,7 +71,7 @@ classdef test_main_header_constructor< TestCase
         function test_serialize_deserialize_keeps_undefined_date(obj)
             inputs = struct('filename','test_file','filepath','test_path',...
                 'title','my_test_title','nfiles',10);
-            th = main_header_tester(inputs);
+            th = main_header_cl(inputs);
             assertEqual(th.filename,'test_file');
             assertEqual(th.filepath,'test_path');
             assertEqual(th.title,'my_test_title');
@@ -76,7 +100,7 @@ classdef test_main_header_constructor< TestCase
         end
 
         function test_invalid_setter_throws(~)
-            th = main_header_tester();
+            th = main_header_cl();
             function setter(prop_name,prop_val)
                 th.(prop_name) = prop_val;
             end
@@ -101,7 +125,7 @@ classdef test_main_header_constructor< TestCase
 
         end
         function test_existing_file_creation_date(~)
-            th = main_header_tester();
+            th = main_header_cl();
             the_file = mfilename('fullpath');
             [fp,fn,fe] = fileparts(the_file);
 
@@ -115,10 +139,11 @@ classdef test_main_header_constructor< TestCase
             % the creation date is taken from the existing file
             % creation date
             ct_tested = th.creation_date;
-
             assertEqual(th.filename_with_cdate,file)
 
+            % set up creation date:
             th.creation_date = ct_tested ;
+            %
             assertTrue(th.creation_date_defined);
             assertEqual(th.creation_date,ct_tested);
 
@@ -126,7 +151,7 @@ classdef test_main_header_constructor< TestCase
         end
 
         function test_non_existing_file_and_other_properties(~)
-            th = main_header_tester();
+            th = main_header_cl();
             th.nfiles = 10;
             assertEqual(th.nfiles,10)
             th.filename = 'some_file';
@@ -150,7 +175,7 @@ classdef test_main_header_constructor< TestCase
             assertEqual(th.filename_with_cdate,['some_file$',ct_tested])
         end
         function test_empty_constructor(obj)
-            th = main_header_tester();
+            th = main_header_cl();
             assertEqual(th.nfiles,0)
             assertTrue(isempty(th.filename))
             assertTrue(isempty(th.filepath))
@@ -178,10 +203,9 @@ classdef test_main_header_constructor< TestCase
             date_now_m = date_now;
             date_now_m.Second = date_now_m.Second-1;
             %
-            wrtr = main_header_tester.get_creation_time_out_formater();
-            % convert to properly formatted string
-            date_now = wrtr(date_now);
-            date_now_m = wrtr(date_now_m);
+            % convert to properly formatted strings
+            date_now = main_header_cl.convert_datetime_to_str(date_now);
+            date_now_m = main_header_cl.convert_datetime_to_str(date_now_m);
             if all(date_now == date_tested)
                 equal_date = date_now;
             else

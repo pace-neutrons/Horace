@@ -106,8 +106,7 @@ data_opt= [opt1, opt2, opt3, opt4];
 sqw_struc.data = obj.get_data(data_opt{:}, 'pixel_page_size', opts.pixel_page_size);
 
 sqw_struc.experiment_info = exp_info;
-%old_file = datetime(obj.creation_date)<datetime('01-Mar-2022'); % old file did not store
-old_file = true; % TODO: store file creation date in the main header to reliably identify old files. #804
+old_file = ~sqw_struc.main_header.creation_date_defined;
 % run_id map in any form, so it is often tried to be resored from filename.
 % here we try to verify, if this restoration is correct if we can do that
 % without critical drop in performance.
@@ -134,7 +133,10 @@ if (sqw_struc.data.pix.num_pixels >0 ) && ...
             exp_info = exp_info.get_subobj(runid);
             sqw_struc.main_header.nfiles = exp_info.n_runs;
             %
+            % As pixels id were recalculated, set the creatrion date to now
+            sqw_struc.main_header.creation_date = datetime('now');
         end
+
     else % not all pixels are loaded into memory
         if ~any(ismember(runid,file_id))  % old style pixel data, run_id-s
             % have been recalculated

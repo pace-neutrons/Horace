@@ -51,26 +51,27 @@ if keep_pix
     if isempty(runid_contributed) % Empty cut
         exp_info = Experiment();
     else
-        % old stored objects, which do not contain correctly defined runid map
-        % compatibility operation.
-        % TODO: Should be check for old file and after that -- this code.
-        % Ticket #804
-        head_runid = w.experiment_info.expdata.get_run_ids();
-        if any(~ismember(runid_contributed,head_runid))
-            % some old file contains runid, which has been
-            % recalculated from 1 to n_headers on pixels but have not been
-            % stored in runid map and headers.
-            % assuming that runid-s indeed been redefined this way, we can 
-            % restore their run-ids in experiment_info
-            id = 1:w.experiment_info.n_runs;
-            w.experiment_info.runid_map = id;
+        if ~w.main_header.creation_date_defined
+            % old stored objects, which do not contain correctly defined runid map
+            % compatibility operation.
+            head_runid = w.experiment_info.expdata.get_run_ids();
+            if any(~ismember(runid_contributed,head_runid))
+                % some old file contains runid, which has been
+                % recalculated from 1 to n_headers on pixels but have not been
+                % stored in runid map and headers.
+                % assuming that runid-s indeed been redefined this way, we can
+                % restore their run-ids in experiment_info
+                id = 1:w.experiment_info.n_runs;
+                w.experiment_info.runid_map = id;
+            end
+            exp_info = w.experiment_info.get_subobj(runid_contributed);
         end
-        exp_info = w.experiment_info.get_subobj(runid_contributed);
     end
     %
-    wout.main_header.nfiles  = exp_info.n_runs;
     wout.experiment_info = exp_info;
-
+    wout.main_header.nfiles  = exp_info.n_runs;        
+    % set new cut creation date defined and equal to now;
+    wout.main_header.creation_date = datetime('now');
 else
     dnd_constructor = DND_CONSTRUCTORS{numel(data_out.pax) + 1};
     wout = dnd_constructor(data_out);

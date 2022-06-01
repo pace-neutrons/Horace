@@ -64,7 +64,6 @@ if nargin==2 && (isstruct(varargin{2}))
             mess='Fields of structure not compatible with sqw type structure';
         end
     elseif dnd_type  % try to interpret as dnd type
-        d.main_header=make_sqw_main_header;
         d.experiment_info=make_sqw_header;
         d.detpar=make_sqw_detpar;
         if isequal(fieldnames(varargin{2}),fields)    % sqw-type top level fields, so interpret as wanting to make dnd from sqw structure

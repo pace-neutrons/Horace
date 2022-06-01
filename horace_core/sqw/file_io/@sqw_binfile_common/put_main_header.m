@@ -21,6 +21,9 @@ end
 obj.check_obj_initated_properly();
 %
 [main_header,new_obj] = obj.extract_correct_subobj('main_header',argi{:});
+if ~main_header.creation_date_defined
+    main_header.creation_date = datetime('now');
+end
 if new_obj
     update = true;
 end

@@ -1,5 +1,21 @@
 classdef main_header_cl < serializable
     % Class describes the main header of the Horace sqw object
+    %
+    % NOTE:
+    % In addition to containing the file creation information, the class
+    % is designed to maintain the proper file creation date.
+    % To set up file creation date, actual creation date have to be
+    % assigned to the obj.creation_date  property. Then the date becames
+    % defined and maintained in various class load/save operations.
+    %
+    % e.g:
+    %  >> obj = main_header_cl();
+    %  >> now = obj.creation_date;
+    %  >> obj.creation_date = now;
+    %
+    % The pattern should be used to set up the file creation date in all
+    % algorithms, intended to create new sqw files
+    %
     % Construct an instanciation of main header class
     %
     % obj = main_header_cl();
@@ -74,7 +90,10 @@ classdef main_header_cl < serializable
                 if isa(varargin{1},'main_header')
                     obj = varargin{1};
                 elseif isstruct(varargin{1})
-                    obj = obj.from_bare_struct(varargin{1});
+                    obj = serializable.from_struct(varargin{1},obj);
+                    if isfield(varargin{1},'filename_with_cdate')
+                        obj.filename_with_cdate = varargin{1}.filename_with_cdate;
+                    end
                 elseif ischar(varargin{1})
                     obj.filename = varargin{1};
                 else
@@ -82,7 +101,6 @@ classdef main_header_cl < serializable
                         'can not construct main header from parameter %s',...
                         evalc('disp(varargin{1}))'))
                 end
-                return;
             else
                 validators = {@ischar,@ischar,@ischar,@isnumeric};
                 param_names_list = obj.saveableFields();
@@ -159,7 +177,7 @@ classdef main_header_cl < serializable
         end
         function obj = set.creation_date_defined_privately(obj,val)
             obj.creation_date_defined_ = logical(val);
-        end        
+        end
         %------------------------------------------------------------------
         % sqw_binfile_common interface
         %------------------------------------------------------------------
@@ -183,7 +201,7 @@ classdef main_header_cl < serializable
             % creation date becomes "known";
             obj = set_filename_with_cdate_(obj,val);
         end
-        %--------------------------------------------------
+        %------------------------------------------------------------------
         function ver  = classVersion(~)
             % define version of the class to store in mat-files
             % and nxsqw data format. Each new version would presumably read
@@ -194,9 +212,10 @@ classdef main_header_cl < serializable
         function flds = saveableFields(~)
             flds = main_header_cl.fields_to_save_;
         end
-        %
+        %------------------------------------------------------------------
         function iseq = eq(obj,other_obj)
-            % equality statement
+            % equality statement. May be should be moved to be part of
+            % serializable
             if any(size(obj) ~= size(other_obj))
                 iseq = false;
                 return;
@@ -209,5 +228,21 @@ classdef main_header_cl < serializable
                 iseq = iseq_(obj(i),other_obj(i));
             end
         end
+    end
+    methods(Static)
+        % Service routines:
+        function datt = convert_datetime_from_str(in_str)
+            % convert main_header_cl's generated time string into
+            % datetime format (standard datetime conversion works very
+            % strangely)
+            val = num2cell(sscanf(in_str,main_header_cl.DT_format_));
+            datt = datetime(val{:});
+        end
+        function tstr = convert_datetime_to_str(date_time)
+            % convert datetime class into main_header_cl's specific string,
+            % containing date and time.
+            tstr = main_header_cl.DT_out_transf_(date_time);
+        end
+
     end
 end

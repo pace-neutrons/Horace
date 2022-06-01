@@ -2,7 +2,7 @@ function   main_head = get_main_header(obj,varargin)
 % Read the main header block for the results of performing calculate projections on spe file(s).
 %
 %   >> main_header = obj.get_main_header();
-%   >> main_header = obj.get_main_header('-v');
+%   >> main_header = obj.get_main_header('-keep_original');
 %
 % The default behaviour is that the filename and file-path that are written to file are ignored;
 % we fill with the values corresponding to the file that is actually being read.
@@ -12,7 +12,6 @@ function   main_head = get_main_header(obj,varargin)
 % Input:
 % ------
 %   opt             [Optional] read flag:
-%                   '-verbatim' - report the progress of the operations
 %                   '-keep_original'  Do not override file name, stored in
 %                   sqw file with current filename (necessary for file
 %                   format upgrade)
@@ -25,7 +24,9 @@ function   main_head = get_main_header(obj,varargin)
 %
 % Fields read from file are:
 % --------------------------
-%   main_header.filename   Name of sqw file that is being read, excluding path
+%   main_header.filename   Name of sqw file that is being read, excluding
+%                          path. May be mangled with the data creatrion
+%                          date
 %   main_header.filepath   Path to sqw file that is being read, including terminating file separator
 %   main_header.title      Title of sqw data structure
 %   main_header.nfiles     Number of spe files that contribute
@@ -33,8 +34,9 @@ function   main_head = get_main_header(obj,varargin)
 
 % Original author: T.G.Perring
 %
-[ok,mess,keep_original,verbatim] = parse_char_options(varargin,...
-    {'-keep_original','-verbatim'});
+% leave argi to ignore outdated keys
+[ok,mess,keep_original,argi] = parse_char_options(varargin,...
+    {'-keep_original'});
 if ~ok
     error('HORACE:sqw_binfile_common:invalid_argument',mess);
 end
@@ -71,16 +73,16 @@ if obj.convert_to_double
 end
 
 %
-if nargin>1
-    if strncmp(varargin{1},'-v',2) % return file header as it is, not construct
-        % it from file name
-        return;
-    end
-end
 if ~keep_original
     [path, name, ext] = fileparts(fopen(obj.file_id_));
+    pos = strfind(main_head.filename_with_cdate,'$');
+    if isempty(pos)
+        main_head.filename_with_cdate = [name, ext];
+    else
+        main_head.filename_with_cdate = [name, ext,'$',... %keep data creation date even
+            main_head.filename_with_cdate(pos+1:end)];     % if the file name have changed
+    end
     main_head.filepath =  [path,filesep];
-    main_head.filename = [name, ext];
 end
 % build appropriate class from the stored structure
 main_head = main_header_cl(main_head);
