@@ -386,7 +386,8 @@ elseif isobject(a) && isobject(b)
         try
             [is,mess] = eq(a,b,opt.ignore_str);
         catch ME
-            if strcmp(ME.identifier,'MATLAB:TooManyInputs')
+            if strcmp(ME.identifier,'MATLAB:TooManyInputs') ||...
+                strcmp(ME.identifier,'MATLAB:UndefinedFunction')
                 is = eq(a,b);
                 if ~is
                     mess = 'class "eq" operation returned false';
