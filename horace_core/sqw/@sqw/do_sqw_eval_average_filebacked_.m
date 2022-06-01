@@ -10,16 +10,17 @@ npix = sqw_obj.data.npix;
 
 % Split npix array up, this allows us to pass the npix chunks into
 % 'average_bin_data', for which we need whole bins.
-[npix_chunks, idxs, pix_bin_ends] = split_vector_max_sum(npix(:), pix.base_page_size);
-pix_bin_starts = pix_bin_ends - npix(:) + 1;
+[npix_chunks, idxs, npix_cumsum] = split_vector_max_sum(npix(:), pix.base_page_size);
+pix_bin_starts = npix_cumsum - npix(:) + 1;
 
 for j = 1:numel(npix_chunks)
     npix_chunk = npix_chunks{j};
     pix_start_idx = pix_bin_starts(idxs(1, j));
-    pix_end_idx   = pix_bin_ends(idxs(2, j));
+    pix_end_idx   = npix_cumsum(idxs(2, j));
+    pix_block_sizes = pix_end_idx-pix_start_idx+1;
 
     % Get pixels that belong to the bins in the current npix chunk
-    pix_chunk = pix.get_pix_in_ranges(pix_start_idx, pix_end_idx);
+    pix_chunk = pix.get_pix_in_ranges(pix_start_idx, pix_block_sizes, false);
 
     % Calculate qh, qk, ql, and en for the pixels (qw_pix is cell array)
     qw_pix = get_qw_pixels_(sqw_obj, pix_chunk);

@@ -42,10 +42,4 @@ end
 img_signal_sum = reshape(img_signal_sum, npix_shape);
 img_variance_sum = reshape(img_variance_sum, npix_shape);
 
-mean_signal = img_signal_sum./npix;
-mean_variance = img_variance_sum./(npix.^2);
-
-% Convert NaNs to zeros (bins where we divide by zero have no pixel contributions)
-nopix = (npix == 0);
-mean_signal(nopix) = 0;
-mean_variance(nopix) = 0;
+[mean_signal,mean_variance] = normalize_signal(img_signal_sum,img_variance_sum,npix);

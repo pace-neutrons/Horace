@@ -75,7 +75,7 @@ function [sqw_type, ndims, nfiles] = get_sqw_type_from_ld(ld)
 %
 % Input:
 % --------
-%   ld   -- initalized loader
+%   ld   -- initialized loader
 %
 % Output:
 % --------

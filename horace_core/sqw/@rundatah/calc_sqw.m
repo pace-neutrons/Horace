@@ -1,11 +1,11 @@
-function [w,grid_size,pix_range,detdcn] ...
+function [w,grid_size,pix_range] ...
     = calc_sqw(obj,grid_size_in,pix_db_range,varargin)
 % Generate single sqw file from given rundata class.
 %
 % Usage:
-%>>[w,grid_size,pix_range,detdcn] = rundata_obj.calc_sqw(grid_size_in,pix_db_range,varargin);
+%>>[w,grid_size,pix_range] = rundata_obj.calc_sqw(grid_size_in,pix_db_range,varargin);
 % or
-%>>[w,grid_size,pix_range,detdcn] = rundata_obj.calc_sqw(varargin);
+%>>[w,grid_size,pix_range] = rundata_obj.calc_sqw(varargin);
 %
 % Where:
 % rundata_obj -- fully defined rundata object
@@ -23,17 +23,6 @@ function [w,grid_size,pix_range,detdcn] ...
 %
 % Optional inputs:
 %
-% '-cache_detectors' -- sting requesting to store calculated directions to
-%                  each detector, defined for the instrument and use
-%                  calculated values for each subsequent call to this
-%                  method.
-%                  Cashed values are shared between all existing rundata
-%                  objects and recalculated if a subsequent rundata object
-%                  has different detectors.
-%                  Should be used only when running number of subsequent
-%                  calculations for rang of runfiles and if mex files are
-%                  disabled. (mex files do not use cached detectors
-%                  positions)
 % -qspec           if this option is provided, calculate q-dE vectors positions
 %                  and store it in qspec_cache array or use contents of
 %                  qspec_cache array provided instead of calculating
@@ -46,107 +35,52 @@ function [w,grid_size,pix_range,detdcn] ...
 % pix_range      Actual range of pixels, contributed in the image.
 %                the specified range if it was given,
 %                or the range of the data if not.
-%  detdcn        [3 x ndet] array of unit vectors, poinitng to the detector's
-%                positions in the spectrometer coordinate system (X-axis
-%                along the beam direction). ndet -- number of detectors
-%                Can be later assigned to the next rundata object
-%                property "detdcn_cache" to accelerate calculations. (not
-%                fully implemented and currently workis with Matlab code
-%                only)
 % pix_range_nontransf -- if no transformation is provided, the value is
 %                equal to pix_range. If there is a transformation, the
 %                value describes the pixel range before the transformation
 %
-keys_recognized = {'-cache_detectors','-qspec'};
-[ok,mess,cache_detectors,cache_q_vectors] = parse_char_options(varargin,keys_recognized);
-if ~ok
-    error('RUNDATAH:invalid_arguments',['calc_pix_range: ',mess])
-end
-detdcn_provided  = false;
-qspec_provided = false;
-if cache_q_vectors  % clear qspecs_cache if qspec data were not provided
-    obj.detdcn_cache = [];
-    if ~isempty(obj.qpsecs_cache)
-        cache_detectors = false; % do not cache detectors positions if q-values are already provided
-        qspec_provided = true;
-    end
-else
-    obj.qpsecs_cache = [];
-end
-
-if ~isempty(obj.detdcn_cache)
-    detdcn = obj.detdcn_cache;
-    detdcn_provided   = true;
-else
-    detdcn = [];
-end
-hor_log_level=config_store.instance().get_value('herbert_config','log_level');
-
-bigtic
-% Read spe file and detector parameters
-% -------------------------------------
-if ~qspec_provided || isempty(obj.S)
-    obj= obj.get_rundata('-this');
-end
-det0 = obj.det_par;
-if ~(detdcn_provided || qspec_provided)
-    % Masked detectors (i.e. containing NaN signal) are removed from data and detectors
-    [ignore_nan,ignore_inf] = config_store.instance().get_value('hor_config','ignore_nan','ignore_inf');    
-    [obj.S,obj.ERR,obj.det_par]  = obj.rm_masked(ignore_nan,ignore_inf);
-    if isempty(obj.S) || isempty(obj.ERR)
-        error('File %s contains only masked detectors', obj.data_file_name);
-    end
-end
 if ~exist('grid_size_in','var')
-    grid_size_in = [50,50,50,50];
-else
-    if isempty(grid_size_in)
-        grid_size_in = [50,50,50,50];
-    else
-        if ~all(size(grid_size_in) == [1,4]) && ~all(size(grid_size_in) == [1,1])
-            if all(size(grid_size_in) == [4,1])
-                grid_size_in = grid_size_in';
-            else
-                error('RUNDATA:invalid_argument',...
-                    'Grid size, if provided, should be 1x4 vector, containing number of bins in each of 3-q and one Energy transfer directions')
-            end
-        end
-    end
+    grid_size_in = [];
 end
+grid_size = check_and_set_gridsize(grid_size_in);
+%
 if ~exist('pix_db_range','var')
     pix_db_range = [];
 end
 
-if hor_log_level>-1
-    bigtoc('Time to read spe and detector data:')
-    disp(' ')
-end
-
-
-% Create sqw object
-% -----------------
-bigtic
-if ~(detdcn_provided || cache_q_vectors)
-    if cache_detectors
-        detdcn = calc_or_restore_detdcn_(obj.det_par);
-    else
-        detdcn = [];
-    end
+keys_recognized = {'-qspec'}; % do we still need it? if cache is not empty, 
+% then we assume we want to cache it.
+[ok,mess,cache_q_vectors] = parse_char_options(varargin,keys_recognized);
+if ~ok
+    error('HORACE:rundatah:invalid_arguments',['calc_pix_range: ',mess])
 end
 %
-[w, grid_size, pix_range]=obj.calc_sqw_(detdcn, det0, grid_size_in, pix_db_range);
-
-
-if hor_log_level>-1
-    bigtoc('Time to convert from spe to sqw data:',hor_log_level)
-    disp(' ')
-end
-
+% Create sqw object
+%
+[w, pix_range]=obj.calc_sqw_(grid_size, pix_db_range);
+%
 if ~isempty(obj.transform_sqw_f_)
     % we should assume that transformation maintains correct data pix_range
     % and correct sqw structure, though this pix_range and grid_size-s do not
     % always coincide with initial range and sizes
     w = obj.transform_sqw_f_(w);
-    pix_range = w.data.pix.pix_range;
+    pix_range = w.pix.pix_range;
     grid_size = size(w.data.s);
 end
+
+function grid_size = check_and_set_gridsize(grid_size_in)
+if isempty(grid_size_in)
+    grid_size = [50,50,50,50];
+else
+    grid_size = grid_size_in(:)';
+    if numel(grid_size) == 1
+        grid_size = ones(1,4)*grid_size;
+    end
+    if ~all(size(grid_size) == [1,4]) || any(grid_size < 1)
+        error('HORACE:rundatah:invalid_argument',...
+            'Grid size, if provided, should be positive number or 1x4 vector, containing number of bins in each of 3-q and one Energy transfer directions. Actually it is %s',...
+            evalc('disp(grid_size)'))
+    end
+end
+
+

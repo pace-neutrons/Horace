@@ -12,7 +12,7 @@ function data_form = process_format_fields_(varargin)
 % partial structures, namely methadata only and the methadata
 % fields, which do not change on hdd
 % -data option returns the format string for data fields, namely s,e and
-%       npix. This can be used to identify the size of data firlds on hdd
+%       npix. This can be used to identify the size of data fields on hdd
 %
 % Fields in the full structure are:
 %
@@ -29,7 +29,7 @@ function data_form = process_format_fields_(varargin)
 %   data.u_to_rlu   Matrix (4x4) of projection axes in hkle representation
 %                      u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
 %   data.ulen       Length of projection axes vectors in Ang^-1 or meV [row vector]
-%   data.ulabel     Labels of the projection axes [1x4 cell array of character strings]
+%   data.label     Labels of the projection axes [1x4 cell array of character strings]
 %   data.iax        Index of integration axes into the projection axes  [row vector]
 %                  Always in increasing numerical order
 %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
@@ -58,11 +58,11 @@ persistent data_fields;
 [ok,mess,head_only,constant_len_fields,data_only,~] =...
     parse_char_options(varargin,{'-header','-const','-data'});
 if ~ok
-    error('DND_BINFILE_COMMON:invalid_argument',...
+    error('HORACE:dnd_binfile_common:invalid_argument',...
         'get_head_form: invalid argument: %s',mess)
 end
 if (head_only || constant_len_fields) && data_only
-    error('DND_BINFILE_COMMON:invalid_argument',...
+    error('HORACE:dnd_binfile_common:invalid_argument',...
         'get_head_form: -data and -head or -const fields can not be provided together')
 end
 % by default, return all record
@@ -74,7 +74,8 @@ if isempty(const_fields)
     const_fields={...
         'alatt',single([1,3]),'angdeg',single([1,3]),...
         'uoffset',single([4,1]),'u_to_rlu',single([4,4]),...
-        'ulen',single([1,4]),'ulabel',field_cellarray_of_strings(),...
+        'ulen',single([1,4]),...
+        'label',field_cellarray_of_strings(),...
         'npax',field_not_in_structure('pax'),...
         'iax',field_iax(),...
         'iint',field_iint(),...
@@ -104,11 +105,4 @@ else
     end
 end
 data_form = struct(ca{:});
-%
-%if no_npix
-%    if isfield(data_form,'npix')
-%        data_form = rmfield(data_form,{'npix'});
-%    end
-%end
-
 

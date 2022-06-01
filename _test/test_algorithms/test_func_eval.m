@@ -8,8 +8,8 @@ classdef test_func_eval < TestCase & common_state_holder
 
         d2d_file_path = '../test_symmetrisation/w2d_qq_small_d2d.sqw'
         d2d_obj;
-        sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw'
-        sqw_1d_file_path = '../test_sqw_file/sqw_1d_1.sqw'
+        sqw_2d_file_path = '../common_data/sqw_2d_1.sqw'
+        sqw_1d_file_path = '../common_data/sqw_1d_1.sqw'
         sqw_2d_obj;
 
         quadratic = @(x1, x2, a, b, c) a*x1.^2 + b*x1 + c + a*x2.^2 + b*x2;

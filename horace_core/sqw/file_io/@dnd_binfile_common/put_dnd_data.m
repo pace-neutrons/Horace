@@ -56,5 +56,5 @@ obj.put_image_no_validate_(subobj_to_save.s, subobj_to_save.e, pos);
 % write npix
 fseek(obj.file_id_,obj.npix_pos_,'bof');
 check_error_report_fail_(obj,'Error moving to the beginning of the npix record');
-fwrite(obj.file_id_,subobj_to_save.npix,'uint64');
+fwrite(obj.file_id_,uint64(subobj_to_save.npix),'uint64');
 check_error_report_fail_(obj,'Error writing npix record');

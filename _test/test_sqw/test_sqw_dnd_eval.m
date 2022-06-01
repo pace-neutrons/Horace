@@ -14,7 +14,7 @@ classdef test_sqw_dnd_eval < TestCase
                 name = 'test_sqw_dnd_eval';
             end
             obj = obj@TestCase(name);
-            obj.data_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))),'test_sqw_file');
+            obj.data_dir = fullfile(horace_root(),'_test','common_data');
             test_sqw_file = fullfile(obj.data_dir,'sqw_2d_2.sqw');
             obj.sqw_4_test = sqw(test_sqw_file);
             obj.dnd_4_test = read_dnd(test_sqw_file);
@@ -53,7 +53,7 @@ classdef test_sqw_dnd_eval < TestCase
 
 
         function test_dispersion_sqw(obj)
-            skipTest("New dnd objects not implemented");
+            skipTest("New dnd objects to caclulate dispersion are not implemented");
             %
             ds = dispersion(obj.sqw_4_test,@obj.sqw_disp_tester,[]);
 

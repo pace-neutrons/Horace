@@ -96,11 +96,8 @@ check_error_report_fail_(obj,'Error moving to the start of the pixels info');
 fwrite(obj.file_id_,bytes,'uint8');
 check_error_report_fail_(obj,'Error writing the pixels information');
 %
-if isa(input_obj.pix,'pix_combine_info')
-    npix = input_obj.pix.num_pixels;
-else
-    npix = input_obj.pix.num_pixels;
-end
+npix = input_obj.pix.num_pixels;
+
 fwrite(obj.file_id_,npix,'uint64');
 %
 obj.eof_pix_pos_ = obj.pix_pos_ + npix * 9*4;
@@ -154,17 +151,17 @@ else % write pixels directly
     npix_to_write = obj.npixels;
     if npix_to_write <= block_size
         input_obj.pix.move_to_first_page();
-        fwrite(obj.file_id_,input_obj.pix.data,'float32');
+        fwrite(obj.file_id_, single(input_obj.pix.data), 'float32');
         while input_obj.pix.has_more()
             input_obj.pix.advance();
-            fwrite(obj.file_id_,input_obj.pix.data,'float32');
+            fwrite(obj.file_id_, single(input_obj.pix.data), 'float32');
         end
         check_error_report_fail_(obj,'Error writing pixels array');
     else
         for ipix=1:block_size:npix_to_write
             istart = ipix;
             iend   = min(ipix+block_size-1, npix_to_write);
-            fwrite(obj.file_id_,input_obj.pix.get_pixels(istart:iend).data,'float32');
+            fwrite(obj.file_id_, single(input_obj.pix.get_pixels(istart:iend).data), 'float32');
             check_error_report_fail_(obj,...
                 sprintf('Error writing pixels array, npix from: %d to: %d in the rage from: %d to: %d',...
                 istart,iend,1,npix_to_write));

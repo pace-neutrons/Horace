@@ -56,22 +56,21 @@ wout=repmat(sqw, [n_contrib_run, 1]);
 main_header.nfiles=1;   % each output sqw object will have just one run
 sz=size(data.npix);     % size of signal error and npix arrays
 for i=1:n_contrib_run
-    n_header = runid_map(contrib_runids(i));
+    head_ind = contrib_runids(i);
     wout(i).main_header=main_header;
-    wout(i).experiment_info.expdata =exp_info.expdata(n_header);
-    wout(i).experiment_info.instruments{1} = exp_info.instruments{n_header};
-    wout(i).experiment_info.samples{1} = exp_info.samples{n_header};    
-    wout(i).detpar= detpar;
-    if run_contributes(n_header)
-        ib=ibin(nbeg(ind(n_header)):nend(ind(n_header))); % the bins to which pixels from this run only contribute
+    if run_contributes(head_ind)
+        ib=ibin(nbeg(ind(head_ind)):nend(ind(head_ind))); % the bins to which pixels from this run only contribute
         nb=find(diff([0;ib])~=0);   % positions of first pixel contributing to each unique bin
         npix=zeros(sz);
         npix(ib(nb))=diff([nb;numel(ib)+1]);
         data.npix=npix;
-        data.pix=pix.get_pixels(ix(nbeg(ind(n_header)):nend(ind(n_header))));
-        data.pix.run_idx=contrib_runids(i);
+        data.pix=pix.get_pixels(ix(nbeg(ind(head_ind)):nend(ind(head_ind))));
+        %
+        exp_info_4run = exp_info.get_subobj(head_ind);
+        wout(i).experiment_info = exp_info_4run;
+        
+        wout(i).detpar= detpar;
         wout(i).data=data;
         wout(i)=recompute_bin_data(wout(i));
-        wout(i).runid_map = containers.Map(contrib_runids(i),1);
     end
 end

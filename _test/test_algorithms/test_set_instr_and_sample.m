@@ -6,7 +6,7 @@ classdef test_set_instr_and_sample < TestCase
         sam2
         sam3
         ds
-        source_sqw_2d_file_path = '../test_sqw_file/sqw_2d_1.sqw';
+        source_sqw_2d_file_path = '../common_data/sqw_2d_1.sqw';
         clob_holder
         test_sqw_file
     end
@@ -70,25 +70,33 @@ classdef test_set_instr_and_sample < TestCase
             clob1 = onCleanup(@()delete(tmpsqwfile));
 
             % Add sam1 to file with f1_1
-            save(obj.ds.f1_1,tmpsqwfile)
+            save(obj.ds.f1_1,tmpsqwfile);
             set_sample_horace(tmpsqwfile,obj.sam1);
             tmp=read_sqw(tmpsqwfile);
-            [ok,mess]=equal_to_tol(f1_1_s1_ref,tmp,'ignore_str',1); assertTrue(ok,mess)
+            [ok,mess]=equal_to_tol(f1_1_s1_ref.to_struct(),tmp.to_struct(), ...
+                'ignore_str',1);
+            assertTrue(ok,mess)
 
             % Now add a longer sample - this should be appended to the end
             set_sample_horace(tmpsqwfile,obj.sam2);
             tmp=sqw(tmpsqwfile);
-            [ok,mess]=equal_to_tol(f1_1_s2_ref,tmp,'ignore_str',1); assertTrue(ok,mess)
+            [ok,mess]=equal_to_tol(f1_1_s2_ref.to_struct(),tmp.to_struct(), ...
+                'ignore_str',1); 
+            assertTrue(ok,mess)
 
             % Now add a longer sample still - but shorter than the sum of sam1 and sam2: should overwrite
             set_sample_horace(tmpsqwfile,obj.sam3);
             tmp=sqw(tmpsqwfile);
-            [ok,mess]=equal_to_tol(f1_1_s3_ref,tmp,'ignore_str',1); assertTrue(ok,mess)
+            [ok,mess]=equal_to_tol(f1_1_s3_ref.to_struct(),tmp.to_struct(), ...
+                'ignore_str',1);
+            assertTrue(ok,mess)
 
             % Dummy sample, empty sample
             set_sample_horace(tmpsqwfile,[]);
             tmp=sqw(tmpsqwfile);
-            [ok,mess]=equal_to_tol(obj.ds.f1_1,tmp,'ignore_str',1); assertTrue(ok,mess)
+            [ok,mess]=equal_to_tol(obj.ds.f1_1.to_struct(),tmp.to_struct(), ...
+                'ignore_str',1); 
+            assertTrue(ok,mess)
         end
 
     end

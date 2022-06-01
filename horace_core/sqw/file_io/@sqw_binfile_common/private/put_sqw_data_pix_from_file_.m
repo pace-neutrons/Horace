@@ -142,7 +142,7 @@ for i=1:nfiles
         if relabel_with_fnum
             file_id = i;   % set the run index to the file index
         else
-            file_id = runlabel(i);  % offset the run index
+            file_id = runlabel(i);  % set the run index to specified value
         end
     else
         file_id = 0;
@@ -168,8 +168,8 @@ out_buf_size = ...
 % out_buf_size -- the size of output buffer to use for writing pixels
 % change_fileno-- if pixel run id should be changed
 % relabel_with_fnum -- if change_fileno is true, how to calculate the new pixel
-%                  id -- by providing new id equal to filenum or by adding
-%                  it to the existing num.
+%                  id -- by providing new id equal to filenum or by
+%                  assigning the new number provided to it
 % num_ticks    -- approximate number of log messages to generate while
 %                 combining files together
 % buf size     -- buffer size -- the size of buffer used for each input file

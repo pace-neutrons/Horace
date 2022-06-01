@@ -1,4 +1,4 @@
-function  [exp_info,pos,runid_map]   = get_header(obj,varargin)
+function  [exp_info,pos]   = get_header(obj,varargin)
 % Get header of one of the files, contributed into sqw file
 %
 % Usage:
@@ -62,41 +62,9 @@ if get_all && obj.num_contrib_files > 1
 else
     [header,pos] = get_single_header(obj,n_header);
 end
-
-%TODO: en conversion sucks. Should  be implemented within formatters
-%themselves!
-n_header = numel(header);
-runids = zeros(n_header,1);
-for i=1:n_header
-    if iscell(header)
-        header{i}.instruments = IX_null_inst();   % this is necessary
-        header{i}.samples     = IX_null_sample(); % to satisfy current interface
-        header{i}.en = header{i}.en(:);  % ensure energy is a column array
-        [runids(i),header{i}.filename] = rundata.extract_id_from_filename(header{i}.filename);
-    else
-        header(i).en = header(i).en(:);  % ensure energy is a column array
-        header(i).instruments = IX_null_inst();
-        header(i).samples     = IX_null_sample();
-        [runids(i),header(i).filename] = rundata.extract_id_from_filename(header(i).filename);
-    end
-    %
-end
 %
-header_numbers = 1:numel(header);
-if any(isnan(runids)) % this also had been done in gen_sqw;
-    % rundata_write_to_sqw_ procedure in gen_sqw_files job.
-    % It have setup update_runlabels to true, which also made
-    % duplicated headers unique
-    runids = header_numbers;
-else
-    unique_id = unique(runids);
-    if numel(unique_id) ~= numel(header)
-        runids = header_numbers;
-    end
-end
+exp_info = Experiment.build_from_binfile_headers(header);
 
-runid_map = containers.Map(runids,header_numbers);
-exp_info = Experiment(header);
 
 
 function [head,pos] = get_single_header(obj,n_header)

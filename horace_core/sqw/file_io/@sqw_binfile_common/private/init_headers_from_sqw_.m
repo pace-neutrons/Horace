@@ -17,12 +17,12 @@ obj.header_pos_ = zeros(1,n_files);
 obj.header_pos_(1) = pos;
 
 headers = sqw_obj.experiment_info;
-hdrs = headers.convert_to_old_headers;
+obj.contains_runid_in_header_ = true;
+% converting to old headers from sqw mangles them with run_id-s
+hdrs = headers.convert_to_old_headers();
 if ~iscell(hdrs)
     hdrs = {hdrs};
 end
-%HACK: Store runid_map with filenames
-hdrs = obj.modify_header_with_runid(hdrs,sqw_obj.runid_map);
 
 header_form = obj.get_header_form();
 [header_pos,pos]=obj.sqw_serializer_.calculate_positions(header_form,hdrs{1},pos);

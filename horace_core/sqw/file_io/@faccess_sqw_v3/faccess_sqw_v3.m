@@ -78,13 +78,14 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             'position_info_pos_';'eof_pos_'};
         v3_data_form_ = field_generic_class_hv3();
     end
-
+    
     %
     methods(Access=protected,Hidden=true)
         function obj=init_from_sqw_file(obj,varargin)
             % initialize the structure of faccess class using opened
             % sqw file as input
             obj= get_sqw_footer_(obj,varargin{:});
+            obj = check_header_mangilig(obj,obj.header_pos_info_);
         end
         %
         function obj=init_from_sqw_obj(obj,varargin)
@@ -141,9 +142,22 @@ classdef faccess_sqw_v3 < sqw_binfile_common
                 end
             end
         end
-
-        function obj = init_sample_instr_records(obj)
-            obj = init_sample_instr_records_(obj);
+        function [instr_str,sampl_str] = get_instr_sample_to_save(~,exp_info)
+            % get instrument and sample data in the form they would be written
+            % on hdd.
+            instr = exp_info.get_unique_instruments();
+            sampl = exp_info.get_unique_samples();
+            instr_str = cellfun(@(x)(x.to_struct()),instr,'UniformOutput',false);
+            sampl_str = cellfun(@(x)(x.to_struct()),sampl,'UniformOutput',false);            
+        end
+        
+        
+        function [obj,instr_start,instr_size,sample_start,sample_size] = ...
+                init_sample_instr_records(obj)
+            % calculate the size, sample and instrument records would
+            % occupy on hdd.
+            [obj,instr_start,instr_size,sample_start,sample_size] = ...
+                init_sample_instr_records_(obj);
         end
         function obj = init_sqw_footer(obj)
             obj = init_sqw_footer_(obj);
@@ -164,7 +178,8 @@ classdef faccess_sqw_v3 < sqw_binfile_common
         obj = put_footers(obj);
         obj = put_bytes(obj, to_write);
         obj = validate_pixel_positions(obj);
-
+        
+        
         function obj=faccess_sqw_v3(varargin)
             % constructor, to build sqw reader/writer version 3
             %
@@ -188,7 +203,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             %                       to save sqw object provided. The name
             %                       of the file to save the object should
             %                       be provided separately.
-
+            
             %
             % set up fields, which define appropriate file version
             obj.file_ver_ = 3.1;
@@ -196,7 +211,7 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             if nargin>0
                 obj = obj.init(varargin{:});
             end
-
+            
         end
         %
         function [inst,obj] = get_instrument(obj,varargin)
@@ -310,8 +325,6 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             % positions of all main data blocks within the binary file
             obj = put_sqw_footer_(obj);
         end
-
-
     end
     %
     methods(Static,Hidden=true)
@@ -328,8 +341,8 @@ classdef faccess_sqw_v3 < sqw_binfile_common
             % information
             form = faccess_sqw_v3.v3_data_form_;
         end
-
+        
     end
-
+    
 end
 

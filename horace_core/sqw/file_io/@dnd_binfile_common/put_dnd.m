@@ -10,19 +10,16 @@ function    obj = put_dnd(obj,varargin)
 % using init method, set_to_update/reopen_to_write or appropriate form
 % of class constructor.
 %
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
 
 [ok,mess,update,argi]=parse_char_options(varargin,{'-update'});
 if ~ok
-    error('SQW_FILE_IO:invalid_artgument',...
+    error('HORACE:dnd_binfile_common:invalid_artgument',...
         ['put_sqw: Error: ',mess]);
 end
 if ~isempty(argi)
     input = argi{1};
     if ~(isa(input, 'SQWDnDBase') || is_sqw_struct(input))
-        error('SQW_FILE_IO:invalid_argument',...
+        error('HORACE:dnd_binfile_common:invalid_artgument',...
             'put_sqw: this function can accept only sqw or dnd-type object, and got %s', class(input))
     end
     storage = obj.sqw_holder_;

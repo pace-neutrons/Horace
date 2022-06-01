@@ -2,7 +2,7 @@ classdef test_has_pixels < TestCase
 %% TEST_HAS_PIXELS tests the behaviour of the helper function
 %
 properties
-    test_sqw_file_path = '../test_sqw_file/sqw_2d_1.sqw';
+    test_sqw_file_path = '../common_data/sqw_2d_1.sqw';
     base_sqw_obj;
     sqw_obj;
     no_pix_sqw_obj;

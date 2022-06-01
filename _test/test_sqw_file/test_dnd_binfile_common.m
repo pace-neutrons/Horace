@@ -114,7 +114,7 @@ classdef test_dnd_binfile_common <  TestCase %WithSave
             samp = fullfile(fileparts(obj.test_folder),...
                 'test_symmetrisation','w1d_sqw.sqw');
             f=@()(tob.set_file_to_update(samp));
-            assertExceptionThrown(f,'SQW_FILE_IO:invalid_argument');
+            assertExceptionThrown(f,'HORACE:dnd_binfile_common:invalid_argument');
 
             tob=tob.set_file_to_update(samp);
 

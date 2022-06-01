@@ -21,7 +21,7 @@ sqw_reader::~sqw_reader() {
 }
 
 //
-void sqw_reader::init(const fileParameters &fpar, bool changefileno, bool fileno_provided, size_t pix_buf_size, int multithreading_settings) {
+void sqw_reader::init(const fileParameters &fpar, bool changefileno, size_t pix_buf_size, int multithreading_settings) {
     
     bool bin_multithreading(false),pix_multithreading(false);
     switch (multithreading_settings) {
@@ -85,7 +85,6 @@ void sqw_reader::init(const fileParameters &fpar, bool changefileno, bool fileno
     }
 
     this->change_fileno = changefileno;
-    this->fileno = fileno_provided;
 
     // read number of pixels defined in the file
     std::streamoff pix_pos = this->fileDescr.pix_start_pos - 8;
@@ -108,8 +107,6 @@ void sqw_reader::init(const fileParameters &fpar, bool changefileno, bool fileno
         std::thread read_pix([this]() {this->read_pixels_job(); });
         read_pix_job_holder.swap(read_pix);
     }
-
-
 }
 
 
@@ -367,12 +364,7 @@ void sqw_reader::_read_pix(size_t pix_start_num, float *const pix_buffer, size_t
 
     if (this->change_fileno) {
         for (size_t i = 0; i < num_pix_to_read; i++) {
-            if (fileno) {
-                *(pix_buffer + 4 + i * 9) = float(this->fileDescr.file_id);
-            }
-            else {
-                *(pix_buffer + 4 + i * 9) += float(this->fileDescr.file_id);
-            }
+            *(pix_buffer + 4 + i * 9) = float(this->fileDescr.file_id);
         }
 
     }

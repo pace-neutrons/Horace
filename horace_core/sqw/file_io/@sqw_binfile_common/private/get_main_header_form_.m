@@ -18,10 +18,6 @@ function header = get_main_header_form_(varargin)
 %
 % The value of the fields define the number of dimensions of
 % the data except strings, which defined by the string length
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
-
 
 [ok,mess,update]=parse_char_options(varargin,{'-const'});
 if ~ok

@@ -1,4 +1,5 @@
 function uproj=calculate_uproj_pixels(win,opt)
+%DODO: Use generic projection!!!!
 % Calculate coordinates in projection axes for the pixels in an sqw dataset
 %
 %   >> qw=calculate_uproj_pixels(win)
@@ -9,7 +10,7 @@ function uproj=calculate_uproj_pixels(win,opt)
 %   win     Input sqw object
 %   opt     Option for units of the output
 %           'step'      in units of the step size/integration range for each axis
-%           Default: units of projection axes unnormalised by step size
+%           Default: units of projection axes un-normalised by step size
 %
 % Output:
 % -------

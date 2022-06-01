@@ -12,13 +12,13 @@ There are various different forms of input for this function, the purpose of whi
    my_cut = cut_sqw (data_source, proj, p1_bin, p2_bin, p3_bin)
 
 
-``data_source`` is a string giving the full filename (including path) of the input SQW file.
+Where ``data_source`` is either a string giving the full filename (including path) of the input SQW file or just the variable containing SQW object stored in memory.
 
-**Projection axes**
+** Projection **
 
 This defines the coordinate system you will use to view the data.
 
-:ref:``proj`` is a Matlab structure array containing information about the axes you wish to use to view the data. Because each point in the SQW file is labelled with h, k, and l (the reciprocal lattice vectors), and energy, it is possible, if you wish, to redefine the co-ordinate system with one of your choosing. For example you may wish to view the data in terms of (h,h,0)/(h,-h,0)/(0,0,l). This is distinct from the vectors ``u`` and ``v`` that are specified in `gen_sqw <List_of_functions:gen_sqw>`, which describe how the crystal is oriented with respect to the spectrometer and are determined by the physical orientation of your sample.
+:ref:``proj`` is an instance of ``ortho_proj`` class containing information about the axes and the coordinate system you wish to use to view the data. You can also use the structure, with the same fields as the ``ortho_proj`` class, but using the class is usually easier as the class properties are verified on consistency by class-properties setters and contain reasonable defaults. Because each point in the SQW file is labelled with h, k, and l (the reciprocal lattice vectors) and energy, it is possible, if you wish, to redefine the coordinate system with the one of your choice. For example you may wish to view the data in terms of (h,h,0)/(h,-h,0)/(0,0,l). This is distinct from the vectors ``u`` and ``v`` that are specified in `gen_sqw <List_of_functions:gen_sqw>`, which describe how the crystal is oriented with respect to the spectrometer and are determined by the physical orientation of your sample.
 
 **Orthogonal axes case**
 
@@ -33,18 +33,20 @@ There are optional fields too:
 
 **Non-orthogonal axes case**
 
-In the case when the crystal lattice is not orthogonal there are two options for viewing the data. In the default case the ``proj`` is specified in the same way as above, however remember that, for example, if proj.u = (1,0,0) and proj.v=(0,1,0), but (1,0,0) and (0,1,0) are not orthongonal in reciprocal space, the second viewing axes will actually be the vector orthogonal to proj.u in the plane of proj.u and proj.v. The third axis is then the cross product as before.
+In the case when the crystal lattice is not orthogonal there are two options for viewing the data. In the default case the ``proj`` is specified in the same way as above, however remember that, for example, if proj.u = (1,0,0) and proj.v=(0,1,0), but (1,0,0) and (0,1,0) are not orthogonal in reciprocal space, the second viewing axis will actually be the vector orthogonal to proj.u in the plane of proj.u and proj.v. The third axis is then the cross product as before.
 
 You may optionally choose to use non-orthogonal axes, as in the following example. Specify proj.u = (1,0,0), proj.v=(0,1,0), ``proj.nonorthogonal = true`` (and optionally specify the third projection axis by setting ``proj.w=[0,0,1]``). This forces the axes to be the ones you define, even if they are not orthogonal. Beware the plots that are produced plot them as orthogonal axes so any features may be skewed. However, it does make reading the location of a feature in a two-dimensional Q-Q plot straightforward, which is the main reason for doing this.
 
 **Binning arguments**
 
-- ``p1_bin``, ``p2_bin``, ``p2_bin`` specify the binning / integration arguments for the Q-axes. Each can independently have one of three different forms:
-   - If a single number (scalar) is given then that axis will be a plot axis and the bin width will be the number you specify. The lower and upper limits will be determined by the extent of the data along that direction.
-   - If you specify a vector with three components then that axis will be a plot axis with the first and last components specifying the lower and upper limits of data to be cut, and the middle component specifies the bin width.
+- ``p1_bin``, ``p2_bin``, ``p3_bin`` and ``p4_bin``  specify the binning / integration arguments for the Q&Energy axes in the target coordinate system. Each can independently have one of four different forms:
+   - If a single number (scalar) ``step`` is given then that axis will be a plot axis and the bin width will be the number you specify. The lower and upper limits are determined by the extent of the data along that direction.
+   - If you specify a vector with three components, namely ``[lower,step,upper]`` than that axis is a plot axis with the first ``lower`` and the last ``upper`` components specifying the centres of the first and the last bins of the data to be cut. The middle component specifies the bin width. The limits of the data to be cut are then lie between ``min = lower-step/2`` and ``max = upper+step/2``, including ``min/max`` values. If step in this form equal to 0, the step is taken from the input binning in this direction.
    - If you specify a vector with two components then the signal will be integrated over that axis between limits specified by the two components of the vector.
+   - Four elements vector define multiple cuts with multiple integration limits in the selected direction. The input
+   would have form ``[plo, rdiff, phi, rwidth]`` This defines an integration axis: minimum range center, distance between range centers, maximum range center, range size for each cut. The number of cuts produced will be the number of ``rdiff`` sized steps between ``plo`` and ``phi``; ``phi`` will be automatically increased such that ``rdiff`` divides ``phi - plo``.
+   For example, ``[106, 4, 113, 2]`` defines the integration range for three cuts, the first cut integrates the axis over ``105-107``, the second over ``109-111`` and the third ``113-115``.
 
-- ``p4_bin`` specifies the binning / integration along the energy axis. In addition to the forms listed above for Q-axes, it is also possible to specify a binning of 0 for the energy axis *only*. In this case the energy binning that was specified when the raw data were converted into SPE format by the data reduction code that created them.
 
 **Optional arguments**
 

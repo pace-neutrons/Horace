@@ -9,8 +9,7 @@ function varargout = read_dnd(varargin)
 
 % Original author: T.G.Perring
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
+
 argi = varargin;
 argi{end+1} = '-get_dnd';
 if nargout == 0

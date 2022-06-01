@@ -432,7 +432,7 @@ classdef dnd_binfile_common < dnd_file_interface
             %
             % where the options:
             % '-head' returns metadata field only and
-            % '-const' returns partial methadata which do not change size on hdd
+            % '-const' returns partial metadata which do not change size on hdd
             % '-data'  returns format for data fields, namely signal, error
             %          and npix. This information may be used to identify
             %          the size, these fields occupy on hdd
@@ -452,7 +452,7 @@ classdef dnd_binfile_common < dnd_file_interface
             %   data.u_to_rlu   Matrix (4x4) of projection axes in hkle representation
             %                      u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
             %   data.ulen       Length of projection axes vectors in Ang^-1 or meV [row vector]
-            %   data.ulabel     Labels of the projection axes [1x4 cell array of character strings]
+            %   data.label     Labels of the projection axes [1x4 cell array of character strings]
             %   data.iax        Index of integration axes into the projection axes  [row vector]
             %                  Always in increasing numerical order
             %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
@@ -516,7 +516,7 @@ classdef dnd_binfile_common < dnd_file_interface
                     open_for_writing = regexp(permission, WRITE_MODE_REGEX, 'once');
                     is = ~isempty(open_for_writing);
                 else
-                    error('DNDBINFILECOMMON:is_activated', ...
+                error('HORACE:dnd_binfile_common:invalid_argument',...
                         ['Invalid input for read_or_write. Must be ''read'' ', ...
                         'or ''write'', found ''%s'''], read_or_write);
                 end
@@ -563,7 +563,7 @@ classdef dnd_binfile_common < dnd_file_interface
 
             obj.file_id_ = fopen(fullfile(obj.filepath,obj.filename), permission);
             if obj.file_id_ <=0
-                error('FILE_IO:runtime_error',...
+                error('HORACE:dnd_binfile_common:runtime_error',...
                     'Can not open file %s at location %s',...
                     obj.filename,obj.filepath);
             end

@@ -21,8 +21,6 @@ classdef hor_config < config_base
     % -----------
     %   mem_chunk_size    - Maximum length of buffer array to accumulate pixels
     %                       from an input file.
-    %   pixel_page_size   - Maximum memory size of pixel data array in
-    %                       file-backed algorithms (units of bytes).
     %   threads           - How many computational threads to use in mex files
     %   ignore_nan        - Ignore NaN data when making cuts
     %   ignore_inf        - Ignore Inf data when making cuts.
@@ -94,11 +92,13 @@ classdef hor_config < config_base
         %      The larger the value, the more information is printed.
         % See log_level for more details.
         horace_info_level
+        
+        %   pixel_page_size   - Maximum memory size of pixel data array in
+        %                       file-backed algorithms (units of bytes).
         % PixelData page size in bytes. Overrides mem_chunk_size for
         % filebased PixelData if pixel_page_size is smaller then
-        % appropriate mem_chunk_size expressed in bytes. 
-        % 
-        pixel_page_size  
+        % appropriate mem_chunk_size expressed in bytes.
+        pixel_page_size
         % property to help in conversion from mem_chunk_size, which is 
         % expressed in number of pixels and pixel_page_size (in bytes)        
         % on get returns mem_chunk_size expressed in bytes, 
@@ -106,23 +106,23 @@ classdef hor_config < config_base
         % bytes
         mem_page_chunk_size_byte_conversion
     end
-
+    
     properties(Access=protected, Hidden=true)
         % private properties behind public interface
         mem_chunk_size_ = 10000000;
-
+        
         % set page size very large to effectively disable paging of pixels as
         % the implementation is not complete
         pixel_page_size_ = PixelData.DEFAULT_PAGE_SIZE;
         threads_ =1;
-
+        
         ignore_nan_ = true;
         ignore_inf_ = false;
-
+        
         use_mex_ = true;
         delete_tmp_ = true;
     end
-
+    
     properties(Constant, Access=private)
         % change this list if saveable fields have changed or redefine
         % get_storage_field_names function below
@@ -135,15 +135,15 @@ classdef hor_config < config_base
             'use_mex',...
             'delete_tmp'}
     end
-
+    
     methods
         function this=hor_config()
             %
             this=this@config_base(mfilename('class'));
-
+            
             this.threads_ = find_nproc_to_use(this);
         end
-
+        
         %-----------------------------------------------------------------
         % overloaded getters
         function use = get.mem_chunk_size(this)
@@ -182,7 +182,7 @@ classdef hor_config < config_base
             if isempty(work_dir)
                 work_dir = tmp_dir;
             end
-
+            
         end
         function is = wkdir_is_default(~)
             % return true if working directory has not been set and refers
@@ -223,7 +223,7 @@ classdef hor_config < config_base
             PixelData.validate_mem_alloc(val);
             config_store.instance().store_config(this, 'pixel_page_size', val);
         end
-
+        
         function this = set.threads(this,val)
             if val<1
                 warning('HOR_CONFIG:set_threads',...
@@ -280,10 +280,10 @@ classdef hor_config < config_base
                 if ~can_combine_with_mex
                     config_store.instance().store_config(this,'combine_sqw_using','matlab');
                 end
-
+                
             end
             config_store.instance().store_config(this,'use_mex',use);
-
+            
         end
         %
         function this = set.force_mex_if_use_mex(this,val)
@@ -306,9 +306,9 @@ classdef hor_config < config_base
             hc = parallel_config;
             hc.working_directory = val;
         end
-
+        
         %--------------------------------------------------------------------
-
+        
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
@@ -325,6 +325,6 @@ classdef hor_config < config_base
             % field has a private field with name different by underscore
             value = this.([field_name,'_']);
         end
-
+        
     end
 end

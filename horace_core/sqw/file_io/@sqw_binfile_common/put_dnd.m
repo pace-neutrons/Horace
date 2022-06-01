@@ -4,10 +4,6 @@ function    obj = put_dnd(obj,varargin)
 %
 % store header, which describes file as dnd file
 %
-%
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
-%
-
 % store current sqw-data positions
 pos = obj.get_pos_info();
 % recalculate positions as if it is a dnd object

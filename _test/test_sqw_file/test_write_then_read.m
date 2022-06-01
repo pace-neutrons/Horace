@@ -4,7 +4,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
         old_warn_state;
 
         small_page_size = 5e5;  % 1Mb, chosen since the file below is ~1.8 MB.
-        test_sqw_file_path = '../test_sqw_file/sqw_2d_1.sqw';
+        test_sqw_file_path = '../common_data/sqw_2d_1.sqw';
         npixels_in_file = 24689;
     end
 
@@ -23,10 +23,9 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
             [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
             saved_sqw = sqw(out_file_path);
-            saved_sqw.runid_map = sqw_obj.runid_map; %TODO: remove, see message below
+            
             [ok,mess]=equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true);
             assertTrue(ok,mess);
-            skipTest('TODO: the runid_map comparison should be fixed when map is stored with the file')
         end
 
         function test_sqw_with_paged_pix_not_on_1st_pg_saved_correctly(obj)
@@ -37,11 +36,9 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
             [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
             saved_sqw = sqw(out_file_path);
-            saved_sqw.runid_map = sqw_obj.runid_map; %TODO: remove, see message below
 
             [ok,mess]=equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true);
             assertTrue(ok,mess);
-            skipTest('TODO: the runid_map comparison should be fixed when map is stored with the file')
         end
 
         function test_saved_sqw_with_paged_pix_equal_to_original_sqw(obj)
@@ -51,11 +48,9 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
             [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
             saved_sqw = sqw(out_file_path);
-            saved_sqw.runid_map = sqw_obj.runid_map; %TODO: remove, see message below
 
             [ok,mess]=equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true);
             assertTrue(ok,mess);
-            skipTest('TODO: the runid_map comparison should be fixed when map is stored with the file')
         end
 
         function test_sqw_w_paged_pix_saved_correctly_with_small_mem_chunk_size(obj)
@@ -69,11 +64,9 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
             [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
             saved_sqw = sqw(out_file_path);
-            saved_sqw.runid_map = sqw_obj.runid_map; %TODO: remove, see message below
 
             [ok,mess]=equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true);
             assertTrue(ok,mess);
-            skipTest('TODO: the runid_map comparison should be fixed when map is stored with the file')
         end
 
         function test_sqw_w_pix_on_2nd_pg_saved_right_with_small_mem_chunk_size(obj)
@@ -87,12 +80,10 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
                 );
             [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
-            saved_sqw = sqw(out_file_path);
-            saved_sqw.runid_map = sqw_obj.runid_map; %TODO: remove, see message below
+            saved_sqw = read_sqw(out_file_path);
 
             [ok,mess]=equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true);
             assertTrue(ok,mess);
-            skipTest('TODO: the runid_map comparison should be fixed when map is stored with the file')
         end
 
     end

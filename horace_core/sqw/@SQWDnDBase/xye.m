@@ -39,7 +39,7 @@ end
 
 S = repmat(struct('x', [], 'y', [], 'e', []), size(w));
 for i = 1:numel(w)
-    x = w(i).data_.p;
+    x = cellfun(@(pp)(pp'),w(i).data_.p,'UniformOutput',false);
     y = w(i).data_.s;
     e = sqrt(w(i).data_.e);
     empty = ~logical(w(i).data_.npix);

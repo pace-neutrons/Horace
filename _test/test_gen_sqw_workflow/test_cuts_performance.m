@@ -1,7 +1,7 @@
 classdef test_cuts_performance < SQW_GENCUT_perf_tester
     properties
         % how many test files to use to define the perfromance results
-        n_test_files = 10;
+        n_test_files = 5;
         cleanup_config_holder
         skip_mex_tests = false;
     end

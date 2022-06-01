@@ -76,11 +76,12 @@ classdef test_fake_sqw < TestCase
             assertTrue(isa(tsqw,'sqw'));
 
             pix = tsqw.data.pix.coordinates;
-            de0 = pix(4,:)==0;
+            de0 = pix(4,:)==0; % find the momentum transfers, performed 
+            %                  % with dE = 0 (elastic mode)
             assertEqual(sum(de0),96);
 
             q_range = pix(1:3,de0); % this is q-range in crystal catresizan
-            u_to_rlu = tsqw.data.u_to_rlu(1:3,1:3);
+            u_to_rlu = tsqw.experiment_info.expdata.u_to_rlu(1:3,1:3);
             q_range = (u_to_rlu*q_range)' ; % convert q into hkl
             % verify the fact that the detector positions, processed from
             % the pixel information provide the same result as normal

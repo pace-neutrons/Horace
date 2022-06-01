@@ -3,7 +3,7 @@ classdef test_dnd_copy < TestCase
     properties
         sqw_file_2d_name = 'sqw_2d_1.sqw';
         dnd_file_2d_name = 'dnd_2d.sqw';
-        test_file_path = '../test_sqw_file/';
+        test_file_path = '../common_data/';
 
         test_sqw_2d_fullpath = '';
         test_dnd_2d_fullpath = '';
@@ -41,12 +41,12 @@ classdef test_dnd_copy < TestCase
 
             d2d_copy.s(1:10) = inf;  % data is O(10^5)
             d2d_copy.e = [];
-            d2d_copy.ulabel = {'test'};
+            d2d_copy.label{1} = 'test';
 
             % changed data is not mirrored in initial
             assertFalse(equal_to_tol(d2d_copy.s, d2d_obj.s));
             assertFalse(equal_to_tol(d2d_copy.e, d2d_obj.e));
-            assertFalse(equal_to_tol(d2d_copy.ulabel, d2d_obj.ulabel));
+            assertFalse(equal_to_tol(d2d_copy.label, d2d_obj.label));
         end
 
     end

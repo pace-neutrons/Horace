@@ -47,7 +47,9 @@ while ~data_found
     istart = ftell(fid);
     if (istart<0)
         fclose(fid);
-        error (['No data with valid format encountered in ' file_internal])
+        error ('HORACE:write_qspec_to_sqw:invalid_argument', ...
+            'No data with valid format encountered in file% %s', ...
+            file_internal)
     end
     tline = fgets(fid);
     temp = str2num(tline);
@@ -57,7 +59,7 @@ while ~data_found
         data_found = 1;
         eps = 1;
         xye = 1;
-    elseif (length(temp)==5)    % x-y-z-sig-err data 
+    elseif (length(temp)==5)    % x-y-z-sig-err data
         ncol=5;
         data_found = 1;
         eps = 0;
@@ -77,7 +79,8 @@ if ~(numel(temp2)==ncol)
     temp2=sscanf(tline,fmt,[ncol,inf]);
     if ~(numel(temp2)==ncol)
         fclose(fid);
-        error('Unrecognised format for data')
+        error ('HORACE:write_qspec_to_sqw:invalid_argument', ...
+            'Unrecognised format for data in file %s',datafile)
     end
 end
 
@@ -85,14 +88,16 @@ end
 fstatus=fseek(fid,istart,'bof'); % step back one line
 if (fstatus~=0)
     fclose(fid);
-    error (['Error reading from file ' file_internal])
+    error ('HORACE:write_qspec_to_sqw:invalid_argument', ...
+        'Error reading from file %s', file_internal)
 end
 % Read array to the end, or until unable to read from file with specified format
 a = fscanf(fid,fmt,[ncol,inf]);
 
 if (isempty(a))
     fclose(fid);
-    error (['Check format of data in ' file_internal])
+    error ('HORACE:write_qspec_to_sqw:invalid_argument', ...
+        'Invalid format of data in %s',file_internal)
 end
 fclose(fid);
 

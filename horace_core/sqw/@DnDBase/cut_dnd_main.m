@@ -145,7 +145,8 @@ end
 [val, nbin] = data_bin_limits (data);
 
 % Determine new plot and integration axes
-[sub_iax, sub_iint, sub_pax, sub_p, noffset, nkeep, mess] = data.cut_dnd_calc_ubins (pbin(invdax), data.p, nbin);
+[sub_iax, sub_iint, sub_pax, sub_p, noffset, nkeep, mess] =...
+    axes_block.cut_dnd_calc_ubins (pbin(invdax), data.p, nbin);
 if ~isempty(mess)
     error(mess)
 end

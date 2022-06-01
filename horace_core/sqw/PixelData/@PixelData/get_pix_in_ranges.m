@@ -1,4 +1,5 @@
-function pix_out = get_pix_in_ranges(obj, abs_indices_starts, abs_indices_ends,recalculate_pix_range)
+function pix_out = get_pix_in_ranges(obj, abs_indices_starts, block_sizes,...
+    recalculate_pix_range,keep_precision)
 %%GET_PIX_IN_RANGES read pixels in the specified ranges
 % Ranges are inclusive.
 %
@@ -7,7 +8,14 @@ function pix_out = get_pix_in_ranges(obj, abs_indices_starts, abs_indices_ends,r
 % Input:
 % ------
 % pix_starts  Absolute indices of the starts of pixel ranges [Nx1 or 1xN array].
-% pix_ends    Absolute indices of the ends of pixel ranges [Nx1 or 1xN array].
+% block_sizes The sizes of the blocks to read                [Nx1 or 1xN array].
+% Optional
+% recalculate_pix_range -- if true, recalulate q-dE range of obrained
+%                          pixels. Default -- true
+% keep_precision         --if true, load pixels in memory, as they are
+%                          stored on hdd (single precision pixels). If
+%                          false, convert pixels into double precision at
+%                          load. Default false
 %
 % Output:
 % -------
@@ -16,7 +24,10 @@ function pix_out = get_pix_in_ranges(obj, abs_indices_starts, abs_indices_ends,r
 if ~exist('recalculate_pix_range','var')
     recalculate_pix_range = true;
 end
-[ok, mess] = validate_ranges(abs_indices_starts, abs_indices_ends);
+if ~exist('keep_precision','var')
+    keep_precision = false;
+end
+[ok, mess] = validate_ranges(abs_indices_starts, block_sizes);
 if ~ok
     error('HORACE:PixelData:invalid_argument', mess);
 end
@@ -24,18 +35,22 @@ end
 if obj.is_filebacked()
     if any(obj.page_dirty_)
         % At least some pixels sit in temporary files
-        abs_indices = get_values_in_ranges(abs_indices_starts, abs_indices_ends);
+        abs_indices = get_ind_from_ranges(abs_indices_starts, block_sizes);
         pix_out = obj.get_pixels(abs_indices);
         return
     else
         skip_arg_validation = true;  % no point validating inputs again in faccess
         raw_pix = obj.f_accessor_.get_pix_in_ranges( ...
-            abs_indices_starts, abs_indices_ends, skip_arg_validation);
+            abs_indices_starts, block_sizes, skip_arg_validation,keep_precision);
     end
 else
     % All pixels in memory
-    indices = get_values_in_ranges(abs_indices_starts, abs_indices_ends);
-    raw_pix = obj.data(:, indices);
+    indices = get_ind_from_ranges(abs_indices_starts, block_sizes);
+    if keep_precision
+        raw_pix = obj.data(:, indices);
+    else
+        raw_pix  = double(obj.data(:, indices));
+    end
 end
 if recalculate_pix_range
     pix_out = PixelData(raw_pix);
@@ -46,31 +61,4 @@ end
 
 
 end  % function
-
-
 % -----------------------------------------------------------------------------
-function out = get_values_in_ranges(range_starts, range_ends)
-% Get an array containing the values between the given ranges
-% e.g.
-%   >> range_starts = [1, 15, 12]
-%   >> range_ends = [4, 17, 14]
-%   >> get_values_in_ranges(range_starts, range_ends)
-%       ans = [1, 2, 3, 4, 15, 16, 17, 12, 13, 14]
-
-% Ensure the vectors are 1xN so concatenation below works
-if length(range_starts) > 1 && size(range_starts, 1) ~= 1
-    range_starts = range_starts(:).';
-    range_ends = range_ends(:).';
-end
-
-% Find the indexes of the boundaries of each range
-range_boundary_idxs = cumsum([1; range_ends(:) - range_starts(:) + 1]);
-% Generate vector of ones with length equal to output vector length
-value_diffs = ones(range_boundary_idxs(end) - 1, 1);
-% Insert size of the difference between boundaries in each boundary index
-value_diffs(range_boundary_idxs(1:end - 1)) = [ ...
-    range_starts(1), range_starts(2:end) - range_ends(1:end - 1) ...
-    ];
-% Take the cumulative sum
-out = cumsum(value_diffs);
-end

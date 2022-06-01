@@ -49,12 +49,14 @@ end
 if iscell(vals)
     for i=1:numel(vals)
         if numel(vals{i})~=npixtot
-            error('Check number of elements in input array(s)')
+            error('HORACE:average_bin_data:invalid_argument',...
+                'Invalid number of elements in input array(s)')
         end
     end
 else
     if numel(vals)~=npixtot
-        error('Check number of elements in input array')
+        error('HORACE:average_bin_data:invalid_argument',...
+            'Invalid number of elements in input array')
     end
 end
 

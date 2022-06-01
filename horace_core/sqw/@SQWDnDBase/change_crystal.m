@@ -57,7 +57,7 @@ end
 if w.source_is_file
     for i = 1:numel(w.data)
         ld = w.loaders_list{i};
-        data = ld.get_data('-verbatim', '-head');
+        data = ld.get_data('-nopix');
         target_file = fullfile(ld.filepath,ld.filename);
         ld = ld.set_file_to_update(target_file);
         if ld.sqw_type
