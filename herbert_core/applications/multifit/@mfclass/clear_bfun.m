@@ -1,17 +1,4 @@
 function obj = clear_bfun(obj, varargin)
-% Clear background fit function(s), clearing any corresponding constraints
-%
-% Clear all background functions
-%   >> obj = obj.clear_bfun
-%   >> obj = obj.clear_bfun ('all')
-%
-% Clear a particular background function or set of background functions
-%   >> obj = obj.clear_bfun (ifun)
-%
-% Input:
-% ------
-%   ifun    Row vector of background function indicies [Default: all functions]
-
 % -----------------------------------------------------------------------------
 % <#doc_def:>
 %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')

@@ -1,17 +1,4 @@
 function obj = clear_pin (obj, varargin)
-% Clear all parameters and constraints for one or more foreground functions
-%
-% Clear all parameters for all foreground functions
-%   >> obj = obj.clear_pin
-%   >> obj = obj.clear_pin ('all')
-%
-% Clear all parameters for one or more specific foreground function(s)
-%   >> obj = obj.clear_pin (ifun)
-%
-% Input:
-% ------
-%   ifun    Row vector of foreground function indicies [Default: all functions]
-
 % -----------------------------------------------------------------------------
 % <#doc_def:>
 %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')

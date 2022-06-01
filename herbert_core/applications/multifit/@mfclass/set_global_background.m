@@ -1,15 +1,4 @@
 function obj = set_global_background(obj,set_global)
-% Specify that there will be a global background fit function
-%
-%   >> obj = obj.set_global_background          % set global background
-%   >> obj = obj.set_global_background (status) % set global background true or false
-%
-% If the scope changes i.e. is altered from global to local, or local to global,
-% then the background fit functions and any previously set constraints are
-% cleared
-%
-% See also: set_local_background set_local_foreground 
-
 % -----------------------------------------------------------------------------
 % <#doc_def:>
 %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')

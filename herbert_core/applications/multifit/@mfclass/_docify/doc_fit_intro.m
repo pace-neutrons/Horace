@@ -69,17 +69,6 @@
 %                      If more than one function: a row cell array of row vector
 %                                                 cell arrays
 %
-%           If there was a problem i.e. ok==false, then fitdata=[].
-%
-%   ok      True: A fit coould be performed. This includes the cases of
-%                 both convergence and failure to converge
-%           False: Fundamental problem with the input arguments e.g. the
-%                 number of free parameters equals or exceeds the number
-%                 of data points
-%
-%   mess    Message if ok==false; Empty string if ok==true.
-%
-% If ok is not a return argument, then if ok is false an error will be thrown.
 %   <#file:> <extra_body>
 % <#doc_end:>
 % -----------------------------------------------------------------------------
