@@ -4,7 +4,7 @@ function [sqw_object,varargout] = get_sqw (obj, varargin)
 %   >> sqw_object = obj.get_sqw()
 %   >> sqw_object = obj.get_sqw('-h')
 %   >> sqw_object = obj.get_sqw('-his')
-%   >> sqw_object = obj.get_sqw('-hverbatim')
+%   >> sqw_object = obj.get_sqw('-keep_original')
 %   >> sqw_object = obj.get_sqw('-hisverbatim')
 %   >> sqw_object = obj.get_sqw('-nopix')
 %
@@ -62,8 +62,8 @@ sqw_struc = struct('main_header',[],'experiment_info',[],'detpar',[],'data',[]);
 
 % Get main header
 % ---------------
-if opts.verbatim
-    sqw_struc.main_header =  obj.get_main_header('-verbatim');
+if opts.keep_original || opts.verbatim
+    sqw_struc.main_header =  obj.get_main_header('-keep_original');
 else
     sqw_struc.main_header =  obj.get_main_header();
 end
@@ -80,7 +80,7 @@ end
 
 % Get data
 % --------
-if opts.verbatim
+if opts.verbatim || opts.keep_original
     opt1 = {'-verbatim'};
 else
     opt1 = {};
@@ -176,6 +176,7 @@ flags = { ...
     'hverbatim', ...
     'hisverbatim', ...
     'noupgrade',...
+    'keep_original',...    
     'nopix', ...
     'legacy' ...
     };

@@ -22,7 +22,7 @@ classdef test_sqw_binfile_common <  TestCase
         function test_header_no_mangling_no_mangle_update_v3file(obj)
             %
             sample_V3_file = fullfile(obj.root_tests_folder, ...
-            'test_sqw_file','test_sqw_file_read_write_v3_1.sqw');
+                'test_sqw_file','test_sqw_file_read_write_v3_1.sqw');
             out_file = fullfile(obj.test_folder,'test_no_mangling_update_v3.sqw');
             clOb = onCleanup(@()delete(out_file));
             copyfile(sample_V3_file,out_file,'f');
@@ -39,7 +39,7 @@ classdef test_sqw_binfile_common <  TestCase
             vMreader.delete();
             v3reader.delete();
         end
-        
+
 
         function test_header_no_mangling_mangle_on_write_v3file(obj)
             sample_V3_file = fullfile(obj.root_tests_folder, ...
@@ -130,7 +130,7 @@ classdef test_sqw_binfile_common <  TestCase
             mh = tob.get_main_header_form();
 
             fn = fieldnames(mh);
-            memb = ismember(fn,{'filename','filepath','title','nfiles'});
+            memb = ismember(fn,{'filename_with_cdate','filepath','title','nfiles'});
             assertTrue(all(memb));
 
             mh = tob.get_main_header_form('-const');

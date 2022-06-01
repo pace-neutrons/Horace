@@ -55,7 +55,7 @@ if keep_pix
             % old stored objects, which do not contain correctly defined runid map
             % compatibility operation.
             head_runid = w.experiment_info.expdata.get_run_ids();
-            if any(~ismember(runid_contributed,head_runid))
+            if  any(~ismember(runid_contributed,head_runid))
                 % some old file contains runid, which has been
                 % recalculated from 1 to n_headers on pixels but have not been
                 % stored in runid map and headers.
@@ -64,13 +64,14 @@ if keep_pix
                 id = 1:w.experiment_info.n_runs;
                 w.experiment_info.runid_map = id;
             end
-            exp_info = w.experiment_info.get_subobj(runid_contributed);
         end
+        exp_info = w.experiment_info.get_subobj(runid_contributed);
+        %
     end
     %
     wout.experiment_info = exp_info;
-    wout.main_header.nfiles  = exp_info.n_runs;        
-    % set new cut creation date defined and equal to now;
+    wout.main_header.nfiles  = exp_info.n_runs;
+    % set new cut object creation date defined and equal to now;
     wout.main_header.creation_date = datetime('now');
 else
     dnd_constructor = DND_CONSTRUCTORS{numel(data_out.pax) + 1};

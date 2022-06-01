@@ -21,7 +21,8 @@ end
 obj.check_obj_initated_properly();
 %
 [main_header,new_obj] = obj.extract_correct_subobj('main_header',argi{:});
-if ~main_header.creation_date_defined
+current_creation_date_defined = main_header.creation_date_defined;
+if ~current_creation_date_defined
     main_header.creation_date = datetime('now');
 end
 if new_obj
@@ -35,9 +36,16 @@ else
     head_form = obj.get_main_header_form();
 end
 
+
 if update && ~obj.upgrade_mode
     error('SQW_FILE_IO:runtime_error',...
         'put_main_header : input object has not been initiated for update mode');
+end
+% support upgrade mode. Do not modify main header creation date if it has 
+% not been modified before
+if (update || ~obj.upgrade_headers_ ) && ~current_creation_date_defined
+    head_form = struct('filename','','filepath','',...
+        'title','','nfiles',int32(1));
 end
 
 

@@ -182,6 +182,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
 
             same_cut = cut_sqw(obj.ref_sqw,proj1,[],[],[],[-8,8]);
 
+            same_cut.main_header.creation_date = ref_cut.main_header.creation_date;
             assertEqualToTol(ref_cut,same_cut,'tol',1.e-9);
         end
 
@@ -195,7 +196,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
 
 
             % the comparison below is incomplete, but allows the reasonable
-            % initiacl crude estimation of the correctness
+            % crude estimation of the correctness.
             assertElementsAlmostEqual(obj.ref_sqw.data.img_range,...
                 same_sqw.data.img_range,'relative',1.e-16);
             assertEqual(obj.ref_sqw.data.pix.num_pixels,...
@@ -205,7 +206,9 @@ classdef test_data_sqw_dnd < TestCaseWithSave
                 sum(reshape(same_sqw.data.npix,1,cut_size)));
             assertEqual(sum(reshape(obj.ref_sqw.data.s,1,cut_size)),...
                 sum(reshape(same_sqw.data.s,1,cut_size)));
-            % This is the full comparison
+            % This is the full comparison. The creation date is different 
+            % as cut is the same but created at different time
+            same_sqw.main_header.creation_date = obj.ref_sqw.main_header.creation_date;            
             assertEqualToTol(obj.ref_sqw,same_sqw,'tol',[2.e-15,3.e-16])
 
             same_proj = same_sqw.data.get_projection();

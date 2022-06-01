@@ -142,7 +142,7 @@ classdef test_faccess_sqw_v2< TestCase
             assertEqual(exp_n.ulabel{4},'E')
 
 
-            main_h = to.get_main_header('-verbatim');
+            main_h = to.get_main_header('-keep_original');
             assertEqual(main_h.nfiles,186);
             assertEqual(main_h.filename,'Fe_ei787.sqw');
             assertEqual(main_h.filepath,'c:\data\Fe\sqw\');
@@ -199,6 +199,7 @@ classdef test_faccess_sqw_v2< TestCase
 
             source_sqw = faccess_sqw_v2(samplef);
             tob_sqw = source_sqw.get_sqw('-verbatim');
+            assertFalse(tob_sqw.main_header.creation_date_defined);
 
             fresh_sqw = faccess_sqw_v2();
 
@@ -217,13 +218,16 @@ classdef test_faccess_sqw_v2< TestCase
             sz2 = obj.fl_size(tf);
             %
             % new file has been upgraded with runid_map so its size have
-            % increased
-            assertEqual(sz1+numel('$id$1'),sz2);
+            % increased? one byte is missing, why?
+            assertEqual(sz1+numel('$id$1')+numel(char(datetime("now"))),sz2);
             %
             tn = faccess_sqw_v2(tf);
             rec_sqw = tn.get_sqw('-ver');
             tn.delete();
+            assertTrue(rec_sqw.main_header.creation_date_defined);
             %
+
+            tob_sqw.main_header.creation_date = rec_sqw.main_header.creation_date;
             assertTrue(equal_to_tol(tob_sqw, rec_sqw));
             %
         end
@@ -280,9 +284,11 @@ classdef test_faccess_sqw_v2< TestCase
 
 
             sqw2 = to.get_sqw();
-
-            assertEqual(sqw1,sqw2);
             to.delete();
+
+            sqw2.main_header.creation_date = sqw1.main_header.creation_date;
+            assertEqual(sqw1,sqw2);
+
             %
         end
 
@@ -293,6 +299,7 @@ classdef test_faccess_sqw_v2< TestCase
             samplef  = fullfile(spath,'w2d_qq_small_sqw.sqw');
 
             sqwob = read_sqw(samplef);
+            assertFalse(sqwob.main_header.creation_date_defined);
 
             tf = fullfile(tmp_dir,'test_upgrade_sqwV2_wac.sqw');
             clob = onCleanup(@()delete(tf));
@@ -304,6 +311,8 @@ classdef test_faccess_sqw_v2< TestCase
 
 
             sqw1 = tobV3.get_sqw();
+            % file was written afresh so have chreation date defined
+            assertTrue(sqw1.main_header.creation_date_defined);
 
             tob.delete();
             tobV3.delete();
@@ -313,8 +322,11 @@ classdef test_faccess_sqw_v2< TestCase
 
             sqw2 = to.get_sqw();
             to.delete();
+            assertTrue(sqw2.main_header.creation_date_defined);
 
             assertEqual(sqw1,sqw2);
+
+            sqwob.main_header.creation_date = sqw1.main_header.creation_date;
             [ok,mess]=equal_to_tol(sqwob,sqw2,'ignore_str',true);
             assertTrue(ok,mess)
 
@@ -378,9 +390,9 @@ classdef test_faccess_sqw_v2< TestCase
             samp = fullfile(fileparts(obj.test_folder),...
                 'test_symmetrisation','w1d_sqw.sqw');
             ttob = faccess_sqw_v2(samp);
-            % important! -verbatim is critical here! without it we should
-            % reinitialize object to write!
-            sq_obj = ttob.get_sqw('-verbatim');
+            % important! -keep_original is critical here! without it we should
+            % reinitialize object to for upgrade, as file fields change!
+            sq_obj = ttob.get_sqw('-keep_original');
             assertTrue(isa(sq_obj,'sqw'));
 
             test_f = fullfile(tmp_dir,'test_sqw_reopen_to_wrire.sqw');
@@ -400,6 +412,9 @@ classdef test_faccess_sqw_v2< TestCase
             tsq_obj = chob.get_sqw();
             chob.delete();
 
+            isdef = sq_obj.main_header.creation_date_defined_privately;
+            sq_obj.main_header.creation_date = tsq_obj.main_header.creation_date;
+            sq_obj.main_header.creation_date_defined_privately = isdef; % it was undefined here
             [ok,mess]=equal_to_tol(sq_obj,tsq_obj,'ignore_str',true);
             assertTrue(ok,mess)
 
