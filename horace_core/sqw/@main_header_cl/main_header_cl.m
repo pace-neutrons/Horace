@@ -28,8 +28,8 @@ classdef main_header_cl < serializable
     % where cl_struc is the structure, containing any set of public
     % properties available to contructor with their correspondent values
     %
-    
-    
+
+
     properties(Dependent)
         % the properties describe the header structure
         filename; % the name of the file, where the
@@ -39,7 +39,7 @@ classdef main_header_cl < serializable
         %           is responsible for
         %
         creation_date % The date when this header (in the sqw file) was created
-        
+
         % method returns false, if the file creation date is not stored
         % together with binary data in old binary files
         creation_date_defined
@@ -68,7 +68,7 @@ classdef main_header_cl < serializable
         fields_to_save_ = {'filename','filepath','title','nfiles',...
             'creation_date','creation_date_defined_privately'};
     end
-    
+
     methods
         function obj = main_header_cl(varargin)
             % Construct an instance of main header class
@@ -245,9 +245,14 @@ classdef main_header_cl < serializable
         function form =  DT_format_()       % date/time format to store in a file
             form = '%d-%02d-%02dT%02d:%02d:%02d';
         end
-        
+
         function dtstr = DT_out_transf_(dt)
             % transform date-time into the requested string
+            if ~isa(dt,'datetime')
+                warning('HORACE:main_header_cl:invalid_argument', ...
+                    'call to class-protected function with invalid argument. Something wrong with class usave')
+                dt = datetime('now');
+            end
             dtstr = sprintf(main_header_cl.DT_format_(), ...
                 dt.Year,dt.Month,dt.Day,dt.Hour,dt.Minute,round(dt.Second));
         end
