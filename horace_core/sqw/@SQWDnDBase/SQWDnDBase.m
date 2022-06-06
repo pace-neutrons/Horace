@@ -2,11 +2,6 @@ classdef (Abstract) SQWDnDBase < serializable
     %SQWDnDBase Abstract SQW/DnD object base class
     %   Abstract class defining common API and atrributes of the SQW and
     %   DnD objects
-    properties (Access = protected)
-        % base_property
-        data_ = data_sqw_dnd();
-    end
-
     methods (Abstract)
         pixels = has_pixels(win);
     end

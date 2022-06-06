@@ -37,7 +37,6 @@ if  all(abs(img_range_guess(:)-obj.img_db_range(:))<=abs(obj.border_size)) || ..
         proj = proj.set_from_data_mat(obj.u_to_rlu(1:3,1:3),obj.ulen(1:3));
     end
 else % the input is the cut
-
     proj = proj.set_from_data_mat(obj.u_to_rlu(1:3,1:3),obj.ulen(1:3));
 end
 proj.offset = obj.uoffset;

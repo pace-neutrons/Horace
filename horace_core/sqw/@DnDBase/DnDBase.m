@@ -1,32 +1,31 @@
 classdef (Abstract)  DnDBase < SQWDnDBase
     % DnDBase Abstract base class for n-dimensional DnD object
 
-    properties(Access = protected)
-        % CMDEV: removed, replaced with data_ on the superclass data % dnd_sqw_data instance
-    end
-
     properties(Constant, Abstract, Access = protected)
         NUM_DIMS
     end
     properties(Constant,Access=protected)
-        fields_to_save_ = {'filename','filepath','title','alatt','angdeg',...
-                'uoffset','u_to_rlu','ulen','label',...
-                'dax','img_range','nbins_all_dims','s','e','npix'};
+        %fields_to_save_ = {'filename','filepath','title','alatt','angdeg',...
+        %        'uoffset','u_to_rlu','ulen','label',...
+        %        'dax','img_range','nbins_all_dims','s','e','npix'};
 
+        fields_to_save = {'s','e','npix','proj','axes'}
     end
 
     % The depdendent props here have been created solely to retain the (old) DnD object API during the refactor.
     % These will be updated/removed at a later phase of the refactor when the class API is modified.
     properties(Dependent)
+        % OLD DND object interface
         filename % Name of source sqw file that is being read, excluding path
         filepath % Path to sqw file that is being read, including terminating file separator
         title % Title of data structure
         alatt % Lattice parameters for data field (Ang^-1)
         angdeg % Lattice angles for data field (degrees)
-        uoffset % Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
-        u_to_rlu % Matrix (4x4) of projection axes in hkle representation
+
+        offset % Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
+        %u_to_rlu % Matrix (4x4) of projection axes in hkle representation
         %     u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-        ulen % Length of projection axes vectors in Ang^-1 or meV [row vector]
+        %ulen % Length of projection axes vectors in Ang^-1 or meV [row vector]
         label  % Labels of the projection axes [1x4 cell array of character strings]
         iax % Index of integration axes into the projection axes  [row vector]
         %     Always in increasing numerical order, data.iax=[1,3] means summation has been performed along u1 and u3 axes
@@ -36,18 +35,37 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         p % Cell array containing bin boundaries along the plot axes [column vectors]
         %                       i.e. row cell array{data.p{1}, data.p{2} ...}
         pax % Index of plot axes into the projection axes  [row vector]
+        %------------------------------------------------------------------
+        % DND object interface
         s % Cumulative signal
         e % Cumulative variance
         npix % Number of contributing pixels to each bin of the plot axes
 
-        % the properties define shape and binning of the dnd object
-        img_range;
-        nbins_all_dims;
-        % temporary property, which returns data_ field
+        proj %
+    end
+    properties(Hidden)
+        % the temporary property, which binds data_sqw_dnd and dnd object
         data
     end
+    properties(Access = protected)
+        s_    %cumulative signal for each bin of the image  size(data.s) == axes_block.dims_as_ssize)
+        e_    %cumulative variance size(data.e) == axes_block.dims_as_ssize
+        npix_ %No. contributing pixels to each bin of the plot axes. size(data.npix) == axes_block.dims_as_ssize
+        axes_ = axes_block(); % axes block describing size and shape of the dnd object.
+        proj_ = ortho_proj(); % Object defining the transformation, used to
+        % convert coordinates in Crystal Cartesian coordinate system to the
+        % dnd object image coordinate system
+        isvalid_;
+    end
+
 
     methods(Access = protected)
+        function is = check_validity(obj)
+            % overload this property to verify validity of interdependent
+            % properties
+            is = obj.isvalid_;
+        end
+        
         wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
@@ -77,14 +95,14 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                 ab = serializable.from_struct(inputs);
                 dat = data_sqw_dnd(ab,inputs);
                 inputs = struct('data_',dat);
-            end            
+            end
 
             if isfield(inputs,'array_dat')
                 obj = obj.from_bare_struct(inputs.array_dat);
             else
                 obj = obj.from_bare_struct(inputs);
             end
-        end        
+        end
     end
 
     methods (Static)
@@ -108,16 +126,12 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                 error('HORACE:DnDBase:make dnd on not data_sqw_dnd');
             end
         end
-        
+
     end
 
     methods
-        function flds = saveableFields(obj)
-            flds = obj.fields_to_save_;
-        end
         % function signatures
         w = sigvar_set(win, sigvar_obj);
-        pixels = has_pixels(w);
         wout = copy(w);
         wout = cut_dnd_main (data_source, ndims, varargin);
         [val, n] = data_bin_limits (din);
@@ -127,10 +141,13 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         %    % save data in xye format
         %    save_xye_(obj,varargin{:});
         %end
-        function ver  = classVersion(~)
-            ver = 2;
+
+        %------------------------------------------------------------------
+        % Accessors
+        function pixels = has_pixels(w)
+            % dnd object(s) do not have pixels
+            pixels = false(size(w));
         end
-        
 
         function obj = DnDBase(varargin)
             obj = obj@SQWDnDBase();
@@ -161,12 +178,13 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             end
         end
         % Public getters/setters expose all wrapped data attributes
-        function val = get.data(obj)
-            val = obj.data_;
-        end
         function obj = set.data(obj, d)
             if isa(d,'data_sqw_dnd') || isempty(d)
-                obj.data_ = d;
+                obj.s_ = d.s;
+                obj.e_ = d.e;
+                obj.npix_ = d.npix;
+                obj.proj_ = d.get_projection();
+                obj.axes_ = axes_block(d);
             else
                 error('HORACE:DnDBase:invalid_argument',...
                     'Only data_sqw_dnd class or empty value may be used as data value. Trying to set up: %s',...
@@ -175,193 +193,177 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         end
         %
         function val = get.filename(obj)
-            val = '';
-            if ~isempty(obj.data_)
-                val = obj.data_.filename;
-            end
+            val = obj.axes_.filename;
         end
         function obj = set.filename(obj, filename)
-            obj.data_.filename = filename;
+            obj.axes_.filename = filename;
         end
         %
         function val = get.filepath(obj)
-            val = '';
-            if ~isempty(obj.data_)
-                val = obj.data_.filepath;
-            end
+            val = obj.axes_.filepath;
         end
         function obj = set.filepath(obj, filepath)
-            obj.data_.filepath = filepath;
+            obj.axes_.filepath = filepath;
         end
         %
         function val = get.title(obj)
-            val = '';
-            if ~isempty(obj.data_)
-                val = obj.data_.title;
-            end
+            val = obj.axes_.title;
         end
         function obj = set.title(obj, title)
-            obj.data_.title = title;
+            obj.axes_.title = title;
         end
         %
         function val = get.alatt(obj)
-            val = [];
-            if ~isempty(obj.data_)
-                val = obj.data_.alatt;
-            end
+            val = obj.proj_.alatt;
         end
         function obj = set.alatt(obj, alatt)
-            obj.data_.alatt = alatt;
+            obj.proj_.alatt = alatt;
         end
         %
         function val = get.angdeg(obj)
-            val = [];
-            if ~isempty(obj.data_)
-                val = obj.data_.angdeg;
-            end
+            val = obj.proj_.angdeg;
         end
         function obj = set.angdeg(obj, angdeg)
-            obj.data_.angdeg = angdeg;
+            obj.proj_.angdeg = angdeg;
         end
         %
-        function val = get.uoffset(obj)
-            val = [];
-            if ~isempty(obj.data_)
-                val = obj.data_.uoffset;
-            end
-        end
-        function obj = set.uoffset(obj, uoffset)
-            obj.data_.uoffset = uoffset;
-        end
-        %
-        function val = get.u_to_rlu(obj)
-            val = [];
-            if ~isempty(obj.data_)
-                val = obj.data_.u_to_rlu;
-            end
-        end
-        function obj = set.u_to_rlu(obj, u_to_rlu)
-            obj.data_.u_to_rlu = u_to_rlu;
-        end
-        %
-        function val = get.ulen(obj)
-            val = [];
-            if ~isempty(obj.data_)
-                val = obj.data_.ulen;
-            end
-        end
-        function obj = set.ulen(obj, ulen)
-            obj.data_.ulen = ulen;
-        end
-        %
-        function val = get.label(obj)
-            val = [];
-            if ~isempty(obj.data_)
-                if isstruct(obj.data_) && isfield(obj.data_,'label') %TODO: old interface, 
-                    % change at load time; Ticket #796
-                    val = obj.data_.label;                    
-                else
-                    val = obj.data_.ulabel;                                        
+                function val = get.offset(obj)
+obj.proj_.offset;
+                    val = [];
+                    if ~isempty(obj.data_)
+                        val = obj.data_.uoffset;
+                    end
                 end
-            end
+        %         function obj = set.uoffset(obj, uoffset)
+        %             obj.data_.uoffset = uoffset;
+        %         end
+        %
+        %         function val = get.u_to_rlu(obj)
+        %             val = [];
+        %             if ~isempty(obj.data_)
+        %                 val = obj.data_.u_to_rlu;
+        %             end
+        %         end
+        %         function obj = set.u_to_rlu(obj, u_to_rlu)
+        %             obj.data_.u_to_rlu = u_to_rlu;
+        %         end
+        %         %
+        %         function val = get.ulen(obj)
+        %             val = [];
+        %             if ~isempty(obj.data_)
+        %                 val = obj.data_.ulen;
+        %             end
+        %         end
+        %         function obj = set.ulen(obj, ulen)
+        %             obj.data_.ulen = ulen;
+        %         end
+        %         %
+        function val = get.label(obj)
+            val = obj.axes_.label;
         end
         function obj = set.label(obj, label)
-            obj.data_.label = label;
+            obj.axes_.label = label;
         end
         %
         function val = get.iax(obj)
-            val = [];
-            if ~isempty(obj.data_)
-                val = obj.data_.iax;
-            end
+            val = obj.axes_.iax;
         end
         %
         function val = get.iint(obj)
-            val = [];
-            if ~isempty(obj.data_)
-                val = obj.data_.iint;
-            end
+            val = obj.axes_.iint;
         end
         %
         function val = get.pax(obj)
-            val = [];
-            if ~isempty(obj.data_)
-                val = obj.data_.pax;
-            end
+            val = obj.axes_.pax;
         end
         %
         function val = get.p(obj)
-            val = [];
-            if ~isempty(obj.data_)
-                val = obj.data_.p;                
-                if isstruct(obj.data_)
-                    val = cellfun(@(pp)(pp'),val,'UniformOutput',false);
-                end
-            end
+            val = obj.axes_.p;
         end
         %
         function val = get.dax(obj)
-            val = [];
-            if ~isempty(obj.data_)
-                val = obj.data_.dax;
-            end
+            val = obj.axes_.dax;
         end
         function obj = set.dax(obj, dax)
-            obj.data_.dax = dax;
+            obj.axes_.dax = dax;
         end
         %
         function val = get.s(obj)
-            val = [];
-            if ~isempty(obj.data_)
-                val = obj.data_.s;
-            end
+            val = obj.s_;
         end
         function obj = set.s(obj, s)
-            obj.data_.s = s;
+            if ~isnumeric(s)
+                error('HORACE:DnDBase:invalid_argument',...
+                    'input signal must be numeric array')
+            end
+            obj.s_ = s;
+            [~,~,obj] = check_combo_arg(obj);            
         end
         %
         function val = get.e(obj)
-            val = [];
-            if ~isempty(obj.data_)
-                val = obj.data_.e;
-            end
+            val = obj.e_;
         end
         function obj = set.e(obj, e)
-            obj.data_.e = e;
+            if ~isnumeric(e)
+                error('HORACE:DnDBase:invalid_argument',...
+                    'input variance must be numeric array')
+            end
+            obj.e_ = e;
+            [~,~,obj] = check_combo_arg(obj);            
         end
         %
         function val = get.npix(obj)
-            val = [];
-            if ~isempty(obj.data_)
-                val = obj.data_.npix;
-            end
+            val = obj.npix_;
         end
         function obj = set.npix(obj, npix)
-            obj.data_.npix = npix;
-        end
-        %
-        function obj = set.img_range(obj,val)
-            obj.data_.img_range = val;
-        end
-        function range = get.img_range(obj)
-            if isempty(obj.data_)
-                range  = [];
-            else
-                range = obj.data_.img_range;
+            if ~isnumeric(npix)
+                error('HORACE:DnDBase:invalid_argument',...
+                    'input npix array must be numeric array')
             end
+            obj.npix_ = npix;
+            [~,~,obj] = check_combo_arg(obj);
         end
         %
-        function obj = set.nbins_all_dims(obj,val)
-            obj.data_.nbins_all_dims = val;
-        end
-        function nbins = get.nbins_all_dims(obj)
-            if isempty(obj.data_)
-                nbins  = [];
-            else
-                nbins = obj.data_.nbins_all_dims;
-            end
-        end
+        %         function obj = set.img_range(obj,val)
+        %             obj.data_.img_range = val;
+        %         end
+        %         function range = get.img_range(obj)
+        %             if isempty(obj.data_)
+        %                 range  = [];
+        %             else
+        %                 range = obj.data_.img_range;
+        %             end
+        %         end
+        %         %
+        %         function obj = set.nbins_all_dims(obj,val)
+        %             obj.data_.nbins_all_dims = val;
+        %         end
+        %         function nbins = get.nbins_all_dims(obj)
+        %             if isempty(obj.data_)
+        %                 nbins  = [];
+        %             else
+        %                 nbins = obj.data_.nbins_all_dims;
+        %             end
+        %         end
         %
+        %------------------------------------------------------------------
+        % Serializable interface
+        %------------------------------------------------------------------        
+        function flds = saveableFields(obj)
+            flds = obj.fields_to_save_;
+        end
+        function ver  = classVersion(~)
+            ver = 3;
+        end
+                
+        function [ok,mess,obj] = check_combo_arg(obj)
+            % verify interdependent variables and the validity of the
+            % obtained dnd object. Return the result of the check and the
+            % reason for failure.
+            %
+            [ok,mess,obj] = check_combo_arg_(obj);
+        end
+        
     end
 end
 

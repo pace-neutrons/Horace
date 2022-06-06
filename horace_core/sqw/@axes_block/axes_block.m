@@ -55,6 +55,11 @@ classdef axes_block < serializable
         % number of bins for each non-unit dimension. This would be the
         % binning of the data arrays associated with the given axes_block
         data_nbins;
+        % number of bins in each non-unit dimension presented in the form,
+        % which allows you to allocate an array of the appropriate size
+        % i.e. size(s) == dims_as_ssize and size(zeros(dims_as_ssize)) ==
+        % size(s)
+        dims_as_ssize;
     end
 
     properties
@@ -310,7 +315,7 @@ classdef axes_block < serializable
         %------------------------------------------------------------------
         % ACCESSORS
         %------------------------------------------------------------------
-        function sz = dims_as_ssize(obj)
+        function sz = get.dims_as_ssize(obj)
             % Return the extent along each dimension of the signal arrays.
             % suitable for allocating appropriate size memory
             sz = obj.data_nbins;
