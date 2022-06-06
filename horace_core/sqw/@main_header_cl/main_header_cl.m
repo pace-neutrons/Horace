@@ -28,8 +28,8 @@ classdef main_header_cl < serializable
     % where cl_struc is the structure, containing any set of public
     % properties available to contructor with their correspondent values
     %
-
-
+    
+    
     properties(Dependent)
         % the properties describe the header structure
         filename; % the name of the file, where the
@@ -39,7 +39,7 @@ classdef main_header_cl < serializable
         %           is responsible for
         %
         creation_date % The date when this header (in the sqw file) was created
-
+        
         % method returns false, if the file creation date is not stored
         % together with binary data in old binary files
         creation_date_defined
@@ -67,13 +67,8 @@ classdef main_header_cl < serializable
         % and creation_date_defined_privately should override this
         fields_to_save_ = {'filename','filepath','title','nfiles',...
             'creation_date','creation_date_defined_privately'};
-        % date/time format to store in a file
-        DT_format_ = '%d-%02d-%02dT%02d:%02d:%02d';
-        % transform date-time into the requested string
-        DT_out_transf_ = @(dt)sprintf(main_header_cl.DT_format_, ...
-            dt.Year,dt.Month,dt.Day,dt.Hour,dt.Minute,round(dt.Second));
     end
-
+    
     methods
         function obj = main_header_cl(varargin)
             % Construct an instance of main header class
@@ -223,7 +218,7 @@ classdef main_header_cl < serializable
             end
             iseq = isa(other_obj,class(obj));
             if ~iseq
-                mess = 'the class of the comaried objects is different';                
+                mess = 'the class of the comaried objects is different';
                 return;
             end
             for i=1:numel(obj)
@@ -245,6 +240,16 @@ classdef main_header_cl < serializable
             % containing date and time.
             tstr = main_header_cl.DT_out_transf_(date_time);
         end
-
+    end
+    methods(Static,Access=protected)
+        function form =  DT_format_()       % date/time format to store in a file
+            form = '%d-%02d-%02dT%02d:%02d:%02d';
+        end
+        
+        function dtstr = DT_out_transf_(dt)
+            % transform date-time into the requested string
+            dtstr = sprintf(main_header_cl.DT_format_(), ...
+                dt.Year,dt.Month,dt.Day,dt.Hour,dt.Minute,round(dt.Second));
+        end
     end
 end

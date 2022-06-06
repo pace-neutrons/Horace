@@ -47,7 +47,7 @@ if keep_pix
     wout.main_header = w.main_header;
     wout.detpar = w.detpar;
     wout.data   = data_out;
-
+    
     if isempty(runid_contributed) % Empty cut
         exp_info = Experiment();
     else
@@ -71,8 +71,12 @@ if keep_pix
     %
     wout.experiment_info = exp_info;
     wout.main_header.nfiles  = exp_info.n_runs;
-    % set new cut object creation date defined and equal to now;
-    wout.main_header.creation_date = datetime('now');
+    % set new cut object creation date defined and equal to now if the
+    % resulting cut contributing runs number is smaller then the original
+    % number different
+    if w.main_header.nfiles ~= wout.main_header.nfiles
+        wout.main_header.creation_date = datetime('now');
+    end
 else
     dnd_constructor = DND_CONSTRUCTORS{numel(data_out.pax) + 1};
     wout = dnd_constructor(data_out);
