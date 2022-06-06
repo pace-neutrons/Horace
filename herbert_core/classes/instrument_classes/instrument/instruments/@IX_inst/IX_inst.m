@@ -72,10 +72,16 @@ classdef IX_inst < serializable
 
         % other methods
         %------------------
-        function iseq = eq(obj1, obj2)
+        function [iseq,mess] = eq(obj1, obj2,varargin)
+            mess = '';
             iseq = all(arrayfun(@(x,y)strcmp(x.name, y.name),obj1,obj2));
             if iseq
                 iseq = all(arrayfun(@(x,y)eq(x.source,y.source),obj1,obj2));
+                if ~iseq
+                    mess = 'some objects have different sources';
+                end
+            else
+                mess = 'some objects have different names';
             end
         end
         %------------------------------------------------------------------

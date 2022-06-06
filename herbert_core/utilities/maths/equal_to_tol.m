@@ -138,19 +138,19 @@ if nargin==2
     opt.ignore_str = false;
     opt.tol = [0,0];
     opt.throw_on_err=false;
-    
+
 elseif nargin==3 && isnumeric(varargin{1})
     % Case of no optional arguments; save an expensive call to parse_arguments
     opt.nan_equal = true;
     opt.ignore_str = false;
-    
+
     % Determine if legacy input; it must be if tol is scalar
     if isscalar(varargin{1})
         opt.tol=check_tol(varargin{1},0);
     else
         opt.tol=check_tol(varargin{1});
     end
-    opt.throw_on_err=false;    
+    opt.throw_on_err=false;
 else
     % Optional arguments must have been given; parse input arguments
     % opt filled with default for new format; strip min_denominator away later
@@ -168,7 +168,7 @@ else
     cntl.keys_at_end=false; % as may have name_a or name_b appear first in some cases
     [par, opt, present, ~, ok, mess] = parse_arguments(varargin, opt, cntl);
     if ~ok, error(mess), end
-    
+
     % Determine the tolerance
     ok_positive_scalar = @(x)(isnumeric(x) && isscalar(x) && ~isnan(x) && x>=0);
     if numel(par)==1 && isnumeric(par{1})
@@ -191,7 +191,7 @@ else
                 ['Cannot give the tolerance as third input argument and'...
                 'also as a keyword parameter'])
         end
-        
+
     elseif numel(par)==0
         % No tolerance parameter given, so determine from keywords if possible.
         if ~any([present.tolerance, present.abstolerance, present.reltolerance])
@@ -205,16 +205,16 @@ else
                 % Treat as new format
                 tol = [0,0];
             end
-            
+
         else
             % Tolerance keyword(s) present; usage is therefore non-legacy.
-            
+
             % Check that invalid keyword 'min_denominator' is not present
             if present.min_denominator
                 error('HERBERT:equal_to_toll:invalid_argument',...
                     '''min_denominator'' is only valid for legacy argument format')
             end
-            
+
             % Determine tolerance
             if present.tolerance && ~(present.abstolerance || present.reltolerance)
                 if isnumeric(opt.tolerance)
@@ -253,13 +253,13 @@ else
                 error('HERBERT:equal_to_toll:invalid_argument',...
                     '''tol'' cannot be present with ''abstol'' or ''reltol''')
             end
-            
+
         end
     else
         error('HERBERT:equal_to_toll:invalid_argument',...
             'Check number and type of non-keyword input arguments')
     end
-    
+
     % Strip away temporary fields
     name_a = opt.name_a;
     name_b = opt.name_b;
@@ -267,7 +267,7 @@ else
     if isempty(name_b), name_b = name_b_default; end
     opt = rmfield(opt, {'min_denominator','name_a','name_b',...
         'tolerance','abstolerance','reltolerance'});
-    
+
     if islognumscalar(opt.ignore_str)
         opt.ignore_str = logical(opt.ignore_str);
     else
@@ -313,7 +313,7 @@ ok_positive_scalar = @(x)(isnumeric(x) && isscalar(x) && ~isnan(x) && x>=0);
 
 if isempty(tol)
     tol_out = [0,0];
-    
+
 elseif isscalar(tol)
     if ~isnan(tol)
         if tol>=0
@@ -330,7 +330,7 @@ elseif isscalar(tol)
         error('HERBERT:equal_to_tol:invalid_argument',...
             'Tolerance cannot be NaN');
     end
-    
+
 elseif numel(tol)==2
     if all(tol>=0)
         tol_out = tol;
@@ -382,10 +382,39 @@ elseif isobject(a) && isobject(b)
             '%s and %s: Sizes of arrays of objects being compared are not equal',...
             name_a,name_b);
     end
-    
+    if ismethod(a,'eq') && ~isa(a,'handle')
+        try
+            [is,mess] = eq(a,b,opt.ignore_str);
+        catch ME
+            if strcmp(ME.identifier,'MATLAB:TooManyInputs') ||...
+                strcmp(ME.identifier,'MATLAB:UndefinedFunction')
+                is = eq(a,b);
+                if ~is
+                    mess = 'class "eq" operation returned false';
+                end
+            else
+                rethrow(ME);
+            end
+        end
+        if ~is
+            error('HERBERT:equal_to_toll:inputs_mismatch',...
+                'Input object %s differs from input object %s reason: %s',...
+                name_a,name_b,mess);
+        end
+        return;
+    end
     % Check fieldnames are identical
-    fieldsA=fieldnames(struct(a));   % gets hidden properties too
-    fieldsB=fieldnames(struct(b));
+    try
+        fieldsA=fieldnames(struct(a));   % gets hidden properties too
+        fieldsB=fieldnames(struct(b));
+    catch ME
+        if strcmp(ME.identifier,'MATLAB:invalid_conversion')
+            error('HERBERT:equal_to_toll:inputs_mismatch',...
+                'Input object %s with value %s or input object %s with value %s can not be converted to structure',...
+                name_a,evalc('disp(a)'),name_b,evalc('disp(b)'));
+        end
+        rethrow ME;
+    end
     if ~(numel(fieldsA)==numel(fieldsB))
         isBinA = ismember(fieldsA,fieldsB);
         isAinB = ismember(fieldsB,fieldsA);
@@ -394,7 +423,7 @@ elseif isobject(a) && isobject(b)
         error('HERBERT:equal_to_toll:inputs_mismatch',...
             'Input %s with extra fields: "%s" DIFFERENT from Input %s: with extra fields: "%s"',...
             name_a,strjoin(extraA,'; '),name_b,strjoin(extraB,'; '));
-        
+
     elseif ~all(ismember(fieldsA,fieldsB))
         isBinA = ismember(fieldsA,fieldsB);
         isAinB = ismember(fieldsB,fieldsA);
@@ -404,7 +433,7 @@ elseif isobject(a) && isobject(b)
             'Input''s %s fields: "%s" DIFFERENT from Input''s %s fields: "%s"',...
             name_a,strjoin(extraA,'; '),name_b,strjoin(extraB,'; '));
     end
-    
+
     for i=1:numel(a)
         if numel(a)>1
             name_a_ind = [name_a,'(',arraystr(sz,i),')'];
@@ -425,7 +454,7 @@ elseif isobject(a) && isobject(b)
                 [name_a_ind,'.',fieldsA{j}], [name_b_ind,'.',fieldsA{j}]);
         end
     end
-    
+
 elseif isstruct(a) && isstruct(b)
     % -----------------------------
     % Both arguments are structures
@@ -437,23 +466,23 @@ elseif isstruct(a) && isstruct(b)
             '%s and %s: Sizes of arrays of structures being compared are not equal',...
             name_a,name_b);
     end
-    
+
     % Check fieldnames are identical
     fieldsA = fieldnames(a);
     fieldsB = fieldnames(b);
     if (numel(fieldsA) ~= numel(fieldsB))...
             || (~(isempty(fieldsA)&&isempty(fieldsB)) && ~any(ismember(fieldsA,fieldsB)))
-        isa=ismember(fieldsA,fieldsB);
-        isb=ismember(fieldsB,fieldsA);
-        extraA = fieldsA(~isa);
+        ismema=ismember(fieldsA,fieldsB);
+        ismemb=ismember(fieldsB,fieldsA);
+        extraA = fieldsA(~ismema);
         extraA = strjoin(extraA,'; ');
-        extraB = fieldsB(~isb);
+        extraB = fieldsB(~ismemb);
         extraB = strjoin(extraB,'; ');
         error('HERBERT:equal_to_toll:inputs_mismatch',...
             'The structue: "%s" names: "%s" DIFFER from the struct: "%s"  names: "%s"',...
             name_a,extraA,name_b,extraB);
     end
-    
+
     % Check contents of each field are the same
     for i=1:numel(a)
         if numel(a)>1
@@ -470,7 +499,7 @@ elseif isstruct(a) && isstruct(b)
                 [name_a_ind,'.',fldn], [name_b_ind,'.',fldn]);
         end
     end
-    
+
 elseif iscell(a) && iscell(b)
     % ------------------------------
     % Both arguments are cell arrays
@@ -482,14 +511,14 @@ elseif iscell(a) && iscell(b)
             '%s and %s: Sizes of cell arrays being compared are not equal',...
             name_a,name_b);
     end
-    
+
     % Check contents of each element of the arrays
     for i=1:numel(a)
         name_a_ind = [name_a,'{',arraystr(sz,i),'}'];
         name_b_ind = [name_b,'{',arraystr(sz,i),'}'];
         equal_to_tol_private (a{i} ,b{i}, opt, name_a_ind, name_b_ind);
     end
-    
+
 elseif isnumeric(a) && isnumeric(b)
     % ---------------------------------
     % Both arguments are numeric arrays
@@ -505,13 +534,13 @@ elseif ischar(a) && ischar(b)
             '%s and %s: Sizes of character arrays being compared are not equal',...
             name_a,name_b);
     end
-    
+
     if ~strcmp(a,b)
         error('HERBERT:equal_to_toll:inputs_mismatch',...
             '%s and %s: Character arrays being compared are not equal',...
             name_a,name_b);
     end
-    
+
 elseif strcmp(class(a),class(b))
     % ------------------------------------------------------------------------
     % Catch-all for anything else - should hsve been caught by the cases above
@@ -521,15 +550,15 @@ elseif strcmp(class(a),class(b))
         error('HERBERT:equal_to_toll:inputs_mismatch',...
             '%s and %s: Sizes of arrays of objects being compared are not equal',...
             name_a,name_b);
-        
+
     end
-    
+
     if ~isequal(a,b)
         error('HERBERT:equal_to_toll:inputs_mismatch',...
             '%s and %s: Object (or object arrays) are not equal',...
             name_a,name_b);
     end
-    
+
 else
     % -----------------------------------------------
     % Items being compared do not have the same class
@@ -551,7 +580,7 @@ if isequal(size(a),size(b))
     sz=size(a);
     a=a(:);
     b=b(:);
-    
+
     % Treatment of NaN elements
     if nan_equal
         % If NaNs are to be ignored, remove them from consideration
@@ -575,7 +604,7 @@ if isequal(size(a),size(b))
                 name_a,name_b);
         end
     end
-    
+
     % Treatment of Inf elements
     infs_mark=isinf(a);
     if any(infs_mark)   % Inf elements are present
@@ -585,7 +614,7 @@ if isequal(size(a),size(b))
                 name_a,name_b);
         end
         if any(sign(a(infs_mark))~=sign(b(infs_mark)))
-            
+
             ind=find(infs_mark,1);
             error('HERBERT:equal_to_toll:inputs_mismatch',...
                 '%s and %s: Inf elements have different signs; first occurence at element %s',...
@@ -594,7 +623,7 @@ if isequal(size(a),size(b))
         a=a(~infs_mark);            % filter out Inf elements from further consideration
         b=b(~infs_mark);
     end
-    
+
     % Compare elements. Pass the case of empty arrays - these are considered equal
     if ~isempty(a)
         % All elements to be compared are finite (dealt with Inf and NaN above)
@@ -608,21 +637,21 @@ if isequal(size(a),size(b))
             error('HERBERT:equal_to_toll:inputs_mismatch',...
                 '%s and %s: Not all elements are equal; max. error = %s at element %s',...
                 name_a,name_b,num2str(max_delta),['(',arraystr(sz,ind),')']);
-            
+
         elseif rel_tol==0 && any(delta_abs>abs_tol)
             % Absolute tolerance must be satisfied
             [max_delta,ind] = max(delta_abs);
             error('HERBERT:equal_to_toll:inputs_mismatch',...
                 '%s and %s: Absolute tolerance failure; max. error = %s at element %s',...
                 name_a,name_b,num2str(max_delta),['(',arraystr(sz,ind),')']);
-            
+
         elseif abs_tol==0 && any(delta_rel>rel_tol)
             % Relative tolerance must be satisfied
             [max_delta,ind] = max(delta_rel);
             error('HERBERT:equal_to_toll:inputs_mismatch',...
                 '%s and %s: Relative tolerance failure; max. error = %s at element %s',...
                 name_a,name_b,num2str(max_delta),['(',arraystr(sz,ind),')']);
-            
+
         elseif any((delta_abs>abs_tol)&(delta_rel>rel_tol))
             % Absolute or relative tolerance must be satisfied
             bad = (delta_abs>abs_tol)&(delta_rel>rel_tol);
@@ -646,7 +675,7 @@ else
     error('HERBERT:equal_to_toll:inputs_mismatch',...
         '%s and %s: Different size numeric arrays',...
         name_a,name_b);
-    
+
 end
 
 
