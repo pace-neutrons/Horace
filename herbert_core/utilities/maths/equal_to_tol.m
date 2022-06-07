@@ -389,6 +389,27 @@ elseif isobject(a) && isobject(b)
             '%s and %s: Sizes of arrays of objects being compared are not equal',...
             name_a,name_b);
     end
+    if ismethod(a,'eq') && ~isa(a,'handle')
+        try
+            [is,mess] = eq(a,b,opt.ignore_str);
+        catch ME
+            if strcmp(ME.identifier,'MATLAB:TooManyInputs') ||...
+                strcmp(ME.identifier,'MATLAB:UndefinedFunction')
+                is = eq(a,b);
+                if ~is
+                    mess = 'class "eq" operation returned false';
+                end
+            else
+                rethrow(ME);
+            end
+        end
+        if ~is
+            error('HERBERT:equal_to_tol:inputs_mismatch',...
+                'Input object %s differs from input object %s reason: %s',...
+                name_a,name_b,mess);
+        end
+        return;
+    end
 
     try
         fieldsA = {meta.class.fromName(class(a)).PropertyList(:).Name}
@@ -568,7 +589,7 @@ function equal_to_tol_numeric(a,b,tol,nan_equal,name_a,name_b)
 
 sz=size(a);
 
-if sz ~= size(b)
+if any(sz ~= size(b))
     error('HERBERT:equal_to_tol:inputs_mismatch',...
           '%s and %s: Different size numeric arrays',...
           name_a,name_b);

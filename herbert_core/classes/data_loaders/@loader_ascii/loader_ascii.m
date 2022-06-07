@@ -2,17 +2,14 @@ classdef loader_ascii < a_loader
     % helper class to provide loading experiment data from
     % ASCII spe file and  ASCII par file
     %
-    % $Author: AB; 20/10/2011
-    %
-    %
     properties(Constant)
-        % when read ascii data, keep the specified number of digits after
-        % decimal point to obtain consitent results on different operating
+        % when read ASCII data, keep the specified number of digits after
+        % decimal point to obtain consistent results on different operating
         % systems
         ASCII_DATA_ACCURACY = 4;
     end
-    
-    
+
+
     methods(Static)
         function fext=get_file_extension()
             % return the file extension used by this loader
@@ -24,7 +21,7 @@ classdef loader_ascii < a_loader
             % loader.
             ext = loader_ascii.get_file_extension();
             descr =sprintf('ASCII spe files: (*%s)',ext);
-            
+
         end
         %
         function [ok,fh] = can_load(file_name)
@@ -68,26 +65,30 @@ classdef loader_ascii < a_loader
             %
             %
             if ~exist('file_name', 'var')
-                error('LOAD_ASCII:invalid_argument',' has to be called with valid file name');
+                error('HERBERT:loader_ascii:invalid_argument',...
+                    ' has to be called with valid file name');
             end
-            
+
             if ischar(file_name)
                 [ok,mess,full_file_name] = check_file_exist(file_name,{'.spe'});
                 if ~ok
-                    error('LOAD_ASCII:invalid_argument',mess);
+                    error('HERBERT:loader_ascii:invalid_argument',...
+                        mess);
                 end
             else
-                error('LOAD_ASCII:invalid_argument',' has to be called with valid file name');
+                error('HERBERT:loader_ascii:invalid_argument',...
+                    ' has to be called with valid file name');
             end
             %
             % get info about ascii spe file;
             [ne,ndet,en]= get_spe_(full_file_name,'-info_only');
             if numel(en) ~= ne+1
-                error('LOADER_ASCII:invalid_argument',' ill formatted ascii spe file %s',file_name);
+                error('HERBERT:loader_ascii:invalid_argument',...
+                    ' Ill formatted ascii spe file %s',file_name);
             end
         end
     end
-    
+
     methods
         function obj = loader_ascii(full_spe_file_name,varargin)
             % the constructor for spe data loader; called usually from run_data
@@ -109,7 +110,7 @@ classdef loader_ascii < a_loader
             % the file is present regardless of the case of file name and file extension, which forces unix file system
             % behave like Windows file system.
             % The run_data structure fields which become defined if proper spe file is provided
-            
+
             obj=obj@a_loader(varargin{:});
             obj.loader_define_ ={'S','ERR','en','n_detectors'};
             if exist('full_spe_file_name', 'var')
@@ -117,7 +118,7 @@ classdef loader_ascii < a_loader
             else
                 obj = obj.init();
             end
-            
+
         end
         %
         function ascii_loader = init(ascii_loader,full_spe_file_name,full_par_file_name,fh)
@@ -133,11 +134,11 @@ classdef loader_ascii < a_loader
             %                      file and contains number of detectors
             %                      energy bins and full file name for this file
             %
-            
+
             if ~exist('full_spe_file_name', 'var')
                 return
             end
-            
+
             if exist('full_par_file_name', 'var')
                 if isstruct(full_par_file_name) && ~exist('fh', 'var')
                     fh = full_par_file_name; % second parameters defines spe file structure
@@ -148,21 +149,22 @@ classdef loader_ascii < a_loader
             if exist('fh', 'var')
                 ascii_loader.n_detindata_    = fh.n_detectors;
                 ascii_loader.en_             = fh.en;
-                ascii_loader.data_file_name_ = fh.file_name;
+                ascii_loader.file_name_ = fh.file_name;
             else
                 % set new file name, run all checks on this file and set up
                 % all file information
                 ascii_loader.file_name = full_spe_file_name;
-                
+
             end
         end
         %
-        function this = set_data_info(this,full_spe_file_name)
+        function obj = set_data_info(obj,full_spe_file_name)
             % obtain data file information and set it into class
             [ndet,en,full_file_name]=loader_ascii.get_data_info(full_spe_file_name);
-            this.data_file_name_ = full_file_name;
-            this.n_detindata_ = ndet;
-            this.en_ = en;
+            obj.file_name_ = full_file_name;
+            obj.n_detindata_ = ndet;
+            obj.en_ = en;
+            obj.isvalid_ = true;            
         end
     end
 end

@@ -72,8 +72,6 @@ function varargout = gen_nxspe(S,ERR,en,par_file,nxspe_file,efix, varargin)
 %         or gen_sqw for detailed description of these parameters
 %
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
 
 %
 % briefly check main inputs consistency (detailed consistency will be
@@ -81,7 +79,8 @@ function varargout = gen_nxspe(S,ERR,en,par_file,nxspe_file,efix, varargin)
 [ok,mess,S,ERR,en,nxspe_file,n_files, inputs_are_cellarrays,save_nxspe,params] = ...
     check_and_preprocess_inputs(S,ERR,en,nxspe_file,efix,varargin{:});
 if ~ok
-    error('GEN_NXSPE:invalid_arguments',mess);
+    error('HERBERT:gen_nxspe:invalid_argument',...
+        mess);
 end
 if nargout > 0 % return runfiles
     return_runfiles = true;

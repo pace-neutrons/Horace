@@ -7,7 +7,7 @@ function [undefined,fields_from_loader,fields_undef] = check_run_defined(run,fie
 % ------
 %   run             Initated instance of the rundata class
 %   fields_needed   List of the fields to verify (optional). If absent,
-%                  it is derived from the class method.
+%                   it is derived from the class method.
 %
 % Output:
 % -------
@@ -23,10 +23,7 @@ function [undefined,fields_from_loader,fields_undef] = check_run_defined(run,fie
 %                          loaded from hard-coded defaults
 %   fields_undef    Cellarray of the fields which are unfilled
 
-% $Author: Alex Buts; 20/10/2011
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-
 %
 % What fields have to be defined (as function of crystal/powder parameter)?
 if ~exist('fields_needed', 'var')
@@ -47,7 +44,7 @@ if ~isempty(lattice_fields)
     else
         the_lattice = run.lattice;
     end
-    undef_lattice  = the_lattice.get_undef_fields();
+    undef_lattice  = the_lattice.undef_fields;
     other_fields   = ~ismember(all_fields,lattice_fields);
     all_fields     = all_fields(other_fields);
 
@@ -75,7 +72,12 @@ end
 undefined = 1;
 
 % Can missing fields be obtained from data loader?
-loader_provides = loader_define(run.loader);
+if isempty(run.loader)
+    loader_provides = {};
+else
+    loader_provides = loader_define(run.loader);
+end
+
 is_in_loader    = ismember(fields_undef,loader_provides);
 if sum(is_in_loader)>0
     fields_from_loader=fields_undef(is_in_loader);
@@ -88,14 +90,11 @@ fields_undef = fields_undef(~is_in_loader);
 % necessary fields are still undefined by the run
 if ~isempty(fields_undef)
     undefined = 2;
-    if config_store.instance().get_value('herbert_config','log_level') > -1
-        for i=1:numel(fields_undef)
-            fprintf('Necessary field undefined: %s \n',fields_undef{i});
-        end
-        disp(['The field(s) above are neither defined by the data reader ',class(run.loader),' nor by the command line arguments\n']);
+    if config_store.instance().get_value('herbert_config','log_level') > 0 && ~isempty(run.loader)
+        undef_field_names = strjoin(fields_undef,'; ');
+        sprintf('The fields: %s are needed but neither defined on interface nor can be provided in loader %s\n',...
+            undef_field_names,class(run.loader) )
     end
-
-end
 
 end
 
@@ -112,4 +111,3 @@ else
     end
 end
 
-end

@@ -11,7 +11,6 @@ function  [this,ok,mess,undef_list] = load_metadata(this,varargin)
 % if '-for_pwder'  option is specified, lattice or lattice fields do not
 % need to be defined
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
 %
 keys = {'-for_powder'};
 [ok,mess,for_powder] = parse_char_options(varargin,keys);
@@ -22,7 +21,7 @@ mess ='';
 ok = true;
 large_data_fields = {'S','ERR','en','det_par'};
 if ~isempty(this.lattice)
-    undef_lattice = this.lattice.get_undef_fields();
+    undef_lattice = this.lattice.undef_fields;
 else
     if for_powder
         undef_lattice = {};
@@ -38,12 +37,12 @@ in_undef_list = cellfun(@(fln)(isemptyfield(this,fln)),metha_fields);
 undef_data = metha_fields(in_undef_list);
 undef_list = [undef_data';undef_lattice(:)'];
 if ~isempty(undef_list) && ~isempty(this.loader)
-    ldf = this.loader.loader_can_define();
+    ldf = this.loader.loader_define();
     if ~for_powder
         % extract lattice fields stored in loader
         lat_in_load = ismember(undef_lattice,ldf);
         lat_fld = undef_lattice(lat_in_load);
-        latt = this.oriented_lattice_;
+        latt = this.lattice_;
         %
         for i=1:numel(lat_fld)
             fld = lat_fld{i};
@@ -52,8 +51,8 @@ if ~isempty(undef_list) && ~isempty(this.loader)
                 latt.(fld) = val;
             end
         end
-        this.oriented_lattice_ = latt;
-        undef_lattice = this.lattice.get_undef_fields();
+        this.lattice_ = latt;
+        undef_lattice = this.lattice.undef_fields;
         
         %
         % extract data fields stored in loader. It seems, this never 

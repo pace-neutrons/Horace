@@ -213,11 +213,9 @@ classdef ClusterWrapper
                 obj.matlab_starter_= fullfile(obj.matlab_starter_,'matlab');
             end
             if obj.is_compiled_script_
-                % TODO -- need checking and may be expansion when compiled
-                % horace ticket is executed.
-                obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR')= obj.worker_name_;
+                obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR') = obj.worker_name_;
             else
-                obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR') =  obj.matlab_starter_;
+                obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR') = obj.matlab_starter_;
             end
             % additional Matlab m-files search path to be available to
             % workers
@@ -461,12 +459,10 @@ classdef ClusterWrapper
             % Should throw PARALLEL_CONFIG:not_avalable exception
             % if the particular framework is not available.
             worker = config_store.instance.get_value('parallel_config','worker');
-            pkp = which(worker);
-            if isempty(pkp)
-                error('HERBERT:ClusterWrapper:not_available',...
-                    'Parallel worker %s is not on Matlab path. Parallel extensions are not available',...
-                    worker);
-            end
+            assert(~isempty(which(worker)) || exist(worker, 'file'), ...
+                'HERBERT:ClusterWrapper:not_available',...
+                'Parallel worker %s is not on Matlab path. Parallel extensions are not available',...
+                worker);
         end
         % The property returns the list of the configurations, available for
         % usage by the

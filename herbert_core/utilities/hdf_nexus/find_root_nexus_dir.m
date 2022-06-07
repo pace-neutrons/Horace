@@ -45,7 +45,7 @@ nx_version=cell(1,1);
 for i=1:numel(groups)
     % obtain the short name (the name of the last folder in a hdf hirackhy) of the attribute
     if ~isfield(groups(i),'Attributes') || isempty(groups(i).Attributes)
-        error('ISIS_UTILITES:invalid_argument',...
+        error('HERBERT:isis_utilities:invalid_argument',...
             'hdf file %s is not valid NEXUS file',hdf_fileName);
     end
     [~,shortName] = fileparts(groups(i).Attributes.Name);
@@ -73,7 +73,7 @@ if(n_nx_entries==0)
 end
 if(n_nx_entries>1)
     if ~test_mode
-        error('ISIS_UTILITES:invalid_argument',...
+        error('HERBERT:isis_utilities:invalid_argument',...
             ' found multiple nxspe folders in file %s but this function does not currently support multiple nxspe folders',hdf_fileName)
     end
     root_nx_path = nx_folders;
@@ -96,5 +96,5 @@ for i=1:numel(def_dataset.Attributes)
         return;
     end
 end
-error('ISIS_UTILITES:invalid_argument',...
+error('HERBERT:isis_utilities:invalid_argument',...
     'Dataset %s in file %s does not have correct version',APP_NAME,filename)

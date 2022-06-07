@@ -45,7 +45,8 @@ switch lext
         rez  =  load_ASCII_phx(obj.par_file_name);
         is_phx = true;
     otherwise
-        error('ASCIIPAR_LOADER:load_par','unknown file extension for file %s',obj.par_file_name);
+        error('HERBERT:asciipar_loader:invalid_argument',...
+            'unknown file extension for file %s',obj.par_file_name);
 end
 %
 %
@@ -59,7 +60,8 @@ if size_par(1)==5
     det_id = 1:ndet;
     rez = [rez;det_id];
 elseif(size_par(1)~=6)
-    error('ASCIIPAR_LOADER:load_par',' proper par file has to have 5 or 6 column but this one has %d',size_par(1));
+     error('HERBERT:asciipar_loader:invalid_argument',...
+        ' proper par file has to have 5 or 6 column but this one has %d',size_par(1));
 end
 %
 if return_array
@@ -85,7 +87,7 @@ else
     end
     det =  get_hor_format(par,obj.par_file_name);
     obj.det_par_    = det;
-    obj.n_detinpar_ = ndet;
+    obj.n_det_in_par_ = ndet;
     loader_defined=true;
 end
 
@@ -106,7 +108,7 @@ if nargout >1 && ~loader_defined
         det_i =  get_hor_format(par,obj.par_file_name);
     end
     obj.det_par_    = det_i;
-    obj.n_detinpar_ = ndet;
+    obj.n_det_in_par_ = ndet;
     
 end
 %

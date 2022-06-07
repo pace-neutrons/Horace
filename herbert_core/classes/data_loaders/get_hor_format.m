@@ -43,8 +43,7 @@ function det = get_hor_format(par_data,file_name)
 % det.filename<- filename;
 % det.filepath<- filepath;
 %
-% $Revision:: 840 ($Date:: 2020-02-10 16:05:56 +0000 (Mon, 10 Feb 2020) $)
-%
+
 hor_fields={'group','x2','phi','azim','width','height'};
 array_colN=[6,1,2,3,4,5];
 
@@ -69,7 +68,8 @@ det.filepath = [path,filesep];
 
 size_par  = size(par_data);
 if(size_par(1)~=6)
-    error('GET_HOR_FORMAT:invalid_file_format',' proper par array has to have 6 column but this one has %d',size_par(1));
+    error('HERBERT:get_hor_format:invalid_argument',...
+        ' proper par array has to have 6 column but this one has %d',size_par(1));
 end
 
 for i=1:numel(hor_fields)

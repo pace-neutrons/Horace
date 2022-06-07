@@ -2,26 +2,27 @@ classdef IX_inst < serializable
     % Defines the base instrument class. This superclass must be
     % inherited by all instrument classes to unsure that they are
     % discoverable as instruments using isa(my_obj,'IX_inst')
-    
+
     properties (Access=protected)
         name_ = '';             % Name of instrument (e.g. 'LET')
         source_ = IX_source;    % Source (name, or class of type IX_source)
-        
+
     end
-    
+
     properties (Dependent)
         name ;          % Name of instrument (e.g. 'LET')
         source; % Source (name, or class of type IX_source)
     end
-    
+
     methods(Static)
         function isaval = cell_is_class(ca)
             try
                 isaval = cellfun(@IX_inst.xxx, ca);
                 if all(isaval), isaval = 1; else, isaval = 0; end
-            catch
-                error('HERBERT:IX_inst:cell_is_class', ...
-                      'input could not be converted from cell to logical');
+            catch ME
+                error('HERBERT:IX_inst:invalid_argument', ...
+                    'input could not be converted from cell to logical: %s',...
+                    ME.message);
             end
         end
         function rv = xxx(obj)
@@ -42,11 +43,11 @@ classdef IX_inst < serializable
             %   source      Neutron source
             %               - name of the source e.g. 'ISIS'
             %               - object of class IX_source
-            
+
             if nargin==1 && isstruct(varargin{1})
                 % Assume trying to initialise from a structure array of properties
                 obj = IX_inst.loadobj(varargin{1});
-                
+
             elseif nargin>0
                 namelist = {'name', 'source'};
                 [S, present] = parse_args_namelist (namelist, varargin{:});
@@ -58,22 +59,30 @@ classdef IX_inst < serializable
                 end
             end
         end
-        
+
         % SERIALIZABLE interface
         %------------------------------------------------------------------
         function ver = classVersion(~)
             ver = 0; % dummy value for abstract base class
         end
-        
-        function flds = indepFields(~)
+
+        function flds = saveableFields(~)
             flds = {'name','source'};
         end
-        
+
         % other methods
         %------------------
-        function iseq = eq(obj1, obj2)
-            iseq = strcmp(obj1.name, obj2.name);
-            iseq = iseq && obj1.source==obj2.source;
+        function [iseq,mess] = eq(obj1, obj2,varargin)
+            mess = '';
+            iseq = all(arrayfun(@(x,y)strcmp(x.name, y.name),obj1,obj2));
+            if iseq
+                iseq = all(arrayfun(@(x,y)eq(x.source,y.source),obj1,obj2));
+                if ~iseq
+                    mess = 'some objects have different sources';
+                end
+            else
+                mess = 'some objects have different names';
+            end
         end
         %------------------------------------------------------------------
         % Set methods for independent properties
@@ -84,14 +93,14 @@ classdef IX_inst < serializable
         %
         % There is a synchronisation that must be maintained as the checks
         % in both places must be identical.
-        
+
         function obj=set.name_(obj,val)
             if ~is_string(val)
                 error('The source name must be a character string')
             end
             obj.name_ = val;
         end
-        
+
         function obj=set.source_(obj,val)
             if isa(val,'IX_source') && isscalar(val)
                 obj.source_ = val;
@@ -103,37 +112,37 @@ classdef IX_inst < serializable
                 error('The source name must be a character string or an IX_source object')
             end
         end
-        
+
         %------------------------------------------------------------------
         % Set methods for dependent properties
         function obj=set.name(obj,val)
             obj.name_ = val;
         end
-        
+
         function obj=set.source(obj,val)
             obj.source_ = val;
         end
-        
+
         %------------------------------------------------------------------
         % Get methods for dependent properties
         function val=get.name(obj)
             val = obj.name_;
         end
-        
+
         function val=get.source(obj)
             val = obj.source_;
         end
-        
+
         %------------------------------------------------------------------
     end
-    
+
 
 
     %======================================================================
     % Custom loadobj
     % - to enable custom saving to .mat files and bytestreams
     % - to enable older class definition compatibility
-    
+
     %------------------------------------------------------------------
     methods (Static)
         function obj = loadobj(S)
@@ -152,7 +161,7 @@ classdef IX_inst < serializable
             %   obj     Either (1) the object passed without change, or (2) an
             %           object (or object array) created from the input structure
             %       	or structure array)
-            
+
             % The following is boilerplate code; it calls a class-specific function
             % called loadobj_private_ that takes a scalar structure and returns
             % a scalar instance of the class
@@ -168,8 +177,8 @@ classdef IX_inst < serializable
 
         end
         %------------------------------------------------------------------
-        
+
     end
     %======================================================================
-    
+
 end

@@ -340,7 +340,7 @@ switch cls
         b = uint8(9);
     case 'uint64'
         b = uint8(10);
-        
+
         % other tags are as follows:
         % % offset by +16: scalar variants of these...
         % case 'cell'
@@ -379,7 +379,7 @@ switch cls
         %       b = uint8(153);
         % case 'emptystring'
         %   b = uint8(200);
-        
+
     otherwise
         error('MATLAB:class2tag:unrecognised_class', 'Unknown class %s', cls);
 end

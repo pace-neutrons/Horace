@@ -1,4 +1,5 @@
-function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,varargin)
+function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,...
+    varargin)
 % Returns array of rundata objects created by the input arguments.
 %
 %   >> [runfiles_list,file_exist] = gen_runfiles(spe_file,[par_file],arg1,arg2,...)
@@ -21,15 +22,10 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,varargin)
 %
 %^1 efix            Fixed energy (meV)   [scalar or vector length nfile] ^1
 %   emode           Direct geometry=1, indirect geometry=2
-%^1 alatt           Lattice parameters (Ang^-1)  [vector length 3, or array size [nfile,3]]
-%^1 angdeg          Lattice angles (deg)         [vector length 3, or array size [nfile,3]]
-%   u               First vector defining scattering plane (r.l.u.)  [vector length 3, or array size [nfile,3]]
-%   v               Second vector defining scattering plane (r.l.u.) [vector length 3, or array size [nfile,3]]
-%^1 psi             Angle of u w.r.t. ki (deg)         [scalar or vector length nfile]
-%^2 omega           Angle of axis of small goniometer arc w.r.t. notional u (deg) [scalar or vector length nfile]
-%^2 dpsi            Correction to psi (deg)            [scalar or vector length nfile]
-%^2 gl              Large goniometer arc angle (deg)   [scalar or vector length nfile]
-%^2 gs              Small goniometer arc angle (deg)   [scalar or vector length nfile]
+%^1 lattice         The instance of oriented lattice object or
+%                   array of such objects
+%  instrument       the instance or array of instruments
+%  sample           the instance or array of samples
 %
 % additional control keywords could modify the behaviour of the routine, namely:
 %  -allow_missing   - if such keyword is present, routine allows
@@ -37,6 +33,8 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,varargin)
 %                     rundata class would contain runfile with undefined
 %                     loader. Par file(s) if provided, still have always be
 %                     defined
+% -check_validity   - if present, check if the generated runfiles are
+%                     valid, i.e. can be used for transformation
 %
 %
 % Output:
@@ -51,36 +49,27 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,varargin)
 % Notes:
 % ^1    This parameter is optional for some formats of spe files. If
 %       provided, overides the information contained in the the "spe" file.
-% ^2    Optional parameter. If absent, the default value defined by the class
-%       is used instead;
 
 %
 %
 %
-control_keys = {'-allow_missing'};
-[ok,mess,allow_missing,params]=parse_char_options(varargin,control_keys);
+control_keys = {'-allow_missing','-check_validity'};
+[ok,mess,allow_missing,check_validity,params]=parse_char_options(varargin,control_keys);
 if ~ok
-    error('GEN_GRUNFILES:invalid_arguments',mess);
+    error('HERBERT:rundata:invalid_argument',mess);
 end
-
-% Optional parameters names list
-parameter_nams={'efix','emode','alatt','angdeg','u','v','psi','omega',...
-    'dpsi','gl','gs','instrument','sample'};
 
 % Input files
 % -----------
 % Check spe files
-no_spe = false;
 if ischar(spe_files) &&  size(spe_files,1)==1
     spe_files=cellstr(spe_files);
 elseif isempty(spe_files) && allow_missing
     spe_files = cell(1,1);
-    no_spe    = true;
-elseif ~iscellstr(spe_files)
-    if allow_missing && iscell(spe_files)
-        no_spe    = true;
-    else
-        error('spe file input must be a single file name or cell array of file names')
+elseif ~(iscellstr(spe_files)||isstring(spe_files))
+    if ~allow_missing && iscell(spe_files)
+        error('HERBERT:rundata:invalid_argument',...
+            'spe file input must be a single file name or cell array of file names')
     end
 end
 
@@ -105,21 +94,36 @@ if nargin>1
 else
     par_files = {};
 end
-
-
 % Check number of par files is one, no, or matches the number of spe files
 if ~(numel(par_files)==1 || numel(par_files)==numel(spe_files) || numel(par_files) == 0)
-    error('GEN_RUNFILES:invalid_argument','par files list should be empty, have one par file or number of par files should be equal to the number of spe files');
+    error('HERBERT:rundata:invalid_argument',...
+        'par files list should be empty, have one par file or number of par files should be equal to the number of spe files');
 end
-
 % Check if all requested par files exist:
 if ~parfile_is_det
     for i=1:numel(par_files)
         file=check_file_exist(par_files{i},{'.par','.nxspe'});
         if isempty(file)
-            error('GEN_RUNFILES:invalid_argument',' par file %s specified but can not be found',file);
+            error('HERBERT:rundata:invalid_argument',...
+                ' par file %s specified but can not be found',file);
         end
     end
+end
+
+% Remaining parameters names list:
+parameter_nams={'efix','emode','lattice','instrument','sample'};
+if numel(params)>2 && isnumeric(params{3}) && rem(numel(params{3}),3)==0 % old format call
+    % instead of lattice, one have long row of the lattice and goniometer
+    % parameters.
+    is_present = cellfun(@(x)isa(x,'IX_inst')||isa(x,'IX_samp'),params);
+    if any(is_present)
+        inst_samp = params(is_present);
+    else
+        inst_samp = {};
+    end
+    params = params(~is_present);
+    lat = convert_old_input_to_lat(params{3:end});
+    params = [params(1:2),{lat},inst_samp];
 end
 
 
@@ -138,6 +142,26 @@ else
 end
 
 n_dfnd_params = numel(params);
+if n_dfnd_params>4 % sample provided
+    default_sample = arrayfun(@(x)(isa(x,'IX_null_sample')),params{5});
+    if all(default_sample) % ignore it. Default sample is already on rundata,
+        % and was set from lattice. Setting it again will break rundata
+        % TODO: merge IX_samp and oriented_lattice
+        n_dfnd_params = 4;
+        params = params(1:4);
+        parameter_nams = parameter_nams(1:4);
+    end
+end
+if n_dfnd_params>3 && isa(params{4},'IX_inst') % instrument provided
+    default_inst = arrayfun(@(x)(isa(x,'IX_null_inst')),params{4});
+    if all(default_inst) % some instrument may have already been set on rundata
+        % so better to ignore them here. (not happens currently but let's do it for consistence)
+        n_dfnd_params = n_dfnd_params - 1;
+        params = [params(1:3),params(5:end)];
+        parameter_nams = [parameter_nams(1:3),parameter_nams(5:end)];
+    end
+end
+
 args=cell(1,n_dfnd_params);
 emode = params{2};
 emode = emode(1);
@@ -158,9 +182,7 @@ end
 for i=1:n_dfnd_params
     val = params{i};
     name= parameter_nams{i};
-    if ismember(name,{'alatt','angdeg','u','v'})
-        args{i} = spread_vector(val,n_files,3,parameter_nams{i});
-    elseif emode == 2 && strcmpi(name,'efix')
+    if emode == 2 && strcmpi(name,'efix')
         if n_det_efix_guess >1
             args{i} = spread_vector(val,n_files,n_det_efix_guess,parameter_nams{i});
         else
@@ -200,6 +222,11 @@ if isempty(par_files)
 elseif numel(par_files)==1
     [runfiles{1},file_exist(1)]= init_runfile_with_par(runfiles{1},spe_files{1},...
         par_files{1},'',dfnd_params(1),allow_missing,parfile_is_det);
+    if file_exist(1) &&  ~runfiles{1}.isvalid
+        [ok,mess,runfiles{1}] = runfiles{1}.check_combo_arg();
+        if ~ok; error('HERBERT:gen_runfiles:invalid_argument',mess)
+        end
+    end
     % Save time on multiple load of the same par into memory by reading it just once
     if n_files>1
         [par,runfiles{1}] = get_par(runfiles{1});
@@ -207,63 +234,72 @@ elseif numel(par_files)==1
     for i=2:n_files
         [runfiles{i},file_exist(i)]= init_runfile_with_par(runfiles{i},...
             spe_files{i},par_files{1},par,dfnd_params(i),allow_missing,parfile_is_det);
-        if isempty(runfiles{i}.det_par) || ischar(runfiles{i}.n_detectors)
-            error('GEN_RUNFILES:invalid_argument','invalid runfile detectors: %s',runfiles{i}.loader.n_detectors);
+        if file_exist(i) && ~runfiles{i}.isvalid
+            [ok,mess,runfiles{i}] = runfiles{i}.check_combo_arg();
+            if ~ok
+                error('HERBERT:gen_runfiles:invalid_argument',mess)
+            end
         end
     end
 else   % multiple par and spe files;
     for i=1:n_files
         [runfiles{i},file_exist(i)]= init_runfile_with_par(runfiles{i},...
             spe_files{i},par_files{i},'',dfnd_params(i),allow_missing,parfile_is_det);
+        if file_exist(i) && ~runfiles{i}.isvalid
+            [ok,mess,runfiles{i}] = runfiles{i}.check_combo_arg();
+            if ~ok
+                error('HERBERT:gen_runfiles:invalid_argument',mess)
+            end
+        end
+
     end
 end
 
 % Check if all information necessary to define the run is present
-for i=1:n_files
-    if file_exist(i)
-        undefined = check_run_defined(runfiles{i});
-        if undefined==2
-            error('GEN_RUNFILES:invalid_argument',' the run data for data file %s are not fully defined',runfiles{i}.data_file_name);
+if check_validity
+    for i=1:n_files
+        if file_exist(i)
+            if ~runfiles{i}.isvalid
+                [ok,mess,runfiles{i}] = runfiles{i}.check_combo_arg();
+                if ~ok
+                    error('HERBERT:gen_runfiles:invalid_argument', ...
+                        ' The run data for data file %s are not fully defined: %s', ...
+                        runfiles{i}.data_file_name,mess);
+                end
+            end
         end
     end
 end
 
 function [runfile,file_found] = init_runfile_no_par(runfile,spe_file_name,param,allow_missing)
-% initialize runfile in the case of no par file is present
+% init runfile in the case of no par file is present
 file_found = true;
 if allow_missing
     if check_file_exist(spe_file_name)
-        runfile = runfile.initialize(spe_file_name,param);
+        runfile = runfile.init(spe_file_name,param);
     else
         file_found = false;
-        lat = oriented_lattice();
-        lat_fields = fieldnames(lat);
         par_fields = fieldnames(param);
         for i=1:numel(par_fields)
             field = par_fields{i};
-            if ismember(field,lat_fields)
-                lat.(field) = param.(field);
-            else
-                runfile.(field) = param.(field);
-            end
+            runfile.(field) = param.(field);
         end
-        runfile.lattice = lat;
     end
 else
-    runfile = runfile.initialize(spe_file_name,param);
+    runfile = runfile.init(spe_file_name,param);
 end
 %
 function [runfile,file_found] = init_runfile_with_par(runfile,spe_file_name,...
     par_file,par_data,param,allow_missing,par_is_det)
-% initialize runfile in the case of par file being present
+% init runfile in the case of par file being present
 file_found = true;
 if allow_missing
     if check_file_exist(spe_file_name)
         if par_is_det
-            runfile = runfile.initialize(spe_file_name,param);
+            runfile = runfile.init(spe_file_name,param);
             runfile.det_par = par_file;
         else
-            runfile = runfile.initialize(spe_file_name,par_file,param);
+            runfile = runfile.init(spe_file_name,par_file,param);
         end
     else
         file_found = false;
@@ -272,27 +308,19 @@ if allow_missing
         else
             runfile.par_file_name = par_file;
         end
-        lat = oriented_lattice();
-        lat_fields = fieldnames(lat);
         par_fields = fieldnames(param);
         for i=1:numel(par_fields)
             field = par_fields{i};
-            if ismember(field,lat_fields)
-                lat.(field) = param.(field);
-            else
-                runfile.(field) = param.(field);
-            end
+            runfile.(field) = param.(field);
         end
-        runfile.lattice = lat;
-        
     end
 else
     file_found = check_file_exist(spe_file_name);
     if par_is_det
-        runfile = runfile.initialize(spe_file_name,param);
+        runfile = runfile.init(spe_file_name,param);
         runfile.det_par = par_file;
     else
-        runfile = runfile.initialize(spe_file_name,par_file,param);
+        runfile = runfile.init(spe_file_name,par_file,param);
     end
 end
 %
@@ -324,9 +352,14 @@ function res = spread_scalar(val,n_files,name)
 if numel(val)==n_files
     res=num2cell(val(:)');  % 1 x nfiles cell array
 elseif numel(val)==1
-    res=num2cell(val*ones(1,n_files));  % 1 x nfiles cell array
+    if isobject(val)
+        res = num2cell(repmat(val,1,n_files));
+    else
+        res=num2cell(val*ones(1,n_files));  % 1 x nfiles cell array
+    end
 else
-    error('GEN_RUNFILES:invalid_argument','parameter %s must be a single value or a vector of %d values',name,n_files);
+    error('HERBERT:gen_runfiles:invalid_argument',...
+        'parameter %s must be a single value or a vector of %d values',name,n_files);
 end
 
 function res = spread_vector(val,n_files,n_components,name)
@@ -335,7 +368,7 @@ if numel(size(val))==2 && all(size(val)==[n_files,n_components])
 elseif numel(val)==n_components
     res=num2cell(repmat(val(:)',[n_files,1]),2)';   % 1 x nfiles cell array containing n_components vectors
 else
-    error('GEN_RUNFILES:invalid_argument',...
+    error('HERBERT:gen_runfiles:invalid_argument',...
         'parameter %s must be a %d-element vector or a [%d x %d] array of doubles',...
         name,n_components,n_files,n_components);
 end

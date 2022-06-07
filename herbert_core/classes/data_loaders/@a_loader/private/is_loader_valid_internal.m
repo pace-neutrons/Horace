@@ -25,12 +25,13 @@ if isempty(this.file_name)
             return
         end
         en  = this.en_;
-        if size(en,1) ~=size(this.S_,1)+1
+        % Matlab bug? does not work if this row is provided within if
+        size_ok = ((size(en,1) ==size(this.S_,1)+1)) || (size(en,1) ==size(this.S_,1));
+        if ~size_ok
             ok = 0;
-            mess = 'size(S,1)+1 ~= size(en)';
+            mess = 'size(en) ~=size(S,1)+1 || size(en) ~=size(S,1)';
             return
         end
-        
         n_data_detectors = size(this.S_,2);
     end
 else  % check data in memory
