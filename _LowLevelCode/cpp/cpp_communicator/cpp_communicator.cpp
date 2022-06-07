@@ -20,7 +20,7 @@ The allowed operations and their parameters are:
 Inputs:  -- optional,
   2     --  length of asynchronous messages queue. The framework fails if this length is exceeded.
   3     --  data_messages_tag: the tag of the channel, used to transmit blocking messages. Default is 8
-  4     -- interrupt_messages_tag: the tag of the channel used to transmint interrupt messages. Default is 100
+  4     -- interrupt_messages_tag: the tag of the channel used to transmit interrupt messages. Default is 100
   5     -- Ignored in this mode. In test mode its 2-element array, containing labIndex and numLabs for cluster under investigation.
 
 
@@ -33,9 +33,9 @@ Outputs:
 Inputs:
   2     -- length of asynchronous messages queue. The framework fails if this length is exceeded.
   3     -- data_messages_tag: the tag of the channel, used to transmit blocking messages. Default is 8
-  4     -- interrupt_messages_tag: the tag of the channel used to transmint interrupt messages. Default is 100
+  4     -- interrupt_messages_tag: the tag of the channel used to transmit interrupt messages. Default is 100
   5     -- in test mode 2-element array, containing labIndex and numLabs for cluster under investigation.
-           Ignored in produciton mode.
+           Ignored in production mode.
 
 Outputs:
   1     -- pointer to  fake MPI framework.
@@ -147,7 +147,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         set_numlab_and_nlabs(pCommunicatorHolder, nlhs, plhs, nrhs, prhs);
         break;
     }
-    case(labIndex): {  // return labindex and number of workers
+    case(labIndex): {  // return labIndex and number of workers
         set_numlab_and_nlabs(pCommunicatorHolder, nlhs, plhs, nrhs, prhs);
         break;
     }
@@ -199,7 +199,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         plhs[(int)labIndex_Out::comm_ptr] = pCommunicatorHolder->export_hanlder_toMatlab();
     }
 }
-/* If appropriate number of output arguments are availiable, set up the mex routine output arguments to mpi_numLab and mpi_labNum values
+/* If appropriate number of output arguments are available, set up the mex routine output arguments to mpi_numLab and mpi_labNum values
    extracted from initialized MPI framework.
 */
 void set_numlab_and_nlabs(class_handle<MPI_wrapper>* const pCommunicatorHolder, int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[]) {

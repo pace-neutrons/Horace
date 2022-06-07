@@ -1,17 +1,4 @@
 function obj = clear_bbind (obj, varargin)
-% Clear any binding of parameters for one or more foreground functions
-%
-% Clear for all parameters for all foreground functions
-%   >> obj = obj.clear_bind
-%   >> obj = obj.clear_bind ('all')
-%
-% Clear for all parameters for one or more specific foreground function(s)
-%   >> obj = obj.clear_bind (ifun)
-%
-% Input:
-% ------
-%   ifun    Row vector of foreground function indicies [Default: all functions]
-
 % -----------------------------------------------------------------------------
 % <#doc_def:>
 %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')

@@ -1,17 +1,4 @@
 function obj = clear_bfree (obj, varargin)
-% Free all parameters to vary in fitting for one or more background functions
-%
-% Free all parameters for all background functions
-%   >> obj = obj.clear_bfree
-%   >> obj = obj.clear_bfree ('all')
-%
-% Free all parameters for one or more specific background function(s)
-%   >> obj = obj.clear_bfree (ifun)
-%
-% Input:
-% ------
-%   ifun    Row vector of background function indicies [Default: all functions]
-
 % -----------------------------------------------------------------------------
 % <#doc_def:>
 %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')

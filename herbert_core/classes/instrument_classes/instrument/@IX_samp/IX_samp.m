@@ -77,10 +77,15 @@ classdef IX_samp  < serializable
         %
         % other methods
         %------------------------------------------------------------------
-        function iseq = eq(obj1, obj2)
+        function [iseq,mess] = eq(obj1, obj2,varargin)
+            mess = '';
             iseq = strcmp(obj1.name, obj2.name);
+            if ~iseq
+                mess = 'objects have different names; ';
+            end
             if numel(obj1.alatt)==3 && numel(obj2.alatt)==3
                 iseq = iseq && all(obj1.alatt==obj2.alatt);
+                mess = [mess,'objects have different lattice; '];
             elseif isempty(obj1.alatt) && isempty(obj2.alatt)
                 iseq = iseq && true; % heavy-handed but gets the point across
             else

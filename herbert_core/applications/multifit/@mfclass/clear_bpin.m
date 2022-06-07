@@ -1,17 +1,4 @@
 function obj = clear_bpin (obj, varargin)
-% Clear all parameters and constraints for one or more background functions
-%
-% Clear all parameters for all background functions
-%   >> obj = obj.clear_bpin
-%   >> obj = obj.clear_bpin ('all')
-%
-% Clear all parameters for one or more specific background function(s)
-%   >> obj = obj.clear_bpin (ifun)
-%
-% Input:
-% ------
-%   ifun    Row vector of background function indicies [Default: all functions]
-
 % -----------------------------------------------------------------------------
 % <#doc_def:>
 %   mfclass_doc = fullfile(fileparts(which('mfclass')),'_docify')

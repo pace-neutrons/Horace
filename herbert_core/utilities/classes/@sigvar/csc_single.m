@@ -1,17 +1,4 @@
 function w = csc_single (w1)
-% Implements csc(w1) for a sigvar object
-%
-%   >> w = csc_single(w1)
-%
-% Input:
-% ------
-%   w1          Sigvar object. Scalar instance only (but signal and variance
-%               arrays can be scalar or multiple element).
-%
-% Output:
-% -------
-%   w           Output sigvar object.
-
 % -----------------------------------------------------------------------------
 % <#doc_def:>
 %   doc_dir = fullfile(fileparts(which('sigvar')),'_docify')

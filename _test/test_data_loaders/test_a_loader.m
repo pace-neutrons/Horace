@@ -1,6 +1,5 @@
 classdef test_a_loader< TestCase
     %
-    % $Revision:: 833 ($Date:: 2019-10-24 20:46:09 +0100 (Thu, 24 Oct 2019) $)
     %
 
     properties
@@ -103,8 +102,11 @@ classdef test_a_loader< TestCase
             assertEqual(36864,al.n_detectors);
 
             spe_file  = fullfile(this.test_data_path,'MAP10001.spe');
+            % file_name set method overloaded to not set any file
+            % for abstract loader
             al.file_name = spe_file;
-            assertFalse(al.isvalid);
+            % abstract file with detectors only remains valid
+            assertTrue(al.isvalid);
 
             function set_spe_file(cli,file)
                 cli.file_name = file;
@@ -140,7 +142,8 @@ classdef test_a_loader< TestCase
             [ok,mess,al] = al.check_combo_arg();
             assertFalse(ok)
 
-            assertEqual(mess,'ill defined en: size(en) ~= size(S,1)+1');
+            assertEqual(mess,...
+                'ill defined en: size(en) ~= size(S,1)+1 or size(en) ~= size(S,1)');
 
             assertTrue(isempty(al.en));
             assertEqual(5,al.n_detectors);
@@ -166,7 +169,7 @@ classdef test_a_loader< TestCase
         end
 
 
-        function test_delete(this)
+        function test_delete(~)
             al=a_loader_tester();
 
             al.S = zeros(10,100);
@@ -204,7 +207,7 @@ classdef test_a_loader< TestCase
             lt.ERR = zeros(5,3);
             [ok,mess]=lt.is_loader_valid();
             assertEqual(0,ok);
-            assertEqual('size(S,1)+1 ~= size(en)',mess);
+            assertEqual('size(en) ~=size(S,1)+1 || size(en) ~=size(S,1)',mess);
 
             lt.en = ones(6,1);
             [ok,mess]=lt.is_loader_valid();

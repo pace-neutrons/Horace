@@ -1,17 +1,4 @@
 function w = sqrt (w1)
-% Implements sqrt(w1) for objects
-%
-%   >> w = sqrt(w1)
-%
-% Input:
-% ------
-%   w1          Input object or array of objects on which to apply the
-%               unary operator.
-%
-% Output:
-% -------
-%   w           Output object or array of objects.
-
 % -----------------------------------------------------------------------------
 % <#doc_def:>
 %   doc_dir = fullfile(fileparts(which('sigvar')),'_docify')
