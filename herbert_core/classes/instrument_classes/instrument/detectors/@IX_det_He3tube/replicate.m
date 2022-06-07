@@ -1,5 +1,5 @@
 function obj_out = replicate (obj, n)
-% Replicate detector elements to make n-fold larger detector array
+% Replicate detector elements to make n-fold larger detector array 
 % or reverse replication - get single object out of replicated one.
 % The first values will be used for reverse replication.
 %
