@@ -116,7 +116,7 @@ if (sqw_struc.data.pix.num_pixels >0 ) && ...
     file_id = exp_info.runid_map.keys;
     file_id = [file_id{:}];
     if sqw_struc.data.pix.n_pages == 1 % all pixels are in memory and we
-        % can propertly analyze runids
+        % can properly analyse runids
 
         if ~all(ismember(runid,file_id))  % old style pixel data, run_id-s
             % have been recalculated
@@ -133,7 +133,7 @@ if (sqw_struc.data.pix.num_pixels >0 ) && ...
             exp_info = exp_info.get_subobj(runid);
             sqw_struc.main_header.nfiles = exp_info.n_runs;
             %
-            % As pixels id were recalculated, set the creatrion date to now
+            % As pixels id were recalculated, set the creation date to now
             sqw_struc.main_header.creation_date = datetime('now');
         end
 
