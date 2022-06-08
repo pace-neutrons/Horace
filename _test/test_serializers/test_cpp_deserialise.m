@@ -18,7 +18,6 @@ classdef test_cpp_deserialise < TestCase
             else
                 this.use_mex = true;
             end
-            this.use_mex = false;            
         end
 
 
@@ -46,7 +45,7 @@ classdef test_cpp_deserialise < TestCase
             if ~this.use_mex
               skipTest('MEX not enabled');
             end
-            skipTest('C-serialized does not work #394')
+
             % Create three different instruments
             inst1=create_test_instrument(95,250,'s');
             bytes = c_serialise(inst1);
@@ -74,8 +73,7 @@ classdef test_cpp_deserialise < TestCase
             if ~this.use_mex
               skipTest('MEX not enabled');
             end
-            skipTest('C-serialized does not work #394')
-            
+
             my_struc = struct('clc',true(1,3),'a',1,'ba',single(2),'ce',[1,2,3],...
                               'dee',struct('a',10),'ei',int32([9;8;7]));
             test_obj = DataMessage(my_struc);
@@ -165,7 +163,7 @@ classdef test_cpp_deserialise < TestCase
               skipTest('MEX not enabled');
             end
             test_obj = '';
-            ser =  c_serialise(test_obj);
+            ser = c_serialise(test_obj);
             test_obj_rec = c_deserialise(ser);
             assertEqual(test_obj, test_obj_rec)
         end

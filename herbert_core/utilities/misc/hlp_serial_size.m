@@ -31,7 +31,7 @@ elseif islogical(v)
     sz = serial_size_logical(v);
 elseif isobject(v)
     if isa(v,'serializable')
-        sz = size_themselves(v);        
+        sz = size_themselves(v);
     else
         sz = serial_size_object(v);
     end

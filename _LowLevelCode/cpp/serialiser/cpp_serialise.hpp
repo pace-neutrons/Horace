@@ -45,6 +45,7 @@ const size_t types_size[] = {
   1,  //   SPARSE_LOGICAL,
   8,  //   SPARSE_DOUBLE,
   16, //   SPARSE_COMPLEX_DOUBLE,
+  0,  //   SERIALIZABLE
 }; // Sizes
 
 const mxClassID unmap_types[] = {
@@ -80,6 +81,7 @@ const mxClassID unmap_types[] = {
   mxLOGICAL_CLASS, //   SPARSE_LOGICAL,
   mxDOUBLE_CLASS,  //   SPARSE_DOUBLE,
   mxDOUBLE_CLASS,  //   SPARSE_COMPLEX_DOUBLE,
+  mxUNKNOWN_CLASS, //   SERIALIZABLE
 };
 
 const std::string types_names[] = {
@@ -115,6 +117,7 @@ const std::string types_names[] = {
   "SPARSE_LOGICAL",         // 29
   "SPARSE_DOUBLE",          // 30
   "SPARSE_COMPLEX_DOUBLE",  // 31
+  "SERIALIZABLE",           // 32
 };
 
 enum types{
@@ -150,15 +153,16 @@ enum types{
   SPARSE_LOGICAL,           // 29
   SPARSE_DOUBLE,            // 30
   SPARSE_COMPLEX_DOUBLE,    // 31
+  SERIALIZABLE,             // 32
 };
+
 
 struct tag_type {
-  unsigned int type:5;
-  unsigned int dim:3;
-  tag_type() {};
+  uint8_t type;
+  uint8_t dim;
 };
 
-const size_t TAG_SIZE = types_size[UINT8];
+const size_t TAG_SIZE = 2*types_size[UINT8];
 const size_t NELEMS_SIZE = types_size[UINT32];
 const size_t DIMS_SIZE = types_size[UINT32];
 
@@ -166,26 +170,7 @@ tag_type tag_data(const mxArray* input) {
   int category = mxGetClassID(input);
   tag_type tag;
 
-  if (category == mxUNKNOWN_CLASS) {
-    mexErrMsgIdAndTxt("MATLAB:c_serial_size:unknownClass", "Unknown class.");
-  }
-
-  if (mxIsSparse(input)) {
-    switch(category) {
-    case mxLOGICAL_CLASS:
-      tag.type = SPARSE_LOGICAL;
-      break;
-
-    case mxDOUBLE_CLASS:
-      if (mxIsComplex(input)) {
-        tag.type = SPARSE_COMPLEX_DOUBLE;
-      } else {
-        tag.type = SPARSE_DOUBLE;
-      }
-      break;
-
-    }
-  } else {
+  if (!mxIsSparse(input)) {
     switch(category) {
     case mxLOGICAL_CLASS:
       tag.type = LOGICAL;
@@ -230,14 +215,39 @@ tag_type tag_data(const mxArray* input) {
       tag.type = STRUCT;
       break;
     default:
-      if (!strcmp(mxGetClassName(input), "function_handle")) {
+      if (mxIsClass(input, "function_handle")) {
         tag.type = FUNCTION_HANDLE;
       } else {
-        tag.type = VALUE_OBJECT;
+        mxArray* ser_type;
+        mxArray* arr = const_cast<mxArray *>(input);
+        mexCallMATLAB(1, &ser_type, 1, &arr, "get_ser_type");
+        uint8_t a = (uint8_t) mxGetScalar(ser_type);
+        // object serializes itself together with dimensions transforming array structure into structure array
+        if (a == 0) {
+          tag.type = SERIALIZABLE;
+        } else {
+          tag.type = VALUE_OBJECT;
+        }
       }
       break;
     }
     if (mxIsComplex(input)) tag.type += 10;
+
+  } else {
+    switch(category) {
+    case mxLOGICAL_CLASS:
+      tag.type = SPARSE_LOGICAL;
+      break;
+
+    case mxDOUBLE_CLASS:
+      if (mxIsComplex(input)) {
+        tag.type = SPARSE_COMPLEX_DOUBLE;
+      } else {
+        tag.type = SPARSE_DOUBLE;
+      }
+      break;
+
+    }
   }
   return tag;
 }

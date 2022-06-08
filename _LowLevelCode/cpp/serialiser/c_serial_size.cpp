@@ -27,14 +27,28 @@ size_t get_size(const mxArray *input) {
   case SPARSE_COMPLEX_DOUBLE:
   case SPARSE_DOUBLE:
     {
-      mxArray* nnz;
-      mxArray* arr = const_cast<mxArray *>(input);
-      mexCallMATLAB(1, &nnz, 1, &arr, "nnz");
-      size_t nElem = (size_t) mxGetPr(nnz)[0];
 
-      size_t elemSize = types_size[tag.type];
+      const mwSize* dims = mxGetDimensions(input);
+      // Assume null
+      bool isNotNull = false;
+      for (int i = 0; i < 2; i++) {
+        isNotNull = isNotNull || dims[i] > 0;
+      }
 
-      size += TAG_SIZE + 2*DIMS_SIZE + NELEMS_SIZE + 2*nElem*types_size[DOUBLE] + nElem*elemSize; // Tag & Dims
+      if (isNotNull) {
+        mxArray* arr = const_cast<mxArray *>(input);
+        mxArray* nnz;
+        mexCallMATLAB(1, &nnz, 1, &arr, "nnz");
+        size_t nElem = (size_t) mxGetScalar(nnz);
+
+        size_t elemSize = types_size[tag.type];
+
+        size += TAG_SIZE + 2*DIMS_SIZE + NELEMS_SIZE + 2*nElem*types_size[DOUBLE] + nElem*elemSize; // Tag & Dims
+
+      } else {
+
+        size += TAG_SIZE + NELEMS_SIZE; // Tag & Dims;
+      }
 
     }
     break;
@@ -68,13 +82,14 @@ size_t get_size(const mxArray *input) {
       size_t elemSize = types_size[tag.type];
 
       if (nElem == 0) { // Null
-        size += TAG_SIZE + NELEMS_SIZE;
+        size += TAG_SIZE; // + NELEMS_SIZE;
       }
       else if (nElem == 1) { // Scalar
-        size += TAG_SIZE + elemSize;
+        size += TAG_SIZE + NELEMS_SIZE + elemSize*nElem;
+        // size += TAG_SIZE + elemSize;
       }
       else if (nDims == 2 && dims[0] == 1) { // List
-        size += 1 + NELEMS_SIZE + elemSize*nElem;
+        size += TAG_SIZE + NELEMS_SIZE + elemSize*nElem;
       }
       else { // General array
         size += TAG_SIZE + NELEMS_SIZE*nDims + elemSize * nElem;
@@ -117,10 +132,11 @@ size_t get_size(const mxArray *input) {
       size_t data_size = get_size(conts);
 
       if (nElem == 0) {
-        size += TAG_SIZE + NELEMS_SIZE;
+        size += TAG_SIZE; // + NELEMS_SIZE;
       }
       else if (nElem == 1) {
-        size += TAG_SIZE + class_name_size + 1 + data_size;
+        size += TAG_SIZE + NELEMS_SIZE + class_name_size + 1 + data_size;
+        // size += TAG_SIZE + class_name_size + 1 + data_size;
       }
       else if (nDims == 2 && dims[0] == 1) {
         size += TAG_SIZE + NELEMS_SIZE + class_name_size + 1 + data_size;
@@ -155,10 +171,11 @@ size_t get_size(const mxArray *input) {
       }
 
       if (nElem == 0) {
-        size += TAG_SIZE + NELEMS_SIZE;
+        size += TAG_SIZE; // + NELEMS_SIZE;
       }
       else if (nElem == 1) {
-        size += TAG_SIZE + fn_size + data_size;
+        size += TAG_SIZE + NELEMS_SIZE + fn_size + data_size;
+        // size += TAG_SIZE + fn_size + data_size;
       }
       else if (nDims == 2 && dims[0] == 1) {
         size += TAG_SIZE + NELEMS_SIZE + fn_size + data_size;
@@ -179,14 +196,15 @@ size_t get_size(const mxArray *input) {
       size_t data_size = 0;
       for (mwIndex i = 0; i < nElem; i++){
         mxArray* cellElem = mxGetCell(input, i);
-        data_size += get_size(cellElem);
+        data_size += (cellElem == nullptr) ? 2 : get_size(cellElem);
       }
 
       if (nElem == 0) { // Null (string?)
-        size += TAG_SIZE + NELEMS_SIZE;
+        size += TAG_SIZE; // + NELEMS_SIZE;
       }
       else if (nElem == 1) { // Scalar
-        size += TAG_SIZE + data_size;
+        size += TAG_SIZE + NELEMS_SIZE + data_size;
+        // size += TAG_SIZE + data_size;
       }
       else if (nDims == 2 && dims[0] == 1) { // List
         size += TAG_SIZE + NELEMS_SIZE + data_size;
@@ -197,6 +215,17 @@ size_t get_size(const mxArray *input) {
 
     }
     break;
+
+  case SERIALIZABLE:
+    {
+      mxArray* arr = const_cast<mxArray *>(input);
+      mxArray* conts;
+      mexCallMATLAB(1, &conts, 1, &arr, "serial_size");
+      double out = *static_cast<double *>(mxGetData(conts));
+      size += types_size[UINT8] + out;
+    }
+    break;
+
   }
   return size;
 
@@ -210,7 +239,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
         plhs[0] = mxCreateString(Herbert::VERSION);
         return;
   }
-    
+
 
   size_t size = 0;
 
