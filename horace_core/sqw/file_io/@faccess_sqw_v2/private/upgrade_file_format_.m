@@ -4,9 +4,6 @@ function  new_obj = upgrade_file_format_(obj)
 % currently preferred is format v 3.3
 %
 %
-%
-%
-%
 
 new_obj = sqw_formats_factory.instance().get_pref_access();
 if ischar(obj.num_dim) % source object is not initiated. Just return

@@ -65,7 +65,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             % properties
             is = obj.isvalid_;
         end
-        
+
         wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
@@ -179,15 +179,21 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         end
         % Public getters/setters expose all wrapped data attributes
         function obj = set.data(obj, d)
-            if isa(d,'data_sqw_dnd') || isempty(d)
+            if isa(d,'data_sqw_dnd')
                 obj.s_ = d.s;
                 obj.e_ = d.e;
                 obj.npix_ = d.npix;
                 obj.proj_ = d.get_projection();
                 obj.axes_ = axes_block(d);
+            elseif isempty(d)
+                obj.s_ = [];
+                obj.e_ = [];
+                obj.npix_ = [];
+                obj.proj_ = ortho_proj();
+                obj.axes_ = axes_block();
             else
                 error('HORACE:DnDBase:invalid_argument',...
-                    'Only data_sqw_dnd class or empty value may be used as data value. Trying to set up: %s',...
+                    'Only data_sqw_dnd class or empty value may be used as input for data. Trying to assign: %s',...
                     class(d))
             end
         end
@@ -227,13 +233,13 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             obj.proj_.angdeg = angdeg;
         end
         %
-                function val = get.offset(obj)
-obj.proj_.offset;
-                    val = [];
-                    if ~isempty(obj.data_)
-                        val = obj.data_.uoffset;
-                    end
-                end
+        function val = get.offset(obj)
+            obj.proj_.offset;
+            val = [];
+            if ~isempty(obj.data_)
+                val = obj.data_.uoffset;
+            end
+        end
         %         function obj = set.uoffset(obj, uoffset)
         %             obj.data_.uoffset = uoffset;
         %         end
@@ -297,7 +303,7 @@ obj.proj_.offset;
                     'input signal must be numeric array')
             end
             obj.s_ = s;
-            [~,~,obj] = check_combo_arg(obj);            
+            [~,~,obj] = check_combo_arg(obj);
         end
         %
         function val = get.e(obj)
@@ -309,7 +315,7 @@ obj.proj_.offset;
                     'input variance must be numeric array')
             end
             obj.e_ = e;
-            [~,~,obj] = check_combo_arg(obj);            
+            [~,~,obj] = check_combo_arg(obj);
         end
         %
         function val = get.npix(obj)
@@ -348,14 +354,14 @@ obj.proj_.offset;
         %
         %------------------------------------------------------------------
         % Serializable interface
-        %------------------------------------------------------------------        
+        %------------------------------------------------------------------
         function flds = saveableFields(obj)
             flds = obj.fields_to_save_;
         end
         function ver  = classVersion(~)
             ver = 3;
         end
-                
+
         function [ok,mess,obj] = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained dnd object. Return the result of the check and the
@@ -363,7 +369,7 @@ obj.proj_.offset;
             %
             [ok,mess,obj] = check_combo_arg_(obj);
         end
-        
+
     end
 end
 
