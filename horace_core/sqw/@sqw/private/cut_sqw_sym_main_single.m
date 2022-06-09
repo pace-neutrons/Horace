@@ -59,7 +59,7 @@ else
     % projection class does not retain this property of projaxes
     if proj_ref.nonorthogonal
         error('CUT_SQW_SYM:not_implemented',...
-            'Symmetrised cuts are not yet implemented for nonorthogonal axes')
+            'Symmetrised cuts are not yet implemented for non-orthogonal axes')
     end
     
     % Store some parameters for later loops
@@ -88,7 +88,7 @@ else
         % in its public and private properties, regenerate this class
         % with the information for input cut projection information in the
         % same way that was done by cut_sqw_check_pbins in cut_sqw_sym_main
-        proj_trans=projection(proj_trans);
+        proj_trans=ortho_proj(proj_trans);
         [proj_trans, ~, ~, pin, en] = proj_trans.update_pbins(header_ave, data,pbin_trans);
         
         %[ok,mess,proj_trans] = cut_sqw_check_pbins (header_ave, data,...
@@ -202,7 +202,7 @@ for i=1:nw
 end
 wout.data.pix = PixelData(pix.data(:,ix_all));
 
-% Recompute the singal and error arrays
+% Recompute the signal and error arrays
 wout=recompute_bin_data(wout);
 
 

@@ -2,7 +2,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
     
     properties
         sqw_file_1d_name = 'sqw_1d_1.sqw';
-        sqw_files_path = '../test_sqw_file/';
+        sqw_files_path = '../common_data/';
         
         test_sqw_1d_fullpath = '';
         test_dir
@@ -34,7 +34,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             assertEqual(sqw_obj.main_header, struct([]));
             assertTrue(isa(sqw_obj.experiment_info, 'Experiment'));
             
-            assertTrue(isempty(sqw_obj.experiment_info.instruments));
+            assertTrue(isa(sqw_obj.experiment_info.instruments{1},'IX_null_inst'));
             assertEqual(sqw_obj.detpar, struct([]));
             assertEqual(sqw_obj.data.pix, PixelData());
             assertEqual(numel(sqw_obj.data.pax), 0);
@@ -45,10 +45,10 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             
             % expected data populated from instance of test object
             assertTrue(isa(sqw_obj, 'sqw'));
-            assertEqual(sqw_obj.main_header.nfiles, 85)
-            assertEqual(numel(sqw_obj.experiment_info.expdata), 85)
-            assertEqual(numel(sqw_obj.experiment_info.instruments), 85)
-            assertEqual(numel(sqw_obj.experiment_info.samples), 85)
+            assertEqual(sqw_obj.main_header.nfiles, 14)
+            assertEqual(numel(sqw_obj.experiment_info.expdata), 14)
+            assertEqual(numel(sqw_obj.experiment_info.instruments), 14)
+            assertEqual(numel(sqw_obj.experiment_info.samples), 14)
             assertEqual(numel(sqw_obj.detpar.group), 36864);
             assertEqual(numel(sqw_obj.data.pax), 1);
             assertEqual(sqw_obj.data.pix.num_pixels, 100337);
@@ -89,7 +89,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             sqw_copy.main_header.title = 'test_copy';
             sqw_copy = sqw_copy.change_header(Experiment());
             sqw_copy.detpar.azim(1:10) = 0;
-            sqw_copy.data.dax = [2 1];
+            
             sqw_copy.data.pix.signal = 1;
             
             % changed data is not mirrored in initial
@@ -107,6 +107,13 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             cleanup_obj=onCleanup(@() delete(tmp_filename));
             
             sqw_obj = read_sqw(obj.test_sqw_1d_fullpath);
+            keys = sqw_obj.runid_map.keys;
+            keys = [keys{:}];
+            ids = sqw_obj.experiment_info.expdata.get_run_ids;
+            assertEqual(keys,ids);
+            pix_ids = unique(sqw_obj.data.pix.run_idx);
+            assertEqual(ids,pix_ids)
+
             save(tmp_filename, 'sqw_obj');
             from_file = load(tmp_filename);
             mat_stored_new = from_file.sqw_obj; % expand variable into full 
@@ -117,6 +124,8 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             old_file = fullfile(obj.test_dir,'data','sqw_loadobj_test_v3_6_1.mat');
             from_file = load(old_file);
             mat_stored_old = from_file.sqw_obj;
+            % old and new sqw object define img_range slightly differently
+            mat_stored_old.data.img_range = sqw_obj.data.img_range;
             assertEqualToTol(mat_stored_old, sqw_obj,'ignore_str',true);
         end
     end

@@ -13,35 +13,10 @@ classdef d4d < DnDBase
 
     methods(Static)
         function obj = loadobj(S)
-            % Load a d4d object from a .mat file
-            %
-            %   >> obj = loadobj(S)
-            %
-            % Input:
-            % ------
-            %   S       An instance of this object or struct
-            %
-            % -------
-            % Output:
-            %   obj     An instance of this object
-            %obj = d4d(S);
-            if isa(S,'d4d')
-                obj = S;
-                if isstruct(obj.data_)
-                    obj.data_ = data_sqw_dnd(obj.data_);
-                end
-
-                return
-            end
-            if numel(S)>1
-                tmp = d4d();
-                obj = repmat(tmp, size(S));
-                for i = 1:numel(S)
-                    obj(i) = d4d(S(i));
-                end
-            else
-                obj = d4d(S);
-            end
+            % boilerplate loadobj method, calling generic method of
+            % saveable class. Put it as it is replacing the
+            obj = d4d();
+            obj = loadobj@serializable(S,obj);
         end
     end
 
@@ -49,6 +24,9 @@ classdef d4d < DnDBase
         wout = cut (varargin);
         function obj = d4d(varargin)
             obj = obj@DnDBase(varargin{:});
+            if nargin==0
+                obj.nbins_all_dims = [2,2,2,2];
+            end
         end
     end
 end

@@ -1,10 +1,16 @@
 function test_sqw_NaN
-% Pixels from detectors that are masked out in the spe file shold not appear
+% Pixels from detectors that are masked out in the spe file should not appear
 % in the sqw file. Test that this is correctly handled by gen_sqw.
 %
 % Author: T.G.Perring
 
 banner_to_screen(mfilename)
+% this configuration value is responsible for Nan to be masked
+hc = hor_config;
+cl_val = hc.get_data_to_store();
+clObj = onCleanup(@()set(hc,cl_val));
+hc.ignore_nan = true;
+
 
 % Data
 spe_file=fullfile(tmp_dir,'test_sqw_NaN.spe');

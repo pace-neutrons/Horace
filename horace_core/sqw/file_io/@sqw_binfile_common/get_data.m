@@ -86,8 +86,8 @@ function [data,obj] = get_data(obj,varargin)
 %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-%   data.pix_range  True range of the data along each axis [pix_range(2,4)]
-%   data.pix        A PixelData objects
+%   data.img_range True range of the data along each axis [img_range(2,4)]
+%   data.pix       A PixelData objects
 %
 %
 % NOTES:
@@ -109,14 +109,17 @@ function [data,obj] = get_data(obj,varargin)
 [ok,mess,~,noclass,noupgrade,argi]=...
     parse_char_options(varargin,{'-nopix','-noclass','-noupgrade'});
 if ~ok
-    error('SQW_FILE_INTERFACE:invalid_argument',['get_data: ',mess]);
+    error('HORACE:sqw_binfile_common:invalid_argument', ...
+        ['get_data: ',mess]);
 end
 
 [data_str,obj] = obj.get_data@dnd_binfile_common(obj,argi{:});
-
-%
-data_str.img_db_range = obj.get_img_db_range();
-%
+% 
+% In old files img_range (urange) is also stored separately and contains
+% real image range (the range pixel data converted to image actually
+% occupy) This will be used as range if old files integration range is
+% unlimited
+data_str.img_range = obj.get_img_db_range(data_str);
 %
 % parse all arguments, including those that weren't passed to the parent method
 opts = parse_args(varargin{:});
@@ -125,9 +128,12 @@ if opts.header || opts.hverbatim || noclass
     data  = data_str;
     return;
 end
-data = data_sqw_dnd(data_str);
-
-if ~opts.nopix
+data_str.serial_name = 'data_sqw_dnd'; % convert structure, stored in 
+                        %  binary file into the form, suitable for
+                        %  recovering using serializable class methods, as
+                        %  data_sqw_dnd is serializable
+data = serializable.from_struct(data_str);
+if ~opts.nopix && obj.npixels>0
     data.pix = PixelData(obj, opts.pixel_page_size,~noupgrade);
     %
 end

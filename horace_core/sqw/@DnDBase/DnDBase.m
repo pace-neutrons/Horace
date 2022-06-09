@@ -8,6 +8,12 @@ classdef (Abstract)  DnDBase < SQWDnDBase
     properties(Constant, Abstract, Access = protected)
         NUM_DIMS
     end
+    properties(Constant,Access=protected)
+        fields_to_save_ = {'filename','filepath','title','alatt','angdeg',...
+                'uoffset','u_to_rlu','ulen','label',...
+                'dax','img_range','nbins_all_dims','s','e','npix'};
+
+    end
 
     % The depdendent props here have been created solely to retain the (old) DnD object API during the refactor.
     % These will be updated/removed at a later phase of the refactor when the class API is modified.
@@ -21,7 +27,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         u_to_rlu % Matrix (4x4) of projection axes in hkle representation
         %     u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
         ulen % Length of projection axes vectors in Ang^-1 or meV [row vector]
-        ulabel  % Labels of the projection axes [1x4 cell array of character strings]
+        label  % Labels of the projection axes [1x4 cell array of character strings]
         iax % Index of integration axes into the projection axes  [row vector]
         %     Always in increasing numerical order, data.iax=[1,3] means summation has been performed along u1 and u3 axes
         iint % Integration range along each of the integration axes. [iint(2,length(iax))]
@@ -34,6 +40,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         e % Cumulative variance
         npix % Number of contributing pixels to each bin of the plot axes
 
+        % the properties define shape and binning of the dnd object
+        img_range;
+        nbins_all_dims;
         % temporary property, which returns data_ field
         data
     end
@@ -44,6 +53,38 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
         wout = sqw_eval_pix_(wout, sqwfunc, ave_pix, pars);
+
+        function obj = from_old_struct(obj,inputs)
+            % Restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % The method is called by loadobj in the case if the input
+            % structure does not contain a version or the version, stored
+            % in the structure does not correspond to the current version
+            % of the class.
+            %
+            % By default, this function interfaces the default from_bare_struct
+            % method, but when the old structure substantially differs from
+            % the modern structure, this method needs the specific overloading
+            % to allow loadobj to recover new structure from an old structure.
+            %
+            %if isfield(inputs,'version') % do checks for previous versions
+            %   Add appropriate code to convert from specific version to
+            %   modern version
+            %end
+            if isfield(inputs,'pax') && isfield(inputs,'iax')
+                inputs.serial_name = 'axes_block';
+                ab = serializable.from_struct(inputs);
+                dat = data_sqw_dnd(ab,inputs);
+                inputs = struct('data_',dat);
+            end            
+
+            if isfield(inputs,'array_dat')
+                obj = obj.from_bare_struct(inputs.array_dat);
+            else
+                obj = obj.from_bare_struct(inputs);
+            end
+        end        
     end
 
     methods (Static)
@@ -67,9 +108,13 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                 error('HORACE:DnDBase:make dnd on not data_sqw_dnd');
             end
         end
+        
     end
 
     methods
+        function flds = saveableFields(obj)
+            flds = obj.fields_to_save_;
+        end
         % function signatures
         w = sigvar_set(win, sigvar_obj);
         pixels = has_pixels(w);
@@ -82,21 +127,15 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         %    % save data in xye format
         %    save_xye_(obj,varargin{:});
         %end
-        function obj_str= saveobj(obj)
-            prop ={'filename','filepath','title','alatt','angdeg',...
-                'uoffset','u_to_rlu','ulen','ulabel','iax','iint',...
-                'dax','p','pax','s','e','npix'};
-            obj_str=struct();
-            for i=1:numel(prop)
-                pn = prop{i};
-                obj_str.(pn) = obj.(pn);
-            end
+        function ver  = classVersion(~)
+            ver = 2;
         end
+        
 
         function obj = DnDBase(varargin)
             obj = obj@SQWDnDBase();
 
-            [args] = parse_args_(obj,varargin{:});
+            args = parse_args_(obj,varargin{:});
             if args.array_numel>1
                 obj = repmat(obj,args.array_size);
             elseif args.array_numel==0
@@ -215,14 +254,19 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             obj.data_.ulen = ulen;
         end
         %
-        function val = get.ulabel(obj)
+        function val = get.label(obj)
             val = [];
             if ~isempty(obj.data_)
-                val = obj.data_.ulabel;
+                if isstruct(obj.data_) && isfield(obj.data_,'label') %TODO: old interface, 
+                    % change at load time; Ticket #796
+                    val = obj.data_.label;                    
+                else
+                    val = obj.data_.ulabel;                                        
+                end
             end
         end
-        function obj = set.ulabel(obj, ulabel)
-            obj.data_.ulabel = ulabel;
+        function obj = set.label(obj, label)
+            obj.data_.label = label;
         end
         %
         function val = get.iax(obj)
@@ -231,18 +275,12 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                 val = obj.data_.iax;
             end
         end
-        function obj = set.iax(obj, iax)
-            obj.data_.iax = iax;
-        end
         %
         function val = get.iint(obj)
             val = [];
             if ~isempty(obj.data_)
                 val = obj.data_.iint;
             end
-        end
-        function obj = set.iint(obj, iint)
-            obj.data_.iint = iint;
         end
         %
         function val = get.pax(obj)
@@ -251,18 +289,15 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                 val = obj.data_.pax;
             end
         end
-        function obj = set.pax(obj, pax)
-            obj.data_.pax = pax;
-        end
         %
         function val = get.p(obj)
             val = [];
             if ~isempty(obj.data_)
-                val = obj.data_.p;
+                val = obj.data_.p;                
+                if isstruct(obj.data_)
+                    val = cellfun(@(pp)(pp'),val,'UniformOutput',false);
+                end
             end
-        end
-        function obj = set.p(obj, p)
-            obj.data_.p = p;
         end
         %
         function val = get.dax(obj)
@@ -304,6 +339,29 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = set.npix(obj, npix)
             obj.data_.npix = npix;
         end
+        %
+        function obj = set.img_range(obj,val)
+            obj.data_.img_range = val;
+        end
+        function range = get.img_range(obj)
+            if isempty(obj.data_)
+                range  = [];
+            else
+                range = obj.data_.img_range;
+            end
+        end
+        %
+        function obj = set.nbins_all_dims(obj,val)
+            obj.data_.nbins_all_dims = val;
+        end
+        function nbins = get.nbins_all_dims(obj)
+            if isempty(obj.data_)
+                nbins  = [];
+            else
+                nbins = obj.data_.nbins_all_dims;
+            end
+        end
+        %
     end
 end
 

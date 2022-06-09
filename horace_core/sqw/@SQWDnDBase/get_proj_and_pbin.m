@@ -54,7 +54,7 @@ function [proj, pbin] = get_proj_and_pbin_single(data)
 
     proj.type = 'ppp';
     proj.uoffset = data.uoffset';
-    proj = projaxes(proj);
+    proj = ortho_proj(proj);
 
     % Get binning
     % -------------------------

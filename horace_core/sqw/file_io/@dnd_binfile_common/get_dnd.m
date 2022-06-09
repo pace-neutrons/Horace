@@ -41,7 +41,8 @@ function [res,varargout] = get_dnd (obj,varargin)
 %
 [ok,mess,verbatim,hver,legacy,argi] =  parse_char_options(varargin,{'-verbatim','-hverbatim','-legacy'});
 if ~ok
-    error('SQW_FILE_IO:invalid_arguments',mess);
+    error('HORACE:dnd_binfile_common:invalid_artgument',...
+        mess);
 end
 verbatim = verbatim || hver;
 if verbatim
@@ -72,7 +73,7 @@ switch ndim %TODO: the dnd constructor should deal with this switch.
     case 4
         res = d4d(dat);
     otherwise
-        error('SQW_FILE_IO:runtime_error',...
+        error('HORACE:dnd_binfile_common:runtime_error',...
             'get_sqw: unsupported number of dimensions (%d) read from binary file',ndim)
 end
 varargout = {};

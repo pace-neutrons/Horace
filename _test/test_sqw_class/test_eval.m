@@ -10,7 +10,7 @@ classdef test_eval < TestCase
     methods
         function obj=test_eval(varargin)
             obj = obj@TestCase('test_eval');
-            obj.data_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))),'test_sqw_file');
+            obj.data_dir = fullfile(fileparts(fileparts(mfilename('fullpath'))),'common_data');
             test_sqw_file = fullfile(obj.data_dir, 'sqw_2d_2.sqw');
             obj.sqw_obj = sqw(test_sqw_file);
         end

@@ -1,5 +1,5 @@
 function det = get_detpar(obj)
-% Read the detector parameter from propertly initialized binary file.
+% Read the detector parameter from properly initialized binary file.
 %
 %   >> det = obj.get_sqw_detpar()
 %
@@ -30,7 +30,7 @@ function det = get_detpar(obj)
 % $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 if ischar(obj.num_contrib_files)
-    error('SQW_FILE_INTERFACE:runtime_error',...
+    error('HORACE:sqw_binfile_common:runtime_error',...
         ' get_sqw_detpar called on un-initialized loader')
 end
 sz = obj.data_pos_-obj.detpar_pos_;

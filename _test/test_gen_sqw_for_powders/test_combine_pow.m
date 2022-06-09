@@ -28,9 +28,6 @@ classdef test_combine_pow < TestCaseWithSave
             this = this@TestCaseWithSave(name,fullfile(fileparts(mfilename('fullpath')),'test_combine_pow_output.mat'));
             hor_root = horace_root();
             common_data_dir=fullfile(hor_root,'_test','common_data');
-            test_functions_path=fullfile(hor_root,'_test/common_functions');
-            addpath(test_functions_path);
-
 
 
             % =====================================================================================================================
@@ -67,7 +64,7 @@ classdef test_combine_pow < TestCaseWithSave
                     this.efix, emode, alatt, angdeg, u, v, this.psi_2, omega, dpsi, gl, gs)
             end
             % test files are in svn
-            add_to_path_cleanList(this,test_functions_path);
+            this.save();
         end
 
         function this=test_combine_pow1(this)
@@ -84,9 +81,11 @@ classdef test_combine_pow < TestCaseWithSave
 
             w2_1 = cut_sqw(sqw_file_1,[0,0.05,8],0,'-nopix');
             w1_1 = cut_sqw(sqw_file_1,[0,0.05,3],[40,50],'-nopix');
-            tol  = 2.e-2;
-            this.assertEqualToTolWithSave(w2_1,'ignore_str',true,'reltol',tol )
-            this.assertEqualToTolWithSave(w1_1,'ignore_str',true,'reltol',tol )
+
+            this.assertEqualToTolWithSave(w2_1,'ignore_str',true, ...
+                'tol',[1.e-7,1.e-5])
+            this.assertEqualToTolWithSave(w1_1,'ignore_str',true, ...
+                'tol',[1.e-7,1.e-5])
 
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
@@ -113,9 +112,10 @@ classdef test_combine_pow < TestCaseWithSave
 
             w1_2=cut_sqw(sqw_file_2,[0,0.05,3],[40,50],'-nopix');
 
-            tol = 9.e-2;
-            this.assertEqualToTolWithSave(w2_2,'ignore_str',true,'reltol',tol )
-            this.assertEqualToTolWithSave(w1_2,'ignore_str',true,'reltol',tol )
+            this.assertEqualToTolWithSave(w2_2,'ignore_str',true, ...
+                'tol',[1.e-7,1.e-5]);
+            this.assertEqualToTolWithSave(w1_2,'ignore_str',true, ...
+                'tol',[1.e-7,1.e-5]);
 
             %--------------------------------------------------------------------------------------------------
             % Visually inspect
@@ -139,9 +139,10 @@ classdef test_combine_pow < TestCaseWithSave
 
             w1_tot=cut_sqw(sqw_file_tot,[0,0.05,3],[40,50],'-nopix');
 
-            tol = 2.e-2;
-            this.assertEqualToTolWithSave(w2_tot,'ignore_str',true,'reltol',tol )
-            this.assertEqualToTolWithSave(w1_tot,'ignore_str',true,'reltol',tol )
+            this.assertEqualToTolWithSave(w2_tot,'ignore_str',true, ...
+                'tol',[1.e-7,1.e-5])
+            this.assertEqualToTolWithSave(w1_tot,'ignore_str',true, ...
+                'tol',[1.e-7,1.e-5])
 
             %--------------------------------------------------------------------------------------------------
             % Visually inspect

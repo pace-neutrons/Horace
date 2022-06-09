@@ -2,7 +2,7 @@
 
 exchange_buffer::exchange_buffer(size_t b_size, size_t num_bins_2_process, size_t num_log_ticks) :
     do_logging(false),
-    buf_size(b_size*PIX_SIZE),
+    buf_size(b_size* PIX_SIZE),
     n_read_pixels(0), n_bins_processed(0),
     num_bins_to_process(num_bins_2_process),
     interrupted(false), write_allowed(false),
@@ -19,11 +19,11 @@ exchange_buffer::exchange_buffer(size_t b_size, size_t num_bins_2_process, size_
 };
 
 
-float *const exchange_buffer::get_read_buffer(const size_t changed_buf_size) {
+float* const exchange_buffer::get_read_buffer(const size_t changed_buf_size) {
 
     //this->read_lock.lock();
     if (changed_buf_size != 0) {
-        this->buf_size = changed_buf_size*PIX_SIZE;
+        this->buf_size = changed_buf_size * PIX_SIZE;
     }
 
     if (this->read_buf.size() != this->buf_size)
@@ -44,9 +44,9 @@ void exchange_buffer::send_read_buffer_to_writer(const size_t nPixels, const siz
     // try lock in case write have not been completed yet and write buffer is locked
     this->write_lock.lock();
     this->write_buf.swap(this->read_buf);
-    this->n_read_pixels = nPixels;
+    this->n_read_pixels     = nPixels;
     this->n_read_pix_total += nPixels;
-    this->n_bins_processed = nBinsProcessed;
+    this->n_bins_processed  = nBinsProcessed;
     // notify writer thread that data are ready
     std::unique_lock<std::mutex> lock(this->data_ready_lock);
     this->write_allowed = true;
@@ -69,13 +69,13 @@ void exchange_buffer::wait_for_reader_data() {
 
 /* Give write thread access to the write buffer. Returns NULL if no pixels are currently in buffer and locks
 write buffer, which has to be unlocked later. */
-char * const exchange_buffer::get_write_buffer(size_t &n_pix_to_write, size_t &n_bins_processed) {
+char* const exchange_buffer::get_write_buffer(size_t& n_pix_to_write, size_t& n_bins_processed) {
 
 
     n_bins_processed = this->n_bins_processed;
     if (this->n_read_pixels > 0) {
         n_pix_to_write = this->n_read_pixels;
-        return reinterpret_cast<char * const>(&write_buf[0]);
+        return reinterpret_cast<char* const>(&write_buf[0]);
     }
     else {
         n_pix_to_write = 0;

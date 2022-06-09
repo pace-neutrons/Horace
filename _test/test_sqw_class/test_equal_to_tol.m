@@ -5,8 +5,8 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
         horace_config;
         ALL_IN_MEM_PG_SIZE = 1e12;
         
-        test_sqw_file_path = '../test_sqw_file/sqw_2d_1.sqw';
-        test_dnd_file_path = '../test_sqw_file/dnd_2d.sqw';
+        test_sqw_file_path = '../common_data/sqw_2d_1.sqw';
+        test_dnd_file_path = '../common_data/dnd_2d.sqw';
         
         dnd_2d;
         sqw_2d;
@@ -59,8 +59,8 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
         
         function test_different_sqw_objects_are_not_equal(obj)
             class_fields = properties(obj.sqw_2d);
-            is_npix = ismember(class_fields,{'npixels','isvalid'});
-            class_fields = class_fields(~is_npix);
+            is_dependent = ismember(class_fields,{'npixels','isvalid','runid_map','pix'});
+            class_fields = class_fields(~is_dependent);
             for idx = 1:numel(class_fields)
                 sqw_copy = obj.sqw_2d;
                 field_name = class_fields{idx};

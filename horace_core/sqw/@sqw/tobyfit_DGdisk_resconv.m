@@ -195,7 +195,9 @@ for i=1:numel(ind)
     dq_mat=lookup.dq_mat{iw};
 
     % Run and detector for each pixel
-    irun = win(i).data.pix.run_idx';   % column vector
+    run_idx = win(i).data.pix.run_idx';   % column vector
+    runid_map = win(i).experiment_info.runid_map;
+    irun = arrayfun(@(idx)runid_map(idx),run_idx);
     idet = win(i).data.pix.detector_idx';   % column vector
     npix = win(i).data.pix.num_pixels;
 

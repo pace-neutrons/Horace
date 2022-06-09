@@ -119,7 +119,7 @@ for i=1:numel(win)
     data.s = zeros(sz);
     data.e = zeros(sz);
     data.npix = ones(sz);
-    data.img_db_range = axes_block.calc_img_db_range(data);  % set img_db_range. TODO: remove, as it relates to pixels only
+    data.img_range = axes_block.calc_img_db_range(data);  % set img_range.
 
     wout_disp(i).data_ = data;
 

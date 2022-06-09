@@ -1,4 +1,4 @@
-classdef (Abstract) SQWDnDBase
+classdef (Abstract) SQWDnDBase < serializable
     %SQWDnDBase Abstract SQW/DnD object base class
     %   Abstract class defining common API and atrributes of the SQW and
     %   DnD objects
@@ -31,7 +31,7 @@ classdef (Abstract) SQWDnDBase
         wout = mask_random_pixels(win,npix);
         varargout = change_crystal (varargin);
         
-        save(w, varargin);
+        cl = save(w, varargin);
 
         [xout,yout,sout,eout,nout] = convert_bins_for_shoelace(win, wref);
         wout = IX_dataset_1d(w);

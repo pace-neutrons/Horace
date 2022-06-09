@@ -44,7 +44,9 @@ function [ok,mess,varargout] = parse_pixel_indicies (win,indx,iw)
 %
 %   mess        Error message: empty if ok, contains error message if not ok
 %
-%   irun        Single sqw object: Run indicies for each pixel (column vector)
+%   irun        Single sqw object: Indexes of the experiments, containing
+%
+%               Run indicies for each pixel (column vector)
 %               Multiple sqw objects: Array of column vectors, one per object
 %
 %   idet        Single sqw object: Detector indicies for each pixel (column vector)
@@ -68,17 +70,33 @@ if nargin==1
     mess = '';
     if nout>0
         if nw==1
-            if iscell(win), pix = win{1}.data.pix; else, pix = win.data.pix; end
-            if nout>=1, irun = pix.run_idx'; end   % column vector
+            if iscell(win)
+                pix = win{1}.data.pix;
+                runid_map = win{1}.runid_map;
+            else
+                pix = win.data.pix;
+                runid_map = win.runid_map;
+            end
+            if nout>=1, run_idx = pix.run_idx'; end   % column vector
             if nout>=2, idet = pix.detector_idx'; end   % column vector
             if nout>=3, ien  = pix.energy_idx'; end   % column vector
+            irun = arrayfun(@(x)runid_map(x),run_idx);
+
         else
             if nout>=1, irun = cell(size(win)); end
             if nout>=2, idet = cell(size(win)); end
             if nout>=3, ien  = cell(size(win)); end
             for i = 1:nw
-                if iscell(win), pix = win{i}.data.pix; else, pix = win(i).data.pix; end
-                if nout>=1, irun{i} = pix.run_idx'; end   % column vector
+                if iscell(win)
+                    pix = win{i}.data.pix;
+                else
+                    pix = win(i).data.pix;
+                end
+                if nout>=1
+                    run_idx = pix.run_idx';
+                    irun = arrayfun(@(x)win{1}.runid_map(x),run_idx);
+                    irun{i} = irun;
+                end   % column vector
                 if nout>=2, idet{i} = pix.detector_idx'; end   % column vector
                 if nout>=3, ien{i}  = pix.energy_idx'; end   % column vector
             end
@@ -203,8 +221,15 @@ if nout>0
     if nw==1
         indx_tmp = indx_internal{iw_internal(1)};
         if size(indx_tmp,2)==1
-            if iscell(win), pix = win{1}.data.pix; else, pix = win.data.pix; end
+            if iscell(win)
+                pix = win{1}.data.pix;
+                runid_map = win{1}.runid_map;
+            else
+                pix = win.data.pix;
+                runid_map = win.runid_map;
+            end
             if nout>=1, irun = pix.run_idx(indx_tmp)'; end   % column vector
+            irun = arrayfun(@(x)runid_map(x),irun);
             if nout>=2, idet = pix.detector_idx(indx_tmp)'; end   % column vector
             if nout>=3, ien  = pix.energy_idx(indx_tmp)'; end   % column vector
         else
@@ -219,12 +244,26 @@ if nout>0
         for i = 1:nw
             indx_tmp = indx_internal{iw_internal(i)};
             if size(indx_tmp,2)==1
-                if iscell(win), pix = win{i}.data.pix; else, pix = win(i).data.pix; end
-                if nout>=1, irun{i} = pix.run_idx(indx_tmp)'; end   % column vector
+                if iscell(win)
+                    pix = win{i}.data.pix;
+                    runid_map = win{i}.runid_map;
+                else
+                    pix = win(i).data.pix;
+                    runid_map = win(i).runid_map;
+                end
+                if nout>=1
+                    run_idx= pix.run_idx(indx_tmp)';
+                end   % column vector
+                irun{i} = arrayfun(@(x)runid_map(x),run_idx);
+
                 if nout>=2, idet{i} = pix.detector_idx(indx_tmp)'; end   % column vector
                 if nout>=3, ien{i}  = pix.energy_idx(indx_tmp)'; end   % column vector
             else
-                if nout>=1, irun{i} = indx_tmp(:,1); end
+                if nout>=1
+                    irun{i} = indx_tmp(:,1);
+                end
+                %? Does this index need to be transformed from run_idx to
+                %index ?
                 if nout>=2, idet{i} = indx_tmp(:,2); end
                 if nout>=3, ien{i}  = indx_tmp(:,3); end
             end

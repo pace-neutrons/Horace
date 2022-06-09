@@ -12,33 +12,10 @@ classdef d0d < DnDBase
 
     methods(Static)
         function obj = loadobj(S)
-            % Load a d0d object from a .mat file
-            %
-            %   >> obj = loadobj(S)
-            %
-            % Input:
-            % ------
-            %   S       An instance of this object or struct
-            %
-            % -------
-            % Output:
-            %   obj     An instance of this object
-            %
-            if isa(S,'d0d')
-                obj = S;
-                if isstruct(obj.data_)
-                    obj.data_ = data_sqw_dnd(obj.data_);
-                end
-                return
-            end
-            tmp = d0d();
-            obj = repmat(tmp, size(S));
-            for i = 1:numel(S)
-                obj(i) = d0d(S(i));
-                if isstruct(obj(i).data_)
-                    obj(i).data_ = data_sqw_dnd(obj(i).data_);
-                end
-            end
+            % boilerplate loadobj method, calling generic method of
+            % saveable class. Put it as it is replacing the
+            obj = d0d();
+            obj = loadobj@serializable(S,obj);
         end
     end
 end

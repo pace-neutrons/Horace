@@ -43,9 +43,9 @@ function varargout = resolution_plot (w, varargin)
 %                      E.G. if plot axes are 2 and 4 (i.e. 2nd projection
 %                         axis and energy) then intersection axis is set to 3
 %                      E.G. if plot axes are 3 and 4, intersection axis is set to 1
-%               '-'     anticyclic permutation of axes
+%               '-'     anti-cyclic permutation of axes
 %                      E.G. for the two cases above, the intersection axis is set
-%                       to 1 and 3 resepctively
+%                       to 1 and 3 respectively
 %               iax     Numerical index into projection axes i.e. 1,2 or 3, but
 %                      excluding the momentum plot axis
 %               'none'  No axis
@@ -83,7 +83,7 @@ function varargout = resolution_plot (w, varargin)
 %
 %   kept        Logical column vector with length equal to the number of
 %              points given by input argument xres, where elements =1 for
-%              points in bins with contributiung pixels, and =0 for points
+%              points in bins with contributing pixels, and =0 for points
 %              in empty bins or outside the range of the data.
 
 
@@ -274,7 +274,7 @@ function resolution_plot_private (x0,C,iax,flip)
 %   C       Covariance matrix (4x4) in qx,qy,qz,en (units can be Angstrom^-1
 %          or whatever the projection axes units are)
 %
-%   iax     Indicies of axes to plot (all unique, in range 1 to 4)
+%   iax     Indices of axes to plot (all unique, in range 1 to 4)
 %           If length 2, these give the axes of the plot plane into C
 %           If length 3, then the third axis is one for which an
 %          ellipse section is drawn at a positive value along that axis

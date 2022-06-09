@@ -5,7 +5,7 @@ function combine_test_cuts()
 % source data file to make cuts from:
 fln = 'test_sym_op.sqw';
 % define the range of your 2D cuts common for all cuts
-% Modify if your particular cuts are differnet and add another range to
+% Modify if your particular cuts are different and add another range to
 % another direction if necessary.
 com_range = [-0.55,0.01,0.15];
 % define range of the cuts to be combined through:

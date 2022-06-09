@@ -318,13 +318,13 @@ classdef combine_sqw_pix_job < JobExecutor
             fseek(fid,pos_pixstart,'bof');
             [pix_buffer,count_out] = fread(fid,[9,npix2read],'*float32');
             if count_out ~=9*npix2read
-                error('SQW_FILE_IO:runtime_error',...
+                error('HORACE:combine_sqw_pix_job:runtime_error',...
                     ' Number of pixels read %d is smaller then the number requested: %d',...
                     count_out/9,npix2read);
             end
             [f_message,f_errnum] = ferror(fid);
             if f_errnum ~=0
-                error('SQW_FILE_IO:runtime_error',...
+                error('HORACE:combine_sqw_pix_job:runtime_error',...
                     'Error N%d during IO operation: %s',f_errnum,f_message);
             end
             pos_pixstart = ftell(fid); %set up next read position
@@ -334,7 +334,7 @@ classdef combine_sqw_pix_job < JobExecutor
             % Write properly formed pixels block to the output file
             
             fout = obj.fout_;
-            fwrite(fout,pix_section,'float32');    % write to output file
+            fwrite(fout, single(pix_section), 'float32');    % write to output file
             n_pix_written = n_pix_written+size(pix_section,2);
         end
         

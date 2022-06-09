@@ -188,6 +188,7 @@ radial_cut_length=0.4; radial_bin_width=0.005; radial_thickness=0.15;
 trans_cut_length=15; trans_bin_width=0.5; trans_thickness=5;
 opt='Gaussian';
 
+skipTest('cut_dnd is needed and it is currently disabled. Ticket #796');
 [rlu0,width,wcut,wpeak]=bragg_positions(sqw_file_res, rlu,...
     radial_cut_length, radial_bin_width, radial_thickness,...
     trans_cut_length, trans_bin_width, trans_thickness, opt, 'bin_relative');

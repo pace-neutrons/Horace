@@ -6,7 +6,7 @@ function proj = set_data_transf_(proj,data,upix_to_rlu,upix_offset)
 % It is transient funciton, necessary unitl data does not contains an 
 % implicit projection class.
 %
-%
+% TODO: delete
 
 if any(size(upix_to_rlu) ~= [3 3])
     error('APROJECTION:invalid_argument','aProjection: set_data_transf: upix_to_rlu should be 3x3 matrix')

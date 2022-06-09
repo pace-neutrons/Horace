@@ -164,7 +164,7 @@ if all(w.sqw_type(:))
         if nout>0
             if nout==1
                 if i==1
-                    wout=cut_sqw_sym_main(w.data(i),w.ndims(i),args{:});
+                    wout=cut_sqw_sym_main(w(i).data,args{:});
                     if nw>1
                         cut_array = (numel(wout)>1);
                         if ~cut_array

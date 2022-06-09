@@ -108,9 +108,9 @@ classdef test_instrument_methods <  TestCase %WithSave
             inst = ldr1.get_instrument('-all');
             ldr1.delete(); % clear existing loader not to hold test file in case of further modifications
             
-            assertEqual(numel(inst),186) % all instruments for this file are the same
+            assertEqual(numel(inst),1) % all instruments for this file are the same
             hdr = wtmp.experiment_info;
-            assertEqual(hdr.instruments(186),inst(186));
+            assertEqual(hdr.instruments(186),inst);
             
             %---------------------------------------------------------------------
             % NOT IMPLEMENTED or implemented wrongly. Does not accept array
@@ -138,7 +138,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             % file contains empty instrument and sample.
             wtmp=read_sqw(obj.test_file_);
             f = @()set_mod_pulse(wtmp,pulse_model,pp);
-            assertExceptionThrown(f,'SQW:invalid_instrument');
+            assertExceptionThrown(f,'HORACE:set_mod_pulse:invalid_instrument');
             % set up proper instrument:
             inst = maps_instrument(100,400,'S');
             wtmp= set_instrument(wtmp,inst);
@@ -150,7 +150,7 @@ classdef test_instrument_methods <  TestCase %WithSave
             % Set the incident energies in the file - produces an error as
             % the instrument is empty
             f = @()set_mod_pulse_horace(obj.test_file_,pulse_model,pp);
-            assertExceptionThrown(f,'SQW:invalid_instrument');
+            assertExceptionThrown(f,'HORACE:set_mod_pulse:invalid_instrument');
             n_files = wtmp.main_header.nfiles;
             inst_arr = repmat(inst,n_files,1);
             % set up multiple instrument on file

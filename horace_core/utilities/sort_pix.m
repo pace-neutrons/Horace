@@ -17,9 +17,10 @@ function   pix = sort_pix(pix_retained,pix_ix_retained,npix,varargin)
 %
 % '-force_mex' -- use only mex code and fail if mex is not available
 %                (usually for testing)
-% '-keep_type' -- if provided, the routine will retain type of pixels
-%                 it get on input, if not, output pixels will be converted
-%                 to double
+% '-force_double'
+%              -- if provided, the routine changes type of pixels
+%                 it get on input, into double. if not, output pixels will
+%                 keep their initial type
 %
 % these two options can not be used together.
 %
@@ -32,14 +33,16 @@ function   pix = sort_pix(pix_retained,pix_ix_retained,npix,varargin)
 %
 
 %  Process inputs
-options = {'-nomex','-force_mex','-keep_type'};
+options = {'-nomex','-force_mex','-force_double'};
 %[ok,mess,nomex,force_mex,missing]=parse_char_options(varargin,options);
-[ok,mess,nomex,force_mex,keep_type,argi]=parse_char_options(varargin,options);
+[ok,mess,nomex,force_mex,force_double,argi]=parse_char_options(varargin,options);
 if ~ok
-    error('HORACE:utilities:invalid_argument',['sort_pixels: invalid argument',mess])
+    error('HORACE:utilities:invalid_argument', ...
+        ['sort_pixels: invalid argument',mess])
 end
 if nomex && force_mex
-    error('HORACE:utilities:invalid_argument','sort_pixels: invalid argument -- nomex and force mex options can not be used together' )
+    error('HORACE:utilities:invalid_argument', ...
+        'sort_pixels: invalid argument -- nomex and force mex options can not be used together' )
 end
 if isempty(argi)
     use_given_pix_range = false;
@@ -78,25 +81,37 @@ if use_mex
         % TODO: make "keep type" a default behaviour!
         % function retrieves keep_type variable value from this file
         % so returns double or single resolution pixels depending on this
+        %IMPORTANT: use double type as mex code asks for double type, not
+        %logical.
+        if force_double % keep_type is extracted by sort_pix_by_bins routine
+            keep_type = 0; %
+        else
+            keep_type = 1;
+        end
         raw_pix = cellfun(@(pix_data) pix_data.data, pix_retained, ...
             'UniformOutput', false);
-        raw_pix = sort_pixels_by_bins(raw_pix, pix_ix_retained, npix);
+        pix = PixelData();
         if use_given_pix_range
-            pix = PixelData();
-            set_data(pix,'all',raw_pix);
+            raw_pix = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
+                npix,keep_type);
+            pix.set_data('all',raw_pix);
             pix.set_range(pix_range);
         else
-            pix = PixelData(raw_pix);
+            [raw_pix,pix_range_l] = sort_pixels_by_bins(raw_pix, pix_ix_retained, ...
+                npix,keep_type);
+            pix.set_data('all',raw_pix);
+            pix.set_range(pix_range_l);
         end
         clear pix_retained pix_ix_retained;  % clear big arrays
     catch ME
         use_mex=false;
         if get(hor_config,'log_level')>=1
             message=ME.message;
-            warning(' Can not sort_pixels_by_bins using c-routines, reason: %s \n trying Matlab',message)
+            warning('HORACE:mex_code_problem', ...
+                ' C-routines returned error: %s, details: %s \n Trying Matlab', ...
+                ME.identifier,message)
             if force_mex
-                error('SORT_PIXELS:c_code_fail','sort_pixels: can not use mex code but force mex requested, Error %s',...
-                    message)
+                rethrow(ME);
             end
         end
     end
@@ -120,17 +135,12 @@ if ~use_mex
         pix = PixelData();
         return;
     end
-    
-    pix=pix.get_pixels(ind);     % reorders pix
+
+    pix=pix.get_pixels(ind); % reorders pix according to pix indexes within bins
     clear ind;
-    % TODO: make "keep type" a default behaviour!
-    if ~keep_type
+    if force_double
         if ~isa(pix.data,'double')
             pix = PixelData(double(pix.data));
         end
     end
-    
 end
-
-
-

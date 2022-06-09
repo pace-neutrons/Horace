@@ -4,7 +4,6 @@ function [size_str,pos,err,template_struc] = calculate_positions_(obj,template_s
 %
 % pos at the end -- the final position
 %
-% $Revision:: 1759 ($Date:: 2020-02-10 16:06:00 +0000 (Mon, 10 Feb 2020) $)
 %
 err = false;
 size_str= struct('start_pos_',pos);
@@ -88,9 +87,7 @@ for i=1:numel(fn)
                     return;
                 end
             else
-                %val = struct(val);
-                %[size_str,pos] = calculate_positions_(obj,val,input,pos);
-                error('STRUCT_SERIALIZER:unsupported_data_type',...
+                error('HORACE:sqw_serializer:runtime_error',...
                     'Unsupported type for: field %s, type: %s',...
                     field,type)
             end
@@ -98,7 +95,7 @@ for i=1:numel(fn)
     end % end datatypes
     %
     pos = pos+length;
-    
+
     eof_reached = check_if_eof(obj,pos);
     if eof_reached
         pos = pos - length;
@@ -106,7 +103,7 @@ for i=1:numel(fn)
         err = true;
         break
     end
-    
+
 end
 
 function is = check_if_eof(obj,pos)
@@ -120,7 +117,6 @@ end
 
 function [sz,err] = get_size(obj,input,pos)
 
-
 err = false;
 if obj.input_is_file_  %file stream
     fseek(input,pos,'bof');
@@ -130,7 +126,7 @@ if obj.input_is_file_  %file stream
         err = true;
         return;
     end
-    
+
     sz = fread(input,1,'uint32');
     [~,res] = ferror(input);
     if res ~= 0

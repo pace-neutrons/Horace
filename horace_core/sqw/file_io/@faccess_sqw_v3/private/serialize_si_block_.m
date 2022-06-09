@@ -25,7 +25,7 @@ else
     data_block = build_block_descriptor_(obj,data,type);
     % Currently we have format of sample and instrument as of version 2,
     % despite the format of the information block is still of version 1;
-    data_block.version = uint32(2);
+    data_block.version = uint32(3);
     % convert this information into bytes
     bytes = obj.sqw_serializer_.serialize(data_block,form);
     %sz = obj.([type,'_pos_'])-obj.([type,'_head_pos_']);
@@ -33,7 +33,7 @@ else
     % get the format of sample or instrument:
     
     data_form = obj.get_si_form();
-    if data_block.all_same
+    if data_block.all_same        
         if iscell(data)
             bytes2 = obj.sqw_serializer_.serialize(data{1},data_form);
         else
