@@ -7,6 +7,7 @@ set(TEST_DIRECTORIES
     "test_utilities"
     "test_serializers"
     "test_instrument_classes"
+    "test_unique_objects"
     "test_docify"
     "test_geometry"
     "test_admin"
