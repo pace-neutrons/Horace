@@ -1,4 +1,4 @@
-function val =  check_3DAngles_correct_(obj,val)
+function val =  check_3DAngles_correct_(~,val)
 % check correct angular values for lattice angles
 %
 if isempty(val)
@@ -21,13 +21,14 @@ end
 if size(val,2)==1
     val = val';
 end
-if obj.angular_is_degree_
-    lim = 180;
-    mess = ']0-180[deg';
-else
-    lim = pi;
-    mess = ']0-pi[rad';
-end
+% angdeg is always in degrees
+%if obj.angular_is_degree_
+lim = 180;
+mess = ']0-180[deg';
+% else
+%     lim = pi;
+%     mess = ']0-pi[rad';
+% end
 
 if max(val) >= lim || min(val)< 0
     error('HERBERT:oriented_lattice:invalid_argument',...

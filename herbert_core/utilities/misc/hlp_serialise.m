@@ -131,7 +131,7 @@ switch type.name
 end
 
 m = [comb_tag; ...
-    typecast(uint32(nElem), 'uint8')'; ... % is it enough 32 bytes for all elements?
+    typecast(uint32(nElem), 'uint8')'; ... % is 32 bytes enough for all elements?
     typecast(uint64(i(:))', 'uint8')'; ...
     typecast(uint64(j(:))', 'uint8')'; ...
     typecast(data(:)', 'uint8')'];
@@ -146,7 +146,7 @@ if nElem>0
     %fnInfo = serialize_cell(fieldNames',hlp_serial_types.get_details('cell'));
     fnLengths = [length(fieldNames); cellfun('length',fieldNames)];
     fnChars = [fieldNames{:}];
-    
+
     %Content.
     fnInfo = [typecast(uint32(fnLengths)','uint8')'; uint8(fnChars')];
 else
@@ -247,7 +247,7 @@ switch rep.type
         m = [comb_tag; ... Tag
             serialise_simple_data(char(v), hlp_serial_types.get_details('char')); ... % Code
             serialise_struct(rep.workspace{1}, hlp_serial_types.get_details('struct'))]; % Workspace
-        
+
     case {'scopedfunction','nested'}
         % scoped function
         m = [comb_tag; ... Tag

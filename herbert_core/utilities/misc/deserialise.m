@@ -3,7 +3,7 @@ function [ser,nbytes] = deserialise(a,pos)
 % the array of bytes using serialize routine.
 % Inputs:
 % a   -- array of bytes, contaning serialized objects
-% pos -- starting position of the data to deserialize. If missing, assumed that data to deserialize 
+% pos -- starting position of the data to deserialize. If missing, assumed that data to deserialize
 %        are located from the beginning of the input array
 % Outputs:
 % ser    -- deserialized contencts of the array of bytes
@@ -15,8 +15,6 @@ if nargin<2
 end
 [use_mex,fm] = config_store.instance().get_value('herbert_config',...
     'use_mex','force_mex_if_use_mex');
-% Temporary disabled mex, #394
-use_mex = false;
 
 if use_mex
     try
@@ -32,4 +30,3 @@ if use_mex
 end
 
 [ser,nbytes] = hlp_deserialise(a,pos);
-

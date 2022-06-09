@@ -54,16 +54,16 @@ classdef InitMessage < aMessage
 
             if isstruct(loop_data)
                 fn = fieldnames(loop_data);
-                obj.payload.loopData = loop_data;
+                obj.payload.loop_data = loop_data;
                 % would not work correctly if the first field was string
                 obj.payload.n_steps   = numel(loop_data.(fn{1}));
                 obj.payload.n_first_step  = 1;
             elseif p.Results.is_list
-                obj.payload.loopData = loop_data;
+                obj.payload.loop_data = loop_data;
                 obj.payload.n_steps = numel(loop_data);
                 obj.payload.n_first_step  = 1;
             else
-                obj.payload.loopData = [];
+                obj.payload.loop_data = [];
                 obj.payload.n_steps = loop_data;
             end
 
@@ -78,7 +78,7 @@ classdef InitMessage < aMessage
         end
 
         function cd = get.loop_data(obj)
-            cd = obj.payload.loopData;
+            cd = obj.payload.loop_data;
         end
 
         function yesno = get.return_results(obj)

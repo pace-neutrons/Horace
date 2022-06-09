@@ -73,8 +73,8 @@ classdef serializable
     %     end
     %----------------------------------------------------------------------
     % OPTIONAL:
-    % to support old file versions, one should overload method
-    % from_old_strct, which, by default, calls from_bare_struct method.
+    % to support old file versions, one should also overload method
+    % "from_old_struct", which, by default, calls "from_bare_struct" method.
     %----------------------------------------------------------------------
     methods
         function strc = to_struct(obj)
@@ -110,7 +110,6 @@ classdef serializable
             strc = to_struct_(obj);
         end
 
-
         function strc = to_bare_struct(obj,varargin)
             % Convert serializable object into a special structure, which allow
             % serialization and recovery using "from_bare_struct" operation
@@ -123,7 +122,7 @@ classdef serializable
             % Input:
             % obj  -- class or array of classes objects
             % Optional:
-            % '-recursively' -- key-word '-recusrsively' or logical variable.
+            % '-recursively' -- key-word '-recursively' or logical variable.
             %                   true/false
             %                   If provided and true, all 'serializable'
             %                   subfields of the current object are also
@@ -176,12 +175,12 @@ classdef serializable
             end
             obj = from_bare_struct_(obj,inputs);
         end
-        %
+
         function ser_data = serialize(obj)
             struc = to_struct(obj);
             ser_data = serialise(struc);
         end
-        %
+
         function [size,struc] = serial_size(obj)
             % Returns size of the serialized object
             %
@@ -190,7 +189,7 @@ classdef serializable
             struc = to_struct(obj);
             size = serial_size(struc);
         end
-        %
+
         %======================================================================
         % Generic loadobj and saveobj
         % - to enable custom saving to .mat files and bytestreams
@@ -218,24 +217,26 @@ classdef serializable
             %
             S         = to_struct_(obj);
         end
-        %
+
         function obj = serializable()
             % generic class constructor. Does nothing
         end
+
         function is = get.isvalid(obj)
             is = check_validity(obj);
         end
-        %
+
         function do = get.throw_on_invalid(obj)
             do = get_throw_on_invalid(obj);
         end
+
         function obj = set.throw_on_invalid(obj,val)
             if isempty(val)
                 val = false;
             end
             obj.throw_on_invalid_ = logical(val);
         end
-        %
+
         function [ok,mess,obj] = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained serializable object. Return the result of the check
@@ -248,6 +249,7 @@ classdef serializable
         end
 
     end
+
     methods (Static)
         function obj = from_struct(in_struct,existing_obj)
             % restore object or array of objects from a structure,
@@ -294,7 +296,7 @@ classdef serializable
             end
             [obj,nbytes] = deserialize_(byte_array,pos);
         end
-        %
+
         function obj = loadobj(S,varargin)
             % Generic method, used by particular class loadobj method
             % to recover any serializable class

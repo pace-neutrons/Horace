@@ -14,6 +14,29 @@ classdef test_IX_experiment <  TestCase
             end
             this = this@TestCase(name);
         end
+        function test_empty_array(~)
+            exp = [IX_experiment(),IX_experiment()];
+            assertEqual(isempty(exp),[true,true]);
+
+            exp(2).filename = 'some_file';
+            assertEqual(isempty(exp),[true,false]);
+        end
+
+        function test_empty_obj_filename(~)
+            exp = IX_experiment();
+            assertTrue(isempty(exp));
+
+            exp.filename = 'some_file';
+            assertFalse(isempty(exp));
+        end
+
+        function test_empty_obj_runid(~)
+            exp = IX_experiment();
+            assertTrue(isempty(exp));
+
+            exp.run_id = 1;
+            assertFalse(isempty(exp));
+        end
         function test_convert_to_and_from_old_binfile_headers(~)
             exp = IX_experiment();
             exp(1).filename = 'aa';
@@ -30,6 +53,19 @@ classdef test_IX_experiment <  TestCase
             assertEqual(angdeg,[90,90,90]);
             exp.run_id = NaN;
             assertEqual(exp,exp_rec);
+        end
+        function test_get_runids(~)
+            exp = [IX_experiment(),IX_experiment()];
+            exp(1).filename = 'aa';
+            exp(1).filepath = 'bc';
+            exp(1).run_id = 10;
+            exp(2).filename = 'bb';
+            exp(2).filepath = 'de';
+            exp(2).run_id = 20;
+
+            ids = exp.get_run_ids();
+            assertEqual(ids,[10,20]);
+
         end
 
         function test_convert_to_and_from_binfile_headers_empty_fn(~)

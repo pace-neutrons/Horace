@@ -65,6 +65,10 @@ classdef test_MException_her < TestCase
             s2 = struct(MeR);
             s1 = rmfield(s1,'type');
             s2 = rmfield(s2,'type');
+            if isfield(s1,'enhancedstack') % this is some new hidden property in new version of matlab
+                s1 = rmfield(s1,'enhancedstack');
+                s2 = rmfield(s2,'enhancedstack');                
+            end
             assertEqual(s1,s2);
 
         end
