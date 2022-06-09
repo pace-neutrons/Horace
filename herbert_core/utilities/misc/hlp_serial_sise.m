@@ -51,13 +51,12 @@ end
 
 % Sparse data types
 function siz = serial_sise_sparse_data(v, type_str)
-
 nElem = nnz(v);
 siz = hlp_serial_types.calc_tag_size(size(v),type_str,1)+...
     hlp_serial_types.dim_size + ... % add size for number of elements
     2*8*nElem +... % i,j of 64-bit indexes
     nElem*type_str.size; % data
-%typecast(uint32(nElem), 'uint8')'; ... % is it enough 32 bytes for all elements?
+%typecast(uint32(nElem), 'uint8')'; ... % is 32 bytes enough for all elements?
 %typecast(uint64(i(:))', 'uint8')'; ...
 %typecast(uint64(j(:))', 'uint8')'; ...
 %typecast(data(:)', 'uint8')'];
@@ -135,7 +134,7 @@ if nElem > 0
             if isobject(conts) % saveobj has not been overloaded
                 conts = arrayfun(@struct,v);
             end
-        catch 
+        catch
             conts = arrayfun(@struct, v);
         end
         conts_siz = hlp_serial_sise(conts);
@@ -155,7 +154,7 @@ tag_size = hlp_serial_types.calc_tag_size(size(rep),type_struc);
 switch rep.type
     case {'simple', 'classsimple'}
         % simple function: Tag & name
-        
+
         siz = tag_size  +...
             serial_sise_simple_data(rep.function, hlp_serial_types.get_details('char')); % String of name
     case 'anonymous'

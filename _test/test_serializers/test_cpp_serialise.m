@@ -18,59 +18,58 @@ classdef test_cpp_serialise < TestCase
             else
                 this.use_mex = true;
             end
-            this.use_mex = false;
-            warning('C++ tests are currently disabled   #394');
         end
-        
-        
+
+
         %------------------------------------------------------------------
         function test_ser_sample(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
-            
+
             sam1=IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
-            
+
             bytes = c_serialise(sam1);
+
             sam1rec = hlp_deserialise(bytes);
             assertEqual(sam1,sam1rec);
-            
+
             sam2=IX_sample(true,[1,1,0],[0,0,1],'cuboid',[0.04,0.03,0.02]);
-            
+
             bytes = c_serialise(sam2);
             sam2rec = hlp_deserialise(bytes);
             assertEqual(sam2,sam2rec);
-            
+
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_instrument(this)
             if ~this.use_mex
                 skipTest('MEX not enabled');
             end
-            
+
             % Create three different instruments
             inst1=create_test_instrument(95,250,'s');
             bytes = c_serialise(inst1);
             inst1rec = hlp_deserialise(bytes);
             assertEqual(inst1,inst1rec);
-            
-            
+
+
             inst2=create_test_instrument(56,300,'s');
             inst2.flipper=true;
             bytes = c_serialise(inst2);
             inst2rec = hlp_deserialise(bytes);
             assertEqual(inst2,inst2rec );
-            
+
             inst3=create_test_instrument(195,600,'a');
             inst3.filter=[3,4,5];
             bytes = c_serialise(inst3);
             inst3rec = hlp_deserialise(bytes);
             assertEqual(inst3,inst3rec );
-            
+
         end
-        
-        
+
+
         %------------------------------------------------------------------
         function test_ser_datamessage(this)
             if ~this.use_mex
@@ -79,24 +78,24 @@ classdef test_cpp_serialise < TestCase
             my_struc = struct('clc',true(1,3),'a',1,'ba',single(2),'ce',[1,2,3],...
                 'dee',struct('a',10),'ei',int32([9;8;7]));
             test_obj = DataMessage(my_struc);
-            
+
             ser = c_serialise(test_obj);
             test_obj_rec = hlp_deserialise(ser);
             assertEqual(test_obj, test_obj_rec);
-            
+
             test_obj = DataMessage(123456789);
-            
+
             ser = c_serialise(test_obj);
             test_obj_rec = hlp_deserialise(ser);
             assertEqual(test_obj, test_obj_rec);
-            
+
             test_obj = DataMessage('This is a test message');
-            
+
             ser = c_serialise(test_obj);
             test_obj_rec = hlp_deserialise(ser);
             assertEqual(test_obj, test_obj_rec);
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_datamessage_array(this)
             if ~this.use_mex
@@ -105,12 +104,12 @@ classdef test_cpp_serialise < TestCase
             my_struc = struct('clc',true(1,3),'a',1,'ba',single(2),'ce',[1,2,3],...
                 'dee',struct('a',10),'ei',int32([9;8;7]));
             test_obj = [DataMessage(my_struc), DataMessage(10), DataMessage('Hello')];
-            
+
             ser = c_serialise(test_obj);
             test_obj_rec = hlp_deserialise(ser);
             assertEqual(test_obj, test_obj_rec)
         end
-        
+
         %% Test null
         function test_ser_array_null(this)
             if ~this.use_mex
@@ -119,10 +118,10 @@ classdef test_cpp_serialise < TestCase
             test_obj = [];
             ser =  c_serialise(test_obj);
             test_obj_rec = hlp_deserialise(ser);
-            
+
             assertEqual(test_obj, test_obj_rec)
         end
-        
+
         %% Test Logicals
         %------------------------------------------------------------------
         function test_ser_logical_scalar(this)
@@ -134,7 +133,7 @@ classdef test_cpp_serialise < TestCase
             test_obj_rec = hlp_deserialise(ser);
             assertEqual(test_obj, test_obj_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_logical_array(this)
             if ~this.use_mex
@@ -145,7 +144,7 @@ classdef test_cpp_serialise < TestCase
             test_obj_rec = hlp_deserialise(ser);
             assertEqual(test_obj, test_obj_rec)
         end
-        
+
         %% Test Characters
         %------------------------------------------------------------------
         function test_ser_chararray_null(this)
@@ -157,7 +156,7 @@ classdef test_cpp_serialise < TestCase
             test_obj_rec = hlp_deserialise(ser);
             assertEqual(test_obj, test_obj_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_chararray_scalar(this)
             if ~this.use_mex
@@ -168,7 +167,7 @@ classdef test_cpp_serialise < TestCase
             test_obj_rec = hlp_deserialise(ser);
             assertEqual(test_obj, test_obj_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_chararray_array(this)
             if ~this.use_mex
@@ -179,7 +178,7 @@ classdef test_cpp_serialise < TestCase
             test_obj_rec = hlp_deserialise(ser);
             assertEqual(test_obj, test_obj_rec)
         end
-        
+
         %% Test Doubles
         %------------------------------------------------------------------
         function test_ser_double_scalar(this)
@@ -191,7 +190,7 @@ classdef test_cpp_serialise < TestCase
             test_obj_rec = hlp_deserialise(ser);
             assertEqual(test_obj, test_obj_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_double_list(this)
             if ~this.use_mex
@@ -202,7 +201,7 @@ classdef test_cpp_serialise < TestCase
             test_obj_rec = hlp_deserialise(ser);
             assertEqual(test_obj, test_obj_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_double_array(this)
             if ~this.use_mex
@@ -213,7 +212,7 @@ classdef test_cpp_serialise < TestCase
             test_obj_rec = hlp_deserialise(ser);
             assertEqual(test_obj, test_obj_rec)
         end
-        
+
         %% Test Complexes
         %------------------------------------------------------------------
         function test_ser_complex_scalar(this)
@@ -225,7 +224,7 @@ classdef test_cpp_serialise < TestCase
             test_obj_rec = hlp_deserialise(ser);
             assertEqual(test_obj, test_obj_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_complex_array(this)
             if ~this.use_mex
@@ -236,7 +235,7 @@ classdef test_cpp_serialise < TestCase
             test_obj_rec = hlp_deserialise(ser);
             assertEqual(test_obj, test_obj_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_mixed_complex_array(this)
             if ~this.use_mex
@@ -247,7 +246,7 @@ classdef test_cpp_serialise < TestCase
             test_obj_rec = hlp_deserialise(ser);
             assertEqual(test_obj, test_obj_rec)
         end
-        
+
         %% Test Structs
         %------------------------------------------------------------------
         function test_ser_struct_null(this)
@@ -259,7 +258,7 @@ classdef test_cpp_serialise < TestCase
             test_struct_rec = hlp_deserialise(ser);
             assertEqual(test_struct, test_struct_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_struct_empty(this)
             if ~this.use_mex
@@ -270,7 +269,7 @@ classdef test_cpp_serialise < TestCase
             test_struct_rec = hlp_deserialise(ser);
             assertEqual(test_struct, test_struct_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_struct_scalar(this)
             if ~this.use_mex
@@ -281,7 +280,7 @@ classdef test_cpp_serialise < TestCase
             test_struct_rec = hlp_deserialise(ser);
             assertEqual(test_struct, test_struct_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_struct_list(this)
             if ~this.use_mex
@@ -292,7 +291,7 @@ classdef test_cpp_serialise < TestCase
             test_struct_rec = hlp_deserialise(ser);
             assertEqual(test_struct, test_struct_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_struct_array(this)
             if ~this.use_mex
@@ -303,7 +302,7 @@ classdef test_cpp_serialise < TestCase
             test_struct_rec = hlp_deserialise(ser);
             assertEqual(test_struct, test_struct_rec)
         end
-        
+
         %% Test Sparse
         %------------------------------------------------------------------
         function test_ser_real_sparse_null(this)
@@ -315,7 +314,7 @@ classdef test_cpp_serialise < TestCase
             test_sparse_rec = hlp_deserialise(ser);
             assertEqual(test_sparse, test_sparse_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_real_sparse_empty(this)
             if ~this.use_mex
@@ -326,7 +325,7 @@ classdef test_cpp_serialise < TestCase
             test_sparse_rec = hlp_deserialise(ser);
             assertEqual(test_sparse, test_sparse_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_real_sparse_single(this)
             if ~this.use_mex
@@ -334,10 +333,12 @@ classdef test_cpp_serialise < TestCase
             end
             test_sparse = sparse(eye(1));
             ser =  c_serialise(test_sparse);
+            % Adjust C [0] -> MATLAB [1] indexing
+            ser(15:8:23) = ser(15:8:23) + 1;
             test_sparse_rec = hlp_deserialise(ser);
             assertEqual(test_sparse, test_sparse_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_real_sparse_array(this)
             if ~this.use_mex
@@ -345,10 +346,12 @@ classdef test_cpp_serialise < TestCase
             end
             test_sparse = speye(10);
             ser =  c_serialise(test_sparse);
+            % Adjust C [0] -> MATLAB [1] indexing
+            ser(15:8:168) = ser(15:8:168) + 1;
             test_sparse_rec = hlp_deserialise(ser);
             assertEqual(test_sparse, test_sparse_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_complex_sparse_null(this)
             if ~this.use_mex
@@ -359,7 +362,7 @@ classdef test_cpp_serialise < TestCase
             test_sparse_rec = hlp_deserialise(ser);
             assertEqual(test_sparse, test_sparse_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_complex_sparse_empty(this)
             if ~this.use_mex
@@ -370,7 +373,7 @@ classdef test_cpp_serialise < TestCase
             test_sparse_rec = hlp_deserialise(ser);
             assertEqual(test_sparse, test_sparse_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_complex_sparse_single(this)
             if ~this.use_mex
@@ -378,10 +381,12 @@ classdef test_cpp_serialise < TestCase
             end
             test_sparse = sparse(1, 1, 1i);
             ser =  c_serialise(test_sparse);
+            % Adjust C [0] -> MATLAB [1] indexing
+            ser(15:8:23) = ser(15:8:23) + 1;
             test_sparse_rec = hlp_deserialise(ser);
             assertEqual(test_sparse, test_sparse_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_complex_sparse_array(this)
             if ~this.use_mex
@@ -389,10 +394,12 @@ classdef test_cpp_serialise < TestCase
             end
             test_sparse = sparse(1:10, 1, 1i);
             ser =  c_serialise(test_sparse);
+            % Adjust C [0] -> MATLAB [1] indexing
+            ser(15:8:168) = ser(15:8:168) + 1;
             test_sparse_rec = hlp_deserialise(ser);
             assertEqual(test_sparse, test_sparse_rec)
         end
-        
+
         %% Test Function handle
         function test_ser_function_handle(this)
             if ~this.use_mex
@@ -403,7 +410,7 @@ classdef test_cpp_serialise < TestCase
             test_func_rec = hlp_deserialise(ser);
             assertEqual(func2str(test_func), func2str(test_func_rec))
         end
-        
+
         %% Test Cell Array
         %------------------------------------------------------------------
         function test_ser_cell_null(this)
@@ -415,7 +422,7 @@ classdef test_cpp_serialise < TestCase
             test_cell_rec = hlp_deserialise(ser);
             assertEqual(test_cell, test_cell_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_cell_homo_numeric(this)
             if ~this.use_mex
@@ -426,7 +433,7 @@ classdef test_cpp_serialise < TestCase
             test_cell_rec = hlp_deserialise(ser);
             assertEqual(test_cell, test_cell_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_cell_homo_numeric_array(this)
             if ~this.use_mex
@@ -437,7 +444,7 @@ classdef test_cpp_serialise < TestCase
             test_cell_rec = hlp_deserialise(ser);
             assertEqual(test_cell, test_cell_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_cell_homo_complex(this)
             if ~this.use_mex
@@ -448,7 +455,7 @@ classdef test_cpp_serialise < TestCase
             test_cell_rec = hlp_deserialise(ser);
             assertEqual(test_cell, test_cell_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_cell_homo_mixed_complex(this)
             if ~this.use_mex
@@ -459,7 +466,7 @@ classdef test_cpp_serialise < TestCase
             test_cell_rec = hlp_deserialise(ser);
             assertEqual(test_cell, test_cell_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_cell_homo_cell(this)
             if ~this.use_mex
@@ -470,7 +477,7 @@ classdef test_cpp_serialise < TestCase
             test_cell_rec = hlp_deserialise(ser);
             assertEqual(test_cell, test_cell_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_cell_homo_bool(this)
             if ~this.use_mex
@@ -481,7 +488,7 @@ classdef test_cpp_serialise < TestCase
             test_cell_rec = hlp_deserialise(ser);
             assertEqual(test_cell, test_cell_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_cell_homo_string(this)
             if ~this.use_mex
@@ -492,7 +499,7 @@ classdef test_cpp_serialise < TestCase
             test_cell_rec = hlp_deserialise(ser);
             assertEqual(test_cell, test_cell_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_cell_homo_structs(this)
             if ~this.use_mex
@@ -503,7 +510,7 @@ classdef test_cpp_serialise < TestCase
             test_cell_rec = hlp_deserialise(ser);
             assertEqual(test_cell, test_cell_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_cell_homo_function_handles(this)
             if ~this.use_mex
@@ -516,7 +523,7 @@ classdef test_cpp_serialise < TestCase
             test_cell_rec = cellfun(@func2str, test_cell_rec, 'UniformOutput',false);
             assertEqual(test_cell, test_cell_rec)
         end
-        
+
         %------------------------------------------------------------------
         function test_ser_cell_hetero(this)
             if ~this.use_mex
@@ -529,6 +536,6 @@ classdef test_cpp_serialise < TestCase
             test_cell_rec{7} = func2str(test_cell_rec{7});
             assertEqual(test_cell, test_cell_rec)
         end
-        
+
     end
 end

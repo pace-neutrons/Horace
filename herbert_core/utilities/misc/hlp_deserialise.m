@@ -224,7 +224,7 @@ end
 
 function [v, pos] = deserialise_function_handle(m, pos)
 [~, ~,fTag,pos] = hlp_serial_types.unpack_data_tag(m,pos);
-%
+
 switch fTag
     case 64 % Simple
         [name, pos] = deserialise_simple_data(m, pos);
@@ -251,6 +251,7 @@ switch fTag
         end
 end
 end
+
 function [v,pos]=obj_deserialize_itself(m,pos)
 % first position is the self-serialization tag. The serializable starts from
 % the following byte
@@ -296,4 +297,3 @@ if nDims > 1
     v = reshape(v, size);
 end
 end
-

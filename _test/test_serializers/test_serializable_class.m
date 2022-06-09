@@ -1,7 +1,9 @@
 classdef test_serializable_class < TestCase
     properties
         wk_dir = tmp_dir()
+        use_mex
     end
+
     methods
 
         function obj = test_serializable_class(name)
@@ -9,13 +11,16 @@ classdef test_serializable_class < TestCase
                 name = 'test_serializable_class ';
             end
             obj = obj@TestCase(name);
+            [~,nerr] = check_herbert_mex();
+            this.use_mex = nerr == 0;
         end
-        %
+
         function test_ser_serializeble_obj_array_class2(obj)
             conf = herbert_config;
             ds = conf.get_data_to_store();
             clob = onCleanup(@()set(conf,ds));
             conf.use_mex = false;
+
             %--------------------------------------------------------------
             % Prepare data
             serCl = serializableTester1();
@@ -27,6 +32,7 @@ classdef test_serializable_class < TestCase
                 serCl(i).Prop_class1_1 = i*10;
                 serCl(i).Prop_class1_2 = repmat(setCl2,1,2*i);
             end
+
             %--------------------------------------------------------------
             % Serialize using Matlab
             ser =  hlp_serialise(serCl);
@@ -34,29 +40,83 @@ classdef test_serializable_class < TestCase
 
             assertEqual(serCl, serCl_rec)
 
-            size = hlp_serial_sise(serCl);
-            assertEqual(size,numel(ser));
-            %--------------------------------------------------------------
-            % Serialize using C++
-            skipTest('C++ serializers crashes over arrays of objects #394')
+            data_size = hlp_serial_sise(serCl);
+            assertEqual(data_size,numel(ser));
+
+        end
+
+        function test_ser_serializeble_obj_array_class2_cpp(obj)
+
             if ~obj.use_mex
                 skipTest('Mex mode is not currently available for: test_ser_serializeble_obj_array');
             end
+
+            conf = herbert_config;
+            ds = conf.get_data_to_store();
+            clob = onCleanup(@()set(conf,ds));
+            conf.use_mex = true;
+
+            %--------------------------------------------------------------
+            % Prepare data
+            serCl = serializableTester1();
+            serCl = repmat(serCl,2,2);
+            setCl2 = serializableTester2();
+            setCl2.Prop_class2_1 = 10;
+            setCl2.Prop_class2_2 = 20;
+            for i=1:numel(serCl)
+                serCl(i).Prop_class1_1 = i*10;
+                serCl(i).Prop_class1_2 = repmat(setCl2,1,2*i);
+            end
+
+            %--------------------------------------------------------------
+            % Serialize using C++
+            data_size_c = c_serial_size(serCl);
             ser_c     = c_serialise(serCl);
             serCl_rec = c_deserialise(ser_c);
 
             assertEqual(serCl, serCl_rec)
-            assertEqual(ser_c,ser);
-
-            size_c = c_serial_size(serCl);
-            assertEqual(size_c,numel(ser));
+            assertEqual(data_size_c,numel(ser_c));
         end
-        %
+
         function test_ser_serializeble_obj_array_class1_obj_class2(obj)
             conf = herbert_config;
             ds = conf.get_data_to_store();
             clob = onCleanup(@()set(conf,ds));
             conf.use_mex = false;
+
+            %--------------------------------------------------------------
+            % Prepare data
+            serCl = serializableTester1();
+            serCl = repmat(serCl,2,2);
+            for i=1:numel(serCl)
+                setCl2 = serializableTester2();
+                setCl2.Prop_class2_1 = 5*i;
+                setCl2.Prop_class2_2 = 20*i;
+                serCl(i).Prop_class1_1 = i*10;
+                serCl(i).Prop_class1_2 =setCl2;
+            end
+
+            %--------------------------------------------------------------
+            % Serialize using Matlab
+            data_size = hlp_serial_sise(serCl);
+            ser =  hlp_serialise(serCl);
+            serCl_rec = hlp_deserialise(ser);
+
+            assertEqual(serCl, serCl_rec)
+            assertEqual(data_size,numel(ser));
+
+        end
+
+        function test_ser_serializeble_obj_array_class1_obj_class2_cpp(obj)
+            if ~obj.use_mex
+                skipTest('Mex mode is not currently available for: test_ser_serializeble_obj_array');
+            end
+
+            conf = herbert_config;
+            ds = conf.get_data_to_store();
+            clob = onCleanup(@()set(conf,ds));
+            conf.use_mex = true;
+
             %--------------------------------------------------------------
             % Prepare data
             serCl = serializableTester1();
@@ -69,28 +129,14 @@ classdef test_serializable_class < TestCase
                 serCl(i).Prop_class1_2 =setCl2;
             end
             %--------------------------------------------------------------
-            % Serialize using Matlab
-            ser =  hlp_serialise(serCl);
-            serCl_rec = hlp_deserialise(ser);
-
-            assertEqual(serCl, serCl_rec)
-
-            size = hlp_serial_sise(serCl);
-            assertEqual(size,numel(ser));
-            %--------------------------------------------------------------
             % Serialize using C++
-            skipTest('C++ serializers crashes over arrays of objects #394')
-            if ~obj.use_mex
-                skipTest('Mex mode is not currently available for: test_ser_serializeble_obj_array');
-            end
+
+            data_size_c = c_serial_size(serCl);
             ser_c     = c_serialise(serCl);
             serCl_rec = c_deserialise(ser_c);
 
             assertEqual(serCl, serCl_rec)
-            assertEqual(ser_c,ser);
-
-            size_c = c_serial_size(serCl);
-            assertEqual(size_c,numel(ser));
+            assertEqual(data_size_c,numel(ser_c));
         end
 
         function test_ser_serializeble_obj_array_class1(obj)
@@ -98,6 +144,7 @@ classdef test_serializable_class < TestCase
             ds = conf.get_data_to_store();
             clob = onCleanup(@()set(conf,ds));
             conf.use_mex = false;
+
             %--------------------------------------------------------------
             % Prepare data
             serCl = serializableTester1();
@@ -106,37 +153,47 @@ classdef test_serializable_class < TestCase
                 serCl(i).Prop_class1_1 = i*10;
                 serCl(i).Prop_class1_2 = cell(1,i);
             end
+
             %--------------------------------------------------------------
             % Serialize using Matlab
+            data_size = hlp_serial_sise(serCl);
             ser =  hlp_serialise(serCl);
             serCl_rec = hlp_deserialise(ser);
 
             assertEqual(serCl, serCl_rec)
+            assertEqual(data_size,numel(ser));
 
-            size = hlp_serial_sise(serCl);
-            assertEqual(size,numel(ser));
-            %--------------------------------------------------------------
-            % Serialize using C++
+        end
 
-            skipTest('C++ serializers crashes over arrays of objects #394')
+        function test_ser_serializeble_obj_array_class1_cpp(obj)
             if ~obj.use_mex
                 skipTest('Mex mode is not currently available for: test_ser_serializeble_obj_array');
             end
-            size_c = c_serial_size(serCl);
-            assertEqual(size_c,size);
 
+            conf = herbert_config;
+            ds = conf.get_data_to_store();
+            clob = onCleanup(@()set(conf,ds));
+            conf.use_mex = true;
+
+            %--------------------------------------------------------------
+            % Prepare data
+            serCl = serializableTester1();
+            serCl = repmat(serCl,2,2);
+            for i=1:numel(serCl)
+                serCl(i).Prop_class1_1 = i*10;
+                serCl(i).Prop_class1_2 = cell(1,i);
+            end
+
+            %--------------------------------------------------------------
+            % Serialize using C++
+            data_size_c = c_serial_size(serCl);
             ser_c     = c_serialise(serCl);
-            assertEqual(ser,ser_c);
-            %
             serCl_rec = c_deserialise(ser_c);
 
             assertEqual(serCl, serCl_rec)
-            assertEqual(ser_c,ser);
-
-            size_c = c_serial_size(serCl);
-            assertEqual(size_c,numel(ser));
+            assertEqual(data_size_c,numel(ser_c));
         end
-        %
+
         function test_ser_serializeble_obj(obj)
             conf = herbert_config;
             ds = conf.get_data_to_store();
@@ -148,40 +205,50 @@ classdef test_serializable_class < TestCase
             serCl.Prop_class2_2= serializableTester1();
 
             %--------------------------------------------------------------
+            % Serialize using MATLAB
 
             ser =  hlp_serialise(serCl);
-            size = hlp_serial_sise(serCl);
-            assertEqual(size,numel(ser));
-            [cerCl_rec,nbytes] = hlp_deserialise(ser);
+            data_size = hlp_serial_sise(serCl);
+            assertEqual(data_size,numel(ser));
+            [serCl_rec,nbytes] = hlp_deserialise(ser);
 
             assertEqual(nbytes,numel(ser));
-            assertEqual(serCl, cerCl_rec)
-            assertTrue(isa(cerCl_rec.Prop_class2_2,class(serCl.Prop_class2_2)));
+            assertEqual(serCl, serCl_rec)
+            assertTrue(isa(serCl_rec.Prop_class2_2,class(serCl.Prop_class2_2)));
 
+        end
 
-            skipTest('C++ deserializer does not work propertly; #394')
+        function test_ser_serializeble_obj_cpp(obj)
             if ~obj.use_mex
                 skipTest('Mex mode is not currently available for: test_ser_serializeble_obj');
             end
+            conf = herbert_config;
+            ds = conf.get_data_to_store();
+            clob = onCleanup(@()set(conf,ds));
+            conf.use_mex = true;
+
+            %--------------------------------------------------------------
+            serCl = serializableTester2();
+            serCl.Prop_class2_1=100;
+            serCl.Prop_class2_2= serializableTester1();
+
             %--------------------------------------------------------------
             % Serialize using C++
-            size_c = c_serial_size(serCl);
+            data_size_c = c_serial_size(serCl);
 
             ser_c     = c_serialise(serCl);
-            assertEqual(ser_c,ser)
 
             [serCl_rec,nbytes] = c_deserialise(ser_c);
 
-            %
             assertEqual(nbytes,numel(ser_c))
             assertEqual(serCl, serCl_rec)
-            assertTrue(isa(cerCl_rec.Prop_class2_2,class(serCl.Prop_class2_2)));
-            assertEqual(ser_c,ser);
+            assertTrue(isa(serCl_rec.Prop_class2_2,class(serCl.Prop_class2_2)));
 
-            assertEqual(size_c,numel(ser));
+            assertEqual(data_size_c,numel(ser_c));
         end
-        %
+
         function test_ser_serializeble_obj_level0(obj)
+
             conf = herbert_config;
             ds = conf.get_data_to_store();
             clob = onCleanup(@()set(conf,ds));
@@ -194,37 +261,45 @@ classdef test_serializable_class < TestCase
             %--------------------------------------------------------------
 
             ser =  hlp_serialise(serCl);
-            size = hlp_serial_sise(serCl);
-            assertEqual(size,numel(ser));
+            data_size = hlp_serial_sise(serCl);
+            assertEqual(data_size,numel(ser));
 
-            [cerCl_rec,nbytes] = hlp_deserialise(ser);
+            [serCl_rec,nbytes] = hlp_deserialise(ser);
 
             assertEqual(nbytes,numel(ser));
-            assertEqual(serCl, cerCl_rec)
-            assertTrue(isa(cerCl_rec.Prop_class2_2,class(serCl.Prop_class2_2)));
+            assertEqual(serCl, serCl_rec)
+            assertTrue(isa(serCl_rec.Prop_class2_2,class(serCl.Prop_class2_2)));
+        end
 
-
-            skipTest('C++ deserializer does not work propertly; #394')
+        function test_ser_serializeble_obj_level0_cpp(obj)
             if ~obj.use_mex
                 skipTest('Mex mode is not currently available for: test_ser_serializeble_obj');
             end
+
+            conf = herbert_config;
+            ds = conf.get_data_to_store();
+            clob = onCleanup(@()set(conf,ds));
+            conf.use_mex = true;
+            %--------------------------------------------------------------
+            serCl = serializableTester2();
+            serCl.Prop_class2_1=100;
+            serCl.Prop_class2_2= [1,2,4];
+
             %--------------------------------------------------------------
             % Serialize using C++
-            size_c = c_serial_size(serCl);
+            data_size_c = c_serial_size(serCl);
 
-            ser_c     = c_serialise(serCl);
-            assertEqual(ser_c,ser)
+            ser_c  = c_serialise(serCl);
 
             [serCl_rec,nbytes] = c_deserialise(ser_c);
 
-            %
             assertEqual(nbytes,numel(ser_c))
             assertEqual(serCl, serCl_rec)
-            assertTrue(isa(cerCl_rec.Prop_class2_2,class(serCl.Prop_class2_2)));
-            assertEqual(ser_c,ser);
+            assertTrue(isa(serCl_rec.Prop_class2_2,class(serCl.Prop_class2_2)));
 
-            assertEqual(size_c,numel(ser));
+            assertEqual(data_size_c,numel(ser_c));
         end
+
         function test_saveobj_old_version_loadobj_new_version(~)
             % prepare reference data
             tc = serializableTester2();
@@ -252,10 +327,9 @@ classdef test_serializable_class < TestCase
 
             assertEqual(tc2_lev2(2).classVersion(),2);
             assertEqual(tc2_lev2(2).Prop_class1_3,'recovered_new_from_old_value');
-            %
+
         end
 
-        %
         function test_new_version_saveobj_loadobj_array_recursive(~)
             % prepare reference data
             tc = serializableTester2();
@@ -280,6 +354,7 @@ classdef test_serializable_class < TestCase
                 assertEqual(tc(i),tc_rec(i));
             end
         end
+
         function test_serialize_classes_array_recursive(~)
             tc = serializableTester1();
             tc = repmat(tc,2,2);
@@ -377,6 +452,7 @@ classdef test_serializable_class < TestCase
                 assertEqual(tc(i),tc_rec(i));
             end
         end
+
         function test_serialize_native_single_class(~)
             tc = serializableTester1();
             tc.Prop_class1_1 = 20;
@@ -400,6 +476,7 @@ classdef test_serializable_class < TestCase
             tc_rec = serializable.from_struct(tc_struct);
             assertEqual(tc,tc_rec);
         end
+
         %------------------------------------------------------------------
         function test_pos_constructor_char_pos_sets_key(~)
             [tc,rem] = serializableTester2(11,20,'Prop_class2_3','aaa',...
@@ -414,11 +491,12 @@ classdef test_serializable_class < TestCase
             assertExceptionThrown(@()serializableTester2('Prop_class2_1','a',...
                 'Prop_class2_2'),'HERBERT:serializable:invalid_argument');
         end
-        %
+
         function test_keyval_constructor_nokey_throws(~)
             assertExceptionThrown(@()serializableTester2('Prop_class2_1',...
                 'Prop_class2_2',20,'blabla'),'HERBERT:serializable:invalid_argument');
         end
+
         function test_val_keyval_constructor_returns_keyval_remaining(~)
             [tc,rem] = serializableTester2(11,'Prop_class2_1',10,...
                 'blabla','Prop_class2_2',20);
@@ -427,7 +505,6 @@ classdef test_serializable_class < TestCase
             assertTrue(isempty(tc.Prop_class2_3))
             assertEqual(rem,{'blabla'});
         end
-
 
         function test_keyval_constructor_middle_extra_val_ignored(~)
             [tc,rem] = serializableTester2('Prop_class2_1',10,...

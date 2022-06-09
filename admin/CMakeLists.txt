@@ -26,7 +26,7 @@ configure_file("version.h.template"
 
 # Runs docify
 configure_file("run_docify.m" "${CMAKE_CURRENT_BINARY_DIR}/run_docify.m")
-add_custom_target(run_docify ALL)
+add_custom_target(run_docify)
 add_custom_command(
     TARGET run_docify
     COMMAND ${Matlab_MAIN_PROGRAM} -batch "run_docify"

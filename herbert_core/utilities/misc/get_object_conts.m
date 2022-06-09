@@ -2,13 +2,14 @@ function conts = get_object_conts(v)
 % Helper  method used by mex-code to serialize object
 % by converting it into a structure or whatever is optimal for this object.
 %
-% An objects need special treatment in C++
+% Objects need special treatment in C++
 %
 %
+
 if isa(v, 'serializable')
     % the method of serializable class converts to structure both objects
     % and object arrays as one operation
-    conts = shallow_struct(v);
+    conts = to_struct(v);
 else
     try
         % try to use the saveobj method first to get the contents
@@ -22,3 +23,4 @@ else
     end
 end
 
+end
