@@ -165,11 +165,11 @@ classdef hpc_config < config_base
             % set os-specific defaults
             if ispc
                 obj.mex_combine_thread_mode_   = 0;
-            elseif ismac
-                ...
             elseif isunix
-                obj.mex_combine_thread_mode_   = 0;
-                obj.mex_combine_buffer_size_ = 64*1024;
+                if ~ismac
+                    obj.mex_combine_thread_mode_   = 0;
+                    obj.mex_combine_buffer_size_ = 64*1024;
+                end
             end
         end
 
@@ -204,12 +204,12 @@ classdef hpc_config < config_base
             accum = get_or_restore_field(obj,'build_sqw_in_parallel');
         end
 
-        function p_mf = get.parallel_multifit(obj)
-            p_mf = get_or_restore_field(obj,'parallel_multifit');
+        function accum = get.parallel_multifit(obj)
+            accum = get_or_restore_field(obj,'parallel_multifit');
         end
 
         function accum = get.parallel_workers_number(obj)
-            accum = config_store.instance.get_value('parallel_config','parallel_workers_number');
+            framework = config_store.instance.get_value('parallel_config','parallel_workers_number');
         end
 
         function framework = get.parallel_cluster(~)
@@ -337,27 +337,17 @@ classdef hpc_config < config_base
         function obj = set.build_sqw_in_parallel(obj,val)
             accum = val>0;
             if accum
-                pc = parallel_config();
-                wkr = pc.worker;
-                wrker_path = fileparts(which(wkr));
-                if isempty(wrker_path)
-                    warning(['HORACE:hpc_config:invalid_argument',...
-                             'Can not start accumulating in separate process.',...
-                             'Can not find worker on a data search path; ',...
-                             'See: http://horace.isis.rl.ac.uk/Download_and_setup#Enabling_multi-sessions_processing ',...
-                             'for the details on how to set it up']);
+                [ok,mess] = check_worker_configured(obj);
+                if ~ok
+                    warning('HORACE:hpc_config:invalid_argument',...
+                        ' Can not start accumulating in separate process as: %s',...
+                        mess);
                     accum = false;
                 end
             end
             config_store.instance().store_config(obj,'build_sqw_in_parallel',accum);
 
         end
-
-        function obj = set.parallel_workers_number(obj, val)
-            pf = parallel_config;
-            pf.parallel_workers_number = val;
-        end
-
 
         function obj = set.parallel_cluster(obj,val)
             pf = parallel_config;
