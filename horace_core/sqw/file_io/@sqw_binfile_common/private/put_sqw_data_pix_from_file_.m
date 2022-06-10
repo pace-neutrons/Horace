@@ -66,19 +66,14 @@ switch combine_algorithm
                                              change_fileno,relabel_with_fnum);
 
     obj = obj.reopen_to_write();
-    if ~isempty(mess)
+    if isempty(mess)
+        return
+    else  % Mex combining failed, try Matlab
         fout = obj.file_id_;
-        try
-            do_fseek(fout,pix_out_position,'bof');
-        catch ME
-            exc = MException('COMBINE_SQW_PIX_JOB:io_error',...
-                             ['Unable to move to the start of the pixel record in target file ', ...
-                              ' after mex-combine failed']);
-            throw(exc.addCause(ME))
-        end
-
-        je = combine_sqw_pix_job();
-        je.write_npix_to_pix_blocks(fout,pix_out_position,pix_comb_info);
+        fseek(fout,pix_out_position,'bof');
+        check_error_report_fail_(obj,...
+                                 ['Unable to move to the start of the pixel record in target file ',...
+                                  obj.filename,' after mex-combine failed']);
     end
 
   case 'mpi_code'
@@ -96,7 +91,7 @@ switch combine_algorithm
     else
         fn = obj.filename;
 
-        if numel(fn) > 8
+        if numel(fn) > 8;
             fn = fn(1:8);
         end
 
@@ -133,8 +128,7 @@ switch combine_algorithm
         obj = obj.reopen_to_write();
     end
 
-  case 'matlab'
-
+  otherwise
     fout = obj.file_id_;
     je = combine_sqw_pix_job();
     je.write_npix_to_pix_blocks(fout,pix_out_position,pix_comb_info);
@@ -220,6 +214,4 @@ if log_level > 0
 end
 if log_level>1
     fprintf(' At the time  %4d/%02d/%02d %02d:%02d:%02d\n',fix(clock));
-end
-
 end

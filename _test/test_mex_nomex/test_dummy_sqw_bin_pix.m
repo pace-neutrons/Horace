@@ -73,6 +73,7 @@ classdef test_dummy_sqw_bin_pix < TestCase
                 u, v, psi, omega, dpsi, gl, gs);
 
             w_nomex=read_sqw(sqw_file_single);
+            n_det_out = sum
             assertTrue(~any(w_nomex.pix.detector_idx<1 | w_nomex.pix.detector_idx>36864), ...
                        'found detectors with ID-s outside the allowed range');
             assertTrue(~any(w_nomex.pix.energy_idx==0),'en bin id can not be equal to 0');
@@ -82,7 +83,7 @@ classdef test_dummy_sqw_bin_pix < TestCase
             % different. Compare the whole image instead
             w_mex = d4d(w_mex);
             w_nomex = d4d(w_nomex);
-            assertEqualToTol(w_mex, w_nomex, 'tol', [0, 1e-8])
+            assertEqualToTol(w_mex, w_nomex, [0, 1e-8])
         end
 
         function test_bin_c_multithread(this)
@@ -124,7 +125,7 @@ classdef test_dummy_sqw_bin_pix < TestCase
 
             assertTrue(~any(w_mex.pix.detector_idx<1 | w_mex.pix.detector_idx>96), ...
                        'found detectors with ID-s outside the allowed range');
-            assertTrue(~any(w_mex.pix.energy_idx==0),'en bin id can not be equal to 0');
+            assertEqual(~any(w_mex.pix.energy_idx==0),'en bin id can not be equal to 0');
 
 
             hc.use_mex = 1;
@@ -145,7 +146,7 @@ classdef test_dummy_sqw_bin_pix < TestCase
             %skipTest("New dnd: d2d not yet implemented");
             w_mex = d4d(w_mex);
             w_mex_thr = d4d(w_mex_thr);
-            assertEqualToTol(w_mex, w_mex_thr, 'tol', [0, 1.e-8]);
+            assertEqualToTol(w_mex, w_mex_thr, [0, 1.e-8]);
             %%}
         end
     end

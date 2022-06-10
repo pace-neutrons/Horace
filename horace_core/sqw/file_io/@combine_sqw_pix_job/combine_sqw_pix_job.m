@@ -202,7 +202,7 @@ classdef combine_sqw_pix_job < JobExecutor
         end
 
         function obj = set.combine_mode(obj,val)
-            validateattributes(val, {'numeric'}, {'scalar', '>', 0, '<', 3});
+            validateatrributes(val, {'numeric'}, {'scalar', '>', 0, '<', 3});
 
             obj.combine_mode_ = val;
 
