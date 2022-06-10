@@ -57,9 +57,6 @@ classdef hpc_config < config_base
         % generate tmp files
         build_sqw_in_parallel;
 
-        % number of workers to deploy in parallel jobs
-        parallel_workers_number;
-
         % set-up algorithm, to use for combining multiple sqw(tmp) filesL
         combine_sqw_using;
 
@@ -138,10 +135,8 @@ classdef hpc_config < config_base
     properties(Access=protected,Hidden = true)
         build_sqw_in_parallel_ = false;
         parallel_multifit_ = false;
-        parallel_workers_number_ = 2;
-        %
         combine_sqw_using_ = 'matlab';
-        %
+
         mex_combine_thread_mode_   = 0;
         mex_combine_buffer_size_ = 1024*64;
     end
@@ -149,69 +144,67 @@ classdef hpc_config < config_base
         % change this list if savable fields have changed or redefine
         % get_storage_field_names function below
         saved_properties_list_={...
-            'build_sqw_in_parallel','parallel_workers_number',...
+            'build_sqw_in_parallel',...
             'combine_sqw_using',...
-            'mex_combine_thread_mode','mex_combine_buffer_size',...
-            'parallel_multifit'
+            'mex_combine_thread_mode',...
+            'mex_combine_buffer_size',...
+            'parallel_multifit'...
             }
         combine_sqw_options_ = {'matlab','mex_code','mpi_code'};
     end
 
     methods
-        function this=hpc_config()
+        function obj=hpc_config()
             %
-            this=this@config_base(mfilename('class'));
+            obj=obj@config_base(mfilename('class'));
             % set os-specific defaults
             if ispc
-                this.mex_combine_thread_mode_   = 0;
+                obj.mex_combine_thread_mode_   = 0;
             elseif isunix
                 if ~ismac
-                    this.mex_combine_thread_mode_   = 0;
-                    this.mex_combine_buffer_size_ = 64*1024;
+                    obj.mex_combine_thread_mode_   = 0;
+                    obj.mex_combine_buffer_size_ = 64*1024;
                 end
             end
         end
 
         %----------------------------------------------------------------
+
         function mode = get.combine_sqw_using(obj)
             mode = get_or_restore_field(obj,'combine_sqw_using');
         end
 
         function use = get.use_mex_for_combine(obj)
             mode = get_or_restore_field(obj,'combine_sqw_using');
-            if strcmpi(mode,'mex_code')
-                use = true;
-            else
-                use = false;
-            end
+            use = strcmpi(mode,'mex_code');
         end
 
-        function size= get.mex_combine_buffer_size(this)
-            size = get_or_restore_field(this,'mex_combine_buffer_size');
+        function size= get.mex_combine_buffer_size(obj)
+            size = get_or_restore_field(obj,'mex_combine_buffer_size');
         end
 
-        function type= get.mex_combine_thread_mode(this)
-            type = get_or_restore_field(this,'mex_combine_thread_mode');
+        function type= get.mex_combine_thread_mode(obj)
+            type = get_or_restore_field(obj,'mex_combine_thread_mode');
         end
 
-        function accum = get.accum_in_separate_process(this)
-            accum = get_or_restore_field(this,'build_sqw_in_parallel');
+        function accum = get.accum_in_separate_process(obj)
+            accum = get_or_restore_field(obj,'build_sqw_in_parallel');
         end
 
-        function accum = get.accumulating_process_num(this)
-            accum = get_or_restore_field(this,'parallel_workers_number');
+        function accum = get.accumulating_process_num(obj)
+            accum = get_or_restore_field(obj,'parallel_workers_number');
         end
 
-        function accum = get.build_sqw_in_parallel(this)
-            accum = get_or_restore_field(this,'build_sqw_in_parallel');
+        function accum = get.build_sqw_in_parallel(obj)
+            accum = get_or_restore_field(obj,'build_sqw_in_parallel');
         end
 
-        function accum = get.parallel_multifit(this)
-            accum = get_or_restore_field(this,'parallel_multifit');
+        function accum = get.parallel_multifit(obj)
+            accum = get_or_restore_field(obj,'parallel_multifit');
         end
 
-        function accum = get.parallel_workers_number(this)
-            accum = get_or_restore_field(this,'parallel_workers_number');
+        function accum = get.parallel_workers_number(obj)
+            framework = config_store.instance.get_value('parallel_config','parallel_workers_number');
         end
 
         function framework = get.parallel_cluster(~)
@@ -232,77 +225,81 @@ classdef hpc_config < config_base
 
         %----------------------------------------------------------------
 
-        function this = set.combine_sqw_using(this,val)
-            opt = this.combine_sqw_options_;
+        function obj = set.combine_sqw_using(obj,val)
+            opt = obj.combine_sqw_options_;
             [ok,mess,use_matlab,use_mex,use_mpi,argi] = parse_char_options({val},opt );
             if ~isempty(argi)
-                error('HPC_CONFIG:invalid_argument',...
+                error('HORACE:hpc_config:invalid_argument',...
                     'Unrecognized option: %s. Only ''matlab'',''mex_code'' or ''mpi_code'' can be used',...
                     val);
             end
+
             if ~ok
-                error('HPC_CONFIG:invalid_argument',mess)
+                error('HORACE:hpc_config:invalid_argument',mess)
             end
+
             if use_matlab
-                config_store.instance().store_config(this,'combine_sqw_using','matlab');
+                config_store.instance().store_config(obj,'combine_sqw_using','matlab');
             end
+
             if use_mex
                 try
                     % try to run combime_sqw mex code to be sure it runs
                     ver = combine_sqw();
-                    config_store.instance().store_config(this,'combine_sqw_using','mex_code');
+                    config_store.instance().store_config(obj,'combine_sqw_using','mex_code');
                 catch ME
-                    warning('HPC_CONFIG:invalid_argument',...
+                    warning('HORACE:hpc_config:invalid_argument',...
                         'combining sqw using mex code can not be enabled. Error: %s. No changes in hpc_config',...
                         ME.message)
                 end
             end
+
             if use_mpi
-                config_store.instance().store_config(this,'combine_sqw_using','mpi_code');
+                config_store.instance().store_config(obj,'combine_sqw_using','mpi_code');
             end
         end
 
         function opt = get.combine_sqw_options(obj)
-            %
+
             opt = obj.combine_sqw_options_;
         end
 
         %---------
 
-        function this = set.use_mex_for_combine(this,val)
+        function obj = set.use_mex_for_combine(obj,val)
             % Hidden, old option
             if val>0
                 try
                     % try to run combime_sqw mex code to be sure it runs
                     ver = combine_sqw();
-                    config_store.instance().store_config(this,'combine_sqw_using','mex_code');
+                    config_store.instance().store_config(obj,'combine_sqw_using','mex_code');
                 catch ME
-                    warning('HPC_CONFIG:invalid_argument',...
+                    warning('HORACE:hpc_config:invalid_argument',...
                         [' combine_sqw.mex procedure is not availible.\n',...
                         ' Reason: %s\n.',...
                         ' Will not use mex for combining'],ME.message);
-                    %config_store.instance().store_config(this,'use_mex_for_combine',false);
+                    %config_store.instance().store_config(obj,'use_mex_for_combine',false);
                 end
             else
-                config_store.instance().store_config(this,'combine_sqw_using','matlab');
+                config_store.instance().store_config(obj,'combine_sqw_using','matlab');
             end
         end
 
-        function this= set.mex_combine_buffer_size(this,val)
+        function obj= set.mex_combine_buffer_size(obj,val)
             if val<64
-                error('HPC_CONFIG:invalid_argument',...
+                error('HORACE:hpc_config:invalid_argument',...
                     ' mex_combine_buffer_size should be bigger then 64, and better >1024');
             end
             if val==0
-                this.use_mex_for_combine = false;
+                obj.use_mex_for_combine = false;
                 return;
             end
-            config_store.instance().store_config(this,'mex_combine_buffer_size',val);
+            config_store.instance().store_config(obj,'mex_combine_buffer_size',val);
         end
 
-        function this= set.mex_combine_thread_mode(this,val)
-            if  val>3 || val < 0
-                error('HPC_CONFIG:invalid_argument',...
+        function obj= set.mex_combine_thread_mode(obj,val)
+            if  val > 3 || val < 0
+                error('HORACE:hpc_config:invalid_argument',...
                     [' mex_combine_multithreaded should be a number in the range fromn 0 to 3\n ',...
                     '  meaning:\n', ...
                     ' 0 -- minor multitheading ',...
@@ -311,17 +308,17 @@ classdef hpc_config < config_base
                     ' 2 -- only bin numbers are read by separate thread',...
                     ' 3 -- only pixels are read by separate thread']);
             end
-            config_store.instance().store_config(this,'mex_combine_thread_mode',val);
+            config_store.instance().store_config(obj,'mex_combine_thread_mode',val);
         end
 
-        function this = set.accum_in_separate_process(this,val)
-            this.build_sqw_in_parallel= val;
+        function obj = set.accum_in_separate_process(obj,val)
+            obj.build_sqw_in_parallel= val;
         end
 
-        function this = set.parallel_multifit(this,val)
+        function obj = set.parallel_multifit(obj,val)
             p_mf = val>0;
             if p_mf
-                [ok,mess] = check_worker_configured(this);
+                [ok,mess] = check_worker_configured(obj);
                 if ~ok
                     warning('HPC_CONFIG:invalid_argument',...
                         ' Can not start accumulating in separate process as: %s',...
@@ -329,42 +326,29 @@ classdef hpc_config < config_base
                     p_mf = false;
                 end
             end
-            config_store.instance().store_config(this,'parallel_multifit',p_mf);
+            config_store.instance().store_config(obj,'parallel_multifit',p_mf);
         end
 
-        function this = set.build_sqw_in_parallel(this,val)
+        function obj = set.build_sqw_in_parallel(obj,val)
             accum = val>0;
             if accum
-                [ok,mess] = check_worker_configured(this);
+                [ok,mess] = check_worker_configured(obj);
                 if ~ok
-                    warning('HPC_CONFIG:invalid_argument',...
+                    warning('HORACE:hpc_config:invalid_argument',...
                         ' Can not start accumulating in separate process as: %s',...
                         mess);
                     accum = false;
                 end
             end
-            config_store.instance().store_config(this,'build_sqw_in_parallel',accum);
+            config_store.instance().store_config(obj,'build_sqw_in_parallel',accum);
 
-        end
-
-        function this = set.accumulating_process_num(this,val)
-            this.parallel_workers_number = val;
-        end
-
-        function this = set.parallel_workers_number(this,val)
-            if val<1
-                error('HPC_CONFIG:invalid_argument',...
-                    'Number of parallel workers should be more then 1');
-            else
-                nproc = val;
-            end
-            config_store.instance().store_config(this,'parallel_workers_number',nproc);
         end
 
         function obj = set.parallel_cluster(obj,val)
             pf = parallel_config;
             pf.parallel_cluster = val;
         end
+
         function obj = set.remote_folder(obj,val)
             pf = parallel_config;
             pf.remote_folder = val;
@@ -373,20 +357,19 @@ classdef hpc_config < config_base
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
-        function fields = get_storage_field_names(this)
+        function fields = get_storage_field_names(obj)
             % helper function returns the list of the public names of the fields,
             % which should be saved
-            fields = this.saved_properties_list_;
+            fields = obj.saved_properties_list_;
         end
 
-        function value = get_internal_field(this,field_name)
+        function value = get_internal_field(obj,field_name)
             % method gets internal field value bypassing standard get/set
             % methods interface.
             % Relies on assumption, that each public
             % field has a private field with name different by underscore
-            value = this.([field_name,'_']);
+            value = obj.([field_name,'_']);
         end
-
 
     end
 end
