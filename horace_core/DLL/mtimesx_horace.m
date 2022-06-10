@@ -16,9 +16,9 @@ function varargout = mtimesx_horace(varargin)
 %   use_mex = boolean override of configuration to force use of mex implementation
 %   C is the result of the matrix multiply operation.
 %
-%  If the `use_mex` flag in the `hor_config' configuration is FALSE, or the 
+%  If the `use_mex` flag in the `hor_config' configuration is FALSE, or the
 %  `use_mex` argument is FALSE this operation is performed in MATLAB.
-%  Otherwise the operation is performed using an optimized mex implenation 
+%  Otherwise the operation is performed using an optimized mex implenation
 %  using the a number of threads taken from the 'hor_config.num_threads' configuration.
 %
 % Examples:
@@ -27,10 +27,10 @@ function varargout = mtimesx_horace(varargin)
 %  C = mtimesx_horace(A, B, false)  % performs the calculation C = A * B in
 %  MATLAB
 %
-% mtimesx_horace supports nD inputs. For these cases, the first two dimensions 
-% specify the matrix multiply involved. The remaining dimensions are duplicated and 
+% mtimesx_horace supports nD inputs. For these cases, the first two dimensions
+% specify the matrix multiply involved. The remaining dimensions are duplicated and
 % specify the number of individual matrix multiplies to perform for the result.
-% i.e., mtimesx_horace treats these cases as arrays of 2D matrices and performs 
+% i.e., mtimesx_horace treats these cases as arrays of 2D matrices and performs
 % the operation on the associated parings. For example:
 %
 %     If A is (2,3,4,5) and B is (3,6,4,5), then
@@ -45,10 +45,10 @@ function varargout = mtimesx_horace(varargin)
 %         end
 %     end
 %
-% The first two dimensions must conform using the standard matrix multiply rules, 
-% and dimensions 3:end must match exactly or be singleton (equal to 1). 
-% If a dimension is singleton then it is virtually expanded to the required 
-% size (i.e., equivalent to a repmat operation to get it to a conforming size 
+% The first two dimensions must conform using the standard matrix multiply rules,
+% and dimensions 3:end must match exactly or be singleton (equal to 1).
+% If a dimension is singleton then it is virtually expanded to the required
+% size (i.e., equivalent to a repmat operation to get it to a conforming size
 % but without the actual data copy). For example:
 %
 %     If A is (2,3,4,5) and B is (3,6,1,5), then
@@ -62,8 +62,11 @@ function varargout = mtimesx_horace(varargin)
 %             C(:,:,m,n) = A(:,:,m,n) * B(:,:,1,n);
 %         end
 %     end
-%
-[use_mex,n_threads] = config_store.instance().get_value('hor_config','use_mex','threads');
+
+hc = hor_config;
+par = parallel_config;
+use_mex = hc.use_mex;
+n_threads = par.threads;
 
 if  numel(varargin) > 2 && isa(varargin{end},'logical')
     use_mex = varargin{end};
@@ -82,14 +85,13 @@ if use_mex
         [varargout{1:nargout}] = mtimesx_mex(argi{:}, n_threads);
     catch ERR
         use_mex = false;
-        fm = get(hor_config,'force_mex_if_use_mex');
-        if fm
+        if hc.force_mex_if_use_mex
             rethrow(ERR);
         else
             warning('mtimesx_horace:runtime_error',...
                 'Error %s running mtimes_mex C-code. trying Matlab',...
                 ERR.message);
-            set(hor_config,'use_mex',false);
+            use_mex = false;
         end
     end
 end
@@ -98,6 +100,7 @@ if ~use_mex
     [varargout{1:nargout}] = mtimesx_matlab(argi{:});
 end
 
+end
 
 function varargout = mtimesx_matlab(varargin)
 
@@ -115,18 +118,18 @@ sz = [sza(1),szb(2)];
 if numel(sza) > 2 || numel(szb) >2
     A_size = sza(1)*sza(2);
     B_size = szb(1)*szb(2);
-    
+
     a_tail_size = prod(sza)/A_size;
     b_tail_size = prod(szb)/B_size;
-    
-    
+
+
     if ~(a_tail_size == b_tail_size || min([a_tail_size,b_tail_size]) == 1)
         error('MTIMESX_MATLAB:invalid_argument',...
             ['different A and B sizes supported only if numel(size(B))<=2)',...
             ' or A and B dimensions in higher than 2 range are equal']);
     end
     tail_size =  max([a_tail_size,b_tail_size]);
-    
+
     rez = zeros(sz(1),sz(2),tail_size);
     if a_tail_size > 1
         A = reshape(A,sza(1),sza(2),tail_size);
@@ -136,7 +139,7 @@ if numel(sza) > 2 || numel(szb) >2
     if b_tail_size > 1
         B = reshape(B,szb(1),szb(2),tail_size);
     else
-        B = reshape(repmat(B,1,tail_size),[sz,tail_size]);        
+        B = reshape(repmat(B,1,tail_size),[sz,tail_size]);
     end
 else
     tail_size = 1;
@@ -167,4 +170,6 @@ if tail_size > 1
     end
 else
     varargout{1} = A*B;
+end
+
 end
