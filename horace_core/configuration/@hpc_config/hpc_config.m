@@ -104,7 +104,6 @@ classdef hpc_config < config_base
         % storing/reading job data
         remote_folder;
 
-        % number of workers to deploy in parallel jobs
         parallel_workers_number;
 
         % what parallel framework to use for parallel  tasks. Available
@@ -165,11 +164,11 @@ classdef hpc_config < config_base
             % set os-specific defaults
             if ispc
                 obj.mex_combine_thread_mode_   = 0;
+            elseif ismac
+                ...
             elseif isunix
-                if ~ismac
-                    obj.mex_combine_thread_mode_   = 0;
-                    obj.mex_combine_buffer_size_ = 64*1024;
-                end
+                obj.mex_combine_thread_mode_   = 0;
+                obj.mex_combine_buffer_size_ = 64*1024;
             end
         end
 
