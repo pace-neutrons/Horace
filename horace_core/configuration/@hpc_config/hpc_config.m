@@ -104,6 +104,8 @@ classdef hpc_config < config_base
         % storing/reading job data
         remote_folder;
 
+        parallel_workers_number;
+
         % what parallel framework to use for parallel  tasks. Available
         % options are: matlab, partool, mpiexec. Defined in parallel_config and
         % exposed here for clarity.
@@ -132,6 +134,7 @@ classdef hpc_config < config_base
         % number of sessions to launch to calculate additional files
         accumulating_process_num
     end
+
     properties(Access=protected,Hidden = true)
         build_sqw_in_parallel_ = false;
         parallel_multifit_ = false;
@@ -140,6 +143,7 @@ classdef hpc_config < config_base
         mex_combine_thread_mode_   = 0;
         mex_combine_buffer_size_ = 1024*64;
     end
+
     properties(Constant,Access=private)
         % change this list if savable fields have changed or redefine
         % get_storage_field_names function below
@@ -160,11 +164,11 @@ classdef hpc_config < config_base
             % set os-specific defaults
             if ispc
                 obj.mex_combine_thread_mode_   = 0;
+            elseif ismac
+                ...
             elseif isunix
-                if ~ismac
-                    obj.mex_combine_thread_mode_   = 0;
-                    obj.mex_combine_buffer_size_ = 64*1024;
-                end
+                obj.mex_combine_thread_mode_   = 0;
+                obj.mex_combine_buffer_size_ = 64*1024;
             end
         end
 
