@@ -175,6 +175,11 @@ classdef IX_detector_bank < serializable
         end
         
         function obj = set.x2_(obj,val)
+            if isempty(val)
+                % keeps shape of val as shape of empty val(:) is different 
+                obj.x2_ = val;
+                return;
+            end
             if all(val(:) >= 0)
                 obj.x2_ = val(:);
             else
@@ -183,6 +188,11 @@ classdef IX_detector_bank < serializable
         end
         
         function obj = set.phi_(obj,val)
+            if isempty(val)
+                % keeps shape of val as shape of empty val(:) is different
+                obj.phi_ = val;
+                return;
+            end
             if all(val(:) >= 0) && all(val(:)<180)
                 obj.phi_ = val(:);
             else
@@ -191,6 +201,11 @@ classdef IX_detector_bank < serializable
         end
         
         function obj = set.azim_(obj,val)
+            if isempty(val)
+                % keeps shape of val as shape of empty val(:) is different                
+                obj.azim_ = val;
+                return;
+            end
             obj.azim_ = val(:);
         end
         
