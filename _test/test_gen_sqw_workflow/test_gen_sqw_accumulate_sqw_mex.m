@@ -63,28 +63,31 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
             if obj.skip_test
                 skipTest('MEX is disabled');
             end
-            if nargin> 1
+            if nargin > 1
                 % running in single test method mode.
                 obj.setUp();
                 clob1 = onCleanup(@()obj.tearDown());
             end
 
-
             hc = hor_config;
-            hc2save = hc.get_data_to_store();
-            clob2 = onCleanup(@()set(hc,hc2save));
-            hc.use_mex=true;
-            hc.threads = 8;
+            par = parallel_config;
+            orig_threads = par.threads;
+            orig_use_mex = hc.use_mex;
 
+            clob2 = onCleanup(@()set(par,'threads', orig_threads));
+            clob3 = onCleanup(@()set(hc,'use_mex', orig_use_mex));
+
+            hc.use_mex=true;
+            par.threads = 8;
 
             %-------------------------------------------------------------
+
             spe_file_names = cell(1,1);
             for i=1:1
                 spe_file_names{i}=fullfile(tmp_dir,['test_gen_sqw_threading_1th',num2str(i),'.nxspe']);
             end
             % build special test files if they have not been build
             obj=build_test_files(obj,spe_file_names);
-
 
             sqw_file_123_t8=fullfile(tmp_dir,'sqw_123_mex8_threading.sqw');             % output sqw file
             sqw_file_123_t1=fullfile(tmp_dir,'sqw_123_mex1_threading.sqw');        % output sqw file
@@ -93,21 +96,20 @@ classdef test_gen_sqw_accumulate_sqw_mex < ...
             % Test gen_sqw
             % ---------------------------------------
             [en,efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs]=unpack(obj,numel(spe_file_names));
+
             % Make some cuts:
             % ---------------
             obj.proj.u=[1,0,0.1]; obj.proj.v=[0,0,1];
-            hc.threads = 8;
+            par.threads = 8;
             gen_sqw (spe_file_names, '', sqw_file_123_t8, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
 
-
-
-            hc.threads = 1;
+            par.threads = 1;
             gen_sqw (spe_file_names, '', sqw_file_123_t1, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs);
-            %
+
             % Test results
             obj_m8=read_sqw(sqw_file_123_t8);
             obj_m1=read_sqw(sqw_file_123_t1);
-            %
+
             pix = sortrows(obj_m8.pix.data')';
             pix1 = sortrows(obj_m1.pix.data')';
             assertEqual(pix,pix1);

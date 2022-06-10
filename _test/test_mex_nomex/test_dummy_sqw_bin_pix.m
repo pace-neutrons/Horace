@@ -19,8 +19,9 @@ classdef test_dummy_sqw_bin_pix < TestCase
             this = this@TestCase(name);
 
             hc = hor_config;
-            this.current_mex_state =hc.use_mex;
-            this.current_thread_state = hc.threads;
+            par = parallel_config;
+            this.current_mex_state = hc.use_mex;
+            this.current_thread_state = par.threads;
             cleanup_obj=onCleanup(@()set(hor_config,'use_mex',this.current_mex_state));
 
             hc.use_mex = 1;
@@ -61,11 +62,9 @@ classdef test_dummy_sqw_bin_pix < TestCase
             w_mex=read_sqw(sqw_file_single);
 
 
-            n_det_out = sum(w_mex.pix.detector_idx < 1 | w_mex.pix.detector_idx > 36864);
-            assertEqual(0,n_det_out,'found detectors with ID-s outp of the range allowed');
-
-            n_en_zeros = sum(w_mex.pix.energy_idx==0);
-            assertEqual(0,n_en_zeros,'en bin id can not be equal to 0');
+            assertTrue(~any(w_mex.pix.detector_idx < 1 | w_mex.pix.detector_idx > 36864), ...
+                       'found detectors with ID-s outside the allowed range');
+            assertTrue(~any(w_mex.pix.energy_idx==0),'en bin id can not be equal to 0');
 
 
             hc.use_mex = 0;
@@ -73,28 +72,27 @@ classdef test_dummy_sqw_bin_pix < TestCase
                 u, v, psi, omega, dpsi, gl, gs);
 
             w_nomex=read_sqw(sqw_file_single);
-            n_det_out = sum(w_nomex.pix.detector_idx<1 | w_nomex.pix.detector_idx>36864);
-            assertEqual(0,n_det_out,'found detectors with ID-s outp of the range allowed');
-            n_en_zeros = sum(w_nomex.pix.energy_idx==0);
-            assertEqual(0,n_en_zeros,'en bin id can not be equal to 0');
+            n_det_out = sum
+            assertTrue(~any(w_nomex.pix.detector_idx<1 | w_nomex.pix.detector_idx>36864), ...
+                       'found detectors with ID-s outside the allowed range');
+            assertTrue(~any(w_nomex.pix.energy_idx==0),'en bin id can not be equal to 0');
 
 
             % can not compare pixel arrays as pixel sorting will be
             % different. Compare the whole image instead
             w_mex = d4d(w_mex);
             w_nomex = d4d(w_nomex);
-            [ok,mess]=equal_to_tol(w_mex,w_nomex,-1.e-8);
-            assertTrue(ok,[' MEX and non-mex versions of gen_sqw are different: ',mess]);
+            assertEqualToTol(w_mex, w_nomex, [0, 1e-8])
         end
 
         function test_bin_c_multithread(this)
             if this.skip_tests
                 skipTest('MEX not enabled')
             end
-            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',this.current_mex_state,'threads',this.current_thread_state));
+            cleanup_obj=onCleanup(@()set(hor_config,'use_mex',this.current_mex_state));
+            cleanup_obj2=onCleanup(@()set(parallel_config,'threads',this.current_thread_state));
 
             par_file=fullfile(this.sample_dir,'96dets.par');
-
 
             efix=35+0.5*3;
             en=0.05*efix:0.2+3/50:0.95*efix;
@@ -114,34 +112,32 @@ classdef test_dummy_sqw_bin_pix < TestCase
             cleanup_files=onCleanup(@()delete(sqw_file_single));
 
             hc=hor_config;
+            par = parallel_config;
 
             hc.use_mex = 1;
-            hc.threads = 1;
+            par.threads = 1;
 
             dummy_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
                 u, v, psi, omega, dpsi, gl, gs);
 
             w_mex=read_sqw(sqw_file_single);
 
-
-            n_det_out = sum(w_mex.pix.detector_idx<1 | w_mex.pix.detector_idx>96);
-            assertEqual(0,n_det_out,'found detectors with ID-s outp of the range allowed');
-
-            n_en_zeros = sum(w_mex.pix.energy_idx==0);
-            assertEqual(0,n_en_zeros,'en bin id can not be equal to 0');
+            assertTrue(~any(w_mex.pix.detector_idx<1 | w_mex.pix.detector_idx>96), ...
+                       'found detectors with ID-s outside the allowed range');
+            assertEqual(~any(w_mex.pix.energy_idx==0),'en bin id can not be equal to 0');
 
 
             hc.use_mex = 1;
-            hc.threads = 8;
+            par.threads = 8;
 
             dummy_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
                 u, v, psi, omega, dpsi, gl, gs);
 
             w_mex_thr=read_sqw(sqw_file_single);
-            n_det_out = sum(w_mex_thr.pix.detector_idx<1 | w_mex_thr.pix.detector_idx>96);
-            assertEqual(0,n_det_out,'found detectors with ID-s outp of the range allowed');
-            n_en_zeros = sum(w_mex_thr.pix.energy_idx==0);
-            assertEqual(0,n_en_zeros,'en bin id can not be equal to 0');
+
+            assertTrue(~any(w_mex_thr.pix.detector_idx<1 | w_mex_thr.pix.detector_idx>96), ...
+                        'found detectors with ID-s out of the range allowed');
+            assertTrue(~any(w_mex_thr.pix.energy_idx==0),'en bin id can not be equal to 0');
 
             % can not compare pixel arrays as pixel sorting will be
             % different. Compare the whole image instead
@@ -149,8 +145,7 @@ classdef test_dummy_sqw_bin_pix < TestCase
             %skipTest("New dnd: d2d not yet implemented");
             w_mex = d4d(w_mex);
             w_mex_thr = d4d(w_mex_thr);
-            [ok,mess]=equal_to_tol(w_mex,w_mex_thr,-1.e-8);
-            assertTrue(ok,[' MEX threaded and non-threaded versions of gen_sqw are different: ',mess]);
+            assertEqualToTol(w_mex, w_mex_thr, [0, 1.e-8]);
             %%}
         end
     end
