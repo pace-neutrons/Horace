@@ -203,10 +203,6 @@ classdef hpc_config < config_base
             accum = get_or_restore_field(obj,'build_sqw_in_parallel');
         end
 
-        function accum = get.parallel_multifit(obj)
-            accum = get_or_restore_field(obj,'parallel_multifit');
-        end
-
         function accum = get.parallel_workers_number(obj)
             framework = config_store.instance.get_value('parallel_config','parallel_workers_number');
         end
@@ -347,6 +343,12 @@ classdef hpc_config < config_base
             config_store.instance().store_config(obj,'build_sqw_in_parallel',accum);
 
         end
+
+        function obj = set.parallel_workers_number(obj, val)
+            pf = parallel_config;
+            pf.parallel_workers_number = val;
+        end
+
 
         function obj = set.parallel_cluster(obj,val)
             pf = parallel_config;
