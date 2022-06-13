@@ -54,30 +54,33 @@ hpc_options_names = hpc_cli.hpc_options;
 
 if nargin>0
     val = varargin{1};
-    if strcmpi(val,'on')
+
+    switch val
+      case 'on'
         hpc_cli.build_sqw_in_parallel = true;
-    elseif strcmpi(val,'off')
+      case 'off'
         ocp = opt_config_manager();
         % load configuration, assumed optimal for calculated type of the computer.
         ocp = ocp.load_configuration();
         config = ocp.optimal_config;
         hpc_opt = config.hpc_config;
-        
+
         flds = fieldnames(hpc_opt);
         for i=1:numel(flds)
             hpc_cli.(flds{i}) = hpc_opt.(flds{i});
-        end        
+        end
         hpc_cli.build_sqw_in_parallel = false;
-    else
+      otherwise
         fprintf('Unknown hpc option ''%s'', Use ''on'' or ''off'' only\n',varargin{1});
     end
 else
+
     ocp = opt_config_manager();
     % load configuration, assumed optimal for calculated type of the computer.
     ocp = ocp.load_configuration(varargin{:});
     config = ocp.optimal_config;
     hpc_opt = config.hpc_config;
-    
+
     disp('|-------------------------|----------------|----------------|');
     disp('| computer hpc options    | current val    | recommended val|');
     disp('|-------------------------|----------------|----------------|');
@@ -98,4 +101,3 @@ else
     end
     disp('-------------------------------------------------------------');
 end
-
