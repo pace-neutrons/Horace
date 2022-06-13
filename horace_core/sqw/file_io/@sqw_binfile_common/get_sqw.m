@@ -1,4 +1,4 @@
-function [sqw_object,varargout] = get_sqw (obj, varargin)
+function [sqw_object,varargout] = get_sqw(obj, varargin)
 % Load an sqw file from disk
 %
 %   >> sqw_object = obj.get_sqw()
@@ -92,9 +92,8 @@ proj = sqw_struc.data.proj;
 header_av = exp_info.header_average();
 sqw_struc.data.proj = proj.set_ub_inv_compat(header_av.u_to_rlu(1:3,1:3));
 
-if ~opts.nopix && obj.npixels>0
+if ~opts.nopix && obj.npixels > 0
     sqw_struc.pix = PixelData(obj, opts.pixel_page_size,~opts.noupgrade);
-    %
 end
 
 sqw_struc.experiment_info = exp_info;
@@ -102,16 +101,17 @@ old_file = ~sqw_struc.main_header.creation_date_defined;
 % run_id map in any form, so it is often tried to be restored from filename.
 % here we try to verify, if this restoration is correct if we can do that
 % without critical drop in performance.
-if (sqw_struc.pix.num_pixels >0 ) && old_file
+if (sqw_struc.pix.num_pixels > 0) && old_file
     % try to update pixels run id-s
     sqw_struc = update_pixels_run_id(sqw_struc);
 end
+
 if opts.legacy
     sqw_object = sqw_struc.main_header;
     varargout{1} = sqw_struc.experiment_info;
     varargout{2} = sqw_struc.detpar;
     varargout{3} = sqw_struc.data;
-    varargout{4} = sqw_struc.pix;    
+    varargout{4} = sqw_struc.pix;
 elseif opts.head || opts.his
     sqw_object  = sqw_struc;
 else
@@ -124,7 +124,7 @@ end  % function
 % -----------------------------------------------------------------------------
 function opts = parse_args(varargin)
 if nargin > 1
-    % replace single '-h' with head
+    % replace single '-h' with his
     argi = cellfun(@replace_h, varargin, 'UniformOutput', false);
 else
     argi = {};
@@ -137,23 +137,28 @@ flags = { ...
     'hverbatim', ...
     'hisverbatim', ...
     'noupgrade',...
-    'keep_original',... 
+    'keep_original',...
     'nopix', ...
     'legacy' ...
-    };
+        };
+
 kwargs = struct('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE);
+
 for flag_idx = 1:numel(flags)
     kwargs.(flags{flag_idx}) = false;
 end
+
 parser_opts = struct('prefix', '-', 'prefix_req', false);
 [~, opts, ~, ~, ok, mess] = parse_arguments(argi, kwargs, flags, ...
     parser_opts);
+
 if ~ok
     error('SQW_FILE_IO:invalid_argument', mess);
 end
-opts.verbatim = opts.verbatim || opts.hverbatim;
-end
 
+opts.verbatim = opts.verbatim || opts.hverbatim;
+
+end
 
 function out = replace_h(inp)
 if strcmp(inp,'-h')
