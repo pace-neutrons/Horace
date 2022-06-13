@@ -1,4 +1,4 @@
-classdef IX_detector_array
+classdef IX_detector_array < serializable
     % Set of detector banks. Allows for banks with different detector types e.g.
     % one detector bank can contain detectors exclusively of type IX_det_He3tube
     % and another can contain detectors exclusively of type IX_det_slab.
@@ -13,9 +13,10 @@ classdef IX_detector_array
     
     properties (Access=private)
         % Class version number
-        class_version_ = 1;
         % Array of IX_detector_bank objects (column vector)
         det_bank_ = IX_detector_bank
+        filename_ = ''
+        filepath_ = ''
     end
     
     properties (Dependent)
@@ -39,7 +40,18 @@ classdef IX_detector_array
         det_bank
         % Number of detectors
         ndet
+        % associated filename from detpar
+        filename
+        % associated filepath from detpar
+        filepath
     end
+    
+    properties(Constant,Access=private)
+        fields_to_save_ = { 'det_bank', ...
+                            'filename', 'filepath'};
+    end
+    
+
     
     methods
         %------------------------------------------------------------------
@@ -78,15 +90,48 @@ classdef IX_detector_array
                         error('Detector indentifiers must all be unique')
                     end
                 else
-                    obj.det_bank_ = IX_detector_bank(varargin{:});
+                    dp = varargin{1};
+                    is_detpar_struct = IX_detector_array.check_detpar_parms(dp);
+                    if is_detpar_struct
+                        % the struct has the full recipe for constructing
+                        % the detector bank and the origin filepath.
+                        % Splitting it up and passing it to the object
+                        % components
+                        obj.det_bank_ = IX_detector_bank( ...
+                            dp.group, dp.x2, dp.phi, dp.azim, ...
+                            IX_det_TobyfitClassic (dp.width, dp.height));
+                        obj.filename_ = dp.filename;
+                        obj.filepath_ = dp.filepath;
+                    else
+                        % if varargin{1} isn't a detpar struct, delegate
+                        % processing of varargin to the detector bank.
+                        % This implies that varargin is the whole set of
+                        % detector bank constructor arguments. 
+                        obj.det_bank_ = IX_detector_bank(varargin{:});
+                    end
                 end
             end
             
-            
+        end
+                    %------------------------------------------------------------------
+        % Get methods for dependent properties
+        
+        function val = get.filename(obj)
+            val = obj.filename_;
         end
         
-        %------------------------------------------------------------------
-        % Get methods for dependent properties
+        function obj = set.filename(obj,val)
+            obj.filename_ = val;
+        end
+        
+        function val = get.filepath(obj)
+            val = obj.filepath_;
+        end
+        
+        function obj = set.filepath(obj,val)
+            obj.filepath_ = val;
+        end
+        
         function val = get.id(obj)
             if numel(obj.det_bank_)>1
                 tmp = arrayfun(@(x)(x.id), obj.det_bank_,'uniformOutput',false);
@@ -123,6 +168,10 @@ classdef IX_detector_array
             end
         end
         
+        function obj = set.azim(obj, val)
+            obj.det_bank_.azim = val;
+        end
+        
         function val = get.dmat(obj)
             if numel(obj.det_bank_)>1
                 tmp = arrayfun(@(x)(x.dmat), obj.det_bank_,'uniformOutput',false);
@@ -136,6 +185,10 @@ classdef IX_detector_array
             val = obj.det_bank_;
         end
         
+        function obj = set.det_bank(obj,val)
+            obj.det_bank_ = val;
+        end
+        
         function val = get.ndet(obj)
             if numel(obj.det_bank_)>1
                 tmp = arrayfun(@(x)(numel(x.id)), obj.det_bank_);
@@ -146,8 +199,70 @@ classdef IX_detector_array
         end
         
         %------------------------------------------------------------------
+        
+        function detpar = convert_to_old_detpar(obj)
+            detpar = struct();
+            if size(obj.det_bank.id,1)==1
+                detpar.group = obj.det_bank.id;
+                detpar.x2    = obj.det_bank.x2;
+                detpar.phi   = obj.det_bank.phi;
+                detpar.azim  = obj.det_bank.azim;
+                detpar.width = obj.det_bank.det.dia;
+                detpar.height = obj.det_bank.det.height;
+            else
+                detpar.group = obj.det_bank.id';
+                detpar.x2    = obj.det_bank.x2';
+                detpar.phi   = obj.det_bank.phi';
+                detpar.azim  = obj.det_bank.azim';
+                detpar.width = obj.det_bank.det.dia';
+                detpar.height = obj.det_bank.det.height';
+            end
+            detpar.filename = obj.filename;
+            detpar.filepath = obj.filepath;
+        end
     end
     
+    methods(Static)
+        function is_dp_struct = check_detpar_parms(dp)
+            % checks input dp to see if it is a proper old-style detpar struct.
+            % the recipe for such a struct is given in the isdetpar= line
+            % below. Such a struct can be consumed by the IX_detector_array
+            % constructor. Other inputs may also be interpretable by the
+            % constructor but are not handled here.
+            %{
+             is_dp_struct = false;
+            if ~isstruct(dp)
+                return;
+            end
+            
+            is_dp_struct = isfield(dp,'group') && isfield(dp,'x2') && isfield(dp,'phi') ...
+                    && isfield(dp,'azim') && isfield(dp,'filename') && isfield(dp,'filepath') ...
+                    && isfield(dp, 'width') && isfield(dp, 'height');
+            %}
+            
+            is_dp_struct = isstruct(dp) && all( isfield(dp,{'group','x2','phi','azim', ...
+                                                            'filename','filepath','width','height'}));
+        end
+    end
+    
+    methods
+            % SERIALIZABLE interface
+        %------------------------------------------------------------------
+        function ver  = classVersion(~)
+            % define version of the class to store in mat-files
+            % and nxsqw data format. Each new version would presumably read
+            % the older version, so version substitution is based on this
+            % number
+            ver = 1;
+        end
+        %
+        function flds = saveableFields(~)
+            % get independent fields, which fully define the state of the
+            % serializable object.
+            flds = IX_detector_array.fields_to_save_;
+        end
+    end
+     %{
     %======================================================================
     % Methods for fast construction of structure with independent properties
     methods (Static, Access = private)
@@ -331,11 +446,12 @@ classdef IX_detector_array
 
         end
     end
-    
+    %}
     %======================================================================
     % Custom loadobj and saveobj
     % - to enable custom saving to .mat files and bytestreams
     % - to enable older class definition compatibility
+    %{
 
     methods
         %------------------------------------------------------------------
@@ -358,9 +474,10 @@ classdef IX_detector_array
             S = structIndep(obj);
         end
     end
-    
+    %}
     %------------------------------------------------------------------
     methods (Static)
+        %{
         function obj = loadobj(S)
             % Static method used my Matlab load function to support custom
             % loading.
@@ -387,6 +504,13 @@ classdef IX_detector_array
             else
                 obj = arrayfun(@(x)loadobj_private_(x), S);
             end
+        end
+        %}
+        function obj = loadobj(S)
+            % boilerplate loadobj method, calling generic method of
+            % saveable class 
+            obj = IX_detector_array();
+            obj = loadobj@serializable(S,obj);
         end
         %------------------------------------------------------------------
         
