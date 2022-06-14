@@ -16,14 +16,14 @@ end
 if exist('log_message', 'var')
     obj.display_results_count_ = 0;
     n_symbols = numel(log_message);
-    if n_symbols <=obj.LOG_MESSAGE_LENGHT
-        format = ['**** %-',num2str(obj.LOG_MESSAGE_LENGHT),'s ****',CR];
+    if n_symbols <=obj.LOG_MESSAGE_LENGTH
+        format = ['**** %-',num2str(obj.LOG_MESSAGE_LENGTH),'s ****',CR];
         log =[log,sprintf(format,log_message)];
     else
         log =[log,sprintf('**** %s\n',log_message)];
     end
 else % report internal state of the JobDispatcher
-    
+
     if obj.status_changed
         info = gen_job_info(obj);
         log = [log,info,CR];
@@ -42,6 +42,8 @@ else % report internal state of the JobDispatcher
     obj.display_results_count_ = count;
 end
 obj.log_value_ = log;
+
+end
 
 function info=gen_job_info(obj)
 % return the string, containing information about the task state
@@ -78,10 +80,12 @@ elseif stateMess.tag == MESS_NAMES.mess_id('failed')
                 info = sprintf('%s\n%s\n',info,err.error.getReport());
             end
         end
-        
+
         %     elseif isa(err,'MExeption') || isa(err,'ParallelException')
         %         for i=1:numel(err.stack)
         %             info = [info,err.stack{i}];
         %         end
     end
+end
+
 end

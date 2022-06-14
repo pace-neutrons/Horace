@@ -7,7 +7,7 @@ wlock_obj =[];
 
 if ~is_folder(obj.mess_exchange_folder)
     ok = MESS_CODES.job_cancelled;
-    err_mess = sprintf('Job with id %s have been cancelled. No message exchange folder exist',obj.job_id);
+    err_mess = sprintf('Job with id %s have been cancelled. No message exchange folder exists',obj.job_id);
     return;
 end
 if task_id<0 || task_id>obj.numLabs
@@ -33,7 +33,7 @@ if is_interrupt
     is_blocking = false;
     mess_name = obj.interrupt_chan_name_;
 end
-%
+
 mess_fname = obj.job_stat_fname_(task_id,mess_name);
 max_tries = 100;
 
@@ -42,7 +42,7 @@ if is_blocking
     % data messages. synchronous data messages are never overwritten.
     [~,wlock_file]  = build_lock_fname_(mess_fname);
     obj.send_data_messages_count_(task_id+1)=obj.send_data_messages_count_(task_id+1)+1;
-    
+
 else
     [rlock_file,wlock_file]  = build_lock_fname_(mess_fname);
     n_attempts = 0;
@@ -52,7 +52,7 @@ else
         n_attempts = n_attempts +1;
         t_r = t_r*1.05;
         if n_attempts > max_tries
-            warning(' Can not wait unitl read lock is removed. Incoherent filesystem view?')
+            warning(' Can not wait until read lock is removed. Incoherent filesystem view?')
             error('MESSAGES_FRAMEWORK:runtime_error','Can not save message file %s',mess_fname);
         end
     end
@@ -73,10 +73,10 @@ while ~written
     n_attempts = n_attempts +1;
     written = is_file(mess_fname);
     if n_attempts > max_tries
-        warning(' Can not wait unitl file appears on the drive. Incoherent filesystem view?')
+        warning(' Can not wait until file appears on the drive. Incoherent filesystem view?')
         error('MESSAGES_FRAMEWORK:runtime_error','Can not save message file %s',mess_fname);
     end
-    
+
 end
 %
 wlock_obj = unlock_(wlock_file,mess_fname);

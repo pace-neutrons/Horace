@@ -181,6 +181,14 @@ classdef ClusterMPI < ClusterWrapper
                 mpi_exec = fullfile(external_dll_dir, 'mpiexec.exe');
             else
                 mpi_exec = fullfile(external_dll_dir, 'mpiexec');
+
+                if ~(is_file(mpi_exec))
+                    % use system-defined mpiexec
+                    [~, mpi_exec] = system('which mpiexec');
+                    % strip non-printing characters, spaces and eol/cr-s from the
+                    % end of mpiexec string.
+                    mpi_exec = regexprep(mpi_exec,'[\x00-\x20\x7F-\xFF]$','');
+                end
             end
         end
     end
