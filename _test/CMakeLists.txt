@@ -83,6 +83,7 @@ foreach(_test_dir ${TEST_DIRECTORIES_HERBERT})
     set_tests_properties("${TEST_NAME}"
         PROPERTIES
             ENVIRONMENT "${ENV_VARIABLES}"
+            TIMEOUT ${TEST_TIMEOUT_LENGTH}
     )
 endforeach()
 
@@ -112,5 +113,6 @@ foreach(_test_dir ${TEST_DIRECTORIES_HORACE})
     set_tests_properties("${TEST_NAME}"
         PROPERTIES
             ENVIRONMENT "${ENV_VARIABLES}"
+            TIMEOUT ${TEST_TIMEOUT_LENGTH}
     )
 endforeach()
