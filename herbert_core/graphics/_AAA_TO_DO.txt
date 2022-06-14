@@ -1,0 +1,95 @@
+================================
+Functions summary:
+================================
+
+Independent of genie_figure:
+-----------------------------
+aspect
+clearfigs
+meta
+xycursor
+xyselect
+xyzselect
+
+
+
+Inquires of graph_range: makes an assumption about the 
+type of plot objects present and the number of frames
+------------------------------------------------------
+(These routines assume that there is only one graphics frame)
+(They also only test the type of plot recognised in graph_range,
+but in practive this means they omit only image, text and
+rectangle objects)
+
+colorslider
+
+lx
+ly
+lz
+lc
+
+
+
+Only makes changes to genieplot persistent variables:
+------------------------------------------------
+(no graphics changes)
+
+acolor
+aline
+amark
+bin
+
+
+
+Makes changes to genieplot persistent variables:
+------------------------------------------------
+(Assume only one graphics frame in the figure)
+
+linx, liny, linz
+logx, logy, logz
+
+
+
+Specifically genie_figure
+--------------------------
+genie_figure_create
+genie_figure_target
+genie_figure_keep == keep_figure
+genie_figure_make_cur == make_current
+is_genie_figure
+
+genie_figure_all_handles 	*** Makes assumptions about the type
+								of plot objects we recognise
+genie_figure_parse_pot_args
+genie_figure_parse_pot_args2
+
+	
+	
+
+	
+================================
+Small to do:
+================================
+Add paoc, psoc etc to Herbert and Horace
+
+overplotting seems to be resetting limits in 2015a (but not 2014a) - why?
+
+Horace: 1D objects don't understand da,ds etc, and 2D don't know dl, dp...
+        I think that this is correct; cannot in general combine 1d objects
+		into 2D sqw object (bins not matching), and splitting 2D sqw is not 
+		obviously a useful thing to do.
+
+plot_oned, plot_twod can be tidied as a lot of argument checking is
+now done in genie_figure_parse_pot_args.
+
+get rid of verLessThan? When was it introduced?
+
+graph_range to get limits for hggroup objects
+
+No 2D contour plot at the moment (dc, pc)
+
+Implement smoothing in 2D
+
+colorslider needs tidying; can we bury colorslider_copmmand in private?
+
+mycolormaps, viewcolormap, one_color: overhaul!

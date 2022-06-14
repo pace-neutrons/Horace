@@ -1,0 +1,61 @@
+function wout = $FUNC_NAME(win, varargin)
+% Integrate an $IX_DATASET_ND object or array of $IX_DATASET_ND objects along the $AXIS
+%
+%   >> wout = $FUNC_NAME (win, $DESCR)
+%   >> wout = $FUNC_NAME (win, $DESCR, 'ave')
+%   
+% Input:
+% ------
+%   win     Input object or array of objects to be integrated
+%   descr   Description of integration bin boundaries $ONE_PER_AXIS
+%
+%           Integration is performed fo each bin defined in the description:
+%           * If just one bin is specified, i.e. give just upper an lower limits,
+%            then the dataset is integrated over the specified range.
+%             The integrate axis disappears i.e. the output object has one less dimension.
+%           * If several bins are defined, then the integral is computed for each
+%            bin. Essentially, this is rebinning with integration of the contents.
+%
+%           General syntax for the description of new bin boundaries:
+%           - [], ''                Integrate over the full range of the data
+%           - 0                     Use current bins to define integration ranges
+%           - dx (numeric scalar)   Integration bins centred on zero with constant width dx
+%           - [xlo,xhi]             Single integration range
+%           - [x1,x2,...xn]         Set of bin boundaries that define integration ranges
+%
+%           The lower limit can be -Inf and/or the upper limit +Inf, when the 
+%           corresponding limit is set by the full extent of the data.
+%
+%   Point data: for an axis with point data (as opposed to histogram data)
+%   'ave'   average the values of the points within each new bin and multiply by bin width
+%   'int'   integate the function defined by linear interpolation between the data points (DEFAULT)
+%
+% Output:
+% -------
+%   wout    Output object or array of objects
+%
+% EXAMPLES
+%   >> wout = $FUNC_NAME (win)    % integrates entire dataset
+%   >> wout = $FUNC_NAME (win, []$CONTINUATION)
+%   >> wout = $FUNC_NAME (win, [-Inf,Inf]$CONTINUATION)    % equivalent to above
+%   >> wout = $FUNC_NAME (win, 10$CONTINUATION)
+%   >> wout = $FUNC_NAME (win, [2000,3000]$CONTINUATION)
+%   >> wout = $FUNC_NAME (win, [2000,Inf]$CONTINUATION)
+%   >> wout = $FUNC_NAME (win, [2000,3000,4000,5000,6000]$CONTINUATION)
+%
+% See also corresponding function $FUNC_MIRROR which accepts a rebin descriptor
+% of form [x1,dx1,x2,dx2,...xn] instead of a set of bin boundaries
+
+
+if numel(win)==0, error('Empty object to integrate'), end
+
+integrate_data=true;
+point_integration_default=true;
+iax=$IAX_VAL;
+opt=struct('empty_is_full_range',$EMPTY_FLAG,'range_is_one_bin',$RANGE_FLAG,'array_is_descriptor',$ARRAY_FLAG,'bin_boundaries',$BIN_FLAG);
+
+[wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, opt, varargin{:});
+if ~ok, error(mess), end
+
+% Squeeze object(s)
+wout=squeeze_IX_dataset_nd(wout,iax);

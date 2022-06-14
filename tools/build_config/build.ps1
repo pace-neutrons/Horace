@@ -1,45 +1,40 @@
 <#
 .SYNOPSIS
-  This script is used to build, test and package Horace on Windows.
+  This script is used to build, test and package Herbert on Windows.
 
 .DESCRIPTION
   This script requires Matlab, Visual Studio, CMake>=3.7 and CTest be installed
   on your system and available on the path.
 
-  This script also requires that Herbert be findable by CMake. CMake will search
-  in common places for Herbert e.g. in the same directory as Horace.
-
   Use "Get-Help ./build.ps1 -Detailed" for parameter descriptions.
 
 .EXAMPLE
   ./build.ps1 -build
-  # Builds Horace
+  # Builds Herbert
 .EXAMPLE
   ./build.ps1 -test
-  # Runs all Horace tests
+  # Runs all Herbert tests
 .EXAMPLE
   ./build.ps1 -package
-  # Packages Horace
+  # Packages Herbert
 .EXAMPLE
   ./build.ps1 -build -package -vs_version 2017 -matlab_release R2019a
-  # Builds and packages Horace using Visual Studio 2017 and Matlab R2019a
+  # Builds and packages Herbert using Visual Studio 2017 and Matlab R2019a
 
 .LINK
-  https://github.com/pace-neutrons/Horace
+  https://github.com/pace-neutrons/Herbert
 #>
 param (
-  # Run the Horace configure commands.
-  [switch][Alias("g")]$configure,
-  # Run the Horace build commands.
+  # Run the Herbert configuration commands.
+  [switch]$configure,
+  # Run the Herbert build commands.
   [switch][Alias("b")]$build,
-  # Run all Horace tests.
+  # Run all Herbert tests.
   [switch][Alias("t")]$test,
-  # Pacakge Horace into a .zip file.
+  # Pacakge Herbert into a .zip file.
   [switch][Alias("p")]$package,
   # Print the versions of libraries being used e.g. Matlab.
   [switch][Alias("v")]$print_versions,
-  # Build docs
-  [switch][Alias("d")]$docs,
   # Call Get-Help on this script and exit.
   [switch][Alias("h")]$help,
 
@@ -51,7 +46,7 @@ param (
   [Alias("VS")]
   $vs_version = 0,
 
-  # Whether to build the Horace C++ tests and enable testing via CTest.
+  # Whether to build the Herbert C++ tests and enable testing via CTest.
   # This must be "ON" in order to run tests with this script. {ON, OFF} [default: ON]
   [string][ValidateSet("ON", "OFF")]
   [Alias("X")]
@@ -103,8 +98,8 @@ $VS_VERSION_MAP = @{
   2017 = 'Visual Studio 15 2017';
   2019 = 'Visual Studio 16 2019';
 }
-# Horace's root directory is two levels above this script
-$HORACE_ROOT = Resolve-Path (Join-Path -Path "$PSScriptRoot" -ChildPath "/../..")
+# Herbert's root directory is two levels above this script
+$HERBERT_ROOT = Resolve-Path (Join-Path -Path "$PSScriptRoot" -ChildPath "/../..")
 $MAX_CTEST_SUCCESS_OUTPUT_LENGTH = 10000 # 10kB
 
 function New-Build-Directory {
@@ -135,7 +130,6 @@ function New-CMake-Generator-Command {
 
 function Write-Versions {
   Write-Output "$(cmake --version)"
-  Write-Output "Matlab: $($(Get-Command matlab.exe).Source)"
   Write-Output "Visual Studio version: $($VS_VERSION_MAP[$vs_version])"
 }
 
@@ -149,11 +143,11 @@ function Invoke-Configure {
     [string]$cmake_flags
   )
   Write-Output "`nRunning CMake configure step..."
-  $cmake_cmd = "cmake ""$HORACE_ROOT"""
+  $cmake_cmd = "cmake ""$HERBERT_ROOT"""
   $cmake_cmd += " $(New-CMake-Generator-Command -vs_version $vs_version)"
   $cmake_cmd += " -DBUILD_TESTING=$build_tests"
   $cmake_cmd += " -DMatlab_RELEASE=$matlab_release"
-  $cmake_cmd += " ${cmake_flags}"
+  $cmake_cmd += " $cmake_flags"
 
   Invoke-In-Dir -directory "$build_dir" -command "$cmake_cmd"
   if ($LASTEXITCODE -ne 0) {
@@ -192,18 +186,9 @@ function Invoke-Package {
   }
 }
 
-function Invoke-Docs {
-  param([string]$build_dir)
-  Write-And-Invoke "cmake --build ""$build_dir"" --target docs-pack"
-
-  if ($LASTEXITCODE -ne 0) {
-    exit $LASTEXITCODE
-  }
-}
-
 # Resolve/set default parameters
 if ($build_dir -eq "") {
-  $build_dir = Join-Path -Path "$HORACE_ROOT" -ChildPath "build"
+  $build_dir = Join-Path -Path "$HERBERT_ROOT" -ChildPath "build"
 }
 
 if ($print_versions) {
@@ -231,8 +216,4 @@ if ($test) {
 
 if ($package) {
   Invoke-Package -build_dir "$build_dir"
-}
-
-if ($docs) {
-  Invoke-Docs -build_dir "$build_dir"
 }

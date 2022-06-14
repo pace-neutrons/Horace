@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -o errexit  # exit early on any error
-set -o nounset  # raise error using unset variables
+set -o nounset  # raise error using unused variables
 
 readonly FALSE=0
 readonly TRUE=1
@@ -11,10 +11,9 @@ readonly HORACE_ROOT="$(realpath "$(dirname "$0")"/../..)"
 # The Matlab root directory is one level above Matlab/bin which contains the
 # matlab executable. The Matlab on the path will likely be a symlink so we need
 # to resolve it with `readlink`
-readonly MATLAB_ROOT="$(realpath "$(dirname "$(readlink -f "$(which matlab)")")"/..)"
-readonly MAX_CTEST_SUCCESS_OUTPUT_LENGTH=10000 # 10 kilobytes
+readonly MATLAB_ROOT="$(realpath "$(dirname "$(readlink -f "$(command -v matlab)")")"/..)"
+readonly MAX_CTEST_SUCCESS_OUTPUT_LENGTH="10000" # 10kB
 
-# shellcheck source=../bash/bash_helpers.sh
 . "${HORACE_ROOT}/tools/bash/bash_helpers.sh"
 
 function print_package_versions() {
@@ -73,13 +72,12 @@ function run_analysis() {
 
 function run_package() {
   echo -e "\nRunning package step..."
-  echo_and_run "cd ${build_dir}"
-  echo_and_run "cpack -G TGZ"
+  run_in_dir "cpack -G TGZ" "${build_dir}"
 }
 
 function build_docs() {
-    # Update release numbers
-    echo_and_run "cmake --build ${build_dir} --target docs-pack"
+  # Update release numbers
+  echo_and_run "cmake --build ${build_dir} --target docs-pack"
 }
 
 function print_help() {
@@ -87,9 +85,6 @@ function print_help() {
 
 This script requires Matlab, GCC, CMake>=3.7 and CTest be installed on your
 system and available on the path.
-
-This script also requires that Herbert be findable by CMake. CMake will search
-in common places for Herbert e.g. in the same directory as Horace.
 
 https://github.com/pace-neutrons/Horace
 
@@ -111,7 +106,7 @@ flags:
   -d, --docs
       Build user docs
   -h, --help
-      Print help message and exit.
+      Print help message and exit
 options:
   -X, --build_tests {\"ON\", \"OFF\"}
       Whether to build the Horace C++ tests and enable testing via CTest.
@@ -144,8 +139,14 @@ function main() {
   local build_tests="ON"
   local build_config='Release'
   local build_dir="${HORACE_ROOT}/build"
-  local matlab_release=""
   local cmake_flags=""
+  local matlab_release=""
+
+  # If no input arguments, print the help and exit
+  if [ $# -eq 0 ]; then
+    print_help
+    exit 0
+  fi
 
   # parse command line args
   while [[ $# -gt 0 ]]; do
@@ -154,7 +155,7 @@ function main() {
         # flags
         -b|--build) build=$TRUE; shift ;;
         -t|--test) test=$TRUE; shift ;;
-        -g|--configure) configure=$TRUE; shift;;
+        -c|--configure) configure=$TRUE; shift;;
         -a|--analyze) analyze=$TRUE; shift ;;
         -p|--package) package=$TRUE; shift ;;
         -d|--docs) docs=$TRUE; shift;;
@@ -163,10 +164,10 @@ function main() {
         # options
         -X|--build_tests) build_tests="$2"; shift; shift ;;
         -C|--build_config) build_config="$2"; shift; shift ;;
-        -O|--build_dir) build_dir="$(realpath $2)"; shift; shift ;;
-        -M|--matlab_release) matlab_release="$2"; shift; shift ;;
+        -O|--build_dir) build_dir="$(realpath "$2")"; shift; shift ;;
         -F|--cmake_flags) cmake_flags="$2"; shift; shift ;;
-        *) echo "Unrecognised argument '$key'"; exit 1 ;;
+        -M|--matlab_release) matlab_release="$2"; shift; shift ;;
+        *) echo "Unrecognised argument '$key'. Use -h for usage."; exit 1 ;;
     esac
   done
 
@@ -175,6 +176,9 @@ function main() {
   fi
 
   if ((configure)) || [ ! -e ${build_dir}/CMakeCache.txt ]; then
+    warning_msg="Warning: Build directory ${build_dir} already exists.\n\
+        This may not be a clean build."
+    echo_and_run "mkdir ${build_dir}" || warning "${warning_msg}"
     run_configure "${build_dir}" "${build_config}" "${build_tests}" "${matlab_release}" "${cmake_flags}"
   fi
 
@@ -197,7 +201,6 @@ function main() {
   if ((docs)); then
     build_docs
   fi
-
 }
 
 main "$@"
