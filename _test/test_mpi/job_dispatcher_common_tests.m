@@ -3,13 +3,14 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
     %
     properties
     end
+
     methods
-        %
+
         function this = job_dispatcher_common_tests(test_name, cluster_name)
             this = this@MPI_Test_Common(test_name, cluster_name);
         end
-        %
-        function test_job_fail_restart(obj, varargin)           
+
+        function test_job_fail_restart(obj, varargin)
             if obj.ignore_test
                 skipTest('test_job_fail_restart is disabled');
             end
@@ -27,7 +28,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                     end
                 end
             end
-            % overloaded to empty test -- nothing new for this JD            
+            % overloaded to empty test -- nothing new for this JD
             display_fail_log = false;
 
             % JETester specific control parameters
@@ -37,6 +38,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             common_param = struct('filepath', obj.working_dir, ...
                 'filename_template', ['test_JD_', obj.cluster_name,FE,'L%d_nf%d.txt'], ...
                 'fail_for_labsN', 2);
+
             file1 = fullfile(obj.working_dir, ['test_JD_', obj.cluster_name,FE, 'L1_nf1.txt']);
             file2 = fullfile(obj.working_dir, ['test_JD_', obj.cluster_name,FE, 'L2_nf1.txt']);
             file3 = fullfile(obj.working_dir, ['test_JD_', obj.cluster_name,FE, 'L3_nf1.txt']);
@@ -58,7 +60,8 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 disp('************* 3 workers run : failed  outputs :')
                 disp(outputs);
             end
-            %
+
+
             function is = is_err(x)
                 if isa(x, 'MException') || isa(x, 'ParallelException')
                     is = true;
@@ -71,6 +74,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                     is = false;
                 end
             end
+
             assertTrue(n_failed > 0);
 
             fin = cellfun(@is_err, outputs);
@@ -98,6 +102,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             disp('*********************************************************')
             disp('**************FAIL-2 Lab1 Fails *************************')
             disp('*********************************************************')
+
             %2)----------------------------------------------------------
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 4, true, true, 1);
             if display_fail_log || numel(outputs) ~=3
@@ -107,11 +112,11 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 disp('************* 3 workers run : failed  outputs :')
                 disp(outputs);
             end
-            
+
             assertTrue(n_failed >= 1);
             fin = cellfun(@is_err, outputs);
             assertTrue(sum(fin) >= 1)
-            
+
             clear co;
             % check long job cancelled due to part of the job failed
             disp('*********************************************************')
@@ -144,6 +149,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
             disp('*********************************************************')
             disp('**************FAIL 4 Lab-3 Fail, long job****************')
             disp('*********************************************************')
+
             %4)----------------------------------------------------------
             [outputs, n_failed, ~, jd] = jd.restart_job('JETester', common_param, 99, true, true, 1);
             if display_fail_log || numel(outputs) ~=3
@@ -153,6 +159,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 disp('************* 3 workers run : failed  outputs :')
                 disp(outputs);
             end
+
             assertTrue(n_failed >= 1);
             fin = cellfun(@is_err, outputs);
             assertTrue(sum(fin) >= 1)
@@ -195,20 +202,20 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
                 disp('************* 3 workers run : failed  outputs :')
                 disp(outputs);
             end
-            
+
             assertEqual(n_failed, 0);
             assertEqual(numel(outputs), 3);
-            
+
             assertEqual(outputs{1}, 'Job 1 generated 1 files');
             assertEqual(outputs{2}, 'Job 2 generated 1 files');
             assertEqual(outputs{3}, 'Job 3 generated 2 files');
-            
+
             assertTrue(is_file(file1));
             assertTrue(is_file(file2));
             assertTrue(is_file(file3));
             assertTrue(is_file(file3a));
         end
-        %
+
         function test_job_with_logs_3workers(obj, varargin)
             if obj.ignore_test
                 skipTest('test_job_with_logs_3workers is disabled');
@@ -236,7 +243,7 @@ classdef job_dispatcher_common_tests < MPI_Test_Common
 
             jd = JobDispatcher(['test_', obj.cluster_name, '_3workers']);
             n_workers = 3;
-            
+
             [outputs, n_failed,~,jd] = jd.start_job('JETester', common_param, 3, true, n_workers, true, 1);
             if n_failed>0
                 jd.display_fail_job_results(outputs, n_failed,3)

@@ -1,4 +1,4 @@
-classdef mfclass_plist
+classdef mfclass_plist < serializable
     % Parameter list for multifit
     %
     % A valid parameter list is one of the following:
@@ -55,8 +55,8 @@ classdef mfclass_plist
     %               :
     %          [...] =   func<1> (..., func<0>, p<0>, c1<1>, c2<1>, ...)
     %          [...] =   func<0> (..., p, c1<0>, c2<0>, ...)
-    
-    
+
+
     % For assistance when debugging/writing functions, the full set of possible
     % base parameter lists is:
     %    p                      % numeric vector or []
@@ -64,7 +64,7 @@ classdef mfclass_plist
     %    c1<0>                  % any argument except numeric vector or []
     %   {c1<0>, c2<0>,...}      % c1<0> not a numeric vector or [p]; cn<0> any argument
     %   {}                      % no numeric parameters or arguments
-    
+
     properties (Hidden)
         % Parameter list
         plist_ = {};
@@ -73,18 +73,19 @@ classdef mfclass_plist
         % Numeric parameter list
         p_ = [];
     end
-    
+
     properties (Dependent)
         % Parameter list
-        plist
+        plist;
         % Logical indicating if numeric parameter list is present or not
-        p_present = false;
+        p_present;
         % Numeric parameter list
-        p = [];
+        p;
         % Number of elements in numeric parameter list
-        np
+        np;
     end
-    
+
+
     methods
         %------------------------------------------------------------------
         % Constructor
@@ -95,7 +96,7 @@ classdef mfclass_plist
                 [obj.p_present_, obj.p_] = p_get (var);
             end
         end
-        
+
         %------------------------------------------------------------------
         % Set/get methods: dependent properties
         %------------------------------------------------------------------
@@ -103,19 +104,19 @@ classdef mfclass_plist
         function out = get.plist (obj)
             out = obj.plist_;
         end
-        
+
         function out = get.p_present (obj)
             out = obj.p_present_;
         end
-        
+
         function out = get.p (obj)
             out = obj.p_;
         end
-        
+
         function out = get.np (obj)
             out = numel(obj.p_);
         end
-        
+
         % Set methods for dependent properties
         function obj = set.p (obj,pnew)
             if isnumeric(pnew) && (isempty(pnew) || isavector(pnew))
@@ -126,7 +127,7 @@ classdef mfclass_plist
                 error('Check new numeric parameters have the correct type')
             end
         end
-        
+
         %------------------------------------------------------------------
         % Other methods
         %------------------------------------------------------------------
@@ -143,7 +144,7 @@ classdef mfclass_plist
             % ------
             %   func    Function handle
             %   pwrap   Valid parameter list
-            
+
             if isa(func,'function_handle')
                 objnew = obj;
                 if nargin==2
@@ -158,7 +159,7 @@ classdef mfclass_plist
                 error('Check the input arguments')
             end
         end
-        
+
         function objnew = append_args (obj, varargin)
             % Appends arguments to the top level parameter list
             %
@@ -167,7 +168,7 @@ classdef mfclass_plist
             % Converts the parameter list {p, c1, c2,..} into {p, c1, c2,..., d1, d2,...}
             % Note that if the numeric parameter list p and c1, c2,... are missing, then if
             % d1 is a numeric vector (or []) it will be taken to be a numeric parameter list.
-            
+
             if numel(varargin)>0
                 objnew = mfclass_plist();
                 [objnew.plist_, objnew.p_present_, objnew.p_] = ...
@@ -176,7 +177,7 @@ classdef mfclass_plist
                 objnew = obj;   % no change
             end
         end
-        
+
         function objnew = prepend_args (obj, varargin)
             % Prepends arguments to the top level parameter list
             %
@@ -185,7 +186,7 @@ classdef mfclass_plist
             % Converts the parameter list {p, c1, c2,..} into {p, d1, d2,..., c1, c2,...}
             % Note that if the numeric parameter list p is missing, then if d1 is a numeric
             % vector (or []) then d1 will be taken to be a numeric parameter list.
-            
+
             if numel(varargin)>0
                 objnew = mfclass_plist();
                 [objnew.plist_, objnew.p_present_, objnew.p_] = ...
@@ -194,7 +195,7 @@ classdef mfclass_plist
                 objnew = obj;   % no change
             end
         end
-        
+
         function varargout = unpack (obj)
             % Breaks down a parameter list into successive levels of recursion
             %
@@ -202,9 +203,9 @@ classdef mfclass_plist
             %   >> obj.unpack       % display unpacking in command window
             %
             % Here C{1} is the top level, c{2} the next...c{end} the base parameter list
-            
+
             C = unpack ({}, obj.plist_);
-            
+
             if nargout>0
                 varargout{1} = C;
             else
@@ -213,10 +214,35 @@ classdef mfclass_plist
                     display(C{i})
                 end
             end
-            
+
         end
     end
-    
+
+    properties(Constant,Access=protected)
+        fields_to_save_ = {'plist_', 'p_present_', 'p_'};
+    end
+
+    methods(Access=public)
+        % get independent fields, which fully define the state of the object
+        function flds = saveableFields(~)
+            flds = mfclass_plist.fields_to_save_;
+        end
+        % get class version, which would affect the way class is stored on/
+        % /restore from an external media
+        function ver  = classVersion(~)
+            ver = 1;
+        end
+    end
+
+    methods(Static)
+        function obj = loadobj(S)
+            obj = mfclass_plist();
+            obj = loadobj@serializable(S,obj);
+            [obj.p_present_, obj.p_] = p_get(obj.plist);
+        end
+    end
+
+
 end
 
 %--------------------------------------------------------------------------------------------------
@@ -259,21 +285,21 @@ else
                 plistnew = plist;   % unchanged
             end
         end
-        
+
     elseif isnumeric(plist) && p_present    % plist is numeric parameter list (cf e.g. a matrix)
         if pnew_present
             plistnew = varargin{1};
         else
             plistnew = {};
         end
-        
+
     elseif iscell(plist) && isempty(plist)  % plist is {} (or cell(1,0) or cell(0,1))
         if pnew_present
             plistnew = varargin{1};
         else
             plistnew = plist;   % unchanged
         end
-        
+
     else                                    % plist is c1<0>
         if pnew_present
             plistnew = [varargin,{plist}];
@@ -328,13 +354,13 @@ else
         else                                % pwrap has form {c1<0>, c2<0>,...}
             plistnew = [{func,plist},pwrap];
         end
-        
+
     elseif isnumeric(pwrap) && p_present    % pwrap is numeric parameter list (cf e.g. a matrix)
         plistnew = {func,plist};
-        
+
     elseif iscell(pwrap) && isempty(pwrap)  % pwrap is {} (or cell(1,0) or cell(0,1))
         plistnew = {func,plist};
-        
+
     else                                    % pwrap is c1<0>
         plistnew = [{func,plist},{pwrap}];
     end
@@ -362,10 +388,10 @@ else
     if numel(varargin)>0
         if iscell(plist) && isrowvector(plist) && numel(plist)>=1   % plist has form {p, c1<0>, c2<0>,...} or {c1<0>, c2<0>,...}
             plistnew = [plist,varargin];        % at least one element in plist, so just append
-            
+
         elseif isnumeric(plist) && p_present    % plist is numeric parameter list (cf e.g. a matrix)
             plistnew = [{plist},varargin];
-            
+
         elseif iscell(plist) && isempty(plist)  % plist is {} (or cell(1,0) or cell(0,1))
             if numel(varargin)>1
                 plistnew = varargin;
@@ -377,7 +403,7 @@ else
                 pnew_present = true;
                 pnew = varargin{1};
             end
-            
+
         else                                    % plist is c1<0>
             plistnew = [{plist},varargin];
         end
@@ -417,10 +443,10 @@ else
                     pnew = varargin{1};
                 end
             end
-            
+
         elseif isnumeric(plist) && p_present    % plist is numeric parameter list (cf e.g. a matrix)
             plistnew = [{plist},varargin];
-            
+
         elseif iscell(plist) && isempty(plist)  % plist is {} (or cell(1,0) or cell(0,1))
             if numel(varargin)>1
                 plistnew = varargin;
@@ -432,7 +458,7 @@ else
                 pnew_present = true;
                 pnew = varargin{1};
             end
-            
+
         else                                    % plist is c1<0>
             plistnew = [varargin,{plist}];
             % It may be that we now have a numeric parameter list

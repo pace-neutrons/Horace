@@ -39,7 +39,7 @@ function [ycalc,varcalc,S,Store]=multifit_lsqr_func_eval(w,xye,func,bfunc,plist,
 %   bf_pass_caller_info Keep internal state of background function evaluation e.g. seed of random
 %               number generator. Dictates the format of the fit fuction argument list.
 %
-%   pf          Free parameter values (that is, the independently 
+%   pf          Free parameter values (that is, the independently
 %              varying parameters)
 %
 %   p_info      Structure with information needed to transform from pf to the
@@ -127,6 +127,7 @@ end
 fcalc=cell(size(w)); fvar=cell(size(w)); bcalc=cell(size(w)); bvar=cell(size(w));
 
 [p,bp]=ptrans_par(pf,p_info);    % Get latest numerical parameters
+
 caller.reset_state=~store_calc;
 caller.ind=[];
 
@@ -249,7 +250,7 @@ if numel(bfunc)==1
                             S.bfstate_store(iw),Store.back,pars{:});
                     end
                     [bcalc{iw},bvar{iw},msk]=sigvar_get(wcalc);
-                    bcalc{iw}=bcalc{iw}(msk);   	% remove the points that we are told to ignore
+                    bcalc{iw}=bcalc{iw}(msk);           % remove the points that we are told to ignore
                     bvar{iw}=bvar{iw}(msk);
                 end
                 bcalc{iw}=bcalc{iw}(:); % make column vector
@@ -335,7 +336,11 @@ if nw==1
     else
         error('Logic error in multifit. See T.G.Perring')
     end
+    ycalc = {ycalc};
+    varcalc = {varcalc};
 else
+    ycalc = cell(iw, 1);
+    varcalc = cell(iw, 1);
     for iw=1:nw
         if ~fcalc_filled(iw) && bcalc_filled(iw)
             fcalc{iw}=zeros(size(bcalc{iw}));
@@ -346,10 +351,10 @@ else
         elseif ~fcalc_filled(iw) && ~bcalc_filled(iw)
             error('Logic error in multifit. See T.G.Perring')
         end
+        ycalc{iw} = fcalc{iw} + bcalc{iw};
+        varcalc{iw} = fvar{iw} + bvar{iw};
     end
-    % Package data for return
-    ycalc = cat(1,fcalc{:}) + cat(1,bcalc{:});    % one long column vector
-    varcalc = cat(1,fvar{:}) + cat(1,bvar{:});    % one long column vector
+
 end
 
 % Write diagnostics to screen, if requested
@@ -391,4 +396,3 @@ else
     disp('    Calculated background datasets:  n/a')
 end
 disp(' ')
-

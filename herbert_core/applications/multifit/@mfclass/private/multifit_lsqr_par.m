@@ -1,17 +1,18 @@
-function [p_best,sig,cor,chisqr_red,converged]=multifit_lsqr(w,xye,func,bfunc,pin,bpin,...
-    f_pass_caller_info,bf_pass_caller_info,pfin,p_info,listing,fcp,perform_fit)
+function [p_best,sig,cor,chisqr_red,converged]=multifit_lsqr_par(w,xye,func,bfunc,pin,bpin,...
+    f_pass_caller_info,bf_pass_caller_info,pfin,p_info,listing,fcp,perform_fit,nWorkers)
 % Perform least-squares minimisation
-% now handled by either multifit_lsqr_par or multifit_lsqr_ser
-% depending on parallelisation options
 %
 %   >> [p_best,sig,cor,chisqr_red,converged]=...
-%       multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,listing)
+%       multifit_lsqr_par(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,listing)
 %
 %   >> [p_best,sig,cor,chisqr_red,converged]=...
-%       multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,listing,fcp)
+%       multifit_lsqr_par(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,listing,fcp)
 %
 %   >> [p_best,sig,cor,chisqr_red,converged]=...
-%       multifit_lsqr(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,listing,fcp,perform_fit)
+%       multifit_lsqr_par(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,listing,fcp,perform_fit)
+%
+%   >> [p_best,sig,cor,chisqr_red,converged]=...
+%       multifit_lsqr_par(w,xye,func,bkdfunc,pin,bpin,pfin,p_info,listing,fcp,perform_fit,nWorkers)
 %
 % Input:
 % ------
@@ -61,12 +62,7 @@ function [p_best,sig,cor,chisqr_red,converged]=multifit_lsqr(w,xye,func,bfunc,pi
 %   p_info      Structure with information needed to transform from pf to the
 %              parameter values needed for function evaluation
 %
-%   listing     Control diagnostic output to the screen:
-%               =0 for no printing to command window
-%               =1 prints iteration summary to command window
-%               =2 additionally prints parameter values at each iteration
-%               =3 additionally lists which datasets were computed for the
-%                  foreground and background functions. Diagnostic tool.
+%   listing     Control diagnostic output to the screen [Unused, here for compatibility]
 %
 %   fcp         Fit control parameters:
 %           fcp(1)  Relative step length for calculation of partial derivatives
@@ -78,6 +74,8 @@ function [p_best,sig,cor,chisqr_red,converged]=multifit_lsqr(w,xye,func,bfunc,pi
 %
 %   perform_fit Logical scalar = true if a fit is required, =false if
 %              just need the value of chisqr. [Default: True]
+%
+%   nWorkers    Integer number of parallel workers to use. [Default: 1]
 %
 %
 % Output:
@@ -155,7 +153,7 @@ function [p_best,sig,cor,chisqr_red,converged]=multifit_lsqr(w,xye,func,bfunc,pi
 %              different from the state: the values of store should not affect
 %              the values of the calculated function, only the speed at which the
 %              values are calculated.
-%               The first call from multifit_lsqr it will be set to [].
+%               The first call from multifit_lsqr_par it will be set to [].
 %               If no storage is needed, then it can be ignored.
 %
 %   state_out   Cell array containing internal states to be saved for a future call.
@@ -188,22 +186,196 @@ function [p_best,sig,cor,chisqr_red,converged]=multifit_lsqr(w,xye,func,bfunc,pi
 %       end
 %        :
 %   end
+%
+% ---------------------------------------------------------------------------------------
+% History
+% ---------------------------------------------------------------------------------------
+%
+% J. Wilkins  Jan 2021:
+% ------------------------
+% Initial development of parallel version
+% Developed based on T.G.Perring's multifit_lsqr
+%
+% Previous history:
+% -----------------
+% Version 3.beta
+% Levenberg-Marquardt nonlinear regression of f(x,p) to y(x)
+% Richard I. Shrager (301)-496-1122
+% Modified by A.Jutan (519)-679-2111
+% Modified by Ray Muzic 14-Jul-1992
 
+p = inputParser();
+addOptional(p, 'fcp', [0.0001, 20, 0.001], @(n)(validateattributes(n,{'numeric'},{'vector','numel',3})));
+addOptional(p, 'perform_fit', 1, @islognumscalar);
+addOptional(p, 'nWorkers', 1, @isnumeric);
+parse(p,fcp,perform_fit,nWorkers);
 
-try
-    hc = hpc_config;
-catch ME
-    hc = struct('parallel_multifit', false, 'parallel_workers_number', 1);
+fcp = p.Results.fcp;
+perform_fit = p.Results.perform_fit;
+
+if abs(fcp(1))<1e-12
+    error('HERBERT:mfclass:multifit_lsqr',...
+        'Derivative step length must be greater than or equal 10^-12')
+end
+if fcp(2)<0
+    error('HERBERT:mfclass:multifit_lsqr','Number of iterations must be >=0')
 end
 
-if hc.parallel_multifit
-    [p_best,sig,cor,chisqr_red,converged] = multifit_lsqr_par(w,xye,func,bfunc,pin,bpin,...
-        f_pass_caller_info,bf_pass_caller_info,...
-        pfin,p_info,listing,fcp,perform_fit, hc.parallel_workers_number);
+jd = JobDispatcher('ParallelMF');
+
+% Allow splitting of bins if not averaged or dnd
+pars = arrayfun(@(x) x.plist, pin, 'UniformOutput', false);
+while any(cellfun(@iscell,pars)) % Flatten pars
+    pars = [pars{cellfun(@iscell,pars)} pars(~cellfun(@iscell,pars))];
+end
+
+split_bins = any(cellfun(@(x) strcmp(x, '-ave'), pars)) || ...
+    any(cellfun(@(x) isa(x, 'dndbase'), w));
+
+% Potential issues follow if parallelism is used
+% Special casing for Tobyfit where arguments need to be distributed
+% as well as data. If functions require arguments distributing
+% these will fail in parallel
+
+tmp = cellfun(@functions, func);
+if any(arrayfun(@(x) startsWith(x.function, 'tobyfit'), tmp))
+    [loop_data, merge_data] = ...
+        split_data(w, xye, [], [], nWorkers, split_bins, arrayfun(@(x)(x.plist{3}), pin, 'UniformOutput', false));
 else
-    [p_best,sig,cor,chisqr_red,converged] = multifit_lsqr_ser(w,xye,func,bfunc,pin,bpin,...
-        f_pass_caller_info,bf_pass_caller_info,...
-        pfin,p_info,listing,fcp,perform_fit);
+    [loop_data, merge_data] = split_data(w, xye, [], [], nWorkers, split_bins);
 end
+
+common_data = struct('func', {func}, ...
+    'bfunc', {bfunc}, ...
+    'pin', {pin}, ...
+    'bpin', {bpin}, ...
+    'f_pass_caller_info', {f_pass_caller_info}, ...
+    'bf_pass_caller_info', {bf_pass_caller_info}, ...
+    'p_info', {p_info}, ...
+    'fcp', {fcp}, ...
+    'merge_data', {merge_data}, ...
+    'perform_fit', {perform_fit});
+common_data.p = pfin;
+
+[outputs, n_failed] = jd.start_job('MFParallel_Job', common_data, loop_data, true, nWorkers);
+
+if n_failed
+    jd.display_fail_job_results(outputs,n_failed,nWorkers)
+    error('HERBERT:multifit_lsqr_par:parallel_error', ...
+        'Error in MFParallel_Job, please see report')
+else
+    [p_best, sig, cor, chisqr_red, converged] = map_back(outputs{1});
+end
+
+end
+
+function varargout = map_back(output)
+fn = fieldnames(output);
+nfn = numel(fn);
+varargout = cell(nfn,1);
+for i=1:nfn
+    varargout{i} = output.(fn{i});
+end
+end
+
+function [loop_data, merge_data] = split_data(w, xye, S, Store, nWorkers, split_bins, tobyfit)
+% Split up sqws and divvy xyes in w
+
+loop_data = cell(nWorkers, 1);
+merge_data = cell(numel(w), 1);
+
+for i=1:nWorkers
+    loop_data{i} = struct('w', {cell(numel(w),1)}, 'xye', xye, 'S', S, 'Store', Store);
+end
+
+for i=1:numel(w)
+    if xye(i)
+        [data, merge_data{i}] = split_xye(w{i}, nWorkers);
+    elseif isa(w{i}, 'SQWDnDBase')
+        [data, merge_data{i}] = split_sqw(w{i}, 'nWorkers', nWorkers, 'split_bins', split_bins);
+    elseif isa(w{i}, 'IX_dataset')
+        [data, merge_data{i}] = split_dataset(w{i}, nWorkers);
+    else
+        error('HERBERT:split_data:invalid_argument', ...
+            'Unrecognised type: %s, data must be of type struct, SQWDnDBase or IX_dataset.', class(w{i}))
+    end
+
+    for j=1:nWorkers
+        loop_data{j}.w{i} = data(j);
+    end
+
+end
+
+if exist('tobyfit', 'var')
+    a = RandStream.getGlobalStream();
+    for i=1:nWorkers
+        loop_data{i}.tobyfit_data = tobyfit;
+        loop_data{i}.rng = a;
+        for k = 1:numel(tobyfit)
+            for j = 1:numel(tobyfit{k}.kf)
+
+                n = numel(tobyfit{k}.kf{j});
+                nPer = repmat(floor(n / nWorkers), nWorkers, 1);
+                nPer(1:mod(n, nWorkers)) = nPer(1:mod(n, nWorkers)) + 1;
+                points = [0; cumsum(nPer)];
+
+                loop_data{i}.tobyfit_data{k}.kf{j}     = tobyfit{k}.kf{j}(points(i)+1:points(i+1));
+                loop_data{i}.tobyfit_data{k}.dt{j}     = tobyfit{k}.dt{j}(points(i)+1:points(i+1));
+                loop_data{i}.tobyfit_data{k}.dq_mat{j} = tobyfit{k}.dq_mat{j}(:,:,points(i)+1:points(i+1));
+                for l=1:4
+                    loop_data{i}.tobyfit_data{k}.qw{j}{l} = tobyfit{k}.qw{j}{l}(points(i)+1:points(i+1));
+                end
+            end
+        end
+    end
+end
+end
+
+function [data, merge_data] = split_xye(w, nWorkers)
+n = numel(w.y);
+nPer = repmat(floor(n / nWorkers), nWorkers, 1);
+nPer(1:mod(n, nWorkers)) = nPer(1:mod(n, nWorkers)) + 1;
+points = [0; cumsum(nPer)];
+tmp = cellfun(@(x)(mat2cell(x, 1, nPer)), w.x(:), 'UniformOutput', false);
+
+data = struct('x', [], 'y', [], 'e', [], 'nomerge', repmat({true}, nWorkers, 1));
+merge_data = struct('nomerge', true, 'nelem', num2cell(nPer));
+
+for i=1:nWorkers
+    tmp2 = cellfun(@(x) x(i), tmp, 'UniformOutput', false);
+    data(i).x = tmp2{1};
+    data(i).y = w.y(points(i)+1:points(i+1));
+    data(i).e = w.e(points(i)+1:points(i+1));
+end
+end
+
+function [data, merge_data] = split_dataset(w, nWorkers)
+cls = class(w);
+dims = str2double(cls(12));
+n = numel(w.x);
+nPer = repmat(floor(n / nWorkers), nWorkers, 1);
+nPer(1:mod(n, nWorkers)) = nPer(1:mod(n, nWorkers)) + 1;
+points = [0; cumsum(nPer)];
+
+data(1:nWorkers) = w; % struct('w', cell(nWorkers,1));
+merge_data = struct('nomerge', true, 'nelem', num2cell(nPer));
+
+for i = 1:nWorkers
+    data(i).x = w.x(points(i)+1:points(i+1));
+    data(i).signal = w.signal(points(i)+1:points(i+1));
+    data(i).error = w.error(points(i)+1:points(i+1));
+end
+
+if dims > 1
+    for i = 1:nWorkers
+        data(i).y = w.y(points(i)+1:points(i+1));
+    end
+end
+if dims > 2
+    for i = 1:nWorkers
+        data(i).z = w.z(points(i)+1:points(i+1));
+    end
+end
+
 
 end

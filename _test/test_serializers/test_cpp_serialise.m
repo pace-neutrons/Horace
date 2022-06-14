@@ -2,7 +2,9 @@ classdef test_cpp_serialise < TestCase
     properties
         warned
         use_mex
+        old_mex
     end
+
     methods
         function this=test_cpp_serialise(varargin)
             if nargin>0
@@ -12,12 +14,17 @@ classdef test_cpp_serialise < TestCase
             end
             this = this@TestCase(name);
             this.warned = get(herbert_config, 'log_level') > 0;
+            this.old_mex = get(herbert_config, 'use_mex');
             [~,nerr] = check_herbert_mex();
-            if nerr>0
-                this.use_mex = false;
-            else
-                this.use_mex = true;
-            end
+            this.use_mex = nerr == 0;
+        end
+
+        function setUp(this)
+            set(herbert_config, 'use_mex', true);
+        end
+
+        function tearDown(this)
+            set(herbert_config, 'use_mex', this.old_mex);
         end
 
 

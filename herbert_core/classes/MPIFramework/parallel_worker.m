@@ -165,8 +165,10 @@ while keep_worker_running
             mess = FailedMessage(err_mess);
             fbMPI.send_message(0,mess);
             ok = MESS_CODES.runtime_error;
-            if exit_at_the_end;     quit(254);
-            else;                   return;
+            if exit_at_the_end
+                quit(254);
+            else
+                return;
             end
         else
             worker_init_data = mess.payload;
@@ -241,9 +243,8 @@ while keep_worker_running
     try
         if do_logging; log_init_je_finished();  end
         if ~isempty(mess)
-            err = sprinft(' Error sending ''started'' message from task N%d',...
+            error('WORKER:init_worker',' Error sending ''started'' message from task N%d',...
                 fbMPI.labIndex);
-            error('WORKER:init_worker',err);
         end
         % Successful je.init should return "started" message, initiating
         % blocking receive from all other workers.
@@ -271,6 +272,7 @@ while keep_worker_running
 
         % Call initial setup function of JobExecutor
         je = je.setup();
+        check_cancellation_status(je, 'before do_job loop');
 
         while ~je.is_completed()
             je.do_job_completed = false; % do 2 barriers on exception (one at process failure)
@@ -278,13 +280,10 @@ while keep_worker_running
             if do_logging; log_disp_message('Entering Je do_job loop'); end
 
             je= je.do_job();
+
             % explicitly check for cancellation before data reduction
             if do_logging; log_disp_message('Check for cancellation after Je do_job loop'); end
-            is_cancelled = je.is_job_cancelled();
-            if is_cancelled
-                error('JOB_EXECUTOR:cancelled',...
-                    'Job cancelled before synchronization after do_job')
-            end
+            check_cancellation_status(je, 'before synchronization after do_job');
 
             if do_logging; log_disp_message('Got to barrier for all chunks do_job completion'); end
             % when its tested, workers are tested in single Matlab
@@ -297,15 +296,12 @@ while keep_worker_running
             if do_logging; log_disp_message('Reduce data started');  end
             % explicitly check for cancellation before data reduction
             %  the case of cancellation below
-            is_cancelled = je.is_job_cancelled();
-            if is_cancelled
-                error('JOB_EXECUTOR:cancelled',...
-                    'Job cancelled before reducing data')
-            end
+            check_cancellation_status(je, 'before reducing data');
             je = je.reduce_data();
         end
 
         % Call final function of JobExecutor
+        check_cancellation_status(je, 'after do_job loop');
         je = je.finalise();
 
         % Sent final running message. Implicitly check for cancellation.
@@ -503,5 +499,13 @@ function f_canc(job_executor)
 if job_executor.is_job_cancelled()
     error('MESSAGE_FRAMEWORK:cancelled',...
         'Messages framework has been cancelled or is not initialized any more')
+end
+end
+
+function check_cancellation_status(je, state)
+is_cancelled = je.is_job_cancelled();
+if is_cancelled
+    error('JOB_EXECUTOR:cancelled',...
+          'Job cancelled %s.', state)
 end
 end
