@@ -11,4 +11,3 @@ s = w.data_.s;
 var = w.data_.e;
 mask_null = logical(w.data_.npix);
 
-end
