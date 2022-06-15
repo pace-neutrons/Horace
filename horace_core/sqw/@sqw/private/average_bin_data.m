@@ -45,7 +45,7 @@ end
 if iscell(vals) && any(cellfun(@numel, vals) ~= npixtot)
     error('HORACE:average_bin_data:invalid_argument',...
           'Invalid number of elements in input array(s)')
-elseif numel(vals)~=npixtot
+elseif ~iscell(vals) && numel(vals)~=npixtot
     error('HORACE:average_bin_data:invalid_argument',...
           'Invalid number of elements in input array')
 end
