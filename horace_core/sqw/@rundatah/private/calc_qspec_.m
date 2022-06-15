@@ -74,3 +74,4 @@ else
     error('HORACE:instr_proj:invalid_argument',...
         'EMODE must =1 (direct geometry), =2 (indirect geometry), or =0 (elastic)')
 end
+
