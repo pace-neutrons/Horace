@@ -176,7 +176,7 @@ function [code_root,hor_checkup_folder,her_checkup_folder] = check_layout_option
 if exist(fullfile(code_root,'Horace'),'dir')==7 && ... % zip file installation
         exist(fullfile(code_root,'Herbert'),'dir')==7
     hor_checkup_folder = 'Horace';
-    her_checkup_folder = 'Herbert';
+    her_checkup_folder = 'Horace';
     return;
 end
 % Github or Jenkins installation
@@ -191,8 +191,8 @@ if strcmp(folder_name,'admin')
         code_root = path;
         hor_checkup_folder = '';
     end
-    her_checkup_folder = 'Herbert';
-    if ~exist(fullfile(code_root,'Herbert'), 'dir')
+    her_checkup_folder = 'Horace';
+    if ~exist(fullfile(code_root,'Horace'), 'dir')
         if exist(fullfile(code_root,'herbert_core'), 'dir')
             her_checkup_folder = '';
         else
@@ -203,7 +203,7 @@ if strcmp(folder_name,'admin')
 else
     hor_checkup_folder = 'Horace'; % when installed from zip file, this is where
     % Horace is located, and install script is one level above
-    her_checkup_folder='Herbert'; % Herbert is located alongside,
+    her_checkup_folder='Horace'; % Herbert is located alongside,
     % under Herbert name
 end
 
