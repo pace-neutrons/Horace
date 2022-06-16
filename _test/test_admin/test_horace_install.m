@@ -47,14 +47,15 @@ classdef test_horace_install < TestCase
                 new_init_path = fullfile(new_init_path,'TestISIS');
             end
             
-            [install_folder,her_init_dir,hor_init_dir,use_old_init_path] = ...
+            [install_folder,hor_init_dir,use_old_init_path] = ...
                 horace_install('init_folder',new_init_path,'-test_mode');
             
             [hor_unpack,herbert_unpack]=obj.find_hor_her_location();
             
             assertEqual(install_folder,fullfile(tmp_dir(),'ISIS'));
-            assertEqual(her_init_dir,fullfile(herbert_unpack,'herbert_core'));
-            assertEqual(hor_init_dir,fullfile(hor_unpack,'horace_core'));
+            assertEqual(hor_init_dir,fullfile(hor_unpack,'horace_core'));            
+            assertEqual(hor_unpack,herbert_unpack);
+
             assertFalse(use_old_init_path);
         end
         
@@ -67,13 +68,13 @@ classdef test_horace_install < TestCase
                 new_init_path = fullfile(new_init_path,'TestISIS');
             end
             
-            [init_folder,her_init_dir,hor_init_dir,use_old_init_path] = ...
+            [init_folder,hor_init_dir,use_old_init_path] = ...
                 horace_install('init_folder',new_init_path,'-test_mode');
             
             [hor_unpack,herbert_unpack]=obj.find_hor_her_location();
             
             assertEqual(init_folder,fullfile(tmp_dir(),'ISIS'));
-            assertEqual(her_init_dir,fullfile(herbert_unpack,'herbert_core'));
+            assertEqual(hor_unpack,herbert_unpack);
             assertEqual(hor_init_dir,fullfile(hor_unpack,'horace_core'));
             assertFalse(use_old_init_path);
         end
@@ -92,7 +93,7 @@ classdef test_horace_install < TestCase
             
             % throw DELETE warning and test
             warning('MATLAB:DELETE:Permission','test delete permission warning');
-            [init_folder,her_init_dir,hor_init_dir,use_old_init_folder] = horace_install('-test_mode');
+            [init_folder,hor_init_dir,use_old_init_folder] = horace_install('-test_mode');
             [~,id]=lastwarn();
             assertEqual(id,'HORACE:installation');
             
@@ -103,7 +104,7 @@ classdef test_horace_install < TestCase
             % installation is actually into old init folder
             assertEqual(init_folder,fileparts(which('horace_on')));
             assertFalse(use_old_init_folder)
-            assertEqual(her_init_dir,fullfile(herbert_unpack,'herbert_core'));
+            assertEqual(hor_unpack,herbert_unpack);
             assertEqual(hor_init_dir,fullfile(hor_unpack,'horace_core'));
         end
         %
@@ -123,13 +124,11 @@ classdef test_horace_install < TestCase
             init_files = {'horace_init.m'};
             obj.copy_install_files(init_files ,hor_test_source);
             
-            her_test_source= fullfile(test_install,'Herbert','herbert_core');
+            her_test_source= fullfile(test_install,'Horace','herbert_core');
             mkdir(her_test_source);
             init_files = {'herbert_init.m'};
             obj.copy_install_files(init_files ,her_test_source);
-            her_admin = fullfile(fileparts(her_test_source),'admin');
-            mkdir(her_admin);
-            obj.copy_install_files({'herbert_on.m.template'} ,her_admin);
+
             
             path_list_recover = cell(1,1);
             n_path = 0;
@@ -149,12 +148,12 @@ classdef test_horace_install < TestCase
             clob1 = onCleanup(@()cd(current_dir));
             
             
-            [install_folder,her_init_dir,hor_init_dir,use_old_init_folder] = horace_install('-test_mode');
+            [install_folder,hor_init_dir,use_old_init_folder] = horace_install('-test_mode');
             new_install = fullfile(test_install,'ISIS');
             assertFalse(use_old_init_folder);
             
             assertEqual(new_install,install_folder);
-            assertEqual(her_test_source,her_init_dir);
+            %assertEqual(her_test_source,her_init_dir);
             assertEqual(hor_test_source,hor_init_dir);
             
             clear clob1;
@@ -177,13 +176,10 @@ classdef test_horace_install < TestCase
             init_files = {'horace_init.m'};
             obj.copy_install_files(init_files ,hor_test_source);
             
-            her_test_source= fullfile(test_install,'Herbert','herbert_core');
+            her_test_source= fullfile(test_install,'Horace','herbert_core');
             mkdir(her_test_source);
             init_files = {'herbert_init.m'};
             obj.copy_install_files(init_files ,her_test_source);
-            her_admin = fullfile(fileparts(her_test_source),'admin');
-            mkdir(her_admin);
-            obj.copy_install_files({'herbert_on.m.template'} ,her_admin);
             
             path_list_recover = cell(1,1);
             n_path = 0;
@@ -203,12 +199,12 @@ classdef test_horace_install < TestCase
             clob1 = onCleanup(@()cd(current_dir));
             
             
-            [install_folder,her_init_dir,hor_init_dir,use_old_init_folder] = horace_install('-test_mode');
+            [install_folder,hor_init_dir,use_old_init_folder] = horace_install('-test_mode');
             new_install = fullfile(test_install,'ISIS');
             assertFalse(use_old_init_folder);
             
             assertEqual(new_install,install_folder);
-            assertEqual(her_test_source,her_init_dir);
+            %assertEqual(her_test_source,her_init_dir);
             assertEqual(hor_test_source,hor_init_dir);
             
             clear clob1;
@@ -222,47 +218,41 @@ classdef test_horace_install < TestCase
             clob = onCleanup(@()(rmdir(test_install,'s')));
             
             template_files = {'horace_install.m','horace_on.m.template',...
-                'worker_v2.m.template','herbert_on.m.template'};
+                'worker_v2.m.template'};
             obj.copy_install_files(template_files,test_install);
             hor_test_source = fullfile(test_install,'Horace');
             mkdir(hor_test_source);
             init_files = {'horace_init.m'};
             obj.copy_install_files(init_files ,hor_test_source);
             
-            her_test_source= fullfile(test_install,'Herbert');
-            mkdir(her_test_source);
             init_files = {'herbert_init.m'};
-            obj.copy_install_files(init_files ,her_test_source);
+            obj.copy_install_files(init_files ,hor_test_source);
             % move to install folder and test installation
             
             current_dir = pwd;
             cd(test_install);
             clob1 = onCleanup(@()cd(current_dir));
             
-            [install_folder,her_init_dir,hor_init_dir,use_old_init_folder] = horace_install('-test_mode');
+            [install_folder,hor_init_dir,use_old_init_folder] = horace_install('-test_mode');
             % init folder remains the folder for tested installation
             assertEqual(fileparts(which('horace_on')),install_folder);
             assertTrue(use_old_init_folder);
             
-            assertEqual(her_test_source,her_init_dir);
+            %assertEqual(her_test_source,her_init_dir);
             assertEqual(hor_test_source,hor_init_dir);
             
             clear clob1;
         end
         
         function test_folder_provided_old_install_exist(~)
-            herbert_code = fileparts(fileparts(which('herbert_init')));
-            %disp('*********** herbert code:')
-            %disp(herbert_code)
             horace_code = fileparts(fileparts(which('horace_init')));
             %disp('*********** horace code:')
             %disp(horace_code)
             
-            [install_folder,her_init_dir,hor_init_dir,use_old_init_path] = horace_install(...
-                'herbert_root',herbert_code,...
+            [install_folder,hor_init_dir,use_old_init_path] = horace_install(...
                 'horace_root',horace_code,'-test_mode');
             assertEqual(fileparts(which('horace_on')),install_folder);
-            assertEqual(fullfile(herbert_code,'herbert_core'),her_init_dir);
+            %assertEqual(fullfile(herbert_code,'herbert_core'),her_init_dir);
             assertEqual(fullfile(horace_code,'horace_core'),hor_init_dir);
             assertTrue(use_old_init_path);
         end
