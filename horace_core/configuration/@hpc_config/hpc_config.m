@@ -332,11 +332,15 @@ classdef hpc_config < config_base
         function obj = set.build_sqw_in_parallel(obj,val)
             accum = val>0;
             if accum
-                [ok,mess] = check_worker_configured(obj);
-                if ~ok
-                    warning('HORACE:hpc_config:invalid_argument',...
-                        ' Can not start accumulating in separate process as: %s',...
-                        mess);
+                pc = parallel_config();
+                wkr = pc.worker;
+                wrker_path = fileparts(which(wkr));
+                if isempty(wrker_path)
+                    warning(['HORACE:hpc_config:invalid_argument',...
+                             'Can not start accumulating in separate process.',...
+                             'Can not find worker on a data search path; ',...
+                             'See: http://horace.isis.rl.ac.uk/Download_and_setup#Enabling_multi-sessions_processing ',...
+                             'for the details on how to set it up']);
                     accum = false;
                 end
             end
