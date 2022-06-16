@@ -7,7 +7,7 @@ classdef ClusterMPI < ClusterWrapper
 
         % the string containing Java handle to running mpiexec process
         mpiexec_handle_ = [];
-        %
+
     end
     properties(Access = private)
         % the folder, containing mpiexec cluster configurations (host files)
@@ -59,7 +59,7 @@ classdef ClusterMPI < ClusterWrapper
             end
             obj = obj.init(n_workers,mess_exchange_framework,log_level);
         end
-        %
+
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
             % The method to initiate the cluster wrapper and start running
             % the cluster job by executing mpiexec with appropriate
@@ -82,7 +82,6 @@ classdef ClusterMPI < ClusterWrapper
             end
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
 
-            %
             mpiexec = obj.get_mpiexec();
             mpiexec_str = {mpiexec,'-n',num2str(n_workers)};
 
@@ -99,7 +98,7 @@ classdef ClusterMPI < ClusterWrapper
             % and the parameters of the proceses pool.
             obj.common_env_var_('WORKER_CONTROL_STRING') = cs;
             %
-            % prepate and start java process
+            % prepare and start java process
             if ispc()
                 runtime = java.lang.ProcessBuilder('cmd.exe');
             else
@@ -121,7 +120,7 @@ classdef ClusterMPI < ClusterWrapper
             obj.check_failed();
 
         end
-        %
+
         function obj=finalize_all(obj)
             obj = finalize_all@ClusterWrapper(obj);
             if ~isempty(obj.mpiexec_handle_)
@@ -129,7 +128,7 @@ classdef ClusterMPI < ClusterWrapper
                 obj.mpiexec_handle_ = [];
             end
         end
-        %
+
         function config = get_cluster_configs_available(obj)
             % The function returns the list of the availible clusters
             % to run using correspondent parallel framework.
@@ -142,7 +141,10 @@ classdef ClusterMPI < ClusterWrapper
             config = find_and_return_host_files_(obj);
         end
 
+<<<<<<< HEAD
         %
+=======
+>>>>>>> c57b7d143 (Apply patches from Herbert)
         function check_availability(obj)
             % verify the availability of the compiled Herbert MPI
             % communicaton library and the possibility to use the MPI cluster
@@ -154,13 +156,15 @@ classdef ClusterMPI < ClusterWrapper
             check_availability@ClusterWrapper(obj);
             check_mpi_mpiexec_can_be_enabled_(obj);
         end
-        %
+
         function is = is_job_initiated(obj)
             % returns true, if the cluster wrapper is mpiexec job
             is = ~isempty(obj.mpiexec_handle_);
         end
-        %------------------------------------------------------------------
     end
+
+    %------------------------------------------------------------------
+
     methods(Static)
         function mpi_exec = get_mpiexec()
             mpi_exec  = config_store.instance().get_value('parallel_config','external_mpiexec');
@@ -181,6 +185,14 @@ classdef ClusterMPI < ClusterWrapper
                 mpi_exec = fullfile(external_dll_dir, 'mpiexec.exe');
             else
                 mpi_exec = fullfile(external_dll_dir, 'mpiexec');
+
+                if ~(is_file(mpi_exec))
+                    % use system-defined mpiexec
+                    [~, mpi_exec] = system('which mpiexec');
+                    % strip non-printing characters, spaces and eol/cr-s from the
+                    % end of mpiexec string.
+                    mpi_exec = regexprep(mpi_exec,'[\x00-\x20\x7F-\xFF]$','');
+                end
             end
         end
     end
@@ -200,4 +212,5 @@ classdef ClusterMPI < ClusterWrapper
             end
         end
     end
+
 end
