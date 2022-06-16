@@ -6,7 +6,6 @@ file(MAKE_DIRECTORY ${LOCAL_INIT_DIR})
 # parallel workers can access horace_on/worker scripts.
 # Note that LOCAL_INIT_DIR is defined in the top-level CMakeLists
 configure_file("horace_on.m.template" "${LOCAL_INIT_DIR}/horace_on.m")
-configure_file("herbert_on.m.template" "${LOCAL_INIT_DIR}/herbert_on.m")
 
 # Copy Horace worker templates
 if(BUILD_TESTING)
@@ -42,7 +41,6 @@ add_custom_command(
 install(
     FILES
         "horace_on.m.template"
-        "herbert_on.m.template"
         "worker_v2.m.template"
         "horace_install.m"
     DESTINATION "."
