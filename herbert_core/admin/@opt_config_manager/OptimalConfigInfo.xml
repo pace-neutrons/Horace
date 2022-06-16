@@ -10,7 +10,6 @@
       </herbert_config>
       <hor_config>
          <mem_chunk_size>5000000</mem_chunk_size>
-         <threads>8</threads>
          <ignore_nan>[true]</ignore_nan>
          <ignore_inf>[false]</ignore_inf>
          <use_mex>[true]</use_mex>
@@ -18,7 +17,6 @@
       </hor_config>
       <hpc_config>
          <build_sqw_in_parallel>[false]</build_sqw_in_parallel>
-         <parallel_workers_number>2</parallel_workers_number>
          <combine_sqw_using>mex_code</combine_sqw_using>
          <mex_combine_thread_mode>0</mex_combine_thread_mode>
          <mex_combine_buffer_size>65536</mex_combine_buffer_size>
@@ -26,6 +24,8 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
+         <parallel_workers_number>2</parallel_workers_number>
+         <threads>8</threads>
          <parallel_cluster>herbert</parallel_cluster>
          <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
@@ -44,7 +44,6 @@
       </herbert_config>
       <hor_config>
          <mem_chunk_size>5000000</mem_chunk_size>
-         <threads>8</threads>
          <ignore_nan>[true]</ignore_nan>
          <ignore_inf>[false]</ignore_inf>
          <use_mex>[false]</use_mex>
@@ -52,7 +51,6 @@
       </hor_config>
       <hpc_config>
          <build_sqw_in_parallel>[false]</build_sqw_in_parallel>
-         <parallel_workers_number>2</parallel_workers_number>
          <combine_sqw_using>matlab</combine_sqw_using>
          <mex_combine_thread_mode>0</mex_combine_thread_mode>
          <mex_combine_buffer_size>65536</mex_combine_buffer_size>
@@ -60,6 +58,8 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
+         <threads>8</threads>
+         <parallel_workers_number>2</parallel_workers_number>
          <parallel_cluster>herbert</parallel_cluster>
          <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
@@ -78,7 +78,6 @@
       </herbert_config>
       <hor_config>
          <mem_chunk_size>20000000</mem_chunk_size>
-         <threads>8</threads>
          <ignore_nan>[true]</ignore_nan>
          <ignore_inf>[false]</ignore_inf>
          <use_mex>[true]</use_mex>
@@ -86,7 +85,6 @@
       </hor_config>
       <hpc_config>
          <build_sqw_in_parallel>[true]</build_sqw_in_parallel>
-         <parallel_workers_number>4</parallel_workers_number>
          <combine_sqw_using>mex_code</combine_sqw_using>
          <mex_combine_thread_mode>0</mex_combine_thread_mode>
          <mex_combine_buffer_size>131072</mex_combine_buffer_size>
@@ -95,6 +93,8 @@
       <parallel_config>
          <worker>worker_v2</worker>
          <parallel_cluster>herbert</parallel_cluster>
+         <threads>8</threads>
+         <parallel_workers_number>4</parallel_workers_number>
          <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
@@ -112,7 +112,6 @@
       </herbert_config>
       <hor_config>
          <mem_chunk_size>5000000</mem_chunk_size>
-         <threads>4</threads>
          <ignore_nan>[true]</ignore_nan>
          <ignore_inf>[false]</ignore_inf>
          <use_mex>[true]</use_mex>
@@ -120,7 +119,6 @@
       </hor_config>
       <hpc_config>
          <build_sqw_in_parallel>[false]</build_sqw_in_parallel>
-         <parallel_workers_number>2</parallel_workers_number>
          <combine_sqw_using>mex_code</combine_sqw_using>
          <mex_combine_thread_mode>1</mex_combine_thread_mode>
          <mex_combine_buffer_size>8192</mex_combine_buffer_size>
@@ -129,6 +127,8 @@
       <parallel_config>
          <worker>worker_v2</worker>
          <parallel_cluster>parpool</parallel_cluster>
+         <threads>4</threads>
+         <parallel_workers_number>2</parallel_workers_number>
          <cluster_config>default</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
@@ -146,7 +146,6 @@
       </herbert_config>
       <hor_config>
          <mem_chunk_size>20000000</mem_chunk_size>
-         <threads>6</threads>
          <ignore_nan>[true]</ignore_nan>
          <ignore_inf>[false]</ignore_inf>
          <use_mex>[true]</use_mex>
@@ -154,7 +153,6 @@
       </hor_config>
       <hpc_config>
          <build_sqw_in_parallel>[true]</build_sqw_in_parallel>
-         <parallel_workers_number>6</parallel_workers_number>
          <combine_sqw_using>mex_code</combine_sqw_using>
          <mex_combine_thread_mode>1</mex_combine_thread_mode>
          <mex_combine_buffer_size>131072</mex_combine_buffer_size>
@@ -163,6 +161,8 @@
       <parallel_config>
          <worker>worker_v2</worker>
          <parallel_cluster>parpool</parallel_cluster>
+         <threads>6</threads>
+         <parallel_workers_number>6</parallel_workers_number>
          <cluster_config>default</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
@@ -180,7 +180,6 @@
       </herbert_config>
       <hor_config>
          <mem_chunk_size>5000000</mem_chunk_size>
-         <threads>4</threads>
          <ignore_nan>[true]</ignore_nan>
          <ignore_inf>[false]</ignore_inf>
          <use_mex>[false]</use_mex>
@@ -188,7 +187,6 @@
       </hor_config>
       <hpc_config>
          <build_sqw_in_parallel>[false]</build_sqw_in_parallel>
-         <parallel_workers_number>2</parallel_workers_number>
          <combine_sqw_using>matlab</combine_sqw_using>
          <mex_combine_thread_mode>0</mex_combine_thread_mode>
          <mex_combine_buffer_size>131072</mex_combine_buffer_size>
@@ -197,6 +195,8 @@
       <parallel_config>
          <worker>worker_v2</worker>
          <parallel_cluster>herbert</parallel_cluster>
+         <threads>8</threads>
+         <parallel_workers_number>2</parallel_workers_number>
          <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
@@ -214,7 +214,6 @@
       </herbert_config>
       <hor_config>
          <mem_chunk_size>20000000</mem_chunk_size>
-         <threads>8</threads>
          <ignore_nan>[true]</ignore_nan>
          <ignore_inf>[false]</ignore_inf>
          <use_mex>[true]</use_mex>
@@ -222,7 +221,6 @@
       </hor_config>
       <hpc_config>
          <build_sqw_in_parallel>[true]</build_sqw_in_parallel>
-         <parallel_workers_number>8</parallel_workers_number>
          <combine_sqw_using>mex_code</combine_sqw_using>
          <mex_combine_thread_mode>1</mex_combine_thread_mode>
          <mex_combine_buffer_size>4096</mex_combine_buffer_size>
@@ -230,7 +228,9 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
-         <parallel_cluster>herbert</parallel_cluster>
+         <parallel_cluster>parpool</parallel_cluster>
+         <threads>8</threads>
+         <parallel_workers_number>10</parallel_workers_number>
          <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
@@ -248,7 +248,6 @@
       </herbert_config>
       <hor_config>
          <mem_chunk_size>20000000</mem_chunk_size>
-         <threads>8</threads>
          <ignore_nan>[true]</ignore_nan>
          <ignore_inf>[false]</ignore_inf>
          <use_mex>[true]</use_mex>
@@ -256,7 +255,6 @@
       </hor_config>
       <hpc_config>
          <build_sqw_in_parallel>[true]</build_sqw_in_parallel>
-         <parallel_workers_number>4</parallel_workers_number>
          <combine_sqw_using>mex_code</combine_sqw_using>
          <mex_combine_thread_mode>0</mex_combine_thread_mode>
          <mex_combine_buffer_size>131072</mex_combine_buffer_size>
@@ -265,6 +263,8 @@
       <parallel_config>
          <worker>worker_v2</worker>
          <parallel_cluster>parpool</parallel_cluster>
+         <threads>8</threads>
+         <parallel_workers_number>4</parallel_workers_number>
          <cluster_config>default</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
@@ -282,7 +282,6 @@
       </herbert_config>
       <hor_config>
          <mem_chunk_size>20000000</mem_chunk_size>
-         <threads>2</threads>
          <ignore_nan>[true]</ignore_nan>
          <ignore_inf>[false]</ignore_inf>
          <use_mex>[true]</use_mex>
@@ -290,7 +289,6 @@
       </hor_config>
       <hpc_config>
          <build_sqw_in_parallel>[true]</build_sqw_in_parallel>
-         <parallel_workers_number>2</parallel_workers_number>
          <combine_sqw_using>mex_code</combine_sqw_using>
          <mex_combine_thread_mode>0</mex_combine_thread_mode>
          <mex_combine_buffer_size>131072</mex_combine_buffer_size>
@@ -300,6 +298,8 @@
          <worker>worker_v2</worker>
          <external_mpiexec>0</external_mpiexec>
          <parallel_cluster>parpool</parallel_cluster>
+         <threads>2</threads>
+         <parallel_workers_number>2</parallel_workers_number>
          <cluster_config>default</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
