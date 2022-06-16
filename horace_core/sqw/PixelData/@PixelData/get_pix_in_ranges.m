@@ -28,7 +28,7 @@ end
 if ~exist('keep_precision','var')
     keep_precision = false;
 end
-validate_ranges(abs_indices_starts, abs_indices_ends);
+validate_ranges(abs_indices_starts, block_sizes);
 
 if obj.is_filebacked()
     if any(obj.page_dirty_)
