@@ -1,7 +1,7 @@
 function [init_folder,hor_init_dir,use_old_init_path] = ...
     horace_install(varargin)
 % Install an initialize Horace at the location, where the Horace package
-% have been unpacked
+% has been unpacked
 %
 % Usage:
 %  >>horace_install()
@@ -81,7 +81,7 @@ if ~opt.test_mode
     end    % has not been found
     %
     
-    % remove herbert_on may be left from previous installations
+    % remove herbert_on which may be left from previous installations
     old_herbert_on = which('herbert_on');
     if ~isempty(old_herbert_on)
         delete(old_herbert_on);
