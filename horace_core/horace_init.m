@@ -78,10 +78,10 @@ if hc.is_default ||hpcc.is_default
     % load and apply configuration, assumed to be optimal for this kind of the machine.
     conf_c = opt_config_manager();
     conf_c.load_configuration('-set_config','-change_only_default','-force_save');
-else % if Herbert was initialized before horace, it has not init the tests
+else % if Herbert was initialized before Horace, it has not init the tests
     % path-s, related to Horace.
     her = herbert_config;
-    if her.init_tests % reinit tests here again, to add the path-s necessary for Horace tests
+    if her.init_tests % re-init tests here again, to add the path-s necessary for Horace tests
         her.init_tests = true;
     end
 end
