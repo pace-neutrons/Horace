@@ -168,17 +168,17 @@ classdef ClusterWrapper
         end
 
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
-            % The method to initiate the cluster wrapper
-            %
-            % Inputs:
-            % n_workers -- number of independent Matlab workers to execute
-            %              a job
-            % mess_exchange_framework -- a class-child of
-            %              iMessagesFramework, used  for communications
-            %              between cluster and the host Matlab session,
-            %              which started and controls the job.
-            %log_level     if present, the number, which describe the
-            %              verbosity of the cluster operations output;
+        % The method to initiate the cluster wrapper
+        %
+        % Inputs:
+        % n_workers -- number of independent Matlab workers to execute
+        %              a job
+        % mess_exchange_framework -- a class-child of
+        %              iMessagesFramework, used  for communications
+        %              between cluster and the host Matlab session,
+        %              which started and controls the job.
+        %log_level     if present, the number, which describe the
+        %              verbosity of the cluster operations output;
 
             if ~exist('log_level', 'var')
                 log_level = -1;
@@ -303,17 +303,17 @@ classdef ClusterWrapper
             obj = init_workers_(obj,je_init_message,task_init_mess,log_message_prefix );
         end
 
-        function [obj, task_id] = start_workers(obj, worker_control_string, ...
-                varargin)
-            % Start workers running in parallel and return appropriate task_id to calling function
-            % Should appropriately start workers for the Herbert, mpiexec_mpi and slurm_mpi modes
-            %
-            % Inputs:
-            %  prefix_command  -- Commands placed before the main matlab call
-            %  postfix_command -- Extra arguments and flags passed to the main matlab call
-            %  matlab_extra    -- Commands to be run before starting parallel worker
-            %  debug           -- Direct stdout of workers to host stdout
-            %  target_threads  -- Start matlab jobs running with this many threads
+        function [obj, task_id] = start_workers(obj, n_workers, worker_control_string, ...
+                                                varargin)
+        % Start workers running in parallel and return appropriate task_id to calling function
+        % Should appropriately start workers for the Herbert, mpiexec_mpi and slurm_mpi modes
+        %
+        % Inputs:
+        %  prefix_command  -- Commands placed before the main matlab call
+        %  postfix_command -- Extra arguments and flags passed to the main matlab call
+        %  matlab_extra    -- Commands to be run before starting parallel worker
+        %  debug           -- Direct stdout of workers to host stdout
+        %  target_threads  -- Start matlab jobs running with this many threads
             par = parallel_config;
             p = inputParser();
             addOptional(p, 'prefix_command' , {}, @iscellstr);
@@ -326,7 +326,6 @@ classdef ClusterWrapper
             prefix_command = p.Results.prefix_command;
             postfix_command = p.Results.postfix_command;
             matlab_extra = p.Results.matlab_extra;
-            target_threads = p.Results.target_threads;
 
             obj.common_env_var_('WORKER_CONTROL_STRING') = worker_control_string;
 
@@ -337,10 +336,6 @@ classdef ClusterWrapper
                 runtime = java.lang.ProcessBuilder('cmd.exe');
             else
                 runtime = java.lang.ProcessBuilder('/bin/sh');
-            end
-
-            if p.Results.debug
-                runtime.inheritIO();
             end
 
             env = runtime.environment();
@@ -746,11 +741,15 @@ classdef ClusterWrapper
             %end
             %err_stream_scan.close();
 
-            is_alive = task_handle.isAlive();
-            if is_alive
-                running = true;
-                failed  = false;
-                return;
+            if isunix()
+                is_alive = task_handle.isAlive();
+                if is_alive
+                    running = true;
+                    failed  = false;
+                    return;
+                end
+            else %isAlive does not work on Windows Its thread class method, where task may or may not be implemented as thread
+                is_alive = true;
             end
 
             try

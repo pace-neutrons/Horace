@@ -100,7 +100,7 @@ classdef parallel_config<config_base
         %              Current cluster is built and tested using MPICH v3.
         %    [s]lurm_mpi -- Uses C++ wrapped MPI libraries and submits job to Slurm job queues
         %    none      -- not available. If worker can not be found on a
-        %              path, no parallel cluster should be
+        %              path, any parallel cluster should be not be
         %              available. Parallel extensions will not work.
         parallel_cluster;
 
@@ -122,11 +122,6 @@ classdef parallel_config<config_base
         % number of workers to deploy in parallel jobs
         accumulating_process_num;
         parallel_workers_number;
-
-        % Threading using auto-calculated threads used in Slurm because
-        % remote machine probably doesn't have same number of cores as
-        % local machine
-        is_auto_par_threads;
 
         % Number of threads to use.
         threads;
@@ -201,10 +196,6 @@ classdef parallel_config<config_base
         % and true tries to idenfiy mpiexec on system using "where mpiexec"
         % if this fails, external mpiexec remains empty.
         external_mpiexec;
-
-        % Commands to be passed to slurm, can be provided as a cell array or
-        % loaded from an sbatch-like file
-        slurm_commands;
     end
 
     properties(Dependent,Hidden)
@@ -217,10 +208,6 @@ classdef parallel_config<config_base
     end
 
     properties(Constant,Access=private)
-        % store/restore is_compiled_ property after worker, as worker
-        % usually identifies is_compiled_ property themselves.
-        % storing/restoring it after the main property, allows to redefine
-        % hidden is_compiled_ property independently
         saved_properties_list_={'worker', ...
                                 'is_compiled_',...
                                 'parallel_cluster', ...
@@ -290,9 +277,6 @@ classdef parallel_config<config_base
             wrkr = obj.get_or_restore_field('worker');
         end
 
-        function wrkr = get.is_compiled(obj)
-            wrkr = obj.is_compiled_;
-        end
 
         function isc = get.is_compiled_(obj)
             isc  = obj.get_or_restore_field('is_compiled_');
@@ -320,10 +304,6 @@ classdef parallel_config<config_base
             conf = obj.get_or_restore_field('cluster_config');
         end
 
-        function tf = get.is_auto_par_threads(obj)
-            n_threads = get_or_restore_field(obj,'par_threads');
-            tf = n_threads < 1;
-        end
 
         function n_workers = get.parallel_workers_number(obj)
             n_workers = get_or_restore_field(obj,'parallel_workers_number');
@@ -334,7 +314,7 @@ classdef parallel_config<config_base
             if n_threads < 1
                 n_threads = obj.n_cores;
             elseif n_threads > obj.n_cores
-                warning('HERBERT:parallel_config:threads', 'Number of threads (%d) might exceed computer capacity (%d)', n_threads, obj.n_cores)
+                warning('HERBERT:parallel_config:threads', 'Number of threads might exceed computer capacity')
             end
         end
 
@@ -346,19 +326,7 @@ classdef parallel_config<config_base
             if n_threads < 1
                 n_threads = n_poss_threads;
             elseif n_threads > n_poss_threads
-                warning('HERBERT:parallel_config:par_threads', 'Number of par threads (%d) might exceed computer capacity (%d)', n_threads, n_poss_threads)
-            end
-        end
-
-        function commands = get.slurm_commands(obj)
-            % extra slurm commands to be passed through to
-            % slurm when initialising slurm job
-            orig_obj = obj.get_or_restore_field('slurm_commands');
-            % Due to handle class need to return copy of obj.
-            if isempty(orig_obj)
-                commands = containers.Map('KeyType', 'char', 'ValueType', 'char');
-            else
-                commands = containers.Map(orig_obj.keys, orig_obj.values);
+                warning('HERBERT:parallel_config:par_threads', 'Number of par threads might exceed computer capacity')
             end
         end
 
@@ -495,21 +463,6 @@ classdef parallel_config<config_base
             config_store.instance().store_config(obj,'par_threads',val);
         end
 
-        function obj = set.slurm_commands(obj,val)
-
-            if isempty(val)
-                map = containers.Map('KeyType', 'char', 'ValueType', 'char');
-            elseif isa(val, 'containers.Map')
-                map = val;
-            else
-                [keys, vals] = obj.parse_slurm_commands(val);
-                map = containers.Map(keys, vals);
-            end
-
-            config_store.instance().store_config(obj, 'slurm_commands', map);
-
-        end
-
         function obj=set.shared_folder_on_local(obj,val)
             if isempty(val)
                 val = '';
@@ -597,51 +550,6 @@ classdef parallel_config<config_base
         %------------------------------------------------------------------
         % ABSTACT INTERFACE DEFINED
         %------------------------------------------------------------------
-
-        function obj = load_slurm_commands_from_file(obj, filename, append)
-            if ~is_file(filename)
-                error('HERBERT:parallel_config:invalid_argument', ...
-                      'File (%s) does not exist', filename);
-            end
-
-            if exist('append', 'var') && append
-                map = obj.slurm_commands;
-            else
-                map = containers.Map('KeyType', 'char', 'ValueType', 'char');
-            end
-
-            data = fileread(filename);
-            data = splitlines(data);
-            matches = regexp(data, '^#SBATCH\s+([^#]+).*', 'tokens');
-
-            for i = 1:numel(matches)
-                match = matches{i};
-                if isempty(match)
-                    continue
-                end
-                match = strsplit(strtrim(match{1}{1}), {' ', '\t', '='});
-                map(match{1}) = match{2};
-            end
-
-            obj.slurm_commands = map;
-
-        end
-
-        function obj = update_slurm_commands(obj, val, append)
-            if exist('append', 'var') && append
-                map = obj.slurm_commands;
-            else
-                map = containers.Map('KeyType', 'char', 'ValueType', 'char');
-            end
-
-            [keys, vals] = obj.parse_slurm_commands(val);
-
-            for i=1:numel(keys)
-                map(keys{i}) = vals{i};
-            end
-
-            obj.slurm_commands = map;
-        end
 
         function fields = get_storage_field_names(obj)
             % helper function returns the list of the name of the structure,

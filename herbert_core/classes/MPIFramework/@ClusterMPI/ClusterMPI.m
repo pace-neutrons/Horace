@@ -90,34 +90,7 @@ classdef ClusterMPI < ClusterWrapper
 
             % build generic worker init string without lab parameters
             cs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
-            worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
-            task_info = [mpiexec_str(:)',...
-                {obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR')},...
-                {'-batch'},{worker_init}];
-            % this not used by java launcher bug may be used if we
-            % decide to run parallel worker from script
-            %obj.common_env_var_('HERBERT_PARALLEL_WORKER')= strjoin(task_info,' ');
-            % encoded information about the location of exchange folder
-            % and the parameters of the proceses pool.
-            obj.common_env_var_('WORKER_CONTROL_STRING') = cs;
-            %
-            % prepare and start java process
-            if ispc()
-                runtime = java.lang.ProcessBuilder('cmd.exe');
-            else
-                runtime = java.lang.ProcessBuilder('/bin/sh');
-            end
-            env = runtime.environment();
-            obj.set_env(env);
-            % TODO:
-            % this command does not currently transfer all necessary
-            % enviromental variables to the remote. The procedure
-            % to provide variables to transfer is MPI version specific
-            % for MPICH it is the option of MPIEXEC: -envlist <list>
-            % If mpiexec is used on a cluster, thos or similar option
-            % for other mpi implementation should be implemented
-            runtime = runtime.command(task_info);
-            obj.mpiexec_handle_ = runtime.start();
+            [obj, obj.mpiexec_handle_] = obj.start_workers(n_workers, cs, mpiexec_str);
 
             % check if job control API reported failure
             obj.check_failed();
@@ -144,10 +117,6 @@ classdef ClusterMPI < ClusterWrapper
             config = find_and_return_host_files_(obj);
         end
 
-<<<<<<< HEAD
-        %
-=======
->>>>>>> c57b7d143 (Apply patches from Herbert)
         function check_availability(obj)
             % verify the availability of the compiled Herbert MPI
             % communicaton library and the possibility to use the MPI cluster
