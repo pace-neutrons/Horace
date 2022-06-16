@@ -210,6 +210,8 @@ classdef ClusterWrapper
                     'Can not find Matlab');
             end
 
+            obj.matlab_starter_ = prog_path;
+
             if ispc()
                 obj.matlab_starter_ = fullfile(prog_path,'matlab.exe');
             else

@@ -81,6 +81,8 @@ classdef ClusterHerbert < ClusterWrapper
             intecomm_name = obj.pool_exchange_frmwk_name_;
             for task_id=1:n_workers
                 cs = obj.mess_exchange_.get_worker_init(intecomm_name ,task_id,n_workers);
+                %worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
+                worker_init = obj.worker_name_;
 
                 if obj.DEBUG_REMOTE
                     % if debugging client
@@ -89,8 +91,24 @@ classdef ClusterHerbert < ClusterWrapper
                 else
                     log_str = {};
                 end
+                % this not used by java launcher bug may be used if we
+                % decide to run parallel worker from script
+                obj.common_env_var_('HERBERT_PARALLEL_WORKER')= strjoin(task_info,' ');
+                % encoded information about the location of exchange folder
+                % and the parameters of the proceses pool.
+                obj.common_env_var_('WORKER_CONTROL_STRING') = cs;
 
-                [obj, obj.tasks_handles_{task_id}] = obj.start_workers(cs, 'postfix_command', log_str);
+                % prepate and start java process
+                if ispc()
+                    runtime = java.lang.ProcessBuilder('cmd.exe');
+                else
+                    runtime = java.lang.ProcessBuilder('/bin/sh');
+                end
+                env = runtime.environment();
+                obj.set_env(env);
+                task_info = [{obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR')};task_info(:)];
+                runtime = runtime.command(task_info);
+                obj.tasks_handles_{task_id} = runtime.start();
 
                 [ok,failed,mess] = obj.is_java_process_running(obj.tasks_handles_{task_id});
                 if ~ok && failed
@@ -133,6 +151,7 @@ classdef ClusterHerbert < ClusterWrapper
             res_mess = cell(1,numel(obj.tasks_handles_));
             is_failed = false(1,numel(obj.tasks_handles_));
             is_running = true(1,numel(obj.tasks_handles_));
+            n_fail = 0;
 
             for i=1:numel(obj.tasks_handles_)
                 [running,failed,mess] = is_java_process_running(obj,obj.tasks_handles_{i});
@@ -146,9 +165,9 @@ classdef ClusterHerbert < ClusterWrapper
             end
 
             running = any(is_running);
-            failed = any(is_failed);
 
-            if failed
+            if n_fail>0
+                failed = true;
                 mess_text = strjoin(res_mess(is_failed),';\n');
                 mess = FailedMessage(mess_text);
             else

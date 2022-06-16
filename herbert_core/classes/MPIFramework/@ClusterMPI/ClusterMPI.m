@@ -89,8 +89,35 @@ classdef ClusterMPI < ClusterWrapper
             mpiexec_str = {mpiexec,'-n',num2str(n_workers)};
 
             % build generic worker init string without lab parameters
-            wcs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
-            [obj, obj.mpiexec_handle_] = obj.start_workers(wcs, mpiexec_str);
+            cs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
+            worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
+            task_info = [mpiexec_str(:)',...
+                {obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR')},...
+                {'-batch'},{worker_init}];
+            % this not used by java launcher bug may be used if we
+            % decide to run parallel worker from script
+            %obj.common_env_var_('HERBERT_PARALLEL_WORKER')= strjoin(task_info,' ');
+            % encoded information about the location of exchange folder
+            % and the parameters of the proceses pool.
+            obj.common_env_var_('WORKER_CONTROL_STRING') = cs;
+            %
+            % prepare and start java process
+            if ispc()
+                runtime = java.lang.ProcessBuilder('cmd.exe');
+            else
+                runtime = java.lang.ProcessBuilder('/bin/sh');
+            end
+            env = runtime.environment();
+            obj.set_env(env);
+            % TODO:
+            % this command does not currently transfer all necessary
+            % enviromental variables to the remote. The procedure
+            % to provide variables to transfer is MPI version specific
+            % for MPICH it is the option of MPIEXEC: -envlist <list>
+            % If mpiexec is used on a cluster, thos or similar option
+            % for other mpi implementation should be implemented
+            runtime = runtime.command(task_info);
+            obj.mpiexec_handle_ = runtime.start();
 
             % check if job control API reported failure
             obj.check_failed();
@@ -117,6 +144,10 @@ classdef ClusterMPI < ClusterWrapper
             config = find_and_return_host_files_(obj);
         end
 
+<<<<<<< HEAD
+        %
+=======
+>>>>>>> c57b7d143 (Apply patches from Herbert)
         function check_availability(obj)
             % verify the availability of the compiled Herbert MPI
             % communicaton library and the possibility to use the MPI cluster
@@ -136,6 +167,38 @@ classdef ClusterMPI < ClusterWrapper
     end
 
     %------------------------------------------------------------------
+
+    methods(Static)
+        function mpi_exec = get_mpiexec()
+            mpi_exec  = config_store.instance().get_value('parallel_config','external_mpiexec');
+            if ~isempty(mpi_exec)
+                if is_file(mpi_exec) % found external mpiexec
+                    return
+                else
+                    warning('HERBERT:ClusterMPI:invalid_argument',...
+                        'External mpiexec %s selected but is not available',mpi_exec);
+                end
+            end
+
+            % Get current horace root dir
+            pths = horace_paths;
+            external_dll_dir = fullfile(pths.horace, 'DLL', 'external');
+
+            if ispc()
+                mpi_exec = fullfile(external_dll_dir, 'mpiexec.exe');
+            else
+                mpi_exec = fullfile(external_dll_dir, 'mpiexec');
+
+                if ~(is_file(mpi_exec))
+                    % use system-defined mpiexec
+                    [~, mpi_exec] = system('which mpiexec');
+                    % strip non-printing characters, spaces and eol/cr-s from the
+                    % end of mpiexec string.
+                    mpi_exec = regexprep(mpi_exec,'[\x00-\x20\x7F-\xFF]$','');
+                end
+            end
+        end
+    end
 
     methods(Access = protected)
         function [running,failed,paused,mess] = get_state_from_job_control(obj)
