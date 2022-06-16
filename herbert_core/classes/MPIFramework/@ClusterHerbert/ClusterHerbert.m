@@ -8,6 +8,7 @@ classdef ClusterHerbert < ClusterWrapper
     properties(Access = protected)
         tasks_handles_ = {};
     end
+
     properties(Access = private)
         task_common_str_ = {'-nosplash','-nodesktop','-r'};
     end
@@ -52,7 +53,7 @@ classdef ClusterHerbert < ClusterWrapper
             end
             obj = init(obj,n_workers,mess_exchange_framework,log_level);
         end
-        %
+
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
             % The method to initate the cluster wrapper
             %
@@ -82,7 +83,7 @@ classdef ClusterHerbert < ClusterWrapper
                 cs = obj.mess_exchange_.get_worker_init(intecomm_name ,task_id,n_workers);
                 %worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
                 worker_init = obj.worker_name_;
-                %
+
                 if obj.DEBUG_REMOTE
                     % if debugging client
                     log_file = sprintf('output_job_logfileN%d.log',task_id);
@@ -97,7 +98,7 @@ classdef ClusterHerbert < ClusterWrapper
                 % encoded information about the location of exchange folder
                 % and the parameters of the proceses pool.
                 obj.common_env_var_('WORKER_CONTROL_STRING') = cs;
-                %
+
                 % prepate and start java process
                 if ispc()
                     runtime = java.lang.ProcessBuilder('cmd.exe');
@@ -109,6 +110,7 @@ classdef ClusterHerbert < ClusterWrapper
                 task_info = [{obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR')};task_info(:)];
                 runtime = runtime.command(task_info);
                 obj.tasks_handles_{task_id} = runtime.start();
+
                 [ok,failed,mess] = obj.is_java_process_running(obj.tasks_handles_{task_id});
                 if ~ok && failed
                     error('HERBERT:ClusterHerbert:system_error',...
@@ -119,7 +121,7 @@ classdef ClusterHerbert < ClusterWrapper
             % check if job control API reported failure
             obj.check_failed();
         end
-        %
+
         function obj=finalize_all(obj)
             obj = finalize_all@ClusterWrapper(obj);
             if ~isempty(obj.tasks_handles_)
@@ -131,13 +133,16 @@ classdef ClusterHerbert < ClusterWrapper
             end
 
         end
+
         function is = is_job_initiated(obj)
             % returns true, if the cluster wrapper is running bunch of
             % parallel java processes
             is = ~isempty(obj.tasks_handles_);
         end
-        %------------------------------------------------------------------
     end
+
+    %------------------------------------------------------------------
+
     methods(Access = protected)
         function [running,failed,paused,mess] = get_state_from_job_control(obj)
             % Method checks if java framework is running
@@ -146,8 +151,9 @@ classdef ClusterHerbert < ClusterWrapper
             mess = 'running';
             res_mess = cell(1,numel(obj.tasks_handles_));
             is_failed = false(1,numel(obj.tasks_handles_));
-            is_running   = true(1,numel(obj.tasks_handles_));
+            is_running = true(1,numel(obj.tasks_handles_));
             n_fail = 0;
+
             for i=1:numel(obj.tasks_handles_)
                 [running,failed,mess] = is_java_process_running(obj,obj.tasks_handles_{i});
                 if failed
@@ -159,7 +165,9 @@ classdef ClusterHerbert < ClusterWrapper
                     is_running(i) = running;
                 end
             end
+
             running = any(is_running);
+
             if n_fail>0
                 failed = true;
                 mess_text = strjoin(res_mess(is_failed),';\n');
@@ -171,7 +179,6 @@ classdef ClusterHerbert < ClusterWrapper
                 end
             end
         end
-        %
 
     end
 end

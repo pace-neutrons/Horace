@@ -146,11 +146,7 @@ classdef ClusterWrapper
             % log_level    if present, defines the verbosity of the
             %              operations over the framework
 
-            if ispc()
-                obj.running_mess_contents_= 'process has not exited';
-            else
-                obj.running_mess_contents_= 'process hasn''t exited';
-            end
+            obj.running_mess_contents_= 'process not exited';
 
             if nargin < 2
                 return;
@@ -183,9 +179,11 @@ classdef ClusterWrapper
             %              which started and controls the job.
             %log_level     if present, the number, which describe the
             %              verbosity of the cluster operations output;
+
             if ~exist('log_level', 'var')
                 log_level = -1;
             end
+
             if log_level > -1
                 fprintf(2,'******************************************************\n');
                 fprintf(2,obj.starting_info_message_,n_workers);
@@ -204,7 +202,7 @@ classdef ClusterWrapper
             pc = parallel_config();
             obj.worker_name_ = pc.worker;
             obj.is_compiled_script_ = pc.is_compiled;
-            %
+
             % define Matlab:
             prog_path  = find_matlab_path();
             if isempty(prog_path)
@@ -213,20 +211,24 @@ classdef ClusterWrapper
             end
 
             obj.matlab_starter_ = prog_path;
+
             if ispc()
                 obj.matlab_starter_ = fullfile(obj.matlab_starter_,'matlab.exe');
             else
                 obj.matlab_starter_= fullfile(obj.matlab_starter_,'matlab');
             end
+
             if obj.is_compiled_script_
                 obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR') = obj.worker_name_;
             else
                 obj.common_env_var_('HERBERT_PARALLEL_EXECUTOR') = obj.matlab_starter_;
             end
+
             % additional Matlab m-files search path to be available to
             % workers
             existing_addpath = getenv('MATLABPATH');
             possible_addpath = fileparts(which(pc.worker));
+
             if  contains(existing_addpath,possible_addpath)
                 obj.common_env_var_('MATLABPATH') = existing_addpath;
             else
@@ -237,6 +239,7 @@ classdef ClusterWrapper
                         [possible_addpath,pathsep,existing_addpath];
                 end
             end
+
             if obj.DEBUG_REMOTE
                 obj.common_env_var_('DO_PARALLEL_MATLAB_LOGGING') = 'true';
             else
@@ -296,7 +299,6 @@ classdef ClusterWrapper
             if ~exist('log_message_prefix', 'var')
                 log_message_prefix = 'starting';
             end
-
 
             obj = init_workers_(obj,je_init_message,task_init_mess,log_message_prefix );
         end
@@ -365,6 +367,7 @@ classdef ClusterWrapper
             else % messages should contain better information about the issue
                 obj.status = mess;
             end
+
             if ~running && ~completed
                 % has Matlab MPI job been completed before status message has
                 % been delivered?
@@ -380,7 +383,6 @@ classdef ClusterWrapper
                 end
             end
 
-
             if ~completed && (failed || failedC)
                 % failure. The reason should be in mess.
                 completed = true;
@@ -393,7 +395,10 @@ classdef ClusterWrapper
             %
             options = {'-force_display'};
             [ok,mess,force_display,argi] = parse_char_options(varargin,options);
-            if ~ok;error('CLUSTER_WRAPPER:invalid_argument',mess); end
+
+            if ~ok
+                error('CLUSTER_WRAPPER:invalid_argument',mess);
+            end
 
             obj = obj.generate_log(argi{:});
             if force_display
@@ -401,12 +406,10 @@ classdef ClusterWrapper
             else
                 hc = herbert_config;
                 log_level = hc.log_level;
-                if log_level > 0
-                    display_log = true;
-                else
-                    display_log = false;
-                end
+
+                display_log = log_level > 0;
             end
+
             if display_log
                 highlight_failure = contains(obj.log_value,'failed');
 
