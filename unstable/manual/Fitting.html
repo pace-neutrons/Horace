@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -123,11 +124,11 @@
            <div itemprop="articleBody">
              
   <section id="fitting">
-<h1>Fitting<a class="headerlink" href="#fitting" title="Permalink to this headline"></a></h1>
+<h1>Fitting<a class="headerlink" href="#fitting" title="Permalink to this heading"></a></h1>
 <p>Horace comes with a rich and powerful fitting syntax that is common to the methods used to fit functions or models of S(Q,w) to one or more datasets. For an introduction and overview of how to use the following fitting functions, please read <a class="reference internal" href="Multifit.html#multifit"><span class="std std-ref">Fitting data</span></a>. For comprehensive help, please use the Matlab documentation for the various fitting functions that can be obtained by using the <code class="docutils literal notranslate"><span class="pre">doc</span></code> command, for example <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">d1d/multifit</span></code> (for fitting function like Gaussians to d1d objects) or <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/multifit_sqw</span></code> (fitting models for S(Q,w) to sqw objects). It is strongly recommended that you use <code class="docutils literal notranslate"><span class="pre">doc</span></code>, not <code class="docutils literal notranslate"><span class="pre">help</span></code> to explore how to use these methods, so that you can navigate between the numerous pages of documentation in the Matlab help window.</p>
 <p>Several multifit variants are available for sqw and d1d,d2d,…d4d objects. The only substantive difference is the form of the fit functions they require: either they are functions of the numeric values of the plot coordinates, or they are function of wave vector in reciprocal lattice units and energy.</p>
 <section id="multifit">
-<h2>multifit<a class="headerlink" href="#multifit" title="Permalink to this headline"></a></h2>
+<h2>multifit<a class="headerlink" href="#multifit" title="Permalink to this heading"></a></h2>
 <p>This is identical to <code class="docutils literal notranslate"><span class="pre">multifit_func</span></code>)
 The foreground and background functions both are functions of the plot axes x1,x2,…for as many x arrays as there are plot axes:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">y</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">my_function</span><span class="w"> </span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="k">...</span><span class="c"> ,xn,pars)</span><span class="w"></span>
@@ -143,7 +144,7 @@ The foreground and background functions both are functions of the plot axes x1,x
 - c1,c2,… Any further constant arguments needed by the function. For example, they could be the filenames of lookup tables</p>
 </section>
 <section id="multifit-sqw">
-<h2>multifit_sqw<a class="headerlink" href="#multifit-sqw" title="Permalink to this headline"></a></h2>
+<h2>multifit_sqw<a class="headerlink" href="#multifit-sqw" title="Permalink to this heading"></a></h2>
 <p>The foreground function(s) are functions of S(Q,w), and the background functions are functions of the plot axes x1,x2,…</p>
 <p>The general form of a model for S(Q,w) is:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">weight</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqwfunc</span><span class="w"> </span><span class="p">(</span><span class="n">qh</span><span class="p">,</span><span class="n">qk</span><span class="p">,</span><span class="n">ql</span><span class="p">,</span><span class="n">en</span><span class="p">,</span><span class="n">p</span><span class="p">)</span><span class="w"></span>
@@ -161,7 +162,7 @@ The foreground and background functions both are functions of the plot axes x1,x
 <p>The form for the background model(s) is the same as is required by <code class="docutils literal notranslate"><span class="pre">multifit</span></code>.</p>
 </section>
 <section id="multifit-sqw-sqw">
-<h2>multifit_sqw_sqw<a class="headerlink" href="#multifit-sqw-sqw" title="Permalink to this headline"></a></h2>
+<h2>multifit_sqw_sqw<a class="headerlink" href="#multifit-sqw-sqw" title="Permalink to this heading"></a></h2>
 <p>The foreground and background function(s) are all functions of S(Q,w). The form of these models is the same as is required by <code class="docutils literal notranslate"><span class="pre">multifit_sqw</span></code>.</p>
 </section>
 </section>
@@ -178,7 +179,7 @@ The foreground and background functions both are functions of the plot axes x1,x
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2021, STFC RAL.
-      <span class="lastupdated">Last updated on May 28, 2022, 6:35:05 AM.
+      <span class="lastupdated">Last updated on Jun 16, 2022, 8:58:46 AM.
       </span></p>
   </div>
 

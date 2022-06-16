@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -130,72 +131,72 @@
            <div itemprop="articleBody">
              
   <section id="changing-object-type">
-<h1>Changing object type<a class="headerlink" href="#changing-object-type" title="Permalink to this headline"></a></h1>
+<h1>Changing object type<a class="headerlink" href="#changing-object-type" title="Permalink to this heading"></a></h1>
 <section id="dnd">
-<h2>dnd<a class="headerlink" href="#dnd" title="Permalink to this headline"></a></h2>
+<h2>dnd<a class="headerlink" href="#dnd" title="Permalink to this heading"></a></h2>
 <p>Convert an n-dimensional sqw object into the equivalently dimensioned object out of d0d, d1d, d2d, d3d, d4d d0d object (i.e. throw away the pixel information)</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout_dnd</span><span class="p">=</span><span class="n">dnd</span><span class="p">(</span><span class="n">win_sqw</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 </section>
 <section id="d0d">
-<h2>d0d<a class="headerlink" href="#d0d" title="Permalink to this headline"></a></h2>
+<h2>d0d<a class="headerlink" href="#d0d" title="Permalink to this heading"></a></h2>
 <p>Convert an 0-dimensional sqw object into a d0d object (i.e. throw away the pixel information)</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout_d0d</span><span class="p">=</span><span class="n">d0d</span><span class="p">(</span><span class="n">win_sqw</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 </section>
 <section id="d1d">
-<h2>d1d<a class="headerlink" href="#d1d" title="Permalink to this headline"></a></h2>
+<h2>d1d<a class="headerlink" href="#d1d" title="Permalink to this heading"></a></h2>
 <p>Convert an 1-dimensional sqw object into a d1d object (i.e. throw away the pixel information)</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout_d1d</span><span class="p">=</span><span class="n">d1d</span><span class="p">(</span><span class="n">win_sqw</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 </section>
 <section id="d2d">
-<h2>d2d<a class="headerlink" href="#d2d" title="Permalink to this headline"></a></h2>
+<h2>d2d<a class="headerlink" href="#d2d" title="Permalink to this heading"></a></h2>
 <p>Convert an 2-dimensional sqw object into a d2d object (i.e. throw away the pixel information)</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout_d2d</span><span class="p">=</span><span class="n">d2d</span><span class="p">(</span><span class="n">win_sqw</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 </section>
 <section id="d3d">
-<h2>d3d<a class="headerlink" href="#d3d" title="Permalink to this headline"></a></h2>
+<h2>d3d<a class="headerlink" href="#d3d" title="Permalink to this heading"></a></h2>
 <p>Convert an 3-dimensional sqw object into a d3d object (i.e. throw away the pixel information)</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout_d3d</span><span class="p">=</span><span class="n">d3d</span><span class="p">(</span><span class="n">win_sqw</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 </section>
 <section id="d4d">
-<h2>d4d<a class="headerlink" href="#d4d" title="Permalink to this headline"></a></h2>
+<h2>d4d<a class="headerlink" href="#d4d" title="Permalink to this heading"></a></h2>
 <p>Convert an 4-dimensional sqw object into a d4d object (i.e. throw away the pixel information)</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout_d4d</span><span class="p">=</span><span class="n">d4d</span><span class="p">(</span><span class="n">win_sqw</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 </section>
 <section id="sqw">
-<h2>sqw<a class="headerlink" href="#sqw" title="Permalink to this headline"></a></h2>
+<h2>sqw<a class="headerlink" href="#sqw" title="Permalink to this heading"></a></h2>
 <p>Convert a dnd object into an n-dimensional sqw object</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout_sqw</span><span class="p">=</span><span class="n">sqw</span><span class="p">(</span><span class="n">win_dnd</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 </section>
 <section id="ix-dataset-1d">
-<h2>IX_dataset_1d<a class="headerlink" href="#ix-dataset-1d" title="Permalink to this headline"></a></h2>
+<h2>IX_dataset_1d<a class="headerlink" href="#ix-dataset-1d" title="Permalink to this heading"></a></h2>
 <p>Convert an 1-dimensional sqw/dnd object into the generic Herbert IX_dataset_1d object</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout_IX</span><span class="p">=</span><span class="n">IX_dataset_1d</span><span class="p">(</span><span class="n">win_sqw</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 </section>
 <section id="ix-dataset-2d">
-<h2>IX_dataset_2d<a class="headerlink" href="#ix-dataset-2d" title="Permalink to this headline"></a></h2>
+<h2>IX_dataset_2d<a class="headerlink" href="#ix-dataset-2d" title="Permalink to this heading"></a></h2>
 <p>Convert an 2-dimensional sqw/dnd object into the generic Herbert IX_dataset_2d object</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout_IX</span><span class="p">=</span><span class="n">IX_dataset_2d</span><span class="p">(</span><span class="n">win_sqw</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 </section>
 <section id="ix-dataset-3d">
-<h2>IX_dataset_3d<a class="headerlink" href="#ix-dataset-3d" title="Permalink to this headline"></a></h2>
+<h2>IX_dataset_3d<a class="headerlink" href="#ix-dataset-3d" title="Permalink to this heading"></a></h2>
 <p>Convert an 3-dimensional sqw/dnd object into the generic Herbert IX_dataset_3d object</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout_IX</span><span class="p">=</span><span class="n">IX_dataset_3d</span><span class="p">(</span><span class="n">win_sqw</span><span class="p">)</span><span class="w"></span>
 </pre></div>
@@ -215,7 +216,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2021, STFC RAL.
-      <span class="lastupdated">Last updated on May 28, 2022, 6:35:05 AM.
+      <span class="lastupdated">Last updated on Jun 16, 2022, 8:58:46 AM.
       </span></p>
   </div>
 

@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -100,7 +101,7 @@
            <div itemprop="articleBody">
              
   <section id="generating-sqw-files">
-<h1>Generating SQW files<a class="headerlink" href="#generating-sqw-files" title="Permalink to this headline"></a></h1>
+<h1>Generating SQW files<a class="headerlink" href="#generating-sqw-files" title="Permalink to this heading"></a></h1>
 <p>This page tells you how to generate an SQW file. There are two different situations when you will want to do this:</p>
 <ul class="simple">
 <li><p>During an experiment, when you want to accumulate data files into an SQW file as they are collected - use <code class="docutils literal notranslate"><span class="pre">accumulate_sqw</span></code></p></li>
@@ -109,7 +110,7 @@
 <p>The two functions have almost identical syntax, as is explained in the sections below.</p>
 <p>To generate the SQW file neutron data for each individual run needs to be provided in one of two formats: the legacy ASCII format SPE file, together with an ASCII detector parameter file (the PAR file), or their replacements the HDF (hierarchical Data Format) NXSPE file. More details about these files and how to create them can be found <a class="reference internal" href="Input_file_formats.html#input-file-formats"><span class="std std-ref">here</span></a></p>
 <section id="accumulate-sqw">
-<h2>accumulate_sqw<a class="headerlink" href="#accumulate-sqw" title="Permalink to this headline"></a></h2>
+<h2>accumulate_sqw<a class="headerlink" href="#accumulate-sqw" title="Permalink to this heading"></a></h2>
 <p>This is a way of generating data ‘on the fly’ during an experiment. It saves time by appending new data to an already existing SQW file.</p>
 <p>The syntax is as follows:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">spe_dir</span><span class="p">=</span><span class="s">&#39;/home/maps/maps_users/Gruenwald/SPE/&#39;</span><span class="p">;</span><span class="w">  </span><span class="c">% directory where spe files are found</span><span class="w"></span>
@@ -164,7 +165,7 @@
 </ul>
 </section>
 <section id="gen-sqw">
-<h2>gen_sqw<a class="headerlink" href="#gen-sqw" title="Permalink to this headline"></a></h2>
+<h2>gen_sqw<a class="headerlink" href="#gen-sqw" title="Permalink to this heading"></a></h2>
 <p>This is the main function you will use to turn the data accumulated in multiple SPE files into a single SQW file that will be used by the rest of the Horace functions. An introduction to its use is given in the <a class="reference internal" href="../user_guide/Getting_started.html#creating-an-sqw-file"><span class="std std-ref">getting started</span></a> section. The syntax is the same as for <code class="docutils literal notranslate"><span class="pre">accumulate_sqw</span></code>; the only difference is that you give a list of existing input datasets rather than the anticipated list.</p>
 <p>The essential inputs take the following form:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">gen_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">spe_file</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span><span class="w"></span>
@@ -192,7 +193,7 @@
 </ul>
 </section>
 <section id="applying-symmetry-operations-to-an-entire-dataset">
-<h2>Applying symmetry operations to an entire dataset<a class="headerlink" href="#applying-symmetry-operations-to-an-entire-dataset" title="Permalink to this headline"></a></h2>
+<h2>Applying symmetry operations to an entire dataset<a class="headerlink" href="#applying-symmetry-operations-to-an-entire-dataset" title="Permalink to this heading"></a></h2>
 <p>In the explanation below, we wish to apply symmetrisation to the entire data file. Under the hood, what happens is that the data for each run is symmetrised, and then these symmetrised data are combined to make the sqw file. This avoids the problem of running out of memory when attempting to symmetrise large sections of the unfolded sqw file / object.</p>
 <p>To use this functionality, call <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> or <code class="docutils literal notranslate"><span class="pre">accumulate_sqw</span></code> as above, with the following additional arguments:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">gen_sqw</span><span class="w"> </span><span class="p">(</span><span class="n">spefile</span><span class="p">,</span><span class="w"> </span><span class="n">par_file</span><span class="p">,</span><span class="w"> </span><span class="n">sym_sqw_file</span><span class="p">,</span><span class="w"> </span><span class="n">efix</span><span class="p">,</span><span class="w"> </span><span class="n">emode</span><span class="p">,</span><span class="w"> </span><span class="n">alatt</span><span class="p">,</span><span class="w"> </span><span class="n">angdeg</span><span class="p">,</span><span class="k">...</span><span class="w"></span>
@@ -229,7 +230,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2021, STFC RAL.
-      <span class="lastupdated">Last updated on May 28, 2022, 6:35:05 AM.
+      <span class="lastupdated">Last updated on Jun 16, 2022, 8:58:46 AM.
       </span></p>
   </div>
 

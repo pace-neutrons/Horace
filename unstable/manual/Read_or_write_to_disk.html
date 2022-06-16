@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -124,9 +125,9 @@
            <div itemprop="articleBody">
              
   <section id="read-or-write-to-disk">
-<h1>Read or write to disk<a class="headerlink" href="#read-or-write-to-disk" title="Permalink to this headline"></a></h1>
+<h1>Read or write to disk<a class="headerlink" href="#read-or-write-to-disk" title="Permalink to this heading"></a></h1>
 <section id="read-horace-read-sqw-read-dnd">
-<h2>read_horace, read_sqw, read_dnd<a class="headerlink" href="#read-horace-read-sqw-read-dnd" title="Permalink to this headline"></a></h2>
+<h2>read_horace, read_sqw, read_dnd<a class="headerlink" href="#read-horace-read-sqw-read-dnd" title="Permalink to this heading"></a></h2>
 <p>There are three functions that can be used to read sqw or d1d,d2d,…d4d data from a binary file that was written using <code class="docutils literal notranslate"><span class="pre">save</span></code>.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span><span class="p">=</span><span class="s">&#39;C:\\mprogs\\myfile.dat&#39;</span><span class="p">;</span><span class="w"></span>
 <span class="n">w_read</span><span class="p">=</span><span class="n">read_horace</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
@@ -145,7 +146,7 @@
 <p>In the example shown here <code class="docutils literal notranslate"><span class="pre">w_read</span></code> is an d1d object, since the data in <code class="docutils literal notranslate"><span class="pre">myfile.d1d</span></code> originated from a cut created using cut_sqw with option ‘-nopix’.</p>
 </section>
 <section id="save">
-<h2>save<a class="headerlink" href="#save" title="Permalink to this headline"></a></h2>
+<h2>save<a class="headerlink" href="#save" title="Permalink to this heading"></a></h2>
 <p>Function that applies to all dimensionalities and types of datasets.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span><span class="p">=</span><span class="s">&#39;C:\\mprogs\\myfile.dat&#39;</span><span class="p">;</span><span class="w"></span>
 <span class="nb">save</span><span class="p">(</span><span class="n">w_in</span><span class="p">,</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
@@ -154,7 +155,7 @@
 <p>This function writes the n-dimensional dataset <code class="docutils literal notranslate"><span class="pre">w_in</span></code> (sqw type or d1d etc type) to a file specified by the string <code class="docutils literal notranslate"><span class="pre">filename</span></code>.</p>
 </section>
 <section id="save-xye">
-<h2>save_xye<a class="headerlink" href="#save-xye" title="Permalink to this headline"></a></h2>
+<h2>save_xye<a class="headerlink" href="#save-xye" title="Permalink to this heading"></a></h2>
 <p>Save data in an sqw or dnd dataset to an ascii file.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span><span class="p">=</span><span class="s">&#39;C:\\mprogs\\my_ascii_file.txt&#39;</span><span class="p">;</span><span class="w"></span>
 <span class="n">save_xye</span><span class="p">(</span><span class="n">w_in</span><span class="p">,</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
@@ -163,7 +164,7 @@
 <p>The format of the ascii file for an n-dimensional dataset is n columns of co-ordinates along each of the axes, plus one column of signal and another column of error (variance).</p>
 </section>
 <section id="head-horace-head-sqw-head-dnd">
-<h2>head_horace, head_sqw, head_dnd<a class="headerlink" href="#head-horace-head-sqw-head-dnd" title="Permalink to this headline"></a></h2>
+<h2>head_horace, head_sqw, head_dnd<a class="headerlink" href="#head-horace-head-sqw-head-dnd" title="Permalink to this heading"></a></h2>
 <p>These functions return a Matlab structure containing with the header information in an sqw or dnd file.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span><span class="p">=</span><span class="s">&#39;C:\\mprogs\\myfile.sqw&#39;</span><span class="w"></span>
 <span class="n">h</span><span class="p">=</span><span class="n">head_horace</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="w"></span>
@@ -197,7 +198,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2021, STFC RAL.
-      <span class="lastupdated">Last updated on May 28, 2022, 6:35:05 AM.
+      <span class="lastupdated">Last updated on Jun 16, 2022, 8:58:46 AM.
       </span></p>
   </div>
 

@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -113,10 +114,10 @@
            <div itemprop="articleBody">
              
   <section id="multifit">
-<h1>Multifit<a class="headerlink" href="#multifit" title="Permalink to this headline"></a></h1>
+<h1>Multifit<a class="headerlink" href="#multifit" title="Permalink to this heading"></a></h1>
 <p>Horace (and the parent utilities library, Herbert) comes with a rich and powerful fitting syntax that is common to the methods used to fit functions or models of S(Q,w) to one or more datasets. The documentation here is only meant to give an introduction and overview. For the full help, please use the Matlab documentation for the various fitting functions that can be obtained by using the <code class="docutils literal notranslate"><span class="pre">doc</span></code> command, for example <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">d1d/multifit</span></code> (for fitting function like Gaussians to d1d objects) or <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/multifit_sqw</span></code> (fitting models for S(Q,w) to sqw objects). It is strongly recommended that you use <code class="docutils literal notranslate"><span class="pre">doc</span></code>, not <code class="docutils literal notranslate"><span class="pre">help</span></code> to explore how to use these methods, so that you can navigate between the numerous pages of documentation in the Matlab help window.</p>
 <section id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline"></a></h2>
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
 <p>Horace provides a set of methods for fitting sqw and d1d,d2d,…d4d objects. which all share the same fitting syntax and capabilities. The various forms of multifit enable you to:</p>
 <ul>
 <li><p>fit a function to single dataset</p>
@@ -146,10 +147,10 @@
 </ul>
 </section>
 <section id="introduction-to-setting-up-and-performing-a-fit">
-<h2>Introduction to setting up and performing a fit<a class="headerlink" href="#introduction-to-setting-up-and-performing-a-fit" title="Permalink to this headline"></a></h2>
+<h2>Introduction to setting up and performing a fit<a class="headerlink" href="#introduction-to-setting-up-and-performing-a-fit" title="Permalink to this heading"></a></h2>
 <p>All the variants of multifit share a common procedure for setting up and performing a fit - they differ only in the form of the functions which are either functions of the plot coordinates or qh,qk,ql,en. In what follows we refer to <code class="docutils literal notranslate"><span class="pre">multifit</span></code>, but for this you can equally read <code class="docutils literal notranslate"><span class="pre">multifit_func</span></code>, <code class="docutils literal notranslate"><span class="pre">multifit_sqw</span></code>, <code class="docutils literal notranslate"><span class="pre">multifit_sqw</span></code>, and even the resolution convolution program <code class="docutils literal notranslate"><span class="pre">Tobyfit</span></code>.</p>
 <section id="simple-fitting">
-<h3>Simple fitting<a class="headerlink" href="#simple-fitting" title="Permalink to this headline"></a></h3>
+<h3>Simple fitting<a class="headerlink" href="#simple-fitting" title="Permalink to this heading"></a></h3>
 <p>First you have to create a multifit object with the data you want to fit. You can give it any name you like - here we’ll use the name <code class="docutils literal notranslate"><span class="pre">kk</span></code></p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">multifit</span><span class="w"> </span><span class="p">(</span><span class="n">w1</span><span class="p">)</span><span class="w"> </span><span class="o">\</span><span class="n">t</span><span class="c">% w1 is an object (or array of objects) to be fitted</span><span class="w"></span>
 </pre></div>
@@ -187,7 +188,7 @@
 </div>
 </section>
 <section id="background-functions">
-<h3>Background functions<a class="headerlink" href="#background-functions" title="Permalink to this headline"></a></h3>
+<h3>Background functions<a class="headerlink" href="#background-functions" title="Permalink to this heading"></a></h3>
 <p>One of the nice features of multifit is that as well as fitting a global function (the ‘foreground’) function to all your datsets, you can define local ‘background’ functions, that is functions whose parameters vary independently for each dataset. This can be useful, for example, if you have a model for S(Q,w) which should apply to all your datasets, but you need to have a linear background that is independent for each dataset. We continue with our example of an array of three datasets which we set up above; to recap:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">multifit</span><span class="w"> </span><span class="p">(</span><span class="n">my_data</span><span class="p">)</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
 <span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_fun</span><span class="w"> </span><span class="p">(@</span><span class="n">gauss</span><span class="p">);</span><span class="w"></span>
@@ -213,7 +214,7 @@
 </div>
 </section>
 <section id="binding-parameters">
-<h3>Binding parameters<a class="headerlink" href="#binding-parameters" title="Permalink to this headline"></a></h3>
+<h3>Binding parameters<a class="headerlink" href="#binding-parameters" title="Permalink to this heading"></a></h3>
 <p>You can bind parameters together so that they are always in a fixed ratio. For example if you wanted the height to always be ten times the standard deviation of the Gaussian, you set a binding descriptor, which is a cell array that gives in sequence the bound parameter, the free parameter, and the ratio of the bound to free parameter:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_bind</span><span class="w"> </span><span class="p">({</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">10</span><span class="p">});</span><span class="w"></span>
 </pre></div>
@@ -229,7 +230,7 @@
 <p>Various defaults apply if you abbreviate the descriptor. For example, if you don’t give the parameter ratio, then multifit will assume the value determined by the initial parameter values in set_pin and <code class="docutils literal notranslate"><span class="pre">set_bpin</span></code>. If you don’t give the bound function index then it is assumed that you mean that the binding applies for all functions of that type (i.e. the type being foreground or background functions). The syntax enables complex bindings to be created in quite a succinct form, and you should navigate to the help for <code class="docutils literal notranslate"><span class="pre">set_bind</span></code> (foreground function bindings) and <code class="docutils literal notranslate"><span class="pre">set_bbind</span></code> (background function bindings) from <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/multifit</span></code>. You can also accumulate bindings to ones you’ve already set using <code class="docutils literal notranslate"><span class="pre">add_bind</span></code> and <code class="docutils literal notranslate"><span class="pre">add_bbind</span></code>.</p>
 </section>
 <section id="semi-global-fits">
-<h3>Semi-global fits<a class="headerlink" href="#semi-global-fits" title="Permalink to this headline"></a></h3>
+<h3>Semi-global fits<a class="headerlink" href="#semi-global-fits" title="Permalink to this heading"></a></h3>
 <p>So far we’ve seen how to have a global ‘foreground’ function that applies to all datasets (a Gaussian in the above, but it could be a model for S(Q,w)) together with independent ‘background’ functions for each dataset. A commonly encountered requirement is to have a model for the foreground where some parameters are global and other are local - for example a single exchange constant in a model for spin waves but independent intensities and inverse lifetimes. To achieve this you can set the background model to be local rather than global, just as teh default is for the background functions. Then you can use binding s to link a parameter across all datasets. For example, returning to our Gaussian foreground model, if we want the position constrained to be the same (but not necessarily zero) for all datasets, but the height and standard deviation allowed to be different:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">multifit</span><span class="w"> </span><span class="p">(</span><span class="n">my_data</span><span class="p">)</span><span class="w"> </span><span class="p">;</span><span class="w"></span>
 <span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kk</span><span class="p">.</span><span class="n">set_local_foreground</span><span class="w">     </span><span class="c">% override the default</span><span class="w"></span>
@@ -242,7 +243,7 @@
 </section>
 </section>
 <section id="summary-of-commands-with-multifit">
-<h2>Summary of commands with multifit<a class="headerlink" href="#summary-of-commands-with-multifit" title="Permalink to this headline"></a></h2>
+<h2>Summary of commands with multifit<a class="headerlink" href="#summary-of-commands-with-multifit" title="Permalink to this heading"></a></h2>
 <p>The command set and the inputs they take is considerably richer than the taster that has been given above. The multifit help in Matlab that you invoke by typing <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/multifit</span></code> (and any of the variants for d1d,d2d… objects, and multifit_func, multifit_sqw, multifit_sqw_sqw) is the gateway to discovering more about the commands and links to example fitting functions. The summary of the commands is as follows:</p>
 <p>To set data:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">set_data</span><span class="w">     </span><span class="o">-</span><span class="w"> </span><span class="n">Set</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">clearing</span><span class="w"> </span><span class="nb">any</span><span class="w"> </span><span class="n">existing</span><span class="w"> </span><span class="n">datasets</span><span class="w"></span>
@@ -311,10 +312,10 @@
 </div>
 </section>
 <section id="fitting-functions">
-<h2>Fitting functions<a class="headerlink" href="#fitting-functions" title="Permalink to this headline"></a></h2>
+<h2>Fitting functions<a class="headerlink" href="#fitting-functions" title="Permalink to this heading"></a></h2>
 <p>Several multifit variants are available for sqw and d1d,d2d,…d4d objects. The only substantive difference is the form of the fit functions they require: either they are functions of the numeric values of the plot coordinates, or they are function of wavevector in reciprocal lattice units and energy.</p>
 <section id="multifit-function">
-<h3>multifit function<a class="headerlink" href="#multifit-function" title="Permalink to this headline"></a></h3>
+<h3>multifit function<a class="headerlink" href="#multifit-function" title="Permalink to this heading"></a></h3>
 <p>This method is identical to <code class="docutils literal notranslate"><span class="pre">multifit_func</span></code>.</p>
 <ul class="simple">
 <li><p>Foreground function(s): function of the plot axes x1,x2,…for as many x arrays as there are plot axes</p></li>
@@ -334,11 +335,11 @@
 - c1,c2,… Any further constant arguments needed by the function. For example, they could be the filenames of lookup tables</p>
 </section>
 <section id="multifit-func">
-<h3>multifit_func<a class="headerlink" href="#multifit-func" title="Permalink to this headline"></a></h3>
+<h3>multifit_func<a class="headerlink" href="#multifit-func" title="Permalink to this heading"></a></h3>
 <p>This method is identical to <code class="docutils literal notranslate"><span class="pre">multifit</span></code>.</p>
 </section>
 <section id="multifit-sqw">
-<h3>multifit_sqw<a class="headerlink" href="#multifit-sqw" title="Permalink to this headline"></a></h3>
+<h3>multifit_sqw<a class="headerlink" href="#multifit-sqw" title="Permalink to this heading"></a></h3>
 <ul class="simple">
 <li><p>Foreground function(s): functions of S(Q,w)</p></li>
 <li><p>Background function(s): functions of the plot axes x1,x2,…for as many x arrays as there are plot axes</p></li>
@@ -373,7 +374,7 @@
 </ul>
 </section>
 <section id="multifit-sqw-sqw">
-<h3>multifit_sqw_sqw<a class="headerlink" href="#multifit-sqw-sqw" title="Permalink to this headline"></a></h3>
+<h3>multifit_sqw_sqw<a class="headerlink" href="#multifit-sqw-sqw" title="Permalink to this heading"></a></h3>
 <ul class="simple">
 <li><p>Foreground function(s): functions of S(Q,w)</p></li>
 <li><p>Background function(s): functions of S(Q,w)</p></li>
@@ -409,7 +410,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2021, STFC RAL.
-      <span class="lastupdated">Last updated on May 28, 2022, 6:35:05 AM.
+      <span class="lastupdated">Last updated on Jun 16, 2022, 8:58:46 AM.
       </span></p>
   </div>
 

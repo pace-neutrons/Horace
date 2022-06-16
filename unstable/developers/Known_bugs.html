@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -89,16 +90,16 @@
            <div itemprop="articleBody">
              
   <section id="known-bugs">
-<h1>Known bugs<a class="headerlink" href="#known-bugs" title="Permalink to this headline"></a></h1>
+<h1>Known bugs<a class="headerlink" href="#known-bugs" title="Permalink to this heading"></a></h1>
 <p>We will endeavour to ensure that Horace reaches you in a fully usable state. However, as more people start to use Horace it is inevitable that bugs will be discovered. If you find a bug please email <a class="reference external" href="mailto:horacehelp&#37;&#52;&#48;stfc&#46;ac&#46;uk">Horace Help</a> so that we can ensure it is fixed in subsequent versions of Horace.</p>
 <section id="current-issues">
-<h2>Current issues<a class="headerlink" href="#current-issues" title="Permalink to this headline"></a></h2>
+<h2>Current issues<a class="headerlink" href="#current-issues" title="Permalink to this heading"></a></h2>
 <section id="symmetrisation-problem-with-dnd-data">
-<h3>Symmetrisation problem with dnd data<a class="headerlink" href="#symmetrisation-problem-with-dnd-data" title="Permalink to this headline"></a></h3>
+<h3>Symmetrisation problem with dnd data<a class="headerlink" href="#symmetrisation-problem-with-dnd-data" title="Permalink to this heading"></a></h3>
 <p>We have found that if you symmetrise a dnd dataset by specifying a mirror plane through which the data should be folded, the results are not always correct. In particular, this seems to occur for samples where the crystallographic axes are non-orthogonal. Our recommended solution to this is only to perform symmetrisation operations on sqw data objects, and not on dnd data objects, since the sqw routines work differently to the dnd ones and do not display the same problem.</p>
 </section>
 <section id="broken-pipe-error">
-<h3>Broken pipe error<a class="headerlink" href="#broken-pipe-error" title="Permalink to this headline"></a></h3>
+<h3>Broken pipe error<a class="headerlink" href="#broken-pipe-error" title="Permalink to this heading"></a></h3>
 <p>During the generation of particularly large SQW datasets, which is a computationally intensive process, MS Windows can sometimes just give up. This is evidenced in a so-called ‘broken pipe’ error, whereby low-level Matlab functions fail to execute due to the failure of very low-level Windows operations. At present we do not have a full fix for this, however it has been found that the following can help rectify the problem:</p>
 <ol class="arabic">
 <li><p><strong>Run your Horace command again</strong>, after typing</p>
@@ -112,7 +113,7 @@
 </ol>
 </section>
 <section id="fatal-read-error">
-<h3>Fatal Read Error<a class="headerlink" href="#fatal-read-error" title="Permalink to this headline"></a></h3>
+<h3>Fatal Read Error<a class="headerlink" href="#fatal-read-error" title="Permalink to this heading"></a></h3>
 <p>Similarly, this sometimes occurs during the writing of data into the SQW file. There are a variety of causes, some understood and some not.</p>
 <ol class="arabic simple">
 <li><p>One or more of the TMP files has been corrupted. In this case there is little you can do other than to redo the :ref:<code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> command. If only one TMP file is corrupted then you may wish to consider re-writing the SQW file without that dataset. To do this use the <code class="docutils literal notranslate"><span class="pre">write_nsqw_to_sqw</span></code> command, described <cite>here &lt;List_of_functions:write_nsqw_to_sqw&gt;</cite>.</p></li>
@@ -134,7 +135,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2021, STFC RAL.
-      <span class="lastupdated">Last updated on May 28, 2022, 6:35:05 AM.
+      <span class="lastupdated">Last updated on Jun 16, 2022, 8:58:46 AM.
       </span></p>
   </div>
 

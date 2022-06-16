@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -103,11 +104,11 @@
            <div itemprop="articleBody">
              
   <section id="simulation">
-<h1>Simulation<a class="headerlink" href="#simulation" title="Permalink to this headline"></a></h1>
+<h1>Simulation<a class="headerlink" href="#simulation" title="Permalink to this heading"></a></h1>
 <p>There are a variety of simulation tools available in Horace, so that if you have a theoretical model to describe your data you can simulate the results for the specific data points that you measured.</p>
 <p><strong>IMPORTANT</strong> When simulating an S(Q,w) model (see sqw_eval below), bear in mind the difference between what is calculated for equivalent dnd and sqw datasets. See <a class="reference internal" href="FAQ.html#faq"><span class="std std-ref">FAQ</span></a>.</p>
 <section id="func-eval">
-<h2>func_eval<a class="headerlink" href="#func-eval" title="Permalink to this headline"></a></h2>
+<h2>func_eval<a class="headerlink" href="#func-eval" title="Permalink to this heading"></a></h2>
 <p>This evaluates a user-supplied function at the x, y, z, … values of an n-dimensional dataset, or array of datasets. The syntax is as follows:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">func_eval</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">myfunc</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">);</span><span class="w"></span>
 <span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">func_eval</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">myfunc</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;all&#39;</span><span class="p">);</span><span class="w"></span>
@@ -120,7 +121,7 @@
 <p>The optional keyword <code class="docutils literal notranslate"><span class="pre">'all'</span></code> is used if you wish to calculate the intensity from the function over the whole domain covered by the input dataset. In other words, your dataset may contain gaps due to the trajectory of the detectors through reciprocal space, but you may wish to simulate the scattering even in the gaps. This option applies in the case of dnd objects, but not sqw objects.</p>
 </section>
 <section id="sqw-eval">
-<h2>sqw_eval<a class="headerlink" href="#sqw-eval" title="Permalink to this headline"></a></h2>
+<h2>sqw_eval<a class="headerlink" href="#sqw-eval" title="Permalink to this heading"></a></h2>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">my_sqw_func</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">);</span><span class="w"></span>
 <span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sqw_eval</span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="p">@</span><span class="n">my_sqw_func</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;all&#39;</span><span class="p">);</span><span class="w"></span>
 </pre></div>
@@ -133,7 +134,7 @@
 <p>One would generally use <code class="docutils literal notranslate"><span class="pre">sqw_eval</span></code> in preference to <code class="docutils literal notranslate"><span class="pre">func_eval</span></code> if, for example, one had a model of the spin-wave cross-section for magnetic scattering.</p>
 </section>
 <section id="dispersion">
-<h2>dispersion<a class="headerlink" href="#dispersion" title="Permalink to this headline"></a></h2>
+<h2>dispersion<a class="headerlink" href="#dispersion" title="Permalink to this heading"></a></h2>
 <p>Calculate dispersion relation for dataset or array of datasets.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wdisp</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">dispersion</span><span class="w"> </span><span class="p">(</span><span class="n">win</span><span class="p">,</span><span class="w"> </span><span class="n">dispreln</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w">            </span><span class="c">% dispersion only</span><span class="w"></span>
 
@@ -183,7 +184,7 @@
 <p>e.g. If <code class="docutils literal notranslate"><span class="pre">win</span></code> is a 2D dataset with Q and E axes, then <code class="docutils literal notranslate"><span class="pre">wdisp</span></code> is a 1D dataset with just the Q axis</p>
 </section>
 <section id="disp2sqw-eval">
-<h2>disp2sqw_eval<a class="headerlink" href="#disp2sqw-eval" title="Permalink to this headline"></a></h2>
+<h2>disp2sqw_eval<a class="headerlink" href="#disp2sqw-eval" title="Permalink to this heading"></a></h2>
 <p>Similar to <code class="docutils literal notranslate"><span class="pre">sqw_eval</span></code>, but takes as the input function a routine that calculates both the dispersion and the spectral weight, and only requires as its inputs h, k, l and some model parameters.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">disp2sqw_eval</span><span class="p">(</span><span class="n">win</span><span class="p">,@</span><span class="n">dispreln</span><span class="p">,</span><span class="n">pars</span><span class="p">,</span><span class="n">fwhh</span><span class="p">,</span><span class="o">&lt;</span><span class="n">Optional</span><span class="w"> </span><span class="nb">input</span><span class="w"> </span><span class="n">parameters</span><span class="o">&gt;</span><span class="p">)</span><span class="w"></span>
 </pre></div>
@@ -205,7 +206,7 @@
 </ul>
 </section>
 <section id="dispersion-plot">
-<h2>dispersion_plot<a class="headerlink" href="#dispersion-plot" title="Permalink to this headline"></a></h2>
+<h2>dispersion_plot<a class="headerlink" href="#dispersion-plot" title="Permalink to this heading"></a></h2>
 <p>Plot dispersion relation or array of dispersion relations along a path in reciprocal space. It can be called in the following ways, with or without outputs, as below:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">dispersion_plot</span><span class="p">(</span><span class="n">rlp</span><span class="p">,@</span><span class="n">dispreln</span><span class="p">,</span><span class="n">pars</span><span class="p">)</span><span class="w"></span>
 
@@ -266,7 +267,7 @@
 </ul>
 </section>
 <section id="disp2sqw-plot">
-<h2>disp2sqw_plot<a class="headerlink" href="#disp2sqw-plot" title="Permalink to this headline"></a></h2>
+<h2>disp2sqw_plot<a class="headerlink" href="#disp2sqw-plot" title="Permalink to this heading"></a></h2>
 <p>Generate an Q-E intensity plot for a dispersion relation along a path in reciprocal space. The function is very closely related to <code class="docutils literal notranslate"><span class="pre">dispersion_plot</span></code>), and most of the input arguments and options are the same for the two functions.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">disp2sqw_plot</span><span class="p">(</span><span class="n">rlp</span><span class="p">,@</span><span class="n">dispreln</span><span class="p">,</span><span class="n">pars</span><span class="p">,</span><span class="n">ebins</span><span class="p">,</span><span class="n">fwhh</span><span class="p">)</span><span class="w"></span>
 
@@ -343,7 +344,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2021, STFC RAL.
-      <span class="lastupdated">Last updated on May 28, 2022, 6:35:05 AM.
+      <span class="lastupdated">Last updated on Jun 16, 2022, 8:58:46 AM.
       </span></p>
   </div>
 

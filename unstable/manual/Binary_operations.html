@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -108,14 +109,14 @@
            <div itemprop="articleBody">
              
   <section id="binary-operations">
-<h1>Binary operations<a class="headerlink" href="#binary-operations" title="Permalink to this headline"></a></h1>
+<h1>Binary operations<a class="headerlink" href="#binary-operations" title="Permalink to this heading"></a></h1>
 <p>Binary operations between two objects can be handled in a variety of ways in Horace. You can either use the Matlab symbols +, - , *, / and \, or you can use the explicit function names <code class="docutils literal notranslate"><span class="pre">plus,</span> <span class="pre">minus,</span> <span class="pre">mtimes,</span> <span class="pre">mrdivide</span></code> and <code class="docutils literal notranslate"><span class="pre">mldivide</span></code>.</p>
 <p>There are several options for the input parameters to binary operations</p>
 <section id="sqw-objects">
-<h2>sqw objects<a class="headerlink" href="#sqw-objects" title="Permalink to this headline"></a></h2>
+<h2>sqw objects<a class="headerlink" href="#sqw-objects" title="Permalink to this heading"></a></h2>
 <p>Let us take for our example the addition operator ‘+’, and our initial single sqw object is called <code class="docutils literal notranslate"><span class="pre">w1</span></code> and has the ‘pix’ array retained (note this is an important point - you can have an sqw object without the pix array by converting a dnd object to sqw. In that case the result is referred to as an sqw object of dnd type. In our example <code class="docutils literal notranslate"><span class="pre">w1</span></code> has a pix array, so is referred to as an sqw of sqw type).</p>
 <section id="single-sqw-object">
-<h3>Single sqw object<a class="headerlink" href="#single-sqw-object" title="Permalink to this headline"></a></h3>
+<h3>Single sqw object<a class="headerlink" href="#single-sqw-object" title="Permalink to this heading"></a></h3>
 <p>You can add to w1 in the following way</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_sqw</span><span class="w"></span>
 <span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_sqw_dnd_type</span><span class="w"></span>
@@ -132,7 +133,7 @@
 </ul>
 </section>
 <section id="array-of-sqw-objects">
-<h3>Array of sqw objects<a class="headerlink" href="#array-of-sqw-objects" title="Permalink to this headline"></a></h3>
+<h3>Array of sqw objects<a class="headerlink" href="#array-of-sqw-objects" title="Permalink to this heading"></a></h3>
 <p>You can use the same binary operation syntax as for single sqw objects, with the following conditions</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">w2_sqw</span></code> is either an array of sqw of sqw type objects with the pix array of each element matching the pix array of each element of <code class="docutils literal notranslate"><span class="pre">w1</span></code>. Or a single sqw object if the pix array happens to be the same size for all elements of the <code class="docutils literal notranslate"><span class="pre">w1</span></code> array.</p></li>
@@ -150,10 +151,10 @@
 </section>
 </section>
 <section id="dnd-objects">
-<h2>dnd objects<a class="headerlink" href="#dnd-objects" title="Permalink to this headline"></a></h2>
+<h2>dnd objects<a class="headerlink" href="#dnd-objects" title="Permalink to this heading"></a></h2>
 <p>Note that here we will use the phrase dnd object also to mean sqw object of dnd type, since the two are very closely related.</p>
 <section id="single-dnd-object">
-<h3>Single dnd object<a class="headerlink" href="#single-dnd-object" title="Permalink to this headline"></a></h3>
+<h3>Single dnd object<a class="headerlink" href="#single-dnd-object" title="Permalink to this heading"></a></h3>
 <p>The choices for a dnd object are:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_sqw</span><span class="w"></span>
 <span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2_sqw_dnd_type</span><span class="w"></span>
@@ -164,7 +165,7 @@
 <p>The forms of these objects are as described for the sqw case. In all cases the output will be a dnd object. Note that the pix field of <code class="docutils literal notranslate"><span class="pre">w2_sqw</span></code> is ignored for this operation.</p>
 </section>
 <section id="array-of-dnd-objects">
-<h3>Array of dnd objects<a class="headerlink" href="#array-of-dnd-objects" title="Permalink to this headline"></a></h3>
+<h3>Array of dnd objects<a class="headerlink" href="#array-of-dnd-objects" title="Permalink to this heading"></a></h3>
 <p>As with arrays of sqw objects, there is one further choice compared to a single dnd:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">numeric_array</span><span class="w"></span>
 </pre></div>
@@ -173,7 +174,7 @@
 </section>
 </section>
 <section id="list-of-operations-and-their-equivalent-code">
-<h2>List of operations and their equivalent code<a class="headerlink" href="#list-of-operations-and-their-equivalent-code" title="Permalink to this headline"></a></h2>
+<h2>List of operations and their equivalent code<a class="headerlink" href="#list-of-operations-and-their-equivalent-code" title="Permalink to this heading"></a></h2>
 <p>The arithmetic operations above correspond to equivalent Matlab functions. You should never need to use these, but for reference the corresponding functions are:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">w1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="nb">plus</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span><span class="w"></span>
 <span class="n">w1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">w2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">minus</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">)</span><span class="w"></span>
@@ -199,7 +200,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2021, STFC RAL.
-      <span class="lastupdated">Last updated on May 28, 2022, 6:35:05 AM.
+      <span class="lastupdated">Last updated on Jun 16, 2022, 8:58:46 AM.
       </span></p>
   </div>
 

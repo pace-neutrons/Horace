@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -106,16 +107,16 @@
            <div itemprop="articleBody">
              
   <section id="input-file-formats">
-<h1>Input file formats<a class="headerlink" href="#input-file-formats" title="Permalink to this headline"></a></h1>
+<h1>Input file formats<a class="headerlink" href="#input-file-formats" title="Permalink to this heading"></a></h1>
 <p>To generate the SQW file from which Horace reads S(<strong>Q</strong>,w), neutron scattering data for each individual run and needs to be provided in one of two formats: the legacy ASCII format SPE file, together with an ASCII detector parameter file (the PAR file), or their replacements the HDF5 (Hierarchical Data Format) NXSPE file. Two functions are available as part of Horace to create SQW files from these input files, namely :ref:<code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> (creates a new SQW file) and <code class="docutils literal notranslate"><span class="pre">accumulate_sqw</span></code> (accumulates data to an existing SQW file). The functions to generate SQW files are described in detail <cite>here &lt;Generating_SQW_files:Generating SQW files&gt;</cite>.</p>
 <p>Generally, the input data files (SPE or NXSPE format) will be created by the data reduction code for the instrument which you are using if Horace has been made available for that instrument by the scientist(s) responsible. However, if you want to use Horace to analyse data from other instruments you need to know how to create the input files from whatever format your data is saved in.</p>
 <section id="nxspe-file">
-<h2>NXSPE file<a class="headerlink" href="#nxspe-file" title="Permalink to this headline"></a></h2>
+<h2>NXSPE file<a class="headerlink" href="#nxspe-file" title="Permalink to this heading"></a></h2>
 <p>The recommended input data file for Horace is the NXSPE file, which holds both the S(w) data and errors for each detector, detector position and size information, together with the crystal orientation angle<code class="docutils literal notranslate"><span class="pre">psi</span></code> and the incident neutron energy Ei. The NXSPE file stores the information in a NeXus format file, which is a common data exchange format for neutron, X-ray and muon data that is built on top of the HDF5 (Hierarchical Data Format) scientific data format.</p>
 <p>Data files in the NXSPE format are produced by the Mantid data analysis software (<a class="reference external" href="http://www.mantidproject.org/">http://www.mantidproject.org/</a>). They are directly produced by the data reduction algorithms within Mantid for the direct geometry spectrometers at both the ISIS spallation neutron source at the Rutherford Appleton Laboratory in the UK and the SNS spallation neutron source at Oak Ridge National Laboratory in the USA. Mantid is an open source data manipulation and analysis framework for neutron and muon data analysis. If Mantid is used to perform the data corrections for a neutron spectrometer, then the Mantid algorithm <code class="docutils literal notranslate"><span class="pre">SaveNXSPE</span></code> can be used to output NXSPE files. Full details of how to use Mantid and the input/output for each algorithm are available at the [<a class="reference external" href="http://www.mantidproject.org/">http://www.mantidproject.org/</a>| Mantid web site].</p>
 <p>More suitable for a ‘quick start’, is if you can read corrected scattering data, associated estimated errors, and detector parameters into Matlab arrays. You can then use the Horace utility function <code class="docutils literal notranslate"><span class="pre">gen_nxspe</span></code> to create NXSPE files.</p>
 <section id="gen-nxspe">
-<h3>gen_nxspe<a class="headerlink" href="#gen-nxspe" title="Permalink to this headline"></a></h3>
+<h3>gen_nxspe<a class="headerlink" href="#gen-nxspe" title="Permalink to this heading"></a></h3>
 <p>This is a flexible to repackage and/or save S(<strong>Q</strong>,w) and detector to file. To write a single NXSPE file the syntax is as follows:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">gen_nxspe</span><span class="p">(</span><span class="n">S</span><span class="p">,</span><span class="n">ERR</span><span class="p">,</span><span class="n">en</span><span class="p">,</span><span class="n">par</span><span class="p">,</span><span class="n">nxspefile_name</span><span class="p">,</span><span class="n">efix</span><span class="p">,</span><span class="n">emode</span><span class="p">,</span><span class="nb">psi</span><span class="p">)</span><span class="w"></span>
 </pre></div>
@@ -140,10 +141,10 @@
 </section>
 </section>
 <section id="spe-file-and-par-file">
-<h2>SPE file and PAR file<a class="headerlink" href="#spe-file-and-par-file" title="Permalink to this headline"></a></h2>
+<h2>SPE file and PAR file<a class="headerlink" href="#spe-file-and-par-file" title="Permalink to this heading"></a></h2>
 <p>These files may be encountered if you are using Horace to analyse older data. The ASCII format SPE file stores S(w) and associated error bars as a function of energy transfer, h-barw, for each detector in turn. In addition to the set of SPE files, Horace requires an accompanying ASCII file which contains information about the location of the detectors in the spectrometer’s reference frame, the PAR file. Although these ASCII format files have largely been superseded in favour of the NXSPE format described above, such files are ubiquitous as the format in which historic data is saved, and are recognised by several other neutron visualisation and analysis programs. Some programs can also write their own output as SPE files, and consequently the SPE file is sometimes used as a transportable format data file for time-of-flight neutron spectrometers. The format of these two files is described here. However, it is not recommended to create new SPE files as it is now an obsolete file format.</p>
 <section id="spe-file-format">
-<h3>SPE file format<a class="headerlink" href="#spe-file-format" title="Permalink to this headline"></a></h3>
+<h3>SPE file format<a class="headerlink" href="#spe-file-format" title="Permalink to this heading"></a></h3>
 <p>The SPE file contains the intensity and estimated standard deviation on those intensities for each detector element in turn, with header blocks that give the number of detectors and energy bins, and the scattering angle and energy transfer bin boundaries. These blocks are all separated by character strings that begin with ‘###’. In full:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">nd</span><span class="w"> </span><span class="s">ne</span><span class="w"></span>
 
@@ -183,7 +184,7 @@
 <p>On the first line, nd and ne need only to be separated by white space. In the blocks containing the signal and error the format is highly prescribed: each line must contain 8 real numbers, apart from the last line in each block, and each number must occupy a field of precisely 10 spaces. No white space is necessary. This is a frequent source of problem when writing the files. It is strongly recommended that you do not try to create your own SPE format files.</p>
 </section>
 <section id="par-file-format">
-<h3>PAR file format<a class="headerlink" href="#par-file-format" title="Permalink to this headline"></a></h3>
+<h3>PAR file format<a class="headerlink" href="#par-file-format" title="Permalink to this heading"></a></h3>
 <p>The PAR file contains the position information of the detectors and their sizes. The format is:</p>
 <table class="docutils align-default">
 <colgroup>
@@ -252,7 +253,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2021, STFC RAL.
-      <span class="lastupdated">Last updated on May 28, 2022, 6:35:05 AM.
+      <span class="lastupdated">Last updated on Jun 16, 2022, 8:58:46 AM.
       </span></p>
   </div>
 

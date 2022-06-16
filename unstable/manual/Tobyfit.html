@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -103,9 +104,9 @@
            <div itemprop="articleBody">
              
   <section id="tobyfit">
-<h1>Tobyfit<a class="headerlink" href="#tobyfit" title="Permalink to this headline"></a></h1>
+<h1>Tobyfit<a class="headerlink" href="#tobyfit" title="Permalink to this heading"></a></h1>
 <section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline"></a></h2>
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
 <p>The purpose of Tobyfit is to enable you to fit to Horace datasets taking into account the broadening of the data arising from the resolution of the instrument. Even if the excitations in your sample were infinitely long-lives you would have non-zero broadening in energy and wave vector arising from numerous contributions. The spread of energies arise from:</p>
 <ul class="simple">
 <li><p>the non-zero width in the moderator pulse;</p></li>
@@ -122,9 +123,9 @@
 <p>This also means that instrument information must be included in the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> object. At present, this is done using the <code class="docutils literal notranslate"><span class="pre">&lt;inst&gt;_instrument</span></code> functions which are defined for the three ISIS spectrometers LET, MAPS and MERLIN. In future, this information will be included when the <code class="docutils literal notranslate"><span class="pre">sqw</span></code> file is constructed by <code class="docutils literal notranslate"><span class="pre">gen_sqw</span></code> if the input files contain suitable information.</p>
 </section>
 <section id="performing-resolution-convolution">
-<h2>Performing resolution convolution<a class="headerlink" href="#performing-resolution-convolution" title="Permalink to this headline"></a></h2>
+<h2>Performing resolution convolution<a class="headerlink" href="#performing-resolution-convolution" title="Permalink to this heading"></a></h2>
 <section id="setting-the-sample-and-instrument-information">
-<h3>Setting the sample and instrument information<a class="headerlink" href="#setting-the-sample-and-instrument-information" title="Permalink to this headline"></a></h3>
+<h3>Setting the sample and instrument information<a class="headerlink" href="#setting-the-sample-and-instrument-information" title="Permalink to this heading"></a></h3>
 <p>The first thing you need to do is provide the sample and instrument information to your datasets. You can do this by creating a sample object. There is an object class called <code class="docutils literal notranslate"><span class="pre">IX_sample</span></code> which does this; type <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">IX_sample</span></code> for more information. An example invocation is :</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">my_sample</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">IX_sample</span><span class="p">(</span><span class="nb">true</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="s">&#39;cuboid&#39;</span><span class="p">,[</span><span class="mf">0.03</span><span class="p">,</span><span class="mf">0.03</span><span class="p">,</span><span class="mf">0.04</span><span class="p">])</span><span class="w"></span>
 </pre></div>
@@ -157,7 +158,7 @@
 <p>The advantage of doing this is that every cut you take from the sqw file will also have the sample and instrument information.</p>
 </section>
 <section id="fitting-data">
-<h3>Fitting data<a class="headerlink" href="#fitting-data" title="Permalink to this headline"></a></h3>
+<h3>Fitting data<a class="headerlink" href="#fitting-data" title="Permalink to this heading"></a></h3>
 <p>Once you have set the sample and instrument you can start fitting your data. To start, you need to create a fitting object, which in the following example we’ll give the name <code class="docutils literal notranslate"><span class="pre">tf</span></code>:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tobyfit</span><span class="w"> </span><span class="p">(</span><span class="n">my_cuts</span><span class="p">)</span><span class="w"></span>
 </pre></div>
@@ -165,7 +166,7 @@
 <p>Now you have created this object, the procedure is just the same as for the various other flavours of <code class="docutils literal notranslate"><span class="pre">multifit</span></code>, and specifically the form of the fitting functions is the same as <code class="docutils literal notranslate"><span class="pre">multifit_sqw</span></code>. You can follow the link to <a class="reference internal" href="Multifit.html#multifit"><span class="std std-ref">multifit</span></a> for the general information about how to create a fit, and <a class="reference internal" href="Multifit.html#multifit-sqw"><span class="std std-ref">multifit_sqw</span></a> for the form of the function that models S(Q,w). For complete documentation use the Matlab help by typing <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/tobyfit</span></code> and navigate the links to the various methods for setting functions, parameters, fixed/free parameters and bindings between parameters.</p>
 <p>In addition to all of the methods for setting up and performing a fit, there are a few that are specific to Tobyfit (and which are documented in full in the Matlab documentation at <code class="docutils literal notranslate"><span class="pre">doc</span> <span class="pre">sqw/tobyfit</span></code>). The most important are outlined below. There is also the possibility to refine the crystal orientation and the moderator lineshape.</p>
 <section id="controlling-number-of-monte-carlo-points">
-<h4>Controlling number of Monte Carlo points<a class="headerlink" href="#controlling-number-of-monte-carlo-points" title="Permalink to this headline"></a></h4>
+<h4>Controlling number of Monte Carlo points<a class="headerlink" href="#controlling-number-of-monte-carlo-points" title="Permalink to this heading"></a></h4>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tobyfit</span><span class="w"> </span><span class="p">(</span><span class="n">my_data</span><span class="p">)</span><span class="w"></span>
 <span class="o">\</span><span class="n">t</span><span class="p">:</span><span class="w"></span>
 <span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tf</span><span class="p">.</span><span class="n">set_mc_points</span><span class="w"> </span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"></span>
@@ -178,7 +179,7 @@
 <p>The default is 10. This is a good starting value.</p>
 </section>
 <section id="controlling-which-contributions-to-include-in-the-resolution-function">
-<h4>Controlling which contributions to include in the resolution function<a class="headerlink" href="#controlling-which-contributions-to-include-in-the-resolution-function" title="Permalink to this headline"></a></h4>
+<h4>Controlling which contributions to include in the resolution function<a class="headerlink" href="#controlling-which-contributions-to-include-in-the-resolution-function" title="Permalink to this heading"></a></h4>
 <p>There are a number of contributions to the resolution function. As an example:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">tf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">tobyfit</span><span class="w"> </span><span class="p">(</span><span class="n">my_data</span><span class="p">)</span><span class="w"></span>
 <span class="o">\</span><span class="n">t</span><span class="p">:</span><span class="w"></span>
@@ -206,7 +207,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2021, STFC RAL.
-      <span class="lastupdated">Last updated on May 28, 2022, 6:35:05 AM.
+      <span class="lastupdated">Last updated on Jun 16, 2022, 8:58:46 AM.
       </span></p>
   </div>
 

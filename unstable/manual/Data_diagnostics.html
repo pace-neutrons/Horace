@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -100,11 +101,11 @@
            <div itemprop="articleBody">
              
   <section id="data-diagnostics">
-<h1>Data diagnostics<a class="headerlink" href="#data-diagnostics" title="Permalink to this headline"></a></h1>
+<h1>Data diagnostics<a class="headerlink" href="#data-diagnostics" title="Permalink to this heading"></a></h1>
 <p>Horace contains various tools for diagnosing issues with the data. The foremost of these is the <a class="reference internal" href="Run_inspector.html#run-inspector"><span class="std std-ref">run_inspector</span></a> tool.</p>
 <p>If you wish to decompose an sqw object into the data from its constituent runs, the <a class="reference internal" href="#split"><span class="std std-ref">split</span></a> routine outlined below can be used. After manipulation (if necessary), such data can then be recombined using the <a class="reference internal" href="#join"><span class="std std-ref">join</span></a> routine.</p>
 <section id="run-inspector">
-<h2>run_inspector<a class="headerlink" href="#run-inspector" title="Permalink to this headline"></a></h2>
+<h2>run_inspector<a class="headerlink" href="#run-inspector" title="Permalink to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">run_inspector</span></code> routine may be used on 1d or 2d sqw objects to plot the data from each individual run.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">run_inspector</span><span class="p">(</span><span class="n">w</span><span class="p">)</span><span class="w"></span>
 
@@ -130,14 +131,14 @@
 <a class="reference internal image-reference" href="../_images/Fe_slice_run_inspector_21.jpg"><img alt="Frame 21 in run inspector" src="../_images/Fe_slice_run_inspector_21.jpg" style="width: 500px;" /></a>
 </section>
 <section id="split">
-<h2>split<a class="headerlink" href="#split" title="Permalink to this headline"></a></h2>
+<h2>split<a class="headerlink" href="#split" title="Permalink to this heading"></a></h2>
 <p>Split an sqw object into an array of sqw objects, each containing data from a single contributing run. So if your dataset comprises information from 100 runs, the output will be a 100-by-1 array of sqw objects.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="p">=</span><span class="nb">split</span><span class="p">(</span><span class="n">w</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 </section>
 <section id="join">
-<h2>join<a class="headerlink" href="#join" title="Permalink to this headline"></a></h2>
+<h2>join<a class="headerlink" href="#join" title="Permalink to this heading"></a></h2>
 <p>Inverse of <code class="docutils literal notranslate"><span class="pre">split</span></code> - takes an array of sqw objects that have been created using <code class="docutils literal notranslate"><span class="pre">split</span></code> and recombines them.</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">wout</span><span class="p">=</span><span class="nb">join</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="n">wi</span><span class="p">)</span><span class="w"></span>
 
@@ -164,7 +165,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2021, STFC RAL.
-      <span class="lastupdated">Last updated on May 28, 2022, 6:35:05 AM.
+      <span class="lastupdated">Last updated on Jun 16, 2022, 8:58:46 AM.
       </span></p>
   </div>
 

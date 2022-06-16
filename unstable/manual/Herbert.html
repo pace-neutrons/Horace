@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -121,14 +122,14 @@
            <div itemprop="articleBody">
              
   <section id="herbert">
-<h1>Herbert<a class="headerlink" href="#herbert" title="Permalink to this headline"></a></h1>
+<h1>Herbert<a class="headerlink" href="#herbert" title="Permalink to this heading"></a></h1>
 <p>Herbert is the collection of utilities for visualisation and analysis of neutron spectroscopy data. It can be used alone or as the package, which provide low level data manipulation routines for the <a class="reference external" href="http://horace.isis.rl.ac.uk/Main_Page">Horace</a> package</p>
 <p>It has been extracted from Libisis to simplify Horace installation and can be considered as <a class="reference external" href="http://www.libisis.org/Main_Page">Libisis</a> stripped of the data reduction capabilities.</p>
 <section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h2>
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h2>
 <p>Installing Herbert means registering it with Matlab. The procedure is very similar to the one, done for Horace itself so we will refer to it as registering a package. Two methods to register a package are currently used by ISIS. One is based on editing your Matlab startup file, and another one – by registering small part of the packages with Matlab. The startup.m method is simpler, while registering package_on file provides more flexible results and is necessary if you are intended to use parallel Herbert/Horace capabilities.</p>
 <section id="installation-using-matlab-startup-file">
-<h3>Installation using Matlab startup file<a class="headerlink" href="#installation-using-matlab-startup-file" title="Permalink to this headline"></a></h3>
+<h3>Installation using Matlab startup file<a class="headerlink" href="#installation-using-matlab-startup-file" title="Permalink to this heading"></a></h3>
 <p>Unzip all of the Herbert folders into a single directory. The directory structure below this will be taken care of by your zip program. On a Windows machines a good place to put this would be somewhere like</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">C</span><span class="p">:</span><span class="o">\</span><span class="n">mprogs</span><span class="o">\</span><span class="w"></span>
 </pre></div>
@@ -163,7 +164,7 @@
 </div>
 </section>
 <section id="installation-by-editing-and-registering-package-on-file">
-<h3>Installation by editing and registering package_on file<a class="headerlink" href="#installation-by-editing-and-registering-package-on-file" title="Permalink to this headline"></a></h3>
+<h3>Installation by editing and registering package_on file<a class="headerlink" href="#installation-by-editing-and-registering-package-on-file" title="Permalink to this heading"></a></h3>
 <p>1) Edit the first executable row of the <strong>herbert_on.m.template</strong> file, which can be found in Herebert/admin folder putting there the path where you unpacked Herbert. e.g., if you unpacked Herbert into c:\mprogs\Herbert,
 write there:</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">her_default_path</span><span class="p">=</span><span class="s">&#39;c:/mprogs/Herbert&#39;</span><span class="p">;</span><span class="w"></span>
@@ -197,11 +198,11 @@ write there:</p>
 <p>Under Uinx-like OS you usually need to be an administrator, to edit /toolbox folder, so any other convenient location, where you have write access can be used instead.</p>
 </section>
 <section id="main-capabilities">
-<h3>Main Capabilities<a class="headerlink" href="#main-capabilities" title="Permalink to this headline"></a></h3>
+<h3>Main Capabilities<a class="headerlink" href="#main-capabilities" title="Permalink to this heading"></a></h3>
 <p>Herbert has just been developed and have not had extensive used manual yet. Its main graphics and fitting capabilities are similar to <a class="reference external" href="http://www.libisis.org/">Libisis</a>.</p>
 </section>
 <section id="herbert-and-libisis">
-<h3>Herbert and Libisis<a class="headerlink" href="#herbert-and-libisis" title="Permalink to this headline"></a></h3>
+<h3>Herbert and Libisis<a class="headerlink" href="#herbert-and-libisis" title="Permalink to this heading"></a></h3>
 <p>If both Herbert, and Libisis are present on your system (and you have not disabled Libisis in your startup file as suggested above), Horace will use the package which has been initiated last. There are number of Herbert and Libisis commands, which have the same syntax. The package, initiated last will set up its command to use from Matlab command prompt. Older versions of Libisis are not compatible with Herbert, so it is suggested to download and setup latest Libisis version if you have to use it together with Herbert (in one Matlab session).</p>
 <p>We suggest to setup Herbert and Libisis using package_on() approach (libisis_on template file can be found in Libisis/ISIS_utilities folder). This will allow you to switch between Herbert and Libisis typing corresponding package name. Screenshot-Horace_Planner.</p>
 </section>
@@ -220,7 +221,7 @@ write there:</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2021, STFC RAL.
-      <span class="lastupdated">Last updated on May 28, 2022, 6:35:05 AM.
+      <span class="lastupdated">Last updated on Jun 16, 2022, 8:58:46 AM.
       </span></p>
   </div>
 
