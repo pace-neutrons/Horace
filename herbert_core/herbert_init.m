@@ -43,9 +43,7 @@ genieplot_init
 % Applications definitions
 addgenpath_message (rootpath,'applications')
 
-% Herbert mex files
-addgenpath_message (rootpath,'DLL')
-%
+
 % set up multiusers computer specific settings,
 % namely settings which are common for all new users of the specific computer
 % e.g.:
