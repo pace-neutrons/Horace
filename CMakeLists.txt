@@ -31,13 +31,13 @@ list(APPEND CMAKE_MODULE_PATH "${Horace_ROOT}/cmake"
 # This sets the destination for mex build artefacts (used in PACE_AddMex)
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
-   SET(MatlabARCH "_maci64")
+   SET(Matlab_ARCH "_maci64")
 ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-   SET(MatlabARCH "_glnxa64")
+   SET(Matlab_ARCH "_glnxa64")
 ELSE()
-   SET(MatlabARCH "_pcwin64")
+   SET(Matlab_ARCH "_pcwin64")
 ENDIF()
-set(Horace_DLL_DIRECTORY "${Horace_ROOT}/horace_core/DLL/${MatlabARCH}")
+set(Horace_DLL_DIRECTORY "${Horace_ROOT}/horace_core/DLL/${Matlab_ARCH}")
 
 # This is the directory that contains herbert_init.m
 set(Horace_CORE "${CMAKE_CURRENT_LIST_DIR}/horace_core")

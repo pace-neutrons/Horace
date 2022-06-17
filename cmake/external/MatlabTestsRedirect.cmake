@@ -15,9 +15,8 @@
 #   -Dcustom_Matlab_test_command=""
 #   -Dcmd_to_run_before_test=""
 #   -Dunittest_file_to_run
+#   -Dmaut_BATCH_OPTION="-batch"
 #   -P FindMatlab_TestsRedirect.cmake
-
-# This script comes from CMake version 3.16.2 CMAKE_ROOT/share/cmake-3.16/Modules/
 
 set(Matlab_UNIT_TESTS_CMD -nosplash -nodesktop -nodisplay ${Matlab_ADDITIONAL_STARTUP_OPTIONS})
 if(WIN32)
@@ -60,7 +59,7 @@ if(no_unittest_framework)
   set(unittest_to_run "${unittest_file_to_run_name}")
 endif()
 
-set(command_to_run "try, ${unittest_to_run}, catch err, disp('An exception has been thrown during the execution'), disp(getReport(err,'extended')), exit(1), end, exit(0)")
+set(command_to_run "try, ${unittest_to_run}, catch err, disp('An exception has been thrown during the execution'), disp(err), disp(err.stack), exit(1), end, exit(0)")
 set(Matlab_SCRIPT_TO_RUN
     "addpath(${concat_string}); ${cmd_to_run_before_test}; ${command_to_run}"
    )
@@ -86,7 +85,7 @@ execute_process(
   # Do not use a full path to log file.  Depend on the fact that the log file
   # is always going to go in the working_directory.  This is because matlab
   # on unix is a shell script that does not handle spaces in the logfile path.
-  COMMAND "${Matlab_PROGRAM}" ${Matlab_UNIT_TESTS_CMD} -logfile "${log_file_name}" -r "${Matlab_SCRIPT_TO_RUN}"
+  COMMAND "${Matlab_PROGRAM}" ${Matlab_UNIT_TESTS_CMD} -logfile "${log_file_name}" "${maut_BATCH_OPTION}" "${Matlab_SCRIPT_TO_RUN}"
   RESULT_VARIABLE res
   ${test_timeout}
   OUTPUT_QUIET # we do not want the output twice

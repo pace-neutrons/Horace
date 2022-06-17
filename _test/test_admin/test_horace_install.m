@@ -25,15 +25,15 @@ classdef test_horace_install < TestCase
             % Jenkins
             %
             %WARNING! not absolute or smart. Relies on convention from
-            %2021/10/01
+            %2022/06/15
             hor_unpack = fileparts(fileparts(which('horace_init')));
             herbert_unpack = fileparts(fileparts(which('herbert_init')));
             if isempty(herbert_unpack)
                 [path0,hor_root] = fileparts(hor_unpack);
                 if strcmp(hor_root,'Horace') % is Horace alongside Herbert or inside
-                    herbert_unpack = fullfile(path0,'Herbert');
+                    herbert_unpack = fullfile(path0,'Horace');
                 else
-                    herbert_unpack = fullfile(hor_unpack,'Herbert');
+                    herbert_unpack = fullfile(hor_unpack,'Horace');
                 end
             end
         end
@@ -153,7 +153,6 @@ classdef test_horace_install < TestCase
             assertFalse(use_old_init_folder);
             
             assertEqual(new_install,install_folder);
-            %assertEqual(her_test_source,her_init_dir);
             assertEqual(hor_test_source,hor_init_dir);
             
             clear clob1;
@@ -238,7 +237,6 @@ classdef test_horace_install < TestCase
             assertEqual(fileparts(which('horace_on')),install_folder);
             assertTrue(use_old_init_folder);
             
-            %assertEqual(her_test_source,her_init_dir);
             assertEqual(hor_test_source,hor_init_dir);
             
             clear clob1;
@@ -252,7 +250,7 @@ classdef test_horace_install < TestCase
             [install_folder,hor_init_dir,use_old_init_path] = horace_install(...
                 'horace_root',horace_code,'-test_mode');
             assertEqual(fileparts(which('horace_on')),install_folder);
-            %assertEqual(fullfile(herbert_code,'herbert_core'),her_init_dir);
+
             assertEqual(fullfile(horace_code,'horace_core'),hor_init_dir);
             assertTrue(use_old_init_path);
         end
