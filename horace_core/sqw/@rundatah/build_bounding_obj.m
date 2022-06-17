@@ -36,7 +36,11 @@ if ~range_given
             error('HORACE:build_bounding_obj:invalid_argument',...
                 'calc_bounding_obj: incomplete input object, %s',mess);
         end
-        en = 0.5*(rdl.en(1:end-1)+rdl.en(2:end));
+        if (isempty(rdl.S) && numel(rdl.en) == 2) || size(rdl.S,1) == numel(rdl.en)
+            en = rdl.en;
+        else
+            en = 0.5*(rdl.en(1:end-1)+rdl.en(2:end));
+        end
         if isempty(en)
             error('HORACE:build_bounding_obj:invalid_argument',...
                 'calc_bounding_obj: no energy loaded in input object and no energy ranges are provided');
@@ -49,7 +53,7 @@ if ~range_given
     end
     if en_min == en_max
         % is it already a bounding object?
-        if numel(rdl.en) == 2 
+        if numel(rdl.en) == 2
             en = rdl.en(1);
         else
             en = [en_min-1,en_max+1];
@@ -80,6 +84,6 @@ function en = get_en_from_range(en_min,en_max)
 
 if en_min == 0 || en_max == 0 || sign(en_min)*sign(en_max)>0
     en = [en_min*(1-sign(en_min)*eps),en_max*(1+sign(en_max)*eps)];
-else %we want even number of equally spaced bins, to produce 3 odd bin cenres    
+else %we want even number of equally spaced bins, to produce 3 odd bin cenres
     en = [en_min*(1-sign(en_min)*eps),0,en_max*(1+sign(en_max)*eps)];
 end

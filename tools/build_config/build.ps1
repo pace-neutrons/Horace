@@ -31,7 +31,7 @@ param (
   [switch][Alias("b")]$build,
   # Run all Horace tests.
   [switch][Alias("t")]$test,
-  # Pacakge Horace into a .zip file.
+  # Package Horace into a .zip file.
   [switch][Alias("p")]$package,
   # Print the versions of libraries being used e.g. Matlab.
   [switch][Alias("v")]$print_versions,

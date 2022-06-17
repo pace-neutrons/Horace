@@ -5,6 +5,9 @@ file(READ "${Horace_ROOT}/VERSION" _version)
 string(STRIP "${_version}" _version)
 project("Horace" VERSION "${_version}")
 
+#
+cmake_host_system_information(RESULT CMAKE_HOST_SYSTEM_NAME QUERY OS_NAME)
+
 # C++11 is required for GTest
 set(CMAKE_CXX_STANDARD 11)
 
@@ -26,7 +29,16 @@ list(APPEND CMAKE_MODULE_PATH "${Horace_ROOT}/cmake"
      "${Horace_ROOT}/cmake/external" "${Horace_ROOT}/cmake/shared")
 
 # This sets the destination for mex build artefacts (used in PACE_AddMex)
-set(Horace_DLL_DIRECTORY "${Horace_ROOT}/horace_core/DLL")
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+   # Mac OS X specific code
+   SET(MatlabARCH "_maci64")
+ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+   SET(MatlabARCH "_glnxa64")
+ELSE()
+   SET(MatlabARCH "_pcwin64")
+ENDIF()
+set(Horace_DLL_DIRECTORY "${Horace_ROOT}/horace_core/DLL/${MatlabARCH}")
+
 # This is the directory that contains herbert_init.m
 set(Horace_CORE "${CMAKE_CURRENT_LIST_DIR}/horace_core")
 set(Herbert_CORE "${CMAKE_CURRENT_LIST_DIR}/herbert_core")

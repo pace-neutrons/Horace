@@ -1,4 +1,4 @@
-set(Horace_DLL_EXTERNAL_DIR "${Horace_DLL_DIR}/external")
+set(Horace_DLL_EXTERNAL_DIR "${Horace_ROOT}/_LowLevelCode/external")
 
 # Copy the required MPI runtimes to horace_core/DLL/external
 if(UNIX)
