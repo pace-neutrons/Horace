@@ -112,7 +112,6 @@ classdef test_main_mex < TestCase
             assertElementsAlmostEqual(npix_m,npix_c,'absolute',1.e-12);
             assertEqualToTol(pix_ok_m,pix_ok_c);
             assertElementsAlmostEqual(unique_runid_m,unique_runid_c);
-% $$$             skipTest('Only pixel sorting is currently mexed')
         end
 
         function obj=test_calc_proj(obj)
@@ -222,7 +221,7 @@ classdef test_main_mex < TestCase
             n_threads = par.threads;
 
             cleanup_obj=onCleanup(@()set(hor_config,'log_level',log_level));
-            cleanup_obj=onCleanup(@()set(parallel_config,'threads',n_threads));
+            cleanup_obj2=onCleanup(@()set(parallel_config,'threads',n_threads));
 
             pix=ones(9,40000);
             xs = 9.6:-1:0.6;

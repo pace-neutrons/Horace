@@ -56,7 +56,7 @@ hpc_options_names = hpc_cli.hpc_options;
 if nargin>0
     val = varargin{1};
 
-    switch val
+    switch lower(val)
       case 'on'
         hpc_cli.build_sqw_in_parallel = true;
       case 'off'

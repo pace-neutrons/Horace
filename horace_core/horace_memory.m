@@ -16,7 +16,7 @@ function mem=horace_memory(chunk_size,threads)
 %       >> set(hor_config,'mem_chunk_size',chunk_size,'threads',threads);
 %       >> [mem.chunk_size,mem.threads]=get(hor_config,'mem_chunk_size','threads');
 
-elseif nargin ~= 0 && nargin ~= 2
+if nargin ~= 0 && nargin ~= 2
     error('HORACE:horace_memory:invalid_argument', 'Incorrect number of arguments')
 end
 
@@ -35,4 +35,6 @@ end
 if nargout > 0
     mem.chunk_size = get(hor_config,'mem_chunk_size');
     mem.threads    = get(parallel_config,'threads');
+end
+
 end
