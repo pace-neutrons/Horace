@@ -1,6 +1,6 @@
 function [init_folder,hor_init_dir,use_old_init_path] = ...
     horace_install(varargin)
-% Install an initialize Horace at the location, where the Horace package
+% Install and initialize Horace at the location, where the Horace package
 % has been unpacked.
 %
 % Usage:
