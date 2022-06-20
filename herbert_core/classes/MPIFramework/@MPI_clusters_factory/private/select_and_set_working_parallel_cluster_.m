@@ -53,7 +53,6 @@ else
         'Unknown parallel cluster: ''%s'' type: ''%s'' requested',...
         strtrim(evalc('disp(val)')),class(val));
 end
-obj.parallel_cluster_name_ = cl_name;
 cl = obj.known_clusters_(cl_name);
 try
     cl.check_availability();
@@ -65,5 +64,6 @@ catch ME
         rethrow(ME);
     end
 end
-obj.framework_available_ = true;
+obj.parallel_cluster_name_ = cl_name;
+obj.framework_available_   = true;
 %
