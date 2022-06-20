@@ -1,6 +1,6 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
 # file Copyright.txt or https://cmake.org/licensing for details.
-
+# This script is taken from CMake git repository Cmake version 3.24.0.rc1
 #[=======================================================================[.rst:
 FindPackageMessage
 ------------------
