@@ -124,7 +124,7 @@ classdef test_horace_install < TestCase
             init_files = {'horace_init.m'};
             obj.copy_install_files(init_files ,hor_test_source);
             
-            her_test_source= fullfile(test_install,'Horace','herbert_core');
+            her_test_source = fullfile(test_install,'herbert_core');
             mkdir(her_test_source);
             init_files = {'herbert_init.m'};
             obj.copy_install_files(init_files ,her_test_source);

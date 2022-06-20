@@ -1,8 +1,6 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
 # file Copyright.txt or https://cmake.org/licensing for details.
 
-# This script comes from CMake version master on 17/06/2022
-
 #[=======================================================================[.rst:
 FindMatlab
 ----------
@@ -481,7 +479,12 @@ function(matlab_extract_all_installed_versions_from_registry win64 matlab_versio
 
   if(matlabs_from_registry)
     list(REMOVE_DUPLICATES matlabs_from_registry)
-    list(SORT matlabs_from_registry COMPARE NATURAL)
+    if(${CMAKE_VERSION} VERSION_LESS "3.18.0") 
+        message("Please consider to switch to CMake 3.18.0 as this sorting may select wrong Matlab version: ${matlabs_from_registry}")
+        list(SORT matlabs_from_registry)
+    else()
+        list(SORT matlabs_from_registry COMPARE NATURAL)
+    endif()
     list(REVERSE matlabs_from_registry)
   endif()
 
