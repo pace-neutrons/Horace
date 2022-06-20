@@ -27,6 +27,7 @@
          <worker>worker_v2</worker>
          <parallel_cluster>herbert</parallel_cluster>
          <cluster_config>local</cluster_config>
+         <external_mpiexec>0</external_mpiexec>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
@@ -59,6 +60,7 @@
          <worker>worker_v2</worker>
          <parallel_cluster>herbert</parallel_cluster>
          <cluster_config>local</cluster_config>
+         <external_mpiexec>1</external_mpiexec>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
@@ -91,6 +93,7 @@
          <worker>worker_v2</worker>
          <parallel_cluster>herbert</parallel_cluster>
          <cluster_config>local</cluster_config>
+         <external_mpiexec>0</external_mpiexec>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
@@ -123,6 +126,7 @@
          <worker>worker_v2</worker>
          <parallel_cluster>parpool</parallel_cluster>
          <cluster_config>local</cluster_config>
+         <external_mpiexec>1</external_mpiexec>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
@@ -155,6 +159,7 @@
          <worker>worker_v2</worker>
          <parallel_cluster>parpool</parallel_cluster>
          <cluster_config>default</cluster_config>
+         <external_mpiexec>1</external_mpiexec>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
@@ -187,6 +192,7 @@
          <worker>worker_v2</worker>
          <parallel_cluster>herbert</parallel_cluster>
          <cluster_config>local</cluster_config>
+         <external_mpiexec>1</external_mpiexec>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
@@ -219,6 +225,7 @@
          <worker>worker_v2</worker>
          <parallel_cluster>parpool</parallel_cluster>
          <cluster_config>default</cluster_config>
+         <external_mpiexec>1</external_mpiexec>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
@@ -249,6 +256,7 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
+         <external_mpiexec>0</external_mpiexec>
          <parallel_cluster>herbert</parallel_cluster>
          <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
@@ -281,7 +289,8 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
-         <parallel_cluster>mpiexec_mpi</parallel_cluster>
+         <external_mpiexec>1</external_mpiexec>
+         <parallel_cluster>parpool</parallel_cluster>
          <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>

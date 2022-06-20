@@ -16,7 +16,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Set our options
 option(BUILD_TESTS "Build the C++ tests" OFF)
-option(USE_HORACE_MPI "Use MPI libraries provided with Horace" ON)
+
 
 # Set CMake policies
 if(POLICY CMP0074)
@@ -32,10 +32,13 @@ list(APPEND CMAKE_MODULE_PATH "${Horace_ROOT}/cmake"
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
    SET(Matlab_ARCH "_maci64")
+   option(USE_HORACE_MPI "Use MPI libraries provided with Horace" OFF)   
 ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
    SET(Matlab_ARCH "_glnxa64")
+   option(USE_HORACE_MPI "Use MPI libraries provided with Horace" OFF)
 ELSE()
    SET(Matlab_ARCH "_pcwin64")
+   option(USE_HORACE_MPI "Use MPI libraries provided with Horace" ON)
 ENDIF()
 set(Horace_DLL_DIRECTORY "${Horace_ROOT}/horace_core/DLL/${Matlab_ARCH}")
 
