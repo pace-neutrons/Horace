@@ -88,7 +88,6 @@ install(
     PATTERN "*.asv" EXCLUDE
     PATTERN "*.gitignore" EXCLUDE
     PATTERN "${EXTERNAL_IGNORE_PATTERN}" EXCLUDE
-    PATTERN "*/DLL/_*" EXCLUDE
 )
 
 install(
@@ -103,5 +102,4 @@ install(
     PATTERN "*.m~" EXCLUDE
     PATTERN "*.asv" EXCLUDE
     PATTERN "*.gitignore" EXCLUDE
-    PATTERN "*/DLL/_*" EXCLUDE
 )
