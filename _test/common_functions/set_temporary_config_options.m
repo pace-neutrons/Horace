@@ -2,7 +2,7 @@ function cleanup_handle = set_temporary_config_options(config_instance, varargin
 %% SET_CONFIG_OPTION set some config options and return an onCleanup object that
 % will reset the config when it goes out of scope
 %
-% >> cleanup_handle = set_config_option(hor_config(), 'pixel_page_size', 100e6);
+% >> cleanup_handle = set_config_option(hor_config(), 'mem_chunk_size', 20e6);
 %
 % >> cleanup_handle = set_config_option(hor_config(), 'use_mex', true, 'threads', 4);
 %

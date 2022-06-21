@@ -94,6 +94,7 @@ hpcc.combine_sqw_using = 'mex_code';
 hpcc.mex_combine_thread_mode=0;
 hpcc.mex_combine_buffer_size=64*1024;
 %
+parc.parallel_cluster = 'herbert';
 parc.external_mpiexec = false;
 
 function set_mac_small(parc,herc,horc,hpcc)
@@ -110,6 +111,7 @@ hpcc.combine_sqw_using = 'matlab';
 hpcc.mex_combine_thread_mode=0;
 hpcc.mex_combine_buffer_size=64*1024;
 %
+parc.parallel_cluster = 'herbert';
 parc.external_mpiexec = true;
 %
 function set_windows_large(parc,herc,horc,hpcc)
@@ -126,6 +128,7 @@ hpcc.combine_sqw_using = 'mex_code';
 hpcc.mex_combine_thread_mode=0;
 hpcc.mex_combine_buffer_size=128*1024;
 %
+parc.parallel_cluster = 'herbert';
 parc.external_mpiexec = false;
 
 function set_idaaas_small(parc,herc,horc,hpcc)
@@ -150,7 +153,7 @@ function set_idaaas_large(parc,herc,horc,hpcc)
 herc.use_mex = true;
 %
 horc.mem_chunk_size =  20000000;
-horc.threads = 4;
+horc.threads = 6;
 horc.use_mex = true;
 %
 hpcc.build_sqw_in_parallel = 1;
@@ -169,7 +172,7 @@ function set_unix_small(parc,herc,horc,hpcc)
 herc.use_mex = false;
 %
 horc.mem_chunk_size =  5000000;
-horc.threads = 8;
+horc.threads = 4;
 horc.use_mex = false;
 %
 hpcc.build_sqw_in_parallel = 0;
@@ -178,6 +181,7 @@ hpcc.combine_sqw_using = 'matlab';
 hpcc.mex_combine_thread_mode=0;
 hpcc.mex_combine_buffer_size=128*1024;
 %
+parc.parallel_cluster = 'herbert';
 parc.external_mpiexec = false;
 
 
@@ -196,4 +200,5 @@ hpcc.combine_sqw_using = 'mex_code';
 hpcc.mex_combine_thread_mode=1;
 hpcc.mex_combine_buffer_size=4*1024;
 %
+parc.parallel_cluster = 'herbert';
 parc.external_mpiexec = false;

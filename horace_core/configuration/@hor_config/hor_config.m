@@ -148,8 +148,9 @@ classdef hor_config < config_base
         function use = get.mem_chunk_size(this)
             use = get_or_restore_field(this,'mem_chunk_size');
         end
-        function page_size = get.pixel_page_size(this)
-            page_size = get_or_restore_field(this, 'pixel_page_size');
+        function page_size = get.pixel_page_size(obj)
+            chunk_size = obj.mem_chunk_size;
+            page_size = chunk_size*36;
         end
         function n_threads=get.threads(this)
             n_threads = get_or_restore_field(this,'threads');
@@ -220,7 +221,8 @@ classdef hor_config < config_base
 
         function this = set.pixel_page_size(this, val)
             PixelData.validate_mem_alloc(val);
-            config_store.instance().store_config(this, 'pixel_page_size', val);
+            m_chunk_size = floor(val/36);
+            config_store.instance().store_config(this, 'mem_chunk_size', m_chunk_size);
         end
         
         function this = set.threads(this,val)
