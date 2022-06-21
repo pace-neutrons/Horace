@@ -27,10 +27,10 @@
          <worker>worker_v2</worker>
          <parallel_cluster>herbert</parallel_cluster>
          <cluster_config>local</cluster_config>
-         <external_mpiexec>0</external_mpiexec>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
+         <external_mpiexec/>
       </parallel_config>
    </win_small>
    <a_mac>
@@ -60,10 +60,10 @@
          <worker>worker_v2</worker>
          <parallel_cluster>herbert</parallel_cluster>
          <cluster_config>local</cluster_config>
-         <external_mpiexec>1</external_mpiexec>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
+         <external_mpiexec>1</external_mpiexec>
       </parallel_config>
    </a_mac>
    <win_large>
@@ -93,10 +93,10 @@
          <worker>worker_v2</worker>
          <parallel_cluster>herbert</parallel_cluster>
          <cluster_config>local</cluster_config>
-         <external_mpiexec>0</external_mpiexec>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
+         <external_mpiexec>0</external_mpiexec>
       </parallel_config>
    </win_large>
    <idaaas_small>
@@ -120,16 +120,16 @@
          <parallel_workers_number>2</parallel_workers_number>
          <combine_sqw_using>mex_code</combine_sqw_using>
          <mex_combine_thread_mode>1</mex_combine_thread_mode>
-         <mex_combine_buffer_size>16384</mex_combine_buffer_size>
+         <mex_combine_buffer_size>8192</mex_combine_buffer_size>
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
          <parallel_cluster>parpool</parallel_cluster>
          <cluster_config>local</cluster_config>
-         <external_mpiexec>1</external_mpiexec>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
+          <external_mpiexec>0</external_mpiexec>
       </parallel_config>
    </idaaas_small>
    <idaaas_large>
@@ -149,20 +149,20 @@
          <delete_tmp>[true]</delete_tmp>
       </hor_config>
       <hpc_config>
-         <build_sqw_in_parallel>[false]</build_sqw_in_parallel>
+         <build_sqw_in_parallel>[true]</build_sqw_in_parallel>
          <parallel_workers_number>6</parallel_workers_number>
          <combine_sqw_using>mex_code</combine_sqw_using>
          <mex_combine_thread_mode>1</mex_combine_thread_mode>
-         <mex_combine_buffer_size>16384</mex_combine_buffer_size>
+         <mex_combine_buffer_size>131072</mex_combine_buffer_size>
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
          <parallel_cluster>parpool</parallel_cluster>
-         <cluster_config>default</cluster_config>
-         <external_mpiexec>1</external_mpiexec>
+         <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
+          <external_mpiexec>0</external_mpiexec>
       </parallel_config>
    </idaaas_large>
    <unix_small>
@@ -192,10 +192,10 @@
          <worker>worker_v2</worker>
          <parallel_cluster>herbert</parallel_cluster>
          <cluster_config>local</cluster_config>
-         <external_mpiexec>1</external_mpiexec>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
+          <external_mpiexec>0</external_mpiexec>
       </parallel_config>
    </unix_small>
    <unix_large>
@@ -215,8 +215,8 @@
          <delete_tmp>[true]</delete_tmp>
       </hor_config>
       <hpc_config>
-         <build_sqw_in_parallel>[false]</build_sqw_in_parallel>
-         <parallel_workers_number>10</parallel_workers_number>
+         <build_sqw_in_parallel>[true]</build_sqw_in_parallel>
+         <parallel_workers_number>8</parallel_workers_number>
          <combine_sqw_using>mex_code</combine_sqw_using>
          <mex_combine_thread_mode>1</mex_combine_thread_mode>
          <mex_combine_buffer_size>4096</mex_combine_buffer_size>
@@ -225,10 +225,10 @@
          <worker>worker_v2</worker>
          <parallel_cluster>parpool</parallel_cluster>
          <cluster_config>default</cluster_config>
-         <external_mpiexec>1</external_mpiexec>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
+          <external_mpiexec>0</external_mpiexec>
       </parallel_config>
    </unix_large>
    <jenkins_win>

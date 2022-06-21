@@ -133,7 +133,7 @@ function set_idaaas_small(parc,herc,horc,hpcc)
 herc.use_mex = true;
 %
 horc.mem_chunk_size =  5000000;
-horc.threads = 8;
+horc.threads = 4;
 horc.use_mex = true;
 %
 hpcc.build_sqw_in_parallel = 0;
@@ -142,7 +142,8 @@ hpcc.combine_sqw_using = 'mex_code';
 hpcc.mex_combine_thread_mode=1;
 hpcc.mex_combine_buffer_size=8*1024;
 %
-parc.external_mpiexec = true;
+parc.external_mpiexec = false;
+parc.parallel_cluster = 'parpool';
 %
 function set_idaaas_large(parc,herc,horc,hpcc)
 %
@@ -158,7 +159,8 @@ hpcc.combine_sqw_using = 'mex_code';
 hpcc.mex_combine_thread_mode=1;
 hpcc.mex_combine_buffer_size=128*1024;
 %
-parc.external_mpiexec = true;
+parc.parallel_cluster = 'parpool';
+parc.external_mpiexec = false;
 
 
 
@@ -176,7 +178,7 @@ hpcc.combine_sqw_using = 'matlab';
 hpcc.mex_combine_thread_mode=0;
 hpcc.mex_combine_buffer_size=128*1024;
 %
-parc.external_mpiexec = true;
+parc.external_mpiexec = false;
 
 
 
@@ -194,4 +196,4 @@ hpcc.combine_sqw_using = 'mex_code';
 hpcc.mex_combine_thread_mode=1;
 hpcc.mex_combine_buffer_size=4*1024;
 %
-parc.external_mpiexec = true;
+parc.external_mpiexec = false;
