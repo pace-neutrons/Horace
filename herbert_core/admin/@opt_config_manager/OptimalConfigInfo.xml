@@ -125,7 +125,7 @@
       <parallel_config>
          <worker>worker_v2</worker>
          <parallel_cluster>parpool</parallel_cluster>
-         <cluster_config>local</cluster_config>
+         <cluster_config>default</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
@@ -158,7 +158,7 @@
       <parallel_config>
          <worker>worker_v2</worker>
          <parallel_cluster>parpool</parallel_cluster>
-         <cluster_config>local</cluster_config>
+         <cluster_config>default</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
@@ -223,8 +223,8 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
-         <parallel_cluster>parpool</parallel_cluster>
-         <cluster_config>default</cluster_config>
+         <parallel_cluster>herbert</parallel_cluster>
+         <cluster_config>local</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
@@ -256,12 +256,12 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
-         <external_mpiexec>0</external_mpiexec>
-         <parallel_cluster>herbert</parallel_cluster>
-         <cluster_config>local</cluster_config>
+         <parallel_cluster>parpool</parallel_cluster>
+         <cluster_config>default</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
+         <external_mpiexec>0</external_mpiexec>
       </parallel_config>
    </jenkins_win>
    <jenkins_unix>
@@ -291,7 +291,7 @@
          <worker>worker_v2</worker>
          <external_mpiexec>1</external_mpiexec>
          <parallel_cluster>parpool</parallel_cluster>
-         <cluster_config>local</cluster_config>
+         <cluster_config>default</cluster_config>
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
