@@ -30,7 +30,7 @@
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
-         <external_mpiexec/>
+         <external_mpiexec>0</external_mpiexec>
       </parallel_config>
    </win_small>
    <a_mac>
@@ -129,7 +129,7 @@
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
-          <external_mpiexec>0</external_mpiexec>
+         <external_mpiexec>0</external_mpiexec>
       </parallel_config>
    </idaaas_small>
    <idaaas_large>
@@ -162,7 +162,7 @@
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
-          <external_mpiexec>0</external_mpiexec>
+         <external_mpiexec>0</external_mpiexec>
       </parallel_config>
    </idaaas_large>
    <unix_small>
@@ -175,7 +175,7 @@
       </herbert_config>
       <hor_config>
          <mem_chunk_size>5000000</mem_chunk_size>
-         <threads>8</threads>
+         <threads>4</threads>
          <ignore_nan>[true]</ignore_nan>
          <ignore_inf>[false]</ignore_inf>
          <use_mex>[false]</use_mex>
@@ -195,7 +195,7 @@
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
-          <external_mpiexec>0</external_mpiexec>
+         <external_mpiexec>0</external_mpiexec>
       </parallel_config>
    </unix_small>
    <unix_large>
@@ -228,7 +228,7 @@
          <shared_folder_on_local/>
          <shared_folder_on_remote/>
          <working_directory/>
-          <external_mpiexec>0</external_mpiexec>
+         <external_mpiexec>0</external_mpiexec>
       </parallel_config>
    </unix_large>
    <jenkins_win>
