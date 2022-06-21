@@ -1,4 +1,7 @@
-set(Horace_DLL_EXTERNAL_DIR "${Horace_ROOT}/_LowLevelCode/external")
+set(Horace_DLL_EXTERNAL_DIR "${Horace_ROOT}/horace_core/DLL/external")
+if (NOT EXISTS ${Horace_DLL_EXTERNAL_DIR})
+    file(MAKE_DIRECTORY ${Horace_DLL_EXTERNAL_DIR})
+endif()
 
 # Copy the required MPI runtimes to horace_core/DLL/external
 if(UNIX)
@@ -7,7 +10,7 @@ if(UNIX)
     set(Horace_MPI_LICENSE_FILE "${Horace_MPICH_DIR}/MPICH-COPYRIGHT")
     # MPICH is linked to via shared libraries so these must be copied
     configure_file("${Horace_MPICH_DIR}/lib/libmpi.so.0.0.0"
-                   "${Horace_DLL_EXTERNAL_DIR}/libmpi.so.0" COPYONLY)
+                   "${Horace_DLL_DIRECTORY}/libmpi.so.0" COPYONLY)
 else()
     set(Horace_MSMPI_DIR "${CMAKE_CURRENT_LIST_DIR}/win64/MSMPI-8.0.12")
     set(Horace_MPIEXEC_EXE
