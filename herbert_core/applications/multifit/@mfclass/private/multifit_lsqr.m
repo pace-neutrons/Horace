@@ -189,7 +189,12 @@ function [p_best,sig,cor,chisqr_red,converged]=multifit_lsqr(w,xye,func,bfunc,pi
 %        :
 %   end
 
-hc = hpc_config;
+
+try
+    hc = hpc_config;
+catch ME
+    hc = struct('parallel_multifit', false, 'parallel_workers_number', 1);
+end
 
 if hc.parallel_multifit
     [p_best,sig,cor,chisqr_red,converged] = multifit_lsqr_par(w,xye,func,bfunc,pin,bpin,...
