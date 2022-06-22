@@ -10,27 +10,26 @@ function [obj, merge_data] = split_sqw(varargin)
     nWorkers = ip.Results.nWorkers;
     split_bins = ip.Results.split_bins;
 
-% $$$       debugging
-% $$$             for nw=1:8
-% $$$                 nPer = floor(sqw_in.data.num_pixels / nw);
-% $$$                 num_pixels = repmat(nPer, 1, nw);
-% $$$                 for i=1:mod(sqw_in.data.num_pixels, nw)
-% $$$                     num_pixels(i) = num_pixels(i)+1;
-% $$$                 end
-% $$$                 split_npix(num_pixels, sqw_in.data.npix)
-% $$$                 cellfun(@sum, split_npix(num_pixels, sqw_in.data.npix))
-% $$$                 sum(cellfun(@sum, split_npix(num_pixels, sqw_in.data.npix)))
-% $$$             end
+%      debugging
+%            for nw=1:8
+%                nPer = floor(sqw_in.data.num_pixels / nw);
+%                num_pixels = repmat(nPer, 1, nw);
+%                for i=1:mod(sqw_in.data.num_pixels, nw)
+%                    num_pixels(i) = num_pixels(i)+1;
+%                end
+%                split_npix(num_pixels, sqw_in.data.npix)
+%                cellfun(@sum, split_npix(num_pixels, sqw_in.data.npix))
+%                sum(cellfun(@sum, split_npix(num_pixels, sqw_in.data.npix)))
+%            end
 
     merge_data = arrayfun(@(x) struct(), 1:nWorkers);
 
     if isa(sqw_in, 'DnDBase') % DnD object
         N = numel(sqw_in.npix);
         nPer = floor(N / nWorkers);
+        overflow = mod(N, nWorkers);
         num_pixels = repmat(nPer, 1, nWorkers);
-        for i=1:mod(N, nWorkers)
-            num_pixels(i) = num_pixels(i)+1;
-        end
+        num_pixels(1:overflow) = num_pixels(1:overflow)+1;
 
         points = [0, cumsum(num_pixels)];
 
@@ -45,56 +44,50 @@ function [obj, merge_data] = split_sqw(varargin)
 
     elseif isa(sqw_in, 'sqw')
         nPer = floor(sqw_in.data.num_pixels / nWorkers);
+        overflow = mod(sqw_in.data.num_pixels, nWorkers);
         num_pixels = repmat(nPer, 1, nWorkers);
-        for i=1:mod(sqw_in.data.num_pixels, nWorkers)
-            num_pixels(i) = num_pixels(i)+1;
-        end
-
-        points = [0, cumsum(num_pixels)];
+        num_pixels(1:overflow) = num_pixels(1:overflow)+1;
 
         if split_bins
+            points = [0, cumsum(num_pixels)];
 
             [npix, nomerge] = split_npix(num_pixels, sqw_in.data.npix);
 
-            for i=1:nWorkers
-                obj(i) = copy(sqw_in);
-                obj(i).data.npix = npix{i};
-% $$$             obj(i).data.pix = get_pix_in_ranges(sqw_in.data.pix, points(i)+1, points(i+1));
-
-                obj(i).data.pix = PixelData(num_pixels(i));
-                obj(i).data.pix.data = sqw_in.data.pix.data(:, points(i)+1:points(i+1));
-                obj(i).data.num_pixels = num_pixels(i);
-                [obj(i).data.s, obj(i).data.e] = obj(i).data.pix.compute_bin_data(obj(i).data.npix);
-                merge_data(i).nomerge = nomerge(i);
-                merge_data(i).nelem = [obj(i).data.npix(1), obj(i).data.npix(end)]; % number of pixels to recombine
-            end
-        else % Take whole bins
-            loc = cumsum(sqw_in.data.npix(:));
+        else
+            points = [0, cumsum(num_pixels)];
             prev = 0;
-            for i=1:nWorkers
-                obj(i) = copy(sqw_in);
+            npix = cell(nWorkers, 1);
 
-% $$$             obj(i).data.pix = get_pix_in_ranges(sqw_in.data.pix, points(i)+1, points(i+1));
+            loc = cumsum(sqw_in.data.npix(:));
+            for i=1:nWorkers
                 curr = find(loc > points(i+1), 1);
-                if loc(curr - 1) == points(i+1)
+
+                if loc(curr - 1) == points(i+1)  % Falls on bin boundary
                     curr = curr - 1;
-                elseif isempty(curr)
+                elseif isempty(curr)             % Falls after end of array
                     curr = numel(loc);
                 end
-                new_pix = sqw_in.data.npix(prev+1:curr);
-                num_pixels(i) = sum(new_pix);
-                points(i+1) = points(i) + num_pixels(i);
 
-                obj(i).data.pix = PixelData(num_pixels(i));
-                obj(i).data.npix = new_pix;
-                obj(i).data.pix.data = sqw_in.data.pix.data(:, points(i)+1:points(i+1));
-                obj(i).data.num_pixels = num_pixels(i);
-
-                merge_data(i).nomerge = true;
-                merge_data(i).nelem = 0;
-
+                npix{i} = sqw_in.data.npix(prev+1:curr);
+                num_pixels(i) = sum(sqw_in.data.npix(prev+1:curr));
+                points(i+1) = points(i)+num_pixels(i);
                 prev = curr;
             end
+
+            nomerge = true(nWorkers, 1);
+
+        end
+
+        for i=1:nWorkers
+            obj(i) = copy(sqw_in);
+            obj(i).data.npix = npix{i};
+            obj(i).data.pix = get_pix_in_ranges(sqw_in.data.pix, points(i)+1, num_pixels(i));
+
+            obj(i).data.num_pixels = num_pixels(i);
+            [obj(i).data.s, obj(i).data.e] = obj(i).data.pix.compute_bin_data(obj(i).data.npix);
+
+            merge_data(i).nomerge = nomerge(i);
+            merge_data(i).nelem = [obj(i).data.npix(1), obj(i).data.npix(end)]; % number of pixels to recombine
         end
 
     else
@@ -131,7 +124,7 @@ function [npix, nomerge] = split_npix(num_pixels, old_npix)
     prev_ind = 0;
 
     rem = cumpix(1);
-    nomerge(nWorkers) = 0;
+    nomerge = false(nWorkers, 1);
 
     for i=1:nWorkers-1
         % Catch all-in-one
