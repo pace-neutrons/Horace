@@ -282,7 +282,7 @@ function [loop_data, merge_data] = split_data(w, xye, S, Store, nWorkers, split_
 % Split up sqws and divvy xyes in w
 
 loop_data = cell(nWorkers, 1);
-merge_data = cell(numel(w), 1);
+merge_data = arrayfun(@(x) struct('nelem', [], 'nomerge', []), zeros(numel(w), nWorkers));
 
 for i=1:nWorkers
     loop_data{i} = struct('w', {cell(numel(w),1)}, 'xye', xye, 'S', S, 'Store', Store);
@@ -290,14 +290,19 @@ end
 
 for i=1:numel(w)
     if xye(i)
-        [data, merge_data{i}] = split_xye(w{i}, nWorkers);
+        [data, md] = split_xye(w{i}, nWorkers);
     elseif isa(w{i}, 'SQWDnDBase')
-        [data, merge_data{i}] = split_sqw(w{i}, 'nWorkers', nWorkers, 'split_bins', split_bins);
+        [data, md] = split_sqw(w{i}, 'nWorkers', nWorkers, 'split_bins', split_bins);
     elseif isa(w{i}, 'IX_dataset')
-        [data, merge_data{i}] = split_dataset(w{i}, nWorkers);
+        [data, md] = split_dataset(w{i}, nWorkers);
     else
         error('HERBERT:split_data:invalid_argument', ...
             'Unrecognised type: %s, data must be of type struct, SQWDnDBase or IX_dataset.', class(w{i}))
+    end
+
+    for j = 1:numel(md)
+        merge_data(i,j).nelem = md(j).nelem;
+        merge_data(i,j).nomerge = md(j).nomerge;
     end
 
     for j=1:nWorkers

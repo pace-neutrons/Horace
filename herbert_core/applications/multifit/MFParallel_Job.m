@@ -177,6 +177,7 @@ classdef MFParallel_Job < JobExecutor
                 obj.S, ...
                 obj.Store);
 
+
             if obj.is_root
 
                 nrm=zeros(obj.npfree,1);
@@ -559,29 +560,41 @@ end
 % Preallocate
 offset = sum(nel, 2);
 
-cnt = sum(~cellfun(@(x) x(1).nomerge, merge_data));
+nomerge = arrayfun(@(x) x(1).nomerge, merge_data)';
+
+if any(~nomerge)
+    % First flag in nomerge indicates whether there is any potential merging.
+    cnt = sum(~nomerge) - 1;
+else
+    cnt = 0;
+end
 
 out = zeros(sum(offset)-cnt, 1);
 pos = 1;
 
 for iw = 1:nw
-    if merge_data{iw}(1).nomerge
+    if nomerge(1, iw)
         for iWorker = 1:nWorkers
             curr_nel = nel(iWorker, iw);
             out(pos:pos+curr_nel-1) = in{iWorker}{iw}(1:end);
             pos = pos + curr_nel;
         end
     else
-        curr_nel = nel(iWorker, iw);
-        out(pos:pos+curr_nel-1) = in{iWorker}{iw}(1:end);
+        curr_nel = nel(1, iw);
+        out(pos:pos+curr_nel-1) = in{1}{iw}(1:end);
         pos = pos + curr_nel;
 
         for iWorker = 2:nWorkers
             curr_nel = nel(iWorker, iw);
-            out(pos-1) = out(pos-1)*merge_data{iWorker-1}(iw*2).nelem(2) + in{iWorker}{iw}(1)*merge_data{iWorker}(iw*2-1).nelem(1);
-            out(pos-1) = out(pos-1) / (merge_data{iWorker-1}(iw*2).nelem(2) + merge_data{iWorker}(iw*2-1).nelem(1));
-            out(pos:pos+curr_nel-2) = in{iWorker}{iw}(2:end);
-            pos = pos + curr_nel;
+            if nomerge(iWorker, iw)
+                out(pos:pos+curr_nel-1) = in{iWorker}{iw}(1:end);
+                pos = pos + curr_nel;
+            else
+                out(pos-1) = out(pos-1)*merge_data(iWorker-1, iw).nelem(2) + in{iWorker}{iw}(1)*merge_data(iWorker, iw).nelem(1);
+                out(pos-1) = out(pos-1) / (merge_data(iWorker-1, iw).nelem(2) + merge_data(iWorker, iw).nelem(1));
+                out(pos:pos+curr_nel-2) = in{iWorker}{iw}(2:end);
+                pos = pos + curr_nel;
+            end
         end
     end
 end
