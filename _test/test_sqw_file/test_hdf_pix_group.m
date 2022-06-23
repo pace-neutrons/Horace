@@ -15,7 +15,7 @@ classdef test_hdf_pix_group < TestCase
             end
             obj = obj@TestCase(class_name);
             ver = matlab_version_num();
-            if ver>9.8
+            if ver>9.08
                 obj.skip_tests = true;                
             else
                 obj.skip_tests = false;

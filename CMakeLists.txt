@@ -5,6 +5,9 @@ file(READ "${Horace_ROOT}/VERSION" _version)
 string(STRIP "${_version}" _version)
 project("Horace" VERSION "${_version}")
 
+#
+cmake_host_system_information(RESULT CMAKE_HOST_SYSTEM_NAME QUERY OS_NAME)
+
 # C++11 is required for GTest
 set(CMAKE_CXX_STANDARD 11)
 
@@ -13,7 +16,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Set our options
 option(BUILD_TESTS "Build the C++ tests" OFF)
-option(USE_HORACE_MPI "Use MPI libraries provided with Horace" ON)
+
 
 # Set CMake policies
 if(POLICY CMP0074)
@@ -26,7 +29,19 @@ list(APPEND CMAKE_MODULE_PATH "${Horace_ROOT}/cmake"
      "${Horace_ROOT}/cmake/external" "${Horace_ROOT}/cmake/shared")
 
 # This sets the destination for mex build artefacts (used in PACE_AddMex)
-set(Horace_DLL_DIRECTORY "${Horace_ROOT}/horace_core/DLL")
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+   # Mac OS X specific code
+   SET(Matlab_ARCH "_MACI64")
+   option(USE_HORACE_MPI "Use MPI libraries provided with Horace" OFF)   
+ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+   SET(Matlab_ARCH "_GLNXA64")
+   option(USE_HORACE_MPI "Use MPI libraries provided with Horace" ON)
+ELSE()
+   SET(Matlab_ARCH "_PCWIN64")
+   option(USE_HORACE_MPI "Use MPI libraries provided with Horace" ON)
+ENDIF()
+set(Horace_DLL_DIRECTORY "${Horace_ROOT}/horace_core/DLL/${Matlab_ARCH}")
+
 # This is the directory that contains herbert_init.m
 set(Horace_CORE "${CMAKE_CURRENT_LIST_DIR}/horace_core")
 set(Herbert_CORE "${CMAKE_CURRENT_LIST_DIR}/herbert_core")
@@ -76,7 +91,6 @@ install(
     PATTERN "*.asv" EXCLUDE
     PATTERN "*.gitignore" EXCLUDE
     PATTERN "${EXTERNAL_IGNORE_PATTERN}" EXCLUDE
-    PATTERN "*/DLL/_*" EXCLUDE
 )
 
 install(
@@ -91,5 +105,4 @@ install(
     PATTERN "*.m~" EXCLUDE
     PATTERN "*.asv" EXCLUDE
     PATTERN "*.gitignore" EXCLUDE
-    PATTERN "*/DLL/_*" EXCLUDE
 )

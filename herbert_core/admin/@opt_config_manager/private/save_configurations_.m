@@ -32,6 +32,15 @@ for i=1:n_configs
     config_name = obj.known_configs_{i};
     cfg = feval(config_name());
     this_pc_config.(config_name) = cfg.get_data_to_store();
+    if strcmp(config_name,'parallel_config')
+        cfg = this_pc_config.(config_name);
+        if isempty(cfg.external_mpiexec)
+            cfg.external_mpiexec = 0;
+        else
+            cfg.external_mpiexec = 1;
+        end
+        this_pc_config.(config_name) = cfg;
+    end
 end
 
 

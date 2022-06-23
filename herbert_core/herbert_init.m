@@ -43,13 +43,6 @@ genieplot_init
 % Applications definitions
 addgenpath_message (rootpath,'applications')
 
-% Put mex files on path
-rrp = fileparts(rootpath);
-if exist(fullfile(rrp, 'horace_core'))
-    addgenpath_message (rrp, 'horace_core', 'DLL')
-else
-    addgenpath_message (fileparts(rootpath), 'Horace', 'DLL')
-end
 
 % set up multiusers computer specific settings,
 % namely settings which are common for all new users of the specific computer

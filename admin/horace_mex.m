@@ -29,12 +29,14 @@ end
 % settings for compiling hdf routines
 [ma,me,mi]=H5.get_libversion();
 hdf_version = ma+0.1*me+0.001*mi;
+build_hdf_reader= true;
 if hdf_version == 1.812
     hdf_root_dir = fullfile(root_dir,'_LowLevelCode','external',['HDF5_1.8.12',hdf_ext]);
 elseif hdf_version == 1.806
     hdf_root_dir = fullfile(root_dir,'_LowLevelCode','external',['HDF5_1.8.6',hdf_ext]);
 else
-    error('HORACE_MEX:not_implemented',...
+    build_hdf_reader = false;
+    warning('HORACE_MEX:not_implemented',...
         ['Matlab uses %d.%d.%d version of HDF library. ',...
         'HDF mex code is provided for HDF 1.8.12 and 1.8.6 versions only.',...
         ' You need to download appropriate hdf headers yourseld and modify horace_mex to use your version'],...
@@ -64,19 +66,37 @@ try % mex C++
         mkdir(out_rel_dir);
     end
     % simple OMP routines
-    mex_single([cpp_in_rel_dir 'accumulate_cut_c'], out_rel_dir,'accumulate_cut_c.cpp');
-    mex_single([cpp_in_rel_dir 'bin_pixels_c'], out_rel_dir,'bin_pixels_c.cpp');
-    mex_single([cpp_in_rel_dir 'calc_projections_c'], out_rel_dir,'calc_projections_c.cpp');
-    mex_single([cpp_in_rel_dir 'sort_pixels_by_bins'], out_rel_dir,'sort_pixels_by_bins.cpp');
-    mex_single([cpp_in_rel_dir 'mtimesx_horace'], out_rel_dir,'mtimesx_mex.cpp');
-    mex_single([cpp_in_rel_dir 'compute_pix_sums'], out_rel_dir,'compute_pix_sums_c.cpp','compute_pix_sums_helpers.cpp');
-    
+    % build C++ files
+    mex_single(fullfile(cpp_in_rel_dir,'get_ascii_file'), out_rel_dir,...
+        'get_ascii_file.cpp','IIget_ascii_file.cpp')
+    mex_single(fullfile(cpp_in_rel_dir,'serialiser'), out_rel_dir,...
+        'c_serialise.cpp')
+    mex_single(fullfile(cpp_in_rel_dir,'serialiser'), out_rel_dir,...
+        'c_deserialise.cpp')
+    mex_single(fullfile(cpp_in_rel_dir,'serialiser'), out_rel_dir,...
+        'c_serial_size.cpp')
+
+
+    mex_single([cpp_in_rel_dir 'accumulate_cut_c'], out_rel_dir, ...
+        'accumulate_cut_c.cpp');
+    mex_single([cpp_in_rel_dir 'bin_pixels_c'], out_rel_dir, ...
+        'bin_pixels_c.cpp');
+    mex_single([cpp_in_rel_dir 'calc_projections_c'], out_rel_dir, ...
+        'calc_projections_c.cpp');
+    mex_single([cpp_in_rel_dir 'sort_pixels_by_bins'], out_rel_dir, ...
+        'sort_pixels_by_bins.cpp');
+    mex_single([cpp_in_rel_dir 'mtimesx_horace'], out_rel_dir, ...
+        'mtimesx_mex.cpp');
+    mex_single([cpp_in_rel_dir 'compute_pix_sums'], out_rel_dir, ...
+        'compute_pix_sums_c.cpp','compute_pix_sums_helpers.cpp');
+
 
     % create the procedured to access hdf files
-    cof = {'hdf_mex_reader.cpp','hdf_pix_accessor.cpp','input_parser.cpp',...
-        'pix_block_processor.cpp'};
-    mex_hdf([cpp_in_rel_dir 'hdf_mex_reader'], out_hdf_dir,hdf_root_dir,cof{:} );
-
+    if build_hdf_reader
+        cof = {'hdf_mex_reader.cpp','hdf_pix_accessor.cpp','input_parser.cpp',...
+            'pix_block_processor.cpp'};
+        mex_hdf([cpp_in_rel_dir 'hdf_mex_reader'], out_hdf_dir,hdf_root_dir,cof{:} );
+    end
 
     disp('**********> Successfully created required mex files from C++')
     C_compiled=true;
@@ -176,7 +196,7 @@ if ~check_access(outdir,add_files{1})
     error('MEX_SINGLE:invalid_arg',' can not get write access to new mex file: %s',fullfile(outdir,add_files{1}));
 end
 if ispc
-    cxx_flags = 'COMPFLAGS= $COMPFLAGS /openmp'; 
+    cxx_flags = 'COMPFLAGS= $COMPFLAGS /openmp';
     ld_flags = 'LDFLAGS= --no-undefined';
 else
     cxx_flags = 'CXXFLAGS= $CFLAGS  -fopenmp -std=c++11';
@@ -246,16 +266,3 @@ else
 
 end
 
-function copy_get_ascii_to_herbert()
-% function copies get_ascii_file to herbert executable as it is currently
-% the same exec.
-
-her_path = fileparts(which('herbert_init.m'));
-hor_path = fileparts(which('horace_init.m'));
-[matlab_dirname,dll_extention,os_dirname] = matlab_version_folder();
-
-ascii_reader = ['get_ascii_file','.',dll_extention];
-her_dll_targ = fullfile(her_path,'DLL',os_dirname,matlab_dirname);
-hor_dll_sourc= fullfile(hor_path,'DLL',os_dirname,matlab_dirname);
-
-copyfile(fullfile(hor_dll_sourc,ascii_reader),fullfile(her_dll_targ,ascii_reader),'f');

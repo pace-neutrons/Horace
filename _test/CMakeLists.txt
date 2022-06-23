@@ -1,4 +1,5 @@
 set(TEST_DIRECTORIES_HERBERT
+    "test_admin"
     "test_data_loaders"
     "test_config"
     "test_IX_classes"
@@ -10,7 +11,6 @@ set(TEST_DIRECTORIES_HERBERT
     "test_unique_objects_container"
     "test_docify"
     "test_geometry"
-    "test_admin_herbert"
     "test_xunit_framework"
     "test_mpi_wrappers"
     "test_mpi/test_job_dispatcher_herbert"
@@ -20,7 +20,6 @@ set(TEST_DIRECTORIES_HERBERT
     "test_mpi/test_ParpoolMPI_Framework"
 )
 set(TEST_DIRECTORIES_HORACE
-    "test_admin"
     "test_algorithms"
     "test_ascii_column_data"
     "test_change_crystal"

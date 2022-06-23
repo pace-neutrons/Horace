@@ -28,10 +28,28 @@ classdef test_parallel_config_and_clusters_factory < TestCase
             % define current config data to return it after testing
             cur_config = pc.get_data_to_store();
             clob1 = onCleanup(@()set(pc,cur_config));
+            cl = ClusterSlurm();
+
+            try
+                cl.check_availability();
+                slurm_available = true;
+            catch ME
+                slurm_available = false;
+                if ~strcmp(ME.identifier,'HERBERT:ClusterWrapper:not_available')
+                    rethrow(ME);
+                end
+            end
 
             mf = MPI_clusters_factory.instance();
+
             mf.parallel_cluster = 'slurm_mpi';
             assertEqual(mf.parallel_cluster_name,'slurm_mpi')
+            if slurm_available
+                assertTrue(mf.framework_available);
+            else
+                assertFalse(mf.framework_available);
+            end
+
 
             all_cfg = mf.get_all_configs();
             assertTrue(numel(all_cfg)==2);

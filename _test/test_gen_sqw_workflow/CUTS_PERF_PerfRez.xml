@@ -2,34 +2,34 @@
 <test_cuts_performance>
    <ndlt1121_nf5>
       <cutH1D_Small_nwk0_nomex>
-         <time_sec>2.6514264</time_sec>
+         <time_sec>3.0867795</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 1</comment>
-         <completed_on>[2022 5 13 18 57 22.973]</completed_on>
+         <completed_on>[2022 6 17 11 5 59.778]</completed_on>
       </cutH1D_Small_nwk0_nomex>
       <cutK1D_Small_nwk0_nomex>
-         <time_sec>2.6941013</time_sec>
+         <time_sec>3.1338205</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 2</comment>
-         <completed_on>[2022 5 13 18 57 25.976]</completed_on>
+         <completed_on>[2022 6 17 11 6 3.249]</completed_on>
       </cutK1D_Small_nwk0_nomex>
       <cutL1D_Small_nwk0_nomex>
-         <time_sec>2.6711357</time_sec>
+         <time_sec>3.1109153</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 3</comment>
-         <completed_on>[2022 5 13 18 57 28.93]</completed_on>
+         <completed_on>[2022 6 17 11 6 6.647]</completed_on>
       </cutL1D_Small_nwk0_nomex>
       <cutE_Small_nwk0_nomex>
-         <time_sec>2.6253853</time_sec>
+         <time_sec>3.1722277</time_sec>
          <comment>small memory based 1D cut along energy direction (q are not axis aligned)</comment>
-         <completed_on>[2022 5 6 19 40 17.672]</completed_on>
+         <completed_on>[2022 6 17 11 6 10.111]</completed_on>
       </cutE_Small_nwk0_nomex>
       <cutH1D_Small_nwk0_mex>
-         <time_sec>3.0982601</time_sec>
+         <time_sec>3.0868839</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 1</comment>
-         <completed_on>[2022 5 6 19 40 20.774]</completed_on>
+         <completed_on>[2022 6 17 11 6 13.575]</completed_on>
       </cutH1D_Small_nwk0_mex>
       <cutK1D_Small_nwk0_mex>
-         <time_sec>2.7489088</time_sec>
+         <time_sec>3.0956343</time_sec>
          <comment>small memory based 1D cut in non-axis aligned direction 2</comment>
-         <completed_on>[2022 5 6 19 40 23.8]</completed_on>
+         <completed_on>[2022 6 17 11 6 16.672]</completed_on>
       </cutK1D_Small_nwk0_mex>
       <cutL1D_Small_nwk0_mex>
          <time_sec>3.1608575</time_sec>
@@ -102,9 +102,9 @@
          <completed_on>[2022 5 13 18 57 20.163]</completed_on>
       </cutE_AllInt_nopix_nwk0_mex>
       <gen_tmp_nwk_0_herbert>
-         <time_sec>43.7175434</time_sec>
+         <time_sec>38.782805</time_sec>
          <comment>whole sqw file generation</comment>
-         <completed_on>[2022 5 13 18 52 48.476]</completed_on>
+         <completed_on>[2022 6 17 10 40 18.86]</completed_on>
       </gen_tmp_nwk_0_herbert>
       <comb_tmp_nwk_0_matlab>
          <time_sec>22.0544683</time_sec>
@@ -132,9 +132,9 @@
          <completed_on>[2022 5 6 19 0 18.637]</completed_on>
       </cutE_AllInt_flBsd_nwk0_comb_matlab>
       <comb_tmp_nwk_0_mex_code_MODE0>
-         <time_sec>16.3715143</time_sec>
+         <time_sec>18.1376308</time_sec>
          <comment>calc headers and combine all tmp files</comment>
-         <completed_on>[2022 5 13 18 53 5.432]</completed_on>
+         <completed_on>[2022 6 17 10 40 37.319]</completed_on>
       </comb_tmp_nwk_0_mex_code_MODE0>
    </ndlt1121_nf5>
    <ndlt1121_nf50>

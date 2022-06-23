@@ -179,9 +179,13 @@ classdef parallel_config<config_base
         
         % if set up, specifies the mpiexc program with full path to it,
         % used to launch parallel jobs instead of internal mpiexec
-        % program, provided with Herbert. Must be used when you compiled
+        % program, provided with Horace. Must be used when you compiled
         % cpp_communicator with external MPI libraries, so it has to be
         % launched by the mpiexec, provided with these libraries.
+        %
+        % Also accepts true/false values. False disables external mpiexec
+        % and true tries to idenfiy mpiexec on system using "where mpiexec"
+        % if this fails, external mpiexec remains empty.
         external_mpiexec
     end
     %
@@ -414,6 +418,9 @@ classdef parallel_config<config_base
         function obj=set.external_mpiexec(obj,val)
             if isempty(val)
                 val = '';
+            end
+            if isnumeric(val) || islogical(val)
+                val = check_and_set_external_mpiexec_(val);
             end
             if ~is_string(val)
                 error('HERBERT:parallel_config:invalid_argument',...
