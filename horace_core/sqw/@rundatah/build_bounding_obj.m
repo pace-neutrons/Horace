@@ -72,7 +72,6 @@ nen  = numel(en);
 ndet = numel(det.x2);
 
 %
-
 % Get the maximum limits along the projection axes across all spe files
 %rdl.data_file_name = '';
 rdl.S= zeros(nen,ndet);
@@ -84,6 +83,6 @@ function en = get_en_from_range(en_min,en_max)
 
 if en_min == 0 || en_max == 0 || sign(en_min)*sign(en_max)>0
     en = [en_min*(1-sign(en_min)*eps),en_max*(1+sign(en_max)*eps)];
-else %we want even number of equally spaced bins, to produce 3 odd bin cenres
+else % produce 3 bin centres on limits and at 0 energy transfer
     en = [en_min*(1-sign(en_min)*eps),0,en_max*(1+sign(en_max)*eps)];
 end
