@@ -32,13 +32,15 @@ list(APPEND CMAKE_MODULE_PATH "${Horace_ROOT}/cmake"
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # Mac OS X specific code
    SET(Matlab_ARCH "_MACI64")
-   option(USE_HORACE_MPI "Use MPI libraries provided with Horace" OFF)   
+   option(USE_HORACE_MPI "Use MPI libraries provided with Horace" OFF)
 ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
    SET(Matlab_ARCH "_GLNXA64")
    option(USE_HORACE_MPI "Use MPI libraries provided with Horace" ON)
-ELSE()
+ELSEIF (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
    SET(Matlab_ARCH "_PCWIN64")
    option(USE_HORACE_MPI "Use MPI libraries provided with Horace" ON)
+ELSE()
+   message(FATAL_ERROR "OS name ${CMAKE_HOST_SYSTEM_NAME} have not been recognized. HORACE have never been build on such system" )
 ENDIF()
 set(Horace_DLL_DIRECTORY "${Horace_ROOT}/horace_core/DLL/${Matlab_ARCH}")
 

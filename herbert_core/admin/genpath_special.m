@@ -60,8 +60,7 @@ for i=1:length(dirs)
         dirname = dirs(i).name;
         if ~strncmp( dirname,service_dir,1)
             if strcmp(dirname,'private'); continue; end
-            
- 
+
             p = [p genpath_special(fullfile(d,dirname))]; % recursive calling of this function.
         else
             if strcmpi(['_',computer],dirname)
@@ -70,7 +69,10 @@ for i=1:length(dirs)
                 p = [p fullfile(d,dirname) pathsep];
                 matlab_dir_name=matlab_version_folder(dirname);
                 if ~isempty(matlab_dir_name)
-                    p = [p fullfile(d,dirname,matlab_dir_name) pathsep];
+                    folder_dir = fullfile(d,dirname,matlab_dir_name);
+                    if exist(folder_dir,'dir') == 7
+                        p = [p folder_dir pathsep];
+                    end
                 end
             end
         end

@@ -238,7 +238,7 @@ while keep_worker_running
         mis.do_logging(0,n_steps);
 
         % Call initial setup function of JobExecutor
-        je = je.setup()
+        je = je.setup();
 
         while ~je.is_completed()
             je.do_job_completed = false; % do 2 barriers on exception (one at process failure)
