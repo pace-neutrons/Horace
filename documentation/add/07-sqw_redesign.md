@@ -1,26 +1,47 @@
-# SQW
+# SQW Redesign
 
 ## Overview
 
-This document describes the role of the SQW object within the Horace framework, data it holds and operations it supports *without focusing on any implementation details*. 
-
-Where specific fields are cited they are the key data that represent that information.
-
-### What is the purpose?
-
 The SQW object holds neutron scattering experiment data and provides methods that manipulate, slice and project the data and generate model fits using third-party functions.
 
-The object provides an interface to the Horace file which can be interchanged with external applications and a public API.
+The object also provides an interface to Horace "sqw" data files which can be interchanged with external applications and a public API.
 
-The SQW object exists in two distinct forms: 
+The object exists in two distinct forms: 
 
 - "SQW" which contains all experimental data and the detector pixel array,
 - "DND" which contains only processed neutron image data
 
-The two objects are treated by Horace as 'first class citizens'. The objects share a common API where that is appropriate. In an SQW object, operations are performed on the pixel array data and the current image data recalculated from this. For DND objects the operations are performed directly on the image data. 
-In addition, the extra information and raw data contained on the SQW object allows a scattering model to be fitted.
+which are treated by Horace as 'first class citizens'. They share a common API where that is appropriate. In an SQW object, operations are performed on the pixel array data and the current image data recalculated from this. For DND objects the operations are performed directly on the image data. In addition, the extra information and raw data contained on the SQW object allows a scattering model to be fitted.
 
-## Main Classes
+## Redesign issues
+
+A redesign of the SQW object is undertaken in the PACE project. It addresses (at least) two issues:
+
+1. The object exists in two distinct forms: 
+   - "DND" which contains  processed neutron image data
+   - "SQW" which cextends "DND" by containing all relevant data describing the experiment, plus the detector pixel array,
+
+​   When this document was originally written, although these two forms were conceptually distinct, in particular as far as their data content was concerned, 
+over time the interdependence of the implementation of their functionalities had grown, so that SQW functions were often used to implement DND functions. To support the development of the objects described here, it has been desirable to refactor the objects to remove such interdependence, 
+leading to the revised set of classes shown below.
+
+2. Their data includes representations of the instruments, detectors and samples (collectively, components) producing this data - these are used in the Resolution/Convolution form ("Tobyfit") of the fitting algorithms, which fit model calculations to the data including uncertainties due to the components. These components in principle are duplicated in two ways:
+   * an experiment consists of a number of runs, and while in principle all components may change between runs, in practice the same components are often used across a number of runs. If duplicates of the components are created for each run, memory usage is increased unnecessarily
+   * when a cut is taken from the data, a new SQW object is created, and again the components may be duplicated. 
+
+## Document scope
+
+The remainder of the document covers the following:
+
+1. Main classes. Description of the class hierarchy for SQW and DnD objects
+2. Subclass details. Description of the new packaging of header data into Experiment, Instrument and Sample classes, and the places where duplication can occur.
+3. Removal of duplicate objects. Goes into some detail about where duplicate object removal should occur, and what Matlab mechanisms will allow objects to remain unduplicated.
+4. Other property objects. Describes the remainder of the data in the SQW object.
+5. Pseudocode. Sketches various workflows in pseudocode form.
+
+# Main Classes
+
+The following diagram shows the overall interaction of the refactored SQW/DnD objects, showing how they interrelate via the common base support class SQWDnDBase. It is followed by a more detailed description of its sub-classes
 
 ![Class Overview](../diagrams/sqw-dnd.png)
 
@@ -32,66 +53,141 @@ Abstract base class for the SQW and DND objects.
 
 This includes the image data and main header information, available in both the `SQW` and `DnD` classes.
 
-This class will also include common methods, in particular the large number of unary and binary operations which are implemented as calls to operations managers which will be defined in the implementing classes.
+This class also includes common methods, in particular the large number of unary and binary operations which are implemented as calls to operations managers which will be defined in the implementing classes.
 
 ### SQW
 
-The `SQW` object is the providing the public API to data. Data manipulations are performed on the `PixelData` and `Image` is recalculated.
+The `SQW` object provides the public API to data. Data manipulations are performed on the `PixelData` and `Image` is recalculated.
 
 This class includes the full experiment data including the raw pixel data and details of the instrument and detectors.
+
+The "header" property of the previous design consisted of a cellarray of size the number of experimental runs, each giving for one run appropriate parameters for the run. This included the instrument and sample descriptions. The detector descriptions were provided in the separate property "detpar" (considered to be a minimalist description.)
+
+In the design diagrammed below, "header" and "detpar" have been refactored into  properties of a single object of class Experiment. The instrument and sample parts of "header" have been extracted into two collections of class IX_inst and IX_sample objects. In the diagram there is still one such object of each for each run: that is, removal of duplicates has not yet taken place. The remainder of the data header structs for each run has been included in the IX_Experiment class. 
+
+The refactor of detpar into a set of IX_DetectorArrays has not yet been done, and there is still a "detpar" property in the SQW object.
+
+The use of the Header object property in Experiment is not yet defined.
+
+These classes are detailed further below.
 
 ![SQW Class Overview](../diagrams/sqw.png)
 
 ### DnDBase, DnD
 
-The `DnD` object is a "cut-down SQW" object containing only `Image` data. This exists in n-dimensional forms, with each class extending an abstract base class. The `PixelData`, `IX_Instr`and `IX_DetectorArray` information is NOT included, and any data manipulation operations are performed directly on the `Image` data.
+The `DnD` object is a "cut-down SQW" object containing only `Image` data. This exists in n-dimensional forms, with each class extending an abstract base class. The `PixelData`, `IX_Instr`and other components, and `IX_DetectorArray` information is NOT included.
 
-The `DnDBase` base class is an abstract class holding the common code, including the operation manager which is responsible for matching dimensions between the specific `DnD` objects before executing.
+Any data manipulation operations are performed directly on the `Image` data.
+
+The `DnDBase` base class is an abstract class holding the common code for all the individual D[0-4]D objects; this includes the operation manager which is responsible for matching dimensions between the specific `DnD` objects before executing.
 
 ![DND Class Overview](../diagrams/dnd.png)
 
+
+
+# Subclass Details
+
+Note that the capitalisation is not yet consistent between figures, text and code.
+
 ### Main Header
 
-The `MainHeader` object contains high-level metadata for the `SQW` or `DND` object. The dataset title and file location.
+The `MainHeader` object contains high-level metadata for the `SQW` or `DND` object, including the dataset title and file location. It is currently a struct with these properties. If this is converted into a more specific class object, this will not be done until the remainder of these refactors have been completed. At the moment it is unchanged from the previous SQW class design.
 
 
 ### Experiment
 
 The Experiment object wraps all data relating to the sample, instrument and experiment conditions. This makes use of the `IX_xxx` classes (see below).
 
-This data should all be available from the Mantid `.nxspe` file, however it is likely that there is data missing in the current Mantid spec or not populated so a method will be created to load that data from another source. In the first instance this will be a custom data file (1).
+This data should all be available from the Mantid `.nxspe` file. However, it is likely that there is data missing in the current Mantid spec or not populated, so a method will be created to load that data from another source. In the first instance this will be a custom data file (1).
+
+The `.nxspe` files include properties labelled `instrument` and `sample`. However these are not intended to be instrument or sample properties using the `IX_instr` or `IX_sample` classes described below; rather they are free-format structures and are unspecified. When `.nxspe` files are read into Horace, they are converted to `Rundata/h` objects with the same properties, again with the same unspecified free-format structures. 
+
+At the moment `instrument` and `sample` are imported into the SQW object without checks on the data in these properties. Under the changes noted below, it is expected that empty structs for either of these properties will be converted into `IX_null_xxxx` properties, to ensure a clear statement of purpose (empty structs are ambiguous, empty classes i.e. those returning true from `isempty()` almost as much since Matlab variables are automatically sized containers), and to distinguish them from whatever is coming in via `Rundata`.
 
 **Notes**
 (1): the format of this datafile is TBD. To ease the eventual integration with Mantid a Nexus/HDF5 file or some other structured data that maps easily into the HDF5 format should be used.
 
-####  Instrument specification (`IX_instr`)
-The instrument class contains the information about the components that make up the instrument pre-sample, including the choppers, moderators and incident beams. 
+####  Instrument specification (`IX_inst`)
+The instrument classes contain the information about the components that make up the instrument pre-sample, including the choppers, moderators and incident beams. Specific instrument classes (`IX_inst_DGfermi` and `IX_inst_DGdisk`) already exist, distinguished by their chopper type, and also specifying moderator and aperture. At present these are completely distinct types. It may be that some refactoring into a common superclass `IX_DGchopper` could be useful, but that is beyond the scope of this document. Rather the aim is to ensure that other instrument types can be added in as required.
 
-The object contains a structured set of components that will be unique to each site.
+At the moment a separate instrument description is stored for each run in an array or cellarray of polymorphic superclass objects of class `IX_inst`, which is the (abstract) superclass of `IX_inst_DGfermi` and `IX_inst_DGdisk`. It is intended that this will be replaced by a reduced-size array of unique instances only, and an index to these will provide the relevant instrument object for each run. The details of the reduction to unique instances is given below.
 
-#### Detector information (`IX_detector_array`)
+For the cases where no instrument information has been given, a class `IX_null_inst` (subclass of `IX_inst`) is used to mark the existence of an instrument. This provides minimal properties, but will have at least a `name` property which can be used to label the data source if required.
+
+#### Detector information (`IX_DetectorArray`)
 The detector information class contains information about individual detector elements and their geometry. The data in this object will change when calibrations are performed or elements replaced or serviced as part of regular maintenance tasks. 
 
 Multiple definitions can be defined in the `IX_detector_array` and indexes in the `header` class associate data points with specific values.
 
+This use of `IX_DetectorArray` has not yet replaced `detpar`.
+
 #### Sample information (`IX_sample`) 
-This includes sample orientation, lattice angles and lattice description (Hall symbol).
+The sample class contains properties for the sample orientation, lattice parameters and lattice description (Hall symbol), and temperature. It is expected that all samples with defined properties will be of the same class, differing only in property values, although this could change, and the proposed design will permit this.
 
-Notes:
+As with instrument descriptions, sample descriptions coming from `.nxspe` files via `Rundata/h` objects will be free-format structs which may be empty. To preserve the concept of sample objects, samples in SQW objects coming from such undefined data will be represented by `IX_null_sample` objects which will have the minimal properties of `name` (to provide a label for basic information) but also the lattice parameters `alatt` and `angdeg`. This is because this information was originally present in the header structure for each run,  and so will be available independent of what comes in from `Rundata/h`.
 
-(1): the lattice description (Hall Symbol) is not included in the current implementation and will be added.
+Similarly to `IX_inst`, samples will be stored as a polymorphic array or cellarray of (abstract) base class objects of class `IX_samp`. 
+
+
 
 #### Experiment information (`IX_experiment`)
 
-This includes about the goniometer position data and energy.
+The remainder of the information from the original header structs has been transferred to IX_experiment objects, currently one for each run. This includes about the goniometer position data and energy.
 
 Notes: 
 
 (1): this is a new  `IX_xxx` class
 
+
+
+## Removal of duplicate objects
+
+Populating the instruments of the SQW object can happen at a number of points in the overall Horace workflow. There also needs to be a mechanism to identify and remove the duplicates while remembering which run goes with which unique object.
+
+### Workflow for instrument creation in gen_sqw
+
+An ideal workflow for the population of an SQW object with a number of different instruments is the following:
+
+1. At the stage of `gen_sqw` execution, a sequence of `Rundata/h` objects (created from `.nxspe` files with whatever additional information is furnished at the time) is converted into run data within the SQW object.
+2. The instrument description for each run in turn is converted into an appropriate `IX_inst` sub-class object.
+3. A list of unique instruments so far has been constructed. The new object is compared against  each unique instrument in turn, for class, equality of components, equality of parameters. If a match is found, the index of the match is stored against the current run. If not, the object is stored as a new unique object, and its index is stored against the current run.
+4. Clear the new object. Presuming that copy on write leaves whatever was copied in the list of unique objects in place after the clear instrument step.
+
+Comments:
+
+1. It is unclear to what extent indexing into the unique object list creation is needed. It is assumed that the instruments are value classes rather than handle classes. As such they are subject to CopyOnWrite. Consequently, at stage 3 above, rather than store an index to the object, it would be enough to copy the unique object directly into the current instrument slot rather than store an index to it. The major reason for preferring an index is to enable the user to keep track of the copying process as it would otherwise not be possible to distinguish objects that are actually the same object in memory from those that are merely identical. But see below for populating immediately before Tobyfit.
+
+### Workflow for instrument transfer when creating a cut
+
+The process of creating a cut produces a new SQW object with copies of the instruments from the original SQW object. As such copies are produced by the CopyOnWrite mechanism, then provided the new instrument objects are not subsequently modified, they will internally be references to the original objects and initially no new objects will be created in memory.
+
+Comment: This presumably works with the current design, hence while objects are currently copied in creating the original SQW object, no additional memory copies should be created on producing a cut. This is subject to the analysis of the next step.
+
+### Workflow for adding instruments immediately before Tobyfit
+
+As previously noted, instrument descriptions may not be available on initial creation of the SQW object, and the user may wish to populate the instrument descriptions later, when deciding to do a resolution/convolution fitting. This may also happen because, having examined the completed set of results, it proves necessary to reset instrument descriptions to improve calibration.
+
+An issue here may be that the cuts to be fitted have already been taken. In that case the cuts will not have had the instrument information copied from the original SQW object, and populating the instruments in the cuts from the original SQW is not so obvious.
+
+A simple solution would be to populate the original SQW object as above, and transfer the unique list and the indexes to the cut objects - thus providing a preference for indexing. The indexes will match the number of run objects and then index into the new instrument set.
+
+It is obviously necessary for the objects to be added to the SQW in the correct and consistent order. We need to devise a protocol for this to happen, and a supporting class to implement it. Design of this class will be deferred until we have a clear picture of the workflow used by users when they add these objects at this point.
+
+### Other component types
+
+Obviously samples can work in the same way.
+
+### Removing duplicates
+
+An existing class in Herbert, `object_lookup`, already exists to perform this function, and it is proposed to reuse it.
+
+## Other property objects
+
 #### Header
 
 The `Header` object contains the mapping from the `PixelData` to the appropriate array elements of the instrument, detector, experiment and sample arrays specific to each contributing neutron measurement. This configuration supports recalibration of detectors and changing experiment conditions to be handled.
+
+
 
 ### Pixel Block
 
