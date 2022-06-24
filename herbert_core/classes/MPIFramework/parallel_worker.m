@@ -10,8 +10,8 @@ function [ok, err_mess,je] = parallel_worker(worker_controls_string,do_logging,d
 %              contains only minimal initialization information, namely the
 %              folder name where the job initialization data are located on
 %              a remote system.
-% DO_LOGGING -- it true, print extensive logging information about the task progress.
-% DO_DEBUGGING-- if true, do not finish parallel worker after task execution
+% do_logging  -- it true, print extensive logging information about the task progress.
+% do_debugging-- if true, do not finish parallel worker after task execution
 %                in any case. Makes sense only for debugging Herbert
 %                framework, to see the results of a task execution on the
 %                interactive Matlab session on parallel worker.
