@@ -61,6 +61,13 @@ obj.data_message_tag_ = MESS_NAMES.mess_id('data');
 if ~isempty(obj.mpi_framework_holder_)
     cpp_communicator('finalize',obj.mpi_framework_holder_);
 end
+mis =MPI_State.instance();
+if mis.trace_log_enabled
+    fh = mis.debug_log_handle;
+    fwrite(fh,sprintf('In MessagesCppMPI initialization.\n Test mode %d\n', ...
+        test_mode));
+
+end
 if test_mode
     [obj.mpi_framework_holder_,obj.task_id_,obj.numLabs_,obj.node_names_ ]= ...
         cpp_communicator('init_test_mode',...
@@ -68,10 +75,30 @@ if test_mode
         obj.interrupt_chan_tag_,cluster_range);
     obj.is_tested_ = true;
 else
-    [obj.mpi_framework_holder_,obj.task_id_,obj.numLabs_,obj.node_names_]= ...
-        cpp_communicator('init',...
-        obj.assync_messages_queue_length_,obj.data_message_tag_,...
-        obj.interrupt_chan_tag_);
+    if mis.trace_log_enabled
+        inputs = sprintf(['**** Ass_mess_queue_len: %d\n,',...
+            '*** data_message_tag: %d;\n*** Interrupt chan tag: %d\n'],...
+            obj.assync_messages_queue_length_,obj.data_message_tag_, ...
+            obj.interrupt_chan_tag_);
+        fwrite(fh,inputs);
+    end
+    try
+        [obj.mpi_framework_holder_,obj.task_id_,obj.numLabs_,obj.node_names_]= ...
+            cpp_communicator('init',...
+            obj.assync_messages_queue_length_,obj.data_message_tag_,...
+            obj.interrupt_chan_tag_);
+    catch ME
+        if mis.trace_log_enabled
+            [mess,mes_id] = lastwarn;
+            fwrite(fh,sprintf('last warning %s; mess id %s\n',...
+                mess,mes_id));
+            fwrite(fh,sprintf('initialization failed\n'));
+            fwrite(fh,sprintf('Err:%n %s\n',ME.getReport()));
+        end
+    end
+    if mis.trace_log_enabled
+        fwrite(fh,sprintf('initialized\n'));
+    end
     obj.is_tested_ = false;
 end
 obj.task_id_  = double(obj.task_id_);

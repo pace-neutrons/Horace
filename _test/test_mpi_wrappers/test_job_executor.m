@@ -670,6 +670,7 @@ classdef test_job_executor< MPI_Test_Common
             [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
             assertEqual(ok,MESS_CODES.ok,err);
             assertEqual(mess.mess_name,'completed');
+            MPI_State.instance('clear');
         end
 
         function test_init_parpool_fw(obj)
@@ -711,6 +712,7 @@ classdef test_job_executor< MPI_Test_Common
             [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
             assertEqual(ok,MESS_CODES.ok,err);
             assertEqual(mess.mess_name,'completed');
+            MPI_State.instance('clear');
         end
 
         function test_fail_state_processor(obj)
