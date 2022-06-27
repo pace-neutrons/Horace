@@ -11,21 +11,21 @@ classdef test_job_dispatcher_mpiexec < job_dispatcher_common_tests
         end
         %------------------------------------------------------------------
         function test_job_fail_restart(obj,varargin)
-            if is_jenkins && ispc && (matlab_version_num() > 9.07)
+            if is_jenkins && ispc
                 skipTest('test_job_fail_restart skipped on Windows Jenkins due to launching instability');
             end
             test_job_fail_restart@job_dispatcher_common_tests(obj,varargin{:});
         end
         %
         function test_job_with_logs_3workers(obj,varargin)
-            if is_jenkins && ispc && (matlab_version_num() > 9.07)
+            if is_jenkins && ispc 
                 skipTest('test_job_with_logs_3workers skipped on Windows Jenkins due to launching instability');
             end
             test_job_with_logs_3workers@job_dispatcher_common_tests(obj,varargin{:});
         end        
         %
         function test_job_with_logs_2workers(obj,varargin)
-            if is_jenkins && ispc && (matlab_version_num() > 9.07)
+            if is_jenkins && ispc
                 skipTest('test_job_with_logs_2workers skipped on Windows Jenkins due to launching instability');
             end
             test_job_with_logs_2workers@job_dispatcher_common_tests(obj,varargin{:});
