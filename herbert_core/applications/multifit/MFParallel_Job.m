@@ -5,29 +5,29 @@ classdef MFParallel_Job < JobExecutor
     end
 
     properties
-        yval
-        wt
+        yval;
+        wt;
 
-        nnorm
-        npfree
-        nval
+        nnorm;
+        npfree;
+        nval;
 
-        f_best
-        p_best
-        c_best
-        chisqr_red
+        f_best;
+        p_best;
+        c_best;
+        chisqr_red;
 
-        iter = 1
-        dp
-        niter
-        tol
-        lambda = 1
+        iter = 1;
+        dp;
+        niter;
+        tol;
+        lambda = 1;
 
-        converged = false
-        finished = false
+        converged = false;
+        finished = false;
 
-        S
-        Store
+        S;
+        Store;
 
     end
 
@@ -97,8 +97,10 @@ classdef MFParallel_Job < JobExecutor
                 obj.yval{i}=obj.yval{i}(:);         % make a column vector
                 obj.wt{i}=obj.wt{i}(:);         % make a column vector
             end
-            obj.yval=cell2mat(obj.yval(:));     % one long column vector
-            obj.wt=cell2mat(obj.wt(:));
+            obj.yval = obj.merge_section(obj.yval);
+            obj.wt = obj.merge_section(obj.wt);
+% $$$             obj.yval=cell2mat(obj.yval(:));     % one long column vector
+% $$$             obj.wt=cell2mat(obj.wt(:));
 
             % Check that there are more data points than free parameters
             obj.nval = numel(obj.yval);
@@ -132,12 +134,12 @@ classdef MFParallel_Job < JobExecutor
                 0);
 
 
-            f = cat(1, f{:});
+            f = obj.merge_section(f);
             resid=obj.wt.*(obj.yval-f);
 
             chi=resid'*resid; % Un-normalised chi-squared
             obj.c_best = obj.reduce(1, chi, @sum);
-            obj.f_best = f
+            obj.f_best = f;
 
             if obj.is_root && ~common.perform_fit
                 obj.chisqr_red = obj.c_best/obj.nnorm;
@@ -172,6 +174,7 @@ classdef MFParallel_Job < JobExecutor
                 obj.Store);
 
             % Compute Jacobian matrix
+
             jac=obj.wt.*jac;
             nrm = dot(jac, jac);
             resid = obj.wt.*(obj.yval-obj.f_best);
@@ -232,7 +235,7 @@ classdef MFParallel_Job < JobExecutor
                         obj.Store , ...
                         0);
 
-                    f = cat(1, f{:});
+                    f = obj.merge_section(f);
                     resid=obj.wt.*(obj.yval-f);
                     chi=resid'*resid;
 
@@ -272,10 +275,10 @@ classdef MFParallel_Job < JobExecutor
         end
 
         function obj = finalise(obj)
-            % Wrap up for exit from fitting routine
+        % Wrap up for exit from fitting routine
+
             data = obj.loop_data_{1};
             common = obj.common_data_;
-
             obj.p_best = obj.bcast(1, obj.p_best);
 
             if obj.converged
@@ -417,7 +420,8 @@ classdef MFParallel_Job < JobExecutor
                     plus = multifit_lsqr_func_eval(w,xye,func,bfunc,pin,bpin,...
                         f_pass_caller_info,bf_pass_caller_info,ppos,p_info,false,S,Store,0);
 
-                    plus = cat(1, plus{:});
+
+                    plus = obj.merge_section(plus);
                     jac(:, j) = (plus-f)/del;
 
                 else
@@ -430,8 +434,8 @@ classdef MFParallel_Job < JobExecutor
                     minus = multifit_lsqr_func_eval(w,xye,func,bfunc,pin,bpin,...
                         f_pass_caller_info,bf_pass_caller_info,pneg,p_info,false,S,Store,0);
 
-                    plus = cat(1, plus{:});
-                    minus = cat(1, minus{:});
+                    plus = obj.merge_section(plus);
+                    minus = obj.merge_section(minus);
                     jac(:, j) = (plus - minus)/(2*del);
                 end
             end
@@ -523,61 +527,46 @@ classdef MFParallel_Job < JobExecutor
             end
         end
 
-    end
-end
 
-function out = merge_section(in, merge_data)
-% Merge a compenent of split data into contiguous block, collating like sqw data
-% Possibly inefficient, but should be a miniscule part of calculation
-% Possibly less inefficient, and should be a lesser part of calculation - JW 24/5/22
+        function data = merge_section(obj, data)
+            merge_data = obj.common_data_.merge_data;
 
-nWorkers = numel(in);
-nw = numel(in{1});
-nel = zeros(nWorkers, nw);
-for iWorker = 1:nWorkers
-    nel(iWorker, :) = cellfun(@numel, in{iWorker});
-end
+            merge = ~arrayfun(@(x) x(1).nomerge, merge_data)';
 
-% Preallocate
-offset = sum(nel, 2);
+            nw = numel(data);
 
-nomerge = arrayfun(@(x) x(1).nomerge, merge_data)';
+            for iw = 1:nw
+                if merge(1, iw)
+                    for currID = obj.numLabs:-1:2
+                        if merge(currID, iw)
+                            if currID == obj.labIndex  % I am merging down
+                                send_data = DataMessage(data{iw}(1));
+                                [ok, err_mess] = obj.mess_framework.send_message(currID-1, send_data);
+                                if ~ok
+                                    error('HORACE:MFParallel_Job:send_error', err_mess)
+                                end
+                                data{iw} = data{iw}(2:end); % Drop merged element
 
-if any(~nomerge)
-    % First flag in nomerge indicates whether there is any potential merging.
-    cnt = sum(~nomerge) - 1;
-else
-    cnt = 0;
-end
+                            elseif currID == obj.labIndex+1 % I am being merged onto
+                                [ok, err_mess, in_data] = obj.mess_framework.receive_message(currID, 'data');
+                                if ~ok
+                                    error('HORACE:MFParallel_Job:receive_error', err_mess)
+                                end
+                                adat = merge_data(obj.labIndex, iw).nelem(2);
+                                bdat = merge_data(currID, iw).nelem(1);
+                                data{iw}(end) = data{iw}(end)*adat + ...
+                                    in_data.payload*bdat / (adat + bdat);
+                            end
+                        end
+                    end
 
-out = zeros(sum(offset)-cnt, 1);
-pos = 1;
-
-for iw = 1:nw
-    if nomerge(1, iw)
-        for iWorker = 1:nWorkers
-            curr_nel = nel(iWorker, iw);
-            out(pos:pos+curr_nel-1) = in{iWorker}{iw}(1:end);
-            pos = pos + curr_nel;
-        end
-    else
-        curr_nel = nel(1, iw);
-        out(pos:pos+curr_nel-1) = in{1}{iw}(1:end);
-        pos = pos + curr_nel;
-
-        for iWorker = 2:nWorkers
-            curr_nel = nel(iWorker, iw);
-            if nomerge(iWorker, iw)
-                out(pos:pos+curr_nel-1) = in{iWorker}{iw}(1:end);
-                pos = pos + curr_nel;
-            else
-                out(pos-1) = out(pos-1)*merge_data(iWorker-1, iw).nelem(2) + in{iWorker}{iw}(1)*merge_data(iWorker, iw).nelem(1);
-                out(pos-1) = out(pos-1) / (merge_data(iWorker-1, iw).nelem(2) + merge_data(iWorker, iw).nelem(1));
-                out(pos:pos+curr_nel-2) = in{iWorker}{iw}(2:end);
-                pos = pos + curr_nel;
+                end
             end
+
+            data = cat(1,data{:});
+
         end
+
     end
-end
 
 end
