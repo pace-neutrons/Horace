@@ -87,7 +87,7 @@ endif()
 
 install(
     DIRECTORY "herbert_core/"
-    DESTINATION "Horace/herbert_core/    
+    DESTINATION "Horace/herbert_core/"
     USE_SOURCE_PERMISSIONS
     PATTERN "*.m~" EXCLUDE
     PATTERN "*.asv" EXCLUDE
