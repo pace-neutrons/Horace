@@ -92,7 +92,7 @@ if combine_in_parallel && isempty(job_disp) % define name of new parallel job an
     %
     job_disp = JobDispatcher(job_name);
 end
-%
+
 % check if writing to output file is possible so that all further
 % operations make sense.
 [ok,sqw_exist,outfile,err_mess] = check_file_writable(outfile);
@@ -105,7 +105,7 @@ if sqw_exist          % init may want to upgrade the file and this
 end
 
 if ~jd_initialized
-    job_disp_4head = []; % do not initialize job dispatcher to process headers. 
+    job_disp_4head = []; % do not initialize job dispatcher to process headers.
     %  overhead is high and the job is small
 else
     job_disp_4head =job_disp;
