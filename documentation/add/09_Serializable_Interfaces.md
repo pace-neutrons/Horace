@@ -1,23 +1,28 @@
-# Serialiable interfaces
+# Serializable interfaces
 Date: 2022-06-01
 
 ## Objectives and problems to solve.
-Current Horace SQW objects use Horace-specific binary open source file format to store Horace `sqw` objects and allow fast access to these objects. The problem in accessing these objects is large amount of the pixel information. This information in fact are the recordings of all registered neutron events from a week-long inelastic scattering neutron experiment. The main reason for using Horace binary format is that these data can not fit to memory of common computers (average size of the files would be *~50Gb* but *500Gb* files are not so uncommon), so we need to keep these data on a disk and provide efficient ways of accessing and processing them.
+Current Horace package use Horace-specific binary open source file format to store Horace `sqw` objects and allow fast access to these objects. The problem in accessing these objects is large amount of the pixel information. This information in fact are the recordings of all registered neutron events from a week-long inelastic scattering neutron experiment. The main reason for using Horace binary format is the fact that these data are fare large then the memory of common computers (average size of the files would be *~50Gb* but *500Gb* files are not so uncommon), so we need to keep these data on a disk and provide efficient ways of accessing and processing them.
 
-In addition to that, users often work with parts of the whole experiment data, containing the areas of the interests for the user. These data can often, though not always, fit into memory and users want to store their areas of interest for further usage. The data in memory are presented as Matlab `sqw` objects so users often use Matlab proprietary file format (.mat files), which allows efficient binary store/restore operations for a Matlab classes.
+In addition to this, users often work with only parts of the experimental data, those containing their areas of interest. These data can often, though not always, fit into memory, but users may want to store these relevant subsections (cuts) for later use. In memory, the data are represented as Horace `sqw` objects, so users often use Matlab proprietary `.mat` file format (through `saveobj`), which allows efficient binary store/restore operations to/from Matlab classes.
 
-To satisfy users requests, we in fact support two independent binary file formats described above. Each format is best suited for subset of user needs.
+To satisfy users requirements, we in fact support two independent binary file formats described above. Each format is best suited for subset of user needs.
 
-The fact that the data are binary and Horace-specific causes problems for users. To access native Horace file format, users need deep understanding of Horace, as the binary objects are the reflection of sqw objects in memory and these objects have complex structure necessary for storing complex experimental data. Users who want to utilize smaller `sqw` objects stored in `.mat` files should also use Horace as restoring Matlab classes relies on Matlab knowing the definition of these classes.
+The fact that the data are binary and Horace-specific causes problems for users. To access data written in native Horace file format, users need a deep understanding of Horace, as the binary objects are the reflection of `sqw` objects in memory. These objects have a complex structure which is necessary for storing complex experimental data. Users who want to utilize smaller `sqw` objects stored in `.mat` files must also use Horace as restoring Matlab classes relies on Matlab knowing the relevant class definition.
 
-1. To satisfy the request of accessing Horace data from a third party applications, team have decided to change Horace file format from raw binary, to [HDF](https://www.hdfgroup.org/) file format, as this format is the industry standard for efficient storage and access to binary scientific data, accessible by number of third party applications unrelated to Matlab and Horace. The decision on making `.hdf` data](NeXus is an HDF-based standard format for storing the results of neutron scattering experiments)  [NeXus](https://www.nexusformat.org/) compatible is still pending, as no Matlab implementation for NeXus wrapper exists and it will request substantial efforts from our team to implement at least subset of the NeXus library.
+Number of problems have to be resolved to satisfy the demands of the user community and the needs of the further development, namely:
 
-2. Current binary file format is relatively complex and related to current structure of `sqw` classes. To satisfy the project requests we are bringing substantial changes to `sqw` objects so the file format to store these objects should also change. To maintain consistent user experience we need to support the way of reading various previous versions of the `sqw` binary files and `sqw` objects, stored in proprietary `.mat` files.
+#### Standard Format:
+To support accessing Horace data from third party applications, the team has decided to change the Horace file format from raw binary, to the [HDF](https://www.hdfgroup.org/) file format, as this format is the industry standard for efficient storage and accessing of binary scientific data, and is accessible by number of third party applications unrelated to Matlab and Horace. The decision on making the `.hdf` data [NeXus](https://www.nexusformat.org/) compatible is still pending, as no Matlab implementation for NeXus wrapper exists and it will request substantial efforts from our team to implement at least subset of the NeXus library.
 
-3. Additional problem to resolve is the maintenance of two independent file formats. Any changes to `sqw` objects would request changes in two independent file writers which requests additional developer's efforts. It would be beneficial to avoid duplication and maintain only one file format common for both for large (partially fitting to memory) and small (fully fitting to memory) `sqw` objects, written to disk.
+#### Backwards compatibility:
+ Current binary file format is relatively complex and related to current structure of `sqw` classes. To satisfy the project requests we are bringing substantial changes to `sqw` objects so the file format to store these objects should also change. To maintain consistent user experience we need to support the way of reading various previous versions of the `sqw` binary files and `sqw` objects, stored in proprietary `.mat` files.
+
+#### Support for multiple readers:
+ An additional problem is that currently there are two independent file formats to maintain. Any changes to `sqw` objects require changes in two independent file reader/writers which requires additional developer effort. It would be beneficial to avoid this duplication of efforts and maintain the code which is as much as possible common for accessing both large (partially fitting to memory) and small (fully fitting to memory) `sqw` objects, written to disk.
 
 ## Suggested solution -- serializable interface.
-To resolve issues 1-3 mentioned in the previous chapter, team decided to rely on the Matlab's standard mechanism of storing/restoring customized objects. If a Matlab object defines `saveobj/loadobj` methods, Matlab uses these methods to convert to/from binary format, to convert a Matlab object into a structure or to recover the object from the structure. The structure then is saved/loaded using Matlab proprietary file format (`.mat` files). The responsibility of maintaining this format is then lies with Matlab.
+To resolve the issues mentioned in the previous chapter, the team has decided to rely on the Matlab's standard mechanism of storing/restoring objects. If a Matlab object defines `saveobj/loadobj` methods, Matlab uses these methods to convert to/from binary format, to convert a Matlab object into a structure or to recover the object from the structure. The structure then is saved/loaded to/from the Matlab proprietary file format (`.mat`). The responsibility of maintaining this format then lies with Matlab.
 
 To utilize the `saveobj/loadobj` Matlab functionality we have decided to make all Horace objects to make all Horace objects the subclasses of a special class `serializable`. The custom `serializable` class defines `saveobj/loadobj` pair of methods and some additional methods, necessary to maintain class versioning (see below).
 To implement our *serializable* interface we have to make two assumptions about our objects:
@@ -26,15 +31,15 @@ To implement our *serializable* interface we have to make two assumptions about 
 2. The object has a public interface which will populate all required data in the object. The object should be able to exist with all contents unset, and this interface should overwrite all existing contents with the new consistent data, while not retaining any previous contained data.
 
 
-If such assumptions are satisfied, we may define *serializable* objects, which need to overload only handful of class-specific methods, but would immediately have number of very useful generic features. The class diagram describing such object is presented on the **Fig 1**:
+If such assumptions are satisfied, we may define `serializable` objects, which need to overload only a handful of class-specific methods, but which would immediately have number of very useful generic features. The class diagram describing such object is presented on the **Fig 1**:
 
-<center>![Serialiable. Main Interface](../diagrams/serializable_main_interface.png)</center>
+<center>![Serializable. Main Interface](../diagrams/serializable_main_interface.png)</center>
 
 **Fig 1:** Main interface and methods of **serializable** class.
 
-The parent class, presented on the **Fig 1**, allows easy construction and maintenance of standardized serializable objects by overloading the following abstract methods:
+The parent class, presented in the **Fig 1**, allows easy construction and maintenance of standardized serializable objects by overloading the following abstract methods:
 
-**Table 1: Main abstact methods requesing overloading (definition)**
+**Table 1: Main abstract methods requesting overloading (definition)**
 
 | Method | Description |
 |-----|---------|
@@ -87,7 +92,7 @@ There is number of ways, one can deal with this issue. After discussion, we have
  ```Matlab
     function obj = set.an_interdependent_prop(obj,val)
         check_general_acceptance_of_input_throw_if_invalid(val);
-        if obj.check_combo_arg_
+        if obj.do_check_combo_arg_
             [ok,mess,obj] = check_combo_arg(obj,val)
             if ~ok
                 error('HORACE:interdependent_properties_validation_error',message)
@@ -100,7 +105,7 @@ Before the properties are set within the serializable class constructor one by o
 
 There is other way of setting interdependent properties assuring their validity, namely defining the methods, which allow setting all interdependent properties at once. E.g. setting `s`, `e`, `npix` array may be performed by introducing property `se_npix` with validates and sets all three properties together. This method may be more efficient from point of view of serializing data so will be used where it is justified and convenient.
 
-## Standard serializable class constructor form.
+## Standard form of constructor for a serializable class.
 
 As a *serializable* class has public interface, fully described by the list of properties, returned by *saveableFields* method, it makes sense to define standard constructor, which use this interface to define the contents of the serializable class. The constructor would have the form:
 ```Matlab
