@@ -12,37 +12,13 @@ function varargout = herbert_version()
 %   >> [major, minor] = herbert_version();
 %   >> [major, minor, patch] = herbert_version();
 %
-try
-    VERSION = herbert_get_build_version();
-catch ME
-    if ~strcmp(ME.identifier, 'MATLAB:UndefinedFunction')
-        rethrow(ME);
-    end
-    VERSION = read_from_version_file();
+
+if nargout <=1
+    varargout{1} = horace_version();
 end
-
-% If only one output requested return whole version string
-if nargout <= 1
-    varargout{1} = VERSION;
-    return;
+if nargout ==2
+    [varargout{1},varargout{2}] = horace_version();
 end
-
-version_numbers = split(VERSION, '.');
-if nargout > numel(version_numbers)
-    error('Too many output arguments requested.') ;
+if nargout ==3
+    [varargout{1},varargout{2},varargout{3}] = horace_version();
 end
-
-% Return as many version numbers as requested
-for i = 1:numel(version_numbers)
-    varargout(i) = version_numbers(i);
-end
-
-
-function version_str = read_from_version_file()
-    try
-        herbert_root = fileparts(fileparts(which('herbert_init')));
-        version_file = fullfile(herbert_root , 'VERSION');
-        version_str = [strtrim(fileread(version_file)), '.dev'];
-    catch
-        version_str = '0.0.0.dev';
-    end
