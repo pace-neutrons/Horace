@@ -19,8 +19,8 @@ set(Horace_AUTO_GENERATED_FILE_WARNING
 # Configure the horace_version.m script. The template script is copied into
 # herbert_core/admin and CMake's project version formatted into it. This
 # provides the function with an up-to-date version number for every build.
-configure_file("horace_get_build_version.m.template"
-               "${Horace_ROOT}/horace_core/admin/horace_get_build_version.m")
+configure_file("herbert_get_build_version.m.template"
+               "${Horace_ROOT}/herbert_core/admin/herbert_get_build_version.m")
 
 # Configure the version.h header. The template is copied into _LowLevelCode/cpp
 # and defines macro VERSION with CMake's project version.
