@@ -10,20 +10,21 @@ To satisfy users requests, we in fact support two independent binary file format
 
 The fact that the data are binary and Horace-specific causes problems for users. To access native Horace file format, users need deep understanding of Horace, as the binary objects are the reflection of sqw objects in memory and these objects have complex structure necessary for storing complex experimental data. Users who want to utilize smaller `sqw` objects stored in `.mat` files should also use Horace as restoring Matlab classes relies on Matlab knowing the definition of these classes.
 
-1. To satisfy the request of accessing Horace data from a third party applications, team have decided to change Horace file format from raw binary, to [HDF](https://www.hdfgroup.org/) file format, as this format is the industry standard for efficient storage and access to binary scientific data, accessible by number of third party applications unrelated to Matlab and Horace. The decision on making `.hdf` data [NeXus](https://www.nexusformat.org/) compatible is still pending (NeXus is an HDF-based standard format for storing the results of neutron scattering experiments).
+1. To satisfy the request of accessing Horace data from a third party applications, team have decided to change Horace file format from raw binary, to [HDF](https://www.hdfgroup.org/) file format, as this format is the industry standard for efficient storage and access to binary scientific data, accessible by number of third party applications unrelated to Matlab and Horace. The decision on making `.hdf` data](NeXus is an HDF-based standard format for storing the results of neutron scattering experiments)  [NeXus](https://www.nexusformat.org/) compatible is still pending, as no Matlab implementation for NeXus wrapper exists and it will request substantial efforts from our team to implement at least subset of the NeXus library.
 
 2. Current binary file format is relatively complex and related to current structure of `sqw` classes. To satisfy the project requests we are bringing substantial changes to `sqw` objects so the file format to store these objects should also change. To maintain consistent user experience we need to support the way of reading various previous versions of the `sqw` binary files and `sqw` objects, stored in proprietary `.mat` files.
 
 3. Additional problem to resolve is the maintenance of two independent file formats. Any changes to `sqw` objects would request changes in two independent file writers which requests additional developer's efforts. It would be beneficial to avoid duplication and maintain only one file format common for both for large (partially fitting to memory) and small (fully fitting to memory) `sqw` objects, written to disk.
 
 ## Suggested solution -- serializable interface.
-To resolve issues 1-3 mentioned in the previous chapter, team decided to rely on the Matlabs standard mechanism of storing/restoring customized objects. If a Matlab object defines `saveobj/loadobj` methods, Matlab uses these methods to convert to/from binary format, to convert a Matlab object into a structure or to recover the object from the structure. The structure then is saved/loaded using Matlab proprietary file format. The responsibility of maintaining this format is then lies with Matlab.
+To resolve issues 1-3 mentioned in the previous chapter, team decided to rely on the Matlab's standard mechanism of storing/restoring customized objects. If a Matlab object defines `saveobj/loadobj` methods, Matlab uses these methods to convert to/from binary format, to convert a Matlab object into a structure or to recover the object from the structure. The structure then is saved/loaded using Matlab proprietary file format (`.mat` files). The responsibility of maintaining this format is then lies with Matlab.
 
-To utilize the `saveobj/loadobj` Matlab functionality we have decided to make all Horace objects `serializable`. The custom `serializable` class defines `saveobj/loadobj` pair of methods and some additional methods, necessary to maintain class versioning (see below).
+To utilize the `saveobj/loadobj` Matlab functionality we have decided to make all Horace objects to make all Horace objects the subclasses of a special class `serializable`. The custom `serializable` class defines `saveobj/loadobj` pair of methods and some additional methods, necessary to maintain class versioning (see below).
 To implement our *serializable* interface we have to make two assumptions about our objects:
 
-1. The object has an empty constructor.
-2. The object has a public interface which allows to define(assign) to an empty object any contents the non-empty object may have, defining in this way any valid non-empty object.
+1. The object has an empty constructor, i.e. the constructor with no arguments.
+2. The object has a public interface which will populate all required data in the object. The object should be able to exist with all contents unset, and this interface should overwrite all existing contents with the new consistent data, while not retaining any previous contained data.
+
 
 If such assumptions are satisfied, we may define *serializable* objects, which need to overload only handful of class-specific methods, but would immediately have number of very useful generic features. The class diagram describing such object is presented on the **Fig 1**:
 
@@ -37,7 +38,7 @@ The parent class, presented on the **Fig 1**, allows easy construction and maint
 
 | Method | Description |
 |-----|---------|
-|  classVersion | returns the number, which describes current class version. E.g. 1 - for version 1|
+|  classVersion | returns the number which describes current class version. E.g.: 1 - for version 1|
 | saveableFields | returns list of property names, defining the class public interface |
 
 As soon as these properties are defined, one can use other class methods to serialize/deserialize objects and convert objects to/from structure. The main features of the available methods are summarized in the Tables 2:
@@ -47,13 +48,15 @@ As soon as these properties are defined, one can use other class methods to seri
 |-----|---------|
 |  `struct = to_bare_struct(obj)` | returns structure, with the field names equal to the names returned by `saveableFields` method and values, defined by the values of these fields. If the values of fields are the serializable objects themselves, they are converted into correspondent structures recursively |
 | `obj = from_bare_struct(obj,data)` | Reverse of `to_bare_struct` method. Sets the values of the public properties of the serializable interface from the structure, obtained from `to_bare_struct` method |
-| `data = to_struct(obj)` | converts `obj` or array of `obj` into the `data` structure using `to_bare_struct` method and adds complimentary information about the class name and the size and shape of the `obj` array if relevant. |
+| `data = to_struct(obj)` | converts `obj` or array of `obj` into the `data` structure using `to_bare_struct` method and adds complementary information about the class name and the size and shape of the `obj` array if relevant. |
 | *Static:* | |
 | `obj = from_struct(data)` | Reverse of `to_struct` method, recovering the object or array of objects from the `data`, generated by the `to_struct` method |
 
-Standard `loadobj/saveobj` and `serialize/deserialize` methods use the data obtained from the methods described in **Table 2** or the methods themselves to provide/use input for/from Matlab save/load methods or serialize/deserialize methods to save/load data to/from `.mat` files or transform the objects from/to linear arrays of bytes for communications over serial pipes. The `serialize/deserialize` routines use Herbert-defined `serialize/deserialize` methods over the structures obtained using `to_struct/from_struct` methods.
+Standard Matlab's `loadobj/saveobj` and Herbert `serialize/deserialize` methods use the data obtained from the methods described in **Table 2** or the methods themselves directly to provide/use input for/from Matlab save/load methods or serialize/deserialize methods to save/load data to/from `.mat` files or transform the objects from/to linear arrays of bytes for communications over serial pipes. The `serialize/deserialize` routines use Herbert-defined `serialize/deserialize` methods over the structures obtained using `to_struct/from_struct` methods.
 
-Two remaining methods presented on the **Fig 1** namely static `loadobj` and `from_old_struct` methods need overloading if/when you want to support loading the versions of a class, different from the the current class version. By default, a standard `loadobj` method exists and this method expects to receive the structure, produced by `to_struct` method. `to_struct` method adds information about the class name, so generic `loadobj` extracts this information and recovers the class. If this information is missing, which may happen when you loading a class structure, generated before the object become `serializable`, you need to overload `loadobj` to provide the empty instance of the class, as described by the code snippet below:
+Two remaining methods presented on the **Fig 1** namely static `loadobj` and `from_old_struct` methods need overloading if/when you want to support loading the versions of a class different from the current class version.
+
+By default, a standard `loadobj` method exists and this method expects to receive the structure, produced by `to_struct` method. `to_struct` method adds information about the class name and class version, so generic `loadobj` extracts this information and recovers the class. If version information is missing, which may happen when you loading a class structure, generated before the object become `serializable`, you need to overload `loadobj` to provide the empty instance of the class, as described by the code snippet below:
 ```Matlab
         methods(Static)
             function obj = loadobj(S)
@@ -66,8 +69,8 @@ Two remaining methods presented on the **Fig 1** namely static `loadobj` and `fr
             end
         end
 ```
-By default, the method `from_old_struct` calls `from_bare_struct` method, so it does not need overloading if the structure of your class public interface have not changed.
-If it have changed, `from_old_struct` needs overloading with the code, converting the old information, stored in the previous class structure into the information, necessary to define new class.
+The method `from_old_struct` is used when the version of the class, stored in structure differs from the version, returned by the current class `classVersion` method. By default, the method `from_old_struct` calls `from_bare_struct` method, so it does not need overloading if the structure of your class public interface have not changed. 
+If it have changed, `from_old_struct` needs overloading with the code, converting the old information, stored in the class structure into the information, necessary to define the new class.
 
 ## Interdependent properties problem.
 
