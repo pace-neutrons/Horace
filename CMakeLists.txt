@@ -81,13 +81,13 @@ add_subdirectory("cmake")
 include(PACE_CPackConfig)
 
 if(WIN32)
-    # Don't package commited mex files
+    # Don't package committed mex files
     set(EXTERNAL_IGNORE_PATTERN "*/external/glnxa64")
 endif()
 
 install(
     DIRECTORY "herbert_core/"
-    DESTINATION "Herbert"
+    DESTINATION "Horace"
     USE_SOURCE_PERMISSIONS
     PATTERN "*.m~" EXCLUDE
     PATTERN "*.asv" EXCLUDE
