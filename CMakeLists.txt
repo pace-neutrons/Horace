@@ -97,7 +97,7 @@ install(
 
 install(
     FILES "LICENSE" "README.md"
-    DESTINATION "."
+    DESTINATION "Horace"
 )
 
 install(
