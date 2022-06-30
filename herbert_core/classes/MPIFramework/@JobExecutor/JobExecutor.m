@@ -531,9 +531,20 @@ classdef JobExecutor
                 end
 
             else % the framework is defined by the appropriate framework name
-
+                mis =MPI_State.instance();
+                if mis.trace_log_enabled
+                    fh = mis.debug_log_handle;
+                    fwrite(fh,sprintf('initializing intercom: %s\n', ...
+                        control_structure.intercomm_name));
+                end
+                %
                 mf = feval(control_structure.intercomm_name);
                 mf = mf.init_framework(control_structure);
+                %
+                if mis.trace_log_enabled
+                    fwrite(fh,sprintf('intercom: %s initialized\n', ...
+                        control_structure.intercomm_name));
+                end
                 % set labNum and NumLabs for filebased  MPI framework,
                 % equal to values, defined for proper MPI framework to
                 % avoid cross-talking and invalid indexing

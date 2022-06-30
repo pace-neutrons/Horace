@@ -23,6 +23,7 @@ if(UNIX)
 else()
     # On Windows we just need to set the environment variables that point to the
     # MSMPI includes and binaries - the find_package call will do the rest
+    # set(MSMPI_VERSION "10.1.12")
     set(MSMPI_VERSION "8.0.12")
     set(MSMPI_ROOT "${EXTERNAL_ROOT}/win64/MSMPI-${MSMPI_VERSION}")
     set(ENV{MSMPI_BIN} "${MSMPI_ROOT}/Bin")

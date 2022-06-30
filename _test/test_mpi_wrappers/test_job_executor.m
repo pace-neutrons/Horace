@@ -670,6 +670,7 @@ classdef test_job_executor< MPI_Test_Common
             [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
             assertEqual(ok,MESS_CODES.ok,err);
             assertEqual(mess.mess_name,'completed');
+            MPI_State.instance('clear');
         end
 
         function test_init_parpool_fw(obj)
@@ -711,6 +712,7 @@ classdef test_job_executor< MPI_Test_Common
             [ok,err,mess] = serverfbMPI.receive_message(1,'completed');
             assertEqual(ok,MESS_CODES.ok,err);
             assertEqual(mess.mess_name,'completed');
+            MPI_State.instance('clear');
         end
 
         function test_fail_state_processor(obj)
@@ -800,6 +802,7 @@ classdef test_job_executor< MPI_Test_Common
         end
 
         function test_invalid_input(obj)
+            skipTest('invalid arguments test disabled #817')
             if obj.ignore_test
                 skipTest(obj.ignore_cause);
             end
@@ -872,7 +875,7 @@ classdef test_job_executor< MPI_Test_Common
             worker_name = obj.worker;
             setenv('DO_PARALLEL_MATLAB_LOGGING','true');
             clOb = onCleanup(@()setenv('DO_PARALLEL_MATLAB_LOGGING',''));
-            
+
             [ok,err,je]=feval(worker_name,css1);
             assertFalse(isempty(je));
             assertFalse(ok);

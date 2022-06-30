@@ -21,7 +21,7 @@ classdef test_config_classes< TestCase
             set(tgp_test_class1,'default');
             set(tgp_test_class2,'default');
             
-            ws=warning('off','CONFIG_STORE:restore_config');
+            ws=warning('off','HERBERT:config_store:runtime_error');
             clob = onCleanup(@()warning(ws));
             
             this.s0_def=get(tgp_test_class);
@@ -31,7 +31,7 @@ classdef test_config_classes< TestCase
         end
         function this=test_getstruct(this)
             config_store.instance().clear_config(tgp_test_class2,'-files');
-            ws=warning('off','CONFIG_STORE:restore_config');
+            ws=warning('off','HERBERT:config_store:runtime_error');
             clob = onCleanup(@()warning(ws));
             
             % ----------------------------------------------------------------------------
@@ -52,7 +52,7 @@ classdef test_config_classes< TestCase
         
         function this=test_get_wrongCase(this)
             % This should fail because V3 is upper case, but the field is v3
-            ws=warning('off','CONFIG_STORE:restore_config');
+            ws=warning('off','HERBERT:config_store:runtime_error');
             clob = onCleanup(@()warning(ws));
             
             try
@@ -70,7 +70,7 @@ classdef test_config_classes< TestCase
             % Test getting values and saving
             % ----------------------------------------------------------------------------
             % Change the config without saving, change to default without saving - see that this is done properly
-            ws = warning('off','CONFIG_STORE:restore_config');
+            ws = warning('off','HERBERT:config_store:runtime_error');
             clob = onCleanup(@()warning(ws));
             
             set(tgp_test_class2,'v1',55,'-buffer');
@@ -142,7 +142,7 @@ classdef test_config_classes< TestCase
             clob = onCleanup(@()set(pc,old_config));
             
             f = @()set(pc,'worker','non_existing_worker');
-            assertExceptionThrown(f,'PARALLEL_CONFIG:invalid_argument');
+            assertExceptionThrown(f,'HORACE:parallel_config:invalid_argument');
         end
         
     end

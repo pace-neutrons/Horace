@@ -61,7 +61,7 @@ if hec.is_default || parc.is_default
 end
 %
 
-if hec.init_tests % this is developer vesion
+if hec.init_tests % this is developer version
     % set unit tests to the Matlab search path, to overwrite the unit tests
     % routines, added to Matlab after Matlab 2017b, as new routines have
     % signatures, different from the standard unit tests routines.

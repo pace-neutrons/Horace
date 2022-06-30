@@ -49,11 +49,7 @@ if config_class.saveable || force_save
             return;
         end
     end
-    filename = fullfile(this.config_folder,[class_name,'.mat']);
-    [ok,mess]=save_config(filename,data_to_save);
-    if ~ok
-        error('CONFIG_STORE:store_config',mess);
-    end
+    this = this.save_config(class_name,data_to_save);
 end
 % store data in memory too.
 this.config_storage_.(class_name)  = data_to_save;

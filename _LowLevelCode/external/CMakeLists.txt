@@ -12,6 +12,7 @@ if(UNIX)
     configure_file("${Horace_MPICH_DIR}/lib/libmpi.so.0.0.0"
                    "${Horace_DLL_DIRECTORY}/libmpi.so.0" COPYONLY)
 else()
+    #set(Horace_MSMPI_DIR "${CMAKE_CURRENT_LIST_DIR}/win64/MSMPI-10.1.12")
     set(Horace_MSMPI_DIR "${CMAKE_CURRENT_LIST_DIR}/win64/MSMPI-8.0.12")
     set(Horace_MPIEXEC_EXE
     "${Horace_MSMPI_DIR}/Bin/mpiexec.exe"

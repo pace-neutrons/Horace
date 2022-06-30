@@ -1,4 +1,6 @@
-function [ok, err_mess,je] = parallel_worker(worker_controls_string,do_logging,do_debugging,do_profiling,do_memory_profiling,do_html_profiling)
+function [ok, err_mess,je] = parallel_worker(worker_controls_string, ...
+    do_logging,do_debugging,do_profiling,do_memory_profiling, ...
+    do_html_profiling)
 % function used as standard worker to do a job in a separate Matlab
 % session.
 %
@@ -10,8 +12,8 @@ function [ok, err_mess,je] = parallel_worker(worker_controls_string,do_logging,d
 %              contains only minimal initialization information, namely the
 %              folder name where the job initialization data are located on
 %              a remote system.
-% DO_LOGGING -- it true, print extensive logging information about the task progress.
-% DO_DEBUGGING-- if true, do not finish parallel worker after task execution
+% do_logging  -- it true, print extensive logging information about the task progress.
+% do_debugging-- if true, do not finish parallel worker after task execution
 %                in any case. Makes sense only for debugging Herbert
 %                framework, to see the results of a task execution on the
 %                interactive Matlab session on parallel worker.
@@ -24,7 +26,7 @@ function [ok, err_mess,je] = parallel_worker(worker_controls_string,do_logging,d
 
 je = [];
 ok = false;
-is_tested  = false;
+%is_tested  = false;
 err_mess = 'Failure in the initialization procedure';
 if ~exist('do_logging', 'var')
     do_logging = false;
@@ -41,20 +43,24 @@ end
 if ~exist('do_html_profiling', 'var')
     do_html_profiling = false;
 end
+% Check current state of mpi framework and set up deployment status
+% within Matlab code to run
+mis = MPI_State.instance();
+mis.is_deployed = true;
+is_tested = mis.is_tested; % set up to tested state within unit tests not to
+% exit running Matlab on test failure
+% for testing we need to recover 'not-deployed' state to avoid clashes with
+% other unit tests. The production job finishes Matlab and clean-up is not necessary
+% though doing no harm.
+clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
+if mis.trace_log_enabled
+    fhe = mis.debug_log_handle;
+    fwrite(fhe,'at try\n')
+end
 
 try
 
-    % Check current state of mpi framework and set up deployment status
-    % within Matlab code to run
-    mis = MPI_State.instance();
-    mis.is_deployed = true;
-    is_tested = mis.is_tested; % set up to tested state within unit tests not to
-    % exit running Matlab on test failure
 
-    % for testing we need to recover 'not-deployed' state to avoid clashes with
-    % other unit tests. The production job finishes Matlab and clean-up is not necessary
-    % though doing no harm.
-    clot = onCleanup(@()(setattr(mis,'is_deployed',false)));
     %% ------------------------------------------------------------------------
     % 1) step 1 of the worker initialization.
     %--------------------------------------------------------------------------
@@ -62,15 +68,25 @@ try
     % was converted into UTF or something similar. Then the failure was occurring,
     % so this command deals with this issue.
     worker_controls_string = char(worker_controls_string);
+    if mis.trace_log_enabled
+        fwrite(fhe,sprintf('deserializing\n'));
+    end
     % Deserialize control string and convert it into a control structure.
     control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
-
+    if mis.trace_log_enabled
+        fwrite(fhe,sprintf('deserialized\n'));
+    end
 
     % Initialize config files to use on remote session. Needs to be initialized
     % first as may be used by message framework.
 
     % Place where config files are stored:
     config_exchange_folder = control_struct.data_path;
+    if mis.trace_log_enabled
+        fwrite(fhe,sprintf('config exchange folder: %s\n',config_exchange_folder));
+        fwrite(fhe,sprintf('job ID: %s\n',control_struct.job_id));
+    end
+
     % set path to the config sources, remove configurations,
     % may be loaded in memory while Horace was initialized.
     config_store.set_config_folder(config_exchange_folder);
@@ -78,6 +94,10 @@ try
     % cluster and between the cluster and the headnode.
     % initiate file-based framework to exchange messages between head node and
     % the pool of workers
+    if mis.trace_log_enabled
+        fwrite(fhe,sprintf('initializing: %s\n',evalc('disp(control_struct)')));
+    end
+
     [fbMPI,intercomm] = JobExecutor.init_frameworks(control_struct);
     %--------------------------------------------------------------------------
     % step 1 the initialization has been completed providing the
@@ -85,6 +105,9 @@ try
     % between the clusters nodes. The control node communicator knows the
     % folder for communications
     %--------------------------------------------------------------------------
+    if mis.trace_log_enabled
+        fwrite(fhe,sprintf('initialized\n'));
+    end
 
     keep_worker_running = true;
     if do_logging
@@ -97,9 +120,18 @@ try
     end
     % inform the control node that the cluster have been started and ready
     % to accept jobs
-
+    if mis.trace_log_enabled
+        fwrite(fhe,sprintf('reporing cluser ready\n'));
+    end
     JobExecutor.report_cluster_ready(fbMPI,intercomm);
+    if mis.trace_log_enabled
+        fwrite(fhe,sprintf('cluster ready reported\n'));
+    end
 catch ME0 %unhandled exception during init procedure
+    if mis.trace_log_enabled
+        fwrite(fhe,sprintf('unhandled exception at init: %s\n',ME0.identifier));
+        fwrite(fhe,sprintf('%s\n',ME0.getReport()));
+    end
     ok = false;
     err_mess = ME0;
     if is_tested
@@ -238,7 +270,7 @@ while keep_worker_running
         mis.do_logging(0,n_steps);
 
         % Call initial setup function of JobExecutor
-        je = je.setup()
+        je = je.setup();
 
         while ~je.is_completed()
             je.do_job_completed = false; % do 2 barriers on exception (one at process failure)
@@ -289,7 +321,7 @@ while keep_worker_running
         if do_profiling
             p = profile('info');
             prof_fn = sprintf('Profile_%s_%d_%d_%d',...
-                              fbMPI.job_id,intercomm.labIndex,intercomm.numLabs,num_of_runs);
+                fbMPI.job_id,intercomm.labIndex,intercomm.numLabs,num_of_runs);
             if do_html_profiling
                 profsave(p, prof_fn);
             else
