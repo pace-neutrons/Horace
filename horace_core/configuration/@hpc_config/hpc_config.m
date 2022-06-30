@@ -204,7 +204,7 @@ classdef hpc_config < config_base
         end
 
         function accum = get.parallel_workers_number(obj)
-            framework = config_store.instance.get_value('parallel_config','parallel_workers_number');
+            accum = config_store.instance.get_value('parallel_config','parallel_workers_number');
         end
 
         function framework = get.parallel_cluster(~)

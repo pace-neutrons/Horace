@@ -121,7 +121,6 @@ classdef hor_config < config_base
         % get_storage_field_names function below
         saved_properties_list_ = {...
             'mem_chunk_size', ...
-            'pixel_page_size', ...
             'ignore_nan',...
             'ignore_inf', ...
             'use_mex',...
@@ -129,15 +128,15 @@ classdef hor_config < config_base
     end
 
     methods
-        function this=hor_config()
-            this=this@config_base(mfilename('class'));
+        function obj=hor_config()
+            obj=obj@config_base(mfilename('class'));
         end
 
         %-----------------------------------------------------------------
         % overloaded getters
 
-        function use = get.mem_chunk_size(this)
-            use = get_or_restore_field(this,'mem_chunk_size');
+        function use = get.mem_chunk_size(obj)
+            use = get_or_restore_field(obj,'mem_chunk_size');
         end
 
         function page_size = get.pixel_page_size(obj)
@@ -145,33 +144,33 @@ classdef hor_config < config_base
             page_size = chunk_size*sqw_binfile_common.FILE_PIX_SIZE;
         end
 
-        function use = get.ignore_nan(this)
-            use = get_or_restore_field(this,'ignore_nan');
+        function use = get.ignore_nan(obj)
+            use = get_or_restore_field(obj,'ignore_nan');
         end
 
-        function use = get.ignore_inf(this)
-            use = get_or_restore_field(this,'ignore_inf');
+        function use = get.ignore_inf(obj)
+            use = get_or_restore_field(obj,'ignore_inf');
         end
 
         function level = get.log_level(~)
             level = config_store.instance().get_value('herbert_config','log_level');
         end
 
-        function level = get.horace_info_level(this)
+        function level = get.horace_info_level(obj)
             % overloaded to use the same log_level real property
             level = obj.log_level;
         end
 
-        function use = get.use_mex(this)
-            use = get_or_restore_field(this,'use_mex');
+        function use = get.use_mex(obj)
+            use = get_or_restore_field(obj,'use_mex');
         end
 
         function force = get.force_mex_if_use_mex(~)
             force = config_store.instance().get_value('herbert_config','force_mex_if_use_mex');
         end
 
-        function delete = get.delete_tmp(this)
-            delete = get_or_restore_field(this,'delete_tmp');
+        function delete = get.delete_tmp(obj)
+            delete = get_or_restore_field(obj,'delete_tmp');
         end
 
         function work_dir = get.working_directory(~)
@@ -218,27 +217,27 @@ classdef hor_config < config_base
             config_store.instance().store_config(obj,'mem_chunk_size',val);
         end
 
-        function this = set.ignore_nan(this,val)
+        function obj = set.ignore_nan(obj,val)
             ignore = val>0;
-            config_store.instance().store_config(this,'ignore_nan',ignore);
+            config_store.instance().store_config(obj,'ignore_nan',ignore);
         end
 
-        function this = set.ignore_inf(this,val)
+        function obj = set.ignore_inf(obj,val)
             ignore = val>0;
-            config_store.instance().store_config(this,'ignore_inf',ignore);
+            config_store.instance().store_config(obj,'ignore_inf',ignore);
         end
 
-        function this = set.log_level(this,val)
+        function obj = set.log_level(obj,val)
             hc = herbert_config;
             hc.log_level = val;
         end
 
-        function this = set.horace_info_level(this,val)
+        function obj = set.horace_info_level(obj,val)
             hc = herbert_config;
             hc.log_level = val;
         end
 
-        function this = set.use_mex(this,val)
+        function obj = set.use_mex(obj,val)
             use = val>0;
             if use
                 % Configure mex usage
@@ -258,17 +257,17 @@ classdef hor_config < config_base
 
         end
 
-        function this = set.force_mex_if_use_mex(this,val)
+        function obj = set.force_mex_if_use_mex(obj,val)
             use = val>0;
             config_store.instance().store_config('herbert_config','force_mex_if_use_mex',use);
         end
 
-        function this = set.delete_tmp(this,val)
+        function obj = set.delete_tmp(obj,val)
             del = val>0;
-            config_store.instance().store_config(this,'delete_tmp',del);
+            config_store.instance().store_config(obj,'delete_tmp',del);
         end
 
-        function this = set.working_directory(this,val)
+        function obj = set.working_directory(obj,val)
             hc = parallel_config;
             hc.working_directory = val;
         end
@@ -284,7 +283,7 @@ classdef hor_config < config_base
             fields = obj.saved_properties_list_;
         end
 
-        function value = get_internal_field(this,field_name)
+        function value = get_internal_field(obj,field_name)
             % method gets internal field value bypassing standard get/set
             % methods interface.
             % Relies on assumption, that each public
