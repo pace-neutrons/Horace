@@ -13,13 +13,14 @@ function [ok,err_mess,je]=worker_v2(worker_controls_string)
 %              contains only minimal initialization information, namely the
 %              folder name where the job initialization data are located on
 %              a remote system.
-if nargin<1 || isempty(worker_controls_string)    
-    worker_controls_string = getenv('WORKER_CONTROL_STRING'); 
+
+if nargin<1 || isempty(worker_controls_string)
+    worker_controls_string = getenv('WORKER_CONTROL_STRING');
 end
 
 je = [];
 ok = false;
-if isempty(which('herbert_init.m'))
+if isempty(which('horace_init.m'))
     try
         horace_on();
     catch ME
@@ -29,25 +30,32 @@ if isempty(which('herbert_init.m'))
     end
 end
 
-DO_LOGGING = getenv('DO_PARALLEL_MATLAB_LOGGING');
-if isempty(DO_LOGGING)
-    DO_LOGGING = false;
-else
-    DO_LOGGING = feval(DO_LOGGING);
-end
+%DO_DEBUGGING = parse_env_var_logical('DO_PARALLEL_MATLAB_DEBUGGING');
 DO_DEBUGGING = false;
+% logging occurs into config_exchange_folder, where all MPI processes write 
+% files with names:
+% 'Job_job_id_wkNlabIndex#numLabs.log'
+% The logging may be enabled in ClusterWrapper setting DEBUG_REMOTE
+% property to true.
+DO_LOGGING = parse_env_var_logical('DO_PARALLEL_MATLAB_LOGGING');
+DO_PROFILING = parse_env_var_logical('DO_PARALLEL_MATLAB_PROFILING');
+DO_MEMORY_PROFILE = parse_env_var_logical('DO_PARALLEL_MATLAB_MEMORY_PROFILING');
+DO_HTML_PROFILE = parse_env_var_logical('DO_PARALLEL_MATLAB_HTML_PROFILING');
+
 try
-    [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,DO_DEBUGGING);
+    [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,DO_DEBUGGING,DO_PROFILING,DO_MEMORY_PROFILE,DO_HTML_PROFILE);
 catch ME1 % intercepted exception in processing failure or some odd bug indeed
     write_fail_log(ME1);
     err_mess = ME1;
 end
-if ~ok 
+if ~ok
     write_fail_log(err_mess);
 end
 
+end
+
 function write_fail_log(ERROR)
-%
+
 pid = int64(feature('getpid'));
 log_file_name  = sprintf('WORKER_V2_Process_%d_failure.log',pid);
 log_file = fullfile(getuserdir,log_file_name );
@@ -55,7 +63,7 @@ log_file = fullfile(getuserdir,log_file_name );
 if isa(ERROR,'MException')
     error_contents = ERROR.getReport();
 else
-    error_contents = fevalc('disp(ERROR)');
+    error_contents = evalc('disp(ERROR)');
 end
 
 fh = fopen(log_file,'w');
@@ -67,9 +75,16 @@ try
     fprintf(fh,'******* Unhandled exception:\n');
     fprintf(fh,'******** ERROR: \n');
     fprintf(fh,'%s',error_contents );
-    stat = fclose(fh);    
+    stat = fclose(fh);
 catch ERR % again, may be log will clarify the situation
     warning('Can not write log file %s; Reason %s',log_file,getReport(ERR));
 end
 
+end
 
+function tf = parse_env_var_logical(env_var_name)
+
+env_var = getenv(env_var_name);
+tf = str2logical(env_var);
+
+end

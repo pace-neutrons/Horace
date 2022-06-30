@@ -1,3 +1,0 @@
-% ${Horace_AUTO_GENERATED_FILE_WARNING}
-function out = horace_get_build_version()
-out = '${Horace_SHORT_VERSION}';

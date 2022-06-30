@@ -59,8 +59,9 @@ end
 spec_to_cc = obj.lattice.calc_proj_matrix();
 
 % Calculate Q in spectrometer coordinates for each pixel
-[use_mex,nThreads,pixel_page_size]=config_store.instance().get_value( ...
-    'hor_config','use_mex','threads','pixel_page_size'); % pixel_page_size is redundant property
+[use_mex,nThreads,mem_chunk_size]=config_store.instance().get_value( ...
+    'hor_config','use_mex','threads','mem_chunk_size'); % pixel_page_size is redundant property
+pixel_page_size = mem_chunk_size*36;
 if use_mex
     if ~isempty(qspec) % why is this?
         use_mex = false;
