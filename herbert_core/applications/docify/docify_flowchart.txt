@@ -1,0 +1,28 @@
+docify
+	|
+	-- docify_single
+			|
+			-- parse_top_doc
+					|
+					-- parse_top_doc_comment_block
+					|
+					-- parse_doc
+							|
+							-- parse_doc_blocks
+							| 		|
+							| 		-- parse_line
+							|
+							-- parse_doc_definitions
+							|		|
+							| 		-- parse_doc_definitions_block_vals
+							|		|
+							| 		-- parse_doc_definitions_subst_arg
+							|
+							-- parse_doc_section
+									|
+									-- parse_line
+									|
+									-- resolve
+									|
+									-- parse_doc [*** recursive]
+				

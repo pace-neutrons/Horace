@@ -1,0 +1,33 @@
+==============================================================
+Methods that are required for IX_dataset_2d
+==============================================================
+
+combine		
+interp
+noisify		[[DONE]]
+peak_cwhh	
+unspike
+
+dist2cnt	
+cnt2dist	
+flip		* should not be necessary: valid objects must have monotonic increasing x-axis
+hist2point	[[DONE]]
+point2hist 	[[DONE]]
+
+multifit 	[[DONE]]
+func_eval	[[DONE]]
+
+read		[[DONE]]
+write		[[DONE]]
+read_ascii 	
+write_ascii	
+
+deriv1		
+deriv2		- wont do this: use double application of deriv1
+integrate	[[DONE]]
+rebin		[[DONE]]
+rebunch		
+regroup
+scale 		[[DONE]]
+shift		[[DONE]]
+smooth

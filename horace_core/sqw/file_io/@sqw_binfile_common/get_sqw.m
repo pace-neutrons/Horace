@@ -108,7 +108,7 @@ sqw_struc.data = obj.get_data(data_opt{:}, 'pixel_page_size', opts.pixel_page_si
 sqw_struc.experiment_info = exp_info;
 %old_file = datetime(obj.creation_date)<datetime('01-Mar-2022'); % old file did not store
 old_file = true; % TODO: store file creation date in the main header to reliably identify old files. #804
-% run_id map in any form, so it is often tried to be resored from filename.
+% run_id map in any form, so it is often tried to be restored from filename.
 % here we try to verify, if this restoration is correct if we can do that
 % without critical drop in performance.
 if (sqw_struc.data.pix.num_pixels >0 ) && ...
@@ -117,7 +117,7 @@ if (sqw_struc.data.pix.num_pixels >0 ) && ...
     file_id = exp_info.runid_map.keys;
     file_id = [file_id{:}];
     if sqw_struc.data.pix.n_pages == 1 % all pixels are in memory and we
-        % can propertly analyze runids
+        % can properly analyse run-ids
 
         if ~all(ismember(runid,file_id))  % old style pixel data, run_id-s
             % have been recalculated
@@ -126,7 +126,7 @@ if (sqw_struc.data.pix.num_pixels >0 ) && ...
             id=1:exp_info.n_runs;
             if min(runid)< 1 || max(runid)>exp_info.n_runs
                 error('HORACE:sqw_binfile_common:invalid_argument', ...
-                    'pixels run_ids were recalculated but lies outside of runid-s, defined for headers. Contact developers to deal with the issue')
+                    'pixels run_ids were recalculated but lies outside of run-ids, defined for headers. Contact developers to deal with the issue')
             end
             % reset run-ids and runid_map stored in current experiment info.
             exp_info.runid_map = id;
