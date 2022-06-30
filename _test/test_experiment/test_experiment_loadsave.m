@@ -33,16 +33,11 @@ classdef test_experiment_loadsave < TestCase
             wkfile = fullfile(tmp_dir,'experiment_sqw.mat');
             clOb = onCleanup(@()delete(wkfile));
             save(wkfile, 'tmp_sqw');
-            % tmp_sqw is marked so that it can be seen the mark is removed
-            % on reload
-            tmp_sqw.main_header.extra='new';
-            assertTrue( isfield( tmp_sqw.main_header, 'extra') );
+
             % tmp_sqw is reloaded from the .mat file, it should reload the
             % Experiment class experiment_info as-is
             ld1 = load(wkfile);
-            % tmp_sqw is checked that it now does not have the marker field
-            % extra in its main_header
-            assertTrue( ~isfield(ld1.tmp_sqw, 'extra') );
+            % tmp_sqw is checked that it now does not have the marker field                      
             assertTrue( isa(ld1.tmp_sqw.experiment_info, 'Experiment') );
             assertEqual( ld1.tmp_sqw, ld.test_rundata_sqw.sq4);
         end
