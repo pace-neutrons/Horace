@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestPerformanceChildTestHelper>
+   <ndw1676_TestPerformanceChildTestHelper>
+      <fake_test_operations>
+         <time_sec>0.00127336151547899</time_sec>
+         <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
+         <completed_on>[2018 12 17 13 18 58.054]</completed_on>
+      </fake_test_operations>
+   </ndw1676_TestPerformanceChildTestHelper>
+   <ndmlnx01_isis_cclrc_ac_uk_TestPerformanceChildTestHelper>
+      <fake_test_operations>
+         <time_sec>0.003018</time_sec>
+         <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
+         <completed_on>[2018 2 6 14 0 27.462679]</completed_on>
+      </fake_test_operations>
+   </ndmlnx01_isis_cclrc_ac_uk_TestPerformanceChildTestHelper>
+   <ndmlnx02_isis_cclrc_ac_uk_TestPerformanceChildTestHelper>
+      <fake_test_operations>
+         <time_sec>0.003874</time_sec>
+         <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
+         <completed_on>[2018 3 29 18 26 52.090996]</completed_on>
+      </fake_test_operations>
+   </ndmlnx02_isis_cclrc_ac_uk_TestPerformanceChildTestHelper>
+   <ndlt618_TestPerformanceChildTestHelper>
+      <fake_test_operations>
+         <time_sec>0.000626421957684079</time_sec>
+         <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
+         <completed_on>[2018 3 29 18 54 0.765]</completed_on>
+      </fake_test_operations>
+   </ndlt618_TestPerformanceChildTestHelper>
+   <scarf_TestPerformanceChildTestHelper>
+      <fake_test_operations>
+         <time_sec>0.001275</time_sec>
+         <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
+         <completed_on>[2018 6 18 16 18 34.263163]</completed_on>
+      </fake_test_operations>
+   </scarf_TestPerformanceChildTestHelper>
+   <ndlt874_TestPerformanceChildTestHelper>
+      <fake_test_operations>
+         <time_sec>0.000655680792126579</time_sec>
+         <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
+         <completed_on>[2019 7 21 18 21 28.274]</completed_on>
+      </fake_test_operations>
+   </ndlt874_TestPerformanceChildTestHelper>
+   <ndlt1121_TestPerformanceChildTestHelper>
+      <fake_test_operations>
+         <time_sec>0.000457344271983379</time_sec>
+         <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
+         <completed_on>[2019 4 8 16 26 13.192]</completed_on>
+      </fake_test_operations>
+   </ndlt1121_TestPerformanceChildTestHelper>
+   <host_192_168_243_37_TestPerformanceChildTestHelper>
+      <fake_test_operations>
+         <time_sec>0.000646</time_sec>
+         <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
+         <completed_on>[2019 7 5 10 2 57.009304]</completed_on>
+      </fake_test_operations>
+   </host_192_168_243_37_TestPerformanceChildTestHelper>
+   <host_192_168_243_156_TestPerformanceChildTestHelper>
+      <fake_test_operations>
+         <time_sec>0.000759</time_sec>
+         <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
+         <completed_on>[2019 7 19 18 2 35.764122]</completed_on>
+      </fake_test_operations>
+   </host_192_168_243_156_TestPerformanceChildTestHelper>
+   <host_192_168_243_21_TestPerformanceChildTestHelper>
+      <fake_test_operations>
+         <time_sec>0.000629</time_sec>
+         <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
+         <completed_on>[2019 7 24 17 20 39.028424]</completed_on>
+      </fake_test_operations>
+   </host_192_168_243_21_TestPerformanceChildTestHelper>
+   <lnxt7500_TestPerformanceChildTestHelper>
+      <fake_test_operations>
+         <time_sec>0.001021</time_sec>
+         <comment>this is not a performance test itself but the test of performance test inheritance operational</comment>
+         <completed_on>[2019 7 30 18 42 53.090475]</completed_on>
+      </fake_test_operations>
+   </lnxt7500_TestPerformanceChildTestHelper>
+</TestPerformanceChildTestHelper>

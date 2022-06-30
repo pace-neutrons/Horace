@@ -13,14 +13,16 @@ endif()
 
 # This must be included only after the variables TESTS_BIN_DIR and (on Windows)
 # TEST_ENV_PATH have been defined
+
 include(PACE_AddCppUnitTest)
 
 set(TEST_DIRECTORIES
+    "cpp_communicator.tests"
+    "get_ascii_file.tests"
+    "utility.tests"
     "combine_sqw.tests"
     "compute_pix_sums.tests"
-    "utility.tests"
 )
-
 foreach(_test_dir ${TEST_DIRECTORIES})
     add_subdirectory("${_test_dir}")
 endforeach(_test_dir)

@@ -334,7 +334,7 @@ classdef combine_sqw_pix_job < JobExecutor
             % Write properly formed pixels block to the output file
             
             fout = obj.fout_;
-            fwrite(fout,pix_section,'float32');    % write to output file
+            fwrite(fout, single(pix_section), 'float32');    % write to output file
             n_pix_written = n_pix_written+size(pix_section,2);
         end
         

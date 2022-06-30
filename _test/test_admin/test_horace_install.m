@@ -27,11 +27,14 @@ classdef test_horace_install < TestCase
             %WARNING! not absolute or smart. Relies on convention from
             %2021/10/01
             hor_unpack = fileparts(fileparts(which('horace_init')));
-            [path0,hor_root] = fileparts(hor_unpack);
-            if strcmp(hor_root,'Horace') % is Horace alongside Herbert or inside
-                herbert_unpack = fullfile(path0,'Herbert');
-            else
-                herbert_unpack = fullfile(hor_unpack,'Herbert');
+            herbert_unpack = fileparts(fileparts(which('herbert_init')));
+            if isempty(herbert_unpack)
+                [path0,hor_root] = fileparts(hor_unpack);
+                if strcmp(hor_root,'Horace') % is Horace alongside Herbert or inside
+                    herbert_unpack = fullfile(path0,'Herbert');
+                else
+                    herbert_unpack = fullfile(hor_unpack,'Herbert');
+                end
             end
         end
         %

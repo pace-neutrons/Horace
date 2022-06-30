@@ -6,9 +6,6 @@
   This script requires Matlab, Visual Studio, CMake>=3.7 and CTest be installed
   on your system and available on the path.
 
-  This script also requires that Herbert be findable by CMake. CMake will search
-  in common places for Herbert e.g. in the same directory as Horace.
-
   Use "Get-Help ./build.ps1 -Detailed" for parameter descriptions.
 
 .EXAMPLE
