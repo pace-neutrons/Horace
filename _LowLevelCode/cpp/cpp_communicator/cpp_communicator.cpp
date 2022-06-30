@@ -108,7 +108,8 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
         plhs[0] = mxCreateString(Horace::VERSION);
         return;
     }
-    //mexWarnMsgIdAndTxt("MEX:runtime_info","In mex file");
+
+    //mexWarnMsgIdAndTxt("MEX:runtime_info", "In mex file");
 
     //* Check and parse input  arguments. */
     uint8_t* data_buffer(nullptr);

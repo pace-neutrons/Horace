@@ -14,7 +14,7 @@ function add_herbert_path()
     if exist('../local_init', 'dir')
         % Running in CI
         addpath('../local_init');
-        path = herbert_on();
+        path = horace_on();
     else
         % Assume we're running from the admin folder
         cur_dir = fileparts(mfilename('fullpath'));

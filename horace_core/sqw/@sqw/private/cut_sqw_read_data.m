@@ -67,7 +67,7 @@ if ischar(data_source)
 else
     % Data source is an sqw object in memory
     % For convenience, unpack the fields that themselves are major data structures
-    % (no memory penalty as matlab just passes pointers)
+    % (no memory penalty as MATLAB just passes pointers)
     if hor_log_level>=0, disp('Taking cut from sqw object...'), end
     main_header = data_source.main_header;
     header = data_source.experiment_info;

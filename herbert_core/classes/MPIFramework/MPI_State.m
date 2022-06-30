@@ -5,13 +5,13 @@ classdef MPI_State<handle
     % status, including access to messages framework to exchange messages
     % between various tasks.
     %
-    % 'MPI-deployed' state is set up in parallel_worker functiom, which is 
+    % 'MPI-deployed' state is set up in parallel_worker functiom, which is
     % executed by all parallel jobs.
     % The state should be checked by the client,
     % inheriting from JobExecutor within the loop executed within do_job method.
     %
     % Implemented as classical singleton.
-    
+
     properties(Dependent)
         % report if the Matlab session is deployed on a remote worker
         is_deployed
@@ -30,6 +30,17 @@ classdef MPI_State<handle
         labIndex;
         % Total number of labs in parallel pool.
         numLabs;
+        % the property, used to assign handle for logging the progress of
+        % MPI job during debugging. To be asigned to file handle of a
+        % log file, specific for the specific worker and kept here to be
+        % available from any place in a mpi part of the program. The log
+        % file is located in tempdir and named worker_log_XXXXXXXXXX.log
+        % where XXXXXXXXXX is the selection of 10 random ASCII characters
+        % selected from capital letters.
+        debug_log_handle
+        % property returning true if debug_log_handle is initialized and
+        % can be used
+        trace_log_enabled
     end
     properties(Access=protected)
         is_deployed_=false;
@@ -41,6 +52,7 @@ classdef MPI_State<handle
         start_time_=[];
         time_per_step_= 0;
         mpi_framework_ = [];
+        debug_log_handle_ = [];
     end
     properties(Constant, Access=protected)
         % methods to set using setattr method
@@ -92,7 +104,25 @@ classdef MPI_State<handle
                 nl = obj.mpi_framework_.numLabs;
             end
         end
-        
+        function fh = get.debug_log_handle(obj)
+            % opend debug_log_file on the first access
+            if isempty(obj.debug_log_handle_)
+                seed = uint64(feature('getpid'));
+                rng(seed);
+                fn = ['worker_log_',char(randi([65 90],1,10)),'.log'];
+                obj.debug_log_handle_ = fopen(fullfile(tempdir,fn),'w');
+            end
+            fh = obj.debug_log_handle_;
+        end
+        function is = get.trace_log_enabled(obj)
+            is  = false;
+            if ~isempty(obj.debug_log_handle_) && obj.debug_log_handle_>1
+                fn = fopen(obj.debug_log_handle_);
+                if ~isempty(fn)
+                    is = true;
+                end
+            end
+        end
         %------------------------------------------------------
         function set.is_deployed(obj,val)
             obj.is_deployed_=val;
@@ -151,7 +181,7 @@ classdef MPI_State<handle
             end
         end
         %-----------------------------------------------------------------
-        
+
         function do_logging(obj,step,n_steps,tps,additional_info)
             % do logging if appropriate logging function has been set-up
             % Inputs:
@@ -191,7 +221,7 @@ classdef MPI_State<handle
                 obj.logger_(step,n_steps,tps,additional_info);
             end
         end
-        
+
         function set(obj,varargin)
             % functional assignment of class parameter with list of key-value
             % pairs
@@ -210,9 +240,18 @@ classdef MPI_State<handle
                 obj.(varargin{i}) = varargin{i+1};
             end
         end
-        
+        function delete(obj)
+            if ~isempty(obj.debug_log_handle_)
+                fclose(obj.debug_log_handle_);
+            end
+            obj.is_deployed_=false;
+            obj.logger_ = [];
+            obj.check_cancelled_=[];
+            obj.is_tested_ = false;
+            obj.start_time_=[];
+            obj.time_per_step_= 0;
+            obj.mpi_framework_ = [];
+            obj.debug_log_handle_ = [];
+        end
     end
-    
-    
 end
-

@@ -10,11 +10,11 @@ function ok=finish_task_tester(worker_controls_string,varargin)
 %              folder name where the job initialization data are located on
 %              a remote system
 % varargin(n-neighbour) -- if present, defines number of "virtual"
-%             neighboring workers, used as sources of messages to
+%             neighbouring workers, used as sources of messages to
 %             test cpp_mpi communications.
 
 if isempty(which('herbert_init.m'))
-    herbert_on();
+    horace_on();
 end
 % Check current state of mpi framework and set up deployment status
 % within Matlab code to run
@@ -34,7 +34,7 @@ control_struct = iMessagesFramework.deserialize_par(worker_controls_string);
 % Place where config files are stored:
 config_exchange_folder = control_struct.data_path;
 
-% set path to the config sources removimg configurations, may be loaded 
+% set path to the config sources removing configurations, may be loaded 
 % in memory while Horace was initialized.
 config_store.set_config_folder(config_exchange_folder);
 % Initialize the frameworks, responsible for communications within the

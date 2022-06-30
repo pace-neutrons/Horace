@@ -4,7 +4,7 @@ function [ok,err_mess]=mpi_comm_tester(worker_controls_string)
 err_mess = [];
 ok = true;
 if isempty(which('herbert_init.m'))
-    herbert_on();
+    horace_on();
 end
 disp(' horace initiated')
 me =MessagesCppMPI('test_MPI_job');

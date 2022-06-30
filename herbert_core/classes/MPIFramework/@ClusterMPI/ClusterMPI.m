@@ -4,7 +4,7 @@ classdef ClusterMPI < ClusterWrapper
     %
     %----------------------------------------------------------------------
     properties(Access = protected)
-        
+
         % the string containing Java handle to running mpiexec process
         mpiexec_handle_ = [];
         %
@@ -13,7 +13,7 @@ classdef ClusterMPI < ClusterWrapper
         % the folder, containing mpiexec cluster configurations (host files)
         config_folder_
     end
-    
+
     methods
         function obj = ClusterMPI(n_workers,mess_exchange_framework)
             % Constructor, which initiates MPI wrapper
@@ -62,7 +62,11 @@ classdef ClusterMPI < ClusterWrapper
         %
         function obj = init(obj,n_workers,mess_exchange_framework,log_level)
             % The method to initiate the cluster wrapper and start running
-            % the cluster job.
+            % the cluster job by executing mpiexec with appropriate
+            % parameters. When cluster is initialized internally, it will
+            % report cluster_ready (writes appropriate message file) to the
+            % host process.
+            %
             %
             % Inputs:
             % n_workers -- number of independent Matlab workers to execute
@@ -77,11 +81,11 @@ classdef ClusterMPI < ClusterWrapper
                 log_level = -1;
             end
             obj = init@ClusterWrapper(obj,n_workers,mess_exchange_framework,log_level);
-            
+
             %
             mpiexec = obj.get_mpiexec();
             mpiexec_str = {mpiexec,'-n',num2str(n_workers)};
-            
+
             % build generic worker init string without lab parameters
             cs = obj.mess_exchange_.get_worker_init(obj.pool_exchange_frmwk_name);
             worker_init = sprintf('%s(''%s'');exit;',obj.worker_name_,cs);
@@ -112,10 +116,10 @@ classdef ClusterMPI < ClusterWrapper
             % for other mpi implementation should be implemented
             runtime = runtime.command(task_info);
             obj.mpiexec_handle_ = runtime.start();
-            
+
             % check if job control API reported failure
             obj.check_failed();
-            
+
         end
         %
         function obj=finalize_all(obj)
@@ -137,7 +141,7 @@ classdef ClusterMPI < ClusterWrapper
             %
             config = find_and_return_host_files_(obj);
         end
-        
+
         %
         function check_availability(obj)
             % verify the availability of the compiled Herbert MPI
@@ -168,32 +172,14 @@ classdef ClusterMPI < ClusterWrapper
                         'External mpiexec %s selected but is not available',mpi_exec);
                 end
             end
-            
+
             rootpath = fileparts(fileparts(which('herbert_init')));
             external_dll_dir = fullfile(rootpath, 'horace_core', 'DLL', 'external');
+
             if ispc()
-                [rs, rv] = system('where mpiexec');
-                mpis = splitlines(strip(rv));
-                % Ignore Matlab-bundled mpiexec (firewall issues)
-                mpis(cellfun(@(x) contains(x, matlabroot), mpis)) = [];
-                if rs == 0 && ~isempty(mpis)
-                    % If multiple mpiexec on path, prefer user installed MS MPI
-                    mpi_id = [1 find(cellfun(@(x) contains(x,'Microsoft'), mpis), 1)];
-                    mpi_exec = mpis{max(mpi_id)};
-                else
-                    % No mpiexec on path, use pre-packaged version
-                    mpi_exec = fullfile(external_dll_dir, 'mpiexec.exe');
-                end
+                mpi_exec = fullfile(external_dll_dir, 'mpiexec.exe');
             else
                 mpi_exec = fullfile(external_dll_dir, 'mpiexec');
-                
-                if ~(is_file(mpi_exec))
-                    % use system-defined mpiexec
-                    [~, mpi_exec] = system('which mpiexec');
-                    % strip non-printing characters, spaces and eol/cr-s from the
-                    % end of mpiexec string.
-                    mpi_exec = regexprep(mpi_exec,'[\x00-\x20\x7F-\xFF]$','');
-                end
             end
         end
     end

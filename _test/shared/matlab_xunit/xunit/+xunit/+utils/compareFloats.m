@@ -65,10 +65,10 @@ B = params.B(:);
 switch compare_type
     case 'elementwise'
         magFcn = @abs;
-        
+
     case 'vector'
         magFcn = @norm;
-        
+
     otherwise
         error('compareFloats:unrecognizedCompareType', ...
             'COMPARE_TYPE must be ''elementwise'' or ''vector''.');
@@ -77,12 +77,12 @@ end
 switch params.ToleranceType
     case 'relative'
         coreCompareFcn = @(A, B) magFcn(A - B) <= ...
-              params.Tolerance * max(magFcn(A), magFcn(B)) + ...
-              params.FloorTolerance;
-        
+            params.Tolerance * max(magFcn(A), magFcn(B)) + ...
+            params.FloorTolerance;
+
     case 'absolute'
         coreCompareFcn = @(A, B) magFcn(A - B) <= params.Tolerance;
-        
+
     otherwise
         error('compareFloats:unrecognizedToleranceType', ...
             'TOL_TYPE must be ''relative'' or ''absolute''.');

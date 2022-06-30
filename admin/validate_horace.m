@@ -83,9 +83,6 @@ test_folders_full = cellfun(@(x)fullfile(test_path, x), test_folders, ...
 hec = herbert_config();
 hoc = hor_config();
 hpc = hpc_config();
-% remove configurations from memory. Ensure only stored configurations are
-% stored
-clear config_store;
 % (Validation must always return Horace and Herbert to their initial states, regardless
 %  of any changes made in the test routines)
 
@@ -94,6 +91,10 @@ clear config_store;
 cur_herbert_conf = hec.get_data_to_store();
 cur_horace_config = hoc.get_data_to_store(); % only get the public i.e. not sealed, fields
 cur_hpc_config = hpc.get_data_to_store();
+% remove configurations from memory. Ensure only stored configurations are
+% stored
+clear config_store;
+
 
 % Create cleanup object (*** MUST BE DONE BEFORE ANY CHANGES TO CONFIGURATIONS)
 cleanup_obj = onCleanup(@() ...

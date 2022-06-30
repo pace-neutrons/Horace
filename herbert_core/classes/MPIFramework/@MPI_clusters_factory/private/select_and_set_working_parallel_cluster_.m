@@ -47,23 +47,24 @@ elseif isnumeric(val)
             numel(names),val);
     end
     cl_name = names{val};
-    
+
 else
     error('HERBERT:MPI_clusters_factory:invalid_argument',...
         'Unknown parallel cluster: ''%s'' type: ''%s'' requested',...
         strtrim(evalc('disp(val)')),class(val));
 end
-obj.parallel_cluster_name_ = cl_name;
 cl = obj.known_clusters_(cl_name);
+obj.parallel_cluster_name_ = cl_name;
 try
     cl.check_availability();
+    obj.framework_available_   = true;
 catch ME
+    obj.framework_available_   = false;
     if strcmp(ME.identifier,'HERBERT:ClusterWrapper:not_available')
-        obj.framework_available_ = false;
         return
     else
         rethrow(ME);
     end
 end
-obj.framework_available_ = true;
+
 %

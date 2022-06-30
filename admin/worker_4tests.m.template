@@ -13,11 +13,10 @@ function [ok,err_mess,je]=worker_4tests(worker_controls_string)
 %              contains only minimal initialization information, namely the
 %              folder name where the job initialization data are located on
 %              a remote system.
-
-
 if nargin<1 || isempty(worker_controls_string)    
     worker_controls_string = getenv('WORKER_CONTROL_STRING');
 end
+%pause(30); % enable pause to be able to connect to MPI worker cpp_communicator with VS debugger
 je = [];
 ok = false;
 if isempty(which('horace_init.m'))
@@ -29,24 +28,43 @@ if isempty(which('horace_init.m'))
         return;
     end
 end
-
-DO_DEBUGGING = false;
+mis = MPI_State.instance();
+% Uncomment the row below to enable tracing initial steps of the
+% worker operations into file.
+% The first time access to debug_log_handle opens debug_log_file located 
+% in tempdir(). The File name is worker_log_XXXXXXXXXX.log  
+% where XXXXXXXXXX is the selection  of 10 random ASCII characters
+%fh= mis.debug_log_handle;
+%
+if mis.trace_log_enabled
+    fwrite(fh,sprintf('Horace is on at %s\n',which('horace_init')));
+end
+% logging occurs into config_exchange_folder, where all MPI processes write
+% files with names:
+% 'Job_job_id_wkNlabIndex#numLabs.log'
+% The logging may be enabled in ClusterWrapper setting DEBUG_REMOTE
+% property to true.
 DO_LOGGING = getenv('DO_PARALLEL_MATLAB_LOGGING');
 if isempty(DO_LOGGING)
     DO_LOGGING = false;
 else
     DO_LOGGING = feval(DO_LOGGING);
 end
-
+if mis.trace_log_enabled
+    fwrite(fh,sprintf('Do logging: %d\n',DO_LOGGING));
+end
+DO_DEBUGGING = false;
 try
-    [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,DO_DEBUGGING);
+    [ok, err_mess,je] = parallel_worker(worker_controls_string,DO_LOGGING,DO_DEBUGGING,...
+        false,false,false);
 catch ME1 % intercepted exception in processing failure or some odd bug indeed
     write_fail_log(ME1);
     err_mess = ME1;
 end
-if ~ok 
+if ~ok
     write_fail_log(err_mess);
 end
+MPI_State.instance('clear');
 
 function write_fail_log(ERROR)
 %
@@ -69,7 +87,7 @@ try
     fprintf(fh,'******* Unhandled exception:\n');
     fprintf(fh,'******** ERROR: \n');
     fprintf(fh,'%s',error_contents );
-    stat = fclose(fh);    
+    stat = fclose(fh);
 catch ERR % again, may be log will clarify the situation
     warning('Can not write log file %s; Reason %s',log_file,getReport(ERR));
 end

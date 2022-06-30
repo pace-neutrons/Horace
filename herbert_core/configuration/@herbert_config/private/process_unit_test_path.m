@@ -8,11 +8,15 @@ if isempty(rootpath)
     error('HERBERT_CONFIG:runtime_error',...
         'herbert_init is not on Matlab search path');
 end
+if ~strcmpi(fileparts(rootpath),'Horace')
+    warning('HERBERT_INIT:invalid_setup',...
+    'Herbert is not in default location. Be sure you use correct external Herbert in %s',rootpath);
+end
 tests_path = fullfile(rootpath,'_test');
 if ~(is_folder(tests_path))
     if init
         warning('HERBERT_INIT:invalid_setup',...
-            'Can not set-up access to the unit tests as no unint tests at %s are available',...
+            'Can not set-up access to the unit tests as no unit tests at %s are available',...
             tests_path);
     end
     tests_path = '';
@@ -25,7 +29,7 @@ xunit_path_extras = fullfile(rootpath, '_test', 'shared', 'matlab_xunit_ISISextr
 mpi_path = fullfile(tests_path,'test_mpi');
 
 % if the connection is done dynamically, additional folders should be added to Horace too
-% not a real dependency, thouth not nice Herbert knows about Horace.
+% not a real dependency, though not nice Herbert knows about Horace.
 hor_path = fileparts(which('horace_init'));
 if isempty(hor_path)
     hor_uproot = '';

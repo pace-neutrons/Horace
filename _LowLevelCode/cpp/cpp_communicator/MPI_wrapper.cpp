@@ -17,6 +17,7 @@ int MPI_wrapper::init(const InitParamHolder& init_param) {
     //%int const * const isTestedInfo, int async_messages_queue_len,
     //int data_mess_tag, int interrupt_mess_tag) {
 
+    //std::this_thread::sleep_for(std::chrono::seconds(60));
     MPI_wrapper::data_mess_tag = init_param.data_message_tag;
     MPI_wrapper::interrupt_mess_tag = init_param.interrupt_tag;
 

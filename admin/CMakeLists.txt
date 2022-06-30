@@ -6,7 +6,6 @@ file(MAKE_DIRECTORY ${LOCAL_INIT_DIR})
 # parallel workers can access horace_on/worker scripts.
 # Note that LOCAL_INIT_DIR is defined in the top-level CMakeLists
 configure_file("horace_on.m.template" "${LOCAL_INIT_DIR}/horace_on.m")
-configure_file("herbert_on.m.template" "${LOCAL_INIT_DIR}/herbert_on.m")
 
 # Copy Horace worker templates
 if(BUILD_TESTING)
@@ -20,8 +19,8 @@ set(Horace_AUTO_GENERATED_FILE_WARNING
 # Configure the horace_version.m script. The template script is copied into
 # herbert_core/admin and CMake's project version formatted into it. This
 # provides the function with an up-to-date version number for every build.
-configure_file("horace_get_build_version.m.template"
-               "${Horace_ROOT}/horace_core/admin/horace_get_build_version.m")
+configure_file("herbert_get_build_version.m.template"
+               "${Horace_ROOT}/herbert_core/admin/herbert_get_build_version.m")
 
 # Configure the version.h header. The template is copied into _LowLevelCode/cpp
 # and defines macro VERSION with CMake's project version.
@@ -42,7 +41,6 @@ add_custom_command(
 install(
     FILES
         "horace_on.m.template"
-        "herbert_on.m.template"
         "worker_v2.m.template"
         "horace_install.m"
     DESTINATION "."

@@ -3,7 +3,7 @@
   This script is used to build, test and package Horace on Windows.
 
 .DESCRIPTION
-  This script requires Matlab, Visual Studio, CMake>=3.7 and CTest be installed
+  This script requires Matlab, Visual Studio, CMake>=3.18 and CTest be installed
   on your system and available on the path.
 
   Use "Get-Help ./build.ps1 -Detailed" for parameter descriptions.
@@ -31,7 +31,7 @@ param (
   [switch][Alias("b")]$build,
   # Run all Horace tests.
   [switch][Alias("t")]$test,
-  # Pacakge Horace into a .zip file.
+  # Package Horace into a .zip file.
   [switch][Alias("p")]$package,
   # Print the versions of libraries being used e.g. Matlab.
   [switch][Alias("v")]$print_versions,

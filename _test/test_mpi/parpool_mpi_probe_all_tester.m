@@ -1,7 +1,7 @@
 function [res,varargout] = parpool_mpi_probe_all_tester(job_control,communicator_control)
 %
 if isempty(which('herbert_init'))
-    herbert_on();
+    horace_on();
 end
 
 if exist('communicator_control', 'var')

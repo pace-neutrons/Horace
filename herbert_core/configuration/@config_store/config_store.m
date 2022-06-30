@@ -65,7 +65,7 @@ classdef config_store < handle
             end
             config_store.instance(config_folder_name);
         end
-        
+
     end
     methods
         function store_config(this,config_class,varargin)
@@ -76,7 +76,7 @@ classdef config_store < handle
             %
             % if option -forcesave (or -force is provided) file is saved
             % into disc regardless of its status in memory
-            
+
             options={'-forcesave'};
             [ok,mess,force_save,other_options]=parse_char_options(varargin,options);
             if ~ok
@@ -109,13 +109,13 @@ classdef config_store < handle
                 error('CONFIG_STORE:invalid_argument',...
                     'Config class has to be a child of the config_base class or the name of such class');
             end
-            
+
             if isfield(this.config_storage_,class_name)
                 config_data = this.config_storage_.(class_name);
             else
                 config_data = this.get_config(class_to_restore);
             end
-            
+
             if numel(varargin) < nargout
                 error('CONFIG_STORE:runtime_error',...
                     ' some output values are not set by this function call');
@@ -139,13 +139,13 @@ classdef config_store < handle
                     varargout{i-1} = class_to_restore.get_internal_field(varargin{i});
                 end
             end
-            
+
         end
         %
         function config_cont = get_all_configs(obj)
             % return all config info, currently loaded in memory
             config_cont = obj.config_storage_;
-            
+
             fldn = fieldnames(config_cont);
             for i=1:numel(fldn)
                 cfcl = feval(fldn{i});
@@ -162,16 +162,21 @@ classdef config_store < handle
             %
             obj.config_folder_ = config_struct.config_folder;
             config_struct = rmfield(config_struct,'config_folder');
-            
+
             fldn = fieldnames(config_struct);
             for i=1:numel(fldn)
                 cfcl = feval(fldn{i});
                 cfdata = config_struct.(fldn{i});
-                cfcl.saveable = cfdata.saveable;
+                saveable = cfdata.saveable;
                 cfdata = rmfield(cfdata,'saveable');
                 cl_fld = fieldnames(cfdata);
+                cfcl.saveable = false;
                 for j=1:numel(cl_fld)
                     cfcl.(cl_fld{j}) = cfdata.(cl_fld{j});
+                end
+                cfcl.saveable = saveable;
+                if saveable
+                    obj.save_config(fldn{i},cfcl.get_data_to_store());
                 end
             end
         end
@@ -215,7 +220,7 @@ classdef config_store < handle
             % to set and the variable to_save is true if the class should be
             % made savable and false otherwise.
             %
-            
+
             if is_it > 0
                 is_saveable=true;
             else
@@ -226,7 +231,7 @@ classdef config_store < handle
             else
                 class_name = class_instance.class_name;
             end
-            
+
             this.saveable_(class_name)=is_saveable;
         end
         %------------------------------------------------------------------
@@ -247,7 +252,7 @@ classdef config_store < handle
             for i=1:nout
                 varargout{i} = out{i};
             end
-            
+
         end
         %
         function   config_data=get_config(this,class_to_restore)
@@ -260,7 +265,7 @@ classdef config_store < handle
             %
             % if class_to_restore has option returns_defaults==true,
             % default class configuration is returned
-            
+
             %Usage:
             %
             % obj = conifg_store.instance().restore_config(herbert_config)
@@ -271,17 +276,17 @@ classdef config_store < handle
             %                     'use_mex','log_level')
             %                      returns current Herbert config settings for fields
             %                      'use_mex' and 'log_level'
-            
+
             [config_data,read_from_file]=this.get_config_(class_to_restore);
             % execute class setters.
-            
+
             % Important!!!
             % Despite we are not returning the resulting configuration,
             % executing this allows to set up global dependent fields (e.g.
             % set up unit test directories. But this can not set up
             % internal private dependent fields so a configuration can not
             % have such fields! (the setting got lost)
-            
+
             % set active properties only if the data were recovered from
             % file
             if read_from_file
@@ -332,7 +337,7 @@ classdef config_store < handle
             options={'-files'};
             [ok,mess,clear_files]=parse_char_options(varargin,options);
             if ~ok
-                error('CONFIG_STORE:invalid_argument',mess);
+                error('HORACE:config_store:invalid_argument',mess);
             end
             if clear_files
                 this.delete_all_files();
@@ -346,7 +351,7 @@ classdef config_store < handle
             %
             % if option -in_mem provided, it checks only if such configuration
             % is loaded in the memory
-            
+
             options={'-in_mem'};
             [ok,mess,check_mem_only]=parse_char_options(varargin,options);
             if ~ok
@@ -374,8 +379,9 @@ classdef config_store < handle
             % Optional:
             % '-clean' -- existing configuration is unloaded from memory
             %             this option should be used within MPI workers
-            %             to ensure they are keep any spurions configuration
-            %             in memory, and loaded shared configuration
+            %             to ensure they do not keep any spurions
+            %             configuration in memory, and loaded shared
+            %             configuration from config folder
             if ~ischar(new_path)
                 error('HERBERT:config_store:invalid_argiment',...
                     'The input path has to be a char. Got : %s',fevalc('disp(new_path)'));
@@ -386,12 +392,24 @@ classdef config_store < handle
                 obj.build_and_set_config_folder_(new_path);
             end
         end
-        
         %
         function storage = get.config_classes(this)
             storage = fieldnames(this.config_storage_);
         end
-        
+        %
+        function obj = save_config(obj,class_name,data_to_save)
+            % save config class intormaion the appropriate config file
+            if ~exist('data_to_save','var')
+                data_to_save = obj.config_storage_.(class_name);
+            end
+            filename = fullfile(obj.config_folder,[class_name,'.mat']);
+            [ok,mess]=save_config(filename,data_to_save);
+            if ~ok
+                error('HORACE:config_store:io_error',mess);
+            end
+
+        end
+
     end
     methods(Access=private)
         % Guard the constructor against external invocation.  We only want
@@ -404,11 +422,11 @@ classdef config_store < handle
                 {'char', 'string'}, {'scalartext', 'nonempty'})));
             parse(p, varargin{:});
             new_path = p.Results.path;
-            
+
             % initialize configurations storage.
             newStore.config_storage_ = struct();
             newStore.saveable_ = containers.Map();
-            
+
             newStore=build_and_set_config_folder_(newStore,new_path);
         end
         %
@@ -420,7 +438,7 @@ classdef config_store < handle
             % config folder in default location, specified by
             % make_config_folder routine
             %
-            
+
             %if ~exist('new_path','var') % not currently necessary as is
             %                              always called with new_path,
             %                              but to be aware of the futuire
@@ -438,14 +456,14 @@ classdef config_store < handle
             end
             if ~isempty(new_path)
                 [file_path,fn] = fileparts(new_path);
-                if contains(fn,'mprogs_config_') % use new path config folder
+                if contains(fn,'mprogs_config') % use new path config folder
                     %                              name provided as input
                     obj.config_folder_name_ = fn;
                     use_external_path = true;
                 else
                     use_external_path = false;
                 end
-                
+
                 cfn = obj.config_folder_name;
                 if use_external_path || strcmpi(fn,cfn)  % build config folder with the name,
                     % specified as defined on level up then

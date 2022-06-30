@@ -57,7 +57,8 @@ switch typeID
     case 32
         [v,pos] = obj_deserialize_itself(m,pos);
     otherwise
-        error('MATLAB:deserialise_value:unrecognised_tag', 'Cannot deserialise tag %s.', hlp_serial_types.type_details(type+1).name);
+        error('HORACE:hlp_deserialise:invalid_argument', ...
+            'Cannot deserialise tag %s.', hlp_serial_types.type_details(type+1).name);
 end
 end
 

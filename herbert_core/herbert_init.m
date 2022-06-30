@@ -43,13 +43,6 @@ genieplot_init
 % Applications definitions
 addgenpath_message (rootpath,'applications')
 
-% Put mex files on path
-rrp = fileparts(rootpath);
-if exist(fullfile(rrp, 'horace_core'))
-    addgenpath_message (rrp, 'horace_core', 'DLL')
-else
-    addgenpath_message (fileparts(rootpath), 'Horace', 'DLL')
-end
 
 % set up multiusers computer specific settings,
 % namely settings which are common for all new users of the specific computer
@@ -68,7 +61,7 @@ if hec.is_default || parc.is_default
 end
 %
 
-if hec.init_tests % this is developer vesion
+if hec.init_tests % this is developer version
     % set unit tests to the Matlab search path, to overwrite the unit tests
     % routines, added to Matlab after Matlab 2017b, as new routines have
     % signatures, different from the standard unit tests routines.

@@ -30,7 +30,13 @@ if isempty(which('horace_init.m'))
     end
 end
 
-DO_DEBUGGING = parse_env_var_logical('DO_PARALLEL_MATLAB_DEBUGGING');
+%DO_DEBUGGING = parse_env_var_logical('DO_PARALLEL_MATLAB_DEBUGGING');
+DO_DEBUGGING = false;
+% logging occurs into config_exchange_folder, where all MPI processes write 
+% files with names:
+% 'Job_job_id_wkNlabIndex#numLabs.log'
+% The logging may be enabled in ClusterWrapper setting DEBUG_REMOTE
+% property to true.
 DO_LOGGING = parse_env_var_logical('DO_PARALLEL_MATLAB_LOGGING');
 DO_PROFILING = parse_env_var_logical('DO_PARALLEL_MATLAB_PROFILING');
 DO_MEMORY_PROFILE = parse_env_var_logical('DO_PARALLEL_MATLAB_MEMORY_PROFILING');

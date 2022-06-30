@@ -107,7 +107,7 @@ sqw_struc.data = obj.get_data(data_opt{:}, 'pixel_page_size', opts.pixel_page_si
 
 sqw_struc.experiment_info = exp_info;
 old_file = ~sqw_struc.main_header.creation_date_defined;
-% run_id map in any form, so it is often tried to be resored from filename.
+% run_id map in any form, so it is often tried to be restored from filename.
 % here we try to verify, if this restoration is correct if we can do that
 % without critical drop in performance.
 if (sqw_struc.data.pix.num_pixels >0 ) && ...
@@ -116,7 +116,7 @@ if (sqw_struc.data.pix.num_pixels >0 ) && ...
     file_id = exp_info.runid_map.keys;
     file_id = [file_id{:}];
     if sqw_struc.data.pix.n_pages == 1 % all pixels are in memory and we
-        % can properly analyse runids
+        % can properly analyse run-ids
 
         if ~all(ismember(runid,file_id))  % old style pixel data, run_id-s
             % have been recalculated
