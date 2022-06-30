@@ -46,6 +46,13 @@ classdef hor_config < config_base
         % with ~4Gb it has to be reduced to 10^6
         mem_chunk_size
 
+        %   pixel_page_size   - Maximum memory size of pixel data array in
+        %                       file-backed algorithms (units of bytes).
+        % PixelData page size in bytes. Overrides mem_chunk_size for
+        % filebased PixelData if pixel_page_size is smaller then
+        % appropriate mem_chunk_size expressed in bytes.
+        pixel_page_size
+
         % ignore NaN values if pixels have them.  %  (default --true)
         ignore_nan
 
