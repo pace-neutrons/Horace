@@ -44,7 +44,7 @@ classdef opt_config_manager
         % property, containing structure, responsible for current default
         % configuration
         current_config_ = [];
-        % Structrue, containing all default configurations known to the
+        % Structure, containing all default configurations known to the
         % developers and read from the all config file
         all_known_configurations_ = [];
     end
@@ -66,7 +66,7 @@ classdef opt_config_manager
     methods
         function obj = opt_config_manager()
             % The constructor of the class, which selects a default
-            % configuration, presumably optibal for this type of the
+            % configuration, presumably optimal for this type of the
             % computer.
             obj.config_info_folder_ = fileparts(mfilename('fullpath'));
             obj.this_pc_type_ = find_comp_type_(obj);
