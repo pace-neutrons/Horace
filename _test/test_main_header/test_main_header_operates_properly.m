@@ -49,24 +49,30 @@ classdef test_main_header_operates_properly< TestCase
             source_file = fullfile(obj.sample_dir,'sqw_1d_2.sqw');
 
             w1 = read_sqw(source_file);
-            % check that creation date here will be now
+            assertFalse(w1.main_header.creation_date_defined)
+            % Creation date is undefined so check that creation date here
+            % is the date of the test file
             cr_date = w1.main_header.creation_date;
-            near_date = obj.get_close_date(cr_date);
-            assertEqual(cr_date,near_date);
+            file_info = dir(source_file);
+            file_date = main_header_cl.convert_datetime_to_str(...
+                datetime(file_info.date));
+            assertEqual(cr_date,file_date);
 
             assertTrue(isa(w1.main_header,'main_header_cl'));
-            % the old pixels were recalclulated so the creation date gets
-            % defined
-            assertTrue(w1.main_header.creation_date_defined);
+            % the old pixels were recalclulated but the creation date
+            % remains undefined
+            assertFalse(w1.main_header.creation_date_defined);
 
             test_file = fullfile(obj.working_dir,'sample_test_load_save_sqw.sqw');
             clOb = onCleanup(@()delete(test_file));
 
             write_sqw(w1,test_file);
             w1_rec = read_sqw(test_file);
+            near_date = obj.get_close_date(w1_rec.main_header.creation_date);
+            assertTrue(w1_rec.main_header.creation_date_defined);            
             assertTrue(isa(w1_rec.main_header,'main_header_cl'));
-            assertTrue(w1_rec.main_header.creation_date_defined);
-            assertEqual(w1_rec.main_header.creation_date,cr_date)
+
+            assertEqual(near_date,w1_rec.main_header.creation_date)
         end
 
         function test_load_save_old_sqw_file_main_header(obj)

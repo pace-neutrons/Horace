@@ -56,6 +56,9 @@ function [ok, mess] = equal_to_tol(w1, w2, varargin)
 %  'fraction'       Compare pixels in only a fraction of the non-empty bins
 %                  (0<= fracton <= 1; default=1 i.e. test all bins)
 %                   Only applies if sqw-type object
+%  '-ignore_date'   (provided without additional values, so its presence in
+%                    the sequence of keywords means true). If provided,
+%                    ignore file creation date stored in main header.
 %
 %  	The reorder and fraction options are available because the order of the
 %   pixels within the pix array for a given bin is unimportant. Reordering
