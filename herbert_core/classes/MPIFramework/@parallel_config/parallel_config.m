@@ -102,7 +102,7 @@ classdef parallel_config<config_base
         %    [s]lurm_mpi -- Deploys MPI program using Slurm job control
         %              software
         %    none      -- not available. If worker can not be found on a
-        %              path, any parallel cluster should be not be
+        %              path, no parallel cluster should be
         %              available. Parallel extensions will not work.
         parallel_cluster;
 
@@ -267,6 +267,9 @@ classdef parallel_config<config_base
             wrkr = obj.get_or_restore_field('worker');
         end
 
+        function wrkr = get.is_compiled(obj)
+            wrkr = obj.is_compiled_;
+        end
 
         function isc = get.is_compiled_(obj)
             isc  = obj.get_or_restore_field('is_compiled_');
@@ -289,7 +292,6 @@ classdef parallel_config<config_base
         function conf = get.cluster_config(obj)
             conf = obj.get_or_restore_field('cluster_config');
         end
-
 
         function n_workers = get.parallel_workers_number(obj)
             n_workers = get_or_restore_field(obj,'parallel_workers_number');
