@@ -127,7 +127,7 @@ classdef test_pixels_equal < TestCase & common_pix_class_state_holder
             pobj.experiment_info = obj.sqw_2d.experiment_info;
             pobj.main_header.nfiles = obj.sqw_2d.main_header.nfiles;
             pobj.main_header.creation_date = obj.sqw_2d.main_header.creation_date;
-            [ok,mess]=equal_to_tol(pobj, obj.sqw_2d, 'fraction', 0.5);
+            [ok,mess]=equal_to_tol(pobj, obj.sqw_2d, 'fraction', 0.5,'-ignore_date');
             assertTrue(ok,mess);
             skipTest('TODO: filebased and memory based versions of run_id map may be different, unitl the map is stored with file')
         end

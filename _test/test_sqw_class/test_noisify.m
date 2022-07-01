@@ -74,8 +74,12 @@ classdef test_noisify < TestCase & common_sqw_class_state_holder
             noisy_obj1.main_header.creation_date = noisy_obj2.main_header.creation_date;
             noisy_obj1.experiment_info = noisy_obj2.experiment_info;
             % as the page test whether the 2 paged versions are equal
-            assertEqual(sqw_obj1, sqw_obj2, '', 5e-4);
-            assertEqual(noisy_obj1, noisy_obj2, '', 5e-4);
+            [ok,mess] = equal_to_tol(sqw_obj1, sqw_obj2, ...
+                'abstol',5.e-4,'-ignore_date');
+            assertTrue( ok,['objects not equal. Reason: ',mess]);
+            [ok,mess] = equal_to_tol(noisy_obj1, noisy_obj2, ...
+                'abstol',5.e-4,'-ignore_date');
+            assertTrue( ok,['noisy not equal. Reason: ',mess]);
 
             % test noisify updates data
             assertFalse(equal_to_tol(sqw_obj1, noisy_obj1, 5e-4));

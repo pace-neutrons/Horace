@@ -285,9 +285,7 @@ classdef test_faccess_sqw_v2< TestCase
             sqw2 = to.get_sqw();
             to.delete();
 
-            sqw2.main_header.creation_date = sqw1.main_header.creation_date;
-            assertEqual(sqw1,sqw2);
-
+            assertEqualToTol(sqw1,sqw2,'-ignore_date');
             %
         end
 

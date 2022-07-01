@@ -150,8 +150,8 @@ classdef test_equal_to_tol < TestCase & common_sqw_class_state_holder
         end
 
         function test_paged_and_non_paged_version_of_same_sqw_file_are_equal(obj)
-            obj.sqw_2d_paged.main_header.creation_date = obj.sqw_2d.main_header.creation_date;
-            assertTrue(equal_to_tol(obj.sqw_2d_paged, obj.sqw_2d, 'fraction', 0.5));
+            assertTrue(equal_to_tol(obj.sqw_2d_paged, obj.sqw_2d, ...
+                'fraction', 0.5,'-ignore_date'));
         end
 
         function test_false_returned_if_NaNs_in_sqw_and_nan_equal_is_false(obj)
