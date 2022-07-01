@@ -179,7 +179,9 @@ classdef MFParallel_Job < JobExecutor
             nrm = dot(jac, jac);
             resid = obj.wt.*(obj.yval-obj.f_best);
 
-            jac = obj.reduce(1, jac, @vertcat, 'args');
+            [u, s] = svd(jac);
+            jac_red = u * s;
+            jac = obj.reduce(1, jac_red, @vertcat, 'args');
             nrm = obj.reduce(1, nrm, @vertcat, 'args');
             resid = obj.reduce(1, resid, @vertcat, 'args');
 
