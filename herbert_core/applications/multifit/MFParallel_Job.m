@@ -7,6 +7,7 @@ classdef MFParallel_Job < JobExecutor
     properties
         yval;
         wt;
+        npts;
 
         nnorm;
         npfree;
@@ -99,13 +100,12 @@ classdef MFParallel_Job < JobExecutor
             end
             obj.yval = obj.merge_section(obj.yval);
             obj.wt = obj.merge_section(obj.wt);
-% $$$             obj.yval=cell2mat(obj.yval(:));     % one long column vector
-% $$$             obj.wt=cell2mat(obj.wt(:));
 
             % Check that there are more data points than free parameters
             obj.nval = numel(obj.yval);
 
-            nval = obj.reduce(1, obj.nval, @sum);
+            obj.npts = obj.reduce(1, obj.nval, @vertcat, 'args');
+            nval = sum(obj.npts);
             obj.npfree = numel(common.p);
 
             if obj.is_root
@@ -194,19 +194,14 @@ classdef MFParallel_Job < JobExecutor
                 s = diag(s);
             end
 
-            [u, s] = obj.bcast(1, u, s);
+            s = obj.bcast(1, s);
+            u_out = obj.scatter(1, u, obj.npts, 1);
 
-            points = common.merge_data(obj.labIndex).range;
             for j = 1:size(jac, 2)
-                if (obj.labIndex == 1)
-                    v(:, j) = s(j).*jac'*u(1:37,j);
-                else
-                    v(:, j) = s(j).*jac'*u(38:end,j);
-                end
+                v(:, j) = s(j).*jac'*u_out(:,j);
             end
-            v = obj.reduce(1, v, @(varargin) cat(3, varargin{:}), 'args');
-            jac = obj.reduce(1, jac, @vertcat, 'args')
 
+            v = obj.reduce(1, v, @(varargin) cat(3, varargin{:}), 'args');
 
             if obj.is_root
                 v = sum(v, 3);
@@ -496,6 +491,61 @@ classdef MFParallel_Job < JobExecutor
             end
 
         end
+
+        function val = scatter(obj, root, val_in, nData, dim)
+
+            if obj.numLabs == 1
+                val = val_in;
+                return
+            end
+
+            if obj.labIndex == root
+                if numel(nData) ~= obj.numLabs
+                    error('HORACE:MFParallel_Job:send_error', "nData does not match nWorkers")
+                end
+
+                if (dim~= 0 && sum(nData) ~= size(val_in, dim)) || ...
+                          (dim == 0 && sum(nData) ~= numel(val_in))
+                    error('HORACE:MFParallel_Job:send_error', "nData does not match data size")
+                end
+
+                slices = [0; cumsum(nData)];
+
+                % Send data
+                for i=1:obj.numLabs
+                    switch dim
+                      case 0
+                        to_send = val_in(slices(i)+1:slices(i+1));
+                      case 1
+                        to_send = val_in(slices(i)+1:slices(i+1), :);
+                      case 2
+                        to_send = val_in(:, slices(i)+1:slices(i+1));
+                      otherwise
+                        error('HORACE:MFParallel_Job:send_error', "Dim %d not supported", dim)
+                    end
+                    if i ~= root
+                        send_data = DataMessage(to_send);
+                        [ok, err_mess] = obj.mess_framework.send_message(i, send_data);
+                        if ~ok
+                            error('HORACE:MFParallel_Job:send_error', err_mess)
+                        end
+                    else
+                        val = to_send;
+                    end
+                end
+
+            else
+
+                % Receive the data
+                [ok, err_mess, recv_data] = obj.mess_framework.receive_message(root, 'data');
+                if ~ok
+                    error('HORACE:MFParallel_Job:receive_error', err_mess)
+                end
+                val = recv_data.payload;
+            end
+
+        end
+
 
         function val = reduce(obj, root, val, op, opt, varargin)
             % Reduce data (val) from all processors on lab root using operation op
