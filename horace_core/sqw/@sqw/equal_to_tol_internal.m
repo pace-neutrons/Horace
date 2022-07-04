@@ -11,6 +11,13 @@ cntl.keys_once = false; % so name_a and name_b can be overridden
 if ~ok
     error(mess);
 end
+ism = cellfun(@(x)(ischar(x)||isstring(x))&&strcmp(x,'-ignore_date'),args);
+if any(ism)
+    ignore_date = true;
+    args = args(~ism);
+else
+    ignore_date = false;
+end
 if ~islognumscalar(opt.reorder)
     error('SQW:equal_to_tol_internal', ...
         '''reorder'' must be a logical scalar (or 0 or 1)')
@@ -36,9 +43,14 @@ for idx = 1:numel(class_fields)
         tmp1.pix = PixelData();
         tmp2.pix = PixelData();
     end
+    if strcmp(field_name,'main_header') && isa(tmp1,'main_header_cl') && ignore_date
+        tmp1.creation_date = tmp2.creation_date;
+        tmp1.creation_date_defined_privately= tmp2.creation_date_defined_privately;
+
+    end
     name1 = [name_a,'.',field_name];
-    name2 = [name_b,'.',field_name];    
-    
+    name2 = [name_b,'.',field_name];
+
     [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a', name1, 'name_b', name2);
 
     if ~ok

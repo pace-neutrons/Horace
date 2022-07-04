@@ -19,7 +19,7 @@ classdef test_main_header_operates_properly< TestCase
             obj.sample_dir = fullfile(tests_dir,'common_data');
             obj.working_dir = tmp_dir();
         end
-        function equal_date = get_close_date(~,date_tested)
+        function equal_date = get_close_date(~,date_tested,date_now)
             % helper routine to get current date and time, close to one,
             % to be obtained from main_header_cl method, with purpose of
             % testing the date to have expected value
@@ -28,19 +28,25 @@ classdef test_main_header_operates_properly< TestCase
             % Inputs:
             % date_tested -- the date, obtained from main_header_cl.creation_date
             %                function,
-            date_now = datetime("now");
+            if ~exist('date_now','var')
+                date_now = datetime("now");
+            end
             % in case date_tested returned a second earlier time,
             % modify dt_now to be 1 sec earlier
             date_now_m = date_now;
             date_now_m.Second = date_now_m.Second-1;
+            date_now_p = date_now;
+            date_now_p.Second = date_now_p.Second+1;
             %
             % convert to properly formatted strings
-            date_now = main_header_cl.convert_datetime_to_str(date_now);
-            date_now_m = main_header_cl.convert_datetime_to_str(date_now_m);
-            if all(date_now == date_tested)
-                equal_date = date_now;
+            dates = {main_header_cl.convert_datetime_to_str(date_now),...
+                main_header_cl.convert_datetime_to_str(date_now_m),...
+                main_header_cl.convert_datetime_to_str(date_now_p)};
+            is_eq = ismember(dates,date_tested);
+            if any(is_eq)
+                equal_date = dates{is_eq};
             else
-                equal_date = date_now_m;
+                equal_date  = dates{1};
             end
         end
 
@@ -49,24 +55,33 @@ classdef test_main_header_operates_properly< TestCase
             source_file = fullfile(obj.sample_dir,'sqw_1d_2.sqw');
 
             w1 = read_sqw(source_file);
-            % check that creation date here will be now
+            assertFalse(w1.main_header.creation_date_defined)
+            % Creation date is undefined so check that creation date here
+            % is the date of the test file
             cr_date = w1.main_header.creation_date;
-            near_date = obj.get_close_date(cr_date);
-            assertEqual(cr_date,near_date);
+            file_info = dir(source_file);
+            file_date = main_header_cl.convert_datetime_to_str(...
+                datetime(file_info.date));
+            assertEqual(cr_date,file_date);
 
             assertTrue(isa(w1.main_header,'main_header_cl'));
-            % the old pixels were recalclulated so the creation date gets
-            % defined
-            assertTrue(w1.main_header.creation_date_defined);
+            % the old pixels were recalclulated but the creation date
+            % remains undefined
+            assertFalse(w1.main_header.creation_date_defined);
 
             test_file = fullfile(obj.working_dir,'sample_test_load_save_sqw.sqw');
             clOb = onCleanup(@()delete(test_file));
 
+            write_date = datetime('now');
             write_sqw(w1,test_file);
             w1_rec = read_sqw(test_file);
-            assertTrue(isa(w1_rec.main_header,'main_header_cl'));
+
             assertTrue(w1_rec.main_header.creation_date_defined);
-            assertEqual(w1_rec.main_header.creation_date,cr_date)
+            assertTrue(isa(w1_rec.main_header,'main_header_cl'));
+
+            near_date = obj.get_close_date( ...
+                w1_rec.main_header.creation_date,write_date);
+            assertEqual(near_date,w1_rec.main_header.creation_date)
         end
 
         function test_load_save_old_sqw_file_main_header(obj)

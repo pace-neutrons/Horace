@@ -20,9 +20,9 @@ function [ok, mess] = equal_to_tol(w1, w2, varargin)
 %   w1,w2   Test objects (scalar objects, or arrays of objects with same sizes)
 %
 %   tol     Tolerance criterion for numeric arrays (Default: [0,0] i.e. equality)
-%           It has the form: [abs_tol, rel_tol] where
-%               abs_tol     absolute tolerance (>=0; if =0 equality required)
-%               rel_tol     relative tolerance (>=0; if =0 equality required)
+%           It has the form: [abstol, reltol] where
+%               abstol     absolute tolerance (>=0; if =0 equality required)
+%               reltol     relative tolerance (>=0; if =0 equality required)
 %           If either criterion is satified then equality within tolerance
 %           is accepted.
 %             Examples:
@@ -56,6 +56,9 @@ function [ok, mess] = equal_to_tol(w1, w2, varargin)
 %  'fraction'       Compare pixels in only a fraction of the non-empty bins
 %                  (0<= fracton <= 1; default=1 i.e. test all bins)
 %                   Only applies if sqw-type object
+%  '-ignore_date'   (provided without additional values, so its presence in
+%                    the sequence of keywords means true). If provided,
+%                    ignore file creation date stored in main header.
 %
 %  	The reorder and fraction options are available because the order of the
 %   pixels within the pix array for a given bin is unimportant. Reordering

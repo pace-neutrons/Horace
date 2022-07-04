@@ -43,7 +43,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
 
         proj %
     end
-    properties(Hidden)
+    properties(Hidden,Dependent)
         % the temporary property, which binds data_sqw_dnd and dnd object
         data
     end
@@ -193,7 +193,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                 obj.axes_ = axes_block();
             else
                 error('HORACE:DnDBase:invalid_argument',...
-                    'Only data_sqw_dnd class or empty value may be used as input for data. Trying to assign: %s',...
+                    'Only data_sqw_dnd class or empty value may be used as input for data. Got class: %s',...
                     class(d))
             end
         end

@@ -58,9 +58,12 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             % Test against saved or store to save later; ingnore string
             % changes - these are filepaths
             tol = [1e-10,1e-8];
-            assertEqualToTolWithSave (this, wsim_1, 'tol', tol, 'ignore_str', 1)
-            assertEqualToTolWithSave (this, wfit_1, 'tol', tol, 'ignore_str', 1)
-            assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, 'ignore_str', 1)
+            assertEqualToTolWithSave (this, wsim_1, 'tol', tol, ...
+                'ignore_str', 1,'-ignore_date')
+            assertEqualToTolWithSave (this, wfit_1, 'tol', tol, ...
+                'ignore_str', 1,'-ignore_date')
+            assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, ...
+                'ignore_str', 1)
         end
 
         % ------------------------------------------------------------------------------------------------
@@ -85,8 +88,10 @@ classdef test_multifit_horace_1 < TestCaseWithSave
             % Test against saved or store to save later; ingnore string
             % changes - these are filepaths
             tol = [1e-10,1e-8];
-            assertEqualToTolWithSave (this, wsim_2, 'tol', tol, 'ignore_str', 1)
-            assertEqualToTolWithSave (this, wfit_2, 'tol', tol, 'ignore_str', 1)
+            assertEqualToTolWithSave (this, wsim_2, ...
+                'tol', tol, 'ignore_str', 1,'-ignore_date')
+            assertEqualToTolWithSave (this, wfit_2, ...
+                'tol', tol, 'ignore_str', 1,'-ignore_date')
             assertEqualToTolWithSave (this, fitpar_2, 'tol', tol, 'ignore_str', 1)
         end
 

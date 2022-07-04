@@ -35,6 +35,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         % from Experiment class. Conversion to old header is not performed
         header;
     end
+    properties(Access = protected)
+        data_
+    end
 
     properties(Access=private)
         main_header_ = main_header_cl();

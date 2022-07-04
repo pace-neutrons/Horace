@@ -166,7 +166,9 @@ classdef main_header_cl < serializable
         function is = get.creation_date_defined(obj)
             is = obj.creation_date_defined_;
         end
-        % hidden properties, do not use
+        %------------------------------------------------------------------        
+        % hidden properties, do not use unless understand deeply why thery
+        % are here
         function is = get.creation_date_defined_privately(obj)
             is = obj.creation_date_defined_;
         end
