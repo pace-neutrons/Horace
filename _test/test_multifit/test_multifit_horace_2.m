@@ -73,8 +73,10 @@ classdef test_multifit_horace_2 < TestCaseWithSave
 
             % Test against saved or store to save later; ingnore string
             % changes - these are filepaths
-            assertEqualToTolWithSave (this, wfit_1, 'tol', tol, 'ignore_str', 1)
-            assertEqualToTolWithSave (this, wfit_1_locfore, 'tol', tol, 'ignore_str', 1)
+            assertEqualToTolWithSave (this, wfit_1, ...
+                'tol', tol, 'ignore_str', 1,'-ignore_date')
+            assertEqualToTolWithSave (this, wfit_1_locfore, ...
+                'tol', tol, 'ignore_str', 1,'-ignore_date')
             assertEqualToTolWithSave (this, fitpar_1, 'tol', tol, 'ignore_str', 1)
             assertEqualToTolWithSave (this, fitpar_1_locfore, 'tol', tol,  'ignore_str', 1)
         end

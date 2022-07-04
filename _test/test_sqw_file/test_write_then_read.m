@@ -19,11 +19,14 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
         function test_sqw_with_paged_pix_saved_is_eq_to_original_with_all_pix(obj)
             sqw_obj = sqw(obj.test_sqw_file_path, ...
                 'pixel_page_size', obj.small_page_size);
+            assertFalse(sqw_obj.main_header.creation_date_defined);
 
             [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
             saved_sqw = sqw(out_file_path);
-            
+            assertTrue(saved_sqw.main_header.creation_date_defined);
+
+            sqw_obj.main_header.creation_date = saved_sqw.main_header.creation_date;
             [ok,mess]=equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true);
             assertTrue(ok,mess);
         end
@@ -32,11 +35,14 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
             sqw_obj = sqw(obj.test_sqw_file_path, ...
                 'pixel_page_size', obj.small_page_size);
             sqw_obj.data.pix.advance();
+            assertFalse(sqw_obj.main_header.creation_date_defined);
 
             [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
             saved_sqw = sqw(out_file_path);
+            assertTrue(saved_sqw.main_header.creation_date_defined);
 
+            sqw_obj.main_header.creation_date = saved_sqw.main_header.creation_date;
             [ok,mess]=equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true);
             assertTrue(ok,mess);
         end
@@ -44,11 +50,14 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
         function test_saved_sqw_with_paged_pix_equal_to_original_sqw(obj)
             sqw_obj = sqw(obj.test_sqw_file_path, ...
                 'pixel_page_size', obj.small_page_size);
+            assertFalse(sqw_obj.main_header.creation_date_defined);
 
             [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
             saved_sqw = sqw(out_file_path);
+            assertTrue(saved_sqw.main_header.creation_date_defined);
 
+            sqw_obj.main_header.creation_date = saved_sqw.main_header.creation_date;
             [ok,mess]=equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true);
             assertTrue(ok,mess);
         end
@@ -60,11 +69,14 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
                 );
             sqw_obj = sqw(obj.test_sqw_file_path, ...
                 'pixel_page_size', obj.small_page_size);
+            assertFalse(sqw_obj.main_header.creation_date_defined);
 
             [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
             saved_sqw = sqw(out_file_path);
+            assertTrue(saved_sqw.main_header.creation_date_defined);
 
+            sqw_obj.main_header.creation_date = saved_sqw.main_header.creation_date;
             [ok,mess]=equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true);
             assertTrue(ok,mess);
         end
@@ -73,6 +85,7 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
             sqw_obj = sqw(obj.test_sqw_file_path, ...
                 'pixel_page_size', obj.small_page_size);
             sqw_obj.data.pix.advance();
+            assertFalse(sqw_obj.main_header.creation_date_defined);
 
             mem_chunk_conf_cleanup = set_temporary_config_options(...
                 hor_config(), ...
@@ -81,7 +94,9 @@ classdef test_write_then_read < TestCase & common_sqw_file_state_holder
             [file_cleanup, out_file_path] = obj.save_temp_sqw(sqw_obj);
 
             saved_sqw = read_sqw(out_file_path);
+            assertTrue(saved_sqw.main_header.creation_date_defined);
 
+            sqw_obj.main_header.creation_date = saved_sqw.main_header.creation_date;
             [ok,mess]=equal_to_tol(saved_sqw, sqw_obj, 'ignore_str', true);
             assertTrue(ok,mess);
         end

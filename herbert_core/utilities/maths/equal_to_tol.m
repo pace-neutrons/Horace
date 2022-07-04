@@ -19,9 +19,9 @@ function [ok,mess]=equal_to_tol(a,b,varargin)
 %   a,b     Test objects (scalar objects, or arrays of objects with same sizes)
 %
 %   tol     Tolerance criterion for numeric arrays (Default: [0,0] i.e. equality)
-%           It has the form: [abs_tol, rel_tol] where
-%               abs_tol     absolute tolerance (>=0; if =0 equality required)
-%               rel_tol     relative tolerance (>=0; if =0 equality required)
+%           It has the form: [abstol, reltol] where
+%               abstol     absolute tolerance (>=0; if =0 equality required)
+%               reltol     relative tolerance (>=0; if =0 equality required)
 %           If either criterion is satisfied then equality within tolerance
 %           is accepted.
 %             Examples:

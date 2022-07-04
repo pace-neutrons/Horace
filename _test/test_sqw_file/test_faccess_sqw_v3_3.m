@@ -74,7 +74,7 @@ classdef test_faccess_sqw_v3_3< TestCase
             assertEqual(file_accessor.num_contrib_files,1);
 
 
-            mheader = file_accessor.get_main_header('-verbatim');
+            mheader = file_accessor.get_main_header('-keep');
             assertEqual(numel(mheader.title),0);
             assertEqual(mheader.filename,'test_sqw_file_read_write_v3.sqw');
             assertEqual(mheader.filepath,...
@@ -207,6 +207,7 @@ classdef test_faccess_sqw_v3_3< TestCase
 
             so = faccess_sqw_v3_3(samp_f);
             sqw_ob = so.get_sqw();
+            assertFalse(sqw_ob.main_header.creation_date_defined);
             % old sqw object contains incorrect runid map.
             % This map shoudl be recalculated to maintain consistence
             % betweem pixels_id and headers
@@ -233,13 +234,15 @@ classdef test_faccess_sqw_v3_3< TestCase
 
             tob=tob.init(tf);
             ver_obj =tob.get_sqw('-verbatim');
+            assertTrue(ver_obj.main_header.creation_date_defined);
             tob.delete();
             % newly stored object contains updated runid map which should
             % not be recalculated
             assertFalse(ver_obj.experiment_info.runid_recalculated)
 
+            assertEqual(ref_range,ver_obj.data.img_range);
 
-            assertEqual(ref_range,ver_obj.data.img_db_range);
+            sqw_ob.main_header.creation_date = ver_obj.main_header.creation_date;
             assertEqual(sqw_ob.main_header,ver_obj.main_header);
             ver_obj.experiment_info.runid_recalculated = true; % for testing;
             assertEqual(sqw_ob,ver_obj);

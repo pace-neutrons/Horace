@@ -156,13 +156,13 @@ change_crystal_test(rlu_corr, d1_2_file, 'dnd', true, d1c_2_file)
 % Clean up all the files created in this test
 % -------------------------------------------
 if(log_level>-1)
-	disp(' ')
-	disp('Cleaning up temporary files...')
- end
+    disp(' ')
+    disp('Cleaning up temporary files...')
+end
 filename={w2_1_file,w2_2_file,w1_1_file,w1_2_file,...
-          d2_1_file,d2_2_file,d1_1_file,d1_2_file,...
-          w2c_1_file,w2c_2_file,w1c_1_file,w1c_2_file,...
-          d2c_1_file,d2c_2_file,d1c_1_file,d1c_2_file};
+    d2_1_file,d2_2_file,d1_1_file,d1_2_file,...
+    w2c_1_file,w2c_2_file,w1c_1_file,w1c_2_file,...
+    d2c_1_file,d2c_2_file,d1c_1_file,d1c_2_file};
 
 delete_error=false;
 for i=1:numel(filename)
@@ -250,7 +250,13 @@ end
 function [ok_out,mess]=test_result(expect_ok, wout, ref_ans)
 % Test if get expected result (which may also be a failure)
 try
-    [ok, mess]=equal_to_tol(wout, ref_ans,-2e-7,'nan_equal',true,'ignore_str',true);
+    if isa(wout,'sqw')
+        [ok, mess]=equal_to_tol(wout, ref_ans,-2e-7, ...
+            'nan_equal',true,'ignore_str',true,'-ignore_date');
+    else
+        [ok, mess]=equal_to_tol(wout, ref_ans,-2e-7, ...
+            'nan_equal',true,'ignore_str',true);
+    end
     if ok && ~expect_ok
         ok_out=false; mess=['Unexpected equality within tolerance: ',mess]; return
     elseif ~ok && expect_ok

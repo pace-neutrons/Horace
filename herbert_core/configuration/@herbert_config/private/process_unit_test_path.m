@@ -8,7 +8,8 @@ if isempty(rootpath)
     error('HERBERT_CONFIG:runtime_error',...
         'herbert_init is not on Matlab search path');
 end
-if ~strcmpi(fileparts(rootpath),'Horace')
+[~,fn] = fileparts(rootpath);
+if ~strcmpi(fn,'Horace')
     warning('HERBERT_INIT:invalid_setup',...
     'Herbert is not in default location. Be sure you use correct external Herbert in %s',rootpath);
 end

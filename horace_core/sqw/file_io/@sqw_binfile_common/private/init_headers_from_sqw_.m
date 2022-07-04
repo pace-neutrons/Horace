@@ -6,6 +6,10 @@ function obj=init_headers_from_sqw_(obj,sqw_obj)
 
 main_h_form = obj.get_main_header_form();
 main_h = sqw_obj.main_header;
+is_def = main_h.creation_date_defined;
+if ~is_def && obj.upgrade_headers_
+    main_h.creation_date = datetime('now');
+end
 
 [obj.main_head_pos_info_,pos]= obj.sqw_serializer_.calculate_positions(main_h_form,main_h ,obj.main_header_pos_);
 %

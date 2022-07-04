@@ -31,7 +31,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             sqw_obj = sqw();
             
             assertTrue(isa(sqw_obj, 'sqw'));
-            assertEqual(sqw_obj.main_header, struct([]));
+            assertEqual(sqw_obj.main_header, main_header_cl());
             assertTrue(isa(sqw_obj.experiment_info, 'Experiment'));
             
             assertTrue(isa(sqw_obj.experiment_info.instruments{1},'IX_null_inst'));
@@ -126,7 +126,7 @@ classdef test_sqw_constructor < TestCase & common_sqw_class_state_holder
             mat_stored_old = from_file.sqw_obj;
             % old and new sqw object define img_range slightly differently
             mat_stored_old.data.img_range = sqw_obj.data.img_range;
-            assertEqualToTol(mat_stored_old, sqw_obj,'ignore_str',true);
+            assertEqualToTol(mat_stored_old, sqw_obj,'ignore_str',true,'-ignore_date');
         end
     end
 end

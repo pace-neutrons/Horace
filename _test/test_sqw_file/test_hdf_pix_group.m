@@ -16,12 +16,12 @@ classdef test_hdf_pix_group < TestCase
             obj = obj@TestCase(class_name);
             ver = matlab_version_num();
             if ver>9.08
-                obj.skip_tests = true;                
+                obj.skip_tests = true;
             else
                 obj.skip_tests = false;
             end
         end
-        function close_fid(obj,fid,file_h,group_id)
+        function close_fid(~,fid,file_h,group_id)
             H5G.close(group_id);
             if ~isempty(file_h)
                 H5G.close(fid);

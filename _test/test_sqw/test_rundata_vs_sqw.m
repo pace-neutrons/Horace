@@ -116,6 +116,7 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             assertTrue(ok, ...
                 sprintf('The cut from direct sqw obj and sqw->rundata->sqw converted obj are not the same:\n %s\n', ...
                 mess));
+            sqw_rev.main_header.creation_date = obj.sqw_obj.main_header.creation_date;
             assertEqualToTol(obj.sqw_obj,sqw_rev,'tol',[1.e-12,1.e-12]);
         end
         function test_bounding_object_provides_correct_img_range(obj)
@@ -174,6 +175,9 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
             sqw_o = rd.calc_sqw(grid_size,img_db_range);
             sqw_r = obj.rd_convert_checker(fa,grid_size,img_db_range);
 
+            dp = sqw_o.main_header.creation_date_defined_privately;
+            sqw_o.main_header.creation_date = sqw_r.main_header.creation_date;
+            sqw_o.main_header.creation_date_defined_privately = dp;
             assertEqual(sqw_o,sqw_r);
 
         end

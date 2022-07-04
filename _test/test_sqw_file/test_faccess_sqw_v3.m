@@ -70,7 +70,7 @@ classdef test_faccess_sqw_v3< TestCase
             assertEqual(to.npixels,7680);
             assertEqual(to.num_contrib_files,1);
 
-            mheader = to.get_main_header('-verbatim');
+            mheader = to.get_main_header('-keep_');
             assertEqual(numel(mheader.title),0);
             assertEqual(mheader.filename,'test_sqw_file_read_write_v3.sqw');
             assertEqual(mheader.filepath,...
@@ -223,6 +223,7 @@ classdef test_faccess_sqw_v3< TestCase
             % not be recalculated
             assertFalse(ver_obj.experiment_info.runid_recalculated)
 
+            sqw_ob.main_header.creation_date = ver_obj.main_header.creation_date;
             assertEqual(sqw_ob.main_header,ver_obj.main_header);
 
             ver_obj.experiment_info.runid_recalculated = true;
@@ -240,6 +241,8 @@ classdef test_faccess_sqw_v3< TestCase
 
             so = faccess_sqw_v3(samp_f);
             sqw_ob = so.get_sqw();
+            % old sqw file
+            assertFalse(sqw_ob.main_header.creation_date_defined);
 
             assertTrue(isa(sqw_ob,'sqw'));
 
@@ -261,7 +264,9 @@ classdef test_faccess_sqw_v3< TestCase
             tob=tob.init(tf);
             ver_obj =tob.get_sqw('-verbatim');
             tob.delete();
+            assertTrue(ver_obj.main_header.creation_date_defined);            
 
+            sqw_ob.main_header.creation_date = ver_obj.main_header.creation_date;
             assertEqual(sqw_ob.main_header,ver_obj.main_header);
 
             assertTrue(sqw_ob.experiment_info.runid_recalculated);

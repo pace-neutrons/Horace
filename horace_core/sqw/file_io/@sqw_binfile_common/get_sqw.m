@@ -4,7 +4,7 @@ function [sqw_object,varargout] = get_sqw (obj, varargin)
 %   >> sqw_object = obj.get_sqw()
 %   >> sqw_object = obj.get_sqw('-h')
 %   >> sqw_object = obj.get_sqw('-his')
-%   >> sqw_object = obj.get_sqw('-hverbatim')
+%   >> sqw_object = obj.get_sqw('-keep_original')
 %   >> sqw_object = obj.get_sqw('-hisverbatim')
 %   >> sqw_object = obj.get_sqw('-nopix')
 %
@@ -62,8 +62,8 @@ sqw_struc = struct('main_header',[],'experiment_info',[],'detpar',[],'data',[]);
 
 % Get main header
 % ---------------
-if opts.verbatim
-    sqw_struc.main_header =  obj.get_main_header('-verbatim');
+if opts.keep_original || opts.verbatim
+    sqw_struc.main_header =  obj.get_main_header('-keep_original');
 else
     sqw_struc.main_header =  obj.get_main_header();
 end
@@ -80,7 +80,7 @@ end
 
 % Get data
 % --------
-if opts.verbatim
+if opts.verbatim || opts.keep_original
     opt1 = {'-verbatim'};
 else
     opt1 = {};
@@ -106,8 +106,7 @@ data_opt= [opt1, opt2, opt3, opt4];
 sqw_struc.data = obj.get_data(data_opt{:}, 'pixel_page_size', opts.pixel_page_size);
 
 sqw_struc.experiment_info = exp_info;
-%old_file = datetime(obj.creation_date)<datetime('01-Mar-2022'); % old file did not store
-old_file = true; % TODO: store file creation date in the main header to reliably identify old files. #804
+old_file = ~sqw_struc.main_header.creation_date_defined;
 % run_id map in any form, so it is often tried to be restored from filename.
 % here we try to verify, if this restoration is correct if we can do that
 % without critical drop in performance.
@@ -126,7 +125,7 @@ if (sqw_struc.data.pix.num_pixels >0 ) && ...
             id=1:exp_info.n_runs;
             if min(runid)< 1 || max(runid)>exp_info.n_runs
                 error('HORACE:sqw_binfile_common:invalid_argument', ...
-                    'pixels run_ids were recalculated but lies outside of run-ids, defined for headers. Contact developers to deal with the issue')
+                    'pixels runid-s were recalculated but lie outside of runid-s, defined for headers. Contact developers to deal with the issue')
             end
             % reset run-ids and runid_map stored in current experiment info.
             exp_info.runid_map = id;
@@ -135,14 +134,15 @@ if (sqw_struc.data.pix.num_pixels >0 ) && ...
             sqw_struc.main_header.nfiles = exp_info.n_runs;
             %
         end
+
     else % not all pixels are loaded into memory
-        if ~any(ismember(runid,file_id))  % old style pixel data, run_id-s        
-            % have been recalculated            
-            id=1:exp_info.n_runs;   
-            exp_info.runid_map = id;            
+        if ~any(ismember(runid,file_id))  % old style pixel data, run_id-s
+            % have been recalculated
+            id=1:exp_info.n_runs;
+            exp_info.runid_map = id;
         end
     end
-    sqw_struc.experiment_info = exp_info;    
+    sqw_struc.experiment_info = exp_info;
 end
 if opts.legacy
     sqw_object = sqw_struc.main_header;
@@ -174,6 +174,7 @@ flags = { ...
     'hverbatim', ...
     'hisverbatim', ...
     'noupgrade',...
+    'keep_original',... 
     'nopix', ...
     'legacy' ...
     };

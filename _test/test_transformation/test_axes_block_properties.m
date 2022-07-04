@@ -15,7 +15,7 @@ classdef test_axes_block_properties < TestCase
         axes_block_v1_file = 'axes_block_sample_v1.mat'; % savobj/loadobj reference file for version 1
         axes_block_v2_file = 'axes_block_sample_v2.mat'; % savobj/loadobj reference file for version 2
         sample_sqw_file = 'w2d_qq_sqw.sqw'
-        % save sample -- simlified TestWithSave interface. 
+        % save sample -- simlified TestWithSave interface.
         % Generates v2 test files when save_sample = true
         save_sample = false;
     end
@@ -36,6 +36,10 @@ classdef test_axes_block_properties < TestCase
             sample_file = fullfile(fileparts(obj.working_dir),...
                 'test_combine',obj.sample_sqw_file);
             sq_sample = read_sqw(sample_file);
+            % we read old class which does not have creation date
+            assertFalse(sq_sample.main_header.creation_date_defined);
+
+
             test_write = fullfile(obj.out_dir,'axes_block_conv_test.sqw');
             %
             clob = onCleanup(@()delete(test_write));
@@ -43,7 +47,14 @@ classdef test_axes_block_properties < TestCase
             write_sqw(sq_sample,test_write);
             assertTrue(is_file(test_write))
             sq_req = read_sqw(test_write);
-
+            % we wrote sqw file in new format and now the creation date is
+            % defined
+            assertTrue(sq_req.main_header.creation_date_defined);
+            % to compare objects, we need to set up the same values for the
+            % creation date. Undefined Creation date does not exist,
+            % (function returns current date -- this checked in main_header)
+            % so we need to assign it explicitly:
+            sq_sample.main_header.creation_date= sq_req.main_header.creation_date;
             assertEqualToTol(sq_sample,sq_req,'ignore_str',true);
 
         end

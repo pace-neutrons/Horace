@@ -289,7 +289,7 @@
       </hpc_config>
       <parallel_config>
          <worker>worker_v2</worker>
-         <external_mpiexec>1</external_mpiexec>
+         <external_mpiexec>0</external_mpiexec>
          <parallel_cluster>parpool</parallel_cluster>
          <cluster_config>default</cluster_config>
          <shared_folder_on_local/>
