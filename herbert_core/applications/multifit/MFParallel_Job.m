@@ -177,22 +177,41 @@ classdef MFParallel_Job < JobExecutor
 
             jac=obj.wt.*jac;
             nrm = dot(jac, jac);
-            resid = obj.wt.*(obj.yval-obj.f_best);
+            nrmsend = obj.reduce(1, nrm, @vertcat, 'args');
+            nrm(nrm > 0) = 1 ./ sqrt(nrm(nrm > 0));
 
-            [u, s] = svd(jac, 0);
-            jac_red = u * s;
-            jac = obj.reduce(1, jac_red, @vertcat, 'args');
-            nrm = obj.reduce(1, nrm, @vertcat, 'args');
+            jac=nrm.*jac;
+
+            resid = obj.wt.*(obj.yval-obj.f_best);
             resid = obj.reduce(1, resid, @vertcat, 'args');
 
-            if obj.is_root
-                nrm = sum(nrm, 1);
-                nrm(nrm > 0) = 1 ./ sqrt(nrm(nrm > 0));
-                jac=nrm.*jac;
+            [u, s] = svd(jac, 0);
+            u = u * s;
+            u = obj.reduce(1, u, @vertcat, 'args');
 
-                [jac,s,v]=svd(jac,0);
-                s=diag(s);
-                g=jac'*resid;
+            if obj.is_root
+                [u, s] = svd(u, 0);
+                s = diag(s);
+            end
+
+            [u, s] = obj.bcast(1, u, s);
+
+            points = common.merge_data(obj.labIndex).range;
+            for j = 1:size(jac, 2)
+                if (obj.labIndex == 1)
+                    v(:, j) = s(j).*jac'*u(1:37,j);
+                else
+                    v(:, j) = s(j).*jac'*u(38:end,j);
+                end
+            end
+            v = obj.reduce(1, v, @(varargin) cat(3, varargin{:}), 'args');
+            jac = obj.reduce(1, jac, @vertcat, 'args')
+
+
+            if obj.is_root
+                v = sum(v, 3);
+                nrmsend = sum(nrmsend, 1);
+                g=u'*resid;
 
                 % Compute change in parameter values.
                 % If the change does not improve chisqr  then increase the
