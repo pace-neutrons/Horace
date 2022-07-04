@@ -1137,8 +1137,8 @@ the comparison of large objects.</p>
 <div><p>w1,w2   Test objects (scalar objects, or arrays of objects with same sizes)</p>
 <dl>
 <dt>tol     Tolerance criterion for numeric arrays (Default: [0,0] i.e. equality)</dt><dd><dl class="simple">
-<dt>It has the form: [abs_tol, rel_tol] where</dt><dd><p>abs_tol     absolute tolerance (&gt;=0; if =0 equality required)
-rel_tol     relative tolerance (&gt;=0; if =0 equality required)</p>
+<dt>It has the form: [abstol, reltol] where</dt><dd><p>abstol     absolute tolerance (&gt;=0; if =0 equality required)
+reltol     relative tolerance (&gt;=0; if =0 equality required)</p>
 </dd>
 </dl>
 <p>If either criterion is satified then equality within tolerance
@@ -1184,12 +1184,15 @@ where the sign determines absolute or relative tolerance</p>
 </dd>
 </dl>
 </dd>
-<dt>‘fraction’       Compare pixels in only a fraction of the non-empty bins</dt><dd><blockquote>
-<div><blockquote>
-<div><dl class="simple">
+<dt>‘fraction’       Compare pixels in only a fraction of the non-empty bins</dt><dd><dl class="simple">
 <dt>(0&lt;= fracton &lt;= 1; default=1 i.e. test all bins)</dt><dd><p>Only applies if sqw-type object</p>
 </dd>
 </dl>
+</dd>
+<dt>‘-ignore_date’   (provided without additional values, so its presence in</dt><dd><blockquote>
+<div><blockquote>
+<div><p>the sequence of keywords means true). If provided,
+ignore file creation date stored in main header.</p>
 </div></blockquote>
 <p>The reorder and fraction options are available because the order of the</p>
 </div></blockquote>
@@ -3593,7 +3596,7 @@ abs_pix_indices  The indices to set data on. If not specified all indices are</p
 
   <div role="contentinfo">
     <p>&#169; Copyright 2006-2021, STFC RAL.
-      <span class="lastupdated">Last updated on Jun 30, 2022, 5:00:11 PM.
+      <span class="lastupdated">Last updated on Jul 4, 2022, 7:59:58 AM.
       </span></p>
   </div>
 
