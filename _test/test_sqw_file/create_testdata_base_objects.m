@@ -14,7 +14,8 @@ function create_testdata_base_objects
 %   two different files, each with three contributing spe files:  f1_3  f2_3
 
 en=-10:0.5:30;
-par_file='96dets.par';
+par_file=fullfile(fileparts(fileparts(mfilename('fullpath'))),...
+    'common_data','96dets.par');
 efix=50;
 emode=1;
 alatt=[4,5,6];

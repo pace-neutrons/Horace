@@ -1,21 +1,15 @@
-function [init_folder,her_init_dir,hor_init_dir,use_old_init_path] = ...
+function [init_folder,hor_init_dir,use_old_init_path] = ...
     horace_install(varargin)
-% Install an initialize Horace at the location, where the Horace package
-% have been unpacked
+% Install and initialize Horace at the location, where the Horace package
+% has been unpacked.
 %
 % Usage:
 %  >>horace_install()
-%  >>horace_install('herbert_root',/path/to/Herbert)
 %  >>horace_install('horace_root',/path/to/Horace)
-%  >>horace_install('herbert_root',/path/to/Herbert,'horace_root',/path/to/Horace)
-%  >>horace_install(...'init_folder',/path/to/place/where/init_files/to_be_installed)
+%  >>horace_install(__,'init_folder',/path/to/place/where/init_files/to_be_installed)
 %
 % Optional arguments:
 % ------------------
-% herbert_root--   The root directory where Herbert code is unpacked.
-%                  Necessary only if run horace_install from non-standard
-%                  location, where it has been unpacked from archive or
-%                  not from <>/Horace/admin folder.
 % horace_root --   The root directory where Horace code is unpacked.
 %                  Necessary only if run horace_install from non-standard
 %                  location, where it has been unpacked from archive or
@@ -26,8 +20,8 @@ function [init_folder,her_init_dir,hor_init_dir,use_old_init_path] = ...
 %                  This folder will be added to Matlab search path.
 %
 % test_mode   -- if true, do not install Horace but return installation
-%              folders, i.e. the folder where Horace/Herbert and horace_on
-%              herbert_on would be located on installation.
+%              folders, i.e. the folder where Horace and horace_on
+%              would be located on installation.
 %              Used to test the script. Should not be used in production
 %
 % Defaults (no arguments)
@@ -39,12 +33,11 @@ function [init_folder,her_init_dir,hor_init_dir,use_old_init_path] = ...
 %  Expected to be used in test mode only.
 %
 HORACE_ON_PLACEHOLDER = '${Horace_CORE}';
-HERBERT_ON_PLACEHOLDER = '${Herbert_CORE}';
 
 % presumably the code root is where this file is located
 code_root = fileparts(mfilename('fullpath'));
 % but, are we installing the package cloned from git repository?
-[code_root,hor_checkup_folder,her_checkup_folder] = check_layout_options(code_root);
+[code_root,hor_checkup_folder] = check_layout_options(code_root);
 
 % is there an old installation present? Use old Horace init directory not
 % to create mess
@@ -53,7 +46,7 @@ old_init_folder = fileparts(old_horace_on);
 %
 % Are some path or parameters provided as input? If not, use defaults
 opt = parse_args(code_root,old_init_folder,...
-    hor_checkup_folder,her_checkup_folder,varargin{:});
+    hor_checkup_folder,varargin{:});
 %
 if ~isempty(old_horace_on)
     if ~opt.test_mode
@@ -88,6 +81,7 @@ if ~opt.test_mode
     end    % has not been found
     %
     
+    % remove herbert_on which may be left from previous installations
     old_herbert_on = which('herbert_on');
     if ~isempty(old_herbert_on)
         delete(old_herbert_on);
@@ -123,17 +117,9 @@ hor_init_dir = find_directory( ...
     {opt.horace_root,fullfile(opt.horace_root,'horace_core')}...
     );
 
-her_init_dir = find_directory( ...
-    'herbert_init.m', ...
-    { opt.herbert_root,fullfile(opt.herbert_root, 'herbert_core')} ...
-    );
 horace_on_path = find_file( ...
     'horace_on.m.template', ...
     {code_root, fullfile(opt.horace_root, 'admin')} ...
-    );
-herbert_on_path = find_file( ...
-    'herbert_on.m.template', ...
-    {code_root, fullfile(opt.herbert_root, 'admin')} ...
     );
 % take worker_v2 template from Horace/admin
 worker_path = find_file( ...
@@ -147,21 +133,12 @@ end
 install_file( ...
     horace_on_path, ...
     fullfile(init_folder, 'horace_on.m'), ...
-    {HORACE_ON_PLACEHOLDER, HERBERT_ON_PLACEHOLDER}, ...
-    {hor_init_dir, her_init_dir} ...
-    );
-% Install herbert_on
-install_file( ...
-    herbert_on_path, ...
-    fullfile(init_folder, 'herbert_on.m'), ...
-    {HERBERT_ON_PLACEHOLDER}, ...
-    {her_init_dir} ...
+    {HORACE_ON_PLACEHOLDER}, {hor_init_dir} ...
     );
 % Install worker_v2 script (required by parallel routines) to user-path
 install_file(worker_path, fullfile(init_folder, 'worker_v2.m'));
 
 % Validate the installation
-validate_function(@herbert_on, @herbert_off);
 validate_function(@horace_on, @horace_off);
 
 disp('Horace successfully installed.')
@@ -169,14 +146,13 @@ disp('Call ''horace_on'' to start using Horace.')
 
 end
 % -----------------------------------------------------------------------------
-function [code_root,hor_checkup_folder,her_checkup_folder] = check_layout_options(code_root)
+function [code_root,hor_checkup_folder] = check_layout_options(code_root)
 % Check various code layout options in case installation is performed from
 % zip file, Github or by Jenkins
 %
 if exist(fullfile(code_root,'Horace'),'dir')==7 && ... % zip file installation
         exist(fullfile(code_root,'Herbert'),'dir')==7
     hor_checkup_folder = 'Horace';
-    her_checkup_folder = 'Herbert';
     return;
 end
 % Github or Jenkins installation
@@ -191,23 +167,16 @@ if strcmp(folder_name,'admin')
         code_root = path;
         hor_checkup_folder = '';
     end
-    her_checkup_folder = 'Herbert';
-    if ~exist(fullfile(code_root,'Herbert'),'dir')==7
-        warning('HORACE:installation_layout',...
-            'Can not find Herbert at %s',fullfile(code_root,'Herbert'));
-    end
 else
     hor_checkup_folder = 'Horace'; % when installed from zip file, this is where
     % Horace is located, and install script is one level above
-    her_checkup_folder='Herbert'; % Herbert is located alongside,
-    % under Herbert name
 end
 
 end
 
 % -----------------------------------------------------------------------------
 function opts = parse_args(code_root,init_folder_default,...
-    hor_checkup_folder, her_checkup_folder,varargin)
+    hor_checkup_folder, varargin)
 % Parse install script options and identify default package
 % location(s)
 %
@@ -230,8 +199,6 @@ end
 % Default horace_root is "<check_up_folder_name>/Horace", but Jenkins
 % checks it up directly into check_up_folder_name.
 hor_root_default = fullfile(code_root, hor_checkup_folder);
-% Default herbert_root is "<horace_root>/../Herbert"
-her_root_default = fullfile(code_root, her_checkup_folder);
 % Default init folder location is either init folder where previous Horace
 % init files are located or, if clean installation, "<horace_root>/../ISIS"
 if isempty(init_folder_default)
@@ -242,11 +209,6 @@ else
 end
 
 parser = inputParser();
-parser.addParameter( ...
-    'herbert_root', ...
-    her_root_default, ...
-    @(x) validate_path(x, 'herbert_root') ...
-    );
 % Default horace_root is one directory above this script
 parser.addParameter( ...
     'horace_root', ...
@@ -276,6 +238,7 @@ if ~strcmp(opts.init_folder,init_folder_default)
     end
 end
 opts.use_old_init_path = use_old_init_path;
+opts.herbert_root = opts.horace_root;
 
 end
 

@@ -1,4 +1,4 @@
-classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & serializable
+classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
     %SQW Create an sqw object
     %
     % Syntax:
@@ -8,14 +8,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     %   >> w = sqw (sqw_object)     % Create a new SQW object from a existing one
     %
     properties(Dependent)
-        npixels % common with loaders interface to pix.num_pixels property
+        npixels     % common with loaders interface to pix.num_pixels property
         %
-        runid_map % the map which connects header number
-        % with run_id stored in pixels, e.g. map contains connection
-        % runid_pixel->header_number
+        runid_map   % the map which connects header number
+        %           % with run_id stored in pixels, e.g. map contains
+        %           % connection runid_pixel->header_number
 
-        % used for organizing common interface to pixel data
-        main_header
+        main_header % Generic information about contributed files
+        %           % and the sqw file creation date.
         experiment_info
         detpar
         %
@@ -37,7 +37,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
     end
 
     properties(Access=private)
-        main_header_ = struct([]);
+        main_header_ = main_header_cl();
         experiment_info_ = Experiment();
         detpar_  = struct([]);
     end
@@ -227,15 +227,26 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             %TODO: implement checks for validity
             obj.detpar_ = val;
         end
-
+        %
         function val = get.main_header(obj)
             val = obj.main_header_;
         end
         function obj = set.main_header(obj,val)
-            %TODO: implement checks for validity
-            obj.main_header_ = val;
+            if isempty(val)
+                obj.main_header_  = main_header_cl();
+                return;
+            end
+            if isa(val,'main_header_cl')
+                obj.main_header_ = val;
+            elseif isstruct(val)
+                obj.main_header_ = main_header_cl(val);
+            else
+                error('HORAACE:sqw:invald_argument',...
+                    'main_header property accepts only inputs with main_header_cl instance class or structure, convertible into this class. You provided %s', ...
+                    class(val));
+            end
         end
-
+        %
         function val = get.experiment_info(obj)
             val = obj.experiment_info_;
         end
@@ -332,8 +343,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         sqw_struct = make_sqw(ndims);
         detpar_struct = make_sqw_detpar();
         header = make_sqw_header();
-        main_header = make_sqw_main_header();
-
     end
     %----------------------------------------------------------------------
     methods(Access = 'private')

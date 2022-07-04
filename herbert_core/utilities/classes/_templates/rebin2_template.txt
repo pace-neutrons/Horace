@@ -1,0 +1,47 @@
+function wout = $FUNC_NAME(win, varargin)
+% Rebin an $IX_DATASET_ND object or array of $IX_DATASET_ND objects along the $AXIS
+%
+%   >> wout = $FUNC_NAME (win, $DESCR)
+%   >> wout = $FUNC_NAME (win, $DESCR, 'int')
+%   
+% Input:
+% ------
+%   win     Input object or array of objects to be rebinned
+%   descr   Description of new bin boundaries $ONE_PER_AXIS
+%           - [], '' or zero:       Leave bins unchanged
+%           - dx (numeric scalar)   New bins centred on zero with constant width dx
+%           - [xlo,xhi]             Single bin
+%           - [x1,x2,...xn]         Set of bin boundaries
+%
+%           The lower limit can be -Inf and/or the upper limit +Inf, when the 
+%           corresponding limit is set by the full extent of the data.
+%
+%   Point data: for an axis with point data (as opposed to histogram data)
+%   'ave'   average the values of the points within each new bin (DEFAULT)
+%   'int'   average of the function defined by linear interpolation between the data points
+%
+% Output:
+% -------
+%   wout    Output object or array of objects
+%
+% EXAMPLES
+%   >> wout = $FUNC_NAME (win, []$CONTINUATION)
+%   >> wout = $FUNC_NAME (win, 10$CONTINUATION)
+%   >> wout = $FUNC_NAME (win, [2000,3000]$CONTINUATION)
+%   >> wout = $FUNC_NAME (win, [2000,Inf]$CONTINUATION)
+%   >> wout = $FUNC_NAME (win, [2000,3000,4000,5000,6000]$CONTINUATION)
+%
+% See also corresponding function $FUNC_MIRROR which accepts a rebin descriptor
+% of form [x1,dx1,x2,dx2,...xn] instead of a set of bin boundaries
+
+
+if numel(win)==0, error('Empty object to rebin'), end
+if nargin==1, wout=win; return, end     % benign return if no arguments
+
+integrate_data=false;
+point_integration_default=false;
+iax=$IAX_VAL;
+opt=struct('empty_is_full_range',$EMPTY_FLAG,'range_is_one_bin',$RANGE_FLAG,'array_is_descriptor',$ARRAY_FLAG,'bin_boundaries',$BIN_FLAG);
+
+[wout,ok,mess] = rebin_IX_dataset_nd (win, integrate_data, point_integration_default, iax, opt, varargin{:});
+if ~ok, error(mess), end

@@ -61,7 +61,7 @@ classdef dnd_file_interface
         %
         %True if convert all read fields (except pixels) into double
         convert_to_double_ = true;
-        
+
         % internal sqw/dnd object holder used as source for subsequent
         % write operations, when file accessor is initialized from an sqw
         % object
@@ -80,7 +80,7 @@ classdef dnd_file_interface
         fields_to_save_ = {'filename_';'filepath_';...
             'num_dim_';'dnd_dimensions_';'data_type_';'convert_to_double_'};
     end
-    
+
     properties(Dependent)
         % The name of the file, for the accessor to work with.
         filename
@@ -115,7 +115,7 @@ classdef dnd_file_interface
         % format files return real creatrion time, files store real
         % creation time within
         creation_date
-        
+
         % if all numeric types, read from a file to be converted to double.
         % (except pixels)
         convert_to_double
@@ -171,8 +171,7 @@ classdef dnd_file_interface
             obj.convert_to_double_ = lval;
         end
         function tm = get.creation_date(obj)
-            finf= dir(fullfile(obj.filepath,obj.filename));            
-            tm = finf.date;
+            tm = get_creation_date(obj);
         end
         %-------------------------
         function obj = delete(obj)
@@ -207,14 +206,23 @@ classdef dnd_file_interface
         %
         function has = has_pix_range(~)
             % Returns true when the pix_range is stored within a file.
-            % 
-            % old sqw file formatters were not storing this variable. 
+            %
+            % old sqw file formatters were not storing this variable.
             % If it is not stored, it needs to be recalculated.
-            % 
+            %
             has = false;
         end
     end
     methods(Access = protected,Hidden=true)
+        %
+        function tm = get_creation_date(obj)
+            % Get the creation date of current file
+            %
+            % extract code which gets creation date into separate
+            % function to allow overloading
+            finf= dir(fullfile(obj.filepath,obj.filename));
+            tm = finf.date;
+        end
         %
         function flds = fields_to_save(obj)
             % return list of filenames to save on hdd to be able to recover
@@ -277,7 +285,7 @@ classdef dnd_file_interface
         %Usage:
         %>>[obj,file_exist] = obj.set_file_to_update(filename_to_write);
         [obj,file_exist] = set_file_to_update(obj,varargin)
-        
+
         % Reopen existing file to write new data to it assuming
         % the loader has been already initiated by this file. Will be
         % clearly overwritten or corrupted if partial information is
@@ -286,14 +294,14 @@ classdef dnd_file_interface
         %---------------------------------------------------------
         [data,obj]  = get_data(obj,varargin); % get whole dnd data without packing these data into dnd object.
         [data_str,obj] = get_se_npix(obj,varargin) % get only dnd image data, namely s, err and npix
-        
+
         [inst,obj]  = get_instrument(obj,varargin); % return instrument stored with sqw file or empty structure if
         %                                             nothing is stored. Always empty for dnd objects.
         [samp,obj]  = get_sample(obj,varargin);   % return sample stored with sqw file or empty structure if
         %                                           nothing is stored. Always empty for dnd objects.
         [sqw_obj,varargout] = get_sqw(obj,varargin); % retrieve the whole sqw or dnd object from properly initialized sqw file
         [dnd_obj,varargout] = get_dnd(obj,varargin); % retrieve any sqw/dnd object as dnd object
-        
+
         % get [2x4] array of min/max ranges of the pixels contributing into
         % an object
         pix_range = get_pix_range(obj);
@@ -328,7 +336,7 @@ classdef dnd_file_interface
         % Close files related to this file accessor leaving all information
         % about this file in memory, e.g. preparing to serialize the class.
         obj = deactivate(obj)
-        
+
     end
     methods(Abstract,Access=protected,Hidden=true)
         % init file accessors from sqw object in memory
@@ -337,6 +345,6 @@ classdef dnd_file_interface
         % init file accessors from sqw file on hdd
         obj=init_from_sqw_file(obj,varargin);
     end
-    
+
 end
 

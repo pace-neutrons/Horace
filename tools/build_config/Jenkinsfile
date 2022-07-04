@@ -8,20 +8,8 @@ properties([
   parameters([
     string(
       defaultValue: pli.branch_name,
-      description: 'The name of the branch to build. *',
+      description: 'The name of the branch to build. Affects non-PR builds only. *',
       name: 'BRANCH_NAME',
-      trim: true
-    ),
-    string(
-      defaultValue: pli.herbert_branch,
-      description: 'The name of the branch or tag of Herbert to use. *',
-      name: 'HERBERT_BRANCH_NAME',
-      trim: true
-    ),
-    string(
-      defaultValue: '',
-      description: 'The release number of the Matlab to load e.g. R2019b.',
-      name: 'MATLAB_VERSION',
       trim: true
     ),
     string(
@@ -37,26 +25,32 @@ properties([
       trim: true
     ),
     string(
-      defaultValue: '3.19',
+      defaultValue: '',
+      description: 'The release number of the Matlab to load e.g. R2019b.',
+      name: 'MATLAB_VERSION',
+      trim: true
+    ),
+    string(
+      defaultValue: '',
       description: 'The version of CMake to run the build with. Affects Linux builds only.',
       name: 'CMAKE_VERSION',
       trim: true
     ),
     string(
-      defaultValue: '6.3.0',
+      defaultValue: '',
       description: 'The version of GCC to build with. Affects Linux builds only.',
       name: 'GCC_VERSION',
       trim: true
     ),
     string(
-      defaultValue: '2017',
-      description: 'The year of the version of Visual Studio to build with.  Affects Windows builds only.',
+      defaultValue: '',
+      description: 'The year of the version of Visual Studio to build with. Affects Windows builds only.',
       name: 'VS_VERSION',
       trim: true
     ),
     string(
       defaultValue: '',
-      description: 'The version of CppCheck tooling to load to provide the code-style checks. Affects Linux builds only.',
+      description: 'The version of CppCheck tooling to load to provide the code-style checks.',
       name: 'CPPCHECK_VERSION',
       trim: true
     ),
@@ -64,7 +58,7 @@ properties([
       defaultValue: true,
       description: 'If this pipeline is to build docs.',
       name: 'BUILD_DOCS'
-    ),
+    )
   ])
 ])
 
@@ -75,12 +69,10 @@ if (env.BRANCH_NAME) {
   currentBuild.description = "Git-SHA: ${env.PR_COMMIT_SHA.take(7)}"
 }
 
-def base_job_name = "${env.JOB_BASE_NAME}".replace("PR-", "").replace("Branch-", "")
 Boolean run_build_stage = !(env?.PR_LABELS =~ "do-not-build")
 Boolean run_test_stage = !(env?.PR_LABELS =~ "(do-not-build|do-not-test)")
 
 pipeline {
-
   agent {
     label env.AGENT
   }
@@ -94,6 +86,7 @@ pipeline {
     BUILD_DOCS = utilities.get_param('BUILD_DOCS', 'true')
   }
 
+
   stages {
 
     stage('Notify') {
@@ -104,76 +97,6 @@ pipeline {
           }
         }
         post_github_status("pending", "The build is running")
-      }
-    }
-
-    stage('Get-Herbert') {
-      /* For nightly builds, we use the last successful archived Herbert
-       * master build.
-       *
-       * For PR builds we check for the existence of a Herbert branch label on
-       * the pull request and clone and build that branch, else we clone and
-       * build master.
-       *
-       * For branch builds, we clone and build the Herbert master source from
-       * GitHub.
-       *
-       * For release builds, we clone and build a manually specified Herbert
-       * branch.
-       */
-      steps {
-        script {
-          if (env.RELEASE_TYPE == "nightly") {
-            // Get the last successful Herbert master build
-            copyArtifacts(
-              filter: 'build/Herbert-*',
-              fingerprintArtifacts: true,
-              projectName: "PACE-neutrons/Herbert/${base_job_name}",
-              selector: lastSuccessful()
-            )
-
-            if (isUnix()) {
-              sh '''
-                archive_name="\$(find -name Herbert-*.tar.gz)"
-                tar --wildcards --strip-components=1 -xf \$archive_name */Herbert
-              '''
-            }
-            else {
-              powershell './tools/pwsh/extract_herbert_artifact.ps1'
-            }
-
-          } else {
-
-            def herbert_ref = utilities.get_herbert_ref_from_labels(
-              env.PR_LABELS,
-              env.HERBERT_BRANCH_NAME
-            )
-            if (herbert_ref.startsWith('Error: ')) {
-              error(herbert_ref)
-            }
-            // Get Herbert from GitHub and call the build script
-            if (isUnix()) {
-              sh """
-                module load cmake/\$CMAKE_VERSION &&
-                module load matlab/\$MATLAB_VERSION &&
-                module load gcc/\$GCC_VERSION &&
-                ./tools/bash/clone_herbert_branch.sh\
-                  --branch ${herbert_ref}\
-                  --build_args \
-                    \"--cmake_flags \\\"-DHerbert_RELEASE_TYPE=\$RELEASE_TYPE\\\" \
-                    --matlab_release \$MATLAB_VERSION\"
-              """
-            } else {
-              powershell """
-                ./tools/pwsh/clone_herbert_branch.ps1\
-                  -branch ${herbert_ref}\
-                  -build_args\
-                    \"-cmake_flags \"\"-DHerbert_RELEASE_TYPE=\$env:RELEASE_TYPE\"\" \
-                    -matlab_release \$env:MATLAB_VERSION\"
-              """
-            }
-          }
-        }
       }
     }
 
@@ -208,14 +131,17 @@ pipeline {
               ./tools/build_config/build.sh \
                 --cmake_flags \"-DHorace_RELEASE_TYPE=\$RELEASE_TYPE\" \
                 --matlab_release \$MATLAB_VERSION \
-                --print_versions --configure
-          '''
+                --print_versions \
+                --configure
+              '''
           } else {
             powershell '''
-              ./tools/build_config/build.ps1 -print_versions -configure \
-                   -cmake_flags \"-DHorace_RELEASE_TYPE=\$env:RELEASE_TYPE\" \
-                   -matlab_release \$env:MATLAB_VERSION \
-                   -vs_version \$env:VS_VERSION
+              ./tools/build_config/build.ps1 \
+                -cmake_flags \"-DHorace_RELEASE_TYPE=\$env:RELEASE_TYPE\" \
+                -matlab_release \$env:MATLAB_VERSION \
+                -vs_version \$env:VS_VERSION \
+                -print_versions \
+                -configure
           '''
           }
         }
@@ -257,7 +183,7 @@ pipeline {
               module load matlab/\$MATLAB_VERSION &&
               module load gcc/\$GCC_VERSION &&
               ./tools/build_config/build.sh --build
-             '''
+            '''
           }
           else {
             powershell '''
@@ -358,7 +284,6 @@ pipeline {
         )
       }
     }
-
   }
 
   post {

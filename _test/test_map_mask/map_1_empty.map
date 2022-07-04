@@ -1,0 +1,4 @@
+! The minimum map file (1 workspace, no spectra)
+1 	% number of workspaces
+99 	% workspace name
+0 	% there are no spectra in the workspace

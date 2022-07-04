@@ -73,7 +73,8 @@ classdef test_cut < TestCase & common_state_holder
             sqw_cut = cut(obj.sqw_file, obj.ref_params{:});
 
             ref_sqw = sqw(obj.ref_file);
-            assertEqualToTol(sqw_cut, ref_sqw, 1e-5, 'ignore_str', true);
+            assertEqualToTol(sqw_cut, ref_sqw, 1e-5, ...
+                'ignore_str', true,'-ignore_date');
         end
         %
         function test_take_a_cut_from_an_sqw_object(obj)
@@ -87,7 +88,8 @@ classdef test_cut < TestCase & common_state_holder
 
             ref_sqw = read_sqw(obj.ref_file);
 
-            assertEqualToTol(sqw_cut, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
+            assertEqualToTol(sqw_cut, ref_sqw, obj.FLOAT_TOL, ...
+                'ignore_str', true,'-ignore_date');
 
         end
 
@@ -229,7 +231,8 @@ classdef test_cut < TestCase & common_state_holder
             % bug #797 requesting investigation
             loaded_sqw.experiment_info.instruments = ref_sqw.experiment_info.instruments;
 
-            assertEqualToTol(loaded_sqw, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
+            assertEqualToTol(loaded_sqw, ref_sqw, obj.FLOAT_TOL, ...
+                'ignore_str', true,'-ignore_date');
             skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')
         end
 
@@ -334,7 +337,7 @@ classdef test_cut < TestCase & common_state_holder
         end
 
         function test_you_can_take_an_out_of_memory_cut_with_tmp_files_with_mex(obj)
-            skipTest('mex cutting is disabled for the time beeing')
+            skipTest('mex cutting is disabled for the time being')
             pix_pg_size = 5e5;  % this gives two pages of pixels over obj.sqw_file
             outfile = fullfile(tmp_dir, 'tmp_outfile.sqw');
             cleanup_config = set_temporary_config_options( ...
@@ -389,7 +392,8 @@ classdef test_cut < TestCase & common_state_holder
             %output_sqw.experiment_info = contr_headers;
             %cut stored on file contains different exp
             % these representations have to be alighned
-            assertEqualToTol(output_sqw, ref_sqw, obj.FLOAT_TOL, 'ignore_str', true);
+            assertEqualToTol(output_sqw, ref_sqw, obj.FLOAT_TOL, ...
+                'ignore_str', true,'-ignore_date');
             clear cleanup_config_handle;
             skipTest('Instrument is not stored/restored Propertly. Horace ticket #797')
         end
