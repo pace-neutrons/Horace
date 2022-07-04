@@ -133,8 +133,6 @@ if (sqw_struc.data.pix.num_pixels >0 ) && ...
             exp_info = exp_info.get_subobj(runid);
             sqw_struc.main_header.nfiles = exp_info.n_runs;
             %
-            % As pixels id were recalculated, set the creation date to now
-            sqw_struc.main_header.creation_date = datetime('now');
         end
 
     else % not all pixels are loaded into memory
