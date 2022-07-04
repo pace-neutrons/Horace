@@ -36,15 +36,17 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         header;
     end
     properties(Access = protected)
+        % holder for image data, e.g. appropriate dnd object
         data_
+        % holder for pix data
+        pix_ = PixelData()      % Object containing data for each pixe
     end
-
     properties(Access=private)
         main_header_ = main_header_cl();
         experiment_info_ = Experiment();
         detpar_  = struct([]);
     end
-    properties(Constant,Access=private)
+    properties(Constant,Access=protected)
         fields_to_save_ = {'main_header','experiment_info','detpar','data'};
     end
 
@@ -179,7 +181,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
 
             end
         end
-
         % Public getters/setters expose all wrapped data attributes
         function val = get.data(obj)
             val = obj.data_;
@@ -195,19 +196,14 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         end
         %
         function pix = get.pix(obj)
-            if isempty(obj.data)
-                pix = [];
-                return;
-            end
-            pix  = obj.data.pix;
+            pix  = obj.pix_;
         end
         function obj = set.pix(obj,val)
-            %TODO: when pix is located here, place here the code from set.pix
-            %      in data_sqw_dnd
-            if isempty(obj.data)
-                obj.data_ = data_sqw_dnd();
-            end
-            obj.data_.pix = val;
+            if isa(val,'PixelData') || isa(val,'pix_combine_info')
+                obj.pix_ = val;
+            else
+                obj.pix_ = PixelData(val);
+            end            
         end
         %
         function hdr = get.header(obj)

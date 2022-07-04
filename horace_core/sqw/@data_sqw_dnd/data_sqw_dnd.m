@@ -33,10 +33,10 @@ classdef data_sqw_dnd < axes_block
     end
     properties(Constant,Access=private)
         fields_to_save_ = {'alatt','angdeg','uoffset',...
-            'u_to_rlu','s','e','npix','pix'};
+            'u_to_rlu','s','e','npix'};
     end
     properties(Access=protected)
-        pix_ = PixelData()      % Object containing data for each pixel
+
     end
     %
     methods
@@ -193,27 +193,6 @@ classdef data_sqw_dnd < axes_block
             end
         end
         %
-        %TODO: Is it still needed? Remove after refactoring
-        function type= data_type(obj)
-            % compatibility function
-            %   data   Output data structure which must contain the fields listed below
-            %          type 'b+'   fields: uoffset,...,s,e,npix
-            %          [The following other valid structures are not created by this function
-            %          type 'b'    fields: uoffset,...,s,e
-            %          type 'a'    uoffset,...,s,e,npix,img_db_range,pix
-            %          type 'a-'   uoffset,...,s,e,npix,img_db_range
-            if isempty(obj.npix)
-                type = 'b';
-            else
-                type = 'b+';
-                if ~isempty(obj.img_db_range)
-                    type = 'a-';
-                end
-                if ~isempty(obj.pix)
-                    type = 'a';
-                end
-            end
-        end
 
         function dnd_struct=get_dnd_data(obj,varargin)
             %function retrieves dnd structure from the sqw_dnd_data class
@@ -229,11 +208,6 @@ classdef data_sqw_dnd < axes_block
             pix = obj.pix_;
         end
         function obj = set.pix(obj,val)
-            if isa(val,'PixelData') || isa(val,'pix_combine_info')
-                obj.pix_ = val;
-            else
-                obj.pix_ = PixelData(val);
-            end
         end
 
         %

@@ -94,7 +94,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                 inputs.serial_name = 'axes_block';
                 ab = serializable.from_struct(inputs);
                 dat = data_sqw_dnd(ab,inputs);
-                inputs = struct('data_',dat);
+                inputs = struct('data',dat);
             end
 
             if isfield(inputs,'array_dat')
@@ -120,10 +120,12 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                 elseif ndims == 4
                     w = d4d(data_obj);
                 else
-                    error('HORACE:DnDBase:make dnd on data_sqw_dnd with wrong dimensions');
+                    error('HORACE:DnDBase:invalid_argument', ...
+                        'making dnd on data_sqw_dnd with wrong dimensions');
                 end
             else
-                error('HORACE:DnDBase:make dnd on not data_sqw_dnd');
+                error('HORACE:DnDBase:invalid_argument', ...
+                    'make dnd on not data_sqw_dnd');
             end
         end
 

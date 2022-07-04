@@ -35,57 +35,6 @@ classdef test_dnd_constructor < TestCase
             obj.test_dnd_2d_fullpath = obj.build_full_path(obj.TEST_FILES_PATH, obj.DND_FILE_2D_NAME);
         end
 
-        function test_dnd_classes_follow_expected_class_heirarchy(~)
-            dnd_objects = { d0d(), d1d(), d2d(), d3d(), d4d() };
-            for idx = 1:numel(dnd_objects)
-                dnd_obj = dnd_objects{idx};
-                assertTrue(isa(dnd_obj, 'DnDBase'));
-                assertTrue(isa(dnd_obj, 'SQWDnDBase'));
-            end
-        end
-
-        %% Dimension
-        function test_d0d_constructor_returns_zero_d_instance(~)
-            dnd_obj = d0d();
-
-            assertEqual(numel(dnd_obj.pax), 0);
-            assertEqual(dnd_obj.dimensions(), 0);
-        end
-
-        function test_d1d_constructor_returns_1d_instance(~)
-            dnd_obj = d1d();
-
-            assertEqual(numel(dnd_obj.pax), 1);
-            assertEqual(dnd_obj.dimensions(), 1);
-        end
-
-        function test_d2d_constructor_returns_2d_instance(~)
-            dnd_obj = d2d();
-
-            assertEqual(numel(dnd_obj.pax), 2);
-            assertEqual(dnd_obj.dimensions(), 2);
-        end
-
-        function test_d3d_constructor_returns_3d_instance(~)
-            dnd_obj = d3d();
-
-            assertEqual(numel(dnd_obj.pax), 3);
-            assertEqual(dnd_obj.dimensions(), 3);
-        end
-
-        function test_d4d_constructor_returns_4d_instance(~)
-            dnd_obj = d4d();
-
-            assertEqual(numel(dnd_obj.pax), 4);
-            assertEqual(dnd_obj.dimensions(), 4);
-        end
-
-        function test_default_constructor_returns_empty_instance(~)
-            dnd_obj = d2d();
-
-            assertEqualToTol(dnd_obj.s, 0, 1e-6);
-            assertEqualToTol(dnd_obj.e, 0, 1e-6);
-        end
 
         %% Class properties
         function test_d0d_contains_expected_properties(obj)
@@ -118,7 +67,7 @@ classdef test_dnd_constructor < TestCase
                 'filename', 'filepath', 'title', 'alatt', 'angdeg', ...
                 'uoffset', 'u_to_rlu', 'ulen', 'label', 'iax', ...
                 'iint', 'pax', 'p', 'dax', 's', 'e', 'npix','data',...
-                'img_range','nbins_all_dims','isvalid'};
+                'img_range','nbins_all_dims'};
 
             actual_props = fieldnames(dnd_obj);
 
@@ -161,8 +110,8 @@ classdef test_dnd_constructor < TestCase
             isdata = ismember(class_props,'data');
             class_props = class_props(~isdata);
             [sample_prop,dep_prop]=dnd_object_sample_properties();
-            test_prop = sample_prop.keys;            
-     
+            test_prop = sample_prop.keys;
+
             % included all properties, forgot nothing
             assertTrue(all(ismember(class_props,[test_prop(:);dep_prop(:)])))
 
@@ -180,7 +129,7 @@ classdef test_dnd_constructor < TestCase
             function setter(obj,prop)
                 val = obj.(prop);
                 obj.(prop) = val;
-            end            
+            end
             for idx=1:numel(dep_prop)
                 assertExceptionThrown(@()setter(dnd_obj,dep_prop{idx}), ...
                     'MATLAB:class:noSetMethod');
@@ -313,7 +262,57 @@ classdef test_dnd_constructor < TestCase
             assertEqual(sqw_obj.data.npix, dnd_obj.npix)
             assertEqual(sqw_obj.data.label, dnd_obj.label);
         end
+        %-------------------------------------------------------------------        
+        %% Dimension
+        function test_d0d_constructor_returns_zero_d_instance(~)
+            dnd_obj = d0d();
 
+            assertEqual(numel(dnd_obj.pax), 0);
+            assertEqual(dnd_obj.dimensions(), 0);
+        end
 
+        function test_d1d_constructor_returns_1d_instance(~)
+            dnd_obj = d1d();
+
+            assertEqual(numel(dnd_obj.pax), 1);
+            assertEqual(dnd_obj.dimensions(), 1);
+        end
+
+        function test_d2d_constructor_returns_2d_instance(~)
+            dnd_obj = d2d();
+
+            assertEqual(numel(dnd_obj.pax), 2);
+            assertEqual(dnd_obj.dimensions(), 2);
+        end
+
+        function test_d3d_constructor_returns_3d_instance(~)
+            dnd_obj = d3d();
+
+            assertEqual(numel(dnd_obj.pax), 3);
+            assertEqual(dnd_obj.dimensions(), 3);
+        end
+
+        function test_d4d_constructor_returns_4d_instance(~)
+            dnd_obj = d4d();
+
+            assertEqual(numel(dnd_obj.pax), 4);
+            assertEqual(dnd_obj.dimensions(), 4);
+        end
+
+        function test_default_constructor_returns_empty_instance(~)
+            dnd_obj = d2d();
+
+            assertEqualToTol(dnd_obj.s, 0, 1e-6);
+            assertEqualToTol(dnd_obj.e, 0, 1e-6);
+        end        
+        %-------------------------------------------------------------------
+        function test_dnd_classes_follow_expected_class_heirarchy(~)
+            dnd_objects = { d0d(), d1d(), d2d(), d3d(), d4d() };
+            for idx = 1:numel(dnd_objects)
+                dnd_obj = dnd_objects{idx};
+                assertTrue(isa(dnd_obj, 'DnDBase'));
+                assertTrue(isa(dnd_obj, 'SQWDnDBase'));
+            end
+        end
     end
 end

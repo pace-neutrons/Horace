@@ -122,6 +122,5 @@ elseif narg>=2
     end
 end
 
-type_in = obj.data_type();
-[~,obj]=obj.check_sqw_data_(type_in);
+%[~,obj]=obj.check_sqw_data_('+a');
 
