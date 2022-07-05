@@ -13,37 +13,35 @@ classdef serializable
     %----------------------------------------------------------------------
     % In addition to save/load interface the class defines and uses
     % validation interface.
-    % two properties and one method, namely "isvalid" and
-    % "throw_on_invalid" properties  and "check_combo_arg" method are
-    % defined on this public interface.
+    % one property and one method, namely protected property "do_check_combo_arg_"
+    % and "check_combo_arg" method are defined on this public interface.
     %
-    % By default, properties return true and false, and method returns
-    % ok==true, mess = ''.
+    % By default,do_check_combo_arg_ is set to ture and the method does
+    % nothing. Overload the check_combo_arg to throw if interdependent
+    % properties are inconsistent and throw invalid argument if they are
+    % not.
+    % The serializable code sets do_check_combo_arg_ to false before
+    % setting the properties, checks combo properties at the end and sets
+    % it to true. do_check_combo_arg_ is set to true after this. 
     %
-    % The validity of the object is verified (if ~obj.isvalid) after
-    % construction of a serializable object through it public interface.
-    % If property "isvalid" is false, final validation, using  "check_combo_arg"
-    % is provided. Depending on the state of the property "throw_on_invalid",
-    % the exception is thrown if the object is invalid. If this property is
-    % false, the object remains in the state, defined by "check_combo_arg"
-    % method.
-    %
-    % Redefine functions "is = check_validity(obj), "is = get_throw_on_invalid(obj)"
-    % and [ok,mess,obj] = check_combo_arg(obj) to use the interface in your
-    % objects
-    %
-    properties(Dependent)
-        % property verifies the validity of interdependent properties
-        isvalid;
-    end
+    % To work correctly, all interdependent porperties in the child code 
+    % must contan the following code block
+    % if obj.do_check_combo_arg_ 
+    %    obj=check_combo_arg(obj);
+    % end
+    % 
     properties(Dependent,Hidden)
-        % Throw exception if deserialized object is invalid
-        throw_on_invalid;
+        % this is property for developers who wants to change number of
+        % interdependent properties one after another and do not want to
+        % overload the class. Use with caushion, as you may get invalid
+        % object if the property us used incorrectly
+        do_check_combo_arg;
     end
     properties(Access=protected)
-        % Throw exception if deserialized object validation shows that it
-        % is invalid
-        throw_on_invalid_ = false;
+        % Check interdependend properties and throw exception if
+        % deserialized object validation shows that object is invalid
+        % Set it to "false" when changing 
+        do_check_combo_arg_ = true;
     end
     %----------------------------------------------------------------------
     %   ABSTRACT INTERFACE TO DEFINE:
@@ -222,30 +220,30 @@ classdef serializable
             % generic class constructor. Does nothing
         end
 
-        function is = get.isvalid(obj)
-            is = check_validity(obj);
-        end
-
-        function do = get.throw_on_invalid(obj)
-            do = get_throw_on_invalid(obj);
-        end
-
-        function obj = set.throw_on_invalid(obj,val)
-            if isempty(val)
-                val = false;
-            end
-            obj.throw_on_invalid_ = logical(val);
-        end
-
-        function [ok,mess,obj] = check_combo_arg(obj)
+        function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained serializable object. Return the result of the check
             %
             % Overload to obtain information about the validity of
             % interdependent properties and information about issues with
             % interdependent properties
-            ok = true;
-            mess = '';
+
+            %Throw if the properties are inconsistent and return without
+            %problem it they are not.
+        end
+        % Developer property. Intended for creating algorithms, which
+        % change bunch of interdependent properties one after another
+        % without overloading the class.
+        % Set this property to false at the begining, change interdependent
+        % properties, run check_combo_arg after setting all interdependent 
+        % properties to its valies so if check_combo_arg trows the error,
+        % the interdependent properties are inconsistent and the object is
+        % invalid.
+        function do = get.do_check_combo_arg(obj)
+            do = obj.do_check_combo_arg_;
+        end
+        function obj = set.do_check_combo_arg(obj,val)
+            obj.do_check_combo_arg_ = logical(val);
         end
 
     end
@@ -319,15 +317,6 @@ classdef serializable
         end
     end
     methods(Access=protected)
-        function is = check_validity(~)
-            % overload this property to verify validity of interdependent
-            % properties
-            is = true;
-        end
-        function do = get_throw_on_invalid(obj)
-            % overloadable accessor to modify throw-on invalid for children
-            do = obj.throw_on_invalid_;
-        end
         %------------------------------------------------------------------
         function obj = from_old_struct(obj,inputs)
             % Restore object from the old structure, which describes the
@@ -354,7 +343,7 @@ classdef serializable
             end
         end
         function [obj,remains] = set_positional_and_key_val_arguments(obj,...
-                positinal_param_names_list,validators,varargin)
+                positinal_param_names_list,varargin)
             % Utility method, to use in a serializable class constructor,
             % allowing to specify the constructor parameters in the form:
             %
@@ -377,20 +366,13 @@ classdef serializable
             %            -- list of positional parameter
             %               names, the target properties should be
             %               associated with
-            % validators -- cellarray of the functions, which verify
-            %               the types of the input arguments. If empty,
-            %               the checks assumes that all input parameters
-            %               should be numeric. If the size is smaller then the length of
-            %               positional_arg_names, any missing parameters assumed to be
-            %               numeric
+            % varargin   -- cellarray of the constructor inputs, in the
+            %               form, described above
             % EXAMPLE:
             % if class have the properties {'a1'=1(numeric), 'a2'='blabla'(char),
             % 'a3'=sqw() 'a4=[1,1,1] (numeric), and these properties are independent
             % properties redutned by saveableFields() function as list {'a1','a2','a3','a4'}
-            % The list of validators should have form {@isnumeric,@ischar,
-            % @(x)isa(x,'sqw'),'@isnumeric} or {@isnumeric,@ischar,
-            % @(x)isa(x,'sqw')} (last validator missing as it assumed to be numeric)
-            % Then the list of input parameters
+            % Then the list of input parametersЖ
             % set_positional_and_key_val_arguments(1,'blabla',an_sqw_obj,'blabla','a4',[1,0,0])
             % sets up the three first arguments as positional parameters, for properties
             % a1,a2 and a3 and a4 is set as key-value pair. 'blabla' is returned in
@@ -398,7 +380,7 @@ classdef serializable
             %
             [obj,remains] = ...
                 set_positional_and_key_val_arguments_(obj,...
-                positinal_param_names_list,validators,varargin{:});
+                positinal_param_names_list,varargin{:});
         end
     end
 end

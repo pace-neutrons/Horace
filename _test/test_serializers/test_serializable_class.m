@@ -12,10 +12,36 @@ classdef test_serializable_class < TestCase
             end
             obj = obj@TestCase(name);
             [~,nerr] = check_herbert_mex();
-            this.use_mex = nerr == 0;
+            obj.use_mex = (nerr == 0);
+        end
+        function test_right_inderdep_prop_pass(~)
+            tob = serializableTesterWithInterdepProp(10,1,0, ...
+                'Prop_class2_2',20);
+            assertEqual(tob.Prop_class2_1,10)
+            assertEqual(tob.Prop_class2_2,20)
+            assertEqual(tob.Prop_class2_3,0)
         end
 
-        function test_ser_serializeble_obj_array_class2(obj)
+
+        function test_wrong_inderdep_prop_fail_differently(~)
+            tob = serializableTesterWithInterdepProp(0,1,0);
+            function test_set_throws()
+                tob.Prop_class2_1 = 10;
+            end
+            assertExceptionThrown(@()test_set_throws(), ...
+                'HERBERT:serializableTester:invalid_argument');
+        end
+
+        function test_wrong_inderdep_prop_fail(~)
+            tob = serializableTesterWithInterdepProp();
+            function test_set_throws()
+                tob.Prop_class2_1 = 10;
+            end
+            assertExceptionThrown(@()test_set_throws(), ...
+                'HERBERT:serializableTester:invalid_argument');
+        end
+
+        function test_ser_serializeble_obj_array_class2(~)
             conf = herbert_config;
             ds = conf.get_data_to_store();
             clob = onCleanup(@()set(conf,ds));
@@ -139,7 +165,7 @@ classdef test_serializable_class < TestCase
             assertEqual(data_size_c,numel(ser_c));
         end
 
-        function test_ser_serializeble_obj_array_class1(obj)
+        function test_ser_serializeble_obj_array_class1(~)
             conf = herbert_config;
             ds = conf.get_data_to_store();
             clob = onCleanup(@()set(conf,ds));
@@ -194,7 +220,7 @@ classdef test_serializable_class < TestCase
             assertEqual(data_size_c,numel(ser_c));
         end
 
-        function test_ser_serializeble_obj(obj)
+        function test_ser_serializeble_obj(~)
             conf = herbert_config;
             ds = conf.get_data_to_store();
             clob = onCleanup(@()set(conf,ds));
@@ -247,7 +273,7 @@ classdef test_serializable_class < TestCase
             assertEqual(data_size_c,numel(ser_c));
         end
 
-        function test_ser_serializeble_obj_level0(obj)
+        function test_ser_serializeble_obj_level0(~)
 
             conf = herbert_config;
             ds = conf.get_data_to_store();
@@ -480,11 +506,12 @@ classdef test_serializable_class < TestCase
         %------------------------------------------------------------------
         function test_pos_constructor_char_pos_sets_key(~)
             [tc,rem] = serializableTester2(11,20,'Prop_class2_3','aaa',...
-                'Prop_class2_2',20,'blabla');
+                'Prop_class2_2',30,'blabla');
             assertEqual(tc.Prop_class2_1,11)
-            assertEqual(tc.Prop_class2_2,20)
-            assertEqual(tc.Prop_class2_3,'blabla')
-            assertTrue(isempty(rem));
+            assertEqual(tc.Prop_class2_2,30)
+            assertEqual(tc.Prop_class2_3,'aaa')
+            assertEqual(rem{1},'blabla');
+            assertEqual(numel(rem),1);
         end
 
         function test_keyval_constructor_nokey_throws_at_the_end(~)
@@ -500,7 +527,7 @@ classdef test_serializable_class < TestCase
         function test_val_keyval_constructor_returns_keyval_remaining(~)
             [tc,rem] = serializableTester2(11,'Prop_class2_1',10,...
                 'blabla','Prop_class2_2',20);
-            assertEqual(tc.Prop_class2_1,11)
+            assertEqual(tc.Prop_class2_1,10)
             assertEqual(tc.Prop_class2_2,20)
             assertTrue(isempty(tc.Prop_class2_3))
             assertEqual(rem,{'blabla'});
@@ -522,12 +549,12 @@ classdef test_serializable_class < TestCase
             assertEqual(rem{1},'blabla');
         end
 
-        function test_keyval_constructor_first_extra_val_ignored(~)
+        function test_keyval_constructor_first_pos_reset_later(~)
             [tc,rem] = serializableTester2('blabla','Prop_class2_1',10,...
                 'Prop_class2_2',20);
             assertEqual(tc.Prop_class2_1,10)
             assertEqual(tc.Prop_class2_2,20)
-            assertEqual(rem{1},'blabla');
+            assertTrue(isempty(rem));
         end
 
         function test_keyval_constructor(~)

@@ -14,10 +14,9 @@ classdef serializableTester2 < serializable
                 return;
             end
             positional_arg_names = obj.saveableFields();
-            val = {@isnumeric,@isnumeric,@ischar};
             [obj,remains] = ...
                 set_positional_and_key_val_arguments(obj,...
-                positional_arg_names,val,varargin{:});
+                positional_arg_names,varargin{:});
         end
     end
 
@@ -44,6 +43,8 @@ classdef serializableTester2 < serializable
     end
     methods(Static)
         function verr = version_holder(ver)
+            % this method allows to change the class version with the
+            % purposes of testing the serialization of different versions
             persistent version;
             if nargin>0
                 version = ver;
