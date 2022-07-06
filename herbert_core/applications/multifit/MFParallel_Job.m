@@ -177,37 +177,29 @@ classdef MFParallel_Job < JobExecutor
 
             jac=obj.wt.*jac;
             nrm = dot(jac, jac);
-            nrmsend = obj.reduce(1, nrm, @vertcat, 'args');
             nrm(nrm > 0) = 1 ./ sqrt(nrm(nrm > 0));
-
-            jac=nrm.*jac;
-
+            jac = nrm .* jac;
             resid = obj.wt.*(obj.yval-obj.f_best);
-            resid = obj.reduce(1, resid, @vertcat, 'args');
 
-            [u, s] = svd(jac, 0);
-            u = u * s;
-            u = obj.reduce(1, u, @vertcat, 'args');
+            sumArr = @(varargin) sum(cat(3, varargin{:}), 3);
 
-            if obj.is_root
-                [u, s] = svd(u, 0);
-                s = diag(s);
-            end
-
-            s = obj.bcast(1, s);
-            u_out = obj.scatter(1, u, obj.npts, 1);
-
-            for j = 1:size(jac, 2)
-                v(:, j) = s(j).*jac'*u_out(:,j);
-            end
-
-            v = obj.reduce(1, v, @(varargin) cat(3, varargin{:}), 'args');
+            N = jac'*jac;
+            N = obj.reduce(1, N, sumArr, 'args');
 
             if obj.is_root
-                v = sum(v, 3);
-                nrmsend = sum(nrmsend, 1);
-                g=u'*resid;
+                [v, lam] = eig(N, 'vector');
+                s = sqrt(lam);
+            else
+                v = zeros(obj.npfree, obj.npfree);
+                s = zeros(obj.npfree, 1);
+            end
 
+            [s, v] = obj.bcast(1, s, v);
+
+            u = jac * (v ./ s);
+
+
+            if obj.is_root
                 % Compute change in parameter values.
                 % If the change does not improve chisqr  then increase the
                 % Levenberg-Marquardt parameter until it does (up to a maximum
@@ -221,15 +213,14 @@ classdef MFParallel_Job < JobExecutor
             end
 
             obj.lambda=obj.lambda/10;
-            p_chg = 0;
 
             for itable=1:numel(obj.lambda_table)
-                if obj.is_root
-                    se=sqrt((s.*s)+obj.lambda);
-                    gse=g./se;
-                    p_chg=((v*gse).*nrm');   % compute change in parameter values
-                end
 
+                g = u' * resid;
+                se = sqrt((s.*s) + obj.lambda);
+                gse = g ./ se;
+                p_chg = (v*gse).*nrm';
+                p_chg = obj.reduce(1, p_chg, sumArr, 'args');
                 p_chg = obj.bcast(1, p_chg);
 
                 if (any(abs(p_chg)>0))  % there is a change in (at least one of) the parameters
