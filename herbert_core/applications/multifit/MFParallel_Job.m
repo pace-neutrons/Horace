@@ -196,8 +196,9 @@ classdef MFParallel_Job < JobExecutor
 
             [s, v] = obj.bcast(1, s, v);
 
-            u = jac * (v ./ s);
-
+            jac = jac * (v ./ s);
+            g = jac' * resid;
+            clear jac;
 
             if obj.is_root
                 % Compute change in parameter values.
@@ -216,7 +217,6 @@ classdef MFParallel_Job < JobExecutor
 
             for itable=1:numel(obj.lambda_table)
 
-                g = u' * resid;
                 se = sqrt((s.*s) + obj.lambda);
                 gse = g ./ se;
                 p_chg = (v*gse).*nrm';
