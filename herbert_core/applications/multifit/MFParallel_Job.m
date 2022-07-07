@@ -187,8 +187,8 @@ classdef MFParallel_Job < JobExecutor
             N = obj.reduce(1, N, sumArr, 'args');
 
             if obj.is_root
-                [v, lam] = eig(N, 'vector');
-                s = sqrt(lam);
+                [v, s] = eig(N, 'vector');
+                s = sqrt(s);
             else
                 v = zeros(obj.npfree, obj.npfree);
                 s = zeros(obj.npfree, 1);
@@ -196,9 +196,11 @@ classdef MFParallel_Job < JobExecutor
 
             [s, v] = obj.bcast(1, s, v);
 
-            jac = jac * (v ./ s);
+            jac = jac * (v ./ s');
+
             g = jac' * resid;
             clear jac;
+            clear resid;
 
             if obj.is_root
                 % Compute change in parameter values.
