@@ -1,4 +1,4 @@
-function path=horace_on(non_default_path)
+function horace_path=horace_on(non_default_path)
 %  safely switches Horace on
 %  horace_on()                         -- calls Horace with default settings
 %  horace_on(non_default_horace_path)  -- calls Horace with non-default Horace folder;
@@ -51,10 +51,13 @@ if nargin==1
 else
     init_horace(default_horace_path);
 end
-path = fileparts(which('horace_init.m'));
+
+horace_path = fileparts(which('horace_init.m'));
 %
 
 warning('off','MATLAB:subscripting:noSubscriptsSpecified');
+end
+
 
 function init_horace(path)
 if ~(exist(fullfile(path,'horace_init.m'),'file') == 2)
@@ -63,6 +66,8 @@ end
 addpath(path);
 horace_init;
 
+end
+
 function her_path = build_default_her_path(hor_path)
 % build default Herbert path from knowledge that Herbert is located
 % alongside the Horace
@@ -70,9 +75,10 @@ function her_path = build_default_her_path(hor_path)
 if strcmp(hor_folder,'horace_core')
     her_path = fullfile(fp,'herbert_core');
 else
-    her_path = fullfile(hor_path,'herbert_core');    
+    her_path = fullfile(hor_path,'herbert_core');
 end
 
+end
 
 function path =find_default_hor_path(hor_default_path)
 path = which('horace_init.m');
@@ -85,6 +91,7 @@ else
     path=fileparts(path);
 end
 
+end
 
 function init_herbert(path)
 % initialize Herbert directories.
@@ -98,3 +105,5 @@ catch
 end
 addpath(path);
 herbert_init;
+
+end

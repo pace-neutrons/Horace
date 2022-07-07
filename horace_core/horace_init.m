@@ -17,38 +17,41 @@ end
 warning('off','MATLAB:subscripting:noSubscriptsSpecified');
 % -----------------------------------------------------------------------------
 % Root directory is assumed to be that in which this function resides
-rootpath = fileparts(which('horace_init'));
-addpath(rootpath)  % MUST have rootpath so that horace_init, horace_off included
+global horace_path
+horace_path = fileparts(which('horace_init'));
+global root_path
+root_path = fileparts(horace_path);
+addpath(horace_path)  % MUST have horace_path so that horace_init, horace_off included
 
 
 % Add admin functions to the path first
-addpath(fullfile(rootpath,'admin'));
+addpath(fullfile(horace_path,'admin'));
 % add sqw immediately after dnd classes
-addpath_message (1,rootpath,'sqw');
-addpath_message (1,rootpath,'algorithms');
+addpath_message (1,horace_path,'sqw');
+addpath_message (1,horace_path,'algorithms');
 
 % Add support package
-addpath_message (1,rootpath,'herbert');
+addpath_message (1,horace_path,'herbert');
 
 % DLL and configuration setup
-addpath_message (2,rootpath,'DLL');
-%addpath_message (1,rootpath,'DLL/bin');
-addpath_message (1,rootpath,'configuration');
+addpath_message (2,horace_path,'DLL');
+%addpath_message (1,horace_path,'DLL/bin');
+addpath_message (1,horace_path,'configuration');
 
 % Other directories
-addpath_message (1,rootpath,'horace_function_utils');
-addpath_message (1,rootpath,'lattice_functions');
-addpath_message (1,rootpath,'utilities');
+addpath_message (1,horace_path,'horace_function_utils');
+addpath_message (1,horace_path,'lattice_functions');
+addpath_message (1,horace_path,'utilities');
 
 % Functions for fitting etc.
-addpath_message (1,rootpath,'functions');
-addpath_message (1,rootpath,'sqw_models');
+addpath_message (1,horace_path,'functions');
+addpath_message (1,horace_path,'sqw_models');
 
 % Add GUI path
-addpath_message(1,rootpath,'GUI');
+addpath_message(1,horace_path,'GUI');
 
 % Add Tobyfit
-addpath_message (1,rootpath,'Tobyfit');
+addpath_message (1,horace_path,'Tobyfit');
 
 
 % Set up graphical defaults for plotting
@@ -61,15 +64,14 @@ horace_plot.name_contour = 'Horace contour plot';
 horace_plot.name_sliceomatic = 'Sliceomatic';
 set_global_var('horace_plot',horace_plot);
 
-%
 hc = hor_config;
 check_mex = false;
 if hc.is_default
     check_mex = true;
 end
-%
+
 hpcc = hpc_config;
-if hc.is_default ||hpcc.is_default
+if hc.is_default || hpcc.is_default
     warning([' Found Horace is not configured. ',...
         ' Setting up the configuration, identified as optimal for this type of the machine.',...
         ' Please, check configurations (typing:',...
@@ -88,17 +90,13 @@ end
 
 if check_mex
     [~, n_mex_errors] = check_horace_mex();
-    if n_mex_errors >= 1
-        hc.use_mex = false;
-    else
-        hc.use_mex = true;
-    end
+    hc.use_mex = n_mex_errors < 1;
 end
 
 hec = herbert_config;
 if hec.init_tests
     % add path to folders, which responsible for administrative operations
-    up_root = fileparts(rootpath);
+    up_root = fileparts(horace_path);
     addpath_message(1,fullfile(up_root,'admin'))
     addpath(fullfile(up_root,'_test','common_functions'));
 end
@@ -148,7 +146,7 @@ lines = {
     '', ...
     'http://dx.doi.org/10.1016/j.nima.2016.07.036',...
     repmat('-', 1, width), ...
-    'If you found a bug or have techical problem with Horace,',...
+    'If you found a bug or have technical problem with Horace,',...
     'please contact our team at HoraceHelp@stfc.ac.uk',...
     'Somebody will be back trying to help you.'...
     };
