@@ -9,18 +9,9 @@ if isempty(obj.loader)
         obj.loader_.do_check_combo_arg = obj.do_check_combo_arg;
     end
 end
-try
-    obj.loader_.(field_name)=val;
-catch ME
-    if strcmp(ME.identifier,'HORACE:a_loader:invalid_argument') && obj.allow_invalid
-        obj.isvalid_ = false;
-        obj.reason_for_invalid_ = ME.message;
-        return;
-    else
-        rethrow(ME);
-    end
+obj.loader_.(field_name)=val;
 
-end
+
 if obj.do_check_combo_arg_
     obj = obj.check_combo_arg();
 end

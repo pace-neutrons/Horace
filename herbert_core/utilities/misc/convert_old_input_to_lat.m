@@ -83,7 +83,7 @@ if rep_factor > 1
             end
         end
         lat(j).do_check_combo_arg = true;        
-        lat(j).check_combo_arg();
+        lat(j)=lat(j).check_combo_arg();
     end
 else
     lat = oriented_lattice(lat_par{:});

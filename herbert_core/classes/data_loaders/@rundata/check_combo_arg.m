@@ -8,74 +8,42 @@ function obj = check_combo_arg(obj)
 %
 if ~isempty(obj.lattice)
     lat = obj.lattice;
-    if obj.allow_invalid
-        try
-            obj.lattice = lat.check_combo_arg();
-            obj.isvalid_ = true;
-            obj.reason_for_invalid_ = '';
-        catch ME
-            if strcmp(ME.identifier,'HORACE:oriented_lattice:invalid_argument')
-                obj.isvalid_ = false;
-                obj.reason_for_invalid_ = ME.message;
-                return;
-            else
-                rethrow(ME);
-            end
-        end
-    else
-        obj.lattice = lat.check_combo_arg();
+    obj.isvalid_ = lat.isvalid;
+    obj.reason_for_invalid_ = lat.reason_for_invalid;
+    if ~obj.isvalid_
+        return;
     end
 end
 % Check efix
-[ok,mess] = check_efix_correct(obj);
-if ok
-    obj.isvalid_ = true;
-    obj.reason_for_invalid_  = '';
-else
-    if obj.allow_invalid
-        obj.isvalid_ = false;
-        obj.reason_for_invalid_ = mess;
-        return
-    else
-        error('HORACE:rundata:invalid_argument',mess);
-    end
+[obj.isvalid_,obj.reason_for_invalid_] = check_efix_correct(obj);
+if ~obj.isvalid_
+    return
 end
 %
 % check if the rundata object is fully defined
 [undefined,~,fields_undef] = obj.check_run_defined();
 if undefined >1
     mf = strjoin(fields_undef,'; ');
-    if obj.allow_invalid
-        obj.isvalid_ = false;
-        obj.reason_for_invalid_ = ...
-            sprintf('Run is undefined. Need to define missing fields: %s',mf);
-        return;
-    else
-        error('HORACE:rundata:invalid_argument', ...
-            'Run is undefined. Need to define missing fields: %s',mf);
-    end
+    obj.isvalid_ = false;
+    obj.reason_for_invalid_ = ...
+        sprintf('Run is undefined. Need to define missing fields: %s',mf);
+    return;
 else
     if ~isempty(obj.loader)
         ldr = obj.loader;
-        if obj.allow_invalid
-            try
-                obj.loader = ldr.check_combo_arg();
-                obj.isvalid_ = true;
-                obj.reason_for_invalid_  = '';                
-            catch ME
-                if strcmp(ME.identifier,'HORACE:a_loader:invalid_argument')
-                    obj.isvalid_ = false;
-                    obj.reason_for_invalid_ = ME.message;
-                    return;
-                else
-                    rethrow(ME);
-                end
-            end
-        else
-            obj.loader = ldr.check_combo_arg();
+        ldr = ldr.check_combo_arg();
+        if ~ldr.isvalid
+            obj.isvalid_ = false;
+            obj.reason_for_invalid_  = ldr.reason_for_invalid;
+            obj.loader = ldr;
+            return
         end
+        obj.loader = ldr;
     end
 end
+obj.isvalid_ = true;
+obj.reason_for_invalid_  = '';
+
 
 
 function [ok,mess] = check_efix_correct(obj)

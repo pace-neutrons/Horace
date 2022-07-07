@@ -165,7 +165,7 @@ classdef test_gen_runfiles< TestCase
                 efix_wrong,2,this.alatt,this.angdeg,...
                 this.u,this.v,this.psi(1:2),...
                 this.omega(1:2),this.dpsi(1:2),this.gl(1:2),this.gs(1:2), ...
-                '-check_validity'),'HORACE:rundata:invalid_argument');
+                '-check_validity'),'HERBERT:gen_runfiles:invalid_argument');
 
             mess_base = 'Emode=2. If efix is a vector, its size has to be equal to number of detectors';
             assertTrue(strncmp(ERR.message,mess_base,numel(mess_base)))
@@ -341,7 +341,7 @@ classdef test_gen_runfiles< TestCase
             f = @()(gen_nxspe({S,S1},{ERR,ERR1},{this.en{2},this.en{3}},...
                 this.par_file,rez_file,...
                 this.efix(1:2),this.psi(1:2)));
-            assertExceptionThrown(f,'HORACE:a_loader:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
 
             nen = numel(this.en{2});
             S1 = ones(nen-1,ndet)*4;

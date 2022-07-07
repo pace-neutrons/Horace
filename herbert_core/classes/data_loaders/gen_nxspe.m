@@ -113,7 +113,7 @@ if inputs_are_cellarrays
         runfiles{i}.ERR  = ERR{i};
         runfiles{i}.en  = en{i};
         runfiles{i}.do_check_combo_arg =true;
-        runfiles{i}.check_combo_arg();
+        runfiles{i} = runfiles{i}.check_combo_arg();
     end
 else
     for i=1:n_files
@@ -122,7 +122,7 @@ else
         runfiles{i}.ERR = ERR(:,:,i);
         runfiles{i}.en  = en(:,i);
         runfiles{i}.do_check_combo_arg =true;
-        runfiles{i}.check_combo_arg();        
+        runfiles{i} = runfiles{i}.check_combo_arg();        
     end
 end
 %

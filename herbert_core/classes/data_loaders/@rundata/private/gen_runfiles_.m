@@ -222,11 +222,12 @@ if isempty(par_files)
 elseif numel(par_files)==1
     [runfiles{1},file_exist(1)]= init_runfile_with_par(runfiles{1},spe_files{1},...
         par_files{1},'',dfnd_params(1),allow_missing,parfile_is_det);
-    %if file_exist(1) &&  ~runfiles{1}.isvalid
-    %    [ok,mess,runfiles{1}] = runfiles{1}.check_combo_arg();
-    %    if ~ok; error('HERBERT:gen_runfiles:invalid_argument',mess)
-    %    end
-    %end
+    if file_exist(1) &&  ~runfiles{1}.isvalid
+        runfiles{1} = runfiles{1}.check_combo_arg();
+        if ~runfiles{1}.isvalid
+            error('HERBERT:gen_runfiles:invalid_argument',runfiles{1}.reason_for_invalid)
+        end
+    end
     % Save time on multiple load of the same par into memory by reading it just once
     if n_files>1
         [par,runfiles{1}] = get_par(runfiles{1});
@@ -234,21 +235,21 @@ elseif numel(par_files)==1
     for i=2:n_files
         [runfiles{i},file_exist(i)]= init_runfile_with_par(runfiles{i},...
             spe_files{i},par_files{1},par,dfnd_params(i),allow_missing,parfile_is_det);
-        %if file_exist(i) && ~runfiles{i}.isvalid
-        %    [ok,mess,runfiles{i}] = runfiles{i}.check_combo_arg();
-        %    if ~ok
-        %        error('HERBERT:gen_runfiles:invalid_argument',mess)
-        %    end
-        %end
+        if file_exist(i) &&  ~runfiles{i}.isvalid
+            runfiles{i} = runfiles{i}.check_combo_arg();
+            if ~runfiles{i}.isvalid
+                error('HERBERT:gen_runfiles:invalid_argument',runfiles{i}.reason_for_invalid)
+            end
+        end
     end
 else   % multiple par and spe files;
     for i=1:n_files
         [runfiles{i},file_exist(i)]= init_runfile_with_par(runfiles{i},...
             spe_files{i},par_files{i},'',dfnd_params(i),allow_missing,parfile_is_det);
         if file_exist(i) && ~runfiles{i}.isvalid
-            [ok,mess,runfiles{i}] = runfiles{i}.check_combo_arg();
+            runfiles{i} = runfiles{i}.check_combo_arg();
             if ~ok
-                error('HERBERT:gen_runfiles:invalid_argument',mess)
+                error('HERBERT:gen_runfiles:invalid_argument',runfiles{i}.reason_for_invalid)
             end
         end
 
@@ -260,11 +261,11 @@ if check_validity
     for i=1:n_files
         if file_exist(i)
             if ~runfiles{i}.isvalid
-                [ok,mess,runfiles{i}] = runfiles{i}.check_combo_arg();
-                if ~ok
+                runfiles{i} = runfiles{i}.check_combo_arg();
+                if ~runfiles{i}.isvalid
                     error('HERBERT:gen_runfiles:invalid_argument', ...
                         ' The run data for data file %s are not fully defined: %s', ...
-                        runfiles{i}.data_file_name,mess);
+                        runfiles{i}.data_file_name,runfiles{i}.reason_for_invalid);
                 end
             end
         end
