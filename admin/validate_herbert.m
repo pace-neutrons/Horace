@@ -85,8 +85,8 @@ par_config = pcf.get_data_to_store();
 pcf.shared_folder_on_local = tmp_dir;
 
 % Generate full test paths to unit tests:
-global root_path
-test_path = fullfile(root_path, '_test'); % path to folder with all unit tests folders:
+pths = paths;
+test_path = fullfile(pths.root, '_test'); % path to folder with all unit tests folders:
 test_folders_full = cellfun(...
     @(x) fullfile(test_path, x), test_folders, 'UniformOutput', false);
 %
