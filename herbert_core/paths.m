@@ -35,6 +35,12 @@ classdef paths
         function folder = get_folder(function_or_class)
             folder = fileparts(which(function_or_class));
         end
+
+        function clear()
+            clear global herbert_path
+            clear global horace_path
+            clear global root_path
+        end
     end
 
 end
