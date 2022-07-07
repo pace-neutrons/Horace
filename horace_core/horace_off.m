@@ -19,9 +19,14 @@ try
     end
     rmpath(paths);
     warning(warn_state);    % return warnings to initial state
+    clear global horace_path
+    clear global herbert_path
+    clear global root_path
 catch
     warning(warn_state);    % return warnings to initial state if error encountered
     error('Problems removing "%s" and sub-directories from Matlab path',horace_path)
 end
 % Make sure we're not removing any global paths
 addpath(getenv('MATLABPATH'));
+
+end
