@@ -452,11 +452,11 @@ classdef axes_block < serializable
             flds = axes_block.fields_to_save_;
         end
         %
-        function [ok,mess,obj] = check_combo_arg(obj)
+        function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained serializable object. Return the result of the check
             %
-            [ok,mess,obj] = check_combo_arg_(obj);
+            obj = check_combo_arg_(obj);
         end
         %
     end

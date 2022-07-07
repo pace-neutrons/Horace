@@ -33,8 +33,8 @@ end
 
 % Parse arguments
 % ---------------
-options = {'-parallel', '-verbose', '-exit_on_completion'};
-[ok, mess, parallel, talkative, exit_on_completion, test_folders] = ...
+options = {'-parallel', '-verbose', '-exit_on_completion','-no_system_test'};
+[ok, mess, parallel, talkative, exit_on_completion,no_system, test_folders] = ...
     parse_char_options(varargin, options);
 if ~ok
     error('VALIDATE_HERBERT:invalid_argument', mess)
@@ -62,6 +62,11 @@ if isempty(test_folders) % No tests specified on command line - run them all
         'test_mpi', ...
         'test_xunit_framework', ...
         };
+end
+system_tests = {'test_mpi'};
+if no_system
+    no_sys = ~ismember(test_folders,system_tests);
+    test_folders = test_folders(no_sys );
 end
 %=============================================================================
 initial_warn_state = warning();
