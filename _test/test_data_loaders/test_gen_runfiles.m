@@ -82,19 +82,21 @@ classdef test_gen_runfiles< TestCase
                 this.test_files{i}=...
                     fullfile(tmp_dir,['test_gen_runfiles_test_files_',num2str(i),'.nxspe']);
                 rd = rundata();
+                rd.do_check_combo_arg= false;
                 rd.efix = this.efix(i);
                 rd.en   = this.en{i};
                 nen = numel(this.en{i})-1;
                 S = ones(nen,ndet);
                 S(:,1) = NaN;
                 S(:,10) = NaN;
-                or = oriented_lattice();
-                or.psi = this.psi(i);
-                rd.lattice = or;
+
+                rd.lattice = oriented_lattice(3,90,this.psi(i));
                 rd.S   = S;
                 rd.ERR = ones(nen ,ndet);
                 rd.par_file_name = this.par_file;
                 rd.det_par = det_ld;
+                rd.do_check_combo_arg= true;                
+                rd = rd.check_combo_arg();
                 saveNxspe(this.test_files{i},rd)
             end
             this.clob = onCleanup(@()delete(this));
@@ -163,7 +165,7 @@ classdef test_gen_runfiles< TestCase
                 efix_wrong,2,this.alatt,this.angdeg,...
                 this.u,this.v,this.psi(1:2),...
                 this.omega(1:2),this.dpsi(1:2),this.gl(1:2),this.gs(1:2), ...
-                '-check_validity'),'HERBERT:gen_runfiles:invalid_argument');
+                '-check_validity'),'HORACE:rundata:invalid_argument');
 
             mess_base = 'Emode=2. If efix is a vector, its size has to be equal to number of detectors';
             assertTrue(strncmp(ERR.message,mess_base,numel(mess_base)))
@@ -339,7 +341,7 @@ classdef test_gen_runfiles< TestCase
             f = @()(gen_nxspe({S,S1},{ERR,ERR1},{this.en{2},this.en{3}},...
                 this.par_file,rez_file,...
                 this.efix(1:2),this.psi(1:2)));
-            assertExceptionThrown(f,'HERBERT:a_loader:runtime_error');
+            assertExceptionThrown(f,'HORACE:a_loader:invalid_argument');
 
             nen = numel(this.en{2});
             S1 = ones(nen-1,ndet)*4;

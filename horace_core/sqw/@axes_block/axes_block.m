@@ -78,8 +78,6 @@ classdef axes_block < serializable
         nbins_all_dims_ = [1,1,1,1];    % number of bins in each dimension
         dax_=[];                        % display axes numbers holder
         % e.g. r.l.u. and energy [h; k; l; en] [row vector]
-        %
-        isvalid_ = true; % empty default object is valid
     end
     properties(Constant,Access=private)
         % fields which fully represent the state of the class and allow to
@@ -130,24 +128,23 @@ classdef axes_block < serializable
             % remains -- the arguments, not used in initialization if any
             %            were provided as input
             %
+            obj.do_check_combo_arg_ = false;
             [obj,offset,remains] = init_(obj,varargin{:});
-            [ok,mess,obj] = check_combo_arg(obj);
-            if ~ok
-                error('HORACE:axes_block:invalid_argument',mess);
-            end
+            obj.do_check_combo_arg_ = true;
+            obj = check_combo_arg(obj);
         end
         %
         function [cube_coord,step] = get_axes_scales(obj)
-            % Return the array of vertices of a 4D hypercube, describing a 
+            % Return the array of vertices of a 4D hypercube, describing a
             % grid cell of the axes block.
             % Output:
             % cube_coord -- 4x16 array of vertices of minimal-sized axes
-            %               cube. (Cubes sizes differ in case if axes 
-            %               contains different sized grid, e.g. 
+            %               cube. (Cubes sizes differ in case if axes
+            %               contains different sized grid, e.g.
             %               cylindrical grid)
             % step       -- 4x1 vector, containing the axes block grid
             %               steps. (change of the coordinates in each
-            %               direction, the length of the each side of the 
+            %               direction, the length of the each side of the
             %               axes cell hypercube)
             [cube_coord,step] = get_axes_scales_(obj);
         end
@@ -235,9 +232,9 @@ classdef axes_block < serializable
         function [nodes,dE_edges,npoints_in_axes] = get_bin_nodes(obj,varargin)
             % build 3D or 4D vectors, containing all nodes of the axes_block grid,
             % constructed over axes_block axes points.
-            % 
-            % Note: Nodes are 3D or 4D vertices of the axes grid cells, so the 
-            %       output is 3xN_nodes or 4xN_nodes arrays of the vertices, where each 
+            %
+            % Note: Nodes are 3D or 4D vertices of the axes grid cells, so the
+            %       output is 3xN_nodes or 4xN_nodes arrays of the vertices, where each
             %       column describes a point on a grid.
             %
             % Inputs:
@@ -372,7 +369,9 @@ classdef axes_block < serializable
         end
         function obj = set.nbins_all_dims(obj,val)
             obj = check_and_set_nbin_all_dim_(obj,val);
-            [~,~,obj] = check_combo_arg(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
         end
         %
         function ul = get.ulen(obj)
@@ -398,7 +397,9 @@ classdef axes_block < serializable
                     'A display axis should refer the first projection axis')
             end
             obj.dax_ = val(:)';
-            [~,~,obj] = check_combo_arg(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
         end
 
         %------------------------------------------------------------------
@@ -608,6 +609,6 @@ classdef axes_block < serializable
             [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_bin_input_(grid_size,pix_coord_transf,n_argout,varargin{:});
         end
-        
+
     end
 end

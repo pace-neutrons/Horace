@@ -108,17 +108,21 @@ end
 
 if inputs_are_cellarrays
     for i=1:n_files
+        runfiles{i}.do_check_combo_arg = false;
         runfiles{i}.S  = S{i};
         runfiles{i}.ERR  = ERR{i};
         runfiles{i}.en  = en{i};
-        check_correctness(runfiles{i}.S, runfiles{i}.ERR,runfiles{i}.en,i);
+        runfiles{i}.do_check_combo_arg =true;
+        runfiles{i}.check_combo_arg();
     end
 else
     for i=1:n_files
+        runfiles{i}.do_check_combo_arg = false;        
         runfiles{i}.S   = S(:,:,i);
         runfiles{i}.ERR = ERR(:,:,i);
         runfiles{i}.en  = en(:,i);
-        check_correctness(runfiles{i}.S, runfiles{i}.ERR,runfiles{i}.en,i);
+        runfiles{i}.do_check_combo_arg =true;
+        runfiles{i}.check_combo_arg();        
     end
 end
 %
@@ -242,14 +246,6 @@ elseif nargin == 11
     params={efix,varargin{2:6},varargin{1}};
 elseif nargin > 11
     params={efix,varargin{2:6},varargin{1},varargin{7:end}};
-end
-
-function  check_correctness(S, ERR,en,i)
-if is_string(S) || is_string(ERR) || is_string(en)
-    qd = {S,ERR,en};
-    wrong_fields = cellfun(@(x)(is_string(x)),qd);
-    errs = qd(wrong_fields);
-    error('GEN_NSPE:invalid_arguments','rundata instance N %d; Error: %s',i,errs{1})
 end
 
 

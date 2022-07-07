@@ -44,7 +44,8 @@ obj.do_check_combo_arg_ = false;
 
 % process positional arguments
 if any(is_positional)
-    pos_arg_val = varargin(is_positional);
+    argi = varargin;
+    pos_arg_val = argi(is_positional);
     pos_arg_names = positional_arg_names(1:numel(pos_arg_val));
     % Extract and set up positional arguments, which should always come
     % first
@@ -63,7 +64,8 @@ obj.check_combo_arg();
 
 
 
-function [obj,remains,key_pos,val_pos,is_positional] = parse_keyval_argi(obj,arg_names,varargin)
+function [obj,remains,key_pos,val_pos,is_positional] = parse_keyval_argi( ...
+    obj,arg_names,varargin)
 % find keys, corresponding to key arguments and set up object to the values
 % which follow the keys in the cellarray of input arguments
 %

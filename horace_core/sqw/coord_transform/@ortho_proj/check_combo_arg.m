@@ -1,4 +1,4 @@
-function [ok, mess, wout] = check_combo_arg (w)
+function wout = check_combo_arg (w)
 % Check validity of interdependent fields
 %
 %   >> [ok, mess,obj] = check_combo_arg(w)
@@ -15,10 +15,5 @@ function [ok, mess, wout] = check_combo_arg (w)
 %                   can be altered using w.x=<new value> *without* calling
 %                   set.m. (T.G.Perring)
 %  03/04/2017       Checking only combo aruments as ivalid arguments can
-%                   not be set up separately using class setters 
-[ok,mess,wout] = check_combo_arg_(w);
-if ~ok && nargout<2 
-    error('HORACE:ortho_proj:runtime_error',...
-        'ortho_proj class instance is invalid: %s',...
-        mess);
-end
+%                   not be set up separately using class setters
+wout = check_combo_arg_(w);

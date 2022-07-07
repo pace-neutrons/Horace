@@ -7,7 +7,7 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,...
 % Input:
 % ------
 %   name_of_class   string with the name of the classes to generate.
-%                   Classes should suppord rundata interface
+%                   Classes should support rundata interface
 %
 %   spe_file       Full file name of any kind of supported "spe" file
 %                  e.g. original ASCII spe file, nxspe file etc.
@@ -15,9 +15,9 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,...
 %                  more than one file
 %^1 par_file       [Optional] full file name of detector parameter file
 %                  i.e. Tobyfit format detector parameter file. Will override
-%                  any detector inofmration in the "spe" files
+%                  any detector information in the "spe" files
 %
-% Addtional information can be included in the rundata objects, or override
+% Additional information can be included in the rundata objects, or override
 % if the fields are in the rundata object as follows:
 %
 %^1 efix            Fixed energy (meV)   [scalar or vector length nfile] ^1
@@ -48,7 +48,7 @@ function [runfiles,file_exist] = gen_runfiles_(name_of_class,spe_files,...
 %
 % Notes:
 % ^1    This parameter is optional for some formats of spe files. If
-%       provided, overides the information contained in the the "spe" file.
+%       provided, overrides the information contained in the the "spe" file.
 
 %
 %
@@ -222,11 +222,11 @@ if isempty(par_files)
 elseif numel(par_files)==1
     [runfiles{1},file_exist(1)]= init_runfile_with_par(runfiles{1},spe_files{1},...
         par_files{1},'',dfnd_params(1),allow_missing,parfile_is_det);
-    if file_exist(1) &&  ~runfiles{1}.isvalid
-        [ok,mess,runfiles{1}] = runfiles{1}.check_combo_arg();
-        if ~ok; error('HERBERT:gen_runfiles:invalid_argument',mess)
-        end
-    end
+    %if file_exist(1) &&  ~runfiles{1}.isvalid
+    %    [ok,mess,runfiles{1}] = runfiles{1}.check_combo_arg();
+    %    if ~ok; error('HERBERT:gen_runfiles:invalid_argument',mess)
+    %    end
+    %end
     % Save time on multiple load of the same par into memory by reading it just once
     if n_files>1
         [par,runfiles{1}] = get_par(runfiles{1});
@@ -234,12 +234,12 @@ elseif numel(par_files)==1
     for i=2:n_files
         [runfiles{i},file_exist(i)]= init_runfile_with_par(runfiles{i},...
             spe_files{i},par_files{1},par,dfnd_params(i),allow_missing,parfile_is_det);
-        if file_exist(i) && ~runfiles{i}.isvalid
-            [ok,mess,runfiles{i}] = runfiles{i}.check_combo_arg();
-            if ~ok
-                error('HERBERT:gen_runfiles:invalid_argument',mess)
-            end
-        end
+        %if file_exist(i) && ~runfiles{i}.isvalid
+        %    [ok,mess,runfiles{i}] = runfiles{i}.check_combo_arg();
+        %    if ~ok
+        %        error('HERBERT:gen_runfiles:invalid_argument',mess)
+        %    end
+        %end
     end
 else   % multiple par and spe files;
     for i=1:n_files

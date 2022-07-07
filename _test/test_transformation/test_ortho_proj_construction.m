@@ -90,10 +90,11 @@ classdef test_ortho_proj_construction<TestCase
 
         function test_set_wrong_u(~)
             proj = ortho_proj([1,0,0],[0,1,0],'alatt',[2,3,4],'angdeg',[80,70,85]);
-            assertTrue(proj.isvalid);
-            proj.u = [0,1,0];
-            assertFalse(proj.isvalid);
-            assertExceptionThrown(@()check_combo_arg(proj), ...
+            function test_wrong()
+                proj.u = [0,1,0];
+            end
+
+            assertExceptionThrown(@()test_wrong, ...
                 'HORACE:ortho_proj:runtime_error');
         end
         function test_serialization(~)

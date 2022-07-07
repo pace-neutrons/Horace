@@ -40,5 +40,7 @@ if strcmp(field_name,'en_')
 else
     obj.n_detindata_ = size(value,2);
 end
-[~,~,obj] = obj.check_combo_arg();
+if obj.do_check_combo_arg_
+    obj = obj.check_combo_arg();
+end
 

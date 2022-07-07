@@ -22,25 +22,28 @@ classdef serializable
     % not.
     % The serializable code sets do_check_combo_arg_ to false before
     % setting the properties, checks combo properties at the end and sets
-    % it to true. do_check_combo_arg_ is set to true after this. 
+    % it to true. do_check_combo_arg_ is set to true after this.
     %
-    % To work correctly, all interdependent porperties in the child code 
+    % To work correctly, all interdependent porperties in the child code
     % must contan the following code block
-    % if obj.do_check_combo_arg_ 
+    % if obj.do_check_combo_arg_
     %    obj=check_combo_arg(obj);
     % end
-    % 
+    %
     properties(Dependent,Hidden)
         % this is property for developers who wants to change number of
         % interdependent properties one after another and do not want to
         % overload the class. Use with caushion, as you may get invalid
-        % object if the property us used incorrectly
+        % object if the property us used incorrectly.
+        % It is also necessary to use when building and checking validity
+        % of serializable object from other serializable objects. In this
+        % case, set_do_check_combo_arg have to be overloaded appropriately.
         do_check_combo_arg;
     end
     properties(Access=protected)
         % Check interdependend properties and throw exception if
         % deserialized object validation shows that object is invalid
-        % Set it to "false" when changing 
+        % Set it to "false" when changing
         do_check_combo_arg_ = true;
     end
     %----------------------------------------------------------------------
@@ -149,28 +152,13 @@ classdef serializable
         end
 
         %------------------------------------------------------------------
-        function obj = from_bare_struct(obj,inputs,throw_on_invalid)
+        function obj = from_bare_struct(obj,inputs)
             % restore object or array of objects from a plain structure,
             % previously obtained by to_bare_struct operation
             % Inputs:
             % obj    -- non-initialized instance of the object to build
             % inputs -- the structure, obtained by to_bare_struct method,
             %           and used as initialization for the object
-            % optional:
-            % throw_on_invalid -- (default -- false) When the object is
-            %           fully constructed the method check its validity
-            %           by running check_combo_arg method. If the option
-            %           is set to true, the method throws if the object is
-            %           invalid.
-            %           If false, the check is still performed, but invalid
-            %           objects do not throw. Behaviour depends on the
-            %           implementation of check_combo_arg method. Normally,
-            %           it sets internal isvalid_ property according to the
-            %           result of the check performed.
-            %
-            if nargin > 2
-                obj(1).throw_on_invalid =throw_on_invalid;
-            end
             obj = from_bare_struct_(obj,inputs);
         end
 
@@ -235,7 +223,7 @@ classdef serializable
         % change bunch of interdependent properties one after another
         % without overloading the class.
         % Set this property to false at the begining, change interdependent
-        % properties, run check_combo_arg after setting all interdependent 
+        % properties, run check_combo_arg after setting all interdependent
         % properties to its valies so if check_combo_arg trows the error,
         % the interdependent properties are inconsistent and the object is
         % invalid.
@@ -243,7 +231,8 @@ classdef serializable
             do = obj.do_check_combo_arg_;
         end
         function obj = set.do_check_combo_arg(obj,val)
-            obj.do_check_combo_arg_ = logical(val);
+            %use function to be able to overload on children
+            obj = set_do_check_combo_arg(obj,val);
         end
 
     end
@@ -317,6 +306,9 @@ classdef serializable
         end
     end
     methods(Access=protected)
+        function obj = set_do_check_combo_arg(obj,val)
+            obj.do_check_combo_arg_ = logical(val);
+        end
         %------------------------------------------------------------------
         function obj = from_old_struct(obj,inputs)
             % Restore object from the old structure, which describes the

@@ -36,16 +36,12 @@ classdef test_oriented_lattice< TestCase
         end
         function test_validity(~)
             ol = oriented_lattice();
-            assertFalse(ol.isvalid);
-            [ok,mess,ol] = ol.check_combo_arg();
-            assertFalse(ok);
             mes_base = 'The necessary field(s):';
             assertTrue(strncmpi(mess,mes_base,numel(mes_base)));
 
             ol.alatt = [1,2,3];
             ol.angdeg = [90,90,90];
             ol.psi = 0;
-            assertTrue(ol.isvalid);
 
             [ok,mess] = ol.check_combo_arg();
             assertTrue(ok);

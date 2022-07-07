@@ -21,17 +21,19 @@ classdef test_rundata_isvalid<TestCase
             rd = rundata();
             rd.S = ones(3,5);
             assertFalse(rd.isvalid);
+            base_mess = 'ill defined Signal: size(Signal) ~= size(ERR)';            
+            assertTrue(strncmp(rd.reason_for_invalid,base_mess,numel(base_mess)));
             rd.ERR=ones(4,7);
-            [ok,mess]=rd.check_combo_arg;
-            assertFalse(ok);
             base_mess = 'ill defined Signal: size(Signal) ~= size(ERR)';
-            assertTrue(strncmp(base_mess,mess,numel(base_mess)));
+            assertTrue(strncmp(base_mess,rd.reason_for_invalid,numel(base_mess)));
+            rd=rd.check_combo_arg;
+            assertFalse(rd.isvalid);
+            assertEqual(rd.reason_for_invalid,'load_par undefined');
+            
             rd.ERR=zeros(3,5);
             assertFalse(rd.isvalid);
-            [ok,mess]=rd.check_combo_arg();
-            assertFalse(ok);
             base_mess = 'ill defined en: size(en) ~= size(S,1)+1';
-            assertTrue(strncmp(base_mess,mess,numel(base_mess)));
+            assertTrue(strncmp(base_mess,rd.reason_for_invalid,numel(base_mess)));
 
         end
         function this = test_Sen(this)

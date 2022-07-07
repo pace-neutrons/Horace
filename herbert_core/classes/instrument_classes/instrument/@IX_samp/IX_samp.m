@@ -59,9 +59,8 @@ classdef IX_samp  < serializable
             % initialize serializable object using constructor fields
             % 'name','alatt','angdeg'
             fields = obj.saveableFields();
-            in_types = {@ischar,@isnumeric,@isnumeric};
             [obj,remains] = set_positional_and_key_val_arguments(obj,fields,...
-                in_types,varargin{:});
+                varargin{:});
         end
 
         % SERIALIZABLE interface

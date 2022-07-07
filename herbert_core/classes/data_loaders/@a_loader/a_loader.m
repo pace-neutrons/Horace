@@ -33,6 +33,9 @@ classdef a_loader < a_detpar_loader_interface
         % the variable which describes the file from which main part or
         % all data should be loaded
         file_name
+
+        isvalid
+        reason_for_invalid;
     end
     properties(Dependent,Hidden)
         % property exposing detpar loader and giving possibility to set it
@@ -60,6 +63,8 @@ classdef a_loader < a_detpar_loader_interface
         % the service property, whcih describes the validity of a_loader
         % object
         isvalid_ = true;
+        allow_invalid_ = true; % we can construct invalid loader
+        reason_for_invalid_ = '';
     end
     properties(Constant,Access=protected)
         fext_to_parloader_map_ = containers.Map({'.par','.phx','.nxspe'},...
@@ -406,7 +411,7 @@ classdef a_loader < a_detpar_loader_interface
         %
         function obj = set.en(obj,value)
             % set energy bin boundaries.
-            value = value(:);            
+            value = value(:);
             obj = set_consistent_array(obj,'en_',value);
         end
         %------------------------------------------------------------------
@@ -483,13 +488,18 @@ classdef a_loader < a_detpar_loader_interface
             end
         end
 
-        function [ok,mess,obj] = check_combo_arg(obj)
+        function obj = check_combo_arg(obj)
             % verify if S,ERR and en  the validity of the
             % obtained serializable object. Return the result of the check
             %
-            [ok,mess,obj] = check_combo_arg_(obj);
+            obj = check_combo_arg_(obj);
         end
-
+        function is = get.isvalid(obj)
+            is = obj.isvalid_;
+        end
+        function mess = get.reason_for_invalid(obj)
+            mess = obj.reason_for_invalid_;
+        end
 
     end
     %

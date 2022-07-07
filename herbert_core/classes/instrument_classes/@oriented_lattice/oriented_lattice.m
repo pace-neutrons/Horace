@@ -69,6 +69,14 @@ classdef oriented_lattice < serializable
         % what units (deg or rad) used for all angular units. (All angular
         % units have to be set in degrees, but can be retrieved as radians)
         angular_units;
+        % fully defined oriented lattice need at least alatt, angdeg and
+        % psi to be defined. When data loaded from nxspe, alatt, angdeg,
+        % and may be psi can remain undefined and need to be defined
+        % later.
+        isvalid
+        % if true, allow instantiating class with undefined alatt, angdeg
+        % and/or psi
+        allow_invalid
     end
     properties(Dependent,Hidden)
         angular_is_degree;
@@ -98,9 +106,8 @@ classdef oriented_lattice < serializable
         % field names and number defined by fields_to_define_ private
         % property
         undef_fields_ = true(3,1);
-        isvalid_ = false; % the variable which indicates if the object is valid or
-        % not. Used in checks for interdependent properties validity
-        % (e.g. u is not parallel to v)
+        isvalid_ = true; % empty lattice is valid
+        allow_invalid_ = true; % we can construct invalid lattice
     end
     properties(Constant,Access=private)
         % fields to set up for loader considered to be defined
@@ -237,7 +244,9 @@ classdef oriented_lattice < serializable
             else
                 obj.undef_fields_(3) = false;
             end
-            [~,~,obj] = check_combo_arg(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
         end
         %
         function obj = set.omega(obj,val)
@@ -279,13 +288,17 @@ classdef oriented_lattice < serializable
             obj.alatt_ = check_3Dvector_correct_(obj,val);
             % alatt is first in the list of fields to be defined
             obj.undef_fields_(1) = false;
-            [~,~,obj] = check_combo_arg(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
         end
         function obj=set.angdeg(obj,val)
             obj.angdeg_ =check_3DAngles_correct_(obj,val);
             % angdeg is second in the list of fields to be defined
             obj.undef_fields_(2) = false;
-            [~,~,obj] = check_combo_arg(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
         end
 
         %------------------------------------------------------------------
@@ -310,11 +323,25 @@ classdef oriented_lattice < serializable
             flds = ['angular_is_degree',flds(1:end-1)];
 
         end
-        function [ok,mess,obj] = check_combo_arg(obj)
+        function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained lattice object
-            [ok,mess,obj] = check_combo_arg_(obj);
+            obj = check_combo_arg_(obj);
         end
+        function is = get.isvalid(obj)
+            is = obj.isvalid_;
+        end
+        function obj = set.isvalid(obj,val)
+            obj.isvalid_ = logical(val);
+        end
+        %
+        function is =  get.allow_invalid(obj)
+            is = obj.allow_invalid_;
+        end
+        function obj =  set.allow_invalid(obj,val)
+            obj.allow_invalid_ = logical(val);
+        end
+
     end
     %---------------------------------------------------------------------
     %---------------------------------------------------------------------

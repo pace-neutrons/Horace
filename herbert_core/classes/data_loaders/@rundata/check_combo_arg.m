@@ -1,38 +1,79 @@
-function [ok, mess,obj] = check_combo_arg(obj)
+function obj = check_combo_arg(obj)
 % Check interdependent fields of rundata class
 %
-%   >> [ok, mess] = check_combo_arg(w)
+%   >>w=check_combo_arg(w)
 %
-%   ok      ok=true if valid, =false if not
-%   mess    Message if not a valid object, empty string if is valid.
-%
+%   runs successfully if interdependent variables are consistent and throws
+%   "HORACE:rundata:invalid_argument" if they are not.
 %
 if ~isempty(obj.lattice)
-    [ok,mess,obj.lattice] = obj.lattice.check_combo_arg();
-    if ~ok
-        obj.isvalid_ =false;
-        return;
+    lat = obj.lattice;
+    if obj.allow_invalid
+        try
+            obj.lattice = lat.check_combo_arg();
+            obj.isvalid_ = true;
+            obj.reason_for_invalid_ = '';
+        catch ME
+            if strcmp(ME.identifier,'HORACE:oriented_lattice:invalid_argument')
+                obj.isvalid_ = false;
+                obj.reason_for_invalid_ = ME.message;
+                return;
+            else
+                rethrow(ME);
+            end
+        end
+    else
+        obj.lattice = lat.check_combo_arg();
     end
 end
 % Check efix
 [ok,mess] = check_efix_correct(obj);
-if ~ok
-    obj.isvalid_ =false;
-    return;
+if ok
+    obj.isvalid_ = true;
+    obj.reason_for_invalid_  = '';
+else
+    if obj.allow_invalid
+        obj.isvalid_ = false;
+        obj.reason_for_invalid_ = mess;
+        return
+    else
+        error('HORACE:rundata:invalid_argument',mess);
+    end
 end
 %
 % check if the rundata object is fully defined
 [undefined,~,fields_undef] = obj.check_run_defined();
 if undefined >1
-    obj.isvalid_=false;
-    ok = false;
     mf = strjoin(fields_undef,'; ');
-    mess = sprintf('Run is undefined. Need to define missing fields: %s',mf);
-    return;
+    if obj.allow_invalid
+        obj.isvalid_ = false;
+        obj.reason_for_invalid_ = ...
+            sprintf('Run is undefined. Need to define missing fields: %s',mf);
+        return;
+    else
+        error('HORACE:rundata:invalid_argument', ...
+            'Run is undefined. Need to define missing fields: %s',mf);
+    end
 else
     if ~isempty(obj.loader)
-        [ok,mess,obj.loader] = obj.loader.check_combo_arg();
-        obj.isvalid_ = ok;
+        ldr = obj.loader;
+        if obj.allow_invalid
+            try
+                obj.loader = ldr.check_combo_arg();
+                obj.isvalid_ = true;
+                obj.reason_for_invalid_  = '';                
+            catch ME
+                if strcmp(ME.identifier,'HORACE:a_loader:invalid_argument')
+                    obj.isvalid_ = false;
+                    obj.reason_for_invalid_ = ME.message;
+                    return;
+                else
+                    rethrow(ME);
+                end
+            end
+        else
+            obj.loader = ldr.check_combo_arg();
+        end
     end
 end
 

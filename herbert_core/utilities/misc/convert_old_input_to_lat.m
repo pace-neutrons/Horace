@@ -68,6 +68,7 @@ if rep_factor > 1
     end
     lat = repmat(oriented_lattice,rep_factor,1);
     for j=1:rep_factor
+        lat(j).do_check_combo_arg = false;
         for i=1:n_latpar
             val = lat_par{i};
             name= latpar_names{i};
@@ -81,6 +82,8 @@ if rep_factor > 1
                 end
             end
         end
+        lat(j).do_check_combo_arg = true;        
+        lat(j).check_combo_arg();
     end
 else
     lat = oriented_lattice(lat_par{:});

@@ -3,14 +3,10 @@ function [ ok,mess,obj] = check_combo_arg_(obj)
 %
 %
 %
-ok=true;
 mess ='';
-obj.isvalid_ = true;
 % Check u and v
 if norm(cross(obj.u_,obj.v_))/(norm(obj.u_)*norm(obj.v_)) < obj.tol_
     mess = 'Vectors u and v are collinear or almost collinear';
-    ok=false;
-    obj.isvalid_ = false;
 end
 
 if isempty(obj.w_)
@@ -21,8 +17,6 @@ if isempty(obj.w_)
         else
             mess = [mess,' ; ',wrong_p];
         end
-        ok=false;
-        obj.isvalid_ = false;
     end
 else
     if abs(det([obj.u_(:),obj.v_(:),obj.w_(:)]))<obj.tol_
@@ -32,8 +26,9 @@ else
         else
             mess = [mess,' ; ',wu_coplanar];
         end
-        ok=false;
-        obj.isvalid_ = false;
     end
+end
+if ~isempty(mess)
+    error('HORACE:ortho_proj:invalid_argument',mess);
 end
 

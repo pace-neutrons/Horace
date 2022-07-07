@@ -36,7 +36,6 @@ classdef test_experiment_methods < TestCase
             sample.name = 'new_sample';
 
             exp.samples = sample;
-            assertTrue(exp.isvalid)
 
             assertEqual(exp.samples{3},sample);
         end

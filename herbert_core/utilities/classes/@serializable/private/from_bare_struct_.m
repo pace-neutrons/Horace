@@ -38,7 +38,6 @@ for i=1:nobj
     % check interdependent properties. If the object is invalid, 
     % it throws the exception   
     obj(i) = obj(i).check_combo_arg();
-
 end
 
 end % function from_bare_struct_

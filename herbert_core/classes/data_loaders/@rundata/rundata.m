@@ -48,6 +48,13 @@ classdef rundata < serializable
         % the number (id) uniquely identifying the particular experiment
         % (run) which is the source of this object data.
         run_id;
+        % fully defined rundata need all necessary requested fields to be
+        % defined. When data loaded from nxspe, alatt, angdeg,
+        % and may be psi can remain undefined and need to be defined
+        % later. Object becoms invalid
+        isvalid
+        % message, containing information why the object is invalid
+        reason_for_invalid
     end
 
     properties(Constant,Access=private)
@@ -81,8 +88,10 @@ classdef rundata < serializable
         sample_ = IX_null_sample();
         %
         run_id_ = [];
-        % check if the object is valid and can be used to identify runs
-        isvalid_ = true;
+        %
+        isvalid_ = false; % empty rundata is invalid if allow_invalid is true
+        allow_invalid_ = true; % we can construct invalid rundata
+        reason_for_invalid_ = 'empty object assumed invalid'
     end
 
     methods(Static)
@@ -176,7 +185,7 @@ classdef rundata < serializable
         % PUBLIC METHODS SIGNATURES:
         %------------------------------------------------------------------
         % check if all interdependent properties
-        [ok, mess,obj] = check_combo_arg(obj);
+        obj = check_combo_arg(obj);
         %
         % Method verifies if all necessary run parameters are defined by the class
         [undefined,fields_from_loader,fields_undef] = check_run_defined(run,fields_needed);
@@ -207,8 +216,6 @@ classdef rundata < serializable
         % Returns the name of the file which contains experimental data
         [fpath,filename,fext]=get_source_fname(this);
 
-        % Check fields for data_array object
-        [ok, mess,this] = isvalid (this);
         % method removes failed (NaN or Inf) data from the data array and deletes
         % detectors, which provided such signal
         [S_m,Err_m,det_m,non_masked]=rm_masked(this,varargin);
@@ -253,24 +260,26 @@ classdef rundata < serializable
             %   n_detectors % Number of detectors, used when dealing with masked detectors
             %   det_par     % Array of par-values, describing detectors angular positions
             %
-            obj.isvalid_ = false;
             if nargin>0
                 obj = obj.init(varargin{:});
             end
-            % check all interacting variables and verify if
-            % the object is valid and fully defined
-            [~,~,obj] = obj.check_combo_arg();
         end
         %
         function obj = init(obj,varargin)
             % part of non-default rundata constructor, allowing to
             % construct rundata from different arguments
             if ~isempty(varargin)
+                obj.do_check_combo_arg_ = false;
                 if ischar(varargin{1})
                     obj=select_loader_(obj,varargin{1},varargin{2:end});
                 else
                     obj=set_param_recursively(obj,varargin{1},varargin{2:end});
                 end
+                obj.do_check_combo_arg_ = true;
+                % check all interacting variables and verify if
+                % the object is valid and fully defined
+                obj = obj.check_combo_arg();
+
             end
         end
         %
@@ -295,7 +304,9 @@ classdef rundata < serializable
                 error('HERBERT:rundata:invalid_argument',...
                     'unsupported emode %d, only 0 1 and 2 are supported',val);
             end
-            [~,~,obj] = obj.check_combo_arg();
+            if obj.do_check_combo_arg_
+                obj = obj.check_combo_arg();
+            end
         end
         %----
         %
@@ -330,6 +341,7 @@ classdef rundata < serializable
             % TODO: sample and lattice should be the same object
             lat = obj.lattice_;
             if ~isempty(lat)
+                lat.do_check_combo_arg = obj.do_check_combo_arg_;
                 lat.angular_units = 'deg';
                 if isa(obj.sample_,'IX_null_sample')
                     if is_defined(lat,'alatt') && is_defined(lat,'angdeg')
@@ -344,6 +356,15 @@ classdef rundata < serializable
                     end
                 end
             end
+        end
+        %
+        function mess = get.reason_for_invalid(obj)
+            if obj.allow_invalid_
+                mess = obj.reason_for_invalid_;
+            else
+                mess = '';
+            end
+
         end
         %
         function id = get.run_id(obj)
@@ -381,6 +402,7 @@ classdef rundata < serializable
                     'The loader can be assigned by instance of a_loader object only. Actually it is %s',...
                     class(val))
             end
+            val.do_check_combo_arg = obj.do_check_combo_arg_;
             obj.loader_ = val;
         end
         %------------------------------------------------------------------
@@ -449,6 +471,7 @@ classdef rundata < serializable
                 % the same nxspe file (or will be stored in
                 % it)
                 obj.loader_ = loader_nxspe('',val);
+                obj.loader_.do_check_combo_arg = obj.do_check_combo_arg_;
             else
                 obj.loader_.par_file_name = val;
             end
@@ -543,9 +566,29 @@ classdef rundata < serializable
             if ~isempty(obj.loader_) && ismember('efix',loader_define(obj.loader_))
                 obj.loader_.efix = val;
             end
-
-            [~,~,obj] = check_combo_arg(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
         end
+        %
+        function is = get.isvalid(obj)
+            is = obj.isvalid_;
+        end
+        function obj = set.isvalid(obj,val)
+            obj.isvalid_ = logical(val);
+        end
+        %
+        function is =  get.allow_invalid(obj)
+            is = obj.allow_invalid_;
+        end
+        function obj =  set.allow_invalid(obj,val)
+            obj.allow_invalid_ = logical(val);
+            if ~isempty(obj.lattice_)
+                obj.lattice_.allow_invalid = logical(val);
+            end
+        end
+
+
         %------------------------------------------------------------------
         function ver  = classVersion(~)
             ver = 1;
@@ -598,8 +641,15 @@ classdef rundata < serializable
         end
     end
     methods(Access=protected)
-        function valid = check_validity(obj)
-            valid = obj.isvalid_;
+        function obj = set_do_check_combo_arg(obj,val)
+            lval = logical(val);
+            obj.do_check_combo_arg_ = lval ;
+            if ~isempty(obj.loader_)
+                obj.loader_.do_check_combo_arg = lval;
+            end
+            if ~isempty(obj.lattice_)
+                obj.lattice_.do_check_combo_arg = lval;
+            end
         end
     end
 end
