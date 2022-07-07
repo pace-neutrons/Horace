@@ -72,11 +72,9 @@ classdef oriented_lattice < serializable
         % fully defined oriented lattice need at least alatt, angdeg and
         % psi to be defined. When data loaded from nxspe, alatt, angdeg,
         % and may be psi can remain undefined and need to be defined
-        % later.
+        % later. In this case, lattice is invalid
         isvalid
-        % if true, allow instantiating class with undefined alatt, angdeg
-        % and/or psi
-        allow_invalid
+        reason_for_invalid;
     end
     properties(Dependent,Hidden)
         angular_is_degree;
@@ -106,8 +104,8 @@ classdef oriented_lattice < serializable
         % field names and number defined by fields_to_define_ private
         % property
         undef_fields_ = true(3,1);
-        isvalid_ = true; % empty lattice is valid
-        allow_invalid_ = true; % we can construct invalid lattice
+        isvalid_ = false; % empty lattice is invalid
+        reason_for_invalid_ = 'empty lattice is invalid';
     end
     properties(Constant,Access=private)
         % fields to set up for loader considered to be defined
@@ -331,15 +329,8 @@ classdef oriented_lattice < serializable
         function is = get.isvalid(obj)
             is = obj.isvalid_;
         end
-        function obj = set.isvalid(obj,val)
-            obj.isvalid_ = logical(val);
-        end
-        %
-        function is =  get.allow_invalid(obj)
-            is = obj.allow_invalid_;
-        end
-        function obj =  set.allow_invalid(obj,val)
-            obj.allow_invalid_ = logical(val);
+        function is =  get.reason_for_invalid(obj)
+            is = obj.reason_for_invalid_;
         end
 
     end
@@ -359,13 +350,5 @@ classdef oriented_lattice < serializable
             obj = oriented_lattice();
             obj = loadobj@serializable(input,obj);
         end
-    end
-    methods(Access = protected)
-        function is = check_validity(obj)
-            % return the validity of the oriented lattice object,
-            % calculated during interface settings
-            is = obj.isvalid_;
-        end
-
     end
 end

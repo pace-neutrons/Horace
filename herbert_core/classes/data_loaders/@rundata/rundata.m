@@ -574,21 +574,7 @@ classdef rundata < serializable
         function is = get.isvalid(obj)
             is = obj.isvalid_;
         end
-        function obj = set.isvalid(obj,val)
-            obj.isvalid_ = logical(val);
-        end
         %
-        function is =  get.allow_invalid(obj)
-            is = obj.allow_invalid_;
-        end
-        function obj =  set.allow_invalid(obj,val)
-            obj.allow_invalid_ = logical(val);
-            if ~isempty(obj.lattice_)
-                obj.lattice_.allow_invalid = logical(val);
-            end
-        end
-
-
         %------------------------------------------------------------------
         function ver  = classVersion(~)
             ver = 1;

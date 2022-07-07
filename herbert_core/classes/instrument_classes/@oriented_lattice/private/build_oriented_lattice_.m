@@ -16,7 +16,7 @@ elseif isstruct(varargin{1}) % structure with oriented lattice fields
         obj.angular_units = input.angular_units;
         input = rmfield(input,'angular_units');
     end
-    obj = obj.from_bare_struct(input,false);
+    obj = obj.from_bare_struct(input);
     if numel(varargin)>1
         remains = varargin(2:end);
     end
@@ -29,8 +29,12 @@ elseif isnumeric(varargin{1}) || ischar(varargin{1}) % the initialization is don
     if numel(varargin)>=pos_deg && ischar(varargin{pos_deg}) && ismember(varargin{pos_deg},{'deg','rad'})
         % deg/rad argument is present as last postional argument
         obj.angular_units = varargin{pos_deg};
+
         keep = true(1,numel(varargin));
         keep(pos_deg) = false;
+        if strcmp(varargin{pos_deg-1},'angular_units')
+            keep(pos_deg-1) = false;
+        end
         argi = varargin(keep);
     else
         argi = varargin;

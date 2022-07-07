@@ -60,7 +60,7 @@ for i=1:numel(key_num)
 end
 % enable check for the combo properties
 obj.do_check_combo_arg_ = true;
-obj.check_combo_arg();
+obj=obj.check_combo_arg();
 
 
 

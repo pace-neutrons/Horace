@@ -63,7 +63,6 @@ classdef a_loader < a_detpar_loader_interface
         % the service property, whcih describes the validity of a_loader
         % object
         isvalid_ = true;
-        allow_invalid_ = true; % we can construct invalid loader
         reason_for_invalid_ = '';
     end
     properties(Constant,Access=protected)
