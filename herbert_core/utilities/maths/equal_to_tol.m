@@ -119,8 +119,8 @@ cleanup_obj = onCleanup(@()warning(warn));
 
 
 % Get names of input variables, if can
-name_a_default = 'input_1';
-name_b_default = 'input_2';
+name_a_default = 'lhs_obj';
+name_b_default = 'rhs_obj';
 name_a = inputname(1);
 name_b = inputname(2);
 if isempty(name_a)
@@ -391,7 +391,7 @@ elseif isobject(a) && isobject(b)
     end
     if ismethod(a,'eq') && ~isa(a,'handle')
         try
-            [is,mess] = eq(a,b,opt.ignore_str);
+            [is,mess] = eq(a,b,'name_a',name_a,'name_b',name_b,'ignore_str',opt.ignore_str);
         catch ME
             if strcmp(ME.identifier,'MATLAB:TooManyInputs') ||...
                 strcmp(ME.identifier,'MATLAB:UndefinedFunction')

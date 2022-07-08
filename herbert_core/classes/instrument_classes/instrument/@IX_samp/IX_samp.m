@@ -1,6 +1,6 @@
 classdef IX_samp  < serializable
     % Base class for samples to include the null sample case defined from a
-    % struct with no fields (IX_null_sample) and the standard IX_sample
+    % structure with no fields (IX_null_sample) and the standard IX_sample
 
     properties (Access=protected)
         name_ = '';   % suitable string to identify sample
@@ -71,34 +71,6 @@ classdef IX_samp  < serializable
 
         function flds = saveableFields(~)
             flds = {'name', 'alatt', 'angdeg'};
-        end
-
-        %
-        % other methods
-        %------------------------------------------------------------------
-        function [iseq,mess] = eq(obj1, obj2,varargin)
-            mess = '';
-            iseq = strcmp(obj1.name, obj2.name);
-            if ~iseq
-                mess = 'objects have different names; ';
-            end
-            if numel(obj1.alatt)==3 && numel(obj2.alatt)==3
-                iseq = iseq && all(obj1.alatt==obj2.alatt);
-                mess = [mess,'objects have different lattice; '];
-            elseif isempty(obj1.alatt) && isempty(obj2.alatt)
-                iseq = iseq && true; % heavy-handed but gets the point across
-            else
-                iseq = false;
-                return
-            end
-            if numel(obj1.angdeg)==3 && numel(obj2.angdeg)==3
-                iseq = iseq && all(obj1.angdeg==obj2.angdeg);
-            elseif isempty(obj1.angdeg) && isempty(obj2.angdeg)
-                iseq = iseq && true; % heavy-handed but gets the point across
-            else
-                iseq = false;
-                return
-            end
         end
 
         %------------------------------------------------------------------

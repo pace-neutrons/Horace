@@ -234,7 +234,29 @@ classdef serializable
             %use function to be able to overload on children
             obj = set_do_check_combo_arg(obj,val);
         end
-
+        function [is,mess] = eq(obj,other_obj,varargin)
+            % the generic eqality operator, allowing comparison of
+            % serializable objects
+            %
+            % Inputs:
+            % other_obj -- the object or array of objects to compare with
+            % current object
+            % Optional:
+            % any set of parameters equal_to_tol function would accept
+            if nargout == 2
+                [is,mess] = eq_(obj,other_obj,varargin{:});
+            else
+                is = eq_(obj,other_obj,varargin{:});
+            end
+        end
+        function [nis,mess] = ne(obj,other_obj,varargin)
+            if nargout == 2
+                [is,mess] = eq_(obj,other_obj,varargin{:});
+            else
+                is = eq_(obj,other_obj,varargin{:});
+            end
+            nis = ~is;
+        end
     end
 
     methods (Static)
