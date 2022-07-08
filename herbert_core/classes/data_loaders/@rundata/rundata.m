@@ -536,15 +536,6 @@ classdef rundata < serializable
             end
         end
         %
-        function is = eq(obj,other)
-            if ~(isstruct(other) || isa(other,'rundata'))
-                error('HERBERT:rundata:invalid_argument',...
-                    'Can compare only two rundata objects or rundata object and structure. In fact other object is: %s',...
-                    class(other));
-            end
-            is= eq_(obj,other);
-        end
-
         %------------------------------------------------------------------
         % A LOADER RELATED PROPERTIES -- END
         %------------------------------------------------------------------

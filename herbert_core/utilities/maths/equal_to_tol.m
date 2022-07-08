@@ -398,7 +398,8 @@ elseif isobject(a) && isobject(b)
             [is,mess] = eq(a,b,opt{:});
         catch ME
             if strcmp(ME.identifier,'MATLAB:TooManyInputs') ||...
-                strcmp(ME.identifier,'MATLAB:UndefinedFunction')
+                    strcmp(ME.identifier,'MATLAB:TooManyOutputs') || ...
+                    strcmp(ME.identifier,'MATLAB:UndefinedFunction')
                 is = eq(a,b);
                 if ~is
                     mess = 'class "eq" operation returned false';
@@ -436,8 +437,8 @@ elseif isobject(a) && isobject(b)
     % Check fieldnames are identical
     if ~isempty(extraA) || ~isempty(extraB)
         error('HERBERT:equal_to_tol:inputs_mismatch',...
-              'Input %s with extra fields: "%s" DIFFERENT from Input %s: with extra fields: "%s"',...
-              name_a,strjoin(extraA,'; '),name_b,strjoin(extraB,'; '));
+            'Input %s with extra fields: "%s" DIFFERENT from Input %s: with extra fields: "%s"',...
+            name_a,strjoin(extraA,'; '),name_b,strjoin(extraB,'; '));
     end
 
     if isscalar(a) || isa(a, 'containers.Map')
@@ -450,7 +451,7 @@ elseif isobject(a) && isobject(b)
         fieldsA = fieldnames(Sa);
         for j=1:numel(fieldsA)
             equal_to_tol_private(Sa.(fieldsA{j}), Sb.(fieldsA{j}), opt,...
-                                 [name_a_ind,'.',fieldsA{j}], [name_b_ind,'.',fieldsA{j}]);
+                [name_a_ind,'.',fieldsA{j}], [name_b_ind,'.',fieldsA{j}]);
         end
     else
         for i=1:numel(a)
@@ -463,7 +464,7 @@ elseif isobject(a) && isobject(b)
             fieldsA = fieldnames(Sa);
             for j=1:numel(fieldsA)
                 equal_to_tol_private(Sa.(fieldsA{j}), Sb.(fieldsA{j}), opt,...
-                                     [name_a_ind,'.',fieldsA{j}], [name_b_ind,'.',fieldsA{j}]);
+                    [name_a_ind,'.',fieldsA{j}], [name_b_ind,'.',fieldsA{j}]);
             end
         end
     end
@@ -509,8 +510,8 @@ elseif isstruct(a) && isstruct(b)
             name_b_ind = [name_b,'(',arraystr(sz,i),')'];
             for j=1:numel(fieldsA)
                 equal_to_tol_private (a(i).(fieldsA{j}),...
-                                      b(i).(fieldsA{j}), opt,...
-                                      [name_a_ind,'.',fieldsA{j}], [name_b_ind,'.',fieldsA{j}]);
+                    b(i).(fieldsA{j}), opt,...
+                    [name_a_ind,'.',fieldsA{j}], [name_b_ind,'.',fieldsA{j}]);
             end
         end
     end
@@ -595,8 +596,8 @@ sz=size(a);
 
 if any(sz ~= size(b))
     error('HERBERT:equal_to_tol:inputs_mismatch',...
-          '%s and %s: Different size numeric arrays',...
-          name_a,name_b);
+        '%s and %s: Different size numeric arrays',...
+        name_a,name_b);
 end
 
 % Turn arrays into vectors (avoids problems with matlab changing shapes
@@ -659,8 +660,8 @@ if abs_tol==0 && rel_tol==0
     if any(a~=b)
         [max_delta, ind] = max(abs(a-b));
         error('HERBERT:equal_to_tol:inputs_mismatch',...
-              '%s and %s: Not all elements are equal; max. error = %s at element %s',...
-              name_a,name_b,num2str(max_delta),['(',arraystr(sz,ind),')']);
+            '%s and %s: Not all elements are equal; max. error = %s at element %s',...
+            name_a,name_b,num2str(max_delta),['(',arraystr(sz,ind),')']);
     end
 
 elseif rel_tol == 0
@@ -670,8 +671,8 @@ elseif rel_tol == 0
     if max_delta > abs_tol
         % Absolute tolerance must be satisfied
         error('HERBERT:equal_to_tol:inputs_mismatch',...
-              '%s and %s: Absolute tolerance failure; max. error = %s at element %s',...
-              name_a,name_b,num2str(max_delta),['(',arraystr(sz,ind),')']);
+            '%s and %s: Absolute tolerance failure; max. error = %s at element %s',...
+            name_a,name_b,num2str(max_delta),['(',arraystr(sz,ind),')']);
     end
 
 elseif abs_tol == 0
@@ -681,8 +682,8 @@ elseif abs_tol == 0
     if max_delta > rel_tol
         % Relative tolerance must be satisfied
         error('HERBERT:equal_to_tol:inputs_mismatch',...
-              '%s and %s: Relative tolerance failure; max. error = %s at element %s',...
-              name_a,name_b,num2str(max_delta),['(',arraystr(sz,ind),')']);
+            '%s and %s: Relative tolerance failure; max. error = %s at element %s',...
+            name_a,name_b,num2str(max_delta),['(',arraystr(sz,ind),')']);
     end
 
 else
@@ -695,12 +696,12 @@ else
         % Absolute or relative tolerance must be satisfied
         if max_delta_rel/rel_tol > max_delta_abs/abs_tol
             error('HERBERT:equal_to_tol:inputs_mismatch',...
-                  '%s and %s: Relative and absolute tolerance failure; max. error = %s (relative) at element %s',...
-                  name_a,name_b,num2str(max_delta_rel),['(',arraystr(sz,ind_rel),')']);
+                '%s and %s: Relative and absolute tolerance failure; max. error = %s (relative) at element %s',...
+                name_a,name_b,num2str(max_delta_rel),['(',arraystr(sz,ind_rel),')']);
         else
             error('HERBERT:equal_to_tol:inputs_mismatch',...
-                  '%s and %s: Relative and absolute tolerance failure; max. error = %s (absolute) at element %s',...
-                  name_a,name_b,num2str(max_delta_abs),['(',arraystr(sz,ind_abs),')']);
+                '%s and %s: Relative and absolute tolerance failure; max. error = %s (absolute) at element %s',...
+                name_a,name_b,num2str(max_delta_abs),['(',arraystr(sz,ind_abs),')']);
         end
     end
 end
