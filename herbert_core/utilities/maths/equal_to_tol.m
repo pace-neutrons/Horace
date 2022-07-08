@@ -391,7 +391,11 @@ elseif isobject(a) && isobject(b)
     end
     if ismethod(a,'eq') && ~isa(a,'handle')
         try
-            [is,mess] = eq(a,b,'name_a',name_a,'name_b',name_b,'ignore_str',opt.ignore_str);
+            opt.name_a = name_a;
+            opt.name_b = name_b;
+            opt = [fieldnames(opt),struct2cell(opt)]';
+            opt = opt(:);
+            [is,mess] = eq(a,b,opt{:});
         catch ME
             if strcmp(ME.identifier,'MATLAB:TooManyInputs') ||...
                 strcmp(ME.identifier,'MATLAB:UndefinedFunction')

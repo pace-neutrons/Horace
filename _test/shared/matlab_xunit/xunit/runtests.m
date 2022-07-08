@@ -81,7 +81,7 @@ function [out,suite_out] = runtests(varargin)
 %   Steven L. Eddins
 %   Copyright 2009-2010 The MathWorks, Inc.
 
-[ok,mess,display_fail_only,argi] = parse_char_options(varargin,{'-nodisp_skip'});
+[ok,mess,display_fail_only,argi] = parse_char_options(varargin,{'-nodisp_skipped'});
 if ~ok
     error('HERBERT:runtests:invalid_argument',mess);
 end
