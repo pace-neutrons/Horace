@@ -21,8 +21,47 @@ classdef test_serializable_class < TestCase
             assertEqual(tob.Prop_class2_2,20)
             assertEqual(tob.Prop_class2_3,0)
         end
+        %------------------------------------------------------------------
+        %
+        function test_eq_operator_level1_ne(~)
+            tc1 = serializableTester2(1,1:20,3);
+            tc2 = serializableTester2(1,2,3);
 
+            assertFalse(tc1 == tc2);
 
+            iseq = tc1.eq(tc2);
+            assertFalse(iseq);
+        end
+        %
+        function test_eq_operator_level2(~)
+            tc1 = serializableTester2(1,2,serializableTester1());
+            tc2 = serializableTester2(1,2,serializableTester1());
+
+            assertTrue(tc1 == tc2);
+
+            iseq = tc1.eq(tc2);
+            assertTrue(iseq);
+        end
+        %
+        function test_eq_operator_level1_with_mess(~)
+            tc1 = serializableTester2(1,1:20,3);
+            tc2 = serializableTester2(1,1:20,3);
+
+            [iseq,mess] = tc1.eq(tc2);
+            assertTrue(iseq);
+            assertTrue(isempty(mess));
+        end
+        %
+        function test_eq_operator_level1(~)
+            tc1 = serializableTester2(1,2,3);
+            tc2 = serializableTester2(1,2,3);
+
+            assertTrue(tc1 == tc2);
+
+            iseq = tc1.eq(tc2);
+            assertTrue(iseq);
+        end
+        %------------------------------------------------------------------
         function test_wrong_inderdep_prop_fail_differently(~)
             tob = serializableTesterWithInterdepProp(0,1,0);
             function test_set_throws()

@@ -20,6 +20,8 @@ function err = validate_horace(varargin)
 %   >> validate_horace (...'-forcemex') %  Enforce use of mex files only. The
 %                                       % default otherwise for Horace to revert to
 %                                       % using matlab code.
+%   >> validate_horace (...'-nodisp_skipped') %  print only list of failed
+%                                       %        tests, ignoring skipped
 %   >> validate_horace (...'-exit_on_completion') % Exit Matlab when test suite ends.
 % Exits with non-zero error code if any tests failed
 
@@ -32,9 +34,9 @@ end
 % Parse arguments
 % ---------------
 options = {'-parallel',  '-talkative',  '-nomex',  '-forcemex',...
-    '-exit_on_completion','-no_system_tests'};
+    '-exit_on_completion','-no_system_tests','-nodisp_skipped'};
 [ok, mess, parallel, talkative, nomex, forcemex, ...
-    exit_on_completion,no_system, test_folders] = ...
+    exit_on_completion,no_system,nodisp_skipped,test_folders] = ...
     parse_char_options(varargin, options);
 
 if ~ok
@@ -126,6 +128,11 @@ if talkative
 else
     hec.log_level = -1; % turn off informational output
 end
+if nodisp_skipped
+    argi = {'-verbose','-nodisp_skipped'};
+else
+    argi = {'-verbose'};
+end
 
 if parallel && license('checkout',  'Distrib_Computing_Toolbox')
     cores = feature('numCores');
@@ -148,17 +155,18 @@ if parallel && license('checkout',  'Distrib_Computing_Toolbox')
     end
 
     test_ok = false(1, numel(test_folders_full));
+
     time = bigtic();
 
     parfor i = 1:numel(test_folders_full)
-        test_ok(i) = runtests(test_folders_full{i}, '-verbose')
+        test_ok(i) = runtests(test_folders_full{i}, argi{:})
     end
 
     bigtoc(time,  '===COMPLETED UNIT TESTS IN PARALLEL');
     tests_ok = all(test_ok);
 else
     time = bigtic();
-    tests_ok = runtests(test_folders_full{:}, '-verbose');
+    tests_ok = runtests(test_folders_full{:},  argi{:});
     bigtoc(time,  '===COMPLETED UNIT TESTS RUN ');
 
 end
