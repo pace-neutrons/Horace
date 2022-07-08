@@ -113,7 +113,6 @@ classdef test_pix_combine_info < TestCase
 
             assertEqual(pc.pix_range,PixelData.EMPTY_RANGE_);
 
-            assertEqual(pc.isvalid,true);
         end
     end
 end
