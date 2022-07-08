@@ -97,10 +97,9 @@ classdef main_header_cl < serializable
                         evalc('disp(varargin{1}))'))
                 end
             else
-                validators = {@ischar,@ischar,@ischar,@isnumeric};
                 param_names_list = obj.saveableFields();
                 [obj,remains] = obj.set_positional_and_key_val_arguments(...
-                    param_names_list(1:4),validators,varargin{:});
+                    param_names_list(1:4),varargin{:});
                 if ~isempty(remains)
                     error('HORACE:main_header:invalid_argument',...
                         '')

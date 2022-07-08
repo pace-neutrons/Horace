@@ -76,7 +76,6 @@ classdef test_pix_combine_info < TestCase
             assertFalse(pc.relabel_with_fnum)
             assertEqual(pc.pix_range,PixelData.EMPTY_RANGE_);
 
-            assertEqual(pc.isvalid,true);
         end
 
         function test_only_fnames_constructor(~)
@@ -95,7 +94,6 @@ classdef test_pix_combine_info < TestCase
             assertFalse(pc.relabel_with_fnum)
             assertEqual(pc.pix_range,PixelData.EMPTY_RANGE_);
 
-            assertEqual(pc.isvalid,true);
         end
 
         function test_empty_constructor(~)

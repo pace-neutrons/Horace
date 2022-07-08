@@ -95,7 +95,7 @@ classdef test_ortho_proj_construction<TestCase
             end
 
             assertExceptionThrown(@()test_wrong, ...
-                'HORACE:ortho_proj:runtime_error');
+                'HORACE:ortho_proj:invalid_argument');
         end
         function test_serialization(~)
             proj = ortho_proj([1,0,0],[0,1,0],'alatt',[2,3,4],'angdeg',[80,70,85]);

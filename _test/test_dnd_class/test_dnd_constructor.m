@@ -168,6 +168,7 @@ classdef test_dnd_constructor < TestCase
 
             % properties are mapped to an internal data structure; verify the getters and
             % setters are correctly wired
+            dnd_obj.do_check_combo_arg = false;
             for idx = 1:numel(test_prop)
                 prop_name = test_prop{idx};
                 test_value = sample_prop(prop_name);
@@ -175,6 +176,8 @@ classdef test_dnd_constructor < TestCase
                 assertEqual(dnd_obj.(prop_name), test_value, ...
                     sprintf('Value set to "%s" not returned', prop_name));
             end
+            dnd_obj.do_check_combo_arg = true;            
+            dnd_obj = dnd_obj.check_combo_arg();
 
             function setter(obj,prop)
                 val = obj.(prop);
