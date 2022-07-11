@@ -16,7 +16,7 @@ elseif isstruct(varargin{1}) % structure with oriented lattice fields
         obj.angular_units = input.angular_units;
         input = rmfield(input,'angular_units');
     end
-    obj = obj.from_bare_struct(input,false);
+    obj = obj.from_bare_struct(input);
     if numel(varargin)>1
         remains = varargin(2:end);
     end
@@ -24,15 +24,34 @@ elseif isnumeric(varargin{1}) || ischar(varargin{1}) % the initialization is don
     % arguments followed by key-value pairs or numeric positional arguments
     % followed (optionally) by key-value pairs
     %
-    [input,remains] = convert_inputs_to_structure(obj,varargin{:});
-    if isfield(input,'angular_units') % the constructor defines specific units for
-        % the angular values. It has to be set first
-        obj.angular_units = input.angular_units;
-        input = rmfield(input,'angular_units');
+    pos_par_names = oriented_lattice.lattice_parameters_;
+    pos_deg = numel(pos_par_names); % The location of deg/rad argument as positonal argument
+    if numel(varargin)>=pos_deg && ischar(varargin{pos_deg}) && ismember(varargin{pos_deg},{'deg','rad'})
+        % deg/rad argument is present as last postional argument
+        obj.angular_units = varargin{pos_deg};
+
+        keep = true(1,numel(varargin));
+        keep(pos_deg) = false;
+        if strcmp(varargin{pos_deg-1},'angular_units')
+            keep(pos_deg-1) = false;
+        end
+        argi = varargin(keep);
+    else
+        argi = varargin;
     end
-    obj = obj.from_bare_struct(input,false);
+    is_ang = cellfun(@(x)ischar(x)&&strcmp(x,'angular_units'),argi);
+    if any(is_ang) % the constructor defines specific units for
+        % the angular values. It has to be set first
+        au_key_num = find(is_ang);
+        au_val_num = au_key_num +1;
+        obj.angular_units = argi{au_val_num};
+        is_ang(au_val_num) = true;
+        argi = argi(~is_ang);
+    end
+    obj = set_positional_and_key_val_arguments(obj,...
+        pos_par_names,argi{:});
 else
-    error('HERBERT:oriented_lattcie:invalid_argument',...
+    error('HERBERT:oriented_lattice:invalid_argument',...
         ['oriented lattice may be constructed only with an input structure,'...
         ' containing the same fields as public fields of the oriented lattice itself or'...
         ' using constructor,containing positional arguments and key-value pairs']);
@@ -43,71 +62,4 @@ if ~isempty(remains)
         evalc('disp(remains)'));
 end
 
-if obj.throw_on_invalid
-    [ok,mess,obj] = check_combo_arg_(obj);
-    if ~ok
-        error('HERBERT:oriented_lattcie:invalid_argument',mess);
-    end
-end
 
-function  [input,remains] = convert_inputs_to_structure(obj,varargin)
-% All possible parameters
-remains = {};
-key_names = obj.lattice_parameters_;
-
-% find if deg/rad option is provided
-deg_rad = cellfun(@(x)(strncmp(x,'deg',3)||strncmp(x,'rad',3)),varargin);
-deg_rad_ind = find(deg_rad);
-if ~isempty(deg_rad_ind )&& deg_rad_ind>1
-    % is angular_units key located before deg|rad value
-    % or deg|rad is provided as positional argument?
-    deg_rad_key = deg_rad_ind-1;
-    is_reg_rad_key = ischar(varargin{deg_rad_key}) && ...
-        strcmp(varargin{deg_rad_key},'angular_units');
-else
-    is_reg_rad_key= false;
-end
-% remove deg/rad option from the list of the input options
-non_deg_rad = true(1,numel(varargin));
-if is_reg_rad_key
-    non_deg_rad(deg_rad_key) = false;
-    non_deg_rad(deg_rad_ind) = false;
-    key_names = key_names(1:end-1); % deg_rad key is the last key in the sequence
-else
-    if ~isempty(deg_rad_ind)
-        non_deg_rad(deg_rad_ind) = false;
-        key_names = key_names(1:end-1); % deg_rad key is the last key in the key sequence
-    end
-end
-argi = varargin(non_deg_rad);
-
-% identify how many positional numeric parameters are there
-is_num = cellfun(@isnumeric,argi);
-key_pos = find(~is_num);
-if isempty(key_pos)
-    last_pos_ind = numel(is_num);
-else
-    last_pos_ind = key_pos(1)-1;
-end
-if all(is_num) % all values provided as positional arguments
-    all_keys = key_names(is_num);
-    values    = argi;
-else % some arguments are positional and some are key-value pairs
-    assumed_keys = key_names(1:last_pos_ind);
-    provided_keys = argi(~is_num);
-    values = argi(is_num);
-    all_keys = [assumed_keys,provided_keys];
-end
-if numel(values)< numel(all_keys)
-    all_keys = all_keys(1:last_pos_ind);
-elseif numel(values)> numel(all_keys)
-    remains = values(numel(all_keys):1:end);
-end
-% convert identified keys and values into final structure
-input =  cell2struct(values, all_keys,2);
-
-if ~isempty(deg_rad_ind)
-    input.angular_units = varargin{deg_rad_ind};
-else
-    input.angular_units = obj.angular_units; %use default value
-end

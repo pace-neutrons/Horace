@@ -164,7 +164,6 @@ classdef loader_ascii < a_loader
             obj.file_name_ = full_file_name;
             obj.n_detindata_ = ndet;
             obj.en_ = en;
-            obj.isvalid_ = true;            
         end
     end
 end

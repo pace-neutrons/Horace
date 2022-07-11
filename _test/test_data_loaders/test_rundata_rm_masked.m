@@ -16,18 +16,23 @@ classdef test_rundata_rm_masked< TestCase
         end
         function test_throws_on_inconsisten_rundata(~)
             run=rundata();
+            run.do_check_combo_arg = false;
             run.S=ones(3,5);
             run.ERR=ones(3,5);
             run.det_par=ones(6,3);
+            run.do_check_combo_arg = true;            
             f = @()rm_masked(run);
             assertExceptionThrown(f,'HERBERT:rm_masked:invalid_argument');
         end
         function test_works_do_nothing(~)
             run=rundata();
+            run.do_check_combo_arg = false;            
             run.S=ones(3,5);
             run.ERR=ones(3,5);
             run.en = 1:4;
             run.det_par=ones(6,5);
+            run.do_check_combo_arg = true;            
+            run = run.check_combo_arg();
             [s,err,det]=rm_masked(run);
             
             assertEqual(run.S,s);
@@ -36,11 +41,12 @@ classdef test_rundata_rm_masked< TestCase
         end
         function test_works_removesNaNandInf(~)
             run=rundata();
+            run.do_check_combo_arg = false;                        
             run.S=ones(3,5);
             run.ERR=ones(3,5);
             run.en = 1:4;
             run.det_par=get_hor_format(ones(6,5),'fffff');
-            
+            run.do_check_combo_arg = true;                        
             run.S(1,1)=NaN;
             run.S(1,2)=Inf;
             
@@ -52,10 +58,13 @@ classdef test_rundata_rm_masked< TestCase
         end
         function test_all_masking_disabled(~)
             run=rundata();
+            run.do_check_combo_arg = false;                        
+            
             run.S=ones(3,5);
             run.ERR=ones(3,5);
             run.en = 1:4;
             run.det_par=get_hor_format(ones(6,5),'fffff');
+            run.do_check_combo_arg = true;                        
             
             run.S(1,1)=NaN;
             run.S(1,2)=Inf;
@@ -69,10 +78,13 @@ classdef test_rundata_rm_masked< TestCase
         
         function test_Inf_masking_disabled(~)
             run=rundata();
+            run.do_check_combo_arg = false;                        
+            
             run.S=ones(3,5);
             run.ERR=ones(3,5);
             run.en = 1:4;
             run.det_par=get_hor_format(ones(6,5),'fffff');
+            run.do_check_combo_arg = true;                        
             
             run.S(1,1)=NaN;
             run.S(1,2)=Inf;
@@ -86,10 +98,12 @@ classdef test_rundata_rm_masked< TestCase
         
         function test_NaN_masking_disabled(~)
             run=rundata();
+            run.do_check_combo_arg = false;                                    
             run.S=ones(3,5);
             run.ERR=ones(3,5);
             run.en = 1:4;
             run.det_par=get_hor_format(ones(6,5),'fffff');
+            run.do_check_combo_arg = true;                                    
             
             run.S(1,1)=NaN;
             run.S(1,2)=Inf;

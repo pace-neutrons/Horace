@@ -117,11 +117,6 @@ classdef ortho_proj<aProjection
         % inverted ub matrix, used to support alignment as in Horace 3.xxx
         % as real ub matrix is multiplied by alginment matrix
         ub_inv_compat_ = [];
-        % The property reports if the object is valid. It can become
-        % invalid if some fields have been set up incorrectly after
-        % creation (e.g. u set up parallel to v) See check_combo_arg_ for
-        % all options which may be invalid.
-        isvalid_ = true % empty ortho_proj considered true projection
     end
 
     methods
@@ -129,7 +124,7 @@ classdef ortho_proj<aProjection
         % Interfaces:
         %------------------------------------------------------------------
         % check interdependent projection arguments
-        [ok, mess, wout] = check_combo_arg (w)
+        wout = check_combo_arg (w)
         % set u,v & w simulataniously
         obj = set_axes (obj, u, v, w)
         %------------------------------------------------------------------
@@ -154,13 +149,12 @@ classdef ortho_proj<aProjection
             if nargin == 0
                 return
             end
+            obj.do_check_combo_arg_  = false;
             [obj,remains] = process_positional_args_(obj,varargin{:});
             [obj,remains] = init@aProjection(obj,remains{:});
             [obj,remains] = process_keyval_args_(obj,remains{:});
-            [ok,mess,obj] = obj.check_combo_arg();
-            if ~ok
-                error('HORACE:ortho_proj:invalid_argument',mess);
-            end
+            obj.do_check_combo_arg_  = true;
+            obj = obj.check_combo_arg();
         end
         %-----------------------------------------------------------------
         %-----------------------------------------------------------------
@@ -169,7 +163,9 @@ classdef ortho_proj<aProjection
         end
         function obj = set.u(obj,val)
             obj = check_and_set_uv_(obj,'u',val);
-            [~,~,obj] = check_combo_arg_(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg_(obj);
+            end
         end
         %
         function v = get.v(obj)
@@ -177,7 +173,10 @@ classdef ortho_proj<aProjection
         end
         function obj = set.v(obj,val)
             obj = check_and_set_uv_(obj,'v',val);
-            [~,~,obj] = check_combo_arg_(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg_(obj);
+            end
+
         end
         %
         function w = get.w(obj)
@@ -185,7 +184,10 @@ classdef ortho_proj<aProjection
         end
         function obj = set.w(obj,val)
             obj = check_and_set_w_(obj,val);
-            [~,~,obj] = check_combo_arg_(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg_(obj);
+            end
+
         end
         %
         function no=get.nonorthogonal(obj)
@@ -200,7 +202,10 @@ classdef ortho_proj<aProjection
         end
         function obj=set.type(obj,type)
             obj = check_and_set_type_(obj,type);
-            [~,~,obj] = check_combo_arg_(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg_(obj);
+            end
+
         end
         % -----------------------------------------------------------------
         % OLD sqw object interface compartibility functions
@@ -214,10 +219,8 @@ classdef ortho_proj<aProjection
             obj.v_ = vr;
             obj.w_ = wr;
             obj.type = tpe;
-            [ok,mess,obj] = check_combo_arg_(obj);
-            if ~ok
-                error('HORACE:ortho_proj:invalid_argument',...
-                    'Can not set uv from ub-matrix: %s',mess);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg_(obj);
             end
         end
         %

@@ -20,6 +20,8 @@ function err = validate_horace(varargin)
 %   >> validate_horace (...'-forcemex') %  Enforce use of mex files only. The
 %                                       % default otherwise for Horace to revert to
 %                                       % using matlab code.
+%   >> validate_horace (...'-nodisp_skipped') %  print only list of failed
+%                                       %        tests, ignoring skipped
 %   >> validate_horace (...'-exit_on_completion') % Exit Matlab when test suite ends.
 % Exits with non-zero error code if any tests failed
 
@@ -31,8 +33,10 @@ end
 
 % Parse arguments
 % ---------------
-options = {'-parallel',  '-talkative',  '-nomex',  '-forcemex',  '-exit_on_completion'};
-[ok, mess, parallel, talkative, nomex, forcemex, exit_on_completion, test_folders] = ...
+options = {'-parallel',  '-talkative',  '-nomex',  '-forcemex',...
+    '-exit_on_completion','-no_system_tests','-nodisp_skipped'};
+[ok, mess, parallel, talkative, nomex, forcemex, ...
+    exit_on_completion,no_system,nodisp_skipped,test_folders] = ...
     parse_char_options(varargin, options);
 
 if ~ok
@@ -53,7 +57,7 @@ if isempty(test_folders)% no tests specified on command line - run them all
         'test_converters',...
         'test_dnd', ...
         'test_dnd_class', ...
-        'test_experiment', ...        
+        'test_experiment', ...
         'test_gen_sqw_for_powders', ...
         'test_herbert_utilites', ...
         'test_mex_nomex', ...
@@ -67,10 +71,18 @@ if isempty(test_folders)% no tests specified on command line - run them all
         'test_sqw_file', ...
         'test_sqw_class', ...
         'test_sqw_pixels', ...
-        'test_tobyfit', ...
+        'test_TF_components', ...
+        'test_TF_let', ...
+        'test_TF_refine_crystal', ...
         'test_gen_sqw_workflow' ...
         % 'test_spinw_integration', ...
         };
+end
+system_tests = {'test_TF_components','test_TF_let','test_TF_refine_crystal',...
+    'test_gen_sqw_workflow'};
+if no_system
+    no_sys = ~ismember(test_folders,system_tests);
+    test_folders = test_folders(no_sys );
 end
 
 % Generate full test paths to unit tests
@@ -119,6 +131,11 @@ if talkative
 else
     hec.log_level = -1; % turn off informational output
 end
+if nodisp_skipped
+    argi = {'-verbose','-nodisp_skipped'};
+else
+    argi = {'-verbose'};
+end
 
 if parallel && license('checkout',  'Distrib_Computing_Toolbox')
     cores = feature('numCores');
@@ -141,17 +158,18 @@ if parallel && license('checkout',  'Distrib_Computing_Toolbox')
     end
 
     test_ok = false(1, numel(test_folders_full));
+
     time = bigtic();
 
     parfor i = 1:numel(test_folders_full)
-        test_ok(i) = runtests(test_folders_full{i}, '-verbose')
+        test_ok(i) = runtests(test_folders_full{i}, argi{:})
     end
 
     bigtoc(time,  '===COMPLETED UNIT TESTS IN PARALLEL');
     tests_ok = all(test_ok);
 else
     time = bigtic();
-    tests_ok = runtests(test_folders_full{:}, '-verbose');
+    tests_ok = runtests(test_folders_full{:},  argi{:});
     bigtoc(time,  '===COMPLETED UNIT TESTS RUN ');
 
 end

@@ -64,10 +64,6 @@ savefile='test_tobyfit_let_2_out.mat';
 
 error_on_failure = true;
 
-test_tobyfit_dir = fullfile(horace_root(), '_test', 'test_tobyfit');
-addpath(test_tobyfit_dir)
-cleanup = onCleanup(@() rmpath(test_tobyfit_dir));
-
 % This seed provides a passing test at time of writing
 fixed_seed = 503057;
 [rng_state, old_rng_state] = seed_rng(fixed_seed);

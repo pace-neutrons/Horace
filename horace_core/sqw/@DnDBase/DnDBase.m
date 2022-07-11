@@ -72,7 +72,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
 
         wout = sqw_eval_pix_(wout, sqwfunc, ave_pix, pars);
 
-        function obj = from_old_struct(obj,inputs)
+        function obj = from_old_struct(obj,inputs)            
             % Restore object from the old structure, which describes the
             % previous version of the object.
             %

@@ -27,7 +27,8 @@ obj = IX_sample();  % default instance of the object
 
 % Version history
 % ----------------
-%   unversioned Old-style matlab class with properties identical to
+%   unversioned Old-style Matlab class with properties identical to
+%   unversioned Old-style Matlab class with properties identical to
 %               current (July 2019) public properties
 %
 %   1           Class defined by classdef construct. Independent properties

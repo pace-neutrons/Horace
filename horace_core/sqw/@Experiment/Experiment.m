@@ -19,8 +19,6 @@ classdef Experiment < serializable
         % unfortunately, if it does not happen, it still may be old file
         % with incorrect header->pixel.run_indx connection.
         runid_recalculated_ = false;
-        % property which informs about experiment class validity
-        isvalid_ = true;
     end
 
     properties (Dependent)
@@ -117,7 +115,9 @@ classdef Experiment < serializable
                 error('HORACE:Experiment:invalid_argument', ...
                     'Detector array must be one or an array of IX_detector_array object')
             end
-            [~,~,obj] = check_combo_arg(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end            
         end
         %
         function val=get.instruments(obj)
@@ -132,7 +132,9 @@ classdef Experiment < serializable
                     'instruments must be a cellarray or array of IX_inst objects . In fact it is %s',...
                     class(val));
             end
-            [~,~,obj] = check_combo_arg(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
         end
         %
         function val=get.samples(obj)
@@ -147,7 +149,10 @@ classdef Experiment < serializable
                     'Samples must be a cellarray or array of IX_samp objects . In fact it is %s',...
                     class(val));
             end
-            [~,~,obj] = check_combo_arg(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
+
         end
         %
         function val=get.expdata(obj)
@@ -168,7 +173,10 @@ classdef Experiment < serializable
             end
             obj.expdata_ = val(:)';
             obj = build_runid_map_(obj);
-            [~,~,obj] = check_combo_arg(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
+
         end
         %
         function map = get.runid_map(obj)
@@ -194,7 +202,10 @@ classdef Experiment < serializable
                     class(val))
             end
             obj = set_runids_map_and_synchonize_headers_(obj,keys);
-            [~,~,obj] = check_combo_arg(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
+
         end
         %------------------------------------------------------------------
         function is = get.runid_recalculated(obj)
@@ -237,7 +248,7 @@ classdef Experiment < serializable
         function exp = get_experiments(obj,ind)
             % return experiment info, which corresponds to the appropriate
             % experiment indexes provided.
-            % 
+            %
             % Inputs:
             % obj -- the instance of the experiment
             % ind -- array of the indexes, to select experiments for.
@@ -401,29 +412,21 @@ classdef Experiment < serializable
             flds = Experiment.fields_to_save_;
         end
         %
-        function [ok,mess,obj] = check_combo_arg(obj)
+        function obj = check_combo_arg(obj)
             % verify consistency of Experiment containers
             %
             % Inputs:
             % obj  -- the initialized instance of Experiment obj
             %
-            % Returns:
-            % ok  -- logical, true if Experiment components are consistent,
-            %        false, otherwise
-            % mess -- empty if ok == true, and text, describing the reason
-            %         for failure if ok == false
-            % obj -- the initial obj with property isvalid_ set to ok
-            %        value.
-            %
-            [ok,mess,obj] = check_combo_arg_(obj);
+            % Returns: unchanged object if Experiment components are
+            %          consistent.
+            %          Throws HORACE:Experiment:invalid_argument with
+            %          details of the issue if they are not
+            obj = check_combo_arg_(obj);
         end
     end
 
     methods(Access=protected)
-        function is = check_validity(obj)
-            is = obj.isvalid_;
-        end
-
         %------------------------------------------------------------------
         function obj = from_old_struct(obj,inputs)
             % Restore object from the old structure, which describes the
