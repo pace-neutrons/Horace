@@ -90,10 +90,10 @@ fields_undef = fields_undef(~is_in_loader);
 % necessary fields are still undefined by the run
 if ~isempty(fields_undef)
     undefined = 2;
-    if config_store.instance().get_value('herbert_config','log_level') > 0 && ~isempty(run.loader)
+    if config_store.instance().get_value('herbert_config','log_level') > 1 && ~isempty(run.loader)
         undef_field_names = strjoin(fields_undef,'; ');
         sprintf('The fields: %s are needed but neither defined on interface nor can be provided in loader %s\n',...
-            undef_field_names,class(run.loader) )
+            undef_field_names,class(run.loader));
     end
 
 end

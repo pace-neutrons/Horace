@@ -19,7 +19,7 @@ classdef test_main_header_operates_properly< TestCase
             obj.sample_dir = fullfile(tests_dir,'common_data');
             obj.working_dir = tmp_dir();
         end
-        function equal_date = get_close_date(~,date_tested,date_now)
+        function equal_date = get_close_date(~,date_tested,date_now,time_spawn)
             % helper routine to get current date and time, close to one,
             % to be obtained from main_header_cl method, with purpose of
             % testing the date to have expected value
@@ -28,20 +28,32 @@ classdef test_main_header_operates_properly< TestCase
             % Inputs:
             % date_tested -- the date, obtained from main_header_cl.creation_date
             %                function,
+            % date_now    -- reference date, the tested date checked on the
+            %                difference from. If omitted, equal to the date
+            %                now.
+            % time_spawn  -- number of second, the close date may differ
+            %                from the date_now date.
             if ~exist('date_now','var')
                 date_now = datetime("now");
             end
+            if ~exist('time_spawn','var')
+                time_spawn = 1;
+            end
             % in case date_tested returned a second earlier time,
             % modify dt_now to be 1 sec earlier
-            date_now_m = date_now;
-            date_now_m.Second = date_now_m.Second-1;
-            date_now_p = date_now;
-            date_now_p.Second = date_now_p.Second+1;
-            %
+            n_dates = 1+2*time_spawn;
+            date0 = date_now;
+            date0.Second = date0.Second - time_spawn;
+            date_range = cell(n_dates,1);
+            for i=1:n_dates
+                date_t = date0;
+                date_t.Second = date0.Second+(i-1);
+                date_range{i} = date_t;
+            end
             % convert to properly formatted strings
-            dates = {main_header_cl.convert_datetime_to_str(date_now),...
-                main_header_cl.convert_datetime_to_str(date_now_m),...
-                main_header_cl.convert_datetime_to_str(date_now_p)};
+            dates = cellfun(@(x)main_header_cl.convert_datetime_to_str(x), ...
+                date_range,'UniformOutput',false);
+            %
             is_eq = ismember(dates,date_tested);
             if any(is_eq)
                 equal_date = dates{is_eq};
@@ -72,7 +84,11 @@ classdef test_main_header_operates_properly< TestCase
             test_file = fullfile(obj.working_dir,'sample_test_load_save_sqw.sqw');
             clOb = onCleanup(@()delete(test_file));
 
+            % remember current date
             write_date = datetime('now');
+            % new file with undefined write date should be written with
+            % current date (couple of seconds difference on IO)
+            % This makes the write date defined.
             write_sqw(w1,test_file);
             w1_rec = read_sqw(test_file);
 
@@ -80,7 +96,7 @@ classdef test_main_header_operates_properly< TestCase
             assertTrue(isa(w1_rec.main_header,'main_header_cl'));
 
             near_date = obj.get_close_date( ...
-                w1_rec.main_header.creation_date,write_date);
+                w1_rec.main_header.creation_date,write_date,4);
             assertEqual(near_date,w1_rec.main_header.creation_date)
         end
 

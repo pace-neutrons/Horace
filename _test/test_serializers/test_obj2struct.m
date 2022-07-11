@@ -71,7 +71,6 @@ classdef test_obj2struct < TestCaseWithSave
             Sres = obj2struct(S);
 
             assertEqualWithSave (self,Sres);
-
         end
 
         %--------------------------------------------------------------------------

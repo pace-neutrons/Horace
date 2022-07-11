@@ -21,6 +21,9 @@ classdef TestRunDisplay < TestRunMonitor
 %   Modified J. Wilkins 19-01-2021
 
 %   Copyright 2008-2010 The MathWorks, Inc.
+    properties
+        disp_fail_only = false;
+    end
 
     properties (SetAccess = private)
         %TestCaseCount - Number of test cases executed
@@ -202,8 +205,11 @@ classdef TestRunDisplay < TestRunMonitor
                 elseif strcmp(faultData.Type, 'skip')
                     % Only print if verbose
                     %if ~isa(self, 'VerboseTestRunDisplay')
-                    %    continue
+                    %    continue                    
                     %end
+                    if self.disp_fail_only
+                        continue;
+                    end                    
                     str = 'Skipped';
                 else
                     str = 'Error';

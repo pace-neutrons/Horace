@@ -30,7 +30,7 @@ classdef test_fix_magnetic_ff< TestCase
         end
 
         % tests themself
-        function test_magnetic_Ions(this)
+        function test_magnetic_Ions(~)
             mi = MagneticIons();
             [J0,J2,J4,J6] = mi.getInterpolant('Fe0');
 

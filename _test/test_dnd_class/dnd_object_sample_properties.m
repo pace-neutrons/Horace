@@ -20,4 +20,4 @@ sample_properties('img_range') =[-1,-2,-3,-4;2,3,4,5];
 sample_properties('nbins_all_dims') = [10,20,30,40];
 sample_properties('dax') = [1,2,3,4];
 
-dependent_properties = {'iint','iax','p','pax','isvalid'};
+dependent_properties = {'iint','iax','p','pax'};

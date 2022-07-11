@@ -118,7 +118,7 @@ classdef test_dnd_constructor < TestCase
                 'filename', 'filepath', 'title', 'alatt', 'angdeg', ...
                 'uoffset', 'u_to_rlu', 'ulen', 'label', 'iax', ...
                 'iint', 'pax', 'p', 'dax', 's', 'e', 'npix','data',...
-                'img_range','nbins_all_dims','isvalid'};
+                'img_range','nbins_all_dims'};
 
             actual_props = fieldnames(dnd_obj);
 
@@ -161,13 +161,14 @@ classdef test_dnd_constructor < TestCase
             isdata = ismember(class_props,'data');
             class_props = class_props(~isdata);
             [sample_prop,dep_prop]=dnd_object_sample_properties();
-            test_prop = sample_prop.keys;            
+            test_prop = sample_prop.keys;
      
             % included all properties, forgot nothing
             assertTrue(all(ismember(class_props,[test_prop(:);dep_prop(:)])))
 
             % properties are mapped to an internal data structure; verify the getters and
             % setters are correctly wired
+            dnd_obj.do_check_combo_arg = false;
             for idx = 1:numel(test_prop)
                 prop_name = test_prop{idx};
                 test_value = sample_prop(prop_name);
@@ -175,7 +176,8 @@ classdef test_dnd_constructor < TestCase
                 assertEqual(dnd_obj.(prop_name), test_value, ...
                     sprintf('Value set to "%s" not returned', prop_name));
             end
-            assertTrue(dnd_obj.isvalid);
+            dnd_obj.do_check_combo_arg = true;            
+            dnd_obj = dnd_obj.check_combo_arg();
 
             function setter(obj,prop)
                 val = obj.(prop);

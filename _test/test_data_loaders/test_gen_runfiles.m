@@ -82,19 +82,21 @@ classdef test_gen_runfiles< TestCase
                 this.test_files{i}=...
                     fullfile(tmp_dir,['test_gen_runfiles_test_files_',num2str(i),'.nxspe']);
                 rd = rundata();
+                rd.do_check_combo_arg= false;
                 rd.efix = this.efix(i);
                 rd.en   = this.en{i};
                 nen = numel(this.en{i})-1;
                 S = ones(nen,ndet);
                 S(:,1) = NaN;
                 S(:,10) = NaN;
-                or = oriented_lattice();
-                or.psi = this.psi(i);
-                rd.lattice = or;
+
+                rd.lattice = oriented_lattice(3,90,this.psi(i));
                 rd.S   = S;
                 rd.ERR = ones(nen ,ndet);
                 rd.par_file_name = this.par_file;
                 rd.det_par = det_ld;
+                rd.do_check_combo_arg= true;                
+                rd = rd.check_combo_arg();
                 saveNxspe(this.test_files{i},rd)
             end
             this.clob = onCleanup(@()delete(this));

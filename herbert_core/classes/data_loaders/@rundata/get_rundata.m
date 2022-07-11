@@ -234,7 +234,9 @@ end
 % modify result to return only detectors and data which not contain NaN and
 % Inf
 if suppress_nan
+    this.do_check_combo_arg = false;
     [this.S,this.ERR,this.det_par]=rm_masked(this);
+    this.do_check_combo_arg = true;
 end
 
 % what and how to return the result

@@ -1,4 +1,4 @@
-function this = set_lattice_field(this,name,val,varargin)
+function obj = set_lattice_field(obj,name,val,varargin)
 % method sets a field of  lattice if the lattice
 % present and initiates the lattice first if it is not present
 %Usage:
@@ -10,20 +10,21 @@ function this = set_lattice_field(this,name,val,varargin)
 %                      is set only if it is undefined
 %
 options = {'-ifempty','-if_undef'};
-if isempty(this.lattice_)
-    this.lattice_ = oriented_lattice();
+if isempty(obj.lattice_)
+    obj.lattice_ = oriented_lattice();
+    obj.lattice_.do_check_combo_arg = obj.do_check_combo_arg_;
     if_empty = false;
 else
     [ok,mess,if_empty,if_undef]=parse_char_options(varargin,options);
     if ~ok
-        error('RUNDATA:set_lattice_field',mess);
+        error('HERBERT:rundata:invalid_argument',mess);
     end
     if_empty = if_empty||if_undef;
 end
 if if_empty
-    if ~this.lattice_.is_defined(name)
-        this.lattice_.(name)=val;
+    if ~obj.lattice_.is_defined(name)
+        obj.lattice_.(name)=val;
     end
 else
-    this.lattice_.(name)=val;
+    obj.lattice_.(name)=val;
 end
