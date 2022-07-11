@@ -1,4 +1,4 @@
-function obj=set_axis_bins_(obj,varargin)
+function obj=set_axis_bins_(obj,ndims,varargin)
 % Calculates and sets plot and integration axes from binning information
 %
 %   >> obj=calc_axis_bins_(obj,p1,p2,p3,p4)
@@ -41,9 +41,12 @@ function obj=set_axis_bins_(obj,varargin)
 %
 
 
-if nargin ~=5
+if nargin ~=6
     error('HORACE:axes_block:invalid_argument',...
         'Must have four and only four binning descriptors');
+end
+if isempty(ndims)
+     ndims = sum(cellfun(@(x)(~isempty(x)&&numel(x)>2)),varargin);
 end
 
 range = zeros(2,4);
@@ -53,8 +56,24 @@ for i=1:4
     range(:,i) = range1;
     nbins(i) = nbins1;
 end
+% reset up dimensions for empty constructor
+nd_avail = sum(nbins>1);
+if nd_avail  ~= ndims
+    for i=1:4
+        if nbins(i)==1
+            nbins(i)=2;
+            nd_avail = nd_avail+1;
+            if nd_avail == ndims
+                break;
+            end
+        end
+    end
+end
 obj.img_range = range;
 obj.nbins_all_dims = nbins;
+if obj.n_dims ~= ndims
+
+end
 
 
 %----------------------------------------------------------------------------------------

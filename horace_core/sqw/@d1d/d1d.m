@@ -13,11 +13,7 @@ classdef d1d < DnDBase
 
     methods
         function obj = d1d(varargin)
-            obj = obj@DnDBase(varargin{:});
-            if nargin==0
-                obj.nbins_all_dims = [2,1,1,1];
-            end
-            
+            obj = obj@DnDBase(varargin{:});            
         end
 
         wout = cut (varargin);

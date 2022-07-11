@@ -46,8 +46,8 @@ args = struct(...
     'dnd_obj',              [], ...
     'sqw_obj',              [], ...
     'filename',             [], ...
-    'data_struct',          [], ...
-    'data_sqw_dnd',         []);
+    'data_struct',          [] ...
+    );
 
 
 if isa(input_data, 'SQWDnDBase')
@@ -69,8 +69,11 @@ elseif iscellstr(input_data)||isstring(input_data) % cellarray of filenames
 elseif isstruct(input_data) && ~isempty(input_data)
     args.data_struct = input_data;
 else
-    % create struct holding default instance
-    args.data_struct = data_sqw_dnd(obj.NUM_DIMS);
+    % create struct holding default instance contents
+    args.data_struct.axes =   axes_block(obj.NUM_DIMS);
+    args.data_struct.proj =   ortho_proj();
+    sz = args.data_struct.axes.dims_as_ssize;
+    args.data_struct = init_arrays_(args.data_struct,sz);
 end
 
 end

@@ -26,7 +26,6 @@ set(TEST_DIRECTORIES_HORACE
     "test_combine"
     "test_configuration"
     "test_converters"
-    "test_dnd"
     "test_dnd_class"
     "test_experiment"
     "test_gen_sqw_for_powders"

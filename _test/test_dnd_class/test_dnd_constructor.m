@@ -36,108 +36,6 @@ classdef test_dnd_constructor < TestCase
         end
 
 
-        %% Class properties
-        function test_d0d_contains_expected_properties(obj)
-            dnd_obj = d0d();
-            obj.assert_dnd_contains_expected_properties(dnd_obj);
-        end
-
-        function test_d1d_contains_expected_properties(obj)
-            dnd_obj = d1d();
-            obj.assert_dnd_contains_expected_properties(dnd_obj);
-        end
-
-        function test_d2d_contains_expected_properties(obj)
-            dnd_obj = d2d();
-            obj.assert_dnd_contains_expected_properties(dnd_obj);
-        end
-
-        function test_d3d_contains_expected_properties(obj)
-            dnd_obj = d3d();
-            obj.assert_dnd_contains_expected_properties(dnd_obj);
-        end
-
-        function test_d4d_contains_expected_properties(obj)
-            dnd_obj = d4d();
-            obj.assert_dnd_contains_expected_properties(dnd_obj);
-        end
-
-        function assert_dnd_contains_expected_properties(~, dnd_obj)
-            expected_props = { ...
-                'filename', 'filepath', 'title', 'alatt', 'angdeg', ...
-                'uoffset', 'u_to_rlu', 'ulen', 'label', 'iax', ...
-                'iint', 'pax', 'p', 'dax', 's', 'e', 'npix','data',...
-                'img_range','nbins_all_dims'};
-
-            actual_props = fieldnames(dnd_obj);
-
-            assertEqual(numel(actual_props), numel(expected_props));
-            for idx = 1:numel(actual_props)
-                assertTrue( ...
-                    ismember(actual_props(idx),expected_props), ...
-                    sprintf('Unrecognised DnD property "%s"', actual_props{idx}));
-            end
-        end
-
-        %% getters/setters
-        function test_d0d_get_returns_set_properties(obj)
-            dnd_obj = d0d();
-            obj.assert_dnd_get_returns_set_properties(dnd_obj);
-        end
-
-        function test_d1d_get_returns_set_properties(obj)
-            dnd_obj = d1d();
-            obj.assert_dnd_get_returns_set_properties(dnd_obj);
-        end
-
-        function test_d2d_get_returns_set_properties(obj)
-            dnd_obj = d2d();
-            obj.assert_dnd_get_returns_set_properties(dnd_obj);
-        end
-
-        function test_d3d_get_returns_set_properties(obj)
-            dnd_obj = d3d();
-            obj.assert_dnd_get_returns_set_properties(dnd_obj);
-        end
-
-        function test_d4d_get_returns_set_properties(obj)
-            dnd_obj = d4d();
-            obj.assert_dnd_get_returns_set_properties(dnd_obj);
-        end
-
-        function assert_dnd_get_returns_set_properties(~, dnd_obj)
-            class_props = fieldnames(dnd_obj);
-            isdata = ismember(class_props,'data');
-            class_props = class_props(~isdata);
-            [sample_prop,dep_prop]=dnd_object_sample_properties();
-            test_prop = sample_prop.keys;
-     
-            % included all properties, forgot nothing
-            assertTrue(all(ismember(class_props,[test_prop(:);dep_prop(:)])))
-
-            % properties are mapped to an internal data structure; verify the getters and
-            % setters are correctly wired
-            dnd_obj.do_check_combo_arg = false;
-            for idx = 1:numel(test_prop)
-                prop_name = test_prop{idx};
-                test_value = sample_prop(prop_name);
-                dnd_obj.(prop_name) = test_value;
-                assertEqual(dnd_obj.(prop_name), test_value, ...
-                    sprintf('Value set to "%s" not returned', prop_name));
-            end
-            dnd_obj.do_check_combo_arg = true;
-            dnd_obj = dnd_obj.check_combo_arg();
-
-            function setter(obj,prop)
-                val = obj.(prop);
-                obj.(prop) = val;
-            end
-            for idx=1:numel(dep_prop)
-                assertExceptionThrown(@()setter(dnd_obj,dep_prop{idx}), ...
-                    'MATLAB:class:noSetMethod');
-            end
-
-        end
 
         %% Copy
         function test_copy_constructor_clones_d2d_object(obj)
@@ -316,5 +214,108 @@ classdef test_dnd_constructor < TestCase
                 assertTrue(isa(dnd_obj, 'SQWDnDBase'));
             end
         end
+        %% getters/setters
+        function test_d0d_get_returns_set_properties(obj)
+            dnd_obj = d0d();
+            obj.assert_dnd_get_returns_set_properties(dnd_obj);
+        end
+
+        function test_d1d_get_returns_set_properties(obj)
+            dnd_obj = d1d();
+            obj.assert_dnd_get_returns_set_properties(dnd_obj);
+        end
+
+        function test_d2d_get_returns_set_properties(obj)
+            dnd_obj = d2d();
+            obj.assert_dnd_get_returns_set_properties(dnd_obj);
+        end
+
+        function test_d3d_get_returns_set_properties(obj)
+            dnd_obj = d3d();
+            obj.assert_dnd_get_returns_set_properties(dnd_obj);
+        end
+
+        function test_d4d_get_returns_set_properties(obj)
+            dnd_obj = d4d();
+            obj.assert_dnd_get_returns_set_properties(dnd_obj);
+        end
+
+        function assert_dnd_get_returns_set_properties(~, dnd_obj)
+            class_props = fieldnames(dnd_obj);
+            isdata = ismember(class_props,'data');
+            class_props = class_props(~isdata);
+            [sample_prop,dep_prop]=dnd_object_sample_properties();
+            test_prop = sample_prop.keys;
+     
+            % included all properties, forgot nothing
+            assertTrue(all(ismember(class_props,[test_prop(:);dep_prop(:)])))
+
+            % properties are mapped to an internal data structure; verify the getters and
+            % setters are correctly wired
+            dnd_obj.do_check_combo_arg = false;
+            for idx = 1:numel(test_prop)
+                prop_name = test_prop{idx};
+                test_value = sample_prop(prop_name);
+                dnd_obj.(prop_name) = test_value;
+                assertEqual(dnd_obj.(prop_name), test_value, ...
+                    sprintf('Value set to "%s" not returned', prop_name));
+            end
+            dnd_obj.do_check_combo_arg = true;
+            dnd_obj = dnd_obj.check_combo_arg();
+
+            function setter(obj,prop)
+                val = obj.(prop);
+                obj.(prop) = val;
+            end
+            for idx=1:numel(dep_prop)
+                assertExceptionThrown(@()setter(dnd_obj,dep_prop{idx}), ...
+                    'MATLAB:class:noSetMethod');
+            end
+
+        end
+        %% Class properties
+        function test_d4d_contains_expected_properties(obj)
+            dnd_obj = d4d();
+            obj.assert_dnd_contains_expected_properties(dnd_obj);
+        end
+        
+        function test_d3d_contains_expected_properties(obj)
+            dnd_obj = d3d();
+            obj.assert_dnd_contains_expected_properties(dnd_obj);
+        end
+                
+        function test_d2d_contains_expected_properties(obj)
+            dnd_obj = d2d();
+            obj.assert_dnd_contains_expected_properties(dnd_obj);
+        end
+
+        function test_d1d_contains_expected_properties(obj)
+            dnd_obj = d1d();
+            obj.assert_dnd_contains_expected_properties(dnd_obj);
+        end
+
+        function test_d0d_contains_expected_properties(obj)
+            dnd_obj = d0d();
+            obj.assert_dnd_contains_expected_properties(dnd_obj);
+        end        
+
+        function assert_dnd_contains_expected_properties(~, dnd_obj)
+            expected_props = { ...
+                'filename', 'filepath', 'title', 'alatt', 'angdeg', ...
+                'label', 'iax','offset' ...
+                'iint', 'pax', 'p', 'dax', 's', 'e', 'npix',...
+                'img_range','axes','proj'};
+            % moved elsewhere: 'uoffset', 'u_to_rlu', 'ulen',
+            actual_props = fieldnames(dnd_obj);
+
+            assertEqual(numel(actual_props), numel(expected_props));
+            for idx = 1:numel(actual_props)
+                assertTrue( ...
+                    ismember(actual_props(idx),expected_props), ...
+                    sprintf('Unrecognised DnD property "%s"', actual_props{idx}));
+            end
+        end
+
+        
     end
 end

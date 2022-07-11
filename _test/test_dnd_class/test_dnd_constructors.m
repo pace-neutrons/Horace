@@ -34,10 +34,7 @@ classdef test_dnd_constructors< TestCase
             %  >> w = d2d (lattice,...)    % Give lattice parameters [a,b,c,alf,bet,gam]
             %  >> w = d2d (lattice,u0,...) % Give u0 and lattice parameters
             
-            
-            
-            t2 = d2d();
-            assertTrue(isa(t2,'d2d'))
+                        
             t2 = d2d(fullfile(this.test_data,'w2d_qq_d2d.sqw'));
             assertTrue(isa(t2,'d2d'))
             skipTest('dnd object needs refactoring according to #796')

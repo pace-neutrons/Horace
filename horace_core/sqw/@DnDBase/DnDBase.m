@@ -9,7 +9,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         %        'uoffset','u_to_rlu','ulen','label',...
         %        'dax','img_range','nbins_all_dims','s','e','npix'};
 
-        fields_to_save = {'s','e','npix','proj','axes'}
+        fields_to_save_ = {'s','e','npix','proj','axes'}
     end
 
     % The depdendent props here have been created solely to retain the (old) DnD object API during the refactor.
@@ -35,13 +35,17 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         p % Cell array containing bin boundaries along the plot axes [column vectors]
         %                       i.e. row cell array{data.p{1}, data.p{2} ...}
         pax % Index of plot axes into the projection axes  [row vector]
+        %
+        img_range % the whole 4D range of the object in appropriate axes
+        %           coordinate system
         %------------------------------------------------------------------
         % DND object interface
         s % Cumulative signal
         e % Cumulative variance
         npix % Number of contributing pixels to each bin of the plot axes
 
-        proj %
+        axes % access to the axess block class directly
+        proj % access to projection class directly
     end
     properties(Hidden,Dependent)
         % the temporary property, which binds data_sqw_dnd and dnd object
@@ -52,19 +56,14 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         e_    %cumulative variance size(data.e) == axes_block.dims_as_ssize
         npix_ %No. contributing pixels to each bin of the plot axes. size(data.npix) == axes_block.dims_as_ssize
         axes_ = axes_block(); % axes block describing size and shape of the dnd object.
-        proj_ = ortho_proj(); % Object defining the transformation, used to
-        % convert coordinates in Crystal Cartesian coordinate system to the
-        % dnd object image coordinate system
-        isvalid_;
+        proj_ = ortho_proj(); % Object defining the transformation, used to convert data from
+        %                      crystal Cartesian coordinate system to this
+        %                      image coordinate system.
+        offset_=[0;0;0;0]  %   Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]        
     end
 
 
     methods(Access = protected)
-        function is = check_validity(obj)
-            % overload this property to verify validity of interdependent
-            % properties
-            is = obj.isvalid_;
-        end
 
         wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
@@ -72,7 +71,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
 
         wout = sqw_eval_pix_(wout, sqwfunc, ave_pix, pars);
 
-        function obj = from_old_struct(obj,inputs)            
+        function obj = from_old_struct(obj,inputs)
             % Restore object from the old structure, which describes the
             % previous version of the object.
             %
@@ -158,7 +157,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             if args.array_numel>1
                 obj = repmat(obj,args.array_size);
             elseif args.array_numel==0
-                obj = init_from_loader_struct_(obj,args.data_struct);
+                obj = obj.from_bare_struct(args.data_struct);
             end
             for i=1:args.array_numel
                 % i) copy
@@ -166,7 +165,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                     obj(i) = copy(args.dnd_obj(i));
                     % ii) struct
                 elseif ~isempty(args.data_struct)
-                    obj(i) = init_from_loader_struct_(obj(i),args.data_struct(i));
+                    obj(i) = obj(i).from_bare_struct(args.data_struct(i));
                     % iia) data_sqw_dnd_obj
                 elseif ~isempty(args.data_sqw_dnd)
                     obj(i) = init_from_data_sqw_dnd_(obj(i),args.data_sqw_dnd(i));
@@ -236,16 +235,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         end
         %
         function val = get.offset(obj)
-            obj.proj_.offset;
-            val = [];
-            if ~isempty(obj.data_)
-                val = obj.data_.uoffset;
-            end
+            val = obj.proj_.offset;
         end
-        %         function obj = set.uoffset(obj, uoffset)
-        %             obj.data_.uoffset = uoffset;
-        %         end
-        %
         %         function val = get.u_to_rlu(obj)
         %             val = [];
         %             if ~isempty(obj.data_)
@@ -295,7 +286,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function obj = set.dax(obj, dax)
             obj.axes_.dax = dax;
         end
-        %
+        %------------------------------------------------------------------
+        % MODERN dnd interface
+        %------------------------------------------------------------------
         function val = get.s(obj)
             val = obj.s_;
         end
@@ -305,7 +298,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                     'input signal must be numeric array')
             end
             obj.s_ = s;
-            [~,~,obj] = check_combo_arg(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
         end
         %
         function val = get.e(obj)
@@ -316,8 +311,15 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                 error('HORACE:DnDBase:invalid_argument',...
                     'input variance must be numeric array')
             end
+            if any(e<0)
+                error('HORACE:DnDBase:invalid_argument',...
+                    'errors values can not be negative')
+            end
             obj.e_ = e;
-            [~,~,obj] = check_combo_arg(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
+
         end
         %
         function val = get.npix(obj)
@@ -329,31 +331,37 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                     'input npix array must be numeric array')
             end
             obj.npix_ = npix;
-            [~,~,obj] = check_combo_arg(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
         end
         %
-        %         function obj = set.img_range(obj,val)
-        %             obj.data_.img_range = val;
-        %         end
-        %         function range = get.img_range(obj)
-        %             if isempty(obj.data_)
-        %                 range  = [];
-        %             else
-        %                 range = obj.data_.img_range;
-        %             end
-        %         end
-        %         %
-        %         function obj = set.nbins_all_dims(obj,val)
-        %             obj.data_.nbins_all_dims = val;
-        %         end
-        %         function nbins = get.nbins_all_dims(obj)
-        %             if isempty(obj.data_)
-        %                 nbins  = [];
-        %             else
-        %                 nbins = obj.data_.nbins_all_dims;
-        %             end
-        %         end
+        function ax = get.axes(obj)
+            ax = obj.axes_;
+        end
+        function obj = set.axes(obj,val)
+            if ~isa(val,'axes_block')
+                error('HORACE:DnDBase:invalid_argument',...
+                    'input for axes property has to be an axes_block only. It is %s',...
+                    class(val));
+            end
+            obj.axes_ = val;
+        end
         %
+        function pr = get.proj(obj)
+            pr = obj.proj_;
+        end
+        function obj = set.proj(obj,val)
+            if ~isa(val,'aProjection')
+                error('HORACE:DnDBase:invalid_argument',...
+                    'input for proj property has to be an instance of aProjection class only. It is %s',...
+                    class(val));
+            end
+            obj.proj_ = val;
+        end
+        function range = get.img_range(obj)
+            range = obj.axes_.img_range;
+        end
         %------------------------------------------------------------------
         % Serializable interface
         %------------------------------------------------------------------
@@ -364,12 +372,12 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             ver = 3;
         end
 
-        function [ok,mess,obj] = check_combo_arg(obj)
+        function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained dnd object. Return the result of the check and the
             % reason for failure.
             %
-            [ok,mess,obj] = check_combo_arg_(obj);
+            obj = check_combo_arg_(obj);
         end
 
     end
