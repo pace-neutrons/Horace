@@ -105,53 +105,16 @@ function [data,obj] = get_data(obj,varargin)
 
 % Initialise output arguments
 
-% remove options unrelated to get_data@dnd_binfile_common
-[ok,mess,~,noclass,noupgrade,argi]=...
-    parse_char_options(varargin,{'-nopix','-noclass','-noupgrade'});
-if ~ok
-    error('HORACE:sqw_binfile_common:invalid_argument', ...
-        ['get_data: ',mess]);
-end
-
-[data_str,obj] = obj.get_data@dnd_binfile_common(obj,argi{:});
-% 
+%
+[data_str,obj] = obj.get_data@dnd_binfile_common(obj,varargin{:});
+%
 % In old files img_range (urange) is also stored separately and contains
 % real image range (the range pixel data converted to image actually
 % occupy) This will be used as range if old files integration range is
 % unlimited
 data_str.img_range = obj.get_img_db_range(data_str);
 %
-% parse all arguments, including those that weren't passed to the parent method
-opts = parse_args(varargin{:});
-
-if opts.header || opts.hverbatim || noclass
-    data  = data_str;
-    return;
-end
-data_str.serial_name = 'data_sqw_dnd'; % convert structure, stored in 
-                        %  binary file into the form, suitable for
-                        %  recovering using serializable class methods, as
-                        %  data_sqw_dnd is serializable
-data = serializable.from_struct(data_str);
-if ~opts.nopix && obj.npixels>0
-    data.pix = PixelData(obj, opts.pixel_page_size,~noupgrade);
-    %
-end
 
 end  % function
 
 
-% -----------------------------------------------------------------------------
-function opts = parse_args(varargin)
-flags = {'header','verbatim','hverbatim','nopix', 'noclass'};
-kwargs = struct('pixel_page_size', PixelData.DEFAULT_PAGE_SIZE);
-for flag_idx = 1:numel(flags)
-    kwargs.(flags{flag_idx}) = false;
-end
-parser_opts = struct('prefix', '-', 'prefix_req', false);
-[~, opts, ~, ~, ok, mess] = parse_arguments(varargin, kwargs, flags, ...
-    parser_opts);
-if ~ok
-    error('SQW_FILE_INTERFACE:invalid_argument', ['get_data: ', mess]);
-end
-end

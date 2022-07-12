@@ -14,9 +14,6 @@ classdef d2d < DnDBase
     methods
         function obj = d2d(varargin)
             obj = obj@DnDBase(varargin{:});
-            if nargin==0
-                obj.nbins_all_dims = [2,2,1,1];
-            end
         end
 
         wout=combine_horace_2d(w1,w2,varargin);

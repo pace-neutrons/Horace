@@ -162,7 +162,7 @@ classdef test_dnd_constructor < TestCase
             assertEqual(sqw_obj.data.npix, dnd_obj.npix)
             assertEqual(sqw_obj.data.label, dnd_obj.label);
         end
-        %-------------------------------------------------------------------        
+        %-------------------------------------------------------------------
         %% Dimension
         function test_d0d_constructor_returns_zero_d_instance(~)
             dnd_obj = d0d();
@@ -204,7 +204,7 @@ classdef test_dnd_constructor < TestCase
 
             assertEqualToTol(dnd_obj.s, 0, 1e-6);
             assertEqualToTol(dnd_obj.e, 0, 1e-6);
-        end        
+        end
         %-------------------------------------------------------------------
         function test_dnd_classes_follow_expected_class_heirarchy(~)
             dnd_objects = { d0d(), d1d(), d2d(), d3d(), d4d() };
@@ -217,36 +217,35 @@ classdef test_dnd_constructor < TestCase
         %% getters/setters
         function test_d0d_get_returns_set_properties(obj)
             dnd_obj = d0d();
-            obj.assert_dnd_get_returns_set_properties(dnd_obj);
+            obj.assert_dnd_get_returns_set_properties(dnd_obj,[]);
         end
 
         function test_d1d_get_returns_set_properties(obj)
             dnd_obj = d1d();
-            obj.assert_dnd_get_returns_set_properties(dnd_obj);
+            obj.assert_dnd_get_returns_set_properties(dnd_obj,10);            
         end
 
         function test_d2d_get_returns_set_properties(obj)
             dnd_obj = d2d();
-            obj.assert_dnd_get_returns_set_properties(dnd_obj);
+            obj.assert_dnd_get_returns_set_properties(dnd_obj,[2,1]);
         end
 
         function test_d3d_get_returns_set_properties(obj)
             dnd_obj = d3d();
-            obj.assert_dnd_get_returns_set_properties(dnd_obj);
+            obj.assert_dnd_get_returns_set_properties(dnd_obj,[1,1,1]);
         end
 
         function test_d4d_get_returns_set_properties(obj)
             dnd_obj = d4d();
-            obj.assert_dnd_get_returns_set_properties(dnd_obj);
+            obj.assert_dnd_get_returns_set_properties(dnd_obj,ones(1,4));
         end
 
-        function assert_dnd_get_returns_set_properties(~, dnd_obj)
+        function assert_dnd_get_returns_set_properties(~, dnd_obj,box_size)
             class_props = fieldnames(dnd_obj);
-            isdata = ismember(class_props,'data');
-            class_props = class_props(~isdata);
-            [sample_prop,dep_prop]=dnd_object_sample_properties();
+
+            [sample_prop,dep_prop]=dnd_object_sample_properties(box_size);
             test_prop = sample_prop.keys;
-     
+
             % included all properties, forgot nothing
             assertTrue(all(ismember(class_props,[test_prop(:);dep_prop(:)])))
 
@@ -269,42 +268,48 @@ classdef test_dnd_constructor < TestCase
             end
             for idx=1:numel(dep_prop)
                 assertExceptionThrown(@()setter(dnd_obj,dep_prop{idx}), ...
-                    'MATLAB:class:noSetMethod');
+                    'MATLAB:class:noSetMethod', ...
+                    sprintf('Invalid exception for property: %s',dep_prop{idx}));
             end
 
         end
         %% Class properties
         function test_d4d_contains_expected_properties(obj)
             dnd_obj = d4d();
+            assertEqual(dnd_obj.axes.dimensions,4)
             obj.assert_dnd_contains_expected_properties(dnd_obj);
         end
-        
+
         function test_d3d_contains_expected_properties(obj)
             dnd_obj = d3d();
+            assertEqual(dnd_obj.axes.dimensions,3)
             obj.assert_dnd_contains_expected_properties(dnd_obj);
         end
-                
+
         function test_d2d_contains_expected_properties(obj)
             dnd_obj = d2d();
+            assertEqual(dnd_obj.axes.dimensions,2)
             obj.assert_dnd_contains_expected_properties(dnd_obj);
         end
 
         function test_d1d_contains_expected_properties(obj)
             dnd_obj = d1d();
+            assertEqual(dnd_obj.axes.dimensions,1)
             obj.assert_dnd_contains_expected_properties(dnd_obj);
         end
 
         function test_d0d_contains_expected_properties(obj)
             dnd_obj = d0d();
+            assertEqual(dnd_obj.axes.dimensions,0)
             obj.assert_dnd_contains_expected_properties(dnd_obj);
-        end        
+        end
 
         function assert_dnd_contains_expected_properties(~, dnd_obj)
             expected_props = { ...
                 'filename', 'filepath', 'title', 'alatt', 'angdeg', ...
                 'label', 'iax','offset' ...
                 'iint', 'pax', 'p', 'dax', 's', 'e', 'npix',...
-                'img_range','axes','proj'};
+                'img_range','axes','proj','nbins'};
             % moved elsewhere: 'uoffset', 'u_to_rlu', 'ulen',
             actual_props = fieldnames(dnd_obj);
 
@@ -316,6 +321,6 @@ classdef test_dnd_constructor < TestCase
             end
         end
 
-        
+
     end
 end

@@ -24,9 +24,6 @@ classdef d3d < DnDBase
         wout = cut (varargin);
         function obj = d3d(varargin)
             obj = obj@DnDBase(varargin{:});
-            if nargin==0
-                obj.nbins_all_dims = [2,2,2,1];
-            end            
         end
     end
 end

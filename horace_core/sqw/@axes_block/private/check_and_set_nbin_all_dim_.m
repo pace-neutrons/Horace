@@ -1,5 +1,5 @@
 function obj = check_and_set_nbin_all_dim_(obj,val)
-% Check if the bining along each direction attempted to set are correct and
+% Check if the binning along each direction attempted to set are correct and
 % set requested number of bins in each direction
 %
 if ~isnumeric(val)
@@ -21,7 +21,7 @@ if any(val<1)
     error('HORACE:axes_block:invalid_argument',mess);
 end
 obj.nbins_all_dims_ = val;
-nd = obj.n_dims;
+nd = obj.dimensions;
 if isempty(obj.dax_) || numel(obj.dax_)~=nd
     obj.dax_ = 1:nd;
 end

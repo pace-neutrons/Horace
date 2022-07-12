@@ -45,7 +45,7 @@ classdef axes_block < serializable
         % axes block describes
         img_range;
         %
-        n_dims;  % Number of axes_block object dimensions
+        dimensions;  % Number of axes_block object dimensions
         %
         % binning along each dimension of an object assuming that
         % all objects are 4-dimensional one. E.g. 1D object in with 10 bins in
@@ -428,9 +428,8 @@ classdef axes_block < serializable
         % historical and convenience getters for dependent properties
         % which do not have setters
         %------------------------------------------------------------------
-        function ndim = get.n_dims(obj)
-            ndim = sum(obj.nbins_all_dims_>1 | ...
-                (obj.nbins_all_dims_ == 1 & ~obj.one_nb_is_iax_) );
+        function ndim = get.dimensions(obj)
+            ndim = sum(is_pax_(obj));
         end
         function ds = get.data_nbins(obj)
             ds= obj.nbins_all_dims_(obj.nbins_all_dims_>1);
@@ -440,8 +439,7 @@ classdef axes_block < serializable
             ia = find(obj.nbins_all_dims_==1 & obj.one_nb_is_iax_);
         end
         function pa = get.pax(obj)
-            pa = find(obj.nbins_all_dims_>1 | ...
-                (obj.nbins_all_dims_==1&~obj.one_nb_is_iax_));
+            pa = find(is_pax_(obj));
         end
         function iin = get.iint(obj)
             is_iint = obj.nbins_all_dims_==1 & obj.one_nb_is_iax_;

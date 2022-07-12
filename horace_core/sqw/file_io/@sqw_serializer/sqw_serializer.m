@@ -52,7 +52,7 @@ classdef sqw_serializer
             end
             stream = serialize_(obj,struct,format_struct);
         end
-        function bytes = saveobj(obj)
+        function bytes = saveobj(~)
             bytes = []; %hlp_serialize('sqw_serializer');
         end
         function [size_str,pos,eof,template_struc] = calculate_positions(obj,template_struc,input,varargin)
@@ -155,7 +155,7 @@ classdef sqw_serializer
             if strcmp(ser_struc,'sqw_serializer')
                 obj = sqw_serializer();
             else
-                error('SQW_SERIALIZER:runtime_error',...
+                error('HORACE:sqw_serializer:runtime_error',...
                     'Attempt to recover sqw serializer from incorrect data')
             end
             

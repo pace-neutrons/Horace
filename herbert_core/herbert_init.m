@@ -44,7 +44,7 @@ genieplot_init
 addgenpath_message (rootpath,'applications')
 
 
-% set up multiusers computer specific settings,
+% set up multi-users computer specific settings,
 % namely settings which are common for all new users of the specific computer
 % e.g.:
 hec = herbert_config();

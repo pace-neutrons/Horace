@@ -10,7 +10,7 @@ function save_xye_(obj,varargin)
 %
 % Unless otherwise specified, bins where there is no data are written as
 % having NaN (i.e. not-a-number) for the signal and zero for the standard deviation.
-% You can always substitue a different value e.g. -10^30 or 0 by
+% You can always substitute a different value e.g. -10^30 or 0 by
 % assigning a value to the optional parameter null_value.
 %
 % Note that if w is an array of objects, then "file" must be a cell array
@@ -185,7 +185,7 @@ else
 end
 y(empty)=null_value;
 e(empty)=0;
-if size(x,2) ~= w.n_dims
+if size(x,2) ~= w.dimensions
     x=x';
 end
 y=y(:);     % make column array

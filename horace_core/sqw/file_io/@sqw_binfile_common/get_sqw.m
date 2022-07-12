@@ -58,7 +58,8 @@ function [sqw_object,varargout] = get_sqw (obj, varargin)
 %
 opts = parse_args(obj, varargin{:});
 
-sqw_struc = struct('main_header',[],'experiment_info',[],'detpar',[],'data',[]);
+sqw_struc = struct('main_header',[],'experiment_info',[],'detpar',[], ...
+    'data',[],'pix',[]);
 
 % Get main header
 % ---------------
@@ -90,27 +91,22 @@ if (opts.head || opts.his)
 else
     opt2 = {};
 end
-if opts.nopix
-    opt3={'-nopix'};
-else
-    opt3={};
-end
-if opts.noupgrade
-    opt4={'-noupgrade'};
-else
-    opt4={};
-end
 
 
-data_opt= [opt1, opt2, opt3, opt4];
-sqw_struc.data = obj.get_data(data_opt{:}, 'pixel_page_size', opts.pixel_page_size);
+data_opt= [opt1, opt2];
+sqw_struc.data = obj.get_data(data_opt{:});
+
+if ~opts.nopix && obj.npixels>0
+    sqw_struc.pix = PixelData(obj, opts.pixel_page_size,~noupgrade);
+    %
+end
 
 sqw_struc.experiment_info = exp_info;
 old_file = ~sqw_struc.main_header.creation_date_defined;
 % run_id map in any form, so it is often tried to be restored from filename.
 % here we try to verify, if this restoration is correct if we can do that
 % without critical drop in performance.
-if (sqw_struc.data.pix.num_pixels >0 ) && ...
+if (sqw_struc.pix.num_pixels >0 ) && ...
         old_file
     runid = unique(sqw_struc.data.pix.run_idx);
     file_id = exp_info.runid_map.keys;

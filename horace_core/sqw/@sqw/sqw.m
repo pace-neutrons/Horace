@@ -321,7 +321,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             % ------
             %   S       An instance of this object or struct
             % By default, this function interfaces the default from_bare_struct
-            % method, but when the old strucure substantially differs from
+            % method, but when the old structure substantially differs from
             % the modern structure, this method needs the specific overloading
             % to allow loadob to recover new structure from an old structure.
             %
@@ -332,7 +332,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
                 return_cut, varargin)
             % interface to private cut parameters parser/validator
             % checking and parsing cut inputs in any acceptable form
-            ndims = obj.data.n_dims;
+            ndims = obj.data.dimensions;
             [proj, pbin, opt,args]= cut_sqw_parse_inputs_(obj.data,ndims, return_cut, varargin{:});
         end
     end

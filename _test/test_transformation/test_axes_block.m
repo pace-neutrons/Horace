@@ -22,7 +22,7 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            nd = ab.n_dims;
+            nd = ab.dimensions;
             szs = ab.dims_as_ssize();
             assertEqual(nd,2)
 
@@ -81,7 +81,7 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            nd = ab.n_dims;
+            nd = ab.dimensions;
             assertEqual(nd,2)
 
             xi = dbr(1,1)+0.05:0.1:dbr(2,1);
@@ -123,7 +123,7 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            nd = ab.n_dims;
+            nd = ab.dimensions;
             szs = ab.dims_as_ssize();
             assertEqual(nd,0)
 
@@ -159,7 +159,7 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            nd  = ab.n_dims;
+            nd  = ab.dimensions;
             szs = ab.dims_as_ssize();
             assertEqual(nd,0)
 
@@ -192,7 +192,7 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            nd  = ab.n_dims;
+            nd  = ab.dimensions;
             szs = ab.dims_as_ssize();
             assertEqual(nd,1)
 
@@ -225,7 +225,7 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            nd  = ab.n_dims;
+            nd  = ab.dimensions;
             szs = ab.dims_as_ssize();
             assertEqual(nd,1)
 
@@ -259,7 +259,7 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            nd  = ab.n_dims;
+            nd  = ab.dimensions;
             szs = ab.dims_as_ssize();
             assertEqual(nd,2)
 
@@ -292,7 +292,7 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            nd  = ab.n_dims;
+            nd  = ab.dimensions;
             szs = ab.dims_as_ssize();
             assertEqual(nd,2)
 
@@ -324,7 +324,7 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            nd  = ab.n_dims;
+            nd  = ab.dimensions;
             szs = ab.dims_as_ssize();
             assertEqual(nd,4)
 
@@ -357,7 +357,7 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            nd  = ab.n_dims;
+            nd  = ab.dimensions;
             szs = ab.dims_as_ssize();
             assertEqual(nd,0)
 
@@ -382,7 +382,7 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            nd  = ab.n_dims;
+            nd  = ab.dimensions;
             szs = ab.dims_as_ssize();
             assertEqual(nd,1)
 
@@ -408,7 +408,7 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            nd  = ab.n_dims;
+            nd  = ab.dimensions;
             szs = ab.dims_as_ssize();
             assertEqual(nd,2)
 
@@ -434,7 +434,7 @@ classdef test_axes_block < TestCase
                 [dbr(1,3),0.3,dbr(2,3)];[dbr(1,4),1,dbr(2,4)]};
             ab = axes_block(bin0{:});
 
-            nd = ab.n_dims;
+            nd = ab.dimensions;
             szs = ab.dims_as_ssize();
             assertEqual(nd,4)
 
@@ -639,7 +639,7 @@ classdef test_axes_block < TestCase
             [nodes,en] = ab.get_bin_nodes('-3D');
             assertEqual(size(nodes,1),3);
 
-            nd = ab.n_dims;
+            nd = ab.dimensions;
             sz = ab.dims_as_ssize();
             sz = sz+1;
 
@@ -719,7 +719,7 @@ classdef test_axes_block < TestCase
             nodes = ab.get_bin_nodes();
             assertEqual(size(nodes,1),4);
 
-            nd = ab.n_dims;
+            nd = ab.dimensions;
             sz = ab.dims_as_ssize();
             ni = 4-nd;
             %sz = sz+1;
@@ -853,7 +853,7 @@ classdef test_axes_block < TestCase
         %------------------------------------------------------------------
         function test_axes_block_0D_explicit(~)
             ab = axes_block(0);
-            assertEqual(ab.n_dims,0);
+            assertEqual(ab.dimensions,0);
             assertEqual(ab.nbins_all_dims,ones(1,4))
             iiax = true(1,4);
             assertEqual(ab.one_nb_is_iax,iiax)
@@ -861,7 +861,7 @@ classdef test_axes_block < TestCase
 
         function test_axes_block_1D_explicit(~)
             ab = axes_block(1);
-            assertEqual(ab.n_dims,1);
+            assertEqual(ab.dimensions,1);
             assertEqual(ab.nbins_all_dims,ones(1,4))
             iiax = true(1,4);
             iiax(1) = false;
@@ -870,7 +870,7 @@ classdef test_axes_block < TestCase
 
         function test_axes_block_2D_explicit(~)
             ab = axes_block(2);
-            assertEqual(ab.n_dims,2);
+            assertEqual(ab.dimensions,2);
             assertEqual(ab.nbins_all_dims,ones(1,4))
             iiax = false(1,4);
             iiax(3) = true;
@@ -880,7 +880,7 @@ classdef test_axes_block < TestCase
 
         function test_axes_block_3D_explicit(~)
             ab = axes_block(3);
-            assertEqual(ab.n_dims,3);
+            assertEqual(ab.dimensions,3);
             assertEqual(ab.nbins_all_dims,ones(1,4))
             iiax = false(1,4);
             iiax(4) = true;
@@ -889,7 +889,7 @@ classdef test_axes_block < TestCase
 
         function test_axes_block_4D_explicit(~)
             ab = axes_block(4);
-            assertEqual(ab.n_dims,4);
+            assertEqual(ab.dimensions,4);
             assertEqual(ab.nbins_all_dims,ones(1,4))
             assertEqual(ab.one_nb_is_iax,false(1,4))
         end

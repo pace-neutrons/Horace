@@ -32,7 +32,7 @@ classdef (Abstract) SQWDnDBase < serializable
         wout = IX_dataset_1d(w);
         wout = IX_dataset_2d(w);
         wout = IX_dataset_3d(w);
-        [nd, sz] = dimensions(w);
+
         [ok,mess,nd_ref] = dimensions_match(w, nd_ref);
         [wout_disp, wout_weight] = dispersion(win, dispreln, pars);
         wout = disp2sqw_eval(win, dispreln, pars, fwhh, opt);
@@ -49,6 +49,9 @@ classdef (Abstract) SQWDnDBase < serializable
         function save_xye(obj,varargin)
             %TODO remove this doing Ticket #730
             save_xye_(obj,varargin{:});
+        end
+        function  [nd, sz] = dimensions(w)
+            [nd,sz] = w.data_.dimensions();
         end
     end
 

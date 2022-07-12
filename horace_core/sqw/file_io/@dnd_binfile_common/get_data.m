@@ -6,7 +6,6 @@ function [data_str,obj] = get_data (obj,varargin)
 %
 %   >> data = obj.get_data()
 %   >> data = obj.get_data(opt)
-%   >> data = obj.get_data(opt, 'pixel_page_size', 256e6)
 %
 % Input:
 % ------
@@ -91,7 +90,7 @@ function [data_str,obj] = get_data (obj,varargin)
 
 % Initialise output arguments
 [ok,mess,header_only,verbatim,hverbatim,~]=...
-    parse_char_options(varargin,{'-head','-verbatim','-hverbatim'});
+    parse_char_options(varargin,{'-head','-verbatim','-hverbatim','-noclass'});
 if ~ok
     error('HORACE:dnd_binfile_common:invalid_argument',...
         'get_data::Error: %s',mess);
@@ -155,4 +154,13 @@ data_str = axes_block.convert_old_struct_into_nbins(data_str);
 if ~header_only
     data_str = obj.get_se_npix(data_str);
 end
+
+if header_only || verbatim || noclass
+    return;
+end
+data_str.serial_name = 'data_sqw_dnd'; % convert structure, stored in 
+                        %  binary file into the form, suitable for
+                        %  recovering using serializable class methods, as
+                        %  data_sqw_dnd is serializable
+data_str = serializable.from_struct(data_str);
 %

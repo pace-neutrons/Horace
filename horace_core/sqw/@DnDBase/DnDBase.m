@@ -12,7 +12,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         fields_to_save_ = {'s','e','npix','proj','axes'}
     end
 
-    % The depdendent props here have been created solely to retain the (old) DnD object API during the refactor.
+    % The dependent props here have been created solely to retain the (old) DnD object API during the refactor.
     % These will be updated/removed at a later phase of the refactor when the class API is modified.
     properties(Dependent)
         % OLD DND object interface
@@ -36,6 +36,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         %                       i.e. row cell array{data.p{1}, data.p{2} ...}
         pax % Index of plot axes into the projection axes  [row vector]
         %
+        nbins;    % number of bins in the data array
         img_range % the whole 4D range of the object in appropriate axes
         %           coordinate system
         %------------------------------------------------------------------
@@ -44,11 +45,12 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         e % Cumulative variance
         npix % Number of contributing pixels to each bin of the plot axes
 
-        axes % access to the axess block class directly
+        axes % access to the axes block class directly
         proj % access to projection class directly
     end
     properties(Hidden,Dependent)
-        % the temporary property, which binds data_sqw_dnd and dnd object
+        % the temporary property, which binds data_sqw_dnd and dnd object,
+        % necessary until data_sqw_dnd exist
         data
     end
     properties(Access = protected)
@@ -59,7 +61,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         proj_ = ortho_proj(); % Object defining the transformation, used to convert data from
         %                      crystal Cartesian coordinate system to this
         %                      image coordinate system.
-        offset_=[0;0;0;0]  %   Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]        
     end
 
 
@@ -102,6 +103,12 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                 obj = obj.from_bare_struct(inputs);
             end
         end
+        function obj = set_do_check_combo_arg(obj,val)
+            val = logical(val);
+            obj.do_check_combo_arg_ = val;
+            obj.axes_.do_check_combo_arg  = val;
+            obj.proj_.do_check_combo_arg  = val;
+        end
     end
 
     methods (Static)
@@ -142,6 +149,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         %    % save data in xye format
         %    save_xye_(obj,varargin{:});
         %end
+        [nd, sz] = dimensions(w);
 
         %------------------------------------------------------------------
         % Accessors
@@ -237,6 +245,11 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         function val = get.offset(obj)
             val = obj.proj_.offset;
         end
+        function obj = set.offset(obj,val)
+            obj.proj_.offset = val;
+            obj.axes_.img_range = obj.axes_.img_range+obj.proj_.offset;
+        end
+
         %         function val = get.u_to_rlu(obj)
         %             val = [];
         %             if ~isempty(obj.data_)
@@ -340,12 +353,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             ax = obj.axes_;
         end
         function obj = set.axes(obj,val)
-            if ~isa(val,'axes_block')
-                error('HORACE:DnDBase:invalid_argument',...
-                    'input for axes property has to be an axes_block only. It is %s',...
-                    class(val));
-            end
-            obj.axes_ = val;
+            obj = check_and_set_axes_block_(obj,val);
         end
         %
         function pr = get.proj(obj)
@@ -357,10 +365,15 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                     'input for proj property has to be an instance of aProjection class only. It is %s',...
                     class(val));
             end
+            check_combo_ = obj.proj_.do_check_combo_arg;
             obj.proj_ = val;
+            obj.proj_.do_check_combo_arg = check_combo_;
         end
         function range = get.img_range(obj)
             range = obj.axes_.img_range;
+        end
+        function nb = get.nbins(obj)
+            nb = obj.axes_.data_nbins;
         end
         %------------------------------------------------------------------
         % Serializable interface

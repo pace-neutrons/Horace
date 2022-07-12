@@ -15,7 +15,7 @@ classdef test_axes_block_properties < TestCase
         axes_block_v1_file = 'axes_block_sample_v1.mat'; % savobj/loadobj reference file for version 1
         axes_block_v2_file = 'axes_block_sample_v2.mat'; % savobj/loadobj reference file for version 2
         sample_sqw_file = 'w2d_qq_sqw.sqw'
-        % save sample -- simlified TestWithSave interface.
+        % save sample -- simplified TestWithSave interface.
         % Generates v2 test files when save_sample = true
         save_sample = false;
     end
@@ -92,7 +92,7 @@ classdef test_axes_block_properties < TestCase
             ab.img_range = range;
             assertEqual(ab.nbins_all_dims,nbins')
 
-            assertEqual(ab.n_dims,2)
+            assertEqual(ab.dimensions,2)
             assertEqual(ab.iax,[1,3])
             assertEqual(ab.pax,[2,4])
 
@@ -109,7 +109,7 @@ classdef test_axes_block_properties < TestCase
             ab.nbins_all_dims = nbins ;
             assertEqual(ab.nbins_all_dims,nbins')
 
-            assertEqual(ab.n_dims,1)
+            assertEqual(ab.dimensions,1)
             assertEqual(ab.iax,1:3)
             assertEqual(ab.pax,4)
             %
@@ -164,7 +164,7 @@ classdef test_axes_block_properties < TestCase
             ab.img_range = range ;
             assertEqual(ab.img_range,range)
 
-            assertEqual(ab.n_dims,0)
+            assertEqual(ab.dimensions,0)
             assertEqual(ab.iax,1:4)
             assertEqual(ab.iint,range)
             assertTrue(isempty(ab.pax))
@@ -190,7 +190,7 @@ classdef test_axes_block_properties < TestCase
             assertEqual(ab.img_range,PixelData.EMPTY_RANGE_)
             assertEqual(ab.nbins_all_dims,ones(1,4))
 
-            assertEqual(ab.n_dims,0)
+            assertEqual(ab.dimensions,0)
             assertEqual(ab.iax,1:4)
             assertEqual(ab.iint,PixelData.EMPTY_RANGE_)
             assertTrue(isempty(ab.pax))
