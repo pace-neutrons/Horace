@@ -42,10 +42,10 @@ elseif nargi==1
 
         rest = arrayfun(@(x)zeros(1,0),1:4-ndim,'UniformOutput',false);
         pbin=[repmat({[0,1]},1,ndim),rest];
-        obj = set_axis_bins_(obj,pbin{:});
+        obj = set_axis_bins_(obj,ndim,pbin{:});
         obj.axis_caption = an_axis_caption();
     elseif iscell(varargin{1}) && numel(varargin{1})==4 % input is the array of binning parameters
-        obj = set_axis_bins_(varargin{1}{:});
+        obj = set_axis_bins_([],varargin{1}{:});
         obj.axis_caption = an_axis_caption();
     else
         error('HORACE:axes_block:invalid_argument',...
@@ -80,8 +80,9 @@ elseif nargi>= 4 %remaining input is p1,p2,p3,p4
         end
     else % ,p1,p2,p3,p4 form
         pbin = varargin;
+        ndims = [];
     end
-    obj = set_axis_bins_(obj,pbin{:});
+    obj = set_axis_bins_(obj,ndims,pbin{:});
 
     obj.axis_caption = an_axis_caption();
     obj.nonorthogonal = nonorthogonal_;
@@ -89,5 +90,3 @@ else
     error('HORACE:axes_block:invalid_argument',...
         'unrecognised number %d of input arguments',nargi);
 end
-
-

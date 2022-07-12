@@ -81,6 +81,7 @@ classdef axes_block < serializable
             PixelData.EMPTY_RANGE_; % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf]
 
         nbins_all_dims_ = [1,1,1,1];    % number of bins in each dimension
+        one_nb_is_iax_  = true(1,4);    % true if single nbin direction represents integration axis
         dax_=[];                        % display axes numbers holder
         % e.g. r.l.u. and energy [h; k; l; en] [row vector]
     end
@@ -88,12 +89,16 @@ classdef axes_block < serializable
         % fields which fully represent the state of the class and allow to
         % recover it state by setting properties through public interface
         fields_to_save_ = {'title','filename','filepath',...
-            'label','ulen','img_range','nbins_all_dims',...
+            'label','ulen','img_range','nbins_all_dims','one_nb_is_iax',...
             'dax','nonorthogonal'};
     end
     properties(Dependent,Hidden)
         % old interface to label
         ulabel
+        % boolean row, identifying if a single bin direction is integration
+        % projection axis. By default, single nbin direction is integration
+        % direction
+        one_nb_is_iax;
     end
 
     methods
@@ -406,30 +411,41 @@ classdef axes_block < serializable
                 obj = check_combo_arg(obj);
             end
         end
+        %
+        function is = get.one_nb_is_iax(obj)
+            is = obj.one_nb_is_iax_;
+        end
+        function obj = set.one_nb_is_iax(obj,val)
+            if numel(val) ~= 4
+                error('HORACE:axes_block:invalid_argument', ...
+                    'one_nb_is_iax property accepts only 4-element logical vector or vector convertable to logical')
+            end
+            obj.one_nb_is_iax_ = logical(val(:)');
+        end
+
 
         %------------------------------------------------------------------
         % historical and convenience getters for dependent properties
         % which do not have setters
         %------------------------------------------------------------------
         function ndim = get.n_dims(obj)
-            ndim = sum(obj.nbins_all_dims_>1);
-            % should we do that? Inconsistent and inconvenient.
-            %  if ndim == 0 && all(obj.nbins_all_dims_ == 1)
-            %     ndim =4;
-            %  end
+            ndim = sum(obj.nbins_all_dims_>1 | ...
+                (obj.nbins_all_dims_ == 1 & ~obj.one_nb_is_iax_) );
         end
         function ds = get.data_nbins(obj)
             ds= obj.nbins_all_dims_(obj.nbins_all_dims_>1);
         end
 
         function ia = get.iax(obj)
-            ia = find(obj.nbins_all_dims_==1);
+            ia = find(obj.nbins_all_dims_==1 & obj.one_nb_is_iax_);
         end
         function pa = get.pax(obj)
-            pa = find(obj.nbins_all_dims_>1);
+            pa = find(obj.nbins_all_dims_>1 | ...
+                (obj.nbins_all_dims_==1&~obj.one_nb_is_iax_));
         end
         function iin = get.iint(obj)
-            iin = obj.img_range_(:,obj.nbins_all_dims_==1);
+            is_iint = obj.nbins_all_dims_==1 & obj.one_nb_is_iax_;
+            iin = obj.img_range_(:,is_iint);
         end
         function pc = get.p(obj)
             pc = build_axes_from_ranges_(obj);
@@ -448,7 +464,7 @@ classdef axes_block < serializable
             % and nxsqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
             % number
-            ver = 2;
+            ver = 3;
         end
         %
         function flds = saveableFields(~)
@@ -466,9 +482,6 @@ classdef axes_block < serializable
         %
     end
     methods(Access=protected)
-        function is = check_validity(obj)
-            is = obj.isvalid_;
-        end
 
         function [npix,s,e,pix_cand,unique_runid,argi]=...
                 normalize_bin_input(obj,pix_coord_transf,n_argout,varargin)
@@ -507,6 +520,9 @@ classdef axes_block < serializable
             if isfield(inputs,'version') && (inputs.version == 1) || ...
                     isfield(inputs,'iint')
                 inputs = axes_block.convert_old_struct_into_nbins(inputs);
+            end
+            if ~isfield(inputs,'one_nd_is_iax')
+                inputs.one_nd_is_iax = true(1,4);
             end
             if isfield(inputs,'array_dat')
                 obj = obj.from_bare_struct(inputs.array_dat);

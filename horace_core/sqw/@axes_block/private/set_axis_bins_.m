@@ -46,7 +46,7 @@ if nargin ~=6
         'Must have four and only four binning descriptors');
 end
 if isempty(ndims)
-     ndims = sum(cellfun(@(x)(~isempty(x)&&numel(x)>2)),varargin);
+     ndims = sum(cellfun(@(x)(~isempty(x)&&numel(x)>2),varargin));
 end
 
 range = zeros(2,4);
@@ -61,7 +61,7 @@ nd_avail = sum(nbins>1);
 if nd_avail  ~= ndims
     for i=1:4
         if nbins(i)==1
-            nbins(i)=2;
+            obj.one_nb_is_iax_(i) = false;
             nd_avail = nd_avail+1;
             if nd_avail == ndims
                 break;
@@ -71,9 +71,6 @@ if nd_avail  ~= ndims
 end
 obj.img_range = range;
 obj.nbins_all_dims = nbins;
-if obj.n_dims ~= ndims
-
-end
 
 
 %----------------------------------------------------------------------------------------

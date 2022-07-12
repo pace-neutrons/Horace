@@ -851,6 +851,49 @@ classdef test_axes_block < TestCase
             assertElementsAlmostEqual(block.p{3},-0.5:1:10.5,'absolute',1.e-12)
         end
         %------------------------------------------------------------------
+        function test_axes_block_0D_explicit(~)
+            ab = axes_block(0);
+            assertEqual(ab.n_dims,0);
+            assertEqual(ab.nbins_all_dims,ones(1,4))
+            iiax = true(1,4);
+            assertEqual(ab.one_nb_is_iax,iiax)
+        end
+
+        function test_axes_block_1D_explicit(~)
+            ab = axes_block(1);
+            assertEqual(ab.n_dims,1);
+            assertEqual(ab.nbins_all_dims,ones(1,4))
+            iiax = true(1,4);
+            iiax(1) = false;
+            assertEqual(ab.one_nb_is_iax,iiax)
+        end
+
+        function test_axes_block_2D_explicit(~)
+            ab = axes_block(2);
+            assertEqual(ab.n_dims,2);
+            assertEqual(ab.nbins_all_dims,ones(1,4))
+            iiax = false(1,4);
+            iiax(3) = true;
+            iiax(4) = true;
+            assertEqual(ab.one_nb_is_iax,iiax)
+        end
+
+        function test_axes_block_3D_explicit(~)
+            ab = axes_block(3);
+            assertEqual(ab.n_dims,3);
+            assertEqual(ab.nbins_all_dims,ones(1,4))
+            iiax = false(1,4);
+            iiax(4) = true;
+            assertEqual(ab.one_nb_is_iax,iiax)
+        end
+
+        function test_axes_block_4D_explicit(~)
+            ab = axes_block(4);
+            assertEqual(ab.n_dims,4);
+            assertEqual(ab.nbins_all_dims,ones(1,4))
+            assertEqual(ab.one_nb_is_iax,false(1,4))
+        end
+
         function test_axes_scales_4D(~)
             dbr = [-1,-2,-3,0;1,2,3,10];
             bin0 = {[dbr(1,1),0.1,dbr(2,1)];[dbr(1,2),0.2,dbr(2,2)];...
