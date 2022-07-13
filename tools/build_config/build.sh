@@ -65,6 +65,13 @@ function run_tests() {
   run_in_dir "${test_cmd}" "${build_dir}"
 }
 
+function run_benchmarks() {
+  local build_dir=$1
+
+  echo -e "\nRunning benchmark step..."
+  echo_and_run "cmake --build ${build_dir} -- benchmark_all"
+}
+
 function run_analysis() {
   local build_dir=$1
   echo_and_run "cmake --build ${build_dir} -- analyse"
@@ -95,6 +102,8 @@ flags:
       Run the Horace build commands.
   -t, --test
       Run all Horace tests.
+  -B, --benchmark
+      Run all Horace benchmarks.
   -c, --configure
       Run cmake configuration stage
   -a, --analyze
@@ -154,6 +163,7 @@ function main() {
     case $key in
         # flags
         -b|--build) build=$TRUE; shift ;;
+        -B|--benchmark) benchmark=$TRUE; shift;;
         -t|--test) test=$TRUE; shift ;;
         -c|--configure) configure=$TRUE; shift;;
         -a|--analyze) analyze=$TRUE; shift ;;
@@ -188,6 +198,10 @@ function main() {
 
   if ((build)); then
     run_build "${build_dir}"
+  fi
+
+  if ((benchmark)); then
+    run_benchmark "${build_dir}"
   fi
 
   if ((test)); then
