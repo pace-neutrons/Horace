@@ -72,6 +72,7 @@ add_subdirectory("_LowLevelCode")
 if(BUILD_TESTING)
     add_subdirectory("_test")
 endif()
+add_subdirectory("_benchmarking")
 add_subdirectory("admin")
 add_subdirectory("cmake")
 
