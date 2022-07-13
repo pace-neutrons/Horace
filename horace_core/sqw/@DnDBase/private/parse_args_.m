@@ -6,74 +6,55 @@ function args = parse_args_(obj, varargin)
 % - args.dnd_obj   % DnD class instance
 % - args.sqw_obj   % SQW class instance
 % - args.data_struct % generic struct, presumed to represent DnD
-persistent parser
 
-if ~isempty(varargin) && ((isvector(varargin{1}) && isnumeric(varargin{1})) || ...
-        isa(varargin{1},'oriented_lattice'))
-    % attempting to parse the numeric projection form of the input always
-    % seems to cause the parser to think a parameter is involved, so
-    % detecting this separately and passing it to the processing  function
-    % whole, to produce a data_sqw_dnd
-    input_data = varargin;
-
-    input_data = data_sqw_dnd(input_data{:});
-else
-    if isempty(parser)
-        parser = inputParser();
-
-        parser.addOptional('input', [], @(x) (isa(x, 'SQWDnDBase')   || ... %sqw/dnd
-            isa(x, 'data_sqw_dnd') || ... % data_sqw_dnd
-            is_string(x)           || ... % filename
-            (iscellstr(x)||isstring(x))&&~any(cellfun(@(a)isempty(a),x))   || ... % multiple files
-            isstruct(x)));                % struct of data_sqw_dnd type
-        parser.KeepUnmatched = true;
-    end
-    parser.parse(varargin{:});
-
-    input_data = parser.Results.input;
-end
-if is_string(input_data)
-    array_numel = 1;
-    array_size  = [1,1];
-else
-    array_numel = numel(input_data);
-    array_size  = size(input_data) ;
-end
-
+input_data = varargin;
 args = struct(...
-    'array_numel',array_numel , ...
-    'array_size',   array_size, ...
+    'array_numel',          1, ...
+    'array_size',        [1,1], ...
     'dnd_obj',              [], ...
     'sqw_obj',              [], ...
+    'set_of_fields',        [], ...
     'filename',             [], ...
     'data_struct',          [] ...
     );
+keys = obj.saveableFields();
+keys_present = any(cellfun(@(x)(ischar(x)||isstring(x))&&ismember(x,keys),varargin));
 
-
-if isa(input_data, 'SQWDnDBase')
-    if isa(input_data, class(obj))
-        args.dnd_obj = input_data;
-
-    elseif isa(input_data, 'sqw')
-        args.sqw_obj = input_data;
+if isa(input_data{1}, 'SQWDnDBase')
+    args.array_numel = numel(input_data);
+    args.array_size = size(input_data);
+    if isa(input_data{1}, class(obj))
+        if args.array_numel ==1
+            args.dnd_obj = input_data{1};
+        else
+            args.dnd_obj = input_data;
+        end
+    elseif isa(input_data{1}, 'sqw')
+        if args.array_numel ==1
+            args.sqw_obj = input_data{1};
+        else
+            args.sqw_obj = input_data;
+        end
     else
-        error([upper(class(obj)), ':' class(obj)], ...
-            [upper(class(obj)) ' cannot be constructed from an instance of this object "' class(input_data) '"']);
+        error(['HORACE:', class(obj),'invalid_argument'], ...
+            'Class %s cannot be constructed from an instance of object %s',...
+            upper(class(obj)),class(input_data{1}));
     end
-elseif isa(input_data, 'data_sqw_dnd')
-    args.data_sqw_dnd = input_data;
-elseif is_string(input_data)
-    args.filename = {input_data};
-elseif iscellstr(input_data)||isstring(input_data) % cellarray of filenames
+
+elseif is_string(input_data{1}) && ~keys_present
     args.filename = input_data;
-elseif isstruct(input_data) && ~isempty(input_data)
+elseif (iscellstr(input_data)||isstring(input_data)) && ~keys_present% cellarray of filenames
+    args.filename = input_data;
+    args.array_numel = numel(input_data);
+    args.array_size = size(input_data);
+elseif isstruct(input_data{1}) && ~isempty(input_data{1})
     args.data_struct = input_data;
+elseif numel(input_data) > 1
+    args.set_of_fields = varargin;
 else
     % create struct holding default instance contents
     args.data_struct.axes =   axes_block(obj.NUM_DIMS);
     args.data_struct.proj =   ortho_proj();
     sz = args.data_struct.axes.dims_as_ssize;
     args.data_struct = init_arrays_(args.data_struct,sz);
-end
-
 end

@@ -89,8 +89,9 @@ function [data_str,obj] = get_data (obj,varargin)
 %
 
 % Initialise output arguments
-[ok,mess,header_only,verbatim,hverbatim,~]=...
-    parse_char_options(varargin,{'-head','-verbatim','-hverbatim','-noclass'});
+[ok,mess,header_only,verbatim,hverbatim,noclass,noupgrade]=...
+    parse_char_options(varargin, ...
+    {'-head','-verbatim','-hverbatim','-noclass','-noupgrade'});
 if ~ok
     error('HORACE:dnd_binfile_common:invalid_argument',...
         'get_data::Error: %s',mess);
@@ -158,9 +159,10 @@ end
 if header_only || verbatim || noclass
     return;
 end
-data_str.serial_name = 'data_sqw_dnd'; % convert structure, stored in 
-                        %  binary file into the form, suitable for
-                        %  recovering using serializable class methods, as
-                        %  data_sqw_dnd is serializable
-data_str = serializable.from_struct(data_str);
+%data_str.serial_name = 'data_sqw_dnd'; % convert structure, stored in 
+%                        %  binary file into the form, suitable for
+%                        %  recovering using serializable class methods, as
+%                        %  data_sqw_dnd is serializable
+%data_str = serializable.from_struct(data_str);
 %
+proj = ortho_proj.get_proj_from_old_data(data_str);

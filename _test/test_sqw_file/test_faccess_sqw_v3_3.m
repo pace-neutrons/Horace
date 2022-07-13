@@ -209,8 +209,8 @@ classdef test_faccess_sqw_v3_3< TestCase
             sqw_ob = so.get_sqw();
             assertFalse(sqw_ob.main_header.creation_date_defined);
             % old sqw object contains incorrect runid map.
-            % This map shoudl be recalculated to maintain consistence
-            % betweem pixels_id and headers
+            % This map should be recalculated to maintain consistence
+            % between pixels_id and headers
             assertTrue(sqw_ob.experiment_info.runid_recalculated)
 
             ref_range = sqw_ob.data.img_db_range;

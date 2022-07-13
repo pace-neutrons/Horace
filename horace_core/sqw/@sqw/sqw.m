@@ -203,7 +203,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
                 obj.pix_ = val;
             else
                 obj.pix_ = PixelData(val);
-            end            
+            end
         end
         %
         function hdr = get.header(obj)
@@ -368,7 +368,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             ld_str = struct();
 
             [ld_str.main_header, ld_str.experiment_info, ld_str.detpar,...
-                ld_str.data] = ...
+                ld_str.data,ld_str.pix] = ...
                 ldr.get_sqw('-legacy','-noupgrade', 'pixel_page_size', pixel_page_size);
         end
         function obj = init_from_loader_struct_(obj, data_struct)
@@ -378,6 +378,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             obj.header = data_struct.header;
             obj.detpar = data_struct.detpar;
             obj.data = data_struct.data;
+            obj.pix = data_struct.pix;
         end
     end
 end

@@ -200,9 +200,7 @@ classdef sqw_binfile_common < sqw_file_interface
         [header,pos] = get_header(obj,varargin);
         % Read the detector parameters from properly initialized binary file.
         det = get_detpar(obj);
-        % read main sqw data  from properly initialized binary file.
-        [sqw_data,obj] = get_data(obj,varargin);
-
+        %
         function img_db_range = get_img_db_range(obj,data_str)
             % get [2x4] array of min/max ranges of the image, representing
             % DND object.

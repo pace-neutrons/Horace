@@ -343,11 +343,21 @@ classdef ortho_proj<aProjection
             % TODO: temporarty method, which define the values to be
             % extracted from projection to convert to old style data_sqw_dnd
             % class. New data_sqw_dnd class will contain the whole projection
-
-
             lst = {'u_to_rlu','nonorthogonal','alatt','angdeg','uoffset','label'};
         end
 
+        function proj = get_proj_from_old_data(data_struct,header_av,pix_range)
+            % construct projection from old style data (data_sqw_dnd)
+            % structure
+            if nargin == 1
+                header_av = [];
+                pix_range = [];
+            end
+            if nargin == 2
+                pix_range = [];                
+            end
+            proj = build_from_old_data_struct_(data_struct,header_av,pix_range);
+        end
     end
     methods(Access = protected)
         function is = check_validity(obj)

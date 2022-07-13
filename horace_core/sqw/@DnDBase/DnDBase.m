@@ -9,7 +9,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         %        'uoffset','u_to_rlu','ulen','label',...
         %        'dax','img_range','nbins_all_dims','s','e','npix'};
 
-        fields_to_save_ = {'s','e','npix','proj','axes'}
+        fields_to_save_ = {'s','e','npix','axes','proj'}
     end
 
     % The dependent props here have been created solely to retain the (old) DnD object API during the refactor.
@@ -112,29 +112,46 @@ classdef (Abstract)  DnDBase < SQWDnDBase
     end
 
     methods (Static)
-        function w = make_dnd(data_obj)
-            if (isa(data_obj,'data_sqw_dnd'))
-                ndims = size(data_obj.pax,2);
-                if ndims == 0
-                    w = d0d(data_obj);
-                elseif ndims == 1
-                    w = d1d(data_obj);
-                elseif ndims == 2
-                    w = d2d(data_obj);
-                elseif ndims == 3
-                    w = d3d(data_obj);
-                elseif ndims == 4
-                    w = d4d(data_obj);
+        function w = dnd(varargin)
+            if (nargin>1)
+                has_axes = cellfun(@(x)isa(x,'axes_block'),varargin);
+                if any(has_axes)
+                    ax = varargin{has_axes};
+                    ndims = ax.dimensions();
                 else
-                    error('HORACE:DnDBase:invalid_argument', ...
-                        'making dnd on data_sqw_dnd with wrong dimensions');
+                    error('HORACE:DnDBase:invalid_argument',...
+                        'unknown input type')
                 end
             else
-                error('HORACE:DnDBase:invalid_argument', ...
-                    'make dnd on not data_sqw_dnd');
+                if isstruct(varargin{1})
+                    if isfield(varargin{1},'p')
+                        ndims = numel(varargin{1}.p);
+                        %                     elseif isfield(varargin{1},'')
+                    else
+                        error('HORACE:DnDBase:invalid_argument',...
+                            'can not indentify the dimensions of the input data');
+                    end
+                else
+                    ndims = varargin{1}.dimensions;
+                end
+            end
+            switch(ndims)
+                case(0)
+                    w = d0d(varargin{:});
+                case(1)
+                    w = d1d(varargin{:});
+                case(2)
+                    w = d2d(varargin{:});
+                case(3)
+                    w = d3d(varargin{:});
+                case(4)
+                    w = d4d(varargin{:});
+                otherwise
+                    error('HORACE:DnDBase:invalid_argument', ...
+                        'can not build dnd object with %d dimensions', ...
+                        ndims);
             end
         end
-
     end
 
     methods
@@ -165,7 +182,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             if args.array_numel>1
                 obj = repmat(obj,args.array_size);
             elseif args.array_numel==0
-                obj = obj.from_bare_struct(args.data_struct);
+                obj = obj.from_struct(args.data_struct);
             end
             for i=1:args.array_numel
                 % i) copy
@@ -173,16 +190,17 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                     obj(i) = copy(args.dnd_obj(i));
                     % ii) struct
                 elseif ~isempty(args.data_struct)
-                    obj(i) = obj(i).from_bare_struct(args.data_struct(i));
-                    % iia) data_sqw_dnd_obj
-                elseif ~isempty(args.data_sqw_dnd)
-                    obj(i) = init_from_data_sqw_dnd_(obj(i),args.data_sqw_dnd(i));
+                    obj(i) = obj(i).from_struct(args.data_struct(i));
+                elseif ~isempty(args.set_of_fields)
+                    keys = obj.saveableFields();
+                    obj(i) = set_positional_and_key_val_arguments(obj,...
+                        keys,args.set_of_fields{:});
                     % iii) filename
                 elseif ~isempty(args.filename)
                     obj(i) = init_from_file_(obj(i),args.filename{i});
                     % iv) from sqw
                 elseif ~isempty(args.sqw_obj)
-                    obj(i) = init_from_sqw_(obj(i),args.sqw_obj(i));
+                    obj(i) = args.sqw_obj(i).data;
                 end
             end
         end

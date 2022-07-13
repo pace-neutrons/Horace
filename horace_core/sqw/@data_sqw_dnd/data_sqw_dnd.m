@@ -6,7 +6,6 @@ classdef data_sqw_dnd < axes_block
     % Original author: T.G.Perring
     %
     properties(Dependent)
-        pix;
 
         % The pixels are rebinned on this grid
         img_db_range;
@@ -201,15 +200,6 @@ classdef data_sqw_dnd < axes_block
             dnd_struct = obj.get_dnd_data_(varargin{:});
         end
         %
-        function obj=clear_sqw_data(obj)
-            obj.pix = PixelData();
-        end
-        function pix = get.pix(obj)
-            pix = obj.pix_;
-        end
-        function obj = set.pix(obj,val)
-        end
-
         %
         function [type,obj]=check_sqw_data(obj, type_in, varargin)
             % old style validator for consistency of input data.

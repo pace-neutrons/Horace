@@ -97,7 +97,7 @@ data_opt= [opt1, opt2];
 sqw_struc.data = obj.get_data(data_opt{:});
 
 if ~opts.nopix && obj.npixels>0
-    sqw_struc.pix = PixelData(obj, opts.pixel_page_size,~noupgrade);
+    sqw_struc.pix = PixelData(obj, opts.pixel_page_size,~opts.noupgrade);
     %
 end
 
@@ -108,10 +108,10 @@ old_file = ~sqw_struc.main_header.creation_date_defined;
 % without critical drop in performance.
 if (sqw_struc.pix.num_pixels >0 ) && ...
         old_file
-    runid = unique(sqw_struc.data.pix.run_idx);
+    runid = unique(sqw_struc.pix.run_idx);
     file_id = exp_info.runid_map.keys;
     file_id = [file_id{:}];
-    if sqw_struc.data.pix.n_pages == 1 % all pixels are in memory and we
+    if sqw_struc.pix.n_pages == 1 % all pixels are in memory and we
         % can properly analyse run-ids
 
         if ~all(ismember(runid,file_id))  % old style pixel data, run_id-s
@@ -145,6 +145,7 @@ if opts.legacy
     varargout{1} = sqw_struc.experiment_info;
     varargout{2} = sqw_struc.detpar;
     varargout{3} = sqw_struc.data;
+    varargout{4} = sqw_struc.pix;    
 elseif opts.head || opts.his
     sqw_object  = sqw_struc;
 else

@@ -163,6 +163,61 @@ classdef test_dnd_constructor < TestCase
             assertEqual(sqw_obj.data.label, dnd_obj.label);
         end
         %-------------------------------------------------------------------
+        % Non-empty constructor
+        function test_d4d_non_empty(~)
+            % s,e,npix,axis, proj;
+            input = {ones(10,10,10,10),ones(10,10,10,10),ones(10,10,10,10),...
+                axes_block([0,0.1,1],[0,0.1,1],[0,0.1,1],[0,0.2,2]),ortho_proj()};
+            assertExceptionThrown(@()d1d(input{:}),'HORACE:DnDBase:invalid_argument');
+            assertExceptionThrown(@()d0d(input{:}),'HORACE:DnDBase:invalid_argument');
+            obj = d4d(input{:});
+
+            assertTrue(isa(obj,'d4d'));
+        end
+        
+        function test_d3d_non_empty(~)
+            % s,e,npix,axis, proj;
+            input = {ones(10,10,10),ones(10,10,10),ones(10,10,10),...
+                axes_block([0,0.1,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj()};
+            assertExceptionThrown(@()d1d(input{:}),'HORACE:DnDBase:invalid_argument');
+            assertExceptionThrown(@()d0d(input{:}),'HORACE:DnDBase:invalid_argument');
+            assertExceptionThrown(@()d4d(input{:}),'HORACE:DnDBase:invalid_argument');
+            obj = d3d(input{:});
+
+            assertTrue(isa(obj,'d3d'));
+        end
+        
+        function test_d2d_non_empty(~)
+            % s,e,npix,axis, proj;
+            input = {ones(10,10),ones(10,10),ones(10,10),...
+                axes_block([0,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj()};
+            assertExceptionThrown(@()d1d(input{:}),'HORACE:DnDBase:invalid_argument');
+            assertExceptionThrown(@()d0d(input{:}),'HORACE:DnDBase:invalid_argument');
+            assertExceptionThrown(@()d3d(input{:}),'HORACE:DnDBase:invalid_argument');
+            assertExceptionThrown(@()d4d(input{:}),'HORACE:DnDBase:invalid_argument');
+            obj = d2d(input{:});
+
+            assertTrue(isa(obj,'d2d'));
+        end
+
+        function test_d1d_non_empty(~)
+            % s,e,npix,axis, proj;
+            input = {ones(1,10),ones(1,10),ones(1,10),...
+                axes_block([0,1],[0,1],[0,0.1,1],[0,2]),ortho_proj()};
+            assertExceptionThrown(@()d0d(input{:}),'HORACE:DnDBase:invalid_argument');
+            obj = d1d(input{:});
+
+            assertTrue(isa(obj,'d1d'));
+        end
+
+        function test_d0d_non_empty(~)
+            % s,e,npix,axis, proj;
+            input = {1,1,1,axes_block(0),ortho_proj()};
+            obj = d0d(input{:});
+
+            assertTrue(isa(obj,'d0d'));
+        end
+        %-------------------------------------------------------------------
         %% Dimension
         function test_d0d_constructor_returns_zero_d_instance(~)
             dnd_obj = d0d();
@@ -222,7 +277,7 @@ classdef test_dnd_constructor < TestCase
 
         function test_d1d_get_returns_set_properties(obj)
             dnd_obj = d1d();
-            obj.assert_dnd_get_returns_set_properties(dnd_obj,10);            
+            obj.assert_dnd_get_returns_set_properties(dnd_obj,10);
         end
 
         function test_d2d_get_returns_set_properties(obj)
