@@ -174,14 +174,17 @@ classdef MFParallel_Job < JobExecutor
                 obj.Store);
 
             % Compute Jacobian matrix
+            sumArr = @(varargin) sum(cat(3, varargin{:}), 3);
 
             jac=obj.wt.*jac;
             nrm = dot(jac, jac);
+            nrm = obj.reduce(1, nrm, sumArr, 'args');
+            nrm = obj.bcast(1, nrm);
             nrm(nrm > 0) = 1 ./ sqrt(nrm(nrm > 0));
+
             jac = nrm .* jac;
             resid = obj.wt.*(obj.yval-obj.f_best);
 
-            sumArr = @(varargin) sum(cat(3, varargin{:}), 3);
 
             N = jac'*jac;
             N = obj.reduce(1, N, sumArr, 'args');
