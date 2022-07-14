@@ -227,7 +227,6 @@ classdef dnd_binfile_common < dnd_file_interface
             flds = fields_to_save@dnd_file_interface(obj);
             flds = [flds(:);obj.fields_to_save_(:)];
         end
-
         %
         function obj=init_from_structure(obj,obj_structure_from_saveobj)
             % init file accessors using structure, obtained for object
@@ -312,7 +311,9 @@ classdef dnd_binfile_common < dnd_file_interface
         [sqw_obj,varargout] = get_sqw(obj,varargin);
         % retrieve full dnd object from sqw file containing dnd or dnd and
         % sqw information
-        [dnd_obj,varargout] = get_dnd(obj,varargin);
+        function [dnd_obj,obj] = get_dnd(obj,varargin)
+            [dnd_obj,obj] = obj.get_data(varargin{:});
+        end
 
         function pix_range = get_pix_range(~)
             % get [2x4] array of min/max ranges of the pixels contributing

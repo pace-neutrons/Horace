@@ -14,13 +14,16 @@ args = struct(...
     'dnd_obj',              [], ...
     'sqw_obj',              [], ...
     'set_of_fields',        [], ...
-    'filename',             [], ...
     'data_struct',          [] ...
     );
-keys = obj.saveableFields();
-keys_present = any(cellfun(@(x)(ischar(x)||isstring(x))&&ismember(x,keys),varargin));
 
-if isa(input_data{1}, 'SQWDnDBase')
+if isempty(input_data)
+    % create struct holding default instance contents
+    args.data_struct.axes =   axes_block(obj.NUM_DIMS);
+    args.data_struct.proj =   ortho_proj();
+    sz = args.data_struct.axes.dims_as_ssize;
+    args.data_struct = init_arrays_(args.data_struct,sz);
+elseif isa(input_data{1}, 'SQWDnDBase')
     args.array_numel = numel(input_data);
     args.array_size = size(input_data);
     if isa(input_data{1}, class(obj))
@@ -32,29 +35,33 @@ if isa(input_data{1}, 'SQWDnDBase')
     elseif isa(input_data{1}, 'sqw')
         if args.array_numel ==1
             args.sqw_obj = input_data{1};
+            if ~isa(args.sqw_obj.data,class(obj))
+                error(['HORACE:', class(obj),':invalid_argument'], ...
+                    'The source sqw object contains invalid shape dnd object')
+            end
         else
+            is_valid = cellfun(@(x)isa(x.data,class(obj)),input_data);
+            if ~all(is_valid)
+                error(['HORACE:', class(obj),':invalid_argument'], ...
+                    'The source sqw object contains invalid shape dnd object')
+            end
             args.sqw_obj = input_data;
         end
     else
-        error(['HORACE:', class(obj),'invalid_argument'], ...
+        error(['HORACE:', class(obj),':invalid_argument'], ...
             'Class %s cannot be constructed from an instance of object %s',...
             upper(class(obj)),class(input_data{1}));
     end
 
-elseif is_string(input_data{1}) && ~keys_present
-    args.filename = input_data;
-elseif (iscellstr(input_data)||isstring(input_data)) && ~keys_present% cellarray of filenames
-    args.filename = input_data;
-    args.array_numel = numel(input_data);
-    args.array_size = size(input_data);
+elseif iscellstr(input_data)||isstring(input_data)
+    error(['HORACE:', class(obj),':invalid_argument'],...
+        '%d object can not be constructed from string. Use read_dnd (or read/load) operation to get it from file', ...
+        class(obj))
 elseif isstruct(input_data{1}) && ~isempty(input_data{1})
     args.data_struct = input_data;
 elseif numel(input_data) > 1
     args.set_of_fields = varargin;
 else
-    % create struct holding default instance contents
-    args.data_struct.axes =   axes_block(obj.NUM_DIMS);
-    args.data_struct.proj =   ortho_proj();
-    sz = args.data_struct.axes.dims_as_ssize;
-    args.data_struct = init_arrays_(args.data_struct,sz);
+    error(['HORACE:', class(obj),':invalid_argument'], ...
+        'unknown input for %s constructor',class(obj));
 end

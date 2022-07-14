@@ -150,7 +150,7 @@ end
 if obj.convert_to_double
     data_str = obj.do_convert_to_double(data_str);
 end
-data_str = axes_block.convert_old_struct_into_nbins(data_str);
+%data_str = axes_block.convert_old_struct_into_nbins(data_str);
 %
 if ~header_only
     data_str = obj.get_se_npix(data_str);
@@ -165,4 +165,7 @@ end
 %                        %  data_sqw_dnd is serializable
 %data_str = serializable.from_struct(data_str);
 %
-proj = ortho_proj.get_proj_from_old_data(data_str);
+proj = ortho_proj.get_from_old_data(data_str);
+ax   = axes_block.get_from_old_data(data_str);
+
+data_str = DnDBase.dnd(data_str.s,data_str.e,data_str.npix,ax,proj);

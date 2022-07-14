@@ -39,14 +39,14 @@ classdef test_dnd_constructor < TestCase
 
         %% Copy
         function test_copy_constructor_clones_d2d_object(obj)
-            dnd_obj = d2d(obj.test_dnd_2d_fullpath);
+            dnd_obj = read_dnd(obj.test_dnd_2d_fullpath);
             dnd_copy = d2d(dnd_obj);
 
             assertTrue(isa(dnd_obj, 'd2d'));
             assertEqualToTol(dnd_copy, dnd_obj);
         end
 
-        function test_copy_constructor_clones_d4d_object(obj)
+        function test_copy_constructor_clones_d4d_object(~)
             dnd_obj = d4d();
             dnd_copy = d4d(dnd_obj);
 
@@ -55,18 +55,16 @@ classdef test_dnd_constructor < TestCase
         end
 
         function assert_constructor_returns_distinct_object(obj)
-            dnd_obj = d2d(obj.test_dnd_2d_fullpath);
+            dnd_obj = read_dnd(obj.test_dnd_2d_fullpath);
             dnd_copy = d2d(dnd_obj);
 
             dnd_copy.angdeg = [1, 25, 80];
             dnd_copy.title = 'test string';
-            dnd_copy.p{1} = [2,4,6];
             dnd_copy.s = ones(10);
 
             % changed data is not mirrored in initial
             assertFalse(equal_to_tol(dnd_copy.angdeg, dnd_obj.angdeg));
             assertFalse(equal_to_tol(dnd_copy.title, dnd_obj.title));
-            assertFalse(equal_to_tol(dnd_copy.p, dnd_obj.p));
             assertFalse(equal_to_tol(dnd_copy.s , dnd_obj.s));
 
             assertFalse(equal_to_tol(dnd_copy, dnd_obj));
@@ -74,7 +72,7 @@ classdef test_dnd_constructor < TestCase
 
         %% Filename
         function test_filename_constructor_returns_populated_class_from_dnd_file(obj)
-            d2d_obj = d2d(obj.test_dnd_2d_fullpath);
+            d2d_obj = read_dnd(obj.test_dnd_2d_fullpath);
 
             expected_ulen = [2.101896, 1.486265, 2.101896, 1.0000];
             expected_u_to_rlu = [1, 0, 1, 0; 1, 0, -1, 0; 0, 1, 0, 0; 0, 0, 0, 1];
@@ -84,12 +82,12 @@ classdef test_dnd_constructor < TestCase
             assertEqual(d2d_obj.dax, [1, 2]);
             assertEqual(d2d_obj.iax, [3, 4]);
             assertEqual(size(d2d_obj.s), [16, 11]);
-            assertEqualToTol(d2d_obj.ulen, expected_ulen, 'tol', 1e-5);
-            assertEqual(d2d_obj.u_to_rlu, expected_u_to_rlu, 'tol', 1e-5);
+            assertEqualToTol(d2d_obj.axes.ulen, expected_ulen, 'tol', 1e-5);
+            assertEqual(d2d_obj.proj.u_to_rlu, expected_u_to_rlu, 'tol', 1e-5);
         end
 
         function test_filename_constructor_returns_populated_class_from_sqw_file(obj)
-            d2d_obj = d2d(obj.test_sqw_2d_fullpath);
+            d2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
 
             expected_ulen = [2.101896, 1.486265, 2.101896, 1.0000];
             expected_u_to_rlu = [1, 0, 1, 0; 1, 0, -1, 0; 0, 1, 0, 0; 0, 0, 0, 1];
@@ -99,13 +97,13 @@ classdef test_dnd_constructor < TestCase
             assertEqual(d2d_obj.dax, [1, 2]);
             assertEqual(d2d_obj.iax, [3, 4]);
             assertEqual(size(d2d_obj.s), [16, 11]);
-            assertEqualToTol(d2d_obj.ulen, expected_ulen, 'tol', 1e-5);
-            assertEqual(d2d_obj.u_to_rlu, expected_u_to_rlu, 'tol', 1e-5);
+            assertEqualToTol(d2d_obj.axes.ulen, expected_ulen, 'tol', 1e-5);
+            assertEqual(d2d_obj.proj.u_to_rlu, expected_u_to_rlu, 'tol', 1e-5);
         end
 
         function test_fname_constr_returns_same_obj_as_sqw_constr_from_sqw_file(obj)
-            sqw_obj = sqw(obj.test_sqw_2d_fullpath);
-            d2d_obj = d2d(obj.test_sqw_2d_fullpath);
+            sqw_obj = read_sqw(obj.test_sqw_2d_fullpath);
+            d2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
 
             d2d_from_sqw = d2d(sqw_obj);
 
@@ -115,21 +113,21 @@ classdef test_dnd_constructor < TestCase
 
         %% SQW and dimensions checks
         function test_d2d_sqw_constuctor_raises_error_from_1d_sqw_object(obj)
-            sqw_obj = sqw(obj.test_sqw_1d_fullpath);
+            sqw_obj = read_sqw(obj.test_sqw_1d_fullpath);
             f = @() d2d(sqw_obj);
 
-            assertExceptionThrown(f, 'HORACE:DnDBase:invalid_argument');
+            assertExceptionThrown(f, 'HORACE:d2d:invalid_argument');
         end
 
         function test_d1d_sqw_constuctor_creates_d1d_from_1d_sqw_object(obj)
-            sqw_obj = sqw(obj.test_sqw_1d_fullpath);
+            sqw_obj = read_sqw(obj.test_sqw_1d_fullpath);
             d1d_obj = d1d(sqw_obj);
 
             obj.assert_dnd_sqw_constructor_creates_dnd_from_sqw(sqw_obj, d1d_obj);
         end
 
         function test_save_load_d2d(obj)
-            sqw_obj = sqw(obj.test_sqw_2d_fullpath);
+            sqw_obj = read_sqw(obj.test_sqw_2d_fullpath);
             d2d_obj = d2d(sqw_obj);
 
             wkdir = tmp_dir();
@@ -142,14 +140,14 @@ classdef test_dnd_constructor < TestCase
 
 
         function test_d2d_sqw_constuctor_creates_d2d_from_2d_sqw_object(obj)
-            sqw_obj = sqw(obj.test_sqw_2d_fullpath);
+            sqw_obj = read_sqw(obj.test_sqw_2d_fullpath);
             d2d_obj = d2d(sqw_obj);
 
             obj.assert_dnd_sqw_constructor_creates_dnd_from_sqw(sqw_obj, d2d_obj);
         end
 
         function test_d4d_sqw_constuctor_creates_d4d_from_4d_sqw_object(obj)
-            sqw_obj = sqw(obj.test_sqw_4d_fullpath);
+            sqw_obj = read_sqw(obj.test_sqw_4d_fullpath);
             d4d_obj = d4d(sqw_obj);
 
             obj.assert_dnd_sqw_constructor_creates_dnd_from_sqw(sqw_obj, d4d_obj);
@@ -164,6 +162,45 @@ classdef test_dnd_constructor < TestCase
         end
         %-------------------------------------------------------------------
         % Non-empty constructor
+        function test_d0d_generator(~)
+            input = {0,0,0,...
+                axes_block([0,1],[0,1],[0,1],[0,2]),ortho_proj()};
+            dnd_obj = DnDBase.dnd(input{:});            
+            assertTrue(isa(dnd_obj,'d0d'));
+            
+        end
+        
+        function test_d1d_generator(~)
+            input = {ones(10),ones(10),ones(10),...
+                axes_block([0,1],[0,1],[0,1],[0,0.2,2]),ortho_proj()};
+            dnd_obj = DnDBase.dnd(input{:});            
+            assertTrue(isa(dnd_obj,'d1d'));
+            
+        end
+        
+        function test_d2d_generator(~)
+            input = {ones(10,10),ones(10,10),ones(10,10),...
+                axes_block([0,0.1,1],[0,1],[0,1],[0,0.2,2]),ortho_proj()};
+            dnd_obj = DnDBase.dnd(input{:});            
+            assertTrue(isa(dnd_obj,'d2d'));
+            
+        end
+        
+        function test_d3d_generator(~)
+            input = {ones(10,10,10),ones(10,10,10),ones(10,10,10),...
+                axes_block([0,0.1,1],[0,0.1,1],[0,1],[0,0.2,2]),ortho_proj()};
+            dnd_obj = DnDBase.dnd(input{:});            
+            assertTrue(isa(dnd_obj,'d3d'));
+            
+        end
+        
+        function test_d4d_generator(~)
+            input = {ones(10,10,10,10),ones(10,10,10,10),ones(10,10,10,10),...
+                axes_block([0,0.1,1],[0,0.1,1],[0,0.1,1],[0,0.2,2]),ortho_proj()};
+            dnd_obj = DnDBase.dnd(input{:});            
+            assertTrue(isa(dnd_obj,'d4d'));
+            
+        end
         function test_d4d_non_empty(~)
             % s,e,npix,axis, proj;
             input = {ones(10,10,10,10),ones(10,10,10,10),ones(10,10,10,10),...

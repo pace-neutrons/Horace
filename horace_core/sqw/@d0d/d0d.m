@@ -9,6 +9,12 @@ classdef d0d < DnDBase
     properties (Constant, Access = protected)
         NUM_DIMS = 0;
     end
+    methods
+        function obj = d0d(varargin)
+            obj = obj@DnDBase(varargin{:});
+        end
+        
+    end
 
     methods(Static)
         function obj = loadobj(S)

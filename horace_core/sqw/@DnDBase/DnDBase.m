@@ -182,7 +182,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             if args.array_numel>1
                 obj = repmat(obj,args.array_size);
             elseif args.array_numel==0
-                obj = obj.from_struct(args.data_struct);
+                obj = obj.from_bare_struct(args.data_struct);
             end
             for i=1:args.array_numel
                 % i) copy
@@ -190,15 +190,11 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                     obj(i) = copy(args.dnd_obj(i));
                     % ii) struct
                 elseif ~isempty(args.data_struct)
-                    obj(i) = obj(i).from_struct(args.data_struct(i));
+                    obj(i) = obj(i).from_bare_struct(args.data_struct(i));
                 elseif ~isempty(args.set_of_fields)
                     keys = obj.saveableFields();
                     obj(i) = set_positional_and_key_val_arguments(obj,...
                         keys,args.set_of_fields{:});
-                    % iii) filename
-                elseif ~isempty(args.filename)
-                    obj(i) = init_from_file_(obj(i),args.filename{i});
-                    % iv) from sqw
                 elseif ~isempty(args.sqw_obj)
                     obj(i) = args.sqw_obj(i).data;
                 end

@@ -346,17 +346,14 @@ classdef ortho_proj<aProjection
             lst = {'u_to_rlu','nonorthogonal','alatt','angdeg','uoffset','label'};
         end
 
-        function proj = get_proj_from_old_data(data_struct,header_av,pix_range)
-            % construct projection from old style data (data_sqw_dnd)
-            % structure
+        function proj = get_from_old_data(data_struct,header_av)
+            % construct ortho_proj from old style data structure
+            % normally stored in binary
+            % Horace files versions 3 and lower.
             if nargin == 1
                 header_av = [];
-                pix_range = [];
             end
-            if nargin == 2
-                pix_range = [];                
-            end
-            proj = build_from_old_data_struct_(data_struct,header_av,pix_range);
+            proj = build_from_old_data_struct_(data_struct,header_av);
         end
     end
     methods(Access = protected)

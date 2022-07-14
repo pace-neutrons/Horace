@@ -531,6 +531,13 @@ classdef axes_block < serializable
     end
     %
     methods(Static)
+        function ax = get_from_old_data(input)
+            % supports getting axes block from the data, stored in binary
+            % Horace files versions 3 and lower.
+            ax = axes_block();
+            ax = ax.from_old_struct(input);
+        end
+        %
         function input = convert_old_struct_into_nbins(input)
             % the function, used to convert old v1 axes_block structure,
             % containing axes information, into the v2 structure,
