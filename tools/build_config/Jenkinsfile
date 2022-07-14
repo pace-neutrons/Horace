@@ -76,7 +76,7 @@ if (env.BRANCH_NAME) {
 
 Boolean run_build_stage = !(env?.PR_LABELS =~ "do-not-build")
 Boolean run_test_stage = !(env?.PR_LABELS =~ "(do-not-build|do-not-test)") || pli.release_type != 'benchmark'
-Boolean run_benchmark_stage = pli.release_type == 'benchmark' || env?.RUN_BENCHMARK
+Boolean run_benchmark_stage = env?.RELEASE_TYPE == 'benchmark' || env?.RUN_BENCHMARK
 
 pipeline {
   agent {
