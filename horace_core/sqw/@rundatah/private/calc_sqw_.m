@@ -47,16 +47,11 @@ axes_bl = proj.get_proj_axes_block(pix_db_range_in,grid_size_in);
 [data.npix,data.s,data.e,pix,run_id,det0,axes_bl] = ...
     proj.bin_pixels(axes_bl,obj,data.npix,data.s,data.e);
 [data.s, data.e] = normalize_signal(data.s, data.e, data.npix);
-% OLD Interface
-% either does nothing if img_range was defined before, or defines img_range
-% equal to pix_range, if img_range was undefined
-data.img_range = axes_bl.img_range;
+data.axes.img_range = axes_bl.img_range;
 
 exp_info.expdata(1).run_id = run_id;
 
-data.pix=pix;
 pix_range = pix.pix_range;
-
 
 % Create sqw object (just a packaging of pointers, so no memory penalty)
 % ----------------------------------------------------------------------
@@ -66,6 +61,7 @@ w.main_header.creation_date = datetime('now');
 w.detpar = det0;
 w.experiment_info = exp_info;
 w.data = data;
+w.pix=pix;
 
 %------------------------------------------------------------------------------------------------------------------
 function [header,sqw_data] = calc_sqw_data_and_header (obj,axes_bl)
@@ -87,9 +83,9 @@ function [header,sqw_data] = calc_sqw_data_and_header (obj,axes_bl)
 
 lat = obj.lattice.set_rad();
 
-
-sqw_data = data_sqw_dnd(axes_bl, ...
-    'alatt',lat.alatt,'angdeg',lat.angdeg);
+proj = ortho_proj('u',lat.u,'v',lat.v,'alatt',lat.alatt,'angdeg',lat.angdeg);
+%sqw_data = data_sqw_dnd(axes_bl, ...
+%    'alatt',lat.alatt,'angdeg',lat.angdeg);
 % Should be removed, and replaced by ortho_proj
 [~, u_to_rlu] = obj.lattice.calc_proj_matrix();
 ulen = [1,1,1,1];
@@ -97,9 +93,11 @@ uoffset = [0;0;0;0];
 u_to_rlu =  [u_to_rlu,zeros(3,1);[0,0,0,1]];
 %sqw_data.u_to_rlu = eye(4); % conversion from pixels to image. Sould it be
 %unity here?
-sqw_data.u_to_rlu =u_to_rlu;
+proj = proj.set_from_data_mat(u_to_rlu ,ulen);
+%proj.u_to_rlu =u_to_rlu;
 % Old value creates confusion: sqw_data.u_to_rlu = u_to_rlu;
-sqw_data.ulen = ulen;
+axes_bl.ulen = ulen;
+sqw_data = DnDBase.dnd(axes_bl,proj);
 
 expdata = IX_experiment([fn,fe], [fp,filesep], ...
     obj.efix,obj.emode,lat.u,lat.v,...

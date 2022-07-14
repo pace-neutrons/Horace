@@ -6,7 +6,6 @@ classdef test_dnd_constructor < TestCase
         SQW_FILE_2D_NAME = 'sqw_2d_1.sqw';
         SQW_FILE_4D_NAME = 'sqw_4d.sqw';
 
-        TEST_FILES_PATH = '../common_data/';
     end
 
     properties
@@ -14,27 +13,109 @@ classdef test_dnd_constructor < TestCase
         test_sqw_1d_fullpath = '';
         test_sqw_2d_fullpath = '';
         test_sqw_4d_fullpath = '';
+
+        test_data
+        common_data;
     end
 
     methods(Static)
-        function fullpath = build_full_path(file_relative_path, filename)
-            filepath = java.io.File(pwd(), fullfile(file_relative_path, filename));
-            fullpath = char(filepath.getCanonicalPath());
-        end
     end
 
     methods
 
         function obj = test_dnd_constructor(~)
             obj = obj@TestCase('test_dnd_constructor');
+            hor_root = horace_root();
+            obj.common_data = fullfile(hor_root,'_test/common_data');
+            obj.test_data=fullfile(hor_root,'_test/test_combine');
 
-            obj.test_sqw_1d_fullpath = obj.build_full_path(obj.TEST_FILES_PATH, obj.SQW_FILE_1D_NAME);
-            obj.test_sqw_2d_fullpath = obj.build_full_path(obj.TEST_FILES_PATH, obj.SQW_FILE_2D_NAME);
-            obj.test_sqw_4d_fullpath = obj.build_full_path(obj.TEST_FILES_PATH, obj.SQW_FILE_4D_NAME);
+            obj.test_sqw_1d_fullpath = fullfile(obj.common_data, obj.SQW_FILE_1D_NAME);
+            obj.test_sqw_2d_fullpath = fullfile(obj.common_data, obj.SQW_FILE_2D_NAME);
+            obj.test_sqw_4d_fullpath = fullfile(obj.common_data, obj.SQW_FILE_4D_NAME);
 
-            obj.test_dnd_2d_fullpath = obj.build_full_path(obj.TEST_FILES_PATH, obj.DND_FILE_2D_NAME);
+            obj.test_dnd_2d_fullpath = fullfile(obj.common_data, obj.DND_FILE_2D_NAME);
+        end
+        function this = test_dnd_from_sqw_array(this)
+            % generate test data
+            par_file = fullfile(this.common_data,'96dets.par');
+            S=ones(10,96);
+            ERR=ones(10,96);
+            en = 0:2:20;
+            rd = gen_nxspe(S,ERR,en,par_file,'',20,1,2);
+            sqw_obj1 = rd.calc_sqw([]);
+            S=2*ones(10,96);
+            ERR=2*ones(10,96);
+            rd = gen_nxspe(S,ERR,en,par_file,'',20,1,2);
+            sqw_obj2 = rd.calc_sqw([]);
+            sqw_obj = [sqw_obj1,sqw_obj2];
+            
+            % check dnd array conversion
+            dnd_obj = dnd(sqw_obj);
+            assertEqual(size(sqw_obj),size(dnd_obj));
+            assertEqual(sqw_obj(1).data.s,dnd_obj(1).s);
+            assertEqual(sqw_obj(1).data.e,dnd_obj(1).e);
+            assertEqual(sqw_obj(2).data.s,dnd_obj(2).s);
+            assertEqual(sqw_obj(2).data.e,dnd_obj(2).e);
+            
+            % check d4d array conversion
+            dnd_obj = d4d(sqw_obj);
+            assertEqual(size(sqw_obj),size(dnd_obj));
+            assertEqual(sqw_obj(1).data.s,dnd_obj(1).s);
+            assertEqual(sqw_obj(1).data.e,dnd_obj(1).e);
+            assertEqual(sqw_obj(2).data.s,dnd_obj(2).s);
+            assertEqual(sqw_obj(2).data.e,dnd_obj(2).e);
+            
+            % check d4d->d2d conversion fails
+            f = @()d2d(sqw_obj);
+            assertExceptionThrown(f,'HORACE:d2d:invalid_argument');
+        end
+        
+        function test_read_array_from_multifiles(obj)
+            file = fullfile(obj.test_data,'w2d_qq_d2d.sqw');
+            t2 = read_dnd({file,file});        
+            assertTrue(isa(t2,'d2d'))
+            assertEqual(size(t2),[1,2]);
+        end
+        
+        function this = test_dnd_from_sqw(this)
+            par_file = fullfile(this.common_data,'96dets.par');
+            S=ones(10,96);
+            ERR=ones(10,96);
+            en = 0:2:20;
+            rd = gen_nxspe(S,ERR,en,par_file,'',20,1,2);
+            sqw_obj = rd.calc_sqw([]);
+
+            dnd_obj = dnd(sqw_obj);
+            assertEqual(sqw_obj.data.s,dnd_obj.s);
+            assertEqual(sqw_obj.data.e,dnd_obj.e);
         end
 
+
+        function obj = test_arg_constructor(obj)
+            % TODO: This does not work any more. Should we recover this
+            % constructor? #824
+            %
+            %Create empty object suitable for simulations:
+            %  >> w = d2d (proj, p1_bin, p2_bin, p3_bin, p4_bin)
+            %  >> w = d2d (lattice, proj,...)
+            %
+            %**Or** (old syntax, still available for legacy purposes)
+            %  >> w = d2d (u1,p1,u2,p2)    % u1,u2 vectors define projection axes in rlu,
+            %                                p1,p2 give start,step and finish for the axes
+            %  >> w = d2d (u0,...)         % u0 is offset of origin of dataset,
+            %  >> w = d2d (lattice,...)    % Give lattice parameters [a,b,c,alf,bet,gam]
+            %  >> w = d2d (lattice,u0,...) % Give u0 and lattice parameters
+
+
+            t2 = read_dnd(fullfile(obj.test_data,'w2d_qq_d2d.sqw'));
+            assertTrue(isa(t2,'d2d'))
+            ax = axes_block([-2,0.05,2],[-2,0.05,2],[0,1],[0,1]);
+            proj = ortho_proj('alatt',3.2,'offset',[0,1,1,0],'u',[1,0,0],'v',[0,1,0]);
+            t2 = d2d(ax,proj,zeros(80,80),zeros(80,80),ones(80,80));
+            assertTrue(isa(t2,'d2d'))
+            assertEqual(t2.offset,[0,1,1,0]);
+
+        end
 
 
         %% Copy
@@ -163,59 +244,59 @@ classdef test_dnd_constructor < TestCase
         %-------------------------------------------------------------------
         % Non-empty constructor
         function test_d0d_generator(~)
-            input = {0,0,0,...
-                axes_block([0,1],[0,1],[0,1],[0,2]),ortho_proj()};
-            dnd_obj = DnDBase.dnd(input{:});            
+            input = {axes_block([0,1],[0,1],[0,1],[0,2]),ortho_proj(),...
+                1,1,1};
+            dnd_obj = DnDBase.dnd(input{:});
             assertTrue(isa(dnd_obj,'d0d'));
-            
+
         end
-        
+
         function test_d1d_generator(~)
-            input = {ones(10),ones(10),ones(10),...
-                axes_block([0,1],[0,1],[0,1],[0,0.2,2]),ortho_proj()};
-            dnd_obj = DnDBase.dnd(input{:});            
+            input = {axes_block([0,1],[0,1],[0,1],[0,0.2,2]),ortho_proj(),...
+                ones(10),ones(10),ones(10)};
+            dnd_obj = DnDBase.dnd(input{:});
             assertTrue(isa(dnd_obj,'d1d'));
-            
+
         end
-        
+
         function test_d2d_generator(~)
-            input = {ones(10,10),ones(10,10),ones(10,10),...
-                axes_block([0,0.1,1],[0,1],[0,1],[0,0.2,2]),ortho_proj()};
-            dnd_obj = DnDBase.dnd(input{:});            
+            input = {axes_block([0,0.1,1],[0,1],[0,1],[0,0.2,2]),ortho_proj(),...
+                ones(10,10),ones(10,10),ones(10,10)};
+            dnd_obj = DnDBase.dnd(input{:});
             assertTrue(isa(dnd_obj,'d2d'));
-            
+
         end
-        
+
         function test_d3d_generator(~)
-            input = {ones(10,10,10),ones(10,10,10),ones(10,10,10),...
-                axes_block([0,0.1,1],[0,0.1,1],[0,1],[0,0.2,2]),ortho_proj()};
-            dnd_obj = DnDBase.dnd(input{:});            
+            input = {axes_block([0,0.1,1],[0,0.1,1],[0,1],[0,0.2,2]),ortho_proj(),...
+                ones(10,10,10),ones(10,10,10),ones(10,10,10)};
+            dnd_obj = DnDBase.dnd(input{:});
             assertTrue(isa(dnd_obj,'d3d'));
-            
+
         end
-        
+
         function test_d4d_generator(~)
-            input = {ones(10,10,10,10),ones(10,10,10,10),ones(10,10,10,10),...
-                axes_block([0,0.1,1],[0,0.1,1],[0,0.1,1],[0,0.2,2]),ortho_proj()};
-            dnd_obj = DnDBase.dnd(input{:});            
+            input = {axes_block([0,0.1,1],[0,0.1,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
+                ones(10,10,10,10),ones(10,10,10,10),ones(10,10,10,10)};
+            dnd_obj = DnDBase.dnd(input{:});
             assertTrue(isa(dnd_obj,'d4d'));
-            
+
         end
         function test_d4d_non_empty(~)
-            % s,e,npix,axis, proj;
-            input = {ones(10,10,10,10),ones(10,10,10,10),ones(10,10,10,10),...
-                axes_block([0,0.1,1],[0,0.1,1],[0,0.1,1],[0,0.2,2]),ortho_proj()};
+            %axis, proj, s,e,npix
+            input = {axes_block([0,0.1,1],[0,0.1,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
+                ones(10,10,10,10),ones(10,10,10,10),ones(10,10,10,10)};
             assertExceptionThrown(@()d1d(input{:}),'HORACE:DnDBase:invalid_argument');
             assertExceptionThrown(@()d0d(input{:}),'HORACE:DnDBase:invalid_argument');
             obj = d4d(input{:});
 
             assertTrue(isa(obj,'d4d'));
         end
-        
+
         function test_d3d_non_empty(~)
-            % s,e,npix,axis, proj;
-            input = {ones(10,10,10),ones(10,10,10),ones(10,10,10),...
-                axes_block([0,0.1,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj()};
+            %axis, proj, s,e,npix
+            input = {axes_block([0,0.1,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
+                ones(10,10,10),ones(10,10,10),ones(10,10,10)};
             assertExceptionThrown(@()d1d(input{:}),'HORACE:DnDBase:invalid_argument');
             assertExceptionThrown(@()d0d(input{:}),'HORACE:DnDBase:invalid_argument');
             assertExceptionThrown(@()d4d(input{:}),'HORACE:DnDBase:invalid_argument');
@@ -223,11 +304,24 @@ classdef test_dnd_constructor < TestCase
 
             assertTrue(isa(obj,'d3d'));
         end
+        function test_d2d_ax_and_projy(~)
+            %axis, proj, s,e,npix
+            input = {axes_block([0,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
+                };
+            assertExceptionThrown(@()d1d(input{:}),'HORACE:DnDBase:invalid_argument');
+            assertExceptionThrown(@()d0d(input{:}),'HORACE:DnDBase:invalid_argument');
+            assertExceptionThrown(@()d3d(input{:}),'HORACE:DnDBase:invalid_argument');
+            assertExceptionThrown(@()d4d(input{:}),'HORACE:DnDBase:invalid_argument');
+            obj = d2d(input{:});
+
+            assertTrue(isa(obj,'d2d'));
+        end
         
+
         function test_d2d_non_empty(~)
-            % s,e,npix,axis, proj;
-            input = {ones(10,10),ones(10,10),ones(10,10),...
-                axes_block([0,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj()};
+            %axis, proj, s,e,npix
+            input = {axes_block([0,1],[0,1],[0,0.1,1],[0,0.2,2]),ortho_proj(),...
+                ones(10,10),ones(10,10),ones(10,10)};
             assertExceptionThrown(@()d1d(input{:}),'HORACE:DnDBase:invalid_argument');
             assertExceptionThrown(@()d0d(input{:}),'HORACE:DnDBase:invalid_argument');
             assertExceptionThrown(@()d3d(input{:}),'HORACE:DnDBase:invalid_argument');
@@ -238,9 +332,9 @@ classdef test_dnd_constructor < TestCase
         end
 
         function test_d1d_non_empty(~)
-            % s,e,npix,axis, proj;
-            input = {ones(1,10),ones(1,10),ones(1,10),...
-                axes_block([0,1],[0,1],[0,0.1,1],[0,2]),ortho_proj()};
+            %axis, proj, s,e,npix
+            input = {axes_block([0,1],[0,1],[0,0.1,1],[0,2]),ortho_proj(),...
+                ones(1,10),ones(1,10),ones(1,10)};
             assertExceptionThrown(@()d0d(input{:}),'HORACE:DnDBase:invalid_argument');
             obj = d1d(input{:});
 
@@ -249,7 +343,7 @@ classdef test_dnd_constructor < TestCase
 
         function test_d0d_non_empty(~)
             % s,e,npix,axis, proj;
-            input = {1,1,1,axes_block(0),ortho_proj()};
+            input = {axes_block(0),ortho_proj(),1,1,1};
             obj = d0d(input{:});
 
             assertTrue(isa(obj,'d0d'));

@@ -159,7 +159,7 @@ end
 if header_only || verbatim || noclass
     return;
 end
-%data_str.serial_name = 'data_sqw_dnd'; % convert structure, stored in 
+%data_str.serial_name = 'data_sqw_dnd'; % convert structure, stored in
 %                        %  binary file into the form, suitable for
 %                        %  recovering using serializable class methods, as
 %                        %  data_sqw_dnd is serializable
@@ -168,4 +168,4 @@ end
 proj = ortho_proj.get_from_old_data(data_str);
 ax   = axes_block.get_from_old_data(data_str);
 
-data_str = DnDBase.dnd(data_str.s,data_str.e,data_str.npix,ax,proj);
+data_str = DnDBase.dnd(ax,proj,data_str.s,data_str.e,data_str.npix);

@@ -50,9 +50,6 @@ classdef (Abstract) SQWDnDBase < serializable
             %TODO remove this doing Ticket #730
             save_xye_(obj,varargin{:});
         end
-        function  [nd, sz] = dimensions(w)
-            [nd,sz] = w.data_.dimensions();
-        end
     end
 
     methods (Access = protected)

@@ -68,7 +68,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
                 map = obj.experiment_info.runid_map;
             end
         end
-
+        function [nd,sz] = dimensions(obj)
+            [nd,sz] = obj.data_.dimensions();
+        end
 
         wout = sigvar(w);
         w = sigvar_set(win, sigvar_obj);
@@ -97,7 +99,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         [ok,mess,w1tot,w2tot]=is_cut_equal(f1,f2,varargin);
         wtot=combine_cuts(w);
         wout=recompute_bin_data_tester(sqw_obj);
-        wout = dnd (win);
         %
         % return the header, common for all runs (average?)
         [header_ave, ebins_all_same]=header_average(header);

@@ -9,7 +9,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         %        'uoffset','u_to_rlu','ulen','label',...
         %        'dax','img_range','nbins_all_dims','s','e','npix'};
 
-        fields_to_save_ = {'s','e','npix','axes','proj'}
+        % order of the components defines the order of the inputs, accepted
+        % by constructor without the arguments
+        fields_to_save_ = {'axes','proj','s','e','npix'}
     end
 
     % The dependent props here have been created solely to retain the (old) DnD object API during the refactor.
@@ -48,11 +50,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         axes % access to the axes block class directly
         proj % access to projection class directly
     end
-    properties(Hidden,Dependent)
-        % the temporary property, which binds data_sqw_dnd and dnd object,
-        % necessary until data_sqw_dnd exist
-        data
-    end
     properties(Access = protected)
         s_    %cumulative signal for each bin of the image  size(data.s) == axes_block.dims_as_ssize)
         e_    %cumulative variance size(data.e) == axes_block.dims_as_ssize
@@ -62,7 +59,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         %                      crystal Cartesian coordinate system to this
         %                      image coordinate system.
     end
-
 
     methods(Access = protected)
 
@@ -113,6 +109,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase
 
     methods (Static)
         function w = dnd(varargin)
+            % create dnd object with size and dimensions, defined by inputs
+            %
             if (nargin>1)
                 has_axes = cellfun(@(x)isa(x,'axes_block'),varargin);
                 if any(has_axes)
@@ -131,19 +129,22 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                         error('HORACE:DnDBase:invalid_argument',...
                             'can not indentify the dimensions of the input data');
                     end
+                elseif isa(varargin{1},'sqw')
+                    ndims = varargin{1}.data.dimensions();
                 else
                     ndims = varargin{1}.dimensions;
                 end
             end
+            argi = varargin;
             switch(ndims)
                 case(0)
-                    w = d0d(varargin{:});
+                    w = d0d(argi{:});
                 case(1)
-                    w = d1d(varargin{:});
+                    w = d1d(argi{:});
                 case(2)
-                    w = d2d(varargin{:});
+                    w = d2d(argi{:});
                 case(3)
-                    w = d3d(varargin{:});
+                    w = d3d(argi{:});
                 case(4)
                     w = d4d(varargin{:});
                 otherwise
@@ -198,26 +199,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                 elseif ~isempty(args.sqw_obj)
                     obj(i) = args.sqw_obj(i).data;
                 end
-            end
-        end
-        % Public getters/setters expose all wrapped data attributes
-        function obj = set.data(obj, d)
-            if isa(d,'data_sqw_dnd')
-                obj.s_ = d.s;
-                obj.e_ = d.e;
-                obj.npix_ = d.npix;
-                obj.proj_ = d.get_projection();
-                obj.axes_ = axes_block(d);
-            elseif isempty(d)
-                obj.s_ = [];
-                obj.e_ = [];
-                obj.npix_ = [];
-                obj.proj_ = ortho_proj();
-                obj.axes_ = axes_block();
-            else
-                error('HORACE:DnDBase:invalid_argument',...
-                    'Only data_sqw_dnd class or empty value may be used as input for data. Got class: %s',...
-                    class(d))
             end
         end
         %

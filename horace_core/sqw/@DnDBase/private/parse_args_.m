@@ -24,8 +24,8 @@ if isempty(input_data)
     sz = args.data_struct.axes.dims_as_ssize;
     args.data_struct = init_arrays_(args.data_struct,sz);
 elseif isa(input_data{1}, 'SQWDnDBase')
-    args.array_numel = numel(input_data);
-    args.array_size = size(input_data);
+    args.array_numel = numel(input_data{1});
+    args.array_size = size(input_data{1});
     if isa(input_data{1}, class(obj))
         if args.array_numel ==1
             args.dnd_obj = input_data{1};
@@ -40,12 +40,13 @@ elseif isa(input_data{1}, 'SQWDnDBase')
                     'The source sqw object contains invalid shape dnd object')
             end
         else
-            is_valid = cellfun(@(x)isa(x.data,class(obj)),input_data);
+            cl_name = class(obj);
+            is_valid = arrayfun(@(x)isa(x.data,cl_name),input_data{1});
             if ~all(is_valid)
                 error(['HORACE:', class(obj),':invalid_argument'], ...
-                    'The source sqw object contains invalid shape dnd object')
+                    'The source sqw object contains different shapes dnd object(s)')
             end
-            args.sqw_obj = input_data;
+            args.sqw_obj = input_data{1};
         end
     else
         error(['HORACE:', class(obj),':invalid_argument'], ...
@@ -60,7 +61,17 @@ elseif iscellstr(input_data)||isstring(input_data)
 elseif isstruct(input_data{1}) && ~isempty(input_data{1})
     args.data_struct = input_data;
 elseif numel(input_data) > 1
-    args.set_of_fields = varargin;
+    if numel(input_data) == 2 && isa(input_data{1},'axes_block') && isa(input_data{2},'aProjection')
+        sz = input_data{1}.dims_as_ssize;
+        strc = init_arrays_(struct(),sz);
+        args.set_of_fields = [varargin(:);struct2cell(strc)];
+    elseif numel(input_data) >= 5
+        args.set_of_fields = input_data;
+    else
+        error(['HORACE:', class(obj),':invalid_argument'], ...
+            'Unrecognized number or type of the input arguments')
+    end
+
 else
     error(['HORACE:', class(obj),':invalid_argument'], ...
         'unknown input for %s constructor',class(obj));
