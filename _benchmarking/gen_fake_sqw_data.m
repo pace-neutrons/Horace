@@ -31,7 +31,7 @@ switch nData
         psi=0:2:90;
     case 8
         e_bin_boundaries=0:efix;
-        psi=0:0.1:90;
+        psi=0:1:90;
         
     otherwise
         error("HORACE:gen_bm_data:invalid_argument",...

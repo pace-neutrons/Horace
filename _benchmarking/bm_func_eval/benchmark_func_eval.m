@@ -1,4 +1,4 @@
-function benchmark_func_eval(sqw_obj,func_handle,params,nProcs,filename,nslow)
+function benchmark_func_eval(sqw_obj,func_handle,params,nProcs,filename)
 %BENCHMARK_FUNC_EVAL Summary of this function goes here
 %   Detailed explanation goes here
 %% Setup nprocs and other config info with hpc_config() (save intiial config details for later)

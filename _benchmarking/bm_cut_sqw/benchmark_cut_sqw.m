@@ -86,7 +86,6 @@ end
 
 % Check if the "contiguous", has been set to true (will do X contiguous
 % cuts)
-
 if isa(nData, 'char')
     if ~contiguous
         switch objType
@@ -125,18 +124,17 @@ elseif isa(nData,'double')
             sqw_obj = gen_bm_cut_data(nData);
             profile on
             sqw_cut = cut_sqw(sqw_obj,proj,p1_bin,p2_bin,p3_bin,p4_bin);
-            disp(sqw_cut)
         case "dnd"
-            sqw_obj = gen_bm_cut_data(nData);
+            dnd_obj = gen_bm_cut_data(nData);
             profile on
-            dnd_cut = cut_sqw(sqw_obj,proj,p1_bin,p2_bin,p3_bin,p4_bin,'-nopix');
+            dnd_cut = cut_sqw(dnd_obj,proj,p1_bin,p2_bin,p3_bin,p4_bin,'-nopix');
         otherwise
             error("HORACE:benchmark_cut_sqw:invalid_argument",...
                     "objType must be sqw or dnd")
     end
 else
     error("HORACE:benchmark_cut_sqw:invalid_argument",...
-                    "dataSource must eithe be an integer or an exisiting" + ...
+                    "dataSource must be an integer or an exisiting" + ...
                     " sqw filename")
 end
 
