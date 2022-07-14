@@ -27,9 +27,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 3;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='sqw';
+            objType="sqw";
             nProcs = 1;
-            eRange = 'large';
+            eRange = "large";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
         end
 
@@ -40,9 +40,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 2;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='sqw';
+            objType="sqw";
             nProcs = 1;
-            eRange = 'large';
+            eRange = "large";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
         end
 
@@ -53,9 +53,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 1;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='sqw';
+            objType="sqw";
             nProcs = 1;
-            eRange = 'large';
+            eRange = "large";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
         end
 
@@ -66,9 +66,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 3;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='dnd';
+            objType="dnd";
             nProcs = 1;
-            eRange = 'large';
+            eRange = "large";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
         end
 
@@ -79,9 +79,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 2;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='dnd';
+            objType="dnd";
             nProcs = 1;
-            eRange = 'large';
+            eRange = "large";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
         end
 
@@ -92,9 +92,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 1;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='dnd';
+            objType="dnd";
             nProcs = 1;
-            eRange = 'large';
+            eRange = "large";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
         end
 
@@ -105,9 +105,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 3;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='sqw';
+            objType="sqw";
             nProcs = 1;
-            eRange = 'medium';
+            eRange = "medium";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
         end
 
@@ -118,9 +118,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 2;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='sqw';
+            objType="sqw";
             nProcs = 1;
-            eRange = 'medium';
+            eRange = "medium";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
         end
 
@@ -131,9 +131,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 1;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='sqw';
+            objType="sqw";
             nProcs = 1;
-            eRange = 'medium';
+            eRange = "medium";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
         end
 
@@ -144,9 +144,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 3;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='dnd';
+            objType="dnd";
             nProcs = 1;
-            eRange = 'medium';
+            eRange = "medium";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
         end
 
@@ -157,9 +157,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 2;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='dnd';
+            objType="dnd";
             nProcs = 1;
-            eRange = 'medium';
+            eRange = "medium";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
         end
 
@@ -170,9 +170,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 1;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='dnd';
+            objType="dnd";
             nProcs = 1;
-            eRange = 'medium';
+            eRange = "medium";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
         end
 
@@ -183,9 +183,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 3;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='sqw';
+            objType="sqw";
             nProcs = 1;
-            eRange = 'small';
+            eRange = "small";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
         end
         
@@ -196,9 +196,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 2;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='sqw';
+            objType="sqw";
             nProcs = 1;
-            eRange = 'small';
+            eRange = "small";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
         end
 
@@ -209,9 +209,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 1;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='sqw';
+            objType="sqw";
             nProcs = 1;
-            eRange = 'small';
+            eRange = "small";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
         end
 
@@ -222,9 +222,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 3;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='dnd';
+            objType="dnd";
             nProcs = 1;
-            eRange = 'small';
+            eRange = "small";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
         end
 
@@ -235,9 +235,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 2;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='dnd';
+            objType="dnd";
             nProcs = 1;
-            eRange = 'small';
+            eRange = "small";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
         end
 
@@ -248,9 +248,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 1;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='dnd';
+            objType="dnd";
             nProcs = 1;
-            eRange = 'small';
+            eRange = "small";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
         end
 
@@ -261,9 +261,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 2;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='sqw';
+            objType="sqw";
             nProcs = 1;
-            eRange = 'medium';
+            eRange = "medium";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,'ture');
         end
 
@@ -274,9 +274,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 1;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='sqw';
+            objType="sqw";
             nProcs = 1;
-            eRange = 'medium';
+            eRange = "medium";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,'true');
         end
 
@@ -287,9 +287,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 2;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='dnd';
+            objType="dnd";
             nProcs = 1;
-            eRange = 'medium';
+            eRange = "medium";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,'ture');
         end
 
@@ -300,9 +300,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
             nDims = 1;
             data = "ironLarge";
             dataSource = gen_bm_cut_data(data);
-            objType='dnd';
+            objType="dnd";
             nProcs = 1;
-            eRange = 'medium';
+            eRange = "medium";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,'true');
         end
         
@@ -315,9 +315,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 3;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 2;
-%             eRange = 'large';
+%             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -328,9 +328,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 2;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 2;
-%             eRange = 'large';
+%             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -341,9 +341,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 1;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 2;
-%             eRange = 'large';
+%             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -354,9 +354,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 3;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 2;
-%             eRange = 'large';
+%             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -367,9 +367,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 2;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 1;
-%             eRange = 'large';
+%             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -380,9 +380,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 1;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 2;
-%             eRange = 'large';
+%             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -393,9 +393,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 3;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 2;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -406,9 +406,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 2;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 2;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -419,9 +419,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 1;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 2;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -432,9 +432,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 3;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 2;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -445,9 +445,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 2;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 2;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -458,9 +458,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 1;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 2;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -471,9 +471,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 3;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 2;
-%             eRange = 'small';
+%             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 %         
@@ -484,9 +484,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 2;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 2;
-%             eRange = 'small';
+%             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -497,9 +497,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 1;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 2;
-%             eRange = 'small';
+%             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -510,9 +510,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 3;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 2;
-%             eRange = 'small';
+%             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -523,9 +523,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 2;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 2;
-%             eRange = 'small';
+%             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -536,9 +536,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 1;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 2;
-%             eRange = 'small';
+%             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -549,9 +549,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 2;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 2;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,'ture');
 %         end
 % 
@@ -562,9 +562,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 1;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 2;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,'true');
 %         end
 
@@ -575,9 +575,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 2;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 2;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,'ture');
 %         end
 % 
@@ -588,9 +588,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 1;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 2;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,'true');
 %         end
 %         
@@ -601,9 +601,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 3;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 4;
-%             eRange = 'large';
+%             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -614,9 +614,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 2;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 4;
-%             eRange = 'large';
+%             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -627,9 +627,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 1;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 4;
-%             eRange = 'large';
+%             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -640,9 +640,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 3;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 4;
-%             eRange = 'large';
+%             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -653,9 +653,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 2;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 4;
-%             eRange = 'large';
+%             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -666,9 +666,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 1;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 4;
-%             eRange = 'large';
+%             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -679,9 +679,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 3;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 4;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -692,9 +692,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 2;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 4;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -705,9 +705,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 1;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 4;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -718,9 +718,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 3;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 4;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -731,9 +731,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 2;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 4;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -744,9 +744,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 1;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 4;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -757,9 +757,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 3;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 4;
-%             eRange = 'small';
+%             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 %         
@@ -770,9 +770,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 2;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 4;
-%             eRange = 'small';
+%             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -783,9 +783,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 1;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 4;
-%             eRange = 'small';
+%             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -796,9 +796,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 3;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 4;
-%             eRange = 'small';
+%             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -809,9 +809,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 2;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 4;
-%             eRange = 'small';
+%             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -822,9 +822,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 1;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 4;
-%             eRange = 'small';
+%             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
 % 
@@ -835,9 +835,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 2;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 4;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,'ture');
 %         end
 % 
@@ -848,9 +848,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 1;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='sqw';
+%             objType="sqw";
 %             nProcs = 4;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,'true');
 %         end
 % 
@@ -861,9 +861,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 2;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 4;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,'ture');
 %         end
 % 
@@ -874,9 +874,9 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %             nDims = 1;
 %             data = "ironLarge";
 %             dataSource = gen_bm_cut_data(data);
-%             objType='dnd';
+%             objType="dnd";
 %             nProcs = 4;
-%             eRange = 'medium';
+%             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,'true');
 %         end
     end

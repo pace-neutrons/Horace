@@ -5,7 +5,7 @@ common_data=fullfile(fileparts(fileparts(mfilename('fullpath')...
     )),'common_data');
 proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
 
-if isa(dataNum,'char')
+if isa(dataNum,'string')
     switch dataNum
         case "small"
             dataSource = fullfile(common_data,'ironSmall.sqw');
