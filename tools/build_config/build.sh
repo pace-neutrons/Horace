@@ -140,6 +140,7 @@ function main() {
   # set default parameter values
   local build=$FALSE
   local test=$FALSE
+  local benchmark=$FALSE
   local configure=$FALSE
   local analyze=$FALSE
   local package=$FALSE
