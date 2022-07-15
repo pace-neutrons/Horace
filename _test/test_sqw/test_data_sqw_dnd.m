@@ -35,8 +35,8 @@ classdef test_data_sqw_dnd < TestCaseWithSave
         function test_fresh_sqw_ranges_consistent(obj)
             %
             proj0 =  obj.ref_sqw.data.get_projection();
-            pix_range = obj.ref_sqw.data.pix.pix_range;
-            img_range = obj.ref_sqw.data.img_db_range;
+            pix_range = obj.ref_sqw.pix.pix_range;
+            img_range = obj.ref_sqw.img_db_range;
             full_pix_range = expand_box(pix_range(1,:),pix_range(2,:));
             eval_img_range = proj0.transform_pix_to_img(full_pix_range);
             full_img_range = expand_box(img_range(1,:),img_range(2,:));

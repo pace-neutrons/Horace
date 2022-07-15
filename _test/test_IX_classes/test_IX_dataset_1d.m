@@ -1,10 +1,7 @@
 classdef test_IX_dataset_1d <  TestCase
     %
     %Test class to test IX_dataset_1d methods
-    %
-    
-    
-    
+    %          
     properties
     end
     

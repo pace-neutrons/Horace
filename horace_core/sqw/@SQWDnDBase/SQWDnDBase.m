@@ -8,7 +8,9 @@ classdef (Abstract) SQWDnDBase < serializable
         pixels = has_pixels(win);
         % Run smooth operation over DnD objects or sqw objects without
         % pixels
-        wout = smooth(win, varargin);        
+        wout = smooth(win, varargin);
+        % Return size and shape of the image arrays in sqw or dnd object
+        [nd,sz] = dimensions(win)
     end
 
     methods (Static)
@@ -30,7 +32,7 @@ classdef (Abstract) SQWDnDBase < serializable
         wout = mask_random_fraction_pixels(win,npix);
         wout = mask_random_pixels(win,npix);
         varargout = change_crystal (varargin);
-        
+
         cl = save(w, varargin);
 
         [xout,yout,sout,eout,nout] = convert_bins_for_shoelace(win, wref);

@@ -76,7 +76,7 @@ classdef test_fake_sqw < TestCase
             assertTrue(isa(tsqw,'sqw'));
             assertTrue(tsqw.main_header.creation_date_defined);
 
-            pix = tsqw.data.pix.coordinates;
+            pix = tsqw.pix.coordinates;
             de0 = pix(4,:)==0; % find the momentum transfers, performed
             %                  % with dE = 0 (elastic mode)
             assertEqual(sum(de0),96);
@@ -94,7 +94,7 @@ classdef test_fake_sqw < TestCase
             tsqw2 = tsqw2{1};
             assertTrue(tsqw2.main_header.creation_date_defined);
 
-            pix1 = tsqw2.data.pix.coordinates;
+            pix1 = tsqw2.pix.coordinates;
             assertElementsAlmostEqual(pix,pix1,'absolute',1.e-7);
         end
     end

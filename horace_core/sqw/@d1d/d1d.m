@@ -15,6 +15,7 @@ classdef d1d < DnDBase
         function obj = d1d(varargin)
             obj = obj@DnDBase(varargin{:});            
         end
+        dat = IX_dataset_1D(obj);
 
         wout = cut (varargin);
         wout = combine_horace_1d(w1,w2,varargin);

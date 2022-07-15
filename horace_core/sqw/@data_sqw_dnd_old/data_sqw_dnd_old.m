@@ -1,4 +1,4 @@
-classdef data_sqw_dnd < axes_block
+classdef data_sqw_dnd_old < axes_block
     % Class defines structure of the data, used by sqw&dnd objects
     %
     % Trivial implementation, wrapping around a structure
@@ -43,7 +43,7 @@ classdef data_sqw_dnd < axes_block
             % get independent fields, which fully define the state of a
             % serializable object.
             flds = saveableFields@axes_block(obj);
-            flds = [flds(:);data_sqw_dnd.fields_to_save_(:)];
+            flds = [flds(:);data_sqw_dnd_old.fields_to_save_(:)];
         end
         %------------------------------------------------------------------
         % Determine data type of the data field of an sqw data structure
@@ -52,7 +52,7 @@ classdef data_sqw_dnd < axes_block
         % object.
         proj = get_projection(obj,header_av)
         %------------------------------------------------------------------
-        function obj = data_sqw_dnd(varargin)
+        function obj = data_sqw_dnd_old(varargin)
             % constructor || copy-constructor:
             % Builds valid data_sqw_dnd object from various data structures
             %
@@ -265,7 +265,7 @@ classdef data_sqw_dnd < axes_block
             if isfield(inputs,'pax') && isfield(inputs,'iax')
                 inputs.serial_name = 'axes_block';
                 ab = serializable.from_struct(inputs);
-                obj = data_sqw_dnd(ab,inputs);
+                obj = data_sqw_dnd_old(ab,inputs);
                 return;
             end
             if ~isfield(inputs,'nonorthogonal')
@@ -279,7 +279,7 @@ classdef data_sqw_dnd < axes_block
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
             % saveable class
-            obj = data_sqw_dnd();
+            obj = data_sqw_dnd_old();
             obj = loadobj@serializable(S,obj);
         end
     end

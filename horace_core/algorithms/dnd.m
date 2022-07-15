@@ -5,7 +5,7 @@ function wout = dnd (win,varargin)
 %   >> wout = dnd (win)
 %   >> wout = dnd (win,''-cell_return')
 %
-%  If the inputs are convertable to the same type of dnd objects (e.g. all
+%  If the inputs are convertable to the same shape of dnd objects (e.g. all
 %  d1d or all d3d), the function return the array of extracted objects
 %  If the inputs correspond to the mixture of dnd objects (e.g. d1d and d2d),
 %  the result is the cellarray containing these objects

@@ -47,7 +47,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         detpar_  = struct([]);
     end
     properties(Constant,Access=protected)
-        fields_to_save_ = {'main_header','experiment_info','detpar','data'};
+        fields_to_save_ = {'main_header','experiment_info','detpar','data','pix'};
     end
 
     methods
@@ -55,16 +55,16 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         has = has_pixels(w);
         % write sqw object in an sqw file
         write_sqw(obj,sqw_file);
-        % smooth sqw object or array of sqw objects containing no pixels 
+        % smooth sqw object or array of sqw objects containing no pixels
         wout = smooth(win, varargin)
-        
-        
+
+
         wout = sigvar(w);
         w = sigvar_set(win, sigvar_obj);
         sz = sigvar_size(w);
         %[sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);
-        
+
 
         % TOBYFIT intreface
         %------------------------------------------------------------------
@@ -190,6 +190,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         function obj = set.pix(obj,val)
             if isa(val,'PixelData') || isa(val,'pix_combine_info')
                 obj.pix_ = val;
+            elseif isempty(val)
+                obj.pix_ = PixelData();
             else
                 obj.pix_ = PixelData(val);
             end
@@ -229,7 +231,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             elseif isstruct(val)
                 obj.main_header_ = main_header_cl(val);
             else
-                error('HORAACE:sqw:invald_argument',...
+                error('HORACE:sqw:invald_argument',...
                     'main_header property accepts only inputs with main_header_cl instance class or structure, convertible into this class. You provided %s', ...
                     class(val));
             end
@@ -264,16 +266,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         %            save_xye@DnDBase(obj.data,varargin{:});
         %        end
         function npix = get.npixels(obj)
-            if isempty(obj.data_)
-                npix = 'undefined';
-            else
-                pix_ = obj.data_.pix;
-                if isempty(pix_)
-                    npix = 0;
-                else
-                    npix = pix_.num_pixels;
-                end
-            end
+            npix = obj.pix_.num_pixels;
         end
 
         function ver  = classVersion(~)
@@ -281,7 +274,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             % and nxsqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
             % number
-            ver = 1;
+            ver = 2;
         end
         function flds = saveableFields(~)
             flds = sqw.fields_to_save_;
@@ -294,9 +287,15 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             end
         end
         function [nd,sz] = dimensions(obj)
-            [nd,sz] = obj.data_.dimensions();
+            % return size and shape of the image arrays
+            if isempty(obj.data_)
+                nd = [];
+                sz = [];
+            else
+                [nd,sz] = obj.data_.dimensions();
+            end
         end
-        
+
     end
 
     methods(Static)
