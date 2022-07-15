@@ -202,7 +202,7 @@ function main() {
   fi
 
   if ((benchmark)); then
-    run_benchmark "${build_dir}"
+    run_benchmarks "${build_dir}"
   fi
 
   if ((test)); then
