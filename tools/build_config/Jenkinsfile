@@ -101,6 +101,8 @@ pipeline {
           if (env.PR_LABELS) {
             echo "Found PR labels: ${env.PR_LABELS}"
           }
+          echo "${run_benchmark_stage}"
+          echo "${env?.RUN_BENCHMARK}, ${env?.RELEASE_TYPE}"
         }
         post_github_status("pending", "The build is running")
       }
