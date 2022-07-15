@@ -87,10 +87,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             %   modern version
             %end
             if isfield(inputs,'pax') && isfield(inputs,'iax')
-                inputs.serial_name = 'axes_block';
-                ab = serializable.from_struct(inputs);
-                dat = data_sqw_dnd(ab,inputs);
-                inputs = struct('data',dat);
+                inputs.axes = axes_block.get_from_old_data(inputs);
+                inputs.proj = ortho_proj.get_from_old_data(inputs);
             end
 
             if isfield(inputs,'array_dat')
@@ -167,7 +165,10 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         %    % save data in xye format
         %    save_xye_(obj,varargin{:});
         %end
+        % return the number of dimensions and the size of the data array(s)
         [nd, sz] = dimensions(w);
+        % smooth dnd object or array of dnd objects
+        wout = smooth(win, varargin)
 
         %------------------------------------------------------------------
         % Accessors

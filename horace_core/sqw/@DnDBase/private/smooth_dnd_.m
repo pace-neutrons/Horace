@@ -1,4 +1,4 @@
-function dout = smooth_dnd(din, xunit, varargin)
+function dout = smooth_dnd_(din, xunit, varargin)
 % Smooths a 1,2,3 or 4 dimensional dataset
 %
 %Syntax:
@@ -61,7 +61,7 @@ if nargin>=3
 elseif ~xunit
     width = width_default*ones(1,ndim);
 else
-    error('HORACE:smooth:invalid_arguments', ...
+    error('HORACE:smooth:invalid_argument', ...
         'Must give smoothing parameter(s) if smoothing units')
 end
 
@@ -71,15 +71,15 @@ if nargin>=4
     if ~isempty(shape) && is_string(shape)
         ishape = stringmatchi(shape,shapes);
         if numel(ishape)>1
-            error('HORACE:smooth:invalid_arguments', ...
+            error('HORACE:smooth:invalid_argument', ...
                 'Ambiguous convolution function name')
         elseif isempty(ishape)
-            error('HORACE:smooth:invalid_arguments', ...
+            error('HORACE:smooth:invalid_argument', ...
                 ['Function ''',shape,''' is not recognised as an available option'])
         end
         shape = shapes(ishape);     % resolve to full name
     else
-        error('HORACE:smooth:invalid_arguments', ...
+        error('HORACE:smooth:invalid_argument', ...
             'Argument ''shape'' must be a character string')
     end
 else
@@ -89,10 +89,10 @@ end
 
 % Check width parameters against the shape function
 if strcmp(shape,'resolution') && ~(ndim==2 && numel(width)==3)
-    error('HORACE:smooth:invalid_arguments', ...
+    error('HORACE:smooth:invalid_argument', ...
         'Smoothing option ''resolution'' only available for 2D data sets with three width parameters')
 elseif ~(isa_size(width,[1,ndim],'double') || isa_size(width,[1,1],'double'))
-    error('HORACE:smooth:invalid_arguments', ...
+    error('HORACE:smooth:invalid_argument', ...
         'ERROR: argument ''width'' must be a scalar or vector with length equal to the dimensions of the dataset')
 end
 

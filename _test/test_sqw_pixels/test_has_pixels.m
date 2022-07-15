@@ -21,17 +21,17 @@ methods
         obj.no_pix_sqw_obj.data.pix = PixelData();
     end
 
-    function test_has_pixels_returns_true_for_full_sqw_object(obj);
+    function test_has_pixels_returns_true_for_full_sqw_object(obj)
         pix = obj.sqw_obj.has_pixels();
         assertTrue(pix);
     end
 
-    function test_has_pixels_returns_false_for_no_pixel_sqw_object(obj);
+    function test_has_pixels_returns_false_for_no_pixel_sqw_object(obj)
         pix = obj.no_pix_sqw_obj.has_pixels();
         assertFalse(pix);
     end
 
-    function test_has_pixels_returns_array_of_results_for_array_arg(obj);
+    function test_has_pixels_returns_array_of_results_for_array_arg(obj)
         test_data = [obj.sqw_obj, obj.no_pix_sqw_obj, obj.sqw_obj, obj.sqw_obj];
         expected = [true, false, true, true];
         results = has_pixels(test_data);

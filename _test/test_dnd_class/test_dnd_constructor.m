@@ -1,4 +1,4 @@
-classdef test_dnd_constructor < TestCase
+classdef test_dnd_constructor < TestCaseWithSave
 
     properties (Constant)
         DND_FILE_2D_NAME = 'dnd_2d.sqw';
@@ -23,8 +23,14 @@ classdef test_dnd_constructor < TestCase
 
     methods
 
-        function obj = test_dnd_constructor(~)
-            obj = obj@TestCase('test_dnd_constructor');
+        function obj = test_dnd_constructor(varargin)
+            if nargin == 0
+                argi = {'test_dnd_constructor'};
+            else
+                argi = {varargin{1},'test_dnd_constructor'};
+            end
+
+            obj = obj@TestCaseWithSave(argi{:});
             hor_root = horace_root();
             obj.common_data = fullfile(hor_root,'_test/common_data');
             obj.test_data=fullfile(hor_root,'_test/test_combine');
@@ -48,7 +54,7 @@ classdef test_dnd_constructor < TestCase
             rd = gen_nxspe(S,ERR,en,par_file,'',20,1,2);
             sqw_obj2 = rd.calc_sqw([]);
             sqw_obj = [sqw_obj1,sqw_obj2];
-            
+
             % check dnd array conversion
             dnd_obj = dnd(sqw_obj);
             assertEqual(size(sqw_obj),size(dnd_obj));
@@ -56,7 +62,7 @@ classdef test_dnd_constructor < TestCase
             assertEqual(sqw_obj(1).data.e,dnd_obj(1).e);
             assertEqual(sqw_obj(2).data.s,dnd_obj(2).s);
             assertEqual(sqw_obj(2).data.e,dnd_obj(2).e);
-            
+
             % check d4d array conversion
             dnd_obj = d4d(sqw_obj);
             assertEqual(size(sqw_obj),size(dnd_obj));
@@ -64,19 +70,19 @@ classdef test_dnd_constructor < TestCase
             assertEqual(sqw_obj(1).data.e,dnd_obj(1).e);
             assertEqual(sqw_obj(2).data.s,dnd_obj(2).s);
             assertEqual(sqw_obj(2).data.e,dnd_obj(2).e);
-            
+
             % check d4d->d2d conversion fails
             f = @()d2d(sqw_obj);
             assertExceptionThrown(f,'HORACE:d2d:invalid_argument');
         end
-        
+
         function test_read_array_from_multifiles(obj)
             file = fullfile(obj.test_data,'w2d_qq_d2d.sqw');
-            t2 = read_dnd({file,file});        
+            t2 = read_dnd({file,file});
             assertTrue(isa(t2,'d2d'))
             assertEqual(size(t2),[1,2]);
         end
-        
+
         function this = test_dnd_from_sqw(this)
             par_file = fullfile(this.common_data,'96dets.par');
             S=ones(10,96);
@@ -316,7 +322,7 @@ classdef test_dnd_constructor < TestCase
 
             assertTrue(isa(obj,'d2d'));
         end
-        
+
 
         function test_d2d_non_empty(~)
             %axis, proj, s,e,npix
@@ -505,6 +511,26 @@ classdef test_dnd_constructor < TestCase
                     ismember(actual_props(idx),expected_props), ...
                     sprintf('Unrecognised DnD property "%s"', actual_props{idx}));
             end
+        end
+        function test_loadsave_works(obj)
+            d2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
+            this_folder = fileparts(mfilename('fullpath'));
+            if obj.save_output
+                try
+                    ver = d2d_obj.classVersion();
+                catch
+                    ver = 1;
+                end
+                test_file = fullfile(this_folder, ...
+                    sprintf('loadsave_dnd_v%d.mat',ver));
+                save(test_file,'d2d_obj');
+            end
+            rec_file = fullfile(this_folder , ...
+                sprintf('loadsave_dnd_v%d.mat',1));
+            ld = load(rec_file);
+            %ld.d2d_obj.data.img_db_range = d2d_obj.data.img_db_range; %
+            %this is old version bug now fixed
+            assertEqualToTol(d2d_obj,ld.d2d_obj,'ignore_str',true)
         end
 
 

@@ -51,32 +51,20 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
     end
 
     methods
-        function ver  = classVersion(~)
-            % define version of the class to store in mat-files
-            % and nxsqw data format. Each new version would presumably read
-            % the older version, so version substitution is based on this
-            % number
-            ver = 1;
-        end
-        function flds = saveableFields(~)
-            flds = sqw.fields_to_save_;
-        end
-        function map = get.runid_map(obj)
-            if isempty(obj.experiment_info)
-                map = [];
-            else
-                map = obj.experiment_info.runid_map;
-            end
-        end
-        function [nd,sz] = dimensions(obj)
-            [nd,sz] = obj.data_.dimensions();
-        end
-
+        % returns true if a sqw object has pixels
+        has = has_pixels(w);
+        % write sqw object in an sqw file
+        write_sqw(obj,sqw_file);
+        % smooth sqw object or array of sqw objects containing no pixels 
+        wout = smooth(win, varargin)
+        
+        
         wout = sigvar(w);
         w = sigvar_set(win, sigvar_obj);
         sz = sigvar_size(w);
         %[sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);
+        
 
         % TOBYFIT intreface
         %------------------------------------------------------------------
@@ -288,8 +276,27 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             end
         end
 
-        % write sqw object in an sqw file
-        write_sqw(obj,sqw_file);
+        function ver  = classVersion(~)
+            % define version of the class to store in mat-files
+            % and nxsqw data format. Each new version would presumably read
+            % the older version, so version substitution is based on this
+            % number
+            ver = 1;
+        end
+        function flds = saveableFields(~)
+            flds = sqw.fields_to_save_;
+        end
+        function map = get.runid_map(obj)
+            if isempty(obj.experiment_info)
+                map = [];
+            else
+                map = obj.experiment_info.runid_map;
+            end
+        end
+        function [nd,sz] = dimensions(obj)
+            [nd,sz] = obj.data_.dimensions();
+        end
+        
     end
 
     methods(Static)

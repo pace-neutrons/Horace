@@ -30,11 +30,24 @@ is = false(size(obj));
 if nargout == 2
     mess = cell(size(obj));
 end
+name_a_default = 'lhs_obj';
+name_b_default = 'rhs_obj';
+name_a = inputname(1);
+name_b = inputname(2);
+if isempty(name_a)
+    name_a = name_a_default;
+end
+if isempty(name_b)
+    name_b = name_b_default;
+end
+
 for i=1:numel(obj)
     if nargout == 2
-        [is(i),mess{i}] = eq_single(obj(i),other_obj(i),argi{:});
+        [is(i),mess{i}] = eq_single(obj(i),other_obj(i), ...
+            'name_a',name_a,'name_b',name_b,argi{:});
     else
-        is(i) = eq_single(obj(i),other_obj(i),argi{:});
+        is(i) = eq_single(obj(i),other_obj(i), ...
+            'name_a',name_a,'name_b',name_b,argi{:});
     end
 end
 if nargout == 2
@@ -45,13 +58,16 @@ if nargout == 2
     end
 end
 
-function [iseq,mess] = eq_single(obj1,obj2,varargin)
+function [iseq,mess] = eq_single(obj1,obj2,name_a,name_a_val,name_b,name_b_val,varargin)
 
 flds = obj1.saveableFields;
 
 for i=1:numel(flds)
     val1 = obj1.(flds{i});
-    [iseq,mess] = equal_to_tol(val1,obj2.(flds{i}),varargin{:});
+    name_a_val_f = [name_a_val,'.',flds{i}];
+    name_b_val_f = [name_b_val,'.',flds{i}];    
+    [iseq,mess] = equal_to_tol(val1,obj2.(flds{i}), ...
+        name_a,name_a_val_f,name_b,name_b_val_f,varargin{:});
     if ~iseq
         return;
     end

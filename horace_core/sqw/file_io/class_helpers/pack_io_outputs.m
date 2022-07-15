@@ -21,5 +21,3 @@ if n_outputs == 1
 else
     argout = argin(1:n_outputs);
 end
-
-

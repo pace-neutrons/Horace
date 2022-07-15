@@ -3,7 +3,12 @@ classdef (Abstract) SQWDnDBase < serializable
     %   Abstract class defining common API and atrributes of the SQW and
     %   DnD objects
     methods (Abstract)
+        % check if sqw or dnd object has pixels. DnD object never have
+        % pixels
         pixels = has_pixels(win);
+        % Run smooth operation over DnD objects or sqw objects without
+        % pixels
+        wout = smooth(win, varargin);        
     end
 
     methods (Static)
@@ -43,9 +48,7 @@ classdef (Abstract) SQWDnDBase < serializable
         varargout = multifit_sqw (varargin);
         varargout = multifit_sqw_sqw (varargin);
 
-        wout = smooth(win, varargin);
-        wout = smooth_units(win, varargin);
-        %dat = struct(obj);        %
+
         function save_xye(obj,varargin)
             %TODO remove this doing Ticket #730
             save_xye_(obj,varargin{:});
@@ -63,12 +66,6 @@ classdef (Abstract) SQWDnDBase < serializable
         status = adjust_aspect(w);
         [ok,mess,adjust,present]=adjust_aspect_option(args_in);
         dout = smooth_dnd(din, xunit, varargin);
-    end
-
-    methods (Static, Access = private)
-        c = smooth_func_gaussian(width);
-        c = smooth_func_hat(width);
-        c = smooth_func_resolution(width);
     end
 
 end

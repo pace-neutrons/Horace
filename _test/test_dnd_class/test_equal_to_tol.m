@@ -22,7 +22,7 @@ methods
 
         hc.log_level = 0;  % hide the (quite verbose) equal_to_tol output
 
-        obj.dnd_2d = d2d(obj.test_dnd_file_path);
+        obj.dnd_2d = read_horace(obj.test_dnd_file_path);
     end
 
     function delete(obj)

@@ -9,6 +9,7 @@ classdef test_rebin_operations < TestCase
         amp=10;
         testdir;
         this_folder;
+        data_dir 
 
         % Tolerance to use when comparing single floats
         FLOAT_TOL = 4e-6;
@@ -18,6 +19,7 @@ classdef test_rebin_operations < TestCase
         function this=test_rebin_operations(name)
             this=this@TestCase(name);
             this.testdir = fileparts(mfilename('fullpath'));
+            this.data_dir = fullfile(fileparts(this.testdir),'common_data');
         end
 
         function this=prepare_test_data(this)
@@ -85,7 +87,7 @@ classdef test_rebin_operations < TestCase
         % ------------------------------------------------------------------------------------------------
         function this = test_rebin_sqw_steps(this)
             % sqw rebinning
-            w2d_qe_sqw=sqw(fullfile(this.testdir,'w2d_qe_sqw.sqw'));
+            w2d_qe_sqw=sqw(fullfile(this.data_dir,'w2d_qe_sqw.sqw'));
 
             w2d_qe_sqw_reb=rebin_sqw(w2d_qe_sqw,[-0.5,0.05,1],[10,0.7,80]);
 
@@ -100,8 +102,8 @@ classdef test_rebin_operations < TestCase
         % ------------------------------------------------------------------------------------------------
         function this = test_rebin_sqw_template(this)
             % sqw rebinning
-            w2d_qq_sqw=sqw(fullfile(this.testdir,'w2d_qq_sqw.sqw'));
-            w2d_qq_small_sqw=sqw(fullfile(this.testdir,'w2d_qq_small_sqw.sqw'));
+            w2d_qq_sqw=sqw(fullfile(this.data_dir,'w2d_qq_sqw.sqw'));
+            w2d_qq_small_sqw=sqw(fullfile(this.data_dir,'w2d_qq_small_sqw.sqw'));
 
             w2d_qq_small_sqw_1=rebin_sqw(w2d_qq_small_sqw,[0,0.04,0.4],[0,0.04,0.4]);
             skipTest('DND rebinning disabled unil #798 is fixed')            
@@ -122,8 +124,8 @@ classdef test_rebin_operations < TestCase
         function this = test_rebin_dnd_steps(this)
             skipTest('DND rebinning disabled unil #798 is fixed')
             % dnd rebinning
-            w2d_qe_sqw=sqw(fullfile(this.testdir,'w2d_qe_sqw.sqw'));
-            w2d_qe_d2d=read_dnd(fullfile(this.testdir,'w2d_qe_d2d.sqw'));
+            w2d_qe_sqw=sqw(fullfile(this.data_dir,'w2d_qe_sqw.sqw'));
+            w2d_qe_d2d=read_dnd(fullfile(this.data_dir,'w2d_qe_d2d.sqw'));
 
             w2d_qe_d2d_reb=rebin_horace_2d(w2d_qe_d2d,[-1.025,0.05,1.025],[-2.8,2.8,100+3.6]);
 
@@ -151,8 +153,8 @@ classdef test_rebin_operations < TestCase
             skipTest('Needs fit_sqw to be implemented.')
 
             % Special case of d1d rebin
-            w1d_sqw=read_sqw(fullfile(this.testdir,'w1d_sqw.sqw'));
-            w1d_d1d=read_dnd(fullfile(this.testdir,'w1d_d1d.sqw'));
+            w1d_sqw=read_sqw(fullfile(this.data_dir,'w1d_sqw.sqw'));
+            w1d_d1d=read_dnd(fullfile(this.data_dir,'w1d_d1d.sqw'));
 
             reb_ax=[0.05,0.0125,0.033];
 

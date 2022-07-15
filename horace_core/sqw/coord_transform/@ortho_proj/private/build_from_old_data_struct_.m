@@ -8,6 +8,9 @@ else
     bmat_inv_ext   = [];
     %bmat =     bmatrix(alatt,angdeg);
 end
+if isfield(data_struct,'ulabel')
+    data_struct.label = data_struct.ulabel;
+end
 
 proj=ortho_proj('alatt',alatt,'angdeg',angdeg,'label',data_struct.label);
 %
