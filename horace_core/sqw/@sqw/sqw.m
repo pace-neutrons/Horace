@@ -58,10 +58,13 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         % smooth sqw object or array of sqw objects containing no pixels
         wout = smooth(win, varargin)
 
-
+        % sigvar block
+        %------------------------------------------------------------------
         wout = sigvar(w);
+        [s,var,mask_null] = sigvar_get (w);
         w = sigvar_set(win, sigvar_obj);
         sz = sigvar_size(w);
+        %------------------------------------------------------------------
         %[sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);
 
@@ -260,11 +263,9 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
             % obsolete interface
             obj.detpar_ = val;
         end
-        %        function  save_xye(obj,varargin)
-        %            %TODO: Enable this when doing #730
-        %            % save data in xye format
-        %            save_xye@DnDBase(obj.data,varargin{:});
-        %        end
+        function  save_xye(obj,varargin)
+            save_xye(obj.data,varargin{:});
+        end
         function npix = get.npixels(obj)
             npix = obj.pix_.num_pixels;
         end

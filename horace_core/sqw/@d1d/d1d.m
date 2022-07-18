@@ -13,14 +13,21 @@ classdef d1d < DnDBase
 
     methods
         function obj = d1d(varargin)
-            obj = obj@DnDBase(varargin{:});            
+            obj = obj@DnDBase(varargin{:});
         end
-        dat = IX_dataset_1D(obj);
+        dat = IX_dataset_1d(obj);
 
         wout = cut (varargin);
         wout = combine_horace_1d(w1,w2,varargin);
         wout = rebin_horace_1d(win, varargin);
         wout = symmetrise_horace_1d(win, varargin);
+    end
+    methods(Access = protected)
+        function obj = set_senpix(obj,val,field)
+            val = val(:)';
+            obj = set_senpix@DnDBase(obj,val,field);
+        end
+
     end
 
     methods(Access = private)

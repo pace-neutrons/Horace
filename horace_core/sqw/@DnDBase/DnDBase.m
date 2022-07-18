@@ -61,7 +61,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase
     end
 
     methods(Access = protected)
-
         wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
@@ -97,11 +96,26 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                 obj = obj.from_bare_struct(inputs);
             end
         end
+        %
         function obj = set_do_check_combo_arg(obj,val)
+            % set internal property do_check_combo_arg to all object
+            % components, which are serializable
             val = logical(val);
             obj.do_check_combo_arg_ = val;
             obj.axes_.do_check_combo_arg  = val;
             obj.proj_.do_check_combo_arg  = val;
+        end
+        %
+        function obj = set_senpix(obj,val,field)
+            % set signal error or npix value to a class field
+            if ~isnumeric(val)
+                error('HORACE:DnDBase:invalid_argument',...
+                    'input %s must be numeric array',field)
+            end
+            obj.([field,'_']) = val;
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
         end
     end
 
@@ -155,16 +169,21 @@ classdef (Abstract)  DnDBase < SQWDnDBase
 
     methods
         % function signatures
+        %
+        % sigvar block
+        %------------------------------------------------------------------
+        sob = sigvar(w);
+        [s,var,mask_null] = sigvar_get (w);
         w = sigvar_set(win, sigvar_obj);
+        sz = sigvar_size(w);
+        %------------------------------------------------------------------
+        %
         wout = copy(w);
         wout = cut_dnd_main (data_source, ndims, varargin);
         [val, n] = data_bin_limits (din);
-        %TODO: when data_sqw_dnd inherits from DnDBase, enable this
-        %      function. Ticket #730
-        %function  save_xye(obj,varargin)
-        %    % save data in xye format
-        %    save_xye_(obj,varargin{:});
-        %end
+
+        % save data in xye format        
+        save_xye(obj,varargin)
         % return the number of dimensions and the size of the data array(s)
         [nd, sz] = dimensions(w);
         % smooth dnd object or array of dnd objects
@@ -302,47 +321,30 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             val = obj.s_;
         end
         function obj = set.s(obj, s)
-            if ~isnumeric(s)
-                error('HORACE:DnDBase:invalid_argument',...
-                    'input signal must be numeric array')
-            end
-            obj.s_ = s;
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg(obj);
-            end
+            obj = set_senpix(obj,s,'s');
         end
         %
         function val = get.e(obj)
             val = obj.e_;
         end
         function obj = set.e(obj, e)
-            if ~isnumeric(e)
-                error('HORACE:DnDBase:invalid_argument',...
-                    'input variance must be numeric array')
-            end
+            obj = set_senpix(obj,e,'e');
             if any(e<0)
                 error('HORACE:DnDBase:invalid_argument',...
                     'errors values can not be negative')
             end
-            obj.e_ = e;
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg(obj);
-            end
-
         end
         %
         function val = get.npix(obj)
             val = obj.npix_;
         end
         function obj = set.npix(obj, npix)
-            if ~isnumeric(npix)
+            obj = set_senpix(obj,npix,'npix');
+            if any(npix<0)
                 error('HORACE:DnDBase:invalid_argument',...
-                    'input npix array must be numeric array')
+                    'npix values can not be negative')
             end
-            obj.npix_ = npix;
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg(obj);
-            end
+
         end
         %
         function ax = get.axes(obj)

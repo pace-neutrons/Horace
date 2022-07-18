@@ -15,12 +15,15 @@ classdef d2d < DnDBase
         function obj = d2d(varargin)
             obj = obj@DnDBase(varargin{:});
         end
+        dat = IX_dataset_2d(obj);
+
 
         wout=combine_horace_2d(w1,w2,varargin);
         wout=symmetrise_horace_2d(win,varargin);
         wout=rebin_horace_2d(win,varargin);
 
         [speedup,midpoint]=compare_sym_axes(win,v1,v2,v3);
+        
         varargout = cut(varargin);
         [R,trans] = calculate_transformation_matrix(win,v1,v2,v3);
 

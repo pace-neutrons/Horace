@@ -1,4 +1,5 @@
 function [title_main, title_pax, title_iax, display_pax, display_iax, energy_axis] = data_plot_titles (data)
+%TODO: overload for other projections
 % Get titling and caption information for an sqw data structure
 %
 % Syntax:
@@ -32,9 +33,10 @@ Angstrom=char(197);     % Angstrom symbol
 file = fullfile(data.filepath,data.filename);
 title = data.title;
 
-uoff = data.uoffset;
-u_to_rlu = data.u_to_rlu;
-ulen = data.ulen;
+uoff = data.offset;
+%TODO: overload for other projections
+u_to_rlu = data.proj.u_to_rlu;
+ulen = data.axes.ulen;
 label = data.label;
 iax = data.iax;
 iint = data.iint;

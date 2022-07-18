@@ -3,5 +3,5 @@ function wout = sigvar(w)
 %
 %   >> wout = sigvar (w)
 
-wout = sigvar(w.data.s, w.data.e);
+wout = sigvar(w.data_.s, w.data_.e);
 

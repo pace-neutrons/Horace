@@ -21,7 +21,9 @@ classdef d3d < DnDBase
     end
 
     methods
+        dat = IX_dataset_3d(obj);        
         wout = cut (varargin);
+
         function obj = d3d(varargin)
             obj = obj@DnDBase(varargin{:});
         end

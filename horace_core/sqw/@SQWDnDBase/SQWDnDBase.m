@@ -11,6 +11,18 @@ classdef (Abstract) SQWDnDBase < serializable
         wout = smooth(win, varargin);
         % Return size and shape of the image arrays in sqw or dnd object
         [nd,sz] = dimensions(win)
+
+
+        % sigvar block
+        %------------------------------------------------------------------
+        % return signal, error and binary mask, false where the pixels are
+        % located
+        wout = sigvar(w);
+        [s,var,mask_null] = sigvar_get (w);
+        w = sigvar_set(win, sigvar_obj);
+        sz = sigvar_size(w);
+        %------------------------------------------------------------------
+        save_xye(obj,varargin);
     end
 
     methods (Static)
@@ -24,7 +36,6 @@ classdef (Abstract) SQWDnDBase < serializable
     end
 
     methods  % Public
-        [s,var,mask_null] = sigvar_get (w);
 
         wout = mask(win, mask_array);
         wout = mask_pixels(win, mask_array);
@@ -50,15 +61,10 @@ classdef (Abstract) SQWDnDBase < serializable
         varargout = multifit_sqw (varargin);
         varargout = multifit_sqw_sqw (varargin);
 
-
-        function save_xye(obj,varargin)
-            %TODO remove this doing Ticket #730
-            save_xye_(obj,varargin{:});
-        end
     end
 
     methods (Access = protected)
-        wout = binary_op_manager(w1, w2, binary_op);
+        wout = binary_op_manager(w1, w2, binary_op);                
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
         wout = recompute_bin_data(w);
         wout = sqw_eval_nopix_(win, sqwfunc, all_bins, pars);
