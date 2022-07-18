@@ -11,7 +11,8 @@ classdef (Abstract) SQWDnDBase < serializable
         wout = smooth(win, varargin);
         % Return size and shape of the image arrays in sqw or dnd object
         [nd,sz] = dimensions(win)
-
+        % mask image data and corresponding pixels if available
+        [wout,mask_array] = mask(win, mask_array);
 
         % sigvar block
         %------------------------------------------------------------------
@@ -37,7 +38,6 @@ classdef (Abstract) SQWDnDBase < serializable
 
     methods  % Public
 
-        wout = mask(win, mask_array);
         wout = mask_pixels(win, mask_array);
         [sel,ok,mess] = mask_points(win, varargin);
         wout = mask_random_fraction_pixels(win,npix);
@@ -66,7 +66,7 @@ classdef (Abstract) SQWDnDBase < serializable
     methods (Access = protected)
         wout = binary_op_manager(w1, w2, binary_op);                
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
-        wout = recompute_bin_data(w);
+
         wout = sqw_eval_nopix_(win, sqwfunc, all_bins, pars);
     end
 

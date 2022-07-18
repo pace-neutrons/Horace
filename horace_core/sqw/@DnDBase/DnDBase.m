@@ -177,12 +177,13 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         w = sigvar_set(win, sigvar_obj);
         sz = sigvar_size(w);
         %------------------------------------------------------------------
+        [wout,mask_array] = mask(win, mask_array);
         %
         wout = copy(w);
         wout = cut_dnd_main (data_source, ndims, varargin);
         [val, n] = data_bin_limits (din);
 
-        % save data in xye format        
+        % save data in xye format
         save_xye(obj,varargin)
         % return the number of dimensions and the size of the data array(s)
         [nd, sz] = dimensions(w);

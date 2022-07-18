@@ -65,6 +65,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         w = sigvar_set(win, sigvar_obj);
         sz = sigvar_size(w);
         %------------------------------------------------------------------
+        [wout,mask_array] = mask(win, mask_array);
         %[sel,ok,mess] = mask_points (win, varargin);
         varargout = multifit (varargin);
 
@@ -311,6 +312,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
     methods(Access = protected)
         wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
+        wout = recompute_bin_data(w);        
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
         wout = sqw_eval_(wout, sqwfunc, ave_pix, all_bins, pars);

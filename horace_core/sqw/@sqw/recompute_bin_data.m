@@ -7,4 +7,4 @@ function wout = recompute_bin_data(w)
 % to the one routine must be propagated to the other.
 
 wout = w;
-[wout.data.s, wout.data.e] = wout.data_.pix.compute_bin_data(w.data.npix);
+[wout.data.s, wout.data.e] = wout.pix.compute_bin_data(w.data.npix);

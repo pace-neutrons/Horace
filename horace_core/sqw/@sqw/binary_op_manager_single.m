@@ -196,7 +196,7 @@ function wout = do_binary_op_sqw_and_non_double(w1, w2, binary_op, flip)
             operand = w2;
         end
         
-        wout.data.pix = wout.data.pix.do_binary_op( ...
+        wout.pix = wout.pix.do_binary_op( ...
             operand, binary_op, 'flip', flip, 'npix', wout.data.npix);
         wout = recompute_bin_data(wout);
     else
