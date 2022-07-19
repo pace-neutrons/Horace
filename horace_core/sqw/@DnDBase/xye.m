@@ -33,16 +33,17 @@ if nargin == 1
     null_value = NaN;
 else
     if ~isnumeric(null_value) || ~isscalar(null_value)
-        error('Null value must be a numeric scalar')
+        error('HORACE:DnDBase:invalid_argument', ...
+            'Null value must be a numeric scalar')
     end
 end
 
 S = repmat(struct('x', [], 'y', [], 'e', []), size(w));
 for i = 1:numel(w)
-    x = cellfun(@(pp)(pp'),w(i).data_.p,'UniformOutput',false);
-    y = w(i).data_.s;
-    e = sqrt(w(i).data_.e);
-    empty = ~logical(w(i).data_.npix);
+    x = cellfun(@(pp)(pp'),w(i).p,'UniformOutput',false);
+    y = w(i).s;
+    e = sqrt(w(i).e);
+    empty = ~logical(w(i).npix);
 
     if numel(x) == 1
         x=0.5*(x{1}(2:end) + x{1}(1:end-1));

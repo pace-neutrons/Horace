@@ -105,7 +105,7 @@ classdef axes_block < serializable
         % return binning range of existing data object, so that cut without
         % parameters, performed within this range would return the same cut
         % as the original object
-        range = get_cut_range(obj);
+        range = get_cut_range(obj,varargin);
         % find the coordinates along each of the axes of the smallest cuboid
         % that contains bins with non-zero values of contributing pixels.
         [val, n] = data_bin_limits (din);

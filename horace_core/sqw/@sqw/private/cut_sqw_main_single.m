@@ -248,4 +248,3 @@ function delete_tmp_pix_files(pix_info)
 for ifile=1:pix_info.nfiles   % delete the temporary files
     delete(pix_info.infiles{ifile});
 end
-

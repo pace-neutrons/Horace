@@ -1,5 +1,9 @@
 function [wout_disp, wout_weight] = dispersion(win, dispreln, pars)
 % Calculate dispersion relation for dataset or array of datasets.
+% 
+% New behaviour: Always returns appropriate dnd object. May be modified in
+% a future. 
+% 
 %
 %   >> wdisp = dispersion (win, dispreln, p)            % dispersion only
 %   >> [wdisp,weight] = dispersion (win, dispreln, p)   % dispersion and spectral weight

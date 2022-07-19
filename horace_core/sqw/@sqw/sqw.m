@@ -73,7 +73,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         % TOBYFIT intreface
         %------------------------------------------------------------------
         %TODO: Something in this interface looks dodgy. Should it be just
-        %      TOBYFIT interface?
+        %      TOBYFIT interface, or should it go out of here?
         varargout = tobyfit (varargin);
         [wout,state_out,store_out]=tobyfit_DGdisk_resconv(win,caller,state_in,store_in,...
             sqwfunc,pars,lookup,mc_contributions,mc_points,xtal,modshape);
@@ -267,6 +267,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         function  save_xye(obj,varargin)
             save_xye(obj.data,varargin{:});
         end
+        function  s=xye(w, varargin)
+            % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
+            s = w.data.xye(varargin{:});
+        end
         function npix = get.npixels(obj)
             npix = obj.pix_.num_pixels;
         end
@@ -312,7 +316,10 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
     methods(Access = protected)
         wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
-        wout = recompute_bin_data(w);        
+        wout = recompute_bin_data(w);
+        [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
+        %                              % binning of an sqw or dnd object        
+        
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
         wout = sqw_eval_(wout, sqwfunc, ave_pix, all_bins, pars);

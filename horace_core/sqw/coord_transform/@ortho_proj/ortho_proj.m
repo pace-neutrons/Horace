@@ -214,11 +214,13 @@ classdef ortho_proj<aProjection
             % build correct projection from input u_to_rlu and ulen matrices
             % stored in sqw object ver < 4
             %
-            [ur,vr,wr,tpe]=obj.uv_from_data_rot(u_rot(1:3,1:3),ulen(1:3));
+            [ur,vr,wr,tpe,nonortho]=obj.uv_from_data_rot(u_rot(1:3,1:3),ulen(1:3));
+
             obj.u_ = ur;
             obj.v_ = vr;
             obj.w_ = wr;
-            obj.type = tpe;
+            obj.nonorthogonal_ = nonortho;
+            obj = check_and_set_type_(obj,tpe);
             if obj.do_check_combo_arg_
                 obj = check_combo_arg_(obj);
             end
@@ -489,7 +491,7 @@ classdef ortho_proj<aProjection
             [rlu_to_ustep, u_rot, ulen] = projaxes_to_rlu_(proj,ustep);
         end
         %
-        function [u,v,w,type]=uv_from_data_rot(obj,u_rot_mat,ulen)
+        function [u,v,w,type,nonortho]=uv_from_data_rot(obj,u_rot_mat,ulen)
             % Extract initial u/v vectors, defining the plane in hkl from
             % lattice parameters and the matrix converting vectors
             % used by data_sqw_dnd class.
@@ -516,7 +518,7 @@ classdef ortho_proj<aProjection
             %          Expressed in degree
 
 
-            [u,v,w,type] = uv_from_rlu_mat_(obj,u_rot_mat,ulen);
+            [u,v,w,type,nonortho] = uv_from_rlu_mat_(obj,u_rot_mat,ulen);
         end
 
     end

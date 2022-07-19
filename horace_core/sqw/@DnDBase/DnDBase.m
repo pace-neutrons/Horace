@@ -63,6 +63,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase
     methods(Access = protected)
         wout = unary_op_manager(obj, operation_handle);
         wout = binary_op_manager_single(w1, w2, binary_op);
+        [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
+        %                              % binning of an sqw or dnd object
+
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
         wout = sqw_eval_pix_(wout, sqwfunc, ave_pix, pars);
@@ -178,13 +181,14 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         sz = sigvar_size(w);
         %------------------------------------------------------------------
         [wout,mask_array] = mask(win, mask_array);
+        [q,en]=calculate_q_bins(win);
         %
         wout = copy(w);
         wout = cut_dnd_main (data_source, ndims, varargin);
         [val, n] = data_bin_limits (din);
 
-        % save data in xye format
-        save_xye(obj,varargin)
+        save_xye(obj,varargin)  % save data in xye format
+        s=xye(w, null_value);   % Get the bin centres, intensity and error bar for a 1D, 2D, 3D or 4D dataset
         % return the number of dimensions and the size of the data array(s)
         [nd, sz] = dimensions(w);
         % smooth dnd object or array of dnd objects
@@ -196,10 +200,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             % dnd object(s) do not have pixels
             pixels = false(size(w));
         end
-
-        function obj = DnDBase(varargin)
-            obj = obj@SQWDnDBase();
-
+        function obj = init(obj,varargin)
+            % initialize empty object with any possible input arguments
+            % Part of the object constructor
             args = parse_args_(obj,varargin{:});
             if args.array_numel>1
                 obj = repmat(obj,args.array_size);
@@ -220,6 +223,13 @@ classdef (Abstract)  DnDBase < SQWDnDBase
                 elseif ~isempty(args.sqw_obj)
                     obj(i) = args.sqw_obj(i).data;
                 end
+            end
+        end
+
+        function obj = DnDBase(varargin)
+            obj = obj@SQWDnDBase();
+            if nargin>0
+                obj = obj.init(varargin{:});
             end
         end
         %

@@ -1,4 +1,5 @@
 function [q,en]=calculate_q_bins(win)
+% TODO: Overload for different projection! #825
 % Calculate qh,qk,ql,en for the centres of the bins of an n-dimensional sqw or dnd dataset
 %
 %   >> [q,en]=calculate_q_bins(win)
@@ -17,14 +18,16 @@ function [q,en]=calculate_q_bins(win)
 %           centre of the energy integration range
 
 if numel(win)~=1
-    error(['Only a single object is valid - cannot take an array of ' class(win) ' objects'])
+    error('HORACE:DnDBase:invalid_argument', ...
+        'Only a single object is valid - cannot take an array of %s objects', ...
+        class(win))
 end
 
-u0 = win.data_.uoffset;
-u = win.data_.u_to_rlu;
-iax = win.data_.iax;
-iint = win.data_.iint;
-pax = win.data_.pax;
+u0 = win.offset;
+u = win.proj.u_to_rlu;
+iax = win.iax;
+iint = win.iint;
+pax = win.pax;
 
 ptot=u0;
 for i=1:length(iax)
@@ -43,7 +46,7 @@ nqpax=numel(pax)-en_is_axis;
 if nqpax>1
     ptemp=cell(1,nqpax);
     for i=1:nqpax
-        ptemp{i} = 0.5 .* (win.data_.p{i}(1:end-1) + win.data_.p{i}(2:end));
+        ptemp{i} = 0.5 .* (win.p{i}(1:end-1) + win.p{i}(2:end));
     end
     pp=ndgridcell(ptemp);
     qh=ptot(1)*ones(size(pp{1}));
@@ -55,7 +58,7 @@ if nqpax>1
         ql = ql + pp{i}*u(3,pax(i));
     end
 elseif nqpax==1
-    pp = 0.5 .* (win.data_.p{1}(2:end) + win.data_.p{1}(1:end-1));
+    pp = 0.5 .* (win.p{1}(2:end) + win.p{1}(1:end-1));
     qh=ptot(1) + pp*u(1,pax(1));
     qk=ptot(2) + pp*u(2,pax(1));
     ql=ptot(3) + pp*u(3,pax(1));
@@ -70,8 +73,7 @@ q = {qh(:), qk(:), ql(:)};
 
 % Create list of energy points
 if en_is_axis
-    en=ptot(4) + 0.5 .* (win.data_.p{end}(2:end) + win.data_.p{end}(1:end-1));
+    en=ptot(4) + 0.5 .* (win.p{end}(2:end) + win.p{end}(1:end-1));
 else
     en=ptot(4);
 end
-

@@ -3,27 +3,29 @@ classdef (Abstract) SQWDnDBase < serializable
     %   Abstract class defining common API and atrributes of the SQW and
     %   DnD objects
     methods (Abstract)
-        % check if sqw or dnd object has pixels. DnD object never have
-        % pixels
-        pixels = has_pixels(win);
-        % Run smooth operation over DnD objects or sqw objects without
-        % pixels
-        wout = smooth(win, varargin);
-        % Return size and shape of the image arrays in sqw or dnd object
-        [nd,sz] = dimensions(win)
-        % mask image data and corresponding pixels if available
-        [wout,mask_array] = mask(win, mask_array);
-
+        %------------------------------------------------------------------
+        % various random operations and methods
+        pixels = has_pixels(win);     % Check if sqw or dnd object has pixels.
+        %                             % DnD object always returns false.
+        wout = smooth(win, varargin); % Run smooth operation over DnD
+        %                             % objects or sqw objects without pixels
+        [nd,sz] = dimensions(win);    % Return size and shape of the image
+        %                             % arrays in sqw or dnd object
+        [wout,mask_array] = mask(win, mask_array); % mask image data and
+        %                             % corresponding pixels if available
+        [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
+        %                             % of the bins of an n-dimensional sqw
+        %                             % or dnd dataset/
+        save_xye(obj,varargin);       % save xye data into file
+        s=xye(w, null_value);         % return a strucute, containing xye data
+        %
+        %------------------------------------------------------------------
         % sigvar block
+        wout              = sigvar(w); % Create sigvar object from sqw or dnd object
+        [s,var,mask_null] = sigvar_get (w); %
+        w                 = sigvar_set(win, sigvar_obj);
+        sz                = sigvar_size(w);
         %------------------------------------------------------------------
-        % return signal, error and binary mask, false where the pixels are
-        % located
-        wout = sigvar(w);
-        [s,var,mask_null] = sigvar_get (w);
-        w = sigvar_set(win, sigvar_obj);
-        sz = sigvar_size(w);
-        %------------------------------------------------------------------
-        save_xye(obj,varargin);
     end
 
     methods (Static)
@@ -34,6 +36,9 @@ classdef (Abstract) SQWDnDBase < serializable
         wout = unary_op_manager(w, operation_handle);
         wout = binary_op_manager_single(w1,w2,binary_op);
         wout = sqw_eval_pix_(wout, sqwfunc, ave_pix, pars, outfile, i);
+        %
+        [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
+        %                              % binning of an sqw or dnd object        
     end
 
     methods  % Public
@@ -64,7 +69,7 @@ classdef (Abstract) SQWDnDBase < serializable
     end
 
     methods (Access = protected)
-        wout = binary_op_manager(w1, w2, binary_op);                
+        wout = binary_op_manager(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
         wout = sqw_eval_nopix_(win, sqwfunc, all_bins, pars);
