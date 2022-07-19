@@ -24,6 +24,7 @@ if numel(win)~=1
 end
 
 u0 = win.offset;
+% TODO: Overload for different projection! #825
 u = win.proj.u_to_rlu;
 iax = win.iax;
 iint = win.iint;

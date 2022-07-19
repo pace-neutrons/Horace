@@ -9,6 +9,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
     %
     properties(Dependent)
         npixels     % common with loaders interface to pix.num_pixels property
+        %           % describing number of pixels (neutron events) stored
+        %           % in sqw object
         %
         runid_map   % the map which connects header number
         %           % with run_id stored in pixels, e.g. map contains
@@ -20,7 +22,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         detpar
         %
         data; % The information about the N-D neutron image, containing
-        %       information about
+        %       combined and bin-averaged information about the
+        %       neutron experiment.
         %
         pix % access to pixel information, if any such information is
         %     stored within an object. May also return pix_combine_info or
@@ -51,13 +54,11 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
     end
 
     methods
-        % returns true if a sqw object has pixels
-        has = has_pixels(w);
-        % write sqw object in an sqw file
-        write_sqw(obj,sqw_file);
-        % smooth sqw object or array of sqw objects containing no pixels
-        wout = smooth(win, varargin)
-
+        has = has_pixels(w);          % returns true if a sqw object has pixels
+        write_sqw(obj,sqw_file);      % write sqw object in an sqw file
+        wout = smooth(win, varargin)  % smooth sqw object or array of sqw
+        %                             % objects containing no pixels
+        [wout_disp, wout_weight] = dispersion(win, dispreln, pars);
         % sigvar block
         %------------------------------------------------------------------
         wout = sigvar(w);
@@ -301,7 +302,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
                 [nd,sz] = obj.data_.dimensions();
             end
         end
-
     end
 
     methods(Static)
@@ -318,8 +318,8 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         wout = binary_op_manager_single(w1, w2, binary_op);
         wout = recompute_bin_data(w);
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
-        %                              % binning of an sqw or dnd object        
-        
+        %                              % binning of an sqw or dnd object
+
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
         wout = sqw_eval_(wout, sqwfunc, ave_pix, all_bins, pars);

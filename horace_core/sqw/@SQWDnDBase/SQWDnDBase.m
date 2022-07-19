@@ -1,24 +1,27 @@
 classdef (Abstract) SQWDnDBase < serializable
     %SQWDnDBase Abstract SQW/DnD object base class
+    %
     %   Abstract class defining common API and atrributes of the SQW and
     %   DnD objects
     methods (Abstract)
         %------------------------------------------------------------------
-        % various random operations and methods
+        % various useful operations and methods. Both internal and
+        % producing useful result
         pixels = has_pixels(win);     % Check if sqw or dnd object has pixels.
         %                             % DnD object always returns false.
-        wout = smooth(win, varargin); % Run smooth operation over DnD
-        %                             % objects or sqw objects without pixels
         [nd,sz] = dimensions(win);    % Return size and shape of the image
         %                             % arrays in sqw or dnd object
-        [wout,mask_array] = mask(win, mask_array); % mask image data and
-        %                             % corresponding pixels if available
-        [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
-        %                             % of the bins of an n-dimensional sqw
-        %                             % or dnd dataset/
+        %------------------------------------------------------------------
         save_xye(obj,varargin);       % save xye data into file
         s=xye(w, null_value);         % return a strucute, containing xye data
         %
+        wout = smooth(win, varargin); % Run smooth operation over DnD
+        %                             % objects or sqw objects without pixels
+        [wout,mask_array] = mask(win, mask_array); % mask image data and
+        %                             % corresponding pixels if available
+        [wout_disp, wout_weight] = dispersion(win, dispreln, pars) % Calculate
+        %                             % dispersion relation for dataset or
+        %                             % array of datasets.
         %------------------------------------------------------------------
         % sigvar block
         wout              = sigvar(w); % Create sigvar object from sqw or dnd object
@@ -38,7 +41,7 @@ classdef (Abstract) SQWDnDBase < serializable
         wout = sqw_eval_pix_(wout, sqwfunc, ave_pix, pars, outfile, i);
         %
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
-        %                              % binning of an sqw or dnd object        
+        %                              % binning of an sqw or dnd object
     end
 
     methods  % Public
@@ -55,9 +58,15 @@ classdef (Abstract) SQWDnDBase < serializable
         wout = IX_dataset_1d(w);
         wout = IX_dataset_2d(w);
         wout = IX_dataset_3d(w);
+        [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
+        %                             % of the bins of an n-dimensional sqw
+        %                             % or dnd dataset
+        qw=calculate_qw_bins(win,optstr) % Calculate qh,qk,ql,en for the
+        %                             % centres of the bins of an n-dimensional
+        %                             % sqw or dnd dataset.
+        
 
         [ok,mess,nd_ref] = dimensions_match(w, nd_ref);
-        [wout_disp, wout_weight] = dispersion(win, dispreln, pars);
         wout = disp2sqw_eval(win, dispreln, pars, fwhh, opt);
         wout = func_eval(win, func_handle, pars, varargin);
         wout = sqw_eval(win, sqwfunc, pars, varargin);

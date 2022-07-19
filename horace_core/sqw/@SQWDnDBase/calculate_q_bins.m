@@ -15,4 +15,4 @@ function [q,en]=calculate_q_bins(win)
 %               i.e. q{1}=qh, q{2}=qk, q{3}=ql
 %   en      Column vector of energy bin centres. If energy was an integration axis, then returns the
 %           centre of the energy integration range
-[q,en] = win.data.caclulate_q_bins();
+[q,en] = win.data.calculate_q_bins();

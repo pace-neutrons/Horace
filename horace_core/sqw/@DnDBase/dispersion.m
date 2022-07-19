@@ -4,8 +4,6 @@ function [wout_disp, wout_weight] = dispersion(win, dispreln, pars)
 % New behaviour: Always returns appropriate dnd object. May be modified in
 % a future.
 %
-% If the input contains array of sqw objects, the objects need to have the
-% same number of dimensions (may be relaxed if requested)
 %
 %   >> wdisp = dispersion (win, dispreln, p)            % dispersion only
 %   >> [wdisp,weight] = dispersion (win, dispreln, p)   % dispersion and spectral weight
@@ -33,10 +31,10 @@ function [wout_disp, wout_weight] = dispersion(win, dispreln, pars)
 % ======
 %   win         Dataset that provides the axes and points for the calculation
 %               If one of the plot axes is energy transfer, then the output dataset
-%              will have dimensionality one less than the input dataset
+%               will have dimensionality one less than the input dataset
 %
 %   dispreln    Handle to function that calculates the dispersion relation w(Q)
-%              Must have form:
+%               Must have form:
 %                   [w,s] = dispreln (qh,qk,ql,p)
 %               where
 %                   qh,qk,ql    Arrays containing the coordinates of a set of points
@@ -82,16 +80,74 @@ function [wout_disp, wout_weight] = dispersion(win, dispreln, pars)
 %              with just the Q axis
 
 
-if ~iscell(pars)   % package parameters as a cell for convenience
+wout_disp = copy(win);
+if nargout==2
+    wout_weight=wout_disp;
+end
+
+if ~iscell(pars)                        % package parameters as a cell for convenience
     pars={pars};
 end
 
-wout_disp = win(1).data;
-if numel(win)>1
-    wout_disp = repmat(wout_disp,size(win));
-end
-if nargout>1
-    wout_disp = dispersion(wout_disp,dispreln,pars{:});
-else
-    [wout_disp,wout_weight] = dispersion(wout_disp,dispreln,pars{:});
+for i=1:numel(win)
+    % Extract structure; use class constructor only at the end to save making checks at intermediate points
+    data = wout_disp(i);
+    % Remove energy axis, if present
+    npax=numel(data.pax);
+    if npax>0 && data.pax(end)==4
+        data.offset(4)=0;              % remove energy axis offset, so always treated as zero
+        ax = data.axes;
+        proj = data.proj;
+        bins = ax.get_cut_range('-full');
+        bins{4} = [0,0];
+        ax = axes_block(bins{:});
+        dax=data.dax;
+        [~, ien]=max(dax);  % index of energy axis in dax (energy will always be the largest, as pax(end) is energy if present
+        data = DnDBase.dnd(ax,proj);
+        data.dax=dax(dax~=dax(ien));
+    else
+        sz=size(win(i).s);
+        data.s    = zeros(sz);
+        data.e    = zeros(sz);
+        data.npix = ones(sz);
+    end
+    wout_disp(i) = data;
+
+
+    % Compute dispersion relation at bin centres
+    qw = calculate_qw_bins(data);
+    if nargout < 2
+        wdisp = dispreln(qw{1:3}, pars{:});  % only dispersion seems to be provided
+    else
+        [wdisp,sfact] = dispreln(qw{1:3}, pars{:});
+    end
+    if iscell(wdisp)
+        if numel(win)==1    % single input sqw
+            % object
+            wout_disp=repmat(wout_disp,size(wdisp));  % make one output array per dispersion relation
+            if nargout==2, wout_weight=repmat(wout_weight,size(wdisp)); end  % make one output array per dispersion relation
+            for j=1:numel(wdisp)
+                wout_disp(j).s=reshape(wdisp{j},sz);
+                if exist('sfact','var'), wout_disp(j).e=reshape(sfact{j},sz).^2; end
+                if nargout==2
+                    if exist('sfact','var'), wout_weight(j).s=reshape(sfact{j},sz); end
+                    wout_weight(j).e=reshape(wdisp{j},sz).^2;
+                end
+            end
+        else
+            wout_disp(i).s=reshape(wdisp{1},sz);
+            if exist('sfact','var'), wout_disp(i).e=reshape(sfact{1},sz).^2; end
+            if nargout==2
+                if exist('sfact','var'), wout_weight(i).s=reshape(sfact{1},sz); end
+                wout_weight(i).e=reshape(wdisp{1},sz).^2;
+            end
+        end
+    else
+        wout_disp(i).s=reshape(wdisp,sz);
+        if exist('sfact','var'), wout_disp(i).e=reshape(sfact,sz).^2; end
+        if nargout==2
+            if exist('sfact','var'), wout_weight(i).s=reshape(sfact,sz); end
+            wout_weight(i).e=reshape(wdisp,sz).^2;
+        end
+    end
 end

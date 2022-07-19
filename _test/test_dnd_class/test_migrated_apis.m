@@ -1,4 +1,4 @@
-classdef test_migrated_apis < TestCase
+classdef test_migrated_apis < TestCaseWithSave
     % Collection of placeholder tests to simple run the migrated API functions: these MUST be replaced
     % with more comprehensive tests as soon as possible
 
@@ -6,7 +6,8 @@ classdef test_migrated_apis < TestCase
         sqw_file_1d_name = 'sqw_1d_1.sqw';
         sqw_file_2d_name = 'sqw_2d_1.sqw';
         sqw_file_4d_name = 'sqw_4d.sqw';
-        sqw_files_path = '../common_data/';
+
+        common_data
 
         test_sqw_1d_fullpath = '';
         test_sqw_2d_fullpath = '';
@@ -16,21 +17,24 @@ classdef test_migrated_apis < TestCase
 
 
     methods
-        function obj = test_migrated_apis(~)
-            obj = obj@TestCase('test_migrated_apis');
-            obj.test_sqw_1d_fullpath = obj.build_fullpath(obj.sqw_file_1d_name);
-            obj.test_sqw_2d_fullpath = obj.build_fullpath(obj.sqw_file_2d_name);
-            obj.test_sqw_4d_fullpath = obj.build_fullpath(obj.sqw_file_4d_name);
-        end
+        function obj = test_migrated_apis(varargin)
+            if nargin == 0
+                argi = {'test_migrated_apis'};
+            else
+                argi = {varargin{1},'test_migrated_apis'};
+            end
+            obj = obj@TestCaseWithSave(argi{:});
+            hor_root = horace_root();
+            obj.common_data = fullfile(hor_root,'_test/common_data');
 
-
-        function fullpath = build_fullpath(obj, testfile_name)
-            test_file = java.io.File(pwd(), fullfile(obj.sqw_files_path, testfile_name));
-            fullpath = char(test_file.getCanonicalPath());
+            obj.test_sqw_1d_fullpath = fullfile(obj.common_data, obj.sqw_file_1d_name);
+            obj.test_sqw_2d_fullpath = fullfile(obj.common_data, obj.sqw_file_2d_name);
+            obj.test_sqw_4d_fullpath = fullfile(obj.common_data, obj.sqw_file_4d_name);
+            obj.save();
         end
 
         %% Calculate
-        function test_calculate_q_bins(obj)
+        function test_calculate_q_bins_dnd(obj)
             dnd_obj = read_dnd(obj.test_sqw_2d_fullpath);
             [q, en] = calculate_q_bins(dnd_obj);
             assertEqual(size(q), [1,3]);
@@ -39,6 +43,16 @@ classdef test_migrated_apis < TestCase
             assertEqual(size(q{3}), [176, 1]);
             assertEqual(en, 0);
         end
+        function test_calculate_q_bins_sqw(obj)
+            sqw_obj = read_sqw(obj.test_sqw_2d_fullpath);
+            [q, en] = calculate_q_bins(sqw_obj);
+            assertEqual(size(q), [1,3]);
+            assertEqual(size(q{1}), [176, 1]);
+            assertEqual(size(q{2}), [176, 1]);
+            assertEqual(size(q{3}), [176, 1]);
+            assertEqual(en, 0);
+        end
+
         function test_calculate_qw_bins(obj)
         end
 
@@ -81,6 +95,21 @@ classdef test_migrated_apis < TestCase
         end
 
         %% Dimensions
+        function test_dimensions_sqw_2d(obj)
+            sqw_2d_obj = read_sqw(obj.test_sqw_2d_fullpath);
+            [nd, sz] = sqw_2d_obj.dimensions();
+
+            assertEqual(nd, 2);
+            assertEqual(sz, size(sqw_2d_obj.data.s));
+        end
+        function test_dimensions_sqw_4d(obj)
+            sqw_4d_obj = read_sqw(obj.test_sqw_4d_fullpath);
+            [nd, sz] = sqw_4d_obj.dimensions();
+
+            assertEqual(nd, 4);
+            assertEqual(sz, size(sqw_4d_obj.data.s));
+        end
+
         function test_dimensions_dnd_2d(obj)
             dnd_2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
             [nd, sz] = dnd_2d_obj.dimensions();
@@ -109,25 +138,20 @@ classdef test_migrated_apis < TestCase
         %        end
 
         %% Dispersion
-        function test_dispersion_with_disp_return_value(obj)
+        function test_dispersion_with_disp_return_value_on_dnd(obj)
             params = {'scale', 10};
             dnd_2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
             wout_disp  = dispersion(dnd_2d_obj, @test_migrated_apis.disp_rln, params);
 
-            expected = load('test_migrated_apis_data.mat', 'wout_disp');
-
-            skipTest('dnd object is not loaded from mat propertly #796')
-            assertEqualToTol(expected.wout_disp, wout_disp, 'ignore_str', true,'tol',3.e-7);
+            assertEqualToTolWithSave(obj, wout_disp, 'ignore_str', true,'tol',3.e-7);
         end
         function test_dispersion_with_disp_and_weight_retval(obj)
             dnd_2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
             [wout_disp, wout_weight]  = dispersion(dnd_2d_obj, @test_migrated_apis.disp_rln, {'scale', 10});
 
-            expected = load('test_migrated_apis_data.mat', 'wout_disp', 'wout_weight');
-            skipTest('dnd object is not loaded from mat propertly #796')
 
-            assertEqualToTol(expected.wout_disp, wout_disp, 'ignore_str', true,'tol',3.e-7);
-            assertEqualToTol(expected.wout_weight, wout_weight, 'ignore_str', true);
+            assertEqualToTolWithSave(obj, wout_disp, 'ignore_str', true,'tol',3.e-7);
+            assertEqualToTolWithSave(obj, wout_weight, 'ignore_str', true,'tol',1.e-9);
         end
 
         function test_get_proj_and_pbin(obj)
@@ -143,12 +167,12 @@ classdef test_migrated_apis < TestCase
                 'type', 'ppr', ...
                 'nonorthogonal', 0, ...
                 'lab', {'\zeta'  '\xi'  '\eta'  'E'});
-% TODO: Initially the projection was this one: Which one is correct #827           
-%             expected_proj = ortho_proj( ...
-%                 [1,1,0], [1.1102e-16 1.1102e-16 1], [1 -1 9.9580e-17], ...
-%                 'type', 'ppp', ...
-%                 'nonorthogonal', 0, ...
-%                 'lab', {'\zeta'  '\xi'  '\eta'  'E'});
+            % TODO: Initially the projection was this one: Which one is correct #827
+            %             expected_proj = ortho_proj( ...
+            %                 [1,1,0], [1.1102e-16 1.1102e-16 1], [1 -1 9.9580e-17], ...
+            %                 'type', 'ppp', ...
+            %                 'nonorthogonal', 0, ...
+            %                 'lab', {'\zeta'  '\xi'  '\eta'  'E'});
 
             % low tolerance as ref data to 5sf only
             assertEqualToTol(proj, expected_proj, 1e-6);
@@ -172,15 +196,18 @@ classdef test_migrated_apis < TestCase
         %end
 
         %% xye
+        function test_xye_returns_bin_centres_and_errors_sqw(obj)
+            sqw_2d_obj = read_sqw(obj.test_sqw_2d_fullpath);
+            result = sqw_2d_obj.xye();
+
+            assertEqualToTolWithSave(obj, result,'tol',1.e-7);
+        end
+
         function test_xye_returns_bin_centres_and_errors(obj)
             dnd_2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
             result = dnd_2d_obj.xye();
 
-            expected = load('test_migrated_apis_data.mat', 'xye_test');
-
-            assertEqualToTol(result.x, expected.xye_test.x,'tol',1.e-7);
-            assertEqualToTol(result.y, expected.xye_test.y);
-            assertEqualToTol(result.e, expected.xye_test.e);
+            assertEqualToTolWithSave(obj,result,'tol',1.e-7);
         end
 
         function test_xye_sets_NaN_default_null_value(obj)
@@ -202,10 +229,13 @@ classdef test_migrated_apis < TestCase
     end
 
     methods(Static)
-        function val = disp_rln(qh, qk, ql, varargin)
+        function [val,weit] = disp_rln(qh, qk, ql, varargin)
             % simple function to testing; uses the first keyword argument
             scale = varargin{2};
             val = qh .* qk .* ql .* scale;
+            if nargout>1
+                weit = ones(size(val));
+            end
         end
     end
 end

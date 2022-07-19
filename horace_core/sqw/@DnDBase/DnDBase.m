@@ -88,6 +88,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             %   Add appropriate code to convert from specific version to
             %   modern version
             %end
+            if isfield(inputs,'data_')
+                inputs = inputs.data_;
+            end
             if isfield(inputs,'pax') && isfield(inputs,'iax')
                 inputs.axes = axes_block.get_from_old_data(inputs);
                 inputs.proj = ortho_proj.get_from_old_data(inputs);
@@ -181,7 +184,14 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         sz = sigvar_size(w);
         %------------------------------------------------------------------
         [wout,mask_array] = mask(win, mask_array);
-        [q,en]=calculate_q_bins(win);
+        %------------------------------------------------------------------
+        [q,en]=calculate_q_bins(win); % Calculate qh,qk,ql,en for the centres
+        %                             % of the bins of an n-dimensional sqw
+        %                             % or dnd dataset
+        qw=calculate_qw_bins(win,optstr) % Calculate qh,qk,ql,en for the
+        %                             % centres of the bins of an n-dimensional 
+        %                             % sqw or dnd dataset.        
+        [wout_disp, wout_weight] = dispersion(win, dispreln, pars);        
         %
         wout = copy(w);
         wout = cut_dnd_main (data_source, ndims, varargin);
@@ -200,6 +210,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             % dnd object(s) do not have pixels
             pixels = false(size(w));
         end
+        %
         function obj = init(obj,varargin)
             % initialize empty object with any possible input arguments
             % Part of the object constructor
