@@ -36,7 +36,7 @@ classdef IX_source < serializable
             %
             % Note: any number of the arguments can given in arbitrary order
             % after leading positional arguments if they are preceded by the
-            % argument name (including abbrevioations) with a preceding hyphen e.g.
+            % argument name (including abbreviations) with a preceding hyphen e.g.
             %
             %   >> obj = IX_source ('ISIS','-freq',50)
             
@@ -58,12 +58,6 @@ classdef IX_source < serializable
                     obj.frequency = S.frequency;
                 end
             end
-        end
-        %
-        function iseq = eq(obj1,obj2)
-            iseq = strcmp(obj1.name, obj2.name);
-            iseq = iseq && strcmp(obj1.target_name, obj2.target_name);
-            iseq = iseq && obj1.frequency==obj2.frequency;
         end
         %
         
@@ -177,9 +171,9 @@ classdef IX_source < serializable
             % in the structure does not correspond to the current version
             %
             % By default, this function interfaces the default from_struct
-            % function, but when the old strucure substantially differs from
-            % the moden structure, this method needs the specific overloading
-            % to allow loadob to recover new structure from an old structure.
+            % function, but when the old structure substantially differs from
+            % the modern structure, this method needs the specific overloading
+            % to allow loadobj to recover new structure from an old structure.
             inputs = convert_old_struct_(obj,inputs);
             %
             obj = from_old_struct@serializable(obj,inputs);

@@ -1,40 +1,49 @@
-function [ok, mess,obj] = check_combo_arg(obj)
+function obj = check_combo_arg(obj)
 % Check interdependent fields of rundata class
 %
-%   >> [ok, mess] = check_combo_arg(w)
+%   >>w=check_combo_arg(w)
 %
-%   ok      ok=true if valid, =false if not
-%   mess    Message if not a valid object, empty string if is valid.
-%
+%   runs successfully if interdependent variables are consistent and throws
+%   "HORACE:rundata:invalid_argument" if they are not.
 %
 if ~isempty(obj.lattice)
-    [ok,mess,obj.lattice] = obj.lattice.check_combo_arg();
-    if ~ok
-        obj.isvalid_ =false;
+    lat = obj.lattice;
+    obj.isvalid_ = lat.isvalid;
+    obj.reason_for_invalid_ = lat.reason_for_invalid;
+    if ~obj.isvalid_
         return;
     end
 end
 % Check efix
-[ok,mess] = check_efix_correct(obj);
-if ~ok
-    obj.isvalid_ =false;
-    return;
+[obj.isvalid_,obj.reason_for_invalid_] = check_efix_correct(obj);
+if ~obj.isvalid_
+    return
 end
 %
 % check if the rundata object is fully defined
 [undefined,~,fields_undef] = obj.check_run_defined();
 if undefined >1
-    obj.isvalid_=false;
-    ok = false;
     mf = strjoin(fields_undef,'; ');
-    mess = sprintf('Run is undefined. Need to define missing fields: %s',mf);
+    obj.isvalid_ = false;
+    obj.reason_for_invalid_ = ...
+        sprintf('Run is undefined. Need to define missing fields: %s',mf);
     return;
 else
     if ~isempty(obj.loader)
-        [ok,mess,obj.loader] = obj.loader.check_combo_arg();
-        obj.isvalid_ = ok;
+        ldr = obj.loader;
+        ldr = ldr.check_combo_arg();
+        if ~ldr.isvalid
+            obj.isvalid_ = false;
+            obj.reason_for_invalid_  = ldr.reason_for_invalid;
+            obj.loader = ldr;
+            return
+        end
+        obj.loader = ldr;
     end
 end
+obj.isvalid_ = true;
+obj.reason_for_invalid_  = '';
+
 
 
 function [ok,mess] = check_efix_correct(obj)

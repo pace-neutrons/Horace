@@ -54,7 +54,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase
 
         wout = sqw_eval_pix_(wout, sqwfunc, ave_pix, pars);
 
-        function obj = from_old_struct(obj,inputs)
+        function obj = from_old_struct(obj,inputs)            
             % Restore object from the old structure, which describes the
             % previous version of the object.
             %
@@ -84,7 +84,14 @@ classdef (Abstract)  DnDBase < SQWDnDBase
             else
                 obj = obj.from_bare_struct(inputs);
             end
-        end        
+        end 
+        function obj = set_do_check_combo_arg(obj,val)
+            obj.do_check_combo_arg_ = logical(val);
+            if ~isempty(obj.data_)
+                obj.data_.do_check_combo_arg = logical(val);
+            end
+        end
+        
     end
 
     methods (Static)

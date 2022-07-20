@@ -18,6 +18,8 @@ classdef serializableTester1 < serializable
             obj = loadobj@serializable(S,obj);
         end
         function ver = ver_holder(new_version)
+            % this method allows to change the class version with the
+            % purposes of testing the serialization of different versions
             persistent version;
             if isempty(version)
                 version = serializableTester1.class_version_;
@@ -42,7 +44,7 @@ classdef serializableTester1 < serializable
         % get class version, which would affect the way class is stored on/
         % /restore from an external media
         function ver  = classVersion(~)
-           ver = serializableTester1.ver_holder();
+            ver = serializableTester1.ver_holder();
         end
 
     end
@@ -55,9 +57,9 @@ classdef serializableTester1 < serializable
     methods(Access=protected)
         function obj = from_old_struct(obj,inputs)
             if (isfield(inputs,'version') && inputs(1).version ~= 2) || ...
-                ~isfield(inputs,'version')
+                    ~isfield(inputs,'version')
                 if isfield(inputs,'array_dat')
-                    obj = from_bare_struct(obj,inputs.array_dat);                    
+                    obj = from_bare_struct(obj,inputs.array_dat);
                 else
                     obj = from_bare_struct(obj,inputs);
                 end
@@ -70,4 +72,3 @@ classdef serializableTester1 < serializable
         end
     end
 end
-

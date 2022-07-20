@@ -48,6 +48,8 @@ methods
         %
         for idx = 1:numel(class_fields)
             dnd_copy = obj.dnd_2d;
+            dnd_copy.do_check_combo_arg = false;
+            
             field_name = class_fields{idx};
             old_val = dnd_copy.(field_name);
             dnd_copy.(field_name) = class_prop(field_name);

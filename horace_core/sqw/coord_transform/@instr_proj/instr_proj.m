@@ -89,9 +89,8 @@ classdef instr_proj<aProjection
             end
             % define possible key-value parameters of the constructor,
             % using standard serializable contsturctor form.
-            validators = {@(x)isa(x,'oriented_lattice')};
             [obj,remains] = set_positional_and_key_val_arguments(obj,...
-                input_fields_names,validators,varargin{:});
+                input_fields_names,varargin{:});
             if ~isempty(remains)
                 error('HORACE:instr_proj:invalid_argument',...
                     'provided unrecognised input(s) for instr_proj initialization: %s',...

@@ -30,4 +30,7 @@ else
         name,evalc('disp(val)'))
 end
 %
-[ ~,~,obj] = check_combo_arg_(obj);
+if obj.do_check_combo_arg_
+    obj = check_combo_arg(obj);
+end
+

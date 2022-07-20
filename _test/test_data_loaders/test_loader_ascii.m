@@ -32,7 +32,7 @@ classdef test_loader_ascii< TestCase
         function test_wrong_first_argument(~)
             f = @()loader_ascii(10);
             % should throw; first argument has to be a file name
-            assertExceptionThrown(f,'HERBERT:loader_ascii:invalid_argument');
+            assertExceptionThrown(f,'HERBERT:a_loader:invalid_argument');
         end
 
         function test_wrong_second_argument(obj)
@@ -52,8 +52,8 @@ classdef test_loader_ascii< TestCase
             ld = loader_ascii(spe_file,par_file);
             % file still valid, as detector part is defined but spe file is
             % not defined and data not defined
-            assertTrue(ld.isvalid);
-            assertTrue(isempty(ld.file_name))
+            assertFalse(ld.isvalid);
+            assertEqual(ld.file_name,spe_file)
         end
         function test_to_from_struct_loader_in_memory(obj)
             spe_file = fullfile(obj.test_data_path,'MAP10001.spe');

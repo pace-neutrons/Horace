@@ -38,6 +38,9 @@ function [out,suite_out] = runtests(varargin)
 %
 %   out = runtests(...) returns a logical value that is true if all the
 %   tests passed.
+% 
+%   -nodisp_skipped  the key disables printing of the detailed information
+%                    about skipped tests
 %
 %   Examples
 %   --------
@@ -49,7 +52,7 @@ function [out,suite_out] = runtests(varargin)
 %   detailed information to the Command Window as the test cases are run.
 %
 %       runtests -verbose
-%
+%  %
 %   Save verbose runtests output to a log file.
 %
 %       runtests -verbose -logfile my_test_log.txt
@@ -78,12 +81,16 @@ function [out,suite_out] = runtests(varargin)
 %   Steven L. Eddins
 %   Copyright 2009-2010 The MathWorks, Inc.
 
+[ok,mess,display_fail_only,argi] = parse_char_options(varargin,{'-nodisp_skipped'});
+if ~ok
+    error('HERBERT:runtests:invalid_argument',mess);
+end
 verbose = false;
 logfile = '';
 if nargin < 1
     suite = TestSuite.fromPwd();
 else
-    [name_list, verbose, logfile] = getInputNames(varargin{:});
+    [name_list, verbose, logfile] = getInputNames(argi{:});
     if numel(name_list) == 0
         suite = TestSuite.fromPwd();
     elseif numel(name_list) == 1
@@ -133,6 +140,10 @@ if verbose
 else
     monitor = TestRunDisplay(logfile_handle);
 end
+if display_fail_only % 
+    monitor.disp_fail_only = true;
+end
+
 [did_pass,num_tests_run] = suite.run(monitor);
 if did_pass && num_tests_run == 0
     error('xunit:runtests:noTestCasesFound', 'No test cases were run');

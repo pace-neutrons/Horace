@@ -97,10 +97,9 @@ classdef main_header_cl < serializable
                         evalc('disp(varargin{1}))'))
                 end
             else
-                validators = {@ischar,@ischar,@ischar,@isnumeric};
                 param_names_list = obj.saveableFields();
                 [obj,remains] = obj.set_positional_and_key_val_arguments(...
-                    param_names_list(1:4),validators,varargin{:});
+                    param_names_list(1:4),varargin{:});
                 if ~isempty(remains)
                     error('HORACE:main_header:invalid_argument',...
                         '')
@@ -210,23 +209,6 @@ classdef main_header_cl < serializable
             flds = main_header_cl.fields_to_save_;
         end
         %------------------------------------------------------------------
-        function [iseq,mess] = eq(obj,other_obj,varargin)
-            % equality statement. May be should be moved to be part of
-            % serializable
-            if any(size(obj) ~= size(other_obj))
-                iseq = false;
-                mess = 'objects have different size';
-                return;
-            end
-            iseq = isa(other_obj,class(obj));
-            if ~iseq
-                mess = 'the class of the comaried objects is different';
-                return;
-            end
-            for i=1:numel(obj)
-                [iseq,mess] = iseq_(obj(i),other_obj(i),varargin{:});
-            end
-        end
     end
     methods(Static)
         % Service routines:

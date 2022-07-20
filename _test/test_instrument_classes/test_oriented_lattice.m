@@ -37,19 +37,17 @@ classdef test_oriented_lattice< TestCase
         function test_validity(~)
             ol = oriented_lattice();
             assertFalse(ol.isvalid);
-            [ok,mess,ol] = ol.check_combo_arg();
-            assertFalse(ok);
-            mes_base = 'The necessary field(s):';
-            assertTrue(strncmpi(mess,mes_base,numel(mes_base)));
+            assertEqual(ol.reason_for_invalid,'empty lattice is invalid')
 
             ol.alatt = [1,2,3];
+            assertFalse(ol.isvalid);            
+            assertTrue(strncmp(ol.reason_for_invalid, ...
+                'The necessary field(s):',23))            
             ol.angdeg = [90,90,90];
             ol.psi = 0;
             assertTrue(ol.isvalid);
+            assertTrue(isempty(ol.reason_for_invalid))            
 
-            [ok,mess] = ol.check_combo_arg();
-            assertTrue(ok);
-            assertTrue(isempty(mess));
         end
         %
         function test_serial_fields(~)
@@ -214,6 +212,8 @@ classdef test_oriented_lattice< TestCase
             mult = pi/180;
             ol = oriented_lattice('alatt',[2;3;4],'psi',20*mult,...
                 'gl',3*mult,'angdeg',[40,45,50]*mult,'angular_units','rad');
+            
+            assertTrue(ol.isvalid);
 
             assertTrue(ol.is_defined('psi'));
             assertTrue(ol.is_defined('alatt'));

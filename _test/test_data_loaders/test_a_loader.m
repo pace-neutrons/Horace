@@ -105,8 +105,11 @@ classdef test_a_loader< TestCase
             % file_name set method overloaded to not set any file
             % for abstract loader
             al.file_name = spe_file;
-            % abstract file with detectors only remains valid
-            assertTrue(al.isvalid);
+            % the tester expects and accepts the file with extension alf
+            % (fake)
+            % such file does not exisit and file with detecots only is
+            % invalid
+            assertFalse(al.isvalid);
 
             function set_spe_file(cli,file)
                 cli.file_name = file;
@@ -128,10 +131,11 @@ classdef test_a_loader< TestCase
             al = al.set_defined_fields({'S','ERR','en','n_detectors'});
             al.S = ones(3,5);
             assertFalse(al.isvalid);
-            [ok,mess,al] = al.check_combo_arg();
-            assertFalse(ok)
+            al = al.check_combo_arg();
+            assertFalse(al.isvalid)
 
-            assertEqual(mess,'ill defined Signal: size(Signal) ~= size(ERR)');
+            assertEqual(al.reason_for_invalid, ...
+                'ill defined Signal: size(Signal) ~= size(ERR)');
             assertTrue(isempty(al.ERR));
             assertTrue(isempty(al.en));
             assertEqual(5,al.n_detectors);
@@ -139,10 +143,7 @@ classdef test_a_loader< TestCase
 
             al.ERR = zeros(3,5);
             assertFalse(al.isvalid);
-            [ok,mess,al] = al.check_combo_arg();
-            assertFalse(ok)
-
-            assertEqual(mess,...
+            assertEqual(al.reason_for_invalid,...
                 'ill defined en: size(en) ~= size(S,1)+1 or size(en) ~= size(S,1)');
 
             assertTrue(isempty(al.en));
@@ -158,6 +159,7 @@ classdef test_a_loader< TestCase
             assertEqual(5,al.n_detectors);
             assertEqual({'S','ERR','en','n_detectors'},al.defined_fields());
             assertFalse(al.isvalid) % still invalid as no detector information
+            assertEqual(al.reason_for_invalid,'load_par undefined')
 
             al.S=[];
             assertTrue(isempty(al.S));
@@ -284,7 +286,7 @@ classdef test_a_loader< TestCase
 
             delete(test_file);
         end
-        function test_rewrite_nxspe(this)
+        function test_rewrite_nxspe(~)
             lt = a_loader_tester();
             lt.S=ones(5,3);
             lt.ERR = zeros(5,3);

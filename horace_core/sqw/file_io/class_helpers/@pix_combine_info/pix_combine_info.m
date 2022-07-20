@@ -80,7 +80,6 @@ classdef pix_combine_info < serializable
         % Global range of all pixels, intended for combining
         pix_range_ = PixelData.EMPTY_RANGE_;
 
-        isvalid_ = true;
     end
     properties(Constant,Access=protected)
         fields_to_save_ = {'infiles','npix_each_file',...
@@ -130,6 +129,7 @@ classdef pix_combine_info < serializable
             if nargin == 0
                 return
             end
+            obj.do_check_combo_arg_ = false;
             obj.infiles = infiles;
             if ~exist('pos_npixstart','var') % pre-initialization for file-based combining of the cuts.
                 nfiles = obj.nfiles;
@@ -141,20 +141,19 @@ classdef pix_combine_info < serializable
                 end
                 return;
             end
-            obj.nbins         = nbins;            
+            obj.nbins         = nbins;
             obj.pos_npixstart = pos_npixstart;
             obj.pos_pixstart  = pos_pixstart;
-            obj.npix_each_file = npix_each_file;            
+            obj.npix_each_file = npix_each_file;
             if exist('run_label','var')
                 obj.run_label     = run_label;
             end
             if exist('filenums','var')
                 obj.filenum_ = filenums;
             end
-            [ok,mess,obj] = check_combo_arg(obj);
-            if ~ok
-                error('HORACE:pix_combine_info:invalid_argument',mess);
-            end
+            obj.do_check_combo_arg_= true;
+            obj = check_combo_arg(obj);
+
         end
         %------------------------------------------------------------------
         function nf   = get.nfiles(obj)
@@ -174,7 +173,9 @@ classdef pix_combine_info < serializable
                 end
             end
             obj.infiles_ = val(:);
-            [~,~,obj] = check_combo_arg(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
         end
         %
         %------------------------------------------------------------------
@@ -195,7 +196,10 @@ classdef pix_combine_info < serializable
                 obj.npix_each_file_  = ones(1,obj.nfiles)*val;
             end
             obj.num_pixels_ = uint64(sum(obj.npix_each_file_));
-            [~,~,obj] = check_combo_arg(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
+
         end
         %------------------------------------------------------------------
         function nb = get.nbins(obj)
@@ -223,7 +227,9 @@ classdef pix_combine_info < serializable
                 % located at the same position
                 obj.pos_npixstart_ = ones(1,obj.nfiles)*val;
             end
-            [~,~,obj] = check_combo_arg(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
         end
         %
         function pos = get.pos_pixstart(obj)
@@ -235,11 +241,13 @@ classdef pix_combine_info < serializable
                     'pos_pixstart has to be numeric array containing information about pix location on hdd')
             end
             obj.pos_pixstart_ = val(:)';
-            if numel(val) == 1 % each contributing file has pixels data 
+            if numel(val) == 1 % each contributing file has pixels data
                 % located at the same position
                 obj.pos_pixstart_  = ones(1,obj.nfiles)*val;
             end
-            [~,~,obj] = check_combo_arg(obj);
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
         end
         %
         function range = get.pix_range(obj)
@@ -394,34 +402,27 @@ classdef pix_combine_info < serializable
             flds = pix_combine_info.fields_to_save_;
         end
         %
-        function [ok,mess,obj] = check_combo_arg(obj)
+        function obj = check_combo_arg(obj)
             % verify interdependent variables and the validity of the
             % obtained serializable object. Return the result of the check
             %
-            ok = true;
-            mess = '';
             if numel(obj.infiles_) ~= numel(obj.pos_npixstart_)
-                ok = false;
-                mess = sprintf('number of npixstart positions: %d not equal to the number of files to combine: %d',...
+                error('HORACE:pix_combine_info:invalid_argument',...
+                    'number of npixstart positions: %d not equal to the number of files to combine: %d',...
                     numel(obj.pos_npixstart_),numel(obj.infiles_));
             end
             if numel(obj.infiles_) ~= numel(obj.pos_pixstart_)
-                ok = false;
-                mess = sprintf('number of pixstart positions: %d not equal to the number of files to combine: %d',...
+                error('HORACE:pix_combine_info:invalid_argument',...
+                    'number of pixstart positions: %d not equal to the number of files to combine: %d',...
                     numel(obj.pos_pixstart_),numel(obj.infiles_));
             end
             if numel(obj.infiles_) ~= numel(obj.npix_each_file_)
-                ok = false;
-                mess = sprintf('numel of npix for each file : %d not equal to the number of files to combine: %d',...
+                error('HORACE:pix_combine_info:invalid_argument',...
+                    'numel of npix for each file : %d not equal to the number of files to combine: %d',...
                     numel(obj.npix_each_file_),numel(obj.infiles_));
             end
 
-            obj.isvalid_ = ok;
-        end
-    end
-    methods(Access=protected)
-        function is = check_validity(obj)
-            is = obj.isvalid_;
+
         end
     end
     methods(Static)

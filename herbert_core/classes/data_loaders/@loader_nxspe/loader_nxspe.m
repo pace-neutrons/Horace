@@ -137,9 +137,12 @@ classdef loader_nxspe < a_loader
             end
             if ~isempty(fh) % call from loaders factory
                 defined_fields = fields(fh);
+                obj.do_check_combo_arg_ = false;
                 for i=1:numel(defined_fields)
                     obj.(defined_fields{i}) = fh.(defined_fields{i});
                 end
+                obj.do_check_combo_arg_ = true;                
+                obj = obj.check_combo_arg();
             else
                 % set up file name checking that the file in fact exists and
                 % correct

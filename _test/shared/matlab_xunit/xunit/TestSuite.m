@@ -207,8 +207,11 @@ classdef TestSuite < TestComponent
             try
                 cli = feval(class_name,class_name);
             catch ME
+                test_folder = fileparts(which(class_name));
+                [~,test_folder_short] =  fileparts(test_folder);
                 Cause = MException('HERBERT:TestSuite:invalid_argument', ...
-                    sprintf('Error instantiating class Name: %s',class_name));
+                    sprintf('Error instantiating class Name: %s From test folder: %s', ...
+                    class_name,test_folder_short));
                 ME = ME.addCause(Cause);
                 rethrow(ME)
             end

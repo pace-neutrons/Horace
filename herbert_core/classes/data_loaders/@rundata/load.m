@@ -17,6 +17,8 @@ if ~ok
     error('HERBERT:rundata:invalid_argument',....
         mess);
 end
-
+obj.do_check_combo_arg = false;
 obj = obj.load_all_(reload);
+obj.do_check_combo_arg = true;
+obj = obj.check_combo_arg();
 end

@@ -100,6 +100,7 @@ for i=1:numel(headers)
     % Construct the experiment data from the rest of the header
 
 end
+obj.do_check_combo_arg_ = false;
 
 % Construct the new header Experiment object
 % update with expdata, which maybe should go in the Experiment constructor
@@ -107,7 +108,8 @@ obj.instruments = instruments;
 obj.samples = samples;
 % this also calculates and sets up consistent runid_map
 obj.expdata = expdata;
-
+obj.do_check_combo_arg_ = true;
+            obj = obj.check_combo_arg();            
 end % function build_from_old_headers
 
 %-------------------------------------------------------------------------

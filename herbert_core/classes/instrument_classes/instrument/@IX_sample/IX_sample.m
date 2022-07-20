@@ -332,15 +332,6 @@ classdef IX_sample < IX_samp
         end
 
         %------------------------------------------------------------------
-        function is_eq = eq(obj1,obj2)
-            s1 = obj1.to_bare_struct;
-            s2 = obj2.to_bare_struct;
-            is_eq = equal_to_tol(s1,s2);
-        end
-
-        function is_neq = ne(obj1, obj2)
-            is_neq = ~eq(obj1, obj2);
-        end
     end
 
     methods(Access=protected)
@@ -354,9 +345,9 @@ classdef IX_sample < IX_samp
             % in the structure does not correspond to the current version
             %
             % By default, this function interfaces the default from_struct
-            % function, but when the old strucure substantially differs from
-            % the moden structure, this method needs the specific overloading
-            % to allow loadob to recover new structure from an old structure.
+            % function, but when the old structure substantially differs from
+            % the modern structure, this method needs the specific overloading
+            % to allow loadobj to recover new structure from an old structure.
             inputs = convert_old_struct_(obj,inputs);
             % optimization here is possible to not to use the public
             % interface. But is it necessary? its the question

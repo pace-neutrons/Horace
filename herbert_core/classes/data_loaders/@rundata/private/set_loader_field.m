@@ -6,7 +6,12 @@ if isempty(obj.loader)
         return;
     else
         obj.loader_=loader_nxspe();
+        obj.loader_.do_check_combo_arg = obj.do_check_combo_arg;
     end
 end
 obj.loader_.(field_name)=val;
-[~,~,obj] = obj.check_combo_arg();
+
+
+if obj.do_check_combo_arg_
+    obj = obj.check_combo_arg();
+end
