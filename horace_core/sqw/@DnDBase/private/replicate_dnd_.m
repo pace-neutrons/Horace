@@ -33,6 +33,13 @@ function dout = replicate_dnd_(din, dref)
 nd_in = numel(din.pax);
 nd_ref= numel(dref.pax);
 size_in = size(din.s);
+if din.dimensions()==1 % this is special case of signal in 1D array beeing row rather then column
+    % sould it be fixed for good?
+    size_in = size_in(2);
+    flip_signal = true;
+else
+    flip_signal = false;
+end
 size_ref= size(dref.s);
 
 if nd_in>nd_ref
@@ -71,9 +78,15 @@ else
         permute_axes=[find(dim_common),find(~dim_common)];
         size_repmat=size_ref;
         size_repmat(dim_common)=1;
-        dout.s=repmat(ipermute(din.s,permute_axes),size_repmat);
-        dout.e=repmat(ipermute(din.e,permute_axes),size_repmat);
-        dout.npix=repmat(ipermute(din.npix,permute_axes),size_repmat);
+        if flip_signal
+            dout.s=repmat(ipermute(din.s',permute_axes),size_repmat);
+            dout.e=repmat(ipermute(din.e',permute_axes),size_repmat);
+            dout.npix=repmat(ipermute(din.npix',permute_axes),size_repmat);
+        else
+            dout.s=repmat(ipermute(din.s,permute_axes),size_repmat);
+            dout.e=repmat(ipermute(din.e,permute_axes),size_repmat);
+            dout.npix=repmat(ipermute(din.npix,permute_axes),size_repmat);
+        end
     end
 end
 
