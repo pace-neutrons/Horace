@@ -1,28 +1,18 @@
 function [func_handle, pars, opts] = parse_eval_args_(win, func_handle, pars, varargin)
-    [~, ~, all_flag, args] = parse_char_options(varargin, {'-all'});
+% 
+flags = {'-all', '-average', '-filebacked'};
+[~, ~, all_flag, ave_flag, filebacked_flag, args] = parse_char_options(varargin, flags);
 
-    parser = inputParser();
-    parser.addRequired('func_handle', @(x) isa(x, 'function_handle'));
-    parser.addRequired('pars');
-    parser.addParameter('outfile', {}, @(x) iscellstr(x) || ischar(x) || isstring(x));
-    parser.addParameter('all', all_flag, @islognumscalar);
-    parser.addParameter('filebacked', false, @islognumscalar);
-    parser.parse(func_handle, pars, args{:});
-    opts = parser.Results;    
-% 
-% flags = {'-all', '-average', '-filebacked'};
-% [~, ~, all_flag, ave_flag, filebacked_flag, args] = parse_char_options(varargin, flags);
-% 
-% parser = inputParser();
-% parser.addRequired('func_handle', @(x) isa(x, 'function_handle'));
-% parser.addRequired('pars');
-% 
-% parser.addParameter('all', all_flag, @islognumscalar);
-% parser.addParameter('filebacked', filebacked_flag, @islognumscalar);
-% parser.addParameter('outfile', {}, @(x) iscellstr(x) || ischar(x) || isstring(x));
-% 
-% parser.parse(func_handle, pars, args{:});
-% opts = parser.Results;
+parser = inputParser();
+parser.addRequired('func_handle', @(x) isa(x, 'function_handle'));
+parser.addRequired('pars');
+parser.addParameter('average', ave_flag, @islognumscalar);
+parser.addParameter('all', all_flag, @islognumscalar);
+parser.addParameter('filebacked', filebacked_flag, @islognumscalar);
+parser.addParameter('outfile', {}, @(x) iscellstr(x) || ischar(x) || isstring(x));
+
+parser.parse(func_handle, pars, args{:});
+opts = parser.Results;
 
 if ~iscell(opts.pars)
     opts.pars = {opts.pars};
