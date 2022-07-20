@@ -85,9 +85,11 @@ classdef (Abstract) SQWDnDBase < serializable
 
         wout = sqw_eval_nopix(win, sqwfunc, all_bins, pars); % evaluate function
         %                             % on an image stored in an sqw object
-        function [func_handle, pars, opts] = parse_eval_args(win, func_handle, pars, varargin)
+        function [func_handle, pars, opts] = parse_eval_args(win, ...
+                func_handle, pars, varargin)
             % paser for funceval function input parameters
-            [func_handle, pars, opts] = parse_eval_args_(win, func_handle, pars, varargin);
+            [func_handle, pars, opts] = parse_eval_args_(win, func_handle, ...
+                pars, varargin{:});
         end
     end
 

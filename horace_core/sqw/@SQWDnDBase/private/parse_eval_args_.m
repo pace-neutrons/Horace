@@ -8,11 +8,7 @@ function [func_handle, pars, opts] = parse_eval_args_(win, func_handle, pars, va
     parser.addParameter('all', all_flag, @islognumscalar);
     parser.addParameter('filebacked', false, @islognumscalar);
     parser.parse(func_handle, pars, args{:});
-    opts = parser.Results;
-
-    if ~iscell(opts.pars)
-        opts.pars = {opts.pars};
-    end
+    opts = parser.Results;    
 % 
 % flags = {'-all', '-average', '-filebacked'};
 % [~, ~, all_flag, ave_flag, filebacked_flag, args] = parse_char_options(varargin, flags);
