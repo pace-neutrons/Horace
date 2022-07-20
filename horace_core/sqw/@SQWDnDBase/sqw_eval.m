@@ -89,9 +89,6 @@ if isempty(opts.outfile) || opts.filebacked
 end
 
 wout = copy(win);
-if ~iscell(pars)
-    pars = {pars};  % package parameters as a cell for convenience
-end
 
 for i=1:numel(wout)
     if has_pixels(wout(i))   % determine if object contains pixel data

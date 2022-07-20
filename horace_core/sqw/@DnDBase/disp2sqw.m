@@ -1,5 +1,6 @@
 function wout = disp2sqw(win, dispreln, pars, fwhh,varargin)
-
+% calculate dispersion function on dnd object
+%
 [ok, mess, all_bins] = parse_char_options(varargin, {'-all'});
 if ~ok
     error('HORACE:DnDBase:invalid_arguments', ...
@@ -20,5 +21,5 @@ for i=1:numel(win)
         if any(omit), weight(omit)=0; end
     end
     wout(i).s = weight;
-    wout(i).e = zeros(size(data.e));
+    wout(i).e = zeros(size(win(i).e));
 end
