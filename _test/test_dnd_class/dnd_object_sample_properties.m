@@ -21,7 +21,7 @@ end
 sample_properties('s') = val;
 sample_properties('e') = val;
 sample_properties('npix') = val;
-sample_properties('axes') = axes_block(numel(box_size));
+sample_properties('axes') = axes_block(sum(box_size>1));
 sample_properties('proj') = ortho_proj();
 
 sample_properties('dax') = 1:numel(box_size);

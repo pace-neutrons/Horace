@@ -21,7 +21,7 @@ classdef test_dnd_copy < TestCase
         end
 
         function test_copy_returns_object_with_identical_data(obj)
-            d2d_obj = d2d(obj.test_dnd_2d_fullpath);
+            d2d_obj = read_horace(obj.test_dnd_2d_fullpath);
             d2d_copy = copy(d2d_obj);
 
             assertEqualToTol(d2d_copy, d2d_obj);
@@ -40,12 +40,12 @@ classdef test_dnd_copy < TestCase
             d2d_copy = copy(d2d_obj);
 
             d2d_copy.s(1:10) = inf;  % data is O(10^5)
-            d2d_copy.e = [];
+            d2d_copy.npix(16,1:10) = 0;
             d2d_copy.label{1} = 'test';
 
             % changed data is not mirrored in initial
             assertFalse(equal_to_tol(d2d_copy.s, d2d_obj.s));
-            assertFalse(equal_to_tol(d2d_copy.e, d2d_obj.e));
+            assertFalse(equal_to_tol(d2d_copy.npix, d2d_obj.npix));
             assertFalse(equal_to_tol(d2d_copy.label, d2d_obj.label));
         end
 

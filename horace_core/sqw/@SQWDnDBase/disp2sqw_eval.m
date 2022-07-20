@@ -83,7 +83,7 @@ if ~ok
         'HORACE:sqw:invalid_arguments', ...
         '%s.\nValid values for optional arguments are ''-al[l]'' or ''-av[erage]''.', ...
         mess ...
-    );
+        );
 end
 
 wout = copy(win);
@@ -101,16 +101,11 @@ for i=1:numel(win)
         end
     else
         % If dnd type, then can take advantage of Cartesian grid to calculate dispersion for the Q grid only
-        [q,en]=calculate_q_bins(win(i));
-        weight=reshape(...
-            disp2sqw(q, en, dispreln, pars, fwhh), ...
-            size(win(i).data_.s));
-        
-        if ~all_bins
-            omit=(win(i).data_.npix==0);
-            if any(omit), weight(omit)=0; end
+        if all_bins
+            wout(i) = disp2sqw(win(i), dispreln, pars, fwhh,'-all');
+        else
+            wout(i) = disp2sqw(win(i), dispreln, pars, fwhh);
         end
-        wout(i).data_.s = weight;
-        wout(i).data_.e = zeros(size(win(i).data_.e));
+
     end
 end

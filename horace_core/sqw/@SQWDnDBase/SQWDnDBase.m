@@ -19,9 +19,6 @@ classdef (Abstract) SQWDnDBase < serializable
         %                             % objects or sqw objects without pixels
         [wout,mask_array] = mask(win, mask_array); % mask image data and
         %                             % corresponding pixels if available
-        [wout_disp, wout_weight] = dispersion(win, dispreln, pars) % Calculate
-        %                             % dispersion relation for dataset or
-        %                             % array of datasets.
         %------------------------------------------------------------------
         % sigvar block
         wout              = sigvar(w); % Create sigvar object from sqw or dnd object
@@ -38,7 +35,7 @@ classdef (Abstract) SQWDnDBase < serializable
     methods (Abstract, Access = protected)
         wout = unary_op_manager(w, operation_handle);
         wout = binary_op_manager_single(w1,w2,binary_op);
-        wout = sqw_eval_pix_(wout, sqwfunc, ave_pix, pars, outfile, i);
+        wout = sqw_eval_pix(wout, sqwfunc, ave_pix, pars, outfile, i);
         %
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         %                              % binning of an sqw or dnd object
@@ -64,24 +61,34 @@ classdef (Abstract) SQWDnDBase < serializable
         qw=calculate_qw_bins(win,optstr) % Calculate qh,qk,ql,en for the
         %                             % centres of the bins of an n-dimensional
         %                             % sqw or dnd dataset.
-        
 
         [ok,mess,nd_ref] = dimensions_match(w, nd_ref);
+        %------------------------------------------------------------------
+        [wout_disp, wout_weight] = dispersion(win, dispreln, pars) % Calculate
+        %                             % dispersion relation for dataset or
+        %                             % array of datasets.
         wout = disp2sqw_eval(win, dispreln, pars, fwhh, opt);
+        wout = disp2sqw(win, dispreln, pars, fwhh,varargin); % build dispersion relation
+        %                             % on image of sqw or dnd object
+        %------------------------------------------------------------------
         wout = func_eval(win, func_handle, pars, varargin);
         wout = sqw_eval(win, sqwfunc, pars, varargin);
-
+        %------------------------------------------------------------------
         varargout = multifit_func (varargin);
         varargout = multifit_sqw (varargin);
         varargout = multifit_sqw_sqw (varargin);
-
     end
 
     methods (Access = protected)
         wout = binary_op_manager(w1, w2, binary_op);
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
-        wout = sqw_eval_nopix_(win, sqwfunc, all_bins, pars);
+        wout = sqw_eval_nopix(win, sqwfunc, all_bins, pars); % evaluate function
+        %                             % on an image stored in an sqw object
+        function [func_handle, pars, opts] = parse_eval_args(win, func_handle, pars, varargin)
+            % paser for funceval function input parameters
+            [func_handle, pars, opts] = parse_eval_args_(win, func_handle, pars, varargin);
+        end
     end
 
     methods (Access = private)

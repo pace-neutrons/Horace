@@ -58,7 +58,6 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         write_sqw(obj,sqw_file);      % write sqw object in an sqw file
         wout = smooth(win, varargin)  % smooth sqw object or array of sqw
         %                             % objects containing no pixels
-        [wout_disp, wout_weight] = dispersion(win, dispreln, pars);
         % sigvar block
         %------------------------------------------------------------------
         wout = sigvar(w);
@@ -323,7 +322,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
         wout = sqw_eval_(wout, sqwfunc, ave_pix, all_bins, pars);
-        wout = sqw_eval_pix_(w, sqwfunc, ave_pix, pars, outfilecell, i);
+        wout = sqw_eval_pix(w, sqwfunc, ave_pix, pars, outfilecell, i);
 
 
         function obj = from_old_struct(obj,S)

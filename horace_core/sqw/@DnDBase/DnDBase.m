@@ -68,8 +68,15 @@ classdef (Abstract)  DnDBase < SQWDnDBase
 
         [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
-        wout = sqw_eval_pix_(wout, sqwfunc, ave_pix, pars);
-
+        %------------------------------------------------------------------
+        wout = sqw_eval_nopix(win, sqwfunc, all_bins, pars); % evaluate
+        %                              % function on dnd object
+        function wout = sqw_eval_pix(~, varargin)
+            % Can not evaluate pixels function on a dnd object
+            error('HORACE:DnDBase:runtime_error', ...
+                'sqw_eval_pix can not be invoked on dnd object');
+        end
+        %------------------------------------------------------------------
         function obj = from_old_struct(obj,inputs)
             % Restore object from the old structure, which describes the
             % previous version of the object.
@@ -189,9 +196,16 @@ classdef (Abstract)  DnDBase < SQWDnDBase
         %                             % of the bins of an n-dimensional sqw
         %                             % or dnd dataset
         qw=calculate_qw_bins(win,optstr) % Calculate qh,qk,ql,en for the
-        %                             % centres of the bins of an n-dimensional 
-        %                             % sqw or dnd dataset.        
-        [wout_disp, wout_weight] = dispersion(win, dispreln, pars);        
+        %                             % centres of the bins of an n-dimensional
+        %                             % sqw or dnd dataset.
+        %------------------------------------------------------------------
+        [wout_disp, wout_weight] = dispersion(win, dispreln, pars);
+        wout = disp2sqw(win, dispreln, pars, fwhh,varargin); % calculate
+        %                             % dispersion function on the dnd object
+        wout = func_eval(win, func_handle, pars, varargin);  % calculate the 
+        %                             % function, provided as input on the
+        %                             % bin centers of the image axes
+        %------------------------------------------------------------------
         %
         wout = copy(w);
         wout = cut_dnd_main (data_source, ndims, varargin);
@@ -239,9 +253,8 @@ classdef (Abstract)  DnDBase < SQWDnDBase
 
         function obj = DnDBase(varargin)
             obj = obj@SQWDnDBase();
-            if nargin>0
-                obj = obj.init(varargin{:});
-            end
+            obj = obj.init(varargin{:});
+
         end
         %
         function val = get.filename(obj)

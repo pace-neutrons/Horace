@@ -414,22 +414,22 @@ classdef test_dnd_constructor < TestCaseWithSave
 
         function test_d1d_get_returns_set_properties(obj)
             dnd_obj = d1d();
-            obj.assert_dnd_get_returns_set_properties(dnd_obj,10);
+            obj.assert_dnd_get_returns_set_properties(dnd_obj,[1,10]);
         end
 
         function test_d2d_get_returns_set_properties(obj)
             dnd_obj = d2d();
-            obj.assert_dnd_get_returns_set_properties(dnd_obj,[2,1]);
+            obj.assert_dnd_get_returns_set_properties(dnd_obj,[20,10]);
         end
 
         function test_d3d_get_returns_set_properties(obj)
             dnd_obj = d3d();
-            obj.assert_dnd_get_returns_set_properties(dnd_obj,[1,1,1]);
+            obj.assert_dnd_get_returns_set_properties(dnd_obj,[10,10,10]);
         end
 
         function test_d4d_get_returns_set_properties(obj)
             dnd_obj = d4d();
-            obj.assert_dnd_get_returns_set_properties(dnd_obj,ones(1,4));
+            obj.assert_dnd_get_returns_set_properties(dnd_obj,[10,11,5,8]);
         end
 
         function assert_dnd_get_returns_set_properties(~, dnd_obj,box_size)
@@ -469,24 +469,28 @@ classdef test_dnd_constructor < TestCaseWithSave
         function test_d4d_contains_expected_properties(obj)
             dnd_obj = d4d();
             assertEqual(dnd_obj.axes.dimensions,4)
+            assertEqual(dnd_obj.dimensions,4)            
             obj.assert_dnd_contains_expected_properties(dnd_obj);
         end
 
         function test_d3d_contains_expected_properties(obj)
             dnd_obj = d3d();
             assertEqual(dnd_obj.axes.dimensions,3)
+            assertEqual(dnd_obj.dimensions,3)            
             obj.assert_dnd_contains_expected_properties(dnd_obj);
         end
 
         function test_d2d_contains_expected_properties(obj)
             dnd_obj = d2d();
             assertEqual(dnd_obj.axes.dimensions,2)
+            assertEqual(dnd_obj.dimensions,2)            
             obj.assert_dnd_contains_expected_properties(dnd_obj);
         end
 
         function test_d1d_contains_expected_properties(obj)
             dnd_obj = d1d();
             assertEqual(dnd_obj.axes.dimensions,1)
+            assertEqual(dnd_obj.dimensions,1)            
             obj.assert_dnd_contains_expected_properties(dnd_obj);
         end
 

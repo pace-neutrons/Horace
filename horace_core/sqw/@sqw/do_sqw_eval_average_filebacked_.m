@@ -5,8 +5,8 @@ function sqw_obj = do_sqw_eval_average_filebacked_(sqw_obj, sqwfunc, pars, outfi
 %
 %==============================================================================
 
-pix = sqw_obj.data.pix;
-npix = sqw_obj.data.npix;
+pix = sqw_obj.pix;
+npix = sqw_obj.npix;
 
 % Split npix array up, this allows us to pass the npix chunks into
 % 'average_bin_data', for which we need whole bins.
