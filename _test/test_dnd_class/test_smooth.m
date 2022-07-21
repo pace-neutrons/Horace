@@ -31,11 +31,11 @@ classdef test_smooth < TestCaseWithSave
 
         %% SMOOTH
         function test_smooth_sqw1d_returns_sqw1d_object(obj)
-            sqw_obj_dnd_type = read_horace(obj.test_sqw_1d_fullpath);
+            sqw_obj_dnd_type = read_dnd(obj.test_sqw_1d_fullpath);
 
             d = sqw_obj_dnd_type.smooth(10, 'hat');
-            assertTrue(isa(d, 'sqw'));
-            assertTrue(isa(d.data, 'd1d'));
+            assertFalse(isa(d, 'sqw'));
+            assertTrue(isa(d, 'd1d'));
         end
         function test_smooth_d2d_returns_d2d_object(obj)
             d2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
@@ -50,11 +50,13 @@ classdef test_smooth < TestCaseWithSave
             assertTrue(isa(d, 'd3d'));
         end
         function test_smooth_sqwd4d_returns_sqwd4d_object(obj)
-            d4d_obj = read_horace(obj.test_sqw_4d_fullpath);
+            sqw4d_obj = read_sqw(obj.test_sqw_4d_fullpath);
+            sqw4d_obj.pix = [];
 
-            d = d4d_obj.smooth(10, 'hat');
+            d = sqw4d_obj.smooth(10, 'hat');
             assertTrue(isa(d, 'sqw'));
             assertTrue(isa(d.data, 'd4d'));
+            assertFalse(d.has_pixels());
         end
 
         function test_smooth_no_args(obj)
