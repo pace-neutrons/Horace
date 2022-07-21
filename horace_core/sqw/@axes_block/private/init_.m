@@ -111,7 +111,11 @@ elseif nargi>= 4 % Either binning parameters (first 4) or default serializable
     %
     %     obj.axis_caption = an_axis_caption();
     %         obj = set_axis_bins_(obj,ndims,pbin{:});
+elseif nargi<4 && nargi>1
+    names = obj.saveableFields();
+    [obj,remains] = obj.set_positional_and_key_val_arguments(...
+        names,varargin{:});
 else
     error('HORACE:axes_block:invalid_argument',...
-        'unrecognised number %d of input arguments',nargi);
+        'Unrecognised number: %d of input arguments',nargi);
 end

@@ -60,6 +60,14 @@ classdef axes_block < serializable
         % i.e. size(s) == dims_as_ssize and size(zeros(dims_as_ssize)) ==
         % size(s)
         dims_as_ssize;
+        % boolean row, identifying if a single bin direction 
+        % (nbins_all_dims(dir)==1) is integration axis or a projection
+        % axis. By default, single nbins_all_dims direction is
+        % integration direction. 
+        % If the index is false in a direction, where more then one bin
+        % is defined, the bining parameters in this direction are treated 
+        % as bin edges rather then bin centers.
+        single_bin_defines_iax;        
     end
 
     properties
@@ -95,14 +103,6 @@ classdef axes_block < serializable
     properties(Dependent,Hidden)
         % old interface to label
         ulabel
-        % boolean row, identifying if a single bin direction 
-        % (nbins_all_dims(dir)==1) is integration axis or a projection
-        % axis. By default, single nbins_all_dims direction is
-        % integration direction. 
-        % If the index is false in a direction, where more then one bin
-        % is defined, the bining parameters in this direction are treated 
-        % as bin edges rather then bin centers.
-        single_bin_defines_iax;
     end
 
     methods
