@@ -414,7 +414,7 @@ classdef test_dnd_constructor < TestCaseWithSave
 
         function test_d1d_get_returns_set_properties(obj)
             dnd_obj = d1d();
-            obj.assert_dnd_get_returns_set_properties(dnd_obj,[1,10]);
+            obj.assert_dnd_get_returns_set_properties(dnd_obj,[10,1]);
         end
 
         function test_d2d_get_returns_set_properties(obj)

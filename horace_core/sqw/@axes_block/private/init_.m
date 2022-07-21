@@ -34,7 +34,7 @@ elseif nargi==1
         [obj,remains] = from_struct(obj,varargin{1});
         remains = {remains};
     elseif isscalar(varargin{1}) && isnumeric(varargin{1})
-        ndim=varargin{1};
+        ndim=varargin{1}; % build default axes block with specified number of dimensions
         if ~any(ndim==[0,1,2,3,4])
             error('HORACE:axes_block:invalid_argument',...
                 'Numeric input must be 0,1,2,3 or 4 to create empty dataset');
@@ -51,41 +51,66 @@ elseif nargi==1
         error('HORACE:axes_block:invalid_argument',...
             'unrecognised type of single axis_block constructor argument');
     end
-elseif nargi>= 4 %remaining input is p1,p2,p3,p4
-    nonorthogonal_ = false;
-    if nargi>4 %legacy operations
-        is_proj = cellfun(@(x)((isstruct(x) && isfield(x,'u')) || ...
-            isa(x,'aProjection') || isa(x,'projaxes')),varargin,...
-            'UniformOutput',true);
-        if any(is_proj)
-            proj_ind = find(is_proj);
-            if isprop(varargin{proj_ind},'nonorthogonal') ||...
-                    isfield(varargin{proj_ind},'nonorthogonal')
-                obj.nonorthogonal = varargin{proj_ind}.nonorthogonal;
+elseif nargi>= 4 % Either binning parameters (first 4) or default serializable
+    % constructor with parameters as specified in saveableFields list
+    is_num = cellfun(@(x)isnumeric(x),varargin);
+    if all(is_num(1:4)) %binning parameters
+        argi  = varargin(5:end);
+        pbin = varargin(1:4);
+        if numel(argi)>0 % check if single_bin_defines_iax is present and the bins should be
+            % treated differently
+            is_present = cellfun(@(x)(ischar(x)&&strcmp(x,'single_bin_defines_iax')),argi);
+            if any(is_present)
+                ind = find(is_present);
+                obj.single_bin_defines_iax = argi{ind+1};
+                is_present(ind+1) = true;
+                argi = argi(~is_present);
             end
-            argi = varargin(proj_ind+1:end);
-            remains = varargin(1:proj_ind);
-            if numel(argi) == 4
-                obj = set_axis_bins_(obj,argi{:});
-                obj.axis_caption = an_axis_caption();
-                return
-            end
-        else
-            proj = [];
-            argi = varargin;
         end
-        [pbin,offset,nonorthogonal_,remains]=make_axes_from_shifted_pbin_(argi{:});
-        if ~isempty(proj)
-            remains= [proj;remains(:)];
-        end
-    else % ,p1,p2,p3,p4 form
-        pbin = varargin;
-        ndims = [];
+        obj = set_axis_bins_(obj,[],pbin{:});
+    else
+        argi  = varargin;
     end
-    obj = set_axis_bins_(obj,ndims,pbin{:});
-
-    obj.axis_caption = an_axis_caption();
-    obj.nonorthogonal = nonorthogonal_;
+    if numel(argi)>0
+        names = obj.saveableFields();
+        [obj,remains] = obj.set_positional_and_key_val_arguments(...
+            names,argi{:});
+    end
+    % For data_sqw_dnd (to remove)
+    %     nonorthogonal_ = false;
+    %     if nargi>4 %legacy operations
+    %         is_proj = cellfun(@(x)((isstruct(x) && isfield(x,'u')) || ...
+    %             isa(x,'aProjection') || isa(x,'projaxes')),varargin,...
+    %             'UniformOutput',true);
+    %         if any(is_proj)
+    %             proj_ind = find(is_proj);
+    %             if isprop(varargin{proj_ind},'nonorthogonal') ||...
+    %                     isfield(varargin{proj_ind},'nonorthogonal')
+    %                 obj.nonorthogonal = varargin{proj_ind}.nonorthogonal;
+    %             end
+    %             argi = varargin(proj_ind+1:end);
+    %             remains = varargin(1:proj_ind);
+    %             if numel(argi) == 4
+    %                 obj = set_axis_bins_(obj,argi{:});
+    %                 obj.axis_caption = an_axis_caption();
+    %                 return
+    %             end
+    %         else
+    %             proj = [];
+    %             argi = varargin;
+    %         end
+    %         [pbin,offset,nonorthogonal_,remains]=make_axes_from_shifted_pbin_(argi{:});
+    %         if ~isempty(proj)
+    %             remains= [proj;remains(:)];
+    %         end
+    %     else % ,p1,p2,p3,p4 form
+    %         pbin = varargin;
+    %         ndims = [];
+    %     end
+    %     obj = set_axis_bins_(obj,ndims,pbin{:});
+    %
+    %     obj.axis_caption = an_axis_caption();
+    %         obj = set_axis_bins_(obj,ndims,pbin{:});
 else
     error('HORACE:axes_block:invalid_argument',...
         'unrecognised number %d of input arguments',nargi);

@@ -138,13 +138,6 @@ classdef test_migrated_apis < TestCaseWithSave
         %        end
 
         %% Dispersion
-        function test_dispersion_with_disp_return_value_on_dnd(obj)
-            params = {'scale', 10};
-            dnd_2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
-            wout_disp  = dispersion(dnd_2d_obj, @test_migrated_apis.disp_rln, params);
-
-            assertEqualToTolWithSave(obj, wout_disp, 'ignore_str', true,'tol',3.e-7);
-        end
         function test_dispersion_with_disp_and_weight_retval(obj)
             dnd_2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
             [wout_disp, wout_weight]  = dispersion(dnd_2d_obj, @test_migrated_apis.disp_rln, {'scale', 10});
@@ -153,6 +146,14 @@ classdef test_migrated_apis < TestCaseWithSave
             assertEqualToTolWithSave(obj, wout_disp, 'ignore_str', true,'tol',3.e-7);
             assertEqualToTolWithSave(obj, wout_weight, 'ignore_str', true,'tol',1.e-9);
         end
+        function test_dispersion_with_disp_return_value_on_dnd(obj)
+            params = {'scale', 10};
+            dnd_2d_obj = read_dnd(obj.test_sqw_2d_fullpath);
+            wout_disp  = dispersion(dnd_2d_obj, @test_migrated_apis.disp_rln, params);
+
+            assertEqualToTolWithSave(obj, wout_disp, 'ignore_str', true,'tol',3.e-7);
+        end
+        
 
         function test_get_proj_and_pbin(obj)
             dnd_2d_obj = read_dnd(obj.test_sqw_2d_fullpath);

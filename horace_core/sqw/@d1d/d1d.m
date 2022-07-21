@@ -24,7 +24,10 @@ classdef d1d < DnDBase
     end
     methods(Access = protected)
         function obj = set_senpix(obj,val,field)
-            val = val(:)';
+            % always do 1-D array a column array
+            % its importent for replication, as Matlab assumes that first
+            % index defines column.
+            val = val(:);
             obj = set_senpix@DnDBase(obj,val,field);
         end
 

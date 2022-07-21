@@ -25,9 +25,12 @@ classdef test_sigvar_set < TestCase
             end
         end
 
-        function test_sigvar_set_raises_error_if_e_not_same_size_as_dnd_object(obj)
-            d2d_obj = d2d();
-            d2d_obj.s = zeros(1,3);
+        function test_sigvar_set_raises_error_if_e_not_same_size_as_dnd_object(~)
+            ab = axes_block([0,1],[0,1],[0,0.5,1],[0,0.2,1]);
+            pr = ortho_proj();
+            d2d_obj = d2d(ab,pr);
+
+            d2d_obj.s = zeros(3,5);
             d2d_obj.e = zeros(3, 5);
             sigvar_obj = sigvar(struct('s', [1, 2, 3], 'e', [44, 55, 66]));
 
@@ -42,7 +45,11 @@ classdef test_sigvar_set < TestCase
             end
         end
         function test_sigvar_set_s_and_e_nopix_gives_zero(~)
-            d2d_obj = d2d();
+            ab = axes_block([0,1],[0,1],[0,0.5,1],[0,1]);
+            ab.single_bin_defines_iax(1)= false;
+            pr = ortho_proj();
+            d2d_obj = d2d(ab,pr);
+
             d2d_obj.s = zeros(2,3);
             d2d_obj.e = zeros(2,3);
             d2d_obj.npix = zeros(2,3);
@@ -57,10 +64,14 @@ classdef test_sigvar_set < TestCase
             assertEqualToTol(result.s, sigvar_zer_obj.s);
             assertEqualToTol(result.e, sigvar_zer_obj.e);
         end
-        
+
 
         function test_sigvar_set_updates_s_and_e_values(~)
-            d2d_obj = d2d();
+            ab = axes_block([0,1],[0,1],[0,0.5,1],[0,1]);
+            ab.single_bin_defines_iax(1)= false;
+            pr = ortho_proj();
+            d2d_obj = d2d(ab,pr);
+
             d2d_obj.s = zeros(2,3);
             d2d_obj.e = zeros(2,3);
             d2d_obj.npix = ones(2,3);
@@ -74,18 +85,20 @@ classdef test_sigvar_set < TestCase
             assertEqualToTol(result.e, sigvar_obj.e);
         end
 
-        function test_sigvar_set_zero_s_and_e_where_npix_zero(obj)
-            d2d_obj = d2d();
-            d2d_obj.s = ones(1,3);
-            d2d_obj.e = ones(1,3);
-            d2d_obj.npix = [3, 0, 1];
+        function test_sigvar_set_zero_s_and_e_where_npix_zero(~)
+            ab = axes_block([0,0.5,1],[0,1],[0,1],[0,1]);
+            pr = ortho_proj();
+            d1d_obj = d1d(ab,pr);
+            d1d_obj.s = ones(1,3);
+            d1d_obj.e = ones(1,3);
+            d1d_obj.npix = [3, 0, 1];
 
             sigvar_obj = sigvar(struct('s', [1, 2, 3], 'e', [44, 55, 66]));
 
             expected_s = [1, 0, 3];
             expected_e = [44, 0, 66];
 
-            result = d2d_obj.sigvar_set(sigvar_obj);
+            result = d1d_obj.sigvar_set(sigvar_obj);
 
             assertEqualToTol(result.s, expected_s);
             assertEqualToTol(result.e, expected_e);

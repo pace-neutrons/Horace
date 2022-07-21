@@ -45,23 +45,26 @@ if nargin ~=6
     error('HORACE:axes_block:invalid_argument',...
         'Must have four and only four binning descriptors');
 end
+one_bn_is_iax = obj.single_bin_defines_iax_;
 if isempty(ndims)
-     ndims = sum(cellfun(@(x)(~isempty(x)&&numel(x)>2),varargin));
+    nb = num2cell(one_bn_is_iax);
+    ndims = sum(cellfun(@(x,y)(~isempty(x)&&numel(x)>2||numel(x)==2&&(~y)), ...
+        varargin,nb));
 end
 
 range = zeros(2,4);
 nbins  = zeros(4,1);
 for i=1:4
-    [range1,nbins1]=pbin_parse(varargin{i},i);
+    [range1,nbins1]=pbin_parse(varargin{i},one_bn_is_iax(i),i);
     range(:,i) = range1;
     nbins(i) = nbins1;
 end
 % reset up dimensions for empty constructor
-nd_avail = sum(nbins>1);
+nd_avail = sum(nbins>1 | (~one_bn_is_iax' & nbins==1));
 if nd_avail  ~= ndims
     for i=1:4
-        if nbins(i)==1
-            obj.one_nb_is_iax_(i) = false;
+        if nbins(i)==1 && obj.single_bin_defines_iax_(i)
+            obj.single_bin_defines_iax_(i) = false;
             nd_avail = nd_avail+1;
             if nd_avail == ndims
                 break;
@@ -74,7 +77,7 @@ obj.nbins_all_dims = nbins;
 
 
 %----------------------------------------------------------------------------------------
-function [range,nbin]=pbin_parse(p,i)
+function [range,nbin]=pbin_parse(p,p_defines_bin_centers,i)
 % Check form of the bin descriptions and return bin boundaries
 %
 %   >> [range,nbin]=pbin_parse(p,i)
@@ -89,9 +92,9 @@ function [range,nbin]=pbin_parse(p,i)
 %
 % Output:
 % -------
-%   range  --  The min/max values of the range, covered by axis number i 
+%   range  --  The min/max values of the range, covered by axis number i
 %              in selected direction.
-%   nbin   --  number of bins, the range is divided into (from 1(integration axis)  
+%   nbin   --  number of bins, the range is divided into (from 1(integration axis)
 %              to number (projection axis))
 %
 
@@ -118,15 +121,24 @@ elseif isnumeric(p)
     elseif numel(p)==3
         % pbin has form [plo,pstep,phi]. Always include p(3),
         % shifting it to move close to the rightmost bin centre
-        if p(1)<=p(3) && p(2)>0
-            min_v = p(1)-p(2)/2;
-            max_v = p(3)+p(2)/2;
-            nbin = floor((max_v-min_v)/p(2));
-            if min_v + nbin*p(2)< max_v
-                nbin = nbin+1;
+        if p(1)<=p(3) && p(2)>0 %
+            if p_defines_bin_centers % always recalculate to avoid round-off errors when generating axis points.
+                min_v = p(1)-p(2)/2;
+                max_v = p(3)+p(2)/2;
+                nbin = floor((max_v-min_v)/p(2));
+                if min_v + nbin*p(2)< max_v
+                    nbin = nbin+1;
+                end
+                max_v = min_v+nbin*p(2); % bin edges provided
+                range=[min_v;max_v];                
+            else % bin centers provided
+                min_v = p(1);
+                max_v = p(3);
+                nbin = floor((max_v-min_v)/p(2));
+                step = (max_v-min_v)/nbin;
+                max_v = p(1)+nbin*step;
+                range=[min_v;max_v];                
             end
-            max_v = min_v+nbin*p(2); % always recalculate to avoid round-off errors when generating axis points.
-            range=[min_v;max_v];
         else
             error('HORACE:axes_block:invalid_argument',...
                 'Range N%d: Check that range has form [plo,pstep,phi], plo<=phi and pstep>0',i);

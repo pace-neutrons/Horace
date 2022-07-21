@@ -143,7 +143,7 @@ end
 hc= hor_config;
 log_level = hc.log_level;
 
-dnd_type = obj.data.pix.num_pixels == 0;
+dnd_type = obj.pix.num_pixels == 0;
 if dnd_type
     % Input has no pixels, delegate to cut_dnd
     % TODO: refactor so cut_dnd_main sits on DnDBase class
