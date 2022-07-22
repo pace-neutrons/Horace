@@ -1,4 +1,4 @@
-classdef (Abstract)  DnDBase < SQWDnDBase
+classdef (Abstract)  DnDBase < SQWDnDBase & SqwDnDPlotInterface
     % DnDBase Abstract base class for n-dimensional DnD object
 
     properties(Constant, Abstract, Access = protected)

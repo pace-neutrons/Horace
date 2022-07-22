@@ -23,11 +23,26 @@ classdef d2d < DnDBase
         wout=rebin_horace_2d(win,varargin);
 
         [speedup,midpoint]=compare_sym_axes(win,v1,v2,v3);
-        
+
         varargout = cut(varargin);
         [R,trans] = calculate_transformation_matrix(win,v1,v2,v3);
 
         varargout = get(this, index);
+        % actual plotting interface:
+        %------------------------------------------------------------------
+        % PLOT:
+        [figureHandle, axesHandle, plotHandle] = da(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = ds(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = ds2(w,varargin);
+        %------------------------------------------------------------------
+        % OVERPLOT
+        [figureHandle, axesHandle, plotHandle] = pa(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = paoc(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = ps(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = ps2(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = ps2oc(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = psoc(w,varargin);
+        %------------------------------------------------------------------
     end
 
     methods(Access = private)

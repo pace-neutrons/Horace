@@ -5,6 +5,18 @@ classdef axes_block < serializable
     % It also contains main methods, used to produce physical image of the
     % sqw/dnd object
     %
+    % Construction:
+    %1) ab = axes_block(num) where num belongs to [0,1,2,3,4];
+    %2) ab = axes_block([min1,step1,max1],...,[min4,step4,max4]); - 4 binning
+    %                                          parameters
+    %        or
+    %   ab = axes_block([min1,max1],...,[min4,max4]); - 4 binning
+    %                                          parameters
+    %        or any combination of ranges [min,step,max] or [min,max]
+    %3) ab = axes_block(structure) where structure contains any fields
+    %                              returned by savebleFields method
+    %4) ab = axes_block(param,param,param,'key1',value1,'key2',value2....)
+    %        where param are the values of the fields
     properties(Dependent)
         title;      % Title of sqw data structure, displayed on plots.
         filename;   % Name of sqw file that is being read, excluding path. Used in titles
@@ -60,14 +72,14 @@ classdef axes_block < serializable
         % i.e. size(s) == dims_as_ssize and size(zeros(dims_as_ssize)) ==
         % size(s)
         dims_as_ssize;
-        % boolean row, identifying if a single bin direction 
+        % boolean row, identifying if a single bin direction
         % (nbins_all_dims(dir)==1) is integration axis or a projection
         % axis. By default, single nbins_all_dims direction is
-        % integration direction. 
+        % integration direction.
         % If the index is false in a direction, where more then one bin
-        % is defined, the bining parameters in this direction are treated 
+        % is defined, the bining parameters in this direction are treated
         % as bin edges rather then bin centers.
-        single_bin_defines_iax;        
+        single_bin_defines_iax;
     end
 
     properties

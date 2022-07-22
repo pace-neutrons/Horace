@@ -21,6 +21,30 @@ classdef d1d < DnDBase
         wout = combine_horace_1d(w1,w2,varargin);
         wout = rebin_horace_1d(win, varargin);
         wout = symmetrise_horace_1d(win, varargin);
+        % actual plotting interface:
+        %------------------------------------------------------------------
+        % PLOT:
+        [figureHandle, axesHandle, plotHandle] = dd(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = de(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = dh(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = dl(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = dm(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = dp(w,varargin);
+        %------------------------------------------------------------------
+        % OVERPLOT
+        [figureHandle, axesHandle, plotHandle] = pd(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = pdoc(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = pe(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = peoc(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = ph(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = phoc(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = pl(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = ploc(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = pm(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = pmoc(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = pp(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = ppoc(w,varargin);
+        %------------------------------------------------------------------
     end
     methods(Access = protected)
         function obj = set_senpix(obj,val,field)
