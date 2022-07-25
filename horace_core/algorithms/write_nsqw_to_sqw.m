@@ -168,13 +168,12 @@ main_header_combined.filepath='';
 main_header_combined.title='';
 main_header_combined.nfiles=nfiles_tot;
 
-sqw_data = data_sqw_dnd(datahdr{1});
+ab = axes_block.get_from_old_data(datahdr{1});
+proj = ortho_proj.get_from_old_data(datahdr{1});
+sqw_data = DnDBase.dnd(ab,proj);
 sqw_data.filename=main_header_combined.filename;
 sqw_data.filepath=main_header_combined.filepath;
 sqw_data.title=main_header_combined.title;
-% img_db_range at this stage is equal to pix_range + halo ~ eps, if pix_range was
-% estimated or input_pix_range if it has been provided
-sqw_data.img_range=img_db_range;
 
 % Now read in binning information
 % ---------------------------------
@@ -258,8 +257,8 @@ end
 %
 % instead of the real pixels to place in target sqw file, place in pix field the
 % information about the way to get the contributing pixels
-sqw_data.pix = pix_combine_info(infiles,numel(sqw_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
-sqw_data.pix.pix_range = pix_range;
+pix = pix_combine_info(infiles,numel(sqw_data.npix),pos_npixstart,pos_pixstart,npixtot,run_label);
+pix.pix_range = pix_range;
 
 [fp,fn,fe] = fileparts(outfile);
 main_header_combined.filename = [fn,fe];
@@ -268,6 +267,7 @@ main_header_combined.filepath = [fp,filesep];
 data_sum= struct('main_header',main_header_combined,'experiment_info',[],'detpar',det);
 data_sum.data = sqw_data;
 data_sum.experiment_info = header_combined;
+data_sum.pix = pix;
 
 ds = sqw(data_sum);
 wrtr = sqw_formats_factory.instance().get_pref_access(ds);

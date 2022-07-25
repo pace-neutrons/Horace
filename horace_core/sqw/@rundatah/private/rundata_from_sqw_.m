@@ -9,15 +9,14 @@ function rd=rundata_from_sqw_(sqw_obj)
 %
 %
 
-data = sqw_obj.data;
 detpar = sqw_obj.detpar();
 %
-tmp=data.pix.get_data({'detector_idx', 'energy_idx', 'signal', 'variance'})';
-run_id = unique(data.pix.run_idx);
+tmp=sqw_obj.pix.get_data({'detector_idx', 'energy_idx', 'signal', 'variance'})';
+run_id = unique(sqw_obj.pix.run_idx);
 if numel(run_id)>1
     warning('HORACE:rundata_from_sqw:invalid_argument',...
         'sqw object contains more then 1 contributing run. Extracting the first one')
-    is_run_1 = (data.pix.run_idx == run_id(1));
+    is_run_1 = (sqw_obj.pix.run_idx == run_id(1));
     tmp = tmp(:,is_run_1);
     run_id = run_id(1);
     exp_inf = sqw_obj.experiment_info.get_subobj(run_id,sqw_obj.runid_map);

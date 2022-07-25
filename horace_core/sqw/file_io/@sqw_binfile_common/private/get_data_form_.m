@@ -55,40 +55,7 @@ function data_form = get_data_form_(obj,varargin)
 %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-%   data.img_db_range  True range of the data along each axis [pix_range(2,4)]
-%   data.pix        A PixelData object
-%
 
-[ok,mess,pix_only,nopix,head,argi] = parse_char_options(varargin, ...
-    {'-pix_only','-nopix','-header'});
-if ~ok
-    error('SQW_BINFILE_COMMON:invalid_argument',mess);
-end
 
-if pix_only
-    data_form = struct('img_db_range',single([2,4]),...
-        'dummy',field_not_in_structure('img_db_range'),...
-        'pix',field_pix());
-else
-    if head
-        argi{end+1} = '-head';
-    end
-    data_form = obj.get_dnd_form(argi{:});
-    if nopix || head
-        return
-    end
-    data_form.img_db_range = single([2,4]);
-    data_form.dummy = field_not_in_structure('pax');
-    data_form.pix = field_pix();
-end
-
-% full header necessary to identify datatype in the file
-if strncmp(obj.data_type,'un',2)
-    return;
-end
-%
-if strncmp(obj.data_type,'a-',2) || nopix % data do not contain pixels
-    data_form = rmfield(data_form,{'dummy','pix'});
-    return;
-end
+data_form = obj.get_dnd_form(varargin{:});
 

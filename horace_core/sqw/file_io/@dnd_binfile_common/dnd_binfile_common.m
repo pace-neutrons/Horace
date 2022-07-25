@@ -474,6 +474,8 @@ classdef dnd_binfile_common < dnd_file_interface
             %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
             %   data.npix       No. contributing pixels to each bin of the plot axes.
             %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
+            %   data.img_range -- in old formats, belongs to dnd but is
+            %                  written only when pixels are written
             %
             argi = varargin;
             if strcmp(obj.data_type,'un') % we want full data if datatype is undefined
@@ -517,7 +519,7 @@ classdef dnd_binfile_common < dnd_file_interface
                     open_for_writing = regexp(permission, WRITE_MODE_REGEX, 'once');
                     is = ~isempty(open_for_writing);
                 else
-                error('HORACE:dnd_binfile_common:invalid_argument',...
+                    error('HORACE:dnd_binfile_common:invalid_argument',...
                         ['Invalid input for read_or_write. Must be ''read'' ', ...
                         'or ''write'', found ''%s'''], read_or_write);
                 end

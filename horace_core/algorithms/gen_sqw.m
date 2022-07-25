@@ -728,7 +728,7 @@ if ~all(ief)
 end
 % Add a border
 pix_db_range=range_add_border(pix_range,...
-    data_sqw_dnd.border_size);
+    SQWDnDBase.border_size);
 
 if log_level>-1
     bigtoc('Time to compute limits:',log_level);

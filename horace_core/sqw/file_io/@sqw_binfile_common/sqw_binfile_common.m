@@ -217,6 +217,7 @@ classdef sqw_binfile_common < sqw_file_interface
                 end
             end
         end
+        %
         function img_data_range = read_img_range(obj)
             % read real data range from disk
             fseek(obj.file_id_,obj.img_db_range_pos_,'bof');
@@ -229,6 +230,9 @@ classdef sqw_binfile_common < sqw_file_interface
 
         end
         %
+        % read main sqw data  from properly initialized binary file.
+        [sqw_data,obj] = get_data(obj,varargin);
+
         function pix_range = get_pix_range(~)
             % get [2x4] array of min/max ranges of the pixels contributing
             % into an object. Empty for DND object
@@ -304,58 +308,18 @@ classdef sqw_binfile_common < sqw_file_interface
             samp = IX_samp();
         end
         %
-        function data_form = get_data_form(obj,varargin)
-            % Return the structure of the data file header in the form
-            % it is written on hdd.
-            %
-            % The structure depends on data type stored in the file
-            % (see dnd_file_interface data_type method)
-            %
-            % Usage:
-            %
-            %
-            % Fields in the full structure are:
-            %
-            % ------------------------------
-            %   data.filename   Name of sqw file that is being read, excluding path
-            %   data.filepath   Path to sqw file that is being read, including terminating file separator
-            %          [Note that the filename and filepath that are written to file are ignored; we fill with the
-            %           values corresponding to the file that is being read.]
-            %
-            %   data.title      Title of sqw data structure
-            %   data.alatt      Lattice parameters for data field (Ang^-1)
-            %   data.angdeg     Lattice angles for data field (degrees)
-            %   data.uoffset    Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
-            %   data.u_to_rlu   Matrix (4x4) of projection axes in hkle representation
-            %                      u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
-            %   data.ulen       Length of projection axes vectors in Ang^-1 or meV [row vector]
-            %   data.label     Labels of the projection axes [1x4 cell array of character strings]
-            %   data.iax        Index of integration axes into the projection axes  [row vector]
-            %                  Always in increasing numerical order
-            %                       e.g. if data is 2D, data.iax=[1,3] means summation has been performed along u1 and u3 axes
-            %   data.iint       Integration range along each of the integration axes. [iint(2,length(iax))]
-            %                       e.g. in 2D case above, is the matrix vector [u1_lo, u3_lo; u1_hi, u3_hi]
-            %   data.pax        Index of plot axes into the projection axes  [row vector]
-            %                  Always in increasing numerical order
-            %                       e.g. if data is 3D, data.pax=[1,2,4] means u1, u2, u4 axes are x,y,z in any plotting
-            %                                       2D, data.pax=[2,4]     "   u2, u4,    axes are x,y   in any plotting
-            %   data.p          Cell array containing bin boundaries along the plot axes [column vectors]
-            %                       i.e. row cell array{data.p{1}, data.p{2} ...} (for as many plot axes as given by length of data.pax)
-            %   data.dax        Index into data.pax of the axes for display purposes. For example we may have
-            %                  data.pax=[1,3,4] and data.dax=[3,1,2] This means that the first plot axis is data.pax(3)=4,
-            %                  the second is data.pax(1)=1, the third is data.pax(2)=3. The reason for data.dax is to allow
-            %                  the display axes to be permuted but without the contents of the fields p, s,..pix needing to
-            %                  be reordered [row vector]
-            %   data.s          Cumulative signal.  [size(data.s)=(length(data.p1)-1, length(data.p2)-1, ...)]
-            %   data.e          Cumulative variance [size(data.e)=(length(data.p1)-1, length(data.p2)-1, ...)]
-            %   data.npix       No. contributing pixels to each bin of the plot axes.
-            %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
-            %   data.img_db_range  The range of the data along each axis [pix_range(2,4)]
-            %   data.pix        A PixelData object
-            %
-            data_form = get_data_form_(obj,varargin{:});
+        function pix_form = get_pix_form(~)
+            %   data.img_range     The range of the data along each axis.
+            %                      Belongs to image, but written only when
+            %                      pixels are written
+            %   data.dummy         4-byte field kept for compartibility
+            %                      with old data formats
+            %   data.data          A data field of PixelData object
+
+            pix_form= struct('img_range',single([2,4]),...
+                'dummy',field_not_in_structure('img_range'),...
+                'data',field_pix());
         end
-        %
         function img_db_range_pos = get_img_db_range_pos(obj)
             % returns byte-position from the start of the file
             % where pix range is stored
