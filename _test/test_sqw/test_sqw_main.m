@@ -33,15 +33,15 @@ classdef test_sqw_main < TestCase & common_state_holder
 
             test_dnd = d2d(sqw_data);
             [targ_path,targ_file,fext] = fileparts(out_dnd_file);
-            save(test_dnd,out_dnd_file)
+            save(test_dnd,out_dnd_file);
             loaded_dnd = read_dnd(out_dnd_file);
-            assertTrue(isa(loaded_dnd,'d2d'))
+            assertTrue(isa(loaded_dnd,'d2d'));
             %
             test_dnd.filename = [targ_file, fext];
             test_dnd.filepath = [targ_path, filesep];
 
             [ok, mess] = equal_to_tol(loaded_dnd, test_dnd, 'ignore_str', true);
-            assertTrue(ok, mess)
+            assertTrue(ok, mess);
         end
 
         function test_setting_pix_page_size_in_constructor_pages_pixels(obj)
@@ -54,7 +54,7 @@ classdef test_sqw_main < TestCase & common_state_holder
             sqw_pix_pg_size = sqw_obj.pix.page_size;
 
             % check we're actually paging pixels
-            assertTrue(sqw_obj.data.pix.num_pixels > sqw_pix_pg_size);
+            assertTrue(sqw_obj.pix.num_pixels > sqw_pix_pg_size);
 
             % check the page size is what we set it to
             pix_size = sqw_binfile_common.FILE_PIX_SIZE;
@@ -67,7 +67,7 @@ classdef test_sqw_main < TestCase & common_state_holder
             sqw_obj = sqw(fpath);
 
             sqw_pix_pg_size = sqw_obj.pix.page_size;
-            assertEqual(sqw_pix_pg_size, sqw_obj.data.pix.num_pixels);
+            assertEqual(sqw_pix_pg_size, sqw_obj.pix.num_pixels);
         end
 
         function test_error_setting_negative_pix_page_size_in_constructor(obj)
