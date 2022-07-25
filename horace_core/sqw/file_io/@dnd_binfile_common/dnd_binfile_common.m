@@ -449,7 +449,7 @@ classdef dnd_binfile_common < dnd_file_interface
             %   data.title      Title of sqw data structure
             %   data.alatt      Lattice parameters for data field (Ang^-1)
             %   data.angdeg     Lattice angles for data field (degrees)
-            %   data.uoffset    Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
+            %   data.offset    Offset of origin of projection axes in r.l.u. and energy ie. [h; k; l; en] [column vector]
             %   data.u_to_rlu   Matrix (4x4) of projection axes in hkle representation
             %                      u(:,1) first vector - u(1:3,1) r.l.u., u(4,1) energy etc.
             %   data.ulen       Length of projection axes vectors in Ang^-1 or meV [row vector]

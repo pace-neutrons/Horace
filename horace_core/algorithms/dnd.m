@@ -41,9 +41,9 @@ else
             'input for dnd operation can be array or cellarray of dnd or sqw objects')
     end
     if isa(win(1),'sqw')
-        cl_name = class(win{1}.data);
+        cl_name = class(win(1).data);
     else
-        cl_name = class(win{1});
+        cl_name = class(win(1));
     end
 end
 same_type = false(size(win));

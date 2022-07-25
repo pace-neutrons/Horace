@@ -50,6 +50,12 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         axes % access to the axes block class directly
         proj % access to projection class directly
     end
+    properties(Dependent,Hidden)
+        % legacy operations, necessary for saving dnd object in the old sqw
+        % data format
+        u_to_rlu;
+        ulen;
+    end
     properties(Access = protected)
         s_    %cumulative signal for each bin of the image  size(data.s) == axes_block.dims_as_ssize)
         e_    %cumulative variance size(data.e) == axes_block.dims_as_ssize
@@ -277,22 +283,16 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             obj.axes_.img_range = obj.axes_.img_range+obj.proj_.offset;
         end
 
-        %         function val = get.u_to_rlu(obj)
-        %             val = [];
-        %             if ~isempty(obj.data_)
-        %                 val = obj.data_.u_to_rlu;
-        %             end
-        %         end
+        function val = get.u_to_rlu(obj)
+            val = obj.proj.u_to_rlu;
+        end
         %         function obj = set.u_to_rlu(obj, u_to_rlu)
         %             obj.data_.u_to_rlu = u_to_rlu;
         %         end
         %         %
-        %         function val = get.ulen(obj)
-        %             val = [];
-        %             if ~isempty(obj.data_)
-        %                 val = obj.data_.ulen;
-        %             end
-        %         end
+        function val = get.ulen(obj)
+            val = obj.axes.ulen;
+        end
         %         function obj = set.ulen(obj, ulen)
         %             obj.data_.ulen = ulen;
         %         end

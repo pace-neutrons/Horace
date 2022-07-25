@@ -27,6 +27,12 @@ classdef (Abstract) SQWDnDBase < serializable
         sz                = sigvar_size(w);
         %------------------------------------------------------------------
     end
+    properties(Constant)
+        % the size of the border, used in gen_sqw. The img_db_range in gen_sqw
+        % exceeds real pix_range (or input pix_range) by this value.
+        border_size = -4*eps
+    end
+    
 
     methods (Static)
         [iax, iint, pax, p, noffset, nkeep, mess] = cut_dnd_calc_ubins (pbin, pin, nbin);

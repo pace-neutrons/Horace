@@ -1,4 +1,4 @@
-classdef test_data_sqw_dnd < TestCaseWithSave
+classdef test_data_in_sqw < TestCaseWithSave
     % Series of tests to check work of mex files against Matlab files
 
     properties
@@ -8,7 +8,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
     end
 
     methods
-        function obj=test_data_sqw_dnd(varargin)
+        function obj=test_data_in_sqw(varargin)
             if nargin<1
                 name = 'test_data_sqw_dnd';
             else
@@ -189,7 +189,7 @@ classdef test_data_sqw_dnd < TestCaseWithSave
 
         function test_get_proj_crystal_cartesian(obj)
             d_sqw_dnd = obj.ref_sqw.data;
-            proj =  d_sqw_dnd.get_projection();
+            proj =  d_sqw_dnd.proj;
             assertTrue(isa(proj,'aProjection'));
 
             same_sqw = cut_sqw(obj.ref_sqw,proj,[],[],[],[]);

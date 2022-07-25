@@ -16,7 +16,7 @@ proj=ortho_proj('alatt',alatt,'angdeg',angdeg,'label',data_struct.label);
 %
 
 proj = proj.set_from_data_mat(data_struct.u_to_rlu(1:3,1:3),data_struct.ulen(1:3));
-proj.offset = data_struct.uoffset;
+proj.offset = data_struct.offset;
 
 %--------------------------------------------------------------------------
 % TODO: this is compatibility function to support alignment.
