@@ -1,9 +1,9 @@
 classdef IX_dataset_2d < IX_data_2d
     % Class adds operations with graphics to main operations with 2-d data
     %
-    % See IX_data_2d for main properties and constructors, used to operate 
-    % with 2d data            
-    % 
+    % See IX_data_2d for main properties and constructors, used to operate
+    % with 2d data
+    %
     % Constructor creates IX_dataset_2d object
     %
     %   >> w = IX_dataset_2d (x,y)
@@ -31,7 +31,7 @@ classdef IX_dataset_2d < IX_data_2d
     %   y                   double          -|
     %   y_axis              IX_axis          |- same as above but for y-axis
     %   y_distribution      logical         -|
-        
+
     methods(Static)
         function obj = loadobj(data)
             % function to support loading of previous versions of the class
@@ -44,14 +44,29 @@ classdef IX_dataset_2d < IX_data_2d
             end
         end
     end
-    
-    
+
+
     methods
         %------------------------------------------------------------------
         function obj= IX_dataset_2d(varargin)
             obj = obj@IX_data_2d(varargin{:});
         end
         %------------------------------------------------------------------
+        % actual plotting interface:
+        %------------------------------------------------------------------
+        % PLOT:
+        [figureHandle, axesHandle, plotHandle] = da(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = ds(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = ds2(w,varargin);
+        %------------------------------------------------------------------
+        % OVERPLOT
+        [figureHandle, axesHandle, plotHandle] = pa(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = paoc(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = ps(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = ps2(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = ps2oc(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = psoc(w,varargin);
+        %------------------------------------------------------------------
     end
-    
+
 end

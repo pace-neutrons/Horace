@@ -29,7 +29,7 @@ classdef IX_dataset_1d < IX_data_1d
     %                                      cell array or a character array)
     %   x_distribution  logical         Distribution data flag (true is a distribution; false otherwise)
     %
-    %        
+    %
     methods(Static)
         function obj = loadobj(data)
             % function to support loading of outdated versions of the class
@@ -42,15 +42,38 @@ classdef IX_dataset_1d < IX_data_1d
             end
         end
     end
-    
-    
+
+
     methods
         %------------------------------------------------------------------
         function obj= IX_dataset_1d(varargin)
             obj = obj@IX_data_1d(varargin{:});
         end
         %------------------------------------------------------------------
+        % actual plotting interface:
+        %------------------------------------------------------------------
+        % PLOT:
+        [figureHandle, axesHandle, plotHandle] = dd(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = de(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = dh(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = dl(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = dm(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = dp(w,varargin);
+        %------------------------------------------------------------------
+        % OVERPLOT
+        [figureHandle, axesHandle, plotHandle] = pd(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = pdoc(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = pe(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = peoc(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = ph(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = phoc(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = pl(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = ploc(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = pm(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = pmoc(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = pp(w,varargin);
+        [figureHandle, axesHandle, plotHandle] = ppoc(w,varargin);
+        %------------------------------------------------------------------
     end
-    
 end
 

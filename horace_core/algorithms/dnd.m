@@ -1,12 +1,13 @@
 function wout = dnd (win,varargin)
-% Convert input sqw object, array of sqw objects or cellarray of sqw objects
+% Convert input sqw or dnd object, array of sqw/dnd  objects or cellarray
+% of sqw/dnd objects
 % into corresponding d0d, d1d,...d4d object(s)
 %
 %   >> wout = dnd (win)
 %   >> wout = dnd (win,''-cell_return')
 %
 %  If the inputs are convertable to the same shape of dnd objects (e.g. all
-%  d1d or all d3d), the function return the array of extracted objects
+%  d1d or all d3d), the function returns the array of extracted objects
 %  If the inputs correspond to the mixture of dnd objects (e.g. d1d and d2d),
 %  the result is the cellarray containing these objects
 %
@@ -24,20 +25,26 @@ end
 wout = cell(size(win));
 if iscell(win)
     cell_input = true;
-    if ~isa(win{1},'sqw')
+    if ~isa(win{1},'SQWDnDBase')
         error('HORACE:dnd:invalid_argument',...
-            'input for dnd operation can be array or cellarray of sqw objects')
+            'input for dnd operation can be array or cellarray of dnd or sqw objects')
     end
-    cl_name = class(win{1}.data);
+    if isa(win{1},'sqw')
+        cl_name = class(win{1}.data);
+    else
+        cl_name = class(win{1});
+    end
 else
     cell_input = false;
-    if ~isa(win(1),'sqw')
+    if ~isa(win(1),'SQWDnDBase')
         error('HORACE:dnd:invalid_argument',...
-            'input for dnd operation can be array or cellarray of sqw objects')
+            'input for dnd operation can be array or cellarray of dnd or sqw objects')
     end
-
-    cl_name = class(win(1).data);
-
+    if isa(win(1),'sqw')
+        cl_name = class(win{1}.data);
+    else
+        cl_name = class(win{1});
+    end
 end
 same_type = false(size(win));
 

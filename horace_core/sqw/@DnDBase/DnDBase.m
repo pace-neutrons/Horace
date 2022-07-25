@@ -1,4 +1,4 @@
-classdef (Abstract)  DnDBase < SQWDnDBase & SqwDnDPlotInterface
+classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
     % DnDBase Abstract base class for n-dimensional DnD object
 
     properties(Constant, Abstract, Access = protected)
@@ -136,30 +136,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & SqwDnDPlotInterface
         function w = dnd(varargin)
             % create dnd object with size and dimensions, defined by inputs
             %
-            if (nargin>1)
-                has_axes = cellfun(@(x)isa(x,'axes_block'),varargin);
-                if any(has_axes)
-                    ax = varargin{has_axes};
-                    ndims = ax.dimensions();
-                else
-                    error('HORACE:DnDBase:invalid_argument',...
-                        'unknown input type')
-                end
-            else
-                if isstruct(varargin{1})
-                    if isfield(varargin{1},'p')
-                        ndims = numel(varargin{1}.p);
-                        %                     elseif isfield(varargin{1},'')
-                    else
-                        error('HORACE:DnDBase:invalid_argument',...
-                            'can not indentify the dimensions of the input data');
-                    end
-                elseif isa(varargin{1},'sqw')
-                    ndims = varargin{1}.data.dimensions();
-                else
-                    ndims = varargin{1}.dimensions;
-                end
-            end
+            ndims = found_dims_(varargin{:});
             argi = varargin;
             switch(ndims)
                 case(0)
@@ -171,7 +148,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & SqwDnDPlotInterface
                 case(3)
                     w = d3d(argi{:});
                 case(4)
-                    w = d4d(varargin{:});
+                    w = d4d(argi{:});
                 otherwise
                     error('HORACE:DnDBase:invalid_argument', ...
                         'can not build dnd object with %d dimensions', ...
@@ -202,7 +179,7 @@ classdef (Abstract)  DnDBase < SQWDnDBase & SqwDnDPlotInterface
         [wout_disp, wout_weight] = dispersion(win, dispreln, pars);
         wout = disp2sqw(win, dispreln, pars, fwhh,varargin); % calculate
         %                             % dispersion function on the dnd object
-        wout = func_eval(win, func_handle, pars, varargin);  % calculate the 
+        wout = func_eval(win, func_handle, pars, varargin);  % calculate the
         %                             % function, provided as input on the
         %                             % bin centers of the image axes
         %------------------------------------------------------------------

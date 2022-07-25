@@ -36,7 +36,7 @@ classdef IX_dataset_3d < IX_data_3d
     %   z                   double          -|
     %   z_axis              IX_axis          |- same as above but for z-axis
     %   z_distribution      logical         -|
-    
+
     methods(Static)
         function obj = loadobj(data)
             % function to support loading of previous versions of the class
@@ -49,14 +49,18 @@ classdef IX_dataset_3d < IX_data_3d
             end
         end
     end
-    
-    
+
+
     methods
         %------------------------------------------------------------------
         function obj= IX_dataset_3d(varargin)
             obj = obj@IX_data_3d(varargin{:});
         end
         %------------------------------------------------------------------
+        % actual plotting interface:
+        %------------------------------------------------------------------
+        % PLOT:
+        [figureHandle, axesHandle, plotHandle] = sliceomatic(w, varargin);
     end
-    
+
 end

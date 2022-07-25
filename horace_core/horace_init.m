@@ -27,8 +27,6 @@ addpath(fullfile(rootpath,'admin'));
 addpath_message (1,rootpath,'sqw');
 addpath_message (1,rootpath,'algorithms');
 
-% Add support package
-addpath_message (1,rootpath,'herbert');
 
 % DLL and configuration setup
 addpath_message (2,rootpath,'DLL');
