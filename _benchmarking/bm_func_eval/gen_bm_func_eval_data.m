@@ -8,13 +8,13 @@ proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
 switch dataType
     case "small"
         dataSource = fullfile(common_data,'ironSmall.sqw');
-        %fake_sqw()
+        %dummy_sqw()
     case "medium"
         dataSource = fullfile(common_data,'ironMedium.sqw');
-        %fake_sqw()
+        %dummy_sqw()
     case "large"
         dataSource = fullfile(common_data,'ironLarge.sqw');
-        %fake_sqw()
+        %dummy_sqw()
     otherwise
         warning("HORACE:gen_sqw_eval_bm_data:invalid_argument",...
             "datatype must be either a string (small, medium or large), or an integer")

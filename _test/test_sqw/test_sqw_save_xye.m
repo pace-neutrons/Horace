@@ -19,7 +19,7 @@ classdef test_sqw_save_xye < TestCase
             det_file = fullfile(obj.det_dir,'common_data','96dets.par');
             params = {1:10,det_file,'',11,1,[2.8,2.8,2.8],[90,90,90],...
                 [1,0,0],[0,1,0],10, 0, 0, 0, 0};
-            sqw_4d_samp = fake_sqw(params{:},[5,5,5,5]);
+            sqw_4d_samp = dummy_sqw(params{:},[5,5,5,5]);
             sqw_4d_samp  = sqw_4d_samp{1};
             obj.sample_files{1} = cut_sqw(sqw_4d_samp,...
                 struct('u',[1,0,0],'v',[0,1,0]),[],[-1,1],[-1,1],[0,10]);

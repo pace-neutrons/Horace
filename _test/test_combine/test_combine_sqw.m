@@ -15,7 +15,7 @@ classdef test_combine_sqw < TestCase
     % -- Runs particular test saving construction time.
     properties
         working_dir
-        % test parameters file, used in fake_sqw calculations
+        % test parameters file, used in dummy_sqw calculations
         par_file
         % sample sqw object, used as source for tests with non-orthogonal
         % coordinate system
@@ -37,7 +37,7 @@ classdef test_combine_sqw < TestCase
     
     methods
         function obj=test_combine_sqw(test_class_name)
-            % The constructor fake_sqw class
+            % The constructor dummy_sqw class
             
             if ~exist('test_class_name','var')
                 test_class_name = 'test_combine_sqw';
@@ -51,12 +51,12 @@ classdef test_combine_sqw < TestCase
             obj.par_file=fullfile(common_data,'gen_sqw_96dets.nxspe');
             obj.u = obj.gen_sqw_par{5};
             obj.v = obj.gen_sqw_par{6};
-            tsqw = fake_sqw(-0.5:1:obj.gen_sqw_par{2}-5, obj.par_file, '',...
+            tsqw = dummy_sqw(-0.5:1:obj.gen_sqw_par{2}-5, obj.par_file, '',...
                 obj.gen_sqw_par{2},obj.gen_sqw_par{1},...
                 obj.gen_sqw_par{3:end});
             obj.sqw_sample_gen = tsqw{1};
             
-            tsqw = fake_sqw(-0.5:1:obj.gen_sqw_par_ortho{2}-5, obj.par_file, '',...
+            tsqw = dummy_sqw(-0.5:1:obj.gen_sqw_par_ortho{2}-5, obj.par_file, '',...
                 obj.gen_sqw_par_ortho{2},obj.gen_sqw_par_ortho{1},...
                 obj.gen_sqw_par_ortho{3:end});
             obj.sqw_sample_ortho = tsqw{1};

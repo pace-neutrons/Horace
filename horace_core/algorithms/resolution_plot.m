@@ -87,7 +87,7 @@ function varargout = resolution_plot (en, instrument, sample, detpar, efix, emod
 %   cov_hkle    Covariance matrix for wavevector-energy in h-k-l-energy (4x4 array)
 
 
-% *** Really should be using fake_sqw to create an sqw object, but as of 10 Nov 2018
+% *** Really should be using dummy_sqw to create an sqw object, but as of 10 Nov 2018
 %     it requires a par file, and will not accept a detpar structure. A fully
 %     object oriented sqw object construction would deal with this, but for the
 %     mean time, create an sqw object here.

@@ -1,14 +1,14 @@
-function [tmp_sqw, grid_size, img_db_range] = fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
+function [tmp_sqw, grid_size, img_db_range] = dummy_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
     u, v, psi, omega, dpsi, gl, gs, varargin)
 % Create an output sqw file with dummy data using array(s) of energy bins instead spe file(s).
 %
-%   >> fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
+%   >> dummy_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
 %                    u, v, psi, omega, dpsi, gl, gs)
 %
-%   >> fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
+%   >> dummy_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
 %                    u, v, psi, omega, dpsi, gl, gs, grid_size_in, pix_range_in)
 %
-%   >> [tmp_file, grid_size, img_db_range] = fake_sqw (...)
+%   >> [tmp_file, grid_size, img_db_range] = dummy_sqw (...)
 %
 % Input:
 % ------
@@ -82,12 +82,12 @@ if iscellnum(en) || isnumeric(en)
     en_hi=zeros(1,numel(en));
     for i=1:numel(en)
         if ~isvector(en{i}) || numel(en{i})<2
-            error('HORACE:fake_sqw:invalid_argument',...
+            error('HORACE:dummy_sqw:invalid_argument',...
                 'Energy bins must numeric vectors')
         else
             de=diff(en{i});
             if any(de<=0) || any(abs(diff(de))/de(1)>small_bin)
-                error('HORACE:fake_sqw:invalid_argument',...
+                error('HORACE:dummy_sqw:invalid_argument',...
                     'Energy bins widths must all be the same and positive')
             end
             en_lo(i)=(en{i}(1)+en{i}(2))/2;
@@ -95,7 +95,7 @@ if iscellnum(en) || isnumeric(en)
         end
     end
 else
-    error('HORACE:fake_sqw:invalid_argument',...
+    error('HORACE:dummy_sqw:invalid_argument',...
         'Energy bins must be an array of equally spaced energy bin boundaries')
 end
 
@@ -120,7 +120,7 @@ end
 [ok,mess,efix,emode,lattice]=gen_sqw_check_params...
     (nfiles_in,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
 if ~ok, error(mess), end
-if efix(1)==0, error('HORACE:fake_sqw:invalid_argument',...
+if efix(1)==0, error('HORACE:dummy_sqw:invalid_argument',...
         'Must have emode=1 (director geometry) or =2 (indirect geometry)'),
 end
 
@@ -129,7 +129,7 @@ end
 % A q-range at zero energy transfer is provided
 if ~ischar(par_file) && (isnumeric(par_file) )
     if ~isempty(nfiles_in) && nfiles_in>1
-        error('HORACE:fake_sqw:invalid_argument',...
+        error('HORACE:dummy_sqw:invalid_argument',...
             'Fake sqw with q-range input can not generate multiple sqw files');
     end
     % now the par file is the
@@ -225,7 +225,7 @@ for i=1:nfiles
         disp(['Creating intermediate .tmp file ',num2str(i),' of ',num2str(nfiles),':'])
         disp(' ')
     end
-    data=fake_spe(ndet,en{i},psi(i));
+    data=dummy_spe(ndet,en{i},psi(i));
     run_files{i}.S = data.S;
     run_files{i}.ERR = data.ERR;
     run_files{i}.en = en{i};

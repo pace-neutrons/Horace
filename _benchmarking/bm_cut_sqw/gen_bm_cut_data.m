@@ -1,7 +1,7 @@
 function data = gen_bm_cut_data(nData)
 % Generate sqw object or select exisiting sqw file for benchmarking cut_sqw
 % If input parameter is a string represnting an existing sqw file then this
-% will be selected, otherswise if the input is an integer, fake_sqw will be
+% will be selected, otherswise if the input is an integer, dummy_sqw will be
 % used to generate an sqw object of the requested size/number of pixels
 common_data = fullfile(fileparts(fileparts(mfilename('fullpath')...
         )),'common_data');

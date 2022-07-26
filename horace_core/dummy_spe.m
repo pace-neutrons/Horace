@@ -1,17 +1,17 @@
-function varargout = fake_spe(varargin)
+function varargout = dummy_spe(varargin)
 % Generates a fake .spe data, optionally writing to file
 %
 % Generate data structure only:
-%   >> data = fake_spe (ndet,ebins)
-%   >> data = fake_spe (ndet,emin,de,emax)
+%   >> data = dummy_spe (ndet,ebins)
+%   >> data = dummy_spe (ndet,emin,de,emax)
 %
 % Create spe file only (no data structure returned)
-%   >> fake_spe (ndet,ebins,filename,filepath))
-%   >> fake_spe (ndet,emin,de,emax,filename,filepath)
+%   >> dummy_spe (ndet,ebins,filename,filepath))
+%   >> dummy_spe (ndet,emin,de,emax,filename,filepath)
 %
 % Options
-%   >> data = fake_spe (...,S0)         % set all signal values to S0
-%   >> data = fake_spe (...,'mask',ind) % mask the detectors given in ind
+%   >> data = dummy_spe (...,S0)         % set all signal values to S0
+%   >> data = dummy_spe (...,'mask',ind) % mask the detectors given in ind
 %
 %
 % Input:
