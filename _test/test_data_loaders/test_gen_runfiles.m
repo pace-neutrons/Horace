@@ -30,7 +30,7 @@ classdef test_gen_runfiles< TestCase
             end
             this = this@TestCase(name);
             pths = horace_paths;
-            this.test_data_path = paths.test_common;
+            this.test_data_path = pths.test_common;
             this.wk_dir = tmp_dir;
 
             this.par_file = fullfile(this.test_data_path,'demo_par.par');

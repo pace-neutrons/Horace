@@ -7,7 +7,7 @@ classdef test_loaders_factory< TestCase
         function this=test_loaders_factory(name)
             this = this@TestCase(name);
             pths = horace_paths;
-            this.test_data_path = paths.test_common;
+            this.test_data_path = pths.test_common;
         end
 
         function test_select_loader_throws(this)

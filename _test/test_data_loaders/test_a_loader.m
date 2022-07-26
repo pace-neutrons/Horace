@@ -13,7 +13,7 @@ classdef test_a_loader< TestCase
             end
             this = this@TestCase(name);
             pths = horace_paths;
-            this.test_data_path = paths.test_common;
+            this.test_data_path = pths.test_common;
         end
 
         function test_abstract_methods(~)

@@ -12,7 +12,7 @@ classdef test_loader_utilites< TestCase
         function this=test_loader_utilites(name)
             this = this@TestCase(name);
             pths = horace_paths;
-            this.test_data_path = paths.test_common;
+            this.test_data_path = pths.test_common;
         end
         function this=setUp(this)
             this.log_level = get(herbert_config,'log_level');

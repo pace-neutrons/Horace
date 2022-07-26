@@ -14,7 +14,7 @@ classdef test_loader_ascii< TestCase
             end
             obj = obj@TestCase(name);
             pths = horace_paths;
-            obj.test_data_path = paths.test_common;
+            obj.test_data_path = pths.test_common;
         end
         function obj=setUp(obj)
             obj.log_level = get(herbert_config,'log_level');

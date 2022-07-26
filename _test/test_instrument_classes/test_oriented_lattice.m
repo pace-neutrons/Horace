@@ -15,7 +15,7 @@ classdef test_oriented_lattice< TestCase
             end
             this = this@TestCase(name);
             pths = horace_paths;
-            this.test_data_path = paths.test_common;
+            this.test_data_path = pths.test_common;
         end
 
         function test_constructor_defaults(~)
