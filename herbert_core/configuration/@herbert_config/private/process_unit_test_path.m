@@ -3,7 +3,7 @@ function  tests_path = process_unit_test_path(init, set_path)
 % depending on init option, adds or removes this path from the Matlab
 % search path
 %
-pths = paths;
+pths = horace_paths;
 rootpath = pths.root;
 tests_path = fullfile(rootpath,'_test');
 if ~(is_folder(tests_path))

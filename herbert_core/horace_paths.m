@@ -1,4 +1,4 @@
-classdef paths
+classdef horace_paths
 
     properties(Dependent)
         herbert

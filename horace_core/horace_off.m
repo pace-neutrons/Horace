@@ -8,7 +8,7 @@ function horace_off
 
 % root directory is assumed to be that in which this function resides
 
-pths = paths;
+pths = horace_paths;
 on_path = pths.get_folder('horace_on');
 
 warn_state=warning('off','all');    % turn of warnings (so don't get errors if remove non-existent paths)
