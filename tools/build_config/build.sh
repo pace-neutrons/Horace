@@ -102,7 +102,7 @@ flags:
       Run the Horace build commands.
   -t, --test
       Run all Horace tests.
-  -B, --benchmark
+  -k, --benchmark
       Run all Horace benchmarks.
   -c, --configure
       Run cmake configuration stage
@@ -164,7 +164,7 @@ function main() {
     case $key in
         # flags
         -b|--build) build=$TRUE; shift ;;
-        -B|--benchmark) benchmark=$TRUE; shift;;
+        -k|--benchmark) benchmark=$TRUE; shift;;
         -t|--test) test=$TRUE; shift ;;
         -c|--configure) configure=$TRUE; shift;;
         -a|--analyze) analyze=$TRUE; shift ;;
