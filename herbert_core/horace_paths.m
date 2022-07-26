@@ -36,7 +36,7 @@ classdef horace_paths
 
         function path = get.admin(obj)
             path = fullfile(obj.root, 'admin')
-            if ~is_folder(tests_path)
+            if ~is_folder(path)
                 warning('HORACE:paths:bad_path', 'Cannot find admin path, possibly failed setup')
             end
         end
