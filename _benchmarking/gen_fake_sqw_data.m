@@ -1,9 +1,9 @@
 function dataSource = gen_fake_sqw_data(nData)
-% This function will generate an sqw object for benchmarking using fake_sqw
-%   Using the input parameter nData, fake_sqw will generate an sqw object
+% This function will generate an sqw object for benchmarking using dummy_sqw
+%   Using the input parameter nData, dummy_sqw will generate an sqw object
 %   with the requested amount of pixel data. nData must be an integer
 %   ranging from 5 to 8/9/10?????. Depending on nData, an sqw object with
-%   10^nData pixels will be generated. Parameters fed into fake_sqw, such
+%   10^nData pixels will be generated. Parameters fed into dummy_sqw, such
 %   as alatt, u, v are currently set to generate an iron sqw object. 
 %   These parameters can be canged by the user 
 
@@ -44,8 +44,8 @@ sqw_file=[common_data,filesep,'NumData',num2str(nData),'.sqw']; % output sqw fil
 disp("------------------------------------------------------------------------")
 disp("Generating the sqw object of specified data size.")
 disp("------------------------------------------------------------------------")
-%         data = fake_sqw(e_bin_boundaries,par_file,'',efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
-fake_sqw(e_bin_boundaries,par_file,sqw_file,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
+%         data = dummy_sqw(e_bin_boundaries,par_file,'',efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
+dummy_sqw(e_bin_boundaries,par_file,sqw_file,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
 dataSource = sqw_file;
 disp("--------------------------------------------------------------------------------------------")
 disp("Sqw object has been generated, now proceeding to benchmark cut_sqw with specified parameters")

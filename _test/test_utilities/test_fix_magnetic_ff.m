@@ -20,7 +20,7 @@ classdef test_fix_magnetic_ff< TestCase
 
             en = -1:1:50;
             par_file = fullfile(this.tests_folder,'common_data','gen_sqw_96dets.nxspe');
-            fsqw = fake_sqw (en, par_file, '', 51, 1,[2.8,3.86,4.86], [120,80,90],...
+            fsqw = dummy_sqw (en, par_file, '', 51, 1,[2.8,3.86,4.86], [120,80,90],...
                              [1,0,0],[0,1,0], 10, 1.,0.1, -0.1, 0.1, [50,50,50,50]);
             this.sample_sqw_const = copy(fsqw{1});
         end

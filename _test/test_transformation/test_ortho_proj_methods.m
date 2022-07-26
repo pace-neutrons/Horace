@@ -360,7 +360,7 @@ classdef test_ortho_proj_methods<TestCase
             cur_mex = hc.use_mex;
             hc.use_mex = 0;
             clob = onCleanup(@()set(hor_config,'use_mex',cur_mex));
-            [w, grid_size, pix_range]=fake_sqw (this.fake_sqw_par{:});
+            [w, grid_size, pix_range]=dummy_sqw (this.fake_sqw_par{:});
             w = dnd(w{1});
             %w = w{1};
             %wc = cut_dnd(w,0.01,0.01,[-0.1,0.1],2);

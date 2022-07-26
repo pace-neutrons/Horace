@@ -1,4 +1,4 @@
-classdef test_fake_sqw_bin_pix < TestCase
+classdef test_dummy_sqw_bin_pix < TestCase
     % Series of tests to check work of mex files against Matlab files
 
     properties
@@ -10,11 +10,11 @@ classdef test_fake_sqw_bin_pix < TestCase
     end
 
     methods
-        function this=test_fake_sqw_bin_pix(varargin)
+        function this=test_dummy_sqw_bin_pix(varargin)
             if nargin>0
                 name=varargin{1};
             else
-                name = 'test_fake_sqw_bin_pix';
+                name = 'test_dummy_sqw_bin_pix';
             end
             this = this@TestCase(name);
 
@@ -34,14 +34,14 @@ classdef test_fake_sqw_bin_pix < TestCase
         end
         function test_bin_c(this)
             if this.skip_this_test
-                warning('TEST_FAKE_SQW_BIN_PIX:test_bin_c','skipping this test as mex files are not enabled');
+                warning('TEST_DUMMY_SQW_BIN_PIX:test_bin_c','skipping this test as mex files are not enabled');
             end
             cleanup_obj=onCleanup(@()set(hor_config,'use_mex',this.current_mex_state));
 
 
             en=-80:8:760;
             par_file=fullfile(this.sample_dir,'map_4to1_dec09.par');
-            sqw_file_single=fullfile(this.tmp_data_folder,'test_fake_sqw_bin_pix.sqw');
+            sqw_file_single=fullfile(this.tmp_data_folder,'test_dummy_sqw_bin_pix.sqw');
             cleanup_files=onCleanup(@()delete(sqw_file_single));
             efix=800;
             emode=1;
@@ -55,7 +55,7 @@ classdef test_fake_sqw_bin_pix < TestCase
 
             hc=hor_config;
             hc.use_mex = 1;
-            fake_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
+            dummy_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
                 u, v, psi, omega, dpsi, gl, gs);
 
             w_mex=read_sqw(sqw_file_single);
@@ -69,7 +69,7 @@ classdef test_fake_sqw_bin_pix < TestCase
 
 
             hc.use_mex = 0;
-            fake_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
+            dummy_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
                 u, v, psi, omega, dpsi, gl, gs);
 
             w_nomex=read_sqw(sqw_file_single);
@@ -88,7 +88,7 @@ classdef test_fake_sqw_bin_pix < TestCase
         end
         function test_bin_c_multithread(this)
             if this.skip_this_test
-                warning('TEST_FAKE_SQW_BIN_PIX:test_bin_c','skipping this test as mex files are not enabled');
+                warning('TEST_DUMMY_SQW_BIN_PIX:test_bin_c','skipping this test as mex files are not enabled');
             end
             cleanup_obj=onCleanup(@()set(hor_config,'use_mex',this.current_mex_state,'threads',this.current_thread_state));
 
@@ -109,7 +109,7 @@ classdef test_fake_sqw_bin_pix < TestCase
             u=[1.02,0.99,0.02];
             v=[0.025,-0.01,1.04];
 
-            sqw_file_single=fullfile(this.tmp_data_folder,'test_bin_c_multithread_fake_sqw.sqw');
+            sqw_file_single=fullfile(this.tmp_data_folder,'test_bin_c_multithread_dummy_sqw.sqw');
             cleanup_files=onCleanup(@()delete(sqw_file_single));
 
             hc=hor_config;
@@ -117,7 +117,7 @@ classdef test_fake_sqw_bin_pix < TestCase
             hc.use_mex = 1;
             hc.threads = 1;
             %
-            fake_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
+            dummy_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
                 u, v, psi, omega, dpsi, gl, gs);
 
             w_mex=read_sqw(sqw_file_single);
@@ -133,7 +133,7 @@ classdef test_fake_sqw_bin_pix < TestCase
             hc.use_mex = 1;
             hc.threads = 8;
             %
-            fake_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
+            dummy_sqw(en, par_file, sqw_file_single, efix, emode, alatt, angdeg,...
                 u, v, psi, omega, dpsi, gl, gs);
 
             w_mex_thr=read_sqw(sqw_file_single);

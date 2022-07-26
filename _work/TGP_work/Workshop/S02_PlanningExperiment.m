@@ -59,7 +59,7 @@ angdeg = [90, 90, 90];
 omega=0; dpsi=0; gl=0; gs=0;
 
 % This runs the command to generate the "fake" dataset.
-fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
+dummy_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg,...
                      u, v, psi, omega, dpsi, gl, gs);
 
 %% ========================================================================

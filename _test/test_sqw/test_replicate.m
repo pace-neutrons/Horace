@@ -20,7 +20,7 @@ classdef test_replicate< TestCase
             alatt = [2.83,2.83,2.83];
             angdeg = [90,90,90];
             k_range = [-1,0.1,1;-1,0.1,1;-1,0.1,1];
-            wtmp = fake_sqw(en,k_range,'',efix,1,...
+            wtmp = dummy_sqw(en,k_range,'',efix,1,...
                 alatt,angdeg,[1,0,0],[0,1,0],0,0,0,0,0,[50,50,50,50]);
             function sig = signal(h,k,l,en,p)
                 sig = ones(size(h))*p(1);

@@ -1,13 +1,13 @@
-classdef test_fake_sqw < TestCase
-    % Test fake_sqw routine
+classdef test_dummy_sqw < TestCase
+    % Test dummy_sqw routine
     %
     %---------------------------------------------------------------------
     % Usage:
     %
-    %>>runtests test_fake_sqw
+    %>>runtests test_dummy_sqw
     % run all unit tests class contains
     % or
-    %>>runtests test_fake_sqw:test_det_from_q
+    %>>runtests test_dummy_sqw:test_det_from_q
     %run the particular test
     % or
     %>>tc = test_gen_sqw_accumulate_sqw_sep_session();
@@ -15,7 +15,7 @@ classdef test_fake_sqw < TestCase
     %Run particular test saving construction time.
     properties
         working_dir
-        % test parameters file, used in fake_sqw calculations
+        % test parameters file, used in dummy_sqw calculations
         par_file
         % the random parameters for the transformation
         %   {      emode efix,   alatt,     angdeg,         u,               v,            psi,
@@ -27,11 +27,11 @@ classdef test_fake_sqw < TestCase
     end
 
     methods
-        function obj=test_fake_sqw(test_class_name)
-            % The constructor fake_sqw class
+        function obj=test_dummy_sqw(test_class_name)
+            % The constructor dummy_sqw class
 
             if ~exist('test_class_name','var')
-                test_class_name = 'test_fake_sqw';
+                test_class_name = 'test_dummy_sqw';
             end
 
             obj = obj@TestCase(test_class_name);
@@ -65,10 +65,10 @@ classdef test_fake_sqw < TestCase
 
         end
         %
-        function test_build_fake_sqw(obj)
-            % build fake sqw using detector positions and without detector
+        function test_build_dummy_sqw(obj)
+            % build dummy sqw using detector positions and without detector
             % positions.
-            tsqw = fake_sqw(-0.5:1:obj.gen_sqw_par{2}-5, obj.par_file, '',...
+            tsqw = dummy_sqw(-0.5:1:obj.gen_sqw_par{2}-5, obj.par_file, '',...
                 obj.gen_sqw_par{2},obj.gen_sqw_par{1},...
                 obj.gen_sqw_par{3:end});
             tsqw = tsqw{1};
@@ -87,7 +87,7 @@ classdef test_fake_sqw < TestCase
             % verify the fact that the detector positions, processed from
             % the pixel information provide the same result as normal
             % detector positions
-            tsqw2 = fake_sqw(-0.5:1:obj.gen_sqw_par{2}-5, q_range , '',...
+            tsqw2 = dummy_sqw(-0.5:1:obj.gen_sqw_par{2}-5, q_range , '',...
                 obj.gen_sqw_par{2},obj.gen_sqw_par{1},...
                 obj.gen_sqw_par{3:end});
 

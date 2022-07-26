@@ -33,7 +33,7 @@ msk=[1,2,10,11,12,21,32];
 % Create spe file
 [spe_path,spe_name]=fileparts(spe_file);
 spe_name = fullfile(spe_path,[spe_name,'.nxspe']);
-spe_data = fake_spe (ndet,ebins,'mask',msk);
+spe_data = dummy_spe (ndet,ebins,'mask',msk);
 rd = rundata('',par_file);
 rd.S=spe_data.S;
 rd.ERR=spe_data.ERR;

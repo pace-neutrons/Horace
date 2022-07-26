@@ -31,32 +31,32 @@ gridsize=5;
 
 tmp = tmp_dir;
 sqw_file=fullfile(tmp,'f1_1.sqw');
-fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, gridsize)
+dummy_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, gridsize)
 randomdata(sqw_file);
 
 psi=20;
 sqw_file=fullfile(tmp,'f2_1.sqw');
-fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, gridsize)
+dummy_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, gridsize)
 randomdata(sqw_file);
 
 psi=[31,32];
 sqw_file=fullfile(tmp,'f1_2.sqw');
-fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, gridsize)
+dummy_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, gridsize)
 randomdata(sqw_file);
 
 psi=[41,45];
 sqw_file=fullfile(tmp,'f2_2.sqw');
-fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, gridsize)
+dummy_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, gridsize)
 randomdata(sqw_file);
 
 psi=[51,53,55];
 sqw_file=fullfile(tmp,'f1_3.sqw');
-fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, gridsize)
+dummy_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, gridsize)
 randomdata(sqw_file);
 
 psi=[61,63.5,67.5];
 sqw_file=fullfile(tmp,'f2_3.sqw');
-fake_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, gridsize)
+dummy_sqw (en, par_file, sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, dpsi, gl, gs, gridsize)
 randomdata(sqw_file);
 
 % Read objects into memory

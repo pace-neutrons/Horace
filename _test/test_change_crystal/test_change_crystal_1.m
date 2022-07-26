@@ -50,7 +50,7 @@ pix_range = calc_sqw_pix_range (efix, emode, en(1), en(end), par_file, alatt, an
 
 sqw_file=cell(size(psi));
 for i=1:numel(psi)
-    wtmp=fake_sqw (en, par_file, '', efix, emode, alatt, angdeg,...
+    wtmp=dummy_sqw (en, par_file, '', efix, emode, alatt, angdeg,...
         u, v, psi(i), omega, dpsi, gl, gs, [1,1,1,1], pix_range);
     % Simulate cross-section on all the sqw files: place blobs at Bragg positions of the true lattice
     wtmp=sqw_eval(wtmp{1},@make_bragg_blobs,{[1,qfwhh,efwhh],[alatt,angdeg],[alatt_true,angdeg_true],rotvec});
