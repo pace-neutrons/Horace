@@ -14,8 +14,8 @@ classdef test_loader_nxspe< TestCase
                 name = 'test_loader_nxspe';
             end
             obj = obj@TestCase(name);
-            [~,tdp] = herbert_root();
-            obj.test_data_path = tdp;
+            pths = horace_paths;
+            obj.test_data_path = paths.test_common;
         end
 
         function obj=setUp(obj)
@@ -491,4 +491,3 @@ classdef test_loader_nxspe< TestCase
 
     end
 end
-

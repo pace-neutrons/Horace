@@ -29,8 +29,8 @@ classdef test_gen_runfiles< TestCase
                 name = 'test_gen_runfiles';
             end
             this = this@TestCase(name);
-            [~,tdp] = herbert_root();
-            this.test_data_path = tdp;
+            pths = horace_paths;
+            this.test_data_path = paths.test_common;
             this.wk_dir = tmp_dir;
 
             this.par_file = fullfile(this.test_data_path,'demo_par.par');
@@ -95,7 +95,7 @@ classdef test_gen_runfiles< TestCase
                 rd.ERR = ones(nen ,ndet);
                 rd.par_file_name = this.par_file;
                 rd.det_par = det_ld;
-                rd.do_check_combo_arg= true;                
+                rd.do_check_combo_arg= true;
                 rd = rd.check_combo_arg();
                 saveNxspe(this.test_files{i},rd)
             end

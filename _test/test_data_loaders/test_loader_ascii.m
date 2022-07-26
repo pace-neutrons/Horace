@@ -13,8 +13,8 @@ classdef test_loader_ascii< TestCase
                 name = 'test_loader_ascii';
             end
             obj = obj@TestCase(name);
-            [~,tdp] = herbert_root();
-            obj.test_data_path = tdp;
+            pths = horace_paths;
+            obj.test_data_path = paths.test_common;
         end
         function obj=setUp(obj)
             obj.log_level = get(herbert_config,'log_level');
@@ -60,7 +60,7 @@ classdef test_loader_ascii< TestCase
             par_file = fullfile(obj.test_data_path,obj.test_par_file);
             ld = loader_ascii(spe_file,par_file);
             [S,ERR,en,ld] = ld.load_data();
-            [par,ld] = ld.load_par(); 
+            [par,ld] = ld.load_par();
             S(:,1) = 1;
             ERR(:,1) = 1;
             en(10) = 100;
@@ -69,13 +69,13 @@ classdef test_loader_ascii< TestCase
             ld.ERR = ERR;
             ld.en = en;
             ld.det_par = par;
-            
+
             str = ld.to_struct();
             ld_rec = serializable.from_struct(str);
 
             assertEqual(ld,ld_rec);
         end
-        
+
 
         function test_saveload_loader_onfile(obj)
             spe_file = fullfile(obj.test_data_path,'MAP10001.spe');

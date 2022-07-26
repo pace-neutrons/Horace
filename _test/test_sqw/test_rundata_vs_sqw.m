@@ -210,8 +210,8 @@ classdef test_rundata_vs_sqw < TestCaseWithSave & common_state_holder
         end
         %
         function test_rundata_mex_nomex(~)
-            test_file = fullfile(horace_root(),...
-                '_test','common_data','MAP11014.nxspe');
+            pths = horace_paths;
+            test_file = fullfile(pths.test_common,'MAP11014.nxspe');
             ds = struct('alatt',[2.63,2.63,2.63],'angdeg',[97,60,80],...
                 'u',[1,0,0],'v',[0,1,0]);
 

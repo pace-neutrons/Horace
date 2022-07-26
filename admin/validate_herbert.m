@@ -86,7 +86,7 @@ pcf.shared_folder_on_local = tmp_dir;
 
 % Generate full test paths to unit tests:
 pths = horace_paths;
-test_path = fullfile(pths.root, '_test'); % path to folder with all unit tests folders:
+test_path = pths.test; % path to folder with all unit tests folders:
 test_folders_full = cellfun(...
     @(x) fullfile(test_path, x), test_folders, 'UniformOutput', false);
 %

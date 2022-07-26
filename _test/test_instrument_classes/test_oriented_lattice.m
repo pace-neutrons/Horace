@@ -14,8 +14,8 @@ classdef test_oriented_lattice< TestCase
                 name = varargin{1};
             end
             this = this@TestCase(name);
-            [~,tdp] = herbert_root();
-            this.test_data_path = tdp;
+            pths = horace_paths;
+            this.test_data_path = paths.test_common;
         end
 
         function test_constructor_defaults(~)
@@ -40,13 +40,13 @@ classdef test_oriented_lattice< TestCase
             assertEqual(ol.reason_for_invalid,'empty lattice is invalid')
 
             ol.alatt = [1,2,3];
-            assertFalse(ol.isvalid);            
+            assertFalse(ol.isvalid);
             assertTrue(strncmp(ol.reason_for_invalid, ...
-                'The necessary field(s):',23))            
+                'The necessary field(s):',23))
             ol.angdeg = [90,90,90];
             ol.psi = 0;
             assertTrue(ol.isvalid);
-            assertTrue(isempty(ol.reason_for_invalid))            
+            assertTrue(isempty(ol.reason_for_invalid))
 
         end
         %
@@ -212,7 +212,7 @@ classdef test_oriented_lattice< TestCase
             mult = pi/180;
             ol = oriented_lattice('alatt',[2;3;4],'psi',20*mult,...
                 'gl',3*mult,'angdeg',[40,45,50]*mult,'angular_units','rad');
-            
+
             assertTrue(ol.isvalid);
 
             assertTrue(ol.is_defined('psi'));

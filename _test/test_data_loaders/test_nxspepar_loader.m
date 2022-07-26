@@ -9,8 +9,8 @@ classdef test_nxspepar_loader< TestCase
                 name = 'test_nxspepar_loader';
             end
             this = this@TestCase(name);
-            [~,tdp] = herbert_root();
-            this.test_data_path = tdp;
+            pths = horace_paths;
+            this.test_data_path = paths.test_common;
         end
 
         function test_constr_missing_file_throws(~)
@@ -274,4 +274,3 @@ classdef test_nxspepar_loader< TestCase
         end
     end
 end
-

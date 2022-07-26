@@ -18,8 +18,8 @@ classdef test_rundata< TestCase
                 name = 'test_rundata';
             end
             obj = obj@TestCase(name);
-            [~,tdp] = herbert_root();
-            obj.test_data_path = tdp;
+            pths = horace_paths;
+            obj.test_data_path = paths.test_common;
         end
         function obj=setUp(obj)
             obj.log_level = get(herbert_config,'log_level');
@@ -58,7 +58,7 @@ classdef test_rundata< TestCase
             assertTrue(rd.isvalid);
             %
             rd = get_rundata (rd,'-this');
-            assertTrue(rd.isvalid);            
+            assertTrue(rd.isvalid);
 
             tf = fullfile(tmp_dir,'test_custom_save_loadobj_all.mat');
             clob = onCleanup(@()delete(tf));

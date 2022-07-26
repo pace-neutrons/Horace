@@ -17,7 +17,7 @@ classdef test_dnd_constructors< TestCase
             end
             this=this@TestCase(name);
             pths = horace_paths;
-            this.test_data=fullfile(pths.root,'_test','test_combine');
+            this.test_data=fullfile(pths.test,'test_combine');
             this.common_data = pths.test_common;
         end
 

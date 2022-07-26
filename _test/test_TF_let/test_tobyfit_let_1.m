@@ -41,7 +41,7 @@ datafile='test_tobyfit_let_1_data.mat';   % filename where saved results are wri
 savefile='test_tobyfit_let_1_out.mat';   % filename where saved results are written
 
 pths = horace_paths;
-test_tobyfit_dir = fullfile(pths.root, '_test', 'test_tobyfit');
+test_tobyfit_dir = fullfile(pths.test, 'test_tobyfit');
 addpath(test_tobyfit_dir)
 cleanup = onCleanup(@() rmpath(test_tobyfit_dir));
 
