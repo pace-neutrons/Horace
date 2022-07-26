@@ -66,7 +66,7 @@ if io_error
 end
 
 % data block
-data_header = obj.get_data_form();
+data_header = obj.get_dnd_form();
 [data_pos,pos,io_error,data_header] =  obj.sqw_serializer_.calculate_positions(data_header,obj.file_id_,pos);
 if io_error
     if ~isfield(data_pos,'s_pos_') || ~isfield(data_pos,'e_pos_')
@@ -81,6 +81,9 @@ end
 if ischar(obj.dnd_dimensions)
     obj.dnd_dimensions_ = double(data_header.p_size.field_value);
 end
+pix_data_header = obj.get_pix_form();
+[pix_data_pos,pos,io_error] =  obj.sqw_serializer_.calculate_positions(pix_data_header,obj.file_id_,pos);
+
 
 %
 obj.npixels_ = [];
@@ -89,8 +92,8 @@ obj.e_pos_=data_pos.e_pos_;
 obj.eof_pix_pos_ = pos;
 if ~io_error
     obj.npix_pos_=data_pos.npix_pos_;
-    obj.img_db_range_pos_=data_pos.img_db_range_pos_;
-    obj.pix_pos_=data_pos.pix_pos_+8;  % pixels are written with their size in front of the array.
+    obj.img_db_range_pos_=pix_data_pos.img_range_pos_;
+    obj.pix_pos_=pix_data_pos.data_pos_+8;  % pixels are written with their size in front of the array.
 
     % calculate number of pixels from pixels block position and its size
     obj.npixels_  = (obj.eof_pix_pos_ - obj.pix_pos_)/(4*9);
@@ -121,7 +124,7 @@ end
 % subsequent methods read pixels directly, so here we shift pixel
 % position by the array length
 obj.data_type_ = 'a';
-obj.dnd_eof_pos_ = data_pos.img_db_range_pos_;
+obj.dnd_eof_pos_ = pix_data_pos.img_range_pos_;
 
 obj.data_fields_locations_ = data_pos;
 %

@@ -420,7 +420,7 @@ classdef dnd_binfile_common < dnd_file_interface
                 fclose(obj.file_id_);
             end
             obj.file_id_ = -1;
-        end
+        end       
         %
         function data_form = get_dnd_form(obj,varargin)
             % Return the structure of the data file header in the form

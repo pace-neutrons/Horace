@@ -13,6 +13,7 @@ classdef test_sigvar_set < TestCase
                 'single_bin_defines_iax',[false,true,true,true]);
             pr = ortho_proj();
             d2d_obj = d2d(ab,pr);
+            d2d_obj.npix = ones(d2d_obj.axes.dims_as_ssize);
 
             sigvar_obj = sigvar(struct('s', [1, 2, 3], 'e', [44, 55, 66]));
             me = assertExceptionThrown(@()d2d_obj.sigvar_set(sigvar_obj), ...
@@ -47,6 +48,7 @@ classdef test_sigvar_set < TestCase
                 'single_bin_defines_iax',[false,true,true,true]);
             pr = ortho_proj();
             d2d_obj = d2d(ab,pr);
+            d2d_obj.npix = ones(d2d_obj.axes.dims_as_ssize);            
 
             sigvar_obj = sigvar(struct(...
                 's', [1, 2, 3; 4, 5, 6], ...

@@ -440,11 +440,11 @@ classdef test_dnd_constructor < TestCaseWithSave
         function assert_dnd_get_returns_set_properties(~, dnd_obj,box_size)
             class_props = fieldnames(dnd_obj);
 
-            [sample_prop,dep_prop]=dnd_object_sample_properties(box_size);
+            [sample_prop,dep_prop,const_prop]=dnd_object_sample_properties(box_size);
             test_prop = sample_prop.keys;
 
             % included all properties, forgot nothing
-            assertTrue(all(ismember(class_props,[test_prop(:);dep_prop(:)])))
+            assertTrue(all(ismember(class_props,[test_prop(:);dep_prop(:);const_prop(:)])))
 
             % properties are mapped to an internal data structure; verify the getters and
             % setters are correctly wired
@@ -510,7 +510,7 @@ classdef test_dnd_constructor < TestCaseWithSave
                 'filename', 'filepath', 'title', 'alatt', 'angdeg', ...
                 'label', 'iax','offset' ...
                 'iint', 'pax', 'p', 'dax', 's', 'e', 'npix',...
-                'img_range','axes','proj','nbins'};
+                'img_range','axes','proj','nbins','border_size'};
             % moved elsewhere: 'uoffset', 'u_to_rlu', 'ulen',
             actual_props = fieldnames(dnd_obj);
 

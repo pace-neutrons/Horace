@@ -1,4 +1,4 @@
-function [sample_properties,dependent_properties]=dnd_object_sample_properties(box_size)
+function [sample_properties,dependent_properties,const_prop ]=dnd_object_sample_properties(box_size)
 % Function returns current set of sample properties, which may be set on
 % dnd object and dependent properties, available on dnd object as read-only
 % properties
@@ -28,3 +28,4 @@ sample_properties('proj') = ortho_proj('alatt',4);
 sample_properties('dax') = 1:numel(box_size);
 
 dependent_properties = {'iint','iax','p','pax','img_range','nbins'};
+const_prop = {'border_size'};

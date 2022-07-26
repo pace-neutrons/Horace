@@ -119,7 +119,7 @@ end
 % real image range (the range pixel data converted to image actually
 % occupy) This will be used as range if old files integration range is
 % unlimited
-data_str.img_range = obj.get_img_db_range(data_str);
+data_str.axes.img_range = obj.get_img_db_range(data_str);
 %
 % parse all arguments, including those that weren't passed to the parent method
 opts = parse_args(varargin{:});
@@ -128,9 +128,13 @@ if opts.header || opts.hverbatim || noclass
     data  = data_str;
     return;
 end
-ab = axes_block.get_from_old_data(data_str);
-proj=ortho_proj.get_from_old_data(data_str);
-data = DnDBase.dnd(ab,proj,data_str.s,data_str.e,data_str.npix);
+if isa(data_str,'DnDBase')
+    data = data_str;
+else
+    ab = axes_block.get_from_old_data(data_str);
+    proj=ortho_proj.get_from_old_data(data_str);
+    data = DnDBase.dnd(ab,proj,data_str.s,data_str.e,data_str.npix);
+end
 
 end  % function
 

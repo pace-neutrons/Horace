@@ -1,5 +1,5 @@
 function obj=init_from_sqw_(obj,varargin)
-% Initialize the dnd strucute of sqw or dnd file for subsequent write operations
+% Initialize the dnd structure of sqw or dnd file for subsequent write operations
 % using  data part of sqw object, stored in memory.
 %
 %
