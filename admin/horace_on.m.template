@@ -30,14 +30,13 @@ if ~isempty(sw_start)
     spinw_on(default_spinw_path);
 end
 
-herbert_initated=~isempty(which('herbert_init.m'));
-% if Herbert is not initiated, try to init it.
-if ~herbert_initated
+% if Herbert is not initialised, try to init it.
+if isempty(which('herbert_init.m'))
     default_herbert_path = build_default_her_path(default_horace_path);
     try
         init_herbert(default_herbert_path);
     catch ME
-        disp('HORACE_ON:wrong_dependencies - cannot initiate Herbert');
+        disp('HORACE:horace_on:bad_dependencies cannot initialise Herbert');
         rethrow(ME);
     end
 else % reinitialize Herbert on where it is now.
