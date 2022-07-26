@@ -87,8 +87,7 @@ function [data,obj] = get_data(obj,varargin)
 %   data.npix       No. contributing pixels to each bin of the plot axes.
 %                  [size(data.pix)=(length(data.p1)-1, length(data.p2)-1, ...)]
 %   data.img_range True range of the data along each axis [img_range(2,4)]
-%   data.pix       A PixelData objects
-%
+
 %
 % NOTES:
 % ======
@@ -106,27 +105,29 @@ function [data,obj] = get_data(obj,varargin)
 % Initialise output arguments
 
 % remove options unrelated to get_data@dnd_binfile_common
-[ok,mess,~,noclass,noupgrade,argi]=...
-    parse_char_options(varargin,{'-nopix','-noclass','-noupgrade'});
+[ok,mess,noclass,noupgrade,argi]=...
+    parse_char_options(varargin,{'-noclass','-noupgrade'});
 if ~ok
     error('HORACE:sqw_binfile_common:invalid_argument', ...
         ['get_data: ',mess]);
 end
 
 [data_str,obj] = get_data@dnd_binfile_common(obj,argi{:});
-%
-% In old files img_range (urange) is also stored separately and contains
-% real image range (the range pixel data converted to image actually
-% occupy) This will be used as range if old files integration range is
-% unlimited
-data_str.axes.img_range = obj.get_img_db_range(data_str);
-%
 % parse all arguments, including those that weren't passed to the parent method
 opts = parse_args(varargin{:});
+%
 
 if opts.header || opts.hverbatim || noclass
     data  = data_str;
     return;
+else
+    % In old files img_range (urange) is also stored separately and contains
+    % real image range (the range pixel data converted to image actually
+    % occupy) This will be used as range if old files integration range is
+    % unlimited
+    data_str.axes.img_range = obj.get_img_db_range(data_str);
+    %
+
 end
 if isa(data_str,'DnDBase')
     data = data_str;

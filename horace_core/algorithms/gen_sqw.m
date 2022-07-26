@@ -878,22 +878,21 @@ if any(any(abs(pix_range-pix_range_est)>1.e-4)) && log_level>0
         'Estimated range is used for binning pixels so all pixels outside the range are lost');
 end
 %
-function [present_and_valid,pix_range] = check_tmp_files_range(tmp_file,pix_db_range,grid_size_in)
+function [present_and_valid,img_range] = check_tmp_files_range(tmp_file,pix_db_range,grid_size_in)
 % TODO:
 % write check for grid_size_in which has to be equal to grid_size of head.
 % but head (without s,e,npix) does not have method to idnentify grid_size
 % (it should be written and tested)
 if ~is_file(tmp_file)
     present_and_valid  = false;
-    pix_range = [];
+    img_range = [];
     return;
 end
 tol = 4*eps(single(pix_db_range)); % double of difference between single and double precision
 %
 ldr = sqw_formats_factory.instance().get_loader(tmp_file);
-head = ldr.get_data('-head');
-pix_range = ldr.get_pix_range;
-if any(abs(head.img_range-pix_db_range)>tol)
+img_range = ldr.read_img_range();
+if any(abs(img_range-pix_db_range)>tol)
     present_and_valid   = false;
 else
     present_and_valid   = true;

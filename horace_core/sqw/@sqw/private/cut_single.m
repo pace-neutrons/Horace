@@ -46,7 +46,8 @@ if keep_pix
     wout = sqw();
     wout.main_header = w.main_header;
     wout.detpar = w.detpar;
-    wout.data   = data_out;
+    wout.data   = data_out.data;
+    wout.pix  = data_out.pix;    
     
     if isempty(runid_contributed) % Empty cut
         exp_info = Experiment();
@@ -78,8 +79,7 @@ if keep_pix
         wout.main_header.creation_date = datetime('now');
     end
 else
-    dnd_constructor = DND_CONSTRUCTORS{numel(data_out.pax) + 1};
-    wout = dnd_constructor(data_out);
+    wout = data_out.data; % Should it be sqw without pixels?
 end
 
 % Write result to file if necessary
@@ -101,12 +101,8 @@ end
 function data_out = compile_sqw_data(targ_axes, proj, s, e, npix, pix_out, ...
     keep_pix)
 %
-data_str = proj.compat_struct;
-data_str.s = s;
-data_str.e = e;
-data_str.npix = npix;
 
-data_out = data_sqw_dnd(targ_axes,data_str);
+data_out.data = DnDBase.dnd(targ_axes,proj,s,e,npix);
 
 
 if keep_pix

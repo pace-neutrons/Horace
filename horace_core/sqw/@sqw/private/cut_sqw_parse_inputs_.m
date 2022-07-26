@@ -137,7 +137,7 @@ if numel(par)>=1 && (isstruct(par{1}) ||...
     par = par(2:end);
     proj_given=true;
 else
-    proj = obj.get_projection();
+    proj = obj.proj;
     proj_given=false;
 end
 

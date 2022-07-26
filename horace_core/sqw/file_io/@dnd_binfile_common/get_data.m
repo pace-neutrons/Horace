@@ -157,6 +157,7 @@ if ~header_only
 end
 
 if header_only || verbatim || noclass
+    data_str.img_range = axes_block.calc_img_db_range(data_str );
     return;
 end
 %data_str.serial_name = 'data_sqw_dnd'; % convert structure, stored in
