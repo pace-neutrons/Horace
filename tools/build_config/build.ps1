@@ -35,7 +35,7 @@ param (
   # Run all Horace tests.
   [switch][Alias("t")]$test,
   # Run all Horace benchmarks.
-  [switch][Alias("B")]$benchmark,
+  [switch][Alias("k")]$benchmark,
   # Package Horace into a .zip file.
   [switch][Alias("p")]$package,
   # Print the versions of libraries being used e.g. Matlab.
