@@ -4,6 +4,8 @@ classdef horace_paths
         herbert
         horace
         root
+        test_common
+        test_common_func
     end
 
     methods
@@ -28,6 +30,14 @@ classdef horace_paths
             if isempty(horace_path)
                 root_path = fileparts(get_folder('horace_init'));
             end
+        end
+
+        function path = get.test_common(obj)
+            path = fullfile(obj.root, '_test', 'common_data')
+        end
+
+        function path = get.test_common_func(obj)
+            path = fullfile(obj.root, '_test', 'common_functions')
         end
     end
 

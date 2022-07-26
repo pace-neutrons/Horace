@@ -11,7 +11,8 @@ function horace_mex
 
 start_dir=pwd;
 C_compiled=false;
-root_dir = horace_root();
+pths = horace_paths;
+root_dir = pths.root;
 
 % build package version
 build_version_h(root_dir)
@@ -265,4 +266,3 @@ else
     end
 
 end
-

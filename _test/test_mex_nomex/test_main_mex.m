@@ -23,11 +23,12 @@ classdef test_main_mex < TestCase
             end
             this = this@TestCase(name);
 
-            root_folder = horace_root();
+            pths = horace_paths;
+
             if ispc
-                this.accum_cut_folder=fullfile(root_folder,'horace_core','\@sqw');
+                this.accum_cut_folder=fullfile(pths.horace,'\@sqw');
             else
-                this.accum_cut_folder=fullfile(root_folder,'horace_core','@sqw');
+                this.accum_cut_folder=fullfile(pths.horace,'@sqw');
             end
             this.this_folder = fileparts(which('test_main_mex.m'));
             this.curr_folder = pwd();
