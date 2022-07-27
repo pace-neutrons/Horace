@@ -463,7 +463,7 @@ classdef config_store < handle
 
             if ~isempty(new_path)
                 [file_path,fn] = fileparts(new_path);
-                if contains(fn,'mprogs_config_') % use new path config folder
+                if contains(fn,'mprogs_config') % use new path config folder
                                                  % name provided as input
                     obj.config_folder_name_ = fn;
                     use_external_path = true;
