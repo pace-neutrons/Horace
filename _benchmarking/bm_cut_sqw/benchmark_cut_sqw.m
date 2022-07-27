@@ -138,7 +138,6 @@ else
                     " sqw filename")
 end
 
-
 %% dump benchmark info (setup seperate dumps function for differnet type of dumps: html, all text(profsave), csv, just bm time...
 prof_result = profile('info');
 prof_folder = fullfile(fileparts(fileparts(mfilename('fullpath')...

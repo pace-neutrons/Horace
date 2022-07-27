@@ -5,12 +5,12 @@ classdef test_bm_func_eval_mediumData < TestCase
     properties
         function_name;
         func_1D = @slow_func1d
-        func_1D_params={[175,1,0.05],@gauss,20};
+        func_1D_params={[175,1,0.05],@gauss,10^0};
         func_2D = @slow_func2d
-        func_2D_params={[350,1,100,0.05,0.05,0.05],@gauss2d,20};
+        func_2D_params={[350,1,100,0.05,0.05,0.05],@gauss2d,10^0};
         func_3D = @slow_func3d
         func_3D_params={[700,-1,2,500,0.05,0.05,0.04,0.05,0.05,0.05],...
-            @gauss3d,20};
+            @gauss3d,10^0};
         
     end
     

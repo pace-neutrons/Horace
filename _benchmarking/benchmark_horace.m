@@ -64,7 +64,7 @@ if isempty(bm_folders)% no tests specified on command line - run them all
         'bm_combine_sqw'...
         'bm_func_eval'...
         'bm_sqw_eval'...
-%         'bm_tobyfit'...
+        'bm_tobyfit'...
 %         'bm_gen_sqw'...
         };
 end
@@ -96,6 +96,11 @@ if verbose
 else
     hoc.log_level = -1; % turn off informational output
 end
+
+%% Genrate the sqw objects needed for the benhcmarks
+smallDataSource = gen_fake_sqw_data(5);
+% mediumDataSource = gen_fake_sqw_data(6);
+% largeDataSource = gen_fake_sqw_data(7);
 
 %% Run benchmarks for small sized data set
 if smallData
@@ -158,4 +163,6 @@ end
 function benchmark_horace_cleanup(cur_horace_config)
 % Reset the configurations for Horace and HPC
 set(hor_config, cur_horace_config);
+% DELETE GENERATED SQW FILES/OBJS
+% delete(string(smallDataSource))
 end
