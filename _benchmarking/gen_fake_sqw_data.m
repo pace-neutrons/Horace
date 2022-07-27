@@ -26,13 +26,12 @@ switch nData
     case 6
         e_bin_boundaries=0:4:efix;
         psi=0:4:90;
-    case 7
-        e_bin_boundaries=0:efix;
-        psi=0:2:90;
-    case 8
-        e_bin_boundaries=0:efix;
-        psi=0:1:90;
-        
+    case 7 % Generates sqw obj with 10^7 pixels
+        e_bin_boundaries=0:16:efix;
+        psi=0:4:90;
+    case 8 % Generates sqw obj with 10^8 pixels
+        e_bin_boundaries=0:4:efix;
+        psi=0:4:90;
     otherwise
         error("HORACE:gen_bm_data:invalid_argument",...
             "When using a integer, nData must be between 5 and 8.")
@@ -42,13 +41,16 @@ par_file=fullfile(common_data,'4to1_124.par');
 sqw_file=[common_data,filesep,'NumData',num2str(nData),'.sqw']; % output sqw file
 
 disp("------------------------------------------------------------------------")
-disp("Generating the sqw object of specified data size.")
+disp("Generating sqw object with 10^" + nData + " pixels")
 disp("------------------------------------------------------------------------")
-%         data = dummy_sqw(e_bin_boundaries,par_file,'',efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
+
+% dataSource = dummy_sqw(e_bin_boundaries,par_file,'',efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
+bigtic
 dummy_sqw(e_bin_boundaries,par_file,sqw_file,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
+bigtoc
 dataSource = sqw_file;
-disp("--------------------------------------------------------------------------------------------")
-disp("Sqw object has been generated, now proceeding to benchmark cut_sqw with specified parameters")
-disp("--------------------------------------------------------------------------------------------")
+disp("------------------------------------------------------------------------")
+disp("Sqw objects have been generated")
+disp("------------------------------------------------------------------------")
 end
 
