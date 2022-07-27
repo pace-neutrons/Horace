@@ -33,7 +33,7 @@ function sqw_display_single_(din,npixtot,type)
 % Determine if displaying dnd-type or sqw-type sqw object
 
 
-ndim = din.data.dimensions;
+ndim = din.dimensions;
 if ~exist('npixtot','var') || isempty(npixtot)
     npixtot = sum(din.data.npix(:));
 end
