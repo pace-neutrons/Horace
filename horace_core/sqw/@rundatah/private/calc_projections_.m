@@ -60,7 +60,7 @@ end
 spec_to_cc = obj.lattice.calc_proj_matrix();
 
 % Calculate Q in spectrometer coordinates for each pixel
-nThreads = config_store.instance().get_value('par_config', 'threads');
+nThreads = config_store.instance().get_value('parallel_config', 'threads');
 use_mex = config_store.instance().get_value('hor_config','use_mex');
 
 if use_mex
