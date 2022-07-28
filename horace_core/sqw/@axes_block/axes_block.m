@@ -101,7 +101,7 @@ classdef axes_block < serializable
             PixelData.EMPTY_RANGE_; % [Inf,Inf,Inf,Inf;-Inf,-Inf,-Inf,-Inf]
 
         nbins_all_dims_ = [1,1,1,1];    % number of bins in each dimension
-        single_bin_defines_iax_ = true(1,4);    % true if single nbin direction represents integration axis
+        single_bin_defines_iax_ = true(1,4); % true if single nbin direction represents integration axis
         dax_=[];                        % display axes numbers holder
         % e.g. r.l.u. and energy [h; k; l; en] [row vector]
     end

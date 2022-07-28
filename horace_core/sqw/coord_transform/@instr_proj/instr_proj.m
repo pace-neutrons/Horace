@@ -190,6 +190,10 @@ classdef instr_proj<aProjection
             % set up range and number of bins for the selected axes block
             ax_bl.img_range = ranges;
             ax_bl.nbins_all_dims = bin_numbers;
+            % TODO: Do we want to have axes block here beeing always 4D or
+            % let the shape to be defined by input number of bins?
+            ax_bl.single_bin_defines_iax = true(4,1); % here we assume that
+            % object may be less then 4-dimensions
             % other parameters
             ax_bl.ulen  = [1,1,1,1];
             % TODO, delete this, mutate axes_block

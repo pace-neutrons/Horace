@@ -66,78 +66,6 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
         %                      image coordinate system.
     end
 
-    methods(Access = protected)
-        wout = unary_op_manager(obj, operation_handle);
-        wout = binary_op_manager_single(w1, w2, binary_op);
-        [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
-        %                              % binning of an sqw or dnd object
-
-        [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
-
-        %------------------------------------------------------------------
-        wout = sqw_eval_nopix(win, sqwfunc, all_bins, pars); % evaluate
-        %                              % function on dnd object
-        function wout = sqw_eval_pix(~, varargin)
-            % Can not evaluate pixels function on a dnd object
-            error('HORACE:DnDBase:runtime_error', ...
-                'sqw_eval_pix can not be invoked on dnd object');
-        end
-        %------------------------------------------------------------------
-        function obj = from_old_struct(obj,inputs)
-            % Restore object from the old structure, which describes the
-            % previous version of the object.
-            %
-            % The method is called by loadobj in the case if the input
-            % structure does not contain a version or the version, stored
-            % in the structure does not correspond to the current version
-            % of the class.
-            %
-            % By default, this function interfaces the default from_bare_struct
-            % method, but when the old structure substantially differs from
-            % the modern structure, this method needs the specific overloading
-            % to allow loadobj to recover new structure from an old structure.
-            %
-            %if isfield(inputs,'version') % do checks for previous versions
-            %   Add appropriate code to convert from specific version to
-            %   modern version
-            %end
-            if isfield(inputs,'data_')
-                inputs = inputs.data_;
-            end
-            if isfield(inputs,'pax') && isfield(inputs,'iax')
-                inputs.axes = axes_block.get_from_old_data(inputs);
-                inputs.proj = ortho_proj.get_from_old_data(inputs);
-            end
-
-            if isfield(inputs,'array_dat')
-                obj = obj.from_bare_struct(inputs.array_dat);
-            else
-                obj = obj.from_bare_struct(inputs);
-            end
-        end
-        %
-        function obj = set_do_check_combo_arg(obj,val)
-            % set internal property do_check_combo_arg to all object
-            % components, which are serializable
-            val = logical(val);
-            obj.do_check_combo_arg_ = val;
-            obj.axes_.do_check_combo_arg  = val;
-            obj.proj_.do_check_combo_arg  = val;
-        end
-        %
-        function obj = set_senpix(obj,val,field)
-            % set signal error or npix value to a class field
-            if ~isnumeric(val)
-                error('HORACE:DnDBase:invalid_argument',...
-                    'input %s must be numeric array',field)
-            end
-            obj.([field,'_']) = val;
-            if obj.do_check_combo_arg_
-                obj = check_combo_arg(obj);
-            end
-        end
-    end
-
     methods (Static)
         function w = dnd(varargin)
             % create dnd object with size and dimensions, defined by inputs
@@ -402,7 +330,79 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
             %
             obj = check_combo_arg_(obj);
         end
+    end
 
+    methods(Access = protected)
+        wout = unary_op_manager(obj, operation_handle);
+        wout = binary_op_manager_single(w1, w2, binary_op);
+        [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
+        %                              % binning of an sqw or dnd object
+
+        %------------------------------------------------------------------
+        wout = sqw_eval_nopix(win, sqwfunc, all_bins, pars); % evaluate
+        %                              % function on dnd object
+        function wout = sqw_eval_pix(~, varargin)
+            % Can not evaluate pixels function on a dnd object
+            error('HORACE:DnDBase:runtime_error', ...
+                'sqw_eval_pix can not be invoked on dnd object');
+        end
+        function [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin)
+            [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin{:});
+        end
+        %------------------------------------------------------------------
+        function obj = from_old_struct(obj,inputs)
+            % Restore object from the old structure, which describes the
+            % previous version of the object.
+            %
+            % The method is called by loadobj in the case if the input
+            % structure does not contain a version or the version, stored
+            % in the structure does not correspond to the current version
+            % of the class.
+            %
+            % By default, this function interfaces the default from_bare_struct
+            % method, but when the old structure substantially differs from
+            % the modern structure, this method needs the specific overloading
+            % to allow loadobj to recover new structure from an old structure.
+            %
+            %if isfield(inputs,'version') % do checks for previous versions
+            %   Add appropriate code to convert from specific version to
+            %   modern version
+            %end
+            if isfield(inputs,'data_')
+                inputs = inputs.data_;
+            end
+            if isfield(inputs,'pax') && isfield(inputs,'iax')
+                inputs.axes = axes_block.get_from_old_data(inputs);
+                inputs.proj = ortho_proj.get_from_old_data(inputs);
+            end
+
+            if isfield(inputs,'array_dat')
+                obj = obj.from_bare_struct(inputs.array_dat);
+            else
+                obj = obj.from_bare_struct(inputs);
+            end
+        end
+        %
+        function obj = set_do_check_combo_arg(obj,val)
+            % set internal property do_check_combo_arg to all object
+            % components, which are serializable
+            val = logical(val);
+            obj.do_check_combo_arg_ = val;
+            obj.axes_.do_check_combo_arg  = val;
+            obj.proj_.do_check_combo_arg  = val;
+        end
+        %
+        function obj = set_senpix(obj,val,field)
+            % set signal error or npix value to a class field
+            if ~isnumeric(val)
+                error('HORACE:DnDBase:invalid_argument',...
+                    'input %s must be numeric array',field)
+            end
+            obj.([field,'_']) = val;
+            if obj.do_check_combo_arg_
+                obj = check_combo_arg(obj);
+            end
+        end
     end
 end
 

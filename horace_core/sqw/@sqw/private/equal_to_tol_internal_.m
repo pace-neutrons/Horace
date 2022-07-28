@@ -1,4 +1,4 @@
-function [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin)
+function [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin)
 % Compare scalar sqw objects of same type
 horace_info_level = get(hor_config, 'log_level');
 
@@ -36,32 +36,31 @@ keep = ~ismember(class_fields,'pix');
 class_fields = class_fields(keep);
 for idx = 1:numel(class_fields)
     field_name = class_fields{idx};
+    if strcmp(field_name,'pix') %pixels compared separately at the end
+        continue; 
+    end
+    if strcmp(field_name,'runid_map') % runid maps will be compared as part of experiment
+        continue;
+    end
     tmp1 = w1.(field_name);
     tmp2 = w2.(field_name);
-    if strcmp(field_name, 'data') && isa(tmp1.pix, 'PixelData')
-        % pixel data equality is checked below
-        tmp1.pix = PixelData();
-        tmp2.pix = PixelData();
-    end
     if strcmp(field_name,'main_header') && isa(tmp1,'main_header_cl') && ignore_date
         tmp1.creation_date = tmp2.creation_date;
         tmp1.creation_date_defined_privately= tmp2.creation_date_defined_privately;
-
     end
     name1 = [name_a,'.',field_name];
     name2 = [name_b,'.',field_name];
 
     [ok, mess] = equal_to_tol(tmp1, tmp2, args{:}, 'name_a', name1, 'name_b', name2);
-
     if ~ok
         return; % break on first failure
     end
 end
 
 % Perform pixel comparisons
-if (~opt.reorder && opt.fraction == 1) || isempty(w1.data.pix) || isempty(w2.data.pix)
+if (~opt.reorder && opt.fraction == 1) || isempty(w1.pix) || isempty(w2.pix)
     % Test strict equality of all pixels including cases where one PixelData is empty
-    [ok, mess] = equal_to_tol(w1.data.pix, w2.data.pix, args{:}, 'name_a', name_a, 'name_b', name_b);
+    [ok, mess] = equal_to_tol(w1.pix, w2.pix, args{:}, 'name_a', name_a, 'name_b', name_b);
 else
     % Test pixels in a fraction of non-empty bins, accounting for reordering of pixels
     % if required

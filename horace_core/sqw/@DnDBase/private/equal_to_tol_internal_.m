@@ -1,4 +1,4 @@
-function [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin)
+function [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin)
 % Compare scalar DnD objects of same type
 
 % Check for presence of reorder and/or fraction option(s) (only relevant if sqw-type)

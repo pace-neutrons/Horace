@@ -1,5 +1,5 @@
 classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & sqw_plot_interface
-    
+
     %SQW Create an sqw object
     %
     % Syntax:
@@ -320,11 +320,13 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
         [proj, pbin] = get_proj_and_pbin(w) % Retrieve the projection and
         %                              % binning of an sqw or dnd object
 
-        [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin);
 
         wout = sqw_eval_(wout, sqwfunc, ave_pix, all_bins, pars);
         wout = sqw_eval_pix(w, sqwfunc, ave_pix, pars, outfilecell, i);
 
+        function  [ok, mess] = equal_to_tol_internal(w1, w2, name_a, name_b, varargin)
+            [ok, mess] = equal_to_tol_internal_(w1, w2, name_a, name_b, varargin{:});
+        end
 
         function obj = from_old_struct(obj,S)
             % restore object from the old structure, which describes the

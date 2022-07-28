@@ -1,4 +1,4 @@
-classdef data_sqw_dnd_old < axes_block
+classdef data_sqw_dnd < axes_block
     % Class defines structure of the data, used by sqw&dnd objects
     %
     % Trivial implementation, wrapping around a structure
@@ -6,6 +6,7 @@ classdef data_sqw_dnd_old < axes_block
     % Original author: T.G.Perring
     %
     properties(Dependent)
+        pix;
 
         % The pixels are rebinned on this grid
         img_db_range;
@@ -32,10 +33,10 @@ classdef data_sqw_dnd_old < axes_block
     end
     properties(Constant,Access=private)
         fields_to_save_ = {'alatt','angdeg','uoffset',...
-            'u_to_rlu','s','e','npix'};
+            'u_to_rlu','s','e','npix','pix'};
     end
     properties(Access=protected)
-
+        pix_ = PixelData()      % Object containing data for each pixel
     end
     %
     methods
@@ -43,7 +44,7 @@ classdef data_sqw_dnd_old < axes_block
             % get independent fields, which fully define the state of a
             % serializable object.
             flds = saveableFields@axes_block(obj);
-            flds = [flds(:);data_sqw_dnd_old.fields_to_save_(:)];
+            flds = [flds(:);data_sqw_dnd.fields_to_save_(:)];
         end
         %------------------------------------------------------------------
         % Determine data type of the data field of an sqw data structure
@@ -51,8 +52,11 @@ classdef data_sqw_dnd_old < axes_block
         % Extract projection, used to build sqw file from full data_sqw_dnd
         % object.
         proj = get_projection(obj,header_av)
+        % slice data_sqw_dnd i.e. retrieve axes block -- the base part of 
+        % the data_sqw_dnd class
+        ax   = get_axes(obj);
         %------------------------------------------------------------------
-        function obj = data_sqw_dnd_old(varargin)
+        function obj = data_sqw_dnd(varargin)
             % constructor || copy-constructor:
             % Builds valid data_sqw_dnd object from various data structures
             %
@@ -192,6 +196,27 @@ classdef data_sqw_dnd_old < axes_block
             end
         end
         %
+        %TODO: Is it still needed? Remove after refactoring
+        function type= data_type(obj)
+            % compatibility function
+            %   data   Output data structure which must contain the fields listed below
+            %          type 'b+'   fields: uoffset,...,s,e,npix
+            %          [The following other valid structures are not created by this function
+            %          type 'b'    fields: uoffset,...,s,e
+            %          type 'a'    uoffset,...,s,e,npix,img_db_range,pix
+            %          type 'a-'   uoffset,...,s,e,npix,img_db_range
+            if isempty(obj.npix)
+                type = 'b';
+            else
+                type = 'b+';
+                if ~isempty(obj.img_db_range)
+                    type = 'a-';
+                end
+                if ~isempty(obj.pix)
+                    type = 'a';
+                end
+            end
+        end
 
         function dnd_struct=get_dnd_data(obj,varargin)
             %function retrieves dnd structure from the sqw_dnd_data class
@@ -200,6 +225,18 @@ classdef data_sqw_dnd_old < axes_block
             dnd_struct = obj.get_dnd_data_(varargin{:});
         end
         %
+
+        function pix = get.pix(obj)
+            pix = obj.pix_;
+        end
+        function obj = set.pix(obj,val)
+            if isa(val,'PixelData') || isa(val,'pix_combine_info')
+                obj.pix_ = val;
+            else
+                obj.pix_ = PixelData(val);
+            end
+        end
+
         %
         function [type,obj]=check_sqw_data(obj, type_in, varargin)
             % old style validator for consistency of input data.
@@ -265,7 +302,7 @@ classdef data_sqw_dnd_old < axes_block
             if isfield(inputs,'pax') && isfield(inputs,'iax')
                 inputs.serial_name = 'axes_block';
                 ab = serializable.from_struct(inputs);
-                obj = data_sqw_dnd_old(ab,inputs);
+                obj = data_sqw_dnd(ab,inputs);
                 return;
             end
             if ~isfield(inputs,'nonorthogonal')
@@ -279,7 +316,7 @@ classdef data_sqw_dnd_old < axes_block
         function obj = loadobj(S)
             % boilerplate loadobj method, calling generic method of
             % saveable class
-            obj = data_sqw_dnd_old();
+            obj = data_sqw_dnd();
             obj = loadobj@serializable(S,obj);
         end
     end
