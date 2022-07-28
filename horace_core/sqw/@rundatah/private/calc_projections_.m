@@ -48,6 +48,7 @@ end
 
 %   qspec       4xn_detectors array of qx,qy,qz,eps
 qspec = obj.qpsecs_cache; % if provided, used instead of detchn for calculations
+qspec_provided = ~isempty(qspec);
 
 if proj_mode<0 || proj_mode >2
     warning('HORACE:calc_projections', ...
@@ -64,7 +65,7 @@ nThreads = config_store.instance().get_value('parallel_config', 'threads');
 use_mex = config_store.instance().get_value('hor_config','use_mex');
 
 if use_mex
-    if ~isempty(qspec) % why is this? % See ticket #838 to address this.
+    if qspec_provided % why is this? % See ticket #838 to address this.
         use_mex = false;
     else
         try
@@ -91,16 +92,16 @@ if use_mex
 end
 
 if ~use_mex
-    if isempty(qspec) %   qspec 4xn_detectors array of qx,qy,qz,eps
+    if qspec_provided %   qspec 4xn_detectors array of qx,qy,qz,eps
+        ucoords = [spec_to_cc*qspec(1:3,:);qspec(4,:)];
+    else
         qspec_provided = false;
         if isempty(detdcn)
             detdcn = calc_detdcn(obj.det_par);
         end
         [qspec,en]=obj.calc_qspec(detdcn);
         ucoords = [spec_to_cc*qspec;en];
-    else
-        ucoords = [spec_to_cc*qspec(1:3,:);qspec(4,:)];
-        qspec_provided = true;
+
     end
 
     % Return without filling the pixel array if pix_range only is requested
