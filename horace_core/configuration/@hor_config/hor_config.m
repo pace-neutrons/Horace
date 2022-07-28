@@ -187,7 +187,7 @@ classdef hor_config < config_base
             %>>is = hor_config_instance.wkdir_is_default;
             %
             work_dir  = config_store.instance().get_config_field('parallel_config','working_directory');
-            is = isempty(work_dir);
+            is = isempty(work_dir)
         end
 
         function hpcc = get.high_perf_config_info(~)
