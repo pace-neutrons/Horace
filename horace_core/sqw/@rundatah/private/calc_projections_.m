@@ -65,7 +65,7 @@ nThreads = config_store.instance().get_value('parallel_config', 'threads');
 use_mex = config_store.instance().get_value('hor_config','use_mex');
 
 if use_mex
-    if ~isempty(qspec) % why is this? % See ticket #838 to address this.
+    if qspec_provided % why is this? % See ticket #838 to address this.
         use_mex = false;
     else
         try
