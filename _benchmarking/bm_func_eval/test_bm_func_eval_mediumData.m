@@ -11,6 +11,8 @@ classdef test_bm_func_eval_mediumData < TestCase
         func_3D = @slow_func3d
         func_3D_params={[700,-1,2,500,0.05,0.05,0.04,0.05,0.05,0.05],...
             @gauss3d,10^0};
+        common_data=fullfile(fileparts(fileparts(mfilename('fullpath')...
+            )),'common_data');
         
     end
     
@@ -29,10 +31,11 @@ classdef test_bm_func_eval_mediumData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=1;
+            dataSource = fullfile(obj.common_data,'NumData7.sqw');
             dataType = "medium";
             dataNum = "small";
             nProcs = 1;
-            sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+            sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
             benchmark_func_eval(sqw_obj,obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
         end
 
@@ -41,10 +44,11 @@ classdef test_bm_func_eval_mediumData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=1;
+            dataSource = fullfile(obj.common_data,'NumData7.sqw');
             dataType = "medium";
             dataNum = "medium";
             nProcs = 1;
-            sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+            sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
             benchmark_func_eval(sqw_obj,obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
         end
 
@@ -53,10 +57,11 @@ classdef test_bm_func_eval_mediumData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=1;
+            dataSource = fullfile(obj.common_data,'NumData7.sqw');
             dataType = "medium";
             dataNum = "large";
             nProcs = 1;
-            sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+            sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
             benchmark_func_eval(sqw_obj,obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
         end
 
@@ -65,10 +70,11 @@ classdef test_bm_func_eval_mediumData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=2;
+            dataSource = fullfile(obj.common_data,'NumData7.sqw');
             dataType = "medium";
             dataNum = "small";
             nProcs = 1;
-            sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+            sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
             benchmark_func_eval(sqw_obj,obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
         end
 
@@ -77,10 +83,11 @@ classdef test_bm_func_eval_mediumData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=2;
+            dataSource = fullfile(obj.common_data,'NumData7.sqw');
             dataType = "medium";
             dataNum = "medium";
             nProcs = 1;
-            sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+            sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
             benchmark_func_eval(sqw_obj,obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
         end
 
@@ -89,10 +96,11 @@ classdef test_bm_func_eval_mediumData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=2;
+            dataSource = fullfile(obj.common_data,'NumData7.sqw');
             dataType = "medium";
             dataNum = "large";
             nProcs = 1;
-            sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+            sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
             benchmark_func_eval(sqw_obj,obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
         end
 
@@ -101,10 +109,11 @@ classdef test_bm_func_eval_mediumData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=3;
+            dataSource = fullfile(obj.common_data,'NumData7.sqw');
             dataType = "medium";
             dataNum = "small";
             nProcs = 1;
-            sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+            sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
             benchmark_func_eval(sqw_obj,obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
         end
 
@@ -113,10 +122,11 @@ classdef test_bm_func_eval_mediumData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=3;
+            dataSource = fullfile(obj.common_data,'NumData7.sqw');
             dataType = "medium";
             dataNum = "medium";
             nProcs = 1;
-            sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+            sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
             benchmark_func_eval(sqw_obj,obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
         end
 
@@ -125,10 +135,11 @@ classdef test_bm_func_eval_mediumData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=3;
+            dataSource = fullfile(obj.common_data,'NumData7.sqw');
             dataType = "medium";
             dataNum = "large";
             nProcs = 1;
-            sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+            sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
             benchmark_func_eval(sqw_obj,obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
         end
 
@@ -137,10 +148,11 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv";
 %             nDims=1;
+%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
 %             dataType = "medium";
 %             dataNum = "small";
 %             nProcs = 2;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 %             benchmark_func_eval(sqw_obj,obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -149,10 +161,11 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv";
 %             nDims=1;
+%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
 %             dataType = "medium";
 %             dataNum = "medium";
 %             nProcs = 2;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 %             benchmark_func_eval(sqw_obj,obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -161,10 +174,11 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv";
 %             nDims=1;
+%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
 %             dataType = "medium";
 %             dataNum = "large";
 %             nProcs = 2;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 %             benchmark_func_eval(sqw_obj,obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -173,10 +187,11 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv";
 %             nDims=2;
+%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
 %             dataType = "medium";
 %             dataNum = "small";
 %             nProcs = 2;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 %             benchmark_func_eval(sqw_obj,obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -185,10 +200,11 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv";
 %             nDims=2;
+%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
 %             dataType = "medium";
 %             dataNum = "medium";
 %             nProcs = 2;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 %             benchmark_func_eval(sqw_obj,obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -197,10 +213,11 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv";
 %             nDims=2;
+%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
 %             dataType = "medium";
 %             dataNum = "large";
 %             nProcs = 2;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 %             benchmark_func_eval(sqw_obj,obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -209,22 +226,24 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv";
 %             nDims=3;
+%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
 %             dataType = "medium";
 %             dataNum = "small";
 %             nProcs = 2;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 %             benchmark_func_eval(sqw_obj,obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
 %         end
-
+% 
 %         function test_bm_func_eval_3D_mediumData_mediumNumber_2procs(obj)
 %             function_stack = dbstack;
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv";
 %             nDims=3;
+%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
 %             dataType = "medium";
 %             dataNum = "medium";
 %             nProcs = 2;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 %             benchmark_func_eval(sqw_obj,obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -233,10 +252,11 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv";
 %             nDims=3;
+%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
 %             dataType = "medium";
 %             dataNum = "large";
 %             nProcs = 2;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 %             benchmark_func_eval(sqw_obj,obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -245,10 +265,11 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv";
 %             nDims=1;
+%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
 %             dataType = "medium";
 %             dataNum = "small";
 %             nProcs = 4;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 %             benchmark_func_eval(sqw_obj,obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -257,10 +278,11 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv";
 %             nDims=1;
+%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
 %             dataType = "medium";
 %             dataNum = "medium";
 %             nProcs = 4;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 %             benchmark_func_eval(sqw_obj,obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -269,10 +291,11 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv";
 %             nDims=1;
+%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
 %             dataType = "medium";
 %             dataNum = "large";
 %             nProcs = 4;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 %             benchmark_func_eval(sqw_obj,obj.func_1D,obj.func_1D_params,nProcs,obj.function_name);
 %         end
 %         
@@ -281,10 +304,11 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv";
 %             nDims=2;
+%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
 %             dataType = "medium";
 %             dataNum = "small";
 %             nProcs = 4;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 %             benchmark_func_eval(sqw_obj,obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -293,10 +317,11 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv";
 %             nDims=2;
+%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
 %             dataType = "medium";
 %             dataNum = "medium";
 %             nProcs = 4;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 %             benchmark_func_eval(sqw_obj,obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -305,10 +330,11 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv";
 %             nDims=2;
+%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
 %             dataType = "medium";
 %             dataNum = "large";
 %             nProcs = 4;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 %             benchmark_func_eval(sqw_obj,obj.func_2D,obj.func_2D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -317,10 +343,11 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv";
 %             nDims=3;
+%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
 %             dataType = "medium";
 %             dataNum = "small";
 %             nProcs = 4;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 %             benchmark_func_eval(sqw_obj,obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -329,10 +356,11 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv";
 %             nDims=3;
+%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
 %             dataType = "medium";
 %             dataNum = "medium";
 %             nProcs = 4;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 %             benchmark_func_eval(sqw_obj,obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
 %         end
 % 
@@ -341,10 +369,11 @@ classdef test_bm_func_eval_mediumData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv";
 %             nDims=3;
+%             dataSource = fullfile(obj.common_data,'NumData7.sqw');
 %             dataType = "medium";
 %             dataNum = "large";
 %             nProcs = 4;
-%             sqw_obj = gen_bm_func_eval_data(nDims,dataType,dataNum);
+%             sqw_obj = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum);
 %             benchmark_func_eval(sqw_obj,obj.func_3D,obj.func_3D_params,nProcs,obj.function_name);
 %         end
 

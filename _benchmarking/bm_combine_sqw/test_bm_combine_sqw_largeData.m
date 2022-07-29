@@ -4,6 +4,8 @@ classdef test_bm_combine_sqw_largeData < TestCase
     
     properties
         function_name;
+        common_data=fullfile(fileparts(fileparts(mfilename('fullpath')...
+                )),'common_data');
     end
     
     methods
@@ -21,10 +23,11 @@ classdef test_bm_combine_sqw_largeData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=1;
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
             dataNum = "small";
             nProcs = 1;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataType,dataNum);
+            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource,dataType,dataNum);
             benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
         end
 
@@ -33,10 +36,11 @@ classdef test_bm_combine_sqw_largeData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=1;
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
             dataNum = "medium";
             nProcs = 1;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataType,dataNum);
+            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource,dataType,dataNum);
             benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
         end
 
@@ -45,10 +49,11 @@ classdef test_bm_combine_sqw_largeData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=1;
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
             dataNum = "large";
             nProcs = 1;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataType,dataNum);
+            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource,dataType,dataNum);
             benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
         end
 
@@ -57,10 +62,11 @@ classdef test_bm_combine_sqw_largeData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=2;
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
             dataNum = "small";
             nProcs = 1;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataType,dataNum);
+            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource,dataType,dataNum);
             benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
         end
 
@@ -69,10 +75,11 @@ classdef test_bm_combine_sqw_largeData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=2;
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
             dataNum = "medium";
             nProcs = 1;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataType,dataNum);
+            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource,dataType,dataNum);
             benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
         end
 
@@ -81,10 +88,11 @@ classdef test_bm_combine_sqw_largeData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=2;
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
             dataNum = "large";
             nProcs = 1;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataType,dataNum);
+            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource,dataType,dataNum);
             benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
         end
 
@@ -93,10 +101,11 @@ classdef test_bm_combine_sqw_largeData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=1;
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
             dataNum = "small";
             nProcs = 2;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataType,dataNum);
+            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource,dataType,dataNum);
             benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
         end
 
@@ -105,10 +114,11 @@ classdef test_bm_combine_sqw_largeData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=1;
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
             dataNum = "medium";
             nProcs = 2;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataType,dataNum);
+            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource,dataType,dataNum);
             benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
         end
 
@@ -117,10 +127,11 @@ classdef test_bm_combine_sqw_largeData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=1;
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
             dataNum = "large";
             nProcs = 2;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataType,dataNum);
+            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource,dataType,dataNum);
             benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
         end
 
@@ -129,10 +140,11 @@ classdef test_bm_combine_sqw_largeData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=2;
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
             dataNum = "small";
             nProcs = 2;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataType,dataNum);
+            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource,dataType,dataNum);
             benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
         end
 
@@ -141,10 +153,11 @@ classdef test_bm_combine_sqw_largeData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=2;
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
             dataNum = "medium";
             nProcs = 2;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataType,dataNum);
+            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource,dataType,dataNum);
             benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
         end
 
@@ -153,10 +166,11 @@ classdef test_bm_combine_sqw_largeData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=2;
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
             dataNum = "large";
             nProcs = 2;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataType,dataNum);
+            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource,dataType,dataNum);
             benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
         end
 
@@ -165,10 +179,11 @@ classdef test_bm_combine_sqw_largeData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=1;
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
             dataNum = "small";
             nProcs = 4;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataType,dataNum);
+            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource,dataType,dataNum);
             benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
         end
 
@@ -177,10 +192,11 @@ classdef test_bm_combine_sqw_largeData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=1;
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
             dataNum = "medium";
             nProcs = 4;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataType,dataNum);
+            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource,dataType,dataNum);
             benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
         end
 
@@ -189,10 +205,11 @@ classdef test_bm_combine_sqw_largeData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=1;
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
             dataNum = "large";
             nProcs = 4;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataType,dataNum);
+            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource,dataType,dataNum);
             benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
         end
 
@@ -201,10 +218,11 @@ classdef test_bm_combine_sqw_largeData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=2;
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
             dataNum = "small";
             nProcs = 4;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataType,dataNum);
+            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource,dataType,dataNum);
             benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
         end
 
@@ -213,10 +231,11 @@ classdef test_bm_combine_sqw_largeData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=2;
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
             dataNum = "medium";
             nProcs = 4;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataType,dataNum);
+            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource,dataType,dataNum);
             benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
         end
 
@@ -225,10 +244,11 @@ classdef test_bm_combine_sqw_largeData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv";
             nDims=2;
+            dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
             dataNum = "large";
             nProcs = 4;
-            [cut1,cutN] = gen_bm_combine_data(nDims,dataType,dataNum);
+            [cut1,cutN] = gen_bm_combine_data(nDims,dataSource,dataType,dataNum);
             benchmark_combine_sqw(cut1,cutN,nProcs,obj.function_name);
         end
     end

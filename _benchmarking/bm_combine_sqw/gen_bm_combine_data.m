@@ -1,6 +1,6 @@
-function [cut1, cutN] = gen_bm_combine_data(nDims,dataType, dataNum)
-common_data=fullfile(fileparts(fileparts(mfilename('fullpath')...
-    )),'common_data');
+function [cut1, cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum)
+% common_data=fullfile(fileparts(fileparts(mfilename('fullpath')...
+%     )),'common_data');
 proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr'; 
 
 switch nDims
@@ -11,21 +11,6 @@ switch nDims
     otherwise
         error("HORACE:test_combine_sqw_smallData:gen_bm_data:invalid_argument"...
             ,"nDims is the dimensions of the cuts to combine: must be 1 or 2 ")
-end
-
-switch dataType
-    case "small"
-        dataSource = fullfile(common_data,'ironSmall.sqw');
-        %dummy_sqw()
-    case "medium"
-        dataSource = fullfile(common_data,'ironMedium.sqw');
-        %dummy_sqw()
-    case "large"
-        dataSource = fullfile(common_data,'ironLarge.sqw');
-        %dummy_sqw()
-    otherwise
-        warning("HORACE:gen_combine_bm_data:invalid_argument",...
-            "datatype must be either a string (small, medium or large), or an integer")
 end
 
 switch true
