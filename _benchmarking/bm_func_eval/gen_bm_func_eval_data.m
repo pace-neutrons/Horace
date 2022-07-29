@@ -1,24 +1,7 @@
-function sqw_obj_in = gen_bm_func_eval_data(nDims,dataType,dataNum)
+function sqw_obj_in = gen_bm_func_eval_data(nDims,dataSource,dataType,dataNum)
 %GEN_BM_FUNC_EVAL_DATA Summary of this function goes here
 %   Detailed explanation goes here
-common_data=fullfile(fileparts(fileparts(mfilename('fullpath')...
-    )),'common_data');
 proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
-
-switch dataType
-    case "small"
-        dataSource = fullfile(common_data,'ironSmall.sqw');
-        %dummy_sqw()
-    case "medium"
-        dataSource = fullfile(common_data,'ironMedium.sqw');
-        %dummy_sqw()
-    case "large"
-        dataSource = fullfile(common_data,'ironLarge.sqw');
-        %dummy_sqw()
-    otherwise
-        warning("HORACE:gen_sqw_eval_bm_data:invalid_argument",...
-            "datatype must be either a string (small, medium or large), or an integer")
-end
 
 switch nDims
     case 1

@@ -1,22 +1,7 @@
-function sqw_obj = gen_bm_sqw_eval_data(nDims,dataNum,dataSet,objType)
+function sqw_obj = gen_bm_sqw_eval_data(nDims,dataSource,dataNum,dataSet,objType)
 %GEN_BM_SQW_EVAL_DATA Summary of this function goes here
 %   Detailed explanation goes here
-common_data=fullfile(fileparts(fileparts(mfilename('fullpath')...
-    )),'common_data');
 proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
-
-if isa(dataNum,'string')
-    switch dataNum
-        case "small"
-            dataSource = fullfile(common_data,'ironSmall.sqw');
-        case "medium"
-            dataSource = fullfile(common_data,'ironMedium.sqw');
-        case "large"
-            dataSource = fullfile(common_data,'ironLarge.sqw');
-        otherwise
-            error("HORACE:gen_sqw_eval_bm_data:invalid_argument",...
-                "datatype must be either a string (small, medium or large), or an integer")
-    end
 
 switch true
     case nDims==1 && objType=="sqw"

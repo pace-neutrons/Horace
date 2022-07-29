@@ -1,4 +1,4 @@
-function benchmark_sqw_eval(win,sqw_func,params,nProcs,filename)
+function benchmark_sqw_eval(sqw_obj,sqw_func,params,nProcs,filename)
 %BENCHMARK_SQW_EVAL Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -27,10 +27,10 @@ end
 
 %% Start profiler
 profile on
-w_sqw=sqw_eval(win,sqw_func,params);
+w_sqw=sqw_eval(sqw_obj,sqw_func,params);
 prof_results = profile('info');
 prof_folder = fullfile(fileparts(fileparts(mfilename('fullpath')...
-                )),'benchmarking_results');
+                )),'bm_sqw_eval');
 dump_profile(prof_results,fullfile(prof_folder,filename));
 end
 

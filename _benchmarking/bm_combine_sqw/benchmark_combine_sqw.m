@@ -28,7 +28,7 @@ profile on
 wout = combine_sqw(cut1, cutN);
 prof_results = profile('info');
 prof_folder = fullfile(fileparts(fileparts(mfilename('fullpath')...
-                )),'benchmarking_results');
+                )),'bm_combine_sqw');
 dump_profile(prof_results,fullfile(prof_folder,filename));
 end
 

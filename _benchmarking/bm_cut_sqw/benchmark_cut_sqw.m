@@ -86,14 +86,13 @@ end
 
 % Check if the "contiguous", has been set to true (will do X contiguous
 % cuts)
+profile on
 if isa(nData, 'char')
     if ~contiguous
         switch objType
             case "sqw"
-                profile on
                 sqw_cut = cut_sqw(nData,proj,p1_bin,p2_bin,p3_bin,p4_bin);
             case "dnd"
-                profile on
                 dnd_cut = cut_sqw(nData,proj,p1_bin,p2_bin,p3_bin,p4_bin, '-nopix');
             otherwise
                 error("HORACE:benchmark_cut_sqw:invalid_argument",...
@@ -102,13 +101,11 @@ if isa(nData, 'char')
     else
         switch objType
             case "sqw"
-                profile on
                 for j=0:4
                     p1_bin = [j-3,0.5,j];
                     sqw_cut = cut_sqw(nData,proj,p1_bin,p2_bin,p3_bin,p4_bin);
                 end
             case "dnd"
-                profile on
                 for j=0:4
                     p1_bin = [j-3,0.5,j];
                     dnd_cut = cut_sqw(nData,proj,p1_bin,p2_bin,p3_bin,p4_bin, '-nopix');
@@ -122,11 +119,9 @@ elseif isa(nData,'double')
     switch objType
         case "sqw"
             sqw_obj = gen_bm_cut_data(nData);
-            profile on
             sqw_cut = cut_sqw(sqw_obj,proj,p1_bin,p2_bin,p3_bin,p4_bin);
         case "dnd"
             dnd_obj = gen_bm_cut_data(nData);
-            profile on
             dnd_cut = cut_sqw(dnd_obj,proj,p1_bin,p2_bin,p3_bin,p4_bin,'-nopix');
         otherwise
             error("HORACE:benchmark_cut_sqw:invalid_argument",...
@@ -141,7 +136,7 @@ end
 %% dump benchmark info (setup seperate dumps function for differnet type of dumps: html, all text(profsave), csv, just bm time...
 prof_result = profile('info');
 prof_folder = fullfile(fileparts(fileparts(mfilename('fullpath')...
-                )),'benchmarking_results');
+                )),'bm_cut_sqw');
 dump_profile(prof_result,fullfile(prof_folder,filename));
 
 % % Create cleanup object (*** MUST BE DONE BEFORE ANY CHANGES TO CONFIGURATIONS)

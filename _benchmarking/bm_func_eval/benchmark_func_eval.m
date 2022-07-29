@@ -29,7 +29,7 @@ profile on
 w_sqw=func_eval(sqw_obj,func_handle,params);
 prof_results = profile('info');
 prof_folder = fullfile(fileparts(fileparts(mfilename('fullpath')...
-                )),'benchmarking_results');
+                )),'bm_func_eval');
 dump_profile(prof_results,fullfile(prof_folder,filename));
 end
 

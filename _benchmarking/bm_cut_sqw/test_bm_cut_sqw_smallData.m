@@ -3,6 +3,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
         
     properties 
         function_name;
+        common_data=fullfile(fileparts(fileparts(mfilename('fullpath')...
+                )),'common_data');
     end
     
     methods
@@ -23,8 +25,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 3;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="sqw";
             nProcs = 1;
             eRange = "large";
@@ -36,8 +37,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 2;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="sqw";
             nProcs = 1;
             eRange = "large";
@@ -49,8 +49,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 1;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="sqw";
             nProcs = 1;
             eRange = "large";
@@ -62,8 +61,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 3;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="dnd";
             nProcs = 1;
             eRange = "large";
@@ -75,8 +73,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 2;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="dnd";
             nProcs = 1;
             eRange = "large";
@@ -88,8 +85,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 1;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="dnd";
             nProcs = 1;
             eRange = "large";
@@ -101,8 +97,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 3;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="sqw";
             nProcs = 1;
             eRange = "medium";
@@ -114,8 +109,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 2;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="sqw";
             nProcs = 1;
             eRange = "medium";
@@ -127,8 +121,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 1;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="sqw";
             nProcs = 1;
             eRange = "medium";
@@ -140,8 +133,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 3;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="dnd";
             nProcs = 1;
             eRange = "medium";
@@ -153,8 +145,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 2;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="dnd";
             nProcs = 1;
             eRange = "medium";
@@ -166,8 +157,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 1;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="dnd";
             nProcs = 1;
             eRange = "medium";
@@ -179,8 +169,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 3;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="sqw";
             nProcs = 1;
             eRange = "small";
@@ -192,8 +181,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 2;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="sqw";
             nProcs = 1;
             eRange = "small";
@@ -205,8 +193,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 1;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="sqw";
             nProcs = 1;
             eRange = "small";
@@ -218,8 +205,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 3;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="dnd";
             nProcs = 1;
             eRange = "small";
@@ -231,8 +217,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 2;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="dnd";
             nProcs = 1;
             eRange = "small";
@@ -244,8 +229,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 1;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="dnd";
             nProcs = 1;
             eRange = "small";
@@ -257,8 +241,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 2;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="sqw";
             nProcs = 1;
             eRange = "medium";
@@ -270,8 +253,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 1;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="sqw";
             nProcs = 1;
             eRange = "medium";
@@ -283,8 +265,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 2;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="dnd";
             nProcs = 1;
             eRange = "medium";
@@ -296,8 +277,7 @@ classdef test_bm_cut_sqw_smallData < TestCase
             func_name = function_stack.name;
             obj.function_name = func_name + ".csv"; 
             nDims = 1;
-            data = "ironSmall";
-            dataSource = gen_bm_cut_data(data);
+            dataSource = fullfile(obj.common_data,'NumData6.sqw');
             objType="dnd";
             nProcs = 1;
             eRange = "medium";
@@ -311,8 +291,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 3;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "large";
@@ -324,8 +304,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 2;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "large";
@@ -337,8 +317,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 1;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "large";
@@ -350,8 +330,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 3;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "large";
@@ -363,8 +343,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 2;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 1;
 %             eRange = "large";
@@ -376,8 +356,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 1;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "large";
@@ -389,8 +369,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 3;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "medium";
@@ -402,8 +382,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 2;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "medium";
@@ -415,8 +395,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 1;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "medium";
@@ -428,8 +408,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 3;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "medium";
@@ -441,8 +421,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 2;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "medium";
@@ -454,8 +434,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 1;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "medium";
@@ -467,8 +447,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 3;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "small";
@@ -480,8 +460,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 2;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "small";
@@ -493,8 +473,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 1;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "small";
@@ -506,8 +486,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 3;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "small";
@@ -519,8 +499,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 2;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "small";
@@ -532,8 +512,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 1;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "small";
@@ -545,8 +525,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 2;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "medium";
@@ -558,8 +538,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 1;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "medium";
@@ -571,8 +551,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 2;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "medium";
@@ -584,8 +564,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 1;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "medium";
@@ -597,8 +577,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 3;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "large";
@@ -610,8 +590,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 2;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "large";
@@ -623,8 +603,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 1;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "large";
@@ -636,8 +616,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 3;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "large";
@@ -649,8 +629,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 2;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "large";
@@ -662,8 +642,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 1;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "large";
@@ -675,8 +655,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 3;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "medium";
@@ -688,8 +668,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 2;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "medium";
@@ -701,8 +681,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 1;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "medium";
@@ -714,8 +694,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 3;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "medium";
@@ -727,8 +707,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 2;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "medium";
@@ -740,8 +720,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 1;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "medium";
@@ -753,8 +733,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 3;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "small";
@@ -766,8 +746,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 2;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "small";
@@ -779,8 +759,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 1;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "small";
@@ -792,8 +772,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 3;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "small";
@@ -805,8 +785,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 2;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "small";
@@ -818,8 +798,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 1;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "small";
@@ -831,8 +811,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 2;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "medium";
@@ -844,8 +824,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 1;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "medium";
@@ -857,8 +837,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 2;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "medium";
@@ -870,8 +850,8 @@ classdef test_bm_cut_sqw_smallData < TestCase
 %             func_name = function_stack.name;
 %             obj.function_name = func_name + ".csv"; 
 %             nDims = 1;
-%             data = "ironSmall";
-%             dataSource = gen_bm_cut_data(data);
+%             
+%             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "medium";
