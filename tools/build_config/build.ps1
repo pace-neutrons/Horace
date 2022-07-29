@@ -188,7 +188,7 @@ function Invoke-Test {
 function Invoke-Benchmark {
   param([string]$build_dir, [string]$build_config)
   Write-Output "`nRunning CMake benchmark step..."
-  Write-And-Invoke "cmake --build ""$build_dir"" --config ""$build_config"" -- benchmark_all"
+  Write-And-Invoke "cmake --build ""$build_dir"" --config ""$build_config"" --target benchmark_all"
   if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
   }

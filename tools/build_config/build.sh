@@ -69,12 +69,12 @@ function run_benchmarks() {
   local build_dir=$1
 
   echo -e "\nRunning benchmark step..."
-  echo_and_run "cmake --build ${build_dir} -- benchmark_all"
+  echo_and_run "cmake --build ${build_dir} --target benchmark_all"
 }
 
 function run_analysis() {
   local build_dir=$1
-  echo_and_run "cmake --build ${build_dir} -- analyse"
+  echo_and_run "cmake --build ${build_dir} --target analyse"
 }
 
 function run_package() {
