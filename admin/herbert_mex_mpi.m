@@ -21,7 +21,7 @@ if ispc()
         mpi_lib_folder = fullfile(mpi_folder,'lib');
 
     else
-        % let's use Microsoft MPI, compartible with mpich
+        % use Microsoft MPI, compatible with mpich
         mpi_folder = 'C:\programming\MS_MPI_sdk';
         mpi_lib_folder = fullfile(mpi_folder,'lib','x64');
         mpi_hdrs_folder = fullfile(mpi_folder,'include');
@@ -29,7 +29,7 @@ if ispc()
     mpi_lib_2use ={'msmpi.lib'};
 elseif isunix()
     if use_her_mpich
-        % let's use MPICH
+        % use MPICH
         %mpi_folder = '/usr/local/mpich/';
         mpi_folder = fullfile(pths.low_level,'external','glnxa64','mpich-3.3a2');
         mpi_hdrs_folder = fullfile(mpi_folder,'include');
@@ -44,11 +44,12 @@ elseif isunix()
     %mpi_folder = '/home/isis_direct_soft/mpich/';
 
     mpi_lib_folder = fullfile(mpi_folder,'lib');
-    %
+
 else
     error('HERBERT_MEX_MPI:not_implemented',...
         'Mac build is not implemented. Use cmake');
 end
+
 % Executable part
 ok = true;
 mess = [];
