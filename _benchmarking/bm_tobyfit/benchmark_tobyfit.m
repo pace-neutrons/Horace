@@ -1,4 +1,4 @@
-function benchmark_tobyfit(sqw_obj,nProcs,filename)
+function benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,filename)
 %BENCHMARK_TOBYFIT Summary of this function goes here
 %   Detailed explanation goes here
 %% Setup nprocs and other config info with hpc_config() (save intiial config details for later)
@@ -25,6 +25,7 @@ else
 end
 
 %% Start profiler
+sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
 efix = 50;
 instrument = let_instrument_obj_for_tests(efix, 280, 140, 20, 2, 2);
 sqw_obj = set_instrument(sqw_obj, instrument);

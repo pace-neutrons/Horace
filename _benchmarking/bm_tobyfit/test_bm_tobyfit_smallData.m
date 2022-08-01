@@ -25,11 +25,10 @@ classdef test_bm_tobyfit_smallData < TestCase
             obj.function_name = func_name + ".csv";
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType = "small";
-            dataNum = "small";
+            dataType = 'small';
+            dataNum = 'small';
             nProcs = 1;
-            sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-            benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+            benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
         end
     
         function test_bm_tobyfit_1D_smallData_mediumNumber_1procs(obj)
@@ -38,11 +37,10 @@ classdef test_bm_tobyfit_smallData < TestCase
             obj.function_name = func_name + ".csv";
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType = "small";
-            dataNum = "medium";
+            dataType = 'small';
+            dataNum = 'medium';
             nProcs = 1;
-            sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-            benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+            benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
         end
  
         function test_bm_tobyfit_1D_smallData_largeNumber_1procs(obj)
@@ -51,11 +49,10 @@ classdef test_bm_tobyfit_smallData < TestCase
             obj.function_name = func_name + ".csv";
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType = "small";
-            dataNum = "large";
+            dataType = 'small';
+            dataNum = 'large';
             nProcs = 1;
-            sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-            benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+            benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
         end
 
         function test_bm_tobyfit_2D_smallData_smallNumber_1procs(obj)
@@ -64,11 +61,10 @@ classdef test_bm_tobyfit_smallData < TestCase
             obj.function_name = func_name + ".csv";
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType = "small";
-            dataNum = "small";
+            dataType = 'small';
+            dataNum = 'small';
             nProcs = 1;
-            sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-            benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+            benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
         end
 
         function test_bm_tobyfit_2D_smallData_mediumNumber_1procs(obj)
@@ -77,11 +73,10 @@ classdef test_bm_tobyfit_smallData < TestCase
             obj.function_name = func_name + ".csv";
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType = "small";
+            dataType = 'small';
             dataNum = "medium";
             nProcs = 1;
-            sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-            benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+            benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
         end
 
         function test_bm_tobyfit_2D_smallData_largeNumber_1procs(obj)
@@ -90,11 +85,10 @@ classdef test_bm_tobyfit_smallData < TestCase
             obj.function_name = func_name + ".csv";
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType = "small";
-            dataNum = "large";
+            dataType = 'small';
+            dataNum = 'large';
             nProcs = 1;
-            sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-            benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+            benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
         end
 
         function test_bm_tobyfit_3D_smallData_smallNumber_1procs(obj)
@@ -103,11 +97,10 @@ classdef test_bm_tobyfit_smallData < TestCase
             obj.function_name = func_name + ".csv";
             nDims=3;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType = "small";
-            dataNum = "small";
+            dataType = 'small';
+            dataNum = 'small';
             nProcs = 1;
-            sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-            benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+            benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
         end
 
         function test_bm_tobyfit_3D_smallData_mediumNumber_1procs(obj)
@@ -116,11 +109,10 @@ classdef test_bm_tobyfit_smallData < TestCase
             obj.function_name = func_name + ".csv";
             nDims=3;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType = "small";
+            dataType = 'small';
             dataNum = "medium";
             nProcs = 1;
-            sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-            benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+            benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
         end
 
         function test_bm_tobyfit_3D_smallData_largeNumber_1procs(obj)
@@ -129,11 +121,10 @@ classdef test_bm_tobyfit_smallData < TestCase
             obj.function_name = func_name + ".csv";
             nDims=3;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-            dataType = "small";
-            dataNum = "large";
+            dataType = 'small';
+            dataNum = 'large';
             nProcs = 1;
-            sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-            benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+            benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
         end
 
 %         function test_bm_tobyfit_1D_smallData_smallNumber_2procs(obj)
@@ -142,11 +133,10 @@ classdef test_bm_tobyfit_smallData < TestCase
 %             obj.function_name = func_name + ".csv";
 %             nDims=1;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-%             dataType = "small";
-%             dataNum = "small";
+%             dataType = 'small';
+%             dataNum = 'small';
 %             nProcs = 2;
-%             sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+%             benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
 %         end
 %     
 %         function test_bm_tobyfit_1D_smallData_mediumNumber_2procs(obj)
@@ -155,11 +145,10 @@ classdef test_bm_tobyfit_smallData < TestCase
 %             obj.function_name = func_name + ".csv";
 %             nDims=1;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-%             dataType = "small";
+%             dataType = 'small';
 %             dataNum = "medium";
 %             nProcs = 2;
-%             sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+%             benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
 %         end
 %  
 %         function test_bm_tobyfit_1D_smallData_largeNumber_2procs(obj)
@@ -168,11 +157,10 @@ classdef test_bm_tobyfit_smallData < TestCase
 %             obj.function_name = func_name + ".csv";
 %             nDims=1;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-%             dataType = "small";
-%             dataNum = "large";
+%             dataType = 'small';
+%             dataNum = 'large';
 %             nProcs = 2;
-%             sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+%             benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_2D_smallData_smallNumber_2procs(obj)
@@ -181,11 +169,10 @@ classdef test_bm_tobyfit_smallData < TestCase
 %             obj.function_name = func_name + ".csv";
 %             nDims=2;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-%             dataType = "small";
-%             dataNum = "small";
+%             dataType = 'small';
+%             dataNum = 'small';
 %             nProcs = 2;
-%             sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+%             benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_2D_smallData_mediumNumber_2procs(obj)
@@ -194,11 +181,10 @@ classdef test_bm_tobyfit_smallData < TestCase
 %             obj.function_name = func_name + ".csv";
 %             nDims=2;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-%             dataType = "small";
+%             dataType = 'small';
 %             dataNum = "medium";
 %             nProcs = 2;
-%             sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+%             benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_2D_smallData_largeNumber_2procs(obj)
@@ -207,11 +193,10 @@ classdef test_bm_tobyfit_smallData < TestCase
 %             obj.function_name = func_name + ".csv";
 %             nDims=2;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-%             dataType = "small";
-%             dataNum = "large";
+%             dataType = 'small';
+%             dataNum = 'large';
 %             nProcs = 2;
-%             sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+%             benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_3D_smallData_smallNumber_2procs(obj)
@@ -220,11 +205,10 @@ classdef test_bm_tobyfit_smallData < TestCase
 %             obj.function_name = func_name + ".csv";
 %             nDims=3;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-%             dataType = "small";
-%             dataNum = "small";
+%             dataType = 'small';
+%             dataNum = 'small';
 %             nProcs = 2;
-%             sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+%             benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_3D_smallData_mediumNumber_2procs(obj)
@@ -233,11 +217,10 @@ classdef test_bm_tobyfit_smallData < TestCase
 %             obj.function_name = func_name + ".csv";
 %             nDims=3;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-%             dataType = "small";
+%             dataType = 'small';
 %             dataNum = "medium";
 %             nProcs = 2;
-%             sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+%             benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_3D_smallData_largeNumber_2procs(obj)
@@ -246,11 +229,10 @@ classdef test_bm_tobyfit_smallData < TestCase
 %             obj.function_name = func_name + ".csv";
 %             nDims=3;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-%             dataType = "small";
-%             dataNum = "large";
+%             dataType = 'small';
+%             dataNum = 'large';
 %             nProcs = 2;
-%             sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+%             benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_1D_smallData_smallNumber_4procs(obj)
@@ -259,11 +241,10 @@ classdef test_bm_tobyfit_smallData < TestCase
 %             obj.function_name = func_name + ".csv";
 %             nDims=1;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-%             dataType = "small";
-%             dataNum = "small";
+%             dataType = 'small';
+%             dataNum = 'small';
 %             nProcs = 4;
-%             sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+%             benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
 %         end
 %     
 %         function test_bm_tobyfit_1D_smallData_mediumNumber_4procs(obj)
@@ -272,11 +253,10 @@ classdef test_bm_tobyfit_smallData < TestCase
 %             obj.function_name = func_name + ".csv";
 %             nDims=1;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-%             dataType = "small";
+%             dataType = 'small';
 %             dataNum = "medium";
 %             nProcs = 4;
-%             sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+%             benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
 %         end
 %  
 %         function test_bm_tobyfit_1D_smallData_largeNumber_4procs(obj)
@@ -285,11 +265,10 @@ classdef test_bm_tobyfit_smallData < TestCase
 %             obj.function_name = func_name + ".csv";
 %             nDims=1;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-%             dataType = "small";
-%             dataNum = "large";
+%             dataType = 'small';
+%             dataNum = 'large';
 %             nProcs = 4;
-%             sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+%             benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_2D_smallData_smallNumber_4procs(obj)
@@ -298,11 +277,10 @@ classdef test_bm_tobyfit_smallData < TestCase
 %             obj.function_name = func_name + ".csv";
 %             nDims=2;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-%             dataType = "small";
-%             dataNum = "small";
+%             dataType = 'small';
+%             dataNum = 'small';
 %             nProcs = 4;
-%             sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+%             benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_2D_smallData_mediumNumber_4procs(obj)
@@ -311,11 +289,10 @@ classdef test_bm_tobyfit_smallData < TestCase
 %             obj.function_name = func_name + ".csv";
 %             nDims=2;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-%             dataType = "small";
+%             dataType = 'small';
 %             dataNum = "medium";
 %             nProcs = 4;
-%             sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+%             benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_2D_smallData_largeNumber_4procs(obj)
@@ -324,11 +301,10 @@ classdef test_bm_tobyfit_smallData < TestCase
 %             obj.function_name = func_name + ".csv";
 %             nDims=2;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-%             dataType = "small";
-%             dataNum = "large";
+%             dataType = 'small';
+%             dataNum = 'large';
 %             nProcs = 4;
-%             sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+%             benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_3D_smallData_smallNumber_4procs(obj)
@@ -337,11 +313,10 @@ classdef test_bm_tobyfit_smallData < TestCase
 %             obj.function_name = func_name + ".csv";
 %             nDims=3;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-%             dataType = "small";
-%             dataNum = "small";
+%             dataType = 'small';
+%             dataNum = 'small';
 %             nProcs = 4;
-%             sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+%             benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_3D_smallData_mediumNumber_4procs(obj)
@@ -350,11 +325,10 @@ classdef test_bm_tobyfit_smallData < TestCase
 %             obj.function_name = func_name + ".csv";
 %             nDims=3;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-%             dataType = "small";
+%             dataType = 'small';
 %             dataNum = "medium";
 %             nProcs = 4;
-%             sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+%             benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
 %         end
 % 
 %         function test_bm_tobyfit_3D_smallData_largeNumber_4procs(obj)
@@ -363,11 +337,10 @@ classdef test_bm_tobyfit_smallData < TestCase
 %             obj.function_name = func_name + ".csv";
 %             nDims=3;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
-%             dataType = "small";
-%             dataNum = "large";
+%             dataType = 'small';
+%             dataNum = 'large';
 %             nProcs = 4;
-%             sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataType,dataNum);
-%             benchmark_tobyfit(sqw_obj,nProcs,obj.function_name);
+%             benchmark_tobyfit(nDims,dataSource,dataType,dataNum,nProcs,obj.function_name);
 %         end
 
     end

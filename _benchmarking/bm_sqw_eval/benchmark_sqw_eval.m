@@ -1,4 +1,4 @@
-function benchmark_sqw_eval(sqw_obj,sqw_func,params,nProcs,filename)
+function benchmark_sqw_eval(nDims,dataSource,dataType,dataNum,objType,sqw_func,params,nProcs,filename)
 %BENCHMARK_SQW_EVAL Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -26,8 +26,9 @@ else
 end
 
 %% Start profiler
+sqw_dnd_obj = gen_bm_sqw_eval_data(nDims,dataSource,dataType,dataNum,objType);
 profile on
-w_sqw=sqw_eval(sqw_obj,sqw_func,params);
+w_sqw=sqw_eval(sqw_dnd_obj,sqw_func,params);
 prof_results = profile('info');
 prof_folder = fullfile(fileparts(fileparts(mfilename('fullpath')...
                 )),'bm_sqw_eval');
