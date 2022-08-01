@@ -21,9 +21,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         
         function test_bm_cut_sqw_largeData_3D_sqw_largeEnergy_1procs(obj)
             % Get function name for file saving purposes 
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             % Set the parameters: dimensions of cut, size of data set, type
             % of object, number of prcessors and size of energy range
             nDims = 3;
@@ -36,9 +34,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_largeData_2D_sqw_largeEnergy_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 2;
 
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -49,9 +45,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_largeData_1D_sqw_largeEnergy_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 1;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             objType="sqw";
@@ -61,9 +55,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_largeData_3D_dnd_largeEnergy_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 3;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             objType="dnd";
@@ -73,9 +65,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_largeData_2D_dnd_largeEnergy_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 2;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             objType="dnd";
@@ -85,9 +75,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_largeData_1D_dnd_largeEnergy_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 1;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             objType="dnd";
@@ -97,9 +85,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_largeData_3D_sqw_mediumEnergy_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 3;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             objType="sqw";
@@ -109,9 +95,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_largeData_2D_sqw_mediumEnergy_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 2;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             objType="sqw";
@@ -121,9 +105,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_largeData_1D_sqw_mediumEnergy_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 1;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             objType="sqw";
@@ -133,9 +115,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_largeData_3D_dnd_mediumEnergy_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 3;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             objType="dnd";
@@ -145,9 +125,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_largeData_2D_dnd_mediumEnergy_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 2;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             objType="dnd";
@@ -157,9 +135,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_largeData_1D_dnd_mediumEnergy_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 1;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             objType="dnd";
@@ -169,9 +145,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_largeData_3D_sqw_smallEnergy_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 3;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             objType="sqw";
@@ -181,9 +155,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
         
         function test_bm_cut_sqw_largeData_2D_sqw_smallEnergy_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 2;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             objType="sqw";
@@ -193,9 +165,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_largeData_1D_sqw_smallEnergy_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 1;
 
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -206,9 +176,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_largeData_3D_dnd_smallEnergy_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 3;
 
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -219,9 +187,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_largeData_2D_dnd_smallEnergy_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 2;
 
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -232,9 +198,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_largeData_1D_dnd_smallEnergy_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 1;
 
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -245,9 +209,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_contiguous_largeData_2D_sqw_mediumE_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 2;
 
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -258,9 +220,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_contiguous_largeData_1D_sqw_mediumE_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 1;
 
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -271,9 +231,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_contiguous_largeData_2D_dnd_mediumE_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 2;
 
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -284,9 +242,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
         end
 
         function test_bm_cut_sqw_contiguous_largeData_1D_dnd_mediumE_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv"; 
+            obj.function_name = get_bm_name();
             nDims = 1;
 
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -299,9 +255,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %% Below functions are for when cut_sqw is parallelised: using 2 and 4 processors
 
 %         function test_bm_cut_sqw_largeData_3D_sqw_largeEnergy_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 3;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -312,9 +266,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_2D_sqw_largeEnergy_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 2;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -325,9 +277,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_1D_sqw_largeEnergy_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 1;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -338,9 +288,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_3D_dnd_largeEnergy_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 3;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -351,9 +299,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_2D_dnd_largeEnergy_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 2;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -364,9 +310,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_1D_dnd_largeEnergy_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 1;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -377,9 +321,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_3D_sqw_mediumEnergy_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 3;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -390,9 +332,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_2D_sqw_mediumEnergy_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 2;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -403,9 +343,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_1D_sqw_mediumEnergy_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 1;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -416,9 +354,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_3D_dnd_mediumEnergy_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 3;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -429,9 +365,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_2D_dnd_mediumEnergy_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 2;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -442,9 +376,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_1D_dnd_mediumEnergy_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 1;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -455,9 +387,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_3D_sqw_smallEnergy_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 3;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -468,9 +398,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 %         
 %         function test_bm_cut_sqw_largeData_2D_sqw_smallEnergy_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 2;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -481,9 +409,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_1D_sqw_smallEnergy_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 1;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -494,9 +420,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_3D_dnd_smallEnergy_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 3;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -507,9 +431,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_2D_dnd_smallEnergy_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 2;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -520,9 +442,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_1D_dnd_smallEnergy_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 1;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -533,9 +453,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_contiguous_largeData_2D_sqw_mediumE_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 2;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -546,9 +464,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_contiguous_largeData_1D_sqw_mediumE_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 1;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -559,9 +475,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 
 %         function test_bm_cut_sqw_contiguous_largeData_2D_dnd_mediumE_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 2;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -572,9 +486,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_contiguous_largeData_1D_dnd_mediumE_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 1;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -585,9 +497,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 %         
 %         function test_bm_cut_sqw_largeData_3D_sqw_largeEnergy_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 3;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -598,9 +508,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_2D_sqw_largeEnergy_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 2;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -611,9 +519,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_1D_sqw_largeEnergy_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 1;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -624,9 +530,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_3D_dnd_largeEnergy_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 3;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -637,9 +541,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_2D_dnd_largeEnergy_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 2;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -650,9 +552,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_1D_dnd_largeEnergy_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 1;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -663,9 +563,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_3D_sqw_mediumEnergy_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 3;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -676,9 +574,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_2D_sqw_mediumEnergy_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 2;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -689,9 +585,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_1D_sqw_mediumEnergy_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 1;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -702,9 +596,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_3D_dnd_mediumEnergy_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 3;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -715,9 +607,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_2D_dnd_mediumEnergy_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 2;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -728,9 +618,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_1D_dnd_mediumEnergy_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 1;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -741,9 +629,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_3D_sqw_smallEnergy_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 3;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -754,9 +640,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 %         
 %         function test_bm_cut_sqw_largeData_2D_sqw_smallEnergy_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 2;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -767,9 +651,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_1D_sqw_smallEnergy_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 1;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -780,9 +662,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_3D_dnd_smallEnergy_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 3;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -793,9 +673,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_2D_dnd_smallEnergy_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 2;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -806,9 +684,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_largeData_1D_dnd_smallEnergy_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 1;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -819,9 +695,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_contiguous_largeData_2D_sqw_mediumE_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 2;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -832,9 +706,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_contiguous_largeData_1D_sqw_mediumE_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 1;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -845,9 +717,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_contiguous_largeData_2D_dnd_mediumE_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 2;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
@@ -858,9 +728,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
 % 
 %         function test_bm_cut_sqw_contiguous_largeData_1D_dnd_mediumE_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv"; 
+%             obj.function_name = get_bm_name();
 %             nDims = 1;
 % 
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');

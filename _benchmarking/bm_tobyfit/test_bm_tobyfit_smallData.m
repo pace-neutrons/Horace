@@ -20,9 +20,7 @@ classdef test_bm_tobyfit_smallData < TestCase
         end
         
         function test_bm_tobyfit_1D_smallData_smallNumber_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
             dataType = 'small';
@@ -32,9 +30,7 @@ classdef test_bm_tobyfit_smallData < TestCase
         end
     
         function test_bm_tobyfit_1D_smallData_mediumNumber_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
             dataType = 'small';
@@ -44,9 +40,7 @@ classdef test_bm_tobyfit_smallData < TestCase
         end
  
         function test_bm_tobyfit_1D_smallData_largeNumber_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
             dataType = 'small';
@@ -56,9 +50,7 @@ classdef test_bm_tobyfit_smallData < TestCase
         end
 
         function test_bm_tobyfit_2D_smallData_smallNumber_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
             dataType = 'small';
@@ -68,9 +60,7 @@ classdef test_bm_tobyfit_smallData < TestCase
         end
 
         function test_bm_tobyfit_2D_smallData_mediumNumber_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
             dataType = 'small';
@@ -80,9 +70,7 @@ classdef test_bm_tobyfit_smallData < TestCase
         end
 
         function test_bm_tobyfit_2D_smallData_largeNumber_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
             dataType = 'small';
@@ -92,9 +80,7 @@ classdef test_bm_tobyfit_smallData < TestCase
         end
 
         function test_bm_tobyfit_3D_smallData_smallNumber_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=3;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
             dataType = 'small';
@@ -104,9 +90,7 @@ classdef test_bm_tobyfit_smallData < TestCase
         end
 
         function test_bm_tobyfit_3D_smallData_mediumNumber_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=3;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
             dataType = 'small';
@@ -116,9 +100,7 @@ classdef test_bm_tobyfit_smallData < TestCase
         end
 
         function test_bm_tobyfit_3D_smallData_largeNumber_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=3;
             dataSource = fullfile(obj.common_data,'NumData6.sqw');
             dataType = 'small';
@@ -128,9 +110,7 @@ classdef test_bm_tobyfit_smallData < TestCase
         end
 
 %         function test_bm_tobyfit_1D_smallData_smallNumber_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv";
+%             obj.function_name = get_bm_name();
 %             nDims=1;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             dataType = 'small';
@@ -140,9 +120,7 @@ classdef test_bm_tobyfit_smallData < TestCase
 %         end
 %     
 %         function test_bm_tobyfit_1D_smallData_mediumNumber_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv";
+%             obj.function_name = get_bm_name();
 %             nDims=1;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             dataType = 'small';
@@ -152,9 +130,7 @@ classdef test_bm_tobyfit_smallData < TestCase
 %         end
 %  
 %         function test_bm_tobyfit_1D_smallData_largeNumber_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv";
+%             obj.function_name = get_bm_name();
 %             nDims=1;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             dataType = 'small';
@@ -164,9 +140,7 @@ classdef test_bm_tobyfit_smallData < TestCase
 %         end
 % 
 %         function test_bm_tobyfit_2D_smallData_smallNumber_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv";
+%             obj.function_name = get_bm_name();
 %             nDims=2;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             dataType = 'small';
@@ -176,9 +150,7 @@ classdef test_bm_tobyfit_smallData < TestCase
 %         end
 % 
 %         function test_bm_tobyfit_2D_smallData_mediumNumber_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv";
+%             obj.function_name = get_bm_name();
 %             nDims=2;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             dataType = 'small';
@@ -188,9 +160,7 @@ classdef test_bm_tobyfit_smallData < TestCase
 %         end
 % 
 %         function test_bm_tobyfit_2D_smallData_largeNumber_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv";
+%             obj.function_name = get_bm_name();
 %             nDims=2;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             dataType = 'small';
@@ -200,9 +170,7 @@ classdef test_bm_tobyfit_smallData < TestCase
 %         end
 % 
 %         function test_bm_tobyfit_3D_smallData_smallNumber_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv";
+%             obj.function_name = get_bm_name();
 %             nDims=3;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             dataType = 'small';
@@ -212,9 +180,7 @@ classdef test_bm_tobyfit_smallData < TestCase
 %         end
 % 
 %         function test_bm_tobyfit_3D_smallData_mediumNumber_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv";
+%             obj.function_name = get_bm_name();
 %             nDims=3;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             dataType = 'small';
@@ -224,9 +190,7 @@ classdef test_bm_tobyfit_smallData < TestCase
 %         end
 % 
 %         function test_bm_tobyfit_3D_smallData_largeNumber_2procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv";
+%             obj.function_name = get_bm_name();
 %             nDims=3;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             dataType = 'small';
@@ -236,9 +200,7 @@ classdef test_bm_tobyfit_smallData < TestCase
 %         end
 % 
 %         function test_bm_tobyfit_1D_smallData_smallNumber_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv";
+%             obj.function_name = get_bm_name();
 %             nDims=1;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             dataType = 'small';
@@ -248,9 +210,7 @@ classdef test_bm_tobyfit_smallData < TestCase
 %         end
 %     
 %         function test_bm_tobyfit_1D_smallData_mediumNumber_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv";
+%             obj.function_name = get_bm_name();
 %             nDims=1;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             dataType = 'small';
@@ -260,9 +220,7 @@ classdef test_bm_tobyfit_smallData < TestCase
 %         end
 %  
 %         function test_bm_tobyfit_1D_smallData_largeNumber_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv";
+%             obj.function_name = get_bm_name();
 %             nDims=1;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             dataType = 'small';
@@ -272,9 +230,7 @@ classdef test_bm_tobyfit_smallData < TestCase
 %         end
 % 
 %         function test_bm_tobyfit_2D_smallData_smallNumber_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv";
+%             obj.function_name = get_bm_name();
 %             nDims=2;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             dataType = 'small';
@@ -284,9 +240,7 @@ classdef test_bm_tobyfit_smallData < TestCase
 %         end
 % 
 %         function test_bm_tobyfit_2D_smallData_mediumNumber_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv";
+%             obj.function_name = get_bm_name();
 %             nDims=2;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             dataType = 'small';
@@ -296,9 +250,7 @@ classdef test_bm_tobyfit_smallData < TestCase
 %         end
 % 
 %         function test_bm_tobyfit_2D_smallData_largeNumber_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv";
+%             obj.function_name = get_bm_name();
 %             nDims=2;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             dataType = 'small';
@@ -308,9 +260,7 @@ classdef test_bm_tobyfit_smallData < TestCase
 %         end
 % 
 %         function test_bm_tobyfit_3D_smallData_smallNumber_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv";
+%             obj.function_name = get_bm_name();
 %             nDims=3;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             dataType = 'small';
@@ -320,9 +270,7 @@ classdef test_bm_tobyfit_smallData < TestCase
 %         end
 % 
 %         function test_bm_tobyfit_3D_smallData_mediumNumber_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv";
+%             obj.function_name = get_bm_name();
 %             nDims=3;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             dataType = 'small';
@@ -332,9 +280,7 @@ classdef test_bm_tobyfit_smallData < TestCase
 %         end
 % 
 %         function test_bm_tobyfit_3D_smallData_largeNumber_4procs(obj)
-%             function_stack = dbstack;
-%             func_name = function_stack.name;
-%             obj.function_name = func_name + ".csv";
+%             obj.function_name = get_bm_name();
 %             nDims=3;
 %             dataSource = fullfile(obj.common_data,'NumData6.sqw');
 %             dataType = 'small';
