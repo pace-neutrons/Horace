@@ -1,6 +1,7 @@
 function [cut1, cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum)
-% common_data=fullfile(fileparts(fileparts(mfilename('fullpath')...
-%     )),'common_data');
+
+% pths = horace_paths;
+% common_data = pths.bm_common;
 proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
 
 switch nDims

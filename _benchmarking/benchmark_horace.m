@@ -73,10 +73,9 @@ end
 
 % Generate full path to benchmarking tests
 % --------------------------------------
-horace_path = horace_root();
-bm_path = fullfile(horace_path,'_benchmarking');
-bm_folders_full = cellfun(@(x)fullfile(bm_path, x), bm_folders, ...
-    'UniformOutput', false);
+pths = horace_paths;
+bm_path = pths.bm;
+bm_folders_full = fullfile(bm_path, bm_folders);
 
 % Get and store intial Horace config
 % --------------------------------------

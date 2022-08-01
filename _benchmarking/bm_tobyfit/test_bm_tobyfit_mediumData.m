@@ -16,6 +16,8 @@ classdef test_bm_tobyfit_mediumData < TestCase
             end
 
             obj = obj@TestCase(test_class_name);
+            pths = horace_paths;
+            obj.common_data = pths.bm_common;
         end
         
         function test_bm_tobyfit_1D_mediumData_smallNumber_1procs(obj)

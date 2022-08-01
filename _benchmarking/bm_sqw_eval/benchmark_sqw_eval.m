@@ -30,8 +30,9 @@ sqw_dnd_obj = gen_bm_sqw_eval_data(nDims,dataSource,dataType,dataNum,objType);
 profile on
 w_sqw=sqw_eval(sqw_dnd_obj,sqw_func,params);
 prof_results = profile('info');
-prof_folder = fullfile(fileparts(fileparts(mfilename('fullpath')...
-                )),'bm_sqw_eval');
+
+pths = horace_paths;
+prof_folder = fullfile(pths.bm,'bm_sqw_eval');
 dump_profile(prof_results,fullfile(prof_folder,filename));
 end
 

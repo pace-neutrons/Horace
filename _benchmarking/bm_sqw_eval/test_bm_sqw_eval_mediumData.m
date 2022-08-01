@@ -6,8 +6,7 @@ classdef test_bm_sqw_eval_mediumData < TestCase
         function_name;
         sqw_eval_func=@demo_FM_spinwaves
         params = [250 0 2.4 10 5];
-        common_data=fullfile(fileparts(fileparts(mfilename('fullpath')...
-            )),'common_data');
+        common_data;
     end
 
     methods
@@ -17,6 +16,8 @@ classdef test_bm_sqw_eval_mediumData < TestCase
                 test_class_name = 'test_bm_sqw_eval_mediumData';
             end
             obj = obj@TestCase(test_class_name);
+            pths = horace_paths;
+            obj.common_data = pths.bm_common;
         end
 
         function test_bm_sqw_eval_1D_sqw_mediumData_smallNumber_1procs(obj)

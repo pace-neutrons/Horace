@@ -33,8 +33,9 @@ sqw_obj = set_instrument(sqw_obj, instrument);
 profile on
 w_sqw=tobyfit(sqw_obj);
 prof_results = profile('info');
-prof_folder = fullfile(fileparts(fileparts(mfilename('fullpath')...
-                )),'bm_tobyfit');
+
+pths = horace_paths;
+prof_folder = fullfile(pths.bm,'bm_tobyfit');
 dump_profile(prof_results,fullfile(prof_folder,filename));
 end
 

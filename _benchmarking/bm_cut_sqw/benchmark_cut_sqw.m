@@ -15,8 +15,12 @@ function benchmark_cut_sqw(nDims,nData,objType,nProcs,eRange,filename,contiguous
 
 %% Setup nprocs and other config info with hpc_config() (save intiial config details for later)
 
+
 hpc = hpc_config();
 cur_hpc_config = hpc.get_data_to_store();
+
+% Create cleanup object (*** MUST BE DONE BEFORE ANY CHANGES TO CONFIGURATIONS)
+cleanup_obj = onCleanup(@()benchmark_cut_sqw_cleanup(cur_hpc_config));
 
 % remove configurations from memory. Ensure only stored configurat  ions are
 % stored
@@ -135,12 +139,11 @@ end
 
 %% dump benchmark info (setup seperate dumps function for differnet type of dumps: html, all text(profsave), csv, just bm time...
 prof_result = profile('info');
-prof_folder = fullfile(fileparts(fileparts(mfilename('fullpath')...
-                )),'bm_cut_sqw');
+pths = horace_paths;
+
+prof_folder = fullfile(pths.bm,'bm_cut_sqw');
 dump_profile(prof_result,fullfile(prof_folder,filename));
 
-% % Create cleanup object (*** MUST BE DONE BEFORE ANY CHANGES TO CONFIGURATIONS)
-cleanup_obj = onCleanup(@()benchmark_cut_sqw_cleanup(cur_hpc_config));
 end
 
 function benchmark_cut_sqw_cleanup(cur_hpc_config)

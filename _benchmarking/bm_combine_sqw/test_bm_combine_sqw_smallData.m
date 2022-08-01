@@ -4,9 +4,7 @@ classdef test_bm_combine_sqw_smallData < TestCase
 
     properties
         function_name;
-        common_data=fullfile(fileparts(fileparts(mfilename('fullpath')...
-                )),'common_data');
-
+        common_data;
     end
 
     methods
@@ -16,6 +14,8 @@ classdef test_bm_combine_sqw_smallData < TestCase
                 test_class_name = 'test_bm_combine_sqw_smallData';
             end
             obj = obj@TestCase(test_class_name);
+            pths = horace_paths;
+            obj.common_data = pths.bm_common;
         end
 
         function test_bm_combine_sqw_1D_smallData_smallNumber_1procs(obj)

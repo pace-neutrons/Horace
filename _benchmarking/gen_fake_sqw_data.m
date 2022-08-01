@@ -9,8 +9,7 @@ function gen_fake_sqw_data(nData)
 
 horace_path=horace_root();
 bm_path=fullfile(horace_path,'_benchmarking');
-common_data=fullfile(bm_path,'common_data');
-% main_sqw=fullfile(common_data,'NumData9.sqw');
+common_data;
 % proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
 sqw_file=[common_data,filesep,'NumData',num2str(nData),'.sqw']; % output sqw file
 efix=787;

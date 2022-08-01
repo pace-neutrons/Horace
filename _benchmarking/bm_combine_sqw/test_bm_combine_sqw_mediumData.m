@@ -1,13 +1,12 @@
 classdef test_bm_combine_sqw_mediumData < TestCase
     %TEST_VM_COMBINE_SQW_MEDIUMDATA Summary of this class goes here
     %   Detailed explanation goes here
-    
+
     properties
         function_name;
-        common_data=fullfile(fileparts(fileparts(mfilename('fullpath')...
-                )),'common_data');
+        common_data;
     end
-    
+
     methods
         function obj = test_bm_combine_sqw_mediumData(test_class_name)
             %TEST_BM_COMBINE_SQW_MEDIUMDATA Construct an instance of this class
@@ -15,8 +14,10 @@ classdef test_bm_combine_sqw_mediumData < TestCase
                 test_class_name = 'test_bm_combine_sqw_mediumData';
             end
             obj = obj@TestCase(test_class_name);
+            pths = horace_paths;
+            obj.common_data = pths.bm_common;
         end
-        
+
         function test_bm_combine_sqw_1D_mediumData_smallNumber_1procs(obj)
             obj.function_name = get_bm_name();
             nDims=1;
@@ -216,4 +217,3 @@ classdef test_bm_combine_sqw_mediumData < TestCase
         end
     end
 end
-

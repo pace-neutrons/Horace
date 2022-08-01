@@ -28,8 +28,9 @@ end
 profile on
 w_sqw=func_eval(sqw_obj,func_handle,params);
 prof_results = profile('info');
-prof_folder = fullfile(fileparts(fileparts(mfilename('fullpath')...
-                )),'bm_func_eval');
+
+pths = horace_paths;
+prof_folder = fullfile(pths.bm,'bm_func_eval');
 dump_profile(prof_results,fullfile(prof_folder,filename));
 end
 

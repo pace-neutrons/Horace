@@ -11,8 +11,7 @@ classdef test_bm_func_eval_mediumData < TestCase
         func_3D = @slow_func3d
         func_3D_params={[700,-1,2,500,0.05,0.05,0.04,0.05,0.05,0.05],...
             @gauss3d,10^0};
-        common_data=fullfile(fileparts(fileparts(mfilename('fullpath')...
-            )),'common_data');
+        common_data;
         
     end
     
@@ -24,6 +23,8 @@ classdef test_bm_func_eval_mediumData < TestCase
                 test_class_name = 'test_bm_sqw_eval_mediumData';
             end
             obj = obj@TestCase(test_class_name);
+            pths = horace_paths;
+            obj.common_data = pths.bm_common;
         end
         
         function test_bm_func_eval_1D_mediumData_smallNumber_1procs(obj)

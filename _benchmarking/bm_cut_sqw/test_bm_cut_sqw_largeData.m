@@ -1,13 +1,12 @@
 classdef test_bm_cut_sqw_largeData < TestCase
     %TEST_BM_CUT_SQW_LARGEDATA Summary of this class goes here
     %   Detailed explanation goes here
-    
+
     properties
         function_name;
-        common_data=fullfile(fileparts(fileparts(mfilename('fullpath')...
-                )),'common_data');
+        common_data;
     end
-    
+
     methods
         function obj = test_bm_cut_sqw_largeData(test_class_name)
             %The constructor cut_sqw class
@@ -16,11 +15,12 @@ classdef test_bm_cut_sqw_largeData < TestCase
                 test_class_name = 'test_bm_cut_sqw_largeData';
             end
             obj = obj@TestCase(test_class_name);
-
+            pths = horace_paths;
+            obj.common_data = pths.bm_common;
         end
-        
+
         function test_bm_cut_sqw_largeData_3D_sqw_largeEnergy_1procs(obj)
-            % Get function name for file saving purposes 
+            % Get function name for file saving purposes
             obj.function_name = get_bm_name();
             % Set the parameters: dimensions of cut, size of data set, type
             % of object, number of prcessors and size of energy range
@@ -153,7 +153,7 @@ classdef test_bm_cut_sqw_largeData < TestCase
             eRange = "small";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
         end
-        
+
         function test_bm_cut_sqw_largeData_2D_sqw_smallEnergy_1procs(obj)
             obj.function_name = get_bm_name();
             nDims = 2;
@@ -251,222 +251,222 @@ classdef test_bm_cut_sqw_largeData < TestCase
             eRange = "medium";
             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,'true');
         end
-        
+
 %% Below functions are for when cut_sqw is parallelised: using 2 and 4 processors
 
 %         function test_bm_cut_sqw_largeData_3D_sqw_largeEnergy_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 3;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_2D_sqw_largeEnergy_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 2;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_1D_sqw_largeEnergy_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 1;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_3D_dnd_largeEnergy_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 3;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_2D_dnd_largeEnergy_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 2;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 1;
 %             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_1D_dnd_largeEnergy_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 1;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_3D_sqw_mediumEnergy_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 3;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_2D_sqw_mediumEnergy_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 2;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_1D_sqw_mediumEnergy_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 1;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_3D_dnd_mediumEnergy_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 3;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_2D_dnd_mediumEnergy_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 2;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_1D_dnd_mediumEnergy_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 1;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_3D_sqw_smallEnergy_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 3;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-%         
+%
 %         function test_bm_cut_sqw_largeData_2D_sqw_smallEnergy_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 2;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_1D_sqw_smallEnergy_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 1;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_3D_dnd_smallEnergy_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 3;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_2D_dnd_smallEnergy_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 2;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_1D_dnd_smallEnergy_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 1;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_contiguous_largeData_2D_sqw_mediumE_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 2;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 2;
 %             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,'ture');
 %         end
-% 
+%
 %         function test_bm_cut_sqw_contiguous_largeData_1D_sqw_mediumE_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 1;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 2;
@@ -477,260 +477,260 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         function test_bm_cut_sqw_contiguous_largeData_2D_dnd_mediumE_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 2;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,'ture');
 %         end
-% 
+%
 %         function test_bm_cut_sqw_contiguous_largeData_1D_dnd_mediumE_2procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 1;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 2;
 %             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,'true');
 %         end
-%         
+%
 %         function test_bm_cut_sqw_largeData_3D_sqw_largeEnergy_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 3;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_2D_sqw_largeEnergy_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 2;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_1D_sqw_largeEnergy_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 1;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_3D_dnd_largeEnergy_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 3;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_2D_dnd_largeEnergy_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 2;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_1D_dnd_largeEnergy_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 1;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "large";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_3D_sqw_mediumEnergy_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 3;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_2D_sqw_mediumEnergy_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 2;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_1D_sqw_mediumEnergy_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 1;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_3D_dnd_mediumEnergy_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 3;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_2D_dnd_mediumEnergy_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 2;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_1D_dnd_mediumEnergy_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 1;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_3D_sqw_smallEnergy_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 3;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-%         
+%
 %         function test_bm_cut_sqw_largeData_2D_sqw_smallEnergy_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 2;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_1D_sqw_smallEnergy_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 1;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_3D_dnd_smallEnergy_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 3;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_2D_dnd_smallEnergy_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 2;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_largeData_1D_dnd_smallEnergy_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 1;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "small";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,false);
 %         end
-% 
+%
 %         function test_bm_cut_sqw_contiguous_largeData_2D_sqw_mediumE_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 2;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,'ture');
 %         end
-% 
+%
 %         function test_bm_cut_sqw_contiguous_largeData_1D_sqw_mediumE_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 1;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="sqw";
 %             nProcs = 4;
 %             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,'true');
 %         end
-% 
+%
 %         function test_bm_cut_sqw_contiguous_largeData_2D_dnd_mediumE_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 2;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 4;
 %             eRange = "medium";
 %             benchmark_cut_sqw(nDims,dataSource,objType,nProcs,eRange,obj.function_name,'ture');
 %         end
-% 
+%
 %         function test_bm_cut_sqw_contiguous_largeData_1D_dnd_mediumE_4procs(obj)
 %             obj.function_name = get_bm_name();
 %             nDims = 1;
-% 
+%
 %             dataSource = fullfile(obj.common_data,'NumData8.sqw');
 %             objType="dnd";
 %             nProcs = 4;
@@ -739,4 +739,3 @@ classdef test_bm_cut_sqw_largeData < TestCase
 %         end
     end
 end
-

@@ -1,8 +1,7 @@
 function sqw_obj = gen_bm_tobyfit_data(nDims,dataSource,dataSize,dataSet)
 %GEN_TOBYFIT_DATA Summary of this function goes here
 
-common_data = fullfile(fileparts(fileparts(mfilename('fullpath')...
-    )),'common_data');
+pths = horace_paths;
 proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
 
 switch dataSize
@@ -10,26 +9,26 @@ switch dataSize
       if isfile(dataSource)
       else
           gen_fake_sqw_data(6)
-          dataSource = fullfile(common_data,'NumData6.sqw');
+          dataSource = fullfile(pths.bm_common,'NumData6.sqw');
       end
   case 'medium'
       if isfile(dataSource)
       else
           gen_fake_sqw_data(7)
-          dataSource = fullfile(common_data,'NumData7.sqw');
+          dataSource = fullfile(pths.bm_common,'NumData7.sqw');
       end
     case 'large'
       if isfile(dataSource)
       else
           gen_fake_sqw_data(8)
-          dataSource = fullfile(common_data,'NumData8.sqw');
+          dataSource = fullfile(pths.bm_common,'NumData8.sqw');
       end
     otherwise
         try
             gen_fake_sqw_data(dataSize)
             filenameStr= "Numdata" + num2str(dataSize) + ".sqw";
             filenameChar = char(filenameStr);
-            dataSource=fullfile(common_data,filenameChar);
+            dataSource=fullfile(pths.bm_common,filenameChar);
         catch
             error("HORACE:gen_bm_data:invalid_argument"...
                 ,"dataSize is the size of the sqw object : must be small, " + ...
