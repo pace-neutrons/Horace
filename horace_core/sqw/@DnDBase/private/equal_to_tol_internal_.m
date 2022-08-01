@@ -11,11 +11,11 @@ if ~ok
     error(mess);
 end
 if ~islognumscalar(opt.reorder)
-    error('DNDBASE:equal_to_tol_internal', ...
+    error('HORACE:DnDBase:equal_to_tol_internal', ...
         '''reorder'' must be a logical scalar (or 0 or 1)')
 end
 if ~isnumeric(opt.fraction) || opt.fraction < 0 || opt.fraction > 1
-    error('DNDBASE:equal_to_tol_internal', ...
+    error('HORACE:DnDBase:equal_to_tol_internal', ...
         '''fraction'' must lie in the range 0 to 1 inclusive')
 end
 

@@ -7,8 +7,8 @@ classdef d4d < DnDBase
     %   >> w = d4d(filename)       % Create a D4D object from a file
     %   >> w = d4d(struct)         % Create from a structure with valid fields (internal use)
 
-    properties (Constant, Access = protected)
-        NUM_DIMS = 4;
+    properties (Dependent,Access = protected)
+        NUM_DIMS;
     end
 
     methods(Static)
@@ -25,5 +25,9 @@ classdef d4d < DnDBase
         function obj = d4d(varargin)
             obj = obj@DnDBase(varargin{:});
         end
+        function nd = get.NUM_DIMS(~)
+            nd =4;
+        end
+
     end
 end

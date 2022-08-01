@@ -281,7 +281,7 @@ classdef (InferiorClasses = {?d0d, ?d1d, ?d2d, ?d3d, ?d4d}) sqw < SQWDnDBase & s
             % and nxsqw data format. Each new version would presumably read
             % the older version, so version substitution is based on this
             % number
-            ver = 2;
+            ver = 4;
         end
         function flds = saveableFields(~)
             flds = sqw.fields_to_save_;

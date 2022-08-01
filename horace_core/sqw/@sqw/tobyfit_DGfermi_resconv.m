@@ -192,9 +192,9 @@ for i=1:numel(ind)
     dq_mat=lookup.dq_mat{iw};
 
     % Run and detector for each pixel
-    irun = win(i).data.pix.run_idx';   % column vector
-    idet = win(i).data.pix.detector_idx';   % column vector
-    npix = win(i).data.pix.num_pixels;
+    irun = win(i).pix.run_idx';   % column vector
+    idet = win(i).pix.detector_idx';   % column vector
+    npix = win(i).pix.num_pixels;
     max_irun = max(irun);
     if max_irun>win(i).main_header.nfiles
         rmp = win(i).runid_map;
@@ -285,7 +285,7 @@ for i=1:numel(ind)
             stmp=stmp+sqwfunc(q(1,:)',q(2,:)',q(3,:)',q(4,:)',pars{:});
         end
     end
-    wout(i).data.pix.signal=stmp(:)'/mc_points;
-    wout(i).data.pix.variance=zeros(1,numel(stmp));
+    wout(i).pix.signal=stmp(:)'/mc_points;
+    wout(i).pix.variance=zeros(1,numel(stmp));
     wout(i)=recompute_bin_data(wout(i));
 end

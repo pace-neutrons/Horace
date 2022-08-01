@@ -1,7 +1,7 @@
 classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
     % DnDBase Abstract base class for n-dimensional DnD object
 
-    properties(Constant, Abstract, Access = protected)
+    properties(Abstract,Dependent,Access = protected)
         NUM_DIMS
     end
     properties(Constant,Access=protected)
@@ -156,6 +156,12 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
                     keys = obj.saveableFields();
                     obj(i) = set_positional_and_key_val_arguments(obj,...
                         keys,args.set_of_fields{:});
+                    % copy label from projection to axes block in case it
+                    % has been redefined on projection
+                    is_proj = cellfun(@(x)isa(x,'aProjection'),args.set_of_fields);
+                    if any(is_proj)
+                        obj(i).axes.label = args.set_of_fields{is_proj}.label;
+                    end
                 elseif ~isempty(args.sqw_obj)
                     obj(i) = args.sqw_obj(i).data;
                 end
@@ -164,7 +170,9 @@ classdef (Abstract)  DnDBase < SQWDnDBase & dnd_plot_interface
 
         function obj = DnDBase(varargin)
             obj = obj@SQWDnDBase();
-            obj = obj.init(varargin{:});
+            if nargin>0
+                obj = obj.init(varargin{:});
+            end
 
         end
         %

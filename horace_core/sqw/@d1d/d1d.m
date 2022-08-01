@@ -7,8 +7,8 @@ classdef d1d < DnDBase
     %   >> w = d1d(filename)       % Create a D1D object from a file
     %   >> w = d1d(struct)         % Create from a structure with valid fields (internal use)
 
-    properties (Constant, Access = protected)
-        NUM_DIMS = 1;
+    properties (Dependent,Access = protected)
+        NUM_DIMS;
     end
 
     methods
@@ -21,6 +21,11 @@ classdef d1d < DnDBase
         wout = combine_horace_1d(w1,w2,varargin);
         wout = rebin_horace_1d(win, varargin);
         wout = symmetrise_horace_1d(win, varargin);
+
+        function nd = get.NUM_DIMS(~)
+            nd =1;
+        end
+
     end
     methods(Access = protected)
         function obj = set_senpix(obj,val,field)

@@ -7,8 +7,8 @@ classdef d2d < DnDBase
     %   >> w = d2d(filename)       % Create a D2D object from a file
     %   >> w = d2d(struct)         % Create from a structure with valid fields (internal use)
 
-    properties (Constant, Access = protected)
-        NUM_DIMS = 2;
+    properties (Dependent,Access = protected)
+        NUM_DIMS;
     end
 
     methods
@@ -28,6 +28,9 @@ classdef d2d < DnDBase
         [R,trans] = calculate_transformation_matrix(win,v1,v2,v3);
 
         varargout = get(this, index);
+        function nd = get.NUM_DIMS(~)
+            nd =2;
+        end
     end
 
     methods(Access = private)

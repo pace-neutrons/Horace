@@ -75,42 +75,12 @@ elseif nargi>= 4 % Either binning parameters (first 4) or default serializable
         names = obj.saveableFields();
         [obj,remains] = obj.set_positional_and_key_val_arguments(...
             names,argi{:});
+        if ~isempty(remains)
+            out = cellfun(@any_to_char,remains,'UniformOutput',false);
+            error('HORACE:axes_block:invalid_argument',...
+                'Unknown input parameters and/or values %s',strjoin(out,'; '))
+        end
     end
-    % For data_sqw_dnd (to remove)
-    %     nonorthogonal_ = false;
-    %     if nargi>4 %legacy operations
-    %         is_proj = cellfun(@(x)((isstruct(x) && isfield(x,'u')) || ...
-    %             isa(x,'aProjection') || isa(x,'projaxes')),varargin,...
-    %             'UniformOutput',true);
-    %         if any(is_proj)
-    %             proj_ind = find(is_proj);
-    %             if isprop(varargin{proj_ind},'nonorthogonal') ||...
-    %                     isfield(varargin{proj_ind},'nonorthogonal')
-    %                 obj.nonorthogonal = varargin{proj_ind}.nonorthogonal;
-    %             end
-    %             argi = varargin(proj_ind+1:end);
-    %             remains = varargin(1:proj_ind);
-    %             if numel(argi) == 4
-    %                 obj = set_axis_bins_(obj,argi{:});
-    %                 obj.axis_caption = an_axis_caption();
-    %                 return
-    %             end
-    %         else
-    %             proj = [];
-    %             argi = varargin;
-    %         end
-    %         [pbin,offset,nonorthogonal_,remains]=make_axes_from_shifted_pbin_(argi{:});
-    %         if ~isempty(proj)
-    %             remains= [proj;remains(:)];
-    %         end
-    %     else % ,p1,p2,p3,p4 form
-    %         pbin = varargin;
-    %         ndims = [];
-    %     end
-    %     obj = set_axis_bins_(obj,ndims,pbin{:});
-    %
-    %     obj.axis_caption = an_axis_caption();
-    %         obj = set_axis_bins_(obj,ndims,pbin{:});
 elseif nargi<4 && nargi>1
     names = obj.saveableFields();
     [obj,remains] = obj.set_positional_and_key_val_arguments(...
@@ -118,4 +88,10 @@ elseif nargi<4 && nargi>1
 else
     error('HORACE:axes_block:invalid_argument',...
         'Unrecognised number: %d of input arguments',nargi);
+end
+function out = any_to_char(x)
+if ischar(x)||isstring(x)
+    out = x;
+else
+    out = evalc('disp(x)');
 end

@@ -6,14 +6,16 @@ classdef d0d < DnDBase
     %   >> w = d0d(filename)       % Create a D0D object from a file
     %   >> w = d0d(struct)         % Create from a structure with valid fields (internal use)
 
-    properties (Constant, Access = protected)
-        NUM_DIMS = 0;
+    properties (Dependent,Access = protected)
+        NUM_DIMS;
     end
     methods
         function obj = d0d(varargin)
             obj = obj@DnDBase(varargin{:});
         end
-        
+        function nd = get.NUM_DIMS(~)
+            nd =0;
+        end
     end
 
     methods(Static)

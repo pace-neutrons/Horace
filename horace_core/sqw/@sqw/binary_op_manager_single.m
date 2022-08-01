@@ -149,7 +149,7 @@ function wout = do_binary_op_sqw_sqw(w1, w2, binary_op, flip)
         end
 
         wout = copy(w1);
-        wout.data.pix = w1.data.pix.do_binary_op(w2.data.pix, binary_op, 'flip', flip);
+        wout.pix = w1.pix.do_binary_op(w2.pix, binary_op, 'flip', flip);
         wout = recompute_bin_data(wout);
     else
         error('SQW:binary_op_manager_single', ...

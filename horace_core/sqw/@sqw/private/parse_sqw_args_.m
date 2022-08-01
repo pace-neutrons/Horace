@@ -23,7 +23,7 @@ args.pixel_page_size = parser.Results.pixel_page_size;
 
 if isa(input, 'SQWDnDBase')
     if isa(input, 'DnDBase')
-        error('SQW:sqw', 'SQW cannot be constructed from a DnD object');
+        error('HORACE:sqw:invalid_argument', 'SQW cannot be constructed from a DnD object');
     end
     args.sqw_obj = input;
 elseif is_string(parser.Results.input)

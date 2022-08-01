@@ -41,7 +41,7 @@ classdef test_sqw_dnd_eval < TestCase
             %converge
 
             sig = ds.data.s;
-            pix = ds.data.pix;
+            pix = ds.pix;
             assertEqual(pix.signal(2), numel(sig) + 1);
             assertEqual(pix.num_pixels + numel(sig), pix.signal(1));
 
@@ -58,7 +58,7 @@ classdef test_sqw_dnd_eval < TestCase
             ds = dispersion(obj.sqw_4_test,@obj.sqw_disp_tester,[]);
 
             sig = ds.data.s;
-            pix = ds.data.pix;
+            pix = ds.pix;
             assertTrue(isempty(pix));
 
             assertEqual(sig(2),1);
@@ -78,7 +78,7 @@ classdef test_sqw_dnd_eval < TestCase
             ds = kk.simulate();
 
             sig = ds.data.s;
-            pix = ds.data.pix;
+            pix = ds.pix;
             assertEqual(pix.signal(2),2);
             assertEqual(2*pix.num_pixels, pix.signal(1));
 
@@ -99,7 +99,7 @@ classdef test_sqw_dnd_eval < TestCase
             ds = kk.simulate();
 
             sig = ds.data.s;
-            pix = ds.data.pix;
+            pix = ds.pix;
             assertEqual(pix.signal(2),numel(sig)+1);
             assertEqual(pix.num_pixels + numel(sig), pix.signal(1));
 
@@ -130,7 +130,7 @@ classdef test_sqw_dnd_eval < TestCase
             assertEqual(sig(2),1);
             assertEqual(sig(1),numel(sig));
 
-            pix = ds.data.pix;
+            pix = ds.pix;
             assertEqual(pix.signal(2),numel(sig));
             assertEqual(pix.signal(1),numel(sig));
 
@@ -149,7 +149,7 @@ classdef test_sqw_dnd_eval < TestCase
 
             sig = ds.data.s;
             assertEqual(sig(1),numel(sig));
-            pix = ds.data.pix;
+            pix = ds.pix;
             assertEqual(pix.signal(2),sig(1));
             assertEqual(sig(1),pix.signal(1));
         end
@@ -158,7 +158,7 @@ classdef test_sqw_dnd_eval < TestCase
         function test_sqw_eval(obj)
             ds = sqw_eval(obj.sqw_4_test,@test_sqw_dnd_eval.sqw_eval_tester,[]);
 
-            pix = ds.data.pix;
+            pix = ds.pix;
             assertEqual(pix.signal(2),1);
             assertEqual(pix.num_pixels, pix.signal(1));
         end

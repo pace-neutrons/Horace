@@ -7,8 +7,8 @@ classdef d3d < DnDBase
     %   >> w = d3d(filename)       % Create a D3D object from a file
     %   >> w = d3d(struct)         % Create from a structure with valid fields (internal use)
 
-    properties (Constant, Access = protected)
-        NUM_DIMS = 3;
+    properties (Dependent,Access = protected)
+        NUM_DIMS;
     end
 
     methods(Static)
@@ -32,5 +32,9 @@ classdef d3d < DnDBase
         % PLOT:
         [figureHandle, axesHandle, plotHandle] = sliceomatic(w, varargin);
         [figureHandle, axesHandle, plotHandle] = sliceomatic_overview(w,varargin);
+        function nd = get.NUM_DIMS(~)
+            nd =3;
+        end
+
     end
 end

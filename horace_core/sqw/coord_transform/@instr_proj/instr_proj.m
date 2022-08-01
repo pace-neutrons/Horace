@@ -65,7 +65,7 @@ classdef instr_proj<aProjection
             % emode   -- the instrument operational mode
             %
             proj = proj@aProjection();
-            proj.label = {'Q_x','Q_y','Q_z','dE'};
+            proj.label = {'Q_\zeta','Q_\xi','Q_\eta','E'};
             if nargin>0 % initialize defaults, which describe unit transformation from
                 proj = proj.init(varargin{:});
             end
@@ -180,7 +180,7 @@ classdef instr_proj<aProjection
                 bin_pixels@aProjection(obj,axes,pix,varargin{:});
         end
         %
-        function ax_bl = get_proj_axes_block(~,ranges,bin_numbers)
+        function ax_bl = get_proj_axes_block(obj,ranges,bin_numbers)
             % return the axes block, corresponding to this projection class.
             %
             % According to its operations, instrument projection generate
@@ -198,7 +198,7 @@ classdef instr_proj<aProjection
             ax_bl.ulen  = [1,1,1,1];
             % TODO, delete this, mutate axes_block
             ax_bl.axis_caption=an_axis_caption();
-            ax_bl.label = {'Q_\zeta','Q_\xi','Q_\eta','E'};
+            ax_bl.label = obj.label;
 
         end
         %

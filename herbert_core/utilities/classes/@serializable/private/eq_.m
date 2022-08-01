@@ -31,11 +31,18 @@ if nargout == 2
     mess = cell(size(obj));
 end
 [name_a,name_b,argi] = check_and_extract_name(inputname(1),inputname(2),argi{:});
+if nargout>1
+    if numel(obj)>1
+        namer = @(x,i)sprintf('%s(%d)',x,i);
+    else
+        namer = @(x,i)sprintf('%s',x);
+    end
+end
 
 for i=1:numel(obj)
     if nargout == 2
-        name_1 = sprintf('%s(%d)',name_a);
-        name_2 = sprintf('%s(%d)',name_b);
+        name_1 = namer(name_a,i);
+        name_2 = namer(name_b,i);
         [is(i),mess{i}] = eq_single(obj(i),other_obj(i), ...
             'name_a',name_1,'name_b',name_2,argi{:});
     else

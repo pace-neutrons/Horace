@@ -8,8 +8,10 @@ if ~isa(val,'axes_block')
         class(val));
 end
 if obj.NUM_DIMS ~= val.dimensions
-    error('HORACE:DnDBase:invalid_argument',...
-        'number of axes dimensions is different from the number of dnd-object dimension')
+    if ~isa(obj,'data_sqw_dnd') % can be any dimensions
+        error('HORACE:DnDBase:invalid_argument',...
+            'number of axes dimensions is different from the number of dnd-object dimension')
+    end
 end
 check_combo_ = obj.axes_.do_check_combo_arg;
 obj.axes_ = val;

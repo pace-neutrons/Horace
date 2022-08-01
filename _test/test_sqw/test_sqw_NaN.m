@@ -48,7 +48,7 @@ gen_sqw (spe_name, '', sqw_file, efix, emode, alatt, angdeg, u, v, psi, omega, d
 
 % Check that the masked detectors are correctly eliminated when create sqw file
 w=sqw(sqw_file);
-idet=[unique(w.data.pix.detector_idx),msk];     % list of detectors including those masked
+idet=[unique(w.pix.detector_idx),msk];     % list of detectors including those masked
 if ~isequal(sort(idet),1:ndet)
     assertTrue(false,'Problem with handling masked detectors in creation of sqw file')
 end
