@@ -87,10 +87,9 @@ end
 
 % Generate full test paths to unit tests
 % --------------------------------------
-horace_path = horace_root();
-test_path = fullfile(horace_path,  '_test');
-test_folders_full = cellfun(@(x)fullfile(test_path, x), test_folders, ...
-    'UniformOutput', false);
+pths = horace_paths;
+test_path = pths.test;
+test_folders_full = fullfile(test_path, test_folders);
 
 hec = herbert_config();
 hoc = hor_config();

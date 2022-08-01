@@ -173,8 +173,9 @@ classdef ClusterMPI < ClusterWrapper
                 end
             end
 
-            rootpath = fileparts(fileparts(which('herbert_init')));
-            external_dll_dir = fullfile(rootpath, 'horace_core', 'DLL', 'external');
+            % Get current horace root dir
+            pths = horace_paths;
+            external_dll_dir = fullfile(pths.horace, 'DLL', 'external');
 
             if ispc()
                 mpi_exec = fullfile(external_dll_dir, 'mpiexec.exe');
