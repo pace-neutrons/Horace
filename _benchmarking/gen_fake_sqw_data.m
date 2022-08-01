@@ -2,17 +2,17 @@ function gen_fake_sqw_data(nData)
 % This function will generate an sqw object for benchmarking using dummy_sqw
 %   Using the input parameter nData, dummy_sqw will generate an sqw object
 %   with the requested amount of pixel data. nData must be an integer
-%   ranging from 5 to 8/9/10. Depending on nData, an sqw object with
+%   ranging from 5 to 9. Depending on nData, an sqw object with
 %   10^nData pixels will be generated. Parameters fed into dummy_sqw, such
-%   as alatt, u, v are currently set to generate an iron sqw object. 
-%   These parameters can be changed by the user 
+%   as alatt, u, v are currently set to generate an iron sqw object.
+%   These parameters can be changed by the user
 
 horace_path=horace_root();
 bm_path=fullfile(horace_path,'_benchmarking');
 common_data=fullfile(bm_path,'common_data');
 % main_sqw=fullfile(common_data,'NumData9.sqw');
-sqw_file=[common_data,filesep,'NumData',num2str(nData),'.sqw']; % output sqw file
 % proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
+sqw_file=[common_data,filesep,'NumData',num2str(nData),'.sqw']; % output sqw file
 efix=787;
 emode=1;
 alatt=[2.87,2.87,2.87];
@@ -143,7 +143,7 @@ disp("--------------------")
 end
 
 % function gen_main_sqw(filepath)
-% 
+%
 %     sqw_file=[filepath,filesep,'NumData9.sqw']; % output sqw file
 %     efix=787;
 %     emode=1;
@@ -157,10 +157,9 @@ end
 %     par_file=fullfile(filepath,'4to1_124.par');
 %     disp("--------------------------------------")
 %     disp("Generating sqw object with 10^9 pixels:")
-%     
+%
 %     dummy_sqw(e_bin_boundaries,par_file,sqw_file,efix,emode,alatt,angdeg,u,v,psi,omega,dpsi,gl,gs);
-%     
+%
 %     disp("Sqw object generated")
 %     disp("--------------------")
 % end
-

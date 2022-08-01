@@ -1,7 +1,7 @@
 function [cut1, cutN] = gen_bm_combine_data(nDims,dataSource, dataType, dataNum)
 % common_data=fullfile(fileparts(fileparts(mfilename('fullpath')...
 %     )),'common_data');
-proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr'; 
+proj.u=[1,0,0]; proj.v=[0,1,0]; proj.type='rrr';
 
 switch nDims
     case 1
@@ -144,4 +144,3 @@ switch true
             "nDims, dataType and dataNum must be valid args")
 end
 end
-
