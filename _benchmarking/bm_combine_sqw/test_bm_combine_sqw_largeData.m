@@ -19,9 +19,7 @@ classdef test_bm_combine_sqw_largeData < TestCase
         end
         
         function test_bm_combine_sqw_1D_largeData_smallNumber_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
@@ -32,9 +30,7 @@ classdef test_bm_combine_sqw_largeData < TestCase
         end
 
         function test_bm_combine_sqw_1D_largeData_mediumNumber_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
@@ -45,9 +41,7 @@ classdef test_bm_combine_sqw_largeData < TestCase
         end
 
         function test_bm_combine_sqw_1D_largeData_largeNumber_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
@@ -58,9 +52,7 @@ classdef test_bm_combine_sqw_largeData < TestCase
         end
 
         function test_bm_combine_sqw_2D_largeData_smallNumber_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
@@ -71,9 +63,7 @@ classdef test_bm_combine_sqw_largeData < TestCase
         end
 
         function test_bm_combine_sqw_2D_largeData_mediumNumber_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
@@ -84,9 +74,7 @@ classdef test_bm_combine_sqw_largeData < TestCase
         end
 
         function test_bm_combine_sqw_2D_largeData_largeNumber_1procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
@@ -97,9 +85,7 @@ classdef test_bm_combine_sqw_largeData < TestCase
         end
 
         function test_bm_combine_sqw_1D_largeData_smallNumber_2procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
@@ -110,9 +96,7 @@ classdef test_bm_combine_sqw_largeData < TestCase
         end
 
         function test_bm_combine_sqw_1D_largeData_mediumNumber_2procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
@@ -123,9 +107,7 @@ classdef test_bm_combine_sqw_largeData < TestCase
         end
 
         function test_bm_combine_sqw_1D_largeData_largeNumber_2procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
@@ -136,9 +118,7 @@ classdef test_bm_combine_sqw_largeData < TestCase
         end
 
         function test_bm_combine_sqw_2D_largeData_smallNumber_2procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
@@ -149,9 +129,7 @@ classdef test_bm_combine_sqw_largeData < TestCase
         end
 
         function test_bm_combine_sqw_2D_largeData_mediumNumber_2procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
@@ -162,9 +140,7 @@ classdef test_bm_combine_sqw_largeData < TestCase
         end
 
         function test_bm_combine_sqw_2D_largeData_largeNumber_2procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
@@ -175,9 +151,7 @@ classdef test_bm_combine_sqw_largeData < TestCase
         end
 
         function test_bm_combine_sqw_1D_largeData_smallNumber_4procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
@@ -188,9 +162,7 @@ classdef test_bm_combine_sqw_largeData < TestCase
         end
 
         function test_bm_combine_sqw_1D_largeData_mediumNumber_4procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
@@ -201,9 +173,7 @@ classdef test_bm_combine_sqw_largeData < TestCase
         end
 
         function test_bm_combine_sqw_1D_largeData_largeNumber_4procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=1;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
@@ -214,9 +184,7 @@ classdef test_bm_combine_sqw_largeData < TestCase
         end
 
         function test_bm_combine_sqw_2D_largeData_smallNumber_4procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
@@ -227,9 +195,7 @@ classdef test_bm_combine_sqw_largeData < TestCase
         end
 
         function test_bm_combine_sqw_2D_largeData_mediumNumber_4procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
@@ -240,9 +206,7 @@ classdef test_bm_combine_sqw_largeData < TestCase
         end
 
         function test_bm_combine_sqw_2D_largeData_largeNumber_4procs(obj)
-            function_stack = dbstack;
-            func_name = function_stack.name;
-            obj.function_name = func_name + ".csv";
+            obj.function_name = get_bm_name();
             nDims=2;
             dataSource = fullfile(obj.common_data,'NumData8.sqw');
             dataType ="large";
