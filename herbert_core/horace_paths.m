@@ -15,22 +15,22 @@ classdef horace_paths
 
         function herbert_path = get.herbert(obj)
             global herbert_path
-            if ~exist('herbert_path', 'var')
-                herbert_path = get_folder('herbert_init');
+            if ~exist('herbert_path', 'var') || isempty(herbert_path)
+                herbert_path = obj.get_folder('herbert_init');
             end
         end
 
         function horace_path = get.horace(obj)
             global horace_path
-            if ~exist('horace_path', 'var')
-                horace_path = get_folder('horace_init');
+            if ~exist('horace_path', 'var') || isempty(horace_path)
+                horace_path = obj.get_folder('horace_init');
             end
         end
 
         function root_path = get.root(obj)
             global root_path
-            if ~exist('root_path', 'var')
-                root_path = fileparts(get_folder('horace_init'));
+            if ~exist('root_path', 'var') || isempty(root_path)
+                root_path = fileparts(obj.get_folder('horace_init'));
             end
         end
 
